@@ -49,5 +49,5 @@ signal_active.py: assembler_v2/segments/signal_active.py
   Audio TTS. Brand red/black/white JetBrainsMono.
 
 ## INFRA
-Relay token: 581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552
+Relay token: <REDACTED-stored-in-env>
 CC: tmux new-session -s NAME ; unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions

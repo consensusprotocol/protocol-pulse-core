@@ -32,7 +32,7 @@ Tech Stack:
 Ultron GPU Server:
 - SSH: ssh ultron (alias configured) or via ssh.protocolpulse.io with cloudflared proxy
 - Relay: POST https://relay.protocolpulse.io/exec
-  Body: {"token": "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552", "cmd": "..."}
+  Body: {"token": "REDACTED-stored-in-env", "cmd": "..."}
   Headers: User-Agent: Mozilla/5.0 (required, Cloudflare blocks default)
 - Avatar: avatar.protocolpulse.io (port 8200)
 - Claude Code: Always use interactive mode in tmux:

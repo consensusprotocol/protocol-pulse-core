@@ -204,7 +204,7 @@ All in GitHub: `https://raw.githubusercontent.com/consensusprotocol/protocol-pul
 
 ### Relay:
 - Ultron: `POST https://relay.protocolpulse.io/exec`
-  `{"token":"581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552","cmd":"..."}`
+  `{"token":"REDACTED-stored-in-env","cmd":"..."}`
   Headers: `User-Agent: Mozilla/5.0` (REQUIRED)
   Use python3 urllib, NOT curl.
 - Replit: `POST https://protocolpulse.replit.app/api/admin/exec` (same format)

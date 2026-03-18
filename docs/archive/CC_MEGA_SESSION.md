@@ -38,14 +38,14 @@ cat /home/ultron/protocol_pulse/CLAUDE_CODE_CONTEXT.md
 #   local B64=$(base64 -w0 "$FULL_PATH")
 #   local RESULT=$(curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
 #     -H "Content-Type: application/json" \
-#     -d "{\"token\":\"581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552\",\"cmd\":\"echo '$B64' | base64 -d > $REPLIT_PATH && wc -c $REPLIT_PATH\"}")
+#     -d "{\"token\":\"REDACTED-stored-in-env\",\"cmd\":\"echo '$B64' | base64 -d > $REPLIT_PATH && wc -c $REPLIT_PATH\"}")
 #   echo "Synced $FILE_PATH → $RESULT"
 # }
 #
 # restart_replit() {
 #   curl -s -X POST "https://protocolpulse.replit.app/api/admin/exec" \
 #     -H "Content-Type: application/json" \
-#     -d '{"token":"581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552","cmd":"kill -HUP $(pgrep -f gunicorn | head -1) 2>/dev/null; sleep 3; echo RESTARTED"}'
+#     -d '{"token":"REDACTED-stored-in-env","cmd":"kill -HUP $(pgrep -f gunicorn | head -1) 2>/dev/null; sleep 3; echo RESTARTED"}'
 # }
 #
 # IMPORTANT: For files larger than ~50KB, the base64 string may be too long 

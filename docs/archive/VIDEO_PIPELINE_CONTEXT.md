@@ -24,7 +24,7 @@ NO ONE ELSE DOES THIS. This is the niche: "Bitcoin's best moments, every day, in
 - Flask app at protocolpulse.replit.app
 - Templates, routes, DB
 - Relay: POST https://protocolpulse.replit.app/api/admin/exec
-  Token: 581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552
+  Token: REDACTED-stored-in-env
 
 ### API Keys Available (in env vars)
 - ANTHROPIC_API_KEY — Claude for editorial direction

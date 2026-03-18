@@ -1,385 +1,390 @@
 # CONSENSUS REPORT — F1-AVATAR-ORACLE — CYCLE 2
-Generated: 2026-03-09 02:43
-Models: grok, gemini, gpt4o
+Generated: 2026-03-18 05:09
+Models: Grok (+2 failed: Gemini 403 API key leaked, GPT-4o 429 quota exceeded)
+
+---
+
+> ⚠️ **Audit Integrity Notice:** This Cycle 2 consensus is based on a single model (Grok). The two additional models failed due to infrastructure errors (leaked API key, quota exhaustion). Confidence in findings is **reduced** — unanimous/majority thresholds are meaningless with N=1. All findings should be treated as **single-model assessments** requiring human engineering judgment before acting. A Cycle 3 re-run with functioning models is strongly recommended before merge.
 
 ---
 
 ## SCORES
 
-| Subsystem | Gemini | GPT-4o | Grok | Consensus |
-|---|---|---|---|---|
-| Correctness | 2/10 | 2/10 | 2/10 | **2/10** |
-| Law Compliance | 1/10 | 1/10 | 1/10 | **1/10** |
-| Security | 3/10 | 3/10 | 3/10 | **3/10** |
-| Frontend Quality | 3/10 | 2/10 | 3/10 | **2.5/10** |
-| Backend Quality | 3/10 | 3/10 | 4/10 | **3/10** |
-| **Overall** | **2.4/10** | **2.2/10** | **2.6/10** | **2.4/10** |
+| Subsystem       | Gemini | GPT-4o | Grok | Consensus |
+|-----------------|--------|--------|------|-----------|
+| Correctness     | —      | —      | 4/10 | **4/10** ⚠️ single model |
+| Law Compliance  | —      | —      | 5/10 | **5/10** ⚠️ single model |
+| Security        | —      | —      | 5/10 | **5/10** ⚠️ single model |
+| Frontend Quality| —      | —      | N/A  | **N/A** — no frontend code in scope |
+| Backend Quality | —      | —      | 4/10 | **4/10** ⚠️ single model |
+| **Overall**     | —      | —      | **4/10** | **4/10** ⚠️ LOW CONFIDENCE |
 
-> **Note:** Grok's Cycle 2 output was anomalous — it opened by claiming it had no Cycle 1 output, then produced analysis nearly identical in structure to the consensus, suggesting it was partially synthesizing other models rather than reviewing independently. Its scores are included but weighted slightly lower in tiebreaker situations. Gemini and GPT-4o are treated as the primary independent sources.
-
----
-
-## UNANIMOUS FINDINGS (all 3 models agree — implement unconditionally)
-
-### U1 — Critical Omission: Core Feature Files Are Absent
-- **What:** `oracle/avatar_server.py`, `oracle_routes.py`, and `oracle/templates/oracle.html` — the three files that constitute the actual `f1-avatar-oracle` feature — were not submitted for audit. `app.py:282-283` registers `oracle_bp`, confirming the files exist somewhere but were excluded.
-- **Impact:** The entire purpose of this audit (evaluating the Oracle avatar, lip-sync, and Sanctuary UI) cannot be performed. All law compliance verdicts are UNVERIFIABLE as a direct result. This is a submission failure, not a code failure — but it blocks the audit entirely.
-- **File/Line:** `app.py:282-283` (registration exists; files missing)
-- **Action:** Re-submit with `oracle/avatar_server.py`, `oracle_routes.py`, and `oracle/templates/oracle.html` included.
-
-### U2 — Hardcoded Fallback Secret Key
-- **What:** `SECRET_KEY` falls back to a hardcoded literal string when `SESSION_SECRET` env var is not set.
-- **Impact:** Any attacker who knows the fallback value (it is in source control) can forge Flask session cookies, impersonate any user, and bypass all authentication. Severity: CRITICAL.
-- **File/Line:** `app.py:45-46`
-- **Action:**
-```python
-import secrets, sys
-secret = os.environ.get("SESSION_SECRET")
-if not secret:
-    if os.environ.get("FLASK_ENV") == "production":
-        print("FATAL: SESSION_SECRET not set in production.", file=sys.stderr)
-        sys.exit(1)
-    secret = secrets.token_hex(32)  # ephemeral, dev-only
-app.config["SECRET_KEY"] = secret
-```
-
-### U3 — Signal Gauge Permanently Broken (Wrong Element IDs)
-- **What:** `updateSignalStrength()` writes computed values to `#signal-fill` and `#telem-signal`. The audit spec and HTML define the gauge elements as `#sig-composite`, `#sig-sentiment`, and `#sig-spaces`. The correct elements are never updated; the gauge displays its initial state forever.
-- **File/Line:** `media_unified.js:916-941` (specifically `932-940`)
-- **Action:** Replace all references to `#signal-fill` and `#telem-signal` inside `updateSignalStrength()` with the correct IDs: `#sig-composite`, `#sig-sentiment`, `#sig-spaces`. Verify against the HTML template after change.
-
-### U4 — N+1 Query in `inject_ads()` Template Filter
-- **What:** `models.Advertisement.query.filter_by(is_active=True).all()` executes inside a Jinja2 template filter. Every invocation of this filter on a page render fires a full DB round-trip. If the filter is used N times on one page, N queries execute.
-- **File/Line:** `app.py:167-190` (specifically `171`)
-- **Action:** Fetch active ads once per request in a `before_request` hook and store on Flask's `g` object:
-```python
-@app.before_request
-def load_active_ads():
-    from flask import g
-    g.active_ads = models.Advertisement.query.filter_by(is_active=True).all()
-```
-Then reference `g.active_ads` inside the filter instead of querying.
+*Scores derived from Grok Cycle 2 only. Gemini and GPT-4o scores unavailable due to API failures. Do not treat these as consensus scores in the traditional sense.*
 
 ---
 
-## MAJORITY FINDINGS (2 of 3 models agree)
+## UNANIMOUS FINDINGS (all available models agree — implement with high confidence given N=1 constraint)
 
-### M1 — `db.create_all()` Running at Production Startup
-- **Models:** Gemini + GPT-4o (Grok agreed implicitly)
-- **What:** `db.create_all()` is called unconditionally at app startup. Flask-Migrate is already present. In production, `create_all()` can silently diverge from the migration history, miss destructive changes, or create columns that migrations would later try to add — causing crashes.
-- **File/Line:** `app.py:241-247`
-- **Action:** Guard behind an environment check:
-```python
-if app.config.get("FLASK_ENV") != "production":
-    with app.app_context():
-        db.create_all()
-```
-In production, rely exclusively on `flask db upgrade`.
-
-### M2 — XSS Risk: Unescaped Ad Content in Template Filter
-- **Models:** GPT-4o + Grok
-- **What:** `ad.image_url` and `ad.name` are interpolated directly into an HTML string in `inject_ads()` without escaping. If ad records are ever compromised (insider threat, DB injection, third-party ad network), arbitrary HTML/JS executes in users' browsers.
-- **File/Line:** `app.py:175-183`
-- **Action:** Use `markupsafe.escape()` on all dynamic fields and return `markupsafe.Markup()`:
-```python
-from markupsafe import escape, Markup
-return Markup(f'<img src="{escape(ad.image_url)}" alt="{escape(ad.name)}">')
-```
-
-### M3 — `sys.modules["app"] = sys.modules["__main__"]` Architectural Hack
-- **Models:** Gemini + GPT-4o
-- **What:** This statement patches the module registry to work around circular import dependencies. It is brittle, makes import behavior unpredictable, breaks certain testing frameworks, and masks a real structural problem.
-- **File/Line:** `app.py:234-236`
-- **Action:** Resolve the underlying circular dependency. Common fix: move shared objects (db, login_manager, limiter) into a `extensions.py` module that both `app.py` and `routes.py` import from, breaking the cycle cleanly.
-
-### M4 — Overly Broad Public API Cache Header
-- **Models:** Gemini + GPT-4o
-- **What:** `after_request` handler applies `Cache-Control: public, max-age=60` to all `/api/` responses by default. Any user-specific or authenticated API endpoint cached with this header will serve one user's data to another.
-- **File/Line:** `app.py:153-157`
-- **Action:** Flip the default to private/no-store and require routes to opt into caching explicitly:
-```python
-if request.path.startswith("/api/"):
-    response.headers["Cache-Control"] = "private, no-store"
-```
-
-### M5 — Per-Relay Status Bar Not Implemented
-- **Models:** Gemini + GPT-4o
-- **What:** The audit spec explicitly requires per-relay UI elements (`#relay-status-bar`, `.mu-relay-item`, `.mu-relay-status`, `.mu-relay-count`). The JavaScript never writes to any of these IDs. The relay status bar is entirely non-functional.
-- **File/Line:** `media_unified.js:395-429`
-- **Action:** Implement per-relay state tracking in `NostrFeed`. On open/close/error for each relay, update the corresponding `.mu-relay-item` and `.mu-relay-status` elements. Track counts per relay and update `.mu-relay-count`.
-
-### M6 — Nostr Health Optimistic and Misleading
-- **Models:** GPT-4o + Grok
-- **What:** `setHealth('health-nostr-col', 'connected')` is called when *any* relay opens (`media_unified.js:397-398`). On error/close, only `health-nostr` is updated. One connected relay out of five marks the feed as fully healthy. Operators cannot diagnose partial outages.
-- **File/Line:** `media_unified.js:397-433`
-- **Action:** Track open relay count. Only mark `health-nostr-col` as connected when ≥1 relay is open; mark degraded when <50% are open; mark error when all are closed.
-
-### M7 — Dangerous Development Script Flag
-- **Models:** Gemini + GPT-4o
-- **What:** `launch_all_features.sh:81` calls `claude --dangerously-skip-permissions`. This flag bypasses permission checks in the Claude CLI. While not a runtime product risk, it is a serious SDLC risk: a developer running this script could inadvertently grant an AI agent unrestricted filesystem/execution access.
-- **File/Line:** `launch_all_features.sh:81`
-- **Action:** Remove the flag. If the underlying permission prompt blocks legitimate workflow, resolve that specifically rather than bypassing all checks.
+With only one functioning model, "unanimous" means confirmed by Grok in both its Cycle 1 context (via the Grok C1 excerpt provided) and Cycle 2 output — i.e., findings that survived two passes of the same model.
 
 ---
 
-## UNIQUE INSIGHTS (only 1 model caught this — evaluate carefully)
+### U-1 — Silent Blueprint Registration Failure
+- **What it is:** The try/except block in `app.py` (lines 370–374) catches import failures for the Oracle Avatar blueprint and logs a critical error, but does **not** halt the application or signal degraded state. The app continues running as if the feature exists, serving 404s or broken behavior to users.
+- **File/Line:** `app.py`, lines 370–374
+- **What to change:** In production mode (`not app.debug`), re-raise the exception after logging, or set a module-level flag that a `/health` or `/ready` endpoint can expose. Silent degradation is unacceptable for a paid/subscribed feature. Minimum fix:
+  ```python
+  except ImportError as e:
+      app.logger.critical(f"Oracle Avatar blueprint failed to load: {e}")
+      if not app.debug:
+          raise RuntimeError("Critical feature blueprint failed — aborting startup") from e
+  ```
 
-### UI1 — `load_user()` Can 500 on Malformed Session IDs
-- **Source:** GPT-4o only
-- **What:** `int(user_id)` in the Flask-Login user loader raises `ValueError` if the session is corrupted or tampered. The loader should return `None` on failure, not raise.
-- **File/Line:** `app.py:222-225`
-- **Assessment:** **Implement.** This is a correct and well-scoped finding. A tampered session cookie can currently cause a 500 error rather than a graceful logout.
-```python
-@login_manager.user_loader
-def load_user(user_id):
-    try:
-        return models.User.query.get(int(user_id))
-    except (TypeError, ValueError):
-        return None
-```
+---
 
-### UI2 — Timestamp Updater Never Fires (Missing `data-ts` Attribute)
-- **Source:** GPT-4o only
-- **What:** `initTimeUpdater()` queries elements with `[data-ts]` to show relative timestamps ("2 minutes ago"). `renderCard()` generates card HTML but never sets a `data-ts` attribute. The updater finds no elements and is permanently inert.
-- **File/Line:** `media_unified.js:721` (renderCard) vs `1173-1178` (initTimeUpdater)
-- **Assessment:** **Implement.** This is a concrete, verifiable contract mismatch between two functions in the same file. Fix is trivial: add `data-ts="${timestamp}"` to the card's outermost element in `renderCard()`.
+### U-2 — Missing Endpoint-Specific Rate Limiting on High-Cost API Calls
+- **What it is:** Global rate limiting at 200 req/day/IP (`app.py`, lines 107–109) does not protect individual high-cost endpoints. ElevenLabs TTS and Oracle AI calls can exhaust third-party API quotas or incur significant cost from a single abusive client staying under the global ceiling.
+- **File/Line:** `app.py`, lines 107–109 (global limiter definition); Oracle/ElevenLabs route handlers (exact lines unknown — core files missing)
+- **What to change:** Apply `@limiter.limit("10 per minute; 50 per day")` (or equivalent conservative limits) as a decorator on each Oracle Avatar and ElevenLabs TTS endpoint individually. Do not rely solely on global limits for any endpoint with per-call monetary cost.
 
-### UI3 — Audit Runner Reads Wrong JS Filename
-- **Source:** GPT-4o only
-- **What:** `docs/audits/run_mu_audit.py:9` reads `static/js/media_unified_v4.js` but the actual audited file is `media_reforge/static/js/media_unified.js`. The automated audit may be running against a stale or nonexistent file.
-- **File/Line:** `docs/audits/run_mu_audit.py:9`
-- **Assessment:** **Implement immediately.** If the audit runner is validating the wrong file, every automated check is meaningless. Update the path to match the real file location.
+---
 
-### UI4 — No Cleanup of Intervals and WebSockets on Page Lifecycle
-- **Source:** GPT-4o only
-- **What:** Multiple `setInterval()` calls and WebSocket connections are created with no corresponding teardown. In SPA-style navigation or script re-execution, these accumulate and duplicate polling/connections.
-- **File/Line:** `media_unified.js:216-217, 604, 739, 1206`
-- **Assessment:** **Implement.** Export cleanup functions or use `AbortController`/`clearInterval()` references stored at module scope. This is a real resource leak.
+### U-3 — Missing Startup Validation for Oracle Avatar Environment Variables
+- **What it is:** No explicit startup check exists for environment variables required by the Oracle Avatar feature (e.g., `ELEVENLABS_API_KEY`, any Oracle/AI backend key referenced in `PIPELINE_STATE_SNAPSHOT.md`). Missing keys cause silent runtime failures rather than a clear startup error.
+- **File/Line:** `app.py` (startup/config block; compare pattern at lines 47–53 for `SESSION_SECRET`)
+- **What to change:** Add a dedicated config validation block at startup, patterned after the existing `SESSION_SECRET` check:
+  ```python
+  _REQUIRED_ORACLE_VARS = ["ELEVENLABS_API_KEY"]  # extend as needed
+  for _var in _REQUIRED_ORACLE_VARS:
+      if not os.environ.get(_var):
+          if not app.debug:
+              raise RuntimeError(f"Missing required env var: {_var}")
+          app.logger.warning(f"Oracle Avatar: {_var} not set — feature will degrade")
+  ```
 
-### UI5 — `linkify()` Fragile Against Edge Cases After HTML Escaping
-- **Source:** GPT-4o only
-- **What:** The pattern `linkify(escapeHtml(text))` is better than naive linkification, but the regex still injects matched text directly into `href` and link body, which is fragile for encoded entities and trailing punctuation.
-- **File/Line:** `media_unified.js:134-137`
-- **Assessment:** **Investigate further.** The current approach is safer than raw linkification, but a more robust solution (e.g., a battle-tested library, or strictly validating matched URLs against `URL` constructor) is worth adding to the backlog. Not a P0.
+---
 
-### UI6 — Telemetry Health Marked Connected After Partial Failure
-- **Source:** GPT-4o only
-- **What:** `setHealth('health-telemetry', 'connected')` is called after `Promise.allSettled()` regardless of how many individual telemetry fetches failed. The health indicator lies about system state.
-- **File/Line:** `media_unified.js:293`
-- **Assessment:** **Implement.** Check the settled results and compute health from the ratio of fulfilled vs. rejected promises before setting the indicator.
+## MAJORITY FINDINGS (2 of 1 models agree)
 
-### UI7 — Audit Tooling Labels `gpt-5.4` Output as `gpt4o`
-- **Source:** GPT-4o only
-- **What:** `docs/intel/run_multi_llm_audit.py:64-75` misattributes model provenance in reports.
-- **File/Line:** `docs/intel/run_multi_llm_audit.py:64-75`
-- **Assessment:** **Skip for now / low priority.** This is a tooling label bug, not a product bug. Fix during a tooling cleanup sprint.
+*Not applicable in the mathematically strict sense with N=1. However, the following findings were raised independently in both the Cycle 1 context summary (attributed to Grok C1) and the Grok C2 output, giving them cross-pass corroboration:*
 
-### UI8 — Frontend Race Condition on Shared `state` Object
-- **Source:** Grok only (Gemini acknowledged but was less specific)
-- **What:** Multiple async callbacks (`updateSignalStrength`, `NostrFeed.handleEvent`, telemetry fetches) all write to a single shared `state` object with no coordination. In the browser single-threaded event loop this won't cause data corruption, but it can produce inconsistent intermediate UI states.
-- **File/Line:** `media_unified.js:113-121`
-- **Assessment:** **Investigate further.** This is real but somewhat overstated as a "race condition" in a single-threaded runtime. The practical consequence is stale renders, not corrupted data. Consider a simple reducer pattern or batched update queue if UI flicker is observed.
+### M-1 — Missing Core Implementation Files (`avatar_server.py`, `oracle.html`)
+- **What it is:** The audit package does not include the primary implementation files for the Oracle Avatar feature. Every law compliance check, correctness check, and security check for the feature's actual logic is therefore **unverifiable**.
+- **Corroboration:** Flagged in C1 context and C2 output.
+- **Recommendation:** Block merge until `avatar_server.py` and associated frontend files are included in audit scope. A code audit without the principal artifact is a process failure, not a technical finding — it means the audit has not actually happened for the core feature.
 
-### UI9 — Unbounded Nostr Reconnection Attempts
-- **Source:** Grok only
-- **What:** Exponential backoff exists but there is no maximum retry count or maximum delay cap. A permanently dead relay will be retried indefinitely.
-- **File/Line:** `media_unified.js:419-425`
-- **Assessment:** **Implement.** Add `MAX_RETRIES = 10` and cap backoff at 5 minutes. After max retries, mark relay as permanently failed and stop attempting.
+---
+
+## UNIQUE INSIGHTS (only flagged once — evaluate carefully)
+
+### I-1 — Path Traversal Protection in Static File Serving May Be Insufficient
+- **Raised by:** Grok C2
+- **What it is:** Custom static routes (`/a/<path:fn>`, `/v3/<path:fn>` in `app.py`, lines 420–452) include a `startswith` path traversal check, but no file type allowlist or response size cap. A valid in-tree path to a large binary or sensitive non-web file could be served.
+- **Assessment: Investigate further.** The `startswith` check prevents directory traversal. The risk of large-file serving or MIME-type abuse is real but depends on what files exist under `_STATIC_ROOT`. Before dismissing: confirm no credentials, SQLite databases, `.env` files, or large assets are stored within the static root tree. If yes — add an extension allowlist (`{'.js', '.css', '.png', '.woff2', ...}`). If the static root is tightly controlled, risk is low.
+- **Provisional recommendation:** Add an explicit extension allowlist as a low-cost hardening measure. It costs ~5 lines and eliminates the risk entirely.
+
+### I-2 — N+1 Query Risk in Ad Injection Filter
+- **Raised by:** Grok C1 context (noted but not escalated in C2)
+- **What it is:** `app.py`'s ad injection filter (lines 179–206) queries for active ads using `g._active_ads` as a per-request cache. This is correct for a single request but provides no cross-request caching. Under load, every request hitting an ad-bearing page fires a DB query.
+- **Assessment: Investigate further — low urgency for this feature specifically, but worth a ticket.** This is an existing infrastructure issue, not introduced by `f1-avatar-oracle`. Do not block this feature on it, but file a separate maintenance issue. A short TTL in-memory cache (e.g., 30 seconds, `cachetools.TTLCache`) would resolve it cleanly.
+
+### I-3 — Race Condition Risk on CSRF Session Token
+- **Raised by:** Grok C1 context
+- **What it is:** Session-based CSRF token handling (`app.py`, lines 129–133) could theoretically have concurrent-request race conditions if Flask's session is not locked.
+- **Assessment: Skip / low confidence.** Flask sessions are cookie-based and per-client by default. Concurrent requests from the same client on the same session are an edge case Flask does not natively serialize, but CSRF tokens are read-heavy and typically set once. This is a theoretical concern without a demonstrated exploit path. Monitor but do not block merge.
 
 ---
 
 ## CONFLICTS (models disagree — tiebreaker)
 
-### C1 — Canvas Usage: Law Violation or Not?
-- **Conflict:** GPT-4o (Cycle 1) flagged Canvas use in `media_unified.js:169-199, 760-806` as a violation of project law (LAW 4). Gemini (Cycle 2) explicitly retracted this, stating LAW 4 bans "Three.js, VR, DAO, WebGL shaders" — not Canvas.
-- **Tiebreaker: Gemini is correct.** The laws as provided in this audit packet do not prohibit Canvas. LAW 4 specifically bans Three.js, VR, DAO, and WebGL shaders. Canvas 2D API is a distinct technology not mentioned. GPT-4o's Cycle 1 finding on this point was an error that GPT-4o itself partially walked back in Cycle 2. **Do not implement any Canvas-removal work based on law compliance grounds.**
-- **Caveat:** If a project-specific design document (outside this audit packet) prohibits Canvas for UI animations, that would override this verdict. Verify against the gospel document.
+*With N=1, no inter-model conflicts exist. The sole recorded conflict is intra-report: Grok C1 context (attributed to "GPT-4o" in the C1 header but presenting as Grok analysis) marks some findings as acceptable, while Grok C2 escalates them to P0. Grok C2 is more recent and more conservative — defer to C2 escalation on all shared findings.*
 
-### C2 — Severity of Frontend "Race Condition"
-- **Conflict:** Grok and Gemini characterized the shared `state` mutations as race conditions requiring a locking mechanism. GPT-4o (Cycle 2) correctly noted JavaScript's single-threaded event loop means true data races cannot occur, but acknowledged intermediate UI states are a real concern.
-- **Tiebreaker: GPT-4o is more precisely correct.** This is not a race condition in the multi-threaded sense. It is a stale-closure / uncoordinated-update problem. The fix is a batched UI update pattern or simple state reducer, not a mutex. Categorize as a frontend quality issue (P2), not a correctness or security issue.
-
-### C3 — Backend Quality Score (3 vs. 4)
-- **Conflict:** Grok scored backend at 4/10; Gemini and GPT-4o scored 3/10.
-- **Tiebreaker: 3/10.** Grok's higher score is inconsistent with the `sys.modules` hack (which Grok did not independently identify), the startup `create_all()` risk, and the `load_user()` 500 risk. The two-model majority of 3/10 is better supported by evidence.
+*If Gemini and GPT-4o had been available, conflict resolution would have been the primary value of this section. Their absence is the primary reason to demand a Cycle 3 re-run.*
 
 ---
 
-## VALIDATED STRENGTHS (all models agree this is already excellent)
+## VALIDATED STRENGTHS (confirmed excellent — do NOT alter in second pass)
 
-> **Honest assessment:** No area of the submitted code received unanimous praise across all three models. The models were consistent in finding problems everywhere they could audit. The following patterns were noted as *acceptable* or *not broken*, which is the closest to a validated strength this submission offers:
+Based on what was reviewable in the provided files:
 
-- **Relay URL Keying:** Nostr relay URLs are consistently keyed with full `wss://` URLs rather than display names, which prevents a class of connection-duplication bugs.
-- **Note Deduplication:** The `seen` Set in `NostrFeed` correctly deduplicates incoming Nostr events.
-- **`after_request` Security Headers:** The global addition of security/cache headers is structurally sound, even though the specific cache values for API routes need correction.
-- **Author Filter Uses `pubkey` (Hex), Not `npub`:** The Nostr filter correctly uses `pubkey` in hex format, avoiding the "npub is not valid hex" bug that affects many Nostr implementations.
-
-**Do NOT change these patterns in the second pass.**
+1. **`SESSION_SECRET` Handling (`app.py`, lines 47–53):** Correctly generates an ephemeral key in debug mode and raises a hard error in production if unset. This is the exact pattern the Oracle Avatar env var validation should replicate.
+2. **Path Traversal Check in Static Serving (`app.py`, lines 420–452):** The `startswith(_STATIC_ROOT)` guard is correctly implemented and present. Do not remove it while adding extension allowlisting.
+3. **Global Rate Limiting Infrastructure (`app.py`, lines 107–109):** The limiter is correctly instantiated and applied globally. The gap is granularity, not the existence of the system — do not replace it, augment it.
+4. **Critical-level Logging on Blueprint Failure:** The log call itself is correct. The fix is additive (raise after log), not a replacement of the log.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
 | Law | Status | Basis |
-|---|---|---|
-| LAW 1: Wav2Lip is the ONLY approved lip-sync engine | **UNVERIFIABLE** | `avatar_server.py` not submitted |
-| LAW 2: `apply_blink()` is permanently disabled | **UNVERIFIABLE** | `avatar_server.py` not submitted |
-| LAW 3: [Assumed audio/voice law] | **UNVERIFIABLE** | Core feature files absent |
-| LAW 4: No Three.js, no VR, no DAO, no WebGL shaders | **LIKELY COMPLIANT** | No evidence of these in submitted files; Canvas use is not prohibited |
-| LAW 5: `avatar_server.py` is the authoritative file | **SUBMISSION VIOLATION** | File was not included in the audit package; compliance with its internal requirements cannot be assessed |
+|-----|--------|-------|
+| LAW 5 — Port 8200, GPU cache warming, ModelRegistry pattern | ❌ **UNVERIFIABLE** | `avatar_server.py` absent from audit package. Cannot confirm compliance. |
+| General blueprint registration pattern | ⚠️ **PARTIAL** | Blueprint structure present in `app.py` but silent failure mode violates operational law of production robustness. |
+| Environment variable management law | ⚠️ **PARTIAL** | Pattern exists for `SESSION_SECRET` but not extended to Oracle-specific vars. |
+| Rate limiting law (if defined) | ⚠️ **PARTIAL** | Global limit present; endpoint-specific limits absent for high-cost routes. |
 
-**Final Determination:** Zero laws can be certified as compliant or violated for the core feature. The audit submission structurally failed LAW 5 compliance review by excluding the authoritative file. This is a **process blocker**, not a code verdict.
+**Final Determination:** Law compliance **cannot be certified** until `avatar_server.py` is reviewed. Treat as non-compliant pending that review. Do not merge.
 
 ---
 
 ## SECURITY CONSENSUS
 
-Priority-ordered security issues with multi-model agreement:
+Priority order (single-model, treat as provisional):
 
-| Priority | Issue | File:Line | Models |
-|---|---|---|---|
-| **CRITICAL** | Hardcoded fallback secret key enables session forgery | `app.py:45-46` | All 3 |
-| **HIGH** | Unescaped ad content allows XSS via compromised ad records | `app.py:175-183` | GPT-4o + Grok |
-| **HIGH** | Overly broad public API caching can leak user-specific data | `app.py:153-157` | Gemini + GPT-4o |
-| **HIGH** | `--dangerously-skip-permissions` in dev launcher | `launch_all_features.sh:81` | Gemini + GPT-4o |
-| **MEDIUM** | `load_user()` raises 500 on malformed session (should return None) | `app.py:222-225` | GPT-4o only |
-| **MEDIUM** | `inject_ads()` performs DB query per invocation (DoS amplification) | `app.py:167-190` | All 3 |
+| Priority | Issue | Severity |
+|----------|-------|----------|
+| 1 | Missing endpoint-specific rate limits on ElevenLabs/Oracle API calls | **HIGH** — direct financial and quota abuse vector |
+| 2 | Missing startup validation for API keys | **MEDIUM** — keys absent = feature broken or insecure degradation |
+| 3 | Static file serving lacks extension allowlist | **LOW-MEDIUM** — contingent on static root contents |
+| 4 | CSRF session race condition | **LOW** — theoretical, no demonstrated path |
+
+No SQL injection, XSS, or authentication bypass findings were raised — but this assessment is limited by the absence of `avatar_server.py` and frontend templates. The true security surface of this feature is **not yet audited**.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
 
-Items mentioned by 2+ models as missing from a truly world-class product:
+*Only items mentioned by 2+ models qualify. With N=1, this section reports the single model's observations, flagged explicitly as unconfirmed by independent review.*
 
-1. **No feature code, no feature audit.** (All 3 models) A world-class engineering process does not submit an audit for a feature while omitting the feature's primary implementation files. The audit pipeline itself needs a pre-flight check that validates required files are present before triggering review.
+> ⚠️ The following items were raised by Grok across Cycle 1 and Cycle 2 (two-pass corroboration from same model — not independent):
 
-2. **No production-safety guardrails at the framework level.** (Gemini + GPT-4o) Secret key validation, `db.create_all()` suppression, and import structure all need environment-aware guards. World-class apps fail loudly and immediately when misconfigured for production rather than silently degrading.
+1. **Missing core implementation files in audit scope.** A world-class AI product audit must include the actual AI feature implementation. The absence of `avatar_server.py` means the avatar model integration, response handling, error states, and latency characteristics have never been reviewed. This is the single largest gap between this audit and a world-class audit.
 
-3. **No observable system health.** (GPT-4o + Grok) The signal gauge is broken, per-relay status is unimplemented, telemetry health is misleading, and timestamp relative display is inert. A world-class real-time dashboard provides accurate, live health signals operators can act on. Currently this dashboard lies about its own state.
+2. **No resilience design for third-party AI/TTS service outages.** Stripe setup docs and the feature design show no documented fallback for ElevenLabs unavailability (circuit breaker, degraded text-only mode, queue-and-retry). A world-class live AI avatar product degrades gracefully when upstream APIs fail — it does not return a 500 or hang.
 
-4. **No error surfaces for users or operators.** (Gemini + GPT-4o) Silent `catch` blocks throughout the frontend mean failures are invisible. World-class products log errors to an observability backend and surface degraded states in the UI so users understand what is happening.
-
-5. **No automated audit coverage of the actual deployed asset.** (GPT-4o) The audit runner reads a different file than the one being audited. World-class CI pipelines audit exactly what gets deployed, validated by hash or path matching.
+*Items that would have required 2 independent models to confirm but only appeared once: health-check endpoint design, GPU cache warming verification, streaming response backpressure handling.*
 
 ---
 
 ## FINAL ACTION PLAN (sorted by consensus priority)
 
-### P0 CRITICAL
+| Priority | Change | File:Line | Models | Why |
+|----------|--------|-----------|--------|-----|
+| **P0 CRITICAL** | Re-raise blueprint import exception in production; do not silently continue | `app.py:370-374` | Grok (C1+C2) | Feature is invisible-dead without this; users get broken experience with no operator alert |
+| **P0 CRITICAL** | Add endpoint-specific rate limits to Oracle/ElevenLabs routes | `app.py:107-109` + Oracle route handlers | Grok (C1+C2) | Direct financial abuse vector; global limit insufficient for per-call cost endpoints |
+| **P0 CRITICAL** | Add startup env var validation for `ELEVENLABS_API_KEY` and all Oracle dependencies | `app.py` config block | Grok (C2) | Silent runtime failure on missing keys is a correctness and security failure |
+| **P0 CRITICAL** | Obtain and include `avatar_server.py` in audit scope; re-run audit | `avatar_server.py` (missing) | Grok (C1+C2) | Core feature logic has never been audited; LAW 5 compliance unverifiable; merge is premature |
+| **P1 HIGH** | Add file extension allowlist to custom static file serving routes | `app.py:420-452` | Grok (C2) | Low-cost hardening; eliminates file-type abuse risk entirely |
+| **P1 HIGH** | Document and implement ElevenLabs/Oracle API outage fallback (degraded text mode or circuit breaker) | Oracle feature handler (missing file) | Grok (C1+C2) | World-class live AI product requirement; currently no resilience design documented |
+| **P2 MEDIUM** | Add structured logging around Oracle Avatar blueprint init and first-request lifecycle | `app.py` + `avatar_server.py` | Grok (C2) | Improves debuggability and monitoring in production |
+| **P2 MEDIUM** | Investigate and optionally add TTL cache for ad injection DB query | `app.py:179-206` | Grok (C1) | N+1 query risk under load; not Oracle-specific but worth a maintenance ticket |
 
-| # | Change | File:Line | Models | Why |
-|---|---|---|---|---|
-| P0-1 | Submit missing core feature files (`oracle/avatar_server.py`, `oracle_routes.py`, `oracle/templates/oracle.html`) for audit | Missing from submission | All 3 | Entire feature is unauditable without them; all law compliance is UNVERIFIABLE |
-| P0-2 | Replace hardcoded fallback secret key with fail-loud production guard or ephemeral dev key | `app.py:45-46` | All 3 | Session forgery possible with known key in source control |
-| P0-3 | Fix signal gauge element ID mismatch in `updateSignalStrength()` | `media_unified.js:932-940` | All 3 | Gauge permanently displays initial state; core UI feature is broken |
+---
 
-### P1 HIGH
+## CYCLE 2 VERDICT
 
-| # | Change | File:Line | Models | Why |
-|---|---|---|---|---|
-| P1-1 | Move active ads query to `before_request` hook on `g`; remove DB call from template filter | `app.py:167-190` | All 3 | N+1 DB query per page render; degrades under any real load |
-| P1-2 | Escape all dynamic ad fields with `markupsafe.escape()`; return `Markup` | `app.py:175-183`
+**❌ NOT PRODUCTION READY.**
+
+**Confidence in this verdict: MODERATE** (limited by N=1 model due to infrastructure failures).
+
+### Absolute Final Blockers:
+
+1. **`avatar_server.py` has never been audited.** The core feature implementation is outside the scope of both cycles. This alone is sufficient to block merge — you cannot ship code that no reviewer has read.
+
+2. **Silent blueprint registration failure** creates a class of production incidents that are invisible to operators and broken for users simultaneously. This is a P0 defect.
+
+3. **No endpoint-specific rate limiting** on AI/TTS API calls exposes the operator to unbounded third-party API costs from a single abusive session.
+
+### Recommended Path to Merge:
+1. Fix P0 items (U-1, U-2, U-3 above)
+2. Submit `avatar_server.py` and any frontend templates to audit scope
+3. Trigger **Cycle 3** with all three models functional (resolve Gemini key leak, resolve GPT-4o quota)
+4. Only after Cycle 3 returns ≥ 7/10 overall with no P0 findings: proceed to merge
+
+---
+
+## SECOND PASS PROMPT (ready to fire into Claude Code)
+
+```
+Read ~/protocol_pulse/docs/gospels/F1_AVATAR_ORACLE_GOSPEL.md.
+Read ~/protocol_pulse/docs/audits/f1-avatar-oracle_CONSENSUS_C2.md.
+
+This is the FINAL PASS for f1-avatar-oracle.
+The first build was reviewed by 1 independent AI model across 2 cycles
+(2 additional models failed due to API infrastructure errors — Gemini
+key leaked, GPT-4o quota exceeded). Implement every P0 and P1 item from
+the consensus. Use judgment on P2.
+
+⚠️  AUDIT INTEGRITY NOTE: avatar_server.py was NOT present in the audit
+package. Do not modify it blindly — surface it for human review first.
+All fixes below are scoped to app.py and supporting infrastructure unless
+otherwise noted.
+
+PRIORITY ACTION PLAN:
+
+P0 CRITICAL | Re-raise blueprint import exception in production | app.py:370-374
+  - Wrap existing log with: if not app.debug: raise RuntimeError(...) from e
+  - Do NOT remove the log call — add the raise after it
+
+P0 CRITICAL | Add endpoint-specific rate limits to Oracle/ElevenLabs routes | app.py:107-109 + Oracle route handlers
+  - Apply @limiter.limit("10 per minute; 50 per day") to each Oracle Avatar
+    and ElevenLabs TTS endpoint individually
+  - Do not remove the global limit — this is additive
+
+P0 CRITICAL | Add startup env var validation for Oracle dependencies | app.py config block
+  - Pattern after existing SESSION_SECRET check (lines 47-53)
+  - Required vars at minimum: ELEVENLABS_API_KEY
+  - In production: raise RuntimeError if missing
+  - In debug: log warning and continue
+
+P0 CRITICAL | Surface avatar_server.py for human review | avatar_server.py (missing from audit)
+  - Do not auto-modify this file
+  - Add a TODO comment in app.py blueprint registration block noting
+    that avatar_server.py requires independent audit before production deploy
+
+P1 HIGH | Add file extension allowlist to static file serving routes | app.py:420-452
+  - Define: ALLOWED_STATIC_EXTENSIONS = {'.js', '.css', '.png', '.jpg',
+    '.svg', '.woff', '.woff2', '.ico', '.map', '.webp'}
+  - After path traversal check, add:
+    if pathlib.Path(safe_p).suffix.lower() not in ALLOWED_STATIC_EXTENSIONS:
+        abort(403)
+
+P1 HIGH | Document ElevenLabs/Oracle outage fallback | Oracle feature handler
+  - Add a try/except around ElevenLabs API calls
+  - On failure: return degraded text-only response with HTTP 200 +
+    header X-Oracle-Mode: degraded
+  - Log the failure with error level including status code from upstream
+
+P2 MEDIUM | Add structured logging for Oracle Avatar blueprint lifecycle | app.py + avatar_server.py
+  - Log blueprint registration success with INFO level
+  - Log first successful Oracle request with INFO level
+  - Log any ElevenLabs API errors with ERROR level including upstream response
+
+P2 MEDIUM | File maintenance ticket for ad injection N+1 query | app.py:179-206
+  - Do NOT fix this in this pass — it is not Oracle-specific
+  - Add a # TODO(maintenance): add TTL cache for _active_ads query comment
+
+VALIDATED (do NOT touch — all available models confirmed excellent):
+  - SESSION_SECRET handling (app.py:47-53) — correct pattern, do not alter
+  - Path traversal startswith() guard in static serving (app.py:420-452) — keep it, add to it
+  - Global rate limiter instantiation (app.py:107-109) — keep it, augment with endpoint limits
+  - Critical-level log on blueprint failure (app.py:370-374) — keep log, add raise after it
+
+After implementing all P0 and P1 items:
+  1. Run: bash regression_test.sh
+     Expected: zero FAILs
+  2. Manually verify: curl -X GET /health returns 200 with oracle_avatar: ok
+     (or equivalent health signal — implement if missing)
+  3. Manually verify: app fails fast on startup if ELEVENLABS_API_KEY is unset in prod mode
+  4. git add -A && git commit -m "feat(f1-avatar-oracle): post-audit pass — consensus improvements C2"
+  5. git push origin feature/f1-avatar-oracle
+
+NOTE: A Cycle 3 audit is REQUIRED before merge. Gemini and GPT-4o must be
+functional for that run. This pass addresses known P0/P1 items but does not
+substitute for independent multi-model review of avatar_server.py.
+```
 
 ---
 
 # WINNER DETERMINATION
 
-# WINNER: **Gemini**
-
-Gemini delivered the highest-quality analysis across both cycles. In Cycle 1, it was the only model to independently identify the signal gauge root cause with precise file/line citations (`media_unified.js:916-941`), name the specific wrong HTML IDs versus the correct ones, flag the `sys.modules` hack as an architectural smell, and surface the `launch_all_features.sh` process-level security risk — all findings that were validated and absorbed into the Cycle 2 consensus. Its Cycle 2 self-correction was also the most intellectually honest, explicitly retracting its Canvas violation finding when it re-read the law rather than quietly dropping it.
+# WINNER: **Grok** — Grok demonstrated the highest-quality analysis across both cycles by correctly identifying the silent blueprint registration failure (U-1) that survived cross-cycle validation, providing specific line-number-anchored findings with concrete remediation steps, and maintaining internal consistency between its Cycle 1 flags and Cycle 2 confirmations. While the audit was severely compromised by N=1 conditions (Gemini API key leak, GPT-4o quota exhaustion), Grok's work was the only output substantive enough to evaluate against all four criteria, and its findings proved durable enough to anchor the consensus report's unanimous findings section.
 
 ---
 
 # FINAL SECOND-PASS PRIORITY LIST
-
-Ordered by: **severity × verifiability × blast radius**
-
----
-
-## P0 — BLOCKS AUDIT ENTIRELY (fix before anything else)
-
-### P0-1 — Resubmit Missing Core Feature Files
-- **Files:** `oracle/avatar_server.py`, `oracle_routes.py`, `oracle/templates/oracle.html`
-- **Why P0:** Every law compliance verdict, every correctness check, and the entire stated purpose of the `f1-avatar-oracle` audit is unverifiable without these. All other findings below are on *peripheral* files only.
-- **Action:** Add all three files to the audit package. Confirm `oracle_bp` registered at `app.py:282-283` resolves correctly after inclusion.
+*Definitive ordered implementation queue based on cross-cycle survival, severity, and confidence. All items are single-model validated — apply engineering judgment before merge. Cycle 3 re-run strongly recommended.*
 
 ---
 
-## P1 — CRITICAL SECURITY (exploitable or session-breaking in production)
+## 🔴 P0 — MERGE BLOCKERS (fix before any merge attempt)
 
-### P1-1 — Hardcoded Fallback Secret Key
-- **File:** `app.py:45-46`
-- **Risk:** Session forgery, CSRF token prediction, cross-environment session bleedover if `SESSION_SECRET` is unset in any deploy.
-- **Action:** Remove the hardcoded fallback entirely. Raise a hard startup exception if `SESSION_SECRET` is absent. Add to CI environment validation checklist.
+### P0-1 — Silent Blueprint Registration Failure
+- **File:** `app.py`, lines 370–374
+- **Finding:** Try/except swallows import failures for the Oracle Avatar blueprint. App boots successfully while the feature is entirely absent, producing silent 404s with no user-facing or ops-facing signal.
+- **Implement:** In production environments, replace silent log with a hard raise. Add a `/health` or `/readiness` endpoint that explicitly asserts blueprint registration state. If the blueprint is absent, the health check must return non-200 so load balancers and orchestrators can gate traffic.
 
-### P1-2 — XSS via Unescaped Ad Content in Template Filter
-- **File:** `app.py:175-183`
-- **Risk:** `ad.image_url` and `ad.name` interpolated directly into HTML string without escaping. If ad content is ever compromised or admin credentials are weak, this is a stored XSS vector.
-- **Action:** Pass values through `markupsafe.escape()` before interpolation, or refactor to use Jinja2 template rendering instead of manual string concatenation.
+```python
+# BEFORE (dangerous)
+try:
+    from oracle_avatar import bp as oracle_bp
+    app.register_blueprint(oracle_bp)
+except Exception as e:
+    app.logger.critical(f"Oracle blueprint failed: {e}")
 
-### P1-3 — Public Cache Header Applied to All `/api/` Routes
-- **File:** `app.py:153-157`
-- **Risk:** User-specific or authenticated API responses cached publicly for 60 seconds. Any `/api/` route returning user data is silently broken.
-- **Action:** Restrict the public cache header to explicitly whitelisted, verified-public endpoints. Default all `/api/` responses to `Cache-Control: no-store` unless opted in.
-
----
-
-## P2 — CORRECTNESS (broken features, confirmed bugs)
-
-### P2-1 — Signal Gauge Never Updates (Wrong DOM IDs)
-- **File:** `media_reforge/static/js/media_unified.js:916-941`
-- **Bug:** `updateSignalStrength()` writes to `#signal-fill` and `#telem-signal`. The gauge HTML uses `#sig-composite`, `#sig-sentiment`, `#sig-spaces`. The gauge is permanently frozen at its initial state.
-- **Action:** Update all DOM write targets in `updateSignalStrength()` to match the actual HTML spec IDs. Verify with a live render test after fix.
-
-### P2-2 — Relay Status Bar Not Implemented
-- **File:** `media_unified.js` (relay connection handlers)
-- **Bug:** The audit spec explicitly requires updates to `#relay-status-bar`, `.mu-relay-item`, `.mu-relay-status`, `.mu-relay-count`. None of these selectors are written to anywhere in the JS.
-- **Action:** Implement relay status update calls inside the WebSocket `onopen`, `onclose`, and `onerror` handlers for each relay connection.
-
-### P2-3 — Feed Timestamps Never Refresh
-- **File:** `media_unified.js:721` vs `1173-1178`
-- **Bug:** `initTimeUpdater()` polls for `data-ts` attributes on cards. `renderCard()` never sets `data-ts`. All timestamps are static from render time.
-- **Action:** Add `data-ts="${timestamp}"` to the card element in `renderCard()`. Confirm `initTimeUpdater()` then picks them up correctly.
-
-### P2-4 — Telemetry Reports `connected` on Partial/Total Failure
-- **File:** `media_unified.js:293`
-- **Bug:** `setHealth('health-telemetry', 'connected')` is called unconditionally after `Promise.allSettled()`, regardless of how many promises rejected.
-- **Action:** Inspect the `allSettled` results array. Set health to `degraded` if any rejected, `error` if all rejected, `connected` only if all fulfilled.
+# AFTER (safe)
+try:
+    from oracle_avatar import bp as oracle_bp
+    app.register_blueprint(oracle_bp)
+except Exception as e:
+    app.logger.critical(f"Oracle blueprint failed: {e}")
+    if not app.config.get("TESTING"):
+        raise RuntimeError(f"Critical blueprint load failure: {e}") from e
+```
 
 ---
 
-## P3 — PERFORMANCE (degrades under load)
-
-### P3-1 — N+1 DB Query in Template Filter
-- **File:** `app.py:167-190`
-- **Bug:** `inject_ads()` runs a live `SELECT * FROM advertisements WHERE is_active=1` on every invocation. If used N times per page render, runs N queries.
-- **Action:** Fetch active ads once per request in a `before_request` hook, store on `flask.g`, and read from `g` inside the filter. Alternatively, add aggressive short-TTL caching (e.g., 30s) with cache invalidation on ad update.
-
-### P3-2 — Unbounded Nostr Reconnect Attempts
-- **File:** `media_unified.js:386-430`
-- **Bug:** Exponential backoff on relay reconnection has no maximum retry cap. Long-running sessions accumulate unbounded reconnect loops.
-- **Action:** Add `MAX_RECONNECT_ATTEMPTS = 10` (or similar). After cap is reached, mark relay as permanently failed, update the relay status bar (see P2-2), and stop retrying until explicit user action.
+### P0-2 — Leaked API Key in Gemini Infrastructure
+- **Finding:** Gemini's Cycle 2 participation failed with a 403 attributed to a leaked API key. This is not an audit artifact — a credentials leak occurred in the audit pipeline itself, which shares infrastructure with the feature branch environment.
+- **Implement:** Immediately rotate all API keys in the affected environment. Audit git history, CI logs, and environment variable dumps for key exposure. Add pre-commit hooks and CI secret scanning (e.g., `truffleHog`, `gitleaks`) before this branch touches main. This is a security incident, not just a configuration error.
 
 ---
 
-## P4 — ARCHITECTURE / MAINTAINABILITY
+## 🟠 P1 — HIGH SEVERITY (implement before production traffic)
 
-### P4-1 — `sys.modules` Hack Signals Circular Dependency
-- **File:** `app.py:234-236`
-- **Issue:** `sys.modules["app"] = sys.modules["__main__"]` is a workaround for a structural import problem, not a solution. It will break silently when the module graph changes.
-- **Action:** Identify which modules import from `app` directly and refactor to use an application factory pattern (`create_app()`). This resolves both the circular dependency and makes the app properly testable.
+### P1-1 — Insufficient Rate Limiting on High-Cost API Endpoints
+- **File:** `app.py`, lines 107–109
+- **Finding:** Global rate limit of 200 requests/day/IP applies uniformly. Oracle Avatar endpoints that proxy to ElevenLabs or similar paid APIs have no endpoint-specific throttling. A single motivated user can exhaust API quota or generate significant cost before the global limit triggers.
+- **Implement:** Apply per-endpoint rate limits using Flask-Limiter's `@limiter.limit()` decorator on all Oracle/ElevenLabs proxy routes. Set limits based on per-call cost, not global traffic assumptions. Add spend-based circuit breakers if the API provider exposes usage webhooks.
 
-### P4-2 — `db.create_all()` at Startup Masks Migration Drift
-- **File:** `app.py:241-247`
-- **Issue:** Running `create_all()` in production silently creates tables that Alembic doesn't know about, causing schema divergence that only manifests as data loss or integrity errors later.
-- **Action:** Remove `create_all()` from the startup path entirely. Add a CI check that runs `alembic check` to confirm migration state matches model definitions before any deploy.
+```python
+@bp.route("/oracle/speak", methods=["POST"])
+@limiter.limit("10 per hour; 50 per day")
+def oracle_speak():
+    ...
+```
 
-### P4-3 — `launch_all_features.sh` Uses `--dangerously-skip-permissions`
-- **File:** `launch_all_features.sh:81`
-- **Issue:** This is not a runtime risk but is a serious SDLC risk — automated scripts running with skipped permission checks in a shared dev environment can cause irreversible side effects.
-- **Action:** Remove the flag. If the underlying permission issue is real, fix it explicitly in configuration rather than bypassing it.
+---
 
-### P4-4 — Shared Mutable `state` Object with No Coordination
-- **File:** `media_unified.js:113-121`
-- **Issue:** Multiple async event handlers (WebSocket events, API responses, timers) mutate the same `state` object with no queuing or locking. This is a race condition waiting to manifest under normal relay traffic.
-- **Action:** Refactor to a reducer pattern: all state mutations go through a single `dispatch(action)` function that applies changes sequentially
+### P1-2 — Quota Exhaustion Risk in Audit Pipeline (GPT-4o 429)
+- **Finding:** GPT-4o failed with 429 during Cycle 2. If the same OpenAI credentials are used in the feature's production Oracle path, quota exhaustion is a live production risk, not just an audit infrastructure problem.
+- **Implement:** Confirm whether feature production calls share credentials with CI/audit tooling. If yes, separate them immediately. Implement exponential backoff with jitter on all OpenAI API calls. Add fallback behavior (graceful degradation message, cached response, or alternative model) when 429s occur.
+
+---
+
+## 🟡 P2 — MEDIUM SEVERITY (implement before GA, acceptable for initial merge with tracking ticket)
+
+### P2-1 — CSRF Session Race Condition Risk
+- **File:** `app.py`, lines 129–133
+- **Finding:** CSRF token handling via Flask session lacks explicit locking. Under concurrent requests (realistic for a real-time avatar feature), simultaneous session reads/writes could produce token mismatch errors or, in degenerate cases, token collision.
+- **Implement:** Audit whether Flask's session backend is thread-safe for your deployment configuration (server-side sessions vs. signed cookies). If using server-side sessions with a shared store (Redis, DB), confirm atomic read-modify-write on token generation. Add integration tests simulating concurrent session access.
+
+---
+
+### P2-2 — Audit Integrity: Single-Model Consensus
+- **Finding:** This entire audit's consensus is N=1. Findings that would normally require unanimous agreement from three models are backed by a single model's two passes — which is self-reinforcing, not independently validated.
+- **Implement:** Schedule and complete Cycle 3 with all three models operational before treating any finding above P1 as definitively scoped. P0 items are severe enough to act on regardless, but P1 and P2 scoping and severity ratings must be re-validated with a full three-model consensus run.
+
+---
+
+## 🔵 P3 — LOW SEVERITY / HOUSEKEEPING (backlog acceptable)
+
+### P3-1 — `_KEY_CACHE` NameError Status Unverified
+- **File:** Referenced in `PIPELINE_STATE_SNAPSHOT.md`, line 278
+- **Finding:** Grok flagged a previously reported `NameError` for `_KEY_CACHE` as "fixed" but the fix was not present in audited code artifacts. Cannot confirm resolution without the implementation file.
+- **Implement:** Add `_KEY_CACHE` initialization to the explicit pre-merge checklist. Require the implementing engineer to confirm the fix is present in the branch and add a regression test that would catch re-introduction.
+
+---
+
+### P3-2 — Ad Injection Filter Query Pattern (`app.py`, lines 179–206)
+- **Finding:** Grok identified a potential N+1 query pattern in the ad injection filter. Full analysis was truncated in the Cycle 1 output — scope is unconfirmed.
+- **Implement:** Engineering to review the ad injection filter loop for ORM query calls inside iteration. If confirmed N+1, batch the query before the loop. Flag for Cycle 3 full review.
+
+---
+
+## IMPLEMENTATION ORDER SUMMARY
+
+| Priority | Item | Owner | Gate |
+|----------|------|-------|------|
+| P0-1 | Silent blueprint failure fix + health endpoint | Backend | Before any merge |
+| P0-2 | Rotate leaked keys + add secret scanning | SecOps | Immediate, parallel |
+| P1-1 | Per-endpoint rate limiting on Oracle routes | Backend | Before prod traffic |
+| P1-2 | Separate prod/CI credentials + add 429 fallback | Backend + Infra | Before prod traffic |
+| P2-1 | CSRF session concurrency audit | Backend | Before GA |
+| P2-2 | Cycle 3 re-run with all 3 models | Audit | Before GA |
+| P3-1 | Confirm `_KEY_CACHE` fix + regression test | Backend | Backlog |
+| P3-2 | Ad injection N+1 review | Backend | Backlog / Cycle 3 |
+
+---
+
+*Confidence: LOW-MEDIUM. All findings require human engineering review. Do not treat this as a passing audit. Cycle 3 is mandatory before merge.*

@@ -7,7 +7,7 @@
 ## INFRASTRUCTURE
 
 REPLIT RELAY:
-TOKEN=581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552
+TOKEN=REDACTED-stored-in-env
 URL=https://protocolpulse.replit.app/api/admin/exec
 Run Replit commands: curl -s -X POST "$URL" -H "Content-Type: application/json" -d "{\"token\":\"$TOKEN\",\"cmd\":\"CMD\"}"
 Keep relay scripts under 1.5KB. DB table is `articles` (not article). Podcast table is `podcast`.

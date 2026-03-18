@@ -8,7 +8,7 @@
 ## INFRASTRUCTURE
 
 REPLIT RELAY:
-TOKEN=581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552
+TOKEN=REDACTED-stored-in-env
 URL=https://protocolpulse.replit.app/api/admin/exec
 Run Replit commands: curl -s -X POST "$URL" -H "Content-Type: aeries_count, latest_episodes, podcast_count, voice_count, all_books
 
@@ -298,7 +298,7 @@ For files >1.5KB (media_unified.html will be large), use chunked Python writes:
 
 ```python
 import base64, requests
-TOKEN = "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"
+TOKEN = "REDACTED-stored-in-env"
 URL = "https://protocolpulse.replit.app/api/admin/exec"
 
 content = open("templates/media_unified.html", "rb").read()

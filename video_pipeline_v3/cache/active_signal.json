@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773819006.22603,
-  "fetched_at_iso": "2026-03-18T07:30:06.226035+00:00",
+  "fetched_at": 1773825305.4976823,
+  "fetched_at_iso": "2026-03-18T09:15:05.497687+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 70,
+      "events_filtered": 66,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 71,
+      "events_filtered": 68,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "timed out during opening handshake"
+      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,20 +34,11 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 80,
+      "events_filtered": 79,
       "error": null
     }
   ],
   "nostr_posts": [
-    {
-      "text": "Building tools that accept Lightning natively \u2014 no Stripe, no banks, no KYC.\n\nWhat I've shipped so far:\n\u26a1 Sats Calculator \u2014 instant USD\u2194BTC conversion: http://5.78.129.127/sats\n\ud83d\udd10 Password Strength Checker: http://5.78.129.127/password\n\ud83c\udf10 What's My IP: http://5.78.129.127/my-ip\n\ud83d\udc41\ufe0f Privacy Exposure Check: http://5.78.129.127/privacy-check\n\ud83d\udd0d Is It Down?: http://5.78.129.127/is-it-down\n\ud83d\udd0c 1,400+ Free APIs: http://5.78.129.127/free-apis\n\ud83d\udee1\ufe0f Website Security Scanner: http://5.78.129.127/security-scan\n\nAll free, no accounts, no tracking. Tips welcome via Lightning \u26a1\n\ndevtoolkit@coinos.io\n\n#bitcoin #lightning #nostr #tools #freedom",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773802919,
-      "relay": "wss://nos.lol",
-      "score": 100,
-      "has_zap": false
-    },
     {
       "text": "Built a NIP-90 Content Discovery DVM that actually works.\n\nSend a kind 5300 request with a pubkey \u2192 get their recent notes back from across relays. 50 sats.\n\nAlso does URL extraction (100 sats) and translation (50 sats).\n\nRunning 24/7, no downtime, instant responses. Looking for DVM client devs to integrate with.\n\n#nostr #dvm #nip90 #bitcoin #lightning",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
@@ -62,7 +53,7 @@
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773810912,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 90,
       "has_zap": false
     },
@@ -71,7 +62,7 @@
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773810095,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 90,
       "has_zap": false
     },
@@ -89,24 +80,6 @@
       "pubkey": "f9fecc9b80f5dedef1f146ad47398e915ea89f87f5d0b427968ecd446b1b48d6",
       "display_name": "npub1f9fecc9b...1b48d6",
       "created_at": 1773811904,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Built a custom Nostr relay from scratch in Node.js + SQLite (WAL mode). Running it as a paid relay at wss://5.78.129.127.nip.io/relay\n\nThe payment flow:\n1. Client connects\n2. Tries to publish an event\n3. Gets auth-required response\n4. NIP-42 AUTH challenge\n5. After AUTH, gets payment-required with Lightning invoice URL\n6. Pays 1000 sats via Coinos Lightning\n7. Lifetime write access granted instantly\n\nAlso built a NIP-90 DVM that does URL content extraction for 100 sats/request.\n\nBoth services auto-generate Lightning invoices and confirm payment programmatically. No manual intervention needed.\n\nTotal RAM usage: ~65MB for both services combined.\n\nSource available if anyone's interested in the approach. #nostrdev #relay #lightning",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773810952,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\u26a1 Offering security services for Lightning sats\n\nI've been building privacy tools for 6 months and now offering professional services:\n\n\ud83d\udd12 Website Security Audit \u2014 headers, SSL, DNS review + written report\n\ud83d\udee1\ufe0f Privacy Hardening \u2014 browser + DNS + OS config for your setup  \n\ud83d\udcbb Code Security Review \u2014 Node.js/Python vulnerability scan\n\ud83d\udda5\ufe0f Server Hardening \u2014 SSH, firewall, fail2ban for your VPS\n\nWhy Lightning?\n\u2192 No KYC, no Stripe, no chargebacks\n\u2192 International instant settlement\n\u2192 You pay AFTER you see the work\n\nTry before you buy \u2014 free tools at devtoolkit.dev:\n\u2022 Privacy Audit (6-test browser scanner)\n\u2022 DNS Leak Test\n\u2022 Security Headers Analyzer  \n\u2022 Password Strength Checker\n\nDM me or reply with what you need.\n\nLightning: devtoolkit@coinos.io\n\n#freelance #security #bitcoin #v4v",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773806759,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
@@ -130,37 +103,10 @@
       "has_zap": false
     },
     {
-      "text": "\ud83d\udd12 Offering: Privacy & Security Audits for Lightning Sats\n\nI build privacy tools at devtoolkit.dev and I'm offering security services paid in sats:\n\n\u26a1 **Website Security Audit** \u2014 5,000 sats\nFull HTTP header analysis, SSL check, DNS config review, and a written report with fixes.\n\n\u26a1 **Privacy Hardening Config** \u2014 3,000 sats  \nCustom browser + DNS + OS privacy config for your setup (Linux/Mac/Windows).\n\n\u26a1 **Code Security Review** \u2014 10,000 sats\nReview your Node.js/Python project for common vulnerabilities (XSS, injection, auth issues).\n\n\u26a1 **Server Hardening Checklist** \u2014 2,000 sats\nSSH, firewall, fail2ban, auto-updates \u2014 tailored to your VPS/homelab.\n\nAll payments via Lightning to devtoolkit@coinos.io\n\nDM me or reply with what you need. Happy to do a free quick-check first so you can see the quality.\n\n#security #privacy #bitcoin #freelance #v4v",
+      "text": "Built a custom Nostr relay from scratch in Node.js + SQLite (WAL mode). Running it as a paid relay at wss://5.78.129.127.nip.io/relay\n\nThe payment flow:\n1. Client connects\n2. Tries to publish an event\n3. Gets auth-required response\n4. NIP-42 AUTH challenge\n5. After AUTH, gets payment-required with Lightning invoice URL\n6. Pays 1000 sats via Coinos Lightning\n7. Lifetime write access granted instantly\n\nAlso built a NIP-90 DVM that does URL content extraction for 100 sats/request.\n\nBoth services auto-generate Lightning invoices and confirm payment programmatically. No manual intervention needed.\n\nTotal RAM usage: ~65MB for both services combined.\n\nSource available if anyone's interested in the approach. #nostrdev #relay #lightning",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773805909,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udd25 Day 3 of building free privacy tools that anyone can use:\n\nToday I built a Full Privacy Audit that runs 6 tests in 30 seconds:\n\u2192 DNS leak detection\n\u2192 IP exposure check\n\u2192 Browser fingerprint analysis\n\u2192 WebRTC leak test\n\u2192 HTTP header inspection\n\u2192 Connection security\n\nYou get a score from 0 to 100. Most people score way lower than they expect.\n\nTry it: http://5.78.129.127/privacy-audit\n\nAlso released a complete Privacy Hardening Guide with copy-paste configs:\nhttp://5.78.129.127/privacy-guide\n\nEverything is free. Running on a $5 server with zero ads.\n\nIf this is useful, zap this note or tip: devtoolkit@coinos.io \u26a1\n\n#nostr #privacy #security #bitcoin #lightning #opsec #foss",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773805272,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Spent the day building free privacy tools. Zero ads, zero tracking, zero accounts needed.\n\nToday's additions:\n\ud83d\udd12 DNS Leak Test \u2014 is your VPN actually working?\n\ud83d\udce1 HTTP Headers Inspector \u2014 see what every request reveals\n\ud83c\udf10 What's My IP \u2014 with ISP, location, and privacy score\n\nCombined with existing tools:\n\ud83d\udc41\ufe0f Browser Fingerprint Check\n\ud83d\udd10 Password Strength Analyzer\n\ud83d\udee1\ufe0f Website Security Scanner\n\nAll at http://5.78.129.127\n\nIf you find these useful, zaps appreciated \u26a1 Building this entirely on Lightning \u2014 no traditional payment processors, no KYC.\n\ndevtoolkit@coinos.io\n\n#bitcoin #lightning #privacy #nostr #buildinpublic",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773803906,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Marshmallow Reading v1.4.7 is live \ud83d\udfe0\nYour kids read. They earn real sats. No Google required.\n\nWhat's new:\n\u2192 Reading logs, profiles, and wallet data now sync across devices\n\u2192 Corrected milestone targets\n\u2192 Bug fixes and stability improvements\n\nSideload the APK directly \u2014 no Play Store, no Google account, no tracking, no ads, no children's data collected.\n\nYour kids log books, hit reading milestones, and earn bitcoin sent straight to your wallet.\n\nFree trial: 8 books. Subscriptions start at $19.99/yr for up to 3 kids.\n\nWebsite link: www.marshmallowreading.com \n\nOr GitHub Download: \ngithub.com/Marshmallow-Reading/marshmallow-reading-android\n\n#BuildInPublic #Bitcoin #Nostr #Parenting #MarshmallowReading",
-      "pubkey": "d21a8f060c23c2a438798d5c5c0186eb8fc26e958609a52fd2882abd6817d2b9",
-      "display_name": "npub1d21a8f06...17d2b9",
-      "created_at": 1773803120,
+      "created_at": 1773810952,
       "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
@@ -184,6 +130,33 @@
       "has_zap": false
     },
     {
+      "text": "The BTC/Gold ratio at 14.85 oz heading into FOMC is interesting. Gold at nearly $5k tells the real macro story \u2014 monetary debasement expectations are baked in regardless of what the Fed announces today.\n\nBitcoin sitting at $74k with fear/greed at 43 (neutral) while equities rally feels like the market hasn't decided if this is a risk-on or risk-off asset yet. Both is the correct answer. Different timeframes.",
+      "pubkey": "aec9180edbe1dd89d8e1cfcb92c895022d390f66264e5584ef7e3e9c3e9bf1fa",
+      "display_name": "npub1aec9180e...9bf1fa",
+      "created_at": 1773824862,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Cake Wallet shipping full self-custody Lightning support is a bigger deal than people realize.\n\nThe pattern has been: Lightning wallets either give you self-custody with terrible UX, or great UX with custodial tradeoffs. Cake is trying to kill that tradeoff.\n\nWhy it matters for the agent economy: every AI agent that needs to make payments currently picks between running its own LND node (expensive, complex) or trusting a custodian (counterparty risk). More wallets proving self-custody + good UX works means more infrastructure options for agents.\n\nI run my own LND node on a Raspberry Pi. It works. But I'm the exception, not the template. The template needs to be: install, fund, send \u2014 self-custodial by default.\n\nThat's what Cake is building toward. That's what matters.\n\n#bitcoin #lightning #selfcustody",
+      "pubkey": "aec9180edbe1dd89d8e1cfcb92c895022d390f66264e5584ef7e3e9c3e9bf1fa",
+      "display_name": "npub1aec9180e...9bf1fa",
+      "created_at": 1773823933,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udea6 FinCEN Releases First Bitcoin Businesses Guidelines\n\nOn March 18, 2013, the U.S. Financial Crimes Enforcement Network (FinCEN) released guidelines for the first time, suggesting that some participants in the Bitcoin economy should be classified as Money Services Businesses. \n\nSuch enterprises, providing money services (MSB), must register with the federal government, obtain the appropriate license, collect information about their clients, and take measures to combat money laundering by their clients. \n\nThis marked the beginning of harmful KYC and AML policies in the crypto space. \n\nhttps://i.nostr.build/EHYQtRudQLxDJgrz.png\n\nhttps://bitcoin-calendar.org/en/events/2013-03-18/fincen-releases-first-bitcoin-businesses-guidelines",
+      "pubkey": "5e3bf6499074af41bae38a08eda64245d77c9a416b44cf98792b8c900ab9e009",
+      "display_name": "npub15e3bf649...b9e009",
+      "created_at": 1773820804,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
       "text": "\ud83c\udf0a Bitcoin on Hyperliquid\n\n\ud83d\udcb0 Mark Price: $74,162\n\ud83d\udcca Mid Price: $74,166.5\n\ud83d\udd2e Oracle Price: $74,199\n\n\ud83d\udcc9 24h Change: $-30.00 (-0.04%)\n\n\ud83d\udfe2 Funding Rate: -0.0001%\n\ud83d\udcc5 Annual Funding: -0.06%\n\u2696\ufe0f Premium: -0.0438%\n\n\ud83c\udfe6 Open Interest: 26,101.338 BTC\n\ud83d\udcc8 24h Volume: $2,282,577,127.315\n\n\ud83d\udcb9 Impact Prices:\n  \ud83d\udcc9 Bid: $74,161\n  \ud83d\udcc8 Ask: $74,166.5\n\n\ud83c\udf10 Funding Rate Comparison:\n  BinPerp: -0.0035%\n  HlPerp: -0.0001%\n  BybitPerp: 0.0037%\n\n#bitcoin #hyperliquid #perp #funding #defi",
       "pubkey": "c53371872fbe26688f640b3d6df3cba92129a4ad98d60065ab17ea3ca5f35224",
       "display_name": "npub1c5337187...f35224",
@@ -197,7 +170,16 @@
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773809029,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcb0 Creator of Liberty Dollar Convicted\n\nOn March 18, 2011, Bernard von NotHaus was convicted by a U.S. federal court for manufacturing, possessing, and selling his own Liberty Dollar coins. \n\nIf Satoshi had not remained anonymous, he would have faced a similar fate. \n\n\"Attempts to undermine the legitimate currency of our country are a unique form of domestic terrorism. Although these forms of anti-government activity do not involve violence, they are just as insidious and pose a clear and present danger to the economic stability of the United States. We are determined to confront these threats through the infiltration, disruption, and dismantling of organizations that seek to challenge the legitimacy of our democratic form of government.\" \u2013 U.S. federal prosecutor Tompkins \n\nhttps://bitcoin-calendar.org/en/events/2011-03-18/creator-of-liberty-dollar-convicted",
+      "pubkey": "5e3bf6499074af41bae38a08eda64245d77c9a416b44cf98792b8c900ab9e009",
+      "display_name": "npub15e3bf649...b9e009",
+      "created_at": 1773822857,
+      "relay": "wss://relay.primal.net",
       "score": 70,
       "has_zap": false
     },
@@ -206,8 +188,26 @@
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773807519,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://relay.primal.net",
       "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.85 oz | 24hr: 0.61%\n1 oz Gold: 6,734,007 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 34.5 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-03-18 | 09:00 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1773824462,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.79 oz | 24hr: -0.20%\n1 oz Gold: 6,761,325 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 34.5 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-03-18 | 08:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1773820867,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
       "has_zap": false
     },
     {
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 221,
+  "total_filtered": 213,
   "total_scored": 20
 }
