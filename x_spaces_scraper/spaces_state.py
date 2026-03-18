@@ -48,9 +48,10 @@ CREATE INDEX IF NOT EXISTS idx_spaces_injected ON spaces(injected_at);
 CREATE INDEX IF NOT EXISTS idx_spaces_error ON spaces(error);
 """
 
-DEFAULT_DB_PATH = os.path.join(
-    os.path.expanduser("~"), "protocol_pulse", "data", "spaces_state.db"
-)
+from pathlib import Path as _Path
+
+_BASE_DIR = _Path(os.environ.get("PP_BASE_DIR", _Path(__file__).parent.parent))
+DEFAULT_DB_PATH = str(_BASE_DIR / "data" / "spaces_state.db")
 
 
 class SpaceStateDB:
@@ -114,15 +115,12 @@ class SpaceStateDB:
         return [dict(r) for r in rows]
 
     def mark(self, space_id, state):
-        """Set {state}_at = now() for the given space."""
+        """Set {state}_at = now() for the given space. Creates row if missing via upsert."""
         col = f"{state}_at"
-        now = datetime.now(timezone.utc).isoformat()
-        with self._lock:
-            self.conn.execute(
-                f"UPDATE spaces SET {col} = ? WHERE space_id = ?",
-                (now, space_id),
-            )
-            self.conn.commit()
+        allowed = {"discovered", "downloaded", "transcribed", "summarized", "injected", "published"}
+        if state not in allowed:
+            raise ValueError(f"Unknown state: {state}")
+        self.upsert(space_id, **{col: datetime.now(timezone.utc).isoformat()})
 
     def needs_processing(self, space_id, state):
         """Return True if space exists but hasn't reached this state yet."""

@@ -434,7 +434,7 @@ class XSpacesScraper:
 
         # Source 3: yt-dlp (always run for target accounts)
         logger.info("Trying yt-dlp metadata for target accounts...")
-        for account in TARGET_ACCOUNTS[:5]:
+        for account in TARGET_ACCOUNTS:
             for space in ytdlp_find_spaces(account):
                 if space.space_id not in processed and space.space_id not in all_spaces:
                     all_spaces[space.space_id] = space
@@ -452,8 +452,9 @@ class XSpacesScraper:
                         dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
                     if dt < cutoff:
                         continue
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Cannot parse date for {s.space_id}: {s.date!r} — excluding")
+                    continue  # EXCLUDE undatable spaces, never silently include them
             recent.append(s)
 
         logger.info(f"Found {len(recent)} spaces ({len(processed)} previously processed)")

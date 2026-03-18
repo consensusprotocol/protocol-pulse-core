@@ -15,6 +15,7 @@ import logging
 import os
 import signal
 import subprocess
+import time
 from pathlib import Path
 
 from x_spaces_scraper.whisper_worker import WhisperWorker
@@ -87,8 +88,8 @@ class TranscriptFetcher:
             self._save_cache(space_id, result)
             return result
 
-        # Final fallback: metadata only
-        return {
+        # Final fallback: metadata only — cache as negative result to prevent re-attempts
+        fallback_result = {
             "space_id": space_id,
             "transcript": f"X Space: {title}" if title else "",
             "source": CONTEXT_ONLY,
@@ -98,13 +99,25 @@ class TranscriptFetcher:
             "segments": [],
             "speakers": [],
             "usable": False,
+            "cached_at": time.time(),
+            "negative_cache": True,
         }
+        self._save_cache(space_id, fallback_result)
+        return fallback_result
 
     def _check_cache(self, space_id):
         path = _cache_path(space_id)
         if path.exists():
             try:
                 data = json.loads(path.read_text())
+                # Respect negative cache TTL (24h)
+                if data.get("negative_cache"):
+                    age = time.time() - data.get("cached_at", 0)
+                    if age < 86400:
+                        logger.debug(f"Negative cache hit for {space_id} ({age/3600:.1f}h old)")
+                        return data
+                    else:
+                        return None  # expired — retry
                 if data.get("transcript") or data.get("text"):
                     # Normalize old cache format
                     if "text" in data and "transcript" not in data:
@@ -308,12 +321,12 @@ class TranscriptFetcher:
 _fetcher = None
 
 
-def fetch_transcript(space_id, space_url, title=""):
+def fetch_transcript(space_id, space_url, title="", db=None):
     """Backward-compatible wrapper around TranscriptFetcher."""
     global _fetcher
     if _fetcher is None:
         _fetcher = TranscriptFetcher()
-    result = _fetcher.fetch(space_id, space_url, title=title)
+    result = _fetcher.fetch(space_id, space_url, title=title, db=db)
     # Normalize for backward compat: ensure "text" key exists
     if "transcript" in result and "text" not in result:
         result["text"] = result["transcript"]

@@ -1,3 +1,11 @@
+"""
+TOMBSTONED 2026-03-18
+This file is part of the deprecated x_spaces_pipeline/ live-capture system.
+It has been superseded by x_spaces_scraper/run_scraper.py which is the
+single authoritative pipeline. SpaceStateDB is the authoritative state store.
+DO NOT USE — DO NOT IMPORT — DO NOT EXECUTE
+Live capture capability will be reintegrated as a clean stage in run_scraper.py.
+"""
 #!/usr/bin/env python3
 """x_spaces_pipeline/curator.py"""
 import json, logging, os, sys, time
@@ -36,7 +44,7 @@ def curate_pending():
         logger.error("ANTHROPIC_API_KEY not set")
         return
     client = anthropic.Anthropic(api_key=api_key)
-    prompt = "Bitcoin editor. Extract top 3 moments. Return ONLY JSON no markdown: {"moments":[{"rank":1,"start_sec":0.0,"end_sec":0.0,"quote":"words","speaker":"unknown","signal_type":"macro","quality_score":80}]}"
+    prompt = 'Bitcoin editor. Extract top 3 moments. Return ONLY JSON no markdown: {"moments":[{"rank":1,"start_sec":0.0,"end_sec":0.0,"quote":"words","speaker":"unknown","signal_type":"macro","quality_score":80}]}'
     for tf in sorted(RAW_DIR.glob("*.json"), key=lambda f: f.stat().st_mtime, reverse=True):
         if time.time() - tf.stat().st_mtime > MAX_AGE: continue
         if tf.name.endswith(".meta.json"): continue
@@ -52,9 +60,7 @@ def curate_pending():
         if get_daily_calls() >= MAX_DAILY: break
         truncated = " ".join(text.split()[:MAX_WORDS])
         try:
-            resp = client.messages.create(model="claude-sonnet-4-6", max_tokens=1000, messages=[{"role":"user","content": prompt+"
-
-"+truncated}])
+            resp = client.messages.create(model="claude-sonnet-4-6", max_tokens=1000, messages=[{"role":"user","content": prompt + "\n\n" + truncated}])
             inc_calls()
             data = json.loads(resp.content[0].text.strip())
             data["handle"] = handle

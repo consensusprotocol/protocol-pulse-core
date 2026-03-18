@@ -26,6 +26,7 @@ from dotenv import load_dotenv
 load_dotenv(PROJECT_ROOT / ".env")
 
 from x_spaces_scraper.scraper import XSpacesScraper, SpaceInfo
+from x_spaces_scraper.spaces_state import SpaceStateDB
 from x_spaces_scraper.transcript_fetcher import fetch_transcript
 from x_spaces_scraper.article_generator import generate_article
 from x_spaces_scraper.pp_publisher import publish_article
@@ -72,6 +73,7 @@ def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: 
 
     stats = {
         "spaces_found": 0,
+        "transcripts_attempted": 0,
         "transcripts_fetched": 0,
         "articles_generated": 0,
         "articles_published": 0,
@@ -80,7 +82,9 @@ def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: 
 
     # ── Step 1: Find Spaces ──────────────────────────────────────────────
     logger.info("Step 1/4: Searching for Bitcoin X Spaces...")
+    db = SpaceStateDB()
     scraper = XSpacesScraper()
+    scraper.db = db  # share the same DB instance
     spaces = scraper.find_spaces(skip_processed=True)
     stats["spaces_found"] = len(spaces)
 
@@ -92,6 +96,10 @@ def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: 
     logger.info(f"Found {len(spaces)} new space(s)")
     for s in spaces:
         logger.info(f"  [{s.detected_via}] @{s.host}: {s.title or '(no title)'} ({s.state})")
+        # Upsert discovered spaces into DB immediately
+        db.upsert(s.space_id, title=s.title, host=s.host,
+                  url=s.url, started_at=s.date,
+                  discovered_at=datetime.utcnow().isoformat())
 
     # Limit to max_spaces
     spaces = spaces[:max_spaces]
@@ -104,12 +112,14 @@ def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: 
             logger.info(f"  [DRY RUN] Would fetch transcript for {space.space_id} (@{space.host})")
             continue
 
-        transcript = fetch_transcript(space.space_id, space.url)
+        stats["transcripts_attempted"] += 1
+        transcript = fetch_transcript(space.space_id, space.url, db=db)
         if transcript:
             transcripts[space.space_id] = transcript
-            stats["transcripts_fetched"] += 1
+            if transcript.get("usable"):
+                stats["transcripts_fetched"] += 1
             logger.info(
-                f"  Transcript OK: {space.space_id} — "
+                f"  Transcript {'OK' if transcript.get('usable') else 'NOT USABLE'}: {space.space_id} — "
                 f"{transcript.get('word_count', 0)} words, "
                 f"{transcript.get('duration_s', 0)}s"
             )
@@ -164,16 +174,19 @@ def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: 
     # ── Step 4: Publish ──────────────────────────────────────────────────
     logger.info(f"\nStep 4/4: Publishing {len(articles)} article(s)...")
     for space_id, article in articles.items():
-        article_id = publish_article(article, auto_publish=auto_publish)
-        if article_id:
-            stats["articles_published"] += 1
-            logger.info(f"  Published #{article_id}: \"{article.get('title', '?')}\"")
-            # Mark space as processed
-            scraper.mark_processed(space_id)
-        else:
-            err = f"Publish failed for {space_id}"
-            stats["errors"].append(err)
-            logger.warning(f"  {err}")
+        try:
+            article_id = publish_article(article, auto_publish=auto_publish)
+            if article_id:
+                stats["articles_published"] += 1
+                logger.info(f"  Published #{article_id}: \"{article.get('title', '?')}\"")
+                scraper.mark_processed(space_id)  # mark AFTER successful publish
+            else:
+                err = f"Publish failed for {space_id}"
+                stats["errors"].append(err)
+                logger.warning(f"  {err}")
+        except Exception as e:
+            logger.error(f"Publish failed for {space_id}: {e}")
+            stats["errors"].append(f"Publish exception for {space_id}: {e}")
 
     _log_summary(stats, time.time() - start)
     return stats
@@ -184,7 +197,8 @@ def _log_summary(stats: dict, elapsed: float):
     logger.info("\n" + "=" * 60)
     logger.info("PIPELINE SUMMARY")
     logger.info(f"  Spaces found:       {stats['spaces_found']}")
-    logger.info(f"  Transcripts:        {stats['transcripts_fetched']}")
+    logger.info(f"  Transcripts attempted: {stats.get('transcripts_attempted', 0)}")
+    logger.info(f"  Transcripts usable: {stats['transcripts_fetched']}")
     logger.info(f"  Articles generated: {stats['articles_generated']}")
     logger.info(f"  Articles published: {stats['articles_published']}")
     logger.info(f"  Errors:             {len(stats['errors'])}")
@@ -196,6 +210,7 @@ def _log_summary(stats: dict, elapsed: float):
 
     # Write summary to JSON for monitoring
     summary_path = Path(__file__).parent / "cache" / "last_run.json"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(json.dumps({
         **stats,
         "timestamp": datetime.utcnow().isoformat(),

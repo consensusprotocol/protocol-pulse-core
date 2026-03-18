@@ -7,6 +7,8 @@ import os
 import sqlite3
 import tempfile
 import threading
+import time
+from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -407,6 +409,7 @@ def test_usable_gate_blocks_context_only():
     }
 
     with patch.object(runner, "XSpacesScraper") as MockScraper, \
+         patch.object(runner, "SpaceStateDB") as MockDB, \
          patch.object(runner, "fetch_transcript", return_value=fake_transcript), \
          patch.object(runner, "generate_article") as mock_gen, \
          patch.object(runner, "publish_article"):
@@ -437,3 +440,203 @@ def test_recorder_downloaded_at_after_validation():
         record = db.get("rec_test_001")
         assert record["downloaded_at"] is None
         db.close()
+
+
+# ─── Test: Concurrent upsert idempotent (consolidation) ──────────────────
+
+def test_upsert_idempotent_concurrent():
+    """10 threads each calling upsert() with same space_id — exactly 1 row, zero exceptions."""
+    from x_spaces_scraper.spaces_state import SpaceStateDB
+
+    with tempfile.TemporaryDirectory() as tmp:
+        db = SpaceStateDB(db_path=os.path.join(tmp, "test.db"))
+        errors = []
+
+        def worker(i):
+            try:
+                db.upsert("concurrent_001", title=f"Title_{i}", host="saylor")
+            except Exception as e:
+                errors.append(str(e))
+
+        threads = [threading.Thread(target=worker, args=(i,)) for i in range(10)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        count = db.conn.execute("SELECT COUNT(*) FROM spaces").fetchone()[0]
+        assert count == 1, f"Expected 1 row, got {count}"
+        assert not errors, f"Errors: {errors}"
+        db.close()
+
+
+# ─── Test: mark() creates row if missing ─────────────────────────────────
+
+def test_mark_creates_row_if_missing():
+    """mark() on a never-inserted space creates the row (not silent no-op)."""
+    from x_spaces_scraper.spaces_state import SpaceStateDB
+
+    with tempfile.TemporaryDirectory() as tmp:
+        db = SpaceStateDB(db_path=os.path.join(tmp, "test.db"))
+        db.mark("brand_new_999", "discovered")
+        row = db.get("brand_new_999")
+        assert row is not None, "mark() was a silent no-op — row not created"
+        assert row["discovered_at"] is not None, "discovered_at not set"
+        db.close()
+
+
+# ─── Test: mark_processed reflected in _load_processed ───────────────────
+
+def test_mark_processed_reflected_in_load_processed():
+    """After mark_processed(), space_id appears in _load_processed()."""
+    from x_spaces_scraper.scraper import XSpacesScraper
+    from x_spaces_scraper.spaces_state import SpaceStateDB
+
+    with tempfile.TemporaryDirectory() as tmp:
+        scraper = XSpacesScraper()
+        scraper.db = SpaceStateDB(db_path=os.path.join(tmp, "test.db"))
+        scraper.mark_processed("space_abc")
+        assert "space_abc" in scraper._load_processed()
+        scraper.db.close()
+
+
+# ─── Test: find_spaces unions all sources ────────────────────────────────
+
+def test_find_spaces_unions_all_sources():
+    """All three scrapers' results are present in find_spaces() (not first-wins)."""
+    from x_spaces_scraper.scraper import XSpacesScraper, SpaceInfo
+
+    scraper = XSpacesScraper()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        from x_spaces_scraper.spaces_state import SpaceStateDB
+        scraper.db = SpaceStateDB(db_path=os.path.join(tmp, "test.db"))
+
+        now_iso = "2026-03-17T00:00:00+00:00"
+
+        api_space = SpaceInfo(space_id="api_001", title="API", host="h1",
+                              date=now_iso, participant_count=0, state="ended",
+                              url="https://twitter.com/i/spaces/api_001",
+                              detected_via="twitter_api_v2")
+        guest_space = SpaceInfo(space_id="guest_001", title="Guest", host="h2",
+                                date=now_iso, participant_count=0, state="ended",
+                                url="https://twitter.com/i/spaces/guest_001",
+                                detected_via="guest_token")
+        ytdlp_space = SpaceInfo(space_id="ytdlp_001", title="YTDLP", host="h3",
+                                date=now_iso, participant_count=0, state="ended",
+                                url="https://twitter.com/i/spaces/ytdlp_001",
+                                detected_via="yt-dlp")
+
+        mock_api = MagicMock()
+        mock_api.search_spaces.return_value = [api_space]
+        scraper.api_scraper = mock_api
+
+        mock_guest = MagicMock()
+        mock_guest.search_spaces.return_value = [guest_space]
+        scraper.guest_scraper = mock_guest
+
+        with patch("x_spaces_scraper.scraper.ytdlp_find_spaces", return_value=[ytdlp_space]):
+            spaces = scraper.find_spaces(skip_processed=False)
+
+        ids = {s.space_id for s in spaces}
+        assert "api_001" in ids, "API source missing"
+        assert "guest_001" in ids, "Guest source missing"
+        assert "ytdlp_001" in ids, "yt-dlp source missing"
+        scraper.db.close()
+
+
+# ─── Test: YYYYMMDD date handled in find_spaces filter ───────────────────
+
+def test_ytdlp_yyyymmdd_date_handled():
+    """SpaceInfo with date='20260317' passes find_spaces() date filter."""
+    from datetime import datetime, timezone
+    from x_spaces_scraper.scraper import XSpacesScraper, SpaceInfo
+
+    scraper = XSpacesScraper()
+    with tempfile.TemporaryDirectory() as tmp:
+        from x_spaces_scraper.spaces_state import SpaceStateDB
+        scraper.db = SpaceStateDB(db_path=os.path.join(tmp, "test.db"))
+
+        space = SpaceInfo(space_id="yyyymmdd_001", title="Test", host="h1",
+                          date="20260317", participant_count=0, state="ended",
+                          url="https://twitter.com/i/spaces/yyyymmdd_001",
+                          detected_via="yt-dlp")
+
+        scraper.api_scraper = None
+        mock_guest = MagicMock()
+        mock_guest.search_spaces.return_value = []
+        scraper.guest_scraper = mock_guest
+
+        with patch("x_spaces_scraper.scraper.ytdlp_find_spaces", return_value=[space]):
+            spaces = scraper.find_spaces(skip_processed=False)
+
+        assert any(s.space_id == "yyyymmdd_001" for s in spaces), "YYYYMMDD date space was excluded"
+        scraper.db.close()
+
+
+# ─── Test: undatable space excluded ──────────────────────────────────────
+
+def test_undatable_space_excluded():
+    """SpaceInfo with date='garbage_date' is NOT included in find_spaces()."""
+    from x_spaces_scraper.scraper import XSpacesScraper, SpaceInfo
+
+    scraper = XSpacesScraper()
+    with tempfile.TemporaryDirectory() as tmp:
+        from x_spaces_scraper.spaces_state import SpaceStateDB
+        scraper.db = SpaceStateDB(db_path=os.path.join(tmp, "test.db"))
+
+        space = SpaceInfo(space_id="garbage_001", title="Bad Date", host="h1",
+                          date="garbage_date", participant_count=0, state="ended",
+                          url="https://twitter.com/i/spaces/garbage_001",
+                          detected_via="yt-dlp")
+
+        scraper.api_scraper = None
+        mock_guest = MagicMock()
+        mock_guest.search_spaces.return_value = []
+        scraper.guest_scraper = mock_guest
+
+        with patch("x_spaces_scraper.scraper.ytdlp_find_spaces", return_value=[space]):
+            spaces = scraper.find_spaces(skip_processed=False)
+
+        assert not any(s.space_id == "garbage_001" for s in spaces), "Undatable space was included"
+        scraper.db.close()
+
+
+# ─── Test: negative cache prevents retry ─────────────────────────────────
+
+def test_negative_cache_prevents_retry():
+    """Negative-cached result prevents yt-dlp from being called again."""
+    from x_spaces_scraper.transcript_fetcher import TranscriptFetcher, CONTEXT_ONLY, _cache_path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        # Temporarily redirect cache
+        import x_spaces_scraper.transcript_fetcher as tf_mod
+        original_cache_dir = tf_mod.CACHE_DIR
+        tf_mod.CACHE_DIR = __import__('pathlib').Path(tmp)
+
+        try:
+            # Prime cache with negative result
+            neg_result = {
+                "space_id": "neg_test_001",
+                "transcript": "",
+                "source": CONTEXT_ONLY,
+                "word_count": 0,
+                "quality_score": 0.0,
+                "language_probability": 0.0,
+                "segments": [],
+                "speakers": [],
+                "usable": False,
+                "cached_at": time.time(),
+                "negative_cache": True,
+            }
+            cache_file = __import__('pathlib').Path(tmp) / "transcript_neg_test_001.json"
+            cache_file.write_text(json.dumps(neg_result))
+
+            fetcher = TranscriptFetcher()
+            with patch.object(fetcher, "_try_audio_replay") as mock_audio:
+                result = fetcher.fetch("neg_test_001", "https://twitter.com/i/spaces/neg_test_001")
+                mock_audio.assert_not_called()
+                assert result["negative_cache"] is True
+                assert result["usable"] is False
+        finally:
+            tf_mod.CACHE_DIR = original_cache_dir

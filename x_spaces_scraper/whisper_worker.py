@@ -6,8 +6,11 @@ Call WhisperWorker.get() always.
 """
 
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
+
+_init_lock = threading.Lock()
 
 
 class WhisperWorker:
@@ -16,7 +19,9 @@ class WhisperWorker:
     @classmethod
     def get(cls):
         if cls._instance is None:
-            cls._instance = cls()
+            with _init_lock:
+                if cls._instance is None:  # double-checked locking
+                    cls._instance = cls()
         return cls._instance
 
     def __init__(self):

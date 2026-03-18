@@ -1,3 +1,11 @@
+"""
+TOMBSTONED 2026-03-18
+This file is part of the deprecated x_spaces_pipeline/ live-capture system.
+It has been superseded by x_spaces_scraper/run_scraper.py which is the
+single authoritative pipeline. SpaceStateDB is the authoritative state store.
+DO NOT USE — DO NOT IMPORT — DO NOT EXECUTE
+Live capture capability will be reintegrated as a clean stage in run_scraper.py.
+"""
 #!/usr/bin/env python3
 """x_spaces_pipeline/transcriber.py"""
 import json, logging, sys, time
