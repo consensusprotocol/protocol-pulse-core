@@ -81,6 +81,11 @@ class EpisodeManifest:
         d["segments"] = [SegmentSpec(**s) for s in d.get("segments", [])]
         return cls(**d)
 
+    def validate(self):
+        if not self.segments:
+            raise ValueError(f"EpisodeManifest {self.episode_id} has no segments")
+        return self
+
     def segment_count(self) -> int:
         return len(self.segments)
 

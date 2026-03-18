@@ -4,7 +4,7 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_contract,atomic_rename,normalize_pip_preview
+from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_contract,atomic_rename,normalize_pip_preview,safe_text
 from ..constants import (
     VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,VIDEO_CODEC,VIDEO_CRF,
     AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,
@@ -114,8 +114,8 @@ class NarrationSegment(Segment):
         return False
 
     def _render_with_pip(self,tts,pip,output_path,dur,spec,has_bg):
-        hl=self._safe_text(spec.headline or spec.segment_type.upper(),55)
-        bd=self._safe_text(spec.body or '',80)
+        hl=safe_text(spec.headline or spec.segment_type.upper(),55)
+        bd=safe_text(spec.body or '',80)
         if has_bg:
             inputs=[['-stream_loop','-1','-i',str(BG_LOOP)],['-i',str(tts)],
                     ['-stream_loop','-1','-i',str(pip)]]
@@ -126,8 +126,8 @@ class NarrationSegment(Segment):
                             output_path,dur,f'narration+pip rank={spec.clip_rank}')
 
     def _render_no_pip(self,tts,output_path,dur,spec,has_bg):
-        hl=self._safe_text(spec.headline or spec.segment_type.upper(),55)
-        bd=self._safe_text(spec.body or '',80)
+        hl=safe_text(spec.headline or spec.segment_type.upper(),55)
+        bd=safe_text(spec.body or '',80)
         if has_bg:
             inputs=[['-stream_loop','-1','-i',str(BG_LOOP)],['-i',str(tts)]]
         else:
@@ -137,20 +137,3 @@ class NarrationSegment(Segment):
                             output_path,dur,f'narration no-pip rank={spec.clip_rank}')
 
     @staticmethod
-    def _safe_text(text, max_chars):
-        """Sanitize text for FFmpeg drawtext. Escapes all filter-special chars."""
-        t = text.strip()[:max_chars]
-        # Order matters: backslash must be first
-        replacements = [
-            ('\\', '\\\\'),  # backslash first
-            ("'", ''),         # remove single quotes (can break f-string delimiter)
-            (':', '\\:'),      # colon is filter option separator
-            ('%', '\\%'),      # percent triggers drawtext variable expansion
-            ('[', '\\['),      # square brackets are stream labels
-            (']', '\\]'),
-            (',', '\\,'),      # comma separates filter options
-            (';', '\\;'),      # semicolon separates filters in complex
-        ]
-        for old, new in replacements:
-            t = t.replace(old, new)
-        return t.replace('\n', ' ')  # newlines become spaces

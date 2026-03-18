@@ -40,7 +40,7 @@ class EpisodeContext:
     def create(cls, date_str: str, base_output_dir: Path) -> "EpisodeContext":
         """Factory method. Creates workdir structure."""
         episode_id = str(uuid.uuid4())[:8]
-        workdir = base_output_dir / date_str
+        workdir = base_output_dir / f"{date_str}_{episode_id}"
         workdir.mkdir(parents=True, exist_ok=True)
         (workdir / "segments").mkdir(exist_ok=True)
         (workdir / "logs").mkdir(exist_ok=True)

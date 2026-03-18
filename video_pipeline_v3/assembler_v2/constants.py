@@ -12,9 +12,6 @@ VIDEO_PIX_FMT  = "yuv420p"
 VIDEO_CODEC    = "libx264"
 VIDEO_CRF      = 17
 VIDEO_PRESET   = "medium"
-VIDEO_BITRATE  = "8M"
-VIDEO_MAXRATE  = "10M"
-VIDEO_BUFSIZE  = "15M"
 
 # ── Audio ──────────────────────────────────────────────────────────
 AUDIO_CODEC        = "aac"
@@ -59,3 +56,9 @@ QC_MAX_SILENCE_S         = 2.0
 QC_MIN_LUFS              = -17.0
 QC_MAX_LUFS              = -13.0
 QC_MAX_TRUE_PEAK         = -1.0
+
+# FFmpeg operation timeouts
+FFMPEG_TIMEOUT_ENCODE = 300
+FFMPEG_TIMEOUT_FILTER = 120
+FFMPEG_TIMEOUT_PROBE  =  15
+FFMPEG_TIMEOUT_SHORT  =  30
