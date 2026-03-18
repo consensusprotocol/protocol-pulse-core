@@ -340,6 +340,55 @@ body { background: var(--s-bg); }
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 12px;
 }
+/* Mobile: horizontal scroll carousel instead of long vertical stack */
+@media (max-width: 640px) {
+  .stage-transcripts {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 10px;
+    padding-bottom: 12px;
+    /* hide scrollbar but keep functionality */
+    scrollbar-width: none;
+  }
+  .stage-transcripts::-webkit-scrollbar { display: none; }
+  .stage-tx-card {
+    flex: 0 0 82vw;          /* show ~1.1 cards at once = peek of next */
+    max-width: 300px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  /* Scroll hint dots */
+  .stage-transcripts-wrap {
+    position: relative;
+  }
+  .stage-tx-scroll-hint {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  .stage-tx-scroll-hint span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,59,95,.25);
+    transition: background .2s;
+  }
+  .stage-tx-scroll-hint span.active {
+    background: var(--s-red);
+  }
+  /* Fade right edge to hint scrollability */
+  .stage-brief__section-label + .stage-transcripts-wrap::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 12px;
+    width: 32px;
+    background: linear-gradient(to right, transparent, var(--s-bg));
+    pointer-events: none;
+  }
+}
 .stage-tx-card {
   background: var(--s-surface);
   border: 1px solid var(--s-border);
@@ -668,6 +717,7 @@ body { background: var(--s-bg); }
       <!-- CHANNEL TRANSCRIPTS -->
       <div>
         <div class="stage-brief__section-label">Partner Channel Intelligence</div>
+        <div class="stage-transcripts-wrap">
         <div class="stage-transcripts" id="transcriptsGrid">
           <!-- Skeleton loaders -->
           {% for i in range(6) %}
@@ -1117,6 +1167,35 @@ body { background: var(--s-bg); }
 
   // Refresh intel every 3 minutes
   setInterval(loadIntel, 180000);
+
+  // Scroll-hint dots for mobile transcript carousel
+  function initTxDots(){
+    var grid = document.getElementById('transcriptsGrid');
+    var dotsEl = document.getElementById('txDots');
+    if(!grid||!dotsEl) return;
+    var cards = grid.children;
+    if(!cards.length) return;
+    // Only show on mobile
+    if(window.innerWidth > 640){ dotsEl.style.display='none'; return; }
+    dotsEl.innerHTML = '';
+    var n = Math.min(cards.length, 8);
+    for(var i=0;i<n;i++){
+      var dot = document.createElement('span');
+      if(i===0) dot.className='active';
+      dotsEl.appendChild(dot);
+    }
+    grid.addEventListener('scroll', function(){
+      var idx = Math.round(grid.scrollLeft / (grid.scrollWidth / n));
+      var dots = dotsEl.children;
+      for(var j=0;j<dots.length;j++) dots[j].className = j===idx?'active':'';
+    }, {passive:true});
+  }
+  // Init dots after transcripts load
+  var _origRender = window.renderTranscripts;
+  if(typeof renderTranscripts === 'function'){
+    var _origRT = renderTranscripts;
+    window.renderTranscripts = function(items){ _origRT(items); setTimeout(initTxDots,100); };
+  } else { setTimeout(initTxDots,2000); }
   // Refresh Nostr every 2 minutes
   setInterval(loadNostr, 120000);
   // Refresh briefing schedule every 5 minutes

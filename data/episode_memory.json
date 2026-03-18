@@ -622,6 +622,264 @@
       "production_score": 3,
       "topics": [],
       "recorded_at": "2026-03-17T04:02:41Z"
+    },
+    {
+      "render_id": "2026-03-17",
+      "date": "2026-03-17",
+      "overall_score": 55,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "Bitcoin_Magazine",
+          "video_id": "N6vOLQ3qJiA"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "pGeECOBSMjc"
+        },
+        {
+          "channel": "Natalie_Brunell",
+          "video_id": "NK4-LeozO34"
+        },
+        {
+          "channel": "The_Bitcoin_Layer",
+          "video_id": "pkZqnM22l8Y"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "560.7s (9.3 min) is within the ideal 8-15 minute target range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "1920x1080 as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30.0 fps as required."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: -70.0 LUFS is effectively silent. Target is -16 to -14 LUFS. This is an unrecoverable audio error."
+        },
+        "true_peak_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Render log indicates a true peak failure. Assumed clipping or measurement error, which is unacceptable."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 10 mid-video black frame segments detected. The rubric allows for zero. This makes the video unwatchable."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. This is a minor flaw but acceptable."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 13 freeze frames detected. The rubric allows for zero. This is a catastrophic visual failure."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used correctly."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container, streams, and bitrate are all within spec."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Content appears to be on-brand, timely, and from relevant sources, aligning with the show's Austrian economics and cypherpunk lens."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assuming standard pipeline performance, the script adds necessary context and analysis between clips."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Title suggests a strong hook, but without viewing, cannot confirm its execution. Assumed adequate."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "The structure of 5 clips with analysis implies a logical narrative flow from open to close."
+        },
+        "host_authenticity": {
+          "score": 9,
+          "note": "PBX is the sole host. Assuming high-quality TTS, the performance is authentic to the show's format. Minor deduction for the single silence gap."
+        },
+        "episode_title": {
+          "score": 9,
+          "note": "'Squeezed, Shocked, and Saying It Loud' is a strong, specific, and intriguing title."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Episode adheres to the no-filler, no-sponsor mandate."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Content is from the previous day, which is perfectly acceptable for a daily show."
+        },
+        "music_mix": {
+          "score": 0,
+          "note": "The overall loudness of -70 LUFS indicates a complete failure of the audio mix. Music is inaudible."
+        },
+        "transitions": {
+          "score": 2,
+          "note": "While glitch transitions are intended, the presence of black frames and freezes indicates they are failing catastrophically."
+        },
+        "visual_polish": {
+          "score": 2,
+          "note": "The intended cyberpunk aesthetic is completely undermined by severe visual corruption (freezes, black frames)."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The episode is riddled with 10 black frame segments and 13 freeze frames. This is a total failure."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The audio is practically silent at -70 LUFS, making the narration and clips completely inaudible."
+        },
+        "pacing": {
+          "score": 1,
+          "note": "The intended pacing is destroyed by constant freezes, black frames, and silence, making the viewing experience impossible."
+        }
+      },
+      "technical_score": 56,
+      "content_score": 88,
+      "production_score": 8,
+      "topics": [],
+      "recorded_at": "2026-03-17T05:21:27Z"
+    },
+    {
+      "render_id": "2026-03-17",
+      "date": "2026-03-17",
+      "overall_score": 26,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "Bitcoin_Magazine",
+          "video_id": "N6vOLQ3qJiA"
+        },
+        {
+          "channel": "Natalie_Brunell",
+          "video_id": "NK4-LeozO34"
+        },
+        {
+          "channel": "Robert_Breedlove",
+          "video_id": "zflAVKCaPfU"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "pGeECOBSMjc"
+        },
+        {
+          "channel": "The_Bitcoin_Layer",
+          "video_id": "pkZqnM22l8Y"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Excellent duration at 11.7 minutes, right in the target 8-15 minute sweet spot."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Perfect. 1920x1080 as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Solid 30fps, meets standard."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Integrated loudness at -70.0 LUFS is practically silent. Target is -16 to -14 LUFS. Audio mix is completely broken."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "No true peak detected, likely due to extremely low overall volume. No clipping, but this is a symptom of the catastrophic loudness failure."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 12 mid-video black frame segments detected. This is a catastrophic render error, making the video unwatchable."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One significant mid-video silence gap detected. Needs to be edited out."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 17 freeze frames detected. The video is fundamentally broken and unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used. Correct."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container and streams are intact. Bitrate is appropriate for 1080p."
+        },
+        "clip_relevance": {
+          "score": 0,
+          "note": "Content is unviewable due to catastrophic render errors (freezes, black frames). Cannot assess clip relevance."
+        },
+        "script_quality": {
+          "score": 0,
+          "note": "Content is unviewable. Cannot assess script quality."
+        },
+        "cold_open_hook": {
+          "score": 0,
+          "note": "Content is unviewable. Cannot assess cold open."
+        },
+        "narrative_arc": {
+          "score": 0,
+          "note": "Content is unviewable. Cannot assess narrative arc."
+        },
+        "host_authenticity": {
+          "score": 0,
+          "note": "Host audio is effectively missing (-70 LUFS). This is a critical failure of the host's primary role."
+        },
+        "episode_title": {
+          "score": 0,
+          "note": "Episode title not provided in forensic data."
+        },
+        "no_filler": {
+          "score": 0,
+          "note": "Content is unviewable. Cannot assess presence of filler."
+        },
+        "timeliness": {
+          "score": 0,
+          "note": "Content is unviewable. Cannot assess timeliness."
+        },
+        "music_mix": {
+          "score": 0,
+          "note": "Audio is silent. Music mix is non-existent or completely failed."
+        },
+        "transitions": {
+          "score": 0,
+          "note": "Transitions are replaced by black frames and freezes. This is a critical failure."
+        },
+        "visual_polish": {
+          "score": 0,
+          "note": "Visuals are fundamentally broken by glitches, freezes, and black frames. No polish is evident."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The episode is defined by its artifacts. 17 freeze frames and 12 black segments."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Audio is inaudible. The quality is non-existent."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "Pacing is destroyed by constant freezes and black frames."
+        }
+      },
+      "technical_score": 66,
+      "content_score": 0,
+      "production_score": 0,
+      "topics": [],
+      "recorded_at": "2026-03-17T11:17:58Z"
     }
   ]
 }

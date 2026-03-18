@@ -21,6 +21,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 @keyframes live-blink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:.15}}
 @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes mic-pulse{0%{box-shadow:0 0 0 0 rgba(255,59,95,.6)}70%{box-shadow:0 0 0 22px rgba(255,59,95,0)}100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}}
+@keyframes mic-idle-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}50%{box-shadow:0 0 0 14px rgba(255,59,95,.22),0 0 18px 4px rgba(255,59,95,.12)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes card-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes hex-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,59,95,.4))}50%{filter:drop-shadow(0 0 22px rgba(255,59,95,.9))}}
@@ -360,6 +361,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 #mic:active:not(:disabled){transform:scale(.92)}
 #mic:disabled{opacity:.2;cursor:not-allowed}
 #mic.rec{background:#ff3b5f;animation:mic-pulse 1s ease-out infinite}
+#mic.idle-pulse{border-color:#ff3b5f;border-width:2px;animation:mic-idle-pulse 1.8s ease-in-out 3}
 .mic-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:#334;letter-spacing:.12em;text-transform:uppercase}
 #cam-btn{
   width:42px;height:42px;border-radius:50%;background:#0a0c12;
@@ -526,6 +528,15 @@ var S={
 };
 
 var busy=false,isRec=false,pending='',objURL=null,recognition=null;
+var _greeted=false;
+function pulseMic(){
+  if(!mic||mic.disabled||isRec)return;
+  mic.classList.remove('idle-pulse');
+  void mic.offsetWidth;
+  mic.classList.add('idle-pulse');
+  setStat('Tap mic to respond','#ff3b5f',false);
+  setTimeout(function(){mic.classList.remove('idle-pulse');setStat('Ready','#334',false);},6000);
+}
 
 // Read session_id and page context from URL params (injected by widget)
 var _urlParams = new URLSearchParams(window.location.search);
@@ -653,14 +664,16 @@ function playIntent(intent){
   .then(function(){
     if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
     if(intent==='GREETING'){
-      window._briefFetched=false;  // reset on each session
-      // Auto-activate mic 350ms after GREETING ends — visitor is ready to respond
-      setTimeout(function(){
-        if(!busy && !isRec && mic && !mic.disabled){
-          startRec();
-          setStat('Listening…','#6cff9f',false);
-        }
-      }, 350);
+      window._briefFetched=false;
+      if(!_greeted){
+        _greeted=true;
+        setTimeout(function(){
+          if(!busy&&!isRec&&mic&&!mic.disabled){
+            startRec();
+            setStat('Listening…','#6cff9f',false);
+          }
+        },400);
+      } else { setTimeout(pulseMic,500); }
     }
   })
   .catch(function(e){
@@ -669,12 +682,7 @@ function playIntent(intent){
   })
   .finally(function(){
     setBusy(false);mic.disabled=false;
-    setTimeout(function(){
-      if(!busy&&mic&&!mic.disabled){
-        if(isRec)try{recognition.stop();}catch(_){}
-        try{startRec();setStat('Listening…','#6cff9f',false);}catch(_){}
-      }
-    },400);
+    setTimeout(pulseMic,500);
   });
 }
 
@@ -700,13 +708,7 @@ function process(text){
     return playVid(url);
   })
   .then(function(){
-    // Auto-activate mic after EVERY oracle response
-    setTimeout(function(){
-      if(!busy && !isRec && mic && !mic.disabled){
-        startRec();
-        setStat('Listening…','#6cff9f',false);
-      }
-    },350);
+    setTimeout(pulseMic,500);
   })
   .catch(function(e){
     console.error('process error:',e);
@@ -720,12 +722,6 @@ function process(text){
   })
   .finally(function(){
     setBusy(false);mic.disabled=false;hideTX();
-    setTimeout(function(){
-      if(!busy&&mic&&!mic.disabled){
-        if(isRec)try{recognition.stop();}catch(_){}
-        try{startRec();setStat('Listening…','#6cff9f',false);}catch(_){}
-      }
-    },400);
   });
 }
 
