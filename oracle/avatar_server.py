@@ -708,6 +708,25 @@ def vision_analyze():
 
     if "error" in result:
         return jsonify(result), 500
+
+    # Phase 4: Store vision context in session for carry-forward
+    session_id = data.get("session_id", "anon")
+    try:
+        from oracle_dialogue_engine import _get_session
+        session = _get_session(session_id)
+        vision_history = session.get("vision_history", [])
+        # Build summary from analysis result
+        analysis_summary = result.get("summary", "") or str(result.get("device_name", ""))
+        if result.get("current_step"):
+            analysis_summary += f" — {result['current_step']}"
+        vision_history.append({
+            "turn": session.get("turn", 0),
+            "summary": analysis_summary[:200],
+        })
+        session["vision_history"] = vision_history[-3:]  # keep last 3
+    except Exception as e:
+        logger.warning(f"[VISION] Failed to store vision context: {e}")
+
     return jsonify(result)
 
 
