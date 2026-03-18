@@ -1257,6 +1257,21 @@ def oracle_chat():
     session_id = data.get("session_id", "anon")
     audio_first = data.get("audio_first", False)
 
+    # ── Phase 3: Visitor fingerprint + memory ──────────────────────────
+    from oracle_memory import make_fingerprint, load_visitor
+    visitor_token = data.get("visitor_token", "anon")
+    raw_ip = (request.headers.get("X-Forwarded-For", "") or request.remote_addr or "").split(",")[0].strip()
+    ua = request.headers.get("User-Agent", "")
+    fingerprint = make_fingerprint(raw_ip, ua, visitor_token)
+
+    session = oracle_dialogue_engine._get_session(session_id)
+    if session["turn"] == 0:
+        memory = load_visitor(fingerprint)
+        if memory:
+            session["visitor_memory"] = memory
+            logger.info(f"[MEMORY] Returning visitor — session #{memory['session_count']}")
+    session["fingerprint"] = fingerprint
+
     _sess_turn = oracle_dialogue_engine.get_session_info(session_id).get("turn", 0)
     if data.get("use_cache_for_intents", True) and _sess_turn == 0:
         intent, confidence = classify_intent(text)
@@ -1360,7 +1375,31 @@ def oracle_session_info():
 @app.route("/oracle/session/reset", methods=["POST"])
 def oracle_session_reset():
     data = request.get_json() or {}
-    oracle_dialogue_engine.reset_session(data.get("session_id","anon"))
+    sid = data.get("session_id", "anon")
+
+    # ── Phase 3: Save visitor memory before clearing session ───────────
+    session = oracle_dialogue_engine._sessions.get(sid, {})
+    fingerprint = session.get("fingerprint")
+    if fingerprint and session.get("history"):
+        try:
+            from oracle_memory import save_visitor, generate_session_summary
+            api_key = _get_anthropic_key()
+            summary = generate_session_summary(session["history"], api_key) if api_key else ""
+            flow = session.get("setup_flow", {})
+            prev_memory = session.get("visitor_memory", {})
+            save_visitor(fingerprint, {
+                "personality": session.get("personality", "AMIABLE"),
+                "session_summaries": prev_memory.get("session_summaries", []) + ([summary] if summary else []),
+                "setup_device": flow.get("device"),
+                "setup_step": flow.get("step", 0),
+                "topics_seen": session.get("topics_discussed", []),
+                "products_shown": session.get("products_mentioned", []),
+            })
+            logger.info(f"[MEMORY] Saved visitor memory for session {sid}")
+        except Exception as e:
+            logger.warning(f"[MEMORY] Save failed on reset: {e}")
+
+    oracle_dialogue_engine.reset_session(sid)
     return jsonify({"status": "reset"})
 
 @app.route("/oracle/intent", methods=["POST"])

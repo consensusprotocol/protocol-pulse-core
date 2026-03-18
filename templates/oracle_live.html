@@ -538,6 +538,33 @@ function pulseMic(){
   setTimeout(function(){mic.classList.remove('idle-pulse');setStat('Ready','#334',false);},6000);
 }
 
+// ── VISITOR FINGERPRINT ───────────────────────────────────
+// Generates a stable browser fingerprint — no cookies, no login
+// Used server-side to recognize returning visitors
+(function() {
+  try {
+    var fp = '';
+    // Canvas fingerprint
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillText('Oracle fp', 2, 2);
+    fp += canvas.toDataURL().slice(-20);
+    // Screen + timezone
+    fp += screen.width + 'x' + screen.height + Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Hash it (simple djb2)
+    var hash = 5381;
+    for (var i = 0; i < fp.length; i++) {
+      hash = ((hash << 5) + hash) + fp.charCodeAt(i);
+      hash = hash & hash; // 32-bit int
+    }
+    window._visitorToken = Math.abs(hash).toString(36);
+  } catch(e) {
+    window._visitorToken = 'anon';
+  }
+})();
+
 // Read session_id and page context from URL params (injected by widget)
 var _urlParams = new URLSearchParams(window.location.search);
 var SESSION_ID = _urlParams.get('session_id') || ('sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
@@ -698,7 +725,7 @@ function process(text){
 
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true})
   },90000)
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);

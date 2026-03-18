@@ -591,6 +591,31 @@ def generate_response(
         f"PRODUCTS ALREADY MENTIONED: {', '.join(session['products_mentioned']) or 'none'}",
     ]
 
+    # ── Phase 3: Returning visitor context injection (turn 1 only) ─────
+    memory = session.get("visitor_memory")
+    if memory and turn == 1:
+        days_ago = int((time.time() - memory["last_seen"]) / 86400)
+        summaries = memory.get("session_summaries", [])
+        topics = memory.get("topics_seen", [])
+        products = memory.get("products_shown", [])
+        setup = memory.get("setup_device")
+        step = memory.get("setup_step", 0)
+
+        memory_ctx = [f"RETURNING VISITOR — session #{memory['session_count']}, last seen {days_ago} day(s) ago"]
+        if summaries:
+            memory_ctx.append(f"Prior sessions: {' | '.join(summaries[-2:])}")
+        if setup and step > 0:
+            memory_ctx.append(f"Was setting up: {setup} (reached step {step})")
+        if topics:
+            memory_ctx.append(f"Already knows about: {', '.join(topics[-8:])}")
+        if products:
+            memory_ctx.append(f"Products already discussed: {', '.join(products)}")
+        memory_ctx.append(
+            "INSTRUCTION: Acknowledge their return naturally without being creepy about it. "
+            "If they were mid-setup, offer to resume. Don't list all of this — weave it in naturally."
+        )
+        context_lines.extend(memory_ctx)
+
     # Inject page context so Oracle knows what user is looking at
     if page_context:
         ptype = page_context.get("type", "general")
