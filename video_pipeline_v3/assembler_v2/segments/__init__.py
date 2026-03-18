@@ -5,3 +5,5 @@ from .cold_open import ColdOpenSegment
 from .narration import NarrationSegment
 from .data_segment import DataSegment
 from .partner_clip import PartnerClipSegment
+from .social import SocialSegment
+from .signal_active import SignalActiveSegment
