@@ -28,7 +28,7 @@ tmux send-keys -t gpu_orchestrator 'cd ~/protocol_pulse && python3 dual_gpu_orch
 
 # Relay pattern (python3 urllib only, never curl):
 # POST https://relay.protocolpulse.io/exec
-# {"token":"581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552","cmd":"..."}
+# {"token":"<REDACTED — stored in .env>","cmd":"..."}
 # Header: User-Agent: Mozilla/5.0
 ```
 
@@ -264,7 +264,7 @@ e0c9fe0a  fix(pipeline): Grok P1s — COLOR_RED 0xFF3333 + duration 480-900s + B
 - Python pycache must be explicitly cleared after editing .py files
 - Gemini 2.5 Pro thinking model: `parts[]` where index 0 is thought block (no text key) — parse with `next((p["text"] for p in parts if "text" in p), ...)`
 - File writes via base64 chunked encoding (500-char chunks → /tmp/file.b64 → base64 -d)
-- Token: `581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552`
+- Token: `<REDACTED — stored in .env>`
 
 ## SESSION UPDATE — 03:36 UTC Mar 13
 

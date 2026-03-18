@@ -70,14 +70,18 @@ Two parallel deliverables:
 ```
 ~/protocol_pulse/
 ├── oracle/
-│   ├── avatar_server.py          ← MAIN (977 lines) — GPU server, Wav2Lip, ElevenLabs
+│   ├── avatar_server.py          ← MAIN — GPU server, Wav2Lip, ElevenLabs, async job system
+│   ├── oracle_dialogue_engine.py ← Conversational AI: Claude Haiku, PHONEME_MAP, safety rules
 │   ├── assets/
 │   │   ├── Proto_P_Avatar_512.png  ← current face asset
 │   │   └── face_landmarker.task    ← MediaPipe landmark model
 ├── templates/
+│   ├── oracle_live.html          ← Live Oracle page (two-phase audio-first process())
 │   ├── oracle.html               ← REBUILD TARGET (current: 276 lines, broken)
 │   ├── oracle_v2.html            ← v2 attempt (541 lines, incomplete)
 │   └── stage.html                ← F2 will rename this — DO NOT TOUCH in F1
+├── tests/
+│   └── phase1_gate.py            ← Phase 1 gate tests (29 tests)
 └── static/
     ├── css/pulse.css             ← design system
     └── js/oracle.js              ← oracle page JS (create if not exists)

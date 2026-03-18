@@ -23,6 +23,7 @@ try:
     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
 except ImportError:
     _cache = None
+    logging.warning("flask_caching not available — running with null cache. Install flask-caching for production.")
 
 # Configure logging (default info; keep noisy transport libs quiet).
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +47,8 @@ app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folde
 _session_secret = os.environ.get("SESSION_SECRET", "")
 if not _session_secret:
     logging.critical("SESSION_SECRET not set — using ephemeral key. Set SESSION_SECRET in environment for production.")
+    if not os.environ.get("FLASK_DEBUG", ""):
+        raise RuntimeError("SESSION_SECRET must be set in production. Run: python3 scripts/generate_secret.py")
     import secrets as _secrets_mod
     _session_secret = _secrets_mod.token_hex(32)
 app.secret_key = _session_secret
@@ -295,7 +298,7 @@ try:
     app.register_blueprint(commander_pages_bp)
     logging.info("Commander API blueprint registered at /api/v1")
 except Exception as _e:
-    logging.warning("Commander blueprint not loaded: %s", _e)
+    logging.critical("Commander blueprint not loaded: %s", _e)
 try:
     from routes_newsletter_trigger import newsletter_trigger_bp
     app.register_blueprint(newsletter_trigger_bp)
@@ -312,6 +315,7 @@ app.register_blueprint(onboarding_bp)
 
 from oracle_routes import oracle_bp
 app.register_blueprint(oracle_bp)
+assert 'oracle' in app.blueprints, 'FATAL: Oracle blueprint failed to register'
 
 # SESSION 2: Blueprint Architecture — Newsletter main routes
 try:
@@ -367,7 +371,7 @@ try:
     app.register_blueprint(oracle_avatar_bp)
     logging.info("Oracle Avatar blueprint registered (/oracle-live, /api/oracle/*)")
 except Exception as _e:
-    logging.warning("Oracle Avatar blueprint not loaded: %s", _e)
+    logging.critical("Oracle Avatar blueprint not loaded: %s", _e)
 
 try:
     from services.video_engine.dashboard.app import dashboard_bp
@@ -413,15 +417,20 @@ except Exception as e:
 
 if __name__ == "__main__":
     _run_dev_server()
+_STATIC_ROOT = os.path.realpath('/home/ultron/protocol_pulse/static')
+
 @app.route('/a/<path:fn>')
 def _serve_asset(fn):
     from flask import make_response, abort
     import mimetypes, os as _o
     p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
-    if not _o.path.exists(p): abort(404)
-    data = open(p,'rb').read()
+    safe_p = _o.path.realpath(p)
+    if not safe_p.startswith(_STATIC_ROOT + _o.sep):
+        abort(403)
+    if not _o.path.exists(safe_p): abort(404)
+    data = open(safe_p,'rb').read()
     resp = make_response(data)
-    resp.headers['Content-Type'] = mimetypes.guess_type(p)[0] or 'text/plain'
+    resp.headers['Content-Type'] = mimetypes.guess_type(safe_p)[0] or 'text/plain'
     resp.headers['Cache-Control'] = 'public, max-age=3600'
     return resp
 
@@ -430,10 +439,13 @@ def _serve_v3(fn):
     from flask import make_response, abort
     import mimetypes, os as _o
     p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
-    if not _o.path.exists(p): abort(404)
-    data = open(p,'rb').read()
+    safe_p = _o.path.realpath(p)
+    if not safe_p.startswith(_STATIC_ROOT + _o.sep):
+        abort(403)
+    if not _o.path.exists(safe_p): abort(404)
+    data = open(safe_p,'rb').read()
     resp = make_response(data)
-    resp.headers['Content-Type'] = mimetypes.guess_type(p)[0] or 'text/plain'
+    resp.headers['Content-Type'] = mimetypes.guess_type(safe_p)[0] or 'text/plain'
     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
     resp.headers['Pragma'] = 'no-cache'
     return resp
