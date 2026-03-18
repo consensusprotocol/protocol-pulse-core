@@ -1,5 +1,4 @@
-"""Protocol Pulse Assembler V2 — Day 1 Foundation"""
-
+# Protocol Pulse V2 - assembler_v2
 from .constants import *
 from .manifest import EpisodeManifest, SegmentSpec, RenderedSegment
 from .state import EpisodeContext

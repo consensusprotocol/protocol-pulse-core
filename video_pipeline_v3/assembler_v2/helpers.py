@@ -1,25 +1,37 @@
-"""Core utilities. Every ffmpeg call goes through run_ffmpeg(). No exceptions."""
-
-import subprocess, json, os, time, logging, shutil
+"""
+Protocol Pulse V2 — helpers.py
+Core utilities. Every ffmpeg call goes through run_ffmpeg(). No exceptions.
+"""
+from __future__ import annotations
+import subprocess, json, os, time, shutil, logging
 from pathlib import Path
 from typing import Optional
-from .constants import *
+from .constants import (
+    VIDEO_W, VIDEO_H, VIDEO_FPS, VIDEO_PIX_FMT, VIDEO_CODEC, VIDEO_CRF,
+    AUDIO_CODEC, AUDIO_BITRATE, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS,
+    COLOR_BG, CHARTS_DIR
+)
 
 logger = logging.getLogger(__name__)
 
 
+# ── Core FFmpeg runner ────────────────────────────────────────────────────────
+
 def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
-    """Single authoritative ffmpeg runner. All segments use this. Never call subprocess directly."""
+    """
+    Single authoritative ffmpeg runner. All segments use this. Never bypass.
+    Logs full command, duration, and stderr on failure.
+    """
     cmd = ["ffmpeg", "-y"] + [str(a) for a in args]
-    logger.info(f"[ffmpeg] {label}: {' '.join(cmd[:8])}...")
+    logger.info(f"[ffmpeg] {label} | cmd: {' '.join(cmd[:10])}...")
     t0 = time.time()
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        elapsed = time.time() - t0
+        elapsed = round(time.time() - t0, 2)
         if result.returncode != 0:
-            logger.error(f"[ffmpeg] FAILED {label} ({elapsed:.1f}s): {result.stderr[-500:]}")
+            logger.error(f"[ffmpeg] FAIL {label} ({elapsed}s) | {result.stderr[-800:]}")
             return False
-        logger.info(f"[ffmpeg] OK {label} ({elapsed:.1f}s)")
+        logger.info(f"[ffmpeg] OK {label} ({elapsed}s)")
         return True
     except subprocess.TimeoutExpired:
         logger.error(f"[ffmpeg] TIMEOUT {label} after {timeout}s")
@@ -29,41 +41,50 @@ def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
         return False
 
 
+# ── FFprobe utilities ─────────────────────────────────────────────────────────
+
 def ffprobe_duration(path: Path) -> float:
-    """Return duration in seconds. Returns 0.0 on any error."""
+    """Return audio/video duration in seconds. Returns 0.0 on any error."""
     try:
-        result = subprocess.run(
+        r = subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration",
              "-of", "csv=p=0", str(path)],
             capture_output=True, text=True, timeout=15
         )
-        return float(result.stdout.strip())
+        val = r.stdout.strip()
+        return float(val) if val else 0.0
     except Exception:
         return 0.0
 
 
 def ffprobe_streams(path: Path) -> dict:
-    """Return full stream info dict. Returns {} on error."""
+    """Return full ffprobe JSON. Returns {} on error."""
     try:
-        result = subprocess.run(
+        r = subprocess.run(
             ["ffprobe", "-v", "error", "-print_format", "json",
              "-show_streams", "-show_format", str(path)],
             capture_output=True, text=True, timeout=15
         )
-        return json.loads(result.stdout)
+        return json.loads(r.stdout)
     except Exception:
         return {}
 
 
-def ffprobe_contract(path: Path) -> tuple[bool, dict]:
-    """Verify segment meets the output contract. Returns (passed, summary_dict)."""
+def ffprobe_contract(path: Path) -> tuple:
+    """
+    Verify segment meets the V2 output contract.
+    Returns (passed: bool, summary: dict).
+    Every segment is checked after render. Filler used if failed.
+    """
+    if not path.exists() or path.stat().st_size < 10000:
+        return False, {"error": "file missing or too small", "passed": False}
+
     info = ffprobe_streams(path)
     if not info:
-        return False, {"error": "ffprobe failed"}
+        return False, {"error": "ffprobe returned no data", "passed": False}
 
     streams = info.get("streams", [])
     fmt = info.get("format", {})
-
     video = next((s for s in streams if s.get("codec_type") == "video"), None)
     audio = next((s for s in streams if s.get("codec_type") == "audio"), None)
 
@@ -72,38 +93,46 @@ def ffprobe_contract(path: Path) -> tuple[bool, dict]:
     if not video:
         issues.append("no video stream")
     else:
-        if video.get("width") != VIDEO_W: issues.append(f"width={video.get('width')} not {VIDEO_W}")
-        if video.get("height") != VIDEO_H: issues.append(f"height={video.get('height')} not {VIDEO_H}")
-        if video.get("pix_fmt") != VIDEO_PIX_FMT: issues.append(f"pix_fmt={video.get('pix_fmt')}")
+        if video.get("width") != VIDEO_W:
+            issues.append(f"width={video.get('width')} (need {VIDEO_W})")
+        if video.get("height") != VIDEO_H:
+            issues.append(f"height={video.get('height')} (need {VIDEO_H})")
+        if video.get("pix_fmt") != VIDEO_PIX_FMT:
+            issues.append(f"pix_fmt={video.get('pix_fmt')} (need {VIDEO_PIX_FMT})")
         fps_str = video.get("r_frame_rate", "0/1")
         try:
             n, d = fps_str.split("/")
             fps = float(n) / float(d)
-            if abs(fps - VIDEO_FPS) > 0.5: issues.append(f"fps={fps:.2f} not {VIDEO_FPS}")
+            if abs(fps - VIDEO_FPS) > 0.5:
+                issues.append(f"fps={fps:.2f} (need {VIDEO_FPS})")
         except Exception:
-            issues.append(f"bad fps: {fps_str}")
+            issues.append(f"unparseable fps: {fps_str}")
 
     if not audio:
         issues.append("no audio stream")
     else:
-        if int(audio.get("sample_rate", 0)) != AUDIO_SAMPLE_RATE:
-            issues.append(f"sample_rate={audio.get('sample_rate')}")
-        if audio.get("channels") != AUDIO_CHANNELS:
-            issues.append(f"channels={audio.get('channels')}")
+        sr = int(audio.get("sample_rate", 0))
+        if sr != AUDIO_SAMPLE_RATE:
+            issues.append(f"sample_rate={sr} (need {AUDIO_SAMPLE_RATE})")
+        ch = audio.get("channels", 0)
+        if ch != AUDIO_CHANNELS:
+            issues.append(f"channels={ch} (need {AUDIO_CHANNELS})")
 
     duration = float(fmt.get("duration", 0))
-
     passed = len(issues) == 0
+
     summary = {
-        "duration": duration,
-        "issues": issues,
         "passed": passed,
+        "issues": issues,
+        "duration": round(duration, 3),
         "video_codec": video.get("codec_name") if video else None,
         "audio_codec": audio.get("codec_name") if audio else None,
         "width": video.get("width") if video else None,
         "height": video.get("height") if video else None,
         "fps": fps_str if video else None,
+        "pix_fmt": video.get("pix_fmt") if video else None,
         "sample_rate": audio.get("sample_rate") if audio else None,
+        "channels": audio.get("channels") if audio else None,
     }
 
     if issues:
@@ -114,72 +143,127 @@ def ffprobe_contract(path: Path) -> tuple[bool, dict]:
     return passed, summary
 
 
-def make_filler(output_path: Path, duration: float, tts_path: Optional[Path] = None) -> bool:
-    """Generate a filler segment. Uses TTS audio if available, else silence.
-    Always produces a contract-compliant segment."""
-    dur = max(duration, 5.0)
+# ── Filler segment ────────────────────────────────────────────────────────────
+
+def make_filler(output_path: Path, duration: float,
+                tts_path: Optional[Path] = None) -> bool:
+    """
+    Generate a contract-compliant filler segment.
+    Uses TTS audio if available so PBX voice continues even if video failed.
+    Dark background — clearly not final content but episode continues.
+    """
+    dur = max(float(duration), 5.0)
 
     if tts_path and tts_path.exists() and tts_path.stat().st_size > 1000:
-        # Dark video with TTS audio still playing
         ok = run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}",
+            "-f", "lavfi", "-i",
+            f"color=c={COLOR_BG}:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}",
             "-i", str(tts_path),
             "-map", "0:v", "-map", "1:a",
             "-c:v", VIDEO_CODEC, "-crf", str(VIDEO_CRF), "-preset", "veryfast",
             "-pix_fmt", VIDEO_PIX_FMT, "-r", str(VIDEO_FPS),
             "-c:a", AUDIO_CODEC, "-ar", str(AUDIO_SAMPLE_RATE), "-b:a", AUDIO_BITRATE,
             "-ac", str(AUDIO_CHANNELS),
-            "-t", str(dur),
-            "-shortest",
+            "-t", str(dur), "-shortest",
             str(output_path)
-        ], "filler with TTS audio", 60)
+        ], f"filler+audio {output_path.name}", 60)
     else:
-        # Pure dark silence filler
         ok = run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}",
-            "-f", "lavfi", "-i", f"anullsrc=r={AUDIO_SAMPLE_RATE}:cl=stereo",
+            "-f", "lavfi", "-i",
+            f"color=c={COLOR_BG}:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}",
+            "-f", "lavfi", "-i",
+            f"anullsrc=r={AUDIO_SAMPLE_RATE}:cl=stereo",
             "-c:v", VIDEO_CODEC, "-crf", str(VIDEO_CRF), "-preset", "veryfast",
             "-pix_fmt", VIDEO_PIX_FMT, "-r", str(VIDEO_FPS),
             "-c:a", AUDIO_CODEC, "-ar", str(AUDIO_SAMPLE_RATE), "-b:a", AUDIO_BITRATE,
             "-ac", str(AUDIO_CHANNELS),
             "-t", str(dur),
             str(output_path)
-        ], "filler silence", 60)
+        ], f"filler+silence {output_path.name}", 60)
 
-    return ok and output_path.exists()
+    return ok and output_path.exists() and output_path.stat().st_size > 10000
 
+
+# ── Atomic file operations ────────────────────────────────────────────────────
 
 def atomic_rename(src: Path, dst: Path) -> bool:
-    """Atomically move src to dst. Never leaves partial files at dst."""
+    """
+    Atomically move src to dst. Never leaves partial files at dst.
+    dst.parent is created if it does not exist.
+    """
     try:
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(src), str(dst))
+        logger.info(f"[atomic] {src.name} -> {dst}")
         return True
     except Exception as e:
-        logger.error(f"[atomic] rename failed {src} -> {dst}: {e}")
+        logger.error(f"[atomic] FAIL {src} -> {dst}: {e}")
         return False
 
 
-def normalize_pip_preview(clip_path: Path, output_path: Path, duration: float = 8.0) -> bool:
-    """Pre-normalize a partner clip to pip_preview_norm format.
-    Run ONCE per clip, not inside narration renders.
-    Output: 640x360, yuv420p, 30fps, no audio, h264 crf=18"""
+# ── PiP pre-normalization ─────────────────────────────────────────────────────
+
+def normalize_pip_preview(clip_path: Path, output_path: Path,
+                           duration: float = 8.0) -> bool:
+    """
+    Pre-normalize a partner clip to pip_preview_norm format.
+    Run ONCE per clip in Stage 2, NOT inside narration renders.
+    Output: 640x360, yuv420p, 30fps CFR, no audio, h264 crf=18, hue=s=0.25.
+    This pre-processing means narration.py only does a simple overlay.
+    No zoompan, no heavy real-time transforms.
+    """
     if not clip_path.exists() or clip_path.stat().st_size < 50000:
+        logger.warning(f"[pip_norm] clip missing or tiny: {clip_path}")
         return False
+
     clip_dur = ffprobe_duration(clip_path)
-    if clip_dur < 2:
+    if clip_dur < 2.0:
+        logger.warning(f"[pip_norm] clip too short ({clip_dur:.1f}s): {clip_path.name}")
         return False
-    start = max(0, (clip_dur / 2) - (duration / 2))
+
+    # Extract from midpoint — better face/content shots
+    start = max(0.0, (clip_dur / 2.0) - (duration / 2.0))
     actual_dur = min(duration, clip_dur - start)
-    return run_ffmpeg([
-        "-ss", str(start), "-i", str(clip_path),
-        "-t", str(actual_dur), "-an",
+
+    ok = run_ffmpeg([
+        "-ss", str(round(start, 3)),
+        "-i", str(clip_path),
+        "-t", str(round(actual_dur, 3)),
+        "-an",
         "-vf", (
             "scale=640:360:force_original_aspect_ratio=decrease,"
             "pad=640:360:(ow-iw)/2:(oh-ih)/2:black,"
-            f"fps={VIDEO_FPS},format={VIDEO_PIX_FMT},"
-            "hue=s=0.25"   # desaturate slightly — full desat done in narration overlay
+            f"fps={VIDEO_FPS},"
+            f"format={VIDEO_PIX_FMT},"
+            "hue=s=0.25"
         ),
         "-c:v", VIDEO_CODEC, "-crf", "18", "-preset", "veryfast",
         str(output_path)
-    ], f"pip normalize {clip_path.name}", 120)
+    ], f"pip_norm {clip_path.name}", 120)
+
+    if ok and output_path.exists():
+        logger.info(f"[pip_norm] OK {output_path.name} ({actual_dur:.1f}s)")
+        return True
+    return False
+
+
+# ── Chart PNG helper ──────────────────────────────────────────────────────────
+
+def get_chart_path(keyword: str) -> Optional[Path]:
+    """
+    Map narration keyword to chart PNG path.
+    Returns None if chart missing — caller must handle gracefully.
+    """
+    mapping = {
+        "price": CHARTS_DIR / "price_chart.png",
+        "hashrate": CHARTS_DIR / "hashrate_chart.png",
+        "mempool": CHARTS_DIR / "dominance_chart.png",
+        "dominance": CHARTS_DIR / "dominance_chart.png",
+    }
+    path = mapping.get(keyword.lower())
+    if path and path.exists() and path.stat().st_size > 1000:
+        return path
+    all_charts = [CHARTS_DIR / f for f in
+                  ("price_chart.png", "hashrate_chart.png", "dominance_chart.png")
+                  if (CHARTS_DIR / f).exists()]
+    return all_charts[0] if all_charts else None

@@ -1,117 +1,51 @@
-"""Validate everything before touching ffmpeg. Fail fast."""
-
-import os, shutil, logging, json
+"""Protocol Pulse V2 - preflight.py"""
+from __future__ import annotations
+import os,shutil,logging
 from pathlib import Path
-from typing import Optional
-from .constants import *
-from .helpers import ffprobe_duration, ffprobe_streams
-
-logger = logging.getLogger(__name__)
-
-CRITICAL_ASSETS = [
-    (INTRO_TAG, "intro_tag.mp4"),
-    (INTRO_MUSIC, "intro_music.mp3"),
-    (BG_LOOP, "bg_loop.mp4"),
-    (OUTRO_BRANDED, "outro_branded_new.mp4"),
-    (SFX_WHOOSH, "custom_whoosh.wav"),
-    (SFX_SWOOSH, "card_swoosh.wav"),
-    (FONT_BOLD, "JetBrainsMono-Bold.ttf"),
-    (FONT_MONO, "JetBrainsMono-Regular.ttf"),
-]
-
-
-def run_preflight(tts_files: list[Path], clip_files: list[Path],
-                  work_dir: Path) -> dict:
-    """Run all preflight checks. Returns report dict.
-    Raises RuntimeError if any CRITICAL check fails."""
-    report = {"passed": True, "critical_failures": [], "warnings": [], "checks": {}}
-
-    def fail(msg: str):
-        report["critical_failures"].append(msg)
-        report["passed"] = False
-        logger.error(f"[preflight] CRITICAL: {msg}")
-
-    def warn(msg: str):
-        report["warnings"].append(msg)
-        logger.warning(f"[preflight] WARNING: {msg}")
-
-    # 1. ffmpeg / ffprobe available
-    for tool in ("ffmpeg", "ffprobe"):
-        if not shutil.which(tool):
-            fail(f"{tool} not found in PATH")
-        else:
-            report["checks"][tool] = "OK"
-
-    # 2. Critical asset files
-    for path, name in CRITICAL_ASSETS:
-        if not path.exists():
-            fail(f"Missing critical asset: {name} at {path}")
-        elif path.stat().st_size < 1000:
-            fail(f"Zero/tiny asset: {name} ({path.stat().st_size} bytes)")
-        else:
-            report["checks"][name] = f"OK ({path.stat().st_size // 1024}KB)"
-
-    # 3. Disk space (need at least 10GB free)
+from .constants import INTRO_TAG,INTRO_MUSIC,BG_LOOP,OUTRO_BRANDED,SFX_WHOOSH,SFX_SWOOSH,FONT_BOLD,FONT_MONO,CHARTS_DIR
+from .helpers import ffprobe_duration,ffprobe_streams
+logger=logging.getLogger(__name__)
+CRITICAL=[(INTRO_TAG,"intro_tag.mp4",1000000),(INTRO_MUSIC,"intro_music.mp3",100000),(BG_LOOP,"bg_loop.mp4",1000000),(OUTRO_BRANDED,"outro_branded_new.mp4",1000000),(SFX_WHOOSH,"custom_whoosh.wav",10000),(SFX_SWOOSH,"card_swoosh.wav",10000),(FONT_BOLD,"JetBrainsMono-Bold.ttf",50000),(FONT_MONO,"JetBrainsMono-Regular.ttf",50000)]
+def run_preflight(tts_files:list,clip_files:list,work_dir:Path)->dict:
+    rpt={"passed":True,"critical_failures":[],"warnings":[],"checks":{}}
+    def fail(m):
+        rpt["critical_failures"].append(m);rpt["passed"]=False;logger.error(f"[preflight] CRITICAL: {m}")
+    def warn(m):
+        rpt["warnings"].append(m);logger.warning(f"[preflight] WARNING: {m}")
+    for t in("ffmpeg","ffprobe"):
+        if shutil.which(t):rpt["checks"][t]="OK"
+        else:fail(f"{t} not in PATH")
+    for path,name,mn in CRITICAL:
+        if not path.exists():fail(f"Missing: {name}")
+        elif path.stat().st_size<mn:fail(f"Too small: {name}")
+        else:rpt["checks"][name]=f"OK {path.stat().st_size//1024}KB"
     try:
-        stat = os.statvfs(str(work_dir))
-        free_gb = (stat.f_bavail * stat.f_frsize) / (1024**3)
-        if free_gb < 5.0:
-            fail(f"Insufficient disk space: {free_gb:.1f}GB free (need 5GB+)")
-        elif free_gb < 10.0:
-            warn(f"Low disk space: {free_gb:.1f}GB free")
-        report["checks"]["disk_space"] = f"{free_gb:.1f}GB free"
-    except Exception as e:
-        warn(f"Could not check disk space: {e}")
-
-    # 4. TTS files validation
-    for p in tts_files:
-        if not p.exists():
-            fail(f"TTS file missing: {p.name}")
-        elif p.stat().st_size < 1000:
-            fail(f"TTS file empty/tiny: {p.name} ({p.stat().st_size} bytes)")
+        s=os.statvfs(str(work_dir));fg=(s.f_bavail*s.f_frsize)/(1024**3)
+        if fg<5.0:fail(f"Disk critical {fg:.1f}GB")
+        elif fg<10.0:warn(f"Disk low {fg:.1f}GB")
+        else:rpt["checks"]["disk"]=f"OK {fg:.1f}GB"
+    except Exception as e:warn(f"Disk check: {e}")
+    for p in[Path(x) for x in tts_files]:
+        if not p.exists():fail(f"TTS missing: {p.name}")
+        elif p.stat().st_size<1000:fail(f"TTS empty: {p.name}")
         else:
-            dur = ffprobe_duration(p)
-            if dur < 0.5:
-                fail(f"TTS file has no audio: {p.name}")
-            else:
-                report["checks"][f"tts_{p.name}"] = f"OK ({dur:.1f}s)"
-
-    # 5. Partner clip validation
-    for p in clip_files:
-        if not p.exists():
-            warn(f"Clip missing (will use filler): {p.name}")
-            continue
-        if p.stat().st_size < 50000:
-            warn(f"Clip suspiciously small: {p.name} ({p.stat().st_size} bytes)")
-            continue
-        info = ffprobe_streams(p)
-        streams = info.get("streams", [])
-        has_video = any(s.get("codec_type") == "video" for s in streams)
-        has_audio = any(s.get("codec_type") == "audio" for s in streams)
-        dur = ffprobe_duration(p)
-        if not has_video:
-            warn(f"Clip has no video stream: {p.name}")
-        if not has_audio:
-            warn(f"Clip has no audio stream: {p.name}")
-        if dur < 5:
-            warn(f"Clip very short ({dur:.1f}s): {p.name}")
-        if dur > 600:
-            warn(f"Clip very long ({dur:.1f}s): {p.name}")
-        report["checks"][f"clip_{p.name}"] = f"OK ({dur:.1f}s, video={has_video}, audio={has_audio})"
-
-    # 6. Chart PNGs (warnings only — data segment handles missing gracefully)
-    for chart in ("price_chart.png", "hashrate_chart.png", "dominance_chart.png"):
-        chart_path = CHARTS_DIR / chart
-        if not chart_path.exists():
-            warn(f"Chart PNG missing: {chart} — data segment will use fallback")
-        else:
-            report["checks"][chart] = f"OK ({chart_path.stat().st_size // 1024}KB)"
-
-    if report["critical_failures"]:
-        raise RuntimeError(
-            f"Preflight FAILED — {len(report['critical_failures'])} critical issues:\n"
-            + "\n".join(f"  - {x}" for x in report["critical_failures"])
-        )
-
-    logger.info(f"[preflight] PASSED — {len(report['warnings'])} warnings")
-    return report
+            d=ffprobe_duration(p)
+            if d<0.5:fail(f"TTS silent: {p.name}")
+            else:rpt["checks"][f"tts:{p.name}"]=f"OK {d:.1f}s"
+    for p in[Path(x) for x in clip_files]:
+        if not p.exists():warn(f"Clip missing (filler): {p.name}");continue
+        info=ffprobe_streams(p);streams=info.get("streams",[])
+        hv=any(s.get("codec_type")=="video" for s in streams)
+        ha=any(s.get("codec_type")=="audio" for s in streams)
+        d=ffprobe_duration(p)
+        if not hv:warn(f"Clip no video: {p.name}")
+        if not ha:warn(f"Clip no audio: {p.name}")
+        rpt["checks"][f"clip:{p.name}"]=f"OK {d:.1f}s v={hv} a={ha}"
+    for c in("price_chart.png","hashrate_chart.png","dominance_chart.png"):
+        cp=CHARTS_DIR/c
+        if cp.exists() and cp.stat().st_size>1000:rpt["checks"][c]="OK"
+        else:warn(f"Chart missing: {c}")
+    if rpt["critical_failures"]:
+        raise RuntimeError("Preflight FAILED: "+("; ".join(rpt["critical_failures"])))
+    logger.info(f"[preflight] PASSED {len(rpt['checks'])} checks, {len(rpt['warnings'])} warnings")
+    return rpt
