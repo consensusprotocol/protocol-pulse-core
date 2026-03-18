@@ -117,6 +117,11 @@ def ffprobe_contract(path: Path) -> tuple:
         ch = audio.get("channels", 0)
         if ch != AUDIO_CHANNELS:
             issues.append(f"channels={ch} (need {AUDIO_CHANNELS})")
+        # Codec checks — critical for concat compatibility
+        if video and video.get("codec_name") != "h264":
+            issues.append(f"video_codec={video.get('codec_name')} (need h264)")
+        if audio.get("codec_name") != AUDIO_CODEC:
+            issues.append(f"audio_codec={audio.get('codec_name')} (need {AUDIO_CODEC})")
 
     duration = float(fmt.get("duration", 0))
     passed = len(issues) == 0
@@ -263,7 +268,9 @@ def get_chart_path(keyword: str) -> Optional[Path]:
     path = mapping.get(keyword.lower())
     if path and path.exists() and path.stat().st_size > 1000:
         return path
-    all_charts = [CHARTS_DIR / f for f in
-                  ("price_chart.png", "hashrate_chart.png", "dominance_chart.png")
-                  if (CHARTS_DIR / f).exists()]
-    return all_charts[0] if all_charts else None
+    # Return None for unmapped keywords — segment handles missing chart gracefully
+    # Never return a wrong chart (content integrity rule)
+    if keyword and keyword.lower() not in mapping:
+        return None
+    # For empty keyword (show all charts), return None — segment handles grid layout
+    return None
