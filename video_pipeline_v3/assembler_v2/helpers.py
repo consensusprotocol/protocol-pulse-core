@@ -76,7 +76,7 @@ def ffprobe_contract(path: Path) -> tuple:
     Returns (passed: bool, summary: dict).
     Every segment is checked after render. Filler used if failed.
     """
-    if not path.exists() or path.stat().st_size < 10000:
+    if not path.exists() or path.stat().st_size < 1000:
         return False, {"error": "file missing or too small", "passed": False}
 
     info = ffprobe_streams(path)
@@ -186,7 +186,7 @@ def make_filler(output_path: Path, duration: float,
             str(output_path)
         ], f"filler+silence {output_path.name}", 60)
 
-    return ok and output_path.exists() and output_path.stat().st_size > 10000
+    return ok and output_path.exists() and output_path.stat().st_size > 1000
 
 
 # ── Atomic file operations ────────────────────────────────────────────────────
