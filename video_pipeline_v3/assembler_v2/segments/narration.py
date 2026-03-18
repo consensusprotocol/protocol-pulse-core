@@ -136,4 +136,3 @@ class NarrationSegment(Segment):
         return self._encode(inputs,self._build_fg_no_pip(dur,hl,bd),
                             output_path,dur,f'narration no-pip rank={spec.clip_rank}')
 
-    @staticmethod
