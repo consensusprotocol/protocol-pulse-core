@@ -4,14 +4,15 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..helpers import run_ffmpeg, ffprobe_duration, ffprobe_contract, atomic_rename
+from ..helpers import run_ffmpeg, ffprobe_duration, ffprobe_contract, atomic_rename, safe_text
 from ..constants import (
     VIDEO_W, VIDEO_H, VIDEO_FPS, VIDEO_PIX_FMT,
     VIDEO_CODEC, VIDEO_CRF,
     AUDIO_CODEC, AUDIO_BITRATE, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS,
     AUDIO_LIMITER, AUDIO_TARGET_LUFS, AUDIO_MAX_TRUE_PEAK, AUDIO_LRA,
     INTRO_TAG, INTRO_MUSIC, COLOR_BG, FONT_BOLD, FONT_MONO,
-    COLOR_RED, COLOR_WHITE, COLOR_CYAN
+    COLOR_RED, COLOR_WHITE, COLOR_CYAN,
+    FFMPEG_TIMEOUT_FILTER
 )
 logger = logging.getLogger(__name__)
 FREEZE_FRAME_BUFFER_S = 1.0  # Extra frames after tag ends so fade-out has video to work on
@@ -105,7 +106,7 @@ class ColdOpenSegment(Segment):
             "-b:a", AUDIO_BITRATE, "-ac", str(AUDIO_CHANNELS),
             "-t", str(round(total_dur, 3)),
             "-movflags", "+faststart", str(tmp)
-        ], "cold_open full", 120)
+        ], "cold_open full", FFMPEG_TIMEOUT_FILTER)
 
     def _render_tag_only(self, tts, tmp, tts_dur, tag_dur, total_dur):
         """Intro tag video + TTS only (no music file)."""
@@ -132,12 +133,11 @@ class ColdOpenSegment(Segment):
             "-b:a", AUDIO_BITRATE, "-ac", str(AUDIO_CHANNELS),
             "-t", str(round(total_dur, 3)),
             "-movflags", "+faststart", str(tmp)
-        ], "cold_open tag-only", 120)
+        ], "cold_open tag-only", FFMPEG_TIMEOUT_FILTER)
 
     def _render_tts_only(self, tts, tmp, tts_dur, spec):
         """Fallback: dark background + TTS narration only."""
-        headline = spec.headline or "PULSE CHECK"
-        safe_hl = headline.replace(":", "\\:").replace("'", "\\'")[:60]
+        safe_hl = safe_text(spec.headline or "PULSE CHECK", 60)
         fg = (
             f"[0:v]scale={VIDEO_W}:{VIDEO_H},format={VIDEO_PIX_FMT}[bg];"
             f"[bg]drawtext=fontfile={FONT_BOLD}:text='{safe_hl}':"
@@ -160,4 +160,4 @@ class ColdOpenSegment(Segment):
             "-b:a", AUDIO_BITRATE, "-ac", str(AUDIO_CHANNELS),
             "-t", str(round(tts_dur + 0.5, 3)),
             "-movflags", "+faststart", str(tmp)
-        ], "cold_open tts-only fallback", 120)
+        ], "cold_open tts-only fallback", FFMPEG_TIMEOUT_FILTER)

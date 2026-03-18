@@ -4,7 +4,7 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..constants import VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,COLOR_BG,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,SFX_WHOOSH
+from ..constants import VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,COLOR_BG,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,SFX_WHOOSH,FFMPEG_TIMEOUT_SHORT
 from ..ffmpeg_core.encode import encode_segment
 logger=logging.getLogger(__name__)
 TRANSITION_DURATION=0.25
@@ -47,7 +47,7 @@ class TransitionSegment(Segment):
             )
 
         ok,passed,summary,ms=encode_segment(
-            inputs,fg,'[v_out]','[a_out]',output_path,dur,'transition',30)
+            inputs,fg,'[v_out]','[a_out]',output_path,dur,'transition',FFMPEG_TIMEOUT_SHORT)
 
         if not ok or not output_path.exists():
             return self.filler_result(spec,ctx,output_path,'transition encode failed')

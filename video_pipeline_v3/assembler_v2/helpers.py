@@ -9,7 +9,8 @@ from typing import Optional
 from .constants import (
     VIDEO_W, VIDEO_H, VIDEO_FPS, VIDEO_PIX_FMT, VIDEO_CODEC, VIDEO_CRF,
     AUDIO_CODEC, AUDIO_BITRATE, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS,
-    COLOR_BG, CHARTS_DIR
+    COLOR_BG, CHARTS_DIR,
+    FFMPEG_TIMEOUT_ENCODE, FFMPEG_TIMEOUT_FILTER, FFMPEG_TIMEOUT_PROBE
 )
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # ── Core FFmpeg runner ────────────────────────────────────────────────────────
 
-def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
+def run_ffmpeg(args: list, label: str = "", timeout: int = FFMPEG_TIMEOUT_ENCODE) -> bool:
     """
     Single authoritative ffmpeg runner. All segments use this. Never bypass.
     Logs full command, duration, and stderr on failure.
@@ -50,7 +51,7 @@ def ffprobe_duration(path: Path) -> float:
         r = subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration",
              "-of", "csv=p=0", str(path)],
-            capture_output=True, text=True, timeout=15
+            capture_output=True, text=True, timeout=FFMPEG_TIMEOUT_PROBE
         )
         val = r.stdout.strip()
         return float(val) if val else 0.0
@@ -64,7 +65,7 @@ def ffprobe_streams(path: Path) -> dict:
         r = subprocess.run(
             ["ffprobe", "-v", "error", "-print_format", "json",
              "-show_streams", "-show_format", str(path)],
-            capture_output=True, text=True, timeout=15
+            capture_output=True, text=True, timeout=FFMPEG_TIMEOUT_PROBE
         )
         return json.loads(r.stdout)
     except Exception:
@@ -172,7 +173,7 @@ def make_filler(output_path: Path, duration: float,
             "-ac", str(AUDIO_CHANNELS),
             "-t", str(dur), "-shortest",
             str(output_path)
-        ], f"filler+audio {output_path.name}", 60)
+        ], f"filler+audio {output_path.name}", FFMPEG_TIMEOUT_FILTER)
     else:
         ok = run_ffmpeg([
             "-f", "lavfi", "-i",
@@ -185,7 +186,7 @@ def make_filler(output_path: Path, duration: float,
             "-ac", str(AUDIO_CHANNELS),
             "-t", str(dur),
             str(output_path)
-        ], f"filler+silence {output_path.name}", 60)
+        ], f"filler+silence {output_path.name}", FFMPEG_TIMEOUT_FILTER)
 
     return ok and output_path.exists() and output_path.stat().st_size > 1000
 
@@ -245,7 +246,7 @@ def normalize_pip_preview(clip_path: Path, output_path: Path,
         ),
         "-c:v", VIDEO_CODEC, "-crf", "18", "-preset", "veryfast",
         str(output_path)
-    ], f"pip_norm {clip_path.name}", 120)
+    ], f"pip_norm {clip_path.name}", FFMPEG_TIMEOUT_FILTER)
 
     if ok and output_path.exists():
         logger.info(f"[pip_norm] OK {output_path.name} ({actual_dur:.1f}s)")
@@ -272,6 +273,7 @@ def get_chart_path(keyword: str) -> Optional[Path]:
     # Return None for unmapped keywords — segment handles missing chart gracefully
     # Never return a wrong chart (content integrity rule)
     if keyword and keyword.lower() not in mapping:
+        logger.warning(f"[chart] unmapped chart keyword '{keyword}' — returning None")
         return None
     # For empty keyword (show all charts), return None — segment handles grid layout
     return None

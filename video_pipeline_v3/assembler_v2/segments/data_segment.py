@@ -27,35 +27,45 @@ def _detect_keyword(text):
 METRICS_CACHE_TTL=120  # seconds — cache valid for 2 minutes
 
 
+_last_successful_fetch_ts = 0.0  # module-level staleness indicator
+
+
+def last_successful_fetch_ts() -> float:
+    """Return timestamp of last successful metrics fetch (0.0 if never)."""
+    return _last_successful_fetch_ts
+
+
 def _refresh_metrics_cache(cache_path):
     """Fetch all metrics and write to cache. Called in background thread."""
+    global _last_successful_fetch_ts
     import json,urllib.request,time
     data={}
     try:
         with urllib.request.urlopen("https://mempool.space/api/v1/prices",timeout=4) as resp:
             d=json.loads(resp.read())
             data["price"]="$"+"{:,}".format(d.get("USD",0))
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"[data] metrics fetch failed (price): {e}")
     try:
         with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d",timeout=4) as resp:
             d=json.loads(resp.read())
             data["hashrate"]=str(round(d.get("currentHashrate",0)/1e18,1))+" EH/s"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"[data] metrics fetch failed (hashrate): {e}")
     try:
         with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=4) as resp:
             d=json.loads(resp.read())
             data["mempool"]=str(round(d.get("mempool_byte_per_vbyte",0),1))+" sat/vB"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"[data] metrics fetch failed (mempool): {e}")
     if data:
         data["_ts"]=time.time()
+        _last_successful_fetch_ts = data["_ts"]
         try:
             import json as j
             open(str(cache_path),"w").write(j.dumps(data))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"[data] metrics cache write failed: {e}")
 
 
 def _get_metric(key,fallback,cache_path):
@@ -76,7 +86,8 @@ def _get_metric(key,fallback,cache_path):
         threading.Thread(target=_refresh_metrics_cache,args=(cp,),daemon=True).start()
         if key in cache:
             return cache[key]
-    except Exception:
+    except Exception as e:
+        logger.error(f"[data] metrics cache read failed for '{key}': {e}")
         # Cache missing — fire background refresh
         threading.Thread(target=_refresh_metrics_cache,args=(cp,),daemon=True).start()
     # One-shot fallback with short timeout — won't block long
@@ -91,8 +102,8 @@ def _get_metric(key,fallback,cache_path):
         if key=="mempool":
             with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=2) as resp:
                 return str(round(json.loads(resp.read()).get("mempool_byte_per_vbyte",0),1))+" sat/vB"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"[data] metrics one-shot fallback failed for '{key}': {e}")
     return fallback
 
 def _safe(text,n=30):
@@ -122,6 +133,9 @@ class DataSegment(Segment):
         if dur<0.5:
             return self.filler_result(spec,ctx,output_path,"TTS silent")
         keyword=spec.chart_keyword or _detect_keyword(spec.body+" "+spec.headline)
+        VALID_CHART_KEYWORDS={"price","hashrate","mempool","dominance",""}
+        if keyword and keyword.lower() not in VALID_CHART_KEYWORDS:
+            logger.warning(f"[data] invalid chart_keyword '{keyword}' — falling back to no chart")
         chart=get_chart_path(keyword)
         cache_path=ctx.workdir/"metrics_cache.json"
         btc=_safe(_get_metric("price",spec.btc_price or "$N/A",cache_path),20)

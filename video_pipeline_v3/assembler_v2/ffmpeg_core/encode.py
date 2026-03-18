@@ -2,11 +2,11 @@ from __future__ import annotations
 import time,logging
 from pathlib import Path
 from typing import Optional
-from ..constants import VIDEO_CODEC,VIDEO_CRF,VIDEO_PRESET,VIDEO_FPS,VIDEO_PIX_FMT,AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS
+from ..constants import VIDEO_CODEC,VIDEO_CRF,VIDEO_PRESET,VIDEO_FPS,VIDEO_PIX_FMT,AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,FFMPEG_TIMEOUT_ENCODE
 from ..helpers import run_ffmpeg,ffprobe_contract,make_filler,atomic_rename
 logger=logging.getLogger(__name__)
 
-def encode_segment(inputs,filter_complex,video_map,audio_map,output_path,duration,label="segment",timeout=300,tts_path=None):
+def encode_segment(inputs,filter_complex,video_map,audio_map,output_path,duration,label="segment",timeout=FFMPEG_TIMEOUT_ENCODE,tts_path=None):
     """Single authoritative encode function. Every segment calls this. Never bypass."""
     tmp=output_path.with_suffix(".tmp.mp4")
     t0=time.time()
