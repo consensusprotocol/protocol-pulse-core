@@ -57,18 +57,19 @@ class WrapSegment(Segment):
                 f'alimiter=limit={AUDIO_LIMITER}:attack=5:release=50[a_out]'
             )
 
-        ok,passed,summary,ms=encode_segment(
+        primary_ok,passed,summary,ms=encode_segment(
             inputs,fg,'[v_out]','[a_out]',output_path,total_dur,'wrap outro',120,tts)
 
-        if not ok or not output_path.exists():
+        if not output_path.exists():
             return self.filler_result(spec,ctx,output_path,'wrap encode failed')
 
-        if not passed:
+        filler_used=summary.get('filler_used',False) if isinstance(summary,dict) else False
+        if not primary_ok or filler_used:
             ctx.mark_degraded('wrap','contract failed (filler via encode_segment)',total_dur)
             logger.warning(f'[wrap] DEGRADED — filler via encode_segment')
         else:
             logger.info(f'[wrap] OK ({total_dur:.1f}s)')
         return RenderedSegment(spec=spec,path=str(output_path),
                                duration=summary.get('duration',total_dur),
-                               contract_passed=passed,degraded=not passed,
+                               contract_passed=passed,degraded=not primary_ok or filler_used,
                                ffprobe_summary=summary,render_ms=ms)

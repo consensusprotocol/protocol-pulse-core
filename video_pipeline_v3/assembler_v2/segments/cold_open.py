@@ -66,7 +66,10 @@ class ColdOpenSegment(Segment):
         if not passed:
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec, ctx, output_path, "contract_failed")
-        atomic_rename(tmp, output_path)
+        rename_ok = atomic_rename(tmp, output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, 'atomic_rename failed')
         dur = summary.get("duration", total_dur)
         logger.info(f"[cold_open] OK ({dur:.1f}s)")
         return RenderedSegment(

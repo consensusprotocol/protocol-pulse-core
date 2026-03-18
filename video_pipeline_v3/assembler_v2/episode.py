@@ -76,6 +76,17 @@ class EpisodeRunner:
             )
 
     def _run(self, manifest: EpisodeManifest, output_dir: Path, t0: float) -> EpisodeReport:
+        # 0. Validate manifest
+        try:
+            manifest.validate()
+        except ValueError as e:
+            return EpisodeReport(
+                episode_id=manifest.episode_id,
+                verdict="HOLD",
+                elapsed_seconds=round(time.time() - t0, 3),
+                error=f"manifest validation failed: {e}",
+            )
+
         # 1. Preflight
         tts_files = [s.tts_path for s in manifest.segments if s.tts_path]
         clip_files = [s.clip_path for s in manifest.segments if s.clip_path]
@@ -169,7 +180,16 @@ class EpisodeRunner:
                 error="concat produced empty output",
             )
 
-        atomic_rename(final_tmp, final_path)
+        rename_ok = atomic_rename(final_tmp, final_path)
+        if not rename_ok:
+            final_tmp.unlink(missing_ok=True)
+            return EpisodeReport(
+                episode_id=ctx.episode_id,
+                verdict="HOLD",
+                error="final episode atomic_rename failed",
+                elapsed_seconds=round(time.time() - t0, 3),
+                segment_reports=segment_reports,
+            )
 
         # 6. Contract check on final
         contract_passed, final_summary = ffprobe_contract(final_path)

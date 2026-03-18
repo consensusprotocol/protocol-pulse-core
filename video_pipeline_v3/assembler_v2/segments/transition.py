@@ -46,16 +46,17 @@ class TransitionSegment(Segment):
                 f'[1:a]aformat=channel_layouts=stereo:sample_rates={AUDIO_SAMPLE_RATE}[a_out]'
             )
 
-        ok,passed,summary,ms=encode_segment(
+        primary_ok,passed,summary,ms=encode_segment(
             inputs,fg,'[v_out]','[a_out]',output_path,dur,'transition',FFMPEG_TIMEOUT_SHORT)
 
-        if not ok or not output_path.exists():
+        if not output_path.exists():
             return self.filler_result(spec,ctx,output_path,'transition encode failed')
 
         if apply_whoosh:
             ctx.mark_whoosh(output_path)
 
-        if not passed:
+        filler_used=summary.get('filler_used',False) if isinstance(summary,dict) else False
+        if not primary_ok or filler_used:
             ctx.mark_degraded('transition','contract failed (filler via encode_segment)',dur)
             logger.warning('[transition] DEGRADED — filler via encode_segment')
         else:
@@ -63,5 +64,5 @@ class TransitionSegment(Segment):
 
         return RenderedSegment(spec=spec,path=str(output_path),
                                duration=dur,contract_passed=passed,
-                               degraded=not passed,ffprobe_summary=summary,
+                               degraded=not primary_ok or filler_used,ffprobe_summary=summary,
                                render_ms=ms)

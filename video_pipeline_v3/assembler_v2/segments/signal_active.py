@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 BRAND_RED = "0xE8272B"
 CARD_BG = "0x141419"
 META_GRAY = "0x888888"
+# Read-only config path — acceptable as module constant (Law 3: no MUTABLE module-level state)
 SIGNAL_CACHE = PIPELINE_DIR / "cache" / "active_signal.json"
 
 
@@ -30,7 +31,7 @@ class SignalActiveSegment(Segment):
     def render(self, spec: SegmentSpec, ctx: EpisodeContext,
                output_path: Path, idx: int) -> RenderedSegment:
         try:
-            return self._render(spec, ctx, output_path)
+            return self._render(spec, ctx, output_path, idx)
         except Exception as e:
             logger.error(f'[signal_active] exception: {e}')
             return self.filler_result(spec, ctx, output_path, str(e))
@@ -48,15 +49,15 @@ class SignalActiveSegment(Segment):
             logger.warning(f'[signal_active] cache read failed: {e}')
             return None
 
-    def _render(self, spec, ctx, output_path):
+    def _render(self, spec, ctx, output_path, idx=0):
         signal = self._read_signal(spec)
 
         # Audio: spec TTS → inline ElevenLabs → fallback silence
         tts = spec.tts()
         if not tts or not tts.exists() or tts.stat().st_size < 1000:
-            tts = self._generate_audio(signal, ctx)
+            tts = self._generate_audio(signal, ctx, idx)
         if not tts or not tts.exists() or tts.stat().st_size < 1000:
-            tts = ctx.segment_dir() / 'signal_fallback.m4a'
+            tts = ctx.segment_dir() / f'signal_{idx}_fallback.m4a'
             self._make_fallback_audio(tts, 8.0)
 
         dur = ffprobe_duration(tts)
@@ -84,7 +85,10 @@ class SignalActiveSegment(Segment):
         if not passed:
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec, ctx, output_path, 'contract_failed')
-        atomic_rename(tmp, output_path)
+        rename_ok = atomic_rename(tmp, output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, 'atomic_rename failed')
         actual = summary.get('duration', dur)
         logger.info(f'[signal_active] OK ({actual:.1f}s signal={"yes" if signal else "no"})')
         return RenderedSegment(
@@ -169,10 +173,10 @@ class SignalActiveSegment(Segment):
 
         return ';'.join(parts)
 
-    def _generate_audio(self, signal, ctx):
+    def _generate_audio(self, signal, ctx, idx=0):
         """Inline ElevenLabs TTS for both halves, concat with 0.5s gap."""
         try:
-            import requests
+            from ..network import http_post
             key = os.environ.get('ELEVENLABS_API_KEY', '')
             if not key:
                 return None
@@ -180,23 +184,23 @@ class SignalActiveSegment(Segment):
             top_text = signal.get('text', '')[:500] if signal else 'No active signal'
             bottom_text = f'{self.SPONSOR_L1}. {self.SPONSOR_L2}. {self.SPONSOR_L3}'
 
-            top_path = ctx.segment_dir() / 'sig_top.mp3'
-            bot_path = ctx.segment_dir() / 'sig_bot.mp3'
+            top_path = ctx.segment_dir() / f'sig_{idx}_top.mp3'
+            bot_path = ctx.segment_dir() / f'sig_{idx}_bot.mp3'
 
             for text, path in [(top_text, top_path), (bottom_text, bot_path)]:
-                resp = requests.post(
+                resp = http_post(
                     f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}',
                     headers={'xi-api-key': key, 'Content-Type': 'application/json'},
-                    json={'text': text, 'model_id': 'eleven_turbo_v2_5',
+                    json_body={'text': text, 'model_id': 'eleven_turbo_v2_5',
                           'voice_settings': {'stability': 0.5, 'similarity_boost': 0.5}},
                     timeout=30
                 )
-                if resp.status_code != 200 or len(resp.content) < 1000:
+                if resp is None or len(resp.content) < 1000:
                     return None
                 path.write_bytes(resp.content)
 
             # 0.5s silence gap
-            gap = ctx.segment_dir() / 'sig_gap.m4a'
+            gap = ctx.segment_dir() / f'sig_{idx}_gap.m4a'
             run_ffmpeg([
                 '-f', 'lavfi', '-i', f'anullsrc=r={AUDIO_SAMPLE_RATE}:cl=stereo',
                 '-t', '0.5', '-c:a', AUDIO_CODEC, '-ar', str(AUDIO_SAMPLE_RATE),
@@ -204,12 +208,12 @@ class SignalActiveSegment(Segment):
             ], 'signal gap', 15)
 
             # Concat with ffmpeg concat demuxer
-            concat_file = ctx.segment_dir() / 'sig_concat.txt'
+            concat_file = ctx.segment_dir() / f'sig_{idx}_concat.txt'
             concat_tmp = concat_file.with_suffix('.tmp')
             concat_tmp.write_text(f"file '{top_path}'\nfile '{gap}'\nfile '{bot_path}'\n")
             import os as _os
             _os.replace(str(concat_tmp), str(concat_file))
-            out = ctx.segment_dir() / 'sig_concat_out.m4a'
+            out = ctx.segment_dir() / f'sig_{idx}_concat_out.m4a'
             ok = run_ffmpeg([
                 '-f', 'concat', '-safe', '0', '-i', str(concat_file),
                 '-c:a', AUDIO_CODEC, '-ar', str(AUDIO_SAMPLE_RATE),

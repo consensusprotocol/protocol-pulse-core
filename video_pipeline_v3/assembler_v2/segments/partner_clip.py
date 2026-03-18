@@ -61,6 +61,7 @@ class PartnerClipSegment(Segment):
         if not has_v:
             return self.filler_result(spec,ctx,output_path,"clip no video")
         hdr=_is_hdr(clip)
+        # All user-derived text must pass through safe_text() before drawtext
         ch=safe_text(spec.headline or "PARTNER SIGNAL",40)
         sl=safe_text("PROTOCOL PULSE  PARTNER CLIP",40)
         lty=VIDEO_H-LT_HEIGHT-LT_Y_OFFSET
@@ -69,18 +70,20 @@ class PartnerClipSegment(Segment):
         fb,fm=str(FONT_BOLD),str(FONT_MONO)
         cw,cr=COLOR_WHITE,COLOR_RED
         sr,lim=str(AUDIO_SAMPLE_RATE),str(AUDIO_LIMITER)
-        vfg=";".join([
+        tonemap_str=_tonemap_filter()+"," if hdr else ""
+        vfg_parts=[
             "[0:v]scale="+W+":"+H+":force_original_aspect_ratio=increase,"
-            "crop="+W+":"+H+","
-            +(_tonemap_filter()+"," if hdr else "")
+            +"crop="+W+":"+H+","
+            +tonemap_str
             +"setsar=1,format="+pf+",setpts=PTS-STARTPTS[vn]",
-            "[vn]drawbox=x=0:y="+str(lty)+":w="+W+":h="+str(LT_HEIGHT)+
-                ":color=black@"+LT_BG_ALPHA+":t=fill[lb]",
-            "[lb]drawtext=fontfile="+fb+":text='"+ch+
-                "':fontcolor="+cw+":fontsize=28:x=32:y="+str(lty+12)+"[lc]",
-            "[lc]drawtext=fontfile="+fm+":text='"+sl+
-                "':fontcolor="+cr+":fontsize=18:x=32:y="+str(lty+46)+"[v_out]",
-        ])
+            "[vn]drawbox=x=0:y="+str(lty)+":w="+W+":h="+str(LT_HEIGHT)
+            +":color=black@"+LT_BG_ALPHA+":t=fill[lb]",
+            "[lb]drawtext=fontfile="+fb+":text='"+ch
+            +"':fontcolor="+cw+":fontsize=28:x=32:y="+str(lty+12)+"[lc]",
+            "[lc]drawtext=fontfile="+fm+":text='"+sl
+            +"':fontcolor="+cr+":fontsize=18:x=32:y="+str(lty+46)+"[v_out]",
+        ]
+        vfg=";".join(vfg_parts)
         afg=("[{i}:a]aformat=channel_layouts=stereo:sample_rates="+sr+","
              "asetpts=PTS-STARTPTS,alimiter=limit="+lim+":attack=5:release=50[a_out]")
         if has_a:
@@ -105,7 +108,10 @@ class PartnerClipSegment(Segment):
         if not passed:
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec,ctx,output_path,"contract_failed")
-        atomic_rename(tmp,output_path)
+        rename_ok=atomic_rename(tmp,output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec,ctx,output_path,'atomic_rename failed')
         actual=summary.get("duration",dur)
         logger.info("[partner_clip] OK rank="+str(spec.clip_rank))
         return RenderedSegment(spec=spec,path=str(output_path),duration=actual,

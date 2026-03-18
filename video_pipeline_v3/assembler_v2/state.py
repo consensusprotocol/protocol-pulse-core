@@ -33,6 +33,10 @@ class EpisodeContext:
     # Sponsor tracking
     sponsor_reads_done: list = field(default_factory=list)
 
+    # Metrics refresh (Law 3: episode-scoped, not module globals)
+    metrics_lock: object = field(default_factory=lambda: __import__('threading').Lock())
+    last_metrics_refresh_ts: float = 0.0
+
     # Runtime
     started_at: float = field(default_factory=time.time)
 

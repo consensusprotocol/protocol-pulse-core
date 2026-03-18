@@ -25,14 +25,11 @@ def _detect_keyword(text):
     return ""
 
 METRICS_CACHE_TTL=120  # seconds — cache valid for 2 minutes
-_METRICS_LOCK = __import__('threading').Lock()
 _METRICS_MIN_REFRESH_INTERVAL = 60  # minimum seconds between refresh attempts
-_last_refresh_attempt_ts = 0.0
 
 
-def _refresh_metrics_cache(cache_path):
-    """Fetch all metrics and write to cache. Called in background thread under _METRICS_LOCK."""
-    global _last_refresh_attempt_ts
+def _refresh_metrics_cache(cache_path, ctx):
+    """Fetch all metrics and write to cache. Called in background thread under ctx.metrics_lock."""
     import json,urllib.request,time,os
     data={}
     try:
@@ -62,16 +59,15 @@ def _refresh_metrics_cache(cache_path):
             os.replace(tmp,str(cache_path))
         except Exception as e:
             logger.error(f"[data] metrics cache write failed: {e}")
-    _last_refresh_attempt_ts=time.time()
+    ctx.last_metrics_refresh_ts=time.time()
 
 
-def _get_metric(key,fallback,cache_path):
+def _get_metric(key,fallback,cache_path,ctx):
     """
     Cache-first metric fetch. Scoped to episode workdir — no /tmp races.
-    Refreshes cache under _METRICS_LOCK — only one thread refreshes at a time.
+    Refreshes cache under ctx.metrics_lock — only one thread refreshes at a time.
     On any failure: returns fallback immediately, never raises.
     """
-    global _last_refresh_attempt_ts
     import json,time,threading
     from pathlib import Path
     cp=Path(cache_path)
@@ -81,19 +77,19 @@ def _get_metric(key,fallback,cache_path):
         if age<METRICS_CACHE_TTL and key in cache:
             return cache[key]
         # Stale — refresh under lock, prevent thundering herd
-        if time.time()-_last_refresh_attempt_ts>=_METRICS_MIN_REFRESH_INTERVAL:
-            if _METRICS_LOCK.acquire(blocking=False):
+        if time.time()-ctx.last_metrics_refresh_ts>=_METRICS_MIN_REFRESH_INTERVAL:
+            if ctx.metrics_lock.acquire(blocking=False):
                 try:
-                    threading.Thread(target=_locked_refresh,args=(cp,),daemon=True).start()
+                    threading.Thread(target=_locked_refresh,args=(cp,ctx),daemon=True).start()
                 finally:
                     pass  # lock released inside _locked_refresh
         if key in cache:
             return cache[key]
     except Exception as e:
         logger.error(f"[data] metrics cache read failed for '{key}': {e}")
-        if time.time()-_last_refresh_attempt_ts>=_METRICS_MIN_REFRESH_INTERVAL:
-            if _METRICS_LOCK.acquire(blocking=False):
-                threading.Thread(target=_locked_refresh,args=(cp,),daemon=True).start()
+        if time.time()-ctx.last_metrics_refresh_ts>=_METRICS_MIN_REFRESH_INTERVAL:
+            if ctx.metrics_lock.acquire(blocking=False):
+                threading.Thread(target=_locked_refresh,args=(cp,ctx),daemon=True).start()
     # One-shot fallback with short timeout — won't block long
     try:
         import urllib.request
@@ -111,13 +107,13 @@ def _get_metric(key,fallback,cache_path):
     return fallback
 
 
-def _locked_refresh(cache_path):
+def _locked_refresh(cache_path, ctx):
     """Run refresh under lock, then release."""
     try:
-        _refresh_metrics_cache(cache_path)
+        _refresh_metrics_cache(cache_path, ctx)
     finally:
         try:
-            _METRICS_LOCK.release()
+            ctx.metrics_lock.release()
         except RuntimeError:
             pass
 
@@ -145,9 +141,9 @@ class DataSegment(Segment):
             logger.warning(f"[data] invalid chart_keyword '{keyword}' — falling back to no chart")
         chart=get_chart_path(keyword)
         cache_path=ctx.workdir/"metrics_cache.json"
-        btc=safe_text(_get_metric("price",spec.btc_price or "$N/A",cache_path),20)
-        hr=safe_text(_get_metric("hashrate","N/A EH/s",cache_path),20)
-        mp=safe_text(_get_metric("mempool","N/A sat/vB",cache_path),20)
+        btc=safe_text(_get_metric("price",spec.btc_price or "$N/A",cache_path,ctx),20)
+        hr=safe_text(_get_metric("hashrate","N/A EH/s",cache_path,ctx),20)
+        mp=safe_text(_get_metric("mempool","N/A sat/vB",cache_path,ctx),20)
         hl=safe_text(spec.headline or "BITCOIN SIGNAL",45)
         tmp=output_path.with_suffix(".tmp.mp4")
         W,H,pf=str(VIDEO_W),str(VIDEO_H),VIDEO_PIX_FMT
@@ -202,7 +198,10 @@ class DataSegment(Segment):
         if not passed:
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec,ctx,output_path,"contract_failed")
-        atomic_rename(tmp,output_path)
+        rename_ok=atomic_rename(tmp,output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec,ctx,output_path,'atomic_rename failed')
         logger.info("[data] OK ("+str(round(dur,1))+"s chart="+keyword+")")
         return RenderedSegment(spec=spec,path=str(output_path),duration=summary.get("duration",dur),
                                contract_passed=True,degraded=False,ffprobe_summary=summary)

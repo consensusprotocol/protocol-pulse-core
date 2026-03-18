@@ -27,12 +27,12 @@ class SocialSegment(Segment):
     def render(self, spec: SegmentSpec, ctx: EpisodeContext,
                output_path: Path, idx: int) -> RenderedSegment:
         try:
-            return self._render(spec, ctx, output_path)
+            return self._render(spec, ctx, output_path, idx)
         except Exception as e:
             logger.error(f'[social] exception: {e}')
             return self.filler_result(spec, ctx, output_path, str(e))
 
-    def _render(self, spec, ctx, output_path):
+    def _render(self, spec, ctx, output_path, idx=0):
         posts = spec.social_posts
         if not posts:
             return self.filler_result(spec, ctx, output_path, 'no_social_posts')
@@ -42,9 +42,9 @@ class SocialSegment(Segment):
         # Audio: spec TTS → inline ElevenLabs → fallback silence
         tts = spec.tts()
         if not tts or not tts.exists() or tts.stat().st_size < 1000:
-            tts = self._try_inline_tts(posts, ctx)
+            tts = self._try_inline_tts(posts, ctx, idx)
         if not tts or not tts.exists() or tts.stat().st_size < 1000:
-            tts = ctx.segment_dir() / 'social_fallback.m4a'
+            tts = ctx.segment_dir() / f'social_{idx}_fallback.m4a'
             self._make_fallback_audio(tts, 10.0)
 
         dur = ffprobe_duration(tts)
@@ -72,7 +72,10 @@ class SocialSegment(Segment):
         if not passed:
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec, ctx, output_path, 'contract_failed')
-        atomic_rename(tmp, output_path)
+        rename_ok = atomic_rename(tmp, output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, 'atomic_rename failed')
         actual = summary.get('duration', dur)
         logger.info(f'[social] OK ({actual:.1f}s, {len(posts)} posts)')
         return RenderedSegment(
@@ -81,10 +84,10 @@ class SocialSegment(Segment):
             ffprobe_summary=summary
         )
 
-    def _try_inline_tts(self, posts, ctx):
+    def _try_inline_tts(self, posts, ctx, idx=0):
         """Inline ElevenLabs TTS following cold_open pattern. Returns Path or None."""
         try:
-            import requests
+            from ..network import http_post
             key = os.environ.get('ELEVENLABS_API_KEY', '')
             if not key:
                 return None
@@ -93,15 +96,15 @@ class SocialSegment(Segment):
                 for p in posts
             )[:500]
             voice_id = '1SM7GgM6IMuvQlz2BwM3'
-            out = ctx.segment_dir() / 'social_tts.mp3'
-            resp = requests.post(
+            out = ctx.segment_dir() / f'social_{idx}_tts.mp3'
+            resp = http_post(
                 f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}',
                 headers={'xi-api-key': key, 'Content-Type': 'application/json'},
-                json={'text': text, 'model_id': 'eleven_turbo_v2_5',
+                json_body={'text': text, 'model_id': 'eleven_turbo_v2_5',
                       'voice_settings': {'stability': 0.5, 'similarity_boost': 0.5}},
                 timeout=30
             )
-            if resp.status_code == 200 and len(resp.content) > 1000:
+            if resp is not None and len(resp.content) > 1000:
                 out.write_bytes(resp.content)
                 return out
         except Exception as e:

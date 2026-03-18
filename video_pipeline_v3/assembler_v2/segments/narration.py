@@ -49,14 +49,12 @@ class NarrationSegment(Segment):
             ok=self._render_no_pip(tts,output_path,dur,spec,has_bg)
         if not ok or not output_path.exists() or output_path.stat().st_size<1000:
             return self.filler_result(spec,ctx,output_path,'narration encode failed')
+        # Contract already validated inside _encode() — verify final published file
         passed,summary=ffprobe_contract(output_path)
-        if not passed:
-            output_path.unlink(missing_ok=True)
-            return self.filler_result(spec,ctx,output_path,'contract_failed')
         actual=summary.get('duration',dur)
         logger.info(f'[narration] OK ({actual:.1f}s pip={has_pip})')
         return RenderedSegment(spec=spec,path=str(output_path),duration=actual,
-                               contract_passed=True,degraded=False,
+                               contract_passed=passed,degraded=not passed,
                                ffprobe_summary=summary)
 
     def _build_fg_with_pip(self,pip,dur,headline,body):
@@ -103,11 +101,19 @@ class NarrationSegment(Segment):
             '-c:a',AUDIO_CODEC,'-ar',str(AUDIO_SAMPLE_RATE),
             '-b:a',AUDIO_BITRATE,'-ac',str(AUDIO_CHANNELS),
             '-t',str(round(dur,3)),'-movflags','+faststart',str(tmp)],label,180)
-        if ok and tmp.exists():
-            atomic_rename(tmp,output_path)
-            return True
-        tmp.unlink(missing_ok=True)
-        return False
+        if not ok or not tmp.exists() or tmp.stat().st_size<1000:
+            tmp.unlink(missing_ok=True)
+            return False
+        # Validate BEFORE publishing (Law 2 — match partner_clip.py pattern)
+        passed,summary=ffprobe_contract(tmp)
+        if not passed:
+            tmp.unlink(missing_ok=True)
+            return False
+        rename_ok=atomic_rename(tmp,output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return False
+        return True
 
     def _render_with_pip(self,tts,pip,output_path,dur,spec,has_bg):
         hl=safe_text(spec.headline or spec.segment_type.upper(),55)

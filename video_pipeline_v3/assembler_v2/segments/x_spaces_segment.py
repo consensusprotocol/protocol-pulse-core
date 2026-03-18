@@ -28,19 +28,19 @@ class XSpacesSegment(Segment):
     def render(self, spec: SegmentSpec, ctx: EpisodeContext,
                output_path: Path, idx: int) -> RenderedSegment:
         try:
-            return self._render(spec, ctx, output_path)
+            return self._render(spec, ctx, output_path, idx)
         except Exception as e:
             logger.error(f'[x_spaces] exception: {e}')
             return self.filler_result(spec, ctx, output_path, str(e))
 
     def _render(self, spec: SegmentSpec, ctx: EpisodeContext,
-                output_path: Path) -> RenderedSegment:
+                output_path: Path, idx: int = 0) -> RenderedSegment:
         # Law 1: no content → filler
         if not spec.body:
             return self.filler_result(spec, ctx, output_path, 'no_x_spaces_content')
 
         # Get TTS audio
-        tts = self._get_tts(spec, ctx)
+        tts = self._get_tts(spec, ctx, idx)
         if not tts or not tts.exists() or tts.stat().st_size < 1000:
             return self.filler_result(spec, ctx, output_path, 'no_tts_for_x_spaces')
 
@@ -71,7 +71,10 @@ class XSpacesSegment(Segment):
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec, ctx, output_path, 'contract_failed')
 
-        atomic_rename(tmp, output_path)
+        rename_ok = atomic_rename(tmp, output_path)
+        if not rename_ok:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, 'atomic_rename failed')
         actual = summary.get('duration', dur)
         logger.info(f'[x_spaces] OK ({actual:.1f}s)')
         return RenderedSegment(
@@ -79,7 +82,7 @@ class XSpacesSegment(Segment):
             contract_passed=True, degraded=False, ffprobe_summary=summary,
         )
 
-    def _get_tts(self, spec: SegmentSpec, ctx: EpisodeContext):
+    def _get_tts(self, spec: SegmentSpec, ctx: EpisodeContext, idx: int = 0):
         """Get TTS audio: spec.tts_path first, then inline ElevenLabs."""
         tts = spec.tts()
         if tts and tts.exists() and tts.stat().st_size >= 1000:
@@ -87,24 +90,24 @@ class XSpacesSegment(Segment):
 
         # Inline ElevenLabs — follow cold_open.py pattern
         try:
-            import requests
+            from ..network import http_post
             key = os.environ.get('ELEVENLABS_API_KEY', '')
             if not key:
                 return None
             voice_id = '1SM7GgM6IMuvQlz2BwM3'
             text = spec.body[:500]
-            out_path = ctx.segment_dir() / 'x_spaces_tts.mp3'
-            resp = requests.post(
+            out_path = ctx.segment_dir() / f'xspaces_{idx}_tts.mp3'
+            resp = http_post(
                 f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}',
                 headers={'xi-api-key': key, 'Content-Type': 'application/json'},
-                json={
+                json_body={
                     'text': text,
                     'model_id': 'eleven_turbo_v2_5',
                     'voice_settings': {'stability': 0.5, 'similarity_boost': 0.5},
                 },
                 timeout=30,
             )
-            if resp.status_code != 200 or len(resp.content) < 1000:
+            if resp is None or len(resp.content) < 1000:
                 return None
             out_path.write_bytes(resp.content)
             return out_path

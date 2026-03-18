@@ -34,6 +34,25 @@ class Segment(ABC):
         dur = self.get_duration(spec)
         tts = Path(spec.tts_path) if spec.tts_path else None
         ok = make_filler(output_path, dur, tts)
+        if not ok or not output_path.exists() or output_path.stat().st_size < 1000:
+            # Emergency: write static black+silent as last resort
+            logger.error(f"[base] make_filler failed for {reason} — emergency black")
+            try:
+                from ..helpers import run_ffmpeg
+                run_ffmpeg([
+                    "-f", "lavfi", "-i",
+                    f"color=c=black:s=1920x1080:r=30,format=yuv420p",
+                    "-f", "lavfi", "-i",
+                    "anullsrc=r=48000:cl=stereo",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "ultrafast",
+                    "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                    "-t", str(max(dur, 1.0)),
+                    "-movflags", "+faststart", str(output_path)
+                ], f"emergency filler {reason}", 30)
+                ok = output_path.exists() and output_path.stat().st_size > 1000
+            except Exception as ex:
+                logger.error(f"[base] emergency filler also failed: {ex}")
+                ok = False
         ctx.mark_degraded(spec.segment_type, reason, dur)
         actual = ffprobe_duration(output_path) if ok and output_path.exists() else dur
         return RenderedSegment(spec=spec, path=str(output_path) if ok else None,
