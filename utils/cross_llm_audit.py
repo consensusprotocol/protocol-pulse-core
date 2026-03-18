@@ -53,7 +53,7 @@ FEATURE_MAP = {
 
 # Explicit file lists for features already merged to main (no branch diff available)
 EXPLICIT_FILES = {
-    "x-spaces-pipeline": ["x_spaces_pipeline/monitor.py","x_spaces_pipeline/recorder.py","x_spaces_pipeline/transcriber.py","x_spaces_pipeline/curator.py","x_spaces_pipeline/clipper.py","video_pipeline_v3/assembler_v2/segments/x_spaces_segment.py","video_pipeline_v3/utils/spaces_pipeline.py","video_pipeline_v3/utils/spaces_monitor.py"],
+    "x-spaces-pipeline": ["x_spaces_scraper/scraper.py","x_spaces_scraper/transcript_fetcher.py","x_spaces_scraper/whisper_worker.py","x_spaces_scraper/diarizer.py","x_spaces_scraper/spaces_state.py","x_spaces_scraper/run_scraper.py","x_spaces_scraper/article_generator.py","x_spaces_pipeline/monitor.py","x_spaces_pipeline/recorder.py","x_spaces_pipeline/transcriber.py","x_spaces_pipeline/curator.py","video_pipeline_v3/utils/spaces_pipeline.py","video_pipeline_v3/utils/spaces_monitor.py","video_pipeline_v3/assembler_v2/segments/x_spaces_segment.py"],
     "assembler-v2-rebuild": [
         "video_pipeline_v3/assembler_v2/constants.py",
         "video_pipeline_v3/assembler_v2/helpers.py",
