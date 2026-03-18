@@ -308,14 +308,18 @@ def write_concat_list(paths: list, dest: Path) -> bool:
     Single quotes in paths are escaped as '\\'' for the concat demuxer format.
     Writes atomically via temp file. Returns True on success."""
     try:
+        import tempfile
         lines = []
         for p in paths:
             escaped = str(p).replace("'", "'\\''")
             lines.append(f"file '{escaped}'")
         content = "\n".join(lines) + "\n"
-        tmp = dest.with_suffix('.tmp')
-        tmp.write_text(content)
-        os.replace(str(tmp), str(dest))
+        with tempfile.NamedTemporaryFile(
+            mode='w', dir=str(dest.parent), suffix='.tmp', delete=False
+        ) as f:
+            f.write(content)
+            tmp_path = Path(f.name)
+        os.replace(str(tmp_path), str(dest))
         return True
     except Exception as e:
         logger.error(f"[helpers] write_concat_list failed: {e}")

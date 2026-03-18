@@ -33,7 +33,7 @@ class ColdOpenSegment(Segment):
         try:
             return self._render(spec, ctx, output_path)
         except Exception as e:
-            logger.error(f"[cold_open] exception: {e}")
+            logger.exception(f"[cold_open] exception: {e}")
             return self.filler_result(spec, ctx, output_path, str(e))
 
     def _render(self, spec: SegmentSpec, ctx: EpisodeContext,

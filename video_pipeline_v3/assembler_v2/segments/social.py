@@ -29,7 +29,7 @@ class SocialSegment(Segment):
         try:
             return self._render(spec, ctx, output_path, idx)
         except Exception as e:
-            logger.error(f'[social] exception: {e}')
+            logger.exception(f'[social] exception: {e}')
             return self.filler_result(spec, ctx, output_path, str(e))
 
     def _render(self, spec, ctx, output_path, idx=0):
@@ -120,21 +120,38 @@ class SocialSegment(Segment):
             str(path)
         ], 'social fallback audio', 30)
 
+    @staticmethod
+    def _find_chromium():
+        """Find chromium executable: env var → system binary → Playwright cache."""
+        import shutil
+        # 1. Explicit env var
+        env_path = os.environ.get('PLAYWRIGHT_CHROMIUM_PATH')
+        if env_path and os.path.exists(env_path):
+            return env_path
+        # 2. System chromium
+        for name in ('chromium-browser', 'chromium', 'google-chrome', 'chrome'):
+            found = shutil.which(name)
+            if found:
+                return found
+        # 3. Playwright cache (last resort)
+        patterns = [
+            os.path.expanduser('~/.cache/ms-playwright/chromium-*/chrome-linux/chrome'),
+            os.path.expanduser('~/.cache/ms-playwright/chromium-*/chrome-mac/Chromium.app/Contents/MacOS/Chromium'),
+        ]
+        for pat in patterns:
+            matches = sorted(_glob.glob(pat))
+            if matches:
+                return matches[-1]  # most recent version
+        return None
+
     def _render_cards_playwright(self, posts, tts, tmp, dur, ctx):
         """Render tweet cards as Playwright PNG screenshots, composite via ffmpeg.
         Returns True on success, False on failure."""
         from playwright.sync_api import sync_playwright  # lazy import — Law: no module-level import
 
-        # Resolve chromium executable
-        chrome_path = os.environ.get('PLAYWRIGHT_CHROMIUM_PATH')
+        chrome_path = self._find_chromium()
         if not chrome_path:
-            candidates = sorted(_glob.glob(
-                os.path.expanduser('~/.cache/ms-playwright/chromium-*/chrome-linux/chrome')
-            ))
-            if candidates:
-                chrome_path = candidates[0]
-        if not chrome_path or not os.path.isfile(chrome_path):
-            raise FileNotFoundError('chromium executable not found for playwright')
+            raise FileNotFoundError('chromium executable not found — falling back to drawtext')
 
         n = len(posts)
         card_pngs = []
@@ -227,18 +244,15 @@ class SocialSegment(Segment):
             pw.stop()
 
         # Composite PNGs onto 1920x1080 branded background via ffmpeg
-        # Scale each card to width=1760, compute height proportionally
-        # 800x280 → 1760 wide: scale factor 2.2, height = 280*2.2 = 616 → clamp to 220
-        card_h = 220
-        if n == 1:
-            total_h = card_h
-            y_start = (VIDEO_H - total_h) // 2
-        elif n == 2:
-            total_h = 2 * card_h + 40
-            y_start = (VIDEO_H - total_h) // 2
-        else:
-            total_h = 3 * card_h + 60
-            y_start = (VIDEO_H - total_h) // 2
+        # Scale each card proportionally: 800x280 source → maintain aspect ratio
+        # Fit n cards into VIDEO_H with 80px top/bottom padding and gaps between cards
+        padding = 160  # 80px top + 80px bottom
+        gap = 20 * (n - 1) if n > 1 else 0  # 20px gap between cards
+        max_card_h = min(616, (VIDEO_H - padding - gap) // n)
+        card_h = max_card_h
+        card_w = int(card_h * 800 / 280)  # maintain aspect ratio
+        total_h = n * card_h + gap
+        y_start = (VIDEO_H - total_h) // 2
 
         inputs = ['-f', 'lavfi', '-i', f'color=c=0x06070B:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}']
         inputs += ['-i', str(tts)]
@@ -249,13 +263,14 @@ class SocialSegment(Segment):
         fc_parts = []
         prev_label = '0:v'
         for i in range(n):
-            gap = 40 if n == 2 else 30 if n == 3 else 0
-            y = y_start + i * (card_h + gap)
+            card_gap = 20 if n > 1 else 0
+            y = y_start + i * (card_h + card_gap)
             inp_idx = i + 2  # 0=bg, 1=audio, 2+=pngs
             scale_label = f'sc{i}'
             out_label = f'ov{i}' if i < n - 1 else 'v_pre'
-            fc_parts.append(f'[{inp_idx}:v]scale=1760:{card_h}:flags=lanczos,format={VIDEO_PIX_FMT}[{scale_label}]')
-            fc_parts.append(f'[{prev_label}][{scale_label}]overlay=x=80:y={y}[{out_label}]')
+            x_center = (VIDEO_W - card_w) // 2
+            fc_parts.append(f'[{inp_idx}:v]scale={card_w}:{card_h}:flags=lanczos,format={VIDEO_PIX_FMT}[{scale_label}]')
+            fc_parts.append(f'[{prev_label}][{scale_label}]overlay=x={x_center}:y={y}[{out_label}]')
             prev_label = out_label
 
         # Add kicker text

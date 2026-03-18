@@ -137,22 +137,19 @@ def get_latest_spaces_segment(max_age_hours: float = 4.0):
     tts_text = re.sub(r'<[^>]+>', '', tts_text)
     tts_text = re.sub(r'[^\w\s.,!?\'-]', '', tts_text)
 
-    source = best.get("source", "unknown")
-    is_context = source == "context_only"
-
     return {
         "segment_type": "x_spaces",
         "space_id": best.get("space_id", ""),
         "host": best.get("host", best.get("speaker", "unknown")),
         "title": best.get("title", best.get("space_title", "X Space")),
         "transcript": transcript_text[:2000],
-        "source": source,
+        "source": best.get("source", "unknown"),
         "word_count": len(transcript_text.split()),
         "quality_score": best.get("quality_score", 0.0),
         "impact_score": best["_impact"],
         "speakers": best.get("speakers", []),
         "tts_text": tts_text,
-        "eyebrow": "LIVE INTEL — CONTEXT ONLY" if is_context else "LIVE X SPACES SIGNAL",
+        "eyebrow": "LIVE X SPACES SIGNAL",
         "cached_at": best["_mtime"],
     }
 

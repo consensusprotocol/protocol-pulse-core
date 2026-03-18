@@ -30,7 +30,7 @@ class XSpacesSegment(Segment):
         try:
             return self._render(spec, ctx, output_path, idx)
         except Exception as e:
-            logger.error(f'[x_spaces] exception: {e}')
+            logger.exception(f'[x_spaces] exception: {e}')
             return self.filler_result(spec, ctx, output_path, str(e))
 
     def _render(self, spec: SegmentSpec, ctx: EpisodeContext,

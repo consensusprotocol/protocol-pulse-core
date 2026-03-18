@@ -23,7 +23,7 @@ class NarrationSegment(Segment):
             pip=self._check_pip(spec)
             return self._render(spec,ctx,output_path,pip)
         except Exception as e:
-            logger.error(f'[narration] exception: {e}')
+            logger.exception(f'[narration] exception: {e}')
             return self.filler_result(spec,ctx,output_path,str(e))
 
     def _check_pip(self,spec):

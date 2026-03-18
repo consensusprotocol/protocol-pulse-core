@@ -51,7 +51,7 @@ class Segment(ABC):
                 ], f"emergency filler {reason}", 30)
                 ok = output_path.exists() and output_path.stat().st_size > 1000
             except Exception as ex:
-                logger.error(f"[base] emergency filler also failed: {ex}")
+                logger.exception(f"[base] emergency filler also failed: {ex}")
                 ok = False
         ctx.mark_degraded(spec.segment_type, reason, dur)
         actual = ffprobe_duration(output_path) if ok and output_path.exists() else dur

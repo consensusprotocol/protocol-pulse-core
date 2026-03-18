@@ -6,7 +6,9 @@ from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
 from ..constants import (VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,
                          AUDIO_TARGET_LUFS,AUDIO_MAX_TRUE_PEAK,AUDIO_LRA,AUDIO_LIMITER,
-                         AUDIO_SAMPLE_RATE,OUTRO_BRANDED,COLOR_BG)
+                         AUDIO_SAMPLE_RATE,AUDIO_CODEC,AUDIO_BITRATE,AUDIO_CHANNELS,
+                         VIDEO_CODEC,VIDEO_CRF,VIDEO_PRESET,
+                         OUTRO_BRANDED,COLOR_BG)
 from ..helpers import ffprobe_duration
 from ..ffmpeg_core.encode import encode_segment
 logger=logging.getLogger(__name__)
@@ -18,7 +20,7 @@ class WrapSegment(Segment):
         try:
             return self._render(spec,ctx,output_path)
         except Exception as e:
-            logger.error(f'[wrap] exception: {e}')
+            logger.exception(f'[wrap] exception: {e}')
             return self.filler_result(spec,ctx,output_path,str(e))
 
     def _render(self,spec,ctx,output_path):
@@ -47,13 +49,16 @@ class WrapSegment(Segment):
                 f'alimiter=limit={AUDIO_LIMITER}:attack=5:release=50[a_out]'
             )
         else:
-            inputs=[['-stream_loop','-1','-i',str(OUTRO_BRANDED)]]
+            inputs=[
+                ['-stream_loop','-1','-an','-i',str(OUTRO_BRANDED)],
+                ['-f','lavfi','-i',f'anullsrc=r={AUDIO_SAMPLE_RATE}:cl=stereo'],
+            ]
             fade_st=max(0,total_dur-0.5)
             fg=(
                 f'[0:v]scale={VIDEO_W}:{VIDEO_H},setsar=1,format={VIDEO_PIX_FMT},'
                 f'setpts=PTS-STARTPTS,'
                 f'fade=t=out:st={fade_st:.3f}:d=0.5[v_out];'
-                f'[0:a]aformat=channel_layouts=stereo:sample_rates={AUDIO_SAMPLE_RATE},'
+                f'[1:a]aformat=channel_layouts=stereo:sample_rates={AUDIO_SAMPLE_RATE},'
                 f'alimiter=limit={AUDIO_LIMITER}:attack=5:release=50[a_out]'
             )
 

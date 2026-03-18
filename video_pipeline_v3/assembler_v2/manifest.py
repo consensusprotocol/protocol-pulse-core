@@ -72,9 +72,16 @@ class EpisodeManifest:
         return json.dumps(self.to_dict(), indent=2, default=str)
 
     def save(self, path: Path):
-        tmp = path.with_suffix('.tmp')
-        tmp.write_text(self.to_json())
-        os.replace(str(tmp), str(path))
+        import tempfile
+        tmp_fd, tmp_path = tempfile.mkstemp(dir=str(path.parent), suffix='.tmp')
+        try:
+            with os.fdopen(tmp_fd, 'w') as f:
+                f.write(self.to_json())
+            os.replace(tmp_path, str(path))
+        except Exception:
+            try: os.unlink(tmp_path)
+            except OSError: pass
+            raise
         return path
 
     @classmethod
@@ -83,9 +90,28 @@ class EpisodeManifest:
         d["segments"] = [SegmentSpec(**s) for s in d.get("segments", [])]
         return cls(**d)
 
+    VALID_TYPES = {
+        "cold_open", "narration", "partner_clip", "transition",
+        "data", "social", "signal_active", "wrap", "x_spaces"
+    }
+
     def validate(self):
+        import logging as _logging
+        _log = _logging.getLogger(__name__)
         if not self.segments:
             raise ValueError(f"EpisodeManifest {self.episode_id} has no segments")
+        for i, seg in enumerate(self.segments):
+            if not isinstance(seg, SegmentSpec):
+                raise ValueError(f"Segment {i} is not a SegmentSpec")
+            if seg.segment_type not in self.VALID_TYPES:
+                _log.warning(
+                    f"Segment {i} has unknown type '{seg.segment_type}'. "
+                    f"Valid types: {sorted(self.VALID_TYPES)}"
+                )
+            if seg.social_posts is not None and not isinstance(seg.social_posts, list):
+                raise ValueError(f"Segment {i} social_posts must be a list")
+            if seg.signal_content is not None and not isinstance(seg.signal_content, dict):
+                raise ValueError(f"Segment {i} signal_content must be a dict")
         return self
 
     def segment_count(self) -> int:

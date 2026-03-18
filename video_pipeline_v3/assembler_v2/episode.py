@@ -22,6 +22,7 @@ from .constants import (
     AUDIO_CODEC, AUDIO_BITRATE, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS,
     COLOR_BG, FFMPEG_TIMEOUT_FILTER, FFMPEG_TIMEOUT_ENCODE,
     QC_MIN_LUFS, QC_MAX_LUFS, QC_MAX_TRUE_PEAK, QC_MAX_BLACK_FRAME_S, QC_MAX_SILENCE_S,
+    QC_EPISODE_SILENCE_HOLD_S, QC_MIN_DURATION, QC_MAX_DURATION,
 )
 from .segments.cold_open import ColdOpenSegment
 from .segments.narration import NarrationSegment
@@ -70,7 +71,7 @@ class EpisodeRunner:
         try:
             return self._run(manifest, output_dir, t0)
         except Exception as e:
-            logger.error(f"[episode] fatal exception: {e}")
+            logger.exception(f"[episode] fatal exception: {e}")
             return EpisodeReport(
                 episode_id=manifest.episode_id,
                 verdict="HOLD",
@@ -213,8 +214,15 @@ class EpisodeRunner:
             # Silence check
             silence_segs = detect_silence(final_path, min_dur=QC_MAX_SILENCE_S)
             total_silence = sum(e - s for s, e in silence_segs)
-            if total_silence > QC_MAX_SILENCE_S * 3:  # allow some silence, flag excessive
+            if total_silence > QC_EPISODE_SILENCE_HOLD_S:
                 qc_failures.append(f"silence={total_silence:.1f}s")
+
+            # Duration check — must be within spec
+            duration = final_summary.get("duration", 0.0)
+            if duration < QC_MIN_DURATION:
+                qc_failures.append(f"too_short={duration:.0f}s (min {QC_MIN_DURATION}s)")
+            elif duration > QC_MAX_DURATION:
+                qc_failures.append(f"too_long={duration:.0f}s (max {QC_MAX_DURATION}s)")
 
             # LUFS check
             lufs, true_peak = measure_lufs(final_path)

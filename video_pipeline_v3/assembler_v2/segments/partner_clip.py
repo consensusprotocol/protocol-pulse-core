@@ -43,7 +43,7 @@ class PartnerClipSegment(Segment):
         try:
             return self._render(spec,ctx,output_path)
         except Exception as e:
-            logger.error("[partner_clip] exception: "+str(e))
+            logger.exception("[partner_clip] exception: "+str(e))
             return self.filler_result(spec,ctx,output_path,str(e))
 
     def _render(self,spec,ctx,output_path):

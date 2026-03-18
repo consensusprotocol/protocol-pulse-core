@@ -16,7 +16,7 @@ class TransitionSegment(Segment):
         try:
             return self._render(spec,ctx,output_path)
         except Exception as e:
-            logger.error(f'[transition] exception: {e}')
+            logger.exception(f'[transition] exception: {e}')
             return self.filler_result(spec,ctx,output_path,str(e))
 
     def _render(self,spec,ctx,output_path):

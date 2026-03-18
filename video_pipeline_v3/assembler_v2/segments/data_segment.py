@@ -37,19 +37,19 @@ def _refresh_metrics_cache(cache_path, ctx):
             d=json.loads(resp.read())
             data["price"]="$"+"{:,}".format(d.get("USD",0))
     except Exception as e:
-        logger.error(f"[data] metrics fetch failed (price): {e}")
+        logger.exception(f"[data] metrics fetch failed (price): {e}")
     try:
         with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d",timeout=4) as resp:
             d=json.loads(resp.read())
             data["hashrate"]=str(round(d.get("currentHashrate",0)/1e18,1))+" EH/s"
     except Exception as e:
-        logger.error(f"[data] metrics fetch failed (hashrate): {e}")
+        logger.exception(f"[data] metrics fetch failed (hashrate): {e}")
     try:
         with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=4) as resp:
             d=json.loads(resp.read())
             data["mempool"]=str(round(d.get("mempool_byte_per_vbyte",0),1))+" sat/vB"
     except Exception as e:
-        logger.error(f"[data] metrics fetch failed (mempool): {e}")
+        logger.exception(f"[data] metrics fetch failed (mempool): {e}")
     if data:
         data["_ts"]=time.time()
         try:
@@ -58,7 +58,7 @@ def _refresh_metrics_cache(cache_path, ctx):
                 json.dump(data,f)
             os.replace(tmp,str(cache_path))
         except Exception as e:
-            logger.error(f"[data] metrics cache write failed: {e}")
+            logger.exception(f"[data] metrics cache write failed: {e}")
     ctx.last_metrics_refresh_ts=time.time()
 
 
@@ -80,14 +80,14 @@ def _get_metric(key, fallback, cache_path, ctx):
     except Exception as e:
         logger.warning(f"[data] cache read failed: {e}")
 
-    # Cache miss or stale — refresh synchronously under lock (same thread owns lock)
+    # Cache miss or stale — refresh synchronously under lock with timeout
     if time.time() - ctx.last_metrics_refresh_ts >= _METRICS_MIN_REFRESH_INTERVAL:
-        if ctx.metrics_lock.acquire(blocking=False):
+        if ctx.metrics_lock.acquire(timeout=5.0):
             try:
-                _refresh_metrics_cache(cp, ctx)  # synchronous, same thread
+                _refresh_metrics_cache(cp, ctx)
                 ctx.last_metrics_refresh_ts = time.time()
             finally:
-                ctx.metrics_lock.release()  # SAME thread releases — safe
+                ctx.metrics_lock.release()
 
     # Re-read cache after refresh attempt
     try:
@@ -98,20 +98,20 @@ def _get_metric(key, fallback, cache_path, ctx):
     except Exception:
         pass
 
-    # One-shot direct fetch as last resort
+    # Fallback via network.http_get (no thundering herd — single attempt)
     try:
-        import urllib.request
+        from ..network import http_get
         if key == "price":
-            with urllib.request.urlopen("https://mempool.space/api/v1/prices", timeout=2) as resp:
-                return "$" + "{:,}".format(json.loads(resp.read()).get("USD", 0))
+            r = http_get("https://mempool.space/api/v1/prices", timeout=3, max_attempts=2)
+            if r: return "$" + "{:,}".format(r.json().get("USD", 0))
         if key == "hashrate":
-            with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d", timeout=2) as resp:
-                return str(round(json.loads(resp.read()).get("currentHashrate", 0) / 1e18, 1)) + " EH/s"
+            r = http_get("https://mempool.space/api/v1/mining/hashrate/3d", timeout=3, max_attempts=2)
+            if r: return str(round(r.json().get("currentHashrate", 0) / 1e18, 1)) + " EH/s"
         if key == "mempool":
-            with urllib.request.urlopen("https://mempool.space/api/mempool", timeout=2) as resp:
-                return str(round(json.loads(resp.read()).get("mempool_byte_per_vbyte", 0), 1)) + " sat/vB"
+            r = http_get("https://mempool.space/api/mempool", timeout=3, max_attempts=2)
+            if r: return str(round(r.json().get("mempool_byte_per_vbyte", 0), 1)) + " sat/vB"
     except Exception as e:
-        logger.error(f"[data] one-shot fallback failed for '{key}': {e}")
+        logger.exception(f"[data] fallback fetch failed for '{key}': {e}")
     return fallback
 
 class DataSegment(Segment):
@@ -122,7 +122,7 @@ class DataSegment(Segment):
         try:
             return self._render(spec,ctx,output_path)
         except Exception as e:
-            logger.error("[data] exception: "+str(e))
+            logger.exception("[data] exception: "+str(e))
             return self.filler_result(spec,ctx,output_path,str(e))
 
     def _render(self,spec,ctx,output_path):

@@ -52,7 +52,20 @@ def detect_silence(path:Path,min_dur:float=1.0,noise_db:float=-50.0)->list:
             capture_output=True,text=True,timeout=120)
         starts=re.findall(r'silence_start: ([\d.]+)',res.stderr)
         ends=re.findall(r'silence_end: ([\d.]+)',res.stderr)
-        return [(float(s),float(e)) for s,e in zip(starts,ends)]
+        pairs=list(zip(starts,ends))
+        # Handle trailing silence at EOF (silence_start without matching silence_end)
+        if len(starts) > len(ends):
+            try:
+                dur_match=re.search(r'Duration: (\d+):(\d+):([\d.]+)',res.stderr)
+                if dur_match:
+                    h,m,s=dur_match.groups()
+                    file_dur=int(h)*3600+int(m)*60+float(s)
+                else:
+                    file_dur=float(starts[-1])+1.0
+                pairs.append((starts[-1],str(file_dur)))
+            except Exception:
+                pass
+        return [(float(s),float(e)) for s,e in pairs]
     except Exception as e:
         logger.warning(f'[probe] silencedetect failed: {e}')
         return []

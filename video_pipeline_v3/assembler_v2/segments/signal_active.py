@@ -33,7 +33,7 @@ class SignalActiveSegment(Segment):
         try:
             return self._render(spec, ctx, output_path, idx)
         except Exception as e:
-            logger.error(f'[signal_active] exception: {e}')
+            logger.exception(f'[signal_active] exception: {e}')
             return self.filler_result(spec, ctx, output_path, str(e))
 
     def _read_signal(self, spec):
@@ -210,7 +210,8 @@ class SignalActiveSegment(Segment):
             # Concat with ffmpeg concat demuxer
             concat_file = ctx.segment_dir() / f'sig_{idx}_concat.txt'
             if not write_concat_list([top_path, gap, bot_path], concat_file):
-                return self.filler_result(spec, ctx, output_path, 'signal concat list write failed')
+                logger.warning('[signal_active] concat list write failed')
+                return None
             out = ctx.segment_dir() / f'sig_{idx}_concat_out.m4a'
             ok = run_ffmpeg([
                 '-f', 'concat', '-safe', '0', '-i', str(concat_file),
