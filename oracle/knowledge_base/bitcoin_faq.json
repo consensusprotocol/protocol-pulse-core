@@ -1,0 +1,106 @@
+{
+  "source": "bitcoin_faq",
+  "description": "Bitcoin technical FAQ covering UTXOs, wallets, self-custody, mining, Lightning, and common mistakes",
+  "chunks": [
+    {
+      "title": "What is a UTXO",
+      "source": "bitcoin_faq",
+      "text": "A UTXO (Unspent Transaction Output) is the fundamental unit of Bitcoin accounting. Unlike bank balances, Bitcoin tracks individual 'coins' — each UTXO is an unspent output from a previous transaction. When you send Bitcoin, you consume one or more UTXOs and create new ones. Your wallet balance is the sum of all UTXOs your keys can spend. UTXOs matter for privacy because each one is traceable on-chain. Coin control lets you choose which UTXOs to spend, avoiding linking your addresses together. Sparrow Wallet has excellent coin control features."
+    },
+    {
+      "title": "Coldcard vs Trezor vs Ledger comparison",
+      "source": "bitcoin_faq",
+      "text": "Coldcard is Bitcoin-only, air-gapped (no USB data needed), uses secure element (ATECC608B on Mk4, Microchip ATECC on Q), supports PSBT via microSD or QR. Price: Mk4 around $150, Q around $220. Trezor is open-source firmware, supports altcoins, uses Shamir backup (SLIP39), no secure element (Trezor Model One/T), Model T has touchscreen. Price: $60-$220. Ledger uses proprietary secure element (ST33J2M0), supports altcoins, closed-source firmware, Bluetooth on Nano X. Price: $80-$150. For Bitcoin maximalists: Coldcard. For open-source purists: Trezor. For altcoin users: Ledger."
+    },
+    {
+      "title": "Coldcard Q vs Mk4",
+      "source": "bitcoin_faq",
+      "text": "Coldcard Q is the premium successor to Mk4. Key differences: Q has a full QWERTY keyboard (easier passphrase entry vs Mk4 scroll wheel), larger screen, built-in QR code scanner for fully air-gapped PSBT signing, NFC for tap-to-sign, USB-C (Mk4 uses micro-USB), rechargeable battery. Mk4 is smaller, cheaper ($150 vs $220), uses microSD for air-gapped signing. Both use secure element, support multisig, BIP39 passphrases. Choose Q if you want maximum air-gap convenience and use passphrases frequently. Mk4 if budget matters or you prefer compact size."
+    },
+    {
+      "title": "Sparrow Wallet setup and Coldcard connection",
+      "source": "bitcoin_faq",
+      "text": "Sparrow Wallet is a desktop Bitcoin wallet focused on privacy and power-user features. To connect to your own node: Settings > Server > Bitcoin Core or Electrum Server, enter your node IP and port. For Coldcard connection: export your wallet file from Coldcard to microSD (Advanced > MicroSD > Export Wallet > Sparrow), insert SD into computer, in Sparrow go to File > Import Wallet and select the .json file. For PSBT signing: create transaction in Sparrow, save PSBT to microSD, sign on Coldcard (Ready to Sign), put SD back and broadcast from Sparrow. Sparrow also supports coin control, mixing, and address labeling."
+    },
+    {
+      "title": "Umbrel vs Start9 node comparison",
+      "source": "bitcoin_faq",
+      "text": "Umbrel is a home node OS with an app store — easy setup, beautiful UI, supports Bitcoin Core, LND, Electrum Server, BTCPay, and 100+ apps. Runs on Raspberry Pi 4/5 or any Linux machine with Docker. Start9 (Embassy OS) focuses on sovereignty and self-hosting — runs on their custom hardware or Raspberry Pi, uses a Tor-first approach, supports fewer apps but prioritizes security. Umbrel is better for beginners and Lightning routing. Start9 is better for privacy-focused users who want Tor-native everything. Both let you verify your own transactions and connect Sparrow Wallet."
+    },
+    {
+      "title": "Lightning Network channels and liquidity",
+      "source": "bitcoin_faq",
+      "text": "Lightning Network is Bitcoin's layer-2 for instant, low-fee payments. You open a channel by locking Bitcoin on-chain with a peer. Channel capacity is the total Bitcoin locked. Outbound liquidity = your balance in the channel (what you can send). Inbound liquidity = peer's balance (what you can receive). To get inbound liquidity: ask a well-connected node to open a channel to you, use services like Lightning Loop or LNBIG, or use a submarine swap. Routing: payments hop through multiple channels, each hop charges a small fee. Run your own Lightning node (LND, CLN, or Eclair) on Umbrel for full sovereignty."
+    },
+    {
+      "title": "Mempool stuck transactions RBF CPFP",
+      "source": "bitcoin_faq",
+      "text": "The mempool is the waiting room for unconfirmed Bitcoin transactions. A transaction is 'stuck' when its fee rate (sat/vbyte) is too low for miners to prioritize. Check mempool.space to see current fee rates and your transaction status. RBF (Replace-By-Fee): if your wallet signaled RBF when sending (Sparrow does by default), you can broadcast a replacement transaction with a higher fee. The old one gets dropped. CPFP (Child-Pays-For-Parent): if you received a stuck transaction, spend its output with a high fee — miners will confirm both to claim the child's fee. Use RBF when you sent; use CPFP when you received."
+    },
+    {
+      "title": "Self-custody 101 keys seeds passphrases multisig",
+      "source": "bitcoin_faq",
+      "text": "Self-custody means holding your own private keys — not leaving Bitcoin on exchanges. Your seed phrase (12 or 24 words, BIP39) generates all your private keys. Write it on paper or stamp it in metal (steel plate). Never store digitally — no photos, no cloud, no notes app. A BIP39 passphrase (sometimes called 25th word) creates a completely separate wallet from the same seed — powerful for plausible deniability and extra security. Multisig (multi-signature) requires M-of-N keys to spend (e.g., 2-of-3). Each key on a separate hardware wallet. Tools: Sparrow, Caravan, or Nunchuk for multisig coordination. Multisig eliminates single points of failure."
+    },
+    {
+      "title": "Bitcoin mining pools solo Bitaxe hashrate",
+      "source": "bitcoin_faq",
+      "text": "Bitcoin mining secures the network by solving proof-of-work puzzles. Mining pools combine hashrate from many miners and split block rewards proportionally. Major pools: Foundry USA, AntPool, F2Pool, ViaBTC. Solo mining means mining alone — extremely unlikely to find a block unless you have massive hashrate, but if you do, you keep the full reward (currently 3.125 BTC). Bitaxe is an open-source ASIC miner (BM1397 chip) producing about 500 GH/s — great for education and lottery mining but won't be profitable against industrial miners. Hashrate is measured in TH/s (terahashes) or EH/s (exahashes) for the network total."
+    },
+    {
+      "title": "DCA strategy and KYC-free options",
+      "source": "bitcoin_faq",
+      "text": "Dollar Cost Averaging (DCA) means buying a fixed amount of Bitcoin on a regular schedule (daily, weekly, monthly) regardless of price. This reduces the impact of volatility and removes emotional timing decisions. KYC (Know Your Customer) exchanges require identity verification — your purchases are linked to your identity. KYC-free options: Bisq (decentralized exchange, Tor-based), RoboSats (Lightning-based P2P over Tor), HodlHodl (non-custodial P2P), Bitcoin ATMs (some under $900 limit), peer-to-peer in person. After buying KYC-free, send directly to your hardware wallet. For KYC Bitcoin, consider CoinJoin to improve privacy."
+    },
+    {
+      "title": "Common Bitcoin mistakes to avoid",
+      "source": "bitcoin_faq",
+      "text": "Never take screenshots of your seed phrase — phone clouds sync them automatically, exposing your funds. Never store seed words in a notes app, password manager, or email. Never share your xpub (extended public key) — it reveals all your addresses and balances. Common mistakes: using the same address repeatedly (breaks privacy), not verifying receive addresses on hardware wallet screen (clipboard malware), not testing recovery before storing large amounts, trusting custodial services with significant Bitcoin, not using a passphrase for plausible deniability, sending to wrong network (always verify address format), not running your own node (trusting someone else's)."
+    },
+    {
+      "title": "SegWit vs Taproot explained",
+      "source": "bitcoin_faq",
+      "text": "SegWit (Segregated Witness, 2017) moved signature data outside the transaction block, reducing fees by roughly 40%, fixing transaction malleability, and enabling Lightning Network. SegWit addresses start with bc1q (bech32). Taproot (2021) introduced Schnorr signatures, which enable signature aggregation — multisig transactions look identical to single-sig on-chain, massively improving privacy. Taproot also enables more complex smart contracts (MAST) with smaller on-chain footprint. Taproot addresses start with bc1p (bech32m). Taproot reduces fees further for complex transactions. Most wallets now support both; Taproot is preferred for new wallets."
+    },
+    {
+      "title": "What is a watch-only wallet",
+      "source": "bitcoin_faq",
+      "text": "A watch-only wallet can see your balance and receive Bitcoin but cannot sign transactions or spend funds. It imports your xpub (extended public key) to derive all your addresses. Use cases: monitor your cold storage balance from your phone without exposing private keys, generate receive addresses without touching your hardware wallet, track incoming payments. Sparrow Wallet, BlueWallet (iOS/Android), and Sentinel support watch-only mode. Never share your xpub publicly — anyone with it can see your full transaction history and balance. For Coldcard: export watch-only via microSD or QR code on the Q model."
+    },
+    {
+      "title": "CoinJoin privacy explained",
+      "source": "bitcoin_faq",
+      "text": "CoinJoin is a privacy technique where multiple users combine their transactions into one, making it difficult to trace which input paid which output. Wasabi Wallet has built-in CoinJoin (WabiSabi protocol), requiring no coordination — just click mix. JoinMarket is a marketplace model where takers pay makers for liquidity in CoinJoin rounds. Both break the on-chain link between your past and future UTXOs. After CoinJoin, avoid consolidating mixed UTXOs (re-links them). Use Sparrow's coin control to spend mixed UTXOs carefully. CoinJoin is legal in most jurisdictions but some exchanges may flag mixed coins."
+    },
+    {
+      "title": "Lightning routing explained",
+      "source": "bitcoin_faq",
+      "text": "Lightning payments find a path from sender to receiver through connected payment channels. Each hop deducts from one side of a channel and adds to the other. Routing nodes earn small fees (base fee + proportional fee) for forwarding payments. Path finding uses algorithms similar to Dijkstra's to find the cheapest route. If no route exists, the payment fails — this happens when channels lack sufficient liquidity. Running a routing node on Umbrel (LND or CLN) lets you earn fees. Good routing nodes maintain balanced channels with well-connected peers. Tools: ThunderHub, Ride The Lightning (RTL) for node management."
+    },
+    {
+      "title": "BTCPay Server for merchants",
+      "source": "bitcoin_faq",
+      "text": "BTCPay Server is a free, open-source Bitcoin payment processor. No third-party, no fees, no KYC — payments go directly to your wallet. Install on Umbrel (one-click) or self-host on a VPS. Features: invoices, point-of-sale terminal, WooCommerce/Shopify plugins, Lightning support, payment requests, pull payments (refunds/payouts). Setup: install on your node, create a store, connect your wallet (xpub or Lightning node), generate a payment button or API integration. BTCPay replaces BitPay, Square, and Stripe for Bitcoin payments with full sovereignty."
+    },
+    {
+      "title": "Passphrase vs PIN security",
+      "source": "bitcoin_faq",
+      "text": "A PIN protects physical access to your hardware wallet device — it locks the device after incorrect attempts (Coldcard bricks after 13 wrong PINs). A BIP39 passphrase is cryptographically different — it creates an entirely separate wallet derived from your seed. Same 24 words + different passphrase = different wallet with different addresses and keys. The passphrase is NOT stored on the device. If someone gets your seed words but not your passphrase, they access only the base wallet (which you can leave empty as a decoy). Coldcard Q's keyboard makes passphrase entry much easier than Mk4's scroll wheel."
+    },
+    {
+      "title": "xpub extended public key explained",
+      "source": "bitcoin_faq",
+      "text": "An xpub (extended public key) is a master public key that can derive all the public keys (and thus addresses) in your wallet. Sharing your xpub lets someone see every transaction you've ever made and your total balance — a massive privacy risk. Never post it online or share it casually. Legitimate uses: importing into a watch-only wallet, setting up a multisig coordinator, configuring BTCPay Server. Different prefixes indicate address types: xpub (legacy P2PKH), ypub (wrapped SegWit P2SH), zpub (native SegWit bech32). Sparrow shows your xpub under Settings > Keystore."
+    },
+    {
+      "title": "BlueWallet and Coldcard PSBT workflow",
+      "source": "bitcoin_faq",
+      "text": "BlueWallet (iOS/Android) can work with Coldcard for air-gapped signing. Import your Coldcard's watch-only wallet into BlueWallet via the exported JSON or QR code. To send: create the transaction in BlueWallet, export as PSBT (partially signed Bitcoin transaction), transfer PSBT to Coldcard via QR code (Q model) or microSD (Mk4), sign on Coldcard, bring signed PSBT back to BlueWallet, broadcast. This keeps your private keys permanently offline. BlueWallet also supports Lightning via LNDHub but for sovereignty, run your own LND node."
+    },
+    {
+      "title": "Verifying Bitcoin received on Coldcard",
+      "source": "bitcoin_faq",
+      "text": "After sending Bitcoin to your Coldcard wallet: verify the transaction on mempool.space by searching your receive address. You should see the unconfirmed transaction in the mempool. Wait for at least one confirmation (about ten minutes average, can be longer during high-fee periods). For extra verification, check via your own node — don't trust third-party explorers for large amounts. In Sparrow Wallet connected to your node, the transaction will appear automatically. On Coldcard itself, you can verify addresses belong to your wallet via Address Explorer (Advanced > Address Explorer)."
+    }
+  ]
+}

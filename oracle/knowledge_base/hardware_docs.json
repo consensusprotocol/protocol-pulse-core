@@ -1,0 +1,46 @@
+{
+  "source": "hardware_docs",
+  "description": "Key setup steps and security features for Coldcard, Sparrow Wallet, and Umbrel",
+  "chunks": [
+    {
+      "title": "Coldcard initial setup",
+      "source": "coldcard_docs",
+      "text": "Coldcard setup: inspect tamper-evident bag, power on via USB or battery (Q model). Choose PIN: anti-phishing words appear between first and second PIN half — memorize them. Write 24 seed words on paper using the provided card. Verify each word when prompted. Store seed in a secure location away from the device. Enable passphrase if desired (Settings > Passphrase). For air-gapped use: use microSD card (Mk4) or QR codes (Q) to transfer PSBTs. Export watch-only wallet for Sparrow via Advanced > MicroSD > Export Wallet."
+    },
+    {
+      "title": "Coldcard security features",
+      "source": "coldcard_docs",
+      "text": "Coldcard security: secure element stores keys (never leaves chip), anti-phishing words verify genuine device, trick PINs (login to decoy wallet or brick device), countdown login (forced delay before spending), USB data disabled by default (charge only), tamper-evident casing, dice roll for true random seed generation (Settings > Seed Functions > Dice Roll — at least 99 rolls recommended). Duress wallet: set a separate PIN that opens a sacrificial wallet under physical threat. Mk4 adds NFC support with security toggle."
+    },
+    {
+      "title": "Sparrow Wallet server connection",
+      "source": "sparrow_docs",
+      "text": "Sparrow server connection: File > Preferences > Server. Options: Public Server (least private — someone else sees your addresses), Bitcoin Core (connect via RPC — enter host, port 8332, RPC credentials from bitcoin.conf), Electrum Server (recommended — Electrs or Fulcrum on your Umbrel, default port 50002 for SSL or 50001 for TCP). For Umbrel: use your local IP and port 50001. Toggle 'Use SSL' off for local connections. Test Connection button verifies the link. Once connected, Sparrow verifies all transactions against your own node for full sovereignty."
+    },
+    {
+      "title": "Sparrow PSBT and coin control",
+      "source": "sparrow_docs",
+      "text": "Sparrow PSBT workflow: create transaction in Send tab, if hardware wallet not connected click 'Save Transaction' to export PSBT file. Transfer to hardware wallet for signing (microSD for Coldcard Mk4, QR for Q, USB for Trezor/Ledger). Import signed PSBT and broadcast. Coin control: UTXOs tab shows every unspent output with labels, amounts, and addresses. Right-click to freeze UTXOs (exclude from spending), set labels, or select specific UTXOs for a transaction. Use coin control to avoid linking your change addresses and maintain privacy across transactions."
+    },
+    {
+      "title": "Umbrel installation and setup",
+      "source": "umbrel_docs",
+      "text": "Umbrel installation: download umbrelOS from getumbrel.com, flash to SSD (not SD card — SSD required for reliability) using balenaEtcher from etcher.balena.io. Connect SSD to Raspberry Pi 4/5 (4GB+ RAM), connect ethernet cable, then power. Access at umbrel.local in browser (allow 5 minutes for first boot). Create account, set strong password. Install Bitcoin Node from App Store — initial block download takes 12-36 hours depending on hardware and internet. Do not disconnect power or internet during sync. After sync, install Electrs (Electrum Server) to connect Sparrow."
+    },
+    {
+      "title": "Umbrel wallet connections",
+      "source": "umbrel_docs",
+      "text": "Connecting wallets to Umbrel: After Bitcoin Node is synced, install Electrs from the Umbrel App Store. In Sparrow: Preferences > Server > Private Electrum, enter your Umbrel IP:50001. For Lightning: install LND from Umbrel App Store, fund with on-chain Bitcoin, open channels to well-connected peers. Manage channels via ThunderHub or Ride The Lightning (both in App Store). For mobile: use Zeus (iOS/Android) connected to your Umbrel LND via Tor. BTCPay Server on Umbrel connects directly to your Bitcoin and Lightning node for merchant payments."
+    },
+    {
+      "title": "Trezor Suite setup and verification",
+      "source": "trezor_docs",
+      "text": "Trezor setup: download Trezor Suite ONLY from trezor.io/start. Verify the download signature. Connect device via USB, follow firmware update prompts. Create new wallet: set PIN using the randomized grid shown on device screen (prevents keylogger capture). Write down seed words on paper. Trezor supports Shamir Backup (SLIP39) — splits seed into multiple shares where you need M-of-N to recover. For standard users: 12 or 24 word BIP39 backup. Verify receive addresses always match between Suite and device screen before sharing."
+    },
+    {
+      "title": "Ledger setup and Bitcoin app",
+      "source": "ledger_docs",
+      "text": "Ledger setup: download Ledger Live from ledger.com/start only. Set 8-digit PIN using device buttons. Write 24-word recovery phrase on paper. Install Bitcoin app via Ledger Live > My Ledger. Open Bitcoin app on device to connect. Ledger uses a proprietary secure element (ST33J2M0) — keys never leave the chip. Nano X adds Bluetooth for mobile use (Nano S Plus is USB only). Important: always verify receive addresses on the Ledger screen — clipboard malware can swap addresses. Ledger supports native SegWit and Taproot addresses."
+    }
+  ]
+}
