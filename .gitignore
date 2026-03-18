@@ -31,3 +31,4 @@ oracle/gfpgan/weights/
 video_pipeline_v3/tts_cache/
 gunicorn.pid
 .env
+video_pipeline_v3/data/yt_cookies.txt
