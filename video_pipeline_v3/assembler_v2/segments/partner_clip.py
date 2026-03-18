@@ -13,6 +13,28 @@ LT_HEIGHT,LT_Y_OFFSET=80,60
 LT_BG_ALPHA="0.82"
 
 
+def _is_hdr(clip):
+    """Detect if clip uses HDR color space (BT.2020 / PQ / HLG)."""
+    try:
+        import subprocess,json as j
+        res=subprocess.run(["ffprobe","-v","error","-select_streams","v:0",
+            "-show_entries","stream=color_space,color_transfer,color_primaries",
+            "-of","json",str(clip)],capture_output=True,text=True,timeout=10)
+        s=j.loads(res.stdout).get("streams",[{}])[0]
+        hdr_markers={"bt2020","smpte2084","arib-std-b67","bt2020nc","bt2020c"}
+        vals={s.get("color_space",""),s.get("color_transfer",""),s.get("color_primaries","")}
+        return bool(vals & hdr_markers)
+    except Exception:
+        return False
+
+
+def _tonemap_filter():
+    """HDR-to-SDR tone mapping chain. Applied when HDR source detected."""
+    return ("zscale=t=linear:npl=100,format=gbrpf32le,"
+            "zscale=p=bt709,tonemap=tonemap=hable:desat=0,"
+            "zscale=t=bt709:m=bt709:r=tv,format=yuv420p")
+
+
 def _safe_label(text,max_chars=40):
     t=text.strip()[:max_chars]
     for o,n in [(chr(92),chr(92)*2),(chr(39),""),(chr(58),chr(92)+chr(58)),
@@ -46,6 +68,7 @@ class PartnerClipSegment(Segment):
         has_a=any(s.get("codec_type")=="audio" for s in streams)
         if not has_v:
             return self.filler_result(spec,ctx,output_path,"clip no video")
+        hdr=_is_hdr(clip)
         ch=_safe_label(spec.headline or "PARTNER SIGNAL")
         sl="PROTOCOL PULSE  PARTNER CLIP"
         lty=VIDEO_H-LT_HEIGHT-LT_Y_OFFSET
@@ -56,7 +79,9 @@ class PartnerClipSegment(Segment):
         sr,lim=str(AUDIO_SAMPLE_RATE),str(AUDIO_LIMITER)
         vfg=";".join([
             "[0:v]scale="+W+":"+H+":force_original_aspect_ratio=increase,"
-            "crop="+W+":"+H+",setsar=1,format="+pf+",setpts=PTS-STARTPTS[vn]",
+            "crop="+W+":"+H+","
+            +(_tonemap_filter()+"," if hdr else "")
+            +"setsar=1,format="+pf+",setpts=PTS-STARTPTS[vn]",
             "[vn]drawbox=x=0:y="+str(lty)+":w="+W+":h="+str(LT_HEIGHT)+
                 ":color=black@"+LT_BG_ALPHA+":t=fill[lb]",
             "[lb]drawtext=fontfile="+fb+":text="+ch+

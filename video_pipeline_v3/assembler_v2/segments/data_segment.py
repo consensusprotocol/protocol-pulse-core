@@ -10,8 +10,13 @@ from ..constants import (VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,VIDEO_CODEC,VID
     AUDIO_LIMITER,BG_LOOP,COLOR_BG,COLOR_RED,COLOR_WHITE,COLOR_CYAN,FONT_BOLD,FONT_MONO)
 logger=logging.getLogger(__name__)
 
-KEYWORD_MAP={"price":"price","$":"price","hashrate":"hashrate","eh/s":"hashrate",
-             "mining":"hashrate","mempool":"mempool","fee":"mempool","sat/vb":"mempool"}
+KEYWORD_MAP={
+    "price":"price","$":"price","dollar":"price","usd":"price",
+    "hashrate":"hashrate","eh/s":"hashrate","mining":"hashrate",
+    "miner":"hashrate","difficulty":"hashrate","exahash":"hashrate",
+    "mempool":"mempool","fee":"mempool","sat/vb":"mempool",
+    "transaction":"mempool","congestion":"mempool","backlog":"mempool",
+}
 
 def _detect_keyword(text):
     t=text.lower()
@@ -19,18 +24,73 @@ def _detect_keyword(text):
         if kw in t: return cat
     return ""
 
-def _get_metric(key,fallback):
+METRICS_CACHE="/tmp/pp_metrics_cache.json"
+METRICS_CACHE_TTL=120  # seconds — cache valid for 2 minutes
+
+
+def _refresh_metrics_cache():
+    """Fetch all metrics and write to cache. Called in background thread."""
+    import json,urllib.request,time
+    data={}
     try:
-        import json,urllib.request
+        with urllib.request.urlopen("https://mempool.space/api/v1/prices",timeout=4) as resp:
+            d=json.loads(resp.read())
+            data["price"]="$"+"{:,}".format(d.get("USD",0))
+    except Exception:
+        pass
+    try:
+        with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d",timeout=4) as resp:
+            d=json.loads(resp.read())
+            data["hashrate"]=str(round(d.get("currentHashrate",0)/1e18,1))+" EH/s"
+    except Exception:
+        pass
+    try:
+        with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=4) as resp:
+            d=json.loads(resp.read())
+            data["mempool"]=str(round(d.get("mempool_byte_per_vbyte",0),1))+" sat/vB"
+    except Exception:
+        pass
+    if data:
+        data["_ts"]=time.time()
+        try:
+            import json as j
+            open(METRICS_CACHE,"w").write(j.dumps(data))
+        except Exception:
+            pass
+
+
+def _get_metric(key,fallback):
+    """
+    Cache-first metric fetch. Never blocks the render pipeline.
+    Reads from /tmp/pp_metrics_cache.json (refreshed by background thread).
+    Falls back to a single quick API call only if cache is missing/expired.
+    On any failure: returns fallback immediately, never raises.
+    """
+    import json,time,threading
+    try:
+        cache=json.loads(open(METRICS_CACHE).read())
+        age=time.time()-cache.get("_ts",0)
+        if age<METRICS_CACHE_TTL and key in cache:
+            return cache[key]
+        # Cache stale — refresh in background, use stale value if available
+        threading.Thread(target=_refresh_metrics_cache,daemon=True).start()
+        if key in cache:
+            return cache[key]
+    except Exception:
+        # Cache missing — fire background refresh, attempt one quick API call
+        threading.Thread(target=_refresh_metrics_cache,daemon=True).start()
+    # One-shot fallback with short timeout — won't block long
+    try:
+        import urllib.request
         if key=="price":
-            with urllib.request.urlopen("https://mempool.space/api/v1/prices",timeout=5) as r:
-                return "$"+"{:,}".format(json.loads(r.read()).get("USD",0))
+            with urllib.request.urlopen("https://mempool.space/api/v1/prices",timeout=2) as resp:
+                return "$"+"{:,}".format(json.loads(resp.read()).get("USD",0))
         if key=="hashrate":
-            with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d",timeout=5) as r:
-                return str(round(json.loads(r.read()).get("currentHashrate",0)/1e18,1))+" EH/s"
+            with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d",timeout=2) as resp:
+                return str(round(json.loads(resp.read()).get("currentHashrate",0)/1e18,1))+" EH/s"
         if key=="mempool":
-            with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=5) as r:
-                return str(round(json.loads(r.read()).get("mempool_byte_per_vbyte",0),1))+" sat/vB"
+            with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=2) as resp:
+                return str(round(json.loads(resp.read()).get("mempool_byte_per_vbyte",0),1))+" sat/vB"
     except Exception:
         pass
     return fallback
