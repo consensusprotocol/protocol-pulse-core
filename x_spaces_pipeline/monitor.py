@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """x_spaces_pipeline/monitor.py"""
-import os, subprocess, sys, time, logging
+import os, re, subprocess, sys, time, logging
 from datetime import datetime, timezone
 from pathlib import Path
 sys.path.insert(0, "/home/ultron/protocol_pulse")
@@ -37,19 +37,28 @@ def release_lock(handle, fd):
     try: os.close(fd)
     except OSError: pass
     (LOCK_DIR / f"{handle}.lock").unlink(missing_ok=True)
+def _extract_space_id(url, handle, prefix="live"):
+    """Extract canonical space ID from m3u8 URL or fall back to timestamped ID."""
+    space_id_match = re.search(r'/([A-Za-z0-9]{13,})/', url)
+    if space_id_match:
+        return f"{prefix}_{space_id_match.group(1)}"
+    return f"{prefix}_{handle}_{int(time.time())}"
+
 def is_space_live(handle):
     try:
         res = subprocess.run(["twspace_dl","-i",f"https://twitter.com/{handle}","--cookies",COOKIE,"--metadata"],capture_output=True,text=True,timeout=30)
         if res.returncode == 0:
             for line in res.stdout.splitlines():
                 if "m3u8" in line:
-                    return {"handle":handle,"url":line.strip(),"space_id":f"live_{handle}_{int(time.time())}","detected_at":time.time()}
+                    url = line.strip()
+                    return {"handle":handle,"url":url,"space_id":_extract_space_id(url, handle, "live"),"detected_at":time.time()}
     except subprocess.TimeoutExpired: logger.warning(f"twspace_dl timeout @{handle}")
     except Exception as e: logger.debug(f"@{handle}: {e}")
     try:
         res = subprocess.run(["yt-dlp","--cookies",COOKIE,"--get-url","--no-playlist",f"https://twitter.com/{handle}"],capture_output=True,text=True,timeout=30)
         if res.returncode==0 and "m3u8" in res.stdout:
-            return {"handle":handle,"url":res.stdout.strip().splitlines()[0],"space_id":f"replay_{handle}_{int(time.time())}","detected_at":time.time()}
+            url = res.stdout.strip().splitlines()[0]
+            return {"handle":handle,"url":url,"space_id":_extract_space_id(url, handle, "replay"),"detected_at":time.time()}
     except Exception: pass
     return None
 def run_monitor():

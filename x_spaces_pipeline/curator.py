@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """x_spaces_pipeline/curator.py"""
-import json, logging, sys, time
+import json, logging, os, sys, time
 from pathlib import Path
 from datetime import datetime
 sys.path.insert(0, "/home/ultron/protocol_pulse")
+from dotenv import load_dotenv
+load_dotenv(Path("/home/ultron/protocol_pulse/.env"))
 from x_spaces_scraper.spaces_state import SpaceStateDB
 import anthropic
 logger = logging.getLogger("spaces.curator")
@@ -29,10 +31,9 @@ def curate_pending():
     if get_daily_calls() >= MAX_DAILY:
         logger.warning("Daily cap reached")
         return
-    env = Path("/home/ultron/protocol_pulse/.env").read_text()
-    api_key = next((l.split("=",1)[1].strip() for l in env.splitlines() if "ANTHROPIC_API_KEY" in l and not l.startswith("#")), None)
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
-        logger.error("ANTHROPIC_API_KEY not in .env")
+        logger.error("ANTHROPIC_API_KEY not set")
         return
     client = anthropic.Anthropic(api_key=api_key)
     prompt = "Bitcoin editor. Extract top 3 moments. Return ONLY JSON no markdown: {"moments":[{"rank":1,"start_sec":0.0,"end_sec":0.0,"quote":"words","speaker":"unknown","signal_type":"macro","quality_score":80}]}"

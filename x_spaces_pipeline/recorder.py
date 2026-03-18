@@ -20,7 +20,6 @@ def record(handle, url, space_id, lock_fd):
     meta_path = RAW_DIR / f"{date_str}_{space_id}.meta.json"
     meta_path.write_text(json.dumps({"handle":handle,"space_id":space_id,"url":url,"date_str":date_str},indent=2))
     db = SpaceStateDB()
-    db.upsert(space_id, downloaded_at=datetime.now().isoformat())
     cmd = ["ffmpeg","-y","-allowed_extensions","ALL","-protocol_whitelist","file,crypto,data,tls,tcp,http,https,m3u8,hls","-i",url,"-c","copy","-t",str(TIMEOUT),str(output)]
     proc = None
     try:
@@ -28,9 +27,9 @@ def record(handle, url, space_id, lock_fd):
         logger.info(f"Recording @{handle} pid={proc.pid}")
         proc.wait(timeout=TIMEOUT+60)
         if output.exists() and output.stat().st_size > 102400:
-            db.upsert(space_id, transcript_source="audio_replay")
+            db.upsert(space_id, downloaded_at=datetime.now().isoformat(), transcript_source="audio_replay")
             return str(output)
-        db.upsert(space_id, error="output_too_small")
+        db.upsert(space_id, error="output_too_small_or_missing")
         return None
     except subprocess.TimeoutExpired:
         db.upsert(space_id, error="timeout")

@@ -125,7 +125,9 @@ class TranscriptFetcher:
 
     def _try_audio_replay(self, space_id, space_url):
         """Download audio + Whisper transcribe. Full pipeline."""
-        audio_path = f"/tmp/space_{space_id}.m4a"
+        import tempfile
+        fd, audio_path = tempfile.mkstemp(prefix=f"space_{space_id}_", suffix=".m4a")
+        os.close(fd)
         try:
             proc = subprocess.Popen(
                 ["yt-dlp", "-f", "bestaudio", "-o", audio_path,
@@ -143,7 +145,8 @@ class TranscriptFetcher:
                 return {"usable": False, "error": "yt-dlp timeout"}
             finally:
                 try:
-                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+                    if proc.poll() is None:  # only kill if still running
+                        os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
                 except ProcessLookupError:
                     pass
             if proc.returncode != 0 or not os.path.exists(audio_path):

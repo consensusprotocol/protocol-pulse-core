@@ -74,7 +74,7 @@ def generate_article(
     client = anthropic.Anthropic(api_key=api_key)
 
     # Truncate very long transcripts to stay within context
-    text = transcript.get("text", "")
+    text = transcript.get("transcript") or transcript.get("text", "")
     if len(text) > 50000:
         text = text[:50000] + "\n\n[... transcript truncated for length]"
 

@@ -53,8 +53,9 @@ def setup_logging(verbose: bool = False):
 
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
-    root.addHandler(fh)
-    root.addHandler(ch)
+    if not root.handlers:
+        root.addHandler(fh)
+        root.addHandler(ch)
 
 
 logger = logging.getLogger("x_spaces_scraper")
@@ -135,6 +136,11 @@ def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: 
             continue
 
         transcript = transcripts[space.space_id]
+        if not transcript.get("usable", False):
+            source = transcript.get("source", "unknown")
+            logger.warning(f"Skipping {space.space_id}: transcript not usable (source={source})")
+            stats["errors"].append(f"Unusable transcript for {space.space_id} (source={source})")
+            continue
         if transcript.get("word_count", 0) < 100:
             logger.warning(f"  Skipping {space.space_id}: transcript too short ({transcript.get('word_count', 0)} words)")
             continue

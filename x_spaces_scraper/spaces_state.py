@@ -3,14 +3,22 @@ spaces_state.py — SQLite-backed idempotent state machine for X Spaces.
 
 States: discovered -> downloading -> transcribed -> summarized -> injected -> published
 Each state is a timestamp column. NULL = not yet reached.
-Prevents cron races. Safe for concurrent access.
+Prevents cron races. Atomic upsert via INSERT ... ON CONFLICT.
 """
 
 import os
 import sqlite3
+import threading
 from datetime import datetime, timezone
 
 STATE_ORDER = ["discovered", "downloaded", "transcribed", "summarized", "injected", "published"]
+
+_ALL_COLUMNS = [
+    "space_id", "title", "host", "url", "started_at", "ended_at",
+    "transcript_source", "transcript_word_count", "transcript_quality_score",
+    "impact_score", "discovered_at", "downloaded_at", "transcribed_at",
+    "summarized_at", "injected_at", "published_at", "error",
+]
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS spaces (
@@ -33,6 +41,11 @@ CREATE TABLE IF NOT EXISTS spaces (
     error TEXT,
     UNIQUE(space_id)
 );
+CREATE INDEX IF NOT EXISTS idx_spaces_discovered ON spaces(discovered_at);
+CREATE INDEX IF NOT EXISTS idx_spaces_downloaded ON spaces(downloaded_at);
+CREATE INDEX IF NOT EXISTS idx_spaces_transcribed ON spaces(transcribed_at);
+CREATE INDEX IF NOT EXISTS idx_spaces_injected ON spaces(injected_at);
+CREATE INDEX IF NOT EXISTS idx_spaces_error ON spaces(error);
 """
 
 DEFAULT_DB_PATH = os.path.join(
@@ -44,34 +57,31 @@ class SpaceStateDB:
     def __init__(self, db_path=None):
         self.db_path = db_path or DEFAULT_DB_PATH
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-        self.conn = sqlite3.connect(self.db_path, timeout=10)
+        self._lock = threading.Lock()
+        self.conn = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.executescript(_SCHEMA)
         self.conn.commit()
 
     def upsert(self, space_id, **kwargs):
-        """Insert or update a space with only the provided fields."""
-        existing = self.get(space_id)
-        if existing is None:
-            # Insert new row
-            kwargs["space_id"] = space_id
-            cols = ", ".join(kwargs.keys())
-            placeholders = ", ".join("?" for _ in kwargs)
+        """Atomic insert-or-update. COALESCE preserves existing non-null values."""
+        kwargs["space_id"] = space_id
+        values = [kwargs.get(col) for col in _ALL_COLUMNS]
+        update_cols = _ALL_COLUMNS[1:]
+        update_clause = ", ".join(
+            f"{col} = COALESCE(excluded.{col}, spaces.{col})"
+            for col in update_cols
+        )
+        placeholders = ", ".join("?" for _ in _ALL_COLUMNS)
+        col_names = ", ".join(_ALL_COLUMNS)
+        with self._lock:
             self.conn.execute(
-                f"INSERT INTO spaces ({cols}) VALUES ({placeholders})",
-                list(kwargs.values()),
+                f"INSERT INTO spaces ({col_names}) VALUES ({placeholders}) "
+                f"ON CONFLICT(space_id) DO UPDATE SET {update_clause}",
+                values,
             )
-        else:
-            # Update only provided fields
-            if not kwargs:
-                return
-            sets = ", ".join(f"{k} = ?" for k in kwargs)
-            self.conn.execute(
-                f"UPDATE spaces SET {sets} WHERE space_id = ?",
-                list(kwargs.values()) + [space_id],
-            )
-        self.conn.commit()
+            self.conn.commit()
 
     def get(self, space_id):
         """Get a space record by ID. Returns dict or None."""
@@ -107,11 +117,12 @@ class SpaceStateDB:
         """Set {state}_at = now() for the given space."""
         col = f"{state}_at"
         now = datetime.now(timezone.utc).isoformat()
-        self.conn.execute(
-            f"UPDATE spaces SET {col} = ? WHERE space_id = ?",
-            (now, space_id),
-        )
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute(
+                f"UPDATE spaces SET {col} = ? WHERE space_id = ?",
+                (now, space_id),
+            )
+            self.conn.commit()
 
     def needs_processing(self, space_id, state):
         """Return True if space exists but hasn't reached this state yet."""
@@ -120,6 +131,13 @@ class SpaceStateDB:
             return False
         col = f"{state}_at"
         return record.get(col) is None
+
+    def get_injected_ids(self):
+        """Return set of space_ids where injected_at IS NOT NULL."""
+        rows = self.conn.execute(
+            "SELECT space_id FROM spaces WHERE injected_at IS NOT NULL"
+        ).fetchall()
+        return {r[0] for r in rows}
 
     def close(self):
         self.conn.close()

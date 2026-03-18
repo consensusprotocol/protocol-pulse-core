@@ -355,11 +355,21 @@ def ytdlp_find_spaces(account: str) -> list[SpaceInfo]:
             try:
                 info = json.loads(line)
                 sid = info.get("id", "")
+                # Parse upload_date — yt-dlp returns YYYYMMDD format
+                raw = info.get("upload_date", "")
+                if raw:
+                    if len(raw) == 8 and raw.isdigit():
+                        dt = datetime.strptime(raw, "%Y%m%d").replace(tzinfo=timezone.utc)
+                        date_str = dt.isoformat()
+                    else:
+                        date_str = raw
+                else:
+                    date_str = ""
                 results.append(SpaceInfo(
                     space_id=sid,
                     title=info.get("title", ""),
                     host=account,
-                    date=info.get("upload_date", ""),
+                    date=date_str,
                     participant_count=0,
                     state="ended",
                     url=info.get("url", f"https://twitter.com/i/spaces/{sid}"),
@@ -378,77 +388,68 @@ def ytdlp_find_spaces(account: str) -> list[SpaceInfo]:
 class XSpacesScraper:
     """
     Finds recent Bitcoin X Spaces from target accounts.
-    Tries API v2 → Guest Token → yt-dlp in order.
+    Runs all sources (API v2, Guest Token, yt-dlp) and unions results.
+    Processed-ID tracking backed by SpaceStateDB (injected_at column).
     """
 
     def __init__(self):
+        from x_spaces_scraper.spaces_state import SpaceStateDB
         bearer = os.environ.get("TWITTER_BEARER_TOKEN", "")
         self.api_scraper = TwitterAPIv2Scraper(bearer) if bearer else None
         self.guest_scraper = GuestTokenScraper()
         self.cache_dir = Path(__file__).parent / "cache"
         self.cache_dir.mkdir(exist_ok=True)
+        self.db = SpaceStateDB()
 
     def _load_processed(self) -> set[str]:
-        """Load set of already-processed Space IDs."""
-        processed_file = self.cache_dir / "processed_ids.json"
-        if processed_file.exists():
-            try:
-                return set(json.loads(processed_file.read_text()))
-            except (json.JSONDecodeError, OSError):
-                pass
-        return set()
-
-    def _save_processed(self, ids: set[str]):
-        processed_file = self.cache_dir / "processed_ids.json"
-        processed_file.write_text(json.dumps(sorted(ids), indent=2))
+        """Load set of already-processed Space IDs from DB."""
+        return self.db.get_injected_ids()
 
     def mark_processed(self, space_id: str):
-        ids = self._load_processed()
-        ids.add(space_id)
-        self._save_processed(ids)
+        """Mark a space as injected/processed in the DB."""
+        self.db.mark(space_id, "injected")
 
     def find_spaces(self, skip_processed: bool = True) -> list[SpaceInfo]:
         """
         Find recent Bitcoin X Spaces. Returns list of SpaceInfo,
         filtering out already-processed ones if skip_processed=True.
+        Always runs all three sources and unions results (deduplicated by space_id).
         """
         processed = self._load_processed() if skip_processed else set()
-        all_spaces: list[SpaceInfo] = []
-        seen_ids: set[str] = set()
+        all_spaces: dict[str, SpaceInfo] = {}  # keyed by space_id for dedup
 
-        # 1. Twitter API v2
+        # Source 1: Twitter API v2 (always run if available)
         if self.api_scraper:
             logger.info("Searching via Twitter API v2...")
             for kw in SPACE_KEYWORDS[:2]:
                 for space in self.api_scraper.search_spaces(kw, state="all"):
-                    if space.space_id not in seen_ids and space.space_id not in processed:
-                        seen_ids.add(space.space_id)
-                        all_spaces.append(space)
+                    if space.space_id not in processed and space.space_id not in all_spaces:
+                        all_spaces[space.space_id] = space
 
-        # 2. Guest Token GraphQL search
-        if not all_spaces:
-            logger.info("Searching via Guest Token GraphQL...")
-            for space in self.guest_scraper.search_spaces(SPACE_KEYWORDS):
-                if space.space_id not in seen_ids and space.space_id not in processed:
-                    seen_ids.add(space.space_id)
-                    all_spaces.append(space)
+        # Source 2: Guest Token GraphQL (always run, even if API found results)
+        logger.info("Searching via Guest Token GraphQL...")
+        for space in self.guest_scraper.search_spaces(SPACE_KEYWORDS):
+            if space.space_id not in processed and space.space_id not in all_spaces:
+                all_spaces[space.space_id] = space
 
-        # 3. yt-dlp fallback (check a few target accounts)
-        if not all_spaces:
-            logger.info("Trying yt-dlp metadata fallback for target accounts...")
-            for account in TARGET_ACCOUNTS[:5]:
-                for space in ytdlp_find_spaces(account):
-                    if space.space_id not in seen_ids and space.space_id not in processed:
-                        seen_ids.add(space.space_id)
-                        all_spaces.append(space)
+        # Source 3: yt-dlp (always run for target accounts)
+        logger.info("Trying yt-dlp metadata for target accounts...")
+        for account in TARGET_ACCOUNTS[:5]:
+            for space in ytdlp_find_spaces(account):
+                if space.space_id not in processed and space.space_id not in all_spaces:
+                    all_spaces[space.space_id] = space
 
-        # Filter to last 7 days where possible
+        # Filter to last 7 days — handle both ISO and YYYYMMDD formats
         cutoff = datetime.now(timezone.utc) - timedelta(days=7)
         recent = []
-        for s in all_spaces:
+        for s in all_spaces.values():
             if s.date:
                 try:
-                    dt = datetime.fromisoformat(s.date.replace("Z", "+00:00"))
+                    raw = s.date
+                    if len(raw) == 8 and raw.isdigit():
+                        dt = datetime.strptime(raw, "%Y%m%d").replace(tzinfo=timezone.utc)
+                    else:
+                        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
                     if dt < cutoff:
                         continue
                 except (ValueError, TypeError):

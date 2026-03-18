@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 """
+TOMBSTONED 2026-03-18 — This module is superseded by x_spaces_scraper/ pipeline.
+SpaceStateDB (x_spaces_scraper/spaces_state.py) is the authoritative state store.
+The check_cookie_validity() and get_live_signal_age() utility functions below
+remain active and are used by tests. All monitoring/discovery logic in this file
+is DEPRECATED and must NOT be called. Use x_spaces_scraper/run_scraper.py instead.
+
+--- Original docstring ---
 spaces_monitor.py — X Spaces Discovery Engine V2
 
 STRATEGY (in priority order):
