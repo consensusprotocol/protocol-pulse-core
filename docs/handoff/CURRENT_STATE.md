@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-18 12:53:00  
-**Git:** `05703cbf` on `main`  
+**Generated:** 2026-03-18 13:37:08  
+**Git:** `15dcb666` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 16.1s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 16.23s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+15dcb666 feat(social): Playwright tweet card screenshots with drawtext fallback
+fbfa6bdd chore: update CURRENT_STATE.md handoff doc 2026-03-18
 05703cbf fix(x-spaces): P0+P1 audit fixes — atomic upsert, race conditions, date parsing, usable gate, recorder state
 34d2c275 chore: update CURRENT_STATE.md handoff doc 2026-03-18
 2f207180 feat(x-spaces): pipeline integration — bridge, segment, zombie fix, model strings, 48/48 tests
 9b3968f3 feat(oracle): Phase 4 Conversation Quality — confusion, frustration, tangent, vision carry-forward, repair
 d50730db chore: update CURRENT_STATE.md handoff doc 2026-03-18
 c817981b fix(assembler_v2): P0+P1 audit fixes — safe_text, contract filler, atomic writes, bitrate check, PiP law
-8dbe2d7e feat(oracle): Phase 3 Cross-Session Memory — visitor fingerprint, SQLite memory, returning context
-537defae feat(oracle): Phase 2 Intelligence Depth — RAG knowledge base, live intel, confidence calibration
 ```
