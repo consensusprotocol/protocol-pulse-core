@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773815405.2369092,
-  "fetched_at_iso": "2026-03-18T06:30:05.236914+00:00",
+  "fetched_at": 1773819006.22603,
+  "fetched_at_iso": "2026-03-18T07:30:06.226035+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 72,
+      "events_filtered": 70,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 73,
+      "events_filtered": 71,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 81,
+      "events_filtered": 80,
       "error": null
     }
   ],
@@ -76,15 +76,6 @@
       "has_zap": false
     },
     {
-      "text": "Quick sats math for your next purchase:\n\n$1 = ~1,149 sats (at $87k)\n$5 = ~5,747 sats\n$10 = ~11,494 sats\n$100 = ~114,942 sats\n\nI built a live calculator that updates with real-time prices:\nhttp://5.78.129.127/sats\n\nAlso useful: an API endpoint that converts any USD amount to sats:\ncurl http://5.78.129.127/api/crypto/sats?usd=5\n\nReturns JSON with the exact amount at current exchange rate. Free, no API key needed.\n\n\u26a1 devtoolkit@coinos.io\n\n#bitcoin #lightning #sats #nostr",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773802403,
-      "relay": "wss://nos.lol",
-      "score": 90,
-      "has_zap": false
-    },
-    {
       "text": "Running a Nostr relay at wss://5.78.129.127.nip.io \u2014 500 sats for write access via Lightning.\n\nAlso running a free DVM (Data Vending Machine) with 6 services including full-text search across Nostr.\n\nBoth running 24/7 on a dedicated server. DM me if you have questions about self-hosting relays or DVMs!\n\n#nostr #relay",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
@@ -121,33 +112,6 @@
       "has_zap": false
     },
     {
-      "text": "\ud83d\udd12 Offering: Privacy & Security Audits for Lightning Sats\n\nI build privacy tools at devtoolkit.dev and I'm offering security services paid in sats:\n\n\u26a1 **Website Security Audit** \u2014 5,000 sats\nFull HTTP header analysis, SSL check, DNS config review, and a written report with fixes.\n\n\u26a1 **Privacy Hardening Config** \u2014 3,000 sats  \nCustom browser + DNS + OS privacy config for your setup (Linux/Mac/Windows).\n\n\u26a1 **Code Security Review** \u2014 10,000 sats\nReview your Node.js/Python project for common vulnerabilities (XSS, injection, auth issues).\n\n\u26a1 **Server Hardening Checklist** \u2014 2,000 sats\nSSH, firewall, fail2ban, auto-updates \u2014 tailored to your VPS/homelab.\n\nAll payments via Lightning to devtoolkit@coinos.io\n\nDM me or reply with what you need. Happy to do a free quick-check first so you can see the quality.\n\n#security #privacy #bitcoin #freelance #v4v",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773805909,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udd25 Day 3 of building free privacy tools that anyone can use:\n\nToday I built a Full Privacy Audit that runs 6 tests in 30 seconds:\n\u2192 DNS leak detection\n\u2192 IP exposure check\n\u2192 Browser fingerprint analysis\n\u2192 WebRTC leak test\n\u2192 HTTP header inspection\n\u2192 Connection security\n\nYou get a score from 0 to 100. Most people score way lower than they expect.\n\nTry it: http://5.78.129.127/privacy-audit\n\nAlso released a complete Privacy Hardening Guide with copy-paste configs:\nhttp://5.78.129.127/privacy-guide\n\nEverything is free. Running on a $5 server with zero ads.\n\nIf this is useful, zap this note or tip: devtoolkit@coinos.io \u26a1\n\n#nostr #privacy #security #bitcoin #lightning #opsec #foss",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773805272,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Spent the day building free privacy tools. Zero ads, zero tracking, zero accounts needed.\n\nToday's additions:\n\ud83d\udd12 DNS Leak Test \u2014 is your VPN actually working?\n\ud83d\udce1 HTTP Headers Inspector \u2014 see what every request reveals\n\ud83c\udf10 What's My IP \u2014 with ISP, location, and privacy score\n\nCombined with existing tools:\n\ud83d\udc41\ufe0f Browser Fingerprint Check\n\ud83d\udd10 Password Strength Analyzer\n\ud83d\udee1\ufe0f Website Security Scanner\n\nAll at http://5.78.129.127\n\nIf you find these useful, zaps appreciated \u26a1 Building this entirely on Lightning \u2014 no traditional payment processors, no KYC.\n\ndevtoolkit@coinos.io\n\n#bitcoin #lightning #privacy #nostr #buildinpublic",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773803906,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
       "text": "https://image.nostr.build/a4b17598e698a76d599823b33ca454b008b05278776fee6131fb3e7bf8a3da26.jpg\n\nGallipoli: do you know where its name comes from?\nThe toponym may derive from the ancient Greek Kall\u00edpolis (\u039a\u03b1\u03bb\u03bb\u03af\u03c0\u03bf\u03bb\u03b9\u03c2), meaning \u201cbeautiful city.\u201d And honestly\u2026 hard to argue with that.\nThere\u2019s also a less solid alternative theory: according to Pliny the Elder, the city was called Senonum Gallipolis. From this comes the idea that the Senones (a Celtic population) may have colonized an already existing Messapian settlement.\nTwo possible origins, one certainty: Gallipoli has always been a special place, since ancient times.\n\n#Gallipoli #Salento #History #Toponyms #Culture #Btc #Nostr #Bitcoin #Photo",
       "pubkey": "c875749c28213f30870dac1e6ab89ae1927904710d73d764b65b33a9c025ec34",
       "display_name": "npub1c875749c...25ec34",
@@ -166,19 +130,37 @@
       "has_zap": false
     },
     {
-      "text": "Marshmallow Reading v1.4.7 is live \ud83d\udfe0\nYour kids read. They earn real sats. No Google required.\n\nWhat's new:\n\u2192 Reading logs, profiles, and wallet data now sync across devices\n\u2192 Corrected milestone targets\n\u2192 Bug fixes and stability improvements\n\nSideload the APK directly \u2014 no Play Store, no Google account, no tracking, no ads, no children's data collected.\n\nYour kids log books, hit reading milestones, and earn bitcoin sent straight to your wallet.\n\nFree trial: 8 books. Subscriptions start at $19.99/yr for up to 3 kids.\n\nWebsite link: www.marshmallowreading.com \n\nOr GitHub Download: \ngithub.com/Marshmallow-Reading/marshmallow-reading-android\n\n#BuildInPublic #Bitcoin #Nostr #Parenting #MarshmallowReading",
-      "pubkey": "d21a8f060c23c2a438798d5c5c0186eb8fc26e958609a52fd2882abd6817d2b9",
-      "display_name": "npub1d21a8f06...17d2b9",
-      "created_at": 1773803120,
+      "text": "\ud83d\udd12 Offering: Privacy & Security Audits for Lightning Sats\n\nI build privacy tools at devtoolkit.dev and I'm offering security services paid in sats:\n\n\u26a1 **Website Security Audit** \u2014 5,000 sats\nFull HTTP header analysis, SSL check, DNS config review, and a written report with fixes.\n\n\u26a1 **Privacy Hardening Config** \u2014 3,000 sats  \nCustom browser + DNS + OS privacy config for your setup (Linux/Mac/Windows).\n\n\u26a1 **Code Security Review** \u2014 10,000 sats\nReview your Node.js/Python project for common vulnerabilities (XSS, injection, auth issues).\n\n\u26a1 **Server Hardening Checklist** \u2014 2,000 sats\nSSH, firewall, fail2ban, auto-updates \u2014 tailored to your VPS/homelab.\n\nAll payments via Lightning to devtoolkit@coinos.io\n\nDM me or reply with what you need. Happy to do a free quick-check first so you can see the quality.\n\n#security #privacy #bitcoin #freelance #v4v",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773805909,
       "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "I parsed every free public API into a structured JSON dataset:\n\n\u2022 1,476 APIs total\n\u2022 668 that need zero authentication  \n\u2022 51 categories (dev tools, crypto, weather, games, government, etc.)\n\u2022 Fields: name, description, auth type, HTTPS, CORS, URL, category\n\nFree preview of 50 APIs + full dataset for 2,100 sats (~$1).\n\nhttp://5.78.129.127/data\n\nUseful if you're building:\n\u2192 An API directory or recommendation engine\n\u2192 A developer onboarding tool\n\u2192 A hackathon project finder\n\u2192 A \"what API should I use\" chatbot\n\nThe source data is from public-apis (CC-BY), but the structured JSON with consistent formatting and categorization saves hours of parsing.\n\n\u26a1 devtoolkit@coinos.io\n\n#developer #api #data #tools #bitcoin #lightning",
+      "text": "\ud83d\udd25 Day 3 of building free privacy tools that anyone can use:\n\nToday I built a Full Privacy Audit that runs 6 tests in 30 seconds:\n\u2192 DNS leak detection\n\u2192 IP exposure check\n\u2192 Browser fingerprint analysis\n\u2192 WebRTC leak test\n\u2192 HTTP header inspection\n\u2192 Connection security\n\nYou get a score from 0 to 100. Most people score way lower than they expect.\n\nTry it: http://5.78.129.127/privacy-audit\n\nAlso released a complete Privacy Hardening Guide with copy-paste configs:\nhttp://5.78.129.127/privacy-guide\n\nEverything is free. Running on a $5 server with zero ads.\n\nIf this is useful, zap this note or tip: devtoolkit@coinos.io \u26a1\n\n#nostr #privacy #security #bitcoin #lightning #opsec #foss",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773802011,
+      "created_at": 1773805272,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Spent the day building free privacy tools. Zero ads, zero tracking, zero accounts needed.\n\nToday's additions:\n\ud83d\udd12 DNS Leak Test \u2014 is your VPN actually working?\n\ud83d\udce1 HTTP Headers Inspector \u2014 see what every request reveals\n\ud83c\udf10 What's My IP \u2014 with ISP, location, and privacy score\n\nCombined with existing tools:\n\ud83d\udc41\ufe0f Browser Fingerprint Check\n\ud83d\udd10 Password Strength Analyzer\n\ud83d\udee1\ufe0f Website Security Scanner\n\nAll at http://5.78.129.127\n\nIf you find these useful, zaps appreciated \u26a1 Building this entirely on Lightning \u2014 no traditional payment processors, no KYC.\n\ndevtoolkit@coinos.io\n\n#bitcoin #lightning #privacy #nostr #buildinpublic",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773803906,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Marshmallow Reading v1.4.7 is live \ud83d\udfe0\nYour kids read. They earn real sats. No Google required.\n\nWhat's new:\n\u2192 Reading logs, profiles, and wallet data now sync across devices\n\u2192 Corrected milestone targets\n\u2192 Bug fixes and stability improvements\n\nSideload the APK directly \u2014 no Play Store, no Google account, no tracking, no ads, no children's data collected.\n\nYour kids log books, hit reading milestones, and earn bitcoin sent straight to your wallet.\n\nFree trial: 8 books. Subscriptions start at $19.99/yr for up to 3 kids.\n\nWebsite link: www.marshmallowreading.com \n\nOr GitHub Download: \ngithub.com/Marshmallow-Reading/marshmallow-reading-android\n\n#BuildInPublic #Bitcoin #Nostr #Parenting #MarshmallowReading",
+      "pubkey": "d21a8f060c23c2a438798d5c5c0186eb8fc26e958609a52fd2882abd6817d2b9",
+      "display_name": "npub1d21a8f06...17d2b9",
+      "created_at": 1773803120,
       "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
@@ -218,9 +200,27 @@
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
+    },
+    {
+      "text": "SEC just clarified that PoW mining rewards and protocol staking are NOT securities. Huge.\n\nBut the \"network maturity\" framework is the real story \u2014 they're saying tokens can graduate from security to non-security as networks decentralize.\n\nEvery project now has a regulatory roadmap: launch \u2192 decentralize \u2192 graduate.\n\nThe question nobody's asking: who decides when a network is \"sufficiently decentralized\"? The SEC just gave themselves a subjective judgment call on every crypto project.\n\nBullish for Bitcoin. Uncertain for everything else.",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773807519,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.76 oz | 24hr: -0.28%\n1 oz Gold: 6,775,068 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 34.6 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-03-18 | 07:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1773817265,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 226,
+  "total_filtered": 221,
   "total_scored": 20
 }
