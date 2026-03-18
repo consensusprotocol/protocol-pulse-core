@@ -84,9 +84,7 @@ def add_cors_headers(response):
     # Allow configured origins + any localhost
     if origin in CORS_ORIGINS or origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
         response.headers["Access-Control-Allow-Origin"] = origin
-    else:
-        # Allow all for video endpoints (videos are not sensitive)
-        response.headers["Access-Control-Allow-Origin"] = "*"
+    # Default deny: no Access-Control-Allow-Origin header for unknown origins
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     response.headers["Access-Control-Allow-Credentials"] = "false"
@@ -116,9 +114,10 @@ _render_queue_lock = threading.Lock()
 
 
 def _record_latency(seconds):
-    _request_times.append(seconds)
-    if len(_request_times) > 100:
-        _request_times.pop(0)
+    with _lock:
+        _request_times.append(seconds)
+        if len(_request_times) > 100:
+            _request_times.pop(0)
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -414,7 +413,9 @@ def health():
     vram = reg.vram_info() if reg else {"available": False}
 
     vision_enabled = bool(os.environ.get("GEMINI_API_KEY"))
-    avg_latency = round(sum(_request_times) / len(_request_times), 2) if _request_times else None
+    with _lock:
+        avg_latency = round(sum(_request_times) / len(_request_times), 2) if _request_times else None
+        tracked = len(_request_times)
     uptime = round(time.time() - _start_time, 1)
 
     return jsonify({
@@ -436,7 +437,7 @@ def health():
         "vision_enabled": vision_enabled,
         "uptime_sec": uptime,
         "avg_latency_sec": avg_latency,
-        "requests_tracked": len(_request_times),
+        "requests_tracked": tracked,
         "output_fps": DEFAULT_FPS,
         "batch_size": BATCH_SIZE,
         "max_audio_seconds": MAX_AUDIO_SECONDS,
@@ -476,10 +477,13 @@ def warmup():
         wav_path = tmp.name
 
     try:
-        with _lock:
+        _render_semaphore.acquire()
+        try:
             frames = wav2lip_generate(wav_path, DEFAULT_FPS)
             if frames:
                 frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=False, enable_head=True)
+        finally:
+            _render_semaphore.release()
         elapsed = time.time() - t0
         logger.info(f"Warmup complete: {len(frames)} frames in {elapsed:.2f}s")
         return jsonify({
@@ -565,7 +569,7 @@ def generate():
 
     try:
         reg = ModelRegistry.get()
-        acquired = _lock.acquire(timeout=LOCK_TIMEOUT)
+        acquired = _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
         if not acquired:
             return jsonify({"error": "GPU busy", "code": "GPU_BUSY", "retry_after": 5}), 503
         try:
@@ -600,7 +604,7 @@ def generate():
             t_encode = time.time() - t0
             logger.info(f"Encoding: {t_encode:.2f}s")
         finally:
-            _lock.release()
+            _render_semaphore.release()
 
         if not video_path:
             return jsonify({"error": "Video encoding failed", "code": "ENCODE_FAILED"}), 500
@@ -815,7 +819,8 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
             check=True, capture_output=True,
         )
 
-        with _lock:
+        _render_semaphore.acquire()
+        try:
             frames = wav2lip_generate(wav_path, fps)
             reg = ModelRegistry.get()
             try:
@@ -823,6 +828,8 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
             except Exception:
                 pass
             frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+        finally:
+            _render_semaphore.release()
 
         video_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp4")
         tmp_path = frames_to_video(frames, fps, audio_path=wav_path)
@@ -1289,7 +1296,12 @@ def oracle_chat():
                 try:
                     acquired = _render_semaphore.acquire(timeout=60)
                     if not acquired:
-                        raise RuntimeError("Render queue full")
+                        logger.warning(f"[ASYNC RENDER] GPU busy for job {jid}")
+                        with _render_jobs_lock:
+                            if jid in _render_jobs:
+                                _render_jobs[jid] = {"status": "error", "video_bytes": None,
+                                                     "created": time.time(), "code": "GPU_BUSY"}
+                        return
                     try:
                         frames = wav2lip_generate(wav_path, DEFAULT_FPS)
                         reg = ModelRegistry.get()
