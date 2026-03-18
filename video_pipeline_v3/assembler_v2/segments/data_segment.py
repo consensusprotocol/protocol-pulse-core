@@ -24,11 +24,10 @@ def _detect_keyword(text):
         if kw in t: return cat
     return ""
 
-METRICS_CACHE="/tmp/pp_metrics_cache.json"
 METRICS_CACHE_TTL=120  # seconds — cache valid for 2 minutes
 
 
-def _refresh_metrics_cache():
+def _refresh_metrics_cache(cache_path):
     """Fetch all metrics and write to cache. Called in background thread."""
     import json,urllib.request,time
     data={}
@@ -54,31 +53,32 @@ def _refresh_metrics_cache():
         data["_ts"]=time.time()
         try:
             import json as j
-            open(METRICS_CACHE,"w").write(j.dumps(data))
+            open(str(cache_path),"w").write(j.dumps(data))
         except Exception:
             pass
 
 
-def _get_metric(key,fallback):
+def _get_metric(key,fallback,cache_path):
     """
-    Cache-first metric fetch. Never blocks the render pipeline.
-    Reads from /tmp/pp_metrics_cache.json (refreshed by background thread).
-    Falls back to a single quick API call only if cache is missing/expired.
+    Cache-first metric fetch. Scoped to episode workdir — no /tmp races.
+    Refreshes cache in background thread, falls back to quick API call.
     On any failure: returns fallback immediately, never raises.
     """
     import json,time,threading
+    from pathlib import Path
+    cp=Path(cache_path)
     try:
-        cache=json.loads(open(METRICS_CACHE).read())
+        cache=json.loads(cp.read_text())
         age=time.time()-cache.get("_ts",0)
         if age<METRICS_CACHE_TTL and key in cache:
             return cache[key]
-        # Cache stale — refresh in background, use stale value if available
-        threading.Thread(target=_refresh_metrics_cache,daemon=True).start()
+        # Stale — refresh in background, use stale value
+        threading.Thread(target=_refresh_metrics_cache,args=(cp,),daemon=True).start()
         if key in cache:
             return cache[key]
     except Exception:
-        # Cache missing — fire background refresh, attempt one quick API call
-        threading.Thread(target=_refresh_metrics_cache,daemon=True).start()
+        # Cache missing — fire background refresh
+        threading.Thread(target=_refresh_metrics_cache,args=(cp,),daemon=True).start()
     # One-shot fallback with short timeout — won't block long
     try:
         import urllib.request
@@ -123,9 +123,10 @@ class DataSegment(Segment):
             return self.filler_result(spec,ctx,output_path,"TTS silent")
         keyword=spec.chart_keyword or _detect_keyword(spec.body+" "+spec.headline)
         chart=get_chart_path(keyword)
-        btc=_safe(_get_metric("price",spec.btc_price or "$N/A"),20)
-        hr=_safe(_get_metric("hashrate","N/A EH/s"),20)
-        mp=_safe(_get_metric("mempool","N/A sat/vB"),20)
+        cache_path=ctx.workdir/"metrics_cache.json"
+        btc=_safe(_get_metric("price",spec.btc_price or "$N/A",cache_path),20)
+        hr=_safe(_get_metric("hashrate","N/A EH/s",cache_path),20)
+        mp=_safe(_get_metric("mempool","N/A sat/vB",cache_path),20)
         hl=_safe(spec.headline or "BITCOIN SIGNAL",45)
         tmp=output_path.with_suffix(".tmp.mp4")
         W,H,pf=str(VIDEO_W),str(VIDEO_H),VIDEO_PIX_FMT

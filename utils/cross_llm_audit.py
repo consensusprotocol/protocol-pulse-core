@@ -40,6 +40,7 @@ FEATURE_MAP = {
     "b1-newsletter":     ("B1_NEWSLETTER_GOSPEL.md",     "feature/b1-newsletter"),
     "v22-multi-format":  ("V22_MULTI_FORMAT_GOSPEL.md",  "feature/v22-multi-format"),
     "video-audio-fix":   ("VIDEO_AUDIO_FIX_GOSPEL.md",   "feature/video-audio-fix"),
+    "assembler-v2-rebuild": ("ASSEMBLER_V2_GOSPEL.md", "main"),
     "f6-price-alerts":  ("F6_PRICE_ALERTS_GOSPEL.md",   "feature/f6-price-alerts"),
     "f8-sponsor-agent": ("P3_SPONSOR_AGENT_GOSPEL.md",  "feature/f8-sponsor-agent"),
     "f4-cron-heygen":   ("F4_CRON_HEYGEN_GOSPEL.md",   "feature/f4-cron-heygen"),
@@ -51,6 +52,23 @@ FEATURE_MAP = {
 
 # Explicit file lists for features already merged to main (no branch diff available)
 EXPLICIT_FILES = {
+    "assembler-v2-rebuild": [
+        "video_pipeline_v3/assembler_v2/constants.py",
+        "video_pipeline_v3/assembler_v2/helpers.py",
+        "video_pipeline_v3/assembler_v2/manifest.py",
+        "video_pipeline_v3/assembler_v2/state.py",
+        "video_pipeline_v3/assembler_v2/preflight.py",
+        "video_pipeline_v3/assembler_v2/ffmpeg_core/encode.py",
+        "video_pipeline_v3/assembler_v2/ffmpeg_core/filters.py",
+        "video_pipeline_v3/assembler_v2/ffmpeg_core/probe.py",
+        "video_pipeline_v3/assembler_v2/segments/base.py",
+        "video_pipeline_v3/assembler_v2/segments/transition.py",
+        "video_pipeline_v3/assembler_v2/segments/wrap.py",
+        "video_pipeline_v3/assembler_v2/segments/cold_open.py",
+        "video_pipeline_v3/assembler_v2/segments/narration.py",
+        "video_pipeline_v3/assembler_v2/segments/partner_clip.py",
+        "video_pipeline_v3/assembler_v2/segments/data_segment.py",
+    ],
     "oracle-stage": [
         "templates/stage.html",
         "routes.py",
@@ -105,7 +123,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "v30-terminal-api", "v22-multi-format", "f2-briefing-room"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "v30-terminal-api", "v22-multi-format", "f2-briefing-room"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 

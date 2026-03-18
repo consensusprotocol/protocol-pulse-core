@@ -58,7 +58,7 @@ def overlay_pip(bg_label: str, pip_label: str, out_label: str,
         f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:{COLOR_BG},"
         f"format={VIDEO_PIX_FMT}[pip_scaled];"
         f"[{bg_label}][pip_scaled]overlay=x={x}:y={y}:"
-        f"eof_action=pass:shortest=0[{out_label}]"
+        f"eof_action=repeat:shortest=0[{out_label}]"
     )
 
 

@@ -24,7 +24,7 @@ from datetime import datetime
 logger = logging.getLogger("oracle_dialogue")
 
 # ── Constants ─────────────────────────────────────────────────────────────
-MAX_RESPONSE_WORDS = 30   # Hard cap — 30 words ≈ 5.5s audio ≈ 7s render
+MAX_RESPONSE_WORDS = 32   # 30w answer + 2w buffer for trailing question
 MAX_HISTORY_TURNS  = 8    # Keep last 8 exchanges for context
 SESSION_TTL        = 1800 # 30 min idle expiry
 
@@ -415,24 +415,29 @@ def normalize_pronunciation(text: str) -> str:
     return text
 
 
-def _trim_to_word_limit(text: str, limit: int = MAX_RESPONSE_WORDS) -> str:
-    """Hard-trim to word limit, ending on a clean sentence boundary if possible."""
+def _trim_to_word_limit(text, limit=None):
+    """Trim to word limit, preserving trailing question if one exists."""
+    if limit is None:
+        limit = MAX_RESPONSE_WORDS
     words = text.split()
     if len(words) <= limit:
         return text
-
-    # Try to find a sentence boundary within limit
+    # Preserve the question clause if full response ends with ?
+    if text.rstrip().endswith("?"):
+        parts = [p.strip() for p in text.replace("\n", " ").split(". ") if p.strip()]
+        if len(parts) >= 2 and "?" in parts[-1]:
+            q = parts[-1]
+            budget = limit - len(q.split()) - 1
+            if budget >= 14:
+                ans = ". ".join(parts[:-1])
+                return " ".join(ans.split()[:budget]).rstrip(".,;:-") + ". " + q
+    # Standard: find sentence boundary within limit
     for i in range(limit, max(limit - 8, 0), -1):
-        if i < len(words) and words[i - 1].rstrip().endswith(('.', '!', '?')):
-            return ' '.join(words[:i])
-
-    # Hard cut with ellipsis stripped
-    trimmed = ' '.join(words[:limit])
-    # Clean trailing incomplete word
-    if not trimmed[-1] in '.!?,':
-        trimmed = trimmed.rstrip(',;:-')
-    return trimmed
-
+        if i < len(words) and words[i - 1].rstrip().endswith((".", "!", "?")):
+            return " ".join(words[:i])
+    # Hard cut
+    t = " ".join(words[:limit])
+    return t if t[-1] in ".!?" else t.rstrip(",;:-")
 
 def _get_anthropic_key() -> str:
     key = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -586,6 +591,14 @@ def generate_response(
         if live_intel.get("topics"):
             context_lines.append(f"TRENDING: {live_intel['topics']}")
 
+    # Always-end-with-question enforcement — fires every non-setup turn
+    if not (flow or {}).get("active"):
+        context_lines.append(
+            "MANDATORY OUTPUT FORMAT: Your response MUST end with a question "
+            "mark. Structure: [answer in ~25 words]. [short question in ~5 words]? "
+            "Do NOT end with a period. The final character must be ?."
+        )
+
     context_block = "\n".join(context_lines)
 
     # Assemble messages
@@ -620,7 +633,7 @@ def generate_response(
             },
             json={
                 "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 80,  # ~30 words safety buffer
+                "max_tokens": 100,  # ~30 words safety buffer
                 "system": _SYSTEM_PROMPT,
                 "messages": messages,
             },
@@ -644,6 +657,16 @@ def generate_response(
     spoken_text = normalize_pronunciation(raw_text)
     # Re-trim after normalization — expansions like "Coldcard"→"Cold Card" can push over limit
     spoken_text = _trim_to_word_limit(spoken_text, MAX_RESPONSE_WORDS)
+    # Guarantee ? ending — fallback if Haiku skipped question or trim cut it
+    if not (flow or {}).get("active") and not spoken_text.rstrip().endswith("?"):
+        import hashlib as _h
+        _fqs = [" Does that make sense?",
+                " What are you working with?",
+                " Where are you starting from?",
+                " Does that land for you?"]
+        _fi = int(_h.md5(user_text.encode()).hexdigest(), 16) % 4
+        spoken_text = spoken_text.rstrip(". ") + _fqs[_fi]
+        raw_text    = raw_text.rstrip(". ")    + _fqs[_fi]
 
     # Update session history
     session["history"].append({"role": "user", "content": user_text})

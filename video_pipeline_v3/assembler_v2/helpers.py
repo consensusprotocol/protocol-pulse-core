@@ -274,3 +274,9 @@ def get_chart_path(keyword: str) -> Optional[Path]:
         return None
     # For empty keyword (show all charts), return None — segment handles grid layout
     return None
+
+def safe_text(text,max_chars=80):
+    t=str(text).strip()[:max_chars]
+    for o,n in [(chr(92),chr(92)*2),(chr(39),""),(chr(58),chr(92)+chr(58)),(chr(37),chr(92)+chr(37)),(chr(91),chr(92)+chr(91)),(chr(93),chr(92)+chr(93)),(chr(44),chr(92)+chr(44)),(chr(59),chr(92)+chr(59))]:
+        t=t.replace(o,n)
+    return t.replace(chr(10)," ")

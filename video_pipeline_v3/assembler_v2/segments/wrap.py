@@ -33,7 +33,7 @@ class WrapSegment(Segment):
 
         if tts and tts.exists() and tts_dur>0.5:
             inputs=[
-                ['-stream_loop','-1','-i',str(OUTRO_BRANDED)],
+                ['-stream_loop','-1','-an','-i',str(OUTRO_BRANDED)],
                 ['-i',str(tts)],
             ]
             fade_st=max(0,total_dur-0.5)

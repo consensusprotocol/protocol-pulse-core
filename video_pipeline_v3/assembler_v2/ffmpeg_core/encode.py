@@ -20,7 +20,6 @@ def encode_segment(inputs,filter_complex,video_map,audio_map,output_path,duratio
         +["-map",video_map,"-map",audio_map]
         +["-c:v",VIDEO_CODEC,"-crf",str(VIDEO_CRF),"-preset",VIDEO_PRESET]
         +["-r",str(VIDEO_FPS),"-pix_fmt",VIDEO_PIX_FMT]
-        +["-b:v",VIDEO_BITRATE,"-maxrate",VIDEO_MAXRATE,"-bufsize",VIDEO_BUFSIZE]
         +["-c:a",AUDIO_CODEC,"-ar",str(AUDIO_SAMPLE_RATE),"-b:a",AUDIO_BITRATE,"-ac",str(AUDIO_CHANNELS)]
         +["-t",str(round(duration,3))]
         +["-movflags","+faststart"]

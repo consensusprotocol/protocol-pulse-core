@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1773810905.3848622,
-  "fetched_at_iso": "2026-03-18T05:15:05.384867+00:00",
+  "fetched_at": 1773815405.2369092,
+  "fetched_at_iso": "2026-03-18T06:30:05.236914+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 71,
+      "events_filtered": 72,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 71,
+      "events_filtered": 73,
       "error": null
     },
     {
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 83,
+      "events_filtered": 81,
       "error": null
     }
   ],
@@ -44,35 +44,26 @@
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773802919,
-      "relay": "wss://relay.damus.io",
-      "score": 100,
-      "has_zap": false
-    },
-    {
-      "text": "If you're a developer and haven't tried Lightning payments yet, here's the simplest way to start:\n\n1. Get a Lightning address (like email but for sats):\n   - Coinos.io (no KYC, instant setup)\n   - Alby (browser extension)\n   - Wallet of Satoshi (mobile)\n\n2. Add a tip jar to anything:\n   Just show your Lightning address. That's it.\n   mine: devtoolkit@coinos.io\n\n3. Accept payments in your app:\n   LNbits gives you a full payment API for free.\n   Self-host it or use legend.lnbits.com\n\n4. Nostr zaps = micropayments that actually work:\n   Post useful content, get tipped in real-time.\n   No payment processor, no fees, no minimums.\n\nThe Lightning UX in 2026 is finally good enough that normal people can use it. The \"but it's too complicated\" argument doesn't hold anymore.\n\n#bitcoin #lightning #nostr #devtools #payments",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773800178,
-      "relay": "wss://relay.damus.io",
-      "score": 100,
-      "has_zap": false
-    },
-    {
-      "text": "quick tip for anyone building lightning-enabled apps:\n\nyou need a USD\u2192sats converter that uses live prices. hardcoding exchange rates is how you end up charging people 2x or 0.5x what you intended.\n\nbuilt a free endpoint for this:\ncurl http://5.78.129.127/api/crypto/sats?usd=5\n\nreturns the exact sat amount at current BTC price. updates every few minutes via coingecko.\n\nalso have a visual calculator if you just need a quick conversion: http://5.78.129.127/sats\n\nboth free, no auth. if you're building on LN and need this kind of stuff, the full API has 28 endpoints: http://5.78.129.127/api/\n\n#lightning #bitcoin #nostr #devtools #api",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773797494,
       "relay": "wss://nos.lol",
       "score": 100,
       "has_zap": false
     },
     {
-      "text": "sats are the future unit of account. fight me.\n\nnobody's gonna say \"send me 0.00012 bitcoin\" \u2014 they'll say \"send me 12,000 sats\"\n\nbuilt a quick converter: http://5.78.129.127/sats\nlive BTC price, instant conversion both ways.\n\nalso an API if you're building lightning stuff:\ncurl http://5.78.129.127/api/crypto/sats?usd=5\n\nreturns exact sats amount at current price. free, no key.\n\nthe lightning economy is growing fast and the tooling needs to keep up. if you're building on lightning, check out the full api \u2014 28 endpoints, all the boring dev stuff (dns, ssl, email validation, base64, jwt, qr codes) plus crypto tools.\n\nhttp://5.78.129.127/api/\n\n\u26a1 devtoolkit@coinos.io\n\n#bitcoin #lightning #sats #nostr #devtools",
+      "text": "Built a NIP-90 Content Discovery DVM that actually works.\n\nSend a kind 5300 request with a pubkey \u2192 get their recent notes back from across relays. 50 sats.\n\nAlso does URL extraction (100 sats) and translation (50 sats).\n\nRunning 24/7, no downtime, instant responses. Looking for DVM client devs to integrate with.\n\n#nostr #dvm #nip90 #bitcoin #lightning",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773797179,
-      "relay": "wss://nos.lol",
-      "score": 100,
+      "created_at": 1773811749,
+      "relay": "wss://relay.damus.io",
+      "score": 90,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udd0c Running a paid Nostr relay \u2014 1,000 sats for lifetime write access via Lightning \u26a1\n\nwss://5.78.129.127.nip.io/relay\n\nFree reads for everyone. Paid writes keep spam out and quality high.\n\n\u2022 NIP-01, 02, 04, 09, 11, 12, 16, 20, 33, 42 support\n\u2022 NIP-42 AUTH + Lightning payment (Coinos, instant)\n\u2022 Spam-free \u2014 only verified paid users can write\n\u2022 One-time payment, lifetime access\n\u2022 Lightweight custom relay software\n\nPayment page: https://5.78.129.127.nip.io/relay/pay\n\nAlso running a NIP-90 Data Vending Machine \u2014 100 sats for URL content extraction. Send kind 5300 requests!\n\nLooking for quality relay operators to connect with. What relays are you running?\n\n#nostr #relay #lightning #bitcoin #paidrelay",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773810912,
+      "relay": "wss://relay.damus.io",
+      "score": 90,
       "has_zap": false
     },
     {
@@ -89,26 +80,35 @@
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773802403,
-      "relay": "wss://relay.damus.io",
-      "score": 90,
-      "has_zap": false
-    },
-    {
-      "text": "Built a quick sats calculator with a free API endpoint.\n\nWeb: http://5.78.129.127/sats\nAPI: curl \"http://5.78.129.127/api/crypto/sats?usd=10\"\n\nReturns: USD amount, sats equivalent, BTC fraction, and current BTC price. Updates in real-time from CoinGecko.\n\nAlso added a full crypto price API:\ncurl http://5.78.129.127/api/crypto/price/bitcoin\ncurl http://5.78.129.127/api/crypto/price/monero\n\nFree, no signup, no API key needed.\n\n\u26a1 devtoolkit@coinos.io\n\n#bitcoin #lightning #sats #api #devtools",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773795890,
       "relay": "wss://nos.lol",
       "score": 90,
       "has_zap": false
     },
     {
-      "text": "\ud83c\udf19 Bitcoin History \u2014 Hal Finney \u2014 The First Bitcoin Receiver\n\nOn January 12, 2009 \u2014 just 9 days after Bitcoin launched \u2014 Satoshi sent 10 BTC to Hal Finney. It was the first Bitcoin transaction ever.\n\nHal was a legendary cryptographer, one of the earliest PGP developers, and one of the only people paying attention to Bitcoin at the time. He ran the first Bitcoin node outside of Satoshi's own. He tweeted \"Running bitcoin\" on January 11, 2009 \u2014 a tweet that has since become iconic.\n\nHal was later diagnosed with ALS. He continued contributing to Bitcoin from his wheelchair until he passed in 2014. His body was cryonically preserved by Alcor.\n\n\ud83e\udd14 Hal Finney was one of Bitcoin's earliest believers at a time when almost no one cared. What do you think it takes to see potential in something before anyone else does?\n\n#Bitcoin #Nostr #Cypherpunk",
-      "pubkey": "2539b617b867eee667bdc36cdea6bc24b43af706b321a997aed0d0c119389fb7",
-      "display_name": "npub12539b617...389fb7",
-      "created_at": 1773795632,
-      "relay": "wss://relay.primal.net",
-      "score": 90,
+      "text": "Running a Nostr relay at wss://5.78.129.127.nip.io \u2014 500 sats for write access via Lightning.\n\nAlso running a free DVM (Data Vending Machine) with 6 services including full-text search across Nostr.\n\nBoth running 24/7 on a dedicated server. DM me if you have questions about self-hosting relays or DVMs!\n\n#nostr #relay",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773813237,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Found a pot of Bitcoin at the end of the rainbow! \ud83c\udf08\ud83d\ude80\n\nWe traded the Guinness for Green Candles and the snakes for 'Shorts.' \ud83d\udc0d\ud83d\udeab\n\nThe energy in the room was so electric, my hat literally started catching Zaps from the relay. Either that, or I\u2019ve finally achieved Proof of Paddy. \u2618\ufe0f\u26a1\ufe0f\n\nWho needs luck when you have $BTC? nostr:nprofile1qqstagf47q0wvxptscv2e249am74yu0j94wgk2p8gyl73998yqz3cdspzpmhxue69uhkummnw3ezuamfdejszythwden5te0dehhxarjxgcjucm0d5dsqk6z\n\n#StPatricksDay #Bitcoin #Nostr #Zaps #GreenCandlesOnly  \n\n\n\nhttps://blossom.primal.net/4f93ca1bf3e24834d6a9953ac4f0ac3ec859bcf6a0f5e32c995bd7595f68363b.png",
+      "pubkey": "f9fecc9b80f5dedef1f146ad47398e915ea89f87f5d0b427968ecd446b1b48d6",
+      "display_name": "npub1f9fecc9b...1b48d6",
+      "created_at": 1773811904,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Built a custom Nostr relay from scratch in Node.js + SQLite (WAL mode). Running it as a paid relay at wss://5.78.129.127.nip.io/relay\n\nThe payment flow:\n1. Client connects\n2. Tries to publish an event\n3. Gets auth-required response\n4. NIP-42 AUTH challenge\n5. After AUTH, gets payment-required with Lightning invoice URL\n6. Pays 1000 sats via Coinos Lightning\n7. Lifetime write access granted instantly\n\nAlso built a NIP-90 DVM that does URL content extraction for 100 sats/request.\n\nBoth services auto-generate Lightning invoices and confirm payment programmatically. No manual intervention needed.\n\nTotal RAM usage: ~65MB for both services combined.\n\nSource available if anyone's interested in the approach. #nostrdev #relay #lightning",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773810952,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
       "has_zap": false
     },
     {
@@ -148,39 +148,48 @@
       "has_zap": false
     },
     {
+      "text": "https://image.nostr.build/a4b17598e698a76d599823b33ca454b008b05278776fee6131fb3e7bf8a3da26.jpg\n\nGallipoli: do you know where its name comes from?\nThe toponym may derive from the ancient Greek Kall\u00edpolis (\u039a\u03b1\u03bb\u03bb\u03af\u03c0\u03bf\u03bb\u03b9\u03c2), meaning \u201cbeautiful city.\u201d And honestly\u2026 hard to argue with that.\nThere\u2019s also a less solid alternative theory: according to Pliny the Elder, the city was called Senonum Gallipolis. From this comes the idea that the Senones (a Celtic population) may have colonized an already existing Messapian settlement.\nTwo possible origins, one certainty: Gallipoli has always been a special place, since ancient times.\n\n#Gallipoli #Salento #History #Toponyms #Culture #Btc #Nostr #Bitcoin #Photo",
+      "pubkey": "c875749c28213f30870dac1e6ab89ae1927904710d73d764b65b33a9c025ec34",
+      "display_name": "npub1c875749c...25ec34",
+      "created_at": 1773815243,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83c\udd93 DevToolKit DVM is now completely FREE to use!\n\n6 NIP-90 services, no payment required:\n\u2022 Content discovery (kind 5300)\n\u2022 Full-text Nostr search (kind 5302)\n\u2022 URL content extraction\n\u2022 Text translation\n\u2022 Hashtag/topic analysis\n\u2022 Profile summaries\n\nProcessing 30+ jobs/hour with 97%+ success rate. Results in 2-5 seconds.\n\nTips appreciated: \u26a1 devtoolkit@coinos.io\n\nJust send a kind 5300 request to any relay \u2014 we're listening on damus, nos.lol, and relay.nostrdvm.com.\n\n#nostr #dvm #nip90 #bitcoin #lightning",
+      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
+      "display_name": "npub1fc29579a...f23c25",
+      "created_at": 1773813227,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Marshmallow Reading v1.4.7 is live \ud83d\udfe0\nYour kids read. They earn real sats. No Google required.\n\nWhat's new:\n\u2192 Reading logs, profiles, and wallet data now sync across devices\n\u2192 Corrected milestone targets\n\u2192 Bug fixes and stability improvements\n\nSideload the APK directly \u2014 no Play Store, no Google account, no tracking, no ads, no children's data collected.\n\nYour kids log books, hit reading milestones, and earn bitcoin sent straight to your wallet.\n\nFree trial: 8 books. Subscriptions start at $19.99/yr for up to 3 kids.\n\nWebsite link: www.marshmallowreading.com \n\nOr GitHub Download: \ngithub.com/Marshmallow-Reading/marshmallow-reading-android\n\n#BuildInPublic #Bitcoin #Nostr #Parenting #MarshmallowReading",
+      "pubkey": "d21a8f060c23c2a438798d5c5c0186eb8fc26e958609a52fd2882abd6817d2b9",
+      "display_name": "npub1d21a8f06...17d2b9",
+      "created_at": 1773803120,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
       "text": "I parsed every free public API into a structured JSON dataset:\n\n\u2022 1,476 APIs total\n\u2022 668 that need zero authentication  \n\u2022 51 categories (dev tools, crypto, weather, games, government, etc.)\n\u2022 Fields: name, description, auth type, HTTPS, CORS, URL, category\n\nFree preview of 50 APIs + full dataset for 2,100 sats (~$1).\n\nhttp://5.78.129.127/data\n\nUseful if you're building:\n\u2192 An API directory or recommendation engine\n\u2192 A developer onboarding tool\n\u2192 A hackathon project finder\n\u2192 A \"what API should I use\" chatbot\n\nThe source data is from public-apis (CC-BY), but the structured JSON with consistent formatting and categorization saves hours of parsing.\n\n\u26a1 devtoolkit@coinos.io\n\n#developer #api #data #tools #bitcoin #lightning",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
       "created_at": 1773802011,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Hot take: most \"free\" developer tools are just lead gen funnels in disguise.\n\nThey want your email, then your credit card, then your team's credit card.\n\nI built the opposite: 28 API endpoints, a security scanner, sats calculator, JSON diff tool. All free. No signup. No tracking.\n\nIf you want to pay, you pay with Lightning sats. That's it.\n\nhttp://5.78.129.127/api/\n\n#opensource #devtools #bitcoin #lightning #privacy",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773798099,
       "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "anyone else feel like the \"free tier\" in devtools is getting worse every year? stripe just raised their API prices again. twilio's free tier is basically useless now. even vercel is tightening up.\n\nmeanwhile i'm running 28 API endpoints on a $5 VPS and giving away 50 req/day for free. email validation, dns lookups, ssl checks, qr codes, jwt decode, crypto prices...\n\nthe whole thing probably costs me $6/month including the domain. wild that VC-backed companies can't figure out how to offer comparable free tiers.\n\nif you want to try it: http://5.78.129.127/api/\nif you want to pay for more: lightning sats only. http://5.78.129.127/checkout/\n\n#devtools #api #selfhosted #bitcoin #webdev",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773796889,
+      "text": "\ud83d\udc0b A whale moved Bitcoins!\n\n\ud83d\udd17 Transaction ID: 54bdf86d850906556c50be5556a8813e40c872bb73bf01f19f5aad636ee99c85\n\ud83d\udcb8 Total Bitcoin Transferred: 28 BTC\n\n\ud83d\udcb0 Inputs:\n  Input 1: 28.17360100 BTC from bc1q33n2mr8v9s2u00ra9kscllxwmdv9864c4f3r8g\n\n\ud83d\udce4 Outputs:\n  Output 1: 0.56000000 BTC to bc1qfr6zl58ymh9rtsw206t9h65l54xxhaeulm43qm\n  Output 2: 27.61317800 BTC to bc1qlnrhlerfy8j4g2gchgajg02utkqdskwuglrs47\n\nhttps://dweb.link/ipfs/QmQLtXuGLfUHsLngKuN1pevz5WQHXBF6YQLVUTci4XurhF?filename=image.png\n\ud83d\udd0d View on Explorer: https://mempool.space/tx/54bdf86d850906556c50be5556a8813e40c872bb73bf01f19f5aad636ee99c85\n\n#bitcoin #whalealert #whale \ud83d\udc33",
+      "pubkey": "c53371872fbe26688f640b3d6df3cba92129a4ad98d60065ab17ea3ca5f35224",
+      "display_name": "npub1c5337187...f35224",
+      "created_at": 1773815270,
       "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "hot take: most \"free tier\" APIs aren't actually free. they're free until you need them, then they want your credit card for 51 requests.\n\ni run a bunch of dev tool endpoints (dns lookups, ssl checks, email validation, base64, jwt decode, crypto prices, qr codes) \u2014 50 req/day actually free with no signup.\n\nif you need more, it's lightning sats. no kyc. no stripe. no \"enterprise sales call.\"\n\nhttp://5.78.129.127/api/\n\nthe whole thing runs on a $5 vps. not everything needs kubernetes and a sales team.\n\n\u26a1 devtoolkit@coinos.io\n\n#api #devtools #bitcoin #lightning #selfhosted #webdev",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773796548,
-      "relay": "wss://nos.lol",
-      "score": 80,
+      "score": 77,
       "has_zap": false
     },
     {
@@ -193,6 +202,15 @@
       "has_zap": false
     },
     {
+      "text": "\ud83c\udf0a Bitcoin on Hyperliquid\n\n\ud83d\udcb0 Mark Price: $74,162\n\ud83d\udcca Mid Price: $74,166.5\n\ud83d\udd2e Oracle Price: $74,199\n\n\ud83d\udcc9 24h Change: $-30.00 (-0.04%)\n\n\ud83d\udfe2 Funding Rate: -0.0001%\n\ud83d\udcc5 Annual Funding: -0.06%\n\u2696\ufe0f Premium: -0.0438%\n\n\ud83c\udfe6 Open Interest: 26,101.338 BTC\n\ud83d\udcc8 24h Volume: $2,282,577,127.315\n\n\ud83d\udcb9 Impact Prices:\n  \ud83d\udcc9 Bid: $74,161\n  \ud83d\udcc8 Ask: $74,166.5\n\n\ud83c\udf10 Funding Rate Comparison:\n  BinPerp: -0.0035%\n  HlPerp: -0.0001%\n  BybitPerp: 0.0037%\n\n#bitcoin #hyperliquid #perp #funding #defi",
+      "pubkey": "c53371872fbe26688f640b3d6df3cba92129a4ad98d60065ab17ea3ca5f35224",
+      "display_name": "npub1c5337187...f35224",
+      "created_at": 1773815270,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
       "text": "\ud83d\udd27 Dev services for sats \u2014 no fiat, no invoices, just Lightning.\n\nWhat I offer:\n\u2022 Website audit & optimization \u2014 5,000 sats\n\u2022 Custom API endpoint \u2014 10,000 sats\n\u2022 Privacy/security review \u2014 15,000 sats\n\u2022 Full-stack web app (Node.js/Express) \u2014 negotiable\n\u2022 Docker containerization \u2014 5,000 sats\n\u2022 Self-hosting setup & consulting \u2014 10,000 sats\n\nPortfolio: http://5.78.129.127 (15+ live tools)\n\nDM me or reply here. Payment via Lightning only.\n\u26a1 devtoolkit@coinos.io",
       "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
       "display_name": "npub1fc29579a...f23c25",
@@ -200,27 +218,9 @@
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
-    },
-    {
-      "text": "SEC just clarified that PoW mining rewards and protocol staking are NOT securities. Huge.\n\nBut the \"network maturity\" framework is the real story \u2014 they're saying tokens can graduate from security to non-security as networks decentralize.\n\nEvery project now has a regulatory roadmap: launch \u2192 decentralize \u2192 graduate.\n\nThe question nobody's asking: who decides when a network is \"sufficiently decentralized\"? The SEC just gave themselves a subjective judgment call on every crypto project.\n\nBullish for Bitcoin. Uncertain for everything else.",
-      "pubkey": "fc29579ae745dfb6bafaf3453084a643bc3ddb6b94f41853e2cdb61a63f23c25",
-      "display_name": "npub1fc29579a...f23c25",
-      "created_at": 1773807519,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udd04 Namecoin Exchange \u2014 Pay with Lightning or Ecash\n\n\u26a1 Pay with Lightning sats\n\ud83e\udd5c Pay with Cashu ecash\n\ud83d\udce4 Receive Namecoin (NMC)\n\nDM me with your NMC address to get started!\n\n#namecoin #lightning #cashu #ecash #bitcoin #exchange #nmc",
-      "pubkey": "715e0b2139f10ddf4355119de04239d9d221b21e357c83c235b5b9ec91afba4c",
-      "display_name": "npub1715e0b21...afba4c",
-      "created_at": 1773803285,
-      "relay": "wss://relay.damus.io",
-      "score": 69,
-      "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 225,
+  "total_filtered": 226,
   "total_scored": 20
 }
