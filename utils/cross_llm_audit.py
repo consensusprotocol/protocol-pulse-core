@@ -53,7 +53,7 @@ FEATURE_MAP = {
 
 # Explicit file lists for features already merged to main (no branch diff available)
 EXPLICIT_FILES = {
-    "x-spaces-pipeline": ["x_spaces_pipeline/monitor.py","x_spaces_pipeline/recorder.py","x_spaces_pipeline/transcriber.py","x_spaces_pipeline/curator.py","x_spaces_pipeline/clipper.py","video_pipeline_v3/assembler_v2/segments/x_spaces_segment.py"],
+    "x-spaces-pipeline": ["x_spaces_pipeline/monitor.py","x_spaces_pipeline/recorder.py","x_spaces_pipeline/transcriber.py","x_spaces_pipeline/curator.py","x_spaces_pipeline/clipper.py","video_pipeline_v3/assembler_v2/segments/x_spaces_segment.py","video_pipeline_v3/utils/spaces_pipeline.py","video_pipeline_v3/utils/spaces_monitor.py"],
     "assembler-v2-rebuild": [
         "video_pipeline_v3/assembler_v2/constants.py",
         "video_pipeline_v3/assembler_v2/helpers.py",
@@ -70,6 +70,12 @@ EXPLICIT_FILES = {
         "video_pipeline_v3/assembler_v2/segments/narration.py",
         "video_pipeline_v3/assembler_v2/segments/partner_clip.py",
         "video_pipeline_v3/assembler_v2/segments/data_segment.py",
+        "video_pipeline_v3/assembler_v2/segments/social.py",
+        "video_pipeline_v3/assembler_v2/segments/signal_active.py",
+        "video_pipeline_v3/assembler_v2/episode.py",
+        "video_pipeline_v3/assembler_v2/segments/x_spaces_segment.py",
+        "video_pipeline_v3/utils/spaces_pipeline.py",
+        "video_pipeline_v3/utils/spaces_monitor.py",
     ],
     "oracle-stage": [
         "templates/stage.html",

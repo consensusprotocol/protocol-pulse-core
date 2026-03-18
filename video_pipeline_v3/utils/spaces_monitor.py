@@ -489,6 +489,18 @@ def check_cookie_validity(path):
         logger.warning(f"[COOKIE] {age:.1f} days old — may be stale. Refresh via browser export.")
     return True
 
+
+def get_live_signal_age(cache_path=None):
+    """Return age in seconds of active_signal.json cache. Returns float('inf') if missing."""
+    if cache_path is None:
+        cache_path = os.path.join(BASE, "cache", "active_signal.json")
+    try:
+        data = json.loads(open(cache_path).read())
+        fetched = data.get("fetched_at", 0)
+        return time.time() - fetched
+    except Exception:
+        return float('inf')
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Live Signals JSON
 # ─────────────────────────────────────────────────────────────────────────────

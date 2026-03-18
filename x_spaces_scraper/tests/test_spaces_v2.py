@@ -145,3 +145,147 @@ def test_pipeline_returns_none_when_stale():
     # With max_age_hours=0, nothing should be fresh enough
     result = get_latest_spaces_segment(max_age_hours=0)
     assert result is None
+
+
+# ─── Test: Pipeline returns None with empty cache dir ────────────────────────
+
+def test_spaces_pipeline_returns_none_no_cache():
+    """Empty cache dir -> get_latest_spaces_segment returns None."""
+    import sys
+    sys.path.insert(0, os.path.expanduser("~/protocol_pulse/video_pipeline_v3"))
+    from utils import spaces_pipeline
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        original = spaces_pipeline.CACHE_DIR
+        spaces_pipeline.CACHE_DIR = __import__('pathlib').Path(tmpdir)
+        try:
+            result = spaces_pipeline.get_latest_spaces_segment(max_age_hours=4.0)
+            assert result is None
+        finally:
+            spaces_pipeline.CACHE_DIR = original
+
+
+# ─── Test: Pipeline returns None when stale ──────────────────────────────────
+
+def test_spaces_pipeline_returns_none_stale():
+    """Cache file older than max_age_hours -> None returned."""
+    import sys, json, time
+    sys.path.insert(0, os.path.expanduser("~/protocol_pulse/video_pipeline_v3"))
+    from utils import spaces_pipeline
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Write a transcript file
+        cache_file = os.path.join(tmpdir, "transcript_test123.json")
+        with open(cache_file, "w") as f:
+            json.dump({
+                "space_id": "test123",
+                "transcript": "Bitcoin is digital gold " * 50,
+                "source": "audio_replay",
+                "usable": True,
+                "word_count": 200,
+            }, f)
+        # Make it old (> 4 hours)
+        old_time = time.time() - 5 * 3600
+        os.utime(cache_file, (old_time, old_time))
+
+        original = spaces_pipeline.CACHE_DIR
+        spaces_pipeline.CACHE_DIR = __import__('pathlib').Path(tmpdir)
+        try:
+            result = spaces_pipeline.get_latest_spaces_segment(max_age_hours=4.0)
+            assert result is None
+        finally:
+            spaces_pipeline.CACHE_DIR = original
+
+
+# ─── Test: Pipeline returns segment for fresh transcript ─────────────────────
+
+def test_spaces_pipeline_returns_segment_fresh():
+    """Valid usable transcript -> returns dict with segment_type='x_spaces'."""
+    import sys, json
+    sys.path.insert(0, os.path.expanduser("~/protocol_pulse/video_pipeline_v3"))
+    from utils import spaces_pipeline
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cache_file = os.path.join(tmpdir, "transcript_fresh001.json")
+        with open(cache_file, "w") as f:
+            json.dump({
+                "space_id": "fresh001",
+                "transcript": "Saylor just announced MicroStrategy will buy another $500M in Bitcoin " * 20,
+                "source": "audio_replay",
+                "usable": True,
+                "word_count": 300,
+                "quality_score": 0.85,
+                "speakers": ["HOST", "GUEST_1"],
+            }, f)
+
+        original = spaces_pipeline.CACHE_DIR
+        spaces_pipeline.CACHE_DIR = __import__('pathlib').Path(tmpdir)
+        try:
+            result = spaces_pipeline.get_latest_spaces_segment(max_age_hours=4.0)
+            assert result is not None, "Expected a segment dict"
+            assert result["segment_type"] == "x_spaces"
+            assert result["space_id"] == "fresh001"
+            assert result["source"] == "audio_replay"
+            assert result["impact_score"] >= 0
+        finally:
+            spaces_pipeline.CACHE_DIR = original
+
+
+# ─── Test: Pipeline rejects context_only ─────────────────────────────────────
+
+def test_spaces_pipeline_rejects_context_only():
+    """context_only transcript -> not returned even if fresh."""
+    import sys, json
+    sys.path.insert(0, os.path.expanduser("~/protocol_pulse/video_pipeline_v3"))
+    from utils import spaces_pipeline
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cache_file = os.path.join(tmpdir, "transcript_ctx001.json")
+        with open(cache_file, "w") as f:
+            json.dump({
+                "space_id": "ctx001",
+                "transcript": "Some context about a Bitcoin space " * 30,
+                "source": "context_only",
+                "usable": False,
+                "word_count": 200,
+            }, f)
+
+        original = spaces_pipeline.CACHE_DIR
+        spaces_pipeline.CACHE_DIR = __import__('pathlib').Path(tmpdir)
+        try:
+            result = spaces_pipeline.get_latest_spaces_segment(max_age_hours=4.0)
+            assert result is None, f"Expected None for context_only, got {result}"
+        finally:
+            spaces_pipeline.CACHE_DIR = original
+
+
+# ─── Test: score_transcript low score ────────────────────────────────────────
+
+def test_score_transcript_low():
+    """Short generic transcript -> score < 40."""
+    import sys
+    sys.path.insert(0, os.path.expanduser("~/protocol_pulse/video_pipeline_v3"))
+    from utils.spaces_pipeline import score_transcript
+
+    transcript = {"transcript": "Hello everyone welcome to the show today we talk about things"}
+    score = score_transcript(transcript)
+    assert score < 40, f"Expected < 40, got {score}"
+
+
+# ─── Test: score_transcript high score ───────────────────────────────────────
+
+def test_score_transcript_high():
+    """Transcript with numbers + 'predict' + 'breaking' -> score >= 60."""
+    import sys
+    sys.path.insert(0, os.path.expanduser("~/protocol_pulse/video_pipeline_v3"))
+    from utils.spaces_pipeline import score_transcript
+
+    transcript = {
+        "transcript": (
+            "Breaking news: Saylor predicts Bitcoin will reach $500,000 by 2030. "
+            "The hashrate has increased 15% this quarter. "
+            "BlackRock ETF inflows hit $2.1 billion this week. "
+        ) * 30  # 600+ words for length bonus
+    }
+    score = score_transcript(transcript)
+    assert score >= 60, f"Expected >= 60, got {score}"

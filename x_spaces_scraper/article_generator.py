@@ -53,7 +53,7 @@ Rules:
 def generate_article(
     transcript: dict,
     space_meta: dict,
-    model: str = "claude-sonnet-4-20250514",
+    model: str = "claude-sonnet-4-6",
 ) -> Optional[dict]:
     """
     Generate a PP-style article from a Space transcript.

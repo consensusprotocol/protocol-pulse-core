@@ -127,15 +127,15 @@ def t5():
 test('EpisodeReport.contract_passed reflects ffprobe_contract', t5)
 
 
-# Test 6: Manifest with all 8 segment types dispatches each to correct class
+# Test 6: Manifest with all 9 segment types dispatches each to correct class
 def t6():
     all_types = ['cold_open', 'narration', 'partner_clip', 'transition',
-                 'data', 'social', 'signal_active', 'wrap']
+                 'data', 'social', 'signal_active', 'wrap', 'x_spaces']
     for st in all_types:
         assert st in SEGMENT_MAP, f'{st} not in SEGMENT_MAP'
-    assert len(SEGMENT_MAP) == 8, f'SEGMENT_MAP has {len(SEGMENT_MAP)} entries, expected 8'
-    print(f'    all 8 types mapped: {sorted(SEGMENT_MAP.keys())}')
-test('All 8 segment types in SEGMENT_MAP', t6)
+    assert len(SEGMENT_MAP) == 9, f'SEGMENT_MAP has {len(SEGMENT_MAP)} entries, expected 9'
+    print(f'    all 9 types mapped: {sorted(SEGMENT_MAP.keys())}')
+test('All 9 segment types in SEGMENT_MAP', t6)
 
 
 # Test 7: EpisodeReport.elapsed_seconds is populated and > 0

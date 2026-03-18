@@ -11,7 +11,8 @@ RAW_DIR    = Path("/home/ultron/protocol_pulse/video_pipeline_v3/data/spaces/raw
 MOMENT_DIR = Path("/home/ultron/protocol_pulse/video_pipeline_v3/data/spaces/moments")
 MAX_AGE    = 21600
 MAX_WORDS  = 6000
-CALL_LOG   = Path("/tmp/pp_curator_calls.json")
+CALL_LOG   = Path("/home/ultron/protocol_pulse/data/curator_calls.json")
+CALL_LOG.parent.mkdir(parents=True, exist_ok=True)
 MAX_DAILY  = 10
 def get_daily_calls():
     today = datetime.now().strftime("%Y%m%d")
@@ -50,7 +51,7 @@ def curate_pending():
         if get_daily_calls() >= MAX_DAILY: break
         truncated = " ".join(text.split()[:MAX_WORDS])
         try:
-            resp = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=1000, messages=[{"role":"user","content": prompt+"
+            resp = client.messages.create(model="claude-sonnet-4-6", max_tokens=1000, messages=[{"role":"user","content": prompt+"
 
 "+truncated}])
             inc_calls()

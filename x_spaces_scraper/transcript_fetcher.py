@@ -13,6 +13,7 @@ Map-reduce summarization for transcripts > 2000 words.
 import json
 import logging
 import os
+import signal
 import subprocess
 from pathlib import Path
 
@@ -126,12 +127,26 @@ class TranscriptFetcher:
         """Download audio + Whisper transcribe. Full pipeline."""
         audio_path = f"/tmp/space_{space_id}.m4a"
         try:
-            r = subprocess.run(
+            proc = subprocess.Popen(
                 ["yt-dlp", "-f", "bestaudio", "-o", audio_path,
                  space_url, "--no-warnings", "--quiet"],
-                capture_output=True, timeout=120,
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                preexec_fn=os.setsid,
             )
-            if r.returncode != 0 or not os.path.exists(audio_path):
+            try:
+                proc.wait(timeout=120)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                return {"usable": False, "error": "yt-dlp timeout"}
+            finally:
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+            if proc.returncode != 0 or not os.path.exists(audio_path):
                 return {"usable": False}
 
             worker = WhisperWorker.get()

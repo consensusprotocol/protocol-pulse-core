@@ -1,148 +1,160 @@
 #!/usr/bin/env python3
 """
-spaces_pipeline.py — X Spaces -> Video Pipeline bridge.
-Reads recent high-impact Space chunks from data/spaces/
-and returns formatted segment data for injection into episode.
+spaces_pipeline.py — Bridge between x_spaces_scraper and assembler_v2.
 
-V2: Enforces transcript source truth, quality gates, speaker attribution.
+Reads transcript cache from x_spaces_scraper/cache/ and returns
+formatted segment data for video injection.
+
+V3: Strict transcript truth — only audio_replay/live_capture sources.
+context_only rejected entirely at this bridge level.
 """
 import json
 import logging
 import os
+import re
 import time
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SPACES_DATA = os.path.join(BASE, "data", "spaces")
-X_SCRAPER_CACHE = os.path.join(BASE, "..", "x_spaces_scraper", "cache")
+CACHE_DIR = Path(__file__).parent.parent.parent / "x_spaces_scraper" / "cache"
 
 
-def get_latest_spaces_segment(max_age_hours=4):
+def score_transcript(transcript: dict) -> int:
     """
-    Return the most recent high-impact X Space as a video segment dict.
-    Returns None if no fresh spaces available.
-
-    V2 rules:
-    - Only audio_replay/live_capture sources produce narration-grade text
-    - context_only requires impact_score >= 75 to inject
-    - Speaker attribution included when segments available
+    Score 0-100 for video injection priority.
+    - Controversy/named entity keywords: +25
+    - Data/metrics (numbers, %): +20
+    - Named entity + prediction language: +20
+    - Breaking/urgent reference: +10
+    - Length bonus: 150-300w +5, 300-600w +10, 600w+ +15
+    Max: 100
     """
-    best_chunk = None
-    best_score = 0
-    best_source = None
+    text = transcript.get("transcript", transcript.get("text", "")).lower()
+    score = 0
 
-    for cache_dir in [X_SCRAPER_CACHE, SPACES_DATA]:
-        if not os.path.exists(cache_dir):
-            continue
+    # Controversy / named entity keywords
+    controversy_kws = [
+        "saylor", "blackrock", "sec", "gensler", "etf", "ban", "regulation",
+        "institutional", "congress", "fed", "powell", "inflation", "hack",
+        "exploit", "lawsuit", "fraud", "arrest",
+    ]
+    if any(kw in text for kw in controversy_kws):
+        score += 25
 
-        # Check JSON files
-        for item in Path(cache_dir).rglob("*.json"):
-            try:
-                age = time.time() - item.stat().st_mtime
-                if age > max_age_hours * 3600:
-                    continue
-                with open(item) as f:
-                    data = json.load(f)
-                score = data.get("impact_score", 0) or data.get("score", 0)
-                source = data.get("source", data.get("transcript_source", ""))
+    # Data / metrics (numbers, %)
+    if re.search(r'\d+\.?\d*\s*%', text) or re.search(r'\$\d+', text) or re.search(r'\d{4,}', text):
+        score += 20
 
-                # context_only needs higher bar
-                if source == "context_only" and score < 75:
-                    continue
-                # Check usable flag if present
-                if "usable" in data and not data["usable"] and source != "context_only":
-                    continue
+    # Named entity + prediction language
+    prediction_kws = ["predict", "forecast", "expect", "will reach", "target", "by 20"]
+    entity_kws = ["bitcoin", "btc", "lightning", "mining", "hashrate"]
+    has_prediction = any(kw in text for kw in prediction_kws)
+    has_entity = any(kw in text for kw in entity_kws)
+    if has_prediction and has_entity:
+        score += 20
 
-                if score > best_score:
-                    best_score = score
-                    best_chunk = data
-                    best_source = source
-            except (json.JSONDecodeError, OSError):
-                continue
+    # Breaking / urgent
+    if "breaking" in text or "urgent" in text or "just announced" in text:
+        score += 10
 
-        # Check chunks.jsonl files
-        for chunks_file in Path(cache_dir).rglob("chunks.jsonl"):
-            try:
-                if time.time() - chunks_file.stat().st_mtime > max_age_hours * 3600:
-                    continue
-                with open(chunks_file) as f:
-                    for line in f:
-                        try:
-                            chunk = json.loads(line.strip())
-                            score = chunk.get("impact_score", 0)
-                            source = chunk.get("source", "")
-                            if source == "context_only" and score < 75:
-                                continue
-                            if score > best_score:
-                                best_score = score
-                                best_chunk = chunk
-                                best_source = source
-                        except json.JSONDecodeError:
-                            continue
-            except OSError:
-                continue
+    # Length bonus
+    wc = len(text.split())
+    if wc >= 600:
+        score += 15
+    elif wc >= 300:
+        score += 10
+    elif wc >= 150:
+        score += 5
 
-    if not best_chunk or best_score < 40:
+    return min(score, 100)
+
+
+def get_latest_spaces_segment(max_age_hours: float = 4.0):
+    """
+    Scan x_spaces_scraper/cache/ for the highest-quality usable transcript
+    written within the last max_age_hours.
+
+    Returns a dict compatible with assembler_v2 SegmentSpec, or None if nothing fresh.
+
+    Rules:
+    - Only return transcripts with usable=True AND source in (audio_replay, live_capture)
+    - Reject context_only entirely (usable=False always in this bridge)
+    - Reject transcripts older than max_age_hours
+    - Return highest impact_score among candidates
+    - If max_age_hours=0, always return None (used in tests)
+    """
+    if max_age_hours <= 0:
         return None
 
-    # Build narrator script from chunk text
-    space_title = best_chunk.get("title", best_chunk.get("space_title", "X Space"))
-    host = best_chunk.get("speaker", best_chunk.get("host", "Bitcoin Community"))
-    text = best_chunk.get("text", best_chunk.get("transcript", ""))
-    segments = best_chunk.get("segments", [])
-    impact_score = best_score
-    is_context_only = best_source == "context_only"
+    if not CACHE_DIR.exists():
+        return None
 
-    # Speaker-attributed narration for audio-derived transcripts
-    if not is_context_only and segments and any(s.get("speaker") for s in segments):
-        host_lines = [s["text"] for s in segments if s.get("speaker") == "HOST"]
-        if host_lines:
-            top_quote = max(host_lines, key=len)[:200]
-            narrator_script = (
-                f"On X Spaces, {host} is hosting: {space_title}. "
-                f"The host stated: {top_quote}. "
-                f"Protocol Pulse classified this as {impact_score} impact intelligence."
-            )
-        else:
-            narrator_script = (
-                f"On X Spaces, {host} is hosting a discussion: {space_title}. "
-                f"Here are the key takeaways: {text[:300]}. "
-                f"This is a live intelligence signal from Protocol Pulse."
-            )
-    elif is_context_only:
-        narrator_script = (
-            f"X Spaces context alert: {host} hosted {space_title}. "
-            f"This is context-level intelligence — full transcript unavailable. "
-            f"Protocol Pulse rates this {impact_score} impact."
-        )
-    else:
-        narrator_script = (
-            f"On X Spaces, {host} is hosting a discussion: {space_title}. "
-            f"Here are the key takeaways: {text[:300]}. "
-            f"This is a live intelligence signal from Protocol Pulse."
-        )
+    best = None
+    best_impact = -1
+    now = time.time()
+    max_age_s = max_age_hours * 3600
 
-    result = {
-        "type": "x_spaces",
-        "headline": "X SPACES // LIVE INTEL",
-        "kicker": "LIVE X SPACES SIGNAL",
-        "tag": "INTEL",
-        "text": narrator_script,
-        "source": "x_spaces",
-        "transcript_source": best_source or "unknown",
-        "space_title": space_title,
-        "space_host": host,
-        "impact_score": impact_score,
+    for item in CACHE_DIR.glob("transcript_*.json"):
+        try:
+            mtime = item.stat().st_mtime
+            age = now - mtime
+            if age > max_age_s:
+                continue
+
+            data = json.loads(item.read_text())
+
+            # Normalize old cache format
+            if "text" in data and "transcript" not in data:
+                data["transcript"] = data["text"]
+
+            # Strict source truth: only audio_replay / live_capture
+            source = data.get("source", "")
+            if source not in ("audio_replay", "live_capture"):
+                continue
+
+            # Must be marked usable
+            if not data.get("usable", False):
+                continue
+
+            impact = score_transcript(data)
+            if impact > best_impact:
+                best_impact = impact
+                best = data
+                best["_mtime"] = mtime
+                best["_impact"] = impact
+        except (json.JSONDecodeError, OSError):
+            continue
+
+    if best is None:
+        return None
+
+    # Build TTS text: first 500 words, cleaned
+    transcript_text = best.get("transcript", best.get("text", ""))
+    words = transcript_text.split()[:500]
+    tts_text = " ".join(words)
+    # Strip HTML tags and special chars
+    tts_text = re.sub(r'<[^>]+>', '', tts_text)
+    tts_text = re.sub(r'[^\w\s.,!?\'-]', '', tts_text)
+
+    source = best.get("source", "unknown")
+    is_context = source == "context_only"
+
+    return {
+        "segment_type": "x_spaces",
+        "space_id": best.get("space_id", ""),
+        "host": best.get("host", best.get("speaker", "unknown")),
+        "title": best.get("title", best.get("space_title", "X Space")),
+        "transcript": transcript_text[:2000],
+        "source": source,
+        "word_count": len(transcript_text.split()),
+        "quality_score": best.get("quality_score", 0.0),
+        "impact_score": best["_impact"],
+        "speakers": best.get("speakers", []),
+        "tts_text": tts_text,
+        "eyebrow": "LIVE INTEL — CONTEXT ONLY" if is_context else "LIVE X SPACES SIGNAL",
+        "cached_at": best["_mtime"],
     }
-
-    if is_context_only:
-        result["context_only_segment"] = True
-        result["tag"] = "CONTEXT INTEL"
-        result["kicker"] = "LIVE INTEL — CONTEXT ONLY"
-
-    return result
 
 
 if __name__ == "__main__":

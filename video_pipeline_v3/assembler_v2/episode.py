@@ -28,6 +28,7 @@ from .segments.data_segment import DataSegment
 from .segments.social import SocialSegment
 from .segments.signal_active import SignalActiveSegment
 from .segments.wrap import WrapSegment
+from .segments.x_spaces_segment import XSpacesSegment
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ SEGMENT_MAP = {
     "social": SocialSegment,
     "signal_active": SignalActiveSegment,
     "wrap": WrapSegment,
+    "x_spaces": XSpacesSegment,
 }
 
 
