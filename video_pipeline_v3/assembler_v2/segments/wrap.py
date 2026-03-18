@@ -63,7 +63,11 @@ class WrapSegment(Segment):
         if not ok or not output_path.exists():
             return self.filler_result(spec,ctx,output_path,'wrap encode failed')
 
-        logger.info(f'[wrap] OK ({total_dur:.1f}s)')
+        if not passed:
+            ctx.mark_degraded('wrap','contract failed (filler via encode_segment)',total_dur)
+            logger.warning(f'[wrap] DEGRADED — filler via encode_segment')
+        else:
+            logger.info(f'[wrap] OK ({total_dur:.1f}s)')
         return RenderedSegment(spec=spec,path=str(output_path),
                                duration=summary.get('duration',total_dur),
                                contract_passed=passed,degraded=not passed,

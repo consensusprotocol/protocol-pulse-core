@@ -136,10 +136,13 @@ class EpisodeRunner:
             )
 
         # 5. Concatenate
+        import os as _os
         concat_list = ctx.workdir / "concat_list.txt"
-        concat_list.write_text(
+        concat_tmp = concat_list.with_suffix('.tmp')
+        concat_tmp.write_text(
             "\n".join(f"file '{p}'" for p in concat_paths) + "\n"
         )
+        _os.replace(str(concat_tmp), str(concat_list))
 
         final_name = f"{manifest.date_str}_{ctx.episode_id}_episode.mp4"
         final_tmp = ctx.workdir / f"{final_name}.tmp.mp4"

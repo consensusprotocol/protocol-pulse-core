@@ -4,7 +4,7 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_streams,ffprobe_contract,atomic_rename
+from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_streams,ffprobe_contract,atomic_rename,safe_text
 from ..constants import (VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,VIDEO_CODEC,VIDEO_CRF,
     AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,
     AUDIO_LIMITER,COLOR_RED,COLOR_WHITE,FONT_BOLD,FONT_MONO)
@@ -35,15 +35,6 @@ def _tonemap_filter():
             "zscale=t=bt709:m=bt709:r=tv,format=yuv420p")
 
 
-def _safe_label(text,max_chars=40):
-    t=text.strip()[:max_chars]
-    for o,n in [(chr(92),chr(92)*2),(chr(39),""),(chr(58),chr(92)+chr(58)),
-                (chr(37),chr(92)+chr(37)),(chr(91),chr(92)+chr(91)),
-                (chr(93),chr(92)+chr(93)),(chr(44),chr(92)+chr(44)),
-                (chr(59),chr(92)+chr(59))]:
-        t=t.replace(o,n)
-    return t.replace(chr(10)," ")
-
 
 class PartnerClipSegment(Segment):
     criticality="required"
@@ -70,8 +61,8 @@ class PartnerClipSegment(Segment):
         if not has_v:
             return self.filler_result(spec,ctx,output_path,"clip no video")
         hdr=_is_hdr(clip)
-        ch=_safe_label(spec.headline or "PARTNER SIGNAL")
-        sl="PROTOCOL PULSE  PARTNER CLIP"
+        ch=safe_text(spec.headline or "PARTNER SIGNAL",40)
+        sl=safe_text("PROTOCOL PULSE  PARTNER CLIP",40)
         lty=VIDEO_H-LT_HEIGHT-LT_Y_OFFSET
         tmp=output_path.with_suffix(".tmp.mp4")
         W,H,pf=str(VIDEO_W),str(VIDEO_H),VIDEO_PIX_FMT
@@ -85,22 +76,20 @@ class PartnerClipSegment(Segment):
             +"setsar=1,format="+pf+",setpts=PTS-STARTPTS[vn]",
             "[vn]drawbox=x=0:y="+str(lty)+":w="+W+":h="+str(LT_HEIGHT)+
                 ":color=black@"+LT_BG_ALPHA+":t=fill[lb]",
-            "[lb]drawtext=fontfile="+fb+":text="+ch+
-                ":fontcolor="+cw+":fontsize=28:x=32:y="+str(lty+12)+"[lc]",
-            "[lc]drawtext=fontfile="+fm+":text="+sl+
-                ":fontcolor="+cr+":fontsize=18:x=32:y="+str(lty+46)+"[v_out]",
+            "[lb]drawtext=fontfile="+fb+":text='"+ch+
+                "':fontcolor="+cw+":fontsize=28:x=32:y="+str(lty+12)+"[lc]",
+            "[lc]drawtext=fontfile="+fm+":text='"+sl+
+                "':fontcolor="+cr+":fontsize=18:x=32:y="+str(lty+46)+"[v_out]",
         ])
         afg=("[{i}:a]aformat=channel_layouts=stereo:sample_rates="+sr+","
              "asetpts=PTS-STARTPTS,alimiter=limit="+lim+":attack=5:release=50[a_out]")
         if has_a:
             fg=vfg+";"+afg.format(i=0)
-            inputs=[["--i",str(clip)]]
-            inputs[0][0]="-i"
+            inputs=[["-i",str(clip)]]
         else:
             logger.warning("[partner_clip] no audio: "+clip.name)
             fg=vfg+";"+afg.format(i=1)
-            inputs=[["--i",str(clip)],["--f","lavfi","--i","anullsrc=r="+sr+":cl=stereo"]]
-            inputs[0][0]="-i";inputs[1][0]="-f";inputs[1][2]="-i"
+            inputs=[["-i",str(clip)],["-f","lavfi","-i","anullsrc=r="+sr+":cl=stereo"]]
         flat=[str(x) for i in inputs for x in i]
         ok=run_ffmpeg(flat+["-filter_complex",fg,
             "-map","[v_out]","-map","[a_out]",
@@ -113,8 +102,11 @@ class PartnerClipSegment(Segment):
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec,ctx,output_path,"encode failed")
         passed,summary=ffprobe_contract(tmp)
+        if not passed:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec,ctx,output_path,"contract_failed")
         atomic_rename(tmp,output_path)
         actual=summary.get("duration",dur)
         logger.info("[partner_clip] OK rank="+str(spec.clip_rank))
         return RenderedSegment(spec=spec,path=str(output_path),duration=actual,
-                               contract_passed=passed,degraded=not passed,ffprobe_summary=summary)
+                               contract_passed=True,degraded=False,ffprobe_summary=summary)

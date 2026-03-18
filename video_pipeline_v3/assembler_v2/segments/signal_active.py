@@ -81,12 +81,15 @@ class SignalActiveSegment(Segment):
             return self.filler_result(spec, ctx, output_path, 'signal_active encode failed')
 
         passed, summary = ffprobe_contract(tmp)
+        if not passed:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, 'contract_failed')
         atomic_rename(tmp, output_path)
         actual = summary.get('duration', dur)
         logger.info(f'[signal_active] OK ({actual:.1f}s signal={"yes" if signal else "no"})')
         return RenderedSegment(
             spec=spec, path=str(output_path), duration=actual,
-            contract_passed=passed, degraded=not passed,
+            contract_passed=True, degraded=False,
             ffprobe_summary=summary
         )
 
@@ -202,7 +205,10 @@ class SignalActiveSegment(Segment):
 
             # Concat with ffmpeg concat demuxer
             concat_file = ctx.segment_dir() / 'sig_concat.txt'
-            concat_file.write_text(f"file '{top_path}'\nfile '{gap}'\nfile '{bot_path}'\n")
+            concat_tmp = concat_file.with_suffix('.tmp')
+            concat_tmp.write_text(f"file '{top_path}'\nfile '{gap}'\nfile '{bot_path}'\n")
+            import os as _os
+            _os.replace(str(concat_tmp), str(concat_file))
             out = ctx.segment_dir() / 'sig_concat_out.m4a'
             ok = run_ffmpeg([
                 '-f', 'concat', '-safe', '0', '-i', str(concat_file),

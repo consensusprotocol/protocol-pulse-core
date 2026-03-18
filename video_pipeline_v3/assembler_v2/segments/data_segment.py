@@ -4,7 +4,7 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_contract,atomic_rename,get_chart_path
+from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_contract,atomic_rename,get_chart_path,safe_text
 from ..constants import (VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,VIDEO_CODEC,VIDEO_CRF,
     AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,
     AUDIO_LIMITER,BG_LOOP,COLOR_BG,COLOR_RED,COLOR_WHITE,COLOR_CYAN,FONT_BOLD,FONT_MONO)
@@ -25,20 +25,15 @@ def _detect_keyword(text):
     return ""
 
 METRICS_CACHE_TTL=120  # seconds — cache valid for 2 minutes
-
-
-_last_successful_fetch_ts = 0.0  # module-level staleness indicator
-
-
-def last_successful_fetch_ts() -> float:
-    """Return timestamp of last successful metrics fetch (0.0 if never)."""
-    return _last_successful_fetch_ts
+_METRICS_LOCK = __import__('threading').Lock()
+_METRICS_MIN_REFRESH_INTERVAL = 60  # minimum seconds between refresh attempts
+_last_refresh_attempt_ts = 0.0
 
 
 def _refresh_metrics_cache(cache_path):
-    """Fetch all metrics and write to cache. Called in background thread."""
-    global _last_successful_fetch_ts
-    import json,urllib.request,time
+    """Fetch all metrics and write to cache. Called in background thread under _METRICS_LOCK."""
+    global _last_refresh_attempt_ts
+    import json,urllib.request,time,os
     data={}
     try:
         with urllib.request.urlopen("https://mempool.space/api/v1/prices",timeout=4) as resp:
@@ -60,20 +55,23 @@ def _refresh_metrics_cache(cache_path):
         logger.error(f"[data] metrics fetch failed (mempool): {e}")
     if data:
         data["_ts"]=time.time()
-        _last_successful_fetch_ts = data["_ts"]
         try:
-            import json as j
-            open(str(cache_path),"w").write(j.dumps(data))
+            tmp=str(cache_path)+".tmp"
+            with open(tmp,"w") as f:
+                json.dump(data,f)
+            os.replace(tmp,str(cache_path))
         except Exception as e:
             logger.error(f"[data] metrics cache write failed: {e}")
+    _last_refresh_attempt_ts=time.time()
 
 
 def _get_metric(key,fallback,cache_path):
     """
     Cache-first metric fetch. Scoped to episode workdir — no /tmp races.
-    Refreshes cache in background thread, falls back to quick API call.
+    Refreshes cache under _METRICS_LOCK — only one thread refreshes at a time.
     On any failure: returns fallback immediately, never raises.
     """
+    global _last_refresh_attempt_ts
     import json,time,threading
     from pathlib import Path
     cp=Path(cache_path)
@@ -82,14 +80,20 @@ def _get_metric(key,fallback,cache_path):
         age=time.time()-cache.get("_ts",0)
         if age<METRICS_CACHE_TTL and key in cache:
             return cache[key]
-        # Stale — refresh in background, use stale value
-        threading.Thread(target=_refresh_metrics_cache,args=(cp,),daemon=True).start()
+        # Stale — refresh under lock, prevent thundering herd
+        if time.time()-_last_refresh_attempt_ts>=_METRICS_MIN_REFRESH_INTERVAL:
+            if _METRICS_LOCK.acquire(blocking=False):
+                try:
+                    threading.Thread(target=_locked_refresh,args=(cp,),daemon=True).start()
+                finally:
+                    pass  # lock released inside _locked_refresh
         if key in cache:
             return cache[key]
     except Exception as e:
         logger.error(f"[data] metrics cache read failed for '{key}': {e}")
-        # Cache missing — fire background refresh
-        threading.Thread(target=_refresh_metrics_cache,args=(cp,),daemon=True).start()
+        if time.time()-_last_refresh_attempt_ts>=_METRICS_MIN_REFRESH_INTERVAL:
+            if _METRICS_LOCK.acquire(blocking=False):
+                threading.Thread(target=_locked_refresh,args=(cp,),daemon=True).start()
     # One-shot fallback with short timeout — won't block long
     try:
         import urllib.request
@@ -106,13 +110,16 @@ def _get_metric(key,fallback,cache_path):
         logger.error(f"[data] metrics one-shot fallback failed for '{key}': {e}")
     return fallback
 
-def _safe(text,n=30):
-    t=text.strip()[:n]
-    for o,s in [(chr(92),chr(92)*2),(chr(39),""),(chr(58),chr(92)+chr(58)),
-                (chr(37),chr(92)+chr(37)),(chr(91),chr(92)+chr(91)),(chr(93),chr(92)+chr(93)),
-                (chr(44),chr(92)+chr(44)),(chr(59),chr(92)+chr(59))]:
-        t=t.replace(o,s)
-    return t.replace(chr(10)," ")
+
+def _locked_refresh(cache_path):
+    """Run refresh under lock, then release."""
+    try:
+        _refresh_metrics_cache(cache_path)
+    finally:
+        try:
+            _METRICS_LOCK.release()
+        except RuntimeError:
+            pass
 
 class DataSegment(Segment):
     """Bitcoin data overlay: live metrics + keyword-matched chart. Optional segment."""
@@ -138,10 +145,10 @@ class DataSegment(Segment):
             logger.warning(f"[data] invalid chart_keyword '{keyword}' — falling back to no chart")
         chart=get_chart_path(keyword)
         cache_path=ctx.workdir/"metrics_cache.json"
-        btc=_safe(_get_metric("price",spec.btc_price or "$N/A",cache_path),20)
-        hr=_safe(_get_metric("hashrate","N/A EH/s",cache_path),20)
-        mp=_safe(_get_metric("mempool","N/A sat/vB",cache_path),20)
-        hl=_safe(spec.headline or "BITCOIN SIGNAL",45)
+        btc=safe_text(_get_metric("price",spec.btc_price or "$N/A",cache_path),20)
+        hr=safe_text(_get_metric("hashrate","N/A EH/s",cache_path),20)
+        mp=safe_text(_get_metric("mempool","N/A sat/vB",cache_path),20)
+        hl=safe_text(spec.headline or "BITCOIN SIGNAL",45)
         tmp=output_path.with_suffix(".tmp.mp4")
         W,H,pf=str(VIDEO_W),str(VIDEO_H),VIDEO_PIX_FMT
         fb,fm=str(FONT_BOLD),str(FONT_MONO)
@@ -159,20 +166,20 @@ class DataSegment(Segment):
             inputs.append(["-loop","1","-framerate",str(VIDEO_FPS),"-i",str(chart)])
             ci=str(len(inputs)-1)
             chart_fg=("[bg]drawbox=x=0:y=0:w=480:h="+H+":color=black@0.65:t=fill[mp];"
-                +"[mp]drawtext=fontfile="+fb+":text="+hl+":fontcolor="+cr+":fontsize=30:x=20:y=28[h1];"
-                +"[h1]drawtext=fontfile="+fm+":text="+btc+":fontcolor="+cc+":fontsize=26:x=20:y=80[m1];"
-                +"[m1]drawtext=fontfile="+fm+":text="+hr+":fontcolor="+cw+":fontsize=22:x=20:y=118[m2];"
-                +"[m2]drawtext=fontfile="+fm+":text="+mp+":fontcolor="+cw+":fontsize=22:x=20:y=152[v_m];"
+                +"[mp]drawtext=fontfile="+fb+":text='"+hl+"':fontcolor="+cr+":fontsize=30:x=20:y=28[h1];"
+                +"[h1]drawtext=fontfile="+fm+":text='"+btc+"':fontcolor="+cc+":fontsize=26:x=20:y=80[m1];"
+                +"[m1]drawtext=fontfile="+fm+":text='"+hr+"':fontcolor="+cw+":fontsize=22:x=20:y=118[m2];"
+                +"[m2]drawtext=fontfile="+fm+":text='"+mp+"':fontcolor="+cw+":fontsize=22:x=20:y=152[v_m];"
                 +"["+ci+":v]scale=1340:754:force_original_aspect_ratio=decrease,"
                 +"pad=1340:754:(ow-iw)/2:(oh-ih)/2:"+COLOR_BG+",format="+pf+"[chart];"
                 +"[v_m][chart]overlay=x=490:y=163:eof_action=repeat[v_out]")
             fg=bg_fg+";"+chart_fg
         else:
             no_chart_fg=("[bg]drawbox=x=0:y=0:w=480:h="+H+":color=black@0.65:t=fill[mp];"
-                +"[mp]drawtext=fontfile="+fb+":text="+hl+":fontcolor="+cr+":fontsize=30:x=20:y=28[h1];"
-                +"[h1]drawtext=fontfile="+fm+":text="+btc+":fontcolor="+cc+":fontsize=26:x=20:y=80[m1];"
-                +"[m1]drawtext=fontfile="+fm+":text="+hr+":fontcolor="+cw+":fontsize=22:x=20:y=118[m2];"
-                +"[m2]drawtext=fontfile="+fm+":text="+mp+":fontcolor="+cw+":fontsize=22:x=20:y=152[v_out]")
+                +"[mp]drawtext=fontfile="+fb+":text='"+hl+"':fontcolor="+cr+":fontsize=30:x=20:y=28[h1];"
+                +"[h1]drawtext=fontfile="+fm+":text='"+btc+"':fontcolor="+cc+":fontsize=26:x=20:y=80[m1];"
+                +"[m1]drawtext=fontfile="+fm+":text='"+hr+"':fontcolor="+cw+":fontsize=22:x=20:y=118[m2];"
+                +"[m2]drawtext=fontfile="+fm+":text='"+mp+"':fontcolor="+cw+":fontsize=22:x=20:y=152[v_out]")
             fg=bg_fg+";"+no_chart_fg
 
         audio_fg=("[1:a]aformat=channel_layouts=stereo:sample_rates="+sr+","
@@ -192,7 +199,10 @@ class DataSegment(Segment):
             tmp.unlink(missing_ok=True)
             return self.filler_result(spec,ctx,output_path,"data encode failed")
         passed,summary=ffprobe_contract(tmp)
+        if not passed:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec,ctx,output_path,"contract_failed")
         atomic_rename(tmp,output_path)
         logger.info("[data] OK ("+str(round(dur,1))+"s chart="+keyword+")")
         return RenderedSegment(spec=spec,path=str(output_path),duration=summary.get("duration",dur),
-                               contract_passed=passed,degraded=not passed,ffprobe_summary=summary)
+                               contract_passed=True,degraded=False,ffprobe_summary=summary)

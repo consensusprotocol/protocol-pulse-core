@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional
-import json, uuid, time
+import json, uuid, time, os
 
 
 @dataclass
@@ -72,7 +72,9 @@ class EpisodeManifest:
         return json.dumps(self.to_dict(), indent=2, default=str)
 
     def save(self, path: Path):
-        path.write_text(self.to_json())
+        tmp = path.with_suffix('.tmp')
+        tmp.write_text(self.to_json())
+        os.replace(str(tmp), str(path))
         return path
 
     @classmethod

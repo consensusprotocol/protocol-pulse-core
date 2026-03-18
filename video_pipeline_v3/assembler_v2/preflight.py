@@ -38,7 +38,7 @@ def run_preflight(tts_files:list,clip_files:list,work_dir:Path)->dict:
         hv=any(s.get("codec_type")=="video" for s in streams)
         ha=any(s.get("codec_type")=="audio" for s in streams)
         d=ffprobe_duration(p)
-        if not hv:warn(f"Clip no video: {p.name}")
+        if not hv:fail(f"Clip no video: {p.name}")
         if not ha:warn(f"Clip no audio: {p.name}")
         rpt["checks"][f"clip:{p.name}"]=f"OK {d:.1f}s v={hv} a={ha}"
     for c in("price_chart.png","hashrate_chart.png","dominance_chart.png"):

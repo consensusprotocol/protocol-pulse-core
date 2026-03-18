@@ -54,9 +54,12 @@ class TransitionSegment(Segment):
 
         if apply_whoosh:
             ctx.mark_whoosh(output_path)
-            logger.info('[transition] OK with whoosh')
+
+        if not passed:
+            ctx.mark_degraded('transition','contract failed (filler via encode_segment)',dur)
+            logger.warning('[transition] DEGRADED — filler via encode_segment')
         else:
-            logger.info('[transition] OK (no whoosh)')
+            logger.info(f'[transition] OK {"with whoosh" if apply_whoosh else "(no whoosh)"}')
 
         return RenderedSegment(spec=spec,path=str(output_path),
                                duration=dur,contract_passed=passed,

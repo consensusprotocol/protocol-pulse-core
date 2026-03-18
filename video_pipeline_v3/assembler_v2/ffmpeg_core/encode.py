@@ -29,18 +29,24 @@ def encode_segment(inputs,filter_complex,video_map,audio_map,output_path,duratio
     ok=run_ffmpeg(args,label,timeout)
     ms=int((time.time()-t0)*1000)
     def use_filler(reason):
+        """Write filler to output_path. Raises RuntimeError if filler itself fails."""
         logger.error(f"[encode] {reason} for {label} — writing filler")
         fp=output_path.with_suffix(".filler.mp4")
-        make_filler(fp,duration,tts_path)
-        if fp.exists():
-            atomic_rename(fp,output_path)
+        filler_ok=make_filler(fp,duration,tts_path)
+        if not filler_ok or not fp.exists():
+            raise RuntimeError(f"[encode] filler creation ALSO failed for {label}")
+        rename_ok=atomic_rename(fp,output_path)
+        if not rename_ok:
+            raise RuntimeError(f"[encode] filler rename ALSO failed for {label}")
     if not ok or not tmp.exists() or tmp.stat().st_size<1000:
         use_filler("ENCODE FAILED")
-        return False,False,{"error":"encode failed"},ms
+        # Filler written to output_path — signal ok=True so callers don't double-filler
+        return True,False,{"error":"encode failed","filler_used":True},ms
     passed,summary=ffprobe_contract(tmp)
     if not passed:
         tmp.unlink(missing_ok=True)
         use_filler("CONTRACT FAILED")
+        summary["filler_used"]=True
         return True,False,summary,ms
     atomic_rename(tmp,output_path)
     dur=summary.get("duration",0)

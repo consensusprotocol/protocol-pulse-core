@@ -56,12 +56,15 @@ class SocialSegment(Segment):
             return self.filler_result(spec, ctx, output_path, 'social encode failed')
 
         passed, summary = ffprobe_contract(tmp)
+        if not passed:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, 'contract_failed')
         atomic_rename(tmp, output_path)
         actual = summary.get('duration', dur)
         logger.info(f'[social] OK ({actual:.1f}s, {len(posts)} posts)')
         return RenderedSegment(
             spec=spec, path=str(output_path), duration=actual,
-            contract_passed=passed, degraded=not passed,
+            contract_passed=True, degraded=False,
             ffprobe_summary=summary
         )
 

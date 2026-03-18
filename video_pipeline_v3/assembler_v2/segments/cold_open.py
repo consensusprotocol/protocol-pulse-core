@@ -63,13 +63,16 @@ class ColdOpenSegment(Segment):
             return self.filler_result(spec, ctx, output_path, "cold_open encode failed")
 
         passed, summary = ffprobe_contract(tmp)
+        if not passed:
+            tmp.unlink(missing_ok=True)
+            return self.filler_result(spec, ctx, output_path, "contract_failed")
         atomic_rename(tmp, output_path)
         dur = summary.get("duration", total_dur)
         logger.info(f"[cold_open] OK ({dur:.1f}s)")
         return RenderedSegment(
             spec=spec, path=str(output_path),
-            duration=dur, contract_passed=passed,
-            degraded=not passed, ffprobe_summary=summary
+            duration=dur, contract_passed=True,
+            degraded=False, ffprobe_summary=summary
         )
 
     def _render_full(self, tts, tmp, tts_dur, tag_dur, total_dur):

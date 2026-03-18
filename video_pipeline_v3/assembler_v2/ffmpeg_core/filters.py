@@ -86,10 +86,9 @@ def drawtext(label_in: str, label_out: str,
              text: str, font: str, size: int,
              color: str, x: str, y: str,
              box: bool = False, box_color: str = "black@0.5") -> str:
-    """Single drawtext filter. Sanitize text before calling."""
-    safe = text.replace("'", "\'").replace(":", "\:").replace("\n", "")
+    """Single drawtext filter. Text MUST be pre-sanitized via helpers.safe_text()."""
     box_str = f":box=1:boxcolor={box_color}:boxborderw=8" if box else ""
     return (
-        f"[{label_in}]drawtext=fontfile={font}:text='{safe}':"
+        f"[{label_in}]drawtext=fontfile={font}:text='{text}':"
         f"fontcolor={color}:fontsize={size}:x={x}:y={y}{box_str}[{label_out}]"
     )

@@ -24,6 +24,8 @@ def run_ffmpeg(args: list, label: str = "", timeout: int = FFMPEG_TIMEOUT_ENCODE
     Logs full command, duration, and stderr on failure.
     """
     cmd = ["ffmpeg", "-y"] + [str(a) for a in args]
+    full_cmd = ' '.join(cmd)
+    logger.debug(f"[ffmpeg] {label} | full cmd: {full_cmd}")
     logger.info(f"[ffmpeg] {label} | cmd: {' '.join(cmd[:10])}...")
     t0 = time.time()
     try:
@@ -90,6 +92,7 @@ def ffprobe_contract(path: Path) -> tuple:
     video = next((s for s in streams if s.get("codec_type") == "video"), None)
     audio = next((s for s in streams if s.get("codec_type") == "audio"), None)
 
+    duration = float(fmt.get("duration", 0))
     issues = []
 
     if not video:
@@ -124,8 +127,20 @@ def ffprobe_contract(path: Path) -> tuple:
             issues.append(f"video_codec={video.get('codec_name')} (need h264)")
         if audio.get("codec_name") != AUDIO_CODEC:
             issues.append(f"audio_codec={audio.get('codec_name')} (need {AUDIO_CODEC})")
+        # Audio bitrate check — ±10% tolerance for VBR rounding (192k = 192000 bps)
+        # AAC VBR compresses silence very efficiently, so short or silent segments
+        # will average far below nominal. Upper bound always checked (catches wrong
+        # -b:a setting). Lower bound only reliable on segments >= 30s with real audio.
+        raw_br = audio.get("bit_rate", 0)
+        try:
+            audio_br = int(raw_br)
+        except (ValueError, TypeError):
+            audio_br = 0
+        if audio_br > 211200:
+            issues.append(f"audio_bitrate={audio_br} too high (max 211200)")
+        elif audio_br > 0 and duration >= 30.0 and audio_br < 172800:
+            issues.append(f"audio_bitrate={audio_br} too low (min 172800)")
 
-    duration = float(fmt.get("duration", 0))
     passed = len(issues) == 0
 
     summary = {
@@ -160,6 +175,8 @@ def make_filler(output_path: Path, duration: float,
     Dark background — clearly not final content but episode continues.
     """
     dur = max(float(duration), 5.0)
+    if float(duration) < 5.0:
+        logger.info(f"[filler] 5s floor applied (requested {duration:.1f}s)")
 
     if tts_path and tts_path.exists() and tts_path.stat().st_size > 1000:
         ok = run_ffmpeg([
@@ -196,11 +213,19 @@ def make_filler(output_path: Path, duration: float,
 def atomic_rename(src: Path, dst: Path) -> bool:
     """
     Atomically move src to dst. Never leaves partial files at dst.
-    dst.parent is created if it does not exist.
+    Uses os.replace() for POSIX atomicity. Falls back to copy+replace
+    for cross-device moves.
     """
     try:
         dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(src), str(dst))
+        try:
+            os.replace(str(src), str(dst))
+        except OSError:
+            # Cross-device: copy then atomic swap
+            tmp_copy = dst.with_suffix(dst.suffix + ".atomic_tmp")
+            shutil.copy2(str(src), str(tmp_copy))
+            os.replace(str(tmp_copy), str(dst))
+            src.unlink(missing_ok=True)
         logger.info(f"[atomic] {src.name} -> {dst}")
         return True
     except Exception as e:
@@ -278,8 +303,23 @@ def get_chart_path(keyword: str) -> Optional[Path]:
     # For empty keyword (show all charts), return None — segment handles grid layout
     return None
 
-def safe_text(text,max_chars=80):
-    t=str(text).strip()[:max_chars]
-    for o,n in [(chr(92),chr(92)*2),(chr(39),""),(chr(58),chr(92)+chr(58)),(chr(37),chr(92)+chr(37)),(chr(91),chr(92)+chr(91)),(chr(93),chr(92)+chr(93)),(chr(44),chr(92)+chr(44)),(chr(59),chr(92)+chr(59))]:
-        t=t.replace(o,n)
-    return t.replace(chr(10)," ")
+def safe_text(text, max_chars=80):
+    """
+    Single authoritative text sanitizer for FFmpeg drawtext filter values.
+    FFmpeg drawtext escape rules:
+      - Backslash must be escaped first: \\ → \\\\
+      - Single quotes are the text= delimiter, escape as: ' → '\\''
+        (close quote, literal escaped quote, reopen quote)
+      - Colons, percent signs, brackets, commas, semicolons need backslash escape
+      - Newlines replaced with space (drawtext does not support literal newlines)
+    Every drawtext text= value MUST go through this function. No exceptions.
+    """
+    t = str(text).strip()[:max_chars]
+    # Backslash first (before any other escape introduces backslashes)
+    t = t.replace("\\", "\\\\")
+    # Single quote: FFmpeg drawtext escape sequence
+    t = t.replace("'", "'\\''")
+    # Special chars that need backslash escaping in drawtext
+    for ch in (":", "%", "[", "]", ",", ";"):
+        t = t.replace(ch, "\\" + ch)
+    return t.replace("\n", " ")

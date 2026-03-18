@@ -66,7 +66,11 @@ class EpisodeContext:
 
     # ── Verdict ─────────────────────────────────────────────────────
     def verdict(self) -> str:
-        """PASS | DEGRADED | HOLD"""
+        """PASS | DEGRADED | HOLD
+        Intentional ordering: HOLD is checked before DEGRADED so that
+        episodes with excessive filler are held regardless of degraded count.
+        HOLD is the strictest gate — it supersedes DEGRADED.
+        """
         from .constants import QC_MAX_FILLER_SECONDS, QC_MAX_DEGRADED_SEGMENTS
         if self.total_filler_seconds >= QC_MAX_FILLER_SECONDS:
             return "HOLD"

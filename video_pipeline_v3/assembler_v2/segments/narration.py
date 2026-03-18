@@ -4,7 +4,7 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_contract,atomic_rename,normalize_pip_preview,safe_text
+from ..helpers import run_ffmpeg,ffprobe_duration,ffprobe_contract,atomic_rename,safe_text
 from ..constants import (
     VIDEO_W,VIDEO_H,VIDEO_FPS,VIDEO_PIX_FMT,VIDEO_CODEC,VIDEO_CRF,
     AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS,
@@ -20,25 +20,18 @@ class NarrationSegment(Segment):
 
     def render(self,spec,ctx,output_path,idx):
         try:
-            pip=self._ensure_pip(spec,ctx)
+            pip=self._check_pip(spec)
             return self._render(spec,ctx,output_path,pip)
         except Exception as e:
             logger.error(f'[narration] exception: {e}')
             return self.filler_result(spec,ctx,output_path,str(e))
 
-    def _ensure_pip(self,spec,ctx):
+    def _check_pip(self,spec):
+        """Check for pre-normalized PiP. Do NOT generate on demand (Law 7)."""
         pip=spec.pip()
         if pip and pip.exists() and pip.stat().st_size>10000:
             return pip
-        clip=spec.clip()
-        if clip and clip.exists() and clip.stat().st_size>50000:
-            pip_out=ctx.segment_dir()/f'pip_preview_r{spec.clip_rank}.mp4'
-            cdur=ffprobe_duration(clip)
-            pdur=min(cdur*0.4,12.0)
-            if normalize_pip_preview(clip,pip_out,pdur) and pip_out.exists():
-                logger.info(f'[narration] pip generated on-demand rank={spec.clip_rank}')
-                return pip_out
-        logger.warning(f'[narration] no pip rank={spec.clip_rank} — dark panel')
+        logger.warning(f'[narration] pre-normalized pip missing rank={spec.clip_rank} — using no-PiP path')
         return None
 
     def _render(self,spec,ctx,output_path,pip):
@@ -57,10 +50,13 @@ class NarrationSegment(Segment):
         if not ok or not output_path.exists() or output_path.stat().st_size<1000:
             return self.filler_result(spec,ctx,output_path,'narration encode failed')
         passed,summary=ffprobe_contract(output_path)
+        if not passed:
+            output_path.unlink(missing_ok=True)
+            return self.filler_result(spec,ctx,output_path,'contract_failed')
         actual=summary.get('duration',dur)
         logger.info(f'[narration] OK ({actual:.1f}s pip={has_pip})')
         return RenderedSegment(spec=spec,path=str(output_path),duration=actual,
-                               contract_passed=passed,degraded=not passed,
+                               contract_passed=True,degraded=False,
                                ffprobe_summary=summary)
 
     def _build_fg_with_pip(self,pip,dur,headline,body):
