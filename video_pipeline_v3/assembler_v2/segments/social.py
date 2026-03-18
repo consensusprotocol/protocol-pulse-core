@@ -1,4 +1,6 @@
 from __future__ import annotations
+import glob as _glob
+import html
 import os, logging
 from pathlib import Path
 from .base import Segment
@@ -50,7 +52,18 @@ class SocialSegment(Segment):
             dur = 10.0
 
         tmp = output_path.with_suffix('.tmp.mp4')
-        ok = self._render_cards(posts, tts, tmp, dur)
+
+        # Playwright first → drawtext fallback (Law 1)
+        ok = False
+        try:
+            ok = self._render_cards_playwright(posts, tts, tmp, dur, ctx)
+        except Exception as e:
+            logger.warning(f'[social] playwright failed: {e}, falling back to drawtext')
+            ok = False
+
+        if not ok or not tmp.exists() or tmp.stat().st_size < 1000:
+            tmp.unlink(missing_ok=True)
+            ok = self._render_cards(posts, tts, tmp, dur)
 
         if not ok or not tmp.exists() or tmp.stat().st_size < 1000:
             return self.filler_result(spec, ctx, output_path, 'social encode failed')
@@ -103,6 +116,172 @@ class SocialSegment(Segment):
             '-b:a', AUDIO_BITRATE, '-ac', str(AUDIO_CHANNELS),
             str(path)
         ], 'social fallback audio', 30)
+
+    def _render_cards_playwright(self, posts, tts, tmp, dur, ctx):
+        """Render tweet cards as Playwright PNG screenshots, composite via ffmpeg.
+        Returns True on success, False on failure."""
+        from playwright.sync_api import sync_playwright  # lazy import — Law: no module-level import
+
+        # Resolve chromium executable
+        chrome_path = os.environ.get('PLAYWRIGHT_CHROMIUM_PATH')
+        if not chrome_path:
+            candidates = sorted(_glob.glob(
+                os.path.expanduser('~/.cache/ms-playwright/chromium-*/chrome-linux/chrome')
+            ))
+            if candidates:
+                chrome_path = candidates[0]
+        if not chrome_path or not os.path.isfile(chrome_path):
+            raise FileNotFoundError('chromium executable not found for playwright')
+
+        n = len(posts)
+        card_pngs = []
+        pw = sync_playwright().start()
+        browser = None
+        try:
+            browser = pw.chromium.launch(headless=True, executable_path=chrome_path)
+            for i, post in enumerate(posts):
+                account_escaped = html.escape(str(post.get('account', 'unknown')))
+                text_escaped = html.escape(str(post.get('text', '')))
+                likes = html.escape(str(post.get('likes', 0)))
+                retweets = html.escape(str(post.get('retweets', 0)))
+                timestamp_escaped = html.escape(str(post.get('timestamp', '')))
+
+                card_html = f'''<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+  body {{
+    width: 800px; height: 280px; overflow: hidden;
+    background: #0d1118;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex; align-items: stretch;
+  }}
+  .card {{
+    width: 100%; background: #0d1118;
+    border: 1px solid #1e2a3a;
+    border-left: 4px solid #ff3b5f;
+    padding: 24px 28px;
+    display: flex; flex-direction: column; gap: 12px;
+  }}
+  .header {{ display: flex; align-items: center; gap: 10px; }}
+  .x-logo {{ color: #eef2ff; font-size: 18px; font-weight: bold; }}
+  .account {{
+    color: #ff3b5f; font-size: 18px; font-weight: bold;
+    letter-spacing: 0.5px;
+  }}
+  .badge {{
+    background: #f8c15c22; color: #f8c15c;
+    font-size: 11px; padding: 2px 8px; border-radius: 3px;
+    border: 1px solid #f8c15c44; letter-spacing: 1px;
+    text-transform: uppercase;
+  }}
+  .text {{
+    color: #eef2ff; font-size: 17px; line-height: 1.5;
+    flex: 1;
+    display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }}
+  .meta {{
+    display: flex; gap: 20px; align-items: center;
+    color: #95a0ba; font-size: 13px;
+  }}
+  .meta-item {{ display: flex; gap: 5px; align-items: center; }}
+  .meta-value {{ color: #f8c15c; font-weight: bold; }}
+  .divider {{
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 1px; background: linear-gradient(90deg, #ff3b5f44, transparent);
+  }}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <span class="x-logo">\U0001d54f</span>
+    <span class="account">@{account_escaped}</span>
+    <span class="badge">Bitcoin Signal</span>
+  </div>
+  <div class="text">{text_escaped}</div>
+  <div class="meta">
+    <div class="meta-item">\u2764 <span class="meta-value">{likes}</span></div>
+    <div class="meta-item">\U0001f501 <span class="meta-value">{retweets}</span></div>
+    <div class="meta-item">{timestamp_escaped}</div>
+  </div>
+</div>
+</body></html>'''
+
+                page = browser.new_page(viewport={'width': 800, 'height': 280})
+                page.set_content(card_html, wait_until='load')
+                png_path = ctx.segment_dir() / f'tweet_card_{i}.png'
+                page.screenshot(path=str(png_path), timeout=10000, full_page=False)
+                page.close()
+                if not png_path.exists() or png_path.stat().st_size < 100:
+                    raise RuntimeError(f'tweet_card_{i}.png empty or missing')
+                card_pngs.append(png_path)
+        finally:
+            if browser:
+                browser.close()
+            pw.stop()
+
+        # Composite PNGs onto 1920x1080 branded background via ffmpeg
+        # Scale each card to width=1760, compute height proportionally
+        # 800x280 → 1760 wide: scale factor 2.2, height = 280*2.2 = 616 → clamp to 220
+        card_h = 220
+        if n == 1:
+            total_h = card_h
+            y_start = (VIDEO_H - total_h) // 2
+        elif n == 2:
+            total_h = 2 * card_h + 40
+            y_start = (VIDEO_H - total_h) // 2
+        else:
+            total_h = 3 * card_h + 60
+            y_start = (VIDEO_H - total_h) // 2
+
+        inputs = ['-f', 'lavfi', '-i', f'color=c=0x06070B:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}']
+        inputs += ['-i', str(tts)]
+        for png in card_pngs:
+            inputs += ['-i', str(png)]
+
+        # Build filter_complex
+        fc_parts = []
+        prev_label = '0:v'
+        for i in range(n):
+            gap = 40 if n == 2 else 30 if n == 3 else 0
+            y = y_start + i * (card_h + gap)
+            inp_idx = i + 2  # 0=bg, 1=audio, 2+=pngs
+            scale_label = f'sc{i}'
+            out_label = f'ov{i}' if i < n - 1 else 'v_pre'
+            fc_parts.append(f'[{inp_idx}:v]scale=1760:{card_h}:flags=lanczos,format={VIDEO_PIX_FMT}[{scale_label}]')
+            fc_parts.append(f'[{prev_label}][{scale_label}]overlay=x=80:y={y}[{out_label}]')
+            prev_label = out_label
+
+        # Add kicker text
+        kicker_text = safe_text('TOP X SIGNALS', 30)
+        fc_parts.append(
+            f"[v_pre]drawtext=fontfile={FONT_BOLD}:text='{kicker_text}':"
+            f"fontcolor=0xF8C15C:fontsize=24:x=80:y=40[v_out]"
+        )
+
+        # Audio normalization
+        fc_parts.append(
+            f'[1:a]aformat=channel_layouts=stereo:sample_rates={AUDIO_SAMPLE_RATE},'
+            f'loudnorm=I={AUDIO_TARGET_LUFS}:TP={AUDIO_MAX_TRUE_PEAK}:LRA={AUDIO_LRA}:linear=true,'
+            f'alimiter=limit={AUDIO_LIMITER}:attack=5:release=50[a_out]'
+        )
+
+        fc = ';'.join(fc_parts)
+
+        return run_ffmpeg(
+            inputs + [
+                '-filter_complex', fc,
+                '-map', '[v_out]', '-map', '[a_out]',
+                '-c:v', VIDEO_CODEC, '-crf', str(VIDEO_CRF), '-preset', 'medium',
+                '-r', str(VIDEO_FPS), '-pix_fmt', VIDEO_PIX_FMT,
+                '-c:a', AUDIO_CODEC, '-ar', str(AUDIO_SAMPLE_RATE),
+                '-b:a', AUDIO_BITRATE, '-ac', str(AUDIO_CHANNELS),
+                '-t', str(round(dur, 3)), '-movflags', '+faststart', str(tmp)
+            ], f'social playwright {n} cards', 120
+        )
 
     def _render_cards(self, posts, tts, tmp, dur):
         n = len(posts)
