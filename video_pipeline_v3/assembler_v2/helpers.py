@@ -29,7 +29,8 @@ def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         elapsed = round(time.time() - t0, 2)
         if result.returncode != 0:
-            logger.error(f"[ffmpeg] FAIL {label} ({elapsed}s) | {result.stderr[-800:]}")
+            logger.error(f"[ffmpeg] FAIL {label} ({elapsed}s) rc={result.returncode}")
+            logger.error(f"[ffmpeg] STDERR: {result.stderr[-1200:]}")
             return False
         logger.info(f"[ffmpeg] OK {label} ({elapsed}s)")
         return True

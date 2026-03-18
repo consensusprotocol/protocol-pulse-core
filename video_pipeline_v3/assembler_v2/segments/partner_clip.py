@@ -61,7 +61,8 @@ class PartnerClipSegment(Segment):
             return self.filler_result(spec,ctx,output_path,"clip missing")
         dur=ffprobe_duration(clip)
         if dur<2.0:
-            return self.filler_result(spec,ctx,output_path,"clip too short")
+            logger.warning("[partner_clip] clip too short ("+str(round(dur,2))+"s) filler: "+clip.name)
+            return self.filler_result(spec,ctx,output_path,"clip too short ("+str(round(dur,2))+"s)")
         info=ffprobe_streams(clip)
         streams=info.get("streams",[])
         has_v=any(s.get("codec_type")=="video" for s in streams)

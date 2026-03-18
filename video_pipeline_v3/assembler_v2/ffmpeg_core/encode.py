@@ -2,7 +2,7 @@ from __future__ import annotations
 import time,logging
 from pathlib import Path
 from typing import Optional
-from ..constants import VIDEO_CODEC,VIDEO_CRF,VIDEO_PRESET,VIDEO_FPS,VIDEO_PIX_FMT,VIDEO_BITRATE,VIDEO_MAXRATE,VIDEO_BUFSIZE,AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS
+from ..constants import VIDEO_CODEC,VIDEO_CRF,VIDEO_PRESET,VIDEO_FPS,VIDEO_PIX_FMT,AUDIO_CODEC,AUDIO_BITRATE,AUDIO_SAMPLE_RATE,AUDIO_CHANNELS
 from ..helpers import run_ffmpeg,ffprobe_contract,make_filler,atomic_rename
 logger=logging.getLogger(__name__)
 
