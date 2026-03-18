@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-18 06:59:31  
-**Git:** `262bc66c` on `main`  
+**Generated:** 2026-03-18 07:35:16  
+**Git:** `c817981b` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 15.21s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 17.05s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+c817981b fix(assembler_v2): P0+P1 audit fixes — safe_text, contract filler, atomic writes, bitrate check, PiP law
+8dbe2d7e feat(oracle): Phase 3 Cross-Session Memory — visitor fingerprint, SQLite memory, returning context
+537defae feat(oracle): Phase 2 Intelligence Depth — RAG knowledge base, live intel, confidence calibration
+1a82ec4a chore: update CURRENT_STATE.md handoff doc 2026-03-18
 262bc66c feat(assembler_v2): Day 6 — episode.py EpisodeRunner, 42/42 tests
 70c0eb2a chore: update CURRENT_STATE.md handoff doc 2026-03-18
 354a459a fix(assembler_v2): P0+P1 audit fixes — CRF-only, safe_text, workdir UUID, timeout constants
 8838fbe8 fix(p1): CORS default deny, unify GPU lock to semaphore, metrics race fix, async GPU_BUSY
-f006402d fix(p0): remove Replit token fallback from _get_anthropic_key, replace os.system with subprocess.run
-2a2bf0e7 chore: update CURRENT_STATE.md handoff doc 2026-03-18
-b0bb5542 feat(assembler_v2): Day 5 — social.py + signal_active.py, 34/34 tests
-2ee02c46 chore: update CURRENT_STATE.md handoff doc 2026-03-18
 ```
