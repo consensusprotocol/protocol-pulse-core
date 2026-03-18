@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-18 06:07:34  
-**Git:** `b0bb5542` on `main`  
+**Generated:** 2026-03-18 06:35:52  
+**Git:** `354a459a` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 20.05s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 15.21s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+354a459a fix(assembler_v2): P0+P1 audit fixes — CRF-only, safe_text, workdir UUID, timeout constants
+8838fbe8 fix(p1): CORS default deny, unify GPU lock to semaphore, metrics race fix, async GPU_BUSY
+f006402d fix(p0): remove Replit token fallback from _get_anthropic_key, replace os.system with subprocess.run
+2a2bf0e7 chore: update CURRENT_STATE.md handoff doc 2026-03-18
 b0bb5542 feat(assembler_v2): Day 5 — social.py + signal_active.py, 34/34 tests
 2ee02c46 chore: update CURRENT_STATE.md handoff doc 2026-03-18
 b6bc52d7 security: add docs/audits to gitignore
 748a12e9 security: redact relay token from all exposed docs
-3ea799e4 docs: UPDATED handoff 2026-03-18 assembler_v2 Days1-4 correct
-afae87d0 audit: x-spaces-pipeline 3-LLM code review — Gemini+GPT4o+Grok on actual code
-dd7347b6 fix(audit-p0p1): path traversal protection, blueprint assertion, session secret guard, caching log, relay token redaction, gospel corpus fix
-21bb6071 feat(phase1): audio-first response, pronunciation hardening, adversarial safety, concurrency queue
 ```
