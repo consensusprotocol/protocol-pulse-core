@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-18 14:16:15  
-**Git:** `f41815b5` on `main`  
+**Generated:** 2026-03-18 14:33:01  
+**Git:** `84832f1d` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 16.23s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 16.4s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+84832f1d fix(assembler_v2): full hardening — Law 1/2/3, filler chain, encode semantics, atomic_rename guards, manifest validate, collision fix, http_resilient
+5c350c1d chore: update CURRENT_STATE.md handoff doc 2026-03-18
 f41815b5 fix(x-spaces): consolidate to single pipeline — tombstone x_spaces_pipeline/, atomic upsert, mark() fix, union discovery, date parsing, negative cache
 01ad3c44 chore: update CURRENT_STATE.md handoff doc 2026-03-18
 15dcb666 feat(social): Playwright tweet card screenshots with drawtext fallback
 fbfa6bdd chore: update CURRENT_STATE.md handoff doc 2026-03-18
 05703cbf fix(x-spaces): P0+P1 audit fixes — atomic upsert, race conditions, date parsing, usable gate, recorder state
 34d2c275 chore: update CURRENT_STATE.md handoff doc 2026-03-18
-2f207180 feat(x-spaces): pipeline integration — bridge, segment, zombie fix, model strings, 48/48 tests
-9b3968f3 feat(oracle): Phase 4 Conversation Quality — confusion, frustration, tangent, vision carry-forward, repair
 ```
