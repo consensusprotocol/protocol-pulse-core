@@ -1,53 +1,114 @@
-# PROTOCOL PULSE V2 ASSEMBLER REBUILD -- HANDOFF DOC
-Generated: 2026-03-18 05:15 UTC -- UPDATED CORRECT VERSION
-HEAD: afae87d0 | Repo: consensusprotocol/protocol-pulse-core
-Raw: https://raw.githubusercontent.com/consensusprotocol/protocol-pulse-core/main/docs/handoff/CURRENT_STATE.md
+# Protocol Pulse — Current State
+**Generated:** 2026-03-18 05:45:22  
+**Git:** `b6bc52d7` on `main`  
+**Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
-## STATUS: DAYS 1-4 COMPLETE 29/29 TESTS PASSING -- NEXT: DAY 5
-## NOTE: Older doc (d2dd725a, Mar 12) is STALE. This is current.
+---
 
-## WHAT WAS BUILT (2026-03-18)
-assembler_v2 modular rebuild at video_pipeline_v3/assembler_v2/
-Tests: 29/29 PASS (test_day1 6/6, test_day2 6/6, test_day3 8/8, test_day4 7/7)
+## 🚦 SERVICE STATUS
+| Service | Status |
+|---------|--------|
+| Flask (protocolpulse.io) | HTTP 200 |
+| Avatar server (port 8200) | HTTP 200 — avg latency 25.76s |
+| CF Tunnel | Active |
+| Watchdog cron | Every 5 min |
 
-## FILES
-video_pipeline_v3/assembler_v2/
-  constants.py  manifest.py  state.py  helpers.py  preflight.py
-  ffmpeg_core/filters.py  ffmpeg_core/encode.py  ffmpeg_core/probe.py
-  segments/base.py  segments/transition.py  segments/wrap.py
-  segments/cold_open.py  segments/narration.py
-  segments/partner_clip.py  segments/data_segment.py
-  test_day1.py 6/6  test_day2.py 6/6  test_day3.py 8/8  test_day4.py 7/7
+---
 
-## THE 10 LAWS
-1. render() NEVER raises. filler_result() on failure.
-2. CRF-only. ZERO -b:v -maxrate -bufsize.
-3. EpisodeContext episode-scoped. Zero module globals.
-4. ffprobe_contract: 1920x1080 h264 yuv420p 30fps aac 192k 48000hz stereo.
-5. Atomic writes via atomic_rename.
-6. safe_text() from helpers.py is THE ONLY drawtext sanitizer.
-7. PiP eof_action=REPEAT. stream_loop=-1 on pre-normalized pip_preview.
-8. Metrics cache: ctx.workdir/metrics_cache.json. Never /tmp.
-9. Outro: -an on OUTRO_BRANDED before stream_loop.
-10. 29 tests pass before commit.
+## 🎬 VIDEO PIPELINE — CURRENT
+- **V8:** GRADE_F_FAIL|29|/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4|This episode is a catastrophic technical failure, rendered unwatchable by a complete TTS failure that cascaded into massive audio and video errors.
+- **V9:** Rendering —   Output: /home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12
+======================================================================
+[STEP 13] QUALITY GATE...
+  QUALITY SCORE: 69/100 [#############-------] HOLD (threshold: 85)
+- **V9 grade:** GRADE_F_FAIL|38|/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-12/pulse_check_20260312.mp4|This episode is a catastrophic and unpublishable failure due to a complete breakdown of the text-to-speech pipeline, resulting in a silent co-host, unwatchable dead air, and clipped audio.
+- **V9 file:** 
+- **Root cause of V7/V8 F:** Eryn voice ID `uxKr2vlA4hYgXZR1oPRT` (Natasha) was wiped by git reset. Fixed in commit `7667c3d6` — correct ID `kdnRe2koJdOK4Ovxn2DI`
+- **QC false positive bug:** Internal scorer reports 94/100 PASS on Grade F renders — CC session `qc_audit` fixing now
 
-## TEST RUNNER
-python3 -c "import sys; sys.path.insert(0,'/home/ultron/protocol_pulse/video_pipeline_v3'); exec(open('/home/ultron/protocol_pulse/video_pipeline_v3/assembler_v2/test_dayN.py').read())"
+---
 
-## INVARIANT CHECKS
-grep -r VIDEO_BITRATE assembler_v2/ | grep -v .pyc  (expect 0)
-grep -c _safe_text assembler_v2/segments/narration.py  (expect 0)
-grep workdir assembler_v2/state.py | grep episode_id  (must exist)
-grep -c maxrate assembler_v2/ffmpeg_core/encode.py  (expect 0)
+## 🔊 TTS — VOICE DECISIONS (2026-03-12)
+| Provider | Host 1 (Female) | Host 2 (Male) |
+|----------|----------------|---------------|
+| **ElevenLabs** (current default) | Eryn `kdnRe2koJdOK4Ovxn2DI` | Mark `1SM7GgM6IMuvQlz2BwM3` |
+| **Inworld** (pending, set TTS_PROVIDER=inworld) | Lauren | Nate |
 
-## DAY 5 NEXT -- BUILD FROM SCRATCH
-social.py: assembler_v2/segments/social.py
-  3 X posts on branded bg. spec.social_posts list. Fallback dark panel.
-signal_active.py: assembler_v2/segments/signal_active.py
-  Top: Nostr signal. Bottom: ALWAYS Curated Mining sponsor.
-  Sponsor: Curated Mining white-glove Bitcoin mining Section 179 LLC
-  Audio TTS. Brand red/black/white JetBrainsMono.
+Inworld voices selected 2026-03-12 via A/B test. CC session `tts_patch` adding Inworld support to tts_engine.py now.  
+Quality notes: Inworld = better audio quality, ElevenLabs = better cadence. FFmpeg atempo=1.2 applied post-gen on Inworld.
 
-## INFRA
-Relay token: <REDACTED-stored-in-env>
-CC: tmux new-session -s NAME ; unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions
+---
+
+## 🌐 SITE CSS — ALL FIXED ✅
+All CSS files 200 BYPASS on Cloudflare via `/v3/css/` Flask route with `no-store` headers:
+  pp-core.css: 200 BYPASS
+  pp-style.css: 200 BYPASS
+  pp-coindesk.css: 200 BYPASS
+  pp-fix.css: 200 BYPASS
+  pp-homepage.css: 200 BYPASS
+
+---
+
+## 🤖 AVATAR SERVER — BROKEN (CC audit running)
+- **Port:** 8200 | **Route:** avatar.protocolpulse.io
+- **Engine:** Wav2Lip-GAN FP16, GFPGAN face restore, BATCH_SIZE=64
+- **Known issues being fixed:**
+  - avg_latency 48.92s (target <10s)
+  - apply_blink() creates black oval artifacts
+  - /status returns 404 (frontend expects it)
+  - blinks_enabled: false
+- **CC session:** `avatar_audit` running now
+
+---
+
+## 🔄 ACTIVE CC SESSIONS
+| Session | Task | Status |
+|---------|------|--------|
+| `v9_render` | V9 video render | Running |
+| `qc_audit` | Fix QC false positives | Running |
+| `tts_patch` | Add Inworld Lauren+Nate | Running |
+| `avatar_audit` | Fix avatar latency/artifacts | Running |
+
+---
+
+## 📋 PENDING — NEEDS ATTENTION
+1. **V9 grade** — fire `python3 gemini_grade.py` in `video_pipeline_v3/` once render completes
+2. **TTS_PROVIDER=inworld** — set in .env after tts_patch CC commits, V10 will use Inworld
+3. **Google Cloud billing** — console.cloud.google.com → enable billing for Tier 1 Gemini (150 RPM vs 25 RPD)
+4. **Render.com** — disconnect GitHub repo (stop deploy failure emails)
+5. **gunicorn.pid** — add to .gitignore (keeps getting committed)
+6. **ADMIN_TOKEN** — add to .env for /sponsor-agent dashboard
+7. **Overnight loop** — `overnight_render_loop.py` ready, launch after first Grade A
+8. **RNS.ID affiliate** — $300/referral, add to Oracle Briefings + newsletter (parked)
+
+---
+
+## 🔑 KEY FILES
+- `~/protocol_pulse/PIPELINE_LAWS.md` — gospel, load into every CC session
+- `~/protocol_pulse/.env` — all API keys
+- `~/protocol_pulse/app.py` — ROOT Flask app (gunicorn loads this via wsgi.py)
+- `~/protocol_pulse/video_pipeline_v3/tts_engine.py` — dual-provider TTS
+- `~/protocol_pulse/oracle/avatar_server.py` — 984-line avatar engine
+- `~/protocol_pulse/overnight_render_loop.py` — autonomous grade-A loop
+- `~/protocol_pulse/docs/handoff/CURRENT_STATE.md` — this file
+
+---
+
+## ⚡ CC LAUNCH LAW (PERMANENT)
+```bash
+tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions' Enter
+```
+
+---
+
+## 📜 GIT LOG (last 8)
+```
+b6bc52d7 security: add docs/audits to gitignore
+748a12e9 security: redact relay token from all exposed docs
+3ea799e4 docs: UPDATED handoff 2026-03-18 assembler_v2 Days1-4 correct
+afae87d0 audit: x-spaces-pipeline 3-LLM code review — Gemini+GPT4o+Grok on actual code
+dd7347b6 fix(audit-p0p1): path traversal protection, blueprint assertion, session secret guard, caching log, relay token redaction, gospel corpus fix
+21bb6071 feat(phase1): audio-first response, pronunciation hardening, adversarial safety, concurrency queue
+1b57c435 docs: comprehensive assembler_v2 handoff Days1-4 complete 29/29 tests Day5 spec
+4a9c871b docs: oracle avatar launch phases 1-5
+```
