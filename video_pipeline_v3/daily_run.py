@@ -204,11 +204,57 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
         print(f"  X Spaces injection skipped: {e}")
 
     # ─── Step 6: Assemble ───
-    print("\n[STEP 6/7] ASSEMBLING VIDEO (Black Diamond)...")
+    print("\n[STEP 6/7] ASSEMBLING VIDEO (assembler_v2)...")
     t0 = time.time()
     broll_clips = clip_data.get("broll", [])
-    result = assemble_episode(script, audio_paths, extracted_clips, output_path,
-                              btc_price=btc_price, broll_clips=broll_clips)
+    try:
+        import sys as _sys
+        _sys.path.insert(0, BASE)
+        from assembler_v2.daily_bridge import build_manifest_from_pipeline
+        from assembler_v2.episode import EpisodeRunner
+        from pathlib import Path as _Path
+
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        manifest = build_manifest_from_pipeline(
+            script=script,
+            audio_paths=audio_paths,
+            extracted_clips=extracted_clips,
+            btc_price=btc_price,
+            date_str=date_str,
+        )
+
+        output_dir = _Path(os.path.dirname(output_path))
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        runner = EpisodeRunner()
+        report = runner.run(manifest, output_dir)
+
+        print(f"  Verdict: {report.verdict}")
+        print(f"  Segments: {len(report.segment_reports)}")
+        print(f"  Degraded: {report.degraded_count}")
+        print(f"  Filler: {report.total_filler_seconds:.1f}s")
+        print(f"  Duration: {report.duration:.1f}s")
+        print(f"  Time: {time.time()-t0:.1f}s")
+
+        if report.verdict == "HOLD":
+            print(f"  [HOLD] Episode held: {report.error}")
+            result = False
+        else:
+            # Copy final output to expected output_path
+            if report.output_path and report.output_path.exists():
+                import shutil as _shutil
+                _shutil.copy2(str(report.output_path), output_path)
+                result = True
+            else:
+                print("  [FAIL] No output file produced")
+                result = False
+
+    except Exception as e:
+        print(f"  [WARN] assembler_v2 failed: {e} — falling back to legacy assembler")
+        import traceback; traceback.print_exc()
+        result = assemble_episode(script, audio_paths, extracted_clips, output_path,
+                                  btc_price=btc_price, broll_clips=broll_clips)
+
     print(f"  Time: {time.time()-t0:.1f}s")
 
     if not result:
