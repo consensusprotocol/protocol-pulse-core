@@ -14,6 +14,7 @@ from ..constants import (
     COLOR_RED, COLOR_WHITE, COLOR_CYAN
 )
 logger = logging.getLogger(__name__)
+FREEZE_FRAME_BUFFER_S = 1.0  # Extra frames after tag ends so fade-out has video to work on
 
 
 class ColdOpenSegment(Segment):
@@ -73,7 +74,7 @@ class ColdOpenSegment(Segment):
     def _render_full(self, tts, tmp, tts_dur, tag_dur, total_dur):
         """Full cold open: intro tag video + music + PBX TTS."""
         # video: scale intro_tag, freeze last frame to fill TTS duration
-        freeze_extra = max(0.0, tts_dur - tag_dur + 1.0)
+        freeze_extra = max(0.0, tts_dur - tag_dur + FREEZE_FRAME_BUFFER_S)
         vf = (
             f"scale={VIDEO_W}:{VIDEO_H},setsar=1,format={VIDEO_PIX_FMT},"
             f"tpad=stop_mode=clone:stop_duration={freeze_extra:.3f}"
@@ -88,6 +89,7 @@ class ColdOpenSegment(Segment):
             f"adelay=300|300[tts];"
             # Mix: duration=first = TTS anchors length (confirmed working)
             f"[mus][tts]amix=inputs=2:duration=first:weights=0.5 3.0,"
+            f"loudnorm=I={AUDIO_TARGET_LUFS}:TP={AUDIO_MAX_TRUE_PEAK}:LRA={AUDIO_LRA}:linear=true,"
             f"alimiter=limit={AUDIO_LIMITER}:attack=5:release=50,"
             f"aresample=async=1[a_out]"
         )
@@ -107,7 +109,7 @@ class ColdOpenSegment(Segment):
 
     def _render_tag_only(self, tts, tmp, tts_dur, tag_dur, total_dur):
         """Intro tag video + TTS only (no music file)."""
-        freeze_extra = max(0.0, tts_dur - tag_dur + 1.0)
+        freeze_extra = max(0.0, tts_dur - tag_dur + FREEZE_FRAME_BUFFER_S)
         vf = (
             f"scale={VIDEO_W}:{VIDEO_H},setsar=1,format={VIDEO_PIX_FMT},"
             f"tpad=stop_mode=clone:stop_duration={freeze_extra:.3f}"
@@ -116,6 +118,7 @@ class ColdOpenSegment(Segment):
             f"[0:v]{vf},fade=t=out:st={max(0,total_dur-0.4):.3f}:d=0.4[v_out];"
             f"[1:a]aformat=channel_layouts=stereo:sample_rates={AUDIO_SAMPLE_RATE},"
             f"adelay=300|300,"
+            f"loudnorm=I={AUDIO_TARGET_LUFS}:TP={AUDIO_MAX_TRUE_PEAK}:LRA={AUDIO_LRA}:linear=true,"
             f"alimiter=limit={AUDIO_LIMITER}:attack=5:release=50,"
             f"aresample=async=1[a_out]"
         )
@@ -142,6 +145,7 @@ class ColdOpenSegment(Segment):
             f"x=(w-text_w)/2:y=(h-text_h)/2[v_out];"
             f"[1:a]aformat=channel_layouts=stereo:sample_rates={AUDIO_SAMPLE_RATE},"
             f"adelay=300|300,"
+            f"loudnorm=I={AUDIO_TARGET_LUFS}:TP={AUDIO_MAX_TRUE_PEAK}:LRA={AUDIO_LRA}:linear=true,"
             f"alimiter=limit={AUDIO_LIMITER}:attack=5:release=50[a_out]"
         )
         return run_ffmpeg([

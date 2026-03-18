@@ -69,7 +69,7 @@ class NarrationSegment(Segment):
             f'[2:v]scale={PIP_W}:{PIP_H}:force_original_aspect_ratio=decrease,'
             f'pad={PIP_W}:{PIP_H}:(ow-iw)/2:(oh-ih)/2:{COLOR_BG},'
             f'format={VIDEO_PIX_FMT}[pip];'
-            f'[bg][pip]overlay=x={PIP_X}:y={PIP_Y}:eof_action=pass:shortest=0[wp];'
+            f'[bg][pip]overlay=x={PIP_X}:y={PIP_Y}:eof_action=repeat:shortest=0[wp];'
             f'[wp]drawbox=x={PIP_X-2}:y={PIP_Y-2}:w={PIP_W+4}:h={PIP_H+4}:'
             f'color={COLOR_RED}@0.8:t=2[pf];'
             f"[pf]drawtext=fontfile={FONT_BOLD}:text='{headline}':"
@@ -137,8 +137,20 @@ class NarrationSegment(Segment):
                             output_path,dur,f'narration no-pip rank={spec.clip_rank}')
 
     @staticmethod
-    def _safe_text(text,max_chars):
-        t=text[:max_chars]
-        t=t.replace('\\','\\\\').replace("'",'').replace(':','\\:').replace('%','\\%')
-        t=t.replace('[','\\[').replace(']','\\]').replace('\n',' ')
-        return t
+    def _safe_text(text, max_chars):
+        """Sanitize text for FFmpeg drawtext. Escapes all filter-special chars."""
+        t = text.strip()[:max_chars]
+        # Order matters: backslash must be first
+        replacements = [
+            ('\\', '\\\\'),  # backslash first
+            ("'", ''),         # remove single quotes (can break f-string delimiter)
+            (':', '\\:'),      # colon is filter option separator
+            ('%', '\\%'),      # percent triggers drawtext variable expansion
+            ('[', '\\['),      # square brackets are stream labels
+            (']', '\\]'),
+            (',', '\\,'),      # comma separates filter options
+            (';', '\\;'),      # semicolon separates filters in complex
+        ]
+        for old, new in replacements:
+            t = t.replace(old, new)
+        return t.replace('\n', ' ')  # newlines become spaces
