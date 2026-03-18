@@ -688,37 +688,102 @@ function playIntent(intent){
 
 function si(intent){if(busy)return;hideCards();playIntent(intent);}
 
-/* ── PROCESS SPEECH ── */
+/* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
 function process(text){
   if(!text.trim()||busy)return;
   setBusy(true);hideCards();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
-  var di='UNKNOWN';
-  // Use /oracle/chat — full conversational AI with session memory
+
+  var pendingVideoUrl=null;
+
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,use_cache_for_intents:true,page_context:PAGE_CONTEXT})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true})
   },90000)
   .then(function(r){
-    // /oracle/chat always returns video/mp4 directly
     if(!r.ok) throw new Error('HTTP '+r.status);
-    return r.blob().then(blobURL);
-  })
-  .then(function(url){
-    return playVid(url);
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('video')>=0){
+      // Cache hit — video came back immediately
+      return r.blob().then(blobURL).then(function(url){ return playVid(url); });
+    }
+    // Audio-first JSON response
+    return r.json().then(function(j){
+      var responseText=j.text;
+      var videoJobId=j.job_id;
+
+      // Play audio immediately via /oracle/voice
+      return fetchTO(A+'/oracle/voice',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({text:responseText})
+      },10000)
+      .then(function(ar){
+        if(!ar.ok) throw new Error('audio failed');
+        return ar.blob();
+      })
+      .then(function(audioBlob){
+        var audioUrl=URL.createObjectURL(audioBlob);
+        var audio=new Audio(audioUrl);
+        audio.volume=1.0;
+        setStat('Speaking','#6cff9f',false);
+        vid.style.opacity='0.3';
+        audio.play();
+
+        return new Promise(function(resolve){
+          audio.onended=function(){
+            URL.revokeObjectURL(audioUrl);
+            if(pendingVideoUrl){
+              playVid(pendingVideoUrl).then(resolve);
+            } else {
+              setStat('Loading visual...','#f4c46f',false);
+              var waitForVideo=setInterval(function(){
+                if(pendingVideoUrl){
+                  clearInterval(waitForVideo);
+                  vid.style.opacity='1';
+                  playVid(pendingVideoUrl).then(resolve);
+                }
+              },500);
+              setTimeout(function(){
+                clearInterval(waitForVideo);
+                vid.style.opacity='1';
+                setStat('Ready','#334',false);
+                resolve();
+              },30000);
+            }
+          };
+
+          // Poll for video completion in parallel
+          if(videoJobId){
+            var pollVideo=setInterval(function(){
+              fetch(A+'/oracle/job/'+videoJobId)
+                .then(function(vr){ return vr.ok?vr.blob():null; })
+                .then(function(vb){
+                  if(vb){
+                    clearInterval(pollVideo);
+                    blobURL(vb);
+                    pendingVideoUrl=objURL;
+                    vid.style.opacity='1';
+                  }
+                })
+                .catch(function(){});
+            },1000);
+            // Stop polling after 30s
+            setTimeout(function(){ clearInterval(pollVideo); },30000);
+          }
+        });
+      });
+    });
   })
   .then(function(){
     setTimeout(pulseMic,500);
   })
   .catch(function(e){
     console.error('process error:',e);
-    // Only show error if it's not a normal completion
-    if(e && (e.message||'').indexOf('timeout')>=0){
+    if(e&&(e.message||'').indexOf('timeout')>=0){
       setStat('Still rendering — hang tight...','#f4c46f',false);
-    } else if(e && e.message && e.message.indexOf('HTTP')>=0){
+    } else if(e&&e.message&&e.message.indexOf('HTTP')>=0){
       setStat('Oracle error — try again.','#ff3b5f',false);
     }
-    // Don't show error for normal flow (undefined r.ok etc)
   })
   .finally(function(){
     setBusy(false);mic.disabled=false;hideTX();

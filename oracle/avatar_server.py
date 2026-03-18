@@ -23,6 +23,7 @@ import base64
 import logging
 import tempfile
 import threading
+import uuid
 import numpy as np
 
 import cv2
@@ -101,6 +102,16 @@ def handle_options(path):
 _lock = threading.Lock()
 _start_time = time.time()
 _request_times = []  # last 100 request times for avg latency
+
+# ─── Async render job system (Phase 1: audio-first) ──────────────────
+_render_jobs = {}        # job_id -> {"status": "pending"|"done"|"error", "video_bytes": bytes|None, "created": float}
+_render_jobs_lock = threading.Lock()
+_RENDER_JOB_TTL = 120   # seconds — auto-expire stale jobs
+
+# ─── Concurrency queue (Phase 1: concurrency hardening) ──────────────
+_render_semaphore = threading.Semaphore(2)  # max 2 concurrent Wav2Lip renders
+_render_queue_count = 0
+_render_queue_lock = threading.Lock()
 
 
 def _record_latency(seconds):
@@ -1115,9 +1126,13 @@ def generate_inline(text):
     os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
 
     try:
-        acquired = _lock.acquire(timeout=LOCK_TIMEOUT)
+        # Check queue state for concurrency visibility
+        with _render_queue_lock:
+            _queue_pos = sum(1 for _ in range(2) if not _render_semaphore._value)
+        acquired = _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
         if not acquired:
-            return jsonify({"error": "GPU busy — try again in a moment", "retry_after": 10}), 503
+            return jsonify({"error": "GPU busy — try again in a moment", "retry_after": 10,
+                            "queue_position": _queue_pos}), 503
         try:
             frames = wav2lip_generate(wav_path, DEFAULT_FPS)
             reg = ModelRegistry.get()
@@ -1128,7 +1143,7 @@ def generate_inline(text):
             frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
             video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
         finally:
-            _lock.release()
+            _render_semaphore.release()
 
         if not video_path:
             return jsonify({"error": "Video encoding failed"}), 500
@@ -1213,6 +1228,32 @@ def oracle_voice():
         },
     )
 
+@app.route("/oracle/job/<job_id>")
+def oracle_job_status(job_id):
+    """Poll for async video render completion."""
+    # Expire stale jobs
+    now = time.time()
+    with _render_jobs_lock:
+        expired = [k for k, v in _render_jobs.items() if now - v.get("created", 0) > _RENDER_JOB_TTL]
+        for k in expired:
+            del _render_jobs[k]
+        job = _render_jobs.get(job_id)
+    if not job:
+        return jsonify({"status": "not_found"}), 404
+    if job["status"] == "done":
+        video_bytes = job["video_bytes"]
+        with _render_jobs_lock:
+            _render_jobs.pop(job_id, None)
+        from flask import Response
+        return Response(video_bytes, mimetype="video/mp4",
+                        headers={"Content-Disposition": "inline", "Cache-Control": "no-cache"})
+    if job["status"] == "error":
+        with _render_jobs_lock:
+            _render_jobs.pop(job_id, None)
+        return jsonify({"status": "error"}), 500
+    return jsonify({"status": "pending"}), 202
+
+
 @app.route("/oracle/chat", methods=["POST"])
 def oracle_chat():
     data = request.get_json()
@@ -1220,6 +1261,8 @@ def oracle_chat():
         return jsonify({"error": "text required"}), 400
     text = data["text"].strip()
     session_id = data.get("session_id", "anon")
+    audio_first = data.get("audio_first", False)
+
     _sess_turn = oracle_dialogue_engine.get_session_info(session_id).get("turn", 0)
     if data.get("use_cache_for_intents", True) and _sess_turn == 0:
         intent, confidence = classify_intent(text)
@@ -1238,6 +1281,75 @@ def oracle_chat():
     page_context = data.get("page_context", None)
     result = oracle_dialogue_engine.generate_response(session_id, text, live_intel, page_context)
     logger.info(f"[CHAT] {session_id} t={result['turn']} p={result['personality']} ctx={page_context.get('type','?') if page_context else 'none'}: {result['text'][:50]}")
+
+    if audio_first:
+        # Phase A: return text immediately, fire video render in background
+        job_id = uuid.uuid4().hex[:16]
+        with _render_jobs_lock:
+            _render_jobs[job_id] = {"status": "pending", "video_bytes": None, "created": time.time()}
+
+        response_text = result["text"]
+
+        def render_async(txt, jid):
+            try:
+                audio_bytes = text_to_speech(txt, ORACLE_VOICE_ID)
+                ext = ".mp3"
+                with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+                    tmp.write(audio_bytes)
+                    audio_path = tmp.name
+                wav_path = audio_path + "_16k.wav"
+                os.system(f'ffmpeg -y -loglevel error -i {audio_path} -ar 16000 -ac 1 {wav_path}')
+                try:
+                    acquired = _render_semaphore.acquire(timeout=60)
+                    if not acquired:
+                        raise RuntimeError("Render queue full")
+                    try:
+                        frames = wav2lip_generate(wav_path, DEFAULT_FPS)
+                        reg = ModelRegistry.get()
+                        try:
+                            frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
+                        except Exception:
+                            pass
+                        frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
+                        video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
+                    finally:
+                        _render_semaphore.release()
+
+                    if video_path and os.path.exists(video_path):
+                        with open(video_path, "rb") as vf:
+                            vbytes = vf.read()
+                        os.unlink(video_path)
+                        with _render_jobs_lock:
+                            if jid in _render_jobs:
+                                _render_jobs[jid] = {"status": "done", "video_bytes": vbytes, "created": time.time()}
+                    else:
+                        with _render_jobs_lock:
+                            if jid in _render_jobs:
+                                _render_jobs[jid]["status"] = "error"
+                finally:
+                    for p in [audio_path, wav_path]:
+                        try:
+                            if os.path.exists(p):
+                                os.unlink(p)
+                        except OSError:
+                            pass
+            except Exception as e:
+                logger.error(f"[ASYNC RENDER] {e}")
+                with _render_jobs_lock:
+                    if jid in _render_jobs:
+                        _render_jobs[jid]["status"] = "error"
+
+        t = threading.Thread(target=render_async, args=(response_text, job_id), daemon=True)
+        t.start()
+
+        return jsonify({
+            "text": response_text,
+            "session_id": session_id,
+            "job_id": job_id,
+            "video_pending": True
+        })
+
+    # Existing: return video directly
     return generate_inline(result["text"])
 
 
