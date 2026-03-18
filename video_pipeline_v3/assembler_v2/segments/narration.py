@@ -51,10 +51,14 @@ class NarrationSegment(Segment):
             return self.filler_result(spec,ctx,output_path,'narration encode failed')
         # Contract already validated inside _encode() — verify final published file
         passed,summary=ffprobe_contract(output_path)
+        if not passed:
+            output_path.unlink(missing_ok=True)
+            ctx.mark_degraded(spec.segment_type, 'post-publish contract failed', dur)
+            return self.filler_result(spec, ctx, output_path, 'post-publish contract failed')
         actual=summary.get('duration',dur)
         logger.info(f'[narration] OK ({actual:.1f}s pip={has_pip})')
         return RenderedSegment(spec=spec,path=str(output_path),duration=actual,
-                               contract_passed=passed,degraded=not passed,
+                               contract_passed=True,degraded=False,
                                ffprobe_summary=summary)
 
     def _build_fg_with_pip(self,pip,dur,headline,body):

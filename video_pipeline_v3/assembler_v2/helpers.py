@@ -303,6 +303,25 @@ def get_chart_path(keyword: str) -> Optional[Path]:
     # For empty keyword (show all charts), return None — segment handles grid layout
     return None
 
+def write_concat_list(paths: list, dest: Path) -> bool:
+    """Write FFmpeg concat demuxer list file with proper path escaping.
+    Single quotes in paths are escaped as '\\'' for the concat demuxer format.
+    Writes atomically via temp file. Returns True on success."""
+    try:
+        lines = []
+        for p in paths:
+            escaped = str(p).replace("'", "'\\''")
+            lines.append(f"file '{escaped}'")
+        content = "\n".join(lines) + "\n"
+        tmp = dest.with_suffix('.tmp')
+        tmp.write_text(content)
+        os.replace(str(tmp), str(dest))
+        return True
+    except Exception as e:
+        logger.error(f"[helpers] write_concat_list failed: {e}")
+        return False
+
+
 def safe_text(text, max_chars=80):
     """
     Single authoritative text sanitizer for FFmpeg drawtext filter values.

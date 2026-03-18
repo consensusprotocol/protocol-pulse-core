@@ -14,11 +14,14 @@ from .state import EpisodeContext
 from .preflight import run_preflight
 from .helpers import (
     run_ffmpeg, ffprobe_duration, ffprobe_contract, make_filler, atomic_rename,
+    write_concat_list,
 )
+from .ffmpeg_core.probe import measure_lufs, detect_black_frames, detect_silence
 from .constants import (
     VIDEO_W, VIDEO_H, VIDEO_FPS, VIDEO_PIX_FMT, VIDEO_CODEC, VIDEO_CRF,
     AUDIO_CODEC, AUDIO_BITRATE, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS,
     COLOR_BG, FFMPEG_TIMEOUT_FILTER, FFMPEG_TIMEOUT_ENCODE,
+    QC_MIN_LUFS, QC_MAX_LUFS, QC_MAX_TRUE_PEAK, QC_MAX_BLACK_FRAME_S, QC_MAX_SILENCE_S,
 )
 from .segments.cold_open import ColdOpenSegment
 from .segments.narration import NarrationSegment
@@ -149,13 +152,17 @@ class EpisodeRunner:
             )
 
         # 5. Concatenate
-        import os as _os
         concat_list = ctx.workdir / "concat_list.txt"
-        concat_tmp = concat_list.with_suffix('.tmp')
-        concat_tmp.write_text(
-            "\n".join(f"file '{p}'" for p in concat_paths) + "\n"
-        )
-        _os.replace(str(concat_tmp), str(concat_list))
+        if not write_concat_list(concat_paths, concat_list):
+            return EpisodeReport(
+                episode_id=ctx.episode_id,
+                verdict="HOLD",
+                degraded_count=ctx.degraded_count,
+                total_filler_seconds=ctx.total_filler_seconds,
+                segment_reports=segment_reports,
+                elapsed_seconds=round(time.time() - t0, 3),
+                error="concat list write failed",
+            )
 
         final_name = f"{manifest.date_str}_{ctx.episode_id}_episode.mp4"
         final_tmp = ctx.workdir / f"{final_name}.tmp.mp4"
@@ -194,10 +201,40 @@ class EpisodeRunner:
         # 6. Contract check on final
         contract_passed, final_summary = ffprobe_contract(final_path)
 
-        # 7. Verdict
-        verdict = ctx.verdict()
-        if not contract_passed:
+        # 7. Content QC — measure actual content quality
+        qc_failures = []
+        try:
+            # Black frame check
+            black_segs = detect_black_frames(final_path, min_dur=QC_MAX_BLACK_FRAME_S)
+            total_black = sum(b[2] for b in black_segs)
+            if total_black > QC_MAX_BLACK_FRAME_S:
+                qc_failures.append(f"black_frames={total_black:.1f}s (max {QC_MAX_BLACK_FRAME_S}s)")
+
+            # Silence check
+            silence_segs = detect_silence(final_path, min_dur=QC_MAX_SILENCE_S)
+            total_silence = sum(e - s for s, e in silence_segs)
+            if total_silence > QC_MAX_SILENCE_S * 3:  # allow some silence, flag excessive
+                qc_failures.append(f"silence={total_silence:.1f}s")
+
+            # LUFS check
+            lufs, true_peak = measure_lufs(final_path)
+            if lufs != -99.0:  # -99 means probe failed — skip check
+                if lufs < QC_MIN_LUFS or lufs > QC_MAX_LUFS:
+                    qc_failures.append(f"lufs={lufs:.1f} (range {QC_MIN_LUFS} to {QC_MAX_LUFS})")
+                if true_peak > QC_MAX_TRUE_PEAK:
+                    qc_failures.append(f"true_peak={true_peak:.1f} (max {QC_MAX_TRUE_PEAK})")
+        except Exception as e:
+            logger.warning(f"[episode] QC probe failed (non-fatal): {e}")
+
+        if qc_failures:
+            logger.warning(f"[episode] QC failures: {qc_failures}")
             verdict = "HOLD"
+
+        # 8. Final verdict (QC failures override ctx verdict)
+        if not qc_failures:
+            verdict = ctx.verdict()
+            if not contract_passed:
+                verdict = "HOLD"
 
         duration = final_summary.get("duration", 0.0)
 
@@ -216,7 +253,8 @@ class EpisodeRunner:
 
     def _make_unknown_filler(self, output_path: Path) -> bool:
         """Generate 15s black silent mp4 for unknown segment types. CRF only."""
-        return run_ffmpeg([
+        tmp = output_path.with_suffix('.tmp.mp4')
+        ok = run_ffmpeg([
             "-f", "lavfi", "-i",
             f"color=c={COLOR_BG}:s={VIDEO_W}x{VIDEO_H}:r={VIDEO_FPS}",
             "-f", "lavfi", "-i",
@@ -226,5 +264,10 @@ class EpisodeRunner:
             "-c:a", AUDIO_CODEC, "-ar", str(AUDIO_SAMPLE_RATE), "-b:a", AUDIO_BITRATE,
             "-ac", str(AUDIO_CHANNELS),
             "-t", "15",
-            str(output_path),
+            "-movflags", "+faststart",
+            str(tmp),
         ], "unknown_filler 15s", FFMPEG_TIMEOUT_FILTER)
+        if not ok or not tmp.exists() or tmp.stat().st_size < 1000:
+            tmp.unlink(missing_ok=True)
+            return False
+        return atomic_rename(tmp, output_path)

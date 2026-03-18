@@ -62,60 +62,57 @@ def _refresh_metrics_cache(cache_path, ctx):
     ctx.last_metrics_refresh_ts=time.time()
 
 
-def _get_metric(key,fallback,cache_path,ctx):
+def _get_metric(key, fallback, cache_path, ctx):
     """
     Cache-first metric fetch. Scoped to episode workdir — no /tmp races.
-    Refreshes cache under ctx.metrics_lock — only one thread refreshes at a time.
+    Refreshes cache SYNCHRONOUSLY under ctx.metrics_lock — same thread owns lock.
     On any failure: returns fallback immediately, never raises.
     """
-    import json,time,threading
+    import json, time
     from pathlib import Path
-    cp=Path(cache_path)
+    cp = Path(cache_path)
     try:
-        cache=json.loads(cp.read_text())
-        age=time.time()-cache.get("_ts",0)
-        if age<METRICS_CACHE_TTL and key in cache:
-            return cache[key]
-        # Stale — refresh under lock, prevent thundering herd
-        if time.time()-ctx.last_metrics_refresh_ts>=_METRICS_MIN_REFRESH_INTERVAL:
-            if ctx.metrics_lock.acquire(blocking=False):
-                try:
-                    threading.Thread(target=_locked_refresh,args=(cp,ctx),daemon=True).start()
-                finally:
-                    pass  # lock released inside _locked_refresh
-        if key in cache:
-            return cache[key]
+        if cp.exists():
+            cache = json.loads(cp.read_text())
+            age = time.time() - cache.get("_ts", 0)
+            if age < METRICS_CACHE_TTL and key in cache:
+                return cache[key]  # cache hit — return immediately
     except Exception as e:
-        logger.error(f"[data] metrics cache read failed for '{key}': {e}")
-        if time.time()-ctx.last_metrics_refresh_ts>=_METRICS_MIN_REFRESH_INTERVAL:
-            if ctx.metrics_lock.acquire(blocking=False):
-                threading.Thread(target=_locked_refresh,args=(cp,ctx),daemon=True).start()
-    # One-shot fallback with short timeout — won't block long
+        logger.warning(f"[data] cache read failed: {e}")
+
+    # Cache miss or stale — refresh synchronously under lock (same thread owns lock)
+    if time.time() - ctx.last_metrics_refresh_ts >= _METRICS_MIN_REFRESH_INTERVAL:
+        if ctx.metrics_lock.acquire(blocking=False):
+            try:
+                _refresh_metrics_cache(cp, ctx)  # synchronous, same thread
+                ctx.last_metrics_refresh_ts = time.time()
+            finally:
+                ctx.metrics_lock.release()  # SAME thread releases — safe
+
+    # Re-read cache after refresh attempt
+    try:
+        if cp.exists():
+            cache = json.loads(cp.read_text())
+            if key in cache:
+                return cache[key]
+    except Exception:
+        pass
+
+    # One-shot direct fetch as last resort
     try:
         import urllib.request
-        if key=="price":
-            with urllib.request.urlopen("https://mempool.space/api/v1/prices",timeout=2) as resp:
-                return "$"+"{:,}".format(json.loads(resp.read()).get("USD",0))
-        if key=="hashrate":
-            with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d",timeout=2) as resp:
-                return str(round(json.loads(resp.read()).get("currentHashrate",0)/1e18,1))+" EH/s"
-        if key=="mempool":
-            with urllib.request.urlopen("https://mempool.space/api/mempool",timeout=2) as resp:
-                return str(round(json.loads(resp.read()).get("mempool_byte_per_vbyte",0),1))+" sat/vB"
+        if key == "price":
+            with urllib.request.urlopen("https://mempool.space/api/v1/prices", timeout=2) as resp:
+                return "$" + "{:,}".format(json.loads(resp.read()).get("USD", 0))
+        if key == "hashrate":
+            with urllib.request.urlopen("https://mempool.space/api/v1/mining/hashrate/3d", timeout=2) as resp:
+                return str(round(json.loads(resp.read()).get("currentHashrate", 0) / 1e18, 1)) + " EH/s"
+        if key == "mempool":
+            with urllib.request.urlopen("https://mempool.space/api/mempool", timeout=2) as resp:
+                return str(round(json.loads(resp.read()).get("mempool_byte_per_vbyte", 0), 1)) + " sat/vB"
     except Exception as e:
-        logger.error(f"[data] metrics one-shot fallback failed for '{key}': {e}")
+        logger.error(f"[data] one-shot fallback failed for '{key}': {e}")
     return fallback
-
-
-def _locked_refresh(cache_path, ctx):
-    """Run refresh under lock, then release."""
-    try:
-        _refresh_metrics_cache(cache_path, ctx)
-    finally:
-        try:
-            ctx.metrics_lock.release()
-        except RuntimeError:
-            pass
 
 class DataSegment(Segment):
     """Bitcoin data overlay: live metrics + keyword-matched chart. Optional segment."""

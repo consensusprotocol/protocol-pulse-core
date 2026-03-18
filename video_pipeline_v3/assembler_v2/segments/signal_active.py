@@ -4,7 +4,7 @@ from pathlib import Path
 from .base import Segment
 from ..manifest import SegmentSpec, RenderedSegment
 from ..state import EpisodeContext
-from ..helpers import run_ffmpeg, ffprobe_duration, ffprobe_contract, atomic_rename, safe_text
+from ..helpers import run_ffmpeg, ffprobe_duration, ffprobe_contract, atomic_rename, safe_text, write_concat_list
 from ..constants import (
     VIDEO_W, VIDEO_H, VIDEO_FPS, VIDEO_PIX_FMT, VIDEO_CODEC, VIDEO_CRF,
     AUDIO_CODEC, AUDIO_BITRATE, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS,
@@ -209,10 +209,8 @@ class SignalActiveSegment(Segment):
 
             # Concat with ffmpeg concat demuxer
             concat_file = ctx.segment_dir() / f'sig_{idx}_concat.txt'
-            concat_tmp = concat_file.with_suffix('.tmp')
-            concat_tmp.write_text(f"file '{top_path}'\nfile '{gap}'\nfile '{bot_path}'\n")
-            import os as _os
-            _os.replace(str(concat_tmp), str(concat_file))
+            if not write_concat_list([top_path, gap, bot_path], concat_file):
+                return self.filler_result(spec, ctx, output_path, 'signal concat list write failed')
             out = ctx.segment_dir() / f'sig_{idx}_concat_out.m4a'
             ok = run_ffmpeg([
                 '-f', 'concat', '-safe', '0', '-i', str(concat_file),
