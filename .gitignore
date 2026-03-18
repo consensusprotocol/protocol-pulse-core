@@ -33,4 +33,5 @@ gunicorn.pid
 .env
 video_pipeline_v3/data/yt_cookies.txt
 video_pipeline_v3/data/yt_cookies.txt
-docs/audits/
+docs/audits/*.md
+!docs/audits/AUDIT_REGISTRY.json
