@@ -1573,381 +1573,92 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
                              thumb_path: str, output_path: str,
                              btc_price: str = "N/A", duration: float = 0,
                              pip_video_path: str = "") -> str:
-    """FIX 1 — APEX Narrator + PiP: uses actual video clip in PiP (not static thumbnail).
-    pip_video_path: path to muted PiP preview video from make_pip_preview().
-    """
+    """Narrator + PiP split: left panel waveform/text, right panel looping video."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
-    total_dur = duration if duration > 0 else audio_dur + 0.3
+    total_dur = duration if duration > 0 else audio_dur
+    total_frames = max(int(total_dur * 30), 30)
+
+    safe_head = _sanitize_text(headline)
+    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
+    safe_btc = _sanitize_text(btc_price) if btc_price else "$N/A"
 
     inputs = [audio_path]
-    inp_idx = 1
-    # FIX 1: prefer video PiP over static thumbnail
-    has_pip_video = bool(pip_video_path and os.path.exists(pip_video_path)
-                         and os.path.getsize(pip_video_path) > 10000)  # >10KB = real video
-    has_thumb = bool(thumb_path and os.path.exists(thumb_path)) and not has_pip_video
+    fg = ""
 
-    if has_pip_video:
-        inputs.append(pip_video_path)
-        pip_vid_idx = inp_idx
-        inp_idx += 1
+    # Base canvas — black
+    fg += f"color=c=0x0A0A0F:s=1920x1080:d={total_dur}:r=30[base];\n"
+
+    # === LEFT PANEL (x=0..900): waveform + headline + body ===
+    fg += (f"[0:a]showwaves=s=860x120:mode=cline:colors={COLOR_RED}@0.8|{COLOR_RED}@0.4:"
+           f"rate=30,format=rgba[waveform];\n")
+    fg += f"[base][waveform]overlay=20:480:shortest=1[with_wave];\n"
+
+    # Headline (2-line support)
+    _l1, _l2 = _split_headline_for_render(safe_head)
+    _fs = 34 if _l2 else 52
+    fg += (f"[with_wave]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_fs}:x=40:y=180")
+    if _l2:
+        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_l2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_fs}:x=40:y={180 + _fs + 10}")
+    fg += f"[with_head];\n"
+
+    if safe_body:
+        _body_y = 180 + (_fs + 10) * (2 if _l2 else 1) + 20
+        fg += (f"[with_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
+               f"fontcolor={COLOR_WHITE}@0.7:fontsize=18:x=40:y={_body_y}:line_spacing=8"
+               f"[with_body];\n")
     else:
-        pip_vid_idx = -1
+        fg += f"[with_head]copy[with_body];\n"
 
-    if has_thumb:
-        inputs.append(thumb_path)
-        thumb_idx = inp_idx
-        inp_idx += 1
+    fg += (f"[with_body]"
+           f"drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=16:x=40:y=660,"
+           f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_RED}@0.5:fontsize=14:x=40:y=40"
+           f"[left_done];\n")
+
+    # === RIGHT PANEL (x=960..1920): looping PiP video or solid dark ===
+    has_pip = bool(pip_video_path and os.path.exists(pip_video_path)
+                   and os.path.getsize(pip_video_path) > 10000)
+
+    if has_pip:
+        inputs.append(["-stream_loop", "-1", "-i", pip_video_path])
+        pip_idx = len(inputs) - 1
+        fg += (f"[{pip_idx}:v]scale=960:1080:force_original_aspect_ratio=increase,"
+               f"crop=960:1080,setsar=1,fps=30,"
+               f"hue=s=0.3,"
+               f"zoompan=z='min(zoom+0.0003\\,1.06)':d={total_frames}:"
+               f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=960x1080:fps=30,"
+               f"trim=0:{total_dur},setpts=PTS-STARTPTS[pip_raw];\n")
+        # Red vignette overlay at 15% opacity
+        fg += (f"color=c=0x880000:s=960x1080:d={total_dur}:r=30,"
+               f"vignette=PI/3:mode=backward[pip_vig];\n")
+        fg += f"[pip_raw][pip_vig]blend=all_mode=screen:all_opacity=0.15[pip_panel];\n"
     else:
-        thumb_idx = -1
+        # No PiP — solid dark right panel
+        fg += f"color=c=0x0A0A0F:s=960x1080:d={total_dur}:r=30[pip_panel];\n"
 
-    # ── Load intelligence data at render time ──────────────────────────────
-    import json as _json, datetime as _dt
-    _BASE_INTEL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                               "data", "intelligence")
-    _nc_path = os.path.join(_BASE_INTEL, "narrative_context.json")
-    _ds_path = os.path.join(_BASE_INTEL, "daily_signals.json")
+    # Composite right panel onto base at x=960
+    fg += f"[left_done][pip_panel]overlay=960:0:shortest=1[composited];\n"
 
-    # Defaults
-    _btc_price_val = btc_price if btc_price and btc_price not in ("N/A", "$0", "") else None
-    _dominant_narrative = "Bitcoin Sound Money"
-    _market_mood = "NEUTRAL"
-    _top_quote = ""
-    _quote_handle = ""
-    _top_topics = []
+    # 2px red border at x=958 separating left/right panels
+    fg += (f"[composited]drawbox=x=958:y=0:w=2:h=1080:color={COLOR_RED}:t=fill,"
+           f"format=yuv420p[outv];\n")
 
-    # Narrative context
-    try:
-        with open(_nc_path) as _f:
-            _nc = _json.load(_f)
-        _computed = _nc.get("computed_at", "")
-        if _computed:
-            _age = (_dt.datetime.now(_dt.timezone.utc) -
-                    _dt.datetime.fromisoformat(_computed)).total_seconds() / 3600
-            if _age < 12:
-                _dominant_narrative = _nc.get("dominant_narrative", _dominant_narrative)[:42]
-                _market_mood = _nc.get("market_mood", "neutral").upper().replace("_", " ")[:16]
-                _hint = _nc.get("eryn_intro_hook", "")
-                if "'" in _hint:
-                    _qs = _hint.find("'") + 1
-                    _qe = _hint.find("'", _qs)
-                    if _qe > _qs:
-                        _top_quote = _hint[_qs:_qe][:70]
-                _tl = _nc.get("thought_leaders_mentioned", [])
-                _quote_handle = ("@" + _tl[0][:18]) if _tl else ""
-    except Exception:
-        pass
+    # Audio: PBX narration only, no music
+    fg += f"[0:a]alimiter=limit=0.85,aresample=async=1[outa]"
 
-    # Daily signals — top topics
-    try:
-        with open(_ds_path) as _f:
-            _ds = _json.load(_f)
-        _top_topics = [t.get("topic", "")[:28] for t in _ds.get("topic_velocity", [])[:3]
-                       if t.get("velocity_score", 0) > 10]
-    except Exception:
-        pass
-
-    # BTC price — fetch fresh if not passed in
-    if not _btc_price_val:
-        try:
-            import urllib.request as _ur
-            with _ur.urlopen("https://mempool.space/api/v1/prices", timeout=3) as _r:
-                _btc_price_val = f"${_json.loads(_r.read()).get('USD', 0):,.0f}"
-        except Exception:
-            _btc_price_val = "LOADING"
-
-    # Sanitize all strings for FFmpeg
-    _btc_safe = _sanitize_text(_btc_price_val)
-    _narr_safe = _sanitize_text(_dominant_narrative)
-    _mood_safe = _sanitize_text(_market_mood)
-    _quote_safe = _sanitize_text(_top_quote[:60]) if _top_quote else ""
-    _handle_safe = _sanitize_text(_quote_handle)
-    _ts_safe = _dt.datetime.now(tz=_dt.timezone.utc).strftime("%H:%M UTC")
-
-    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
-
-    fg += _build_top_system_bar("bb_bg", "bv2_bar", progress_pct=67)
-
-    # Left text zone with gold eyebrow
-    safe_speaker = _sanitize_text(speaker)[:12]
-    safe_head = _sanitize_text(headline)  # Render21 FIX 6: no truncation
-    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
-
-    # FIX 4 (render10): Glassmorphic panel behind headline for readability
-    # Estimate headline height: single line = 72px, multi-line = 72*lines + 20
-    _head_lines = max(1, (len(safe_head) // 20) + 1)
-    _head_panel_h = _head_lines * 72 + 20
-    fg += (f"[bv2_bar]"
-           f"drawbox=x=56:y=122:w=860:h={_head_panel_h}:color=0x000000@0.55:t=fill,"
-           f"drawbox=x=56:y=122:w=860:h={_head_panel_h}:color=0xFFFFFF@0.15:t=2"
-           f"[np_eye];\n")
-    # Render21 FIX 6: 2-line headline support
-    _np_l1, _np_l2 = _split_headline_for_render(safe_head)
-    _np_fs = 34 if _np_l2 else 64
-    fg += (f"[np_eye]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l1)}':"
-           f"fontcolor=0x111111:fontsize={_np_fs}:x=66:y=132,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l1)}':"
-           f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y=130")
-    if _np_l2:
-        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l2)}':"
-               f"fontcolor=0x111111:fontsize={_np_fs}:x=66:y={130 + 65 + 2},"
-               f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_np_l2)}':"
-               f"fontcolor={COLOR_WHITE}:fontsize={_np_fs}:x=64:y={130 + 65}")
-    fg += f"[np_head];\n"
-    # No duplicate body text — left zone is clean headline only
-    fg += f"[np_head]copy[np_body];\n"
-
-    # ═══════════════════════════════════════════════════════
-    # R26 UPGRADE 5: NARRATOR LEFT PANEL — 4-ZONE LAYOUT
-    # x=40, w=300, replaces BTC price panel
-    # Zone A y=80-230: HASHRATE hero metric
-    # Zone B y=240-420: 300x160 sparkline PNG
-    # Zone C y=430-590: TODAY SIGNAL (fear/greed)
-    # Zone D y=600-800: Five stacked metrics
-    # ═══════════════════════════════════════════════════════
-
-    # Fetch intelligence data for zones
-    _z_intel = {}
-    try:
-        from fetch_intelligence_data import load_or_refresh as _z_intel_load
-        _z_intel = _z_intel_load()
-    except Exception:
-        pass
-
-    _z_hashrate = _sanitize_text(_get_live_metric("hashrate", "850 EH/s"))
-    _z_hashrate_delta = _sanitize_text(_get_live_metric("hashrate_delta", "+4.2 pct"))
-    _z_fg_value = _z_intel.get("fear_greed_value", 50)
-    _z_block_height = _z_intel.get("block_height", 0)
-    _z_dominance = _sanitize_text(_get_live_metric("dominance", "61.4 pct"))
-    _z_mempool = _sanitize_text(_get_live_metric("mempool_fee", "12 sat/vB"))
-    _z_etf = _sanitize_text(_get_live_metric("etf_flow", "$340M"))
-    _z_halving = _sanitize_text(_get_live_metric("halving_pct", "78 pct"))
-
-    # Panel background
-    fg += (
-        f"[np_body]"
-        f"drawbox=x=40:y=220:w=300:h=590:color=0x05060A@0.88:t=fill,"
-        f"drawbox=x=40:y=220:w=300:h=2:color={COLOR_RED}:t=fill,"
-        f"drawbox=x=40:y=220:w=2:h=590:color={COLOR_RED}@0.6:t=fill"
-        f"[np_z_base];\n"
+    ok = run_ffmpeg_filtergraph(
+        inputs, fg, ["[outv]", "[outa]"],
+        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+         "-b:v", "8M", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+         "-t", str(total_dur)],
+        output_path, "narrator+pip split", 300,
     )
-
-    # ── Zone A: HASHRATE hero metric (y=230-380) ──
-    fg += (
-        f"[np_z_base]"
-        f"drawtext=fontfile={FONT_MONO}:text='HASHRATE':"
-        f"fontcolor={COLOR_GOLD}:fontsize=13:x=54:y=232,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{_z_hashrate}':"
-        f"fontcolor={COLOR_WHITE}:fontsize=32:x=54:y=252,"
-        f"drawtext=fontfile={FONT_MONO}:text='{_z_hashrate_delta}':"
-        f"fontcolor={COLOR_GREEN}:fontsize=13:x=54:y=292,"
-        f"drawbox=x=54:y=316:w=270:h=1:color=0xFFFFFF@0.08:t=fill"
-        f"[np_zone_a];\n"
-    )
-
-    # ── Zone B: Sparkline PNG overlay (y=330-490, 300x160) ──
-    _sparkline_path = os.path.join(_PIPELINE_DIR, "cache", "charts", "sparkline_24h.png")
-    if os.path.exists(_sparkline_path) and os.path.getsize(_sparkline_path) > 500:
-        inputs.append(_sparkline_path)
-        _spark_idx = len(inputs) - 1
-        fg += (f"[{_spark_idx}:v]scale=280:140[_np_spark];\n"
-               f"[np_zone_a][_np_spark]overlay=50:330[np_zone_b];\n")
-    else:
-        fg += f"[np_zone_a]copy[np_zone_b];\n"
-
-    # ── Zone C: TODAY SIGNAL — fear/greed conviction (y=490-590) ──
-    if _z_fg_value > 60:
-        _z_conviction = "HIGH CONVICTION"
-        _z_conv_color = COLOR_GREEN
-    elif _z_fg_value >= 40:
-        _z_conviction = "NEUTRAL"
-        _z_conv_color = COLOR_WHITE
-    else:
-        _z_conviction = "CAUTION"
-        _z_conv_color = COLOR_CORAL
-    fg += (
-        f"[np_zone_b]"
-        f"drawtext=fontfile={FONT_MONO}:text='TODAY SIGNAL':"
-        f"fontcolor={COLOR_GOLD}:fontsize=11:x=54:y=492,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{_z_fg_value}':"
-        f"fontcolor={COLOR_WHITE}:fontsize=28:x=54:y=510,"
-        f"drawtext=fontfile={FONT_BOLD}:text='{_z_conviction}':"
-        f"fontcolor={_z_conv_color}:fontsize=14:x=54:y=544,"
-        f"drawbox=x=54:y=570:w=270:h=1:color=0xFFFFFF@0.08:t=fill"
-        f"[np_zone_c];\n"
-    )
-
-    # ── Zone D: Five stacked metrics (y=580-800) ──
-    _z_bh_str = f"{_z_block_height:,}" if _z_block_height else "N/A"
-    _zone_d_metrics = [
-        ("MEMPOOL", _z_mempool),
-        ("ETF FLOW", _z_etf),
-        ("HALVING", _z_halving),
-        ("DOMINANCE", _z_dominance),
-        ("BLOCK HEIGHT", _sanitize_text(_z_bh_str)),
-    ]
-    _zd_last = "np_zone_c"
-    for _zdi, (_zdl, _zdv) in enumerate(_zone_d_metrics):
-        _zd_y = 582 + _zdi * 38
-        _zd_out = f"np_zd{_zdi}"
-        fg += (f"[{_zd_last}]"
-               f"drawtext=fontfile={FONT_MONO}:text='{_zdl}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=11:x=54:y={_zd_y},"
-               f"drawtext=fontfile={FONT_BOLD}:text='{_zdv}':"
-               f"fontcolor={COLOR_WHITE}:fontsize=18:x=54:y={_zd_y + 14}"
-               f"[{_zd_out}];\n")
-        _zd_last = _zd_out
-    intel_out = _zd_last
-
-    # Corner bracket accents (cyberpunk tactical)
-    fg += (
-        f"[{intel_out}]"
-        f"drawbox=x=1012:y=222:w=12:h=2:color={COLOR_RED}@0.5:t=fill,"
-        f"drawbox=x=1022:y=222:w=2:h=12:color={COLOR_RED}@0.5:t=fill,"
-        f"drawbox=x=64:y=650:w=12:h=2:color={COLOR_RED}@0.3:t=fill,"
-        f"drawbox=x=64:y=640:w=2:h=12:color={COLOR_RED}@0.3:t=fill"
-        f"[np_pills];\n"
-    )
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # R27 FIX 3: FULL-SCREEN ZOOMPAN PiP — cinematic preview background
-    # Replaces small contained PiP box with full-screen desaturated preview
-    # ═══════════════════════════════════════════════════════════════════════
-    if has_pip_video and pip_vid_idx >= 0:
-        pip_dur_src = ffprobe_duration(pip_video_path)
-        src_frames = max(30, int(pip_dur_src * 30) + 5) if pip_dur_src > 0 else 300
-        loop_flag = f"loop=loop=-1:size={src_frames}:start=0," if pip_dur_src < total_dur else ""
-        # FIX 3: Use -stream_loop for proper video looping — remove zoompan which
-        # treats each frame as a still image (causing static/slideshow appearance).
-        # Instead: loop video, desaturate, slow scale-zoom via setpts tempo + scale.
-        zoom_end = 1.06  # subtle 6% zoom over duration
-        fg += (f"[{pip_vid_idx}:v]{loop_flag}"
-               f"scale=2036:1145:force_original_aspect_ratio=increase,"
-               f"crop=2036:1145,setsar=1,fps=30,"
-               f"hue=s=0.4,eq=brightness=-0.05,"
-               f"trim=0:{total_dur},setpts=PTS-STARTPTS,"
-               f"crop='iw/(1+{zoom_end - 1}*t/{total_dur})':'ih/(1+{zoom_end - 1}*t/{total_dur})':"
-               f"'(iw-iw/(1+{zoom_end - 1}*t/{total_dur}))/2':'(ih-ih/(1+{zoom_end - 1}*t/{total_dur}))/2',"
-               f"scale=1920:1080,setsar=1[np_fs_pip];\n")
-        # Overlay full-screen PiP behind narrator panels (replaces bg)
-        fg += f"[np_pills][np_fs_pip]overlay=0:0:shortest=1[np_fs_bg];\n"
-    else:
-        # No PiP video: keep current bg as-is (bg_loop, never intro_tag)
-        fg += f"[np_pills]copy[np_fs_bg];\n"
-
-    # Corner brackets overlay (red L-shapes, 60px each, 3px width)
-    _cb_path = os.path.join(_PIPELINE_DIR, "assets", "corner_brackets.png")
-    if os.path.exists(_cb_path) and os.path.getsize(_cb_path) > 500:
-        inputs.append(_cb_path)
-        _cb_idx = len(inputs) - 1
-        fg += (f"[{_cb_idx}:v]scale=1920:1080[_cb_img];\n"
-               f"[np_fs_bg][_cb_img]overlay=0:0[np_cb_over];\n")
-    else:
-        # Draw corner brackets with drawbox: 4 L-shapes, red #ff3b5f, 3px, 60px
-        fg += (f"[np_fs_bg]"
-               # Top-left L
-               f"drawbox=x=40:y=40:w=60:h=3:color=0xFF3B5F:t=fill,"
-               f"drawbox=x=40:y=40:w=3:h=60:color=0xFF3B5F:t=fill,"
-               # Top-right L
-               f"drawbox=x=1820:y=40:w=60:h=3:color=0xFF3B5F:t=fill,"
-               f"drawbox=x=1877:y=40:w=3:h=60:color=0xFF3B5F:t=fill,"
-               # Bottom-left L
-               f"drawbox=x=40:y=1037:w=60:h=3:color=0xFF3B5F:t=fill,"
-               f"drawbox=x=40:y=980:w=3:h=60:color=0xFF3B5F:t=fill,"
-               # Bottom-right L
-               f"drawbox=x=1820:y=1037:w=60:h=3:color=0xFF3B5F:t=fill,"
-               f"drawbox=x=1877:y=980:w=3:h=60:color=0xFF3B5F:t=fill"
-               f"[np_cb_over];\n")
-
-    # Waveform strip at bottom y=920 h=80 from audio
-    fg += (f"[np_cb_over]"
-           f"drawbox=x=0:y=920:w=1920:h=80:color=0x000000@0.5:t=fill"
-           f"[np_wave_bg];\n")
-    # Audio waveform visualization in the strip
-    fg += (f"[0:a]showwavespic=s=1920x80:colors={COLOR_RED}@0.7|{COLOR_RED}@0.3,"
-           f"format=rgba[np_wave_pic];\n")
-    fg += f"[np_wave_bg][np_wave_pic]overlay=0:920:shortest=1[np_wave_done];\n"
-
-    # Channel name and clip title text overlay
-    safe_next = _sanitize_text(next_speaker)[:30] if next_speaker else "NEXT SOURCE"
-    fg += (f"[np_wave_done]"
-           f"drawbox=x=0:y=860:w=800:h=50:color=0x000000@0.7:t=fill,"
-           f"drawtext=fontfile={FONT_BOLD}:text='{safe_next}':"
-           f"fontcolor={COLOR_WHITE}:fontsize=20:x=24:y=870,"
-           f"drawbox=x=1600:y=860:w=200:h=24:color={COLOR_RED}@0.15:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='PREVIEW':"
-           f"fontcolor={COLOR_RED}:fontsize=12:x=1660:y=864"
-           f"[np_pip_final];\n")
-
-    # Render11 FIX 7: Mini-dashboard panel below PiP (x=1060, y=700, w=820, h=160)
-    # BTC price ticker + episode date + PULSE CHECK branding
-    import datetime as _dt7
-    _ep_date = _dt7.datetime.now().strftime("%b %d, %Y").upper()
-    _ep_num = _dt7.datetime.now().strftime("EP-%j")
-    fg += (f"[np_pip_final]"
-           # Glassmorphic mini-dashboard panel
-           f"drawbox=x=1060:y=700:w=820:h=160:color=0x05060A@0.85:t=fill,"
-           f"drawbox=x=1060:y=700:w=820:h=2:color={COLOR_RED}@0.4:t=fill,"
-           f"drawbox=x=1060:y=700:w=2:h=160:color={COLOR_RED}@0.3:t=fill,"
-           # BTC LIVE label
-           f"drawtext=fontfile={FONT_MONO}:text='BTC LIVE':"
-           f"fontcolor={COLOR_GOLD}@0.6:fontsize=11:x=1078:y=714,"
-           # BTC price in gold (large)
-           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(btc_price)}':"
-           f"fontcolor={COLOR_GOLD}:fontsize=42:x=1078:y=730,"
-           # Vertical separator
-           f"drawbox=x=1400:y=714:w=1:h=130:color=0xFFFFFF@0.08:t=fill,"
-           # Episode number + date
-           f"drawtext=fontfile={FONT_MONO}:text='{_ep_num}':"
-           f"fontcolor={COLOR_RED}:fontsize=12:x=1420:y=718,"
-           f"drawtext=fontfile={FONT_MONO}:text='{_ep_date}':"
-           f"fontcolor=0xFFFFFF@0.5:fontsize=11:x=1420:y=738,"
-           # PULSE CHECK branding
-           f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
-           f"fontcolor={COLOR_WHITE}@0.3:fontsize=24:x=1420:y=780,"
-           # Bottom edge
-           f"drawbox=x=1060:y=858:w=820:h=1:color=0xFFFFFF@0.06:t=fill"
-           f"[np_dash];\n")
-
-    # Corner brackets (main frame)
-    fg += _build_corner_brackets_fg("np_dash", "np_corners")
-    wave_fg, np_audio_pad = _build_narration_wave("np_corners", "np_wave", "np_a_out")
-    fg += wave_fg
-    fg += _build_signature_info_rail(total_dur, btc_price, "np_wave", "np_railed")
-    # R26 UPGRADE 1: CRT SCANLINE
-    fg = apply_scanline(inputs, fg, "np_railed", "np_scanned", total_dur)
-    fg += f"[np_scanned]format=yuv420p[outv];\n"
-
-    result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX narrator+pip",
-                         audio_pad=np_audio_pad)
-
-    # Session 4 Fix 6: Try Remotion IntelPanel overlay (upgrade from drawtext)
-    if result and os.path.exists(result):
-        try:
-            frames = max(int(total_dur * 30), 120)
-            remotion_panel = _make_remotion_intel_panel(frames, btc_price)
-            if remotion_panel and os.path.exists(remotion_panel):
-                upgraded = output_path + ".intel_upgrade.mp4"
-                ok = run_ffmpeg([
-                    "-i", result,
-                    "-i", remotion_panel,
-                    "-filter_complex",
-                    "[0:v][1:v]overlay=0:0:shortest=1[outv]",
-                    "-map", "[outv]", "-map", "0:a",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-                    "-b:v", "8M", "-c:a", "copy",
-                    "-t", str(total_dur), upgraded,
-                ], "Remotion IntelPanel overlay", 120)
-                if ok and os.path.exists(upgraded):
-                    shutil.move(upgraded, output_path)
-                    logger.info("  Fix 6: Remotion IntelPanel overlay applied")
-                else:
-                    logger.info("  Fix 6: Remotion overlay failed — keeping drawtext panel")
-        except Exception as e:
-            logger.info(f"  Fix 6: Remotion IntelPanel skipped: {e}")
-
-    return result
+    return output_path if ok else ""
 
 
 # ── BV2 Scene 3: PARTNER CLIP ───────────────────────────────────────────
@@ -2027,15 +1738,44 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
 
 def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                              output_path: str, btc_price: str = "N/A",
-                             duration: float = 0, script_text: str = "") -> str:
-    """APEX Data Segment — full-canvas intelligence dashboard with 6 metric cards,
-    chart overlays aligned to narration, and sponsor strip."""
+                             duration: float = 0, script_text: str = "",
+                             chart_keyword: str = "") -> str:
+    """APEX Data Segment — intelligence dashboard with chart overlays aligned to narration."""
+    try:
+        return _make_data_segment_inner(audio_path, headline, metrics,
+                                        output_path, btc_price, duration,
+                                        script_text, chart_keyword)
+    except Exception as e:
+        logger.error(f"Data segment failed entirely: {e} — writing 20s filler")
+        _fdur = 20.0
+        if audio_path and os.path.exists(audio_path):
+            _fdur = max(ffprobe_duration(audio_path), 20.0)
+        _fargs = ["-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d={_fdur}:r=30"]
+        if audio_path and os.path.exists(audio_path):
+            _fargs.extend(["-i", audio_path])
+        else:
+            _fargs.extend(["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"])
+        _fargs.extend([
+            "-map", "0:v", "-map", "1:a",
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(_fdur), output_path
+        ])
+        run_ffmpeg(_fargs, "data segment filler", 30)
+        return output_path if os.path.exists(output_path) else ""
+
+
+def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
+                              output_path: str, btc_price: str = "N/A",
+                              duration: float = 0, script_text: str = "",
+                              chart_keyword: str = "") -> str:
+    """Inner implementation of data segment — raises on failure for outer try/except."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
-    # ── Fetch intelligence data and render chart PNGs ──
+    # Fetch intelligence data and render chart PNGs
     _intel_data = {}
     try:
         from fetch_intelligence_data import load_or_refresh as _intel_load
@@ -2046,9 +1786,21 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
         logger.warning("Intelligence data/chart render failed: %s", _intel_err)
 
     _chart_dir = os.path.join(_PIPELINE_DIR, "cache", "charts")
-    _chart_files = ["price_chart.png", "hashrate_chart.png", "dominance_chart.png"]
-    _chart_full = [os.path.join(_chart_dir, f) for f in _chart_files]
-    charts_available = all(os.path.exists(p) and os.path.getsize(p) > 1000 for p in _chart_full)
+    _chart_map = {
+        "price": os.path.join(_chart_dir, "price_chart.png"),
+        "hashrate": os.path.join(_chart_dir, "hashrate_chart.png"),
+        "mempool": os.path.join(_chart_dir, "dominance_chart.png"),
+    }
+
+    # Determine chart_keyword from script_text if not provided
+    if not chart_keyword and script_text:
+        _st = script_text.lower()
+        if any(kw in _st for kw in ("price", "$", "rally", "dump", "correction", "btc at", "bitcoin at")):
+            chart_keyword = "price"
+        elif any(kw in _st for kw in ("hashrate", "hash rate", "eh/s", "mining", "difficulty", "miner")):
+            chart_keyword = "hashrate"
+        elif any(kw in _st for kw in ("mempool", "sat/vb", "fees", "congestion", "transaction")):
+            chart_keyword = "mempool"
 
     _fg_value = _intel_data.get("fear_greed_value", 0)
     _fg_label = _intel_data.get("fear_greed_label", "N/A")
@@ -2056,7 +1808,7 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     inputs = [audio_path]
     fg = _get_bg_layer(inputs, total_dur, "bb_bg")
 
-    # ── Top eyebrow: "TODAY'S INTELLIGENCE" left, date right ──
+    # Top eyebrow
     import datetime
     date_str = datetime.date.today().strftime("%B %d, %Y").upper()
     fg += (f"[bb_bg]drawtext=fontfile={FONT_MONO}:text='TODAYS INTELLIGENCE':"
@@ -2065,7 +1817,7 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
            f"fontcolor={COLOR_GOLD}:fontsize=11:x=w-tw-40:y=40"
            f"[ds_eyebrow];\n")
 
-    # ── HEADLINE (Render24 FIX 7: universal 2-line wrap at char45) ──
+    # Headline (2-line support)
     safe_head = _sanitize_text(headline)
     _ds_l1, _ds_l2 = _split_headline_for_render(safe_head)
     _ds_fs = 34 if _ds_l2 else 42
@@ -2076,7 +1828,7 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                f"fontcolor={COLOR_WHITE}:fontsize={_ds_fs}:x=40:y={72 + 65}")
     fg += f"[ds_headline];\n"
 
-    # 6 metrics: FEAR GREED | HASHRATE | ETF FLOW | MEMPOOL FEE | HALVING % | DOMINANCE
+    # 6 metric cards
     default_metrics = [
         ("FEAR GREED", str(_fg_value), _sanitize_text(_fg_label), _fg_value > 50),
         ("HASHRATE", _get_live_metric("hashrate", "850 EH/s"), "+4.2 pct", True),
@@ -2102,7 +1854,6 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     while len(use_metrics) < 6:
         use_metrics.append(default_metrics[len(use_metrics)])
 
-    # Render12 FIX C: Horizontal metric strip (6 cards in a row above hero chart)
     card_w, card_h, gap = 280, 80, 12
     grid_x, grid_y = 40, 140
     last = "ds_headline"
@@ -2112,133 +1863,74 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
         dc = COLOR_GREEN if mpos else COLOR_CORAL
         out = f"ds_m{mi}"
         fg += (f"[{last}]"
-               # Card background
                f"drawbox=x={mx}:y={my}:w={card_w}:h={card_h}:color={COLOR_PANEL2}@0.95:t=fill,"
-               # 3px red top accent
                f"drawbox=x={mx}:y={my}:w={card_w}:h=3:color={COLOR_RED}@0.6:t=fill,"
-               # Gold label 10px
                f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
                f"fontcolor={COLOR_GOLD}:fontsize=10:x={mx+10}:y={my+10},"
-               # White value 22px bold
                f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
                f"fontcolor={COLOR_WHITE}:fontsize=22:x={mx+10}:y={my+28},"
-               # Emerald/coral delta 11px mono
                f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
                f"fontcolor={dc}:fontsize=11:x={mx+10}:y={my+58}"
                f"[{out}];\n")
         last = out
 
-    # ── HERO CHART — NARRATION-ALIGNED CHART DISPLAY ──
+    # HERO CHART — narration-aligned chart display
     chart_panel_x, chart_panel_y = 200, 250
     chart_panel_w, chart_panel_h = 1520, 460
 
-    if charts_available:
-        # FIX 5: Detect which chart matches the narration text
-        _st_lower = (script_text or headline or "").lower()
-        _wants_price = any(kw in _st_lower for kw in ("price", "$", "bitcoin at", "btc at", "rally", "dump", "correction"))
-        _wants_hashrate = any(kw in _st_lower for kw in ("hashrate", "hash rate", "mining", "eh/s", "difficulty", "miner"))
-        _wants_mempool = any(kw in _st_lower for kw in ("mempool", "fees", "sat/vb", "congestion", "transaction"))
-        # Determine layout: single matched chart full-size, or all 3 in grid
-        _matched_charts = []
-        if _wants_price: _matched_charts.append(0)
-        if _wants_hashrate: _matched_charts.append(1)
-        if _wants_mempool: _matched_charts.append(2)
-
-        _chart_input_start = len(inputs)
-        for cp in _chart_full:
+    # Load available charts — CRITICAL: every PNG uses -loop 1 -framerate 30 -i
+    _available_charts = {}
+    if chart_keyword and chart_keyword in _chart_map:
+        # Single chart mode — only load the matched chart
+        cp = _chart_map[chart_keyword]
+        if os.path.exists(cp) and os.path.getsize(cp) > 1000:
             inputs.append(["-loop", "1", "-framerate", "30", "-i", cp])
-
-        if len(_matched_charts) == 1:
-            # Single chart full-panel
-            ci = _matched_charts[0]
-            inp_idx = _chart_input_start + ci
-            fg += (f"[{inp_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
-                   f"format=yuva420p[ds_chts_single];\n")
-            fg += (f"[{last}][ds_chts_single]overlay=x={chart_panel_x}:y={chart_panel_y}"
-                   f"[ds_chart_done];\n")
-            logger.info(f"  FIX 5: Showing chart {_chart_files[ci]} (matched narration)")
-        elif len(_matched_charts) == 0:
-            # Default: show all 3 charts in a grid layout simultaneously
-            _grid_w = chart_panel_w // 3 - 8
-            _grid_h = chart_panel_h
-            for ci in range(3):
-                inp_idx = _chart_input_start + ci
-                fg += (f"[{inp_idx}:v]scale={_grid_w}:{_grid_h},"
-                       f"format=yuva420p[ds_chtg{ci}];\n")
-            _gx0 = chart_panel_x
-            _gx1 = chart_panel_x + _grid_w + 12
-            _gx2 = chart_panel_x + 2 * (_grid_w + 12)
-            fg += (f"[{last}][ds_chtg0]overlay=x={_gx0}:y={chart_panel_y}[ds_chto0];\n"
-                   f"[ds_chto0][ds_chtg1]overlay=x={_gx1}:y={chart_panel_y}[ds_chto1];\n"
-                   f"[ds_chto1][ds_chtg2]overlay=x={_gx2}:y={chart_panel_y}[ds_chart_done];\n")
-            logger.info("  FIX 5: Showing all 3 charts in grid (no specific metric detected)")
-        else:
-            # Multiple matches: rotate between matched charts
-            _slot_dur = total_dur / len(_matched_charts)
-            for ci in range(3):
-                inp_idx = _chart_input_start + ci
-                fg += (f"[{inp_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
-                       f"format=yuva420p[ds_chts{ci}];\n")
-            _chart_last = last
-            for si, ci in enumerate(_matched_charts):
-                t_start = si * _slot_dur
-                t_end = (si + 1) * _slot_dur
-                _out = f"ds_chto{si}"
-                fg += (f"[{_chart_last}][ds_chts{ci}]overlay=x={chart_panel_x}:y={chart_panel_y}:"
-                       f"enable='between(t,{t_start:.3f},{t_end:.3f})'[{_out}];\n")
-                _chart_last = _out
-            fg += f"[{_chart_last}]copy[ds_chart_done];\n"
-            logger.info(f"  FIX 5: Rotating {len(_matched_charts)} matched charts")
+            _available_charts[chart_keyword] = len(inputs) - 1
+            logger.info(f"  Chart: single {chart_keyword} (keyword match)")
     else:
-        # Fallback: static bars when charts unavailable
-        chart_x_start = chart_panel_x + 40
-        chart_y_base = chart_panel_y + chart_panel_h - 50
-        chart_area_w = chart_panel_w - 80
-        step_w = chart_area_w // 10
-        bar_w = 120
-        heights_raw = [30, 45, 38, 60, 55, 72, 85, 78, 95, 110]
-        scale_factor = 3.0
-        heights = [min(int(h * scale_factor), chart_panel_h - 100) for h in heights_raw]
-        day_labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "MON", "TUE", "WED"]
-        signal_line_y = chart_y_base - int(72 * scale_factor)
+        # Grid mode — load all available charts
+        for key, cp in _chart_map.items():
+            if os.path.exists(cp) and os.path.getsize(cp) > 1000:
+                inputs.append(["-loop", "1", "-framerate", "30", "-i", cp])
+                _available_charts[key] = len(inputs) - 1
 
+    if len(_available_charts) == 1:
+        # Single chart full-panel
+        _key, _idx = list(_available_charts.items())[0]
+        fg += (f"[{_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
+               f"format=yuv420p[ds_chts_single];\n")
+        fg += (f"[{last}][ds_chts_single]overlay=x={chart_panel_x}:y={chart_panel_y}"
+               f"[ds_chart_done];\n")
+        logger.info(f"  Chart: showing {_key} full-panel")
+    elif len(_available_charts) >= 2:
+        # Horizontal grid — each chart gets equal width
+        n_charts = len(_available_charts)
+        _grid_w = chart_panel_w // n_charts - 8
+        chart_items = list(_available_charts.items())
+        for ci, (key, idx) in enumerate(chart_items):
+            fg += (f"[{idx}:v]scale={_grid_w}:{chart_panel_h},"
+                   f"format=yuv420p[ds_chtg{ci}];\n")
+        _gx = chart_panel_x
+        _chart_last = last
+        for ci in range(len(chart_items)):
+            _out = f"ds_chto{ci}" if ci < len(chart_items) - 1 else "ds_chart_done"
+            fg += (f"[{_chart_last}][ds_chtg{ci}]overlay=x={_gx}:y={chart_panel_y}"
+                   f"[{_out}];\n")
+            _chart_last = _out
+            _gx += _grid_w + 12
+        logger.info(f"  Charts: {n_charts} in grid")
+    else:
+        # No charts available — solid dark fallback
         fg += (f"[{last}]"
                f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h={chart_panel_h}:"
                f"color={COLOR_PANEL2}@0.85:t=fill,"
-               f"drawbox=x={chart_panel_x}:y={chart_panel_y}:w={chart_panel_w}:h=1:"
-               f"color=0xFFFFFF@0.08:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='BTC NETWORK STRESS INDEX':"
-               f"fontcolor={COLOR_GOLD}:fontsize=24:x={chart_panel_x+24}:y={chart_panel_y+16},"
-               f"drawbox=x={chart_panel_x+chart_panel_w-140}:y={chart_panel_y+12}:w=120:h=28:"
-               f"color={COLOR_GOLD}@0.12:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='LIVE MODEL':"
-               f"fontcolor={COLOR_GOLD}:fontsize=12:x={chart_panel_x+chart_panel_w-128}:y={chart_panel_y+18}"
-               f"[ds_chart_bg];\n")
-
-        last_chart = "ds_chart_bg"
-        for ci, ch in enumerate(heights):
-            cx = chart_x_start + ci * step_w + (step_w - bar_w) // 2
-            cy = chart_y_base - ch
-            out_c = f"ds_bar{ci}"
-            gold_h = ch // 2
-            fg += (f"[{last_chart}]"
-                   f"drawbox=x={cx}:y={cy}:w={bar_w}:h={ch}:color={COLOR_RED}@0.6:t=fill,"
-                   f"drawbox=x={cx}:y={cy}:w={bar_w}:h={gold_h}:color={COLOR_GOLD}@0.45:t=fill,"
-                   f"drawtext=fontfile={FONT_MONO}:text='{day_labels[ci]}':"
-                   f"fontcolor={COLOR_GOLD}:fontsize=11:"
-                   f"x={cx + bar_w//2 - 11}:y={chart_y_base + 10}"
-                   f"[{out_c}];\n")
-            last_chart = out_c
-
-        fg += (f"[{last_chart}]"
-               f"drawbox=x={chart_x_start}:y={signal_line_y}:w={chart_area_w}:h=3:"
-               f"color={COLOR_CYAN}@0.7:t=fill,"
-               f"drawtext=fontfile={FONT_MONO}:text='SIGNAL LINE':"
-               f"fontcolor={COLOR_CYAN}:fontsize=11:x={chart_x_start + chart_area_w - 100}:"
-               f"y={signal_line_y - 16}"
+               f"drawtext=fontfile={FONT_MONO}:text='CHARTS LOADING...':"
+               f"fontcolor={COLOR_MUTED}:fontsize=24:x={chart_panel_x+chart_panel_w//2-120}:"
+               f"y={chart_panel_y+chart_panel_h//2-12}"
                f"[ds_chart_done];\n")
+        logger.info("  Charts: none available — dark fallback")
 
-    # ── SPONSOR ROTATION STRIP ──
+    # Sponsor rotation strip
     sponsors = [
         {"name": "Meanwhile", "tagline": "Bitcoin Life Insurance",
          "cta": "Get covered in Bitcoin  protocolpulse.io/meanwhile", "color": COLOR_GOLD},
@@ -2261,26 +1953,19 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
         sp_color = sp["color"]
         out_sp = f"ds_sp{si}"
         fg += (f"[{last_sp}]"
-               # Strip background
                f"drawbox=x={strip_x}:y={strip_y}:w={strip_w}:h={strip_h}:"
                f"color={COLOR_PANEL2}@0.95:t=fill:{enable},"
-               # Left accent bar
                f"drawbox=x={strip_x}:y={strip_y}:w=6:h={strip_h}:"
                f"color={sp_color}@1.0:t=fill:{enable},"
-               # "SPONSORED BY" micro label
                f"drawtext=fontfile={FONT_MONO}:text='SPONSORED BY':"
                f"fontcolor={COLOR_GOLD}:fontsize=10:x={strip_x+20}:y={strip_y+18}:{enable},"
-               # Sponsor NAME 34px bold
                f"drawtext=fontfile={FONT_BOLD}:text='{sp_name}':"
                f"fontcolor={COLOR_WHITE}:fontsize=34:x={strip_x+20}:y={strip_y+38}:{enable},"
-               # Tagline gray mono 15px
                f"drawtext=fontfile={FONT_MONO}:text='{sp_tagline}':"
                f"fontcolor={COLOR_MUTED}:fontsize=15:x={strip_x+20}:y={strip_y+80}:{enable},"
-               # CTA right-aligned in sponsor color
                f"drawtext=fontfile={FONT_MONO}:text='{sp_cta}':"
                f"fontcolor={sp_color}:fontsize=14:"
                f"x={strip_x+strip_w}-tw-20:y={strip_y+80}:{enable},"
-               # PARTNER badge top-right
                f"drawbox=x={strip_x+strip_w-100}:y={strip_y+8}:w=90:h=22:"
                f"color={sp_color}@0.15:t=fill:{enable},"
                f"drawtext=fontfile={FONT_MONO}:text='PARTNER':"
@@ -2293,12 +1978,30 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
     wave_fg, ds_audio_pad = _build_narration_wave("ds_corners", "ds_wave", "ds_a_out")
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "ds_wave", "ds_railed")
-    # R26 UPGRADE 1: CRT SCANLINE
     fg = apply_scanline(inputs, fg, "ds_railed", "ds_scanned", total_dur)
     fg += f"[ds_scanned]format=yuv420p[outv];\n"
 
-    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
-                       audio_pad=ds_audio_pad)
+    result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
+                         audio_pad=ds_audio_pad)
+    if result:
+        return result
+
+    # Fallback: 20s dark filler so episode never drops below 360s
+    logger.error("Data segment encode failed — writing 20s dark filler")
+    _fdur = max(ffprobe_duration(audio_path) if audio_path and os.path.exists(audio_path) else 20.0, 20.0)
+    _fargs = ["-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d={_fdur}:r=30"]
+    if audio_path and os.path.exists(audio_path):
+        _fargs.extend(["-i", audio_path])
+    else:
+        _fargs.extend(["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"])
+    _fargs.extend([
+        "-map", "0:v", "-map", "1:a",
+        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        "-t", str(_fdur), output_path
+    ])
+    run_ffmpeg(_fargs, "data segment filler", 30)
+    return output_path if os.path.exists(output_path) else ""
 
 
 # ── BV2 Scene 5: SOCIAL STACK ───────────────────────────────────────────
@@ -3535,32 +3238,30 @@ def make_remotion_waveform(audio_path: str, output_path: str,
     return muxed
 
 
-def _mix_swoosh_into_segment(video_path: str) -> str:
+def _mix_swoosh_into_segment(video_path: str, force: bool = False) -> str:
     """Mix card_swoosh.wav into the first 0.4s of a video segment.
 
-    Modifies the file in-place (via temp rename). Returns the path.
-    Render24 FIX 3: Skip if filename contains xfade or transition (already has swoosh).
-    ISSUE 3 FIX: Global whoosh dedup via _whoosh_applied_parts set.
+    Uses global _whoosh_applied_parts set to prevent double/triple whoosh.
+    Adds afade on swoosh input to prevent click artifact.
     """
     global _whoosh_applied_parts
     if not os.path.exists(CARD_SWOOSH) or not os.path.exists(video_path):
         return video_path
-    # ISSUE 3: Check global whoosh dedup set
     abs_path = os.path.abspath(video_path)
-    if abs_path in _whoosh_applied_parts:
+    if abs_path in _whoosh_applied_parts and not force:
         logger.info(f"  WHOOSH DEDUP: Skipping swoosh — already applied to {os.path.basename(video_path)}")
         return video_path
-    # FIX 3: Prevent double whoosh on xfade/transition segments
     basename = os.path.basename(video_path).lower()
     if "xfade" in basename or "transition" in basename:
-        logger.info(f"  FIX 3: Skipping swoosh — filename has xfade/transition: {basename}")
+        logger.info(f"  WHOOSH SKIP: filename has xfade/transition: {basename}")
         return video_path
     tmp = video_path + ".swoosh.mp4"
     ok = run_ffmpeg([
         "-i", video_path,
         "-i", CARD_SWOOSH,
         "-filter_complex",
-        "[0:a][1:a]amix=inputs=2:duration=first:weights=1 0.6[outa]",
+        "[1:a]afade=t=in:st=0:d=0.05[swoosh_faded];"
+        "[0:a][swoosh_faded]amix=inputs=2:duration=first:weights=1 0.5[outa]",
         "-map", "0:v", "-map", "[outa]",
         "-c:v", "copy",
         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -3568,9 +3269,14 @@ def _mix_swoosh_into_segment(video_path: str) -> str:
     ], "mix card swoosh", 30)
     if ok and os.path.exists(tmp):
         os.replace(tmp, video_path)
-        _whoosh_applied_parts.add(abs_path)  # ISSUE 3: Track applied whoosh
-    elif os.path.exists(tmp):
-        os.remove(tmp)
+        _whoosh_applied_parts.add(abs_path)
+        return video_path
+    # On failure: return original video unchanged
+    if os.path.exists(tmp):
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
     return video_path
 
 
@@ -4441,6 +4147,28 @@ def should_insert_transition(prev_part: str, next_part: str) -> bool:
     return False
 
 
+
+
+def _make_filler_segment(work_dir: str, idx: int, audio_path: str) -> str:
+    """Generate a dark filler segment with narration audio still playing."""
+    out = os.path.join(work_dir, f"part_{idx:03d}_filler.mp4")
+    dur = ffprobe_duration(audio_path) if audio_path and os.path.exists(audio_path) else 15.0
+    has_audio = bool(audio_path and os.path.exists(audio_path))
+    args = ["-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d={dur}:r=30"]
+    if has_audio:
+        args.extend(["-i", audio_path])
+    else:
+        args.extend(["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"])
+    args.extend([
+        "-map", "0:v", "-map", "1:a",
+        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        "-t", str(dur), out
+    ])
+    run_ffmpeg(args, "filler segment", 30)
+    return out if os.path.exists(out) else ""
+
+
 def _assemble_episode_inner(script, audio_data, extracted_clips,
                             output_path, btc_price="N/A", music_bed="", intro_music="",
                             broll_clips=None):
@@ -4960,6 +4688,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     )
                     if ok_sw and os.path.exists(swoosh_mixed):
                         current_stitched = swoosh_mixed
+                        _whoosh_applied_parts.add(os.path.abspath(swoosh_mixed))
                 parts.append(current_stitched)
                 dur = ffprobe_duration(current_stitched)
                 logger.info(f"[{part_idx:03d}] SOCIAL CARDS (xfaded): {dur:.1f}s")
@@ -5003,11 +4732,17 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
 
             continue
         elif entry_type == "social_segment":
-            result = make_host_visual(
-                audio_path, host_num, text, line_out,
-                btc_price=btc_price, label=f"{entry_type} #{part_idx}",
-                segment_type=entry_type,
-            )
+            try:
+                result = make_host_visual(
+                    audio_path, host_num, text, line_out,
+                    btc_price=btc_price, label=f"{entry_type} #{part_idx}",
+                    segment_type=entry_type,
+                )
+                if result and not os.path.exists(result):
+                    result = ""
+            except Exception as _seg_err:
+                logger.error(f"SEGMENT FAILED: {entry_type} — {_seg_err}")
+                result = ""
         else:
             # Render22: PBX solo — speaker always PBX
             seg_speaker = "PBX"
@@ -5046,13 +4781,19 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             if seg_data.get("headline", "").startswith("SIGNAL") and signal_content:
                 seg_data["signal_content"] = signal_content
 
-            result = make_broadcast_segment(
-                seg_data, audio_path, host_num,
-                part_idx, len(dialogue),
-                line_out, btc_price=btc_price,
-                thumbnail_path=thumb,
-                pip_video_path=pip_vid,
-            )
+            try:
+                result = make_broadcast_segment(
+                    seg_data, audio_path, host_num,
+                    part_idx, len(dialogue),
+                    line_out, btc_price=btc_price,
+                    thumbnail_path=thumb,
+                    pip_video_path=pip_vid,
+                )
+                if result and not os.path.exists(result):
+                    result = ""
+            except Exception as _seg_err:
+                logger.error(f"SEGMENT FAILED: {entry_type} — {_seg_err}")
+                result = ""
 
         if result:
             parts.append(result)
@@ -5105,22 +4846,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     part_idx += 1
                 broll_idx += 1
         else:
-            # ISSUE 2 FIX: Generate 15s filler segment instead of skipping — prevents short episodes
-            logger.warning(f"[---] Host visual failed for {entry_type} — generating 15s filler segment")
-            filler_out = os.path.join(work_dir, f"part_{part_idx:03d}_{entry_type}_filler.mp4")
-            filler_ok = run_ffmpeg([
-                "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d=15:r=30",
-                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
-                "-t", "15",
-                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-                "-shortest",
-                filler_out,
-            ], f"segment filler ({entry_type})", 30)
-            if filler_ok and os.path.exists(filler_out):
+            logger.error(f"SEGMENT FAILED: {entry_type} — inserting filler")
+            filler_out = _make_filler_segment(work_dir, part_idx, audio_path)
+            if filler_out:
                 parts.append(filler_out)
-                logger.info(f"[{part_idx:03d}] FILLER ({entry_type.upper()}): 15.0s")
+                _filler_dur = ffprobe_duration(filler_out)
+                logger.info(f"[{part_idx:03d}] FILLER ({entry_type.upper()}): {_filler_dur:.1f}s")
                 part_idx += 1
                 prev_segment_type = entry_type
 
