@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-18 06:35:52  
-**Git:** `354a459a` on `main`  
+**Generated:** 2026-03-18 06:59:31  
+**Git:** `262bc66c` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+262bc66c feat(assembler_v2): Day 6 — episode.py EpisodeRunner, 42/42 tests
+70c0eb2a chore: update CURRENT_STATE.md handoff doc 2026-03-18
 354a459a fix(assembler_v2): P0+P1 audit fixes — CRF-only, safe_text, workdir UUID, timeout constants
 8838fbe8 fix(p1): CORS default deny, unify GPU lock to semaphore, metrics race fix, async GPU_BUSY
 f006402d fix(p0): remove Replit token fallback from _get_anthropic_key, replace os.system with subprocess.run
 2a2bf0e7 chore: update CURRENT_STATE.md handoff doc 2026-03-18
 b0bb5542 feat(assembler_v2): Day 5 — social.py + signal_active.py, 34/34 tests
 2ee02c46 chore: update CURRENT_STATE.md handoff doc 2026-03-18
-b6bc52d7 security: add docs/audits to gitignore
-748a12e9 security: redact relay token from all exposed docs
 ```
