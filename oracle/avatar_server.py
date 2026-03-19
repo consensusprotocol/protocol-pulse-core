@@ -37,6 +37,15 @@ from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 import requests as http_requests  # ElevenLabs TTS
 import json as _json
 
+# ─── F5-TTS Local PBX Voice ─────────────────────────────────────────
+# Add video_pipeline_v3 to path for tts_engine imports
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "video_pipeline_v3"))
+# Add oracle/ to path for normalize_pronunciation
+_oracle_dir = os.path.dirname(os.path.abspath(__file__))
+if _oracle_dir not in sys.path:
+    sys.path.insert(0, _oracle_dir)
+_AVATAR_F5_READY = False
+
 # Face enhancement + blink modules
 from face_enhancer import sharpen_mouth_region
 from blink_engine import apply_blink_gradient, generate_blink_schedule
@@ -372,8 +381,88 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# ELEVENLABS TTS
+# F5-TTS LOCAL PBX VOICE (primary) + ELEVENLABS FALLBACK
 # ═══════════════════════════════════════════════════════════════════════
+
+def _init_avatar_f5():
+    """Load the F5-TTS fine-tuned PBX model on cuda:1. Call once at startup."""
+    global _AVATAR_F5_READY
+    try:
+        from tts_engine import _init_f5
+        ok = _init_f5()
+        _AVATAR_F5_READY = ok
+        if ok:
+            logger.info("[AVATAR_TTS] F5 PBX model loaded on cuda:1")
+        else:
+            logger.warning("[AVATAR_TTS] F5 init returned False — ElevenLabs fallback active")
+    except Exception as e:
+        logger.error(f"[AVATAR_TTS] F5 init failed: {e} — ElevenLabs fallback active")
+        _AVATAR_F5_READY = False
+
+
+def _avatar_tts(text):
+    """Primary TTS: F5 local PBX voice -> PCM WAV 16kHz mono bytes.
+    Falls back to ElevenLabs text_to_speech() if F5 fails."""
+    global _AVATAR_F5_READY
+
+    # Normalize Bitcoin pronunciation (BTC -> "bitcoin", sats, hashrate, etc.)
+    try:
+        from oracle_dialogue_engine import normalize_pronunciation
+        text = normalize_pronunciation(text)
+    except Exception as _np_err:
+        logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
+
+    # Try F5 first
+    if _AVATAR_F5_READY:
+        t0 = time.time()
+        try:
+            from tts_engine import tts_f5_finetuned
+            with tempfile.NamedTemporaryFile(suffix=".m4a", delete=False) as tmp:
+                m4a_path = tmp.name
+            ok = tts_f5_finetuned(text, m4a_path, speed=1.05)
+            if ok and os.path.exists(m4a_path) and os.path.getsize(m4a_path) > 1000:
+                # Convert to raw PCM WAV 16kHz mono (Wav2Lip input format)
+                wav_path = m4a_path + ".16k.wav"
+                r = subprocess.run(
+                    ["ffmpeg", "-y", "-loglevel", "error", "-i", m4a_path,
+                     "-ar", "16000", "-ac", "1", "-f", "wav", wav_path],
+                    capture_output=True, text=True, timeout=30,
+                )
+                try:
+                    os.remove(m4a_path)
+                except OSError:
+                    pass
+                if r.returncode == 0 and os.path.exists(wav_path) and os.path.getsize(wav_path) > 1000:
+                    with open(wav_path, "rb") as f:
+                        wav_bytes = f.read()
+                    try:
+                        os.remove(wav_path)
+                    except OSError:
+                        pass
+                    elapsed = time.time() - t0
+                    logger.info(f"[AVATAR_TTS] F5 OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
+                    return wav_bytes
+                else:
+                    logger.warning("[AVATAR_TTS] F5 ffmpeg conversion failed")
+            else:
+                logger.warning("[AVATAR_TTS] F5 inference returned no audio")
+            # Cleanup
+            try:
+                os.remove(m4a_path)
+            except OSError:
+                pass
+        except Exception as e:
+            logger.error(f"[AVATAR_TTS] F5 FAILED: {e} → ElevenLabs fallback")
+    else:
+        logger.info("[AVATAR_TTS] F5 not ready → ElevenLabs fallback")
+
+    # Fallback: ElevenLabs
+    t0 = time.time()
+    audio_bytes = text_to_speech(text)
+    elapsed = time.time() - t0
+    logger.info(f"[AVATAR_TTS] F5 FAILED → ElevenLabs fallback: {elapsed:.2f}s ({len(audio_bytes)} bytes)")
+    return audio_bytes
+
 
 def text_to_speech(text, voice_id="cgSgspJ2msm6clMCkdW9"):
     """Call ElevenLabs TTS API. Returns raw audio bytes (mp3)."""
@@ -520,17 +609,17 @@ def generate():
 
     t_start = time.time()
 
-    # Mode A: text + optional voice_id -> ElevenLabs TTS
+    # Mode A: text -> F5 local PBX (primary) or ElevenLabs (fallback)
     if "text" in data:
-        voice_id = data.get("voice_id", "cgSgspJ2msm6clMCkdW9")
         try:
             t_tts = time.time()
-            audio_bytes = text_to_speech(data["text"], voice_id)
+            audio_bytes = _avatar_tts(data["text"])
             logger.info(f"TTS: {len(audio_bytes)} bytes in {time.time()-t_tts:.2f}s")
         except Exception as e:
             logger.error(f"TTS error: {e}")
             return jsonify({"error": f"TTS failed: {e}"}), 500
-        content_type = "audio/mpeg"
+        # F5 returns WAV, ElevenLabs returns MP3 — detect from header
+        content_type = "audio/wav" if audio_bytes[:4] == b"RIFF" else "audio/mpeg"
     # Mode B: raw audio
     elif "audio_base64" in data:
         audio_bytes = base64.b64decode(data["audio_base64"])
@@ -827,16 +916,23 @@ def _split_sentences(text):
 def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
     """Generate a single video chunk for a sentence: TTS -> Wav2Lip -> MP4."""
     try:
-        audio_bytes = text_to_speech(sentence, ORACLE_VOICE_ID)
-        audio_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}.mp3")
+        audio_bytes = _avatar_tts(sentence)
+        is_wav = audio_bytes[:4] == b"RIFF"
+        ext = ".wav" if is_wav else ".mp3"
+        audio_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}{ext}")
         with open(audio_path, "wb") as f:
             f.write(audio_bytes)
 
         wav_path = os.path.join(session_dir, f"chunk_{chunk_num:03d}_16k.wav")
-        subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path],
-            check=True, capture_output=True,
-        )
+        if is_wav:
+            # F5 already returned 16kHz mono WAV — just copy
+            import shutil
+            shutil.copy2(audio_path, wav_path)
+        else:
+            subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path],
+                check=True, capture_output=True,
+            )
 
         _render_semaphore.acquire()
         try:
@@ -1126,17 +1222,22 @@ def oracle_speak():
 def generate_inline(text):
     """Internal helper: generate a video from text and return it."""
     try:
-        audio_bytes = text_to_speech(text, ORACLE_VOICE_ID)
+        audio_bytes = _avatar_tts(text)
     except Exception as e:
         return jsonify({"error": f"TTS failed: {e}"}), 500
 
-    ext = ".mp3"
+    is_wav = audio_bytes[:4] == b"RIFF"
+    ext = ".wav" if is_wav else ".mp3"
     with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
         tmp.write(audio_bytes)
         audio_path = tmp.name
 
     wav_path = audio_path + "_16k.wav"
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
+    if is_wav:
+        import shutil
+        shutil.copy2(audio_path, wav_path)
+    else:
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
 
     try:
         # Check queue state for concurrency visibility
@@ -1218,14 +1319,16 @@ def oracle_voice():
         return jsonify({"error": "text required"}), 400
 
     text = data["text"].strip()
-    voice_id = data.get("voice_id", ORACLE_VOICE_ID)
 
     try:
         t0 = time.time()
-        audio_bytes = text_to_speech(text, voice_id)
+        audio_bytes = _avatar_tts(text)
         logger.info(f"[VOICE] TTS {len(audio_bytes)}B in {time.time()-t0:.2f}s")
     except Exception as e:
         return jsonify({"error": f"TTS failed: {e}"}), 500
+
+    is_wav = audio_bytes[:4] == b"RIFF"
+    mime = "audio/wav" if is_wav else "audio/mpeg"
 
     def _stream():
         yield audio_bytes
@@ -1233,7 +1336,7 @@ def oracle_voice():
     from flask import Response
     return Response(
         _stream(),
-        mimetype="audio/mpeg",
+        mimetype=mime,
         headers={
             "Content-Disposition": "inline",
             "Content-Length": str(len(audio_bytes)),
@@ -1320,13 +1423,18 @@ def oracle_chat():
 
         def render_async(txt, jid):
             try:
-                audio_bytes = text_to_speech(txt, ORACLE_VOICE_ID)
-                ext = ".mp3"
+                audio_bytes = _avatar_tts(txt)
+                is_wav = audio_bytes[:4] == b"RIFF"
+                ext = ".wav" if is_wav else ".mp3"
                 with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
                     tmp.write(audio_bytes)
                     audio_path = tmp.name
                 wav_path = audio_path + "_16k.wav"
-                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
+                if is_wav:
+                    import shutil
+                    shutil.copy2(audio_path, wav_path)
+                else:
+                    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
                 try:
                     acquired = _render_semaphore.acquire(timeout=60)
                     if not acquired:
@@ -1506,12 +1614,33 @@ def oracle_chunk_file(session_id, idx):
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# TTS PROVIDER STATUS
+# ═══════════════════════════════════════════════════════════════════════
+
+@app.route("/avatar/tts-provider", methods=["GET"])
+def avatar_tts_provider():
+    """Report which TTS provider is active."""
+    if _AVATAR_F5_READY:
+        return jsonify({
+            "provider": "f5_local",
+            "checkpoint": "pbx_voice.pt",
+            "device": "cuda:1",
+            "ready": True,
+        })
+    return jsonify({
+        "provider": "elevenlabs_fallback",
+        "reason": "F5 model not loaded or init failed",
+        "ready": False,
+    })
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("  ORACLE AVATAR SERVER v2 — CV2 Sharpen + Blinks")
+    print("  ORACLE AVATAR SERVER v2 — F5 PBX + CV2 Sharpen + Blinks")
     print(f"  Port: {PORT}")
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
@@ -1535,6 +1664,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logger.info("Face enhancer: CV2 sharpen-only (no GFPGAN)")
+
+    # Load F5-TTS PBX voice on cuda:1 (GPU 0 saturated by render pipeline)
+    logger.info("[STARTUP] Initializing F5-TTS PBX voice on cuda:1...")
+    _init_avatar_f5()
 
     # Auto-warmup
     logger.info("[WARMUP] Running pipeline warmup...")
