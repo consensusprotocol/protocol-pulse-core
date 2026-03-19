@@ -49,9 +49,8 @@ def build_manifest_from_pipeline(
         return EpisodeManifest(date_str=date_str, title="Empty", segments=[], btc_price=btc_price)
 
     specs = []
-    speech_idx = 0  # tracks narration-only audio file index
 
-    for entry in dialogue:
+    for i, entry in enumerate(dialogue):
         host = entry.get("host")
         seg_type_raw = entry.get("type", "narration")
         headline = entry.get("headline", "")
@@ -82,13 +81,12 @@ def build_manifest_from_pipeline(
         # Narration entries — find audio file
         seg_type = TYPE_MAP.get(seg_type_raw, "narration")
 
-        # Audio file: line_{speech_idx:03d}_pbx.m4a
+        # Audio file: line_{i:03d}_pbx.m4a
         tts_path = None
         if audio_dir:
-            candidate = Path(audio_dir) / f"line_{speech_idx:03d}_pbx.m4a"
+            candidate = Path(audio_dir) / f"line_{i:03d}_pbx.m4a"
             if candidate.exists() and candidate.stat().st_size > 500:
                 tts_path = str(candidate)
-        speech_idx += 1
 
         # Duration hint
         duration_hint = 0.0
