@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="theme-color" content="#000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -400,6 +400,8 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
    MOBILE — max-width 640px
 ═══════════════════════════════════════════════════════════ */
 @media(max-width:640px){
+  body{position:fixed;width:100%;overflow:hidden}
+  #root{position:relative;height:100dvh}
   /* Stage: full viewport, vertical stack, no overflow leak */
   #stage{
     height:100vh;height:100dvh;
@@ -627,6 +629,9 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 
 <script>
 'use strict';
+/* ── iOS zoom prevention ── */
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault();},{passive:false});
 var A='https://avatar.protocolpulse.io';
 var S={
   GREETING:"Hey. I'm the Oracle — tracking everything happening in Bitcoin right now. On-chain, macro, geopolitical. What brings you here?",
