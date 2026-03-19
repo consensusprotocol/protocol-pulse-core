@@ -204,7 +204,7 @@ class EpisodeRunner:
         limiter_tmp = final_path.with_suffix('.lim.mp4')
         lim_ok = run_ffmpeg([
             "-i", str(final_path), "-c:v", "copy",
-            "-af", "alimiter=limit=0.891:attack=5:release=50",
+            "-af", "loudnorm=I=-14:TP=-1.5:LRA=7:linear=true,alimiter=limit=0.841:attack=5:release=50",
             "-c:a", AUDIO_CODEC, "-ar", str(AUDIO_SAMPLE_RATE),
             "-b:a", AUDIO_BITRATE, "-ac", str(AUDIO_CHANNELS),
             "-movflags", "+faststart", str(limiter_tmp),
