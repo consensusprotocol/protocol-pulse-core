@@ -199,6 +199,21 @@ class EpisodeRunner:
                 segment_reports=segment_reports,
             )
 
+
+        # Final audio limiter -- keeps true_peak under -1.0 dBTP
+        limiter_tmp = final_path.with_suffix('.lim.mp4')
+        lim_ok = run_ffmpeg([
+            "-i", str(final_path), "-c:v", "copy",
+            "-af", "alimiter=limit=0.891:attack=5:release=50",
+            "-c:a", AUDIO_CODEC, "-ar", str(AUDIO_SAMPLE_RATE),
+            "-b:a", AUDIO_BITRATE, "-ac", str(AUDIO_CHANNELS),
+            "-movflags", "+faststart", str(limiter_tmp),
+        ], "final audio limiter", FFMPEG_TIMEOUT_ENCODE)
+        if lim_ok and limiter_tmp.exists() and limiter_tmp.stat().st_size > 1000:
+            atomic_rename(limiter_tmp, final_path)
+            logger.info("[episode] Final audio limiter applied")
+        elif limiter_tmp.exists():
+            limiter_tmp.unlink(missing_ok=True)
         # 6. Contract check on final
         contract_passed, final_summary = ffprobe_contract(final_path)
 
