@@ -4,6 +4,7 @@
 {% block meta_description %}Bitcoin intelligence. Live. Oracle reports in real time on price, on-chain signals, partner channel transcripts, and Nostr discourse.{% endblock %}
 
 {% block head %}
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,interactive-widget=resizes-content">
 <style>
 /* ══════════════════════════════════════════════════════
    ORACLE STAGE — Broadcast Desk Layout
@@ -340,8 +341,10 @@ body { background: var(--s-bg); }
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 12px;
 }
-/* Mobile: horizontal scroll carousel instead of long vertical stack */
+/* Mobile: prevent iOS zoom + horizontal scroll carousel */
 @media (max-width: 640px) {
+  body { position: fixed; width: 100%; overflow: hidden; }
+  .stage-wrap { overflow-y: auto; -webkit-overflow-scrolling: touch; height: 100vh; }
   .stage-transcripts {
     display: flex;
     flex-direction: row;
@@ -1433,6 +1436,10 @@ body { background: var(--s-bg); }
   setInterval(loadNostr, 120000);
   // Refresh briefing schedule every 5 minutes
   setInterval(loadBriefingSchedule, 300000);
+
+  // Prevent iOS pinch-to-zoom
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+  document.addEventListener('touchmove', function(e){ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
 
 })();
 </script>

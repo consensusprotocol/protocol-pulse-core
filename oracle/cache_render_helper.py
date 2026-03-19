@@ -16,7 +16,24 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger("cache_render_helper")
 
 ORACLE_DIR = os.path.dirname(os.path.abspath(__file__))
-VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # Jessica
+VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # Jessica (ElevenLabs fallback)
+
+_KOKORO_PIPELINE = None
+
+
+def _init_kokoro():
+    """Lazy-init Kokoro KPipeline for af_heart."""
+    global _KOKORO_PIPELINE
+    if _KOKORO_PIPELINE is not None:
+        return True
+    try:
+        from kokoro import KPipeline
+        _KOKORO_PIPELINE = KPipeline(lang_code='a')
+        logger.info("[CACHE_TTS] Kokoro af_heart pipeline loaded")
+        return True
+    except Exception as e:
+        logger.warning(f"[CACHE_TTS] Kokoro init failed: {e}")
+        return False
 
 
 def get_elevenlabs_key():
@@ -30,7 +47,7 @@ def get_elevenlabs_key():
     return key
 
 
-def tts(text, voice_id=VOICE_ID):
+def tts_elevenlabs(text, voice_id=VOICE_ID):
     """Call ElevenLabs TTS, return mp3 bytes."""
     import requests
     api_key = get_elevenlabs_key()
@@ -51,11 +68,41 @@ def tts(text, voice_id=VOICE_ID):
     return resp.content
 
 
+def tts(text, voice_id=VOICE_ID):
+    """Primary: Kokoro af_heart -> WAV bytes. Fallback: ElevenLabs -> MP3 bytes."""
+    # Try Kokoro first
+    if _init_kokoro():
+        try:
+            import numpy as np
+            import soundfile as sf
+            samples_list = []
+            for _, _, audio in _KOKORO_PIPELINE(text, voice="af_heart", speed=1.0):
+                samples_list.append(audio)
+            if samples_list:
+                audio_np = np.concatenate(samples_list) if len(samples_list) > 1 else samples_list[0]
+                wav_tmp = tempfile.mktemp(suffix=".wav")
+                sf.write(wav_tmp, audio_np, 24000)
+                with open(wav_tmp, "rb") as f:
+                    wav_bytes = f.read()
+                try:
+                    os.remove(wav_tmp)
+                except OSError:
+                    pass
+                if len(wav_bytes) > 1000:
+                    logger.info(f"[CACHE_TTS] Kokoro OK: {len(wav_bytes)} bytes")
+                    return wav_bytes
+        except Exception as e:
+            logger.warning(f"[CACHE_TTS] Kokoro FAILED: {e} → ElevenLabs fallback")
+    # Fallback: ElevenLabs
+    logger.info("[CACHE_TTS] Using ElevenLabs fallback")
+    return tts_elevenlabs(text, voice_id)
+
+
 def render(text, out_path, voice_id=VOICE_ID):
     """Full pipeline: TTS -> wav -> avatar_server /generate -> save mp4."""
     t0 = time.time()
 
-    # Step 1: TTS
+    # Step 1: TTS (Kokoro primary, ElevenLabs fallback)
     logger.info(f"TTS for {len(text)} chars...")
     audio_bytes = tts(text, voice_id)
     logger.info(f"TTS done: {len(audio_bytes)} bytes in {time.time()-t0:.1f}s")
@@ -64,14 +111,15 @@ def render(text, out_path, voice_id=VOICE_ID):
     import requests
     import base64
 
-    # Convert mp3 to base64
+    # Detect content type: Kokoro returns WAV (RIFF header), ElevenLabs returns MP3
     audio_b64 = base64.b64encode(audio_bytes).decode()
+    content_type = "audio/wav" if audio_bytes[:4] == b"RIFF" else "audio/mpeg"
 
     resp = requests.post(
         "http://localhost:8200/generate",
         json={
             "audio_base64": audio_b64,
-            "content_type": "audio/mpeg",
+            "content_type": content_type,
             "enable_head_movement": True,
             "fps": 30,
         },
