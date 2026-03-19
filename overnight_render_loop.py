@@ -3,26 +3,51 @@
 overnight_render_loop.py - Autonomous video engine perfection loop.
 Max 8 iterations, max 6 hours. Each: render -> forensics -> Gemini grade -> CC fix -> repeat.
 Grade A = stop and lock WINNER_RECIPE.json.
+
+Production modes:
+  python3 overnight_render_loop.py              # single cycle (for cron)
+  python3 overnight_render_loop.py --daemon     # continuous loop, runs at 08:00 ET daily
+  python3 overnight_render_loop.py --dry-run    # startup checks only, no render
+  python3 overnight_render_loop.py --help       # show args
+
+Cron entry:
+  0 12 * * * cd /home/ultron/protocol_pulse && python3 overnight_render_loop.py >> /tmp/overnight_loop.log 2>&1
 """
-import os, sys, json, subprocess, time, re, urllib.request
-from datetime import datetime
+import os, sys, json, subprocess, time, re, urllib.request, argparse, logging
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 PIPELINE = os.path.join(BASE, 'video_pipeline_v3')
 ENV_FILE = os.path.join(BASE, '.env')
 LOG = os.path.join(PIPELINE, 'logs', 'overnight_loop.log')
 RECIPE_FILE = os.path.join(PIPELINE, 'logs', 'WINNER_RECIPE.json')
+HEARTBEAT_FILE = os.path.join(BASE, 'logs', 'loop_heartbeat.json')
+ELEVENLABS_QUOTA_SENTINEL = os.path.join(BASE, 'logs', 'elevenlabs_quota_exhausted')
 MAX_ITERATIONS = 8
 MAX_HOURS = 6
+RETRY_WAIT_SECONDS = 1800  # 30 minutes
+MAX_ATTEMPTS_PER_CYCLE = 2
 
 os.makedirs(os.path.join(PIPELINE, 'logs'), exist_ok=True)
+os.makedirs(os.path.join(BASE, 'logs'), exist_ok=True)
+
+# ── Logging ───────────────────────────────────────────────────────
+logger = logging.getLogger('overnight_loop')
+logger.setLevel(logging.DEBUG)
+_fmt = logging.Formatter('[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+_sh = logging.StreamHandler(sys.stdout)
+_sh.setFormatter(_fmt)
+logger.addHandler(_sh)
+_fh = logging.FileHandler(LOG)
+_fh.setFormatter(_fmt)
+logger.addHandler(_fh)
+
 
 def log(msg):
-    ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    line = f"[{ts}] {msg}"
-    print(line, flush=True)
-    with open(LOG, 'a') as f:
-        f.write(line + '\n')
+    """Backward-compat wrapper."""
+    logger.info(msg)
+
 
 def load_env():
     env = os.environ.copy()
@@ -38,9 +63,154 @@ def load_env():
         log(f"WARNING: .env load failed: {e}")
     return env
 
+
 def run(cmd, timeout=7200, env=None):
     return subprocess.run(cmd, shell=True, capture_output=True, text=True,
                          timeout=timeout, env=env or load_env(), cwd=PIPELINE)
+
+
+# ── FIX 6: Startup checks ────────────────────────────────────────
+def startup_checks():
+    """Verify environment before any render. Returns True if all pass."""
+    ok = True
+
+    # FFmpeg available
+    try:
+        r = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True, timeout=10)
+        if r.returncode != 0:
+            log("STARTUP FAIL: ffmpeg returned non-zero")
+            ok = False
+        else:
+            ver = r.stdout.split('\n')[0] if r.stdout else '?'
+            log(f"FFmpeg: {ver}")
+    except FileNotFoundError:
+        log("STARTUP FAIL: ffmpeg not found in PATH")
+        ok = False
+    except Exception as e:
+        log(f"STARTUP FAIL: ffmpeg check error: {e}")
+        ok = False
+
+    # Python path includes pipeline
+    if PIPELINE not in sys.path:
+        sys.path.insert(0, PIPELINE)
+    log(f"Pipeline dir: {PIPELINE} (exists={os.path.isdir(PIPELINE)})")
+    if not os.path.isdir(PIPELINE):
+        log("STARTUP FAIL: video_pipeline_v3 directory missing")
+        ok = False
+
+    # Output directory writable
+    out_dir = os.path.join(PIPELINE, 'output')
+    os.makedirs(out_dir, exist_ok=True)
+    test_file = os.path.join(out_dir, '.write_test')
+    try:
+        with open(test_file, 'w') as f:
+            f.write('ok')
+        os.remove(test_file)
+        log(f"Output dir writable: {out_dir}")
+    except Exception as e:
+        log(f"STARTUP FAIL: output dir not writable: {e}")
+        ok = False
+
+    # TTS provider check
+    local_tts = Path(os.path.expanduser("~/protocol_pulse/video_pipeline_v3/tts_local.py")).exists()
+    env = load_env()
+    elevenlabs_key = bool(env.get('ELEVENLABS_API_KEY', '').strip())
+    quota_exhausted = os.path.exists(ELEVENLABS_QUOTA_SENTINEL)
+
+    if local_tts:
+        log("TTS provider: LOCAL (tts_local.py found)")
+    elif elevenlabs_key and not quota_exhausted:
+        log("TTS provider: ElevenLabs (API key present)")
+    elif elevenlabs_key and quota_exhausted:
+        log("WARNING: ElevenLabs key present but quota sentinel exists")
+    else:
+        log("WARNING: No TTS provider found (no local TTS, no ElevenLabs key)")
+
+    if not local_tts and not elevenlabs_key:
+        log("STARTUP FAIL: No TTS provider available")
+        ok = False
+
+    return ok
+
+
+# ── FIX 3: Heartbeat ─────────────────────────────────────────────
+_total_episodes = 0
+_consecutive_failures = 0
+
+
+def write_heartbeat(verdict, duration_s):
+    """Write heartbeat JSON after every cycle."""
+    global _total_episodes, _consecutive_failures
+    if verdict == "PASS":
+        _total_episodes += 1
+        _consecutive_failures = 0
+    elif verdict == "ERROR":
+        _consecutive_failures += 1
+    elif verdict == "HOLD":
+        _consecutive_failures += 1
+    # DEGRADED counts as partial success
+    elif verdict == "DEGRADED":
+        _total_episodes += 1
+        _consecutive_failures = 0
+
+    heartbeat = {
+        "last_run": datetime.now(timezone.utc).isoformat(),
+        "last_verdict": verdict,
+        "last_duration": round(duration_s, 1),
+        "total_episodes": _total_episodes,
+        "consecutive_failures": _consecutive_failures,
+    }
+    try:
+        with open(HEARTBEAT_FILE, 'w') as f:
+            json.dump(heartbeat, f, indent=2)
+        log(f"Heartbeat written: {verdict} | failures={_consecutive_failures}")
+    except Exception as e:
+        log(f"WARNING: heartbeat write failed: {e}")
+
+    # Telegram alert on 3+ consecutive failures
+    if _consecutive_failures >= 3:
+        send_telegram_alert(
+            f"🚨 Protocol Pulse loop: {_consecutive_failures} consecutive failures\n"
+            f"Last verdict: {verdict}\n"
+            f"Time: {heartbeat['last_run']}"
+        )
+
+
+def send_telegram_alert(message):
+    """Send alert via Telegram if bot token + chat ID are configured."""
+    env = load_env()
+    token = env.get('TELEGRAM_BOT_TOKEN', '').strip()
+    chat_id = env.get('TELEGRAM_CHAT_ID', '').strip()
+    if not token or not chat_id:
+        log("Telegram alert skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
+        return
+    try:
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = json.dumps({"chat_id": chat_id, "text": message, "parse_mode": "HTML"}).encode()
+        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            log(f"Telegram alert sent (status {r.status})")
+    except Exception as e:
+        log(f"Telegram alert failed: {e}")
+
+
+# ── FIX 4: TTS provider awareness ────────────────────────────────
+def check_tts_ready():
+    """Check TTS availability before render. Returns (ready, provider_name)."""
+    local_tts = Path(os.path.expanduser("~/protocol_pulse/video_pipeline_v3/tts_local.py")).exists()
+    if local_tts:
+        return True, "local (Kokoro/F5-TTS)"
+
+    env = load_env()
+    if not env.get('ELEVENLABS_API_KEY', '').strip():
+        return False, "none"
+
+    if os.path.exists(ELEVENLABS_QUOTA_SENTINEL):
+        log("ElevenLabs quota sentinel exists — skipping render")
+        return False, "elevenlabs (quota exhausted)"
+
+    return True, "ElevenLabs"
+
 
 def gemini_call(prompt, max_tokens=8000):
     env = load_env()
@@ -54,6 +224,7 @@ def gemini_call(prompt, max_tokens=8000):
         d = json.loads(r.read())
         parts = d['candidates'][0]['content'].get('parts', [])
         return next((p['text'] for p in parts if 'text' in p), None)
+
 
 def run_render(iteration):
     log(f"RENDER START iteration {iteration}")
@@ -74,6 +245,7 @@ def run_render(iteration):
     if out: log(f"Output: {out} ({os.path.getsize(out)//1048576}MB)")
     else: log("FATAL: no output file")
     return out, r.stdout + r.stderr
+
 
 def run_forensics(video):
     log("Running forensics...")
@@ -106,6 +278,7 @@ def run_forensics(video):
         f"LUFS={res.get('integrated_lufs')} TP={res.get('true_peak_dbfs')} "
         f"black={res.get('black_mid_count')} freeze={res.get('freeze_count')}")
     return res
+
 
 def grade_with_gemini(video, forensics, render_log):
     log("Calling Gemini for 24-dimension grade...")
@@ -143,6 +316,7 @@ Respond ONLY with raw JSON (no fences):
     try: return json.loads(clean)
     except: log(f"JSON parse fail: {clean[:200]}"); return None
 
+
 def fire_cc_fix(iteration, grade_result):
     failures = grade_result.get('critical_failures', [])
     dims = grade_result.get('dimensions', {})
@@ -174,12 +348,16 @@ Commit: git add -A && git commit -m "fix(pipeline): iter{iteration}" && git push
         log(f"CC running... {int((deadline-time.time())/60)}min left")
     time.sleep(30)
 
-def main():
+
+def run_single_render():
+    """Execute one full perfection loop (up to MAX_ITERATIONS). Returns verdict string."""
     log("="*60)
     log(f"OVERNIGHT LOOP START | max {MAX_ITERATIONS} iters | max {MAX_HOURS}h")
     log("="*60)
     start = time.time()
     grade_result = {}
+    final_verdict = "ERROR"
+
     for iteration in range(1, MAX_ITERATIONS+1):
         if (time.time()-start)/3600 >= MAX_HOURS:
             log(f"TIME LIMIT ({MAX_HOURS}h). Stopping."); break
@@ -209,14 +387,118 @@ def main():
                      'verdict': grade_result.get('verdict'), 'dimensions': grade_result.get('dimensions',{})}
             with open(RECIPE_FILE, 'w') as f: json.dump(recipe, f, indent=2)
             log(f"WINNER: {RECIPE_FILE}")
+            final_verdict = "PASS"
             break
+        elif grade in ('B', 'C') and broadcast:
+            final_verdict = "DEGRADED"
         log(f"Grade {grade} - firing CC fix...")
         fire_cc_fix(iteration, grade_result)
     else:
-        log(f"Max iterations reached without Grade A")
+        log("Max iterations reached without Grade A")
         with open(os.path.join(PIPELINE,'logs/overnight_diagnostic.json'),'w') as f:
             json.dump({'final_grade': grade_result}, f, indent=2)
+        if final_verdict == "ERROR":
+            final_verdict = "HOLD"
+
     log("OVERNIGHT LOOP COMPLETE")
+    return final_verdict
+
+
+def run_cycle():
+    """FIX 1+2: Run a single render cycle with exception handling and retry logic."""
+    cycle_start = time.time()
+
+    # FIX 4: Check TTS before render
+    tts_ready, tts_provider = check_tts_ready()
+    log(f"TTS provider: {tts_provider}")
+    if not tts_ready:
+        log(f"[loop] TTS not available ({tts_provider}) — skipping cycle")
+        write_heartbeat("ERROR", time.time() - cycle_start)
+        return
+
+    for attempt in range(1, MAX_ATTEMPTS_PER_CYCLE + 1):
+        log(f"[loop] Attempt {attempt}/{MAX_ATTEMPTS_PER_CYCLE}")
+        try:
+            verdict = run_single_render()
+        except Exception as e:
+            logger.error(f"[loop] Render cycle exception: {e}", exc_info=True)
+            verdict = "ERROR"
+
+        if verdict in ("PASS", "DEGRADED"):
+            write_heartbeat(verdict, time.time() - cycle_start)
+            return
+
+        # Failed — retry logic
+        if attempt < MAX_ATTEMPTS_PER_CYCLE:
+            log(f"[loop] Attempt {attempt} failed ({verdict}), waiting {RETRY_WAIT_SECONDS//60}min before retry...")
+            time.sleep(RETRY_WAIT_SECONDS)
+        else:
+            log(f"[loop] All {MAX_ATTEMPTS_PER_CYCLE} attempts failed — waiting for next scheduled cycle")
+
+    write_heartbeat(verdict, time.time() - cycle_start)
+
+
+# ── FIX 5: Daemon mode ───────────────────────────────────────────
+def sleep_until_next_8am_et():
+    """Sleep until next 08:00 ET (12:00 UTC or 11:00 UTC during DST)."""
+    from zoneinfo import ZoneInfo
+    et = ZoneInfo("America/New_York")
+    now = datetime.now(et)
+    target = now.replace(hour=8, minute=0, second=0, microsecond=0)
+    if target <= now:
+        target += timedelta(days=1)
+    wait = (target - now).total_seconds()
+    log(f"[daemon] Sleeping {wait/3600:.1f}h until {target.isoformat()}")
+    time.sleep(wait)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Protocol Pulse overnight render loop — production hardened",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  python3 overnight_render_loop.py              # single cycle\n"
+            "  python3 overnight_render_loop.py --daemon      # continuous, 08:00 ET daily\n"
+            "  python3 overnight_render_loop.py --dry-run     # startup checks only\n"
+        )
+    )
+    parser.add_argument("--daemon", action="store_true", help="Run as continuous daemon (loop at 08:00 ET daily)")
+    parser.add_argument("--dry-run", action="store_true", help="Run startup checks only, no render")
+    args = parser.parse_args()
+
+    # FIX 6: Startup checks always run
+    log("="*60)
+    log("STARTUP CHECKS")
+    log("="*60)
+    if not startup_checks():
+        log("STARTUP CHECKS FAILED — exiting")
+        sys.exit(1)
+    log("All startup checks passed")
+
+    if args.dry_run:
+        log("--dry-run mode: startup checks passed, exiting")
+        sys.exit(0)
+
+    # Load existing heartbeat state
+    global _total_episodes, _consecutive_failures
+    try:
+        with open(HEARTBEAT_FILE) as f:
+            hb = json.load(f)
+            _total_episodes = hb.get('total_episodes', 0)
+            _consecutive_failures = hb.get('consecutive_failures', 0)
+        log(f"Heartbeat loaded: episodes={_total_episodes}, consecutive_failures={_consecutive_failures}")
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+
+    if args.daemon:
+        log("DAEMON MODE — will loop at 08:00 ET daily")
+        while True:
+            run_cycle()
+            sleep_until_next_8am_et()
+    else:
+        run_cycle()
+
 
 if __name__ == '__main__':
     main()
