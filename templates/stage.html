@@ -527,6 +527,80 @@ body { background: var(--s-bg); }
   white-space: pre-wrap; word-break: break-word;
 }
 
+/* ── INTERACTIVE MODE PANEL ─────────────────────────────  */
+.stage-interactive-panel {
+  display: none;
+  background: var(--s-surface);
+  border: 1px solid var(--s-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.stage-interactive-panel.active { display: block; }
+.stage-mode-badge {
+  font-family: var(--s-mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; padding: 5px 14px; border-radius: 4px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all .3s;
+}
+.stage-mode-badge.broadcast {
+  background: rgba(255,59,95,.12); color: var(--s-red);
+  border: 1px solid rgba(255,59,95,.3);
+}
+.stage-mode-badge.interactive {
+  background: rgba(46,255,138,.08); color: var(--s-green);
+  border: 1px solid rgba(46,255,138,.2);
+}
+.stage-chat-input {
+  display: flex; gap: 8px; margin-top: 12px;
+}
+.stage-chat-input input {
+  flex: 1; background: rgba(255,255,255,.05);
+  border: 1px solid var(--s-border); border-radius: 4px;
+  padding: 10px 14px; color: #fff;
+  font-family: var(--s-head); font-size: 13px;
+  outline: none; transition: border-color .15s;
+}
+.stage-chat-input input:focus {
+  border-color: rgba(255,59,95,.5);
+}
+.stage-chat-input input::placeholder {
+  color: rgba(255,255,255,.25);
+}
+.stage-mic-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,59,95,.12); border: 1px solid rgba(255,59,95,.3);
+  color: var(--s-red); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all .15s; flex-shrink: 0;
+}
+.stage-mic-btn:hover { background: rgba(255,59,95,.2); }
+.stage-mic-btn.recording {
+  background: var(--s-red); color: #fff;
+  animation: mic-pulse 1.4s infinite;
+}
+@keyframes mic-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,59,95,.6); }
+  70% { box-shadow: 0 0 0 16px rgba(255,59,95,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,59,95,0); }
+}
+.stage-chat-history {
+  max-height: 180px; overflow-y: auto; margin-top: 10px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,59,95,.2) transparent;
+}
+.stage-chat-msg {
+  font-family: var(--s-head); font-size: 12px;
+  line-height: 1.5; padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.stage-chat-msg.user { color: var(--s-gold); }
+.stage-chat-msg.oracle { color: rgba(255,255,255,.7); }
+.stage-between-badge {
+  font-family: var(--s-mono); font-size: 9px; letter-spacing: .1em;
+  color: var(--s-muted); text-transform: uppercase;
+  margin-top: 8px;
+}
+
 /* Animations */
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(12px); }
@@ -708,6 +782,27 @@ body { background: var(--s-bg); }
                         id="briefPlayBtn" style="display:none"
                         onclick="playLatestBrief()">&#9654; Play Brief</button>
               </div>
+            </div>
+
+            <!-- Mode switching -->
+            <div>
+              <div class="stage-brief__section-label">Stage Mode</div>
+              <div id="stageModeBadge" class="stage-mode-badge broadcast">● ON AIR</div>
+              <div class="stage-between-badge" id="betweenBadge" style="display:none">
+                BETWEEN SEGMENTS — <span id="betweenCountdown">--:--</span> until next briefing
+              </div>
+            </div>
+
+            <!-- Interactive Oracle Panel (visible between briefings) -->
+            <div id="interactivePanel" class="stage-interactive-panel">
+              <div style="font-family:var(--s-mono);font-size:9px;letter-spacing:.15em;color:var(--s-muted);text-transform:uppercase;margin-bottom:8px">Ask Oracle Anything</div>
+              <div class="stage-chat-input">
+                <input type="text" id="stageChatInput" placeholder="Ask about Bitcoin..."
+                       onkeydown="if(event.key==='Enter')stageChat()">
+                <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak">&#127908;</button>
+                <button class="stage-btn stage-btn--primary" onclick="stageChat()" style="padding:8px 14px">&#9654;</button>
+              </div>
+              <div class="stage-chat-history" id="stageChatHistory"></div>
             </div>
 
           </div><!-- /stage-brief -->
@@ -1069,10 +1164,147 @@ body { background: var(--s-bg); }
     requestGreet();
   }, 800);
 
+  // ── STAGE MODE: BROADCAST vs INTERACTIVE ──────────────
+  var STAGE_MODE = 'interactive'; // 'broadcast' | 'interactive'
+  var _stageSessionId = 'stage_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  var _stageRecognition = null;
+  var _stageIsRec = false;
+
+  function enterBroadcast(briefUrl) {
+    STAGE_MODE = 'broadcast';
+    var badge = document.getElementById('stageModeBadge');
+    badge.textContent = '● ON AIR';
+    badge.className = 'stage-mode-badge broadcast';
+    document.getElementById('interactivePanel').classList.remove('active');
+    document.getElementById('betweenBadge').style.display = 'none';
+    // Disable mic during broadcast
+    var micBtn = document.getElementById('stageMicBtn');
+    if(micBtn) micBtn.disabled = true;
+    if(briefUrl) {
+      setBusy(true);
+      setStatus('Playing brief\u2026','var(--s-gold)');
+      playVid(briefUrl).then(function(){
+        enterInteractive();
+        loadBriefingSchedule();
+      }).finally(function(){ setBusy(false); });
+    }
+  }
+
+  function enterInteractive() {
+    STAGE_MODE = 'interactive';
+    var badge = document.getElementById('stageModeBadge');
+    badge.textContent = 'Ask Oracle anything';
+    badge.className = 'stage-mode-badge interactive';
+    document.getElementById('interactivePanel').classList.add('active');
+    document.getElementById('betweenBadge').style.display = 'block';
+    // Enable mic
+    var micBtn = document.getElementById('stageMicBtn');
+    if(micBtn) micBtn.disabled = false;
+    // Pulse mic hint after 1s
+    setTimeout(pulseStageMic, 1000);
+  }
+
+  function pulseStageMic() {
+    var micBtn = document.getElementById('stageMicBtn');
+    if(!micBtn || micBtn.disabled || _stageIsRec) return;
+    micBtn.style.boxShadow = '0 0 0 8px rgba(255,59,95,.2)';
+    setTimeout(function(){ micBtn.style.boxShadow = ''; }, 2000);
+  }
+
+  // ── STAGE CHAT (Oracle dialogue) ────────────────────────
+  window.stageChat = function() {
+    var input = document.getElementById('stageChatInput');
+    var text = (input.value || '').trim();
+    if(!text || busy) return;
+    input.value = '';
+    _appendChatMsg('You: ' + text, 'user');
+    setBusy(true);
+    setStatus('Oracle thinking\u2026','var(--s-gold)');
+
+    fetchTO(AVATAR_BASE + '/oracle/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({text:text, session_id:_stageSessionId, audio_first:true})
+    }, 90000)
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var ct = r.headers.get('content-type') || '';
+      if(ct.indexOf('video') >= 0){
+        return r.blob().then(function(b){ return URL.createObjectURL(b); })
+          .then(function(url){ return playVid(url); });
+      }
+      return r.json().then(function(j){
+        _appendChatMsg('Oracle: ' + j.text, 'oracle');
+        if(j.job_id) {
+          // Poll for video
+          var polls = 0;
+          var pollId = setInterval(function(){
+            polls++;
+            if(polls > 45){ clearInterval(pollId); setBusy(false); return; }
+            fetch(AVATAR_BASE + '/oracle/job/' + j.job_id)
+              .then(function(vr){ if(vr.ok) return vr.blob(); return null; })
+              .then(function(vb){
+                if(vb){
+                  clearInterval(pollId);
+                  playVid(URL.createObjectURL(vb));
+                }
+              }).catch(function(){});
+          }, 1000);
+        }
+      });
+    })
+    .catch(function(e){
+      _appendChatMsg('Oracle: Connection error — try again.', 'oracle');
+      console.error('stage chat error:', e);
+    })
+    .finally(function(){ setBusy(false); });
+  };
+
+  function _appendChatMsg(text, role) {
+    var hist = document.getElementById('stageChatHistory');
+    var div = document.createElement('div');
+    div.className = 'stage-chat-msg ' + role;
+    div.textContent = text;
+    hist.appendChild(div);
+    hist.scrollTop = hist.scrollHeight;
+  }
+
+  // ── STAGE MIC (speech recognition) ──────────────────────
+  window.toggleStageMic = function() {
+    if(_stageIsRec) { _stopStageMic(); return; }
+    if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      _appendChatMsg('Speech recognition not supported in this browser.', 'oracle');
+      return;
+    }
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    _stageRecognition = new SR();
+    _stageRecognition.lang = 'en-US';
+    _stageRecognition.continuous = false;
+    _stageRecognition.interimResults = false;
+    _stageRecognition.onresult = function(e) {
+      var text = e.results[0][0].transcript;
+      document.getElementById('stageChatInput').value = text;
+      _stopStageMic();
+      stageChat();
+    };
+    _stageRecognition.onerror = function() { _stopStageMic(); };
+    _stageRecognition.onend = function() { _stopStageMic(); };
+    _stageRecognition.start();
+    _stageIsRec = true;
+    document.getElementById('stageMicBtn').classList.add('recording');
+  };
+
+  function _stopStageMic() {
+    _stageIsRec = false;
+    if(_stageRecognition) { try{_stageRecognition.stop();}catch(e){} _stageRecognition = null; }
+    document.getElementById('stageMicBtn').classList.remove('recording');
+  }
+
   // ── BRIEFING COUNTDOWN ──────────────────────────────
   var _briefCountdownId = null;
   var _latestBriefUrl = null;
   var _hasUserInteracted = false;
+  var _countdownRemaining = 0;
 
   document.addEventListener('click', function(){ _hasUserInteracted = true; }, {once:true});
 
@@ -1083,6 +1315,7 @@ body { background: var(--s-bg); }
       if(!d.has_brief){
         document.getElementById('countdownTimer').textContent = '\u2014';
         document.getElementById('countdownSub').textContent = 'First brief coming soon';
+        enterInteractive();
         return;
       }
       _latestBriefUrl = d.last_brief.mp4_url;
@@ -1090,16 +1323,19 @@ body { background: var(--s-bg); }
         showBriefReady(d.last_brief);
       } else {
         startCountdown(d.countdown_seconds, d.last_brief);
+        // Between briefings = interactive mode
+        if(STAGE_MODE !== 'broadcast') enterInteractive();
       }
     })
     .catch(function(){
       document.getElementById('countdownSub').textContent = 'Schedule unavailable';
+      enterInteractive();
     });
   }
 
   function startCountdown(seconds, lastBrief){
     if(_briefCountdownId) clearInterval(_briefCountdownId);
-    var remaining = seconds;
+    _countdownRemaining = seconds;
     var timerEl = document.getElementById('countdownTimer');
     var subEl = document.getElementById('countdownSub');
     var dotEl = document.getElementById('briefDot');
@@ -1112,16 +1348,19 @@ body { background: var(--s-bg); }
     subEl.textContent = lastBrief.title || 'Last brief loaded';
 
     function update(){
-      if(remaining <= 0){
+      if(_countdownRemaining <= 0){
         clearInterval(_briefCountdownId);
         showBriefReady(lastBrief);
         return;
       }
-      var h = Math.floor(remaining / 3600);
-      var m = Math.floor((remaining % 3600) / 60);
-      var s = remaining % 60;
+      var h = Math.floor(_countdownRemaining / 3600);
+      var m = Math.floor((_countdownRemaining % 3600) / 60);
+      var s = _countdownRemaining % 60;
       timerEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
-      remaining--;
+      // Update between-segments badge
+      var bb = document.getElementById('betweenCountdown');
+      if(bb) bb.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+      _countdownRemaining--;
     }
     update();
     _briefCountdownId = setInterval(update, 1000);
@@ -1142,21 +1381,15 @@ body { background: var(--s-bg); }
     playBtn.style.display = 'block';
     _latestBriefUrl = brief.mp4_url;
 
-    // Auto-play if user has interacted
+    // Auto-transition to broadcast when countdown hits 0
     if(_hasUserInteracted && !busy){
-      playLatestBrief();
+      enterBroadcast(_latestBriefUrl);
     }
   }
 
   window.playLatestBrief = function(){
     if(!_latestBriefUrl || busy) return;
-    setBusy(true);
-    setStatus('Playing brief\u2026','var(--s-gold)');
-    playVid(_latestBriefUrl)
-    .then(function(){
-      loadBriefingSchedule();
-    })
-    .finally(function(){ setBusy(false); });
+    enterBroadcast(_latestBriefUrl);
   };
 
   // ── INIT DATA ─────────────────────────────────────────

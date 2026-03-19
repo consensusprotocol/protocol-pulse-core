@@ -10893,7 +10893,8 @@ def api_stage_transcripts():
 def api_stage_intel():
     import sys as _sys, os as _os
     res = {'price':'N/A','price_float':0,'price_formatted':'N/A',
-           'sentiment_score':50,'sentiment_label':'neutral','narrative':'','topics':''}
+           'sentiment_score':50,'sentiment_label':'neutral','narrative':'','topics':'',
+           'price_delta_1h':0,'market_context':'the market is neutral','top_signal':''}
     try:
         _sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), 'oracle'))
         from oracle_dialogue_engine import get_live_intel
@@ -10906,6 +10907,9 @@ def api_stage_intel():
         res['topics'] = intel.get('topics', '')
         res['sentiment_score'] = intel.get('sentiment_score', 50)
         res['sentiment_label'] = intel.get('sentiment_label', 'neutral')
+        res['price_delta_1h'] = intel.get('price_delta_1h', 0)
+        res['market_context'] = intel.get('market_context', 'the market is neutral')
+        res['top_signal'] = intel.get('top_signal', '')
     except Exception as e:
         logging.warning('stage intel error: %s', e)
     return jsonify(res)

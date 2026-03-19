@@ -272,6 +272,41 @@ def _render_avatar_video(brief_text):
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+def _post_brief_triggers():
+    """Post-brief triggers: refresh transcript cache, Nostr signal, clear RAG stale flag."""
+    # 1. Refresh Nostr signal cache
+    try:
+        signal_script = os.path.join(BASE, "fetch_signal_cache.py")
+        if os.path.exists(signal_script):
+            import subprocess
+            subprocess.Popen(
+                [sys.executable, signal_script],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                cwd=BASE,
+            )
+            logger.info("Post-brief: Nostr signal refresh triggered")
+    except Exception as e:
+        logger.warning(f"Post-brief Nostr refresh failed: {e}")
+
+    # 2. Clear RAG stale-content flag so next Oracle session gets fresh articles
+    try:
+        rag_flag = os.path.join(os.path.dirname(BASE), "data", "rag_stale.flag")
+        if os.path.exists(rag_flag):
+            os.remove(rag_flag)
+            logger.info("Post-brief: RAG stale flag cleared")
+    except Exception as e:
+        logger.warning(f"Post-brief RAG flag clear failed: {e}")
+
+    # 3. Touch transcript cache marker to signal freshness
+    try:
+        tx_marker = os.path.join(BASE, "data", "channel_archive", ".last_brief_refresh")
+        with open(tx_marker, "w") as f:
+            f.write(datetime.now(timezone.utc).isoformat())
+        logger.info("Post-brief: transcript cache marker updated")
+    except Exception as e:
+        logger.warning(f"Post-brief transcript marker failed: {e}")
+
+
 def generate_brief(output_dir):
     """
     Main entry point. Generates a stage brief from a render output directory.
@@ -347,6 +382,9 @@ def generate_brief(output_dir):
         latest_path = os.path.join(BRIEFS_DIR, "latest.json")
         with open(latest_path, "w") as f:
             json.dump(meta, f, indent=2)
+
+        # 8. Post-brief triggers: refresh transcripts, Nostr, RAG freshness
+        _post_brief_triggers()
 
         elapsed = round(time.time() - t0, 1)
         logger.info(f"Stage brief complete in {elapsed}s: {mp4_filename}")
