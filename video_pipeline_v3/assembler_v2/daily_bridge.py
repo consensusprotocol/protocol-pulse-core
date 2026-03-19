@@ -1,13 +1,36 @@
 """
-Protocol Pulse V2 — daily_bridge.py
-Bridge between the existing daily_run.py pipeline outputs and assembler_v2's
-EpisodeManifest format. One function: build_manifest_from_pipeline().
-"""
-import os
-import json
-from pathlib import Path
+daily_bridge.py — Translates daily_run.py pipeline outputs into assembler_v2 EpisodeManifest.
 
+Script format (actual):
+  script["dialogue"] = list of dicts with keys: host, text, type, clip_rank, headline
+  script["cold_open"] = str (standalone cold open text — same as first dialogue entry)
+  host == 2 → narration (PBX)
+  host == "CLIP" → partner_clip (no audio, clip_rank key)
+
+Audio format: audio_dir/line_{NNN:03d}_pbx.m4a — indexed by dialogue position
+  CLIP entries (host=="CLIP") have no audio file — they're skipped in numbering.
+
+extracted_clips: dict keyed by int rank → {"path": str}
+"""
+import os, json, logging
+from pathlib import Path
 from .manifest import EpisodeManifest, SegmentSpec
+
+logger = logging.getLogger(__name__)
+
+TYPE_MAP = {
+    "cold_open":      "cold_open",
+    "setup":          "narration",
+    "react":          "narration",
+    "narration":      "narration",
+    "data_segment":   "data",
+    "data":           "data",
+    "social_segment": "social",
+    "social":         "social",
+    "signal_active":  "signal_active",
+    "wrap":           "wrap",
+    "outro":          "wrap",
+}
 
 
 def build_manifest_from_pipeline(
@@ -16,117 +39,102 @@ def build_manifest_from_pipeline(
     extracted_clips: dict,
     btc_price: str,
     date_str: str,
+    audio_dir: str = None,
 ) -> EpisodeManifest:
-    """Convert daily_run.py pipeline outputs into an EpisodeManifest.
+    """Build EpisodeManifest from daily_run.py pipeline outputs."""
 
-    Args:
-        script: Script dict with "segments" list (each has type, host, text, headline, rank)
-        audio_paths: Dict with "segments" list of absolute .m4a paths
-        extracted_clips: Dict keyed by rank int, value has "path" key
-        btc_price: Price string like "$84,000"
-        date_str: Date string like "2026-03-18"
+    dialogue = script.get("dialogue", script.get("segments", []))
+    if not dialogue:
+        logger.error("[bridge] No dialogue in script")
+        return EpisodeManifest(date_str=date_str, title="Empty", segments=[], btc_price=btc_price)
 
-    Returns:
-        EpisodeManifest ready for EpisodeRunner.run()
-    """
-    segments_list = script.get("segments", [])
-    audio_list = audio_paths.get("segments", [])
-    spec_list = []
+    specs = []
+    speech_idx = 0  # tracks narration-only audio file index
 
-    TYPE_MAP = {
-        "cold_open": "cold_open",
-        "narration": "narration",
-        "setup": "narration",
-        "react": "narration",
-        "partner_clip": "partner_clip",
-        "data": "data",
-        "social": "social",
-        "signal_active": "signal_active",
-        "wrap": "wrap",
-        "outro": "wrap",
-    }
+    for entry in dialogue:
+        host = entry.get("host")
+        seg_type_raw = entry.get("type", "narration")
+        headline = entry.get("headline", "")
+        text = entry.get("text", "")
+        clip_rank = entry.get("clip_rank", entry.get("rank", 0))
 
-    for i, seg in enumerate(segments_list):
-        seg_type = seg.get("type", "narration")
-        mapped_type = TYPE_MAP.get(seg_type, "narration")
-
-        # If host is "CLIP", it's a partner_clip segment
-        if seg.get("host") == "CLIP" or seg_type == "partner_clip":
-            mapped_type = "partner_clip"
-
-        tts_path = audio_list[i] if i < len(audio_list) else None
-        clip_rank = seg.get("rank", i + 1)
-
-        # Get clip path for partner_clip segments
-        clip_path = None
-        pip_path = None
-        if mapped_type == "partner_clip":
+        # CLIP entries → partner_clip segment
+        if host == "CLIP":
             clip_info = extracted_clips.get(clip_rank, {})
             if isinstance(clip_info, list):
                 clip_info = clip_info[0] if clip_info else {}
-            clip_path = clip_info.get("path") if clip_info else None
+            clip_path = clip_info.get("path") if isinstance(clip_info, dict) else None
 
-        # Get duration hint from TTS file if available
+            if clip_path and Path(clip_path).exists():
+                specs.append(SegmentSpec(
+                    segment_type="partner_clip",
+                    clip_rank=clip_rank,
+                    clip_path=clip_path,
+                    headline=headline,
+                    btc_price=btc_price,
+                ))
+                # Add transition after partner_clip
+                specs.append(SegmentSpec(segment_type="transition", btc_price=btc_price))
+            else:
+                logger.warning(f"[bridge] Clip rank {clip_rank} missing — skipping")
+            continue
+
+        # Narration entries — find audio file
+        seg_type = TYPE_MAP.get(seg_type_raw, "narration")
+
+        # Audio file: line_{speech_idx:03d}_pbx.m4a
+        tts_path = None
+        if audio_dir:
+            candidate = Path(audio_dir) / f"line_{speech_idx:03d}_pbx.m4a"
+            if candidate.exists() and candidate.stat().st_size > 500:
+                tts_path = str(candidate)
+        speech_idx += 1
+
+        # Duration hint
         duration_hint = 0.0
-        if tts_path and os.path.exists(tts_path):
+        if tts_path:
             try:
                 from .helpers import ffprobe_duration
                 duration_hint = ffprobe_duration(Path(tts_path))
             except Exception:
                 pass
 
-        # Get social posts from active_signal cache if social segment
+        # Social posts for social segments
         social_posts = []
-        if mapped_type == "social":
+        if seg_type == "social":
             try:
                 cache = Path(__file__).parent.parent / "cache" / "active_signal.json"
                 if cache.exists():
                     data = json.loads(cache.read_text())
                     posts = data.get("nostr_posts", [])[:3]
-                    social_posts = [
-                        {
-                            "account": p.get("display_name", "unknown"),
-                            "text": p.get("text", "")[:280],
-                            "timestamp": "",
-                            "likes": 0,
-                            "retweets": 0,
-                        }
-                        for p in posts
-                    ]
+                    social_posts = [{
+                        "account": p.get("display_name", "unknown"),
+                        "text": p.get("text", "")[:280],
+                        "timestamp": "", "likes": 0, "retweets": 0,
+                    } for p in posts]
             except Exception:
                 pass
 
-        spec = SegmentSpec(
-            segment_type=mapped_type,
-            clip_rank=clip_rank,
-            tts_path=tts_path if tts_path and os.path.exists(str(tts_path)) else None,
-            clip_path=clip_path,
-            pip_path=pip_path,
-            headline=seg.get("headline", seg.get("text", "")[:80]),
-            body=seg.get("text", "")[:500],
+        specs.append(SegmentSpec(
+            segment_type=seg_type,
+            clip_rank=clip_rank or 0,
+            tts_path=tts_path,
+            headline=headline[:80] if headline else text[:80],
+            body=text[:500],
             social_posts=social_posts,
             duration_hint=duration_hint,
             btc_price=btc_price,
-            is_required=(mapped_type in ("cold_open", "wrap")),
-        )
-        spec_list.append(spec)
+            is_required=(seg_type in ("cold_open", "wrap")),
+        ))
 
-    # Always ensure wrap segment at end if missing
-    if spec_list and spec_list[-1].segment_type != "wrap":
-        spec_list.append(SegmentSpec(segment_type="wrap", btc_price=btc_price))
+    # Ensure wrap at end
+    if specs and specs[-1].segment_type != "wrap":
+        specs.append(SegmentSpec(
+            segment_type="wrap",
+            btc_price=btc_price,
+            is_required=True,
+        ))
 
-    # Add transition between partner_clip and following narration segments
-    final_specs = []
-    for j, spec in enumerate(spec_list):
-        final_specs.append(spec)
-        if spec.segment_type == "partner_clip" and j + 1 < len(spec_list):
-            next_type = spec_list[j + 1].segment_type
-            if next_type == "narration":
-                final_specs.append(SegmentSpec(segment_type="transition"))
-
-    return EpisodeManifest(
-        date_str=date_str,
-        title=script.get("episode_title", f"Pulse Check {date_str}"),
-        segments=final_specs,
-        btc_price=btc_price,
-    )
+    title = script.get("episode_title", f"Pulse Check {date_str}")
+    logger.info(f"[bridge] Built manifest: {len(specs)} segments for '{title}'")
+    return EpisodeManifest(date_str=date_str, title=title, segments=specs, btc_price=btc_price)

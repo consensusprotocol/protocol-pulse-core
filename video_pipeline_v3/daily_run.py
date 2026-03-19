@@ -221,6 +221,7 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
             extracted_clips=extracted_clips,
             btc_price=btc_price,
             date_str=date_str,
+            audio_dir=audio_dir,
         )
 
         output_dir = _Path(os.path.dirname(output_path))

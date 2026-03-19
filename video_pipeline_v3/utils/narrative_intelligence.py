@@ -152,7 +152,7 @@ class NarrativeIntelligenceEngine:
             logger.warning("No X bearer token — using fallback data")
             return []
 
-        client = tweepy.Client(bearer_token=bearer_token, wait_on_rate_limit=True)
+        client = tweepy.Client(bearer_token=bearer_token, wait_on_rate_limit=False)
 
         # Batch handles into groups of 15 (query length limit)
         p1_handles = [t["handle"] for t in self.targets if t["priority"] == 1]
