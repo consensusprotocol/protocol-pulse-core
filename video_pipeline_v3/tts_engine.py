@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""TTS Engine V8 — Single-host PBX pipeline (Option A).
-Host: PBX (HmUVvDlHsEz0m3eUGLgu) at 1.2x — sole broadcaster.
-All hosts map to PBX. Deborah/Eryn/Mark/Nicole/Chris ALL BANNED.
+"""TTS Engine V9 — Dual-host local TTS pipeline.
+Host 1: Kokoro af_heart (female) — setup/bridge.
+Host 2: F5-TTS fine-tuned PBX (male) — react/wrap.
+Fallback: ElevenLabs per-line. TTS_PROVIDER=local (default) or elevenlabs.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
 from pathlib import Path
@@ -16,8 +17,68 @@ from relay import get_key
 
 logger = logging.getLogger(__name__)
 
-# SINGLE HOST: PBX only (Option A — fixes 9 consecutive Grade F renders)
-# BANNED: Deborah/Nicole/Chris/Eryn/Brian/Mark — ALL removed
+# ── LOCAL TTS BACKENDS ──────────────────────────────────────────────────────
+_KOKORO_PIPELINE = None
+_KOKORO_BACKEND = None
+_KOKORO_INSTANCE = None
+_F5_MODEL = None
+
+
+def _init_kokoro():
+    """Lazy-initialize Kokoro (PyTorch first, ONNX fallback)."""
+    global _KOKORO_PIPELINE, _KOKORO_BACKEND, _KOKORO_INSTANCE
+    if _KOKORO_BACKEND is not None:
+        return _KOKORO_BACKEND
+    try:
+        from kokoro import KPipeline
+        _KOKORO_PIPELINE = KPipeline(lang_code='a')
+        _KOKORO_BACKEND = "pytorch"
+        logger.info("[TTS/Kokoro] Backend: PyTorch")
+        return "pytorch"
+    except Exception as e_pt:
+        logger.warning(f"[TTS/Kokoro] PyTorch failed: {e_pt} — trying ONNX")
+    try:
+        from kokoro_onnx import Kokoro as _KokoroONNX
+        _VOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices")
+        _onnx_model = os.path.join(_VOICES_DIR, "kokoro-v0_19.onnx")
+        _onnx_voices = os.path.join(_VOICES_DIR, "voices-v1.0.bin")
+        if not os.path.exists(_onnx_model):
+            logger.info("[TTS/Kokoro] Downloading ONNX model files...")
+            subprocess.run([
+                "python3", "-c",
+                "from huggingface_hub import hf_hub_download; "
+                f"hf_hub_download('hexgrad/Kokoro-82M', 'kokoro-v0_19.onnx', local_dir='{_VOICES_DIR}'); "
+                f"hf_hub_download('hexgrad/Kokoro-82M', 'voices-v1.0.bin', local_dir='{_VOICES_DIR}')"
+            ], timeout=300)
+        _KOKORO_INSTANCE = _KokoroONNX(_onnx_model, _onnx_voices)
+        _KOKORO_BACKEND = "onnx"
+        logger.info("[TTS/Kokoro] Backend: ONNX")
+        return "onnx"
+    except Exception as e_onnx:
+        logger.error(f"[TTS/Kokoro] Both backends failed: {e_onnx}")
+        _KOKORO_BACKEND = "unavailable"
+        return "unavailable"
+
+
+def _init_f5():
+    """Lazy-initialize fine-tuned F5-TTS model."""
+    global _F5_MODEL
+    if _F5_MODEL is not None:
+        return True
+    ckpt = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices", "pbx_voice.pt")
+    if not os.path.exists(ckpt):
+        logger.warning(f"[TTS/F5] Fine-tuned checkpoint missing: {ckpt}")
+        return False
+    try:
+        from f5_tts.api import F5TTS
+        _F5_MODEL = F5TTS(model_type="F5TTS_v1_Base", ckpt_file=ckpt, device="cuda")
+        logger.info(f"[TTS/F5] Fine-tuned model loaded: {ckpt}")
+        return True
+    except Exception as e:
+        logger.error(f"[TTS/F5] Failed to load checkpoint: {e}")
+        return False
+
+
 PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
 
 _PBX_VOICE = {
@@ -33,21 +94,44 @@ _PBX_VOICE = {
     },
 }
 
-# Both host 1 and host 2 map to PBX — single host pipeline
+# ── LOCAL TTS VOICE CONFIG ──────────────────────────────────────────────────
+VOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices")
+PBX_CHECKPOINT = os.path.join(VOICES_DIR, "pbx_voice.pt")
+PBX_REFERENCE_CLIP = os.path.join(VOICES_DIR, "pbx_reference.wav")
+KOKORO_HOST1_VOICE = "af_heart"
+KOKORO_HOST2_VOICE = "am_adam"   # fallback when F5 checkpoint unavailable
+F5_SPEED = 1.1
+KOKORO_SPEED_H1 = 1.0
+KOKORO_SPEED_H2 = 1.1
+
+_ERYN_VOICE = {
+    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
+    "name": "Eryn",
+    "model_id": "eleven_turbo_v2_5",
+    "speed": 1.0,
+    "voice_settings": {
+        "stability": 0.55,
+        "similarity_boost": 0.80,
+        "style": 0.15,
+        "use_speaker_boost": True,
+    },
+}
+# Dual-host: HOST_1 = Eryn/af_heart (female), HOST_2 = PBX (fine-tuned F5 / ElevenLabs fallback)
 VOICES = {
-    1: _PBX_VOICE,       # HOST_1 → PBX (single host)
-    2: _PBX_VOICE,       # HOST_2 → PBX (single host)
+    1: _ERYN_VOICE,
+    2: _PBX_VOICE,
 }
 
 def _get_tts_provider() -> str:
-    """TTS provider locked to ElevenLabs per PIPELINE_LAWS."""
-    val = os.environ.get("TTS_PROVIDER", "elevenlabs").lower().strip()
-    if val != "elevenlabs":
-        raise RuntimeError(
-            f"[TTS] PIPELINE_LAWS violation: TTS_PROVIDER must be 'elevenlabs', got '{val}'. "
-            "Inworld returns 0 bytes — never switch providers."
-        )
-    return "elevenlabs"
+    """TTS provider selector.
+    'local'      → Kokoro af_heart (host1) + fine-tuned F5-TTS PBX (host2) + ElevenLabs fallback
+    'elevenlabs' → ElevenLabs only (emergency override, preserves single-host Option A)
+    """
+    val = os.environ.get("TTS_PROVIDER", "local").lower().strip()
+    if val not in ("local", "elevenlabs"):
+        logger.warning(f"[TTS] Unknown TTS_PROVIDER='{val}', defaulting to 'local'")
+        return "local"
+    return val
 
 
 _KEY_CACHE: dict = {}
@@ -606,6 +690,177 @@ def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
     )
 
 
+def tts_kokoro(text: str, output_path: str, voice: str = "af_heart",
+               speed: float = 1.0) -> bool:
+    """Generate TTS via Kokoro GPU inference. Output: M4A 48kHz AAC 192k."""
+    backend = _init_kokoro()
+    if backend == "unavailable":
+        return False
+    try:
+        import soundfile as sf
+        import numpy as np
+        wav_tmp = output_path + ".kokoro.wav"
+        if backend == "pytorch":
+            samples_list = []
+            for _, _, audio in _KOKORO_PIPELINE(text, voice=voice, speed=speed):
+                samples_list.append(audio)
+            if not samples_list:
+                return False
+            audio_np = np.concatenate(samples_list) if len(samples_list) > 1 else samples_list[0]
+            sf.write(wav_tmp, audio_np, 24000)
+        else:
+            samples, sr = _KOKORO_INSTANCE.create(text, voice=voice, speed=speed, lang="en-us")
+            sf.write(wav_tmp, samples, sr)
+
+        if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
+            return False
+        r = subprocess.run([
+            "ffmpeg", "-y", "-i", wav_tmp,
+            "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
+        ], capture_output=True, text=True, timeout=60)
+        try:
+            os.remove(wav_tmp)
+        except Exception:
+            pass
+        ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
+        if ok:
+            logger.info(f"[TTS/Kokoro] OK: {ffprobe_duration(output_path):.2f}s, voice={voice}")
+        return ok
+    except Exception as e:
+        logger.error(f"[TTS/Kokoro] Exception: {e}")
+        return False
+
+
+def tts_f5_finetuned(text: str, output_path: str, speed: float = 1.1) -> bool:
+    """Generate TTS using fine-tuned PBX voice checkpoint + reference clip.
+
+    F5-TTS infer() requires ref_file even with fine-tuned checkpoint.
+    Output: M4A 48kHz AAC 192k.
+    """
+    if not _init_f5():
+        logger.warning("[TTS/F5] Fine-tuned model not loaded")
+        return False
+
+    if not os.path.exists(PBX_REFERENCE_CLIP):
+        logger.warning(f"[TTS/F5] Reference clip missing: {PBX_REFERENCE_CLIP}")
+        return False
+
+    try:
+        import soundfile as sf
+        wav_tmp = output_path + ".f5.wav"
+
+        wav, sr, _ = _F5_MODEL.infer(
+            ref_file=PBX_REFERENCE_CLIP,
+            ref_text="",
+            gen_text=text,
+            target_rms=0.1,
+            cross_fade_duration=0.15,
+            speed=speed,
+            show_info=False,
+            progress=None,
+        )
+        sf.write(wav_tmp, wav, sr)
+
+        if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
+            logger.error("[TTS/F5] Zero output from inference")
+            return False
+
+        r = subprocess.run([
+            "ffmpeg", "-y", "-i", wav_tmp,
+            "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
+        ], capture_output=True, text=True, timeout=60)
+        try:
+            os.remove(wav_tmp)
+        except Exception:
+            pass
+
+        ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
+        if ok:
+            logger.info(f"[TTS/F5] OK: {ffprobe_duration(output_path):.2f}s (fine-tuned PBX + ref clip)")
+        return ok
+    except Exception as e:
+        logger.error(f"[TTS/F5] Exception: {e}")
+        return False
+
+
+def tts_local(text: str, output_path: str, host: int = 1,
+              segment_type: str = "") -> bool:
+    """Primary TTS dispatcher — local GPU inference with per-line ElevenLabs fallback.
+
+    Host 1 → Kokoro af_heart → ElevenLabs Eryn fallback
+    Host 2 → F5-TTS fine-tuned PBX → Kokoro am_adam → ElevenLabs PBX fallback
+    """
+    text = expand_numbers_for_tts(text)
+    text = apply_pronunciation_map(text)
+    try:
+        _oracle_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "oracle")
+        if _oracle_path not in sys.path:
+            sys.path.insert(0, _oracle_path)
+        from oracle_dialogue_engine import normalize_pronunciation
+        text = normalize_pronunciation(text)
+    except Exception as _e:
+        logger.warning(f"[TTS/Local] normalize_pronunciation unavailable: {_e}")
+
+    cache_key = _tts_cache_key(text, f"local_h{host}", segment_type)
+    if _tts_cache_get(cache_key, output_path):
+        print(f"  [tts/local] Cache HIT (host{host}): {text[:50]}")
+        return True
+
+    start_t = time.time()
+    ok = False
+
+    if host == 1:
+        ok = tts_kokoro(text, output_path, voice=KOKORO_HOST1_VOICE, speed=KOKORO_SPEED_H1)
+        if not ok:
+            logger.warning("[TTS/Local] Kokoro host1 FAILED → ElevenLabs Eryn fallback")
+            ok = tts_elevenlabs(text, output_path, host=1, segment_type=segment_type)
+    else:
+        ok = tts_f5_finetuned(text, output_path, speed=F5_SPEED)
+        if not ok:
+            logger.warning("[TTS/Local] F5 FAILED → Kokoro am_adam")
+            ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
+        if not ok:
+            logger.warning("[TTS/Local] Kokoro host2 FAILED → ElevenLabs PBX fallback")
+            ok = tts_elevenlabs(text, output_path, host=2, segment_type=segment_type)
+
+    if ok and os.path.exists(output_path):
+        _trim_trailing_silence(output_path)
+        validate_tts_output(output_path)
+        _tts_cache_put(cache_key, output_path)
+        elapsed = time.time() - start_t
+        dur = ffprobe_duration(output_path)
+        print(f"  [tts/local] host{host} OK: {dur:.1f}s audio in {elapsed:.1f}s wall ← {text[:50]}")
+
+    return ok
+
+
+def tts_preflight_local() -> bool:
+    """Preflight for TTS_PROVIDER=local: verify Kokoro works, report F5 status."""
+    test_text = "Bitcoin signal confirmed today."
+    test_out = "/tmp/tts_preflight_local.m4a"
+    try:
+        ok = tts_kokoro(test_text, test_out, voice=KOKORO_HOST1_VOICE, speed=1.0)
+        if not ok or not os.path.exists(test_out):
+            raise RuntimeError("[TTS/Local] Kokoro preflight failed to generate audio")
+        dur = ffprobe_duration(test_out)
+        if dur < 0.5:
+            raise RuntimeError(f"[TTS/Local] Kokoro output too short: {dur:.2f}s")
+        logger.info(f"[TTS/Local] Kokoro preflight PASS: {dur:.2f}s")
+        try:
+            os.remove(test_out)
+        except Exception:
+            pass
+        if os.path.exists(PBX_CHECKPOINT) and os.path.exists(PBX_REFERENCE_CLIP):
+            logger.info("[TTS/Local] F5 ready: checkpoint + reference clip")
+        elif os.path.exists(PBX_CHECKPOINT):
+            logger.warning(f"[TTS/Local] F5 checkpoint found but reference clip missing: {PBX_REFERENCE_CLIP}")
+        else:
+            logger.warning("[TTS/Local] F5 checkpoint missing — host2 using Kokoro am_adam")
+        return True
+    except Exception as e:
+        raise RuntimeError(f"[TTS/Local] Preflight FAILED: {e}")
+
+
 def validate_tts_output(path: str, min_size: int = 10240) -> None:
     """Validate TTS output file is real audio, not empty/corrupt.
 
@@ -803,9 +1058,10 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    # Only require ElevenLabs key if actually using ElevenLabs
     _active_provider = _get_tts_provider()
-    if _active_provider == "elevenlabs":
+    if _active_provider == "local":
+        tts_preflight_local()
+    else:
         key = _get_cached_key("ELEVENLABS_API_KEY")
         if not key:
             raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
@@ -836,8 +1092,12 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             current_time += clip_duration  # advance timeline so subsequent audio is correctly offset
             continue
 
-        host_num = 2  # Option A: ALL lines → PBX (single host pipeline)
-        voice = VOICES[2]
+        _provider = _get_tts_provider()
+        if _provider == "local":
+            host_num = host if host in (1, 2) else 2
+        else:
+            host_num = 2   # ElevenLabs: single-host Option A preserved
+        voice = VOICES[host_num]
         segment_type = entry.get("type", "")
         line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
 
@@ -845,8 +1105,10 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
 
         _provider = _get_tts_provider()
-        # ElevenLabs only — Inworld disabled per PIPELINE_LAWS
-        _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
+        if _provider == "local":
+            _tts_ok = tts_local(text, line_path, host_num, segment_type=segment_type)
+        else:
+            _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
         if _tts_ok:
             if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
                 logger.warning(f"[tts] Line {i} zero/tiny audio — writing silence")
@@ -858,7 +1120,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                     _tts_ok = False
         if not _tts_ok:
             # Degrade gracefully: write 3s silence so assembler can continue
-            logger.error(f"[tts] ElevenLabs failed line {i} — writing silence")
+            logger.error(f"[tts] TTS failed line {i} — writing silence")
             subprocess.run([
                 "ffmpeg", "-y", "-f", "lavfi",
                 "-i", "anullsrc=r=48000:cl=stereo",

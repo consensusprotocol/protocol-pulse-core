@@ -35,3 +35,9 @@ video_pipeline_v3/data/yt_cookies.txt
 video_pipeline_v3/data/yt_cookies.txt
 docs/audits/*.md
 !docs/audits/AUDIT_REGISTRY.json
+
+# TTS voice assets — large binaries, never commit
+video_pipeline_v3/voices/*.wav
+video_pipeline_v3/voices/*.pt
+video_pipeline_v3/voices/segments/
+video_pipeline_v3/voices/finetune/checkpoints/
