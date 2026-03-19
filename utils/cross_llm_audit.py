@@ -376,7 +376,7 @@ def fire_all_llms(prompt: str) -> tuple[dict, dict]:
     results, errors = {}, {}
     threads = [
         threading.Thread(target=call_gemini, args=(prompt, results, errors)),
-        threading.Thread(target=call_gpt4o,  args=(prompt, results, errors)),
+        # threading.Thread(target=call_gpt4o,  args=(prompt, results, errors)),  # GPT-4o disabled — quota exhausted
         threading.Thread(target=call_grok,   args=(prompt, results, errors)),
     ]
     for t in threads: t.start()
