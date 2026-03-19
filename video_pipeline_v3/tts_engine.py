@@ -71,7 +71,7 @@ def _init_f5():
         return False
     try:
         from f5_tts.api import F5TTS
-        _F5_MODEL = F5TTS(model_type="F5TTS_v1_Base", ckpt_file=ckpt, device="cuda")
+        _F5_MODEL = F5TTS(model="F5TTS_v1_Base", ckpt_file=ckpt, device="cuda:1")
         logger.info(f"[TTS/F5] Fine-tuned model loaded: {ckpt}")
         return True
     except Exception as e:
