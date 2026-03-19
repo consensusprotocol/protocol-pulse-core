@@ -31,11 +31,18 @@ if not (os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0):
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
     """Run ffmpeg command, return True on success."""
     cmd = ["ffmpeg", "-y"] + args
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-    if r.returncode != 0:
-        logger.error(f"FAIL {label}: {r.stderr[-400:]}")
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        if proc.returncode != 0:
+            logger.error(f"FAIL {label}: {proc.stderr[-400:]}")
+            return False
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(f"TIMEOUT {label} after {timeout}s — killing ffmpeg")
         return False
-    return True
+    except Exception as e:
+        logger.error(f"EXCEPTION {label}: {e}")
+        return False
 
 
 def fix_av_sync(input_path: str, output_path: str) -> bool:
@@ -233,6 +240,23 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
     Returns:
         True if clip was extracted successfully
     """
+    try:
+        return _extract_clip_inner(video_id, start_sec, end_sec, output_path, channel)
+    except Exception as e:
+        logger.error(f"[extractor] FATAL exception on {video_id}: {e}", exc_info=True)
+        # Clean up any temp files left behind
+        for suffix in [".resync.mp4", ".sync.mp4", ".nuclear.mp4", ".lipsync.mp4",
+                       ".fix7.mp4", ".jingle_skip.mp4", ".outro_trim.mp4"]:
+            tmp = output_path + suffix
+            if os.path.exists(tmp):
+                try: os.remove(tmp)
+                except OSError: pass
+        return False
+
+
+def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
+                        output_path: str, channel: str = "") -> bool:
+    """Inner implementation of extract_clip — may raise exceptions."""
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
     # Check if already extracted
@@ -654,7 +678,12 @@ def extract_all(selections: dict, output_dir: str) -> dict:
 
         output_path = os.path.join(output_dir, f"clip_{rank}_{channel}_{video_id}.mp4")
 
-        if extract_clip(video_id, start, end, output_path, channel=channel):
+        try:
+            clip_ok = extract_clip(video_id, start, end, output_path, channel=channel)
+        except Exception as e:
+            logger.error(f"[extractor] extract_clip raised for {video_id}: {e}", exc_info=True)
+            clip_ok = False
+        if clip_ok:
             # Issue 10: Quality enforcement — reject below 1.5Mbps floor
             quality = _check_clip_quality(output_path, clip.get("channel", channel),
                                           video_id=video_id, start_sec=start, end_sec=end)
