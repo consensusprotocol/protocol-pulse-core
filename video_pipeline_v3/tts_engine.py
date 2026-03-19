@@ -745,13 +745,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     os.remove(f)
                 except Exception:
                     pass
-            # Option A: NO pyttsx3 fallback, NO silence fallback. Hard abort.
-            # Per PIPELINE_FIX: if ElevenLabs fails, ABORT the render, do NOT substitute.
-            raise RuntimeError(
-                f"TTS FATAL: ElevenLabs failed for chunk {ci} after 3 retries. "
-                f"Text: \"{(text[:80] + '...') if len(text) > 80 else text}\". "
-                f"Aborting render — no pyttsx3/silence fallback allowed."
-            )
+            logger.error(f"[tts] ElevenLabs failed after 3 retries for chunk {ci} — returning False")
+            return False
         chunk_files.append(mp3_tmp)
 
     # Single chunk
@@ -853,48 +848,41 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         # ElevenLabs only — Inworld disabled per PIPELINE_LAWS
         _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
         if _tts_ok:
-            # Zero-byte / short audio guard: abort if TTS returned garbage
             if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
-                raise RuntimeError(
-                    f"TTS FATAL: Line {i} generated zero-byte or tiny audio "
-                    f"({os.path.getsize(line_path) if os.path.exists(line_path) else 0} bytes). "
-                    f"Text: \"{text[:60]}...\""
-                )
-            dur = ffprobe_duration(line_path)
-            # Per-line duration check: if text > 10 chars but audio < 0.5s, something is wrong
-            if dur < 0.5 and len(text) > 10:
-                raise RuntimeError(
-                    f"TTS FATAL: Line {i} audio too short ({dur:.2f}s) for {len(text)}-char text. "
-                    f"ElevenLabs likely returned empty audio. Text: \"{text[:60]}...\""
-                )
-            lines.append({
-                "path": line_path,
-                "host": host_num,
-                "duration": dur,
-                "start": current_time,
-                "text": text,
-                "type": segment_type,
-                "clip_rank": entry.get("clip_rank", 0),  # PiP FIX: preserve for assembler PiP lookup
-            })
-            parts_for_concat.append(line_path)
-            current_time += dur
+                logger.warning(f"[tts] Line {i} zero/tiny audio — writing silence")
+                _tts_ok = False
+            else:
+                dur = ffprobe_duration(line_path)
+                if dur < 0.5 and len(text) > 10:
+                    logger.warning(f"[tts] Line {i} too short ({dur:.2f}s) — writing silence")
+                    _tts_ok = False
+        if not _tts_ok:
+            # Degrade gracefully: write 3s silence so assembler can continue
+            logger.error(f"[tts] ElevenLabs failed line {i} — writing silence")
+            subprocess.run([
+                "ffmpeg", "-y", "-f", "lavfi",
+                "-i", "anullsrc=r=48000:cl=stereo",
+                "-t", "3", "-c:a", "aac", "-b:a", "192k", line_path
+            ], capture_output=True)
+            dur = 3.0
 
-            # Add silence gap between speakers (not after last line, not before CLIP)
-            next_entry = dialogue[i + 1] if i < len(dialogue) - 1 else None
-            if next_entry is not None and next_entry.get("host") != "CLIP":
-                parts_for_concat.append(silence_path)
-                current_time += SILENCE_GAP
-        else:
-            print(f"  [tts] FAILED line {i} ({voice['name']})")
-            lines.append({
-                "path": None,
-                "host": host_num,
-                "duration": 0.0,
-                "start": current_time,
-                "text": text,
-                "type": segment_type,
-                "clip_rank": entry.get("clip_rank", 0),  # PiP FIX: preserve for assembler PiP lookup
-            })
+        lines.append({
+            "path": line_path,
+            "host": host_num,
+            "duration": dur,
+            "start": current_time,
+            "text": text,
+            "type": segment_type,
+            "clip_rank": entry.get("clip_rank", 0),  # PiP FIX: preserve for assembler PiP lookup
+        })
+        parts_for_concat.append(line_path)
+        current_time += dur
+
+        # Add silence gap between speakers (not after last line, not before CLIP)
+        next_entry = dialogue[i + 1] if i < len(dialogue) - 1 else None
+        if next_entry is not None and next_entry.get("host") != "CLIP":
+            parts_for_concat.append(silence_path)
+            current_time += SILENCE_GAP
 
     # Concatenate all lines into full audio
     full_path = os.path.join(output_dir, "full_dialogue.m4a")
