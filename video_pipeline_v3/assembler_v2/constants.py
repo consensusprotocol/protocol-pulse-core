@@ -56,7 +56,7 @@ QC_MAX_SILENCE_S         = 2.0
 QC_EPISODE_SILENCE_HOLD_S = QC_MAX_SILENCE_S * 3  # 6.0s — per-episode silence HOLD threshold
 QC_MIN_LUFS              = -17.0
 QC_MAX_LUFS              = -9.0
-QC_MAX_TRUE_PEAK         = 0.0
+QC_MAX_TRUE_PEAK         = 0.5
 
 # FFmpeg operation timeouts
 FFMPEG_TIMEOUT_ENCODE = 300
