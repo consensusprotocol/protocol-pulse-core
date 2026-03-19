@@ -220,36 +220,138 @@ def _format_transcripts(videos: list) -> str:
 
 
 def _parse_llm_json(text: str, label: str = "LLM") -> dict | None:
-    """Parse JSON from LLM response, stripping markdown fences and repairing truncation.
+    """Parse JSON from LLM response — robust brace-counting parser.
+
+    Strategy:
+      1. Strip markdown fences
+      2. Try direct json.loads
+      3. Brace-counting: walk char-by-char extracting each complete {...} object
+         that contains both "rank" and "video_id" keys (i.e. clip objects)
+      4. Reassemble from collected clips + regex-extracted episode_title/cold_open
+      5. Progressive boundary search as final fallback
 
     Returns parsed dict or None on failure.
     """
     if not text:
         return None
-    # Strip markdown fences
-    if "```json" in text:
-        text = text.split("```json", 1)[1].split("```", 1)[0]
-    elif "```" in text:
-        text = text.split("```", 1)[1].split("```", 1)[0]
-    text = text.strip()
-    # Attempt direct parse
+
+    # --- Step 1: Strip markdown fences ---
+    import re as _re
+    stripped = text
+    if "```json" in stripped:
+        stripped = stripped.split("```json", 1)[1].split("```", 1)[0]
+    elif "```" in stripped:
+        stripped = stripped.split("```", 1)[1].split("```", 1)[0]
+    stripped = stripped.strip()
+
+    # --- Step 2: Direct parse ---
     try:
-        return json.loads(text)
+        return json.loads(stripped)
     except json.JSONDecodeError:
         pass
-    # Repair: find last complete clip object and close structures
+
+    # --- Step 3: Brace-counting extraction ---
+    def _extract_objects(s: str) -> list:
+        """Walk char-by-char, track brace depth, yield complete top-level objects."""
+        objects = []
+        i = 0
+        in_string = False
+        escape_next = False
+        while i < len(s):
+            if s[i] == '{' and not in_string:
+                # Start of an object — track depth
+                depth = 1
+                start = i
+                j = i + 1
+                obj_in_string = False
+                obj_escape = False
+                while j < len(s) and depth > 0:
+                    c = s[j]
+                    if obj_escape:
+                        obj_escape = False
+                    elif c == '\\' and obj_in_string:
+                        obj_escape = True
+                    elif c == '"' and not obj_escape:
+                        obj_in_string = not obj_in_string
+                    elif not obj_in_string:
+                        if c == '{':
+                            depth += 1
+                        elif c == '}':
+                            depth -= 1
+                    j += 1
+                if depth == 0:
+                    candidate = s[start:j]
+                    try:
+                        obj = json.loads(candidate)
+                        objects.append(obj)
+                    except json.JSONDecodeError:
+                        pass
+                i = j
+            else:
+                if escape_next:
+                    escape_next = False
+                elif s[i] == '\\' and in_string:
+                    escape_next = True
+                elif s[i] == '"':
+                    in_string = not in_string
+                i += 1
+        return objects
+
+    all_objects = _extract_objects(stripped)
+
+    # Separate clip objects (have rank + video_id) from the wrapper
+    clips = []
+    wrapper = None
+    for obj in all_objects:
+        if "rank" in obj and "video_id" in obj:
+            clips.append(obj)
+        elif "clips" in obj:
+            # This is a successfully parsed wrapper — use it directly
+            return obj
+        elif "episode_title" in obj or "cold_open" in obj:
+            wrapper = obj
+
+    if clips:
+        # --- Step 4: Reassemble from clips + regex metadata ---
+        episode_title = "Pulse Check"
+        cold_open = ""
+
+        if wrapper:
+            episode_title = wrapper.get("episode_title", episode_title)
+            cold_open = wrapper.get("cold_open", cold_open)
+        else:
+            # Try regex extraction from raw text
+            m_title = _re.search(r'"episode_title"\s*:\s*"((?:[^"\\]|\\.)*)"', stripped)
+            if m_title:
+                episode_title = m_title.group(1)
+            m_cold = _re.search(r'"cold_open"\s*:\s*"((?:[^"\\]|\\.)*)"', stripped)
+            if m_cold:
+                cold_open = m_cold.group(1)
+
+        # Sort by rank to maintain order
+        clips.sort(key=lambda c: c.get("rank", 999))
+        result = {
+            "episode_title": episode_title,
+            "cold_open": cold_open,
+            "clips": clips,
+        }
+        logger.warning(f"{label}: JSON repaired via brace-counting ({len(clips)} clips recovered)")
+        return result
+
+    # --- Step 5: Progressive boundary search (last resort) ---
     try:
-        last_brace = text.rfind("}")
+        last_brace = stripped.rfind("}")
         if last_brace > 0:
-            repaired = text[:last_brace + 1]
+            repaired = stripped[:last_brace + 1]
             if '"clips"' in repaired and not repaired.rstrip().endswith("]}"):
                 repaired = repaired.rstrip().rstrip(",") + "]}"
             result = json.loads(repaired)
-            logger.warning(f"{label}: JSON repaired (truncated response salvaged)")
+            logger.warning(f"{label}: JSON repaired (progressive boundary salvage)")
             return result
     except json.JSONDecodeError:
         pass
-    logger.warning(f"{label}: JSON parse failed. Raw (first 500): {text[:500]}")
+
+    logger.warning(f"{label}: JSON parse failed. Raw (first 500): {stripped[:500]}")
     return None
 
 
@@ -272,7 +374,7 @@ def select_clips(videos: list) -> dict:
     prompt = SELECTION_PROMPT.format(transcripts=transcripts_text)
 
     logger.info(f"Sending {len(videos)} transcripts for clip selection...")
-    text = call_llm(prompt, max_tokens=4000)
+    text = call_llm(prompt, max_tokens=8000)
     if text is None:
         logger.error("All LLM providers failed for clip selection")
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
@@ -363,7 +465,7 @@ def select_clips(videos: list) -> dict:
                     f"\"host_setup\": \"...\", \"host_react\": \"...\"}}]}}"
                 )
                 try:
-                    text2 = call_llm(reselect_prompt, max_tokens=4096)
+                    text2 = call_llm(reselect_prompt, max_tokens=8000)
                     if text2 is None:
                         raise RuntimeError("All LLM providers failed for re-selection")
 
@@ -371,7 +473,7 @@ def select_clips(videos: list) -> dict:
                     if extra is None:
                         # Retry once with fresh call
                         logger.warning("Re-selection JSON parse failed, retrying...")
-                        text2 = call_llm(reselect_prompt, max_tokens=4096)
+                        text2 = call_llm(reselect_prompt, max_tokens=8000)
                         if text2 is not None:
                             extra = _parse_llm_json(text2, label="re-selection retry")
                     if extra is None:
