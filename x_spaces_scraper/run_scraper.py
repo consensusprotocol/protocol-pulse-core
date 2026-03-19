@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import fcntl
 import json
 import logging
 import sys
@@ -66,130 +67,149 @@ logger = logging.getLogger("x_spaces_scraper")
 
 def run_pipeline(dry_run: bool = False, auto_publish: bool = False, max_spaces: int = 10):
     """Run the full X Spaces → articles pipeline."""
-    start = time.time()
-    logger.info("=" * 60)
-    logger.info(f"X Spaces Scraper starting | dry_run={dry_run} | auto_publish={auto_publish}")
-    logger.info("=" * 60)
 
-    stats = {
-        "spaces_found": 0,
-        "transcripts_attempted": 0,
-        "transcripts_fetched": 0,
-        "articles_generated": 0,
-        "articles_published": 0,
-        "errors": [],
-    }
+    # ── Process lockfile — prevent concurrent runs ────────────────────────
+    LOCK_FILE = Path(__file__).parent / '.scraper.lock'
+    lock_fh = open(LOCK_FILE, 'w')
+    try:
+        fcntl.flock(lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        logger.info("[scraper] Another instance is running — exiting cleanly")
+        lock_fh.close()
+        return {"status": "skipped", "reason": "already_running"}
 
-    # ── Step 1: Find Spaces ──────────────────────────────────────────────
-    logger.info("Step 1/4: Searching for Bitcoin X Spaces...")
-    db = SpaceStateDB()
-    scraper = XSpacesScraper()
-    scraper.db = db  # share the same DB instance
-    spaces = scraper.find_spaces(skip_processed=True)
-    stats["spaces_found"] = len(spaces)
+    try:
+        start = time.time()
+        logger.info("=" * 60)
+        logger.info(f"X Spaces Scraper starting | dry_run={dry_run} | auto_publish={auto_publish}")
+        logger.info("=" * 60)
 
-    if not spaces:
-        logger.info("No new Spaces found. Pipeline complete.")
-        _log_summary(stats, time.time() - start)
-        return stats
+        stats = {
+            "spaces_found": 0,
+            "transcripts_attempted": 0,
+            "transcripts_fetched": 0,
+            "articles_generated": 0,
+            "articles_published": 0,
+            "errors": [],
+        }
 
-    logger.info(f"Found {len(spaces)} new space(s)")
-    for s in spaces:
-        logger.info(f"  [{s.detected_via}] @{s.host}: {s.title or '(no title)'} ({s.state})")
-        # Upsert discovered spaces into DB immediately
-        db.upsert(s.space_id, title=s.title, host=s.host,
-                  url=s.url, started_at=s.date,
-                  discovered_at=datetime.utcnow().isoformat())
+        # ── Step 1: Find Spaces ──────────────────────────────────────────────
+        logger.info("Step 1/4: Searching for Bitcoin X Spaces...")
+        db = SpaceStateDB()
+        scraper = XSpacesScraper()
+        scraper.db = db  # share the same DB instance
+        spaces = scraper.find_spaces(skip_processed=True)
+        stats["spaces_found"] = len(spaces)
 
-    # Limit to max_spaces
-    spaces = spaces[:max_spaces]
+        if not spaces:
+            logger.info("No new Spaces found. Pipeline complete.")
+            _log_summary(stats, time.time() - start)
+            return stats
 
-    # ── Step 2: Fetch Transcripts ────────────────────────────────────────
-    logger.info(f"\nStep 2/4: Fetching transcripts for {len(spaces)} space(s)...")
-    transcripts = {}
-    for space in spaces:
-        if dry_run:
-            logger.info(f"  [DRY RUN] Would fetch transcript for {space.space_id} (@{space.host})")
-            continue
+        logger.info(f"Found {len(spaces)} new space(s)")
+        for s in spaces:
+            logger.info(f"  [{s.detected_via}] @{s.host}: {s.title or '(no title)'} ({s.state})")
+            # Upsert discovered spaces into DB immediately
+            db.upsert(s.space_id, title=s.title, host=s.host,
+                      url=s.url, started_at=s.date,
+                      discovered_at=datetime.utcnow().isoformat())
 
-        stats["transcripts_attempted"] += 1
-        transcript = fetch_transcript(space.space_id, space.url, db=db)
-        if transcript:
-            transcripts[space.space_id] = transcript
-            if transcript.get("usable"):
-                stats["transcripts_fetched"] += 1
-            logger.info(
-                f"  Transcript {'OK' if transcript.get('usable') else 'NOT USABLE'}: {space.space_id} — "
-                f"{transcript.get('word_count', 0)} words, "
-                f"{transcript.get('duration_s', 0)}s"
-            )
-        else:
-            err = f"Transcript fetch failed for {space.space_id}"
-            stats["errors"].append(err)
-            logger.warning(f"  {err}")
+        # Limit to max_spaces
+        spaces = spaces[:max_spaces]
 
-    if dry_run:
-        logger.info(f"[DRY RUN] Would attempt transcription for {len(spaces)} spaces")
-        _log_summary(stats, time.time() - start)
-        return stats
+        # ── Step 2: Fetch Transcripts ────────────────────────────────────────
+        logger.info(f"\nStep 2/4: Fetching transcripts for {len(spaces)} space(s)...")
+        transcripts = {}
+        for space in spaces:
+            if dry_run:
+                logger.info(f"  [DRY RUN] Would fetch transcript for {space.space_id} (@{space.host})")
+                continue
 
-    if not transcripts:
-        logger.warning("No transcripts fetched. Pipeline stopping.")
-        _log_summary(stats, time.time() - start)
-        return stats
-
-    # ── Step 3: Generate Articles ────────────────────────────────────────
-    logger.info(f"\nStep 3/4: Generating articles from {len(transcripts)} transcript(s)...")
-    articles = {}
-    for space in spaces:
-        if space.space_id not in transcripts:
-            continue
-
-        transcript = transcripts[space.space_id]
-        if not transcript.get("usable", False):
-            source = transcript.get("source", "unknown")
-            logger.warning(f"Skipping {space.space_id}: transcript not usable (source={source})")
-            stats["errors"].append(f"Unusable transcript for {space.space_id} (source={source})")
-            continue
-        if transcript.get("word_count", 0) < 100:
-            logger.warning(f"  Skipping {space.space_id}: transcript too short ({transcript.get('word_count', 0)} words)")
-            continue
-
-        meta = space.to_dict()
-        article = generate_article(transcript, meta)
-        if article:
-            articles[space.space_id] = article
-            stats["articles_generated"] += 1
-            logger.info(f"  Article OK: \"{article.get('title', '?')}\"")
-        else:
-            err = f"Article generation failed for {space.space_id}"
-            stats["errors"].append(err)
-            logger.warning(f"  {err}")
-
-    if not articles:
-        logger.warning("No articles generated. Pipeline stopping.")
-        _log_summary(stats, time.time() - start)
-        return stats
-
-    # ── Step 4: Publish ──────────────────────────────────────────────────
-    logger.info(f"\nStep 4/4: Publishing {len(articles)} article(s)...")
-    for space_id, article in articles.items():
-        try:
-            article_id = publish_article(article, auto_publish=auto_publish)
-            if article_id:
-                stats["articles_published"] += 1
-                logger.info(f"  Published #{article_id}: \"{article.get('title', '?')}\"")
-                scraper.mark_processed(space_id)  # mark AFTER successful publish
+            stats["transcripts_attempted"] += 1
+            transcript = fetch_transcript(space.space_id, space.url, db=db)
+            if transcript:
+                transcripts[space.space_id] = transcript
+                if transcript.get("usable"):
+                    stats["transcripts_fetched"] += 1
+                logger.info(
+                    f"  Transcript {'OK' if transcript.get('usable') else 'NOT USABLE'}: {space.space_id} — "
+                    f"{transcript.get('word_count', 0)} words, "
+                    f"{transcript.get('duration_s', 0)}s"
+                )
             else:
-                err = f"Publish failed for {space_id}"
+                err = f"Transcript fetch failed for {space.space_id}"
                 stats["errors"].append(err)
                 logger.warning(f"  {err}")
-        except Exception as e:
-            logger.error(f"Publish failed for {space_id}: {e}")
-            stats["errors"].append(f"Publish exception for {space_id}: {e}")
 
-    _log_summary(stats, time.time() - start)
-    return stats
+        if dry_run:
+            logger.info(f"[DRY RUN] Would attempt transcription for {len(spaces)} spaces")
+            _log_summary(stats, time.time() - start)
+            return stats
+
+        if not transcripts:
+            logger.warning("No transcripts fetched. Pipeline stopping.")
+            _log_summary(stats, time.time() - start)
+            return stats
+
+        # ── Step 3: Generate Articles ────────────────────────────────────────
+        logger.info(f"\nStep 3/4: Generating articles from {len(transcripts)} transcript(s)...")
+        articles = {}
+        for space in spaces:
+            if space.space_id not in transcripts:
+                continue
+
+            transcript = transcripts[space.space_id]
+            if not transcript.get("usable", False):
+                source = transcript.get("source", "unknown")
+                logger.warning(f"Skipping {space.space_id}: transcript not usable (source={source})")
+                stats["errors"].append(f"Unusable transcript for {space.space_id} (source={source})")
+                continue
+            if transcript.get("word_count", 0) < 100:
+                logger.warning(f"  Skipping {space.space_id}: transcript too short ({transcript.get('word_count', 0)} words)")
+                continue
+
+            meta = space.to_dict()
+            article = generate_article(transcript, meta)
+            if article:
+                articles[space.space_id] = article
+                stats["articles_generated"] += 1
+                logger.info(f"  Article OK: \"{article.get('title', '?')}\"")
+            else:
+                err = f"Article generation failed for {space.space_id}"
+                stats["errors"].append(err)
+                logger.warning(f"  {err}")
+
+        if not articles:
+            logger.warning("No articles generated. Pipeline stopping.")
+            _log_summary(stats, time.time() - start)
+            return stats
+
+        # ── Step 4: Publish ──────────────────────────────────────────────────
+        logger.info(f"\nStep 4/4: Publishing {len(articles)} article(s)...")
+        for space_id, article in articles.items():
+            try:
+                article_id = publish_article(article, auto_publish=auto_publish)
+                if article_id:
+                    stats["articles_published"] += 1
+                    logger.info(f"  Published #{article_id}: \"{article.get('title', '?')}\"")
+                    scraper.mark_processed(space_id)  # mark AFTER successful publish
+                else:
+                    err = f"Publish failed for {space_id}"
+                    stats["errors"].append(err)
+                    logger.warning(f"  {err}")
+            except Exception as e:
+                logger.error(f"Publish failed for {space_id}: {e}")
+                stats["errors"].append(f"Publish exception for {space_id}: {e}")
+
+        _log_summary(stats, time.time() - start)
+        return stats
+    finally:
+        try:
+            fcntl.flock(lock_fh, fcntl.LOCK_UN)
+            lock_fh.close()
+            LOCK_FILE.unlink(missing_ok=True)
+        except Exception:
+            pass
 
 
 def _log_summary(stats: dict, elapsed: float):
