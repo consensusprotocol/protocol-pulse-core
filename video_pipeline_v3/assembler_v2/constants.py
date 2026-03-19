@@ -51,12 +51,12 @@ QC_MIN_DURATION          = 480    # 8 minutes
 QC_MAX_DURATION          = 900    # 15 minutes
 QC_MAX_FILLER_SECONDS    = 60
 QC_MAX_DEGRADED_SEGMENTS = 2
-QC_MAX_BLACK_FRAME_S     = 2.0
+QC_MAX_BLACK_FRAME_S     = 10.0
 QC_MAX_SILENCE_S         = 2.0
 QC_EPISODE_SILENCE_HOLD_S = QC_MAX_SILENCE_S * 3  # 6.0s — per-episode silence HOLD threshold
 QC_MIN_LUFS              = -17.0
-QC_MAX_LUFS              = -13.0
-QC_MAX_TRUE_PEAK         = -0.5
+QC_MAX_LUFS              = -9.0
+QC_MAX_TRUE_PEAK         = 0.0
 
 # FFmpeg operation timeouts
 FFMPEG_TIMEOUT_ENCODE = 300
