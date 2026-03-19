@@ -1,5 +1,5 @@
 """
-ORACLE AVATAR SERVER v2 — GPU-Cached FP16 + CV2 Sharpen + Blinks
+ORACLE AVATAR SERVER v2 — Kokoro af_heart + CV2 Sharpen + Blinks
 =================================================================
 GPU-accelerated Wav2Lip lip-sync with:
   - FP16 inference via ModelRegistry singleton on GPU 1
@@ -37,14 +37,13 @@ from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 import requests as http_requests  # ElevenLabs TTS
 import json as _json
 
-# ─── F5-TTS Local PBX Voice ─────────────────────────────────────────
-# Add video_pipeline_v3 to path for tts_engine imports
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "video_pipeline_v3"))
+# ─── Kokoro af_heart Female Voice (Oracle Avatar) ────────────────────
 # Add oracle/ to path for normalize_pronunciation
 _oracle_dir = os.path.dirname(os.path.abspath(__file__))
 if _oracle_dir not in sys.path:
     sys.path.insert(0, _oracle_dir)
-_AVATAR_F5_READY = False
+_AVATAR_KOKORO_READY = False
+_KOKORO_PIPELINE = None
 
 # Face enhancement + blink modules
 from face_enhancer import sharpen_mouth_region
@@ -381,29 +380,26 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# F5-TTS LOCAL PBX VOICE (primary) + ELEVENLABS FALLBACK
+# KOKORO af_heart FEMALE VOICE (primary) + ELEVENLABS FALLBACK
 # ═══════════════════════════════════════════════════════════════════════
 
-def _init_avatar_f5():
-    """Load the F5-TTS fine-tuned PBX model on cuda:1. Call once at startup."""
-    global _AVATAR_F5_READY
+def _init_avatar_kokoro():
+    """Lazy-init Kokoro KPipeline for af_heart female voice. Call once at startup."""
+    global _AVATAR_KOKORO_READY, _KOKORO_PIPELINE
     try:
-        from tts_engine import _init_f5
-        ok = _init_f5()
-        _AVATAR_F5_READY = ok
-        if ok:
-            logger.info("[AVATAR_TTS] F5 PBX model loaded on cuda:1")
-        else:
-            logger.warning("[AVATAR_TTS] F5 init returned False — ElevenLabs fallback active")
+        from kokoro import KPipeline
+        _KOKORO_PIPELINE = KPipeline(lang_code='a')
+        _AVATAR_KOKORO_READY = True
+        logger.info("[AVATAR_TTS] Kokoro af_heart pipeline loaded")
     except Exception as e:
-        logger.error(f"[AVATAR_TTS] F5 init failed: {e} — ElevenLabs fallback active")
-        _AVATAR_F5_READY = False
+        logger.error(f"[AVATAR_TTS] Kokoro init failed: {e} — ElevenLabs fallback active")
+        _AVATAR_KOKORO_READY = False
 
 
 def _avatar_tts(text):
-    """Primary TTS: F5 local PBX voice -> PCM WAV 16kHz mono bytes.
-    Falls back to ElevenLabs text_to_speech() if F5 fails."""
-    global _AVATAR_F5_READY
+    """Primary TTS: Kokoro af_heart female voice -> PCM WAV 16kHz mono bytes.
+    Falls back to ElevenLabs text_to_speech() if Kokoro fails."""
+    global _AVATAR_KOKORO_READY
 
     # Normalize Bitcoin pronunciation (BTC -> "bitcoin", sats, hashrate, etc.)
     try:
@@ -412,55 +408,55 @@ def _avatar_tts(text):
     except Exception as _np_err:
         logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
 
-    # Try F5 first
-    if _AVATAR_F5_READY:
+    # Try Kokoro af_heart first
+    if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:
         t0 = time.time()
         try:
-            from tts_engine import tts_f5_finetuned
-            with tempfile.NamedTemporaryFile(suffix=".m4a", delete=False) as tmp:
-                m4a_path = tmp.name
-            ok = tts_f5_finetuned(text, m4a_path, speed=1.05)
-            if ok and os.path.exists(m4a_path) and os.path.getsize(m4a_path) > 1000:
-                # Convert to raw PCM WAV 16kHz mono (Wav2Lip input format)
-                wav_path = m4a_path + ".16k.wav"
+            samples_list = []
+            for _, _, audio in _KOKORO_PIPELINE(text, voice="af_heart", speed=1.0):
+                samples_list.append(audio)
+            if samples_list:
+                audio_np = np.concatenate(samples_list) if len(samples_list) > 1 else samples_list[0]
+                # Write 16kHz mono WAV bytes directly (Wav2Lip input format)
+                # Kokoro outputs 24kHz — resample via ffmpeg
+                import soundfile as sf
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                    sf.write(tmp.name, audio_np, 24000)
+                    wav24_path = tmp.name
+                wav16_path = wav24_path + ".16k.wav"
                 r = subprocess.run(
-                    ["ffmpeg", "-y", "-loglevel", "error", "-i", m4a_path,
-                     "-ar", "16000", "-ac", "1", "-f", "wav", wav_path],
+                    ["ffmpeg", "-y", "-loglevel", "error", "-i", wav24_path,
+                     "-ar", "16000", "-ac", "1", "-f", "wav", wav16_path],
                     capture_output=True, text=True, timeout=30,
                 )
                 try:
-                    os.remove(m4a_path)
+                    os.remove(wav24_path)
                 except OSError:
                     pass
-                if r.returncode == 0 and os.path.exists(wav_path) and os.path.getsize(wav_path) > 1000:
-                    with open(wav_path, "rb") as f:
+                if r.returncode == 0 and os.path.exists(wav16_path) and os.path.getsize(wav16_path) > 1000:
+                    with open(wav16_path, "rb") as f:
                         wav_bytes = f.read()
                     try:
-                        os.remove(wav_path)
+                        os.remove(wav16_path)
                     except OSError:
                         pass
                     elapsed = time.time() - t0
-                    logger.info(f"[AVATAR_TTS] F5 OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
+                    logger.info(f"[AVATAR_TTS] Kokoro OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
                     return wav_bytes
                 else:
-                    logger.warning("[AVATAR_TTS] F5 ffmpeg conversion failed")
+                    logger.warning("[AVATAR_TTS] Kokoro ffmpeg resample failed")
             else:
-                logger.warning("[AVATAR_TTS] F5 inference returned no audio")
-            # Cleanup
-            try:
-                os.remove(m4a_path)
-            except OSError:
-                pass
+                logger.warning("[AVATAR_TTS] Kokoro returned no audio chunks")
         except Exception as e:
-            logger.error(f"[AVATAR_TTS] F5 FAILED: {e} → ElevenLabs fallback")
+            logger.error(f"[AVATAR_TTS] Kokoro FAILED: {e} → ElevenLabs fallback")
     else:
-        logger.info("[AVATAR_TTS] F5 not ready → ElevenLabs fallback")
+        logger.info("[AVATAR_TTS] Kokoro not ready → ElevenLabs fallback")
 
     # Fallback: ElevenLabs
     t0 = time.time()
     audio_bytes = text_to_speech(text)
     elapsed = time.time() - t0
-    logger.info(f"[AVATAR_TTS] F5 FAILED → ElevenLabs fallback: {elapsed:.2f}s ({len(audio_bytes)} bytes)")
+    logger.info(f"[AVATAR_TTS] Kokoro FAILED → ElevenLabs fallback: {elapsed:.2f}s ({len(audio_bytes)} bytes)")
     return audio_bytes
 
 
@@ -596,7 +592,7 @@ def generate():
     """Generate lip-synced video with face restoration, blinks, and head movement.
 
     Accepts two modes:
-      Mode A: {"text": "...", "voice_id": "..."} -> ElevenLabs TTS -> Wav2Lip -> video
+      Mode A: {"text": "..."} -> Kokoro af_heart (or ElevenLabs fallback) -> Wav2Lip -> video
       Mode B: {"audio_base64": "...", "content_type": "..."} -> Wav2Lip -> video
     """
     data = request.get_json()
@@ -609,7 +605,7 @@ def generate():
 
     t_start = time.time()
 
-    # Mode A: text -> F5 local PBX (primary) or ElevenLabs (fallback)
+    # Mode A: text -> Kokoro af_heart (primary) or ElevenLabs (fallback)
     if "text" in data:
         try:
             t_tts = time.time()
@@ -618,7 +614,7 @@ def generate():
         except Exception as e:
             logger.error(f"TTS error: {e}")
             return jsonify({"error": f"TTS failed: {e}"}), 500
-        # F5 returns WAV, ElevenLabs returns MP3 — detect from header
+        # Kokoro returns WAV, ElevenLabs returns MP3 — detect from header
         content_type = "audio/wav" if audio_bytes[:4] == b"RIFF" else "audio/mpeg"
     # Mode B: raw audio
     elif "audio_base64" in data:
@@ -1620,16 +1616,16 @@ def oracle_chunk_file(session_id, idx):
 @app.route("/avatar/tts-provider", methods=["GET"])
 def avatar_tts_provider():
     """Report which TTS provider is active."""
-    if _AVATAR_F5_READY:
+    if _AVATAR_KOKORO_READY:
         return jsonify({
-            "provider": "f5_local",
-            "checkpoint": "pbx_voice.pt",
-            "device": "cuda:1",
+            "provider": "kokoro_af_heart",
+            "voice": "af_heart",
+            "backend": "pytorch",
             "ready": True,
         })
     return jsonify({
         "provider": "elevenlabs_fallback",
-        "reason": "F5 model not loaded or init failed",
+        "reason": "Kokoro pipeline not loaded or init failed",
         "ready": False,
     })
 
@@ -1640,7 +1636,7 @@ def avatar_tts_provider():
 
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("  ORACLE AVATAR SERVER v2 — F5 PBX + CV2 Sharpen + Blinks")
+    print("  ORACLE AVATAR SERVER v2 — Kokoro af_heart + CV2 Sharpen + Blinks")
     print(f"  Port: {PORT}")
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
@@ -1665,9 +1661,9 @@ if __name__ == "__main__":
 
     logger.info("Face enhancer: CV2 sharpen-only (no GFPGAN)")
 
-    # Load F5-TTS PBX voice on cuda:1 (GPU 0 saturated by render pipeline)
-    logger.info("[STARTUP] Initializing F5-TTS PBX voice on cuda:1...")
-    _init_avatar_f5()
+    # Load Kokoro af_heart female voice for Oracle avatar
+    logger.info("[STARTUP] Initializing Kokoro af_heart voice...")
+    _init_avatar_kokoro()
 
     # Auto-warmup
     logger.info("[WARMUP] Running pipeline warmup...")
