@@ -766,7 +766,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.05,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
                         f"[1:a]aformat=channel_layouts=stereo,adelay=300|300[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=first:weights=0.5 3.0,"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=0.5 3.0,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
