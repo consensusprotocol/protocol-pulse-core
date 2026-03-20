@@ -119,7 +119,7 @@ log(f"Loudness: {integrated_lufs} LUFS | True Peak: {true_peak_dbfs} dBFS | LRA:
 
 # ── Freeze frame detection ────────────────────────────────────────────────────
 log("Running freezedetect...")
-freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.001:d=1.0" -an -f null - 2>&1 | grep freeze')
+freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.003:d=1.0" -an -f null - 2>&1 | grep freeze')
 # Only count freezes lasting >2.0s — shorter freezes are intentional b-roll backgrounds
 _freeze_durations = re.findall(r'freeze_duration:\s*([\d.]+)', freeze_raw)
 freeze_count = sum(1 for d in _freeze_durations if float(d) > 2.0)

@@ -1048,13 +1048,36 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     clip_dur = ffprobe_duration(clip_path)
     if clip_dur < 2:  # FIX 1: lowered min from 10s to 2s
         return ""
+
+    # FIX CFR: Pre-process source clip to normalize framerate/encoding before PiP render.
+    # Eliminates b-frame/VFR issues that cause ffmpeg to silently output black frames.
+    cfr_path = clip_path + ".cfr_prep.mp4"
+    cfr_ok = run_ffmpeg([
+        "-i", clip_path,
+        "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+        "-vsync", "cfr", "-r", "30",
+        "-c:a", "aac", "-ar", "48000",
+        cfr_path,
+    ], "pip cfr pre-process", 120)
+    if cfr_ok and os.path.exists(cfr_path) and os.path.getsize(cfr_path) > 50_000:
+        pip_source = cfr_path
+        logger.info(f"PiP: CFR pre-processed {os.path.basename(clip_path)}")
+    else:
+        pip_source = clip_path
+        if os.path.exists(cfr_path):
+            try:
+                os.remove(cfr_path)
+            except OSError:
+                pass
+        logger.warning(f"PiP: CFR pre-process failed, using original clip")
+
     actual_dur = min(duration, clip_dur - 0.5)
     if actual_dur <= 0:
         actual_dur = min(duration, clip_dur)
     # Extract from MIDPOINT of clip (better face shots)
     start = max(0, (clip_dur / 2) - (actual_dur / 2))
     ok = run_ffmpeg([
-        "-ss", str(start), "-i", clip_path,
+        "-ss", str(start), "-i", pip_source,
         "-t", str(actual_dur), "-an",
         "-vf", (
             # FIX 1: scale UP to fill the frame, then crop — NOT decrease+pad which leaves black borders
@@ -1069,6 +1092,14 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
         "-r", "30",
         output_path,
     ], "pip preview extract", 120)  # FIX 1: increased timeout
+
+    # Clean up CFR temp
+    if os.path.exists(cfr_path):
+        try:
+            os.remove(cfr_path)
+        except OSError:
+            pass
+
     if ok and os.path.exists(output_path):
         # Render21 FIX 2: Verify PiP output is real video (not still image)
         pip_out_dur = ffprobe_duration(output_path)
@@ -1087,7 +1118,45 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
             except OSError:
                 pass
             return ""
-        logger.info(f"PiP verified: {pip_out_dur:.1f}s, {frame_count} frames from {clip_path}")
+
+        # FIX BLACK: Sample mid-frame brightness to detect silent black output.
+        # ffmpeg can produce valid frame counts but all-black video from bad sources.
+        try:
+            brightness_result = subprocess.run(
+                ["ffmpeg", "-v", "error", "-ss", str(min(actual_dur / 2, pip_out_dur / 2)),
+                 "-i", output_path, "-vframes", "3",
+                 "-vf", "signalstats", "-f", "null", "-"],
+                capture_output=True, text=True, timeout=15)
+            import re as _re_pip
+            yavg_vals = _re_pip.findall(r"YAVG:\s*([\d.]+)", brightness_result.stderr)
+            mean_brightness = sum(float(v) for v in yavg_vals) / len(yavg_vals) if yavg_vals else 999
+        except Exception:
+            mean_brightness = 999  # can't check — assume ok
+        if mean_brightness < 12:
+            logger.error(f"PiP BLACK OUTPUT detected: YAVG={mean_brightness:.1f} src={clip_path} — falling back to letterbox")
+            try:
+                os.remove(output_path)
+            except OSError:
+                pass
+            # Fallback: simple centered letterbox clip (plain video > black frames)
+            letterbox_ok = run_ffmpeg([
+                "-ss", str(start), "-i", clip_path,
+                "-t", str(actual_dur), "-an",
+                "-vf", (
+                    "scale=716:370:force_original_aspect_ratio=decrease,"
+                    "pad=716:370:(ow-iw)/2:(oh-ih)/2:color=0x0A0A0F,"
+                    "format=yuv420p"
+                ),
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-r", "30",
+                output_path,
+            ], "pip letterbox fallback", 120)
+            if letterbox_ok and os.path.exists(output_path):
+                logger.info(f"PiP: letterbox fallback rendered for {os.path.basename(clip_path)}")
+                return output_path
+            return ""
+
+        logger.info(f"PiP verified: {pip_out_dur:.1f}s, {frame_count} frames, YAVG={mean_brightness:.1f} from {clip_path}")
         return output_path
     return ""
 
@@ -3509,14 +3578,14 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
 
 
 def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
-    """R25 FIX 2: Instant 0.06s black frame + whoosh SFX only.
+    """R25 FIX 2 + BLACK FRAME FIX: 0.1s max transition with whoosh SFX.
 
-    No visual overlay — just a flash-cut black frame with whoosh sound.
-    This creates snappy broadcast-style transitions without visual clutter.
+    Previous: 0.5s of solid black + whoosh = Gemini penalizes as black frames.
+    Now: 0.1s hard cut with whoosh audio compressed to fit. Clean broadcast-style.
     ISSUE 3 FIX: Global whoosh dedup via _whoosh_applied_parts set.
     """
     global _whoosh_applied_parts
-    duration = 0.06  # R25: instant black flash
+    duration = 0.1  # Hard cut — 0.1s max to avoid black frame penalties
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
     # ISSUE 3: Check global whoosh dedup set
     abs_out = os.path.abspath(output_path)
@@ -3525,21 +3594,20 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
         has_whoosh = False  # render without whoosh
 
     if has_whoosh:
-        # 0.06s black + whoosh (whoosh extends slightly for audibility)
-        whoosh_dur = 0.5  # whoosh needs ~0.5s to be heard
+        # 0.1s background + compressed whoosh (fast attack, truncated)
         ok = run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={whoosh_dur}:r=30",
+            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
             "-i", GLITCH_WHOOSH,
             "-filter_complex",
-            f"[1:a]atrim=0:{whoosh_dur},asetpts=PTS-STARTPTS,volume=2.5,"
-            f"afade=t=out:st=0.3:d=0.2,alimiter=limit=0.95[outa]",
+            f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=3.0,"
+            f"afade=t=out:st=0.05:d=0.05,alimiter=limit=0.95[outa]",
             "-map", "0:v", "-map", "[outa]",
-            "-t", str(whoosh_dur),
+            "-t", str(duration),
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
             output_path,
-        ], "R25 instant black + whoosh", 30)
+        ], "instant hard cut + whoosh", 30)
     else:
         ok = run_ffmpeg([
             "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
@@ -3548,11 +3616,11 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
             output_path,
-        ], "R25 instant black (silent)", 30)
+        ], "instant hard cut (silent)", 30)
     if ok and os.path.exists(output_path):
         dur = ffprobe_duration(output_path)
         _whoosh_applied_parts.add(abs_out)  # ISSUE 3: Track applied whoosh
-        logger.info(f"  R25 TRANSITION: instant black + whoosh ({dur:.2f}s)")
+        logger.info(f"  TRANSITION: hard cut ({dur:.2f}s)")
         return output_path
     return ""
 
@@ -3733,11 +3801,11 @@ def concatenate_parts(parts: list, output_path: str,
         )
         chosen = tmp if (ok and os.path.exists(tmp)) else p
         # BLACK HOLE GUARD (FIX 3): scan for >0.5s of black mid-part, re-render or replace
-        # Lowered from d=1 to d=0.5 to catch 1.9s black frames from failed PiP composites
+        # pix_th=0.05 catches #0A0A0F bg color (Y≈10/255≈0.039) which pix_th=0.02 missed
         try:
             bd = subprocess.run(
                 ["ffmpeg", "-i", chosen,
-                 "-vf", "blackdetect=d=0.5:pix_th=0.02",
+                 "-vf", "blackdetect=d=0.5:pix_th=0.05",
                  "-an", "-f", "null", "-"],
                 capture_output=True, text=True, timeout=60
             )
@@ -4448,6 +4516,27 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     if ok_conv and os.path.exists(h264_path):
                         clip_path = h264_path
                         logger.info(f"  FIX4: Pre-converted {clip_codec.upper()} clip #{rank} to H264")
+
+                # FIX CFR: Normalize clip to CFR 30fps h264 before visual render.
+                # VFR/b-frame clips cause ffmpeg filtergraphs to silently produce black frames.
+                cfr_clip = clip_path + ".cfr_clip.mp4"
+                cfr_ok = run_ffmpeg([
+                    "-i", clip_path,
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                    "-vsync", "cfr", "-r", "30", "-pix_fmt", "yuv420p",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    cfr_clip,
+                ], f"CFR pre-process clip #{rank}", 120)
+                if cfr_ok and os.path.exists(cfr_clip) and os.path.getsize(cfr_clip) > 50_000:
+                    clip_path = cfr_clip
+                    logger.info(f"  FIX CFR: Clip #{rank} normalized to CFR 30fps")
+                else:
+                    if os.path.exists(cfr_clip):
+                        try:
+                            os.remove(cfr_clip)
+                        except OSError:
+                            pass
+                    logger.warning(f"  FIX CFR: Clip #{rank} CFR pre-process failed, using original")
 
                 clip_out = os.path.join(work_dir, f"part_{part_idx:03d}_clip_r{rank}.mp4")
                 channel = clip_info.get("channel", "")
