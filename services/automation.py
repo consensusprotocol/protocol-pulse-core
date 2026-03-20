@@ -21,7 +21,7 @@ from services.youtube_service import YouTubeService  # type: ignore
 logger = logging.getLogger(__name__)
 
 AUTOMATION_TASK_NAME = "trigger_automation"
-SKIP_IF_RAN_WITHIN_MINUTES = 10
+SKIP_IF_RAN_WITHIN_MINUTES = 1
 ARTICLE_AUTOMATION_TASK_NAME = "article_generation_15m"
 
 # Replit-style topic pool (shuffled each run; filtered by 3-tier duplicate detection).

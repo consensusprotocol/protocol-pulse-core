@@ -378,28 +378,26 @@ Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "s
             logging.error(f"AI review workflow failed for article {article_id}: {e}")
             return result
 
-    def generate_and_publish_article(self, topic: str, content_type: str = "bitcoin_news", 
+    def generate_and_publish_article(self, topic: str, content_type: str = "bitcoin_news",
                                    auto_publish: bool = False) -> Dict:
-        """
+        """Complete content generation and publishing pipeline.
 
-        # TOPIC DIVERSITY CHECK
-        try:
-            from services.article_automation import _is_topic_oversaturated
-            if _is_topic_oversaturated(topic):
-                self.logger.info(f"TOPIC DIVERSITY: Skipping - oversaturated topic")
-                return {"success": False, "skipped": True, "reason": "topic_oversaturated"}
-        except ImportError:
-            pass
-        Complete content generation and publishing pipeline
-        
         Args:
             topic: Article topic or source content
             content_type: Type of content (bitcoin_news, defi_analysis, market_update)
             auto_publish: Whether to auto-publish to Substack
-            
+
         Returns:
             Dictionary with generation results and URLs
         """
+        # TOPIC DIVERSITY CHECK
+        try:
+            from services.article_automation import _is_topic_oversaturated
+            if _is_topic_oversaturated(topic):
+                logging.info("TOPIC DIVERSITY: Skipping - oversaturated topic")
+                return {"success": False, "skipped": True, "reason": "topic_oversaturated"}
+        except ImportError:
+            pass
         result = {
             "success": False,
             "article_id": None,
@@ -833,7 +831,7 @@ FORMAT: Use <h1 class="article-header">, <div class="tldr-section">, <p class="a
         title = article_data.get("title", "")
         is_dup, dup_title = self._is_duplicate(title)
         if is_dup:
-            self.logger.warning(f"DEDUP: Rejected '{title[:50]}' - too similar to '{dup_title[:50]}'")
+            logging.warning(f"DEDUP: Rejected '{title[:50]}' - too similar to '{dup_title[:50]}'")
             return None
         try:
             # Clean content to handle special characters
@@ -861,7 +859,7 @@ FORMAT: Use <h1 class="article-header">, <div class="tldr-section">, <p class="a
                     img_path = generate_article_header_image(article_data.get("title", "Bitcoin News"))
                     # Verify the file actually exists on disk
                     if img_path and not os.path.exists(img_path.lstrip("/")):
-                        self.logger.warning(f"Image generation returned path but file missing: {img_path}")
+                        logging.warning(f"Image generation returned path but file missing: {img_path}")
                         img_path = None
                     if img_path:
                         header_url = img_path
