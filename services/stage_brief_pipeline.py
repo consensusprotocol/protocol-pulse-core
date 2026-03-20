@@ -216,6 +216,82 @@ def _get_anthropic_key():
     raise RuntimeError("ANTHROPIC_API_KEY not set")
 
 
+
+
+# ---------------------------------------------------------------------------
+# Pulse Check Script Loader (multi-value intel reuse)
+# ---------------------------------------------------------------------------
+
+def _load_pulse_check_script():
+    """Load the most recent Pulse Check script for intel reuse.
+    
+    The Pulse Check video pipeline compiles transcripts, clips, and narrative
+    from 10+ Bitcoin sources into a daily script. This is the richest intel
+    source we have — reuse it as the Stage brief's primary content backbone.
+    Returns condensed script text or None if not available.
+    """
+    output_dir = os.path.join(BASE, "video_pipeline_v3", "output")
+    if not os.path.exists(output_dir):
+        return None
+
+    # Find most recent script.json (skip test_ dirs, prefer dated dirs)
+    candidates = []
+    for d in os.listdir(output_dir):
+        script_path = os.path.join(output_dir, d, "script.json")
+        if os.path.exists(script_path):
+            mtime = os.path.getmtime(script_path)
+            candidates.append((mtime, script_path))
+
+    if not candidates:
+        return None
+
+    # Most recent script
+    candidates.sort(reverse=True)
+    latest_path = candidates[0][1]
+    age_hours = (datetime.now().timestamp() - candidates[0][0]) / 3600
+
+    # Only use if <24 hours old — stale scripts mislead the brief
+    if age_hours > 24:
+        logger.info("Pulse Check script too old (%.1fh) — skipping", age_hours)
+        return None
+
+    try:
+        with open(latest_path) as f:
+            script_data = json.load(f)
+
+        # Extract dialogue lines — the actual spoken content
+        lines = []
+        if isinstance(script_data, dict):
+            # Try common script structures
+            for key in ("segments", "dialogue", "lines", "script", "content"):
+                if key in script_data:
+                    items = script_data[key]
+                    if isinstance(items, list):
+                        for item in items:
+                            if isinstance(item, dict):
+                                text = item.get("text") or item.get("line") or item.get("content") or ""
+                            elif isinstance(item, str):
+                                text = item
+                            else:
+                                continue
+                            if text and len(text) > 20:
+                                lines.append(text.strip())
+                    break
+
+        if not lines:
+            # Fallback: flatten entire JSON to text
+            raw = json.dumps(script_data)
+            lines = [raw[:2000]]
+
+        condensed = " ".join(lines)[:3000]  # cap at 3000 chars to stay within token budget
+        logger.info("Pulse Check script loaded: %.1fh old, %d chars", age_hours, len(condensed))
+        return condensed
+
+    except Exception as e:
+        logger.warning("Pulse Check script load failed: %s", e)
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Brief Script Generation
 # ---------------------------------------------------------------------------
@@ -240,6 +316,18 @@ def generate_brief_script(data, brief_type="morning"):
         f"- Block Height: {data['block_height']:,}\n"
         f"- Timestamp: {data['timestamp']}\n\n"
         f"Generate a {brief_type} brief. Max 200 words, punchy, ready to speak."
+
+    # Multi-value intel reuse: enrich with Pulse Check script if available
+    pulse_script = _load_pulse_check_script()
+    if pulse_script:
+        user_prompt += (
+            f"\n\nContext from today's Pulse Check script "
+            f"(use as primary narrative backbone):\n{pulse_script[:2000]}"
+        )
+        logger.info("[brief] Pulse Check script injected into prompt")
+    else:
+        logger.info("[brief] No Pulse Check script — using live data only")
+
     )
 
     system = BRIEF_SYSTEM_PROMPTS.get(brief_type, BRIEF_SYSTEM_PROMPTS["morning"])
