@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-19 23:47:17  
-**Git:** `c78255f4` on `main`  
+**Generated:** 2026-03-20 00:14:01  
+**Git:** `3f50a176` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
+3f50a176 feat(oracle-widget): Tier 1 Wav2Lip job lifecycle, /oracle/job polling, Chatterbox TTS verified
+ef273082 feat(oracle-widget): /oracle/nudge, /oracle/context, /oracle/status routes + chat page_context extension
+885408a2 chore: update CURRENT_STATE.md handoff doc 2026-03-19
 c78255f4 feat(oracle-widget): mobile sheet, nudge + recommendation wiring, animations, a11y, analytics — SHIPPED
 2d52281a feat(oracle-widget): Sarah avatar idle blink loop for dormant widget state
 8312ea9b fix(oracle-widget): add missing CSS + avatar PNG
 a3716a62 fix(grader): LUFS stream selection + freeze frame duration threshold
 ed71dc82 feat(oracle): upgrade Oracle CTA blocks on both article templates
-8e837545 feat(oracle): add dominant Oracle CTAs to hero + article pages
-4093f511 feat(tts): Chatterbox Oracle + BigVGAN2 vocoder + prosody planner — 2026 TTS stack
-975e360b fix(avatar): use Kokoro af_heart female voice in cache_render_helper + iOS zoom prevention on stage.html
 ```
