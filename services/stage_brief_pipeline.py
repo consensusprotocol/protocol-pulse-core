@@ -316,6 +316,7 @@ def generate_brief_script(data, brief_type="morning"):
         f"- Block Height: {data['block_height']:,}\n"
         f"- Timestamp: {data['timestamp']}\n\n"
         f"Generate a {brief_type} brief. Max 200 words, punchy, ready to speak."
+    )
 
     # Multi-value intel reuse: enrich with Pulse Check script if available
     pulse_script = _load_pulse_check_script()
