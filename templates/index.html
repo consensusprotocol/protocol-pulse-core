@@ -287,7 +287,7 @@
                              'regulation' if ('regul' in cat_raw or 'legal' in cat_raw or 'policy' in cat_raw or 'sec' == cat_raw or 'law' in cat_raw) else
                              'macro' if ('macro' in cat_raw or 'etf' in cat_raw or 'fed' in cat_raw or 'inflation' in cat_raw) else
                              'intel' %}
-            {% set sent = getattr(article, 'sentiment', None) or '' %}
+            {% set sent = article.sentiment if article.sentiment is defined else '' %}
             {% set sent_lower = sent|lower %}
             <a href="/article/{{ article.id }}"
                class="article-card pp-reveal"
