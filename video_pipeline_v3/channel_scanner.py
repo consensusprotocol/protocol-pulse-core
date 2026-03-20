@@ -505,6 +505,17 @@ def scan_all_channels(model_size: str = "base") -> list:
 
     if banned_count:
         logger.info(f"Filtered {banned_count} banned-content clips")
+
+    # ── Tier 2 Discovery: crossover videos from non-Bitcoin channels ──
+    try:
+        from tier2_discovery import discover_crossover_videos
+        crossover = discover_crossover_videos()
+        if crossover:
+            scored.extend(crossover)
+            logger.info(f"Tier 2 Discovery: {len(crossover)} crossover videos added")
+    except Exception as e:
+        logger.warning(f"Tier 2 Discovery failed (non-fatal): {e}")
+
     logger.info(f"Returning {len(scored)} clips (tier-scored, content-filtered)")
     return scored
 

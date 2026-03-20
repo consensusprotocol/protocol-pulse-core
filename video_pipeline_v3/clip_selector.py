@@ -38,6 +38,8 @@ SELECTION CRITERIA (in order of priority):
 4. QUOTABLE — moments where someone says something memorable and punchy
 5. VISUAL — prefer clips where someone is on camera talking (not just voice-over slides)
 
+TIER 4 - CROSSOVER DISCOVERY (1.6x multiplier): Videos from non-Bitcoin channels that specifically covered Bitcoin. A philosopher, scientist, or political commentator covering Bitcoin outscores another Bitcoin-native channel on the same story. Field: source == "tier2_discovery". Prioritize these.
+
 RULES:
 - INTRO AVOIDANCE: Never select a clip starting at 0:00 unless the transcript shows
   substantive speech begins within the first 3 seconds. Prefer clips starting at 30s+
