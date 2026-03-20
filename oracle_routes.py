@@ -683,7 +683,7 @@ def api_telemetry():
 # ─── TIER 1: AVATAR SERVER PROXY ROUTES ──────────────────────────────
 
 AVATAR_LOCAL_URL = 'http://localhost:8200'
-ORACLE_RENDERS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+ORACLE_RENDERS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                    'static', 'oracle_renders')
 os.makedirs(ORACLE_RENDERS_DIR, exist_ok=True)
 
@@ -788,10 +788,6 @@ def oracle_chat_tier1():
             response_text = avatar_data.get('text', '')
 
             if job_id:
-                with _widget_jobs_lock:
-                    _widget_jobs[job_id] = {'created_at': time.time(), 'status': 'pending'}
-                _cleanup_widget_jobs()
-
                 return jsonify({
                     'response': response_text,
                     'job_id': job_id,
@@ -821,39 +817,22 @@ def oracle_chat_tier1():
 @oracle_bp.route('/oracle/job/<job_id>')
 def oracle_job_poll(job_id):
     """Poll avatar server for async Wav2Lip video render status.
+    Always proxies directly to avatar server (stateless — no per-worker dict).
     When complete: saves video to static/oracle_renders/ and returns URL.
     """
-    # Check our tracking dict
-    with _widget_jobs_lock:
-        job = _widget_jobs.get(job_id)
-
-    if not job:
-        return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'unknown_job'})
-
-    # Timeout check (120s)
-    if time.time() - job['created_at'] > 120:
-        with _widget_jobs_lock:
-            _widget_jobs.pop(job_id, None)
-        return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'timeout'})
-
-    # Proxy poll to avatar server
     try:
         resp = requests.get(f'{AVATAR_LOCAL_URL}/oracle/job/{job_id}', timeout=10)
 
         if resp.status_code == 202:
-            # Still pending
             return jsonify({'job_id': job_id, 'status': 'pending'})
 
         if resp.status_code == 200 and resp.headers.get('Content-Type', '').startswith('video/'):
-            # Video is ready — save to static dir
+            # Video ready — save to static dir
             video_filename = f'{job_id}.mp4'
             video_path = os.path.join(ORACLE_RENDERS_DIR, video_filename)
 
             with open(video_path, 'wb') as f:
                 f.write(resp.content)
-
-            with _widget_jobs_lock:
-                _widget_jobs.pop(job_id, None)
 
             # Clean up old renders (keep last 2 hours)
             try:
@@ -873,13 +852,9 @@ def oracle_job_poll(job_id):
             })
 
         if resp.status_code == 500:
-            with _widget_jobs_lock:
-                _widget_jobs.pop(job_id, None)
             return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'render_error'})
 
         if resp.status_code == 404:
-            with _widget_jobs_lock:
-                _widget_jobs.pop(job_id, None)
             return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'not_found'})
 
     except Exception as e:

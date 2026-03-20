@@ -12,12 +12,15 @@
   'use strict';
 
   // ── Config ────────────────────────────────────────────────────────────
-  var AVATAR_IMG    = '/static/oracle_avatar.png';
-  var SKIP_PATHS    = ['/oracle-live', '/oracle', '/admin', '/internal', '/login', '/signup', '/stage'];
-  var BUBBLE_DELAY  = 3500;
-  var NUDGE_DELAY   = 12000;
-  var SESSION_CAP   = 20;
-  var SEND_COOLDOWN = 3000;
+  var AVATAR_IMG       = '/static/oracle_avatar.png';
+  var AVATAR_IDLE_VID  = '/static/img/oracle_avatar_idle.mp4';
+  var SKIP_PATHS       = ['/oracle-live', '/oracle', '/admin', '/internal', '/login', '/signup', '/stage'];
+  var BUBBLE_DELAY     = 3500;
+  var NUDGE_DELAY      = 12000;
+  var SESSION_CAP      = 20;
+  var SEND_COOLDOWN    = 3000;
+  var JOB_POLL_MS      = 1500;
+  var JOB_POLL_TIMEOUT = 15000;
 
   // ── Skip on excluded paths ────────────────────────────────────────────
   var currentPath = window.location.pathname;
@@ -101,6 +104,8 @@
   var _touchStartY = 0;
   var _msgCount = parseInt(ss('msg_count') || '0', 10);
   var _recoLoaded = false;
+  var _currentTier = 2;   // detected before each send
+  var _jobPollTimer = null;
   ss('sid', _sessionId);
 
   // ── Audio context (lazy) ──────────────────────────────────────────────
@@ -159,16 +164,25 @@
   bubble.setAttribute('aria-haspopup', 'dialog');
   bubble.style.display = 'none';
 
-  var avatarImg = document.createElement('img');
-  avatarImg.src = AVATAR_IMG;
-  avatarImg.alt = 'Oracle';
-  avatarImg.onerror = function () {
-    avatarImg.style.display = 'none';
-    var fb = el('span', 'ow-bubble-fb');
-    fb.textContent = '\u26A1';
-    bubble.appendChild(fb);
+  // Idle video loop in bubble (Tier 1 avatar preview)
+  var bubbleVideo = document.createElement('video');
+  bubbleVideo.src = AVATAR_IDLE_VID;
+  bubbleVideo.loop = true;
+  bubbleVideo.autoplay = true;
+  bubbleVideo.muted = true;
+  bubbleVideo.playsInline = true;
+  bubbleVideo.setAttribute('playsinline', '');
+  bubbleVideo.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;pointer-events:none;';
+  bubbleVideo.onerror = function () {
+    // Fall back to static image if idle video fails
+    bubbleVideo.style.display = 'none';
+    var fallbackImg = document.createElement('img');
+    fallbackImg.src = AVATAR_IMG;
+    fallbackImg.alt = 'Oracle';
+    fallbackImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;pointer-events:none;';
+    bubble.appendChild(fallbackImg);
   };
-  bubble.appendChild(avatarImg);
+  bubble.appendChild(bubbleVideo);
   widget.appendChild(bubble);
 
   // Inject into page
@@ -399,6 +413,20 @@
     msgs.scrollTop = msgs.scrollHeight;
   }
 
+  // ── Detect tier before sending ───────────────────────────────────────
+  function detectTier(callback) {
+    fetch('/oracle/status')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        _currentTier = d.recommended_tier || 2;
+        callback(_currentTier);
+      })
+      .catch(function () {
+        _currentTier = 2;
+        callback(2);
+      });
+  }
+
   // ── Send message ──────────────────────────────────────────────────────
   function doSend() {
     if (_processing) return;
@@ -442,6 +470,76 @@
 
     var t0 = Date.now();
 
+    // Detect tier, then send to appropriate endpoint
+    detectTier(function (tier) {
+      if (tier === 1) {
+        sendTier1(text, t0, turnNumber);
+      } else {
+        sendTier2(text, t0, turnNumber);
+      }
+    });
+  }
+
+  // ── Tier 1: Avatar server (Chatterbox TTS + Wav2Lip) ─────────────────
+  function sendTier1(text, t0, turnNumber) {
+    fetch('/oracle/chat/tier1', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        history: _history.slice(-6),
+        fingerprint: _fingerprint || _sessionId,
+        page_context: { type: _pageCtx.pageType, path: _pageCtx.path }
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      typingEl.classList.add('ow-hidden');
+      typingEl.setAttribute('aria-hidden', 'true');
+      var latencyMs = Date.now() - t0;
+
+      if (data.error) {
+        addMsg('The Oracle is momentarily unavailable. Try again in a moment.', 'oracle');
+        finishSend();
+        return;
+      }
+
+      addMsg(data.response, 'oracle');
+      _history.push({ role: 'assistant', content: data.response });
+      saveFingerprint();
+
+      var usedTier = data.tier || 2;
+      var hasJobId = !!data.job_id;
+
+      track('oracle_response_received', {
+        latency_ms: latencyMs,
+        has_audio: !!data.audio,
+        has_video: hasJobId,
+        tier_used: usedTier
+      });
+
+      if (hasJobId) {
+        // Tier 1 path: poll for video
+        pollForVideo(data.job_id, t0);
+      } else if (data.audio) {
+        // Tier 2 fallback with audio
+        playAudio(data.audio);
+        track('oracle_tier_fallback', { from_tier: 1, to_tier: 2, reason: 'no_job_id' });
+        finishSend();
+      } else {
+        finishSend();
+      }
+    })
+    .catch(function () {
+      typingEl.classList.add('ow-hidden');
+      typingEl.setAttribute('aria-hidden', 'true');
+      addMsg('The Oracle is momentarily unavailable. Try again in a moment.', 'oracle');
+      finishSend();
+    });
+  }
+
+  // ── Tier 2: Claude + ElevenLabs audio ─────────────────────────────────
+  function sendTier2(text, t0, turnNumber) {
     fetch('/api/oracle/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -458,21 +556,15 @@
       } else {
         addMsg(data.response, 'oracle');
         _history.push({ role: 'assistant', content: data.response });
-
-        // Save fingerprint on first successful interaction
-        if (!_fingerprint) {
-          _fingerprint = _sessionId;
-          ss('fp', _fingerprint);
-        }
+        saveFingerprint();
 
         track('oracle_response_received', {
           latency_ms: latencyMs,
           has_audio: !!data.audio,
           has_video: false,
-          tier_used: 1
+          tier_used: 2
         });
 
-        // Play audio if present
         if (data.audio) {
           playAudio(data.audio);
         }
@@ -483,11 +575,82 @@
       typingEl.setAttribute('aria-hidden', 'true');
       addMsg('The Oracle is momentarily unavailable. Try again in a moment.', 'oracle');
     })
-    .finally(function () {
-      _processing = false;
-      // Re-enable after cooldown
-      setTimeout(function () { sendBtn.disabled = false; }, SEND_COOLDOWN);
+    .finally(function () { finishSend(); });
+  }
+
+  function saveFingerprint() {
+    if (!_fingerprint) {
+      _fingerprint = _sessionId;
+      ss('fp', _fingerprint);
+    }
+  }
+
+  function finishSend() {
+    _processing = false;
+    setTimeout(function () { sendBtn.disabled = false; }, SEND_COOLDOWN);
+  }
+
+  // ── Video polling for Tier 1 ──────────────────────────────────────────
+  function pollForVideo(jobId, startTime) {
+    var pollStart = Date.now();
+
+    function doPoll() {
+      if (Date.now() - pollStart > JOB_POLL_TIMEOUT) {
+        // Timeout — silent fallback, no video
+        track('oracle_tier_fallback', { from_tier: 1, to_tier: 2, reason: 'poll_timeout' });
+        finishSend();
+        return;
+      }
+
+      fetch('/oracle/job/' + jobId)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'complete' && data.video_url) {
+            playVideo(data.video_url);
+            track('oracle_video_played', { duration_s: 0 });
+            finishSend();
+          } else if (data.status === 'failed') {
+            track('oracle_tier_fallback', { from_tier: 1, to_tier: 2, reason: data.reason || 'render_failed' });
+            finishSend();
+          } else {
+            // Still pending — poll again
+            _jobPollTimer = setTimeout(doPoll, JOB_POLL_MS);
+          }
+        })
+        .catch(function () {
+          // Network error — try again once
+          _jobPollTimer = setTimeout(doPoll, JOB_POLL_MS);
+        });
+    }
+
+    _jobPollTimer = setTimeout(doPoll, JOB_POLL_MS);
+  }
+
+  // ── Video playback (Tier 1 speaking) ──────────────────────────────────
+  function playVideo(videoUrl) {
+    bubble.classList.add('ow-speaking');
+
+    // Swap bubble video to speaking video
+    bubbleVideo.loop = false;
+    bubbleVideo.src = videoUrl;
+    bubbleVideo.muted = false;
+    bubbleVideo.play().catch(function () {
+      // Autoplay blocked — fall back silently
+      restoreIdleVideo();
     });
+
+    bubbleVideo.addEventListener('ended', function onEnded() {
+      bubbleVideo.removeEventListener('ended', onEnded);
+      restoreIdleVideo();
+    });
+  }
+
+  function restoreIdleVideo() {
+    bubble.classList.remove('ow-speaking');
+    bubbleVideo.muted = true;
+    bubbleVideo.loop = true;
+    bubbleVideo.src = AVATAR_IDLE_VID;
+    bubbleVideo.play().catch(function () {});
   }
 
   // ── Audio playback ────────────────────────────────────────────────────
