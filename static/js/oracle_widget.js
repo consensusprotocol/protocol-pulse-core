@@ -329,15 +329,9 @@
   // ── Bubble click ──────────────────────────────────────────────────────
   function onBubbleClick() {
     var source = _tooltipEl ? 'tooltip_click' : 'avatar_click';
-
-    // If tooltip is showing, use nudge as first Oracle message
-    if (_tooltipEl && _pendingNudge) {
-      addMsg(_pendingNudge, 'oracle');
-      _pendingNudge = null;
-    }
     removeTooltip();
-    openPanel();
     track('oracle_opened', { source: source, page_type: _pageCtx.pageType });
+    window.location.href = '/oracle-live';
   }
 
   // ── Open panel ────────────────────────────────────────────────────────

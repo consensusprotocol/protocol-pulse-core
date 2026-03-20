@@ -426,6 +426,28 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 /* ═══════════════════════════════════════════════════════════
    MOBILE — max-width 640px
 ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   TABLET — max-width 768px
+═══════════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  .video-wrap{
+    max-width:100%;
+    margin:0 auto;
+  }
+  #vid{
+    width:100%;
+    max-width:100%;
+    display:block;
+    margin:0 auto;
+  }
+  #cards{grid-template-columns:1fr 1fr}
+  .card{min-height:48px}
+  #mic{min-width:48px;min-height:48px}
+  #cam-btn{min-width:48px;min-height:48px}
+  #gate-btn{min-height:48px}
+  #root{padding-bottom:80px}
+}
+
 @media(max-width:640px){
   body{position:fixed;width:100%;overflow:hidden}
   #root{position:relative;height:100dvh}
