@@ -70,6 +70,11 @@ if database_url.startswith("sqlite:"):
     # SQLite: remove unsupported charset param added by older code
     if "charset=utf8mb4" in database_url:
         database_url = database_url.replace("?charset=utf8mb4", "").replace("&charset=utf8mb4", "")
+    # SQLite: resolve relative paths against the app directory so gunicorn CWD doesn't matter
+    _prefix = "sqlite:///"
+    if database_url.startswith(_prefix) and not database_url[len(_prefix):].startswith("/"):
+        _rel_path = database_url[len(_prefix):]
+        database_url = _prefix + os.path.join(os.path.dirname(os.path.abspath(__file__)), _rel_path)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {

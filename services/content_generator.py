@@ -169,7 +169,7 @@ def resolve_header_image_url(title: str, article_html: str) -> tuple[str, str, s
     src_type = infer_source_type(src_url) if src_url else ""
 
     header = ""
-    if image_service.openai_client:
+    if getattr(image_service, 'openai_key', None) or getattr(image_service, 'xai_key', None) or getattr(image_service, 'pexels_key', None):
         try:
             summary = image_service.extract_summary_from_content(article_html) if article_html else title
             generated = image_service.generate_article_header_image(title, summary)

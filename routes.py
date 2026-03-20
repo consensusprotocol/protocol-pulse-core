@@ -4405,27 +4405,30 @@ def get_series_teaser():
 
 @app.route('/api/trigger-automation', methods=['POST', 'GET'])
 def trigger_automation():
-    """Webhook endpoint to trigger article generation from Scheduled Deployment"""
+    """Webhook endpoint to trigger article generation from Scheduled Deployment.
+    Runs generation in a background thread to avoid gunicorn worker timeout."""
+    import threading
     from services.automation import generate_article_with_tracking
-    
-    result = generate_article_with_tracking()
-    
-    if result.get('success'):
-        return jsonify({
-            'status': 'success',
-            'message': f"Article generated: {result.get('title')}",
-            'article_id': result.get('article_id')
-        }), 200
-    elif result.get('skipped'):
-        return jsonify({
-            'status': 'skipped',
-            'message': 'Another process is running'
-        }), 200
-    else:
-        return jsonify({
-            'status': 'failed',
-            'message': result.get('error', 'Unknown error')
-        }), 500
+
+    # If ?sync=1, run synchronously (for debugging)
+    if request.args.get('sync'):
+        result = generate_article_with_tracking()
+        if result.get('success'):
+            return jsonify({'status': 'success', 'message': f"Article generated: {result.get('title')}", 'article_id': result.get('article_id')}), 200
+        elif result.get('skipped'):
+            return jsonify({'status': 'skipped', 'message': 'Another process is running'}), 200
+        else:
+            return jsonify({'status': 'failed', 'message': result.get('error', 'Unknown error')}), 500
+
+    def _run():
+        try:
+            generate_article_with_tracking()
+        except Exception as e:
+            logging.error(f"Background article generation failed: {e}")
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+    return jsonify({'status': 'accepted', 'message': 'Article generation started in background'}), 202
 
 @app.route('/health/automation')
 def automation_health():
