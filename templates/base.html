@@ -55,6 +55,7 @@
     <link rel="stylesheet" href="{{ '/v3/css/pp-style.css' }}?v=2.0">
     <link rel="stylesheet" href="{{ '/v3/css/pp-coindesk.css' }}?v=2.0">
     <link rel="stylesheet" href="{{ '/v3/css/pp-fixes.css' }}?v=2.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/oracle_widget.css') }}?v=4.0">
     {% if current_user.is_authenticated and (current_user.operative_rank|default(0)) >= 3 %}
     <link rel="stylesheet" href="{{ '/v3/css/stealth-alpha.css' }}?v=2.0">
     {% endif %}

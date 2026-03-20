@@ -407,3 +407,91 @@ def oracle_health():
         'engine': 'wav2lip-gpu',
         'avatar_server': 'connected' if avatar_connected else 'disconnected',
     })
+
+
+# ─── WIDGET BACKEND ROUTES (Session 4) ───────────────────────────────
+
+
+@oracle_bp.route('/oracle/nudge', methods=['POST'])
+def oracle_nudge():
+    """Generate a contextual nudge tooltip for the Oracle widget on article pages."""
+    data = request.get_json(silent=True) or {}
+    page_context = data.get('page_context', {})
+    title = page_context.get('title', '')
+    category = page_context.get('category', '')
+
+    if not title:
+        return jsonify({'nudge': None}), 200
+
+    # Build a concise, contextual nudge (≤20 words, no LLM call needed)
+    nudge_templates = {
+        'Mining': 'Curious about mining economics? Ask the Oracle.',
+        'Market': 'Want deeper market analysis? The Oracle has answers.',
+        'Regulation': 'Questions about this regulation? Ask the Oracle.',
+        'Technology': 'Want to understand the tech? Ask the Oracle.',
+        'Lightning': 'Questions about Lightning? Ask the Oracle.',
+        'Macro': 'How does this affect your stack? Ask the Oracle.',
+    }
+    nudge = nudge_templates.get(category, f'Have questions about this? Ask the Oracle.')
+
+    return jsonify({'nudge': nudge})
+
+
+@oracle_bp.route('/oracle/recommend', methods=['POST'])
+def oracle_recommend():
+    """Return article recommendations for the Oracle widget site-guide mode."""
+    data = request.get_json(silent=True) or {}
+    fingerprint = data.get('fingerprint', '')
+    page_type = data.get('page_type', 'homepage')
+
+    try:
+        from models import Article
+        articles = (
+            Article.query
+            .filter(Article.status == 'published')
+            .order_by(Article.published_at.desc())
+            .limit(4)
+            .all()
+        )
+
+        if not articles:
+            return jsonify({
+                'has_history': False,
+                'articles': [],
+                'context': None,
+            })
+
+        result_articles = []
+        for a in articles[:2]:
+            word_count = len((a.content or '').split())
+            result_articles.append({
+                'slug': a.id,
+                'title': a.title,
+                'category': a.category or 'Intelligence',
+                'read_time_minutes': max(1, word_count // 250),
+            })
+
+        return jsonify({
+            'has_history': bool(fingerprint),
+            'articles': result_articles,
+            'context': 'Continue reading' if fingerprint else 'Latest intelligence',
+        })
+
+    except Exception as e:
+        logger.error(f"oracle_recommend error: {e}")
+        return jsonify({
+            'has_history': False,
+            'articles': [],
+            'context': None,
+        })
+
+
+@oracle_bp.route('/api/telemetry', methods=['POST'])
+def api_telemetry():
+    """Accept widget analytics events. Fire-and-forget, always returns ok."""
+    data = request.get_json(silent=True) or {}
+    event = data.get('event', '')
+    properties = data.get('properties', {})
+    if event:
+        logger.info(f"[telemetry] {event}: {json.dumps(properties)}")
+    return jsonify({'ok': True})

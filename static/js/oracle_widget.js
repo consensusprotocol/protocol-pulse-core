@@ -1,31 +1,23 @@
 /**
- * PROTOCOL PULSE — ORACLE WIDGET v2
- * ===================================
- * Site-wide floating Oracle bubble with full page-context awareness.
+ * PROTOCOL PULSE — ORACLE AMBIENT COMPANION WIDGET v4 (Production Ship)
+ * =====================================================================
+ * Site-wide floating Oracle bubble. Chat via /api/oracle/chat.
+ * Mobile bottom sheet, nudge tooltips, recommendation cards,
+ * full a11y, analytics wired.
  *
- * Features:
- *  - Appears on every page EXCEPT /oracle-live and /admin/*
- *  - Reads current page URL, title, and content metadata
- *  - On article pages: extracts article title + summary from meta tags
- *  - Passes page context into Oracle iframe via postMessage
- *  - Oracle dialogue engine uses context to discuss what user is reading
- *  - Session persists across page navigations via sessionStorage
- *  - Bubble pulses green when Oracle is speaking
- *  - Page-specific hint nudges (e.g. "Ask Oracle about this article")
- *  - Smooth slide-up on mobile, floating panel on desktop
- *  - ESC closes panel, minimize returns to bubble
- *  - Zero external dependencies. Fully self-contained.
+ * Replaces v2 iframe-based widget entirely.
+ * Zero external dependencies. Self-contained.
  */
 (function () {
   'use strict';
 
   // ── Config ────────────────────────────────────────────────────────────
-  var ORACLE_URL       = '/oracle-live';
-  var AVATAR_IMG       = '/static/oracle_avatar.png';
-  var SKIP_PATHS       = ['/oracle-live', '/admin', '/internal', '/login', '/signup'];
-  var BUBBLE_DELAY     = 3500;   // ms before bubble appears
-  var NUDGE_DELAY      = 14000;  // ms before hint nudge shows
-  var NUDGE_DURATION   = 6000;   // ms nudge stays visible
+  var AVATAR_IMG    = '/static/oracle_avatar.png';
+  var SKIP_PATHS    = ['/oracle-live', '/oracle', '/admin', '/internal', '/login', '/signup', '/stage'];
+  var BUBBLE_DELAY  = 3500;
+  var NUDGE_DELAY   = 12000;
+  var SESSION_CAP   = 20;
+  var SEND_COOLDOWN = 3000;
 
   // ── Skip on excluded paths ────────────────────────────────────────────
   var currentPath = window.location.pathname;
@@ -33,219 +25,139 @@
     if (currentPath.indexOf(SKIP_PATHS[i]) === 0) return;
   }
 
-  // ── Session storage helpers ───────────────────────────────────────────
-  var SS_PREFIX = 'oracle_widget_';
+  // ── Helpers ───────────────────────────────────────────────────────────
   function ss(key, val) {
     try {
-      if (val === undefined) return sessionStorage.getItem(SS_PREFIX + key);
-      if (val === null) { sessionStorage.removeItem(SS_PREFIX + key); return; }
-      sessionStorage.setItem(SS_PREFIX + key, val);
-    } catch (e) {}
-  }
-
-  // ── Page context extraction ───────────────────────────────────────────
-  function getPageContext() {
-    var ctx = {
-      url:      window.location.href,
-      path:     currentPath,
-      title:    document.title || '',
-      type:     'general',
-      content:  null,
-    };
-
-    // Article page: extract from meta tags (already rendered in template)
-    var ogTitle = getMeta('og:title') || getMeta('twitter:title') || '';
-    var ogDesc  = getMeta('og:description') || getMeta('twitter:description') || getMeta('description') || '';
-    var section = getMeta('article:section') || '';
-
-    if (currentPath.match(/^\/articles\/\d+/)) {
-      ctx.type    = 'article';
-      ctx.content = (ogTitle ? 'Article: ' + ogTitle + '. ' : '') +
-                    (ogDesc  ? 'Summary: ' + ogDesc  + '. ' : '') +
-                    (section ? 'Category: ' + section + '.' : '');
-    } else if (currentPath.indexOf('/articles') === 0) {
-      ctx.type = 'articles_index';
-    } else if (currentPath.indexOf('/terminal') === 0) {
-      ctx.type = 'terminal';
-    } else if (currentPath.indexOf('/mining') === 0) {
-      ctx.type = 'mining';
-    } else if (currentPath.indexOf('/whale-watcher') === 0) {
-      ctx.type = 'whale_watcher';
-    } else if (currentPath.indexOf('/charts') === 0) {
-      ctx.type = 'charts';
-    } else if (currentPath.indexOf('/podcasts') === 0 || currentPath.indexOf('/podcast') === 0) {
-      ctx.type = 'podcasts';
-    } else if (currentPath.indexOf('/bitcoin-insurance') === 0) {
-      ctx.type = 'bitcoin_insurance';
-    } else if (currentPath.indexOf('/curated-mining') === 0) {
-      ctx.type = 'curated_mining';
-    } else if (currentPath.indexOf('/solo-slayers') === 0) {
-      ctx.type = 'solo_slayers';
-    } else if (currentPath.indexOf('/briefing') === 0) {
-      ctx.type = 'briefing';
-    } else if (currentPath === '/' || currentPath === '') {
-      ctx.type = 'home';
-    }
-
-    return ctx;
+      if (val === undefined) return sessionStorage.getItem('ow_' + key);
+      if (val === null) { sessionStorage.removeItem('ow_' + key); return; }
+      sessionStorage.setItem('ow_' + key, val);
+    } catch (e) { return null; }
   }
 
   function getMeta(name) {
-    var el = document.querySelector(
-      'meta[property="' + name + '"],meta[name="' + name + '"]'
-    );
+    var el = document.querySelector('meta[property="' + name + '"],meta[name="' + name + '"]');
     return el ? (el.getAttribute('content') || '').trim() : '';
   }
 
-  // Page-specific hint text
-  var PAGE_HINTS = {
-    'article':          '&#9889; Ask Oracle about this article',
-    'articles_index':   '&#9889; Ask Oracle about any headline',
-    'terminal':         '&#9889; Ask Oracle about this intel',
-    'mining':           '&#9889; Ask Oracle about Bitcoin mining',
-    'whale_watcher':    '&#9889; Ask Oracle about whale moves',
-    'charts':           '&#9889; Ask Oracle to explain this chart',
-    'podcasts':         '&#9889; Ask Oracle about this episode',
-    'bitcoin_insurance':'&#9889; Ask Oracle about Bitcoin insurance',
-    'curated_mining':   '&#9889; Ask Oracle about Curated Mining',
-    'solo_slayers':     '&#9889; Ask Oracle about solo mining',
-    'briefing':         '&#9889; Ask Oracle about today\'s brief',
-    'home':             '&#9889; Ask the Oracle anything',
-    'general':          '&#9889; Ask the Oracle anything',
-  };
+  function el(tag, id, attrs) {
+    var e = document.createElement(tag);
+    if (id) e.id = id;
+    if (attrs) { for (var k in attrs) { if (attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]); } }
+    return e;
+  }
 
-  // ── CSS ────────────────────────────────────────────────────────────────
-  var css = [
-    // Bubble
-    '#ow-bubble{position:fixed;bottom:24px;right:24px;width:64px;height:64px;',
-    'border-radius:50%;background:#080a0e;border:2px solid rgba(255,59,95,.5);',
-    'cursor:pointer;z-index:9000;display:flex;align-items:center;justify-content:center;',
-    'overflow:hidden;transition:transform .15s,border-color .25s;',
-    'animation:ow-pulse 2.8s ease-in-out infinite;',
-    'box-shadow:0 6px 28px rgba(0,0,0,.6);}',
-    '#ow-bubble:hover{transform:scale(1.1);border-color:rgba(255,59,95,.9)}',
-    '#ow-bubble:active{transform:scale(.94)}',
-    '#ow-bubble.speaking{border-color:rgba(74,222,128,.8);animation:ow-pulse-green .85s ease-in-out infinite}',
-    '#ow-bubble img{width:100%;height:100%;object-fit:cover;border-radius:50%;pointer-events:none}',
-    '#ow-bubble-fb{font-size:26px;line-height:1;pointer-events:none}',
-    '@keyframes ow-pulse{',
-    '0%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 0 rgba(255,59,95,.45)}',
-    '70%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 12px rgba(255,59,95,0)}',
-    '100%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 0 rgba(255,59,95,0)}}',
-    '@keyframes ow-pulse-green{',
-    '0%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 0 rgba(74,222,128,.55)}',
-    '70%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 14px rgba(74,222,128,0)}',
-    '100%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 0 rgba(74,222,128,0)}}',
-    // Nudge tooltip
-    '#ow-nudge{position:fixed;bottom:34px;right:96px;z-index:9001;',
-    'background:#0d0f16;border:1px solid rgba(255,59,95,.28);border-radius:6px;',
-    'padding:9px 28px 9px 12px;pointer-events:none;',
-    'font-family:"JetBrains Mono",monospace;font-size:11px;color:#a0b0cc;',
-    'white-space:nowrap;opacity:0;transition:opacity .4s;',
-    'box-shadow:0 4px 16px rgba(0,0,0,.5);}',
-    '#ow-nudge.on{opacity:1;pointer-events:all}',
-    '#ow-nudge::after{content:"";position:absolute;right:-6px;top:50%;',
-    'transform:translateY(-50%);border:6px solid transparent;',
-    'border-left-color:rgba(255,59,95,.28);border-right:none}',
-    '#ow-nudge-x{position:absolute;top:5px;right:7px;cursor:pointer;',
-    'color:#445;font-size:10px;line-height:1;padding:2px}',
-    '#ow-nudge-x:hover{color:#88a}',
-    // Backdrop
-    '#ow-bd{position:fixed;inset:0;z-index:8998;background:rgba(0,0,0,.6);',
-    'backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);',
-    'display:none;opacity:0;transition:opacity .3s}',
-    '#ow-bd.on{opacity:1}',
-    // Panel
-    '#ow-panel{position:fixed;z-index:8999;background:#06070b;',
-    'border:1px solid rgba(255,59,95,.18);overflow:hidden;',
-    'box-shadow:0 24px 90px rgba(0,0,0,.85);',
-    'display:none;opacity:0;transition:transform .38s cubic-bezier(.32,.72,0,1),opacity .3s;',
-    // Mobile: full bottom sheet
-    'bottom:0;left:0;right:0;height:93vh;border-radius:14px 14px 0 0;',
-    'transform:translateY(100%)}',
-    '@media(min-width:600px){#ow-panel{',
-    'left:auto;right:24px;bottom:96px;',
-    'width:min(430px,calc(100vw - 48px));',
-    'height:min(680px,calc(100vh - 116px));',
-    'border-radius:12px;transform:scale(.88) translateY(20px) translateY(0);',
-    'transform-origin:bottom right}}',
-    '#ow-panel.on{opacity:1;transform:translateY(0) !important}',
-    '@media(min-width:600px){#ow-panel.on{transform:scale(1) translateY(0) !important}}',
-    // Panel header bar
-    '#ow-hdr{position:absolute;top:0;left:0;right:0;height:46px;z-index:2;',
-    'display:flex;align-items:center;justify-content:space-between;padding:0 14px;',
-    'background:linear-gradient(to bottom,rgba(6,7,11,1) 55%,rgba(6,7,11,0))}',
-    '#ow-hdr-label{font-family:"JetBrains Mono",monospace;font-size:10px;',
-    'letter-spacing:.32em;color:rgba(255,59,95,.65);text-transform:uppercase}',
-    '#ow-hdr-ctx{font-family:"JetBrains Mono",monospace;font-size:9px;',
-    'color:#334;letter-spacing:.05em;max-width:160px;overflow:hidden;',
-    'text-overflow:ellipsis;white-space:nowrap}',
-    '.ow-btn{width:26px;height:26px;border-radius:50%;cursor:pointer;',
-    'background:transparent;border:1px solid #1a2030;',
-    'display:flex;align-items:center;justify-content:center;',
-    'opacity:.45;transition:opacity .15s,border-color .15s;flex-shrink:0}',
-    '.ow-btn:hover{opacity:1;border-color:#445}',
-    '#ow-iframe{width:100%;height:100%;border:none;background:#06070b;display:block}',
-    // Context badge inside panel (top right of iframe area)
-    '#ow-ctx-badge{position:absolute;top:48px;right:10px;z-index:3;',
-    'background:rgba(6,7,11,.9);border:1px solid rgba(255,59,95,.15);border-radius:4px;',
-    'padding:3px 8px;font-family:"JetBrains Mono",monospace;font-size:9px;',
-    'color:rgba(255,59,95,.5);letter-spacing:.06em;display:none;',
-    'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-  ].join('');
+  function isMobile() { return window.innerWidth <= 768; }
 
-  // ── Inject CSS ─────────────────────────────────────────────────────────
-  var styleEl = document.createElement('style');
-  styleEl.textContent = css;
-  document.head.appendChild(styleEl);
+  function track(event, props) {
+    try {
+      fetch('/api/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: event, properties: props || {} })
+      }).catch(function () {});
+    } catch (e) {}
+  }
 
-  // ── DOM creation ───────────────────────────────────────────────────────
+  // ── Page context ──────────────────────────────────────────────────────
+  function getPageContext() {
+    var ctx = { url: window.location.href, path: currentPath, pageType: 'general', title: document.title || '', content: null };
+    var ogTitle = getMeta('og:title') || getMeta('twitter:title') || '';
+    var ogDesc = getMeta('og:description') || getMeta('twitter:description') || '';
+    var section = getMeta('article:section') || '';
 
-  // Backdrop
+    if (currentPath.match(/^\/article(s)?\/\d+/)) {
+      ctx.pageType = 'article';
+      ctx.content = (ogTitle ? 'Article: ' + ogTitle + '. ' : '') + (ogDesc ? 'Summary: ' + ogDesc + '. ' : '') + (section ? 'Category: ' + section + '.' : '');
+      ctx.category = section;
+      ctx.articleTitle = ogTitle;
+    } else if (currentPath === '/' || currentPath === '') {
+      ctx.pageType = 'homepage';
+    } else if (currentPath.indexOf('/articles') === 0) {
+      ctx.pageType = 'index';
+    } else if (currentPath.indexOf('/podcast') === 0) {
+      ctx.pageType = 'podcast';
+    } else if (currentPath.indexOf('/terminal') === 0) {
+      ctx.pageType = 'terminal';
+    } else if (currentPath.indexOf('/mining') === 0) {
+      ctx.pageType = 'mining';
+    } else if (currentPath.indexOf('/charts') === 0) {
+      ctx.pageType = 'charts';
+    }
+    return ctx;
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────
+  var _open = false;
+  var _processing = false;
+  var _history = [];
+  var _pageCtx = getPageContext();
+  var _fingerprint = ss('fp') || '';
+  var _sessionId = ss('sid') || ('s_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7));
+  var _pendingNudge = null;
+  var _tooltipEl = null;
+  var _lastSendTime = 0;
+  var _isMomentumScrolling = false;
+  var _momentumTimer = null;
+  var _touchStartY = 0;
+  var _msgCount = parseInt(ss('msg_count') || '0', 10);
+  var _recoLoaded = false;
+  ss('sid', _sessionId);
+
+  // ── Audio context (lazy) ──────────────────────────────────────────────
+  var _audioCtx = null;
+  function getAudioCtx() {
+    if (!_audioCtx) { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    return _audioCtx;
+  }
+
+  // ── Build DOM ─────────────────────────────────────────────────────────
+
+  // Widget container
+  var widget = el('div', 'oracle-widget', { 'role': 'complementary', 'aria-label': 'Oracle AI Guide' });
+
+  // Backdrop (desktop only)
   var bd = el('div', 'ow-bd');
-  bd.addEventListener('click', closePanel);
-  document.body.appendChild(bd);
+  widget.appendChild(bd);
+
+  // Mobile overlay
+  var mobileOverlay = el('div', 'ow-mobile-overlay');
+  widget.appendChild(mobileOverlay);
 
   // Panel
-  var panel = el('div', 'ow-panel');
-  panel.innerHTML = [
-    '<div id="ow-hdr">',
-      '<span id="ow-hdr-label">Oracle</span>',
-      '<span id="ow-hdr-ctx"></span>',
-      '<div style="display:flex;gap:6px;align-items:center">',
-        '<button class="ow-btn" id="ow-min-btn" title="Minimize">',
-          '<svg width="10" height="2" viewBox="0 0 10 2"><rect width="10" height="1.5" rx=".75" fill="#556"/></svg>',
-        '</button>',
-        '<button class="ow-btn" id="ow-close-btn" title="Close Oracle">',
-          '<svg width="10" height="10" viewBox="0 0 10 10">',
-            '<line x1="1" y1="1" x2="9" y2="9" stroke="rgba(255,59,95,.7)" stroke-width="1.5" stroke-linecap="round"/>',
-            '<line x1="9" y1="1" x2="1" y2="9" stroke="rgba(255,59,95,.7)" stroke-width="1.5" stroke-linecap="round"/>',
-          '</svg>',
-        '</button>',
-      '</div>',
-    '</div>',
-    '<div id="ow-ctx-badge"></div>',
-    '<iframe id="ow-iframe" src="about:blank" allow="microphone;autoplay;camera" allowfullscreen></iframe>',
-  ].join('');
-  document.body.appendChild(panel);
+  var panel = el('div', 'ow-panel', { 'role': 'dialog', 'aria-labelledby': 'ow-panel-title', 'aria-modal': 'false' });
+  panel.innerHTML =
+    '<div class="oracle-sheet-handle"></div>' +
+    '<div id="ow-hdr">' +
+      '<h2 id="ow-panel-title">Oracle</h2>' +
+      '<span id="ow-hdr-ctx"></span>' +
+      '<div style="display:flex;gap:6px;align-items:center">' +
+        '<button class="ow-btn" id="ow-close-btn" aria-label="Close Oracle panel">' +
+          '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">' +
+            '<line x1="1" y1="1" x2="9" y2="9" stroke="rgba(220,38,38,.7)" stroke-width="1.5" stroke-linecap="round"/>' +
+            '<line x1="9" y1="1" x2="1" y2="9" stroke="rgba(220,38,38,.7)" stroke-width="1.5" stroke-linecap="round"/>' +
+          '</svg>' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div id="ow-reco"></div>' +
+    '<div id="ow-messages" aria-live="polite" aria-atomic="false" aria-relevant="additions">' +
+      '<div class="ow-msg ow-msg-oracle">Ask me about Bitcoin.</div>' +
+    '</div>' +
+    '<div id="ow-typing" class="ow-hidden" aria-hidden="true"><span></span><span></span><span></span></div>' +
+    '<div id="ow-limit-banner" style="display:none"></div>' +
+    '<div id="ow-input-area">' +
+      '<input type="text" id="ow-input" placeholder="Ask The Oracle..." maxlength="500" aria-label="Message the Oracle" autocomplete="off">' +
+      '<button id="ow-send" aria-label="Send message">&#x27A4;</button>' +
+    '</div>';
+  widget.appendChild(panel);
 
-  var iframe = document.getElementById('ow-iframe');
-  var ctxBadge = document.getElementById('ow-ctx-badge');
-  var hdrCtx = document.getElementById('ow-hdr-ctx');
-
-  document.getElementById('ow-close-btn').addEventListener('click', closePanel);
-  document.getElementById('ow-min-btn').addEventListener('click', minimizePanel);
-
-  // Nudge
-  var nudge = el('div', 'ow-nudge');
-  nudge.innerHTML = '<span id="ow-nudge-x" onclick="window._owDismissNudge()">&#10005;</span><span id="ow-nudge-txt"></span>';
-  document.body.appendChild(nudge);
-
-  // Bubble (created last so it's topmost)
-  var bubble = el('div', 'ow-bubble');
+  // Bubble (button for a11y)
+  var bubble = document.createElement('button');
+  bubble.id = 'ow-bubble';
+  bubble.setAttribute('aria-label', 'Open Oracle AI Guide');
+  bubble.setAttribute('aria-expanded', 'false');
+  bubble.setAttribute('aria-haspopup', 'dialog');
   bubble.style.display = 'none';
-  bubble.title = 'Talk to the Oracle';
-  bubble.addEventListener('click', openPanel);
 
   var avatarImg = document.createElement('img');
   avatarImg.src = AVATAR_IMG;
@@ -253,172 +165,408 @@
   avatarImg.onerror = function () {
     avatarImg.style.display = 'none';
     var fb = el('span', 'ow-bubble-fb');
-    fb.textContent = '⚡';
+    fb.textContent = '\u26A1';
     bubble.appendChild(fb);
   };
   bubble.appendChild(avatarImg);
-  document.body.appendChild(bubble);
+  widget.appendChild(bubble);
 
-  // ── State ──────────────────────────────────────────────────────────────
-  var _loaded       = false;
-  var _open         = false;
-  var _pageCtx      = getPageContext();
-  var _sessionId    = ss('sid') || ('s_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7));
-  ss('sid', _sessionId);
+  // Inject into page
+  document.body.appendChild(widget);
 
-  // ── Show bubble after delay ─────────────────────────────────────────────
+  // Cache DOM refs
+  var msgs = document.getElementById('ow-messages');
+  var hdrCtx = document.getElementById('ow-hdr-ctx');
+  var inputEl = document.getElementById('ow-input');
+  var sendBtn = document.getElementById('ow-send');
+  var typingEl = document.getElementById('ow-typing');
+  var recoEl = document.getElementById('ow-reco');
+  var limitBanner = document.getElementById('ow-limit-banner');
+  var closeBtn = document.getElementById('ow-close-btn');
+
+  // ── Event bindings (no inline handlers) ───────────────────────────────
+  bd.addEventListener('click', closePanel);
+  mobileOverlay.addEventListener('click', closePanel);
+  closeBtn.addEventListener('click', closePanel);
+  bubble.addEventListener('click', onBubbleClick);
+  sendBtn.addEventListener('click', doSend);
+  inputEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doSend(); } });
+
+  // ESC closes panel
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && _open) {
+      closePanel();
+      bubble.focus();
+    }
+  });
+
+  // Tab trap inside open panel
+  panel.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || !_open) return;
+    var focusable = panel.querySelectorAll('button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])');
+    if (focusable.length === 0) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // ── Momentum scroll detection ─────────────────────────────────────────
+  var _lastTouchY = 0;
+  document.addEventListener('touchmove', function (e) {
+    var touch = e.touches[0];
+    if (touch) {
+      var velocity = Math.abs(touch.clientY - _lastTouchY);
+      _lastTouchY = touch.clientY;
+      if (velocity > 50) {
+        _isMomentumScrolling = true;
+        clearTimeout(_momentumTimer);
+        _momentumTimer = setTimeout(function () { _isMomentumScrolling = false; }, 200);
+      }
+    }
+  }, { passive: true });
+
+  // ── Swipe-to-dismiss (mobile panel) ───────────────────────────────────
+  panel.addEventListener('touchstart', function (e) {
+    _touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  panel.addEventListener('touchmove', function (e) {
+    if (!_open || !isMobile()) return;
+    // Only allow swipe from header/handle area (top 60px)
+    var touch = e.touches[0];
+    if (_touchStartY < 60 || (touch.clientY - _touchStartY) < 0) return;
+    if ((touch.clientY - _touchStartY) > 80) {
+      closePanel();
+    }
+  }, { passive: true });
+
+  // ── Show bubble after delay ───────────────────────────────────────────
   setTimeout(function () {
     bubble.style.display = 'flex';
-    // Nudge if not dismissed this session
-    if (ss('nudge_off') !== '1') {
-      setTimeout(showNudge, NUDGE_DELAY);
+    bubble.classList.add('ow-pulsing');
+
+    var hasFingerprint = !!_fingerprint;
+    track('oracle_initialized', { tier: 1, has_fingerprint_match: hasFingerprint });
+
+    // Nudge logic — only on article pages for return visitors
+    if (_pageCtx.pageType === 'article' && hasFingerprint && ss('tooltip_dismissed') !== '1') {
+      setTimeout(function () {
+        if (_isMomentumScrolling || _open) return;
+        fetchNudge();
+      }, NUDGE_DELAY);
     }
   }, BUBBLE_DELAY);
 
-  // ── Nudge ───────────────────────────────────────────────────────────────
-  function showNudge() {
-    if (ss('nudge_off') === '1' || _open) return;
-    var hint = PAGE_HINTS[_pageCtx.type] || PAGE_HINTS.general;
-    document.getElementById('ow-nudge-txt').innerHTML = hint;
-    nudge.classList.add('on');
-    setTimeout(function () { nudge.classList.remove('on'); }, NUDGE_DURATION);
+  // ── Nudge fetch ───────────────────────────────────────────────────────
+  function fetchNudge() {
+    fetch('/oracle/nudge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        page_context: {
+          title: _pageCtx.articleTitle || _pageCtx.title,
+          category: _pageCtx.category || '',
+          tags: [],
+          slug: currentPath.split('/').pop() || ''
+        },
+        fingerprint: _fingerprint,
+        trigger_type: 'dwell'
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.nudge) {
+        _pendingNudge = data.nudge;
+        showTooltip(data.nudge);
+        track('oracle_triggered', { trigger_type: 'dwell', page_type: _pageCtx.pageType, nudge_shown: true });
+        track('oracle_tooltip_shown', { nudge_first_5_words: data.nudge.split(' ').slice(0, 5).join(' ') });
+      }
+    })
+    .catch(function () {});
   }
 
-  window._owDismissNudge = function () {
-    nudge.classList.remove('on');
-    ss('nudge_off', '1');
-  };
+  // ── Tooltip ───────────────────────────────────────────────────────────
+  function showTooltip(text) {
+    removeTooltip();
+    _tooltipEl = document.createElement('div');
+    _tooltipEl.className = 'oracle-tooltip';
+    _tooltipEl.setAttribute('role', 'status');
+    _tooltipEl.innerHTML = '<span class="oracle-tooltip__text"></span><button class="oracle-tooltip__dismiss" aria-label="Dismiss">\u2715</button>';
+    _tooltipEl.querySelector('.oracle-tooltip__text').textContent = text;
+    _tooltipEl.querySelector('.oracle-tooltip__dismiss').addEventListener('click', function () {
+      removeTooltip();
+      ss('tooltip_dismissed', '1');
+      track('oracle_tooltip_dismissed', {});
+    });
+    widget.appendChild(_tooltipEl);
+  }
 
-  // ── Open panel ─────────────────────────────────────────────────────────
+  function removeTooltip() {
+    if (_tooltipEl && _tooltipEl.parentNode) {
+      _tooltipEl.parentNode.removeChild(_tooltipEl);
+    }
+    _tooltipEl = null;
+  }
+
+  // ── Bubble click ──────────────────────────────────────────────────────
+  function onBubbleClick() {
+    var source = _tooltipEl ? 'tooltip_click' : 'avatar_click';
+
+    // If tooltip is showing, use nudge as first Oracle message
+    if (_tooltipEl && _pendingNudge) {
+      addMsg(_pendingNudge, 'oracle');
+      _pendingNudge = null;
+    }
+    removeTooltip();
+    openPanel();
+    track('oracle_opened', { source: source, page_type: _pageCtx.pageType });
+  }
+
+  // ── Open panel ────────────────────────────────────────────────────────
   function openPanel() {
-    nudge.classList.remove('on');
     _open = true;
+    bubble.setAttribute('aria-expanded', 'true');
 
-    // Load iframe first time
-    if (!_loaded) {
-      // Pass session_id and page context via URL params so Oracle can pick them up
-      var url = ORACLE_URL + '?session_id=' + encodeURIComponent(_sessionId) +
-                '&page_type=' + encodeURIComponent(_pageCtx.type) +
-                '&page_path=' + encodeURIComponent(_pageCtx.path);
-      iframe.src = url;
-      _loaded = true;
-    }
-
-    // Update header context label
-    var ctxLabel = _getCtxLabel();
+    // Update context label
+    var ctxLabel = getCtxLabel();
     hdrCtx.textContent = ctxLabel;
-    if (ctxLabel) {
-      ctxBadge.textContent = ctxLabel;
-      ctxBadge.style.display = 'block';
+
+    if (isMobile()) {
+      mobileOverlay.classList.add('ow-overlay-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      bd.style.display = 'block';
+      requestAnimationFrame(function () { bd.classList.add('ow-on'); });
     }
 
-    // Show
-    bd.style.display = 'block';
-    panel.style.display = 'block';
+    panel.style.display = 'flex';
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        bd.classList.add('on');
-        panel.classList.add('on');
+        panel.classList.add('ow-on');
       });
     });
 
-    // Send context to iframe after it loads
-    iframe.onload = function () {
-      sendContextToIframe();
-    };
-    // Also send now if already loaded
-    if (_loaded) {
-      setTimeout(sendContextToIframe, 600);
+    // Focus input after animation
+    setTimeout(function () { inputEl.focus(); }, 100);
+
+    // Fetch recommendations on non-article pages
+    if (!_recoLoaded && _pageCtx.pageType !== 'article') {
+      fetchRecommendations();
     }
   }
 
-  function _getCtxLabel() {
-    if (_pageCtx.type === 'article') {
+  // ── Close panel ───────────────────────────────────────────────────────
+  function closePanel() {
+    _open = false;
+    bubble.setAttribute('aria-expanded', 'false');
+    panel.classList.remove('ow-on');
+    bd.classList.remove('ow-on');
+    mobileOverlay.classList.remove('ow-overlay-active');
+    document.body.style.overflow = '';
+
+    track('oracle_closed', { session_message_count: _msgCount });
+
+    setTimeout(function () {
+      panel.style.display = 'none';
+      bd.style.display = 'none';
+    }, 400);
+  }
+
+  // ── Context label ─────────────────────────────────────────────────────
+  function getCtxLabel() {
+    if (_pageCtx.pageType === 'article') {
       var t = getMeta('og:title');
-      return t ? t.slice(0, 28) + (t.length > 28 ? '…' : '') : 'article';
+      return t ? t.slice(0, 28) + (t.length > 28 ? '\u2026' : '') : 'article';
     }
     var labels = {
       terminal: 'Intel Terminal', mining: 'Mining Intel',
-      whale_watcher: 'Whale Watcher', charts: 'Charts',
-      podcasts: 'Podcasts', bitcoin_insurance: 'BTC Insurance',
-      curated_mining: 'Curated Mining', solo_slayers: 'Solo Mining',
-      briefing: 'Daily Brief', home: '', general: '',
+      charts: 'Charts', podcast: 'Podcasts',
+      homepage: '', index: '', general: ''
     };
-    return labels[_pageCtx.type] || '';
+    return labels[_pageCtx.pageType] || '';
   }
 
-  // ── Send page context into iframe via postMessage ───────────────────────
-  function sendContextToIframe() {
-    try {
-      iframe.contentWindow.postMessage({
-        type: 'oracle:context',
-        sessionId: _sessionId,
-        pageContext: _pageCtx,
-      }, window.location.origin);
-    } catch (e) {}
+  // ── Add message to chat ───────────────────────────────────────────────
+  function addMsg(text, role) {
+    var d = document.createElement('div');
+    d.className = 'ow-msg ow-msg-' + role;
+    d.textContent = text;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
   }
 
-  // ── Close / minimize ───────────────────────────────────────────────────
-  function closePanel() {
-    _open = false;
-    panel.classList.remove('on');
-    bd.classList.remove('on');
-    setTimeout(function () {
-      panel.style.display = 'none';
-      bd.style.display = 'none';
-    }, 400);
-    // Reset so next open re-sends context (page may have changed)
-    _loaded = false;
-    iframe.src = 'about:blank';
-    ctxBadge.style.display = 'none';
-  }
+  // ── Send message ──────────────────────────────────────────────────────
+  function doSend() {
+    if (_processing) return;
 
-  function minimizePanel() {
-    _open = false;
-    panel.classList.remove('on');
-    bd.classList.remove('on');
-    setTimeout(function () {
-      panel.style.display = 'none';
-      bd.style.display = 'none';
-    }, 400);
-    // Keep iframe loaded so session persists on re-open
-  }
+    var now = Date.now();
+    if (now - _lastSendTime < SEND_COOLDOWN) return;
 
-  // ── postMessage from Oracle iframe ────────────────────────────────────
-  window.addEventListener('message', function (e) {
-    if (!e.data || typeof e.data !== 'object') return;
-    var d = e.data;
-    if (d === 'oracle:speaking' || d.type === 'oracle:speaking') bubble.classList.add('speaking');
-    if (d === 'oracle:idle'     || d.type === 'oracle:idle')     bubble.classList.remove('speaking');
-    if (d === 'oracle:close'    || d.type === 'oracle:close')    closePanel();
-    if (d === 'oracle:minimize' || d.type === 'oracle:minimize') minimizePanel();
-    // Oracle requests context refresh
-    if (d.type === 'oracle:context_request') sendContextToIframe();
-  });
+    var text = inputEl.value.trim();
+    if (!text) return;
 
-  // ── ESC to close ──────────────────────────────────────────────────────
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && _open) closePanel();
-  });
-
-  // ── Handle page navigation (SPA-style) ───────────────────────────────
-  // Re-read page context if URL changes (e.g. articles list → article detail)
-  var _lastPath = currentPath;
-  setInterval(function () {
-    if (window.location.pathname !== _lastPath) {
-      _lastPath = window.location.pathname;
-      _pageCtx  = getPageContext();
-      var lbl = _getCtxLabel();
-      hdrCtx.textContent = lbl;
-      if (_open) sendContextToIframe();
+    // Session cap check
+    if (_msgCount >= SESSION_CAP) {
+      limitBanner.textContent = "You've reached the Oracle's session limit.";
+      limitBanner.style.display = 'block';
+      inputEl.disabled = true;
+      sendBtn.disabled = true;
+      return;
     }
-  }, 1200);
 
-  // ── Utility ───────────────────────────────────────────────────────────
-  function el(tag, id) {
-    var e = document.createElement(tag);
-    if (id) e.id = id;
-    return e;
+    inputEl.value = '';
+    _processing = true;
+    _lastSendTime = now;
+    sendBtn.disabled = true;
+
+    addMsg(text, 'user');
+    _history.push({ role: 'user', content: text });
+    _msgCount++;
+    ss('msg_count', String(_msgCount));
+
+    // Hide recommendations after first message
+    if (recoEl.children.length > 0) {
+      recoEl.classList.add('ow-reco-hidden');
+    }
+
+    typingEl.classList.remove('ow-hidden');
+    typingEl.setAttribute('aria-hidden', 'false');
+    msgs.scrollTop = msgs.scrollHeight;
+
+    var turnNumber = _msgCount;
+    track('oracle_message_sent', { message_length: text.length, turn_number: turnNumber });
+
+    var t0 = Date.now();
+
+    fetch('/api/oracle/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history: _history.slice(-6) })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      typingEl.classList.add('ow-hidden');
+      typingEl.setAttribute('aria-hidden', 'true');
+      var latencyMs = Date.now() - t0;
+
+      if (data.error) {
+        addMsg('The Oracle is momentarily unavailable. Try again in a moment.', 'oracle');
+      } else {
+        addMsg(data.response, 'oracle');
+        _history.push({ role: 'assistant', content: data.response });
+
+        // Save fingerprint on first successful interaction
+        if (!_fingerprint) {
+          _fingerprint = _sessionId;
+          ss('fp', _fingerprint);
+        }
+
+        track('oracle_response_received', {
+          latency_ms: latencyMs,
+          has_audio: !!data.audio,
+          has_video: false,
+          tier_used: 1
+        });
+
+        // Play audio if present
+        if (data.audio) {
+          playAudio(data.audio);
+        }
+      }
+    })
+    .catch(function () {
+      typingEl.classList.add('ow-hidden');
+      typingEl.setAttribute('aria-hidden', 'true');
+      addMsg('The Oracle is momentarily unavailable. Try again in a moment.', 'oracle');
+    })
+    .finally(function () {
+      _processing = false;
+      // Re-enable after cooldown
+      setTimeout(function () { sendBtn.disabled = false; }, SEND_COOLDOWN);
+    });
+  }
+
+  // ── Audio playback ────────────────────────────────────────────────────
+  function playAudio(b64) {
+    try {
+      var ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      var raw = atob(b64);
+      var buf = new ArrayBuffer(raw.length);
+      var v = new Uint8Array(buf);
+      for (var i = 0; i < raw.length; i++) v[i] = raw.charCodeAt(i);
+      ctx.decodeAudioData(buf.slice(0), function (ab) {
+        var src = ctx.createBufferSource();
+        src.buffer = ab;
+        src.connect(ctx.destination);
+        src.start(0);
+        bubble.classList.add('ow-speaking');
+        track('oracle_audio_played', { duration_s: Math.round(ab.duration) });
+        src.onended = function () { bubble.classList.remove('ow-speaking'); };
+      }, function () {
+        // Audio decode failed — silent fallback, no error shown
+      });
+    } catch (e) {
+      // Audio failure — show text silently
+    }
+  }
+
+  // ── Recommendation cards ──────────────────────────────────────────────
+  function fetchRecommendations() {
+    _recoLoaded = true;
+    fetch('/oracle/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fingerprint: _fingerprint, page_type: _pageCtx.pageType })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.articles || data.articles.length === 0) return;
+
+      var html = '<p class="oracle-reco-label">' + escapeHtml(data.context || 'Continue reading') + '</p>';
+      var articles = data.articles.slice(0, 2);
+
+      for (var i = 0; i < articles.length; i++) {
+        var a = articles[i];
+        var ariaLabel = escapeAttr(a.title) + ' — ' + escapeAttr(a.category) + ', ' + a.read_time_minutes + ' min read';
+        html += '<a class="oracle-reco-card" href="/article/' + escapeAttr(String(a.slug)) + '" ' +
+          'data-slug="' + escapeAttr(String(a.slug)) + '" data-pos="' + i + '" ' +
+          'aria-label="' + ariaLabel + '">' +
+          '<div class="oracle-reco-card__meta">' + escapeHtml(a.category) + ' \u00b7 ' + a.read_time_minutes + ' min read</div>' +
+          '<div class="oracle-reco-card__title">' + escapeHtml(a.title) + '</div>' +
+          '<span class="oracle-reco-card__link">Read \u2192</span>' +
+          '</a>';
+      }
+
+      recoEl.innerHTML = html;
+      track('oracle_recommendation_shown', { count: articles.length, page_type: _pageCtx.pageType });
+
+      // Bind card clicks
+      var cards = recoEl.querySelectorAll('.oracle-reco-card');
+      for (var j = 0; j < cards.length; j++) {
+        cards[j].addEventListener('click', function (e) {
+          track('oracle_recommendation_clicked', {
+            slug: this.getAttribute('data-slug'),
+            position: parseInt(this.getAttribute('data-pos'), 10)
+          });
+        });
+      }
+    })
+    .catch(function () {});
+  }
+
+  // ── Escape helpers ────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+  function escapeAttr(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
 })();
