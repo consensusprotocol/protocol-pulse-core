@@ -1,8 +1,9 @@
 """
-ORACLE AVATAR SERVER v2 — Kokoro af_heart + CV2 Sharpen + Blinks
+ORACLE AVATAR SERVER v3 — Chatterbox TTS + CV2 Sharpen + Blinks
 =================================================================
 GPU-accelerated Wav2Lip lip-sync with:
   - FP16 inference via ModelRegistry singleton on GPU 1
+  - Chatterbox TTS on cuda:0 (replaced Kokoro af_heart 2026-03-19)
   - CV2 bilateral sharpen (GFPGAN fully removed 2026-03-12)
   - MediaPipe eye blinks (gradient overlay, no warpAffine artifacts)
   - Head movement post-processing
@@ -37,11 +38,16 @@ from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 import requests as http_requests  # ElevenLabs TTS
 import json as _json
 
-# ─── Kokoro af_heart Female Voice (Oracle Avatar) ────────────────────
+# ─── Chatterbox TTS (Oracle Avatar — 2026 TTS Stack) ────────────────
 # Add oracle/ to path for normalize_pronunciation
 _oracle_dir = os.path.dirname(os.path.abspath(__file__))
 if _oracle_dir not in sys.path:
     sys.path.insert(0, _oracle_dir)
+_AVATAR_CHATTERBOX_READY = False
+_CHATTERBOX_MODEL = None
+_ORACLE_FEMALE_REF = os.path.join(_oracle_dir, "oracle_female_reference.wav")
+
+# Legacy compat flags (Kokoro replaced by Chatterbox)
 _AVATAR_KOKORO_READY = False
 _KOKORO_PIPELINE = None
 
@@ -383,23 +389,42 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
 # KOKORO af_heart FEMALE VOICE (primary) + ELEVENLABS FALLBACK
 # ═══════════════════════════════════════════════════════════════════════
 
-def _init_avatar_kokoro():
-    """Lazy-init Kokoro KPipeline for af_heart female voice. Call once at startup."""
-    global _AVATAR_KOKORO_READY, _KOKORO_PIPELINE
+def _init_avatar_chatterbox():
+    """Lazy-init Chatterbox TTS on cuda:0 for Oracle female voice. Call once at startup."""
+    global _AVATAR_CHATTERBOX_READY, _CHATTERBOX_MODEL, _AVATAR_KOKORO_READY
     try:
-        from kokoro import KPipeline
-        _KOKORO_PIPELINE = KPipeline(lang_code='a')
-        _AVATAR_KOKORO_READY = True
-        logger.info("[AVATAR_TTS] Kokoro af_heart pipeline loaded")
+        from chatterbox.tts import ChatterboxTTS
+        _CHATTERBOX_MODEL = ChatterboxTTS.from_pretrained(device="cuda:0")
+        _AVATAR_CHATTERBOX_READY = True
+        _AVATAR_KOKORO_READY = True  # compat flag for tts-provider endpoint
+        ref_status = "with reference" if os.path.exists(_ORACLE_FEMALE_REF) else "zero-shot"
+        logger.info(f"[AVATAR_TTS] Chatterbox loaded on cuda:0 ({ref_status})")
     except Exception as e:
-        logger.error(f"[AVATAR_TTS] Kokoro init failed: {e} — ElevenLabs fallback active")
-        _AVATAR_KOKORO_READY = False
+        logger.error(f"[AVATAR_TTS] Chatterbox init failed: {e} — ElevenLabs fallback active")
+        _AVATAR_CHATTERBOX_READY = False
+
+
+# Legacy alias
+def _init_avatar_kokoro():
+    """Redirects to Chatterbox init (Kokoro replaced 2026-03-19)."""
+    _init_avatar_chatterbox()
+
+
+_FILLER_PREFIXES = ("Well", "So", "Looking at", "Now", "Alright")
+
+
+def _inject_filler_tokens(text):
+    """Prepend thinking noise token for conversational openings."""
+    for prefix in _FILLER_PREFIXES:
+        if text.startswith(prefix):
+            return f"[thinking_noise] {text}"
+    return text
 
 
 def _avatar_tts(text):
-    """Primary TTS: Kokoro af_heart female voice -> PCM WAV 16kHz mono bytes.
-    Falls back to ElevenLabs text_to_speech() if Kokoro fails."""
-    global _AVATAR_KOKORO_READY
+    """Primary TTS: Chatterbox female voice -> PCM WAV 16kHz mono bytes.
+    Falls back to ElevenLabs text_to_speech() if Chatterbox fails."""
+    global _AVATAR_CHATTERBOX_READY
 
     # Normalize Bitcoin pronunciation (BTC -> "bitcoin", sats, hashrate, etc.)
     try:
@@ -408,55 +433,58 @@ def _avatar_tts(text):
     except Exception as _np_err:
         logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
 
-    # Try Kokoro af_heart first
-    if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:
+    # Inject filler tokens for natural delivery
+    text = _inject_filler_tokens(text)
+
+    # Try Chatterbox first
+    if _AVATAR_CHATTERBOX_READY and _CHATTERBOX_MODEL is not None:
         t0 = time.time()
         try:
-            samples_list = []
-            for _, _, audio in _KOKORO_PIPELINE(text, voice="af_heart", speed=1.0):
-                samples_list.append(audio)
-            if samples_list:
-                audio_np = np.concatenate(samples_list) if len(samples_list) > 1 else samples_list[0]
-                # Write 16kHz mono WAV bytes directly (Wav2Lip input format)
-                # Kokoro outputs 24kHz — resample via ffmpeg
-                import soundfile as sf
-                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                    sf.write(tmp.name, audio_np, 24000)
-                    wav24_path = tmp.name
-                wav16_path = wav24_path + ".16k.wav"
-                r = subprocess.run(
-                    ["ffmpeg", "-y", "-loglevel", "error", "-i", wav24_path,
-                     "-ar", "16000", "-ac", "1", "-f", "wav", wav16_path],
-                    capture_output=True, text=True, timeout=30,
-                )
+            import torchaudio
+            # Use female reference clip if available, else zero-shot
+            ref_path = _ORACLE_FEMALE_REF if os.path.exists(_ORACLE_FEMALE_REF) else None
+            wav_tensor = _CHATTERBOX_MODEL.generate(
+                text,
+                audio_prompt_path=ref_path,
+                exaggeration=0.3,
+                cfg_weight=0.5,
+            )
+            # Chatterbox outputs 24kHz tensor — save then resample to 16kHz for Wav2Lip
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                torchaudio.save(tmp.name, wav_tensor, 24000)
+                wav24_path = tmp.name
+            wav16_path = wav24_path + ".16k.wav"
+            r = subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-i", wav24_path,
+                 "-ar", "16000", "-ac", "1", "-f", "wav", wav16_path],
+                capture_output=True, text=True, timeout=30,
+            )
+            try:
+                os.remove(wav24_path)
+            except OSError:
+                pass
+            if r.returncode == 0 and os.path.exists(wav16_path) and os.path.getsize(wav16_path) > 1000:
+                with open(wav16_path, "rb") as f:
+                    wav_bytes = f.read()
                 try:
-                    os.remove(wav24_path)
+                    os.remove(wav16_path)
                 except OSError:
                     pass
-                if r.returncode == 0 and os.path.exists(wav16_path) and os.path.getsize(wav16_path) > 1000:
-                    with open(wav16_path, "rb") as f:
-                        wav_bytes = f.read()
-                    try:
-                        os.remove(wav16_path)
-                    except OSError:
-                        pass
-                    elapsed = time.time() - t0
-                    logger.info(f"[AVATAR_TTS] Kokoro OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
-                    return wav_bytes
-                else:
-                    logger.warning("[AVATAR_TTS] Kokoro ffmpeg resample failed")
+                elapsed = time.time() - t0
+                logger.info(f"[AVATAR_TTS] Chatterbox OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
+                return wav_bytes
             else:
-                logger.warning("[AVATAR_TTS] Kokoro returned no audio chunks")
+                logger.warning("[AVATAR_TTS] Chatterbox ffmpeg resample failed")
         except Exception as e:
-            logger.error(f"[AVATAR_TTS] Kokoro FAILED: {e} → ElevenLabs fallback")
+            logger.error(f"[AVATAR_TTS] Chatterbox FAILED: {e} → ElevenLabs fallback")
     else:
-        logger.info("[AVATAR_TTS] Kokoro not ready → ElevenLabs fallback")
+        logger.info("[AVATAR_TTS] Chatterbox not ready → ElevenLabs fallback")
 
     # Fallback: ElevenLabs
     t0 = time.time()
     audio_bytes = text_to_speech(text)
     elapsed = time.time() - t0
-    logger.info(f"[AVATAR_TTS] Kokoro FAILED → ElevenLabs fallback: {elapsed:.2f}s ({len(audio_bytes)} bytes)")
+    logger.info(f"[AVATAR_TTS] ElevenLabs fallback: {elapsed:.2f}s ({len(audio_bytes)} bytes)")
     return audio_bytes
 
 
@@ -1616,16 +1644,18 @@ def oracle_chunk_file(session_id, idx):
 @app.route("/avatar/tts-provider", methods=["GET"])
 def avatar_tts_provider():
     """Report which TTS provider is active."""
-    if _AVATAR_KOKORO_READY:
+    if _AVATAR_CHATTERBOX_READY:
         return jsonify({
-            "provider": "kokoro_af_heart",
-            "voice": "af_heart",
-            "backend": "pytorch",
+            "provider": "chatterbox",
+            "voice": "oracle_female" if os.path.exists(_ORACLE_FEMALE_REF) else "zero_shot",
+            "backend": "cuda:0",
+            "exaggeration": 0.3,
+            "cfg_weight": 0.5,
             "ready": True,
         })
     return jsonify({
         "provider": "elevenlabs_fallback",
-        "reason": "Kokoro pipeline not loaded or init failed",
+        "reason": "Chatterbox not loaded or init failed",
         "ready": False,
     })
 
@@ -1636,7 +1666,7 @@ def avatar_tts_provider():
 
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("  ORACLE AVATAR SERVER v2 — Kokoro af_heart + CV2 Sharpen + Blinks")
+    print("  ORACLE AVATAR SERVER v3 — Chatterbox TTS + CV2 Sharpen + Blinks")
     print(f"  Port: {PORT}")
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
@@ -1661,9 +1691,9 @@ if __name__ == "__main__":
 
     logger.info("Face enhancer: CV2 sharpen-only (no GFPGAN)")
 
-    # Load Kokoro af_heart female voice for Oracle avatar
-    logger.info("[STARTUP] Initializing Kokoro af_heart voice...")
-    _init_avatar_kokoro()
+    # Load Chatterbox TTS for Oracle avatar (replaces Kokoro af_heart)
+    logger.info("[STARTUP] Initializing Chatterbox TTS on cuda:0...")
+    _init_avatar_chatterbox()
 
     # Auto-warmup
     logger.info("[WARMUP] Running pipeline warmup...")

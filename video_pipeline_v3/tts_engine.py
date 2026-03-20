@@ -22,6 +22,8 @@ _KOKORO_PIPELINE = None
 _KOKORO_BACKEND = None
 _KOKORO_INSTANCE = None
 _F5_MODEL = None
+_BIGVGAN_MODEL = None
+_PROSODY_CACHE = {}  # hash(text) -> prosody-planned text
 
 
 def _init_kokoro():
@@ -77,6 +79,102 @@ def _init_f5():
     except Exception as e:
         logger.error(f"[TTS/F5] Failed to load checkpoint: {e}")
         return False
+
+
+def _init_bigvgan():
+    """Lazy-initialize BigVGAN2 44kHz vocoder on cuda:1."""
+    global _BIGVGAN_MODEL
+    if _BIGVGAN_MODEL is not None:
+        return True
+    try:
+        import bigvgan as _bv
+        _BIGVGAN_MODEL = _bv.BigVGAN.from_pretrained(
+            "nvidia/bigvgan_v2_44khz_128band_512x",
+            use_cuda_kernel=False,
+        )
+        _BIGVGAN_MODEL = _BIGVGAN_MODEL.eval().to("cuda:1")
+        logger.info("[TTS/BigVGAN2] 44kHz vocoder loaded on cuda:1")
+        return True
+    except Exception as e:
+        logger.error(f"[TTS/BigVGAN2] Init failed: {e}")
+        return False
+
+
+def _bigvgan_upsample(wav_path_24k: str) -> str:
+    """Upsample 24kHz WAV to 44kHz via BigVGAN2. Returns path to 44kHz WAV.
+    Graceful fallback: returns original path if BigVGAN2 fails."""
+    if not _init_bigvgan():
+        return wav_path_24k
+    try:
+        import torch
+        import soundfile as sf
+        import librosa
+        wav_data, sr = sf.read(wav_path_24k)
+        if sr != 24000:
+            wav_data = librosa.resample(wav_data, orig_sr=sr, target_sr=24000)
+        # BigVGAN expects mel spectrogram input — compute from audio
+        import torchaudio
+        wav_tensor = torch.FloatTensor(wav_data).unsqueeze(0).to("cuda:1")
+        # Use torchaudio to compute mel spectrogram matching BigVGAN's expected input
+        mel_transform = torchaudio.transforms.MelSpectrogram(
+            sample_rate=24000, n_fft=2048, hop_length=256, n_mels=128,
+            f_min=0, f_max=12000,
+        ).to("cuda:1")
+        mel = mel_transform(wav_tensor)
+        mel = torch.log(torch.clamp(mel, min=1e-5))
+        with torch.inference_mode():
+            wav_out = _BIGVGAN_MODEL(mel)
+        wav_np = wav_out.squeeze().cpu().numpy()
+        out_path = wav_path_24k.replace(".wav", ".44k.wav")
+        sf.write(out_path, wav_np, 44100)
+        logger.info(f"[TTS/BigVGAN2] Upsampled {wav_path_24k} → {out_path}")
+        return out_path
+    except Exception as e:
+        logger.warning(f"[TTS/BigVGAN2] Upsample failed: {e} — using 24kHz")
+        return wav_path_24k
+
+
+def prosody_plan(text: str, host: int = 2) -> str:
+    """Add natural delivery markers via Claude Haiku pre-processor.
+    Cached by text hash. Returns original text if API fails."""
+    import hashlib
+    h = hashlib.sha256(text.encode()).hexdigest()[:16]
+    if h in _PROSODY_CACHE:
+        return _PROSODY_CACHE[h]
+    api_key = _get_cached_key("ANTHROPIC_API_KEY")
+    if not api_key or not HAS_REQUESTS:
+        return text
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": 512,
+                "system": (
+                    "You are a speech prosody director. Rewrite the input line with natural "
+                    "delivery markers: [pause:0.1], [pause:0.2], [emphasis], [breath]. Use "
+                    "sparingly — max 3 markers per sentence. For Bitcoin news: add [pause:0.15] "
+                    "after key price levels, [emphasis] on sovereign/freedom/signal, [breath] at "
+                    "long clause boundaries. Return ONLY the rewritten line, nothing else."
+                ),
+                "messages": [{"role": "user", "content": text}],
+            },
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            result = resp.json()["content"][0]["text"].strip()
+            _PROSODY_CACHE[h] = result
+            logger.info(f"[TTS/Prosody] Planned: {text[:40]}… → {result[:40]}…")
+            return result
+        logger.warning(f"[TTS/Prosody] API {resp.status_code}")
+    except Exception as e:
+        logger.warning(f"[TTS/Prosody] Failed: {e}")
+    return text
 
 
 PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
@@ -714,14 +812,18 @@ def tts_kokoro(text: str, output_path: str, voice: str = "af_heart",
 
         if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
             return False
+        # BigVGAN2 upsample: 24kHz → 44kHz (graceful fallback)
+        wav_for_encode = _bigvgan_upsample(wav_tmp)
         r = subprocess.run([
-            "ffmpeg", "-y", "-i", wav_tmp,
+            "ffmpeg", "-y", "-i", wav_for_encode,
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
         ], capture_output=True, text=True, timeout=60)
-        try:
-            os.remove(wav_tmp)
-        except Exception:
-            pass
+        for _tmp in [wav_tmp, wav_for_encode]:
+            try:
+                if os.path.exists(_tmp):
+                    os.remove(_tmp)
+            except Exception:
+                pass
         ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
         if ok:
             logger.info(f"[TTS/Kokoro] OK: {ffprobe_duration(output_path):.2f}s, voice={voice}")
@@ -756,7 +858,7 @@ def tts_f5_finetuned(text: str, output_path: str, speed: float = 1.1) -> bool:
             target_rms=0.1,
             cross_fade_duration=0.15,
             speed=speed,
-            show_info=False,
+            show_info=print,
             progress=None,
         )
         sf.write(wav_tmp, wav, sr)
@@ -765,14 +867,18 @@ def tts_f5_finetuned(text: str, output_path: str, speed: float = 1.1) -> bool:
             logger.error("[TTS/F5] Zero output from inference")
             return False
 
+        # BigVGAN2 upsample: 24kHz → 44kHz (graceful fallback)
+        wav_for_encode = _bigvgan_upsample(wav_tmp)
         r = subprocess.run([
-            "ffmpeg", "-y", "-i", wav_tmp,
+            "ffmpeg", "-y", "-i", wav_for_encode,
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
         ], capture_output=True, text=True, timeout=60)
-        try:
-            os.remove(wav_tmp)
-        except Exception:
-            pass
+        for _tmp in [wav_tmp, wav_for_encode]:
+            try:
+                if os.path.exists(_tmp):
+                    os.remove(_tmp)
+            except Exception:
+                pass
 
         ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
         if ok:
@@ -792,6 +898,8 @@ def tts_local(text: str, output_path: str, host: int = 1,
     """
     text = expand_numbers_for_tts(text)
     text = apply_pronunciation_map(text)
+    # Prosody planner: add natural delivery markers before TTS
+    text = prosody_plan(text, host=host)
     try:
         _oracle_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "oracle")
         if _oracle_path not in sys.path:
