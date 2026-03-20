@@ -205,6 +205,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 ═══════════════════════════════════════════════════════════ */
 #stage{
   display:none;flex-direction:column;align-items:center;
+  position:relative;
   width:100%;height:100%;
   padding:clamp(8px,2.5vw,14px) clamp(12px,3.5vw,20px) clamp(10px,3vw,16px);
   gap:clamp(6px,1.5vw,10px);
@@ -535,6 +536,12 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
     bottom:16px;right:16px;
   }
 }
+
+/* ── STUDIO TREATMENT (oracle-live only) ─────────── */
+.video-wrap {
+  border: 2px solid rgba(220,38,38,0.4);
+  box-shadow: 0 0 40px rgba(220,38,38,0.15);
+}
 </style>
 </head>
 <body>
@@ -583,9 +590,12 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   <div class="topbar">
     <span class="topbar-brand">Oracle</span>
     <div class="live-pill"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
+    <a href="/" style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:22px;text-decoration:none;padding:4px 10px;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'" aria-label="Exit Oracle" title="Go to homepage">&times;</a>
   </div>
 
-  <div class="video-wrap">
+  <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
+
+  <div class="video-wrap" style="position:relative;z-index:1;">
     <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
     <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto"></video>
   </div>
@@ -868,7 +878,7 @@ function process(text){
 
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true,avatar_source:"oracle_studio"})
   },90000)
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -917,18 +927,19 @@ function process(text){
                 clearInterval(waitForVideo);
                 vid.style.opacity='1';
                 setStat('Ready','#334',false);
+                setBusy(false);mic.disabled=false;
                 resolve();
-              },30000);
+              },120000);
             }
           };
 
           // Poll for video completion in parallel
           if(videoJobId){
+            var pollAttempts=0,maxPollAttempts=60;
             var pollVideo=setInterval(function(){
+              pollAttempts++;
               fetch(A+'/oracle/job/'+videoJobId)
                 .then(function(vr){
-                  // FIXED: 202 (pending) has ok=true — must check status===200
-                  // and content-type to confirm actual video data, not JSON
                   if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
                     return vr.blob();
                   }
@@ -942,9 +953,12 @@ function process(text){
                   }
                 })
                 .catch(function(){});
-            },1000);
-            // Stop polling after 30s
-            setTimeout(function(){ clearInterval(pollVideo); },30000);
+              if(pollAttempts>=maxPollAttempts){
+                clearInterval(pollVideo);
+                vid.style.opacity='1';
+                setBusy(false);mic.disabled=false;
+              }
+            },2000);
           }
         });
       });
@@ -1216,6 +1230,103 @@ setStat = function(msg, color, spin){
     else f.classList.remove("speaking");
   }
 };
+
+/* ── CYBERPUNK MATRIX BACKGROUND ── */
+(function(){
+  var cvs=document.getElementById('bg-canvas');
+  if(!cvs)return;
+  var ctx=cvs.getContext('2d');
+  var W,H,cols,drops,hexFrags=[];
+  var matrixChars='0123456789ABCDEFabcdef₿⚡∆Ω█▓░▒╔╗╚╝║═';
+  var fontSize=14;
+  var scanY=-2,scanDir=1,scanTimer=0,scanInterval=15000;
+
+  function resize(){
+    W=cvs.width=cvs.offsetWidth;
+    H=cvs.height=cvs.offsetHeight;
+    cols=Math.floor(W/fontSize);
+    drops=new Array(cols);
+    for(var i=0;i<cols;i++) drops[i]=Math.random()*(-H/fontSize);
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  // Hex fragments: random hex strings that fade in/out
+  function spawnHex(){
+    if(hexFrags.length>6) return;
+    hexFrags.push({
+      x:Math.random()*W,
+      y:Math.random()*H,
+      text:'0x'+Math.random().toString(16).substr(2,6).toUpperCase(),
+      alpha:0,phase:0, // 0=fade in, 1=hold, 2=fade out
+      speed:0.003+Math.random()*0.005,
+      holdTime:2000+Math.random()*3000,
+      holdStart:0
+    });
+  }
+
+  var lastTime=0;
+  function frame(ts){
+    requestAnimationFrame(frame);
+    if(!lastTime) lastTime=ts;
+    var dt=ts-lastTime;
+    lastTime=ts;
+
+    ctx.clearRect(0,0,W,H);
+
+    // 1. Falling matrix characters (sparse)
+    ctx.font=fontSize+'px JetBrains Mono,monospace';
+    for(var i=0;i<cols;i++){
+      if(Math.random()>0.06) { // sparse: only 6% of columns draw per frame
+        if(drops[i]>0){
+          ctx.fillStyle='rgba(255,59,95,0.15)';
+          var ch=matrixChars[Math.floor(Math.random()*matrixChars.length)];
+          ctx.fillText(ch,i*fontSize,drops[i]*fontSize);
+        }
+      }
+      drops[i]+=0.3;
+      if(drops[i]*fontSize>H && Math.random()>0.98){
+        drops[i]=0;
+      }
+    }
+
+    // 2. Scan line sweep every 15s
+    scanTimer+=dt;
+    if(scanTimer>=scanInterval){
+      scanTimer=0;
+      scanY=-2;
+      scanDir=1;
+    }
+    if(scanY>=0 && scanY<=H){
+      var grad=ctx.createLinearGradient(0,scanY-8,0,scanY+8);
+      grad.addColorStop(0,'rgba(255,59,95,0)');
+      grad.addColorStop(0.5,'rgba(255,59,95,0.12)');
+      grad.addColorStop(1,'rgba(255,59,95,0)');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,scanY-8,W,16);
+    }
+    if(scanY>=-2 && scanY<=H+10) scanY+=2;
+
+    // 3. Hex fragments fade in/out
+    if(Math.random()<0.008) spawnHex();
+    for(var h=hexFrags.length-1;h>=0;h--){
+      var frag=hexFrags[h];
+      if(frag.phase===0){
+        frag.alpha+=frag.speed*dt;
+        if(frag.alpha>=0.2){frag.alpha=0.2;frag.phase=1;frag.holdStart=ts;}
+      } else if(frag.phase===1){
+        if(ts-frag.holdStart>frag.holdTime) frag.phase=2;
+      } else {
+        frag.alpha-=frag.speed*dt;
+        if(frag.alpha<=0){hexFrags.splice(h,1);continue;}
+      }
+      ctx.fillStyle='rgba(255,59,95,'+frag.alpha.toFixed(3)+')';
+      ctx.font='10px JetBrains Mono,monospace';
+      ctx.fillText(frag.text,frag.x,frag.y);
+    }
+  }
+  requestAnimationFrame(frame);
+})();
 
 function fetchTO(url,opts,ms){
   var ctrl=new AbortController();
