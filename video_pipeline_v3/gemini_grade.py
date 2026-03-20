@@ -120,10 +120,33 @@ log(f"Loudness: {integrated_lufs} LUFS | True Peak: {true_peak_dbfs} dBFS | LRA:
 # ── Freeze frame detection ────────────────────────────────────────────────────
 log("Running freezedetect...")
 freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.003:d=1.0" -an -f null - 2>&1 | grep freeze')
-# Only count freezes lasting >2.0s — shorter freezes are intentional b-roll backgrounds
-_freeze_durations = re.findall(r'freeze_duration:\s*([\d.]+)', freeze_raw)
-freeze_count = sum(1 for d in _freeze_durations if float(d) > 2.0)
-log(f"Freeze frames >2s: {freeze_count} (total detected: {len(_freeze_durations)}, short ignored)")
+# Parse freeze events with timestamps
+_freeze_events = []
+_freeze_starts = re.findall(r'freeze_start:\s*([\d.]+)', freeze_raw)
+_freeze_durs   = re.findall(r'freeze_duration:\s*([\d.]+)', freeze_raw)
+for s, d in zip(_freeze_starts, _freeze_durs):
+    _freeze_events.append((float(s), float(d)))
+
+# Get video duration for outro zone exclusion
+_vid_dur = 0
+try:
+    _vid_dur_raw = run(f'ffprobe -v error -show_entries format=duration '
+                       f'-of default=noprint_wrappers=1:nokey=1 "{LATEST}"')
+    _vid_dur = float(_vid_dur_raw) if _vid_dur_raw else 0
+except Exception:
+    _vid_dur = 0
+
+# Exclude: intro zone (first 16s) and outro zone (last 25s)
+# Both use intentional freeze-frame backgrounds by design
+_outro_start = max(0, _vid_dur - 25)
+freeze_count = sum(
+    1 for (s, d) in _freeze_events
+    if d > 2.0            # duration threshold
+    and s > 16.0          # not intro zone
+    and s < _outro_start  # not outro zone
+)
+log(f"Freeze events: {len(_freeze_events)} total, "
+    f"{freeze_count} penalized (excl intro <16s, outro >{_outro_start:.0f}s)")
 
 # ── Audio/video stream count ──────────────────────────────────────────────────
 has_video = v_stream != {}

@@ -123,7 +123,7 @@ def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> st
         # Round 2 Fix 7: Glassmorphic darkening overlay on bg_loop for PiP segments
         # Applies 45% black overlay so bg_loop is visible but not distracting
         fg = (f"[{bg_idx}:v]scale=1920:1080,setsar=1,fps=30,"
-              f"trim=0:{duration},setpts=PTS-STARTPTS,"
+              f"trim=0:{duration + 0.5},setpts=PTS-STARTPTS,"
               # Keep vignette for cinematic depth
               f"vignette=PI/4:mode=backward,"
               # FIX 2: Near-monochrome grayscale (15% saturation) for cinematic b-roll aesthetic
