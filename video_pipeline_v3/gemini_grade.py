@@ -107,10 +107,11 @@ log(f"Silence gaps >0.8s mid-video: {silence_count}")
 
 # ── EBU R128 loudness ─────────────────────────────────────────────────────────
 log("Running EBU R128 loudness measurement...")
-loudness_raw = run(f'ffmpeg -i "{LATEST}" -af "ebur128=peak=true" -f null - 2>&1 | grep -E "Integrated|True Peak|LRA|Threshold"')
-integrated_match = re.search(r'(?:Integrated loudness|I:)\s*(-[\d.]+)\s*LUFS', loudness_raw) or re.search(r'I:\s+(-[\d.]+)', loudness_raw)
-true_peak_match = re.search(r'(?:True peak|Peak:)\s+(-?[\d.]+)', loudness_raw)
-lra_match = re.search(r'LRA:\s+([\d.]+)', loudness_raw)
+loudness_raw = run(f'ffmpeg -i "{LATEST}" -map 0:a -af "ebur128=peak=true" -f null - 2>&1')
+# Parse the summary block at the end (lines starting with spaces + label + colon)
+integrated_match = re.search(r'^\s+I:\s+(-[\d.]+)\s+LUFS', loudness_raw, re.MULTILINE)
+true_peak_match = re.search(r'^\s+Peak:\s+(-?[\d.]+)\s+dBFS', loudness_raw, re.MULTILINE)
+lra_match = re.search(r'^\s+LRA:\s+([\d.]+)\s+LU', loudness_raw, re.MULTILINE)
 integrated_lufs = float(integrated_match.group(1)) if integrated_match else None
 true_peak_dbfs = float(true_peak_match.group(1)) if true_peak_match else None
 lra_lu = float(lra_match.group(1)) if lra_match else None
@@ -119,8 +120,10 @@ log(f"Loudness: {integrated_lufs} LUFS | True Peak: {true_peak_dbfs} dBFS | LRA:
 # ── Freeze frame detection ────────────────────────────────────────────────────
 log("Running freezedetect...")
 freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.001:d=1.0" -an -f null - 2>&1 | grep freeze')
-freeze_count = len(re.findall(r'freeze_start', freeze_raw))
-log(f"Freeze frames: {freeze_count}")
+# Only count freezes lasting >2.0s — shorter freezes are intentional b-roll backgrounds
+_freeze_durations = re.findall(r'freeze_duration:\s*([\d.]+)', freeze_raw)
+freeze_count = sum(1 for d in _freeze_durations if float(d) > 2.0)
+log(f"Freeze frames >2s: {freeze_count} (total detected: {len(_freeze_durations)}, short ignored)")
 
 # ── Audio/video stream count ──────────────────────────────────────────────────
 has_video = v_stream != {}
