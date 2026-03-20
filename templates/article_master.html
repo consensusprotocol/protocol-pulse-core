@@ -388,6 +388,12 @@
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
 }
+
+@media(max-width:640px){
+    .article-content [style*="padding:40px"]{padding:28px 20px !important;}
+    .article-content [style*="font-size:1.5rem"]{font-size:1.25rem !important;}
+    .article-content a[href="/stage"][style*="padding:14px"]{width:100%;justify-content:center;}
+}
 </style>
 {% endblock %}
 
@@ -432,6 +438,16 @@
 
                 <div class="article-body">
                     {{ article.content | safe if article else '<p>Article content will be displayed here with full formatting support.</p>' }}
+                </div>
+
+                <!-- Oracle CTA -->
+                <div style="background:#080a0f;border:2px solid #ff3b5f;border-radius:8px;padding:40px;margin:32px 0 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;">
+                    <img src="/static/oracle_avatar.png" alt="Protocol Pulse Oracle" style="width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,59,95,0.5);object-fit:cover;">
+                    <div style="font-size:1.5rem;font-weight:700;color:#fff;">Still have questions?</div>
+                    <p style="font-size:0.9rem;color:rgba(255,255,255,0.65);margin:0;max-width:420px;line-height:1.5;">Get real-time answers from our AI Bitcoin analyst — sovereign signal, no noise.</p>
+                    <a href="/stage" style="background:#ff3b5f;color:#fff;font-weight:700;font-size:0.9375rem;padding:14px 32px;border-radius:8px;text-decoration:none;letter-spacing:0.03em;white-space:nowrap;box-shadow:0 0 20px rgba(255,59,95,0.3);display:inline-flex;align-items:center;gap:8px;margin-top:4px;transition:box-shadow 0.2s,transform 0.2s;" onmouseover="this.style.boxShadow='0 0 28px rgba(255,59,95,0.5)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='0 0 20px rgba(255,59,95,0.3)';this.style.transform=''">
+                        <i class="fas fa-broadcast-tower"></i> Ask The Oracle
+                    </a>
                 </div>
             </article>
         </main>
