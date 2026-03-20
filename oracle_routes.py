@@ -1,9 +1,7 @@
 """Oracle AI Chat Assistant - Backend Routes
-GPU lip-sync via Wav2Lip on Ultron, ElevenLabs TTS, Claude LLM.
-
-LAW 2: apply_blink() permanently disabled (blink_engine.py)
-LAW 3: Voice = Jessica (cgSgspJ2msm6clMCkdW9), eleven_turbo_v2_5,
-        stability=0.45, similarity_boost=0.75, style=0.20
+GPU lip-sync via Wav2Lip on Ultron. Chatterbox TTS on avatar server.
+Tier 1: text → Chatterbox → Wav2Lip → video (async job on avatar server port 8200)
+Tier 2: text → Claude → ElevenLabs audio fallback (no video)
 """
 import os
 import json
@@ -12,9 +10,12 @@ import uuid
 import hashlib
 import base64
 import logging
+import math
+import shutil
+import threading
 import requests
 from datetime import datetime
-from flask import Blueprint, request, jsonify, render_template, url_for, current_app
+from flask import Blueprint, request, jsonify, render_template, url_for, current_app, Response
 from functools import wraps
 
 oracle_bp = Blueprint('oracle', __name__)
@@ -335,13 +336,32 @@ def oracle_recent():
 @oracle_bp.route('/api/oracle/chat', methods=['POST'])
 @rate_limit
 def oracle_chat():
-    """Chat-only endpoint (text + audio, no video)."""
+    """Chat-only endpoint (text + audio, no video).
+    Accepts optional page_context to bias responses toward current article.
+    """
     data = request.get_json(silent=True)
     if not data or not data.get('message'):
         return jsonify({'error': 'Message required'}), 400
 
     message = str(data['message'])[:500]
     history = data.get('history', [])
+
+    # If page_context provided, prepend context hint to message for RAG bias
+    page_context = data.get('page_context')
+    if page_context and (page_context.get('title') or page_context.get('slug')):
+        ctx_title = page_context.get('title', '')
+        ctx_category = page_context.get('category', '')
+        ctx_tags = ', '.join(page_context.get('tags', [])[:5])
+        context_prefix = (
+            f"[Context: The user is currently reading: '{ctx_title}'"
+        )
+        if ctx_category:
+            context_prefix += f" (category: {ctx_category}"
+            if ctx_tags:
+                context_prefix += f", tags: {ctx_tags}"
+            context_prefix += ")"
+        context_prefix += ". Bias your response to relate back to this content where relevant.]\n\n"
+        message = context_prefix + message
 
     response_text = call_claude(message, history)
     audio_b64 = generate_tts(response_text)
@@ -412,29 +432,192 @@ def oracle_health():
 # ─── WIDGET BACKEND ROUTES (Session 4) ───────────────────────────────
 
 
+NUDGE_FALLBACK = {
+    "nudge": "What's pulling your attention on this one?",
+    "tone": "neutral",
+    "returning": False,
+    "visit_count": 0,
+}
+
+
 @oracle_bp.route('/oracle/nudge', methods=['POST'])
 def oracle_nudge():
-    """Generate a contextual nudge tooltip for the Oracle widget on article pages."""
-    data = request.get_json(silent=True) or {}
-    page_context = data.get('page_context', {})
-    title = page_context.get('title', '')
-    category = page_context.get('category', '')
+    """Generate a contextual, LLM-powered nudge for the Oracle ambient widget.
+    Uses Claude Haiku for cheap/fast one-shot generation with visitor memory context.
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        page_context = data.get('page_context', {})
+        fingerprint = str(data.get('fingerprint', ''))[:64]
+        trigger_type = data.get('trigger_type', 'dwell')
 
-    if not title:
-        return jsonify({'nudge': None}), 200
+        title = page_context.get('title', '')
+        category = page_context.get('category', '')
+        tags = page_context.get('tags', [])
+        slug = page_context.get('slug', '')
 
-    # Build a concise, contextual nudge (≤20 words, no LLM call needed)
-    nudge_templates = {
-        'Mining': 'Curious about mining economics? Ask the Oracle.',
-        'Market': 'Want deeper market analysis? The Oracle has answers.',
-        'Regulation': 'Questions about this regulation? Ask the Oracle.',
-        'Technology': 'Want to understand the tech? Ask the Oracle.',
-        'Lightning': 'Questions about Lightning? Ask the Oracle.',
-        'Macro': 'How does this affect your stack? Ask the Oracle.',
+        if not title:
+            return jsonify(NUDGE_FALLBACK)
+
+        # Look up visitor memory
+        visit_count = 0
+        returning = False
+        topics_seen = []
+        if fingerprint:
+            try:
+                from oracle.oracle_memory import load_visitor, save_visitor
+                visitor = load_visitor(fingerprint)
+                if visitor:
+                    visit_count = visitor.get('session_count', 0)
+                    returning = visit_count > 1
+                    topics_seen = visitor.get('topics_seen', [])
+                # Update last_seen timestamp
+                save_data = {}
+                if visitor:
+                    save_data = dict(visitor)
+                    save_data.pop('fingerprint', None)
+                    save_data.pop('last_seen', None)
+                new_topics = list(set(topics_seen + ([category] if category else [])))
+                save_data['topics_seen'] = new_topics
+                save_visitor(fingerprint, save_data)
+            except Exception as e:
+                logger.debug(f"[nudge] memory lookup failed (non-fatal): {e}")
+
+        # Build user message for Haiku
+        user_parts = [f"Page title: {title}"]
+        if category:
+            user_parts.append(f"Category: {category}")
+        if tags:
+            user_parts.append(f"Tags: {', '.join(tags[:5])}")
+        user_parts.append(f"Trigger: {trigger_type}")
+        if returning:
+            user_parts.append(f"Returning visitor (visit #{visit_count})")
+            if topics_seen:
+                user_parts.append(f"Previously explored: {', '.join(topics_seen[-5:])}")
+        else:
+            user_parts.append("First-time visitor")
+
+        nudge_system = (
+            "You are the Oracle, Protocol Pulse's Bitcoin intelligence guide. "
+            "Generate ONE short proactive nudge (maximum 20 words) for a visitor "
+            "based on their current page context and history. Be specific to the content. "
+            "Sound genuinely curious and knowledgeable, not like a chatbot assistant. "
+            "Never say 'Can I help you?' or 'Hi there'. Start with an observation or "
+            "insight about what they're reading. If they're a returning visitor, "
+            "acknowledge that lightly without being creepy.\n\n"
+            "Reply with ONLY the nudge text, nothing else. No quotes."
+        )
+
+        api_key = ANTHROPIC_API_KEY or os.environ.get('ANTHROPIC_API_KEY', '')
+        if not api_key:
+            return jsonify(NUDGE_FALLBACK)
+
+        resp = requests.post(
+            'https://api.anthropic.com/v1/messages',
+            headers={
+                'x-api-key': api_key,
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json',
+            },
+            json={
+                'model': 'claude-haiku-4-5-20251001',
+                'max_tokens': 60,
+                'system': nudge_system,
+                'messages': [{"role": "user", "content": "\n".join(user_parts)}],
+            },
+            timeout=8,
+        )
+
+        if resp.status_code == 200:
+            nudge_text = resp.json()['content'][0]['text'].strip().strip('"\'')
+            # Enforce 25-word cap
+            words = nudge_text.split()
+            if len(words) > 25:
+                nudge_text = ' '.join(words[:25])
+
+            tone = "curious"
+            if returning:
+                tone = "warm"
+
+            return jsonify({
+                "nudge": nudge_text,
+                "tone": tone,
+                "returning": returning,
+                "visit_count": visit_count,
+            })
+
+        logger.warning(f"[nudge] Haiku API error: {resp.status_code}")
+        return jsonify(NUDGE_FALLBACK)
+
+    except Exception as e:
+        logger.error(f"[nudge] unhandled error: {e}")
+        return jsonify(NUDGE_FALLBACK)
+
+
+@oracle_bp.route('/oracle/context')
+def oracle_context():
+    """Return enriched page metadata for the widget header. Pure DB lookup, no LLM."""
+    slug = request.args.get('slug', '').strip()
+    site_default = {
+        "title": "Protocol Pulse",
+        "category": "Intelligence",
+        "tags": [],
+        "read_time_minutes": None,
+        "related_count": 0,
+        "context_label": "Protocol Pulse — Bitcoin Intelligence",
     }
-    nudge = nudge_templates.get(category, f'Have questions about this? Ask the Oracle.')
+    if not slug:
+        return jsonify(site_default)
 
-    return jsonify({'nudge': nudge})
+    try:
+        from models import Article
+        article = Article.query.filter_by(slug=slug).first()
+        if not article:
+            # Try by ID as fallback
+            try:
+                article = Article.query.get(int(slug))
+            except (ValueError, TypeError):
+                pass
+
+        if not article:
+            return jsonify(site_default)
+
+        word_count = len((article.content or '').split())
+        read_time = math.ceil(word_count / 238) if word_count > 0 else 1
+
+        tags_list = []
+        if article.tags:
+            tags_list = [t.strip() for t in article.tags.split(',') if t.strip()]
+
+        category = article.category or 'Intelligence'
+
+        # Count related articles in same category
+        related_count = 0
+        try:
+            related_count = (
+                Article.query
+                .filter(Article.category == category)
+                .filter(Article.id != article.id)
+                .filter(Article.published.is_(True))
+                .count()
+            )
+        except Exception:
+            pass
+
+        context_label = f"{category} · {read_time} min read"
+
+        return jsonify({
+            "title": article.title,
+            "category": category,
+            "tags": tags_list[:10],
+            "read_time_minutes": read_time,
+            "related_count": related_count,
+            "context_label": context_label,
+        })
+
+    except Exception as e:
+        logger.error(f"[context] error: {e}")
+        return jsonify(site_default)
 
 
 @oracle_bp.route('/oracle/recommend', methods=['POST'])
@@ -495,3 +678,211 @@ def api_telemetry():
     if event:
         logger.info(f"[telemetry] {event}: {json.dumps(properties)}")
     return jsonify({'ok': True})
+
+
+# ─── TIER 1: AVATAR SERVER PROXY ROUTES ──────────────────────────────
+
+AVATAR_LOCAL_URL = 'http://localhost:8200'
+ORACLE_RENDERS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                   'static', 'oracle_renders')
+os.makedirs(ORACLE_RENDERS_DIR, exist_ok=True)
+
+# Track pending jobs (lightweight — avatar server owns the real job state)
+_widget_jobs = {}  # job_id -> {'created_at': float, 'status': str}
+_widget_jobs_lock = threading.Lock()
+
+
+def _check_avatar_server():
+    """Quick health check of local avatar server."""
+    try:
+        r = requests.get(f'{AVATAR_LOCAL_URL}/health', timeout=3)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+def _cleanup_widget_jobs():
+    """Remove stale jobs older than 300s. Called when dict exceeds 50 entries."""
+    now = time.time()
+    with _widget_jobs_lock:
+        if len(_widget_jobs) <= 50:
+            return
+        expired = [k for k, v in _widget_jobs.items() if now - v.get('created_at', 0) > 300]
+        for k in expired:
+            del _widget_jobs[k]
+
+
+@oracle_bp.route('/oracle/status')
+def oracle_status():
+    """Widget calls this to determine media tier capability.
+    Checks avatar server health (with 2s timeout) and TTS key availability.
+    Must respond in <3s regardless of avatar server state.
+    """
+    # Check avatar server with tight timeout
+    avatar_status = "offline"
+    try:
+        r = requests.get(f'{AVATAR_LOCAL_URL}/health', timeout=2)
+        if r.status_code == 200:
+            avatar_status = "healthy"
+        else:
+            avatar_status = "degraded"
+    except requests.exceptions.Timeout:
+        avatar_status = "degraded"
+    except Exception:
+        avatar_status = "offline"
+
+    # Check TTS key availability (no API call)
+    tts_key = ELEVENLABS_API_KEY or os.environ.get('ELEVENLABS_API_KEY', '')
+    tts_status = "healthy" if tts_key else "offline"
+
+    # Tier logic
+    if avatar_status == "healthy" and tts_status == "healthy":
+        recommended_tier = 1
+    elif tts_status == "healthy":
+        recommended_tier = 2
+    else:
+        recommended_tier = 3
+
+    return jsonify({
+        'oracle': 'healthy',
+        'avatar_server': avatar_status,
+        'tts': tts_status,
+        'recommended_tier': recommended_tier,
+    })
+
+
+@oracle_bp.route('/oracle/chat/tier1', methods=['POST'])
+@rate_limit
+def oracle_chat_tier1():
+    """Proxy to avatar server /oracle/chat with audio_first=true.
+    Returns text immediately + job_id for async video polling.
+    Falls back to Tier 2 (Claude + ElevenLabs audio) on failure.
+    """
+    data = request.get_json(silent=True) or {}
+    message = data.get('message', '').strip()
+    if not message:
+        return jsonify({'error': 'Message required'}), 400
+    if len(message) > 500:
+        return jsonify({'error': 'Message too long (max 500 chars)'}), 400
+
+    history = data.get('history', [])
+    fingerprint = data.get('fingerprint', 'anon')
+    page_context = data.get('page_context')
+
+    # Try Tier 1: avatar server (Chatterbox TTS + Wav2Lip)
+    try:
+        resp = requests.post(
+            f'{AVATAR_LOCAL_URL}/oracle/chat',
+            json={
+                'text': message,
+                'session_id': fingerprint or 'widget',
+                'audio_first': True,
+                'visitor_token': fingerprint,
+                'page_context': page_context,
+            },
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            avatar_data = resp.json()
+            job_id = avatar_data.get('job_id')
+            response_text = avatar_data.get('text', '')
+
+            if job_id:
+                with _widget_jobs_lock:
+                    _widget_jobs[job_id] = {'created_at': time.time(), 'status': 'pending'}
+                _cleanup_widget_jobs()
+
+                return jsonify({
+                    'response': response_text,
+                    'job_id': job_id,
+                    'tier': 1,
+                })
+
+            # Avatar responded but no job_id — return text as Tier 2
+            return jsonify({
+                'response': response_text,
+                'tier': 2,
+            })
+
+    except Exception as e:
+        logger.warning(f"[Oracle Tier1] Avatar server error, falling back to Tier 2: {e}")
+
+    # Tier 2 fallback: Claude + ElevenLabs
+    response_text = call_claude(message, history)
+    audio_b64 = generate_tts(response_text)
+
+    return jsonify({
+        'response': response_text,
+        'audio': audio_b64,
+        'tier': 2,
+    })
+
+
+@oracle_bp.route('/oracle/job/<job_id>')
+def oracle_job_poll(job_id):
+    """Poll avatar server for async Wav2Lip video render status.
+    When complete: saves video to static/oracle_renders/ and returns URL.
+    """
+    # Check our tracking dict
+    with _widget_jobs_lock:
+        job = _widget_jobs.get(job_id)
+
+    if not job:
+        return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'unknown_job'})
+
+    # Timeout check (120s)
+    if time.time() - job['created_at'] > 120:
+        with _widget_jobs_lock:
+            _widget_jobs.pop(job_id, None)
+        return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'timeout'})
+
+    # Proxy poll to avatar server
+    try:
+        resp = requests.get(f'{AVATAR_LOCAL_URL}/oracle/job/{job_id}', timeout=10)
+
+        if resp.status_code == 202:
+            # Still pending
+            return jsonify({'job_id': job_id, 'status': 'pending'})
+
+        if resp.status_code == 200 and resp.headers.get('Content-Type', '').startswith('video/'):
+            # Video is ready — save to static dir
+            video_filename = f'{job_id}.mp4'
+            video_path = os.path.join(ORACLE_RENDERS_DIR, video_filename)
+
+            with open(video_path, 'wb') as f:
+                f.write(resp.content)
+
+            with _widget_jobs_lock:
+                _widget_jobs.pop(job_id, None)
+
+            # Clean up old renders (keep last 2 hours)
+            try:
+                cutoff = time.time() - 7200
+                for fn in os.listdir(ORACLE_RENDERS_DIR):
+                    if fn.endswith('.mp4'):
+                        fp = os.path.join(ORACLE_RENDERS_DIR, fn)
+                        if os.path.getmtime(fp) < cutoff:
+                            os.unlink(fp)
+            except Exception:
+                pass
+
+            return jsonify({
+                'job_id': job_id,
+                'status': 'complete',
+                'video_url': f'/static/oracle_renders/{video_filename}',
+            })
+
+        if resp.status_code == 500:
+            with _widget_jobs_lock:
+                _widget_jobs.pop(job_id, None)
+            return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'render_error'})
+
+        if resp.status_code == 404:
+            with _widget_jobs_lock:
+                _widget_jobs.pop(job_id, None)
+            return jsonify({'job_id': job_id, 'status': 'failed', 'reason': 'not_found'})
+
+    except Exception as e:
+        logger.warning(f"[Oracle Job] Poll error for {job_id}: {e}")
+
+    return jsonify({'job_id': job_id, 'status': 'pending'})
