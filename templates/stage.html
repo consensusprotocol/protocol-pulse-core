@@ -27,26 +27,42 @@
 }
 
 /* Page shell */
-body { background: var(--s-bg); }
+body { background: #000; }
 .stage-wrap {
   min-height: 100vh;
-  background: var(--s-bg);
-  background-image:
-    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(255,59,95,.07) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 35% at 80% 80%, rgba(248,193,92,.04) 0%, transparent 60%),
-    repeating-linear-gradient(0deg,   rgba(255,59,95,.025) 0px, transparent 1px, transparent 39px, rgba(255,59,95,.025) 40px),
-    repeating-linear-gradient(90deg,  rgba(255,59,95,.025) 0px, transparent 1px, transparent 39px, rgba(255,59,95,.025) 40px);
+  position: relative;
+  background-image: url('/static/img/stage_bg_hologram.png');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
   padding: 0 0 60px;
+}
+.stage-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 0;
+  pointer-events: none;
+}
+.stage-wrap > * {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 768px) {
+  .stage-wrap { background-attachment: scroll; }
 }
 
 /* ── TOP STATUS BAR ─────────────────────────────────── */
 .stage-topbar {
   position: sticky; top: 0; z-index: 200;
-  background: rgba(4,5,10,.92);
+  background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--s-border);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.4);
   display: flex; align-items: center; gap: 0;
   height: 42px; overflow: hidden;
+  font-family: monospace;
+  letter-spacing: 1px;
 }
 .stage-topbar__live {
   display: flex; align-items: center; gap: 8px;
@@ -155,26 +171,45 @@ body { background: var(--s-bg); }
 }
 .stage-avatar-wrap {
   position: relative;
-  background: radial-gradient(circle at 50% 100%, rgba(255,59,95,.08) 0%, transparent 60%),
-              #06080f;
-  border: 1px solid var(--s-border);
-  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(0, 255, 200, 0.2);
+  box-shadow:
+    0 0 30px rgba(220, 38, 38, 0.3),
+    0 0 60px rgba(220, 38, 38, 0.1),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
   overflow: hidden;
   aspect-ratio: 3/4;
   display: flex; align-items: flex-end; justify-content: center;
+  animation: oracle-flicker 6s ease-in-out infinite;
 }
-.stage-avatar-wrap::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(4,5,10,.8) 0%, transparent 40%);
-  z-index: 2; pointer-events: none;
-}
-/* Desk surface */
+/* Scanline overlay */
 .stage-avatar-wrap::after {
   content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
-  background: linear-gradient(to top, #0d1017 0%, rgba(13,16,23,.5) 70%, transparent 100%);
-  z-index: 3; pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+  animation: oracle-scanline-drift 8s linear infinite;
+}
+@keyframes oracle-scanline-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 100px; }
+}
+@keyframes oracle-flicker {
+  0%, 95%, 100% { filter: none; }
+  96%           { filter: hue-rotate(10deg) brightness(1.05); }
+  97%           { filter: hue-rotate(-5deg) brightness(0.98); }
+}
+@media (max-width: 768px) {
+  .stage-avatar-wrap { animation: none; }
 }
 .stage-avatar-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -217,8 +252,10 @@ body { background: var(--s-bg); }
 .stage-brief__sentiment {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px;
-  background: var(--s-surface); border: 1px solid var(--s-border);
-  border-radius: 6px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 4px;
 }
 .stage-brief__sentiment-bar-wrap {
   flex: 1; height: 4px; background: rgba(255,255,255,.08);
@@ -241,8 +278,10 @@ body { background: var(--s-bg); }
 /* Narrative card */
 .stage-narrative {
   padding: 14px 16px;
-  background: var(--s-surface); border: 1px solid var(--s-border);
-  border-left: 3px solid var(--s-red); border-radius: 6px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-left: 3px solid var(--s-red); border-radius: 4px;
   font-family: var(--s-head); font-size: 14px; font-weight: 500;
   line-height: 1.5; color: rgba(255,255,255,.82);
   position: relative;
@@ -293,9 +332,10 @@ body { background: var(--s-bg); }
 
 /* ── BRIEFING COUNTDOWN ──────────────────────────────  */
 .stage-brief-countdown {
-  background: var(--s-surface);
-  border: 1px solid var(--s-border);
-  border-radius: 8px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 4px;
   padding: 14px 16px;
 }
 .stage-brief-countdown__row {
@@ -393,9 +433,10 @@ body { background: var(--s-bg); }
   }
 }
 .stage-tx-card {
-  background: var(--s-surface);
-  border: 1px solid var(--s-border);
-  border-radius: 6px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 4px;
   padding: 14px 16px;
   transition: border-color .15s, transform .15s;
   cursor: default;
@@ -435,18 +476,20 @@ body { background: var(--s-bg); }
 
 /* ── SIDEBAR (right) ─────────────────────────────────  */
 .stage-sidebar {
-  border-left: 1px solid var(--s-border);
+  border-left: 1px solid rgba(220, 38, 38, 0.2);
   display: flex; flex-direction: column;
   height: fit-content; position: sticky; top: 42px;
   max-height: calc(100vh - 42px); overflow: hidden;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
 }
 .stage-panel {
-  border-bottom: 1px solid var(--s-border);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.2);
   flex-shrink: 0;
 }
 .stage-panel__header {
   padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
-  background: rgba(8,11,18,.7);
+  background: rgba(0, 0, 0, 0.4);
   font-family: var(--s-mono); font-size: 9px; letter-spacing: .2em;
   text-transform: uppercase; color: rgba(255,255,255,.4);
 }
@@ -533,9 +576,10 @@ body { background: var(--s-bg); }
 /* ── INTERACTIVE MODE PANEL ─────────────────────────────  */
 .stage-interactive-panel {
   display: none;
-  background: var(--s-surface);
-  border: 1px solid var(--s-border);
-  border-radius: 8px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 4px;
   padding: 16px;
   margin-top: 12px;
 }
@@ -626,6 +670,73 @@ body { background: var(--s-bg); }
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+/* ── TRANSMISSION STATUS BAR ──────────────────────────── */
+.oracle-transmission-status {
+  font-family: monospace;
+  font-size: 11px;
+  color: #00ffc8;
+  letter-spacing: 3px;
+  border-top: 1px solid rgba(0,255,200,0.3);
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 15;
+}
+.oracle-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #DC2626;
+  animation: oracle-dot-pulse 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes oracle-dot-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px #DC2626; }
+  50%      { opacity: 0.4; box-shadow: 0 0 10px #DC2626; }
+}
+
+/* ── HOLOGRAPHIC BASE GLOW ────────────────────────────── */
+.oracle-holo-base {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 20px;
+  background: radial-gradient(ellipse, rgba(220,38,38,0.6) 0%, transparent 70%);
+  filter: blur(8px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── HEADER GLASSMORPHISM ─────────────────────────────── */
+.stage-header {
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+/* ── MAIN AREA GLASSMORPHISM ──────────────────────────── */
+.stage-main {
+  background: transparent;
+  border-right-color: rgba(220, 38, 38, 0.15);
+}
+
+/* ── MOBILE: reduce hologram effects ──────────────────── */
+@media (max-width: 768px) {
+  .stage-avatar-wrap {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .oracle-holo-base { display: none; }
 }
 </style>
 {% endblock %}
@@ -719,6 +830,11 @@ body { background: var(--s-bg); }
               <div class="stage-avatar-nameplate__dot"></div>
               <div class="stage-avatar-nameplate__name">Oracle — Protocol Pulse</div>
             </div>
+            <div class="oracle-transmission-status">
+              <span class="oracle-status-dot"></span>
+              PROTOCOL PULSE / ACTIVE
+            </div>
+            <div class="oracle-holo-base"></div>
           </div>
 
           <!-- Brief panels -->

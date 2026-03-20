@@ -27,15 +27,23 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 @keyframes hex-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,59,95,.4))}50%{filter:drop-shadow(0 0 22px rgba(255,59,95,.9))}}
 
 /* ─── ROOT ──────────────────────────────────────────────── */
-#root{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#root{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background-image:url('/static/img/stage_bg_studio.png');
+  background-size:cover;
+  background-position:center center;
+  background-attachment:fixed;
+}
 
-/* ─── BACKGROUND GRID ───────────────────────────────────── */
+/* ─── BACKGROUND OVERLAY ────────────────────────────────── */
 #root::before{
   content:'';position:absolute;inset:0;
-  background-image:linear-gradient(rgba(255,59,95,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,59,95,.04) 1px,transparent 1px);
-  background-size:40px 40px;
-  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+  background:rgba(0,0,0,0.6);
   pointer-events:none;
+  z-index:0;
+}
+#root>*{position:relative;z-index:1;}
+@media(max-width:768px){
+  #root{background-attachment:scroll;}
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -286,9 +294,11 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   width:100%;
   max-width:min(440px,calc(100vw - 24px));
   aspect-ratio:1/1;
-  border-radius:8px;overflow:hidden;
+  border-radius:4px;overflow:hidden;
   background:#050508;
   flex-shrink:0;
+  border:2px solid rgba(220, 38, 38, 0.5);
+  box-shadow:0 0 40px rgba(220, 38, 38, 0.2), inset 0 0 60px rgba(0,0,0,0.4);
 }
 /* Corner brackets */
 .video-wrap::before,.video-wrap::after{
@@ -383,18 +393,35 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 #cards{display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;animation:card-up .35s ease}
 #cards.on{display:grid}
 .card{
-  background:#080a0f;
-  border:1px solid #141824;
-  border-radius:6px;
+  background:rgba(10, 10, 10, 0.85);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255, 255, 255, 0.08);
+  border-radius:8px;
   padding:clamp(10px,2.5vw,13px);
   cursor:pointer;
   transition:border-color .15s,background .15s;
   display:flex;flex-direction:column;gap:5px;
   touch-action:manipulation;
 }
-.card:active{background:#100610;border-color:rgba(255,59,95,.5)}
+.card:active{background:rgba(16, 6, 16, 0.9);border-color:rgba(255,59,95,.5)}
 .card-title{font-size:clamp(11px,3.2vw,13px);font-weight:600;color:#ccd;line-height:1.3}
 .card-link{font-family:'JetBrains Mono',monospace;font-size:clamp(9px,2.5vw,10px);color:rgba(255,59,95,.7);text-decoration:none;letter-spacing:.03em}
+
+/* ─── PRIVATE SESSION INDICATOR ──────────────────────────── */
+.oracle-live-indicator{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.2em;
+  color:#DC2626;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
+  flex-shrink:0;
+}
+.oracle-live-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#DC2626;
+  box-shadow:0 0 6px #DC2626;
+  animation:live-blink 2s step-end infinite;
+  display:inline-block;
+}
 
 /* ═══════════════════════════════════════════════════════════
    MOBILE — max-width 640px
@@ -562,6 +589,8 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
     <span class="topbar-brand">Oracle</span>
     <div class="live-pill"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
   </div>
+
+  <div class="oracle-live-indicator"><span class="oracle-live-dot"></span> PRIVATE SESSION</div>
 
   <div class="video-wrap">
     <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
