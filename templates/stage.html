@@ -125,43 +125,46 @@ body { background: var(--s-bg); }
 
 /* ── MAIN GRID ──────────────────────────────────────── */
 .stage-grid {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  grid-template-rows: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0;
-  min-height: calc(100vh - 140px);
-}
-@media (max-width: 900px) {
-  .stage-grid { grid-template-columns: 1fr; }
-  .stage-sidebar { border-left: none; border-top: 1px solid var(--s-border); }
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-/* ── MAIN CONTENT (left) ────────────────────────────── */
+/* ── MAIN CONTENT (centered) ────────────────────────── */
 .stage-main {
-  padding: 24px 32px;
-  border-right: 1px solid var(--s-border);
-  display: flex; flex-direction: column; gap: 28px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 0;
 }
 
 /* ── AVATAR DESK ─────────────────────────────────────── */
 .stage-desk {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 24px;
-  align-items: start;
+  width: 60vw;
+  max-width: 900px;
+  min-width: 320px;
+  margin: 0 auto;
+  position: relative;
 }
-@media (max-width: 700px) {
-  .stage-desk { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .stage-desk { width: 100%; max-width: 100%; }
 }
 .stage-avatar-wrap {
+  width: 100%;
   position: relative;
   background: radial-gradient(circle at 50% 100%, rgba(255,59,95,.08) 0%, transparent 60%),
               #06080f;
-  border: 1px solid var(--s-border);
+  border: 1px solid rgba(0, 255, 200, 0.15);
   border-radius: 8px;
   overflow: hidden;
   aspect-ratio: 3/4;
   display: flex; align-items: flex-end; justify-content: center;
+  box-shadow: 0 0 40px rgba(220,38,38,0.2), 0 0 80px rgba(220,38,38,0.06);
 }
 .stage-avatar-wrap::before {
   content: '';
@@ -433,12 +436,18 @@ body { background: var(--s-bg); }
   text-transform: uppercase;
 }
 
-/* ── SIDEBAR (right) ─────────────────────────────────  */
+/* ── SIDEBAR (now full-width below strip) ────────────  */
 .stage-sidebar {
-  border-left: 1px solid var(--s-border);
-  display: flex; flex-direction: column;
-  height: fit-content; position: sticky; top: 42px;
-  max-height: calc(100vh - 42px); overflow: hidden;
+  width: 100%;
+  max-width: 1100px;
+  margin: 16px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  border-left: none;
+}
+@media (max-width: 768px) {
+  .stage-sidebar { grid-template-columns: 1fr; }
 }
 .stage-panel {
   border-bottom: 1px solid var(--s-border);
@@ -627,6 +636,45 @@ body { background: var(--s-bg); }
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+/* ── DATA STRIP (below avatar) ────────────────────── */
+.stage-data-strip {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 16px auto 0;
+  padding: 0;
+}
+@media (max-width: 768px) {
+  .stage-data-strip { grid-template-columns: 1fr; padding: 0; }
+}
+
+/* ── BELOW-STRIP SECTIONS (timed briefing, transcripts) ── */
+.stage-below-strip {
+  width: 100%;
+  max-width: 1100px;
+  margin: 16px auto 0;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* ── HOLOGRAM TREATMENT (stage avatar only) ─────────── */
+/* (merged into .stage-avatar-wrap above) */
+.stage-avatar-scanline {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none; z-index: 10;
+  animation: scanline-drift 8s linear infinite;
+}
+@keyframes scanline-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 100px; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
 </style>
 {% endblock %}
 
@@ -700,122 +748,121 @@ body { background: var(--s-bg); }
   <!-- MAIN GRID -->
   <div class="stage-grid">
 
-    <!-- LEFT: Main content -->
+    <!-- CENTERED: Avatar panel -->
     <div class="stage-main">
+      <div class="stage-desk">
+        <!-- Avatar -->
+        <div class="stage-avatar-wrap">
+          <img class="stage-avatar-img" id="avatarStill"
+               src="/static/oracle_avatar.png" alt="Oracle Avatar"
+               onerror="this.style.display='none'">
+          <video class="stage-avatar-vid" id="avatarVid"
+                 playsinline webkit-playsinline muted autoplay></video>
+          <div class="stage-avatar-scanline"></div>
+          <div class="stage-avatar-nameplate">
+            <div class="stage-avatar-nameplate__dot"></div>
+            <div class="stage-avatar-nameplate__name">Oracle — Protocol Pulse</div>
+          </div>
+        </div>
+        <div style="font-family:monospace;font-size:11px;color:#00ffc8;letter-spacing:3px;border-top:1px solid rgba(0,255,200,0.2);padding:6px 12px;background:rgba(0,0,0,0.8)">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#DC2626;margin-right:8px;animation:pulse-dot 1.5s infinite"></span>
+          PROTOCOL PULSE / ACTIVE
+        </div>
+      </div>
+    </div><!-- /stage-main -->
 
-      <!-- AVATAR DESK -->
+    <!-- DATA STRIP: sentiment | narrative | topics + controls -->
+    <div class="stage-data-strip">
+      <!-- Column 1: Sentiment -->
       <div>
-        <div class="stage-brief__section-label">Oracle Desk</div>
-        <div class="stage-desk">
-
-          <!-- Avatar -->
-          <div class="stage-avatar-wrap">
-            <img class="stage-avatar-img" id="avatarStill"
-                 src="/static/oracle_avatar.png" alt="Oracle Avatar"
-                 onerror="this.style.display='none'">
-            <video class="stage-avatar-vid" id="avatarVid"
-                   playsinline webkit-playsinline muted autoplay></video>
-            <div class="stage-avatar-nameplate">
-              <div class="stage-avatar-nameplate__dot"></div>
-              <div class="stage-avatar-nameplate__name">Oracle — Protocol Pulse</div>
+        <div class="stage-brief__section-label">Market Sentiment</div>
+        <div class="stage-brief__sentiment">
+          <div>
+            <div class="stage-brief__sentiment-score" id="sentimentScore">—</div>
+            <div class="stage-brief__sentiment-label" id="sentimentLabel">Loading</div>
+          </div>
+          <div style="flex:1">
+            <div class="stage-brief__sentiment-bar-wrap">
+              <div class="stage-brief__sentiment-bar" id="sentimentBar" style="width:50%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px">
+              <span style="font-family:var(--s-mono);font-size:8px;color:var(--s-red)">BEARISH</span>
+              <span style="font-family:var(--s-mono);font-size:8px;color:var(--s-green)">BULLISH</span>
             </div>
           </div>
-
-          <!-- Brief panels -->
-          <div class="stage-brief">
-
-            <!-- Sentiment -->
-            <div>
-              <div class="stage-brief__section-label">Market Sentiment</div>
-              <div class="stage-brief__sentiment">
-                <div>
-                  <div class="stage-brief__sentiment-score" id="sentimentScore">—</div>
-                  <div class="stage-brief__sentiment-label" id="sentimentLabel">Loading</div>
-                </div>
-                <div style="flex:1">
-                  <div class="stage-brief__sentiment-bar-wrap">
-                    <div class="stage-brief__sentiment-bar" id="sentimentBar" style="width:50%"></div>
-                  </div>
-                  <div style="display:flex;justify-content:space-between;margin-top:4px">
-                    <span style="font-family:var(--s-mono);font-size:8px;color:var(--s-red)">BEARISH</span>
-                    <span style="font-family:var(--s-mono);font-size:8px;color:var(--s-green)">BULLISH</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Narrative -->
-            <div>
-              <div class="stage-narrative" id="narrativeText">Loading Oracle narrative…</div>
-            </div>
-
-            <!-- Topics -->
-            <div>
-              <div class="stage-brief__section-label">Active Topics</div>
-              <div class="stage-topics" id="topicsWrap">
-                <span class="stage-topic stage-topic--neut shimmer" style="width:100px;height:20px;">&nbsp;</span>
-              </div>
-            </div>
-
-            <!-- Playback controls -->
-            <div>
-              <div class="stage-brief__section-label">Oracle Broadcast</div>
-              <div class="stage-controls">
-                <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()">
-                  ▶ Daily Brief
-                </button>
-                <button class="stage-btn stage-btn--ghost" id="greetBtn" onclick="requestGreet()">
-                  👋 Greet
-                </button>
-                <div class="stage-status" id="stageStatus">Ready</div>
-              </div>
-            </div>
-
-            <!-- Timed Briefing Countdown -->
-            <div>
-              <div class="stage-brief__section-label">Timed Briefing</div>
-              <div id="briefingCountdown" class="stage-brief-countdown">
-                <div class="stage-brief-countdown__row">
-                  <div class="stage-brief-countdown__dot" id="briefDot"></div>
-                  <div class="stage-brief-countdown__label">NEXT BRIEFING</div>
-                </div>
-                <div class="stage-brief-countdown__timer" id="countdownTimer">&mdash;</div>
-                <div class="stage-brief-countdown__sub" id="countdownSub">Checking schedule&hellip;</div>
-                <button class="stage-btn stage-btn--primary stage-brief-countdown__play"
-                        id="briefPlayBtn" style="display:none"
-                        onclick="playLatestBrief()">&#9654; Play Brief</button>
-              </div>
-            </div>
-
-            <!-- Mode switching -->
-            <div>
-              <div class="stage-brief__section-label">Stage Mode</div>
-              <div id="stageModeBadge" class="stage-mode-badge broadcast">● ON AIR</div>
-              <div class="stage-between-badge" id="betweenBadge" style="display:none">
-                BETWEEN SEGMENTS — <span id="betweenCountdown">--:--</span> until next briefing
-              </div>
-            </div>
-
-            <!-- Interactive Oracle Panel (visible between briefings) -->
-            <div id="interactivePanel" class="stage-interactive-panel">
-              <div style="font-family:var(--s-mono);font-size:9px;letter-spacing:.15em;color:var(--s-muted);text-transform:uppercase;margin-bottom:8px">Ask Oracle Anything</div>
-              <div class="stage-chat-input">
-                <input type="text" id="stageChatInput" placeholder="Ask about Bitcoin..."
-                       onkeydown="if(event.key==='Enter')stageChat()">
-                <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak">&#127908;</button>
-                <button class="stage-btn stage-btn--primary" onclick="stageChat()" style="padding:8px 14px">&#9654;</button>
-              </div>
-              <div class="stage-chat-history" id="stageChatHistory"></div>
-            </div>
-
-          </div><!-- /stage-brief -->
-        </div><!-- /stage-desk -->
+        </div>
       </div>
 
-      <!-- CHANNEL TRANSCRIPTS -->
+      <!-- Column 2: Narrative -->
       <div>
-        <div class="stage-brief__section-label">Partner Channel Intelligence</div>
-        <div class="stage-transcripts-wrap">
+        <div class="stage-narrative" id="narrativeText">Loading Oracle narrative…</div>
+      </div>
+
+      <!-- Column 3: Topics + Broadcast buttons -->
+      <div>
+        <div class="stage-brief__section-label">Active Topics</div>
+        <div class="stage-topics" id="topicsWrap">
+          <span class="stage-topic stage-topic--neut shimmer" style="width:100px;height:20px;">&nbsp;</span>
+        </div>
+        <div style="margin-top:12px">
+          <div class="stage-brief__section-label">Oracle Broadcast</div>
+          <div class="stage-controls">
+            <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()">
+              ▶ Daily Brief
+            </button>
+            <button class="stage-btn stage-btn--ghost" id="greetBtn" onclick="requestGreet()">
+              👋 Greet
+            </button>
+            <div class="stage-status" id="stageStatus">Ready</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /stage-data-strip -->
+
+    <!-- TIMED BRIEFING + INTERACTIVE -->
+    <div class="stage-below-strip">
+      <!-- Timed Briefing Countdown -->
+      <div>
+        <div class="stage-brief__section-label">Timed Briefing</div>
+        <div id="briefingCountdown" class="stage-brief-countdown">
+          <div class="stage-brief-countdown__row">
+            <div class="stage-brief-countdown__dot" id="briefDot"></div>
+            <div class="stage-brief-countdown__label">NEXT BRIEFING</div>
+          </div>
+          <div class="stage-brief-countdown__timer" id="countdownTimer">&mdash;</div>
+          <div class="stage-brief-countdown__sub" id="countdownSub">Checking schedule&hellip;</div>
+          <button class="stage-btn stage-btn--primary stage-brief-countdown__play"
+                  id="briefPlayBtn" style="display:none"
+                  onclick="playLatestBrief()">&#9654; Play Brief</button>
+        </div>
+      </div>
+
+      <!-- Mode switching -->
+      <div>
+        <div class="stage-brief__section-label">Stage Mode</div>
+        <div id="stageModeBadge" class="stage-mode-badge broadcast">● ON AIR</div>
+        <div class="stage-between-badge" id="betweenBadge" style="display:none">
+          BETWEEN SEGMENTS — <span id="betweenCountdown">--:--</span> until next briefing
+        </div>
+      </div>
+
+      <!-- Interactive Oracle Panel (visible between briefings) -->
+      <div id="interactivePanel" class="stage-interactive-panel">
+        <div style="font-family:var(--s-mono);font-size:9px;letter-spacing:.15em;color:var(--s-muted);text-transform:uppercase;margin-bottom:8px">Ask Oracle Anything</div>
+        <div class="stage-chat-input">
+          <input type="text" id="stageChatInput" placeholder="Ask about Bitcoin..."
+                 onkeydown="if(event.key==='Enter')stageChat()">
+          <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak">&#127908;</button>
+          <button class="stage-btn stage-btn--primary" onclick="stageChat()" style="padding:8px 14px">&#9654;</button>
+        </div>
+        <div class="stage-chat-history" id="stageChatHistory"></div>
+      </div>
+    </div><!-- /stage-below-strip -->
+
+    <!-- PARTNER CHANNEL INTELLIGENCE -->
+    <div class="stage-below-strip">
+      <div class="stage-brief__section-label">Partner Channel Intelligence</div>
+      <div class="stage-transcripts-wrap">
         <div class="stage-transcripts" id="transcriptsGrid">
           <!-- Skeleton loaders -->
           {% for i in range(6) %}
@@ -823,10 +870,9 @@ body { background: var(--s-bg); }
           {% endfor %}
         </div>
       </div>
+    </div>
 
-    </div><!-- /stage-main -->
-
-    <!-- RIGHT: Sidebar -->
+    <!-- SIDEBAR: Price + Nostr (now full-width row) -->
     <div class="stage-sidebar">
 
       <!-- Price Panel -->
@@ -843,7 +889,7 @@ body { background: var(--s-bg); }
       </div>
 
       <!-- Nostr Signal Panel -->
-      <div class="stage-panel" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <div class="stage-panel" style="overflow:hidden;display:flex;flex-direction:column;">
         <div class="stage-panel__header">
           <span><span class="stage-panel__header-dot" style="background:var(--s-red);animation:live-pulse 1.4s infinite"></span>Nostr Signal</span>
           <span id="nostrCount" style="font-size:8px;color:rgba(255,255,255,.3)">0 posts</span>
@@ -1227,7 +1273,7 @@ body { background: var(--s-bg); }
     fetchTO(AVATAR_BASE + '/oracle/chat', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({text:text, session_id:_stageSessionId, audio_first:true})
+      body: JSON.stringify({text:text, session_id:_stageSessionId, audio_first:true, avatar_source:"stage_hologram"})
     }, 90000)
     .then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status);
