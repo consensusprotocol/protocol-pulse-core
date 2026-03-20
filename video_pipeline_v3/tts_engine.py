@@ -869,8 +869,18 @@ def tts_f5_finetuned(text: str, output_path: str, speed: float = 1.1) -> bool:
 
         # BigVGAN2 upsample: 24kHz → 44kHz (graceful fallback)
         wav_for_encode = _bigvgan_upsample(wav_tmp)
+        # FIX 1: EQ chain to remove metallic ring above 6kHz, boost warmth at 2.8kHz
         r = subprocess.run([
             "ffmpeg", "-y", "-i", wav_for_encode,
+            "-af", (
+                "highpass=f=80,"
+                "equalizer=f=200:t=o:w=1.5:g=1.5,"
+                "equalizer=f=2800:t=o:w=1.2:g=2.0,"
+                "equalizer=f=6000:t=o:w=1.0:g=-4.0,"
+                "equalizer=f=10000:t=o:w=1.0:g=-6.0,"
+                "equalizer=f=14000:t=o:w=0.8:g=-8.0,"
+                "alimiter=limit=0.95:level=disabled:attack=3:release=25"
+            ),
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
         ], capture_output=True, text=True, timeout=60)
         for _tmp in [wav_tmp, wav_for_encode]:
@@ -882,7 +892,7 @@ def tts_f5_finetuned(text: str, output_path: str, speed: float = 1.1) -> bool:
 
         ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
         if ok:
-            logger.info(f"[TTS/F5] OK: {ffprobe_duration(output_path):.2f}s (fine-tuned PBX + ref clip)")
+            logger.info(f"[TTS/F5] OK: {ffprobe_duration(output_path):.2f}s (fine-tuned PBX + ref clip, EQ applied)")
         return ok
     except Exception as e:
         logger.error(f"[TTS/F5] Exception: {e}")

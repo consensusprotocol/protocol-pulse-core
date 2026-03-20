@@ -49,13 +49,14 @@ FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 # ── APEX UNIFIED COLOR SYSTEM ─────────────────────────────────────────────
 COLOR_BG          = "0x0A0A0F"   # VDS dark navy — #0A0A0F per PIPELINE_LAWS
+COLOR_BLACK       = "0x000000"   # true black
 COLOR_PANEL       = "0x050607"   # BEV2 elevated surface
 COLOR_PANEL2      = "0x080a0c"   # secondary surface
-COLOR_RED         = "0xFF3333"   # BD signal red — all accents
+COLOR_RED         = "0xCC2222"   # BD signal red — all accents (PIPELINE_LAWS gospel)
 COLOR_RED_WARM    = "0xFF334D"   # BEV2 warm red — transition elements
 COLOR_WHITE       = "0xF4F5F8"   # BEV2 warm white — not pure white
 COLOR_TEXT        = "0xF4F5F8"   # primary text (warm white)
-COLOR_GOLD        = "0xF8C15C"   # VDS gold — EYEBROW KICKERS ONLY
+COLOR_GOLD        = "0xF5A623"   # VDS gold — EYEBROW KICKERS ONLY (PIPELINE_LAWS gospel)
 COLOR_MUTED       = "0x888888"   # secondary labels
 COLOR_MUTED2      = "0x555555"   # metadata, timestamps
 COLOR_GREEN       = "0x6EE7B7"   # BEV2 emerald — positive/DONE
@@ -125,6 +126,8 @@ def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> st
               f"trim=0:{duration},setpts=PTS-STARTPTS,"
               # Keep vignette for cinematic depth
               f"vignette=PI/4:mode=backward,"
+              # FIX 2: Near-monochrome grayscale (15% saturation) for cinematic b-roll aesthetic
+              f"hue=s=0.15,"
               # Glassmorphic darken: multiply brightness by 0.55 (45% darker)
               f"eq=brightness=-0.15:contrast=0.9,"
               # Red border frame (2px all edges — PIPELINE_LAWS)
@@ -135,6 +138,34 @@ def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> st
         return fg
     _, fg = _build_broadcast_bg(duration, label_out=label_out)
     return fg
+
+
+def _add_episode_title_pill(label_in: str, label_out: str,
+                            episode_title: str, duration: float) -> str:
+    """FIX 3: Glassmorphic episode title pill at bottom-left safe zone.
+
+    Semi-transparent rounded rect with PULSE CHECK label + episode title.
+    Visible from t=0.5 to end of segment.
+    """
+    safe_title = _sanitize_text(episode_title or "PULSE CHECK")[:45]
+    return (
+        f"[{label_in}]"
+        # Semi-transparent black background pill
+        f"drawbox=x=40:y=980:w=500:h=56:color=0x000000@0.55:t=fill:"
+        f"enable='between(t,0.5,{duration})',"
+        # Subtle white border at 15% opacity
+        f"drawbox=x=40:y=980:w=500:h=56:color=0xFFFFFF@0.15:t=1:"
+        f"enable='between(t,0.5,{duration})',"
+        # Red monospace label above title
+        f"drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
+        f"fontcolor={COLOR_RED}:fontsize=11:x=52:y=982:"
+        f"enable='between(t,0.5,{duration})',"
+        # White episode title text
+        f"drawtext=fontfile={FONT_BOLD}:text='{safe_title}':"
+        f"fontcolor={COLOR_WHITE}:fontsize=18:x=52:y=1000:"
+        f"enable='between(t,0.5,{duration})'"
+        f"[{label_out}];\n"
+    )
 
 
 def apply_scanline(inputs: list, fg: str, label_in: str, label_out: str,
@@ -1520,7 +1551,8 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
 
 def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
                           output_path: str, btc_price: str = "N/A",
-                          duration: float = 0) -> str:
+                          duration: float = 0,
+                          episode_title: str = "PULSE CHECK") -> str:
     """APEX Cold Open — BD left impact panel + VDS 2x2 metric cards right."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
@@ -1629,7 +1661,9 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     fg += wave_fg
     # Info rail
     fg += _build_signature_info_rail(total_dur, btc_price, "co_wave", "co_railed")
-    fg += f"[co_railed]format=yuv420p[outv];\n"
+    # FIX 3: Episode title pill
+    fg += _add_episode_title_pill("co_railed", "_co_pilled", episode_title, total_dur)
+    fg += f"[_co_pilled]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX cold open",
                        audio_pad=co_audio_pad)
@@ -1641,7 +1675,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
                              speaker: str, next_speaker: str,
                              thumb_path: str, output_path: str,
                              btc_price: str = "N/A", duration: float = 0,
-                             pip_video_path: str = "") -> str:
+                             pip_video_path: str = "",
+                             episode_title: str = "PULSE CHECK") -> str:
     """Narrator + PiP split: left panel waveform/text, right panel looping video."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
@@ -1654,10 +1689,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     safe_btc = _sanitize_text(btc_price) if btc_price else "$N/A"
 
     inputs = [audio_path]
-    fg = ""
-
-    # Base canvas — black
-    fg += f"color=c=0x0A0A0F:s=1920x1080:d={total_dur}:r=30[base];\n"
+    # FIX 2: Use bg_loop via _get_bg_layer() instead of procedural color base
+    fg = _get_bg_layer(inputs, total_dur, "base")
 
     # === LEFT PANEL (x=0..900): waveform + headline + body ===
     fg += (f"[0:a]showwaves=s=860x120:mode=cline:colors={COLOR_RED}@0.8|{COLOR_RED}@0.4:"
@@ -1714,8 +1747,11 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     fg += f"[left_done][pip_panel]overlay=960:0:shortest=1[composited];\n"
 
     # 2px red border at x=958 separating left/right panels
-    fg += (f"[composited]drawbox=x=958:y=0:w=2:h=1080:color={COLOR_RED}:t=fill,"
-           f"format=yuv420p[outv];\n")
+    fg += (f"[composited]drawbox=x=958:y=0:w=2:h=1080:color={COLOR_RED}:t=fill"
+           f"[_pip_bordered];\n")
+    # FIX 3: Episode title pill
+    fg += _add_episode_title_pill("_pip_bordered", "_pip_pilled", episode_title, total_dur)
+    fg += f"[_pip_pilled]format=yuv420p[outv];\n"
 
     # Audio: PBX narration only, no music
     fg += f"[0:a]alimiter=limit=0.85,aresample=async=1[outa]"
@@ -1808,12 +1844,14 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
 def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
                              output_path: str, btc_price: str = "N/A",
                              duration: float = 0, script_text: str = "",
-                             chart_keyword: str = "") -> str:
+                             chart_keyword: str = "",
+                             episode_title: str = "PULSE CHECK") -> str:
     """APEX Data Segment — intelligence dashboard with chart overlays aligned to narration."""
     try:
         return _make_data_segment_inner(audio_path, headline, metrics,
                                         output_path, btc_price, duration,
-                                        script_text, chart_keyword)
+                                        script_text, chart_keyword,
+                                        episode_title=episode_title)
     except Exception as e:
         logger.error(f"Data segment failed entirely: {e} — writing 20s filler")
         _fdur = 20.0
@@ -1837,7 +1875,8 @@ def make_data_segment_scene(audio_path: str, headline: str, metrics: list,
 def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
                               output_path: str, btc_price: str = "N/A",
                               duration: float = 0, script_text: str = "",
-                              chart_keyword: str = "") -> str:
+                              chart_keyword: str = "",
+                              episode_title: str = "PULSE CHECK") -> str:
     """Inner implementation of data segment — raises on failure for outer try/except."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
@@ -2048,7 +2087,9 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "ds_wave", "ds_railed")
     fg = apply_scanline(inputs, fg, "ds_railed", "ds_scanned", total_dur)
-    fg += f"[ds_scanned]format=yuv420p[outv];\n"
+    # FIX 3: Episode title pill
+    fg += _add_episode_title_pill("ds_scanned", "_ds_pilled", episode_title, total_dur)
+    fg += f"[_ds_pilled]format=yuv420p[outv];\n"
 
     result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
                          audio_pad=ds_audio_pad)
@@ -2089,7 +2130,8 @@ def _rank_cards_for_segment(cards: list, segment_text: str) -> list:
 def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
                              output_path: str, btc_price: str = "N/A",
                              duration: float = 0,
-                             card_timings: list = None) -> str:
+                             card_timings: list = None,
+                             episode_title: str = "PULSE CHECK") -> str:
     """APEX Social Stack — FIX 4: cards LOCKED to TTS timing.
 
     Cards appear/disappear synchronized with narration. Each card is visible
@@ -2121,16 +2163,14 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
            f"fontcolor=0xFFFFFF@0.5:fontsize=16:x=64:y=200"
            f"[ss_hdr];\n")
 
-    default_cards = [
-        {"name": "Signal Source", "handle": "@signal", "score": "96", "text": "Bitcoin conviction remains extremely high", "tag": "HIGH CONVICTION"},
-        {"name": "Market Intel", "handle": "@intel", "score": "84", "text": "Structural demand continues to build", "tag": "STRUCTURAL"},
-        {"name": "Macro Watch", "handle": "@macro", "score": "72", "text": "Global liquidity conditions favor BTC", "tag": "MACRO SIGNAL"},
-    ]
-    cards = social_cards[:3] if social_cards and len(social_cards) >= 1 else default_cards
-    while len(cards) < 3:
-        cards.append(default_cards[len(cards) % 3])
+    # FIX 4: No default/fake cards — require real social_cards, minimum 3
+    if not social_cards or len(social_cards) < 3:
+        logger.warning(f"[SOCIAL] social_cards has {len(social_cards) if social_cards else 0} cards (minimum 3) — skipping social stack")
+        return ""
 
-    n_cards = min(len(cards), 3)
+    # FIX 4: Up to 5 cards, CARD ORDER LOCK — preserve script_writer order, never re-sort
+    cards = social_cards[:5]
+    n_cards = len(cards)
 
     # FIX 4: Calculate per-card timing — divide narration evenly across cards
     if card_timings and len(card_timings) >= n_cards:
@@ -2139,12 +2179,15 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
         tpc = total_dur / n_cards if n_cards > 0 else total_dur
         timings = [(i * tpc, (i + 1) * tpc) for i in range(n_cards)]
 
-    tags = ["HIGH CONVICTION", "STRUCTURAL", "MACRO SIGNAL"]
+    tags = ["HIGH CONVICTION", "STRUCTURAL", "MACRO SIGNAL", "NETWORK", "ADOPTION"]
     last = "ss_hdr"
-    for ci, card in enumerate(cards[:n_cards]):
-        cx = 64 + ci * 608
+    # FIX 4: Dynamic card width for up to 5 cards
+    _card_gap = 12
+    _total_card_w = 1920 - 128  # 64px margin each side
+    cw = (_total_card_w - (n_cards - 1) * _card_gap) // n_cards
+    for ci, card in enumerate(cards):
+        cx = 64 + ci * (cw + _card_gap)
         cy = 300
-        cw = 580
         ch = 620
 
         t_start, t_end = timings[ci]
@@ -2194,7 +2237,9 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
     wave_fg, ss_audio_pad = _build_narration_wave("ss_corners", "ss_wave", "ss_a_out")
     fg += wave_fg
     fg += _build_signature_info_rail(total_dur, btc_price, "ss_wave", "ss_railed")
-    fg += f"[ss_railed]format=yuv420p[outv];\n"
+    # FIX 3: Episode title pill
+    fg += _add_episode_title_pill("ss_railed", "_ss_pilled", episode_title, total_dur)
+    fg += f"[_ss_pilled]format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX social stack",
                        audio_pad=ss_audio_pad)
@@ -2204,7 +2249,8 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
 
 def make_wrap_scene(audio_path: str, headline: str, body: str,
                      output_path: str, btc_price: str = "N/A",
-                     duration: float = 0) -> str:
+                     duration: float = 0,
+                     episode_title: str = "PULSE CHECK") -> str:
     """APEX Wrap — BEV2 waveform + BD episode segments tracker + gold accents."""
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
@@ -2277,10 +2323,12 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     fg += f"[wr_corners][_wr_wfin]overlay=0:880[wr_ekg];\n"
 
     fg += _build_signature_info_rail(total_dur, btc_price, "wr_ekg", "wr_railed")
+    # FIX 3: Episode title pill
+    fg += _add_episode_title_pill("wr_railed", "_wr_pilled", episode_title, total_dur)
     # Session 4 Fix 7: Extended fade-to-black (1.5s) and audio fade (2.5s) for clean ending
     fade_v_start = max(0, total_dur - 1.5)
     fade_a_start = max(0, total_dur - 2.5)
-    fg += (f"[wr_railed]fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
+    fg += (f"[_wr_pilled]fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
            f"format=yuv420p[outv];\n")
     fg += (f"[_wr_a_out]afade=t=out:st={fade_a_start:.2f}:d=2.5[_wr_a_faded];\n")
 
@@ -2337,6 +2385,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
     text = segment_data.get("text", "")
     headline = segment_data.get("headline") or segment_data.get("title") or _smart_headline(text)
     speaker = segment_data.get("speaker", "PBX")  # PBX solo mode — single host
+    episode_title = segment_data.get("episode_title", "PULSE CHECK")
     scene = select_scene_type(seg_type, segment_index, total_segments)
 
     try:
@@ -2344,6 +2393,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
             return make_cold_open_scene(
                 audio_path, headline, text, "REDLINE",
                 output_path, btc_price=btc_price,
+                episode_title=episode_title,
             )
         elif scene == "narrator_pip":
             next_speaker = segment_data.get("next_speaker", "")
@@ -2351,6 +2401,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
                 audio_path, headline, text, speaker, next_speaker,
                 thumbnail_path, output_path, btc_price=btc_price,
                 pip_video_path=pip_video_path,  # FIX 1: pass actual video
+                episode_title=episode_title,
             )
         elif scene == "partner_clip" and clip_path:
             return make_partner_clip_scene(
@@ -2363,16 +2414,19 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
                 audio_path, headline, metrics,
                 output_path, btc_price=btc_price,
                 script_text=text,
+                episode_title=episode_title,
             )
         elif scene == "social_stack":
             return make_social_stack_scene(
                 audio_path, headline, social_posts or [],
                 output_path, btc_price=btc_price,
+                episode_title=episode_title,
             )
         elif scene == "wrap":
             return make_wrap_scene(
                 audio_path, headline, text,
                 output_path, btc_price=btc_price,
+                episode_title=episode_title,
             )
 
         # Signal Active 60/40 layout — triggered when signal_content injected
@@ -2414,7 +2468,7 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
 # SIGNAL ACTIVE — 60/40 split layout (X Spaces left, Nostr right)
 # ══════════════════════════════════════════════════════════════════════════
 
-COLOR_GOLD    = "0xf8c15c"
+COLOR_GOLD    = "0xF5A623"
 COLOR_NOSTR   = "0x00ff9d"
 COLOR_SIG_RED = "0xff3b5f"
 
@@ -4675,7 +4729,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         # Sprint 1.5: Each tweet as its OWN video segment
         if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
             card_posts = tweet_card_posts[social_card_idx:]
-            card_posts = _rank_cards_for_segment(card_posts, text)
+            # FIX 4: CARD ORDER LOCK — never re-sort, script_writer order is gospel
+            logger.info(f"[SOCIAL] passing {len(card_posts)} cards to segment {part_idx}")
 
             for cp in card_posts:
                 tweet_url = cp.get("tweet_url", cp.get("url", ""))
@@ -4871,11 +4926,13 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 seg_data["signal_content"] = signal_content
 
             try:
+                # FIX 5: Pass social_posts at every handoff
                 result = make_broadcast_segment(
                     seg_data, audio_path, host_num,
                     part_idx, len(dialogue),
                     line_out, btc_price=btc_price,
                     thumbnail_path=thumb,
+                    social_posts=tweet_card_posts,
                     pip_video_path=pip_vid,
                 )
                 if result and not os.path.exists(result):
