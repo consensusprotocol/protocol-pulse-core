@@ -772,6 +772,7 @@ def oracle_chat_tier1():
     history = data.get('history', [])
     fingerprint = data.get('fingerprint', 'anon')
     page_context = data.get('page_context')
+    avatar_source = data.get('avatar_source', 'default')
 
     # Try Tier 1: avatar server (Chatterbox TTS + Wav2Lip)
     try:
@@ -783,11 +784,21 @@ def oracle_chat_tier1():
                 'audio_first': True,
                 'visitor_token': fingerprint,
                 'page_context': page_context,
+                'avatar_source': avatar_source,
             },
             timeout=15,
         )
         if resp.status_code == 200:
-            avatar_data = resp.json()
+            content_type = resp.headers.get("Content-Type", "")
+            if "video" in content_type:
+                import base64 as _b64
+                return __import__("flask").jsonify({"response":"","video_inline":_b64.b64encode(resp.content).decode(),"tier":1})
+            try:
+                avatar_data = resp.json()
+            except Exception:
+                import logging
+                logging.getLogger(__name__).warning("[Oracle Tier1] Non-JSON avatar response")
+                avatar_data = {}
             job_id = avatar_data.get('job_id')
             response_text = avatar_data.get('text', '')
 
