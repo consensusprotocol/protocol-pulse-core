@@ -201,7 +201,7 @@ def ready():
         return jsonify({"status": "not_ready", "db": "error"}), 503
 
 
-@app.route('/robots.txt')
+@app.route('/robots.txt', endpoint='robots_txt_core')
 def robots_txt():
     """Search engine crawler instructions."""
     lines = [
