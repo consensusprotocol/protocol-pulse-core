@@ -10814,9 +10814,28 @@ def api_stage_next_briefing():
                             'next_estimated_at': None, 'countdown_seconds': 0})
         meta = _j.loads(latest_path.read_text())
         gen_at = datetime.fromisoformat(meta['generated_at'].replace('Z', '+00:00'))
-        next_at = gen_at + timedelta(hours=24)
+        # 3x/day schedule: next brief in ~8h (06:00, 14:00, 22:00 UTC)
+        _brief_hours = [6, 14, 22]
         now = datetime.now(timezone.utc)
+        next_at = None
+        for h in _brief_hours:
+            candidate = now.replace(hour=h, minute=0, second=0, microsecond=0)
+            if candidate > now:
+                next_at = candidate
+                break
+        if next_at is None:
+            next_at = (now + timedelta(days=1)).replace(hour=_brief_hours[0], minute=0, second=0, microsecond=0)
         countdown = max(0, int((next_at - now).total_seconds()))
+        # Load latest sentiment signal if available
+        _sentiment = None
+        _sentiment_path = Path(__file__).resolve().parent / 'data' / 'sentiment'
+        if _sentiment_path.exists():
+            _sig_files = sorted(_sentiment_path.glob('*_signal.json'), reverse=True)
+            if _sig_files:
+                try:
+                    _sentiment = _j.loads(_sig_files[0].read_text())
+                except Exception:
+                    pass
         return jsonify({
             'has_brief': True,
             'last_brief': {
@@ -10825,7 +10844,12 @@ def api_stage_next_briefing():
                 'mp4_url': meta.get('mp4_url', ''),
                 'duration': meta.get('duration', 0),
                 'script_summary': meta.get('script_summary', '')[:300],
+                'brief_type': meta.get('brief_type', ''),
+                'tts_provider': meta.get('tts_provider', ''),
+                'btc_price': meta.get('btc_price'),
+                'sentiment_score': meta.get('sentiment_score'),
             },
+            'sentiment': _sentiment,
             'next_estimated_at': next_at.isoformat(),
             'countdown_seconds': countdown,
         })

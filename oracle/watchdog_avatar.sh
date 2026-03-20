@@ -2,9 +2,24 @@
 # Avatar server watchdog - runs every 5 min via cron
 LOG=/home/ultron/protocol_pulse/oracle/logs/watchdog.log
 PID_FILE=/home/ultron/protocol_pulse/oracle/avatar_server.pid
+STARTUP_GRACE=600  # 10 min grace for Chatterbox model loading on CUDA
 
 # Check if server is responding
 if ! curl -sf http://localhost:8200/health > /dev/null 2>&1; then
+    # Grace period: if PID file exists and process is alive but young, skip restart
+    if [ -f "$PID_FILE" ]; then
+        AVATAR_PID=$(cat $PID_FILE)
+        if kill -0 $AVATAR_PID 2>/dev/null; then
+            # Process alive — check age
+            PROC_START=$(stat -c %Y /proc/$AVATAR_PID 2>/dev/null || echo 0)
+            NOW=$(date +%s)
+            AGE=$(( NOW - PROC_START ))
+            if [ "$AGE" -lt "$STARTUP_GRACE" ]; then
+                echo "[$(date)] Avatar starting (${AGE}s old, grace ${STARTUP_GRACE}s) — skipping restart" >> $LOG
+                exit 0
+            fi
+        fi
+    fi
     echo "[$(date)] Avatar server DOWN - restarting" >> $LOG
     # Kill any stale process
     if [ -f "$PID_FILE" ]; then

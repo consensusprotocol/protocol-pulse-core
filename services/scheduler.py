@@ -62,6 +62,10 @@ TASKS = {
     "article_generation_15m": {"interval_minutes": 15, "description": "Replit-style: generate 1 breaking_news article every 15 minutes (when ENABLE_ARTICLE_AUTOMATION_15M)"},
     "affiliate_education_morning": {"cron": "11:00", "description": "Affiliate education article #1 (11:00 UTC / 6am EST)"},
     "affiliate_education_evening": {"cron": "21:00", "description": "Affiliate education article #2 (21:00 UTC / 4pm EST)"},
+    # Stage Brief Pipeline — 3x/day Chatterbox TTS + intel extraction
+    "stage_brief_morning": {"cron": "06:00", "description": "Stage brief morning (06:00 UTC) — Chatterbox TTS, intel extraction"},
+    "stage_brief_midday": {"cron": "14:00", "description": "Stage brief midday (14:00 UTC) — Chatterbox TTS, intel extraction"},
+    "stage_brief_evening": {"cron": "22:00", "description": "Stage brief evening (22:00 UTC) — Chatterbox TTS, intel extraction"},
     # F6 Marketing OS
     "btc_milestone_check": {"interval_minutes": 5, "description": "F6: BTC price milestone check — fires campaigns at 100K/120K/.../1M (never repeats)"},
     "daily_metrics_snapshot": {"interval_minutes": 60, "description": "F6: Daily performance metrics snapshot (hourly upsert)"},
@@ -509,6 +513,21 @@ def run_task(name: str) -> Dict:
             logger.warning("weekly_performance_analysis failed: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    # Stage Brief Pipeline — 3x/day Chatterbox TTS + intel extraction
+    if name in ("stage_brief_morning", "stage_brief_midday", "stage_brief_evening"):
+        brief_type = name.replace("stage_brief_", "")  # morning/midday/evening
+        try:
+            from services.stage_brief_pipeline import generate_brief
+            result_path = generate_brief(brief_type=brief_type)
+            return {
+                "success": bool(result_path),
+                "message": f"Stage brief ({brief_type}): {result_path or 'FAILED'}",
+                "result": {"path": result_path, "brief_type": brief_type},
+            }
+        except Exception as e:
+            logger.warning("stage_brief_%s failed: %s", brief_type, e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -565,6 +584,10 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("btc_milestone_check"), trigger=IntervalTrigger(minutes=5), id="btc_milestone_check", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("daily_metrics_snapshot"), trigger=IntervalTrigger(hours=1), id="daily_metrics_snapshot", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("weekly_performance_analysis"), trigger=CronTrigger(day_of_week="sun", hour=0, minute=0), id="weekly_performance_analysis", replace_existing=True, max_instances=1)
+        # Stage Brief Pipeline — 3x/day Chatterbox TTS + intel extraction
+        _apscheduler.add_job(lambda: run_task("stage_brief_morning"), trigger=CronTrigger(hour=6, minute=0), id="stage_brief_morning", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("stage_brief_midday"), trigger=CronTrigger(hour=14, minute=0), id="stage_brief_midday", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("stage_brief_evening"), trigger=CronTrigger(hour=22, minute=0), id="stage_brief_evening", replace_existing=True, max_instances=1)
         # SESSION 2: Daily newsletter briefing — 13:00 UTC (8am Eastern)
         try:
             from services.newsletter_automation import send_daily_briefing
