@@ -1,6 +1,6 @@
 # Protocol Pulse — Current State
-**Generated:** 2026-03-18 18:39:08  
-**Git:** `8b4158d1` on `main`  
+**Generated:** 2026-03-19 23:47:17  
+**Git:** `c78255f4` on `main`  
 **Repo:** https://github.com/consensusprotocol/protocol-pulse-core
 
 ---
@@ -9,7 +9,7 @@
 | Service | Status |
 |---------|--------|
 | Flask (protocolpulse.io) | HTTP 200 |
-| Avatar server (port 8200) | HTTP 200 — avg latency 16.26s |
+| Avatar server (port 8200) | HTTP 200 — avg latency 17.55s |
 | CF Tunnel | Active |
 | Watchdog cron | Every 5 min |
 
@@ -103,12 +103,12 @@ tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_AP
 
 ## 📜 GIT LOG (last 8)
 ```
-8b4158d1 feat(pipeline): wire assembler_v2 into daily_run.py — EpisodeRunner replaces assemble_episode, legacy fallback preserved
-cadcd45f chore: update CURRENT_STATE.md handoff doc 2026-03-18
-da9d6bfb fix(assembler_v2): final hardening pass — Law 9 wrap, NameError signal, lock timeout, logger.exception, card_h, manifest validate, duration QC, trailing silence, chromium discovery
-11d1334d fix(ci): fix UnboundLocalError in registry auto-update — use _dt/_tz aliases HOTFIX-EXEMPT
-9bb0ec11 chore: update CURRENT_STATE.md handoff doc 2026-03-18
-49ed0ff9 fix(assembler_v2): P0/P1 audit pass 2 — deadlock fix, QC gate, narration ctx, concat escaping, atomic filler
-0b6683a7 feat(ci): cross_llm_audit.py auto-updates AUDIT_REGISTRY.json after every run HOTFIX-EXEMPT
-12ef699d feat(ci): auto-update AUDIT_REGISTRY.json after every audit run HOTFIX-EXEMPT
+c78255f4 feat(oracle-widget): mobile sheet, nudge + recommendation wiring, animations, a11y, analytics — SHIPPED
+2d52281a feat(oracle-widget): Sarah avatar idle blink loop for dormant widget state
+8312ea9b fix(oracle-widget): add missing CSS + avatar PNG
+a3716a62 fix(grader): LUFS stream selection + freeze frame duration threshold
+ed71dc82 feat(oracle): upgrade Oracle CTA blocks on both article templates
+8e837545 feat(oracle): add dominant Oracle CTAs to hero + article pages
+4093f511 feat(tts): Chatterbox Oracle + BigVGAN2 vocoder + prosody planner — 2026 TTS stack
+975e360b fix(avatar): use Kokoro af_heart female voice in cache_render_helper + iOS zoom prevention on stage.html
 ```
