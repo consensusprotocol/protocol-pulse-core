@@ -159,13 +159,13 @@ TOPIC: {topic}
 CONTENT (excerpt): {(content or '')[:4000]}
 
 Respond with JSON only: {{"decision": "APPROVE" or "REJECT", "reason": "...", "score": N}}"""
-            response = self.ai_service.generate_content_openai(prompt)
+            response = self.ai_service.generate_content_anthropic(prompt)
             data = json.loads(response)
             return {
                 "decision": (data.get("decision") or "REJECT").upper()[:7],
                 "reason": data.get("reason", ""),
                 "score": int(data.get("score", 0)),
-                "provider": "openai",
+                "provider": "anthropic",
             }
         except Exception as e:
             logging.warning("OpenAI review failed: %s", e)

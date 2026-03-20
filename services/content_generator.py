@@ -679,31 +679,31 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             MINIMUM: 800 words total. Build the full narrative around the ground truth metrics.
             """
             
-            # Generate the main content using OpenAI (primary for better structure compliance) with fallbacks
+            # Generate the main content using Anthropic (primary) with fallbacks
             # With auto-retry for validation failures
             content = None
             max_retries = 2
-            
+
             for attempt in range(max_retries + 1):
-                # Try OpenAI first (better at following structured output requirements)
+                # Try Anthropic first (reliable, working key)
                 try:
-                    content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
+                    content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
                 except Exception as e:
-                    logging.warning(f"OpenAI generation failed: {e}")
-                
-                # Fallback to Gemini if OpenAI fails
+                    logging.warning(f"Anthropic generation failed: {e}")
+
+                # Fallback to Gemini
                 if not content:
                     try:
                         content = self.gemini_service.generate_content(formatted_prompt, system_prompt)
                     except Exception as e:
                         logging.warning(f"Gemini generation failed: {e}")
-                
-                # Fallback to Anthropic if available
+
+                # Fallback to OpenAI as last resort
                 if not content:
                     try:
-                        content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
+                        content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
                     except Exception as e:
-                        logging.warning(f"Anthropic generation failed: {e}")
+                        logging.warning(f"OpenAI generation failed: {e}")
                 
                 if not content:
                     raise Exception("Failed to generate content with any AI service")
@@ -855,7 +855,7 @@ Examples of correct statement headlines:
 
 Return ONLY the new headline, nothing else."""
                 
-                new_title = self.ai_service.generate_content_openai(rewrite_prompt)
+                new_title = self.ai_service.generate_content_anthropic(rewrite_prompt)
                 if new_title:
                     new_title = new_title.strip().strip('"').strip("'")
                     if not new_title.endswith('?'):
@@ -863,7 +863,7 @@ Return ONLY the new headline, nothing else."""
                         return new_title
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
-        
+
         elif headline_style == 'question' and not is_question:
             logging.info(f"🔄 Headline mismatch: Got statement '{title[:50]}...' but need question - rewriting")
             try:
@@ -886,7 +886,7 @@ Examples of correct question headlines:
 
 Return ONLY the new headline, nothing else."""
                 
-                new_title = self.ai_service.generate_content_openai(rewrite_prompt)
+                new_title = self.ai_service.generate_content_anthropic(rewrite_prompt)
                 if new_title:
                     new_title = new_title.strip().strip('"').strip("'")
                     if new_title.endswith('?'):
@@ -995,7 +995,7 @@ RULES:
 - If a question doesn't fit naturally, use declarative headlines that answer implied questions
 - Keep under 70 characters
 - Focus on transactor concerns (network security, mining economics, sovereignty)"""
-            title = self.ai_service.generate_content_openai(title_prompt)
+            title = self.ai_service.generate_content_anthropic(title_prompt)
             
             if title:
                 # Clean up the title - remove any Protocol Pulse branding that slipped through
@@ -1026,7 +1026,7 @@ RULES:
             # Use AI to suggest relevant tags
             tag_prompt = f"Based on this topic '{topic}' and content preview '{content[:200]}...', suggest 5-7 relevant tags from Web3/crypto space. Return as comma-separated list."
             
-            ai_tags = self.ai_service.generate_content_openai(tag_prompt)
+            ai_tags = self.ai_service.generate_content_anthropic(tag_prompt)
             
             if ai_tags:
                 # Clean and combine tags
