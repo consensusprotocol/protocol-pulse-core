@@ -955,12 +955,18 @@ function process(text){
           if(videoJobId){
             var pollVideo=setInterval(function(){
               fetch(A+'/oracle/job/'+videoJobId)
-                .then(function(vr){ return vr.ok?vr.blob():null; })
+                .then(function(vr){
+                  // FIXED: 202 (pending) has ok=true — must check status===200
+                  // and content-type to confirm actual video data, not JSON
+                  if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
+                    return vr.blob();
+                  }
+                  return null;
+                })
                 .then(function(vb){
                   if(vb){
                     clearInterval(pollVideo);
-                    blobURL(vb);
-                    pendingVideoUrl=objURL;
+                    pendingVideoUrl=blobURL(vb);
                     vid.style.opacity='1';
                   }
                 })
