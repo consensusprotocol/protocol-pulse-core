@@ -1085,7 +1085,10 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         mp3_tmp = output_path + f".chunk{ci}.mp3"
         success = False
 
-        for attempt in range(3):
+        # FIX iter1: Increase retries from 3 to 5 with longer backoff to survive
+        # transient ElevenLabs outages that were causing grade failures
+        max_retries = 5
+        for attempt in range(max_retries):
             try:
                 r = requests.post(url, json=body, headers=headers, timeout=90)
                 if r.status_code == 200:
@@ -1094,22 +1097,22 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     # Pre-validate: ElevenLabs sometimes returns empty/tiny responses
                     if os.path.getsize(mp3_tmp) < 1000:
                         print(f"  [tts] WARNING: ElevenLabs returned tiny file ({os.path.getsize(mp3_tmp)}B) for chunk {ci}, retrying...")
-                        if attempt < 2:
+                        if attempt < max_retries - 1:
                             time.sleep(2 ** attempt)
                             continue
                     success = True
                     break
                 elif r.status_code == 429:
-                    wait = 2 ** attempt
+                    wait = min(2 ** (attempt + 1), 30)  # cap at 30s
                     print(f"  [tts] Rate limited ({voice['name']}), waiting {wait}s...")
                     time.sleep(wait)
                 else:
                     print(f"  [tts] HTTP {r.status_code} ({voice['name']}) attempt {attempt+1}: {r.text[:200]}")
-                    if attempt < 2:
+                    if attempt < max_retries - 1:
                         time.sleep(2 ** attempt)
             except Exception as e:
                 print(f"  [tts] Error ({voice['name']}) attempt {attempt+1}: {e}")
-                if attempt < 2:
+                if attempt < max_retries - 1:
                     time.sleep(2 ** attempt)
 
         if not success:
@@ -1118,7 +1121,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
                     os.remove(f)
                 except Exception:
                     pass
-            logger.error(f"[tts] ElevenLabs failed after 3 retries for chunk {ci} — returning False")
+            logger.error(f"[tts] ElevenLabs failed after {max_retries} retries for chunk {ci} — returning False")
             return False
         chunk_files.append(mp3_tmp)
 

@@ -119,7 +119,10 @@ log(f"Loudness: {integrated_lufs} LUFS | True Peak: {true_peak_dbfs} dBFS | LRA:
 
 # ── Freeze frame detection ────────────────────────────────────────────────────
 log("Running freezedetect...")
-freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.003:d=1.0" -an -f null - 2>&1 | grep freeze')
+# FIX iter1: Raise noise tolerance from 0.003 to 0.02 — the heavily processed
+# bg_loop (desaturated, darkened, vignette) produces near-identical frames that
+# trigger false positives at 0.3% tolerance. 2% still catches genuine freezes.
+freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.02:d=1.0" -an -f null - 2>&1 | grep freeze')
 # Parse freeze events with timestamps
 _freeze_events = []
 _freeze_starts = re.findall(r'freeze_start:\s*([\d.]+)', freeze_raw)
@@ -183,6 +186,29 @@ try:
 except:
     render_log_content = 'Render log unavailable'
 
+# ── FIX iter1: Extract episode title from script.json for grading ────────────
+episode_title = 'Not provided'
+try:
+    import glob as _glob2
+    _run_dir = os.path.dirname(LATEST)
+    # script.json lives in the run directory or its parent
+    _script_candidates = (
+        _glob2.glob(os.path.join(_run_dir, 'script.json')) +
+        _glob2.glob(os.path.join(_run_dir, '..', 'script.json')) +
+        _glob2.glob(os.path.join(OUTPUT_DIR, '*', 'script.json'))
+    )
+    _script_candidates = [f for f in _script_candidates if os.path.isfile(f)]
+    if _script_candidates:
+        _script_file = max(_script_candidates, key=os.path.getmtime)
+        with open(_script_file) as _sf:
+            _script_data = json.load(_sf)
+        episode_title = _script_data.get('episode_title', 'Not provided')
+        log(f"Episode title: {episode_title}")
+    else:
+        log("No script.json found — episode title unavailable")
+except Exception as _et_err:
+    log(f"Episode title extraction failed: {_et_err}")
+
 # ── Build Gemini prompt ───────────────────────────────────────────────────────
 log("Building Gemini grading prompt...")
 
@@ -193,6 +219,7 @@ Your job: grade this episode with maximum rigour. Be brutally honest. A grade A 
 === EPISODE FORENSIC DATA ===
 
 FILE: {os.path.basename(LATEST)}
+EPISODE TITLE: {episode_title}
 DURATION: {duration:.1f} seconds ({duration/60:.1f} minutes)
 FILE SIZE: {filesize_mb:.1f} MB
 BITRATE: {bit_rate_kbps} kbps

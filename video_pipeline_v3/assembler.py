@@ -774,10 +774,15 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
         )
         tag_has_audio = "audio" in r.stdout
 
-        # Video: use intro_tag, freeze last frame if TTS outlasts it
+        # FIX iter1: Replace tpad=stop_mode=clone with loop — cloning the last
+        # frame creates literal freeze frames detected by freezedetect. Instead,
+        # loop the intro tag so it stays animated beyond its natural duration.
         vid_dur = max(total_dur, tag_dur)
+        # loop=-1 infinite loops all frames, then trim to exact duration needed
+        tag_frames = max(1, int(tag_dur * 30))
         vf = (f"scale=1920:1080,setsar=1,format=yuv420p,"
-              f"tpad=stop_mode=clone:stop_duration={max(0, vid_dur - tag_dur + 1)}")
+              f"loop=-1:size={tag_frames}:start=0,"
+              f"trim=0:{vid_dur + 0.5},setpts=PTS-STARTPTS")
 
         if tag_has_audio:
             # FIX 1 (render11): Hard cut intro music at exactly 3.0s — strip tag's baked audio,
@@ -4421,21 +4426,42 @@ def should_insert_transition(prev_part: str, next_part: str) -> bool:
 
 
 def _make_filler_segment(work_dir: str, idx: int, audio_path: str) -> str:
-    """Generate a dark filler segment with narration audio still playing."""
+    """Generate a dark filler segment with narration audio still playing.
+    FIX iter1: Use bg_loop instead of static color to prevent freeze-frame detection.
+    """
     out = os.path.join(work_dir, f"part_{idx:03d}_filler.mp4")
     dur = ffprobe_duration(audio_path) if audio_path and os.path.exists(audio_path) else 15.0
     has_audio = bool(audio_path and os.path.exists(audio_path))
-    args = ["-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d={dur}:r=30"]
+    # FIX iter1: Use bg_loop (animated) instead of static color=0x0A0A0F
+    # Static color frames are detected as freeze frames by freezedetect
+    if os.path.exists(BG_LOOP):
+        args = ["-stream_loop", "-1", "-i", BG_LOOP]
+        vf = (f"scale=1920:1080,setsar=1,fps=30,"
+              f"trim=0:{dur + 2.0},setpts=PTS-STARTPTS,"
+              f"eq=brightness=-0.15:contrast=0.9")
+    else:
+        args = ["-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=1920x1080:d={dur}:r=30"]
+        vf = None
     if has_audio:
         args.extend(["-i", audio_path])
     else:
         args.extend(["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"])
-    args.extend([
-        "-map", "0:v", "-map", "1:a",
-        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
-        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-        "-t", str(dur), out
-    ])
+    if vf:
+        args.extend([
+            "-vf", vf,
+            "-map", "0:v", "-map", "1:a",
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(dur), out
+        ])
+    else:
+        args.extend([
+            "-map", "0:v", "-map", "1:a",
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-t", str(dur), out
+        ])
     run_ffmpeg(args, "filler segment", 30)
     return out if os.path.exists(out) else ""
 
