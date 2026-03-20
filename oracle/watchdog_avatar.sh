@@ -2,7 +2,12 @@
 # Avatar server watchdog - runs every 5 min via cron
 LOG=/home/ultron/protocol_pulse/oracle/logs/watchdog.log
 PID_FILE=/home/ultron/protocol_pulse/oracle/avatar_server.pid
+LOCK_FILE=/tmp/avatar_watchdog.lock
 STARTUP_GRACE=600  # 10 min grace for Chatterbox model loading on CUDA
+
+# Prevent concurrent watchdog runs (race condition: multiple cron firings)
+exec 200>"$LOCK_FILE"
+flock -n 200 || { echo "[$(date)] Watchdog already running — skipping" >> $LOG; exit 0; }
 
 # Check if server is responding
 if ! curl -sf http://localhost:8200/health > /dev/null 2>&1; then

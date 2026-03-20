@@ -77,6 +77,89 @@ LOCK_TIMEOUT = int(os.environ.get("AVATAR_LOCK_TIMEOUT", "120"))  # increased: r
 # Max audio duration (seconds) — longer clips get chunked
 MAX_AUDIO_SECONDS = 30
 
+# ─── Named Avatar Sources ─────────────────────────────────────────────
+AVATAR_SOURCES = {
+    "default":         "/home/ultron/protocol_pulse/static/img/oracle_avatar_static.png",
+    "stage_hologram":  "/home/ultron/protocol_pulse/static/img/stage_bg_hologram.png",
+    "oracle_studio":   "/home/ultron/protocol_pulse/static/img/stage_bg_studio.png",
+}
+
+# Cache for loaded alternate avatar faces: {name: {"face": ndarray, "coords": tuple, "eye_landmarks": ...}}
+_avatar_face_cache = {}
+_avatar_face_cache_lock = threading.Lock()
+
+
+def _detect_face_cpu(img, source_name):
+    """Run face detection on CPU — avoids CUDA contention entirely.
+    Returns (coords, eye_lm) or (None, None).
+    """
+    try:
+        if WAV2LIP_DIR not in sys.path:
+            sys.path.insert(0, WAV2LIP_DIR)
+        import face_detection as _fd
+        cpu_detector = _fd.FaceAlignment(_fd.LandmarksType._2D, flip_input=False, device="cpu")
+        results = cpu_detector.get_detections_for_batch(np.array([img]))
+        del cpu_detector
+
+        coords = None
+        if results[0] is not None:
+            det = results[0]
+            coords = (
+                max(0, int(det[1])), min(img.shape[0], int(det[3])),
+                max(0, int(det[0])), min(img.shape[1], int(det[2]))
+            )
+            logger.info(f"[AVATAR_SOURCE] {source_name}: face at {coords} in {img.shape[1]}x{img.shape[0]}")
+
+        eye_lm = None
+        try:
+            from blink_engine import detect_eye_landmarks
+            eye_lm = detect_eye_landmarks(img)
+        except Exception:
+            pass
+
+        return coords, eye_lm
+    except Exception as e:
+        logger.error(f"[AVATAR_SOURCE] CPU face detection failed for {source_name}: {e}")
+        return None, None
+
+
+def _load_avatar_face(source_name):
+    """Load and cache an alternate avatar face by source name (lazy, CPU-based detection).
+    Returns (face_img, face_coords, eye_landmarks) or (None, None, None) on failure.
+    Non-default sources are detected lazily on first request using CPU face detection,
+    falling back to default if detection fails.
+    """
+    if source_name == "default" or source_name not in AVATAR_SOURCES:
+        reg = ModelRegistry.get()
+        return reg.avatar_face, reg.avatar_face_coords, reg.eye_landmarks
+
+    with _avatar_face_cache_lock:
+        if source_name in _avatar_face_cache:
+            c = _avatar_face_cache[source_name]
+            return c["face"], c["coords"], c["eye_landmarks"]
+
+    # Load outside lock — CPU face detection (no CUDA contention)
+    img_path = AVATAR_SOURCES[source_name]
+    if not os.path.exists(img_path):
+        logger.error(f"[AVATAR_SOURCE] Image not found: {img_path}")
+        return None, None, None
+
+    img = cv2.imread(img_path)
+    if img is None:
+        logger.error(f"[AVATAR_SOURCE] Failed to read: {img_path}")
+        return None, None, None
+
+    coords, eye_lm = _detect_face_cpu(img, source_name)
+    if coords is None:
+        logger.error(f"[AVATAR_SOURCE] No face detected in {source_name} — falling back to default")
+        reg = ModelRegistry.get()
+        return reg.avatar_face, reg.avatar_face_coords, reg.eye_landmarks
+
+    with _avatar_face_cache_lock:
+        _avatar_face_cache[source_name] = {"face": img.copy(), "coords": coords, "eye_landmarks": eye_lm}
+
+    return img.copy(), coords, eye_lm
+
 # ─── Logging ──────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("avatar_server")
@@ -141,11 +224,20 @@ def _record_latency(seconds):
 FACE_BBOX_CACHE = os.path.join(os.path.dirname(__file__), "cache", "face_bbox.json")
 
 
-def wav2lip_generate(audio_path, fps=30.0):
-    """Run Wav2Lip inference in FP16. Returns list of BGR frames with duration matching."""
+def wav2lip_generate(audio_path, fps=30.0, avatar_face=None, avatar_face_coords=None):
+    """Run Wav2Lip inference in FP16. Returns list of BGR frames with duration matching.
+    Optional avatar_face/avatar_face_coords override the default ModelRegistry face.
+    """
     reg = ModelRegistry.get()
-    if reg.wav2lip_model is None or reg.avatar_face is None or reg.avatar_face_coords is None:
-        raise RuntimeError("Model or avatar not loaded")
+    if reg.wav2lip_model is None:
+        raise RuntimeError("Model not loaded")
+
+    # Use overrides if provided, else default from registry
+    face_img = avatar_face if avatar_face is not None else reg.avatar_face
+    face_coords = avatar_face_coords if avatar_face_coords is not None else reg.avatar_face_coords
+
+    if face_img is None or face_coords is None:
+        raise RuntimeError("Avatar face not loaded")
 
     if WAV2LIP_DIR not in sys.path:
         sys.path.insert(0, WAV2LIP_DIR)
@@ -182,17 +274,9 @@ def wav2lip_generate(audio_path, fps=30.0):
 
     logger.info(f"Mel: {mel.shape[1]} cols, {num_frames} frames @ {fps}fps, audio {audio_duration:.2f}s, batch={batch_size}")
 
-    # Face bbox caching: skip detection if cached
-    y1, y2, x1, x2 = reg.avatar_face_coords
-    try:
-        os.makedirs(os.path.dirname(FACE_BBOX_CACHE), exist_ok=True)
-        if not os.path.exists(FACE_BBOX_CACHE):
-            with open(FACE_BBOX_CACHE, "w") as f:
-                _json.dump({"y1": y1, "y2": y2, "x1": x1, "x2": x2}, f)
-            logger.info(f"Face bbox cached: {[y1, y2, x1, x2]}")
-    except Exception:
-        pass
-    face_crop = reg.avatar_face[y1:y2, x1:x2]
+    # Face bbox
+    y1, y2, x1, x2 = face_coords
+    face_crop = face_img[y1:y2, x1:x2]
     face_resized = cv2.resize(face_crop, (96, 96))
     face_masked = face_resized.copy()
     face_masked[face_resized.shape[0] // 2:, :] = 0
@@ -219,7 +303,7 @@ def wav2lip_generate(audio_path, fps=30.0):
 
         for p in pred:
             p_resized = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
-            full_frame = reg.avatar_face.copy()
+            full_frame = face_img.copy()
             # Feathered blend to eliminate face paste seam
             mask = np.ones_like(p_resized, dtype=np.float32)
             feather = 8
@@ -630,6 +714,15 @@ def generate():
     enable_blinks = data.get("enable_blinks", True)  # v2 blink engine enabled
     enable_head_movement = data.get("enable_head_movement", True)
     fps = float(data.get("fps", DEFAULT_FPS))
+    avatar_source = data.get("avatar_source", "default")
+    if avatar_source not in AVATAR_SOURCES:
+        avatar_source = "default"
+    logger.info(f"[WAV2LIP] Using avatar source: {avatar_source}")
+
+    # Resolve face for this render
+    gen_face, gen_coords, _gen_eyes = _load_avatar_face(avatar_source)
+    if gen_face is None or gen_coords is None:
+        gen_face, gen_coords, _gen_eyes = _load_avatar_face("default")
 
     t_start = time.time()
 
@@ -687,7 +780,7 @@ def generate():
             return jsonify({"error": "GPU busy", "code": "GPU_BUSY", "retry_after": 5}), 503
         try:
             t0 = time.time()
-            frames = wav2lip_generate(wav_path, fps)
+            frames = wav2lip_generate(wav_path, fps, avatar_face=gen_face, avatar_face_coords=gen_coords)
             t_lip = time.time() - t0
             logger.info(f"Wav2Lip FP16: {len(frames)} frames in {t_lip:.2f}s")
 
@@ -696,7 +789,7 @@ def generate():
             if len(frames) > 0:
                 try:
                     t0_enh = time.time()
-                    frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
+                    frames = sharpen_mouth_region(frames, gen_coords)
                     t_enhance = time.time() - t0_enh
                     logger.info(f"CV2 sharpen: {t_enhance:.2f}s")
                 except Exception as e:
@@ -1407,6 +1500,10 @@ def oracle_chat():
     text = data["text"].strip()
     session_id = data.get("session_id", "anon")
     audio_first = data.get("audio_first", False)
+    avatar_source = data.get("avatar_source", "default")
+    if avatar_source not in AVATAR_SOURCES:
+        avatar_source = "default"
+    logger.info(f"[WAV2LIP] Using avatar source: {avatar_source}")
 
     # ── Phase 3: Visitor fingerprint + memory ──────────────────────────
     from oracle_memory import make_fingerprint, load_visitor
@@ -1450,8 +1547,14 @@ def oracle_chat():
 
         response_text = result["text"]
 
-        def render_async(txt, jid):
+        def render_async(txt, jid, src_name="default"):
             try:
+                # Resolve avatar source for this render
+                a_face, a_coords, _a_eyes = _load_avatar_face(src_name)
+                if a_face is None or a_coords is None:
+                    logger.warning(f"[ASYNC RENDER] Avatar source '{src_name}' failed, falling back to default")
+                    a_face, a_coords, _a_eyes = _load_avatar_face("default")
+
                 audio_bytes = _avatar_tts(txt)
                 is_wav = audio_bytes[:4] == b"RIFF"
                 ext = ".wav" if is_wav else ".mp3"
@@ -1474,10 +1577,9 @@ def oracle_chat():
                                                      "created": time.time(), "code": "GPU_BUSY"}
                         return
                     try:
-                        frames = wav2lip_generate(wav_path, DEFAULT_FPS)
-                        reg = ModelRegistry.get()
+                        frames = wav2lip_generate(wav_path, DEFAULT_FPS, avatar_face=a_face, avatar_face_coords=a_coords)
                         try:
-                            frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
+                            frames = sharpen_mouth_region(frames, a_coords)
                         except Exception:
                             pass
                         frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
@@ -1509,7 +1611,7 @@ def oracle_chat():
                     if jid in _render_jobs:
                         _render_jobs[jid]["status"] = "error"
 
-        t = threading.Thread(target=render_async, args=(response_text, job_id), daemon=True)
+        t = threading.Thread(target=render_async, args=(response_text, job_id, avatar_source), daemon=True)
         t.start()
 
         return jsonify({
@@ -1700,28 +1802,30 @@ if __name__ == "__main__":
     logger.info("[STARTUP] Initializing Chatterbox TTS on cuda:0...")
     _init_avatar_chatterbox()
 
-    # Auto-warmup
-    logger.info("[WARMUP] Running pipeline warmup...")
-    warmup_start = time.time()
-    try:
-        import wave
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            with wave.open(tmp.name, "w") as wf:
-                wf.setnchannels(1)
-                wf.setsampwidth(2)
-                wf.setframerate(16000)
-                wf.writeframes(b"\x00\x00" * 8000)
-            warmup_wav = tmp.name
-        frames = wav2lip_generate(warmup_wav, DEFAULT_FPS)
-        if frames:
-            frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=False, enable_head=True)
-        os.unlink(warmup_wav)
-        logger.info(
-            f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
-            f"({len(frames)} frames)"
-        )
-    except Exception as e:
-        logger.warning(f"[WARMUP] Failed (non-fatal): {e}")
+    # Auto-warmup (non-blocking — runs in background thread so Flask can start immediately)
+    def _warmup_background():
+        logger.info("[WARMUP] Running pipeline warmup in background...")
+        warmup_start = time.time()
+        try:
+            import wave
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                with wave.open(tmp.name, "w") as wf:
+                    wf.setnchannels(1)
+                    wf.setsampwidth(2)
+                    wf.setframerate(16000)
+                    wf.writeframes(b"\x00\x00" * 8000)
+                warmup_wav = tmp.name
+            frames = wav2lip_generate(warmup_wav, DEFAULT_FPS)
+            if frames:
+                frames = post_process_frames(frames[:5], DEFAULT_FPS, enable_blinks=False, enable_head=True)
+            os.unlink(warmup_wav)
+            logger.info(
+                f"[WARMUP] Pipeline ready in {time.time()-warmup_start:.1f}s "
+                f"({len(frames)} frames)"
+            )
+        except Exception as e:
+            logger.warning(f"[WARMUP] Failed (non-fatal): {e}")
+    threading.Thread(target=_warmup_background, daemon=True).start()
 
     dev_idx = int(DEVICE.split(':')[1]) if ':' in DEVICE else 0
     logger.info(

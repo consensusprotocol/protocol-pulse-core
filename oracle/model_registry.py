@@ -97,7 +97,14 @@ class ModelRegistry:
             logger.error(f"Failed to read avatar: {AVATAR_SOURCE}")
             return
         self.avatar_face = img.copy()
-        results = self.face_detector.get_detections_for_batch(np.array([img]))
+
+        # Use CPU face detector for reference face — avoids CUDA contention at startup
+        # (GPU face detector is kept for batch inference during rendering)
+        import face_detection as _fd
+        cpu_detector = _fd.FaceAlignment(_fd.LandmarksType._2D, flip_input=False, device="cpu")
+        results = cpu_detector.get_detections_for_batch(np.array([img]))
+        del cpu_detector  # free CPU detector immediately
+
         if results[0] is not None:
             det = results[0]
             self.avatar_face_coords = (
