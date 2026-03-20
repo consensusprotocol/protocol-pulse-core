@@ -2336,6 +2336,145 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
                        audio_pad="[_wr_a_faded]")
 
 
+# ── BV2 Scene 7: SPACE TAP — X Spaces intercept portal ──────────────────
+
+def make_space_tap_scene(audio_path: str, space_clips: list,
+                          output_path: str, btc_price: str = "N/A",
+                          duration: float = 0,
+                          episode_title: str = "PULSE CHECK") -> str:
+    """Space Tap portal scene — plays X Spaces audio clips with branded intercept UI.
+
+    Layout (1920x1080):
+      LEFT (0-760): bg_loop grayscale, "SPACE TAP" header, speaker handle,
+                    waveform visualization, BTC ticker
+      RIGHT (760-1920): dark portal frame with red glow, profile picture,
+                        "INTERCEPTED TRANSMISSION" label, waveform arc
+
+    Each clip section: PBX intro → portal opens → clip plays → portal closes → PBX reaction.
+    Audio: narrator at 0dB, clip audio at 0dB, bg music handled in concatenate_parts().
+    """
+    audio_dur = ffprobe_duration(audio_path)
+    if audio_dur <= 0:
+        audio_dur = 10
+    total_dur = duration if duration > 0 else audio_dur + 0.3
+
+    n_clips = len(space_clips) if space_clips else 0
+    safe_btc = _sanitize_text(btc_price) if btc_price else "$N/A"
+
+    inputs = [audio_path]
+    fg = _get_bg_layer(inputs, total_dur, "base")
+
+    fg += _build_top_system_bar("base", "st_bar", progress_pct=70)
+
+    # === LEFT PANEL (x=0..760) ===
+    # "SPACE TAP" header in red mono
+    fg += (f"[st_bar]drawtext=fontfile={FONT_MONO}:text='SPACE TAP':"
+           f"fontcolor={COLOR_RED}:fontsize=36:x=40:y=100,"
+           # Sub-label in gold
+           f"drawtext=fontfile={FONT_MONO}:text='SIGNAL INTERCEPT // LIVE ECOSPHERE':"
+           f"fontcolor={COLOR_GOLD}:fontsize=12:x=40:y=145,"
+           # "via X Spaces" muted label
+           f"drawtext=fontfile={FONT_MONO}:text='via X Spaces':"
+           f"fontcolor=0xFFFFFF@0.4:fontsize=14:x=40:y=170[st_left_labels];\n")
+
+    # Speaker handles — stack up to 4 handles
+    last = "st_left_labels"
+    if space_clips:
+        handles_text = ""
+        for i, clip in enumerate(space_clips[:4]):
+            handle = clip.get("host_handle", "unknown")
+            handles_text += f"@{handle}  "
+        safe_handles = _sanitize_text(handles_text.strip())
+        fg += (f"[{last}]drawtext=fontfile={FONT_BOLD}:text='{safe_handles}':"
+               f"fontcolor={COLOR_WHITE}:fontsize=22:x=40:y=220[st_handles];\n")
+        last = "st_handles"
+    else:
+        fg += f"[{last}]copy[st_handles];\n"
+        last = "st_handles"
+
+    # Waveform visualization on left panel — showwaves cline
+    fg += (f"[0:a]asplit=3[_st_a_wave][_st_a_wave2][_st_a_out];\n")
+    fg += (f"[_st_a_wave]showwaves=s=640x120:mode=cline:"
+           f"colors={COLOR_RED}@0.8|{COLOR_RED}@0.4:scale=sqrt:draw=full:rate=30,"
+           f"format=rgba[st_waveform];\n")
+    fg += f"[{last}][st_waveform]overlay=40:520:shortest=1[st_waved];\n"
+
+    # BTC price ticker at bottom-left
+    fg += (f"[st_waved]drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=16:x=40:y=700,"
+           f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
+           f"fontcolor={COLOR_RED}@0.5:fontsize=12:x=40:y=725[st_left_done];\n")
+
+    # === RIGHT PANEL (x=760..1920): Portal frame ===
+    # Dark portal background
+    fg += (f"[st_left_done]"
+           f"drawbox=x=780:y=80:w=1100:h=920:color=0x0A0A0F@0.92:t=fill[st_portal_bg];\n")
+
+    # Portal border — pulsing red glow (1Hz pulse via enable)
+    fg += (f"[st_portal_bg]"
+           # Outer border always visible
+           f"drawbox=x=780:y=80:w=1100:h=920:color={COLOR_RED}@0.3:t=4,"
+           # Inner glow pulse at 1Hz
+           f"drawbox=x=784:y=84:w=1092:h=912:color={COLOR_RED}@0.15:t=2:"
+           f"enable='lt(mod(t\\,1)\\,0.5)',"
+           # "INTERCEPTED TRANSMISSION" label
+           f"drawtext=fontfile={FONT_MONO}:text='INTERCEPTED TRANSMISSION':"
+           f"fontcolor={COLOR_RED}:fontsize=11:x=1120:y=100,"
+           # "SPACE ACTIVE" indicator top-right with red dot
+           f"drawbox=x=1780:y=96:w=8:h=8:color={COLOR_RED}:t=fill:"
+           f"enable='lt(mod(t\\,1)\\,0.7)',"
+           f"drawtext=fontfile={FONT_MONO}:text='SPACE ACTIVE':"
+           f"fontcolor={COLOR_RED}@0.7:fontsize=10:x=1700:y=96"
+           f"[st_portal_frame];\n")
+
+    # Profile picture overlay (if available, first clip's profile)
+    has_profile = False
+    if space_clips:
+        profile_path = space_clips[0].get("host_profile_image", "")
+        if profile_path and os.path.exists(profile_path) and os.path.getsize(profile_path) > 100:
+            has_profile = True
+            inputs.append(profile_path)
+            prof_idx = len(inputs) - 1
+            # Scale to 320x320, circular crop via geq (approximate with drawbox mask)
+            fg += (f"[{prof_idx}:v]scale=320:320,setsar=1,format=rgba,"
+                   f"geq=lum='lum(X\\,Y)':cb='cb(X\\,Y)':cr='cr(X\\,Y)':"
+                   f"a='if(lt(hypot(X-160\\,Y-160)\\,155)\\,255\\,0)'[st_profile];\n")
+            # Overlay profile centered in portal (x=1340-160=1180, y=380-160=220 → adjusted for portal)
+            fg += f"[st_portal_frame][st_profile]overlay=1180:260:shortest=1[st_with_profile];\n"
+            # Pulsing ring around profile
+            fg += (f"[st_with_profile]"
+                   f"drawbox=x=1175:y=255:w=330:h=330:color={COLOR_RED}@0.35:t=3:"
+                   f"enable='lt(mod(t\\,1)\\,0.5)',"
+                   f"drawbox=x=1175:y=255:w=330:h=330:color={COLOR_RED}@0.2:t=3:"
+                   f"enable='gte(mod(t\\,1)\\,0.5)'"
+                   f"[st_profiled];\n")
+
+    if not has_profile:
+        # No profile — placeholder box
+        fg += (f"[st_portal_frame]"
+               f"drawbox=x=1180:y=260:w=320:h=320:color={COLOR_RED}@0.15:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='SIGNAL':"
+               f"fontcolor={COLOR_RED}@0.3:fontsize=28:x=1280:y=400[st_profiled];\n")
+
+    # Secondary waveform arc below profile in portal
+    fg += (f"[_st_a_wave2]showwaves=s=600x80:mode=cline:"
+           f"colors={COLOR_RED}@0.6|{COLOR_WHITE}@0.3:scale=sqrt:draw=full:rate=30,"
+           f"format=rgba[st_portal_wave];\n")
+    fg += f"[st_profiled][st_portal_wave]overlay=1040:640:shortest=1[st_portal_done];\n"
+
+    # 2px red divider between left and right panels
+    fg += (f"[st_portal_done]drawbox=x=758:y=0:w=2:h=1080:color={COLOR_RED}:t=fill"
+           f"[st_divided];\n")
+
+    fg += _build_corner_brackets_fg("st_divided", "st_corners")
+    fg += _build_signature_info_rail(total_dur, btc_price, "st_corners", "st_railed")
+    fg += _add_episode_title_pill("st_railed", "_st_pilled", episode_title, total_dur)
+    fg += f"[_st_pilled]format=yuv420p[outv];\n"
+
+    return _bv2_encode(inputs, fg, output_path, total_dur, "APEX space_tap",
+                       audio_pad="[_st_a_out]")
+
+
 # ── BV2 Scene Router ────────────────────────────────────────────────────
 
 def select_scene_type(segment_type: str, segment_index: int, total_segments: int) -> str:
@@ -2360,6 +2499,8 @@ def select_scene_type(segment_type: str, segment_index: int, total_segments: int
         return "data_segment"
     elif segment_type in ("social", "social_segment"):
         return "social_stack"
+    elif segment_type == "space_tap":
+        return "space_tap"
     elif segment_type == "x_spaces":
         return "data_segment"  # X Spaces uses data_segment visual with branded eyebrow
     elif segment_type in ("wrap", "outro") or segment_index == total_segments - 1:
@@ -2425,6 +2566,14 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
         elif scene == "wrap":
             return make_wrap_scene(
                 audio_path, headline, text,
+                output_path, btc_price=btc_price,
+                episode_title=episode_title,
+            )
+
+        elif scene == "space_tap":
+            space_clips = segment_data.get("space_clips", [])
+            return make_space_tap_scene(
+                audio_path, space_clips,
                 output_path, btc_price=btc_price,
                 episode_title=episode_title,
             )

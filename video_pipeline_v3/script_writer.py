@@ -102,7 +102,22 @@ EPISODE STRUCTURE (follow this order):
   Keep each reaction to 1-2 sentences. Sharp, opinionated, adds value beyond what the tweet says.
   The tweet card is already on screen — viewers can read it. Your job is to ADD context.
   CRITICAL: First tweet card shown = first referenced in narration. Maintain strict order. Target: 40-50 seconds.
-8. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
+8. [SPACE_TAP] — "SPACE TAP: SIGNAL INTERCEPT" (only if space_tap_clips provided below)
+   PBX opens: "Right now in the Bitcoin ecosphere..." or similar intelligence briefing opener.
+   For each clip (3-4 clips provided):
+   - One sentence intro: who is speaking, what space, why it matters NOW. 10-15 words.
+   - The clip plays (assembler handles this — do NOT write clip text).
+   - One sentence reaction: PBX adds value, contrarian take, or context. 10-15 words.
+   Target: 10-15 seconds of narration per clip (intro + reaction combined).
+   Segment tone: intelligence briefing. You are intercepting a live signal.
+   Never say "I found" or "we discovered" — say "we're intercepting" or "signal captured from".
+   Format each entry as:
+   {{"host": 2, "text": "[SPACE_TAP] Right now in the ecosphere...", "type": "space_tap_intro"}},
+   {{"host": "SPACE_CLIP", "clip_index": 0}},
+   {{"host": 2, "text": "[SPACE_TAP] ...", "type": "space_tap_react"}},
+   {{"host": "SPACE_CLIP", "clip_index": 1}},
+   ... and so on for all clips.
+9. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
 
 NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
 - Every line must contain ONE specific insight, data point, or evaluated observation
@@ -179,6 +194,7 @@ _TAG_TO_TYPE = {
     "SOCIAL": "social_segment",
     "WARM": "wrap",
     "BRIDGE": "setup",  # inter-clip context bridges treated as narration
+    "SPACE_TAP": "space_tap_intro",
 }
 
 _TAG_PATTERN = re.compile(r"^\[(" + "|".join(_TAG_TO_TYPE.keys()) + r")\]\s*")
@@ -559,9 +575,21 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
     except Exception as e:
         logger.warning(f"Episode memory unavailable: {e}")
 
+    # Inject Space Tap clips context if available
+    space_tap_block = ""
+    space_tap_clips = selections.get("space_tap_clips", [])
+    if space_tap_clips:
+        parts = ["\nSPACE TAP CLIPS (X Spaces intercepts — generate [SPACE_TAP] segment):"]
+        for i, sc in enumerate(space_tap_clips):
+            handle = sc.get("host_handle", "unknown")
+            text_preview = sc.get("text", "")[:150]
+            parts.append(f"  Clip {i}: @{handle} — \"{text_preview}\"")
+        parts.append(f"Generate intro + react for each of the {len(space_tap_clips)} clips above.")
+        space_tap_block = "\n".join(parts) + "\n"
+
     prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
                                    social_posts=social_posts,
-                                   live_context=live_block + engagement_block + memory_block)
+                                   live_context=live_block + engagement_block + memory_block + space_tap_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")

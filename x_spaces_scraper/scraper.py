@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -459,6 +460,363 @@ class XSpacesScraper:
 
         logger.info(f"Found {len(recent)} spaces ({len(processed)} previously processed)")
         return recent
+
+
+# ─── Space Tap: Discovery + Download + Clip Extraction ─────────────────────
+
+CACHE_DIR = Path(__file__).parent / "cache"
+
+
+def discover_recent_spaces(max_results: int = 10) -> list[dict]:
+    """Search Twitter API v2 for recent tweets linking to Bitcoin X Spaces.
+
+    Uses GET /2/tweets/search/recent with spaces-related query.
+    Returns list sorted by follower_count descending.
+    Results cached per space_id with 6-hour TTL.
+    """
+    bearer = os.environ.get("TWITTER_BEARER_TOKEN", "")
+    if not bearer:
+        logger.warning("TWITTER_BEARER_TOKEN not set — cannot discover spaces")
+        return []
+
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Check cache first — return cached results if under 6h old
+    cache_index = CACHE_DIR / "discovery_cache.json"
+    if cache_index.exists():
+        try:
+            cached = json.loads(cache_index.read_text())
+            if time.time() - cached.get("fetched_at", 0) < 6 * 3600:
+                logger.info(f"Using cached discovery ({len(cached['spaces'])} spaces)")
+                return cached["spaces"]
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    session = requests.Session()
+    session.headers["Authorization"] = f"Bearer {bearer}"
+
+    try:
+        r = session.get(
+            "https://api.twitter.com/2/tweets/search/recent",
+            params={
+                "query": "bitcoin has:spaces lang:en -is:retweet",
+                "tweet.fields": "author_id,created_at,entities,public_metrics",
+                "expansions": "attachments.media_keys,author_id",
+                "user.fields": "username,profile_image_url,public_metrics",
+                "max_results": min(max_results, 100),
+            },
+            timeout=15,
+        )
+        if r.status_code == 429:
+            logger.warning("Twitter API rate limited — using cached/empty")
+            return []
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        logger.error(f"Twitter search failed: {e}")
+        return []
+
+    tweets = data.get("data", [])
+    users_list = data.get("includes", {}).get("users", [])
+    users_map = {u["id"]: u for u in users_list}
+
+    results = []
+    seen_space_ids = set()
+
+    for tweet in tweets:
+        # Extract space URLs from entities
+        urls = (tweet.get("entities") or {}).get("urls", [])
+        for url_obj in urls:
+            expanded = url_obj.get("expanded_url", "") or url_obj.get("url", "")
+            match = re.search(r"twitter\.com/i/spaces/(\w+)", expanded)
+            if not match:
+                match = re.search(r"x\.com/i/spaces/(\w+)", expanded)
+            if not match:
+                continue
+
+            space_id = match.group(1)
+            if space_id in seen_space_ids:
+                continue
+            seen_space_ids.add(space_id)
+
+            author_id = tweet.get("author_id", "")
+            user = users_map.get(author_id, {})
+            handle = user.get("username", "unknown")
+            name = user.get("name", handle)
+            profile_img = user.get("profile_image_url", "")
+            # Get higher-res profile image (replace _normal with _400x400)
+            if profile_img:
+                profile_img = profile_img.replace("_normal", "_400x400")
+            follower_count = user.get("public_metrics", {}).get("followers_count", 0)
+
+            entry = {
+                "space_id": space_id,
+                "host_handle": handle,
+                "host_name": name,
+                "host_profile_image_url": profile_img,
+                "tweet_text": tweet.get("text", ""),
+                "follower_count": follower_count,
+                "created_at": tweet.get("created_at", ""),
+            }
+            results.append(entry)
+
+            # Cache individual space meta
+            space_cache = CACHE_DIR / space_id
+            space_cache.mkdir(parents=True, exist_ok=True)
+            meta_path = space_cache / "meta.json"
+            meta_path.write_text(json.dumps(entry, indent=2))
+
+    # Sort by follower_count descending
+    results.sort(key=lambda x: x.get("follower_count", 0), reverse=True)
+
+    # Cache the discovery results
+    cache_index.write_text(json.dumps({
+        "spaces": results,
+        "fetched_at": time.time(),
+    }, indent=2))
+
+    logger.info(f"Discovered {len(results)} spaces with space links")
+    return results
+
+
+def download_and_transcribe_space(space_id: str, host_handle: str,
+                                   host_profile_image_url: str = "") -> Optional[dict]:
+    """Download a Space's audio, transcribe it, and extract best 15-30s clips.
+
+    Returns clips dict or None if download/transcription fails.
+    """
+    space_dir = CACHE_DIR / space_id
+    space_dir.mkdir(parents=True, exist_ok=True)
+    clips_path = space_dir / "clips.json"
+
+    # Return cached clips if recent (6h TTL)
+    if clips_path.exists():
+        try:
+            cached = json.loads(clips_path.read_text())
+            transcribed_at = cached.get("transcribed_at", "")
+            if transcribed_at:
+                dt = datetime.fromisoformat(transcribed_at)
+                if (datetime.now(timezone.utc) - dt).total_seconds() < 6 * 3600:
+                    logger.info(f"Using cached clips for {space_id}")
+                    return cached
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Step 1: Download audio via yt-dlp
+    space_url = f"https://twitter.com/i/spaces/{space_id}"
+    audio_pattern = str(space_dir / "audio.%(ext)s")
+    audio_path = space_dir / "audio.m4a"
+
+    if not audio_path.exists():
+        logger.info(f"Downloading space {space_id} via yt-dlp...")
+        try:
+            result = subprocess.run(
+                ["yt-dlp", "-f", "bestaudio", "-o", audio_pattern, space_url],
+                capture_output=True, text=True, timeout=120,
+            )
+            if result.returncode != 0:
+                logger.warning(f"yt-dlp failed for {space_id}: {result.stderr[:200]}")
+                return None
+        except subprocess.TimeoutExpired:
+            logger.warning(f"yt-dlp timeout for {space_id}")
+            return None
+        except Exception as e:
+            logger.warning(f"yt-dlp error for {space_id}: {e}")
+            return None
+
+        # Find the actual downloaded file (extension may vary)
+        for ext in ("m4a", "mp4", "webm", "ogg", "opus"):
+            candidate = space_dir / f"audio.{ext}"
+            if candidate.exists():
+                if ext != "m4a":
+                    # Convert to m4a
+                    subprocess.run(
+                        ["ffmpeg", "-y", "-i", str(candidate), "-c:a", "aac",
+                         "-ar", "48000", str(audio_path)],
+                        capture_output=True, timeout=120,
+                    )
+                    candidate.unlink(missing_ok=True)
+                break
+
+    if not audio_path.exists():
+        logger.warning(f"No audio file found for {space_id}")
+        return None
+
+    # Step 2: Transcribe with faster-whisper
+    logger.info(f"Transcribing {space_id}...")
+    try:
+        from faster_whisper import WhisperModel
+        model = WhisperModel("base", device="cuda", compute_type="float16")
+        segments_iter, info = model.transcribe(str(audio_path), language="en")
+        transcript_segments = []
+        for seg in segments_iter:
+            transcript_segments.append({
+                "start": round(seg.start, 2),
+                "end": round(seg.end, 2),
+                "text": seg.text.strip(),
+            })
+    except Exception as e:
+        logger.error(f"Transcription failed for {space_id}: {e}")
+        return None
+
+    if not transcript_segments:
+        logger.warning(f"Empty transcript for {space_id}")
+        return None
+
+    # Step 3: Score sliding windows and extract best clips
+    sys_path_added = False
+    try:
+        import sys
+        pp_root = Path(__file__).parent.parent
+        vp3_utils = pp_root / "video_pipeline_v3" / "utils"
+        if str(vp3_utils) not in sys.path:
+            sys.path.insert(0, str(vp3_utils))
+            sys_path_added = True
+        from spaces_pipeline import score_transcript
+    except ImportError:
+        logger.warning("score_transcript not available — using fallback scoring")
+        score_transcript = None
+
+    full_text = " ".join(s["text"] for s in transcript_segments)
+    total_duration = transcript_segments[-1]["end"] if transcript_segments else 0
+
+    # Sliding window: try every position, score each 15s window
+    scored_windows = []
+    step = 5.0  # 5s step
+    window_size = 15.0  # 15s minimum clip
+
+    t = 0.0
+    while t + window_size <= total_duration:
+        window_end = min(t + 30.0, total_duration)  # up to 30s
+        window_segs = [s for s in transcript_segments
+                       if s["end"] > t and s["start"] < window_end]
+        window_text = " ".join(s["text"] for s in window_segs)
+
+        if len(window_text.split()) < 10:
+            t += step
+            continue
+
+        if score_transcript:
+            score = score_transcript({"transcript": window_text})
+        else:
+            # Fallback: word count + keyword density
+            wc = len(window_text.split())
+            score = min(wc // 3, 50)
+
+        scored_windows.append({
+            "start_sec": round(t, 2),
+            "end_sec": round(window_end, 2),
+            "text": window_text,
+            "score": score,
+        })
+        t += step
+
+    # Take top 5 non-overlapping windows
+    scored_windows.sort(key=lambda x: x["score"], reverse=True)
+    top_clips = []
+    for w in scored_windows:
+        if len(top_clips) >= 5:
+            break
+        # Check overlap with already selected clips
+        overlaps = False
+        for tc in top_clips:
+            if w["start_sec"] < tc["end_sec"] and w["end_sec"] > tc["start_sec"]:
+                overlaps = True
+                break
+        if not overlaps:
+            top_clips.append(w)
+
+    # Step 4: Extract audio for each clip
+    for i, clip in enumerate(top_clips):
+        clip_path = space_dir / f"clip_{i}.m4a"
+        duration = clip["end_sec"] - clip["start_sec"]
+        try:
+            subprocess.run(
+                ["ffmpeg", "-y", "-ss", str(clip["start_sec"]),
+                 "-i", str(audio_path), "-t", str(duration),
+                 "-c:a", "aac", "-ar", "48000", str(clip_path)],
+                capture_output=True, timeout=30,
+            )
+            clip["clip_path"] = str(clip_path)
+        except Exception as e:
+            logger.warning(f"Clip extraction failed for clip {i}: {e}")
+            clip["clip_path"] = ""
+
+    # Step 5: Fetch and resize host profile picture
+    profile_path = space_dir / "profile.jpg"
+    if host_profile_image_url and not profile_path.exists():
+        try:
+            resp = requests.get(host_profile_image_url, timeout=10)
+            if resp.status_code == 200:
+                raw_path = space_dir / "profile_raw.jpg"
+                raw_path.write_bytes(resp.content)
+                subprocess.run(
+                    ["ffmpeg", "-y", "-i", str(raw_path),
+                     "-vf", "scale=200:200", str(profile_path)],
+                    capture_output=True, timeout=15,
+                )
+                raw_path.unlink(missing_ok=True)
+        except Exception as e:
+            logger.debug(f"Profile picture fetch failed: {e}")
+
+    # Step 6: Save clips.json
+    result = {
+        "space_id": space_id,
+        "host_handle": host_handle,
+        "host_name": host_handle,
+        "host_profile_image": str(profile_path) if profile_path.exists() else "",
+        "clips": top_clips,
+        "transcribed_at": datetime.now(timezone.utc).isoformat(),
+    }
+    clips_path.write_text(json.dumps(result, indent=2))
+
+    logger.info(f"Space {space_id}: {len(top_clips)} clips extracted")
+    return result
+
+
+def get_best_space_clips(max_clips: int = 4) -> Optional[dict]:
+    """Top-level function for daily_run.py — discover, download, rank clips.
+
+    Returns {clips: [...], spaces_count: N} or None.
+    """
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent.parent / ".env")
+
+    spaces = discover_recent_spaces(max_results=10)
+    if not spaces:
+        logger.info("No spaces discovered")
+        return None
+
+    # Process top 3 by follower count
+    all_clips = []
+    spaces_processed = 0
+
+    for space_meta in spaces[:3]:
+        space_id = space_meta["space_id"]
+        handle = space_meta["host_handle"]
+        profile_url = space_meta.get("host_profile_image_url", "")
+
+        result = download_and_transcribe_space(space_id, handle, profile_url)
+        if result and result.get("clips"):
+            spaces_processed += 1
+            for clip in result["clips"]:
+                clip["host_handle"] = handle
+                clip["host_name"] = space_meta.get("host_name", handle)
+                clip["host_profile_image"] = result.get("host_profile_image", "")
+                clip["space_id"] = space_id
+                all_clips.append(clip)
+
+    if not all_clips:
+        return None
+
+    # Take top max_clips by score across all spaces
+    all_clips.sort(key=lambda x: x.get("score", 0), reverse=True)
+    best = all_clips[:max_clips]
+
+    return {
+        "clips": best,
+        "spaces_count": spaces_processed,
+    }
 
 
 # ─── CLI ────────────────────────────────────────────────────────────────────

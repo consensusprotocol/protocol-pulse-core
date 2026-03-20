@@ -145,10 +145,27 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
                 print(f"    #{rank}: {ci.get('channel','?')} — {ci.get('duration',0):.1f}s")
             print(f"  Time: {time.time()-t0:.1f}s")
 
+            # ─── Step 2c: Space Tap clip discovery (pre-script) ───
+            try:
+                sys.path.insert(0, os.path.join(BASE, '..', 'x_spaces_scraper'))
+                from scraper import get_best_space_clips
+                _st_data = get_best_space_clips(max_clips=4)
+                if _st_data and _st_data.get('clips'):
+                    selections['space_tap_clips'] = _st_data['clips']
+                    print(f"  Space Tap: {len(_st_data['clips'])} clips from "
+                          f"{_st_data['spaces_count']} spaces")
+                else:
+                    print("  Space Tap: no clips available — segment skipped")
+            except Exception as e:
+                print(f"  Space Tap: skipped ({e})")
+
             # ─── Step 3: Generate script from clips ───
             print("\n[STEP 3/7] WRITING HOST DIALOGUE...")
             t0 = time.time()
             script = generate_from_clips(selections, btc_price=btc_price)
+            # Carry space_tap_clips into script for assembler
+            if selections.get('space_tap_clips'):
+                script['space_tap_clips'] = selections['space_tap_clips']
             seg_count = len(script.get("segments", []))
             word_count = sum(len(s.get("text", "").split()) for s in script.get("segments", []))
             print(f"  Segments: {seg_count}")
