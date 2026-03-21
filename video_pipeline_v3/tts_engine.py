@@ -828,18 +828,16 @@ def tts_kokoro(text: str, output_path: str, voice: str = "af_heart",
 
         if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
             return False
-        # BigVGAN2 upsample: 24kHz → 44kHz (graceful fallback)
-        wav_for_encode = _bigvgan_upsample(wav_tmp)
+        # Direct encode: 24kHz WAV → 48kHz AAC (no BigVGAN2 — causes double-vocoding)
         r = subprocess.run([
-            "ffmpeg", "-y", "-i", wav_for_encode,
+            "ffmpeg", "-y", "-i", wav_tmp,
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
         ], capture_output=True, text=True, timeout=60)
-        for _tmp in [wav_tmp, wav_for_encode]:
-            try:
-                if os.path.exists(_tmp):
-                    os.remove(_tmp)
-            except Exception:
-                pass
+        try:
+            if os.path.exists(wav_tmp):
+                os.remove(wav_tmp)
+        except Exception:
+            pass
         ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
         if ok:
             logger.info(f"[TTS/Kokoro] OK: {ffprobe_duration(output_path):.2f}s, voice={voice}")
