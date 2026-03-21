@@ -555,6 +555,27 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     script_path = os.path.join(run_dir, "script.json")
     with open(script_path, "w") as f:
         json.dump(script, f, indent=2)
+    # ── Step 5b: Space Tap — live X Spaces intercept ────────────────────────
+    print("
+[STEP 5b] SPACE TAP — LIVE X SPACES INTERCEPT...")
+    try:
+        import sys as _sys, os as _os
+        _spaces_path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "x_spaces_scraper")
+        if _spaces_path not in _sys.path:
+            _sys.path.insert(0, _spaces_path)
+        from scraper import get_best_space_clips
+        _st = get_best_space_clips(max_clips=3)
+        if _st and _st.get("clips"):
+            script["space_tap_clips"] = _st["clips"]
+            with open(script_path, "w") as _sf:
+                import json as _jmod
+                _jmod.dump(script, _sf, indent=2)
+            print(f"  Space Tap: {len(_st[chr(99)+chr(108)+chr(105)+chr(112)+chr(115)])} clips from {_st.get(chr(115)+chr(112)+chr(97)+chr(99)+chr(101)+chr(115)+chr(95)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116),0)} spaces")
+        else:
+            print("  Space Tap: no live spaces — segment skipped")
+    except Exception as _ste:
+        print(f"  Space Tap: skipped ({_ste})")
+
 
     # ── Step 6: TTS ───────────────────────────────────────────────────────
     print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
