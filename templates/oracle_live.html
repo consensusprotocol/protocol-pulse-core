@@ -787,11 +787,21 @@ function requestMic(){
       gStatus.textContent='';
       go();
     })
-    .catch(function(){
+    .catch(function(err){
+      console.warn('[Oracle mic error]', err);
       gBtn.disabled=false;
       gStatus.textContent='';
       gErr.style.display='block';
-      gErr.textContent='\u26a0\ufe0f Microphone access required. Enable it in your browser and reload.';
+      var name = err && err.name ? err.name : '';
+      if(name === 'NotAllowedError' || name === 'PermissionDeniedError'){
+        gErr.innerHTML='&#9888;&#xFE0F; Microphone blocked. Click the camera/mic icon in your browser address bar and allow access, then <a href="javascript:location.reload()" style="color:#ff3b5f;text-decoration:underline;">reload</a>.';
+      } else if(name === 'NotReadableError' || name === 'TrackStartError'){
+        gErr.innerHTML='&#9888;&#xFE0F; Microphone is in use by another app. Close other tabs or apps using the mic, then <button onclick="requestMic()" style="background:none;border:none;color:#ff3b5f;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">try again</button>.';
+      } else if(name === 'NotFoundError'){
+        gErr.innerHTML='&#9888;&#xFE0F; No microphone found. Connect a microphone and <button onclick="requestMic()" style="background:none;border:none;color:#ff3b5f;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">try again</button>.';
+      } else {
+        gErr.innerHTML='&#9888;&#xFE0F; Microphone unavailable ('+name+'). Try clicking <button onclick="requestMic()" style="background:none;border:none;color:#ff3b5f;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">here to retry</button> or check browser settings.';
+      }
     });
 }
 
