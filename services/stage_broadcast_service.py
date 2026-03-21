@@ -340,9 +340,13 @@ def check_thought_leader():
             return None
 
         now = datetime.now(timezone.utc)
-        cutoff = now - timedelta(hours=24)
+        cutoff = now - timedelta(hours=72)
 
-        for tweet in tweets:
+        import random
+        tweets_shuffled = tweets.copy()
+        random.shuffle(tweets_shuffled)
+
+        for tweet in tweets_shuffled:
             handle = (tweet.get("handle") or tweet.get("username") or "").lower().lstrip("@")
             if handle not in PRIORITY_HANDLES:
                 continue

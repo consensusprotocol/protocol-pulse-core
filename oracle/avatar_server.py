@@ -1431,6 +1431,131 @@ def generate_inline(text):
         return jsonify({"error": str(e)}), 500
 
 
+def generate_inline_to_file(text, output_path):
+    """Like generate_inline but writes to a file path instead of HTTP response."""
+    audio_bytes = _avatar_tts(text)
+    is_wav = audio_bytes[:4] == b"RIFF"
+    ext = ".wav" if is_wav else ".mp3"
+    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+        tmp.write(audio_bytes)
+        audio_path = tmp.name
+    wav_path = audio_path + "_16k.wav"
+    if is_wav:
+        import shutil
+        shutil.copy2(audio_path, wav_path)
+    else:
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path,
+                       "-ar", "16000", "-ac", "1", wav_path],
+                      check=True, capture_output=True, timeout=30)
+    try:
+        _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
+        try:
+            frames = wav2lip_generate(wav_path, DEFAULT_FPS)
+            try:
+                frames = sharpen_mouth_region(frames, ModelRegistry.get().avatar_face_coords)
+            except Exception:
+                pass
+            frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
+            video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
+        finally:
+            _render_semaphore.release()
+        if video_path:
+            import shutil as _sh
+            _sh.move(video_path, output_path)
+    finally:
+        for p in [audio_path, wav_path]:
+            try:
+                if os.path.exists(p):
+                    os.unlink(p)
+            except OSError:
+                pass
+    return output_path
+
+
+# ── Monologue pre-render system ───────────────────────────────────────
+_MONOLOGUE_JOBS = {}
+
+
+@app.route("/oracle/monologue", methods=["POST"])
+def oracle_monologue():
+    """Split a long script into chunks, pre-render all, return manifest immediately."""
+    data = request.get_json()
+    if not data or not data.get("script"):
+        return jsonify({"error": "script required"}), 400
+
+    script = data["script"].strip()
+    job_id = str(uuid.uuid4())[:8]
+
+    # Split into sentence chunks targeting ~20 words each
+    import re as _re
+    sentences = _re.split(r'(?<=[.!?])\s+', script)
+    chunks = []
+    current = []
+    current_words = 0
+    for sent in sentences:
+        words = len(sent.split())
+        if current_words + words > 25 and current:
+            chunks.append(' '.join(current))
+            current = [sent]
+            current_words = words
+        else:
+            current.append(sent)
+            current_words += words
+    if current:
+        chunks.append(' '.join(current))
+
+    chunk_dir = os.path.join(os.path.dirname(__file__), "cache", "monologues", job_id)
+    os.makedirs(chunk_dir, exist_ok=True)
+
+    job = {
+        "id": job_id,
+        "total": len(chunks),
+        "chunks": {i: {"status": "pending", "path": None} for i in range(len(chunks))},
+        "texts": chunks,
+    }
+    _MONOLOGUE_JOBS[job_id] = job
+
+    def render_chunk(idx, txt):
+        try:
+            result = generate_inline_to_file(txt, os.path.join(chunk_dir, f"chunk_{idx}.mp4"))
+            job["chunks"][idx] = {"status": "ready", "path": result}
+        except Exception as e:
+            job["chunks"][idx] = {"status": "error", "error": str(e)}
+
+    for i, txt in enumerate(chunks):
+        threading.Thread(target=render_chunk, args=(i, txt), daemon=True).start()
+
+    return jsonify({
+        "job_id": job_id,
+        "total_chunks": len(chunks),
+        "chunk_texts": chunks,
+        "poll_url": f"/oracle/monologue/{job_id}/status",
+    })
+
+
+@app.route("/oracle/monologue/<job_id>/status")
+def oracle_monologue_status(job_id):
+    job = _MONOLOGUE_JOBS.get(job_id)
+    if not job:
+        return jsonify({"error": "job not found"}), 404
+    ready = [i for i, c in job["chunks"].items() if c["status"] == "ready"]
+    return jsonify({
+        "job_id": job_id,
+        "total": job["total"],
+        "ready": ready,
+        "complete": len(ready) == job["total"],
+    })
+
+
+@app.route("/oracle/monologue/<job_id>/chunk/<int:chunk_idx>")
+def oracle_monologue_chunk(job_id, chunk_idx):
+    job = _MONOLOGUE_JOBS.get(job_id)
+    if not job:
+        return jsonify({"error": "job not found"}), 404
+    chunk = job["chunks"].get(chunk_idx, {})
+    if chunk.get("status") != "ready":
+        return jsonify({"error": "not ready", "status": chunk.get("status", "pending")}), 202
+    return send_file(chunk["path"], mimetype="video/mp4")
 
 
 
