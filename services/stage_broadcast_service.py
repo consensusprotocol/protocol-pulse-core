@@ -315,7 +315,7 @@ def check_price_alert(btc_data):
         "PRICE_ALERT", 1, script,
         "📡 PRICE ALERT",
         f"Bitcoin {'breaks' if direction == 'up' else 'drops to'} ${current_price:,.0f}",
-        15,
+        30,
     )
 
 
