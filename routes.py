@@ -1393,20 +1393,22 @@ def articles():
     )
 
 def _article_body_without_tldr(content):
-    """Body HTML for display: strip duplicate TL;DR (single source of truth from content_generator)."""
-    try:
-        from services.content_generator import strip_duplicate_tldr
-        return strip_duplicate_tldr(content or "")
-    except Exception:
-        pass
+    """Return article body HTML, stripping only the tldr-section div (shown separately in Key Takeaways).
+    Never returns empty — always returns the full content minus TL;DR block."""
     if not content:
         return ""
-    first_h2 = re.search(r'<h2[\s>]', content, re.IGNORECASE)
-    if first_h2:
-        return content[first_h2.start():].strip()
-    if re.search(r'tldr-section', content, re.IGNORECASE) or re.search(r'tl;dr', content, re.IGNORECASE):
-        return ""
-    return content.strip()
+    # Remove the tldr-section div only — keep everything else
+    import re as _re
+    body = _re.sub(
+        r'<div[^>]*class=["\']tldr-section["\'][^>]*>.*?</div>',
+        "",
+        content,
+        flags=_re.DOTALL | _re.IGNORECASE
+    ).strip()
+    # Also strip leading h1 (title already shown in header)
+    body = _re.sub(r'^<h1[^>]*>.*?</h1>\s*', "", body, flags=_re.DOTALL | _re.IGNORECASE).strip()
+    # If stripping removed everything, return full content as fallback
+    return body if body else content
 
 
 def _article_key_takeaways(article):
