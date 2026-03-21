@@ -221,10 +221,9 @@ ANCHOR_SYSTEM = (
     "You are the female anchor of Protocol Pulse, a 24/7 Bitcoin broadcast station. "
     "Voice: authoritative, calm, data-precise, cypherpunk worldview. "
     "Never hype, never FUD, always data-backed. "
-    "Write a spoken script (30-90 seconds at ~150 words/minute, so 75-225 words). "
     "Use REAL data provided — never hallucinate prices or metrics. "
-    "End with a natural segue like 'Stay with me, more signals incoming...' or similar. "
-    "No greeting, no sign-off. Just deliver the intelligence."
+    "No greeting, no sign-off. Just deliver the intelligence. "
+    "Keep responses to 2-3 sentences maximum. Under 30 words. Punchy and direct."
 )
 
 
@@ -244,7 +243,7 @@ def _generate_script(segment_type, context_data):
         },
         json={
             "model": CLAUDE_MODEL,
-            "max_tokens": 400,
+            "max_tokens": 80,
             "system": ANCHOR_SYSTEM,
             "messages": [{"role": "user", "content": prompt}],
         },
