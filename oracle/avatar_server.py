@@ -300,17 +300,24 @@ def wav2lip_generate(audio_path, fps=30.0, avatar_face=None, avatar_face_coords=
         for p in pred:
             p_resized = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
             full_frame = face_img.copy()
-            # Feathered blend to eliminate face paste seam
-            mask = np.ones_like(p_resized, dtype=np.float32)
-            feather = 18
             h_face, w_face = p_resized.shape[:2]
-            for j in range(min(feather, h_face)):
-                mask[j, :] = j / feather
-            for j in range(min(feather, h_face)):
-                mask[-(j+1), :] = j / feather
+            # Only paste lower 55% of face — preserves eyes/nose from original
+            # Wav2Lip only predicts mouth movement; upper face is lower quality upscale
+            mouth_start = int(h_face * 0.45)
+            feather = 18
+            mask = np.zeros_like(p_resized, dtype=np.float32)
+            # Build mask only for lower portion
+            for row in range(mouth_start, h_face):
+                blend_row = row - mouth_start
+                # Fade in over feather rows at the top of the mouth region
+                top_fade = min(blend_row / feather, 1.0)
+                # Fade out at bottom edge
+                bottom_fade = min((h_face - row) / feather, 1.0)
+                row_alpha = top_fade * bottom_fade
+                mask[row, :] = row_alpha
+            # Side feathering
             for j in range(min(feather, w_face)):
                 mask[:, j] *= j / feather
-            for j in range(min(feather, w_face)):
                 mask[:, -(j+1)] *= j / feather
             full_frame[y1:y2, x1:x2] = (
                 p_resized * mask + full_frame[y1:y2, x1:x2] * (1 - mask)
