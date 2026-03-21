@@ -202,6 +202,10 @@ _TAG_TO_TYPE = {
     "WARM": "wrap",
     "BRIDGE": "setup",  # inter-clip context bridges treated as narration
     "SPACE_TAP": "space_tap_intro",
+    "SETUP": "setup",
+    "REACT": "react",
+    "CTA": "wrap",
+    "COLD": "cold_open",
 }
 
 _TAG_PATTERN = re.compile(r"^\[(" + "|".join(_TAG_TO_TYPE.keys()) + r")\]\s*")

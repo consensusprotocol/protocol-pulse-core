@@ -4,7 +4,7 @@ Host 1: Kokoro af_heart (female) — setup/bridge.
 Host 2: Kokoro am_onyx (male) — react/wrap. F5-TTS PBX when ready.
 Fallback: ElevenLabs per-line. TTS_PROVIDER=local (default) or elevenlabs.
 Generates per-line audio with 0.3s silence gaps."""
-import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
+import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re
 from pathlib import Path
 
 try:
@@ -954,6 +954,8 @@ def tts_local(text: str, output_path: str, host: int = 1,
     Host 1 → Kokoro af_heart → ElevenLabs Eryn fallback
     Host 2 → Chatterbox PBX → Kokoro am_adam → ElevenLabs PBX fallback
     """
+    # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
+    text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
     text = expand_numbers_for_tts(text)
     text = apply_pronunciation_map(text)
     # Prosody planner: add natural delivery markers before TTS
@@ -1095,6 +1097,9 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     if not key:
         return _tts_generate_silence_fallback(text, output_path)
 
+    # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
+    # These tags are for script structure — narrator should never read them aloud
+    text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
     # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
     text = expand_numbers_for_tts(text)
     # R25 FIX 7: Apply pronunciation map (Pysh→PISH, etc.) — was defined but never called
