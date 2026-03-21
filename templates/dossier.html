@@ -304,7 +304,7 @@ body{
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   text-align:center;padding:80px 24px;
-  position:relative;
+  position:relative;z-index:60;
 }
 .exit-section::before{
   content:'';position:absolute;inset:0;
@@ -320,7 +320,7 @@ body{
   color:var(--muted);font-size:1rem;line-height:1.7;
   max-width:500px;margin-bottom:40px;
 }
-.exit-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.exit-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:61;}
 .btn-primary{
   display:inline-flex;align-items:center;gap:8px;
   background:var(--gold);color:#000;
@@ -354,6 +354,44 @@ body{
   .chapter{padding:72px 16px 48px}
   .dd-grid{grid-template-columns:1fr}
 }
+
+/* ── SOURCE CITATIONS ─────────────────────── */
+.dd-sources {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.dd-sources-label {
+  font-family: var(--mono);
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.25);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.dd-sources-list {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.dd-source-item {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: .8rem;
+  color: rgba(220,38,38,.7);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(220,38,38,.12);
+  background: rgba(220,38,38,.04);
+  transition: all .18s ease;
+  font-family: var(--mono);
+  gap: 8px;
+}
+.dd-source-item:hover {
+  color: rgba(220,38,38,1);
+  background: rgba(220,38,38,.1);
+  border-color: rgba(220,38,38,.3);
+}
+.dd-source-item i { font-size: .55rem; opacity: .6; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -436,13 +474,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value"><strong>0% interest</strong> vs 5–20% modern bank debt. Medieval peasants had more disposable time than their modern equivalents.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">Sound money creates prosperity. Private central banking creates debt slavery. The Bank of England was chartered the same year the British national debt was invented.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value"><strong>0% interest</strong> vs 5–20% modern bank debt. Laborers in 1300 worked ~14 weeks/year for subsistence. Their modern equivalents work 40+.</div></div>
+          <div class="dd-item"><div class="dd-item-label">Key Fact</div><div class="dd-item-value">The Bank of England (est. 1694) created the national debt the same year. Tally sticks were burned in 1834 — the fire destroyed the Houses of Parliament.</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://www.bankofengland.co.uk/about/history" target="_blank" class="dd-source-item">Bank of England — Official History <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.bbc.co.uk/news/magazine-25395/" target="_blank" class="dd-source-item">BBC — How Tally Sticks Worked <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.debtdeflation.com/blogs/" target="_blank" class="dd-source-item">Steve Keen — Debunking Economics <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>
@@ -475,13 +515,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value">44 years of classical gold standard: living standards doubled. <strong>Gold constrained governments.</strong> That is precisely why they abandoned it.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">Gold's fatal flaw: physical, nation-state-controlled, confiscatable. Bitcoin keeps gold's scarcity while removing every single one of its political vulnerabilities.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value">1880–1914 classical gold standard: avg inflation <strong>0.1%/year</strong>. 1971–2024 fiat: avg 4%/year. Same 44-year window, 40× worse outcome.</div></div>
+          <div class="dd-item"><div class="dd-item-label">Key Fact</div><div class="dd-item-value">Executive Order 6102 (1933): FDR confiscated all privately held gold in the US. Any asset a government can confiscate is not sound money.</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://www.federalreservehistory.org/essays/gold-standard" target="_blank" class="dd-source-item">Federal Reserve History — The Gold Standard <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.wtfhappenedin1971.com" target="_blank" class="dd-source-item">WTF Happened In 1971? — Data Charts <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.goldmoney.com/research/goldmoney-insights/the-real-bills-doctrine" target="_blank" class="dd-source-item">GoldMoney — Classical Gold Standard Analysis <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>
@@ -514,13 +556,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value">$35/oz gold peg held for 27 years. <strong>France demanded physical delivery.</strong> Every nation that followed would have bankrupted the US treasury.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">Bretton Woods was a promise: "Your dollars are as good as gold." That promise required trust in a government. Trust is not a sound monetary foundation.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value">US gold: 20,205 tons (1945) → 8,133 tons (1971). <strong>France redeemed $191M in gold</strong> in 1965 alone. De Gaulle called the dollar's privilege "an exorbitant privilege."</div></div>
+          <div class="dd-item"><div class="dd-item-label">Key Fact</div><div class="dd-item-value">The IMF was created at Bretton Woods to police the system. It still exists. The system it was created to police ended in 1971. The bureaucracy outlived its purpose.</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://www.imf.org/external/about/histend.htm" target="_blank" class="dd-source-item">IMF — End of Bretton Woods System <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://history.state.gov/milestones/1969-1976/nixon-shock" target="_blank" class="dd-source-item">US State Dept — The Nixon Shock <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.bis.org/publ/work399.pdf" target="_blank" class="dd-source-item">BIS Working Paper — Bretton Woods System <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>
@@ -553,13 +597,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value"><strong>Median home +1,708%.</strong> Wages did not keep pace. The gap between asset owners and workers has widened every year since 1971.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">Nixon unleashed the greatest transfer of wealth from labor to capital in human history. The working class stores value in wages. The rich store value in assets. Inflation only destroys one of those.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value">$100 in 1971 → $14 purchasing power today. Median home: $24K → $434K (+1,708%). <strong>Real wages peaked in 1973</strong> and have never fully recovered.</div></div>
+          <div class="dd-item"><div class="dd-item-label">Key Fact</div><div class="dd-item-value">Nixon's advisor John Connally told foreign finance ministers: "The dollar is our currency, but it's your problem." The quote has defined global monetary policy ever since.</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://www.bls.gov/opub/ted/2016/median-weekly-earnings-by-occupation-2015.htm" target="_blank" class="dd-source-item">BLS — Real Wage Data 1971–Present <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://wtfhappenedin1971.com" target="_blank" class="dd-source-item">WTF Happened In 1971? — 50+ Charts <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.nixonlibrary.gov/sites/default/files/virtuallibrary/documents/august1971.pdf" target="_blank" class="dd-source-item">Nixon Library — Aug 15, 1971 Address (Primary Doc) <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>
@@ -592,13 +638,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value"><strong>97% of USD purchasing power destroyed</strong> since 1913. Every fiat currency in recorded history has gone to zero. The dollar has 3 cents of its original value remaining.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">2008: The Fed created $700B in 8 months. 2020: $4T in 8 weeks. The acceleration is not a bug. Infinite money is the feature. Until it isn't.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value">M2 money supply: $600B (1971) → $21T (2024). <strong>35× expansion.</strong> 2008: Fed created $700B in 8 months. 2020: $4T in 8 weeks. Each crisis requires more.</div></div>
+          <div class="dd-item"><div class="dd-item-label">Key Fact</div><div class="dd-item-value">10 million Americans lost homes in 2008–2010. The banks that caused it received $29T in emergency facilities (Levy Institute, 2011). Not $700B — $29 trillion.</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" class="dd-source-item">FRED — M2 Money Supply (Fed data) <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.levyinstitute.org/pubs/wp_698.pdf" target="_blank" class="dd-source-item">Levy Institute — $29T Fed Bailout (2011) <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://usinflationcalculator.com" target="_blank" class="dd-source-item">CPI Inflation Calculator — 1913–Present <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>
@@ -631,13 +679,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value">Halving schedule: 50 → 25 → 12.5 → 6.25 → 3.125 BTC per block, every ~4 years. <strong>Supply growth approaches zero asymptotically.</strong> No inflation schedule exists.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">"The root problem with conventional currency is all the trust required to make it work." — Satoshi Nakamoto. Bitcoin removes trust from the monetary equation entirely.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value">Block reward: 50 → 25 → 12.5 → 6.25 → 3.125 BTC (every ~210,000 blocks). <strong>Final bitcoin mined ~2140.</strong> 19.8M of 21M already in circulation.</div></div>
+          <div class="dd-item"><div class="dd-item-label">Satoshi Quote</div><div class="dd-item-value">"The root problem with conventional currency is all the trust required... Banks must be trusted to hold our money and transfer it electronically, but they lend it out in waves of credit bubbles."</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" class="dd-source-item">Bitcoin Whitepaper — Satoshi Nakamoto, 2008 <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://satoshi.nakamotoinstitute.org/emails/cryptography/1/" target="_blank" class="dd-source-item">Satoshi Institute — First Email (Jan 3, 2009) <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.blockchain.com/explorer/blocks/btc/0" target="_blank" class="dd-source-item">Genesis Block — Embedded Times Headline <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>
@@ -670,13 +720,15 @@ body{
       </button>
       <div class="deep-dive-body">
         <div class="dd-grid">
-          <div class="dd-item">
-            <div class="dd-item-label">The Math</div>
-            <div class="dd-item-value"><strong>99.98% uptime since 2009.</strong> No Federal Reserve has that track record. No nation-state currency has survived 100 years without debasement. Bitcoin has survived 15 with the rules unchanged.</div>
-          </div>
-          <div class="dd-item">
-            <div class="dd-item-label">Technical Insight</div>
-            <div class="dd-item-value">The first monetary system in history where the rules cannot be changed by those in power. Every prior monetary system was controlled by whoever controlled the ledger. Bitcoin controls itself.</div>
+          <div class="dd-item"><div class="dd-item-label">The Math</div><div class="dd-item-value"><strong>99.98% uptime since Jan 3, 2009.</strong> Lightning: ~$0.001/tx vs Visa $0.30/tx vs Wire $25/tx. 15,000+ network nodes in 100+ countries. No single point of failure.</div></div>
+          <div class="dd-item"><div class="dd-item-label">Key Fact</div><div class="dd-item-value">117 countries have attempted to ban or restrict Bitcoin. Zero have succeeded in stopping it. Every ban has reversed or been ignored. The protocol routes around censorship by design.</div></div>
+        </div>
+        <div class="dd-sources">
+          <div class="dd-sources-label"><i class="fas fa-folder-open"></i> Primary Sources</div>
+          <div class="dd-sources-list">
+            <a href="https://bitcoinuptime.com" target="_blank" class="dd-source-item">Bitcoin Uptime Tracker <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://www.lopp.net/bitcoin-information/technical-resources.html" target="_blank" class="dd-source-item">Jameson Lopp — Bitcoin Technical Resources <i class="fas fa-external-link-alt"></i></a>
+            <a href="https://bitcoinmagazine.com" target="_blank" class="dd-source-item">Bitcoin Magazine — Live Protocol Coverage <i class="fas fa-external-link-alt"></i></a>
           </div>
         </div>
       </div>

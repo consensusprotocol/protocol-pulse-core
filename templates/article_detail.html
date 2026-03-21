@@ -330,7 +330,10 @@
 
 .pp-article__header {
     max-width: var(--pp-content-width);
-    padding: 24px 0 32px;
+    padding: 32px 32px 36px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    margin-bottom: 4px;
 }
 
 .pp-article__meta-top {
@@ -369,21 +372,33 @@
 .pp-article__share {
     display: flex;
     gap: 8px;
+    margin-top: 4px;
 }
 
-.pp-share-btn {
-    width:32px;height:32px;display:flex;align-items:center;justify-content:center;
-    background:transparent;border:none;outline:none;box-shadow:none;
-    border-radius:6px;color:rgba(255,255,255,0.4);cursor:pointer;transition:color .15s ease;font-size:.875rem;
+/* Share buttons — completely transparent, zero glow on every state */
+.pp-share-btn,
+.pp-share-btn:link,
+.pp-share-btn:visited,
+.pp-share-btn:hover,
+.pp-share-btn:active,
+.pp-share-btn:focus,
+.pp-share-btn:focus-visible,
+.pp-share-btn:focus-within {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 6px;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: color .15s ease;
+    font-size: .875rem;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
 }
-.pp-share-btn:hover{color:#00d4d4;background:transparent;}
-.pp-share-btn:focus,.pp-share-btn:focus-visible,.pp-share-btn:active{outline:none!important;box-shadow:none!important;background:transparent!important;}
-
-.pp-share-btn:hover {
-    border-color: var(--pp-teal);
-    color: var(--pp-teal);
-    background: var(--pp-teal-dim);
-}
+.pp-share-btn:hover { color: var(--pp-teal, #00d4d4) !important; }
 
 /* ═══ Hero image ═══ */
 .pp-article__hero-image {
@@ -822,7 +837,7 @@
 
 /* ═══ Mobile ═══ */
 @media (max-width: 767px) {
-    .pp-article__header { padding: 16px 0 24px; }
+    .pp-article__header { padding: 20px 20px 28px; }
     .pp-article__title { font-size: 1.5rem; }
     .pp-article__body { font-size: 1rem; }
     .pp-article__tip-jar { padding: 24px 16px; }

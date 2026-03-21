@@ -1653,28 +1653,15 @@ html {
     }
 }
 
-/* ── PP SHARE BUTTONS — icon-only, no Bootstrap bleed ── */
+/* ── PP SHARE BUTTONS — defined in article_detail.html template ── */
 .pp-share-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.5);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
-    padding: 0;
-    -webkit-appearance: none;
-    appearance: none;
-    outline: none !important;
-    box-shadow: none !important;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px;
+    background: transparent !important; border: none !important;
+    outline: none !important; box-shadow: none !important;
+    color: rgba(255,255,255,0.45); cursor: pointer; font-size: .875rem;
     -webkit-tap-highlight-color: transparent;
-}
-.pp-share-btn:hover {
+}.pp-share-btn:hover {
     border-color: rgba(255,255,255,0.25);
     background: rgba(255,255,255,0.08);
     color: rgba(255,255,255,0.85);
