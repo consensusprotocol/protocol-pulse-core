@@ -7,7 +7,7 @@ from flask import render_template, request, jsonify, redirect, url_for, flash, m
 from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app import app, db
+from app import app, db, limiter
 from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession, MarketBriefing, PriceAlert
 import hashlib
 import json
