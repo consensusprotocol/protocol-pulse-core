@@ -238,6 +238,8 @@ def run_render(iteration):
     candidates = []
     for pat in [f'output/{today}/*.mp4', 'output/pulse_check_*.mp4']:
         for f in glob.glob(os.path.join(PIPELINE, pat)):
+            if any(x in f for x in ['.bgl_audio', '.intro_mus', '.concat_raw', '.music_mixed', '.whoosh', '.norm']):
+                continue
             if not any(x in f for x in ['music_mixed', 'concat_raw', '.norm', 'whoosh']):
                 candidates.append((os.path.getmtime(f), f))
     candidates.sort(reverse=True)
@@ -266,7 +268,7 @@ def run_forensics(video):
     segs = re.findall(r'black_start:([\d.]+).*?black_end:([\d.]+).*?black_duration:([\d.]+)', r.stderr+r.stdout)
     dur = res.get('duration', 0)
     res['black_mid_count'] = len([(s,e,d) for s,e,d in segs if float(s)>2 and float(e)<dur-2])
-    r = run(f'ffmpeg -i "{video}" -af "ebur128=peak=true" -f null - 2>&1', timeout=600)
+    r = run(f'ffmpeg -i "{video}" -af "ebur128=peak=true" -f null - 2>&1', timeout=120)
     out = r.stderr + r.stdout
     im = re.search(r'I:\s*([-\d.]+)\s*LUFS', out)
     tp = re.search(r'True peak.*?([-\d.]+)\s*dBFS', out)
