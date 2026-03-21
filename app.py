@@ -143,6 +143,19 @@ def inject_csrf():
     }
 
 
+@app.before_request
+def redirect_articles_subdomain():
+    """Redirect articles.protocolpulse.io/* to protocolpulse.io/articles/*"""
+    from flask import request, redirect
+    host = request.host.split(':')[0]
+    if host == 'articles.protocolpulse.io':
+        target_path = request.path
+        if not target_path.startswith('/articles'):
+            target_path = '/articles' + target_path
+        query = '?' + request.query_string.decode() if request.query_string else ''
+        return redirect('https://protocolpulse.io' + target_path + query, code=301)
+
+
 @app.after_request
 def add_headers(response):
     """Add cache, security, and performance headers to every response."""
