@@ -459,24 +459,9 @@ def index():
     except Exception:
         pass
 
-    import os as _os
     article_image_urls = {}
     for a in (featured_articles + recent_articles + bento_articles + carousel_articles):
-        ciu = (getattr(a, "cover_image_url", None) or "").strip()
-        if ciu and ciu.startswith("http"):
-            article_image_urls[a.id] = ciu
-        else:
-            url = (getattr(a, "header_image_url", None) or "").strip()
-            if url and url.startswith("http"):
-                article_image_urls[a.id] = url
-            elif url and url != "/static/images/default-header.png":
-                filepath = url.lstrip("/")
-                if _os.path.exists(filepath):
-                    article_image_urls[a.id] = url
-                else:
-                    article_image_urls[a.id] = "/static/images/default-header.png"
-            else:
-                article_image_urls[a.id] = "/static/images/default-header.png"
+        article_image_urls[a.id] = a.resolve_cover_image()
 
     latest_episode = get_latest_episode()
     return render_template('index.html',
@@ -1372,27 +1357,11 @@ def articles():
         mempool_data = fetch_mempool_data()
     except Exception:
         pass
-    # Use a local default image so cards never appear "imageless" even if external CDNs are blocked.
+    # Use resolve_cover_image() — the single source of truth (handles http + /static/ paths)
     default_header_url = "/static/images/default-header.png"
-    # Guaranteed unique image URL per article (no template filter dependency)
-    import os as _os
     article_image_urls = {}
     for a in (today_articles + yesterday_articles + archive_articles):
-        ciu = (getattr(a, "cover_image_url", None) or "").strip()
-        if ciu and ciu.startswith("http"):
-            article_image_urls[a.id] = ciu
-        else:
-            url = (getattr(a, "header_image_url", None) or "").strip()
-            if url and url.startswith("http"):
-                article_image_urls[a.id] = url
-            elif url and url != "/static/images/default-header.png":
-                filepath = url.lstrip("/")
-                if _os.path.exists(filepath):
-                    article_image_urls[a.id] = url
-                else:
-                    article_image_urls[a.id] = "/static/images/default-header.png"
-            else:
-                article_image_urls[a.id] = "/static/images/default-header.png"
+        article_image_urls[a.id] = a.resolve_cover_image()
 
     return render_template(
         "articles.html",
