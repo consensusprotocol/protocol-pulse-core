@@ -20,6 +20,11 @@ import os, sys, re, json, logging
 from datetime import datetime
 from pathlib import Path
 import urllib.request, urllib.parse
+try:
+    import requests as _requests
+    _HAS_REQUESTS = True
+except ImportError:
+    _HAS_REQUESTS = False
 
 BASE = Path("/home/ultron/protocol_pulse")
 sys.path.insert(0, str(BASE))
@@ -60,19 +65,37 @@ def _api_request(method: str, path: str, body: dict = None) -> dict | None:
     _load_env()
     pub_url = os.getenv("SUBSTACK_PUBLICATION_URL", PUBLICATION_URL).rstrip("/")
     url = f"{pub_url}/api/v1{path}"
-    
-    data = json.dumps(body).encode() if body else None
-    req = urllib.request.Request(url, data=data, headers=_get_headers(), method=method)
-    
+    sid = os.getenv("SUBSTACK_SID", "")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "Content-Type": "application/json",
+        "Origin": pub_url,
+        "Referer": f"{pub_url}/publish",
+    }
     try:
+        if _HAS_REQUESTS:
+            import requests as _req
+            session = _req.Session()
+            session.cookies.set("substack.sid", sid, domain="substack.com")
+            session.headers.update(headers)
+            if method == "GET":
+                resp = session.get(url, timeout=30)
+            elif method == "DELETE":
+                resp = session.delete(url, timeout=30)
+            else:
+                resp = session.post(url, json=body, timeout=30)
+            if resp.status_code in (200, 201):
+                return resp.json()
+            logger.error(f"HTTP {resp.status_code} on {method} {url}: {resp.text[:300]}")
+            if resp.status_code in (401, 403):
+                logger.error("AUTH FAILED — refresh SUBSTACK_SID cookie in .env")
+            return None
+        # Fallback to urllib
+        headers["Cookie"] = f"substack.sid={sid}"
+        data = json.dumps(body).encode() if body else None
+        req = urllib.request.Request(url, data=data, headers=headers, method=method)
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read())
-    except urllib.error.HTTPError as e:
-        body_text = e.read().decode("utf-8", errors="ignore")[:300]
-        logger.error(f"HTTP {e.code} on {method} {url}: {body_text}")
-        if e.code in (401, 403):
-            logger.error("AUTH FAILED — refresh SUBSTACK_SID cookie in .env")
-        return None
     except Exception as e:
         logger.error(f"Request failed: {e}")
         return None
@@ -188,8 +211,15 @@ def create_draft(title: str, html_content: str, subtitle: str = "",
         "draft_bylines": [{"id": 316907961, "is_guest": False}],
     }
     
-    if cover_image_url and cover_image_url.startswith("http"):
-        payload["cover_image"] = cover_image_url
+    # Build public URL from local path or use direct URL
+    public_img = None
+    if cover_image_url:
+        if cover_image_url.startswith("http"):
+            public_img = cover_image_url
+        elif cover_image_url.startswith("/static/"):
+            public_img = f"https://protocolpulse.io{cover_image_url}"
+    if public_img:
+        payload["cover_image"] = public_img
     
     result = _api_request("POST", "/drafts", payload)
     if result and result.get("id"):
