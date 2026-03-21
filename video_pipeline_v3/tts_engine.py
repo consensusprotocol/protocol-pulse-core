@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """TTS Engine V10 — Dual-host local TTS pipeline.
 Host 1: Kokoro af_heart (female) — setup/bridge.
-Host 2: Chatterbox TTS PBX (male) — react/wrap.
+Host 2: Kokoro am_onyx (male) — react/wrap. F5-TTS PBX when ready.
 Fallback: ElevenLabs per-line. TTS_PROVIDER=local (default) or elevenlabs.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
@@ -213,7 +213,7 @@ VOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices")
 PBX_CHECKPOINT = "/home/ultron/.local/lib/python3.10/ckpts/pbx_voice/model_500.pt"  # PBX voice model_500
 PBX_REFERENCE_CLIP = os.path.join(VOICES_DIR, "pbx_reference.wav")
 KOKORO_HOST1_VOICE = "af_heart"
-KOKORO_HOST2_VOICE = "am_adam"   # fallback when F5 checkpoint unavailable
+KOKORO_HOST2_VOICE = "am_onyx"   # primary; swap for PBX F5 when ready
 F5_SPEED = 1.1
 KOKORO_SPEED_H1 = 1.0
 KOKORO_SPEED_H2 = 1.1
@@ -981,10 +981,11 @@ def tts_local(text: str, output_path: str, host: int = 1,
             logger.warning("[TTS/Local] Kokoro host1 FAILED → ElevenLabs Eryn fallback")
             ok = tts_elevenlabs(text, output_path, host=1, segment_type=segment_type)
     else:
-        ok = tts_chatterbox(text, output_path)  # F5 bypassed -- Chatterbox primary
+        # Kokoro am_onyx primary; F5-TTS PBX fallback when checkpoint confirmed ready
+        ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
         if not ok:
-            logger.warning("[TTS/Local] Chatterbox FAILED → Kokoro am_adam")
-            ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
+            logger.warning("[TTS/Local] Kokoro am_onyx FAILED → F5-TTS fallback")
+            ok = tts_f5_finetuned(text, output_path)
         if not ok:
             logger.warning("[TTS/Local] Kokoro host2 FAILED → ElevenLabs PBX fallback")
             ok = tts_elevenlabs(text, output_path, host=2, segment_type=segment_type)
