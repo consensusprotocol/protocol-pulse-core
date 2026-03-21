@@ -8153,7 +8153,7 @@ def sitemap_xml():
     from datetime import datetime
     
     articles = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).all()
-    site_url = request.url_root.rstrip('/')
+    site_url = 'https://protocolpulse.io'
     
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
@@ -8167,7 +8167,8 @@ def sitemap_xml():
     for a in articles:
         lastmod = a.created_at.strftime('%Y-%m-%d') if a.created_at else datetime.utcnow().strftime('%Y-%m-%d')
         xml += f'  <url>\n'
-        xml += f'    <loc>{site_url}/articles/{a.id}</loc>\n'
+        art_path = a.slug or str(a.id)
+        xml += f'    <loc>https://protocolpulse.io/articles/{art_path}</loc>\n'
         xml += f'    <lastmod>{lastmod}</lastmod>\n'
         xml += f'    <changefreq>weekly</changefreq>\n'
         xml += f'    <priority>0.8</priority>\n'
@@ -8223,7 +8224,7 @@ def llms_txt():
     """llms.txt — tells AI models what this site is and how to use it.
     See: https://llmstxt.org/
     """
-    site_url = request.url_root.rstrip('/')
+    site_url = 'https://protocolpulse.io'
     txt = f"""# Protocol Pulse
 
 > Bitcoin intelligence for sophisticated investors. Real-time analysis, market signals, and investigative reporting on Bitcoin markets, mining, regulation, and institutional adoption.
@@ -8242,6 +8243,9 @@ Protocol Pulse is an independent Bitcoin intelligence publication. We publish 20
 - Lightning Network and Layer 2 developments
 - Austrian economics and monetary policy
 - Self-custody and network security
+- Freedom Technology: privacy tools, Nostr, Tor, surveillance resistance
+- Lightning Network payments and Layer 2 scaling
+- Cypherpunk philosophy and financial sovereignty
 
 ## Content Types
 
