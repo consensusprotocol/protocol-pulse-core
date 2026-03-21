@@ -347,7 +347,14 @@ Requirements:
                 article = models.Article(
                     title=column["title"],
                     content=column["html"],
-                    summary=f"{series} — Protocol Pulse editorial column.",
+                    # Extract a real 1-2 sentence summary from the column HTML
+                    import re as _re
+                    _clean = _re.sub(r'<[^>]+>', ' ', column["html"])
+                    _clean = _re.sub(r'\s+', ' ', _clean).strip()
+                    # Try to get first substantive sentence
+                    _sentences = [s.strip() for s in _re.split(r'(?<=[.!?])\s+', _clean) if len(s.strip()) > 40]
+                    _real_summary = ' '.join(_sentences[:2])[:280] if _sentences else f"{series} — {themes[0]['theme']}" if themes else f"{series} — Protocol Pulse editorial column."
+                    summary=_real_summary,
                     category="opinion",
                     source_type="intel_briefing",
                     cover_image_url=header_image,

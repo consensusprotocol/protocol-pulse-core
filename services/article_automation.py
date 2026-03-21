@@ -544,10 +544,13 @@ Clean HTML only. No markdown. No backticks. No code fences.
                     title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content)
                     title = title_match.group(1) if title_match else source['title']
 
+                    # Try to extract TL;DR from generated content first
+                    tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
+                    fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
                     return {
                         'title': title,
                         'content': content,
-                        'summary': source['summary'][:200],
+                        'summary': fallback_summary,
                         'source_url': source['url'],
                         'source_type': source['type'],
                         'source_name': source['source']
@@ -660,19 +663,21 @@ def run_article_generation_cycle() -> Dict:
         from services.image_service import ImageGenerationService
 
         with app.app_context():
-            # Generate header image using photojournalistic prompt builder
+            # Generate header image — Pexels→Grok→OpenAI→branded-fallback chain
+            header_image = None
             try:
-                from services.image_prompt_builder import build_header_prompt
-                img_prompt = build_header_prompt(
-                    article_title=final_title,
-                    article_summary=article_data.get('summary', ''),
+                img_service = ImageGenerationService()
+                header_image = img_service.generate_article_header_image(
+                    title=final_title,
+                    category=article_data.get('category', 'Bitcoin')
                 )
-                img_service = ImageGenerationService()
-                header_image = img_service.generate_article_header_image(final_title, prompt_override=img_prompt)
+                if header_image:
+                    logger.info(f"Header image generated: {header_image}")
+                else:
+                    logger.warning("Image service returned None — article will show branded fallback")
             except Exception as e:
-                logger.warning(f"image_prompt_builder failed, using default: {e}")
-                img_service = ImageGenerationService()
-                header_image = img_service.generate_article_header_image(final_title)
+                logger.error(f"Image generation failed entirely: {e}")
+                header_image = None
 
             # HARD GATE: 24h topic cooldown
             if final_title and _is_topic_oversaturated(final_title, max_same=1, hours=24):
