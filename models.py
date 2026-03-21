@@ -136,11 +136,26 @@ class Article(db.Model):
 
     def resolve_cover_image(self):
         """Law 1: cover_image_url is the single source of truth for images."""
+        import os as _os
+        _app_root = _os.path.dirname(_os.path.abspath(__file__))
+
+        def _valid(url):
+            if not url:
+                return False
+            url = url.strip()
+            if url.startswith("http"):
+                return True
+            if url.startswith("/static/"):
+                # Accept any local /static/ path — don't reject non-default paths
+                if "default-header" not in url:
+                    return True
+            return False
+
         url = (self.cover_image_url or "").strip()
-        if url and url.startswith("http"):
+        if _valid(url):
             return url
         url = (self.header_image_url or "").strip()
-        if url and url.startswith("http"):
+        if _valid(url):
             return url
         return "/static/images/default-header.png"
 
