@@ -1442,7 +1442,7 @@ def article_detail_slug(slug):
         if not a:
             abort(404)
     # Render the article using the existing numeric route logic
-    return article_detail(a.id)
+    return _render_article(a.id)
 
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
@@ -1451,8 +1451,12 @@ def article_detail(article_id):
     if a.slug:
         from flask import redirect
         return redirect(f"/articles/{a.slug}", 301)
-    # Fallback: serve directly if no slug
-    """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
+    # Fallback: no slug, render directly
+    return _render_article(article_id)
+
+
+def _render_article(article_id):
+    """Shared rendering logic for article pages."""
     article = models.Article.query.get_or_404(article_id)
     try:
         related_articles = models.Article.query.filter(
