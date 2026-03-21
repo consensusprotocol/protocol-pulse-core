@@ -150,9 +150,9 @@ PBX has been on Bitcoin Twitter all morning and is REPORTING BACK as live intell
 This is NOT passive card display — PBX explicitly REACTS to each post as a signal analyst:
 
 STYLE — PBX treats each tweet as intelligence, not content:
-  - "{{Name}} just posted this to {{likes}} likes — [direct quote or tight paraphrase]. Here's what that signals..."
-  - "{{Name}} weighed in on {{topic}} — [paraphrase]. This aligns with what we're seeing in the data..."
-  - "This one caught my eye — {{Name}} is saying [quote]. The reason this matters is..."
+  - "{{{Name}}} just posted this to {{{likes}}} likes — [direct quote or tight paraphrase]. Here's what that signals..."
+  - "{{{Name}}} weighed in on {{{topic}}} — [paraphrase]. This aligns with what we're seeing in the data..."
+  - "This one caught my eye — {{{Name}}} is saying [quote]. The reason this matters is..."
 PBX adds 2-3 sentences of sharp CONTEXT per tweet: why it matters NOW, what it signals about market positioning, how it connects to today's data. Maximum 3 posts, 20-25 seconds narration each, ~75 seconds total.
 The tweet card is on screen — viewers can read the text. PBX's job is to DECODE the signal, not repeat the words.
 Each entry uses type: "social_segment".

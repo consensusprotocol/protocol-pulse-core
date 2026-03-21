@@ -210,7 +210,7 @@ _PBX_VOICE = {
 
 # ── LOCAL TTS VOICE CONFIG ──────────────────────────────────────────────────
 VOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices")
-PBX_CHECKPOINT = os.path.join(VOICES_DIR, "pbx_voice.pt")
+PBX_CHECKPOINT = "/home/ultron/.local/lib/python3.10/ckpts/pbx_voice/model_500.pt"  # PBX voice model_500
 PBX_REFERENCE_CLIP = os.path.join(VOICES_DIR, "pbx_reference.wav")
 KOKORO_HOST1_VOICE = "af_heart"
 KOKORO_HOST2_VOICE = "am_adam"   # fallback when F5 checkpoint unavailable
