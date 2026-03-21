@@ -185,6 +185,7 @@ def create_draft(title: str, html_content: str, subtitle: str = "",
         "write_comment_permissions": "everyone",
         "should_send_email": True,
         "show_guest_bios": False,
+        "draft_bylines": [{"id": 316907961, "is_guest": False}],
     }
     
     if cover_image_url and cover_image_url.startswith("http"):
