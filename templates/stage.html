@@ -853,6 +853,11 @@ body { background: var(--s-bg); }
       <div>
         <div class="stage-brief__section-label">Stage Mode</div>
         <div id="stageModeBadge" class="stage-mode-badge broadcast">● ON AIR</div>
+        <button id="floatingMicBtn" onclick="toggleStageMic()"
+          title="Tap to interrupt Oracle"
+          style="position:absolute;bottom:12px;right:12px;z-index:50;background:rgba(20,20,30,.85);border:1px solid rgba(255,59,95,.4);border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .2s;"
+          onmouseover="this.style.borderColor='rgba(255,59,95,.9)'"
+          onmouseout="this.style.borderColor='rgba(255,59,95,.4)'">&#127908;</button>
         <div class="stage-between-badge" id="betweenBadge" style="display:none">
           BETWEEN SEGMENTS — <span id="betweenCountdown">--:--</span> until next briefing
         </div>
@@ -1584,6 +1589,8 @@ body { background: var(--s-bg); }
     _stageRecognition.start();
     _stageIsRec = true;
     document.getElementById('stageMicBtn').classList.add('recording');
+    var fmb = document.getElementById('floatingMicBtn');
+    if (fmb) fmb.style.background = 'rgba(255,59,95,.3)';
     document.getElementById('interactivePanel').classList.add('active');
   }
 
@@ -1591,6 +1598,8 @@ body { background: var(--s-bg); }
     _stageIsRec = false;
     if(_stageRecognition) { try{_stageRecognition.stop();}catch(e){} _stageRecognition = null; }
     document.getElementById('stageMicBtn').classList.remove('recording');
+    var fmb = document.getElementById('floatingMicBtn');
+    if (fmb) fmb.style.background = 'rgba(20,20,30,.85)';
   }
 
   async function _handleInterruptQuestion(text) {
@@ -1670,8 +1679,7 @@ body { background: var(--s-bg); }
     _broadcastPaused = false;
     document.getElementById('interactivePanel').classList.remove('active');
     updateSignalSource('📡 RESUMING');
-    // Don't consume current — get next without consuming
-    consumeAndPlay(null);
+    startBroadcast();
   }
 
   // ── STAGE CHAT (text input) ───────────────────────────
@@ -1803,7 +1811,7 @@ body { background: var(--s-bg); }
       var r = await fetch(url);
       if (r.ok) return await r.blob();
       if (r.status !== 202) throw new Error('Chunk ' + idx + ' failed: ' + r.status);
-      await new Promise(function(res) { setTimeout(res, 500); });
+      await new Promise(function(res) { setTimeout(res, 250); });
     }
     throw new Error('Chunk ' + idx + ' timed out');
   }

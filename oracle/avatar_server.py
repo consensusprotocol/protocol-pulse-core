@@ -1494,7 +1494,7 @@ def oracle_monologue():
     current_words = 0
     for sent in sentences:
         words = len(sent.split())
-        if current_words + words > 25 and current:
+        if current_words + words > 12 and current:
             chunks.append(' '.join(current))
             current = [sent]
             current_words = words
@@ -1522,7 +1522,10 @@ def oracle_monologue():
         except Exception as e:
             job["chunks"][idx] = {"status": "error", "error": str(e)}
 
-    for i, txt in enumerate(chunks):
+    # Render chunk 0 synchronously so client can start playing immediately on response
+    render_chunk(0, chunks[0])
+    # Render remaining chunks in parallel background threads
+    for i, txt in enumerate(chunks[1:], 1):
         threading.Thread(target=render_chunk, args=(i, txt), daemon=True).start()
 
     return jsonify({
