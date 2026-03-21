@@ -884,6 +884,16 @@ function process(text){
   setBusy(true);hideCards();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
 
+  // Re-unlock audio context on every user interaction
+  try{
+    var _ac=new(window.AudioContext||window.webkitAudioContext)();
+    if(_ac.state==='suspended') _ac.resume();
+    var _buf=_ac.createBuffer(1,1,22050);
+    var _src=_ac.createBufferSource();
+    _src.buffer=_buf;_src.connect(_ac.destination);_src.start(0);
+    setTimeout(function(){try{_ac.close();}catch(e){}},300);
+  }catch(e){}
+
   var pendingVideoUrl=null;
 
   fetchTO(A+'/oracle/chat',{
@@ -909,7 +919,10 @@ function process(text){
       },10000)
       .then(function(ar){
         if(!ar.ok) throw new Error('audio failed');
-        return ar.blob();
+        return ar.blob().then(function(b){
+          // Force correct MIME so Audio() element decodes properly
+          return new Blob([b], {type: b.type || 'audio/wav'});
+        });
       })
       .then(function(audioBlob){
         var audioUrl=URL.createObjectURL(audioBlob);
@@ -917,7 +930,27 @@ function process(text){
         audio.volume=1.0;
         setStat('Speaking','#6cff9f',false);
         vid.style.opacity='0.3';
-        audio.play();
+        var playPromise = audio.play();
+        if(playPromise !== undefined){
+          playPromise.catch(function(err){
+            console.warn('[Oracle] audio.play() rejected:', err.name, err.message);
+            // Re-unlock audio context and retry once
+            try{
+              var ac2=new(window.AudioContext||window.webkitAudioContext)();
+              var buf=ac2.createBuffer(1,1,22050);
+              var src=ac2.createBufferSource();
+              src.buffer=buf;src.connect(ac2.destination);src.start(0);
+              setTimeout(function(){try{ac2.close();}catch(e){}},200);
+            }catch(e){}
+            setTimeout(function(){
+              audio.play().catch(function(e2){
+                console.warn('[Oracle] retry failed:', e2.name);
+                // Fall through — trigger onended manually so UI doesn't freeze
+                if(audio.onended) audio.onended();
+              });
+            }, 300);
+          });
+        }
 
         return new Promise(function(resolve){
           audio.onended=function(){
