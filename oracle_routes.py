@@ -626,51 +626,77 @@ def oracle_context():
 
 @oracle_bp.route('/oracle/recommend', methods=['POST'])
 def oracle_recommend():
-    """Return article recommendations for the Oracle widget site-guide mode."""
+    """Return article recommendations based on visitor history.
+    Loads topics_seen from SQLite; recommends articles in unseen categories.
+    """
     data = request.get_json(silent=True) or {}
-    fingerprint = data.get('fingerprint', '')
+    fingerprint = str(data.get('fingerprint', ''))[:64]
     page_type = data.get('page_type', 'homepage')
 
+    empty = {"articles": [], "headline": None}
+
     try:
+        # Load visitor topics
+        topics_seen = []
+        if fingerprint:
+            try:
+                from oracle.oracle_memory import load_visitor
+                visitor = load_visitor(fingerprint)
+                if visitor:
+                    topics_seen = visitor.get('topics_seen', [])
+            except Exception as e:
+                logger.debug(f"[recommend] memory lookup failed: {e}")
+
+        if not topics_seen:
+            return jsonify(empty)
+
         from models import Article
-        articles = (
+        from sqlalchemy import func
+
+        # Find articles in categories NOT yet seen
+        seen_set = set(topics_seen)
+        query = (
             Article.query
-            .filter(Article.status == 'published')
-            .order_by(Article.published_at.desc())
-            .limit(4)
-            .all()
+            .filter(Article.published.is_(True))
+            .filter(~Article.category.in_(seen_set))
+            .order_by(Article.created_at.desc())
+            .limit(2)
         )
+        articles = query.all()
+
+        # If not enough unseen-category articles, fill from seen categories
+        if len(articles) < 2:
+            already_ids = [a.id for a in articles]
+            filler = (
+                Article.query
+                .filter(Article.published.is_(True))
+                .filter(~Article.id.in_(already_ids)) if already_ids else
+                Article.query.filter(Article.published.is_(True))
+            )
+            filler = filler.order_by(Article.created_at.desc()).limit(2 - len(articles)).all()
+            articles.extend(filler)
 
         if not articles:
-            return jsonify({
-                'has_history': False,
-                'articles': [],
-                'context': None,
-            })
+            return jsonify(empty)
 
         result_articles = []
-        for a in articles[:2]:
+        for a in articles:
             word_count = len((a.content or '').split())
             result_articles.append({
-                'slug': a.id,
                 'title': a.title,
+                'slug': a.slug if hasattr(a, 'slug') and a.slug else str(a.id),
                 'category': a.category or 'Intelligence',
-                'read_time_minutes': max(1, word_count // 250),
+                'read_time_minutes': max(1, math.ceil(word_count / 238)),
             })
 
         return jsonify({
-            'has_history': bool(fingerprint),
+            'headline': 'Based on what you have read, you might like:',
             'articles': result_articles,
-            'context': 'Continue reading' if fingerprint else 'Latest intelligence',
         })
 
     except Exception as e:
         logger.error(f"oracle_recommend error: {e}")
-        return jsonify({
-            'has_history': False,
-            'articles': [],
-            'context': None,
-        })
+        return jsonify(empty)
 
 
 @oracle_bp.route('/api/telemetry', methods=['POST'])
@@ -735,22 +761,16 @@ def oracle_status():
     except Exception:
         avatar_status = "offline"
 
-    # Check TTS key availability (no API call)
-    tts_key = ELEVENLABS_API_KEY or os.environ.get('ELEVENLABS_API_KEY', '')
-    tts_status = "healthy" if tts_key else "offline"
-
-    # Tier logic
-    if avatar_status == "healthy" and tts_status == "healthy":
+    # Tier logic: avatar healthy → tier 1, else tier 2
+    if avatar_status == "healthy":
         recommended_tier = 1
-    elif tts_status == "healthy":
-        recommended_tier = 2
     else:
-        recommended_tier = 3
+        recommended_tier = 2
 
     return jsonify({
         'oracle': 'healthy',
         'avatar_server': avatar_status,
-        'tts': tts_status,
+        'tts': 'kokoro',
         'recommended_tier': recommended_tier,
     })
 
