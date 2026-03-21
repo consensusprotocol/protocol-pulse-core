@@ -235,7 +235,11 @@ def oracle_page():
 
 @oracle_bp.route('/oracle-live')
 def oracle_live_page():
-    return render_template('oracle_live.html')
+    from flask import make_response
+    response = make_response(render_template('oracle_live.html'))
+    response.headers['Permissions-Policy'] = 'microphone=(*), camera=(*)'
+    response.headers['Feature-Policy'] = 'microphone *; camera *'
+    return response
 
 
 @oracle_bp.route('/api/oracle/ask', methods=['POST'])

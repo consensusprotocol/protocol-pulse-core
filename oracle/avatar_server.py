@@ -76,7 +76,7 @@ MAX_AUDIO_SECONDS = 30
 AVATAR_SOURCES = {
     "default":         "/home/ultron/protocol_pulse/static/img/oracle_avatar_static.png",
     "stage_hologram":  "/home/ultron/protocol_pulse/static/img/stage_bg_hologram.png",
-    "oracle_studio":   "/home/ultron/protocol_pulse/static/img/stage_bg_studio.png",
+    "oracle_studio":   "/home/ultron/protocol_pulse/oracle/Proto_P_Avatar_1024.png",
 }
 
 # Cache for loaded alternate avatar faces: {name: {"face": ndarray, "coords": tuple, "eye_landmarks": ...}}
