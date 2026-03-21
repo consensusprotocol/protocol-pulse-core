@@ -75,9 +75,23 @@ input[class*="pp-"]:focus {
 }
 
 /* 6. :focus-visible kept for keyboard nav — use PP teal not blue */
-:focus-visible:not(button):not(.btn):not(.pp-share-btn) {
+:focus-visible:not(button):not(.btn):not(.pp-share-btn):not(.pp-footer__social-link):not([class*="social"]):not([class*="share"]) {
     outline: 2px solid var(--pp-teal, #00d4d4) !important;
     outline-offset: 2px !important;
+}
+/* Social icon links and share links — zero glow on click/focus */
+.pp-footer__social-link,
+.pp-footer__social-link:focus,
+.pp-footer__social-link:focus-visible,
+.pp-footer__social-link:active,
+.pp-nav__social-link:focus,
+.pp-nav__social-link:focus-visible,
+a[class*='social']:focus,
+a[class*='social']:focus-visible,
+a[class*='share']:focus,
+a[class*='share']:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* 7. Override pp-style.css blue on form-control (rgba 13,110,253 and 0,123,255) */
