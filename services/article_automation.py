@@ -81,8 +81,9 @@ def _sanitize_title(title):
     """Strip prompt bleed (everything after first newline) and normalize whitespace."""
     import re
     # Remove everything after first newline — that's prompt bleed
-    title = re.sub(r'[
-].*', '', title, flags=re.DOTALL).strip()
+    title = re.sub(r'[\r\n].*', '', title, flags=re.DOTALL).strip()
+
+].*', '', title, flags=re.DOTALL).strip()
     # Collapse internal whitespace
     title = re.sub(r'\s+', ' ', title).strip()
     return title

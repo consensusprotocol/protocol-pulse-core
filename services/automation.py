@@ -244,119 +244,112 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 if datetime.utcnow() - recent.finished_at < timedelta(minutes=SKIP_IF_RAN_WITHIN_MINUTES):
                     release_lock(run, "skipped", "Ran recently")
                     return {"skipped": True, "message": "Ran recently"}
-        content_engine_error = None
-        reddit_error = None
-        topic = "Bitcoin network and market update"
+        generation_error = None
 
-        # 1) Try ContentEngine (needs OPENAI_API_KEY for bitcoin_news)
+        # ── CONTENT GOVERNOR: slot rotation ───────────────────────────────────
+        # Rotates: bitcoin_news → mining_intel → market_macro → opinion → regulation → wildcard
         try:
-            from services.content_engine import ContentEngine
-            engine = ContentEngine()
-            result = engine.generate_and_publish_article(
-                topic, content_type="bitcoin_news", auto_publish=False
-            )
-            if result.get("success") and result.get("article_id"):
-                article = models.Article.query.get(result["article_id"])
-                if article:
-                    ok, errs = validate_article_for_publish(article)
-                    from services.content_generator import should_article_be_draft_by_word_count
-                    draft_by_words = should_article_be_draft_by_word_count(article.content or "")
-                    if publish_allowed and ok and not draft_by_words:
-                        article.published = True
-                    else:
-                        article.published = False
-                    db.session.commit()
-                release_lock(run, "success", None)
-                return {
-                    "success": True,
-                    "title": article.title if article else topic,
-                    "article_id": result["article_id"],
-                }
-            content_engine_error = "; ".join(result.get("errors") or ["No article_id returned"])
-        except Exception as e:
-            content_engine_error = str(e)
-            logger.warning("ContentEngine article generation failed: %s", e)
+            from services.content_governor import get_next_assignment, record_published, SLOT_CATEGORY
+            slot, source = get_next_assignment()
+            logger.info(f"[GOVERNOR] Slot={slot} source={'opinion' if source is None else source.get('title','?')[:60]}")
+        except Exception as gov_e:
+            logger.warning(f"Governor failed, defaulting to bitcoin_news: {gov_e}")
+            slot = "bitcoin_news"
+            source = None
 
-        # 2) Fallback: ContentGenerator with same topic (tries OpenAI → Gemini → Anthropic)
-        try:
-            from services.content_generator import ContentGenerator
-            gen = ContentGenerator()
-            article_data = gen.generate_article(topic, content_type="news_article", source_type="ai_generated")
-            if article_data and not article_data.get("skipped") and article_data.get("title"):
-                ok, errs = validate_article_for_publish(article_data)
-                from services.content_generator import should_article_be_draft_by_word_count
-                draft_by_words = should_article_be_draft_by_word_count(article_data.get("content") or "")
-                header_url = (article_data.get("header_image_url") or "").strip() or "/static/images/default-header.png"
-                article = models.Article(
-                    title=article_data["title"],
-                    content=article_data["content"],
-                    summary=article_data.get("summary", ""),
-                    category=article_data.get("category", "Bitcoin"),
-                    source_url=(article_data.get("source_url") or "").strip() or None,
-                    source_type=(article_data.get("source_type") or "ai_generated"),
-                    author="Al Ingle",
-                    published=(publish_allowed and ok and not draft_by_words),
-                    cover_image_url=header_url,
-                )
-                db.session.add(article)
-                db.session.commit()
-                release_lock(
-                    run,
-                    "success" if (publish_allowed and ok) else "failed",
-                    None if (publish_allowed and ok) else ("publish blocked" if not publish_allowed else ("rejected: " + "; ".join(errs))[:500]),
-                )
-                return {"success": True, "title": article.title, "article_id": article.id}
-        except Exception as e:
-            reddit_error = str(e)
-            logger.warning("ContentGenerator (ai_generated) fallback failed: %s", e)
+        # ── PATH A: Opinion slot → intel_briefing.py ──────────────────────────
+        if slot == "opinion":
+            try:
+                from services.intel_briefing import generate_intel_briefing
+                result = generate_intel_briefing()
+                if result.get("success") and result.get("article_id"):
+                    art = models.Article.query.get(result["article_id"])
+                    if art and publish_allowed:
+                        art.published = True
+                        db.session.commit()
+                    aid = result["article_id"]
+                    title = result.get("title", "Intel Briefing")
+                    try:
+                        record_published(slot, title, aid)
+                    except Exception:
+                        pass
+                    release_lock(run, "success", None)
+                    return {"success": True, "title": title, "article_id": aid, "slot": slot}
+                generation_error = result.get("reason", "intel_briefing returned no article")
+            except Exception as e:
+                generation_error = str(e)
+                logger.warning(f"intel_briefing failed: {e}")
+            slot = "bitcoin_news"
+            source = None
 
-        # 3) Fallback: Reddit trending → ContentGenerator
+        # ── PATH B: All non-opinion slots → RealNewsArticleGenerator ──────────
+        # Uses the refined Matt Taibbi / Lyn Alden prompt with live RSS sources
         try:
-            from services.reddit_service import RedditService
-            from services.content_generator import ContentGenerator
-            reddit = RedditService()
-            ideas = reddit.get_content_ideas(topic_type="bitcoin", limit=1)
-            if ideas:
-                idea = ideas[0]
-                topic_reddit = idea.get("title") or idea.get("article_angle") or topic
+            from services.article_automation import RealNewsArticleGenerator
+            from services.article_automation import _sanitize_title, _is_banned_template
+
+            generator = RealNewsArticleGenerator()
+
+            if source:
+                source["category"] = SLOT_CATEGORY.get(slot, "Bitcoin")
+                article_data = generator.generate_article_from_source(source)
             else:
-                topic_reddit = topic
-            gen = ContentGenerator()
-            article_data = gen.generate_article(topic_reddit, content_type="news_article", source_type="reddit")
-            if article_data and not article_data.get("skipped") and article_data.get("title"):
-                ok, errs = validate_article_for_publish(article_data)
-                from services.content_generator import should_article_be_draft_by_word_count
-                draft_by_words = should_article_be_draft_by_word_count(article_data.get("content") or "")
-                header_url = (article_data.get("header_image_url") or "").strip() or "/static/images/default-header.png"
-                article = models.Article(
-                    title=article_data["title"],
-                    content=article_data["content"],
-                    summary=article_data.get("summary", ""),
-                    category=article_data.get("category", "Bitcoin"),
-                    source_url=(article_data.get("source_url") or "").strip() or None,
-                    source_type=(article_data.get("source_type") or "reddit"),
-                    author="Al Ingle",
-                    published=(publish_allowed and ok and not draft_by_words),
-                    cover_image_url=header_url,
-                )
-                db.session.add(article)
-                db.session.commit()
-                release_lock(
-                    run,
-                    "success" if (publish_allowed and ok) else "failed",
-                    None if (publish_allowed and ok) else ("publish blocked" if not publish_allowed else ("rejected: " + "; ".join(errs))[:500]),
-                )
-                return {"success": True, "title": article.title, "article_id": article.id}
+                # No governor source — let generator pick its own RSS
+                source = generator.select_best_source()
+                if not source:
+                    raise ValueError("No RSS sources available")
+                article_data = generator.generate_article_from_source(source)
+
+            if not article_data:
+                raise ValueError("generate_article_from_source returned None")
+
+            raw_title = article_data.get("title", "")
+            final_title = _sanitize_title(raw_title)
+            if _is_banned_template(final_title):
+                raise ValueError(f"Banned template: {final_title[:80]}")
+
+            category = SLOT_CATEGORY.get(slot, article_data.get("category", "Bitcoin"))
+
+            header_url = None
+            try:
+                from services.image_service import ImageGenerationService
+                img_svc = ImageGenerationService()
+                header_url = img_svc.generate_article_header_image(title=final_title, category=category)
+            except Exception as img_e:
+                logger.warning(f"Image generation failed: {img_e}")
+
+            article = models.Article(
+                title=final_title,
+                content=article_data["content"],
+                summary=article_data.get("summary", ""),
+                category=category,
+                source_url=(article_data.get("source_url") or "").strip() or None,
+                source_type=(article_data.get("source_type") or "rss"),
+                author="Al Ingle",
+                published=publish_allowed,
+                cover_image_url=header_url or "/static/images/default-header.png",
+            )
+            db.session.add(article)
+            db.session.commit()
+
+            try:
+                record_published(slot, final_title, article.id)
+            except Exception:
+                pass
+
+            release_lock(run, "success", None)
+            logger.info(f"[GOVERNOR] Published [{slot}] id={article.id}: {final_title[:70]}")
+            return {"success": True, "title": final_title, "article_id": article.id, "slot": slot}
+
         except Exception as e:
-            reddit_error = str(e)
-            logger.warning("Reddit/ContentGenerator fallback failed: %s", e)
+            generation_error = str(e)
+            logger.error(f"Governor article generation failed for slot={slot}: {e}")
+
 
         # 4) All paths failed — if no published articles yet, create one stub so the site has something
         err_parts = []
-        if content_engine_error:
-            err_parts.append("ContentEngine: " + (content_engine_error[:200] if isinstance(content_engine_error, str) else str(content_engine_error)[:200]))
-        if reddit_error:
-            err_parts.append("Fallbacks: " + reddit_error[:200])
+        if generation_error:
+            err_parts.append("Governor: " + (generation_error[:400] if isinstance(generation_error, str) else str(generation_error)[:400]))
         full_error = " | ".join(err_parts) if err_parts else "No article generated"
         published_count = models.Article.query.filter_by(published=True).count()
         if published_count == 0:

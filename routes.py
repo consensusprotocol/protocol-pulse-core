@@ -10978,6 +10978,16 @@ def api_stage_signal():
         return jsonify({'nostr_posts': [], 'cached': False})
 
 
+
+@app.route('/api/governor-status')
+def api_governor_status():
+    "Content governor rotation status."
+    try:
+        from services.content_governor import get_status
+        return jsonify(get_status())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/latest-episode')
 def api_latest_episode():
     """Return latest Pulse Check episode metadata as JSON."""
