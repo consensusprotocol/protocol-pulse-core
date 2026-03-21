@@ -300,7 +300,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 .video-wrap::before{top:6px;left:6px;border-width:1px 0 0 1px}
 .video-wrap::after{bottom:6px;right:6px;border-width:0 1px 1px 0}
 
-#vid{width:100%;height:100%;object-fit:cover;display:block}
+#vid{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .vid-ph{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
@@ -598,7 +598,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 
   <div class="video-wrap" style="position:relative;z-index:1;">
     <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
-    <img id="vid-static" src="/static/img/oracle_avatar_static.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 0.3s;pointer-events:none;z-index:1;" alt="Oracle">
+    <img id="vid-static" src="/static/img/oracle_avatar_static.png" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;opacity:1;transition:opacity 0.3s;pointer-events:none;z-index:1;" alt="Oracle">
     <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.3s;z-index:2;"></video>
   </div>
 
@@ -973,6 +973,8 @@ function process(text){
         return new Promise(function(resolve){
           audio.onended=function(){
             URL.revokeObjectURL(audioUrl);
+            // Audio finished — unmute video if it's playing lip sync
+            try{ if(!vid.paused){ vid.muted=false; vid.volume=1.0; } }catch(e){}
             if(pendingVideoUrl){
               playVid(pendingVideoUrl).then(resolve);
             } else {
@@ -1009,6 +1011,13 @@ function process(text){
                   if(vb){
                     clearInterval(pollVideo);
                     pendingVideoUrl=blobURL(vb);
+                    // If audio is still playing, start video immediately muted for lip sync
+                    if(!audio.paused && !audio.ended){
+                      vid.muted=true;
+                      vid.volume=0;
+                      playVid(pendingVideoUrl);
+                      // When audio ends, we already handle unmute above
+                    }
                     vid.style.opacity='1';
                   }
                 })
@@ -1081,15 +1090,15 @@ function playVid(url){
     }
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
-      tryUnmute();
+      // If Kokoro audio is still playing, keep video muted — lip sync only
+      // tryUnmute() will fire when audio ends
       vid.style.opacity='1';
       document.getElementById('vid-static').style.opacity='0';
     },{once:true});
     var p=vid.play();
     if(p){
       p.then(function(){
-        // Playing — try to unmute
-        setTimeout(tryUnmute,50);
+        // Video started — only unmute if no separate audio is playing
       }).catch(function(){
         // Autoplay blocked even muted — show placeholder, let user tap to play
         setStat('Tap to play','#f4c46f',false);
