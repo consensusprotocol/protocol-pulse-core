@@ -1,9 +1,9 @@
 """
-ORACLE AVATAR SERVER v3 — Chatterbox TTS + CV2 Sharpen + Blinks
-=================================================================
+ORACLE AVATAR SERVER v3 — Kokoro af_heart TTS + CV2 Sharpen + Blinks
+=====================================================================
 GPU-accelerated Wav2Lip lip-sync with:
   - FP16 inference via ModelRegistry singleton on GPU 1
-  - Chatterbox TTS on cuda:0 (replaced Kokoro af_heart 2026-03-19)
+  - Kokoro af_heart TTS on cuda:1 (~2-3s latency)
   - CV2 bilateral sharpen (GFPGAN fully removed 2026-03-12)
   - MediaPipe eye blinks (gradient overlay, no warpAffine artifacts)
   - Head movement post-processing
@@ -38,16 +38,11 @@ from model_registry import ModelRegistry, WAV2LIP_DIR, AVATAR_SOURCE, DEVICE
 import requests as http_requests  # ElevenLabs TTS
 import json as _json
 
-# ─── Chatterbox TTS (Oracle Avatar — 2026 TTS Stack) ────────────────
+# ─── Kokoro af_heart TTS (Oracle Avatar) ─────────────────────────────
 # Add oracle/ to path for normalize_pronunciation
 _oracle_dir = os.path.dirname(os.path.abspath(__file__))
 if _oracle_dir not in sys.path:
     sys.path.insert(0, _oracle_dir)
-_AVATAR_CHATTERBOX_READY = False
-_CHATTERBOX_MODEL = None
-_ORACLE_FEMALE_REF = os.path.join(_oracle_dir, "oracle_female_reference.wav")
-
-# Legacy compat flags (Kokoro replaced by Chatterbox)
 _AVATAR_KOKORO_READY = False
 _KOKORO_PIPELINE = None
 
@@ -473,42 +468,24 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
 # KOKORO af_heart FEMALE VOICE (primary) + ELEVENLABS FALLBACK
 # ═══════════════════════════════════════════════════════════════════════
 
-def _init_avatar_chatterbox():
-    """Lazy-init Chatterbox TTS on cuda:0 for Oracle female voice. Call once at startup."""
-    global _AVATAR_CHATTERBOX_READY, _CHATTERBOX_MODEL, _AVATAR_KOKORO_READY
-    try:
-        from chatterbox.tts import ChatterboxTTS
-        _CHATTERBOX_MODEL = ChatterboxTTS.from_pretrained(device="cuda:0")
-        _AVATAR_CHATTERBOX_READY = True
-        _AVATAR_KOKORO_READY = True  # compat flag for tts-provider endpoint
-        ref_status = "with reference" if os.path.exists(_ORACLE_FEMALE_REF) else "zero-shot"
-        logger.info(f"[AVATAR_TTS] Chatterbox loaded on cuda:0 ({ref_status})")
-    except Exception as e:
-        logger.error(f"[AVATAR_TTS] Chatterbox init failed: {e} — ElevenLabs fallback active")
-        _AVATAR_CHATTERBOX_READY = False
-
-
-# Legacy alias
 def _init_avatar_kokoro():
-    """Redirects to Chatterbox init (Kokoro replaced 2026-03-19)."""
-    _init_avatar_chatterbox()
-
-
-_FILLER_PREFIXES = ("Well", "So", "Looking at", "Now", "Alright")
-
-
-def _inject_filler_tokens(text):
-    """Prepend thinking noise token for conversational openings."""
-    for prefix in _FILLER_PREFIXES:
-        if text.startswith(prefix):
-            return f"[thinking_noise] {text}"
-    return text
+    """Lazy-init Kokoro af_heart TTS on cuda:1. Call once at startup."""
+    global _AVATAR_KOKORO_READY, _KOKORO_PIPELINE
+    try:
+        from kokoro import KPipeline
+        _KOKORO_PIPELINE = KPipeline(lang_code='a')
+        _KOKORO_PIPELINE.model = _KOKORO_PIPELINE.model.to('cuda:1')
+        _AVATAR_KOKORO_READY = True
+        logger.info("[AVATAR_TTS] Kokoro af_heart loaded on cuda:1")
+    except Exception as e:
+        logger.error(f"[AVATAR_TTS] Kokoro init failed: {e} — ElevenLabs fallback active")
+        _AVATAR_KOKORO_READY = False
 
 
 def _avatar_tts(text):
-    """Primary TTS: Chatterbox female voice -> PCM WAV 16kHz mono bytes.
-    Falls back to ElevenLabs text_to_speech() if Chatterbox fails."""
-    global _AVATAR_CHATTERBOX_READY
+    """Primary TTS: Kokoro af_heart -> 24kHz numpy -> ffmpeg resample 16kHz mono WAV bytes.
+    Falls back to ElevenLabs text_to_speech() if Kokoro fails."""
+    global _AVATAR_KOKORO_READY
 
     # Normalize Bitcoin pronunciation (BTC -> "bitcoin", sats, hashrate, etc.)
     try:
@@ -517,26 +494,27 @@ def _avatar_tts(text):
     except Exception as _np_err:
         logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
 
-    # Inject filler tokens for natural delivery
-    text = _inject_filler_tokens(text)
-
-    # Try Chatterbox first
-    if _AVATAR_CHATTERBOX_READY and _CHATTERBOX_MODEL is not None:
+    # Try Kokoro first
+    if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:
         t0 = time.time()
         try:
-            import torchaudio
-            # Use female reference clip if available, else zero-shot
-            ref_path = _ORACLE_FEMALE_REF if os.path.exists(_ORACLE_FEMALE_REF) else None
-            wav_tensor = _CHATTERBOX_MODEL.generate(
-                text,
-                audio_prompt_path=ref_path,
-                exaggeration=0.3,
-                cfg_weight=0.5,
-            )
-            # Chatterbox outputs 24kHz tensor — save then resample to 16kHz for Wav2Lip
+            import soundfile as sf
+            # Generate with af_heart voice
+            generator = _KOKORO_PIPELINE(text, voice='af_heart')
+            # Collect all audio chunks
+            audio_chunks = []
+            for _gs, _ps, audio_np in generator:
+                audio_chunks.append(audio_np)
+            if not audio_chunks:
+                raise ValueError("Kokoro returned no audio")
+            full_audio = np.concatenate(audio_chunks)
+
+            # Write 24kHz WAV to temp file
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                torchaudio.save(tmp.name, wav_tensor, 24000)
+                sf.write(tmp.name, full_audio, 24000)
                 wav24_path = tmp.name
+
+            # Resample to 16kHz mono for Wav2Lip
             wav16_path = wav24_path + ".16k.wav"
             r = subprocess.run(
                 ["ffmpeg", "-y", "-loglevel", "error", "-i", wav24_path,
@@ -555,14 +533,14 @@ def _avatar_tts(text):
                 except OSError:
                     pass
                 elapsed = time.time() - t0
-                logger.info(f"[AVATAR_TTS] Chatterbox OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
+                logger.info(f"[AVATAR_TTS] Kokoro af_heart OK: {elapsed:.2f}s ({len(wav_bytes)} bytes)")
                 return wav_bytes
             else:
-                logger.warning("[AVATAR_TTS] Chatterbox ffmpeg resample failed")
+                logger.warning("[AVATAR_TTS] Kokoro ffmpeg resample failed")
         except Exception as e:
-            logger.error(f"[AVATAR_TTS] Chatterbox FAILED: {e} → ElevenLabs fallback")
+            logger.error(f"[AVATAR_TTS] Kokoro FAILED: {e} → ElevenLabs fallback")
     else:
-        logger.info("[AVATAR_TTS] Chatterbox not ready → ElevenLabs fallback")
+        logger.info("[AVATAR_TTS] Kokoro not ready → ElevenLabs fallback")
 
     # Fallback: ElevenLabs
     t0 = time.time()
@@ -1765,18 +1743,17 @@ def oracle_chunk_file(session_id, idx):
 @app.route("/avatar/tts-provider", methods=["GET"])
 def avatar_tts_provider():
     """Report which TTS provider is active."""
-    if _AVATAR_CHATTERBOX_READY:
+    if _AVATAR_KOKORO_READY:
         return jsonify({
-            "provider": "chatterbox",
-            "voice": "oracle_female" if os.path.exists(_ORACLE_FEMALE_REF) else "zero_shot",
-            "backend": "cuda:0",
-            "exaggeration": 0.3,
-            "cfg_weight": 0.5,
+            "provider": "kokoro",
+            "voice": "af_heart",
+            "backend": "cuda:1",
+            "sample_rate": 24000,
             "ready": True,
         })
     return jsonify({
         "provider": "elevenlabs_fallback",
-        "reason": "Chatterbox not loaded or init failed",
+        "reason": "Kokoro not loaded or init failed",
         "ready": False,
     })
 
@@ -1787,7 +1764,7 @@ def avatar_tts_provider():
 
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("  ORACLE AVATAR SERVER v3 — Chatterbox TTS + CV2 Sharpen + Blinks")
+    print("  ORACLE AVATAR SERVER v3 — Kokoro af_heart TTS + CV2 Sharpen + Blinks")
     print(f"  Port: {PORT}")
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
@@ -1812,9 +1789,9 @@ if __name__ == "__main__":
 
     logger.info("Face enhancer: CV2 sharpen-only (no GFPGAN)")
 
-    # Load Chatterbox TTS for Oracle avatar (replaces Kokoro af_heart)
-    logger.info("[STARTUP] Initializing Chatterbox TTS on cuda:0...")
-    _init_avatar_chatterbox()
+    # Load Kokoro af_heart TTS on cuda:1 (~2-3s per utterance)
+    logger.info("[STARTUP] Initializing Kokoro af_heart TTS on cuda:1...")
+    _init_avatar_kokoro()
 
     # Auto-warmup (non-blocking — runs in background thread so Flask can start immediately)
     def _warmup_background():
