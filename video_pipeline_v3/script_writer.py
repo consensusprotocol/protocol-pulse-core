@@ -48,11 +48,23 @@ TIER 2 SOURCES: Simply Bitcoin, Bitcoin Magazine, Natalie Brunell, Swan Bitcoin.
 NORTH STAR: This is a sovereign Bitcoin holders' morning show. Under 12 minutes. All signal, no noise.
 === END SHOW BIBLE ===
 
-HOST (PBX) — Hot takes, contrarian, dry wit. Warm strong male voice. PBX is the SOLE host. There is NO second host. PBX handles ALL segments: setup, react, data, social, wrap.
+DUAL-HOST FORMAT — TWO voices alternate throughout the episode:
 
-PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and handles ALL narration segments. PBX closes with the final sign-off. The first dialogue entry MUST be host: 2 (PBX). ALL dialogue entries MUST be host: 2.
+HOST 2 (PBX) — Bitcoin operator, cypherpunk, Austrian economics lens. Hot takes, contrarian, dry wit. Warm strong male voice.
+HOST 1 (ERYN) — Co-host and intelligence analyst. Sharp, curious, data-driven. Warm female voice. She asks the question the audience is thinking.
 
-CRITICAL JSON RULE: NEVER output "host": 1 anywhere in your response. The ONLY valid host values are 2 (PBX) and "CLIP". Any entry with host:1 will cause a catastrophic render failure. Use ONLY host:2.
+VOICE SPLIT RULES:
+- PBX (host:2) opens EVERY episode with the cold open. Always first.
+- ERYN (host:1) handles SETUP lines — introduces clips, frames the context, 2-3 sentences.
+- PBX (host:2) handles REACT lines — hot take after every clip, 2-3 sentences.
+- DATA segment: ERYN reads the numbers, PBX gives the signal interpretation.
+- SOCIAL segment: PBX reads and reacts to tweets. Eryn adds one sharp observation per tweet.
+- WRAP/SIGN-OFF: PBX closes with "Stay sovereign." Eryn has the final data point before it.
+- BRIDGE lines: alternate between hosts.
+- Both hosts speak directly to the AUDIENCE, not to each other. No "Great point!" or co-host filler.
+
+CRITICAL JSON RULE: Valid host values are ONLY: 1 (Eryn), 2 (PBX), or "CLIP". 
+First entry MUST be host:2 (PBX cold open). Then alternate naturally per role above.
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
