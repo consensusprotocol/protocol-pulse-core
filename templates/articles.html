@@ -838,7 +838,7 @@
                 </div>
 
                 {% if today_articles|length > 0 %}
-                <a href="{{ url_for('article_detail', article_id=today_articles[0].id) }}" class="text-decoration-none d-block">
+                <a href="{{ '/articles/' + (today_articles[0].slug or str(today_articles[0].id)) }}" class="text-decoration-none d-block">
                     <div class="hero-article">
                         <div class="hero-image art-hero-img" style="background-image: url('{{ article_image_urls.get(today_articles[0].id, default_header_url) }}');"></div>
                         <div class="hero-body">
