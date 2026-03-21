@@ -1458,6 +1458,12 @@ def article_detail(article_id):
 def _render_article(article_id):
     """Shared rendering logic for article pages."""
     article = models.Article.query.get_or_404(article_id)
+    # Increment read count
+    try:
+        article.read_count = (article.read_count or 0) + 1
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
     try:
         related_articles = models.Article.query.filter(
             models.Article.id != article_id,
@@ -8504,7 +8510,7 @@ def search_page():
                         'snippet': r.get('snippet', r.get('summary', '')[:200]),
                         'category': r.get('category', ''),
                         'date': r.get('published_at', ''),
-                        'url': f"/articles/{r.get('id')}",
+                        'url': f"/articles/{r.get('slug') or r.get('id')}",
                     })
             except Exception:
                 pass
@@ -8528,13 +8534,7 @@ def api_search():
     if not query or len(query) < 2:
         return jsonify({"results": [], "total": 0, "query": query})
 
-    # Try FTS5 first, fall back to LIKE-based engine
-    try:
-        from core.services import search_service
-        results = search_service.search(db, query, search_type, limit=limit)
-        return jsonify({"results": results, "total": len(results), "query": query})
-    except Exception as _fts_err:
-        logging.warning("FTS5 api_search failed, falling back to search_engine: %s", _fts_err)
+    # Use search_engine (reliable SQLite LIKE-based search)
 
     try:
         from services.search_engine import search_articles

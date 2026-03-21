@@ -379,8 +379,9 @@ def search_articles(
                 if article.published_at
                 else (article.created_at.isoformat() if article.created_at else None)
             ),
-            "image_url": article.header_image_url,
+            "image_url": article.header_image_url or article.cover_image_url,
             "snippet": snippet,
+            "slug": article.slug or str(article.id),
         })
 
     # Sort by score descending, then by published_at descending as tiebreaker
