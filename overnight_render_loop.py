@@ -236,7 +236,7 @@ def run_render(iteration):
     import glob
     today = datetime.now().strftime('%Y-%m-%d')
     candidates = []
-    for pat in [f'output/{today}/*.mp4', 'output/pulse_check_*.mp4']:
+    for pat in [f'output/{today}/*.mp4']:  # today-only — no stale fallback
         for f in glob.glob(os.path.join(PIPELINE, pat)):
             if any(x in f for x in ['.bgl_audio', '.intro_mus', '.concat_raw', '.music_mixed', '.whoosh', '.norm']):
                 continue

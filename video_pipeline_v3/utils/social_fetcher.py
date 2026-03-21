@@ -51,8 +51,20 @@ def get_todays_social_posts(max_posts=5):
         try:
             with open(TWEET_STUDY_PATH) as f:
                 raw = json.load(f)
-            # Sort by engagement rate descending
-            tweets = sorted(raw, key=lambda t: t.get("engagement_rate", 0) or 0, reverse=True)
+            from datetime import datetime, timezone, timedelta
+            now_utc = datetime.now(timezone.utc)
+            def _sort_key(t):
+                raw_ts = t.get('created_at', '')
+                try:
+                    ts = datetime.fromisoformat(raw_ts.replace('Z', '+00:00'))
+                    age_h = (now_utc - ts).total_seconds() / 3600
+                except Exception:
+                    age_h = 9999
+                er = t.get('engagement_rate', 0) or 0
+                likes = t.get('likes', 0) or 0
+                recency = 10.0 if age_h < 24 else (1.0 if age_h < 168 else 0.0)
+                return recency + er + (likes / 100000.0)
+            tweets = sorted(raw, key=_sort_key, reverse=True)
 
             # Prefer recent tweets (last 7 days) if available
             cutoff = datetime.utcnow() - timedelta(days=7)
