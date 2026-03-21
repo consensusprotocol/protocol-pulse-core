@@ -69,6 +69,32 @@ TOPIC_COOLDOWN_KEYWORDS = {
     "exodus": ["exodus", "leaving", "flee", "migration", "capitulation"],
 }
 
+# Banned title templates — LLM prompt bleed patterns that must never be published
+BANNED_TITLE_TEMPLATES = [
+    r"Is Bitcoin'?s? Network Strength Signaling",
+    r"Is Bitcoin'?s? Network (Resilience|Activity|Strength) Reaching",
+    r"Is Bitcoin'?s? Hash Rate Surge Signaling",
+    r"Bitcoin network and market update",  # generic placeholder
+]
+
+def _sanitize_title(title):
+    """Strip prompt bleed (everything after first newline) and normalize whitespace."""
+    import re
+    # Remove everything after first newline — that's prompt bleed
+    title = re.sub(r'[
+].*', '', title, flags=re.DOTALL).strip()
+    # Collapse internal whitespace
+    title = re.sub(r'\s+', ' ', title).strip()
+    return title
+
+def _is_banned_template(title):
+    """Return True if title matches a known low-quality template pattern."""
+    import re
+    for pattern in BANNED_TITLE_TEMPLATES:
+        if re.search(pattern, title, re.IGNORECASE):
+            return True
+    return False
+
 def _detect_topic(title):
     """Detect primary topic of an article from its title."""
     tl = title.lower()
@@ -636,7 +662,18 @@ def run_article_generation_cycle() -> Dict:
             logger.info(f"Trusted source ({source['source']}) - considering for publication")
 
         # Use revised title if provided
-        final_title = review.get('revised_title') or article_data['title']
+        # SANITIZE: strip prompt bleed (everything after first newline)
+        raw_title = review.get('revised_title') or article_data['title']
+        final_title = _sanitize_title(raw_title)
+
+        # BANNED TEMPLATE GATE: reject low-quality template headlines before any further work
+        if _is_banned_template(final_title):
+            logger.warning(f"BANNED TEMPLATE: rejecting article with template title: {final_title[:80]}")
+            return {
+                'success': False, 'skipped': True,
+                'reason': 'banned_template_title',
+                'title': final_title,
+            }
 
         # 4b. Headline diversity gate — rewrite if over 30% "Bitcoin" starts
         diversity = _check_headline_diversity(hours=72)
@@ -680,8 +717,8 @@ def run_article_generation_cycle() -> Dict:
                 header_image = None
 
             # HARD GATE: 24h topic cooldown
-            if final_title and _is_topic_oversaturated(final_title, max_same=1, hours=24):
-                logger.info('Skipping article due to 24h topic cooldown: ' + repr(final_title[:120]))
+            if final_title and _is_topic_oversaturated(final_title, max_same=2, hours=48):
+                logger.info('Skipping article due to 48h topic cooldown: ' + repr(final_title[:120]))
                 return {'success': False, 'skipped': True, 'reason': 'topic_oversaturated', 'title': final_title}
 
             article = Article(
