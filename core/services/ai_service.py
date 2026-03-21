@@ -35,7 +35,7 @@ class AIService:
             self.anthropic_client = None
         
         self.default_openai_model = "gpt-4o"
-        self.default_anthropic_model = "claude-haiku-4-5-20251001"
+        self.default_anthropic_model = "claude-sonnet-4-6"
         
         # AI service integrations - check availability
         try:
