@@ -339,6 +339,16 @@ def generate_article_with_tracking(force: bool = False) -> dict:
 
             release_lock(run, "success", None)
             logger.info(f"[GOVERNOR] Published [{slot}] id={article.id}: {final_title[:70]}")
+            # Auto-publish to Substack (fire-and-forget)
+            try:
+                from services.substack_publisher import publish_article_to_substack
+                import threading
+                def _push_substack():
+                    try: publish_article_to_substack(article_id=article.id)
+                    except Exception as e: logger.warning(f"Substack push failed: {e}")
+                threading.Thread(target=_push_substack, daemon=True).start()
+            except Exception:
+                pass
             return {"success": True, "title": final_title, "article_id": article.id, "slot": slot}
 
         except Exception as e:
