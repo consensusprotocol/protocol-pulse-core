@@ -63,7 +63,9 @@ def main():
                             continue
                     article.cover_image_url = new_image
                     db.session.commit()
-                    logger.info(f"  OK: {new_image} ({os.path.getsize(os.path.join(STATIC_ROOT, new_image.lstrip("/static/"))) // 1024}KB)")
+                    _p = os.path.join(STATIC_ROOT, new_image.lstrip("/static/"))
+                    _kb = os.path.getsize(_p)//1024 if os.path.exists(_p) else 0
+                    logger.info(f"  OK: {new_image} ({_kb}KB)")
                     success += 1
                 else:
                     logger.warning(f"  FAIL: service returned None")
