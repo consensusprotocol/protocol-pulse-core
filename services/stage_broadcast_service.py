@@ -341,7 +341,7 @@ def check_thought_leader():
             return None
 
         now = datetime.now(timezone.utc)
-        cutoff = now - timedelta(hours=2)
+        cutoff = now - timedelta(hours=24)
 
         for tweet in tweets:
             handle = (tweet.get("handle") or tweet.get("username") or "").lower().lstrip("@")
@@ -387,7 +387,7 @@ def check_space_tap():
         return None
 
     try:
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=2)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         for f in sorted(spaces_cache.glob("*.json"), reverse=True):
             if f.name == "last_run.json":
                 continue
@@ -430,9 +430,9 @@ def check_article_teaser():
         import sqlite3
         conn = sqlite3.connect(str(db_path))
         conn.row_factory = sqlite3.Row
-        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=30)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=6)).isoformat()
         row = conn.execute(
-            "SELECT title, summary FROM articles WHERE created_at > ? ORDER BY created_at DESC LIMIT 1",
+            "SELECT title, summary FROM articles WHERE created_at > ? ORDER BY RANDOM() LIMIT 1",
             (cutoff,)
         ).fetchone()
         conn.close()

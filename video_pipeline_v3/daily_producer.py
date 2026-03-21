@@ -1020,6 +1020,15 @@ def main():
     args = parser.parse_args()
     success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
                            fast_test=args.fast_test)
+    # ── Post-render: fire tweet machine from morning brief ──────────────
+    try:
+        import subprocess as _sp
+        _sp.Popen(["python3", "/home/ultron/protocol_pulse/services/tweet_machine.py"],
+                  stdout=open("/home/ultron/protocol_pulse/logs/tweet_machine.log", "a"),
+                  stderr=subprocess.STDOUT)
+        print("  Tweet machine: fired (async)")
+    except Exception as _te:
+        print(f"  Tweet machine: skipped ({_te})")
     sys.exit(0 if success else 1)
 
 
