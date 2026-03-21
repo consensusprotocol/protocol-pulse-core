@@ -131,7 +131,6 @@ EXAMPLES OF THE RIGHT VOICE:
 - "Strategy acquired BTC again. No press conference. No explanation needed"
 - "Remember all the talk of auditing the gold reserves in Fort Knox last year?"
 - "Gold moved 3% on Iran news -- Bitcoin held. The market is sorting assets by their physics"
-- "The stablecoin bill passed committee 69% odds. Honest money doesn't need permission -- but clarity removes friction"
 
 Respond with a JSON object only. No markdown. No preamble:
 {{"text": "<tweet -- max 280 chars, no trailing period, no emoji, no hashtags>", "angle": "<narrative addressed>", "type": "<stat|observation|question|signal>", "char_count": 0}}"""
