@@ -621,9 +621,13 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         parts.append(f"Generate intro + react for each of the {len(space_tap_clips)} clips above.")
         space_tap_block = "\n".join(parts) + "\n"
 
-    prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
-                                   social_posts=social_posts,
-                                   live_context=live_block + morning_block + engagement_block + memory_block + space_tap_block)
+    # Escape braces in user content to prevent KeyError
+    def _esc(s): return str(s).replace('{', '{{').replace('}', '}}')
+    prompt = SCRIPT_PROMPT.format(
+        clips_info=_esc(clips_info), btc_price=_esc(btc_price),
+        social_posts=_esc(social_posts),
+        live_context=_esc(live_block+morning_block+engagement_block+memory_block+space_tap_block),
+    )
 
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
