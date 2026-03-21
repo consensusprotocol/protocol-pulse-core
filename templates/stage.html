@@ -766,10 +766,10 @@ body { background: var(--s-bg); }
         <!-- Avatar -->
         <div class="stage-avatar-wrap">
           <img class="stage-avatar-img" id="avatarStill"
-               src="/static/oracle_avatar.png" alt="Oracle Avatar"
-               onerror="this.style.display='none'">
+               src="/static/img/oracle_avatar_static.png" alt="Oracle Avatar"
+               onerror="this.src='/static/oracle_avatar.png'">
           <video class="stage-avatar-vid" id="avatarVid"
-                 playsinline webkit-playsinline muted autoplay></video>
+                 playsinline webkit-playsinline preload="auto"></video>
           <div class="stage-avatar-scanline"></div>
           <div class="stage-avatar-nameplate">
             <div class="stage-avatar-nameplate__dot"></div>
