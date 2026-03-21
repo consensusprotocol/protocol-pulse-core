@@ -981,10 +981,8 @@ def tts_local(text: str, output_path: str, host: int = 1,
             logger.warning("[TTS/Local] Kokoro host1 FAILED → ElevenLabs Eryn fallback")
             ok = tts_elevenlabs(text, output_path, host=1, segment_type=segment_type)
     else:
-        ok = tts_f5_finetuned(text, output_path)
+        ok = tts_chatterbox(text, output_path)  # F5 bypassed -- Chatterbox primary
         if not ok:
-            logger.warning("[TTS/Local] F5 fine-tuned FAILED → Chatterbox")
-            ok = tts_chatterbox(text, output_path)
         if not ok:
             logger.warning("[TTS/Local] Chatterbox FAILED → Kokoro am_adam")
             ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
