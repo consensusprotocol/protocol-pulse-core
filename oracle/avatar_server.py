@@ -55,6 +55,9 @@ PORT = 8200
 BATCH_SIZE_DEFAULT = 48  # Proven stable at 134fps — 64 caused VRAM pressure on GPU 1
 BATCH_SIZE_SMALL = 16    # For short audio < 60 mel frames
 BATCH_SIZE = BATCH_SIZE_DEFAULT
+
+import threading as _threading_mod
+_TTS_LOCK = _threading_mod.Semaphore(1)
 DEFAULT_FPS = 30.0  # Upgraded from 25fps — smoother motion
 
 # Post-processing config
@@ -501,6 +504,18 @@ def _avatar_tts(text):
         text = normalize_pronunciation(text)
     except Exception as _np_err:
         logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
+
+    # Serialize TTS calls — concurrent Kokoro thrashes GPU (30s+ instead of 1-2s)
+    _TTS_LOCK.acquire()
+    try:
+        return _avatar_tts_inner(text)
+    finally:
+        _TTS_LOCK.release()
+
+
+def _avatar_tts_inner(text):
+    """Inner TTS logic — called under _TTS_LOCK."""
+    global _AVATAR_KOKORO_READY
 
     # Try Kokoro first
     if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:
@@ -1522,11 +1537,9 @@ def oracle_monologue():
         except Exception as e:
             job["chunks"][idx] = {"status": "error", "error": str(e)}
 
-    # Render chunk 0 synchronously so client can start playing immediately on response
-    render_chunk(0, chunks[0])
-    # Render remaining chunks in parallel background threads
-    for i, txt in enumerate(chunks[1:], 1):
-        threading.Thread(target=render_chunk, args=(i, txt), daemon=True).start()
+    # Render ALL chunks in background — client polls for readiness
+    for i, txt in enumerate(chunks):
+        _threading_mod.Thread(target=render_chunk, args=(i, txt), daemon=True).start()
 
     return jsonify({
         "job_id": job_id,

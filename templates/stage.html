@@ -1826,7 +1826,7 @@ body { background: var(--s-bg); }
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({script: script})
-      }, 15000);
+      }, 8000);
       if (!resp.ok) throw new Error('Monologue submit failed');
       var job = await resp.json();
       var jobId = job.job_id;
@@ -1942,7 +1942,7 @@ body { background: var(--s-bg); }
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({script: script})
-      }, 15000);
+      }, 8000);
       if (resp.ok) {
         _nextMonologueJob = await resp.json();
       }
