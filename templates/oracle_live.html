@@ -723,6 +723,7 @@ function pulseMic(){
 // Read session_id and page context from URL params (injected by widget)
 var _urlParams = new URLSearchParams(window.location.search);
 var SESSION_ID = _urlParams.get('session_id') || ('sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+window.ORACLE_FINGERPRINT_MATCH = false;
 var PAGE_CONTEXT = {
   type: _urlParams.get('page_type') || 'general',
   path: _urlParams.get('page_path') || window.location.pathname,
@@ -818,8 +819,6 @@ function go(){
       stage.style.transition='opacity .45s';
       stage.style.opacity='1';
       initSR();
-      // Reset server-side session for fresh conversation
-      fetch(A+'/oracle/session/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:SESSION_ID})}).catch(function(){});
       playIntent('GREETING');
     },30);
   },350);
@@ -1409,6 +1408,14 @@ function fetchTO(url,opts,ms){
   return fetch(url,o).finally(function(){clearTimeout(id);})
     .catch(function(e){if(e.name==='AbortError')throw new Error('timeout');throw e;});
 }
+window.addEventListener('beforeunload',function(){
+  try{
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST',A+'/oracle/session/save',false);
+    xhr.setRequestHeader('Content-Type','application/json');
+    xhr.send(JSON.stringify({session_id:SESSION_ID}));
+  }catch(e){}
+});
 </script>
 </body>
 </html>

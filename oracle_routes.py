@@ -236,7 +236,23 @@ def oracle_page():
 @oracle_bp.route('/oracle-live')
 def oracle_live_page():
     from flask import make_response
-    response = make_response(render_template('oracle_live.html'))
+    # Detect returning visitor for fingerprint match injection
+    fp_match = False
+    try:
+        from oracle.oracle_memory import make_fingerprint, load_visitor as _load_visitor
+        raw_ip = (request.headers.get("X-Forwarded-For", "") or request.remote_addr or "").split(",")[0].strip()
+        ua = request.headers.get("User-Agent", "")
+        fp = make_fingerprint(raw_ip, ua, "")
+        visitor = _load_visitor(fp)
+        fp_match = visitor is not None and visitor.get("session_count", 1) > 1
+    except Exception:
+        pass
+    html_content = render_template('oracle_live.html')
+    html_content = html_content.replace(
+        'window.ORACLE_FINGERPRINT_MATCH = false;',
+        f'window.ORACLE_FINGERPRINT_MATCH = {"true" if fp_match else "false"};'
+    )
+    response = make_response(html_content)
     response.headers['Permissions-Policy'] = 'microphone=(*), camera=(*)'
     response.headers['Feature-Policy'] = 'microphone *; camera *'
     return response

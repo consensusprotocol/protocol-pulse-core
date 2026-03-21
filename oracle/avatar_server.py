@@ -1713,6 +1713,36 @@ def oracle_session_reset():
     oracle_dialogue_engine.reset_session(sid)
     return jsonify({"status": "reset"})
 
+
+@app.route("/oracle/session/save", methods=["POST"])
+def oracle_session_save():
+    """Save session memory on page unload without clearing the session."""
+    data = request.get_json() or {}
+    sid = data.get("session_id", "anon")
+    session = oracle_dialogue_engine._sessions.get(sid, {})
+    fingerprint = session.get("fingerprint")
+    if fingerprint and session.get("history"):
+        try:
+            from oracle_memory import save_visitor, generate_session_summary
+            api_key = _get_anthropic_key()
+            summary = generate_session_summary(session["history"], api_key) if api_key else ""
+            flow = session.get("setup_flow", {})
+            prev_memory = session.get("visitor_memory", {})
+            topics = list(session.get("topics_discussed", []))
+            save_visitor(fingerprint, {
+                "personality": session.get("personality", "AMIABLE"),
+                "session_summaries": prev_memory.get("session_summaries", []) + ([summary] if summary else []),
+                "setup_device": flow.get("device"),
+                "setup_step": flow.get("step", 0),
+                "topics_seen": topics,
+                "products_shown": session.get("products_mentioned", []),
+            })
+            logger.info(f"[MEMORY] Saved session {sid} on unload — {len(topics)} topics, summary len={len(summary)}")
+        except Exception as e:
+            logger.warning(f"[MEMORY] Save on unload failed: {e}")
+    return jsonify({"status": "saved"})
+
+
 @app.route("/oracle/intent", methods=["POST"])
 def oracle_intent():
     """Classify user transcript to an intent."""
