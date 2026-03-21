@@ -1369,22 +1369,7 @@ body { background: var(--s-bg); }
 
   // ── BROADCAST QUEUE CONSUMER ──────────────────────────
   async function startBroadcast() {
-    try {
-      var resp = await fetch('/api/stage/broadcast-queue');
-      if (!resp.ok) { setTimeout(startBroadcast, 5000); return; }
-      var data = await resp.json();
-      updateSignalSource('📡 INITIALIZING');
-
-      if (!data.items || !data.items.length) {
-        // Consume with null to trigger filler generation
-        await consumeAndPlay(null);
-        return;
-      }
-      await playBroadcastItem(data.items[0]);
-    } catch(e) {
-      console.error('startBroadcast error:', e);
-      setTimeout(startBroadcast, 5000);
-    }
+    await runMonologueLoop();
   }
 
   function updateSignalSource(label) {
@@ -1882,6 +1867,106 @@ body { background: var(--s-bg); }
     }
   }
   window.playMonologue = playMonologue;
+
+  // ── CONTINUOUS MONOLOGUE LOOP ─────────────────────────
+  var _nextMonologueScript = null;
+  var _nextMonologueJob = null;
+  var _loopRunning = false;
+
+  async function runMonologueLoop() {
+    if (_loopRunning) return;
+    _loopRunning = true;
+
+    try {
+      while (!_broadcastPaused) {
+        var script = _nextMonologueScript;
+        var preJob = _nextMonologueJob;
+        _nextMonologueScript = null;
+        _nextMonologueJob = null;
+
+        if (!script) {
+          setStatus('Generating broadcast\u2026', 'var(--s-gold)');
+          script = await fetchMonologueScript();
+        }
+        if (!script || _broadcastPaused) break;
+
+        var job;
+        if (preJob) {
+          job = preJob;
+        } else {
+          setStatus('Rendering\u2026', 'var(--s-gold)');
+          var resp = await fetchTO(AVATAR_BASE + '/oracle/monologue', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({script: script})
+          }, 15000);
+          if (!resp.ok) { await sleep(3000); continue; }
+          job = await resp.json();
+        }
+
+        prefetchNextMonologue();
+
+        await playMonologueJob(job);
+      }
+    } finally {
+      _loopRunning = false;
+    }
+  }
+
+  async function fetchMonologueScript() {
+    try {
+      var r = await fetchTO('/api/stage/generate-monologue', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}
+      }, 25000);
+      if (!r.ok) return null;
+      var d = await r.json();
+      updateTicker({topic_preview: 'Live Oracle Broadcast'});
+      return d.script || null;
+    } catch(e) { return null; }
+  }
+
+  async function prefetchNextMonologue() {
+    try {
+      var script = await fetchMonologueScript();
+      if (!script) return;
+      _nextMonologueScript = script;
+      var resp = await fetchTO(AVATAR_BASE + '/oracle/monologue', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({script: script})
+      }, 15000);
+      if (resp.ok) {
+        _nextMonologueJob = await resp.json();
+      }
+    } catch(e) {}
+  }
+
+  async function playMonologueJob(job) {
+    var jobId = job.job_id;
+    var total = job.total_chunks;
+    var nextBlob = null;
+
+    for (var i = 0; i < total; i++) {
+      if (_broadcastPaused) break;
+      setStatus('On Air \u00b7 ' + (i+1) + '/' + total, 'var(--s-green)');
+      var badge = document.getElementById('stageModeBadge');
+      if (badge) { badge.textContent = '\u25cf ON AIR'; badge.className = 'stage-mode-badge broadcast'; }
+
+      var blob = nextBlob || await waitAndFetchChunk(jobId, i);
+      nextBlob = null;
+
+      var nextIdx = i + 1;
+      if (nextIdx < total) {
+        waitAndFetchChunk(jobId, nextIdx).then(function(b) { nextBlob = b; }).catch(function(){});
+      }
+
+      var url = URL.createObjectURL(blob);
+      await playVid(url);
+      try { URL.revokeObjectURL(url); } catch(e) {}
+    }
+  }
+
+  function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 
   // ── INIT ──────────────────────────────────────────────
   loadIntel();

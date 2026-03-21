@@ -11127,6 +11127,96 @@ def api_stage_consume_broadcast():
         return jsonify({'next_item': None, 'queue_depth': 0})
 
 
+@app.route('/api/stage/generate-monologue', methods=['POST'])
+@limiter.limit("10 per minute")
+def api_stage_generate_monologue():
+    """Generate a fresh long-form monologue script from live data sources."""
+    import json as _j
+    from pathlib import Path
+    from datetime import datetime as _dt, timezone as _tz
+    import requests as _req
+
+    try:
+        context_parts = []
+
+        # BTC price from queue
+        queue_path = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'data' / 'stage_briefs' / 'broadcast_queue.json'
+        if queue_path.exists():
+            items = _j.loads(queue_path.read_text())
+            for item in items:
+                if item.get('type') == 'METRICS_PULSE':
+                    context_parts.append('MARKET: ' + item.get('topic_preview', ''))
+                    break
+
+        # Nostr narrative
+        narrative_path = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'data' / 'intelligence' / 'narrative_context.json'
+        if narrative_path.exists():
+            try:
+                nd = _j.loads(narrative_path.read_text())
+                narrative = nd.get('narrative') or nd.get('summary', '')
+                if narrative:
+                    context_parts.append('NOSTR SIGNAL: ' + narrative[:200])
+            except Exception:
+                pass
+
+        # Recent article
+        try:
+            from models import Article
+            latest = Article.query.order_by(Article.created_at.desc()).first()
+            if latest:
+                context_parts.append('LATEST INTEL: ' + (latest.title or '') + ' — ' + (latest.summary or '')[:150])
+        except Exception:
+            pass
+
+        # Thought leader tweet
+        tweets_path = Path(__file__).resolve().parent / 'data' / 'tweet_study' / 'raw_tweets.json'
+        if tweets_path.exists():
+            try:
+                import random as _rand
+                tweets = _j.loads(tweets_path.read_text())
+                priority = [t for t in tweets if (t.get('handle') or '').lower().lstrip('@') in
+                           {'saylor','natbrunell','jack','gladstein','prestonpysh','martybent','lynaldencontact','jeffbooth','odell','aantonop','adam3us'}]
+                if priority:
+                    pick = _rand.choice(priority)
+                    context_parts.append('THOUGHT LEADER @' + pick.get('handle','') + ': ' + (pick.get('text') or pick.get('content',''))[:200])
+            except Exception:
+                pass
+
+        context = '\n'.join(context_parts) if context_parts else 'Bitcoin market update'
+
+        from services.stage_broadcast_service import _get_anthropic_key
+        api_key = _get_anthropic_key()
+
+        resp = _req.post(
+            'https://api.anthropic.com/v1/messages',
+            headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'},
+            json={
+                'model': 'claude-haiku-4-5-20251001',
+                'max_tokens': 300,
+                'system': (
+                    "You are Oracle, Protocol Pulse's AI anchor. Deliver a spoken Bitcoin intelligence monologue. "
+                    "Rules: 150-180 words. No markdown. No headers. No bullet points. Flowing prose only. "
+                    "Weave together the data signals into a cohesive narrative. Sound like a sharp financial anchor, not a chatbot. "
+                    "End with a forward-looking statement. Never say 'I' — speak as Oracle."
+                ),
+                'messages': [{'role': 'user', 'content': f'Generate a monologue from these signals:\n{context}'}]
+            },
+            timeout=20
+        )
+        resp.raise_for_status()
+        script = resp.json()['content'][0]['text'].strip()
+
+        import re as _re
+        script = _re.sub(r'^#+\s+[^\n]*\n?', '', script, flags=_re.MULTILINE)
+        script = _re.sub(r'\*\*([^*]+)\*\*', r'\1', script).strip()
+
+        return jsonify({'script': script, 'word_count': len(script.split()), 'context_used': len(context_parts)})
+
+    except Exception as e:
+        logging.warning('generate-monologue error: %s', e)
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/stage/broadcast-status')
 @limiter.limit("30 per minute")
 def api_stage_broadcast_status():
