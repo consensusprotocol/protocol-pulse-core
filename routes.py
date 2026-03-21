@@ -10981,6 +10981,197 @@ def api_stage_signal():
 
 
 
+# ── STAGE BROADCAST ROUTES ──────────────────────────────────────────────────
+
+@app.route('/api/stage/broadcast-queue')
+@limiter.limit("30 per minute")
+def api_stage_broadcast_queue():
+    """Return next 3 items from broadcast queue sorted by priority."""
+    import json as _j
+    from pathlib import Path
+    from datetime import datetime as _dt, timezone as _tz
+
+    queue_path = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'data' / 'stage_briefs' / 'broadcast_queue.json'
+    try:
+        if not queue_path.exists():
+            return jsonify({'items': [], 'queue_depth': 0, 'session_start': _dt.now(_tz.utc).isoformat()})
+
+        items = _j.loads(queue_path.read_text())
+        if not isinstance(items, list):
+            items = []
+
+        now = _dt.now(_tz.utc)
+        valid = []
+        for item in items:
+            try:
+                expires = _dt.fromisoformat(item['expires_at'].replace('Z', '+00:00'))
+                if expires > now:
+                    valid.append(item)
+            except (KeyError, ValueError):
+                continue
+
+        valid.sort(key=lambda x: x.get('priority', 5))
+        return jsonify({
+            'items': valid[:3],
+            'queue_depth': len(valid),
+            'session_start': now.isoformat(),
+        })
+    except Exception as e:
+        logging.warning('broadcast-queue error: %s', e)
+        return jsonify({'items': [], 'queue_depth': 0, 'session_start': _dt.now(_tz.utc).isoformat()})
+
+
+@app.route('/api/stage/consume-broadcast', methods=['POST'])
+@limiter.limit("30 per minute")
+def api_stage_consume_broadcast():
+    """Atomically remove consumed item (file lock), return next item."""
+    import json as _j, fcntl
+    from pathlib import Path
+    from datetime import datetime as _dt, timezone as _tz
+
+    queue_path = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'data' / 'stage_briefs' / 'broadcast_queue.json'
+    data = request.get_json(silent=True) or {}
+    consumed_id = data.get('consumed_id')
+
+    try:
+        queue_path.parent.mkdir(parents=True, exist_ok=True)
+
+        items = []
+        if queue_path.exists():
+            with open(queue_path, 'r+') as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+                try:
+                    items = _j.load(f)
+                except _j.JSONDecodeError:
+                    items = []
+
+                if consumed_id:
+                    items = [i for i in items if i.get('id') != consumed_id]
+
+                now = _dt.now(_tz.utc)
+                valid = []
+                for item in items:
+                    try:
+                        expires = _dt.fromisoformat(item['expires_at'].replace('Z', '+00:00'))
+                        if expires > now:
+                            valid.append(item)
+                    except (KeyError, ValueError):
+                        continue
+
+                valid.sort(key=lambda x: x.get('priority', 5))
+
+                f.seek(0)
+                f.truncate()
+                _j.dump(valid, f, indent=2)
+                fcntl.flock(f, fcntl.LOCK_UN)
+        else:
+            valid = []
+
+        next_item = valid[0] if valid else None
+
+        if not next_item:
+            try:
+                from services.stage_broadcast_service import generate_filler_live
+                next_item = generate_filler_live()
+            except Exception as e:
+                logging.warning('filler generation failed: %s', e)
+
+        return jsonify({
+            'next_item': next_item,
+            'queue_depth': len(valid),
+        })
+    except Exception as e:
+        logging.warning('consume-broadcast error: %s', e)
+        return jsonify({'next_item': None, 'queue_depth': 0})
+
+
+@app.route('/api/stage/broadcast-status')
+@limiter.limit("30 per minute")
+def api_stage_broadcast_status():
+    """Return broadcast status: live state, current topic, queue depth."""
+    import json as _j
+    from pathlib import Path
+    from datetime import datetime as _dt, timezone as _tz
+
+    queue_path = Path(__file__).resolve().parent / 'video_pipeline_v3' / 'data' / 'stage_briefs' / 'broadcast_queue.json'
+    try:
+        items = []
+        if queue_path.exists():
+            items = _j.loads(queue_path.read_text())
+            if not isinstance(items, list):
+                items = []
+
+        now = _dt.now(_tz.utc)
+        valid = []
+        for item in items:
+            try:
+                expires = _dt.fromisoformat(item['expires_at'].replace('Z', '+00:00'))
+                if expires > now:
+                    valid.append(item)
+            except (KeyError, ValueError):
+                continue
+
+        valid.sort(key=lambda x: x.get('priority', 5))
+        current = valid[0]['topic_preview'] if valid else 'Standing by'
+        next_topic = valid[1]['topic_preview'] if len(valid) > 1 else None
+
+        return jsonify({
+            'live': True,
+            'current_topic': current,
+            'queue_depth': len(valid),
+            'next_topic': next_topic,
+        })
+    except Exception as e:
+        logging.warning('broadcast-status error: %s', e)
+        return jsonify({'live': True, 'current_topic': 'Standing by', 'queue_depth': 0, 'next_topic': None})
+
+
+# ── RATE-LIMITED ORACLE PROXIES (P0.1 audit fix — denial-of-wallet prevention) ──
+
+@app.route('/api/oracle/chat', methods=['POST'])
+@limiter.limit("6 per minute")
+def api_oracle_chat_ratelimited():
+    """Rate-limited proxy for oracle chat — prevents denial-of-wallet attacks."""
+    avatar_base = os.environ.get('AVATAR_BASE_URL', 'http://localhost:8200')
+    try:
+        body = request.get_json(silent=True) or {}
+        resp = requests.post(
+            f'{avatar_base}/oracle/chat',
+            json=body,
+            timeout=90,
+            headers={'Content-Type': 'application/json'},
+        )
+        excluded_headers = {'content-encoding', 'content-length', 'transfer-encoding', 'connection'}
+        headers = [(k, v) for k, v in resp.headers.items() if k.lower() not in excluded_headers]
+        return Response(resp.content, status=resp.status_code, headers=headers,
+                        content_type=resp.headers.get('content-type', 'application/json'))
+    except Exception as e:
+        logging.warning('oracle chat proxy error: %s', e)
+        return jsonify({'error': 'Oracle unavailable'}), 503
+
+
+@app.route('/api/oracle/speak', methods=['POST'])
+@limiter.limit("3 per minute")
+def api_oracle_speak_ratelimited():
+    """Rate-limited proxy for oracle speak — prevents denial-of-wallet attacks."""
+    avatar_base = os.environ.get('AVATAR_BASE_URL', 'http://localhost:8200')
+    try:
+        body = request.get_json(silent=True) or {}
+        resp = requests.post(
+            f'{avatar_base}/oracle/speak',
+            json=body,
+            timeout=60,
+            headers={'Content-Type': 'application/json'},
+        )
+        excluded_headers = {'content-encoding', 'content-length', 'transfer-encoding', 'connection'}
+        headers = [(k, v) for k, v in resp.headers.items() if k.lower() not in excluded_headers]
+        return Response(resp.content, status=resp.status_code, headers=headers,
+                        content_type=resp.headers.get('content-type', 'application/octet-stream'))
+    except Exception as e:
+        logging.warning('oracle speak proxy error: %s', e)
+        return jsonify({'error': 'Oracle unavailable'}), 503
+
+
 @app.route('/api/governor-status')
 def api_governor_status():
     "Content governor rotation status."
