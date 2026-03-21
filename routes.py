@@ -351,6 +351,48 @@ def clean_preview_filter(content, max_length=150):
     # Return truncated clean text
     return clean_text[:max_length] + ("..." if len(clean_text) > max_length else "")
 
+
+def get_latest_episode():
+    """Read latest Pulse Check episode metadata from today's or most recent script.json."""
+    import glob, datetime
+    base = '/home/ultron/protocol_pulse/video_pipeline_v3/output'
+    today = datetime.date.today().strftime('%Y-%m-%d')
+    # Try today first, then walk back 7 days
+    for delta in range(8):
+        d = (datetime.date.today() - datetime.timedelta(days=delta)).strftime('%Y-%m-%d')
+        script_path = f'{base}/{d}/script.json'
+        manifest_path = f'{base}/{d}/episode_manifest.json'
+        thumb_path = f'{base}/{d}/thumbnail.png'
+        try:
+            import json as _json
+            with open(script_path) as f:
+                script = _json.load(f)
+            # Find the mp4 in the output dir
+            import glob as _glob
+            mp4s = _glob.glob(f'{base}/{d}/pulse_check_*.mp4')
+            # Exclude derivative files
+            mp4s = [m for m in mp4s if not any(x in m for x in ['.bgl_audio', '.concat_raw', '.intro_mus', '.music_mixed'])]
+            video_url = None
+            if mp4s:
+                fname = sorted(mp4s)[-1].split('/home/ultron/protocol_pulse/')[-1]
+                # Map to video.protocolpulse.io
+                video_url = 'https://video.protocolpulse.io/video_pipeline_v3/output/' + d + '/' + mp4s[-1].split('/')[-1]
+            thumbnail_url = f'/static/images/default-header.png'
+            if _glob.glob(thumb_path):
+                thumbnail_url = f'https://video.protocolpulse.io/video_pipeline_v3/output/{d}/thumbnail.png'
+            return {
+                'title': script.get('episode_title', 'Bitcoin Intelligence Briefing'),
+                'date': d,
+                'video_url': video_url,
+                'thumbnail_url': thumbnail_url,
+                'segments': script.get('segments_summary', []),
+                'found': True,
+            }
+        except Exception:
+            continue
+    return {'found': False, 'title': None, 'date': None, 'video_url': None, 'thumbnail_url': None}
+
+
 @app.route('/')
 def index():
     """Homepage with featured articles, segment-based Bento-box ranking"""
@@ -436,6 +478,7 @@ def index():
             else:
                 article_image_urls[a.id] = "/static/images/default-header.png"
 
+    latest_episode = get_latest_episode()
     return render_template('index.html',
                          featured_articles=featured_articles,
                          recent_articles=recent_articles,
@@ -446,7 +489,8 @@ def index():
                          todays_signal=todays_signal,
                          user_segment=user_segment,
                          bento_articles=bento_articles[:4],
-                         article_image_urls=article_image_urls)
+                         article_image_urls=article_image_urls,
+                         latest_episode=latest_episode)
 
 def generate_todays_signal():
     """Generate rotating 120-word briefing for Today's Signal"""
@@ -10963,3 +11007,12 @@ def api_stage_signal():
     except Exception as e:
         logging.warning('stage signal error: %s', e)
         return jsonify({'nostr_posts': [], 'cached': False})
+
+
+@app.route('/api/latest-episode')
+def api_latest_episode():
+    """Return latest Pulse Check episode metadata as JSON."""
+    from flask import jsonify
+    ep = get_latest_episode()
+    return jsonify(ep)
+

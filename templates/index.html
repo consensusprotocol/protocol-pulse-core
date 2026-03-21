@@ -502,34 +502,52 @@
                     <h2 class="pp-section__title">Pulse Check</h2>
                     <p class="pp-section__subtitle">Daily AI-powered Bitcoin intelligence briefing</p>
                 </div>
-                <div class="pp-video-embed" id="pulseCheckEmbed">
+                <div class="pp-video-embed" id="pulseCheckEmbed" {% if latest_episode and latest_episode.video_url %}data-video-url="{{ latest_episode.video_url }}"{% endif %}>
+                    {% if latest_episode and latest_episode.video_url %}
+                    <img src="{{ latest_episode.thumbnail_url }}" alt="Pulse Check thumbnail" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">
+                    {% endif %}
                     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ppLoadVideo(this)">
                         <div style="text-align:center;">
-                            <div style="width:64px;height:64px;border-radius:50%;background:var(--pp-teal);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                                <i class="fas fa-play" style="color:var(--pp-black);font-size:1.25rem;margin-left:3px;"></i>
+                            <div style="width:64px;height:64px;border-radius:50%;background:var(--pp-red, #CC2222);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 24px rgba(220,38,38,0.4);">
+                                <i class="fas fa-play" style="color:#fff;font-size:1.25rem;margin-left:3px;"></i>
                             </div>
+                            {% if latest_episode and latest_episode.title %}
+                            <div class="pp-label" style="color:#fff;font-weight:600;">{{ latest_episode.title }}</div>
+                            <div class="pp-tiny pp-text-muted" style="margin-top:4px;">{{ latest_episode.date }}</div>
+                            {% else %}
                             <div class="pp-label">Watch Latest Episode</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
             <div>
-                <h3 class="pp-h5 pp-mb-3">Recent Episodes</h3>
-                {% if featured_podcasts %}
-                    {% for podcast in featured_podcasts[:3] %}
+                <h3 class="pp-h5 pp-mb-3">Latest Episode</h3>
+                {% if latest_episode and latest_episode.found %}
+                    <a href="{{ latest_episode.video_url or '/stage' }}" target="_blank" rel="noopener" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;text-decoration:none;">
+                        <div style="flex-shrink:0;width:48px;height:48px;background:rgba(220,38,38,0.15);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;border:1px solid rgba(220,38,38,0.3);">
+                            <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
+                        </div>
+                        <div style="min-width:0;">
+                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ latest_episode.title }}</div>
+                            <div class="pp-tiny pp-text-muted">{{ latest_episode.date }} &middot; Pulse Check</div>
+                        </div>
+                    </a>
+                {% elif featured_podcasts %}
+                    {% for podcast in featured_podcasts[:1] %}
                     <a href="/podcasts" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;">
                         <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
                             <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
                         </div>
                         <div style="min-width:0;">
-                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ podcast.title }}</div>
+                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);">{{ podcast.title }}</div>
                             <div class="pp-tiny pp-text-muted">{{ podcast.published_date.strftime('%b %d') if podcast.published_date else '' }}</div>
                         </div>
                     </a>
                     {% endfor %}
                 {% else %}
-                    <div class="pp-card" style="padding:20px;text-align:center;">
-                        <div class="pp-text-muted pp-small">Episodes coming soon</div>
+                    <div class="pp-card" style="padding:16px;text-align:center;">
+                        <div class="pp-text-muted pp-small">Loading latest episode...</div>
                     </div>
                 {% endif %}
                 <a href="/podcasts" class="pp-btn pp-btn--outline-teal pp-btn--sm pp-btn--full pp-mt-2">
@@ -945,7 +963,12 @@ setInterval(updateIntelStrip, 60000);
    ════════════════════════════════════════════════════════════ */
 function ppLoadVideo(el) {
     var container = document.getElementById('pulseCheckEmbed');
-    container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-podcast" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/podcasts" style="color:var(--pp-red, #CC2222);">Podcasts</a> for the latest episodes</div></div>';
+    var videoUrl = container.getAttribute('data-video-url');
+    if (videoUrl) {
+        container.innerHTML = '<video src="' + videoUrl + '" controls autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;"></video>';
+    } else {
+        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-broadcast-tower" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/stage" style="color:var(--pp-red, #CC2222);">Stage</a> for the latest episode</div></div>';
+    }
 }
 
 /* ════════════════════════════════════════════════════════════
