@@ -401,6 +401,14 @@ try:
 except Exception as _e:
     logging.warning("Briefings blueprint not loaded: %s", _e)
 
+# Montage Blueprint (daily highlights montage)
+try:
+    from core.blueprints.montage_routes import montage_bp
+    app.register_blueprint(montage_bp)
+    logging.info("Montage blueprint registered at /montage")
+except Exception as _e:
+    logging.warning("Montage blueprint not loaded: %s", _e)
+
 # Start background APScheduler only when explicitly enabled for this process.
 if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
     try:
