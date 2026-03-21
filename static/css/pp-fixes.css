@@ -13,3 +13,77 @@
 [data-theme="light"] input,[data-theme="light"] select,[data-theme="light"] textarea{background:#fff;color:#111;border:1px solid rgba(0,0,0,.2)}
 [data-theme="light"] .ticker-sym{color:#555}[data-theme="light"] .ticker-val{color:#111}
 [data-theme="light"] .newsletter-section{background:#1a1a1a;color:#fff}
+
+
+/* ============================================================
+   BLUE FOCUS RING KILL — Protocol Pulse
+   Replaces Bootstrap 5 default blue (#007bff / #0d6efd) with
+   PP brand red or transparent on all interactive elements.
+   Loads last — overrides everything upstream.
+   ============================================================ */
+
+/* 1. Kill Bootstrap's native button focus-shadow entirely */
+button:focus,
+button:focus-visible,
+button:focus-within,
+.btn:focus,
+.btn:focus-visible,
+.btn-check:focus + .btn,
+.btn:active:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 2. PP share buttons — no focus ring at all (icon buttons don't need it) */
+.pp-share-btn,
+.pp-share-btn:focus,
+.pp-share-btn:focus-visible,
+.pp-share-btn:active,
+.pp-share-btn:hover {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* 3. Kill Bootstrap blue on form inputs — replace with PP red */
+.form-control:focus,
+.form-select:focus,
+.form-control:focus-visible,
+.form-select:focus-visible {
+    border-color: var(--pp-red, #CC2222) !important;
+    box-shadow: 0 0 0 2px rgba(204, 34, 34, 0.25) !important;
+    outline: none !important;
+}
+
+/* 4. All nav links, dropdown items — no blue ring */
+.nav-link:focus,
+.nav-link:focus-visible,
+.dropdown-item:focus,
+.dropdown-item:focus-visible,
+.navbar-toggler:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 5. PP inputs/search — PP teal ring instead of blue */
+.pp-input:focus,
+.pp-input:focus-visible,
+input[class*="pp-"]:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px var(--pp-teal-dim, rgba(0,212,212,0.2)) !important;
+    border-color: var(--pp-teal, #00d4d4) !important;
+}
+
+/* 6. :focus-visible kept for keyboard nav — use PP teal not blue */
+:focus-visible {
+    outline: 2px solid var(--pp-teal, #00d4d4) !important;
+    outline-offset: 2px !important;
+}
+
+/* 7. Override pp-style.css blue on form-control (rgba 13,110,253 and 0,123,255) */
+.navbar-search .form-control:focus,
+.command-search:focus,
+.newsletter-form .form-control:focus {
+    box-shadow: 0 0 0 2px rgba(204, 34, 34, 0.2) !important;
+    border-color: rgba(204, 34, 34, 0.5) !important;
+}

@@ -73,8 +73,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #CC2222;
+    border-color: #CC2222;
 }
 
 .btn-primary:hover {
@@ -95,8 +95,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-control:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(204, 34, 34, 0.25);
+    border-color: #CC2222;
 }
 
 /* Footer Styling */
@@ -369,7 +369,7 @@ footer a:hover {
 }
 
 .article-card h3 a:hover {
-    color: #007bff;
+    color: #CC2222;
 }
 
 .article-card p {
@@ -391,7 +391,7 @@ footer a:hover {
     font-weight: 600;
     margin-bottom: 1rem;
     color: #333;
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #CC2222;
     padding-bottom: 0.5rem;
 }
 
@@ -481,7 +481,7 @@ footer a:hover {
 }
 
 .featured-item h4 a:hover {
-    color: #007bff;
+    color: #CC2222;
 }
 
 /* Responsive Design */

@@ -1186,7 +1186,7 @@ body {
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(13, 110, 253, 0.1);
+    box-shadow: 0 10px 30px rgba(204, 34, 34, 0.05);
 }
 
 .featured-card {
@@ -1383,7 +1383,7 @@ body {
     background-color: var(--bg-dark);
     border-color: var(--primary-color);
     color: var(--light-color);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 2px rgba(204, 34, 34, 0.25);
 }
 
 .form-control::placeholder {
@@ -1398,7 +1398,7 @@ body {
 }
 
 .badge.bg-outline-primary {
-    background-color: rgba(13, 110, 253, 0.1) !important;
+    background-color: rgba(204, 34, 34, 0.05) !important;
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
 }
@@ -1489,13 +1489,13 @@ footer a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(13, 110, 253, 0.4);
+    box-shadow: 0 4px 20px rgba(204, 34, 34, 0.3);
     transition: all 0.3s ease;
 }
 
 .fab:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(13, 110, 253, 0.6);
+    box-shadow: 0 6px 25px rgba(204, 34, 34, 0.5);
 }
 
 /* World-Class Article Formatting */
