@@ -360,6 +360,16 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
         logger.info(f"[SpaceTap] Insufficient speech in {space_id} ({total_words} words)")
         return None
 
+
+    # ── Relevance gate: reject if transcript has zero Bitcoin signal ───────
+    full_transcript = " ".join(s["text"] for s in segments).lower()
+    RELEVANCE_REQUIRED = {"bitcoin", "btc", "saylor", "crypto", "satoshi",
+                          "lightning", "halving", "mining", "hashrate", "etf",
+                          "blockchain", "defi", "nft", "wallet", "hodl",
+                          "inflation", "fed", "monetary", "fiat", "financial"}
+    if not any(kw in full_transcript for kw in RELEVANCE_REQUIRED):
+        logger.info(f"[SpaceTap] REJECTED {space_id} — no financial/crypto relevance in transcript")
+        return None
     logger.info(f"[SpaceTap] Captured 45s, transcribed {total_words} words, extracting clips")
 
     # ── Step D: Score segments, find best 15s windows ──────────────────────
