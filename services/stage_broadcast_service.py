@@ -251,7 +251,12 @@ def _generate_script(segment_type, context_data):
         timeout=30,
     )
     resp.raise_for_status()
-    return resp.json()["content"][0]["text"].strip()
+    import re as _re
+    text = resp.json()["content"][0]["text"].strip()
+    text = _re.sub(r'^#+\s+[^\n]*\n?', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'^---+\s*', '', text, flags=_re.MULTILINE)
+    text = text.strip()
+    return text
 
 
 def _make_queue_item(seg_type, priority, script, source_label, topic_preview, ttl_minutes):

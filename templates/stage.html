@@ -956,6 +956,10 @@ body { background: var(--s-bg); }
   function safeText(el, text) {
     if (el) el.textContent = String(text || '');
   }
+  function cleanScript(raw){
+    if(!raw) return '';
+    return raw.replace(/^#+\s+[^\n]*/gm,'').replace(/^---+\s*$/gm,'').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\n{3,}/g,'\n\n').trim();
+  }
   function safeHTML(el, html) {
     if (el && typeof DOMPurify !== 'undefined') {
       el.innerHTML = DOMPurify.sanitize(html, {ALLOWED_TAGS: ['span','b','em','strong'], ALLOWED_ATTR: ['style','class']});
@@ -1413,7 +1417,7 @@ body { background: var(--s-bg); }
       var resp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text: item.script, intent: 'BROADCAST_SEGMENT'})
+        body: JSON.stringify({text: cleanScript(item.script), intent: 'BROADCAST_SEGMENT'})
       }, 120000);
 
       if (!resp.ok) throw new Error('Avatar render failed: HTTP ' + resp.status);
@@ -1493,7 +1497,7 @@ body { background: var(--s-bg); }
       var renderResp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text: next.script, intent: 'BROADCAST_SEGMENT'})
+        body: JSON.stringify({text: cleanScript(next.script), intent: 'BROADCAST_SEGMENT'})
       }, 120000);
 
       if (renderResp.ok) {

@@ -269,8 +269,9 @@ def wav2lip_generate(audio_path, fps=30.0, avatar_face=None, avatar_face_coords=
 
     logger.info(f"Mel: {mel.shape[1]} cols, {num_frames} frames @ {fps}fps, audio {audio_duration:.2f}s, batch={batch_size}")
 
-    # Face bbox
+    # Face bbox with chin padding (8% lower to eliminate chin seam)
     y1, y2, x1, x2 = face_coords
+    y2 = min(face_img.shape[0], y2 + int((y2 - y1) * 0.08))
     face_crop = face_img[y1:y2, x1:x2]
     face_resized = cv2.resize(face_crop, (96, 96))
     face_masked = face_resized.copy()
@@ -301,7 +302,7 @@ def wav2lip_generate(audio_path, fps=30.0, avatar_face=None, avatar_face_coords=
             full_frame = face_img.copy()
             # Feathered blend to eliminate face paste seam
             mask = np.ones_like(p_resized, dtype=np.float32)
-            feather = 8
+            feather = 18
             h_face, w_face = p_resized.shape[:2]
             for j in range(min(feather, h_face)):
                 mask[j, :] = j / feather
@@ -431,7 +432,7 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             if w > 512:
                 cmd += ["-vf", "scale=512:512"]
             cmd += [
-                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+                "-c:v", "libx264", "-preset", "medium", "-crf", "18",
                 "-c:a", "aac", "-b:a", "128k",
                 "-map", "0:a", "-map", "1:v",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
@@ -446,7 +447,7 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             if w > 512:
                 cmd += ["-vf", "scale=512:512"]
             cmd += [
-                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+                "-c:v", "libx264", "-preset", "medium", "-crf", "18",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 mp4_path,
             ]
