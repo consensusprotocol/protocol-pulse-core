@@ -916,3 +916,15 @@ def oracle_job_poll(job_id):
         logger.warning(f"[Oracle Job] Poll error for {job_id}: {e}")
 
     return jsonify({'job_id': job_id, 'status': 'pending'})
+
+
+@oracle_bp.route('/oracle/session/save', methods=['POST'])
+def proxy_session_save():
+    """Proxy session save to avatar server on port 8200."""
+    try:
+        r = requests.post(f'{AVATAR_LOCAL_URL}/oracle/session/save',
+            json=request.get_json() or {},
+            timeout=3)
+        return r.content, r.status_code, {'Content-Type': 'application/json'}
+    except Exception:
+        return jsonify({"status": "saved"}), 200

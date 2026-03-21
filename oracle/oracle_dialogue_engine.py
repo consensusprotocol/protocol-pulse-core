@@ -538,7 +538,7 @@ def _get_anthropic_key() -> str:
 
 # ── Action Card Detection (zero LLM cost — keyword matching) ─────────────
 _ACTION_CARDS = []
-_ACTION_CARDS_ORDER = ["meanwhile", "rns", "coldcard", "bitcoin_standard", "curated_mining"]
+_ACTION_CARDS_ORDER = ["meanwhile", "rns", "trezor", "ledger", "bitcoin_standard", "layered_money", "gradually_then_suddenly", "curated_mining"]
 try:
     _cards_path = os.path.join(os.path.dirname(__file__), "action_cards.json")
     with open(_cards_path) as _f:
