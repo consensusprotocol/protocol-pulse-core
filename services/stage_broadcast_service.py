@@ -37,6 +37,10 @@ DATA_DIR = BASE / "data"
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 MAX_QUEUE_DEPTH = 8
 
+# Local LLM offload — try Ollama on GPU 2 before Claude API
+LOCAL_LLM_URL = "http://localhost:11435"
+LOCAL_LLM_MODEL = os.environ.get("WATCHDOG_MODEL", "qwen3-coder:30b")
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -236,12 +240,48 @@ ANCHOR_SYSTEM = (
 )
 
 
-def _generate_script(segment_type, context_data):
-    """Generate a broadcast script via Claude Haiku."""
-    api_key = _get_anthropic_key()
+def _generate_script_local(prompt):
+    """Try local Ollama first — zero API cost."""
+    try:
+        resp = requests.post(
+            f"{LOCAL_LLM_URL}/api/chat",
+            json={
+                "model": LOCAL_LLM_MODEL,
+                "messages": [
+                    {"role": "system", "content": ANCHOR_SYSTEM},
+                    {"role": "user", "content": prompt},
+                ],
+                "stream": False,
+                "options": {"temperature": 0.7},
+            },
+            timeout=15,
+        )
+        resp.raise_for_status()
+        text = resp.json().get("message", {}).get("content", "").strip()
+        if len(text) > 10:
+            logger.info("Script generated via LOCAL LLM")
+            return text
+    except Exception as e:
+        logger.info("Local LLM failed (%s), falling back to API", e)
+    return None
 
+
+def _generate_script(segment_type, context_data):
+    """Generate a broadcast script — local Ollama first, Claude Haiku fallback."""
     prompt = f"Segment type: {segment_type}\n\nData:\n{json.dumps(context_data, indent=2)}\n\n"
     prompt += "Generate a spoken broadcast script based on this data."
+
+    # Try local LLM first (free)
+    local_result = _generate_script_local(prompt)
+    if local_result:
+        import re as _re
+        local_result = _re.sub(r'^#+\s+[^\n]*\n?', '', local_result, flags=_re.MULTILINE)
+        local_result = _re.sub(r'^---+\s*', '', local_result, flags=_re.MULTILINE)
+        return local_result.strip()
+
+    # Fallback to Claude Haiku API
+    logger.info("Script generated via API (Claude Haiku)")
+    api_key = _get_anthropic_key()
 
     resp = requests.post(
         "https://api.anthropic.com/v1/messages",

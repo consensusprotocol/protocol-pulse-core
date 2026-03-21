@@ -1,0 +1,14 @@
+[Unit]
+Description=Ollama Watchdog LLM on GPU 2
+After=network.target
+
+[Service]
+User=ultron
+Environment=CUDA_VISIBLE_DEVICES=2
+Environment=OLLAMA_HOST=127.0.0.1:11435
+ExecStart=/usr/local/bin/ollama serve
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
