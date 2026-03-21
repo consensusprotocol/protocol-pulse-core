@@ -80,6 +80,22 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     except Exception as e:
         print(f"  [WARN] Narrative intelligence unavailable: {e} — continuing with historical signals")
 
+    # ─── Step 0b: Load Morning Intelligence Brief ───
+    morning_brief = None
+    brief_path = os.path.join(os.path.dirname(BASE), "data", "intelligence", "morning_intelligence_brief.json")
+    if os.path.exists(brief_path):
+        try:
+            with open(brief_path) as f:
+                morning_brief = json.load(f)
+            print(f"  Morning brief loaded: {morning_brief.get('date', 'unknown')}")
+            print(f"  Dominant narratives: {len(morning_brief.get('dominant_narratives', []))}")
+            print(f"  Trending language: {len(morning_brief.get('trending_language', []))}")
+            print(f"  Tweet angles: {len(morning_brief.get('recommended_tweet_angles', []))}")
+        except Exception as e:
+            print(f"  [WARN] Morning brief load failed: {e}")
+    else:
+        print("  Morning brief not found — continuing without it")
+
     # ─── BTC Price (fetch early, used everywhere) ───
     btc_price = "N/A"
     try:
@@ -145,24 +161,11 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
                 print(f"    #{rank}: {ci.get('channel','?')} — {ci.get('duration',0):.1f}s")
             print(f"  Time: {time.time()-t0:.1f}s")
 
-            # ─── Step 2c: Space Tap clip discovery (pre-script) ───
-            try:
-                sys.path.insert(0, os.path.join(BASE, '..', 'x_spaces_scraper'))
-                from scraper import get_best_space_clips
-                _st_data = get_best_space_clips(max_clips=4)
-                if _st_data and _st_data.get('clips'):
-                    selections['space_tap_clips'] = _st_data['clips']
-                    print(f"  Space Tap: {len(_st_data['clips'])} clips from "
-                          f"{_st_data['spaces_count']} spaces")
-                else:
-                    print("  Space Tap: no clips available — segment skipped")
-            except Exception as e:
-                print(f"  Space Tap: skipped ({e})")
-
             # ─── Step 3: Generate script from clips ───
             print("\n[STEP 3/7] WRITING HOST DIALOGUE...")
             t0 = time.time()
-            script = generate_from_clips(selections, btc_price=btc_price)
+            script = generate_from_clips(selections, btc_price=btc_price,
+                                                morning_brief=morning_brief)
             # Carry space_tap_clips into script for assembler
             if selections.get('space_tap_clips'):
                 script['space_tap_clips'] = selections['space_tap_clips']
@@ -176,6 +179,22 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     # Save script
     with open(os.path.join(run_dir, "script.json"), "w") as f:
         json.dump(script, f, indent=2)
+
+    # ─── Step 3b: Space Tap clip discovery (runs regardless of cached_only) ───
+    try:
+        sys.path.insert(0, os.path.join(BASE, '..', 'x_spaces_scraper'))
+        from scraper import get_best_space_clips
+        _st_data = get_best_space_clips(max_clips=4)
+        if _st_data and _st_data.get('clips'):
+            selections['space_tap_clips'] = _st_data['clips']
+            script['space_tap_clips'] = _st_data['clips']
+            with open(os.path.join(run_dir, "script.json"), "w") as f:
+                json.dump(script, f, indent=2)
+            print(f"  Space Tap: injected {len(_st_data['clips'])} clips into script")
+        else:
+            print("  Space Tap: no clips available — segment skipped")
+    except Exception as e:
+        print(f"  Space Tap: skipped ({e})")
 
     # ─── Step 4: TTS ───
     print("\n[STEP 4/7] GENERATING TTS AUDIO (ElevenLabs)...")
@@ -289,6 +308,23 @@ def run_pipeline(output_path: str, style: str = "default", cached_only: bool = F
     print("\n[BONUS] GENERATING VERTICAL SHORTS...")
     shorts = generate_shorts(script, shorts_dir)
     print(f"  Shorts generated: {len(shorts)}")
+
+    # ─── Export tweet angles from morning brief for auto-tweet machine ───
+    if morning_brief and morning_brief.get("recommended_tweet_angles"):
+        tweet_angles_path = os.path.join(os.path.dirname(BASE), "data", "social_queue",
+                                          f"{datetime.now().strftime('%Y%m%d')}_brief_angles.json")
+        try:
+            os.makedirs(os.path.dirname(tweet_angles_path), exist_ok=True)
+            with open(tweet_angles_path, "w") as f:
+                json.dump({
+                    "source": "morning_intelligence_brief",
+                    "generated_at": morning_brief.get("generated_at", ""),
+                    "angles": morning_brief["recommended_tweet_angles"],
+                    "trending_language": morning_brief.get("trending_language", []),
+                }, f, indent=2)
+            print(f"  Tweet angles exported: {tweet_angles_path}")
+        except Exception as e:
+            print(f"  [WARN] Tweet angles export failed: {e}")
 
     # Summary
     print("\n" + "=" * 70)

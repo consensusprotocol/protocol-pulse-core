@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""TTS Engine V9 — Dual-host local TTS pipeline.
+"""TTS Engine V10 — Dual-host local TTS pipeline.
 Host 1: Kokoro af_heart (female) — setup/bridge.
-Host 2: F5-TTS fine-tuned PBX (male) — react/wrap.
+Host 2: Chatterbox TTS PBX (male) — react/wrap.
 Fallback: ElevenLabs per-line. TTS_PROVIDER=local (default) or elevenlabs.
 Generates per-line audio with 0.3s silence gaps."""
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging
@@ -23,6 +23,7 @@ _KOKORO_BACKEND = None
 _KOKORO_INSTANCE = None
 _F5_MODEL = None
 _BIGVGAN_MODEL = None
+_CHATTERBOX_MODEL = None
 _PROSODY_CACHE = {}  # hash(text) -> prosody-planned text
 
 
@@ -78,6 +79,21 @@ def _init_f5():
         return True
     except Exception as e:
         logger.error(f"[TTS/F5] Failed to load checkpoint: {e}")
+        return False
+
+
+def _init_chatterbox():
+    """Lazy-initialize Chatterbox TTS on cuda:0."""
+    global _CHATTERBOX_MODEL
+    if _CHATTERBOX_MODEL is not None:
+        return True
+    try:
+        from chatterbox.tts import ChatterboxTTS
+        _CHATTERBOX_MODEL = ChatterboxTTS.from_pretrained(device="cuda:0")
+        logger.info("[TTS/Chatterbox] Model loaded on cuda:0")
+        return True
+    except Exception as e:
+        logger.error(f"[TTS/Chatterbox] Failed to load: {e}")
         return False
 
 
@@ -222,7 +238,7 @@ VOICES = {
 
 def _get_tts_provider() -> str:
     """TTS provider selector.
-    'local'      → Kokoro af_heart (host1) + fine-tuned F5-TTS PBX (host2) + ElevenLabs fallback
+    'local'      → Kokoro af_heart (host1) + Chatterbox PBX (host2) + ElevenLabs fallback
     'elevenlabs' → ElevenLabs only (emergency override, preserves single-host Option A)
     """
     val = os.environ.get("TTS_PROVIDER", "local").lower().strip()
@@ -833,69 +849,47 @@ def tts_kokoro(text: str, output_path: str, voice: str = "af_heart",
         return False
 
 
-def tts_f5_finetuned(text: str, output_path: str, speed: float = 1.1) -> bool:
-    """Generate TTS using fine-tuned PBX voice checkpoint + reference clip.
+def tts_chatterbox(text: str, output_path: str, exaggeration: float = 0.4,
+                    cfg_weight: float = 0.5) -> bool:
+    """Generate TTS using Chatterbox for PBX (Host 2).
 
-    F5-TTS infer() requires ref_file even with fine-tuned checkpoint.
+    Chatterbox produces clean audio — no post-processing EQ needed.
     Output: M4A 48kHz AAC 192k.
     """
-    if not _init_f5():
-        logger.warning("[TTS/F5] Fine-tuned model not loaded")
-        return False
-
-    if not os.path.exists(PBX_REFERENCE_CLIP):
-        logger.warning(f"[TTS/F5] Reference clip missing: {PBX_REFERENCE_CLIP}")
+    if not _init_chatterbox():
+        logger.warning("[TTS/Chatterbox] Model not loaded")
         return False
 
     try:
-        import soundfile as sf
-        wav_tmp = output_path + ".f5.wav"
+        import torchaudio
+        wav_tmp = output_path + ".cb.wav"
 
-        wav, sr, _ = _F5_MODEL.infer(
-            ref_file=PBX_REFERENCE_CLIP,
-            ref_text="",
-            gen_text=text,
-            target_rms=0.1,
-            cross_fade_duration=0.15,
-            speed=speed,
-            show_info=print,
-            progress=None,
-        )
-        sf.write(wav_tmp, wav, sr)
+        wav = _CHATTERBOX_MODEL.generate(text, exaggeration=exaggeration,
+                                          cfg_weight=cfg_weight)
+        torchaudio.save(wav_tmp, wav, 24000)
 
         if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
-            logger.error("[TTS/F5] Zero output from inference")
+            logger.error("[TTS/Chatterbox] Zero output from inference")
             return False
 
-        # BigVGAN2 upsample: 24kHz → 44kHz (graceful fallback)
-        wav_for_encode = _bigvgan_upsample(wav_tmp)
-        # FIX 1: EQ chain to remove metallic ring above 6kHz, boost warmth at 2.8kHz
+        # Convert WAV to M4A (48kHz AAC 192k)
         r = subprocess.run([
-            "ffmpeg", "-y", "-i", wav_for_encode,
-            "-af", (
-                "highpass=f=80,"
-                "equalizer=f=200:t=o:w=1.5:g=1.5,"
-                "equalizer=f=2800:t=o:w=1.2:g=2.0,"
-                "equalizer=f=6000:t=o:w=1.0:g=-4.0,"
-                "equalizer=f=10000:t=o:w=1.0:g=-6.0,"
-                "equalizer=f=14000:t=o:w=0.8:g=-8.0,"
-                "alimiter=limit=0.95:level=disabled:attack=3:release=25"
-            ),
+            "ffmpeg", "-y", "-i", wav_tmp,
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
         ], capture_output=True, text=True, timeout=60)
-        for _tmp in [wav_tmp, wav_for_encode]:
-            try:
-                if os.path.exists(_tmp):
-                    os.remove(_tmp)
-            except Exception:
-                pass
+
+        try:
+            if os.path.exists(wav_tmp):
+                os.remove(wav_tmp)
+        except Exception:
+            pass
 
         ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
         if ok:
-            logger.info(f"[TTS/F5] OK: {ffprobe_duration(output_path):.2f}s (fine-tuned PBX + ref clip, EQ applied)")
+            logger.info(f"[TTS/Chatterbox] OK: {ffprobe_duration(output_path):.2f}s (PBX)")
         return ok
     except Exception as e:
-        logger.error(f"[TTS/F5] Exception: {e}")
+        logger.error(f"[TTS/Chatterbox] Exception: {e}")
         return False
 
 
@@ -904,7 +898,7 @@ def tts_local(text: str, output_path: str, host: int = 1,
     """Primary TTS dispatcher — local GPU inference with per-line ElevenLabs fallback.
 
     Host 1 → Kokoro af_heart → ElevenLabs Eryn fallback
-    Host 2 → F5-TTS fine-tuned PBX → Kokoro am_adam → ElevenLabs PBX fallback
+    Host 2 → Chatterbox PBX → Kokoro am_adam → ElevenLabs PBX fallback
     """
     text = expand_numbers_for_tts(text)
     text = apply_pronunciation_map(text)
@@ -933,9 +927,9 @@ def tts_local(text: str, output_path: str, host: int = 1,
             logger.warning("[TTS/Local] Kokoro host1 FAILED → ElevenLabs Eryn fallback")
             ok = tts_elevenlabs(text, output_path, host=1, segment_type=segment_type)
     else:
-        ok = tts_f5_finetuned(text, output_path, speed=F5_SPEED)
+        ok = tts_chatterbox(text, output_path)
         if not ok:
-            logger.warning("[TTS/Local] F5 FAILED → Kokoro am_adam")
+            logger.warning("[TTS/Local] Chatterbox FAILED → Kokoro am_adam")
             ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
         if not ok:
             logger.warning("[TTS/Local] Kokoro host2 FAILED → ElevenLabs PBX fallback")
