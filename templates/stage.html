@@ -36,7 +36,7 @@ body { background: var(--s-bg); }
     radial-gradient(ellipse 50% 35% at 80% 80%, rgba(248,193,92,.04) 0%, transparent 60%),
     repeating-linear-gradient(0deg,   rgba(255,59,95,.025) 0px, transparent 1px, transparent 39px, rgba(255,59,95,.025) 40px),
     repeating-linear-gradient(90deg,  rgba(255,59,95,.025) 0px, transparent 1px, transparent 39px, rgba(255,59,95,.025) 40px);
-  padding: 0 0 60px;
+  padding: 0 0 80px;
 }
 
 /* ── TOP STATUS BAR ─────────────────────────────────── */
@@ -183,11 +183,13 @@ body { background: var(--s-bg); }
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center top;
   filter: brightness(.9) contrast(1.08);
+  transition: opacity 0.3s;
 }
 .stage-avatar-vid {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center top;
   display: none; z-index: 1;
+  transition: opacity 0.3s;
 }
 .stage-avatar-vid.active { display: block; }
 .stage-avatar-nameplate {
@@ -678,6 +680,9 @@ body { background: var(--s-bg); }
 </style>
 {% endblock %}
 
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" integrity="sha384-irMFAaNSIMAylOGwQzBdH2aFMly/VSIY7JChJO2GJwGCYJF2f3+K0wn+tmFLBX1H" crossorigin="anonymous"></script>
+{% endblock %}
 {% block content %}
 <div class="stage-wrap">
 
@@ -751,6 +756,13 @@ body { background: var(--s-bg); }
     <!-- CENTERED: Avatar panel -->
     <div class="stage-main">
       <div class="stage-desk">
+        <!-- ON AIR Badge -->
+        <div id="onAirBadge" style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,59,95,.08);border:1px solid rgba(255,59,95,.25);border-radius:6px 6px 0 0;border-bottom:none;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--s-red);box-shadow:0 0 6px var(--s-red);animation:live-pulse 1.4s ease-in-out infinite;"></span>
+          <span style="font-family:var(--s-mono);font-size:11px;letter-spacing:.18em;color:var(--s-red);text-transform:uppercase;font-weight:700;">ON AIR</span>
+          <span id="signalSourceLabel" style="font-family:var(--s-mono);font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.08em;margin-left:8px;">📡 INITIALIZING</span>
+          <span id="sessionTimer" style="margin-left:auto;font-family:var(--s-mono);font-size:10px;color:var(--s-gold);letter-spacing:.08em;">Broadcasting for <span id="sessionTime">0:00</span></span>
+        </div>
         <!-- Avatar -->
         <div class="stage-avatar-wrap">
           <img class="stage-avatar-img" id="avatarStill"
@@ -778,7 +790,7 @@ body { background: var(--s-bg); }
         <div class="stage-brief__section-label">Market Sentiment</div>
         <div class="stage-brief__sentiment">
           <div>
-            <div class="stage-brief__sentiment-score" id="sentimentScore">—</div>
+            <div class="stage-brief__sentiment-score" id="sentimentScore" role="status" aria-live="polite">—</div>
             <div class="stage-brief__sentiment-label" id="sentimentLabel">Loading</div>
           </div>
           <div style="flex:1">
@@ -807,10 +819,10 @@ body { background: var(--s-bg); }
         <div style="margin-top:12px">
           <div class="stage-brief__section-label">Oracle Broadcast</div>
           <div class="stage-controls">
-            <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()">
+            <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()" aria-label="Request daily Bitcoin briefing">
               ▶ Daily Brief
             </button>
-            <button class="stage-btn stage-btn--ghost" id="greetBtn" onclick="requestGreet()">
+            <button class="stage-btn stage-btn--ghost" id="greetBtn" onclick="requestGreet()" aria-label="Request Oracle greeting">
               👋 Greet
             </button>
             <div class="stage-status" id="stageStatus">Ready</div>
@@ -852,7 +864,7 @@ body { background: var(--s-bg); }
         <div class="stage-chat-input">
           <input type="text" id="stageChatInput" placeholder="Ask about Bitcoin..."
                  onkeydown="if(event.key==='Enter')stageChat()">
-          <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak">&#127908;</button>
+          <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak" aria-label="Push to speak — tap to ask Oracle a question" role="button">&#127908;</button>
           <button class="stage-btn stage-btn--primary" onclick="stageChat()" style="padding:8px 14px">&#9654;</button>
         </div>
         <div class="stage-chat-history" id="stageChatHistory"></div>
@@ -869,6 +881,7 @@ body { background: var(--s-bg); }
           <div class="stage-tx-card shimmer" style="height:140px;"></div>
           {% endfor %}
         </div>
+        <div id="txDots" class="stage-tx-scroll-hint"></div>
       </div>
     </div>
 
@@ -882,9 +895,9 @@ body { background: var(--s-bg); }
           <span id="priceUpdated" style="font-size:8px;color:rgba(255,255,255,.2)">live</span>
         </div>
         <div class="stage-panel__body">
-          <div class="stage-price-big" id="sidebarPrice">—</div>
-          <div class="stage-price-label">USD · Real-Time</div>
-          <div class="stage-price-change" id="sidebarSentimentLine">—</div>
+          <div class="stage-price-big" id="sidebarPrice" role="status" aria-live="polite">—</div>
+          <div class="stage-price-label">USD</div>
+          <div class="stage-price-change" id="sidebarSentimentLine" role="status" aria-live="polite">—</div>
         </div>
       </div>
 
@@ -903,6 +916,12 @@ body { background: var(--s-bg); }
 
     </div><!-- /stage-sidebar -->
   </div><!-- /stage-grid -->
+
+  <!-- BROADCAST TICKER (bottom strip) -->
+  <div id="broadcastTicker" style="position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(4,5,10,.95);border-top:1px solid var(--s-border);padding:8px 20px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(8px);">
+    <span style="font-family:var(--s-mono);font-size:9px;letter-spacing:.18em;color:var(--s-red);text-transform:uppercase;flex-shrink:0;font-weight:700;">UP NEXT</span>
+    <div id="tickerContent" style="font-family:var(--s-mono);font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">Loading broadcast queue...</div>
+  </div>
 </div><!-- /stage-wrap -->
 
 <!-- Transcript Reader Overlay -->
@@ -921,6 +940,7 @@ body { background: var(--s-bg); }
 (function(){
   'use strict';
 
+  // ── CONFIG ────────────────────────────────────────────
   var AVATAR_BASE = 'https://avatar.protocolpulse.io';
   var busy = false;
   var objURL = null;
@@ -931,66 +951,118 @@ body { background: var(--s-bg); }
   var statusEl = document.getElementById('stageStatus');
   var badgeEl  = document.getElementById('avatarStatusBadge');
 
+  // ── SAFE TEXT HELPER (P0.2: replaces old esc()) ────────
+  // Use textContent for all plain text. For rare intentional HTML, use DOMPurify.
+  function safeText(el, text) {
+    if (el) el.textContent = String(text || '');
+  }
+  function safeHTML(el, html) {
+    if (el && typeof DOMPurify !== 'undefined') {
+      el.innerHTML = DOMPurify.sanitize(html, {ALLOWED_TAGS: ['span','b','em','strong'], ALLOWED_ATTR: ['style','class']});
+    } else if (el) {
+      el.textContent = String(html || '');
+    }
+  }
+
+  // ── 429 HANDLER (P0.1: server-side rate limiting) ──────
+  function handle429(resp) {
+    if (resp.status === 429) {
+      var retryAfter = resp.headers.get('Retry-After') || '30';
+      var secs = parseInt(retryAfter, 10) || 30;
+      setStatus('Too many requests — wait ' + secs + 's', 'var(--s-red)');
+      return true;
+    }
+    return false;
+  }
+
+  // ── SESSION TIMER ─────────────────────────────────────
+  var _sessionStart = Date.now();
+  function updateSessionTimer() {
+    var elapsed = Math.floor((Date.now() - _sessionStart) / 1000);
+    var h = Math.floor(elapsed / 3600);
+    var m = Math.floor((elapsed % 3600) / 60);
+    var s = elapsed % 60;
+    var el = document.getElementById('sessionTime');
+    if (el) el.textContent = (h > 0 ? h + ':' : '') + pad(m) + ':' + pad(s);
+  }
+
   // ── CLOCK ────────────────────────────────────────────
   function tick(){
     var now = new Date();
-    document.getElementById('stageTime').textContent =
-      now.toUTCString().slice(17,22) + ' UTC';
+    safeText(document.getElementById('stageTime'), now.toUTCString().slice(17,22) + ' UTC');
+    updateSessionTimer();
   }
   tick(); setInterval(tick, 1000);
+
+  // ── LAST UPDATED INDICATOR (P1.4) ────────────────────
+  var _lastIntelUpdate = 0;
+  var _lastNostrUpdate = 0;
+  function updateStaleness() {
+    var now = Date.now();
+    if (_lastIntelUpdate) {
+      var ago = Math.floor((now - _lastIntelUpdate) / 1000);
+      var el = document.getElementById('priceUpdated');
+      if (el) el.textContent = ago < 10 ? 'just now' : ago + 's ago';
+    }
+  }
+  setInterval(updateStaleness, 5000);
 
   // ── FETCH INTEL ───────────────────────────────────────
   function loadIntel(){
     fetch('/api/stage/intel')
     .then(function(r){ return r.json(); })
     .then(function(d){
+      _lastIntelUpdate = Date.now();
       // price
       var price = d.price || '';
       updatePrice(price, d.price_float);
       // sentiment
       var score = d.sentiment_score || 50;
       var label = d.sentiment_label || 'neutral';
-      document.getElementById('sentimentScore').textContent = score;
-      document.getElementById('sentimentLabel').textContent = label.toUpperCase();
+      safeText(document.getElementById('sentimentScore'), score);
+      safeText(document.getElementById('sentimentLabel'), label.toUpperCase());
       document.getElementById('sentimentBar').style.width = score + '%';
       var sentColor = score > 60 ? 'var(--s-green)' : score < 40 ? 'var(--s-red)' : 'var(--s-gold)';
       document.getElementById('sentimentScore').style.color = sentColor;
       document.getElementById('sentimentLabel').style.color = sentColor;
-      // ticker
-      document.getElementById('tickerPrice').textContent = price;
-      document.getElementById('tickerPrice2').textContent = price;
-      document.getElementById('tickerSentiment').textContent = label.toUpperCase() + ' ' + score + '/100';
-      document.getElementById('tickerSentiment2').textContent = label.toUpperCase() + ' ' + score + '/100';
-      // sidebar sentiment line
-      document.getElementById('sidebarSentimentLine').innerHTML =
-        '<span style="color:'+sentColor+';font-family:var(--s-mono);font-size:11px">' +
-        label.toUpperCase() + ' — ' + score + '/100</span>';
+      // ticker (P0.2: textContent only)
+      safeText(document.getElementById('tickerPrice'), price);
+      safeText(document.getElementById('tickerPrice2'), price);
+      safeText(document.getElementById('tickerSentiment'), label.toUpperCase() + ' ' + score + '/100');
+      safeText(document.getElementById('tickerSentiment2'), label.toUpperCase() + ' ' + score + '/100');
+      // sidebar sentiment line (P0.2: was innerHTML, now safe DOM construction)
+      var sentLine = document.getElementById('sidebarSentimentLine');
+      if (sentLine) {
+        sentLine.textContent = '';
+        var span = document.createElement('span');
+        span.style.cssText = 'color:'+sentColor+';font-family:var(--s-mono);font-size:11px';
+        span.textContent = label.toUpperCase() + ' — ' + score + '/100';
+        sentLine.appendChild(span);
+      }
       // narrative
       if(d.narrative){
-        document.getElementById('narrativeText').textContent = d.narrative;
+        safeText(document.getElementById('narrativeText'), d.narrative);
       }
       // topics
       if(d.topics){
         renderTopics(d.topics);
         var topicsText = d.topics.replace(/\([^)]+\)/g,'').replace(/,/g,' ·');
-        document.getElementById('tickerTopics').textContent = topicsText;
-        document.getElementById('tickerTopics2').textContent = topicsText;
+        safeText(document.getElementById('tickerTopics'), topicsText);
+        safeText(document.getElementById('tickerTopics2'), topicsText);
       }
     })
     .catch(function(){
-      document.getElementById('narrativeText').textContent = 'Intel feed offline — retrying in 60s';
-      document.getElementById('tickerOracle').textContent = 'Offline';
-      setTimeout(loadIntel, 60000);
+      safeText(document.getElementById('narrativeText'), 'Intel feed offline — retrying in 30s');
+      safeText(document.getElementById('tickerOracle'), 'Offline');
     });
   }
 
   function updatePrice(priceStr, priceFloat){
     if(!priceStr) return;
     var fmt = priceFloat ? '$' + Number(priceFloat).toLocaleString('en-US',{maximumFractionDigits:0}) : priceStr;
-    document.getElementById('sidebarPrice').textContent = fmt;
-    document.getElementById('tickerPrice').textContent = fmt;
-    document.getElementById('tickerPrice2').textContent = fmt;
-    document.getElementById('priceUpdated').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    safeText(document.getElementById('sidebarPrice'), fmt);
+    safeText(document.getElementById('tickerPrice'), fmt);
+    safeText(document.getElementById('tickerPrice2'), fmt);
   }
 
   function renderTopics(topicsStr){
@@ -1010,7 +1082,7 @@ body { background: var(--s-bg); }
     });
   }
 
-  // ── LOAD TRANSCRIPTS ──────────────────────────────────
+  // ── LOAD TRANSCRIPTS (P0.2: no innerHTML with external data) ───
   function loadTranscripts(){
     fetch('/api/stage/transcripts')
     .then(function(r){ return r.json(); })
@@ -1018,7 +1090,6 @@ body { background: var(--s-bg); }
       renderTranscripts(data);
     })
     .catch(function(){
-      // Fallback: show placeholder cards
       renderTranscripts([]);
     });
   }
@@ -1026,10 +1097,15 @@ body { background: var(--s-bg); }
   function renderTranscripts(items){
     var grid = document.getElementById('transcriptsGrid');
     if(!items || !items.length){
-      grid.innerHTML = '<div style="grid-column:1/-1;font-family:var(--s-mono);font-size:11px;color:var(--s-muted);padding:20px 0">No transcript data available yet. Channel scan in progress.</div>';
+      grid.textContent = '';
+      var msg = document.createElement('div');
+      msg.style.cssText = 'grid-column:1/-1;font-family:var(--s-mono);font-size:11px;color:var(--s-muted);padding:20px 0';
+      msg.textContent = 'No transcript data available yet. Channel scan in progress.';
+      grid.appendChild(msg);
+      document.dispatchEvent(new CustomEvent('transcriptsRendered'));
       return;
     }
-    grid.innerHTML = '';
+    grid.textContent = '';
     items.forEach(function(item){
       var sentCls = 'stage-topic--neut';
       var sentLabel = item.sentiment || 'neutral';
@@ -1037,25 +1113,45 @@ body { background: var(--s-bg); }
       if(sentLabel === 'bearish') sentCls = 'stage-topic--bear';
       var card = document.createElement('div');
       card.className = 'stage-tx-card';
-      card.innerHTML = [
-        '<div class="stage-tx-card__channel">' + esc(item.channel||'Unknown') + '</div>',
-        '<div class="stage-tx-card__title">' + esc((item.title||'').slice(0,70)) + '</div>',
-        '<div class="stage-tx-card__excerpt">' + esc((item.excerpt||item.transcript_snippet||'').slice(0,120)) + '…</div>',
-        '<div class="stage-tx-card__footer">',
-          '<button class="stage-tx-card__read-btn" onclick="openReader(this)">Read Brief →</button>',
-          '<span class="stage-topic ' + sentCls + '">' + esc(sentLabel) + '</span>',
-        '</div>',
-      ].join('');
-      // Store full data on card
-      card.dataset.channel  = item.channel || '';
-      card.dataset.title    = item.title   || '';
-      card.dataset.body     = item.transcript_text || item.excerpt || '';
+
+      // P0.2: Build DOM elements, never innerHTML with external data
+      var chDiv = document.createElement('div');
+      chDiv.className = 'stage-tx-card__channel';
+      chDiv.textContent = (item.channel || 'Unknown');
+      card.appendChild(chDiv);
+
+      var titleDiv = document.createElement('div');
+      titleDiv.className = 'stage-tx-card__title';
+      titleDiv.textContent = (item.title || '').slice(0, 70);
+      card.appendChild(titleDiv);
+
+      var excerptDiv = document.createElement('div');
+      excerptDiv.className = 'stage-tx-card__excerpt';
+      excerptDiv.textContent = (item.excerpt || item.transcript_snippet || '').slice(0, 120) + '…';
+      card.appendChild(excerptDiv);
+
+      var footer = document.createElement('div');
+      footer.className = 'stage-tx-card__footer';
+      var readBtn = document.createElement('button');
+      readBtn.className = 'stage-tx-card__read-btn';
+      readBtn.textContent = 'Read Brief →';
+      readBtn.setAttribute('aria-label', 'Read full transcript for ' + (item.channel || 'this channel'));
+      readBtn.addEventListener('click', function(){ openReader(this); });
+      footer.appendChild(readBtn);
+      var sentSpan = document.createElement('span');
+      sentSpan.className = 'stage-topic ' + sentCls;
+      sentSpan.textContent = sentLabel;
+      footer.appendChild(sentSpan);
+      card.appendChild(footer);
+
+      // Store data on card
+      card.dataset.channel = item.channel || '';
+      card.dataset.title = item.title || '';
+      card.dataset.body = item.transcript_text || item.excerpt || '';
       grid.appendChild(card);
     });
-  }
-
-  function esc(s){
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    // P0.4: Custom event instead of monkey-patching
+    document.dispatchEvent(new CustomEvent('transcriptsRendered'));
   }
 
   // ── NOSTR SIGNAL ──────────────────────────────────────
@@ -1063,28 +1159,32 @@ body { background: var(--s-bg); }
     fetch('/api/stage/signal')
     .then(function(r){ return r.json(); })
     .then(function(d){
+      _lastNostrUpdate = Date.now();
       var posts = d.nostr_posts || [];
       renderNostr(posts);
     })
     .catch(function(){
       renderNostr([]);
-      document.getElementById('nostrCount').textContent = 'offline';
+      safeText(document.getElementById('nostrCount'), 'offline');
     });
   }
 
   function renderNostr(posts){
     var feed = document.getElementById('nostrFeed');
-    document.getElementById('nostrCount').textContent = posts.length + ' posts';
+    safeText(document.getElementById('nostrCount'), posts.length + ' posts');
     if(!posts.length){
-      feed.innerHTML = '<div style="font-family:var(--s-mono);font-size:10px;color:var(--s-muted);text-align:center;padding:20px 0">No signal yet — relay scanning…</div>';
+      feed.textContent = '';
+      var msg = document.createElement('div');
+      msg.style.cssText = 'font-family:var(--s-mono);font-size:10px;color:var(--s-muted);text-align:center;padding:20px 0';
+      msg.textContent = 'No signal yet — relay scanning…';
+      feed.appendChild(msg);
       return;
     }
-    feed.innerHTML = '';
+    feed.textContent = '';
     posts.slice(0,12).forEach(function(p){
       var item = document.createElement('div');
       item.className = 'stage-signal-item';
       var author = p.nip05 || p.display_name || 'anon';
-      // textContent prevents XSS from user-controlled Nostr content
       var aDiv = document.createElement('div');
       aDiv.className = 'stage-signal-item__author';
       aDiv.textContent = author.slice(0,50);
@@ -1100,9 +1200,9 @@ body { background: var(--s-bg); }
   // ── TRANSCRIPT READER ─────────────────────────────────
   window.openReader = function(btn){
     var card = btn.closest('.stage-tx-card');
-    document.getElementById('readerChannel').textContent = card.dataset.channel;
-    document.getElementById('readerTitle').textContent   = card.dataset.title;
-    document.getElementById('readerBody').textContent    = card.dataset.body || 'Full transcript not available.';
+    safeText(document.getElementById('readerChannel'), card.dataset.channel);
+    safeText(document.getElementById('readerTitle'), card.dataset.title);
+    safeText(document.getElementById('readerBody'), card.dataset.body || 'Full transcript not available.');
     document.getElementById('stageReader').classList.add('open');
     document.body.style.overflow = 'hidden';
   };
@@ -1112,50 +1212,94 @@ body { background: var(--s-bg); }
   };
 
   // ── AVATAR PLAYBACK ───────────────────────────────────
-  function setStatus(msg, color, spin){
-    statusEl.textContent = msg;
+  function setStatus(msg, color){
+    safeText(statusEl, msg);
     statusEl.style.color = color || 'rgba(255,255,255,.3)';
-    statusEl.className   = 'stage-status' + (msg==='Speaking' ? ' speaking' : '');
+    statusEl.className = 'stage-status' + (msg==='Speaking' ? ' speaking' : '');
     tickerOracle(msg);
   }
   function tickerOracle(msg){
-    document.getElementById('tickerOracle').textContent = msg;
+    safeText(document.getElementById('tickerOracle'), msg);
   }
   function setBusy(b){
     busy = b;
     briefBtn.disabled = b;
     greetBtn.disabled = b;
-    badgeEl.textContent = b ? '● Rendering…' : '● Avatar Ready';
+    safeText(badgeEl, b ? '● Rendering…' : '● Avatar Ready');
     badgeEl.style.color = b ? 'var(--s-gold)' : 'var(--s-green)';
     badgeEl.style.borderColor = b ? 'rgba(248,193,92,.3)' : 'rgba(46,255,138,.2)';
     badgeEl.style.background  = b ? 'rgba(248,193,92,.08)' : 'rgba(46,255,138,.08)';
   }
 
+  // P1.5: revokeObjectURL in finally block with null check
+  function revokeObjURL() {
+    if (objURL) {
+      try { URL.revokeObjectURL(objURL); } catch(e) {}
+      objURL = null;
+    }
+  }
+
   function playVid(url){
     return new Promise(function(resolve){
-      if(objURL){ try{ URL.revokeObjectURL(objURL); }catch(e){} objURL = null; }
+      revokeObjURL();
       objURL = url;
+      vid.style.opacity = '0';
+      still.style.opacity = '1';
       vid.src = url;
       vid.muted = true;
       vid.volume = 1.0;
-      still.style.opacity = '0';
       vid.classList.add('active');
       setStatus('Speaking','var(--s-green)');
       var unmuted = false;
       function tryUnmute(){ if(unmuted) return; unmuted=true; vid.muted=false; vid.volume=1.0; }
-      vid.addEventListener('canplay', function oncp(){ vid.removeEventListener('canplay',oncp); tryUnmute(); }, {once:true});
+      vid.addEventListener('canplay', function oncp(){
+        vid.removeEventListener('canplay',oncp);
+        vid.style.opacity='1';
+        still.style.opacity='0';
+        // Don't call tryUnmute here — let audio-first path handle audio
+      },{once:true});
       vid.onended = function(){
         vid.classList.remove('active');
-        still.style.opacity = '1';
+        vid.style.opacity='0';
+        still.style.opacity='1';
+        vid.src='';
         setStatus('Ready','rgba(255,255,255,.3)');
+        setBusy(false);
+        revokeObjURL();
         resolve();
       };
-      vid.onerror = function(){ vid.classList.remove('active'); still.style.opacity='1'; resolve(); };
+      vid.onerror = function(){
+        vid.classList.remove('active');
+        vid.style.opacity='0';
+        still.style.opacity='1';
+        setBusy(false);
+        revokeObjURL();
+        resolve();
+      };
       var p = vid.play();
-      if(p){ p.then(function(){ setTimeout(tryUnmute,50); }).catch(function(){
-        setStatus('Tap to play','var(--s-gold)');
-        vid.addEventListener('click', function(){ vid.muted=false; vid.play(); }, {once:true});
-      }); }
+      if(p){
+        p.then(function(){
+          setTimeout(tryUnmute, 50);
+        }).catch(function(err){
+          console.warn('[Stage] vid.play() rejected:', err.name);
+          // Re-unlock audio and retry
+          try{
+            var ac=new(window.AudioContext||window.webkitAudioContext)();
+            var buf=ac.createBuffer(1,1,22050);
+            var src=ac.createBufferSource();
+            src.buffer=buf;src.connect(ac.destination);src.start(0);
+            setTimeout(function(){try{ac.close();}catch(e){}},200);
+          }catch(e){}
+          setTimeout(function(){
+            vid.muted=false;
+            vid.play().catch(function(){
+              // Last resort: show tap prompt
+              setStatus('Tap avatar to play','var(--s-gold)');
+              vid.addEventListener('click',function(){vid.muted=false;vid.play();},{once:true});
+            });
+          },300);
+        });
+      }
     });
   }
 
@@ -1166,6 +1310,7 @@ body { background: var(--s-bg); }
     return fetch(url, o).finally(function(){ clearTimeout(id); });
   }
 
+  // ── REQUEST BRIEF (P0.1: routes through rate-limited proxy) ───
   var _briefCooldown = 0;
   window.requestBrief = function(){
     if(busy) return;
@@ -1173,19 +1318,18 @@ body { background: var(--s-bg); }
     if(now - _briefCooldown < 10000){ setStatus('Please wait…','var(--s-gold)'); return; }
     _briefCooldown = now;
     setBusy(true); setStatus('Fetching brief…','var(--s-gold)');
-    fetchTO(AVATAR_BASE + '/oracle/speak',{
+    fetchTO('/api/oracle/speak',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({intent:'DAILY_BRIEF'})
     }, 60000)
     .then(function(r){
+      if(handle429(r)) throw new Error('rate-limited');
       if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.blob().then(function(b){
-        return URL.createObjectURL(b);
-      });
+      return r.blob().then(function(b){ return URL.createObjectURL(b); });
     })
     .then(function(url){ return playVid(url); })
     .catch(function(e){
-      setStatus('Error — try again','var(--s-red)');
+      if(e.message !== 'rate-limited') setStatus('Error — try again','var(--s-red)');
       console.error(e);
     })
     .finally(function(){ setBusy(false); });
@@ -1200,113 +1344,354 @@ body { background: var(--s-bg); }
     setBusy(true); setStatus('Loading…','var(--s-gold)');
     fetchTO(AVATAR_BASE + '/oracle/response/GREETING',{},15000)
     .then(function(r){
+      if(handle429(r)) throw new Error('rate-limited');
       if(!r.ok) throw new Error('HTTP '+r.status);
       return r.blob().then(function(b){ return URL.createObjectURL(b); });
     })
     .then(function(url){ return playVid(url); })
-    .catch(function(e){ setStatus('Error','var(--s-red)'); console.error(e); })
+    .catch(function(e){ if(e.message !== 'rate-limited') setStatus('Error','var(--s-red)'); console.error(e); })
     .finally(function(){ setBusy(false); });
   };
 
-  // Auto-play greeting on load
-  setTimeout(function(){
-    requestGreet();
-  }, 800);
-
-  // ── STAGE MODE: BROADCAST vs INTERACTIVE ──────────────
-  var STAGE_MODE = 'interactive'; // 'broadcast' | 'interactive'
+  // ── BROADCAST SYSTEM ──────────────────────────────────
+  var STAGE_MODE = 'broadcast';
   var _stageSessionId = 'stage_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
   var _stageRecognition = null;
   var _stageIsRec = false;
+  var _currentBroadcastTopic = '';
+  var _preRenderedBlob = null;
+  var _preRenderedItem = null;
+  var _broadcastPaused = false;
 
-  function enterBroadcast(briefUrl) {
-    STAGE_MODE = 'broadcast';
-    var badge = document.getElementById('stageModeBadge');
-    badge.textContent = '● ON AIR';
-    badge.className = 'stage-mode-badge broadcast';
-    document.getElementById('interactivePanel').classList.remove('active');
-    document.getElementById('betweenBadge').style.display = 'none';
-    // Disable mic during broadcast
-    var micBtn = document.getElementById('stageMicBtn');
-    if(micBtn) micBtn.disabled = true;
-    if(briefUrl) {
-      setBusy(true);
-      setStatus('Playing brief\u2026','var(--s-gold)');
-      playVid(briefUrl).then(function(){
-        enterInteractive();
-        loadBriefingSchedule();
-      }).finally(function(){ setBusy(false); });
+  // ── BROADCAST QUEUE CONSUMER ──────────────────────────
+  async function startBroadcast() {
+    try {
+      var resp = await fetch('/api/stage/broadcast-queue');
+      if (!resp.ok) { setTimeout(startBroadcast, 5000); return; }
+      var data = await resp.json();
+      updateSignalSource('📡 INITIALIZING');
+
+      if (!data.items || !data.items.length) {
+        // Consume with null to trigger filler generation
+        await consumeAndPlay(null);
+        return;
+      }
+      await playBroadcastItem(data.items[0]);
+    } catch(e) {
+      console.error('startBroadcast error:', e);
+      setTimeout(startBroadcast, 5000);
     }
   }
 
-  function enterInteractive() {
-    STAGE_MODE = 'interactive';
+  function updateSignalSource(label) {
+    var el = document.getElementById('signalSourceLabel');
+    if (el) el.textContent = label;
+  }
+
+  function updateTicker(currentItem) {
+    var tickerEl = document.getElementById('tickerContent');
+    if (!tickerEl) return;
+    tickerEl.textContent = currentItem ? ('NOW: ' + currentItem.topic_preview) : 'Loading next segment...';
+  }
+
+  async function playBroadcastItem(item) {
+    if (_broadcastPaused) return;
+    _currentBroadcastTopic = item.topic_preview || '';
+    updateSignalSource(item.source_label || '📡 BROADCASTING');
+    updateTicker(item);
+
+    // Update mode badge
     var badge = document.getElementById('stageModeBadge');
-    badge.textContent = 'Ask Oracle anything';
-    badge.className = 'stage-mode-badge interactive';
+    if (badge) { badge.textContent = '● ON AIR'; badge.className = 'stage-mode-badge broadcast'; }
+
+    // Render avatar video via server with script
+    setBusy(true);
+    setStatus('Rendering segment…', 'var(--s-gold)');
+
+    try {
+      // Generate TTS + avatar via avatar server
+      var resp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: item.script, intent: 'BROADCAST_SEGMENT'})
+      }, 120000);
+
+      if (!resp.ok) throw new Error('Avatar render failed: HTTP ' + resp.status);
+
+      var blob = await resp.blob();
+      var url = URL.createObjectURL(blob);
+
+      // Start pre-rendering next segment while current plays
+      preRenderNext(item.id);
+
+      await playVid(url);
+      setBusy(false);
+
+      // After playback: consume and get next
+      if (!_broadcastPaused) {
+        await consumeAndPlay(item.id);
+      }
+    } catch(e) {
+      console.error('playBroadcastItem error:', e);
+      setBusy(false);
+      setStatus('Segment error — retrying…', 'var(--s-red)');
+      setTimeout(function(){ consumeAndPlay(item.id); }, 3000);
+    }
+  }
+
+  async function consumeAndPlay(consumedId) {
+    if (_broadcastPaused) return;
+    try {
+      var resp = await fetch('/api/stage/consume-broadcast', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({consumed_id: consumedId})
+      });
+      var data = await resp.json();
+
+      if (data.next_item) {
+        // If we have a pre-rendered blob for this item, use it
+        if (_preRenderedBlob && _preRenderedItem && _preRenderedItem.id === data.next_item.id) {
+          _currentBroadcastTopic = data.next_item.topic_preview || '';
+          updateSignalSource(data.next_item.source_label || '📡 BROADCASTING');
+          updateTicker(data.next_item);
+          setBusy(true);
+          setStatus('Speaking', 'var(--s-green)');
+          var url = URL.createObjectURL(_preRenderedBlob);
+          _preRenderedBlob = null;
+          _preRenderedItem = null;
+          preRenderNext(data.next_item.id);
+          await playVid(url);
+          setBusy(false);
+          if (!_broadcastPaused) await consumeAndPlay(data.next_item.id);
+        } else {
+          await playBroadcastItem(data.next_item);
+        }
+      } else {
+        updateSignalSource('📡 STANDING BY');
+        setTimeout(startBroadcast, 5000);
+      }
+    } catch(e) {
+      console.error('consumeAndPlay error:', e);
+      setTimeout(startBroadcast, 5000);
+    }
+  }
+
+  // Pre-render next segment while current plays (reduce dead air)
+  async function preRenderNext(currentId) {
+    try {
+      var resp = await fetch('/api/stage/broadcast-queue');
+      if (!resp.ok) return;
+      var data = await resp.json();
+      // Find next item that isn't current
+      var next = null;
+      for (var i = 0; i < data.items.length; i++) {
+        if (data.items[i].id !== currentId) { next = data.items[i]; break; }
+      }
+      if (!next) return;
+
+      var renderResp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: next.script, intent: 'BROADCAST_SEGMENT'})
+      }, 120000);
+
+      if (renderResp.ok) {
+        _preRenderedBlob = await renderResp.blob();
+        _preRenderedItem = next;
+      }
+    } catch(e) {
+      // Pre-render failure is non-fatal
+    }
+  }
+
+  // ── PUSH TO SPEAK (interrupt flow) ────────────────────
+  var _ptsModalShown = false;
+  var _ptsFirstTime = true;
+
+  window.toggleStageMic = function() {
+    if (_stageIsRec) { _stopStageMic(); return; }
+
+    // First-time modal
+    if (_ptsFirstTime) {
+      _ptsFirstTime = false;
+      if (!confirm('The anchor is live. Tap OK to ask a question — the broadcast will pause while you speak.')) {
+        return;
+      }
+    }
+
+    // Request mic permission
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({audio: true, video: false})
+        .then(function(stream) {
+          stream.getTracks().forEach(function(t) { t.stop(); });
+          _startStageMic();
+        })
+        .catch(function(err) {
+          var name = err && err.name ? err.name : '';
+          if (name === 'NotAllowedError') {
+            _appendChatMsg('Microphone blocked. Allow access in browser settings and reload.', 'oracle');
+          } else if (name === 'NotFoundError') {
+            _appendChatMsg('No microphone found. Connect a mic and try again.', 'oracle');
+          } else {
+            _appendChatMsg('Microphone error: ' + name + '. Try Chrome for best results.', 'oracle');
+          }
+        });
+    } else {
+      _startStageMic(); // Fallback: try SpeechRecognition directly
+    }
+  };
+
+  function _startStageMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      _appendChatMsg('Speech recognition not supported in this browser. Try Chrome.', 'oracle');
+      return;
+    }
+
+    // Pause broadcast
+    _broadcastPaused = true;
+    if (vid && !vid.paused) {
+      vid.pause();
+    }
+    // Show interrupted state
+    updateSignalSource('🎤 INTERRUPTED — LISTENER SPEAKING');
+
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    _stageRecognition = new SR();
+    _stageRecognition.lang = 'en-US';
+    _stageRecognition.continuous = false;
+    _stageRecognition.interimResults = false;
+
+    // P1.2: 10-second timeout
+    var micTimeout = setTimeout(function() {
+      _appendChatMsg('No speech detected — try again.', 'oracle');
+      _stopStageMic();
+      _resumeBroadcast();
+    }, 10000);
+
+    _stageRecognition.onresult = function(e) {
+      clearTimeout(micTimeout);
+      var text = e.results[0][0].transcript;
+      document.getElementById('stageChatInput').value = text;
+      _stopStageMic();
+      _handleInterruptQuestion(text);
+    };
+    _stageRecognition.onerror = function(e) {
+      clearTimeout(micTimeout);
+      // P1.2: User-visible error message
+      var msg = 'Speech error';
+      if (e.error === 'no-speech') msg = 'No speech detected — try again.';
+      else if (e.error === 'audio-capture') msg = 'No microphone available.';
+      else if (e.error === 'not-allowed') msg = 'Microphone access denied.';
+      _appendChatMsg(msg, 'oracle');
+      _stopStageMic();
+      _resumeBroadcast();
+    };
+    _stageRecognition.onend = function() {
+      clearTimeout(micTimeout);
+      _stopStageMic();
+    };
+
+    _stageRecognition.start();
+    _stageIsRec = true;
+    document.getElementById('stageMicBtn').classList.add('recording');
     document.getElementById('interactivePanel').classList.add('active');
-    document.getElementById('betweenBadge').style.display = 'block';
-    // Enable mic
-    var micBtn = document.getElementById('stageMicBtn');
-    if(micBtn) micBtn.disabled = false;
-    // Pulse mic hint after 1s
-    setTimeout(pulseStageMic, 1000);
   }
 
-  function pulseStageMic() {
-    var micBtn = document.getElementById('stageMicBtn');
-    if(!micBtn || micBtn.disabled || _stageIsRec) return;
-    micBtn.style.boxShadow = '0 0 0 8px rgba(255,59,95,.2)';
-    setTimeout(function(){ micBtn.style.boxShadow = ''; }, 2000);
+  function _stopStageMic() {
+    _stageIsRec = false;
+    if(_stageRecognition) { try{_stageRecognition.stop();}catch(e){} _stageRecognition = null; }
+    document.getElementById('stageMicBtn').classList.remove('recording');
   }
 
-  // ── STAGE CHAT (Oracle dialogue) ────────────────────────
+  async function _handleInterruptQuestion(text) {
+    _appendChatMsg('You: ' + text, 'user');
+    setBusy(true);
+    setStatus('Oracle thinking…', 'var(--s-gold)');
+    updateSignalSource('🎤 RESPONDING TO LISTENER');
+
+    try {
+      var resp = await fetchTO('/api/oracle/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          text: text,
+          session_id: _stageSessionId,
+          audio_first: true,
+          avatar_source: 'stage_hologram',
+          context: _currentBroadcastTopic
+        })
+      }, 90000);
+
+      if (handle429(resp)) { setBusy(false); _resumeBroadcast(); return; }
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+      var ct = resp.headers.get('content-type') || '';
+      if (ct.indexOf('video') >= 0) {
+        var blob = await resp.blob();
+        var url = URL.createObjectURL(blob);
+        await playVid(url);
+      } else {
+        var j = await resp.json();
+        _appendChatMsg('Oracle: ' + j.text, 'oracle');
+        if (j.job_id) {
+          // Poll for video
+          var polls = 0;
+          await new Promise(function(resolve) {
+            var pollId = setInterval(function() {
+              polls++;
+              if (polls > 45) { clearInterval(pollId); resolve(); return; }
+              fetch(AVATAR_BASE + '/oracle/job/' + j.job_id)
+                .then(function(vr) { if (vr.ok) return vr.blob(); return null; })
+                .then(function(vb) {
+                  if (vb) {
+                    clearInterval(pollId);
+                    playVid(URL.createObjectURL(vb)).then(resolve);
+                  }
+                }).catch(function(){});
+            }, 1000);
+          });
+        }
+      }
+    } catch(e) {
+      _appendChatMsg('Oracle: Connection error — resuming broadcast.', 'oracle');
+      console.error('interrupt error:', e);
+    }
+
+    setBusy(false);
+    // Resume broadcast after 3s countdown
+    _showResumeCountdown();
+  }
+
+  function _showResumeCountdown() {
+    var count = 3;
+    setStatus('Returning to broadcast in ' + count + '…', 'var(--s-gold)');
+    var cid = setInterval(function() {
+      count--;
+      if (count <= 0) {
+        clearInterval(cid);
+        _resumeBroadcast();
+      } else {
+        setStatus('Returning to broadcast in ' + count + '…', 'var(--s-gold)');
+      }
+    }, 1000);
+  }
+
+  function _resumeBroadcast() {
+    _broadcastPaused = false;
+    document.getElementById('interactivePanel').classList.remove('active');
+    updateSignalSource('📡 RESUMING');
+    // Don't consume current — get next without consuming
+    consumeAndPlay(null);
+  }
+
+  // ── STAGE CHAT (text input) ───────────────────────────
   window.stageChat = function() {
     var input = document.getElementById('stageChatInput');
     var text = (input.value || '').trim();
     if(!text || busy) return;
     input.value = '';
-    _appendChatMsg('You: ' + text, 'user');
-    setBusy(true);
-    setStatus('Oracle thinking\u2026','var(--s-gold)');
-
-    fetchTO(AVATAR_BASE + '/oracle/chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({text:text, session_id:_stageSessionId, audio_first:true, avatar_source:"stage_hologram"})
-    }, 90000)
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      var ct = r.headers.get('content-type') || '';
-      if(ct.indexOf('video') >= 0){
-        return r.blob().then(function(b){ return URL.createObjectURL(b); })
-          .then(function(url){ return playVid(url); });
-      }
-      return r.json().then(function(j){
-        _appendChatMsg('Oracle: ' + j.text, 'oracle');
-        if(j.job_id) {
-          // Poll for video
-          var polls = 0;
-          var pollId = setInterval(function(){
-            polls++;
-            if(polls > 45){ clearInterval(pollId); setBusy(false); return; }
-            fetch(AVATAR_BASE + '/oracle/job/' + j.job_id)
-              .then(function(vr){ if(vr.ok) return vr.blob(); return null; })
-              .then(function(vb){
-                if(vb){
-                  clearInterval(pollId);
-                  playVid(URL.createObjectURL(vb));
-                }
-              }).catch(function(){});
-          }, 1000);
-        }
-      });
-    })
-    .catch(function(e){
-      _appendChatMsg('Oracle: Connection error — try again.', 'oracle');
-      console.error('stage chat error:', e);
-    })
-    .finally(function(){ setBusy(false); });
+    _handleInterruptQuestion(text);
   };
 
   function _appendChatMsg(text, role) {
@@ -1318,35 +1703,11 @@ body { background: var(--s-bg); }
     hist.scrollTop = hist.scrollHeight;
   }
 
-  // ── STAGE MIC (speech recognition) ──────────────────────
-  window.toggleStageMic = function() {
-    if(_stageIsRec) { _stopStageMic(); return; }
-    if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      _appendChatMsg('Speech recognition not supported in this browser.', 'oracle');
-      return;
-    }
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    _stageRecognition = new SR();
-    _stageRecognition.lang = 'en-US';
-    _stageRecognition.continuous = false;
-    _stageRecognition.interimResults = false;
-    _stageRecognition.onresult = function(e) {
-      var text = e.results[0][0].transcript;
-      document.getElementById('stageChatInput').value = text;
-      _stopStageMic();
-      stageChat();
-    };
-    _stageRecognition.onerror = function() { _stopStageMic(); };
-    _stageRecognition.onend = function() { _stopStageMic(); };
-    _stageRecognition.start();
-    _stageIsRec = true;
-    document.getElementById('stageMicBtn').classList.add('recording');
-  };
-
-  function _stopStageMic() {
-    _stageIsRec = false;
-    if(_stageRecognition) { try{_stageRecognition.stop();}catch(e){} _stageRecognition = null; }
-    document.getElementById('stageMicBtn').classList.remove('recording');
+  function pulseStageMic() {
+    var micBtn = document.getElementById('stageMicBtn');
+    if(!micBtn || micBtn.disabled || _stageIsRec) return;
+    micBtn.style.boxShadow = '0 0 0 8px rgba(255,59,95,.2)';
+    setTimeout(function(){ micBtn.style.boxShadow = ''; }, 2000);
   }
 
   // ── BRIEFING COUNTDOWN ──────────────────────────────
@@ -1362,9 +1723,8 @@ body { background: var(--s-bg); }
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(!d.has_brief){
-        document.getElementById('countdownTimer').textContent = '\u2014';
-        document.getElementById('countdownSub').textContent = 'First brief coming soon';
-        enterInteractive();
+        safeText(document.getElementById('countdownTimer'), '\u2014');
+        safeText(document.getElementById('countdownSub'), 'First brief coming soon');
         return;
       }
       _latestBriefUrl = d.last_brief.mp4_url;
@@ -1372,13 +1732,10 @@ body { background: var(--s-bg); }
         showBriefReady(d.last_brief);
       } else {
         startCountdown(d.countdown_seconds, d.last_brief);
-        // Between briefings = interactive mode
-        if(STAGE_MODE !== 'broadcast') enterInteractive();
       }
     })
     .catch(function(){
-      document.getElementById('countdownSub').textContent = 'Schedule unavailable';
-      enterInteractive();
+      safeText(document.getElementById('countdownSub'), 'Schedule unavailable');
     });
   }
 
@@ -1393,8 +1750,7 @@ body { background: var(--s-bg); }
     dotEl.classList.remove('ready');
     timerEl.classList.remove('ready');
     playBtn.style.display = 'none';
-
-    subEl.textContent = lastBrief.title || 'Last brief loaded';
+    safeText(subEl, lastBrief.title || 'Last brief loaded');
 
     function update(){
       if(_countdownRemaining <= 0){
@@ -1405,8 +1761,7 @@ body { background: var(--s-bg); }
       var h = Math.floor(_countdownRemaining / 3600);
       var m = Math.floor((_countdownRemaining % 3600) / 60);
       var s = _countdownRemaining % 60;
-      timerEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
-      // Update between-segments badge
+      safeText(timerEl, pad(h) + ':' + pad(m) + ':' + pad(s));
       var bb = document.getElementById('betweenCountdown');
       if(bb) bb.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
       _countdownRemaining--;
@@ -1419,45 +1774,42 @@ body { background: var(--s-bg); }
 
   function showBriefReady(brief){
     var timerEl = document.getElementById('countdownTimer');
-    var subEl = document.getElementById('countdownSub');
     var dotEl = document.getElementById('briefDot');
     var playBtn = document.getElementById('briefPlayBtn');
 
-    timerEl.textContent = 'NEW BRIEF';
+    safeText(timerEl, 'NEW BRIEF');
     timerEl.classList.add('ready');
     dotEl.classList.add('ready');
-    subEl.textContent = brief.title || 'Ready to play';
+    safeText(document.getElementById('countdownSub'), brief.title || 'Ready to play');
     playBtn.style.display = 'block';
     _latestBriefUrl = brief.mp4_url;
-
-    // Auto-transition to broadcast when countdown hits 0
-    if(_hasUserInteracted && !busy){
-      enterBroadcast(_latestBriefUrl);
-    }
   }
 
   window.playLatestBrief = function(){
     if(!_latestBriefUrl || busy) return;
-    enterBroadcast(_latestBriefUrl);
+    setBusy(true);
+    setStatus('Playing brief…','var(--s-gold)');
+    playVid(_latestBriefUrl).then(function(){ setBusy(false); });
   };
 
-  // ── INIT DATA ─────────────────────────────────────────
+  // ── INIT ──────────────────────────────────────────────
   loadIntel();
   loadTranscripts();
   loadNostr();
   loadBriefingSchedule();
 
-  // Refresh intel every 3 minutes
-  setInterval(loadIntel, 180000);
+  // P1.4: Reduce polling to 30s
+  setInterval(loadIntel, 30000);
+  setInterval(loadNostr, 30000);
+  setInterval(loadBriefingSchedule, 300000);
 
-  // Scroll-hint dots for mobile transcript carousel
+  // P0.4: Listen for custom event instead of monkey-patching
   function initTxDots(){
     var grid = document.getElementById('transcriptsGrid');
     var dotsEl = document.getElementById('txDots');
     if(!grid||!dotsEl) return;
     var cards = grid.children;
     if(!cards.length) return;
-    // Only show on mobile
     if(window.innerWidth > 640){ dotsEl.style.display='none'; return; }
     dotsEl.innerHTML = '';
     var n = Math.min(cards.length, 8);
@@ -1472,16 +1824,13 @@ body { background: var(--s-bg); }
       for(var j=0;j<dots.length;j++) dots[j].className = j===idx?'active':'';
     }, {passive:true});
   }
-  // Init dots after transcripts load
-  var _origRender = window.renderTranscripts;
-  if(typeof renderTranscripts === 'function'){
-    var _origRT = renderTranscripts;
-    window.renderTranscripts = function(items){ _origRT(items); setTimeout(initTxDots,100); };
-  } else { setTimeout(initTxDots,2000); }
-  // Refresh Nostr every 2 minutes
-  setInterval(loadNostr, 120000);
-  // Refresh briefing schedule every 5 minutes
-  setInterval(loadBriefingSchedule, 300000);
+  document.addEventListener('transcriptsRendered', function(){ setTimeout(initTxDots, 100); });
+
+  // Start broadcast after greeting
+  setTimeout(function(){
+    // Auto-start broadcast system
+    startBroadcast();
+  }, 800);
 
   // Prevent iOS pinch-to-zoom
   document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
