@@ -25,6 +25,8 @@ CACHE_DIR = Path(__file__).parent / "cache"
 
 # ── Search queries for live/ended space discovery ──────────────────────────
 SEARCH_QUERIES = ["bitcoin", "btc", "sound money", "bitcoin mining"]
+TIER1_HANDLES = {martybent,stephanlivera,odell,dergigi,matt_odell,simplybitcointv,bitcoinmagazine,natbrunell,theguyswann,_checkmatey_,btcsessions,saifedean}
+TIER2_HANDLES = {saylor,gladstein,aantonop,robertbreedlove,nic__carter,pierre_rochard,lynaldencontact,jeffbooth,caitlinlong_,prestonpysh,petermccormack,wclementeiii,documentingbtc,knutsvanholm,tuur,jimmysong,nvk,real_vijay,sethforprivacy,parkerlewis,tomerstrolight,moneyball}
 
 # ── Signal scoring keywords ────────────────────────────────────────────────
 HIGH_SIGNAL = {
@@ -102,6 +104,9 @@ def _score_space(space: dict) -> float:
     if space.get("state") == "live":
         score += 25
 
+    host_h = (space.get("host_handle") or "").lower().lstrip("@")
+    if host_h in TIER1_HANDLES: score += 50
+    elif host_h in TIER2_HANDLES: score += 25
     return score
 
 
