@@ -126,8 +126,8 @@ def _get_bg_layer(inputs: list, duration: float, label_out: str = "bb_bg") -> st
               f"trim=0:{duration + 2.0},setpts=PTS-STARTPTS,"
               # Keep vignette for cinematic depth
               f"vignette=PI/4:mode=backward,"
-              # FIX 2: Near-monochrome grayscale (15% saturation) for cinematic b-roll aesthetic
-              f"hue=s=0.15,"
+              # BUG 2 FIX: Removed hue=s=0.15 — bg_loop stays FULL COLOR
+              # The 45% dark overlay already provides cinematic effect
               # Glassmorphic darken: multiply brightness by 0.55 (45% darker)
               f"eq=brightness=-0.15:contrast=0.9,"
               # Red border frame (2px all edges — PIPELINE_LAWS)
@@ -799,10 +799,12 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"[0:v]{vf},"
                         f"fade=t=out:st={max(0, vid_dur - 0.5)}:d=0.5[outv];"
                         # Audio: intro music hard-cut at 3.0s (atrim), then silence via apad
-                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.05,"
+                        # BUG 7 FIX: Reduced intro music volume (0.05→0.03), narrator starts sooner (300→100ms),
+                        # boosted TTS weight (3.0→4.0) so narrator isn't drowned by music
+                        f"[2:a]atrim=0:8.0,asetpts=PTS-STARTPTS,afade=t=out:st=6.0:d=2.0,volume=0.03,"
                         f"asetpts=PTS-STARTPTS[intro_mus];"
-                        f"[1:a]aformat=channel_layouts=stereo,adelay=300|300[tts_delayed];"
-                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=0.5 3.0,"
+                        f"[1:a]aformat=channel_layouts=stereo,adelay=100|100[tts_delayed];"
+                        f"[intro_mus][tts_delayed]amix=inputs=2:duration=longest:weights=0.3 4.0,"
                         f"alimiter=limit=0.85:level=disabled:attack=5:release=50,"
                         f"aresample=async=1[outa]"
                     ),
@@ -1733,10 +1735,12 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     if has_pip:
         inputs.append(["-stream_loop", "-1", "-i", pip_video_path])
         pip_idx = len(inputs) - 1
+        # BUG 3 FIX: Removed trim — stream_loop=-1 handles infinite looping
+        # trim was causing PiP to disappear when clip duration < total_dur
         fg += (f"[{pip_idx}:v]scale=960:1080:force_original_aspect_ratio=increase,"
                f"crop=960:1080,setsar=1,fps=30,"
                f"hue=s=0.3,"
-               f"trim=0:{total_dur},setpts=PTS-STARTPTS[pip_raw];\n")
+               f"setpts=PTS-STARTPTS[pip_raw];\n")
         # Red vignette overlay at 15% opacity
         fg += (f"color=c=0x880000:s=960x1080:d={total_dur}:r=30,"
                f"vignette=PI/3:mode=backward[pip_vig];\n")
@@ -3202,8 +3206,11 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bgvig")
     fg = bg_fg
 
-    # VDS-1: Top red accent bar
-    fg += f"[bgvig]drawbox=x=0:y=0:w=1920:h=4:color={COLOR_RED}:t=fill[bgbar];\n"
+    # BUG 5 FIX: Red vignette glow behind card area for depth
+    fg += (f"[bgvig]drawbox=x=220:y=60:w=1480:h=560:color=0x880000@0.12:t=fill,"
+           f"drawbox=x=240:y=80:w=1440:h=520:color=0x660000@0.08:t=fill,"
+           # VDS-1: Top red accent bar
+           f"drawbox=x=0:y=0:w=1920:h=4:color={COLOR_RED}:t=fill[bgbar];\n")
 
     # VDS: Pulse dot top-left
     fg += f"[bgbar]drawbox=x=20:y=16:w=10:h=10:color={COLOR_RED}:t=fill[bgdot];\n"
@@ -4139,10 +4146,11 @@ def concatenate_parts(parts: list, output_path: str,
                     vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.02")
             if vol_clauses:
                 # R25 FIX 8: BGM at -14dB (0.2) for narrator segments, ducked during clips
+                # BUG 9 FIX: Extended fade-in from 2.0→4.0s for smoother music entry after intro
                 vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.2)':eval=frame"
-                bgm_vol_filter = f"{vol_expr},afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.2,afade=t=in:d=2.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.2,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
@@ -4703,12 +4711,18 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     except Exception as _sig_err:
         logger.warning(f"  FIX 7: Signal intelligence import failed: {_sig_err}")
 
+    past_wrap = False  # BUG 8 FIX: Guard flag to skip clips after wrap/outro
     for i, entry in enumerate(dialogue):
         entry_type = entry.get("type", "")
         host_field = entry.get("host", "")
 
         if cold_open_consumed and i == 0 and host_field != "CLIP":
             cold_open_consumed = False
+            continue
+
+        # BUG 8 FIX: Skip clip segments after wrap — prevents random clip after "stay sovereign" outro
+        if past_wrap and host_field == "CLIP":
+            logger.info(f"  BUG 8 FIX: Skipping clip segment after wrap (dialogue {i})")
             continue
 
         if host_field == "CLIP":
@@ -5120,6 +5134,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             part_idx += 1
             prev_segment_type = entry_type
             host_segment_count += 1
+            # BUG 8 FIX: Set past_wrap flag after wrap segment to prevent trailing clips
+            if entry_type == "wrap":
+                past_wrap = True
 
             if broll_queue and broll_idx < len(broll_queue) and host_segment_count % 2 == 0:
                 broll_path = broll_queue[broll_idx]
