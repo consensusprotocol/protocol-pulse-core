@@ -49,6 +49,7 @@ FEATURE_MAP = {
     "article_page_laws": ("ARTICLE_PAGE_LAWS.md", "feature/f2-article-laws"),
     "tts-pipeline": ("TTS_PIPELINE_AUDIT_GOSPEL.md", "feature/tts-pipeline"),
     "oracle-stage": ("ORACLE_STAGE_GOSPEL.md", "main"),
+    "stage-broadcast": ("STAGE_BROADCAST_GOSPEL.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -77,6 +78,7 @@ EXPLICIT_FILES = {
         "video_pipeline_v3/utils/spaces_pipeline.py",
         "video_pipeline_v3/utils/spaces_monitor.py",
     ],
+    "stage-broadcast": ["services/stage_broadcast_service.py","core/routes.py","templates/stage.html"],
     "oracle-stage": [
         "templates/stage.html",
         "routes.py",
@@ -376,7 +378,7 @@ def fire_all_llms(prompt: str) -> tuple[dict, dict]:
     results, errors = {}, {}
     threads = [
         threading.Thread(target=call_gemini, args=(prompt, results, errors)),
-        # threading.Thread(target=call_gpt4o,  args=(prompt, results, errors)),  # GPT-4o disabled — quota exhausted
+        threading.Thread(target=call_gpt4o,  args=(prompt, results, errors)),
         threading.Thread(target=call_grok,   args=(prompt, results, errors)),
     ]
     for t in threads: t.start()
