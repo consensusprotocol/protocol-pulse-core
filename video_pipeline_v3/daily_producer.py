@@ -556,8 +556,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     with open(script_path, "w") as f:
         json.dump(script, f, indent=2)
     # ── Step 5b: Space Tap — live X Spaces intercept ────────────────────────
-    print("
-[STEP 5b] SPACE TAP — LIVE X SPACES INTERCEPT...")
+    print("[STEP 5b] SPACE TAP -- LIVE X SPACES INTERCEPT...")
     try:
         import sys as _sys, os as _os
         _spaces_path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "x_spaces_scraper")
