@@ -147,7 +147,7 @@ def _add_episode_title_pill(label_in: str, label_out: str,
     Semi-transparent rounded rect with PULSE CHECK label + episode title.
     Visible from t=0.5 to end of segment.
     """
-    safe_title = _sanitize_text(episode_title or "PULSE CHECK")[:45]
+    safe_title = _sanitize_text(episode_title or "PULSE CHECK")[:32]  # overflow fix
     return (
         f"[{label_in}]"
         # Semi-transparent black background pill
@@ -1121,7 +1121,6 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
             "crop=716:370,setsar=1,"
             # Issue 3: grayscale + slow Ken Burns zoom for preview aesthetic
             "hue=s=0,eq=brightness=-0.1:contrast=1.1,"
-            "zoompan=z='min(zoom+0.0005,1.15)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=716x370:fps=30,"
             "format=yuv420p"
         ),
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
@@ -1704,7 +1703,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
     # Headline (2-line support)
     _l1, _l2 = _split_headline_for_render(safe_head)
-    _fs = 34 if _l2 else 52
+    _fs = 28 if _l2 else 42  # overflow fix
     fg += (f"[with_wave]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_l1)}':"
            f"fontcolor={COLOR_WHITE}:fontsize={_fs}:x=40:y=180")
     if _l2:
@@ -1737,8 +1736,6 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
         fg += (f"[{pip_idx}:v]scale=960:1080:force_original_aspect_ratio=increase,"
                f"crop=960:1080,setsar=1,fps=30,"
                f"hue=s=0.3,"
-               f"zoompan=z='min(zoom+0.0003\\,1.06)':d={total_frames}:"
-               f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=960x1080:fps=30,"
                f"trim=0:{total_dur},setpts=PTS-STARTPTS[pip_raw];\n")
         # Red vignette overlay at 15% opacity
         fg += (f"color=c=0x880000:s=960x1080:d={total_dur}:r=30,"
