@@ -1117,7 +1117,7 @@ def _stream_worker(session_id, text):
                     "content-type": "application/json",
                 },
                 json={
-                    "model": "claude-sonnet-4-20250514",
+                    "model": "claude-haiku-4-5-20251001",
                     "max_tokens": 80,  # Short transcript = fewer TTS seconds = fewer Wav2Lip frames
                     "system": ORACLE_SYSTEM_PROMPT,
                     "messages": [{"role": "user", "content": text}],

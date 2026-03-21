@@ -104,7 +104,7 @@ def analyze_story_through_framework(stories: list) -> str:
             "Content-Type": "application/json"
         },
         json={
-            "model": "claude-opus-4-6",
+            "model": "claude-haiku-4-5-20251001",
             "max_tokens": 1024,
             "messages": [{"role": "user", "content": prompt}]
         },

@@ -39,7 +39,7 @@ def generate_answer_via_claude(question: str, cfg: dict) -> str:
     
     client = anthropic.Anthropic(api_key=api_key)
     msg = client.messages.create(
-        model="claude-opus-4-6",
+        model="claude-haiku-4-5-20251001",
         max_tokens=300,
         system=(
             "You are the Protocol Pulse Oracle — a Bitcoin intelligence avatar. "
