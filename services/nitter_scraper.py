@@ -74,6 +74,69 @@ def is_relevant(text: str) -> bool:
     return any(kw in lower for kw in RELEVANT_KEYWORDS)
 
 
+def _parse_count(text: str) -> int:
+    """Parse engagement count string like '12.4K', '1.2M', '350' to int."""
+    text = text.strip().replace(",", "")
+    if not text:
+        return 0
+    try:
+        if text.upper().endswith("K"):
+            return int(float(text[:-1]) * 1000)
+        elif text.upper().endswith("M"):
+            return int(float(text[:-1]) * 1_000_000)
+        else:
+            return int(text) if text.isdigit() else 0
+    except (ValueError, IndexError):
+        return 0
+
+
+def fetch_engagement(tweet_id: str, instance: str, timeout: int = 8) -> dict:
+    """BUG 4 FIX: Best-effort engagement fetch from Nitter HTML for a single tweet.
+
+    Returns {"likes": int, "retweets": int} or empty dict on failure.
+    """
+    url = f"{instance}/i/status/{tweet_id}"
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (compatible; RSS reader; +https://protocolpulse.io)",
+    })
+    try:
+        resp = urllib.request.urlopen(req, timeout=timeout)
+        html = resp.read().decode("utf-8", errors="replace")
+    except Exception:
+        return {}
+
+    likes = 0
+    retweets = 0
+    # Nitter renders stats as: <span class="tweet-stat">...<div class="icon-heart"/>...<span>12.4K</span>
+    # or <span class="icon-retweet"/>...<span>350</span>
+    # Parse with regex since we don't want to require BeautifulSoup
+    for m in re.finditer(
+        r'class="tweet-stat[^"]*"[^>]*>.*?class="icon-(heart|retweet|comment|quote)[^"]*".*?'
+        r'<span[^>]*>\s*(\d[\d.,]*[KkMm]?)\s*</span>',
+        html, re.DOTALL
+    ):
+        icon_type = m.group(1)
+        count = _parse_count(m.group(2))
+        if "heart" in icon_type or "like" in icon_type:
+            likes = count
+        elif "retweet" in icon_type:
+            retweets = count
+    # Alternate pattern: Nitter may use stat-count class
+    if likes == 0 and retweets == 0:
+        for m in re.finditer(
+            r'icon-(heart|retweet)[^"]*"[^<]*</[^>]+>\s*(\d[\d.,]*[KkMm]?)',
+            html, re.DOTALL
+        ):
+            icon_type = m.group(1)
+            count = _parse_count(m.group(2))
+            if "heart" in icon_type:
+                likes = count
+            elif "retweet" in icon_type:
+                retweets = count
+
+    return {"likes": likes, "retweets": retweets} if (likes or retweets) else {}
+
+
 def load_social_targets() -> list:
     """Load social targets from config file."""
     with open(SOCIAL_TARGETS_PATH) as f:
@@ -176,8 +239,11 @@ def parse_rss(xml_data: bytes, handle: str, priority: int, category: str) -> lis
             except Exception:
                 created_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
+            # BUG 4 FIX: Extract tweet ID and attempt engagement fetch
+            tweet_id = (guid or link.split("/")[-1].replace("#m", "")).split("/")[-1].split("#")[0]
+
             tweet = {
-                "id": guid or link.split("/")[-1].replace("#m", ""),
+                "id": tweet_id,
                 "handle": actual_handle,
                 "monitored_handle": handle,  # The handle we were watching
                 "tier": tier,
@@ -226,6 +292,17 @@ def scrape_handle(handle: str, priority: int, category: str) -> list:
         if xml_data:
             tweets = parse_rss(xml_data, handle, priority, category)
             if tweets:
+                # BUG 4 FIX: Best-effort engagement stats for top tweets (priority 1 only)
+                if priority <= 1:
+                    for t in tweets[:5]:  # limit to 5 to avoid rate limiting
+                        eng = fetch_engagement(t["id"], instance)
+                        if eng:
+                            t["likes"] = eng.get("likes", 0)
+                            t["retweets"] = eng.get("retweets", 0)
+                            t["raw_engagement"] = t["likes"] + t["retweets"] * 2
+                            t["engagement_rate"] = t["raw_engagement"] / max(t.get("followers", 0), 1000)
+                            logger.debug(f"    {handle}/{t['id']}: {t['likes']} likes, {t['retweets']} RTs")
+                            time.sleep(0.3)
                 logger.info(f"  {handle}: {len(tweets)} tweets from {instance}")
                 return tweets
             logger.debug(f"  {handle}: 0 tweets parsed from {instance}")
