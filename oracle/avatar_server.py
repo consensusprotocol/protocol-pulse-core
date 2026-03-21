@@ -1323,6 +1323,11 @@ def oracle_speak():
         # Fallback to intro
         intent = "DAILY_BRIEF_INTRO"
 
+    # If caller provided explicit text, use it directly (broadcast segments, custom scripts)
+    caller_text = (data.get("text") or "").strip()
+    if caller_text:
+        return generate_inline(caller_text)
+
     # Try cached response
     path = oracle_cache_manager.get_cached_response(intent)
     if path:
@@ -1333,7 +1338,6 @@ def oracle_speak():
     if not text:
         text = oracle_cache_manager.RESPONSE_TREE["UNKNOWN_QUESTION"]
 
-    # Redirect to /generate with the text
     return generate_inline(text)
 
 
