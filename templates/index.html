@@ -200,7 +200,7 @@
                 <div class="carousel-slide__overlay"></div>
                 <div class="carousel-slide__body">
                     <div class="carousel-slide__badge">{{ article.category or 'Intel' }}</div>
-                    <a href="/article/{{ article.id }}" class="carousel-slide__title">{{ article.title }}</a>
+                    <a href="/articles/{{ article.id }}" class="carousel-slide__title">{{ article.title }}</a>
                     <div class="carousel-slide__meta">
                         {{ article.published_at.strftime('%b %d, %Y') if article.published_at else article.created_at.strftime('%b %d, %Y') }}
                         &nbsp;·&nbsp;
@@ -289,7 +289,7 @@
                              'intel' %}
             {% set sent = article.sentiment if article.sentiment is defined else '' %}
             {% set sent_lower = sent|lower %}
-            <a href="/article/{{ article.id }}"
+            <a href="/articles/{{ article.id }}"
                class="article-card pp-reveal"
                data-category="{{ cat_key }}">
                 <img src="{{ article_image_urls.get(article.id, '/static/images/default-header.png') }}"
