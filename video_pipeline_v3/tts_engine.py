@@ -983,7 +983,6 @@ def tts_local(text: str, output_path: str, host: int = 1,
     else:
         ok = tts_chatterbox(text, output_path)  # F5 bypassed -- Chatterbox primary
         if not ok:
-        if not ok:
             logger.warning("[TTS/Local] Chatterbox FAILED → Kokoro am_adam")
             ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
         if not ok:
