@@ -868,9 +868,34 @@ def generate_response(
     ):
         session["products_mentioned"].append(product_to_mention)
 
-    # Extract topics (simple noun extraction for tracking)
-    topic_words = [w.lower() for w in user_text.split() if len(w) > 4 and w.isalpha()]
-    session["topics_discussed"].extend(topic_words[:3])
+    # Extract Bitcoin topics from both user input and response
+    _combined = (user_text + " " + raw_text).lower()
+    _topic_map = {
+        "halving": "Halving", "halvening": "Halving",
+        "mining": "Mining", "miner": "Mining", "hashrate": "Mining", "bitaxe": "Mining", "asic": "Mining",
+        "lightning": "Lightning", "channel": "Lightning",
+        "custody": "Self-Custody", "cold storage": "Self-Custody", "hardware wallet": "Self-Custody",
+        "coldcard": "Self-Custody", "ledger": "Self-Custody", "trezor": "Self-Custody", "seed phrase": "Self-Custody",
+        "dca": "DCA", "dollar cost": "DCA", "stacking": "DCA", "stack sats": "DCA",
+        "sovereignty": "Sovereignty", "sovereign": "Sovereignty",
+        "node": "Nodes", "umbrel": "Nodes", "verify": "Nodes",
+        "etf": "ETF", "blackrock": "ETF", "institutional": "ETF",
+        "mempool": "Mempool", "fee": "Mempool", "transaction": "Mempool",
+        "nostr": "Nostr", "relay": "Nostr",
+        "price": "Price", "market": "Price", "bull": "Price", "bear": "Price",
+        "multisig": "Multisig", "multi-sig": "Multisig",
+        "insurance": "Insurance", "meanwhile": "Insurance",
+        "residency": "Residency", "palau": "Residency", "rns": "Residency",
+        "privacy": "Privacy", "coinjoin": "Privacy", "kyc": "Privacy",
+        "macro": "Macro", "inflation": "Macro", "fed": "Macro", "interest rate": "Macro",
+    }
+    _found = set()
+    for _kw, _topic in _topic_map.items():
+        if _kw in _combined:
+            _found.add(_topic)
+    if _found:
+        existing = set(session["topics_discussed"])
+        session["topics_discussed"].extend(t for t in _found if t not in existing)
 
     logger.info(f"[DIALOGUE] session={session_id} turn={turn} personality={personality} words={len(raw_text.split())} product={product_to_mention}")
 
