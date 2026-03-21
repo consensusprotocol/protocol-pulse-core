@@ -287,7 +287,7 @@
                 <div class="pp-article__related">
                     <div class="pp-label pp-mb-2">RELATED BRIEFS</div>
                     {% for related in related_articles %}
-                    <a href="/articles/{{ related.id }}" class="pp-article__related-item">
+                    <a href="/articles/{{ related.slug or related.id }}" class="pp-article__related-item">
                         <span class="pp-small" style="font-weight:600;color:var(--pp-text);">{{ related.title[:70] }}{% if related.title|length > 70 %}...{% endif %}</span>
                         <span class="pp-tiny pp-text-muted">{{ related.created_at.strftime('%b %d') }}</span>
                     </a>

@@ -473,7 +473,7 @@
         {% for art in recent_articles %}
         <div class="art-item">
           <div>
-            <a href="/articles/{{ art.id }}" class="art-title-link">{{ art.title|truncate(120) }}</a>
+            <a href="/articles/{{ art.slug or art.id }}" class="art-title-link">{{ art.title|truncate(120) }}</a>
             <div class="art-meta">
               <span class="s-badge {{ art.sentiment }}">
                 {% if art.sentiment == 'bullish' %}&#9650;{% elif art.sentiment == 'bearish' %}&#9660;{% else %}&#9679;{% endif %}

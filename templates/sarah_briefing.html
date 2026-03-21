@@ -299,7 +299,7 @@
 
     {% if latest_brief.article_id %}
     <div class="text-center mt-4">
-        <a href="{{ url_for('article_detail', article_id=latest_brief.article_id) }}" class="btn btn-outline-danger">
+        <a href="{{ '/articles/' + str(latest_brief.article_id) }}" class="btn btn-outline-danger">
             Read Full Briefing Article
         </a>
     </div>
@@ -324,7 +324,7 @@
             Drift magnitude: {{ '%.0f' | format(emergency_flash.drift_magnitude * 100) }}% in 60 minutes
         </p>
         {% if emergency_flash.article_id %}
-        <a href="{{ url_for('article_detail', article_id=emergency_flash.article_id) }}" class="btn btn-danger btn-sm">
+        <a href="{{ '/articles/' + str(emergency_flash.article_id) }}" class="btn btn-danger btn-sm">
             View Full Alert
         </a>
         {% endif %}
@@ -337,7 +337,7 @@
         {% for brief in past_briefs %}
         <div class="briefing-item">
             <div>
-                <a href="{{ url_for('article_detail', article_id=brief.article_id) }}">
+                <a href="{{ '/articles/' + str(brief.article_id) }}">
                     <strong>{{ brief.brief_date.strftime('%B %d, %Y') }}</strong>
                 </a>
                 <div class="text-white-50" style="font-size: 0.85rem;">{{ brief.macro_state[:100] }}...</div>
