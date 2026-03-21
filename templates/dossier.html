@@ -1,719 +1,754 @@
-{% extends "base.html" %}
-{% block title %}The Sovereign 7 | Protocol Pulse Dossier{% endblock %}
-{% block extra_css %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dossier — Protocol Pulse</title>
+<meta name="description" content="Seven intelligence briefs on the history of money and why Bitcoin wins. A guided briefing for the sovereign mind.">
+<link rel="icon" href="/static/images/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-:root {
-  --s7-bg: #000000;
-  --s7-white: #ffffff;
-  --s7-red: #dc2626;
-  --s7-red-glow: rgba(220, 38, 38, 0.25);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:#000;
+  color:#f0f0f0;
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+  min-height:100vh;
 }
-.s7-wrap {
-  background: var(--s7-bg);
-  min-height: 100vh;
-  padding-top: 56px;
-  overflow: hidden;
+
+/* ── VARIABLES ─────────────────────────────── */
+:root{
+  --red:#dc2626;
+  --red-dim:rgba(220,38,38,0.15);
+  --red-glow:rgba(220,38,38,0.3);
+  --gold:#f7931a;
+  --teal:#00d4d4;
+  --white:#f0f0f0;
+  --muted:rgba(240,240,240,0.45);
+  --border:rgba(255,255,255,0.07);
+  --card:rgba(255,255,255,0.03);
+  --mono:'JetBrains Mono',monospace;
 }
-.s7-hud {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  height: 56px;
-  background: rgba(0,0,0,0.95);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
+
+/* ── TOP HUD ────────────────────────────────── */
+.hud{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:52px;
+  background:rgba(0,0,0,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;gap:12px;
 }
-.s7-hud-back {
-  color: var(--s7-white);
-  text-decoration: none;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  opacity: 0.9;
+.hud-back{
+  display:flex;align-items:center;gap:8px;
+  color:var(--muted);text-decoration:none;
+  font-size:0.78rem;font-family:var(--mono);
+  transition:color .2s;white-space:nowrap;
 }
-.s7-hud-back:hover { color: var(--s7-red); opacity: 1; }
-.s7-hud-pulse {
-  width: 20px;
-  height: 20px;
-  background: var(--s7-red);
-  border-radius: 50%;
-  animation: s7-pulse 1.5s ease-in-out infinite;
+.hud-back:hover{color:var(--white)}
+.hud-logo{
+  font-size:0.85rem;font-weight:800;letter-spacing:.08em;
+  color:var(--red);text-decoration:none;white-space:nowrap;
 }
-@keyframes s7-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--s7-red-glow); }
-  50% { opacity: 0.9; box-shadow: 0 0 10px 3px var(--s7-red-glow); }
+.hud-progress{
+  flex:1;max-width:260px;
+  display:flex;flex-direction:column;gap:4px;
 }
-.s7-hud-tracker {
-  flex: 1;
-  max-width: 220px;
-  margin: 0 12px;
+.hud-progress-label{
+  font-family:var(--mono);font-size:0.6rem;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(255,255,255,0.3);
+  display:flex;justify-content:space-between;
 }
-.s7-hud-tracker-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 4px;
+.hud-bar{
+  height:3px;background:rgba(255,255,255,0.1);
+  border-radius:2px;overflow:hidden;
 }
-.s7-hud-fill {
-  height: 6px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 3px;
-  overflow: hidden;
+.hud-bar-fill{
+  height:100%;background:var(--red);
+  border-radius:2px;width:0%;
+  transition:width .5s cubic-bezier(.22,1,.36,1);
 }
-.s7-hud-fill-bar {
-  height: 100%;
-  background: var(--s7-red);
-  border-radius: 3px;
-  width: 0%;
-  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+.hud-chapter{
+  font-family:var(--mono);font-size:0.72rem;
+  color:rgba(255,255,255,0.5);white-space:nowrap;
 }
-.s7-hud-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.7);
-  min-width: 48px;
-  text-align: right;
+
+/* ── INTRO SCREEN ───────────────────────────── */
+.intro{
+  position:fixed;inset:0;z-index:200;
+  background:#000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:24px;
+  transition:opacity .8s ease, visibility .8s ease;
 }
-.s7-hud-classic {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.5);
-  margin-left: 12px;
-  text-decoration: none;
+.intro.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.intro-eyebrow{
+  font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.25em;text-transform:uppercase;
+  color:var(--red);margin-bottom:24px;
+  opacity:0;animation:fadeUp .6s .3s forwards;
 }
-.s7-hud-classic:hover { color: var(--s7-red); }
-.s7-scroll {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  height: calc(100vh - 56px);
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  touch-action: pan-x;
+.intro-title{
+  font-size:clamp(2.5rem,8vw,5.5rem);
+  font-weight:900;line-height:1;
+  letter-spacing:-.03em;margin-bottom:16px;
+  opacity:0;animation:fadeUp .6s .5s forwards;
 }
-.s7-scroll::-webkit-scrollbar { display: none; }
-.s7-section {
-  flex: 0 0 100%;
-  min-width: 100%;
-  width: 100%;
-  scroll-snap-align: center;
-  scroll-snap-stop: normal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 20px 80px;
-  box-sizing: border-box;
+.intro-title span{color:var(--red)}
+.intro-subtitle{
+  font-size:1rem;color:var(--muted);
+  max-width:520px;line-height:1.7;margin-bottom:40px;
+  opacity:0;animation:fadeUp .6s .7s forwards;
 }
-.s7-section-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 48px;
-  max-width: 1100px;
-  width: 100%;
+.intro-meta{
+  display:flex;gap:32px;justify-content:center;
+  margin-bottom:48px;
+  opacity:0;animation:fadeUp .6s .85s forwards;
 }
-.s7-img-wrap {
-  position: relative;
-  flex-shrink: 0;
-  max-width: 50%;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+.intro-meta-item{text-align:center}
+.intro-meta-num{
+  font-family:var(--mono);font-size:1.8rem;
+  font-weight:700;color:var(--red);display:block;
 }
-.s7-img-wrap img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 70vh;
-  object-fit: contain;
-  vertical-align: middle;
+.intro-meta-label{
+  font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);
 }
-.s7-content {
-  flex: 1;
-  min-width: 280px;
-  max-width: 420px;
+.intro-cta{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--red);color:#fff;
+  padding:14px 36px;border-radius:8px;
+  font-weight:700;font-size:.95rem;
+  cursor:pointer;border:none;font-family:inherit;
+  transition:all .2s;
+  opacity:0;animation:fadeUp .6s 1s forwards;
 }
-.s7-subtitle {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--s7-red);
-  margin-bottom: 8px;
-  font-family: 'JetBrains Mono', monospace;
+.intro-cta:hover{background:#b91c1c;transform:translateY(-1px)}
+.intro-warning{
+  font-family:var(--mono);font-size:.65rem;
+  color:rgba(255,255,255,.2);margin-top:20px;
+  opacity:0;animation:fadeUp .4s 1.2s forwards;
 }
-.s7-title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--s7-white);
-  margin-bottom: 16px;
-  line-height: 1.25;
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
 }
-.s7-narrative {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.82);
-  line-height: 1.65;
-  margin-bottom: 20px;
+
+/* ── CHAPTERS NAV ───────────────────────────── */
+.chapters-nav{
+  position:fixed;right:16px;top:50%;transform:translateY(-50%);
+  z-index:50;display:flex;flex-direction:column;gap:8px;
 }
-.s7-btn-deep {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: transparent;
-  border: 1px solid var(--s7-red);
-  border-radius: 8px;
-  color: var(--s7-white);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
+.chapter-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  cursor:pointer;transition:all .25s;
+  border:none;padding:0;
 }
-.s7-btn-deep:hover {
-  background: rgba(220, 38, 38, 0.2);
-  box-shadow: 0 0 14px var(--s7-red-glow);
+.chapter-dot.active{
+  background:var(--red);
+  box-shadow:0 0 8px var(--red-glow);
+  transform:scale(1.4);
 }
-.s7-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1999;
-  background: rgba(0,0,0,0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  cursor: pointer;
+.chapter-dot:hover{background:rgba(255,255,255,0.4)}
+@media(max-width:640px){.chapters-nav{display:none}}
+
+/* ── CHAPTER SECTIONS ───────────────────────── */
+.chapter{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:80px 24px 60px;
+  position:relative;overflow:hidden;
 }
-.s7-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  box-sizing: border-box;
-  pointer-events: none;
+.chapter::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 80% 50%,
+    var(--chapter-glow,rgba(220,38,38,0.04)) 0%,transparent 70%);
+  pointer-events:none;
 }
-.s7-modal[aria-hidden="true"],
-.s7-modal-backdrop[aria-hidden="true"] {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+.chapter-inner{
+  max-width:760px;margin:0 auto;width:100%;
+  position:relative;z-index:1;
 }
-.s7-modal[aria-hidden="false"],
-.s7-modal-backdrop[aria-hidden="false"] {
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
+
+/* Chapter number + era */
+.chapter-meta{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:28px;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .7s ease, transform .7s ease;
 }
-.s7-modal-panel {
-  position: relative;
-  width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow: auto;
-  background: #0a0a0a;
-  border: 1px solid var(--s7-red);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 24px 60px rgba(0,0,0,0.7), 0 0 40px var(--s7-red-glow);
-  pointer-events: auto;
+.chapter.visible .chapter-meta{opacity:1;transform:none}
+.chapter-num{
+  font-family:var(--mono);font-size:.7rem;
+  color:var(--red);letter-spacing:.15em;
+  text-transform:uppercase;
 }
-.s7-modal-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
+.chapter-era{
+  font-family:var(--mono);font-size:.68rem;
+  color:rgba(255,255,255,.3);
+  border-left:1px solid var(--border);
+  padding-left:16px;
 }
-.s7-modal-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--s7-red);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+
+/* Title */
+.chapter-title{
+  font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:900;line-height:1.05;
+  letter-spacing:-.02em;margin-bottom:20px;
+  opacity:0;transform:translateY(24px);
+  transition:opacity .7s .1s ease, transform .7s .1s ease;
 }
-.s7-modal-close {
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: rgba(255,255,255,0.08);
-  color: var(--s7-white);
-  font-size: 1.4rem;
-  line-height: 1;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-  position: relative;
-  z-index: 3;
-  flex-shrink: 0;
+.chapter.visible .chapter-title{opacity:1;transform:none}
+
+/* Narrative */
+.chapter-narrative{
+  font-size:1.05rem;line-height:1.8;
+  color:rgba(255,255,255,.72);
+  margin-bottom:28px;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .7s .2s ease, transform .7s .2s ease;
 }
-.s7-modal-close:hover { background: var(--s7-red); }
-.s7-modal-close:focus { outline: 2px solid var(--s7-red); outline-offset: 2px; }
-.s7-modal-body {
-  padding: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  line-height: 1.7;
-  color: rgba(255,255,255,0.9);
+.chapter.visible .chapter-narrative{opacity:1;transform:none}
+
+/* Key stat bar */
+.chapter-stat{
+  display:flex;align-items:center;gap:16px;
+  padding:16px 20px;
+  background:var(--red-dim);
+  border:1px solid rgba(220,38,38,.2);
+  border-left:3px solid var(--red);
+  border-radius:0 8px 8px 0;
+  margin-bottom:24px;
+  opacity:0;transform:translateY(16px);
+  transition:opacity .7s .3s ease, transform .7s .3s ease;
 }
-.s7-modal-row { margin-bottom: 18px; }
-.s7-modal-row:last-child { margin-bottom: 0; }
-.s7-modal-label {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--s7-red);
-  margin-bottom: 6px;
+.chapter.visible .chapter-stat{opacity:1;transform:none}
+.chapter-stat-icon{font-size:1.2rem;flex-shrink:0}
+.chapter-stat-content{}
+.chapter-stat-label{
+  font-family:var(--mono);font-size:.65rem;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(220,38,38,.8);margin-bottom:3px;
 }
-.s7-modal-value { color: rgba(255,255,255,0.92); }
-.s7-modal-math {
-  background: rgba(255,255,255,0.04);
-  border-left: 3px solid var(--s7-red);
-  padding: 10px 12px;
-  margin-top: 6px;
-  color: rgba(255,255,255,0.88);
-  overflow-x: auto;
+.chapter-stat-value{
+  font-size:.95rem;font-weight:600;color:var(--white);
 }
-.s7-modal-img-wrap {
-  margin-bottom: 20px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
-  display: none;
+
+/* Deep Dive */
+.deep-dive{
+  border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+  opacity:0;transform:translateY(16px);
+  transition:opacity .7s .4s ease, transform .7s .4s ease;
 }
-.s7-modal-img-wrap img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 220px;
-  object-fit: contain;
-  background: #000;
-  transition: opacity 0.25s ease;
+.chapter.visible .deep-dive{opacity:1;transform:none}
+.deep-dive-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;background:var(--card);
+  border:none;color:var(--muted);cursor:pointer;
+  font-family:var(--mono);font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.1em;
+  transition:background .2s, color .2s;text-align:left;
 }
-.s7-modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,0.08);
+.deep-dive-toggle:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.deep-dive-toggle i{transition:transform .3s}
+.deep-dive.open .deep-dive-toggle i{transform:rotate(180deg)}
+.deep-dive-body{
+  display:none;padding:18px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,.4);
 }
-.s7-modal-nav-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--s7-red);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--s7-white);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: background 0.2s;
+.deep-dive.open .deep-dive-body{display:block}
+.dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:500px){.dd-grid{grid-template-columns:1fr}}
+.dd-item{}
+.dd-item-label{
+  font-family:var(--mono);font-size:.62rem;
+  color:rgba(255,255,255,.3);text-transform:uppercase;
+  letter-spacing:.1em;margin-bottom:5px;
 }
-.s7-modal-nav-btn:hover:not(:disabled) {
-  background: rgba(220, 38, 38, 0.25);
+.dd-item-value{
+  font-size:.88rem;color:rgba(255,255,255,.75);
+  line-height:1.5;
 }
-.s7-modal-nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.dd-item-value strong{color:var(--red)}
+
+/* ── CHAPTER DIVIDERS ───────────────────────── */
+.chapter-divider{
+  display:flex;align-items:center;gap:16px;
+  padding:0 24px;max-width:760px;margin:0 auto;
+  opacity:.3;
 }
-.s7-modal-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.6);
+.chapter-divider::before,.chapter-divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
 }
-.s7-nav {
-  position: fixed;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  z-index: 150;
-  pointer-events: none;
-  padding: 0 8px;
+.chapter-divider span{
+  font-family:var(--mono);font-size:.6rem;
+  color:rgba(255,255,255,.3);letter-spacing:.15em;white-space:nowrap;
 }
-.s7-nav-btn {
-  pointer-events: auto;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.75);
-  border: 2px solid rgba(255,255,255,0.2);
-  color: var(--s7-white);
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+/* ── FINAL CHAPTER — Bitcoin ────────────────── */
+.chapter-bitcoin .chapter-title{color:var(--gold)}
+.chapter-bitcoin{--chapter-glow:rgba(247,147,26,0.06)}
+
+/* ── EXIT CTA ───────────────────────────────── */
+.exit-section{
+  min-height:60vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:80px 24px;
+  position:relative;
 }
-.s7-nav-btn:hover {
-  background: rgba(220, 38, 38, 0.3);
-  border-color: var(--s7-red);
+.exit-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(247,147,26,0.06),transparent 70%);
 }
-.s7-nav-btn:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-  pointer-events: none;
+.exit-title{
+  font-size:clamp(1.8rem,5vw,3rem);
+  font-weight:900;letter-spacing:-.02em;
+  margin-bottom:16px;
 }
-.s7-nav-btn.prev { left: 12px; }
-.s7-nav-btn.next { right: 12px; }
-.s7-nav-btn i { pointer-events: none; }
-.s7-dots {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 150;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  background: rgba(0,0,0,0.5);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.08);
+.exit-title em{font-style:normal;color:var(--gold)}
+.exit-sub{
+  color:var(--muted);font-size:1rem;line-height:1.7;
+  max-width:500px;margin-bottom:40px;
 }
-.s7-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+.exit-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--gold);color:#000;
+  padding:14px 28px;border-radius:8px;
+  font-weight:800;font-size:.9rem;
+  text-decoration:none;transition:all .2s;
 }
-.s7-dot:hover { background: rgba(255,255,255,0.5); }
-.s7-dot.active {
-  background: var(--s7-red);
-  transform: scale(1.2);
-  box-shadow: 0 0 10px var(--s7-red-glow);
+.btn-primary:hover{background:#e5851a;transform:translateY(-1px);color:#000}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.6);
+  padding:14px 28px;border-radius:8px;
+  font-weight:600;font-size:.9rem;
+  text-decoration:none;transition:all .2s;
 }
-@media (max-width: 768px) {
-  .s7-section-inner { flex-direction: column; gap: 24px; }
-  .s7-img-wrap { max-width: 100%; }
-  .s7-content { max-width: 100%; }
-  .s7-title { font-size: 1.2rem; }
-  .s7-hud-tracker { max-width: 140px; }
-  .s7-nav-btn { width: 40px; height: 40px; font-size: 1rem; }
-  .s7-nav-btn.prev { left: 4px; }
-  .s7-nav-btn.next { right: 4px; }
-  .s7-dots { bottom: 12px; gap: 8px; padding: 6px 10px; }
-  .s7-dot { width: 6px; height: 6px; }
+.btn-ghost:hover{border-color:rgba(255,255,255,.4);color:#fff}
+
+/* ── READING PROGRESS ───────────────────────── */
+.reading-bar{
+  position:fixed;top:52px;left:0;right:0;z-index:99;
+  height:2px;background:transparent;
+}
+.reading-bar-fill{
+  height:100%;background:linear-gradient(90deg,var(--red),var(--gold));
+  width:0%;transition:width .1s linear;
+}
+
+/* ── MEDIA ──────────────────────────────────── */
+@media(max-width:640px){
+  .chapter{padding:72px 16px 48px}
+  .dd-grid{grid-template-columns:1fr}
 }
 </style>
-{% endblock %}
+</head>
+<body>
 
-{% block content %}
-<div class="s7-wrap">
-  <header class="s7-hud">
-    <a href="/" class="s7-hud-back"><i class="fas fa-arrow-left me-2"></i>Protocol Pulse</a>
-    <div class="s7-hud-pulse" title="Pulse"></div>
-    <div class="s7-hud-tracker">
-      <div class="s7-hud-tracker-label">Sovereignty Tracker</div>
-      <div class="s7-hud-fill">
-        <div class="s7-hud-fill-bar" id="s7ProgressBar"></div>
-      </div>
+<!-- TOP HUD -->
+<div class="hud">
+  <a href="/" class="hud-back"><i class="fas fa-arrow-left"></i> Protocol Pulse</a>
+  <a href="/" class="hud-logo">PROTOCOL PULSE</a>
+  <div class="hud-progress">
+    <div class="hud-progress-label">
+      <span>Sovereignty Tracker</span>
+      <span class="hud-chapter" id="hudChapter">Intro</span>
     </div>
-    <span class="s7-hud-score" id="s7Score">0 / 7</span>
-    <a href="/dossier/classic" class="s7-hud-classic" title="Full 32-slide Dossier">Classic</a>
-  </header>
-
-  <div class="s7-scroll" id="s7Scroll">
-    {% for chapter in chapters or [] %}
-    {% set dd = chapter.deep_dive or {} %}
-    {% set img_file = chapter.image_path.replace('/static/', '') if chapter.image_path and chapter.image_path.startswith('/static/') else (chapter.image_path or '') %}
-    <section class="s7-section" data-chapter-id="{{ chapter.id }}" data-index="{{ loop.index0 }}">
-      <div class="s7-section-inner">
-        <div class="s7-img-wrap">
-          <img src="{{ url_for('static', filename=img_file) if img_file else '' }}" alt="{{ chapter.title or 'Chapter' }}" loading="lazy">
-        </div>
-        <div class="s7-content">
-          <div class="s7-subtitle">{{ chapter.subtitle or '' }}</div>
-          <h2 class="s7-title">{{ chapter.title or 'Chapter' }}</h2>
-          <p class="s7-narrative">{{ chapter.narrative or '' }}</p>
-          <button type="button" class="s7-btn-deep s7-deep-dive" data-chapter-id="{{ chapter.id }}" data-index="{{ loop.index0 }}"
-            data-title="{{ chapter.title or '' }}" data-subtitle="{{ chapter.subtitle or '' }}"
-            data-image-src="{{ chapter.image_path or '' }}"
-            data-key-metric="{{ dd.key_metric or '' }}"
-            data-math="{{ dd.math or '' }}"
-            data-technical-insight="{{ dd.technical_insight or '' }}">
-            <i class="fas fa-terminal me-1"></i>Deep Dive
-          </button>
-        </div>
-      </div>
-    </section>
-    {% endfor %}
+    <div class="hud-bar"><div class="hud-bar-fill" id="hudFill"></div></div>
   </div>
-
-  <nav class="s7-nav" aria-label="Dossier navigation">
-    <button type="button" class="s7-nav-btn prev" id="s7Prev" aria-label="Previous chapter"><i class="fas fa-chevron-left"></i></button>
-    <button type="button" class="s7-nav-btn next" id="s7Next" aria-label="Next chapter"><i class="fas fa-chevron-right"></i></button>
-  </nav>
-  <div class="s7-dots" id="s7Dots" role="tablist" aria-label="Jump to chapter"></div>
+  <a href="/articles" style="font-size:.78rem;color:rgba(255,255,255,.4);text-decoration:none;font-family:'JetBrains Mono',monospace;white-space:nowrap;">Intel →</a>
 </div>
 
-<div class="s7-modal-backdrop" id="s7ModalBackdrop" aria-hidden="true"></div>
-<div class="s7-modal" id="s7Modal" role="dialog" aria-hidden="true">
-  <div class="s7-modal-panel">
-    <div class="s7-modal-header">
-      <span class="s7-modal-title" id="s7ModalTitle">Technical Intel</span>
-      <button type="button" class="s7-modal-close" id="s7ModalClose" aria-label="Close">&times;</button>
+<!-- READING PROGRESS -->
+<div class="reading-bar"><div class="reading-bar-fill" id="readingFill"></div></div>
+
+<!-- CHAPTERS NAV -->
+<nav class="chapters-nav" id="chaptersNav">
+  <button class="chapter-dot" data-idx="0" title="Tally Sticks"></button>
+  <button class="chapter-dot" data-idx="1" title="Gold Standard"></button>
+  <button class="chapter-dot" data-idx="2" title="Bretton Woods"></button>
+  <button class="chapter-dot" data-idx="3" title="Nixon Shock"></button>
+  <button class="chapter-dot" data-idx="4" title="Fiat Experiment"></button>
+  <button class="chapter-dot" data-idx="5" title="Bitcoin Genesis"></button>
+  <button class="chapter-dot" data-idx="6" title="Sovereign Future"></button>
+</nav>
+
+<!-- INTRO OVERLAY -->
+<div class="intro" id="intro">
+  <div class="intro-eyebrow">Classified Intelligence</div>
+  <h1 class="intro-title">The<br><span>Dossier</span></h1>
+  <p class="intro-subtitle">Seven intelligence briefs on the history of money — and why every prior system failed. You already know the conclusion. This is the evidence.</p>
+  <div class="intro-meta">
+    <div class="intro-meta-item">
+      <span class="intro-meta-num">7</span>
+      <span class="intro-meta-label">Chapters</span>
     </div>
-    <div class="s7-modal-body">
-      <div class="s7-modal-img-wrap" id="s7ModalImgWrap">
-        <img id="s7ModalImg" src="" alt="" style="display:none;">
-      </div>
-      <div class="s7-modal-row">
-        <div class="s7-modal-label">Key metric</div>
-        <div class="s7-modal-value" id="s7ModalKeyMetric"></div>
-      </div>
-      <div class="s7-modal-row">
-        <div class="s7-modal-label">The math</div>
-        <div class="s7-modal-math" id="s7ModalMath"></div>
-      </div>
-      <div class="s7-modal-row">
-        <div class="s7-modal-label">Technical insight</div>
-        <div class="s7-modal-value" id="s7ModalInsight"></div>
-      </div>
-      <div class="s7-modal-footer">
-        <button type="button" class="s7-modal-nav-btn" id="s7ModalPrev" aria-label="Previous chapter">&larr; Previous</button>
-        <span class="s7-modal-score" id="s7ModalScore"></span>
-        <button type="button" class="s7-modal-nav-btn" id="s7ModalNext" aria-label="Next chapter">Next &rarr;</button>
+    <div class="intro-meta-item">
+      <span class="intro-meta-num">~8</span>
+      <span class="intro-meta-label">Minutes</span>
+    </div>
+    <div class="intro-meta-item">
+      <span class="intro-meta-num">1</span>
+      <span class="intro-meta-label">Conclusion</span>
+    </div>
+  </div>
+  <button class="intro-cta" id="introCta">
+    <i class="fas fa-unlock-alt"></i> Begin Briefing
+  </button>
+  <div class="intro-warning">Classification Level: SOVEREIGN&nbsp;&nbsp;|&nbsp;&nbsp;Eyes Only</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAPTER 1 — TALLY STICKS
+     ═══════════════════════════════════════════ -->
+<section class="chapter" data-idx="0" id="ch0">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 01 / 07</span>
+      <span class="chapter-era">1100 – 1826 AD</span>
+    </div>
+    <h2 class="chapter-title">Tally Sticks</h2>
+    <p class="chapter-narrative">England used split wooden sticks as money for over 700 years. Notches represented amounts. The stick split lengthwise: the creditor kept the <em>stock</em> (origin of stockholder), the debtor kept the <em>foil</em> (origin of counterfoil). No two wood grains match — counterfeiting was mathematically impossible. This was interest-free state money. From 1290–1485, laborers worked 14 weeks a year yet lived better than most do today. Then the Bank of England arrived in 1694 — a private cartel that hijacked the monetary system. Debt soared. Wars multiplied.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">🪵</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">700 years of stable, interest-free money — ended by one private bank</div>
       </div>
     </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--red);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value"><strong>0% interest</strong> vs 5–20% modern bank debt. Medieval peasants had more disposable time than their modern equivalents.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">Sound money creates prosperity. Private central banking creates debt slavery. The Bank of England was chartered the same year the British national debt was invented.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="chapter-divider"><span>▸</span></div>
+
+<!-- CHAPTER 2 — GOLD STANDARD -->
+<section class="chapter" data-idx="1" id="ch1">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 02 / 07</span>
+      <span class="chapter-era">Ancient World – 1944</span>
+    </div>
+    <h2 class="chapter-title">The Gold Standard</h2>
+    <p class="chapter-narrative">For millennia, gold served as honest money. Scarce. Durable. Divisible. Portable. Fungible. Nations pegged to gold were forced into fiscal discipline — you could not spend what you did not have. The classical gold standard (1870–1914) delivered unprecedented global trade, minimal inflation, and rising living standards for ordinary people. Gold's fatal flaw was political, not economic. Governments wanted to wage unlimited wars and build unlimited bureaucracies. Gold stood in their way.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">🥇</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">1870–1914: ~0% inflation per year. 1971–2024: ~4% per year. Same math, different rulers.</div>
+      </div>
+    </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--red);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value">44 years of classical gold standard: living standards doubled. <strong>Gold constrained governments.</strong> That is precisely why they abandoned it.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">Gold's fatal flaw: physical, nation-state-controlled, confiscatable. Bitcoin keeps gold's scarcity while removing every single one of its political vulnerabilities.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="chapter-divider"><span>▸</span></div>
+
+<!-- CHAPTER 3 — BRETTON WOODS -->
+<section class="chapter" data-idx="2" id="ch2">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 03 / 07</span>
+      <span class="chapter-era">1944 – 1971</span>
+    </div>
+    <h2 class="chapter-title">Bretton Woods</h2>
+    <p class="chapter-narrative">After WWII, 44 nations agreed: all currencies peg to the US dollar. Dollar converts to gold at $35/oz. America became the world's banker. It worked while discipline held. But Vietnam and the Great Society required printing far more dollars than gold could back. By the late 1960s, France was sending naval vessels across the Atlantic to redeem paper dollars for physical gold. The promise was cracking.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">🏦</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">US gold reserves: 20,000 tons (1944) → 8,133 tons (1971). Paper dollars printed faster than gold could back them.</div>
+      </div>
+    </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--red);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value">$35/oz gold peg held for 27 years. <strong>France demanded physical delivery.</strong> Every nation that followed would have bankrupted the US treasury.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">Bretton Woods was a promise: "Your dollars are as good as gold." That promise required trust in a government. Trust is not a sound monetary foundation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="chapter-divider"><span>▸</span></div>
+
+<!-- CHAPTER 4 — NIXON SHOCK -->
+<section class="chapter" data-idx="3" id="ch3">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 04 / 07</span>
+      <span class="chapter-era">August 15, 1971</span>
+    </div>
+    <h2 class="chapter-title">The Nixon Shock</h2>
+    <p class="chapter-narrative">On a Sunday night, Nixon appeared on television. He announced the US would "temporarily" suspend dollar-gold convertibility. That temporary measure became permanent. For the first time in history, the entire global monetary system was backed by nothing but political promises. What $100 bought in 1971 costs over $700 today. Median home: $24,000 to $434,000. Gas: $0.36 to $3.50. This was not inflation. It was theft conducted in slow motion.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">📉</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">$100 in 1971 = $14 in purchasing power today. 86% confiscated — no court order required.</div>
+      </div>
+    </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--red);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value"><strong>Median home +1,708%.</strong> Wages did not keep pace. The gap between asset owners and workers has widened every year since 1971.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">Nixon unleashed the greatest transfer of wealth from labor to capital in human history. The working class stores value in wages. The rich store value in assets. Inflation only destroys one of those.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="chapter-divider"><span>▸</span></div>
+
+<!-- CHAPTER 5 — FIAT EXPERIMENT -->
+<section class="chapter" data-idx="4" id="ch4">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 05 / 07</span>
+      <span class="chapter-era">1971 – 2008</span>
+    </div>
+    <h2 class="chapter-title">The Fiat Experiment</h2>
+    <p class="chapter-narrative">Freed from gold, governments printed without limit. The Federal Reserve destroyed 97% of the dollar's value since 1913. The 2008 financial crisis was not a failure of markets — it was the inevitable result of unlimited leverage on a foundation of manufactured money. Banks too big to fail received trillions in bailouts while 10 million Americans lost their homes. The system was working exactly as designed: privatize gains, socialize losses.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">🖨️</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">M2 money supply: $600B (1971) → $21T (2024). A 35× expansion. Every dollar printed dilutes every dollar you saved.</div>
+      </div>
+    </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--red);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value"><strong>97% of USD purchasing power destroyed</strong> since 1913. Every fiat currency in recorded history has gone to zero. The dollar has 3 cents of its original value remaining.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">2008: The Fed created $700B in 8 months. 2020: $4T in 8 weeks. The acceleration is not a bug. Infinite money is the feature. Until it isn't.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="chapter-divider"><span>▸</span></div>
+
+<!-- CHAPTER 6 — BITCOIN GENESIS -->
+<section class="chapter chapter-bitcoin" data-idx="5" id="ch5">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 06 / 07</span>
+      <span class="chapter-era">January 3, 2009</span>
+    </div>
+    <h2 class="chapter-title">Bitcoin Genesis</h2>
+    <p class="chapter-narrative">Satoshi Nakamoto mined the first block and embedded a message: <em>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks."</em> The timestamp was not accidental. Bitcoin introduced digital scarcity for the first time in human history: 21 million coins, fixed forever by mathematics, enforced by the most powerful computational network ever assembled. No trusted third party. No single point of failure. Pseudonymous by design.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">₿</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">21,000,000 BTC. Fixed. Forever. Not even Satoshi can change it. The first monetary rule that requires no trust to enforce.</div>
+      </div>
+    </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--gold);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value">Halving schedule: 50 → 25 → 12.5 → 6.25 → 3.125 BTC per block, every ~4 years. <strong>Supply growth approaches zero asymptotically.</strong> No inflation schedule exists.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">"The root problem with conventional currency is all the trust required to make it work." — Satoshi Nakamoto. Bitcoin removes trust from the monetary equation entirely.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="chapter-divider"><span>▸</span></div>
+
+<!-- CHAPTER 7 — SOVEREIGN FUTURE -->
+<section class="chapter" data-idx="6" id="ch6">
+  <div class="chapter-inner">
+    <div class="chapter-meta">
+      <span class="chapter-num">Brief 07 / 07</span>
+      <span class="chapter-era">The Path Forward</span>
+    </div>
+    <h2 class="chapter-title">The Sovereign Future</h2>
+    <p class="chapter-narrative">Bitcoin is the separation of money and state — the most important separation since church and state. Self-custody means no bank can freeze your account. Lightning Network enables instant, near-free payments to anyone on Earth. Every 10 minutes, a new block is mined — enforced by mathematics, not politicians. The protocol has operated without downtime for 15 years. No army could stop it. No government has successfully banned it. The exit exists.</p>
+    <div class="chapter-stat">
+      <span class="chapter-stat-icon">⚡</span>
+      <div class="chapter-stat-content">
+        <div class="chapter-stat-label">Key Metric</div>
+        <div class="chapter-stat-value">Lightning: ~$0.001/tx vs Visa: ~$0.30/tx vs Wire: ~$25/tx. Sound money is also efficient money.</div>
+      </div>
+    </div>
+    <div class="deep-dive">
+      <button class="deep-dive-toggle" onclick="toggleDD(this)">
+        <span><i class="fas fa-terminal" style="color:var(--red);margin-right:8px"></i>Deep Dive</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <div class="deep-dive-body">
+        <div class="dd-grid">
+          <div class="dd-item">
+            <div class="dd-item-label">The Math</div>
+            <div class="dd-item-value"><strong>99.98% uptime since 2009.</strong> No Federal Reserve has that track record. No nation-state currency has survived 100 years without debasement. Bitcoin has survived 15 with the rules unchanged.</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-item-label">Technical Insight</div>
+            <div class="dd-item-value">The first monetary system in history where the rules cannot be changed by those in power. Every prior monetary system was controlled by whoever controlled the ledger. Bitcoin controls itself.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXIT CTA -->
+<div class="exit-section">
+  <h2 class="exit-title">The briefing is<br><em>complete.</em></h2>
+  <p class="exit-sub">You now understand the full arc — from tally sticks to fiat failure to mathematical sovereignty. The only question remaining is what you do with this knowledge.</p>
+  <div class="exit-btns">
+    <a href="/articles" class="btn-primary"><i class="fas fa-broadcast-tower"></i> Read Live Intel</a>
+    <a href="/freedom-tech" class="btn-ghost"><i class="fas fa-shield-alt"></i> Freedom Tech Stack</a>
+    <a href="/stage" class="btn-ghost"><i class="fas fa-play"></i> Watch the Stage</a>
   </div>
 </div>
 
 <script>
-(function() {
-  var scrollEl = document.getElementById('s7Scroll');
-  var progressBar = document.getElementById('s7ProgressBar');
-  var scoreEl = document.getElementById('s7Score');
-  var sections = scrollEl ? scrollEl.querySelectorAll('.s7-section') : [];
-  var total = sections.length;
-  var ticking = false;
-  var currentIndex = 0;
+// ── INTRO ──────────────────────────────────
+var intro = document.getElementById('intro');
+var shown = sessionStorage.getItem('dossier_shown');
+if (shown) { intro.classList.add('hidden'); } 
 
-  function getSectionWidth() {
-    return scrollEl ? scrollEl.clientWidth : 0;
-  }
-  function scrollToIndex(index) {
-    if (!scrollEl) return;
-    index = Math.max(0, Math.min(total - 1, index));
-    var w = getSectionWidth();
-    scrollEl.scrollTo({ left: index * w, behavior: 'smooth' });
-  }
-  function getCurrentIndex() {
-    var w = getSectionWidth();
-    if (w <= 0 || !scrollEl) return 0;
-    var scrollLeft = scrollEl.scrollLeft;
-    return Math.min(total - 1, Math.round(scrollLeft / w));
-  }
-  function updateUI() {
-    if (!progressBar || !scoreEl) return;
-    currentIndex = getCurrentIndex();
-    var pct = total > 1 ? (currentIndex / (total - 1)) * 100 : (total ? 100 : 0);
-    progressBar.style.width = pct + '%';
-    scoreEl.textContent = (currentIndex + 1) + ' / ' + (total || 7);
-    var prevBtn = document.getElementById('s7Prev');
-    var nextBtn = document.getElementById('s7Next');
-    if (prevBtn) prevBtn.disabled = currentIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentIndex === total - 1;
-    var dots = document.querySelectorAll('.s7-dot');
-    dots.forEach(function(dot, i) {
-      dot.classList.toggle('active', i === currentIndex);
-      dot.setAttribute('aria-selected', i === currentIndex);
-    });
-  }
-  function onScroll() {
-    if (!ticking) {
-      requestAnimationFrame(function() {
-        updateUI();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }
+document.getElementById('introCta').addEventListener('click', function() {
+  intro.classList.add('hidden');
+  sessionStorage.setItem('dossier_shown', '1');
+  document.getElementById('ch0').scrollIntoView({ behavior: 'smooth' });
+});
 
-  if (scrollEl) {
-    scrollEl.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', updateUI);
-  }
-  updateUI();
-
-  var prevBtn = document.getElementById('s7Prev');
-  var nextBtn = document.getElementById('s7Next');
-  if (prevBtn) prevBtn.addEventListener('click', function() {
-    if (currentIndex > 0) scrollToIndex(currentIndex - 1);
-  });
-  if (nextBtn) nextBtn.addEventListener('click', function() {
-    if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
-  });
-
-  var dotsEl = document.getElementById('s7Dots');
-  if (dotsEl) {
-    for (var i = 0; i < total; i++) {
-      var dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 's7-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', 'Chapter ' + (i + 1));
-      dot.setAttribute('role', 'tab');
-      dot.setAttribute('aria-selected', i === 0);
-      (function(idx) {
-        dot.addEventListener('click', function() { scrollToIndex(idx); });
-      })(i);
-      dotsEl.appendChild(dot);
-    }
-  }
-
-  var modal = document.getElementById('s7Modal');
-  document.addEventListener('keydown', function(e) {
-    if (modal && modal.getAttribute('aria-hidden') === 'false') return;
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      if (currentIndex > 0) scrollToIndex(currentIndex - 1);
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
+// ── INTERSECTION OBSERVER ──────────────────
+var chapters = document.querySelectorAll('.chapter');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      updateHUD(parseInt(e.target.dataset.idx));
     }
   });
+}, { threshold: 0.2 });
 
-  if (modal) {
-    var backdrop = document.getElementById('s7ModalBackdrop');
-    var modalTitle = document.getElementById('s7ModalTitle');
-    var modalImg = document.getElementById('s7ModalImg');
-    var modalImgWrap = document.getElementById('s7ModalImgWrap');
-    var keyMetricEl = document.getElementById('s7ModalKeyMetric');
-    var mathEl = document.getElementById('s7ModalMath');
-    var insightEl = document.getElementById('s7ModalInsight');
-    var modalClose = document.getElementById('s7ModalClose');
-    var modalPrev = document.getElementById('s7ModalPrev');
-    var modalNext = document.getElementById('s7ModalNext');
-    var modalScore = document.getElementById('s7ModalScore');
+chapters.forEach(function(c) { observer.observe(c); });
 
-    var chapterData = [];
-    document.querySelectorAll('.s7-deep-dive').forEach(function(btn) {
-      chapterData.push({
-        title: btn.getAttribute('data-title') || '',
-        subtitle: btn.getAttribute('data-subtitle') || '',
-        imageSrc: btn.getAttribute('data-image-src') || '',
-        keyMetric: btn.getAttribute('data-key-metric') || '',
-        math: btn.getAttribute('data-math') || '',
-        insight: btn.getAttribute('data-technical-insight') || ''
-      });
-    });
-    var modalChapterIndex = 0;
+// ── HUD UPDATE ─────────────────────────────
+var chapterNames = ['Tally Sticks','Gold Standard','Bretton Woods','Nixon Shock','Fiat Experiment','Bitcoin Genesis','Sovereign Future'];
+function updateHUD(idx) {
+  document.getElementById('hudFill').style.width = ((idx + 1) / 7 * 100) + '%';
+  document.getElementById('hudChapter').textContent = (idx + 1) + ' / 7 — ' + chapterNames[idx];
+  document.querySelectorAll('.chapter-dot').forEach(function(d, i) {
+    d.classList.toggle('active', i === idx);
+  });
+}
 
-    function showModalChapter(index) {
-      modalChapterIndex = Math.max(0, Math.min(chapterData.length - 1, index));
-      var ch = chapterData[modalChapterIndex];
-      if (!ch) return;
-      if (modalTitle) modalTitle.textContent = ch.title + ' — ' + ch.subtitle;
-      if (keyMetricEl) keyMetricEl.textContent = ch.keyMetric;
-      if (mathEl) mathEl.textContent = ch.math;
-      if (insightEl) insightEl.textContent = ch.insight;
-      if (modalImg) {
-        if (ch.imageSrc) {
-          if (modalImgWrap) modalImgWrap.style.display = 'block';
-          modalImg.style.display = 'block';
-          modalImg.alt = ch.title;
-          modalImg.style.opacity = '0';
-          modalImg.onload = function() {
-            modalImg.style.opacity = '1';
-            modalImg.onload = null;
-          };
-          modalImg.onerror = function() {
-            modalImg.style.opacity = '1';
-            modalImg.onerror = null;
-          };
-          modalImg.src = ch.imageSrc;
-          if (modalImg.complete && modalImg.naturalWidth) {
-            modalImg.style.opacity = '1';
-          } else {
-            setTimeout(function() { modalImg.style.opacity = '1'; }, 150);
-          }
-        } else {
-          modalImg.src = '';
-          modalImg.style.display = 'none';
-          modalImg.style.opacity = '1';
-          if (modalImgWrap) modalImgWrap.style.display = 'none';
-        }
-      }
-      if (modalScore) modalScore.textContent = (modalChapterIndex + 1) + ' / ' + chapterData.length;
-      if (modalPrev) modalPrev.disabled = modalChapterIndex === 0;
-      if (modalNext) modalNext.disabled = modalChapterIndex === chapterData.length - 1;
-    }
+// ── CHAPTER NAV DOTS ───────────────────────
+document.querySelectorAll('.chapter-dot').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var idx = parseInt(this.dataset.idx);
+    document.getElementById('ch' + idx).scrollIntoView({ behavior: 'smooth' });
+  });
+});
 
-    function openDeepDive(buttonIndex) {
-      var idx = typeof buttonIndex === 'number' ? buttonIndex : 0;
-      modal.setAttribute('aria-hidden', 'false');
-      if (backdrop) backdrop.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      requestAnimationFrame(function() {
-        showModalChapter(idx);
-      });
-    }
-    function closeDeepDive() {
-      modal.setAttribute('aria-hidden', 'true');
-      if (backdrop) backdrop.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
+// ── READING PROGRESS ───────────────────────
+window.addEventListener('scroll', function() {
+  var h = document.documentElement;
+  var pct = (h.scrollTop || document.body.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  document.getElementById('readingFill').style.width = pct + '%';
+});
 
-    document.querySelectorAll('.s7-deep-dive').forEach(function(btn, i) {
-      btn.addEventListener('click', function() {
-        var idx = parseInt(btn.getAttribute('data-index'), 10);
-        if (isNaN(idx)) idx = i;
-        openDeepDive(idx);
-      });
-    });
-    if (backdrop) backdrop.addEventListener('click', closeDeepDive);
-    function doClose(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      closeDeepDive();
-    }
-    if (modalClose) {
-      modalClose.setAttribute('type', 'button');
-      modalClose.addEventListener('click', doClose, true);
-    }
-    if (modalPrev) modalPrev.addEventListener('click', function() {
-      if (modalChapterIndex > 0) {
-        showModalChapter(modalChapterIndex - 1);
-        scrollToIndex(modalChapterIndex - 1);
-      }
-    });
-    if (modalNext) modalNext.addEventListener('click', function() {
-      if (modalChapterIndex < chapterData.length - 1) {
-        showModalChapter(modalChapterIndex + 1);
-        scrollToIndex(modalChapterIndex + 1);
-      }
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeDeepDive();
-    });
-  }
-})();
+// ── DEEP DIVE TOGGLE ───────────────────────
+function toggleDD(btn) {
+  btn.closest('.deep-dive').classList.toggle('open');
+}
 </script>
-{% endblock %}
+</body>
+</html>

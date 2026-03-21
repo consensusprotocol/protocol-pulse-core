@@ -372,19 +372,12 @@
 }
 
 .pp-share-btn {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--pp-surface);
-    border: 1px solid var(--pp-border);
-    border-radius: var(--pp-radius-sm);
-    color: var(--pp-text-secondary);
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-size: 0.875rem;
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;outline:none;box-shadow:none;
+    border-radius:6px;color:rgba(255,255,255,0.4);cursor:pointer;transition:color .15s ease;font-size:.875rem;
 }
+.pp-share-btn:hover{color:#00d4d4;background:transparent;}
+.pp-share-btn:focus,.pp-share-btn:focus-visible,.pp-share-btn:active{outline:none!important;box-shadow:none!important;background:transparent!important;}
 
 .pp-share-btn:hover {
     border-color: var(--pp-teal);
