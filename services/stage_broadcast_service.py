@@ -30,7 +30,7 @@ BASE = Path(__file__).resolve().parent.parent
 QUEUE_PATH = BASE / "video_pipeline_v3" / "data" / "stage_briefs" / "broadcast_queue.json"
 PRICE_CACHE = Path("/tmp/stage_last_price.json")
 METRICS_CACHE = Path("/tmp/stage_last_metrics.json")
-FILLER_STATE = Path("/tmp/stage_filler_idx.json")
+FILLER_STATE = BASE / "data" / "stage_briefs" / "filler_state.json"
 LOGS_DIR = BASE / "logs"
 DATA_DIR = BASE / "data"
 

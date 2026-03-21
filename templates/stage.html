@@ -1260,7 +1260,7 @@ body { background: var(--s-bg); }
         vid.removeEventListener('canplay',oncp);
         vid.style.opacity='1';
         still.style.opacity='0';
-        // Don't call tryUnmute here — let audio-first path handle audio
+        tryUnmute();
       },{once:true});
       vid.onended = function(){
         vid.classList.remove('active');

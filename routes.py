@@ -11099,10 +11099,24 @@ def api_stage_consume_broadcast():
 
         if not next_item:
             try:
-                from services.stage_broadcast_service import generate_filler_live
+                from services.stage_broadcast_service import generate_filler_live, run
+                import threading
+                # Trigger async queue refill
+                t = threading.Thread(target=run, daemon=True)
+                t.start()
+                # Return filler immediately while refill runs in background
                 next_item = generate_filler_live()
             except Exception as e:
                 logging.warning('filler generation failed: %s', e)
+
+        # Proactively refill when queue is about to empty
+        if len(valid) <= 1:
+            try:
+                from services.stage_broadcast_service import run as _run
+                import threading
+                threading.Thread(target=_run, daemon=True).start()
+            except Exception:
+                pass
 
         return jsonify({
             'next_item': next_item,
