@@ -1593,3 +1593,19 @@ class SponsorOutreach(db.Model):
     deal_value = db.Column(db.Float)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# ── Auto-slug generation on insert ─────────────────────────────────────────
+from sqlalchemy import event as _sa_event
+
+@_sa_event.listens_for(Article, 'after_insert')
+def _auto_slug_after_insert(mapper, connection, target):
+    """Generate slug automatically after every Article insert."""
+    if not target.slug and target.title and target.id:
+        slug = Article.make_slug(target.title, target.id)
+        # Use direct connection to avoid session issues
+        connection.execute(
+            Article.__table__.update()
+            .where(Article.__table__.c.id == target.id)
+            .values(slug=slug)
+        )
