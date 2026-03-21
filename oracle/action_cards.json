@@ -1,0 +1,47 @@
+{
+  "meanwhile": {
+    "id": "meanwhile",
+    "title": "Meanwhile Bitcoin Life Insurance",
+    "description": "Protect your family with Bitcoin-denominated life insurance.",
+    "url": "https://meanwhile.app?ref=KKM73K",
+    "cta": "Learn More \u2192",
+    "category": "affiliate",
+    "triggers": ["insurance", "wealth", "estate", "inheritance", "legacy", "family", "retirement", "generational", "protection", "life insurance"]
+  },
+  "rns": {
+    "id": "rns",
+    "title": "RNS.ID \u2014 Palau Digital Residency",
+    "description": "Sovereign digital identity. Escape jurisdiction overreach.",
+    "url": "https://rns.id?ref=protocol-pulse",
+    "cta": "Get Residency \u2192",
+    "category": "affiliate",
+    "triggers": ["residency", "privacy", "regulation", "kyc", "surveillance", "jurisdiction", "offshore", "identity", "censorship", "freedom tech"]
+  },
+  "coldcard": {
+    "id": "coldcard",
+    "title": "Coldcard MK4 Hardware Wallet",
+    "description": "The gold standard for Bitcoin self-custody.",
+    "url": "https://www.amazon.com/dp/B0CQV9TT3X?tag=protocolpulse-20",
+    "cta": "View on Amazon \u2192",
+    "category": "amazon",
+    "triggers": ["hardware wallet", "cold storage", "self-custody", "private keys", "seed phrase", "multisig", "coldcard", "trezor", "ledger", "custody"]
+  },
+  "bitcoin_standard": {
+    "id": "bitcoin_standard",
+    "title": "The Bitcoin Standard \u2014 Saifedean Ammous",
+    "description": "The definitive book on Bitcoin as sound money.",
+    "url": "https://www.amazon.com/dp/1119473861?tag=protocolpulse-20",
+    "cta": "View on Amazon \u2192",
+    "category": "amazon",
+    "triggers": ["bitcoin standard", "saifedean", "sound money", "book", "learn bitcoin", "getting started", "new to bitcoin", "understand bitcoin"]
+  },
+  "curated_mining": {
+    "id": "curated_mining",
+    "title": "Curated Mining \u2014 White Glove Bitcoin Mining",
+    "description": "Professional Bitcoin mining setup and management.",
+    "url": "https://curatedmining.io",
+    "cta": "Learn More \u2192",
+    "category": "internal",
+    "triggers": ["mining", "mine bitcoin", "miner", "asic", "hashrate", "home mining", "mining setup"]
+  }
+}

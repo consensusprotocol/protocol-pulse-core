@@ -603,6 +603,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   </div>
 
   <div id="subtitle"></div>
+  <div id="oracle-action-card" style="display:none;margin-top:12px;max-width:min(440px,calc(100vw - 24px));width:100%;"></div>
 
   <div id="stat">
     <span class="spin" id="spin"></span>
@@ -882,7 +883,7 @@ function si(intent){if(busy)return;hideCards();playIntent(intent);}
 /* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
 function process(text){
   if(!text.trim()||busy)return;
-  setBusy(true);hideCards();showTX(text);
+  setBusy(true);hideCards();hideActionCard();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
 
   // Re-unlock audio context on every user interaction
@@ -912,6 +913,7 @@ function process(text){
     return r.json().then(function(j){
       var responseText=j.text;
       var videoJobId=j.job_id;
+      if(j.action_card) showActionCard(j.action_card);
 
       // Play audio: try cached job audio first (no duplicate Kokoro), fallback to /oracle/voice
       var audioFetch;
@@ -1417,6 +1419,30 @@ function fetchTO(url,opts,ms){
   return fetch(url,o).finally(function(){clearTimeout(id);})
     .catch(function(e){if(e.name==='AbortError')throw new Error('timeout');throw e;});
 }
+/* ── ACTION CARDS ── */
+function showActionCard(card){
+  var el=document.getElementById('oracle-action-card');
+  var catColor = card.category==='amazon' ? '#FF9900' : card.category==='internal' ? '#6cff9f' : '#ff3b5f';
+  el.innerHTML='<a href="'+card.url+'" target="_blank" rel="noopener" onclick="trackCardClick(\''+card.id+'\')" style="display:block;background:#0d0f14;border:1px solid '+catColor+';border-radius:8px;padding:14px 16px;text-decoration:none;transition:border-color 0.2s;">'
+    +'<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:.1em;color:'+catColor+';margin-bottom:4px;">'+card.category.toUpperCase()+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">'+card.title+'</div>'
+    +'<div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:10px;">'+card.description+'</div>'
+    +'<div style="font-size:11px;font-weight:600;color:'+catColor+';">'+card.cta+'</div>'
+    +'</a>';
+  el.style.display='block';
+  el.style.opacity='0';
+  setTimeout(function(){el.style.transition='opacity 0.4s';el.style.opacity='1';},100);
+  setTimeout(function(){hideActionCard();},45000);
+}
+function hideActionCard(){
+  var el=document.getElementById('oracle-action-card');
+  el.style.opacity='0';
+  setTimeout(function(){el.style.display='none';el.innerHTML='';},400);
+}
+function trackCardClick(id){
+  fetch('/api/telemetry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'oracle_card_clicked',properties:{card_id:id,fingerprint:window._visitorToken||'anon'}})}).catch(function(){});
+}
+
 window.addEventListener('beforeunload',function(){
   try{
     var xhr=new XMLHttpRequest();

@@ -536,6 +536,36 @@ def _get_anthropic_key() -> str:
     return key
 
 
+# ── Action Card Detection (zero LLM cost — keyword matching) ─────────────
+_ACTION_CARDS = []
+_ACTION_CARDS_ORDER = ["meanwhile", "rns", "coldcard", "bitcoin_standard", "curated_mining"]
+try:
+    _cards_path = os.path.join(os.path.dirname(__file__), "action_cards.json")
+    with open(_cards_path) as _f:
+        _cards_raw = json.load(_f)
+    _ACTION_CARDS = [_cards_raw[k] for k in _ACTION_CARDS_ORDER if k in _cards_raw]
+    logger.info(f"[ACTION_CARDS] Loaded {len(_ACTION_CARDS)} cards")
+except Exception as _e:
+    logger.warning(f"[ACTION_CARDS] Failed to load: {_e}")
+
+
+def detect_action_card(user_text: str) -> dict | None:
+    """Return the best matching action card for user input, or None."""
+    text_lower = user_text.lower()
+    for card in _ACTION_CARDS:
+        for trigger in card.get("triggers", []):
+            if trigger in text_lower:
+                return {
+                    "id": card["id"],
+                    "title": card["title"],
+                    "description": card["description"],
+                    "url": card["url"],
+                    "cta": card["cta"],
+                    "category": card["category"],
+                }
+    return None
+
+
 def generate_response(
     session_id: str,
     user_text: str,

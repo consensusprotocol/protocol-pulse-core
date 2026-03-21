@@ -1667,12 +1667,21 @@ def oracle_chat():
         t = threading.Thread(target=render_async, args=(response_text, job_id, avatar_source), daemon=True)
         t.start()
 
-        return jsonify({
+        resp_data = {
             "text": response_text,
             "session_id": session_id,
             "job_id": job_id,
-            "video_pending": True
-        })
+            "video_pending": True,
+        }
+        # Detect action card from user input (zero LLM cost)
+        try:
+            card = oracle_dialogue_engine.detect_action_card(text)
+            if card:
+                resp_data["action_card"] = card
+                logger.info(f"[CHAT] Action card triggered: {card['id']}")
+        except Exception as _card_err:
+            logger.warning(f"[CHAT] Action card detection error: {_card_err}")
+        return jsonify(resp_data)
 
     # Existing: return video directly
     return generate_inline(result["text"])
