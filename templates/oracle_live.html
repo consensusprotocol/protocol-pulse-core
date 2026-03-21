@@ -913,17 +913,35 @@ function process(text){
       var responseText=j.text;
       var videoJobId=j.job_id;
 
-      // Play audio immediately via /oracle/voice
-      return fetchTO(A+'/oracle/voice',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({text:responseText})
-      },10000)
-      .then(function(ar){
-        if(!ar.ok) throw new Error('audio failed');
-        return ar.blob().then(function(b){
-          // Force correct MIME so Audio() element decodes properly
-          return new Blob([b], {type: b.type || 'audio/wav'});
+      // Play audio: try cached job audio first (no duplicate Kokoro), fallback to /oracle/voice
+      var audioFetch;
+      if(videoJobId){
+        audioFetch=fetchTO(A+'/oracle/job/'+videoJobId+'/audio',{},8000)
+          .then(function(ar){
+            if(!ar.ok) throw new Error('no cached audio');
+            return ar.blob();
+          })
+          .catch(function(){
+            return fetchTO(A+'/oracle/voice',{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({text:responseText})
+            },10000).then(function(ar){
+              if(!ar.ok) throw new Error('audio failed');
+              return ar.blob();
+            });
+          });
+      } else {
+        audioFetch=fetchTO(A+'/oracle/voice',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:responseText})
+        },10000).then(function(ar){
+          if(!ar.ok) throw new Error('audio failed');
+          return ar.blob();
         });
+      }
+      return audioFetch
+      .then(function(b){
+        return new Blob([b], {type: b.type || 'audio/wav'});
       })
       .then(function(audioBlob){
         var audioUrl=URL.createObjectURL(audioBlob);
@@ -959,7 +977,6 @@ function process(text){
             if(pendingVideoUrl){
               playVid(pendingVideoUrl).then(resolve);
             } else {
-              setStat('Loading visual...','#f4c46f',false);
               var waitForVideo=setInterval(function(){
                 if(pendingVideoUrl){
                   clearInterval(waitForVideo);
@@ -1014,7 +1031,7 @@ function process(text){
   .catch(function(e){
     console.error('process error:',e);
     if(e&&(e.message||'').indexOf('timeout')>=0){
-      setStat('Still rendering — hang tight...','#f4c46f',false);
+      setStat('','#334',false);
     } else if(e&&e.message&&e.message.indexOf('HTTP')>=0){
       setStat('Oracle error — try again.','#ff3b5f',false);
     }

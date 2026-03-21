@@ -526,8 +526,25 @@ def _avatar_tts(text):
             except OSError:
                 pass
             if r.returncode == 0 and os.path.exists(wav16_path) and os.path.getsize(wav16_path) > 1000:
-                with open(wav16_path, "rb") as f:
-                    wav_bytes = f.read()
+                # Loudnorm to -14 LUFS for consistent volume
+                norm_path = wav16_path + "_norm.wav"
+                subprocess.run(
+                    ["ffmpeg", "-y", "-loglevel", "error", "-i", wav16_path,
+                     "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+                     "-ar", "16000", "-ac", "1", norm_path],
+                    capture_output=True, text=True, timeout=30,
+                )
+                if os.path.exists(norm_path) and os.path.getsize(norm_path) > 1000:
+                    with open(norm_path, "rb") as f:
+                        wav_bytes = f.read()
+                    try:
+                        os.remove(norm_path)
+                    except OSError:
+                        pass
+                else:
+                    # Loudnorm failed, use unnormalized
+                    with open(wav16_path, "rb") as f:
+                        wav_bytes = f.read()
                 try:
                     os.remove(wav16_path)
                 except OSError:
@@ -1427,15 +1444,38 @@ def oracle_voice():
     except Exception as e:
         return jsonify({"error": f"TTS failed: {e}"}), 500
 
+    # Loudnorm pass if not already normalized (WAV from Kokoro is already normalized in _avatar_tts,
+    # but ElevenLabs MP3 fallback is not)
     is_wav = audio_bytes[:4] == b"RIFF"
-    mime = "audio/wav" if is_wav else "audio/mpeg"
+    if not is_wav:
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as _tmp:
+                _tmp.write(audio_bytes)
+                _raw_path = _tmp.name
+            _norm_path = _raw_path + "_norm.wav"
+            _nr = subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-i", _raw_path,
+                 "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+                 "-ar", "16000", "-ac", "1", _norm_path],
+                capture_output=True, text=True, timeout=30,
+            )
+            if _nr.returncode == 0 and os.path.exists(_norm_path) and os.path.getsize(_norm_path) > 1000:
+                with open(_norm_path, "rb") as _nf:
+                    audio_bytes = _nf.read()
+                is_wav = True
+            for _p in [_raw_path, _norm_path]:
+                try:
+                    os.remove(_p)
+                except OSError:
+                    pass
+        except Exception as _ne:
+            logger.warning(f"[VOICE] loudnorm failed (non-fatal): {_ne}")
 
-    def _stream():
-        yield audio_bytes
+    mime = "audio/wav" if is_wav else "audio/mpeg"
 
     from flask import Response
     return Response(
-        _stream(),
+        audio_bytes,
         mimetype=mime,
         headers={
             "Content-Disposition": "inline",
@@ -1481,6 +1521,22 @@ def oracle_job_status(job_id):
                     _render_jobs[job_id]["completed_at"] = time.time()
         return jsonify({"status": "error"}), 500
     return jsonify({"status": "pending"}), 202
+
+
+@app.route("/oracle/job/<job_id>/audio")
+def oracle_job_audio(job_id):
+    """Return cached TTS audio from an async render job (avoids duplicate Kokoro call)."""
+    with _render_jobs_lock:
+        job = _render_jobs.get(job_id)
+    if not job or not job.get("audio_bytes"):
+        return jsonify({"error": "audio not ready"}), 404
+    audio_bytes = job["audio_bytes"]
+    mime = job.get("audio_mime", "audio/wav")
+    from flask import Response
+    return Response(audio_bytes, mimetype=mime,
+                    headers={"Content-Disposition": "inline",
+                             "Content-Length": str(len(audio_bytes)),
+                             "Cache-Control": "no-cache"})
 
 
 @app.route("/oracle/chat", methods=["POST"])
@@ -1548,6 +1604,11 @@ def oracle_chat():
                     a_face, a_coords, _a_eyes = _load_avatar_face("default")
 
                 audio_bytes = _avatar_tts(txt)
+                # Cache audio in job dict so frontend can fetch it without calling Kokoro again
+                with _render_jobs_lock:
+                    if jid in _render_jobs:
+                        _render_jobs[jid]["audio_bytes"] = audio_bytes
+                        _render_jobs[jid]["audio_mime"] = "audio/wav" if audio_bytes[:4] == b"RIFF" else "audio/mpeg"
                 is_wav = audio_bytes[:4] == b"RIFF"
                 ext = ".wav" if is_wav else ".mp3"
                 with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
