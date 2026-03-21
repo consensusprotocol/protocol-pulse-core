@@ -375,30 +375,33 @@
     margin-top: 4px;
 }
 
-/* Share buttons — completely transparent, zero glow on every state */
-.pp-share-btn,
-.pp-share-btn:link,
-.pp-share-btn:visited,
-.pp-share-btn:hover,
-.pp-share-btn:active,
+/* ── SHARE BUTTONS: zero appearance, zero glow, zero everything ── */
+.pp-article__share {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    /* Isolation: prevent Bootstrap focus leaking in */
+    isolation: isolate;
+}
+.pp-share-btn {
+    all: unset;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: color 0.15s ease;
+    box-sizing: border-box;
+}
+.pp-share-btn:hover { color: var(--pp-teal, #00d4d4); }
 .pp-share-btn:focus,
 .pp-share-btn:focus-visible,
-.pp-share-btn:focus-within {
-    width: 32px; height: 32px;
-    display: flex; align-items: center; justify-content: center;
-    background: transparent !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    border-radius: 6px;
-    color: rgba(255,255,255,0.45);
-    cursor: pointer;
-    transition: color .15s ease;
-    font-size: .875rem;
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: transparent;
-}
-.pp-share-btn:hover { color: var(--pp-teal, #00d4d4) !important; }
+.pp-share-btn:focus-within,
+.pp-share-btn:active { color: rgba(255,255,255,0.4); outline: none; box-shadow: none; }
 
 /* ═══ Hero image ═══ */
 .pp-article__hero-image {
