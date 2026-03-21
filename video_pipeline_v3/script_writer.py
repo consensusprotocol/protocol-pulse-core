@@ -96,12 +96,12 @@ EPISODE STRUCTURE (follow this order):
 4. [NARRATION] — Setup for Clip 2 with re-engagement hook at ~minute 3.
 5. [NARRATION] — Analysis after Clip 2.
 6. [DATA] — Hard metrics segment. MINIMUM 3 exchanges (all PBX). Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. Target: 45-60 seconds of spoken content.
-7. [SOCIAL] — MINIMUM 3 tweets + 2 PBX reactions. PBX REACTS to and ANALYZES each tweet. He does NOT read tweets word for word. Instead:
-  - PBX: 'Saylor just dropped HODL again — that's his entire thesis in one word. No explanation needed at this point.'
-  - PBX: 'Pomp's take on BlackRock is interesting because he's been skeptical — if he's bullish now, retail follows.'
-  Keep each reaction to 1-2 sentences. Sharp, opinionated, adds value beyond what the tweet says.
-  The tweet card is already on screen — viewers can read it. Your job is to ADD context.
-  CRITICAL: First tweet card shown = first referenced in narration. Maintain strict order. Target: 40-50 seconds.
+7. [SOCIAL] — "WHAT BITCOIN IS SAYING" — PBX reporting back from Bitcoin Twitter as live intelligence. Maximum 3 tweets, 20-25 seconds narration each (~75 seconds total). PBX treats each tweet as a signal:
+  - PBX: 'Saylor just posted this to 65,000 likes — [quote]. Here's what that signals — conviction accumulation during extreme fear. That's the Saylor playbook and it's never been wrong.'
+  - PBX: 'Lyn Alden weighed in on the macro picture — [paraphrase]. This aligns with what we're seeing in the bond market data. When she flips bullish on a timeline, institutions listen.'
+  - PBX: 'This one caught my eye — [Name] is saying [quote]. The reason this matters is [2-3 sentences of sharp context].'
+  PBX decodes the signal, he doesn't repeat the text. The tweet card is on screen — viewers read it themselves.
+  CRITICAL: First tweet card shown = first referenced in narration. Maintain strict order.
 8. [SPACE_TAP] — "SPACE TAP: SIGNAL INTERCEPT" (only if space_tap_clips provided below)
    PBX opens: "Right now in the Bitcoin ecosphere..." or similar intelligence briefing opener.
    For each clip (3-4 clips provided):
@@ -144,12 +144,19 @@ Every dialogue text line MUST start with a segment type tag in brackets. The TTS
 Example: {{"host": 2, "text": "[NARRATION] Bitcoin miners are facing a squeeze as difficulty adjusts upward.", "type": "setup"}}
 The tag is INSIDE the text string, not the type field. Both must be present.
 
-SOCIAL SEGMENT:
-If social posts data is provided below, add a "WHAT THE BITCOIN INTERNET IS SAYING" segment after the last clip:
-- PBX ANALYZES (not reads) 2-3 of the top tweets — the card is on screen, viewers read it themselves
-- Each host adds 1-2 sentences of sharp, opinionated CONTEXT about why the tweet matters
-- PBX reacts to each tweet in order — top tweet first, then second, then third
-- This is a separate section in the dialogue with type: "social_segment"
+SOCIAL SEGMENT — "WHAT BITCOIN IS SAYING":
+If social posts data is provided below, add a "WHAT BITCOIN IS SAYING" segment after the last clip.
+PBX has been on Bitcoin Twitter all morning and is REPORTING BACK as live intelligence.
+This is NOT passive card display — PBX explicitly REACTS to each post as a signal analyst:
+
+STYLE — PBX treats each tweet as intelligence, not content:
+  - "{{Name}} just posted this to {{likes}} likes — [direct quote or tight paraphrase]. Here's what that signals..."
+  - "{{Name}} weighed in on {{topic}} — [paraphrase]. This aligns with what we're seeing in the data..."
+  - "This one caught my eye — {{Name}} is saying [quote]. The reason this matters is..."
+PBX adds 2-3 sentences of sharp CONTEXT per tweet: why it matters NOW, what it signals about market positioning, how it connects to today's data. Maximum 3 posts, 20-25 seconds narration each, ~75 seconds total.
+The tweet card is on screen — viewers can read the text. PBX's job is to DECODE the signal, not repeat the words.
+Each entry uses type: "social_segment".
+
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
 TWEET LAW — IRON LAW: Before writing ANY tweet narration, read the actual social_posts list in order. Tweet segment narration MUST reference social_posts[0]['handle'] for the first tweet, social_posts[1]['handle'] for the second, etc. NEVER reference a name not in the list. NEVER assume who tweeted. Read the handle from the data and use it verbatim.
 
@@ -452,7 +459,7 @@ def _populate_segment_headlines(result: dict) -> dict:
 
 
 def generate_from_clips(selections: dict, btc_price: str = "N/A",
-                        live_context: str = "") -> dict:
+                        live_context: str = "", morning_brief: dict = None) -> dict:
     """Generate host dialogue script around the selected clips.
 
     Args:
@@ -529,6 +536,29 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         except Exception as e:
             logger.warning(f"Failed to inject narrative context: {e}")
 
+    # Inject morning intelligence brief (Nitter-sourced Twitter analysis)
+    morning_block = ""
+    if morning_brief and isinstance(morning_brief, dict):
+        parts = ["\nMORNING INTELLIGENCE BRIEF (from today's Bitcoin Twitter analysis — use as context):"]
+        dom_narr = morning_brief.get("dominant_narratives", [])
+        if dom_narr:
+            parts.append(f"- Dominant narratives today: {'; '.join(dom_narr[:3])}")
+        trending_lang = morning_brief.get("trending_language", [])
+        if trending_lang:
+            parts.append(f"- Trending language on Bitcoin Twitter: {', '.join(trending_lang[:7])}")
+            parts.append("  USE these phrases naturally in narration where they fit — they resonate with the audience today.")
+        sentiment = morning_brief.get("sentiment", "")
+        reasoning = morning_brief.get("sentiment_reasoning", "")
+        if sentiment:
+            parts.append(f"- Market sentiment: {sentiment}")
+        if reasoning:
+            parts.append(f"  Reasoning: {reasoning[:200]}")
+        voice_guidance = morning_brief.get("protocol_pulse_voice_guidance", "")
+        if voice_guidance:
+            parts.append(f"- Voice guidance: {voice_guidance[:250]}")
+        morning_block = "\n".join(parts) + "\n"
+        logger.info(f"Morning brief injected: {len(dom_narr)} narratives, {len(trending_lang)} trending phrases")
+
     # Inject audience engagement intelligence
     engagement_block = ""
     try:
@@ -589,7 +619,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
     prompt = SCRIPT_PROMPT.format(clips_info=clips_info, btc_price=btc_price,
                                    social_posts=social_posts,
-                                   live_context=live_block + engagement_block + memory_block + space_tap_block)
+                                   live_context=live_block + morning_block + engagement_block + memory_block + space_tap_block)
 
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
