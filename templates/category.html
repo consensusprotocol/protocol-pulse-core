@@ -531,14 +531,14 @@
                         {% endif %}
                     </div>
                     <h3 class="article-title">
-                        <a href="/articles/{{ article.id }}">{{ article.title }}</a>
+                        <a href="/articles/{{ article.slug or article.id }}">{{ article.title }}</a>
                     </h3>
                     <div class="article-footer">
                         <span class="read-time">
                             <i class="far fa-clock"></i>
                             {{ ((article.content|length) / 1200)|round|int }} min read
                         </span>
-                        <a href="/articles/{{ article.id }}" class="read-link">
+                        <a href="/articles/{{ article.slug or article.id }}" class="read-link">
                             Read <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>

@@ -1430,8 +1430,29 @@ def _article_key_takeaways(article):
     return plain[:400] + ("…" if len(plain) > 400 else "") if plain else ""
 
 
+@app.route('/intel/<slug>')
+@app.route('/articles/<slug>')
+def article_detail_slug(slug):
+    # If it looks like a number, 301 to slug
+    if slug.isdigit():
+        a = models.Article.query.get_or_404(int(slug))
+        if a.slug:
+            from flask import redirect
+            return redirect(f"/articles/{a.slug}", 301)
+    else:
+        a = models.Article.query.filter_by(slug=slug).first()
+        if not a: from flask import abort; abort(404)
+    article_id = a.id
+    # -- rest of article_detail below --
+
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
+    # 301 redirect numeric IDs to slug URLs
+    a = models.Article.query.get_or_404(article_id)
+    if a.slug:
+        from flask import redirect
+        return redirect(f"/articles/{a.slug}", 301)
+    # Fallback: serve directly if no slug
     """Individual article page. Key Takeaways and body are never duplicated (TL;DR shown once)."""
     article = models.Article.query.get_or_404(article_id)
     try:

@@ -125,6 +125,16 @@ class Article(db.Model):
     image_status = db.Column(db.String(30), default="ok")       # ok | needs_regen | banned | duplicate
     image_phash = db.Column(db.String(64))                      # perceptual hash hex string
     slug = db.Column(db.String(300), unique=True, index=True)
+
+    @staticmethod
+    def make_slug(title, article_id):
+        import re as _re
+        s = (title or 'article').lower().strip()
+        s = _re.sub(r'[^a-z0-9\s-]', '', s)
+        s = _re.sub(r'[\s]+', '-', s)
+        s = _re.sub(r'-+', '-', s).strip('-')[:70].rstrip('-')
+        return f'{s}-{article_id}'
+
     read_count = db.Column(db.Integer, default=0)
     fact_check_passed = db.Column(db.Boolean)
     grok_review_score = db.Column(db.Float)

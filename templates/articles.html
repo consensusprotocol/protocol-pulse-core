@@ -863,7 +863,7 @@
                 {% if today_articles|length > 1 %}
                 <div class="article-grid">
                     {% for article in today_articles[1:7] %}
-                    <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
+                    <a href="{{ '/articles/' + (article.slug or str(article.id)) }}" class="text-decoration-none">
                         <div class="article-card">
                             <div class="card-image art-card-img" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
                             <div class="card-body-inner">
@@ -889,7 +889,7 @@
                 {% if today_articles|length > 7 %}
                 <div class="article-grid art-grid-2col">
                     {% for article in today_articles[7:] %}
-                    <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
+                    <a href="{{ '/articles/' + (article.slug or str(article.id)) }}" class="text-decoration-none">
                         <div class="article-card" style="flex-direction: row;">
                             <div class="art-thumb-side" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
                             <div class="card-body-inner" style="padding: 1rem 1.25rem;">
@@ -918,7 +918,7 @@
 
                 <div class="morning-grid">
                     {% for article in yesterday_articles %}
-                    <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none">
+                    <a href="{{ '/articles/' + (article.slug or str(article.id)) }}" class="text-decoration-none">
                         <div class="morning-card">
                             <div class="morning-thumb art-morning-thumb" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
                             <div class="morning-body">
@@ -950,7 +950,7 @@
 
                     <div id="vault-list" class="vault-list {% if not today_articles and not yesterday_articles %}open{% endif %}">
                         {% for article in archive_articles %}
-                        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none d-block">
+                        <a href="{{ '/articles/' + (article.slug or str(article.id)) }}" class="text-decoration-none d-block">
                             <div class="vault-item">
                                 <div class="vault-date">
                                     <span class="day">{{ article.created_at.strftime('%d') }}</span>
@@ -1014,7 +1014,7 @@
                     <div class="sb-module">
                         <h5 class="sb-title">Trending Now</h5>
                         {% for article in (today_articles + yesterday_articles)[:5] %}
-                        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="text-decoration-none d-block trending-item">
+                        <a href="{{ '/articles/' + (article.slug or str(article.id)) }}" class="text-decoration-none d-block trending-item">
                             <span class="trending-num">{{ loop.index }}</span>
                             <span class="trending-title">{{ article.title }}</span>
                         </a>
@@ -1092,7 +1092,7 @@ function toggleVault(btn) {
             var d = new Date(a.published_at);
             date = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
         }
-        return '<a href="/articles/' + a.id + '" class="text-decoration-none">' +
+        return '<a href="/articles/' + (a.slug || a.id) + '" class="text-decoration-none">' +
             '<div class="article-card">' +
                 '<div class="card-image art-card-img" style="background-image:url(\'' + img.replace(/'/g, "\\'") + '\');"></div>' +
                 '<div class="card-body-inner">' +
