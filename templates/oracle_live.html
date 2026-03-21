@@ -598,7 +598,8 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 
   <div class="video-wrap" style="position:relative;z-index:1;">
     <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
-    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto"></video>
+    <img id="vid-static" src="/static/img/oracle_avatar_static.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 0.3s;pointer-events:none;z-index:1;" alt="Oracle">
+    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.3s;z-index:2;"></video>
   </div>
 
   <div id="subtitle"></div>
@@ -948,7 +949,6 @@ function process(text){
         var audio=new Audio(audioUrl);
         audio.volume=1.0;
         setStat('Speaking','#6cff9f',false);
-        vid.style.opacity='0.3';
         var playPromise = audio.play();
         if(playPromise !== undefined){
           playPromise.catch(function(err){
@@ -1050,16 +1050,24 @@ function blobURL(b){
 /* ── PLAY VIDEO ── */
 function playVid(url){
   return new Promise(function(res){
-    vidPh.style.display='none';
     vid.loop=false;
+    vid.style.opacity='0';
+    document.getElementById('vid-static').style.opacity='1';
     vid.src=url;
     setStat('Speaking','#6cff9f',false);
     try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
+      document.getElementById('vid-static').style.opacity='1';
+      vid.style.opacity='0';
+      vid.src='';
       setStat('Ready','#334',false);hideSub();res();
       try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
     };
-    vid.onerror=function(){setStat('Video error','#ff3b5f',false);res();};
+    vid.onerror=function(){
+      document.getElementById('vid-static').style.opacity='1';
+      vid.style.opacity='0';
+      setStat('Video error','#ff3b5f',false);res();
+    };
     // iOS/Brave: always start muted, unmute on canplay (within user gesture window)
     vid.muted=true;
     vid.volume=1.0;
@@ -1072,6 +1080,8 @@ function playVid(url){
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
       tryUnmute();
+      vid.style.opacity='1';
+      document.getElementById('vid-static').style.opacity='0';
     },{once:true});
     var p=vid.play();
     if(p){
