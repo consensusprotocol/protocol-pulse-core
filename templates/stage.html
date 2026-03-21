@@ -1790,11 +1790,98 @@ body { background: var(--s-bg); }
   }
 
   window.playLatestBrief = function(){
-    if(!_latestBriefUrl || busy) return;
-    setBusy(true);
-    setStatus('Playing brief…','var(--s-gold)');
-    playVid(_latestBriefUrl).then(function(){ setBusy(false); });
+    if(busy) return;
+    // If brief is a pre-rendered MP4 URL, play directly
+    if(_latestBriefUrl && _latestBriefUrl.indexOf('.mp4') >= 0){
+      setBusy(true);
+      setStatus('Playing brief\u2026','var(--s-gold)');
+      playVid(_latestBriefUrl).then(function(){ setBusy(false); });
+      return;
+    }
+    // Otherwise fetch brief script and use monologue system
+    fetch('/api/stage/intel').then(function(r){ return r.json(); }).then(function(d){
+      var script = d.brief_script || d.summary || '';
+      if(script && script.length > 30){
+        playMonologue(script);
+      } else {
+        setStatus('No brief available','var(--s-gold)');
+      }
+    }).catch(function(){
+      setStatus('Brief unavailable','var(--s-red)');
+    });
   };
+
+  // ── MONOLOGUE PLAYER — zero-gap chunk chaining ────────
+  async function waitAndFetchChunk(jobId, idx) {
+    var url = AVATAR_BASE + '/oracle/monologue/' + jobId + '/chunk/' + idx;
+    for (var attempt = 0; attempt < 120; attempt++) {
+      var r = await fetch(url);
+      if (r.ok) return await r.blob();
+      if (r.status !== 202) throw new Error('Chunk ' + idx + ' failed: ' + r.status);
+      await new Promise(function(res) { setTimeout(res, 500); });
+    }
+    throw new Error('Chunk ' + idx + ' timed out');
+  }
+
+  async function playMonologue(script) {
+    setBusy(true);
+    setStatus('Preparing broadcast\u2026', 'var(--s-gold)');
+    _broadcastPaused = true;
+
+    try {
+      var resp = await fetchTO(AVATAR_BASE + '/oracle/monologue', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({script: script})
+      }, 15000);
+      if (!resp.ok) throw new Error('Monologue submit failed');
+      var job = await resp.json();
+      var jobId = job.job_id;
+      var total = job.total_chunks;
+
+      var nextBlob = null;
+
+      for (var i = 0; i < total; i++) {
+        setStatus('Broadcasting ' + (i+1) + ' of ' + total + '\u2026', 'var(--s-green)');
+
+        var blob;
+        if (nextBlob) {
+          blob = nextBlob;
+          nextBlob = null;
+        } else {
+          blob = await waitAndFetchChunk(jobId, i);
+        }
+
+        var prefetchPromise = (i + 1 < total) ? waitAndFetchChunk(jobId, i + 1) : Promise.resolve(null);
+
+        var blobUrl = URL.createObjectURL(blob);
+
+        var prefetchDone = false;
+        prefetchPromise.then(function(b) { nextBlob = b; prefetchDone = true; });
+
+        await playVid(blobUrl);
+        URL.revokeObjectURL(blobUrl);
+
+        if (i + 1 < total && !prefetchDone) {
+          setStatus('Buffering\u2026', 'var(--s-gold)');
+          await new Promise(function(res) {
+            var check = setInterval(function() {
+              if (prefetchDone) { clearInterval(check); res(); }
+            }, 100);
+          });
+        }
+      }
+
+    } catch(e) {
+      console.error('playMonologue error:', e);
+    } finally {
+      setBusy(false);
+      _broadcastPaused = false;
+      setStatus('Ready', 'rgba(255,255,255,.3)');
+      setTimeout(startBroadcast, 1000);
+    }
+  }
+  window.playMonologue = playMonologue;
 
   // ── INIT ──────────────────────────────────────────────
   loadIntel();
