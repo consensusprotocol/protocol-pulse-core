@@ -1,441 +1,813 @@
 {% extends "base.html" %}
 
-{% block title %}Freedom Tech | Beyond Money | Protocol Pulse{% endblock %}
+{% block title %}Freedom Tech — Sovereign Stack | Protocol Pulse{% endblock %}
 
 {% block head %}
 <style>
 :root {
-    --pp-red: #dc2626;
-    --pp-dark: #0a0a0a;
-    --btc-orange: #f7931a;
-    --freedom-purple: #8b5cf6;
-    --pp-glass: rgba(10, 10, 10, 0.85);
+    --ft-red: #dc2626;
+    --ft-orange: #f7931a;
+    --ft-teal: #00d4d4;
+    --ft-purple: #8b5cf6;
+    --ft-lime: #84cc16;
+    --ft-amber: #f59e0b;
+    --ft-dark: #0a0a0a;
+    --ft-card: #0f0f0f;
+    --ft-border: rgba(255,255,255,0.07);
+    --ft-glow-red: 0 0 30px rgba(220,38,38,0.2);
+    --ft-glow-orange: 0 0 30px rgba(247,147,26,0.2);
 }
 
-.freedom-page {
-    min-height: 100vh;
-    background: linear-gradient(180deg, #0a0a0a 0%, #0f0a1a 50%, #0a0a0a 100%);
-    padding-top: 100px;
-    padding-bottom: 80px;
-}
-
-.freedom-hero {
-    text-align: center;
-    padding: 60px 20px 80px;
-    max-width: 1000px;
-    margin: 0 auto;
+/* ── HERO ─────────────────────────────────────────────── */
+.ft-hero {
     position: relative;
+    text-align: center;
+    padding: 80px 20px 60px;
+    overflow: hidden;
 }
-
-.freedom-hero::before {
+.ft-hero::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 600px;
-    height: 600px;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    inset: 0;
+    background:
+        radial-gradient(ellipse 70% 50% at 30% 50%, rgba(139,92,246,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 70% 50%, rgba(220,38,38,0.06) 0%, transparent 70%);
     pointer-events: none;
 }
-
-.hero-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--freedom-purple);
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    margin-bottom: 20px;
-}
-
-.freedom-title {
-    font-family: 'Crimson Pro', serif;
-    font-size: 4rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 30px;
-    line-height: 1.1;
-}
-
-.freedom-title span {
-    background: linear-gradient(135deg, var(--btc-orange), var(--freedom-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.freedom-subtitle {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.4rem;
-    color: rgba(255, 255, 255, 0.7);
-    max-width: 700px;
-    margin: 0 auto;
-    line-height: 1.7;
-}
-
-.manifesto-section {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 60px 20px;
-}
-
-.manifesto-card {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, var(--pp-glass) 100%);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 24px;
-    padding: 50px;
-}
-
-.manifesto-text {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.3rem;
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.9;
-    text-align: center;
-}
-
-.manifesto-text strong {
-    color: var(--btc-orange);
-}
-
-.categories-section {
-    padding: 60px 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.section-header {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.section-label {
+.ft-eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
-    color: var(--freedom-purple);
+    letter-spacing: 0.25em;
     text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-bottom: 15px;
+    color: var(--ft-red);
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
 }
-
-.section-title {
-    font-family: 'Crimson Pro', serif;
-    font-size: 2.5rem;
-    color: #fff;
+.ft-eyebrow::before, .ft-eyebrow::after {
+    content: ''; display: block; width: 40px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--ft-red));
 }
+.ft-eyebrow::after { transform: scaleX(-1); }
+.ft-h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+.ft-h1 em { font-style: normal; color: var(--ft-orange); }
+.ft-manifesto {
+    max-width: 660px; margin: 0 auto 40px;
+    font-size: 1.05rem; line-height: 1.75;
+    color: rgba(255,255,255,0.6);
+}
+.ft-manifesto strong { color: rgba(255,255,255,0.9); }
 
-.category-grid {
+/* ── CATEGORY FILTERS ─────────────────────────────────── */
+.ft-filters {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    padding: 0 20px 48px;
+    position: sticky; top: 64px; z-index: 10;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.98) 80%, transparent);
+    padding-top: 16px; padding-bottom: 20px;
+}
+.ft-filter {
+    padding: 6px 16px; border-radius: 99px; border: 1px solid;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em;
+    cursor: pointer; transition: all 0.2s ease; background: transparent;
+    font-family: inherit;
+}
+.ft-filter[data-cat="all"]      { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+.ft-filter[data-cat="comms"]    { border-color: rgba(0,212,212,0.4); color: var(--ft-teal); }
+.ft-filter[data-cat="privacy"]  { border-color: rgba(220,38,38,0.4); color: var(--ft-red); }
+.ft-filter[data-cat="ai"]       { border-color: rgba(132,204,22,0.4); color: var(--ft-lime); }
+.ft-filter[data-cat="defi"]     { border-color: rgba(247,147,26,0.4); color: var(--ft-orange); }
+.ft-filter[data-cat="activism"] { border-color: rgba(245,158,11,0.4); color: var(--ft-amber); }
+.ft-filter.active, .ft-filter:hover { background: currentColor; color: #000 !important; }
+
+/* ── TOOL GRID ────────────────────────────────────────── */
+.ft-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 0 24px 80px;
+    max-width: 1280px; margin: 0 auto;
 }
 
-.category-card {
-    background: var(--pp-glass);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 35px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+/* ── TOOL CARD ────────────────────────────────────────── */
+.ft-card {
+    background: var(--ft-card);
+    border: 1px solid var(--ft-border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
     position: relative;
     overflow: hidden;
 }
-
-.category-card::before {
+.ft-card::before {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--btc-orange), var(--freedom-purple));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--ft-card-accent, rgba(220,38,38,0.6));
+    opacity: 0; transition: opacity 0.25s ease;
+}
+.ft-card:hover { transform: translateY(-3px); }
+.ft-card:hover::before { opacity: 1; }
+.ft-card[data-cat="comms"]    { --ft-card-accent: linear-gradient(90deg, var(--ft-teal), transparent); }
+.ft-card[data-cat="comms"]:hover { border-color: rgba(0,212,212,0.3); box-shadow: 0 8px 40px rgba(0,212,212,0.08); }
+.ft-card[data-cat="privacy"]  { --ft-card-accent: linear-gradient(90deg, var(--ft-red), transparent); }
+.ft-card[data-cat="privacy"]:hover  { border-color: rgba(220,38,38,0.3); box-shadow: 0 8px 40px rgba(220,38,38,0.08); }
+.ft-card[data-cat="ai"]       { --ft-card-accent: linear-gradient(90deg, var(--ft-lime), transparent); }
+.ft-card[data-cat="ai"]:hover       { border-color: rgba(132,204,22,0.3); box-shadow: 0 8px 40px rgba(132,204,22,0.08); }
+.ft-card[data-cat="defi"]     { --ft-card-accent: linear-gradient(90deg, var(--ft-orange), transparent); }
+.ft-card[data-cat="defi"]:hover     { border-color: rgba(247,147,26,0.3); box-shadow: 0 8px 40px rgba(247,147,26,0.08); }
+.ft-card[data-cat="activism"] { --ft-card-accent: linear-gradient(90deg, var(--ft-amber), transparent); }
+.ft-card[data-cat="activism"]:hover { border-color: rgba(245,158,11,0.3); box-shadow: 0 8px 40px rgba(245,158,11,0.08); }
+
+.ft-card-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+.ft-icon {
+    font-size: 1.6rem; width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.04); border-radius: 10px;
+    flex-shrink: 0;
+}
+.ft-card-meta { flex: 1; min-width: 0; }
+.ft-tool-name {
+    font-size: 1.05rem; font-weight: 700;
+    color: #f0f0f0; margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ft-tagline { font-size: 0.82rem; color: rgba(255,255,255,0.45); font-style: italic; }
+.ft-cat-badge {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 99px;
+    flex-shrink: 0;
+}
+.ft-card[data-cat="comms"]    .ft-cat-badge { background: rgba(0,212,212,0.15); color: var(--ft-teal); }
+.ft-card[data-cat="privacy"]  .ft-cat-badge { background: rgba(220,38,38,0.12); color: var(--ft-red); }
+.ft-card[data-cat="ai"]       .ft-cat-badge { background: rgba(132,204,22,0.12); color: var(--ft-lime); }
+.ft-card[data-cat="defi"]     .ft-cat-badge { background: rgba(247,147,26,0.12); color: var(--ft-orange); }
+.ft-card[data-cat="activism"] .ft-cat-badge { background: rgba(245,158,11,0.12); color: var(--ft-amber); }
+
+.ft-why {
+    font-size: 0.85rem; color: rgba(255,255,255,0.55);
+    line-height: 1.55; margin-bottom: 14px;
+    border-left: 2px solid rgba(255,255,255,0.1);
+    padding-left: 12px;
 }
 
-.category-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(139, 92, 246, 0.3);
-    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.1);
+/* Difficulty + Privacy Score */
+.ft-scores { display: flex; gap: 20px; margin-bottom: 16px; }
+.ft-score-label { font-size: 0.68rem; color: rgba(255,255,255,0.3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.ft-dots { display: flex; gap: 4px; }
+.ft-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+}
+.ft-dot.on.diff { background: var(--ft-orange); }
+.ft-dot.on.priv { background: var(--ft-teal); }
+
+/* Expandable setup guide */
+.ft-setup { display: none; border-top: 1px solid var(--ft-border); margin-top: 14px; padding-top: 16px; }
+.ft-card.expanded .ft-setup { display: block; }
+.ft-setup-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px; }
+.ft-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ft-steps li {
+    display: flex; gap: 10px; font-size: 0.83rem;
+    color: rgba(255,255,255,0.6); line-height: 1.5;
+}
+.ft-step-num {
+    flex-shrink: 0; width: 20px; height: 20px;
+    border-radius: 50%; background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3);
+    margin-top: 1px;
 }
 
-.category-card:hover::before {
-    opacity: 1;
+/* Card footer */
+.ft-card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.ft-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.8rem; font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none; transition: color 0.2s;
 }
-
-.category-icon {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+.ft-link:hover { color: #fff; }
+.ft-expand {
+    font-size: 0.72rem; color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.05); border: none;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
 }
+.ft-expand:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.ft-card.expanded .ft-expand { background: rgba(220,38,38,0.15); color: var(--ft-red); }
 
-.category-name {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 12px;
+/* ── MANIFESTO PULL QUOTE ─────────────────────────────── */
+.ft-quote-section { max-width: 800px; margin: 0 auto 60px; padding: 0 24px; }
+.ft-quote {
+    border-left: 3px solid var(--ft-red);
+    padding: 20px 28px;
+    background: rgba(220,38,38,0.04);
+    border-radius: 0 10px 10px 0;
 }
-
-.category-desc {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.6);
-    line-height: 1.6;
-    margin-bottom: 25px;
+.ft-quote p {
+    font-size: 1.1rem; line-height: 1.7;
+    color: rgba(255,255,255,0.7); font-style: italic; margin: 0;
 }
+.ft-quote cite { font-size: 0.8rem; color: rgba(255,255,255,0.3); margin-top: 10px; display: block; font-style: normal; }
 
-.project-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* ── CTA ──────────────────────────────────────────────── */
+.ft-cta {
+    max-width: 700px; margin: 0 auto 80px; padding: 0 24px; text-align: center;
 }
-
-.project-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 10px;
-    transition: all 0.2s ease;
+.ft-cta-box {
+    background: rgba(220,38,38,0.06);
+    border: 1px solid rgba(220,38,38,0.2);
+    border-radius: 16px; padding: 48px 40px;
 }
-
-.project-item:hover {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.3);
+.ft-cta-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 12px; }
+.ft-cta-text { color: rgba(255,255,255,0.55); line-height: 1.7; margin-bottom: 28px; }
+.ft-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.ft-btn-primary {
+    padding: 12px 28px; background: var(--ft-red); color: #fff;
+    border-radius: 8px; font-weight: 700; font-size: 0.9rem;
+    text-decoration: none; transition: all 0.2s;
 }
-
-.project-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: #fff;
+.ft-btn-primary:hover { background: #b91c1c; color: #fff; transform: translateY(-1px); }
+.ft-btn-ghost {
+    padding: 12px 28px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6);
+    border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+    text-decoration: none; transition: all 0.2s;
 }
+.ft-btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
 
-.project-link {
-    color: var(--freedom-purple);
-    font-size: 0.8rem;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+/* ── HIDDEN STATE ─────────────────────────────────────── */
+.ft-card.hidden { display: none; }
 
-.project-link:hover {
-    color: #fff;
-}
-
-.cta-section {
-    text-align: center;
-    padding: 80px 20px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.cta-card {
-    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--pp-glass) 100%);
-    border: 1px solid rgba(247, 147, 26, 0.3);
-    border-radius: 24px;
-    padding: 50px;
-}
-
-.cta-title {
-    font-family: 'Crimson Pro', serif;
-    font-size: 2rem;
-    color: #fff;
-    margin-bottom: 20px;
-}
-
-.cta-text {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 30px;
-    line-height: 1.7;
-}
-
-.cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px 30px;
-    background: var(--btc-orange);
-    color: #000;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.cta-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+@media (max-width: 640px) {
+    .ft-grid { grid-template-columns: 1fr; padding: 0 16px 60px; }
+    .ft-h1 { font-size: 2.2rem; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="freedom-page">
-    <div class="freedom-hero">
-        <div class="hero-label">Beyond Money</div>
-        <h1 class="freedom-title">Freedom <span>Technology</span></h1>
-        <p class="freedom-subtitle">Bitcoin decentralized money. Now we apply the same ethos to decentralize everything. The free market knows best.</p>
+<div style="padding-top: 80px;">
+
+<!-- HERO -->
+<div class="ft-hero pp-container">
+    <div class="ft-eyebrow">Cypherpunk Stack</div>
+    <h1 class="ft-h1">Freedom <em>Technology</em></h1>
+    <p class="ft-manifesto">
+        Bitcoin proved that <strong>trustless, permissionless systems</strong> can replace centralized gatekeepers.
+        That was round one. Now we apply the same mathematics to <strong>communication, identity, data, and money</strong>.
+        Every tool below is a step toward a life that requires no one's permission.
+    </p>
+</div>
+
+<!-- PULL QUOTE -->
+<div class="ft-quote-section">
+    <div class="ft-quote">
+        <p>"We must defend our own privacy if we expect to have any. We must come together and create systems which allow anonymous transactions to take place."</p>
+        <cite>— A Cypherpunk's Manifesto, Eric Hughes, 1993</cite>
     </div>
-    
-    <div class="manifesto-section">
-        <div class="manifesto-card">
-            <p class="manifesto-text">
-                The Bitcoin protocol proved that <strong>trustless, permissionless systems</strong> can replace centralized gatekeepers. 
-                This isn't just about money. It's about reclaiming sovereignty over our data, our health, our communication, and our lives. 
-                The same cryptographic principles that secure your sats can secure your <strong>entire digital existence</strong>.
-            </p>
+</div>
+
+<!-- FILTERS -->
+<div class="ft-filters">
+    <button class="ft-filter active" data-cat="all" onclick="ftFilter('all', this)">All Tools</button>
+    <button class="ft-filter" data-cat="comms" onclick="ftFilter('comms', this)">🗨 Communication</button>
+    <button class="ft-filter" data-cat="privacy" onclick="ftFilter('privacy', this)">🔒 Privacy &amp; Security</button>
+    <button class="ft-filter" data-cat="ai" onclick="ftFilter('ai', this)">🤖 AI &amp; Open Tech</button>
+    <button class="ft-filter" data-cat="defi" onclick="ftFilter('defi', this)">⚡ Sovereign Money</button>
+    <button class="ft-filter" data-cat="activism" onclick="ftFilter('activism', this)">✊ Activism &amp; Truth</button>
+</div>
+
+<!-- TOOL GRID -->
+<div class="ft-grid" id="ftGrid">
+
+    <!-- COMMUNICATION -->
+    <div class="ft-card" data-cat="comms" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">📱</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Signal</div>
+                <div class="ft-tagline">The gold standard of private messaging</div>
+            </div>
+            <span class="ft-cat-badge">Comms</span>
+        </div>
+        <p class="ft-why">Your IP, metadata, and contact graph are not stored. End-to-end encrypted by default. No ads, no data mining — it's a nonprofit with no business model that requires selling you.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://signal.org" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Download from signal.org — not the App Store if you can help it</li>
+                <li><span class="ft-step-num">2</span>Enable disappearing messages by default in Settings → Privacy</li>
+                <li><span class="ft-step-num">3</span>Verify contacts via Safety Numbers for high-stakes conversations</li>
+                <li><span class="ft-step-num">4</span>Use Note to Self as an encrypted scratchpad</li>
+            </ol>
         </div>
     </div>
-    
-    <div class="categories-section">
-        <div class="section-header">
-            <div class="section-label">Sovereign Stack</div>
-            <h2 class="section-title">Freedom Technologies</h2>
+
+    <div class="ft-card" data-cat="comms" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🔑</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Nostr</div>
+                <div class="ft-tagline">Censorship-resistant social. Owned by no one.</div>
+            </div>
+            <span class="ft-cat-badge">Comms</span>
         </div>
-        
-        <div class="category-grid">
-            <div class="category-card">
-                <div class="category-icon">🔐</div>
-                <h3 class="category-name">Privacy & Communication</h3>
-                <p class="category-desc">Encrypted messaging, private email, and secure communication tools that keep your conversations yours.</p>
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-name">Signal</span>
-                        <a href="https://signal.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">ProtonMail</span>
-                        <a href="https://proton.me" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">SimpleX Chat</span>
-                        <a href="https://simplex.chat" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Nostr</span>
-                        <a href="https://nostr.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="category-card">
-                <div class="category-icon">🌐</div>
-                <h3 class="category-name">Decentralized Internet</h3>
-                <p class="category-desc">Break free from Big Tech. Self-host, use mesh networks, and own your digital presence.</p>
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-name">Tor Project</span>
-                        <a href="https://torproject.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">IPFS</span>
-                        <a href="https://ipfs.tech" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Umbrel</span>
-                        <a href="https://umbrel.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Start9</span>
-                        <a href="https://start9.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="category-card">
-                <div class="category-icon">🏥</div>
-                <h3 class="category-name">Healthcare Sovereignty</h3>
-                <p class="category-desc">Own your health data. Direct primary care, health sharing, and medical freedom resources.</p>
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-name">CrowdHealth</span>
-                        <a href="https://joincrowdhealth.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Sedera</span>
-                        <a href="https://sedera.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Direct Primary Care</span>
-                        <a href="https://dpcfrontier.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="category-card">
-                <div class="category-icon">📚</div>
-                <h3 class="category-name">Education & Knowledge</h3>
-                <p class="category-desc">Uncensorable information, alternative education, and knowledge preservation.</p>
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-name">Bitcoin Academy</span>
-                        <a href="https://learn.saylor.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Primal School</span>
-                        <a href="https://primalschool.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Wikileaks</span>
-                        <a href="https://wikileaks.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="category-card">
-                <div class="category-icon">🏠</div>
-                <h3 class="category-name">Property & Land</h3>
-                <p class="category-desc">Sovereign citizenship, property rights, and freedom communities.</p>
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-name">Prospera</span>
-                        <a href="https://prospera.hn" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Free Cities Foundation</span>
-                        <a href="https://freecitiesfoundation.org" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Bitcoin Citadels</span>
-                        <a href="#" class="project-link">Explore <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="category-card">
-                <div class="category-icon">⚡</div>
-                <h3 class="category-name">Energy Independence</h3>
-                <p class="category-desc">Off-grid power, renewable energy, and energy sovereignty projects.</p>
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-name">Solar + Mining</span>
-                        <a href="#" class="project-link">Learn <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Gridless</span>
-                        <a href="https://gridlesscompute.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-name">Cathedra Bitcoin</span>
-                        <a href="https://cathedra.com" target="_blank" class="project-link">Visit <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            </div>
+        <p class="ft-why">No servers to shut down. No accounts to ban. Your identity is a cryptographic keypair — you bring it to any client. Jack Dorsey uses it. That should tell you something.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://nostr.com" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Generate keys at nostr.com or use Primal / Damus app</li>
+                <li><span class="ft-step-num">2</span>Save your nsec (private key) somewhere safe — lose it and you lose your identity</li>
+                <li><span class="ft-step-num">3</span>Connect via Primal (iOS/Android) or Snort.social (web)</li>
+                <li><span class="ft-step-num">4</span>Zap sats to content you value — it's built in</li>
+            </ol>
         </div>
     </div>
-    
-    <div class="cta-section">
-        <div class="cta-card">
-            <h3 class="cta-title">Build Your Sovereign Stack</h3>
-            <p class="cta-text">Start with Bitcoin. Then expand to control your communication, your data, your health records, and your digital identity. Every tool you self-host is a step toward true sovereignty.</p>
-            <a href="/drill" class="cta-btn"><i class="fas fa-shield-alt"></i> Start Recovery Drill</a>
+
+    <div class="ft-card" data-cat="comms" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">💬</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Session</div>
+                <div class="ft-tagline">No phone number. No metadata. Just comms.</div>
+            </div>
+            <span class="ft-cat-badge">Comms</span>
+        </div>
+        <p class="ft-why">Onion-routed like Tor — even Session can't see who you're talking to. No email, no phone number required to sign up. Your account ID is a public key.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://getsession.org" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Download from getsession.org</li>
+                <li><span class="ft-step-num">2</span>Create account — save your recovery phrase offline</li>
+                <li><span class="ft-step-num">3</span>Share your Session ID to receive messages</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="comms" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">📧</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Proton Mail</div>
+                <div class="ft-tagline">Email that can't be read — even by Proton</div>
+            </div>
+            <span class="ft-cat-badge">Comms</span>
+        </div>
+        <p class="ft-why">Zero-access encryption. Swiss jurisdiction. Even Proton's own servers cannot read your emails. Free tier sufficient for most users.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://proton.me" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Sign up at proton.me — no real name required</li>
+                <li><span class="ft-step-num">2</span>Use ProtonVPN bundle for full stack privacy</li>
+                <li><span class="ft-step-num">3</span>Enable PGP for email to external recipients</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- PRIVACY & SECURITY -->
+    <div class="ft-card" data-cat="privacy" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🧅</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Tor Browser</div>
+                <div class="ft-tagline">Your IP is not your identity</div>
+            </div>
+            <span class="ft-cat-badge">Privacy</span>
+        </div>
+        <p class="ft-why">Routes your traffic through three volunteer-run relays. No single relay knows both who you are and what you're accessing. Built by the US Navy, trusted by journalists and dissidents worldwide.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://torproject.org" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Download from torproject.org — verify the signature</li>
+                <li><span class="ft-step-num">2</span>Use bridges if Tor is blocked in your region</li>
+                <li><span class="ft-step-num">3</span>Don't login to personal accounts — that defeats the purpose</li>
+                <li><span class="ft-step-num">4</span>For maximum anonymity use Tails OS instead</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="privacy" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🕶</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Mullvad VPN</div>
+                <div class="ft-tagline">Pay with cash. They won't even know your name.</div>
+            </div>
+            <span class="ft-cat-badge">Privacy</span>
+        </div>
+        <p class="ft-why">Anonymous accounts — no email, no name. Accept cash and Monero payments. Audited no-logs policy. They have refused government data requests because they have nothing to hand over.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://mullvad.net" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Go to mullvad.net → Generate account (no email needed)</li>
+                <li><span class="ft-step-num">2</span>Pay with Bitcoin, Monero, or cash</li>
+                <li><span class="ft-step-num">3</span>Download app, connect — enable kill switch</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="privacy" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">💀</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Tails OS</div>
+                <div class="ft-tagline">A computer with amnesia — by design</div>
+            </div>
+            <span class="ft-cat-badge">Privacy</span>
+        </div>
+        <p class="ft-why">Boots from a USB drive. Routes everything through Tor. Leaves zero trace on the hardware when shut down. Used by Snowden. The nuclear option for operational security.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://tails.net" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Download ISO from tails.net and verify the signature</li>
+                <li><span class="ft-step-num">2</span>Flash to a USB drive (8GB+) using Balena Etcher</li>
+                <li><span class="ft-step-num">3</span>Boot from USB — F12 / Del on startup for boot menu</li>
+                <li><span class="ft-step-num">4</span>Enable Persistent Storage to save files across sessions</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="privacy" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🔐</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">GPG / GNU Privacy Guard</div>
+                <div class="ft-tagline">Encrypt anything. Sign everything.</div>
+            </div>
+            <span class="ft-cat-badge">Privacy</span>
+        </div>
+        <p class="ft-why">The original cypherpunk tool. Public-key cryptography for email, files, and identity verification. Math protects your messages — not policy, not promises, not terms of service.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://gnupg.org" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Install: <code style="font-size:0.8em;background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px">brew install gnupg</code> or <code style="font-size:0.8em;background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px">sudo apt install gnupg</code></li>
+                <li><span class="ft-step-num">2</span>Generate keypair: <code style="font-size:0.8em;background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px">gpg --full-gen-key</code></li>
+                <li><span class="ft-step-num">3</span>Share your public key — keep your private key offline</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="privacy" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🌐</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Pi-hole</div>
+                <div class="ft-tagline">Block every tracker on your entire network</div>
+            </div>
+            <span class="ft-cat-badge">Privacy</span>
+        </div>
+        <p class="ft-why">Network-level DNS sinkhole that blocks ads and trackers before they reach any device in your home. Your Smart TV, your kids' tablets, your phone — all protected at the router level.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://pi-hole.net" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Install on Raspberry Pi or any Linux box</li>
+                <li><span class="ft-step-num">2</span>Set as your router's primary DNS server</li>
+                <li><span class="ft-step-num">3</span>Add blocklists at firebog.net for maximum coverage</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- AI & OPEN TECH -->
+    <div class="ft-card" data-cat="ai" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🤗</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Hugging Face</div>
+                <div class="ft-tagline">Run AI locally. No corporate backdoor.</div>
+            </div>
+            <span class="ft-cat-badge">AI &amp; Tech</span>
+        </div>
+        <p class="ft-why">The GitHub of AI models. Download and run state-of-the-art language models on your own hardware. No API calls, no data leaving your machine, no terms of service that can change tomorrow.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://huggingface.co" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Install: <code style="font-size:0.8em;background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px">pip install transformers</code></li>
+                <li><span class="ft-step-num">2</span>Browse models at huggingface.co/models</li>
+                <li><span class="ft-step-num">3</span>Use Ollama for easiest local LLM setup</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="ai" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">📦</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">IPFS</div>
+                <div class="ft-tagline">Content-addressed storage. Can't be taken down.</div>
+            </div>
+            <span class="ft-cat-badge">AI &amp; Tech</span>
+        </div>
+        <p class="ft-why">Files on IPFS are addressed by what they contain, not where they're stored. There is no server to seize, no domain to suspend. The same principle as Bitcoin's blockchain — just for files.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://ipfs.tech" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Install IPFS Desktop from ipfs.tech</li>
+                <li><span class="ft-step-num">2</span>Pin files to your local node</li>
+                <li><span class="ft-step-num">3</span>Share via ipfs.io/ipfs/[hash] gateways</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="ai" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">📱</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">F-Droid</div>
+                <div class="ft-tagline">An app store that doesn't spy</div>
+            </div>
+            <span class="ft-cat-badge">AI &amp; Tech</span>
+        </div>
+        <p class="ft-why">Free and open-source Android apps, no trackers, no analytics, verified reproducible builds. The apps Google Play rejects for being too honest about privacy are often here.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://f-droid.org" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Download the APK from f-droid.org</li>
+                <li><span class="ft-step-num">2</span>Enable "Install unknown apps" in Android settings</li>
+                <li><span class="ft-step-num">3</span>Add repos for more apps (Bitwarden, Molly Signal fork)</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- SOVEREIGN MONEY -->
+    <div class="ft-card" data-cat="defi" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🏦</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Sparrow Wallet</div>
+                <div class="ft-tagline">Self-custody done seriously</div>
+            </div>
+            <span class="ft-cat-badge">Sovereign Money</span>
+        </div>
+        <p class="ft-why">The most transparent Bitcoin wallet available. Full coin control, UTXO management, Whirlpool coinjoin integration, and hardware wallet support. Not your keys, not your coins — and Sparrow means that.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://sparrowwallet.com" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Download from sparrowwallet.com — verify PGP signature</li>
+                <li><span class="ft-step-num">2</span>Connect to your own Bitcoin node or Electrum server for max privacy</li>
+                <li><span class="ft-step-num">3</span>Pair with Coldcard or Trezor for hardware signing</li>
+                <li><span class="ft-step-num">4</span>Use Whirlpool for coinjoin to break transaction history</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="defi" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">⚡</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Alby</div>
+                <div class="ft-tagline">Lightning in your browser. Zap everything.</div>
+            </div>
+            <span class="ft-cat-badge">Sovereign Money</span>
+        </div>
+        <p class="ft-why">Browser extension that brings Lightning Network payments to the web. Zap Nostr posts, pay for content, send to anyone instantly. The financial layer the internet was always supposed to have.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://albyhub.com" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Install Alby extension from albyhub.com</li>
+                <li><span class="ft-step-num">2</span>Create a wallet or connect your own node</li>
+                <li><span class="ft-step-num">3</span>Fund with sats via on-chain deposit</li>
+                <li><span class="ft-step-num">4</span>Zap on Nostr, pay Lightning invoices instantly</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="defi" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🖥</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Umbrel</div>
+                <div class="ft-tagline">Run your own node. Be the bank.</div>
+            </div>
+            <span class="ft-cat-badge">Sovereign Money</span>
+        </div>
+        <p class="ft-why">One-click Bitcoin node, Lightning node, and app store on your own hardware. Running a node means you verify every transaction yourself — you don't trust anyone else's rules.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://umbrel.com" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Get a Raspberry Pi 4 (8GB) + 2TB SSD</li>
+                <li><span class="ft-step-num">2</span>Flash Umbrel OS from umbrel.com</li>
+                <li><span class="ft-step-num">3</span>Plug in, visit umbrel.local on your network</li>
+                <li><span class="ft-step-num">4</span>Install Bitcoin node + Lightning from the app store</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- ACTIVISM & TRUTH -->
+    <div class="ft-card" data-cat="activism" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🛡</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">Electronic Frontier Foundation</div>
+                <div class="ft-tagline">The legal sword for digital rights</div>
+            </div>
+            <span class="ft-cat-badge">Activism</span>
+        </div>
+        <p class="ft-why">The only nonprofit fighting for your digital rights in court, in Congress, and in code. Privacy Badger, Certbot, HTTPS Everywhere — tools you use daily came from EFF engineers fighting legal battles you never saw.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Impact</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://eff.org" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Get Involved ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Involved</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Install Privacy Badger browser extension</li>
+                <li><span class="ft-step-num">2</span>Follow @EFF on Nostr and X for surveillance news</li>
+                <li><span class="ft-step-num">3</span>Donate — they take Bitcoin</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="ft-card" data-cat="activism" onclick="ftExpand(this)">
+        <div class="ft-card-top">
+            <div class="ft-icon">🔍</div>
+            <div class="ft-card-meta">
+                <div class="ft-tool-name">DuckDuckGo</div>
+                <div class="ft-tagline">Search without being the product</div>
+            </div>
+            <span class="ft-cat-badge">Activism</span>
+        </div>
+        <p class="ft-why">No search history. No user profile. No filter bubble tuned to keep you angry and clicking. The result you get is the result — not a recommendation shaped by 15 years of behavioral data.</p>
+        <div class="ft-scores">
+            <div><div class="ft-score-label">Difficulty</div><div class="ft-dots"><span class="ft-dot on diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+            <div><div class="ft-score-label">Privacy</div><div class="ft-dots"><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot on priv"></span><span class="ft-dot diff"></span><span class="ft-dot diff"></span></div></div>
+        </div>
+        <div class="ft-card-foot">
+            <a href="https://duckduckgo.com" target="_blank" rel="noopener" class="ft-link" onclick="event.stopPropagation()">Visit <i class="fas fa-external-link-alt" style="font-size:0.7em"></i></a>
+            <button class="ft-expand">Setup Guide ▾</button>
+        </div>
+        <div class="ft-setup">
+            <div class="ft-setup-title">Get Started</div>
+            <ol class="ft-steps">
+                <li><span class="ft-step-num">1</span>Set as default search in browser settings</li>
+                <li><span class="ft-step-num">2</span>Use !bangs for direct site search: !w for Wikipedia, !gh for GitHub</li>
+                <li><span class="ft-step-num">3</span>For even more privacy: Brave Search or Kagi</li>
+            </ol>
+        </div>
+    </div>
+
+</div><!-- /ft-grid -->
+
+<!-- CTA -->
+<div class="ft-cta">
+    <div class="ft-cta-box">
+        <div class="ft-cta-title">Build Your Sovereign Stack</div>
+        <p class="ft-cta-text">Start with Bitcoin. Then lock down your communication, your search, your data, your operating system. Each tool you self-host or self-custody is a node you add to a network that can't be shut down.</p>
+        <div class="ft-cta-btns">
+            <a href="/articles?category=Freedom+Tech" class="ft-btn-primary"><i class="fas fa-shield-alt"></i> Freedom Tech Intel</a>
+            <a href="/stage" class="ft-btn-ghost"><i class="fas fa-broadcast-tower"></i> Latest Episode</a>
         </div>
     </div>
 </div>
+
+</div>
+
+<script>
+function ftFilter(cat, btn) {
+    document.querySelectorAll('.ft-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.ft-card').forEach(card => {
+        if (cat === 'all' || card.dataset.cat === cat) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function ftExpand(card) {
+    const wasExpanded = card.classList.contains('expanded');
+    document.querySelectorAll('.ft-card.expanded').forEach(c => c.classList.remove('expanded'));
+    if (!wasExpanded) card.classList.add('expanded');
+}
+</script>
 {% endblock %}

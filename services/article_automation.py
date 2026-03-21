@@ -382,6 +382,28 @@ class RealNewsArticleGenerator:
 HEADLINE CONSTRAINT (MANDATORY): {diversity['bitcoin_starts']}/{diversity['total']} recent headlines ({diversity['ratio']:.0%}) already start with "Bitcoin". Your headline MUST NOT start with the word "Bitcoin". Lead with the action, the player, or the consequence instead. Examples: "Mining Revenue Hits..." not "Bitcoin Mining Revenue Hits...", "Wall Street's Next Move..." not "Bitcoin ETF..."
 """
 
+        slot = source.get('slot', '')
+        if slot == 'freedom_tech':
+            from services.freedom_tech_prompt import build_freedom_tech_prompt
+            try:
+                ft_prompt = build_freedom_tech_prompt(source)
+                ft_resp = self.openai.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[{"role": "user", "content": ft_prompt}],
+                    max_tokens=2000, temperature=0.8
+                )
+                ft_c = ft_resp.choices[0].message.content
+                import re as _re2
+                _tm = _re2.search(r"<h1[^>]*>([^<]+)</h1>", ft_c)
+                ft_title = _tm.group(1) if _tm else source["title"]
+                _sm = _re2.search(r"TL;DR:\s*([^<]+)", ft_c)
+                ft_sum = _sm.group(1).strip()[:280] if _sm else source["summary"][:200]
+                return {"title": ft_title, "content": ft_c, "summary": ft_sum,
+                        "source_url": source["url"], "source_type": source.get("type","rss"),
+                        "source_name": source["source"], "category": "Freedom Tech"}
+            except Exception as ft_err:
+                logger.error("Freedom tech prompt failed: %s", ft_err)
+
         prompt = f"""You are the senior editor at Protocol Pulse, a Bitcoin-native intelligence outlet. Your voice: Matt Taibbi's edge, Lyn Alden's precision, Michael Lewis's storytelling instinct. You write articles people screenshot and send to friends.
 {headline_constraint}
 

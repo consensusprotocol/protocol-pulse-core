@@ -35,7 +35,9 @@ SLOTS = [
     "market_macro",   # 2
     "opinion",        # 3
     "regulation",     # 4
-    "wildcard",       # 5
+    "freedom_tech",   # 5
+    "lightning",      # 6
+    "wildcard",       # 7
 ]
 
 SLOT_RSS_FILTERS: Dict[str, List[str]] = {
@@ -46,6 +48,12 @@ SLOT_RSS_FILTERS: Dict[str, List[str]] = {
                       "microstrategy", "whale", "ath", "all-time high"],
     "regulation":    ["regulation", "sec", "congress", "senate", "law", "ban", "policy",
                       "mica", "hearing", "legislation", "cbdc", "legal", "court"],
+    "freedom_tech":  ["privacy", "self-custody", "nostr", "tor", "signal", "surveillance",
+                      "censorship", "cbdc", "open source", "decentralized", "encryption",
+                      "kyc", "seed phrase", "multisig", "cold storage", "wasabi",
+                      "sovereign", "freedom", "cypherpunk"],
+    "lightning":     ["lightning", "layer 2", "l2", "payment channel", "routing",
+                      "lnbc", "lightning network", "strike", "alby", "phoenix"],
     "wildcard":      [],   # open — exclude capped categories
     "opinion":       [],   # no RSS — handled by intel_briefing.py
 }
@@ -57,6 +65,8 @@ SLOT_CATEGORY: Dict[str, str] = {
     "market_macro":  "Markets",
     "opinion":       "opinion",
     "regulation":    "Regulation",
+    "freedom_tech":  "Freedom Tech",
+    "lightning":     "Lightning",
     "wildcard":      "Bitcoin",
 }
 
@@ -64,7 +74,8 @@ SLOT_CATEGORY: Dict[str, str] = {
 CAPPED_TOPICS_FOR_WILDCARD = [
     "mining", "hashrate", "hash rate", "difficulty",
     "regulation", "sec", "congress",
-    "etf", "institutional", "price"
+    "etf", "institutional", "price",
+    "lightning", "privacy", "self-custody"
 ]
 
 # --- State management -----------------------------------------------------------
