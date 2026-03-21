@@ -1060,12 +1060,15 @@ function playVid(url){
       document.getElementById('vid-static').style.opacity='1';
       vid.style.opacity='0';
       vid.src='';
-      setStat('Ready','#334',false);hideSub();res();
+      setStat('Ready','#334',false);hideSub();
+      setBusy(false);mic.disabled=false;
+      res();
       try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
     };
     vid.onerror=function(){
       document.getElementById('vid-static').style.opacity='1';
       vid.style.opacity='0';
+      setBusy(false);mic.disabled=false;
       setStat('Video error','#ff3b5f',false);res();
     };
     // iOS/Brave: always start muted, unmute on canplay (within user gesture window)
