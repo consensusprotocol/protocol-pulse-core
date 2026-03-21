@@ -1433,17 +1433,16 @@ def _article_key_takeaways(article):
 @app.route('/intel/<slug>')
 @app.route('/articles/<slug>')
 def article_detail_slug(slug):
-    # If it looks like a number, 301 to slug
     if slug.isdigit():
         a = models.Article.query.get_or_404(int(slug))
         if a.slug:
-            from flask import redirect
             return redirect(f"/articles/{a.slug}", 301)
     else:
         a = models.Article.query.filter_by(slug=slug).first()
-        if not a: from flask import abort; abort(404)
-    article_id = a.id
-    # -- rest of article_detail below --
+        if not a:
+            abort(404)
+    # Render the article using the existing numeric route logic
+    return article_detail(a.id)
 
 @app.route('/articles/<int:article_id>')
 def article_detail(article_id):
