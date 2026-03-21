@@ -891,6 +891,62 @@ def tts_chatterbox(text: str, output_path: str, exaggeration: float = 0.4,
         return False
 
 
+def tts_f5_finetuned(text: str, output_path: str, speed: float = None) -> bool:
+    """Generate TTS using fine-tuned F5-TTS for PBX (Host 2).
+
+    Uses pbx_voice.pt checkpoint with pbx_reference.wav for voice cloning.
+    Output: M4A 48kHz AAC 192k.
+    CRITICAL: show_info MUST be print or a callable — False crashes F5 (bool not callable).
+    """
+    if not _init_f5():
+        logger.warning("[TTS/F5] Model not loaded")
+        return False
+
+    if not os.path.exists(PBX_REFERENCE_CLIP):
+        logger.warning(f"[TTS/F5] Reference clip missing: {PBX_REFERENCE_CLIP}")
+        return False
+
+    if speed is None:
+        speed = F5_SPEED
+
+    try:
+        import soundfile as sf
+        wav_tmp = output_path + ".f5.wav"
+
+        wav, sr, _ = _F5_MODEL.infer(
+            ref_file=PBX_REFERENCE_CLIP,
+            ref_text="",
+            gen_text=text,
+            speed=speed,
+            show_info=print,
+        )
+        sf.write(wav_tmp, wav, sr)
+
+        if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
+            logger.error("[TTS/F5] Zero output from inference")
+            return False
+
+        # Convert WAV to M4A (48kHz AAC 192k)
+        r = subprocess.run([
+            "ffmpeg", "-y", "-i", wav_tmp,
+            "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
+        ], capture_output=True, text=True, timeout=60)
+
+        try:
+            if os.path.exists(wav_tmp):
+                os.remove(wav_tmp)
+        except Exception:
+            pass
+
+        ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
+        if ok:
+            logger.info(f"[TTS/F5] OK: {ffprobe_duration(output_path):.2f}s (PBX fine-tuned)")
+        return ok
+    except Exception as e:
+        logger.error(f"[TTS/F5] Exception: {e}")
+        return False
+
+
 def tts_local(text: str, output_path: str, host: int = 1,
               segment_type: str = "") -> bool:
     """Primary TTS dispatcher — local GPU inference with per-line ElevenLabs fallback.
@@ -925,7 +981,10 @@ def tts_local(text: str, output_path: str, host: int = 1,
             logger.warning("[TTS/Local] Kokoro host1 FAILED → ElevenLabs Eryn fallback")
             ok = tts_elevenlabs(text, output_path, host=1, segment_type=segment_type)
     else:
-        ok = tts_chatterbox(text, output_path)
+        ok = tts_f5_finetuned(text, output_path)
+        if not ok:
+            logger.warning("[TTS/Local] F5 fine-tuned FAILED → Chatterbox")
+            ok = tts_chatterbox(text, output_path)
         if not ok:
             logger.warning("[TTS/Local] Chatterbox FAILED → Kokoro am_adam")
             ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
