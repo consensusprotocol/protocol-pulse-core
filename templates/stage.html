@@ -76,6 +76,11 @@ body { background: var(--s-bg); }
   animation: ticker-scroll 40s linear infinite;
 }
 .stage-topbar__ticker-inner:hover { animation-play-state: paused; }
+@media (max-width: 768px) {
+  .stage-topbar__ticker-inner {
+    animation-duration: 90s;
+  }
+}
 @keyframes ticker-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -593,6 +598,16 @@ body { background: var(--s-bg); }
   background: var(--s-red); color: #fff;
   animation: mic-pulse 1.4s infinite;
 }
+@keyframes floating-mic-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,59,95,.6); }
+  70%  { box-shadow: 0 0 0 18px rgba(255,59,95,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,59,95,0); }
+}
+#floatingMicBtn.fmic-rec {
+  background: rgba(255,59,95,.25) !important;
+  border-color: #ff3b5f !important;
+  animation: floating-mic-pulse 1s ease-out infinite;
+}
 @keyframes mic-pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,59,95,.6); }
   70% { box-shadow: 0 0 0 16px rgba(255,59,95,0); }
@@ -853,11 +868,16 @@ body { background: var(--s-bg); }
       <div>
         <div class="stage-brief__section-label">Stage Mode</div>
         <div id="stageModeBadge" class="stage-mode-badge broadcast">● ON AIR</div>
-        <button id="floatingMicBtn" onclick="toggleStageMic()"
-          title="Tap to interrupt Oracle"
-          style="position:absolute;bottom:12px;right:12px;z-index:50;background:rgba(20,20,30,.85);border:1px solid rgba(255,59,95,.4);border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .2s;"
-          onmouseover="this.style.borderColor='rgba(255,59,95,.9)'"
-          onmouseout="this.style.borderColor='rgba(255,59,95,.4)'">&#127908;</button>
+        <div style="position:absolute;bottom:14px;right:14px;z-index:50;display:flex;flex-direction:column;align-items:center;gap:5px;">
+          <button id="floatingMicBtn"
+            onclick="toggleStageMic()"
+            title="Tap to speak to Oracle"
+            style="width:52px;height:52px;border-radius:50%;background:rgba(13,16,23,.92);border:2px solid rgba(255,59,95,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:all .2s;backdrop-filter:blur(12px);">
+            <span id="fmicIcon">&#127908;</span>
+            <span id="fmicStop" style="display:none;font-size:18px;">&#9632;</span>
+          </button>
+          <span id="fmicHint" style="font-family:var(--s-mono);font-size:8px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;">tap to speak</span>
+        </div>
         <div class="stage-between-badge" id="betweenBadge" style="display:none">
           BETWEEN SEGMENTS — <span id="betweenCountdown">--:--</span> until next briefing
         </div>
@@ -1350,15 +1370,22 @@ body { background: var(--s-bg); }
     var now = Date.now();
     if(now - _greetCooldown < 5000){ return; }
     _greetCooldown = now;
-    setBusy(true); setStatus('Loading…','var(--s-gold)');
-    fetchTO(AVATAR_BASE + '/oracle/response/GREETING',{},15000)
+    setBusy(true); setStatus('Loading\u2026','var(--s-gold)');
+    // Use pre-cached greeting video directly — zero render wait
+    var greetUrl = AVATAR_BASE + '/oracle/cache/GREETING';
+    fetch(greetUrl)
     .then(function(r){
-      if(handle429(r)) throw new Error('rate-limited');
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.blob().then(function(b){ return URL.createObjectURL(b); });
+      if(!r.ok) throw new Error('cache miss');
+      return r.blob();
     })
-    .then(function(url){ return playVid(url); })
-    .catch(function(e){ if(e.message !== 'rate-limited') setStatus('Error','var(--s-red)'); console.error(e); })
+    .then(function(b){ return playVid(URL.createObjectURL(b)); })
+    .catch(function(){
+      // Fallback to live render if cache miss
+      fetchTO(AVATAR_BASE + '/oracle/response/GREETING',{},20000)
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
+      .then(function(b){ return playVid(URL.createObjectURL(b)); })
+      .catch(function(e){ setStatus('Ready','rgba(255,255,255,.3)'); console.error(e); });
+    })
     .finally(function(){ setBusy(false); });
   };
 
@@ -1590,7 +1617,15 @@ body { background: var(--s-bg); }
     _stageIsRec = true;
     document.getElementById('stageMicBtn').classList.add('recording');
     var fmb = document.getElementById('floatingMicBtn');
-    if (fmb) fmb.style.background = 'rgba(255,59,95,.3)';
+    var fmicIcon = document.getElementById('fmicIcon');
+    var fmicStop = document.getElementById('fmicStop');
+    var fmicHint = document.getElementById('fmicHint');
+    if (fmb) {
+      fmb.classList.toggle('fmic-rec', _stageIsRec);
+    }
+    if (fmicIcon) fmicIcon.style.display = _stageIsRec ? 'none' : 'block';
+    if (fmicStop) fmicStop.style.display = _stageIsRec ? 'block' : 'none';
+    if (fmicHint) fmicHint.textContent = _stageIsRec ? 'tap to send' : 'tap to speak';
     document.getElementById('interactivePanel').classList.add('active');
   }
 
@@ -1599,7 +1634,15 @@ body { background: var(--s-bg); }
     if(_stageRecognition) { try{_stageRecognition.stop();}catch(e){} _stageRecognition = null; }
     document.getElementById('stageMicBtn').classList.remove('recording');
     var fmb = document.getElementById('floatingMicBtn');
-    if (fmb) fmb.style.background = 'rgba(20,20,30,.85)';
+    var fmicIcon = document.getElementById('fmicIcon');
+    var fmicStop = document.getElementById('fmicStop');
+    var fmicHint = document.getElementById('fmicHint');
+    if (fmb) {
+      fmb.classList.toggle('fmic-rec', _stageIsRec);
+    }
+    if (fmicIcon) fmicIcon.style.display = _stageIsRec ? 'none' : 'block';
+    if (fmicStop) fmicStop.style.display = _stageIsRec ? 'block' : 'none';
+    if (fmicHint) fmicHint.textContent = _stageIsRec ? 'tap to send' : 'tap to speak';
   }
 
   async function _handleInterruptQuestion(text) {
@@ -2010,11 +2053,31 @@ body { background: var(--s-bg); }
   }
   document.addEventListener('transcriptsRendered', function(){ setTimeout(initTxDots, 100); });
 
-  // Start broadcast after greeting
+  // Auto-play greeting on load — personalised for returning visitors
   setTimeout(function(){
-    // Auto-start broadcast system
-    startBroadcast();
-  }, 800);
+    if(window.ORACLE_FINGERPRINT_MATCH) {
+      // Returning visitor — play welcome back via oracle/chat
+      setBusy(true);
+      fetchTO(AVATAR_BASE + '/oracle/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          text: 'welcome back greeting for returning visitor',
+          session_id: 'stage_greet_' + Date.now(),
+          intent: 'RETURNING_VISITOR',
+          audio_first: false
+        })
+      }, 30000)
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
+      .then(function(b){ return playVid(URL.createObjectURL(b)); })
+      .catch(function(){ requestGreet(); })
+      .finally(function(){ setBusy(false); startBroadcast(); });
+    } else {
+      requestGreet();
+      // Start broadcast after greeting finishes
+      setTimeout(function(){ startBroadcast(); }, 3000);
+    }
+  }, 400);
 
   // Prevent iOS pinch-to-zoom
   document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});

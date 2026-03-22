@@ -1303,6 +1303,18 @@ def oracle_cache_status():
     })
 
 
+@app.route("/oracle/cache/<intent>", methods=["GET"])
+def oracle_cache_serve(intent):
+    """Serve pre-cached response video directly."""
+    import re as _re
+    if not _re.match(r'^[A-Z0-9_]+$', intent):
+        return jsonify({"error": "invalid"}), 400
+    path = oracle_cache_manager.get_cached_response(intent)
+    if not path:
+        return jsonify({"error": "not cached"}), 404
+    return send_file(path, mimetype="video/mp4")
+
+
 @app.route("/oracle/response/<key>")
 def oracle_response(key):
     """Serve pre-cached mp4 for a response key."""
