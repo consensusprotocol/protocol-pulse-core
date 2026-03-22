@@ -65,8 +65,24 @@ def load_env():
 
 
 def run(cmd, timeout=7200, env=None):
-    return subprocess.run(cmd, shell=True, capture_output=True, text=True,
-                         timeout=timeout, env=env or load_env(), cwd=PIPELINE)
+    try:
+        return subprocess.run(cmd, shell=True, capture_output=True, text=True,
+                             timeout=timeout, env=env or load_env(), cwd=PIPELINE)
+    except subprocess.TimeoutExpired as e:
+        log(f"TIMEOUT after {timeout}s: {str(cmd)[:80]}")
+        # Return a fake CompletedProcess so callers don't crash
+        import subprocess as _sp
+        r = _sp.CompletedProcess(cmd, returncode=-1)
+        r.stdout = ""
+        r.stderr = f"TIMEOUT after {timeout}s"
+        return r
+    except Exception as e:
+        log(f"run() error: {e} cmd={str(cmd)[:80]}")
+        import subprocess as _sp
+        r = _sp.CompletedProcess(cmd, returncode=-1)
+        r.stdout = ""
+        r.stderr = str(e)
+        return r
 
 
 # ── FIX 6: Startup checks ────────────────────────────────────────
