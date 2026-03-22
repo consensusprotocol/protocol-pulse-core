@@ -405,6 +405,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
    TABLET — max-width 768px
 ═══════════════════════════════════════════════════════════ */
 @media(max-width:768px){
+  body{padding-top:48px}
   .video-wrap{
     max-width:100%;
     margin:0 auto;
@@ -546,6 +547,15 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 </style>
 </head>
 <body>
+<div id="wake-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(4,5,10,.97);flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:24px;" onclick="wakeOracle()">
+  <div style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,59,95,.6);display:flex;align-items:center;justify-content:center;font-size:36px;">&#128302;</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,.7);letter-spacing:.2em;text-transform:uppercase;">Tap to Wake Oracle</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.12em;">Protocol Pulse Intelligence</div>
+</div>
+<div id="mobile-nav-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:rgba(4,5,10,.95);padding:10px 16px;border-bottom:1px solid rgba(255,59,95,.15);align-items:center;gap:12px;">
+  <button onclick="window.history.back()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);padding:6px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.08em;">&larr; BACK</button>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,59,95,.8);letter-spacing:.15em;">ORACLE &mdash; PROTOCOL PULSE</span>
+</div>
 <div id="root">
 
 <!-- ══ GATE ══ -->
@@ -1442,6 +1452,28 @@ function hideActionCard(){
 function trackCardClick(id){
   fetch('/api/telemetry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'oracle_card_clicked',properties:{card_id:id,fingerprint:window._visitorToken||'anon'}})}).catch(function(){});
 }
+
+/* ── MOBILE WAKE OVERLAY ── */
+function wakeOracle(){
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    var buf=ac.createBuffer(1,1,22050);
+    var src=ac.createBufferSource();
+    src.buffer=buf;src.connect(ac.destination);src.start(0);
+    setTimeout(function(){try{ac.close();}catch(e){}},300);
+  }catch(e){}
+  document.getElementById('wake-overlay').style.display='none';
+  requestMic();
+}
+(function(){
+  var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile){
+    var ov=document.getElementById('wake-overlay');
+    if(ov) ov.style.display='flex';
+    var nb=document.getElementById('mobile-nav-bar');
+    if(nb) nb.style.display='flex';
+  }
+})();
 
 window.addEventListener('beforeunload',function(){
   try{
