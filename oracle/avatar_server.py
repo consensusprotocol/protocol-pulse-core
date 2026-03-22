@@ -661,7 +661,7 @@ def _avatar_tts_oracle(text):
                 _TTS_LOCK_ORACLE.release()
 
     logger.warning("[AVATAR_TTS_ORACLE] falling back to cuda:1 pipeline")
-    return _avatar_tts(text)
+    return _avatar_tts_inner(text)
 
 
 def text_to_speech(text, voice_id="cgSgspJ2msm6clMCkdW9"):
