@@ -1698,34 +1698,131 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     # FIX 2: Use bg_loop via _get_bg_layer() instead of procedural color base
     fg = _get_bg_layer(inputs, total_dur, "base")
 
-    # === LEFT PANEL (x=0..900): waveform + headline + body ===
-    fg += (f"[0:a]showwaves=s=860x120:mode=cline:colors={COLOR_RED}@0.8|{COLOR_RED}@0.4:"
-           f"rate=30,format=rgba[waveform];\n")
-    fg += f"[base][waveform]overlay=20:480:shortest=1[with_wave];\n"
+    # === LEFT PANEL (x=0..960): episode title + segment topic + sponsor carousel ===
 
-    # Headline (2-line support)
-    _l1, _l2 = _split_headline_for_render(safe_head)
-    _fs = 28 if _l2 else 42  # overflow fix
-    fg += (f"[with_wave]drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_l1)}':"
-           f"fontcolor={COLOR_WHITE}:fontsize={_fs}:x=40:y=180")
+    # ── TOP THIRD (y=40..340): PULSE CHECK kicker + episode title ──
+    safe_ep_title = _sanitize_text(episode_title or "PULSE CHECK")[:40]
+    _ep_l1, _ep_l2 = _split_headline_for_render(safe_ep_title, max_line_chars=22)
+    _ep_fs = 36 if _ep_l2 else 48
+
+    fg += (f"[base]"
+           # Red accent line at top of left panel
+           f"drawbox=x=40:y=80:w=80:h=3:color={COLOR_RED}:t=fill,"
+           # "PULSE CHECK" kicker — red monospace uppercase
+           f"drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
+           f"fontcolor={COLOR_RED}:fontsize=22:x=40:y=100,"
+           # Episode title line 1 — large white bold
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_ep_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_ep_fs}:x=40:y=140")
+    if _ep_l2:
+        fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_ep_l2)}':"
+               f"fontcolor={COLOR_WHITE}:fontsize={_ep_fs}:x=40:y={140 + _ep_fs + 8}")
+    # BTC price in gold under title
+    _btc_y = 140 + (_ep_fs + 8) * (2 if _ep_l2 else 1) + 16
+    fg += (f",drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=20:x=40:y={_btc_y}"
+           f"[lp_top];\n")
+
+    # ── MIDDLE (y=360..580): segment topic + audio waveform ──
+    _l1, _l2 = _split_headline_for_render(safe_head, max_line_chars=28)
+    _seg_fs = 24 if _l2 else 32
+
+    # Segment topic glass card background
+    fg += (f"[lp_top]"
+           f"drawbox=x=30:y=360:w=900:h=180:color=0x000000@0.45:t=fill,"
+           # Red left accent on segment card
+           f"drawbox=x=30:y=360:w=3:h=180:color={COLOR_RED}:t=fill,"
+           # "NOW PLAYING" micro-label
+           f"drawtext=fontfile={FONT_MONO}:text='NOW PLAYING':"
+           f"fontcolor={COLOR_RED}@0.8:fontsize=13:x=50:y=375,"
+           # Segment headline
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_l1)}':"
+           f"fontcolor={COLOR_WHITE}:fontsize={_seg_fs}:x=50:y=400")
     if _l2:
         fg += (f",drawtext=fontfile={FONT_BOLD}:text='{_sanitize_text(_l2)}':"
-               f"fontcolor={COLOR_WHITE}:fontsize={_fs}:x=40:y={180 + _fs + 10}")
-    fg += f"[with_head];\n"
-
+               f"fontcolor={COLOR_WHITE}:fontsize={_seg_fs}:x=50:y={400 + _seg_fs + 6}")
+    # Body text (if present)
     if safe_body:
-        _body_y = 180 + (_fs + 10) * (2 if _l2 else 1) + 20
-        fg += (f"[with_head]drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
-               f"fontcolor={COLOR_WHITE}@0.7:fontsize=18:x=40:y={_body_y}:line_spacing=8"
-               f"[with_body];\n")
-    else:
-        fg += f"[with_head]copy[with_body];\n"
+        _body_y = 400 + (_seg_fs + 6) * (2 if _l2 else 1) + 12
+        fg += (f",drawtext=fontfile={FONT_MONO}:text='{safe_body}':"
+               f"fontcolor={COLOR_WHITE}@0.6:fontsize=16:x=50:y={_body_y}:line_spacing=6")
+    fg += f"[lp_mid];\n"
 
-    fg += (f"[with_body]"
-           f"drawtext=fontfile={FONT_MONO}:text='BTC {safe_btc}':"
-           f"fontcolor={COLOR_GOLD}:fontsize=16:x=40:y=660,"
+    # Audio waveform — compact, below segment card
+    fg += (f"[0:a]showwaves=s=900x80:mode=cline:colors={COLOR_RED}@0.7|{COLOR_RED}@0.3:"
+           f"rate=30,format=rgba[waveform];\n")
+    fg += f"[lp_mid][waveform]overlay=30:555:shortest=1[lp_wave];\n"
+
+    # ── BOTTOM THIRD (y=680..1040): rotating sponsor carousel ──
+    # 3 sponsor cards rotating every 8s using FFmpeg enable=between(t,...)
+    # Card design: dark bg, red left accent, white text, monospace
+
+    # Sponsor card 1 (0s–8s): Curated Mining
+    _c1_start, _c1_end = 0.0, 8.0
+    # Sponsor card 2 (8s–16s): Digital Residency
+    _c2_start, _c2_end = 8.0, 16.0
+    # Sponsor card 3 (16s+): Protocol Pulse+
+    _c3_start = 16.0
+
+    # "PARTNERS" section label (always visible)
+    fg += (f"[lp_wave]"
+           f"drawbox=x=40:y=670:w=60:h=2:color={COLOR_RED}@0.6:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='PARTNERS':"
+           f"fontcolor={COLOR_RED}@0.7:fontsize=13:x=40:y=680,"
+
+           # ── Card 1: Curated Mining (0–8s) ──
+           # Card background
+           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill:"
+           f"enable='between(t,{_c1_start},{_c1_end})',"
+           # Red left accent
+           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill:"
+           f"enable='between(t,{_c1_start},{_c1_end})',"
+           # Sponsor name
+           f"drawtext=fontfile={FONT_BOLD}:text='CURATED MINING':"
+           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730:"
+           f"enable='between(t,{_c1_start},{_c1_end})',"
+           # Tagline
+           f"drawtext=fontfile={FONT_MONO}:text='White-glove Bitcoin mining':"
+           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762:"
+           f"enable='between(t,{_c1_start},{_c1_end})',"
+           # URL
+           f"drawtext=fontfile={FONT_MONO}:text='curatedmining.io':"
+           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795:"
+           f"enable='between(t,{_c1_start},{_c1_end})',"
+
+           # ── Card 2: Digital Residency (8–16s) ──
+           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill:"
+           f"enable='between(t,{_c2_start},{_c2_end})',"
+           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill:"
+           f"enable='between(t,{_c2_start},{_c2_end})',"
+           f"drawtext=fontfile={FONT_BOLD}:text='DIGITAL RESIDENCY':"
+           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730:"
+           f"enable='between(t,{_c2_start},{_c2_end})',"
+           f"drawtext=fontfile={FONT_MONO}:text='Sovereign ID via RNS.ID':"
+           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762:"
+           f"enable='between(t,{_c2_start},{_c2_end})',"
+           f"drawtext=fontfile={FONT_MONO}:text='protocolpulse.io/digital-residency':"
+           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795:"
+           f"enable='between(t,{_c2_start},{_c2_end})',"
+
+           # ── Card 3: Protocol Pulse+ (16s+) ──
+           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill:"
+           f"enable='gte(t,{_c3_start})',"
+           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill:"
+           f"enable='gte(t,{_c3_start})',"
+           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE+':"
+           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730:"
+           f"enable='gte(t,{_c3_start})',"
+           f"drawtext=fontfile={FONT_MONO}:text='Premium intelligence':"
+           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762:"
+           f"enable='gte(t,{_c3_start})',"
+           f"drawtext=fontfile={FONT_MONO}:text='protocolpulse.io':"
+           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795:"
+           f"enable='gte(t,{_c3_start})',"
+
+           # Watermark at bottom-left
            f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
-           f"fontcolor={COLOR_RED}@0.5:fontsize=14:x=40:y=40"
+           f"fontcolor={COLOR_RED}@0.4:fontsize=12:x=40:y=1040"
            f"[left_done];\n")
 
     # === RIGHT PANEL (x=960..1920): looping PiP video or solid dark ===

@@ -83,6 +83,13 @@ EXPLICIT_FILES = {
         "video_pipeline_v3/utils/spaces_pipeline.py",
         "video_pipeline_v3/utils/spaces_monitor.py",
     ],
+    "fix-pip-left-panel": ["video_pipeline_v3/assembler.py"],
+    "fix-social-spacetap": [
+        "video_pipeline_v3/daily_producer.py",
+        "video_pipeline_v3/script_writer.py",
+        "video_pipeline_v3/utils/social_fetcher.py",
+    ],
+    "fix-grading-loop": ["overnight_render_loop.py", "video_pipeline_v3/gemini_grade.py"],
     "stage-broadcast": ["services/stage_broadcast_service.py","core/routes.py","templates/stage.html"],
     "oracle-stage": [
         "templates/stage.html",
