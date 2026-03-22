@@ -48,23 +48,11 @@ TIER 2 SOURCES: Simply Bitcoin, Bitcoin Magazine, Natalie Brunell, Swan Bitcoin.
 NORTH STAR: This is a sovereign Bitcoin holders' morning show. Under 12 minutes. All signal, no noise.
 === END SHOW BIBLE ===
 
-DUAL-HOST FORMAT — TWO voices alternate throughout the episode:
+HOST (PBX) — Hot takes, contrarian, dry wit. Warm strong male voice. PBX is the SOLE host. There is NO second host. PBX handles ALL segments: setup, react, data, social, wrap.
 
-HOST 2 (PBX) — Bitcoin operator, cypherpunk, Austrian economics lens. Hot takes, contrarian, dry wit. Warm strong male voice.
-HOST 1 (ERYN) — Co-host and intelligence analyst. Sharp, curious, data-driven. Warm female voice. She asks the question the audience is thinking.
+PBX is ALWAYS the FIRST voice. PBX opens every episode with the cold open and handles ALL narration segments. PBX closes with the final sign-off. The first dialogue entry MUST be host: 2 (PBX). ALL dialogue entries MUST be host: 2.
 
-VOICE SPLIT RULES:
-- PBX (host:2) opens EVERY episode with the cold open. Always first.
-- ERYN (host:1) handles SETUP lines — introduces clips, frames the context, 2-3 sentences.
-- PBX (host:2) handles REACT lines — hot take after every clip, 2-3 sentences.
-- DATA segment: ERYN reads the numbers, PBX gives the signal interpretation.
-- SOCIAL segment: PBX reads and reacts to tweets. Eryn adds one sharp observation per tweet.
-- WRAP/SIGN-OFF: PBX closes with "Stay sovereign." Eryn has the final data point before it.
-- BRIDGE lines: alternate between hosts.
-- Both hosts speak directly to the AUDIENCE, not to each other. No "Great point!" or co-host filler.
-
-CRITICAL JSON RULE: Valid host values are ONLY: 1 (Eryn), 2 (PBX), or "CLIP". 
-First entry MUST be host:2 (PBX cold open). Then alternate naturally per role above.
+CRITICAL JSON RULE: NEVER output "host": 1 anywhere in your response. The ONLY valid host values are 2 (PBX) and "CLIP". Any entry with host:1 will cause a catastrophic render failure. Use ONLY host:2.
 
 TONE RULES (NON-NEGOTIABLE):
 - NEVER generic. Never say "interesting" or "really impactful" or "that's great stuff."
@@ -124,10 +112,10 @@ EPISODE STRUCTURE (follow this order):
    Segment tone: intelligence briefing. You are intercepting a live signal.
    Never say "I found" or "we discovered" — say "we're intercepting" or "signal captured from".
    Format each entry as:
-   {"host": 2, "text": "[SPACE_TAP] Right now in the ecosphere...", "type": "space_tap_intro"},
-   {"host": "SPACE_CLIP", "clip_index": 0},
-   {"host": 2, "text": "[SPACE_TAP] ...", "type": "space_tap_react"},
-   {"host": "SPACE_CLIP", "clip_index": 1},
+   {{"host": 2, "text": "[SPACE_TAP] Right now in the ecosphere...", "type": "space_tap_intro"}},
+   {{"host": "SPACE_CLIP", "clip_index": 0}},
+   {{"host": 2, "text": "[SPACE_TAP] ...", "type": "space_tap_react"}},
+   {{"host": "SPACE_CLIP", "clip_index": 1}},
    ... and so on for all clips.
 9. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
 
@@ -153,7 +141,7 @@ Every dialogue text line MUST start with a segment type tag in brackets. The TTS
   [DATA] — specific metrics, prices, hashrates, on-chain numbers. Authoritative.
   [SOCIAL] — social segment commentary. Slightly warmer tone.
   [WARM] — outros, calls to action, sign-offs. Inviting.
-Example: {"host": 2, "text": "[NARRATION] Bitcoin miners are facing a squeeze as difficulty adjusts upward.", "type": "setup"}
+Example: {{"host": 2, "text": "[NARRATION] Bitcoin miners are facing a squeeze as difficulty adjusts upward.", "type": "setup"}}
 The tag is INSIDE the text string, not the type field. Both must be present.
 
 SOCIAL SEGMENT — "WHAT BITCOIN IS SAYING":
@@ -162,9 +150,9 @@ PBX has been on Bitcoin Twitter all morning and is REPORTING BACK as live intell
 This is NOT passive card display — PBX explicitly REACTS to each post as a signal analyst:
 
 STYLE — PBX treats each tweet as intelligence, not content:
-  - "{Name} just posted this to {likes} likes — [direct quote or tight paraphrase]. Here's what that signals..."
-  - "{Name} weighed in on {topic} — [paraphrase]. This aligns with what we're seeing in the data..."
-  - "This one caught my eye — {Name} is saying [quote]. The reason this matters is..."
+  - "{{Name}} just posted this to {{likes}} likes — [direct quote or tight paraphrase]. Here's what that signals..."
+  - "{{Name}} weighed in on {{topic}} — [paraphrase]. This aligns with what we're seeing in the data..."
+  - "This one caught my eye — {{Name}} is saying [quote]. The reason this matters is..."
 PBX adds 2-3 sentences of sharp CONTEXT per tweet: why it matters NOW, what it signals about market positioning, how it connects to today's data. Maximum 3 posts, 20-25 seconds narration each, ~75 seconds total.
 The tweet card is on screen — viewers can read the text. PBX's job is to DECODE the signal, not repeat the words.
 Each entry uses type: "social_segment".
@@ -178,26 +166,26 @@ BTC Price Today: {btc_price}
 Top Tweets/Nostr Posts Today: {social_posts}
 {live_context}
 Return ONLY valid JSON (no markdown, no code fences):
-{
+{{
   "cold_open": "explosive 1-sentence cold open",
   "dialogue": [
-    {"host": 2, "text": "...", "type": "cold_open"},
-    {"host": 2, "text": "...", "type": "setup", "clip_rank": 1},
-    {"host": "CLIP", "rank": 1},
-    {"host": 2, "text": "...", "type": "react", "clip_rank": 1},
-    {"host": 2, "text": "...", "type": "setup", "clip_rank": 2},
-    {"host": "CLIP", "rank": 2},
-    {"host": 2, "text": "...", "type": "react", "clip_rank": 2},
+    {{"host": 2, "text": "...", "type": "cold_open"}},
+    {{"host": 2, "text": "...", "type": "setup", "clip_rank": 1}},
+    {{"host": "CLIP", "rank": 1}},
+    {{"host": 2, "text": "...", "type": "react", "clip_rank": 1}},
+    {{"host": 2, "text": "...", "type": "setup", "clip_rank": 2}},
+    {{"host": "CLIP", "rank": 2}},
+    {{"host": 2, "text": "...", "type": "react", "clip_rank": 2}},
     ...and so on for all clips...
-    {"host": 2, "text": "...", "type": "social_segment"},
-    {"host": 2, "text": "...", "type": "social_segment"},
-    {"host": 2, "text": "Final wrap. Stay sovereign.", "type": "wrap"}
+    {{"host": 2, "text": "...", "type": "social_segment"}},
+    {{"host": 2, "text": "...", "type": "social_segment"}},
+    {{"host": 2, "text": "Final wrap. Stay sovereign.", "type": "wrap"}}
   ],
   "episode_title": "Short punchy title (5-8 words)",
-  "thumbnail": {
+  "thumbnail": {{
     "headline": "BOLD THUMBNAIL TEXT (5-8 words)",
     "subtext": "secondary line"
-  },
+  }},
   "segments_summary": ["4-8 WORD ALL CAPS EDITORIAL HEADLINE FOR EACH CLIP — like 'SAYLOR BETS BIG ON BITCOIN DIP' not a quote from the segment"],
   "shorts_quotes": ["best one-liner 1", "best one-liner 2", "best one-liner 3"]
 }}
@@ -536,17 +524,21 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
     # Inject narrative context from thought leader monitoring
     narrative_ctx = _load_narrative_context()
     if narrative_ctx and narrative_ctx.get("dominant_narrative"):
-        bridge_lines = narrative_ctx.get("narrative_bridge_lines", [])
-        narrative_block = NARRATIVE_INJECTION
-        narrative_block = narrative_block.replace('{dominant_narrative}', str(narrative_ctx.get("dominant_narrative", "")))
-        narrative_block = narrative_block.replace('{market_mood}', str(narrative_ctx.get("market_mood", "")))
-        narrative_block = narrative_block.replace('{episode_narrative}', str(narrative_ctx.get("episode_narrative", "")))
-        narrative_block = narrative_block.replace('{pbx_intro_hook}', str(narrative_ctx.get("eryn_intro_hook", narrative_ctx.get("pbx_intro_hook", ""))))
-        narrative_block = narrative_block.replace('{pbx_context}', str(narrative_ctx.get("mark_context", narrative_ctx.get("pbx_context", ""))))
-        narrative_block = narrative_block.replace('{narrative_bridge_lines}', "\n".join(bridge_lines) if bridge_lines else "none")
-        narrative_block = narrative_block.replace('{avoid_topics}', ", ".join(narrative_ctx.get("avoid_topics", [])))
-        live_block = narrative_block + "\n" + live_block
-        logger.info(f"Narrative context injected: {narrative_ctx.get('dominant_narrative')}")
+        try:
+            bridge_lines = narrative_ctx.get("narrative_bridge_lines", [])
+            narrative_block = (NARRATIVE_INJECTION
+                .replace("{dominant_narrative}", narrative_ctx.get("dominant_narrative", ""))
+                .replace("{market_mood}", narrative_ctx.get("market_mood", ""))
+                .replace("{episode_narrative}", narrative_ctx.get("episode_narrative", ""))
+                .replace("{pbx_intro_hook}", narrative_ctx.get("eryn_intro_hook", narrative_ctx.get("pbx_intro_hook", "")))
+                .replace("{pbx_context}", narrative_ctx.get("mark_context", narrative_ctx.get("pbx_context", "")))
+                .replace("{narrative_bridge_lines}", "\n".join(bridge_lines) if bridge_lines else "none")
+                .replace("{avoid_topics}", ", ".join(narrative_ctx.get("avoid_topics", [])))
+            )
+            live_block = narrative_block + "\n" + live_block
+            logger.info(f"Narrative context injected: {narrative_ctx.get('dominant_narrative')}")
+        except Exception as e:
+            logger.warning(f"Failed to inject narrative context: {e}")
 
     # Inject morning intelligence brief (Nitter-sourced Twitter analysis)
     morning_block = ""
@@ -629,13 +621,13 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         parts.append(f"Generate intro + react for each of the {len(space_tap_clips)} clips above.")
         space_tap_block = "\n".join(parts) + "\n"
 
-    # Prompt assembly: .replace() is immune to {curly brace} KeyErrors in user content
-    _live = live_block + morning_block + engagement_block + memory_block + space_tap_block
-    prompt = SCRIPT_PROMPT
-    prompt = prompt.replace('{clips_info}', str(clips_info))
-    prompt = prompt.replace('{btc_price}', str(btc_price))
-    prompt = prompt.replace('{social_posts}', str(social_posts))
-    prompt = prompt.replace('{live_context}', str(_live))
+    prompt = (SCRIPT_PROMPT
+        .replace("{clips_info}", str(clips_info))
+        .replace("{btc_price}", str(btc_price))
+        .replace("{social_posts}", str(social_posts))
+        .replace("{live_context}", str(live_block+morning_block+engagement_block+memory_block+space_tap_block))
+    )
+
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
     if text is None:

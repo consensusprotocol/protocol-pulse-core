@@ -1735,8 +1735,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     if has_pip:
         inputs.append(["-stream_loop", "-1", "-i", pip_video_path])
         pip_idx = len(inputs) - 1
-        # FIX: trim to total_dur after stream_loop — prevents PTS discontinuity
-        # at loop boundaries which causes freeze frames. setpts resets after trim.
+        # Trim stream_loop output to total_dur, reset PTS to prevent freeze frames
         fg += (f"[{pip_idx}:v]trim=0:{total_dur},setpts=PTS-STARTPTS,"
                f"scale=960:1080:force_original_aspect_ratio=increase,"
                f"crop=960:1080,setsar=1,fps=30,"

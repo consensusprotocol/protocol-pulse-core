@@ -151,16 +151,10 @@ def _bigvgan_upsample(wav_path_24k: str) -> str:
 
 
 def prosody_plan(text: str, host: int = 2) -> str:
-    import re as _re
-    # DISABLED: Kokoro reads SSML markers literally as words.
-    # Strip all [bracket:value] markers before Kokoro synthesis.
-    text = _re.sub(r'\[pause[^\]]*\]', ' ', text)
-    text = _re.sub(r'\[breath[^\]]*\]', ' ', text)
-    text = _re.sub(r'\[emphasis[^\]]*\]', ' ', text)
-    text = _re.sub(r'\[break[^\]]*\]', ' ', text)
-    text = _re.sub(r'\[[A-Z][^\]]{0,25}\]', '', text)
-    text = _re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text)
-    return _re.sub(r'  +', ' ', text).strip()
+    """Strip all [bracket] prosody markers and return clean text.
+    Prosody injection disabled — markers caused TTS artifacts."""
+    import re
+    return re.sub(r'\[.*?\]', '', text).strip()
 
 
 PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
