@@ -171,3 +171,28 @@ Add to prompt:
 
 WHAT GATE CHECKS: AI tells, BTC price vs today's known, hashrate range, altcoin promo, broken content.
 WHAT IT DOES NOT CHECK: specific on-chain stats, named quotes, breaking news accuracy.
+
+
+CRITICAL CONSERVATISM RULE — READ BEFORE BUILDING:
+The current article quality is excellent. This gate must NOT change articles.
+It is a binary APPROVE/BLOCK gate only. It never edits, rewrites, or suggests changes.
+
+APPROVE threshold: very permissive — default to approve
+  Score >= 40: APPROVE
+  Score < 40: BLOCK (only truly broken content)
+
+BLOCK only when you are CERTAIN of at least one of:
+  - Article contains literal text "As an AI language model" or "[PLACEHOLDER]"
+  - Article is under 100 words (clearly incomplete)
+  - Article promotes altcoins as superior to Bitcoin explicitly
+  - BTC price claim is more than 50% away from today's known price (not 20%)
+
+DO NOT BLOCK for:
+  - Opinion pieces that seem speculative
+  - Technical analysis that seems aggressive
+  - Hashrate estimates that seem slightly off
+  - Any claim you are uncertain about
+
+WHEN IN DOUBT: APPROVE. The gate exists to catch obvious failures only.
+A false positive (blocking a good article) is WORSE than a false negative.
+The editorial quality comes from the generator, not this gate.
