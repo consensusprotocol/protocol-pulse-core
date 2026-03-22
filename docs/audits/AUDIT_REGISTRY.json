@@ -1,1 +1,43 @@
-{"last_audit":"2026-03-18T15:30:00Z","feature":"assembler-v2-rebuild","score":"7/10 Law Compliance post-hardening, P0s fixed","audits":[{"feature":"assembler-v2-rebuild","date":"2026-03-18","models":["gemini","gpt4o","grok"],"cycles":2},{"feature":"x-spaces-pipeline","date":"2026-03-18","models":["gemini","gpt4o","grok"],"cycles":2}]}
+{
+  "last_audit": "2026-03-21T07:13:57.578023+00:00",
+  "feature": "stage-broadcast",
+  "commit": "6e34f398",
+  "audits": [
+    {
+      "feature": "assembler-v2-rebuild",
+      "date": "2026-03-18",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "x-spaces-pipeline",
+      "date": "2026-03-18",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "tts-pipeline",
+      "date": "2026-03-19",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "stage-broadcast",
+      "date": "2026-03-21",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    }
+  ]
+}
