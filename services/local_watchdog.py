@@ -36,7 +36,7 @@ LOGS_DIR.mkdir(exist_ok=True)
 
 LOG_FILE = LOGS_DIR / "watchdog_llm.log"
 PATCH_LOG = LOGS_DIR / "watchdog_patches.jsonl"
-OVERNIGHT_LOG = LOGS_DIR / "overnight_loop.log"
+OVERNIGHT_LOG = BASE / "video_pipeline_v3" / "logs" / "overnight_loop.log"
 REGRESSION_SCRIPT = BASE / "regression_test.sh"
 
 # ---------------------------------------------------------------------------
