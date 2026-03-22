@@ -1,3 +1,4 @@
+import sys; sys.dont_write_bytecode = True
 #!/usr/bin/env python3
 """Script Writer V5 — generates host dialogue AROUND real YouTube clips.
 
