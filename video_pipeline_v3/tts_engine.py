@@ -162,12 +162,12 @@ PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
 _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
-    "model_id": "eleven_turbo_v2_5",
-    "speed": 1.2,  # Render20: +10% from 1.10, capped at ElevenLabs max 1.2
+    "model_id": "eleven_multilingual_v2",
+    "speed": 1.0,  # Multilingual v2: natural broadcast pace, no speedup needed
     "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.15,
+        "stability": 0.50,
+        "similarity_boost": 0.85,
+        "style": 0.30,
         "use_speaker_boost": True,
     },
 }
@@ -247,10 +247,9 @@ def _generate_silence(output_path: str, duration: float) -> bool:
 
 
 def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
-    # Issue 7: atempo=1.08 post-processing gives effective 1.3x speed (1.2 ElevenLabs × 1.08)
+    # eleven_multilingual_v2 at speed=1.0 — no atempo needed (natural broadcast pace)
     r = subprocess.run(
         ["ffmpeg", "-y", "-i", mp3_path,
-         "-af", "atempo=1.08",
          "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", m4a_path],
         capture_output=True, text=True, timeout=120,
     )
@@ -262,12 +261,12 @@ SILENCE_GAP = 0.3  # seconds between speakers
 
 # Voice mode overrides per segment type (applied to whichever host speaks)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.45, "similarity_boost": 0.80, "style": 0.18},
-    "setup":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
-    "react":           {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
-    "bridge":          {"stability": 0.52, "similarity_boost": 0.80, "style": 0.15},
-    "social_segment":  {"stability": 0.50, "similarity_boost": 0.78, "style": 0.18},
-    "wrap":            {"stability": 0.50, "similarity_boost": 0.78, "style": 0.20},
+    "cold_open":       {"stability": 0.42, "similarity_boost": 0.85, "style": 0.35},
+    "setup":           {"stability": 0.50, "similarity_boost": 0.85, "style": 0.30},
+    "react":           {"stability": 0.48, "similarity_boost": 0.85, "style": 0.32},
+    "bridge":          {"stability": 0.50, "similarity_boost": 0.85, "style": 0.28},
+    "social_segment":  {"stability": 0.48, "similarity_boost": 0.85, "style": 0.32},
+    "wrap":            {"stability": 0.45, "similarity_boost": 0.85, "style": 0.35},
 }
 
 
@@ -1030,8 +1029,8 @@ def tts_preflight_test() -> bool:
     headers = {"xi-api-key": key, "Content-Type": "application/json"}
     body = {
         "text": "Bitcoin signal confirmed today.",
-        "model_id": "eleven_turbo_v2_5",
-        "voice_settings": {"stability": 0.55, "similarity_boost": 0.80, "style": 0.15},
+        "model_id": _PBX_VOICE["model_id"],
+        "voice_settings": dict(_PBX_VOICE["voice_settings"]),
     }
     try:
         r = requests.post(url, json=body, headers=headers, timeout=20)

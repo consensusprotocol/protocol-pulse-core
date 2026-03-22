@@ -4207,10 +4207,10 @@ def concatenate_parts(parts: list, output_path: str,
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", INTRO_MUSIC_FILE,
                 "-filter_complex",
-                (f"[1:a]volume=0.40,atrim=0:8.0,"
+                (f"[1:a]volume=0.08,atrim=0:8.0,"
                  f"asetpts=PTS-STARTPTS,"
                  f"afade=t=out:st=6.0:d=2.0,aresample=48000[im];"
-                 f"[0:a][im]amix=inputs=2:duration=first:weights=1 1[outa]"),
+                 f"[0:a][im]amix=inputs=2:duration=first:weights=1 0.3[outa]"),
                 "-map", "0:v", "-map", "[outa]",
                 "-c:v", "copy",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
