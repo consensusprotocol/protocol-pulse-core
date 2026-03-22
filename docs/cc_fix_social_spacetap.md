@@ -1,46 +1,65 @@
 Read ~/protocol_pulse/PIPELINE_LAWS.md first.
 
-TASK: Fix social segment and space tap segment — both have been missing from every render.
-Root cause identified: social_posts fetched AFTER generate_from_clips() runs, so Claude
-never sees tweet data and skips the social segment. Space tap same issue.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MANDATORY AUDIT-FIRST LAW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DO NOT write any code until the cross-LLM audit completes.
+The audit fires Gemini + GPT-4o + Grok in parallel on the actual files.
+Their consensus determines what gets built and how.
+This is non-negotiable — skipping the audit is what caused every regression tonight.
 
-DO NOT touch: assembler.py, tts_engine.py, overnight_render_loop.py, gemini_grade.py
+TASK: Fix social segment ("WHAT BITCOIN IS SAYING") and space tap segment.
+Both have been absent from every production render. Root cause identified.
 
-STEP 1 — AUDIT
-Read daily_producer.py lines 520-590 fully.
-Read script_writer.py generate_from_clips() signature — what parameters does it accept?
-Read utils/social_fetcher.py get_todays_social_posts() — what does it return?
-Check data/tweet_study/raw_tweets.json exists and has recent tweets.
-Check selections.json for today — does space_tap_clips exist in it?
+FILES IN SCOPE:
+- video_pipeline_v3/daily_producer.py
+- video_pipeline_v3/script_writer.py
+- video_pipeline_v3/utils/social_fetcher.py
+DO NOT touch: assembler.py, tts_engine.py, overnight_render_loop.py
 
-STEP 2 — FIX SOCIAL SEGMENT
-In daily_producer.py, find where get_todays_social_posts() is called (line ~567).
-Move it to BEFORE the generate_from_clips() call (line ~532).
-Pass social_posts as parameter to generate_from_clips():
-  social_posts = get_todays_social_posts(max_posts=5)
-  social_posts.sort(key=lambda p: p.get("likes", 0), reverse=True)
-  script = generate_from_clips(selections, btc_price=btc_price,
-                               live_context=live_context,
-                               social_posts=social_posts)  # ADD THIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — CROSS-LLM AUDIT (Cycle 1)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cd ~/protocol_pulse
+python3 utils/cross_llm_audit.py --feature fix-social-spacetap
+Save the output path from cycle 1.
 
-Check generate_from_clips() signature — add social_posts parameter if not present.
-Inside generate_from_clips(), verify social_posts gets passed to the prompt as {social_posts}.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — CROSS-LLM AUDIT (Cycle 2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+python3 utils/cross_llm_audit.py --feature fix-social-spacetap --cycle 2 --cycle1-results [C1_OUTPUT]
+Read the full consensus. Note every P0 finding.
 
-STEP 3 — FIX SPACE TAP SEGMENT
-Check if selections.json contains space_tap_clips.
-In daily_producer.py, find where space_tap_clips are passed to generate_from_clips.
-Verify the space tap prompt section in script_writer.py receives the data.
-If space_tap_clips is empty in selections.json, check x_spaces_scraper:
-  python3 ~/protocol_pulse/x_spaces_scraper/scraper.py --test 2>&1 | tail -5
-  Check ~/protocol_pulse/logs/xspaces_cron.log for errors
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — IMPLEMENT BASED ON AUDIT CONSENSUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Known root cause: social_posts is fetched AFTER generate_from_clips() runs.
+Claude generates the script without seeing tweet data → no social segment in output.
 
-STEP 4 — TEST
-Run: cd ~/protocol_pulse/video_pipeline_v3 && python3 daily_producer.py --skip-scan --test 2>&1 | grep -E "social|SOCIAL|space_tap|STEP" | tail -20
-Verify script.json contains social_segment entries.
-Verify script.json contains space_tap entries (if spaces available).
+Fix in daily_producer.py:
+1. Move get_todays_social_posts() call to BEFORE generate_from_clips()
+2. Pass social_posts into generate_from_clips() as a parameter
+3. Verify generate_from_clips() signature accepts social_posts
+4. Verify {social_posts} is passed to the prompt template in script_writer.py
 
+For space tap: verify selections.json has space_tap_clips populated.
+If x_spaces_scraper is not producing clips, log the issue and add fallback
+so the segment is simply skipped cleanly rather than breaking the render.
+
+Apply any additional P0 findings from the audit consensus.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — VERIFY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cd ~/protocol_pulse/video_pipeline_v3
+python3 daily_producer.py --skip-scan --test 2>&1 | grep -E "SOCIAL|social|space_tap|STEP" | tail -20
+cat output/$(date +%Y-%m-%d)/script.json | python3 -m json.tool | grep -E "social_segment|space_tap" | head -10
+Confirm social_segment entries exist in script.json.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 STEP 5 — REGRESSION + COMMIT
-bash ~/protocol_pulse/regression_test.sh
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bash ~/protocol_pulse/regression_test.sh  # must show 0 FAILs
 git add video_pipeline_v3/daily_producer.py video_pipeline_v3/script_writer.py
-git commit -m "fix(pipeline): social_posts passed to generate_from_clips BEFORE script generation — social segment now appears every render; space tap fix"
+git commit -m "fix(pipeline): social_posts passed before script generation — social segment now fires every render; space tap hardened"
 git push

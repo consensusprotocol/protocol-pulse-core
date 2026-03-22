@@ -1,46 +1,73 @@
 Read ~/protocol_pulse/PIPELINE_LAWS.md first.
 
-TASK: ElevenLabs voice integration audit — ensure PBX voice sounds broadcast-quality,
-intro music balance is correct, and ElevenLabs is used for all render voices.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MANDATORY AUDIT-FIRST LAW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DO NOT write any code until the cross-LLM audit completes.
+The audit fires Gemini + GPT-4o + Grok in parallel on the actual files.
+Their consensus determines what gets built and how.
+This is non-negotiable — skipping the audit is what caused every regression tonight.
 
-TTS_PROVIDER=elevenlabs is already set in .env.
-PBX voice ID: HmUVvDlHsEz0m3eUGLgu (already in tts_engine.py)
-ElevenLabs API key: already in .env as ELEVENLABS_API_KEY
+TASK: ElevenLabs voice integration — broadcast quality PBX voice for all renders.
+TTS_PROVIDER=elevenlabs already set in .env. PBX voice ID HmUVvDlHsEz0m3eUGLgu in tts_engine.py.
+Problems: turbo model used instead of broadcast quality, intro music too loud vs narrator.
 
-DO NOT touch: assembler.py, overnight_render_loop.py, gemini_grade.py, daily_producer.py
+FILES IN SCOPE:
+- video_pipeline_v3/tts_engine.py
+- video_pipeline_v3/assembler.py (music volume only)
+DO NOT touch: overnight_render_loop.py, daily_producer.py, script_writer.py
 
-STEP 1 — AUDIT TTS ENGINE
-Read tts_engine.py fully — find the ElevenLabs path.
-Verify TTS_PROVIDER=elevenlabs routes ALL host 2 (PBX) lines to ElevenLabs.
-Check the ElevenLabs model: should be eleven_multilingual_v2 for best quality, not turbo.
-Check stability/similarity_boost settings — for broadcast: stability=0.5, similarity_boost=0.85.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — CROSS-LLM AUDIT (Cycle 1 + 2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cd ~/protocol_pulse
+python3 utils/cross_llm_audit.py --feature fix-elevenlabs-voice
+[save C1 output]
+python3 utils/cross_llm_audit.py --feature fix-elevenlabs-voice --cycle 2 --cycle1-results [C1_OUTPUT]
 
-STEP 2 — AUDIO LEVEL AUDIT
-The intro narrator volume is too quiet vs music.
-Find in assembler.py where intro music volume is set vs narrator volume.
-The music should be at 0.08-0.10 volume, narrator at 1.0 (full).
-Check the current values and fix if wrong.
-Find: intro_volume, music_volume, or equivalent variable names.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — IMPLEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+In tts_engine.py:
+1. Change eleven_turbo_v2_5 → eleven_multilingual_v2 for PBX voice
+   Turbo is fast/cheap. Multilingual v2 is broadcast quality.
+2. Set stability=0.5, similarity_boost=0.85, style=0.3 for PBX
+   These settings produce authoritative broadcaster tone.
+3. Verify ALL host:2 lines route to ElevenLabs when TTS_PROVIDER=elevenlabs
+4. Ensure proper error handling — if ElevenLabs API fails, fall back to local
 
-STEP 3 — TEST ELEVENLABS
-Test a single line synthesis:
-  cd ~/protocol_pulse/video_pipeline_v3
-  python3 -c "
-  import os; os.environ['TTS_PROVIDER']='elevenlabs'
-  from tts_engine import synthesize_speech
-  synthesize_speech('Bitcoin is the exit. Stay sovereign.', host=2, output_path='/tmp/test_pbx.mp3')
-  import subprocess
-  r = subprocess.run(['ffprobe','-v','quiet','-show_entries','format=duration','-of','default=noprint_wrappers=1','/tmp/test_pbx.mp3'], capture_output=True, text=True)
-  print('Duration:', r.stdout.strip())
-  "
-Verify audio file exists and sounds correct.
+In assembler.py (music volume only — DO NOT touch anything else):
+5. Find intro music volume setting — search for: volume=0.0[0-9], music_vol, intro_mus
+   Current issue: music drowns out narrator in intro segment.
+   Target: narrator at 1.0 (full), music bed at 0.07-0.09
+   Find the exact ffmpeg volume filter for intro music and reduce it.
 
-STEP 4 — MODEL UPGRADE
-Change eleven_turbo_v2_5 to eleven_multilingual_v2 for PBX voice.
-Turbo is fast but lower quality. Multilingual v2 is broadcast quality.
-This is the model that sounds like a real broadcaster.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — TEST VOICE QUALITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cd ~/protocol_pulse/video_pipeline_v3
+python3 -c "
+import os; os.environ['TTS_PROVIDER']='elevenlabs'
+from tts_engine import synthesize_speech
+result = synthesize_speech(
+    'Bitcoin is not a bet. It is a declaration of sovereignty. Stay in the signal.',
+    host=2, output_path='/tmp/pbx_elevenlabs_test.mp3', segment_type='cold_open'
+)
+print('Result:', result)
+import subprocess
+r = subprocess.run(['ffprobe','-v','quiet','-show_entries',
+    'format=duration:stream=codec_name','-of','default=noprint_wrappers=1',
+    '/tmp/pbx_elevenlabs_test.mp3'], capture_output=True, text=True)
+print('Audio:', r.stdout.strip())
+"
+Listen to /tmp/pbx_elevenlabs_test.mp3 — should sound like a real broadcaster.
+Run ffmpeg loudness check:
+  ffmpeg -i /tmp/pbx_elevenlabs_test.mp3 -af ebur128 -f null - 2>&1 | grep "I:"
 
-STEP 5 — COMMIT
-git add video_pipeline_v3/tts_engine.py
-git commit -m "feat(tts): ElevenLabs eleven_multilingual_v2 for PBX, optimized stability/similarity, intro music balance fixed"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — REGRESSION + COMMIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bash ~/protocol_pulse/regression_test.sh
+git add video_pipeline_v3/tts_engine.py video_pipeline_v3/assembler.py
+git commit -m "feat(tts): ElevenLabs eleven_multilingual_v2 broadcast quality, stability tuned, intro music balance fixed"
 git push

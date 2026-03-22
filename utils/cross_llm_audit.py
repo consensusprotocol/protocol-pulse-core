@@ -30,6 +30,10 @@ AUDITS  = BASE / "docs/audits"
 AUDITS.mkdir(parents=True, exist_ok=True)
 
 FEATURE_MAP = {
+    "fix-social-spacetap":  ("PIPELINE_LAWS.md", "main"),
+    "fix-pip-left-panel":    ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "fix-grading-loop":      ("PIPELINE_LAWS.md", "main"),
+    "fix-elevenlabs-voice":  ("PIPELINE_LAWS.md", "main"),
     "f1-avatar-oracle":  ("F1_AVATAR_ORACLE_GOSPEL.md",  "feature/f1-avatar-oracle"),
     "f2-briefing-room":  ("F2_BRIEFING_ROOM_GOSPEL.md",  "feature/f2-briefing-room"),
     "f3-schiff-bot":     ("F3_SCHIFF_BOT_GOSPEL.md",     "feature/f3-schiff-bot"),

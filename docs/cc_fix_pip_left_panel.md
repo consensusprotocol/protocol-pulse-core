@@ -1,50 +1,64 @@
 Read ~/protocol_pulse/PIPELINE_LAWS.md first.
 
-TASK: Fix PiP left panel — restore world-class title + sponsor carousel design.
-The left panel next to the PiP preview loop video currently shows a plain background.
-It should show: episode title at top, then sponsor/partner carousel cards below.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MANDATORY AUDIT-FIRST LAW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DO NOT write any code until the cross-LLM audit completes.
+The audit fires Gemini + GPT-4o + Grok in parallel on the actual files.
+Their consensus determines what gets built and how.
+This is non-negotiable — skipping the audit is what caused every regression tonight.
 
-DO NOT touch: tts_engine.py, overnight_render_loop.py, gemini_grade.py, daily_producer.py
-DO NOT change the right PiP panel (the preview loop video) — that stays exactly as is.
+TASK: Restore world-class PiP left panel — episode title + sponsor carousel.
+The left panel next to the PiP preview video is currently a plain background.
+It must show: episode title, segment topic, and rotating sponsor cards.
 
-STEP 1 — AUDIT
-Read assembler.py make_pip_scene() or equivalent PiP function fully.
-Find the left panel code — what does it currently render?
-Check git log for the last commit that had the title+carousel:
-  git log --oneline -30 -- video_pipeline_v3/assembler.py | head -15
-Check what commit had the world-class design and read that version:
-  git show [COMMIT]:video_pipeline_v3/assembler.py | grep -A50 "title.*pill\|carousel\|sponsor"
+FILES IN SCOPE:
+- video_pipeline_v3/assembler.py (PiP section only)
+DO NOT touch: tts_engine.py, overnight_render_loop.py, daily_producer.py, script_writer.py
+DO NOT touch the right PiP panel (preview loop video) — leave it exactly as is.
 
-STEP 2 — RESTORE LEFT PANEL
-The left panel should contain:
-  TOP: Episode title in large white Impact/bold text with red Protocol Pulse accent
-  MIDDLE: Segment topic label (e.g. "BITCOIN TECHNICAL ANALYSIS")  
-  BOTTOM: Sponsor/partner ad carousel — rotating through partner cards
-          (Curated Mining, RNS.ID Digital Residency, etc.)
-          Cards should auto-rotate every 8 seconds using ffmpeg drawtext
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — CROSS-LLM AUDIT (Cycle 1)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cd ~/protocol_pulse
+python3 utils/cross_llm_audit.py --feature fix-pip-left-panel
+Save cycle 1 output path.
 
-Read the VISUAL_DESIGN_SYSTEM.md for exact brand colors and typography specs:
-  cat ~/protocol_pulse/docs/VISUAL_DESIGN_SYSTEM.md | head -100
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — CROSS-LLM AUDIT (Cycle 2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+python3 utils/cross_llm_audit.py --feature fix-pip-left-panel --cycle 2 --cycle1-results [C1_OUTPUT]
 
-Implement the left panel using pure FFmpeg drawtext/drawbox — no external images needed.
-Match the red/black/white Protocol Pulse brand exactly.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — READ VISUAL DESIGN SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cat ~/protocol_pulse/docs/VISUAL_DESIGN_SYSTEM.md
+This is gospel — match brand colors/typography exactly.
+Brand: RED=#CC2222, BLACK=#06070A, WHITE=#FFFFFF, MONO_FONT=JetBrains Mono
 
-STEP 3 — SPONSOR CAROUSEL DATA
-Partner cards to rotate through:
-  1. "CURATED MINING" — "White-glove Bitcoin mining" — curatedmining.io
-  2. "PALAU DIGITAL ID" — "Sovereign identity via RNS.ID" — protocolpulse.io/digital-residency
-  3. "PROTOCOL PULSE+" — "Premium Bitcoin intelligence" — protocolpulse.io
+Check git history for the last world-class left panel implementation:
+git log --oneline -30 -- video_pipeline_v3/assembler.py
+git show [BEST_COMMIT]:video_pipeline_v3/assembler.py | grep -n "title.*pill\|carousel\|sponsor\|left.*panel" | head -20
 
-Use ffmpeg enable expression for time-based rotation:
-  enable='between(t,0,8)' for card 1, enable='between(t,8,16)' for card 2, etc.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — IMPLEMENT LEFT PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Left panel (960x1080px) design:
+- TOP THIRD: "PULSE CHECK" kicker in red monospace, episode title in large white bold
+- MIDDLE: Current segment topic label (from clip channel/title)
+- BOTTOM THIRD: Sponsor carousel — 3 cards rotating every 8s using FFmpeg enable=
+  Card 1 (0-8s):  "CURATED MINING — White-glove Bitcoin mining — curatedmining.io"
+  Card 2 (8-16s): "DIGITAL RESIDENCY — Sovereign ID via RNS.ID — protocolpulse.io/digital-residency"  
+  Card 3 (16+s):  "PROTOCOL PULSE+ — Premium intelligence — protocolpulse.io"
+  Cards styled: dark bg, red accent border, white text, monospace font
 
-STEP 4 — TEST
-Run a test render of just the PiP scene:
-  python3 -c "from assembler import make_pip_scene; ..." 
-Verify left panel shows title and carousel visually.
-Run regression_test.sh — 0 FAILs required.
+Use pure FFmpeg drawtext/drawbox — no external dependencies.
+Implement using the existing fg (filtergraph) string builder pattern in make_pip_scene().
 
-STEP 5 — COMMIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — REGRESSION + COMMIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bash ~/protocol_pulse/regression_test.sh  # 0 FAILs required
 git add video_pipeline_v3/assembler.py
-git commit -m "feat(assembler): restore PiP left panel — episode title + sponsor carousel, Protocol Pulse brand design"
+git commit -m "feat(assembler): restore PiP left panel — episode title + rotating sponsor carousel, Protocol Pulse brand"
 git push
