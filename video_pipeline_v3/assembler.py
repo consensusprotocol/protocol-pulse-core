@@ -1735,9 +1735,10 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     if has_pip:
         inputs.append(["-stream_loop", "-1", "-i", pip_video_path])
         pip_idx = len(inputs) - 1
-        # BUG 3 FIX: Removed trim — stream_loop=-1 handles infinite looping
-        # trim was causing PiP to disappear when clip duration < total_dur
-        fg += (f"[{pip_idx}:v]scale=960:1080:force_original_aspect_ratio=increase,"
+        # FIX: trim to total_dur after stream_loop — prevents PTS discontinuity
+        # at loop boundaries which causes freeze frames. setpts resets after trim.
+        fg += (f"[{pip_idx}:v]trim=0:{total_dur},setpts=PTS-STARTPTS,"
+               f"scale=960:1080:force_original_aspect_ratio=increase,"
                f"crop=960:1080,setsar=1,fps=30,"
                f"hue=s=0.3,"
                f"setpts=PTS-STARTPTS[pip_raw];\n")
