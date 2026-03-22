@@ -430,7 +430,30 @@ def run_single_render():
             log(f"Grading failed (non-fatal): {_ge}")
             grade_result = None
         if not grade_result:
-            log("Grading failed, skipping"); continue
+            # Fallback: run gemini_grade.py directly as subprocess
+            log("grade_with_gemini failed — running gemini_grade.py directly")
+            try:
+                import subprocess as _sp
+                r = _sp.run(
+                    ["python3", "gemini_grade.py", video],
+                    capture_output=True, text=True, timeout=300, cwd=PIPELINE
+                )
+                if r.returncode == 0 and "GRADE_" in r.stdout:
+                    # Parse grade from stdout line like: GRADE_A_PASS|95|path|verdict
+                    for line in r.stdout.splitlines():
+                        if line.startswith("GRADE_"):
+                            parts = line.split("|")
+                            grade_letter = parts[0].split("_")[1]
+                            score_val = int(parts[1]) if len(parts)>1 else 0
+                            grade_result = {"grade": grade_letter, "overall_score": score_val,
+                                          "broadcast_ready": grade_letter=="A", "verdict": parts[3] if len(parts)>3 else "",
+                                          "dimensions": {}, "critical_failures": []}
+                            log(f"Fallback grade: {grade_letter} ({score_val}/100)")
+                            break
+            except Exception as _ge2:
+                log(f"Fallback grading also failed: {_ge2}")
+            if not grade_result:
+                log("All grading failed, skipping iteration"); continue
         gf = os.path.join(PIPELINE, f'logs/grade_iter{iteration}.json')
         with open(gf, 'w') as f: json.dump(grade_result, f, indent=2)
         grade = grade_result.get('grade','F')
