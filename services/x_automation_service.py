@@ -73,12 +73,7 @@ class XAutomationService:
         # Build tweet (280 char limit, URL = ~23 chars)
         available = 280 - len(hook) - 25 - 2  # hook + URL + spaces
         
-        if hashtags:
-            tags = " ".join([f"#{t}" for t in hashtags[:2]])
-            available -= len(tags) + 1
-        else:
-            tags = "#Bitcoin"
-            available -= 9
+        tags = ""  # NO HASHTAGS — X algorithms penalize them
         
         if len(title) > available:
             title = title[:available-3] + "..."

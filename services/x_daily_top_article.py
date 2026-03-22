@@ -161,7 +161,7 @@ Rules:
 - So max 217 chars of text
 - Voice: authoritative, cypherpunk, signal-dense
 - One sharp insight or provocative question
-- NO hashtags unless they are #Bitcoin or #BTC
+- ABSOLUTELY NO hashtags. Zero. Not #Bitcoin, not #BTC, not any. X algorithms penalize hashtags. Never use them.
 - End with the URL on its own line
 - No em dashes in the tweet (Twitter strips them oddly)
 

@@ -237,6 +237,12 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         return []
 
 
+def _strip_hashtags(text: str) -> str:
+    """Remove any hashtags from outgoing text. X algorithms penalize them."""
+    import re
+    return re.sub(r" #\w+", "", text).strip()
+
+
 def post_to_x(tweet_text: str) -> dict:
     """Post a tweet via X API v2 using OAuth 1.0a."""
     # Requires: tweepy or manual OAuth 1.0a signing
@@ -379,7 +385,8 @@ def main():
             tweet["text"] = text
 
         if CAN_POST:
-            result = post_to_x(text)
+            text = _strip_hashtags(text)  # Hard gate — no hashtags ever
+        result = post_to_x(text)
             if result.get("success"):
                 log_to_db(tweet, posted=True, tweet_id=result.get("tweet_id"))
                 posted_count += 1
