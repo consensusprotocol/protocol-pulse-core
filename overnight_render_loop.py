@@ -276,6 +276,33 @@ def run_forensics(video):
     res['true_peak_dbfs'] = float(tp.group(1)) if tp else None
     r = run(f'ffmpeg -i "{video}" -vf "freezedetect=n=0.001:d=1.0" -an -f null - 2>&1', timeout=300)
     res['freeze_count'] = len(re.findall(r'freeze_start', r.stderr+r.stdout))
+
+    # TTS ARTIFACT CHECK — detect if narrator is reading SSML markers aloud
+    # Transcribe first 60s of audio and scan for known bad words
+    tts_artifacts = []
+    try:
+        import subprocess as _sp, tempfile as _tf, os as _os
+        with _tf.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
+            tmp_path = tmp.name
+        _sp.run(['ffmpeg', '-y', '-i', video, '-t', '60', '-ar', '16000',
+                 '-ac', '1', tmp_path], capture_output=True, timeout=30)
+        # Use faster-whisper if available for quick transcript
+        try:
+            from faster_whisper import WhisperModel
+            model = WhisperModel('tiny', device='cpu', compute_type='int8')
+            segs, _ = model.transcribe(tmp_path, language='en')
+            transcript = ' '.join(s.text for s in segs).lower()
+            bad_words = ['pause', 'breath', 'emphasis', 'break colon', 'ssml',
+                         'slash', 'open bracket', 'close bracket']
+            tts_artifacts = [w for w in bad_words if w in transcript]
+        except Exception:
+            pass
+        _os.unlink(tmp_path)
+    except Exception:
+        pass
+    res['tts_artifacts'] = tts_artifacts
+    if tts_artifacts:
+        log(f"TTS ARTIFACT ALERT: narrator reading markers aloud: {tts_artifacts}")
     log(f"Forensics: {res.get('duration',0):.0f}s {res.get('width')}x{res.get('height')} "
         f"LUFS={res.get('integrated_lufs')} TP={res.get('true_peak_dbfs')} "
         f"black={res.get('black_mid_count')} freeze={res.get('freeze_count')}")
