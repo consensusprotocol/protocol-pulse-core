@@ -8,7 +8,7 @@
 <!-- Open Graph -->
 <meta property="og:title" content="{{ article.title }}">
 <meta property="og:description" content="{{ article.summary or article.content[:200]|striptags }}">
-<meta property="og:image" content="{{ (cover_image_url if cover_image_url and cover_image_url.startswith(chr(104)) else chr(104)+chr(116)+chr(116)+chr(112)+chr(115)+chr(58)+chr(47)+chr(47)+chr(112)+chr(114)+chr(111)+chr(116)+chr(111)+chr(99)+chr(111)+chr(108)+chr(112)+chr(117)+chr(108)+chr(115)+chr(101)+chr(46)+chr(105)+chr(111)+cover_image_url if cover_image_url else chr(39)+chr(39)) or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:image" content="{{ ('https://protocolpulse.io' + cover_image_url if cover_image_url and not cover_image_url.startswith('http') else cover_image_url) or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
 <meta property="og:url" content="{{ request.url }}">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Protocol Pulse">
