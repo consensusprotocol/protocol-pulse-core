@@ -10,6 +10,7 @@ Runs daily at 6am ET. Reads all fresh signals, produces:
 import json
 import logging
 import os
+import re
 import sqlite3
 import sys
 import urllib.request
@@ -56,8 +57,20 @@ def load_recent_tweets(hours: int = 24) -> list:
     if not RAW_TWEETS_PATH.exists():
         logger.warning("raw_tweets.json not found")
         return []
-    with open(RAW_TWEETS_PATH) as f:
-        all_tweets = json.load(f)
+    try:
+        with open(RAW_TWEETS_PATH) as f:
+            all_tweets = json.load(f)
+    except json.JSONDecodeError:
+        # Handle corrupted/appended JSON — use raw_decode to get first valid array
+        with open(RAW_TWEETS_PATH) as f:
+            raw = f.read()
+        try:
+            decoder = json.JSONDecoder()
+            all_tweets, _ = decoder.raw_decode(raw)
+            logger.warning(f"raw_tweets.json had extra data, recovered {len(all_tweets)} tweets")
+        except json.JSONDecodeError:
+            logger.error("raw_tweets.json is corrupt beyond recovery")
+            return []
     cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
     recent = []
     for t in all_tweets:
@@ -198,6 +211,34 @@ Based on this data, produce a JSON intelligence brief with EXACTLY this structur
 }}"""
 
 
+def call_local_llm(prompt: str) -> dict:
+    """Call local Qwen3 via Ollama. Returns parsed brief dict or empty dict."""
+    import requests
+    try:
+        resp = requests.post("http://localhost:11435/api/chat", json={
+            "model": "qwen3-coder:30b",
+            "messages": [
+                {"role": "system", "content": "You are a Bitcoin intelligence analyst. Return ONLY valid JSON. No markdown. No preamble. No explanation."},
+                {"role": "user", "content": prompt}
+            ],
+            "stream": False,
+            "options": {"temperature": 0.3}
+        }, timeout=60)
+        resp.raise_for_status()
+        raw = resp.json().get("message", {}).get("content", "")
+        raw = raw.strip()
+        # Strip markdown fences if present
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        result = json.loads(raw.strip())
+        logger.info("Brief generated via LOCAL LLM")
+        return result
+    except Exception as e:
+        logger.warning(f"Local LLM brief failed: {e}")
+        return {}
+
+
 def call_claude_haiku(prompt: str) -> dict:
     """Call Claude Haiku via Anthropic API."""
     if not ANTHROPIC_API_KEY:
@@ -257,19 +298,32 @@ def main():
         # Still produce a brief with market data only
         tweets = []
 
-    # Build prompt and call Haiku
+    # Build prompt
     prompt = build_prompt(tweets, nostr_signals, price_data, narrative_ctx)
-    logger.info("Calling Claude Haiku...")
-    brief = call_claude_haiku(prompt)
+
+    # Try local LLM first
+    logger.info("Calling local Qwen3...")
+    brief = call_local_llm(prompt)
+
+    # Validate required fields
+    required = ["dominant_narratives", "trending_language", "sentiment", "recommended_tweet_angles"]
+    if not brief or not all(k in brief for k in required):
+        logger.warning("Local brief incomplete, falling back to Claude Haiku")
+        brief = call_claude_haiku(prompt)
+
+    # Tag which model generated it
+    if brief:
+        brief["generated_by"] = "local_llm" if all(k in brief for k in required) else "claude_haiku"
 
     if not brief:
-        logger.error("Claude Haiku returned empty response")
+        logger.error("Both local LLM and Claude Haiku failed")
         # Write a minimal fallback brief
         brief = {
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "error": "Claude API call failed",
+            "error": "All LLM calls failed",
             "btc_price": price_data.get("price", "N/A"),
             "sentiment": "uncertain",
+            "generated_by": "fallback",
         }
 
     # Ensure timestamp
