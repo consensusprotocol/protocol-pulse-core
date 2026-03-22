@@ -12,6 +12,7 @@ Think Marty Bent meets Bloomberg Terminal.
 """
 
 import json
+import re
 import logging
 import os
 import sqlite3
@@ -153,6 +154,40 @@ def load_brief() -> dict:
         return json.load(f)
 
 
+
+def get_todays_posted_tweets() -> list[str]:
+    """Fetch tweet texts already posted today to avoid repeats."""
+    try:
+        conn = sqlite3.connect(str(BASE / "instance" / "protocol_pulse.db"))
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        rows = conn.execute(
+            "SELECT tweet_content FROM auto_tweet WHERE posted_at >= ? ORDER BY posted_at DESC LIMIT 10",
+            (today,)
+        ).fetchall()
+        conn.close()
+        return [r[0] for r in rows if r[0]]
+    except Exception as e:
+        logger.warning(f"Could not fetch posted tweets: {e}")
+        return []
+
+
+def _keyword_overlap(text_a: str, text_b: str) -> float:
+    """Return fraction of significant words shared between two tweets."""
+    stop = {"the","a","an","is","are","was","were","and","or","but","in","on","at","to","of","for","with","this","that","it","as","by"}
+    def words(t): return set(w.lower() for w in re.findall(r"\w+", t) if w.lower() not in stop and len(w) > 3)
+    wa, wb = words(text_a), words(text_b)
+    if not wa or not wb: return 0.0
+    return len(wa & wb) / min(len(wa), len(wb))
+
+
+def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.55) -> bool:
+    """Return True if new_tweet overlaps too much with any recently posted tweet."""
+    for old in posted:
+        if _keyword_overlap(new_tweet, old) >= threshold:
+            logger.warning(f"DEDUP blocked — {_keyword_overlap(new_tweet, old):.0%} overlap with: {old[:60]}")
+            return True
+    return False
+
 def generate_tweets(brief: dict, count: int = 1) -> list:
     """Call Claude Haiku to generate tweets from the brief."""
     if not ANTHROPIC_API_KEY:
@@ -160,7 +195,12 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         return []
 
     brief_text = json.dumps(brief, indent=2)[:3000]
-    prompt = TWEET_GENERATION_PROMPT.format(brief_text=brief_text, voice_laws=TWEET_VOICE_LAWS)
+    posted_today = get_todays_posted_tweets()
+    used_context = ""
+    if posted_today:
+        used_context = "\nALREADY POSTED TODAY - pick a DIFFERENT angle:\n"
+        used_context += "\n".join("- " + t[:100] for t in posted_today)
+    prompt = TWEET_GENERATION_PROMPT.format(brief_text=brief_text + used_context, voice_laws=TWEET_VOICE_LAWS)
 
     payload = {
         "model": "claude-haiku-4-5-20251001",
