@@ -151,46 +151,16 @@ def _bigvgan_upsample(wav_path_24k: str) -> str:
 
 
 def prosody_plan(text: str, host: int = 2) -> str:
-    """Add natural delivery markers via Claude Haiku pre-processor.
-    Cached by text hash. Returns original text if API fails."""
-    import hashlib
-    h = hashlib.sha256(text.encode()).hexdigest()[:16]
-    if h in _PROSODY_CACHE:
-        return _PROSODY_CACHE[h]
-    api_key = _get_cached_key("ANTHROPIC_API_KEY")
-    if not api_key or not HAS_REQUESTS:
-        return text
-    try:
-        resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 512,
-                "system": (
-                    "You are a speech prosody director. Rewrite the input line with natural "
-                    "delivery markers: [pause:0.1], [pause:0.2], [emphasis], [breath]. Use "
-                    "sparingly — max 3 markers per sentence. For Bitcoin news: add [pause:0.15] "
-                    "after key price levels, [emphasis] on sovereign/freedom/signal, [breath] at "
-                    "long clause boundaries. Return ONLY the rewritten line, nothing else."
-                ),
-                "messages": [{"role": "user", "content": text}],
-            },
-            timeout=10,
-        )
-        if resp.status_code == 200:
-            result = resp.json()["content"][0]["text"].strip()
-            _PROSODY_CACHE[h] = result
-            logger.info(f"[TTS/Prosody] Planned: {text[:40]}… → {result[:40]}…")
-            return result
-        logger.warning(f"[TTS/Prosody] API {resp.status_code}")
-    except Exception as e:
-        logger.warning(f"[TTS/Prosody] Failed: {e}")
-    return text
+    import re as _re
+    # DISABLED: Kokoro reads SSML markers literally as words.
+    # Strip all [bracket:value] markers before Kokoro synthesis.
+    text = _re.sub(r'\[pause[^\]]*\]', ' ', text)
+    text = _re.sub(r'\[breath[^\]]*\]', ' ', text)
+    text = _re.sub(r'\[emphasis[^\]]*\]', ' ', text)
+    text = _re.sub(r'\[break[^\]]*\]', ' ', text)
+    text = _re.sub(r'\[[A-Z][^\]]{0,25}\]', '', text)
+    text = _re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text)
+    return _re.sub(r'  +', ' ', text).strip()
 
 
 PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
