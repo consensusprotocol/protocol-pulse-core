@@ -149,3 +149,25 @@ git commit -m "feat(articles): local LLM quality gate — Qwen3-Coder reviews ev
 git push
 
 DO NOT touch: assembler.py, tts_engine.py, routes.py, overnight_render_loop.py, models.py
+IMPORTANT SPEC UPDATE: REAL-TIME CONTEXT INJECTION
+The local Qwen has NO real-time data. Inject today's BTC price from morning brief.
+
+In check_article(), before building prompt, load brief:
+    from pathlib import Path
+    brief_path = Path("/home/ultron/protocol_pulse/data/intelligence/morning_intelligence_brief.json")
+    today_btc, today_fng = "unknown", "unknown"
+    try:
+        import json as _j
+        brief = _j.loads(brief_path.read_text())
+        today_btc = brief.get("btc_price", "unknown")
+        today_fng = brief.get("fng", "unknown")
+    except Exception:
+        pass
+
+Add to prompt:
+    f"TODAY'S KNOWN DATA (validate claims against this):\n"
+    f"  BTC Price: {today_btc}\n  Fear & Greed: {today_fng}\n"
+    f"  BTC price claims deviating >20% from above are suspicious.\n\n"
+
+WHAT GATE CHECKS: AI tells, BTC price vs today's known, hashrate range, altcoin promo, broken content.
+WHAT IT DOES NOT CHECK: specific on-chain stats, named quotes, breaking news accuracy.
