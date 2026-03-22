@@ -50,6 +50,7 @@ FEATURE_MAP = {
     "tts-pipeline": ("TTS_PIPELINE_AUDIT_GOSPEL.md", "feature/tts-pipeline"),
     "oracle-stage": ("ORACLE_STAGE_GOSPEL.md", "main"),
     "stage-broadcast": ("STAGE_BROADCAST_GOSPEL.md", "main"),
+    "pipeline-day3-audit": ("WATCHDOG_LLM_GOSPEL.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -82,6 +83,15 @@ EXPLICIT_FILES = {
     "oracle-stage": [
         "templates/stage.html",
         "routes.py",
+    ],
+    "pipeline-day3-audit": [
+        "video_pipeline_v3/script_writer.py",
+        "video_pipeline_v3/tts_engine.py",
+        "overnight_render_loop.py",
+        "services/local_watchdog.py",
+        "video_pipeline_v3/clip_selector.py",
+        "video_pipeline_v3/clip_extractor.py",
+        "services/montage_producer.py",
     ],
 }
 

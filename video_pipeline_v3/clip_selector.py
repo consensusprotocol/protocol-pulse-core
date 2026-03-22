@@ -373,7 +373,7 @@ def select_clips(videos: list) -> dict:
     from relay import call_llm, reload_env; reload_env()
 
     transcripts_text = _format_transcripts(videos)
-    prompt = SELECTION_PROMPT.format(transcripts=transcripts_text)
+    prompt = SELECTION_PROMPT.replace('{transcripts}', transcripts_text)
 
     logger.info(f"Sending {len(videos)} transcripts for clip selection...")
     text = call_llm(prompt, max_tokens=8000)

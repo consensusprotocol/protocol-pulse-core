@@ -256,6 +256,11 @@ def extract_clip(video_id: str, start_sec: int, end_sec: int,
 def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                         output_path: str, channel: str = "") -> bool:
     """Inner implementation of extract_clip — may raise exceptions."""
+    # P1 FIX (audit): Sanitize video_id — YouTube IDs are [A-Za-z0-9_-]{11}
+    import re as _re
+    if not _re.match(r'^[A-Za-z0-9_-]{8,15}$', video_id):
+        logger.error(f"[extractor] REJECTED malformed video_id: {video_id!r}")
+        return False
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
     # Check if already extracted

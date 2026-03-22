@@ -250,7 +250,7 @@ class NarrativeIntelligenceEngine:
             )
         tweet_batch = "\n".join(tweet_lines)
         timestamp = datetime.now(timezone.utc).isoformat()
-        prompt = NARRATIVE_PROMPT.format(tweet_batch=tweet_batch, timestamp=timestamp)
+        prompt = NARRATIVE_PROMPT.replace('{tweet_batch}', tweet_batch).replace('{timestamp}', timestamp)
 
         # Try Claude Haiku first
         anthropic_key = get_key("ANTHROPIC_API_KEY", required=False)

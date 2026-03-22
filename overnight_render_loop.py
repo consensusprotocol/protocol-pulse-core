@@ -277,9 +277,15 @@ def run_forensics(video):
         v = next((s for s in streams if s.get('codec_type') == 'video'), {})
         a = next((s for s in streams if s.get('codec_type') == 'audio'), {})
         res['width'] = v.get('width', 0); res['height'] = v.get('height', 0)
-        res['fps'] = eval(v.get('r_frame_rate', '0/1').replace('/', '/'))
+        fps_str = v.get('r_frame_rate', '0/1')
+        if '/' in fps_str:
+            num, den = fps_str.split('/', 1)
+            res['fps'] = float(num) / float(den) if float(den) != 0 else 0
+        else:
+            res['fps'] = float(fps_str) if fps_str else 0
         res['vcodec'] = v.get('codec_name', '?'); res['acodec'] = a.get('codec_name', '?')
-    except: pass
+    except Exception as e:
+        log(f"WARNING: ffprobe parse error: {e}")
     r = run(f'ffmpeg -i "{video}" -vf "blackdetect=d=0.3:pix_th=0.10" -an -f null - 2>&1', timeout=300)
     segs = re.findall(r'black_start:([\d.]+).*?black_end:([\d.]+).*?black_duration:([\d.]+)', r.stderr+r.stdout)
     dur = res.get('duration', 0)
@@ -362,7 +368,7 @@ Respond ONLY with raw JSON (no fences):
         if fence in clean:
             clean = clean.split(fence)[1].split('```')[0].strip()
     try: return json.loads(clean)
-    except: log(f"JSON parse fail: {clean[:200]}"); return None
+    except json.JSONDecodeError as e: log(f"JSON parse fail: {e} — {clean[:200]}"); return None
 
 
 def fire_cc_fix(iteration, grade_result):
@@ -500,6 +506,24 @@ def sleep_until_next_8am_et():
     time.sleep(wait)
 
 
+PIDFILE = os.path.join(BASE, 'logs', 'render_loop.pid')
+
+
+def _acquire_singleton():
+    """P1 FIX (audit): Prevent duplicate render loop instances."""
+    import fcntl
+    fp = open(PIDFILE, 'w')
+    try:
+        fcntl.flock(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        log("ABORT: Another render loop instance is already running (pidfile locked)")
+        sys.exit(1)
+    fp.write(str(os.getpid()))
+    fp.flush()
+    # Keep fp open to hold the lock — do NOT close or the lock releases
+    return fp
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Protocol Pulse overnight render loop — production hardened",
@@ -514,6 +538,9 @@ def main():
     parser.add_argument("--daemon", action="store_true", help="Run as continuous daemon (loop at 08:00 ET daily)")
     parser.add_argument("--dry-run", action="store_true", help="Run startup checks only, no render")
     args = parser.parse_args()
+
+    # P1 FIX (audit): Singleton guard — prevent duplicate instances
+    _lock_fp = _acquire_singleton()
 
     # FIX 6: Startup checks always run
     log("="*60)
