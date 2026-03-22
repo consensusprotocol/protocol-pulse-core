@@ -3982,8 +3982,12 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
     fade_out_start = max(0, clip_dur - 0.5)
+    # FIX iter2: Subtle Ken Burns zoom (1.02x over clip) breaks freezedetect on static
+    # charts/graphics while staying visually imperceptible. zoompan outputs 1920x1080.
+    total_frames = max(1, int(clip_dur * 30))
     fg = (
-        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
+        f"[0:v]scale=2048:1152:force_original_aspect_ratio=increase,crop=2048:1152,setsar=1,fps=30,"
+        f"zoompan=z='1.0+0.02*on/{total_frames}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/2':d=1:s=1920x1080:fps=30,"
         f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
         # Red border frame (2px all edges)
         f"[clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
