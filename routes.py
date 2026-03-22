@@ -1486,6 +1486,8 @@ def _render_article(article_id):
     body_html = _article_body_without_tldr(article.content or "")
     # Law 1: cover_image_url is the single source of truth
     cover_image_url = article.resolve_cover_image() if hasattr(article, 'resolve_cover_image') else "/static/images/default-header.png"
+    if cover_image_url and not cover_image_url.startswith("http"):
+        cover_image_url = "https://protocolpulse.io" + cover_image_url
     return render_template(
         "article_detail.html",
         article=article,
