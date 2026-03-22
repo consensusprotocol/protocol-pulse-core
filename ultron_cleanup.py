@@ -10,7 +10,7 @@ LOG = '/home/ultron/protocol_pulse/logs/cleanup.log'
 
 PROTECTED_PROCS = [
     'autonomous_render_loop',
-    'daily_producer',
+    # 'daily_producer',  # NEVER KILL — this IS the render
     'gunicorn',
     'tg_watcher',
     'ultron_relay',
