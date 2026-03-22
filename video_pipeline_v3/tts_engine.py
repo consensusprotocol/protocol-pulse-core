@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""TTS Engine V10 — Dual-host local TTS pipeline.
+"""TTS Engine V11 — Dual-host local TTS pipeline.
 Host 1: Kokoro af_heart (female) — setup/bridge.
 Host 2: Kokoro am_onyx (male) — react/wrap. F5-TTS PBX when ready.
 Fallback: ElevenLabs per-line. TTS_PROVIDER=local (default) or elevenlabs.
-Generates per-line audio with 0.3s silence gaps."""
+Inter-line silence: 0.08s (ElevenLabs has natural pauses built in).
+Parallel TTS pre-generation via ThreadPoolExecutor."""
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 try:
@@ -257,7 +259,7 @@ def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
 
 
 MAX_CHUNK_CHARS = 500  # ElevenLabs safe chunk size
-SILENCE_GAP = 0.3  # seconds between speakers
+SILENCE_GAP = 0.08  # seconds between lines — ElevenLabs has natural pauses built in
 
 # Voice mode overrides per segment type (applied to whichever host speaks)
 VOICE_MODES = {
@@ -719,6 +721,38 @@ def _trim_trailing_silence(audio_path: str) -> None:
         logger.debug(f"[TTS] Trailing silence trim skipped: {e}")
 
 
+def _trim_leading_silence(audio_path: str) -> None:
+    """Remove leading silence (<-40dB) from TTS output.
+
+    ElevenLabs often pads 0.1-0.2s silence at the start of each clip.
+    This accumulates across lines, creating noticeable gaps in the final mix.
+    Uses ffmpeg silenceremove filter to strip sub-40dB audio from the start.
+    """
+    try:
+        dur_before = ffprobe_duration(audio_path)
+        if dur_before <= 0.5:
+            return
+        trimmed = audio_path + ".ltrimmed.m4a"
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-i", audio_path,
+             "-af", "silenceremove=start_periods=1:start_silence=0.03:start_threshold=-40dB",
+             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", trimmed],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 5000:
+            dur_after = ffprobe_duration(trimmed)
+            if dur_after >= dur_before * 0.7:  # sanity: don't trim more than 30%
+                os.replace(trimmed, audio_path)
+                if dur_before - dur_after > 0.02:
+                    logger.info(f"[TTS] Trimmed leading silence: {dur_before:.3f}s → {dur_after:.3f}s")
+            else:
+                os.remove(trimmed)
+        elif os.path.exists(trimmed):
+            os.remove(trimmed)
+    except Exception as e:
+        logger.debug(f"[TTS] Leading silence trim skipped: {e}")
+
+
 def _tts_cache_key(text: str, voice_id: str, segment_type: str) -> str:
     """SHA256 hash of text+voice+segment_type → stable cache key."""
     import hashlib
@@ -956,6 +990,7 @@ def tts_local(text: str, output_path: str, host: int = 1,
             ok = tts_elevenlabs(text, output_path, host=2, segment_type=segment_type)
 
     if ok and os.path.exists(output_path):
+        _trim_leading_silence(output_path)
         _trim_trailing_silence(output_path)
         validate_tts_output(output_path)
         _tts_cache_put(cache_key, output_path)
@@ -1150,7 +1185,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         except Exception:
             pass
         if ok and os.path.exists(output_path):
-            _trim_trailing_silence(output_path)  # Round 2 Fix 2: trim vowel-stretch artifacts
+            _trim_leading_silence(output_path)
+            _trim_trailing_silence(output_path)
             validate_tts_output(output_path)
             _tts_cache_put(cache_key, output_path)
         return ok
@@ -1174,14 +1210,87 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         except Exception:
             pass
     if ok and os.path.exists(output_path):
-        _trim_trailing_silence(output_path)  # Round 2 Fix 2: trim vowel-stretch artifacts
+        _trim_leading_silence(output_path)
+        _trim_trailing_silence(output_path)
         validate_tts_output(output_path)
         _tts_cache_put(cache_key, output_path)
     return ok
 
 
+def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str) -> dict:
+    """Synthesize a single dialogue line. Used by ThreadPoolExecutor for parallel TTS.
+
+    Returns metadata dict with path, duration, host, tts_ok flag.
+    On primary TTS failure, falls back to Kokoro — never produces silence (LAW: TTS FALLBACK BANNED).
+    """
+    host = entry.get("host")
+    text = entry.get("text", "")
+
+    if provider == "local":
+        host_num = host if host in (1, 2) else 2
+    else:
+        host_num = 2  # ElevenLabs: single-host Option A preserved
+
+    voice = VOICES[host_num]
+    segment_type = entry.get("type", "")
+    line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
+
+    mode_tag = f" [{segment_type}]" if segment_type and host_num == 1 else ""
+    print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
+
+    _tts_ok = False
+    dur = 0.0
+
+    if provider == "local":
+        _tts_ok = tts_local(text, line_path, host_num, segment_type=segment_type)
+    else:
+        _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
+
+    # Validate output
+    if _tts_ok:
+        if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
+            logger.warning(f"[tts] Line {i} zero/tiny audio — trying Kokoro fallback")
+            _tts_ok = False
+        else:
+            dur = ffprobe_duration(line_path)
+            if dur < 0.5 and len(text) > 10:
+                logger.warning(f"[tts] Line {i} too short ({dur:.2f}s) — trying Kokoro fallback")
+                _tts_ok = False
+
+    # Fallback to Kokoro on any failure — never produce silence (LAW: TTS FALLBACK BANNED)
+    if not _tts_ok:
+        kokoro_voice = KOKORO_HOST1_VOICE if host_num == 1 else KOKORO_HOST2_VOICE
+        kokoro_speed = KOKORO_SPEED_H1 if host_num == 1 else KOKORO_SPEED_H2
+        logger.warning(f"[tts] Line {i} primary TTS failed — Kokoro fallback (voice={kokoro_voice})")
+        _tts_ok = tts_kokoro(text, line_path, voice=kokoro_voice, speed=kokoro_speed)
+        if _tts_ok and os.path.exists(line_path) and os.path.getsize(line_path) >= 1000:
+            dur = ffprobe_duration(line_path)
+            if dur < 0.5 and len(text) > 10:
+                _tts_ok = False
+
+    if not _tts_ok:
+        raise RuntimeError(
+            f"TTS FATAL: All providers failed for line {i} (host {host_num}). "
+            f"Text: \"{text[:80]}...\". Refusing to render silence."
+        )
+
+    return {
+        "index": i,
+        "path": line_path,
+        "host": host_num,
+        "duration": dur,
+        "text": text,
+        "type": segment_type,
+        "tts_ok": True,
+        "clip_rank": entry.get("clip_rank", 0),
+    }
+
+
 def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     """Generate audio for the entire dual-host dialogue.
+
+    Pre-generates ALL TTS lines in parallel via ThreadPoolExecutor to eliminate
+    sequential API latency stacking. Then assembles timeline and concatenates.
 
     Args:
         dialogue: List of {host: 1|2|"CLIP", text: "..."}
@@ -1205,8 +1314,41 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
 
     silence_path = os.path.join(output_dir, "silence.m4a")
-    _generate_silence(silence_path, SILENCE_GAP)
+    if not _generate_silence(silence_path, SILENCE_GAP):
+        raise RuntimeError("Failed to generate inter-line silence gap audio")
 
+    # ── Phase 1: Parallel TTS pre-generation ──
+    # Generate ALL spoken lines concurrently — prevents API latency stacking
+    tts_jobs = []  # (dialogue_index, entry) for lines needing TTS
+    clip_entries = {}  # dialogue_index → clip metadata
+
+    for i, entry in enumerate(dialogue):
+        if entry.get("host") == "CLIP":
+            clip_entries[i] = entry
+        else:
+            tts_jobs.append((i, entry))
+
+    # Parallel TTS: 4 workers for ElevenLabs (rate-safe), 6 for local
+    max_workers = 4 if _active_provider == "elevenlabs" else 6
+    tts_results = {}  # index → result dict
+
+    if tts_jobs:
+        print(f"  [tts] Pre-generating {len(tts_jobs)} lines in parallel (workers={max_workers})...")
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_synthesize_line, idx, entry, output_dir, _active_provider): idx
+                for idx, entry in tts_jobs
+            }
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    result = future.result()
+                    tts_results[result["index"]] = result
+                except Exception as e:
+                    logger.error(f"[tts] Parallel TTS line {idx} failed: {e}")
+                    raise
+
+    # ── Phase 2: Assemble timeline in original order ──
     lines = []
     parts_for_concat = []
     current_time = 0.0
@@ -1215,70 +1357,37 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         host = entry.get("host")
         text = entry.get("text", "")
 
-        # Skip CLIP markers — they don't have audio but DO advance the timeline
         if host == "CLIP":
-            clip_duration = float(entry.get("duration", 30.0))  # use actual duration or default 30s
+            clip_duration = float(entry.get("duration", 30.0))
             lines.append({
                 "path": None,
                 "host": "CLIP",
-                "duration": clip_duration,  # record actual duration, not hardcoded 0.0
+                "duration": clip_duration,
                 "start": current_time,
                 "source": entry.get("source", ""),
                 "query": entry.get("query", ""),
                 "text": text,
             })
-            current_time += clip_duration  # advance timeline so subsequent audio is correctly offset
+            current_time += clip_duration
             continue
 
-        _provider = _get_tts_provider()
-        if _provider == "local":
-            host_num = host if host in (1, 2) else 2
-        else:
-            host_num = 2   # ElevenLabs: single-host Option A preserved
-        voice = VOICES[host_num]
-        segment_type = entry.get("type", "")
-        line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
-
-        mode_tag = f" [{segment_type}]" if segment_type and host_num == 1 else ""
-        print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
-
-        _provider = _get_tts_provider()
-        if _provider == "local":
-            _tts_ok = tts_local(text, line_path, host_num, segment_type=segment_type)
-        else:
-            _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
-        if _tts_ok:
-            if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
-                logger.warning(f"[tts] Line {i} zero/tiny audio — writing silence")
-                _tts_ok = False
-            else:
-                dur = ffprobe_duration(line_path)
-                if dur < 0.5 and len(text) > 10:
-                    logger.warning(f"[tts] Line {i} too short ({dur:.2f}s) — writing silence")
-                    _tts_ok = False
-        if not _tts_ok:
-            # Degrade gracefully: write 3s silence so assembler can continue
-            logger.error(f"[tts] TTS failed line {i} — writing silence")
-            subprocess.run([
-                "ffmpeg", "-y", "-f", "lavfi",
-                "-i", "anullsrc=r=48000:cl=stereo",
-                "-t", "3", "-c:a", "aac", "-b:a", "192k", line_path
-            ], capture_output=True)
-            dur = 3.0
+        result = tts_results[i]
+        dur = result["duration"]
 
         lines.append({
-            "path": line_path,
-            "host": host_num,
+            "path": result["path"],
+            "host": result["host"],
             "duration": dur,
             "start": current_time,
             "text": text,
-            "type": segment_type,
-            "clip_rank": entry.get("clip_rank", 0),  # PiP FIX: preserve for assembler PiP lookup
+            "type": result["type"],
+            "tts_ok": result["tts_ok"],
+            "clip_rank": result.get("clip_rank", 0),
         })
-        parts_for_concat.append(line_path)
+        parts_for_concat.append(result["path"])
         current_time += dur
 
-        # Add silence gap between speakers (not after last line, not before CLIP)
+        # Add silence gap between lines (not after last line, not before CLIP)
         next_entry = dialogue[i + 1] if i < len(dialogue) - 1 else None
         if next_entry is not None and next_entry.get("host") != "CLIP":
             parts_for_concat.append(silence_path)
@@ -1291,11 +1400,13 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         with open(concat_file, "w") as f:
             for p in parts_for_concat:
                 f.write(f"file '{os.path.abspath(p)}'\n")
-        subprocess.run(
+        concat_result = subprocess.run(
             ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_file,
              "-c", "copy", full_path],
             capture_output=True, text=True,
         )
+        if concat_result.returncode != 0:
+            logger.error(f"[tts] FFmpeg concat failed: {concat_result.stderr[:500]}")
         if os.path.exists(concat_file):
             os.remove(concat_file)
 
@@ -1309,7 +1420,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
             )
 
     total_dur = ffprobe_duration(full_path) if os.path.exists(full_path) else current_time
-    successful = sum(1 for l in lines if l["path"] and os.path.exists(l.get("path", "")))
+    successful = sum(1 for l in lines if l.get("tts_ok", False))
 
     print(f"\n  [tts] Dialogue audio: {successful}/{len(dialogue)} lines, {total_dur:.1f}s total")
 
@@ -1322,7 +1433,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         if h not in host_stats:
             host_stats[h] = {"total": 0, "ok": 0}
         host_stats[h]["total"] += 1
-        if l.get("path") and os.path.exists(l.get("path", "")):
+        if l.get("tts_ok", False):
             host_stats[h]["ok"] += 1
 
     for h, stats in host_stats.items():
