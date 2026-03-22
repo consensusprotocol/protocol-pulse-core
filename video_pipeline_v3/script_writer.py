@@ -635,11 +635,23 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
     # Escape braces in user content to prevent KeyError
     def _esc(s): return str(s).replace('{', '{{').replace('}', '}}')
-    prompt = SCRIPT_PROMPT.format(
-        clips_info=_esc(clips_info), btc_price=_esc(btc_price),
-        social_posts=_esc(social_posts),
-        live_context=_esc(live_block+morning_block+engagement_block+memory_block+space_tap_block),
-    )
+    _live = live_block+morning_block+engagement_block+memory_block+space_tap_block
+    try:
+        prompt = SCRIPT_PROMPT.format(
+            clips_info=_esc(clips_info), btc_price=_esc(btc_price),
+            social_posts=_esc(social_posts),
+            live_context=_esc(_live),
+        )
+    except KeyError as _ke:
+        logger.warning(f"KeyError {_ke} in SCRIPT_PROMPT.format — applying nuclear escape")
+        # Nuclear: escape the entire prompt template too
+        import re as _re
+        _safe_prompt = _re.sub(r'\{(?!clips_info|btc_price|social_posts|live_context)([^}]+)\}', r'{{}}', SCRIPT_PROMPT)
+        prompt = _safe_prompt.format(
+            clips_info=_esc(clips_info), btc_price=_esc(btc_price),
+            social_posts=_esc(social_posts),
+            live_context=_esc(_live),
+        )
 
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
