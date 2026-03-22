@@ -114,6 +114,14 @@ TWEET_GENERATION_PROMPT = """You are the tweet writer for Protocol Pulse -- an a
 Generate exactly 1 tweet for @ProtocolPulseHQ based on today's intelligence brief.
 Pick the single highest-signal angle. Make it land.
 
+CRITICAL — ANGLE DIVERSITY LAW:
+The recently posted tweets below represent USED angles. You MUST pick a completely
+different angle, different data point, and different framing. Never rephrase a posted tweet.
+If today's brief only has one story, find a different dimension of it (different stat, different
+implication, different audience insight). Repetition destroys credibility.
+A good feed has variety: one macro signal, one protocol stat, one sovereignty/freedom angle.
+Never post the same narrative twice within 48 hours.
+
 INTELLIGENCE BRIEF:
 {brief_text}
 
@@ -159,10 +167,11 @@ def get_todays_posted_tweets() -> list[str]:
     """Fetch tweet texts already posted today to avoid repeats."""
     try:
         conn = sqlite3.connect(str(BASE / "instance" / "protocol_pulse.db"))
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        from datetime import timedelta
+        cutoff_48h = (datetime.now(timezone.utc) - timedelta(hours=48)).strftime("%Y-%m-%d %H:%M:%S")
         rows = conn.execute(
-            "SELECT tweet_content FROM auto_tweet WHERE posted_at >= ? ORDER BY posted_at DESC LIMIT 10",
-            (today,)
+            "SELECT tweet_content FROM auto_tweet WHERE posted_at >= ? ORDER BY posted_at DESC LIMIT 20",
+            (cutoff_48h,)
         ).fetchall()
         conn.close()
         return [r[0] for r in rows if r[0]]
@@ -180,7 +189,7 @@ def _keyword_overlap(text_a: str, text_b: str) -> float:
     return len(wa & wb) / min(len(wa), len(wb))
 
 
-def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.55) -> bool:
+def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.40) -> bool:
     """Return True if new_tweet overlaps too much with any recently posted tweet."""
     for old in posted:
         if _keyword_overlap(new_tweet, old) >= threshold:
