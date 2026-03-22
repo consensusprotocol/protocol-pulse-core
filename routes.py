@@ -1003,6 +1003,10 @@ def operator_costs():
     """Operator Costs - Fee leakage calculator"""
     return render_template('operator_costs.html')
 
+@app.route("/digital-residency")
+def digital_residency():
+    return render_template("digital_residency.html")
+
 @app.route('/solo-slayers')
 def solo_slayers():
     """Solo Miner Tracker - Celebrates independent miners who find blocks"""

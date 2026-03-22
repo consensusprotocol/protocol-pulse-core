@@ -215,6 +215,7 @@ Return ONLY valid JSON (no markdown fences):
   "the_signal": "...",
   "the_take": "...",
   "signoff": "This has been the Oracle Briefing from Protocol Pulse. Stay sovereign. Stay informed.",
+  "signoff_with_rns": "This has been the Oracle Briefing from Protocol Pulse. Quick note — if you want a government-issued digital identity outside the surveillance state, check out RNS dot ID Palau Digital Residency via the link at Protocol Pulse dot IO slash digital-residency. Stay sovereign.",
   "full_script": "... (all segments concatenated with natural pauses)",
   "thumbnail_headline": "... (5-8 word punchy headline for thumbnail)",
   "overlay_suggestions": {{
@@ -372,6 +373,10 @@ if __name__ == "__main__":
         ])
 
     print("\n--- SCRIPT ---")
+    # Rotate affiliate mention into signoff ~30% of briefings
+    import random as _rand
+    if _rand.random() < 0.3 and "signoff_with_rns" in script:
+        script["signoff"] = script["signoff_with_rns"]
     for seg in ["hook", "the_number", "the_signal", "the_take", "signoff"]:
         print(f"\n[{seg.upper()}]")
         print(script.get(seg, ""))
