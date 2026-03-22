@@ -710,8 +710,12 @@ def main():
     if args.daemon:
         log("DAEMON MODE — will loop at 08:00 ET daily")
         while True:
-            run_cycle()
-            sleep_until_next_8am_et()
+            verdict = run_cycle() or "DEGRADED"
+            if verdict == "PASS":
+                sleep_until_next_8am_et()
+            else:
+                log("[daemon] No Grade A — retrying in 30 min")
+                time.sleep(1800)
     else:
         run_cycle()
 
