@@ -45,8 +45,6 @@ if _oracle_dir not in sys.path:
     sys.path.insert(0, _oracle_dir)
 _AVATAR_KOKORO_READY = False
 _KOKORO_PIPELINE = None
-_KOKORO_PIPELINE_ORACLE = None
-_AVATAR_KOKORO_ORACLE_READY = False
 
 # Face enhancement + blink modules
 from face_enhancer import sharpen_mouth_region
@@ -57,10 +55,6 @@ PORT = 8200
 BATCH_SIZE_DEFAULT = 48  # Proven stable at 134fps — 64 caused VRAM pressure on GPU 1
 BATCH_SIZE_SMALL = 16    # For short audio < 60 mel frames
 BATCH_SIZE = BATCH_SIZE_DEFAULT
-
-import threading as _threading_mod
-_TTS_LOCK = _threading_mod.Semaphore(1)
-_TTS_LOCK_ORACLE = _threading_mod.Semaphore(1)
 DEFAULT_FPS = 30.0  # Upgraded from 25fps — smoother motion
 
 # Post-processing config
@@ -306,24 +300,17 @@ def wav2lip_generate(audio_path, fps=30.0, avatar_face=None, avatar_face_coords=
         for p in pred:
             p_resized = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
             full_frame = face_img.copy()
-            h_face, w_face = p_resized.shape[:2]
-            # Only paste lower 55% of face — preserves eyes/nose from original
-            # Wav2Lip only predicts mouth movement; upper face is lower quality upscale
-            mouth_start = int(h_face * 0.45)
+            # Feathered blend to eliminate face paste seam
+            mask = np.ones_like(p_resized, dtype=np.float32)
             feather = 18
-            mask = np.zeros_like(p_resized, dtype=np.float32)
-            # Build mask only for lower portion
-            for row in range(mouth_start, h_face):
-                blend_row = row - mouth_start
-                # Fade in over feather rows at the top of the mouth region
-                top_fade = min(blend_row / feather, 1.0)
-                # Fade out at bottom edge
-                bottom_fade = min((h_face - row) / feather, 1.0)
-                row_alpha = top_fade * bottom_fade
-                mask[row, :] = row_alpha
-            # Side feathering
+            h_face, w_face = p_resized.shape[:2]
+            for j in range(min(feather, h_face)):
+                mask[j, :] = j / feather
+            for j in range(min(feather, h_face)):
+                mask[-(j+1), :] = j / feather
             for j in range(min(feather, w_face)):
                 mask[:, j] *= j / feather
+            for j in range(min(feather, w_face)):
                 mask[:, -(j+1)] *= j / feather
             full_frame[y1:y2, x1:x2] = (
                 p_resized * mask + full_frame[y1:y2, x1:x2] * (1 - mask)
@@ -496,29 +483,6 @@ def _init_avatar_kokoro():
         _AVATAR_KOKORO_READY = False
 
 
-def _init_kokoro_oracle():
-    """Second Kokoro pipeline on cuda:0 — dedicated to live Oracle chat. Zero broadcast contention."""
-    global _AVATAR_KOKORO_ORACLE_READY, _KOKORO_PIPELINE_ORACLE
-    try:
-        logger.info("[AVATAR_TTS] Loading Kokoro Oracle pipeline on cuda:0...")
-        from kokoro import KPipeline
-        _KOKORO_PIPELINE_ORACLE = KPipeline(lang_code='a')
-        _KOKORO_PIPELINE_ORACLE.model = _KOKORO_PIPELINE_ORACLE.model.to('cuda:0')
-        _AVATAR_KOKORO_ORACLE_READY = True
-        logger.info("[AVATAR_TTS] Kokoro Oracle pipeline loaded on cuda:0")
-        # Warmup inference to trigger CUDA JIT compilation (avoids 2min cold-start on first request)
-        try:
-            t0 = time.time()
-            for _gs, _ps, _audio in _KOKORO_PIPELINE_ORACLE("warmup", voice='af_heart'):
-                pass
-            logger.info(f"[AVATAR_TTS] Kokoro Oracle cuda:0 warmup done in {time.time()-t0:.1f}s")
-        except Exception as _we:
-            logger.warning(f"[AVATAR_TTS] Kokoro Oracle warmup failed (non-fatal): {_we}")
-    except Exception as e:
-        logger.error(f"[AVATAR_TTS] Oracle Kokoro init failed: {e}")
-        _AVATAR_KOKORO_ORACLE_READY = False
-
-
 def _avatar_tts(text):
     """Primary TTS: Kokoro af_heart -> 24kHz numpy -> ffmpeg resample 16kHz mono WAV bytes.
     Falls back to ElevenLabs text_to_speech() if Kokoro fails."""
@@ -530,18 +494,6 @@ def _avatar_tts(text):
         text = normalize_pronunciation(text)
     except Exception as _np_err:
         logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
-
-    # Serialize TTS calls — concurrent Kokoro thrashes GPU (30s+ instead of 1-2s)
-    _TTS_LOCK.acquire()
-    try:
-        return _avatar_tts_inner(text)
-    finally:
-        _TTS_LOCK.release()
-
-
-def _avatar_tts_inner(text):
-    """Inner TTS logic — called under _TTS_LOCK."""
-    global _AVATAR_KOKORO_READY
 
     # Try Kokoro first
     if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:
@@ -614,54 +566,6 @@ def _avatar_tts_inner(text):
     elapsed = time.time() - t0
     logger.info(f"[AVATAR_TTS] ElevenLabs fallback: {elapsed:.2f}s ({len(audio_bytes)} bytes)")
     return audio_bytes
-
-
-def _avatar_tts_oracle(text):
-    """TTS for live Oracle chat on cuda:0 — never waits behind broadcast renders."""
-    try:
-        from oracle_dialogue_engine import normalize_pronunciation
-        text = normalize_pronunciation(text)
-    except Exception:
-        pass
-
-    if _AVATAR_KOKORO_ORACLE_READY and _KOKORO_PIPELINE_ORACLE is not None:
-        if _TTS_LOCK_ORACLE.acquire(timeout=3):
-            try:
-                import soundfile as sf
-                t0 = time.time()
-                generator = _KOKORO_PIPELINE_ORACLE(text, voice='af_heart')
-                audio_chunks = []
-                for _gs, _ps, audio_np in generator:
-                    audio_chunks.append(audio_np)
-                if not audio_chunks:
-                    raise ValueError("no audio")
-                full_audio = np.concatenate(audio_chunks)
-                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                    sf.write(tmp.name, full_audio, 24000)
-                    wav24_path = tmp.name
-                wav16_path = wav24_path + ".16k.wav"
-                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav24_path,
-                    "-ar", "16000", "-ac", "1", "-f", "wav", wav16_path],
-                    capture_output=True, timeout=30)
-                os.remove(wav24_path)
-                norm_path = wav16_path + "_norm.wav"
-                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav16_path,
-                    "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "16000", "-ac", "1", norm_path],
-                    capture_output=True, timeout=30)
-                if os.path.exists(norm_path) and os.path.getsize(norm_path) > 1000:
-                    with open(norm_path, "rb") as f:
-                        wav_bytes = f.read()
-                    try: os.remove(norm_path); os.remove(wav16_path)
-                    except: pass
-                    logger.info(f"[AVATAR_TTS_ORACLE] cuda:0 OK: {time.time()-t0:.2f}s ({len(wav_bytes)} bytes)")
-                    return wav_bytes
-            except Exception as e:
-                logger.warning(f"[AVATAR_TTS_ORACLE] cuda:0 failed: {e} — falling back")
-            finally:
-                _TTS_LOCK_ORACLE.release()
-
-    logger.warning("[AVATAR_TTS_ORACLE] falling back to cuda:1 pipeline")
-    return _avatar_tts_inner(text)
 
 
 def text_to_speech(text, voice_id="cgSgspJ2msm6clMCkdW9"):
@@ -1191,7 +1095,7 @@ def _stream_worker(session_id, text):
                     "content-type": "application/json",
                 },
                 json={
-                    "model": "claude-haiku-4-5-20251001",
+                    "model": "claude-sonnet-4-20250514",
                     "max_tokens": 80,  # Short transcript = fewer TTS seconds = fewer Wav2Lip frames
                     "system": ORACLE_SYSTEM_PROMPT,
                     "messages": [{"role": "user", "content": text}],
@@ -1377,18 +1281,6 @@ def oracle_cache_status():
     })
 
 
-@app.route("/oracle/cache/<intent>", methods=["GET"])
-def oracle_cache_serve(intent):
-    """Serve pre-cached response video directly."""
-    import re as _re
-    if not _re.match(r'^[A-Z0-9_]+$', intent):
-        return jsonify({"error": "invalid"}), 400
-    path = oracle_cache_manager.get_cached_response(intent)
-    if not path:
-        return jsonify({"error": "not cached"}), 404
-    return send_file(path, mimetype="video/mp4")
-
-
 @app.route("/oracle/response/<key>")
 def oracle_response(key):
     """Serve pre-cached mp4 for a response key."""
@@ -1532,211 +1424,6 @@ def generate_inline(text):
         return jsonify({"error": str(e)}), 500
 
 
-def generate_inline_oracle(text):
-    """Like generate_inline but uses cuda:0 Oracle TTS — no broadcast contention."""
-    try:
-        audio_bytes = _avatar_tts_oracle(text)
-    except Exception as e:
-        return jsonify({"error": f"TTS failed: {e}"}), 500
-
-    is_wav = audio_bytes[:4] == b"RIFF"
-    ext = ".wav" if is_wav else ".mp3"
-    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-        tmp.write(audio_bytes)
-        audio_path = tmp.name
-
-    wav_path = audio_path + "_16k.wav"
-    if is_wav:
-        import shutil
-        shutil.copy2(audio_path, wav_path)
-    else:
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
-
-    try:
-        with _render_queue_lock:
-            _queue_pos = sum(1 for _ in range(2) if not _render_semaphore._value)
-        acquired = _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
-        if not acquired:
-            return jsonify({"error": "GPU busy — try again in a moment", "retry_after": 10,
-                            "queue_position": _queue_pos}), 503
-        try:
-            frames = wav2lip_generate(wav_path, DEFAULT_FPS)
-            reg = ModelRegistry.get()
-            try:
-                frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
-            except Exception:
-                pass
-            frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
-            video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
-        finally:
-            _render_semaphore.release()
-
-        if not video_path:
-            return jsonify({"error": "Video encoding failed"}), 500
-
-        def _stream_and_cleanup():
-            try:
-                with open(video_path, "rb") as vf:
-                    while True:
-                        chunk = vf.read(65536)
-                        if not chunk:
-                            break
-                        yield chunk
-            finally:
-                for p in [audio_path, wav_path, video_path]:
-                    try:
-                        if p and os.path.exists(p):
-                            os.unlink(p)
-                    except OSError:
-                        pass
-
-        from flask import Response
-        return Response(
-            _stream_and_cleanup(),
-            mimetype="video/mp4",
-            headers={
-                "Content-Disposition": "inline",
-                "X-Accel-Buffering": "no",
-                "Cache-Control": "no-cache",
-            },
-        )
-
-    except Exception as e:
-        logger.error(f"generate_inline_oracle error: {e}", exc_info=True)
-        for p in [audio_path, wav_path]:
-            try:
-                if os.path.exists(p): os.unlink(p)
-            except OSError:
-                pass
-        return jsonify({"error": str(e)}), 500
-
-
-def generate_inline_to_file(text, output_path):
-    """Like generate_inline but writes to a file path instead of HTTP response."""
-    audio_bytes = _avatar_tts(text)
-    is_wav = audio_bytes[:4] == b"RIFF"
-    ext = ".wav" if is_wav else ".mp3"
-    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-        tmp.write(audio_bytes)
-        audio_path = tmp.name
-    wav_path = audio_path + "_16k.wav"
-    if is_wav:
-        import shutil
-        shutil.copy2(audio_path, wav_path)
-    else:
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path,
-                       "-ar", "16000", "-ac", "1", wav_path],
-                      check=True, capture_output=True, timeout=30)
-    try:
-        _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
-        try:
-            frames = wav2lip_generate(wav_path, DEFAULT_FPS)
-            try:
-                frames = sharpen_mouth_region(frames, ModelRegistry.get().avatar_face_coords)
-            except Exception:
-                pass
-            frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
-            video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
-        finally:
-            _render_semaphore.release()
-        if video_path:
-            import shutil as _sh
-            _sh.move(video_path, output_path)
-    finally:
-        for p in [audio_path, wav_path]:
-            try:
-                if os.path.exists(p):
-                    os.unlink(p)
-            except OSError:
-                pass
-    return output_path
-
-
-# ── Monologue pre-render system ───────────────────────────────────────
-_MONOLOGUE_JOBS = {}
-
-
-@app.route("/oracle/monologue", methods=["POST"])
-def oracle_monologue():
-    """Split a long script into chunks, pre-render all, return manifest immediately."""
-    data = request.get_json()
-    if not data or not data.get("script"):
-        return jsonify({"error": "script required"}), 400
-
-    script = data["script"].strip()
-    job_id = str(uuid.uuid4())[:8]
-
-    # Split into sentence chunks targeting ~20 words each
-    import re as _re
-    sentences = _re.split(r'(?<=[.!?])\s+', script)
-    chunks = []
-    current = []
-    current_words = 0
-    for sent in sentences:
-        words = len(sent.split())
-        if current_words + words > 12 and current:
-            chunks.append(' '.join(current))
-            current = [sent]
-            current_words = words
-        else:
-            current.append(sent)
-            current_words += words
-    if current:
-        chunks.append(' '.join(current))
-
-    chunk_dir = os.path.join(os.path.dirname(__file__), "cache", "monologues", job_id)
-    os.makedirs(chunk_dir, exist_ok=True)
-
-    job = {
-        "id": job_id,
-        "total": len(chunks),
-        "chunks": {i: {"status": "pending", "path": None} for i in range(len(chunks))},
-        "texts": chunks,
-    }
-    _MONOLOGUE_JOBS[job_id] = job
-
-    def render_chunk(idx, txt):
-        try:
-            result = generate_inline_to_file(txt, os.path.join(chunk_dir, f"chunk_{idx}.mp4"))
-            job["chunks"][idx] = {"status": "ready", "path": result}
-        except Exception as e:
-            job["chunks"][idx] = {"status": "error", "error": str(e)}
-
-    # Render ALL chunks in background — client polls for readiness
-    for i, txt in enumerate(chunks):
-        _threading_mod.Thread(target=render_chunk, args=(i, txt), daemon=True).start()
-
-    return jsonify({
-        "job_id": job_id,
-        "total_chunks": len(chunks),
-        "chunk_texts": chunks,
-        "poll_url": f"/oracle/monologue/{job_id}/status",
-    })
-
-
-@app.route("/oracle/monologue/<job_id>/status")
-def oracle_monologue_status(job_id):
-    job = _MONOLOGUE_JOBS.get(job_id)
-    if not job:
-        return jsonify({"error": "job not found"}), 404
-    ready = [i for i, c in job["chunks"].items() if c["status"] == "ready"]
-    return jsonify({
-        "job_id": job_id,
-        "total": job["total"],
-        "ready": ready,
-        "complete": len(ready) == job["total"],
-    })
-
-
-@app.route("/oracle/monologue/<job_id>/chunk/<int:chunk_idx>")
-def oracle_monologue_chunk(job_id, chunk_idx):
-    job = _MONOLOGUE_JOBS.get(job_id)
-    if not job:
-        return jsonify({"error": "job not found"}), 404
-    chunk = job["chunks"].get(chunk_idx, {})
-    if chunk.get("status") != "ready":
-        return jsonify({"error": "not ready", "status": chunk.get("status", "pending")}), 202
-    return send_file(chunk["path"], mimetype="video/mp4")
 
 
 
@@ -1754,17 +1441,6 @@ def oracle_voice():
         return jsonify({"error": "text required"}), 400
 
     text = data["text"].strip()
-
-    if _AVATAR_KOKORO_ORACLE_READY:
-        try:
-            audio_bytes = _avatar_tts_oracle(text)
-            from flask import make_response
-            resp = make_response(audio_bytes)
-            resp.headers["Content-Type"] = "audio/wav"
-            resp.headers["Cache-Control"] = "no-store"
-            return resp
-        except Exception as e:
-            logger.warning(f"[oracle/voice] Kokoro Oracle failed: {e}")
 
     try:
         t0 = time.time()
@@ -1932,7 +1608,7 @@ def oracle_chat():
                     logger.warning(f"[ASYNC RENDER] Avatar source '{src_name}' failed, falling back to default")
                     a_face, a_coords, _a_eyes = _load_avatar_face("default")
 
-                audio_bytes = _avatar_tts_oracle(txt)
+                audio_bytes = _avatar_tts(txt)
                 # Cache audio in job dict so frontend can fetch it without calling Kokoro again
                 with _render_jobs_lock:
                     if jid in _render_jobs:
@@ -2013,7 +1689,7 @@ def oracle_chat():
         return jsonify(resp_data)
 
     # Existing: return video directly
-    return generate_inline_oracle(result["text"])
+    return generate_inline(result["text"])
 
 
 @app.route("/oracle/session", methods=["GET"])
@@ -2221,7 +1897,6 @@ if __name__ == "__main__":
     # Load Kokoro af_heart TTS on cuda:1 (~2-3s per utterance)
     logger.info("[STARTUP] Initializing Kokoro af_heart TTS on cuda:1...")
     _init_avatar_kokoro()
-    _threading_mod.Thread(target=_init_kokoro_oracle, daemon=True).start()
 
     # Auto-warmup (non-blocking — runs in background thread so Flask can start immediately)
     def _warmup_background():
