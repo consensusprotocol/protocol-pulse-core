@@ -1003,6 +1003,12 @@ def operator_costs():
     """Operator Costs - Fee leakage calculator"""
     return render_template('operator_costs.html')
 
+@app.route("/go/rns")
+def go_rns():
+    ref = request.args.get("ref", "/digital-residency")
+    from flask import redirect
+    return redirect("https://rns.id?ref=protocolpulse", 302)
+
 @app.route("/digital-residency")
 def digital_residency():
     return render_template("digital_residency.html")
