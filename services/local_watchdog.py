@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
 Protocol Pulse — Local LLM Watchdog (4-Layer Autonomous System)
+GPU 2: Qwen3-Coder-30B via Ollama on port 11435
 
-Modes (via --mode flag):
-  reactive  — every 60s, crash detection + auto-patch
-  health    — every 15min, system health scan
-  pattern   — every 6h, 7-day trend analysis
-  audit     — weekly Monday 08:00 UTC, deep gospel audit
-  briefing  — daily 09:00 ET (13:00 UTC), Telegram summary
+Modes (each runs independently via cron):
+  --mode reactive   : every 60s  — crash detection + auto-patch
+  --mode health     : every 15m  — system health scan
+  --mode pattern    : every 6h   — trend analysis over 7 days
+  --mode audit      : Monday 08:00 UTC — weekly deep audit
+  --mode briefing   : daily 13:00 UTC (09:00 ET) — Telegram daily summary
 
 Gospel: docs/gospels/WATCHDOG_LLM_GOSPEL.md
 """
 
 import argparse
+import glob
 import json
 import logging
 import os
@@ -25,935 +27,1012 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Paths & Config
+# Paths
 # ---------------------------------------------------------------------------
 
 BASE = Path(__file__).resolve().parent.parent
 LOGS_DIR = BASE / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
-OLLAMA_URL = "http://localhost:11435"
-OLLAMA_MODEL = os.environ.get("WATCHDOG_MODEL", "qwen3-coder:30b")
-
-# Log file targets
+LOG_FILE = LOGS_DIR / "watchdog_llm.log"
+PATCH_LOG = LOGS_DIR / "watchdog_patches.jsonl"
 OVERNIGHT_LOG = LOGS_DIR / "overnight_loop.log"
-EPISODE_LOGS = [LOGS_DIR / f"episode_{t}.log" for t in ("morning", "noon", "evening")]
-
-# Safety: never patch these files
-NEVER_PATCH = {"assembler.py", "tts_engine.py", "gemini_grade.py", "routes.py"}
-
-# Cooldown & rate limits
-COOLDOWN_SECONDS = 600  # 10 minutes per file
-MAX_PATCHES_PER_HOUR = 3
-CONFIDENCE_THRESHOLD = 0.8
-
 REGRESSION_SCRIPT = BASE / "regression_test.sh"
 
-logger = logging.getLogger("watchdog_llm")
-logger.setLevel(logging.INFO)
-_fh = logging.FileHandler(str(LOGS_DIR / "watchdog_llm.log"))
-_fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-logger.addHandler(_fh)
-_sh = logging.StreamHandler()
-_sh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-logger.addHandler(_sh)
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
 
+OLLAMA_URL = "http://127.0.0.1:11435"
+MODEL = os.environ.get("WATCHDOG_MODEL", "qwen3-coder:30b")
+
+# Files we NEVER patch — gospel law
+NEVER_PATCH = {"assembler.py", "tts_engine.py", "gemini_grade.py", "routes.py"}
+
+# Cooldown: 600s per file, max 3 patches/hour
+COOLDOWN_SECONDS = 600
+MAX_PATCHES_PER_HOUR = 3
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
+logger = logging.getLogger("watchdog")
+logger.setLevel(logging.INFO)
+
+_fh = logging.FileHandler(str(LOG_FILE))
+_fh.setFormatter(logging.Formatter("%(asctime)s [WATCHDOG] %(levelname)s: %(message)s"))
+logger.addHandler(_fh)
+
+_sh = logging.StreamHandler()
+_sh.setFormatter(logging.Formatter("%(asctime)s [WATCHDOG] %(levelname)s: %(message)s"))
+logger.addHandler(_sh)
 
 # ---------------------------------------------------------------------------
 # Telegram
 # ---------------------------------------------------------------------------
 
 def _load_env():
-    """Load .env file into dict."""
+    """Load .env file into os.environ."""
     env_path = BASE / ".env"
-    env = {}
     if env_path.exists():
         for line in env_path.read_text().splitlines():
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
-                k, v = line.split("=", 1)
-                env[k.strip()] = v.strip().strip("'\"")
-    return env
+                key, val = line.split("=", 1)
+                os.environ.setdefault(key.strip(), val.strip().strip("'\""))
 
 
 def send_telegram(msg):
-    """Send message to Telegram."""
-    import requests
-    env = _load_env()
-    token = env.get("TELEGRAM_BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = env.get("TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID", "")
+    """Send a Telegram message. Returns True on success."""
+    _load_env()
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
     if not token or not chat_id:
-        logger.warning("Telegram credentials not found, skipping alert")
+        logger.warning("Telegram not configured — TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing")
         return False
     try:
-        r = requests.post(
+        import requests
+        resp = requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
             json={"chat_id": chat_id, "text": msg, "parse_mode": "HTML"},
             timeout=10,
         )
-        r.raise_for_status()
+        resp.raise_for_status()
         return True
     except Exception as e:
         logger.error("Telegram send failed: %s", e)
         return False
 
-
 # ---------------------------------------------------------------------------
 # Ollama Interface
 # ---------------------------------------------------------------------------
 
-def ollama_alive():
-    """Check if Ollama is responding."""
+def ollama_chat(system_prompt, user_prompt, temperature=0.3):
+    """Fresh Ollama conversation — zero prior context (gospel: Fresh Perspective)."""
     import requests
     try:
-        r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
-        return r.status_code == 200
-    except Exception:
-        return False
-
-
-def ollama_generate(system_prompt, user_prompt, temperature=0.3):
-    """Fresh Ollama conversation — zero prior context (FRESH PERSPECTIVE)."""
-    import requests
-    messages = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    messages.append({"role": "user", "content": user_prompt})
-
-    try:
-        r = requests.post(
+        resp = requests.post(
             f"{OLLAMA_URL}/api/chat",
             json={
-                "model": OLLAMA_MODEL,
-                "messages": messages,
+                "model": MODEL,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
                 "stream": False,
                 "options": {"temperature": temperature},
             },
             timeout=120,
         )
-        r.raise_for_status()
-        return r.json().get("message", {}).get("content", "")
+        resp.raise_for_status()
+        return resp.json().get("message", {}).get("content", "").strip()
     except Exception as e:
-        logger.error("Ollama generate failed: %s", e)
+        logger.error("Ollama call failed: %s", e)
+        return None
+
+
+def ollama_healthy():
+    """Check if Ollama is responding."""
+    import requests
+    try:
+        resp = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
+        return resp.status_code == 200
+    except Exception:
+        return False
+
+# ---------------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------------
+
+def tail_file(path, n=50):
+    """Read last n lines of a file."""
+    p = Path(path)
+    if not p.exists():
         return ""
+    try:
+        result = subprocess.run(
+            ["tail", "-n", str(n), str(p)],
+            capture_output=True, text=True, timeout=10,
+        )
+        return result.stdout
+    except Exception:
+        return ""
+
+
+def read_file_content(path):
+    """Read file content, capped at 200 lines."""
+    try:
+        lines = Path(path).read_text().splitlines()[:200]
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def gpu_vram():
+    """Get GPU VRAM usage as list of dicts."""
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=index,memory.used,memory.total,utilization.gpu",
+             "--format=csv,nounits,noheader"],
+            capture_output=True, text=True, timeout=10,
+        )
+        gpus = []
+        for line in result.stdout.strip().splitlines():
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) >= 4:
+                gpus.append({
+                    "index": int(parts[0]),
+                    "vram_used_mb": int(parts[1]),
+                    "vram_total_mb": int(parts[2]),
+                    "utilization_pct": int(parts[3]),
+                })
+        return gpus
+    except Exception:
+        return []
+
+
+def disk_free_gb():
+    """Get free disk space in GB for the base directory."""
+    try:
+        stat = shutil.disk_usage(str(BASE))
+        return round(stat.free / (1024 ** 3), 1)
+    except Exception:
+        return -1
+
+
+def process_alive(name):
+    """Check if a process matching name is running."""
+    try:
+        result = subprocess.run(["pgrep", "-f", name], capture_output=True, timeout=5)
+        return result.returncode == 0
+    except Exception:
+        return False
+
+
+def flask_alive():
+    """Check if Flask is responding on localhost:5000."""
+    import requests
+    try:
+        resp = requests.get("http://localhost:5000/", timeout=5)
+        return resp.status_code < 500
+    except Exception:
+        return False
 
 
 # ---------------------------------------------------------------------------
 # Safety Gates
 # ---------------------------------------------------------------------------
 
-def is_render_running():
-    """Gate 5: never patch during active render."""
-    try:
-        result = subprocess.run(["pgrep", "-f", "daily_producer"], capture_output=True, text=True)
-        return result.returncode == 0
-    except Exception:
-        return False
-
-
 def check_cooldown(filepath):
-    """Gate 4: 10-minute cooldown per file."""
-    safe_name = Path(filepath).name.replace("/", "_")
-    ts_file = Path(f"/tmp/watchdog_last_patch_{safe_name}.txt")
-    if ts_file.exists():
+    """Return True if file is on cooldown (patched within last 600s)."""
+    fname = Path(filepath).name
+    stamp_file = Path(f"/tmp/watchdog_last_patch_{fname}.txt")
+    if stamp_file.exists():
         try:
-            last_ts = float(ts_file.read_text().strip())
-            if time.time() - last_ts < COOLDOWN_SECONDS:
-                return False  # Still in cooldown
+            last = float(stamp_file.read_text().strip())
+            if time.time() - last < COOLDOWN_SECONDS:
+                return True
         except (ValueError, IOError):
             pass
-    return True  # OK to patch
+    return False
 
 
 def record_patch(filepath):
     """Record patch timestamp for cooldown tracking."""
-    safe_name = Path(filepath).name.replace("/", "_")
-    ts_file = Path(f"/tmp/watchdog_last_patch_{safe_name}.txt")
-    ts_file.write_text(str(time.time()))
-
-    # Hourly counter
-    hour_key = datetime.now(timezone.utc).strftime("%Y%m%d%H")
-    count_file = Path(f"/tmp/watchdog_patch_count_{hour_key}.txt")
-    count = 0
-    if count_file.exists():
-        try:
-            count = int(count_file.read_text().strip())
-        except (ValueError, IOError):
-            pass
-    count_file.write_text(str(count + 1))
+    fname = Path(filepath).name
+    stamp_file = Path(f"/tmp/watchdog_last_patch_{fname}.txt")
+    stamp_file.write_text(str(time.time()))
 
 
-def check_hourly_limit():
-    """Gate 6: max 3 patches per hour."""
+def patches_this_hour():
+    """Count patches applied in the current hour."""
     hour_key = datetime.now(timezone.utc).strftime("%Y%m%d%H")
     count_file = Path(f"/tmp/watchdog_patch_count_{hour_key}.txt")
     if count_file.exists():
         try:
-            count = int(count_file.read_text().strip())
-            return count < MAX_PATCHES_PER_HOUR
+            return int(count_file.read_text().strip())
         except (ValueError, IOError):
             pass
-    return True
+    return 0
+
+
+def increment_patch_count():
+    """Increment the hourly patch counter."""
+    hour_key = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    count_file = Path(f"/tmp/watchdog_patch_count_{hour_key}.txt")
+    current = patches_this_hour()
+    count_file.write_text(str(current + 1))
 
 
 def is_patchable(filepath):
-    """Check if file is in the never-patch list."""
-    return Path(filepath).name not in NEVER_PATCH
+    """Check all safety gates for patching a file."""
+    fname = Path(filepath).name
+
+    if fname in NEVER_PATCH:
+        logger.info("GATE: %s is in NEVER_PATCH list — skipping", fname)
+        return False
+
+    if process_alive("daily_producer"):
+        logger.info("GATE: daily_producer is running — skipping patch")
+        return False
+
+    if check_cooldown(filepath):
+        logger.info("GATE: %s on cooldown — skipping", fname)
+        return False
+
+    if patches_this_hour() >= MAX_PATCHES_PER_HOUR:
+        logger.info("GATE: max %d patches/hour reached — skipping", MAX_PATCHES_PER_HOUR)
+        return False
+
+    return True
 
 
 # ---------------------------------------------------------------------------
-# Crash Detection
+# Crash Classification
 # ---------------------------------------------------------------------------
 
-def classify_crash(log_lines):
-    """Classify crash from log lines. Returns (class, description) or None."""
-    text = "\n".join(log_lines)
+def classify_crash(log_tail):
+    """Classify crash from log lines. Returns (class, pattern_matched) or (None, None)."""
+    lines = log_tail.strip()
+    if not lines:
+        return None, None
 
-    # CLASS A patterns
-    if "KeyError" in text:
-        return ("A", "KeyError detected")
-    if "ImportError" in text or "ModuleNotFoundError" in text:
-        return ("A", "Import/Module error")
-    if "FileNotFoundError" in text:
-        return ("A", "FileNotFoundError")
-    if "SyntaxError" in text:
-        return ("A", "SyntaxError")
+    # CLASS C — check protected files first (takes priority)
+    for protected in NEVER_PATCH:
+        if (f'File "' in lines and protected in lines and "Traceback" in lines):
+            return "C", f"crash_in_{protected}"
 
-    # CLASS B patterns
-    if "Traceback" in text and "daily_producer" in text:
-        return ("B", "Traceback in daily_producer")
-    if "exit: -15" in text.lower() or "FATAL" in text:
-        return ("B", "Fatal exit detected")
+    # Check for multi-file crashes (>1 unique repo file in traceback)
+    file_matches = re.findall(r'File "([^"]*protocol_pulse[^"]*)"', lines)
+    unique_files = set(Path(f).name for f in file_matches)
+    # Remove __init__.py and test files from uniqueness check
+    meaningful = {f for f in unique_files if f != "__init__.py" and not f.startswith("test_")}
+    if len(meaningful) > 1:
+        return "C", f"multi_file_crash({','.join(sorted(meaningful)[:3])})"
 
-    # 3x consecutive render failures
-    render_fail_count = 0
-    for line in log_lines:
-        if "Render failed" in line or "render failed" in line:
-            render_fail_count += 1
-        else:
-            render_fail_count = 0
-        if render_fail_count >= 3:
-            return ("B", "3x consecutive render failures")
+    # CLASS A patterns (safe auto-patch)
+    if "KeyError" in lines:
+        return "A", "KeyError"
+    if "ImportError" in lines or "ModuleNotFoundError" in lines:
+        return "A", "ImportError"
+    if "FileNotFoundError" in lines:
+        return "A", "FileNotFoundError"
+    if "SyntaxError" in lines:
+        return "A", "SyntaxError"
 
-    if "GRADE: F" in text:
-        return ("B", "Grade F render detected")
+    # CLASS B patterns (patch + test)
+    if "Traceback" in lines and "daily_producer" in lines:
+        return "B", "Traceback+daily_producer"
+    if "exit: -15" in lines and "FATAL" in lines:
+        return "B", "exit:-15+FATAL"
+    if "GRADE: F" in lines:
+        return "B", "GRADE:F"
 
-    # CLASS C — multi-file or protected-file crashes
-    if "assembler.py" in text and "Traceback" in text:
-        return ("C", "Crash in assembler.py — manual intervention needed")
-    if "tts_engine.py" in text and "Traceback" in text:
-        return ("C", "Crash in tts_engine.py — manual intervention needed")
-    if "routes.py" in text and "Traceback" in text:
-        return ("C", "Crash in routes.py — manual intervention needed")
+    # Check for 3x consecutive "Render failed"
+    render_fails = re.findall(r"Render failed", lines)
+    if len(render_fails) >= 3:
+        return "B", "Render_failed_3x"
 
+    return None, None
+
+
+def extract_affected_file(log_tail):
+    """Try to extract the crashing file from a traceback."""
+    matches = re.findall(r'File "([^"]+)"', log_tail)
+    # Filter to our repo files, exclude NEVER_PATCH
+    repo_files = [
+        m for m in matches
+        if str(BASE) in m and Path(m).name not in NEVER_PATCH
+    ]
+    if repo_files:
+        return repo_files[-1]  # Last file in traceback is usually the culprit
     return None
 
 
-def extract_affected_file(log_lines):
-    """Try to extract the file that caused the crash from traceback."""
-    for line in reversed(log_lines):
-        m = re.search(r'File "([^"]+)", line \d+', line)
-        if m:
-            filepath = m.group(1)
-            if filepath.startswith(str(BASE)):
-                return filepath
-    return None
-
-
 # ---------------------------------------------------------------------------
-# LAYER 1 — REACTIVE CHECK (every 60s)
+# Patch Engine
 # ---------------------------------------------------------------------------
 
-def run_reactive_check():
-    """Tail logs, detect crashes, diagnose + patch if safe."""
-    logger.info("=== REACTIVE CHECK ===")
+def diagnose_and_patch(log_tail, crash_class, pattern):
+    """Use Ollama to diagnose crash, optionally apply patch."""
+    affected_file = extract_affected_file(log_tail)
 
-    # Read last 50 lines of overnight_loop.log
-    log_lines = []
-    for log_file in [OVERNIGHT_LOG] + EPISODE_LOGS:
-        if log_file.exists():
-            try:
-                lines = log_file.read_text().splitlines()[-50:]
-                log_lines.extend(lines)
-            except Exception:
-                pass
-
-    if not log_lines:
-        logger.info("No log lines to analyze")
-        _write_last_run()
-        return
-
-    crash = classify_crash(log_lines)
-    if not crash:
-        logger.info("No crash patterns detected")
-        _write_last_run()
-        return
-
-    crash_class, crash_desc = crash
-    logger.warning("CRASH DETECTED: CLASS %s — %s", crash_class, crash_desc)
-
-    # Always alert on crash
-    send_telegram(f"🔴 CRASH DETECTED: CLASS {crash_class}\n📋 {crash_desc}")
-
-    # CLASS C — alert only, never patch
-    if crash_class == "C":
-        logger.info("CLASS C — alert only, no auto-patch")
-        _write_last_run()
-        return
-
-    # Safety gates
-    if is_render_running():
-        logger.info("Render running — skipping patch")
-        send_telegram("⏸️ Patch skipped — render in progress")
-        _write_last_run()
-        return
-
-    if not check_hourly_limit():
-        logger.info("Hourly patch limit reached — skipping")
-        send_telegram("⏸️ Patch skipped — hourly limit (3) reached")
-        _write_last_run()
-        return
-
-    if not ollama_alive():
-        logger.error("Ollama not responding — cannot diagnose")
-        send_telegram("⚠️ Ollama down — crash detected but cannot diagnose")
-        _write_last_run()
-        return
-
-    # Extract affected file
-    affected_file = extract_affected_file(log_lines)
     if not affected_file:
         logger.info("Could not determine affected file from traceback")
-        send_telegram("⚠️ Crash detected but affected file unknown — manual review needed")
-        _write_last_run()
+        send_telegram(
+            f"\U0001f534 <b>CRASH DETECTED</b> — CLASS {crash_class}\n"
+            f"\U0001f4cb Pattern: {pattern}\n"
+            f"\u26a0\ufe0f Could not identify affected file\n"
+            f"\U0001f527 Manual intervention needed"
+        )
         return
 
+    fname = Path(affected_file).name
+
+    # CLASS C — alert only
+    if crash_class == "C":
+        logger.info("CLASS C crash in %s — alert only, no patching", fname)
+        send_telegram(
+            f"\U0001f534 <b>CLASS C CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb Pattern: {pattern}\n"
+            f"\u26a0\ufe0f Protected file — manual fix required\n"
+            f"\U0001f4c2 {affected_file}"
+        )
+        return
+
+    # Check safety gates
     if not is_patchable(affected_file):
-        logger.info("File %s is in NEVER_PATCH list", affected_file)
-        send_telegram(f"🚫 Crash in protected file: {Path(affected_file).name} — manual fix needed")
-        _write_last_run()
-        return
-
-    if not check_cooldown(affected_file):
-        logger.info("File %s is in cooldown", affected_file)
-        _write_last_run()
+        send_telegram(
+            f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb Pattern: {pattern}\n"
+            f"\U0001f6ab Safety gate blocked auto-patch\n"
+            f"\U0001f527 Manual intervention needed"
+        )
         return
 
     # Read affected file content
-    try:
-        file_content = Path(affected_file).read_text()
-    except Exception as e:
-        logger.error("Cannot read affected file: %s", e)
-        _write_last_run()
-        return
+    file_content = read_file_content(affected_file)
 
-    # Diagnose with Ollama
-    log_excerpt = "\n".join(log_lines[-50:])
-    diagnosis_response = ollama_generate(
-        system_prompt=(
-            "You are a Python/FFmpeg expert debugging a video production pipeline. "
-            "Analyze the crash log and return ONLY valid JSON:\n"
-            '{"diagnosis": "str", "affected_file": "str", "patch_diff": "str (unified diff format)", "confidence": 0.0-1.0}\n'
-            "The patch_diff must be a valid unified diff that can be applied with `patch -p0`.\n"
-            "If you cannot determine a fix with high confidence, set confidence to 0.0."
-        ),
-        user_prompt=f"CRASH LOG:\n{log_excerpt}\n\nFILE ({affected_file}):\n{file_content[:8000]}",
+    # Ask Ollama for diagnosis
+    system_prompt = (
+        "You are a Python/FFmpeg expert debugging a video production pipeline. "
+        "Analyze the crash log and return ONLY valid JSON:\n"
+        '{"diagnosis": "str", "affected_file": "str", "patch_diff": "str", "confidence": float}\n'
+        "The patch_diff must be a unified diff that can be applied with `patch -p0`.\n"
+        "If you cannot determine a fix with high confidence, set confidence to 0.0."
     )
+    user_prompt = f"CRASH LOG:\n{log_tail}\n\nFILE CONTENT ({affected_file}):\n{file_content}"
 
-    # Parse JSON from response
-    diagnosis = _parse_diagnosis(diagnosis_response)
-    if not diagnosis:
-        logger.warning("Failed to parse diagnosis JSON")
-        send_telegram(f"⚠️ Crash in {Path(affected_file).name} — LLM diagnosis failed to parse")
-        _write_last_run()
+    logger.info("Requesting Ollama diagnosis for %s...", fname)
+    raw_response = ollama_chat(system_prompt, user_prompt)
+
+    if not raw_response:
+        send_telegram(
+            f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb {pattern}\n"
+            f"\u274c Ollama diagnosis failed — model unresponsive"
+        )
         return
 
-    logger.info("Diagnosis: %s (confidence: %.2f)", diagnosis.get("diagnosis", "?"), diagnosis.get("confidence", 0))
+    # Parse JSON from response (may be wrapped in markdown code block)
+    json_text = None
+    # Try code block first
+    code_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', raw_response, re.DOTALL)
+    if code_match:
+        json_text = code_match.group(1)
+    else:
+        # Try bare JSON
+        json_match = re.search(r'\{[^{}]*"diagnosis"[^}]*\}', raw_response, re.DOTALL)
+        if json_match:
+            json_text = json_match.group()
+
+    if not json_text:
+        logger.warning("Could not parse JSON from Ollama response")
+        send_telegram(
+            f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb {pattern}\n"
+            f"\u274c Ollama returned unparseable response"
+        )
+        return
+
+    try:
+        diagnosis = json.loads(json_text)
+    except json.JSONDecodeError:
+        logger.warning("JSON parse failed on Ollama response")
+        send_telegram(
+            f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb {pattern}\n"
+            f"\u274c Ollama JSON malformed"
+        )
+        return
+
+    confidence = float(diagnosis.get("confidence", 0))
+    diag_text = diagnosis.get("diagnosis", "No diagnosis")
+    patch_diff = diagnosis.get("patch_diff", "")
+
+    logger.info("Diagnosis: %s (confidence: %.2f)", diag_text[:100], confidence)
 
     # Gate 1: confidence check
-    confidence = diagnosis.get("confidence", 0)
-    if confidence < CONFIDENCE_THRESHOLD:
-        logger.info("Confidence %.2f < %.2f — skipping auto-patch", confidence, CONFIDENCE_THRESHOLD)
+    if confidence < 0.8:
+        logger.info("Confidence %.2f < 0.8 — skipping auto-patch", confidence)
         send_telegram(
-            f"⚠️ CLASS {crash_class} crash in {Path(affected_file).name}\n"
-            f"📋 {diagnosis.get('diagnosis', '?')}\n"
-            f"🤖 Confidence: {confidence:.0%} (below threshold)\n"
-            f"⏸️ Manual review recommended"
+            f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb {diag_text[:200]}\n"
+            f"\U0001f3af Confidence: {confidence:.0%} (below 80% threshold)\n"
+            f"\U0001f527 Manual fix recommended"
         )
-        _write_last_run()
+        return
+
+    if not patch_diff.strip():
+        logger.info("No patch provided despite high confidence")
+        send_telegram(
+            f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+            f"\U0001f4cb {diag_text[:200]}\n"
+            f"\U0001f3af Confidence: {confidence:.0%}\n"
+            f"\u26a0\ufe0f No patch diff provided"
+        )
         return
 
     # Apply patch
-    patch_diff = diagnosis.get("patch_diff", "")
-    if not patch_diff:
-        logger.info("No patch_diff in diagnosis")
-        _write_last_run()
-        return
-
-    success = _apply_and_test_patch(affected_file, patch_diff, crash_class, diagnosis)
-    _write_last_run()
-    return success
-
-
-def _parse_diagnosis(text):
-    """Extract JSON from LLM response (may be wrapped in markdown)."""
-    if not text:
-        return None
-    # Try to find JSON block
-    json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', text, re.DOTALL)
-    if json_match:
-        text = json_match.group(1)
-    else:
-        # Try raw JSON
-        json_match = re.search(r'\{[^{}]*"diagnosis"[^{}]*\}', text, re.DOTALL)
-        if json_match:
-            text = json_match.group(0)
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        return None
-
-
-def _apply_and_test_patch(affected_file, patch_diff, crash_class, diagnosis):
-    """Apply patch, run tests, commit or revert."""
-    # Backup original
-    backup_path = Path(affected_file + ".watchdog_backup")
-    try:
-        shutil.copy2(affected_file, backup_path)
-    except Exception as e:
-        logger.error("Cannot backup file: %s", e)
-        return False
-
-    # Write patch to temp file and apply
+    logger.info("Applying patch to %s...", fname)
     patch_file = Path("/tmp/watchdog_patch.diff")
     patch_file.write_text(patch_diff)
 
     try:
         result = subprocess.run(
             ["patch", "-p0", "--dry-run", "-i", str(patch_file)],
-            capture_output=True, text=True, cwd=str(BASE), timeout=30,
+            capture_output=True, text=True, timeout=10, cwd=str(BASE),
         )
         if result.returncode != 0:
             logger.warning("Patch dry-run failed: %s", result.stderr)
-            # Try applying directly via the diff content
-            _restore_backup(affected_file, backup_path)
             send_telegram(
-                f"⚠️ Patch dry-run failed for {Path(affected_file).name}\n"
-                f"📋 {diagnosis.get('diagnosis', '?')}"
+                f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
+                f"\U0001f4cb {diag_text[:200]}\n"
+                f"\u274c Patch dry-run failed\n"
+                f"\U0001f527 Manual fix needed"
             )
-            return False
+            return
 
         # Apply for real
         result = subprocess.run(
             ["patch", "-p0", "-i", str(patch_file)],
-            capture_output=True, text=True, cwd=str(BASE), timeout=30,
+            capture_output=True, text=True, timeout=10, cwd=str(BASE),
         )
         if result.returncode != 0:
             logger.error("Patch apply failed: %s", result.stderr)
-            _restore_backup(affected_file, backup_path)
-            return False
-    except subprocess.TimeoutExpired:
-        logger.error("Patch command timed out")
-        _restore_backup(affected_file, backup_path)
-        return False
-
-    logger.info("Patch applied to %s", affected_file)
-
-    # Gate 2: Run regression tests
-    if REGRESSION_SCRIPT.exists():
-        try:
-            result = subprocess.run(
-                ["bash", str(REGRESSION_SCRIPT)],
-                capture_output=True, text=True, cwd=str(BASE), timeout=300,
+            send_telegram(
+                f"\U0001f534 <b>PATCH FAILED</b> for <code>{fname}</code>\n"
+                f"\u274c {result.stderr[:200]}"
             )
-            test_output = result.stdout + result.stderr
-            fail_count = test_output.lower().count("fail")
-
-            if fail_count > 0 or result.returncode != 0:
-                # Gate 3: revert on test failure
-                logger.warning("Tests FAILED after patch — reverting")
-                _restore_backup(affected_file, backup_path)
-                send_telegram(
-                    f"🔴 PATCH REVERTED — {Path(affected_file).name}\n"
-                    f"📋 {diagnosis.get('diagnosis', '?')}\n"
-                    f"🧪 TESTS: FAIL ({fail_count} failures)\n"
-                    f"↩️ File restored to pre-patch state"
-                )
-                return False
-        except subprocess.TimeoutExpired:
-            logger.error("Regression tests timed out — reverting patch")
-            _restore_backup(affected_file, backup_path)
-            send_telegram(f"⚠️ Tests timed out after patching {Path(affected_file).name} — reverted")
-            return False
-    else:
-        logger.warning("regression_test.sh not found — skipping tests")
-
-    # Tests passed — commit
-    record_patch(affected_file)
-    _log_patch(affected_file, diagnosis)
-
-    try:
-        rel_path = str(Path(affected_file).relative_to(BASE))
-        subprocess.run(["git", "add", rel_path], cwd=str(BASE), timeout=10)
-        subprocess.run(
-            ["git", "commit", "-m",
-             f"fix(watchdog): auto-patch {Path(affected_file).name} — {diagnosis.get('diagnosis', 'auto-fix')[:60]}"],
-            cwd=str(BASE), timeout=30,
-        )
+            return
     except Exception as e:
-        logger.error("Git commit failed: %s", e)
+        logger.error("Patch subprocess error: %s", e)
+        return
 
-    # Restart render loop if it was dead
-    _try_restart_loop()
+    logger.info("Patch applied — running regression tests...")
 
-    send_telegram(
-        f"✅ PATCH APPLIED — {Path(affected_file).name}\n"
-        f"📋 {diagnosis.get('diagnosis', '?')}\n"
-        f"🤖 Confidence: {diagnosis.get('confidence', 0):.0%}\n"
-        f"🧪 TESTS: PASS\n"
-        f"📝 Committed to git"
+    # Gate 2: regression test
+    try:
+        test_result = subprocess.run(
+            ["bash", str(REGRESSION_SCRIPT)],
+            capture_output=True, text=True, timeout=300, cwd=str(BASE),
+        )
+        test_output = test_result.stdout + test_result.stderr
+        fail_count = len(re.findall(r"FAIL", test_output))
+    except Exception as e:
+        logger.error("Regression test error: %s", e)
+        fail_count = 999
+
+    if fail_count > 0:
+        # Gate 3: revert on failure
+        logger.warning("Regression tests failed (%d FAILs) — reverting patch", fail_count)
+        subprocess.run(
+            ["git", "checkout", "--", affected_file],
+            capture_output=True, cwd=str(BASE),
+        )
+        send_telegram(
+            f"\U0001f534 <b>PATCH REVERTED</b> for <code>{fname}</code>\n"
+            f"\U0001f4cb {diag_text[:200]}\n"
+            f"\U0001f9ea Regression: {fail_count} FAILs\n"
+            f"\u21a9\ufe0f File reverted to pre-patch state"
+        )
+        return
+
+    # Success — commit + record
+    logger.info("All tests passed — committing patch")
+    record_patch(affected_file)
+    increment_patch_count()
+
+    subprocess.run(
+        ["git", "add", affected_file],
+        capture_output=True, cwd=str(BASE),
+    )
+    commit_msg = f"fix(watchdog): auto-patch {fname} — {diag_text[:80]}"
+    subprocess.run(
+        ["git", "commit", "-m", commit_msg],
+        capture_output=True, cwd=str(BASE),
     )
 
-    # Cleanup backup
-    backup_path.unlink(missing_ok=True)
-    return True
-
-
-def _restore_backup(affected_file, backup_path):
-    """Restore file from backup."""
-    try:
-        shutil.copy2(backup_path, affected_file)
-        backup_path.unlink(missing_ok=True)
-        # Also git checkout to be safe
-        subprocess.run(
-            ["git", "checkout", "--", str(Path(affected_file).relative_to(BASE))],
-            cwd=str(BASE), timeout=10, capture_output=True,
-        )
-    except Exception as e:
-        logger.error("Restore failed: %s", e)
-
-
-def _log_patch(affected_file, diagnosis):
-    """Append to patch history JSONL."""
-    log_path = LOGS_DIR / "watchdog_patches.jsonl"
-    entry = {
+    # Log patch to JSONL
+    patch_record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "file": str(affected_file),
-        "diagnosis": diagnosis.get("diagnosis", ""),
-        "confidence": diagnosis.get("confidence", 0),
+        "crash_class": crash_class,
+        "pattern": pattern,
+        "file": affected_file,
+        "diagnosis": diag_text,
+        "confidence": confidence,
+        "tests_passed": True,
     }
-    with open(log_path, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    with open(PATCH_LOG, "a") as f:
+        f.write(json.dumps(patch_record) + "\n")
+
+    # Restart render loop if it was dead
+    if not process_alive("overnight_render_loop"):
+        logger.info("Render loop is dead — attempting restart")
+        subprocess.Popen(
+            ["bash", "-c",
+             f"cd {BASE} && nohup python3 overnight_render_loop.py "
+             f">> {LOGS_DIR}/overnight_loop.log 2>&1 &"],
+        )
+
+    send_telegram(
+        f"\u2705 <b>PATCH APPLIED</b> — <code>{fname}</code>\n"
+        f"\U0001f4cb {diag_text[:200]}\n"
+        f"\U0001f3af Confidence: {confidence:.0%}\n"
+        f"\U0001f9ea Regression: ALL PASS\n"
+        f"\U0001f4dd Committed: {commit_msg[:80]}"
+    )
 
 
-def _try_restart_loop():
-    """Attempt to restart overnight render loop if dead."""
-    try:
-        result = subprocess.run(["pgrep", "-f", "overnight_render_loop"], capture_output=True, text=True)
-        if result.returncode != 0:
-            logger.info("Render loop is dead — attempting restart via tmux")
-            # Don't force restart — just alert
-            send_telegram("⚠️ Render loop appears dead — consider manual restart")
-    except Exception:
-        pass
+# ===================================================================
+# LAYER 1 — REACTIVE CHECK (every 60s)
+# ===================================================================
 
+def run_reactive_check():
+    """Tail overnight_loop.log, detect crashes, diagnose + patch."""
+    logger.info("-- REACTIVE CHECK --")
 
-def _write_last_run():
-    """Write timestamp for self-health check."""
+    # Self-health: is Ollama alive?
+    if not ollama_healthy():
+        logger.error("Ollama not responding on %s", OLLAMA_URL)
+        send_telegram(
+            "\u26a0\ufe0f <b>WATCHDOG ALERT</b>: Ollama not responding on GPU 2 "
+            "— self-restart attempted"
+        )
+        subprocess.Popen(
+            ["bash", "-c",
+             "CUDA_VISIBLE_DEVICES=2 OLLAMA_HOST=127.0.0.1:11435 "
+             "/usr/local/bin/ollama serve &"],
+        )
+        return
+
+    # Write last-run timestamp for self-health monitoring
     Path("/tmp/watchdog_last_run.txt").write_text(
         datetime.now(timezone.utc).isoformat()
     )
 
+    # Check render loop alive
+    loop_alive = process_alive("overnight_render_loop")
 
-# ---------------------------------------------------------------------------
+    # Tail the log
+    log_tail = tail_file(OVERNIGHT_LOG, 50)
+    if not log_tail.strip():
+        logger.info("No log content to analyze")
+        if not loop_alive:
+            logger.warning("Render loop is NOT running and no log activity")
+            send_telegram(
+                "\u26a0\ufe0f <b>WATCHDOG</b>: Render loop appears dead — no log activity\n"
+                "Check manually: <code>pgrep -f overnight_render_loop</code>"
+            )
+        return
+
+    # Classify
+    crash_class, pattern = classify_crash(log_tail)
+    if not crash_class:
+        logger.info("No crash patterns detected — all clear")
+        return
+
+    logger.info("CRASH DETECTED: CLASS %s — %s", crash_class, pattern)
+    diagnose_and_patch(log_tail, crash_class, pattern)
+
+
+# ===================================================================
 # LAYER 2 — PERIODIC HEALTH SCAN (every 15 min)
-# ---------------------------------------------------------------------------
+# ===================================================================
 
 def run_health_scan():
-    """System-wide health check with FRESH Ollama context."""
-    logger.info("=== HEALTH SCAN ===")
-    import requests
+    """Fresh system health check — reads everything from scratch."""
+    logger.info("-- HEALTH SCAN --")
 
     checks = {}
 
-    # 1. Render loop alive?
-    try:
-        result = subprocess.run(["pgrep", "-f", "overnight_render_loop"], capture_output=True, text=True)
-        checks["render_loop"] = "ALIVE" if result.returncode == 0 else "DEAD"
-    except Exception:
-        checks["render_loop"] = "UNKNOWN"
+    # Render loop alive?
+    checks["render_loop"] = process_alive("overnight_render_loop")
 
-    # 2. Flask alive?
-    try:
-        r = requests.get("http://localhost:5000/", timeout=5)
-        checks["flask"] = f"UP ({r.status_code})"
-    except Exception:
-        checks["flask"] = "DOWN"
+    # Flask alive?
+    checks["flask"] = flask_alive()
 
-    # 3. Ollama alive?
-    checks["ollama"] = "UP" if ollama_alive() else "DOWN"
+    # Ollama alive?
+    checks["ollama"] = ollama_healthy()
 
-    # 4. GPU VRAM
-    try:
-        result = subprocess.run(
-            ["nvidia-smi", "--query-gpu=index,memory.used,memory.total", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=10,
-        )
-        gpu_lines = result.stdout.strip().splitlines()
-        gpu_info = {}
-        for line in gpu_lines:
-            parts = [p.strip() for p in line.split(",")]
-            if len(parts) == 3:
-                idx, used, total = int(parts[0]), float(parts[1]), float(parts[2])
-                pct = (used / total * 100) if total > 0 else 0
-                gpu_info[idx] = {"used_mb": used, "total_mb": total, "pct": round(pct, 1)}
-        checks["gpus"] = gpu_info
+    # GPU VRAM
+    gpus = gpu_vram()
+    checks["gpus"] = []
+    for g in gpus:
+        pct = round(g["vram_used_mb"] / g["vram_total_mb"] * 100, 1) if g["vram_total_mb"] > 0 else 0
+        checks["gpus"].append({
+            "index": g["index"],
+            "used_mb": g["vram_used_mb"],
+            "total_mb": g["vram_total_mb"],
+            "pct": pct,
+        })
+        if g["index"] in (0, 1) and pct > 90:
+            send_telegram(
+                f"\u26a0\ufe0f <b>GPU {g['index']} VRAM HIGH</b>: {pct}% "
+                f"({g['vram_used_mb']}MB / {g['vram_total_mb']}MB)"
+            )
 
-        # Alert if GPU 0 or 1 > 90%
-        for gid in [0, 1]:
-            if gid in gpu_info and gpu_info[gid]["pct"] > 90:
-                checks[f"gpu{gid}_warning"] = f"HIGH VRAM: {gpu_info[gid]['pct']}%"
-    except Exception as e:
-        checks["gpus"] = f"ERROR: {e}"
+    # Disk space
+    free_gb = disk_free_gb()
+    checks["disk_free_gb"] = free_gb
+    if 0 < free_gb < 200:
+        send_telegram(f"\u26a0\ufe0f <b>LOW DISK</b>: {free_gb}GB free (threshold: 200GB)")
 
-    # 5. Disk space
-    try:
-        result = subprocess.run(["df", "-BG", "--output=avail", "/home"], capture_output=True, text=True, timeout=10)
-        avail_line = result.stdout.strip().splitlines()[-1].strip().rstrip("G")
-        avail_gb = int(avail_line)
-        checks["disk_free_gb"] = avail_gb
-        if avail_gb < 200:
-            checks["disk_warning"] = f"LOW DISK: {avail_gb}GB free"
-    except Exception:
-        checks["disk_free_gb"] = "UNKNOWN"
-
-    # 6. Last successful grade
-    try:
-        if OVERNIGHT_LOG.exists():
-            lines = OVERNIGHT_LOG.read_text().splitlines()
-            last_grade = "UNKNOWN"
-            for line in reversed(lines):
-                m = re.search(r'GRADE:\s*([A-F])', line)
-                if m:
-                    last_grade = m.group(1)
-                    break
-            checks["last_grade"] = last_grade
-    except Exception:
-        checks["last_grade"] = "UNKNOWN"
-
-    # 7. Audio lines today
-    try:
-        today = datetime.now().strftime("%Y%m%d")
-        tts_cache = BASE / "video_pipeline_v3" / "tts_cache"
-        if tts_cache.exists():
-            count = sum(1 for f in tts_cache.glob("*.m4a")
-                       if datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y%m%d") == today)
-            checks["audio_lines_today"] = count
-        else:
-            checks["audio_lines_today"] = 0
-    except Exception:
-        checks["audio_lines_today"] = "UNKNOWN"
-
-    # 8. Patches in last 24h
-    patch_count_24h = 0
-    patch_log = LOGS_DIR / "watchdog_patches.jsonl"
-    if patch_log.exists():
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    # Last successful grade from loop log
+    last_grade = "UNKNOWN"
+    if OVERNIGHT_LOG.exists():
         try:
-            for line in patch_log.read_text().splitlines():
-                entry = json.loads(line)
-                ts = datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
-                if ts > cutoff:
-                    patch_count_24h += 1
+            result = subprocess.run(
+                ["grep", "-oP", r"GRADE: [A-F]", str(OVERNIGHT_LOG)],
+                capture_output=True, text=True, timeout=10,
+            )
+            grades = result.stdout.strip().splitlines()
+            if grades:
+                last_grade = grades[-1]
         except Exception:
             pass
-    checks["patches_24h"] = patch_count_24h
+    checks["last_grade"] = last_grade
 
-    logger.info("Health scan: %s", json.dumps(checks, indent=2, default=str))
+    # Audio lines in TTS cache
+    audio_pattern = str(BASE / "video_pipeline_v3" / "tts_cache" / "*.m4a")
+    audio_count = len(glob.glob(audio_pattern))
+    checks["audio_files_in_cache"] = audio_count
 
-    # Alert on critical issues
-    alerts = []
-    if checks.get("render_loop") == "DEAD":
-        alerts.append("🔴 Render loop is DEAD")
-    if checks.get("flask") == "DOWN":
-        alerts.append("🔴 Flask is DOWN")
-    if checks.get("ollama") == "DOWN":
-        alerts.append("🔴 Ollama is DOWN")
-    if isinstance(checks.get("disk_free_gb"), int) and checks["disk_free_gb"] < 200:
-        alerts.append(f"⚠️ Low disk: {checks['disk_free_gb']}GB")
-    for gid in [0, 1]:
-        if f"gpu{gid}_warning" in checks:
-            alerts.append(f"⚠️ GPU {gid}: {checks[f'gpu{gid}_warning']}")
+    # Patches in last 24h
+    patches_24h = 0
+    if PATCH_LOG.exists():
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+        for line in PATCH_LOG.read_text().splitlines():
+            try:
+                rec = json.loads(line)
+                if rec.get("timestamp", "") > cutoff:
+                    patches_24h += 1
+            except json.JSONDecodeError:
+                pass
+    checks["patches_24h"] = patches_24h
 
-    if alerts:
-        send_telegram("🏥 HEALTH SCAN ALERTS\n" + "\n".join(alerts))
+    logger.info(
+        "Health: loop=%s flask=%s ollama=%s disk=%.0fGB grade=%s patches_24h=%d",
+        checks["render_loop"], checks["flask"], checks["ollama"],
+        free_gb, last_grade, patches_24h,
+    )
 
-    _write_last_run()
+    # Alert if critical services down
+    issues = []
+    if not checks["render_loop"]:
+        issues.append("\u274c Render loop DOWN")
+    if not checks["flask"]:
+        issues.append("\u274c Flask DOWN")
+    if not checks["ollama"]:
+        issues.append("\u274c Ollama DOWN")
+
+    if issues:
+        send_telegram(
+            "\u26a0\ufe0f <b>HEALTH SCAN ALERT</b>\n" + "\n".join(issues)
+        )
+
+    # Ask Ollama for health assessment (fresh context)
+    if ollama_healthy():
+        health_prompt = (
+            f"System health snapshot:\n{json.dumps(checks, indent=2)}\n\n"
+            "Briefly assess: any concerning patterns? One paragraph max."
+        )
+        assessment = ollama_chat(
+            "You are a DevOps engineer monitoring a video production pipeline. Be concise.",
+            health_prompt,
+        )
+        if assessment:
+            logger.info("Health assessment: %s", assessment[:200])
+
     return checks
 
 
-# ---------------------------------------------------------------------------
-# LAYER 3 — PATTERN ANALYSIS (every 6h)
-# ---------------------------------------------------------------------------
+# ===================================================================
+# LAYER 3 — PATTERN ANALYSIS (every 6 hours)
+# ===================================================================
 
 def run_pattern_analysis():
-    """7-day trend analysis with FRESH Ollama context."""
-    logger.info("=== PATTERN ANALYSIS ===")
+    """Analyze 7 days of logs for trends — fresh Ollama conversation."""
+    logger.info("-- PATTERN ANALYSIS --")
 
-    if not ollama_alive():
-        logger.error("Ollama not responding — skipping pattern analysis")
+    if not ollama_healthy():
+        logger.error("Ollama not available for pattern analysis")
         return
 
-    # Gather last 7 days of logs
-    log_content = ""
-    for log_file in [OVERNIGHT_LOG] + EPISODE_LOGS:
-        if log_file.exists():
-            try:
-                lines = log_file.read_text().splitlines()
-                # Filter to last 7 days
-                cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-                recent = [l for l in lines if l[:10] >= cutoff or not re.match(r'\d{4}-\d{2}-\d{2}', l[:10])]
-                log_content += f"\n--- {log_file.name} ---\n" + "\n".join(recent[-500:])
-            except Exception:
-                pass
+    # Gather last 7 days of loop logs (tail 2000 lines)
+    log_content = tail_file(OVERNIGHT_LOG, 2000)
 
-    if len(log_content) < 100:
-        logger.info("Insufficient log data for pattern analysis")
-        _write_last_run()
-        return
+    # Also check episode log files
+    extra_logs = ""
+    for logname in ["episode_morning.log", "episode_noon.log", "episode_evening.log"]:
+        logpath = LOGS_DIR / logname
+        if logpath.exists():
+            extra_logs += f"\n--- {logname} ---\n" + tail_file(logpath, 500)
 
-    # FRESH Ollama conversation
-    analysis = ollama_generate(
-        system_prompt=None,
-        user_prompt=(
-            "Analyze these 7 days of render pipeline logs. Identify:\n"
-            "1. Most frequent crash type and root cause\n"
-            "2. Time-of-day patterns in failures\n"
-            "3. Any silent degradation in grades\n"
-            "4. Files that appear in >50% of crashes\n"
-            "5. Recommended preventive fixes\n\n"
-            f"LOGS:\n{log_content[:12000]}"
-        ),
-        temperature=0.2,
+    # Read patch history
+    patch_history = ""
+    if PATCH_LOG.exists():
+        patch_history = tail_file(PATCH_LOG, 100)
+
+    analysis_prompt = (
+        "Analyze these 7 days of render logs. Identify:\n"
+        "1. Most frequent crash type and root cause\n"
+        "2. Time-of-day patterns in failures\n"
+        "3. Any silent degradation in grades\n"
+        "4. Files that appear in >50% of crashes\n"
+        "5. Recommended preventive fixes\n\n"
+        f"OVERNIGHT LOOP LOG (last 2000 lines):\n{log_content[:8000]}\n\n"
+        f"ADDITIONAL EPISODE LOGS:\n{extra_logs[:4000]}\n\n"
+        f"PATCH HISTORY:\n{patch_history[:2000]}"
     )
 
-    if not analysis:
-        logger.warning("Pattern analysis returned empty")
-        _write_last_run()
+    response = ollama_chat(
+        "You are a senior SRE analyzing production pipeline logs. "
+        "Focus on patterns and trends, not individual events. Be specific with data.",
+        analysis_prompt,
+    )
+
+    if not response:
+        logger.error("Pattern analysis failed — no Ollama response")
         return
 
-    # Write analysis report
+    # Write analysis file
     date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
-    report_path = LOGS_DIR / f"watchdog_analysis_{date_str}.md"
-    report_path.write_text(
-        f"# Watchdog Pattern Analysis — {date_str}\n\n{analysis}\n"
+    analysis_path = LOGS_DIR / f"watchdog_analysis_{date_str}.md"
+    analysis_path.write_text(
+        f"# Watchdog Pattern Analysis — {date_str}\n\n{response}\n"
     )
-    logger.info("Analysis written to %s", report_path)
+    logger.info("Analysis written to %s", analysis_path)
 
-    # Check for P0 patterns (urgent)
-    if any(kw in analysis.lower() for kw in ["critical", "p0", "urgent", "immediate", "breaking"]):
+    # Check for P0 patterns
+    if any(kw in response.lower() for kw in ["critical", "p0", "urgent", "data loss", "cascade"]):
         send_telegram(
-            f"🔍 PATTERN ANALYSIS — P0 FINDING\n\n{analysis[:500]}"
+            f"\U0001f4ca <b>PATTERN ANALYSIS — P0 FOUND</b>\n\n"
+            f"{response[:800]}"
         )
+    else:
+        logger.info("No P0 patterns found in analysis")
 
-    _write_last_run()
 
-
-# ---------------------------------------------------------------------------
+# ===================================================================
 # LAYER 4 — WEEKLY DEEP AUDIT (Monday 08:00 UTC)
-# ---------------------------------------------------------------------------
+# ===================================================================
 
 def run_weekly_audit():
-    """Deep gospel compliance audit with FRESH Ollama context."""
-    logger.info("=== WEEKLY AUDIT ===")
+    """Deep audit: compare gospels vs actual behavior over 30 days."""
+    logger.info("-- WEEKLY AUDIT --")
 
-    if not ollama_alive():
-        logger.error("Ollama not responding — skipping weekly audit")
+    if not ollama_healthy():
+        logger.error("Ollama not available for weekly audit")
         return
 
     # Read gospels
-    gospel_dir = BASE / "docs" / "gospels"
+    gospels_dir = BASE / "docs" / "gospels"
     gospel_content = ""
-    if gospel_dir.exists():
-        for gf in sorted(gospel_dir.glob("*.md")):
-            try:
-                gospel_content += f"\n--- {gf.name} ---\n{gf.read_text()[:3000]}\n"
-            except Exception:
-                pass
+    if gospels_dir.exists():
+        for gf in sorted(gospels_dir.glob("*.md")):
+            text = gf.read_text()[:3000]
+            gospel_content += f"\n--- {gf.name} ---\n{text}\n"
 
     # Pipeline laws
     laws_path = BASE / "PIPELINE_LAWS.md"
     laws_content = ""
     if laws_path.exists():
-        try:
-            laws_content = laws_path.read_text()[:3000]
-        except Exception:
-            pass
+        laws_content = laws_path.read_text()[:4000]
 
-    # Git log
+    # Last 30 days log (tail 5000 lines)
+    log_content = tail_file(OVERNIGHT_LOG, 5000)
+
+    # Git log last 50 commits
     try:
-        result = subprocess.run(
+        git_result = subprocess.run(
             ["git", "log", "--oneline", "-50"],
-            capture_output=True, text=True, cwd=str(BASE), timeout=10,
+            capture_output=True, text=True, timeout=10, cwd=str(BASE),
         )
-        git_log = result.stdout
+        git_log = git_result.stdout
     except Exception:
-        git_log = ""
-
-    # Recent log summary
-    log_summary = ""
-    if OVERNIGHT_LOG.exists():
-        try:
-            lines = OVERNIGHT_LOG.read_text().splitlines()
-            log_summary = "\n".join(lines[-200:])
-        except Exception:
-            pass
+        git_log = "(unavailable)"
 
     # Patch history
     patch_history = ""
-    patch_log = LOGS_DIR / "watchdog_patches.jsonl"
-    if patch_log.exists():
+    if PATCH_LOG.exists():
+        patch_history = PATCH_LOG.read_text()[-3000:]
+
+    audit_prompt = (
+        "You are auditing the Protocol Pulse pipeline. Read the gospel docs "
+        "and compare against actual behavior in logs. Identify:\n"
+        "1. Gospel violations (rules being broken)\n"
+        "2. Technical debt accumulating\n"
+        "3. Costs trending up or down\n"
+        "4. Modules that have had >3 patches in 30 days (fragile code)\n"
+        "5. Recommended refactors\n\n"
+        f"GOSPEL DOCS:\n{gospel_content[:6000]}\n\n"
+        f"PIPELINE LAWS:\n{laws_content[:4000]}\n\n"
+        f"LOOP LOG (recent):\n{log_content[:6000]}\n\n"
+        f"GIT LOG:\n{git_log[:2000]}\n\n"
+        f"PATCH HISTORY:\n{patch_history[:2000]}"
+    )
+
+    response = ollama_chat(
+        "You are a senior engineer auditing a production video pipeline. "
+        "Compare documented rules against actual system behavior. Be specific.",
+        audit_prompt,
+    )
+
+    if not response:
+        logger.error("Weekly audit failed — no Ollama response")
+        return
+
+    # Write audit file
+    date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+    audit_path = LOGS_DIR / f"weekly_audit_{date_str}.md"
+    audit_path.write_text(
+        f"# Watchdog Weekly Audit — {date_str}\n\n{response}\n"
+    )
+    logger.info("Audit written to %s", audit_path)
+
+    # Telegram with top findings
+    send_telegram(
+        f"\U0001f4cb <b>WEEKLY AUDIT — {date_str}</b>\n\n"
+        f"{response[:800]}"
+    )
+
+
+# ===================================================================
+# DAILY BRIEFING (09:00 ET / 13:00 UTC)
+# ===================================================================
+
+def send_daily_briefing():
+    """Morning Telegram summary — gospel format."""
+    logger.info("-- DAILY BRIEFING --")
+
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Last grade
+    last_grade = "UNKNOWN"
+    last_score = "?"
+    last_time = "?"
+    if OVERNIGHT_LOG.exists():
         try:
-            patch_history = patch_log.read_text()[-2000:]
+            result = subprocess.run(
+                ["grep", "-P", r"GRADE:", str(OVERNIGHT_LOG)],
+                capture_output=True, text=True, timeout=10,
+            )
+            lines = result.stdout.strip().splitlines()
+            if lines:
+                last_line = lines[-1]
+                grade_match = re.search(r"GRADE:\s*([A-F])", last_line)
+                if grade_match:
+                    last_grade = grade_match.group(1)
+                score_match = re.search(r"(\d+)/100", last_line)
+                if score_match:
+                    last_score = score_match.group(1)
+                time_match = re.search(r"(\d{2}:\d{2})", last_line)
+                if time_match:
+                    last_time = time_match.group(1)
         except Exception:
             pass
 
-    # FRESH Ollama conversation
-    audit = ollama_generate(
-        system_prompt=None,
-        user_prompt=(
-            "You are auditing the Protocol Pulse pipeline. Read the gospel docs "
-            "and compare against actual behavior in logs. Identify:\n"
-            "1. Gospel violations (rules being broken)\n"
-            "2. Technical debt accumulating\n"
-            "3. Costs trending up or down\n"
-            "4. Modules that have had >3 patches in 30 days (fragile code)\n"
-            "5. Recommended refactors\n\n"
-            f"GOSPEL DOCS:\n{gospel_content[:6000]}\n\n"
-            f"PIPELINE LAWS:\n{laws_content[:3000]}\n\n"
-            f"GIT LOG (last 50 commits):\n{git_log}\n\n"
-            f"RECENT LOGS:\n{log_summary[:4000]}\n\n"
-            f"PATCH HISTORY:\n{patch_history[:2000]}"
-        ),
-        temperature=0.2,
-    )
+    # Patches in 24h
+    patches_24h = 0
+    if PATCH_LOG.exists():
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+        for line in PATCH_LOG.read_text().splitlines():
+            try:
+                rec = json.loads(line)
+                if rec.get("timestamp", "") > cutoff:
+                    patches_24h += 1
+            except json.JSONDecodeError:
+                pass
 
-    if not audit:
-        logger.warning("Weekly audit returned empty")
-        _write_last_run()
-        return
+    # Disk
+    free_gb = disk_free_gb()
 
-    date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
-    report_path = LOGS_DIR / f"weekly_audit_{date_str}.md"
-    report_path.write_text(f"# Weekly Audit — {date_str}\n\n{audit}\n")
-    logger.info("Audit written to %s", report_path)
+    # GPU 2 VRAM
+    gpu2_vram = "?"
+    for g in gpu_vram():
+        if g["index"] == 2:
+            gpu2_vram = f"{g['vram_used_mb'] / 1024:.1f}GB"
 
-    # Telegram with top findings (first 500 chars)
-    send_telegram(f"📋 WEEKLY AUDIT — {date_str}\n\n{audit[:500]}")
-    _write_last_run()
+    # Articles count today
+    article_count = "?"
+    db_path = BASE / "instance" / "protocol_pulse.db"
+    if db_path.exists():
+        try:
+            import sqlite3
+            conn = sqlite3.connect(str(db_path))
+            today_start = datetime.now(timezone.utc).replace(
+                hour=0, minute=0, second=0
+            ).isoformat()
+            row = conn.execute(
+                "SELECT COUNT(*) FROM articles WHERE created_at > ?",
+                (today_start,)
+            ).fetchone()
+            article_count = str(row[0]) if row else "0"
+            conn.close()
+        except Exception:
+            pass
 
-
-# ---------------------------------------------------------------------------
-# DAILY BRIEFING (09:00 ET / 13:00 UTC)
-# ---------------------------------------------------------------------------
-
-def send_daily_briefing():
-    """Morning Telegram summary."""
-    logger.info("=== DAILY BRIEFING ===")
-
-    checks = run_health_scan()
-
-    # Build briefing
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    gpu2_info = ""
-    if isinstance(checks.get("gpus"), dict) and 2 in checks["gpus"]:
-        g2 = checks["gpus"][2]
-        gpu2_info = f"{g2['used_mb']/1024:.1f}GB / {g2['total_mb']/1024:.0f}GB"
-    else:
-        gpu2_info = "N/A"
-
-    disk_free = checks.get("disk_free_gb", "?")
-    last_grade = checks.get("last_grade", "?")
-    patches_24h = checks.get("patches_24h", 0)
-    audio_lines = checks.get("audio_lines_today", 0)
-
-    # Count alerts
+    # Alerts in 24h
     alert_count = 0
-    alert_lines = []
-    if checks.get("render_loop") == "DEAD":
-        alert_count += 1
-        alert_lines.append("Render loop DEAD")
-    if checks.get("flask") == "DOWN":
-        alert_count += 1
-        alert_lines.append("Flask DOWN")
-    if checks.get("ollama") == "DOWN":
-        alert_count += 1
-        alert_lines.append("Ollama DOWN")
+    if LOG_FILE.exists():
+        try:
+            result = subprocess.run(
+                ["grep", "-c", "-E", "CRASH DETECTED|PATCH|ALERT", str(LOG_FILE)],
+                capture_output=True, text=True, timeout=10,
+            )
+            alert_count = int(result.stdout.strip()) if result.stdout.strip() else 0
+        except Exception:
+            pass
 
-    status = "✅ All systems nominal" if alert_count == 0 else f"❌ {alert_count} issue(s) detected"
+    # Determine status
+    issues = []
+    if not process_alive("overnight_render_loop"):
+        issues.append("render loop down")
+    if not flask_alive():
+        issues.append("Flask down")
+    if not ollama_healthy():
+        issues.append("Ollama down")
+
+    status = "\u2705 All systems nominal" if not issues else f"\u274c Issues: {', '.join(issues)}"
 
     briefing = (
-        f"🤖 WATCHDOG DAILY — {date_str}\n"
-        f"━━━━━━━━━━━━━━━━\n"
-        f"🎬 Render: {last_grade}\n"
-        f"🔧 Patches applied: {patches_24h} (last 24h)\n"
-        f"💾 Disk free: {disk_free}GB\n"
-        f"🧠 GPU 2 (Watchdog): {gpu2_info}\n"
-        f"🎵 Audio lines today: {audio_lines}\n"
-        f"⚠️ Alerts: {alert_count}"
+        f"\U0001f916 <b>WATCHDOG DAILY — {date_str}</b>\n"
+        f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+        f"\U0001f3ac Render: {last_grade} ({last_score}/100) at {last_time}\n"
+        f"\U0001f527 Patches applied: {patches_24h} (last 24h)\n"
+        f"\U0001f4be Disk free: {free_gb}GB\n"
+        f"\U0001f9e0 GPU 2 (Watchdog): {gpu2_vram} / 24GB\n"
+        f"\U0001f4ca Articles generated: {article_count}\n"
+        f"\u26a0\ufe0f Alerts: {alert_count}\n"
+        f"{status}"
     )
-    if alert_lines:
-        briefing += " — " + ", ".join(alert_lines)
-    briefing += f"\n{status}"
 
     send_telegram(briefing)
     logger.info("Daily briefing sent")
-    _write_last_run()
 
 
-# ---------------------------------------------------------------------------
-# Self-health check
-# ---------------------------------------------------------------------------
-
-def _self_health_check():
-    """Watchdog checks its own health."""
-    if not ollama_alive():
-        logger.error("SELF-CHECK: Ollama is down — attempting restart")
-        send_telegram("⚠️ Watchdog self-check: Ollama is DOWN — attempting restart")
-        try:
-            subprocess.run(
-                ["systemctl", "restart", "ollama-watchdog"],
-                timeout=30, capture_output=True,
-            )
-        except Exception:
-            pass
-
-    last_run = Path("/tmp/watchdog_last_run.txt")
-    if last_run.exists():
-        try:
-            ts = datetime.fromisoformat(last_run.read_text().strip())
-            age = (datetime.now(timezone.utc) - ts).total_seconds()
-            if age > 300:  # 5 minutes stale
-                logger.warning("SELF-CHECK: Last run was %ds ago", age)
-        except Exception:
-            pass
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
+# ===================================================================
+# MAIN — route by --mode flag
+# ===================================================================
 
 def main():
     parser = argparse.ArgumentParser(description="Protocol Pulse Local LLM Watchdog")
-    parser.add_argument("--mode", default="reactive",
-                       choices=["reactive", "health", "pattern", "audit", "briefing"],
-                       help="Check mode to run")
+    parser.add_argument(
+        "--mode",
+        choices=["reactive", "health", "pattern", "audit", "briefing"],
+        default="reactive",
+        help="Check layer to run",
+    )
     args = parser.parse_args()
 
-    logger.info("Watchdog starting — mode=%s", args.mode)
-
-    # Self-health check on every invocation
-    _self_health_check()
+    logger.info("=" * 50)
+    logger.info(
+        "WATCHDOG RUN — mode=%s — %s",
+        args.mode, datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+    )
+    logger.info("=" * 50)
 
     if args.mode == "reactive":
         run_reactive_check()
@@ -966,7 +1045,7 @@ def main():
     elif args.mode == "briefing":
         send_daily_briefing()
 
-    logger.info("Watchdog complete — mode=%s", args.mode)
+    logger.info("WATCHDOG RUN COMPLETE — mode=%s", args.mode)
 
 
 if __name__ == "__main__":
