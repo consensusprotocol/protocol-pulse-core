@@ -419,8 +419,16 @@ def run_single_render():
         video, rlog = run_render(iteration)
         if not video:
             log("Render failed, skipping"); time.sleep(60); continue
-        forensics = run_forensics(video)
-        grade_result = grade_with_gemini(video, forensics, rlog)
+        try:
+            forensics = run_forensics(video)
+        except Exception as _fe:
+            log(f"Forensics failed (non-fatal): {_fe}")
+            forensics = {}
+        try:
+            grade_result = grade_with_gemini(video, forensics, rlog)
+        except Exception as _ge:
+            log(f"Grading failed (non-fatal): {_ge}")
+            grade_result = None
         if not grade_result:
             log("Grading failed, skipping"); continue
         gf = os.path.join(PIPELINE, f'logs/grade_iter{iteration}.json')
