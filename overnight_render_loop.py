@@ -13,7 +13,9 @@ Production modes:
 Cron entry:
   0 12 * * * cd /home/ultron/protocol_pulse && python3 overnight_render_loop.py >> /tmp/overnight_loop.log 2>&1
 """
-import os, sys, json, subprocess, time, re, urllib.request, argparse, logging
+import os, sys, json, subprocess, time, re, urllib.request, argparse, logging, shutil, tempfile
+import html as _html
+import threading
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -24,6 +26,8 @@ LOG = os.path.join(PIPELINE, 'logs', 'overnight_loop.log')
 RECIPE_FILE = os.path.join(PIPELINE, 'logs', 'WINNER_RECIPE.json')
 HEARTBEAT_FILE = os.path.join(BASE, 'logs', 'loop_heartbeat.json')
 ELEVENLABS_QUOTA_SENTINEL = os.path.join(BASE, 'logs', 'elevenlabs_quota_exhausted')
+TTS_SCRIPT = os.path.join(PIPELINE, 'tts_local.py')
+FORENSICS_TIMEOUT = 600  # 10-minute hard timeout for entire forensics
 MAX_ITERATIONS = 8
 MAX_HOURS = 6
 RETRY_WAIT_SECONDS = 1800  # 30 minutes
@@ -34,14 +38,15 @@ os.makedirs(os.path.join(BASE, 'logs'), exist_ok=True)
 
 # ── Logging ───────────────────────────────────────────────────────
 logger = logging.getLogger('overnight_loop')
-logger.setLevel(logging.DEBUG)
-_fmt = logging.Formatter('[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-_sh = logging.StreamHandler(sys.stdout)
-_sh.setFormatter(_fmt)
-logger.addHandler(_sh)
-_fh = logging.FileHandler(LOG)
-_fh.setFormatter(_fmt)
-logger.addHandler(_fh)
+if not logger.handlers:
+    logger.setLevel(logging.DEBUG)
+    _fmt = logging.Formatter('[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    _sh = logging.StreamHandler(sys.stdout)
+    _sh.setFormatter(_fmt)
+    logger.addHandler(_sh)
+    _fh = logging.FileHandler(LOG)
+    _fh.setFormatter(_fmt)
+    logger.addHandler(_fh)
 
 
 def log(msg):
@@ -68,24 +73,21 @@ def run(cmd, timeout=7200, env=None):
     try:
         return subprocess.run(cmd, shell=True, capture_output=True, text=True,
                              timeout=timeout, env=env or load_env(), cwd=PIPELINE)
-    except subprocess.TimeoutExpired as e:
+    except subprocess.TimeoutExpired:
         log(f"TIMEOUT after {timeout}s: {str(cmd)[:80]}")
-        # Return a fake CompletedProcess so callers don't crash
-        import subprocess as _sp
-        r = _sp.CompletedProcess(cmd, returncode=-1)
+        r = subprocess.CompletedProcess(cmd, returncode=-1)
         r.stdout = ""
         r.stderr = f"TIMEOUT after {timeout}s"
         return r
     except Exception as e:
         log(f"run() error: {e} cmd={str(cmd)[:80]}")
-        import subprocess as _sp
-        r = _sp.CompletedProcess(cmd, returncode=-1)
+        r = subprocess.CompletedProcess(cmd, returncode=-1)
         r.stdout = ""
         r.stderr = str(e)
         return r
 
 
-# ── FIX 6: Startup checks ────────────────────────────────────────
+# ── Startup checks ────────────────────────────────────────────────
 def startup_checks():
     """Verify environment before any render. Returns True if all pass."""
     ok = True
@@ -105,6 +107,22 @@ def startup_checks():
     except Exception as e:
         log(f"STARTUP FAIL: ffmpeg check error: {e}")
         ok = False
+
+    # tmux + claude binary validation (audit U2)
+    for binary in ['tmux', 'claude']:
+        if not shutil.which(binary):
+            log(f"STARTUP FAIL: {binary} not found in PATH")
+            ok = False
+        else:
+            log(f"{binary}: found")
+
+    # Gemini API key check (audit UI-7)
+    env = load_env()
+    if not env.get('GEMINI_API_KEY', '').strip():
+        log("STARTUP FAIL: GEMINI_API_KEY not set")
+        ok = False
+    else:
+        log("GEMINI_API_KEY: present")
 
     # Python path includes pipeline
     if PIPELINE not in sys.path:
@@ -127,9 +145,8 @@ def startup_checks():
         log(f"STARTUP FAIL: output dir not writable: {e}")
         ok = False
 
-    # TTS provider check
-    local_tts = Path(os.path.expanduser("~/protocol_pulse/video_pipeline_v3/tts_local.py")).exists()
-    env = load_env()
+    # TTS provider check — use PIPELINE-derived path (audit M1)
+    local_tts = os.path.exists(TTS_SCRIPT)
     elevenlabs_key = bool(env.get('ELEVENLABS_API_KEY', '').strip())
     quota_exhausted = os.path.exists(ELEVENLABS_QUOTA_SENTINEL)
 
@@ -149,13 +166,13 @@ def startup_checks():
     return ok
 
 
-# ── FIX 3: Heartbeat ─────────────────────────────────────────────
+# ── Heartbeat ─────────────────────────────────────────────────────
 _total_episodes = 0
 _consecutive_failures = 0
 
 
 def write_heartbeat(verdict, duration_s):
-    """Write heartbeat JSON after every cycle."""
+    """Write heartbeat JSON atomically after every cycle."""
     global _total_episodes, _consecutive_failures
     if verdict == "PASS":
         _total_episodes += 1
@@ -164,7 +181,6 @@ def write_heartbeat(verdict, duration_s):
         _consecutive_failures += 1
     elif verdict == "HOLD":
         _consecutive_failures += 1
-    # DEGRADED counts as partial success
     elif verdict == "DEGRADED":
         _total_episodes += 1
         _consecutive_failures = 0
@@ -177,8 +193,11 @@ def write_heartbeat(verdict, duration_s):
         "consecutive_failures": _consecutive_failures,
     }
     try:
-        with open(HEARTBEAT_FILE, 'w') as f:
+        # Atomic write via temp file + rename (audit UI-6)
+        tmp_path = HEARTBEAT_FILE + '.tmp'
+        with open(tmp_path, 'w') as f:
             json.dump(heartbeat, f, indent=2)
+        os.replace(tmp_path, HEARTBEAT_FILE)
         log(f"Heartbeat written: {verdict} | failures={_consecutive_failures}")
     except Exception as e:
         log(f"WARNING: heartbeat write failed: {e}")
@@ -186,7 +205,7 @@ def write_heartbeat(verdict, duration_s):
     # Telegram alert on 3+ consecutive failures
     if _consecutive_failures >= 3:
         send_telegram_alert(
-            f"🚨 Protocol Pulse loop: {_consecutive_failures} consecutive failures\n"
+            f"Protocol Pulse loop: {_consecutive_failures} consecutive failures\n"
             f"Last verdict: {verdict}\n"
             f"Time: {heartbeat['last_run']}"
         )
@@ -202,7 +221,8 @@ def send_telegram_alert(message):
         return
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
-        payload = json.dumps({"chat_id": chat_id, "text": message, "parse_mode": "HTML"}).encode()
+        # Use plain text to avoid HTML injection from dynamic content (audit UI-3)
+        payload = json.dumps({"chat_id": chat_id, "text": message}).encode()
         req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=15) as r:
             log(f"Telegram alert sent (status {r.status})")
@@ -210,10 +230,11 @@ def send_telegram_alert(message):
         log(f"Telegram alert failed: {e}")
 
 
-# ── FIX 4: TTS provider awareness ────────────────────────────────
+# ── TTS provider awareness ────────────────────────────────────────
 def check_tts_ready():
     """Check TTS availability before render. Returns (ready, provider_name)."""
-    local_tts = Path(os.path.expanduser("~/protocol_pulse/video_pipeline_v3/tts_local.py")).exists()
+    # Use PIPELINE-derived path (audit M1)
+    local_tts = os.path.exists(TTS_SCRIPT)
     if local_tts:
         return True, "local (Kokoro/F5-TTS)"
 
@@ -229,17 +250,37 @@ def check_tts_ready():
 
 
 def gemini_call(prompt, max_tokens=8000):
+    """Call Gemini API with retry + exponential backoff (audit U4)."""
     env = load_env()
     key = env.get('GEMINI_API_KEY', '')
     url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={key}'
     payload = {'contents': [{'parts': [{'text': prompt}]}],
                'generationConfig': {'maxOutputTokens': max_tokens, 'temperature': 0.05}}
-    req = urllib.request.Request(url, data=json.dumps(payload).encode(),
-                                  headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        d = json.loads(r.read())
-        parts = d['candidates'][0]['content'].get('parts', [])
-        return next((p['text'] for p in parts if 'text' in p), None)
+    data = json.dumps(payload).encode()
+
+    backoff = [5, 15, 45]
+    last_err = None
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(url, data=data,
+                                        headers={'Content-Type': 'application/json'})
+            with urllib.request.urlopen(req, timeout=120) as r:
+                d = json.loads(r.read())
+                parts = d['candidates'][0]['content'].get('parts', [])
+                return next((p['text'] for p in parts if 'text' in p), None)
+        except (urllib.error.HTTPError, urllib.error.URLError, KeyError, json.JSONDecodeError) as e:
+            last_err = e
+            if attempt < 2:
+                wait = backoff[attempt]
+                log(f"Gemini API attempt {attempt+1} failed ({type(e).__name__}: {e}), retrying in {wait}s...")
+                time.sleep(wait)
+            else:
+                log(f"Gemini API all 3 attempts failed. Last error: {e}")
+        except Exception as e:
+            last_err = e
+            log(f"Gemini API unexpected error: {e}")
+            break
+    return None
 
 
 def run_render(iteration):
@@ -247,6 +288,7 @@ def run_render(iteration):
     run("rm -rf tts_cache/ && mkdir -p tts_cache/")
     log("TTS cache wiped")
     env = load_env()
+    render_start = time.time()
     r = run("python3 daily_producer.py --skip-scan", timeout=7200, env=env)
     log(f"Render exit: {r.returncode}")
     import glob
@@ -257,16 +299,18 @@ def run_render(iteration):
             if any(x in f for x in ['.bgl_audio', '.intro_mus', '.concat_raw', '.music_mixed', '.whoosh', '.norm']):
                 continue
             if not any(x in f for x in ['music_mixed', 'concat_raw', '.norm', 'whoosh']):
-                candidates.append((os.path.getmtime(f), f))
+                # Only accept files produced after render started (audit U3)
+                if os.path.getmtime(f) >= render_start:
+                    candidates.append((os.path.getmtime(f), f))
     candidates.sort(reverse=True)
     out = candidates[0][1] if candidates else None
     if out: log(f"Output: {out} ({os.path.getsize(out)//1048576}MB)")
-    else: log("FATAL: no output file")
+    else: log("FATAL: no output file produced by this render")
     return out, r.stdout + r.stderr
 
 
-def run_forensics(video):
-    log("Running forensics...")
+def _run_forensics_inner(video):
+    """Inner forensics logic — called within a thread timeout wrapper."""
     res = {}
     r = run(f'ffprobe -v quiet -print_format json -show_format -show_streams "{video}"')
     try:
@@ -296,19 +340,19 @@ def run_forensics(video):
     tp = re.search(r'True peak.*?([-\d.]+)\s*dBFS', out)
     res['integrated_lufs'] = float(im.group(1)) if im else None
     res['true_peak_dbfs'] = float(tp.group(1)) if tp else None
-    r = run(f'ffmpeg -i "{video}" -vf "freezedetect=n=0.001:d=1.0" -an -f null - 2>&1', timeout=300)
+    # FIX: freeze threshold n=0.003 (was 0.001 — too sensitive for bg_loop transitions)
+    r = run(f'ffmpeg -i "{video}" -vf "freezedetect=n=0.003:d=1.0" -an -f null - 2>&1', timeout=300)
     res['freeze_count'] = len(re.findall(r'freeze_start', r.stderr+r.stdout))
 
     # TTS ARTIFACT CHECK — run in isolated subprocess with hard 45s timeout
     # Prevents WhisperModel from blocking forensics pipeline
     tts_artifacts = []
+    tmp_path = None
     try:
-        import subprocess as _sp, tempfile as _tf, os as _os, json as _json
-        with _tf.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
-            tmp_path = tmp.name
-        _sp.run(['ffmpeg', '-y', '-i', video, '-t', '60', '-ar', '16000',
+        tmp_fd, tmp_path = tempfile.mkstemp(suffix='.wav')
+        os.close(tmp_fd)
+        subprocess.run(['ffmpeg', '-y', '-i', video, '-t', '60', '-ar', '16000',
                  '-ac', '1', tmp_path], capture_output=True, timeout=30)
-        # Run whisper in subprocess so it cannot block the loop
         checker = (
             "import sys, json\n"
             "from faster_whisper import WhisperModel\n"
@@ -318,13 +362,19 @@ def run_forensics(video):
             "bad = ['pause','breath','emphasis','break colon','slash','open bracket','close bracket']\n"
             "print(json.dumps([w for w in bad if w in t]))\n"
         )
-        r = _sp.run(['python3', '-c', checker, tmp_path],
+        r = subprocess.run(['python3', '-c', checker, tmp_path],
                     capture_output=True, text=True, timeout=45)
         if r.returncode == 0 and r.stdout.strip():
-            tts_artifacts = _json.loads(r.stdout.strip())
-        _os.unlink(tmp_path)
+            tts_artifacts = json.loads(r.stdout.strip())
     except Exception as _e:
         log(f"TTS artifact check skipped: {_e}")
+    finally:
+        # Guaranteed cleanup (audit M3)
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
     res['tts_artifacts'] = tts_artifacts
     if tts_artifacts:
         log(f"TTS ARTIFACT ALERT: narrator reading markers aloud: {tts_artifacts}")
@@ -332,6 +382,34 @@ def run_forensics(video):
         f"LUFS={res.get('integrated_lufs')} TP={res.get('true_peak_dbfs')} "
         f"black={res.get('black_mid_count')} freeze={res.get('freeze_count')}")
     return res
+
+
+def run_forensics(video):
+    """Run forensics with a 10-minute hard thread timeout (task issue #1).
+    If forensics hangs, returns {} so the loop can continue to grading."""
+    log("Running forensics...")
+    result_holder = [None]
+    error_holder = [None]
+
+    def _target():
+        try:
+            result_holder[0] = _run_forensics_inner(video)
+        except Exception as e:
+            error_holder[0] = e
+
+    t = threading.Thread(target=_target, daemon=True)
+    t.start()
+    t.join(timeout=FORENSICS_TIMEOUT)
+
+    if t.is_alive():
+        log(f"WARNING: Forensics exceeded {FORENSICS_TIMEOUT}s hard timeout — returning empty result")
+        return {}
+
+    if error_holder[0]:
+        log(f"WARNING: Forensics thread raised: {error_holder[0]}")
+        return {}
+
+    return result_holder[0] or {}
 
 
 def grade_with_gemini(video, forensics, render_log):
@@ -400,6 +478,9 @@ Commit: git add -A && git commit -m "fix(pipeline): iter{iteration}" && git push
         r = subprocess.run(f'tmux has-session -t {sn} 2>/dev/null', shell=True)
         if r.returncode != 0: log("CC session ended"); break
         log(f"CC running... {int((deadline-time.time())/60)}min left")
+    # Kill orphaned tmux session on timeout (audit U2)
+    subprocess.run(['tmux', 'kill-session', '-t', sn], capture_output=True)
+    log(f"CC session {sn} cleaned up")
     time.sleep(30)
 
 
@@ -419,35 +500,46 @@ def run_single_render():
         video, rlog = run_render(iteration)
         if not video:
             log("Render failed, skipping"); time.sleep(60); continue
-        try:
-            forensics = run_forensics(video)
-        except Exception as _fe:
-            log(f"Forensics failed (non-fatal): {_fe}")
-            forensics = {}
+        # Forensics with 10-min hard timeout (task issue #1)
+        forensics = run_forensics(video)
+        # Grade ALWAYS fires after forensics — even if forensics returned {} (task issue main)
         try:
             grade_result = grade_with_gemini(video, forensics, rlog)
         except Exception as _ge:
             log(f"Grading failed (non-fatal): {_ge}")
             grade_result = None
         if not grade_result:
-            # Fallback: run gemini_grade.py directly as subprocess
+            # Fallback: run gemini_grade.py directly as subprocess (task issue #2)
             log("grade_with_gemini failed — running gemini_grade.py directly")
             try:
-                import subprocess as _sp
-                r = _sp.run(
+                r = subprocess.run(
                     ["python3", "gemini_grade.py", video],
                     capture_output=True, text=True, timeout=300, cwd=PIPELINE
                 )
-                if r.returncode == 0 and "GRADE_" in r.stdout:
-                    # Parse grade from stdout line like: GRADE_A_PASS|95|path|verdict
+                # Parse both PASS and FAIL lines
+                if "GRADE_" in (r.stdout or ''):
                     for line in r.stdout.splitlines():
                         if line.startswith("GRADE_"):
-                            parts = line.split("|")
-                            grade_letter = parts[0].split("_")[1]
-                            score_val = int(parts[1]) if len(parts)>1 else 0
-                            grade_result = {"grade": grade_letter, "overall_score": score_val,
-                                          "broadcast_ready": grade_letter=="A", "verdict": parts[3] if len(parts)>3 else "",
-                                          "dimensions": {}, "critical_failures": []}
+                            # Format: GRADE_A_PASS|95|path|verdict or GRADE_B_FAIL|72|path|verdict
+                            parts = line.split("|", 3)  # maxsplit=3 (audit M4)
+                            if len(parts) < 2:
+                                log(f"Unexpected grade line format: {line!r}")
+                                continue
+                            grade_tag = parts[0]  # e.g. GRADE_A_PASS
+                            tag_parts = grade_tag.split("_")
+                            grade_letter = tag_parts[1] if len(tag_parts) > 1 else "F"
+                            try:
+                                score_val = int(parts[1])
+                            except (ValueError, IndexError):
+                                score_val = 0
+                            grade_result = {
+                                "grade": grade_letter,
+                                "overall_score": score_val,
+                                "broadcast_ready": grade_letter == "A",
+                                "verdict": parts[3] if len(parts) > 3 else "",
+                                "dimensions": {},
+                                "critical_failures": []
+                            }
                             log(f"Fallback grade: {grade_letter} ({score_val}/100)")
                             break
             except Exception as _ge2:
@@ -459,7 +551,9 @@ def run_single_render():
         grade = grade_result.get('grade','F')
         score = grade_result.get('overall_score', 0)
         broadcast = grade_result.get('broadcast_ready', False)
+        # Explicit GRADE: logging after every grade result (task issue #4)
         log(f"GRADE: {grade} | SCORE: {score}/100 | BROADCAST: {broadcast}")
+        log(f"GRADE: iteration={iteration} grade={grade} score={score} broadcast={broadcast}")
         log(f"VERDICT: {grade_result.get('verdict','')}")
         for dim, data in grade_result.get('dimensions',{}).items():
             s = data.get('score','?')
@@ -490,10 +584,10 @@ def run_single_render():
 
 
 def run_cycle():
-    """FIX 1+2: Run a single render cycle with exception handling and retry logic."""
+    """Run a single render cycle with exception handling and retry logic."""
     cycle_start = time.time()
 
-    # FIX 4: Check TTS before render
+    # Check TTS before render
     tts_ready, tts_provider = check_tts_ready()
     log(f"TTS provider: {tts_provider}")
     if not tts_ready:
@@ -523,7 +617,7 @@ def run_cycle():
     write_heartbeat(verdict, time.time() - cycle_start)
 
 
-# ── FIX 5: Daemon mode ───────────────────────────────────────────
+# ── Daemon mode ───────────────────────────────────────────────────
 def sleep_until_next_8am_et():
     """Sleep until next 08:00 ET (12:00 UTC or 11:00 UTC during DST)."""
     from zoneinfo import ZoneInfo
@@ -541,8 +635,24 @@ PIDFILE = os.path.join(BASE, 'logs', 'render_loop.pid')
 
 
 def _acquire_singleton():
-    """P1 FIX (audit): Prevent duplicate render loop instances."""
+    """Prevent duplicate render loop instances. Checks for stale PID (audit UI-4)."""
     import fcntl
+    # Check for stale PID before locking
+    if os.path.exists(PIDFILE):
+        try:
+            with open(PIDFILE) as f:
+                old_pid = int(f.read().strip())
+            os.kill(old_pid, 0)  # check if process is alive
+        except (ValueError, ProcessLookupError, PermissionError):
+            # Process is dead — stale lockfile, remove it
+            log(f"Removing stale PID file (pid {old_pid if 'old_pid' in dir() else '?'} not running)")
+            try:
+                os.remove(PIDFILE)
+            except OSError:
+                pass
+        except OSError:
+            pass  # Process exists, let flock handle it
+
     fp = open(PIDFILE, 'w')
     try:
         fcntl.flock(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -570,10 +680,10 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Run startup checks only, no render")
     args = parser.parse_args()
 
-    # P1 FIX (audit): Singleton guard — prevent duplicate instances
+    # Singleton guard — prevent duplicate instances
     _lock_fp = _acquire_singleton()
 
-    # FIX 6: Startup checks always run
+    # Startup checks always run
     log("="*60)
     log("STARTUP CHECKS")
     log("="*60)
