@@ -202,7 +202,7 @@ _TAG_TO_TYPE = {
     "SOCIAL": "social_segment",
     "WARM": "wrap",
     "BRIDGE": "setup",  # inter-clip context bridges treated as narration
-    "SPACE_TAP": "space_tap_intro",
+    "SPACE_TAP": "space_tap",
     "SETUP": "setup",
     "REACT": "react",
     "CTA": "wrap",
@@ -231,6 +231,10 @@ def _extract_segment_tags(result: dict) -> dict:
             tag = m.group(1)
             entry["text"] = text[m.end():]
             entry["type"] = _TAG_TO_TYPE[tag]
+    # Normalize space_tap subtypes to "space_tap" so assembler _segment_to_scene matches
+    for entry in dialogue:
+        if entry.get("type", "") in ("space_tap_intro", "space_tap_react"):
+            entry["type"] = "space_tap"
     return result
 
 
@@ -438,6 +442,8 @@ def _populate_segment_headlines(result: dict) -> dict:
             entry["headline"] = "TODAY'S INTELLIGENCE"
         elif seg_type == "social_segment":
             entry["headline"] = "SIGNAL FROM THE FIELD"
+        elif seg_type == "space_tap":
+            entry["headline"] = "SPACE TAP SIGNAL INTERCEPT"
         elif seg_type in ("wrap", "outro"):
             entry["headline"] = "STAY SOVEREIGN"
         elif seg_type == "bridge":
@@ -464,13 +470,15 @@ def _populate_segment_headlines(result: dict) -> dict:
 
 
 def generate_from_clips(selections: dict, btc_price: str = "N/A",
-                        live_context: str = "", morning_brief: dict = None) -> dict:
+                        live_context: str = "", morning_brief: dict = None,
+                        social_posts_sorted: list = None) -> dict:
     """Generate host dialogue script around the selected clips.
 
     Args:
         selections: Output from clip_selector.select_clips()
         btc_price: Current BTC price string
         live_context: Real-time live stream/Spaces intelligence (optional)
+        social_posts_sorted: Pre-fetched, sorted social posts (single source of truth from daily_producer)
 
     Returns:
         Script dict with dialogue array
@@ -484,32 +492,32 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
     clips_info = _format_clips_info(selections)
 
-    # Real social data — per Law A1, never fabricate
-    # Render11 FIX 5: Sort by likes descending BEFORE passing to script generator
-    # so highest engagement tweet = first displayed = first mentioned by narrator
-    social_data_sorted = []
-    try:
-        from utils.social_fetcher import get_todays_social_posts
-        social_data = get_todays_social_posts(max_posts=5)
-        if social_data:
-            social_data_sorted = sorted(social_data, key=lambda x: x.get('likes', 0), reverse=True)
-            social_posts = "\n".join([
-                f"Tweet {ti+1}: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
-                for ti, p in enumerate(social_data_sorted)
-            ])
-            # FIX 5B: Explicit instruction to prevent hallucination
-            social_posts += (
-                "\n\nCRITICAL SOCIAL RULES:"
-                "\n- Read ONLY what is written above. Do NOT paraphrase, add, or invent words."
-                "\n- Quote tweet text DIRECTLY and verbatim."
-                "\n- Reference tweets BY POSITION: 'Tweet 1 from @handle' matches the first tweet listed above."
-                "\n- If you mention @handle, the DISPLAYED tweet card MUST match that handle."
-                "\n- Never attribute words from one tweet to a different person."
-            )
-        else:
-            social_posts = "NONE — skip social segment entirely"
-    except Exception as e:
-        logger.warning(f"Social data fetch failed: {e}")
+    # Social data — use pre-fetched sorted list from daily_producer (single source of truth)
+    # Fallback: fetch here if caller didn't provide (backwards compat)
+    social_data_sorted = social_posts_sorted or []
+    if not social_data_sorted:
+        try:
+            from utils.social_fetcher import get_todays_social_posts
+            social_data = get_todays_social_posts(max_posts=5)
+            if social_data:
+                social_data_sorted = sorted(social_data, key=lambda x: x.get('likes', 0), reverse=True)
+        except Exception as e:
+            logger.warning(f"Social data fetch failed: {e}")
+
+    if social_data_sorted:
+        social_posts = "\n".join([
+            f"Tweet {ti+1}: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
+            for ti, p in enumerate(social_data_sorted)
+        ])
+        social_posts += (
+            "\n\nCRITICAL SOCIAL RULES:"
+            "\n- Read ONLY what is written above. Do NOT paraphrase, add, or invent words."
+            "\n- Quote tweet text DIRECTLY and verbatim."
+            "\n- Reference tweets BY POSITION: 'Tweet 1 from @handle' matches the first tweet listed above."
+            "\n- If you mention @handle, the DISPLAYED tweet card MUST match that handle."
+            "\n- Never attribute words from one tweet to a different person."
+        )
+    else:
         social_posts = "NONE — skip social segment entirely"
 
     # Build live context block
@@ -677,6 +685,12 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         result = _validate_social_tweet_order(result, social_posts)
         result = _enforce_setup_per_clip(result, selections)
 
+        # Enforce social segment presence when social data was provided
+        result = _enforce_social_segment(result, social_data_sorted)
+
+        # Enforce space tap segment presence when space tap clips were provided
+        result = _enforce_space_tap_segment(result, selections.get("space_tap_clips", []))
+
         # Validate structure
         dialogue = result.get("dialogue", [])
         # Force PBX-only: normalize any host:1 â host:2
@@ -743,13 +757,110 @@ def _enforce_setup_per_clip(result: dict, selections: dict) -> dict:
     result["dialogue"] = new_dialogue
     return result
 
+def _enforce_social_segment(result: dict, social_data: list) -> dict:
+    """Postcondition: if social_data was non-empty, at least one social_segment MUST exist.
+    If the LLM omitted social segments, inject them before the wrap."""
+    if not social_data:
+        return result
+
+    dialogue = result.get("dialogue", [])
+    social_entries = [d for d in dialogue if d.get("type") == "social_segment"]
+    if social_entries:
+        return result  # LLM did its job
+
+    logger.warning(f"[script] SOCIAL SEGMENT MISSING — LLM omitted {len(social_data)} tweets. Injecting.")
+
+    # Build social_segment entries from the actual tweet data
+    inject = []
+    for i, post in enumerate(social_data[:3]):
+        handle = post.get("handle", "unknown")
+        text = post.get("text", "")[:200]
+        likes = post.get("likes", 0)
+        narration = (
+            f"[SOCIAL] {handle} posted this to {likes:,} likes — \"{text}\". "
+            f"The signal here is clear."
+        )
+        inject.append({
+            "host": 2,
+            "text": narration,
+            "type": "social_segment",
+        })
+
+    # Insert before the final wrap entry
+    wrap_idx = None
+    for i in range(len(dialogue) - 1, -1, -1):
+        if dialogue[i].get("type") == "wrap":
+            wrap_idx = i
+            break
+
+    if wrap_idx is not None:
+        for j, entry in enumerate(inject):
+            dialogue.insert(wrap_idx + j, entry)
+    else:
+        dialogue.extend(inject)
+
+    result["dialogue"] = dialogue
+    logger.info(f"[script] Injected {len(inject)} social_segment entries")
+    return result
+
+
+def _enforce_space_tap_segment(result: dict, space_tap_clips: list) -> dict:
+    """Postcondition: if space_tap_clips was non-empty, at least one SPACE_CLIP must exist.
+    If the LLM omitted space tap, inject intro/clip/react entries before the wrap."""
+    if not space_tap_clips:
+        return result
+
+    dialogue = result.get("dialogue", [])
+    space_entries = [d for d in dialogue if d.get("host") == "SPACE_CLIP"
+                     or (d.get("type") or "").startswith("space_tap")]
+    if space_entries:
+        return result  # LLM included space tap
+
+    logger.warning(f"[script] SPACE TAP MISSING — LLM omitted {len(space_tap_clips)} clips. Injecting.")
+
+    inject = []
+    for i, clip in enumerate(space_tap_clips):
+        handle = clip.get("host_handle", "unknown")
+        inject.append({
+            "host": 2,
+            "text": f"[SPACE_TAP] Signal intercepted from {handle}'s space.",
+            "type": "space_tap_intro",
+        })
+        inject.append({
+            "host": "SPACE_CLIP",
+            "clip_index": i,
+        })
+        inject.append({
+            "host": 2,
+            "text": "[SPACE_TAP] That's a signal worth tracking.",
+            "type": "space_tap_react",
+        })
+
+    # Insert before the wrap (after social if present)
+    wrap_idx = None
+    for i in range(len(dialogue) - 1, -1, -1):
+        if dialogue[i].get("type") == "wrap":
+            wrap_idx = i
+            break
+
+    if wrap_idx is not None:
+        for j, entry in enumerate(inject):
+            dialogue.insert(wrap_idx + j, entry)
+    else:
+        dialogue.extend(inject)
+
+    result["dialogue"] = dialogue
+    logger.info(f"[script] Injected {len(inject)} space_tap entries for {len(space_tap_clips)} clips")
+    return result
+
+
 def _fallback_script(selections: dict) -> dict:
     """Generate a basic script from clip selections without Claude."""
     clips = selections.get("clips", [])
     cold_open = selections.get("cold_open", "Breaking developments in Bitcoin today.")
 
     dialogue = [
-        {"host": 2, "text": cold_open, "type": "cold_open"},  # IRON LAW: PBX always opens
+        {"host": 2, "text": f"[COLD_OPEN] {cold_open}", "type": "cold_open"},  # IRON LAW: PBX always opens
     ]
 
     for c in clips:
@@ -757,13 +868,13 @@ def _fallback_script(selections: dict) -> dict:
         setup = c.get("host_setup", f"Check out what {c.get('channel', 'this channel')} just dropped.")
         react = c.get("host_react", "That's a big deal. The market hasn't priced this in yet.")
 
-        dialogue.append({"host": 2, "text": setup, "type": "setup", "clip_rank": rank})
+        dialogue.append({"host": 2, "text": f"[NARRATION] {setup}", "type": "setup", "clip_rank": rank})
         dialogue.append({"host": "CLIP", "rank": rank})
-        dialogue.append({"host": 2, "text": react, "type": "react", "clip_rank": rank})
+        dialogue.append({"host": 2, "text": f"[NARRATION] {react}", "type": "react", "clip_rank": rank})
 
     dialogue.append({
         "host": 2,
-        "text": "That's your Pulse Check for today. Stay sovereign.",
+        "text": "[WARM] That's your Pulse Check for today. Stay sovereign.",
         "type": "wrap",
     })
 

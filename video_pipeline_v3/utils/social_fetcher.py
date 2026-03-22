@@ -31,17 +31,18 @@ def get_todays_social_posts(max_posts=5):
         try:
             with open(DAILY_TWEETS_PATH) as f:
                 data = json.load(f)
-            posts = data.get("tweets", data if isinstance(data, list) else [])[:max_posts]
+            posts = data.get("tweets", data if isinstance(data, list) else [])
             if posts:
-                logger.info(f"Social: {len(posts)} curated tweets loaded")
-                # Dedup by handle - max 1 tweet per account
+                # Dedup by handle FIRST, then truncate to max_posts
                 seen_handles = set()
                 deduped = []
                 for p in posts:
-                    h = p.get('handle','').lower().strip('@')
-                    if h not in seen_handles:
+                    h = p.get('handle', '').lower().strip('@')
+                    if h and h not in seen_handles:
                         seen_handles.add(h)
                         deduped.append(p)
+                deduped = deduped[:max_posts]
+                logger.info(f"Social: {len(deduped)} curated tweets loaded")
                 return deduped
         except Exception as e:
             logger.warning(f"Error reading daily_tweets.json: {e}")
@@ -50,7 +51,29 @@ def get_todays_social_posts(max_posts=5):
     if os.path.exists(TWEET_STUDY_PATH):
         try:
             with open(TWEET_STUDY_PATH) as f:
-                raw = json.load(f)
+                content = f.read()
+            # Handle concatenated JSON arrays (multiple appends)
+            try:
+                raw = json.loads(content)
+            except json.JSONDecodeError:
+                decoder = json.JSONDecoder()
+                raw = []
+                pos = 0
+                while pos < len(content):
+                    stripped = content[pos:].lstrip()
+                    if not stripped:
+                        break
+                    try:
+                        obj, end = decoder.raw_decode(stripped)
+                        if isinstance(obj, list):
+                            raw.extend(obj)
+                        else:
+                            raw.append(obj)
+                        pos += len(content) - len(stripped) + end
+                    except json.JSONDecodeError:
+                        break
+                if not raw:
+                    raise json.JSONDecodeError("No valid JSON found", content, 0)
             from datetime import datetime, timezone, timedelta
             now_utc = datetime.now(timezone.utc)
             def _sort_key(t):
@@ -79,13 +102,15 @@ def get_todays_social_posts(max_posts=5):
                 except (ValueError, TypeError):
                     continue
 
-            # DIVERSITY FIX: max 1 tweet per handle, varied accounts
+            # DIVERSITY FIX: sort by likes desc FIRST, then dedup by handle
+            # This ensures the highest-engagement tweet per handle is retained
             pool = recent if recent else tweets
+            pool = sorted(pool, key=lambda t: t.get('likes', t.get('like_count', 0)) or 0, reverse=True)
             seen_h = set()
             deduped_pool = []
             for t in pool:
-                h = t.get('handle','').lower().strip('@')
-                if h not in seen_h:
+                h = t.get('handle', '').lower().strip('@')
+                if h and h not in seen_h:
                     seen_h.add(h)
                     deduped_pool.append(t)
             source = deduped_pool[:max_posts]

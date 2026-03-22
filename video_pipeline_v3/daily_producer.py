@@ -74,17 +74,17 @@ def get_btc_price() -> str:
 def _build_fast_test_script(clips_info: dict, btc_price: str) -> dict:
     """Build a minimal hardcoded script for fast-test mode (no Claude API call)."""
     dialogue = []
-    # Cold open
+    # Cold open — PBX-only (host 2) per SOLO HOST law
     dialogue.append({
-        "host": 1, "type": "cold_open",
-        "text": f"Bitcoin at {btc_price}. Let's get into today's pulse check.",
+        "host": 2, "type": "cold_open",
+        "text": f"[COLD_OPEN] Bitcoin at {btc_price}. Let's get into today's pulse check.",
     })
     # For each clip, add a setup + clip marker + react
     for rank, info in sorted(clips_info.items()):
         channel = info.get("channel", "Unknown")
         dialogue.append({
-            "host": 1, "type": "setup",
-            "text": f"Here's what {channel} had to say.",
+            "host": 2, "type": "setup",
+            "text": f"[NARRATION] Here's what {channel} had to say.",
         })
         dialogue.append({
             "host": "CLIP", "type": "clip",
@@ -92,12 +92,12 @@ def _build_fast_test_script(clips_info: dict, btc_price: str) -> dict:
         })
         dialogue.append({
             "host": 2, "type": "react",
-            "text": "Interesting take. Let's keep moving.",
+            "text": "[NARRATION] Interesting take. Let's keep moving.",
         })
     # Wrap
     dialogue.append({
-        "host": 1, "type": "wrap",
-        "text": "That's the pulse check for today. Like, subscribe, and we'll see you next time.",
+        "host": 2, "type": "wrap",
+        "text": "[WARM] That's the pulse check for today. Stay sovereign.",
     })
     return {
         "episode_title": f"Fast Test — {btc_price}",
@@ -538,65 +538,81 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     except Exception as e:
         logger.warning(f"Live signals read failed: {e}")
 
-    # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
-    if fast_test:
-        print("\n[STEP 5/12] GENERATING SCRIPT (fast-test: hardcoded, no Claude)...")
-        t0 = time.time()
-        script = _build_fast_test_script(extracted_clips, btc_price)
-        dialogue = script["dialogue"]
-        speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
-        clip_markers = [d for d in dialogue if d.get("host") == "CLIP"]
-        print(f"  Title: {script.get('episode_title', 'Untitled')}")
-        print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips (hardcoded)")
-        timing["5_script"] = round(time.time() - t0, 2)
-    else:
-        print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
-        t0 = time.time()
-        script = generate_from_clips(selections, btc_price=btc_price,
-                                     live_context=live_context)
-        dialogue = script.get("dialogue", [])
-        speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
-        clip_markers = [d for d in dialogue if d.get("host") == "CLIP"]
-        print(f"  Title: {script.get('episode_title', 'Untitled')}")
-        print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
-        timing["5_script"] = round(time.time() - t0, 2)
-
-    # Issue 9: Sort social posts ONCE by engagement (likes desc), store on script
-    # This ensures assembler uses the EXACT SAME order as script_writer
+    # ── Step 5a: Fetch social posts + Space Tap BEFORE script generation ──
+    # Social posts: fetch once, sort by likes desc, pass to script_writer
+    sorted_social = []
     try:
         from utils.social_fetcher import get_todays_social_posts
         sorted_social = get_todays_social_posts(max_posts=5)
         if sorted_social:
             sorted_social.sort(key=lambda p: p.get("likes", 0), reverse=True)
-            script["social_posts"] = sorted_social
             for si, sp in enumerate(sorted_social):
                 logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} — {sp.get('text', '')[:40]}")
     except Exception as e:
-        logger.warning(f"Social posts fetch for ordering failed: {e}")
+        logger.warning(f"Social posts fetch failed: {e}")
+
+    # Space Tap: fetch X Spaces clips BEFORE script generation so LLM can write dialogue
+    print("[STEP 5a] SPACE TAP -- LIVE X SPACES INTERCEPT...")
+    try:
+        import importlib.util
+        _spaces_scraper_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "x_spaces_scraper", "scraper.py"
+        )
+        if os.path.exists(_spaces_scraper_path):
+            _spec = importlib.util.spec_from_file_location("x_spaces_scraper", _spaces_scraper_path)
+            _mod = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            _st = _mod.get_best_space_clips(max_clips=3)
+            if _st and _st.get("clips"):
+                selections["space_tap_clips"] = _st["clips"]
+                print(f"  Space Tap: {len(_st['clips'])} clips from {_st.get('spaces_count', 0)} spaces")
+            else:
+                print("  Space Tap: no live spaces — segment skipped")
+        else:
+            print("  Space Tap: scraper not installed — segment skipped")
+    except Exception as _ste:
+        logger.error(f"Space Tap fetch error: {type(_ste).__name__}: {_ste}")
+        print(f"  Space Tap: skipped ({_ste})")
+
+    # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
+    if fast_test:
+        print("\n[STEP 5/12] GENERATING SCRIPT (fast-test: hardcoded, no Claude)...")
+        t0 = time.time()
+        script = _build_fast_test_script(extracted_clips, btc_price)
+        timing["5_script"] = round(time.time() - t0, 2)
+    else:
+        print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
+        t0 = time.time()
+        script = generate_from_clips(selections, btc_price=btc_price,
+                                     live_context=live_context,
+                                     social_posts_sorted=sorted_social)
+        timing["5_script"] = round(time.time() - t0, 2)
+
+    # Attach social posts to script for assembler (single source of truth)
+    if sorted_social:
+        script["social_posts"] = sorted_social
+
+    # Re-read dialogue AFTER all mutations (Space Tap entries may be in script)
+    dialogue = script.get("dialogue", [])
+    speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+    clip_markers = [d for d in dialogue if d.get("host") in ("CLIP", "SPACE_CLIP")]
+    social_seg_count = sum(1 for d in dialogue if d.get("type") == "social_segment")
+    space_tap_count = sum(1 for d in dialogue if d.get("host") == "SPACE_CLIP"
+                         or (d.get("type") or "").startswith("space_tap"))
+    print(f"  Title: {script.get('episode_title', 'Untitled')}")
+    print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
+    print(f"  SOCIAL segments: {social_seg_count} (input tweets: {len(sorted_social)})")
+    print(f"  SPACE TAP entries: {space_tap_count} (input clips: {len(selections.get('space_tap_clips', []))})")
+    if sorted_social and social_seg_count == 0:
+        logger.error("SOCIAL SEGMENT ABSENT despite having tweet data — check script_writer enforcement")
+    if selections.get("space_tap_clips") and space_tap_count == 0:
+        logger.error("SPACE TAP ABSENT despite having clip data — check script_writer enforcement")
 
     # Save script
     script_path = os.path.join(run_dir, "script.json")
     with open(script_path, "w") as f:
         json.dump(script, f, indent=2)
-    # ── Step 5b: Space Tap — live X Spaces intercept ────────────────────────
-    print("[STEP 5b] SPACE TAP -- LIVE X SPACES INTERCEPT...")
-    try:
-        import sys as _sys, os as _os
-        _spaces_path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "x_spaces_scraper")
-        if _spaces_path not in _sys.path:
-            _sys.path.insert(0, _spaces_path)
-        from scraper import get_best_space_clips
-        _st = get_best_space_clips(max_clips=3)
-        if _st and _st.get("clips"):
-            script["space_tap_clips"] = _st["clips"]
-            with open(script_path, "w") as _sf:
-                import json as _jmod
-                _jmod.dump(script, _sf, indent=2)
-            print(f"  Space Tap: {len(_st[chr(99)+chr(108)+chr(105)+chr(112)+chr(115)])} clips from {_st.get(chr(115)+chr(112)+chr(97)+chr(99)+chr(101)+chr(115)+chr(95)+chr(99)+chr(111)+chr(117)+chr(110)+chr(116),0)} spaces")
-        else:
-            print("  Space Tap: no live spaces — segment skipped")
-    except Exception as _ste:
-        print(f"  Space Tap: skipped ({_ste})")
 
 
     # ── Step 6: TTS ───────────────────────────────────────────────────────
@@ -978,6 +994,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         logger.info("multi_format_output feature flag is disabled — skipping format multiplier")
 
     # ── Post-render health check + Resend notification ─────────────────────
+    hc_passed = True  # default for test mode; overridden below for production
     if not test_mode:
         hc_passed, hc_errors = _post_render_health_check(final_video)
         dur_s = timing.get("video_duration", 0)
