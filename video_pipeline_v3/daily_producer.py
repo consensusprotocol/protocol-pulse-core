@@ -25,7 +25,7 @@ sys.path.insert(0, BASE)
 
 from channel_scanner import scan_all_channels
 from clip_selector import select_clips
-from clip_extractor import extract_all, check_av_sync
+from clip_extractor import extract_all, extract_montage_all, check_av_sync
 from script_writer import generate_from_clips
 from tts_engine import generate_dialogue_audio
 from assembler import assemble_episode, verify_video
@@ -309,6 +309,20 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     with open(sel_path, "w") as f:
         json.dump(selections, f, indent=2)
 
+    # ── Step 3b: Select independent montage clips (Qwen, free) ──────────
+    print("\n[STEP 3b] SELECTING MONTAGE CLIPS (local Qwen)...")
+    try:
+        from clip_selector import select_montage_clips
+        montage_selections = select_montage_clips(videos)
+        montage_clips_sel = montage_selections.get("clips", [])
+        montage_sel_path = os.path.join(run_dir, "montage_selections.json")
+        with open(montage_sel_path, "w") as f:
+            json.dump(montage_selections, f, indent=2)
+        print(f"  Montage: {len(montage_clips_sel)} independent clips selected")
+    except Exception as e:
+        print(f"  Montage selection failed ({e}) — montage will reuse Pulse Check clips")
+        montage_selections = None
+
     # ── Step 4: EXTRACT CLIPS ─────────────────────────────────────────────
     print("\n[STEP 4/12] EXTRACTING CLIPS (yt-dlp with original audio)...")
     t0 = time.time()
@@ -401,6 +415,15 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     for rank, info in sorted(extracted_clips.items()):
         print(f"    #{rank}: {info['channel']} — {info['duration']:.1f}s")
     timing["4_extract"] = round(time.time() - t0, 2)
+
+    # ── Step 4m: Extract montage clips ───────────────────────────────────
+    if montage_selections and montage_selections.get("clips"):
+        print("\n[STEP 4m] EXTRACTING MONTAGE CLIPS...")
+        try:
+            extract_montage_all(montage_selections, clip_dir)
+            print(f"  Montage clips extracted to {clip_dir}")
+        except Exception as e:
+            print(f"  Montage extraction failed ({e}) — skipping")
 
     if not extracted_clips:
         print("\n  [FAIL] No clips extracted — cannot produce episode")

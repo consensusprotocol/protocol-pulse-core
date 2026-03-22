@@ -749,6 +749,35 @@ def extract_all(selections: dict, output_dir: str) -> dict:
     return extracted
 
 
+def extract_montage_all(montage_selections: dict, output_dir: str) -> dict:
+    """Extract montage clips — same as extract_all but uses montage timestamps
+    and saves to clips/montage_clip_N_CHANNEL_ID.mp4"""
+    os.makedirs(output_dir, exist_ok=True)
+    clips = montage_selections.get("clips", [])
+    extracted = {}
+
+    for clip in clips:
+        rank = clip["rank"]
+        video_id = clip["video_id"]
+        start = clip["start_seconds"]
+        end = clip["end_seconds"]
+        channel = clip.get("channel", "unknown").replace(" ", "_")
+        output_path = os.path.join(output_dir, f"montage_clip_{rank}_{channel}_{video_id}.mp4")
+
+        try:
+            ok = extract_clip(video_id, start, end, output_path, channel)
+            if ok and os.path.exists(output_path):
+                clip["montage_clip_path"] = output_path
+                extracted[rank] = output_path
+                logger.info(f"[Montage] Extracted: montage_clip_{rank}_{channel}")
+            else:
+                logger.warning(f"[Montage] Failed: {channel} {video_id}")
+        except Exception as e:
+            logger.error(f"[Montage] Error: {channel} {video_id}: {e}")
+
+    return extracted
+
+
 def _parse_timestamped_text(timestamped_text: str) -> list:
     """Parse timestamped transcript into list of (seconds, text) tuples."""
     import re

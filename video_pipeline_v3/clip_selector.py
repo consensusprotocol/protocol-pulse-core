@@ -611,6 +611,92 @@ def select_clips(videos: list) -> dict:
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
 
+def select_montage_clips(videos: list) -> dict:
+    """Independent montage clip selection using local Qwen3-Coder.
+
+    Selects the best 12-22 second standalone moment from each video.
+    Completely independent from select_clips() — different timestamps, different criteria.
+    Falls back to Pulse Check clip timestamps if Qwen unavailable.
+    """
+    import requests
+    import json as _json
+    import re as _re
+
+    OLLAMA_URL = "http://localhost:11435"
+    MODEL = "qwen3-coder:30b"
+    montage_clips = []
+
+    for video in videos:
+        video_id = video.get("video_id", "")
+        channel = video.get("channel", "")
+        title = video.get("title", "")
+        timestamped_text = video.get("timestamped_text", "") or video.get("transcript_text", "")
+
+        if not timestamped_text or len(timestamped_text) < 100:
+            logger.info(f"[Montage] No transcript for {channel} {video_id}, skipping")
+            continue
+
+        prompt = (
+            "You are selecting the single best SHORT standalone highlight clip for a daily "
+            "Bitcoin media compilation. Viewers have ZERO prior context.\n\n"
+            "Select the 12-22 second window that is the most punchy, self-contained, "
+            "and quotable moment in this entire video.\n"
+            "CRITERIA:\n"
+            "- Complete thought — starts and ends at natural sentence boundaries\n"
+            "- No context needed to understand it\n"
+            "- Single strong statement or striking data point\n"
+            "- NOT the same as the Pulse Check clip (find a DIFFERENT moment)\n"
+            "- Ideal: starts with a strong noun or number, ends with a period\n\n"
+            f"VIDEO: {title}\nCHANNEL: {channel}\n\n"
+            f"TIMESTAMPED TRANSCRIPT:\n{timestamped_text[:3000]}\n\n"
+            'Return ONLY valid JSON, no markdown:\n'
+            '{"montage_start_sec": int, "montage_end_sec": int, '
+            '"quote": "exact words spoken", "reason": "why this moment"}'
+        )
+
+        try:
+            resp = requests.post(
+                f"{OLLAMA_URL}/api/chat",
+                json={
+                    "model": MODEL,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": False,
+                    "options": {"temperature": 0.2},
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            raw = resp.json().get("message", {}).get("content", "")
+            match = _re.search(r"\{[^{}]+\}", raw, _re.DOTALL)
+            if match:
+                result = _json.loads(match.group())
+                start = int(result.get("montage_start_sec", 0))
+                end = int(result.get("montage_end_sec", start + 18))
+                # Validate reasonable range
+                if 0 <= start < end and (end - start) <= 30:
+                    montage_clips.append({
+                        "rank": len(montage_clips) + 1,
+                        "video_id": video_id,
+                        "channel": channel,
+                        "video_title": title,
+                        "start_seconds": start,
+                        "end_seconds": end,
+                        "quote": result.get("quote", ""),
+                        "score": video.get("score", 50),
+                        "timestamped_text": timestamped_text,
+                        "montage_reason": result.get("reason", ""),
+                    })
+                    logger.info(f"[Montage] {channel}: {start}s-{end}s — {result.get('quote', '')[:60]}")
+                    continue
+        except Exception as e:
+            logger.warning(f"[Montage] Qwen failed for {channel}: {e}")
+
+        # Fallback: skip — montage will have fewer clips if Qwen unavailable
+        logger.info(f"[Montage] {channel}: using fallback empty (Qwen unavailable)")
+
+    return {"clips": montage_clips}
+
+
 if __name__ == "__main__":
     # Test with cached transcripts or live scan
     from channel_scanner import scan_all_channels

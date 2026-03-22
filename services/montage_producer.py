@@ -82,45 +82,77 @@ def score_dots(score: float) -> str:
 # ── Pipeline Steps ───────────────────────────────────────────────────
 
 def load_clips(date_str: str) -> list[dict]:
-    """Load and filter clips from selections.json."""
+    """Load and filter clips, preferring independent montage selections.
+
+    Tries montage_selections.json + montage_clip_* files first.
+    Falls back to selections.json + clip_* files (original behavior).
+    """
     output_dir = PIPELINE_OUTPUT / date_str
-    sel_path = output_dir / "selections.json"
     clips_dir = output_dir / "clips"
+
+    # Try montage_selections.json first (independent selection)
+    montage_sel_path = output_dir / "montage_selections.json"
+    sel_path = montage_sel_path if montage_sel_path.exists() else output_dir / "selections.json"
 
     if not sel_path.exists():
         log.error("No selections.json at %s", sel_path)
         return []
+
+    using_montage = sel_path == montage_sel_path
+    log.info("Using %s selections: %s", "montage" if using_montage else "pulse-check", sel_path)
 
     with open(sel_path) as f:
         data = json.load(f)
 
     selections = data.get("clips", [])
 
-    # Map each selection to its clip file
+    # Build lookup of clip files by video_id
+    clip_files_by_vid = {}
+    if clips_dir.exists():
+        # Try montage_clip_* files first
+        for clip_file in clips_dir.glob("montage_clip_*.mp4"):
+            name = clip_file.stem  # e.g. montage_clip_1_Simply_Bitcoin_uvXvlI3HRlM
+            for sel in selections:
+                vid = sel.get("video_id", "")
+                if vid and name.endswith(vid):
+                    clip_files_by_vid[vid] = str(clip_file)
+                    break
+
+        # Fall back to clip_N_* if no montage clips found
+        if not clip_files_by_vid:
+            log.info("No montage clip files found, falling back to pulse-check clips")
+            for clip_file in clips_dir.glob("clip_*.mp4"):
+                name = clip_file.stem
+                for sel in selections:
+                    vid = sel.get("video_id", "")
+                    if vid and name.endswith(vid):
+                        clip_files_by_vid[vid] = str(clip_file)
+                        break
+
+    # Match selections to clip files
     clip_list = []
+    seen_vids = set()
     for sel in selections:
-        rank = sel["rank"]
-        channel = sel["channel"].replace(" ", "_")
-        vid = sel["video_id"]
-        pattern = f"clip_{rank}_{channel}_{vid}.mp4"
-        clip_path = clips_dir / pattern
-
-        if not clip_path.exists():
-            log.warning("Clip file not found: %s", clip_path)
+        vid = sel.get("video_id", "")
+        if not vid or vid in seen_vids:
             continue
-
-        sel["file"] = str(clip_path)
+        clip_path = clip_files_by_vid.get(vid)
+        if not clip_path:
+            log.warning("No clip file for video_id %s (%s)", vid, sel.get("channel", "?"))
+            continue
+        seen_vids.add(vid)
+        sel["file"] = clip_path
         clip_list.append(sel)
 
     # Filter by score threshold
-    filtered = [c for c in clip_list if c["score"] >= SCORE_THRESHOLD]
-    filtered.sort(key=lambda c: c["score"], reverse=True)
+    filtered = [c for c in clip_list if c.get("score", 50) >= SCORE_THRESHOLD]
+    filtered.sort(key=lambda c: c.get("score", 50), reverse=True)
 
     # If not enough clips or total too short, lower threshold
     if len(filtered) < MIN_CLIPS:
         log.info("Only %d clips >= %.0f, lowering to %.0f", len(filtered), SCORE_THRESHOLD, SCORE_THRESHOLD_LOW)
-        filtered = [c for c in clip_list if c["score"] >= SCORE_THRESHOLD_LOW]
-        filtered.sort(key=lambda c: c["score"], reverse=True)
+        filtered = [c for c in clip_list if c.get("score", 50) >= SCORE_THRESHOLD_LOW]
+        filtered.sort(key=lambda c: c.get("score", 50), reverse=True)
 
     return filtered[:MAX_CLIPS + 1]  # take up to 5 for duration fitting
 
