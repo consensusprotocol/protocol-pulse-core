@@ -277,29 +277,32 @@ def run_forensics(video):
     r = run(f'ffmpeg -i "{video}" -vf "freezedetect=n=0.001:d=1.0" -an -f null - 2>&1', timeout=300)
     res['freeze_count'] = len(re.findall(r'freeze_start', r.stderr+r.stdout))
 
-    # TTS ARTIFACT CHECK — detect if narrator is reading SSML markers aloud
-    # Transcribe first 60s of audio and scan for known bad words
+    # TTS ARTIFACT CHECK — run in isolated subprocess with hard 45s timeout
+    # Prevents WhisperModel from blocking forensics pipeline
     tts_artifacts = []
     try:
-        import subprocess as _sp, tempfile as _tf, os as _os
+        import subprocess as _sp, tempfile as _tf, os as _os, json as _json
         with _tf.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
             tmp_path = tmp.name
         _sp.run(['ffmpeg', '-y', '-i', video, '-t', '60', '-ar', '16000',
                  '-ac', '1', tmp_path], capture_output=True, timeout=30)
-        # Use faster-whisper if available for quick transcript
-        try:
-            from faster_whisper import WhisperModel
-            model = WhisperModel('tiny', device='cpu', compute_type='int8')
-            segs, _ = model.transcribe(tmp_path, language='en')
-            transcript = ' '.join(s.text for s in segs).lower()
-            bad_words = ['pause', 'breath', 'emphasis', 'break colon', 'ssml',
-                         'slash', 'open bracket', 'close bracket']
-            tts_artifacts = [w for w in bad_words if w in transcript]
-        except Exception:
-            pass
+        # Run whisper in subprocess so it cannot block the loop
+        checker = (
+            "import sys, json\n"
+            "from faster_whisper import WhisperModel\n"
+            "model = WhisperModel('tiny', device='cpu', compute_type='int8')\n"
+            "segs, _ = model.transcribe(sys.argv[1], language='en')\n"
+            "t = ' '.join(s.text for s in segs).lower()\n"
+            "bad = ['pause','breath','emphasis','break colon','slash','open bracket','close bracket']\n"
+            "print(json.dumps([w for w in bad if w in t]))\n"
+        )
+        r = _sp.run(['python3', '-c', checker, tmp_path],
+                    capture_output=True, text=True, timeout=45)
+        if r.returncode == 0 and r.stdout.strip():
+            tts_artifacts = _json.loads(r.stdout.strip())
         _os.unlink(tmp_path)
-    except Exception:
-        pass
+    except Exception as _e:
+        log(f"TTS artifact check skipped: {_e}")
     res['tts_artifacts'] = tts_artifacts
     if tts_artifacts:
         log(f"TTS ARTIFACT ALERT: narrator reading markers aloud: {tts_artifacts}")
