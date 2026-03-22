@@ -633,26 +633,14 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         parts.append(f"Generate intro + react for each of the {len(space_tap_clips)} clips above.")
         space_tap_block = "\n".join(parts) + "\n"
 
-    # Escape braces in user content to prevent KeyError
-    def _esc(s): return str(s).replace('{', '{{').replace('}', '}}')
+    # PERMANENT FIX: str.replace() is immune to {curly brace} KeyErrors
     _live = live_block+morning_block+engagement_block+memory_block+space_tap_block
-    try:
-        prompt = SCRIPT_PROMPT.format(
-            clips_info=_esc(clips_info), btc_price=_esc(btc_price),
-            social_posts=_esc(social_posts),
-            live_context=_esc(_live),
-        )
-    except KeyError as _ke:
-        logger.warning(f"KeyError {_ke} in SCRIPT_PROMPT.format — applying nuclear escape")
-        # Nuclear: escape the entire prompt template too
-        import re as _re
-        _safe_prompt = _re.sub(r'\{(?!clips_info|btc_price|social_posts|live_context)([^}]+)\}', r'{{}}', SCRIPT_PROMPT)
-        prompt = _safe_prompt.format(
-            clips_info=_esc(clips_info), btc_price=_esc(btc_price),
-            social_posts=_esc(social_posts),
-            live_context=_esc(_live),
-        )
-
+    prompt = (SCRIPT_PROMPT
+        .replace(chr(123)+chr(99)+chr(108)+chr(105)+chr(112)+chr(115)+chr(95)+chr(105)+chr(110)+chr(102)+chr(111)+chr(125), str(clips_info))
+        .replace(chr(123)+chr(98)+chr(116)+chr(99)+chr(95)+chr(112)+chr(114)+chr(105)+chr(99)+chr(101)+chr(125), str(btc_price))
+        .replace(chr(123)+chr(115)+chr(111)+chr(99)+chr(105)+chr(97)+chr(108)+chr(95)+chr(112)+chr(111)+chr(115)+chr(116)+chr(115)+chr(125), str(social_posts))
+        .replace(chr(123)+chr(108)+chr(105)+chr(118)+chr(101)+chr(95)+chr(99)+chr(111)+chr(110)+chr(116)+chr(101)+chr(120)+chr(116)+chr(125), str(_live))
+    )
     logger.info(f"Generating script for {len(clips)} clips...")
     text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
     if text is None:
