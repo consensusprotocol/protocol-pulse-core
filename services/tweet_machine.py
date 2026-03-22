@@ -385,8 +385,8 @@ def main():
             tweet["text"] = text
 
         if CAN_POST:
-            text = _strip_hashtags(text)  # Hard gate — no hashtags ever
-        result = post_to_x(text)
+            text = _strip_hashtags(text)  # Hard gate
+            result = post_to_x(text)
             if result.get("success"):
                 log_to_db(tweet, posted=True, tweet_id=result.get("tweet_id"))
                 posted_count += 1
