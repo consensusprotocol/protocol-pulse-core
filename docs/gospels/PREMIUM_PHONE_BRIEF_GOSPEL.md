@@ -120,3 +120,36 @@ Step 6: Public launch with waitlist
 
 ## CC SPEC LOCATION
 ~/protocol_pulse/docs/cc_phone_brief_build.md (to be written when pipeline stable)
+
+
+## CALL TIME PREFERENCES (user-selectable)
+Subscribers choose their preferred delivery window at signup.
+Available slots (all ET, Mon-Fri):
+
+  SLOT A | 5:58 AM  | Pre-Market (default) | before US market open
+  SLOT B | 3:58 AM  | UK Open              | before London market open
+  SLOT C | 11:58 PM | Asia Close           | end of Asia session
+  SLOT D | 12:58 PM | Lunch                | midday market check-in
+  SLOT E | 3:58 PM  | Market Close         | before US market close
+  SLOT F | 7:58 PM  | Evening              | post-market debrief
+
+DB field: premium_subscribers.call_slot (A/B/C/D/E/F)
+Default:  SLOT A
+Cron:     One entry per active slot, fires 2 minutes before call time
+
+Brief content adapts to slot:
+  Morning (A,B):   overnight moves + what to watch today
+  Midday (D):      morning recap + afternoon signal
+  Close/Evening (E,F): daily summary + overnight thesis
+
+## VOICE PREFERENCES (user-selectable)
+Two options matching Protocol Pulse on-air talent:
+
+  VOICE F | Eryn | female | Kokoro af_heart (ElevenLabs Jessica for premium)
+  VOICE M | PBX  | male   | Kokoro am_onyx (StyleTTS2 PBX clone when ready)
+
+DB field: premium_subscribers.voice_pref (F/M)
+Default:  F (Eryn)
+
+Same script content for both voices. TTS generates both in parallel,
+serves correct audio per subscriber. No additional latency.
