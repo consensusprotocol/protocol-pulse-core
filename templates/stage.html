@@ -1542,6 +1542,13 @@ body { background: var(--s-bg); }
       src.buffer=buf;src.connect(ac.destination);src.start(0);
       setTimeout(function(){try{ac.close();}catch(e){}},300);
     } catch(e) {}
+    /* Pre-unlock Audio element for mobile playback */
+    try {
+      window._audioUnlocked = new Audio();
+      window._audioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+      window._audioUnlocked.volume = 0.001;
+      window._audioUnlocked.play().catch(function(){});
+    } catch(e) {}
     var ov=document.getElementById('stage-wake');
     if(ov) ov.style.display='none';
     requestGreet();
@@ -1965,13 +1972,32 @@ body { background: var(--s-bg); }
           job = preJob;
         } else {
           setStatus('Rendering\u2026', 'var(--s-gold)');
-          var resp = await fetchTO(AVATAR_BASE + '/oracle/monologue', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({script: script})
-          }, 15000);
-          if (!resp.ok) { await sleep(3000); continue; }
-          job = await resp.json();
+          try {
+            var resp = await fetchTO(AVATAR_BASE + '/oracle/monologue', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({script: script})
+            }, 15000);
+            if (!resp.ok) throw new Error('monologue ' + resp.status);
+            job = await resp.json();
+          } catch(mErr) {
+            // Fallback: render via /oracle/speak and play directly
+            try {
+              var speakResp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: script, intent: 'BROADCAST_SEGMENT'})
+              }, 120000);
+              if (!speakResp.ok) { await sleep(3000); continue; }
+              var blob = await speakResp.blob();
+              var url = URL.createObjectURL(blob);
+              await playVid(url);
+              try { URL.revokeObjectURL(url); } catch(e) {}
+              continue;
+            } catch(sErr) {
+              await sleep(3000); continue;
+            }
+          }
         }
 
         prefetchNextMonologue();

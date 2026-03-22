@@ -798,6 +798,14 @@ function requestMic(){
   vid.muted=true;
   vid.play().catch(function(){});
 
+  /* Pre-unlock Audio element for PATH B (chat responses) */
+  window._audioUnlocked = new Audio();
+  window._audioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+  window._audioUnlocked.volume = 0.001;
+  window._audioUnlocked.play().catch(function(){});
+
+  window._chatAudioPlaying = false;
+
   navigator.mediaDevices.getUserMedia({audio:true,video:false})
     .then(function(stream){
       stream.getTracks().forEach(function(t){t.stop();}); /* don't need stream, just the gesture */
@@ -960,9 +968,19 @@ function process(text){
       })
       .then(function(audioBlob){
         var audioUrl=URL.createObjectURL(audioBlob);
-        var audio=new Audio(audioUrl);
-        audio.volume=1.0;
+        var audio;
+        if(window._audioUnlocked){
+          audio=window._audioUnlocked;
+          window._audioUnlocked=null;
+          audio.src=audioUrl;
+          audio.volume=1.0;
+          audio.muted=false;
+        } else {
+          audio=new Audio(audioUrl);
+          audio.volume=1.0;
+        }
         setStat('Speaking','#6cff9f',false);
+        window._chatAudioPlaying=true;
         var playPromise = audio.play();
         if(playPromise !== undefined){
           playPromise.catch(function(err){
@@ -981,6 +999,7 @@ function process(text){
 
         return new Promise(function(resolve){
           audio.onended=function(){
+            window._chatAudioPlaying=false;
             URL.revokeObjectURL(audioUrl);
             // Audio finished — unmute video if it's playing lip sync
             try{ if(!vid.paused){ vid.muted=false; vid.volume=1.0; } }catch(e){}
@@ -1071,12 +1090,16 @@ function playVid(url){
     vid.style.opacity='0';
     document.getElementById('vid-static').style.opacity='1';
     vid.src=url;
+    var _ph=document.getElementById('vid-ph');
+    if(_ph) _ph.style.display='none';
     setStat('Speaking','#6cff9f',false);
     try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
       document.getElementById('vid-static').style.opacity='1';
       vid.style.opacity='0';
       vid.src='';
+      var _ph=document.getElementById('vid-ph');
+      if(_ph) _ph.style.display='flex';
       setStat('Ready','#334',false);hideSub();
       setBusy(false);mic.disabled=false;
       res();
@@ -1099,10 +1122,13 @@ function playVid(url){
     }
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
-      // If Kokoro audio is still playing, keep video muted — lip sync only
-      // tryUnmute() will fire when audio ends
       vid.style.opacity='1';
       document.getElementById('vid-static').style.opacity='0';
+      // PATH A (intent videos): video contains audio — unmute it
+      // PATH B (chat): separate audio element handles sound, video is lip-sync only
+      if(!window._chatAudioPlaying){
+        tryUnmute();
+      }
     },{once:true});
     var p=vid.play();
     if(p){
@@ -1225,8 +1251,17 @@ function sendVisionImage(b64, mimeType){
       hideVisionStatus();
       // Play audio over the still avatar (no lip sync — but instant)
       var audioURL = URL.createObjectURL(audioBlob);
-      var audio = new Audio(audioURL);
-      audio.volume = 1.0;
+      var audio;
+      if(window._audioUnlocked){
+        audio=window._audioUnlocked;
+        window._audioUnlocked=null;
+        audio.src=audioURL;
+        audio.volume=1.0;
+        audio.muted=false;
+      } else {
+        audio = new Audio(audioURL);
+        audio.volume = 1.0;
+      }
       setStat("Speaking","#6cff9f",false);
       return new Promise(function(res){
         audio.onended = function(){
