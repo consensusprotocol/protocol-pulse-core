@@ -338,3 +338,16 @@ AUTO-FIX:
   loudness → loudnorm=I=-14:TP=-2.0:LRA=7:linear=true (audio only, no video re-encode)
 LOG: video_pipeline_v3/logs/preflight_YYYYMMDD.log
 MAX ATTEMPTS: 3 — after 3 failures, sends Telegram warning and proceeds to grading.
+
+PATTERN: services.* import shadowing in Phase 2 files -- PERMANENT RULE
+  ROOT CAUSE: Files in services/ using importlib.util to load other services/
+  files must use Path(__file__).resolve().parent as base, not from services.X.
+  When gunicorn runs from core/, Python resolves services to core/services/
+  which shadows top-level services/.
+  RULE: NEVER write from services.X import Y anywhere in services/*.py
+  ALWAYS use:
+    _svc_dir = Path(__file__).resolve().parent
+    spec = importlib.util.spec_from_file_location(name, str(_svc_dir / file))
+  FIXED IN: sentinel.py lines 22-40, convergence_engine.py lines 19-38
+  VERIFY: cd ~/protocol_pulse/core && python3 -c from blueprints.intelligence import intelligence_bp; print(OK)
+  WATCHDOG: /intelligence 404 after new Phase 2 file? Check for from services. in new file.
