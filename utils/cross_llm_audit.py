@@ -60,6 +60,7 @@ FEATURE_MAP = {
     "watchdog-cc-healing": ("WATCHDOG_LLM_GOSPEL.md", "main"),
     "commander-product-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "pipeline-comprehensive-audit": ("PIPELINE_LAWS.md", "main"),
+    "intelligence-terminal": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -123,6 +124,11 @@ EXPLICIT_FILES = {
     "commander-product-audit": [
         "docs/cc_commander_premium.md",
         "templates/commander_dashboard.html",
+    ],
+    "intelligence-terminal": [
+        "docs/VISUAL_DESIGN_SYSTEM.md",
+        "services/morning_brief.py",
+        "video_pipeline_v3/daily_producer.py",
     ],
 }
 
