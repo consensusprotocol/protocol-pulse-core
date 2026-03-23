@@ -63,6 +63,7 @@ FEATURE_MAP = {
     "intelligence-terminal": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "convergence-detection": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "convergence-build-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "ml-session-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -145,6 +146,13 @@ EXPLICIT_FILES = {
         "core/blueprints/intelligence.py",
         "core/app.py",
         "core/templates/intelligence_terminal.html",
+    ],
+    "ml-session-audit": [
+        "docs/cc_ml_session.md",
+        "docs/phase_ml/pcaf_v1_foundation.md",
+        "docs/phase_ml/tpa_foundation.md",
+        "services/sentinel.py",
+        "core/blueprints/intelligence.py",
     ],
 }
 

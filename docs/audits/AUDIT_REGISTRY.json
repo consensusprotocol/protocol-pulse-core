@@ -1,7 +1,7 @@
 {
-  "last_audit": "2026-03-23T08:29:37.434846+00:00",
-  "feature": "convergence-build-audit",
-  "commit": "40b067e7",
+  "last_audit": "2026-03-23T19:06:33.704096+00:00",
+  "feature": "ml-session-audit",
+  "commit": "1fa756ec",
   "audits": [
     {
       "feature": "assembler-v2-rebuild",
@@ -140,6 +140,18 @@
       ],
       "type": "build_doc_engineering_audit",
       "cycles": 2
+    },
+    {
+      "feature": "ml-session-audit",
+      "date": "2026-03-23",
+      "models": [
+        "gpt4o",
+        "grok"
+      ],
+      "type": "build_doc_engineering_audit",
+      "cycles": 2,
+      "questions": 10,
+      "scope": "PCAF v1 GNN + TPA Monte Carlo"
     }
   ]
 }
