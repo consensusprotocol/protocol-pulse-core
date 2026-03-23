@@ -66,6 +66,13 @@ TASKS = {
     "stage_brief_morning": {"cron": "06:00", "description": "Stage brief morning (06:00 UTC) — Chatterbox TTS, intel extraction"},
     "stage_brief_midday": {"cron": "14:00", "description": "Stage brief midday (14:00 UTC) — Chatterbox TTS, intel extraction"},
     "stage_brief_evening": {"cron": "22:00", "description": "Stage brief evening (22:00 UTC) — Chatterbox TTS, intel extraction"},
+    # Social Media Sacred Schedule (3 posts/day max, global gate enforced)
+    "morning_signal_tweet": {"cron_est": "09:00", "description": "Sacred slot 1/3: Morning signal tweet via tweet_machine (09:00 ET)"},
+    "afternoon_article_tweet": {"cron_est": "14:00", "description": "Sacred slot 2/3: Top article tweet via x_daily_top_article (14:00 ET)"},
+    "evening_signal_tweet": {"cron_est": "19:00", "description": "Sacred slot 3/3: Evening signal tweet via tweet_machine (19:00 ET)"},
+    # Auto-engagement (replies, likes, retweets — separate from post count)
+    "auto_engagement_noon": {"cron_est": "12:00", "description": "Auto-engagement: reply to mentions, like + RT tier-1 (noon ET)"},
+    "auto_engagement_evening": {"cron_est": "18:00", "description": "Auto-engagement: reply to mentions, like + RT tier-1 (6pm ET)"},
     # F6 Marketing OS
     "btc_milestone_check": {"interval_minutes": 5, "description": "F6: BTC price milestone check — fires campaigns at 100K/120K/.../1M (never repeats)"},
     "daily_metrics_snapshot": {"interval_minutes": 60, "description": "F6: Daily performance metrics snapshot (hourly upsert)"},
@@ -151,15 +158,19 @@ def auto_viral_reel() -> Dict:
             published_x = False
             published_tg = False
             if ENABLE_LIVE_POSTING and reel_url:
-                # 4a) Publish to X (tweet with link)
+                # 4a) Publish to X (tweet with link) — through global gate
                 try:
-                    from services.x_service import XService
+                    from services.x_service import XService, can_post_tweet
                     x = XService()
                     if x.client or getattr(x, "client_v2", None):
                         text = f"New Intel Briefing reel — {job.channel_name or 'Partner'} | {reel_url}"
                         if len(text) > 280:
                             text = f"Intel Briefing | {job.channel_name or 'Partner'} {reel_url}"
-                        if x.client:
+                        # Global gate check
+                        allowed, reason = can_post_tweet(text[:280], source="auto_viral_reel")
+                        if not allowed:
+                            logger.warning("auto_viral_reel gate blocked: %s", reason)
+                        elif x.client:
                             x.client.update_status(text[:280])
                             published_x = True
                         elif getattr(x, "client_v2", None) and x.client_v2:
@@ -448,6 +459,46 @@ def run_task(name: str) -> Dict:
             logger.exception("affiliate_education task failed: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    # ─── Sacred Social Schedule ──────────────────────────────────────────────
+
+    if name == "morning_signal_tweet":
+        try:
+            from services.tweet_machine import main as tweet_machine_main
+            tweet_machine_main()
+            return {"success": True, "message": "Morning signal tweet dispatched", "result": None}
+        except Exception as e:
+            logger.warning("morning_signal_tweet failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "afternoon_article_tweet":
+        try:
+            from services.x_daily_top_article import main as top_article_main
+            top_article_main()
+            return {"success": True, "message": "Afternoon article tweet dispatched", "result": None}
+        except Exception as e:
+            logger.warning("afternoon_article_tweet failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "evening_signal_tweet":
+        try:
+            from services.tweet_machine import main as tweet_machine_main
+            tweet_machine_main()
+            return {"success": True, "message": "Evening signal tweet dispatched", "result": None}
+        except Exception as e:
+            logger.warning("evening_signal_tweet failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name in ("auto_engagement_noon", "auto_engagement_evening"):
+        try:
+            from app import app
+            from services.x_engagement_engine import run_auto_engagement
+            with app.app_context():
+                result = run_auto_engagement()
+            return {"success": bool(result.get("success")), "message": "Auto-engagement cycle complete", "result": result}
+        except Exception as e:
+            logger.warning("auto_engagement failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     # ─── F6 Marketing OS ─────────────────────────────────────────────────────
 
     if name == "btc_milestone_check":
@@ -580,6 +631,13 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("intel_medley"), trigger=IntervalTrigger(minutes=60), id="intel_medley", replace_existing=True)
         _apscheduler.add_job(lambda: run_task("affiliate_education_morning"), trigger=CronTrigger(hour=11, minute=0), id="affiliate_education_morning", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("affiliate_education_evening"), trigger=CronTrigger(hour=21, minute=0), id="affiliate_education_evening", replace_existing=True, max_instances=1)
+        # Sacred Social Schedule — 3 posts/day (ET times converted to UTC: ET = UTC-4 in summer, UTC-5 in winter)
+        _apscheduler.add_job(lambda: run_task("morning_signal_tweet"), trigger=CronTrigger(hour=13, minute=0), id="morning_signal_tweet", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("afternoon_article_tweet"), trigger=CronTrigger(hour=18, minute=0), id="afternoon_article_tweet", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("evening_signal_tweet"), trigger=CronTrigger(hour=23, minute=0), id="evening_signal_tweet", replace_existing=True, max_instances=1)
+        # Auto-engagement (noon + 6pm ET = 16:00 + 22:00 UTC)
+        _apscheduler.add_job(lambda: run_task("auto_engagement_noon"), trigger=CronTrigger(hour=16, minute=0), id="auto_engagement_noon", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("auto_engagement_evening"), trigger=CronTrigger(hour=22, minute=0), id="auto_engagement_evening", replace_existing=True, max_instances=1)
         # F6 Marketing OS jobs
         _apscheduler.add_job(lambda: run_task("btc_milestone_check"), trigger=IntervalTrigger(minutes=5), id="btc_milestone_check", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("daily_metrics_snapshot"), trigger=IntervalTrigger(hours=1), id="daily_metrics_snapshot", replace_existing=True, max_instances=1)

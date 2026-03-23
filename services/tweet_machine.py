@@ -209,7 +209,29 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
     if posted_today:
         used_context = "\nALREADY POSTED TODAY - pick a DIFFERENT angle:\n"
         used_context += "\n".join("- " + t[:100] for t in posted_today)
-    prompt = TWEET_GENERATION_PROMPT.format(brief_text=brief_text + used_context, voice_laws=TWEET_VOICE_LAWS)
+
+    # Angle diversity: tell the LLM which categories are available
+    available_angles_context = ""
+    try:
+        sys.path.insert(0, str(BASE))
+        from services.x_service import get_available_angles, ANGLE_CATEGORIES
+        available = get_available_angles()
+        if available:
+            available_angles_context = (
+                "\n\nANGLE CATEGORY ENFORCEMENT: You MUST pick one of these unused categories for today's tweet. "
+                "Return it in the 'angle' field of your JSON response.\n"
+                f"Available categories: {', '.join(available)}\n"
+                f"All categories: {', '.join(ANGLE_CATEGORIES)}"
+            )
+        else:
+            logger.warning("All angle categories used today — no available angles")
+    except Exception as e:
+        logger.warning(f"Could not load angle categories: {e}")
+
+    prompt = TWEET_GENERATION_PROMPT.format(
+        brief_text=brief_text + used_context + available_angles_context,
+        voice_laws=TWEET_VOICE_LAWS
+    )
 
     payload = {
         "model": "claude-haiku-4-5-20251001",
@@ -395,12 +417,39 @@ def main():
 
         if CAN_POST:
             text = _strip_hashtags(text)  # Hard gate
+
+            # Global rate gate check
+            try:
+                sys.path.insert(0, str(BASE))
+                from services.x_service import can_post_tweet, ANGLE_CATEGORIES
+                angle = tweet.get("angle", "macro_monetary")
+                # Normalize angle to valid category
+                if angle not in ANGLE_CATEGORIES:
+                    angle = "macro_monetary"
+                allowed, reason = can_post_tweet(text, source="tweet_machine", angle_category=angle)
+                if not allowed:
+                    logger.warning(f"GATE BLOCKED: {reason}")
+                    queue_tweet(tweet, brief)
+                    log_to_db(tweet, posted=False)
+                    queued_count += 1
+                    continue
+            except Exception as e:
+                logger.warning(f"Gate check failed (allowing): {e}")
+
+            # Dedup check (legacy, redundant with gate but kept as safety net)
+            posted_today = get_todays_posted_tweets()
+            if is_too_similar(text, posted_today):
+                logger.warning("DEDUP blocked tweet")
+                queue_tweet(tweet, brief)
+                log_to_db(tweet, posted=False)
+                queued_count += 1
+                continue
+
             result = post_to_x(text)
             if result.get("success"):
                 log_to_db(tweet, posted=True, tweet_id=result.get("tweet_id"))
                 posted_count += 1
             else:
-                # Fallback to queue
                 queue_tweet(tweet, brief)
                 log_to_db(tweet, posted=False)
                 queued_count += 1

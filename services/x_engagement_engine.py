@@ -272,9 +272,19 @@ Generate 5 original tweets for Protocol Pulse. Each must feel like it belongs in
             logger.info(f"[TWEETS DISABLED] Would post: {tweet_text}")
             return {"success": False, "reason": "tweets_disabled", "would_post": tweet_text}
 
+        # Global gate check
+        try:
+            from services.x_service import can_post_tweet
+            allowed, reason = can_post_tweet(tweet_text, source=f"engagement_{strategy}")
+            if not allowed:
+                logger.warning(f"[X GATE REJECT] {strategy} | {reason}")
+                return {"success": False, "reason": reason, "gate_blocked": True}
+        except Exception as e:
+            logger.warning(f"Gate check failed: {e}")
+
         try:
             from services.x_service import post_tweet
-            result = post_tweet(tweet_text)
+            result = post_tweet(tweet_text, source=f"engagement_{strategy}")
             if result:
                 tweet_id = result.get("id", "unknown") if isinstance(result, dict) else "unknown"
                 logger.info(f"POSTED [{strategy}]: {tweet_text}")
@@ -351,9 +361,19 @@ Generate 5 original tweets for Protocol Pulse. Each must feel like it belongs in
             logger.info(f"[TWEETS DISABLED] Would quote: {text}")
             return {"success": False, "reason": "tweets_disabled", "would_post": text}
 
+        # Global gate check
+        try:
+            from services.x_service import can_post_tweet
+            allowed, reason = can_post_tweet(text, source="engagement_quote_tweet")
+            if not allowed:
+                logger.warning(f"[X GATE REJECT] quote_tweet | {reason}")
+                return {"success": False, "reason": reason, "gate_blocked": True}
+        except Exception as e:
+            logger.warning(f"Gate check failed: {e}")
+
         try:
             from services.x_service import post_tweet
-            result = post_tweet(text)
+            result = post_tweet(text, source="engagement_quote_tweet")
             if result:
                 logger.info(f"POSTED [quote]: {text[:80]}")
                 self._log_post(text, "unknown", "quote_tweet", take.get("confidence", 0))
@@ -523,6 +543,255 @@ Generate 3 tweets."""
             results["quote"] = self.run_quote_tweet_cycle()
 
         return results
+
+
+# ================================================================
+# TIER 1 HANDLES — high-signal Bitcoin accounts to engage with
+# ================================================================
+TIER1_HANDLES = [
+    "saborbtc", "LynAldenContact", "DocumentingBTC", "ODELL",
+    "daboradelacruz", "natbrunell", "gladstein", "BitcoinMagazine",
+    "CoinDesk", "Blockworks_", "hodlonaut", "aantonop",
+    "PeterMcCormack", "MartyBent", "presabordelacruz",
+]
+
+
+# ================================================================
+# AUTO-ENGAGEMENT: mentions, likes, retweets
+# ================================================================
+
+def run_auto_engagement() -> Dict:
+    """
+    Auto-engagement cycle (runs 2x daily):
+    1. Check @ProtocolPulseHQ mentions in last 12 hours
+    2. Reply to real accounts with on-brand responses
+    3. Like 3-5 high-signal tweets from TIER1 handles
+    4. Retweet max 1 exceptional post from TIER1
+    """
+    results = {"success": True, "replies": 0, "likes": 0, "retweets": 0, "errors": []}
+
+    try:
+        from services.x_service import XService
+        x = XService()
+        if not x.client_v2:
+            return {"success": False, "error": "X client not configured"}
+
+        # 1. Reply to mentions
+        try:
+            mentions_result = _reply_to_mentions(x)
+            results["replies"] = mentions_result.get("replied", 0)
+        except Exception as e:
+            results["errors"].append(f"mentions: {e}")
+            logger.warning("Mention replies failed: %s", e)
+
+        # 2. Like high-signal tweets from TIER1
+        try:
+            likes_result = _like_tier1_tweets(x)
+            results["likes"] = likes_result.get("liked", 0)
+        except Exception as e:
+            results["errors"].append(f"likes: {e}")
+            logger.warning("Tier1 likes failed: %s", e)
+
+        # 3. Retweet max 1 exceptional post
+        try:
+            rt_result = _retweet_tier1(x)
+            results["retweets"] = rt_result.get("retweeted", 0)
+        except Exception as e:
+            results["errors"].append(f"retweet: {e}")
+            logger.warning("Tier1 retweet failed: %s", e)
+
+    except Exception as e:
+        logger.error("Auto-engagement failed: %s", e)
+        return {"success": False, "error": str(e)}
+
+    logger.info("Auto-engagement: %d replies, %d likes, %d RTs", results["replies"], results["likes"], results["retweets"])
+    return results
+
+
+def _reply_to_mentions(x) -> Dict:
+    """Check and reply to recent mentions."""
+    replied = 0
+    try:
+        # Get authenticated user's ID
+        me = x.client_v2.get_me()
+        if not me or not me.data:
+            return {"replied": 0}
+        user_id = me.data.id
+
+        # Fetch recent mentions (last 12h via since_id would be better, but start simple)
+        mentions = x.client_v2.get_users_mentions(
+            user_id, max_results=10,
+            tweet_fields=["created_at", "author_id", "public_metrics"]
+        )
+        if not mentions or not mentions.data:
+            return {"replied": 0}
+
+        for mention in mentions.data[:5]:
+            # Skip old mentions (>12h)
+            if mention.created_at:
+                age = (datetime.now(timezone.utc) - mention.created_at).total_seconds() / 3600
+                if age > 12:
+                    continue
+
+            # Skip low-quality (very short)
+            if len(mention.text) < 20:
+                continue
+
+            # Generate reply via Grok
+            reply_text = _generate_mention_reply(mention.text)
+            if not reply_text:
+                continue
+
+            # Post reply (replies don't count against 3/day post limit)
+            try:
+                r = x.client_v2.create_tweet(text=reply_text[:280], in_reply_to_tweet_id=str(mention.id))
+                if r and r.data:
+                    replied += 1
+                    logger.info("Replied to mention %s: %s", mention.id, reply_text[:60])
+                    time.sleep(30)  # Don't spam replies
+            except Exception as e:
+                logger.warning("Reply to %s failed: %s", mention.id, e)
+
+            if replied >= 3:  # Max 3 replies per cycle
+                break
+
+    except Exception as e:
+        logger.warning("Mention check failed: %s", e)
+
+    return {"replied": replied}
+
+
+def _generate_mention_reply(mention_text: str) -> Optional[str]:
+    """Generate a brief, on-brand reply to a mention."""
+    api_key = os.environ.get("XAI_API_KEY", "")
+    if not api_key:
+        return None
+
+    import requests as req
+
+    prompt = f"""Someone mentioned @ProtocolPulseHQ with this tweet:
+"{mention_text[:300]}"
+
+Write a 1-2 sentence reply. Rules:
+- Bitcoin/sovereignty lens, never sycophantic
+- Add value — disagree if appropriate
+- No emojis, no hashtags, no "thanks for mentioning us"
+- Sound like a knowledgeable peer, not a brand account
+- Under 200 characters ideal, max 250
+- If the mention is spam/bot/irrelevant, respond with exactly: SKIP
+
+Return ONLY the reply text, nothing else."""
+
+    try:
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        resp = req.post(
+            "https://api.x.ai/v1/chat/completions",
+            headers=headers,
+            json={
+                "model": "grok-3-mini",
+                "messages": [
+                    {"role": "system", "content": "You reply to tweets for Protocol Pulse, a Bitcoin intelligence platform. Brief, sharp, sovereign. Never corporate."},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": 100,
+                "temperature": 0.7
+            },
+            timeout=30
+        )
+        resp.raise_for_status()
+        reply = resp.json()["choices"][0]["message"]["content"].strip().strip('"')
+        if reply.upper() == "SKIP" or len(reply) < 10:
+            return None
+        return reply
+    except Exception as e:
+        logger.warning("Reply generation failed: %s", e)
+        return None
+
+
+def _like_tier1_tweets(x) -> Dict:
+    """Like 3-5 high-signal Bitcoin tweets from TIER1 handles."""
+    liked = 0
+    sampled = random.sample(TIER1_HANDLES, min(5, len(TIER1_HANDLES)))
+
+    for handle in sampled:
+        try:
+            # Search for recent tweets from this handle
+            tweets = x.client_v2.search_recent_tweets(
+                query=f"from:{handle} -is:retweet -is:reply",
+                max_results=5,
+                tweet_fields=["public_metrics", "created_at"]
+            )
+            if not tweets or not tweets.data:
+                continue
+
+            for tweet in tweets.data[:1]:  # Like at most 1 per handle
+                # Only like recent tweets (< 24h)
+                if tweet.created_at:
+                    age = (datetime.now(timezone.utc) - tweet.created_at).total_seconds() / 3600
+                    if age > 24:
+                        continue
+
+                metrics = tweet.public_metrics or {}
+                if metrics.get("like_count", 0) + metrics.get("retweet_count", 0) < 10:
+                    continue  # Skip low-engagement
+
+                try:
+                    x.client_v2.like(tweet.id)
+                    liked += 1
+                    logger.info("Liked @%s tweet %s", handle, tweet.id)
+                    time.sleep(5)
+                except Exception:
+                    pass
+
+            if liked >= 5:
+                break
+
+        except Exception as e:
+            logger.debug("Like scan for @%s failed: %s", handle, e)
+
+    return {"liked": liked}
+
+
+def _retweet_tier1(x) -> Dict:
+    """Retweet max 1 exceptional post from TIER1 handles per cycle."""
+    sampled = random.sample(TIER1_HANDLES, min(8, len(TIER1_HANDLES)))
+    best_tweet = None
+    best_score = 0
+
+    for handle in sampled:
+        try:
+            tweets = x.client_v2.search_recent_tweets(
+                query=f"from:{handle} -is:retweet -is:reply",
+                max_results=5,
+                tweet_fields=["public_metrics", "created_at"]
+            )
+            if not tweets or not tweets.data:
+                continue
+
+            for tweet in tweets.data:
+                if tweet.created_at:
+                    age = (datetime.now(timezone.utc) - tweet.created_at).total_seconds() / 3600
+                    if age > 12:
+                        continue
+
+                metrics = tweet.public_metrics or {}
+                score = metrics.get("like_count", 0) + metrics.get("retweet_count", 0) * 2
+                if score > best_score and score >= 100:  # Only RT truly exceptional
+                    best_score = score
+                    best_tweet = tweet
+
+        except Exception:
+            continue
+
+    if best_tweet:
+        try:
+            x.client_v2.retweet(best_tweet.id)
+            logger.info("Retweeted tweet %s (score=%d)", best_tweet.id, best_score)
+            return {"retweeted": 1}
+        except Exception as e:
+            logger.warning("Retweet failed: %s", e)
+
+    return {"retweeted": 0}
 
 
 # Scheduler-safe entry points

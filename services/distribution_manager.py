@@ -154,7 +154,7 @@ class DistributionManager:
             return labeled
         return parts
 
-    def _x_post(self, text: str) -> Dict[str, Any]:
+    def _x_post(self, text: str, source: str = "distribution_manager") -> Dict[str, Any]:
         text = (text or "").strip()
         if not text:
             return {"success": False, "error": "empty text"}
@@ -162,6 +162,13 @@ class DistributionManager:
             return {"success": False, "error": "x_posting_disabled"}
         if not self.x.client and not self.x.client_v2:
             return {"success": False, "error": "x_not_configured"}
+
+        # Global gate check — use first 280 chars for similarity
+        from services.x_service import can_post_tweet
+        allowed, reason = can_post_tweet(text[:280], source=source)
+        if not allowed:
+            logger.warning("[X GATE REJECT] %s | %s", source, reason)
+            return {"success": False, "error": reason, "gate_blocked": True}
 
         parts = self._split_for_thread(text=text, max_parts=3, limit=280)
         ids: List[str] = []

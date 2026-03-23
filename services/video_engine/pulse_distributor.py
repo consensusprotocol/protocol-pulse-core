@@ -113,14 +113,25 @@ class PulseDistributor:
 
                 # Compose main tweet
                 top_quote = daily_intel.get("top_quote", "")
-                themes = daily_intel.get("themes_today", [])
-                theme_tags = " ".join([f"#{t}" for t in themes[:3]])
 
                 tweet_text = (
                     f"Pulse Check — {self.today}\n\n"
-                    f'"{top_quote[:150]}"\n\n'
-                    f"{theme_tags} #Bitcoin"
+                    f'"{top_quote[:150]}"'
                 )
+                # Strip hashtags (Protocol Pulse never uses hashtags)
+                import re
+                tweet_text = re.sub(r'#\w+\s*', '', tweet_text).strip()
+
+                # Global gate check
+                try:
+                    from services.x_service import can_post_tweet
+                    allowed, reason = can_post_tweet(tweet_text[:280], source="pulse_distributor")
+                    if not allowed:
+                        logger.warning("    Gate blocked: %s", reason)
+                        update_distribution(dist_id, "failed", error=reason)
+                        return {"success": False, "error": reason, "gate_blocked": True}
+                except Exception as gate_err:
+                    logger.warning("    Gate check failed (allowing): %s", gate_err)
 
                 response = client.create_tweet(
                     text=tweet_text,

@@ -1,11 +1,14 @@
 import os
 _TWEETS_ENABLED = os.environ.get('ENABLE_TWEETS', 'false').lower() == 'true'
 
-import os
 import logging
 import json
 import re
+import sqlite3
 import tempfile
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
 import requests
 try:
     import tweepy
@@ -15,6 +18,172 @@ try:
     from openai import OpenAI
 except ImportError:
     OpenAI = None
+
+logger = logging.getLogger(__name__)
+
+# ============================================================
+# GLOBAL POSTING GATE — every posting path MUST call this
+# ============================================================
+_GATE_DB = Path("/home/ultron/protocol_pulse/data/x_post_ledger.db")
+_MAX_POSTS_PER_24H = 3
+_MIN_GAP_HOURS = 4
+_SIMILARITY_THRESHOLD = 0.40
+_SIMILARITY_WINDOW_HOURS = 48
+
+# Narrative categories for angle diversity
+ANGLE_CATEGORIES = [
+    "macro_monetary",       # Macro/monetary policy signal
+    "onchain_metric",       # On-chain metric insight
+    "institutional_flow",   # Institutional flow (ETF, treasury)
+    "geopolitical",         # Geopolitical Bitcoin signal
+    "historical_pattern",   # Historical pattern/precedent
+    "network_fundamentals", # Network fundamentals (hashrate, difficulty)
+    "sovereignty_freedom",  # Sovereignty/freedom framing
+    "contrarian_take",      # Contrarian take on mainstream narrative
+]
+
+
+def _init_gate_db():
+    """Ensure the post ledger table exists."""
+    _GATE_DB.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(_GATE_DB))
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS x_post_ledger (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            posted_at TEXT NOT NULL,
+            tweet_text TEXT NOT NULL,
+            source TEXT DEFAULT 'unknown',
+            angle_category TEXT,
+            allowed INTEGER DEFAULT 1,
+            reason TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def _keyword_set(text: str) -> set:
+    """Extract significant words from text for similarity check."""
+    stop = {"the","a","an","is","are","was","were","and","or","but","in","on","at",
+            "to","of","for","with","this","that","it","as","by","not","no","from",
+            "has","have","had","will","would","could","should","just","more","than"}
+    return set(w.lower() for w in re.findall(r"\w+", text) if w.lower() not in stop and len(w) > 3)
+
+
+def _text_similarity(a: str, b: str) -> float:
+    """Keyword overlap fraction between two texts."""
+    wa, wb = _keyword_set(a), _keyword_set(b)
+    if not wa or not wb:
+        return 0.0
+    return len(wa & wb) / min(len(wa), len(wb))
+
+
+def can_post_tweet(text: str, source: str = "unknown", angle_category: str = None) -> tuple:
+    """
+    Global gate. Every posting path MUST call this before posting.
+    Returns (allowed: bool, reason: str).
+
+    Rules:
+    1. Max 3 posts per 24 hours across ALL posting services
+    2. Minimum 4 hours between any two posts
+    3. 40% similarity threshold against last 48h posts
+    4. No hashtags (strip them if present)
+    5. No duplicate angle category same day
+    6. Logs every check (allowed or blocked) with reason
+    """
+    _init_gate_db()
+    now = datetime.now(timezone.utc)
+    conn = sqlite3.connect(str(_GATE_DB))
+
+    try:
+        # Rule 1: Max 3 posts per 24 hours
+        cutoff_24h = (now - timedelta(hours=24)).isoformat()
+        count_24h = conn.execute(
+            "SELECT COUNT(*) FROM x_post_ledger WHERE posted_at >= ? AND allowed = 1",
+            (cutoff_24h,)
+        ).fetchone()[0]
+        if count_24h >= _MAX_POSTS_PER_24H:
+            reason = f"BLOCKED: {count_24h}/{_MAX_POSTS_PER_24H} posts in 24h — daily limit reached"
+            _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason)
+            return (False, reason)
+
+        # Rule 2: Minimum 4 hours gap
+        last_row = conn.execute(
+            "SELECT posted_at FROM x_post_ledger WHERE allowed = 1 ORDER BY posted_at DESC LIMIT 1"
+        ).fetchone()
+        if last_row:
+            last_time = datetime.fromisoformat(last_row[0])
+            if last_time.tzinfo is None:
+                last_time = last_time.replace(tzinfo=timezone.utc)
+            gap_hours = (now - last_time).total_seconds() / 3600
+            if gap_hours < _MIN_GAP_HOURS:
+                reason = f"BLOCKED: {gap_hours:.1f}h since last post — minimum {_MIN_GAP_HOURS}h gap required"
+                _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason)
+                return (False, reason)
+
+        # Rule 3: Similarity check against last 48h
+        cutoff_48h = (now - timedelta(hours=_SIMILARITY_WINDOW_HOURS)).isoformat()
+        recent_rows = conn.execute(
+            "SELECT tweet_text FROM x_post_ledger WHERE posted_at >= ? AND allowed = 1",
+            (cutoff_48h,)
+        ).fetchall()
+        for (old_text,) in recent_rows:
+            sim = _text_similarity(text, old_text)
+            if sim >= _SIMILARITY_THRESHOLD:
+                reason = f"BLOCKED: {sim:.0%} similarity with recent post — threshold {_SIMILARITY_THRESHOLD:.0%}"
+                _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason)
+                return (False, reason)
+
+        # Rule 5: Angle diversity — no duplicate category same day
+        if angle_category:
+            today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+            same_angle = conn.execute(
+                "SELECT COUNT(*) FROM x_post_ledger WHERE posted_at >= ? AND allowed = 1 AND angle_category = ?",
+                (today_start, angle_category)
+            ).fetchone()[0]
+            if same_angle > 0:
+                reason = f"BLOCKED: angle '{angle_category}' already used today — pick a different category"
+                _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason)
+                return (False, reason)
+
+        # All checks passed
+        reason = f"ALLOWED: post {count_24h + 1}/{_MAX_POSTS_PER_24H} today, source={source}"
+        _log_gate(conn, now, text, source, angle_category, allowed=True, reason=reason)
+        return (True, reason)
+
+    finally:
+        conn.close()
+
+
+def _log_gate(conn, now, text, source, angle_category, allowed, reason):
+    """Log every gate check to the ledger."""
+    conn.execute(
+        "INSERT INTO x_post_ledger (posted_at, tweet_text, source, angle_category, allowed, reason) VALUES (?,?,?,?,?,?)",
+        (now.isoformat(), text[:500], source, angle_category, 1 if allowed else 0, reason)
+    )
+    conn.commit()
+    level = logging.INFO if allowed else logging.WARNING
+    logger.log(level, "[X GATE] %s | source=%s | %s", "ALLOWED" if allowed else "BLOCKED", source, reason)
+
+
+def get_recent_angles(days: int = 1) -> list:
+    """Return angle categories used in the last N days. Used by tweet generators for diversity."""
+    _init_gate_db()
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    conn = sqlite3.connect(str(_GATE_DB))
+    rows = conn.execute(
+        "SELECT angle_category FROM x_post_ledger WHERE posted_at >= ? AND allowed = 1 AND angle_category IS NOT NULL",
+        (cutoff,)
+    ).fetchall()
+    conn.close()
+    return [r[0] for r in rows]
+
+
+def get_available_angles() -> list:
+    """Return angle categories NOT yet used today."""
+    used = set(get_recent_angles(days=1))
+    return [a for a in ANGLE_CATEGORIES if a not in used]
+
 
 def _strip_hashtags(text):
     """Remove all hashtags from text - Protocol Pulse never uses hashtags."""
@@ -88,7 +257,7 @@ class XService:
             return {'is_relevant': True, 'topic': 'Web3', 'nuance': 'Speculative'}
 
     def post_article_tweet(self, article, base_url=''):
-        """Route article tweets through unified quality gate."""
+        """Route article tweets through unified quality gate + global rate gate."""
         if not self.client and not self.client_v2:
             logging.warning("Twitter API not configured - skipping tweet")
             return None
@@ -103,7 +272,12 @@ class XService:
                 getattr(article, 'summary', '') or ''
             )
             if result.get("approved") and result.get("tweet_text"):
-                tweet_text = result["tweet_text"][:280]
+                tweet_text = _strip_hashtags(result["tweet_text"][:280])
+                # Global gate check
+                allowed, reason = can_post_tweet(tweet_text, source="article_tweet", angle_category="institutional_flow")
+                if not allowed:
+                    logger.warning("[X GATE REJECT] article_tweet | %s", reason)
+                    return None
                 if self.client_v2:
                     r = self.client_v2.create_tweet(text=tweet_text)
                     return str(r.data["id"]) if r and r.data else None
@@ -126,9 +300,10 @@ class XService:
             'can_post_video': self.client is not None
         }
 
-    def post_reply(self, tweet_id, text):
+    def post_reply(self, tweet_id, text, source: str = "reply"):
         """
         Post a reply to a tweet (for Zap-Comment / Diplomat bridge).
+        Replies bypass the daily post count but still go through similarity check.
         Returns reply tweet id or None.
         """
         text = _strip_hashtags(text)
@@ -137,7 +312,7 @@ class XService:
         try:
             if self.client_v2:
                 if not _TWEETS_ENABLED:
-                    logging.info(f'[TWEETS DISABLED]')
+                    logging.info('[TWEETS DISABLED]')
                     return None
                 r = self.client_v2.create_tweet(text=text, in_reply_to_tweet_id=str(tweet_id))
                 if r and r.data and getattr(r.data, "id", None):
@@ -158,11 +333,10 @@ class XService:
         fallback = os.path.join(base, "static", "images", "protocol-pulse-logo.png")
         return fallback if os.path.isfile(fallback) else None
 
-    def post_dual_image_news(self, text, cover_url, dry_run=False):
+    def post_dual_image_news(self, text, cover_url, dry_run=False, source="dual_image_news"):
         """
         Post a breaking-news tweet with two images: (1) cover/header from the story, (2) Protocol Pulse branded pulse logo.
-        Builds trust and brand consistency across X (IG/Nostr later).
-        Returns tweet id or None. If dry_run=True, returns dict with draft text and image urls/paths without posting.
+        Returns tweet id or None. If dry_run=True, returns dict with draft text without posting.
         """
         text = _strip_hashtags(text)
         if len(text) > 280:
@@ -178,12 +352,16 @@ class XService:
                 "branded_path": branded_path,
                 "message": "Would post to X with 2 images (cover + branded)." if self.client else "X API not configured."
             }
+        # Global gate check
+        allowed, reason = can_post_tweet(text, source=source)
+        if not allowed:
+            logger.warning("[X GATE REJECT] %s | %s", source, reason)
+            return None
         if not self.client:
             logging.warning("X API not configured - skipping dual-image post")
             return None
         try:
             media_ids = []
-            # Download cover image to temp file
             if cover_url:
                 r = requests.get(cover_url, timeout=15)
                 r.raise_for_status()
@@ -210,20 +388,28 @@ class XService:
 
 # Backward compatibility functions
 
-    def post_tweet(self, text: str, image_path: str = None) -> dict:
-        """Post a simple tweet, optionally with an image"""
+    def post_tweet(self, text: str, image_path: str = None, source: str = "unknown",
+                   angle_category: str = None, bypass_gate: bool = False) -> dict:
+        """Post a simple tweet, optionally with an image. All posts go through global gate."""
         if not self.client_v2:
             return {"error": "Twitter client not initialized"}
-        
+
+        text = _strip_hashtags(text)
+
+        # Global gate check
+        if not bypass_gate:
+            allowed, reason = can_post_tweet(text, source=source, angle_category=angle_category)
+            if not allowed:
+                logger.warning("[X GATE REJECT] %s | %s", source, reason)
+                return {"error": reason, "gate_blocked": True}
+
         try:
-            text = _strip_hashtags(text)
-            
             if image_path:
                 media = self.client.media_upload(image_path)
                 response = self.client_v2.create_tweet(text=text, media_ids=[media.media_id])
             else:
                 response = self.client_v2.create_tweet(text=text)
-            
+
             return {"success": True, "tweet_id": response.data['id']}
         except Exception as e:
             return {"error": str(e)}
@@ -251,19 +437,19 @@ def _get_x():
         _x_instance = XService()
     return _x_instance
 
-def post_tweet(text, image_path=None):
+def post_tweet(text, image_path=None, source="module_wrapper", angle_category=None):
     """Post a tweet. Returns dict with 'id' or None."""
     x = _get_x()
-    return x.post_tweet(text, image_path)
+    return x.post_tweet(text, image_path, source=source, angle_category=angle_category)
 
-def reply_to_tweet(tweet_id, text):
+def reply_to_tweet(tweet_id, text, source="reply"):
     """Reply to a tweet. Returns dict with 'id' or None."""
     x = _get_x()
-    return x.post_reply(tweet_id, text)
+    return x.post_reply(tweet_id, text, source=source)
 
-def quote_tweet(text, url=None):
+def quote_tweet(text, url=None, source="quote_tweet"):
     """Post a quote tweet (text + url). Returns dict with 'id' or None."""
     x = _get_x()
     if url:
         text = f"{text} {url}".strip()[:280]
-    return x.post_tweet(text)
+    return x.post_tweet(text, source=source)
