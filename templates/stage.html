@@ -184,19 +184,11 @@ body { background: var(--s-bg); }
   background: linear-gradient(to top, #0d1017 0%, rgba(13,16,23,.5) 70%, transparent 100%);
   z-index: 3; pointer-events: none;
 }
-.stage-avatar-img {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center top;
-  display: block; z-index: 0;
-  transition: opacity 0.3s;
-}
 .stage-avatar-vid {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center top;
-  display: none; z-index: 1;
-  transition: opacity 0.3s;
+  display: block; z-index: 1;
 }
-.stage-avatar-vid.active { display: block; }
 .stage-avatar-nameplate {
   position: absolute; bottom: 12px; left: 12px; z-index: 10;
   display: flex; align-items: center; gap: 8px;
@@ -780,11 +772,10 @@ body { background: var(--s-bg); }
         </div>
         <!-- Avatar -->
         <div class="stage-avatar-wrap">
-          <img class="stage-avatar-img" id="avatarStill"
-               src="/static/img/oracle_avatar_static.png" alt="Oracle Avatar"
-               onerror="this.src='/static/oracle_avatar.png'">
           <video class="stage-avatar-vid" id="avatarVid"
-                 playsinline webkit-playsinline preload="auto"></video>
+                 playsinline webkit-playsinline preload="auto"
+                 poster="/static/img/oracle_avatar_static.png"
+                 style="display:block;opacity:1;"></video>
           <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;" onclick="stageWake()">
             <div style="font-size:48px;">&#9889;</div>
             <div style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">Tap to Begin Broadcast</div>
@@ -850,9 +841,6 @@ body { background: var(--s-bg); }
           <div class="stage-controls">
             <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()" aria-label="Request daily Bitcoin briefing">
               ▶ Daily Brief
-            </button>
-            <button class="stage-btn stage-btn--ghost" id="greetBtn" onclick="requestGreet()" aria-label="Request Oracle greeting">
-              👋 Greet
             </button>
             <div class="stage-status" id="stageStatus">Ready</div>
           </div>
@@ -974,9 +962,7 @@ body { background: var(--s-bg); }
   var busy = false;
   var objURL = null;
   var vid = document.getElementById('avatarVid');
-  var still = document.getElementById('avatarStill');
   var briefBtn = document.getElementById('briefBtn');
-  var greetBtn = document.getElementById('greetBtn');
   var statusEl = document.getElementById('stageStatus');
   var badgeEl  = document.getElementById('avatarStatusBadge');
 
@@ -1257,7 +1243,6 @@ body { background: var(--s-bg); }
   function setBusy(b){
     busy = b;
     briefBtn.disabled = b;
-    greetBtn.disabled = b;
     safeText(badgeEl, b ? '● Rendering…' : '● Avatar Ready');
     badgeEl.style.color = b ? 'var(--s-gold)' : 'var(--s-green)';
     badgeEl.style.borderColor = b ? 'rgba(248,193,92,.3)' : 'rgba(46,255,138,.2)';
@@ -1276,25 +1261,17 @@ body { background: var(--s-bg); }
     return new Promise(function(resolve){
       revokeObjURL();
       objURL = url;
-      vid.style.opacity = '0';
-      still.style.opacity = '1';
       vid.src = url;
       vid.muted = true;
       vid.volume = 1.0;
-      vid.classList.add('active');
       setStatus('Speaking','var(--s-green)');
       var unmuted = false;
       function tryUnmute(){ if(unmuted) return; unmuted=true; vid.muted=false; vid.volume=1.0; }
       vid.addEventListener('canplay', function oncp(){
         vid.removeEventListener('canplay',oncp);
-        vid.style.opacity='1';
-        still.style.opacity='0';
         tryUnmute();
       },{once:true});
       vid.onended = function(){
-        vid.classList.remove('active');
-        vid.style.opacity='0';
-        still.style.opacity='1';
         vid.src='';
         setStatus('Ready','rgba(255,255,255,.3)');
         setBusy(false);
@@ -1302,9 +1279,6 @@ body { background: var(--s-bg); }
         resolve();
       };
       vid.onerror = function(){
-        vid.classList.remove('active');
-        vid.style.opacity='0';
-        still.style.opacity='1';
         setBusy(false);
         revokeObjURL();
         resolve();
@@ -1315,7 +1289,6 @@ body { background: var(--s-bg); }
           setTimeout(tryUnmute, 50);
         }).catch(function(err){
           console.warn('[Stage] vid.play() rejected:', err.name);
-          // Re-unlock audio and retry
           try{
             var ac=new(window.AudioContext||window.webkitAudioContext)();
             var buf=ac.createBuffer(1,1,22050);
@@ -1326,7 +1299,6 @@ body { background: var(--s-bg); }
           setTimeout(function(){
             vid.muted=false;
             vid.play().catch(function(){
-              // Last resort: show tap prompt
               setStatus('Tap avatar to play','var(--s-gold)');
               vid.addEventListener('click',function(){vid.muted=false;vid.play();},{once:true});
             });
@@ -1368,30 +1340,6 @@ body { background: var(--s-bg); }
     .finally(function(){ setBusy(false); });
   };
 
-  var _greetCooldown = 0;
-  window.requestGreet = function(){
-    if(busy) return;
-    var now = Date.now();
-    if(now - _greetCooldown < 5000){ return; }
-    _greetCooldown = now;
-    setBusy(true); setStatus('Loading\u2026','var(--s-gold)');
-    // Use pre-cached greeting video directly — zero render wait
-    var greetUrl = AVATAR_BASE + '/oracle/cache/GREETING';
-    fetch(greetUrl)
-    .then(function(r){
-      if(!r.ok) throw new Error('cache miss');
-      return r.blob();
-    })
-    .then(function(b){ return playVid(URL.createObjectURL(b)); })
-    .catch(function(){
-      // Fallback to live render if cache miss
-      fetchTO(AVATAR_BASE + '/oracle/response/GREETING',{},20000)
-      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
-      .then(function(b){ return playVid(URL.createObjectURL(b)); })
-      .catch(function(e){ setStatus('Ready','rgba(255,255,255,.3)'); console.error(e); });
-    })
-    .finally(function(){ setBusy(false); });
-  };
 
   // ── BROADCAST SYSTEM ──────────────────────────────────
   var STAGE_MODE = 'broadcast';
@@ -1551,8 +1499,7 @@ body { background: var(--s-bg); }
     } catch(e) {}
     var ov=document.getElementById('stage-wake');
     if(ov) ov.style.display='none';
-    requestGreet();
-    setTimeout(function(){ startBroadcast(); }, 3000);
+    startBroadcast();
   }
   window.stageWake = stageWake;
 
@@ -1672,7 +1619,6 @@ body { background: var(--s-bg); }
   }
 
   async function _handleInterruptQuestion(text) {
-    _appendChatMsg('You: ' + text, 'user');
     setBusy(true);
     setStatus('Oracle thinking…', 'var(--s-gold)');
     updateSignalSource('🎤 RESPONDING TO LISTENER');
@@ -1700,7 +1646,6 @@ body { background: var(--s-bg); }
         await playVid(url);
       } else {
         var j = await resp.json();
-        _appendChatMsg('Oracle: ' + j.text, 'oracle');
         if (j.job_id) {
           // Poll for video
           var polls = 0;
@@ -1721,7 +1666,6 @@ body { background: var(--s-bg); }
         }
       }
     } catch(e) {
-      _appendChatMsg('Oracle: Connection error — resuming broadcast.', 'oracle');
       console.error('interrupt error:', e);
     }
 
@@ -2105,33 +2049,8 @@ body { background: var(--s-bg); }
       // Show tap-to-start overlay on mobile — needed for autoplay unlock
       var ov = document.getElementById('stage-wake');
       if(ov) ov.style.display = 'flex';
-    } else if(window.ORACLE_FINGERPRINT_MATCH) {
-      setBusy(true);
-      fetchTO(AVATAR_BASE + '/oracle/chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          text: 'welcome back greeting for returning visitor',
-          session_id: 'stage_greet_' + Date.now(),
-          intent: 'RETURNING_VISITOR',
-          audio_first: false
-        })
-      }, 30000)
-      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
-      .then(function(b){ return playVid(URL.createObjectURL(b)); })
-      .catch(function(){ requestGreet(); })
-      .finally(function(){ setBusy(false); startBroadcast(); });
     } else {
-      requestGreet();
-      var _greetDone = false;
-      var _greetStart = Date.now();
-      var _greetCheck = setInterval(function(){
-        var elapsed = Date.now() - _greetStart;
-        if((!busy && elapsed > 2000) || elapsed > 20000){
-          clearInterval(_greetCheck);
-          if(!_greetDone){ _greetDone=true; startBroadcast(); }
-        }
-      }, 500);
+      startBroadcast();
     }
   }, 400);
 
