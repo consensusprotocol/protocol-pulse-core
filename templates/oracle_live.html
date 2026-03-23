@@ -1416,8 +1416,66 @@ function _speakVisionGuidance(d) {
   var words = raw.split(/\s+/);
   var guideText = words.length > 30 ? words.slice(0,30).join(" ") : raw;
 
+  // Urgent spoken prefix for transaction verdicts
+  if (d.verdict === 'DO NOT SIGN') {
+    guideText = 'WARNING. DO NOT SIGN THIS TRANSACTION. ' + guideText;
+  } else if (d.verdict === 'REVIEW CAREFULLY' && d.red_flags && d.red_flags.length) {
+    guideText = 'REVIEW CAREFULLY. ' + guideText;
+  }
+
   showVisionStatus("Speaking...");
   showSub(guideText);
+
+  // Transaction review verdict card
+  if (d.category === 'transaction' && d.verdict) {
+    var verdictColor = d.verdict === 'SAFE TO SIGN'
+      ? '#00d4aa'
+      : d.verdict === 'DO NOT SIGN'
+      ? '#ff3b5f'
+      : '#f5a623';
+
+    var verdictHtml = '<div style="background:rgba(0,0,0,.4);' +
+      'border:2px solid ' + verdictColor + ';border-radius:8px;' +
+      'padding:12px 16px;margin-bottom:12px;">' +
+      '<div style="font-family:monospace;font-size:10px;' +
+      'letter-spacing:.12em;color:' + verdictColor + ';' +
+      'text-transform:uppercase;margin-bottom:6px;">' +
+      '\u26A1 TRANSACTION ANALYSIS</div>' +
+      '<div style="font-size:1.1rem;font-weight:800;' +
+      'color:' + verdictColor + ';margin-bottom:8px;">' +
+      d.verdict + '</div>';
+
+    if (d.recipient_address) {
+      verdictHtml += '<div style="font-family:monospace;font-size:10px;' +
+        'color:rgba(255,255,255,.5);word-break:break-all;">' +
+        'TO: ' + d.recipient_address + '</div>';
+    }
+    if (d.amount_btc) {
+      verdictHtml += '<div style="font-family:monospace;font-size:11px;' +
+        'color:rgba(255,255,255,.7);margin-top:4px;">' +
+        'AMOUNT: ' + d.amount_btc + ' BTC</div>';
+    }
+    if (d.fee_sats) {
+      verdictHtml += '<div style="font-family:monospace;font-size:11px;' +
+        'color:rgba(255,255,255,.6);">' +
+        'FEE: ' + d.fee_sats + ' sats</div>';
+    }
+    if (d.red_flags && d.red_flags.length) {
+      verdictHtml += '<div style="margin-top:8px;">';
+      d.red_flags.forEach(function(flag) {
+        verdictHtml += '<div style="font-family:monospace;font-size:9px;' +
+          'color:#f5a623;letter-spacing:.06em;">\u26A0 ' + flag + '</div>';
+      });
+      verdictHtml += '</div>';
+    }
+    verdictHtml += '</div>';
+
+    var vsEl = document.getElementById('vision-status');
+    if (vsEl) {
+      vsEl.innerHTML = verdictHtml + (vsEl.innerHTML || '');
+      vsEl.classList.add('on');
+    }
+  }
 
   // Show steps in vision-status area if present
   if(d.steps && d.steps.length){

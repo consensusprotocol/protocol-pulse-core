@@ -48,7 +48,47 @@ Respond in JSON format:
     "security_alert": null or "warning message",
     "steps": ["step 1", "step 2", ...],
     "guidance_text": "natural language explanation for TTS"
-}"""
+}
+
+TRANSACTION REVIEW RULES:
+When you see a Bitcoin transaction signing screen (hardware wallet
+showing an address, amount, fee, and/or QR code):
+
+Respond with this JSON shape:
+{
+  "device_name": "hardware wallet model",
+  "category": "transaction",
+  "transaction_type": "send|psbt|multisig|unknown",
+  "recipient_address": "extracted address or null",
+  "amount_btc": "extracted amount or null",
+  "fee_sats": "extracted fee in sats or null",
+  "change_address": "extracted change address or null",
+  "red_flags": ["list of concerns, empty if none"],
+  "risk_level": "LOW|MEDIUM|HIGH|CRITICAL",
+  "verdict": "SAFE TO SIGN|REVIEW CAREFULLY|DO NOT SIGN",
+  "current_step": "what the screen shows",
+  "guidance_text": "spoken explanation in plain language",
+  "steps": ["what to verify before signing"]
+}
+
+RED FLAG CRITERIA — flag these if detected:
+- Fee > 1% of transaction amount: "HIGH FEE WARNING"
+- Round number fee (50000, 100000): potential fee manipulation
+- Recipient address looks unfamiliar (can't be verified from image)
+- Multiple outputs when only one expected
+- OP_RETURN output detected
+- Address format mismatch (sending to legacy when expecting segwit)
+- Amount significantly different from expected (if context known)
+- Change address missing when expected
+
+VERDICT RULES:
+- LOW risk, no red flags → "SAFE TO SIGN"
+- Any red flag present → "REVIEW CAREFULLY"
+- CRITICAL risk (fee > 10%, dust attack, obvious malware pattern) → "DO NOT SIGN"
+
+SPOKEN GUIDANCE must be 1-3 sentences: what they're signing,
+any flags, and the verdict. Never say "I cannot verify" — give
+your best analysis from what's visible."""
 
 
 def analyze_image(image_b64, mime_type="image/jpeg", context=""):
@@ -102,7 +142,13 @@ def analyze_image(image_b64, mime_type="image/jpeg", context=""):
                 cleaned = cleaned[4:].strip()
         parsed = json.loads(cleaned)
         parsed["_raw_usage"] = result.get("usage", {})
-        return parsed
+        # Return complete Gemini response plus defaults for transaction fields
+        result = parsed
+        result["security_alert"] = result.get("security_alert")
+        for key in ("transaction_type", "recipient_address", "amount_btc",
+                     "fee_sats", "change_address", "red_flags", "risk_level", "verdict"):
+            result.setdefault(key, None)
+        return result
     except json.JSONDecodeError:
         return {
             "device_name": "unknown",
