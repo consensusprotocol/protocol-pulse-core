@@ -351,3 +351,4 @@ PATTERN: services.* import shadowing in Phase 2 files -- PERMANENT RULE
   FIXED IN: sentinel.py lines 22-40, convergence_engine.py lines 19-38
   VERIFY: cd ~/protocol_pulse/core && python3 -c from blueprints.intelligence import intelligence_bp; print(OK)
   WATCHDOG: /intelligence 404 after new Phase 2 file? Check for from services. in new file.
+PATTERN: SpaceTap hang — get_best_space_clips() blocks forever on Whisper. ROOT CAUSE: No timeout on get_best_space_clips() call in daily_producer.py line 939. FIX: Wrap in threading.Thread with 120s join timeout. WATCHDOG: If producer runs >90min with 0 audio files, check ps cpu — if 80%+ CPU with no output, SpaceTap is hung, pkill -9 daily_producer.
