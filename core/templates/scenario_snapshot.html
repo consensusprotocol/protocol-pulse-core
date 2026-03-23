@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Bitcoin Scenario Analysis | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta property="og:title" content="Bitcoin Scenario Analysis — Protocol Pulse Intelligence">
+<meta property="og:description" content="Real-time probability distribution across 5 macro scenarios. Monte Carlo calibrated.">
+<meta property="og:type" content="website">
+<style>
+:root {
+    --it-bg: #0A0A0F;
+    --it-surface: #0F0F18;
+    --it-border: #1A1A2E;
+    --it-text: #E8E8E8;
+    --it-label: #888888;
+    --it-gold: #F8C15C;
+    --it-green: #00FF88;
+    --it-red: #FF0000;
+}
+body.snapshot-page {
+    background: var(--it-bg) !important;
+    color: var(--it-text);
+    font-family: 'Inter', sans-serif;
+    margin: 0; padding: 0;
+}
+body.snapshot-page nav, body.snapshot-page .navbar,
+body.snapshot-page footer, body.snapshot-page .site-footer { display: none !important; }
+
+.snap-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+.snap-brand {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-label);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.snap-title {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--it-text);
+    margin-bottom: 24px;
+}
+.snap-bar {
+    display: flex;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid var(--it-border);
+}
+.snap-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #000;
+    font-weight: 700;
+    min-width: 40px;
+}
+.snap-segment.highlighted {
+    border: 2px solid var(--it-gold);
+    box-shadow: 0 0 12px rgba(248, 193, 92, 0.4);
+}
+.snap-list { margin-top: 16px; }
+.snap-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--it-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+}
+.snap-row .name { color: var(--it-text); }
+.snap-row .prob { color: var(--it-gold); font-weight: 700; font-size: 18px; }
+.snap-row .signals { color: var(--it-label); font-size: 11px; }
+.snap-cta {
+    text-align: center;
+    margin-top: 32px;
+    padding: 20px;
+    border: 1px solid var(--it-border);
+    border-radius: 6px;
+    background: var(--it-surface);
+}
+.snap-cta a {
+    color: var(--it-gold);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+}
+.snap-cta p {
+    color: var(--it-label);
+    font-size: 11px;
+    margin-top: 8px;
+}
+.snap-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-label);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<body class="snapshot-page">
+<div class="snap-container">
+    <div class="snap-brand">PROTOCOL PULSE INTELLIGENCE</div>
+    <div class="snap-title">BITCOIN SCENARIO ANALYSIS</div>
+
+    <div class="snap-bar" id="snap-bar"></div>
+    <div class="snap-list" id="snap-list"></div>
+
+    <div class="snap-cta">
+        <a href="/intelligence/scenarios">EXPLORE ALL SCENARIOS LIVE &rarr;</a>
+        <p>Real-time Monte Carlo scenario simulation. Updated every 6 hours.</p>
+    </div>
+
+    <div class="snap-footer">
+        Generated {{ snapshot_time }} | Monte Carlo: 10,000 iterations
+    </div>
+</div>
+
+<script>
+const COLORS = {
+    'INSTITUTIONAL_ADOPTION': '#00FF88',
+    'REGULATORY_CRACKDOWN': '#FF0000',
+    'NETWORK_SECURITY_CRISIS': '#FF6600',
+    'MACRO_LIQUIDITY_EXPANSION': '#F8C15C',
+    'CBDC_DISPLACEMENT': '#8888FF',
+};
+
+const snapshot = {{ snapshot_data | tojson }};
+
+if (snapshot && snapshot.scenarios) {
+    const bar = document.getElementById('snap-bar');
+    const list = document.getElementById('snap-list');
+
+    snapshot.scenarios.sort((a, b) => b.probability - a.probability);
+
+    snapshot.scenarios.forEach(s => {
+        const seg = document.createElement('div');
+        seg.className = 'snap-segment' + (s.highlighted ? ' highlighted' : '');
+        seg.style.width = s.probability + '%';
+        seg.style.background = COLORS[s.id] || '#555';
+        seg.textContent = s.probability + '%';
+        bar.appendChild(seg);
+
+        const row = document.createElement('div');
+        row.className = 'snap-row';
+        row.innerHTML = `
+            <div>
+                <div class="name" style="color: ${COLORS[s.id] || '#E8E8E8'}">${s.name}</div>
+                <div class="signals">${s.signals_confirmed}/${s.signals_total} signals confirmed</div>
+            </div>
+            <div class="prob">${s.probability}%</div>
+        `;
+        list.appendChild(row);
+    });
+}
+</script>
+</body>
+{% endblock %}

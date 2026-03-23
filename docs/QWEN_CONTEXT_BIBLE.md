@@ -352,6 +352,59 @@ PATTERN: services.* import shadowing in Phase 2 files -- PERMANENT RULE
   VERIFY: cd ~/protocol_pulse/core && python3 -c from blueprints.intelligence import intelligence_bp; print(OK)
   WATCHDOG: /intelligence 404 after new Phase 2 file? Check for from services. in new file.
 PATTERN: SpaceTap hang — get_best_space_clips() blocks forever on Whisper. ROOT CAUSE: No timeout on get_best_space_clips() call in daily_producer.py line 939. FIX: Wrap in threading.Thread with 120s join timeout. WATCHDOG: If producer runs >90min with 0 audio files, check ps cpu — if 80%+ CPU with no output, SpaceTap is hung, pkill -9 daily_producer.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## ML SESSION — PCAF V1 + TPA — 2026-03-23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FILES CREATED:
+  services/pcaf_v1_model.py      — GraphSAGE autoencoder (8→64→128→256→latent32)
+  services/pcaf_data_collector.py — 60s snapshot collector → data/pcaf_training/*.pkl
+  services/pcaf_trainer.py        — Training pipeline (GPU 1, AdamW, early stopping)
+  services/pcaf_v1_engine.py      — Inference engine with v0 fallback
+  services/tpa_engine.py          — Monte Carlo scenario simulation (CPU only)
+  data/tpa_scenarios.json         — 5 scenarios, 28 precursor signals
+  data/tpa_scenario_correlations.json — Full contradiction matrix (10 pairs)
+  data/tpa_calibration.json       — Beta-binomial priors from 4 historical cycles
+  core/templates/scenarios.html   — War room scenarios page at /intelligence/scenarios
+  core/templates/scenario_snapshot.html — Public shareable snapshot page
+  utils/pcaf_v1_audit.py          — Cross-LLM audit script (GPT-4o + Grok)
+  utils/tpa_audit.py              — Cross-LLM audit script (GPT-4o + Grok)
+  docs/audits/pcaf_v1_audit_2026-03-23.md
+  docs/audits/tpa_audit_2026-03-23.md
+
+FILES MODIFIED:
+  services/sentinel.py — Added PCAFv1Engine, DataCollector, TPAEngine imports via _load_svc. Added pcaf_v1 + tpa fields to SentinelState. Data collector starts as daemon thread on sentinel boot. PCAF v1 inference runs alongside v0 every 60s. TPA runs every 6h (4320 ticks). First TPA eval fires on tick 12 if no scenarios exist.
+  core/blueprints/intelligence.py — Added 7 TPA routes: /intelligence/scenarios (page), /api/intelligence/tpa (REST), /api/intelligence/tpa/stream (SSE), /api/intelligence/tpa/track (POST), /api/intelligence/tpa/snapshot (POST), /intelligence/scenarios/snapshot/<id> (public page)
+
+PATTERN: torch_geometric pyg_lib install
+  torch_geometric 2.7.0 works with torch 2.6.0+cu124.
+  pyg_lib, torch_scatter, torch_sparse installed from https://data.pyg.org/whl/torch-2.6.0+cu124.html
+  SAGEConv imports cleanly. No compilation issues.
+
+PATTERN: TorchScript export fails for PyG models
+  torch.jit.trace with check_trace=False works for simple forward passes.
+  If trace fails: fallback to saving state_dict + writing .mode file with "state_dict".
+  Engine checks .mode file to decide loading strategy.
+  RULE: Always use check_trace=False with torch_geometric models.
+
+PATTERN: PCAF v1 model on GPU allocation
+  SPEC SAYS: GPU 0 for inference (shared). GPU 1 for training (dedicated).
+  ACTUAL: GPU 0+1 both have VRAM pressure from Kokoro/F5-TTS.
+  FIX: PCAFv1Engine tries cuda:1 first, falls back to cuda:0, then CPU.
+  Model is small (~2MB) — negligible VRAM impact.
+
+PATTERN: TPA probabilities must sum to 100%
+  After signal-based adjustment + contradiction penalties, probabilities are
+  normalized: each_prob = each_prob / total * 100. Clip to [1%, 95%] BEFORE normalization.
+
+GPU ALLOCATION UPDATE:
+  GPU 0: Kokoro TTS (render pipeline)
+  GPU 1: F5-TTS + PCAF v1 inference + PCAF v1 training (when scheduled)
+  GPU 2: Qwen3-Coder:30b via Ollama (watchdog)
+  GPU 3: Free
+
+ALL 18 TESTS PASSED (T1-T8 PCAF + T1-T10 TPA).
 PATTERN: Freeze frames surviving CFR re-encode (5 per render, all in final 75s)
   ROOT CAUSE: make_social_card_visual() and make_signal_active_scene() in assembler.py
     render static drawtext/drawbox overlays on procedural backgrounds. After the 0.3s

@@ -68,6 +68,16 @@ RegulatoryIntelEngine = _reg_intel_mod.RegulatoryIntelEngine
 _privacy_tech_mod = _load_svc('_sentinel_privacy_tech', 'privacy_tech_engine.py')
 PrivacyTechEngine = _privacy_tech_mod.PrivacyTechEngine
 
+# ML Phase: PCAF v1 GNN Engine + Data Collector
+_pcaf_v1_engine_mod = _load_svc('_sentinel_pcaf_v1_engine', 'pcaf_v1_engine.py')
+PCAFv1Engine = _pcaf_v1_engine_mod.PCAFv1Engine
+_pcaf_collector_mod = _load_svc('_sentinel_pcaf_collector', 'pcaf_data_collector.py')
+DataCollector = _pcaf_collector_mod.DataCollector
+
+# ML Phase: TPA Scenario Engine
+_tpa_engine_mod = _load_svc('_sentinel_tpa_engine', 'tpa_engine.py')
+TPAEngine = _tpa_engine_mod.TPAEngine
+
 
 logger = logging.getLogger("sentinel")
 logger.setLevel(logging.INFO)
@@ -195,6 +205,16 @@ class SentinelState:
         "total_btc_in_defi": 0.0, "delta_24h_btc": 0.0,
         "signal": "NEUTRAL", "updated_at": 0.0,
     })
+    pcaf_v1: dict = field(default_factory=lambda: {
+        "anomaly_score": 0, "confidence_pct": 0, "top_signal": "",
+        "active_rules": [], "model_version": "v0_fallback",
+        "reconstruction_error": 0.0, "graph_nodes": 0, "graph_edges": 0,
+        "inference_ms": 0, "training_date": "", "updated_at": 0.0,
+    })
+    tpa: dict = field(default_factory=lambda: {
+        "scenarios": [], "last_evaluated_at": 0.0, "next_evaluation_at": 0.0,
+        "calibration_date": "", "data_quality": "initializing",
+    })
 
     def to_dict(self):
         return {
@@ -218,6 +238,8 @@ class SentinelState:
             "regulatory": dict(self.regulatory),
             "privacy_tech": dict(self.privacy_tech),
             "defi_btc": dict(self.defi_btc),
+            "pcaf_v1": dict(self.pcaf_v1),
+            "tpa": dict(self.tpa),
         }
 
 
@@ -386,6 +408,12 @@ class SentinelDaemon:
         self._whale_coord_engine = WhaleCoordinationEngine()
         self._regulatory_engine = RegulatoryIntelEngine()
         self._privacy_tech_engine = PrivacyTechEngine()
+        # ML Phase: PCAF v1 + Data Collector
+        self._pcaf_v1_engine = PCAFv1Engine()
+        self._pcaf_data_collector = DataCollector()
+        self._pcaf_collector_thread = None
+        # ML Phase: TPA Scenario Engine
+        self._tpa_engine = TPAEngine()
         _init_alerts_db()
 
     # ── State access (thread-safe for Flask) ───────────────────────────────
@@ -670,7 +698,7 @@ class SentinelDaemon:
         return score, signals, force_critical if 'force_critical' in dir() else (score, signals, force_critical)
 
     def _update_pcaf(self):
-        """Run PCAF and update state + dispatch alerts."""
+        """Run PCAF v0 + v1 (parallel) and update state + dispatch alerts."""
         score, signals, force_critical = self.run_pcaf_v0()
         with self._lock:
             self.state.pcaf_v0["anomaly_score"] = score
@@ -678,6 +706,20 @@ class SentinelDaemon:
             self.state.pcaf_v0["top_signal"] = signals[0] if signals else ""
             self.state.pcaf_v0["confidence_pct"] = min(score + 10, 100) if signals else 0
             self.state.pcaf_v0["updated_at"] = time.time()
+
+        # PCAF v1 — GNN inference (runs alongside v0, never replaces it yet)
+        try:
+            if self._pcaf_v1_engine.is_ready() or self._pcaf_v1_engine.model is not None:
+                v1_result = self._pcaf_v1_engine.score(self.state.to_dict())
+                with self._lock:
+                    self.state.pcaf_v1 = v1_result
+            else:
+                # Not trained yet — report v0_fallback
+                with self._lock:
+                    self.state.pcaf_v1["model_version"] = "v0_fallback"
+                    self.state.pcaf_v1["updated_at"] = time.time()
+        except Exception as e:
+            logger.warning("PCAF v1 update error: %s", e)
 
         # Determine tier and fire alert
         if force_critical or score >= 85:
@@ -691,6 +733,19 @@ class SentinelDaemon:
 
         for signal in signals:
             self._fire_alert(tier, signal.split(":")[0].strip(), signal, score)
+
+    def _update_tpa(self):
+        """Run Temporal Predictive Analytics scenario evaluation."""
+        try:
+            state_dict = self.state.to_dict()
+            tpa_result = self._tpa_engine.run_cycle(state_dict)
+            with self._lock:
+                self.state.tpa = tpa_result
+            logger.info("TPA evaluation complete: %d scenarios, quality=%s",
+                        len(tpa_result.get("scenarios", [])),
+                        tpa_result.get("data_quality", "unknown"))
+        except Exception as e:
+            logger.warning("TPA update error: %s", e)
 
     def _fire_alert(self, tier: str, rule: str, message: str, score: int, data: dict = None):
         """Dispatch alert with cooldown check."""
@@ -933,6 +988,13 @@ class SentinelDaemon:
         self._running = True
         logger.info("Sentinel daemon starting...")
 
+        # Start PCAF v1 data collector as daemon thread
+        if self._pcaf_collector_thread is None:
+            self._pcaf_collector_thread = threading.Thread(
+                target=self._pcaf_data_collector.run, daemon=True, name="pcaf_collector")
+            self._pcaf_collector_thread.start()
+            logger.info("PCAF v1 data collector thread started")
+
         async with aiohttp.ClientSession() as session:
             ws_task = asyncio.create_task(self._ws_loop())
 
@@ -992,6 +1054,11 @@ class SentinelDaemon:
                 # Network Graph every 60s (Phase 2 F5)
                 if poll_counter % 12 == 0:
                     self._update_network_graph()
+
+                # TPA every 6 hours (ML Phase: Temporal Predictive Analytics)
+                # 6h = 21600s / 5s per tick = 4320 ticks
+                if poll_counter % 4320 == 0 or (poll_counter == 12 and not self.state.tpa.get("scenarios")):
+                    self._update_tpa()
 
                 # Write state every 5s
                 self._write_state_file()

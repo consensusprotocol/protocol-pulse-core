@@ -1,0 +1,12 @@
+[2026-03-23 18:58 UTC] [ML_SESSION] START: PCAF v1 GNN + TPA Scenario Engine
+[2026-03-23 18:58 UTC] [ML_SESSION] STEP 0: torch_geometric 2.7.0 installed with pyg_lib, torch_scatter, torch_sparse
+[2026-03-23 18:58 UTC] [ML_SESSION] STEP 1: PCAF v1 cross-LLM audit complete (GPT-4o + Grok)
+[2026-03-23 18:58 UTC] [ML_SESSION] STEP 2: TPA cross-LLM audit complete (GPT-4o + Grok)
+[2026-03-23 18:58 UTC] [ML_SESSION] STEP 3: PCAF v1 built — model + collector + trainer + engine. All 8 tests pass.
+[2026-03-23 18:58 UTC] [ML_SESSION] STEP 4: TPA built — engine + 5 scenarios + templates + routes. All 10 tests pass.
+[2026-03-23 18:58 UTC] [ML_SESSION] STEP 5: Gunicorn restarted from core/. SSE stream live. Scenarios page at /intelligence/scenarios returns 200.
+[2026-03-23 18:58 UTC] [ML_SESSION] COMPLETE: PCAF v1 + TPA both deployed.
+  Data collector running as daemon thread in sentinel.
+  First training queued for when >=1440 snapshots exist (~24h).
+  TPA: 5 scenarios live, Monte Carlo running every 6h.
+  Next steps: await 24h data collection, trigger training, v1 model deploys.

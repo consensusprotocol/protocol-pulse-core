@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Temporal Predictive Analytics | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --it-bg: #0A0A0F;
+    --it-surface: #0F0F18;
+    --it-border: #1A1A2E;
+    --it-text: #E8E8E8;
+    --it-muted: #444444;
+    --it-label: #888888;
+    --it-red: #FF0000;
+    --it-amber: #FFB800;
+    --it-green: #00FF88;
+    --it-gold: #F8C15C;
+}
+
+body.tpa-page {
+    background: var(--it-bg) !important;
+    color: var(--it-text);
+    font-family: 'Inter', sans-serif;
+    margin: 0; padding: 0;
+}
+
+body.tpa-page nav, body.tpa-page .navbar,
+body.tpa-page footer, body.tpa-page .site-footer { display: none !important; }
+
+.tpa-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.tpa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--it-border);
+    margin-bottom: 24px;
+}
+
+.tpa-header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--it-text);
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.tpa-header .update-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--it-label);
+}
+
+.tpa-header .back-link {
+    color: var(--it-label);
+    text-decoration: none;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.tpa-header .back-link:hover { color: var(--it-gold); }
+
+/* Scenario Cards */
+.scenario-card {
+    background: var(--it-surface);
+    border: 1px solid var(--it-border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+    cursor: pointer;
+}
+.scenario-card:hover { border-color: var(--it-gold); }
+.scenario-card.expanded { border-color: var(--it-gold); }
+
+.scenario-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.scenario-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--it-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.scenario-prob {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--it-gold);
+}
+
+.scenario-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--it-label);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.trend-rising { color: var(--it-green); }
+.trend-falling { color: var(--it-red); }
+.trend-stable { color: var(--it-label); }
+
+/* Probability bar */
+.prob-bar-track {
+    width: 100%;
+    height: 6px;
+    background: var(--it-border);
+    border-radius: 3px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+.prob-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--it-red), var(--it-amber), var(--it-gold));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* Confidence interval */
+.ci-bar {
+    display: flex;
+    align-items: center;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-label);
+    gap: 8px;
+}
+
+/* Signal list (expanded) */
+.scenario-signals {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--it-border);
+}
+.scenario-card.expanded .scenario-signals { display: block; }
+
+.signal-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+}
+.signal-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.signal-dot.confirmed { background: var(--it-green); }
+.signal-dot.pending { background: var(--it-muted); }
+.signal-desc { color: var(--it-text); }
+.signal-delta { color: var(--it-gold); margin-left: auto; }
+
+/* Actions */
+.scenario-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+.btn-track, .btn-share {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid var(--it-border);
+    background: transparent;
+    color: var(--it-label);
+    cursor: pointer;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.btn-track:hover, .btn-share:hover {
+    border-color: var(--it-gold);
+    color: var(--it-gold);
+}
+.btn-track.active {
+    border-color: var(--it-green);
+    color: var(--it-green);
+}
+
+/* Stacked probability overview bar */
+.overview-bar {
+    display: flex;
+    height: 32px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid var(--it-border);
+}
+.overview-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #000;
+    font-weight: 700;
+    transition: width 0.5s ease;
+    min-width: 30px;
+}
+
+/* Status line */
+.data-quality {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-label);
+    text-align: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--it-border);
+    margin-top: 16px;
+}
+.data-quality .good { color: var(--it-green); }
+.data-quality .degraded { color: var(--it-amber); }
+</style>
+{% endblock %}
+
+{% block content %}
+<body class="tpa-page">
+<div class="tpa-container">
+    <div class="tpa-header">
+        <div>
+            <a href="/intelligence" class="back-link">&larr; INTELLIGENCE TERMINAL</a>
+            <h1>TEMPORAL PREDICTIVE ANALYTICS</h1>
+        </div>
+        <div class="update-info" id="update-info">Initializing...</div>
+    </div>
+
+    <!-- Overview stacked bar -->
+    <div class="overview-bar" id="overview-bar"></div>
+
+    <!-- Scenario cards -->
+    <div id="scenario-list"></div>
+
+    <div class="data-quality" id="data-quality"></div>
+</div>
+
+<script>
+const COLORS = {
+    'INSTITUTIONAL_ADOPTION': '#00FF88',
+    'REGULATORY_CRACKDOWN': '#FF0000',
+    'NETWORK_SECURITY_CRISIS': '#FF6600',
+    'MACRO_LIQUIDITY_EXPANSION': '#F8C15C',
+    'CBDC_DISPLACEMENT': '#8888FF',
+};
+const SHORT_NAMES = {
+    'INSTITUTIONAL_ADOPTION': 'INST',
+    'REGULATORY_CRACKDOWN': 'REG',
+    'NETWORK_SECURITY_CRISIS': 'NET',
+    'MACRO_LIQUIDITY_EXPANSION': 'MACRO',
+    'CBDC_DISPLACEMENT': 'CBDC',
+};
+
+let trackedScenarios = new Set();
+
+function renderOverviewBar(scenarios) {
+    const bar = document.getElementById('overview-bar');
+    bar.innerHTML = '';
+    scenarios.forEach(s => {
+        const seg = document.createElement('div');
+        seg.className = 'overview-segment';
+        seg.style.width = s.probability + '%';
+        seg.style.background = COLORS[s.id] || '#555';
+        seg.textContent = SHORT_NAMES[s.id] + ' ' + s.probability + '%';
+        bar.appendChild(seg);
+    });
+}
+
+function renderScenarios(scenarios) {
+    const list = document.getElementById('scenario-list');
+    list.innerHTML = '';
+
+    scenarios.sort((a, b) => b.probability - a.probability);
+
+    scenarios.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'scenario-card';
+        card.setAttribute('data-id', s.id);
+
+        const trendClass = 'trend-' + s.trend;
+        const trendArrow = s.trend === 'rising' ? '&#9650;' : (s.trend === 'falling' ? '&#9660;' : '&#8594;');
+        const deltaStr = s.delta_since_last > 0 ? '+' + s.delta_since_last + '%' : s.delta_since_last + '%';
+
+        let signalsHtml = '';
+        if (s.confirmed_signal_ids && s.confirmed_signal_ids.length > 0) {
+            s.confirmed_signal_ids.forEach(sig => {
+                signalsHtml += '<div class="signal-row"><span class="signal-dot confirmed"></span><span class="signal-desc">' + sig + '</span><span class="signal-delta">CONFIRMED</span></div>';
+            });
+        }
+        // Pad with pending signals
+        const pendingCount = s.signals_total - (s.confirmed_signal_ids ? s.confirmed_signal_ids.length : 0);
+        for (let i = 0; i < pendingCount; i++) {
+            signalsHtml += '<div class="signal-row"><span class="signal-dot pending"></span><span class="signal-desc">Pending signal ' + (i + 1) + '</span><span class="signal-delta">WATCHING</span></div>';
+        }
+
+        const isTracked = trackedScenarios.has(s.id);
+
+        card.innerHTML = `
+            <div class="scenario-top">
+                <div>
+                    <div class="scenario-name" style="color: ${COLORS[s.id] || '#E8E8E8'}">${s.name}</div>
+                    <div class="scenario-meta">
+                        <span class="${trendClass}">${trendArrow} ${deltaStr} since last</span>
+                        <span>${s.signals_confirmed}/${s.signals_total} signals confirmed</span>
+                    </div>
+                </div>
+                <div class="scenario-prob">${s.probability}%</div>
+            </div>
+            <div class="prob-bar-track">
+                <div class="prob-bar-fill" style="width: ${s.probability}%"></div>
+            </div>
+            <div class="ci-bar">
+                <span>P10: ${s.probability_p10 || '?'}%</span>
+                <span>|</span>
+                <span>P90: ${s.probability_p90 || '?'}%</span>
+            </div>
+            <div class="scenario-signals">${signalsHtml}
+                <div class="scenario-actions">
+                    <button class="btn-track ${isTracked ? 'active' : ''}" onclick="event.stopPropagation(); trackScenario('${s.id}')">
+                        ${isTracked ? 'TRACKING' : 'TRACK THIS SCENARIO'}
+                    </button>
+                    <button class="btn-share" onclick="event.stopPropagation(); shareScenario('${s.id}')">
+                        SHARE
+                    </button>
+                </div>
+            </div>
+        `;
+
+        card.addEventListener('click', () => {
+            card.classList.toggle('expanded');
+        });
+
+        list.appendChild(card);
+    });
+}
+
+function trackScenario(scenarioId) {
+    if (trackedScenarios.has(scenarioId)) {
+        trackedScenarios.delete(scenarioId);
+    } else {
+        trackedScenarios.add(scenarioId);
+    }
+    fetch('/api/intelligence/tpa/track', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({scenario_id: scenarioId, tracked: trackedScenarios.has(scenarioId)})
+    }).catch(() => {});
+    // Re-render to update button state
+    if (window._lastScenarios) renderScenarios(window._lastScenarios);
+}
+
+function shareScenario(scenarioId) {
+    fetch('/api/intelligence/tpa/snapshot', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({scenario_id: scenarioId})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.url) {
+            navigator.clipboard.writeText(window.location.origin + data.url)
+                .then(() => alert('Snapshot URL copied to clipboard'))
+                .catch(() => window.open(data.url, '_blank'));
+        }
+    })
+    .catch(() => alert('Failed to generate snapshot'));
+}
+
+function updateInfo(tpa) {
+    const info = document.getElementById('update-info');
+    if (tpa.last_evaluated_at) {
+        const ago = Math.round((Date.now() / 1000 - tpa.last_evaluated_at) / 60);
+        info.textContent = 'Updated ' + ago + 'm ago | Next: ' +
+            new Date(tpa.next_evaluation_at * 1000).toLocaleTimeString();
+    }
+
+    const dq = document.getElementById('data-quality');
+    const cls = tpa.data_quality === 'good' ? 'good' : 'degraded';
+    dq.innerHTML = 'Data quality: <span class="' + cls + '">' + tpa.data_quality.toUpperCase() + '</span>' +
+        ' | Calibration: ' + (tpa.calibration_date || 'pending') +
+        ' | Monte Carlo: 10,000 iterations';
+}
+
+// SSE connection
+function connectSSE() {
+    const source = new EventSource('/api/intelligence/stream');
+    source.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.tpa && data.tpa.scenarios && data.tpa.scenarios.length > 0) {
+                window._lastScenarios = data.tpa.scenarios;
+                renderScenarios(data.tpa.scenarios);
+                renderOverviewBar(data.tpa.scenarios);
+                updateInfo(data.tpa);
+            }
+        } catch (e) {}
+    };
+    source.onerror = function() {
+        source.close();
+        setTimeout(connectSSE, 5000);
+    };
+}
+
+// Initial load via REST, then switch to SSE
+fetch('/api/intelligence/tpa')
+    .then(r => r.json())
+    .then(data => {
+        if (data.scenarios && data.scenarios.length > 0) {
+            window._lastScenarios = data.scenarios;
+            renderScenarios(data.scenarios);
+            renderOverviewBar(data.scenarios);
+            updateInfo(data);
+        } else {
+            document.getElementById('scenario-list').innerHTML =
+                '<div style="text-align:center;color:#888;padding:40px;font-family:JetBrains Mono,monospace">' +
+                'TPA engine initializing. First evaluation runs within 6 hours of sentinel start.</div>';
+        }
+    })
+    .catch(() => {});
+
+connectSSE();
+</script>
+</body>
+{% endblock %}

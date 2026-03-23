@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "calibration_method": "beta_binomial_prior",
+  "calibration_date": "2026-03-23",
+  "note": "Priors set via Beta(alpha, beta) fitted to 4 historical Bitcoin cycles (2013, 2017, 2020-21, 2024). Wide credible intervals reflect small N. Updated annually.",
+  "historical_cycles": [
+    {"year": 2013, "dominant_scenario": "MACRO_LIQUIDITY_EXPANSION", "notes": "Fed QE3, Cyprus crisis"},
+    {"year": 2017, "dominant_scenario": "INSTITUTIONAL_ADOPTION", "notes": "CME/CBOE futures launch, ICO boom"},
+    {"year": 2020, "dominant_scenario": "MACRO_LIQUIDITY_EXPANSION", "notes": "COVID QE, corporate treasury adoption (MicroStrategy)"},
+    {"year": 2024, "dominant_scenario": "INSTITUTIONAL_ADOPTION", "notes": "Spot ETF approval, halving"}
+  ],
+  "base_probabilities": {
+    "INSTITUTIONAL_ADOPTION": {
+      "alpha": 3, "beta": 3,
+      "posterior_mean": 28.0,
+      "credible_interval_90": [14.0, 44.0]
+    },
+    "REGULATORY_CRACKDOWN": {
+      "alpha": 1.5, "beta": 4.5,
+      "posterior_mean": 18.0,
+      "credible_interval_90": [5.0, 35.0]
+    },
+    "NETWORK_SECURITY_CRISIS": {
+      "alpha": 1, "beta": 11,
+      "posterior_mean": 4.0,
+      "credible_interval_90": [0.5, 12.0]
+    },
+    "MACRO_LIQUIDITY_EXPANSION": {
+      "alpha": 3.5, "beta": 2.5,
+      "posterior_mean": 32.0,
+      "credible_interval_90": [16.0, 50.0]
+    },
+    "CBDC_DISPLACEMENT": {
+      "alpha": 1.5, "beta": 4.5,
+      "posterior_mean": 18.0,
+      "credible_interval_90": [5.0, 35.0]
+    }
+  }
+}

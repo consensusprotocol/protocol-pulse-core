@@ -161,6 +161,124 @@ def api_intelligence_stream():
     )
 
 
+# ── TPA — Temporal Predictive Analytics ──────────────────────────────────
+
+# Load TPA engine by absolute file path
+_tpa_engine_path = str(Path(__file__).resolve().parent.parent.parent / "services" / "tpa_engine.py")
+_tpa_spec = importlib.util.spec_from_file_location("_tpa_engine_bp", _tpa_engine_path)
+_tpa_mod = importlib.util.module_from_spec(_tpa_spec)
+_tpa_spec.loader.exec_module(_tpa_mod)
+_tpa_engine_instance = _tpa_mod.TPAEngine()
+
+
+@intelligence_bp.route("/intelligence/scenarios")
+def scenarios_page():
+    """TPA Scenarios page — war room aesthetic."""
+    return render_template("scenarios.html")
+
+
+@intelligence_bp.route("/api/intelligence/tpa")
+def api_tpa_state():
+    """Full TPA state JSON — auth gated."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    tpa = state.get("tpa", {})
+    # If sentinel hasn't run TPA yet, run it now from the blueprint's engine
+    if not tpa.get("scenarios"):
+        tpa = _tpa_engine_instance.run_cycle(state)
+    return jsonify(tpa)
+
+
+@intelligence_bp.route("/api/intelligence/tpa/stream")
+def api_tpa_stream():
+    """SSE stream for TPA — pushes on probability changes >0.5%."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+
+    def generate():
+        last_probs = {}
+        while True:
+            try:
+                state = _sentinel.get_state()
+                tpa = state.get("tpa", {})
+                scenarios = tpa.get("scenarios", [])
+
+                # Only push if probabilities changed by >0.5%
+                changed = False
+                for s in scenarios:
+                    prev = last_probs.get(s.get("id"), 0)
+                    if abs(s.get("probability", 0) - prev) > 0.5:
+                        changed = True
+                        last_probs[s.get("id")] = s.get("probability", 0)
+
+                if changed or not last_probs:
+                    yield f"data: {json.dumps(tpa)}\n\n"
+
+                time.sleep(2)
+            except GeneratorExit:
+                return
+            except Exception as e:
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                time.sleep(5)
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+    )
+
+
+@intelligence_bp.route("/api/intelligence/tpa/track", methods=["POST"])
+def api_tpa_track():
+    """Store scenario tracking preference."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    data = request.get_json(silent=True) or {}
+    scenario_id = data.get("scenario_id")
+    tracked = data.get("tracked", True)
+    # Store in-memory for now (persistent storage is a TODO)
+    return jsonify({"success": True, "scenario_id": scenario_id, "tracked": tracked})
+
+
+@intelligence_bp.route("/api/intelligence/tpa/snapshot", methods=["POST"])
+def api_tpa_snapshot():
+    """Generate a shareable TPA snapshot URL."""
+    data = request.get_json(silent=True) or {}
+    scenario_id = data.get("scenario_id")
+    snapshot = _tpa_engine_instance.get_share_snapshot(scenario_id)
+    snap_id = snapshot.get("snapshot_id", "unknown")
+    return jsonify({"url": f"/intelligence/scenarios/snapshot/{snap_id}", "snapshot_id": snap_id})
+
+
+@intelligence_bp.route("/intelligence/scenarios/snapshot/<snapshot_id>")
+def scenario_snapshot_page(snapshot_id):
+    """Public snapshot page — no auth required."""
+    snapshot = _tpa_engine_instance.get_snapshot_by_id(snapshot_id)
+    if not snapshot:
+        # Try to build a live snapshot as fallback
+        state = _sentinel.get_state()
+        tpa = state.get("tpa", {})
+        if tpa.get("scenarios"):
+            snapshot = {
+                "scenarios": tpa["scenarios"],
+                "snapshot_id": snapshot_id,
+                "timestamp": time.time(),
+            }
+        else:
+            snapshot = {"scenarios": [], "snapshot_id": snapshot_id}
+
+    snap_time = ""
+    if snapshot.get("timestamp"):
+        import datetime
+        snap_time = datetime.datetime.fromtimestamp(
+            snapshot["timestamp"]).strftime("%Y-%m-%d %H:%M UTC")
+
+    return render_template("scenario_snapshot.html",
+                           snapshot_data=snapshot,
+                           snapshot_time=snap_time)
+
+
 # ── Phase 2 API endpoints ────────────────────────────────────────────────
 
 @intelligence_bp.route("/api/intelligence/sentiment")

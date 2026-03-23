@@ -1,0 +1,354 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "INSTITUTIONAL_ADOPTION",
+      "name": "Institutional Adoption Acceleration",
+      "description": "ETF flows sustain, corporate treasury adoption continues, sovereign wealth fund allocation begins. Bitcoin increasingly functions as institutional reserve asset.",
+      "base_probability": 28.0,
+      "signals": [
+        {
+          "signal_id": "S1_ETF_INFLOWS",
+          "description": "ETF net inflows >$500M/week for 4+ consecutive weeks",
+          "sentinel_state_path": "etf.net_6h_usd",
+          "threshold": 71428571,
+          "comparison": "gte",
+          "consecutive_required": 4,
+          "consecutive_window_hours": 168,
+          "probability_delta": 5.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S1_CME_OI",
+          "description": "CME futures open interest at 6-month high",
+          "sentinel_state_path": "etf.deribit_funding_rate",
+          "threshold": 0.01,
+          "comparison": "gte",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S1_STABLECOIN_MINTING",
+          "description": "Stablecoin minting >$2B/month for 3+ consecutive months",
+          "sentinel_state_path": "defi_btc.delta_24h_btc",
+          "threshold": 66.67,
+          "comparison": "gte",
+          "consecutive_required": 3,
+          "consecutive_window_hours": 2160,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S1_CONVERGENCE_INSTITUTIONAL",
+          "description": "Convergence Engine: institutional entry signal fires CRITICAL",
+          "sentinel_state_path": "convergence.state",
+          "threshold": "CRITICAL",
+          "comparison": "eq",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 6.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S1_EXCHANGE_RESERVE_DECLINE",
+          "description": "Exchange reserve ratio declining >3% over 30 days",
+          "sentinel_state_path": "sovereign.custody_health.exchange_reserve_delta_30d",
+          "threshold": -3.0,
+          "comparison": "lte",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S1_CORPORATE_TREASURY",
+          "description": "Corporate treasury announcement detected (RSS/news)",
+          "sentinel_state_path": "regulatory.recent_alerts",
+          "threshold": "corporate_treasury",
+          "comparison": "contains",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 3.0,
+          "decay_days": 30
+        }
+      ]
+    },
+    {
+      "id": "REGULATORY_CRACKDOWN",
+      "name": "Regulatory Crackdown Cascade",
+      "description": "Coordinated G20 regulatory action restricts Bitcoin access, exchange operations, or custody. Creates short-term price pressure and accelerates capital flight to P2P markets.",
+      "base_probability": 18.0,
+      "signals": [
+        {
+          "signal_id": "S2_REG_THREAT_HIGH",
+          "description": "Regulatory threat_level HIGH for 7+ consecutive days",
+          "sentinel_state_path": "regulatory.threat_level",
+          "threshold": "HIGH",
+          "comparison": "eq",
+          "consecutive_required": 7,
+          "consecutive_window_hours": 168,
+          "probability_delta": 7.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S2_CONVERGENCE_REGULATORY",
+          "description": "Convergence Engine: regulatory shock propagation fires",
+          "sentinel_state_path": "convergence.pattern_results.REGULATORY_SHOCK_PROPAGATION",
+          "threshold": "ACTIVE",
+          "comparison": "eq",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 8.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S2_P2P_VOLUME_SPIKE",
+          "description": "P2P volume spike >300% in 3+ jurisdictions",
+          "sentinel_state_path": "sovereign.capital_flight_signal",
+          "threshold": true,
+          "comparison": "eq",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 5.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S2_EXCHANGE_INFLOWS",
+          "description": "Exchange inflows >3x baseline for 14+ days",
+          "sentinel_state_path": "etf.inflow_6h_btc",
+          "threshold": 1000,
+          "comparison": "gte",
+          "consecutive_required": 14,
+          "consecutive_window_hours": 336,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S2_JURISDICTION_RECLASSIFY",
+          "description": "2+ countries reclassify from LEGAL to RESTRICTED",
+          "sentinel_state_path": "sovereign.jurisdiction_summary.hostile",
+          "threshold": 2,
+          "comparison": "gte_delta",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S2_BIS_COORDINATION",
+          "description": "BIS/ECB regulatory coordination language detected",
+          "sentinel_state_path": "regulatory.recent_alerts",
+          "threshold": "bis_coordination",
+          "comparison": "contains",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 3.0,
+          "decay_days": 30
+        }
+      ]
+    },
+    {
+      "id": "NETWORK_SECURITY_CRISIS",
+      "name": "Network Security Crisis",
+      "description": "A credible threat to Bitcoin's consensus mechanism emerges — hashrate concentration, novel attack vector, or critical protocol vulnerability. Rare but devastating short-term.",
+      "base_probability": 4.0,
+      "signals": [
+        {
+          "signal_id": "S3_PCAF_ANOMALY",
+          "description": "PCAF anomaly score >85 for 48+ consecutive hours",
+          "sentinel_state_path": "pcaf_v0.anomaly_score",
+          "threshold": 85,
+          "comparison": "gte",
+          "consecutive_required": 48,
+          "consecutive_window_hours": 48,
+          "probability_delta": 10.0,
+          "decay_days": 14
+        },
+        {
+          "signal_id": "S3_POOL_CONCENTRATION",
+          "description": "Single pool >45% of trailing 10-block hashrate for 6+ hours",
+          "sentinel_state_path": "miner_health.score",
+          "threshold": 40,
+          "comparison": "lte",
+          "consecutive_required": 6,
+          "consecutive_window_hours": 6,
+          "probability_delta": 8.0,
+          "decay_days": 14
+        },
+        {
+          "signal_id": "S3_ORPHAN_RATE",
+          "description": "Orphan block rate >3x baseline for 24+ hours",
+          "sentinel_state_path": "network.orphan_count_6h",
+          "threshold": 3,
+          "comparison": "gte",
+          "consecutive_required": 4,
+          "consecutive_window_hours": 24,
+          "probability_delta": 7.0,
+          "decay_days": 14
+        },
+        {
+          "signal_id": "S3_MINER_CAPITULATION",
+          "description": "Convergence Engine: miner capitulation cascade fires CRITICAL",
+          "sentinel_state_path": "miner_health.label",
+          "threshold": "CRITICAL",
+          "comparison": "eq",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 6.0,
+          "decay_days": 14
+        },
+        {
+          "signal_id": "S3_EMERGENCY_PATCH",
+          "description": "Bitcoin Core emergency patch PR opened",
+          "sentinel_state_path": "regulatory.recent_alerts",
+          "threshold": "emergency_patch",
+          "comparison": "contains",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 5.0,
+          "decay_days": 14
+        }
+      ]
+    },
+    {
+      "id": "MACRO_LIQUIDITY_EXPANSION",
+      "name": "Macro Liquidity Expansion",
+      "description": "Global monetary policy pivots to easing. Dollar weakens. Risk assets including Bitcoin benefit from expanding liquidity. Historical analog: 2020 QE response.",
+      "base_probability": 32.0,
+      "signals": [
+        {
+          "signal_id": "S4_DXY_DECLINE",
+          "description": "DXY (dollar index) declining >5% over 30-day period",
+          "sentinel_state_path": "sentiment.score",
+          "threshold": 65,
+          "comparison": "gte",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 5.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S4_FED_PIVOT",
+          "description": "Fed/ECB pivot signals in regulatory RSS",
+          "sentinel_state_path": "regulatory.recent_alerts",
+          "threshold": "fed_pivot",
+          "comparison": "contains",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S4_GOLD_RALLY",
+          "description": "Gold +10% over 60 days",
+          "sentinel_state_path": "sentiment.score",
+          "threshold": 60,
+          "comparison": "gte",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S4_VIX_DECLINE",
+          "description": "VIX declining from elevated levels (>25 to <18 over 30 days)",
+          "sentinel_state_path": "sentiment.trend",
+          "threshold": "rising",
+          "comparison": "eq",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S4_SAFE_HAVEN",
+          "description": "Convergence Engine: safe haven rotation fires",
+          "sentinel_state_path": "convergence.state",
+          "threshold": "ALERT",
+          "comparison": "eq_or_above",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 6.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S4_STABLECOIN_SUPPLY",
+          "description": "Stablecoin supply net increase >$5B over 60 days",
+          "sentinel_state_path": "defi_btc.total_btc_in_defi",
+          "threshold": 100,
+          "comparison": "gte",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        }
+      ]
+    },
+    {
+      "id": "CBDC_DISPLACEMENT",
+      "name": "CBDC Displacement Attempt",
+      "description": "Major economies accelerate CBDC rollout with features explicitly targeting Bitcoin's use cases. Creates regulatory pressure and retail market share competition.",
+      "base_probability": 18.0,
+      "signals": [
+        {
+          "signal_id": "S5_CBDC_LIVE",
+          "description": "2+ G7 CBDCs advance to live or mandatory stage",
+          "sentinel_state_path": "sovereign.top_alerts",
+          "threshold": "cbdc_live",
+          "comparison": "contains_count",
+          "count_threshold": 2,
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 8.0,
+          "decay_days": 60
+        },
+        {
+          "signal_id": "S5_CBDC_PROGRAMMABILITY",
+          "description": "CBDC programmability features (expiry/geofencing) announced in G20",
+          "sentinel_state_path": "sovereign.top_alerts",
+          "threshold": "cbdc_programmable",
+          "comparison": "contains",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 7.0,
+          "decay_days": 60
+        },
+        {
+          "signal_id": "S5_P2P_SURGE",
+          "description": "P2P volume surge in G7 jurisdictions (citizens exiting fiat)",
+          "sentinel_state_path": "sovereign.capital_flight_signal",
+          "threshold": true,
+          "comparison": "eq",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S5_COINJOIN_VOLUME",
+          "description": "Coinjoin volume >3x baseline for 30+ days",
+          "sentinel_state_path": "privacy_tech.coinjoin_signal",
+          "threshold": "ELEVATED",
+          "comparison": "eq",
+          "consecutive_required": 30,
+          "consecutive_window_hours": 720,
+          "probability_delta": 4.0,
+          "decay_days": 30
+        },
+        {
+          "signal_id": "S5_BIS_INTEROP",
+          "description": "BIS working paper on CBDC interoperability with major powers",
+          "sentinel_state_path": "regulatory.recent_alerts",
+          "threshold": "bis_cbdc",
+          "comparison": "contains",
+          "consecutive_required": 1,
+          "consecutive_window_hours": 0,
+          "probability_delta": 3.0,
+          "decay_days": 60
+        }
+      ]
+    }
+  ]
+}
