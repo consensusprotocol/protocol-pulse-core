@@ -936,7 +936,17 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             _spec = importlib.util.spec_from_file_location("x_spaces_scraper", _spaces_scraper_path)
             _mod = importlib.util.module_from_spec(_spec)
             _spec.loader.exec_module(_mod)
-            _st = _mod.get_best_space_clips(max_clips=3)
+            # Hard 120s timeout — Whisper can hang forever without this
+            import threading as _st_thread
+            _st_result = [None]
+            def _fetch_spaces(): _st_result[0] = _mod.get_best_space_clips(max_clips=3)
+            _st_t = _st_thread.Thread(target=_fetch_spaces, daemon=True)
+            _st_t.start(); _st_t.join(timeout=120)
+            if _st_t.is_alive():
+                logger.warning("[SpaceTap] get_best_space_clips timed out (120s) — skipping")
+                _st = None
+            else:
+                _st = _st_result[0]
             if _st and _st.get("clips"):
                 selections["space_tap_clips"] = _st["clips"]
                 print(f"  Space Tap: {len(_st['clips'])} clips from {_st.get('spaces_count', 0)} spaces")
