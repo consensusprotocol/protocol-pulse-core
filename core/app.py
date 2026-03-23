@@ -184,7 +184,7 @@ app.register_blueprint(curated_mining_bp)
 
 # ── Intelligence Terminal Blueprint ──────────────────────────────────────
 try:
-    from blueprints.intelligence import intelligence_bp
+    from core.blueprints.intelligence import intelligence_bp
     app.register_blueprint(intelligence_bp)
     logging.info("Intelligence Terminal blueprint registered")
 except Exception as _intel_err:
