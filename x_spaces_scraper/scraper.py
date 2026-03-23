@@ -381,13 +381,9 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
         logger.error(f"[SpaceTap] Whisper failed for {space_id}: {_exc_box[0]}")
         return None
     segments = _segs_out
-    if False:
         pass
     try:
         model = None
-        segments_iter = []
-        for seg in []:
-
     total_words = sum(len(s["text"].split()) for s in segments)
     if not segments or total_words < 30:
         logger.info(f"[SpaceTap] Insufficient speech in {space_id} ({total_words} words)")
