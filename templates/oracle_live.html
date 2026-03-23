@@ -1023,10 +1023,10 @@ function process(text){
                     pendingVideoUrl=blobURL(vb);
                     // Only play lip-sync video if audio has already finished
                     if (_audioFinished) {
+                      vid.style.opacity='1';
                       playVid(pendingVideoUrl);
                     }
                     // If audio not done yet, skip the video — audio was the response
-                    vid.style.opacity='1';
                   }
                 })
                 .catch(function(){});

@@ -777,7 +777,7 @@ body { background: var(--s-bg); }
                  style="display:block;opacity:1;"></video>
           <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;" onclick="stageWake()">
             <div style="font-size:48px;">&#9889;</div>
-            <div style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">Tap to Begin Broadcast</div>
+            <div id="stage-tap-label" style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">Signal Warming Up<span id="stage-tap-dots" style="display:inline-block;width:1.5em;text-align:left;">.</span></div>
           </div>
           <div class="stage-avatar-scanline"></div>
           <div class="stage-avatar-nameplate">
@@ -2158,6 +2158,26 @@ body { background: var(--s-bg); }
 
   // Pre-render first segment silently so it's ready when user taps
   preRenderFirstSegment();
+
+  // Animate warming dots + flip label when pre-render is ready
+  (function(){
+    var dots = document.getElementById('stage-tap-dots');
+    var label = document.getElementById('stage-tap-label');
+    var dotCount = 1;
+    var dotAnim = setInterval(function(){
+      dotCount = (dotCount % 3) + 1;
+      if (dots) dots.textContent = '.'.repeat(dotCount);
+    }, 500);
+    var readyCheck = setInterval(function(){
+      if (_preRenderReady) {
+        clearInterval(readyCheck);
+        clearInterval(dotAnim);
+        if (label) {
+          label.innerHTML = 'Tap to Begin Broadcast';
+        }
+      }
+    }, 1000);
+  })();
 
   // Auto-play greeting on load — mobile gets tap overlay, desktop auto-starts
   setTimeout(function(){
