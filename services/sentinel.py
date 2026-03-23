@@ -56,6 +56,18 @@ DarkPoolEngine = _dark_pool_mod.DarkPoolEngine
 _miner_stress_mod = _load_svc('_sentinel_miner_stress', 'miner_stress_engine.py')
 MinerStressEngine = _miner_stress_mod.MinerStressEngine
 
+# Phase 3 F1: Whale Coordination
+_whale_coord_mod = _load_svc('_sentinel_whale_coord', 'whale_coordination_engine.py')
+WhaleCoordinationEngine = _whale_coord_mod.WhaleCoordinationEngine
+
+# Phase 3 F2: Regulatory Intelligence
+_reg_intel_mod = _load_svc('_sentinel_reg_intel', 'regulatory_intel_engine.py')
+RegulatoryIntelEngine = _reg_intel_mod.RegulatoryIntelEngine
+
+# Phase 3 F3: Privacy Tech Pulse
+_privacy_tech_mod = _load_svc('_sentinel_privacy_tech', 'privacy_tech_engine.py')
+PrivacyTechEngine = _privacy_tech_mod.PrivacyTechEngine
+
 
 logger = logging.getLogger("sentinel")
 logger.setLevel(logging.INFO)
@@ -163,6 +175,21 @@ class SentinelState:
         "score": 100, "label": "HEALTHY", "components": {},
         "is_90d_low": False, "updated_at": 0.0,
     })
+    whale_coordination: dict = field(default_factory=lambda: {
+        "signal": "CLEAR", "tx_count_90min": 0, "taint_linked": False,
+        "tier1_social_active": False, "total_btc_90min": 0.0, "updated_at": 0.0,
+    })
+    regulatory: dict = field(default_factory=lambda: {
+        "recent_alerts": [], "jurisdiction_updates": [],
+        "threat_level": "LOW", "last_hostile_event": None,
+        "last_friendly_event": None, "updated_at": 0.0,
+    })
+    privacy_tech: dict = field(default_factory=lambda: {
+        "coinjoin_signal": "NORMAL", "coinjoin_7d_btc": 0.0,
+        "taproot_tx_pct": 0.0, "taproot_utxo_pct": 0.0,
+        "tor_node_pct": 0.0, "nostr_24h_events": 0,
+        "sp_7d_count": 0, "sovereignty_index": 50.0, "updated_at": 0.0,
+    })
 
     def to_dict(self):
         return {
@@ -182,6 +209,9 @@ class SentinelState:
             "network_graph": dict(self.network_graph),
             "dark_pool": dict(self.dark_pool),
             "miner_health": dict(self.miner_health),
+            "whale_coordination": dict(self.whale_coordination),
+            "regulatory": dict(self.regulatory),
+            "privacy_tech": dict(self.privacy_tech),
         }
 
 
@@ -347,6 +377,9 @@ class SentinelDaemon:
         self._etf_monitor = ETFMonitor()
         self._dark_pool_engine = DarkPoolEngine()
         self._miner_stress_engine = MinerStressEngine()
+        self._whale_coord_engine = WhaleCoordinationEngine()
+        self._regulatory_engine = RegulatoryIntelEngine()
+        self._privacy_tech_engine = PrivacyTechEngine()
         _init_alerts_db()
 
     # ── State access (thread-safe for Flask) ───────────────────────────────
@@ -788,6 +821,36 @@ class SentinelDaemon:
         except Exception as e:
             logger.error("Miner health update failed: %s", e)
 
+    def _update_whale_coordination(self):
+        """Run whale coordination detection."""
+        try:
+            with self._lock:
+                whale_txs = list(self.state.mempool.get("whale_txs", []))
+                tier1_active = self.state.sentiment.get("tier1_signal", False)
+            result = self._whale_coord_engine.analyze(whale_txs, tier1_active)
+            with self._lock:
+                self.state.whale_coordination = result
+        except Exception as e:
+            logger.error("Whale coordination update failed: %s", e)
+
+    async def _update_regulatory(self, session):
+        """Run regulatory intelligence cycle."""
+        try:
+            result = await self._regulatory_engine.run_cycle(session)
+            with self._lock:
+                self.state.regulatory = result
+        except Exception as e:
+            logger.error("Regulatory intel update failed: %s", e)
+
+    async def _update_privacy_tech(self, session):
+        """Run privacy tech metrics collection."""
+        try:
+            result = await self._privacy_tech_engine.run_cycle(session)
+            with self._lock:
+                self.state.privacy_tech = result
+        except Exception as e:
+            logger.error("Privacy tech update failed: %s", e)
+
     def _update_network_graph(self):
         """Build network graph data from current state for D3 visualization."""
         try:
@@ -894,6 +957,18 @@ class SentinelDaemon:
                 # Miner Health every 10 min (Phase 2 F7)
                 if poll_counter % 120 == 0:
                     self._update_miner_health()
+
+                # Whale Coordination every 5 min (Phase 3 F1)
+                if poll_counter % 60 == 0:
+                    self._update_whale_coordination()
+
+                # Regulatory Intel every 30 min (Phase 3 F2)
+                if poll_counter % 360 == 0:
+                    await self._update_regulatory(session)
+
+                # Privacy Tech every 1 hour (Phase 3 F3)
+                if poll_counter % 720 == 0:
+                    await self._update_privacy_tech(session)
 
                 # Network Graph every 60s (Phase 2 F5)
                 if poll_counter % 12 == 0:
