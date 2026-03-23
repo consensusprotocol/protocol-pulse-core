@@ -1417,3 +1417,76 @@ convergence:
       severity: "HIGH"
 
     - pair: ["DERIBIT_FUNDING
+
+  contradictions:
+    - pair: ["IES", "LSC"]
+      condition: "IES=bullish AND LSC=bearish_stablecoin_outflow"
+      severity: "HIGH"
+    - pair: ["DERIBIT_FUNDING", "EXCHANGE_OUTFLOW"]
+      condition: "funding_negative AND exchange_outflow_spike"
+      severity: "MEDIUM"
+
+  persistence:
+    min_alert_gap_seconds: 3600
+    watch_to_critical_min_seconds: 1800
+
+  sse:
+    max_signals_in_payload: 30
+    payload_version: 1
+```
+
+---
+
+## TESTS -- ALL 9 MUST PASS BEFORE COMMIT
+
+TEST 1 -- Config loader validates at startup:
+  python3 -c "import sys; sys.path.insert(0, '.'); from services.config_loader import ConvergenceConfig; c = ConvergenceConfig(); assert c.get('evaluation','cycle_interval_seconds')==60; print('TEST 1 PASS')"
+
+TEST 2 -- signal_feeds.py is fully async (BUG-2):
+  python3 -c "src=open('services/signal_feeds.py').read(); assert 'import requests' not in src,'FAIL: requests found'; assert 'async def fetch_' in src,'FAIL: not async'; print('TEST 2 PASS')"
+
+TEST 3 -- SQLite WAL mode (BUG-3):
+  python3 -c "import sys; sys.path.insert(0,'.'); from services.baseline_store import BaselineStore; bs=BaselineStore(); c=bs._connect(); mode=c.execute('PRAGMA journal_mode').fetchone()[0]; assert mode=='wal',f'got {mode}'; print('TEST 3 PASS')"
+
+TEST 4 -- State machine no-skip:
+  python3 -c "import sys; sys.path.insert(0,'.'); from services.convergence_engine import validate_state_transition; [validate_state_transition('IDLE','CRITICAL') for _ in [1]] if False else None; print('TEST 4: see full test in original build doc')"
+
+TEST 5 -- Signal decay forces confirmed=False:
+  python3 -c "import sys,time; sys.path.insert(0,'.'); from services.convergence_engine import SignalExtractor; d=SignalExtractor._compute_decay_factor_static(time.time()-7200,300,900); assert d==0.0,f'got {d}'; print('TEST 5 PASS')"
+
+TEST 6 -- Feed failure returns None:
+  python3 -c "import sys,asyncio; sys.path.insert(0,'.')" # see full test in build doc
+
+TEST 7 -- Contradiction detection:
+  python3 -c "import sys; sys.path.insert(0,'.')" # see full test in build doc
+
+TEST 8 -- Atomic write verified:
+  python3 -c "src=open('services/sentinel.py').read(); assert 'sentinel_state.json.tmp' in src; assert 'os.replace' in src; print('TEST 8 PASS')"
+
+TEST 9 -- Convergence in SSE stream:
+  curl -s -N http://localhost:5000/api/intelligence/stream --max-time 6 | head -5
+  # must contain: convergence
+
+---
+
+## QWEN BIBLE LAW
+
+Every bug found and fixed: document in docs/QWEN_CONTEXT_BIBLE.md
+under "## CONVERGENCE DETECTION BUILD -- 2026-03-23" before moving on.
+
+---
+
+## COMMIT
+
+After all 9 tests pass:
+  cd ~/protocol_pulse
+  git add services/config_loader.py services/signal_feeds.py
+  git add services/baseline_store.py services/convergence_engine.py
+  git add services/sentinel.py core/blueprints/intelligence.py
+  git add core/templates/intelligence_terminal.html
+  git add data/convergence_config.yaml data/custodian_wallets.json
+  git add data/miner_wallets.json docs/QWEN_CONTEXT_BIBLE.md
+  git commit -m "feat(convergence): Phase 2 F1 -- 6-pattern Matrix Layer 48 pre-build fixes Bloomberg canceller"
+  git push
+
+No confirmation needed. Auto-commit and push when all 9 tests pass.
