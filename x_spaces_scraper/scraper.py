@@ -107,6 +107,7 @@ def _score_space(space: dict) -> float:
 
     started = space.get("started_at", "")
     if started:
+        try:
             dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
             age_minutes = (datetime.now(timezone.utc) - dt).total_seconds() / 60
             if age_minutes <= 120:
@@ -114,6 +115,7 @@ def _score_space(space: dict) -> float:
             if age_minutes <= 30:
                 score += 10
         except (ValueError, TypeError):
+            pass
 
     # Live spaces get priority over ended
     if space.get("state") == "live":
@@ -135,6 +137,7 @@ def find_live_bitcoin_spaces() -> list[dict]:
     Runs multiple keyword queries, deduplicates, scores, and returns top 5.
     Results cached with 30-minute TTL.
     """
+    try:
         return _find_live_bitcoin_spaces_inner()
     except Exception as e:
         logger.error(f"[SpaceTap] find_live_bitcoin_spaces failed: {e}")
@@ -157,12 +160,14 @@ def _find_live_bitcoin_spaces_inner() -> list[dict]:
     cache_file = CACHE_DIR / f"live_spaces_{cache_key}{half}.json"
 
     if cache_file.exists():
+        try:
             cached = json.loads(cache_file.read_text())
             cache_age = time.time() - cached.get("fetched_at", 0)
             if cache_age < 1800:  # 30 min
                 logger.info(f"[SpaceTap] Using cached spaces ({len(cached['spaces'])} spaces, {cache_age:.0f}s old)")
                 return cached["spaces"]
         except (json.JSONDecodeError, KeyError):
+            pass
 
     session = requests.Session()
     session.headers["Authorization"] = f"Bearer {bearer}"
@@ -173,6 +178,7 @@ def _find_live_bitcoin_spaces_inner() -> list[dict]:
     # Search both live and ended states
     for state in ("live", "ended"):
         for query in SEARCH_QUERIES:
+            try:
                 r = session.get(
                     "https://api.twitter.com/2/spaces/search",
                     params={
@@ -225,6 +231,7 @@ def _find_live_bitcoin_spaces_inner() -> list[dict]:
         if s["state"] == "ended":
             started = s.get("started_at", "")
             if started:
+                try:
                     dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
                     age_hours = (cutoff - dt).total_seconds() / 3600
                     if age_hours > 6:
@@ -268,6 +275,7 @@ def intercept_space(space_id: str, title: str, participant_count: int,
 
     Returns clip dict or None on failure.
     """
+    try:
         return _intercept_space_inner(space_id, title, participant_count, creator_id)
     except Exception as e:
         logger.error(f"[SpaceTap] intercept_space({space_id}) failed: {e}")
@@ -284,6 +292,7 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
     # Check for cached clips (reuse if < 30 min old)
     clips_path = clip_dir / "clips.json"
     if clips_path.exists():
+        try:
             cached = json.loads(clips_path.read_text())
             intercepted = cached.get("intercepted_at", "")
             if intercepted:
@@ -292,9 +301,11 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
                     logger.info(f"[SpaceTap] Using cached intercept for {space_id}")
                     return cached
         except (json.JSONDecodeError, ValueError):
+            pass
 
     # ── Step A: Get HLS stream URL via yt-dlp ──────────────────────────────
     space_url = f"https://twitter.com/i/spaces/{space_id}"
+    try:
         result = subprocess.run(
             ["yt-dlp", "-f", "bestaudio", "--get-url", space_url],
             capture_output=True, text=True, timeout=20,
@@ -310,6 +321,7 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
     if not m3u8_url or not m3u8_url.startswith("http"):
         # Fallback: try twspace_dl
         logger.debug(f"[SpaceTap] yt-dlp returned no URL, trying twspace_dl fallback")
+        try:
             raw_path = clip_dir / "live_raw.m4a"
             result = subprocess.run(
                 ["/home/ultron/.local/bin/twspace_dl",
@@ -330,6 +342,7 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
     # ── Step B: Grab 45 seconds of live audio via ffmpeg ───────────────────
     raw_path = clip_dir / "live_raw.m4a"
     if m3u8_url and (not raw_path.exists() or raw_path.stat().st_size < 10000):
+        try:
             subprocess.run(
                 ["ffmpeg", "-y",
                  "-i", m3u8_url,
@@ -349,24 +362,21 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
         logger.warning(f"[SpaceTap] Audio too small or missing for {space_id}")
         return None
 
-    import threading as _th
-    _segs_out = []
-    _exc_box = [None]
-    def _transcribe_worker():
-            m = _get_whisper_model()
-            for s in m.transcribe(str(raw_path), language="en")[0]:
-                _segs_out.append({"start": round(s.start,2), "end": round(s.end,2), "text": s.text.strip()})
-        except Exception as e:
-            _exc_box[0] = e
-    _tt = _th.Thread(target=_transcribe_worker, daemon=True)
-    _tt.start(); _tt.join(timeout=90)
-    if _tt.is_alive():
-        logger.warning(f"[SpaceTap] Whisper timed out (90s) — skipping {space_id}")
+    # ── Step C: Transcribe with faster-whisper ─────────────────────────────
+    try:
+        model = _get_whisper_model()
+        segments_iter, _info = model.transcribe(str(raw_path), language="en")
+        segments = []
+        for seg in segments_iter:
+            segments.append({
+                "start": round(seg.start, 2),
+                "end": round(seg.end, 2),
+                "text": seg.text.strip(),
+            })
+    except Exception as e:
+        logger.error(f"[SpaceTap] Whisper transcription failed for {space_id}: {e}")
         return None
-    if _exc_box[0]:
-        logger.error(f"[SpaceTap] Whisper failed for {space_id}: {_exc_box[0]}")
-        return None
-    segments = _segs_out
+
     total_words = sum(len(s["text"].split()) for s in segments)
     if not segments or total_words < 30:
         logger.info(f"[SpaceTap] Insufficient speech in {space_id} ({total_words} words)")
@@ -444,6 +454,7 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
     # ── Extract clip audio files ───────────────────────────────────────────
     for i, clip in enumerate(selected):
         clip_path = clip_dir / f"clip_{i}.m4a"
+        try:
             subprocess.run(
                 ["ffmpeg", "-y",
                  "-ss", str(clip["start_sec"]),
@@ -468,6 +479,7 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
     if creator_id:
         bearer = _get_bearer_token()
         if bearer:
+            try:
                 r = requests.get(
                     f"https://api.twitter.com/2/users/{creator_id}",
                     params={"user.fields": "name,username,profile_image_url"},
@@ -482,12 +494,14 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
                     if profile_url:
                         # Get higher-res version
                         profile_url = profile_url.replace("_normal", "_400x400")
+                        try:
                             img_resp = requests.get(profile_url, timeout=10)
                             if img_resp.status_code == 200:
                                 profile_path = clip_dir / "profile.jpg"
                                 profile_path.write_bytes(img_resp.content)
                                 host_profile_image = str(profile_path)
                         except Exception:
+                            pass
             except Exception as e:
                 logger.debug(f"[SpaceTap] User lookup failed for {creator_id}: {e}")
 
@@ -520,6 +534,7 @@ def get_best_space_clips(max_clips: int = 4) -> Optional[dict]:
 
     Returns {clips: [...], spaces_count: N} or None.
     """
+    try:
         return _get_best_space_clips_inner(max_clips)
     except Exception as e:
         logger.error(f"[SpaceTap] get_best_space_clips failed: {e}")
