@@ -1430,10 +1430,16 @@ def oracle_speak():
     if path:
         return send_file(path, mimetype="video/mp4")
 
-    # Fallback: generate on the fly using the response tree text
+    # Fallback: generate on the fly — but don't block if GPU is busy (cache warming)
     text = oracle_cache_manager.RESPONSE_TREE.get(intent)
     if not text:
         text = oracle_cache_manager.RESPONSE_TREE["UNKNOWN_QUESTION"]
+
+    # Non-blocking: bail fast if render semaphore is held (e.g. during cache warmup)
+    if not _render_semaphore.acquire(timeout=5):
+        return jsonify({"error": "GPU busy warming cache — try again shortly",
+                        "status": "warming", "retry_after": 30}), 503
+    _render_semaphore.release()  # release immediately — generate_inline will re-acquire
 
     return generate_inline(text)
 
@@ -2093,9 +2099,13 @@ if __name__ == "__main__":
     # Generate idle loop if not already present
     generate_idle_loop()
 
-    # Phase 2: Start cache warming in background
-    logger.info("[STARTUP] Starting Oracle cache warmer...")
-    threading.Thread(target=oracle_cache_manager.warm_cache, daemon=True).start()
+    # Phase 2: Start cache warming in background (delayed 60s to allow incoming requests)
+    logger.info("[STARTUP] Oracle cache warmer will start in 60s...")
+    def _delayed_warmup():
+        time.sleep(60)
+        logger.info("[STARTUP] Cache warmup starting now (60s delay complete)")
+        oracle_cache_manager.warm_cache()
+    threading.Thread(target=_delayed_warmup, daemon=True).start()
     oracle_cache_manager.start_background_warmer()
 
     # Phase 3: Start intelligence feed

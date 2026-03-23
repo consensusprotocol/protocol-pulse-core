@@ -98,7 +98,7 @@ def _render_key(key, text):
                 "--text", text,
                 "--out", out_path,
             ],
-            capture_output=True, text=True, timeout=180,
+            capture_output=True, text=True, timeout=300,
             cwd=ORACLE_DIR,
         )
         elapsed = time.time() - t0
