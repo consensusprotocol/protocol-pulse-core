@@ -145,3 +145,47 @@ bash ~/protocol_pulse/regression_test.sh
 git add services/local_watchdog.py utils/cross_llm_audit.py
 git commit -m "feat(watchdog): autonomous CC healing loop — detects crash, writes spec, launches CC, restarts render, Telegrams PBX at every step"
 git push
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADDITIONAL REQUIREMENT: QWEN CONTEXT BIBLE INJECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The file ~/protocol_pulse/docs/QWEN_CONTEXT_BIBLE.md must be prepended to
+every CC repair spec the watchdog generates. This gives Claude Code full
+context: architecture, known failure patterns, grade A criteria, off-limits files.
+
+In launch_cc_fix_session(), prepend the bible:
+  bible = (BASE / "docs" / "QWEN_CONTEXT_BIBLE.md").read_text()
+  spec_content = bible + "\n\n" + spec_content
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADDITIONAL REQUIREMENT: PER-RENDER CONTEXT FILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Modify daily_producer.py to write /tmp/render_context_YYYYMMDD.json at the
+START of every render (Step 1) and UPDATE it after every step completes or fails.
+
+The write_render_context(step, status, error=None) function:
+  import json
+  from datetime import datetime
+  ctx_path = f"/tmp/render_context_{datetime.now().strftime('%Y%m%d')}.json"
+  # Load existing or create new
+  try:
+      with open(ctx_path) as f: ctx = json.load(f)
+  except: ctx = {"episode_date": datetime.now().strftime("%Y-%m-%d"),
+                  "steps_completed": [], "steps_failed": [], "render_start_time": datetime.now().isoformat()}
+  if status == "ok":
+      ctx["steps_completed"].append(step)
+  else:
+      ctx["steps_failed"].append({"step": step, "error": str(error), "timestamp": datetime.now().isoformat()})
+  with open(ctx_path, "w") as f: json.dump(ctx, f, indent=2)
+
+Call write_render_context(1, "ok") after Step 1, write_render_context(5, "fail", e) on exception, etc.
+
+When watchdog detects crash, include render context in CC spec:
+  import json
+  ctx_file = f"/tmp/render_context_{datetime.now().strftime('%Y%m%d')}.json"
+  render_ctx = ""
+  try:
+      render_ctx = json.dumps(json.load(open(ctx_file)), indent=2)
+  except: pass
+  spec_content = bible + "\n\nCURRENT RENDER CONTEXT:\n" + render_ctx + "\n\n" + crash_spec
