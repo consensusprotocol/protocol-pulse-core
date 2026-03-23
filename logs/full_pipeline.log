@@ -1,0 +1,37 @@
+[17:37 UTC] [PIPELINE] Starting full pipeline. Phase 2 engines (F2-F5) confirmed built. Building F-P2-6 through F-P3-9.
+[17:39 UTC] [F-P2-6] [COMPLETE] Dark Pool OTC Taint Analysis — engine + sentinel integration + tests pass
+[17:41 UTC] [F-P2-7] [COMPLETE] Miner Stress & Capitulation Model — engine + sentinel integration + tests pass
+[17:44 UTC] [F-P3-1] [COMPLETE] Whale Coordination Detection — engine + taint linking + tests pass
+[17:44 UTC] [F-P3-2] [COMPLETE] Regulatory Intelligence Engine — RSS + NLP classification + tests pass
+[17:44 UTC] [F-P3-3] [COMPLETE] Privacy Tech Pulse — sovereignty index + metrics + tests pass
+[17:46 UTC] [F-P3-4] [COMPLETE] P2P Exchange Volume Aggregator — HodlHodl + capital flight + tests pass
+[17:46 UTC] [F-P3-5] [COMPLETE] DeFi BTC Collateralization Monitor — WBTC + cbBTC + DeFiLlama + tests pass
+[17:49 UTC] [F-P3-6] [COMPLETE] War Room UI Polish — 3 new panels + drill-down + keyboard shortcuts + mobile
+[17:52 UTC] [F-P3-7] [COMPLETE] Alert History & Precision Tracking — pages + vote API + precision metrics
+[17:52 UTC] [F-P3-8] [COMPLETE] External API Layer — 9 REST endpoints + SSE stream + API key management + docs
+[17:52 UTC] [F-P3-9] [COMPLETE] Backtesting Interface — price outcome tracking + sortable table + summary stats
+
+[17:53 UTC] [PIPELINE] PCAF v1 GNN — SKIPPED, requires dedicated ML session
+[17:53 UTC] [PIPELINE] TPA — SKIPPED, requires dedicated ML session
+
+[17:53 UTC] [COMPLETE] Protocol Pulse Intelligence Terminal — Full Build Pipeline Complete
+Features shipped:
+  - F-P2-6: Dark Pool OTC Taint Analysis
+  - F-P2-7: Miner Stress & Capitulation Model
+  - F-P3-1: Whale Coordination Detection
+  - F-P3-2: Jurisdiction Regulatory Intelligence Engine
+  - F-P3-3: Privacy Tech Pulse
+  - F-P3-4: P2P Exchange Volume Aggregator
+  - F-P3-5: DeFi BTC Collateralization Monitor
+  - F-P3-6: War Room UI Polish
+  - F-P3-7: Alert History & Precision Tracking
+  - F-P3-8: External API Layer (REST + SSE)
+  - F-P3-9: Backtesting Interface
+
+Features skipped (ML): PCAF v1 GNN, Temporal Predictive Analytics
+Total state keys: 16 (14 required + 2 injected)
+Blueprint routes: 27
+Templates created: 4 (alert_history, alert_stats, api_management, backtest)
+Engines created: 5 (dark_pool, miner_stress, whale_coordination, regulatory_intel, privacy_tech)
+Engines extended: 2 (sovereign_engine + P2P, etf_monitor + DeFi BTC)
+Build ended: 2026-03-23 17:53 UTC
