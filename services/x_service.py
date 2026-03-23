@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 _GATE_DB = Path("/home/ultron/protocol_pulse/data/x_post_ledger.db")
 _MAX_POSTS_PER_24H = 3
 _MIN_GAP_HOURS = 4
-_SIMILARITY_THRESHOLD = 0.40
-_SIMILARITY_WINDOW_HOURS = 48
+_SIMILARITY_THRESHOLD = 0.30
+_SIMILARITY_WINDOW_HOURS = 72
 
 # Narrative categories for angle diversity
 ANGLE_CATEGORIES = [
