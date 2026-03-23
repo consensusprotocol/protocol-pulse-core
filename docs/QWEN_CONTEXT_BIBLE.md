@@ -227,3 +227,24 @@ FORMAT EXAMPLE:
   "iteration": 1,
   "previous_grades": ["F(77)", "F(76)", "D(76)"]
 }
+
+PATTERN: KeyError persists even after .format() replaced with .replace() in source
+ROOT CAUSE: Git worktrees at /home/ultron/worktrees/ have their own __pycache__
+  with stale script_writer.cpython-310.pyc compiled from old .format() code.
+  Python imports this cached bytecode instead of recompiling from source.
+  Also: PYTHONDONTWRITEBYTECODE not set, so new .pyc files get written on each run.
+FIX:
+  1. find /home/ultron -name "script_writer*.pyc" -delete
+  2. export PYTHONDONTWRITEBYTECODE=1 (add to ~/.bashrc permanently)
+  3. Verify script_writer.py line 1: import sys; sys.dont_write_bytecode = True
+  4. Restart render loop
+VERIFY: find /home/ultron -name "script_writer*.pyc" 2>/dev/null should return empty
+WORKTREE LOCATIONS: /home/ultron/worktrees/cc_s2_articles/
+                    /home/ultron/worktrees/cc_s5_alerts/
+
+WATCHDOG ACTION FOR THIS PATTERN:
+  When KeyError persists after source file looks clean:
+  1. Run: find /home/ultron -name "*.pyc" -delete
+  2. Run: pkill -f daily_producer
+  3. Restart render loop with PYTHONDONTWRITEBYTECODE=1
+  Do NOT launch CC session — this is a cache issue, not a code issue.
