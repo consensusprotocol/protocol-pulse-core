@@ -290,6 +290,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   aspect-ratio:1/1;
   border-radius:8px;overflow:hidden;
   background: #050508;
+  overflow: hidden;
   flex-shrink:0;
   min-height: min(440px, calc(100vw - 24px));
 }
@@ -531,6 +532,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   border: 2px solid rgba(220,38,38,0.4);
   box-shadow: 0 0 40px rgba(220,38,38,0.15);
 }
+#oracle-matrix { pointer-events: none; }
 </style>
 </head>
 <body>
@@ -589,6 +591,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
 
   <div class="video-wrap" style="position:relative;z-index:1;">
+    <canvas id="oracle-matrix" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:1;transition:opacity 0.5s;"></canvas>
     <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:2;"></video>
   </div>
 
@@ -993,24 +996,11 @@ function process(text){
             URL.revokeObjectURL(audioUrl);
             // Audio finished — unmute video if it's playing lip sync
             try{ if(!vid.paused){ vid.muted=false; vid.volume=1.0; } }catch(e){}
+            // Don't replay lip-sync video after audio already finished — just resolve
             if(pendingVideoUrl){
-              playVid(pendingVideoUrl).then(resolve);
-            } else {
-              var waitForVideo=setInterval(function(){
-                if(pendingVideoUrl){
-                  clearInterval(waitForVideo);
-                  vid.style.opacity='1';
-                  playVid(pendingVideoUrl).then(resolve);
-                }
-              },500);
-              setTimeout(function(){
-                clearInterval(waitForVideo);
-                vid.style.opacity='1';
-                setStat('Ready','#334',false);
-                setBusy(false);mic.disabled=false;
-                resolve();
-              },120000);
+              try { URL.revokeObjectURL(pendingVideoUrl); } catch(e) {}
             }
+            resolve();
           };
 
           // Poll for video completion in parallel
@@ -1079,6 +1069,7 @@ function playVid(url){
     vid.loop=false;
     vid.src=url;
     vid.style.opacity='1';
+    if(window._matrixHide) window._matrixHide();
     var _safetyTimer = setTimeout(function(){
       if(busy){
         console.warn('[Oracle] Safety timeout — forcing mic unlock after 60s');
@@ -1091,6 +1082,7 @@ function playVid(url){
       clearTimeout(_safetyTimer);
       vid.src='';
       vid.style.opacity='0';
+      if(window._matrixShow) window._matrixShow();
       setStat('Ready','#334',false);hideSub();
       setBusy(false);mic.disabled=false;
       res();
@@ -1099,6 +1091,7 @@ function playVid(url){
     vid.onerror=function(){
       clearTimeout(_safetyTimer);
       vid.style.opacity='0';
+      if(window._matrixShow) window._matrixShow();
       setBusy(false);mic.disabled=false;
       setStat('Video error','#ff3b5f',false);res();
     };
@@ -1342,6 +1335,52 @@ setStat = function(msg, color, spin){
     else f.classList.remove("speaking");
   }
 };
+
+/* ── ORACLE IDLE MATRIX ANIMATION ── */
+(function(){
+  var canvas = document.getElementById('oracle-matrix');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var chars = '01₿⚡∆Ω█▓░10₿Ξ∞◆'.split('');
+  var cols, drops;
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    cols = Math.floor(canvas.width / 14);
+    drops = Array(cols).fill(1);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(4,5,8,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '11px monospace';
+    for (var i = 0; i < drops.length; i++) {
+      var char = chars[Math.floor(Math.random() * chars.length)];
+      var alpha = Math.random() * 0.4 + 0.05;
+      var cx = canvas.width / 2;
+      var dist = Math.abs(i * 14 - cx) / cx;
+      var r = Math.floor(180 + (1 - dist) * 75);
+      var g = Math.floor(20 + (1 - dist) * 30);
+      var b = Math.floor(40 + (1 - dist) * 20);
+      ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+      ctx.fillText(char, i * 14, drops[i] * 14);
+      if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  var _matrixInterval = setInterval(draw, 50);
+
+  window._matrixHide = function() {
+    canvas.style.opacity = '0';
+  };
+  window._matrixShow = function() {
+    canvas.style.opacity = '1';
+  };
+})();
 
 /* ── CYBERPUNK MATRIX BACKGROUND ── */
 (function(){
