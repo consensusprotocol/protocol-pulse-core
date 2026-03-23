@@ -1388,6 +1388,37 @@ body { background: var(--s-bg); }
   var _preRenderedBlob = null;
   var _preRenderedItem = null;
   var _broadcastPaused = false;
+  var _preRenderFirstBlob = null;
+  var _preRenderReady = false;
+  var _preRenderScript = null;
+
+  async function preRenderFirstSegment() {
+    try {
+      var scriptResp = await fetch('/api/stage/generate-monologue', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+      });
+      if (!scriptResp.ok) return;
+      var scriptData = await scriptResp.json();
+      var script = scriptData.script;
+      if (!script) return;
+      _preRenderScript = script;
+
+      var renderResp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: cleanScript(script), intent: 'BROADCAST_SEGMENT'})
+      }, 120000);
+      if (!renderResp.ok) return;
+
+      var blob = await renderResp.blob();
+      _preRenderFirstBlob = URL.createObjectURL(blob);
+      _preRenderReady = true;
+      console.log('[Stage] Pre-render complete — ready for tap');
+    } catch(e) {
+      console.warn('[Stage] Pre-render failed:', e);
+    }
+  }
 
   // ── BROADCAST QUEUE CONSUMER ──────────────────────────
   async function startBroadcast() {
@@ -1431,24 +1462,6 @@ body { background: var(--s-bg); }
 
       var blob = await resp.blob();
       var url = URL.createObjectURL(blob);
-
-      if (_isMobileBrowser) {
-        try {
-          var audioResp = await fetchTO(AVATAR_BASE + '/oracle/voice', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({text: cleanScript(item.script)})
-          }, 35000);
-          if (audioResp.ok) {
-            var audioBlob = await audioResp.blob();
-            var audioUrl = URL.createObjectURL(audioBlob);
-            URL.revokeObjectURL(url);
-            await playAudioOnly(audioUrl);
-            if (!_broadcastPaused) await consumeAndPlay(item.id);
-            return;
-          }
-        } catch(e) { console.warn('[Stage mobile] audio fallback failed'); }
-      }
 
       // Start pre-rendering next segment while current plays
       preRenderNext(item.id);
@@ -1574,7 +1587,33 @@ body { background: var(--s-bg); }
     } catch(e) {}
     var ov=document.getElementById('stage-wake');
     if(ov) ov.style.display='none';
-    startBroadcast();
+
+    if (_preRenderReady && _preRenderFirstBlob) {
+      // Pre-rendered segment ready — play immediately within gesture window
+      var url = _preRenderFirstBlob;
+      _preRenderFirstBlob = null;
+      _preRenderReady = false;
+      setBusy(true);
+      setStatus('Broadcasting…', 'var(--s-green)');
+      vid.src = url;
+      vid.muted = false;
+      vid.volume = 1.0;
+      vid.play().then(function() {
+        vid.onended = function() {
+          vid.src = '';
+          URL.revokeObjectURL(url);
+          setBusy(false);
+          setStatus('Ready', 'rgba(255,255,255,.3)');
+          startBroadcast();
+        };
+      }).catch(function(e) {
+        console.warn('[Stage] Pre-rendered play failed:', e.name);
+        URL.revokeObjectURL(url);
+        startBroadcast();
+      });
+    } else {
+      startBroadcast();
+    }
   }
   window.stageWake = stageWake;
 
@@ -1718,42 +1757,9 @@ body { background: var(--s-bg); }
       if (ct.indexOf('video') >= 0) {
         var blob = await resp.blob();
         var url = URL.createObjectURL(blob);
-        if (_isMobileBrowser) {
-          try {
-            var voiceResp = await fetchTO(AVATAR_BASE + '/oracle/voice', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({text: 'Response received.'})
-            }, 35000);
-            if (voiceResp.ok) {
-              var vBlob = await voiceResp.blob();
-              var vUrl = URL.createObjectURL(vBlob);
-              URL.revokeObjectURL(url);
-              await playAudioOnly(vUrl);
-            } else { await playVid(url); }
-          } catch(e) { await playVid(url); }
-        } else {
-          await playVid(url);
-        }
+        await playVid(url);
       } else {
         var j = await resp.json();
-        if (_isMobileBrowser && j.text) {
-          try {
-            var voiceResp2 = await fetchTO(AVATAR_BASE + '/oracle/voice', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({text: j.text})
-            }, 35000);
-            if (voiceResp2.ok) {
-              var vBlob2 = await voiceResp2.blob();
-              var vUrl2 = URL.createObjectURL(vBlob2);
-              await playAudioOnly(vUrl2);
-              setBusy(false);
-              _showResumeCountdown();
-              return;
-            }
-          } catch(e) { console.warn('[Stage interrupt mobile] voice failed'); }
-        }
         if (j.job_id) {
           // Poll for video
           var polls = 0;
@@ -2043,22 +2049,6 @@ body { background: var(--s-bg); }
               if (!speakResp.ok) { await sleep(3000); continue; }
               var blob = await speakResp.blob();
               var url = URL.createObjectURL(blob);
-              if (_isMobileBrowser) {
-                try {
-                  var audioResp2 = await fetchTO(AVATAR_BASE + '/oracle/voice', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({text: script})
-                  }, 35000);
-                  if (audioResp2.ok) {
-                    var audioBlob2 = await audioResp2.blob();
-                    var audioUrl2 = URL.createObjectURL(audioBlob2);
-                    URL.revokeObjectURL(url);
-                    await playAudioOnly(audioUrl2);
-                    continue;
-                  }
-                } catch(e2) { console.warn('[Stage mobile] audio fetch failed, falling back to video'); }
-              }
               await playVid(url);
               try { URL.revokeObjectURL(url); } catch(e) {}
               continue;
@@ -2165,6 +2155,9 @@ body { background: var(--s-bg); }
     }, {passive:true});
   }
   document.addEventListener('transcriptsRendered', function(){ setTimeout(initTxDots, 100); });
+
+  // Pre-render first segment silently so it's ready when user taps
+  preRenderFirstSegment();
 
   // Auto-play greeting on load — mobile gets tap overlay, desktop auto-starts
   setTimeout(function(){
