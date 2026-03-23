@@ -623,8 +623,7 @@ def run_reactive_check():
     if producer_log.exists():
         producer_tail = tail_file(producer_log, 30)
         if "KeyError" in producer_tail or "Traceback" in producer_tail:
-            log_tail = log_tail + "
-" + producer_tail
+            log_tail = log_tail + chr(10) + producer_tail
     if not log_tail.strip():
         logger.info("No log content to analyze")
         if not loop_alive:
