@@ -190,6 +190,11 @@ class SentinelState:
         "tor_node_pct": 0.0, "nostr_24h_events": 0,
         "sp_7d_count": 0, "sovereignty_index": 50.0, "updated_at": 0.0,
     })
+    defi_btc: dict = field(default_factory=lambda: {
+        "wbtc_supply_btc": 0.0, "cbbtc_supply_btc": 0.0,
+        "total_btc_in_defi": 0.0, "delta_24h_btc": 0.0,
+        "signal": "NEUTRAL", "updated_at": 0.0,
+    })
 
     def to_dict(self):
         return {
@@ -212,6 +217,7 @@ class SentinelState:
             "whale_coordination": dict(self.whale_coordination),
             "regulatory": dict(self.regulatory),
             "privacy_tech": dict(self.privacy_tech),
+            "defi_btc": dict(self.defi_btc),
         }
 
 
@@ -851,6 +857,15 @@ class SentinelDaemon:
         except Exception as e:
             logger.error("Privacy tech update failed: %s", e)
 
+    async def _update_defi_btc(self, session):
+        """Run DeFi BTC collateralization monitor."""
+        try:
+            result = await self._etf_monitor.fetch_defi_btc(session)
+            with self._lock:
+                self.state.defi_btc = result
+        except Exception as e:
+            logger.error("DeFi BTC update failed: %s", e)
+
     def _update_network_graph(self):
         """Build network graph data from current state for D3 visualization."""
         try:
@@ -969,6 +984,10 @@ class SentinelDaemon:
                 # Privacy Tech every 1 hour (Phase 3 F3)
                 if poll_counter % 720 == 0:
                     await self._update_privacy_tech(session)
+
+                # DeFi BTC every 30 min (Phase 3 F5)
+                if poll_counter % 360 == 0:
+                    await self._update_defi_btc(session)
 
                 # Network Graph every 60s (Phase 2 F5)
                 if poll_counter % 12 == 0:

@@ -186,3 +186,78 @@ class ETFMonitor:
             "is_proxy": True,
             "updated_at": 0,
         }
+
+    # ------------------------------------------------------------------
+    # F-P3-5: DeFi BTC Collateralization Monitor
+    # ------------------------------------------------------------------
+
+    async def fetch_defi_btc(self, session) -> dict:
+        """Fetch WBTC + cbBTC supply from DeFiLlama.
+
+        Returns
+        -------
+        dict
+            wbtc_supply_btc, cbbtc_supply_btc, total_btc_in_defi,
+            delta_24h_btc, signal, updated_at
+        """
+        now = time.time()
+        wbtc = await self._fetch_defi_protocol(session, "wrapped-bitcoin")
+        cbbtc = await self._fetch_defi_protocol(session, "coinbase-wrapped-btc")
+
+        total = wbtc + cbbtc
+
+        # Compute 24h delta from history
+        delta = self._compute_defi_delta(total, now)
+
+        if delta > 100:
+            signal = "ACCUMULATING"
+        elif delta < -100:
+            signal = "DECLINING"
+        else:
+            signal = "NEUTRAL"
+
+        return {
+            "wbtc_supply_btc": round(wbtc, 2),
+            "cbbtc_supply_btc": round(cbbtc, 2),
+            "total_btc_in_defi": round(total, 2),
+            "delta_24h_btc": round(delta, 2),
+            "signal": signal,
+            "updated_at": now,
+        }
+
+    async def _fetch_defi_protocol(self, session, slug: str) -> float:
+        """Fetch TVL in BTC terms from DeFiLlama."""
+        url = f"https://api.llama.fi/protocol/{slug}"
+        try:
+            async with session.get(url, timeout=15) as resp:
+                if resp.status != 200:
+                    return 0.0
+                data = await resp.json()
+                # currentChainTvls has chain -> USD TVL
+                chain_tvls = data.get("currentChainTvls", {})
+                eth_tvl = chain_tvls.get("Ethereum", 0)
+                # Convert USD to BTC (rough: use ~$80k)
+                return eth_tvl / 80000 if eth_tvl else 0.0
+        except Exception as e:
+            logger.warning("DeFiLlama fetch failed for %s: %s", slug, e)
+            return 0.0
+
+    def _compute_defi_delta(self, current_total: float, now: float) -> float:
+        """Track DeFi BTC total over time and return 24h delta."""
+        if not hasattr(self, '_defi_history'):
+            self._defi_history: list[tuple[float, float]] = []
+
+        self._defi_history.append((now, current_total))
+        # Keep 48h of history
+        cutoff = now - 48 * 3600
+        self._defi_history = [(t, v) for t, v in self._defi_history if t >= cutoff]
+
+        # Find value ~24h ago
+        target = now - 24 * 3600
+        closest = None
+        for t, v in self._defi_history:
+            if t <= target:
+                closest = v
+        if closest is not None:
+            return current_total - closest
+        return 0.0

@@ -309,13 +309,102 @@ class SovereignEngine:
         }
 
     # ------------------------------------------------------------------
-    # Main cycle
+    # F-P3-4: P2P Exchange Volume Aggregator
+    # ------------------------------------------------------------------
+
+    async def fetch_p2p_volume(self, session) -> Dict[str, Any]:
+        """Fetch P2P exchange offer counts as volume proxy.
+
+        Uses HodlHodl public API. Offer count * median estimate = volume proxy.
+        Detects capital flight via hostile jurisdiction spikes.
+
+        Returns
+        -------
+        dict
+            total_offers, by_region, capital_flight_jurisdictions, signal
+        """
+        import aiohttp
+        now = time.time()
+        median_btc_per_offer = 0.05  # Conservative estimate
+
+        try:
+            async with session.get(
+                "https://hodlhodl.com/api/v1/offers",
+                timeout=aiohttp.ClientTimeout(total=15),
+                headers={"Accept": "application/json"},
+            ) as resp:
+                if resp.status != 200:
+                    logger.warning("HodlHodl API returned %d", resp.status)
+                    return self._empty_p2p()
+
+                data = await resp.json()
+
+            offers = data.get("offers", [])
+            total_offers = len(offers)
+
+            # Aggregate by country
+            by_country: Dict[str, int] = {}
+            for offer in offers:
+                country = offer.get("country_code", offer.get("country", "??"))
+                if isinstance(country, str) and len(country) >= 2:
+                    code = country[:2].upper()
+                    by_country[code] = by_country.get(code, 0) + 1
+
+            # Top 10 regions
+            top_regions = dict(
+                sorted(by_country.items(), key=lambda x: x[1], reverse=True)[:10]
+            )
+
+            # Capital flight detection: hostile jurisdictions with spikes
+            hostile_iso2 = set()
+            for j in self._jurisdiction_cache:
+                status = j.get("bitcoin_status", "").lower()
+                if status in ("hostile", "banned", "restricted"):
+                    iso2 = j.get("iso2", "")
+                    if iso2:
+                        hostile_iso2.add(iso2.upper())
+
+            capital_flight = []
+            for code, count in by_country.items():
+                if code in hostile_iso2 and count > 5:
+                    capital_flight.append(code)
+
+            # Signal
+            if capital_flight:
+                signal = "CAPITAL_FLIGHT"
+            elif total_offers > 500:
+                signal = "ELEVATED"
+            else:
+                signal = "CLEAR"
+
+            return {
+                "total_offers": total_offers,
+                "by_region": top_regions,
+                "capital_flight_jurisdictions": capital_flight,
+                "signal": signal,
+                "est_volume_btc": round(total_offers * median_btc_per_offer, 2),
+                "updated_at": now,
+            }
+
+        except Exception as e:
+            logger.warning("P2P volume fetch failed: %s", e)
+            return self._empty_p2p()
+
+    def _empty_p2p(self) -> Dict[str, Any]:
+        return {
+            "total_offers": 0, "by_region": {},
+            "capital_flight_jurisdictions": [], "signal": "CLEAR",
+            "est_volume_btc": 0.0, "updated_at": time.time(),
+        }
+
+    # ------------------------------------------------------------------
+    # Updated main cycle (includes P2P)
     # ------------------------------------------------------------------
 
     async def run_cycle(
         self, session, sentinel_state: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Execute one intelligence cycle.
+        """Execute one intelligence cycle including P2P volume.
 
         Parameters
         ----------
@@ -328,7 +417,7 @@ class SovereignEngine:
         -------
         dict
             top_alerts, jurisdiction_summary, custody_health,
-            capital_flight_signal, updated_at
+            capital_flight_signal, p2p_volume, updated_at
         """
         # Fetch BIS alerts
         bis_items = await self.fetch_bis_cbdc_rss(session)
@@ -343,11 +432,15 @@ class SovereignEngine:
         # Capital flight
         capital_flight_signal = self.detect_capital_flight(sentinel_state)
 
+        # P2P Volume (Phase 3 F4)
+        p2p_volume = await self.fetch_p2p_volume(session)
+
         result = {
             "top_alerts": top_alerts,
             "jurisdiction_summary": jurisdiction_summary,
             "custody_health": custody_health,
             "capital_flight_signal": capital_flight_signal,
+            "p2p_volume": p2p_volume,
             "updated_at": time.time(),
         }
 
