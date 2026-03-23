@@ -189,3 +189,25 @@ When watchdog detects crash, include render context in CC spec:
       render_ctx = json.dumps(json.load(open(ctx_file)), indent=2)
   except: pass
   spec_content = bible + "\n\nCURRENT RENDER CONTEXT:\n" + render_ctx + "\n\n" + crash_spec
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERMANENT IMPLEMENTATION REQUIREMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+After building the CC healing loop, implement permanent auto-start:
+
+1. Add to crontab (if not already present):
+   @reboot /home/ultron/protocol_pulse/scripts/boot_startup.sh
+
+2. Verify these crons exist (watchdog already has them but confirm):
+   */1  * * * * python3 /home/ultron/protocol_pulse/services/local_watchdog.py --mode reactive
+   */15 * * * * python3 /home/ultron/protocol_pulse/services/local_watchdog.py --mode health
+   0 */6 * * *  python3 /home/ultron/protocol_pulse/services/local_watchdog.py --mode pattern
+
+3. Add self-healing check to watchdog reactive mode:
+   At the start of every reactive run, verify render loop is alive.
+   If overnight_render_loop is dead AND it's between 8am-11pm ET:
+     restart it automatically without waiting for a crash signal.
+
+4. The watchdog is the FIRST thing checked in every new chat session.
+   If not running — restart before any other work.
