@@ -110,3 +110,55 @@ IMPLEMENTATION ORDER
 COMMIT MESSAGE:
 fix(orchestration): flock process lock, remove CC self-healing from loop,
 step checkpointing, watchdog /proc env check, daemon state persistence
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECOND-PASS CONSENSUS (from ChatGPT, Perplexity, Gemini reviewing CC output)
+Add these after the 5 P0 fixes. Same session.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+P1 FIX 6: Make post-render QC blocking (ChatGPT)
+In daily_producer.py, find "Post-render QC failed (non-blocking)" and change
+the behavior: if QC fails, do NOT return success. Return failure so the loop
+knows the render is bad and retries. A render that fails QC is not a successful
+render regardless of whether the file exists.
+
+P1 FIX 7: Hard-lock TTS provider at startup (ChatGPT)
+In tts_engine.py, at the top of the file add a validation block:
+  provider = os.environ.get("TTS_PROVIDER", "local").lower()
+  if provider == "elevenlabs" and not os.environ.get("ELEVENLABS_API_KEY"):
+      raise RuntimeError("TTS_PROVIDER=elevenlabs but ELEVENLABS_API_KEY is missing")
+  logger.info(f"TTS provider locked: {provider}")
+This makes misconfiguration a hard failure at startup, not a silent fallback.
+
+P1 FIX 8: VRAM cleanup between renders (Gemini)
+In daily_producer.py at the start of each render iteration, add:
+  try:
+      import torch
+      if torch.cuda.is_available():
+          torch.cuda.empty_cache()
+          torch.cuda.synchronize()
+          logger.info("VRAM cleared")
+  except Exception:
+      pass
+Prevents memory fragmentation on long-running 4090 sessions.
+
+P1 FIX 9: Episode topic memory — prevent narrative repetition (Gemini)
+In script_writer.py, before building the prompt, load the last 3 episode
+titles from data/episode_memory.json and inject into the prompt:
+  "RECENT EPISODES (do not repeat these topics):
+   - [title 1]
+   - [title 2]
+   - [title 3]"
+This prevents 4 consecutive "Bitcoin at $70k" episodes.
+
+P1 FIX 10: Auto-commit rule in all CC specs (addresses your concern)
+Add to the bottom of every CC spec going forward:
+  "IMPORTANT: Do not ask for confirmation to commit. Run git add, commit,
+   and push automatically. The commit is part of the task, not optional."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMIT MESSAGE (updated):
+fix(orchestration): flock lock, remove CC self-healing, step checkpointing,
+watchdog PID tracking, daemon state, QC blocking, TTS hard-lock, VRAM cleanup,
+topic memory — full consensus from 4-model audit

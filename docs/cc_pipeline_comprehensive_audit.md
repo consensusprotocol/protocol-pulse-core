@@ -138,3 +138,6 @@ STEP 8 — UPDATE QWEN CONTEXT BIBLE
 For every new failure pattern discovered in this audit,
 append to ~/protocol_pulse/docs/QWEN_CONTEXT_BIBLE.md immediately.
 Root cause, fix, verify steps, watchdog action.
+
+
+IMPORTANT: Do not ask for confirmation before committing. Run git add, git commit, and git push automatically. The commit is part of the task, not optional.

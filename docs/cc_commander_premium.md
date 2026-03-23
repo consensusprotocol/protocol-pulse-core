@@ -246,3 +246,6 @@ Before calling this done, ask:
   - Would someone screenshot this and post it on X?
 
 If any answer is no — keep building.
+
+
+IMPORTANT: Do not ask for confirmation before committing. Run git add, git commit, and git push automatically. The commit is part of the task, not optional.

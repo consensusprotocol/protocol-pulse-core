@@ -86,3 +86,5 @@ bash ~/protocol_pulse/regression_test.sh  # must show 0 FAILs
 git add video_pipeline_v3/assembler.py
 git commit -m "fix(assembler): trim+setpts on ALL bg_loop video stream_loops — eliminates freeze frame PTS discontinuities at loop boundaries"
 git push
+
+IMPORTANT: Do not ask for confirmation before committing. Run git add, git commit, and git push automatically. The commit is part of the task, not optional.
