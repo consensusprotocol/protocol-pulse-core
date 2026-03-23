@@ -248,3 +248,4 @@ WATCHDOG ACTION FOR THIS PATTERN:
   2. Run: pkill -f daily_producer
   3. Restart render loop with PYTHONDONTWRITEBYTECODE=1
   Do NOT launch CC session — this is a cache issue, not a code issue.
+PATTERN: pyc stale cache KeyError — STATUS: PERMANENTLY CLOSED. sys.dont_write_bytecode=True in overnight_render_loop.py + daily_producer.py at startup. Cannot recur. Watchdog action: none needed.
