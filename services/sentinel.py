@@ -48,6 +48,14 @@ SovereignEngine = _sovereign_mod.SovereignEngine
 _etf_mod = _load_svc('_sentinel_etf_monitor', 'etf_monitor.py')
 ETFMonitor = _etf_mod.ETFMonitor
 
+# Phase 2 F6: Dark Pool OTC
+_dark_pool_mod = _load_svc('_sentinel_dark_pool', 'dark_pool_engine.py')
+DarkPoolEngine = _dark_pool_mod.DarkPoolEngine
+
+# Phase 2 F7: Miner Stress
+_miner_stress_mod = _load_svc('_sentinel_miner_stress', 'miner_stress_engine.py')
+MinerStressEngine = _miner_stress_mod.MinerStressEngine
+
 
 logger = logging.getLogger("sentinel")
 logger.setLevel(logging.INFO)
@@ -147,6 +155,14 @@ class SentinelState:
     network_graph: dict = field(default_factory=lambda: {
         "nodes": [], "edges": [], "updated_at": 0.0,
     })
+    dark_pool: dict = field(default_factory=lambda: {
+        "signal": "CLEAR", "volume_4h_btc": 0.0, "tx_count_4h": 0,
+        "top_destinations": [], "exchange_pct": 0.0, "updated_at": 0.0,
+    })
+    miner_health: dict = field(default_factory=lambda: {
+        "score": 100, "label": "HEALTHY", "components": {},
+        "is_90d_low": False, "updated_at": 0.0,
+    })
 
     def to_dict(self):
         return {
@@ -164,6 +180,8 @@ class SentinelState:
             "sovereign": dict(self.sovereign),
             "etf": dict(self.etf),
             "network_graph": dict(self.network_graph),
+            "dark_pool": dict(self.dark_pool),
+            "miner_health": dict(self.miner_health),
         }
 
 
@@ -327,6 +345,8 @@ class SentinelDaemon:
         self._sentiment_engine = SentimentPulseEngine()
         self._sovereign_engine = SovereignEngine()
         self._etf_monitor = ETFMonitor()
+        self._dark_pool_engine = DarkPoolEngine()
+        self._miner_stress_engine = MinerStressEngine()
         _init_alerts_db()
 
     # ── State access (thread-safe for Flask) ───────────────────────────────
@@ -741,6 +761,33 @@ class SentinelDaemon:
         except Exception as e:
             logger.error("ETF monitor failed: %s", e)
 
+    def _update_dark_pool(self):
+        """Run dark pool analysis on current whale transactions."""
+        try:
+            with self._lock:
+                whale_txs = list(self.state.mempool.get("whale_txs", []))
+            result = self._dark_pool_engine.analyze(whale_txs)
+            with self._lock:
+                self.state.dark_pool = result
+        except Exception as e:
+            logger.error("Dark pool analysis failed: %s", e)
+
+    def _update_miner_health(self):
+        """Run miner stress/capitulation model."""
+        try:
+            with self._lock:
+                network = dict(self.state.network)
+                mempool = dict(self.state.mempool)
+            result = self._miner_stress_engine.compute_score(
+                network_state=network,
+                mempool_state=mempool,
+                hashrate_24h_ago=self._hashrate_24h_ago,
+            )
+            with self._lock:
+                self.state.miner_health = result
+        except Exception as e:
+            logger.error("Miner health update failed: %s", e)
+
     def _update_network_graph(self):
         """Build network graph data from current state for D3 visualization."""
         try:
@@ -839,6 +886,14 @@ class SentinelDaemon:
                 # ETF Flow Monitor every 10 min (Phase 2 F4)
                 if poll_counter % 120 == 0:
                     await self._update_etf(session)
+
+                # Dark Pool every 5 min (Phase 2 F6)
+                if poll_counter % 60 == 0:
+                    self._update_dark_pool()
+
+                # Miner Health every 10 min (Phase 2 F7)
+                if poll_counter % 120 == 0:
+                    self._update_miner_health()
 
                 # Network Graph every 60s (Phase 2 F5)
                 if poll_counter % 12 == 0:
