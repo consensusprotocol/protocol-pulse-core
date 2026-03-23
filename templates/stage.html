@@ -163,7 +163,7 @@ body { background: var(--s-bg); }
   width: 100%;
   position: relative;
   background: radial-gradient(circle at 50% 100%, rgba(255,59,95,.08) 0%, transparent 60%),
-              #06080f;
+              #06080f url('/static/img/oracle_avatar_static.png') center top / cover no-repeat;
   border: 1px solid rgba(0, 255, 200, 0.15);
   border-radius: 8px;
   overflow: hidden;
@@ -774,7 +774,6 @@ body { background: var(--s-bg); }
         <div class="stage-avatar-wrap">
           <video class="stage-avatar-vid" id="avatarVid"
                  playsinline webkit-playsinline preload="auto"
-                 poster="/static/img/oracle_avatar_static.png"
                  style="display:block;opacity:1;"></video>
           <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;" onclick="stageWake()">
             <div style="font-size:48px;">&#9889;</div>
@@ -1266,7 +1265,7 @@ body { background: var(--s-bg); }
       vid.volume = 1.0;
       setStatus('Speaking','var(--s-green)');
       var unmuted = false;
-      function tryUnmute(){ if(unmuted) return; unmuted=true; vid.muted=false; vid.volume=1.0; }
+      function tryUnmute(){ if(unmuted) return; unmuted=true; vid.muted=false; vid.volume=1.0; try { vid.play(); } catch(e) {} }
       vid.addEventListener('canplay', function oncp(){
         vid.removeEventListener('canplay',oncp);
         tryUnmute();
@@ -1496,6 +1495,20 @@ body { background: var(--s-bg); }
       window._audioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
       window._audioUnlocked.volume = 0.001;
       window._audioUnlocked.play().catch(function(){});
+    } catch(e) {}
+    // Pre-unlock video element for future muted→unmuted autoplay
+    try {
+      var vidEl = document.getElementById('avatarVid');
+      if(vidEl) {
+        vidEl.muted = true;
+        vidEl.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28ybXA0MAAAACB3aWRlAAAAAQAAABhtZGF0';
+        vidEl.play().catch(function(){});
+        setTimeout(function(){
+          vidEl.pause();
+          vidEl.src = '';
+          vidEl.load();
+        }, 200);
+      }
     } catch(e) {}
     var ov=document.getElementById('stage-wake');
     if(ov) ov.style.display='none';

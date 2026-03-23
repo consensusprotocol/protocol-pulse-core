@@ -289,8 +289,9 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   max-width:min(440px,calc(100vw - 24px));
   aspect-ratio:1/1;
   border-radius:8px;overflow:hidden;
-  background:#050508;
+  background: #050508 url('/static/img/oracle_avatar_static.png') center top / cover no-repeat;
   flex-shrink:0;
+  min-height: min(440px, calc(100vw - 24px));
 }
 /* Corner brackets */
 .video-wrap::before,.video-wrap::after{
@@ -301,20 +302,6 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 .video-wrap::after{bottom:6px;right:6px;border-width:0 1px 1px 0}
 
 #vid{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-.vid-ph{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 35%,#120408 0%,#050208 60%);
-}
-.vid-orb{
-  width:50%;height:50%;border-radius:50%;
-  background:radial-gradient(circle,#2a0810 0%,#080205 100%);
-  border:1px solid rgba(255,59,95,.2);
-  animation:breathe 3s ease-in-out infinite;
-  display:flex;align-items:center;justify-content:center;
-  font-size:clamp(24px,8vw,40px);
-}
-
 /* Subtitle */
 #subtitle{
   width:100%;
@@ -382,7 +369,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 #vision-status.on{opacity:1}
 
 /* Sovereignty cards */
-#cards{display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;animation:card-up .35s ease}
+#cards{display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;animation:card-up .35s ease;position:relative;z-index:0}
 #cards.on{display:grid}
 .card{
   background:#080a0f;
@@ -602,8 +589,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
 
   <div class="video-wrap" style="position:relative;z-index:1;">
-    <div class="vid-ph" id="vid-ph"><div class="vid-orb">⚡</div></div>
-    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" poster="/static/img/oracle_avatar_static.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;z-index:2;"></video>
+    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;z-index:2;"></video>
   </div>
 
   <div id="subtitle"></div>
@@ -759,7 +745,6 @@ var gBtn=document.getElementById('gate-btn');
 var gStatus=document.getElementById('gate-status');
 var gErr=document.getElementById('gate-error');
 var vid=document.getElementById('vid');
-var vidPh=document.getElementById('vid-ph');
 var sub=document.getElementById('subtitle');
 var statEl=document.getElementById('stat-text');
 var spinEl=document.getElementById('spin');
@@ -933,7 +918,7 @@ function process(text){
     return r.json().then(function(j){
       var responseText=j.text;
       var videoJobId=j.job_id;
-      if(j.action_card) showActionCard(j.action_card);
+      var _pendingCard = j.action_card || null;
 
       // Play audio: try cached job audio first (no duplicate Kokoro), fallback to /oracle/voice
       var audioFetch;
@@ -998,6 +983,7 @@ function process(text){
 
         return new Promise(function(resolve){
           audio.onended=function(){
+            if(_pendingCard){ showActionCard(_pendingCard); _pendingCard=null; }
             window._chatAudioPlaying=false;
             URL.revokeObjectURL(audioUrl);
             // Audio finished — unmute video if it's playing lip sync
@@ -1087,14 +1073,10 @@ function playVid(url){
   return new Promise(function(res){
     vid.loop=false;
     vid.src=url;
-    var _ph=document.getElementById('vid-ph');
-    if(_ph) _ph.style.display='none';
     setStat('Speaking','#6cff9f',false);
     try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
       vid.src='';
-      var _ph=document.getElementById('vid-ph');
-      if(_ph) _ph.style.display='flex';
       setStat('Ready','#334',false);hideSub();
       setBusy(false);mic.disabled=false;
       res();
