@@ -268,3 +268,15 @@ BUG 2: `/intelligence` route conflict with routes.py Session 12
   VERIFY: `curl -s http://localhost:5000/intelligence | grep -c "Intelligence Terminal"`
 
 PATTERN: Render loop starts but daily_producer never spawns — flock blocked. ROOT CAUSE: golden_path.py CHECK 4 tests flock by spawning two producers; if golden_path is killed mid-test, the lock file /tmp/daily_producer.lock stays held. FIX: fuser -k /tmp/daily_producer.lock && rm -f /tmp/daily_producer.lock, then restart loop. PREVENTION: golden_path.py CHECK 4 must clean up lock in finally: block. WATCHDOG ACTION: If daily_producer never starts within 60s of RENDER START, check fuser /tmp/daily_producer.lock and kill holder.
+
+BUG 3: Gunicorn started from wrong working directory
+  ROOT CAUSE: Two app.py files exist — ~/protocol_pulse/app.py (legacy root-level)
+  and ~/protocol_pulse/core/app.py (active app with all blueprints). CC restarted
+  gunicorn from ~/protocol_pulse/ root, loading the wrong app. Intelligence blueprint
+  and all core/ blueprints invisible. Site returns wrong routes.
+  FIX: Always start gunicorn from ~/protocol_pulse/core/:
+    cd ~/protocol_pulse/core && gunicorn ... app:app
+  NEVER run gunicorn from ~/protocol_pulse/ root — it loads the legacy app.
+  VERIFY: ls /proc/12/cwd -la
+    should show -> /home/ultron/protocol_pulse/core
+  WATCHDOG ACTION: If /intelligence returns 404 or wrong page, check gunicorn cwd first.
