@@ -12,6 +12,7 @@ Usage:
 """
 import sys; sys.dont_write_bytecode=True
 import argparse
+import fcntl
 import json
 import logging
 import os
@@ -55,12 +56,17 @@ logger = logging.getLogger("Producer")
 # Per-Render Context File (consumed by watchdog for CC repair specs)
 # ---------------------------------------------------------------------------
 
+CHECKPOINT_FILE = "/tmp/render_checkpoint.json"
+
+
 def write_render_context(step, status, error=None, **extra):
     """Write/update /tmp/render_context_YYYYMMDD.json for watchdog consumption.
 
     Called after every pipeline step completes or fails. The watchdog reads this
     file to give Claude Code full context about what was being built when a crash
     occurred. See QWEN_CONTEXT_BIBLE.md Section 7.
+
+    P0 Fix 3: Also writes step-level checkpoint for resume-on-crash.
     """
     ctx_path = f"/tmp/render_context_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json"
     try:
@@ -77,6 +83,8 @@ def write_render_context(step, status, error=None, **extra):
     if status == "ok":
         if step not in ctx["steps_completed"]:
             ctx["steps_completed"].append(step)
+        # P0 Fix 3: checkpoint for resume
+        _write_checkpoint(step)
     else:
         ctx["steps_failed"].append({
             "step": step,
@@ -93,6 +101,42 @@ def write_render_context(step, status, error=None, **extra):
             json.dump(ctx, f, indent=2)
     except Exception as e:
         logger.warning(f"write_render_context failed: {e}")
+
+
+def _write_checkpoint(step):
+    """Write last completed step number to checkpoint file."""
+    try:
+        data = {
+            "last_completed_step": step,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        }
+        with open(CHECKPOINT_FILE, "w") as f:
+            json.dump(data, f)
+    except Exception:
+        pass
+
+
+def _read_checkpoint():
+    """Read checkpoint. Returns last_completed_step (int) or 0 if none/stale."""
+    try:
+        with open(CHECKPOINT_FILE) as f:
+            data = json.load(f)
+        # Only resume if checkpoint is from today
+        if data.get("date") != datetime.now(timezone.utc).strftime("%Y-%m-%d"):
+            return 0
+        return int(data.get("last_completed_step", 0))
+    except Exception:
+        return 0
+
+
+def _clear_checkpoint():
+    """Clear checkpoint after successful render."""
+    try:
+        if os.path.exists(CHECKPOINT_FILE):
+            os.remove(CHECKPOINT_FILE)
+    except OSError:
+        pass
 
 
 def get_btc_price() -> str:
@@ -230,6 +274,32 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     if fast_test:
         test_mode = True
         skip_scan = True
+
+    # P1 Fix 8: VRAM cleanup between renders
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+            logger.info("VRAM cleared")
+    except Exception:
+        pass
+
+    # P0 Fix 3: Check checkpoint for resume
+    resume_step = _read_checkpoint()
+    if resume_step >= 4:
+        logger.info(f"CHECKPOINT RESUME: last completed step={resume_step}, checking for resumable state")
+        # Verify clips still exist before resuming
+        today_dir = os.path.join(BASE, "output", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+        clips_dir = os.path.join(today_dir, "clips")
+        if os.path.exists(clips_dir) and os.listdir(clips_dir):
+            skip_scan = True
+            logger.info(f"  Clips exist at {clips_dir} — will resume from step {resume_step + 1}")
+        else:
+            logger.info("  No clips found — starting fresh")
+            resume_step = 0
+    else:
+        resume_step = 0
 
     # Wipe TTS cache before each run to prevent stale audio
     tts_cache = os.path.join(BASE, "tts_cache")
@@ -830,20 +900,26 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     write_render_context(12, "ok" if passed else "fail",
                          error="verify failed" if not passed else None)
 
-    # ── Step 12b: POST-RENDER QC ─────────────────────────────────────────
+    # ── Step 12b: POST-RENDER QC (blocking — P1 Fix 6) ─────────────────
     print("\n[STEP 12b] POST-RENDER QC...")
     t0 = time.time()
+    qc_passed = True
     try:
         from qc_pipeline import post_render_qc, save_qc_report
         manifest_json_path = os.path.join(run_dir, "episode_manifest.json")
         qc_report = post_render_qc(final_video, manifest_json_path)
         save_qc_report(qc_report, run_dir)
-        print(f"  QC: {'PASS' if qc_report.get('passed') else 'FAIL'}")
+        qc_passed = qc_report.get("passed", False)
+        print(f"  QC: {'PASS' if qc_passed else 'FAIL'}")
         for check, val in qc_report.get("checks", {}).items():
             status = "PASS" if val else ("FAIL" if val is not None else "SKIP")
             print(f"    [{status}] {check}")
+        if not qc_passed:
+            logger.error("Post-render QC FAILED — render is not broadcast-ready")
+            write_render_context("12b", "fail", error="Post-render QC failed")
     except Exception as e:
-        logger.warning(f"Post-render QC failed (non-blocking): {e}")
+        logger.warning(f"Post-render QC exception: {e}")
+        qc_passed = False
     timing["12b_qc"] = round(time.time() - t0, 2)
 
     # ── Summary ──────────────────────────────────────────────────────────
@@ -1084,7 +1160,10 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 f"Video: {final_video}",
             )
 
-    return passed and hc_passed
+    success = passed and hc_passed and qc_passed
+    if success:
+        _clear_checkpoint()  # P0 Fix 3: clear checkpoint on success
+    return success
 
 
 def _write_timing_report(run_dir: str, timing: dict, t_start: float, success: bool):
@@ -1122,8 +1201,19 @@ def main():
     parser.add_argument("--fast-test", action="store_true",
                         help="Fast test: no API calls (Claude/scan), hardcoded script, <3 min render")
     args = parser.parse_args()
+
+    # P0 Fix 1: flock process lock — prevent duplicate producers
+    lock_file = open("/tmp/daily_producer.lock", "w")
+    try:
+        fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        logger.error("Another daily_producer is already running. Exiting.")
+        sys.exit(1)
+
     success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
                            fast_test=args.fast_test)
+
+    fcntl.flock(lock_file, fcntl.LOCK_UN)
     # ── Post-render: fire tweet machine from morning brief ──────────────
     try:
         import subprocess as _sp

@@ -244,6 +244,32 @@ def score_clip(clip, daily_signals=None, channel_priorities=None, recent_channel
     if tier_mult is not None:
         final_score = min(100, round(final_score * tier_mult))
 
+    # ── 7. Discourse Multiplier (narrative_context.json priorities) ──
+    # Clips whose transcript matches priority keywords get boosted by what
+    # Bitcoin Twitter is actively discussing today.
+    priority_topics = narrative_context.get("clip_selection_priority", [])
+    if priority_topics:
+        for keyword in priority_topics:
+            kw_lower = keyword.lower()
+            if kw_lower in text:
+                final_score = min(100, round(final_score * 1.8))
+                logger.info(f"[ClipScorer] Discourse boost applied: {keyword} → "
+                            f"{clip.get('video_title', '?')[:50]} +1.8x")
+                break  # Apply highest boost once
+
+        # Channel-level trending topic match (weaker 1.4x)
+        if final_score == min(100, round(raw_score * 100 / 125)):
+            # No keyword boost was applied — check channel-level match
+            channel_lower = clip.get("channel", "").lower()
+            title_lower = clip.get("video_title", "").lower()
+            for keyword in priority_topics:
+                kw_lower = keyword.lower()
+                if kw_lower in channel_lower or kw_lower in title_lower:
+                    final_score = min(100, round(final_score * 1.4))
+                    logger.info(f"[ClipScorer] Discourse boost applied: {keyword} → "
+                                f"{clip.get('video_title', '?')[:50]} +1.4x (channel match)")
+                    break
+
     return final_score
 
 

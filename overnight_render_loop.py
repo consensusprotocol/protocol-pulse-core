@@ -499,42 +499,42 @@ Respond ONLY with raw JSON (no fences):
 
 
 def fire_cc_fix(iteration, grade_result):
+    """P0 Fix 2: No more CC self-healing from the render loop.
+    CLASS A/B: log failure details for Qwen watchdog to handle.
+    CLASS C: log + Telegram alert + stop iteration. Let the watchdog decide.
+    """
     failures = grade_result.get('critical_failures', [])
     dims = grade_result.get('dimensions', {})
     failing = [(k, v['score'], v.get('note','')) for k,v in dims.items()
                if isinstance(v.get('score'), int) and v['score'] < 7]
     failing.sort(key=lambda x: x[1])
-    prompt = f"""# PIPELINE FIX - ITERATION {iteration} - GRADE {grade_result.get('grade')} ({grade_result.get('overall_score')}/100)
-VERDICT: {grade_result.get('verdict','')}
-CRITICAL FAILURES: {chr(10).join(f'- {f}' for f in failures) or 'None'}
-FAILING DIMS (<7/10): {chr(10).join(f'- {k}: {s}/10 - {n[:80]}' for k,s,n in failing[:8]) or 'None'}
-FIX INSTRUCTIONS: {grade_result.get('targeted_fix_instructions','')}
+    grade = grade_result.get('grade', 'F')
+    score = grade_result.get('overall_score', 0)
+    verdict = grade_result.get('verdict', '')
 
-Read PIPELINE_LAWS.md first. Fix ONLY failing dimensions. Run regression_test.sh after every change.
-Commit: git add -A && git commit -m "fix(pipeline): iter{iteration}" && git push"""
+    # Write fix spec for the watchdog (Qwen) to pick up
     pf = os.path.join(PIPELINE, f'logs/cc_fix_iter{iteration}.md')
-    with open(pf, 'w') as f: f.write(prompt)
-    sn = f'fix_iter{iteration}'
-    subprocess.run(['tmux', 'kill-session', '-t', sn], capture_output=True, timeout=10)
-    r_tmux = subprocess.run(['tmux', 'new-session', '-d', '-s', sn], capture_output=True, timeout=10)
-    if r_tmux.returncode != 0:
-        log(f"WARNING: tmux failed to start session {sn}: {r_tmux.stderr.decode() if isinstance(r_tmux.stderr, bytes) else r_tmux.stderr}")
-        return
-    subprocess.run(f"tmux send-keys -t {sn} 'cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions' Enter", shell=True, timeout=10)
-    time.sleep(10)
-    subprocess.run(f"tmux send-keys -t {sn} \"$(cat {pf})\" Enter", shell=True, timeout=10)
-    log(f"CC session {sn} launched")
-    deadline = time.time() + 2700
-    while time.time() < deadline:
-        time.sleep(60)
-        r = subprocess.run(f'tmux has-session -t {sn} 2>/dev/null', shell=True)
-        if r.returncode != 0: log("CC session ended"); break
-        log(f"CC running... {int((deadline-time.time())/60)}min left")
-    # Kill orphaned tmux session on timeout (audit U2)
-    subprocess.run(['tmux', 'kill-session', '-t', sn], capture_output=True, timeout=10)
-    # Kill any orphaned child processes from the session (audit P2-X2)
-    subprocess.run(['pkill', '-f', f'fix_iter{iteration}'], capture_output=True, timeout=10)
-    log(f"CC session {sn} cleaned up")
+    spec = (
+        f"# PIPELINE FIX NEEDED - ITERATION {iteration} - GRADE {grade} ({score}/100)\n"
+        f"VERDICT: {verdict}\n"
+        f"CRITICAL FAILURES: {chr(10).join(f'- {f}' for f in failures) or 'None'}\n"
+        f"FAILING DIMS (<7/10): {chr(10).join(f'- {k}: {s}/10 - {n[:80]}' for k,s,n in failing[:8]) or 'None'}\n"
+        f"FIX INSTRUCTIONS: {grade_result.get('targeted_fix_instructions','')}\n"
+    )
+    with open(pf, 'w') as f:
+        f.write(spec)
+    log(f"Fix spec written to {pf} — watchdog will handle repair")
+
+    # Telegram alert so human/watchdog can decide
+    send_telegram_alert(
+        f"Pulse Check iter {iteration}: Grade {grade} ({score}/100)\n"
+        f"Verdict: {verdict}\n"
+        f"Failing: {', '.join(k for k,s,n in failing[:5])}\n"
+        f"Fix spec: {pf}\n"
+        f"Waiting for watchdog or manual fix."
+    )
+
+    # Brief pause before next iteration — no CC session spawn
     time.sleep(30)
 
 
@@ -543,16 +543,18 @@ def run_single_render():
     log("="*60)
     log(f"OVERNIGHT LOOP START | max {MAX_ITERATIONS} iters | max {MAX_HOURS}h")
     log("="*60)
-    start = time.time()
+    # P0 Fix 5: Resume from saved state if available
+    start_iter, start = _load_render_state()
     grade_result = {}
     final_verdict = "ERROR"
     _consecutive_no_output = 0  # audit P1-M3: track render-absent streaks
     _consecutive_grade_fail = 0  # audit P0-U2: track grade failure streaks
 
-    for iteration in range(1, MAX_ITERATIONS+1):
+    for iteration in range(start_iter, MAX_ITERATIONS+1):
         if (time.time()-start)/3600 >= MAX_HOURS:
             log(f"TIME LIMIT ({MAX_HOURS}h). Stopping."); break
         log(f"\n{'='*60}\nITERATION {iteration}/{MAX_ITERATIONS}\n{'='*60}")
+        _save_render_state(iteration, start)  # P0 Fix 5
         video, rlog = run_render(iteration)
         if not video:
             _consecutive_no_output += 1
@@ -706,6 +708,39 @@ def sleep_until_next_8am_et():
 
 
 PIDFILE = os.path.join(BASE, 'logs', 'render_loop.pid')
+RENDER_STATE_FILE = '/tmp/render_state.json'
+
+
+def _save_render_state(iteration, start_time):
+    """P0 Fix 5: Persist iteration + start_time across daemon restarts."""
+    try:
+        state = {
+            "iteration": iteration,
+            "start_time": start_time,
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+        }
+        with open(RENDER_STATE_FILE, 'w') as f:
+            json.dump(state, f)
+    except Exception as e:
+        log(f"WARNING: save_render_state failed: {e}")
+
+
+def _load_render_state():
+    """P0 Fix 5: Load saved state. Returns (iteration, start_time) or (1, now)."""
+    try:
+        with open(RENDER_STATE_FILE) as f:
+            state = json.load(f)
+        saved_start = state.get("start_time", 0)
+        saved_iter = state.get("iteration", 1)
+        age_hours = (time.time() - saved_start) / 3600
+        if age_hours < MAX_HOURS and saved_iter < MAX_ITERATIONS:
+            log(f"Resuming from saved state: iteration={saved_iter}, age={age_hours:.1f}h")
+            return saved_iter, saved_start
+        else:
+            log(f"Saved state too old ({age_hours:.1f}h) or exhausted (iter={saved_iter}) — starting fresh")
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        pass
+    return 1, time.time()
 
 
 def _acquire_singleton():

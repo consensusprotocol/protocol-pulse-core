@@ -370,15 +370,18 @@ def diagnose_and_patch(log_tail, crash_class, pattern):
 
     fname = Path(affected_file).name
 
-    # CLASS C — alert only
+    # Clear .pyc on any crash detection
+    clear_pyc()
+
+    # CLASS C — escalate to CC fix session
     if crash_class == "C":
-        logger.info("CLASS C crash in %s — alert only, no patching", fname)
+        logger.info("CLASS C crash in %s — escalating to CC fix session", fname)
         send_telegram(
             f"\U0001f534 <b>CLASS C CRASH</b> in <code>{fname}</code>\n"
             f"\U0001f4cb Pattern: {pattern}\n"
-            f"\u26a0\ufe0f Protected file — manual fix required\n"
-            f"\U0001f4c2 {affected_file}"
+            f"\u26a0\ufe0f Protected file — escalating to Claude Code"
         )
+        launch_cc_fix_session(crash_class, pattern, log_tail, affected_file)
         return
 
     # Check safety gates
@@ -455,13 +458,14 @@ def diagnose_and_patch(log_tail, crash_class, pattern):
 
     # Gate 1: confidence check
     if confidence < 0.8:
-        logger.info("Confidence %.2f < 0.8 — skipping auto-patch", confidence)
+        logger.info("Confidence %.2f < 0.8 — escalating to CC", confidence)
         send_telegram(
             f"\U0001f534 <b>CLASS {crash_class} CRASH</b> in <code>{fname}</code>\n"
             f"\U0001f4cb {diag_text[:200]}\n"
             f"\U0001f3af Confidence: {confidence:.0%} (below 80% threshold)\n"
-            f"\U0001f527 Manual fix recommended"
+            f"\U0001f527 Escalating to Claude Code..."
         )
+        launch_cc_fix_session(crash_class, pattern, log_tail, affected_file)
         return
 
     if not patch_diff.strip():
@@ -535,8 +539,10 @@ def diagnose_and_patch(log_tail, crash_class, pattern):
             f"\U0001f534 <b>PATCH REVERTED</b> for <code>{fname}</code>\n"
             f"\U0001f4cb {diag_text[:200]}\n"
             f"\U0001f9ea Regression: {fail_count} FAILs\n"
-            f"\u21a9\ufe0f File reverted to pre-patch state"
+            f"\u21a9\ufe0f Escalating to Claude Code..."
         )
+        # Qwen failed — escalate to CC
+        launch_cc_fix_session(crash_class, pattern, log_tail, affected_file)
         return
 
     # Success — commit + record
@@ -585,6 +591,160 @@ def diagnose_and_patch(log_tail, crash_class, pattern):
     )
 
 
+# ---------------------------------------------------------------------------
+# .pyc Cleanup
+# ---------------------------------------------------------------------------
+
+def clear_pyc():
+    """Delete all .pyc files and __pycache__ dirs — gospel law 10."""
+    subprocess.run(
+        ["find", str(BASE), "-name", "*.pyc", "-delete"],
+        capture_output=True, timeout=30,
+    )
+    subprocess.run(
+        ["find", str(BASE), "-name", "__pycache__", "-type", "d",
+         "-exec", "rm", "-rf", "{}", "+"],
+        capture_output=True, timeout=30,
+    )
+    logger.info("Cleared all .pyc files and __pycache__ dirs")
+
+
+# ---------------------------------------------------------------------------
+# CC Healing Loop — Autonomous Claude Code Repair
+# ---------------------------------------------------------------------------
+
+def launch_cc_fix_session(crash_class, pattern, log_tail, affected_file):
+    """Write spec and launch CC session to fix crash autonomously.
+
+    Triggers when Qwen's own patch fails or for Class C crashes.
+    Reads QWEN_CONTEXT_BIBLE.md + per-render context into the spec.
+    """
+    logger.info("Launching CC fix session for %s — %s", crash_class, pattern)
+
+    # 1. Load the context bible
+    bible_path = BASE / "docs" / "QWEN_CONTEXT_BIBLE.md"
+    bible = ""
+    if bible_path.exists():
+        try:
+            bible = bible_path.read_text()
+        except Exception as e:
+            logger.warning("Could not read QWEN_CONTEXT_BIBLE.md: %s", e)
+
+    # 2. Load per-render context file
+    ctx_file = Path(f"/tmp/render_context_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json")
+    render_ctx = ""
+    if ctx_file.exists():
+        try:
+            render_ctx = json.dumps(json.loads(ctx_file.read_text()), indent=2)
+        except Exception:
+            pass
+
+    # 3. Build targeted CC spec from crash context
+    spec_name = f"cc_watchdog_autofix_{int(time.time())}.md"
+    spec_path = BASE / "docs" / spec_name
+
+    crash_spec = f"""Read ~/protocol_pulse/PIPELINE_LAWS.md first.
+
+AUTONOMOUS WATCHDOG REPAIR — {pattern}
+Triggered by: {crash_class} crash detected at {datetime.now(timezone.utc).isoformat()}
+
+CRASH LOG (last 50 lines):
+{log_tail}
+
+AFFECTED FILE: {affected_file}
+
+TASK:
+1. Read {affected_file} in full
+2. Run cross_llm_audit.py --feature pipeline-day3-audit
+3. Find the exact root cause of: {pattern}
+4. Fix it. Only fix what the audit confirms broken.
+5. python3 -m py_compile {affected_file} — must pass
+6. bash ~/protocol_pulse/regression_test.sh — must show 0 FAILs
+7. git add {affected_file} && git commit -m "fix(watchdog-auto): {pattern}" && git push
+8. echo WATCHDOG_FIX_COMPLETE to signal completion
+"""
+
+    # Assemble full spec: bible + render context + crash spec
+    full_spec = bible
+    if render_ctx:
+        full_spec += "\n\nCURRENT RENDER CONTEXT:\n" + render_ctx
+    full_spec += "\n\n" + crash_spec
+
+    spec_path.write_text(full_spec)
+    logger.info("CC spec written to %s", spec_path)
+
+    # 4. Kill any existing watchdog-fix session
+    subprocess.run(["tmux", "kill-session", "-t", "watchdog_fix"], capture_output=True)
+    time.sleep(1)
+
+    # 5. Launch CC session with spec
+    subprocess.run(["tmux", "new-session", "-d", "-s", "watchdog_fix"], capture_output=True)
+    subprocess.run([
+        "tmux", "send-keys", "-t", "watchdog_fix",
+        f"cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions",
+        "Enter",
+    ], capture_output=True)
+    time.sleep(5)
+    subprocess.run([
+        "tmux", "send-keys", "-t", "watchdog_fix",
+        f"/read docs/{spec_name}",
+        "Enter",
+    ], capture_output=True)
+
+    # 6. Telegram alert
+    send_telegram(
+        "\U0001f527 <b>WATCHDOG AUTO-REPAIR LAUNCHED</b>\n"
+        f"Crash: <code>{pattern}</code>\n"
+        f"Class: {crash_class}\n"
+        f"File: <code>{Path(affected_file).name if affected_file else 'unknown'}</code>\n"
+        f"CC session: <code>watchdog_fix</code>\n"
+        f"Monitoring for up to 45 minutes..."
+    )
+
+    # 7. Monitor CC session for up to 45 minutes
+    deadline = time.time() + 2700  # 45 min
+    fix_detected = False
+    while time.time() < deadline:
+        time.sleep(60)
+        try:
+            pane = subprocess.run(
+                ["tmux", "capture-pane", "-t", "watchdog_fix", "-p"],
+                capture_output=True, text=True, timeout=10,
+            ).stdout
+            if "WATCHDOG_FIX_COMPLETE" in pane:
+                fix_detected = True
+                break
+            if "regression_test" in pane.lower() and "0 FAIL" in pane:
+                fix_detected = True
+                break
+        except Exception:
+            pass
+
+    # 8. Clear .pyc before restart
+    clear_pyc()
+
+    # 9. Restart render loop after fix
+    subprocess.run(["pkill", "-f", "overnight_render_loop"], capture_output=True)
+    subprocess.run(["pkill", "-f", "daily_producer"], capture_output=True)
+    time.sleep(3)
+
+    subprocess.run([
+        "tmux", "send-keys", "-t", "render_main",
+        "cd ~/protocol_pulse && git pull && python3 overnight_render_loop.py --daemon",
+        "Enter",
+    ], capture_output=True)
+
+    status = "FIX DETECTED" if fix_detected else "TIMEOUT (45min)"
+    send_telegram(
+        "\u2705 <b>WATCHDOG REPAIR COMPLETE</b>\n"
+        f"Status: {status}\n"
+        f"Crash: <code>{pattern}</code>\n"
+        f"Render loop restarted.\n"
+        f"Next grade in ~90 minutes."
+    )
+    logger.info("CC fix session complete — status: %s", status)
+
+
 # ===================================================================
 # LAYER 1 — REACTIVE CHECK (every 60s)
 # ===================================================================
@@ -612,26 +772,37 @@ def run_reactive_check():
         datetime.now(timezone.utc).isoformat()
     )
 
-    # Check render loop alive
+    # Check render loop alive — auto-restart during active hours (8am-11pm ET)
     loop_alive = process_alive("overnight_render_loop")
+    if not loop_alive:
+        # ET = UTC-4 (EDT) or UTC-5 (EST). Use UTC-4 for summer.
+        et_hour = (datetime.now(timezone.utc) - timedelta(hours=4)).hour
+        if 8 <= et_hour <= 23:
+            logger.warning("Render loop DEAD during active hours (ET %d:00) — auto-restarting", et_hour)
+            clear_pyc()
+            subprocess.run([
+                "tmux", "send-keys", "-t", "render_main",
+                "cd ~/protocol_pulse && git pull && python3 overnight_render_loop.py --daemon",
+                "Enter",
+            ], capture_output=True)
+            send_telegram(
+                "\u26a0\ufe0f <b>WATCHDOG AUTO-RESTART</b>\n"
+                f"Render loop was dead at ET {et_hour}:00\n"
+                "Auto-restarted in tmux <code>render_main</code>"
+            )
+        else:
+            logger.info("Render loop dead but outside active hours (ET %d:00) — skipping restart", et_hour)
 
     # Tail the log
     log_tail = tail_file(OVERNIGHT_LOG, 50)
     # CRITICAL FIX: also scan producer_debug.log — KeyErrors live there not in loop log
-    from pathlib import Path as _P
-    producer_log = _P("/tmp/producer_debug.log")
+    producer_log = Path("/tmp/producer_debug.log")
     if producer_log.exists():
         producer_tail = tail_file(producer_log, 30)
         if "KeyError" in producer_tail or "Traceback" in producer_tail:
             log_tail = log_tail + chr(10) + producer_tail
     if not log_tail.strip():
         logger.info("No log content to analyze")
-        if not loop_alive:
-            logger.warning("Render loop is NOT running and no log activity")
-            send_telegram(
-                "\u26a0\ufe0f <b>WATCHDOG</b>: Render loop appears dead — no log activity\n"
-                "Check manually: <code>pgrep -f overnight_render_loop</code>"
-            )
         return
 
     # Classify

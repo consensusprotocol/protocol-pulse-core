@@ -48,8 +48,8 @@ NOSTR_RELAYS: List[str] = [
 # ── LAW 3: Subscription filter ──────────────────────────────────────────────
 SUBSCRIPTION_FILTER: Dict = {
     "kinds": [1, 30023],
-    "#t": ["bitcoin", "btc", "lightning", "nostr", "sovereignty"],
-    "limit": 50,
+    "since": int(time.time()) - (48 * 3600),
+    "limit": 100,
 }
 
 # ── LAW 1: Scoring formula ───────────────────────────────────────────────────
