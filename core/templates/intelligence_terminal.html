@@ -228,6 +228,67 @@ body.intel-terminal .site-footer {
     content: "~";
 }
 
+/* ── CRITICAL FLASH ────────────────────────────────────────── */
+@keyframes criticalFlash {
+    0%, 100% { border-color: transparent; }
+    25%, 75% { border-color: var(--it-red); }
+}
+.it-flash-critical {
+    animation: criticalFlash 2s ease !important;
+    border: 2px solid transparent;
+}
+
+/* ── DRILL-DOWN OVERLAY ────────────────────────────────────── */
+.it-drilldown {
+    border-top: 1px solid var(--it-border);
+    padding-top: 8px;
+    margin-top: 8px;
+}
+
+/* ── KEYBOARD HELP OVERLAY ─────────────────────────────────── */
+.it-kb-overlay {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--it-surface);
+    border: 1px solid var(--it-border);
+    padding: 24px;
+    z-index: 200;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--it-text);
+    min-width: 280px;
+}
+.it-kb-overlay h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: var(--it-red);
+}
+.it-kb-overlay .kb-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--it-border);
+}
+.it-kb-overlay .kb-key {
+    background: var(--it-border);
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+    .it-grid, .it-grid-phase2 {
+        grid-template-columns: 1fr;
+    }
+    #network-svg { display: none; }
+    .it-header { flex-wrap: wrap; gap: 8px; }
+    .it-data-rail { flex-wrap: wrap; }
+    .it-panel { min-height: auto; }
+}
+
 /* ── ANOMALY BAR ────────────────────────────────────────────── */
 .it-anomaly-bar {
     width: 100%;
@@ -748,6 +809,136 @@ body.intel-terminal .site-footer {
 
     </div><!-- /it-grid-phase2 -->
 
+    <!-- PHASE 3 GRID -->
+    <div class="it-grid-phase2">
+
+        <!-- DARK POOL + WHALE COORDINATION (F-P2-6 + F-P3-1) -->
+        <div class="it-panel" data-shortcut="d">
+            <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Dark Pool / Whale Intel</div>
+            <div class="it-value-label">DARK POOL SIGNAL</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 8px">
+                <span class="it-value-primary" id="itDarkPoolSignal" style="font-size:20px;color:var(--it-green)">CLEAR</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Volume (4h)</span>
+                <span class="it-value-row-data" id="itDarkPoolVol">0 BTC</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Tx Count (4h)</span>
+                <span class="it-value-row-data" id="itDarkPoolTx">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Exchange Flow %</span>
+                <span class="it-value-row-data" id="itDarkPoolExchPct">0%</span>
+            </div>
+            <div style="margin-top:10px;border-top:1px solid var(--it-border);padding-top:8px">
+                <div class="it-value-label" style="margin-bottom:4px">WHALE COORDINATION</div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Signal</span>
+                    <span class="it-value-row-data" id="itWhaleCoordSignal" style="color:var(--it-green)">CLEAR</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Txs (90min)</span>
+                    <span class="it-value-row-data" id="itWhaleCoordCount">0</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Taint Linked</span>
+                    <span class="it-value-row-data" id="itWhaleCoordTaint" style="color:var(--it-green)">NO</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Total BTC</span>
+                    <span class="it-value-row-data" id="itWhaleCoordBtc">0</span>
+                </div>
+            </div>
+            <div class="it-drilldown" style="display:none">
+                <div class="it-value-label" style="margin-top:8px">TOP DARK POOL DESTINATIONS</div>
+                <div id="itDarkPoolDest" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--it-muted)">None</div>
+            </div>
+        </div>
+
+        <!-- MINER HEALTH (F-P2-7) -->
+        <div class="it-panel" data-shortcut="m">
+            <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Miner Health</div>
+            <div class="it-value-label">MINER HEALTH SCORE</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 4px">
+                <span class="it-value-primary" id="itMinerScore">100</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px" id="itMinerLabel">HEALTHY</span>
+            </div>
+            <div class="it-anomaly-bar">
+                <div class="it-anomaly-fill green" id="itMinerFill" style="width:100%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Hashrate Impact</span>
+                <span class="it-value-row-data" id="itMinerHashrate">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Difficulty Impact</span>
+                <span class="it-value-row-data" id="itMinerDifficulty">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Fee Pressure</span>
+                <span class="it-value-row-data" id="itMinerFees">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Block Time</span>
+                <span class="it-value-row-data" id="itMinerBlockTime">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Exchange Flow</span>
+                <span class="it-value-row-data" id="itMinerExchFlow">0</span>
+            </div>
+            <div class="it-value-row" id="itMiner90dRow" style="display:none">
+                <span class="it-value-row-label" style="color:var(--it-red)">90-DAY LOW</span>
+                <span class="it-value-row-data" style="color:var(--it-red)">YES</span>
+            </div>
+        </div>
+
+        <!-- PRIVACY TECH + DEFI BTC (F-P3-3 + F-P3-5) -->
+        <div class="it-panel" data-shortcut="p">
+            <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Privacy Tech / DeFi</div>
+            <div class="it-value-label">SOVEREIGNTY INDEX</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 4px">
+                <span class="it-value-primary" id="itSovIndex" style="font-size:24px">50</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--it-label)">/100</span>
+            </div>
+            <div class="it-anomaly-bar">
+                <div class="it-anomaly-fill green" id="itSovIndexFill" style="width:50%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Taproot Txs</span>
+                <span class="it-value-row-data" id="itTaprootPct">0%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Tor Nodes</span>
+                <span class="it-value-row-data" id="itTorPct">0%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Coinjoin</span>
+                <span class="it-value-row-data" id="itCoinjoinSignal">NORMAL</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Nostr (24h)</span>
+                <span class="it-value-row-data" id="itNostrEvents">0</span>
+            </div>
+            <div style="margin-top:10px;border-top:1px solid var(--it-border);padding-top:8px">
+                <div class="it-value-label" style="margin-bottom:4px">DEFI BTC COLLATERAL</div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Total in DeFi</span>
+                    <span class="it-value-row-data" id="itDefiBtcTotal">0 BTC</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">24h Delta</span>
+                    <span class="it-value-row-data" id="itDefiBtcDelta">0 BTC</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Signal</span>
+                    <span class="it-value-row-data" id="itDefiBtcSignal" style="color:var(--it-muted)">NEUTRAL</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /it-grid-phase3 -->
+
     <!-- DATA RAIL -->
     <div class="it-data-rail">
         <div class="it-rail-item">
@@ -782,6 +973,18 @@ body.intel-terminal .site-footer {
             <span class="it-rail-label">Sentinel</span>
             <span class="it-rail-value" id="itSentinelStatus" style="color:var(--it-green)">ACTIVE</span>
         </div>
+    </div>
+
+    <!-- KEYBOARD HELP OVERLAY -->
+    <div class="it-kb-overlay" id="itKbOverlay">
+        <h3>KEYBOARD SHORTCUTS</h3>
+        <div class="kb-row"><span class="kb-key">C</span><span>Convergence Matrix</span></div>
+        <div class="kb-row"><span class="kb-key">S</span><span>Sentinel Core</span></div>
+        <div class="kb-row"><span class="kb-key">M</span><span>Mempool Live</span></div>
+        <div class="kb-row"><span class="kb-key">D</span><span>Dark Pool / Whale</span></div>
+        <div class="kb-row"><span class="kb-key">P</span><span>Privacy Tech</span></div>
+        <div class="kb-row"><span class="kb-key">?</span><span>This help</span></div>
+        <div style="margin-top:12px;color:var(--it-muted);font-size:10px">Press any key to close</div>
     </div>
 
 </div><!-- /it-container -->
@@ -1057,6 +1260,24 @@ body.intel-terminal .site-footer {
 
         // Phase 2: Network State Graph (F5)
         if (state.network_graph) renderNetworkGraph(state.network_graph);
+
+        // Phase 2 F6: Dark Pool
+        if (state.dark_pool) updateDarkPool(state.dark_pool);
+
+        // Phase 2 F7: Miner Health
+        if (state.miner_health) updateMinerHealth(state.miner_health);
+
+        // Phase 3 F1: Whale Coordination
+        if (state.whale_coordination) updateWhaleCoordination(state.whale_coordination);
+
+        // Phase 3 F3: Privacy Tech
+        if (state.privacy_tech) updatePrivacyTech(state.privacy_tech);
+
+        // Phase 3 F5: DeFi BTC
+        if (state.defi_btc) updateDefiBtc(state.defi_btc);
+
+        // Phase 3 F2: Regulatory (in sovereign panel update)
+        if (state.regulatory) updateRegulatory(state.regulatory);
     }
 
     // ── Sentiment Pulse (F2) ────────────────────────────────────
@@ -1251,6 +1472,138 @@ body.intel-terminal .site-footer {
                 .attr('y', function(d) { return d.y - (d.size || 8) - 4; });
         });
     }
+
+    // ── Dark Pool (F-P2-6) ──────────────────────────────────────
+    function updateDarkPool(dp) {
+        if (!dp) return;
+        var sigEl = document.getElementById('itDarkPoolSignal');
+        var sigColors = {CLEAR:'var(--it-green)',WATCH:'var(--it-amber)',ACCUMULATION:'var(--it-red)'};
+        sigEl.textContent = dp.signal || 'CLEAR';
+        sigEl.style.color = sigColors[dp.signal] || 'var(--it-green)';
+        setVal('itDarkPoolVol', (dp.volume_4h_btc || 0) + ' BTC', dp.updated_at);
+        setVal('itDarkPoolTx', '' + (dp.tx_count_4h || 0), dp.updated_at);
+        setVal('itDarkPoolExchPct', (dp.exchange_pct || 0) + '%', dp.updated_at);
+        var destEl = document.getElementById('itDarkPoolDest');
+        if (destEl && dp.top_destinations && dp.top_destinations.length) {
+            destEl.textContent = dp.top_destinations.join(', ');
+        }
+    }
+
+    // ── Miner Health (F-P2-7) ─────────────────────────────────
+    function updateMinerHealth(mh) {
+        if (!mh) return;
+        var score = mh.score || 100;
+        setVal('itMinerScore', '' + score, mh.updated_at);
+        var labelEl = document.getElementById('itMinerLabel');
+        var labelColors = {HEALTHY:'var(--it-green)',STRESSED:'var(--it-amber)',CAPITULATION_WATCH:'var(--it-red)',CAPITULATION_CRITICAL:'var(--it-red)'};
+        labelEl.textContent = (mh.label || 'HEALTHY').replace(/_/g, ' ');
+        labelEl.style.color = labelColors[mh.label] || 'var(--it-green)';
+        var fill = document.getElementById('itMinerFill');
+        fill.style.width = score + '%';
+        fill.className = 'it-anomaly-fill ' + (score >= 60 ? 'green' : score >= 30 ? 'amber' : 'red');
+        var c = mh.components || {};
+        setVal('itMinerHashrate', (c.hashrate_decline ? c.hashrate_decline.penalty : 0), mh.updated_at);
+        setVal('itMinerDifficulty', (c.difficulty_adj ? c.difficulty_adj.penalty : 0), mh.updated_at);
+        setVal('itMinerFees', (c.fee_softness ? c.fee_softness.penalty : 0), mh.updated_at);
+        setVal('itMinerBlockTime', (c.block_time ? c.block_time.penalty : 0), mh.updated_at);
+        setVal('itMinerExchFlow', (c.miner_exchange_flow ? c.miner_exchange_flow.penalty : 0), mh.updated_at);
+        document.getElementById('itMiner90dRow').style.display = mh.is_90d_low ? 'flex' : 'none';
+    }
+
+    // ── Whale Coordination (F-P3-1) ──────────────────────────
+    function updateWhaleCoordination(wc) {
+        if (!wc) return;
+        var sigEl = document.getElementById('itWhaleCoordSignal');
+        var sigColors = {CLEAR:'var(--it-green)',NOTE:'var(--it-amber)',WATCH:'var(--it-red)'};
+        sigEl.textContent = wc.signal || 'CLEAR';
+        sigEl.style.color = sigColors[wc.signal] || 'var(--it-green)';
+        setVal('itWhaleCoordCount', '' + (wc.tx_count_90min || 0), wc.updated_at);
+        var taintEl = document.getElementById('itWhaleCoordTaint');
+        taintEl.textContent = wc.taint_linked ? 'YES' : 'NO';
+        taintEl.style.color = wc.taint_linked ? 'var(--it-red)' : 'var(--it-green)';
+        setVal('itWhaleCoordBtc', (wc.total_btc_90min || 0) + ' BTC', wc.updated_at);
+    }
+
+    // ── Privacy Tech (F-P3-3) ─────────────────────────────────
+    function updatePrivacyTech(pt) {
+        if (!pt) return;
+        var idx = pt.sovereignty_index || 50;
+        setVal('itSovIndex', '' + Math.round(idx), pt.updated_at);
+        var fill = document.getElementById('itSovIndexFill');
+        fill.style.width = idx + '%';
+        fill.className = 'it-anomaly-fill ' + (idx >= 60 ? 'green' : idx >= 30 ? 'amber' : 'red');
+        setVal('itTaprootPct', (pt.taproot_tx_pct || 0).toFixed(1) + '%', pt.updated_at);
+        setVal('itTorPct', (pt.tor_node_pct || 0).toFixed(1) + '%', pt.updated_at);
+        var cjEl = document.getElementById('itCoinjoinSignal');
+        var cjColors = {NORMAL:'var(--it-green)',ELEVATED:'var(--it-amber)',SPIKE:'var(--it-red)'};
+        cjEl.textContent = pt.coinjoin_signal || 'NORMAL';
+        cjEl.style.color = cjColors[pt.coinjoin_signal] || 'var(--it-green)';
+        setVal('itNostrEvents', fmtNum(pt.nostr_24h_events || 0), pt.updated_at);
+    }
+
+    // ── DeFi BTC (F-P3-5) ────────────────────────────────────
+    function updateDefiBtc(db) {
+        if (!db) return;
+        setVal('itDefiBtcTotal', fmtNum(Math.round(db.total_btc_in_defi || 0)) + ' BTC', db.updated_at);
+        var delta = db.delta_24h_btc || 0;
+        var deltaEl = document.getElementById('itDefiBtcDelta');
+        deltaEl.textContent = (delta >= 0 ? '+' : '') + Math.round(delta) + ' BTC';
+        deltaEl.style.color = delta > 0 ? 'var(--it-green)' : delta < 0 ? 'var(--it-red)' : 'var(--it-muted)';
+        var sigEl = document.getElementById('itDefiBtcSignal');
+        var sigColors = {ACCUMULATING:'var(--it-green)',NEUTRAL:'var(--it-muted)',DECLINING:'var(--it-red)'};
+        sigEl.textContent = db.signal || 'NEUTRAL';
+        sigEl.style.color = sigColors[db.signal] || 'var(--it-muted)';
+    }
+
+    // ── Regulatory Intelligence (F-P3-2) ──────────────────────
+    function updateRegulatory(reg) {
+        if (!reg) return;
+        // Update threat level indicator (add to sovereign panel if not present)
+        var cfEl = document.getElementById('itCapitalFlight');
+        if (reg.threat_level === 'HIGH') {
+            cfEl.textContent = 'REG THREAT: HIGH';
+            cfEl.style.color = 'var(--it-red)';
+        }
+    }
+
+    // ── Drill-down toggle ─────────────────────────────────────
+    function toggleDrilldown(headerEl) {
+        var panel = headerEl.closest('.it-panel');
+        var dd = panel.querySelector('.it-drilldown');
+        if (dd) {
+            dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    // ── Keyboard Shortcuts ────────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        var overlay = document.getElementById('itKbOverlay');
+        if (overlay.style.display === 'block') {
+            overlay.style.display = 'none';
+            return;
+        }
+        var panelMap = {
+            'c': 'Convergence Matrix',
+            's': 'Sentinel Core',
+            'm': 'Mempool Live',
+            'd': 'Dark Pool / Whale Intel',
+            'p': 'Privacy Tech / DeFi',
+        };
+        if (e.key === '?') {
+            overlay.style.display = 'block';
+            return;
+        }
+        var target = panelMap[e.key.toLowerCase()];
+        if (target) {
+            var headers = document.querySelectorAll('.it-panel-header');
+            headers.forEach(function(h) {
+                if (h.textContent.trim() === target) {
+                    h.closest('.it-panel').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            });
+        }
+    });
 
     // ── SSE Connection ─────────────────────────────────────────
     function connectSSE() {
