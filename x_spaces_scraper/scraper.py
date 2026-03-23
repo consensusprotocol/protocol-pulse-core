@@ -362,20 +362,31 @@ def _intercept_space_inner(space_id: str, title: str, participant_count: int,
         logger.warning(f"[SpaceTap] Audio too small or missing for {space_id}")
         return None
 
-    # ── Step C: Transcribe with faster-whisper ─────────────────────────────
-    try:
-        model = _get_whisper_model()
-        segments_iter, _info = model.transcribe(str(raw_path), language="en")
-        segments = []
-        for seg in segments_iter:
-            segments.append({
-                "start": round(seg.start, 2),
-                "end": round(seg.end, 2),
-                "text": seg.text.strip(),
-            })
-    except Exception as e:
-        logger.error(f"[SpaceTap] Whisper transcription failed for {space_id}: {e}")
+    import threading as _th
+    _segs_out = []
+    _exc_box = [None]
+    def _transcribe_worker():
+        try:
+            m = _get_whisper_model()
+            for s in m.transcribe(str(raw_path), language="en")[0]:
+                _segs_out.append({"start": round(s.start,2), "end": round(s.end,2), "text": s.text.strip()})
+        except Exception as e:
+            _exc_box[0] = e
+    _tt = _th.Thread(target=_transcribe_worker, daemon=True)
+    _tt.start(); _tt.join(timeout=90)
+    if _tt.is_alive():
+        logger.warning(f"[SpaceTap] Whisper timed out (90s) — skipping {space_id}")
         return None
+    if _exc_box[0]:
+        logger.error(f"[SpaceTap] Whisper failed for {space_id}: {_exc_box[0]}")
+        return None
+    segments = _segs_out
+    if False:
+        pass
+    try:
+        model = None
+        segments_iter = []
+        for seg in []:
 
     total_words = sum(len(s["text"].split()) for s in segments)
     if not segments or total_words < 30:
