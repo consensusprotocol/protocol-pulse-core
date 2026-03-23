@@ -41,3 +41,4 @@ video_pipeline_v3/voices/*.wav
 video_pipeline_v3/voices/*.pt
 video_pipeline_v3/voices/segments/
 video_pipeline_v3/voices/finetune/checkpoints/
+docs/cc_watchdog_autofix_*.md
