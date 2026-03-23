@@ -552,6 +552,40 @@ padding:16px 32px;cursor:pointer;text-transform:uppercase;
 min-height:56px;width:100%;max-width:320px;">
     ✓ GOT IT — COVER NOW
   </button>
+  <div id="vision-recovery-panel" style="display:none;width:100%;
+max-width:340px;margin-top:24px;">
+    <div style="font-family:monospace;font-size:11px;letter-spacing:.12em;
+color:rgba(255,255,255,.5);margin-bottom:12px;text-transform:uppercase;">
+YOUR FUNDS MAY BE AT RISK — ACT NOW</div>
+    <div id="vision-recovery-step-label" style="font-family:monospace;
+font-size:11px;color:rgba(255,200,0,.8);letter-spacing:.1em;
+margin-bottom:8px;text-transform:uppercase;">STEP 1 OF 3</div>
+    <div id="vision-recovery-step-text" style="font-size:1rem;
+font-weight:600;color:#fff;line-height:1.6;margin-bottom:24px;"></div>
+    <button id="vision-recovery-next"
+      style="background:rgba(255,255,255,.15);color:#fff;
+font-family:monospace;font-weight:700;font-size:13px;
+letter-spacing:.08em;border:2px solid rgba(255,255,255,.3);
+border-radius:8px;padding:14px 24px;cursor:pointer;
+text-transform:uppercase;min-height:52px;width:100%;">
+      NEXT STEP →
+    </button>
+    <button id="vision-recovery-help"
+      style="display:none;background:#fff;color:#b40000;
+font-family:monospace;font-weight:800;font-size:13px;
+letter-spacing:.08em;border:none;border-radius:8px;
+padding:14px 24px;cursor:pointer;text-transform:uppercase;
+min-height:52px;width:100%;margin-top:8px;">
+      HELP ME SET UP NEW WALLET
+    </button>
+    <button id="vision-recovery-close"
+      style="display:none;background:none;color:rgba(255,255,255,.4);
+font-family:monospace;font-size:11px;letter-spacing:.08em;
+border:none;padding:12px;cursor:pointer;text-transform:uppercase;
+width:100%;margin-top:4px;">
+      I UNDERSTAND THE RISK — CLOSE
+    </button>
+  </div>
 </div>
 <div id="mobile-nav-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:rgba(4,5,10,.95);padding:10px 16px;border-bottom:1px solid rgba(255,59,95,.15);align-items:center;gap:12px;">
   <button onclick="window.history.back()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);padding:6px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.08em;">&larr; BACK</button>
@@ -1231,32 +1265,98 @@ function handleVisionUpload(evt){
   reader.readAsDataURL(file);
 }
 
+var SEED_RECOVERY_STEPS = [
+  {
+    label: 'STEP 1 OF 3 — STOP IMMEDIATELY',
+    text: 'Do NOT send any Bitcoin from this wallet until you have moved your funds. Anyone who saw this seed phrase can access your Bitcoin right now.',
+    speak: 'Stop. Do not send any Bitcoin from this wallet. Anyone who saw this seed phrase can steal your funds right now.'
+  },
+  {
+    label: 'STEP 2 OF 3 — MOVE YOUR FUNDS',
+    text: 'On a different device, create a brand new wallet. Generate a NEW seed phrase — write it down on paper only, never photograph it. Transfer ALL funds to the new wallet address immediately.',
+    speak: 'On a different device, create a new wallet with a new seed phrase. Write it on paper only. Transfer all your funds to the new wallet immediately.'
+  },
+  {
+    label: 'STEP 3 OF 3 — SECURE THE NEW WALLET',
+    text: 'Once funds are transferred, the old wallet is abandoned. Store your new seed phrase in a metal backup, split across two secure locations. Never store seed phrases digitally.',
+    speak: 'Once funds are moved, abandon the old wallet. Store your new seed phrase in metal, split across two secure locations. Never store seed phrases digitally.'
+  }
+];
+
 function showSecurityAlert(msg, onDismiss) {
   var overlay = document.getElementById('vision-security-overlay');
   var msgEl = document.getElementById('vision-security-msg');
-  var btn = document.getElementById('vision-security-dismiss');
+  var dismissBtn = document.getElementById('vision-security-dismiss');
+  var recoveryPanel = document.getElementById('vision-recovery-panel');
   if (!overlay || !msgEl) return;
+
   msgEl.textContent = msg;
   overlay.style.display = 'flex';
-  // Speak the alert urgently via TTS
-  fetchTO(A+'/oracle/voice', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({text: 'SECURITY ALERT. ' + msg})
-  }, 20000).then(function(r) {
-    if (!r.ok) return;
-    return r.blob();
-  }).then(function(blob) {
-    if (!blob) return;
-    var alertAudio = new Audio(URL.createObjectURL(blob));
-    alertAudio.volume = 1.0;
-    alertAudio.play().catch(function(){});
-  }).catch(function(){});
-  // Dismiss handler
-  btn.onclick = function() {
-    overlay.style.display = 'none';
-    btn.onclick = null;
-    if (onDismiss) onDismiss();
+
+  // Speak the initial alert urgently
+  function speakText(text) {
+    fetchTO(A+'/oracle/voice', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text})
+    }, 20000).then(function(r) {
+      if (!r.ok) return;
+      return r.blob();
+    }).then(function(blob) {
+      if (!blob) return;
+      var alertAudio = new Audio(URL.createObjectURL(blob));
+      alertAudio.volume = 1.0;
+      alertAudio.play().catch(function(){});
+    }).catch(function(){});
+  }
+
+  speakText('SECURITY ALERT. ' + msg +
+    ' Your seed phrase may be compromised. Do not send Bitcoin until you hear the recovery steps.');
+
+  // Dismiss transitions to recovery steps
+  dismissBtn.onclick = function() {
+    dismissBtn.style.display = 'none';
+    msgEl.style.fontSize = '0.9rem';
+    msgEl.style.opacity = '0.7';
+    recoveryPanel.style.display = 'block';
+    _showRecoveryStep(0, speakText);
+  };
+}
+
+function _showRecoveryStep(idx, speakFn) {
+  var steps = SEED_RECOVERY_STEPS;
+  var stepLabel = document.getElementById('vision-recovery-step-label');
+  var stepText = document.getElementById('vision-recovery-step-text');
+  var nextBtn = document.getElementById('vision-recovery-next');
+  var helpBtn = document.getElementById('vision-recovery-help');
+  var closeBtn = document.getElementById('vision-recovery-close');
+
+  if (!stepLabel || !stepText) return;
+
+  stepLabel.textContent = steps[idx].label;
+  stepText.textContent = steps[idx].text;
+  speakFn(steps[idx].speak);
+
+  var isLast = (idx === steps.length - 1);
+  nextBtn.style.display = isLast ? 'none' : 'block';
+  helpBtn.style.display = isLast ? 'block' : 'none';
+  closeBtn.style.display = isLast ? 'block' : 'none';
+
+  nextBtn.onclick = function() {
+    if (idx < steps.length - 1) _showRecoveryStep(idx + 1, speakFn);
+  };
+
+  helpBtn.onclick = function() {
+    // Close overlay and trigger Oracle to help set up new wallet
+    var overlay = document.getElementById('vision-security-overlay');
+    if (overlay) overlay.style.display = 'none';
+    // Inject a vision guidance request for new wallet setup
+    sendVisionImage(null, null, 'help me set up a new hardware wallet safely');
+  };
+
+  closeBtn.onclick = function() {
+    var overlay = document.getElementById('vision-security-overlay');
+    if (overlay) overlay.style.display = 'none';
   };
 }
 
@@ -1324,7 +1424,26 @@ function _speakVisionGuidance(d) {
   });
 }
 
-function sendVisionImage(b64, mimeType){
+function sendVisionImage(b64, mimeType, textOverride){
+  // Text-only mode: no image, just a guided question
+  if (!b64 && textOverride) {
+    setBusy(true);
+    showVisionStatus('Preparing guidance...');
+    _speakVisionGuidance({
+      guidance_text: 'I can guide you through setting up a new hardware wallet securely. First, choose a wallet: Coldcard for maximum security, Trezor for ease of use, or SeedSigner for open-source air-gapped signing. Which would you like help with?',
+      device_name: 'new_wallet_setup',
+      steps: [
+        'Choose your hardware wallet: Coldcard, Trezor, or SeedSigner',
+        'Purchase only from official manufacturer websites — never third party',
+        'On first boot, generate a new seed phrase on the device itself',
+        'Write seed phrase on paper only — never photograph or type it',
+        'Test recovery before sending any funds'
+      ]
+    });
+    setBusy(false);
+    return;
+  }
+
   setBusy(true);
   showVisionStatus("Analyzing your screen...");
 
@@ -1345,12 +1464,9 @@ function sendVisionImage(b64, mimeType){
   .then(function(d){
     _visionSessionId = d.session_id || _visionSessionId;
 
-    // Security alert takes absolute priority
+    // Security alert takes absolute priority — recovery flow keeps overlay open
     if (d.security_alert) {
-      showSecurityAlert(d.security_alert, function() {
-        // After user dismisses, speak the normal guidance
-        _speakVisionGuidance(d);
-      });
+      showSecurityAlert(d.security_alert);
       return;
     }
     _speakVisionGuidance(d);
