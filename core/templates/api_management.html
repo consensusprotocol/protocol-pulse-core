@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}API Keys | Protocol Pulse Intelligence{% endblock %}
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body { background: #0A0A0F; color: #E8E8E8; font-family: 'Inter', sans-serif; }
+body nav, body .navbar, body footer, body .site-footer { display: none !important; }
+.api-container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+.api-header { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #FF0000; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+.api-section { background: #0F0F18; border: 1px solid #1A1A2E; padding: 20px; margin-bottom: 16px; }
+.api-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.api-key-display { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #00FF88; background: #0A0A0F; padding: 12px; border: 1px solid #1A1A2E; word-break: break-all; }
+.api-btn { background: #FF0000; border: none; color: #fff; padding: 8px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+.api-btn:hover { background: #CC0000; }
+.api-endpoint { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #E8E8E8; padding: 4px 0; border-bottom: 1px solid rgba(26,26,46,0.5); }
+.api-method { color: #00FF88; }
+.back-link { color: #FF0000; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="api-container">
+    <a href="/intelligence" class="back-link">&larr; BACK TO TERMINAL</a>
+    <h1 class="api-header">API Key Management</h1>
+
+    <div class="api-section">
+        <div class="api-label">Your API Key</div>
+        <div class="api-key-display" id="apiKeyDisplay">Click "Generate" to create a key</div>
+        <div style="margin-top:12px">
+            <button class="api-btn" onclick="generateKey()">Generate New Key</button>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <div class="api-label">Available Endpoints</div>
+        <div id="endpointList" style="margin-top:8px">Loading...</div>
+    </div>
+
+    <div class="api-section">
+        <div class="api-label">Usage</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-top:4px">
+            curl -H "Authorization: Bearer YOUR_KEY" https://protocolpulse.io/api/v1/state
+        </div>
+    </div>
+</div>
+<script>
+async function generateKey() {
+    const resp = await fetch('/api/v1/keys/generate', {method: 'POST'});
+    const data = await resp.json();
+    if (data.api_key) {
+        document.getElementById('apiKeyDisplay').textContent = data.api_key;
+    } else {
+        document.getElementById('apiKeyDisplay').textContent = 'Error: ' + (data.error || 'Unknown');
+    }
+}
+async function loadEndpoints() {
+    const resp = await fetch('/api/v1/docs');
+    const data = await resp.json();
+    const list = document.getElementById('endpointList');
+    list.innerHTML = (data.endpoints || []).map(e =>
+        `<div class="api-endpoint"><span class="api-method">${e.method}</span> ${e.path} — ${e.description}</div>`
+    ).join('');
+}
+loadEndpoints();
+</script>
+{% endblock %}

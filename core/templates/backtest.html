@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Backtesting | Protocol Pulse Intelligence{% endblock %}
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body { background: #0A0A0F; color: #E8E8E8; font-family: 'Inter', sans-serif; }
+body nav, body .navbar, body footer, body .site-footer { display: none !important; }
+.bt-container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+.bt-header { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #FF0000; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+.bt-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.bt-card { background: #0F0F18; border: 1px solid #1A1A2E; padding: 16px; text-align: center; }
+.bt-card-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; text-transform: uppercase; }
+.bt-card-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; margin: 4px 0; }
+table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+th { text-align: left; padding: 8px; color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1A1A2E; cursor: pointer; }
+th:hover { color: #E8E8E8; }
+td { padding: 8px; border-bottom: 1px solid rgba(26,26,46,0.5); }
+.positive { color: #00FF88; }
+.negative { color: #FF0000; }
+.back-link { color: #FF0000; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="bt-container">
+    <a href="/intelligence" class="back-link">&larr; BACK TO TERMINAL</a>
+    <h1 class="bt-header">Alert Backtesting</h1>
+
+    <div class="bt-summary">
+        <div class="bt-card">
+            <div class="bt-card-label">Total CRITICAL+WATCH</div>
+            <div class="bt-card-value" id="btTotal" style="color:#FFB800">0</div>
+        </div>
+        <div class="bt-card">
+            <div class="bt-card-label">With Price Data</div>
+            <div class="bt-card-value" id="btWithPrice" style="color:#00FF88">0</div>
+        </div>
+        <div class="bt-card">
+            <div class="bt-card-label">Avg +24h %</div>
+            <div class="bt-card-value" id="btAvg24h" style="color:#E8E8E8">--%</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th onclick="sortBy('created_at')">Date</th>
+                <th onclick="sortBy('tier')">Tier</th>
+                <th onclick="sortBy('rule')">Rule</th>
+                <th>Price @ Alert</th>
+                <th>+24h %</th>
+                <th>+7d %</th>
+                <th>Outcome</th>
+            </tr>
+        </thead>
+        <tbody id="btBody">
+            <tr><td colspan="7" style="color:#444">Loading backtest data...</td></tr>
+        </tbody>
+    </table>
+</div>
+<script>
+let btAlerts = [];
+let sortField = 'created_at';
+let sortDir = -1;
+
+async function loadBacktest() {
+    try {
+        const resp = await fetch('/api/intelligence/backtest');
+        const data = await resp.json();
+        btAlerts = data.alerts || [];
+        renderBacktest();
+    } catch(e) { console.error(e); }
+}
+
+function renderBacktest() {
+    document.getElementById('btTotal').textContent = btAlerts.length;
+    const withPrice = btAlerts.filter(a => a.price_at_alert);
+    document.getElementById('btWithPrice').textContent = withPrice.length;
+
+    if (withPrice.length > 0) {
+        const avg24h = withPrice.reduce((s, a) => {
+            const pct = a.price_24h_later && a.price_at_alert ? ((a.price_24h_later - a.price_at_alert) / a.price_at_alert * 100) : 0;
+            return s + pct;
+        }, 0) / withPrice.length;
+        document.getElementById('btAvg24h').textContent = avg24h.toFixed(2) + '%';
+        document.getElementById('btAvg24h').style.color = avg24h >= 0 ? '#00FF88' : '#FF0000';
+    }
+
+    const sorted = [...btAlerts].sort((a, b) => {
+        const va = a[sortField] || '';
+        const vb = b[sortField] || '';
+        return va < vb ? sortDir : va > vb ? -sortDir : 0;
+    });
+
+    const tbody = document.getElementById('btBody');
+    if (!sorted.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color:#444">No alerts yet. Alerts will appear here as they age past 24h.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = sorted.map(a => {
+        const date = a.created_at ? new Date(a.created_at * 1000).toLocaleDateString('en-US') : '--';
+        const price = a.price_at_alert ? '$' + Math.round(a.price_at_alert).toLocaleString() : '--';
+        const pct24h = a.price_24h_later && a.price_at_alert
+            ? ((a.price_24h_later - a.price_at_alert) / a.price_at_alert * 100).toFixed(2) + '%' : '--';
+        const pct7d = a.price_7d_later && a.price_at_alert
+            ? ((a.price_7d_later - a.price_at_alert) / a.price_at_alert * 100).toFixed(2) + '%' : '--';
+        const tierClass = a.tier === 'CRITICAL' ? 'negative' : '';
+        return `<tr>
+            <td>${date}</td>
+            <td class="${tierClass}">${a.tier}</td>
+            <td>${a.rule||''}</td>
+            <td>${price}</td>
+            <td class="${pct24h.startsWith('-') ? 'negative' : 'positive'}">${pct24h}</td>
+            <td class="${pct7d.startsWith('-') ? 'negative' : 'positive'}">${pct7d}</td>
+            <td>${a.outcome||'pending'}</td>
+        </tr>`;
+    }).join('');
+}
+
+function sortBy(field) {
+    if (sortField === field) sortDir *= -1;
+    else { sortField = field; sortDir = -1; }
+    renderBacktest();
+}
+
+loadBacktest();
+</script>
+{% endblock %}

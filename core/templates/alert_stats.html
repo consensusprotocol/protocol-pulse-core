@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Alert Stats | Protocol Pulse Intelligence{% endblock %}
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body { background: #0A0A0F; color: #E8E8E8; font-family: 'Inter', sans-serif; }
+body nav, body .navbar, body footer, body .site-footer { display: none !important; }
+.as-container { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+.as-header { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #FF0000; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+.as-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.as-card { background: #0F0F18; border: 1px solid #1A1A2E; padding: 20px; text-align: center; }
+.as-card-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.as-card-value { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700; margin: 8px 0; }
+.back-link { color: #FF0000; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="as-container">
+    <a href="/intelligence/alerts" class="back-link">&larr; BACK TO ALERT HISTORY</a>
+    <h1 class="as-header">Alert Analytics</h1>
+    <div class="as-grid">
+        <div class="as-card">
+            <div class="as-card-label">CRITICAL Precision</div>
+            <div class="as-card-value" id="critPrecision" style="color:#FF0000">--%</div>
+        </div>
+        <div class="as-card">
+            <div class="as-card-label">WATCH Precision</div>
+            <div class="as-card-value" id="watchPrecision" style="color:#FFB800">--%</div>
+        </div>
+        <div class="as-card">
+            <div class="as-card-label">Total Rated</div>
+            <div class="as-card-value" id="totalRated" style="color:#00FF88">0</div>
+        </div>
+    </div>
+    <div id="statsDetail" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888">Loading...</div>
+</div>
+<script>
+async function loadStats() {
+    try {
+        const resp = await fetch('/api/intelligence/alerts/precision');
+        const data = await resp.json();
+        const p = data.precision || {};
+        const crit = p.CRITICAL || {precision_pct: 0, total_rated: 0};
+        const watch = p.WATCH || {precision_pct: 0, total_rated: 0};
+        document.getElementById('critPrecision').textContent = crit.precision_pct + '%';
+        document.getElementById('watchPrecision').textContent = watch.precision_pct + '%';
+        document.getElementById('totalRated').textContent = crit.total_rated + watch.total_rated;
+        document.getElementById('statsDetail').textContent =
+            'CRITICAL: ' + crit.correct + ' correct, ' + crit.false_positive + ' false positive | ' +
+            'WATCH: ' + (watch.correct||0) + ' correct, ' + (watch.false_positive||0) + ' false positive';
+    } catch(e) { document.getElementById('statsDetail').textContent = 'Failed to load stats'; }
+}
+loadStats();
+</script>
+{% endblock %}

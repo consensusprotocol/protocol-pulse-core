@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Alert History | Protocol Pulse Intelligence{% endblock %}
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body { background: #0A0A0F; color: #E8E8E8; font-family: 'Inter', sans-serif; }
+body nav, body .navbar, body footer, body .site-footer { display: none !important; }
+.ah-container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+.ah-header { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #FF0000; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+.ah-filters { display: flex; gap: 8px; margin-bottom: 16px; }
+.ah-filter-btn { background: #0F0F18; border: 1px solid #1A1A2E; color: #888; padding: 6px 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-transform: uppercase; }
+.ah-filter-btn.active { color: #E8E8E8; border-color: #FF0000; }
+.ah-precision { background: #0F0F18; border: 1px solid #1A1A2E; padding: 16px; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.ah-precision-label { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.ah-precision-value { font-size: 24px; font-weight: 700; color: #00FF88; }
+table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+th { text-align: left; padding: 8px; color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1A1A2E; }
+td { padding: 8px; border-bottom: 1px solid rgba(26,26,46,0.5); }
+.tier-critical { color: #FF0000; font-weight: 700; }
+.tier-watch { color: #FFB800; }
+.tier-note { color: #444; }
+.vote-btn { background: none; border: 1px solid #1A1A2E; color: #888; padding: 2px 8px; font-size: 10px; cursor: pointer; font-family: 'JetBrains Mono', monospace; }
+.vote-btn:hover { border-color: #00FF88; color: #00FF88; }
+.vote-btn.voted { border-color: #00FF88; color: #00FF88; }
+.back-link { color: #FF0000; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="ah-container">
+    <a href="/intelligence" class="back-link">&larr; BACK TO TERMINAL</a>
+    <h1 class="ah-header">Alert History</h1>
+
+    <div class="ah-precision" id="precisionBox">
+        <div class="ah-precision-label">PCAF PRECISION SCORE</div>
+        <div class="ah-precision-value" id="precisionValue">--</div>
+        <div style="color:#888;font-size:10px;margin-top:4px" id="precisionDetail">Loading...</div>
+    </div>
+
+    <div class="ah-filters">
+        <button class="ah-filter-btn active" onclick="filterAlerts('all', this)">ALL</button>
+        <button class="ah-filter-btn" onclick="filterAlerts('CRITICAL', this)">CRITICAL</button>
+        <button class="ah-filter-btn" onclick="filterAlerts('WATCH', this)">WATCH</button>
+        <button class="ah-filter-btn" onclick="filterAlerts('NOTE', this)">NOTE</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr><th>Time</th><th>Tier</th><th>Rule</th><th>Message</th><th>Score</th><th>Rate</th></tr>
+        </thead>
+        <tbody id="alertTableBody">
+            <tr><td colspan="6" style="color:#444">Loading alerts...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+let allAlerts = [];
+let currentFilter = 'all';
+
+async function loadAlerts() {
+    try {
+        const resp = await fetch('/api/intelligence/alerts?limit=100');
+        const data = await resp.json();
+        allAlerts = data.alerts || [];
+        renderAlerts();
+    } catch(e) { console.error('Failed to load alerts:', e); }
+}
+
+async function loadPrecision() {
+    try {
+        const resp = await fetch('/api/intelligence/alerts/precision');
+        const data = await resp.json();
+        const p = data.precision || {};
+        let totalCorrect = 0, totalFP = 0;
+        Object.values(p).forEach(v => { totalCorrect += v.correct; totalFP += v.false_positive; });
+        const total = totalCorrect + totalFP;
+        const pct = total > 0 ? Math.round(totalCorrect / total * 100) : '--';
+        document.getElementById('precisionValue').textContent = pct + '%';
+        document.getElementById('precisionDetail').textContent = totalCorrect + ' correct / ' + total + ' rated';
+    } catch(e) {}
+}
+
+function renderAlerts() {
+    const tbody = document.getElementById('alertTableBody');
+    const filtered = currentFilter === 'all' ? allAlerts : allAlerts.filter(a => a.tier === currentFilter);
+    if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#444">No alerts</td></tr>';
+        return;
+    }
+    tbody.innerHTML = filtered.map(a => {
+        const time = new Date(a.created_at * 1000).toLocaleString('en-US', {hour12:false});
+        const tierClass = 'tier-' + (a.tier || '').toLowerCase();
+        const voteHtml = (a.tier === 'CRITICAL' || a.tier === 'WATCH')
+            ? `<button class="vote-btn ${a.user_vote === 'correct' ? 'voted' : ''}" onclick="vote(${a.id},'correct')">&#x1F44D;</button>
+               <button class="vote-btn ${a.user_vote === 'false_positive' ? 'voted' : ''}" onclick="vote(${a.id},'false_positive')">&#x1F44E;</button>`
+            : '';
+        return `<tr><td>${time}</td><td class="${tierClass}">${a.tier}</td><td>${a.rule||''}</td><td>${(a.message||'').substring(0,80)}</td><td>${a.score||0}</td><td>${voteHtml}</td></tr>`;
+    }).join('');
+}
+
+function filterAlerts(tier, btn) {
+    currentFilter = tier;
+    document.querySelectorAll('.ah-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAlerts();
+}
+
+async function vote(id, value) {
+    await fetch(`/api/intelligence/alerts/${id}/vote`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({vote: value})
+    });
+    loadAlerts();
+    loadPrecision();
+}
+
+loadAlerts();
+loadPrecision();
+</script>
+{% endblock %}
