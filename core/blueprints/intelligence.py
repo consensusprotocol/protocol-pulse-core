@@ -21,8 +21,8 @@ import time
 import uuid
 from pathlib import Path
 
-from flask import Blueprint, Response, jsonify, render_template, request, stream_with_context
-from flask_login import current_user
+from flask import Blueprint, Response, jsonify, render_template, request, session, stream_with_context
+from flask_login import current_user, login_user
 
 logger = logging.getLogger(__name__)
 
@@ -64,18 +64,81 @@ def _has_access() -> bool:
 
 # ── Page routes ──────────────────────────────────────────────────────────────
 
+@intelligence_bp.route("/join")
+def join_page():
+    """Pricing / signup page — war room aesthetic."""
+    return render_template("join.html")
+
+
+@intelligence_bp.route("/api/join/register", methods=["POST"])
+def join_register():
+    """Register + redirect to Stripe checkout in one step."""
+    try:
+        import models
+        from app import db as _db
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Import error: {e}"}), 500
+
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password", "")
+
+    if not email or not password:
+        return jsonify({"success": False, "error": "Email and password required"}), 400
+    if len(password) < 8:
+        return jsonify({"success": False, "error": "Password must be at least 8 characters"}), 400
+
+    # Check existing user
+    existing = models.User.query.filter_by(email=email).first()
+    if existing:
+        return jsonify({"success": False, "error": "Account already exists. Please log in."}), 409
+
+    # Create user
+    try:
+        user = models.User(email=email, username=email.split("@")[0])
+        user.set_password(password)
+        user.subscription_tier = "free"
+        _db.session.add(user)
+        _db.session.commit()
+        login_user(user)
+    except Exception as e:
+        _db.session.rollback()
+        return jsonify({"success": False, "error": f"Registration failed: {e}"}), 500
+
+    # Create Stripe checkout session
+    try:
+        from services.monetization_service import monetization_service
+        result = monetization_service.create_checkout_session(
+            tier="commander",
+            user_email=email,
+            success_url=request.host_url.rstrip("/") + "/intelligence?activated=1",
+            cancel_url=request.host_url.rstrip("/") + "/join",
+        )
+        if result.get("checkout_url"):
+            return jsonify({"success": True, "checkout_url": result["checkout_url"]})
+    except Exception as e:
+        logger.warning("Stripe checkout creation failed: %s — continuing without payment", e)
+
+    # Stripe not configured — let them in for demo
+    return jsonify({"success": True, "checkout_url": None})
+
+
 @intelligence_bp.route("/intelligence")
 def intelligence_terminal():
-    """Full Intelligence Terminal — Commander+ only."""
+    """Full Intelligence Terminal — Commander+ only, demo mode for guests."""
+    just_upgraded = session.pop("just_upgraded", False)
+    activated = request.args.get("activated") == "1"
+    show_welcome = just_upgraded or activated
+
     if not _is_commander():
-        return render_template("intelligence_terminal.html", demo_mode=True)
-    return render_template("intelligence_terminal.html", demo_mode=False)
+        return render_template("intelligence_terminal.html", demo_mode=True, show_welcome=False)
+    return render_template("intelligence_terminal.html", demo_mode=False, show_welcome=show_welcome)
 
 
 @intelligence_bp.route("/intelligence/demo")
 def intelligence_demo():
     """Demo view — always watermarked."""
-    return render_template("intelligence_terminal.html", demo_mode=True)
+    return render_template("intelligence_terminal.html", demo_mode=True, show_welcome=False)
 
 
 # ── API routes ───────────────────────────────────────────────────────────────
@@ -618,3 +681,13 @@ def api_backtest():
         return jsonify({"alerts": results})
     except Exception as e:
         return jsonify({"alerts": [], "note": f"Backtest columns not yet populated: {e}"})
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Landing Page — /intelligence-terminal (public, no auth)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@intelligence_bp.route("/intelligence-terminal")
+def intelligence_landing():
+    """Public landing page for Intelligence Terminal product."""
+    return render_template("intelligence_landing.html")

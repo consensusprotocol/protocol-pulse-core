@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+
+{% block title %}Join the Terminal | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   /join — War Room Pricing Page
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+    --join-bg: #0A0A0F;
+    --join-surface: #0D0D16;
+    --join-surface-el: #12121F;
+    --join-border: #1A1A2E;
+    --join-text: #E2E2EF;
+    --join-muted: #8888AA;
+    --join-red: #FF0033;
+    --join-green: #00FF88;
+    --join-gold: #F0B90B;
+    --join-cyan: #00D4FF;
+}
+
+body { background: var(--join-bg) !important; }
+
+.join-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    color: var(--join-text);
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── HERO ── */
+.join-hero {
+    text-align: center;
+    padding: 60px 0 40px;
+}
+.join-hero h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin: 0 0 16px;
+    line-height: 1.2;
+}
+.join-hero h1 span { color: var(--join-red); }
+.join-hero .join-sub {
+    font-size: 17px;
+    color: var(--join-muted);
+    max-width: 600px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+}
+
+/* ── LIVE SIGNAL STRIP ── */
+.join-signals {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 16px 24px;
+    background: var(--join-surface);
+    border: 1px solid var(--join-border);
+    border-radius: 4px;
+    margin: 0 auto 48px;
+    max-width: 560px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+}
+.join-signal-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.join-signal-label {
+    font-size: 10px;
+    color: var(--join-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.join-signal-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+.join-signal-value.green { color: var(--join-green); }
+.join-signal-value.red { color: var(--join-red); }
+.join-signal-value.gold { color: var(--join-gold); }
+
+/* ── PRICING CARD ── */
+.join-card {
+    background: var(--join-surface);
+    border: 1px solid var(--join-border);
+    border-radius: 4px;
+    padding: 40px;
+    max-width: 480px;
+    margin: 0 auto 48px;
+    text-align: center;
+    position: relative;
+}
+.join-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--join-red);
+}
+.join-card-tier {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--join-red);
+    margin-bottom: 8px;
+}
+.join-card-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    margin: 8px 0;
+}
+.join-card-price span {
+    font-size: 18px;
+    color: var(--join-muted);
+    font-weight: 400;
+}
+.join-card-desc {
+    color: var(--join-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* ── FEATURES ── */
+.join-features {
+    text-align: left;
+    margin: 0 0 32px;
+    padding: 0;
+    list-style: none;
+}
+.join-features li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--join-border);
+    font-size: 14px;
+    color: var(--join-text);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.join-features li::before {
+    content: '›';
+    color: var(--join-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* ── CTA BUTTON ── */
+.join-cta {
+    display: inline-block;
+    width: 100%;
+    padding: 14px 32px;
+    background: var(--join-red);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.join-cta:hover { background: #cc0029; }
+
+/* ── SOCIAL PROOF ── */
+.join-proof {
+    text-align: center;
+    padding: 32px 0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.join-proof-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--join-muted);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+.join-proof-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--join-muted);
+}
+.join-proof-stat span {
+    color: var(--join-cyan);
+    font-weight: 700;
+}
+
+/* ── DEMO LINK ── */
+.join-demo-link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--join-muted);
+}
+.join-demo-link a {
+    color: var(--join-cyan);
+    text-decoration: none;
+}
+.join-demo-link a:hover { text-decoration: underline; }
+
+/* ── SIGNUP MODAL ── */
+.signup-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.signup-modal-overlay.active { display: flex; }
+.signup-modal {
+    background: var(--join-surface);
+    border: 1px solid var(--join-border);
+    border-radius: 4px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+.signup-modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--join-red);
+}
+.signup-modal h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 8px;
+}
+.signup-modal .modal-sub {
+    color: var(--join-muted);
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+.signup-modal label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--join-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.signup-modal input {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--join-bg);
+    border: 1px solid var(--join-border);
+    border-radius: 2px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+.signup-modal input:focus {
+    outline: none;
+    border-color: var(--join-red);
+}
+.signup-modal .signup-submit {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: var(--join-red);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+.signup-modal .signup-submit:hover { background: #cc0029; }
+.signup-modal .signup-submit:disabled { background: #333; cursor: wait; }
+.signup-modal .modal-error {
+    color: var(--join-red);
+    font-size: 12px;
+    margin-top: 8px;
+    display: none;
+}
+.signup-modal .modal-close {
+    position: absolute;
+    top: 12px; right: 16px;
+    background: none;
+    border: none;
+    color: var(--join-muted);
+    font-size: 20px;
+    cursor: pointer;
+}
+.signup-modal .modal-login-link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--join-muted);
+}
+.signup-modal .modal-login-link a {
+    color: var(--join-cyan);
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .join-hero h1 { font-size: 22px; }
+    .join-signals { flex-direction: column; gap: 16px; }
+    .join-card { padding: 24px; }
+    .join-card-price { font-size: 36px; }
+    .join-proof-stats { flex-direction: column; gap: 8px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="join-page">
+    <!-- HERO -->
+    <div class="join-hero">
+        <h1>Your node verifies blocks.<br><span>Your terminal should verify everything else.</span></h1>
+        <p class="join-sub">
+            Real-time chain intelligence. GNN anomaly detection. Monte Carlo scenario modeling.
+            No noise. No delay. No middlemen.
+        </p>
+    </div>
+
+    <!-- LIVE SIGNAL STRIP -->
+    <div class="join-signals">
+        <div class="join-signal-item">
+            <span class="join-signal-label">BTC/USD</span>
+            <span class="join-signal-value" id="joinPrice">--</span>
+        </div>
+        <div class="join-signal-item">
+            <span class="join-signal-label">Fear &amp; Greed</span>
+            <span class="join-signal-value" id="joinFNG">--</span>
+        </div>
+        <div class="join-signal-item">
+            <span class="join-signal-label">Block Height</span>
+            <span class="join-signal-value gold" id="joinBlock">--</span>
+        </div>
+    </div>
+
+    <!-- PRICING CARD -->
+    <div class="join-card">
+        <div class="join-card-tier">Commander</div>
+        <div class="join-card-price">$49<span>/mo</span></div>
+        <div class="join-card-desc">Full terminal access. Cancel anytime. No lock-in.</div>
+
+        <ul class="join-features">
+            <li>PCAF v1 anomaly detection — graph neural network watching every block, every mempool shift, every whale move</li>
+            <li>5-scenario Monte Carlo engine — not predictions, probability distributions with contradiction detection built in</li>
+            <li>Convergence matrix — 8 independent data feeds, pattern matching across macro + on-chain + derivatives + stablecoin flows</li>
+        </ul>
+
+        <button class="join-cta" id="joinCTA">Access the Terminal</button>
+
+        <div class="join-demo-link">
+            or <a href="/intelligence">see the terminal in demo mode</a>
+        </div>
+    </div>
+
+    <!-- SOCIAL PROOF -->
+    <div class="join-proof">
+        <div class="join-proof-line">BUILT ON ULTRON — SOVEREIGN INFRASTRUCTURE</div>
+        <div class="join-proof-stats">
+            <div class="join-proof-stat"><span>4×</span> RTX 4090</div>
+            <div class="join-proof-stat"><span>Real-time</span> GNN inference</div>
+            <div class="join-proof-stat"><span>8</span> live data feeds</div>
+        </div>
+        <div class="join-proof-stats" style="margin-top:12px">
+            <div class="join-proof-stat"><span>60s</span> sentinel cycle</div>
+            <div class="join-proof-stat"><span>0</span> third-party dependencies</div>
+            <div class="join-proof-stat"><span>Self-hosted</span> on bare metal</div>
+        </div>
+    </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="signup-modal-overlay" id="signupOverlay">
+    <div class="signup-modal">
+        <button class="modal-close" id="modalClose">&times;</button>
+        <h2>Create Account</h2>
+        <p class="modal-sub">3 fields. No KYC. Straight to the terminal.</p>
+        <form id="signupForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+            <label for="signupEmail">Email</label>
+            <input type="email" id="signupEmail" name="email" required autocomplete="email" placeholder="satoshi@protonmail.com">
+
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••">
+
+            <label for="signupConfirm">Confirm Password</label>
+            <input type="password" id="signupConfirm" name="confirm_password" required autocomplete="new-password" minlength="8" placeholder="••••••••">
+
+            <button type="submit" class="signup-submit" id="signupSubmit">Create Account &amp; Subscribe</button>
+            <div class="modal-error" id="signupError"></div>
+        </form>
+        <div class="modal-login-link">Already have an account? <a href="/login">Log in</a></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // ── Live signals ──
+    function fetchSignals() {
+        fetch('/api/intelligence/state/public')
+            .then(r => r.json())
+            .then(d => {
+                const priceEl = document.getElementById('joinPrice');
+                const fngEl = document.getElementById('joinFNG');
+                const blockEl = document.getElementById('joinBlock');
+                if (d.price && d.price.usd) {
+                    priceEl.textContent = '$' + Number(d.price.usd).toLocaleString();
+                    priceEl.className = 'join-signal-value ' + (d.price.change_24h >= 0 ? 'green' : 'red');
+                }
+                if (d.fng && d.fng.value) {
+                    fngEl.textContent = d.fng.value + ' ' + (d.fng.label || '');
+                    const v = d.fng.value;
+                    fngEl.className = 'join-signal-value ' + (v >= 60 ? 'green' : v <= 40 ? 'red' : 'gold');
+                }
+                if (d.block_height) blockEl.textContent = Number(d.block_height).toLocaleString();
+            })
+            .catch(() => {});
+    }
+    fetchSignals();
+    setInterval(fetchSignals, 30000);
+
+    // ── Modal ──
+    const overlay = document.getElementById('signupOverlay');
+    const cta = document.getElementById('joinCTA');
+    const closeBtn = document.getElementById('modalClose');
+    const form = document.getElementById('signupForm');
+    const errorEl = document.getElementById('signupError');
+    const submitBtn = document.getElementById('signupSubmit');
+
+    cta.addEventListener('click', () => overlay.classList.add('active'));
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.classList.remove('active'); });
+
+    // Expose globally so other pages can trigger it
+    window.openSignupModal = function() { overlay.classList.add('active'); };
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        errorEl.style.display = 'none';
+        const email = document.getElementById('signupEmail').value.trim();
+        const pw = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+
+        if (pw !== confirm) {
+            errorEl.textContent = 'Passwords do not match';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (pw.length < 8) {
+            errorEl.textContent = 'Password must be at least 8 characters';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account...';
+
+        fetch('/api/join/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: pw })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.checkout_url) {
+                window.location.href = data.checkout_url;
+            } else if (data.success && !data.checkout_url) {
+                // Stripe not configured — simulate
+                window.location.href = '/intelligence?activated=1';
+            } else {
+                errorEl.textContent = data.error || 'Registration failed';
+                errorEl.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account & Subscribe';
+            }
+        })
+        .catch(() => {
+            errorEl.textContent = 'Network error — try again';
+            errorEl.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Account & Subscribe';
+        });
+    });
+})();
+</script>
+{% endblock %}

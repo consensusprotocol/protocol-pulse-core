@@ -5544,6 +5544,91 @@ def tip_checkout(amount):
         flash('Unable to process tip. Please try again.')
         return redirect(request.referrer or url_for('donate'))
 
+def _schedule_welcome_emails(email: str, tier: str):
+    """Schedule 3-email post-payment welcome sequence via background threads."""
+    import threading
+
+    resend_key = os.environ.get("RESEND_API_KEY", "")
+    if not resend_key:
+        logging.warning("RESEND_API_KEY not set — skipping welcome email sequence for %s", email)
+        return
+
+    def _send_email(subject: str, html_body: str):
+        try:
+            import requests as _req
+            _req.post("https://api.resend.com/emails", json={
+                "from": "Protocol Pulse <terminal@protocolpulse.io>",
+                "to": [email],
+                "subject": subject,
+                "html": html_body,
+            }, headers={"Authorization": f"Bearer {resend_key}"}, timeout=15)
+            logging.info("Welcome email sent to %s: %s", email, subject)
+        except Exception as e:
+            logging.error("Failed to send welcome email to %s: %s", email, e)
+
+    # Email 1 — Immediate
+    def send_email_1():
+        _send_email(
+            "Terminal access granted — here's what you're seeing",
+            "<div style='font-family:monospace;color:#E2E2EF;background:#0A0A0F;padding:32px;'>"
+            "<h1 style='color:#FF0033;font-size:16px;letter-spacing:2px;'>TERMINAL ACCESS GRANTED</h1>"
+            "<p>Commander,</p>"
+            "<p>Your Intelligence Terminal is live. Right now, PCAF is scanning every block for anomalies. "
+            "The Convergence Matrix is correlating 8 independent data feeds. The Monte Carlo engine is "
+            "running probability distributions across 5 scenarios.</p>"
+            "<p>This isn't a dashboard. It's a war room.</p>"
+            "<p style='margin-top:24px;'><a href='https://protocolpulse.io/intelligence' "
+            "style='color:#00D4FF;'>Enter the Terminal →</a></p>"
+            "<p style='color:#555;font-size:12px;margin-top:32px;'>Protocol Pulse · Sovereign Infrastructure</p>"
+            "</div>"
+        )
+
+    # Email 2 — 72h later
+    def send_email_2():
+        import time as _time
+        _time.sleep(259200)  # 72 hours
+        _send_email(
+            "PCAF is watching — your first anomaly patterns",
+            "<div style='font-family:monospace;color:#E2E2EF;background:#0A0A0F;padding:32px;'>"
+            "<h1 style='color:#FFAA00;font-size:16px;letter-spacing:2px;'>PCAF ACTIVE</h1>"
+            "<p>Commander,</p>"
+            "<p>PCAF v1 uses a Graph Neural Network autoencoder to detect anomalies in Bitcoin's chain state. "
+            "When the anomaly score crosses 0.7, it means the GNN reconstruction error is elevated — "
+            "something in the mempool, hashrate, or fee structure doesn't fit the pattern.</p>"
+            "<p>Most alerts are noise. The ones that aren't tend to precede significant moves by 12-48 hours.</p>"
+            "<p>Check your alert history and start voting on accuracy — it calibrates the model.</p>"
+            "<p style='margin-top:24px;'><a href='https://protocolpulse.io/intelligence/alerts' "
+            "style='color:#00D4FF;'>View Alert History →</a></p>"
+            "<p style='color:#555;font-size:12px;margin-top:32px;'>Protocol Pulse · Sovereign Infrastructure</p>"
+            "</div>"
+        )
+
+    # Email 3 — 7 days later
+    def send_email_3():
+        import time as _time
+        _time.sleep(604800)  # 7 days
+        _send_email(
+            "The scenario that's forming right now",
+            "<div style='font-family:monospace;color:#E2E2EF;background:#0A0A0F;padding:32px;'>"
+            "<h1 style='color:#00FF88;font-size:16px;letter-spacing:2px;'>SCENARIO UPDATE</h1>"
+            "<p>Commander,</p>"
+            "<p>The Monte Carlo engine has been running for a week now. Five scenarios are being tracked, "
+            "each with probability distributions updated every 6 hours based on 28 precursor signals.</p>"
+            "<p>The engine doesn't predict. It maps probability space — and when probabilities shift, "
+            "the contradiction detector flags conflicting signals before you act on incomplete data.</p>"
+            "<p>Check which scenario has the highest probability right now.</p>"
+            "<p style='margin-top:24px;'><a href='https://protocolpulse.io/intelligence/scenarios' "
+            "style='color:#00D4FF;'>View Scenarios →</a></p>"
+            "<p style='color:#555;font-size:12px;margin-top:32px;'>Protocol Pulse · Sovereign Infrastructure</p>"
+            "</div>"
+        )
+
+    threading.Thread(target=send_email_1, daemon=True).start()
+    threading.Thread(target=send_email_2, daemon=True).start()
+    threading.Thread(target=send_email_3, daemon=True).start()
+    logging.info("Welcome email sequence scheduled for %s (%s tier)", email, tier)
+
+
 @app.route('/webhook/stripe', methods=['POST'])
 def stripe_webhook():
     """Handle Stripe webhook events including merch orders"""
@@ -5596,6 +5681,8 @@ def stripe_webhook():
                             try:
                                 db.session.commit()
                                 logging.info(f"Subscription tier set: {email} -> {tier}")
+                                # Post-payment welcome email sequence
+                                _schedule_welcome_emails(email, tier)
                             except Exception as e:
                                 db.session.rollback()
                                 logging.error(f"Error setting subscription tier: {e}")
