@@ -960,6 +960,7 @@ body { background: var(--s-bg); }
   var AVATAR_BASE = 'https://avatar.protocolpulse.io';
   var busy = false;
   var objURL = null;
+  var _isMobileBrowser = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   var vid = document.getElementById('avatarVid');
   var briefBtn = document.getElementById('briefBtn');
   var statusEl = document.getElementById('stageStatus');
@@ -1256,6 +1257,43 @@ body { background: var(--s-bg); }
     }
   }
 
+  function playAudioOnly(audioUrl) {
+    return new Promise(function(resolve) {
+      var audio;
+      if (window._stageAudioUnlocked) {
+        audio = window._stageAudioUnlocked;
+        window._stageAudioUnlocked = null;
+        audio.src = audioUrl;
+        audio.volume = 1.0;
+        audio.muted = false;
+      } else {
+        audio = new Audio(audioUrl);
+        audio.volume = 1.0;
+      }
+      setStatus('Broadcasting…', 'var(--s-green)');
+      audio.onended = function() {
+        URL.revokeObjectURL(audioUrl);
+        setStatus('Ready', 'rgba(255,255,255,.3)');
+        setBusy(false);
+        // Re-unlock for next segment
+        window._stageAudioUnlocked = new Audio();
+        window._stageAudioUnlocked.volume = 0.001;
+        window._stageAudioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+        window._stageAudioUnlocked.play().catch(function(){});
+        resolve();
+      };
+      audio.onerror = function() {
+        setBusy(false);
+        resolve();
+      };
+      audio.play().catch(function(e) {
+        console.warn('[Stage mobile] audio.play() rejected:', e.name);
+        setBusy(false);
+        resolve();
+      });
+    });
+  }
+
   function playVid(url){
     return new Promise(function(resolve){
       revokeObjURL();
@@ -1393,6 +1431,24 @@ body { background: var(--s-bg); }
       var blob = await resp.blob();
       var url = URL.createObjectURL(blob);
 
+      if (_isMobileBrowser) {
+        try {
+          var audioResp = await fetchTO(AVATAR_BASE + '/oracle/voice', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: cleanScript(item.script)})
+          }, 35000);
+          if (audioResp.ok) {
+            var audioBlob = await audioResp.blob();
+            var audioUrl = URL.createObjectURL(audioBlob);
+            URL.revokeObjectURL(url);
+            await playAudioOnly(audioUrl);
+            if (!_broadcastPaused) await consumeAndPlay(item.id);
+            return;
+          }
+        } catch(e) { console.warn('[Stage mobile] audio fallback failed'); }
+      }
+
       // Start pre-rendering next segment while current plays
       preRenderNext(item.id);
 
@@ -1496,6 +1552,11 @@ body { background: var(--s-bg); }
       window._audioUnlocked.volume = 0.001;
       window._audioUnlocked.play().catch(function(){});
     } catch(e) {}
+    /* Pre-unlock a second Audio element for stage mobile audio-only mode */
+    window._stageAudioUnlocked = new Audio();
+    window._stageAudioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+    window._stageAudioUnlocked.volume = 0.001;
+    window._stageAudioUnlocked.play().catch(function(){});
     // Pre-unlock video element for future muted→unmuted autoplay
     try {
       var vidEl = document.getElementById('avatarVid');
@@ -1656,9 +1717,42 @@ body { background: var(--s-bg); }
       if (ct.indexOf('video') >= 0) {
         var blob = await resp.blob();
         var url = URL.createObjectURL(blob);
-        await playVid(url);
+        if (_isMobileBrowser) {
+          try {
+            var voiceResp = await fetchTO(AVATAR_BASE + '/oracle/voice', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({text: 'Response received.'})
+            }, 35000);
+            if (voiceResp.ok) {
+              var vBlob = await voiceResp.blob();
+              var vUrl = URL.createObjectURL(vBlob);
+              URL.revokeObjectURL(url);
+              await playAudioOnly(vUrl);
+            } else { await playVid(url); }
+          } catch(e) { await playVid(url); }
+        } else {
+          await playVid(url);
+        }
       } else {
         var j = await resp.json();
+        if (_isMobileBrowser && j.text) {
+          try {
+            var voiceResp2 = await fetchTO(AVATAR_BASE + '/oracle/voice', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({text: j.text})
+            }, 35000);
+            if (voiceResp2.ok) {
+              var vBlob2 = await voiceResp2.blob();
+              var vUrl2 = URL.createObjectURL(vBlob2);
+              await playAudioOnly(vUrl2);
+              setBusy(false);
+              _showResumeCountdown();
+              return;
+            }
+          } catch(e) { console.warn('[Stage interrupt mobile] voice failed'); }
+        }
         if (j.job_id) {
           // Poll for video
           var polls = 0;
@@ -1948,6 +2042,22 @@ body { background: var(--s-bg); }
               if (!speakResp.ok) { await sleep(3000); continue; }
               var blob = await speakResp.blob();
               var url = URL.createObjectURL(blob);
+              if (_isMobileBrowser) {
+                try {
+                  var audioResp2 = await fetchTO(AVATAR_BASE + '/oracle/voice', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: script})
+                  }, 35000);
+                  if (audioResp2.ok) {
+                    var audioBlob2 = await audioResp2.blob();
+                    var audioUrl2 = URL.createObjectURL(audioBlob2);
+                    URL.revokeObjectURL(url);
+                    await playAudioOnly(audioUrl2);
+                    continue;
+                  }
+                } catch(e2) { console.warn('[Stage mobile] audio fetch failed, falling back to video'); }
+              }
               await playVid(url);
               try { URL.revokeObjectURL(url); } catch(e) {}
               continue;

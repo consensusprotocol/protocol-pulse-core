@@ -589,7 +589,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
 
   <div class="video-wrap" style="position:relative;z-index:1;">
-    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;z-index:2;"></video>
+    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:2;"></video>
   </div>
 
   <div id="subtitle"></div>
@@ -1073,16 +1073,28 @@ function playVid(url){
   return new Promise(function(res){
     vid.loop=false;
     vid.src=url;
+    vid.style.opacity='1';
     setStat('Speaking','#6cff9f',false);
+    var _safetyTimer = setTimeout(function(){
+      if(busy){
+        console.warn('[Oracle] Safety timeout — forcing mic unlock after 60s');
+        setBusy(false);
+        mic.disabled = false;
+      }
+    }, 60000);
     try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
+      clearTimeout(_safetyTimer);
       vid.src='';
+      vid.style.opacity='0';
       setStat('Ready','#334',false);hideSub();
       setBusy(false);mic.disabled=false;
       res();
       try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
     };
     vid.onerror=function(){
+      clearTimeout(_safetyTimer);
+      vid.style.opacity='0';
       setBusy(false);mic.disabled=false;
       setStat('Video error','#ff3b5f',false);res();
     };
