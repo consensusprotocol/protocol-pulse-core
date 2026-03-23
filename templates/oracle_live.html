@@ -536,6 +536,23 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 </style>
 </head>
 <body>
+<div id="vision-security-overlay" style="display:none;position:fixed;inset:0;
+z-index:99999;background:rgba(180,0,0,0.97);flex-direction:column;
+align-items:center;justify-content:center;padding:32px;text-align:center;">
+  <div style="font-size:64px;margin-bottom:16px;">⚠️</div>
+  <div style="font-family:monospace;font-size:13px;letter-spacing:.12em;
+color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;">
+SECURITY ALERT</div>
+  <div id="vision-security-msg" style="font-size:1.2rem;font-weight:700;
+color:#fff;margin-bottom:32px;line-height:1.5;max-width:340px;"></div>
+  <button id="vision-security-dismiss"
+    style="background:#fff;color:#b40000;font-family:monospace;font-weight:800;
+font-size:14px;letter-spacing:.1em;border:none;border-radius:8px;
+padding:16px 32px;cursor:pointer;text-transform:uppercase;
+min-height:56px;width:100%;max-width:320px;">
+    ✓ GOT IT — COVER NOW
+  </button>
+</div>
 <div id="mobile-nav-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:rgba(4,5,10,.95);padding:10px 16px;border-bottom:1px solid rgba(255,59,95,.15);align-items:center;gap:12px;">
   <button onclick="window.history.back()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);padding:6px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.08em;">&larr; BACK</button>
   <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,59,95,.8);letter-spacing:.15em;">ORACLE &mdash; PROTOCOL PULSE</span>
@@ -1183,6 +1200,96 @@ function handleVisionUpload(evt){
   reader.readAsDataURL(file);
 }
 
+function showSecurityAlert(msg, onDismiss) {
+  var overlay = document.getElementById('vision-security-overlay');
+  var msgEl = document.getElementById('vision-security-msg');
+  var btn = document.getElementById('vision-security-dismiss');
+  if (!overlay || !msgEl) return;
+  msgEl.textContent = msg;
+  overlay.style.display = 'flex';
+  // Speak the alert urgently via TTS
+  fetchTO(A+'/oracle/voice', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({text: 'SECURITY ALERT. ' + msg})
+  }, 20000).then(function(r) {
+    if (!r.ok) return;
+    return r.blob();
+  }).then(function(blob) {
+    if (!blob) return;
+    var alertAudio = new Audio(URL.createObjectURL(blob));
+    alertAudio.volume = 1.0;
+    alertAudio.play().catch(function(){});
+  }).catch(function(){});
+  // Dismiss handler
+  btn.onclick = function() {
+    overlay.style.display = 'none';
+    btn.onclick = null;
+    if (onDismiss) onDismiss();
+  };
+}
+
+function _speakVisionGuidance(d) {
+  var raw = d.guidance_text || d.guidance || d.analysis || d.response
+    || "I can see your hardware. Let me walk you through the next step.";
+  // Hard 30-word cap for TTS speed
+  var words = raw.split(/\s+/);
+  var guideText = words.length > 30 ? words.slice(0,30).join(" ") : raw;
+
+  showVisionStatus("Speaking...");
+  showSub(guideText);
+
+  // Show steps in vision-status area if present
+  if(d.steps && d.steps.length){
+    var stepsHtml = d.steps.map(function(s,i){ return (i+1)+". "+s; }).join("<br>");
+    var el=document.getElementById("vision-status");
+    el.innerHTML = (d.device_name && d.device_name!=="unknown" ? "<b>"+d.device_name+"</b><br>" : "") + stepsHtml;
+    el.classList.add("on");
+  }
+
+  // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
+  fetchTO(A+"/oracle/voice",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text:guideText})},15000)
+  .then(function(ar){
+    if(!ar.ok) throw new Error("voice "+ar.status);
+    return ar.blob();
+  })
+  .then(function(audioBlob){
+    hideVisionStatus();
+    var audioURL = URL.createObjectURL(audioBlob);
+    var audio;
+    if(window._audioUnlocked){
+      audio=window._audioUnlocked;
+      window._audioUnlocked=null;
+      audio.src=audioURL;
+      audio.volume=1.0;
+      audio.muted=false;
+    } else {
+      audio = new Audio(audioURL);
+      audio.volume = 1.0;
+    }
+    return new Promise(function(res){
+      audio.onended = function(){
+        URL.revokeObjectURL(audioURL);
+        setStat("Ready","#334",false);
+        hideSub();
+        res();
+      };
+      audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
+      var vp = audio.play();
+      if(vp !== undefined){
+        vp.then(function(){ setStat("Speaking","#6cff9f",false); }).catch(function(){ res(); });
+      }
+    });
+  })
+  .catch(function(){
+    showVisionStatus("Ready");
+    setBusy(false);
+    mic.disabled = false;
+  });
+}
+
 function sendVisionImage(b64, mimeType){
   setBusy(true);
   showVisionStatus("Analyzing your screen...");
@@ -1203,63 +1310,16 @@ function sendVisionImage(b64, mimeType){
   })
   .then(function(d){
     _visionSessionId = d.session_id || _visionSessionId;
-    // FIXED: use guidance_text key (actual API response field)
-    var raw = d.guidance_text || d.guidance || d.analysis || d.response
-      || "I can see your hardware. Let me walk you through the next step.";
-    // Security alert takes priority
-    if(d.security_alert) raw = d.security_alert + ". " + raw;
-    // Hard 30-word cap for TTS speed
-    var words = raw.split(/\s+/);
-    var guideText = words.length > 30 ? words.slice(0,30).join(" ") : raw;
 
-    showVisionStatus("Speaking...");
-    showSub(guideText);
-
-    // Show steps in vision-status area if present
-    if(d.steps && d.steps.length){
-      var stepsHtml = d.steps.map(function(s,i){ return (i+1)+". "+s; }).join("<br>");
-      var el=document.getElementById("vision-status");
-      el.innerHTML = (d.device_name && d.device_name!=="unknown" ? "<b>"+d.device_name+"</b><br>" : "") + stepsHtml;
-      el.classList.add("on");
-    }
-
-    // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
-    return fetchTO(A+"/oracle/voice",{method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({text:guideText})},15000)
-    .then(function(ar){
-      if(!ar.ok) throw new Error("voice "+ar.status);
-      return ar.blob();
-    })
-    .then(function(audioBlob){
-      hideVisionStatus();
-      // Play audio over the still avatar (no lip sync — but instant)
-      var audioURL = URL.createObjectURL(audioBlob);
-      var audio;
-      if(window._audioUnlocked){
-        audio=window._audioUnlocked;
-        window._audioUnlocked=null;
-        audio.src=audioURL;
-        audio.volume=1.0;
-        audio.muted=false;
-      } else {
-        audio = new Audio(audioURL);
-        audio.volume = 1.0;
-      }
-      return new Promise(function(res){
-        audio.onended = function(){
-          URL.revokeObjectURL(audioURL);
-          setStat("Ready","#334",false);
-          hideSub();
-          res();
-        };
-        audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
-        var vp = audio.play();
-        if(vp !== undefined){
-          vp.then(function(){ setStat("Speaking","#6cff9f",false); }).catch(function(){ res(); });
-        }
+    // Security alert takes absolute priority
+    if (d.security_alert) {
+      showSecurityAlert(d.security_alert, function() {
+        // After user dismisses, speak the normal guidance
+        _speakVisionGuidance(d);
       });
-    });
+      return;
+    }
+    _speakVisionGuidance(d);
   })
   .catch(function(e){
     console.error("Vision error:", e);
