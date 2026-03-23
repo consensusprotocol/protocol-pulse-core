@@ -352,3 +352,14 @@ PATTERN: services.* import shadowing in Phase 2 files -- PERMANENT RULE
   VERIFY: cd ~/protocol_pulse/core && python3 -c from blueprints.intelligence import intelligence_bp; print(OK)
   WATCHDOG: /intelligence 404 after new Phase 2 file? Check for from services. in new file.
 PATTERN: SpaceTap hang — get_best_space_clips() blocks forever on Whisper. ROOT CAUSE: No timeout on get_best_space_clips() call in daily_producer.py line 939. FIX: Wrap in threading.Thread with 120s join timeout. WATCHDOG: If producer runs >90min with 0 audio files, check ps cpu — if 80%+ CPU with no output, SpaceTap is hung, pkill -9 daily_producer.
+PATTERN: Freeze frames surviving CFR re-encode (5 per render, all in final 75s)
+  ROOT CAUSE: make_social_card_visual() and make_signal_active_scene() in assembler.py
+    render static drawtext/drawbox overlays on procedural backgrounds. After the 0.3s
+    fade-in, every frame is pixel-identical — content-level freezes, not PTS issues.
+    CFR re-encode (the old preflight fix) cannot fix content-level freezes.
+  LOCATION: assembler.py — make_social_card_visual() line ~3421, make_signal_active_scene() line ~2936
+  FIX: Added noise=c0s=3:c0f=t filter before format=yuv420p in both functions.
+    Imperceptible temporal noise (3/255 luma variation) breaks pixel-identical frames.
+    Also updated _apply_preflight_fixes() in daily_producer.py as belt-and-suspenders.
+  VERIFY: run_preflight_qc() must show freeze_frames=0
+  WATCHDOG: If freeze_frames > 0 reappears, check for new static scenes missing the noise filter.

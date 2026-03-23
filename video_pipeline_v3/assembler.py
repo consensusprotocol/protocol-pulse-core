@@ -2933,7 +2933,9 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
     # ── R26 UPGRADE 1: CRT SCANLINE ──
     fg = apply_scanline(inputs, fg, "sig_final", "sig_scanned", total_dur)
 
-    fg += f"[sig_scanned]format=yuv420p[outv];\n"
+    # FREEZE FIX: Imperceptible temporal noise (1/255) breaks pixel-identical
+    # frames in static signal active cards (staggered at 0s/6s/12s).
+    fg += f"[sig_scanned]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     # Audio
     fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,"
@@ -3418,7 +3420,9 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         fg += f"[{last_v}][wm]overlay=W-170:16[vwm];\n"
         last_v = "vwm"
 
-    fg += f"[{last_v}]format=yuv420p[outv];\n"
+    # FREEZE FIX: Imperceptible temporal noise (1/255) breaks pixel-identical
+    # frames that freezedetect flags on static social card visuals.
+    fg += f"[{last_v}]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
     fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]"

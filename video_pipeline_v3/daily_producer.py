@@ -439,8 +439,11 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
     issues_str = " ".join(qc.get("issues", []))
 
     # ── Freeze frame fix ──────────────────────────────────────────────────
+    # Content-level freezes (static social cards / signal scenes) need
+    # imperceptible temporal noise to break pixel-identical frames.
+    # Plain CFR re-encode does NOT fix content-level freezes.
     if "freeze_frames" in issues_str:
-        logger.info("[PREFLIGHT FIX] Re-encoding to eliminate freeze frames (cfr)")
+        logger.info("[PREFLIGHT FIX] Re-encoding with temporal noise to break content-level freezes")
         tmp = video_path + ".freeze_fix.mp4"
         try:
             r = subprocess.run(
@@ -450,7 +453,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
                  "-c:v", "libx264", "-preset", "medium",
                  "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
                  "-r", "30", "-vsync", "cfr",
-                 "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+                 "-vf", "noise=c0s=3:c0f=t,setpts=PTS-STARTPTS,format=yuv420p",
                  "-c:a", "copy",
                  "-movflags", "+faststart",
                  tmp],
@@ -458,7 +461,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
             )
             if r.returncode == 0 and os.path.exists(tmp):
                 os.replace(tmp, video_path)
-                logger.info("[PREFLIGHT FIX] Freeze frame re-encode complete")
+                logger.info("[PREFLIGHT FIX] Freeze frame noise fix complete")
             elif os.path.exists(tmp):
                 os.remove(tmp)
         except Exception as e:
