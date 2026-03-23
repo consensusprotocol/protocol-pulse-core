@@ -1263,6 +1263,12 @@ body { background: var(--s-bg); }
       if (window._stageAudioUnlocked) {
         audio = window._stageAudioUnlocked;
         window._stageAudioUnlocked = null;
+        // Re-unlock immediately for the NEXT segment
+        var nextUnlock = new Audio();
+        nextUnlock.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+        nextUnlock.volume = 0.001;
+        nextUnlock.play().catch(function(){});
+        window._stageAudioUnlocked = nextUnlock;
         audio.src = audioUrl;
         audio.volume = 1.0;
         audio.muted = false;
@@ -1275,11 +1281,6 @@ body { background: var(--s-bg); }
         URL.revokeObjectURL(audioUrl);
         setStatus('Ready', 'rgba(255,255,255,.3)');
         setBusy(false);
-        // Re-unlock for next segment
-        window._stageAudioUnlocked = new Audio();
-        window._stageAudioUnlocked.volume = 0.001;
-        window._stageAudioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
-        window._stageAudioUnlocked.play().catch(function(){});
         resolve();
       };
       audio.onerror = function() {

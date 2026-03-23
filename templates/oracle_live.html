@@ -289,7 +289,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   max-width:min(440px,calc(100vw - 24px));
   aspect-ratio:1/1;
   border-radius:8px;overflow:hidden;
-  background: #050508 url('/static/img/oracle_avatar_static.png') center top / cover no-repeat;
+  background: #050508;
   flex-shrink:0;
   min-height: min(440px, calc(100vw - 24px));
 }
@@ -832,6 +832,8 @@ function go(){
 
 /* ── PLAY CACHED INTENT ── */
 function playIntent(intent){
+  if(busy&&intent!=='GREETING')return;
+  if(intent.indexOf('DAILY_BRIEF')===0&&window._briefFetched)return;
   setBusy(true);
   setStat('Oracle loading...','#f4c46f',true);
   // Progress messages so user knows it's working, not broken
@@ -888,6 +890,8 @@ function si(intent){if(busy)return;hideCards();playIntent(intent);}
 /* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
 function process(text){
   if(!text.trim()||busy)return;
+  // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
+  if(/daily\s*brief/i.test(text)) window._briefFetched=true;
   setBusy(true);hideCards();hideActionCard();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
 
@@ -963,11 +967,12 @@ function process(text){
           audio=new Audio(audioUrl);
           audio.volume=1.0;
         }
-        setStat('Speaking','#6cff9f',false);
         window._chatAudioPlaying=true;
         var playPromise = audio.play();
         if(playPromise !== undefined){
-          playPromise.catch(function(err){
+          playPromise.then(function(){
+            setStat('Speaking','#6cff9f',false);
+          }).catch(function(err){
             console.warn('[Oracle] audio.play() rejected:', err.name);
             // On mobile, audio may be blocked — set volume via user gesture retry
             audio.muted = false;
@@ -1074,7 +1079,6 @@ function playVid(url){
     vid.loop=false;
     vid.src=url;
     vid.style.opacity='1';
-    setStat('Speaking','#6cff9f',false);
     var _safetyTimer = setTimeout(function(){
       if(busy){
         console.warn('[Oracle] Safety timeout — forcing mic unlock after 60s');
@@ -1108,6 +1112,7 @@ function playVid(url){
     }
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
+      setStat('Speaking','#6cff9f',false);
       if(!window._chatAudioPlaying){
         tryUnmute();
       }
@@ -1241,7 +1246,6 @@ function sendVisionImage(b64, mimeType){
         audio = new Audio(audioURL);
         audio.volume = 1.0;
       }
-      setStat("Speaking","#6cff9f",false);
       return new Promise(function(res){
         audio.onended = function(){
           URL.revokeObjectURL(audioURL);
@@ -1250,7 +1254,10 @@ function sendVisionImage(b64, mimeType){
           res();
         };
         audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
-        audio.play().catch(function(){ res(); });
+        var vp = audio.play();
+        if(vp !== undefined){
+          vp.then(function(){ setStat("Speaking","#6cff9f",false); }).catch(function(){ res(); });
+        }
       });
     });
   })
