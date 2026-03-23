@@ -10,6 +10,7 @@ Usage:
   python3 daily_producer.py --skip-scan   # Use cached transcripts only
   python3 daily_producer.py --fast-test   # Fast test: no API calls, <3 min render
 """
+import sys; sys.dont_write_bytecode=True
 import argparse
 import json
 import logging
@@ -48,6 +49,50 @@ logging.basicConfig(
     format="%(message)s",
 )
 logger = logging.getLogger("Producer")
+
+
+# ---------------------------------------------------------------------------
+# Per-Render Context File (consumed by watchdog for CC repair specs)
+# ---------------------------------------------------------------------------
+
+def write_render_context(step, status, error=None, **extra):
+    """Write/update /tmp/render_context_YYYYMMDD.json for watchdog consumption.
+
+    Called after every pipeline step completes or fails. The watchdog reads this
+    file to give Claude Code full context about what was being built when a crash
+    occurred. See QWEN_CONTEXT_BIBLE.md Section 7.
+    """
+    ctx_path = f"/tmp/render_context_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json"
+    try:
+        with open(ctx_path) as f:
+            ctx = json.load(f)
+    except Exception:
+        ctx = {
+            "episode_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "steps_completed": [],
+            "steps_failed": [],
+            "render_start_time": datetime.now(timezone.utc).isoformat(),
+        }
+
+    if status == "ok":
+        if step not in ctx["steps_completed"]:
+            ctx["steps_completed"].append(step)
+    else:
+        ctx["steps_failed"].append({
+            "step": step,
+            "error": str(error)[:500],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+
+    # Merge any extra context (episode_title, btc_price, clips, mood, etc.)
+    for k, v in extra.items():
+        ctx[k] = v
+
+    try:
+        with open(ctx_path, "w") as f:
+            json.dump(ctx, f, indent=2)
+    except Exception as e:
+        logger.warning(f"write_render_context failed: {e}")
 
 
 def get_btc_price() -> str:
@@ -223,6 +268,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     btc_price = get_btc_price()
     print(f"  BTC: {btc_price}")
     timing["1_price"] = round(time.time() - t0, 2)
+    write_render_context(1, "ok", btc_price=btc_price)
 
     # ── Step 2: SCAN CHANNELS ─────────────────────────────────────────────
     print("\n[STEP 2/12] SCANNING PARTNER CHANNELS...")
@@ -251,6 +297,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         videos = scan_all_channels(model_size=whisper_model)
         print(f"  Scanned: {len(videos)} videos with transcripts")
     timing["2_scan"] = round(time.time() - t0, 2)
+    write_render_context(2, "ok")
 
     if not videos:
         print("\n  [FAIL] No videos found — cannot produce episode")
@@ -614,6 +661,10 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     with open(script_path, "w") as f:
         json.dump(script, f, indent=2)
 
+    write_render_context(5, "ok",
+                         episode_title=script.get("episode_title", ""),
+                         social_posts_count=len(sorted_social),
+                         space_tap_available=bool(selections.get("space_tap_clips")))
 
     # ── Step 6: TTS ───────────────────────────────────────────────────────
     print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
@@ -625,6 +676,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     print(f"  Audio: {successful}/{len(speech_lines)} lines")
     print(f"  Duration: {audio_data.get('total_duration', 0):.1f}s")
     timing["6_tts"] = round(time.time() - t0, 2)
+    write_render_context(6, "ok", tts_provider="elevenlabs")
 
     # ── Step 6b: BUILD MANIFEST ─────────────────────────────────────────
     print("\n[STEP 6b/12] BUILDING EPISODE MANIFEST...")
@@ -666,10 +718,12 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
 
     if not result or not os.path.exists(final_video):
         print("\n  [FAIL] Assembly failed")
+        write_render_context(7, "fail", error="Video assembly failed or no output file")
         _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
         if is_enabled("telegram_alerts"):
             alert_pipeline_failure(date_str, "assemble", "Video assembly failed")
         return False
+    write_render_context(7, "ok")
 
     # ── Step 8: SHORTS ────────────────────────────────────────────────────
     print("\n[STEP 8/12] GENERATING SHORTS (avatar)...")
@@ -765,6 +819,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         pass
 
     timing["12_verify"] = round(time.time() - t0, 2)
+    write_render_context(12, "ok" if passed else "fail",
+                         error="verify failed" if not passed else None)
 
     # ── Step 12b: POST-RENDER QC ─────────────────────────────────────────
     print("\n[STEP 12b] POST-RENDER QC...")

@@ -13,6 +13,7 @@ Production modes:
 Cron entry:
   0 12 * * * cd /home/ultron/protocol_pulse && python3 overnight_render_loop.py >> /tmp/overnight_loop.log 2>&1
 """
+import sys; sys.dont_write_bytecode=True
 import os, sys, json, subprocess, time, re, urllib.request, argparse, logging, shutil, tempfile
 import html as _html
 import threading
