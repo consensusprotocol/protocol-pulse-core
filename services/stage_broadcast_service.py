@@ -148,23 +148,42 @@ def _add_to_queue(item):
 # ---------------------------------------------------------------------------
 
 def _fetch_btc_price():
+    """Fetch BTC price — internal API first, CoinGecko fallback."""
+    # Try internal price API first (no rate limits)
     try:
-        r = requests.get(
+        resp = requests.get("http://localhost:5000/api/btc-price", timeout=5)
+        if resp.status_code == 200:
+            d = resp.json()
+            price = d.get("price") or d.get("bitcoin", {}).get("usd")
+            change = d.get("change_24h") or d.get("bitcoin", {}).get("usd_24h_change", 0)
+            if price:
+                return {
+                    "price": float(price),
+                    "change_24h": round(float(change), 2),
+                    "market_cap": d.get("market_cap", 0),
+                }
+    except Exception as e:
+        logger.warning("Internal price API failed: %s", e)
+
+    # Fallback to CoinGecko
+    try:
+        resp = requests.get(
             "https://api.coingecko.com/api/v3/simple/price",
             params={"ids": "bitcoin", "vs_currencies": "usd",
                     "include_24hr_change": "true", "include_market_cap": "true"},
-            timeout=10,
+            timeout=10
         )
-        r.raise_for_status()
-        d = r.json()["bitcoin"]
-        return {
-            "price": d["usd"],
-            "change_24h": round(d.get("usd_24h_change", 0), 2),
-            "market_cap": d.get("usd_market_cap", 0),
-        }
+        if resp.status_code == 200:
+            d = resp.json().get("bitcoin", {})
+            return {
+                "price": d.get("usd", 0),
+                "change_24h": round(d.get("usd_24h_change", 0), 2),
+                "market_cap": d.get("usd_market_cap", 0),
+            }
     except Exception as e:
-        logger.warning("BTC price fetch failed: %s", e)
-        return None
+        logger.warning("CoinGecko failed: %s", e)
+
+    return None
 
 
 def _fetch_mempool():

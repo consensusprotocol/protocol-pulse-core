@@ -483,6 +483,68 @@ def _init_avatar_kokoro():
         _AVATAR_KOKORO_READY = False
 
 
+def _preprocess_tts_text(text: str) -> str:
+    """Convert numbers and symbols to spoken form for natural TTS."""
+    import re
+    try:
+        from num2words import num2words
+    except ImportError:
+        return text
+
+    # Percentages: 0.79% → "point seventy-nine percent"
+    def pct(m):
+        try:
+            val = float(m.group(1))
+            if val == int(val):
+                return num2words(int(val)) + ' percent'
+            parts = str(val).split('.')
+            return num2words(int(parts[0])) + ' point ' + ' '.join(num2words(int(d)) for d in parts[1]) + ' percent'
+        except: return m.group(0)
+    text = re.sub(r'([\d]+\.?\d*)\s*%', pct, text)
+
+    # Dollars: $70,586 → "seventy thousand five hundred eighty-six dollars"
+    def dollars(m):
+        try:
+            raw = m.group(1).replace(',', '')
+            val = int(float(raw))
+            return num2words(val) + ' dollars'
+        except: return m.group(0)
+    text = re.sub(r'\$\s*([\d,]+\.?\d*)', dollars, text)
+
+    # Large numbers with commas: 970,600 → spoken
+    def bignum(m):
+        try: return num2words(int(m.group(0).replace(',', '')))
+        except: return m.group(0)
+    text = re.sub(r'\b\d{1,3}(?:,\d{3})+\b', bignum, text)
+
+    # Decimals: 970.6 → "nine hundred seventy point six"
+    def decimal(m):
+        try:
+            parts = m.group(0).split('.')
+            return num2words(int(parts[0])) + ' point ' + ' '.join(num2words(int(d)) for d in parts[1])
+        except: return m.group(0)
+    text = re.sub(r'\b(\d+)\.(\d+)\b', decimal, text)
+
+    # Large plain integers 4+ digits
+    def integer(m):
+        try: return num2words(int(m.group(0)))
+        except: return m.group(0)
+    text = re.sub(r'\b(\d{4,})\b', integer, text)
+
+    # Proper pronunciations
+    text = re.sub(r'\bNostr\b', 'Nohster', text)
+    text = re.sub(r'\bNOSTR\b', 'Nohster', text)
+    text = re.sub(r'\bnostr\b', 'Nohster', text)
+    text = re.sub(r'\bBTC\b', 'Bitcoin', text)
+    text = re.sub(r'\bETF\b', 'E T F', text)
+    text = re.sub(r'\bFNG\b', 'fear and greed index', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bEH/s\b', 'exahashes per second', text)
+    text = re.sub(r'\bEH\b', 'exahash', text)
+    text = re.sub(r'\bsat/vbyte\b', 'sats per vbyte', text)
+
+    return text
+
+
 def _avatar_tts(text):
     """Primary TTS: Kokoro af_heart -> 24kHz numpy -> ffmpeg resample 16kHz mono WAV bytes.
     Falls back to ElevenLabs text_to_speech() if Kokoro fails."""
@@ -494,6 +556,8 @@ def _avatar_tts(text):
         text = normalize_pronunciation(text)
     except Exception as _np_err:
         logger.warning(f"[AVATAR_TTS] normalize_pronunciation unavailable: {_np_err}")
+
+    text = _preprocess_tts_text(text)
 
     # Try Kokoro first
     if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:

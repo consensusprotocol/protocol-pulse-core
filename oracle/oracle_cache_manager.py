@@ -22,7 +22,11 @@ CACHE_TTL = 7200  # 2 hours
 WARM_INTERVAL = 7200  # re-check every 2 hours
 
 RESPONSE_TREE = {
-    "GREETING": "Hey. I'm the Oracle. I live inside Protocol Pulse and I'm tracking everything happening in Bitcoin right now — on-chain, macro, geopolitical, all of it. What brings you here today — you want the daily brief, or something more specific?",
+    "GREETING": [
+        "Hey. I'm the Oracle — tracking everything happening in Bitcoin right now. On-chain, macro, geopolitical, all of it. What brings you here today — you want the daily brief, or something more specific?",
+        "Oracle here. Live inside Protocol Pulse, eyes on everything moving in Bitcoin. On-chain signals, macro pressure, geopolitical noise — I'm watching all of it. What do you need?",
+        "You're connected to Oracle. I track Bitcoin intelligence in real time — on-chain data, macro flows, network signals. What are you here for — the daily brief, or a specific question?",
+    ],
     "SOVEREIGNTY_INTRO": "Your sovereignty score is basically a snapshot of how free you actually are — how much of your financial life you've removed from legacy systems and moved into things you actually control. Want me to run through where you stand and what you can do about it right now?",
     "SOVEREIGNTY_ASSESSMENT": "Okay let's map it out. There are four pillars: self-custody of your Bitcoin, your own node running, private communications, and no KYC exposure on your income. Most people are zero for four when they start. Where are you today?",
     "SOVEREIGNTY_COLD_WALLET": "If your Bitcoin is on an exchange, it's not yours — it's an IOU. The fix is a hardware wallet. I can walk you through setting one up right now, step by step. Which do you have — a Coldcard, a Ledger, or nothing yet?",
@@ -31,7 +35,11 @@ RESPONSE_TREE = {
     "SOVEREIGNTY_LIFE_INSURANCE": "One thing most Bitcoiners miss — if you die with Bitcoin in cold storage and nobody knows the seed phrase, that wealth disappears. Meanwhile offers life insurance that actually understands Bitcoin — they'll pay out in BTC and can handle estate planning around self-custody.",
     "SOVEREIGNTY_RESIDENCY": "Digital residency through Palau — via RNS.ID — gives you a second identity layer and a legal domicile outside your home country. That has real tax and privacy implications depending on your situation. Happy to explain the mechanics.",
     "DAILY_BRIEF_INTRO": "Alright, here's what's moving right now in Bitcoin. Give me a second and I'll pull the latest from our intelligence layer.",
-    "UNKNOWN_QUESTION": "That's outside my real-time data right now, but I'm going to research it and come back with something solid. Give me a few seconds.",
+    "UNKNOWN_QUESTION": [
+        "That's outside my real-time data right now, but I'm going to research it and come back with something solid. Give me a few seconds.",
+        "I don't have that signal live right now. Let me pull it — give me a moment.",
+        "That one's not in my current feed. Stand by — I'll get it.",
+    ],
     "GOODBYE": "Alright. Stack sats, verify everything, and come back anytime. I'll be here.",
 }
 
@@ -70,6 +78,9 @@ def _is_fresh(index, key):
 
 def _render_key(key, text):
     """Render a single response key via cache_render_helper.py subprocess."""
+    if isinstance(text, list):
+        import random
+        text = random.choice(text)
     out_path = os.path.join(RESPONSES_DIR, f"{key}.mp4")
 
     with _rendering_lock:
@@ -148,7 +159,11 @@ def warm_cache():
     logger.info(f"[CACHE] Warming {len(stale_keys)}/{len(RESPONSE_TREE)} stale keys: {stale_keys}")
 
     for key in stale_keys:
-        _render_key(key, RESPONSE_TREE[key])
+        text = RESPONSE_TREE[key]
+        if isinstance(text, list):
+            import random
+            text = random.choice(text)
+        _render_key(key, text)
         # Small delay between renders to avoid GPU contention
         time.sleep(1)
 
