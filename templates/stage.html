@@ -668,6 +668,10 @@ body { background: var(--s-bg); }
   display: flex; flex-direction: column; gap: 16px;
 }
 
+/* ── STAGE WAKE READINESS ──────────────────────────── */
+#stage-tap-label { transition: opacity 0.5s; }
+.stage-wake-ready #stage-tap-label { animation: none; }
+
 /* ── HOLOGRAM TREATMENT (stage avatar only) ─────────── */
 /* (merged into .stage-avatar-wrap above) */
 .stage-avatar-scanline {
@@ -1552,6 +1556,17 @@ body { background: var(--s-bg); }
   var _ptsFirstTime = true;
 
   function stageWake() {
+    if (!_preRenderReady && !_preRenderFirstBlob) {
+      // Not ready yet — show feedback but don't proceed
+      var lbl = document.getElementById('stage-tap-label');
+      if (lbl) {
+        lbl.textContent = 'SIGNAL LOADING\u2026';
+        setTimeout(function(){
+          if (!_preRenderReady) lbl.textContent = 'SIGNAL WARMING UP\u2026';
+        }, 1500);
+      }
+      return;
+    }
     try {
       var ac=new(window.AudioContext||window.webkitAudioContext)();
       var buf=ac.createBuffer(1,1,22050);
@@ -2168,13 +2183,16 @@ body { background: var(--s-bg); }
       dotCount = (dotCount % 3) + 1;
       if (dots) dots.textContent = '.'.repeat(dotCount);
     }, 500);
-    var readyCheck = setInterval(function(){
+    var _stageReadyPoller = setInterval(function(){
       if (_preRenderReady) {
-        clearInterval(readyCheck);
+        clearInterval(_stageReadyPoller);
         clearInterval(dotAnim);
         if (label) {
-          label.innerHTML = 'Tap to Begin Broadcast';
+          label.textContent = 'TAP TO BEGIN BROADCAST';
+          label.style.opacity = '1';
         }
+        var ov = document.getElementById('stage-wake');
+        if (ov) ov.classList.add('stage-wake-ready');
       }
     }, 1000);
   })();

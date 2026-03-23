@@ -1032,7 +1032,6 @@ function process(text){
                 .catch(function(){});
               if(pollAttempts>=maxPollAttempts){
                 clearInterval(pollVideo);
-                vid.style.opacity='1';
                 setBusy(false);mic.disabled=false;
               }
             },2000);
