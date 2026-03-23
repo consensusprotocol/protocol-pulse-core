@@ -12,16 +12,31 @@
    Reuters meets Bloomberg meets Matrix Sentinel
    ═══════════════════════════════════════════════════════════════════════ */
 :root {
+    /* ── Core surfaces ── */
     --it-bg: #0A0A0F;
-    --it-surface: #0F0F18;
+    --it-surface: #0D0D16;
+    --it-surface-elevated: #12121F;
     --it-border: #1A1A2E;
-    --it-text: #E8E8E8;
-    --it-muted: #444444;
-    --it-label: #888888;
-    --it-red: #FF0000;
-    --it-amber: #FFB800;
+    --it-border-active: #2A2A4E;
+    /* ── Text hierarchy ── */
+    --it-text: #E2E2EF;
+    --it-text-secondary: #8888AA;
+    --it-muted: #555577;
+    --it-label: #8888AA;
+    --it-panel-header: #7777AA;
+    /* ── Semantic colors ── */
+    --it-red: #FF0033;
+    --it-amber: #FFAA00;
     --it-green: #00FF88;
-    --it-panel-header: #666;
+    --it-blue: #4488FF;
+    --it-purple: #8B5CF6;
+    --it-gold: #F0B90B;
+    --it-cyan: #00D4FF;
+    /* ── State aliases ── */
+    --it-nominal: #00FF88;
+    --it-watch: #FFAA00;
+    --it-critical: #FF0033;
+    --it-scanning: #00D4FF;
 }
 
 body.intel-terminal {
@@ -533,6 +548,234 @@ body.intel-terminal .site-footer {
     .it-grid-phase2 { grid-template-columns: 1fr; }
     .it-data-rail { flex-direction: column; align-items: flex-start; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PANEL STATE SYSTEM — nominal / watch / critical / scanning
+   ═══════════════════════════════════════════════════════════════════════ */
+.it-panel[data-state="nominal"] {
+    border-left: 2px solid rgba(0,255,136,0.3);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.it-panel[data-state="watch"] {
+    border-left: 2px solid var(--it-amber);
+    background: rgba(255,170,0,0.02);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.it-panel[data-state="critical"] {
+    border-left: 2px solid var(--it-red);
+    background: rgba(255,0,51,0.03);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.it-panel[data-state="critical"] .it-panel-header {
+    color: var(--it-red);
+}
+.it-panel[data-state="scanning"] {
+    border-left: 2px solid var(--it-cyan);
+    position: relative;
+    overflow: hidden;
+}
+.it-panel[data-state="scanning"]::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.08), transparent);
+    animation: scanLine 4s linear infinite;
+}
+@keyframes scanLine {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+.it-panel[data-state="loading"] {
+    opacity: 0.5;
+}
+.it-panel[data-state="loading"] .it-panel-header::after {
+    content: ' ...';
+    animation: blink 1s step-end infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   VALUE FLASH — animate on SSE updates (green up, red down)
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes valueFlashUp {
+    0% { color: var(--it-green); text-shadow: 0 0 6px rgba(0,255,136,0.4); }
+    100% { color: var(--it-text); text-shadow: none; }
+}
+@keyframes valueFlashDown {
+    0% { color: var(--it-red); text-shadow: 0 0 6px rgba(255,0,51,0.4); }
+    100% { color: var(--it-text); text-shadow: none; }
+}
+.value-flash-up { animation: valueFlashUp 450ms ease-out; }
+.value-flash-down { animation: valueFlashDown 450ms ease-out; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TABULAR NUMBERS — prevent width jitter on live updates
+   ═══════════════════════════════════════════════════════════════════════ */
+.it-value-primary,
+.it-value-row-data,
+.it-rail-value,
+.it-sentiment-score,
+.it-fee-pct,
+.it-whale-value {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INTEL SUB-NAVIGATION
+   ═══════════════════════════════════════════════════════════════════════ */
+.intel-subnav {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 36px;
+    background: var(--it-surface);
+    border-bottom: 1px solid var(--it-border);
+    gap: 0;
+}
+.intel-subnav-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--it-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+}
+.intel-subnav-tab:hover {
+    color: var(--it-text-secondary);
+}
+.intel-subnav-tab.active {
+    color: var(--it-text);
+    font-weight: 600;
+    border-bottom-color: var(--it-red);
+}
+.subnav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--it-muted);
+    flex-shrink: 0;
+}
+.subnav-dot.live {
+    background: var(--it-green);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+.subnav-dot.alert {
+    background: var(--it-amber);
+    animation: statusPulse 1.5s ease-in-out infinite;
+}
+.subnav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--it-red);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CONVERGENCE THREAT MATRIX — the screenshot moment
+   ═══════════════════════════════════════════════════════════════════════ */
+.it-threat-matrix {
+    width: 100%;
+    height: 80px;
+    background: var(--it-bg);
+    border: 1px solid var(--it-border);
+    position: relative;
+    overflow: hidden;
+    margin-top: 1px;
+}
+.it-threat-matrix-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(90deg, rgba(26,26,46,0.1) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(26,26,46,0.1) 1px, transparent 1px);
+    background-size: 40px 16px;
+}
+.it-threat-lane {
+    position: absolute;
+    left: 120px;
+    right: 80px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+}
+.it-threat-lane-label {
+    position: absolute;
+    left: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--it-muted);
+    width: 90px;
+}
+.it-threat-lane:nth-child(2) { top: 6px; }
+.it-threat-lane:nth-child(3) { top: 20px; }
+.it-threat-lane:nth-child(4) { top: 34px; }
+.it-threat-lane:nth-child(5) { top: 48px; }
+.it-threat-lane:nth-child(6) { top: 62px; }
+.it-threat-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: absolute;
+    transition: opacity 0.5s ease;
+}
+.it-threat-convergence-line {
+    position: absolute;
+    width: 2px;
+    top: 4px;
+    bottom: 4px;
+    background: linear-gradient(180deg, var(--it-cyan), var(--it-gold));
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(0,212,255,0.4);
+}
+.it-threat-state {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--it-green);
+}
+.it-threat-state.watch { color: var(--it-amber); }
+.it-threat-state.alert { color: var(--it-amber); text-shadow: 0 0 12px rgba(255,170,0,0.3); }
+.it-threat-state.critical {
+    color: var(--it-red);
+    text-shadow: 0 0 16px rgba(255,0,51,0.4);
+    animation: criticalPulse 1s ease-in-out infinite;
+}
+.it-threat-matrix.critical-vignette {
+    box-shadow: inset 0 0 30px rgba(255,0,51,0.08);
+}
+@media (max-width: 900px) {
+    .intel-subnav { overflow-x: auto; }
+    .intel-subnav-tab { padding: 0 10px; font-size: 9px; }
+    .it-threat-matrix { height: 60px; }
+    .it-threat-lane-label { display: none; }
+    .it-threat-lane { left: 8px; }
+    .it-threat-state { font-size: 14px; }
+}
 </style>
 {% endblock %}
 
@@ -553,6 +796,9 @@ body.intel-terminal .site-footer {
         <div class="it-clock" id="itClock">--:--:-- ET</div>
     </div>
 
+    <!-- INTEL SUB-NAV -->
+    {% include "macros/intel_subnav.html" %}
+
     <!-- ALERT RAIL -->
     <div class="it-alert-rail" id="itAlertRail">
         <div class="it-alert-critical" id="itAlertCritical" style="display:none;">
@@ -569,7 +815,7 @@ body.intel-terminal .site-footer {
     <div class="it-grid">
 
         <!-- SENTINEL CORE -->
-        <div class="it-panel">
+        <div class="it-panel" id="panelSentinel" data-state="nominal">
             <div class="it-panel-header">Sentinel Core</div>
             <div class="it-value-label">PCAF ANOMALY SCORE</div>
             <div class="it-value-primary" id="itPcafScore">--</div>
@@ -599,7 +845,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- CONVERGENCE DETECTION -->
-        <div class="it-panel">
+        <div class="it-panel" id="panelConvergence" data-state="scanning">
             <div class="it-panel-header">Convergence Matrix</div>
             <div class="it-value-label">CONVERGENCE STATE</div>
             <div class="it-value-primary" id="itConvergenceState" style="font-size:28px">IDLE</div>
@@ -635,7 +881,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- MEMPOOL LIVE -->
-        <div class="it-panel">
+        <div class="it-panel" id="panelMempool" data-state="nominal">
             <div class="it-panel-header">Mempool Live</div>
             <div class="it-value-label">UNCONFIRMED TXS</div>
             <div class="it-value-primary" id="itMempoolCount">--</div>
@@ -668,7 +914,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- NETWORK STATE -->
-        <div class="it-panel">
+        <div class="it-panel" id="panelNetwork" data-state="nominal">
             <div class="it-panel-header">Network State</div>
             <div class="it-value-label">BLOCK HEIGHT</div>
             <div class="it-value-primary" id="itBlockHeight">--</div>
@@ -702,11 +948,23 @@ body.intel-terminal .site-footer {
 
     </div><!-- /it-grid -->
 
+    <!-- CONVERGENCE THREAT MATRIX — the screenshot moment -->
+    <div class="it-threat-matrix" id="itThreatMatrix">
+        <div class="it-threat-matrix-grid"></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:6px">ON-CHAIN</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:20px">MACRO</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:34px">SENTIMENT</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:48px">REGULATORY</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:62px">TECHNICAL</span></div>
+        <canvas id="threatCanvas" style="position:absolute;left:120px;top:0;right:80px;bottom:0;width:calc(100% - 200px);height:100%"></canvas>
+        <div class="it-threat-state" id="itThreatState">IDLE</div>
+    </div>
+
     <!-- PHASE 2 GRID -->
     <div class="it-grid-phase2">
 
         <!-- SENTIMENT PULSE (F2) -->
-        <div class="it-panel">
+        <div class="it-panel" id="panelSentiment" data-state="nominal">
             <div class="it-panel-header">Sentiment Pulse</div>
             <div class="it-value-label">NETWORK SENTIMENT</div>
             <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 8px">
@@ -752,7 +1010,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- NETWORK STATE GRAPH (F5) -->
-        <div class="it-panel" style="min-height:320px">
+        <div class="it-panel" id="panelGraph" data-state="nominal" style="min-height:320px">
             <div class="it-panel-header">Network State</div>
             <svg id="network-svg" height="260"></svg>
             <div class="it-graph-tooltip" id="networkTooltip"></div>
@@ -765,7 +1023,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- SOVEREIGN LAYER (F3) -->
-        <div class="it-panel">
+        <div class="it-panel" id="panelSovereign" data-state="nominal">
             <div class="it-panel-header">Sovereign Intelligence</div>
             <div class="it-value-label">LATEST CBDC ALERT</div>
             <div id="itSovereignAlert" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--it-amber);margin:4px 0 8px;min-height:28px">
@@ -813,7 +1071,7 @@ body.intel-terminal .site-footer {
     <div class="it-grid-phase2">
 
         <!-- DARK POOL + WHALE COORDINATION (F-P2-6 + F-P3-1) -->
-        <div class="it-panel" data-shortcut="d">
+        <div class="it-panel" id="panelDarkPool" data-state="nominal" data-shortcut="d">
             <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Dark Pool / Whale Intel</div>
             <div class="it-value-label">DARK POOL SIGNAL</div>
             <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 8px">
@@ -857,7 +1115,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- MINER HEALTH (F-P2-7) -->
-        <div class="it-panel" data-shortcut="m">
+        <div class="it-panel" id="panelMiner" data-state="nominal" data-shortcut="m">
             <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Miner Health</div>
             <div class="it-value-label">MINER HEALTH SCORE</div>
             <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 4px">
@@ -894,7 +1152,7 @@ body.intel-terminal .site-footer {
         </div>
 
         <!-- PRIVACY TECH + DEFI BTC (F-P3-3 + F-P3-5) -->
-        <div class="it-panel" data-shortcut="p">
+        <div class="it-panel" id="panelPrivacy" data-state="nominal" data-shortcut="p">
             <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Privacy Tech / DeFi</div>
             <div class="it-value-label">SOVEREIGNTY INDEX</div>
             <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 4px">
@@ -1278,6 +1536,120 @@ body.intel-terminal .site-footer {
 
         // Phase 3 F2: Regulatory (in sovereign panel update)
         if (state.regulatory) updateRegulatory(state.regulatory);
+
+        // ── Panel State System (data-state driven by live data) ────
+        updatePanelStates(state);
+
+        // ── Threat Matrix (screenshot moment) ──────────────────────
+        updateThreatMatrix(state);
+    }
+
+    // ── Panel State Logic ───────────────────────────────────────
+    function updatePanelStates(state) {
+        // Sentinel: driven by PCAF anomaly score
+        var pcafScore = (state.pcaf_v0 || {}).anomaly_score || 0;
+        setPanelState('panelSentinel', pcafScore >= 70 ? 'critical' : pcafScore >= 30 ? 'watch' : 'nominal');
+
+        // Convergence: driven by convergence state
+        var convState = ((state.convergence || {}).state || 'IDLE').toLowerCase();
+        setPanelState('panelConvergence', convState === 'critical' ? 'critical' : convState === 'alert' ? 'critical' : convState === 'watch' ? 'watch' : 'scanning');
+
+        // Mempool: driven by mempool fullness (vsize)
+        var vsize = ((state.mempool || {}).vsize || 0) / 1e6; // vMB
+        setPanelState('panelMempool', vsize > 200 ? 'critical' : vsize > 100 ? 'watch' : 'nominal');
+
+        // Miner Health: driven by health score
+        var minerScore = ((state.miner_health || {}).score || 100);
+        setPanelState('panelMiner', minerScore < 50 ? 'critical' : minerScore < 80 ? 'watch' : 'nominal');
+
+        // Sentiment: driven by extreme scores
+        var sentScore = Math.abs((state.sentiment || {}).score || 0);
+        setPanelState('panelSentiment', sentScore > 60 ? 'watch' : 'nominal');
+
+        // Dark Pool: driven by dark pool signal
+        var dpSignal = ((state.dark_pool || {}).signal || 'CLEAR').toUpperCase();
+        setPanelState('panelDarkPool', dpSignal === 'CRITICAL' ? 'critical' : dpSignal !== 'CLEAR' ? 'watch' : 'nominal');
+
+        // Sovereign: driven by capital flight
+        var capFlight = (state.sovereign || {}).capital_flight_signal;
+        setPanelState('panelSovereign', capFlight ? 'watch' : 'nominal');
+    }
+
+    function setPanelState(panelId, newState) {
+        var panel = document.getElementById(panelId);
+        if (panel && panel.dataset.state !== newState) {
+            panel.dataset.state = newState;
+        }
+    }
+
+    // ── Value Flash (animate value changes) ─────────────────────
+    var _prevValues = {};
+    function setValFlash(id, value, ts) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var numVal = parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+        var prev = _prevValues[id];
+        el.textContent = value;
+        if (isStale(ts)) {
+            el.classList.add('it-stale');
+        } else {
+            el.classList.remove('it-stale');
+        }
+        if (prev !== undefined && !isNaN(numVal) && numVal !== prev) {
+            el.classList.remove('value-flash-up', 'value-flash-down');
+            void el.offsetWidth; // force reflow
+            el.classList.add(numVal > prev ? 'value-flash-up' : 'value-flash-down');
+        }
+        if (!isNaN(numVal)) _prevValues[id] = numVal;
+    }
+
+    // ── Threat Matrix Renderer ──────────────────────────────────
+    var _threatSignals = []; // rolling 60min buffer
+    function updateThreatMatrix(state) {
+        var conv = state.convergence || {};
+        var stateEl = document.getElementById('itThreatState');
+        var matrixEl = document.getElementById('itThreatMatrix');
+        var convState = (conv.state || 'IDLE').toUpperCase();
+
+        stateEl.textContent = convState;
+        stateEl.className = 'it-threat-state' + (convState === 'WATCH' ? ' watch' : convState === 'ALERT' ? ' alert' : convState === 'CRITICAL' ? ' critical' : '');
+        matrixEl.classList.toggle('critical-vignette', convState === 'CRITICAL');
+
+        // Plot signals on canvas
+        var canvas = document.getElementById('threatCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width - 200;
+        canvas.height = 80;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        var signals = conv.signals || [];
+        var now = Date.now() / 1000;
+        var windowSec = 3600; // 60 min
+
+        // Lane mapping: on-chain=0, macro=1, sentiment=2, regulatory=3, technical=4
+        var laneColors = ['#00D4FF', '#F0B90B', '#8B5CF6', '#FF0033', '#00FF88'];
+        var laneMap = {onchain:0, chain:0, macro:1, vix:1, spy:1, sentiment:2, regulatory:3, sovereign:3, technical:4, hashrate:4, mining:4};
+
+        signals.forEach(function(s) {
+            var age = now - (s.timestamp || now);
+            if (age > windowSec || age < 0) return;
+            var x = canvas.width * (1 - age / windowSec);
+            var name = (s.name || '').toLowerCase();
+            var lane = 2; // default to sentiment
+            for (var key in laneMap) {
+                if (name.indexOf(key) !== -1) { lane = laneMap[key]; break; }
+            }
+            var y = 6 + lane * 14 + 4;
+            var opacity = Math.max(0.2, 1 - age / windowSec);
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = laneColors[lane];
+            ctx.globalAlpha = opacity;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        });
     }
 
     // ── Sentiment Pulse (F2) ────────────────────────────────────

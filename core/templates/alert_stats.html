@@ -15,8 +15,8 @@ body nav, body .navbar, body footer, body .site-footer { display: none !importan
 </style>
 {% endblock %}
 {% block content %}
+{% include "macros/intel_subnav.html" %}
 <div class="as-container">
-    <a href="/intelligence/alerts" class="back-link">&larr; BACK TO ALERT HISTORY</a>
     <h1 class="as-header">Alert Analytics</h1>
     <div class="as-grid">
         <div class="as-card">

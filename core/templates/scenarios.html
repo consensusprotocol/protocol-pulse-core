@@ -26,7 +26,7 @@ body.tpa-page {
     margin: 0; padding: 0;
 }
 
-body.tpa-page nav, body.tpa-page .navbar,
+body.tpa-page nav.navbar, body.tpa-page .navbar,
 body.tpa-page footer, body.tpa-page .site-footer { display: none !important; }
 
 .tpa-container {
@@ -234,6 +234,7 @@ body.tpa-page footer, body.tpa-page .site-footer { display: none !important; }
 
 {% block content %}
 <body class="tpa-page">
+{% include "macros/intel_subnav.html" %}
 <div class="tpa-container">
     <div class="tpa-header">
         <div>
