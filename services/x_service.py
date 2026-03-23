@@ -42,6 +42,43 @@ ANGLE_CATEGORIES = [
     "contrarian_take",      # Contrarian take on mainstream narrative
 ]
 
+# ============================================================
+# CONCEPT TAXONOMY — fixed keyword list for concept-level dedup
+# ============================================================
+CONCEPT_TAXONOMY = {
+    "fear_greed_index":     ["fear index", "extreme fear", "fear & greed", "fng", "fear greed"],
+    "etf_flows":            ["etf", "inflow", "outflow", "blackrock", "fidelity", "ibit"],
+    "stablecoin_power":     ["stablecoin", "usdt", "usdc", "tether", "180b", "treasury backing"],
+    "macro_fed":            ["fed ", "federal reserve", "interest rate", "powell", "monetary policy"],
+    "geopolitical":         ["iran", "war ", "sanctions", "tariff", "geopolit", "china", "russia"],
+    "institutional_buying": ["saylor", "microstrategy", "strategy ", "corporate treasury"],
+    "mining_hashrate":      ["mining", "hashrate", "miner", "difficulty", "exahash"],
+    "dollar_debasement":    ["dollar", "inflation", "debasement", "fiat", "printing", "dxy"],
+    "on_chain":             ["on-chain", "wallet", "utxo", "hodl", "accumulation", "cold storage"],
+    "lightning_network":    ["lightning", "layer 2", "l2 ", "payment channel"],
+    "regulatory":           ["sec ", "regulation", "congress", "legislation", "gensler"],
+    "petrodollar":          ["petrodollar", "yuan", "reserve currency", "brics"],
+    "historical_cycle":     ["cycle", "halving", "4 year", "previous cycle", "last time", "historically"],
+    "sovereignty":          ["sovereignty", "self-custody", "censor", "confiscat", "freedom"],
+    "whale_activity":       ["whale", "large wallet", "exchange outflow", "cold storage move"],
+    "network_health":       ["node count", "decentraliz", "protocol upgrade"],
+    "privacy":              ["privacy", "coinjoin", "kyc", "surveillance", "mixer"],
+    "adoption":             ["adoption", "merchant accept", "el salvador"],
+    "price_action":         ["price", "rally", "dump", "all-time high", "correction", " dip", " ath "],
+    "other":                [],
+}
+
+_CONCEPT_COOLDOWN_HOURS = 72
+
+
+def extract_concept(tweet_text: str) -> str:
+    """Extract the core narrative concept from a tweet using keyword matching."""
+    text = tweet_text.lower()
+    for concept, keywords in CONCEPT_TAXONOMY.items():
+        if any(kw in text for kw in keywords):
+            return concept
+    return "other"
+
 
 def _init_gate_db():
     """Ensure the post ledger table exists."""
@@ -54,10 +91,16 @@ def _init_gate_db():
             tweet_text TEXT NOT NULL,
             source TEXT DEFAULT 'unknown',
             angle_category TEXT,
+            concept TEXT,
             allowed INTEGER DEFAULT 1,
             reason TEXT
         )
     """)
+    # Migrate: add concept column if missing (existing DBs)
+    try:
+        conn.execute("ALTER TABLE x_post_ledger ADD COLUMN concept TEXT")
+    except sqlite3.OperationalError:
+        pass  # column already exists
     conn.commit()
     conn.close()
 
@@ -134,6 +177,24 @@ def can_post_tweet(text: str, source: str = "unknown", angle_category: str = Non
                 _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason)
                 return (False, reason)
 
+        # Rule 4: Concept dedup — no same concept within 72 hours
+        concept = extract_concept(text)
+        if concept != "other":
+            cutoff_72h = (now - timedelta(hours=_CONCEPT_COOLDOWN_HOURS)).isoformat()
+            same_concept_rows = conn.execute(
+                "SELECT posted_at, tweet_text FROM x_post_ledger "
+                "WHERE posted_at >= ? AND allowed = 1 AND concept = ?",
+                (cutoff_72h, concept)
+            ).fetchall()
+            if same_concept_rows:
+                last_post = same_concept_rows[-1]
+                reason = (
+                    f"BLOCKED: concept '{concept}' already used in last 72h — "
+                    f"last post: {last_post[1][:60]}..."
+                )
+                _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason, concept=concept)
+                return (False, reason)
+
         # Rule 5: Angle diversity — no duplicate category same day
         if angle_category:
             today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
@@ -155,11 +216,13 @@ def can_post_tweet(text: str, source: str = "unknown", angle_category: str = Non
         conn.close()
 
 
-def _log_gate(conn, now, text, source, angle_category, allowed, reason):
+def _log_gate(conn, now, text, source, angle_category, allowed, reason, concept=None):
     """Log every gate check to the ledger."""
+    if concept is None:
+        concept = extract_concept(text)
     conn.execute(
-        "INSERT INTO x_post_ledger (posted_at, tweet_text, source, angle_category, allowed, reason) VALUES (?,?,?,?,?,?)",
-        (now.isoformat(), text[:500], source, angle_category, 1 if allowed else 0, reason)
+        "INSERT INTO x_post_ledger (posted_at, tweet_text, source, angle_category, concept, allowed, reason) VALUES (?,?,?,?,?,?,?)",
+        (now.isoformat(), text[:500], source, angle_category, concept, 1 if allowed else 0, reason)
     )
     conn.commit()
     level = logging.INFO if allowed else logging.WARNING
@@ -177,6 +240,20 @@ def get_recent_angles(days: int = 1) -> list:
     ).fetchall()
     conn.close()
     return [r[0] for r in rows]
+
+
+def get_banned_concepts(hours: int = 72) -> list:
+    """Return concepts posted in the last N hours (for prompt injection into LLM)."""
+    _init_gate_db()
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    conn = sqlite3.connect(str(_GATE_DB))
+    rows = conn.execute(
+        "SELECT DISTINCT concept FROM x_post_ledger "
+        "WHERE posted_at >= ? AND allowed = 1 AND concept IS NOT NULL",
+        (cutoff,)
+    ).fetchall()
+    conn.close()
+    return [r[0] for r in rows if r[0] != "other"]
 
 
 def get_available_angles() -> list:

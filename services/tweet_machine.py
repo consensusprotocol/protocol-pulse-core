@@ -210,10 +210,24 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         used_context = "\nALREADY POSTED TODAY - pick a DIFFERENT angle:\n"
         used_context += "\n".join("- " + t[:100] for t in posted_today)
 
+    # Concept dedup: tell the LLM which concepts are banned
+    banned_concepts_context = ""
+    try:
+        sys.path.insert(0, str(BASE))
+        from services.x_service import get_banned_concepts
+        banned = get_banned_concepts(hours=72)
+        if banned:
+            banned_concepts_context = (
+                "\n\nBANNED CONCEPTS (do NOT use these — already posted in last 72h):\n"
+                + "\n".join(f"  - {c.replace('_', ' ')}" for c in banned)
+                + "\nPick a concept NOT on this list. Genuinely different angle."
+            )
+    except Exception as e:
+        logger.warning(f"Could not load banned concepts: {e}")
+
     # Angle diversity: tell the LLM which categories are available
     available_angles_context = ""
     try:
-        sys.path.insert(0, str(BASE))
         from services.x_service import get_available_angles, ANGLE_CATEGORIES
         available = get_available_angles()
         if available:
@@ -229,7 +243,7 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         logger.warning(f"Could not load angle categories: {e}")
 
     prompt = TWEET_GENERATION_PROMPT.format(
-        brief_text=brief_text + used_context + available_angles_context,
+        brief_text=brief_text + used_context + banned_concepts_context + available_angles_context,
         voice_laws=TWEET_VOICE_LAWS
     )
 
