@@ -1176,7 +1176,7 @@ function handleVisionUpload(evt){
   
   var reader = new FileReader();
   reader.onload = function(e){
-    var b64 = e.result.split(",")[1];
+    var b64 = e.target.result.split(",")[1];
     var mime = file.type || "image/jpeg";
     sendVisionImage(b64, mime);
   };
@@ -1214,6 +1214,14 @@ function sendVisionImage(b64, mimeType){
 
     showVisionStatus("Speaking...");
     showSub(guideText);
+
+    // Show steps in vision-status area if present
+    if(d.steps && d.steps.length){
+      var stepsHtml = d.steps.map(function(s,i){ return (i+1)+". "+s; }).join("<br>");
+      var el=document.getElementById("vision-status");
+      el.innerHTML = (d.device_name && d.device_name!=="unknown" ? "<b>"+d.device_name+"</b><br>" : "") + stepsHtml;
+      el.classList.add("on");
+    }
 
     // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
     return fetchTO(A+"/oracle/voice",{method:"POST",
