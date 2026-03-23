@@ -268,6 +268,254 @@ def _post_render_health_check(video_path: str) -> tuple[bool, list[str]]:
     return passed, errors
 
 
+import re as _re
+
+# ---------------------------------------------------------------------------
+# Pre-Flight QC — Grade A Guarantee
+# ---------------------------------------------------------------------------
+MAX_PREFLIGHT_ATTEMPTS = 3
+
+_PREFLIGHT_LOG_DIR = os.path.join(BASE, "logs")
+
+
+def _preflight_log(msg: str):
+    """Append one line to preflight_YYYYMMDD.log."""
+    os.makedirs(_PREFLIGHT_LOG_DIR, exist_ok=True)
+    log_file = os.path.join(
+        _PREFLIGHT_LOG_DIR,
+        f"preflight_{datetime.now(timezone.utc).strftime('%Y%m%d')}.log",
+    )
+    ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
+    with open(log_file, "a") as f:
+        f.write(f"[{ts}] {msg}\n")
+
+
+def run_preflight_qc(video_path: str) -> dict:
+    """Run pre-flight QC checks on assembled video before grading.
+
+    Returns {passed: bool, issues: list[str], metrics: dict}.
+
+    Checks (all via ffprobe/ffmpeg, no LLM needed):
+      1. FREEZE FRAMES — ffmpeg freezedetect n=0.003:d=1.5
+      2. SILENCE GAPS  — ffmpeg silencedetect n=-50dB:d=0.8 (middle 80%)
+      3. LOUDNESS      — ffmpeg ebur128 (integrated LUFS -17 to -12, TP <= -1.0)
+      4. DURATION      — ffprobe (7-15 minutes)
+      5. RESOLUTION    — ffprobe (1920x1080)
+    """
+    issues: list[str] = []
+    metrics: dict = {}
+
+    if not os.path.exists(video_path):
+        return {"passed": False, "issues": ["Video file not found"], "metrics": {}}
+
+    # ── 1. Freeze frames ──────────────────────────────────────────────────
+    freeze_count = 0
+    freeze_timestamps: list[float] = []
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-vf", "freezedetect=n=0.003:d=1.5",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        for m in _re.finditer(r"freeze_start:\s*([\d.]+)", r.stderr):
+            freeze_timestamps.append(float(m.group(1)))
+        freeze_count = len(freeze_timestamps)
+    except Exception as e:
+        logger.warning(f"[PREFLIGHT] freezedetect failed: {e}")
+    metrics["freeze_frames"] = freeze_count
+    metrics["freeze_timestamps"] = freeze_timestamps
+    if freeze_count > 0:
+        issues.append(f"freeze_frames={freeze_count} (max 0)")
+
+    # ── 2. Silence gaps (middle 80% of video) ─────────────────────────────
+    silence_gaps: list[dict] = []
+    try:
+        # Get duration first
+        dur_r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+            capture_output=True, text=True, timeout=30,
+        )
+        total_dur = float(dur_r.stdout.strip()) if dur_r.stdout.strip() else 0
+        margin = total_dur * 0.10  # ignore first/last 10%
+
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-af", "silencedetect=noise=-50dB:d=0.8",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        for m in _re.finditer(
+            r"silence_start:\s*([\d.]+).*?silence_end:\s*([\d.]+)",
+            r.stderr, _re.DOTALL,
+        ):
+            start, end = float(m.group(1)), float(m.group(2))
+            # Only count gaps in the middle 80%
+            if start >= margin and end <= (total_dur - margin):
+                silence_gaps.append({"start": round(start, 2), "end": round(end, 2),
+                                     "duration": round(end - start, 2)})
+    except Exception as e:
+        logger.warning(f"[PREFLIGHT] silencedetect failed: {e}")
+    metrics["silence_gaps"] = len(silence_gaps)
+    metrics["silence_details"] = silence_gaps
+    if len(silence_gaps) > 0:
+        issues.append(f"silence_gaps={len(silence_gaps)} (max 0 in middle 80%)")
+
+    # ── 3. Loudness (ebur128) ─────────────────────────────────────────────
+    lufs = None
+    true_peak = None
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-filter:a", "loudnorm=print_format=json",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        json_start = r.stderr.rfind("{")
+        json_end = r.stderr.rfind("}") + 1
+        if json_start >= 0 and json_end > json_start:
+            ln = json.loads(r.stderr[json_start:json_end])
+            lufs = float(ln.get("input_i", -99))
+            true_peak = float(ln.get("input_tp", 0))
+    except Exception as e:
+        logger.warning(f"[PREFLIGHT] loudness measurement failed: {e}")
+    metrics["lufs"] = round(lufs, 1) if lufs is not None else None
+    metrics["true_peak"] = round(true_peak, 1) if true_peak is not None else None
+    if lufs is not None and (lufs < -17 or lufs > -12):
+        issues.append(f"lufs={lufs:.1f} (target -17 to -12)")
+    if true_peak is not None and true_peak > -1.0:
+        issues.append(f"true_peak={true_peak:.1f}dBTP (max -1.0)")
+
+    # ── 4. Duration ───────────────────────────────────────────────────────
+    try:
+        dur_r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+            capture_output=True, text=True, timeout=30,
+        )
+        duration_s = float(dur_r.stdout.strip()) if dur_r.stdout.strip() else 0
+    except Exception:
+        duration_s = 0
+    metrics["duration_s"] = round(duration_s, 1)
+    dur_min = duration_s / 60
+    metrics["duration_fmt"] = f"{int(dur_min)}m{int(duration_s % 60):02d}s"
+    if duration_s < 420 or duration_s > 900:  # 7-15 min
+        issues.append(f"duration={dur_min:.1f}min (target 7-15)")
+
+    # ── 5. Resolution ─────────────────────────────────────────────────────
+    width, height = 0, 0
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=width,height",
+             "-of", "default=noprint_wrappers=1", video_path],
+            capture_output=True, text=True, timeout=30,
+        )
+        for line in r.stdout.strip().splitlines():
+            if line.startswith("width="):
+                width = int(line.split("=")[1])
+            elif line.startswith("height="):
+                height = int(line.split("=")[1])
+    except Exception:
+        pass
+    metrics["resolution"] = f"{width}x{height}"
+    if width != 1920 or height != 1080:
+        issues.append(f"resolution={width}x{height} (expected 1920x1080)")
+
+    passed = len(issues) == 0
+    _preflight_log(
+        f"freeze_frames={freeze_count} silence_gaps={len(silence_gaps)} "
+        f"lufs={metrics.get('lufs')} duration={metrics.get('duration_fmt')} "
+        f"resolution={metrics.get('resolution')}"
+    )
+    _preflight_log(f"{'PASS' if passed else 'FAIL'}" + (f" — {issues}" if issues else " — proceeding to grading"))
+
+    return {"passed": passed, "issues": issues, "metrics": metrics}
+
+
+def _apply_preflight_fixes(video_path: str, qc: dict):
+    """Apply targeted fixes for each preflight issue type.
+
+    Modifies video_path IN-PLACE (via atomic rename).
+    """
+    issues_str = " ".join(qc.get("issues", []))
+
+    # ── Freeze frame fix ──────────────────────────────────────────────────
+    if "freeze_frames" in issues_str:
+        logger.info("[PREFLIGHT FIX] Re-encoding to eliminate freeze frames (cfr)")
+        tmp = video_path + ".freeze_fix.mp4"
+        try:
+            r = subprocess.run(
+                ["ffmpeg", "-y",
+                 "-fflags", "+genpts+igndts+discardcorrupt",
+                 "-i", video_path,
+                 "-c:v", "libx264", "-preset", "medium",
+                 "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
+                 "-r", "30", "-vsync", "cfr",
+                 "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+                 "-c:a", "copy",
+                 "-movflags", "+faststart",
+                 tmp],
+                capture_output=True, text=True, timeout=600,
+            )
+            if r.returncode == 0 and os.path.exists(tmp):
+                os.replace(tmp, video_path)
+                logger.info("[PREFLIGHT FIX] Freeze frame re-encode complete")
+            elif os.path.exists(tmp):
+                os.remove(tmp)
+        except Exception as e:
+            logger.warning(f"[PREFLIGHT FIX] Freeze frame fix failed: {e}")
+            if os.path.exists(tmp):
+                os.remove(tmp)
+
+    # ── Silence gap fix ───────────────────────────────────────────────────
+    if "silence_gaps" in issues_str:
+        logger.info("[PREFLIGHT FIX] Filling silence gaps with fade bridge")
+        tmp = video_path + ".silence_fix.mp4"
+        try:
+            r = subprocess.run(
+                ["ffmpeg", "-y", "-i", video_path,
+                 "-c:v", "copy",
+                 "-af", "silenceremove=stop_periods=-1:stop_duration=0.8:stop_threshold=-50dB,"
+                        "apad=pad_dur=0.05",
+                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                 "-movflags", "+faststart",
+                 tmp],
+                capture_output=True, text=True, timeout=300,
+            )
+            if r.returncode == 0 and os.path.exists(tmp):
+                os.replace(tmp, video_path)
+                logger.info("[PREFLIGHT FIX] Silence gap fix complete")
+            elif os.path.exists(tmp):
+                os.remove(tmp)
+        except Exception as e:
+            logger.warning(f"[PREFLIGHT FIX] Silence fix failed: {e}")
+            if os.path.exists(tmp):
+                os.remove(tmp)
+
+    # ── Loudness fix ──────────────────────────────────────────────────────
+    if "lufs=" in issues_str or "true_peak=" in issues_str:
+        logger.info("[PREFLIGHT FIX] Applying loudnorm to fix loudness")
+        tmp = video_path + ".loudnorm_fix.mp4"
+        try:
+            r = subprocess.run(
+                ["ffmpeg", "-y", "-i", video_path,
+                 "-c:v", "copy",
+                 "-af", "loudnorm=I=-14:TP=-2.0:LRA=7:linear=true",
+                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                 "-movflags", "+faststart",
+                 tmp],
+                capture_output=True, text=True, timeout=300,
+            )
+            if r.returncode == 0 and os.path.exists(tmp):
+                os.replace(tmp, video_path)
+                logger.info("[PREFLIGHT FIX] Loudnorm fix complete")
+            elif os.path.exists(tmp):
+                os.remove(tmp)
+        except Exception as e:
+            logger.warning(f"[PREFLIGHT FIX] Loudnorm fix failed: {e}")
+            if os.path.exists(tmp):
+                os.remove(tmp)
+
+
 def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                  fast_test: bool = False) -> bool:
     # Fast test implies test + skip-scan
@@ -802,6 +1050,40 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             alert_pipeline_failure(date_str, "assemble", "Video assembly failed")
         return False
     write_render_context(7, "ok")
+
+    # ── Step 7b: PRE-FLIGHT QC (Grade A Guarantee) ───────────────────────
+    print("\n[STEP 7b] PRE-FLIGHT QC...")
+    t0 = time.time()
+    for pf_attempt in range(1, MAX_PREFLIGHT_ATTEMPTS + 1):
+        logger.info(f"[PREFLIGHT] Attempt {pf_attempt}/{MAX_PREFLIGHT_ATTEMPTS}")
+        print(f"  Preflight attempt {pf_attempt}/{MAX_PREFLIGHT_ATTEMPTS}")
+        qc = run_preflight_qc(final_video)
+
+        if qc["passed"]:
+            print("  [PREFLIGHT] PASSED — proceeding to grading")
+            logger.info("[PREFLIGHT] PASSED — sending to grading")
+            break
+
+        logger.warning(f"[PREFLIGHT] FAILED: {qc['issues']}")
+        print(f"  [PREFLIGHT] FAILED: {qc['issues']}")
+        write_render_context("7b", "fail", error=str(qc["issues"]))
+
+        if pf_attempt == MAX_PREFLIGHT_ATTEMPTS:
+            logger.error("[PREFLIGHT] Max attempts reached — sending anyway")
+            print("  [PREFLIGHT] Max attempts — sending to grading anyway")
+            if is_enabled("telegram_alerts"):
+                from utils.telegram_alerts import send_alert
+                send_alert(
+                    f"PREFLIGHT: {qc['issues']} — sending to grading anyway",
+                    level="warning",
+                )
+            break
+
+        # Apply targeted fixes
+        _apply_preflight_fixes(final_video, qc)
+
+    timing["7b_preflight_qc"] = round(time.time() - t0, 2)
+    write_render_context("7b", "ok" if qc["passed"] else "warn")
 
     # ── Step 8: SHORTS ────────────────────────────────────────────────────
     print("\n[STEP 8/12] GENERATING SHORTS (avatar)...")

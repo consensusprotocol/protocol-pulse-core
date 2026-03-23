@@ -320,3 +320,21 @@ SIGNAL FRESHNESS:
   Expired signals (age >= max_valid_age) excluded from pattern evaluation.
 
 ALL 9 TESTS PASSED.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## PRE-FLIGHT QC LOOP — 2026-03-23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PATTERN: Pre-flight QC loop
+PURPOSE: Ensures grading never sees a video with freeze frames/silence/loudness issues.
+  Saves 45-90 min per failed render by catching issues before Gemini grading.
+LOCATION: daily_producer.py run_preflight_qc() called after Step 7 (assembly) before Step 8.
+  Wired as Step 7b with up to 3 attempts and auto-fix between each attempt.
+THRESHOLDS: 0 freeze frames (freezedetect n=0.003:d=1.5), 0 silence gaps >0.8s in middle 80%,
+  LUFS -17 to -12 integrated, true peak <= -1.0 dBTP, 7-15 min duration, 1920x1080 resolution.
+AUTO-FIX:
+  freeze_frames → full video re-encode with -r 30 -vsync cfr + setpts reset
+  silence_gaps → silenceremove filter + apad
+  loudness → loudnorm=I=-14:TP=-2.0:LRA=7:linear=true (audio only, no video re-encode)
+LOG: video_pipeline_v3/logs/preflight_YYYYMMDD.log
+MAX ATTEMPTS: 3 — after 3 failures, sends Telegram warning and proceeds to grading.
