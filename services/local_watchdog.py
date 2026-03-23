@@ -617,6 +617,14 @@ def run_reactive_check():
 
     # Tail the log
     log_tail = tail_file(OVERNIGHT_LOG, 50)
+    # CRITICAL FIX: also scan producer_debug.log — KeyErrors live there not in loop log
+    from pathlib import Path as _P
+    producer_log = _P("/tmp/producer_debug.log")
+    if producer_log.exists():
+        producer_tail = tail_file(producer_log, 30)
+        if "KeyError" in producer_tail or "Traceback" in producer_tail:
+            log_tail = log_tail + "
+" + producer_tail
     if not log_tail.strip():
         logger.info("No log content to analyze")
         if not loop_alive:
