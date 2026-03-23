@@ -1036,10 +1036,14 @@ def vision_guide():
         img_b64 = data["image_base64"]
         if img_b64.startswith("data:"):
             img_b64 = img_b64.split(",", 1)[1]
+        question = data.get("question", "")
+        last_context = data.get("last_context", "")
+        if last_context:
+            question += f"\n\nUser completed these steps: {last_context}\nNow showing the next screen."
         result = session.send_image(
             image_b64=img_b64,
             mime_type=data.get("mime_type", "image/jpeg"),
-            question=data.get("question", ""),
+            question=question,
         )
     elif data.get("question"):
         result = session.send_text(data["question"])
