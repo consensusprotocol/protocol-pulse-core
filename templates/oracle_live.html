@@ -909,6 +909,7 @@ function process(text){
   }catch(e){}
 
   var pendingVideoUrl=null;
+  var _audioFinished=false;
 
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
@@ -991,6 +992,7 @@ function process(text){
 
         return new Promise(function(resolve){
           audio.onended=function(){
+            _audioFinished=true;
             if(_pendingCard){ showActionCard(_pendingCard); _pendingCard=null; }
             window._chatAudioPlaying=false;
             URL.revokeObjectURL(audioUrl);
@@ -1019,13 +1021,11 @@ function process(text){
                   if(vb){
                     clearInterval(pollVideo);
                     pendingVideoUrl=blobURL(vb);
-                    // If audio is still playing, start video immediately muted for lip sync
-                    if(!audio.paused && !audio.ended){
-                      vid.muted=true;
-                      vid.volume=0;
+                    // Only play lip-sync video if audio has already finished
+                    if (_audioFinished) {
                       playVid(pendingVideoUrl);
-                      // When audio ends, we already handle unmute above
                     }
+                    // If audio not done yet, skip the video — audio was the response
                     vid.style.opacity='1';
                   }
                 })
