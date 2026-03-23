@@ -203,7 +203,7 @@ def _generate_article_claude(script_text: str, episode_title: str, btc_price: st
             f"SCRIPT:\n{script_text[:6000]}"
         )
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-haiku-4-5-20251001",
             max_tokens=2048,
             system=_ARTICLE_SYSTEM,
             messages=[{"role": "user", "content": user_msg}],
@@ -377,7 +377,7 @@ def _generate_tweets_claude(script_text: str, episode_title: str,
             f"SCRIPT:\n{script_text[:5000]}"
         )
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-haiku-4-5-20251001",
             max_tokens=1024,
             system=_TWEET_SYSTEM,
             messages=[{"role": "user", "content": user_msg}],

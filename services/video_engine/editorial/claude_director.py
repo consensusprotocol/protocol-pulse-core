@@ -194,7 +194,7 @@ class ClaudeDirector:
 
     def __init__(self):
         self.api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        self.model = os.environ.get("CLAUDE_DIRECTOR_MODEL", "claude-sonnet-4-5-20250929")
+        self.model = os.environ.get("CLAUDE_DIRECTOR_MODEL", "claude-haiku-4-5-20251001")
         self.tokens_in = 0
         self.tokens_out = 0
         self.retries = 0
