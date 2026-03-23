@@ -794,6 +794,25 @@ def run_reactive_check():
             logger.info("Render loop dead but outside active hours (ET %d:00) — skipping restart", et_hour)
 
     # Tail the log
+    # Zombie detection: producer running >90min with 0 audio files = hung
+    try:
+        import subprocess as _sp, glob as _glob
+        _pid_r = _sp.run(["pgrep","-f","daily_producer"], capture_output=True, text=True)
+        _pid = _pid_r.stdout.strip().split(chr(10))[0]
+        if _pid:
+            _ps = _sp.run(["ps","-p",_pid,"-o","etime,pcpu","--no-headers"], capture_output=True, text=True).stdout.strip()
+            if _ps:
+                _parts = _ps.split()
+                _elapsed = _parts[0] if _parts else ""
+                _cpu = float(_parts[1]) if len(_parts) > 1 else 0
+                _hrs = (_elapsed.count(chr(45))+1)
+                _audio_count = len(_glob.glob("/home/ultron/protocol_pulse/video_pipeline_v3/output/*/audio/*.m4a"))
+                if _hrs >= 1 and _cpu > 50 and _audio_count == 0:
+                    logger.warning(f"ZOMBIE DETECTED: producer pid={_pid} running {_elapsed} at {_cpu}% CPU with 0 audio files — SpaceTap hang")
+                    _sp.run(["kill","-9",_pid], capture_output=True)
+                    import pathlib; pathlib.Path("/tmp/daily_producer.lock").unlink(missing_ok=True)
+                    send_telegram(f"WATCHDOG: Killed zombie producer {_pid} ({_elapsed} at {_cpu}% CPU, 0 audio) — SpaceTap hang")
+    except Exception as _ze: logger.debug(f"Zombie check error: {_ze}")
     log_tail = tail_file(OVERNIGHT_LOG, 50)
     # CRITICAL FIX: also scan producer_debug.log — KeyErrors live there not in loop log
     producer_log = Path("/tmp/producer_debug.log")
