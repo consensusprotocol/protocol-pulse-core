@@ -3057,11 +3057,11 @@ def sentiment_dashboard():
     )
 
 
-@app.route('/intelligence')
+@app.route('/intelligence/legacy')
 def intelligence_page():
     """
-    SESSION 12 UPGRADE — Signal Intelligence command center.
-    Added: sentiment heatmap, dominant narrative, anomaly banner, SSE live feed.
+    SESSION 12 UPGRADE — Signal Intelligence command center (legacy).
+    /intelligence now serves the Intelligence Terminal (Phase 1 blueprint).
     """
     import json as _json
     from sqlalchemy import text as _text

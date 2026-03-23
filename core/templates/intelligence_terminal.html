@@ -1,0 +1,808 @@
+{% extends "base.html" %}
+
+{% block title %}Intelligence Terminal | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   INTELLIGENCE TERMINAL — War Room Aesthetic
+   Reuters meets Bloomberg meets Matrix Sentinel
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+    --it-bg: #0A0A0F;
+    --it-surface: #0F0F18;
+    --it-border: #1A1A2E;
+    --it-text: #E8E8E8;
+    --it-muted: #444444;
+    --it-label: #888888;
+    --it-red: #FF0000;
+    --it-amber: #FFB800;
+    --it-green: #00FF88;
+    --it-panel-header: #666;
+}
+
+body.intel-terminal {
+    background: var(--it-bg) !important;
+    color: var(--it-text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Hide base.html navigation if present */
+body.intel-terminal nav,
+body.intel-terminal .navbar,
+body.intel-terminal footer,
+body.intel-terminal .site-footer {
+    display: none !important;
+}
+
+.it-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 12px;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.it-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--it-border);
+    background: var(--it-bg);
+}
+.it-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.it-logo {
+    color: var(--it-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.it-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--it-label);
+}
+.it-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--it-text);
+    letter-spacing: 1px;
+}
+.it-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.it-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--it-green);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ── ALERT RAIL ─────────────────────────────────────────────── */
+.it-alert-rail {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-bottom: 1px solid var(--it-border);
+    background: var(--it-surface);
+    min-height: 32px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.it-alert-critical {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--it-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+.it-alert-critical .pulse-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--it-red);
+    animation: criticalPulse 1s ease-in-out infinite;
+}
+@keyframes criticalPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
+    50% { box-shadow: 0 0 0 6px rgba(255,0,0,0); }
+}
+.it-alert-watch {
+    color: var(--it-amber);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+}
+.it-alert-notes {
+    margin-left: auto;
+    color: var(--it-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+/* ── GRID LAYOUT ────────────────────────────────────────────── */
+.it-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr;
+    gap: 1px;
+    background: var(--it-border);
+    margin-top: 1px;
+}
+
+/* ── PANEL ──────────────────────────────────────────────────── */
+.it-panel {
+    background: var(--it-bg);
+    padding: 16px;
+    border: 1px solid var(--it-border);
+    min-height: 280px;
+    position: relative;
+}
+.it-panel-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--it-panel-header);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--it-border);
+}
+
+/* ── DATA VALUES ────────────────────────────────────────────── */
+.it-value-primary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--it-text);
+    line-height: 1.1;
+}
+.it-value-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--it-label);
+    margin-top: 2px;
+}
+.it-value-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(26,26,46,0.5);
+}
+.it-value-row-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--it-label);
+}
+.it-value-row-data {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--it-text);
+}
+.it-stale {
+    color: var(--it-muted) !important;
+}
+.it-stale::before {
+    content: "~";
+}
+
+/* ── ANOMALY BAR ────────────────────────────────────────────── */
+.it-anomaly-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(26,26,46,0.8);
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+}
+.it-anomaly-fill {
+    height: 100%;
+    transition: width 0.5s ease, background 0.5s ease;
+}
+.it-anomaly-fill.green { background: var(--it-green); }
+.it-anomaly-fill.amber { background: var(--it-amber); }
+.it-anomaly-fill.red { background: var(--it-red); }
+
+/* ── FEE HISTOGRAM (ASCII bars) ─────────────────────────────── */
+.it-fee-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+}
+.it-fee-label {
+    width: 80px;
+    text-align: right;
+    color: var(--it-label);
+    flex-shrink: 0;
+}
+.it-fee-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(26,26,46,0.5);
+    position: relative;
+    overflow: hidden;
+}
+.it-fee-bar-fill {
+    height: 100%;
+    background: var(--it-green);
+    transition: width 0.3s ease;
+}
+.it-fee-pct {
+    width: 35px;
+    text-align: right;
+    color: var(--it-muted);
+    flex-shrink: 0;
+}
+
+/* ── WHALE FEED ─────────────────────────────────────────────── */
+.it-whale-feed {
+    max-height: 140px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--it-border) transparent;
+}
+.it-whale-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 0;
+    color: var(--it-text);
+    border-bottom: 1px solid rgba(26,26,46,0.3);
+}
+.it-whale-time {
+    color: var(--it-muted);
+}
+.it-whale-value {
+    color: var(--it-amber);
+    font-weight: 700;
+}
+
+/* ── ACTIVE RULES ───────────────────────────────────────────── */
+.it-rule {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 6px;
+    margin: 2px 0;
+    background: rgba(255,0,0,0.06);
+    border-left: 2px solid var(--it-red);
+    color: var(--it-text);
+}
+.it-rule.watch {
+    border-left-color: var(--it-amber);
+    background: rgba(255,184,0,0.06);
+}
+.it-rule.note {
+    border-left-color: var(--it-muted);
+    background: rgba(68,68,68,0.06);
+}
+
+/* ── DATA RAIL ──────────────────────────────────────────────── */
+.it-data-rail {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 16px;
+    border-top: 1px solid var(--it-border);
+    background: var(--it-surface);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.it-rail-item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+}
+.it-rail-label {
+    color: var(--it-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.it-rail-value {
+    color: var(--it-text);
+    font-weight: 500;
+}
+
+/* ── CONNECTING STATE ───────────────────────────────────────── */
+.it-connecting {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--it-label);
+}
+.it-blink {
+    animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* ── DEMO OVERLAY ───────────────────────────────────────────── */
+.it-demo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,15,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.it-demo-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--it-amber);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 1px solid var(--it-amber);
+    margin-bottom: 12px;
+}
+.it-demo-cta {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--it-label);
+}
+.it-demo-cta a {
+    color: var(--it-amber);
+    text-decoration: none;
+}
+
+/* ── CRITICAL FLASH ─────────────────────────────────────────── */
+@keyframes criticalFlash {
+    0%, 100% { border-color: var(--it-border); }
+    25%, 75% { border-color: var(--it-red); }
+}
+.it-flash-critical {
+    animation: criticalFlash 2s ease-in-out;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .it-grid { grid-template-columns: 1fr; }
+    .it-data-rail { flex-direction: column; align-items: flex-start; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<body class="intel-terminal">
+<div class="it-container">
+
+    <!-- HEADER -->
+    <div class="it-header">
+        <div class="it-header-left">
+            <div class="it-logo">PP</div>
+            <div class="it-title">Intelligence Terminal</div>
+            <div class="it-status">
+                <div class="it-status-dot"></div>
+                <span id="itConnectionStatus">CONNECTING<span class="it-blink">_</span></span>
+            </div>
+        </div>
+        <div class="it-clock" id="itClock">--:--:-- ET</div>
+    </div>
+
+    <!-- ALERT RAIL -->
+    <div class="it-alert-rail" id="itAlertRail">
+        <div class="it-alert-critical" id="itAlertCritical" style="display:none;">
+            <div class="pulse-indicator"></div>
+            <span id="itCriticalText"></span>
+        </div>
+        <div class="it-alert-watch" id="itAlertWatch" style="display:none;">
+            <span id="itWatchText"></span>
+        </div>
+        <div class="it-alert-notes" id="itAlertNotes">0 NOTES</div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="it-grid">
+
+        <!-- SENTINEL CORE -->
+        <div class="it-panel">
+            <div class="it-panel-header">Sentinel Core</div>
+            <div class="it-value-label">PCAF ANOMALY SCORE</div>
+            <div class="it-value-primary" id="itPcafScore">--</div>
+            <div class="it-anomaly-bar">
+                <div class="it-anomaly-fill green" id="itAnomalyFill" style="width:0%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Top Signal</span>
+                <span class="it-value-row-data" id="itTopSignal">--</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Confidence</span>
+                <span class="it-value-row-data" id="itConfidence">--%</span>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">ACTIVE RULES</div>
+                <div id="itActiveRules">
+                    <div class="it-connecting">No signals<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- MEMPOOL LIVE -->
+        <div class="it-panel">
+            <div class="it-panel-header">Mempool Live</div>
+            <div class="it-value-label">UNCONFIRMED TXS</div>
+            <div class="it-value-primary" id="itMempoolCount">--</div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Mempool Size</span>
+                <span class="it-value-row-data" id="itMempoolVsize">-- vMB</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Total Fees</span>
+                <span class="it-value-row-data" id="itMempoolFees">-- BTC</span>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">FEE BANDS (sat/vB)</div>
+                <div id="itFeeHistogram">
+                    <div class="it-connecting">Loading<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">WHALE TX FEED</div>
+                <div class="it-whale-feed" id="itWhaleFeed">
+                    <div class="it-connecting">Monitoring<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- NETWORK STATE -->
+        <div class="it-panel">
+            <div class="it-panel-header">Network State</div>
+            <div class="it-value-label">BLOCK HEIGHT</div>
+            <div class="it-value-primary" id="itBlockHeight">--</div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Hashrate (3d avg)</span>
+                <span class="it-value-row-data" id="itHashrate">-- EH/s</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Difficulty Change</span>
+                <span class="it-value-row-data" id="itDifficulty">--%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Next Adj Progress</span>
+                <span class="it-value-row-data" id="itNextAdj">--%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Avg Block Time (10)</span>
+                <span class="it-value-row-data" id="itAvgBlockTime">--s</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Orphans (6h)</span>
+                <span class="it-value-row-data" id="itOrphanCount">--</span>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /it-grid -->
+
+    <!-- DATA RAIL -->
+    <div class="it-data-rail">
+        <div class="it-rail-item">
+            <span class="it-rail-label">BTC</span>
+            <span class="it-rail-value" id="itPrice">$--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">24h</span>
+            <span class="it-rail-value" id="itPriceChange">--%</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">F&G</span>
+            <span class="it-rail-value" id="itFng">--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">LN Cap</span>
+            <span class="it-rail-value" id="itLnCapacity">-- BTC</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">LN Chan</span>
+            <span class="it-rail-value" id="itLnChannels">--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">Sentinel</span>
+            <span class="it-rail-value" id="itSentinelStatus" style="color:var(--it-green)">ACTIVE</span>
+        </div>
+    </div>
+
+</div><!-- /it-container -->
+
+<script>
+(function() {
+    'use strict';
+
+    const DEMO_MODE = {{ 'true' if demo_mode else 'false' }};
+    const SSE_URL = '/api/intelligence/stream';
+    let sse = null;
+    let reconnectDelay = 1000;
+    let lastDataTs = 0;
+
+    // ── Clock ──────────────────────────────────────────────────
+    function updateClock() {
+        const now = new Date();
+        const et = now.toLocaleTimeString('en-US', {
+            timeZone: 'America/New_York',
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('itClock').textContent = et + ' ET';
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ── Number formatting ──────────────────────────────────────
+    function fmtNum(n) {
+        if (n === null || n === undefined) return '--';
+        return n.toLocaleString('en-US');
+    }
+    function fmtPrice(n) {
+        if (!n) return '$--';
+        return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0});
+    }
+
+    // ── Staleness check ────────────────────────────────────────
+    function isStale(ts) {
+        if (!ts) return true;
+        return (Date.now() / 1000 - ts) > 60;
+    }
+    function setVal(id, value, ts) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = value;
+        if (isStale(ts)) {
+            el.classList.add('it-stale');
+        } else {
+            el.classList.remove('it-stale');
+        }
+    }
+
+    // ── Fee histogram render ───────────────────────────────────
+    function renderFeeHistogram(histogram) {
+        const container = document.getElementById('itFeeHistogram');
+        if (!histogram || !histogram.length) {
+            container.innerHTML = '<div class="it-connecting">No data<span class="it-blink">_</span></div>';
+            return;
+        }
+        const totalVsize = histogram.reduce((s, b) => s + (b.vsize || 0), 0) || 1;
+        let html = '';
+        for (const band of histogram) {
+            const pct = Math.round((band.vsize / totalVsize) * 100);
+            if (pct === 0 && band.min_fee > 100) continue;
+            const label = band.max_fee >= 9999 ? band.min_fee + '+' : band.min_fee + '-' + band.max_fee;
+            const color = band.min_fee <= 10 ? 'var(--it-green)' :
+                          band.min_fee <= 50 ? 'var(--it-amber)' : 'var(--it-red)';
+            html += `<div class="it-fee-row">
+                <span class="it-fee-label">${label}</span>
+                <div class="it-fee-bar"><div class="it-fee-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+                <span class="it-fee-pct">${pct}%</span>
+            </div>`;
+        }
+        container.innerHTML = html || '<div class="it-connecting">Empty<span class="it-blink">_</span></div>';
+    }
+
+    // ── Whale feed render ──────────────────────────────────────
+    function renderWhaleFeed(whales) {
+        const container = document.getElementById('itWhaleFeed');
+        if (!whales || !whales.length) {
+            container.innerHTML = '<div class="it-connecting">No whales detected<span class="it-blink">_</span></div>';
+            return;
+        }
+        let html = '';
+        for (const w of whales.slice(0, 10)) {
+            const t = new Date(w.timestamp * 1000);
+            const ts = t.toLocaleTimeString('en-US', {hour12: false, hour:'2-digit', minute:'2-digit'});
+            const txid = (w.txid || '').substring(0, 8);
+            html += `<div class="it-whale-item">
+                <span class="it-whale-time">[${ts}]</span>
+                <span class="it-whale-value">${w.value_btc} BTC</span>
+                <span style="color:var(--it-muted)">${txid}...</span>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // ── Active rules render ────────────────────────────────────
+    function renderActiveRules(rules) {
+        const container = document.getElementById('itActiveRules');
+        if (!rules || !rules.length) {
+            container.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--it-muted)">No active signals</div>';
+            return;
+        }
+        let html = '';
+        for (const r of rules) {
+            html += `<div class="it-rule">${r}</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // ── Alert rail render ──────────────────────────────────────
+    function renderAlerts(alerts) {
+        if (!alerts || !alerts.active) return;
+        const active = alerts.active;
+        const criticals = active.filter(a => a.tier === 'CRITICAL');
+        const watches = active.filter(a => a.tier === 'WATCH');
+        const notes = active.filter(a => a.tier === 'NOTE');
+
+        const critEl = document.getElementById('itAlertCritical');
+        const critText = document.getElementById('itCriticalText');
+        if (criticals.length > 0) {
+            critEl.style.display = 'flex';
+            critText.textContent = criticals[0].message;
+        } else {
+            critEl.style.display = 'none';
+        }
+
+        const watchEl = document.getElementById('itAlertWatch');
+        const watchText = document.getElementById('itWatchText');
+        if (watches.length > 0) {
+            watchEl.style.display = 'block';
+            watchText.textContent = watches[0].message;
+        } else {
+            watchEl.style.display = 'none';
+        }
+
+        document.getElementById('itAlertNotes').textContent = notes.length + ' NOTES';
+
+        // Critical flash
+        if (criticals.length > 0 && criticals[0].created_at > lastDataTs - 5) {
+            document.querySelector('.it-container').classList.add('it-flash-critical');
+            setTimeout(() => {
+                document.querySelector('.it-container').classList.remove('it-flash-critical');
+            }, 2000);
+        }
+    }
+
+    // ── Anomaly bar ────────────────────────────────────────────
+    function updateAnomalyBar(score) {
+        const fill = document.getElementById('itAnomalyFill');
+        fill.style.width = Math.min(score, 100) + '%';
+        fill.className = 'it-anomaly-fill ' + (score >= 70 ? 'red' : score >= 30 ? 'amber' : 'green');
+    }
+
+    // ── Full state update ──────────────────────────────────────
+    function updateState(state) {
+        lastDataTs = Date.now() / 1000;
+
+        // Connection status
+        document.getElementById('itConnectionStatus').textContent = 'LIVE';
+        document.getElementById('itConnectionStatus').closest('.it-status').style.color = 'var(--it-green)';
+
+        // Mempool
+        const mem = state.mempool || {};
+        setVal('itMempoolCount', fmtNum(mem.count), mem.updated_at);
+        setVal('itMempoolVsize', (mem.vsize ? (mem.vsize / 1e6).toFixed(1) : '--') + ' vMB', mem.updated_at);
+        setVal('itMempoolFees', (mem.total_fee ? (mem.total_fee / 1e8).toFixed(4) : '--') + ' BTC', mem.updated_at);
+        renderFeeHistogram(mem.fee_histogram);
+        renderWhaleFeed(mem.whale_txs);
+
+        // Network
+        const net = state.network || {};
+        setVal('itBlockHeight', fmtNum(net.block_height), net.updated_at);
+        setVal('itHashrate', (net.hashrate_3d || '--') + ' EH/s', net.updated_at);
+        setVal('itDifficulty', (net.difficulty !== undefined ? net.difficulty.toFixed(2) : '--') + '%', net.updated_at);
+        setVal('itNextAdj', (net.next_difficulty_adj_pct || '--') + '%', net.updated_at);
+        setVal('itAvgBlockTime', (net.avg_block_time_10 || '--') + 's', net.updated_at);
+        setVal('itOrphanCount', '' + (net.orphan_count_6h || 0), net.updated_at);
+
+        // PCAF
+        const pcaf = state.pcaf_v0 || {};
+        setVal('itPcafScore', '' + (pcaf.anomaly_score || 0), pcaf.updated_at);
+        setVal('itTopSignal', pcaf.top_signal || 'None', pcaf.updated_at);
+        setVal('itConfidence', (pcaf.confidence_pct || 0) + '%', pcaf.updated_at);
+        updateAnomalyBar(pcaf.anomaly_score || 0);
+        renderActiveRules(pcaf.active_rules);
+
+        // Lightning
+        const ln = state.lightning || {};
+        setVal('itLnCapacity', (ln.capacity_btc || '--') + ' BTC', ln.updated_at);
+        setVal('itLnChannels', fmtNum(ln.channel_count), ln.updated_at);
+
+        // Price (from SSE if available)
+        if (state.price) {
+            document.getElementById('itPrice').textContent = fmtPrice(state.price.usd);
+            const change = state.price.change_24h;
+            const changeEl = document.getElementById('itPriceChange');
+            changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+            changeEl.style.color = change >= 0 ? 'var(--it-green)' : 'var(--it-red)';
+        }
+
+        // FNG
+        if (state.fng) {
+            const fngEl = document.getElementById('itFng');
+            fngEl.textContent = state.fng.value + ' ' + (state.fng.label || '');
+        }
+
+        // Alerts
+        renderAlerts(state.alerts);
+    }
+
+    // ── SSE Connection ─────────────────────────────────────────
+    function connectSSE() {
+        if (sse) { sse.close(); }
+        sse = new EventSource(SSE_URL);
+        sse.onopen = function() {
+            reconnectDelay = 1000;
+        };
+        sse.onmessage = function(event) {
+            try {
+                const state = JSON.parse(event.data);
+                if (state.error) return;
+                updateState(state);
+            } catch(e) {
+                console.warn('SSE parse error:', e);
+            }
+        };
+        sse.onerror = function() {
+            sse.close();
+            document.getElementById('itConnectionStatus').innerHTML = 'RECONNECTING<span class="it-blink">_</span>';
+            document.getElementById('itConnectionStatus').closest('.it-status').style.color = 'var(--it-amber)';
+            setTimeout(connectSSE, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+        };
+    }
+
+    // ── Init ───────────────────────────────────────────────────
+    connectSSE();
+
+})();
+</script>
+{% endblock %}

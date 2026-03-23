@@ -182,6 +182,26 @@ with app.app_context():
 
 app.register_blueprint(curated_mining_bp)
 
+# ── Intelligence Terminal Blueprint ──────────────────────────────────────
+try:
+    from blueprints.intelligence import intelligence_bp
+    app.register_blueprint(intelligence_bp)
+    logging.info("Intelligence Terminal blueprint registered")
+except Exception as _intel_err:
+    logging.warning("Intelligence Terminal blueprint not loaded: %s", _intel_err)
+
+# ── Start Sentinel Daemon ────────────────────────────────────────────────
+try:
+    import importlib.util as _ilu_sentinel
+    _sentinel_path = str(Path(__file__).resolve().parent.parent / "services" / "sentinel.py")
+    _sentinel_spec = _ilu_sentinel.spec_from_file_location("_sentinel_daemon_boot", _sentinel_path)
+    _sentinel_boot = _ilu_sentinel.module_from_spec(_sentinel_spec)
+    _sentinel_spec.loader.exec_module(_sentinel_boot)
+    _sentinel_boot.start_sentinel()
+    logging.info("Sentinel daemon started")
+except Exception as _sentinel_err:
+    logging.warning("Sentinel daemon failed to start: %s", _sentinel_err)
+
 # Diagnose: confirm / and /debug-routes are registered (debug 404)
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]

@@ -248,4 +248,23 @@ WATCHDOG ACTION FOR THIS PATTERN:
   2. Run: pkill -f daily_producer
   3. Restart render loop with PYTHONDONTWRITEBYTECODE=1
   Do NOT launch CC session — this is a cache issue, not a code issue.
-PATTERN: pyc stale cache KeyError — STATUS: PERMANENTLY CLOSED. sys.dont_write_bytecode=True in overnight_render_loop.py + daily_producer.py at startup. Cannot recur. Watchdog action: none needed.PATTERN: Render loop starts but daily_producer never spawns — flock blocked. ROOT CAUSE: golden_path.py CHECK 4 tests flock by spawning two producers; if golden_path is killed mid-test, the lock file /tmp/daily_producer.lock stays held. FIX: fuser -k /tmp/daily_producer.lock && rm -f /tmp/daily_producer.lock, then restart loop. PREVENTION: golden_path.py CHECK 4 must clean up lock in finally: block. WATCHDOG ACTION: If daily_producer never starts within 60s of RENDER START, check fuser /tmp/daily_producer.lock and kill holder.
+PATTERN: pyc stale cache KeyError — STATUS: PERMANENTLY CLOSED. sys.dont_write_bytecode=True in overnight_render_loop.py + daily_producer.py at startup. Cannot recur. Watchdog action: none needed.
+## INTELLIGENCE TERMINAL PHASE 1 — 2026-03-23
+
+BUG 1: `services.sentinel` import fails inside blueprints/intelligence.py
+  ROOT CAUSE: Two `services/` packages exist — `core/services/` (has __init__.py) and
+  project-root `services/` (also has __init__.py). When gunicorn runs from `core/`,
+  `from services.sentinel import ...` resolves to `core/services/sentinel` which doesn't
+  exist. Python's `sys.path.insert(0, project_root)` doesn't help because `core/services`
+  is already loaded as the `services` package.
+  FIX: Use `importlib.util.spec_from_file_location()` to load sentinel.py by absolute
+  file path, bypassing the package resolution entirely.
+  VERIFY: `curl -s http://localhost:5000/api/intelligence/state/public | python3 -m json.tool`
+
+BUG 2: `/intelligence` route conflict with routes.py Session 12
+  ROOT CAUSE: routes.py line 3060 had `@app.route('/intelligence')` which was registered
+  before the blueprint, so Flask served the old page.
+  FIX: Changed old route to `/intelligence/legacy`, freeing the path for the blueprint.
+  VERIFY: `curl -s http://localhost:5000/intelligence | grep -c "Intelligence Terminal"`
+
+PATTERN: Render loop starts but daily_producer never spawns — flock blocked. ROOT CAUSE: golden_path.py CHECK 4 tests flock by spawning two producers; if golden_path is killed mid-test, the lock file /tmp/daily_producer.lock stays held. FIX: fuser -k /tmp/daily_producer.lock && rm -f /tmp/daily_producer.lock, then restart loop. PREVENTION: golden_path.py CHECK 4 must clean up lock in finally: block. WATCHDOG ACTION: If daily_producer never starts within 60s of RENDER START, check fuser /tmp/daily_producer.lock and kill holder.
