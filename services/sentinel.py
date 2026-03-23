@@ -40,6 +40,14 @@ convergence_config = _config_loader_mod.convergence_config
 _convergence_engine_mod = _load_svc('_sentinel_convergence_engine', 'convergence_engine.py')
 ConvergenceEngine = _convergence_engine_mod.ConvergenceEngine
 
+# Phase 2 engines
+_sentiment_mod = _load_svc('_sentinel_sentiment_pulse', 'sentiment_pulse_engine.py')
+SentimentPulseEngine = _sentiment_mod.SentimentPulseEngine
+_sovereign_mod = _load_svc('_sentinel_sovereign_engine', 'sovereign_engine.py')
+SovereignEngine = _sovereign_mod.SovereignEngine
+_etf_mod = _load_svc('_sentinel_etf_monitor', 'etf_monitor.py')
+ETFMonitor = _etf_mod.ETFMonitor
+
 
 logger = logging.getLogger("sentinel")
 logger.setLevel(logging.INFO)
@@ -121,6 +129,24 @@ class SentinelState:
         "pattern_results": {},
         "schema_version": 1,
     })
+    sentiment: dict = field(default_factory=lambda: {
+        "score": 0.0, "score_30m_ago": 0.0, "trend": "stable",
+        "source_breakdown": {"x": 0.0, "nostr": 0.0, "reddit": 0.0},
+        "volume_24h": 0, "top_entities": [], "tier1_signal": False,
+        "updated_at": 0.0,
+    })
+    sovereign: dict = field(default_factory=lambda: {
+        "top_alerts": [], "jurisdiction_summary": {"friendly": 0, "neutral": 0, "hostile": 0},
+        "custody_health": {}, "capital_flight_signal": False, "updated_at": 0.0,
+    })
+    etf: dict = field(default_factory=lambda: {
+        "inflow_6h_btc": 0, "outflow_6h_btc": 0, "net_6h_btc": 0, "net_6h_usd": 0,
+        "net_6h_direction": "neutral", "deribit_funding_rate": 0.0,
+        "wallets_monitored": 0, "is_proxy": True, "updated_at": 0.0,
+    })
+    network_graph: dict = field(default_factory=lambda: {
+        "nodes": [], "edges": [], "updated_at": 0.0,
+    })
 
     def to_dict(self):
         return {
@@ -134,6 +160,10 @@ class SentinelState:
                 "last_watch_at": self.alerts["last_watch_at"],
             },
             "convergence": dict(self.convergence),
+            "sentiment": dict(self.sentiment),
+            "sovereign": dict(self.sovereign),
+            "etf": dict(self.etf),
+            "network_graph": dict(self.network_graph),
         }
 
 
@@ -293,6 +323,10 @@ class SentinelDaemon:
         self._hashrate_24h_ago: Optional[float] = None
         self._hashrate_24h_ago_ts: float = 0.0
         self._convergence_engine: Optional[ConvergenceEngine] = None
+        # Phase 2 engines
+        self._sentiment_engine = SentimentPulseEngine()
+        self._sovereign_engine = SovereignEngine()
+        self._etf_monitor = ETFMonitor()
         _init_alerts_db()
 
     # ── State access (thread-safe for Flask) ───────────────────────────────
@@ -670,6 +704,104 @@ class SentinelDaemon:
         except Exception as e:
             logger.error("Convergence evaluation failed: %s", e)
 
+    # ── Phase 2 Engines ───────────────────────────────────────────────────
+
+    async def _update_sentiment(self, session: aiohttp.ClientSession):
+        """Run sentiment pulse cycle and update state."""
+        try:
+            result = await self._sentiment_engine.run_cycle(session)
+            with self._lock:
+                self.state.sentiment = result
+        except Exception as e:
+            logger.error("Sentiment pulse failed: %s", e)
+
+    async def _update_sovereign(self, session: aiohttp.ClientSession):
+        """Run sovereign layer cycle and update state."""
+        try:
+            result = await self._sovereign_engine.run_cycle(session)
+            with self._lock:
+                self.state.sovereign = result
+        except Exception as e:
+            logger.error("Sovereign engine failed: %s", e)
+
+    async def _update_etf(self, session: aiohttp.ClientSession):
+        """Run ETF flow monitor cycle and update state."""
+        try:
+            # Get BTC price from state for USD conversion
+            btc_price = 0
+            try:
+                with self._lock:
+                    # Price might be in network or externally set
+                    btc_price = self.state.network.get("btc_price_usd", 0)
+            except Exception:
+                pass
+            result = await self._etf_monitor.run_cycle(session, btc_price_usd=btc_price)
+            with self._lock:
+                self.state.etf = result
+        except Exception as e:
+            logger.error("ETF monitor failed: %s", e)
+
+    def _update_network_graph(self):
+        """Build network graph data from current state for D3 visualization."""
+        try:
+            nodes = []
+            edges = []
+
+            # Sentinel center node
+            nodes.append({
+                "id": "sentinel", "type": "sentinel", "label": "SENTINEL",
+                "size": 20, "color": "#FF0000", "metric": "Protocol Pulse",
+            })
+
+            # Mining pools from recent blocks
+            with self._lock:
+                recent_blocks = self.state.network.get("recent_blocks", [])
+
+            pool_counts = {}
+            for block in recent_blocks:
+                pool = block.get("extras", {}).get("pool", {}).get("name", "Unknown") if isinstance(block, dict) else "Unknown"
+                pool_counts[pool] = pool_counts.get(pool, 0) + 1
+
+            total_blocks = max(len(recent_blocks), 1)
+            for pool, count in pool_counts.items():
+                pct = (count / total_blocks) * 100
+                color = "#FF3333" if pct > 40 else "#FFB800" if pct > 25 else "#00FF88"
+                nodes.append({
+                    "id": f"pool_{pool}", "type": "miner", "label": pool,
+                    "size": max(8, pct / 2), "color": color,
+                    "metric": f"{pct:.1f}% hashrate",
+                })
+
+            # Exchanges from custodian_wallets.json
+            try:
+                wallets_path = _svc_dir.parent / "data" / "custodian_wallets.json"
+                with open(wallets_path) as f:
+                    wallets_data = json.load(f)
+                for w in wallets_data.get("wallets", []):
+                    nodes.append({
+                        "id": f"exch_{w['label'][:20]}", "type": "exchange",
+                        "label": w["label"].split("(")[0].strip(), "size": 12,
+                        "color": "#3B82F6", "metric": "custodian",
+                    })
+            except Exception:
+                pass
+
+            # Build edges (hub-and-spoke to sentinel)
+            for node in nodes:
+                if node["id"] != "sentinel":
+                    edges.append({
+                        "source": node["id"], "target": "sentinel",
+                        "weight": node["size"] / 20,
+                    })
+
+            with self._lock:
+                self.state.network_graph = {
+                    "nodes": nodes, "edges": edges, "updated_at": time.time(),
+                }
+
+        except Exception as e:
+            logger.error("Network graph update failed: %s", e)
+
     # ── Main Loop ──────────────────────────────────────────────────────────
     async def run(self):
         """Main async entry — run WebSocket + REST polling + PCAF + Convergence concurrently."""
@@ -695,6 +827,22 @@ class SentinelDaemon:
                 # Convergence every 60s (same cadence as PCAF)
                 if poll_counter % 12 == 0:
                     await self._update_convergence(session)
+
+                # Sentiment Pulse every 30s (Phase 2 F2)
+                if poll_counter % 6 == 0:
+                    await self._update_sentiment(session)
+
+                # Sovereign Layer every 5 min (Phase 2 F3)
+                if poll_counter % 60 == 0:
+                    await self._update_sovereign(session)
+
+                # ETF Flow Monitor every 10 min (Phase 2 F4)
+                if poll_counter % 120 == 0:
+                    await self._update_etf(session)
+
+                # Network Graph every 60s (Phase 2 F5)
+                if poll_counter % 12 == 0:
+                    self._update_network_graph()
 
                 # Write state every 5s
                 self._write_state_file()

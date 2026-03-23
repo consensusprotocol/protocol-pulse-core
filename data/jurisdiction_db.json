@@ -1,0 +1,502 @@
+[
+  {
+    "country": "United States",
+    "iso2": "US",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "BTC classified as property by IRS; SEC spot ETF approved Jan 2024; CBDC research ongoing at Fed but political headwinds strong"
+  },
+  {
+    "country": "United Kingdom",
+    "iso2": "GB",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "FCA regulates crypto ads; Britcoin consultation ongoing; no capital controls"
+  },
+  {
+    "country": "Germany",
+    "iso2": "DE",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "BaFin licensed exchanges; tax-free after 1yr hold; aligned with EU MiCA"
+  },
+  {
+    "country": "France",
+    "iso2": "FR",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "AMF PSAN registration required; MiCA aligned; active in EU Digital Euro consultations"
+  },
+  {
+    "country": "Italy",
+    "iso2": "IT",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "26% capital gains tax on crypto; MiCA aligned; Bank of Italy participating in Digital Euro"
+  },
+  {
+    "country": "Canada",
+    "iso2": "CA",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "OSC-regulated ETFs since 2021; Bank of Canada CBDC research paused; Emergencies Act precedent for freezing"
+  },
+  {
+    "country": "Japan",
+    "iso2": "JP",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "none",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "BTC recognized as legal property; FSA-licensed exchanges; Digital Yen pilot phase with major banks"
+  },
+  {
+    "country": "South Korea",
+    "iso2": "KR",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Virtual Asset User Protection Act; 20% tax on gains >2.5M KRW; BOK Digital Won pilot"
+  },
+  {
+    "country": "Australia",
+    "iso2": "AU",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "CGT on crypto; ASIC regulates exchanges; RBA eAUD pilot concluded, evaluating results"
+  },
+  {
+    "country": "India",
+    "iso2": "IN",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "pilot",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "30% flat tax + 1% TDS on crypto; e-Rupee (Digital Rupee) retail pilot via banks; capital controls on forex"
+  },
+  {
+    "country": "Brazil",
+    "iso2": "BR",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "moderate",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto legal framework since 2023; BCB Real Digital (Drex) pilot; moderate capital controls"
+  },
+  {
+    "country": "Argentina",
+    "iso2": "AR",
+    "bitcoin_status": "legal",
+    "cbdc_status": "none",
+    "capital_controls": "severe",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "High P2P adoption driven by inflation; severe cepo cambiario; no CBDC plans; government increasingly BTC-friendly"
+  },
+  {
+    "country": "Mexico",
+    "iso2": "MX",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Fintech Law regulates virtual assets; Banxico considering CBDC; Bitso dominant exchange"
+  },
+  {
+    "country": "Saudi Arabia",
+    "iso2": "SA",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "pilot",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto not officially legal tender but tolerated; Project Aber cross-border CBDC with UAE; moderate forex controls"
+  },
+  {
+    "country": "Turkey",
+    "iso2": "TR",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Payment ban for crypto since 2021; CBRT digital lira research; high retail adoption despite restrictions"
+  },
+  {
+    "country": "Indonesia",
+    "iso2": "ID",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto as commodity (not currency); Bappebti regulates; Bank Indonesia researching Digital Rupiah"
+  },
+  {
+    "country": "Russia",
+    "iso2": "RU",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "pilot",
+    "capital_controls": "severe",
+    "trend": "deteriorating",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto mining legalized but payments banned; Digital Ruble pilot with 13 banks; severe sanctions-driven capital controls"
+  },
+  {
+    "country": "China",
+    "iso2": "CN",
+    "bitcoin_status": "banned",
+    "cbdc_status": "pilot",
+    "capital_controls": "severe",
+    "trend": "deteriorating",
+    "last_updated": "2026-03-23",
+    "notes": "Full ban on crypto trading and mining since 2021; e-CNY pilot in 26+ cities with 260M+ wallets; strict capital controls"
+  },
+  {
+    "country": "South Africa",
+    "iso2": "ZA",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "FSCA declared crypto as financial product; SARB Project Khokha CBDC research; forex controls on capital flows"
+  },
+  {
+    "country": "European Union",
+    "iso2": "EU",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "MiCA regulation fully effective 2024; ECB Digital Euro preparation phase; no EU-wide capital controls"
+  },
+  {
+    "country": "El Salvador",
+    "iso2": "SV",
+    "bitcoin_status": "legal",
+    "cbdc_status": "none",
+    "capital_controls": "none",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "BTC legal tender since Sep 2021; Chivo wallet; volcano bonds; no CBDC plans; first nation-state Bitcoin reserve"
+  },
+  {
+    "country": "Portugal",
+    "iso2": "PT",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto gains taxed since 2023 (28% if held <1yr); MiCA aligned; popular with crypto-friendly expats"
+  },
+  {
+    "country": "Switzerland",
+    "iso2": "CH",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto Valley in Zug; FINMA regulated; DLT Act; SNB wholesale CBDC Project Helvetia; no capital controls"
+  },
+  {
+    "country": "United Arab Emirates",
+    "iso2": "AE",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "none",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "VARA regulatory framework in Dubai; ADGM in Abu Dhabi; CBUAE digital dirham pilot; crypto-friendly free zones"
+  },
+  {
+    "country": "Singapore",
+    "iso2": "SG",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "MAS Payment Services Act; Project Ubin/Orchid CBDC research; strict retail marketing rules"
+  },
+  {
+    "country": "Thailand",
+    "iso2": "TH",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "SEC-regulated exchanges; BOT retail Digital Baht pilot; payment use discouraged; moderate forex controls"
+  },
+  {
+    "country": "Vietnam",
+    "iso2": "VN",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "research",
+    "capital_controls": "severe",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto not recognized as legal payment but ownership tolerated; high P2P volume; SBV researching CBDC"
+  },
+  {
+    "country": "Philippines",
+    "iso2": "PH",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "moderate",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "BSP-licensed VASPs; Coins.ph dominant; BSP wholesale CBDC pilot (Project CBDCPh); remittance corridor"
+  },
+  {
+    "country": "Nigeria",
+    "iso2": "NG",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "live",
+    "capital_controls": "severe",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "Was hostile (2021 bank ban), softened to restricted; eNaira live since Oct 2021 with low adoption; severe forex controls"
+  },
+  {
+    "country": "Kenya",
+    "iso2": "KE",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "No specific crypto regulation; CBK cautionary stance; M-Pesa dominates payments; CBDC research early stage"
+  },
+  {
+    "country": "Egypt",
+    "iso2": "EG",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "research",
+    "capital_controls": "severe",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "CBE issued fatwa against crypto trading; high P2P demand; severe pound controls; CBDC research phase"
+  },
+  {
+    "country": "Qatar",
+    "iso2": "QA",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "QFC Digital Assets Framework; QCB restricts retail crypto; CBDC research with QCB"
+  },
+  {
+    "country": "Malaysia",
+    "iso2": "MY",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "SC-regulated DAX operators; BNM not recognizing as legal tender; CBDC research ongoing; moderate forex controls"
+  },
+  {
+    "country": "Pakistan",
+    "iso2": "PK",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "research",
+    "capital_controls": "severe",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "SBP warned against crypto; not legal tender; high underground P2P; CBDC research announced; severe forex controls"
+  },
+  {
+    "country": "Bangladesh",
+    "iso2": "BD",
+    "bitcoin_status": "hostile",
+    "cbdc_status": "research",
+    "capital_controls": "severe",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Bangladesh Bank warned crypto is illegal; anti-money laundering enforcement; severe capital controls; early CBDC research"
+  },
+  {
+    "country": "Colombia",
+    "iso2": "CO",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto not legal tender but trading permitted; Bitso and Binance active; BanRep CBDC research"
+  },
+  {
+    "country": "Chile",
+    "iso2": "CL",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Fintech Law 2023 regulates crypto; CMF oversight; Central Bank of Chile CBDC research"
+  },
+  {
+    "country": "Peru",
+    "iso2": "PE",
+    "bitcoin_status": "legal",
+    "cbdc_status": "none",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "No specific crypto regulation; BCRP cautionary notices; growing P2P market; no CBDC plans"
+  },
+  {
+    "country": "Venezuela",
+    "iso2": "VE",
+    "bitcoin_status": "restricted",
+    "cbdc_status": "live",
+    "capital_controls": "closed",
+    "trend": "deteriorating",
+    "last_updated": "2026-03-23",
+    "notes": "Petro (state crypto) failed; BTC mining regulated/taxed; extreme capital controls; high P2P adoption for survival"
+  },
+  {
+    "country": "Ukraine",
+    "iso2": "UA",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "severe",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Virtual Assets Law 2022; wartime capital controls; NBU e-hryvnia research; major crypto donation recipient"
+  },
+  {
+    "country": "Czech Republic",
+    "iso2": "CZ",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "MiCA aligned; CNB BTC reserve consideration; no capital controls; crypto-friendly stance"
+  },
+  {
+    "country": "Malta",
+    "iso2": "MT",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Virtual Financial Assets Act 2018; MFSA oversight; Blockchain Island branding; EU/MiCA aligned"
+  },
+  {
+    "country": "Estonia",
+    "iso2": "EE",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Tightened VASP licensing 2022; e-Residency program; MiCA aligned; reduced number of licensed operators"
+  },
+  {
+    "country": "Bermuda",
+    "iso2": "BM",
+    "bitcoin_status": "legal",
+    "cbdc_status": "none",
+    "capital_controls": "none",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "Digital Asset Business Act 2018; BMA licensed operators; accepts crypto for taxes; no CBDC plans"
+  },
+  {
+    "country": "Bahamas",
+    "iso2": "BS",
+    "bitcoin_status": "legal",
+    "cbdc_status": "live",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "DARE Act regulates crypto; Sand Dollar CBDC live since Oct 2020; first nationwide CBDC; moderate exchange controls"
+  },
+  {
+    "country": "Cayman Islands",
+    "iso2": "KY",
+    "bitcoin_status": "legal",
+    "cbdc_status": "none",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "VASP Act 2020; CIMA oversight; major crypto fund domicile; no CBDC plans; no capital controls"
+  },
+  {
+    "country": "Hong Kong",
+    "iso2": "HK",
+    "bitcoin_status": "legal",
+    "cbdc_status": "pilot",
+    "capital_controls": "none",
+    "trend": "improving",
+    "last_updated": "2026-03-23",
+    "notes": "SFC licensed exchanges since 2023; retail access opened; HKMA e-HKD pilot; positioning as Asia crypto hub"
+  },
+  {
+    "country": "Taiwan",
+    "iso2": "TW",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "moderate",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "FSC self-regulatory approach; CBC CBDC research phase 2; moderate forex controls on large transfers"
+  },
+  {
+    "country": "New Zealand",
+    "iso2": "NZ",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto income taxable; FMA oversight; RBNZ CBDC consultation; no capital controls"
+  },
+  {
+    "country": "Norway",
+    "iso2": "NO",
+    "bitcoin_status": "legal",
+    "cbdc_status": "research",
+    "capital_controls": "none",
+    "trend": "stable",
+    "last_updated": "2026-03-23",
+    "notes": "Crypto taxed as assets; Finanstilsynet oversight; Norges Bank CBDC research phase 4; no capital controls"
+  }
+]

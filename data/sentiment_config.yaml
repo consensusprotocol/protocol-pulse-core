@@ -1,0 +1,106 @@
+# Sentiment Pulse Configuration — Phase 2 F2
+# Loaded by services/sentiment_pulse.py
+
+update_interval_seconds: 30
+min_keyword_matches: 2
+ema_window_minutes: 30
+normalization_window_days: 7
+tier1_max_influence_pct: 15
+
+tiers:
+  tier1:
+    weight: 3.0
+    handles:
+      - saylor
+      - jack
+      - lopp
+      - ODELL
+      - matt_odell
+      - MartyBent
+      - PrestonPysh
+      - stephanlivera
+      - natbrunell
+      - LynAldenContact
+      - gladstein
+      - saifedean
+      - adam3us
+      - nvk
+      - giacomozucco
+      - dergigi
+      - pierre_rochard
+      - BitcoinPierre
+      - coryklippsten
+      - Breedlove22
+      - JeffBooth
+      - jimmysong
+      - ToneVays
+      - Excellion
+      - nic__carter
+      - woonomic
+      - 100trillionUSD
+      - aantonop
+      - PeterMcCormack
+      - APompliano
+  tier2:
+    weight: 1.5
+    handles:
+      - caitlinlong_
+      - wclementeiii
+      - sethforprivacy
+      - parkerlewis
+      - tomerstrolight
+      - moneyball
+      - stacker_news
+      - level39
+  tier3:
+    weight: 0.5
+
+positive_keywords:
+  - accumulat
+  - bullish
+  - buy
+  - hodl
+  - sovereign
+  - freedom
+  - ath
+  - moon
+  - stacking
+  - adoption
+  - breakout
+  - etf inflow
+  - institutional
+  - halving
+  - supply shock
+  - hard money
+  - legal tender
+  - lightning
+  - taproot
+
+negative_keywords:
+  - dump
+  - crash
+  - ban
+  - scam
+  - sell
+  - bearish
+  - regulation
+  - seized
+  - dead
+  - capitulation
+  - liquidation
+  - ponzi
+  - bubble
+  - hack
+  - exploit
+  - cbdc threat
+  - crackdown
+
+nostr_relays:
+  - wss://relay.damus.io
+  - wss://relay.nostr.info
+
+reddit_subreddits:
+  - Bitcoin
+  - CryptoCurrency
+
+reddit_cache_minutes: 5

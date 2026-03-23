@@ -133,7 +133,12 @@ def api_intelligence_stream():
                         "fng": _get_fng(),
                         "alerts": state.get("alerts", {}),
                         "convergence": {"state": state.get("convergence", {}).get("state", "IDLE")},
+                        "sentiment": {"score": state.get("sentiment", {}).get("score", 0), "trend": state.get("sentiment", {}).get("trend", "stable")},
                     }
+                else:
+                    # Inject price + fng for authenticated stream too
+                    state["price"] = _get_btc_price()
+                    state["fng"] = _get_fng()
                 yield f"data: {json.dumps(state)}\n\n"
                 time.sleep(2)
             except GeneratorExit:
@@ -152,6 +157,35 @@ def api_intelligence_stream():
             "Connection": "keep-alive",
         },
     )
+
+
+# ── Phase 2 API endpoints ────────────────────────────────────────────────
+
+@intelligence_bp.route("/api/intelligence/sentiment")
+def api_intelligence_sentiment():
+    """Sentiment Pulse data — Commander+ auth required."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    return jsonify(state.get("sentiment", {}))
+
+
+@intelligence_bp.route("/api/intelligence/sovereign")
+def api_intelligence_sovereign():
+    """Sovereign Intelligence Layer — Commander+ auth required."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    return jsonify(state.get("sovereign", {}))
+
+
+@intelligence_bp.route("/api/intelligence/network-graph")
+def api_intelligence_network_graph():
+    """Network State Graph — Commander+ auth required."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    return jsonify(state.get("network_graph", {"nodes": [], "edges": []}))
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────

@@ -1,0 +1,179 @@
+[
+  {
+    "country": "China",
+    "program_name": "e-CNY (Digital Yuan)",
+    "stage": "pilot",
+    "programmable_features": [
+      "expiry_dates",
+      "spending_categories",
+      "geo_restrictions",
+      "smart_contracts",
+      "real_name_binding"
+    ],
+    "alert_threshold": "high"
+  },
+  {
+    "country": "European Union",
+    "program_name": "Digital Euro",
+    "stage": "research",
+    "programmable_features": [
+      "holding_limits",
+      "offline_payments",
+      "conditional_payments",
+      "merchant_acceptance_mandate"
+    ],
+    "alert_threshold": "high"
+  },
+  {
+    "country": "United States",
+    "program_name": "FedNow / CBDC Research",
+    "stage": "research",
+    "programmable_features": [
+      "instant_settlement",
+      "identity_verification",
+      "aml_compliance_hooks"
+    ],
+    "alert_threshold": "high"
+  },
+  {
+    "country": "India",
+    "program_name": "e-Rupee (Digital Rupee)",
+    "stage": "pilot",
+    "programmable_features": [
+      "offline_payments",
+      "subsidy_distribution",
+      "expiry_dates",
+      "kyc_tiered_wallets"
+    ],
+    "alert_threshold": "high"
+  },
+  {
+    "country": "Nigeria",
+    "program_name": "eNaira",
+    "stage": "live",
+    "programmable_features": [
+      "tiered_kyc",
+      "merchant_payments",
+      "ussd_access",
+      "spending_tracking"
+    ],
+    "alert_threshold": "medium"
+  },
+  {
+    "country": "Brazil",
+    "program_name": "Real Digital (Drex)",
+    "stage": "pilot",
+    "programmable_features": [
+      "tokenized_deposits",
+      "smart_contracts",
+      "defi_integration",
+      "programmable_settlements"
+    ],
+    "alert_threshold": "medium"
+  },
+  {
+    "country": "Russia",
+    "program_name": "Digital Ruble",
+    "stage": "pilot",
+    "programmable_features": [
+      "budget_earmarking",
+      "expiry_dates",
+      "government_disbursements",
+      "cross_border_bypass"
+    ],
+    "alert_threshold": "high"
+  },
+  {
+    "country": "Japan",
+    "program_name": "Digital Yen",
+    "stage": "pilot",
+    "programmable_features": [
+      "offline_payments",
+      "interoperability",
+      "privacy_tiers",
+      "deposit_token_bridge"
+    ],
+    "alert_threshold": "medium"
+  },
+  {
+    "country": "South Korea",
+    "program_name": "Digital Won",
+    "stage": "pilot",
+    "programmable_features": [
+      "offline_payments",
+      "cross_border_settlements",
+      "programmable_vouchers"
+    ],
+    "alert_threshold": "medium"
+  },
+  {
+    "country": "United Kingdom",
+    "program_name": "Britcoin (Digital Pound)",
+    "stage": "research",
+    "programmable_features": [
+      "holding_limits",
+      "programmable_payments",
+      "privacy_by_design",
+      "api_platform"
+    ],
+    "alert_threshold": "medium"
+  },
+  {
+    "country": "Thailand",
+    "program_name": "Digital Baht",
+    "stage": "pilot",
+    "programmable_features": [
+      "corporate_bonds",
+      "cross_border_transfers",
+      "conditional_payments"
+    ],
+    "alert_threshold": "low"
+  },
+  {
+    "country": "Saudi Arabia",
+    "program_name": "Project Aber",
+    "stage": "pilot",
+    "programmable_features": [
+      "cross_border_settlement",
+      "dual_issuance",
+      "interbank_transfers"
+    ],
+    "alert_threshold": "low"
+  },
+  {
+    "country": "Sweden",
+    "program_name": "e-Krona",
+    "stage": "research",
+    "programmable_features": [
+      "offline_payments",
+      "programmable_payments",
+      "r3_corda_platform",
+      "negative_interest_capability"
+    ],
+    "alert_threshold": "medium"
+  },
+  {
+    "country": "Bahamas",
+    "program_name": "Sand Dollar",
+    "stage": "live",
+    "programmable_features": [
+      "tiered_wallets",
+      "spending_limits",
+      "geographic_inclusion",
+      "merchant_integration"
+    ],
+    "alert_threshold": "low"
+  },
+  {
+    "country": "Jamaica",
+    "program_name": "JAM-DEX",
+    "stage": "live",
+    "programmable_features": [
+      "financial_inclusion",
+      "government_payments",
+      "tiered_kyc",
+      "merchant_settlements"
+    ],
+    "alert_threshold": "low"
+  }
+]

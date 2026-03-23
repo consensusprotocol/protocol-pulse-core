@@ -5,6 +5,7 @@
 {% block head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
    INTELLIGENCE TERMINAL — War Room Aesthetic
@@ -157,6 +158,13 @@ body.intel-terminal .site-footer {
     gap: 1px;
     background: var(--it-border);
     margin-top: 1px;
+}
+.it-grid-phase2 {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 1px;
+    background: var(--it-border);
+    margin-top: 0;
 }
 
 /* ── PANEL ──────────────────────────────────────────────────── */
@@ -396,9 +404,72 @@ body.intel-terminal .site-footer {
     animation: criticalFlash 2s ease-in-out;
 }
 
+/* ── SENTIMENT PULSE ────────────────────────────────────────── */
+.it-sentiment-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+}
+.it-sentiment-trend {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    margin-left: 8px;
+}
+.it-source-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+}
+.it-source-label { color: var(--it-label); min-width: 48px; }
+.it-source-fill-wrap {
+    flex: 1; height: 6px; background: rgba(26,26,46,0.8);
+    overflow: hidden;
+}
+.it-source-fill { height: 100%; transition: width 0.5s ease; }
+.it-source-pct { color: var(--it-muted); min-width: 36px; text-align: right; }
+.it-tier1-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 6px;
+}
+.it-tier1-dot.active { background: var(--it-amber); animation: statusPulse 1.5s ease-in-out infinite; }
+.it-tier1-dot.inactive { background: var(--it-muted); }
+
+/* ── SOVEREIGN LAYER ────────────────────────────────────────── */
+.it-jurisdiction-summary {
+    display: flex; gap: 12px; margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.it-jurisdiction-count {
+    padding: 4px 8px; border-radius: 2px;
+    background: rgba(26,26,46,0.5);
+}
+.it-custody-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+}
+.it-custody-label { color: var(--it-label); min-width: 100px; }
+.it-custody-bar { flex: 1; height: 6px; background: rgba(26,26,46,0.8); overflow: hidden; }
+.it-custody-fill { height: 100%; background: var(--it-green); transition: width 0.5s ease; }
+.it-custody-value { color: var(--it-text); min-width: 60px; text-align: right; }
+
+/* ── NETWORK GRAPH ──────────────────────────────────────────── */
+#network-svg { width: 100%; }
+.it-graph-tooltip {
+    position: absolute; display: none; padding: 6px 10px;
+    background: rgba(15,15,24,0.95); border: 1px solid var(--it-border);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--it-text); pointer-events: none; z-index: 20;
+    white-space: nowrap;
+}
+
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
     .it-grid { grid-template-columns: 1fr; }
+    .it-grid-phase2 { grid-template-columns: 1fr; }
     .it-data-rail { flex-direction: column; align-items: flex-start; }
 }
 </style>
@@ -570,6 +641,113 @@ body.intel-terminal .site-footer {
 
     </div><!-- /it-grid -->
 
+    <!-- PHASE 2 GRID -->
+    <div class="it-grid-phase2">
+
+        <!-- SENTIMENT PULSE (F2) -->
+        <div class="it-panel">
+            <div class="it-panel-header">Sentiment Pulse</div>
+            <div class="it-value-label">NETWORK SENTIMENT</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 8px">
+                <div class="it-sentiment-score" id="itSentimentScore" style="color:var(--it-green)">0</div>
+                <span class="it-sentiment-trend" id="itSentimentTrend">→ stable</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">30m Ago</span>
+                <span class="it-value-row-data" id="itSentiment30m">0</span>
+            </div>
+            <div style="margin-top:10px">
+                <div class="it-value-label" style="margin-bottom:6px">SOURCE BREAKDOWN</div>
+                <div class="it-source-bar">
+                    <span class="it-source-label">X</span>
+                    <div class="it-source-fill-wrap"><div class="it-source-fill" id="itSrcX" style="width:0%;background:var(--it-green)"></div></div>
+                    <span class="it-source-pct" id="itSrcXPct">0%</span>
+                </div>
+                <div class="it-source-bar">
+                    <span class="it-source-label">Nostr</span>
+                    <div class="it-source-fill-wrap"><div class="it-source-fill" id="itSrcNostr" style="width:0%;background:#8B5CF6"></div></div>
+                    <span class="it-source-pct" id="itSrcNostrPct">0%</span>
+                </div>
+                <div class="it-source-bar">
+                    <span class="it-source-label">Reddit</span>
+                    <div class="it-source-fill-wrap"><div class="it-source-fill" id="itSrcReddit" style="width:0%;background:#FF4500"></div></div>
+                    <span class="it-source-pct" id="itSrcRedditPct">0%</span>
+                </div>
+            </div>
+            <div class="it-value-row" style="margin-top:8px">
+                <span class="it-value-row-label"><span class="it-tier1-dot inactive" id="itTier1Dot"></span>TIER 1 SIGNAL</span>
+                <span class="it-value-row-data" id="itTier1Status" style="color:var(--it-muted)">QUIET</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Volume (24h)</span>
+                <span class="it-value-row-data" id="itSentimentVolume">0 posts</span>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- NETWORK STATE GRAPH (F5) -->
+        <div class="it-panel" style="min-height:320px">
+            <div class="it-panel-header">Network State</div>
+            <svg id="network-svg" height="260"></svg>
+            <div class="it-graph-tooltip" id="networkTooltip"></div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SOVEREIGN LAYER (F3) -->
+        <div class="it-panel">
+            <div class="it-panel-header">Sovereign Intelligence</div>
+            <div class="it-value-label">LATEST CBDC ALERT</div>
+            <div id="itSovereignAlert" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--it-amber);margin:4px 0 8px;min-height:28px">
+                <div class="it-connecting">Monitoring<span class="it-blink">_</span></div>
+            </div>
+            <div class="it-value-label" style="margin-bottom:4px">JURISDICTIONS</div>
+            <div class="it-jurisdiction-summary">
+                <span class="it-jurisdiction-count" style="color:var(--it-green)"><span id="itJurFriendly">0</span> FRIENDLY</span>
+                <span class="it-jurisdiction-count" style="color:var(--it-amber)"><span id="itJurNeutral">0</span> NEUTRAL</span>
+                <span class="it-jurisdiction-count" style="color:var(--it-red)"><span id="itJurHostile">0</span> HOSTILE</span>
+            </div>
+            <div style="margin-top:10px">
+                <div class="it-value-label" style="margin-bottom:6px">SELF-CUSTODY HEALTH</div>
+                <div class="it-custody-row">
+                    <span class="it-custody-label">Exch Reserves</span>
+                    <div class="it-custody-bar"><div class="it-custody-fill" id="itCustodyReserves" style="width:0%"></div></div>
+                    <span class="it-custody-value" id="itCustodyReservesPct">--%</span>
+                </div>
+                <div class="it-custody-row">
+                    <span class="it-custody-label">Coinjoin Vol</span>
+                    <div class="it-custody-bar"><div class="it-custody-fill" id="itCustodyCoinjoin" style="width:50%;background:var(--it-green)"></div></div>
+                    <span class="it-custody-value" id="itCustodyCoinjoinVal">--</span>
+                </div>
+                <div class="it-custody-row">
+                    <span class="it-custody-label">CDD Signal</span>
+                    <div class="it-custody-bar"><div class="it-custody-fill" id="itCustodyCDD" style="width:30%;background:var(--it-green)"></div></div>
+                    <span class="it-custody-value" id="itCustodyCDDVal">--</span>
+                </div>
+            </div>
+            <div class="it-value-row" style="margin-top:8px">
+                <span class="it-value-row-label">Capital Flight</span>
+                <span class="it-value-row-data" id="itCapitalFlight" style="color:var(--it-green)">CLEAR</span>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /it-grid-phase2 -->
+
     <!-- DATA RAIL -->
     <div class="it-data-rail">
         <div class="it-rail-item">
@@ -591,6 +769,14 @@ body.intel-terminal .site-footer {
         <div class="it-rail-item">
             <span class="it-rail-label">LN Chan</span>
             <span class="it-rail-value" id="itLnChannels">--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">ETF</span>
+            <span class="it-rail-value" id="itEtfFlow" style="color:var(--it-muted)">→ NEUTRAL $0M</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">CME</span>
+            <span class="it-rail-value" id="itCmeBasis">+0.0%</span>
         </div>
         <div class="it-rail-item">
             <span class="it-rail-label">Sentinel</span>
@@ -859,6 +1045,211 @@ body.intel-terminal .site-footer {
 
         // Convergence
         updateConvergence(state.convergence);
+
+        // Phase 2: Sentiment Pulse (F2)
+        if (state.sentiment) updateSentiment(state.sentiment);
+
+        // Phase 2: Sovereign Layer (F3)
+        if (state.sovereign) updateSovereign(state.sovereign);
+
+        // Phase 2: ETF Flow Monitor (F4)
+        if (state.etf) updateETF(state.etf);
+
+        // Phase 2: Network State Graph (F5)
+        if (state.network_graph) renderNetworkGraph(state.network_graph);
+    }
+
+    // ── Sentiment Pulse (F2) ────────────────────────────────────
+    function updateSentiment(s) {
+        if (!s) return;
+        var scoreEl = document.getElementById('itSentimentScore');
+        var score = s.score || 0;
+        scoreEl.textContent = (score >= 0 ? '+' : '') + Math.round(score);
+        scoreEl.style.color = score > 20 ? 'var(--it-green)' : score < -20 ? 'var(--it-red)' : 'var(--it-amber)';
+
+        var trendArrow = {rising: '↑', falling: '↓', stable: '→'};
+        document.getElementById('itSentimentTrend').textContent = (trendArrow[s.trend] || '→') + ' ' + (s.trend || 'stable');
+        document.getElementById('itSentimentTrend').style.color = s.trend === 'rising' ? 'var(--it-green)' : s.trend === 'falling' ? 'var(--it-red)' : 'var(--it-muted)';
+
+        document.getElementById('itSentiment30m').textContent = Math.round(s.score_30m_ago || 0);
+
+        // Source breakdown bars
+        var bd = s.source_breakdown || {};
+        var sources = [{id: 'X', val: bd.x || 0}, {id: 'Nostr', val: bd.nostr || 0}, {id: 'Reddit', val: bd.reddit || 0}];
+        sources.forEach(function(src) {
+            var fillId = 'itSrc' + src.id;
+            var pctId = fillId + 'Pct';
+            var absVal = Math.min(Math.abs(src.val), 100);
+            var fill = document.getElementById(fillId);
+            var pct = document.getElementById(pctId);
+            if (fill) fill.style.width = absVal + '%';
+            if (pct) pct.textContent = Math.round(src.val) + '%';
+        });
+
+        // Tier 1 signal
+        var dot = document.getElementById('itTier1Dot');
+        var status = document.getElementById('itTier1Status');
+        if (s.tier1_signal) {
+            dot.className = 'it-tier1-dot active';
+            status.textContent = 'ACTIVE';
+            status.style.color = 'var(--it-amber)';
+        } else {
+            dot.className = 'it-tier1-dot inactive';
+            status.textContent = 'QUIET';
+            status.style.color = 'var(--it-muted)';
+        }
+
+        document.getElementById('itSentimentVolume').textContent = fmtNum(s.volume_24h || 0) + ' posts';
+    }
+
+    // ── Sovereign Layer (F3) ─────────────────────────────────────
+    function updateSovereign(s) {
+        if (!s) return;
+        // Top alert
+        var alertEl = document.getElementById('itSovereignAlert');
+        var alerts = s.top_alerts || [];
+        if (alerts.length > 0) {
+            var a = alerts[0];
+            alertEl.textContent = (a.title || 'No alerts').substring(0, 80);
+            alertEl.style.color = a.is_critical ? 'var(--it-red)' : 'var(--it-amber)';
+        } else {
+            alertEl.innerHTML = '<span style="color:var(--it-green)">NO ACTIVE ALERTS</span>';
+        }
+
+        // Jurisdiction counts
+        var js = s.jurisdiction_summary || {};
+        document.getElementById('itJurFriendly').textContent = js.friendly || 0;
+        document.getElementById('itJurNeutral').textContent = js.neutral || 0;
+        document.getElementById('itJurHostile').textContent = js.hostile || 0;
+
+        // Custody health
+        var ch = s.custody_health || {};
+        var reservePct = ch.exchange_reserve_ratio || 0;
+        var reserveFill = document.getElementById('itCustodyReserves');
+        if (reserveFill) {
+            reserveFill.style.width = Math.min(reservePct, 100) + '%';
+            reserveFill.style.background = reservePct > 60 ? 'var(--it-red)' : reservePct > 40 ? 'var(--it-amber)' : 'var(--it-green)';
+        }
+        document.getElementById('itCustodyReservesPct').textContent = reservePct.toFixed(1) + '%';
+
+        document.getElementById('itCustodyCoinjoinVal').textContent = ch.coinjoin_signal || 'NORMAL';
+        document.getElementById('itCustodyCDDVal').textContent = ch.cdd_signal || 'STABLE';
+
+        // Capital flight
+        var cfEl = document.getElementById('itCapitalFlight');
+        if (s.capital_flight_signal) {
+            cfEl.textContent = '⚠ DETECTED';
+            cfEl.style.color = 'var(--it-amber)';
+        } else {
+            cfEl.textContent = 'CLEAR';
+            cfEl.style.color = 'var(--it-green)';
+        }
+    }
+
+    // ── ETF Flow Monitor (F4) ────────────────────────────────────
+    function updateETF(etf) {
+        if (!etf) return;
+        var el = document.getElementById('itEtfFlow');
+        var dir = etf.net_6h_direction || 'neutral';
+        var arrows = {inflow: '↑', outflow: '↓', neutral: '→'};
+        var colors = {inflow: 'var(--it-green)', outflow: 'var(--it-red)', neutral: 'var(--it-muted)'};
+        var usd = Math.abs(etf.net_6h_usd || 0);
+        var usdStr = usd >= 1e6 ? (usd/1e6).toFixed(0) + 'M' : usd >= 1e3 ? (usd/1e3).toFixed(0) + 'K' : Math.round(usd);
+        el.textContent = (arrows[dir] || '→') + ' ' + dir.toUpperCase() + ' $' + usdStr + ' (est)';
+        el.style.color = colors[dir] || 'var(--it-muted)';
+
+        var cmEl = document.getElementById('itCmeBasis');
+        var rate = etf.deribit_funding_rate || 0;
+        cmEl.textContent = (rate >= 0 ? '+' : '') + (rate * 100).toFixed(3) + '%';
+        cmEl.style.color = rate > 0 ? 'var(--it-green)' : rate < 0 ? 'var(--it-red)' : 'var(--it-muted)';
+    }
+
+    // ── Network State Graph (F5) ─────────────────────────────────
+    var _graphLastRender = 0;
+    var _graphSim = null;
+    function renderNetworkGraph(graphData) {
+        if (!graphData || !graphData.nodes || !graphData.nodes.length) return;
+        var now = Date.now();
+        if (now - _graphLastRender < 5000 && _graphSim) return; // Throttle 5s
+        _graphLastRender = now;
+
+        if (typeof d3 === 'undefined') return; // D3 not loaded yet
+
+        var svg = d3.select('#network-svg');
+        var container = svg.node().parentNode;
+        var width = container.clientWidth - 32;
+        var height = 260;
+        svg.attr('width', width).attr('height', height);
+
+        // Clear previous
+        svg.selectAll('*').remove();
+
+        var g = svg.append('g');
+
+        var nodes = graphData.nodes.map(function(n) { return Object.assign({}, n); });
+        var edges = graphData.edges.map(function(e) { return {source: e.source, target: e.target, weight: e.weight}; });
+
+        // Create simulation
+        _graphSim = d3.forceSimulation(nodes)
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('charge', d3.forceManyBody().strength(-150))
+            .force('link', d3.forceLink(edges).id(function(d) { return d.id; }).distance(100).strength(0.4))
+            .force('collide', d3.forceCollide().radius(function(d) { return (d.size || 8) + 8; }))
+            .alphaDecay(0.05);
+
+        // Draw edges
+        var link = g.selectAll('.graph-link')
+            .data(edges)
+            .enter().append('line')
+            .attr('stroke', 'rgba(26,26,46,0.6)')
+            .attr('stroke-width', function(d) { return Math.max(0.5, d.weight * 2); });
+
+        // Draw nodes
+        var node = g.selectAll('.graph-node')
+            .data(nodes)
+            .enter().append('circle')
+            .attr('r', function(d) { return d.size || 8; })
+            .attr('fill', function(d) { return d.color || '#666'; })
+            .attr('stroke', 'rgba(255,255,255,0.1)')
+            .attr('stroke-width', 1)
+            .style('cursor', 'pointer');
+
+        // Labels for larger nodes
+        var label = g.selectAll('.graph-label')
+            .data(nodes.filter(function(d) { return d.size > 10; }))
+            .enter().append('text')
+            .text(function(d) { return d.label; })
+            .attr('fill', '#888')
+            .attr('font-family', 'JetBrains Mono, monospace')
+            .attr('font-size', '8px')
+            .attr('text-anchor', 'middle')
+            .attr('dy', function(d) { return -(d.size || 8) - 4; });
+
+        // Tooltip
+        var tooltip = document.getElementById('networkTooltip');
+        node.on('mouseover', function(event, d) {
+            tooltip.style.display = 'block';
+            tooltip.textContent = d.label + ' — ' + d.metric;
+            tooltip.style.left = event.offsetX + 10 + 'px';
+            tooltip.style.top = event.offsetY - 10 + 'px';
+        }).on('mouseout', function() {
+            tooltip.style.display = 'none';
+        });
+
+        // Tick
+        _graphSim.on('tick', function() {
+            link
+                .attr('x1', function(d) { return d.source.x; })
+                .attr('y1', function(d) { return d.source.y; })
+                .attr('x2', function(d) { return d.target.x; })
+                .attr('y2', function(d) { return d.target.y; });
+            node
+                .attr('cx', function(d) { return d.x = Math.max(d.size, Math.min(width - d.size, d.x)); })
+                .attr('cy', function(d) { return d.y = Math.max(d.size, Math.min(height - d.size, d.y)); });
+            label
+                .attr('x', function(d) { return d.x; })
+                .attr('y', function(d) { return d.y - (d.size || 8) - 4; });
+        });
     }
 
     // ── SSE Connection ─────────────────────────────────────────
