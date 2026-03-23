@@ -695,6 +695,37 @@ var S={
 
 var busy=false,isRec=false,pending='',objURL=null,recognition=null;
 var _greeted=false;
+
+var VISION_SPONSOR_MAP = {
+  'trezor':   { category:'amazon', title:'Trezor Hardware Wallet', id:'vision_trezor',
+    description:'The original Bitcoin hardware wallet. Battle-tested since 2014.',
+    url:'https://amzn.to/trezor', cta:'View on Amazon' },
+  'coldcard': { category:'affiliate', title:'Coldcard Mk4', id:'vision_coldcard',
+    description:'The most secure Bitcoin signing device. Air-gapped by default.',
+    url:'https://coldcard.com', cta:'Get Coldcard' },
+  'ledger':   { category:'amazon', title:'Ledger Hardware Wallet', id:'vision_ledger',
+    description:'Secure your Bitcoin with industry-leading hardware security.',
+    url:'https://amzn.to/ledger', cta:'View on Amazon' },
+  'bitaxe':   { category:'affiliate', title:'BitAxe Solo Miner', id:'vision_bitaxe',
+    description:'Open-source Bitcoin miner. Stack sats from your home.',
+    url:'https://bitaxe.org', cta:'Get BitAxe' },
+  'umbrel':   { category:'affiliate', title:'Umbrel Home Server', id:'vision_umbrel',
+    description:'Run your own Bitcoin node. Your keys, your coins.',
+    url:'https://umbrel.com', cta:'Run Umbrel' },
+  'start9':   { category:'affiliate', title:'Start9 Embassy', id:'vision_start9',
+    description:'Sovereign computing for the sovereign individual.',
+    url:'https://start9.com', cta:'Get Embassy' },
+  'seedsigner':{ category:'affiliate', title:'SeedSigner', id:'vision_seedsigner',
+    description:'Air-gapped signing device. Build your own or buy assembled.',
+    url:'https://seedsigner.com', cta:'Learn More' },
+  'passport': { category:'affiliate', title:'Foundation Passport', id:'vision_passport',
+    description:'Open-source, air-gapped Bitcoin hardware wallet.',
+    url:'https://foundationdevices.com', cta:'Get Passport' },
+  'jade':     { category:'affiliate', title:'Blockstream Jade', id:'vision_jade',
+    description:'Open-source hardware wallet with air-gapped signing.',
+    url:'https://store.blockstream.com', cta:'Get Jade' }
+};
+
 function pulseMic(){
   if(!mic||mic.disabled||isRec)return;
   mic.classList.remove('idle-pulse');
@@ -1274,6 +1305,9 @@ function _speakVisionGuidance(d) {
         URL.revokeObjectURL(audioURL);
         setStat("Ready","#334",false);
         hideSub();
+        if(d.device_name){
+          setTimeout(function(){ showVisionSponsor(d.device_name); },800);
+        }
         res();
       };
       audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
@@ -1567,6 +1601,16 @@ function showActionCard(card){
   el.style.opacity='0';
   setTimeout(function(){el.style.transition='opacity 0.4s';el.style.opacity='1';},100);
   setTimeout(function(){hideActionCard();},45000);
+}
+function showVisionSponsor(deviceName){
+  if(!deviceName || deviceName==='unknown') return;
+  var key=deviceName.toLowerCase();
+  var match=null;
+  Object.keys(VISION_SPONSOR_MAP).forEach(function(k){
+    if(!match && key.indexOf(k)>=0) match=VISION_SPONSOR_MAP[k];
+  });
+  if(!match) return;
+  showActionCard(match);
 }
 function hideActionCard(){
   var el=document.getElementById('oracle-action-card');
