@@ -35,7 +35,7 @@ LOGS_DIR = BASE / "logs"
 DATA_DIR = BASE / "data"
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
-MAX_QUEUE_DEPTH = 8
+MAX_QUEUE_DEPTH = 15
 
 # Local LLM offload — try Ollama on GPU 2 before Claude API
 LOCAL_LLM_URL = "http://localhost:11435"
@@ -647,18 +647,85 @@ FILLER_INSIGHTS = [
 ]
 
 
+def _generate_live_filler():
+    """Generate a live Bitcoin intelligence filler segment using current data."""
+    try:
+        btc_data = _fetch_btc_price() or {}
+        mempool = _fetch_mempool() or {}
+        hashrate = _fetch_hashrate()
+        fng = _fetch_fear_greed()
+
+        price = btc_data.get("price", 0)
+        change = btc_data.get("change_24h", 0)
+        fee = mempool.get("fastest_fee", 0)
+        hr = hashrate.get("hashrate_eh", 0) if hashrate else 0
+        fg = fng.get("value", 0) if fng else 0
+
+        context = f"""Current Bitcoin data:
+- Price: ${price:,.0f} ({change:+.1f}% 24h)
+- Fear & Greed: {fg}/100
+- Hashrate: {hr:.0f} EH/s
+- Mempool fast fee: {fee} sat/vbyte"""
+
+        prompt = (
+            f"{context}\n\n"
+            "Write a 40-60 word spoken Bitcoin intelligence broadcast segment. "
+            "Cold open with the most important signal from the data above. "
+            "Austrian economics worldview. Sovereign individual framing. "
+            "No greeting, no sign-off, no hedging. "
+            "Bitcoin only. Never say 'BTC'. Never say 'interesting'. "
+            "Every sentence must earn its place. "
+            "End with a forward-looking statement."
+        )
+        script = _generate_script_local(prompt)
+        if script and len(script) > 30:
+            return script
+    except Exception as e:
+        logger.warning("[FILLER] _generate_live_filler error: %s", e)
+    return None
+
+
 def get_filler_insight():
-    """Get next filler insight, rotating through the list."""
+    """Get next filler insight — live AI generation with static fallback."""
     last_idx = -1
+    last_generated = 0
     if FILLER_STATE.exists():
         try:
-            last_idx = json.loads(FILLER_STATE.read_text()).get("idx", -1)
+            state = json.loads(FILLER_STATE.read_text())
+            last_idx = state.get("idx", -1)
+            last_generated = state.get("last_generated", 0)
         except (json.JSONDecodeError, IOError):
             pass
 
-    next_idx = (last_idx + 1) % len(FILLER_INSIGHTS)
-    FILLER_STATE.write_text(json.dumps({"idx": next_idx}))
+    # Ensure state directory exists
+    FILLER_STATE.parent.mkdir(parents=True, exist_ok=True)
 
+    # Try live AI generation if >30 min since last AI filler
+    now_ts = time.time()
+    if now_ts - last_generated > 1800:
+        try:
+            live_script = _generate_live_filler()
+            if live_script:
+                FILLER_STATE.write_text(json.dumps({
+                    "idx": last_idx,
+                    "last_generated": now_ts
+                }))
+                logger.info("[FILLER] Live AI filler generated")
+                return _make_queue_item(
+                    "FILLER_INSIGHT", 5, live_script,
+                    "⚡ LIVE INSIGHT",
+                    live_script[:80],
+                    120,
+                )
+        except Exception as e:
+            logger.warning("[FILLER] Live generation failed, using static: %s", e)
+
+    # Fall back to static rotation
+    next_idx = (last_idx + 1) % len(FILLER_INSIGHTS)
+    FILLER_STATE.write_text(json.dumps({
+        "idx": next_idx,
+        "last_generated": last_generated
+    }))
     script = FILLER_INSIGHTS[next_idx]
     return _make_queue_item(
         "FILLER_INSIGHT", 5, script,
@@ -750,14 +817,17 @@ def run():
     except Exception as e:
         logger.error("Nostr signal check error: %s", e)
 
-    # 7. FILLER_INSIGHT (pri=5) — add if queue has <2 items
+    # 7. FILLER_INSIGHT (pri=5) — keep queue topped up to at least 4 items
     final_queue = _read_queue()
     final_queue = _cleanup_queue(final_queue)
-    if len(final_queue) < 2:
+    filler_added = 0
+    while len(final_queue) < 4 and filler_added < 3:
         filler = get_filler_insight()
         _add_to_queue(filler)
-        new_items += 1
-        logger.info("Added filler insight (queue was thin)")
+        final_queue = _read_queue()
+        final_queue = _cleanup_queue(final_queue)
+        filler_added += 1
+        logger.info("Added filler insight (%d in queue)", len(final_queue))
 
     final_queue = _read_queue()
     final_queue = _cleanup_queue(final_queue)
@@ -773,6 +843,42 @@ def run():
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    depth = run()
-    print(f"Queue depth: {depth}")
-    sys.exit(0)
+    if "--prefill" in sys.argv:
+        # Pre-fill queue with 8 items for low-traffic hours
+        logger.info("PREFILL MODE — building deep queue")
+        btc_data = _fetch_btc_price()
+        prefill_count = 0
+        # Try all signal types first
+        for check_fn, args in [
+            (check_metrics_pulse, (btc_data,)),
+            (check_article_teaser, ()),
+            (check_nostr_signal, ()),
+            (check_thought_leader, ()),
+            (check_article_teaser, ()),
+            (check_nostr_signal, ()),
+            (check_metrics_pulse, (btc_data,)),
+            (check_article_teaser, ()),
+        ]:
+            try:
+                q = _read_queue()
+                if len(q) >= MAX_QUEUE_DEPTH:
+                    break
+                item = check_fn(*args)
+                if item:
+                    _add_to_queue(item)
+                    prefill_count += 1
+                    time.sleep(2)  # brief pause between API calls
+            except Exception as e:
+                logger.warning("Prefill check error: %s", e)
+        # Top up with live filler to reach 8 items
+        q = _read_queue()
+        while len(q) < 8:
+            _add_to_queue(get_filler_insight())
+            q = _read_queue()
+            prefill_count += 1
+        logger.info("PREFILL COMPLETE — %d items added, queue depth: %d",
+                    prefill_count, len(_read_queue()))
+    else:
+        depth = run()
+        print(f"Queue depth: {depth}")
+        sys.exit(0)
