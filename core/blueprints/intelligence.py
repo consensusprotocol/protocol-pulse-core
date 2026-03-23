@@ -132,6 +132,7 @@ def api_intelligence_stream():
                         "price": _get_btc_price(),
                         "fng": _get_fng(),
                         "alerts": state.get("alerts", {}),
+                        "convergence": {"state": state.get("convergence", {}).get("state", "IDLE")},
                     }
                 yield f"data: {json.dumps(state)}\n\n"
                 time.sleep(2)

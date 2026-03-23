@@ -466,6 +466,42 @@ body.intel-terminal .site-footer {
             {% endif %}
         </div>
 
+        <!-- CONVERGENCE DETECTION -->
+        <div class="it-panel">
+            <div class="it-panel-header">Convergence Matrix</div>
+            <div class="it-value-label">CONVERGENCE STATE</div>
+            <div class="it-value-primary" id="itConvergenceState" style="font-size:28px">IDLE</div>
+            <div class="it-anomaly-bar" style="margin-top:8px">
+                <div class="it-anomaly-fill green" id="itConvergenceFill" style="width:0%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Active Signals</span>
+                <span class="it-value-row-data" id="itConvergenceSignals">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Contradiction</span>
+                <span class="it-value-row-data" id="itConvergenceContradiction" style="color:var(--it-green)">CLEAR</span>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">PATTERN STATUS</div>
+                <div id="itConvergencePatterns">
+                    <div class="it-connecting">Initializing<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">SIGNAL FEED</div>
+                <div id="itConvergenceSignalFeed" style="max-height:120px;overflow-y:auto">
+                    <div class="it-connecting">Waiting<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">Commander Required</div>
+                <div class="it-demo-cta"><a href="/terminal/checkout">Upgrade to Commander</a></div>
+            </div>
+            {% endif %}
+        </div>
+
         <!-- MEMPOOL LIVE -->
         <div class="it-panel">
             <div class="it-panel-header">Mempool Live</div>
@@ -718,6 +754,53 @@ body.intel-terminal .site-footer {
         fill.className = 'it-anomaly-fill ' + (score >= 70 ? 'red' : score >= 30 ? 'amber' : 'green');
     }
 
+    // ── Convergence panel ─────────────────────────────────────
+    function updateConvergence(conv) {
+        if (!conv) return;
+        const stateEl = document.getElementById('itConvergenceState');
+        const fillEl = document.getElementById('itConvergenceFill');
+        const stateColors = {IDLE:'var(--it-green)',WATCH:'var(--it-amber)',ALERT:'var(--it-red)',CRITICAL:'var(--it-red)'};
+        const statePct = {IDLE:0,WATCH:33,ALERT:66,CRITICAL:100};
+        stateEl.textContent = conv.state || 'IDLE';
+        stateEl.style.color = stateColors[conv.state] || 'var(--it-green)';
+        fillEl.style.width = (statePct[conv.state] || 0) + '%';
+        fillEl.className = 'it-anomaly-fill ' + (conv.state==='CRITICAL'||conv.state==='ALERT' ? 'red' : conv.state==='WATCH' ? 'amber' : 'green');
+
+        const signals = conv.signals || [];
+        document.getElementById('itConvergenceSignals').textContent = signals.length;
+
+        const contraEl = document.getElementById('itConvergenceContradiction');
+        if (conv.contradiction) {
+            contraEl.textContent = 'DETECTED';
+            contraEl.style.color = 'var(--it-red)';
+        } else {
+            contraEl.textContent = 'CLEAR';
+            contraEl.style.color = 'var(--it-green)';
+        }
+
+        // Pattern results
+        const patternsEl = document.getElementById('itConvergencePatterns');
+        const pr = conv.pattern_results || {};
+        const patternKeys = Object.keys(pr);
+        if (patternKeys.length) {
+            patternsEl.innerHTML = patternKeys.map(function(k) {
+                const r = pr[k];
+                const color = r.state==='ALERT'||r.state==='CRITICAL' ? 'var(--it-red)' : r.state==='WATCH' ? 'var(--it-amber)' : 'var(--it-muted)';
+                return '<div class="it-value-row"><span class="it-value-row-label">' + k + '</span><span class="it-value-row-data" style="color:'+color+'">' + r.state + (r.contradiction?' !!':'') + '</span></div>';
+            }).join('');
+        }
+
+        // Signal feed
+        const feedEl = document.getElementById('itConvergenceSignalFeed');
+        if (signals.length) {
+            feedEl.innerHTML = signals.slice(0,10).map(function(s) {
+                const age = s.timestamp ? Math.round((Date.now()/1000 - s.timestamp)/60) + 'm ago' : '';
+                const dw = s.decay_weight !== undefined ? ' dw=' + s.decay_weight.toFixed(2) : '';
+                return '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--it-label);padding:2px 0;border-bottom:1px solid var(--it-border)">' + s.name + ': <span style="color:var(--it-text)">' + s.value + '</span> <span style="color:var(--it-muted)">' + age + dw + '</span></div>';
+            }).join('');
+        }
+    }
+
     // ── Full state update ──────────────────────────────────────
     function updateState(state) {
         lastDataTs = Date.now() / 1000;
@@ -773,6 +856,9 @@ body.intel-terminal .site-footer {
 
         // Alerts
         renderAlerts(state.alerts);
+
+        // Convergence
+        updateConvergence(state.convergence);
     }
 
     // ── SSE Connection ─────────────────────────────────────────

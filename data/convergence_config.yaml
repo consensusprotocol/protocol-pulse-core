@@ -1,0 +1,124 @@
+# data/convergence_config.yaml
+# All keys required. Missing keys raise ConfigurationError at startup.
+# No hardcoded fallbacks exist in code — this file is the sole source of truth.
+# Hot-reload: changes take effect within one evaluation cycle without restart.
+
+convergence:
+
+  # ── Pattern thresholds ───────────────────────────────────────────────────────
+  patterns:
+    MCC:                                   # Macro Convergence Cluster
+      required_signals: 5
+      fire_threshold: 3
+      minimum_confirmation_window: 21600   # 6h — must hold WATCH before ALERT eligible
+
+    IES:                                   # Inflow/Exchange Signal
+      required_signals: 4
+      fire_threshold: 3
+      minimum_confirmation_window: 14400   # 4h
+
+    LSC:                                   # Large Stablecoin Change
+      required_signals: 3
+      fire_threshold: 2
+      minimum_confirmation_window: 7200    # 2h
+
+    MINER_CAPITULATION:
+      required_signals: 3
+      fire_threshold: 2
+      minimum_confirmation_window: 43200   # 12h — slow-moving structural signal
+
+    OTC_PREMIUM:
+      required_signals: 2
+      fire_threshold: 2
+      minimum_confirmation_window: 3600    # 1h
+
+  # ── State machine ────────────────────────────────────────────────────────────
+  state_machine:
+    valid_transitions:
+      IDLE:     ["WATCH"]
+      WATCH:    ["IDLE", "ALERT"]
+      ALERT:    ["WATCH", "CRITICAL"]
+      CRITICAL: ["ALERT", "IDLE"]          # CRITICAL steps down via ALERT only
+
+  # ── Signal freshness / decay ─────────────────────────────────────────────────
+  signal_freshness:
+    decay_onset_seconds: 3600              # Signal begins decaying after 1h
+    max_valid_age_seconds: 7200            # Signal expires entirely after 2h
+    decay_function: "linear"              # linear | exponential (only linear implemented)
+
+  # ── Evaluation cycle ─────────────────────────────────────────────────────────
+  evaluation:
+    cycle_interval_seconds: 60
+    state_write_interval_seconds: 5
+    baseline_purge_interval_seconds: 86400  # Purge old records once per day
+
+  # ── External feeds ───────────────────────────────────────────────────────────
+  feeds:
+    vix:
+      primary_url: "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX"
+      fallback_provider: "alpha_vantage"   # Requires ALPHA_VANTAGE_KEY env var
+      cache_ttl_seconds: 60
+      timeout_seconds: 8
+
+    spy:
+      primary_url: "https://query1.finance.yahoo.com/v8/finance/chart/SPY"
+      fallback_provider: "alpha_vantage"
+      cache_ttl_seconds: 60
+      timeout_seconds: 8
+
+    wti:
+      primary_url: "https://api.eia.gov/v2/petroleum/pri/spt/data/"
+      fallback_provider: null              # No free fallback — alert on failure
+      cache_ttl_seconds: 300
+      timeout_seconds: 10
+
+    deribit_funding:
+      primary_url: "https://www.deribit.com/api/v2/public/get_funding_rate_value"
+      fallback_provider: null              # Deribit WebSocket already in sentinel
+      cache_ttl_seconds: 30
+      timeout_seconds: 5
+
+    stablecoin_flows:
+      primary_url: "https://stablecoins.llama.fi/stablecoinchains"
+      fallback_provider: null
+      cache_ttl_seconds: 300
+      timeout_seconds: 15
+      # Override URL via env var: STABLECOIN_FEED_URL
+
+    hodlhodl:
+      primary_url: "https://hodlhodl.com/api/v1/offers"
+      fallback_provider: null
+      cache_ttl_seconds: 120
+      timeout_seconds: 10
+
+    rss_news:
+      feeds:
+        - "https://feeds.feedburner.com/CoinDesk"
+        - "https://cointelegraph.com/rss"
+        - "https://bitcoinmagazine.com/.rss/full/"
+      cache_ttl_seconds: 120
+      timeout_seconds: 8
+
+    custodian_wallet_flows:
+      primary_url: ""                      # Must be set via CUSTODIAN_FEED_URL env var
+      fallback_provider: null
+      cache_ttl_seconds: 600
+      timeout_seconds: 20
+
+  # ── Contradiction pairs ───────────────────────────────────────────────────────
+  contradictions:
+    - pair: ["IES", "LSC"]
+      condition: "IES=bullish AND LSC=bearish_stablecoin_outflow"
+      severity: "HIGH"
+    - pair: ["DERIBIT_FUNDING", "EXCHANGE_OUTFLOW"]
+      condition: "funding_negative AND exchange_outflow_spike"
+      severity: "MEDIUM"
+
+  persistence:
+    db_path: "data/baseline_store.db"
+    min_alert_gap_seconds: 3600
+    watch_to_critical_min_seconds: 1800
+
+  sse:
+    max_signals_in_payload: 30
+    payload_version: 1

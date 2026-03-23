@@ -23,6 +23,9 @@ from typing import Optional
 import aiohttp
 import websockets
 
+from services.config_loader import convergence_config
+from services.convergence_engine import ConvergenceEngine
+
 logger = logging.getLogger("sentinel")
 logger.setLevel(logging.INFO)
 if not logger.handlers:
@@ -94,6 +97,15 @@ class SentinelState:
         "last_critical_at": 0.0,
         "last_watch_at": 0.0,
     })
+    convergence: dict = field(default_factory=lambda: {
+        "state": "IDLE",
+        "last_evaluated": 0.0,
+        "signals": [],
+        "contradiction": False,
+        "contradiction_detail": "",
+        "pattern_results": {},
+        "schema_version": 1,
+    })
 
     def to_dict(self):
         return {
@@ -106,6 +118,7 @@ class SentinelState:
                 "last_critical_at": self.alerts["last_critical_at"],
                 "last_watch_at": self.alerts["last_watch_at"],
             },
+            "convergence": dict(self.convergence),
         }
 
 
@@ -264,6 +277,7 @@ class SentinelDaemon:
         self._running = False
         self._hashrate_24h_ago: Optional[float] = None
         self._hashrate_24h_ago_ts: float = 0.0
+        self._convergence_engine: Optional[ConvergenceEngine] = None
         _init_alerts_db()
 
     # ── State access (thread-safe for Flask) ───────────────────────────────
@@ -614,9 +628,36 @@ class SentinelDaemon:
 
         logger.info("ALERT [%s] %s — score %d", tier, message, score)
 
+    # ── Convergence Engine ───────────────────────────────────────────────
+    async def _update_convergence(self, session: aiohttp.ClientSession):
+        """Run convergence evaluation cycle and update state."""
+        try:
+            if self._convergence_engine is None:
+                self._convergence_engine = ConvergenceEngine(session, convergence_config)
+            result = await self._convergence_engine.run_evaluation_cycle()
+            with self._lock:
+                self.state.convergence = result
+
+            # Fire alert if convergence state escalates to ALERT or CRITICAL
+            conv_state = result.get("state", "IDLE")
+            if conv_state == "CRITICAL":
+                self._fire_alert(
+                    "CRITICAL", "CONVERGENCE",
+                    f"Convergence CRITICAL — {len(result.get('signals', []))} signals aligned",
+                    90, {"convergence": result},
+                )
+            elif conv_state == "ALERT":
+                self._fire_alert(
+                    "WATCH", "CONVERGENCE",
+                    f"Convergence ALERT — {len(result.get('signals', []))} signals aligned",
+                    60, {"convergence": result},
+                )
+        except Exception as e:
+            logger.error("Convergence evaluation failed: %s", e)
+
     # ── Main Loop ──────────────────────────────────────────────────────────
     async def run(self):
-        """Main async entry — run WebSocket + REST polling + PCAF concurrently."""
+        """Main async entry — run WebSocket + REST polling + PCAF + Convergence concurrently."""
         self._running = True
         logger.info("Sentinel daemon starting...")
 
@@ -635,6 +676,10 @@ class SentinelDaemon:
                 # PCAF every 60s
                 if poll_counter % 12 == 0:
                     self._update_pcaf()
+
+                # Convergence every 60s (same cadence as PCAF)
+                if poll_counter % 12 == 0:
+                    await self._update_convergence(session)
 
                 # Write state every 5s
                 self._write_state_file()

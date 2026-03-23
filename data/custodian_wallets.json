@@ -1,0 +1,16 @@
+{
+  "description": "Known ETF custodian Bitcoin wallet addresses for flow monitoring",
+  "wallets": [
+    {
+      "label": "Coinbase Prime (GBTC/IBIT suspected)",
+      "address": "bc1qm34lsc65zpw79lxes69zkqmk6ee3ewf0j77s3",
+      "notes": "Large institutional custody cluster"
+    },
+    {
+      "label": "BitGo (BITB suspected)",
+      "address": "bc1qjasf9z3h7w3jspkhtgatgpyvvzgpa2wwd2lr0",
+      "notes": "BitGo multi-sig custody"
+    }
+  ],
+  "last_updated": "2026-03-23"
+}

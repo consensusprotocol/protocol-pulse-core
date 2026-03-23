@@ -96,3 +96,91 @@ def toggle_channel(channel_id: str, enabled: bool) -> bool:
             return True
 
     return False
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  CONVERGENCE CONFIG LOADER
+# ═══════════════════════════════════════════════════════════════════════════
+
+import yaml
+import os
+import threading
+
+CONVERGENCE_CONFIG_PATH = Path(__file__).resolve().parent.parent / "data" / "convergence_config.yaml"
+
+REQUIRED_CONVERGENCE_KEYS = [
+    "patterns",
+    "state_machine",
+    "signal_freshness",
+    "evaluation",
+    "feeds",
+    "contradictions",
+    "persistence",
+    "sse",
+]
+
+
+class ConfigurationError(Exception):
+    """Raised at startup if convergence_config.yaml is missing required keys."""
+    pass
+
+
+class ConvergenceConfig:
+    """
+    Thread-safe config loader with file-watch hot reload.
+    Usage: from services.config_loader import convergence_config
+           convergence_config.get('feeds', 'vix', 'cache_ttl_seconds')
+    """
+
+    def __init__(self, config_path: Path = CONVERGENCE_CONFIG_PATH):
+        self._path = config_path
+        self._config: Dict = {}
+        self._lock = threading.RLock()
+        self._last_mtime: float = 0.0
+        self._load()
+        self._validate()
+
+    def _load(self) -> None:
+        with open(self._path, "r") as f:
+            raw = yaml.safe_load(f)
+        with self._lock:
+            self._config = raw.get("convergence", {})
+            self._last_mtime = os.path.getmtime(self._path)
+        logger.info(f"Convergence config loaded from {self._path}")
+
+    def _validate(self) -> None:
+        missing = [k for k in REQUIRED_CONVERGENCE_KEYS if k not in self._config]
+        if missing:
+            raise ConfigurationError(
+                f"convergence_config.yaml is missing required keys: {missing}. "
+                f"No hardcoded fallbacks are permitted. Add missing keys and restart."
+            )
+
+    def get(self, *keys: str, default=None):
+        """
+        Thread-safe nested key access.
+        Example: convergence_config.get('feeds', 'vix', 'cache_ttl_seconds')
+        """
+        self._maybe_reload()
+        with self._lock:
+            val = self._config
+            for k in keys:
+                if not isinstance(val, dict) or k not in val:
+                    return default
+                val = val[k]
+            return val
+
+    def _maybe_reload(self) -> None:
+        """Hot reload if file has been modified since last load."""
+        try:
+            mtime = os.path.getmtime(self._path)
+            if mtime > self._last_mtime:
+                logger.info("convergence_config.yaml changed — hot reloading.")
+                self._load()
+                self._validate()
+        except OSError:
+            pass
+
+
+# Module-level singleton — import triggers validation
+convergence_config = ConvergenceConfig()

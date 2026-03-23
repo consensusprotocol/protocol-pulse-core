@@ -1,0 +1,21 @@
+{
+  "description": "Known mining pool payout addresses for capitulation detection",
+  "wallets": [
+    {
+      "label": "Foundry USA",
+      "address": "bc1qxhmdufsvnuaaaer4ynz88fspdsxq2h9e9cetdj",
+      "notes": "Foundry USA Pool primary payout"
+    },
+    {
+      "label": "AntPool",
+      "address": "bc1q9d4ywgfnd8h43da5tpcxcn6ajv590cg6d3tg6x",
+      "notes": "AntPool payout cluster"
+    },
+    {
+      "label": "F2Pool",
+      "address": "bc1qm34lsc65zpw79lxes69zkqmk6ee3ewf0j77s3",
+      "notes": "F2Pool payout"
+    }
+  ],
+  "last_updated": "2026-03-23"
+}

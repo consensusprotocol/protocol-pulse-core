@@ -280,3 +280,43 @@ BUG 3: Gunicorn started from wrong working directory
   VERIFY: ls /proc/12/cwd -la
     should show -> /home/ultron/protocol_pulse/core
   WATCHDOG ACTION: If /intelligence returns 404 or wrong page, check gunicorn cwd first.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## CONVERGENCE DETECTION BUILD -- 2026-03-23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FILES CREATED:
+  services/signal_feeds.py     — 8 async feed fetchers (VIX, SPY, WTI, Deribit, Stablecoin, HodlHodl, RSS, Custodian)
+  services/baseline_store.py   — Rolling 30-day SQLite store (WAL mode, check_same_thread=False)
+  services/convergence_engine.py — State machine (IDLE→WATCH→ALERT→CRITICAL), SignalExtractor, PatternEvaluator
+  data/convergence_config.yaml — All thresholds externalized (patterns, feeds, contradictions, state machine)
+  data/custodian_wallets.json  — ETF custodian wallet addresses for flow monitoring
+  data/miner_wallets.json      — Mining pool payout addresses for capitulation detection
+
+FILES MODIFIED:
+  services/config_loader.py    — Added ConvergenceConfig class (YAML loader, thread-safe, hot-reload, startup validation)
+  services/sentinel.py         — Added convergence field to SentinelState, ConvergenceEngine runs every 60s in main loop
+  core/blueprints/intelligence.py — Convergence state included in SSE stream (auth + public)
+  core/templates/intelligence_terminal.html — Convergence Matrix panel (state, signals, patterns, contradiction indicator)
+
+BUGS FIXED (from audit):
+  BUG-2: All signal_feeds.py fetchers are async (no requests.get anywhere)
+  BUG-3: SQLite WAL mode + synchronous=NORMAL + busy_timeout=10000 + check_same_thread=False on every connection
+  BUG-4: Explicit ClientTimeout on every fetcher
+  BUG-5: Yahoo Finance fallback to Alpha Vantage for VIX + SPY
+  BUG-6: All thresholds from convergence_config.yaml — no hardcoded fallbacks, startup validation rejects incomplete config
+  IMP-1: aiohttp session injected from sentinel.py, not created per-cycle
+  IMP-2: Per-feed circuit breaker (3 failures → 5min cooldown)
+  IMP-5: Contradiction gate blocks escalation when contradictions detected
+  IMP-7: SSE payload versioning (schema_version: 1)
+
+STATE MACHINE RULES:
+  IDLE→WATCH only. WATCH→IDLE or ALERT. ALERT→WATCH or CRITICAL. CRITICAL→ALERT or IDLE.
+  IDLE→CRITICAL raises ValueError (no skip). Contradiction gate forces step-down to WATCH.
+  minimum_confirmation_window must pass before escalation (per-pattern, 1h–12h).
+
+SIGNAL FRESHNESS:
+  decay_onset: 3600s (1h). max_valid_age: 7200s (2h). Linear decay between onset and max.
+  Expired signals (age >= max_valid_age) excluded from pattern evaluation.
+
+ALL 9 TESTS PASSED.
