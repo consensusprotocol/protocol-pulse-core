@@ -24,10 +24,17 @@ def _get_conn():
             setup_device    TEXT,
             setup_step      INTEGER DEFAULT 0,
             topics_seen     TEXT DEFAULT '[]',
-            products_shown  TEXT DEFAULT '[]'
+            products_shown  TEXT DEFAULT '[]',
+            recent_turns    TEXT DEFAULT '[]'
         )
     """)
     conn.commit()
+    # Migrate existing DB — add recent_turns if missing
+    try:
+        conn.execute("ALTER TABLE visitor_memory ADD COLUMN recent_turns TEXT DEFAULT '[]'")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists
     return conn
 
 
@@ -52,11 +59,12 @@ def load_visitor(fingerprint: str) -> dict | None:
             return None
         cols = ["fingerprint", "last_seen", "session_count", "personality",
                 "session_summaries", "setup_device", "setup_step",
-                "topics_seen", "products_shown"]
+                "topics_seen", "products_shown", "recent_turns"]
         data = dict(zip(cols, row))
         data["session_summaries"] = json.loads(data["session_summaries"] or "[]")
         data["topics_seen"] = json.loads(data["topics_seen"] or "[]")
         data["products_shown"] = json.loads(data["products_shown"] or "[]")
+        data["recent_turns"] = json.loads(data.get("recent_turns") or "[]")
         return data
     except Exception as e:
         logger.warning(f"[MEMORY] load error: {e}")
@@ -75,8 +83,9 @@ def save_visitor(fingerprint: str, session_data: dict):
         conn.execute("""
             INSERT INTO visitor_memory
                 (fingerprint, last_seen, session_count, personality,
-                 session_summaries, setup_device, setup_step, topics_seen, products_shown)
-            VALUES (?,?,?,?,?,?,?,?,?)
+                 session_summaries, setup_device, setup_step, topics_seen, products_shown,
+                 recent_turns)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(fingerprint) DO UPDATE SET
                 last_seen = excluded.last_seen,
                 session_count = excluded.session_count,
@@ -85,7 +94,8 @@ def save_visitor(fingerprint: str, session_data: dict):
                 setup_device = excluded.setup_device,
                 setup_step = excluded.setup_step,
                 topics_seen = excluded.topics_seen,
-                products_shown = excluded.products_shown
+                products_shown = excluded.products_shown,
+                recent_turns = excluded.recent_turns
         """, (
             fingerprint,
             int(time.time()),
@@ -95,7 +105,8 @@ def save_visitor(fingerprint: str, session_data: dict):
             session_data.get("setup_device"),
             session_data.get("setup_step", 0),
             json.dumps(list(set(session_data.get("topics_seen", [])))[-20:]),
-            json.dumps(list(set(session_data.get("products_shown", []))))
+            json.dumps(list(set(session_data.get("products_shown", [])))),
+            json.dumps(session_data.get("recent_turns", [])[-3:])
         ))
         conn.commit()
         conn.close()

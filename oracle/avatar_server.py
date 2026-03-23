@@ -1634,6 +1634,17 @@ def oracle_chat():
         if memory:
             session["visitor_memory"] = memory
             logger.info(f"[MEMORY] Returning visitor — session #{memory['session_count']}")
+            if memory.get("recent_turns"):
+                # Pre-warm session with last exchange so Oracle has context immediately
+                recent = memory["recent_turns"]
+                if recent:
+                    last = recent[-1]
+                    if last.get("user") and last.get("oracle"):
+                        session["history"] = [
+                            {"role": "user", "content": f"[PRIOR SESSION] {last['user']}"},
+                            {"role": "assistant", "content": f"[PRIOR SESSION] {last['oracle']}"},
+                        ]
+                        logger.info(f"[MEMORY] Pre-warmed session with {len(recent)} prior turns")
     session["fingerprint"] = fingerprint
 
     _sess_turn = oracle_dialogue_engine.get_session_info(session_id).get("turn", 0)
@@ -1654,6 +1665,40 @@ def oracle_chat():
     page_context = data.get("page_context", None)
     result = oracle_dialogue_engine.generate_response(session_id, text, live_intel, page_context)
     logger.info(f"[CHAT] {session_id} t={result['turn']} p={result['personality']} ctx={page_context.get('type','?') if page_context else 'none'}: {result['text'][:50]}")
+
+    # ── Background memory save — persist after every turn, not just on unload ──
+    try:
+        _fp = session.get("fingerprint")
+        _hist = session.get("history", [])
+        if _fp and len(_hist) >= 2:
+            import threading as _mem_threading
+            def _bg_save():
+                try:
+                    from oracle_memory import save_visitor
+                    _flow = session.get("setup_flow", {})
+                    _prev = session.get("visitor_memory", {})
+                    # Store last 3 user+oracle pairs as recent_turns
+                    _turns = []
+                    for i in range(0, min(6, len(_hist)), 2):
+                        if i+1 < len(_hist):
+                            _turns.append({
+                                "user": _hist[-(i+2)]["content"][:120] if len(_hist) > i+1 else "",
+                                "oracle": _hist[-(i+1)]["content"][:200] if len(_hist) > i else ""
+                            })
+                    save_visitor(_fp, {
+                        "personality": session.get("personality", "AMIABLE"),
+                        "session_summaries": _prev.get("session_summaries", []),
+                        "setup_device": _flow.get("device"),
+                        "setup_step": _flow.get("step", 0),
+                        "topics_seen": list(session.get("topics_discussed", [])),
+                        "products_shown": list(session.get("products_mentioned", [])),
+                        "recent_turns": list(reversed(_turns)),
+                    })
+                except Exception as _se:
+                    logger.debug(f"[MEMORY] bg save error: {_se}")
+            _mem_threading.Thread(target=_bg_save, daemon=True).start()
+    except Exception:
+        pass
 
     if audio_first:
         # Phase A: return text immediately, fire video render in background
@@ -1776,6 +1821,15 @@ def oracle_session_reset():
             summary = generate_session_summary(session["history"], api_key) if api_key else ""
             flow = session.get("setup_flow", {})
             prev_memory = session.get("visitor_memory", {})
+            # Build recent_turns from session history
+            _hist = session.get("history", [])
+            _turns = []
+            for i in range(0, min(6, len(_hist)), 2):
+                if i+1 < len(_hist):
+                    _turns.append({
+                        "user": _hist[-(i+2)]["content"][:120] if len(_hist) > i+1 else "",
+                        "oracle": _hist[-(i+1)]["content"][:200] if len(_hist) > i else ""
+                    })
             save_visitor(fingerprint, {
                 "personality": session.get("personality", "AMIABLE"),
                 "session_summaries": prev_memory.get("session_summaries", []) + ([summary] if summary else []),
@@ -1783,6 +1837,7 @@ def oracle_session_reset():
                 "setup_step": flow.get("step", 0),
                 "topics_seen": session.get("topics_discussed", []),
                 "products_shown": session.get("products_mentioned", []),
+                "recent_turns": list(reversed(_turns)),
             })
             logger.info(f"[MEMORY] Saved visitor memory for session {sid}")
         except Exception as e:
@@ -1807,6 +1862,15 @@ def oracle_session_save():
             flow = session.get("setup_flow", {})
             prev_memory = session.get("visitor_memory", {})
             topics = list(session.get("topics_discussed", []))
+            # Build recent_turns from session history
+            _hist = session.get("history", [])
+            _turns = []
+            for i in range(0, min(6, len(_hist)), 2):
+                if i+1 < len(_hist):
+                    _turns.append({
+                        "user": _hist[-(i+2)]["content"][:120] if len(_hist) > i+1 else "",
+                        "oracle": _hist[-(i+1)]["content"][:200] if len(_hist) > i else ""
+                    })
             save_visitor(fingerprint, {
                 "personality": session.get("personality", "AMIABLE"),
                 "session_summaries": prev_memory.get("session_summaries", []) + ([summary] if summary else []),
@@ -1814,6 +1878,7 @@ def oracle_session_save():
                 "setup_step": flow.get("step", 0),
                 "topics_seen": topics,
                 "products_shown": session.get("products_mentioned", []),
+                "recent_turns": list(reversed(_turns)),
             })
             logger.info(f"[MEMORY] Saved session {sid} on unload — {len(topics)} topics, summary len={len(summary)}")
         except Exception as e:

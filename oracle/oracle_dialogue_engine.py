@@ -718,6 +718,16 @@ def generate_response(
         memory_ctx = [f"RETURNING VISITOR — session #{memory['session_count']}, last seen {days_ago} day(s) ago"]
         if summaries:
             memory_ctx.append(f"Prior sessions: {' | '.join(summaries[-2:])}")
+        recent_turns = memory.get("recent_turns", [])
+        if recent_turns:
+            turns_text = []
+            for t in recent_turns[-2:]:  # last 2 exchanges
+                u = t.get("user", "")[:100]
+                o = t.get("oracle", "")[:150]
+                if u and o:
+                    turns_text.append(f"User said: \"{u}\" → You said: \"{o[:80]}...\"")
+            if turns_text:
+                memory_ctx.append(f"Last conversation: {' | '.join(turns_text)}")
         if setup and step > 0:
             memory_ctx.append(f"Was setting up: {setup} (reached step {step})")
         if topics:
