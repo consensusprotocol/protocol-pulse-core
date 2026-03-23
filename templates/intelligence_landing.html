@@ -1,0 +1,790 @@
+{% extends "base.html" %}
+
+{% block title %}Protocol Pulse Intelligence Terminal — Real-Time Bitcoin War Room{% endblock %}
+
+{% block head %}
+<meta property="og:title" content="Protocol Pulse Intelligence Terminal">
+<meta property="og:description" content="Real-time Bitcoin chain-state intelligence. GNN anomaly detection. 5-scenario Monte Carlo analytics. $49/mo.">
+<meta property="og:image" content="{{ url_for('static', filename='images/terminal-og.png', _external=True) }}">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Protocol Pulse Intelligence Terminal">
+<meta name="twitter:description" content="Real-time Bitcoin chain-state intelligence. GNN anomaly detection. 5-scenario Monte Carlo analytics.">
+<meta name="twitter:image" content="{{ url_for('static', filename='images/terminal-og.png', _external=True) }}">
+<meta name="description" content="Real-time Bitcoin intelligence war room. GNN anomaly detection, Monte Carlo scenario analytics, whale coordination alerts, mempool intelligence. $49/mo.">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --il-bg: #0A0A0F;
+    --il-surface: #111118;
+    --il-border: #1a1a24;
+    --il-red: #FF3333;
+    --il-gold: #F8C15C;
+    --il-green: #22c55e;
+    --il-text: #e4e4e7;
+    --il-muted: #71717a;
+    --il-amber: #f59e0b;
+}
+
+.il-page {
+    background: var(--il-bg);
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+    color: var(--il-text);
+}
+
+/* ── HERO ─────────────────────────────── */
+.il-hero {
+    padding: 80px 20px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.il-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,51,51,0.06) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.il-badge {
+    display: inline-block;
+    background: rgba(255,51,51,0.12);
+    border: 1px solid rgba(255,51,51,0.3);
+    color: var(--il-red);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+    animation: il-pulse 3s infinite;
+}
+
+@keyframes il-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.il-headline {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.15;
+    max-width: 800px;
+    margin: 0 auto 16px;
+    letter-spacing: -0.02em;
+}
+
+.il-subheadline {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--il-muted);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+}
+
+.il-subheadline strong {
+    color: var(--il-gold);
+    font-weight: 600;
+}
+
+.il-cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+}
+
+.il-cta-primary {
+    background: var(--il-red);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+}
+.il-cta-primary:hover {
+    background: #e62e2e;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255,51,51,0.3);
+}
+
+.il-cta-secondary {
+    background: transparent;
+    color: var(--il-text);
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid var(--il-border);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.il-cta-secondary:hover {
+    border-color: var(--il-muted);
+    color: #fff;
+}
+
+/* ── LIVE DEMO PANEL ──────────────────── */
+.il-demo-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.il-demo-panel {
+    background: var(--il-surface);
+    border: 1px solid var(--il-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(255,51,51,0.04), 0 4px 24px rgba(0,0,0,0.5);
+}
+
+.il-demo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--il-border);
+    background: rgba(255,255,255,0.02);
+}
+
+.il-demo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--il-green);
+    animation: il-blink 2s infinite;
+}
+
+@keyframes il-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.il-demo-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--il-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.il-demo-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--il-border);
+}
+
+.il-demo-cell {
+    padding: 20px;
+    background: var(--il-surface);
+}
+
+.il-demo-cell-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--il-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+}
+
+.il-demo-cell-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.il-demo-cell-value.green { color: var(--il-green); }
+.il-demo-cell-value.red { color: var(--il-red); }
+.il-demo-cell-value.gold { color: var(--il-gold); }
+
+.il-demo-cell-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--il-muted);
+    margin-top: 4px;
+}
+
+/* Classified/encrypted cells */
+.il-classified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--il-red);
+    background: rgba(255,51,51,0.08);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,51,51,0.2);
+}
+
+.il-encrypted {
+    filter: blur(6px);
+    user-select: none;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--il-amber);
+}
+
+/* Alert row */
+.il-demo-alert {
+    grid-column: 1 / -1;
+    padding: 14px 20px;
+    background: rgba(255,51,51,0.04);
+    border-top: 1px solid rgba(255,51,51,0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.il-alert-badge {
+    background: var(--il-red);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    animation: il-pulse 2s infinite;
+}
+
+.il-alert-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--il-text);
+}
+
+.il-demo-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--il-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.il-demo-footer-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--il-muted);
+}
+
+.il-demo-footer-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--il-red);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.il-demo-footer-cta:hover { color: #ff6666; }
+
+/* ── PROOF OF WORK ────────────────────── */
+.il-section {
+    padding: 80px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.il-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--il-red);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+}
+
+.il-section-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 48px;
+}
+
+.il-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.il-proof-card {
+    background: var(--il-surface);
+    border: 1px solid var(--il-border);
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.il-proof-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.il-proof-label {
+    font-size: 0.82rem;
+    color: var(--il-muted);
+}
+
+.il-spec-card {
+    background: var(--il-surface);
+    border: 1px solid var(--il-border);
+    border-left: 3px solid var(--il-red);
+    border-radius: 10px;
+    padding: 24px;
+    margin-top: 24px;
+}
+
+.il-spec-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--il-red);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.il-spec-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--il-text);
+    line-height: 1.7;
+}
+
+/* ── FEATURES ─────────────────────────── */
+.il-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.il-feature-card {
+    background: var(--il-surface);
+    border: 1px solid var(--il-border);
+    border-radius: 10px;
+    padding: 28px;
+    transition: border-color 0.3s;
+}
+.il-feature-card:hover {
+    border-color: rgba(255,51,51,0.3);
+}
+
+.il-feature-icon {
+    font-size: 1.2rem;
+    color: var(--il-red);
+    margin-bottom: 14px;
+}
+
+.il-feature-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.il-feature-desc {
+    font-size: 0.85rem;
+    color: var(--il-muted);
+    line-height: 1.6;
+}
+
+.il-feature-desc code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--il-gold);
+    background: rgba(248,193,92,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+/* ── BOTTOM CTA ───────────────────────── */
+.il-bottom-cta {
+    text-align: center;
+    padding: 80px 20px 60px;
+    position: relative;
+}
+
+.il-bottom-cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255,51,51,0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.il-ticker {
+    max-width: 860px;
+    margin: 0 auto 48px;
+    background: var(--il-surface);
+    border: 1px solid var(--il-border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.il-ticker-inner {
+    display: flex;
+    gap: 40px;
+    animation: il-scroll 20s linear infinite;
+    white-space: nowrap;
+}
+
+@keyframes il-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.il-ticker-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--il-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.il-ticker-item .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--il-red);
+}
+
+.il-bottom-headline {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.il-bottom-sub {
+    font-size: 0.95rem;
+    color: var(--il-muted);
+    margin-bottom: 32px;
+}
+
+/* ── RESPONSIVE ───────────────────────── */
+@media (max-width: 640px) {
+    .il-demo-body { grid-template-columns: 1fr; }
+    .il-hero { padding: 60px 16px 40px; }
+    .il-section { padding: 60px 16px; }
+    .il-demo-cell-value { font-size: 1.1rem; }
+}
+
+/* value update flash */
+.il-flash {
+    animation: il-value-flash 0.5s ease;
+}
+@keyframes il-value-flash {
+    0% { color: var(--il-gold); }
+    100% { color: inherit; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="il-page">
+
+    <!-- ═══ HERO ═══════════════════════════════════════════════ -->
+    <section class="il-hero">
+        <div class="il-badge"><i class="fas fa-circle" style="font-size:5px;vertical-align:middle;margin-right:6px;"></i> LIVE SYSTEM</div>
+        <h1 class="il-headline">Real-Time Bitcoin Intelligence War Room</h1>
+        <p class="il-subheadline">
+            <strong>GNN anomaly detection</strong> + <strong>Monte Carlo scenario analytics</strong>.<br>
+            See what the chain is doing before markets react.
+        </p>
+        <div class="il-cta-group">
+            <a href="/join" class="il-cta-primary">Access the Terminal &mdash; $49/mo</a>
+            <a href="#features" class="il-cta-secondary">See what you're missing</a>
+        </div>
+    </section>
+
+    <!-- ═══ LIVE DEMO PANEL ════════════════════════════════════ -->
+    <section class="il-demo-wrapper" id="demo-panel">
+        <div class="il-demo-panel">
+            <div class="il-demo-header">
+                <div class="il-demo-dot"></div>
+                <span class="il-demo-label">Live Intelligence Feed &mdash; Updates Every 5s</span>
+            </div>
+            <div class="il-demo-body" id="live-terminal">
+                <!-- BTC Price -->
+                <div class="il-demo-cell">
+                    <div class="il-demo-cell-label">BTC / USD</div>
+                    <div class="il-demo-cell-value" id="demo-price">$---</div>
+                    <div class="il-demo-cell-sub" id="demo-change">24h: ---</div>
+                </div>
+                <!-- Block Height -->
+                <div class="il-demo-cell">
+                    <div class="il-demo-cell-label">Block Height</div>
+                    <div class="il-demo-cell-value" id="demo-block">---</div>
+                    <div class="il-demo-cell-sub">Latest confirmed block</div>
+                </div>
+                <!-- Fear & Greed -->
+                <div class="il-demo-cell">
+                    <div class="il-demo-cell-label">Fear &amp; Greed Index</div>
+                    <div class="il-demo-cell-value" id="demo-fng">--</div>
+                    <div class="il-demo-cell-sub" id="demo-fng-label">---</div>
+                </div>
+                <!-- PCAF Score — CLASSIFIED -->
+                <div class="il-demo-cell">
+                    <div class="il-demo-cell-label">PCAF Anomaly Score</div>
+                    <div class="il-classified"><i class="fas fa-lock"></i> CLASSIFIED</div>
+                    <div class="il-demo-cell-sub" style="color:var(--il-red);">Commander access required</div>
+                </div>
+                <!-- Convergence — ENCRYPTED -->
+                <div class="il-demo-cell">
+                    <div class="il-demo-cell-label">Convergence State</div>
+                    <div><span class="il-encrypted">WATCH — 3 signals active</span></div>
+                    <div class="il-demo-cell-sub" style="color:var(--il-amber);">Encrypted — unlock to view</div>
+                </div>
+                <!-- Mempool -->
+                <div class="il-demo-cell">
+                    <div class="il-demo-cell-label">Mempool</div>
+                    <div class="il-demo-cell-value" id="demo-mempool">--- txs</div>
+                    <div class="il-demo-cell-sub"><span class="il-encrypted">Fee priority: ██ sat/vB</span></div>
+                </div>
+                <!-- Alert row -->
+                <div class="il-demo-alert">
+                    <span class="il-alert-badge">ACTIVE ALERT</span>
+                    <span class="il-alert-text">WATCH: Hashrate concentration — Foundry 42% of last 10 blocks</span>
+                </div>
+            </div>
+            <div class="il-demo-footer">
+                <span class="il-demo-footer-text">Full terminal shows 16 live intelligence streams</span>
+                <a href="/join" class="il-demo-footer-cta">Unlock Full Terminal <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PROOF OF WORK ══════════════════════════════════════ -->
+    <section class="il-section" id="proof">
+        <div class="il-section-label">Proof of Work</div>
+        <h2 class="il-section-title">Not Vaporware. Running Infrastructure.</h2>
+
+        <div class="il-proof-grid">
+            <div class="il-proof-card">
+                <div class="il-proof-value" id="proof-articles">2,400+</div>
+                <div class="il-proof-label">Articles Published</div>
+            </div>
+            <div class="il-proof-card">
+                <div class="il-proof-value" id="proof-alerts">1,200+</div>
+                <div class="il-proof-label">Alerts Fired</div>
+            </div>
+            <div class="il-proof-card">
+                <div class="il-proof-value">99.9%</div>
+                <div class="il-proof-label">Uptime (30d)</div>
+            </div>
+            <div class="il-proof-card">
+                <div class="il-proof-value">&lt;50ms</div>
+                <div class="il-proof-label">GPU Inference Latency</div>
+            </div>
+        </div>
+
+        <div class="il-spec-card">
+            <div class="il-spec-title">Infrastructure</div>
+            <div class="il-spec-text">
+                Ultron: AMD EPYC 9R14 &middot; 4&times; RTX 4090 &middot; 128GB DDR5<br>
+                GNN: GraphSAGE autoencoder &middot; 8&rarr;64&rarr;128&rarr;256&rarr;latent32<br>
+                TPA: 10,000 Monte Carlo iterations per scenario &middot; 5 concurrent scenarios<br>
+                Public API: <code>/api/intelligence/state/public</code> &mdash; verify it yourself
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FEATURES ═══════════════════════════════════════════ -->
+    <section class="il-section" id="features">
+        <div class="il-section-label">Intelligence Arsenal</div>
+        <h2 class="il-section-title">Six Streams. Zero Noise.</h2>
+
+        <div class="il-features-grid">
+            <div class="il-feature-card">
+                <div class="il-feature-icon"><i class="fas fa-project-diagram"></i></div>
+                <div class="il-feature-title">GNN Anomaly Detection</div>
+                <div class="il-feature-desc">
+                    Graph Neural Networks map Bitcoin's transaction topology to flag whale moves,
+                    exchange dumps, and network shocks <em>before</em> they hit price.
+                    <code>GraphSAGE</code> encoder spots outliers as they form.
+                </div>
+            </div>
+            <div class="il-feature-card">
+                <div class="il-feature-icon"><i class="fas fa-dice-d20"></i></div>
+                <div class="il-feature-title">Monte Carlo Scenarios</div>
+                <div class="il-feature-desc">
+                    <code>10,000+</code> simulations per scenario. Five concurrent what-if paths
+                    with contradiction detection. Know the probabilities — not the promises.
+                </div>
+            </div>
+            <div class="il-feature-card">
+                <div class="il-feature-icon"><i class="fas fa-water"></i></div>
+                <div class="il-feature-title">Whale Coordination Detection</div>
+                <div class="il-feature-desc">
+                    Cross-exchange flow tracking and custodian wallet monitoring.
+                    See coordinated movements across <code>ETF custodians</code> and mining pools in real time.
+                </div>
+            </div>
+            <div class="il-feature-card">
+                <div class="il-feature-icon"><i class="fas fa-globe"></i></div>
+                <div class="il-feature-title">Regulatory Intelligence</div>
+                <div class="il-feature-desc">
+                    Monitoring <code>50 jurisdictions</code> for regulatory signals.
+                    Sentiment classification on legislative and enforcement actions worldwide.
+                </div>
+            </div>
+            <div class="il-feature-card">
+                <div class="il-feature-icon"><i class="fas fa-eye-slash"></i></div>
+                <div class="il-feature-title">Dark Pool &amp; OTC Analysis</div>
+                <div class="il-feature-desc">
+                    Taint analysis on large OTC transactions. Detect institutional
+                    accumulation patterns invisible to retail order books.
+                </div>
+            </div>
+            <div class="il-feature-card">
+                <div class="il-feature-icon"><i class="fas fa-stream"></i></div>
+                <div class="il-feature-title">Mempool Intelligence</div>
+                <div class="il-feature-desc">
+                    Live mempool depth, fee priority tiers, and transaction velocity.
+                    <code>WebSocket</code> stream from mempool.space with sub-second updates.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ BOTTOM CTA ═════════════════════════════════════════ -->
+    <section class="il-bottom-cta" id="bottom-cta">
+        <!-- Scrolling ticker -->
+        <div class="il-ticker">
+            <div class="il-ticker-inner" id="ticker-inner">
+                <span class="il-ticker-item"><span class="dot"></span> WATCH: Hashrate concentration above 40%</span>
+                <span class="il-ticker-item"><span class="dot"></span> GNN anomaly score: elevated</span>
+                <span class="il-ticker-item"><span class="dot"></span> Monte Carlo: 5 scenarios active</span>
+                <span class="il-ticker-item"><span class="dot"></span> Convergence engine: monitoring 8 feeds</span>
+                <span class="il-ticker-item"><span class="dot"></span> Mempool: fee spike detected</span>
+                <span class="il-ticker-item"><span class="dot"></span> Whale alert: large transfer flagged</span>
+                <!-- Duplicate for seamless scroll -->
+                <span class="il-ticker-item"><span class="dot"></span> WATCH: Hashrate concentration above 40%</span>
+                <span class="il-ticker-item"><span class="dot"></span> GNN anomaly score: elevated</span>
+                <span class="il-ticker-item"><span class="dot"></span> Monte Carlo: 5 scenarios active</span>
+                <span class="il-ticker-item"><span class="dot"></span> Convergence engine: monitoring 8 feeds</span>
+                <span class="il-ticker-item"><span class="dot"></span> Mempool: fee spike detected</span>
+                <span class="il-ticker-item"><span class="dot"></span> Whale alert: large transfer flagged</span>
+            </div>
+        </div>
+
+        <h2 class="il-bottom-headline">The Chain Doesn't Wait. Neither Should You.</h2>
+        <p class="il-bottom-sub">Real-time edge for sovereign Bitcoiners. $49/mo. Cancel anytime.</p>
+        <a href="/join" class="il-cta-primary" style="font-size:1.1rem;padding:16px 40px;">
+            Secure Your Terminal Access
+        </a>
+    </section>
+
+</div>
+
+<!-- ═══ LIVE DATA POLLING ══════════════════════════════════════ -->
+<script>
+(function() {
+    const API = '/api/intelligence/state/public';
+    const priceEl = document.getElementById('demo-price');
+    const changeEl = document.getElementById('demo-change');
+    const blockEl = document.getElementById('demo-block');
+    const fngEl = document.getElementById('demo-fng');
+    const fngLabelEl = document.getElementById('demo-fng-label');
+    const mempoolEl = document.getElementById('demo-mempool');
+
+    function flash(el) {
+        el.classList.remove('il-flash');
+        void el.offsetWidth;
+        el.classList.add('il-flash');
+    }
+
+    function formatPrice(n) {
+        return '$' + Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
+    }
+
+    let lastPrice = null;
+
+    async function poll() {
+        try {
+            const r = await fetch(API);
+            if (!r.ok) return;
+            const d = await r.json();
+
+            // BTC price
+            if (d.btc_price != null) {
+                const p = Number(d.btc_price);
+                priceEl.textContent = formatPrice(p);
+                if (lastPrice !== null) {
+                    priceEl.className = 'il-demo-cell-value ' + (p >= lastPrice ? 'green' : 'red');
+                    flash(priceEl);
+                }
+                lastPrice = p;
+            }
+
+            // 24h change
+            if (d.btc_24h_change != null) {
+                const c = Number(d.btc_24h_change);
+                changeEl.textContent = '24h: ' + (c >= 0 ? '+' : '') + c.toFixed(2) + '%';
+                changeEl.style.color = c >= 0 ? 'var(--il-green)' : 'var(--il-red)';
+            }
+
+            // Block height
+            if (d.block_height != null) {
+                blockEl.textContent = Number(d.block_height).toLocaleString();
+                flash(blockEl);
+            }
+
+            // Fear & Greed
+            if (d.fear_greed != null) {
+                const fg = d.fear_greed;
+                const val = fg.value || fg;
+                fngEl.textContent = val;
+                flash(fngEl);
+                if (fg.label) fngLabelEl.textContent = fg.label;
+                else if (typeof val === 'number') {
+                    fngLabelEl.textContent = val <= 25 ? 'Extreme Fear' :
+                        val <= 45 ? 'Fear' : val <= 55 ? 'Neutral' :
+                        val <= 75 ? 'Greed' : 'Extreme Greed';
+                }
+            }
+
+            // Mempool
+            if (d.mempool_txs != null) {
+                mempoolEl.textContent = Number(d.mempool_txs).toLocaleString() + ' txs';
+                flash(mempoolEl);
+            } else if (d.mempool && d.mempool.tx_count != null) {
+                mempoolEl.textContent = Number(d.mempool.tx_count).toLocaleString() + ' txs';
+                flash(mempoolEl);
+            }
+        } catch (e) {
+            // silent
+        }
+    }
+
+    poll();
+    setInterval(poll, 5000);
+})();
+</script>
+{% endblock %}

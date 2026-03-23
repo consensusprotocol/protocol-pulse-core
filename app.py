@@ -409,6 +409,14 @@ try:
 except Exception as _e:
     logging.warning("Montage blueprint not loaded: %s", _e)
 
+# Intelligence Terminal Blueprint
+try:
+    from core.blueprints.intelligence import intelligence_bp
+    app.register_blueprint(intelligence_bp)
+    logging.info("Intelligence Terminal blueprint registered")
+except Exception as _e:
+    logging.warning("Intelligence Terminal blueprint not loaded: %s", _e)
+
 # Start background APScheduler only when explicitly enabled for this process.
 if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
     try:
