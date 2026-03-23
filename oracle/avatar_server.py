@@ -965,9 +965,14 @@ def vision_analyze():
     if not data or not data.get("image_base64"):
         return jsonify({"error": "image_base64 required"}), 400
 
-    from vision_guide import analyze_image
+    # Strip data URL prefix if present (client may send data:image/...;base64,)
+    image_b64 = data["image_base64"]
+    if image_b64.startswith("data:"):
+        image_b64 = image_b64.split(",", 1)[1]
+
+    from vision_guide import analyze_image, GuideSession
     result = analyze_image(
-        image_b64=data["image_base64"],
+        image_b64=image_b64,
         mime_type=data.get("mime_type", "image/jpeg"),
         context=data.get("context", ""),
     )
@@ -975,13 +980,33 @@ def vision_analyze():
     if "error" in result:
         return jsonify(result), 500
 
-    # Phase 4: Store vision context in session for carry-forward
+    # Create a GuideSession so follow-up /vision/guide calls have context
+    guide_session = GuideSession.get_or_create(data.get("session_id"))
+    result["session_id"] = guide_session.session_id
+
+    # Seed the guide session history with this first analysis
+    guide_session.history.append({
+        "role": "user",
+        "parts": [
+            {"text": data.get("context", "Analyze this Bitcoin hardware image.")},
+            {"inlineData": {"mimeType": data.get("mime_type", "image/jpeg"), "data": image_b64}},
+        ],
+    })
+    guidance = result.get("guidance_text", "")
+    if guidance:
+        guide_session.history.append({
+            "role": "model",
+            "parts": [{"text": guidance}],
+        })
+    if result.get("device_name") and result["device_name"] != "unknown":
+        guide_session.device_name = result["device_name"]
+
+    # Phase 4: Store vision context in dialogue session for carry-forward
     session_id = data.get("session_id", "anon")
     try:
         from oracle_dialogue_engine import _get_session
         session = _get_session(session_id)
         vision_history = session.get("vision_history", [])
-        # Build summary from analysis result
         analysis_summary = result.get("summary", "") or str(result.get("device_name", ""))
         if result.get("current_step"):
             analysis_summary += f" — {result['current_step']}"
@@ -1007,8 +1032,12 @@ def vision_guide():
     session = GuideSession.get_or_create(data.get("session_id"))
 
     if data.get("image_base64"):
+        # Strip data URL prefix if present
+        img_b64 = data["image_base64"]
+        if img_b64.startswith("data:"):
+            img_b64 = img_b64.split(",", 1)[1]
         result = session.send_image(
-            image_b64=data["image_base64"],
+            image_b64=img_b64,
             mime_type=data.get("mime_type", "image/jpeg"),
             question=data.get("question", ""),
         )

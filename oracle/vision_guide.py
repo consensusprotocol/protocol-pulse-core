@@ -63,6 +63,10 @@ def analyze_image(image_b64, mime_type="image/jpeg", context=""):
     Returns:
         dict with analysis results or error
     """
+    # Strip data URL prefix if present (defense-in-depth)
+    if image_b64.startswith("data:"):
+        image_b64 = image_b64.split(",", 1)[1]
+
     client = GeminiClient()
     if not client.enabled:
         return {"error": "Vision guide disabled (no GEMINI_API_KEY)"}
@@ -154,6 +158,10 @@ class GuideSession:
 
     def send_image(self, image_b64, mime_type="image/jpeg", question=""):
         """Send an image with optional question in the guided session."""
+        # Strip data URL prefix if present
+        if image_b64.startswith("data:"):
+            image_b64 = image_b64.split(",", 1)[1]
+
         if not self.client.enabled:
             return {"error": "Vision guide disabled (no GEMINI_API_KEY)"}
 
