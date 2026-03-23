@@ -23,8 +23,23 @@ from typing import Optional
 import aiohttp
 import websockets
 
-from services.config_loader import convergence_config
-from services.convergence_engine import ConvergenceEngine
+import importlib.util as _ilu_svc
+import sys as _sys_svc
+from pathlib import Path as _Path_svc
+_svc_dir = _Path_svc(__file__).resolve().parent
+
+def _load_svc(mod_name, filename):
+    spec = _ilu_svc.spec_from_file_location(mod_name, str(_svc_dir / filename))
+    mod = _ilu_svc.module_from_spec(spec)
+    _sys_svc.modules[mod_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+_config_loader_mod = _load_svc('_sentinel_config_loader', 'config_loader.py')
+convergence_config = _config_loader_mod.convergence_config
+_convergence_engine_mod = _load_svc('_sentinel_convergence_engine', 'convergence_engine.py')
+ConvergenceEngine = _convergence_engine_mod.ConvergenceEngine
+
 
 logger = logging.getLogger("sentinel")
 logger.setLevel(logging.INFO)

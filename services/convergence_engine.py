@@ -16,10 +16,26 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import importlib.util as _ilu
+import sys as _sys
+
 import aiohttp
 
-from services.baseline_store import BaselineStore
-from services.signal_feeds import SignalFeeds
+from pathlib import Path as _Path
+_svc_dir = _Path(__file__).resolve().parent
+
+def _load_svc(mod_name, filename):
+    spec = _ilu.spec_from_file_location(mod_name, str(_svc_dir / filename))
+    mod = _ilu.module_from_spec(spec)
+    _sys.modules[mod_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+_baseline_store_mod = _load_svc('_ce_baseline_store', 'baseline_store.py')
+BaselineStore = _baseline_store_mod.BaselineStore
+
+_signal_feeds_mod = _load_svc('_ce_signal_feeds', 'signal_feeds.py')
+SignalFeeds = _signal_feeds_mod.SignalFeeds
 
 logger = logging.getLogger(__name__)
 
