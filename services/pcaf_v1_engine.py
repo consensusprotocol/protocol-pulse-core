@@ -8,10 +8,12 @@ not available or inference fails.
 IMPORT RULE: Load via importlib.util — never `from services.pcaf_v1_engine import ...`
 """
 
+import asyncio
 import importlib.util
 import json
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import torch
@@ -51,6 +53,7 @@ class PCAFv1Engine:
         self._metadata_path = _svc_dir.parent / "data" / "pcaf_v1_metadata.json"
         self._graph_builder = None  # lazy init
         self._last_load_attempt = 0
+        self._executor = ThreadPoolExecutor(max_workers=1)
 
         # Try to use GPU 1 if available
         if torch.cuda.is_available() and torch.cuda.device_count() > 1:
@@ -155,6 +158,14 @@ class PCAFv1Engine:
         except Exception as e:
             logger.warning("PCAF v1 inference failed: %s — falling back to v0", e)
             return self._v0_fallback()
+
+    async def score_async(self, state: dict) -> dict:
+        """Async wrapper around score() — runs in thread pool with 2s timeout."""
+        loop = asyncio.get_event_loop()
+        return await asyncio.wait_for(
+            loop.run_in_executor(self._executor, self.score, state),
+            timeout=2.0
+        )
 
     def _build_graph(self, state: dict) -> Data:
         """Build PyG graph from state dict — same logic as DataCollector."""

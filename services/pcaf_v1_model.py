@@ -48,33 +48,31 @@ class ChainStateEncoder(nn.Module):
 
 
 class ChainStateDecoder(nn.Module):
-    """Mirror decoder: latent → broadcast to nodes → reconstruct features."""
+    """Mirror decoder: latent → broadcast to nodes → SAGEConv decode → reconstruct features."""
 
     def __init__(self, latent_dim: int = 32, hidden3: int = 256,
                  hidden2: int = 128, hidden1: int = 64, out_dim: int = 8):
         super().__init__()
         self.expand = nn.Linear(latent_dim, hidden3)
-        self.fc1 = nn.Linear(hidden3 * 2, hidden2)  # concat node emb + expanded latent
-        self.fc2 = nn.Linear(hidden2, hidden1)
-        self.fc3 = nn.Linear(hidden1, out_dim)
+        self.conv1 = SAGEConv(hidden3, hidden2)
+        self.conv2 = SAGEConv(hidden2, hidden1)
+        self.conv3 = SAGEConv(hidden1, out_dim)
 
-    def forward(self, node_embeddings: torch.Tensor, latent: torch.Tensor,
+    def forward(self, latent: torch.Tensor, edge_index: torch.Tensor,
                 batch: torch.Tensor = None) -> torch.Tensor:
-        """Reconstruct node features from node embeddings + graph latent."""
+        """Reconstruct node features from graph latent via graph convolution."""
         if batch is None:
-            batch = torch.zeros(node_embeddings.size(0), dtype=torch.long,
-                                device=node_embeddings.device)
+            batch = torch.zeros(edge_index.max().item() + 1, dtype=torch.long,
+                                device=latent.device)
 
-        # Broadcast latent to each node
+        # Broadcast graph-level latent to per-node
         latent_expanded = self.expand(latent)  # [B, 256]
-        latent_per_node = latent_expanded[batch]  # [N, 256]
+        node_latent = latent_expanded[batch]   # [N, 256]
 
-        # Concat node embeddings with broadcast latent
-        combined = torch.cat([node_embeddings, latent_per_node], dim=1)  # [N, 512]
-
-        h = F.relu(self.fc1(combined))  # [N, 128]
-        h = F.relu(self.fc2(h))          # [N, 64]
-        out = self.fc3(h)                # [N, 8]
+        # Decode via SAGEConv layers (uses edge_index for graph convolution)
+        h = F.relu(self.conv1(node_latent, edge_index))  # [N, 128]
+        h = F.relu(self.conv2(h, edge_index))              # [N, 64]
+        out = self.conv3(h, edge_index)                    # [N, 8]
         return out
 
 
@@ -92,8 +90,10 @@ class ChainStateAutoencoder(nn.Module):
         Returns (reconstructed_features, latent).
         reconstructed_features has same shape as input x.
         """
-        node_emb, latent = self.encoder(x, edge_index, batch)
-        reconstructed = self.decoder(node_emb, latent, batch)
+        if batch is None:
+            batch = torch.zeros(x.size(0), dtype=torch.long, device=x.device)
+        _, latent = self.encoder(x, edge_index, batch)
+        reconstructed = self.decoder(latent, edge_index, batch)
         return reconstructed, latent
 
     def reconstruction_error(self, x: torch.Tensor, edge_index: torch.Tensor,

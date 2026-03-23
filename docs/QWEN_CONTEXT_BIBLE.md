@@ -416,3 +416,29 @@ PATTERN: Freeze frames surviving CFR re-encode (5 per render, all in final 75s)
     Also updated _apply_preflight_fixes() in daily_producer.py as belt-and-suspenders.
   VERIFY: run_preflight_qc() must show freeze_frames=0
   WATCHDOG: If freeze_frames > 0 reappears, check for new static scenes missing the noise filter.
+
+PATTERN: GNN autoencoder decoder ignores graph topology (acts as linear layer)
+  ROOT CAUSE: ChainStateDecoder used nn.Linear layers instead of SAGEConv.
+    forward() accepted (node_embeddings, latent, batch) but never received edge_index,
+    so the decoder could not perform graph convolution — reconstruction was purely
+    feature-based, missing all topological anomaly signal.
+  FIX:
+    1. Replace Linear layers with SAGEConv in ChainStateDecoder
+    2. Change forward() signature to (self, latent, edge_index, batch)
+    3. Expand graph-level latent to per-node via latent_expanded[batch]
+    4. Pass edge_index through every SAGEConv decoder layer
+    5. Update ChainStateAutoencoder.forward() to pass edge_index + batch to decoder
+  VERIFY: Run model twice with same x but different edge_index — outputs MUST differ.
+    If outputs are identical, decoder is still acting as a linear layer.
+
+PATTERN: Synchronous GNN inference blocks asyncio event loop in SentinelDaemon
+  ROOT CAUSE: _update_pcaf() was a sync def calling self._pcaf_v1_engine.score()
+    directly. PyTorch forward pass (even <50ms) blocks the event loop, stalling
+    WebSocket reads, REST polls, and SSE pushes for the duration of inference.
+  FIX:
+    1. Add ThreadPoolExecutor(max_workers=1) to PCAFv1Engine.__init__
+    2. Add score_async() that wraps score() via loop.run_in_executor + asyncio.wait_for(timeout=2.0)
+    3. Make _update_pcaf() async def, call await score_async() instead of score()
+    4. Add await at both call sites (main loop + run_once_for_test)
+    5. Catch asyncio.TimeoutError separately — keep last result instead of falling back to v0
+  VERIFY: sentinel daemon must start without "coroutine never awaited" warnings.

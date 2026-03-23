@@ -697,7 +697,7 @@ class SentinelDaemon:
         score = min(score, 100)
         return score, signals, force_critical if 'force_critical' in dir() else (score, signals, force_critical)
 
-    def _update_pcaf(self):
+    async def _update_pcaf(self):
         """Run PCAF v0 + v1 (parallel) and update state + dispatch alerts."""
         score, signals, force_critical = self.run_pcaf_v0()
         with self._lock:
@@ -707,10 +707,10 @@ class SentinelDaemon:
             self.state.pcaf_v0["confidence_pct"] = min(score + 10, 100) if signals else 0
             self.state.pcaf_v0["updated_at"] = time.time()
 
-        # PCAF v1 — GNN inference (runs alongside v0, never replaces it yet)
+        # PCAF v1 — GNN inference (async, 2s timeout, runs alongside v0)
         try:
             if self._pcaf_v1_engine.is_ready() or self._pcaf_v1_engine.model is not None:
-                v1_result = self._pcaf_v1_engine.score(self.state.to_dict())
+                v1_result = await self._pcaf_v1_engine.score_async(self.state.to_dict())
                 with self._lock:
                     self.state.pcaf_v1 = v1_result
             else:
@@ -718,6 +718,8 @@ class SentinelDaemon:
                 with self._lock:
                     self.state.pcaf_v1["model_version"] = "v0_fallback"
                     self.state.pcaf_v1["updated_at"] = time.time()
+        except asyncio.TimeoutError:
+            logger.warning("PCAF v1 inference timed out (>2s) — keeping last result")
         except Exception as e:
             logger.warning("PCAF v1 update error: %s", e)
 
@@ -1009,7 +1011,7 @@ class SentinelDaemon:
 
                 # PCAF every 60s
                 if poll_counter % 12 == 0:
-                    self._update_pcaf()
+                    await self._update_pcaf()
 
                 # Convergence every 60s (same cadence as PCAF)
                 if poll_counter % 12 == 0:
@@ -1070,7 +1072,7 @@ class SentinelDaemon:
         self._running = True
         async with aiohttp.ClientSession() as session:
             await self._poll_rest(session)
-        self._update_pcaf()
+        await self._update_pcaf()
         self._write_state_file()
         self._running = False
 
