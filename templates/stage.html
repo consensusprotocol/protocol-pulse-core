@@ -797,6 +797,15 @@ body { background: var(--s-bg); }
               <span id="fmicStop" style="display:none;font-size:16px;">&#9632;</span>
             </button>
             <span id="fmicHint" style="font-family:var(--s-mono);font-size:8px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;">interrupt</span>
+            <button id="stage-cam-btn"
+              onclick="handleStageCameraInterrupt()"
+              title="Photo question"
+              style="width:48px;height:48px;border-radius:50%;background:rgba(13,16,23,.85);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;backdrop-filter:blur(12px);margin-top:4px;">
+              &#128247;
+            </button>
+            <input type="file" id="stage-cam-input" accept="image/*"
+              capture="environment" style="display:none;"
+              onchange="handleStageCameraUpload(event)">
           </div>
         </div>
         <div style="font-family:monospace;font-size:11px;color:#00ffc8;letter-spacing:3px;border-top:1px solid rgba(0,255,200,0.2);padding:6px 12px;background:rgba(0,0,0,0.8)">
@@ -1746,6 +1755,126 @@ body { background: var(--s-bg); }
     if (fmicStop) fmicStop.style.display = _stageIsRec ? 'block' : 'none';
     if (fmicHint) fmicHint.textContent = _stageIsRec ? 'tap to send' : 'tap to speak';
   }
+
+  // ── STAGE CAMERA INTERRUPT ───────────────────────────
+  function handleStageCameraInterrupt() {
+    if (busy) return;
+    var input = document.getElementById('stage-cam-input');
+    if (input) input.click();
+  }
+  window.handleStageCameraInterrupt = handleStageCameraInterrupt;
+
+  function handleStageCameraUpload(evt) {
+    var file = evt.target.files && evt.target.files[0];
+    if (!file) return;
+    if (busy) {
+      setStatus('Finishing current segment…', 'var(--s-gold)');
+      return;
+    }
+
+    // Pause broadcast, handle vision interrupt
+    _broadcastPaused = true;
+    if (vid && !vid.paused) vid.pause();
+    setBusy(true);
+    setStatus('Analyzing image…', 'var(--s-gold)');
+    updateSignalSource('📷 VIEWER PHOTO QUESTION');
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var dataUrl = e.target.result;
+      var b64 = dataUrl.split(',')[1];
+      var mime = file.type || 'image/jpeg';
+
+      fetchTO('https://avatar.protocolpulse.io/vision/analyze', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          image_base64: b64,
+          mime_type: mime,
+          session_id: 'stage_' + Date.now(),
+          context: 'Bitcoin hardware question from live broadcast viewer'
+        })
+      }, 45000)
+      .then(function(r) {
+        if (!r.ok) throw new Error('vision ' + r.status);
+        return r.json();
+      })
+      .then(function(d) {
+        var guideText = d.guidance_text || d.text || 'I can see your hardware device.';
+
+        // Transaction verdict urgency
+        if (d.verdict === 'DO NOT SIGN') {
+          guideText = 'WARNING. DO NOT SIGN THIS TRANSACTION. ' + guideText;
+        } else if (d.verdict === 'REVIEW CAREFULLY') {
+          guideText = 'REVIEW CAREFULLY. ' + guideText;
+        }
+
+        // Transaction verdict ticker
+        if (d.category === 'transaction' && d.verdict) {
+          var verdictEmoji = d.verdict === 'SAFE TO SIGN' ? '✅'
+            : d.verdict === 'DO NOT SIGN' ? '🚨' : '⚠️';
+          tickerOracle(verdictEmoji + ' TX REVIEW: ' + d.verdict
+            + (d.amount_btc ? ' — ' + d.amount_btc + ' BTC' : ''));
+        }
+
+        // Cap to 40 words for broadcast pacing
+        var words = guideText.split(/\s+/);
+        var spokenText = words.length > 40 ? words.slice(0,40).join(' ') : guideText;
+
+        setStatus('SIGNAL answering viewer question…', 'var(--s-green)');
+        tickerOracle('📷 Viewer hardware question: ' + (d.device_name || 'unknown device'));
+
+        // Get TTS audio
+        return fetchTO('https://avatar.protocolpulse.io/oracle/voice', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: spokenText})
+        }, 35000);
+      })
+      .then(function(ar) {
+        if (!ar.ok) throw new Error('voice failed');
+        return ar.blob();
+      })
+      .then(function(blob) {
+        var audioUrl = URL.createObjectURL(blob);
+        var audio = new Audio(audioUrl);
+        audio.volume = 1.0;
+        audio.onended = function() {
+          URL.revokeObjectURL(audioUrl);
+          setBusy(false);
+          _broadcastPaused = false;
+          setStatus('Resuming broadcast…', 'var(--s-gold)');
+          updateSignalSource('📡 RESUMING');
+          setTimeout(function() {
+            startBroadcast();
+          }, 1500);
+        };
+        audio.onerror = function() {
+          URL.revokeObjectURL(audioUrl);
+          setBusy(false);
+          _broadcastPaused = false;
+          startBroadcast();
+        };
+        audio.play().catch(function() {
+          setBusy(false);
+          _broadcastPaused = false;
+          startBroadcast();
+        });
+      })
+      .catch(function(err) {
+        console.error('[Stage camera] Error:', err);
+        setBusy(false);
+        _broadcastPaused = false;
+        setStatus('Ready', 'rgba(255,255,255,.3)');
+        startBroadcast();
+      });
+
+      // Clear input for reuse
+      evt.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+  window.handleStageCameraUpload = handleStageCameraUpload;
 
   async function _handleInterruptQuestion(text) {
     setBusy(true);
