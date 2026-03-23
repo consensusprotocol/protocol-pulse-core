@@ -61,6 +61,7 @@ FEATURE_MAP = {
     "commander-product-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "pipeline-comprehensive-audit": ("PIPELINE_LAWS.md", "main"),
     "intelligence-terminal": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "convergence-detection": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -129,6 +130,13 @@ EXPLICIT_FILES = {
         "docs/VISUAL_DESIGN_SYSTEM.md",
         "services/morning_brief.py",
         "video_pipeline_v3/daily_producer.py",
+    ],
+    "convergence-detection": [
+        "docs/phase2/convergence_detection_foundation.md",
+        "docs/intelligence_terminal_v1_spec.md",
+        "services/sentinel.py",
+        "core/blueprints/intelligence.py",
+        "core/templates/intelligence_terminal.html",
     ],
 }
 
