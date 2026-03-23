@@ -25,7 +25,7 @@ class User(UserMixin, db.Model):
     last_brief_at = db.Column(db.DateTime)
     
     # Premium subscription (free | operator | commander | sovereign)
-    subscription_tier = db.Column(db.String(30), default='free')
+    subscription_tier = db.Column(db.String(30), default='free', index=True)  # audit P1-M2
     stripe_customer_id = db.Column(db.String(120))
     stripe_subscription_id = db.Column(db.String(120))
     subscription_expires_at = db.Column(db.DateTime)
@@ -106,17 +106,17 @@ class Article(db.Model):
     content = db.Column(db.Text, nullable=False)
     summary = db.Column(db.Text)
     author = db.Column(db.String(100), default="Protocol Pulse AI")
-    category = db.Column(db.String(50), default="Web3")
+    category = db.Column(db.String(50), default="Web3", index=True)  # audit P1-M2
     tags = db.Column(db.String(500))
     source_url = db.Column(db.String(500))
     source_type = db.Column(db.String(50))
     featured = db.Column(db.Boolean, default=False)
-    published = db.Column(db.Boolean, default=False)
+    published = db.Column(db.Boolean, default=False, index=True)  # audit P1-M2
     # Premium gating: None/'operator'/'commander'/'sovereign' — minimum tier to view
     premium_tier = db.Column(db.String(30), default=None)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)  # audit P1-M2
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    published_at = db.Column(db.DateTime, nullable=True)
+    published_at = db.Column(db.DateTime, nullable=True, index=True)  # audit P1-M2
     seo_title = db.Column(db.String(200))
     seo_description = db.Column(db.String(300))
     substack_url = db.Column(db.String(500))
@@ -263,10 +263,10 @@ class AffiliateProductClick(db.Model):
 
 class AutomationRun(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    task_name = db.Column(db.String(100), nullable=False)
-    started_at = db.Column(db.DateTime, nullable=False)
+    task_name = db.Column(db.String(100), nullable=False, index=True)  # audit P1-M2
+    started_at = db.Column(db.DateTime, nullable=False, index=True)  # audit P1-M2
     finished_at = db.Column(db.DateTime)
-    status = db.Column(db.String(20))
+    status = db.Column(db.String(20), index=True)  # audit P1-M2
     error = db.Column(db.String(500))
 
 class LaunchSequence(db.Model):
@@ -282,10 +282,10 @@ class LaunchSequence(db.Model):
     velocity_prediction = db.Column(db.Float)
     first_reply_link = db.Column(db.String(500))
     call_to_action = db.Column(db.String(300))
-    status = db.Column(db.String(50), default='draft')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), default='draft', index=True)  # audit P1-M2
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)  # audit P1-M2
     approved_at = db.Column(db.DateTime)
-    published_at = db.Column(db.DateTime)
+    published_at = db.Column(db.DateTime, index=True)  # audit P1-M2
     tweet_id = db.Column(db.String(100))
     actual_velocity_score = db.Column(db.Float)
     replies_first_5min = db.Column(db.Integer, default=0)

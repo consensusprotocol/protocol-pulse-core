@@ -20,6 +20,26 @@ import threading
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+# ── Rate limiter (audit P0-U1) ────────────────────────────────
+_rate_lock = threading.Lock()
+_rate_calls = []  # list of timestamps
+RATE_LIMIT_CALLS_PER_MINUTE = int(os.getenv("RATE_LIMIT_CALLS_PER_MINUTE", "20"))
+
+
+def _rate_limit_wait():
+    """Token-bucket rate limiter for external API calls. Blocks if limit exceeded."""
+    with _rate_lock:
+        now = time.time()
+        _rate_calls[:] = [t for t in _rate_calls if now - t < 60]
+        if len(_rate_calls) >= RATE_LIMIT_CALLS_PER_MINUTE:
+            wait = 60 - (now - _rate_calls[0])
+            if wait > 0:
+                logging.getLogger('overnight_loop').warning(
+                    f"Rate limit hit ({RATE_LIMIT_CALLS_PER_MINUTE}/min) — waiting {wait:.1f}s"
+                )
+                time.sleep(wait)
+        _rate_calls.append(time.time())
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 PIPELINE = os.path.join(BASE, 'video_pipeline_v3')
 ENV_FILE = os.path.join(BASE, '.env')
@@ -33,6 +53,11 @@ MAX_ITERATIONS = 8
 MAX_HOURS = 6
 RETRY_WAIT_SECONDS = 1800  # 30 minutes
 MAX_ATTEMPTS_PER_CYCLE = 2
+CONSECUTIVE_GRADE_FAILURES_THRESHOLD = int(os.getenv("CONSECUTIVE_GRADE_FAILURES_THRESHOLD", "3"))
+CONSECUTIVE_RENDER_ABSENT_THRESHOLD = int(os.getenv("CONSECUTIVE_RENDER_ABSENT_THRESHOLD", "3"))
+
+# Required env vars — fail fast if missing (audit P1-X5)
+REQUIRED_ENV_VARS = ["GEMINI_API_KEY"]  # others are soft-checked at startup
 
 os.makedirs(os.path.join(PIPELINE, 'logs'), exist_ok=True)
 os.makedirs(os.path.join(BASE, 'logs'), exist_ok=True)
@@ -65,8 +90,14 @@ def load_env():
                     k, _, v = l.partition('=')
                     k = k.strip(); v = v.strip().strip("'").strip('"')
                     if k: env[k] = v
+    except FileNotFoundError:
+        log(f"CRITICAL: .env file not found at {ENV_FILE}")
     except Exception as e:
         log(f"WARNING: .env load failed: {e}")
+    # Validate required env vars (audit P1-X5)
+    missing = [k for k in REQUIRED_ENV_VARS if not env.get(k, '').strip()]
+    if missing:
+        log(f"CRITICAL: Required env vars missing after .env load: {missing}")
     return env
 
 
@@ -170,21 +201,23 @@ def startup_checks():
 # ── Heartbeat ─────────────────────────────────────────────────────
 _total_episodes = 0
 _consecutive_failures = 0
+_counter_lock = threading.Lock()  # Guard global counters (audit P1-M1)
 
 
 def write_heartbeat(verdict, duration_s):
     """Write heartbeat JSON atomically after every cycle."""
     global _total_episodes, _consecutive_failures
-    if verdict == "PASS":
-        _total_episodes += 1
-        _consecutive_failures = 0
-    elif verdict == "ERROR":
-        _consecutive_failures += 1
-    elif verdict == "HOLD":
-        _consecutive_failures += 1
-    elif verdict == "DEGRADED":
-        _total_episodes += 1
-        _consecutive_failures = 0
+    with _counter_lock:
+        if verdict == "PASS":
+            _total_episodes += 1
+            _consecutive_failures = 0
+        elif verdict == "ERROR":
+            _consecutive_failures += 1
+        elif verdict == "HOLD":
+            _consecutive_failures += 1
+        elif verdict == "DEGRADED":
+            _total_episodes += 1
+            _consecutive_failures = 0
 
     heartbeat = {
         "last_run": datetime.now(timezone.utc).isoformat(),
@@ -262,6 +295,7 @@ def gemini_call(prompt, max_tokens=8000):
     backoff = [5, 15, 45]
     last_err = None
     for attempt in range(3):
+        _rate_limit_wait()  # audit P0-U1: rate limit external API calls
         try:
             req = urllib.request.Request(url, data=data,
                                         headers={'Content-Type': 'application/json'})
@@ -305,8 +339,22 @@ def run_render(iteration):
                     candidates.append((os.path.getmtime(f), f))
     candidates.sort(reverse=True)
     out = candidates[0][1] if candidates else None
-    if out: log(f"Output: {out} ({os.path.getsize(out)//1048576}MB)")
-    else: log("FATAL: no output file produced by this render")
+    if out:
+        log(f"Output: {out} ({os.path.getsize(out)//1048576}MB)")
+        # Validate render output with ffprobe (audit P2-X3)
+        try:
+            probe = subprocess.run(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                 "-of", "default=noprint_wrappers=1:nokey=1", out],
+                capture_output=True, text=True, timeout=30
+            )
+            if probe.returncode != 0 or not probe.stdout.strip():
+                log(f"WARNING: ffprobe rejected output file — corrupt or invalid: {out}")
+                out = None
+        except Exception as e:
+            log(f"WARNING: ffprobe validation failed: {e}")
+    else:
+        log("FATAL: no output file produced by this render")
     return out, r.stdout + r.stderr
 
 
@@ -467,11 +515,14 @@ Commit: git add -A && git commit -m "fix(pipeline): iter{iteration}" && git push
     pf = os.path.join(PIPELINE, f'logs/cc_fix_iter{iteration}.md')
     with open(pf, 'w') as f: f.write(prompt)
     sn = f'fix_iter{iteration}'
-    subprocess.run(f'tmux kill-session -t {sn} 2>/dev/null', shell=True)
-    subprocess.run(f'tmux new-session -d -s {sn}', shell=True)
-    subprocess.run(f"tmux send-keys -t {sn} 'cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions' Enter", shell=True)
+    subprocess.run(['tmux', 'kill-session', '-t', sn], capture_output=True, timeout=10)
+    r_tmux = subprocess.run(['tmux', 'new-session', '-d', '-s', sn], capture_output=True, timeout=10)
+    if r_tmux.returncode != 0:
+        log(f"WARNING: tmux failed to start session {sn}: {r_tmux.stderr.decode() if isinstance(r_tmux.stderr, bytes) else r_tmux.stderr}")
+        return
+    subprocess.run(f"tmux send-keys -t {sn} 'cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions' Enter", shell=True, timeout=10)
     time.sleep(10)
-    subprocess.run(f"tmux send-keys -t {sn} \"$(cat {pf})\" Enter", shell=True)
+    subprocess.run(f"tmux send-keys -t {sn} \"$(cat {pf})\" Enter", shell=True, timeout=10)
     log(f"CC session {sn} launched")
     deadline = time.time() + 2700
     while time.time() < deadline:
@@ -480,7 +531,9 @@ Commit: git add -A && git commit -m "fix(pipeline): iter{iteration}" && git push
         if r.returncode != 0: log("CC session ended"); break
         log(f"CC running... {int((deadline-time.time())/60)}min left")
     # Kill orphaned tmux session on timeout (audit U2)
-    subprocess.run(['tmux', 'kill-session', '-t', sn], capture_output=True)
+    subprocess.run(['tmux', 'kill-session', '-t', sn], capture_output=True, timeout=10)
+    # Kill any orphaned child processes from the session (audit P2-X2)
+    subprocess.run(['pkill', '-f', f'fix_iter{iteration}'], capture_output=True, timeout=10)
     log(f"CC session {sn} cleaned up")
     time.sleep(30)
 
@@ -493,6 +546,8 @@ def run_single_render():
     start = time.time()
     grade_result = {}
     final_verdict = "ERROR"
+    _consecutive_no_output = 0  # audit P1-M3: track render-absent streaks
+    _consecutive_grade_fail = 0  # audit P0-U2: track grade failure streaks
 
     for iteration in range(1, MAX_ITERATIONS+1):
         if (time.time()-start)/3600 >= MAX_HOURS:
@@ -500,7 +555,16 @@ def run_single_render():
         log(f"\n{'='*60}\nITERATION {iteration}/{MAX_ITERATIONS}\n{'='*60}")
         video, rlog = run_render(iteration)
         if not video:
+            _consecutive_no_output += 1
+            if _consecutive_no_output >= CONSECUTIVE_RENDER_ABSENT_THRESHOLD:
+                log(f"ABORT: {_consecutive_no_output} consecutive renders produced no output — stopping loop")
+                send_telegram_alert(
+                    f"PIPELINE ABORT: {_consecutive_no_output} consecutive renders produced no output file. "
+                    f"Iteration {iteration}/{MAX_ITERATIONS}. Manual investigation required."
+                )
+                break
             log("Render failed, skipping"); time.sleep(60); continue
+        _consecutive_no_output = 0  # reset on successful output
         # Forensics with 10-min hard timeout (task issue #1)
         forensics = run_forensics(video)
         # Grade ALWAYS fires after forensics — even if forensics returned {} (task issue main)
@@ -510,6 +574,14 @@ def run_single_render():
             log(f"Grading failed (non-fatal): {_ge}")
             grade_result = None
         if not grade_result:
+            _consecutive_grade_fail += 1
+            if _consecutive_grade_fail >= CONSECUTIVE_GRADE_FAILURES_THRESHOLD:
+                log(f"ABORT: {_consecutive_grade_fail} consecutive grade failures — grading system is broken")
+                send_telegram_alert(
+                    f"PIPELINE ABORT: {_consecutive_grade_fail} consecutive grade failures. "
+                    f"Gemini grading unavailable. Manual investigation required."
+                )
+                break
             # Fallback: run gemini_grade.py directly as subprocess (task issue #2)
             log("grade_with_gemini failed — running gemini_grade.py directly")
             try:
@@ -547,6 +619,7 @@ def run_single_render():
                 log(f"Fallback grading also failed: {_ge2}")
             if not grade_result:
                 log("All grading failed, skipping iteration"); continue
+        _consecutive_grade_fail = 0  # reset on successful grade
         gf = os.path.join(PIPELINE, f'logs/grade_iter{iteration}.json')
         with open(gf, 'w') as f: json.dump(grade_result, f, indent=2)
         grade = grade_result.get('grade','F')

@@ -5,9 +5,27 @@ Host 2: Kokoro am_onyx (male) — react/wrap. F5-TTS PBX when ready.
 Fallback: ElevenLabs per-line. TTS_PROVIDER=local (default) or elevenlabs.
 Inter-line silence: 0.08s (ElevenLabs has natural pauses built in).
 Parallel TTS pre-generation via ThreadPoolExecutor."""
-import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re
+import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+
+# ── Rate limiter for ElevenLabs API (audit P0-U1) ─────────────────────────────
+_el_rate_lock = threading.Lock()
+_el_rate_calls = []
+_EL_RATE_LIMIT = int(os.getenv("ELEVENLABS_RATE_LIMIT_PER_MINUTE", "30"))
+
+
+def _elevenlabs_rate_limit():
+    """Token-bucket rate limiter for ElevenLabs calls."""
+    with _el_rate_lock:
+        now = time.time()
+        _el_rate_calls[:] = [t for t in _el_rate_calls if now - t < 60]
+        if len(_el_rate_calls) >= _EL_RATE_LIMIT:
+            wait = 60 - (now - _el_rate_calls[0])
+            if wait > 0:
+                logger.warning(f"[TTS] ElevenLabs rate limit hit ({_EL_RATE_LIMIT}/min) — waiting {wait:.1f}s")
+                time.sleep(wait)
+        _el_rate_calls.append(time.time())
 
 try:
     import requests
@@ -1141,6 +1159,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         # transient ElevenLabs outages that were causing grade failures
         max_retries = 5
         for attempt in range(max_retries):
+            _elevenlabs_rate_limit()  # audit P0-U1
             try:
                 r = requests.post(url, json=body, headers=headers, timeout=90)
                 if r.status_code == 200:
@@ -1200,7 +1219,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     subprocess.run(
         ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
          "-c", "copy", mp3_combined],
-        capture_output=True, text=True,
+        capture_output=True, text=True, timeout=120,
     )
     ok = _mp3_to_m4a(mp3_combined, output_path)
     for f in chunk_files + [concat_list, mp3_combined]:

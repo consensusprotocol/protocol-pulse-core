@@ -59,6 +59,7 @@ FEATURE_MAP = {
     "pipeline-day3-audit": ("WATCHDOG_LLM_GOSPEL.md", "main"),
     "watchdog-cc-healing": ("WATCHDOG_LLM_GOSPEL.md", "main"),
     "commander-product-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "pipeline-comprehensive-audit": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -111,6 +112,14 @@ EXPLICIT_FILES = {
         "services/montage_producer.py",
     ],
     "watchdog-cc-healing": ["services/local_watchdog.py"],
+    "pipeline-comprehensive-audit": [
+        "overnight_render_loop.py",
+        "video_pipeline_v3/daily_producer.py",
+        "video_pipeline_v3/script_writer.py",
+        "video_pipeline_v3/tts_engine.py",
+        "video_pipeline_v3/assembler.py",
+        "services/local_watchdog.py",
+    ],
     "commander-product-audit": [
         "docs/cc_commander_premium.md",
         "templates/commander_dashboard.html",

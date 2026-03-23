@@ -101,8 +101,9 @@ def get_btc_price() -> str:
         import requests
         r = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=5)
         if r.status_code == 200:
-            usd = r.json()["bitcoin"]["usd"]
-            return f"${usd:,.0f}"
+            usd = r.json().get("bitcoin", {}).get("usd")
+            if usd is not None:
+                return f"${usd:,.0f}"
     except Exception:
         pass
     try:
@@ -198,11 +199,18 @@ def _post_render_health_check(video_path: str) -> tuple[bool, list[str]]:
         duration = float(fmt.get("duration", 0))
         if duration < 480 or duration > 900:
             errors.append(f"Duration {duration:.0f}s outside 480-900s range (8-15 min law)")
+        if duration <= 0:
+            errors.append("ffprobe reports zero or negative duration — file likely corrupt")
 
         # Audio stream present
         audio_streams = [s for s in streams if s.get("codec_type") == "audio"]
         if not audio_streams:
             errors.append("No audio stream found")
+
+        # Video stream present and decodable (audit P2-X3)
+        video_streams = [s for s in streams if s.get("codec_type") == "video"]
+        if not video_streams:
+            errors.append("No video stream found")
     except Exception as e:
         errors.append(f"ffprobe failed: {e}")
 
