@@ -33,7 +33,9 @@ export async function fetchArticle(slug: string): Promise<Article | null> {
       cache: "no-store",
     });
     if (!res.ok) return null;
-    return await res.json();
+    const data = await res.json();
+    // API returns { article: {...}, meta: {...} } — unwrap
+    return data.article ?? data;
   } catch {
     return null;
   }

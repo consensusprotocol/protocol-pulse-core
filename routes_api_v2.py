@@ -257,8 +257,17 @@ def get_article(slug):
         article = None
         if hasattr(Article, 'slug'):
             article = Article.query.filter(Article.slug == slug, Article.published.is_(True)).first()
-        if not article and slug.isdigit():
-            article = Article.query.filter(Article.id == int(slug), Article.published.is_(True)).first()
+        # Handle generated slugs like "article-{N}" — extract the ID
+        if not article:
+            _id = None
+            if slug.isdigit():
+                _id = int(slug)
+            else:
+                _m = re.match(r'^article-(\d+)$', slug)
+                if _m:
+                    _id = int(_m.group(1))
+            if _id is not None:
+                article = Article.query.filter(Article.id == _id, Article.published.is_(True)).first()
         if not article:
             return jsonify({"error": "Article not found", "slug": slug}), 404
 

@@ -308,7 +308,7 @@ def index():
         if a.id in article_image_urls:
             continue
         ciu = (getattr(a, "cover_image_url", None) or "").strip()
-        if ciu and ciu.startswith("http"):
+        if ciu and (ciu.startswith("http") or (ciu.startswith("/static/") and "default-header" not in ciu)):
             article_image_urls[a.id] = ciu
             continue
         url = (getattr(a, "header_image_url", None) or "").strip()
@@ -1320,7 +1320,7 @@ def articles():
     for a in recent:
         # Law 1: prefer cover_image_url, fall back to header_image_url
         ciu = (getattr(a, "cover_image_url", None) or "").strip()
-        if ciu and ciu.startswith("http"):
+        if ciu and (ciu.startswith("http") or (ciu.startswith("/static/") and "default-header" not in ciu)):
             article_image_urls[a.id] = ciu
             continue
         url = (getattr(a, "header_image_url", None) or "").strip()

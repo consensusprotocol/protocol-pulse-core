@@ -840,7 +840,9 @@
                 {% if today_articles|length > 0 %}
                 <a href="{{ '/articles/' + (today_articles[0].slug or today_articles[0].id|string) }}" class="text-decoration-none d-block">
                     <div class="hero-article">
-                        <div class="hero-image art-hero-img" style="background-image: url('{{ article_image_urls.get(today_articles[0].id, default_header_url) }}');"></div>
+                        <div class="hero-image art-hero-img">
+                            <img src="{{ article_image_urls.get(today_articles[0].id, default_header_url) }}" alt="{{ today_articles[0].title }}" loading="eager" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/static/images/default-header.png'">
+                        </div>
                         <div class="hero-body">
                             <div class="hero-meta mb-3">
                                 {% if today_articles[0].is_pressing %}
@@ -865,7 +867,9 @@
                     {% for article in today_articles[1:7] %}
                     <a href="{{ '/articles/' + (article.slug or article.id|string) }}" class="text-decoration-none">
                         <div class="article-card">
-                            <div class="card-image art-card-img" style="background-image: url('{{ article_image_urls.get(article.id, default_header_url) }}');"></div>
+                            <div class="card-image art-card-img">
+                                <img src="{{ article_image_urls.get(article.id, default_header_url) }}" alt="{{ article.title }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/static/images/default-header.png'">
+                            </div>
                             <div class="card-body-inner">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     {% if article.is_pressing %}
@@ -1094,7 +1098,7 @@ function toggleVault(btn) {
         }
         return '<a href="/articles/' + (a.slug || a.id) + '" class="text-decoration-none">' +
             '<div class="article-card">' +
-                '<div class="card-image art-card-img" style="background-image:url(\'' + img.replace(/'/g, "\\'") + '\');"></div>' +
+                '<div class="card-image art-card-img"><img src="' + img.replace(/"/g, '&quot;') + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'/static/images/default-header.png\'"></div>' +
                 '<div class="card-body-inner">' +
                     '<div class="d-flex align-items-center gap-2 mb-2">' +
                         '<span class="cat-pill">' + (a.category || 'Bitcoin') + '</span>' +

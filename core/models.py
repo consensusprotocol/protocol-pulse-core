@@ -138,10 +138,10 @@ class Article(db.Model):
     def resolve_cover_image(self):
         """Law 1: cover_image_url is the single source of truth for images."""
         url = (self.cover_image_url or "").strip()
-        if url and url.startswith("http"):
+        if url and (url.startswith("http") or (url.startswith("/static/") and "default-header" not in url)):
             return url
         url = (self.header_image_url or "").strip()
-        if url and url.startswith("http"):
+        if url and (url.startswith("http") or (url.startswith("/static/") and "default-header" not in url)):
             return url
         return "/static/images/default-header.png"
 

@@ -39,11 +39,11 @@ app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folde
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key_protocol_pulse_2026")
 
 # Configure the database
-database_url = os.environ.get("DATABASE_URL", "sqlite:////home/ultron/protocol_pulse/protocol_pulse.db")
+database_url = os.environ.get("DATABASE_URL", "sqlite:////home/ultron/protocol_pulse/instance/protocol_pulse.db")
 if database_url.startswith("sqlite:"):
-    # Ensure UTF-8 support for Bitcoin symbols
-    if "?" not in database_url:
-        database_url += "?charset=utf8mb4"
+    # SQLite doesn't support charset param — strip it if present (breaks file path)
+    if "charset=utf8mb4" in database_url:
+        database_url = database_url.replace("?charset=utf8mb4", "").replace("&charset=utf8mb4", "")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -124,6 +124,37 @@ def from_json_filter(value):
         return json.loads(value)
     except (json.JSONDecodeError, TypeError):
         return []
+
+@app.template_filter('to_est')
+def to_est_filter(dt):
+    """Convert a naive UTC datetime to Eastern Time for display."""
+    if dt is None:
+        return ""
+    import pytz
+    eastern = pytz.timezone("America/New_York")
+    if dt.tzinfo is None:
+        utc_dt = pytz.utc.localize(dt)
+    else:
+        utc_dt = dt
+    return utc_dt.astimezone(eastern)
+
+@app.template_filter('basename')
+def basename_filter(path):
+    """Return the basename of a path for use in templates."""
+    if not path:
+        return ""
+    return os.path.basename(str(path).strip())
+
+@app.template_filter('article_header_display')
+def article_header_display_filter(article):
+    """Return a distinct header image URL for this article."""
+    _OLD_DEFAULT = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+    if article is None:
+        return _OLD_DEFAULT
+    stored = (getattr(article, "header_image_url", None) or "").strip()
+    if stored and stored != _OLD_DEFAULT:
+        return stored
+    return "/static/images/default-header.png"
 
 # 5. User loader for Flask-Login
 @login_manager.user_loader
