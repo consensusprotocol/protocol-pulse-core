@@ -39,7 +39,7 @@ app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folde
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key_protocol_pulse_2026")
 
 # Configure the database
-database_url = os.environ.get("DATABASE_URL", "sqlite:///protocol_pulse.db")
+database_url = os.environ.get("DATABASE_URL", "sqlite:////home/ultron/protocol_pulse/protocol_pulse.db")
 if database_url.startswith("sqlite:"):
     # Ensure UTF-8 support for Bitcoin symbols
     if "?" not in database_url:
