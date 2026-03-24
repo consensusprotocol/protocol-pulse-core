@@ -1,26 +1,8 @@
 {
-  "last_audit": "2026-03-24T18:56:04.538410+00:00",
-  "feature": "oracle-speak-revert",
-  "commit": "b12a582c",
+  "last_audit": "2026-03-24T19:46:31.638492+00:00",
+  "feature": "oracle-speed",
+  "commit": "8abb8ec6",
   "audits": [
-    {
-      "feature": "assembler-v2-rebuild",
-      "date": "2026-03-18",
-      "models": [
-        "gemini",
-        "gpt4o",
-        "grok"
-      ]
-    },
-    {
-      "feature": "x-spaces-pipeline",
-      "date": "2026-03-18",
-      "models": [
-        "gemini",
-        "gpt4o",
-        "grok"
-      ]
-    },
     {
       "feature": "tts-pipeline",
       "date": "2026-03-19",
@@ -182,6 +164,24 @@
     },
     {
       "feature": "oracle-speak-revert",
+      "date": "2026-03-24",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "stage-avatar-fix",
+      "date": "2026-03-24",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "oracle-speed",
       "date": "2026-03-24",
       "models": [
         "gemini",

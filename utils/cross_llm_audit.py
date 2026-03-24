@@ -68,6 +68,8 @@ FEATURE_MAP = {
     "oracle-avatar-fix": ("PIPELINE_LAWS.md", "main"),
     "content-lock": ("PIPELINE_LAWS.md", "main"),
     "oracle-speak-revert": ("PIPELINE_LAWS.md", "main"),
+    "stage-avatar-fix": ("PIPELINE_LAWS.md", "main"),
+    "oracle-speed": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -173,15 +175,107 @@ EXPLICIT_FILES = {
         "overnight_render_loop.py",
     ],
     "oracle-speak-revert": ["oracle/avatar_server.py"],
+    "stage-avatar-fix": [
+        "templates/stage.html",
+        "routes.py",
+        "services/stage_broadcast_service.py",
+    ],
+    "oracle-speed": [
+        "oracle/avatar_server.py",
+        "oracle/oracle_cache_manager.py",
+        "oracle/cache_render_helper.py",
+        "oracle/model_registry.py",
+        "oracle/oracle_dialogue_engine.py",
+        "oracle/oracle_intelligence_feed.py",
+        "oracle/blink_engine.py",
+        "oracle/face_enhancer.py",
+    ],
 }
 
 # For large files, extract only relevant route functions instead of the whole file.
 # Key: (feature_name, filename) → list of route prefixes to extract
 ROUTE_EXTRACTS = {
     ("oracle-stage", "routes.py"): ["/stage", "/api/stage/", "/api/oracle/"],
+    ("stage-avatar-fix", "routes.py"): ["/stage", "/api/stage/"],
+    ("oracle-speed", "routes.py"): ["/oracle", "/api/oracle/"],
 }
 
 CUSTOM_REVIEW_TASKS = {
+    "oracle-speed": """## YOUR REVIEW TASK — ORACLE MAXIMUM SPEED AUDIT (8 CRITICAL QUESTIONS)
+
+You are auditing the Oracle avatar system for LATENCY. Every millisecond matters.
+Current: ~15-25s from user input to avatar speaking. Target: <5s perceived, <3s audio start.
+Read every file above line-by-line. Your analysis must cite specific line numbers.
+
+### Q1 — CURRENT LATENCY BREAKDOWN
+Map every step from POST /oracle/chat to avatar speaking in browser.
+Give realistic millisecond estimates for each step:
+  - Intent classification
+  - Response text generation (Claude Haiku)
+  - ElevenLabs/Kokoro TTS call
+  - Wav2Lip inference (batch_size=48, FP16, RTX 4090)
+  - Video encoding (CRF 18, medium preset)
+  - Network transfer to browser
+  - Browser decode + play
+Where is >80% of latency concentrated?
+
+### Q2 — AUDIO-FIRST STREAMING
+The job_id system exists. Audio is fetched first via /oracle/job/<id>/audio.
+What is broken/suboptimal in this flow?
+How can we get audio to browser in <2s from request?
+Can TTS run before Wav2Lip starts? Can audio stream to browser while video renders?
+
+### Q3 — WAV2LIP OPTIMIZATION
+Current: batch_size=48, FP16, CRF 18, medium preset, cuda:1.
+What are the fastest possible Wav2Lip settings on RTX 4090?
+Should batch_size increase beyond 48? GPU memory limit?
+Is torch.compile applicable here? Is there a faster lip sync model
+(LatentSync, Hallo2, AniPortrait, SadTalker, etc.) that maintains quality?
+
+### Q4 — STREAMING VIDEO DELIVERY
+Currently: full video renders, then downloads, then plays.
+Can we stream the video as it renders using chunked transfer or HLS?
+Minimum chunk size for acceptable lip sync quality?
+How would frontend JS need to change for streaming playback?
+
+### Q5 — PARALLEL PIPELINE
+Currently: TTS -> Wav2Lip sequential.
+Can TTS and Wav2Lip preparation (face detection, mel spectrogram pre-computation)
+run in parallel? What is the theoretical minimum latency if audio generation
+and video prep are fully parallelized?
+
+### Q6 — PRE-PREDICTION
+The INTENT_PATTERNS dict and classify_intent() exist. When a user asks about
+"cold wallet", we know before response generation what category the answer is.
+Can we pre-render response videos while user is still typing?
+What would the architecture look like? Hit rate vs waste ratio?
+
+### Q7 — CACHE ARCHITECTURE
+Current cache warms 11 SOVEREIGNTY keys sequentially on startup.
+Cache renders block interactive requests via shared GPU semaphore.
+What is the optimal caching strategy?
+Should cache renders run at low priority on a separate CUDA stream?
+Should we cache short 2-3s "thinking" clips to play while rendering?
+
+### Q8 — FRONTEND LATENCY
+The oracle_live.html polls /oracle/job/<id> every 2 seconds.
+What is the fastest delivery mechanism?
+SSE? WebSocket? WebRTC? How to push rendered video/audio
+to browser the instant it's ready without polling?
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- DETAILED ANALYSIS with line number citations
+- SPECIFIC RECOMMENDATION with expected latency savings (ms)
+- IMPLEMENTATION RISK: LOW / MEDIUM / HIGH
+- DEPENDENCIES: what new libs/infra needed
+
+### FINAL SUMMARY
+- Total theoretical latency reduction possible (ms)
+- Top 3 highest-impact changes
+- Which changes conflict with each other
+- Recommended implementation order
+""",
     "render-improvement-loop": """## YOUR REVIEW TASK — ARCHITECTURE AUDIT (8 CRITICAL QUESTIONS)
 
 You are auditing a GOSPEL SPEC (design document) for an autonomous render improvement loop.
@@ -361,7 +455,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 
