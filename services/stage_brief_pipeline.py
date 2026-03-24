@@ -329,8 +329,6 @@ def generate_brief_script(data, brief_type="morning"):
     else:
         logger.info("[brief] No Pulse Check script — using live data only")
 
-    )
-
     system = BRIEF_SYSTEM_PROMPTS.get(brief_type, BRIEF_SYSTEM_PROMPTS["morning"])
 
     resp = requests.post(
@@ -471,17 +469,31 @@ def extract_intel(brief_text, brief_type, timestamp_str):
 # ---------------------------------------------------------------------------
 
 def _generate_tts_chatterbox(text):
-    """Generate TTS via Chatterbox on avatar server. Returns raw audio bytes."""
-    resp = requests.post(
-        f"{AVATAR_BASE}/oracle/voice",
-        json={"text": text},
-        timeout=180,
-    )
-    if resp.status_code == 200:
-        logger.info("Chatterbox TTS: %d bytes", len(resp.content))
-        return resp.content
-    logger.warning("Chatterbox TTS failed (HTTP %d), no fallback", resp.status_code)
-    raise RuntimeError(f"Chatterbox TTS failed: HTTP {resp.status_code}")
+    """Generate TTS via Chatterbox on avatar server. Returns raw audio bytes.
+    Retries up to 3 times with 10s delay between attempts.
+    """
+    for attempt in range(1, 4):
+        try:
+            logger.info("[TTS] Attempt %d/3 for %d chars of text", attempt, len(text))
+            resp = requests.post(
+                f"{AVATAR_BASE}/oracle/voice",
+                json={"text": text},
+                timeout=300,
+            )
+            if resp.status_code == 200:
+                logger.info("[TTS] Chatterbox OK: %d bytes (attempt %d)", len(resp.content), attempt)
+                return resp.content
+            logger.warning("[TTS] Chatterbox HTTP %d on attempt %d", resp.status_code, attempt)
+        except requests.exceptions.Timeout:
+            logger.warning("[TTS] Timeout on attempt %d/3", attempt)
+        except requests.exceptions.ConnectionError as e:
+            logger.warning("[TTS] Connection error on attempt %d/3: %s", attempt, e)
+        except Exception as e:
+            logger.warning("[TTS] Unexpected error on attempt %d/3: %s", attempt, e)
+        if attempt < 3:
+            logger.info("[TTS] Retrying in 10s...")
+            time.sleep(10)
+    raise RuntimeError("Chatterbox TTS failed after 3 attempts")
 
 
 # ---------------------------------------------------------------------------
@@ -504,80 +516,181 @@ def _split_into_chunks(text, max_sentences=3):
 
 
 def _render_avatar_chunk(audio_bytes):
-    """Render a single chunk through Wav2Lip via avatar server."""
+    """Render a single chunk through Wav2Lip via avatar server.
+    Retries up to 3 times with 10s delay. Timeout 300s per attempt.
+    """
     is_wav = audio_bytes[:4] == b"RIFF"
     content_type = "audio/wav" if is_wav else "audio/mpeg"
     audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
-    resp = requests.post(
-        f"{AVATAR_BASE}/generate",
-        json={
-            "audio_base64": audio_b64,
-            "content_type": content_type,
-            "enable_blinks": True,
-            "enable_head_movement": True,
-            "fps": 30.0,
-        },
-        timeout=120,
-    )
-    resp.raise_for_status()
-    duration = float(resp.headers.get("X-Duration", 0))
-    return resp.content, duration
+    for attempt in range(1, 4):
+        try:
+            logger.info("[RENDER] Avatar chunk attempt %d/3 (%d bytes audio)", attempt, len(audio_bytes))
+            resp = requests.post(
+                f"{AVATAR_BASE}/generate",
+                json={
+                    "audio_base64": audio_b64,
+                    "content_type": content_type,
+                    "enable_blinks": True,
+                    "enable_head_movement": True,
+                    "fps": 30.0,
+                },
+                timeout=300,
+            )
+            resp.raise_for_status()
+            duration = float(resp.headers.get("X-Duration", 0))
+            logger.info("[RENDER] Avatar chunk OK: %d bytes, %.1fs (attempt %d)", len(resp.content), duration, attempt)
+            return resp.content, duration
+        except requests.exceptions.Timeout:
+            logger.warning("[RENDER] Avatar chunk timeout on attempt %d/3", attempt)
+        except requests.exceptions.ConnectionError as e:
+            logger.warning("[RENDER] Avatar chunk connection error on attempt %d/3: %s", attempt, e)
+        except Exception as e:
+            logger.warning("[RENDER] Avatar chunk error on attempt %d/3: %s", attempt, e)
+        if attempt < 3:
+            logger.info("[RENDER] Retrying in 10s...")
+            time.sleep(10)
+    raise RuntimeError("Avatar render failed after 3 attempts")
 
 
-def render_avatar_video(brief_text):
-    """Render full brief as avatar video, chunking for 30s limit."""
-    chunks = _split_into_chunks(brief_text, max_sentences=3)
-    logger.info("Split brief into %d chunks", len(chunks))
+def _render_audio_only_video(audio_bytes_list):
+    """Fallback: combine audio chunks with static PBX image frame into an MP4.
+    Used when avatar server is down — never returns blank.
+    """
+    logger.info("[FALLBACK] Generating audio-only video with static frame")
+    static_img = os.path.join(BASE, "static", "img", "oracle_avatar_static.png")
+    if not os.path.exists(static_img):
+        # Try alternate paths
+        for alt in [
+            os.path.join(BASE, "oracle", "Proto_P_Avatar_1024.png"),
+            os.path.join(BASE, "static", "oracle_avatar.png"),
+        ]:
+            if os.path.exists(alt):
+                static_img = alt
+                break
 
-    if len(chunks) == 1:
-        audio = _generate_tts_chatterbox(chunks[0])
-        video_bytes, duration = _render_avatar_chunk(audio)
-        return video_bytes, duration
-
-    tmpdir = tempfile.mkdtemp(prefix="stage_brief_")
-    part_paths = []
-    total_duration = 0.0
-
+    tmpdir = tempfile.mkdtemp(prefix="stage_brief_fallback_")
     try:
-        for i, chunk in enumerate(chunks):
-            logger.info("  Chunk %d/%d: %d words", i + 1, len(chunks), len(chunk.split()))
-            audio = _generate_tts_chatterbox(chunk)
-            video_bytes, dur = _render_avatar_chunk(audio)
-            total_duration += dur
+        # Concatenate all audio chunks
+        audio_paths = []
+        for i, ab in enumerate(audio_bytes_list):
+            p = os.path.join(tmpdir, f"audio_{i:03d}.wav")
+            with open(p, "wb") as f:
+                f.write(ab)
+            audio_paths.append(p)
 
-            part_path = os.path.join(tmpdir, f"part_{i:03d}.mp4")
-            with open(part_path, "wb") as f:
-                f.write(video_bytes)
-            part_paths.append(part_path)
+        if len(audio_paths) == 1:
+            combined_audio = audio_paths[0]
+        else:
+            concat_list = os.path.join(tmpdir, "audio_concat.txt")
+            with open(concat_list, "w") as f:
+                for p in audio_paths:
+                    f.write(f"file '{p}'\n")
+            combined_audio = os.path.join(tmpdir, "combined.wav")
+            subprocess.run([
+                "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
+                "-c:a", "pcm_s16le", "-ar", "16000", "-ac", "1", combined_audio,
+            ], capture_output=True, timeout=60)
 
-        concat_list = os.path.join(tmpdir, "concat.txt")
-        with open(concat_list, "w") as f:
-            for p in part_paths:
-                f.write(f"file '{p}'\n")
+        # Get audio duration
+        probe = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", combined_audio],
+            capture_output=True, text=True, timeout=10,
+        )
+        duration = float(probe.stdout.strip()) if probe.stdout.strip() else 30.0
 
-        output_path = os.path.join(tmpdir, "final.mp4")
+        # Create video: static image + audio
+        output_path = os.path.join(tmpdir, "fallback.mp4")
         cmd = [
-            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-            "-pix_fmt", "yuv420p", "-r", "30", "-vsync", "cfr",
-            "-vf", "setpts=PTS-STARTPTS",
-            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
-            "-movflags", "+faststart",
+            "ffmpeg", "-y", "-loop", "1", "-i", static_img,
+            "-i", combined_audio,
+            "-c:v", "libx264", "-tune", "stillimage", "-crf", "23",
+            "-c:a", "aac", "-b:a", "128k", "-ar", "48000",
+            "-pix_fmt", "yuv420p", "-shortest", "-movflags", "+faststart",
             output_path,
         ]
         result = subprocess.run(cmd, capture_output=True, timeout=120)
         if result.returncode != 0:
-            logger.error("FFmpeg concat failed: %s", result.stderr.decode()[-500:])
-            raise RuntimeError("FFmpeg concat failed")
+            logger.error("[FALLBACK] FFmpeg failed: %s", result.stderr.decode()[-500:])
+            raise RuntimeError("Audio-only video generation failed")
 
         with open(output_path, "rb") as f:
-            final_bytes = f.read()
+            video_bytes = f.read()
 
-        return final_bytes, total_duration
+        logger.info("[FALLBACK] Audio-only video: %d bytes, %.1fs", len(video_bytes), duration)
+        return video_bytes, duration
 
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+def render_avatar_video(brief_text):
+    """Render full brief as avatar video, chunking for 30s limit.
+    Falls back to audio-only with static image if avatar render fails.
+    """
+    chunks = _split_into_chunks(brief_text, max_sentences=3)
+    logger.info("[RENDER] Split brief into %d chunks", len(chunks))
+
+    # First generate all TTS audio (works even if avatar server is down)
+    audio_chunks = []
+    for i, chunk in enumerate(chunks):
+        logger.info("[RENDER] TTS chunk %d/%d: %d words", i + 1, len(chunks), len(chunk.split()))
+        audio = _generate_tts_chatterbox(chunk)
+        audio_chunks.append(audio)
+
+    # Try avatar render
+    try:
+        if len(chunks) == 1:
+            video_bytes, duration = _render_avatar_chunk(audio_chunks[0])
+            return video_bytes, duration
+
+        tmpdir = tempfile.mkdtemp(prefix="stage_brief_")
+        part_paths = []
+        total_duration = 0.0
+
+        try:
+            for i, audio in enumerate(audio_chunks):
+                logger.info("[RENDER] Rendering avatar chunk %d/%d", i + 1, len(chunks))
+                video_bytes, dur = _render_avatar_chunk(audio)
+                total_duration += dur
+
+                part_path = os.path.join(tmpdir, f"part_{i:03d}.mp4")
+                with open(part_path, "wb") as f:
+                    f.write(video_bytes)
+                part_paths.append(part_path)
+
+            concat_list = os.path.join(tmpdir, "concat.txt")
+            with open(concat_list, "w") as f:
+                for p in part_paths:
+                    f.write(f"file '{p}'\n")
+
+            output_path = os.path.join(tmpdir, "final.mp4")
+            cmd = [
+                "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                "-pix_fmt", "yuv420p", "-r", "30", "-vsync", "cfr",
+                "-vf", "setpts=PTS-STARTPTS",
+                "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+                "-movflags", "+faststart",
+                output_path,
+            ]
+            result = subprocess.run(cmd, capture_output=True, timeout=120)
+            if result.returncode != 0:
+                logger.error("FFmpeg concat failed: %s", result.stderr.decode()[-500:])
+                raise RuntimeError("FFmpeg concat failed")
+
+            with open(output_path, "rb") as f:
+                final_bytes = f.read()
+
+            return final_bytes, total_duration
+
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    except Exception as e:
+        logger.warning("[RENDER] Avatar render failed: %s — falling back to audio-only video", e)
+        return _render_audio_only_video(audio_chunks)
 
 
 # ---------------------------------------------------------------------------
@@ -613,25 +726,32 @@ def generate_brief(brief_type=None):
     try:
         # 1. Gather fresh intel
         logger.info("[1/5] Fetching live data...")
+        t1 = time.time()
         data = gather_intel()
+        logger.info("[1/5] Live data fetched in %.1fs", time.time() - t1)
 
         # 2. Generate brief script via Claude
-        logger.info("[2/5] Generating brief script...")
+        logger.info("[2/5] Generating brief script via Claude %s...", CLAUDE_MODEL)
+        t2 = time.time()
         brief_text = generate_brief_script(data, brief_type)
+        logger.info("[2/5] Brief script generated in %.1fs: %d words", time.time() - t2, len(brief_text.split()))
 
         # 3. Intel extraction (cheap text-only, before TTS)
         logger.info("[3/5] Extracting intel downstream...")
         ts_str = now.strftime("%Y%m%d_%H%M")
         try:
+            t3 = time.time()
             extracted = extract_intel(brief_text, brief_type, ts_str)
+            logger.info("[3/5] Intel extracted in %.1fs", time.time() - t3)
         except Exception as e:
-            logger.warning("Intel extraction failed (non-fatal): %s", e)
+            logger.warning("[3/5] Intel extraction failed (non-fatal): %s", e)
             extracted = None
 
         # 4. TTS + Avatar render via Chatterbox
-        logger.info("[4/5] Rendering avatar video (Chatterbox TTS + Wav2Lip)...")
+        logger.info("[4/5] Rendering avatar video (Chatterbox TTS + Wav2Lip) — avatar server: %s", AVATAR_BASE)
+        t4 = time.time()
         video_bytes, duration = render_avatar_video(brief_text)
-        logger.info("Avatar video: %d bytes, %.1fs", len(video_bytes), duration)
+        logger.info("[4/5] Avatar video: %d bytes, %.1fs duration, rendered in %.1fs", len(video_bytes), duration, time.time() - t4)
 
         # 5. Save outputs
         logger.info("[5/5] Saving brief...")

@@ -175,33 +175,59 @@ def _split_into_chunks(text, max_sentences=3):
 
 
 def _generate_tts(text):
-    """Generate TTS audio via avatar server /oracle/voice endpoint."""
-    resp = requests.post(
-        f"{AVATAR_BASE}/oracle/voice",
-        json={"text": text},
-        timeout=60,
-    )
-    resp.raise_for_status()
-    return resp.content  # raw audio/mpeg bytes
+    """Generate TTS audio via avatar server /oracle/voice endpoint.
+    Retries up to 3 times with 10s delay. Timeout 300s.
+    """
+    for attempt in range(1, 4):
+        try:
+            logger.info(f"[TTS] Attempt {attempt}/3 for {len(text)} chars")
+            resp = requests.post(
+                f"{AVATAR_BASE}/oracle/voice",
+                json={"text": text},
+                timeout=300,
+            )
+            resp.raise_for_status()
+            logger.info(f"[TTS] OK: {len(resp.content)} bytes (attempt {attempt})")
+            return resp.content
+        except Exception as e:
+            logger.warning(f"[TTS] Attempt {attempt}/3 failed: {e}")
+            if attempt < 3:
+                import time as _time
+                _time.sleep(10)
+    raise RuntimeError("TTS failed after 3 attempts")
 
 
 def _render_avatar_chunk(audio_bytes):
-    """Render a single <=30s chunk through Wav2Lip via avatar server."""
+    """Render a single <=30s chunk through Wav2Lip via avatar server.
+    Retries up to 3 times with 10s delay. Timeout 300s.
+    """
     audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
-    resp = requests.post(
-        f"{AVATAR_BASE}/generate",
-        json={
-            "audio_base64": audio_b64,
-            "content_type": "audio/mpeg",
-            "enable_blinks": True,
-            "enable_head_movement": True,
-            "fps": 30.0,
-        },
-        timeout=120,
-    )
-    resp.raise_for_status()
-    duration = float(resp.headers.get("X-Duration", 0))
-    return resp.content, duration
+    is_wav = audio_bytes[:4] == b"RIFF"
+    content_type = "audio/wav" if is_wav else "audio/mpeg"
+    for attempt in range(1, 4):
+        try:
+            logger.info(f"[RENDER] Avatar chunk attempt {attempt}/3 ({len(audio_bytes)} bytes)")
+            resp = requests.post(
+                f"{AVATAR_BASE}/generate",
+                json={
+                    "audio_base64": audio_b64,
+                    "content_type": content_type,
+                    "enable_blinks": True,
+                    "enable_head_movement": True,
+                    "fps": 30.0,
+                },
+                timeout=300,
+            )
+            resp.raise_for_status()
+            duration = float(resp.headers.get("X-Duration", 0))
+            logger.info(f"[RENDER] OK: {len(resp.content)} bytes, {duration:.1f}s (attempt {attempt})")
+            return resp.content, duration
+        except Exception as e:
+            logger.warning(f"[RENDER] Attempt {attempt}/3 failed: {e}")
+            if attempt < 3:
+                import time as _time
+                _time.sleep(10)
+    raise RuntimeError("Avatar render failed after 3 attempts")
 
 
 def _render_avatar_video(brief_text):

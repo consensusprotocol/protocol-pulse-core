@@ -289,7 +289,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   max-width:min(440px,calc(100vw - 24px));
   aspect-ratio:1/1;
   border-radius:8px;overflow:hidden;
-  background: #050508;
+  background: #050508 url('/static/oracle_avatar.png') center/cover no-repeat;
   overflow: hidden;
   flex-shrink:0;
   min-height: min(440px, calc(100vw - 24px));
@@ -779,6 +779,38 @@ var S={
 var busy=false,isRec=false,pending='',objURL=null,recognition=null;
 var _greeted=false;
 
+/* ── ORACLE STATE MACHINE ──
+   States: WELCOME → LISTENING → PROCESSING → RESPONDING → LISTENING
+   Every state shows the avatar face (never black screen).
+   LISTENING: mic active, avatar static idle visible, status "Ready"
+   PROCESSING: mic off, spinner, avatar idle visible
+   RESPONDING: video playing over idle bg, mic off
+*/
+var ORACLE_STATE = 'IDLE'; /* IDLE, WELCOME, LISTENING, PROCESSING, RESPONDING */
+function setOracleState(state){
+  ORACLE_STATE = state;
+  console.log('[Oracle] State →', state);
+  switch(state){
+    case 'LISTENING':
+      mic.disabled=false;
+      setStat('Ready','#334',false);
+      /* Ensure avatar idle is visible (video-wrap bg shows through when vid is transparent) */
+      vid.style.opacity='0';
+      break;
+    case 'PROCESSING':
+      mic.disabled=true;
+      if(isRec) stopRec();
+      break;
+    case 'RESPONDING':
+      mic.disabled=true;
+      if(isRec) stopRec();
+      break;
+    case 'WELCOME':
+      mic.disabled=true;
+      break;
+  }
+}
+
 var VISION_SPONSOR_MAP = {
   'trezor':   { category:'amazon', title:'Trezor Hardware Wallet', id:'vision_trezor',
     description:'The original Bitcoin hardware wallet. Battle-tested since 2014.',
@@ -959,6 +991,7 @@ function go(){
       stage.style.transition='opacity .45s';
       stage.style.opacity='1';
       initSR();
+      setOracleState('WELCOME');
       playIntent('GREETING');
     },30);
   },350);
@@ -998,15 +1031,16 @@ function playIntent(intent){
     if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
     if(intent==='GREETING'){
       window._briefFetched=false;
-      if(!_greeted){
-        _greeted=true;
-        setTimeout(function(){
-          if(!busy&&!isRec&&mic&&!mic.disabled){
-            startRec();
-            setStat('Listening…','#6cff9f',false);
-          }
-        },400);
-      } else { setTimeout(pulseMic,500); }
+      _greeted=true;
+      /* State machine: welcome done → LISTENING. Always activate mic. */
+      setOracleState('LISTENING');
+      setTimeout(function(){
+        if(!busy&&!isRec&&mic){
+          mic.disabled=false;
+          startRec();
+          setStat('Listening…','#6cff9f',false);
+        }
+      },400);
     }
   })
   .catch(function(e){
@@ -1014,7 +1048,8 @@ function playIntent(intent){
       setStat('Oracle error — try again.','#ff3b5f',false);
   })
   .finally(function(){
-    setBusy(false);mic.disabled=false;
+    setBusy(false);
+    setOracleState('LISTENING');
     setTimeout(pulseMic,500);
   });
 }
@@ -1026,6 +1061,7 @@ function process(text){
   if(!text.trim()||busy)return;
   // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
+  setOracleState('PROCESSING');
   setBusy(true);hideCards();hideActionCard();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
 
@@ -1183,7 +1219,8 @@ function process(text){
     }
   })
   .finally(function(){
-    setBusy(false);mic.disabled=false;hideTX();
+    setBusy(false);hideTX();
+    setOracleState('LISTENING');
   });
 }
 
@@ -1196,6 +1233,7 @@ function blobURL(b){
 /* ── PLAY VIDEO ── */
 function playVid(url){
   return new Promise(function(res){
+    setOracleState('RESPONDING');
     vid.loop=false;
     vid.src=url;
     vid.style.opacity='1';
@@ -1204,25 +1242,27 @@ function playVid(url){
       if(busy){
         console.warn('[Oracle] Safety timeout — forcing mic unlock after 60s');
         setBusy(false);
-        mic.disabled = false;
+        setOracleState('LISTENING');
       }
     }, 60000);
     try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
       clearTimeout(_safetyTimer);
       vid.src='';
+      /* Keep avatar visible: video-wrap has background-image of oracle_avatar.png */
       vid.style.opacity='0';
       if(window._matrixShow) window._matrixShow();
-      setStat('Ready','#334',false);hideSub();
-      setBusy(false);mic.disabled=false;
+      hideSub();
+      setBusy(false);
+      setOracleState('LISTENING');
       res();
       try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
     };
     vid.onerror=function(){
       clearTimeout(_safetyTimer);
       vid.style.opacity='0';
-      if(window._matrixShow) window._matrixShow();
-      setBusy(false);mic.disabled=false;
+      setBusy(false);
+      setOracleState('LISTENING');
       setStat('Video error','#ff3b5f',false);res();
     };
     vid.muted=true;
