@@ -515,3 +515,17 @@ With 5 clips at 40 seconds + narration segments, total episode: 12-15 minutes.
 - LOW issues (score 8-9) are NEVER touched while any CRITICAL or HIGH issue exists
 - Focus is always on the biggest score impact, not the most interesting technical problem
 
+
+### LAW: CONTENT LOCK — ITERATE ON ASSEMBLY, NOT CONTENT
+The single most important law for grade stability:
+
+- Iteration 1: Full pipeline run — fetch content, scan channels, select clips, generate script, TTS
+  Saves: script.json, clips/, tts_cache/ to video_pipeline_v3/output/YYYY-MM-DD/locked_content/
+- Iterations 2-N: Skip Steps 1-6 entirely. Load from locked_content/. Re-run ONLY Step 7+ (assembly/encode)
+  Flag: daily_producer.py --reuse-content
+  overnight_render_loop.py passes --reuse-content on all iterations > 1
+- Grade A achieved: delete locked_content/, start fresh next cycle with new content fetch
+- RATIONALE: Every re-fetch introduces new variables (different clips, script, TTS) making it
+  impossible to isolate whether an assembly fix worked. Content must be locked so each iteration
+  is a controlled experiment — same content, only assembly changes.
+- NEVER wipe tts_cache on iterations > 1 (currently: rm -rf tts_cache every iteration — FIX THIS)
