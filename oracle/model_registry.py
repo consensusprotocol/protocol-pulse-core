@@ -74,6 +74,9 @@ class ModelRegistry:
         cleaned = {k.replace("module.", ""): v for k, v in state.items()}
         model.load_state_dict(cleaned)
         model = model.to(DEVICE).half().eval()
+        # NOTE: torch.compile tested but causes 10-50× regression on Wav2Lip
+        # (inductor backend incompatible with this architecture in threaded Flask).
+        # Eager FP16 is the correct baseline — see docs/cc_oracle_speed_implementation.md
         self.wav2lip_model = model
         logger.info(f"Wav2Lip loaded in FP16 on {DEVICE}")
 

@@ -9,7 +9,7 @@ GPU-accelerated Wav2Lip lip-sync with:
   - Head movement post-processing
   - Vision guide endpoints (Gemini 2.5 Flash)
   - Input audio length guard (30s max, chunked processing)
-  - CRF 28, preset ultrafast, 30fps output
+  - CRF 23, preset ultrafast, 30fps output
 
 Deploy: ~/protocol_pulse/oracle/avatar_server.py
 Launch: cd ~/protocol_pulse/oracle && python3 avatar_server.py
@@ -503,7 +503,7 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             if w > 512:
                 cmd += ["-vf", "scale=512:512"]
             cmd += [
-                "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
                 "-c:a", "aac", "-b:a", "128k",
                 "-map", "0:a", "-map", "1:v",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
@@ -518,7 +518,7 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
             if w > 512:
                 cmd += ["-vf", "scale=512:512"]
             cmd += [
-                "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
                 "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 mp4_path,
             ]
@@ -650,11 +650,12 @@ def _avatar_tts(text):
                 sf.write(tmp.name, full_audio, 24000)
                 wav24_path = tmp.name
 
-            # Resample to 16kHz mono for Wav2Lip
+            # Resample to 16kHz mono + loudnorm in single ffmpeg call
             wav16_path = wav24_path + ".16k.wav"
             r = subprocess.run(
                 ["ffmpeg", "-y", "-loglevel", "error", "-i", wav24_path,
-                 "-ar", "16000", "-ac", "1", "-f", "wav", wav16_path],
+                 "-af", "aresample=16000,loudnorm=I=-14:TP=-1.5:LRA=11",
+                 "-ac", "1", "-f", "wav", wav16_path],
                 capture_output=True, text=True, timeout=30,
             )
             try:
@@ -662,25 +663,8 @@ def _avatar_tts(text):
             except OSError:
                 pass
             if r.returncode == 0 and os.path.exists(wav16_path) and os.path.getsize(wav16_path) > 1000:
-                # Loudnorm to -14 LUFS for consistent volume
-                norm_path = wav16_path + "_norm.wav"
-                subprocess.run(
-                    ["ffmpeg", "-y", "-loglevel", "error", "-i", wav16_path,
-                     "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
-                     "-ar", "16000", "-ac", "1", norm_path],
-                    capture_output=True, text=True, timeout=30,
-                )
-                if os.path.exists(norm_path) and os.path.getsize(norm_path) > 1000:
-                    with open(norm_path, "rb") as f:
-                        wav_bytes = f.read()
-                    try:
-                        os.remove(norm_path)
-                    except OSError:
-                        pass
-                else:
-                    # Loudnorm failed, use unnormalized
-                    with open(wav16_path, "rb") as f:
-                        wav_bytes = f.read()
+                with open(wav16_path, "rb") as f:
+                    wav_bytes = f.read()
                 try:
                     os.remove(wav16_path)
                 except OSError:
@@ -769,7 +753,7 @@ def health():
         "output_fps": DEFAULT_FPS,
         "batch_size": BATCH_SIZE,
         "max_audio_seconds": MAX_AUDIO_SECONDS,
-        "encoding": "crf28-ultrafast-512",
+        "encoding": "crf23-ultrafast-512",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
             "duration": f"{BLINK_DURATION}s"
@@ -2140,7 +2124,7 @@ if __name__ == "__main__":
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
     print(f"  FPS: {DEFAULT_FPS}")
-    print(f"  Encoding: CRF 28, preset ultrafast, 512px output")
+    print(f"  Encoding: CRF 23, preset ultrafast, 512px output")
     print(f"  Features: FP16, cv2_sharpen, mediapipe_blinks, head_movement")
     print(f"  Vision: {'enabled' if os.environ.get('GEMINI_API_KEY') else 'disabled'}")
     print(f"  Max audio: {MAX_AUDIO_SECONDS}s | Lock timeout: {LOCK_TIMEOUT}s")
