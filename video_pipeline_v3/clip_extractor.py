@@ -225,6 +225,34 @@ def _skip_intro_silence(output_path: str, channel: str = "") -> None:
         logger.warning(f"  Render21: Speech onset detection failed: {e}")
 
 
+def make_motion_from_static(image_path: str, output_path: str,
+                            duration: float, fps: int = 30) -> bool:
+    """Convert a static image to video with Ken Burns zoom — eliminates freeze frames at source.
+
+    Uses zoompan to create a slow 1.0→1.05x zoom over the duration.
+    Every frame is unique — freezedetect cannot trigger on the output.
+
+    Args:
+        image_path: Path to static image (PNG/JPG)
+        output_path: Path for output MP4
+        duration: Video duration in seconds
+        fps: Frame rate (default 30)
+
+    Returns:
+        True if conversion succeeded
+    """
+    total_frames = max(1, int(duration * fps))
+    return _run_ffmpeg([
+        "-loop", "1", "-i", image_path,
+        "-vf", (f"scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,"
+                f"zoompan=z='min(zoom+0.002\\,1.05)':d={total_frames}:s=1920x1080:fps={fps}"),
+        "-t", str(duration), "-r", str(fps),
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-pix_fmt", "yuv420p",
+        output_path,
+    ], f"ken_burns_static {os.path.basename(image_path)}", 120)
+
+
 def extract_clip(video_id: str, start_sec: int, end_sec: int,
                  output_path: str, channel: str = "") -> bool:
     """Download exact clip segment with original audio.

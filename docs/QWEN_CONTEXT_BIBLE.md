@@ -82,7 +82,7 @@ FIX: Replace ALL .format() calls in script_writer.py with .replace() chains:
 VERIFY: grep -c '.format(' script_writer.py should return 0
 STALE PYC WARNING: always delete .pyc after fixing script_writer.py
 
-PATTERN: 31/14/5/4 freeze frames in video
+PATTERN: 31/14/5/4 freeze frames in video (PTS type — CLOSED, see also freeze_frames_source)
 ROOT CAUSE: stream_loop=-1 on video inputs causes PTS timestamp discontinuities
   at loop boundaries. FFmpeg freezedetect flags these as freeze frames.
 FIX: Add trim=0:{total_dur},setpts=PTS-STARTPTS immediately after any video
@@ -90,6 +90,8 @@ FIX: Add trim=0:{total_dur},setpts=PTS-STARTPTS immediately after any video
   f"[{idx}:v]trim=0:{total_dur},setpts=PTS-STARTPTS,scale=..."
 LOCATIONS: _get_bg_layer(), make_pip_scene(), make_narrator_pip_scene()
 NOTE: Audio stream_loops (music) do NOT cause freeze frames — skip those.
+NOTE 2: Content-level freeze frames (static scenes) fixed separately — see
+  freeze_frames_source pattern below (Ken Burns motion, 2026-03-24).
 
 PATTERN: 4+ silence gaps >0.8s in audio
 ROOT CAUSE: ElevenLabs API latency between sequential TTS calls stacks up.
@@ -405,17 +407,11 @@ GPU ALLOCATION UPDATE:
   GPU 3: Free
 
 ALL 18 TESTS PASSED (T1-T8 PCAF + T1-T10 TPA).
-PATTERN: Freeze frames surviving CFR re-encode (5 per render, all in final 75s)
-  ROOT CAUSE: make_social_card_visual() and make_signal_active_scene() in assembler.py
-    render static drawtext/drawbox overlays on procedural backgrounds. After the 0.3s
-    fade-in, every frame is pixel-identical — content-level freezes, not PTS issues.
-    CFR re-encode (the old preflight fix) cannot fix content-level freezes.
-  LOCATION: assembler.py — make_social_card_visual() line ~3421, make_signal_active_scene() line ~2936
-  FIX: Added noise=c0s=3:c0f=t filter before format=yuv420p in both functions.
-    Imperceptible temporal noise (3/255 luma variation) breaks pixel-identical frames.
-    Also updated _apply_preflight_fixes() in daily_producer.py as belt-and-suspenders.
-  VERIFY: run_preflight_qc() must show freeze_frames=0
-  WATCHDOG: If freeze_frames > 0 reappears, check for new static scenes missing the noise filter.
+PATTERN: Freeze frames surviving CFR re-encode (5 per render) — STATUS: SUPERSEDED
+  OLD FIX: noise=c0s=3:c0f=t added to 2 functions. Gemini graded 1/10 ("band-aid").
+  NEW FIX (2026-03-24): Ken Burns motion at source — see freeze_frames_source pattern.
+    _ken_burns_motion() replaces noise filter in ALL 11 scene functions.
+    noise=c0s=3 completely removed from assembler.py.
 
 PATTERN: GNN autoencoder decoder ignores graph topology (acts as linear layer)
   ROOT CAUSE: ChainStateDecoder used nn.Linear layers instead of SAGEConv.
@@ -476,17 +472,27 @@ PATTERN: True peak hitting -1.1 dBTP, failing broadcast limit
   WATCHDOG: If true peak > -1.0 dBTP reappears, check that the pre-limiter is still
     positioned BEFORE loudnorm in the -af chain.
 
-PATTERN: Freeze frames in ALL static scene functions (16 per render)
-  ROOT CAUSE: Only make_social_card_visual() and make_signal_active_scene() had
-    noise=c0s=3:c0f=t filter. All other static scene functions (cold_open, narrator_pip,
-    partner_clip, data_segment, social_stack, wrap, space_tap, host_visual) were
-    generating pixel-identical frames that freezedetect flags.
-  LOCATION: assembler.py — 8 additional functions updated (11 total output points)
-  FIX: Added noise=c0s=3:c0f=t before format=yuv420p[outv] in ALL scene functions:
-    make_cold_open_scene (line 1672), make_narrator_pip_scene (line 1857),
-    make_partner_clip_scene (line 1926), make_data_segment_scene (line 2195),
-    make_social_stack_scene (line 2345), make_wrap_scene (line 2434),
-    make_space_tap_scene (line 2575), make_host_visual (lines 3176+3178)
-  VERIFY: grep -c 'noise=c0s=3:c0f=t' assembler.py must return 11
-  WATCHDOG: If ANY new make_*_scene function is added, it MUST include
-    noise=c0s=3:c0f=t before format=yuv420p[outv]. This is now a SACRED LAW.
+PATTERN: freeze_frames_source — SUPERSEDES ALL PRIOR FREEZE FRAME FIXES
+  ROOT CAUSE: All 11 scene functions in assembler.py generated pixel-identical frames
+    from static drawbox/drawtext on color backgrounds and static chart PNGs loaded with
+    -loop 1. The noise=c0s=3:c0f=t band-aid masked this but Gemini graded it 1/10
+    ("temporal noise patch is not a solution"). Chart PNGs were loaded as static images
+    with no motion. _make_clip_unavailable_card was a static 8s card.
+  FIX (2026-03-24): Ken Burns motion at source replaces noise band-aid everywhere.
+    1. New helper _ken_burns_motion() in assembler.py: upscales 2% then slowly pans
+       crop window (scale 1960x1102 → crop 1920x1080 with t-based offset). Every
+       output frame has unique pixel content — freezedetect cannot trigger.
+    2. All 11 noise=c0s=3:c0f=t instances REMOVED from assembler.py scene functions.
+    3. Chart PNG inputs now get Ken Burns in filter chain (scale 102% → animated crop).
+    4. _make_clip_unavailable_card gets scale+crop motion on output.
+    5. New make_motion_from_static() in clip_extractor.py for any future static→video.
+  LOCATIONS FIXED: make_intro_coldopen, make_narrator_pip_scene, make_partner_clip_scene,
+    make_data_segment_scene, make_social_stack_scene, make_wrap_scene, make_space_tap_scene,
+    make_signal_active_scene, make_social_card_visual (2 paths), make_host_visual (remotion),
+    _make_clip_unavailable_card, chart PNG loading in data segment.
+  VERIFY: grep -c 'noise=c0s' assembler.py must return 1 (docstring only).
+    ffmpeg -i [any_part] -vf freezedetect=n=-60dB:d=0.5 -f null - 2>&1 | grep freeze
+    should return zero freeze events.
+  WATCHDOG: If ANY new make_*_scene function is added, it MUST call
+    _ken_burns_motion(label_in, "outv", total_dur) as the final video filter.
+    NEVER re-add noise=c0s=3 — that was a band-aid, Ken Burns is the proper fix.

@@ -316,6 +316,19 @@ def _fetch_btc_price() -> str:
             return "$N/A"
 
 
+def _ken_burns_motion(label_in: str, label_out: str, duration: float) -> str:
+    """Subtle Ken Burns pan — proper freeze frame fix at source.
+
+    Upscales 2% then slowly pans crop window across the frame.
+    Every output frame has unique pixel content — freezedetect cannot trigger.
+    Replaces the old noise=c0s=3 band-aid that Gemini penalized as 1/10.
+    """
+    dur = max(0.1, duration)
+    return (f"[{label_in}]scale=1960:1102:flags=lanczos,"
+            f"crop=1920:1080:'20*t/{dur:.2f}':'11*t/{dur:.2f}',"
+            f"setsar=1,format=yuv420p[{label_out}];\n")
+
+
 def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
     """BLACK DIAMOND 7-layer procedural background — Sovereign Command Center.
 
@@ -934,7 +947,9 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f"drawtext=fontfile={FONT_MONO}:text='{date_str} - DAILY BRIEF':fontcolor=0x000000:fontsize=14:x=w-text_w-20:y=1048,"
         # Watermark top-right
         f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':fontcolor={COLOR_RED}@0.4:fontsize=18:x=w-230:y=20"
-        f"[outv]",
+        f"[_uc_pre];"
+        f"[_uc_pre]scale=1960:1102:flags=lanczos,"
+        f"crop=1920:1080:'20*t/{dur}':'11*t/{dur}',setsar=1[outv]",
         "-map", "[outv]", "-map", "1:a",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
@@ -1669,7 +1684,7 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     fg += _build_signature_info_rail(total_dur, btc_price, "co_wave", "co_railed")
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("co_railed", "_co_pilled", episode_title, total_dur)
-    fg += f"[_co_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion("_co_pilled", "outv", total_dur)
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX cold open",
                        audio_pad=co_audio_pad)
@@ -1854,7 +1869,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"[_pip_bordered];\n")
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("_pip_bordered", "_pip_pilled", episode_title, total_dur)
-    fg += f"[_pip_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion("_pip_pilled", "outv", total_dur)
 
     # Audio: PBX narration only, no music
     fg += f"[0:a]alimiter=limit=0.85,aresample=async=1[outa]"
@@ -1923,9 +1938,9 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
            f"[pc_lt];\n")
     # Info rail (always present)
     fg += _build_signature_info_rail(clip_dur, btc_price, "pc_lt", "pc_railed")
-    fg += (f"[pc_railed]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
-           # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
-           f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
+    fg += _ken_burns_motion("pc_railed", "outv", clip_dur)
+    # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
+    fg += (f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,"
            f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 0.5)}:d=0.5[outa]")
 
@@ -2089,7 +2104,7 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     chart_panel_x, chart_panel_y = 200, 250
     chart_panel_w, chart_panel_h = 1520, 460
 
-    # Load available charts — CRITICAL: every PNG uses -loop 1 -framerate 30 -i
+    # Load available charts — PNG inputs with -loop 1
     _available_charts = {}
     if chart_keyword and chart_keyword in _chart_map:
         # Single chart mode — only load the matched chart
@@ -2106,21 +2121,29 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
                 _available_charts[key] = len(inputs) - 1
 
     if len(_available_charts) == 1:
-        # Single chart full-panel
+        # Single chart full-panel — Ken Burns motion on static PNG
         _key, _idx = list(_available_charts.items())[0]
-        fg += (f"[{_idx}:v]scale={chart_panel_w}:{chart_panel_h},"
-               f"format=yuv420p[ds_chts_single];\n")
+        _cw_up, _ch_up = int(chart_panel_w * 1.02), int(chart_panel_h * 1.02)
+        _cw_pan, _ch_pan = _cw_up - chart_panel_w, _ch_up - chart_panel_h
+        fg += (f"[{_idx}:v]scale={_cw_up}:{_ch_up},"
+               f"crop={chart_panel_w}:{chart_panel_h}:"
+               f"'{_cw_pan}*t/{total_dur:.2f}':'{_ch_pan}*t/{total_dur:.2f}',"
+               f"setsar=1,format=yuv420p[ds_chts_single];\n")
         fg += (f"[{last}][ds_chts_single]overlay=x={chart_panel_x}:y={chart_panel_y}"
                f"[ds_chart_done];\n")
-        logger.info(f"  Chart: showing {_key} full-panel")
+        logger.info(f"  Chart: showing {_key} full-panel (Ken Burns)")
     elif len(_available_charts) >= 2:
-        # Horizontal grid — each chart gets equal width
+        # Horizontal grid — Ken Burns motion on each static PNG
         n_charts = len(_available_charts)
         _grid_w = chart_panel_w // n_charts - 8
         chart_items = list(_available_charts.items())
+        _gw_up, _gh_up = int(_grid_w * 1.02), int(chart_panel_h * 1.02)
+        _gw_pan, _gh_pan = _gw_up - _grid_w, _gh_up - chart_panel_h
         for ci, (key, idx) in enumerate(chart_items):
-            fg += (f"[{idx}:v]scale={_grid_w}:{chart_panel_h},"
-                   f"format=yuv420p[ds_chtg{ci}];\n")
+            fg += (f"[{idx}:v]scale={_gw_up}:{_gh_up},"
+                   f"crop={_grid_w}:{chart_panel_h}:"
+                   f"'{_gw_pan}*t/{total_dur:.2f}':'{_gh_pan}*t/{total_dur:.2f}',"
+                   f"setsar=1,format=yuv420p[ds_chtg{ci}];\n")
         _gx = chart_panel_x
         _chart_last = last
         for ci in range(len(chart_items)):
@@ -2192,7 +2215,7 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     fg = apply_scanline(inputs, fg, "ds_railed", "ds_scanned", total_dur)
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("ds_scanned", "_ds_pilled", episode_title, total_dur)
-    fg += f"[_ds_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion("_ds_pilled", "outv", total_dur)
 
     result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
                          audio_pad=ds_audio_pad)
@@ -2342,7 +2365,7 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
     fg += _build_signature_info_rail(total_dur, btc_price, "ss_wave", "ss_railed")
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("ss_railed", "_ss_pilled", episode_title, total_dur)
-    fg += f"[_ss_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion("_ss_pilled", "outv", total_dur)
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX social stack",
                        audio_pad=ss_audio_pad)
@@ -2431,7 +2454,10 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     # Session 4 Fix 7: Extended fade-to-black (1.5s) and audio fade (2.5s) for clean ending
     fade_v_start = max(0, total_dur - 1.5)
     fade_a_start = max(0, total_dur - 2.5)
-    fg += (f"[_wr_pilled]noise=c0s=3:c0f=t,fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
+    dur_kb = max(0.1, total_dur)
+    fg += (f"[_wr_pilled]scale=1960:1102:flags=lanczos,"
+           f"crop=1920:1080:'20*t/{dur_kb:.2f}':'11*t/{dur_kb:.2f}',setsar=1,"
+           f"fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
            f"format=yuv420p[outv];\n")
     fg += (f"[_wr_a_out]afade=t=out:st={fade_a_start:.2f}:d=2.5[_wr_a_faded];\n")
 
@@ -2572,7 +2598,7 @@ def make_space_tap_scene(audio_path: str, space_clips: list,
     fg += _build_corner_brackets_fg("st_divided", "st_corners")
     fg += _build_signature_info_rail(total_dur, btc_price, "st_corners", "st_railed")
     fg += _add_episode_title_pill("st_railed", "_st_pilled", episode_title, total_dur)
-    fg += f"[_st_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion("_st_pilled", "outv", total_dur)
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX space_tap",
                        audio_pad="[_st_a_out]")
@@ -2933,9 +2959,7 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
     # ── R26 UPGRADE 1: CRT SCANLINE ──
     fg = apply_scanline(inputs, fg, "sig_final", "sig_scanned", total_dur)
 
-    # FREEZE FIX: Imperceptible temporal noise (1/255) breaks pixel-identical
-    # frames in static signal active cards (staggered at 0s/6s/12s).
-    fg += f"[sig_scanned]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion("sig_scanned", "outv", total_dur)
 
     # Audio
     fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,"
@@ -3173,9 +3197,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
                f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
                f"fontcolor={COLOR_MUTED}:fontsize=11:x=w-160:y=h-22[tcardready];\n"
                f"[v_final][tcardready]overlay=760:200:format=auto,fade=t=in:st=0:d=0.3[v_social];\n")
-        fg += f"[v_social]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+        fg += _ken_burns_motion("v_social", "outv", total_dur)
     else:
-        fg += f"[v_final]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+        fg += _ken_burns_motion("v_final", "outv", total_dur)
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
     fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]")
@@ -3420,9 +3444,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         fg += f"[{last_v}][wm]overlay=W-170:16[vwm];\n"
         last_v = "vwm"
 
-    # FREEZE FIX: Imperceptible temporal noise (1/255) breaks pixel-identical
-    # frames that freezedetect flags on static social card visuals.
-    fg += f"[{last_v}]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
+    fg += _ken_burns_motion(last_v, "outv", total_dur)
 
     # FIX 4: explicit stereo format before loudnorm/aresample to prevent channel layout error
     fg += f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]"
