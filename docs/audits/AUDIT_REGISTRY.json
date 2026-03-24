@@ -1,7 +1,7 @@
 {
-  "last_audit": "2026-03-24T09:57:27.136184+00:00",
-  "feature": "render-improvement-loop",
-  "commit": "bf3d26fa",
+  "last_audit": "2026-03-24T16:05:13.924010+00:00",
+  "feature": "oracle-avatar-fix",
+  "commit": "71bf8d5f",
   "audits": [
     {
       "feature": "assembler-v2-rebuild",
@@ -155,6 +155,15 @@
     },
     {
       "feature": "render-improvement-loop",
+      "date": "2026-03-24",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "oracle-avatar-fix",
       "date": "2026-03-24",
       "models": [
         "gemini",

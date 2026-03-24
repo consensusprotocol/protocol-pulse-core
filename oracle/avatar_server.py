@@ -109,8 +109,8 @@ def _detect_face_cpu(img, source_name):
         try:
             from blink_engine import detect_eye_landmarks
             eye_lm = detect_eye_landmarks(img)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[AVATAR_SOURCE] Eye landmark detection failed for {source_name}: {e}", exc_info=True)
 
         return coords, eye_lm
     except Exception as e:
@@ -123,34 +123,42 @@ def _load_avatar_face(source_name):
     Returns (face_img, face_coords, eye_landmarks) or (None, None, None) on failure.
     Non-default sources are detected lazily on first request using CPU face detection,
     falling back to default if detection fails.
+    Thread-safe: all work happens inside the lock to prevent thundering herd.
     """
     if source_name == "default" or source_name not in AVATAR_SOURCES:
         reg = ModelRegistry.get()
         return reg.avatar_face, reg.avatar_face_coords, reg.eye_landmarks
 
     with _avatar_face_cache_lock:
+        # Check cache inside lock — prevents thundering herd
         if source_name in _avatar_face_cache:
             c = _avatar_face_cache[source_name]
             return c["face"], c["coords"], c["eye_landmarks"]
 
-    # Load outside lock — CPU face detection (no CUDA contention)
-    img_path = AVATAR_SOURCES[source_name]
-    if not os.path.exists(img_path):
-        logger.error(f"[AVATAR_SOURCE] Image not found: {img_path}")
-        return None, None, None
+        # Load and detect inside lock — only one thread does the work
+        img_path = AVATAR_SOURCES[source_name]
+        # Validate path is within expected directory
+        real_path = os.path.realpath(img_path)
+        allowed_base = os.path.realpath("/home/ultron/protocol_pulse")
+        if not real_path.startswith(allowed_base + os.sep):
+            logger.error(f"[AVATAR_SOURCE] Path traversal blocked: {img_path} -> {real_path}")
+            return None, None, None
 
-    img = cv2.imread(img_path)
-    if img is None:
-        logger.error(f"[AVATAR_SOURCE] Failed to read: {img_path}")
-        return None, None, None
+        if not os.path.exists(img_path):
+            logger.error(f"[AVATAR_SOURCE] Image not found: {img_path}")
+            return None, None, None
 
-    coords, eye_lm = _detect_face_cpu(img, source_name)
-    if coords is None:
-        logger.error(f"[AVATAR_SOURCE] No face detected in {source_name} — falling back to default")
-        reg = ModelRegistry.get()
-        return reg.avatar_face, reg.avatar_face_coords, reg.eye_landmarks
+        img = cv2.imread(img_path)
+        if img is None:
+            logger.error(f"[AVATAR_SOURCE] Failed to read: {img_path}")
+            return None, None, None
 
-    with _avatar_face_cache_lock:
+        coords, eye_lm = _detect_face_cpu(img, source_name)
+        if coords is None:
+            logger.error(f"[AVATAR_SOURCE] No face detected in {source_name} — falling back to default")
+            reg = ModelRegistry.get()
+            return reg.avatar_face, reg.avatar_face_coords, reg.eye_landmarks
+
         _avatar_face_cache[source_name] = {"face": img.copy(), "coords": coords, "eye_landmarks": eye_lm}
 
     return img.copy(), coords, eye_lm
@@ -203,6 +211,68 @@ _RENDER_JOB_TTL = 120   # seconds — auto-expire stale jobs
 _render_semaphore = threading.Semaphore(2)  # max 2 concurrent Wav2Lip renders
 _render_queue_count = 0
 _render_queue_lock = threading.Lock()
+
+
+_GC_INTERVAL = 60        # seconds between garbage collection sweeps
+_SESSION_TTL = 300       # seconds — evict stream/chunk sessions after 5min of inactivity
+_JOB_TTL_COMPLETED = 300 # seconds — evict completed/failed render jobs after 5min
+_MAX_RENDER_JOBS = 50    # hard cap on concurrent render jobs
+
+
+def _gc_worker():
+    """Background daemon: evict stale sessions, jobs, and their temp files."""
+    import shutil
+    while True:
+        time.sleep(_GC_INTERVAL)
+        now = time.time()
+        try:
+            # Clean _stream_sessions
+            with _stream_lock:
+                expired = [sid for sid, s in _stream_sessions.items()
+                           if now - s.get("created", 0) > _SESSION_TTL]
+                for sid in expired:
+                    s = _stream_sessions.pop(sid, None)
+                    if s and s.get("dir"):
+                        try:
+                            shutil.rmtree(s["dir"], ignore_errors=True)
+                        except Exception:
+                            pass
+            if expired:
+                logger.info(f"[GC] Evicted {len(expired)} stream sessions")
+
+            # Clean _chunk_sessions
+            with _chunk_lock:
+                expired_chunks = [sid for sid, s in _chunk_sessions.items()
+                                  if now - s.get("created", 0) > _SESSION_TTL]
+                for sid in expired_chunks:
+                    s = _chunk_sessions.pop(sid, None)
+                    if s and s.get("dir"):
+                        try:
+                            shutil.rmtree(s["dir"], ignore_errors=True)
+                        except Exception:
+                            pass
+            if expired_chunks:
+                logger.info(f"[GC] Evicted {len(expired_chunks)} chunk sessions")
+
+            # Clean _render_jobs (completed/failed older than TTL, or pending older than _RENDER_JOB_TTL)
+            with _render_jobs_lock:
+                expired_jobs = []
+                for jid, job in _render_jobs.items():
+                    if job["status"] in ("done", "error"):
+                        completed_at = job.get("completed_at", job.get("created", 0))
+                        if now - completed_at > _JOB_TTL_COMPLETED:
+                            expired_jobs.append(jid)
+                    elif now - job.get("created", 0) > _RENDER_JOB_TTL:
+                        expired_jobs.append(jid)
+                for jid in expired_jobs:
+                    del _render_jobs[jid]
+            if expired_jobs:
+                logger.info(f"[GC] Evicted {len(expired_jobs)} render jobs")
+        except Exception as e:
+            logger.error(f"[GC] Error during cleanup: {e}", exc_info=True)
+
+
+threading.Thread(target=_gc_worker, daemon=True, name="gc_worker").start()
 
 
 def _record_latency(seconds):
@@ -394,8 +464,9 @@ def post_process_frames(frames, fps=30.0, enable_blinks=True, enable_head=True):
                     eye_landmarks=reg.eye_landmarks,
                     face_coords=reg.avatar_face_coords,
                 )
-            except Exception:
-                # P0 safety net: blink artifacts → return original frame
+            except Exception as e:
+                # P0 safety net: blink artifacts → return original frame, but log
+                logger.error(f"[POST] Blink post-process failed on frame {i}: {e}", exc_info=True)
                 result = frame
         if enable_head:
             result = apply_head_movement(result, i, fps)
@@ -771,6 +842,24 @@ def generate():
     if not data:
         return jsonify({"error": "JSON body required"}), 400
 
+    # Input validation
+    MAX_TEXT_LEN = 2000
+    MAX_AUDIO_B64_LEN = 2_000_000  # ~1.5MB decoded
+    if "text" in data:
+        if not isinstance(data["text"], str) or len(data["text"]) > MAX_TEXT_LEN:
+            return jsonify({"error": f"text must be a string under {MAX_TEXT_LEN} chars", "code": "INVALID_INPUT"}), 400
+        if not data["text"].strip():
+            return jsonify({"error": "text cannot be empty", "code": "INVALID_INPUT"}), 400
+    elif "audio_base64" in data:
+        if not isinstance(data["audio_base64"], str) or len(data["audio_base64"]) > MAX_AUDIO_B64_LEN:
+            return jsonify({"error": "audio_base64 too large or invalid", "code": "INVALID_INPUT"}), 400
+        try:
+            base64.b64decode(data["audio_base64"], validate=True)
+        except Exception:
+            return jsonify({"error": "audio_base64 is not valid base64", "code": "INVALID_INPUT"}), 400
+    else:
+        return jsonify({"error": "text or audio_base64 required"}), 400
+
     enable_blinks = data.get("enable_blinks", True)  # v2 blink engine enabled
     enable_head_movement = data.get("enable_head_movement", True)
     fps = float(data.get("fps", DEFAULT_FPS))
@@ -822,8 +911,13 @@ def generate():
             capture_output=True, text=True, timeout=10,
         )
         audio_duration_sec = float(probe.stdout.strip()) if probe.stdout.strip() else 0.0
-    except Exception:
+    except Exception as e:
+        logger.error(f"[GENERATE] ffprobe failed: {e}", exc_info=True)
         audio_duration_sec = 0.0
+
+    if audio_duration_sec == 0.0:
+        logger.warning("[GENERATE] Audio duration is 0 — possible corrupt file")
+        return jsonify({"error": "Audio validation failed: could not determine duration", "code": "INVALID_AUDIO"}), 400
 
     if audio_duration_sec > MAX_AUDIO_SECONDS:
         logger.warning(f"Audio too long ({audio_duration_sec:.1f}s > {MAX_AUDIO_SECONDS}s) — rejecting")
@@ -1155,8 +1249,8 @@ def _generate_chunk(sentence, chunk_num, session_dir, fps=30.0):
             reg = ModelRegistry.get()
             try:
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"[CHUNK] Sharpening failed on chunk {chunk_num}: {e}", exc_info=True)
             frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
         finally:
             _render_semaphore.release()
@@ -1435,11 +1529,10 @@ def oracle_speak():
     if not text:
         text = oracle_cache_manager.RESPONSE_TREE["UNKNOWN_QUESTION"]
 
-    # Non-blocking: bail fast if render semaphore is held (e.g. during cache warmup)
-    if not _render_semaphore.acquire(timeout=5):
+    # Check GPU availability without acquire-release-reacquire race
+    if _render_semaphore._value == 0:
         return jsonify({"error": "GPU busy warming cache — try again shortly",
                         "status": "warming", "retry_after": 30}), 503
-    _render_semaphore.release()  # release immediately — generate_inline will re-acquire
 
     return generate_inline(text)
 
@@ -1477,8 +1570,8 @@ def generate_inline(text):
             reg = ModelRegistry.get()
             try:
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"[INLINE] Sharpening failed: {e}", exc_info=True)
             frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
             video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
         finally:
@@ -1636,8 +1729,11 @@ def oracle_job_audio(job_id):
     """Return cached TTS audio from an async render job (avoids duplicate Kokoro call)."""
     with _render_jobs_lock:
         job = _render_jobs.get(job_id)
-    if not job or not job.get("audio_bytes"):
-        return jsonify({"error": "audio not ready"}), 404
+    if not job:
+        return jsonify({"status": "not_found"}), 404
+    if not job.get("audio_bytes"):
+        # Audio not yet generated — tell client to poll again
+        return jsonify({"status": "pending", "retry_after": 2}), 202
     audio_bytes = job["audio_bytes"]
     mime = job.get("audio_mime", "audio/wav")
     from flask import Response
@@ -1786,8 +1882,8 @@ def oracle_chat():
                         frames = wav2lip_generate(wav_path, DEFAULT_FPS, avatar_face=a_face, avatar_face_coords=a_coords)
                         try:
                             frames = sharpen_mouth_region(frames, a_coords)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.warning(f"[ASYNC RENDER] Sharpening failed for job {jid}: {e}", exc_info=True)
                         frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
                         video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
                     finally:

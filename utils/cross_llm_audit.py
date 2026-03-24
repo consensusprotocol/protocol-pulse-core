@@ -65,6 +65,7 @@ FEATURE_MAP = {
     "convergence-build-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "ml-session-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "render-improvement-loop": ("RENDER_IMPROVEMENT_LOOP_GOSPEL.md", "main"),
+    "oracle-avatar-fix": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -160,6 +161,10 @@ EXPLICIT_FILES = {
         "utils/cross_llm_audit.py",
         "video_pipeline_v3/assembler.py",
         "video_pipeline_v3/clip_extractor.py",
+    ],
+    "oracle-avatar-fix": [
+        "oracle/avatar_server.py",
+        "core/blueprints/oracle.py",
     ],
 }
 
