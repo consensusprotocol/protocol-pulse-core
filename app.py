@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "core"))
 # Load .env from the same directory as this file (core/) so it works from any cwd
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
@@ -411,7 +413,7 @@ except Exception as _e:
 
 # Intelligence Terminal Blueprint
 try:
-    from core.blueprints.intelligence import intelligence_bp
+    from blueprints.intelligence import intelligence_bp
     app.register_blueprint(intelligence_bp)
     logging.info("Intelligence Terminal blueprint registered")
 except Exception as _e:
