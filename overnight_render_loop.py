@@ -82,6 +82,7 @@ def log(msg):
 
 def load_env():
     env = os.environ.copy()
+    env['CUDA_VISIBLE_DEVICES'] = '0'  # Pin pipeline to GPU 0 -- avatar_server owns GPU 1
     try:
         with open(ENV_FILE) as f:
             for line in f:
