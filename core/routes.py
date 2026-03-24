@@ -300,7 +300,30 @@ def index():
             ).order_by(models.Article.created_at.desc()).limit(2).all()
             bento_articles.extend(cat_articles)
     
-    return render_template('index.html', 
+    # Build article_image_urls for carousel/cards
+    import os as _os
+    default_header_url = "/static/images/default-header.png"
+    article_image_urls = {}
+    for a in list(featured_articles) + list(recent_articles):
+        if a.id in article_image_urls:
+            continue
+        ciu = (getattr(a, "cover_image_url", None) or "").strip()
+        if ciu and ciu.startswith("http"):
+            article_image_urls[a.id] = ciu
+            continue
+        url = (getattr(a, "header_image_url", None) or "").strip()
+        if url and url.startswith("http"):
+            article_image_urls[a.id] = url
+        elif url and url != default_header_url:
+            filepath = url.lstrip("/")
+            if _os.path.exists(filepath):
+                article_image_urls[a.id] = url
+            else:
+                article_image_urls[a.id] = default_header_url
+        else:
+            article_image_urls[a.id] = default_header_url
+
+    return render_template('index.html',
                          featured_articles=featured_articles,
                          recent_articles=recent_articles,
                          featured_podcasts=featured_podcasts,
@@ -308,7 +331,9 @@ def index():
                          price_service=price_service,
                          todays_signal=todays_signal,
                          user_segment=user_segment,
-                         bento_articles=bento_articles[:4])
+                         bento_articles=bento_articles[:4],
+                         article_image_urls=article_image_urls,
+                         default_header_url=default_header_url)
 
 def generate_todays_signal():
     """Generate rotating 120-word briefing for Today's Signal"""
