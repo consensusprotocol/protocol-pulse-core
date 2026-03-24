@@ -520,7 +520,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
 
 
 def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
-                 fast_test: bool = False) -> bool:
+                 fast_test: bool = False, reuse_content: bool = False) -> bool:
     # Fast test implies test + skip-scan
     if fast_test:
         test_mode = True
@@ -553,10 +553,15 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         resume_step = 0
 
     # Wipe TTS cache before each run to prevent stale audio
+    # CONTENT LOCK LAW: skip wipe when reusing locked content
     tts_cache = os.path.join(BASE, "tts_cache")
-    shutil.rmtree(tts_cache, ignore_errors=True)
-    os.makedirs(tts_cache, exist_ok=True)
-    logger.info("TTS cache wiped")
+    if not reuse_content:
+        shutil.rmtree(tts_cache, ignore_errors=True)
+        os.makedirs(tts_cache, exist_ok=True)
+        logger.info("TTS cache wiped")
+    else:
+        os.makedirs(tts_cache, exist_ok=True)
+        logger.info("TTS cache preserved (reuse-content mode)")
 
     ts = datetime.now(timezone.utc)
     date_str = ts.strftime("%Y%m%d")
@@ -591,461 +596,546 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     print(f"  Music: {'YES' if has_music() else 'no (skipped gracefully)'}")
     print("=" * 70)
 
-    # ── Step 1: BTC PRICE ─────────────────────────────────────────────────
-    print("\n[STEP 1/12] FETCHING BTC PRICE...")
-    t0 = time.time()
-    btc_price = get_btc_price()
-    print(f"  BTC: {btc_price}")
-    timing["1_price"] = round(time.time() - t0, 2)
-    write_render_context(1, "ok", btc_price=btc_price)
 
-    # ── Step 2: SCAN CHANNELS ─────────────────────────────────────────────
-    print("\n[STEP 2/12] SCANNING PARTNER CHANNELS...")
-    t0 = time.time()
-    if skip_scan:
-        # Load cached transcripts from transcript dir
-        import glob
-        transcript_dir = os.path.join(BASE, "transcripts")
-        videos = []
-        for tf in sorted(glob.glob(os.path.join(transcript_dir, "*.json")))[:60]:
-            with open(tf) as f:
-                data = json.load(f)
-                videos.append({
-                    "video_id": data.get("video_id", ""),
-                    "title": data.get("title", ""),
-                    "channel": data.get("channel", ""),
-                    "duration": data.get("duration", 0),
-                    "upload_date": "",
-                    "url": f"https://www.youtube.com/watch?v={data.get('video_id', '')}",
-                    "transcript_text": data.get("text", ""),
-                    "timestamped_text": data.get("timestamped_text", ""),
-                })
-        print(f"  Loaded {len(videos)} cached transcripts")
-    else:
-        whisper_model = "tiny" if test_mode else "base"
-        videos = scan_all_channels(model_size=whisper_model)
-        print(f"  Scanned: {len(videos)} videos with transcripts")
-    timing["2_scan"] = round(time.time() - t0, 2)
-    write_render_context(2, "ok")
+    # ── CONTENT LOCK: reuse locked content from previous iteration ────────
+    if reuse_content:
+        locked_dir = os.path.join(run_dir, "locked_content")
+        locked_script = os.path.join(locked_dir, "script.json")
+        locked_clips = os.path.join(locked_dir, "clips")
+        locked_tts = os.path.join(locked_dir, "tts")
+        locked_audio = os.path.join(locked_dir, "audio_data.json")
+        locked_meta = os.path.join(locked_dir, "meta.json")
 
-    if not videos:
-        print("\n  [FAIL] No videos found — cannot produce episode")
-        _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
-        if is_enabled("telegram_alerts"):
-            alert_pipeline_failure(date_str, "scan", "No videos found")
-        return False
-
-    # ── Step 3: SELECT BEST CLIPS ─────────────────────────────────────────
-    if fast_test:
-        print("\n[STEP 3/12] SELECTING CLIPS (fast-test: first 2, no Claude)...")
-        t0 = time.time()
-        # Build minimal selections from cached videos without calling Claude
-        fast_clips = []
-        for i, v in enumerate(videos[:2], 1):
-            text = v.get("transcript_text", "")
-            fast_clips.append({
-                "rank": i,
-                "video_id": v["video_id"],
-                "channel": v.get("channel", ""),
-                "title": v.get("title", ""),
-                "quote": text[:100] if text else "No transcript",
-                "why": "fast-test auto-select",
-                "start_seconds": 60,
-                "end_seconds": 90,
-            })
-        selections = {"clips": fast_clips}
-        clips = fast_clips
-        print(f"  Auto-selected: {len(clips)} clips (no API call)")
-        timing["3_select"] = round(time.time() - t0, 2)
-    else:
-        print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude)...")
-        t0 = time.time()
-        selections = select_clips(videos)
-        clips = selections.get("clips", [])
-        print(f"  Selected: {len(clips)} clips")
-        for c in clips:
-            print(f"    #{c['rank']}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
-        timing["3_select"] = round(time.time() - t0, 2)
-
-    if not clips:
-        print("\n  [FAIL] No clips selected — cannot produce episode")
-        _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
-        if is_enabled("telegram_alerts"):
-            alert_pipeline_failure(date_str, "select", "No clips selected")
-        return False
-
-    # In test mode, use only top 2 clips
-    if not fast_test and test_mode and len(clips) > 2:
-        selections["clips"] = clips[:2]
-        clips = selections["clips"]
-        print(f"  [test] Truncated to {len(clips)} clips")
-
-    # Save selections
-    sel_path = os.path.join(run_dir, "selections.json")
-    with open(sel_path, "w") as f:
-        json.dump(selections, f, indent=2)
-
-    # ── Step 3b: Select independent montage clips (Qwen, free) ──────────
-    print("\n[STEP 3b] SELECTING MONTAGE CLIPS (local Qwen)...")
-    try:
-        from clip_selector import select_montage_clips
-        montage_selections = select_montage_clips(videos)
-        montage_clips_sel = montage_selections.get("clips", [])
-        montage_sel_path = os.path.join(run_dir, "montage_selections.json")
-        with open(montage_sel_path, "w") as f:
-            json.dump(montage_selections, f, indent=2)
-        print(f"  Montage: {len(montage_clips_sel)} independent clips selected")
-    except Exception as e:
-        print(f"  Montage selection failed ({e}) — montage will reuse Pulse Check clips")
-        montage_selections = None
-
-    # ── Step 4: EXTRACT CLIPS ─────────────────────────────────────────────
-    print("\n[STEP 4/12] EXTRACTING CLIPS (yt-dlp with original audio)...")
-    t0 = time.time()
-    # FIX 2: Wipe clips/ dir completely to prevent stale files from prior renders
-    clip_dir = os.path.join(run_dir, "clips")
-    if os.path.exists(clip_dir):
-        shutil.rmtree(clip_dir)
-        logger.info(f"  Wiped stale clips dir: {clip_dir}")
-    os.makedirs(clip_dir, exist_ok=True)
-    # Also wipe stale pip_preview files from work dir
-    work_dir = os.path.join(run_dir, "work")
-    if os.path.exists(work_dir):
-        import glob as _pip_glob
-        for stale_pip in _pip_glob.glob(os.path.join(work_dir, "pip_preview_*.mp4")):
-            try:
-                os.remove(stale_pip)
-            except OSError:
-                pass
-        logger.info("  Wiped stale pip_preview files from work/")
-    extracted_clips = extract_all(selections, clip_dir)
-    print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
-
-    # ── Quality-aware fallback: retry with ranked alternates ──────────
-    if not test_mode and not fast_test and len(extracted_clips) < 5:
-        used_video_ids = {info["video_id"] for info in extracted_clips.values()}
-        used_channels = {info["channel"] for info in extracted_clips.values()}
-        tried_video_ids = {c["video_id"] for c in clips} | used_video_ids
-
-        remaining = [v for v in videos
-                     if v["video_id"] not in tried_video_ids
-                     and v.get("channel", "") not in used_channels]
-
-        if remaining:
-            need = 5 - len(extracted_clips)
-            logger.info(
-                f"[extractor] Only {len(extracted_clips)}/5 clips passed quality "
-                f"— selecting fallbacks from {len(remaining)} candidates (need {need})"
-            )
-            fallback_sel = select_clips(remaining)
-            fallback_clips = fallback_sel.get("clips", [])
-
-            max_rank = max(extracted_clips.keys()) if extracted_clips else 0
-            for fc in fallback_clips:
-                if len(extracted_clips) >= 5:
-                    break
-                fc_ch = fc.get("channel", "")
-                fc_vid = fc.get("video_id", "")
-                if fc_ch in used_channels or fc_vid in tried_video_ids:
-                    continue
-                max_rank += 1
-                fc["rank"] = max_rank
-                logger.info(
-                    f"[extractor] Clip failed quality — trying fallback candidate "
-                    f"#{max_rank} [{fc_ch}] from selections"
-                )
-                fb_result = extract_all({"clips": [fc]}, clip_dir)
-                if fb_result:
-                    for r, info in fb_result.items():
-                        extracted_clips[r] = info
-                        used_video_ids.add(info["video_id"])
-                        used_channels.add(info["channel"])
-                        tried_video_ids.add(fc_vid)
-                        selections["clips"].append(fc)
-                        logger.info(
-                            f"[extractor] Fallback clip #{r} passed quality — "
-                            f"{info['channel']} ({info['duration']:.1f}s)"
-                        )
-                else:
-                    tried_video_ids.add(fc_vid)
-                    logger.warning(
-                        f"[extractor] Fallback [{fc_ch}] also failed quality — trying next"
-                    )
-
-            # Update clips list and re-save selections
-            clips = selections.get("clips", [])
-            with open(sel_path, "w") as f:
-                json.dump(selections, f, indent=2)
-            logger.info(f"[extractor] After fallback: {len(extracted_clips)}/5 clips")
-        else:
-            logger.warning("[extractor] No fallback candidates — all channels/videos exhausted")
-
-    if not test_mode:
-        _unique_ch = len({info.get("channel", f"unk_{i}") for i, info in enumerate(extracted_clips.values())})
-        if len(extracted_clips) < 3 or _unique_ch < 2:
-            logger.critical(
-                f"[PIPELINE] HARD FAIL: Need 5 clips from 5 unique channels, "
-                f"got {len(extracted_clips)} clips from {_unique_ch} channels."
-            )
+        if not os.path.exists(locked_script):
+            logger.error(f"REUSE MODE FAILED: no locked content at {locked_dir}")
+            print(f"  [FAIL] No locked content found at {locked_dir}")
             return False
-    for rank, info in sorted(extracted_clips.items()):
-        print(f"    #{rank}: {info['channel']} — {info['duration']:.1f}s")
-    timing["4_extract"] = round(time.time() - t0, 2)
 
-    # ── Step 4m: Extract montage clips ───────────────────────────────────
-    if montage_selections and montage_selections.get("clips"):
-        print("\n[STEP 4m] EXTRACTING MONTAGE CLIPS...")
+        logger.info(f"REUSE MODE: skipping content fetch, using locked content from {locked_dir}")
+        print(f"\n  *** CONTENT LOCK ACTIVE — reusing locked content from {locked_dir} ***")
+        print("  Skipping Steps 1-6 (fetch/script/TTS)")
+
+        with open(locked_script) as f:
+            script = json.load(f)
+        with open(locked_audio) as f:
+            audio_data = json.load(f)
+
+        # Load metadata (btc_price, music paths)
+        meta = {}
+        if os.path.exists(locked_meta):
+            with open(locked_meta) as f:
+                meta = json.load(f)
+        btc_price = meta.get("btc_price", "$0")
+        music_bed = meta.get("music_bed", "")
+        intro_music = meta.get("intro_music", "")
+
+        # Build extracted_clips dict from locked clips directory
+        extracted_clips = {}
+        if os.path.exists(locked_clips):
+            import glob as _lc_glob
+            for clip_file in sorted(_lc_glob.glob(os.path.join(locked_clips, "*.mp4"))):
+                fname = os.path.basename(clip_file)
+                try:
+                    rank = int(fname.split("_")[1])
+                except (IndexError, ValueError):
+                    rank = len(extracted_clips) + 1
+                extracted_clips[rank] = {
+                    "path": clip_file,
+                    "video_id": fname,
+                    "channel": "",
+                    "duration": 0,
+                }
+
+        # Restore TTS cache from locked copy
+        if os.path.exists(locked_tts):
+            for tts_file in os.listdir(locked_tts):
+                src = os.path.join(locked_tts, tts_file)
+                dst = os.path.join(tts_cache, tts_file)
+                if not os.path.exists(dst):
+                    shutil.copy2(src, dst)
+
+        dialogue = script.get("dialogue", [])
+        print(f"  Loaded: script ({len(dialogue)} dialogue entries), "
+              f"{len(extracted_clips)} clips, BTC={btc_price}")
+
+    # ── Steps 1-6: Content generation (skipped in reuse mode) ─────────────
+    if not reuse_content:
+        # ── Step 1: BTC PRICE ─────────────────────────────────────────────────
+        print("\n[STEP 1/12] FETCHING BTC PRICE...")
+        t0 = time.time()
+        btc_price = get_btc_price()
+        print(f"  BTC: {btc_price}")
+        timing["1_price"] = round(time.time() - t0, 2)
+        write_render_context(1, "ok", btc_price=btc_price)
+
+        # ── Step 2: SCAN CHANNELS ─────────────────────────────────────────────
+        print("\n[STEP 2/12] SCANNING PARTNER CHANNELS...")
+        t0 = time.time()
+        if skip_scan:
+            # Load cached transcripts from transcript dir
+            import glob
+            transcript_dir = os.path.join(BASE, "transcripts")
+            videos = []
+            for tf in sorted(glob.glob(os.path.join(transcript_dir, "*.json")))[:60]:
+                with open(tf) as f:
+                    data = json.load(f)
+                    videos.append({
+                        "video_id": data.get("video_id", ""),
+                        "title": data.get("title", ""),
+                        "channel": data.get("channel", ""),
+                        "duration": data.get("duration", 0),
+                        "upload_date": "",
+                        "url": f"https://www.youtube.com/watch?v={data.get('video_id', '')}",
+                        "transcript_text": data.get("text", ""),
+                        "timestamped_text": data.get("timestamped_text", ""),
+                    })
+            print(f"  Loaded {len(videos)} cached transcripts")
+        else:
+            whisper_model = "tiny" if test_mode else "base"
+            videos = scan_all_channels(model_size=whisper_model)
+            print(f"  Scanned: {len(videos)} videos with transcripts")
+        timing["2_scan"] = round(time.time() - t0, 2)
+        write_render_context(2, "ok")
+
+        if not videos:
+            print("\n  [FAIL] No videos found — cannot produce episode")
+            _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+            if is_enabled("telegram_alerts"):
+                alert_pipeline_failure(date_str, "scan", "No videos found")
+            return False
+
+        # ── Step 3: SELECT BEST CLIPS ─────────────────────────────────────────
+        if fast_test:
+            print("\n[STEP 3/12] SELECTING CLIPS (fast-test: first 2, no Claude)...")
+            t0 = time.time()
+            # Build minimal selections from cached videos without calling Claude
+            fast_clips = []
+            for i, v in enumerate(videos[:2], 1):
+                text = v.get("transcript_text", "")
+                fast_clips.append({
+                    "rank": i,
+                    "video_id": v["video_id"],
+                    "channel": v.get("channel", ""),
+                    "title": v.get("title", ""),
+                    "quote": text[:100] if text else "No transcript",
+                    "why": "fast-test auto-select",
+                    "start_seconds": 60,
+                    "end_seconds": 90,
+                })
+            selections = {"clips": fast_clips}
+            clips = fast_clips
+            print(f"  Auto-selected: {len(clips)} clips (no API call)")
+            timing["3_select"] = round(time.time() - t0, 2)
+        else:
+            print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude)...")
+            t0 = time.time()
+            selections = select_clips(videos)
+            clips = selections.get("clips", [])
+            print(f"  Selected: {len(clips)} clips")
+            for c in clips:
+                print(f"    #{c['rank']}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
+            timing["3_select"] = round(time.time() - t0, 2)
+
+        if not clips:
+            print("\n  [FAIL] No clips selected — cannot produce episode")
+            _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+            if is_enabled("telegram_alerts"):
+                alert_pipeline_failure(date_str, "select", "No clips selected")
+            return False
+
+        # In test mode, use only top 2 clips
+        if not fast_test and test_mode and len(clips) > 2:
+            selections["clips"] = clips[:2]
+            clips = selections["clips"]
+            print(f"  [test] Truncated to {len(clips)} clips")
+
+        # Save selections
+        sel_path = os.path.join(run_dir, "selections.json")
+        with open(sel_path, "w") as f:
+            json.dump(selections, f, indent=2)
+
+        # ── Step 3b: Select independent montage clips (Qwen, free) ──────────
+        print("\n[STEP 3b] SELECTING MONTAGE CLIPS (local Qwen)...")
         try:
-            extract_montage_all(montage_selections, clip_dir)
-            print(f"  Montage clips extracted to {clip_dir}")
+            from clip_selector import select_montage_clips
+            montage_selections = select_montage_clips(videos)
+            montage_clips_sel = montage_selections.get("clips", [])
+            montage_sel_path = os.path.join(run_dir, "montage_selections.json")
+            with open(montage_sel_path, "w") as f:
+                json.dump(montage_selections, f, indent=2)
+            print(f"  Montage: {len(montage_clips_sel)} independent clips selected")
         except Exception as e:
-            print(f"  Montage extraction failed ({e}) — skipping")
+            print(f"  Montage selection failed ({e}) — montage will reuse Pulse Check clips")
+            montage_selections = None
 
-    if not extracted_clips:
-        print("\n  [FAIL] No clips extracted — cannot produce episode")
-        _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
-        if is_enabled("telegram_alerts"):
-            alert_pipeline_failure(date_str, "extract", "No clips extracted")
-        return False
+        # ── Step 4: EXTRACT CLIPS ─────────────────────────────────────────────
+        print("\n[STEP 4/12] EXTRACTING CLIPS (yt-dlp with original audio)...")
+        t0 = time.time()
+        # FIX 2: Wipe clips/ dir completely to prevent stale files from prior renders
+        clip_dir = os.path.join(run_dir, "clips")
+        if os.path.exists(clip_dir):
+            shutil.rmtree(clip_dir)
+            logger.info(f"  Wiped stale clips dir: {clip_dir}")
+        os.makedirs(clip_dir, exist_ok=True)
+        # Also wipe stale pip_preview files from work dir
+        work_dir = os.path.join(run_dir, "work")
+        if os.path.exists(work_dir):
+            import glob as _pip_glob
+            for stale_pip in _pip_glob.glob(os.path.join(work_dir, "pip_preview_*.mp4")):
+                try:
+                    os.remove(stale_pip)
+                except OSError:
+                    pass
+            logger.info("  Wiped stale pip_preview files from work/")
+        extracted_clips = extract_all(selections, clip_dir)
+        print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
 
-    # ── Step 4b: MOOD CLASSIFICATION + MUSIC SELECTION ──────────────────
-    import glob as _glob
-    import random as _random
+        # ── Quality-aware fallback: retry with ranked alternates ──────────
+        if not test_mode and not fast_test and len(extracted_clips) < 5:
+            used_video_ids = {info["video_id"] for info in extracted_clips.values()}
+            used_channels = {info["channel"] for info in extracted_clips.values()}
+            tried_video_ids = {c["video_id"] for c in clips} | used_video_ids
 
-    def classify_episode_mood(script_text: str) -> str:
-        """Classify episode mood from clip quotes."""
-        moods = {"tense": 0, "confident": 0, "contemplative": 0, "upbeat": 0, "edge": 0}
-        lower = script_text.lower()
-        if any(w in lower for w in ["crash", "sell", "breaking", "emergency", "plunge", "war"]):
-            moods["tense"] += 3
-        if any(w in lower for w in ["bullish", "ath", "record", "buying", "accumul"]):
-            moods["confident"] += 3
-        if any(w in lower for w in ["philosoph", "long-term", "decade", "future", "think about"]):
-            moods["contemplative"] += 2
-        if any(w in lower for w in ["community", "fun", "meme", "laugh", "celebrate"]):
-            moods["upbeat"] += 2
-        if any(w in lower for w in ["controversial", "scam", "fraud", "attack", "fight"]):
-            moods["edge"] += 2
-        best = max(moods, key=moods.get)
-        return best if moods[best] > 0 else "confident"
+            remaining = [v for v in videos
+                         if v["video_id"] not in tried_video_ids
+                         and v.get("channel", "") not in used_channels]
 
-    def select_music_bed(mood: str, music_dir: str) -> str:
-        # Sprint 1.10: Randomize music, avoid repeating last track
-        last_track_file = os.path.join(music_dir, ".last_track.txt")
-        last_track = ""
-        if os.path.exists(last_track_file):
+            if remaining:
+                need = 5 - len(extracted_clips)
+                logger.info(
+                    f"[extractor] Only {len(extracted_clips)}/5 clips passed quality "
+                    f"— selecting fallbacks from {len(remaining)} candidates (need {need})"
+                )
+                fallback_sel = select_clips(remaining)
+                fallback_clips = fallback_sel.get("clips", [])
+
+                max_rank = max(extracted_clips.keys()) if extracted_clips else 0
+                for fc in fallback_clips:
+                    if len(extracted_clips) >= 5:
+                        break
+                    fc_ch = fc.get("channel", "")
+                    fc_vid = fc.get("video_id", "")
+                    if fc_ch in used_channels or fc_vid in tried_video_ids:
+                        continue
+                    max_rank += 1
+                    fc["rank"] = max_rank
+                    logger.info(
+                        f"[extractor] Clip failed quality — trying fallback candidate "
+                        f"#{max_rank} [{fc_ch}] from selections"
+                    )
+                    fb_result = extract_all({"clips": [fc]}, clip_dir)
+                    if fb_result:
+                        for r, info in fb_result.items():
+                            extracted_clips[r] = info
+                            used_video_ids.add(info["video_id"])
+                            used_channels.add(info["channel"])
+                            tried_video_ids.add(fc_vid)
+                            selections["clips"].append(fc)
+                            logger.info(
+                                f"[extractor] Fallback clip #{r} passed quality — "
+                                f"{info['channel']} ({info['duration']:.1f}s)"
+                            )
+                    else:
+                        tried_video_ids.add(fc_vid)
+                        logger.warning(
+                            f"[extractor] Fallback [{fc_ch}] also failed quality — trying next"
+                        )
+
+                # Update clips list and re-save selections
+                clips = selections.get("clips", [])
+                with open(sel_path, "w") as f:
+                    json.dump(selections, f, indent=2)
+                logger.info(f"[extractor] After fallback: {len(extracted_clips)}/5 clips")
+            else:
+                logger.warning("[extractor] No fallback candidates — all channels/videos exhausted")
+
+        if not test_mode:
+            _unique_ch = len({info.get("channel", f"unk_{i}") for i, info in enumerate(extracted_clips.values())})
+            if len(extracted_clips) < 3 or _unique_ch < 2:
+                logger.critical(
+                    f"[PIPELINE] HARD FAIL: Need 5 clips from 5 unique channels, "
+                    f"got {len(extracted_clips)} clips from {_unique_ch} channels."
+                )
+                return False
+        for rank, info in sorted(extracted_clips.items()):
+            print(f"    #{rank}: {info['channel']} — {info['duration']:.1f}s")
+        timing["4_extract"] = round(time.time() - t0, 2)
+
+        # ── Step 4m: Extract montage clips ───────────────────────────────────
+        if montage_selections and montage_selections.get("clips"):
+            print("\n[STEP 4m] EXTRACTING MONTAGE CLIPS...")
             try:
-                last_track = open(last_track_file).read().strip()
+                extract_montage_all(montage_selections, clip_dir)
+                print(f"  Montage clips extracted to {clip_dir}")
+            except Exception as e:
+                print(f"  Montage extraction failed ({e}) — skipping")
+
+        if not extracted_clips:
+            print("\n  [FAIL] No clips extracted — cannot produce episode")
+            _write_timing_report(run_dir, timing, t_pipeline_start, success=False)
+            if is_enabled("telegram_alerts"):
+                alert_pipeline_failure(date_str, "extract", "No clips extracted")
+            return False
+
+        # ── Step 4b: MOOD CLASSIFICATION + MUSIC SELECTION ──────────────────
+        import glob as _glob
+        import random as _random
+
+        def classify_episode_mood(script_text: str) -> str:
+            """Classify episode mood from clip quotes."""
+            moods = {"tense": 0, "confident": 0, "contemplative": 0, "upbeat": 0, "edge": 0}
+            lower = script_text.lower()
+            if any(w in lower for w in ["crash", "sell", "breaking", "emergency", "plunge", "war"]):
+                moods["tense"] += 3
+            if any(w in lower for w in ["bullish", "ath", "record", "buying", "accumul"]):
+                moods["confident"] += 3
+            if any(w in lower for w in ["philosoph", "long-term", "decade", "future", "think about"]):
+                moods["contemplative"] += 2
+            if any(w in lower for w in ["community", "fun", "meme", "laugh", "celebrate"]):
+                moods["upbeat"] += 2
+            if any(w in lower for w in ["controversial", "scam", "fraud", "attack", "fight"]):
+                moods["edge"] += 2
+            best = max(moods, key=moods.get)
+            return best if moods[best] > 0 else "confident"
+
+        def select_music_bed(mood: str, music_dir: str) -> str:
+            # Sprint 1.10: Randomize music, avoid repeating last track
+            last_track_file = os.path.join(music_dir, ".last_track.txt")
+            last_track = ""
+            if os.path.exists(last_track_file):
+                try:
+                    last_track = open(last_track_file).read().strip()
+                except Exception:
+                    pass
+
+            tracks = _glob.glob(os.path.join(music_dir, f"{mood}_*.mp3"))
+            if not tracks:
+                tracks = _glob.glob(os.path.join(music_dir, "confident_*.mp3"))
+            if not tracks:
+                # Get all tracks except reserved ones
+                all_tracks = _glob.glob(os.path.join(music_dir, "*.mp3"))
+                tracks = [t for t in all_tracks
+                          if os.path.basename(t) not in ("pp_outro.mp3", "pp_background.mp3",
+                                                           "pp_intro.mp3", "pp_transition.mp3")]
+            if not tracks:
+                return ""
+
+            # Avoid repeating last track
+            if last_track and len(tracks) > 1:
+                tracks = [t for t in tracks if os.path.basename(t) != last_track] or tracks
+
+            chosen = _random.choice(tracks)
+            try:
+                with open(last_track_file, "w") as f:
+                    f.write(os.path.basename(chosen))
             except Exception:
                 pass
+            return chosen
 
-        tracks = _glob.glob(os.path.join(music_dir, f"{mood}_*.mp3"))
-        if not tracks:
-            tracks = _glob.glob(os.path.join(music_dir, "confident_*.mp3"))
-        if not tracks:
-            # Get all tracks except reserved ones
-            all_tracks = _glob.glob(os.path.join(music_dir, "*.mp3"))
-            tracks = [t for t in all_tracks
-                      if os.path.basename(t) not in ("pp_outro.mp3", "pp_background.mp3",
-                                                       "pp_intro.mp3", "pp_transition.mp3")]
-        if not tracks:
-            return ""
+        def select_intro_music(music_dir: str) -> str:
+            tracks = _glob.glob(os.path.join(music_dir, "intro_*.mp3"))
+            return _random.choice(tracks) if tracks else ""
 
-        # Avoid repeating last track
-        if last_track and len(tracks) > 1:
-            tracks = [t for t in tracks if os.path.basename(t) != last_track] or tracks
+        # Classify mood from clip quotes
+        clip_quotes = " ".join(c.get("quote", "") + " " + c.get("why", "") for c in clips)
+        episode_mood = classify_episode_mood(clip_quotes)
+        music_dir = os.path.join(BASE, "assets", "music")
+        music_bed = select_music_bed(episode_mood, music_dir)
+        intro_music = select_intro_music(music_dir)
+        print(f"  Mood: {episode_mood} | Music: {os.path.basename(music_bed) if music_bed else 'default'}")
 
-        chosen = _random.choice(tracks)
+        # ── Step 4c: LIVE SIGNALS ─────────────────────────────────────────────
+        live_context = ""
+        live_signals_path = os.path.join(BASE, "data", "intelligence", "live_signals.json")
         try:
-            with open(last_track_file, "w") as f:
-                f.write(os.path.basename(chosen))
-        except Exception:
-            pass
-        return chosen
-
-    def select_intro_music(music_dir: str) -> str:
-        tracks = _glob.glob(os.path.join(music_dir, "intro_*.mp3"))
-        return _random.choice(tracks) if tracks else ""
-
-    # Classify mood from clip quotes
-    clip_quotes = " ".join(c.get("quote", "") + " " + c.get("why", "") for c in clips)
-    episode_mood = classify_episode_mood(clip_quotes)
-    music_dir = os.path.join(BASE, "assets", "music")
-    music_bed = select_music_bed(episode_mood, music_dir)
-    intro_music = select_intro_music(music_dir)
-    print(f"  Mood: {episode_mood} | Music: {os.path.basename(music_bed) if music_bed else 'default'}")
-
-    # ── Step 4c: LIVE SIGNALS ─────────────────────────────────────────────
-    live_context = ""
-    live_signals_path = os.path.join(BASE, "data", "intelligence", "live_signals.json")
-    try:
-        if os.path.exists(live_signals_path):
-            with open(live_signals_path) as f:
-                live_data = json.load(f)
-            from datetime import timezone as _tz
-            now = datetime.now(_tz.utc) if hasattr(datetime, 'now') else datetime.utcnow()
-            active_streams = []
-            for s in live_data.get("live_streams", []):
-                # Only include streams from last 6 hours
-                started = s.get("started_at", "")
-                try:
-                    started_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-                    age_hours = (now - started_dt).total_seconds() / 3600
-                    if age_hours > 6:
+            if os.path.exists(live_signals_path):
+                with open(live_signals_path) as f:
+                    live_data = json.load(f)
+                from datetime import timezone as _tz
+                now = datetime.now(_tz.utc) if hasattr(datetime, 'now') else datetime.utcnow()
+                active_streams = []
+                for s in live_data.get("live_streams", []):
+                    # Only include streams from last 6 hours
+                    started = s.get("started_at", "")
+                    try:
+                        started_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+                        age_hours = (now - started_dt).total_seconds() / 3600
+                        if age_hours > 6:
+                            continue
+                    except (ValueError, AttributeError):
                         continue
-                except (ValueError, AttributeError):
-                    continue
-                source = s.get("source", "youtube_live")
-                channel = s.get("channel", "unknown")
-                title = s.get("title", "")
-                topics = ", ".join(s.get("topics", []))
-                sentiment = s.get("current_sentiment", 50)
-                sentiment_label = "bullish" if sentiment > 60 else "bearish" if sentiment < 40 else "neutral"
-                active_streams.append(
-                    f"- {channel} ({source}): \"{title}\" — topics: {topics}, sentiment: {sentiment_label} ({sentiment})"
-                )
-            if active_streams:
-                live_context = "\n".join(active_streams)
-                print(f"  Live signals: {len(active_streams)} active streams in last 6 hours")
-                for line in active_streams:
-                    print(f"    {line}")
-            else:
-                print("  Live signals: no active streams in last 6 hours")
-    except Exception as e:
-        logger.warning(f"Live signals read failed: {e}")
+                    source = s.get("source", "youtube_live")
+                    channel = s.get("channel", "unknown")
+                    title = s.get("title", "")
+                    topics = ", ".join(s.get("topics", []))
+                    sentiment = s.get("current_sentiment", 50)
+                    sentiment_label = "bullish" if sentiment > 60 else "bearish" if sentiment < 40 else "neutral"
+                    active_streams.append(
+                        f"- {channel} ({source}): \"{title}\" — topics: {topics}, sentiment: {sentiment_label} ({sentiment})"
+                    )
+                if active_streams:
+                    live_context = "\n".join(active_streams)
+                    print(f"  Live signals: {len(active_streams)} active streams in last 6 hours")
+                    for line in active_streams:
+                        print(f"    {line}")
+                else:
+                    print("  Live signals: no active streams in last 6 hours")
+        except Exception as e:
+            logger.warning(f"Live signals read failed: {e}")
 
-    # ── Step 5a: Fetch social posts + Space Tap BEFORE script generation ──
-    # Social posts: fetch once, sort by likes desc, pass to script_writer
-    sorted_social = []
-    try:
-        from utils.social_fetcher import get_todays_social_posts
-        sorted_social = get_todays_social_posts(max_posts=5)
-        if sorted_social:
-            sorted_social.sort(key=lambda p: p.get("likes", 0), reverse=True)
-            for si, sp in enumerate(sorted_social):
-                logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} — {sp.get('text', '')[:40]}")
-    except Exception as e:
-        logger.warning(f"Social posts fetch failed: {e}")
+        # ── Step 5a: Fetch social posts + Space Tap BEFORE script generation ──
+        # Social posts: fetch once, sort by likes desc, pass to script_writer
+        sorted_social = []
+        try:
+            from utils.social_fetcher import get_todays_social_posts
+            sorted_social = get_todays_social_posts(max_posts=5)
+            if sorted_social:
+                sorted_social.sort(key=lambda p: p.get("likes", 0), reverse=True)
+                for si, sp in enumerate(sorted_social):
+                    logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} — {sp.get('text', '')[:40]}")
+        except Exception as e:
+            logger.warning(f"Social posts fetch failed: {e}")
 
-    # Space Tap: fetch X Spaces clips BEFORE script generation so LLM can write dialogue
-    print("[STEP 5a] SPACE TAP -- LIVE X SPACES INTERCEPT...")
-    try:
-        import importlib.util
-        _spaces_scraper_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "x_spaces_scraper", "scraper.py"
-        )
-        if os.path.exists(_spaces_scraper_path):
-            _spec = importlib.util.spec_from_file_location("x_spaces_scraper", _spaces_scraper_path)
-            _mod = importlib.util.module_from_spec(_spec)
-            _spec.loader.exec_module(_mod)
-            # Hard 120s timeout — Whisper can hang forever without this
-            import threading as _st_thread
-            _st_result = [None]
-            def _fetch_spaces(): _st_result[0] = _mod.get_best_space_clips(max_clips=3)
-            _st_t = _st_thread.Thread(target=_fetch_spaces, daemon=True)
-            _st_t.start(); _st_t.join(timeout=120)
-            if _st_t.is_alive():
-                logger.warning("[SpaceTap] get_best_space_clips timed out (120s) — skipping")
-                _st = None
+        # Space Tap: fetch X Spaces clips BEFORE script generation so LLM can write dialogue
+        print("[STEP 5a] SPACE TAP -- LIVE X SPACES INTERCEPT...")
+        try:
+            import importlib.util
+            _spaces_scraper_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "x_spaces_scraper", "scraper.py"
+            )
+            if os.path.exists(_spaces_scraper_path):
+                _spec = importlib.util.spec_from_file_location("x_spaces_scraper", _spaces_scraper_path)
+                _mod = importlib.util.module_from_spec(_spec)
+                _spec.loader.exec_module(_mod)
+                # Hard 120s timeout — Whisper can hang forever without this
+                import threading as _st_thread
+                _st_result = [None]
+                def _fetch_spaces(): _st_result[0] = _mod.get_best_space_clips(max_clips=3)
+                _st_t = _st_thread.Thread(target=_fetch_spaces, daemon=True)
+                _st_t.start(); _st_t.join(timeout=120)
+                if _st_t.is_alive():
+                    logger.warning("[SpaceTap] get_best_space_clips timed out (120s) — skipping")
+                    _st = None
+                else:
+                    _st = _st_result[0]
+                if _st and _st.get("clips"):
+                    selections["space_tap_clips"] = _st["clips"]
+                    print(f"  Space Tap: {len(_st['clips'])} clips from {_st.get('spaces_count', 0)} spaces")
+                else:
+                    print("  Space Tap: no live spaces — segment skipped")
             else:
-                _st = _st_result[0]
-            if _st and _st.get("clips"):
-                selections["space_tap_clips"] = _st["clips"]
-                print(f"  Space Tap: {len(_st['clips'])} clips from {_st.get('spaces_count', 0)} spaces")
-            else:
-                print("  Space Tap: no live spaces — segment skipped")
+                print("  Space Tap: scraper not installed — segment skipped")
+        except Exception as _ste:
+            logger.error(f"Space Tap fetch error: {type(_ste).__name__}: {_ste}")
+            print(f"  Space Tap: skipped ({_ste})")
+
+        # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
+        if fast_test:
+            print("\n[STEP 5/12] GENERATING SCRIPT (fast-test: hardcoded, no Claude)...")
+            t0 = time.time()
+            script = _build_fast_test_script(extracted_clips, btc_price)
+            timing["5_script"] = round(time.time() - t0, 2)
         else:
-            print("  Space Tap: scraper not installed — segment skipped")
-    except Exception as _ste:
-        logger.error(f"Space Tap fetch error: {type(_ste).__name__}: {_ste}")
-        print(f"  Space Tap: skipped ({_ste})")
+            print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
+            t0 = time.time()
+            script = generate_from_clips(selections, btc_price=btc_price,
+                                         live_context=live_context,
+                                         social_posts_sorted=sorted_social)
+            timing["5_script"] = round(time.time() - t0, 2)
 
-    # ── Step 5: GENERATE SCRIPT ───────────────────────────────────────────
-    if fast_test:
-        print("\n[STEP 5/12] GENERATING SCRIPT (fast-test: hardcoded, no Claude)...")
+        # Attach social posts to script for assembler (single source of truth)
+        if sorted_social:
+            script["social_posts"] = sorted_social
+
+        # Re-read dialogue AFTER all mutations (Space Tap entries may be in script)
+        dialogue = script.get("dialogue", [])
+        speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+        clip_markers = [d for d in dialogue if d.get("host") in ("CLIP", "SPACE_CLIP")]
+        social_seg_count = sum(1 for d in dialogue if d.get("type") == "social_segment")
+        space_tap_count = sum(1 for d in dialogue if d.get("host") == "SPACE_CLIP"
+                             or (d.get("type") or "").startswith("space_tap"))
+        print(f"  Title: {script.get('episode_title', 'Untitled')}")
+        print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
+        print(f"  SOCIAL segments: {social_seg_count} (input tweets: {len(sorted_social)})")
+        print(f"  SPACE TAP entries: {space_tap_count} (input clips: {len(selections.get('space_tap_clips', []))})")
+        if sorted_social and social_seg_count == 0:
+            logger.error("SOCIAL SEGMENT ABSENT despite having tweet data — check script_writer enforcement")
+        if selections.get("space_tap_clips") and space_tap_count == 0:
+            logger.error("SPACE TAP ABSENT despite having clip data — check script_writer enforcement")
+
+        # Save script
+        script_path = os.path.join(run_dir, "script.json")
+        with open(script_path, "w") as f:
+            json.dump(script, f, indent=2)
+
+        write_render_context(5, "ok",
+                             episode_title=script.get("episode_title", ""),
+                             social_posts_count=len(sorted_social),
+                             space_tap_available=bool(selections.get("space_tap_clips")))
+
+        # ── Step 6: TTS ───────────────────────────────────────────────────────
+        print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
         t0 = time.time()
-        script = _build_fast_test_script(extracted_clips, btc_price)
-        timing["5_script"] = round(time.time() - t0, 2)
-    else:
-        print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
-        t0 = time.time()
-        script = generate_from_clips(selections, btc_price=btc_price,
-                                     live_context=live_context,
-                                     social_posts_sorted=sorted_social)
-        timing["5_script"] = round(time.time() - t0, 2)
+        audio_dir = os.path.join(run_dir, "audio")
+        audio_data = generate_dialogue_audio(dialogue, audio_dir)
+        successful = sum(1 for l in audio_data.get("lines", [])
+                         if l.get("path") and os.path.exists(l.get("path", "")))
+        print(f"  Audio: {successful}/{len(speech_lines)} lines")
+        print(f"  Duration: {audio_data.get('total_duration', 0):.1f}s")
+        timing["6_tts"] = round(time.time() - t0, 2)
+        write_render_context(6, "ok", tts_provider="elevenlabs")
 
-    # Attach social posts to script for assembler (single source of truth)
-    if sorted_social:
-        script["social_posts"] = sorted_social
-
-    # Re-read dialogue AFTER all mutations (Space Tap entries may be in script)
-    dialogue = script.get("dialogue", [])
-    speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
-    clip_markers = [d for d in dialogue if d.get("host") in ("CLIP", "SPACE_CLIP")]
-    social_seg_count = sum(1 for d in dialogue if d.get("type") == "social_segment")
-    space_tap_count = sum(1 for d in dialogue if d.get("host") == "SPACE_CLIP"
-                         or (d.get("type") or "").startswith("space_tap"))
-    print(f"  Title: {script.get('episode_title', 'Untitled')}")
-    print(f"  Dialogue: {len(speech_lines)} speech + {len(clip_markers)} clips")
-    print(f"  SOCIAL segments: {social_seg_count} (input tweets: {len(sorted_social)})")
-    print(f"  SPACE TAP entries: {space_tap_count} (input clips: {len(selections.get('space_tap_clips', []))})")
-    if sorted_social and social_seg_count == 0:
-        logger.error("SOCIAL SEGMENT ABSENT despite having tweet data — check script_writer enforcement")
-    if selections.get("space_tap_clips") and space_tap_count == 0:
-        logger.error("SPACE TAP ABSENT despite having clip data — check script_writer enforcement")
-
-    # Save script
-    script_path = os.path.join(run_dir, "script.json")
-    with open(script_path, "w") as f:
-        json.dump(script, f, indent=2)
-
-    write_render_context(5, "ok",
-                         episode_title=script.get("episode_title", ""),
-                         social_posts_count=len(sorted_social),
-                         space_tap_available=bool(selections.get("space_tap_clips")))
-
-    # ── Step 6: TTS ───────────────────────────────────────────────────────
-    print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
-    t0 = time.time()
-    audio_dir = os.path.join(run_dir, "audio")
-    audio_data = generate_dialogue_audio(dialogue, audio_dir)
-    successful = sum(1 for l in audio_data.get("lines", [])
-                     if l.get("path") and os.path.exists(l.get("path", "")))
-    print(f"  Audio: {successful}/{len(speech_lines)} lines")
-    print(f"  Duration: {audio_data.get('total_duration', 0):.1f}s")
-    timing["6_tts"] = round(time.time() - t0, 2)
-    write_render_context(6, "ok", tts_provider="elevenlabs")
-
-    # ── Step 6b: BUILD MANIFEST ─────────────────────────────────────────
-    print("\n[STEP 6b/12] BUILDING EPISODE MANIFEST...")
-    t0 = time.time()
-    try:
-        from manifest_builder import build_manifest
-        episode_manifest = build_manifest(
-            script, audio_data, extracted_clips, run_dir,
-            music_bed=music_bed, btc_price=btc_price,
-        )
-        print(f"  Manifest: {episode_manifest.get('total_segments', 0)} segments, "
-              f"~{episode_manifest.get('total_duration_estimate', 0):.0f}s estimated")
-    except Exception as e:
-        logger.warning(f"Manifest build failed (non-blocking): {e}")
-        episode_manifest = {}
-    timing["6b_manifest"] = round(time.time() - t0, 2)
-
-    # ── Step 6c: PREFLIGHT CHECK ─────────────────────────────────────────
-    manifest_json_path = os.path.join(run_dir, "episode_manifest.json")
-    if os.path.exists(manifest_json_path):
-        print("\n[STEP 6c/12] PREFLIGHT QC CHECK...")
+        # ── Step 6b: BUILD MANIFEST ─────────────────────────────────────────
+        print("\n[STEP 6b/12] BUILDING EPISODE MANIFEST...")
         t0 = time.time()
         try:
-            from qc_pipeline import preflight_check
-            pf_passed, pf_errors, pf_warnings = preflight_check(manifest_json_path)
-            print(f"  Preflight: {'PASS' if pf_passed else 'FAIL'} — "
-                  f"{len(pf_errors)} errors, {len(pf_warnings)} warnings")
+            from manifest_builder import build_manifest
+            episode_manifest = build_manifest(
+                script, audio_data, extracted_clips, run_dir,
+                music_bed=music_bed, btc_price=btc_price,
+            )
+            print(f"  Manifest: {episode_manifest.get('total_segments', 0)} segments, "
+                  f"~{episode_manifest.get('total_duration_estimate', 0):.0f}s estimated")
         except Exception as e:
-            logger.warning(f"Preflight check failed (non-blocking): {e}")
-        timing["6c_preflight"] = round(time.time() - t0, 2)
+            logger.warning(f"Manifest build failed (non-blocking): {e}")
+            episode_manifest = {}
+        timing["6b_manifest"] = round(time.time() - t0, 2)
+
+        # ── Step 6c: PREFLIGHT CHECK ─────────────────────────────────────────
+        manifest_json_path = os.path.join(run_dir, "episode_manifest.json")
+        if os.path.exists(manifest_json_path):
+            print("\n[STEP 6c/12] PREFLIGHT QC CHECK...")
+            t0 = time.time()
+            try:
+                from qc_pipeline import preflight_check
+                pf_passed, pf_errors, pf_warnings = preflight_check(manifest_json_path)
+                print(f"  Preflight: {'PASS' if pf_passed else 'FAIL'} — "
+                      f"{len(pf_errors)} errors, {len(pf_warnings)} warnings")
+            except Exception as e:
+                logger.warning(f"Preflight check failed (non-blocking): {e}")
+            timing["6c_preflight"] = round(time.time() - t0, 2)
+
+
+        # ── CONTENT LOCK: save content for future iterations ──────────────
+        locked_dir = os.path.join(run_dir, "locked_content")
+        os.makedirs(locked_dir, exist_ok=True)
+        script_lock_src = os.path.join(run_dir, "script.json")
+        if os.path.exists(script_lock_src):
+            shutil.copy2(script_lock_src, os.path.join(locked_dir, "script.json"))
+        clip_dir = os.path.join(run_dir, "clips")
+        if os.path.exists(clip_dir):
+            shutil.copytree(clip_dir, os.path.join(locked_dir, "clips"), dirs_exist_ok=True)
+        if os.path.exists(tts_cache) and os.listdir(tts_cache):
+            shutil.copytree(tts_cache, os.path.join(locked_dir, "tts"), dirs_exist_ok=True)
+        # Save audio_data for reuse
+        with open(os.path.join(locked_dir, "audio_data.json"), "w") as f:
+            json.dump(audio_data, f, indent=2)
+        # Save metadata
+        with open(os.path.join(locked_dir, "meta.json"), "w") as f:
+            json.dump({"btc_price": btc_price, "music_bed": music_bed,
+                        "intro_music": intro_music}, f, indent=2)
+        logger.info(f"CONTENT LOCKED to {locked_dir} — subsequent iterations will reuse this")
 
     # ── Step 7: ASSEMBLE ──────────────────────────────────────────────────
     print("\n[STEP 7/12] ASSEMBLING VIDEO...")
@@ -1495,6 +1585,8 @@ def main():
                         help="Skip channel scanning, use cached transcripts")
     parser.add_argument("--fast-test", action="store_true",
                         help="Fast test: no API calls (Claude/scan), hardcoded script, <3 min render")
+    parser.add_argument("--reuse-content", action="store_true",
+                        help="Skip Steps 1-6 (fetch/script/TTS), reuse locked content from previous run")
     args = parser.parse_args()
 
     # P0 Fix 1: flock process lock — prevent duplicate producers
@@ -1506,7 +1598,8 @@ def main():
         sys.exit(1)
 
     success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
-                           fast_test=args.fast_test)
+                           fast_test=args.fast_test,
+                           reuse_content=args.reuse_content)
 
     fcntl.flock(lock_file, fcntl.LOCK_UN)
     # ── Post-render: fire tweet machine from morning brief ──────────────

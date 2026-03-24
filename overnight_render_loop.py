@@ -345,11 +345,22 @@ def gemini_call(prompt, max_tokens=8000):
 
 def run_render(iteration):
     log(f"RENDER START iteration {iteration}")
-    run("rm -rf tts_cache/ && mkdir -p tts_cache/")
-    log("TTS cache wiped")
+    # CONTENT LOCK LAW: only wipe TTS cache on iteration 1
+    if iteration == 1:
+        run("rm -rf tts_cache/ && mkdir -p tts_cache/")
+        log("TTS cache wiped")
+    else:
+        run("mkdir -p tts_cache/")
+        log("TTS cache preserved (content lock — iteration > 1)")
     env = load_env()
     render_start = time.time()
-    r = run("python3 daily_producer.py --skip-scan", timeout=14400, env=env)
+    # CONTENT LOCK LAW: reuse locked content on iterations > 1
+    if iteration > 1:
+        cmd = "python3 daily_producer.py --skip-scan --reuse-content"
+        log(f"CONTENT LOCK: passing --reuse-content (iteration {iteration})")
+    else:
+        cmd = "python3 daily_producer.py --skip-scan"
+    r = run(cmd, timeout=14400, env=env)
     log(f"Render exit: {r.returncode}")
     import glob
     today = datetime.now().strftime('%Y-%m-%d')
@@ -667,6 +678,12 @@ def run_single_render():
                      'verdict': grade_result.get('verdict'), 'dimensions': grade_result.get('dimensions',{})}
             with open(RECIPE_FILE, 'w') as f: json.dump(recipe, f, indent=2)
             log(f"WINNER: {RECIPE_FILE}")
+            # CONTENT LOCK LAW: clear locked content on Grade A — next cycle fetches fresh
+            today = datetime.now().strftime('%Y-%m-%d')
+            locked_dir = os.path.join(PIPELINE, 'output', today, 'locked_content')
+            if os.path.exists(locked_dir):
+                shutil.rmtree(locked_dir, ignore_errors=True)
+                log(f"Content lock cleared — next cycle will fetch fresh content")
             final_verdict = "PASS"
             break
         elif grade in ('B', 'C') and broadcast:

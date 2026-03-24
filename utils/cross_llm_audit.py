@@ -66,6 +66,7 @@ FEATURE_MAP = {
     "ml-session-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "render-improvement-loop": ("RENDER_IMPROVEMENT_LOOP_GOSPEL.md", "main"),
     "oracle-avatar-fix": ("PIPELINE_LAWS.md", "main"),
+    "content-lock": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -165,6 +166,10 @@ EXPLICIT_FILES = {
     "oracle-avatar-fix": [
         "oracle/avatar_server.py",
         "core/blueprints/oracle.py",
+    ],
+    "content-lock": [
+        "video_pipeline_v3/daily_producer.py",
+        "overnight_render_loop.py",
     ],
 }
 
