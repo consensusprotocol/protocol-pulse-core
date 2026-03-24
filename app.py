@@ -43,7 +43,7 @@ db = SQLAlchemy(model_class=Base)
 # 2. Create the app instance — use absolute paths so templates/static are always found
 #    whether run as "app:app" from core/ or "core.app:app" from project root
 _core_dir = Path(__file__).resolve().parent
-app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folder=str(_core_dir / "static"))
+app = Flask(__name__, template_folder=str(Path(__file__).resolve().parent / "core" / "templates"), static_folder=str(Path(__file__).resolve().parent / "core" / "static"))
 
 # Security: SECRET must be set in environment — no silent insecure fallback
 _session_secret = os.environ.get("SESSION_SECRET", "")

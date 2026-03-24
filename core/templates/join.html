@@ -412,7 +412,7 @@ body { background: var(--join-bg) !important; }
         <h2>Create Account</h2>
         <p class="modal-sub">3 fields. No KYC. Straight to the terminal.</p>
         <form id="signupForm">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is callable else '' }}">
             <label for="signupEmail">Email</label>
             <input type="email" id="signupEmail" name="email" required autocomplete="email" placeholder="satoshi@protonmail.com">
 
