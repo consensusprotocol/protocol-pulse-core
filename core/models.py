@@ -1330,3 +1330,34 @@ class SchiffStatement(db.Model):
         db.Index('idx_schiff_stmt_date', 'statement_date'),
     )
 
+
+class OracleSession(db.Model):
+    """Log of Oracle Q&A sessions."""
+    __tablename__ = 'oracle_sessions'
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String(64), index=True)
+    question = db.Column(db.Text)
+    transcript = db.Column(db.Text)
+    video_url = db.Column(db.Text)
+    duration_seconds = db.Column(db.Float)
+    voice_id = db.Column(db.String(64))
+    generation_ms = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    ip_hash = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MarketBriefing(db.Model):
+    """Stored market briefing (HeyGen / AI-generated)."""
+    __tablename__ = 'market_briefings'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(256))
+    summary = db.Column(db.Text)
+    video_url = db.Column(db.Text)
+    audio_url = db.Column(db.Text)
+    briefing_type = db.Column(db.String(32), default='daily')  # daily, breaking, weekly
+    generated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    btc_price_at = db.Column(db.Float)
+    signal_score = db.Column(db.Float)
+    published = db.Column(db.Boolean, default=True)
+

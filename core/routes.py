@@ -1837,8 +1837,8 @@ def media_hub():
                 'cover_url': b.get('cover_url'),
             })
         
-        return render_template('media_hub.html', 
-                               shows=shows, 
+        return render_template('media_hub.html',
+                               shows=shows,
                                products=products,
                                our_books=our_books,
                                recommended_books=recommended_books,
@@ -1849,10 +1849,11 @@ def media_hub():
                                new_this_week=new_this_week,
                                latest_feed=latest_feed,
                                podcast_sections_list=podcast_sections_list,
+                               series_data={},
                                get_thumbnail=YouTubeService.get_thumbnail)
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list or [], get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub.html', shows=[], products=[], our_books=locals().get('our_books', []), recommended_books=locals().get('recommended_books', []), youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=locals().get('podcast_sections_list') or [], series_data={}, get_thumbnail=YouTubeService.get_thumbnail)
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
@@ -8962,6 +8963,28 @@ def charts():
     )
 
 
+# === Session 3 Playbook Routes (migrated from root routes.py) ===
+
+@app.route('/sponsors')
+@app.route('/advertise')
+@app.route('/media-kit')
+def sponsors_page():
+    """Media kit and sponsorship landing page."""
+    return render_template('sponsors.html')
+
+@app.route('/disruption-tracker')
+@app.route('/ai-tracker')
+@app.route('/kill-list')
+def disruption_tracker():
+    """AI Disruption Tracker — the Claude Kill List."""
+    return render_template('disruption_tracker.html')
+
+@app.route('/events')
+def events_page():
+    """Events hub — BitcoinDay Naples + BTC in DC."""
+    return render_template('events.html')
+
+
 def _calc_mined_supply(block_height):
     """Calculate total BTC mined from block height using halving schedule."""
     total = 0.0
@@ -10313,7 +10336,7 @@ def _term_cached(key: str, ttl: int, fn):
     return result
 
 # ── Helper: BTC price from CoinGecko ─────────────────────────────────────────
-def _fetch_btc_price() -> dict:
+def _fetch_btc_price_detail() -> dict:
     try:
         r = requests.get(
             "https://api.coingecko.com/api/v3/coins/bitcoin",
@@ -10560,7 +10583,7 @@ def api_v2_terminal_price():
     ip = request.remote_addr or "anon"
     if not _terminal_free_rate_ok(ip):
         return jsonify({"error": "Rate limit exceeded (60/hr)"}), 429
-    data = _term_cached("btc_price", 30, _fetch_btc_price)
+    data = _term_cached("btc_price", 30, _fetch_btc_price_detail)
     return jsonify(data)
 
 
@@ -10756,7 +10779,7 @@ def pulse_terminal():
     activated = request.args.get("activated") == "1"
 
     # Server-side pre-fetch for initial render (both free + Commander panels)
-    price_data    = _term_cached("btc_price", 30, _fetch_btc_price)
+    price_data    = _term_cached("btc_price", 30, _fetch_btc_price_detail)
     mempool_data  = _term_cached("mempool", 30, _fetch_mempool)
     fg_data       = _term_cached("fear_greed", 900, _fetch_fear_greed)
     onchain_data  = _term_cached("onchain", 300, _fetch_onchain)
