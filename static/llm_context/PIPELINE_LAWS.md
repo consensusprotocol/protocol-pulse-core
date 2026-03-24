@@ -71,3 +71,84 @@
 - Locked: Single loudnorm in concatenate_parts()
 - Open: Subtitle band inconsistency (~50% of frames missing it), LUFS low (-17.7) due to cached silence audio
 
+
+---
+
+## LAWS ADDED 2026-03-24 — SESSION 5 INTENSIVE (ENFORCE PERMANENTLY)
+
+### LAW: GPU ISOLATION (INVIOLABLE)
+- Pipeline (daily_producer.py) runs on cuda:0 ONLY via CUDA_VISIBLE_DEVICES=0 set in load_env()
+- Avatar server (oracle/avatar_server.py) runs on cuda:1 ONLY
+- Stage avatar runs on cuda:2 or cuda:3 — NEVER cuda:1
+- SadTalker is BANNED and must NEVER run — kill on sight (it consumes 3GB+ on cuda:1)
+- Duplicate avatar_server processes must NEVER coexist — one process per avatar system
+- If any GPU assignment drifts: pipeline will 503 avatar, avatar will 503 stage — verify with nvidia-smi before every render cycle
+
+### LAW: FREEZE FRAMES AT SOURCE (NOT AT OUTPUT)
+- Freeze frames MUST be fixed in clip_extractor.py at generation time, NOT in assembler.py at output
+- All static image-to-video conversions MUST use Ken Burns zoompan motion:
+  `zoompan=z=min(zoom+0.002,1.05):d=125:s=1920x1080,setsar=1`
+- noise=c0s=3 freeze frame patches in assembler.py are PERMANENTLY BANNED
+- Gemini penalizes output-level freeze patching as evidence of poor source quality (score 1/10)
+- The _ken_burns_motion() helper in assembler.py is the ONLY approved static-to-video method
+- After any clip generation change: run ffmpeg freezedetect on output before committing
+
+### LAW: CROSS-LLM AUDIT BEFORE ANY CODE CHANGE
+- Every CC session that touches pipeline code MUST run the full 2-cycle cross-LLM audit via utils/cross_llm_audit.py BEFORE implementing any fix
+- Audit order: register feature in FEATURE_MAP → cycle 1 (Gemini+GPT-4o+Grok parallel) → save c1.json → cycle 2 cross-examination → save c2.json → synthesize consensus → implement consensus fixes ONLY
+- No fix gets implemented without 2-cycle audit consensus. No exceptions. No shortcuts.
+- Vague agreement is NOT consensus. Consensus = same file, same function, same root cause from Qwen + 1 external LLM minimum
+
+### LAW: QWEN FIRST (COST LAW)
+- Qwen3 runs locally on cuda:2/3 via Ollama at localhost:11434 — $0 per call
+- Qwen reads all files and identifies candidates BEFORE any external LLM call
+- External LLMs (Gemini, GPT-4o, Grok) receive ONLY Qwen's pre-filtered findings (≤120 lines max)
+- Full file sends to external LLMs are BANNED — surgical payloads only
+- If Qwen confidence ≥ 0.85 and no external LLM disagrees: implement without external call
+- Token budget: $2 soft limit per improvement cycle. $5 hard limit. Above hard limit: pause + Telegram alert
+
+### LAW: GEMINI GRADING — TWO-PASS MANDATORY
+- PASS 1: Technical dimensions (ffprobe hard data only) — deterministic, no LLM hallucination possible
+- PASS 2: Content dimensions — upload actual MP4 to Gemini via Files API for genuine multimodal evaluation
+- "Assumed acceptable based on lack of specific error data" notes in grade output = GRADING FAILURE
+- Content scores (script_quality, cold_open_hook, narrative_arc, host_authenticity, visual_polish, pacing) MUST come from Gemini watching the actual video, not from render log inference
+- Any grade where 3+ content dimensions show "assumed" = discard and re-grade with video upload
+
+### LAW: CRITICAL FAILURE GATING
+- Any single dimension scoring 0/10 on: host_authenticity, black_frames_check, true_peak_check, freeze_check = broadcast_ready MUST be False regardless of overall weighted score
+- A high overall score with one 0/10 critical dimension is NOT a Grade A
+- Grade A requires: overall_score ≥ 88 AND zero 0/10 scores on critical dimensions AND broadcast_ready = True
+
+### LAW: 10-CONSECUTIVE-A CONVERGENCE
+- Pipeline is NOT locked until 10 CONSECUTIVE Grade A renders (score ≥ 88, broadcast_ready=True)
+- Consecutive counter tracked in: video_pipeline_v3/logs/consecutive_a_grades.txt
+- Counter resets to 0 on ANY non-A grade
+- On each Grade A: Telegram "Grade A #{n}/10 — {n} more to lock"
+- On 10/10: Telegram "PIPELINE LOCKED — 10 consecutive Grade A renders" then exit improvement loop
+
+### LAW: RENDER IMPROVEMENT LOOP INTEGRATION
+- render_improvement_loop.py runs automatically after every failed grade
+- It reads the grade JSON, identifies failing dimensions, maps to DIMENSION_MAP, runs Qwen→LLM audit, implements consensus fix, verifies, git pulls into render_main, signals next iteration
+- overnight_render_loop.py polls for /tmp/fix_complete_iterN flag before firing next iteration
+- The loop NEVER touches render_main tmux session — read-only access to logs only
+- The loop runs as a detached subprocess — does NOT block the overnight render timeout
+
+### LAW: SESSION CONTEXT DISCIPLINE
+- Every CC session starts fresh — never reuse a session that has burned >80% context
+- Context warning at 11%: kill immediately and relaunch fresh
+- Prompt delivery always via tmux load-buffer, never send-keys for complex prompts
+- One CC session at a time on the same repo — no parallel sessions
+
+### LAW: AVATAR SERVER UPTIME
+- avatar_server must be running at all times via systemd or watchdog
+- Health check: curl http://localhost:8200/health must return {"status":"ok"} before render starts
+- If health check fails at render preflight: abort render, alert Telegram, attempt restart
+- The watchdog_llm tmux session must verify avatar health every 5 minutes
+
+### LAW: ANTI-HALLUCINATION IN AUDIT SESSIONS
+- Audit prompts MUST include: "Only report issues you can verify from the code/data provided. Do not speculate."
+- Issues ranked by impact: CRITICAL (0/10) → HIGH (1-4) → MEDIUM (5-7) → LOW (8-9)
+- CRITICAL issues fixed first. HIGH only after CRITICAL resolved. MEDIUM only after HIGH eliminated.
+- LOW issues (score 8-9) are NEVER touched while any CRITICAL or HIGH issue exists
+- Focus is always on the biggest score impact, not the most interesting technical problem
+
