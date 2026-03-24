@@ -230,3 +230,23 @@ The single most important law for grade stability:
   impossible to isolate whether an assembly fix worked. Content must be locked so each iteration
   is a controlled experiment — same content, only assembly changes.
 - NEVER wipe tts_cache on iterations > 1 (currently: rm -rf tts_cache every iteration — FIX THIS)
+
+### LAW: LIVE ENDPOINT TESTING MANDATORY BEFORE ANY COMMIT
+For any fix touching oracle/avatar_server.py or any user-facing avatar endpoint:
+ALL 5 tests below MUST pass before git commit. Results MUST appear in commit message.
+
+ORACLE MANDATORY TESTS:
+  1. curl -s http://localhost:8200/health | python3 -m json.tool | grep status
+     EXPECTED: "status": "ok"
+  2. curl -s -X POST http://localhost:8200/oracle/speak
+     EXPECTED: HTTP 200, text or video in response
+  3. curl -s -X POST http://localhost:8200/oracle/chat -d '{"text":"what is bitcoin","session_id":"test"}'
+     EXPECTED: HTTP 200, job_id present
+  4. curl -s http://localhost:8200/oracle/job/$JOB_ID (after 20s)
+     EXPECTED: 200 or 202, NOT 404
+  5. Second speak request after first: must be 200 not 503
+     EXPECTED: semaphore released, GPU not stuck
+
+NEVER commit oracle changes without all 5 tests passing.
+This law exists because commit 2c542a0d looked correct but silenced Oracle in production.
+Theoretical fixes that break in practice are worse than no fix.
