@@ -324,7 +324,7 @@ def run_render(iteration):
     log("TTS cache wiped")
     env = load_env()
     render_start = time.time()
-    r = run("python3 daily_producer.py --skip-scan", timeout=7200, env=env)
+    r = run("python3 daily_producer.py --skip-scan", timeout=14400, env=env)
     log(f"Render exit: {r.returncode}")
     import glob
     today = datetime.now().strftime('%Y-%m-%d')
