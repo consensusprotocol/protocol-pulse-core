@@ -1529,10 +1529,12 @@ def oracle_speak():
     if not text:
         text = oracle_cache_manager.RESPONSE_TREE["UNKNOWN_QUESTION"]
 
-    # Check GPU availability without acquire-release-reacquire race
-    if _render_semaphore._value == 0:
+    # Check GPU availability — thread-safe acquire then release before generate_inline re-acquires
+    acquired = _render_semaphore.acquire(timeout=5)
+    if not acquired:
         return jsonify({"error": "GPU busy warming cache — try again shortly",
                         "status": "warming", "retry_after": 30}), 503
+    _render_semaphore.release()  # release immediately, generate_inline re-acquires
 
     return generate_inline(text)
 
@@ -1560,7 +1562,7 @@ def generate_inline(text):
     try:
         # Check queue state for concurrency visibility
         with _render_queue_lock:
-            _queue_pos = sum(1 for _ in range(2) if not _render_semaphore._value)
+            _queue_pos = _render_queue_count
         acquired = _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
         if not acquired:
             return jsonify({"error": "GPU busy — try again in a moment", "retry_after": 10,

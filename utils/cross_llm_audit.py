@@ -67,6 +67,7 @@ FEATURE_MAP = {
     "render-improvement-loop": ("RENDER_IMPROVEMENT_LOOP_GOSPEL.md", "main"),
     "oracle-avatar-fix": ("PIPELINE_LAWS.md", "main"),
     "content-lock": ("PIPELINE_LAWS.md", "main"),
+    "oracle-speak-revert": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -171,6 +172,7 @@ EXPLICIT_FILES = {
         "video_pipeline_v3/daily_producer.py",
         "overnight_render_loop.py",
     ],
+    "oracle-speak-revert": ["oracle/avatar_server.py"],
 }
 
 # For large files, extract only relevant route functions instead of the whole file.

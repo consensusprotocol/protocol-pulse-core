@@ -1,7 +1,7 @@
 {
-  "last_audit": "2026-03-24T16:05:13.924010+00:00",
-  "feature": "oracle-avatar-fix",
-  "commit": "71bf8d5f",
+  "last_audit": "2026-03-24T18:56:04.538410+00:00",
+  "feature": "oracle-speak-revert",
+  "commit": "b12a582c",
   "audits": [
     {
       "feature": "assembler-v2-rebuild",
@@ -164,6 +164,24 @@
     },
     {
       "feature": "oracle-avatar-fix",
+      "date": "2026-03-24",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "content-lock",
+      "date": "2026-03-24",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "oracle-speak-revert",
       "date": "2026-03-24",
       "models": [
         "gemini",
