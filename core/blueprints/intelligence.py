@@ -114,12 +114,22 @@ def join_register():
             success_url=request.host_url.rstrip("/") + "/intelligence?activated=1",
             cancel_url=request.host_url.rstrip("/") + "/join",
         )
+        if result.get("simulated"):
+            # Dev mode: upgrade tier directly and skip Stripe redirect
+            user.subscription_tier = "commander"
+            _db.session.commit()
+            return jsonify({"success": True, "checkout_url": None})
         if result.get("checkout_url"):
             return jsonify({"success": True, "checkout_url": result["checkout_url"]})
     except Exception as e:
         logger.warning("Stripe checkout creation failed: %s — continuing without payment", e)
 
-    # Stripe not configured — let them in for demo
+    # Stripe not configured — upgrade and let them in
+    user.subscription_tier = "commander"
+    try:
+        _db.session.commit()
+    except Exception:
+        _db.session.rollback()
     return jsonify({"success": True, "checkout_url": None})
 
 

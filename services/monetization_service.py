@@ -100,9 +100,10 @@ class MonetizationService:
         tier_info = self.SUBSCRIPTION_TIERS[tier]
 
         if not self.initialized:
+            sep = '&' if '?' in success_url else '?'
             return {
                 'simulated': True,
-                'checkout_url': f"{success_url}?session_id=sim_session_{tier}",
+                'checkout_url': f"{success_url}{sep}session_id=sim_session_{tier}",
                 'tier': tier,
                 'message': 'Stripe not configured - simulation mode'
             }

@@ -10856,16 +10856,16 @@ def terminal_checkout():
         success_url=success_url,
         cancel_url=cancel_url,
     )
-    if result.get("checkout_url"):
-        return redirect(result["checkout_url"])
-    elif result.get("simulated"):
-        # Dev mode: simulate success
+    if result.get("simulated"):
+        # Dev mode: simulate success — upgrade tier directly
         current_user.subscription_tier = "commander"
         try:
             db.session.commit()
         except Exception:
             db.session.rollback()
         return redirect(url_for("pulse_terminal", activated=1))
+    if result.get("checkout_url"):
+        return redirect(result["checkout_url"])
     flash("Unable to start checkout. Please try again.")
     return redirect(url_for("pulse_terminal"))
 
