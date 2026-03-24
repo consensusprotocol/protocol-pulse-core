@@ -4470,7 +4470,7 @@ def concatenate_parts(parts: list, output_path: str,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # FIX 4: adelay=65ms to compensate video PTS 0.066 vs DTS -0.000651 offset (audio leads video)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.891:level=disabled:attack=5:release=50,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.707:limit=0.707:attack=5:release=50",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.5:LRA=7:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=1:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
