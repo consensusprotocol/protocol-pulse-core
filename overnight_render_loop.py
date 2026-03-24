@@ -682,8 +682,12 @@ def run_single_render():
             today = datetime.now().strftime('%Y-%m-%d')
             locked_dir = os.path.join(PIPELINE, 'output', today, 'locked_content')
             if os.path.exists(locked_dir):
+                parts_cache = os.path.join(locked_dir, 'parts')
+                had_parts = os.path.exists(parts_cache)
                 shutil.rmtree(locked_dir, ignore_errors=True)
                 log(f"Content lock cleared — next cycle will fetch fresh content")
+                if had_parts:
+                    log(f"Parts cache cleared — Grade A achieved, fresh content next cycle")
             final_verdict = "PASS"
             break
         elif grade in ('B', 'C') and broadcast:

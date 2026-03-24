@@ -13,6 +13,7 @@ Usage:
 import sys; sys.dont_write_bytecode=True
 import argparse
 import fcntl
+import hashlib
 import json
 import logging
 import os
@@ -30,7 +31,7 @@ from clip_selector import select_clips
 from clip_extractor import extract_all, extract_montage_all, check_av_sync
 from script_writer import generate_from_clips
 from tts_engine import generate_dialogue_audio
-from assembler import assemble_episode, verify_video
+from assembler import assemble_episode, concatenate_parts, verify_video
 from shorts_cutter import generate_shorts
 from thumbnail_gen import generate_thumbnail
 from chapters import generate_chapters
@@ -654,6 +655,71 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 if not os.path.exists(dst):
                     shutil.copy2(src, dst)
 
+        # ── PARTS CACHE: restore rendered parts from locked_content ──────
+        if is_enabled("cache_rendered_parts"):
+            cached_parts = os.path.join(locked_dir, "parts")
+            cached_hash_file = os.path.join(locked_dir, "parts_hash.txt")
+            live_parts = os.path.join(run_dir, "work")
+            # Verify script hash matches before restoring
+            current_hash = hashlib.md5(json.dumps(script, sort_keys=True).encode()).hexdigest()
+            hash_ok = False
+            if os.path.exists(cached_hash_file):
+                with open(cached_hash_file) as hf:
+                    saved_hash = hf.read().strip()
+                hash_ok = (saved_hash == current_hash)
+                if not hash_ok:
+                    logger.warning(f"PARTS CACHE HASH MISMATCH: saved={saved_hash[:12]} current={current_hash[:12]} — skipping cache")
+
+            # Verify clip file count matches
+            clips_ok = True
+            if hash_ok and os.path.exists(cached_parts):
+                locked_clip_names = set()
+                if os.path.exists(locked_clips):
+                    locked_clip_names = set(os.listdir(locked_clips))
+                current_clip_names = set()
+                clip_dir_check = os.path.join(run_dir, "clips")
+                if os.path.exists(clip_dir_check):
+                    current_clip_names = set(os.listdir(clip_dir_check))
+                if locked_clip_names != current_clip_names:
+                    clips_ok = False
+                    logger.warning(f"PARTS CACHE CLIP MISMATCH: locked={len(locked_clip_names)} current={len(current_clip_names)} — skipping cache")
+
+            if hash_ok and clips_ok and os.path.exists(cached_parts) and os.listdir(cached_parts):
+                # ffprobe integrity check on each cached part
+                all_parts_valid = True
+                for pf in os.listdir(cached_parts):
+                    pf_path = os.path.join(cached_parts, pf)
+                    if os.path.getsize(pf_path) == 0:
+                        logger.warning(f"PARTS CACHE CORRUPT: {pf} is 0 bytes — skipping cache")
+                        all_parts_valid = False
+                        break
+                    try:
+                        probe = subprocess.run(
+                            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                             "-of", "csv=p=0", pf_path],
+                            capture_output=True, text=True, timeout=10)
+                        dur = float(probe.stdout.strip() or "0")
+                        if dur < 0.1:
+                            logger.warning(f"PARTS CACHE CORRUPT: {pf} duration={dur:.3f}s — skipping cache")
+                            all_parts_valid = False
+                            break
+                    except Exception as e:
+                        logger.warning(f"PARTS CACHE PROBE FAILED: {pf} — {e} — skipping cache")
+                        all_parts_valid = False
+                        break
+
+                if all_parts_valid:
+                    os.makedirs(live_parts, exist_ok=True)
+                    shutil.copytree(cached_parts, live_parts, dirs_exist_ok=True)
+                    part_count = len([f for f in os.listdir(live_parts) if f.startswith("part_")])
+                    logger.info(f"PARTS RESTORED: {part_count} cached parts → skipping assembly")
+                    os.makedirs(os.path.join(run_dir, ".cache_flags"), exist_ok=True)
+                    open(os.path.join(run_dir, ".cache_flags", "parts_cached"), "w").close()
+                else:
+                    logger.info("PARTS CACHE INVALID — running full assembly")
+            else:
+                logger.info("No valid cached parts found — running full assembly")
+
         dialogue = script.get("dialogue", [])
         print(f"  Loaded: script ({len(dialogue)} dialogue entries), "
               f"{len(extracted_clips)} clips, BTC={btc_price}")
@@ -1138,12 +1204,46 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         logger.info(f"CONTENT LOCKED to {locked_dir} — subsequent iterations will reuse this")
 
     # ── Step 7: ASSEMBLE ──────────────────────────────────────────────────
-    print("\n[STEP 7/12] ASSEMBLING VIDEO...")
-    t0 = time.time()
-    result = assemble_episode(script, audio_data, extracted_clips, final_video,
-                              btc_price=btc_price, music_bed=music_bed,
-                              intro_music=intro_music)
-    timing["7_assemble"] = round(time.time() - t0, 2)
+    parts_cached_flag = os.path.join(run_dir, ".cache_flags", "parts_cached")
+    if is_enabled("cache_rendered_parts") and os.path.exists(parts_cached_flag):
+        # PARTS CACHE HIT — skip full assembly, go straight to final concat
+        print("\n[STEP 7/12] PARTS CACHE HIT — skipping assembly, concatenating cached parts...")
+        t0 = time.time()
+        work_dir = os.path.join(run_dir, "work")
+        cached_part_files = sorted([
+            os.path.join(work_dir, f)
+            for f in os.listdir(work_dir)
+            if f.startswith("part_") and f.endswith(".mp4")
+        ])
+        logger.info(f"PARTS CACHE HIT: {len(cached_part_files)} parts → concatenating directly")
+        os.makedirs(os.path.dirname(os.path.abspath(final_video)), exist_ok=True)
+        result = concatenate_parts(cached_part_files, final_video)
+        timing["7_assemble"] = round(time.time() - t0, 2)
+        logger.info(f"PARTS CACHE CONCAT: {timing['7_assemble']:.1f}s (vs ~90min full assembly)")
+    else:
+        print("\n[STEP 7/12] ASSEMBLING VIDEO...")
+        t0 = time.time()
+        result = assemble_episode(script, audio_data, extracted_clips, final_video,
+                                  btc_price=btc_price, music_bed=music_bed,
+                                  intro_music=intro_music)
+        timing["7_assemble"] = round(time.time() - t0, 2)
+
+        # ── PARTS CACHE: save rendered parts after successful assembly ────
+        if is_enabled("cache_rendered_parts") and result and os.path.exists(final_video):
+            locked_dir = os.path.join(run_dir, "locked_content")
+            work_dir = os.path.join(run_dir, "work")
+            if os.path.exists(work_dir):
+                part_files = [f for f in os.listdir(work_dir) if f.startswith("part_") and f.endswith(".mp4")]
+                if part_files:
+                    parts_dst = os.path.join(locked_dir, "parts")
+                    os.makedirs(parts_dst, exist_ok=True)
+                    for pf in part_files:
+                        shutil.copy2(os.path.join(work_dir, pf), os.path.join(parts_dst, pf))
+                    # Save script hash for verification on restore
+                    script_hash = hashlib.md5(json.dumps(script, sort_keys=True).encode()).hexdigest()
+                    with open(os.path.join(locked_dir, "parts_hash.txt"), "w") as hf:
+                        hf.write(script_hash)
+                    logger.info(f"PARTS CACHED: {len(part_files)} parts → {parts_dst} (hash={script_hash[:12]})")
 
     if not result or not os.path.exists(final_video):
         print("\n  [FAIL] Assembly failed")

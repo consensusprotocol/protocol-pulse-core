@@ -13,5 +13,6 @@
   "remotion_visuals": false,
   "agent_dev_mode": false,
   "test_mode": false,
-  "multi_format_output": false
+  "multi_format_output": false,
+  "cache_rendered_parts": false
 }

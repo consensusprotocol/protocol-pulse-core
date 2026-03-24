@@ -70,6 +70,7 @@ FEATURE_MAP = {
     "oracle-speak-revert": ("PIPELINE_LAWS.md", "main"),
     "stage-avatar-fix": ("PIPELINE_LAWS.md", "main"),
     "oracle-speed": ("PIPELINE_LAWS.md", "main"),
+    "part-cache": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -189,6 +190,11 @@ EXPLICIT_FILES = {
         "oracle/oracle_intelligence_feed.py",
         "oracle/blink_engine.py",
         "oracle/face_enhancer.py",
+    ],
+    "part-cache": [
+        "video_pipeline_v3/daily_producer.py",
+        "video_pipeline_v3/assembler.py",
+        "video_pipeline_v3/config/feature_flags.json",
     ],
 }
 
