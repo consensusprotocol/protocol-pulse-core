@@ -16,6 +16,7 @@ Pipeline:
 """
 
 import base64
+import fcntl
 import json
 import logging
 import os
@@ -94,6 +95,24 @@ BRIEF_SYSTEM_PROMPTS = {
 # ---------------------------------------------------------------------------
 
 def _fetch_btc_price():
+    # Try internal API first (no rate limits)
+    try:
+        r = requests.get("http://localhost:5000/api/btc-price", timeout=5)
+        if r.status_code == 200:
+            d = r.json()
+            price = d.get("price") or d.get("bitcoin", {}).get("usd")
+            change = d.get("change_24h") or d.get("bitcoin", {}).get("usd_24h_change", 0)
+            if price and float(price) > 0:
+                return {
+                    "price": float(price),
+                    "change_24h": round(float(change), 2),
+                    "market_cap": d.get("market_cap", 0),
+                    "volume_24h": d.get("volume_24h", 0),
+                }
+    except Exception:
+        pass
+
+    # Fallback to CoinGecko
     try:
         r = requests.get(
             "https://api.coingecko.com/api/v3/simple/price",
@@ -111,8 +130,8 @@ def _fetch_btc_price():
             "volume_24h": d.get("usd_24h_vol", 0),
         }
     except Exception as e:
-        logger.warning("BTC price fetch failed: %s", e)
-        return {"price": 0, "change_24h": 0, "market_cap": 0, "volume_24h": 0}
+        logger.critical("BTC price fetch failed on ALL sources: %s", e)
+        raise RuntimeError(f"BTC price unavailable: {e}")
 
 
 def _fetch_mempool():
@@ -597,7 +616,10 @@ def _render_audio_only_video(audio_bytes_list):
              "-of", "default=noprint_wrappers=1:nokey=1", combined_audio],
             capture_output=True, text=True, timeout=10,
         )
-        duration = float(probe.stdout.strip()) if probe.stdout.strip() else 30.0
+        if probe.returncode != 0:
+            logger.warning("[FALLBACK] ffprobe failed (rc=%d): %s — using 30s default",
+                           probe.returncode, probe.stderr.strip()[:200])
+        duration = float(probe.stdout.strip()) if probe.returncode == 0 and probe.stdout.strip() else 30.0
 
         # Create video: static image + audio
         output_path = os.path.join(tmpdir, "fallback.mp4")
@@ -790,10 +812,14 @@ def generate_brief(brief_type=None):
         with open(meta_path, "w") as f:
             json.dump(meta, f, indent=2)
 
-        # Update latest.json
+        # Update latest.json (atomic with fcntl lock)
         latest_path = os.path.join(BRIEFS_DIR, "latest.json")
         with open(latest_path, "w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
             json.dump(meta, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+            fcntl.flock(f, fcntl.LOCK_UN)
 
         elapsed = round(time.time() - t0, 1)
         logger.info("Stage brief complete in %ss: %s", elapsed, mp4_filename)

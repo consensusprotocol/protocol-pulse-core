@@ -1309,7 +1309,7 @@ body { background: var(--s-bg); }
   }
 
   function playVid(url){
-    return new Promise(function(resolve){
+    return new Promise(function(resolve, reject){
       revokeObjURL();
       objURL = url;
       vid.src = url;
@@ -1332,7 +1332,7 @@ body { background: var(--s-bg); }
       vid.onerror = function(){
         setBusy(false);
         revokeObjURL();
-        resolve();
+        reject(new Error('Video playback failed'));
       };
       var p = vid.play();
       if(p){
@@ -1856,6 +1856,7 @@ body { background: var(--s-bg); }
           startBroadcast();
         };
         audio.play().catch(function() {
+          URL.revokeObjectURL(audioUrl);
           setBusy(false);
           _broadcastPaused = false;
           startBroadcast();
@@ -1916,7 +1917,7 @@ body { background: var(--s-bg); }
                 .then(function(vb) {
                   if (vb) {
                     clearInterval(pollId);
-                    playVid(URL.createObjectURL(vb)).then(resolve);
+                    playVid(URL.createObjectURL(vb)).then(resolve).catch(function(){ resolve(); });
                   }
                 }).catch(function(){});
             }, 1000);
@@ -2059,7 +2060,7 @@ body { background: var(--s-bg); }
     if(_latestBriefUrl && _latestBriefUrl.indexOf('.mp4') >= 0){
       setBusy(true);
       setStatus('Playing brief\u2026','var(--s-gold)');
-      playVid(_latestBriefUrl).then(function(){ setBusy(false); });
+      playVid(_latestBriefUrl).then(function(){ setBusy(false); }).catch(function(){ setBusy(false); setStatus('Brief unavailable','var(--s-red)'); });
       return;
     }
     // Otherwise fetch brief script and use monologue system
@@ -2303,11 +2304,13 @@ body { background: var(--s-bg); }
   // Pre-render first segment silently so it's ready when user taps
   preRenderFirstSegment();
 
-  // Animate warming dots + flip label when pre-render is ready
+  // Animate warming dots + flip label when pre-render is ready (30s timeout)
   (function(){
     var dots = document.getElementById('stage-tap-dots');
     var label = document.getElementById('stage-tap-label');
     var dotCount = 1;
+    var _warmStart = Date.now();
+    var _WARM_TIMEOUT = 30000;
     var dotAnim = setInterval(function(){
       dotCount = (dotCount % 3) + 1;
       if (dots) dots.textContent = '.'.repeat(dotCount);
@@ -2322,6 +2325,18 @@ body { background: var(--s-bg); }
         }
         var ov = document.getElementById('stage-wake');
         if (ov) ov.classList.add('stage-wake-ready');
+      } else if (Date.now() - _warmStart > _WARM_TIMEOUT) {
+        clearInterval(_stageReadyPoller);
+        clearInterval(dotAnim);
+        // Pre-render timed out — still allow broadcast start (renders on-the-fly)
+        _preRenderReady = true;
+        if (label) {
+          label.textContent = 'TAP TO BEGIN BROADCAST';
+          label.style.opacity = '1';
+        }
+        var ov = document.getElementById('stage-wake');
+        if (ov) ov.classList.add('stage-wake-ready');
+        console.warn('[Stage] Pre-render timed out — starting without pre-rendered segment');
       }
     }, 1000);
   })();

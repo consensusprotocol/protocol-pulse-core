@@ -72,6 +72,7 @@ FEATURE_MAP = {
     "oracle-speed": ("PIPELINE_LAWS.md", "main"),
     "oracle-phase2": ("PIPELINE_LAWS.md", "main"),
     "part-cache": ("PIPELINE_LAWS.md", "main"),
+    "stage-fix": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -202,6 +203,12 @@ EXPLICIT_FILES = {
         "video_pipeline_v3/assembler.py",
         "video_pipeline_v3/config/feature_flags.json",
     ],
+    "stage-fix": [
+        "services/stage_brief_pipeline.py",
+        "services/stage_broadcast_service.py",
+        "templates/stage.html",
+        "oracle/avatar_server.py",
+    ],
 }
 
 # For large files, extract only relevant route functions instead of the whole file.
@@ -210,6 +217,7 @@ ROUTE_EXTRACTS = {
     ("oracle-stage", "routes.py"): ["/stage", "/api/stage/", "/api/oracle/"],
     ("stage-avatar-fix", "routes.py"): ["/stage", "/api/stage/"],
     ("oracle-speed", "routes.py"): ["/oracle", "/api/oracle/"],
+    ("stage-fix", "routes.py"): ["/stage", "/api/stage/"],
 }
 
 CUSTOM_REVIEW_TASKS = {

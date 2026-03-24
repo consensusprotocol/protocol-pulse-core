@@ -841,7 +841,7 @@ def generate():
 
     # Input validation
     MAX_TEXT_LEN = 2000
-    MAX_AUDIO_B64_LEN = 2_000_000  # ~1.5MB decoded
+    MAX_AUDIO_B64_LEN = 20_000_000  # ~15MB decoded — Chatterbox TTS WAV chunks can be 4-10MB
     if "text" in data:
         if not isinstance(data["text"], str) or len(data["text"]) > MAX_TEXT_LEN:
             return jsonify({"error": f"text must be a string under {MAX_TEXT_LEN} chars", "code": "INVALID_INPUT"}), 400

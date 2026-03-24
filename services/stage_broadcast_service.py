@@ -120,24 +120,49 @@ def _cleanup_queue(items):
 
 
 def _add_to_queue(item):
-    """Add item to queue if not duplicate type within TTL window."""
-    items = _read_queue()
-    items = _cleanup_queue(items)
+    """Add item to queue if not duplicate type within TTL window.
 
-    # Prevent duplicate types (except FILLER_INSIGHT)
-    if item["type"] != "FILLER_INSIGHT":
-        for existing in items:
-            if existing["type"] == item["type"]:
-                logger.info("Skipping duplicate %s already in queue", item["type"])
-                return items
+    Uses a single LOCK_EX for the entire read-modify-write cycle
+    to prevent race conditions between concurrent processes.
+    """
+    QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # Atomic read-modify-write under single exclusive lock
+    with open(QUEUE_PATH, "a+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            f.seek(0)
+            raw = f.read()
+            items = json.loads(raw) if raw.strip() else []
+            if not isinstance(items, list):
+                items = []
+        except (json.JSONDecodeError, IOError):
+            items = []
 
-    if len(items) >= MAX_QUEUE_DEPTH:
-        # Drop lowest priority
-        items = items[:MAX_QUEUE_DEPTH - 1]
+        items = _cleanup_queue(items)
 
-    items.append(item)
-    items = _cleanup_queue(items)
-    _write_queue(items)
+        # Prevent duplicate types (except FILLER_INSIGHT)
+        if item["type"] != "FILLER_INSIGHT":
+            for existing in items:
+                if existing["type"] == item["type"]:
+                    logger.info("Skipping duplicate %s already in queue", item["type"])
+                    fcntl.flock(f, fcntl.LOCK_UN)
+                    return items
+
+        if len(items) >= MAX_QUEUE_DEPTH:
+            # Drop lowest priority
+            items = items[:MAX_QUEUE_DEPTH - 1]
+
+        items.append(item)
+        items = _cleanup_queue(items)
+
+        # Write back atomically
+        f.seek(0)
+        f.truncate()
+        json.dump(items, f, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+        fcntl.flock(f, fcntl.LOCK_UN)
+
     logger.info("Queued %s (pri=%d): %s", item["type"], item["priority"],
                 item["topic_preview"][:60])
     return items
