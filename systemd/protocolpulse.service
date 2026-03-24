@@ -1,0 +1,16 @@
+[Unit]
+Description=Protocol Pulse Gunicorn
+After=network.target
+
+[Service]
+Type=exec
+WorkingDirectory=/home/ultron/protocol_pulse/core
+Environment=PATH=/home/ultron/.local/bin:/usr/bin:/bin
+EnvironmentFile=-/home/ultron/protocol_pulse/.env
+EnvironmentFile=-/home/ultron/protocol_pulse/core/.env
+ExecStart=/home/ultron/.local/bin/gunicorn app:app --workers 2 --bind 0.0.0.0:5000 --timeout 300 --error-logfile /home/ultron/protocol_pulse/logs/gunicorn_error.log --access-logfile /home/ultron/protocol_pulse/logs/gunicorn_access.log
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
