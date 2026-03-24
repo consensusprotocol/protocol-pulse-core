@@ -64,6 +64,7 @@ FEATURE_MAP = {
     "convergence-detection": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "convergence-build-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "ml-session-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "render-improvement-loop": ("RENDER_IMPROVEMENT_LOOP_GOSPEL.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -154,6 +155,12 @@ EXPLICIT_FILES = {
         "services/sentinel.py",
         "core/blueprints/intelligence.py",
     ],
+    "render-improvement-loop": [
+        "overnight_render_loop.py",
+        "utils/cross_llm_audit.py",
+        "video_pipeline_v3/assembler.py",
+        "video_pipeline_v3/clip_extractor.py",
+    ],
 }
 
 # For large files, extract only relevant route functions instead of the whole file.
@@ -161,6 +168,144 @@ EXPLICIT_FILES = {
 ROUTE_EXTRACTS = {
     ("oracle-stage", "routes.py"): ["/stage", "/api/stage/", "/api/oracle/"],
 }
+
+CUSTOM_REVIEW_TASKS = {
+    "render-improvement-loop": """## YOUR REVIEW TASK — ARCHITECTURE AUDIT (8 CRITICAL QUESTIONS)
+
+You are auditing a GOSPEL SPEC (design document) for an autonomous render improvement loop.
+NO code has been written yet. Your job is to find every flaw, gap, failure mode, and token
+cost risk BEFORE implementation. Be brutal. Be specific. Cite gospel section numbers.
+
+### Q1 — INTEGRATION RISK
+The loop integrates with overnight_render_loop.py via flag files (/tmp/render_fix_complete_iterN).
+What are the failure modes? Race conditions? Flag file left over from previous iteration?
+Loop crash that never writes the flag, blocking overnight loop forever?
+
+### Q2 — QWEN RELIABILITY
+The loop assumes Qwen3:30b is running on Ollama at localhost:11434. What happens if Ollama
+is down, model not loaded, or Qwen returns malformed JSON? Does the loop degrade gracefully
+or cascade-fail and kill the render cycle?
+
+### Q3 — CC SESSION DETECTION
+The loop waits for CC slot by polling tmux. But tmux session names from previous crashed
+sessions may still exist as zombies. How does the loop distinguish a live CC session from
+a dead one? What is the exact tmux command that proves a session is actively running CC
+vs just existing as a shell?
+
+### Q4 — TOKEN COST REALITY
+The gospel claims $2 soft limit per cycle. Given 4-6 failing dimensions typically seen
+(freeze, avatar, true_peak, visual_polish, etc.), each requiring Qwen + 2 external LLM
+calls with ~2000 token payloads, what is the realistic per-cycle cost? Is the $2 limit
+achievable or optimistic?
+
+### Q5 — DIMENSION_MAP COMPLETENESS
+Review the DIMENSION_MAP in the gospel. Which Gemini grade dimensions are MISSING from
+the map? What happens when a new dimension appears in a grade that has no mapping?
+Does the loop handle unknown dimensions gracefully?
+
+### Q6 — OVERNIGHT LOOP COUPLING
+The minimal change to overnight_render_loop.py is described as "check for flag file,
+wait up to 60 min". But overnight_render_loop.py has a 14400s render timeout. If the
+improvement loop takes 90 min (CC session can run long), does this blow the timeout?
+How should timing be coordinated to avoid killing the render cycle mid-improvement?
+
+### Q7 — CONSENSUS FAILURE HANDLING
+When LLMs disagree, the loop sends a Telegram alert and skips the dimension. But if the
+3 most critical dimensions (avatar, freeze, visual_polish) all produce disagreement,
+the loop commits nothing and the next iteration is identical to the last. What mechanism
+prevents infinite identical render loops with no improvement?
+
+### Q8 — IMPLEMENTATION CORRECTNESS
+The loop will write fix specs and fire CC. But CC is Opus 4.6 — it reads the spec and
+uses its own judgment. What guardrails ensure CC implements ONLY the exact patch and
+does not refactor surrounding code, change function signatures, or introduce new
+dependencies that break other pipeline stages?
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- STATE the failure mode(s) clearly
+- RATE the severity: CRITICAL / HIGH / MEDIUM / LOW
+- PRESCRIBE the exact mitigation (what to add to the gospel)
+- CITE the gospel section that needs updating
+
+### FINAL VERDICT
+After answering all 8 questions:
+- How many CRITICAL issues did you find?
+- Is this gospel ready to build from, or does it need fundamental rework?
+- What is the single most dangerous gap?
+""",
+}
+
+DEFAULT_REVIEW_TASK = """## YOUR REVIEW TASK
+
+Perform a forensic code review. Be brutally honest. Cite line numbers.
+There is no developer present. No ego to protect. Only quality matters.
+
+### SECTION 1: CORRECTNESS
+Walk through the main user flow step by step. Does the code do what it claims?
+- Logic errors, wrong variable names, silent failures
+- Race conditions (concurrent requests hitting same state)
+- N+1 query problems (DB queries inside loops)
+- Edge cases that will break in production (empty DB, API timeout, bad input)
+
+### SECTION 2: LAW COMPLIANCE
+For each LAW in the governing spec above, state: COMPLIANT / VIOLATION / PARTIAL
+Cite specific line numbers for any violation or partial compliance.
+
+### SECTION 3: SECURITY
+- SQL injection (check raw queries and ORM filter() with user input)
+- Authentication bypasses (routes that should require login but don't)
+- Rate limiting gaps (can one user exhaust paid API limits?)
+- Secrets in code (API keys, tokens, passwords hardcoded anywhere?)
+- Unvalidated user input reaching DB, filesystem, or shell
+
+### SECTION 4: FRONTEND QUALITY
+- Does the UI match the spec layout exactly?
+- Hardcoded values that should be dynamic (prices, counts, dates)
+- Mobile viewport breakage
+- JS errors that prevent page functioning
+- Loading / error / empty state for every async operation — are all 3 handled?
+- Does it look world-class? Or does it look like a rushed prototype?
+
+### SECTION 5: BACKEND QUALITY
+- DB operations: try/except with rollback on every write?
+- External API calls: timeout + retry + graceful degradation on every call?
+- Cron job: does it handle failure without crashing the service?
+- Memory leaks: large objects created per-request without cleanup?
+- Logging: are errors logged with enough context to debug production issues?
+
+### SECTION 6: WORLD-CLASS GAP ANALYSIS
+This is Protocol Pulse — a premium Bitcoin intelligence product.
+What would Bloomberg Terminal, Coinbase Advanced, or Blockworks do differently?
+What is genuinely missing that would make this impressive to a professional?
+DO NOT pad this section. Only include changes with material impact.
+If an area is already excellent, explicitly say so — that's equally important.
+
+### SECTION 7: SCORES (0-100 each)
+- Backend logic:    X/100
+- Frontend/UI:      X/100
+- Error handling:   X/100
+- Security:         X/100
+- Performance:      X/100
+- Law compliance:   X/100
+- World-class gap:  X/100 (100 = nothing missing, 0 = prototype quality)
+- OVERALL:          X/100
+
+### SECTION 8: PRIORITY ACTION PLAN
+Every fix and improvement, sorted by impact. Be specific — cite file and line.
+Format exactly as:
+P0 CRITICAL | [what] | [file:line] | [why it will break production]
+P1 HIGH     | [what] | [file:line] | [why it degrades quality]
+P2 MEDIUM   | [what] | [file:line] | [enhancement that matters]
+P3 LOW      | [what] | [file:line] | [polish]
+
+### SECTION 9: THE ONE THING
+If you could only tell the developer one thing to make this dramatically better,
+what would it be? One sentence. Make it count.
+
+### SECTION 10: FINAL VERDICT
+In 2-3 sentences: is this code ready for production? What must change first?
+"""
 
 def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     """Extract only route functions matching given prefixes from a large Flask routes file."""
@@ -204,7 +349,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 
@@ -317,75 +462,7 @@ def build_audit_package(feature_name: str) -> str:
 
 ---
 
-## YOUR REVIEW TASK
-
-Perform a forensic code review. Be brutally honest. Cite line numbers.
-There is no developer present. No ego to protect. Only quality matters.
-
-### SECTION 1: CORRECTNESS
-Walk through the main user flow step by step. Does the code do what it claims?
-- Logic errors, wrong variable names, silent failures
-- Race conditions (concurrent requests hitting same state)
-- N+1 query problems (DB queries inside loops)
-- Edge cases that will break in production (empty DB, API timeout, bad input)
-
-### SECTION 2: LAW COMPLIANCE
-For each LAW in the governing spec above, state: COMPLIANT / VIOLATION / PARTIAL
-Cite specific line numbers for any violation or partial compliance.
-
-### SECTION 3: SECURITY
-- SQL injection (check raw queries and ORM filter() with user input)
-- Authentication bypasses (routes that should require login but don't)
-- Rate limiting gaps (can one user exhaust paid API limits?)
-- Secrets in code (API keys, tokens, passwords hardcoded anywhere?)
-- Unvalidated user input reaching DB, filesystem, or shell
-
-### SECTION 4: FRONTEND QUALITY
-- Does the UI match the spec layout exactly?
-- Hardcoded values that should be dynamic (prices, counts, dates)
-- Mobile viewport breakage
-- JS errors that prevent page functioning
-- Loading / error / empty state for every async operation — are all 3 handled?
-- Does it look world-class? Or does it look like a rushed prototype?
-
-### SECTION 5: BACKEND QUALITY
-- DB operations: try/except with rollback on every write?
-- External API calls: timeout + retry + graceful degradation on every call?
-- Cron job: does it handle failure without crashing the service?
-- Memory leaks: large objects created per-request without cleanup?
-- Logging: are errors logged with enough context to debug production issues?
-
-### SECTION 6: WORLD-CLASS GAP ANALYSIS
-This is Protocol Pulse — a premium Bitcoin intelligence product.
-What would Bloomberg Terminal, Coinbase Advanced, or Blockworks do differently?
-What is genuinely missing that would make this impressive to a professional?
-DO NOT pad this section. Only include changes with material impact.
-If an area is already excellent, explicitly say so — that's equally important.
-
-### SECTION 7: SCORES (0-100 each)
-- Backend logic:    X/100
-- Frontend/UI:      X/100
-- Error handling:   X/100
-- Security:         X/100
-- Performance:      X/100
-- Law compliance:   X/100
-- World-class gap:  X/100 (100 = nothing missing, 0 = prototype quality)
-- OVERALL:          X/100
-
-### SECTION 8: PRIORITY ACTION PLAN
-Every fix and improvement, sorted by impact. Be specific — cite file and line.
-Format exactly as:
-P0 CRITICAL | [what] | [file:line] | [why it will break production]
-P1 HIGH     | [what] | [file:line] | [why it degrades quality]
-P2 MEDIUM   | [what] | [file:line] | [enhancement that matters]
-P3 LOW      | [what] | [file:line] | [polish]
-
-### SECTION 9: THE ONE THING
-If you could only tell the developer one thing to make this dramatically better,
-what would it be? One sentence. Make it count.
-
-### SECTION 10: FINAL VERDICT
-In 2-3 sentences: is this code ready for production? What must change first?
+{CUSTOM_REVIEW_TASKS.get(feature_name, DEFAULT_REVIEW_TASK)}
 """
     return package
 
