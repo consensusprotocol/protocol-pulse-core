@@ -1669,7 +1669,7 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
     fg += _build_signature_info_rail(total_dur, btc_price, "co_wave", "co_railed")
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("co_railed", "_co_pilled", episode_title, total_dur)
-    fg += f"[_co_pilled]format=yuv420p[outv];\n"
+    fg += f"[_co_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX cold open",
                        audio_pad=co_audio_pad)
@@ -1854,7 +1854,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"[_pip_bordered];\n")
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("_pip_bordered", "_pip_pilled", episode_title, total_dur)
-    fg += f"[_pip_pilled]format=yuv420p[outv];\n"
+    fg += f"[_pip_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     # Audio: PBX narration only, no music
     fg += f"[0:a]alimiter=limit=0.85,aresample=async=1[outa]"
@@ -1923,7 +1923,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
            f"[pc_lt];\n")
     # Info rail (always present)
     fg += _build_signature_info_rail(clip_dur, btc_price, "pc_lt", "pc_railed")
-    fg += (f"[pc_railed]format=yuv420p[outv];\n"
+    fg += (f"[pc_railed]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
            # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
            f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,"
@@ -2192,7 +2192,7 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     fg = apply_scanline(inputs, fg, "ds_railed", "ds_scanned", total_dur)
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("ds_scanned", "_ds_pilled", episode_title, total_dur)
-    fg += f"[_ds_pilled]format=yuv420p[outv];\n"
+    fg += f"[_ds_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     result = _bv2_encode(inputs, fg, output_path, total_dur, "APEX data segment",
                          audio_pad=ds_audio_pad)
@@ -2342,7 +2342,7 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
     fg += _build_signature_info_rail(total_dur, btc_price, "ss_wave", "ss_railed")
     # FIX 3: Episode title pill
     fg += _add_episode_title_pill("ss_railed", "_ss_pilled", episode_title, total_dur)
-    fg += f"[_ss_pilled]format=yuv420p[outv];\n"
+    fg += f"[_ss_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX social stack",
                        audio_pad=ss_audio_pad)
@@ -2431,7 +2431,7 @@ def make_wrap_scene(audio_path: str, headline: str, body: str,
     # Session 4 Fix 7: Extended fade-to-black (1.5s) and audio fade (2.5s) for clean ending
     fade_v_start = max(0, total_dur - 1.5)
     fade_a_start = max(0, total_dur - 2.5)
-    fg += (f"[_wr_pilled]fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
+    fg += (f"[_wr_pilled]noise=c0s=3:c0f=t,fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F,"
            f"format=yuv420p[outv];\n")
     fg += (f"[_wr_a_out]afade=t=out:st={fade_a_start:.2f}:d=2.5[_wr_a_faded];\n")
 
@@ -2572,7 +2572,7 @@ def make_space_tap_scene(audio_path: str, space_clips: list,
     fg += _build_corner_brackets_fg("st_divided", "st_corners")
     fg += _build_signature_info_rail(total_dur, btc_price, "st_corners", "st_railed")
     fg += _add_episode_title_pill("st_railed", "_st_pilled", episode_title, total_dur)
-    fg += f"[_st_pilled]format=yuv420p[outv];\n"
+    fg += f"[_st_pilled]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     return _bv2_encode(inputs, fg, output_path, total_dur, "APEX space_tap",
                        audio_pad="[_st_a_out]")
@@ -3173,9 +3173,9 @@ def make_host_visual(audio_path: str, host: int, text: str,
                f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
                f"fontcolor={COLOR_MUTED}:fontsize=11:x=w-160:y=h-22[tcardready];\n"
                f"[v_final][tcardready]overlay=760:200:format=auto,fade=t=in:st=0:d=0.3[v_social];\n")
-        fg += f"[v_social]format=yuv420p[outv];\n"
+        fg += f"[v_social]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
     else:
-        fg += f"[v_final]format=yuv420p[outv];\n"
+        fg += f"[v_final]noise=c0s=3:c0f=t,format=yuv420p[outv];\n"
 
     # Audio: TTS only — APEX V2: music mixed continuously in concatenate_parts()
     fg += (f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000:sample_fmts=fltp,alimiter=limit=0.85:level=disabled:attack=5:release=50[outa]")
@@ -4448,7 +4448,7 @@ def concatenate_parts(parts: list, output_path: str,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # FIX 4: adelay=65ms to compensate video PTS 0.066 vs DTS -0.000651 offset (audio leads video)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.707:limit=0.707:attack=5:release=50",
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.891:level=disabled:attack=5:release=50,loudnorm=I=-14:TP=-2.0:LRA=7:linear=true,alimiter=level_in=1:level_out=0.707:limit=0.707:attack=5:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",

@@ -442,3 +442,51 @@ PATTERN: Synchronous GNN inference blocks asyncio event loop in SentinelDaemon
     4. Add await at both call sites (main loop + run_once_for_test)
     5. Catch asyncio.TimeoutError separately — keep last result instead of falling back to v0
   VERIFY: sentinel daemon must start without "coroutine never awaited" warnings.
+
+PERMANENT: gunicorn MUST start from ~/protocol_pulse/core/ — NEVER from ~/protocol_pulse root. Use: cd ~/protocol_pulse/core && gunicorn app:app ...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## THREE CRITICAL FIXES — 2026-03-24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PATTERN: TTS provider routes to LOCAL despite TTS_PROVIDER=elevenlabs
+  ROOT CAUSE: overnight_render_loop.py startup_checks() and check_tts_ready()
+    checked os.path.exists(tts_local.py) FIRST, returning "local" before ever
+    reading TTS_PROVIDER env var. Since tts_local.py exists on disk, ElevenLabs
+    was never selected regardless of env config.
+  LOCATION: overnight_render_loop.py — startup_checks() line ~180, check_tts_ready() line ~268
+  FIX: Both functions now read TTS_PROVIDER env var FIRST. If TTS_PROVIDER=elevenlabs,
+    the file-existence check is skipped entirely — env var takes absolute precedence.
+    Only falls back to file-based detection when TTS_PROVIDER is unset or "local".
+  VERIFY: With TTS_PROVIDER=elevenlabs in .env, loop log must show "ElevenLabs (env var override)"
+  WATCHDOG: If loop log shows "LOCAL (tts_local.py found)" when .env has TTS_PROVIDER=elevenlabs,
+    this fix has regressed — check overnight_render_loop.py check_tts_ready().
+
+PATTERN: True peak hitting -1.1 dBTP, failing broadcast limit
+  ROOT CAUSE: loudnorm filter can overshoot true peak target on transient-heavy
+    audio (whooshes, percussion hits). The post-loudnorm alimiter was set to 0.707
+    (-3dBFS) which is too loose for broadcast compliance at -2.0 dBTP.
+  LOCATION: assembler.py concatenate_parts() final encode -af chain, line ~4451
+  FIX: Added alimiter=limit=0.891:level=disabled:attack=5:release=50 BEFORE loudnorm
+    as a pre-limiter. This clips transient peaks to -1.0 dBTP before loudnorm processes
+    them, preventing loudnorm from overshooting. Post-loudnorm alimiter remains as safety net.
+    Chain: asetpts → aresample → alimiter(0.891) → loudnorm → alimiter(0.707)
+  VERIFY: ffmpeg -i output.mp4 -af loudnorm=print_format=summary -f null - 2>&1 | grep "True Peak"
+    must show <= -1.5 dBTP
+  WATCHDOG: If true peak > -1.0 dBTP reappears, check that the pre-limiter is still
+    positioned BEFORE loudnorm in the -af chain.
+
+PATTERN: Freeze frames in ALL static scene functions (16 per render)
+  ROOT CAUSE: Only make_social_card_visual() and make_signal_active_scene() had
+    noise=c0s=3:c0f=t filter. All other static scene functions (cold_open, narrator_pip,
+    partner_clip, data_segment, social_stack, wrap, space_tap, host_visual) were
+    generating pixel-identical frames that freezedetect flags.
+  LOCATION: assembler.py — 8 additional functions updated (11 total output points)
+  FIX: Added noise=c0s=3:c0f=t before format=yuv420p[outv] in ALL scene functions:
+    make_cold_open_scene (line 1672), make_narrator_pip_scene (line 1857),
+    make_partner_clip_scene (line 1926), make_data_segment_scene (line 2195),
+    make_social_stack_scene (line 2345), make_wrap_scene (line 2434),
+    make_space_tap_scene (line 2575), make_host_visual (lines 3176+3178)
+  VERIFY: grep -c 'noise=c0s=3:c0f=t' assembler.py must return 11
+  WATCHDOG: If ANY new make_*_scene function is added, it MUST include
+    noise=c0s=3:c0f=t before format=yuv420p[outv]. This is now a SACRED LAW.

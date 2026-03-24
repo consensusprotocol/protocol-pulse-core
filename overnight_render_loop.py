@@ -177,12 +177,22 @@ def startup_checks():
         log(f"STARTUP FAIL: output dir not writable: {e}")
         ok = False
 
-    # TTS provider check — use PIPELINE-derived path (audit M1)
+    # TTS provider check — TTS_PROVIDER env var takes ABSOLUTE precedence (FIX: TTS LOCK)
+    tts_provider_env = env.get('TTS_PROVIDER', '').lower().strip()
     local_tts = os.path.exists(TTS_SCRIPT)
     elevenlabs_key = bool(env.get('ELEVENLABS_API_KEY', '').strip())
     quota_exhausted = os.path.exists(ELEVENLABS_QUOTA_SENTINEL)
 
-    if local_tts:
+    if tts_provider_env == 'elevenlabs':
+        # Explicit env override — NEVER fall back to local even if tts_local.py exists
+        if elevenlabs_key and not quota_exhausted:
+            log("TTS provider: ElevenLabs (TTS_PROVIDER=elevenlabs, env var override)")
+        elif elevenlabs_key and quota_exhausted:
+            log("WARNING: TTS_PROVIDER=elevenlabs but quota sentinel exists")
+        else:
+            log("STARTUP FAIL: TTS_PROVIDER=elevenlabs but no ELEVENLABS_API_KEY")
+            ok = False
+    elif local_tts:
         log("TTS provider: LOCAL (tts_local.py found)")
     elif elevenlabs_key and not quota_exhausted:
         log("TTS provider: ElevenLabs (API key present)")
@@ -266,13 +276,27 @@ def send_telegram_alert(message):
 
 # ── TTS provider awareness ────────────────────────────────────────
 def check_tts_ready():
-    """Check TTS availability before render. Returns (ready, provider_name)."""
-    # Use PIPELINE-derived path (audit M1)
+    """Check TTS availability before render. Returns (ready, provider_name).
+    TTS_PROVIDER env var takes ABSOLUTE precedence — never fall back to local
+    if TTS_PROVIDER=elevenlabs (FIX: TTS LOCK).
+    """
+    env = load_env()
+    tts_provider_env = env.get('TTS_PROVIDER', '').lower().strip()
+
+    # TTS_PROVIDER=elevenlabs takes absolute precedence over tts_local.py on disk
+    if tts_provider_env == 'elevenlabs':
+        if not env.get('ELEVENLABS_API_KEY', '').strip():
+            return False, "none (TTS_PROVIDER=elevenlabs but no API key)"
+        if os.path.exists(ELEVENLABS_QUOTA_SENTINEL):
+            log("ElevenLabs quota sentinel exists — skipping render")
+            return False, "elevenlabs (quota exhausted)"
+        return True, "ElevenLabs (env override)"
+
+    # Default: check local first, then ElevenLabs
     local_tts = os.path.exists(TTS_SCRIPT)
     if local_tts:
         return True, "local (Kokoro/F5-TTS)"
 
-    env = load_env()
     if not env.get('ELEVENLABS_API_KEY', '').strip():
         return False, "none"
 
