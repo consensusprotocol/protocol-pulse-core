@@ -70,6 +70,7 @@ FEATURE_MAP = {
     "oracle-speak-revert": ("PIPELINE_LAWS.md", "main"),
     "stage-avatar-fix": ("PIPELINE_LAWS.md", "main"),
     "oracle-speed": ("PIPELINE_LAWS.md", "main"),
+    "oracle-phase2": ("PIPELINE_LAWS.md", "main"),
     "part-cache": ("PIPELINE_LAWS.md", "main"),
 }
 
@@ -190,6 +191,11 @@ EXPLICIT_FILES = {
         "oracle/oracle_intelligence_feed.py",
         "oracle/blink_engine.py",
         "oracle/face_enhancer.py",
+    ],
+    "oracle-phase2": [
+        "oracle/avatar_server.py",
+        "oracle/oracle_cache_manager.py",
+        "templates/oracle_live.html",
     ],
     "part-cache": [
         "video_pipeline_v3/daily_producer.py",
@@ -346,6 +352,48 @@ After answering all 8 questions:
 - Is this gospel ready to build from, or does it need fundamental rework?
 - What is the single most dangerous gap?
 """,
+    "oracle-phase2": """## YOUR REVIEW TASK — ORACLE PHASE 2: THINKING VIDEO + SSE PUSH (4 QUESTIONS)
+
+You are auditing the Oracle avatar system for Phase 2 optimizations.
+Phase 1 (commit 6898d3d7) fixed encoding preset and ffmpeg post-processing.
+Phase 2 adds: (1) pre-rendered "thinking" video loop, (2) SSE push replacing 2s polling.
+Target: 8-15s perceived latency → 4-8s perceived latency.
+
+### Q1 — THINKING VIDEO ARCHITECTURE
+Where in oracle_live.html does the video element exist?
+When /oracle/chat returns a job_id, what does the frontend currently do while waiting?
+What is the minimal change to make it play a looping "thinking" video immediately on chat submit,
+then cross-fade to the real video when job completes?
+The thinking video should be a 3-4s loop of the avatar with neutral animation
+(head movement, blinks) — no mouth movement, no audio. Where should it be generated and stored?
+
+### Q2 — SSE ARCHITECTURE FOR FLASK
+Flask threaded mode with long-lived SSE connections: what is the correct implementation pattern?
+generator + Response with mimetype text/event-stream? What are the thread-safety concerns
+with per-job event queues? How does render_async (which runs in a thread pool) push events
+to the SSE generator? Specifically: threading.Event per job, or a queue.Queue?
+
+### Q3 — SSE PAYLOAD DESIGN
+What events should the SSE stream send?
+  - audio_ready: triggers client to fetch /oracle/job/<id>/audio
+  - video_ready: triggers client to fetch /oracle/job/<id>
+  - error: render failed
+What should happen if client disconnects mid-stream?
+How long should the SSE connection stay open?
+
+### Q4 — FRONTEND CROSS-FADE
+In oracle_live.html, how should the cross-fade from thinking video to real video work
+without glitching? CSS opacity transition? Two overlapping video elements?
+What is the minimum thinking video duration before real video arrives that makes the UX
+feel responsive vs jarring?
+
+### RESPONSE FORMAT
+For each question (Q1-Q4):
+- DETAILED ANALYSIS with line number citations from the provided files
+- SPECIFIC RECOMMENDATION with expected latency savings (ms)
+- IMPLEMENTATION RISK: LOW / MEDIUM / HIGH
+- POTENTIAL GOTCHAS that could cause production issues
+""",
 }
 
 DEFAULT_REVIEW_TASK = """## YOUR REVIEW TASK
@@ -461,7 +509,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 

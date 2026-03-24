@@ -25,6 +25,7 @@ import logging
 import subprocess
 import tempfile
 import threading
+import queue
 import uuid
 import numpy as np
 
@@ -213,6 +214,10 @@ _render_queue_count = 0
 _render_queue_lock = threading.Lock()
 
 
+# ─── SSE event system (Phase 2: push delivery) ───────────────────────
+_job_events = {}          # job_id -> queue.Queue (SSE push events)
+_job_events_lock = threading.Lock()
+
 _GC_INTERVAL = 60        # seconds between garbage collection sweeps
 _SESSION_TTL = 300       # seconds — evict stream/chunk sessions after 5min of inactivity
 _JOB_TTL_COMPLETED = 300 # seconds — evict completed/failed render jobs after 5min
@@ -268,6 +273,14 @@ def _gc_worker():
                     del _render_jobs[jid]
             if expired_jobs:
                 logger.info(f"[GC] Evicted {len(expired_jobs)} render jobs")
+
+            # Clean orphaned SSE queues (job already evicted or completed)
+            with _job_events_lock:
+                orphaned = [jid for jid in _job_events if jid not in _render_jobs]
+                for jid in orphaned:
+                    _job_events.pop(jid, None)
+            if orphaned:
+                logger.info(f"[GC] Evicted {len(orphaned)} orphaned SSE queues")
         except Exception as e:
             logger.error(f"[GC] Error during cleanup: {e}", exc_info=True)
 
@@ -1183,6 +1196,7 @@ ORACLE_SYSTEM_PROMPT = (
 ORACLE_VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # Jessica
 ORACLE_STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 ORACLE_IDLE_PATH = os.path.join(ORACLE_STATIC_DIR, "oracle_idle.mp4")
+ORACLE_THINKING_PATH = os.path.join(os.path.dirname(__file__), "cache", "thinking_loop.mp4")
 
 _stream_sessions = {}
 _stream_lock = threading.Lock()
@@ -1383,6 +1397,17 @@ def oracle_idle():
     return jsonify({"error": "Idle video not generated yet"}), 404
 
 
+@app.route("/oracle/thinking")
+def oracle_thinking():
+    """Serve the pre-rendered thinking loop video (Phase 2: T1.4)."""
+    if os.path.exists(ORACLE_THINKING_PATH):
+        return send_file(ORACLE_THINKING_PATH, mimetype="video/mp4")
+    # Fallback to idle loop if thinking video not yet generated
+    if os.path.exists(ORACLE_IDLE_PATH):
+        return send_file(ORACLE_IDLE_PATH, mimetype="video/mp4")
+    return jsonify({"error": "not ready"}), 404
+
+
 def generate_idle_loop():
     """Generate a 4-second idle loop with blinks + head movement (no audio)."""
     os.makedirs(ORACLE_STATIC_DIR, exist_ok=True)
@@ -1411,6 +1436,41 @@ def generate_idle_loop():
         logger.info(f"Idle loop saved: {ORACLE_IDLE_PATH} ({num_frames} frames)")
     else:
         logger.error("Failed to generate idle loop")
+
+
+def generate_thinking_loop():
+    """Generate a 4-second thinking loop at cache/thinking_loop.mp4 (Phase 2: T1.4).
+    Re-generate if missing or older than 7 days."""
+    cache_dir = os.path.join(os.path.dirname(__file__), "cache")
+    os.makedirs(cache_dir, exist_ok=True)
+
+    if os.path.exists(ORACLE_THINKING_PATH):
+        age_days = (time.time() - os.path.getmtime(ORACLE_THINKING_PATH)) / 86400
+        if age_days < 7:
+            logger.info(f"Thinking loop exists ({age_days:.1f}d old), skipping generation")
+            return
+        logger.info(f"Thinking loop is {age_days:.1f}d old, regenerating...")
+
+    logger.info("Generating thinking loop video...")
+    reg = ModelRegistry.get()
+    if reg.avatar_face is None:
+        logger.error("Cannot generate thinking loop: no avatar loaded")
+        return
+
+    fps = DEFAULT_FPS
+    duration = 4.0
+    num_frames = int(duration * fps)
+
+    base_frame = reg.avatar_face.copy()
+    frames = [base_frame.copy() for _ in range(num_frames)]
+    frames = post_process_frames(frames, fps, enable_blinks=True, enable_head=True)
+
+    video_path = frames_to_video(frames, fps, audio_path=None)
+    if video_path:
+        os.rename(video_path, ORACLE_THINKING_PATH)
+        logger.info(f"Thinking loop saved: {ORACLE_THINKING_PATH} ({num_frames} frames)")
+    else:
+        logger.error("Failed to generate thinking loop")
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -1729,6 +1789,52 @@ def oracle_job_audio(job_id):
                              "Cache-Control": "no-cache"})
 
 
+@app.route("/oracle/job/<job_id>/stream")
+def oracle_job_stream(job_id):
+    """SSE stream for async render job status (Phase 2: T2.1).
+    Pushes audio_ready, video_ready, or error events as they happen."""
+    def generate():
+        q = queue.Queue()
+        with _job_events_lock:
+            _job_events[job_id] = q
+        try:
+            # Check if job exists and its current state
+            with _render_jobs_lock:
+                job = _render_jobs.get(job_id)
+            if job is None:
+                yield f"event: error\ndata: not_found\n\n"
+                return
+            if job.get("audio_bytes"):
+                yield f"event: audio_ready\ndata: {job_id}\n\n"
+            if job.get("status") == "done":
+                yield f"event: video_ready\ndata: {job_id}\n\n"
+                return
+            if job.get("status") == "error":
+                yield f"event: error\ndata: render_failed\n\n"
+                return
+
+            # Wait for events from render_async (up to 60s)
+            deadline = time.time() + 60
+            while time.time() < deadline:
+                try:
+                    evt = q.get(timeout=5)
+                    yield f"event: {evt['type']}\ndata: {evt.get('data', job_id)}\n\n"
+                    if evt["type"] in ("video_ready", "error"):
+                        return
+                except queue.Empty:
+                    # Keep-alive ping (SSE comment — not dispatched as event)
+                    yield ": ping\n\n"
+            yield "event: error\ndata: timeout\n\n"
+        finally:
+            with _job_events_lock:
+                _job_events.pop(job_id, None)
+
+    from flask import Response
+    return Response(generate(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache",
+                             "X-Accel-Buffering": "no"})
+
+
 @app.route("/oracle/chat", methods=["POST"])
 def oracle_chat():
     data = request.get_json()
@@ -1838,12 +1944,23 @@ def oracle_chat():
                     logger.warning(f"[ASYNC RENDER] Avatar source '{src_name}' failed, falling back to default")
                     a_face, a_coords, _a_eyes = _load_avatar_face("default")
 
+                def _sse_push(event_type, data=None):
+                    """Push an event to any SSE listener for this job."""
+                    with _job_events_lock:
+                        q = _job_events.get(jid)
+                    if q:
+                        try:
+                            q.put_nowait({"type": event_type, "data": data or jid})
+                        except queue.Full:
+                            pass
+
                 audio_bytes = _avatar_tts(txt)
                 # Cache audio in job dict so frontend can fetch it without calling Kokoro again
                 with _render_jobs_lock:
                     if jid in _render_jobs:
                         _render_jobs[jid]["audio_bytes"] = audio_bytes
                         _render_jobs[jid]["audio_mime"] = "audio/wav" if audio_bytes[:4] == b"RIFF" else "audio/mpeg"
+                _sse_push("audio_ready")
                 is_wav = audio_bytes[:4] == b"RIFF"
                 ext = ".wav" if is_wav else ".mp3"
                 with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
@@ -1863,6 +1980,7 @@ def oracle_chat():
                             if jid in _render_jobs:
                                 _render_jobs[jid] = {"status": "error", "video_bytes": None,
                                                      "created": time.time(), "code": "GPU_BUSY"}
+                        _sse_push("error", "GPU_BUSY")
                         return
                     try:
                         frames = wav2lip_generate(wav_path, DEFAULT_FPS, avatar_face=a_face, avatar_face_coords=a_coords)
@@ -1882,10 +2000,12 @@ def oracle_chat():
                         with _render_jobs_lock:
                             if jid in _render_jobs:
                                 _render_jobs[jid] = {"status": "done", "video_bytes": vbytes, "created": time.time()}
+                        _sse_push("video_ready")
                     else:
                         with _render_jobs_lock:
                             if jid in _render_jobs:
                                 _render_jobs[jid]["status"] = "error"
+                        _sse_push("error", "render_failed")
                 finally:
                     for p in [audio_path, wav_path]:
                         try:
@@ -1898,6 +2018,7 @@ def oracle_chat():
                 with _render_jobs_lock:
                     if jid in _render_jobs:
                         _render_jobs[jid]["status"] = "error"
+                _sse_push("error", "render_failed")
 
         t = threading.Thread(target=render_async, args=(response_text, job_id, avatar_source), daemon=True)
         t.start()
@@ -2180,6 +2301,9 @@ if __name__ == "__main__":
 
     # Generate idle loop if not already present
     generate_idle_loop()
+
+    # Phase 2 T1.4: Generate thinking loop if missing or stale
+    generate_thinking_loop()
 
     # Phase 2: Start cache warming in background (delayed 60s to allow incoming requests)
     logger.info("[STARTUP] Oracle cache warmer will start in 60s...")

@@ -10,6 +10,7 @@
 <title>Oracle · Protocol Pulse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" href="/oracle/thinking" as="video" type="video/mp4">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
@@ -1065,6 +1066,13 @@ function process(text){
   setBusy(true);hideCards();hideActionCard();showTX(text);
   setStat('Oracle thinking...','#f4c46f',true);
 
+  // Phase 2 T1.4: Play thinking loop immediately for instant visual feedback
+  vid.src=A+'/oracle/thinking';
+  vid.loop=true;
+  vid.muted=true;
+  vid.style.opacity='1';
+  vid.play().catch(function(e){console.warn('[Oracle] thinking autoplay blocked:',e);});
+
   // Re-unlock audio context on every user interaction
   try{
     var _ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -1172,11 +1180,12 @@ function process(text){
             resolve();
           };
 
-          // Poll for video completion in parallel
+          // Phase 2 T2.1: SSE push replaces polling (with polling fallback)
           if(videoJobId){
-            var pollAttempts=0,maxPollAttempts=60;
-            var pollVideo=setInterval(function(){
-              pollAttempts++;
+            var _videoHandled=false;
+            function _handleVideoReady(){
+              if(_videoHandled) return;
+              _videoHandled=true;
               fetch(A+'/oracle/job/'+videoJobId)
                 .then(function(vr){
                   if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
@@ -1186,22 +1195,77 @@ function process(text){
                 })
                 .then(function(vb){
                   if(vb){
-                    clearInterval(pollVideo);
                     pendingVideoUrl=blobURL(vb);
-                    // Only play lip-sync video if audio has already finished
-                    if (_audioFinished) {
-                      vid.style.opacity='1';
-                      playVid(pendingVideoUrl);
+                    if(_audioFinished){
+                      // Cross-fade: thinking loop → lip-sync video
+                      vid.style.opacity='0';
+                      setTimeout(function(){
+                        vid.loop=false;
+                        vid.muted=false;
+                        vid.src=pendingVideoUrl;
+                        vid.style.opacity='1';
+                        playVid(pendingVideoUrl);
+                      },300);
                     }
-                    // If audio not done yet, skip the video — audio was the response
                   }
                 })
-                .catch(function(){});
-              if(pollAttempts>=maxPollAttempts){
-                clearInterval(pollVideo);
-                setBusy(false);mic.disabled=false;
-              }
-            },2000);
+                .catch(function(e){console.warn('[Oracle] video fetch error:',e);});
+            }
+
+            if(window.EventSource){
+              // SSE push — sub-100ms notification
+              var evtSource=new EventSource(A+'/oracle/job/'+videoJobId+'/stream');
+              evtSource.addEventListener('audio_ready',function(){
+                // Audio already being fetched above — this is informational
+              });
+              evtSource.addEventListener('video_ready',function(){
+                evtSource.close();
+                _handleVideoReady();
+              });
+              evtSource.addEventListener('error',function(e){
+                evtSource.close();
+                // If SSE reports error, stop thinking loop
+                vid.loop=false;
+                vid.style.opacity='0';
+              });
+              evtSource.onerror=function(){
+                // Connection lost — fall back to polling
+                evtSource.close();
+                if(!_videoHandled) _startPollFallback();
+              };
+            } else {
+              _startPollFallback();
+            }
+
+            function _startPollFallback(){
+              var pollAttempts=0,maxPollAttempts=60;
+              var pollVideo=setInterval(function(){
+                pollAttempts++;
+                fetch(A+'/oracle/job/'+videoJobId)
+                  .then(function(vr){
+                    if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
+                      return vr.blob();
+                    }
+                    return null;
+                  })
+                  .then(function(vb){
+                    if(vb){
+                      clearInterval(pollVideo);
+                      _videoHandled=true;
+                      pendingVideoUrl=blobURL(vb);
+                      if(_audioFinished){
+                        vid.style.opacity='1';
+                        playVid(pendingVideoUrl);
+                      }
+                    }
+                  })
+                  .catch(function(){});
+                if(pollAttempts>=maxPollAttempts){
+                  clearInterval(pollVideo);
+                  setBusy(false);mic.disabled=false;
+                }
+              },2000);
+            }
           }
         });
       });
