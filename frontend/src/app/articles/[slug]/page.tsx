@@ -27,7 +27,7 @@ export async function generateMetadata({
       title: article.title,
       description: article.summary,
       type: "article",
-      publishedTime: article.published_at,
+      publishedTime: article.created_at,
       authors: [article.author],
       images: article.cover_image_url ? [article.cover_image_url] : [],
     },
@@ -120,8 +120,8 @@ export default async function ArticlePage({ params }: PageProps) {
             {article.author}
           </span>
           <span className="text-[#CC0000]/50">·</span>
-          <time dateTime={article.published_at}>
-            {formatDate(article.published_at)}
+          <time dateTime={article.created_at}>
+            {formatDate(article.created_at)}
           </time>
           {article.read_time_minutes > 0 && (
             <>
@@ -134,6 +134,18 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
         </div>
 
+        {/* Satomi AI Summary */}
+        {(article.summary || article.content) && (
+          <div className="mb-8 p-5 bg-white/[0.03] backdrop-blur-md border border-white/[0.06] rounded-xl border-l-4 border-l-[#CC0000]">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[#CC0000] font-bold text-xs uppercase tracking-widest">&#9889; Satomi Summary</span>
+            </div>
+            <p className="text-[#EDEDED]/80 text-sm leading-relaxed italic">
+              {article.summary ? article.summary.replace(/<[^>]*>/g, '').slice(0, 300) : article.content.replace(/<[^>]*>/g, '').slice(0, 300)}...
+            </p>
+          </div>
+        )}
+
         {/* Article body */}
         {article.content && (
           <div
@@ -141,6 +153,21 @@ export default async function ArticlePage({ params }: PageProps) {
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         )}
+
+        {/* Lightning tip widget */}
+        <div className="mt-12 p-6 bg-white/[0.03] backdrop-blur-md border border-[#F8C15C]/20 rounded-2xl text-center">
+          <p className="text-[#EDEDED] font-semibold text-lg mb-1">Value this Intelligence Brief?</p>
+          <p className="text-[#888888] text-sm mb-5">Support freedom tech journalism. Every sat funds the signal.</p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            {[{label:'1K sats', amount: 1000}, {label:'5K sats', amount: 5000}, {label:'21K sats', amount: 21000}].map(t => (
+              <a key={t.label}
+                 href={`lightning:bitcoin@protocolpulse.io?amount=${t.amount}`}
+                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all duration-300 ${t.amount===21000 ? 'bg-[#F8C15C] text-black border-[#F8C15C] shadow-[0_0_20px_rgba(248,193,92,0.4)]' : 'bg-white/[0.05] text-[#F8C15C] border-[#F8C15C]/30 hover:bg-[#F8C15C]/10'}`}>
+                &#9889; {t.label}
+              </a>
+            ))}
+          </div>
+        </div>
 
         {/* Source attribution */}
         {article.source_url && (

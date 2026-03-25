@@ -2,6 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Article } from "@/lib/types";
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+}
+
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString("en-US", {
@@ -55,13 +59,13 @@ export default function ArticleCard({
               {article.title}
             </h2>
             <p className="text-white/70 text-sm md:text-base line-clamp-2 mb-4 max-w-3xl">
-              {article.summary}
+              {stripHtml(article.summary)}
             </p>
             <div className="flex items-center gap-3 text-white/50 text-sm">
               <span>{article.author}</span>
               <span className="text-[#CC0000]">·</span>
-              <time dateTime={article.published_at}>
-                {formatDate(article.published_at)}
+              <time dateTime={article.created_at}>
+                {formatDate(article.created_at)}
               </time>
               {article.read_time_minutes > 0 && (
                 <>
@@ -104,12 +108,12 @@ export default function ArticleCard({
             {article.title}
           </h2>
           <p className="text-sm text-[#888888] line-clamp-2 mb-4">
-            {article.summary}
+            {stripHtml(article.summary)}
           </p>
           <div className="mt-auto flex items-center gap-3 text-[#888888] text-xs">
             <span>{article.author}</span>
             <span className="text-[#CC0000]/50">·</span>
-            <span>{formatDate(article.published_at)}</span>
+            <span>{formatDate(article.created_at)}</span>
             {article.read_time_minutes > 0 && (
               <>
                 <span className="text-[#CC0000]/50">·</span>

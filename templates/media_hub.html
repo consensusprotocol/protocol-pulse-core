@@ -151,6 +151,19 @@
 .abar{position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,14,.95);border-top:1px solid var(--border);padding:10px 24px;display:none;align-items:center;gap:14px;z-index:1000;backdrop-filter:blur(20px)}
 .abar.active{display:flex}.abar-now{flex:1;font-size:12px;color:var(--pri);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:1024px){.intel-dash{grid-template-columns:1fr 1fr}.intel-col:nth-child(3){grid-column:span 2}}
+.sm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:2000;align-items:center;justify-content:center}
+.sm-overlay.active{display:flex}
+.sm-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:480px;width:90%;max-height:85vh;overflow-y:auto;padding:32px;position:relative;animation:fadeUp .3s ease}
+.sm-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.05);border:none;color:var(--mut);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:1}
+.sm-close:hover{background:rgba(255,255,255,.1);color:white}
+.sm-header{display:flex;gap:16px;align-items:center;margin-bottom:20px}
+.sm-cover{width:80px;height:120px;border-radius:8px;flex-shrink:0}
+.sm-title{font-family:'Instrument Serif',Georgia,serif;font-size:22px;color:var(--bright);margin-bottom:4px}
+.sm-author{font-family:'Geist Mono',monospace;font-size:11px;color:var(--sec);text-transform:uppercase;letter-spacing:1px}
+.sm-desc{font-size:13px;color:var(--sec);line-height:1.6;margin-bottom:20px}
+.sm-eps{font-family:'Geist Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:24px;padding:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px}
+.sm-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--red);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
+.sm-cta:hover{background:#b91c1c;box-shadow:0 0 20px rgba(220,38,38,.3)}
 @media(max-width:768px){.hero{padding:60px 0 40px}.hero-metrics{gap:24px;flex-wrap:wrap}.sec{padding:40px 0}.intel-dash{grid-template-columns:1fr}.intel-col:nth-child(3){grid-column:auto}.sg{grid-template-columns:1fr}.sd-main{grid-template-columns:1fr}.sd-eps{max-height:250px;border-left:none;border-top:1px solid var(--border)}.pod-grid{grid-template-columns:1fr}.bg{grid-template-columns:repeat(2,1fr)}.nl{padding:32px 20px}.nl-f{flex-direction:column}}
 </style>
 {% endblock %}
@@ -175,13 +188,25 @@
 <div class="pod-grid">{% for ep in latest_episodes %}<div class="pod-card" onclick="playEp('{{ ep.audio_url }}','{{ ep.title|replace("'","") }}')"><div class="pod-num mono">{{ '%02d'|format(loop.index) }}</div><div class="pod-title">{{ ep.title }}</div><div class="pod-meta"><span class="pod-dur mono">{{ ep.duration or '--:--' }}</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>{% endfor %}</div>
 <a href="/podcasts" class="pod-more">View all episodes <i class="fas fa-arrow-right"></i></a></div>
 <div class="sec" id="books"><div class="sec-lab">04 — Essential Reading</div><h2 class="sec-h">The Library</h2><p class="sec-desc">The books that shaped Cypherpunk'd. Every link supports Protocol Pulse.</p>
-<div class="bcat">Featured on Podcast</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='series' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)"><div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div>
+<div class="bcat">Featured on Podcast</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='series' %}<div class="bc" style="cursor:pointer" onclick="showSeriesPanel(this)" data-title="{{ b.title }}" data-author="{{ b.author }}" data-url="{{ b.amazon_url }}" data-color="{{ b.get('color','#333') }}" data-desc="{{ b.get('description','A deep dive into the ideas that shaped the Bitcoin movement.') }}" data-episodes="{{ b.get('episode_count',0) }}"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)"><div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></div>{% endif %}{% endfor %}</div>
 <div class="bcat">Bitcoin Essentials</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='essential' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)"><div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div>
 <button class="btog" id="btog" onclick="togB()"><i class="fas fa-chevron-down"></i><span>Show More — Bestsellers & Economics</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--mut)">{{ all_books|selectattr('category','in',['bestseller','economics'])|list|length }} titles</span></button>
 <div class="bhid" id="bmore"><div class="bcat" style="margin-top:20px">Bitcoin Bestsellers</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='bestseller' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)"><div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div>
 <div class="bcat">Austrian Economics</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='economics' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)"><div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div></div></div>
 <div class="sec" id="subscribe"><div class="nl"><h2 class="nl-h">The signal. Every morning.</h2><p class="nl-p">Daily intelligence brief + weekly premium digest.</p><form class="nl-f" action="/newsletter/subscribe" method="POST"><input type="email" name="email" class="nl-i" placeholder="your@email.com" required><button type="submit" class="nl-b">Subscribe</button></form></div></div>
 </div></div>
+<div id="seriesModal" class="sm-overlay" onclick="if(event.target===this)closeSeriesPanel()">
+<div class="sm-panel">
+<button class="sm-close" onclick="closeSeriesPanel()"><i class="fas fa-times"></i></button>
+<div class="sm-header">
+<div class="sm-cover" id="smCover"></div>
+<div class="sm-info"><h3 class="sm-title" id="smTitle"></h3><p class="sm-author" id="smAuthor"></p></div>
+</div>
+<p class="sm-desc" id="smDesc"></p>
+<div class="sm-eps" id="smEps"></div>
+<a href="#" id="smLink" target="_blank" rel="noopener" class="sm-cta"><i class="fas fa-book"></i> Get the Full Series</a>
+</div>
+</div>
 <div id="abar" class="abar"><button onclick="togA()" style="background:none;border:none;color:var(--sec);font-size:16px;cursor:pointer;padding:4px 8px"><i id="aIcon" class="fas fa-pause"></i></button><div class="abar-now" id="aNow">Now Playing...</div><button onclick="stopA()" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:12px"><i class="fas fa-times"></i></button><audio id="aEl"></audio></div>
 {% endblock %}
 {% block scripts %}
@@ -207,7 +232,9 @@ var QUOTES=[{n:'Michael Saylor',i:'MS',c:'macro',q:'Bitcoin is the apex property
 var qCt=0;function startQuotes(){var f=document.getElementById('qFeed');f.innerHTML='';var now=Math.floor(Date.now()/1000);QUOTES.forEach(function(q,i){setTimeout(function(){var el=document.createElement('div');el.className='fi new'+(i<3?' fi-pin':'');var ts=now-(i*1800);  /* deterministic stagger: 30min per quote */el.innerHTML='<div class="fi-head">'+mkAv(q)+'<span class="fi-name">'+q.n+'</span><span class="fi-time">'+tAgo(ts)+'</span></div><div class="fi-body fi-quote '+q.c+'">\"'+q.q+'\"<div class="fi-src">'+q.s+'</div></div>';f.insertBefore(el,f.firstChild);qCt++;document.getElementById('qCount').textContent=qCt;while(f.children.length>20)f.removeChild(f.lastChild)},i*500)})}
 function escH(t){var d=document.createElement('div');d.appendChild(document.createTextNode(t));return d.innerHTML}
 function tAgo(ts){var d=Math.floor(Date.now()/1000)-ts;if(d<60)return'now';if(d<3600)return Math.floor(d/60)+'m';if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'d'}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSD()});
+function showSeriesPanel(el){var t=el.dataset.title,a=el.dataset.author,u=el.dataset.url,c=el.dataset.color||'#333',d=el.dataset.desc,ep=parseInt(el.dataset.episodes)||0;document.getElementById('smTitle').textContent=t;document.getElementById('smAuthor').textContent=a;document.getElementById('smCover').style.background='linear-gradient(160deg,'+c+'30,'+c+'10)';document.getElementById('smDesc').textContent=d;document.getElementById('smLink').href=u;document.getElementById('smEps').textContent=ep>0?ep+' episodes available':'Episodes coming soon';document.getElementById('seriesModal').classList.add('active')}
+function closeSeriesPanel(){document.getElementById('seriesModal').classList.remove('active')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD();closeSeriesPanel()}});
 startNostr();setTimeout(startQuotes,1200);
 </script>
 {% endblock %}

@@ -3,20 +3,25 @@ import { fetchArticles, fetchCategories } from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
 import Pagination from "@/components/Pagination";
 
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default async function ArticlesPage({ searchParams }: PageProps) {
-  const params = await (searchParams ?? Promise.resolve({}));
-  const page = Number(params?.page) || 1;
+export default async function ArticlesPage(props: any) {
+  const searchParams = (await props.searchParams) || {};
+  const page = Number(searchParams.page) || 1;
   const category =
-    typeof params?.category === "string" ? params.category : undefined;
+    typeof searchParams.category === "string" ? searchParams.category : undefined;
 
-  const [articlesData, categories] = await Promise.all([
-    fetchArticles(page, 20, category),
-    fetchCategories().catch(() => null),
-  ]);
+  let articlesData = null;
+  let categories = null;
+  try {
+    [articlesData, categories] = await Promise.all([
+      fetchArticles(page, 20, category),
+      fetchCategories().catch(() => null),
+    ]);
+  } catch (e) {
+    console.error("[articles] fetch error:", e);
+  }
 
   const articles = articlesData?.articles ?? [];
   const featured = articles[0];

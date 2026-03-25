@@ -1,7 +1,9 @@
 import { Article, ArticlesResponse, CategoryInfo, PriceData } from "./types";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://protocolpulse.replit.app";
+  typeof window === "undefined"
+    ? (process.env.API_URL || "http://localhost:5000")
+    : (process.env.NEXT_PUBLIC_API_URL || "https://protocolpulse.io");
 
 export async function fetchArticles(
   page = 1,
@@ -18,7 +20,7 @@ export async function fetchArticles(
     if (category) params.set("category", category);
 
     const res = await fetch(`${API_BASE_URL}/api/v2/articles?${params}`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     });
     if (!res.ok) return null;
     return await res.json();
@@ -44,7 +46,7 @@ export async function fetchArticle(slug: string): Promise<Article | null> {
 export async function fetchCategories(): Promise<CategoryInfo[] | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/v2/categories`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     });
     if (!res.ok) return null;
     return await res.json();
