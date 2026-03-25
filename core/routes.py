@@ -4052,6 +4052,12 @@ def api_v2_articles():
         'page': page,
         'per_page': per_page,
         'total_pages': max(1, (total + per_page - 1) // per_page),
+        'pagination': {
+            'page': page,
+            'total_pages': max(1, (total + per_page - 1) // per_page),
+            'has_prev': page > 1,
+            'has_next': page < max(1, (total + per_page - 1) // per_page),
+        },
     })
 
 
