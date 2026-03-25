@@ -4039,7 +4039,7 @@ def api_v2_articles():
             'id': a.id,
             'title': a.title or '',
             'slug': a.slug or str(a.id),
-            'summary': (a.summary or a.content or '')[:300],
+            'summary': re.sub(r'<[^>]+>', ' ', (a.summary or a.content or '')).strip()[:300],
             'content': a.content or '',
             'category': a.category or 'Bitcoin',
             'cover_image_url': a.cover_image_url or '',

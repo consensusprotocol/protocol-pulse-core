@@ -111,6 +111,25 @@ PHONEME_MAP = {
     r'\bSatomi\b':           'Sah-TOH-mee',
     r'\bSATOMI\b':           'Sah-TOH-mee',
     r'\bsatomi\b':           'Sah-TOH-mee',
+    # Technical pronunciation additions
+    r'\bexahash\b':           'EX-ah-hash',
+    r'\bExahash\b':           'EX-ah-hash',
+    r'\bexahashes\b':         'EX-ah-hash-ez',
+    r'\bEH/s\b':             'exahashes per second',
+    r'\bpetahash\b':          'PEH-tah-hash',
+    r'\bPH/s\b':             'petahashes per second',
+    r'\bHashrate\b':          'hash-rate',
+    r'\bhashrate\b':          'hash-rate',
+    r'\bUTXO\b':             'you-tee-ex-oh',
+    r'\bUTXOs\b':            'you-tee-ex-ohs',
+    r'\bMarty\b':             'MAR-tee',
+    r'\bPompliano\b':         'Pom-plee-AH-no',
+    r'\bPomp\b':             'Pomp',
+    r'\bTimechain\b':         'time-chain',
+    r'\b(\d+)B\b':            r'\1 billion',
+    r'\$(\d+)B\b':            r'\1 billion dollars',
+    r'\$(\d+)M\b':            r'\1 million dollars',
+    r'\$(\d+)T\b':            r'\1 trillion dollars',
 }
 
 # ── Affiliate / product catalog ────────────────────────────────────────────
