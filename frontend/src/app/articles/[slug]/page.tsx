@@ -141,7 +141,7 @@ export default async function ArticlePage({ params }: PageProps) {
               <span className="text-[#CC0000] font-bold text-xs uppercase tracking-widest">&#9889; Satomi Summary</span>
             </div>
             <p className="text-[#EDEDED]/80 text-sm leading-relaxed italic">
-              {article.summary ? article.summary.replace(/<[^>]*>/g, '').slice(0, 300) : article.content.replace(/<[^>]*>/g, '').slice(0, 300)}...
+              {article.summary ? article.summary.replace(/<[^>]*>/g, '').slice(0, 300) : (article.content ?? '').replace(/<[^>]*>/g, '').slice(0, 300)}...
             </p>
           </div>
         )}
