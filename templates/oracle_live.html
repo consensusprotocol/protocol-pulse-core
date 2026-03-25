@@ -1472,6 +1472,7 @@ function playVid(url){
     console.log('[Satomi] playVid called:',url&&url.substring(0,60));
     setOracleState('RESPONDING');
     vid.loop=false;
+    vid.muted=false; /* FIX: always unmute before playing lip-sync video */
     vid.src=url;
     vid.style.opacity='1';
     if(window._matrixHide) window._matrixHide();
@@ -1592,7 +1593,7 @@ function initSR(){
       /* P1: Bridge status — show "Processing..." immediately so user sees feedback */
       setStat('Processing\u2026','#f4c46f',true);
       setTimeout(function(){ if(!busy){process(_pend);}},100);
-    } else if(!busy&&_greeted&&ORACLE_STATE==='LISTENING'){
+    } else if(!busy&&_greeted){
       /* FIX 5: Auto-restart recognition on silence — don't dead-end */
       console.log('[Satomi] Empty pending — auto-restarting listener');
       setStat('Listening\u2026','#6cff9f',false);

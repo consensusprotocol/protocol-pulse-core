@@ -576,7 +576,7 @@ def signal_terminal():
     except Exception as e:
         logging.warning(f'[SignalTerminal] price: {e}')
     try:
-        r = _req.get('https://api.alternative.me/fng/?limit=1', timeout=3)
+        r = _req.get('https://api.alternative.me/fng/?limit=1', timeout=1.5)
         if r.ok:
             d = r.json().get('data', [{}])[0]
             fg = int(d.get('value', 25))
@@ -584,7 +584,7 @@ def signal_terminal():
     except:
         pass
     try:
-        r = _req.get('https://mempool.space/api/v1/fees/recommended', timeout=3)
+        r = _req.get('https://mempool.space/api/v1/fees/recommended', timeout=1.5)
         if r.ok:
             d = r.json()
             mempool['fee_low'] = d.get('hourFee', 1)
@@ -593,7 +593,7 @@ def signal_terminal():
     except:
         pass
     try:
-        r = _req.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=3)
+        r = _req.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=1.5)
         if r.ok:
             d = r.json()
             hs = d.get('currentHashrate', 0)
