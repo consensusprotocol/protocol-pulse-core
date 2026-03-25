@@ -966,28 +966,28 @@ _The autonomous pipeline has activated._
         return bool(os.environ.get('YOUTUBE_REFRESH_TOKEN'))
     
     def get_oauth_url(self):
+        """Generate OAuth URL manually — no PKCE, matches our direct token exchange."""
         if not self.is_oauth_configured():
             return None, None
-        
-        client_config = {
-            "web": {
-                "client_id": os.environ.get('YOUTUBE_CLIENT_ID'),
-                "client_secret": os.environ.get('YOUTUBE_CLIENT_SECRET'),
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [self._get_oauth_redirect_uri()]
-            }
+        import secrets, urllib.parse
+        state = secrets.token_urlsafe(22)
+        params = {
+            'client_id': os.environ.get('YOUTUBE_CLIENT_ID'),
+            'redirect_uri': self._get_oauth_redirect_uri(),
+            'response_type': 'code',
+            'scope': ' '.join(YOUTUBE_UPLOAD_SCOPES),
+            'access_type': 'offline',
+            'prompt': 'consent',
+            'state': state,
+            'include_granted_scopes': 'true',
         }
-        
-        flow = Flow.from_client_config(client_config, scopes=YOUTUBE_UPLOAD_SCOPES)
-        flow.redirect_uri = self._get_oauth_redirect_uri()
-        
-        auth_url, state = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true',
-            prompt='consent'
-        )
-        
+        auth_url = 'https://accounts.google.com/o/oauth2/auth?' + urllib.parse.urlencode(params)
+        # Store state in temp file as backup for SameSite session drop
+        try:
+            with open('/tmp/yt_oauth_state.txt', 'w') as sf:
+                sf.write(state)
+        except:
+            pass
         return auth_url, state
     
 
