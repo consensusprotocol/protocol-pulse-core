@@ -11849,6 +11849,46 @@ def satomi_voice_choice():
         return Response(str(resp), mimetype='text/xml')
 
 
+
+@app.route('/api/satomi/tts')
+def satomi_tts_audio():
+    """Serve Satomi's Kokoro voice as audio for Twilio <Play> tag."""
+    import subprocess, tempfile, hashlib
+    text = request.args.get('text', 'Protocol Pulse intelligence signal.')[:600]
+    # Try Kokoro first (same voice as oracle), fall back to ElevenLabs
+    try:
+        import sys
+        sys.path.insert(0, '/home/ultron/protocol_pulse/oracle')
+        from avatar_server import _avatar_tts
+        audio_bytes = _avatar_tts(text)
+        if audio_bytes and len(audio_bytes) > 1000:
+            import io
+            from flask import send_file
+            return send_file(io.BytesIO(audio_bytes), mimetype='audio/wav',
+                           as_attachment=False, download_name='satomi.wav')
+    except Exception as e:
+        logging.warning(f'[SatomiTTS] Kokoro failed: {e}')
+    # ElevenLabs fallback
+    try:
+        import requests as _req
+        xi_key = os.environ.get('ELEVENLABS_API_KEY', '')
+        voice_id = os.environ.get('ELEVENLABS_VOICE_ID', 'cgSgspJ2msm6clMCkdW9')
+        r = _req.post(f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}',
+            headers={'xi-api-key': xi_key, 'Content-Type': 'application/json'},
+            json={'text': text, 'model_id': 'eleven_turbo_v2_5',
+                  'voice_settings': {'stability': 0.5, 'similarity_boost': 0.8}},
+            timeout=15)
+        if r.ok:
+            import io
+            from flask import send_file
+            return send_file(io.BytesIO(r.content), mimetype='audio/mpeg',
+                           as_attachment=False, download_name='satomi.mp3')
+    except Exception as e:
+        logging.warning(f'[SatomiTTS] ElevenLabs failed: {e}')
+    # Final fallback - empty WAV
+    from flask import abort
+    abort(503)
+
 @app.route('/api/satomi/voice/outbound-twiml', methods=['POST', 'GET'])
 def satomi_voice_outbound_twiml():
     """TwiML served when outbound call is answered by subscriber."""

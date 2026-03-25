@@ -16,10 +16,21 @@ import os, logging, re, sys, time
 from twilio.rest import Client
 from twilio.twiml.voice_response import VoiceResponse, Say, Gather, Play
 from twilio.twiml.messaging_response import MessagingResponse
+import hashlib, tempfile
 
 logger = logging.getLogger('satomi_voice')
 
 TWILIO_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+
+# Base URL for audio playback (our oracle TTS endpoint)
+BASE_URL = 'https://protocolpulse.io'
+
+def _satomi_tts_url(text: str) -> str:
+    """Generate a URL that serves Satomi's voice (Kokoro af_heart) for Twilio <Play>."""
+    import urllib.parse
+    # Use our /api/satomi/tts endpoint (built below) to serve the audio
+    encoded = urllib.parse.quote(text[:800])
+    return f"{BASE_URL}/api/satomi/tts?text={encoded}"
 TWILIO_AUTH = os.environ.get('TWILIO_AUTH_TOKEN', '')
 TWILIO_FROM = os.environ.get('TWILIO_FROM', '')
 
@@ -44,7 +55,7 @@ def generate_incoming_twiml(brief_text: str = None) -> str:
         "Press 1 for the full intelligence brief. "
         "Press 2 for a quick market summary. "
         "Or stay on the line for today's top signal.",
-        voice='Polly.Joanna',
+        voice='Polly.Joanna-Neural',
         language='en-US'
     )
     resp.append(gather)
@@ -53,15 +64,15 @@ def generate_incoming_twiml(brief_text: str = None) -> str:
     if brief_text:
         # Clean text for TTS
         clean = re.sub(r'[*#_`]', '', brief_text)[:1500]  # max 1500 chars for TTS
-        resp.say(clean, voice='Polly.Joanna', language='en-US')
+        resp.say(clean, voice='Polly.Joanna-Neural', language='en-US')
     else:
         resp.say(
             "Bitcoin intelligence is loading. Stay sovereign.",
-            voice='Polly.Joanna',
+            voice='Polly.Joanna-Neural',
             language='en-US'
         )
 
-    resp.say("Signal complete. Stay sovereign.", voice='Polly.Joanna')
+    resp.say("Signal complete. Stay sovereign.", voice='Polly.Joanna-Neural')
     return str(resp)
 
 
@@ -70,13 +81,13 @@ def generate_choice_twiml(digit: str, brief_text: str, market_summary: str) -> s
     resp = VoiceResponse()
     if digit == '1' and brief_text:
         clean = re.sub(r'[*#_`]', '', brief_text)[:2000]
-        resp.say(clean, voice='Polly.Joanna', language='en-US')
+        resp.say(clean, voice='Polly.Joanna-Neural', language='en-US')
     elif digit == '2' and market_summary:
         clean = re.sub(r'[*#_`]', '', market_summary)[:800]
-        resp.say(clean, voice='Polly.Joanna', language='en-US')
+        resp.say(clean, voice='Polly.Joanna-Neural', language='en-US')
     else:
-        resp.say("Signal not available. Stay sovereign.", voice='Polly.Joanna')
-    resp.say("Stay sovereign.", voice='Polly.Joanna')
+        resp.say("Signal not available. Stay sovereign.", voice='Polly.Joanna-Neural')
+    resp.say("Stay sovereign.", voice='Polly.Joanna-Neural')
     return str(resp)
 
 
