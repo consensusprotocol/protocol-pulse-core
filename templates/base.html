@@ -44,20 +44,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Preload critical CSS -->
-    <link rel="preload" href="{{ '/v3/css/pp-main.css' }}?v=8.0" as="style">
+    <link rel="preload" href="{{ '/v3/css/pp-main.css' }}?v=9.0" as="style">
 
     <!-- Bootstrap (backward compat for existing templates) + Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Protocol Pulse Design System -->
-    <link rel="stylesheet" href="{{ '/v3/css/pp-main.css' }}?v=8.0">
-    <link rel="stylesheet" href="{{ '/v3/css/pp-style.css' }}?v=5.0">
-    <link rel="stylesheet" href="{{ '/v3/css/pp-coindesk.css' }}?v=5.0">
-    <link rel="stylesheet" href="{{ '/v3/css/pp-fixes.css' }}?v=8.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/oracle_widget.css') }}?v=4.0">
-    {% if current_user.is_authenticated and (current_user.operative_rank|default(0)) >= 3 %}
-    <link rel="stylesheet" href="{{ '/v3/css/stealth-alpha.css' }}?v=2.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-main.css' }}?v=9.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-style.css' }}?v=6.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-coindesk.css' }}?v=6.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-fixes.css' }}?v=9.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/oracle_widget.css') }}?v=5.0">
+    {% if current_user.is_authenticated and ((current_user.operative_rank or 0)|int) >= 3 %}
+    <link rel="stylesheet" href="{{ '/v3/css/stealth-alpha.css' }}?v=3.0">
     {% endif %}
 
     <!-- JSON-LD Schema Markup -->
@@ -97,7 +97,7 @@
     <link rel="alternate" type="application/feed+json" title="Protocol Pulse JSON Feed" href="/feed/json">
 
     {% block head %}{% endblock %}
-    <link rel="stylesheet" href="{{ '/v3/css/pp-homepage.css' }}?v=2.0">
+    <link rel="stylesheet" href="{{ '/v3/css/pp-homepage.css' }}?v=3.0">
 </head>
 <body class="pp-body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} rank-3-active{% endif %}{% block body_class %}{% endblock %}">
 
