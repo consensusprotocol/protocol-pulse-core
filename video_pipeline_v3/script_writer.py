@@ -118,7 +118,7 @@ EPISODE STRUCTURE (follow this order):
    {{"host": 2, "text": "[SPACE_TAP] ...", "type": "space_tap_react"}},
    {{"host": "SPACE_CLIP", "clip_index": 1}},
    ... and so on for all clips.
-9. [WARM] — 2-3 sentences synthesizing the day's theme, then abrupt CTA. Target: 20-30 seconds. End ABRUPTLY. No "thanks for watching."
+9. [WARM] — The wrap segment MUST be at least 2-3 full sentences. Summarize the day's key takeaway with substance, then close with "Stay sovereign." as the final words. Target: 20-30 seconds. End ABRUPTLY after "Stay sovereign." No "thanks for watching."
 
 NARRATION PHILOSOPHY — Simon Dixon / Preston Pysh standard:
 - Every line must contain ONE specific insight, data point, or evaluated observation
@@ -180,7 +180,7 @@ Return ONLY valid JSON (no markdown, no code fences):
     ...and so on for all clips...
     {{"host": 2, "text": "...", "type": "social_segment"}},
     {{"host": 2, "text": "...", "type": "social_segment"}},
-    {{"host": 2, "text": "Final wrap. Stay sovereign.", "type": "wrap"}}
+    {{"host": 2, "text": "[WARM] Your wrap segment here — 2-3 full sentences synthesizing the day's key takeaway, then end with 'Stay sovereign.' as the final words.", "type": "wrap"}}
   ],
   "episode_title": "Short punchy title (5-8 words)",
   "thumbnail": {{

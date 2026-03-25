@@ -810,18 +810,36 @@ def api_register_creator():
     )
     return jsonify(result)
 
+def _is_nostr_spam(content: str) -> bool:
+    """Filter explicit content, altcoin spam, and hashtag farms from Nostr posts."""
+    if not content:
+        return False
+    c = content.lower()
+    spam_terms = ['incest', 'onlyfans', 'nude', 'xxx', 'porn', 'naked', 'sex tape',
+                  '#solana', '#memecoin', 'ethbtc', 'paxgbtc']
+    if any(t in c for t in spam_terms):
+        return True
+    words = content.split()
+    if len(words) > 0:
+        hashtag_ratio = sum(1 for w in words if w.startswith('#')) / len(words)
+        if hashtag_ratio > 0.6:
+            return True
+    return False
+
+
 @app.route('/api/nostr/latest/<pubkey>')
 def api_nostr_latest(pubkey):
     """Get latest Nostr post for a given pubkey"""
     try:
-        event = models.NostrEvent.query.filter_by(pubkey=pubkey).order_by(models.NostrEvent.created_at.desc()).first()
-        if event:
-            return jsonify({
-                'success': True,
-                'content': event.content,
-                'created_at': event.created_at.timestamp() if event.created_at else None,
-                'kind': event.kind
-            })
+        events = models.NostrEvent.query.filter_by(pubkey=pubkey).order_by(models.NostrEvent.created_at.desc()).limit(10).all()
+        for event in events:
+            if not _is_nostr_spam(event.content):
+                return jsonify({
+                    'success': True,
+                    'content': event.content,
+                    'created_at': event.created_at.timestamp() if event.created_at else None,
+                    'kind': event.kind
+                })
         return jsonify({'success': False, 'error': 'No events found'})
     except Exception as e:
         logging.warning(f"Nostr latest fetch error: {e}")

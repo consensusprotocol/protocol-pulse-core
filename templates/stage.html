@@ -1201,7 +1201,21 @@ body { background: var(--s-bg); }
     });
   }
 
+  var _spamTerms = ['incest','onlyfans','nude','xxx','porn','naked','sex tape','#solana','#memecoin','ethbtc','paxgbtc'];
+  function _isSpam(txt){
+    if(!txt) return false;
+    var lo = txt.toLowerCase();
+    for(var i=0;i<_spamTerms.length;i++){if(lo.indexOf(_spamTerms[i])!==-1)return true;}
+    var words = txt.split(/\s+/);
+    if(words.length>0){
+      var tags=0; for(var j=0;j<words.length;j++){if(words[j].charAt(0)==='#')tags++;}
+      if(tags/words.length>0.6) return true;
+    }
+    return false;
+  }
+
   function renderNostr(posts){
+    posts = posts.filter(function(p){return !_isSpam(p.text||'');});
     var feed = document.getElementById('nostrFeed');
     safeText(document.getElementById('nostrCount'), posts.length + ' posts');
     if(!posts.length){

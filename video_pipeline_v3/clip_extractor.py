@@ -119,11 +119,13 @@ def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 
         pauses = [float(m.group(1)) for m in
                   re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
 
-        # Find first pause that starts after original_end but within pad window
-        candidates = [p for p in pauses if original_end <= p <= original_end + pad_window]
+        # FIX: +1.5s tail padding so speaker finishes sentence before cut
+        min_end = original_end + 1.5
+        # Find first pause that starts after min_end but within pad window
+        candidates = [p for p in pauses if min_end <= p <= original_end + pad_window]
         if candidates:
             trim_at = candidates[0] + 0.2  # trim slightly into the silence
-            logger.info(f"CLIP TRIM: Trimmed at natural pause at {trim_at:.1f}s")
+            logger.info(f"CLIP TRIM: Trimmed at natural pause at {trim_at:.1f}s (+1.5s tail padding)")
             return trim_at
     except Exception as e:
         logger.warning(f"  Silence detection failed: {e}")

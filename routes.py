@@ -8877,6 +8877,7 @@ def avatar_stage():
     return render_template('stage.html', page_title='Oracle Stage', active_page='stage')
 
 @app.route('/api/stage/transcript')
+@limiter.limit("30 per minute")
 def api_stage_transcript():
     """Live transcript + sentiment feed for the avatar stage.
     Returns latest entries from the daily episode if available,
@@ -8909,8 +8910,8 @@ def api_stage_transcript():
                     "timestamp": seg.get('time', datetime.now().strftime('%H:%M:%S')),
                 })
             is_live = True
-        except Exception:
-            pass
+        except Exception as e:
+            app.logger.exception('stage transcript narration parse error: %s', e)
     elif clips_path.exists():
         try:
             data = json.loads(clips_path.read_text())
@@ -8924,8 +8925,8 @@ def api_stage_transcript():
                 })
             if entries:
                 is_live = True
-        except Exception:
-            pass
+        except Exception as e:
+            app.logger.exception('stage transcript clips parse error: %s', e)
 
     # Compute sentiment stats
     if entries:
@@ -8948,8 +8949,8 @@ def api_stage_transcript():
             raw_topics = bundle.get('top_topics', [])
             if raw_topics:
                 topics = [str(t) for t in raw_topics[:3]]
-        except Exception:
-            pass
+        except Exception as e:
+            app.logger.exception('stage transcript topics parse error: %s', e)
 
     return jsonify({
         "is_live": is_live,
@@ -10997,6 +10998,23 @@ def api_stage_intel():
     return jsonify(res)
 
 
+def _is_nostr_spam(content: str) -> bool:
+    """Filter explicit content, altcoin spam, and hashtag farms from Nostr posts."""
+    if not content:
+        return False
+    c = content.lower()
+    spam_terms = ['incest', 'onlyfans', 'nude', 'xxx', 'porn', 'naked', 'sex tape',
+                  '#solana', '#memecoin', 'ethbtc', 'paxgbtc']
+    if any(t in c for t in spam_terms):
+        return True
+    words = content.split()
+    if len(words) > 0:
+        hashtag_ratio = sum(1 for w in words if w.startswith('#')) / len(words)
+        if hashtag_ratio > 0.6:
+            return True
+    return False
+
+
 @app.route('/api/stage/signal')
 def api_stage_signal():
     import json as _j
@@ -11009,7 +11027,8 @@ def api_stage_signal():
         posts = [{'text': (p.get('text') or '')[:280],
                   'display_name': p.get('display_name') or p.get('nip05') or 'anon',
                   'nip05': p.get('nip05') or '', 'score': p.get('score', 0)}
-                 for p in data.get('nostr_posts', [])[:15]]
+                 for p in data.get('nostr_posts', [])[:15]
+                 if not _is_nostr_spam(p.get('text') or '')]
         spaces = [{'text': (q.get('text') or '')[:280],
                    'source': q.get('space_title') or 'X Spaces'}
                   for q in data.get('spaces_quotes', [])[:6]]

@@ -1080,7 +1080,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
                 "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=716x370:d={duration}:r=30",
                 "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
                 "-t", str(duration), "-an",
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-c:v", "libx264", "-crf", "17", "-preset", "ultrafast",
                 "-r", "30", "-pix_fmt", "yuv420p",
                 output_path,
             ], "pip dark placeholder", 30)
@@ -1116,13 +1116,27 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
         pip_source = cfr_path
         logger.info(f"PiP: CFR pre-processed {os.path.basename(clip_path)}")
     else:
-        pip_source = clip_path
         if os.path.exists(cfr_path):
             try:
                 os.remove(cfr_path)
             except OSError:
                 pass
-        logger.warning(f"PiP: CFR pre-process failed, using original clip")
+        logger.warning(f"PiP: CFR pre-process failed — generating dark placeholder instead of VFR original")
+        # FIX: VFR/bad-codec originals cause black frames in PiP filtergraph — use placeholder
+        try:
+            placeholder_ok = run_ffmpeg([
+                "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=716x370:d={duration}:r=30",
+                "-t", str(duration), "-an",
+                "-c:v", "libx264", "-crf", "17", "-preset", "ultrafast",
+                "-r", "30", "-pix_fmt", "yuv420p",
+                output_path,
+            ], "pip cfr-fail placeholder", 30)
+            if placeholder_ok and os.path.exists(output_path):
+                logger.info(f"PiP: dark placeholder generated after CFR failure ({duration}s)")
+                return output_path
+        except Exception as e:
+            logger.warning(f"PiP: placeholder generation failed after CFR failure: {e}")
+        return ""
 
     actual_dur = min(duration, clip_dur - 0.5)
     if actual_dur <= 0:
@@ -1140,7 +1154,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
             "hue=s=0,eq=brightness=-0.1:contrast=1.1,"
             "format=yuv420p"
         ),
-        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-c:v", "libx264", "-crf", "17", "-preset", "ultrafast",
         "-r", "30",
         output_path,
     ], "pip preview extract", 120)  # FIX 1: increased timeout
@@ -1199,7 +1213,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
                     "pad=716:370:(ow-iw)/2:(oh-ih)/2:color=0x0A0A0F,"
                     "format=yuv420p"
                 ),
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-c:v", "libx264", "-crf", "17", "-preset", "ultrafast",
                 "-r", "30",
                 output_path,
             ], "pip letterbox fallback", 120)
@@ -1207,6 +1221,37 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
                 logger.info(f"PiP: letterbox fallback rendered for {os.path.basename(clip_path)}")
                 return output_path
             return ""
+
+        # FIX: blackdetect validation — catch continuous black frames in first 3s
+        try:
+            import re as _re_bd
+            bd_result = subprocess.run(
+                ["ffmpeg", "-i", output_path, "-vf", "blackdetect=d=0.1:pix_th=0.10",
+                 "-an", "-t", "3", "-f", "null", "-"],
+                capture_output=True, text=True, timeout=15)
+            black_durations = _re_bd.findall(r"black_duration:\s*([\d.]+)", bd_result.stderr)
+            total_black = sum(float(d) for d in black_durations)
+            check_dur = min(3.0, pip_out_dur)
+            if check_dur > 0 and total_black / check_dur > 0.5:
+                logger.error(f"PiP BLACKDETECT: {total_black:.1f}s/{check_dur:.1f}s black in first 3s — discarding")
+                try:
+                    os.remove(output_path)
+                except OSError:
+                    pass
+                # Generate dark placeholder instead
+                run_ffmpeg([
+                    "-f", "lavfi", "-i", f"color=c=0x0A0A0F:s=716x370:d={actual_dur}:r=30",
+                    "-t", str(actual_dur), "-an",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "ultrafast",
+                    "-r", "30", "-pix_fmt", "yuv420p",
+                    output_path,
+                ], "pip blackdetect placeholder", 30)
+                if os.path.exists(output_path):
+                    logger.info(f"PiP: dark placeholder after blackdetect failure ({actual_dur:.1f}s)")
+                    return output_path
+                return ""
+        except Exception:
+            pass  # blackdetect check failed — continue with existing output
 
         logger.info(f"PiP verified: {pip_out_dur:.1f}s, {frame_count} frames, YAVG={mean_brightness:.1f} from {clip_path}")
         return output_path
@@ -1220,7 +1265,7 @@ def _ensure_pip_placeholder() -> str:
     ok = run_ffmpeg([
         "-f", "lavfi", "-i",
         "color=c=0x0A0A0F:s=716x370:d=8:r=30",
-        "-c:v", "libx264", "-crf", "20", "-preset", "medium",
+        "-c:v", "libx264", "-crf", "20", "-preset", "ultrafast",
         "-an",
         PIP_PLACEHOLDER,
     ], "generate dark pip placeholder", 60)
@@ -5264,6 +5309,10 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             # BUG 8 FIX: Set past_wrap flag after wrap segment to prevent trailing clips
             if entry_type == "wrap":
                 past_wrap = True
+                # FIX: Warn if wrap segment is too short (< 4s = abrupt ending)
+                wrap_dur = ffprobe_duration(result)
+                if wrap_dur < 4.0:
+                    logger.warning(f"WRAP TOO SHORT: {wrap_dur:.1f}s — episode may end abruptly (target >= 4s)")
 
             if broll_queue and broll_idx < len(broll_queue) and host_segment_count % 2 == 0:
                 broll_path = broll_queue[broll_idx]
