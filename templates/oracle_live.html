@@ -1397,12 +1397,19 @@ function startRec(){
   try{recognition.start();}catch(e){console.warn(e);}
 }
 function stopRec(){
+  var _hadRec=isRec;  // save flag BEFORE clearing — onend checks isRec
   isRec=false;setRec(false);
   // Show thinking video immediately on mobile to eliminate visual gap
   if(vid && !busy){
     try{vid.src=A+'/oracle/thinking';vid.loop=true;vid.play().catch(function(){});}catch(e){}
   }
   if(recognition)try{recognition.stop();}catch(e){}
+  // If user manually tapped stop, onend fires with isRec=false so process() is skipped.
+  // Call process() directly here instead.
+  if(_hadRec){
+    var _pend=pending;
+    setTimeout(function(){ if(_pend.trim()&&!busy){process(_pend);pending='';}},300);
+  }
 }
 function setRec(on){
   mic.classList.toggle('rec',on);
