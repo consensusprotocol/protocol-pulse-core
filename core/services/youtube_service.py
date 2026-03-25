@@ -954,11 +954,8 @@ _The autonomous pipeline has activated._
             return []
     
     def _get_oauth_redirect_uri(self):
-        domains = os.environ.get('REPLIT_DOMAINS', '').split(',')
-        if domains and domains[0]:
-            return f"https://{domains[0]}/oauth/youtube/callback"
-        dev_domain = os.environ.get('REPLIT_DEV_DOMAIN', 'localhost:5000')
-        return f"https://{dev_domain}/oauth/youtube/callback"
+        # Always use production domain (Replit dead, now on Ultron/Cloudflare)
+        return 'https://protocolpulse.io/oauth/youtube/callback' 
     
     def is_oauth_configured(self):
         client_id = os.environ.get('YOUTUBE_CLIENT_ID')
