@@ -548,7 +548,16 @@ def terminal_redirect():
 @app.route('/signal-terminal')
 def signal_terminal():
     """Signal Terminal — Bloomberg-grade Bitcoin intelligence dashboard."""
-    price = {}
+    import requests as _req
+    price = {'price': 0, 'change_24h': 0, 'change_7d': 0, 'change_30d': 0,
+             'market_cap': 0, 'volume_24h': 0, 'dominance': 0}
+    mempool = {'fee_low': 1, 'fee_mid': 5, 'fee_high': 20, 'tx_count': 0, 'size_mb': 0}
+    onchain = {'hashrate': 0, 'difficulty': 0, 'block_height': 0, 'next_halving': 0}
+    lightning = {'capacity': 0, 'channels': 0, 'nodes': 0}
+    fg = 25
+    fg_class = 'extreme-fear'
+    signal = {'score': 0, 'direction': 'neutral'}
+    latest = []
     try:
         from services.price_service import PriceService
         ps = PriceService()
@@ -557,7 +566,7 @@ def signal_terminal():
             b = prices['bitcoin']
             price = {
                 'price': b.get('price', 0) or b.get('usd', 0),
-                'change_24h': b.get('change_24h', 0) or b.get('usd_24h_change', 0),
+                'change_24h': b.get('change_24h', 0),
                 'change_7d': b.get('change_7d', 0),
                 'change_30d': b.get('change_30d', 0),
                 'market_cap': b.get('market_cap', 0),
@@ -566,6 +575,36 @@ def signal_terminal():
             }
     except Exception as e:
         logging.warning(f'[SignalTerminal] price: {e}')
+    try:
+        r = _req.get('https://api.alternative.me/fng/?limit=1', timeout=3)
+        if r.ok:
+            d = r.json().get('data', [{}])[0]
+            fg = int(d.get('value', 25))
+            fg_class = d.get('value_classification', 'Fear').lower().replace(' ', '-')
+    except:
+        pass
+    try:
+        r = _req.get('https://mempool.space/api/v1/fees/recommended', timeout=3)
+        if r.ok:
+            d = r.json()
+            mempool['fee_low'] = d.get('hourFee', 1)
+            mempool['fee_mid'] = d.get('halfHourFee', 5)
+            mempool['fee_high'] = d.get('fastestFee', 20)
+    except:
+        pass
+    try:
+        r = _req.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=3)
+        if r.ok:
+            d = r.json()
+            hs = d.get('currentHashrate', 0)
+            onchain['hashrate'] = round(hs / 1e18, 1) if hs else 0
+    except:
+        pass
+    try:
+        from models import Article
+        latest = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(5).all()
+    except:
+        pass
     is_commander = False
     try:
         if current_user.is_authenticated:
@@ -573,7 +612,10 @@ def signal_terminal():
             is_commander = t in ('commander', 'sovereign', 'admin')
     except:
         pass
-    return render_template('signal_terminal.html', price=price, is_commander=is_commander)
+    return render_template('signal_terminal.html',
+        price=price, mempool=mempool, onchain=onchain,
+        lightning=lightning, fg=fg, fg_class=fg_class,
+        signal=signal, latest=latest, is_commander=is_commander)
 
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
