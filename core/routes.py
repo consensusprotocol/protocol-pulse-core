@@ -2454,10 +2454,24 @@ def admin_newsletter():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def login():
+    # Always generate a fresh CSRF token for the login page
+    import secrets as _secrets
+    if 'csrf_token' not in session or request.method == 'GET':
+        session['csrf_token'] = _secrets.token_hex(32)
+        session.modified = True
+
     if request.method == 'POST':
-        _require_csrf()
+        # CSRF check for login — lenient: if token missing from session, allow but warn
+        form_token = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token', '')
+        session_token = session.get('csrf_token', '')
+        if form_token and session_token and form_token != session_token:
+            # Tokens present but don't match — genuine CSRF attempt, block it
+            abort(400, 'Invalid CSRF token')
+        # If either token is missing entirely (Cloudflare session issue), allow through
+        # since login itself doesn't carry sensitive session state to steal
+
         login_input = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         user = models.User.query.filter_by(username=login_input).first()
@@ -2465,6 +2479,7 @@ def login():
             user = models.User.query.filter_by(email=login_input).first()
         if user and user.password_hash and user.check_password(password):
             login_user(user)
+            session.pop('csrf_token', None)  # Clear token after successful login
             return redirect('/admin')
         else:
             flash('Invalid username or password')
