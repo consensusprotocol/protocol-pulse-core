@@ -43,6 +43,7 @@ EDITORIAL LAWS:
 - Every episode must contain ONE original PBX observation that nobody else said today.
 - Cold open: single most important signal in ONE sentence. No warmup.
 - PBX Close: an actual opinion, not a summary of what was covered.
+- KOL FRESHNESS LAW: NEVER say "today", "this morning", "just now", or "earlier today" about a KOL quote/tweet unless the provided data explicitly confirms it is from the last 24 hours. If no timestamp is given, use neutral framing: "recently said", "has been saying". If a quote has no date, do NOT present it as breaking news. Violating this law is misinformation.
 NEVER COVER: mainstream media Bitcoin takes, institutional ETF obsession as the main story, fear-mongering narratives.
 TIER 1 SOURCES (highest editorial weight): Preston Pysh, Lyn Alden, Robert Breedlove, TFTC, Stephan Livera.
 TIER 2 SOURCES: Simply Bitcoin, Bitcoin Magazine, Natalie Brunell, Swan Bitcoin.
@@ -160,6 +161,7 @@ Each entry uses type: "social_segment".
 
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
 TWEET LAW — IRON LAW: Before writing ANY tweet narration, read the actual social_posts list in order. Tweet segment narration MUST reference social_posts[0]['handle'] for the first tweet, social_posts[1]['handle'] for the second, etc. NEVER reference a name not in the list. NEVER assume who tweeted. Read the handle from the data and use it verbatim.
+TWEET FRESHNESS LAW: If a tweet includes a created_at timestamp, check it. Only say "just posted" or "today" if the timestamp is from the current day. If created_at is missing or older than 24h, use neutral language: "posted recently", "has been saying". NEVER present a stale quote as breaking news.
 
 {clips_info}
 
@@ -257,7 +259,8 @@ def _format_clips_info(selections: dict) -> str:
 
 def _load_narrative_context() -> dict:
     """Load narrative_context.json for narrative-aware script generation.
-    Returns empty dict if missing or stale (>6hr old)."""
+    Returns empty dict if missing or stale (>4hr old).
+    KOL FRESHNESS LAW: tightened from 6h to 4h to prevent stale quotes."""
     import os
     from datetime import datetime, timezone
     ctx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -265,13 +268,13 @@ def _load_narrative_context() -> dict:
     try:
         with open(ctx_path) as f:
             ctx = json.load(f)
-        # Check staleness
+        # Check staleness — 4h max to match narrative scan window
         computed = ctx.get("computed_at", "")
         if computed:
             computed_dt = datetime.fromisoformat(computed.replace("Z", "+00:00"))
             age_hours = (datetime.now(timezone.utc) - computed_dt).total_seconds() / 3600
-            if age_hours > 6:
-                logger.warning(f"Narrative context is {age_hours:.1f}h old (>6h) — using generic prompt")
+            if age_hours > 4:
+                logger.warning(f"Narrative context is {age_hours:.1f}h old (>4h) — using generic prompt")
                 return {}
         return ctx
     except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
@@ -295,6 +298,7 @@ MANDATORY SCRIPT RULES (from narrative context):
 - PBX must cite at least one specific data point from the narrative context (not generic)
 - Avoid topics flagged in: {avoid_topics}
 - The show must feel LIVE — like PBX has been tracking this story all morning
+- KOL QUOTE FRESHNESS: If a thought leader quote is provided, do NOT claim it was said "today" or "this morning" unless you can verify from the data timestamp. Use neutral framing like "has been saying" or "recently stated" for undated quotes. This prevents misinformation.
 
 DATA SEGMENT REQUIREMENT: The data/metrics discussed must relate to today's
 dominant narrative ({dominant_narrative}). If narrative is "ETF inflows",
@@ -507,6 +511,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
     if social_data_sorted:
         social_posts = "\n".join([
             f"Tweet {ti+1}: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
+            + (f" [posted: {p['created_at']}]" if p.get('created_at') else " [date unknown]")
             for ti, p in enumerate(social_data_sorted)
         ])
         social_posts += (
@@ -516,6 +521,8 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
             "\n- Reference tweets BY POSITION: 'Tweet 1 from @handle' matches the first tweet listed above."
             "\n- If you mention @handle, the DISPLAYED tweet card MUST match that handle."
             "\n- Never attribute words from one tweet to a different person."
+            "\n- FRESHNESS: Check the [posted: ...] timestamp. Only say 'just posted' or 'today' if"
+            "\n  the timestamp is from the current day. If [date unknown], say 'recently posted'."
         )
     else:
         social_posts = "NONE — skip social segment entirely"

@@ -350,10 +350,14 @@ def ingest_pulse():
 
 
 def get_pulse_feed(limit=80):
-    """Return latest pulse items for Command Log. Newest first, no placeholders."""
+    """Return latest pulse items for Command Log. Newest first, no placeholders.
+    KOL FRESHNESS LAW: Only return items from the last 24 hours to prevent
+    stale quotes from being narrated as current intelligence."""
     models = _models()
+    freshness_cutoff = datetime.utcnow() - timedelta(hours=24)
     rows = (
         models.KOLPulseItem.query
+        .filter(models.KOLPulseItem.created_at >= freshness_cutoff)
         .order_by(models.KOLPulseItem.created_at.desc())
         .limit(max(limit * 2, 120))
         .all()

@@ -449,9 +449,10 @@ class NarrativeIntelligenceEngine:
             f"thought leaders tweeted about it in the last 4 hours"
         ) if narratives else "No dominant narrative detected"
 
+        computed_at = datetime.now(timezone.utc).isoformat()
         eryn_hook = (
             f"Eryn should reference: '{top_quote}' from thought leaders "
-            f"{', '.join(top_handles[:3])}"
+            f"{', '.join(top_handles[:3])} (fetched at {computed_at})"
         ) if top_quote else "Eryn should lead with the day's strongest Bitcoin signal"
 
         mark_context = ""
@@ -477,7 +478,10 @@ class NarrativeIntelligenceEngine:
             ],
             "dominant_narrative": dominant,
             "market_mood": mood,
-            "computed_at": datetime.now(timezone.utc).isoformat(),
+            "top_quote": top_quote,
+            "top_quote_handles": top_handles[:3],
+            "quote_fetched_at": computed_at,
+            "computed_at": computed_at,
         }
         return context
 

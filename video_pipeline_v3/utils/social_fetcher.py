@@ -89,18 +89,28 @@ def get_todays_social_posts(max_posts=5):
                 return recency + er + (likes / 100000.0)
             tweets = sorted(raw, key=_sort_key, reverse=True)
 
-            # Prefer recent tweets (last 7 days) if available
-            cutoff = datetime.utcnow() - timedelta(days=7)
-            recent = []
+            # KOL FRESHNESS LAW: Only use tweets from the last 24 hours
+            # to prevent stale quotes being narrated as "today's" intelligence.
+            # Fallback to 7-day window only if zero 24h tweets exist.
+            cutoff_24h = now_utc - timedelta(hours=24)
+            cutoff_7d = now_utc - timedelta(days=7)
+            fresh_24h = []
+            recent_7d = []
             for t in tweets:
                 try:
                     created = datetime.fromisoformat(
                         t.get("created_at", "").replace("Z", "+00:00")
                     )
-                    if created.replace(tzinfo=None) > cutoff:
-                        recent.append(t)
+                    created_aware = created if created.tzinfo else created.replace(tzinfo=timezone.utc)
+                    if created_aware > cutoff_24h:
+                        fresh_24h.append(t)
+                    elif created_aware > cutoff_7d:
+                        recent_7d.append(t)
                 except (ValueError, TypeError):
                     continue
+            recent = fresh_24h if fresh_24h else recent_7d
+            if not fresh_24h:
+                logger.warning("Social: No tweets from last 24h — falling back to 7-day pool (%d tweets)", len(recent_7d))
 
             # DIVERSITY FIX: sort by likes desc FIRST, then dedup by handle
             # This ensures the highest-engagement tweet per handle is retained
@@ -120,6 +130,7 @@ def get_todays_social_posts(max_posts=5):
                     "text": t.get("text", "")[:280],
                     "likes": t.get("likes", t.get("like_count", 0)),
                     "retweets": t.get("retweets", t.get("retweet_count", 0)),
+                    "created_at": t.get("created_at", ""),
                     "source": "raw_study",
                 }
                 for t in source
