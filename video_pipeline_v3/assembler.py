@@ -457,6 +457,68 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
             pass
 
 
+def ffprobe_video_duration(path: str) -> float:
+    """Return video stream duration specifically (not format/container duration).
+
+    Unlike ffprobe_duration() which returns format duration (max of all streams),
+    this returns only the video stream duration. Critical for xfade offset calculation
+    where audio may be longer than video after a failed crossfade.
+    """
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True, timeout=15,
+    )
+    try:
+        return float(r.stdout.strip())
+    except (ValueError, AttributeError):
+        # Fallback: some containers don't report stream duration, try format
+        return ffprobe_duration(path)
+
+
+def _enforce_av_sync(path: str) -> str:
+    """Ensure audio and video durations match by truncating the longer stream.
+
+    Returns the path to a sync-corrected file, or the original if already in sync.
+    Prevents accumulated AV drift when parts are concatenated via concat demuxer.
+    """
+    v_dur = ffprobe_video_duration(path)
+    a_dur_r = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a:0",
+         "-show_entries", "stream=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True, timeout=15,
+    )
+    try:
+        a_dur = float(a_dur_r.stdout.strip())
+    except (ValueError, AttributeError):
+        return path
+
+    drift = abs(a_dur - v_dur)
+    if drift < 0.1:  # <100ms is acceptable
+        return path
+
+    logger.warning(f"AV SYNC FIX: {os.path.basename(path)} V={v_dur:.3f}s A={a_dur:.3f}s drift={drift:.3f}s")
+    target_dur = min(v_dur, a_dur)
+    fixed = path + ".avsync.mp4"
+    ok = run_ffmpeg([
+        "-i", path,
+        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+        "-b:v", "8M", "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        "-t", f"{target_dur:.3f}",
+        "-shortest",
+        fixed,
+    ], f"AV sync enforce ({drift:.3f}s drift)", 120)
+    if ok and os.path.exists(fixed):
+        os.replace(fixed, path)
+        logger.info(f"AV SYNC FIX: Corrected to {target_dur:.3f}s")
+    elif os.path.exists(fixed):
+        os.remove(fixed)
+    return path
+
+
 def ensure_audio(video_path: str) -> str:
     """Ensure video has an audio stream (add silent track if missing)."""
     r = subprocess.run(
@@ -2002,9 +2064,9 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
            # Speaker name (bold 26px)
            f"drawtext=fontfile={FONT_BOLD}:text='{safe_speaker}':"
            f"fontcolor={COLOR_WHITE}:fontsize=26:x=24:y=890,"
-           # Source info
-           f"drawtext=fontfile={FONT_MONO}:text='{safe_quote}':"
-           f"fontcolor=0xFFFFFF@0.6:fontsize=16:x=24:y=928,"
+           # Source label (no transcript text — clean partner clip)
+           f"drawtext=fontfile={FONT_MONO}:text='SOURCE — PARTNER CHANNEL':"
+           f"fontcolor=0xFFFFFF@0.4:fontsize=13:x=24:y=932,"
            f"drawtext=fontfile={FONT_MONO}:text='{ts_str}':"
            f"fontcolor=0xFFFFFF@0.35:fontsize=11:x=740:y=878"
            f"[pc_lt];\n")
@@ -4020,7 +4082,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
     ISSUE 3 FIX: Global whoosh dedup via _whoosh_applied_parts set.
     """
     global _whoosh_applied_parts
-    duration = 0.1  # Hard cut — 0.1s max to avoid black frame penalties
+    duration = 0.35  # Visible transition — red sweep + whoosh (was 0.1s = invisible)
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
     # ISSUE 3: Check global whoosh dedup set
     abs_out = os.path.abspath(output_path)
@@ -4029,20 +4091,24 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
         has_whoosh = False  # render without whoosh
 
     if has_whoosh:
-        # 0.1s background + compressed whoosh (fast attack, truncated)
+        # 0.35s red sweep transition + whoosh — visible broadcast cue
         ok = run_ffmpeg([
             "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
             "-i", GLITCH_WHOOSH,
             "-filter_complex",
+            # Red horizontal wipe: thin red bar sweeps left-to-right
+            f"[0:v]drawbox=x='(t/{duration})*1920-40':y=0:w=40:h=1080:"
+            f"color={COLOR_RED}@0.8:t=fill,"
+            f"fade=t=in:d=0.05,fade=t=out:st={max(0, duration - 0.1):.2f}:d=0.1[outv];"
             f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=3.0,"
-            f"afade=t=out:st=0.05:d=0.05,alimiter=limit=0.95[outa]",
-            "-map", "0:v", "-map", "[outa]",
+            f"afade=t=out:st={max(0, duration - 0.1):.2f}:d=0.1,alimiter=limit=0.95[outa]",
+            "-map", "[outv]", "-map", "[outa]",
             "-t", str(duration),
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-shortest",
             output_path,
-        ], "instant hard cut + whoosh", 30)
+        ], "red sweep transition + whoosh", 30)
     else:
         ok = run_ffmpeg([
             "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
@@ -4067,7 +4133,8 @@ def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
     Overlaps the last `duration` seconds of clip1 with the first `duration` seconds of clip2.
     Returns output_path on success, '' on failure.
     """
-    dur1 = ffprobe_duration(clip1_path)
+    # FIX: Use VIDEO duration for xfade offset (not format duration which may be audio-dominated)
+    dur1 = ffprobe_video_duration(clip1_path)
     if dur1 <= duration:
         return ""
     offset = dur1 - duration
@@ -4296,6 +4363,9 @@ def concatenate_parts(parts: list, output_path: str,
                     chosen = bg_only
         except Exception as _bh_err:
             logger.warning("Black hole check failed: %s", _bh_err)
+        # AV SYNC FIX: Enforce matching V/A durations per-part before concat
+        # Prevents accumulated drift from parts where audio ≠ video duration
+        chosen = _enforce_av_sync(chosen)
         normalized.append(chosen)
 
     # Session 4 Fix 7B: Re-apply longer fade to last part (outro) for clean ending
@@ -5226,6 +5296,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                         segment_type="social_segment",
                     )
                 if card_result:
+                    # AV SYNC FIX: Enforce per-card sync before xfade stitching
+                    _enforce_av_sync(card_result)
                     card_rendered_paths.append(card_result)
                     dur = ffprobe_duration(card_result)
                     logger.info(f"  SOCIAL CARD {ci} rendered: @{cp.get('handle', '?')} ({dur:.1f}s)")
@@ -5238,7 +5310,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                         current_stitched, card_rendered_paths[xfi],
                         xfade_out, transition="slideleft", duration=0.4,
                     )
+                    # AV SYNC FIX: Enforce sync after each xfade to prevent cascading drift
                     if xfade_result:
+                        _enforce_av_sync(xfade_result)
                         current_stitched = xfade_result
                     else:
                         parts.append(current_stitched)
@@ -5287,6 +5361,9 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                         logger.info(f"  FIX 3: Audio fade-out applied to social segment ({_sfade_st:.1f}s)")
                     elif os.path.exists(_sfade_tmp):
                         os.remove(_sfade_tmp)
+                # AV SYNC FIX: Enforce matching video/audio durations after xfade stitching
+                # Social xfade can accumulate drift (audio longer than video) which breaks concat
+                _enforce_av_sync(current_stitched)
                 parts.append(current_stitched)
                 dur = ffprobe_duration(current_stitched)
                 logger.info(f"[{part_idx:03d}] SOCIAL CARDS (xfaded): {dur:.1f}s")

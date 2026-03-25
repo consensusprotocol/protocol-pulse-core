@@ -253,6 +253,33 @@ def expand_numbers_for_tts(text: str) -> str:
     # Match 1600-2099 NOT preceded by $ or digits
     text = _re.sub(r'(?<!\$)(?<!\d)\b(1[6-9]\d{2}|20[0-9]\d)\b(?!\s*(?:EH|TH|PH|dollars|percent|%|K\b))', _year_sub, text)
 
+    # Dollar abbreviations: $2B → "2 billion dollars", $5M → "5 million dollars"
+    _abbr_scale_map = {"B": "billion", "M": "million", "T": "trillion", "K": "thousand"}
+    def _dollar_abbr(m):
+        num_str = m.group(1)
+        scale_letter = m.group(2).upper()
+        scale_word = _abbr_scale_map.get(scale_letter, scale_letter)
+        try:
+            val = float(num_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale_word} dollars"
+        except Exception:
+            return f"{num_str} {scale_word} dollars"
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*([BMTKbmtk])\b', _dollar_abbr, text)
+
+    # Non-dollar abbreviations: 2B → "2 billion", 5M → "5 million"
+    def _plain_abbr(m):
+        num_str = m.group(1)
+        scale_letter = m.group(2).upper()
+        scale_word = _abbr_scale_map.get(scale_letter, scale_letter)
+        try:
+            val = float(num_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale_word}"
+        except Exception:
+            return f"{num_str} {scale_word}"
+    text = _re.sub(r'(?<!\$)(\d+(?:\.\d+)?)\s*([BMbm])\b(?![A-Za-z])', _plain_abbr, text)
+
     # Dollar + billion/million shorthand first: $308 billion → "three hundred and eight billion dollars"
     def _dollar_scale(m):
         num_str = m.group(1)
