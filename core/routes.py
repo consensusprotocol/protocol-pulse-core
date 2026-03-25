@@ -2825,7 +2825,7 @@ def admin_youtube_auth():
 
 @app.route('/oauth/youtube/callback')
 def youtube_oauth_callback():
-    """Handle YouTube OAuth callback"""
+    """Handle YouTube OAuth callback — no login required, Google redirects here"""
     from services.youtube_service import YouTubeService
     yt = YouTubeService()
     
