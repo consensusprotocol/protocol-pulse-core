@@ -1,0 +1,2947 @@
+{% extends "base.html" %}
+
+{% block title %}The Network - Protocol Pulse Media{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "PodcastSeries",
+  "name": "Protocol Pulse",
+  "description": "Where Bitcoin leaders speak truth. Unfiltered conversations with pioneers in the Bitcoin and Web3 space.",
+  "url": "{{ url_for('media_hub', _external=True) }}",
+  "genre": ["Bitcoin", "Cryptocurrency", "Technology", "Finance"],
+  "inLanguage": "en",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Protocol Pulse",
+    "url": "{{ url_for('index', _external=True) }}"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Bitcoin Essential Reading",
+  "description": "Curated collection of essential Bitcoin and sound money literature",
+  "itemListElement": [
+    {% for book in recommended_books[:5] %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "item": {
+        "@type": "Book",
+        "name": "{{ book.title }}",
+        "author": {"@type": "Person", "name": "{{ book.author }}"},
+        "description": "{{ book.description }}",
+        "image": "{{ book.cover_url }}"
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+<style>
+    :root {
+        --glass: rgba(0, 0, 0, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --accent-red: #CC0000;
+        --accent-red-glow: rgba(204, 0, 0, 0.4);
+        --pure-white: #ffffff;
+        --deep-black: #000000;
+        --gold-accent: #f59e0b;
+        --pp-blur: 45px;
+    }
+
+    .media-hub {
+        font-family: 'Crimson Pro', serif;
+        background-color: var(--deep-black);
+        color: var(--pure-white);
+        position: relative;
+    }
+
+    /* Floating Particles Background */
+    .media-hub::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20px 30px, rgba(204, 0, 0, 0.3), transparent),
+            radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.15), transparent),
+            radial-gradient(1px 1px at 90px 40px, rgba(204, 0, 0, 0.4), transparent),
+            radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.1), transparent),
+            radial-gradient(1px 1px at 160px 120px, rgba(204, 0, 0, 0.25), transparent);
+        background-repeat: repeat;
+        background-size: 200px 150px;
+        animation: floatParticles 60s linear infinite;
+        pointer-events: none;
+        opacity: 0.5;
+        z-index: 0;
+    }
+
+    @keyframes floatParticles {
+        from { transform: translateY(0) translateX(0); }
+        to { transform: translateY(-100px) translateX(50px); }
+    }
+
+    /* Scan Lines Overlay */
+    .media-hub::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px
+        );
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .media-hub > * {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Cinematic Hero */
+    .hero-media {
+        padding: 10rem 0 5rem;
+        background: 
+            radial-gradient(circle at 0% 0%, rgba(26, 5, 5, 0.9) 0%, transparent 50%),
+            radial-gradient(circle at 100% 100%, rgba(204, 0, 0, 0.08) 0%, transparent 40%),
+            linear-gradient(180deg, var(--deep-black) 0%, rgba(10, 5, 5, 1) 100%);
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-media::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60%;
+        height: 100%;
+        background: radial-gradient(ellipse at 100% 0%, rgba(204, 0, 0, 0.2) 0%, transparent 60%);
+        pointer-events: none;
+        animation: heroGlow 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes heroGlow {
+        0% { opacity: 0.4; transform: scale(1); }
+        100% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    .hero-media::after {
+        content: '';
+        position: absolute;
+        bottom: -50%;
+        left: 10%;
+        width: 80%;
+        height: 100%;
+        background: radial-gradient(ellipse at center, rgba(204, 0, 0, 0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .hero-media h1 {
+        font-size: clamp(3.5rem, 10vw, 7rem);
+        font-weight: 800;
+        letter-spacing: -4px;
+        line-height: 0.85;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 60px rgba(204, 0, 0, 0.3);
+        background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-media .accent-text {
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 20px var(--accent-red-glow);
+    }
+
+    .hero-media .accent-text::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--accent-red);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 15px var(--accent-red);
+    }
+
+    .hero-subtitle {
+        font-size: 1.35rem;
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 550px;
+        line-height: 1.7;
+        letter-spacing: 0.3px;
+    }
+
+    /* ===== WORLD-CLASS SERIES SHOWCASE ===== */
+    .series-showcase {
+        padding: 6rem 0;
+        background: 
+            radial-gradient(ellipse at 20% 80%, rgba(204, 0, 0, 0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 20%, rgba(204, 0, 0, 0.05) 0%, transparent 40%),
+            linear-gradient(180deg, rgba(8,8,8,1) 0%, rgba(5,5,5,1) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .series-showcase::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(204, 0, 0, 0.3), transparent);
+    }
+
+    .showcase-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .showcase-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(var(--pp-blur));
+        -webkit-backdrop-filter: blur(var(--pp-blur));
+        border: 1px solid rgba(204, 0, 0, 0.2);
+        padding: 0.75rem 1.75rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        box-shadow: 
+            inset 0 0 15px rgba(204, 0, 0, 0.05),
+            0 10px 30px rgba(0, 0, 0, 0.5);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .showcase-badge:hover {
+        border-color: rgba(204, 0, 0, 0.8);
+        box-shadow: 
+            0 0 25px rgba(204, 0, 0, 0.2),
+            inset 0 0 20px rgba(204, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Remove icon glow inside showcase badge */
+    .showcase-badge i {
+        filter: none !important;
+        box-shadow: none !important;
+    }
+
+    .showcase-title {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 800;
+        letter-spacing: -2px;
+        margin-bottom: 1rem;
+        background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .showcase-subtitle {
+        font-size: 1.15rem;
+        color: rgba(255, 255, 255, 0.6);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.7;
+    }
+
+    .series-carousel {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+
+    /* Series Card - Glassmorphism Sovereign Design */
+    .series-card {
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(var(--pp-blur));
+        -webkit-backdrop-filter: blur(var(--pp-blur));
+        border: 1px solid rgba(204, 0, 0, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        box-shadow: 
+            inset 0 0 15px rgba(204, 0, 0, 0.05),
+            0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .series-card::before {
+        display: none;
+    }
+
+    .series-card:hover {
+        border-color: rgba(204, 0, 0, 0.8);
+        box-shadow: 
+            0 0 25px rgba(204, 0, 0, 0.2),
+            inset 0 0 20px rgba(204, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .series-card:hover::before {
+        display: none;
+    }
+
+    /* Remove icon glows inside series cards */
+    .series-card i,
+    .series-card img {
+        filter: none !important;
+        box-shadow: none !important;
+    }
+
+    .series-thumbnail {
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .series-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .series-card:hover .series-overlay {
+        opacity: 1;
+    }
+
+    .play-ring {
+        width: 70px;
+        height: 70px;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(204, 0, 0, 0.9);
+        transform: scale(0.8);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        box-shadow: 0 10px 40px rgba(204, 0, 0, 0.5);
+    }
+
+    .series-card:hover .play-ring {
+        transform: scale(1);
+    }
+
+    .play-ring i {
+        color: white;
+        font-size: 1.5rem;
+        margin-left: 4px;
+    }
+
+    .series-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(var(--pp-blur));
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--accent-red);
+        border: 1px solid rgba(204, 0, 0, 0.3);
+        letter-spacing: 1px;
+    }
+
+    .series-info {
+        padding: 1.5rem;
+    }
+
+    .series-info h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--pure-white);
+        line-height: 1.3;
+    }
+
+    .series-author {
+        font-size: 0.8rem;
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        margin-bottom: 0.75rem;
+    }
+
+    .series-desc {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    @media (max-width: 1200px) {
+        .series-carousel {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .series-carousel {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        .series-showcase {
+            padding: 4rem 0;
+        }
+        .showcase-header {
+            margin-bottom: 2.5rem;
+        }
+    }
+
+    /* The Bento Grid Architecture */
+    .bento-section {
+        padding: 5rem 0;
+        background: transparent;
+    }
+
+    .section-label {
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        margin-bottom: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        text-shadow: 0 0 20px var(--accent-red-glow);
+    }
+
+    .section-label::after {
+        content: '';
+        width: 60px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--accent-red), transparent);
+    }
+
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: 260px;
+        gap: 1.75rem;
+        margin-bottom: 5rem;
+    }
+
+    .bento-item {
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(var(--pp-blur));
+        -webkit-backdrop-filter: blur(var(--pp-blur));
+        border: 1px solid rgba(204, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 
+            inset 0 0 15px rgba(204, 0, 0, 0.05),
+            0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .bento-item::before {
+        display: none;
+    }
+
+    .bento-item:hover {
+        border-color: rgba(204, 0, 0, 0.8);
+        box-shadow: 
+            0 0 25px rgba(204, 0, 0, 0.2),
+            inset 0 0 20px rgba(204, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .bento-item:hover::before {
+        display: none;
+    }
+
+    /* Spanning logic for spectacular look */
+    .item-large { grid-column: span 2; grid-row: span 2; }
+    .item-tall { grid-row: span 2; }
+    .item-wide { grid-column: span 2; }
+
+    /* Cinematic Card Backgrounds - YouTube Thumbnails */
+    .bento-item.has-bg {
+        background-size: cover;
+        background-position: center;
+        border: none;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .bento-item.has-bg:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 
+            0 30px 80px rgba(204, 0, 0, 0.2),
+            0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .bento-item.has-bg::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.98) 10%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.15) 100%);
+        z-index: 1;
+        transition: background 0.4s ease;
+        border-radius: 32px;
+    }
+
+    .bento-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .bento-content .show-title {
+        text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    /* Terminal Player Overlay */
+    .player-terminal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5,5,5,0.98);
+        z-index: 9999;
+        display: none;
+        padding: 2rem 4rem;
+        backdrop-filter: blur(var(--pp-blur));
+        overflow-y: auto;
+    }
+
+    .player-terminal.active {
+        display: block;
+        animation: terminalOpen 0.4s ease-out;
+    }
+
+    @keyframes terminalOpen {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .terminal-header {
+        border-bottom: 1px solid var(--accent-red);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-title {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.7);
+        letter-spacing: 3px;
+    }
+
+    .btn-close-terminal {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-close-terminal:hover {
+        background: var(--accent-red);
+        border-color: var(--accent-red);
+    }
+
+    .video-wrapper {
+        border: 1px solid var(--accent-red);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 40px 80px rgba(220,38,38,0.2);
+    }
+
+    .series-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--pure-white);
+        margin-bottom: 1.5rem;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+    }
+
+    /* Button variants for Terminal - Premium Design */
+    .btn-series {
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(var(--pp-blur));
+        -webkit-backdrop-filter: blur(var(--pp-blur));
+        color: var(--pure-white);
+        border: 1px solid rgba(204, 0, 0, 0.2);
+        padding: 0.85rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        box-shadow: 
+            inset 0 0 15px rgba(204, 0, 0, 0.05),
+            0 10px 30px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-series::before {
+        display: none;
+    }
+
+    .btn-series:hover {
+        border-color: rgba(204, 0, 0, 0.8);
+        box-shadow: 
+            0 0 25px rgba(204, 0, 0, 0.2),
+            inset 0 0 20px rgba(204, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .btn-audio-only {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-audio-only:hover {
+        border-color: var(--accent-red);
+        color: var(--accent-red);
+    }
+
+    .now-broadcasting {
+        color: var(--accent-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .now-broadcasting::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--accent-red);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    /* Protocol Heartbeat Node Tracker */
+    .node-tracker-card {
+        background: linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(20,20,20,1) 100%);
+        position: relative;
+        border-left: 3px solid var(--accent-red) !important;
+    }
+
+    .block-number {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--pure-white);
+        letter-spacing: -1px;
+    }
+
+    .status-indicator {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+        padding: 2px 6px;
+        border: 1px solid currentColor;
+        border-radius: 3px;
+    }
+
+    .node-bg-effect {
+        position: absolute;
+        bottom: -20%;
+        right: -10%;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(204, 0, 0, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes blockFlash {
+        0% { color: var(--accent-red); transform: scale(1.1); text-shadow: 0 0 20px var(--accent-red); }
+        100% { color: var(--pure-white); transform: scale(1); text-shadow: none; }
+    }
+
+    .block-flash {
+        animation: blockFlash 1s ease-out;
+    }
+
+    .x-small {
+        font-size: 0.6rem;
+    }
+
+    /* Terminal Intel Briefing Sidebar - Sovereign Card Design */
+    .terminal-sidebar {
+        background: linear-gradient(145deg, #0a0a0a, #1a0505);
+        border: 1px solid rgba(204, 0, 0, 0.3);
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(204, 0, 0, 0.15);
+    }
+
+    .terminal-sidebar::before {
+        display: none;
+    }
+
+    .terminal-sidebar::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(transparent, #0a0a0a);
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .status-pill {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+        color: #22c55e;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        padding: 4px 12px;
+        border-radius: 50px;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+    }
+
+    .terminal-text {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--accent-red);
+        opacity: 0.8;
+    }
+
+    #guideBody {
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* World-Class Playlist Scroll - Expanded for Easy Scrolling */
+    .playlist-scroll {
+        flex: 1;
+        min-height: 400px;
+        max-height: 55vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(145deg, #0a0a0a, #1a0505);
+        border: 1px solid rgba(204, 0, 0, 0.2);
+        border-radius: 12px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(204, 0, 0, 0.5) rgba(0,0,0,0.3);
+    }
+
+    .playlist-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .playlist-scroll::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+    }
+
+    .playlist-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, var(--accent-red), rgba(204, 0, 0, 0.6));
+        border-radius: 10px;
+        border: 2px solid rgba(0,0,0,0.2);
+    }
+
+    .playlist-scroll::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #ef4444, var(--accent-red));
+    }
+
+    .playlist-item {
+        background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .playlist-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: transparent;
+        transition: background 0.3s ease;
+    }
+
+    .playlist-item:hover {
+        background: linear-gradient(135deg, rgba(30, 15, 15, 0.9) 0%, rgba(20, 10, 10, 0.95) 100%);
+        border-color: rgba(204, 0, 0, 0.3);
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .playlist-item:hover::before {
+        background: var(--accent-red);
+        box-shadow: 0 0 10px var(--accent-red);
+    }
+
+    .playlist-item.active {
+        background: linear-gradient(135deg, rgba(204, 0, 0, 0.15) 0%, rgba(204, 0, 0, 0.05) 100%);
+        border-color: rgba(204, 0, 0, 0.5);
+    }
+
+    .playlist-item.active::before {
+        background: var(--accent-red);
+        box-shadow: 0 0 15px var(--accent-red);
+    }
+
+    .playlist-item .ep-number {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--accent-red);
+        opacity: 0.8;
+        margin-bottom: 0.25rem;
+        letter-spacing: 1px;
+    }
+
+    .playlist-item .ep-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--pure-white);
+        line-height: 1.3;
+    }
+
+    /* Episode Guide Panel - Premium Design */
+    .episode-guide-panel {
+        background: linear-gradient(135deg, rgba(20,20,25,0.98) 0%, rgba(30,30,35,0.95) 100%);
+        border: 1px solid rgba(220,38,38,0.3);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        animation: guideSlideIn 0.3s ease-out;
+    }
+
+    @keyframes guideSlideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .guide-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .guide-badge {
+        background: linear-gradient(135deg, var(--accent-red) 0%, #b91c1c 100%);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .guide-close {
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: var(--soft-white);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .guide-close:hover {
+        background: var(--accent-red);
+        color: white;
+    }
+
+    .guide-episode-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--pure-white);
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0.75rem;
+    }
+
+    .guide-section {
+        margin-bottom: 1rem;
+    }
+
+    .guide-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .guide-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--accent-red);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.4rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .guide-content {
+        font-size: 0.85rem;
+        color: var(--soft-white);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .guide-quote {
+        font-size: 0.85rem;
+        color: var(--accent-gold);
+        font-style: italic;
+        line-height: 1.5;
+        margin: 0;
+        padding-left: 0.75rem;
+        border-left: 2px solid var(--accent-red);
+    }
+
+    .guide-topics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .guide-topic-tag {
+        background: rgba(220,38,38,0.15);
+        color: var(--accent-red);
+        font-size: 0.65rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        border: 1px solid rgba(220,38,38,0.3);
+    }
+
+    /* Playlist item with guide indicator */
+    .playlist-item .guide-indicator {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.4);
+        margin-top: 0.25rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .playlist-item.active .guide-indicator {
+        color: var(--accent-red);
+    }
+
+    /* Terminal Ad Unit */
+    .terminal-ad-unit {
+        padding-top: 1.5rem;
+        margin-top: auto;
+        position: relative;
+        transition: opacity 0.3s ease;
+    }
+
+    .ad-perimeter {
+        border: 1px solid rgba(204, 0, 0, 0.3);
+        padding: 1rem;
+        background: linear-gradient(180deg, rgba(204, 0, 0, 0.05) 0%, transparent 100%);
+        border-radius: 12px;
+    }
+
+    .ad-content-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #terminalAdImage {
+        max-height: 80px;
+        transition: transform 0.5s ease;
+        filter: grayscale(100%) contrast(120%) brightness(80%);
+    }
+
+    .ad-perimeter:hover #terminalAdImage {
+        filter: grayscale(0%) contrast(100%) brightness(100%);
+        transform: scale(1.05);
+    }
+
+    .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: #22c55e;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #22c55e;
+        animation: pulse 2s infinite;
+    }
+
+    .glitch-active #terminalAdImage {
+        animation: glitch 0.4s steps(2) infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-5px, 5px); }
+        40% { transform: translate(5px, -5px); }
+        100% { transform: translate(0); }
+    }
+
+    /* Luxurious Book Cards - World Class Design */
+    .book-card-luxury {
+        background: linear-gradient(145deg, rgba(12,12,12,1) 0%, rgba(20,20,20,1) 100%);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 28px;
+        overflow: hidden;
+        transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        box-shadow: 
+            0 4px 30px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .book-card-luxury::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(204, 0, 0, 0.4), transparent);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .book-card-luxury:hover {
+        border-color: rgba(204, 0, 0, 0.6);
+        transform: translateY(-16px) scale(1.02);
+        box-shadow: 
+            0 40px 80px rgba(204, 0, 0, 0.2),
+            0 20px 40px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .book-card-luxury:hover::before {
+        opacity: 1;
+    }
+
+    .book-cover-luxury {
+        height: 360px;
+        background: 
+            radial-gradient(ellipse at 50% 100%, rgba(204, 0, 0, 0.08) 0%, transparent 50%),
+            linear-gradient(180deg, #080808 0%, #121212 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 2.5rem;
+        overflow: hidden;
+        perspective: 1500px;
+        transform-style: preserve-3d;
+    }
+
+    .book-cover-luxury::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: 
+            radial-gradient(ellipse at 50% 0%, rgba(204, 0, 0, 0.12) 0%, transparent 50%),
+            radial-gradient(ellipse at 0% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 40%);
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+    }
+
+    .book-cover-luxury::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(204, 0, 0, 0.15) 0%, transparent 40%);
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+    }
+
+    .book-card-luxury:hover .book-cover-luxury::after {
+        opacity: 1;
+    }
+
+    .book-cover-luxury img {
+        max-height: 300px;
+        max-width: 190px;
+        object-fit: contain;
+        filter: drop-shadow(0 35px 60px rgba(0, 0, 0, 0.85));
+        transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.5s ease;
+        transform-origin: center center;
+    }
+
+    .book-card-luxury:hover .book-cover-luxury img {
+        transform: scale(1.15) rotateY(-10deg) rotateX(5deg) translateZ(50px);
+        filter: 
+            drop-shadow(0 50px 80px rgba(0, 0, 0, 0.95)) 
+            drop-shadow(0 0 40px rgba(204, 0, 0, 0.25))
+            drop-shadow(0 0 10px rgba(204, 0, 0, 0.3));
+    }
+
+    .book-body-luxury {
+        padding: 2rem;
+        background: linear-gradient(180deg, rgba(15,15,15,1) 0%, rgba(10,10,10,1) 100%);
+    }
+
+    .book-title-luxury {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+        line-height: 1.3;
+        letter-spacing: -0.5px;
+        background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.85) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .book-author-luxury {
+        font-size: 0.8rem;
+        color: var(--accent-red);
+        margin-bottom: 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-shadow: 0 0 20px var(--accent-red-glow);
+    }
+
+    .book-description-luxury {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-amazon-luxury {
+        background: linear-gradient(145deg, rgba(25,25,25,1) 0%, rgba(15,15,15,1) 100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--pure-white);
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-amazon-luxury::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,153,0,0.1), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+    }
+
+    .btn-amazon-luxury:hover::before {
+        transform: translateX(100%);
+    }
+
+    .btn-amazon-luxury:hover {
+        background: #ff9900;
+        color: var(--deep-black);
+        border-color: #ff9900;
+    }
+
+    .badge-luxury {
+        position: absolute;
+        top: 1.25rem;
+        left: 1.25rem;
+        background: var(--accent-red);
+        color: var(--pure-white);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 0.4rem 0.85rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        z-index: 2;
+    }
+
+    .badge-bestseller {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    /* Live Visualizer */
+    .live-visualizer {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 24px;
+        margin-bottom: 1rem;
+    }
+
+    .bar {
+        width: 4px;
+        background: var(--accent-red);
+        border-radius: 2px;
+        animation: equalize 0.8s infinite ease-in-out alternate;
+    }
+
+    .bar:nth-child(1) { animation-delay: 0.0s; }
+    .bar:nth-child(2) { animation-delay: 0.15s; }
+    .bar:nth-child(3) { animation-delay: 0.3s; }
+    .bar:nth-child(4) { animation-delay: 0.45s; }
+    .bar:nth-child(5) { animation-delay: 0.6s; }
+
+    @keyframes equalize {
+        from { height: 6px; }
+        to { height: 24px; }
+    }
+
+    .show-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        letter-spacing: -1px;
+    }
+
+    .show-meta {
+        font-size: 0.8rem;
+        color: var(--pure-white);
+        margin-top: auto;
+    }
+
+    .btn-play-bento {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        text-decoration: none;
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-play-bento:hover {
+        background: var(--accent-red);
+        color: var(--pure-white);
+        transform: rotate(15deg) scale(1.1);
+    }
+
+    .btn-play-bento.small {
+        width: 48px;
+        height: 48px;
+        font-size: 1rem;
+    }
+
+    /* Episode Cards in Bento */
+    .episode-bento {
+        padding: 1.5rem;
+    }
+
+    .episode-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-red);
+        margin-bottom: 0.75rem;
+    }
+
+    .episode-title-bento {
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        color: var(--pure-white);
+    }
+
+    .episode-desc {
+        font-size: 0.85rem;
+        color: var(--pure-white);
+        line-height: 1.5;
+    }
+
+    /* Stats Card */
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--pure-white);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--pure-white);
+    }
+
+    /* CTA Card */
+    .cta-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .cta-card p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-cta {
+        background: var(--accent-red);
+        color: var(--pure-white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cta:hover {
+        background: #ef4444;
+        transform: translateY(-2px);
+        color: var(--pure-white);
+    }
+
+    /* Books Section - Bento Style */
+    .books-section {
+        padding: 6rem 0;
+        background: linear-gradient(180deg, var(--deep-black) 0%, #0a0a0a 100%);
+    }
+
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .book-card-bento {
+        background: var(--glass);
+        backdrop-filter: blur(var(--pp-blur));
+        -webkit-backdrop-filter: blur(var(--pp-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .book-card-bento:hover {
+        border-color: var(--accent-red);
+        transform: translateY(-8px);
+    }
+
+    .book-cover-bento {
+        height: 280px;
+        background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 2rem;
+    }
+
+    .book-cover-bento img {
+        max-height: 240px;
+        max-width: 160px;
+        object-fit: contain;
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+        transition: transform 0.4s ease;
+    }
+
+    .book-card-bento:hover .book-cover-bento img {
+        transform: scale(1.05) rotate(-2deg);
+    }
+
+    .book-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: var(--accent-red);
+        color: var(--pure-white);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .book-body-bento {
+        padding: 1.5rem;
+    }
+
+    .book-title-bento {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .book-author-bento {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 1rem;
+    }
+
+    .btn-amazon {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-amazon:hover {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        border-color: var(--pure-white);
+    }
+
+    /* Tactile Merch Section - High Contrast */
+    .merch-section {
+        background: var(--pure-white);
+        color: var(--deep-black);
+        padding: 8rem 0;
+        border-radius: 60px 60px 0 0;
+        margin-top: 4rem;
+    }
+
+    .merch-title {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 700;
+        letter-spacing: -2px;
+        margin-bottom: 4rem;
+        color: var(--deep-black);
+        line-height: 1;
+    }
+
+    .merch-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .merch-card-bento {
+        background: #f5f5f5;
+        border-radius: 24px;
+        padding: 1.5rem;
+        border: none;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .merch-card-bento:hover {
+        background: #eeeeee;
+        transform: translateY(-10px);
+    }
+
+    .merch-img-wrapper {
+        background: #fff;
+        border-radius: 20px;
+        height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .merch-img-wrapper img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+        transition: transform 0.4s ease;
+    }
+
+    .merch-card-bento:hover .merch-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .merch-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: var(--deep-black);
+    }
+
+    .merch-price {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        color: var(--accent-red);
+        font-size: 1.25rem;
+    }
+
+    .btn-buy {
+        background: var(--deep-black);
+        color: var(--pure-white);
+        border: none;
+        padding: 0.6rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-buy:hover {
+        background: var(--accent-red);
+        color: var(--pure-white);
+    }
+
+    /* Audio Player - Cyberpunk Style */
+    .audio-player-bento {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(5, 5, 5, 0.95);
+        backdrop-filter: blur(var(--pp-blur));
+        -webkit-backdrop-filter: blur(var(--pp-blur));
+        border-top: 1px solid var(--glass-border);
+        padding: 1rem 0;
+        z-index: 1000;
+        display: none;
+    }
+
+    .player-content {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .player-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-player {
+        background: var(--accent-red);
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pure-white);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-player:hover {
+        transform: scale(1.1);
+    }
+
+    .player-info {
+        flex: 1;
+    }
+
+    .player-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .player-show {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .player-progress {
+        flex: 2;
+    }
+
+    .progress-bar-container {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--accent-red);
+        border-radius: 2px;
+        width: 0%;
+        transition: width 0.1s linear;
+    }
+
+    .time-display {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 0.5rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .player-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-speed {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--pure-white);
+        padding: 0.4rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-family: 'JetBrains Mono', monospace;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-speed:hover {
+        border-color: var(--accent-red);
+    }
+
+    .btn-close-player {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-close-player:hover {
+        color: var(--pure-white);
+    }
+
+    /* Book Series Grid - Desktop 4 columns, responsive on smaller screens */
+    .book-series-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .bento-grid, .books-grid, .merch-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .book-series-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .item-large { grid-column: span 2; }
+    }
+
+    @media (max-width: 768px) {
+        .hero-media {
+            padding: 6rem 0 3rem;
+        }
+
+        .hero-media h1 {
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .bento-grid, .books-grid, .merch-grid, .book-series-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .item-large, .item-wide, .item-tall {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .item-large {
+            grid-row: span 2;
+        }
+
+        .bento-grid {
+            grid-auto-rows: auto;
+        }
+
+        .bento-item {
+            min-height: 200px;
+        }
+
+        .book-series-grid .bento-item {
+            min-height: 260px;
+        }
+
+        .merch-section {
+            border-radius: 40px 40px 0 0;
+            padding: 4rem 0;
+        }
+
+        .player-content {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .player-progress {
+            order: 3;
+            flex-basis: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .book-series-grid .bento-item {
+            min-height: 240px;
+        }
+
+        .book-series-grid .show-title {
+            font-size: 1.1rem !important;
+        }
+
+        .book-series-grid .btn-series {
+            padding: 0.6rem 1rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Loading State */
+    .loading-bento {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+    }
+
+    .loader-ring {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--glass-border);
+        border-top-color: var(--accent-red);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="media-hub">
+    <!-- Cinematic Hero -->
+    <section class="hero-media">
+        <div class="container">
+            <span class="accent-text">Network Operations // 2026</span>
+            <h1 style="color: #ffffff;">The Signal Behind<br>the Noise.</h1>
+            <p class="hero-subtitle">Dive deep into Bitcoin, privacy, and the future of decentralized finance with our premium podcast network.</p>
+        </div>
+    </section>
+
+    <!-- Live Broadcasts - Featured First -->
+    <section class="bento-section">
+        <div class="container">
+            <span class="section-label">Live Broadcasts</span>
+            
+            <div class="bento-grid" id="podcast-bento">
+                <!-- Cypherpunk'd - Primary Show with Embedded Playlist -->
+                <div class="bento-item item-large" style="padding: 0; overflow: hidden;">
+                    <div class="video-embed-wrapper" style="position: relative; width: 100%; height: 100%;">
+                        <iframe 
+                            src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9Oedpb79dWlGmJ4PUMYexx9Whd&modestbranding=1&rel=0" 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 16px;"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="bento-content" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 1.5rem; pointer-events: none;">
+                        <div class="now-broadcasting">Now Broadcasting</div>
+                        <h2 class="show-title" style="margin: 0;">Cypherpunk'd</h2>
+                    </div>
+                </div>
+                
+                <!-- Protocol Pulse (Coin Bureau) - Secondary Show with Embedded Video -->
+                <div class="bento-item item-wide" style="padding: 0; overflow: hidden;">
+                    <div class="video-embed-wrapper" style="position: relative; width: 100%; height: 100%;">
+                        {% if live_broadcasts and live_broadcasts.protocol_pulse and live_broadcasts.protocol_pulse.latest_id %}
+                        <iframe 
+                            src="https://www.youtube.com/embed/{{ live_broadcasts.protocol_pulse.latest_id }}?modestbranding=1&rel=0" 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 16px;"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                        {% else %}
+                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(20,20,20,1); border-radius: 16px;">
+                            <span style="color: rgba(255,255,255,0.5); font-family: 'JetBrains Mono', monospace;">Loading latest episode...</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="bento-content" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 1rem; pointer-events: none;">
+                        <span class="episode-tag">Featured Show</span>
+                        <h2 class="show-title" style="font-size: 1.5rem; margin: 0;">Coin Bureau</h2>
+                    </div>
+                </div>
+                
+                <!-- Additional Shows from Database -->
+                {% for show in shows %}
+                {% if 'orange is the new' not in show.name|lower and 'cypherpunk' not in show.name|lower and 'protocol pulse' not in show.name|lower %}
+                <div class="bento-item">
+                    <span class="episode-tag">{{ show.category }}</span>
+                    <h3 class="show-title" style="font-size: 1.3rem;">{{ show.name }}</h3>
+                    <p class="show-meta"><i class="fas fa-headphones me-2"></i>{{ show.episode_count }} episodes</p>
+                    <button class="btn-play-bento small" onclick="loadShowEpisodes('{{ show.id }}')">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Protocol Heartbeat - Live Node Tracker -->
+                <div class="bento-item node-tracker-card" id="nodeTracker">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="episode-tag">Protocol_Telemetry</span>
+                        <span id="nodeStatus" class="status-indicator text-success">LOADING</span>
+                    </div>
+                    
+                    <div class="tracker-main">
+                        <label class="x-small opacity-50 font-monospace">BLOCK_HEIGHT</label>
+                        <div id="liveHeight" class="block-number">#---,---</div>
+                    </div>
+
+                    <div class="tracker-footer mt-3 pt-2 border-top border-secondary">
+                        <div class="row g-0">
+                            <div class="col-12">
+                                <label class="x-small opacity-50 font-monospace d-block">GLOBAL_HASHRATE</label>
+                                <span id="liveHashrate" class="fw-bold" style="color: var(--accent-red);">---.-- EH/s</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="node-bg-effect"></div>
+                </div>
+
+                <!-- Stats Card -->
+                <div class="bento-item">
+                    <span class="episode-tag">Network Status</span>
+                    <div class="stat-value" id="episode-count">{{ shows|sum(attribute='episode_count') }}</div>
+                    <div class="stat-label">Total Episodes</div>
+                </div>
+
+                <!-- CTA Card -->
+                <div class="bento-item cta-card">
+                    <h3>Get the Alpha.</h3>
+                    <p>Join the network of informed Bitcoiners.</p>
+                    <a href="/newsletter" class="btn-cta">Subscribe</a>
+                </div>
+            </div>
+
+            <!-- Latest Episodes -->
+            <span class="section-label" style="margin-top: 3rem;">Latest Episodes</span>
+            <div class="bento-grid" id="episodes-container" style="grid-auto-rows: auto;">
+                <div class="bento-item loading-bento" style="grid-column: span 4;">
+                    <div class="loader-ring"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Original Book Series - Featured Below Live -->
+    <section class="series-showcase">
+        <div class="container">
+            <div class="showcase-header">
+                <div class="showcase-badge">
+                    <i class="fab fa-bitcoin" style="font-size: 1.5em;"></i>
+                    <span>SIGNATURE SERIES</span>
+                </div>
+                <h2 class="showcase-title">Original Book Series</h2>
+                <p class="showcase-subtitle">Cinematic deep dives with the world's leading Bitcoin authors. Each series breaks down essential ideas episode by episode.</p>
+            </div>
+            
+            <div class="series-carousel">
+                <!-- Everything Divided by 21 Million -->
+                <div class="series-card" onclick="openTerminal('everything_21m')">
+                    <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/FA8tvWEydcA/maxresdefault.jpg');">
+                        <div class="series-overlay">
+                            <div class="play-ring">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="series-badge">10 Episodes</div>
+                    </div>
+                    <div class="series-info">
+                        <h3>Everything Divided by 21 Million</h3>
+                        <p class="series-author"><i class="fas fa-user me-2"></i>Knut Svanholm</p>
+                        <p class="series-desc">Bitcoin's relationship to time, money, freedom, and human progress.</p>
+                    </div>
+                </div>
+                
+                <!-- The Big Print -->
+                <div class="series-card" onclick="openTerminal('big_print')">
+                    <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/W09CNU_q6Yo/maxresdefault.jpg');">
+                        <div class="series-overlay">
+                            <div class="play-ring">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="series-badge">12 Episodes</div>
+                    </div>
+                    <div class="series-info">
+                        <h3>The Big Print</h3>
+                        <p class="series-author"><i class="fas fa-user me-2"></i>Lawrence Lepard</p>
+                        <p class="series-desc">How the Fed engineered the most devastating wealth extraction in history.</p>
+                    </div>
+                </div>
+                
+                <!-- Daylight Robbery -->
+                <div class="series-card" onclick="openTerminal('daylight_robbery')">
+                    <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/ZCc78wvwd6U/maxresdefault.jpg');">
+                        <div class="series-overlay">
+                            <div class="play-ring">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="series-badge">13 Episodes</div>
+                    </div>
+                    <div class="series-info">
+                        <h3>Daylight Robbery</h3>
+                        <p class="series-author"><i class="fas fa-user me-2"></i>Dominic Frisby</p>
+                        <p class="series-desc">The hidden story of how taxation shaped human civilization.</p>
+                    </div>
+                </div>
+                
+                <!-- The Genesis Book -->
+                <div class="series-card" onclick="openTerminal('genesis_book')">
+                    <div class="series-thumbnail" style="background-image: url('https://i.ytimg.com/vi/3TslgynKeaA/maxresdefault.jpg');">
+                        <div class="series-overlay">
+                            <div class="play-ring">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="series-badge">10 Episodes</div>
+                    </div>
+                    <div class="series-info">
+                        <h3>The Genesis Book</h3>
+                        <p class="series-author"><i class="fas fa-user me-2"></i>Aaron van Wirdum</p>
+                        <p class="series-desc">Austrian economics and the revolutionary origins of Bitcoin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Books Section -->
+    <section class="books-section">
+        <div class="container">
+            <span class="section-label">Essential Reading</span>
+            <h2 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -1px; margin-bottom: 3rem;">Our Book Series</h2>
+            
+            <div class="books-grid">
+                {% for book in our_books %}
+                <div class="book-card-luxury">
+                    <div class="book-cover-luxury">
+                        <span class="badge-luxury">Featured</span>
+                        {% if book.cover_url %}
+                        <img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';">
+                        {% else %}
+                        <img src="/static/images/book-placeholder.svg" alt="{{ book.title }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="book-body-luxury">
+                        <h5 class="book-title-luxury">{{ book.title }}</h5>
+                        <p class="book-author-luxury">{{ book.author }}</p>
+                        <p class="book-description-luxury">{{ book.description[:100] }}...</p>
+                        <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="btn-amazon-luxury">
+                            <i class="fab fa-amazon"></i>Get on Amazon
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h2 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -1px; margin: 4rem 0 3rem;">Recommended Reading</h2>
+            
+            <div class="books-grid">
+                {% for book in recommended_books %}
+                <div class="book-card-luxury">
+                    <div class="book-cover-luxury">
+                        {% if book.bestseller %}
+                        <span class="badge-luxury badge-bestseller">Bestseller</span>
+                        {% endif %}
+                        {% if book.cover_url %}
+                        <img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';">
+                        {% else %}
+                        <img src="/static/images/book-placeholder.svg" alt="{{ book.title }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="book-body-luxury">
+                        <h5 class="book-title-luxury">{{ book.title }}</h5>
+                        <p class="book-author-luxury">{{ book.author }}</p>
+                        <p class="book-description-luxury">{{ book.description[:100] }}...</p>
+                        <a href="{{ book.amazon_url }}" target="_blank" rel="noopener" class="btn-amazon-luxury">
+                            <i class="fab fa-amazon"></i>Get on Amazon
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Tactile Merch Section -->
+    <section class="merch-section">
+        <div class="container">
+            <h2 class="merch-title">Equip the<br>Movement.</h2>
+            
+            <div class="merch-grid">
+                {% if products %}
+                {% for product in products[:4] %}
+                <div class="merch-card-bento">
+                    <div class="merch-img-wrapper">
+                        {% if product.thumbnail or product.main_image %}
+                        <img src="{{ product.thumbnail or product.main_image }}" alt="{{ product.name }}">
+                        {% else %}
+                        <i class="fas fa-tshirt" style="font-size: 4rem; color: #ccc;"></i>
+                        {% endif %}
+                    </div>
+                    <h5 class="merch-name">{{ product.name }}</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="merch-price">${{ product.variants[0].price if product.variants else '0.00' }}</span>
+                        <a href="/merch" class="btn-buy">Buy</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="merch-card-bento" style="grid-column: span 4; text-align: center; padding: 4rem;">
+                    <p style="color: #666; margin-bottom: 1.5rem;">Merch coming soon!</p>
+                    <a href="/merch" class="btn-buy">View Store</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if products and products|length > 4 %}
+            <div class="text-center mt-5">
+                <a href="/merch" class="btn-buy" style="padding: 1rem 2rem; font-size: 1rem;">View All Merch</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<!-- Cyberpunk Audio Player -->
+<div id="audioPlayer" class="audio-player-bento">
+    <div class="container">
+        <div class="player-content">
+            <div class="player-controls">
+                <button class="btn-player" onclick="togglePlayPause()">
+                    <i id="playPauseIcon" class="fas fa-play"></i>
+                </button>
+            </div>
+            <div class="player-info">
+                <div id="currentTitle" class="player-title">Now Playing</div>
+                <div id="currentShow" class="player-show">Podcast Show</div>
+            </div>
+            <div class="player-progress">
+                <div class="progress-bar-container" onclick="seekAudio(event)">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+            </div>
+            <div class="player-actions">
+                <button class="btn-speed" onclick="adjustSpeed()">
+                    <span id="speedLabel">1x</span>
+                </button>
+                <button class="btn-close-player" onclick="closePlayer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <audio id="audioElement" style="display: none;"></audio>
+</div>
+
+<!-- YouTube Terminal Player Overlay -->
+<div id="mediaTerminal" class="player-terminal">
+    <div class="container-fluid">
+        <div class="terminal-header">
+            <span class="terminal-title">PROTOCOL PULSE // MEDIA_TERMINAL_v1.0</span>
+            <button onclick="closeTerminal()" class="btn-close-terminal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="video-wrapper">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="terminalIframe" src="" allowfullscreen allow="autoplay"></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 terminal-sidebar">
+                <div class="briefing-header mb-4">
+                    <span class="status-pill"><i class="fas fa-circle me-1"></i> SYSTEM_ONLINE</span>
+                    <h3 class="accent-text mt-2" id="seriesTitle">INTEL_BRIEFING</h3>
+                </div>
+
+                <!-- Episode Guide Panel - Shows when episode is selected -->
+                <div id="episodeGuidePanel" class="episode-guide-panel" style="display: none;">
+                    <div class="guide-header">
+                        <span class="guide-badge"><i class="fas fa-book-open me-1"></i> EPISODE INTEL</span>
+                        <button class="guide-close" onclick="closeEpisodeGuide()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <h4 class="guide-episode-title" id="guideEpTitle">Episode Title</h4>
+                    
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-bolt me-2"></i>TL;DR</div>
+                        <p class="guide-content" id="guideTldr">Loading...</p>
+                    </div>
+                    
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-quote-left me-2"></i>KEY QUOTE</div>
+                        <p class="guide-quote" id="guideQuote">Loading...</p>
+                    </div>
+                    
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-lightbulb me-2"></i>FUN FACT</div>
+                        <p class="guide-content" id="guideFunFact">Loading...</p>
+                    </div>
+                    
+                    <div class="guide-section">
+                        <div class="guide-label"><i class="fas fa-tags me-2"></i>TOPICS</div>
+                        <div class="guide-topics" id="guideTopics"></div>
+                    </div>
+                </div>
+
+                <!-- Series Description - Shows when no episode selected -->
+                <div id="seriesDescription" class="mb-4">
+                    <p class="terminal-text small">
+                        // AUTHORIZATION: PROTOCOL_LEVEL_4<br>
+                        // SUBJECT: DECENTRALIZED_INTEL
+                    </p>
+                    <p id="guideBody">
+                        Loading mission parameters...
+                    </p>
+                </div>
+
+                <h5 class="text-uppercase small tracking-widest opacity-50 mb-3" style="letter-spacing: 2px;">
+                    <i class="fas fa-list me-2"></i>Transmission Archive
+                </h5>
+                <div class="playlist-scroll" id="playlistContent">
+                </div>
+
+                <div class="mt-4 pt-3 border-top border-secondary">
+                    <div class="row g-0 text-center">
+                        <div class="col-6 border-end border-secondary">
+                            <span class="d-block x-small opacity-50">EPISODES</span>
+                            <span class="fw-bold" id="epCount">--</span>
+                        </div>
+                        <div class="col-6">
+                            <span class="d-block x-small opacity-50">NETWORK_LOAD</span>
+                            <span class="fw-bold text-success">OPTIMAL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sponsor Node -->
+                <div class="terminal-ad-unit" id="terminalAdContainer" style="display: none;">
+                    <div class="ad-perimeter">
+                        <div class="ad-header d-flex justify-content-between align-items-center">
+                            <span class="x-small font-monospace text-uppercase" style="letter-spacing: 2px; color: var(--accent-red);">Protocol_Partner</span>
+                            <div class="pulse-dot"></div>
+                        </div>
+                        <a id="terminalAdLink" href="#" target="_blank" rel="noopener">
+                            <div class="ad-content-wrapper mt-2">
+                                <img id="terminalAdImage" src="" alt="Sponsor" class="img-fluid rounded">
+                            </div>
+                        </a>
+                        <div class="ad-footer mt-2 d-flex justify-content-between">
+                            <span id="terminalAdName" class="x-small font-monospace opacity-50">SCANNING...</span>
+                            <span class="x-small font-monospace opacity-50">NODE_ID: 0x<span id="adNodeId">000</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentEpisode = null;
+let playbackSpeeds = [0.75, 1, 1.25, 1.5, 2];
+let currentSpeedIndex = 1;
+let loadedEpisodes = 0;
+const EPISODES_PER_LOAD = 6;
+
+// Protocol Pulse Book Series - Our original YouTube playlists with Episode Guides
+const seriesData = {
+    'everything_21m': {
+        title: "EVERYTHING DIVIDED BY 21 MILLION",
+        epCount: '10',
+        host: 'Matty Ice & Knut Svanholm',
+        description: 'A full 12-episode cinematic exploration of Knut Svanholm\'s book — breaking down Bitcoin\'s relationship to time, money, freedom, human progress, and the fundamental laws shaping our species.',
+        playlistId: 'PLQ4MjCv9Oedo-k8zCLu3VKW8W98KgbOlb',
+        playlist: [
+            { id: 'FA8tvWEydcA', title: 'Time | Episode 1 of 12', 
+              tldr: 'Time is the ultimate scarce resource. Bitcoin is the first technology that allows us to store the value of our time indefinitely.',
+              keyQuote: '"Your time is your life energy. Every hour you work, you trade a piece of your finite existence."',
+              funFact: 'The average person will work 90,000 hours in their lifetime — Bitcoin lets you preserve that value.',
+              topics: ['Time preference', 'Delayed gratification', 'Store of value'] },
+            { id: 'VDordtHAJhg', title: 'Alchemy | Episode 2 of 12',
+              tldr: 'Central banks are modern alchemists — creating money from nothing while Bitcoin maintains absolute scarcity.',
+              keyQuote: '"Fiat currency is the greatest magic trick ever performed — making something from nothing."',
+              funFact: 'The Federal Reserve has created more dollars since 2020 than in the previous 100 years combined.',
+              topics: ['Money printing', 'Scarcity', 'Sound money'] },
+            { id: 'yKbQq66AInU', title: 'Ownership | Episode 3 of 12',
+              tldr: 'True ownership requires proof of work. Bitcoin is the first asset that cannot be confiscated by force.',
+              keyQuote: '"If you can\'t hold it in your mind, you don\'t truly own it."',
+              funFact: 'A 12-word seed phrase can store unlimited value in your memory — the ultimate bearer instrument.',
+              topics: ['Self-custody', 'Property rights', 'Seizure resistance'] },
+            { id: 'rkTbEpAOADI', title: 'Energy | Episode 4 of 12',
+              tldr: 'Bitcoin mining converts stranded and wasted energy into monetary value, creating the most efficient energy market ever.',
+              keyQuote: '"Bitcoin doesn\'t waste energy — it monetizes energy that would otherwise be wasted."',
+              funFact: 'Over 50% of Bitcoin mining now uses renewable energy sources, making it greener than traditional banking.',
+              topics: ['Proof of work', 'Energy markets', 'Thermodynamics'] },
+            { id: 'qG2xYvTVkw0', title: 'Morality | Episode 5 of 12',
+              tldr: 'Inflation is theft. Bitcoin restores moral accountability to money by removing the ability to silently steal.',
+              keyQuote: '"When you can\'t print money, you can\'t fund endless wars."',
+              funFact: 'Every 1% of inflation effectively steals 1% of purchasing power from every saver in the economy.',
+              topics: ['Cantillon effect', 'Monetary ethics', 'Wealth redistribution'] },
+            { id: 'v7xZPqcXyLk', title: 'Memetics | Episode 6 of 12',
+              tldr: 'Ideas spread like viruses. Bitcoin is the most powerful monetary meme in human history.',
+              keyQuote: '"The orange pill is the ultimate mind virus — once you see it, you can\'t unsee it."',
+              funFact: 'The term "hodl" originated from a typo in a 2013 Bitcoin forum post and became a global movement.',
+              topics: ['Viral ideas', 'Cultural evolution', 'Network effects'] },
+            { id: 'RZv_1Qcqik4', title: 'Symbiosis | Episode 7 of 12',
+              tldr: 'Bitcoin and humanity co-evolve. The network gets stronger as more humans join, and humans get freer as the network grows.',
+              keyQuote: '"We shape Bitcoin, and then Bitcoin shapes us."',
+              funFact: 'Bitcoin has survived over 400 "deaths" according to mainstream media — each time coming back stronger.',
+              topics: ['Network effects', 'Antifragility', 'Co-evolution'] },
+            { id: 'UlYSv9SwQGk', title: 'Violence | Episode 8 of 12',
+              tldr: 'All fiat money ultimately relies on state violence. Bitcoin offers the first peaceful exit from coercive monetary systems.',
+              keyQuote: '"Violence is the last refuge of the incompetent."',
+              funFact: 'Throughout history, every fiat currency has eventually failed — usually within 40-50 years.',
+              topics: ['State coercion', 'Peaceful revolution', 'Opt-out'] },
+            { id: '_ygND311kVE', title: 'Deflation | Episode 9 of 12',
+              tldr: 'Deflation rewards savers and punishes speculation. A deflationary currency encourages sustainable economics.',
+              keyQuote: '"In a Bitcoin world, prices naturally fall as technology improves."',
+              funFact: 'The price of TVs fell 99% over 50 years due to technology — that\'s natural deflation at work.',
+              topics: ['Purchasing power', 'Savings culture', 'Economic sustainability'] },
+            { id: 'Nf0LtAk4VBs', title: 'Adoption | Episode 10 of 12',
+              tldr: 'Bitcoin adoption follows an S-curve. We are still in the early majority phase — the opportunity is now.',
+              keyQuote: '"You\'re not late, you\'re early. Most people still don\'t understand what Bitcoin is."',
+              funFact: 'Less than 2% of the global population currently owns Bitcoin — similar to internet adoption in 1997.',
+              topics: ['S-curve adoption', 'Network growth', 'First-mover advantage'] }
+        ]
+    },
+    'big_print': {
+        title: "THE BIG PRINT SERIES",
+        epCount: '12',
+        host: 'Matty Ice & Lawrence Lepard',
+        description: 'An explosive 12-part deep dive revealing how the Federal Reserve and financial elites engineered the most devastating wealth extraction scheme in human history.',
+        playlistId: 'PLQ4MjCv9OedoQphIMpfvUrsgIIMUim2P9',
+        playlist: [
+            { id: 'W09CNU_q6Yo', title: 'Why Fixing the Money is the Only Way | Episode 1',
+              tldr: 'The monetary system is the root cause of most societal problems. Fix the money, fix the world.',
+              keyQuote: '"Money is the operating system of civilization — and ours is corrupted."',
+              funFact: 'Lawrence Lepard manages over $500M in assets and went all-in on sound money after 2008.',
+              topics: ['Monetary reform', 'Systemic corruption', 'First principles'] },
+            { id: 'tnthM3uaHbI', title: 'How Govt Has Been Stealing 98.5% Since 1971 | Episode 2',
+              tldr: 'Since Nixon closed the gold window in 1971, the dollar has lost over 98% of its purchasing power.',
+              keyQuote: '"1971 was the biggest heist in human history — and nobody talks about it."',
+              funFact: 'A house that cost $25,000 in 1971 now costs over $400,000 — that\'s the silent theft in action.',
+              topics: ['Nixon shock', 'Currency debasement', 'WTFhappenedin1971'] },
+            { id: 'FRH5w_joMP0', title: 'How Inflation Steals Your Life Energy | Episode 3',
+              tldr: 'Inflation is a hidden tax that steals your productive hours. Every dollar printed dilutes your savings.',
+              keyQuote: '"Inflation is taxation without legislation."',
+              funFact: 'A minimum wage worker in 1971 could buy more goods than a worker earning $20/hour today.',
+              topics: ['Hidden taxation', 'Purchasing power erosion', 'Working class impact'] },
+            { id: 'JLjG8jAJxbw', title: 'The Path to Pure Fiat | Episode 4',
+              tldr: 'The journey from gold-backed money to pure fiat was a deliberate process of financial enslavement.',
+              keyQuote: '"The Fed was designed to fail the people and enrich the elite."',
+              funFact: 'The Federal Reserve was created on Jekyll Island in 1910 by six men representing 25% of world wealth.',
+              topics: ['Fed history', 'Gold standard abandonment', 'Financial elite'] },
+            { id: 'tq_ZYhpW4Vw', title: 'How Powell & Yellen Broke the System | Episode 5',
+              tldr: 'Recent Fed policies have accelerated the destruction of the dollar at an unprecedented rate.',
+              keyQuote: '"The Fed printed more money in 2020 than in the previous 200 years of US history."',
+              funFact: 'The Fed\'s balance sheet grew from $4T to $9T in just two years during COVID.',
+              topics: ['Quantitative easing', 'Monetary policy', 'System fragility'] },
+            { id: 'Sjp-Kaic2CE', title: 'Austrian vs Keynesian Schools | Episode 6',
+              tldr: 'Austrian economics explains why Keynesian policies always fail — and why Bitcoin aligns with Austrian principles.',
+              keyQuote: '"Keynes gave politicians the intellectual cover to print money."',
+              funFact: 'Keynes himself said "In the long run we are all dead" — the ultimate short-term thinking.',
+              topics: ['Economic schools', 'Sound money theory', 'Policy implications'] },
+            { id: 'n6Bi8Kf6ar0', title: 'The Sovereign Currency Bubble | Episode 7',
+              tldr: 'Government bonds are the largest bubble in history. When it pops, Bitcoin will be the escape valve.',
+              keyQuote: '"The bond market is a $130 trillion house of cards."',
+              funFact: 'Over $18 trillion in bonds traded at negative yields in 2021 — paying to lend money.',
+              topics: ['Bond markets', 'Debt crisis', 'Safe haven assets'] },
+            { id: 'M3M61rLBTl0', title: 'Bitcoin is God\'s Gift to Humanity | Episode 8',
+              tldr: 'Bitcoin arrived at exactly the right moment to save humanity from financial enslavement.',
+              keyQuote: '"Bitcoin is the peaceful revolution we\'ve been waiting for."',
+              funFact: 'Satoshi mined the genesis block on Jan 3, 2009, embedding a newspaper headline about bank bailouts.',
+              topics: ['Divine timing', 'Financial freedom', 'Peaceful revolution'] },
+            { id: 'uzUEJZ38RV8', title: 'Bitcoin, Real Estate, Generational Wealth | Episode 9',
+              tldr: 'Real estate became a store of value because money failed. Bitcoin returns that function to money itself.',
+              keyQuote: '"Housing shouldn\'t be an investment — it should be a home."',
+              funFact: 'Millennials own 5% of US wealth at age 35 — Boomers owned 21% at the same age.',
+              topics: ['Asset inflation', 'Wealth inequality', 'Generational divide'] },
+            { id: 'y9snxWoEkaU', title: 'Decentralization & End of Centralized Power | Episode 10',
+              tldr: 'Centralized control of money enables centralized control of everything. Bitcoin breaks this cycle.',
+              keyQuote: '"Control the money, control the world."',
+              funFact: 'The Federal Reserve is owned by private banks, not the US government.',
+              topics: ['Power structures', 'Decentralization', 'Financial sovereignty'] },
+            { id: 'hKa8lRDwIos', title: 'Why Digital Scarcity Changed Everything | Episode 11',
+              tldr: 'Before Bitcoin, digital things could be infinitely copied. Satoshi solved the double-spend problem.',
+              keyQuote: '"Bitcoin is the first truly scarce digital asset in human history."',
+              funFact: 'There will only ever be 21 million Bitcoin — less than 0.003 BTC per person globally.',
+              topics: ['Digital scarcity', 'Double-spend problem', 'Mathematical certainty'] },
+            { id: 'FyMWELymqAM', title: 'Fix the Money, Fix the World | Episode 12',
+              tldr: 'When money is honest, society becomes honest. Bitcoin is the foundation for a better civilization.',
+              keyQuote: '"Hard money creates hard men. Soft money creates soft men."',
+              funFact: 'Countries with sound money historically have lower crime, higher trust, and greater prosperity.',
+              topics: ['Social transformation', 'Moral hazard', 'Civilizational change'] }
+        ]
+    },
+    'daylight_robbery': {
+        title: "DAYLIGHT ROBBERY SERIES",
+        epCount: '13',
+        host: 'Matty Ice & Dominic Frisby',
+        description: 'A riveting 13-part series that exposes the hidden story of how taxation has shaped human civilization — from ancient empires to modern governments.',
+        playlistId: 'PLQ4MjCv9OedrNl9t_fzsUy5rrDeifm_Uj',
+        playlist: [
+            { id: 'ZCc78wvwd6U', title: 'The Hidden History of Taxation | Episode 1',
+              tldr: 'Taxation has been the primary mechanism of wealth extraction throughout human history.',
+              keyQuote: '"Taxation is the price we pay for failing to build a civilized society."',
+              funFact: 'The word "tax" comes from Latin "taxare" meaning to censure, charge, or assess.',
+              topics: ['Tax origins', 'Historical perspective', 'Wealth extraction'] },
+            { id: 'j_V3fjvEuS0', title: 'How Taxes Shaped Civilization | Episode 2',
+              tldr: 'The rise and fall of empires can be traced through their tax policies.',
+              keyQuote: '"Every empire that overtaxed its citizens collapsed."',
+              funFact: 'The Roman Empire fell partly because tax rates exceeded 50% of income.',
+              topics: ['Empire cycles', 'Tax burden', 'Civilizational collapse'] },
+            { id: 'W_TNwftaVMk', title: 'Death, Taxes, or Islam | Episode 3',
+              tldr: 'Medieval taxation created religious and political divides that still shape our world today.',
+              keyQuote: '"The Jizya tax created a two-tier society that echoes through history."',
+              funFact: 'The Islamic Golden Age had lower tax rates than Christian Europe at the same time.',
+              topics: ['Religious taxation', 'Medieval economics', 'Social stratification'] },
+            { id: '3VDVbbSZYPc', title: 'The Peasants\' Revolt | Episode 4',
+              tldr: 'The 1381 Peasants Revolt was sparked by a poll tax — proving taxes ignite revolutions.',
+              keyQuote: '"When Adam delved and Eve span, who was then the gentleman?"',
+              funFact: 'The poll tax was only 4 pence per person — but it sparked the first major English uprising.',
+              topics: ['Popular uprising', 'Tax resistance', 'Class warfare'] },
+            { id: 'brho571r5rY', title: 'Tax Wars That Created Nations | Episode 5',
+              tldr: 'Many nations were born from tax rebellions — including the United States.',
+              keyQuote: '"No taxation without representation!"',
+              funFact: 'The American Revolution began over a 3% tax on tea — today we accept 40%+ tax rates.',
+              topics: ['American Revolution', 'Tax rebellion', 'National identity'] },
+            { id: 'zltb_tXZiWI', title: 'How the Richest Families Controlled Nations | Episode 6',
+              tldr: 'Banking families like the Rothschilds gained power by financing wars and collecting taxes.',
+              keyQuote: '"Give me control of a nation\'s money and I care not who makes its laws."',
+              funFact: 'The Rothschild family was worth an estimated $350 billion at their peak in the 1800s.',
+              topics: ['Banking dynasties', 'War financing', 'Power concentration'] },
+            { id: '0MDv0d-3t_k', title: 'How Tariffs Caused the Civil War | Episode 7',
+              tldr: 'The American Civil War was as much about tariffs and taxation as it was about slavery.',
+              keyQuote: '"The tariff question was the real cause of sectional conflict."',
+              funFact: 'The Morrill Tariff of 1861 increased import duties by 70% — devastating the Southern economy.',
+              topics: ['Tariff wars', 'Economic conflict', 'Civil War causes'] },
+            { id: 'Ym5W3t9WvB8', title: 'The Birth of Big Government | Episode 8',
+              tldr: 'World War I created the income tax and the modern surveillance state.',
+              keyQuote: '"War is the health of the state."',
+              funFact: 'The US income tax was introduced in 1913 at 1% — a "temporary" war measure.',
+              topics: ['Income tax origins', 'War expansion', 'Government growth'] },
+            { id: 'YUHM88mtRxU', title: 'Hitler, Banks & Nations Fought for Wealth | Episode 9',
+              tldr: 'World War II was fundamentally a war over economic resources and monetary control.',
+              keyQuote: '"All wars are bankers\' wars."',
+              funFact: 'The Nazi regime confiscated $230 million in Jewish property through special taxes.',
+              topics: ['War economics', 'Confiscation', 'Financial warfare'] },
+            { id: 'LcIT9Tgbkm8', title: 'How Governments Silently Rob You | Episode 10',
+              tldr: 'Inflation is the hidden tax that requires no legislation and leaves no fingerprints.',
+              keyQuote: '"The art of taxation is plucking the goose to get the most feathers with the least hissing."',
+              funFact: 'The average person loses 2-3 months of salary annually to invisible inflation taxes.',
+              topics: ['Inflation tax', 'Hidden extraction', 'Financial suppression'] },
+            { id: 'VRSXUD4L2eA', title: 'Digital Nomads & Borderless Money | Episode 11',
+              tldr: 'Digital technology is making geographical tax jurisdictions obsolete.',
+              keyQuote: '"The internet routes around censorship, and Bitcoin routes around taxation."',
+              funFact: 'Over 35 million Americans now work remotely — many from lower-tax jurisdictions.',
+              topics: ['Remote work', 'Tax arbitrage', 'Digital freedom'] },
+            { id: '1OAn6QDSsJs', title: 'How Data & AI Are Reshaping Taxation | Episode 12',
+              tldr: 'Governments are using AI to track and tax every transaction in real-time.',
+              keyQuote: '"Big data is the biggest threat to financial privacy in history."',
+              funFact: 'The IRS now uses machine learning to detect unreported income with 90%+ accuracy.',
+              topics: ['Surveillance', 'AI taxation', 'Privacy erosion'] },
+            { id: 'xPPbMsz8qso', title: 'The Perfect Tax System | Episode 13',
+              tldr: 'What would an ideal tax system look like? Dominic Frisby presents a radical alternative.',
+              keyQuote: '"A land value tax is the least harmful way to fund public services."',
+              funFact: 'Singapore uses land value taxation and has one of the world\'s most efficient economies.',
+              topics: ['Land value tax', 'Tax reform', 'Optimal policy'] }
+        ]
+    },
+    'genesis_book': {
+        title: "THE GENESIS BOOK SERIES",
+        epCount: '10',
+        host: 'Matty Ice & Aaron van Wirdum',
+        description: 'A thought-provoking 10-part series exploring the groundbreaking ideas in Aaron van Wirdum\'s seminal work on Austrian economics and the origins of Bitcoin.',
+        playlistId: 'PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
+        playlist: [
+            { id: '3TslgynKeaA', title: 'Austrian Economics & Money | Episode 1',
+              tldr: 'Austrian economics provides the theoretical foundation for understanding why Bitcoin matters.',
+              keyQuote: '"The Austrian school predicted the failure of fiat money decades before Bitcoin."',
+              funFact: 'Carl Menger founded Austrian economics in 1871 — 137 years before Bitcoin.',
+              topics: ['Austrian economics', 'Monetary theory', 'Menger\'s origins'] },
+            { id: 'PFi6no-0wSE', title: 'Neutral Money & Denationalization | Episode 2',
+              tldr: 'Hayek proposed private competing currencies in 1976 — Bitcoin fulfills his vision.',
+              keyQuote: '"The denationalization of money is the most important reform we can make."',
+              funFact: 'Hayek won the Nobel Prize in 1974, two years before writing "Denationalization of Money."',
+              topics: ['Hayek', 'Private money', 'Currency competition'] },
+            { id: 'PLWhV1JBfCA', title: 'Free and Open Source Software | Episode 3',
+              tldr: 'The open-source movement created the culture and tools that made Bitcoin possible.',
+              keyQuote: '"Free software is about liberty, not price."',
+              funFact: 'Linux, the open-source operating system, runs 96% of the world\'s top web servers.',
+              topics: ['Open source', 'Linux', 'Collaborative development'] },
+            { id: 'J5b24c0QzCE', title: 'Cryptography & Spies | Episode 4',
+              tldr: 'Cryptography evolved from a military secret to a tool for individual freedom.',
+              keyQuote: '"Strong cryptography is the best defense against tyranny."',
+              funFact: 'The NSA tried to ban public cryptography in the 1990s during the "Crypto Wars."',
+              topics: ['Cryptography history', 'Privacy tools', 'Government opposition'] },
+            { id: 'FzrKToH9AT0', title: 'eCash & Timestamps | Episode 5',
+              tldr: 'David Chaum invented digital cash in the 1980s — Bitcoin built on his work.',
+              keyQuote: '"DigiCash was ahead of its time — it had everything except decentralization."',
+              funFact: 'DigiCash filed for bankruptcy in 1998, just 10 years before Bitcoin launched.',
+              topics: ['DigiCash', 'David Chaum', 'Digital cash pioneers'] },
+            { id: 'c3Nafsnts-Q', title: 'The Extropians & High Tech Hayekians | Episode 6',
+              tldr: 'The Extropian movement envisioned a future of technological abundance and individual sovereignty.',
+              keyQuote: '"We are the first generation that could live forever — if we choose."',
+              funFact: 'Many early Bitcoiners were active in Extropian mailing lists in the 1990s.',
+              topics: ['Extropianism', 'Transhumanism', 'Technological optimism'] },
+            { id: 'wDUePxNsgLs', title: 'The Rise of the Cypherpunks | Episode 7',
+              tldr: 'The Cypherpunks believed privacy was essential for freedom — and they wrote code to prove it.',
+              keyQuote: '"Cypherpunks write code. Privacy is not something you request — you take it."',
+              funFact: 'The Cypherpunk mailing list included Tim May, Eric Hughes, and a young Satoshi Nakamoto.',
+              topics: ['Cypherpunks', 'Privacy activism', 'Code as protest'] },
+            { id: 'WB5-IR5xrAE', title: 'Hashcash + Bit Gold | Episode 8',
+              tldr: 'Adam Back\'s Hashcash and Nick Szabo\'s Bit Gold were the direct ancestors of Bitcoin.',
+              keyQuote: '"Bit Gold was 90% of the way to Bitcoin — it just lacked the finishing touches."',
+              funFact: 'Adam Back\'s Hashcash is the only prior technology directly cited in the Bitcoin whitepaper.',
+              topics: ['Hashcash', 'Bit Gold', 'Proof of work origins'] },
+            { id: 'vydVrF07QGA', title: 'B-money and RPOW | Episode 9',
+              tldr: 'Wei Dai\'s B-money and Hal Finney\'s RPOW were the final precursors before Bitcoin.',
+              keyQuote: '"B-money proposed almost every element of Bitcoin — except the blockchain."',
+              funFact: 'Hal Finney received the first ever Bitcoin transaction from Satoshi Nakamoto.',
+              topics: ['B-money', 'RPOW', 'Hal Finney'] },
+            { id: 'VDdc67_HnVE', title: 'Bitcoin\'s Revolutionary Origins | Episode 10',
+              tldr: 'Satoshi combined 30 years of cryptographic research into the first working cryptocurrency.',
+              keyQuote: '"Bitcoin is not just a currency — it\'s a breakthrough in computer science."',
+              funFact: 'Satoshi Nakamoto has never been identified and holds ~1 million untouched BTC.',
+              topics: ['Bitcoin genesis', 'Satoshi mystery', 'Technical breakthrough'] }
+        ]
+    }
+};
+
+// Sponsor Ads Data - Loaded from API
+let terminalAds = [];
+let currentAdIndex = 0;
+
+// Load sponsors for terminal
+async function loadTerminalAds() {
+    try {
+        const response = await fetch('/api/active-ads');
+        const data = await response.json();
+        if (data.success && data.ads.length > 0) {
+            terminalAds = data.ads;
+            displayTerminalAd();
+            document.getElementById('terminalAdContainer').style.display = 'block';
+        }
+    } catch (error) {
+        console.log('No sponsors available');
+    }
+}
+
+function displayTerminalAd() {
+    if (terminalAds.length === 0) return;
+    
+    const ad = terminalAds[currentAdIndex];
+    document.getElementById('terminalAdImage').src = ad.image_url;
+    document.getElementById('terminalAdLink').href = ad.target_url;
+    document.getElementById('terminalAdName').textContent = ad.name.toUpperCase().replace(/ /g, '_');
+    document.getElementById('adNodeId').textContent = ad.id.toString(16).toUpperCase().padStart(3, '0');
+}
+
+function rotateTerminalAds() {
+    if (terminalAds.length <= 1) return;
+    
+    const adUnit = document.querySelector('.terminal-ad-unit');
+    adUnit.classList.add('glitch-active');
+    
+    setTimeout(() => {
+        currentAdIndex = (currentAdIndex + 1) % terminalAds.length;
+        displayTerminalAd();
+        adUnit.classList.remove('glitch-active');
+    }, 400);
+}
+
+// Rotate ads every 20 seconds when terminal is open
+setInterval(() => {
+    if (document.getElementById('mediaTerminal').classList.contains('active')) {
+        rotateTerminalAds();
+    }
+}, 20000);
+
+// Terminal Player Functions
+let currentSeriesKey = null;
+
+function openTerminal(seriesKey) {
+    const data = seriesData[seriesKey];
+    if (!data || !data.playlist || data.playlist.length === 0) {
+        console.error('No series data found for:', seriesKey);
+        return;
+    }
+    
+    currentSeriesKey = seriesKey;
+    
+    const iframe = document.getElementById('terminalIframe');
+    const list = document.getElementById('playlistContent');
+    const title = document.getElementById('seriesTitle');
+    const guideBody = document.getElementById('guideBody');
+    const epCount = document.getElementById('epCount');
+    
+    // Update Intel Briefing content
+    title.textContent = data.title;
+    guideBody.textContent = data.description;
+    epCount.textContent = data.epCount || data.playlist.length;
+    
+    // Set first video
+    iframe.src = `https://www.youtube.com/embed/${data.playlist[0].id}?autoplay=1&modestbranding=1&rel=0`;
+    
+    // Build Playlist with enhanced episode items including guide indicator
+    list.innerHTML = data.playlist.map((video, index) => `
+        <div class="playlist-item ${index === 0 ? 'active' : ''}" onclick="changeVideo('${video.id}', this, ${index})" data-index="${index}">
+            <div class="ep-number">EP ${(index + 1).toString().padStart(2, '0')}</div>
+            <div class="ep-title">${video.title}</div>
+            <div class="guide-indicator"><i class="fas fa-info-circle"></i> TAP FOR INTEL</div>
+        </div>
+    `).join('');
+
+    document.getElementById('mediaTerminal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Show first episode's guide automatically
+    showEpisodeGuide(0);
+    
+    // Load sponsors when terminal opens
+    loadTerminalAds();
+}
+
+function changeVideo(id, element, episodeIndex) {
+    document.getElementById('terminalIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0`;
+    
+    // Update active state
+    document.querySelectorAll('.playlist-item').forEach(item => item.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    }
+    
+    // Show episode guide for selected episode
+    if (typeof episodeIndex !== 'undefined') {
+        showEpisodeGuide(episodeIndex);
+    }
+}
+
+function showEpisodeGuide(episodeIndex) {
+    if (!currentSeriesKey) return;
+    
+    const data = seriesData[currentSeriesKey];
+    if (!data || !data.playlist || !data.playlist[episodeIndex]) return;
+    
+    const episode = data.playlist[episodeIndex];
+    
+    // Update guide panel content
+    document.getElementById('guideEpTitle').textContent = episode.title;
+    document.getElementById('guideTldr').textContent = episode.tldr || 'No summary available.';
+    document.getElementById('guideQuote').textContent = episode.keyQuote || 'No quote available.';
+    document.getElementById('guideFunFact').textContent = episode.funFact || 'No fun fact available.';
+    
+    // Build topics
+    const topicsContainer = document.getElementById('guideTopics');
+    if (episode.topics && episode.topics.length > 0) {
+        topicsContainer.innerHTML = episode.topics.map(topic => 
+            `<span class="guide-topic-tag">${topic}</span>`
+        ).join('');
+    } else {
+        topicsContainer.innerHTML = '<span class="guide-topic-tag">Bitcoin</span>';
+    }
+    
+    // Show guide panel, hide series description
+    document.getElementById('episodeGuidePanel').style.display = 'block';
+    document.getElementById('seriesDescription').style.display = 'none';
+}
+
+function closeEpisodeGuide() {
+    document.getElementById('episodeGuidePanel').style.display = 'none';
+    document.getElementById('seriesDescription').style.display = 'block';
+}
+
+function closeTerminal() {
+    document.getElementById('terminalIframe').src = '';
+    document.getElementById('mediaTerminal').classList.remove('active');
+    document.body.style.overflow = '';
+    currentSeriesKey = null;
+    closeEpisodeGuide();
+}
+
+// Close terminal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeTerminal();
+    }
+});
+
+// Protocol Heartbeat - Live Network Stats
+async function updateNodeTracker() {
+    try {
+        const response = await fetch('/api/network-stats');
+        const data = await response.json();
+        
+        const heightEl = document.getElementById('liveHeight');
+        const hashrateEl = document.getElementById('liveHashrate');
+        const statusEl = document.getElementById('nodeStatus');
+
+        // Check if block changed to trigger animation
+        if (heightEl.textContent !== `#${data.height}`) {
+            heightEl.classList.add('block-flash');
+            setTimeout(() => heightEl.classList.remove('block-flash'), 1000);
+        }
+
+        heightEl.textContent = `#${data.height}`;
+        hashrateEl.textContent = data.hashrate;
+        statusEl.textContent = data.status;
+        
+        // Update status color
+        if (data.status === 'OPERATIONAL') {
+            statusEl.classList.remove('text-warning', 'text-danger');
+            statusEl.classList.add('text-success');
+        } else if (data.status === 'RECONNECTING' || data.status === 'TIMEOUT') {
+            statusEl.classList.remove('text-success', 'text-danger');
+            statusEl.classList.add('text-warning');
+        } else {
+            statusEl.classList.remove('text-success', 'text-warning');
+            statusEl.classList.add('text-danger');
+        }
+        
+    } catch (error) {
+        console.error("Telemetry Link Error:", error);
+        document.getElementById('nodeStatus').textContent = 'OFFLINE';
+        document.getElementById('nodeStatus').classList.remove('text-success');
+        document.getElementById('nodeStatus').classList.add('text-danger');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadEpisodes();
+    
+    // Initialize Protocol Heartbeat
+    updateNodeTracker();
+    setInterval(updateNodeTracker, 60000); // Update every 60 seconds
+});
+
+function loadEpisodes() {
+    const container = document.getElementById('episodes-container');
+    
+    fetch(`/api/latest-episodes?limit=${EPISODES_PER_LOAD}&offset=${loadedEpisodes}`)
+        .then(response => response.json())
+        .then(data => {
+            if (loadedEpisodes === 0) {
+                container.innerHTML = '';
+            }
+            
+            if (data.episodes && data.episodes.length > 0) {
+                data.episodes.forEach((episode, index) => {
+                    const card = createEpisodeCard(episode, index);
+                    container.insertAdjacentHTML('beforeend', card);
+                });
+                loadedEpisodes += data.episodes.length;
+                
+                // Add load more button if there are more episodes
+                if (data.has_more) {
+                    const existingBtn = document.getElementById('load-more-btn');
+                    if (!existingBtn) {
+                        container.insertAdjacentHTML('afterend', `
+                            <div class="text-center mt-4" id="load-more-container">
+                                <button id="load-more-btn" class="btn-cta" onclick="loadMoreEpisodes()" style="background: transparent; border: 1px solid var(--glass-border); color: var(--pure-white);">
+                                    <i class="fas fa-plus me-2"></i>Load More
+                                </button>
+                            </div>
+                        `);
+                    }
+                }
+            } else if (loadedEpisodes === 0) {
+                container.innerHTML = '<div class="bento-item" style="grid-column: span 4; text-align: center;"><p style="color: rgba(255,255,255,0.5);">No episodes available yet.</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading episodes:', error);
+            if (loadedEpisodes === 0) {
+                container.innerHTML = '<div class="bento-item" style="grid-column: span 4; text-align: center;"><p style="color: rgba(255,255,255,0.5);">Unable to load episodes.</p></div>';
+            }
+        });
+}
+
+function loadMoreEpisodes() {
+    loadEpisodes();
+}
+
+// Global store for loaded episodes to reference by index
+let loadedEpisodeData = [];
+
+function createEpisodeCard(episode, index) {
+    const date = new Date(episode.published_date).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+    });
+    
+    // Store episode data globally and reference by index
+    const episodeIndex = loadedEpisodeData.length;
+    loadedEpisodeData.push(episode);
+    
+    // Vary card sizes for visual interest
+    let sizeClass = '';
+    if (index === 0) sizeClass = 'item-wide';
+    
+    return `
+        <div class="bento-item ${sizeClass}" style="min-height: 180px;">
+            <span class="episode-tag">${escapeHtml(episode.show_name)}</span>
+            <h4 class="episode-title-bento">${escapeHtml(episode.title)}</h4>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">
+                    <i class="fas fa-clock me-1"></i>${episode.duration || 'N/A'}
+                    <span class="ms-3"><i class="fas fa-calendar me-1"></i>${date}</span>
+                </span>
+                <button class="btn-play-bento small" onclick="playEpisodeByIndex(${episodeIndex})">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function playEpisodeByIndex(index) {
+    const episode = loadedEpisodeData[index];
+    if (episode) {
+        playEpisode(episode);
+    }
+}
+
+function loadShowEpisodes(showId) {
+    fetch(`/api/episodes/${showId}?limit=10`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.episodes && data.episodes.length > 0) {
+                playEpisode(data.episodes[0]);
+            }
+        })
+        .catch(error => console.error('Error loading show episodes:', error));
+}
+
+function playEpisode(episode) {
+    console.log('Attempting to play:', episode.audio_url);
+    console.log('Full episode data:', episode);
+    
+    if (!episode.audio_url) {
+        console.error('No audio_url found in episode:', episode);
+        alert('Audio not available for this episode.');
+        return;
+    }
+    
+    currentEpisode = episode;
+    document.getElementById('currentTitle').textContent = episode.title;
+    document.getElementById('currentShow').textContent = episode.show_name;
+    document.getElementById('audioPlayer').style.display = 'block';
+    
+    const audioElement = document.getElementById('audioElement');
+    audioElement.src = episode.audio_url;
+    console.log('Audio element src set to:', audioElement.src);
+    audioElement.play();
+    
+    updatePlayPauseIcon(true);
+}
+
+function togglePlayPause() {
+    const audioElement = document.getElementById('audioElement');
+    if (audioElement.paused) {
+        audioElement.play();
+        updatePlayPauseIcon(true);
+    } else {
+        audioElement.pause();
+        updatePlayPauseIcon(false);
+    }
+}
+
+function updatePlayPauseIcon(isPlaying) {
+    const icon = document.getElementById('playPauseIcon');
+    icon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+}
+
+function adjustSpeed() {
+    const audioElement = document.getElementById('audioElement');
+    currentSpeedIndex = (currentSpeedIndex + 1) % playbackSpeeds.length;
+    const newSpeed = playbackSpeeds[currentSpeedIndex];
+    audioElement.playbackRate = newSpeed;
+    document.getElementById('speedLabel').textContent = newSpeed + 'x';
+}
+
+function closePlayer() {
+    const audioElement = document.getElementById('audioElement');
+    audioElement.pause();
+    audioElement.currentTime = 0;
+    document.getElementById('audioPlayer').style.display = 'none';
+}
+
+function seekAudio(event) {
+    const audioElement = document.getElementById('audioElement');
+    const progressBar = event.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const percent = (event.clientX - rect.left) / rect.width;
+    audioElement.currentTime = percent * audioElement.duration;
+}
+
+document.getElementById('audioElement').addEventListener('timeupdate', function() {
+    const audio = this;
+    const progressBar = document.getElementById('progressBar');
+    const currentTime = document.getElementById('currentTime');
+    const totalTime = document.getElementById('totalTime');
+    
+    if (audio.duration) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = progress + '%';
+        
+        currentTime.textContent = formatTime(audio.currentTime);
+        totalTime.textContent = formatTime(audio.duration);
+    }
+});
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+}
+</script>
+{% endblock %}

@@ -1739,7 +1739,7 @@ def media_hub():
     our_books, recommended_books = _get_media_hub_books()
     podcast_sections_list = _get_podcast_sections(per_section=6)
     if not rss_service:
-        return render_template('media_hub.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list, get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub_new.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list, get_thumbnail=YouTubeService.get_thumbnail)
     try:
         shows = rss_service.get_show_info()
         products = []
@@ -1859,7 +1859,7 @@ def media_hub():
                 'cover_url': b.get('cover_url'),
             })
         
-        return render_template('media_hub.html',
+        return render_template('media_hub_new.html',
                                shows=shows,
                                products=products,
                                our_books=our_books,
@@ -1875,7 +1875,7 @@ def media_hub():
                                get_thumbnail=YouTubeService.get_thumbnail)
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
-        return render_template('media_hub.html', shows=[], products=[], our_books=locals().get('our_books', []), recommended_books=locals().get('recommended_books', []), youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=locals().get('podcast_sections_list') or [], series_data={}, get_thumbnail=YouTubeService.get_thumbnail)
+        return render_template('media_hub_new.html', shows=[], products=[], our_books=locals().get('our_books', []), recommended_books=locals().get('recommended_books', []), youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=locals().get('podcast_sections_list') or [], series_data={}, get_thumbnail=YouTubeService.get_thumbnail)
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():

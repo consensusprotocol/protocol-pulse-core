@@ -3,21 +3,9 @@
 {% block title %}Cypherpunks | Protocol Pulse{% endblock %}
 
 {% block head %}
-<!-- Open Graph -->
-<meta property="og:title" content="Cypherpunks — Protocol Pulse">
-<meta property="og:description" content="The cypherpunk movement and its influence on Bitcoin, privacy, and digital sovereignty.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Protocol Pulse">
-<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
-<meta property="og:url" content="{{ request.url }}">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@ProtocolPulse">
-<meta name="twitter:title" content="Cypherpunks — Protocol Pulse">
-<meta name="twitter:description" content="The cypherpunk movement and its influence on Bitcoin, privacy, and digital sovereignty.">
-
 <style>
 :root {
-    --pp-red: #dc2626;
+    --pp-red: #CC0000;
     --pp-dark: #0a0a0a;
     --cp-purple: #a855f7;
 }
@@ -108,67 +96,6 @@
     border-color: var(--cp-purple);
     transform: translateY(-3px);
     box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
-}
-
-.pioneer-card.expanded {
-    border-color: var(--cp-purple);
-}
-
-.dossier-btn {
-    margin-top: 12px;
-    padding: 8px 16px;
-    background: rgba(168, 85, 247, 0.1);
-    border: 1px solid rgba(168, 85, 247, 0.3);
-    border-radius: 6px;
-    color: var(--cp-purple);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.dossier-btn:hover {
-    background: rgba(168, 85, 247, 0.2);
-    border-color: var(--cp-purple);
-}
-
-.dossier-content {
-    display: none;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(168, 85, 247, 0.2);
-}
-
-.dossier-content.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.dossier-loading {
-    text-align: center;
-    padding: 20px;
-    color: var(--cp-purple);
-}
-
-.dossier-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.7;
-}
-
-.dossier-quote {
-    background: rgba(168, 85, 247, 0.1);
-    border-left: 3px solid var(--cp-purple);
-    padding: 12px 15px;
-    margin: 12px 0;
-    font-style: italic;
-    font-size: 0.8rem;
 }
 
 .pioneer-name {
@@ -263,14 +190,10 @@
             <div class="section-title"><i class="fas fa-users"></i> The Pioneers</div>
             <div class="pioneers-grid">
                 {% for pioneer in pioneers %}
-                <div class="pioneer-card" data-pioneer="{{ pioneer.name }}">
+                <div class="pioneer-card">
                     <div class="pioneer-name">{{ pioneer.name }}</div>
                     <div class="pioneer-role">{{ pioneer.role }}</div>
                     <div class="pioneer-era">{{ pioneer.era }}</div>
-                    <button class="dossier-btn" onclick="toggleDossier(this, '{{ pioneer.name }}')">
-                        <i class="fas fa-file-alt"></i> View Dossier
-                    </button>
-                    <div class="dossier-content"></div>
                 </div>
                 {% endfor %}
             </div>
@@ -295,53 +218,4 @@
         </div>
     </div>
 </div>
-
-<script>
-const dossierCache = {};
-
-async function toggleDossier(btn, name) {
-    const card = btn.closest('.pioneer-card');
-    const content = card.querySelector('.dossier-content');
-    
-    if (content.classList.contains('active')) {
-        content.classList.remove('active');
-        card.classList.remove('expanded');
-        btn.innerHTML = '<i class="fas fa-file-alt"></i> View Dossier';
-        return;
-    }
-    
-    card.classList.add('expanded');
-    btn.innerHTML = '<i class="fas fa-times"></i> Close Dossier';
-    
-    if (dossierCache[name]) {
-        content.innerHTML = dossierCache[name];
-        content.classList.add('active');
-        return;
-    }
-    
-    content.innerHTML = '<div class="dossier-loading"><i class="fas fa-spinner fa-spin"></i> Loading dossier...</div>';
-    content.classList.add('active');
-    
-    try {
-        const res = await fetch('/api/cypherpunk-dossier?name=' + encodeURIComponent(name));
-        const data = await res.json();
-        
-        if (data.success) {
-            const html = `
-                <div class="dossier-text">${data.dossier.bio}</div>
-                ${data.dossier.quote ? `<div class="dossier-quote">"${data.dossier.quote}"</div>` : ''}
-                <div style="margin-top: 12px; font-size: 0.75rem; color: rgba(255,255,255,0.5);">
-                    <strong>Key Contributions:</strong> ${data.dossier.contributions.join(', ')}
-                </div>
-            `;
-            content.innerHTML = html;
-            dossierCache[name] = html;
-        } else {
-            content.innerHTML = '<div class="dossier-text" style="color: rgba(255,255,255,0.5);">Dossier unavailable.</div>';
-        }
-    } catch (e) {
-        content.innerHTML = '<div class="dossier-text" style="color: rgba(255,255,255,0.5);">Failed to load dossier.</div>';
-    }
-}
-</script>
 {% endblock %}
