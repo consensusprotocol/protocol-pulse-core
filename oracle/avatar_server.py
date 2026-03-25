@@ -181,6 +181,7 @@ app = Flask(__name__)
 CORS_ORIGINS = [
     "https://protocolpulse.io",
     "https://www.protocolpulse.io",
+    "https://protocolpulse.replit.app",
     "http://localhost:3000",
     "http://localhost:5000",
     "http://localhost:8080",
@@ -1581,8 +1582,20 @@ def oracle_speak():
 
     # Try pre-rendered greeting cache (instant for mobile)
     if intent == "GREETING" and os.path.exists(_GREETING_CACHE_PATH):
-        logger.info('[GREETING] Serving from pre-rendered cache (instant)')
-        return send_file(_GREETING_CACHE_PATH, mimetype='video/mp4')
+        # Validate: must be >10KB and start with MP4 magic bytes (not HTML error)
+        try:
+            fsize = os.path.getsize(_GREETING_CACHE_PATH)
+            with open(_GREETING_CACHE_PATH, 'rb') as _f:
+                magic = _f.read(4)
+            is_valid = fsize > 10240 and magic[:2] != b'<!'
+        except Exception:
+            is_valid = False
+        if is_valid:
+            logger.info(f'[GREETING] Serving cache ({fsize//1024}KB)')
+            return send_file(_GREETING_CACHE_PATH, mimetype='video/mp4')
+        else:
+            logger.warning(f'[GREETING] Cache corrupt ({fsize}B) - regenerating')
+            os.remove(_GREETING_CACHE_PATH)
 
     # Try daily brief
     if intent == "DAILY_BRIEF":

@@ -630,8 +630,7 @@ width:100%;margin-top:4px;">
   <div class="sigil-wrap">
     <div class="ring ring-1"></div>
     <div class="ring ring-2"></div>
-    <div class="sigil-avatar" style="position:relative;">
-      <img src="/static/oracle_avatar.png" alt="Satomi" id="avatar-fallback" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:inherit;opacity:1;"  />
+    <div class="sigil-avatar">
       <img src="/static/oracle_avatar.png" alt="Satomi"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="sigil-fallback" style="display:none">⚡</div>
@@ -659,6 +658,19 @@ width:100%;margin-top:4px;">
 
   <div id="gate-status">— tap to activate —</div>
   <div id="gate-error"></div>
+  <!-- P0: Text input fallback when mic is unavailable -->
+  <div id="text-input-fallback" style="display:none;width:100%;max-width:320px;margin-top:12px;">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="text" id="text-input-field" placeholder="Type your question..."
+        style="flex:1;background:#0a0c12;border:1px solid rgba(255,59,95,.4);border-radius:4px;
+        padding:12px 14px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;
+        outline:none;" onkeydown="if(event.key==='Enter')submitTextInput()">
+      <button onclick="submitTextInput()"
+        style="background:rgba(255,59,95,.15);border:1px solid rgba(255,59,95,.5);
+        border-radius:4px;padding:12px 16px;color:#ff3b5f;font-family:'JetBrains Mono',monospace;
+        font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:.05em;">SEND</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══ LIVE STAGE ══ -->
@@ -673,8 +685,22 @@ width:100%;margin-top:4px;">
   <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
 
   <div class="video-wrap" style="position:relative;z-index:1;">
-    <canvas id="oracle-matrix" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:1;transition:opacity 0.5s;"></canvas>
+    <!-- P0-1: Static avatar always visible behind video — never black screen -->
+    <img id="avatar-idle" src="/static/oracle_avatar.png" alt="Satomi"
+         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:8px;"
+         onerror="this.style.background='radial-gradient(circle,#1a0608,#050203)'">
+    <canvas id="oracle-matrix" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0.35;transition:opacity 0.5s;"></canvas>
     <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:2;"></video>
+    <!-- P0: Tap-to-play overlay for iOS Safari autoplay restrictions -->
+    <div id="tap-to-play" style="display:none;position:absolute;inset:0;z-index:10;background:rgba(0,0,0,.55);
+      border-radius:8px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:8px;"
+      onclick="dismissTapOverlay()">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="11" stroke="rgba(255,59,95,.7)" stroke-width="1.5"/>
+        <polygon points="10,7 10,17 18,12" fill="#ff3b5f"/>
+      </svg>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.8);text-transform:uppercase;">Tap to Play</span>
+    </div>
   </div>
 
   <div id="subtitle"></div>
@@ -700,6 +726,19 @@ width:100%;margin-top:4px;">
       </svg>
     </button>
     <span class="mic-hint" id="mic-hint">tap to speak</span>
+  </div>
+  <!-- P0: Stage text input — shown when mic is unavailable or as alternative -->
+  <div id="stage-text-input" style="display:none;width:100%;max-width:min(440px,calc(100vw - 24px));margin-top:4px;">
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input type="text" id="stage-text-field" placeholder="Type your question..."
+        style="flex:1;background:#080a0f;border:1px solid #1e2235;border-radius:4px;
+        padding:10px 12px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;
+        outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='rgba(255,59,95,.5)'" onblur="this.style.borderColor='#1e2235'" onkeydown="if(event.key==='Enter')stageTextSubmit()">
+      <button onclick="stageTextSubmit()"
+        style="background:#0a0c12;border:1px solid rgba(255,59,95,.4);border-radius:4px;
+        padding:10px 14px;color:#ff3b5f;font-family:'JetBrains Mono',monospace;font-size:11px;
+        font-weight:600;cursor:pointer;letter-spacing:.05em;">SEND</button>
+    </div>
   </div>
 
   <!-- Vision status + Camera button -->
@@ -970,15 +1009,23 @@ function requestMic(){
       gStatus.textContent='';
       gErr.style.display='block';
       var name = err && err.name ? err.name : '';
+      var msg='';
       if(name === 'NotAllowedError' || name === 'PermissionDeniedError'){
-        gErr.innerHTML='&#9888;&#xFE0F; Microphone blocked. Click the camera/mic icon in your browser address bar and allow access, then <a href="javascript:location.reload()" style="color:#ff3b5f;text-decoration:underline;">reload</a>.';
+        msg='Microphone access denied. Allow mic in your browser settings, then retry.';
       } else if(name === 'NotReadableError' || name === 'TrackStartError'){
-        gErr.innerHTML='&#9888;&#xFE0F; Microphone is in use by another app. Close other tabs or apps using the mic, then <button onclick="requestMic()" style="background:none;border:none;color:#ff3b5f;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">try again</button>.';
+        msg='Microphone busy. Close other apps using the mic.';
       } else if(name === 'NotFoundError'){
-        gErr.innerHTML='&#9888;&#xFE0F; No microphone found. Connect a microphone and <button onclick="requestMic()" style="background:none;border:none;color:#ff3b5f;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">try again</button>.';
+        msg='No microphone detected.';
       } else {
-        gErr.innerHTML='&#9888;&#xFE0F; Microphone unavailable ('+name+'). Try clicking <button onclick="requestMic()" style="background:none;border:none;color:#ff3b5f;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;">here to retry</button> or check browser settings.';
+        msg='Microphone unavailable'+(name?' ('+name+')':'.')+'.';
       }
+      /* P0: Styled error + text fallback — demo never stops */
+      gErr.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.1em;color:rgba(255,59,95,.7);text-transform:uppercase;margin-bottom:6px;">MIC UNAVAILABLE</div>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:12px;line-height:1.5;">'+msg+'</div>'
+        +'<div style="display:flex;flex-direction:column;gap:8px;">'
+        +'<button onclick="requestMic()" style="background:rgba(255,59,95,.1);border:1px solid rgba(255,59,95,.3);color:#ff3b5f;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.05em;padding:10px 16px;border-radius:4px;cursor:pointer;font-weight:600;">RETRY MIC ACCESS</button>'
+        +'<button onclick="goTextMode()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.05em;padding:10px 16px;border-radius:4px;cursor:pointer;font-weight:600;">CONTINUE WITH TEXT INPUT</button>'
+        +'</div>';
     });
 }
 
@@ -1004,9 +1051,11 @@ function playIntent(intent){
   if(busy&&intent!=='GREETING')return;
   if(intent.indexOf('DAILY_BRIEF')===0&&window._briefFetched)return;
   setBusy(true);
-  setStat('Satomi loading...','#f4c46f',true);
+  setStat('Satomi loading\u2026','#f4c46f',true);
+  // Show thinking loop during intent loading (never dark screen)
+  try{vid.muted=true;vid.loop=true;vid.src=A+'/oracle/thinking';vid.style.opacity='1';vid.play().catch(function(){vid.style.opacity='0';});}catch(e){}
   // Progress messages so user knows it's working, not broken
-  var _loadMsgs = ['Initializing...','Rendering response...','Almost ready...'];
+  var _loadMsgs = ['Initializing\u2026','Rendering response\u2026','Almost ready\u2026'];
   var _loadIdx = 0;
   var _loadTimer = setInterval(function(){
     _loadIdx++;
@@ -1064,14 +1113,39 @@ function process(text){
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
   setOracleState('PROCESSING');
   setBusy(true);hideCards();hideActionCard();showTX(text);
-  setStat('Satomi thinking...','#f4c46f',true);
+
+  // P0-3: Elapsed time counter — show "Satomi is thinking... Xs" with live counter
+  var _thinkStart=Date.now();
+  var _thinkReassured=false;
+  setStat('Satomi is thinking\u2026 0s','#f4c46f',true);
+  var _thinkTimer=setInterval(function(){
+    var elapsed=Math.floor((Date.now()-_thinkStart)/1000);
+    // P0-4: Reassurance message after 15s
+    if(elapsed>=15&&!_thinkReassured){
+      _thinkReassured=true;
+      setStat('Rendering your brief\u2026 '+elapsed+'s','#f4c46f',true);
+    } else if(!_thinkReassured){
+      setStat('Satomi is thinking\u2026 '+elapsed+'s','#f4c46f',true);
+    } else {
+      setStat('Rendering your brief\u2026 '+elapsed+'s','#f4c46f',true);
+    }
+  },1000);
+  window._thinkTimer=_thinkTimer;
 
   // Phase 2 T1.4: Play thinking loop immediately for instant visual feedback
-  vid.src=A+'/oracle/thinking';
-  vid.loop=true;
+  // P0-2: Add onerror fallback — if thinking video fails, show static avatar
   vid.muted=true;
+  vid.loop=true;
+  vid.src=A+'/oracle/thinking';
   vid.style.opacity='1';
-  vid.play().catch(function(e){console.warn('[Satomi] thinking autoplay blocked:',e);});
+  vid.onerror=function(){
+    console.warn('[Satomi] thinking video failed — showing static avatar');
+    vid.style.opacity='0'; /* static avatar image underneath is always visible */
+  };
+  vid.play().catch(function(e){
+    console.warn('[Satomi] thinking autoplay blocked:',e);
+    vid.style.opacity='0'; /* fallback to static avatar */
+  });
 
   // Re-unlock audio context on every user interaction
   try{
@@ -1150,7 +1224,10 @@ function process(text){
         var playPromise = audio.play();
         if(playPromise !== undefined){
           playPromise.then(function(){
-            setStat('Speaking','#6cff9f',false);
+            if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+            /* P0-4: If video not yet ready, show "Rendering video..." instead of "Speaking" */
+            if(!pendingVideoUrl) setStat('Rendering video\u2026','#f4c46f',true);
+            else setStat('Speaking','#6cff9f',false);
           }).catch(function(err){
             console.warn('[Satomi] audio.play() rejected:', err.name);
             // On mobile, audio may be blocked — set volume via user gesture retry
@@ -1224,9 +1301,10 @@ function process(text){
               });
               evtSource.addEventListener('error',function(e){
                 evtSource.close();
-                // If SSE reports error, stop thinking loop
+                // P1-1: SSE error — stop thinking loop but keep static avatar visible
                 vid.loop=false;
-                vid.style.opacity='0';
+                vid.style.opacity='0'; /* static avatar img underneath remains visible */
+                setStat('Connection issue — retrying\u2026','#f4c46f',true);
               });
               evtSource.onerror=function(){
                 // Connection lost — fall back to polling
@@ -1276,13 +1354,32 @@ function process(text){
   })
   .catch(function(e){
     console.error('process error:',e);
-    if(e&&(e.message||'').indexOf('timeout')>=0){
-      setStat('','#334',false);
-    } else if(e&&e.message&&e.message.indexOf('HTTP')>=0){
-      setStat('Satomi error — try again.','#ff3b5f',false);
+    var msg=(e&&e.message)||'';
+    /* P1: 429/503 — server overloaded, auto-retry after 5s */
+    if(msg.indexOf('429')>=0||msg.indexOf('503')>=0){
+      vid.style.opacity='0';
+      setStat('Satomi is meditating\u2026 retrying in 5s','#f4c46f',true);
+      var _retryText=text;
+      setTimeout(function(){
+        setBusy(false);
+        if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+        setOracleState('LISTENING');
+        if(_retryText)process(_retryText);
+      },5000);
+      return; /* skip .finally cleanup — retry will handle it */
+    } else if(msg.indexOf('timeout')>=0){
+      vid.style.opacity='0';
+      setStat('Request timed out — tap mic to retry','#f4c46f',false);
+    } else if(msg.indexOf('HTTP')>=0){
+      vid.style.opacity='0';
+      setStat('Satomi error — tap mic to retry','#ff3b5f',false);
+    } else if(msg.indexOf('Failed to fetch')>=0||msg.indexOf('NetworkError')>=0){
+      vid.style.opacity='0';
+      setStat('Network error — check connection','#ff3b5f',false);
     }
   })
   .finally(function(){
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
     setBusy(false);hideTX();
     setOracleState('LISTENING');
   });
@@ -1304,17 +1401,19 @@ function playVid(url){
     if(window._matrixHide) window._matrixHide();
     var _safetyTimer = setTimeout(function(){
       if(busy){
-        console.warn('[Satomi] Safety timeout — forcing mic unlock after 60s');
+        console.warn('[Satomi] Safety timeout — forcing mic unlock after 30s');
         setBusy(false);
+        if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
         setOracleState('LISTENING');
       }
-    }, 60000);
+    }, 30000);
     try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
     vid.onended=function(){
       clearTimeout(_safetyTimer);
-      vid.src='';
-      /* Keep avatar area visible (solid bg, no static image) */
+      if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+      /* P1-3: Fade out first, then clear src — avoids flash. Static avatar underneath stays visible. */
       vid.style.opacity='0';
+      setTimeout(function(){ vid.src=''; },300);
       if(window._matrixShow) window._matrixShow();
       hideSub();
       setBusy(false);
@@ -1324,22 +1423,17 @@ function playVid(url){
     };
     vid.onerror=function(){
       clearTimeout(_safetyTimer);
-      // Show thinking video instead of black, retry fetch once after 2s
-      vid.src=A+'/oracle/thinking';
-      vid.loop=true;
-      vid.muted=true;
-      vid.style.opacity='1';
-      vid.play().catch(function(){});
-      setStat('Recovering…','#f4c46f',true);
+      if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+      // P0-2: On video error, fade to static avatar (always visible behind vid)
+      vid.style.opacity='0';
+      vid.src='';
+      setStat('Recovering\u2026','#f4c46f',true);
       setTimeout(function(){
-        vid.loop=false;
-        vid.pause();
-        vid.style.opacity='0';
         setBusy(false);
         setOracleState('LISTENING');
         setStat('Ready','#334',false);
         res();
-      }, 2000);
+      }, 1500);
     };
     vid.muted=true;
     vid.volume=1.0;
@@ -1359,8 +1453,8 @@ function playVid(url){
     var p=vid.play();
     if(p){
       p.then(function(){}).catch(function(){
-        setStat('Tap to play','#f4c46f',false);
-        vid.addEventListener('click',function(){vid.muted=false;vid.play();},{once:true});
+        /* P0: iOS Safari — show centered tap-to-play overlay */
+        showTapOverlay();
       });
     }
   });
@@ -1384,7 +1478,9 @@ function initSR(){
     setRec(false);
     // Auto-submit on silence — no tap required
     var _pend = pending;
-    setTimeout(function(){ if(_pend.trim()&&!busy){process(_pend);pending='';}}, 300);
+    /* P1: Bridge status — show "Processing..." immediately so user sees feedback */
+    if(_pend.trim()&&!busy){setStat('Processing\u2026','#f4c46f',true);}
+    setTimeout(function(){ if(_pend.trim()&&!busy){process(_pend);pending='';}}, 100);
   };
   recognition.onerror=function(e){console.warn(e.error);setRec(false);};
 }
@@ -1396,12 +1492,9 @@ function startRec(){
   try{recognition.start();}catch(e){console.warn(e);}
 }
 function stopRec(){
-  var _hadRec=isRec;  // save flag BEFORE clearing — onend checks isRec
   isRec=false;setRec(false);
-  // Show thinking video immediately on mobile to eliminate visual gap
-  if(vid && !busy){
-    try{vid.src=A+'/oracle/thinking';vid.loop=true;vid.play().catch(function(){});}catch(e){}
-  }
+  /* P1-2: Don't play thinking video here — let recognition.onend → process() be the sole trigger.
+     This eliminates the race condition where both stopRec and onend try to set thinking state. */
   if(recognition)try{recognition.stop();}catch(e){}
   // onend will fire after recognition.stop() and handle process() automatically
 }
@@ -1421,6 +1514,87 @@ function showTX(t){txEl.textContent=t;txEl.classList.add('on');}
 function hideTX(){txEl.classList.remove('on');}
 function showCards(){cards.classList.add('on');}
 function hideCards(){cards.classList.remove('on');}
+
+/* ── TAP-TO-PLAY OVERLAY (P0: iOS Safari autoplay) ── */
+function showTapOverlay(){
+  var ov=document.getElementById('tap-to-play');
+  if(ov){ov.style.display='flex';}
+  setStat('Tap to play','#f4c46f',false);
+}
+function dismissTapOverlay(){
+  var ov=document.getElementById('tap-to-play');
+  if(ov){ov.style.display='none';}
+  vid.muted=false;vid.volume=1.0;
+  vid.play().then(function(){
+    setStat('Speaking','#6cff9f',false);
+  }).catch(function(e){
+    console.warn('[Satomi] tap-to-play retry failed:',e);
+    vid.style.opacity='0';
+    setStat('Ready','#334',false);
+  });
+}
+
+/* ── TEXT INPUT FALLBACK (P0: mic failure → text mode) ── */
+var _textMode=false;
+function goTextMode(){
+  /* Skip mic, transition straight to stage with text input visible */
+  _textMode=true;
+  gBtn.disabled=true;
+  gErr.style.display='none';
+  /* Unlock audio context on this user gesture (same as requestMic) */
+  try{
+    var _ac=new(window.AudioContext||window.webkitAudioContext)();
+    var _buf=_ac.createBuffer(1,1,22050);var _src=_ac.createBufferSource();
+    _src.buffer=_buf;_src.connect(_ac.destination);_src.start(0);
+    setTimeout(function(){try{_ac.close();}catch(e){}},300);
+  }catch(e){}
+  vid.muted=true;vid.play().catch(function(){});
+  window._audioUnlocked=new Audio();
+  window._audioUnlocked.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+  window._audioUnlocked.volume=0.001;
+  window._audioUnlocked.play().catch(function(){});
+  window._chatAudioPlaying=false;
+  gate.style.opacity='0';
+  setTimeout(function(){
+    gate.style.display='none';
+    stage.style.display='flex';
+    stage.style.opacity='0';
+    setTimeout(function(){
+      stage.style.transition='opacity .45s';
+      stage.style.opacity='1';
+      /* Show text input, hide mic area, init speech recognition (may still work for some) */
+      document.getElementById('stage-text-input').style.display='block';
+      mic.disabled=true;
+      micHint.textContent='text mode';
+      initSR();
+      setOracleState('WELCOME');
+      playIntent('GREETING');
+      /* After greeting, enable mic if SR is available as bonus */
+      setTimeout(function(){
+        if(recognition){mic.disabled=false;micHint.textContent='tap to speak';}
+      },8000);
+    },30);
+  },350);
+}
+function submitTextInput(){
+  var field=document.getElementById('text-input-field');
+  var text=(field.value||'').trim();
+  if(!text)return;
+  field.value='';
+  goTextMode();
+  /* Queue the text to process after greeting finishes */
+  var _waitGreeting=setInterval(function(){
+    if(!busy){clearInterval(_waitGreeting);process(text);}
+  },500);
+}
+function stageTextSubmit(){
+  var field=document.getElementById('stage-text-field');
+  var text=(field.value||'').trim();
+  if(!text||busy)return;
+  field.value='';
+  process(text);
+}
+
 /* ── GEMINI VISION ── */
 var _visionSessionId = null;
 
@@ -1943,7 +2117,8 @@ setStat = function(msg, color, spin){
     canvas.style.opacity = '0';
   };
   window._matrixShow = function() {
-    canvas.style.opacity = '1';
+    /* P0-1: Subtle overlay so static avatar face stays visible during idle */
+    canvas.style.opacity = '0.35';
   };
 })();
 
