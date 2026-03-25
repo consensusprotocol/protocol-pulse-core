@@ -541,34 +541,8 @@ def value_stream():
 
 @app.route('/signal-terminal')
 def signal_terminal():
-    """Signal Terminal - Premium 3-panel value stream interface"""
-    try:
-        from services.value_stream_service import value_stream_service
-        from datetime import datetime, timedelta
-
-        posts = value_stream_service.get_value_stream_enhanced(limit=50)
-        curators = value_stream_service.get_top_curators(limit=10)
-
-        curator_objects = []
-        for c in curators:
-            curator = models.ValueCreator.query.get(c['id'])
-            if curator:
-                curator_objects.append(curator)
-
-        sats_hour = db.session.query(db.func.sum(models.ZapEvent.amount_sats)).filter(
-            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
-        ).scalar() or 0
-    except Exception as e:
-        logging.error("Signal Terminal data fetch failed: %s", e)
-        posts, curator_objects, sats_hour = [], [], 0
-
-    hot_topics = ['Bitcoin', 'Lightning', 'Nostr', 'ETF', 'Self-Custody', 'Mining', 'Layer 2']
-
-    return render_template('signal_terminal.html',
-                          posts=posts,
-                          curators=curator_objects,
-                          sats_flow=sats_hour,
-                          hot_topics=hot_topics)
+    """Signal Terminal — redirects to /terminal (Bloomberg-grade rebuild)."""
+    return redirect(url_for('pulse_terminal'))
 
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
@@ -11312,7 +11286,7 @@ def pulse_terminal():
             pass
 
     return render_template(
-        "pulse_terminal.html",
+        "signal_terminal.html",
         is_commander=is_commander,
         activated=activated,
         api_key=api_key,
