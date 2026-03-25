@@ -777,7 +777,7 @@ body { background: var(--s-bg); }
         <!-- Avatar -->
         <div class="stage-avatar-wrap">
           <video class="stage-avatar-vid" id="avatarVid"
-                 playsinline webkit-playsinline preload="auto"
+                 playsinline webkit-playsinline muted preload="auto"
                  style="display:block;opacity:1;"></video>
           <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;" onclick="stageWake()">
             <div style="font-size:48px;">&#9889;</div>
@@ -797,15 +797,6 @@ body { background: var(--s-bg); }
               <span id="fmicStop" style="display:none;font-size:16px;">&#9632;</span>
             </button>
             <span id="fmicHint" style="font-family:var(--s-mono);font-size:8px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;">interrupt</span>
-            <button id="stage-cam-btn"
-              onclick="handleStageCameraInterrupt()"
-              title="Photo question"
-              style="width:48px;height:48px;border-radius:50%;background:rgba(13,16,23,.85);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;backdrop-filter:blur(12px);margin-top:4px;">
-              &#128247;
-            </button>
-            <input type="file" id="stage-cam-input" accept="image/*"
-              capture="environment" style="display:none;"
-              onchange="handleStageCameraUpload(event)">
           </div>
         </div>
         <div style="font-family:monospace;font-size:11px;color:#00ffc8;letter-spacing:3px;border-top:1px solid rgba(0,255,200,0.2);padding:6px 12px;background:rgba(0,0,0,0.8)">
@@ -1567,13 +1558,45 @@ body { background: var(--s-bg); }
           await playBroadcastItem(data.next_item);
         }
       } else {
-        updateSignalSource('📡 STANDING BY');
-        setTimeout(startBroadcast, 5000);
+        // No next item — show overlay and poll every 15s
+        _showStandbyOverlay();
       }
     } catch(e) {
       console.error('consumeAndPlay error:', e);
-      setTimeout(startBroadcast, 5000);
+      _showStandbyOverlay();
     }
+  }
+
+  // ── STANDBY OVERLAY + POLL ──────────────────────────
+  var _standbyPollId = null;
+  function _showStandbyOverlay() {
+    updateSignalSource('📡 STANDING BY');
+    setBusy(false);
+    setStatus('Standing by', 'rgba(255,255,255,.3)');
+    var ov = document.getElementById('stage-wake');
+    var lbl = document.getElementById('stage-tap-label');
+    if (ov) ov.style.display = 'flex';
+    if (lbl) lbl.textContent = 'STAND BY \u2014 NEXT SIGNAL INCOMING';
+    // Poll every 15s for new queue item
+    if (_standbyPollId) clearInterval(_standbyPollId);
+    _standbyPollId = setInterval(function() {
+      fetch('/api/stage/consume-broadcast', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.next_item) {
+          clearInterval(_standbyPollId);
+          _standbyPollId = null;
+          var ov2 = document.getElementById('stage-wake');
+          if (ov2) ov2.style.display = 'none';
+          playBroadcastItem(data.next_item);
+        }
+      })
+      .catch(function() {});
+    }, 15000);
   }
 
   // Pre-render next segment while current plays (reduce dead air)
@@ -1609,17 +1632,15 @@ body { background: var(--s-bg); }
   var _ptsFirstTime = true;
 
   function stageWake() {
-    if (!_preRenderReady && !_preRenderFirstBlob) {
-      // Not ready yet — show feedback but don't proceed
-      var lbl = document.getElementById('stage-tap-label');
-      if (lbl) {
-        lbl.textContent = 'SIGNAL LOADING\u2026';
-        setTimeout(function(){
-          if (!_preRenderReady) lbl.textContent = 'TUNING SIGNAL\u2026';
-        }, 1500);
-      }
-      return;
-    }
+    // Cancel any standby poll
+    if (_standbyPollId) { clearInterval(_standbyPollId); _standbyPollId = null; }
+
+    // iOS/mobile audio unlock — silent play within user gesture
+    window._stageAudioUnlockedFlag = true;
+    var unlock = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==');
+    unlock.volume = 0.001;
+    unlock.play().catch(function(){});
+
     try {
       var ac=new(window.AudioContext||window.webkitAudioContext)();
       var buf=ac.createBuffer(1,1,22050);
@@ -1656,7 +1677,7 @@ body { background: var(--s-bg); }
     var ov=document.getElementById('stage-wake');
     if(ov) ov.style.display='none';
 
-    if (_preRenderReady && _preRenderFirstBlob) {
+    if (_preRenderFirstBlob) {
       // Pre-rendered segment ready — play immediately within gesture window
       var url = _preRenderFirstBlob;
       _preRenderFirstBlob = null;
@@ -1671,8 +1692,16 @@ body { background: var(--s-bg); }
           vid.src = '';
           URL.revokeObjectURL(url);
           setBusy(false);
-          setStatus('Ready', 'rgba(255,255,255,.3)');
-          startBroadcast();
+          // Show standby overlay, auto-fetch next after 3s
+          var ov2 = document.getElementById('stage-wake');
+          var lbl2 = document.getElementById('stage-tap-label');
+          if (ov2) ov2.style.display = 'flex';
+          if (lbl2) lbl2.textContent = 'STAND BY \u2014 NEXT SIGNAL INCOMING';
+          setStatus('Next segment loading…', 'var(--s-gold)');
+          setTimeout(function() {
+            if (ov2) ov2.style.display = 'none';
+            startBroadcast();
+          }, 3000);
         };
       }).catch(function(e) {
         console.warn('[Stage] Pre-rendered play failed:', e.name);
@@ -1800,126 +1829,6 @@ body { background: var(--s-bg); }
     if (fmicHint) fmicHint.textContent = _stageIsRec ? 'tap to send' : 'tap to speak';
   }
 
-  // ── STAGE CAMERA INTERRUPT ───────────────────────────
-  function handleStageCameraInterrupt() {
-    if (busy) return;
-    var input = document.getElementById('stage-cam-input');
-    if (input) input.click();
-  }
-  window.handleStageCameraInterrupt = handleStageCameraInterrupt;
-
-  function handleStageCameraUpload(evt) {
-    var file = evt.target.files && evt.target.files[0];
-    if (!file) return;
-    if (busy) {
-      setStatus('Finishing current segment…', 'var(--s-gold)');
-      return;
-    }
-
-    // Pause broadcast, handle vision interrupt
-    _broadcastPaused = true;
-    if (vid && !vid.paused) vid.pause();
-    setBusy(true);
-    setStatus('Analyzing image…', 'var(--s-gold)');
-    updateSignalSource('📷 VIEWER PHOTO QUESTION');
-
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var dataUrl = e.target.result;
-      var b64 = dataUrl.split(',')[1];
-      var mime = file.type || 'image/jpeg';
-
-      fetchTO('https://avatar.protocolpulse.io/vision/analyze', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          image_base64: b64,
-          mime_type: mime,
-          session_id: 'stage_' + Date.now(),
-          context: 'Bitcoin hardware question from live broadcast viewer'
-        })
-      }, 45000)
-      .then(function(r) {
-        if (!r.ok) throw new Error('vision ' + r.status);
-        return r.json();
-      })
-      .then(function(d) {
-        var guideText = d.guidance_text || d.text || 'I can see your hardware device.';
-
-        // Transaction verdict urgency
-        if (d.verdict === 'DO NOT SIGN') {
-          guideText = 'WARNING. DO NOT SIGN THIS TRANSACTION. ' + guideText;
-        } else if (d.verdict === 'REVIEW CAREFULLY') {
-          guideText = 'REVIEW CAREFULLY. ' + guideText;
-        }
-
-        // Transaction verdict ticker
-        if (d.category === 'transaction' && d.verdict) {
-          var verdictEmoji = d.verdict === 'SAFE TO SIGN' ? '✅'
-            : d.verdict === 'DO NOT SIGN' ? '🚨' : '⚠️';
-          tickerOracle(verdictEmoji + ' TX REVIEW: ' + d.verdict
-            + (d.amount_btc ? ' — ' + d.amount_btc + ' BTC' : ''));
-        }
-
-        // Cap to 40 words for broadcast pacing
-        var words = guideText.split(/\s+/);
-        var spokenText = words.length > 40 ? words.slice(0,40).join(' ') : guideText;
-
-        setStatus('SIGNAL answering viewer question…', 'var(--s-green)');
-        tickerOracle('📷 Viewer hardware question: ' + (d.device_name || 'unknown device'));
-
-        // Get TTS audio
-        return fetchTO('https://avatar.protocolpulse.io/oracle/voice', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({text: spokenText})
-        }, 35000);
-      })
-      .then(function(ar) {
-        if (!ar.ok) throw new Error('voice failed');
-        return ar.blob();
-      })
-      .then(function(blob) {
-        var audioUrl = URL.createObjectURL(blob);
-        var audio = new Audio(audioUrl);
-        audio.volume = 1.0;
-        audio.onended = function() {
-          URL.revokeObjectURL(audioUrl);
-          setBusy(false);
-          _broadcastPaused = false;
-          setStatus('Resuming broadcast…', 'var(--s-gold)');
-          updateSignalSource('📡 RESUMING');
-          setTimeout(function() {
-            startBroadcast();
-          }, 1500);
-        };
-        audio.onerror = function() {
-          URL.revokeObjectURL(audioUrl);
-          setBusy(false);
-          _broadcastPaused = false;
-          startBroadcast();
-        };
-        audio.play().catch(function() {
-          URL.revokeObjectURL(audioUrl);
-          setBusy(false);
-          _broadcastPaused = false;
-          startBroadcast();
-        });
-      })
-      .catch(function(err) {
-        console.error('[Stage camera] Error:', err);
-        setBusy(false);
-        _broadcastPaused = false;
-        setStatus('Ready', 'rgba(255,255,255,.3)');
-        startBroadcast();
-      });
-
-      // Clear input for reuse
-      evt.target.value = '';
-    };
-    reader.readAsDataURL(file);
-  }
-  window.handleStageCameraUpload = handleStageCameraUpload;
 
   async function _handleInterruptQuestion(text) {
     setBusy(true);
@@ -2385,16 +2294,10 @@ body { background: var(--s-bg); }
     }, 1000);
   })();
 
-  // Auto-play greeting on load — mobile gets tap overlay, desktop auto-starts
+  // Always show tap-to-start overlay on page load (fresh start)
   setTimeout(function(){
-    var _isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if(_isMobile) {
-      // Show tap-to-start overlay on mobile — needed for autoplay unlock
-      var ov = document.getElementById('stage-wake');
-      if(ov) ov.style.display = 'flex';
-    } else {
-      startBroadcast();
-    }
+    var ov = document.getElementById('stage-wake');
+    if(ov) ov.style.display = 'flex';
   }, 400);
 
   // Prevent iOS pinch-to-zoom

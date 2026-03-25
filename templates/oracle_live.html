@@ -1324,10 +1324,22 @@ function playVid(url){
     };
     vid.onerror=function(){
       clearTimeout(_safetyTimer);
-      vid.style.opacity='0';
-      setBusy(false);
-      setOracleState('LISTENING');
-      setStat('Video error','#ff3b5f',false);res();
+      // Show thinking video instead of black, retry fetch once after 2s
+      vid.src=A+'/oracle/thinking';
+      vid.loop=true;
+      vid.muted=true;
+      vid.style.opacity='1';
+      vid.play().catch(function(){});
+      setStat('Recovering…','#f4c46f',true);
+      setTimeout(function(){
+        vid.loop=false;
+        vid.pause();
+        vid.style.opacity='0';
+        setBusy(false);
+        setOracleState('LISTENING');
+        setStat('Ready','#334',false);
+        res();
+      }, 2000);
     };
     vid.muted=true;
     vid.volume=1.0;

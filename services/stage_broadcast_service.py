@@ -37,6 +37,21 @@ DATA_DIR = BASE / "data"
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 MAX_QUEUE_DEPTH = 15
 
+
+def sanitize_for_tts(text):
+    """Remove markdown symbols that TTS reads literally (asterisk, slash, etc.)."""
+    text = re.sub(r'\*+', '', text)
+    text = re.sub(r'_+', ' ', text)
+    text = re.sub(r'#+\s*', '', text)
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    text = re.sub(r'`+', '', text)
+    text = re.sub(r'~+', '', text)
+    text = re.sub(r'>{1,}', '', text)
+    text = re.sub(r'\|', ' ', text)
+    text = re.sub(r'\\+', ' ', text)
+    text = re.sub(r' {2,}', ' ', text)
+    return text.strip()
+
 # Local LLM offload — try Ollama on GPU 2 before Claude API
 LOCAL_LLM_URL = "http://localhost:11435"
 LOCAL_LLM_MODEL = os.environ.get("WATCHDOG_MODEL", "qwen3-coder:30b")
@@ -321,7 +336,7 @@ def _generate_script(segment_type, context_data):
         import re as _re
         local_result = _re.sub(r'^#+\s+[^\n]*\n?', '', local_result, flags=_re.MULTILINE)
         local_result = _re.sub(r'^---+\s*', '', local_result, flags=_re.MULTILINE)
-        return local_result.strip()
+        return sanitize_for_tts(local_result.strip())
 
     # Fallback to Claude Haiku API
     logger.info("Script generated via API (Claude Haiku)")
@@ -348,7 +363,7 @@ def _generate_script(segment_type, context_data):
     text = _re.sub(r'^#+\s+[^\n]*\n?', '', text, flags=_re.MULTILINE)
     text = _re.sub(r'^---+\s*', '', text, flags=_re.MULTILINE)
     text = text.strip()
-    return text
+    return sanitize_for_tts(text)
 
 
 def _make_queue_item(seg_type, priority, script, source_label, topic_preview, ttl_minutes):

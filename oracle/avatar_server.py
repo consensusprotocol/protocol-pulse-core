@@ -632,10 +632,29 @@ def _preprocess_tts_text(text: str) -> str:
     return text
 
 
+def sanitize_for_tts(text):
+    """Remove markdown symbols that TTS reads literally (asterisk, slash, etc.)."""
+    import re as _re
+    text = _re.sub(r'\*+', '', text)
+    text = _re.sub(r'_+', ' ', text)
+    text = _re.sub(r'#+\s*', '', text)
+    text = _re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    text = _re.sub(r'`+', '', text)
+    text = _re.sub(r'~+', '', text)
+    text = _re.sub(r'>{1,}', '', text)
+    text = _re.sub(r'\|', ' ', text)
+    text = _re.sub(r'\\+', ' ', text)
+    text = _re.sub(r' {2,}', ' ', text)
+    return text.strip()
+
+
 def _avatar_tts(text):
     """Primary TTS: Kokoro af_heart -> 24kHz numpy -> ffmpeg resample 16kHz mono WAV bytes.
     Falls back to ElevenLabs text_to_speech() if Kokoro fails."""
     global _AVATAR_KOKORO_READY
+
+    # Strip markdown symbols before any TTS processing
+    text = sanitize_for_tts(text)
 
     # Normalize Bitcoin pronunciation (BTC -> "bitcoin", sats, hashrate, etc.)
     try:
