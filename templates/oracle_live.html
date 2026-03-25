@@ -891,6 +891,31 @@ function pulseMic(){
   setTimeout(function(){mic.classList.remove('idle-pulse');setStat('Ready','#334',false);},6000);
 }
 
+/* FIX 4: Fallback tap-to-speak — if greeting played but mic never activated,
+   any tap on the stage area starts recognition */
+var _tapFallbackSet=false;
+function setupTapFallback(){
+  if(_tapFallbackSet)return;
+  _tapFallbackSet=true;
+  var _stageEl=document.getElementById('stage');
+  if(!_stageEl)return;
+  function _tapToSpeak(e){
+    /* Only fire if: greeted, not busy, mic not recording, recognition available */
+    if(!_greeted||busy||isRec||!recognition)return;
+    /* Don't intercept mic button clicks or other interactive elements */
+    if(e.target.closest&&(e.target.closest('#mic-btn')||e.target.closest('.action-card')||e.target.closest('#stage-text-input')))return;
+    console.log('[Satomi] Tap fallback — starting recognition');
+    setBusy(false);
+    mic.disabled=false;
+    startRec();
+    setStat('Listening\u2026','#6cff9f',false);
+    /* Remove after first successful activation */
+    _stageEl.removeEventListener('click',_tapToSpeak);
+  }
+  _stageEl.addEventListener('click',_tapToSpeak);
+  console.log('[Satomi] Tap-to-speak fallback registered on stage');
+}
+
 // ── VISITOR FINGERPRINT ───────────────────────────────────
 // Generates a stable browser fingerprint — no cookies, no login
 // Used server-side to recognize returning visitors
@@ -1042,6 +1067,7 @@ function go(){
       initSR();
       setOracleState('WELCOME');
       playIntent('GREETING');
+      setupTapFallback(); /* FIX 4: register tap-to-speak safety net */
     },30);
   },350);
 }
@@ -1076,26 +1102,57 @@ function playIntent(intent){
       return fetchTO(A+j.video_url,{},20000).then(function(r2){return r2.blob().then(blobURL);});
     });
   })
-  .then(function(url){ if(typeof _clearTimer=='function') _clearTimer(); return playVid(url);})
+  .then(function(url){
+    if(typeof _clearTimer=='function') _clearTimer();
+    /* FIX 2: Start independent mic activation timer BEFORE video plays.
+       This fires regardless of whether playVid() Promise resolves. */
+    if(intent==='GREETING'){
+      var _estDuration=8; /* estimated greeting video duration in seconds */
+      console.log('[Satomi] Greeting video starting — mic timer set for',_estDuration+1,'s');
+      setTimeout(function(){
+        console.log('[Satomi] Independent mic timer fired — _greeted:',_greeted,'busy:',busy,'isRec:',isRec);
+        if(_greeted&&!busy&&!isRec&&mic&&recognition){
+          mic.disabled=false;
+          startRec();
+          setStat('Listening\u2026','#6cff9f',false);
+        }
+      },(_estDuration+1)*1000);
+    }
+    return playVid(url);
+  })
   .then(function(){
     if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
     if(intent==='GREETING'){
       window._briefFetched=false;
       _greeted=true;
-      /* State machine: welcome done → LISTENING. Always activate mic. */
+      console.log('[Satomi] Greeting .then() — activating mic');
+      /* FIX 3: Explicit setBusy(false) BEFORE mic activation */
+      setBusy(false);
       setOracleState('LISTENING');
-      setTimeout(function(){
-        if(!busy&&!isRec&&mic){
-          mic.disabled=false;
-          startRec();
-          setStat('Listening…','#6cff9f',false);
-        }
-      },400);
+      /* FIX 2 cont: Call startRec directly — no setTimeout for iOS gesture trust */
+      if(!isRec&&mic&&recognition){
+        mic.disabled=false;
+        startRec();
+        setStat('Listening\u2026','#6cff9f',false);
+      }
     }
   })
   .catch(function(e){
-    if(e&&e.message&&e.message.indexOf('HTTP')>=0)
-      setStat('Satomi error — try again.','#ff3b5f',false);
+    console.warn('[Satomi] playIntent catch:',e);
+    /* On any error (including playVid timeout), ensure mic activates for greeting */
+    if(intent==='GREETING'){
+      _greeted=true;
+      setBusy(false);
+      setOracleState('LISTENING');
+      if(!isRec&&mic&&recognition){
+        mic.disabled=false;
+        startRec();
+        setStat('Listening\u2026','#6cff9f',false);
+      }
+    } else {
+      if(e&&e.message&&String(e.message).indexOf('HTTP')>=0)
+        setStat('Satomi error \u2014 try again.','#ff3b5f',false);
+    }
   })
   .finally(function(){
     setBusy(false);
@@ -1108,6 +1165,7 @@ function si(intent){if(busy)return;hideCards();playIntent(intent);}
 
 /* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
 function process(text){
+  console.log('[Satomi] process() called — text:',JSON.stringify((text||'').substring(0,50)),'busy:',busy);
   if(!text.trim()||busy)return;
   // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
@@ -1408,49 +1466,82 @@ function blobURL(b){
   return objURL;
 }
 
-/* ── PLAY VIDEO ── */
+/* ── PLAY VIDEO (FIX 1: settled guard + timeupdate fallback + dynamic timeout) ── */
 function playVid(url){
-  return new Promise(function(res){
+  return new Promise(function(res,rej){
+    console.log('[Satomi] playVid called:',url&&url.substring(0,60));
     setOracleState('RESPONDING');
     vid.loop=false;
     vid.src=url;
     vid.style.opacity='1';
     if(window._matrixHide) window._matrixHide();
-    var _safetyTimer = setTimeout(function(){
-      if(busy){
-        console.warn('[Satomi] Safety timeout — forcing mic unlock after 30s');
-        setBusy(false);
-        if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
-        setOracleState('LISTENING');
-      }
-    }, 30000);
-    try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
-    vid.onended=function(){
+
+    /* Settled guard — prevents double-resolution from onended/onerror/safety/timeupdate */
+    var _settled=false;
+    function _finish(ok){
+      if(_settled)return;
+      _settled=true;
       clearTimeout(_safetyTimer);
+      clearTimeout(_dynamicTimer);
+      vid.ontimeupdate=null;
       if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
-      /* P1-3: Fade out first, then clear src — avoids flash. Static avatar underneath stays visible. */
+      console.log('[Satomi] playVid settled via:',ok?'success':'error');
+      /* P1-3: Fade out first, then clear src — avoids flash */
       vid.style.opacity='0';
-      setTimeout(function(){ vid.src=''; },300);
+      setTimeout(function(){ try{vid.src='';}catch(e){} },300);
       if(window._matrixShow) window._matrixShow();
       hideSub();
-      setBusy(false);
-      setOracleState('LISTENING');
-      res();
       try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
+      /* FIX 1: Always resolve — even on error — so .then() chain continues */
+      res();
+    }
+
+    /* Safety timeout: fixed 12s fallback (covers worst case if duration unknown) */
+    var _safetyTimer=setTimeout(function(){
+      if(!_settled){
+        console.warn('[Satomi] Safety timeout — forcing playVid resolve');
+        setStat('Ready','#6cff9f',false);
+        _finish(false);
+      }
+    },12000);
+
+    /* Dynamic timeout: set once we know actual duration (duration + 3s buffer) */
+    var _dynamicTimer=null;
+    vid.addEventListener('loadedmetadata',function _onmeta(){
+      vid.removeEventListener('loadedmetadata',_onmeta);
+      if(_settled)return;
+      var dur=vid.duration;
+      if(dur&&isFinite(dur)){
+        clearTimeout(_safetyTimer);
+        var timeoutMs=Math.ceil(dur*1000)+3000;
+        console.log('[Satomi] Dynamic timeout set:',timeoutMs+'ms for',dur+'s video');
+        _dynamicTimer=setTimeout(function(){
+          if(!_settled){
+            console.warn('[Satomi] Dynamic safety timeout fired after',dur+'s video');
+            setStat('Ready','#6cff9f',false);
+            _finish(false);
+          }
+        },timeoutMs);
+      }
+    });
+
+    /* timeupdate near-end fallback: catches iOS onended suppression */
+    vid.ontimeupdate=function(){
+      if(!_settled&&vid.duration>0&&vid.currentTime>=vid.duration-0.3){
+        console.log('[Satomi] timeupdate near-end fallback triggered');
+        _finish(true);
+      }
     };
-    vid.onerror=function(){
-      clearTimeout(_safetyTimer);
-      if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
-      // P0-2: On video error, fade to static avatar (always visible behind vid)
-      vid.style.opacity='0';
-      vid.src='';
+
+    try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
+    vid.onended=function(){
+      console.log('[Satomi] vid.onended fired');
+      _finish(true);
+    };
+    vid.onerror=function(e){
+      console.warn('[Satomi] vid.onerror:',e);
       setStat('Recovering\u2026','#f4c46f',true);
-      setTimeout(function(){
-        setBusy(false);
-        setOracleState('LISTENING');
-        setStat('Ready','#334',false);
-        res();
-      }, 1500);
+      setTimeout(function(){ _finish(false); },500);
     };
     vid.muted=true;
     vid.volume=1.0;
@@ -1469,7 +1560,8 @@ function playVid(url){
     },{once:true});
     var p=vid.play();
     if(p){
-      p.then(function(){}).catch(function(){
+      p.then(function(){}).catch(function(err){
+        console.warn('[Satomi] vid.play() rejected (autoplay):',err);
         /* P0: iOS Safari — show centered tap-to-play overlay */
         showTapOverlay();
       });
@@ -1489,15 +1581,23 @@ function initSR(){
       if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
       else int+=e.results[i][0].transcript;
     }
-    showTX(fin||int);if(fin)pending=fin;
+    showTX(fin||int);if(fin){pending=fin;console.log('[Satomi] onresult final:',fin.substring(0,50));}
   };
   recognition.onend=function(){
+    console.log('[Satomi] recognition.onend — pending:',JSON.stringify(pending),'busy:',busy);
     setRec(false);
-    // Auto-submit on silence — no tap required
-    var _pend = pending;
-    /* P1: Bridge status — show "Processing..." immediately so user sees feedback */
-    if(_pend.trim()&&!busy){setStat('Processing\u2026','#f4c46f',true);}
-    setTimeout(function(){ if(_pend.trim()&&!busy){process(_pend);pending='';}}, 100);
+    var _pend=pending;
+    pending='';
+    if(_pend.trim()&&!busy){
+      /* P1: Bridge status — show "Processing..." immediately so user sees feedback */
+      setStat('Processing\u2026','#f4c46f',true);
+      setTimeout(function(){ if(!busy){process(_pend);}},100);
+    } else if(!busy&&_greeted&&ORACLE_STATE==='LISTENING'){
+      /* FIX 5: Auto-restart recognition on silence — don't dead-end */
+      console.log('[Satomi] Empty pending — auto-restarting listener');
+      setStat('Listening\u2026','#6cff9f',false);
+      setTimeout(function(){ if(!busy&&!isRec){startRec();} },300);
+    }
   };
   recognition.onerror=function(e){console.warn(e.error);setRec(false);};
 }
@@ -1505,8 +1605,9 @@ function initSR(){
 function toggleMic(){if(busy)return;isRec?stopRec():startRec();}
 function startRec(){
   if(!recognition){setStat('No speech API','#ff3b5f',false);return;}
+  console.log('[Satomi] startRec called');
   pending='';isRec=true;setRec(true);setStat('\ud83c\udf99 Listening...','#66d9ff',false);
-  try{recognition.start();}catch(e){console.warn(e);}
+  try{recognition.start();console.log('[Satomi] recognition.start() OK');}catch(e){console.warn('[Satomi] recognition.start() error:',e);}
 }
 function stopRec(){
   isRec=false;setRec(false);

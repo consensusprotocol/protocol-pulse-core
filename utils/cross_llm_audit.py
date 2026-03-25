@@ -75,6 +75,8 @@ FEATURE_MAP = {
     "stage-fix": ("PIPELINE_LAWS.md", "main"),
     "live-terminal-design": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "social-audit": ("PIPELINE_LAWS.md", "main"),
+    "friday-demo": ("PIPELINE_LAWS.md", "main"),
+    "oracle-fix": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -217,6 +219,14 @@ EXPLICIT_FILES = {
     "social-audit": [
         "services/tweet_machine.py",
         "services/x_daily_top_article.py",
+    ],
+    "friday-demo": [
+        "templates/oracle_live.html",
+        "oracle/avatar_server.py",
+        "templates/merch.html",
+    ],
+    "oracle-fix": [
+        "templates/oracle_live.html",
     ],
 }
 
@@ -497,6 +507,126 @@ For each question (Q1-Q8):
 - The single most important thing to implement first
 - What will make Protocol Pulse's social presence unmistakable
 """,
+    "friday-demo": """## YOUR REVIEW TASK — FRIDAY DEMO READINESS AUDIT (8 BRUTAL QUESTIONS)
+
+You are auditing Protocol Pulse for a LIVE DEMO in front of 10+ people in 2 days.
+Every failure mode, every amateur moment, every broken UX will be seen by a real audience.
+Be ruthless. Cite specific line numbers. No mercy.
+
+Files under audit: oracle_live.html (Satomi voice oracle), avatar_server.py (GPU lip-sync server), merch.html (Printful merch store).
+
+### Q1 — MOST LIKELY FAILURE MODE DURING LIVE DEMO
+What is the single most likely thing to break during a live demo with 10 people watching?
+Consider: network latency, GPU contention, mobile Safari quirks, mic permissions, video autoplay.
+
+### Q2 — PERCEIVED BROKENNESS
+What would cause a visitor to think the experience is broken when it actually isn't?
+False negatives: loading states that look like errors, delays without feedback, black screens between states.
+
+### Q3 — MOBILE-SPECIFIC FAILURE MODES
+What mobile-specific failure modes exist that desktop testing wouldn't catch?
+Consider: iOS Safari autoplay restrictions, Android Chrome mic behavior, viewport issues, touch target sizes.
+
+### Q4 — GPU CONTENTION
+What happens if the GPU is processing a pipeline render while someone uses the oracle?
+How does the semaphore/lock system handle concurrent requests? What does the user see?
+
+### Q5 — WORST UX MOMENT
+What is the worst UX moment in the current oracle flow? Where does the experience feel amateur or broken?
+Walk through: gate → mic permission → greeting → listening → user speaks → processing → response → listening.
+
+### Q6 — AMATEUR VISUAL ELEMENTS
+What visual element would immediately signal "amateur" to a sophisticated audience?
+Consider: animation quality, typography, spacing, color consistency, loading states, error messages.
+
+### Q7 — HIGHEST IMPACT SINGLE CHANGE
+What is ONE change that would have the highest impact on demo quality?
+Be specific — cite the exact file, line, and what to change.
+
+### Q8 — SILENT NETWORK FAILURES
+What network conditions would cause a silent failure? Consider:
+- Avatar server down but frontend doesn't know
+- Slow 3G connection (2s+ latency on every fetch)
+- WebSocket/SSE disconnection mid-stream
+- Blob URL memory leaks from repeated video plays
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- FAILURE MODE: What exactly breaks
+- SEVERITY: CRITICAL / HIGH / MEDIUM
+- FILE:LINE: Exact location in the code
+- FIX: Specific code change needed
+- DEMO IMPACT: What the audience sees
+
+### FINAL VERDICT
+- How many CRITICAL issues did you find?
+- Is this demo-ready today?
+- Top 3 must-fix items before Friday
+""",
+    "oracle-fix": """## YOUR REVIEW TASK — ORACLE iOS VIDEO ONENDED RACE CONDITION AUDIT (8 QUESTIONS)
+
+You are auditing the Satomi Oracle live interface (oracle_live.html).
+Root cause: After greeting plays, user speaks, but process() never fires.
+Server log confirms: /oracle/chat is NEVER received after greeting ends.
+
+The JS chain: playIntent('GREETING') → fetchTO /oracle/speak → playVid(url) → .then() → startRec()
+playVid() returns a Promise that resolves on vid.onended.
+ON MOBILE (iOS Safari): vid.onended does NOT always fire reliably.
+If onended never fires → .then() never fires → startRec() never called → mic dead → busy=true forever.
+
+Read every line of the file. Cite specific line numbers. Be brutal.
+
+### Q1 — PLAYVID PROMISE HANG
+In the playIntent() flow, what happens if playVid() Promise never resolves on iOS Safari?
+Trace the exact Promise chain from playIntent line 1050 to .finally() line 1100.
+What state does the UI get stuck in? Which variables are left in wrong state?
+
+### Q2 — iOS AUTOPLAY + BLOB URLS
+How does iOS Safari handle autoplay for blob: URLs — does onended fire reliably?
+The code mutes the video first (line 1455), then unmutes on canplay (line 1458-1462).
+Is there a scenario where iOS refuses to play, onended never fires, but no error is thrown either?
+
+### Q3 — RACE BETWEEN .then() AND .finally()
+Is there a race between .then() (startRec 400ms timer at line 1087) and .finally() (setBusy false at line 1101)?
+Could .finally() run BEFORE .then()? If so, the setBusy(false) in .then() would be a no-op
+because busy is already false, and the !busy check at line 1088 would pass, but what about isRec?
+
+### Q4 — process() NEVER FIRES AFTER GREETING
+After greeting ends and mic starts via startRec(), what exact conditions cause process() to not fire even if user speaks?
+Look at recognition.onend (line 1494), the pending variable, and the busy flag.
+Could recognition fire onend with empty pending immediately after start()?
+
+### Q5 — RECOGNITION ONEND WITH EMPTY PENDING
+The recognition.onend handler (line 1494): if recognition fires onend with no final results (empty pending),
+what happens? Does it silently do nothing? Does it restart? Is there any auto-restart logic?
+
+### Q6 — BUSY FLAG DURING USER SPEECH
+Could the busy flag ever be true when the user speaks their response, causing process() to return early (line 1111)?
+Trace all setBusy(true) and setBusy(false) calls. Is there any timing window where busy stays true
+between greeting end and user speech?
+
+### Q7 — iOS MIC ACTIVATION AFTER VIDEO
+What is the most reliable way to activate microphone AFTER a video plays on iOS Safari mobile browser?
+Does iOS require a user gesture for SpeechRecognition.start()? Can it be called from a Promise chain?
+Is the 400ms setTimeout at line 1087 sufficient, or does iOS require a tap event?
+
+### Q8 — SAFETY TIMEOUT ADEQUACY
+The safety timeout in playVid (line 1419-1426) is 30 seconds. Is this adequate?
+What happens if a greeting video is only 5 seconds — the user waits 30s before mic activates?
+Should the safety timeout be based on actual video duration instead of a fixed 30s?
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- ANALYSIS: Detailed trace with line numbers
+- BUG CONFIRMED: Yes/No
+- SEVERITY: CRITICAL / HIGH / MEDIUM
+- FIX: Specific code change with line numbers
+
+### FINAL VERDICT
+- How many CRITICAL issues confirmed?
+- Root cause of the "greeting plays but mic never activates" bug
+- Ordered fix list (most impactful first)
+""",
     "oracle-phase2": """## YOUR REVIEW TASK — ORACLE PHASE 2: THINKING VIDEO + SSE PUSH (4 QUESTIONS)
 
 You are auditing the Oracle avatar system for Phase 2 optimizations.
@@ -654,7 +784,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design", "friday-demo", "oracle-fix"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 

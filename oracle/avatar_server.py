@@ -56,7 +56,7 @@ PORT = 8200
 
 # ─── Greeting pre-render cache ────────────────────────────────────────
 GREETING_TEXT = "Hey. I'm Satomi — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?"
-_GREETING_CACHE_PATH = '/tmp/satomi_greeting_cache.mp4'
+_GREETING_CACHE_PATH = '/home/ultron/protocol_pulse/oracle/cache/satomi_greeting_cache.mp4'
 
 # Max seconds for a full video render before returning audio-only fallback
 MAX_RENDER_SECONDS = 25
