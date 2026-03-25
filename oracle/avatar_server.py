@@ -53,6 +53,13 @@ from blink_engine import apply_blink_gradient, generate_blink_schedule
 
 # ─── Config ───────────────────────────────────────────────────────────
 PORT = 8200
+
+# ─── Greeting pre-render cache ────────────────────────────────────────
+GREETING_TEXT = "Hey. I'm Satomi — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?"
+_GREETING_CACHE_PATH = '/tmp/satomi_greeting_cache.mp4'
+
+# Max seconds for a full video render before returning audio-only fallback
+MAX_RENDER_SECONDS = 25
 BATCH_SIZE_DEFAULT = 48  # Proven stable at 134fps — 64 caused VRAM pressure on GPU 1
 BATCH_SIZE_SMALL = 16    # For short audio < 60 mel frames
 BATCH_SIZE = BATCH_SIZE_DEFAULT
@@ -1572,6 +1579,11 @@ def oracle_speak():
 
     intent = data["intent"].upper()
 
+    # Try pre-rendered greeting cache (instant for mobile)
+    if intent == "GREETING" and os.path.exists(_GREETING_CACHE_PATH):
+        logger.info('[GREETING] Serving from pre-rendered cache (instant)')
+        return send_file(_GREETING_CACHE_PATH, mimetype='video/mp4')
+
     # Try daily brief
     if intent == "DAILY_BRIEF":
         brief_path = oracle_intelligence_feed.get_daily_brief()
@@ -1606,7 +1618,8 @@ def oracle_speak():
 
 
 def generate_inline(text):
-    """Internal helper: generate a video from text and return it."""
+    """Internal helper: generate a video from text and return it.
+    If render exceeds MAX_RENDER_SECONDS, returns audio-only fallback."""
     # Signal cache warmer to yield GPU
     INTERACTIVE_REQUEST_PENDING.set()
     try:
@@ -1627,16 +1640,58 @@ def generate_inline(text):
     else:
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path, "-ar", "16000", "-ac", "1", wav_path], check=True, capture_output=True, timeout=30)
 
+    render_start = time.time()
+
     try:
         # Check queue state for concurrency visibility
         with _render_queue_lock:
             _queue_pos = _render_queue_count
         acquired = _render_semaphore.acquire(timeout=LOCK_TIMEOUT)
         if not acquired:
-            return jsonify({"error": "GPU busy — try again in a moment", "retry_after": 10,
-                            "queue_position": _queue_pos}), 503
+            # Timeout waiting for GPU — return audio-only fallback
+            logger.warning(f"[INLINE] GPU busy ({LOCK_TIMEOUT}s) — returning audio-only fallback")
+            INTERACTIVE_REQUEST_PENDING.clear()
+            mime = "audio/wav" if is_wav else "audio/mpeg"
+            from flask import Response
+            def _audio_fallback():
+                try:
+                    yield audio_bytes
+                finally:
+                    for p in [audio_path, wav_path]:
+                        try:
+                            if os.path.exists(p): os.unlink(p)
+                        except OSError:
+                            pass
+            return Response(_audio_fallback(), mimetype=mime, headers={
+                "Content-Disposition": "inline",
+                "X-Render-Fallback": "audio-only-gpu-busy",
+                "Cache-Control": "no-cache",
+            })
+
         try:
             frames = wav2lip_generate(wav_path, DEFAULT_FPS)
+            elapsed = time.time() - render_start
+            if elapsed > MAX_RENDER_SECONDS:
+                # Render took too long — return audio-only instead of making user wait more
+                logger.warning(f"[INLINE] Render timeout ({elapsed:.1f}s > {MAX_RENDER_SECONDS}s) — audio-only fallback")
+                _render_semaphore.release()
+                INTERACTIVE_REQUEST_PENDING.clear()
+                mime = "audio/wav" if is_wav else "audio/mpeg"
+                from flask import Response
+                def _audio_timeout():
+                    try:
+                        yield audio_bytes
+                    finally:
+                        for p in [audio_path, wav_path]:
+                            try:
+                                if os.path.exists(p): os.unlink(p)
+                            except OSError:
+                                pass
+                return Response(_audio_timeout(), mimetype=mime, headers={
+                    "Content-Disposition": "inline",
+                    "X-Render-Fallback": "audio-only-timeout",
+                    "Cache-Control": "no-cache",
+                })
             reg = ModelRegistry.get()
             try:
                 frames = sharpen_mouth_region(frames, reg.avatar_face_coords)
@@ -2333,6 +2388,57 @@ if __name__ == "__main__":
 
     # Wire interactive request event into cache manager
     oracle_cache_manager.INTERACTIVE_REQUEST_PENDING = INTERACTIVE_REQUEST_PENDING
+
+    # Pre-render greeting video (delayed 30s to let GPU warm up)
+    def _prerender_greeting():
+        """Pre-render greeting video at startup so first mobile request is instant."""
+        time.sleep(30)
+        try:
+            if not os.path.exists(_GREETING_CACHE_PATH):
+                logger.info('[STARTUP] Pre-rendering greeting video...')
+                audio_bytes = _avatar_tts(GREETING_TEXT)
+                is_wav = audio_bytes[:4] == b"RIFF"
+                ext = ".wav" if is_wav else ".mp3"
+                with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+                    tmp.write(audio_bytes)
+                    audio_path = tmp.name
+                wav_path = audio_path + "_16k.wav"
+                if is_wav:
+                    import shutil
+                    shutil.copy2(audio_path, wav_path)
+                else:
+                    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", audio_path,
+                                    "-ar", "16000", "-ac", "1", wav_path],
+                                   check=True, capture_output=True, timeout=30)
+                acquired = _render_semaphore.acquire(timeout=60)
+                if not acquired:
+                    logger.warning('[STARTUP] GPU busy — greeting pre-render skipped')
+                    return
+                try:
+                    frames = wav2lip_generate(wav_path, DEFAULT_FPS)
+                    reg_local = ModelRegistry.get()
+                    try:
+                        frames = sharpen_mouth_region(frames, reg_local.avatar_face_coords)
+                    except Exception:
+                        pass
+                    frames = post_process_frames(frames, DEFAULT_FPS, enable_blinks=True, enable_head=True)
+                    video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
+                finally:
+                    _render_semaphore.release()
+                if video_path and os.path.exists(video_path):
+                    import shutil as _shutil
+                    _shutil.move(video_path, _GREETING_CACHE_PATH)
+                    logger.info(f'[STARTUP] Greeting pre-rendered: {os.path.getsize(_GREETING_CACHE_PATH)/1024:.0f}KB')
+                for p in [audio_path, wav_path]:
+                    try:
+                        os.remove(p)
+                    except OSError:
+                        pass
+            else:
+                logger.info(f'[STARTUP] Greeting cache exists: {os.path.getsize(_GREETING_CACHE_PATH)/1024:.0f}KB')
+        except Exception as e:
+            logger.warning(f'[STARTUP] Greeting pre-render failed (non-fatal): {e}')
+    threading.Thread(target=_prerender_greeting, daemon=True).start()
 
     # Phase 2: Start cache warming in background (delayed 60s to allow incoming requests)
     logger.info("[STARTUP] Oracle cache warmer will start in 60s...")

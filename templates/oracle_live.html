@@ -51,7 +51,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   transition:opacity .35s ease;
 }
 
-/* Oracle sigil */
+/* Satomi sigil */
 .sigil-wrap{
   position:relative;
   width:clamp(140px,38vw,200px);
@@ -790,7 +790,7 @@ var _greeted=false;
 var ORACLE_STATE = 'IDLE'; /* IDLE, WELCOME, LISTENING, PROCESSING, RESPONDING */
 function setOracleState(state){
   ORACLE_STATE = state;
-  console.log('[Oracle] State →', state);
+  console.log('[Satomi] State →', state);
   switch(state){
     case 'LISTENING':
       mic.disabled=false;
@@ -862,7 +862,7 @@ function pulseMic(){
     var ctx = canvas.getContext('2d');
     ctx.textBaseline = 'top';
     ctx.font = '14px Arial';
-    ctx.fillText('Oracle fp', 2, 2);
+    ctx.fillText('Satomi fp', 2, 2);
     fp += canvas.toDataURL().slice(-20);
     // Screen + timezone
     fp += screen.width + 'x' + screen.height + Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -964,7 +964,7 @@ function requestMic(){
       go();
     })
     .catch(function(err){
-      console.warn('[Oracle mic error]', err);
+      console.warn('[Satomi mic error]', err);
       gBtn.disabled=false;
       gStatus.textContent='';
       gErr.style.display='block';
@@ -1070,7 +1070,7 @@ function process(text){
   vid.loop=true;
   vid.muted=true;
   vid.style.opacity='1';
-  vid.play().catch(function(e){console.warn('[Oracle] thinking autoplay blocked:',e);});
+  vid.play().catch(function(e){console.warn('[Satomi] thinking autoplay blocked:',e);});
 
   // Re-unlock audio context on every user interaction
   try{
@@ -1151,13 +1151,13 @@ function process(text){
           playPromise.then(function(){
             setStat('Speaking','#6cff9f',false);
           }).catch(function(err){
-            console.warn('[Oracle] audio.play() rejected:', err.name);
+            console.warn('[Satomi] audio.play() rejected:', err.name);
             // On mobile, audio may be blocked — set volume via user gesture retry
             audio.muted = false;
             audio.volume = 1.0;
             setTimeout(function(){
               audio.play().catch(function(e2){
-                console.warn('[Oracle] retry failed:', e2.name);
+                console.warn('[Satomi] retry failed:', e2.name);
                 if(audio.onended) audio.onended();
               });
             }, 100);
@@ -1208,7 +1208,7 @@ function process(text){
                     }
                   }
                 })
-                .catch(function(e){console.warn('[Oracle] video fetch error:',e);});
+                .catch(function(e){console.warn('[Satomi] video fetch error:',e);});
             }
 
             if(window.EventSource){
@@ -1303,7 +1303,7 @@ function playVid(url){
     if(window._matrixHide) window._matrixHide();
     var _safetyTimer = setTimeout(function(){
       if(busy){
-        console.warn('[Oracle] Safety timeout — forcing mic unlock after 60s');
+        console.warn('[Satomi] Safety timeout — forcing mic unlock after 60s');
         setBusy(false);
         setOracleState('LISTENING');
       }
@@ -1537,7 +1537,7 @@ function _showRecoveryStep(idx, speakFn) {
   };
 
   helpBtn.onclick = function() {
-    // Close overlay and trigger Oracle to help set up new wallet
+    // Close overlay and trigger Satomi to help set up new wallet
     var overlay = document.getElementById('vision-security-overlay');
     if (overlay) overlay.style.display = 'none';
     // Inject a vision guidance request for new wallet setup
