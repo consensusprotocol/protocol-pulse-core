@@ -548,14 +548,32 @@ def terminal_redirect():
 @app.route('/signal-terminal')
 def signal_terminal():
     """Signal Terminal — Bloomberg-grade Bitcoin intelligence dashboard."""
-    from services.price_service import PriceService
+    price = {}
     try:
+        from services.price_service import PriceService
         ps = PriceService()
         prices = ps.get_prices()
-        btc_price = prices.get('bitcoin', {}).get('price', 0) if prices else 0
+        if prices and prices.get('bitcoin'):
+            b = prices['bitcoin']
+            price = {
+                'price': b.get('price', 0) or b.get('usd', 0),
+                'change_24h': b.get('change_24h', 0) or b.get('usd_24h_change', 0),
+                'change_7d': b.get('change_7d', 0),
+                'change_30d': b.get('change_30d', 0),
+                'market_cap': b.get('market_cap', 0),
+                'volume_24h': b.get('volume_24h', 0),
+                'dominance': b.get('dominance', 0),
+            }
+    except Exception as e:
+        logging.warning(f'[SignalTerminal] price: {e}')
+    is_commander = False
+    try:
+        if current_user.is_authenticated:
+            t = getattr(current_user, 'subscription_tier', 'free')
+            is_commander = t in ('commander', 'sovereign', 'admin')
     except:
-        btc_price = 0
-    return render_template('signal_terminal.html', btc_price=btc_price)
+        pass
+    return render_template('signal_terminal.html', price=price, is_commander=is_commander)
 
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
