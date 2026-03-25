@@ -78,6 +78,7 @@ FEATURE_MAP = {
     "friday-demo": ("PIPELINE_LAWS.md", "main"),
     "oracle-fix": ("PIPELINE_LAWS.md", "main"),
     "oracle-forensic": ("PIPELINE_LAWS.md", "main"),
+    "media-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -231,6 +232,12 @@ EXPLICIT_FILES = {
     ],
     "oracle-forensic": [
         "templates/oracle_live.html",
+    ],
+    "media-audit": [
+        "templates/media_hub.html",
+        "services/rss_service.py",
+        "models.py",
+        "docs/cc_specs/cc_media_audit.md",
     ],
 }
 
@@ -746,6 +753,80 @@ For each question (Q1-Q8):
 - Root cause of the lip sync failure
 - Root cause of the Recovering loop
 - Ordered fix list (most impactful first)
+""",
+    "media-audit": """## YOUR REVIEW TASK — BITCOIN MEDIA COMMAND CENTER ARCHITECTURE (8 DESIGN QUESTIONS)
+
+You are being consulted BEFORE build. The goal: build the definitive Bitcoin media hub page.
+One screen. Every voice. Every signal. No competitor comes close.
+
+The existing code shows: templates/media_hub.html (current page with Nostr/X feeds + books + podcasts),
+services/rss_service.py (only 2 feeds), models.py (Podcast model, no external feed tracking).
+
+We are adding 15 RSS podcast feeds + 7 YouTube channels + live KOL feeds + signal scoring.
+
+### Q1 — ARCHITECTURE
+What is the optimal backend architecture for aggregating 15 RSS feeds + 7 YouTube channels
++ live X/Nostr KOL feeds simultaneously WITHOUT blocking Flask workers or degrading site perf?
+Consider: background jobs, Redis caching, SQLite caching, async fetching.
+What refresh interval per source type is optimal?
+
+### Q2 — D3 NETWORK GRAPH
+Design the Bitcoin voice network topology visualization.
+Nodes = Bitcoin voices/channels. Edges = cross-references/mentions.
+How do we detect when voices reference each other (quote tweets, mentions)?
+What data structure backs this? How do we animate node pulses on new posts?
+What's the D3.js force simulation config for ~50 nodes to look stunning?
+
+### Q3 — LIVE TICKER
+Design the hyperlinked scrolling ticker at the top.
+Each item must deep-link to the exact source (podcast episode, tweet, video).
+What's the smoothest CSS animation that doesn't stutter on mobile?
+How do we prioritize items (breaking news > new episode > tweet)?
+
+### Q4 — SIGNAL SCORE
+Design a 0-100 Signal Score for all content. Inputs: KOL sentiment pipeline,
+engagement metrics, topic relevance, source tier (Tier 1 = Odell/Livera/McCormack).
+Formula that's backtestable against price action?
+How do we calculate this on ingest without API costs?
+
+### Q5 — CLIPS ENGINE
+When sentiment pipeline flags high-signal moment (>85% confidence):
+YouTube: extract timestamp, generate 60-90s clip via yt-dlp + ffmpeg.
+Podcast: extract timestamp from transcript, clip audio.
+Overlay Protocol Pulse branded waveform + quote text.
+Queue architecture? GPU usage? Storage? Can this run on 4x RTX 4090
+without interfering with render pipeline?
+
+### Q6 — EMBEDDED PLAYER
+How to embed podcast episodes without redirect? Native HTML5 audio with RSS mp3 URL,
+Spotify embed, Apple Podcasts embed, custom player? Which works reliably for all 15 feeds?
+How to handle DRM/protected content?
+
+### Q7 — ENGAGEMENT LAYER
+Instead of literal drawing wall, what engagement features make Bitcoin users return daily?
+Streak tracking, signal accuracy scoring, community price prediction market,
+soundboard of famous Bitcoin quotes triggered by price events,
+achievement badges for sovereign behaviors.
+Which 3 features have highest viral coefficient?
+
+### Q8 — CLAUDE ON INGEST
+AI-generated 30-word summaries for each episode using Anthropic API (Claude claude-sonnet-4-6).
+How to batch-process RSS items to minimize API cost?
+Optimal prompt for 30-word Bitcoin-native signal summary?
+How to cache summaries (generate once per episode)?
+Estimated monthly cost for 15 feeds x ~20 episodes/week?
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- DETAILED RECOMMENDATION with specific technologies, configs, code patterns
+- ESTIMATED COST / PERFORMANCE impact
+- IMPLEMENTATION COMPLEXITY: LOW / MEDIUM / HIGH
+- KEY RISKS and mitigations
+
+### FINAL VERDICT
+- Top 3 most impactful features for Phase 1 Friday deadline
+- Architecture that scales to 50 feeds without rewrite
+- The single design decision that separates "good media page" from "best Bitcoin media page on the internet"
 """,
 }
 

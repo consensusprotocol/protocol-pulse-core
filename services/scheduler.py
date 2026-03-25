@@ -45,6 +45,8 @@ TASKS = {
     "x_engagement_cycle": {"interval_minutes": 5, "description": "X Engagement Sentry cycle (every 5m)"},
     "sentry_megaphone": {"interval_minutes": 2, "description": "SentryJob Queued -> pulseevents.jsonl [DRY-RUN] (no live post when ENABLE_LIVE_POSTING=False)"},
     "mining_snapshot_hourly": {"interval_minutes": 60, "description": "Mining risk snapshot_all (hourly)"},
+    "media_feed_sync": {"interval_minutes": 15, "description": "Media Command Center RSS+YouTube feed sync (every 15m)"},
+    "media_ai_summaries": {"interval_minutes": 60, "description": "Generate AI summaries for new media episodes (hourly)"},
     "cypherpunk_loop": {"interval_minutes": 120, "description": "Article auto-draft from trending (every 2h, around the clock)"},
     "social_guard": {"interval_minutes": 10, "description": "Social listening / reply checks"},
     "sarah_brief_prep": {"cron": "05:45", "description": "Sarah daily brief prep (05:45 UTC)"},
@@ -226,6 +228,24 @@ def run_task(name: str) -> Dict:
             return {"success": bool(out.get("success")), "message": "X engagement cycle run", "result": out}
         except Exception as e:
             logger.warning("x_engagement_cycle failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "media_feed_sync":
+        try:
+            from services.media_feed_service import sync_all_feeds
+            count = sync_all_feeds()
+            return {"success": True, "message": f"Media feed sync: {count} new items", "result": {"new_items": count}}
+        except Exception as e:
+            logger.warning("media_feed_sync failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "media_ai_summaries":
+        try:
+            from services.media_feed_service import generate_ai_summaries
+            count = generate_ai_summaries()
+            return {"success": True, "message": f"AI summaries: {count} generated", "result": {"summaries": count}}
+        except Exception as e:
+            logger.warning("media_ai_summaries failed: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
     if name == "mining_snapshot_hourly":
@@ -652,6 +672,13 @@ def initialize_scheduler() -> Dict:
             _apscheduler.add_job(send_daily_briefing, trigger=CronTrigger(hour=13, minute=0), id="newsletter_daily_briefing", replace_existing=True, max_instances=1)
         except Exception as _nle:
             logging.warning("Newsletter automation job not scheduled: %s", _nle)
+        # Media feed sync every 15 minutes + AI summaries every hour
+        try:
+            from services.media_feed_service import sync_all_feeds, generate_ai_summaries
+            _apscheduler.add_job(sync_all_feeds, trigger=IntervalTrigger(minutes=15), id="media_feed_sync", replace_existing=True, max_instances=1)
+            _apscheduler.add_job(generate_ai_summaries, trigger=IntervalTrigger(minutes=60), id="media_ai_summaries", replace_existing=True, max_instances=1)
+        except Exception as _mfe:
+            logging.warning("Media feed sync job not scheduled: %s", _mfe)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

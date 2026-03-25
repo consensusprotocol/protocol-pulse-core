@@ -1663,15 +1663,34 @@ def media_hub_redirect():
 @app.route('/media-unified')
 @cache.cached(timeout=60, key_prefix='view_media')
 def media_hub():
-    """Media Hub — cinematic dark layout with real data"""
+    """Media Hub — Bitcoin Media Command Center with Feed Matrix"""
     try:
-        from models import Podcast
+        from models import Podcast, MediaFeed, MediaEpisode
         from services.youtube_service import YouTubeService
+        from services.media_feed_service import get_feed_matrix, get_ticker_items, get_feed_stats, sync_feeds_background
         import copy
-        
+
+        # ── Feed Matrix (aggregated RSS + YouTube) ──
+        try:
+            feed_matrix = get_feed_matrix(limit_per_col=25)
+            ticker_items = get_ticker_items(limit=30)
+            feed_stats = get_feed_stats()
+        except Exception as fm_err:
+            logging.warning(f"Feed matrix not ready: {fm_err}")
+            feed_matrix = {'podcasts': [], 'videos': []}
+            ticker_items = []
+            feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
+
+        # Trigger background sync if feeds are empty
+        if feed_stats.get('episode_count', 0) == 0:
+            try:
+                sync_feeds_background()
+            except Exception:
+                pass
+
         # ── YouTube Series ──
         youtube_service_instance = YouTubeService()
-        
+
         series_config = {
             'everything_21m': {
                 'key': 'everything_21m',
@@ -1828,7 +1847,7 @@ def media_hub():
         except Exception as _e:
             logging.warning(f'SSR highlights failed: {_e}')
 
-        return render_template('media_unified.html',
+        return render_template('media_hub.html',
             series_list=series_list,
             series_data=series_config,
             series_count=len(series_config),
@@ -1837,15 +1856,20 @@ def media_hub():
             voice_count=30,
             ssr_highlights=ssr_highlights,
             all_books=all_books,
+            feed_matrix=feed_matrix,
+            ticker_items=ticker_items,
+            feed_stats=feed_stats,
         )
-        
+
     except Exception as e:
         logging.error(f"Error loading media hub: {e}")
         import traceback
         traceback.print_exc()
-        return render_template('media_unified.html',
+        return render_template('media_hub.html',
             series_list=[], series_data={}, series_count=0,
-            latest_episodes=[], podcast_count=0, voice_count=0, all_books=[])
+            latest_episodes=[], podcast_count=0, voice_count=0, all_books=[],
+            feed_matrix={'podcasts': [], 'videos': []},
+            ticker_items=[], feed_stats={})
 
 
 @app.route('/api/latest-episodes')
@@ -7346,6 +7370,37 @@ def api_media_feed():
             })
     
     return jsonify(result)
+
+
+@app.route('/api/media/matrix')
+def api_media_matrix():
+    """Feed Matrix: paginated episodes from all aggregated feeds"""
+    from services.media_feed_service import get_feed_matrix, get_ticker_items, get_feed_stats
+    feed_type = request.args.get('type', 'all')  # rss, youtube, all
+    limit = min(int(request.args.get('limit', 25)), 100)
+
+    matrix = get_feed_matrix(limit_per_col=limit)
+    if feed_type == 'rss':
+        return jsonify({'items': matrix['podcasts']})
+    elif feed_type == 'youtube':
+        return jsonify({'items': matrix['videos']})
+    return jsonify(matrix)
+
+
+@app.route('/api/media/ticker')
+def api_media_ticker():
+    """Scrolling ticker data for live media bar"""
+    from services.media_feed_service import get_ticker_items
+    limit = min(int(request.args.get('limit', 30)), 50)
+    return jsonify(get_ticker_items(limit=limit))
+
+
+@app.route('/api/media/sync', methods=['POST'])
+def api_media_sync():
+    """Trigger a manual feed sync (admin use)"""
+    from services.media_feed_service import sync_feeds_background
+    sync_feeds_background()
+    return jsonify({'status': 'sync_started'})
 
 
 @app.route('/api/media/sentiment')

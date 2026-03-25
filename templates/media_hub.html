@@ -1,84 +1,118 @@
 {% extends "base.html" %}
-{% block title %}The Network — Protocol Pulse Media Hub{% endblock %}
-{% block meta_description %}Bitcoin intelligence network. Live signals from Nostr and X.{% endblock %}
+{% block title %}Bitcoin Media Command Center — Protocol Pulse{% endblock %}
+{% block meta_description %}The definitive Bitcoin media hub. 20+ voices. Live feeds from top podcasts, YouTube channels, and KOL intelligence. One screen.{% endblock %}
 {% block head %}
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--void:#000;--deep:#040408;--card:#08080e;--elevated:#0e0e16;--hover:#14141e;--border:rgba(255,255,255,0.05);--border-h:rgba(255,255,255,0.1);--bright:#f5f5f5;--pri:#e0e0e0;--sec:rgba(255,255,255,0.5);--mut:rgba(255,255,255,0.25);--red:#dc2626;--red-g:rgba(220,38,38,0.12);--btc:#f7931a;--purple:#a855f7;--blue:#3b82f6;--green:#22c55e;--cyan:#06b6d4}
+:root{
+  --void:#000;--deep:#040408;--card:#08080e;--elevated:#0e0e16;--hover:#14141e;
+  --border:rgba(255,255,255,0.05);--border-h:rgba(255,255,255,0.1);
+  --bright:#f5f5f5;--pri:#e0e0e0;--sec:rgba(255,255,255,0.5);--mut:rgba(255,255,255,0.25);
+  --red:#dc2626;--red-g:rgba(220,38,38,0.12);--btc:#f7931a;
+  --gold:#f8c15c;--cyan:#5de4ff;--lime:#89ffb8;--coral:#ff8ba0;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 .mh{font-family:'DM Sans',-apple-system,sans-serif;background:var(--void);color:var(--pri);min-height:100vh;padding-top:80px}
-.mono{font-family:'Geist Mono',monospace}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ── TICKER ── */
+.ticker-wrap{position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(220,38,38,0.06),rgba(8,8,14,0.95),rgba(220,38,38,0.06));border-bottom:1px solid var(--border);padding:0;height:36px}
+.ticker-track{display:flex;animation:tickerScroll 120s linear infinite;white-space:nowrap;height:100%;align-items:center}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-item{display:inline-flex;align-items:center;gap:6px;padding:0 24px;font-size:12px;color:var(--sec);text-decoration:none;transition:color .2s;flex-shrink:0;height:100%}
+.ticker-item:hover{color:var(--bright)}
+.ticker-icon{font-size:10px;opacity:.6}
+.ticker-src{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.ticker-title{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ticker-score{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:600}
+.ticker-score.high{background:rgba(137,255,184,0.1);color:var(--lime)}
+.ticker-score.mid{background:rgba(248,193,92,0.1);color:var(--gold)}
+.ticker-score.low{background:rgba(255,255,255,0.05);color:var(--mut)}
+.ticker-sep{width:1px;height:14px;background:var(--border);flex-shrink:0;margin:0 4px}
+@keyframes tickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
 .wrap{max-width:1440px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
-.hero{position:relative;padding:80px 0 60px;overflow:hidden}
+
+/* ── HERO ── */
+.hero{position:relative;padding:64px 0 48px;overflow:hidden}
 .hero-bg{position:absolute;inset:0;overflow:hidden}
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(220,38,38,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(220,38,38,0.03) 1px,transparent 1px);background-size:60px 60px;animation:gridDrift 20s linear infinite}
 @keyframes gridDrift{from{transform:translate(0,0)}to{transform:translate(60px,60px)}}
 .hero-orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orbFloat 8s ease-in-out infinite}
 .hero-orb-1{width:400px;height:400px;background:rgba(220,38,38,0.08);top:-100px;left:20%}
-.hero-orb-2{width:300px;height:300px;background:rgba(247,147,26,0.05);bottom:-80px;right:15%;animation-delay:-3s}
-.hero-orb-3{width:200px;height:200px;background:rgba(168,85,247,0.04);top:40%;left:60%;animation-delay:-5s}
+.hero-orb-2{width:300px;height:300px;background:rgba(248,193,92,0.05);bottom:-80px;right:15%;animation-delay:-3s}
+.hero-orb-3{width:200px;height:200px;background:rgba(93,228,255,0.04);top:40%;left:60%;animation-delay:-5s}
 @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-20px) scale(1.1)}}
 .hero-scanline{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(220,38,38,0.3),transparent);animation:scanDown 4s linear infinite;opacity:0.4}
 @keyframes scanDown{from{top:0}to{top:100%}}
 .hero-vignette{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,transparent 40%,var(--void) 100%)}
 .hero-inner{position:relative;z-index:2}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);border-radius:24px;margin-bottom:28px;opacity:0;animation:fadeUp .6s ease forwards}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);border-radius:24px;margin-bottom:24px;opacity:0;animation:fadeUp .6s ease forwards}
 .hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:tagPulse 2s infinite}
 @keyframes tagPulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.hero-tag-text{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red)}
-.hero-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(56px,10vw,120px);font-weight:400;line-height:0.95;color:var(--bright);letter-spacing:-3px;margin-bottom:20px;opacity:0;animation:fadeUp .6s ease .1s forwards}
-.hero-h em{font-style:italic;background:linear-gradient(135deg,var(--red),var(--btc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:17px;font-weight:300;color:var(--sec);max-width:480px;line-height:1.6;opacity:0;animation:fadeUp .6s ease .2s forwards}
-.hero-metrics{display:flex;gap:40px;margin-top:40px;opacity:0;animation:fadeUp .6s ease .3s forwards}
-.hero-metric{position:relative;padding:16px 0}
-.hero-metric::after{content:'';position:absolute;right:-20px;top:50%;transform:translateY(-50%);width:1px;height:24px;background:var(--border)}
+.hero-tag-text{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red)}
+.hero-h{font-size:clamp(36px,7vw,64px);font-weight:700;line-height:1;color:var(--bright);letter-spacing:-2px;margin-bottom:16px;opacity:0;animation:fadeUp .6s ease .1s forwards}
+.hero-h em{font-style:normal;background:linear-gradient(135deg,var(--red),var(--btc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:15px;font-weight:300;color:var(--sec);max-width:520px;line-height:1.6;opacity:0;animation:fadeUp .6s ease .2s forwards}
+.hero-metrics{display:flex;gap:32px;margin-top:32px;opacity:0;animation:fadeUp .6s ease .3s forwards;flex-wrap:wrap}
+.hero-metric{position:relative;padding:12px 0}
+.hero-metric::after{content:'';position:absolute;right:-16px;top:50%;transform:translateY(-50%);width:1px;height:20px;background:var(--border)}
 .hero-metric:last-child::after{display:none}
-.hero-metric-val{font-family:'Geist Mono',monospace;font-size:28px;font-weight:600;color:var(--bright)}
-.hero-metric-lab{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
-.hero-status{display:flex;gap:24px;margin-top:32px;opacity:0;animation:fadeUp .6s ease .4s forwards}
-.hero-status-item{display:flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
-.hero-status-dot{width:5px;height:5px;border-radius:50%}
-.hero-status-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
-.hero-status-dot.sync{background:var(--btc);animation:tagPulse 1.5s infinite}
+.hero-metric-val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--bright)}
+.hero-metric-lab{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.sec{padding:64px 0;border-top:1px solid var(--border)}
-.sec-lab{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px}
-.sec-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(26px,4vw,38px);font-weight:400;color:var(--bright);letter-spacing:-0.5px;margin-bottom:10px}
-.sec-desc{font-size:14px;color:var(--sec);max-width:480px;line-height:1.6;margin-bottom:40px}
-.intel-dash{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;min-height:500px}
-.intel-col{display:flex;flex-direction:column;min-width:0}
-.intel-col-head{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px 10px 0 0;border-bottom:none}
-.intel-col-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px}
-.intel-col-icon.nostr{color:var(--purple)}.intel-col-icon.x{color:var(--blue)}.intel-col-icon.yt{color:var(--red)}
-.intel-col-name{font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:var(--bright);text-transform:uppercase;letter-spacing:1px}
-.intel-col-status{margin-left:auto;display:flex;align-items:center;gap:4px}
-.intel-col-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
-.intel-col-count{font-family:'Geist Mono',monospace;font-size:10px;color:var(--mut)}
-.intel-feed{flex:1;background:var(--card);border:1px solid var(--border);border-radius:0 0 10px 10px;overflow-y:auto;max-height:700px;padding:8px}
-.intel-feed::-webkit-scrollbar{width:3px}.intel-feed::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
-.fi{padding:12px 14px;margin-bottom:6px;border-radius:10px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);transition:all .2s}
-.fi:hover{border-color:rgba(255,255,255,0.08);background:rgba(255,255,255,0.025)}
-.fi.new{animation:fiIn .4s cubic-bezier(.16,1,.3,1)}
-@keyframes fiIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+/* ── SECTIONS ── */
+.sec{padding:56px 0;border-top:1px solid var(--border)}
+.sec-lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+.sec-h{font-size:clamp(22px,3.5vw,32px);font-weight:700;color:var(--bright);letter-spacing:-0.5px;margin-bottom:8px}
+.sec-desc{font-size:14px;color:var(--sec);max-width:520px;line-height:1.6;margin-bottom:32px}
+
+/* ── FEED MATRIX ── */
+.feed-matrix{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;min-height:500px}
+.feed-col{display:flex;flex-direction:column;min-width:0}
+.feed-col-head{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px 10px 0 0;border-bottom:none}
+.feed-col-icon{font-size:12px;width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.feed-col-icon.pod{background:rgba(220,38,38,0.1);color:var(--red)}
+.feed-col-icon.vid{background:rgba(248,193,92,0.1);color:var(--gold)}
+.feed-col-icon.kol{background:rgba(93,228,255,0.1);color:var(--cyan)}
+.feed-col-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--bright);text-transform:uppercase;letter-spacing:1px}
+.feed-col-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mut)}
+.feed-list{flex:1;background:var(--card);border:1px solid var(--border);border-radius:0 0 10px 10px;overflow-y:auto;max-height:700px;padding:8px}
+.feed-list::-webkit-scrollbar{width:3px}
+.feed-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+
+/* ── FEED ITEM ── */
+.fi{display:block;padding:14px;margin-bottom:6px;border-radius:10px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);transition:all .2s;text-decoration:none;color:inherit}
+.fi:hover{border-color:rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);transform:translateY(-1px)}
 .fi-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.fi-av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;border:1px solid rgba(255,255,255,0.06)}
-.fi-av.macro{background:rgba(220,38,38,0.1);color:var(--red)}.fi-av.protocol{background:rgba(168,85,247,0.1);color:var(--purple)}.fi-av.media{background:rgba(59,130,246,0.1);color:var(--blue)}
-.fi-name{font-size:12px;font-weight:600;color:var(--bright);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fi-time{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mut)}
-.fi-body{font-size:12px;color:var(--pri);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;word-break:break-word}
-.fi-body a{color:var(--cyan);text-decoration:none}
-.fi-foot{display:flex;gap:12px;margin-top:8px}
-.fi-act{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mut);text-decoration:none;display:flex;align-items:center;gap:3px;transition:color .2s;text-transform:uppercase;letter-spacing:.5px}
-.fi-act:hover{color:var(--bright)}
-.fi-quote{position:relative;padding-left:12px}
-.fi-quote::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;border-radius:1px}
-.fi-quote.macro::before{background:var(--red)}.fi-quote.protocol::before{background:var(--purple)}.fi-quote.media::before{background:var(--blue)}
-.fi-src{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mut);margin-top:6px}
-.fi-pin{border-color:rgba(247,147,26,0.15);background:rgba(247,147,26,0.03)}
-.intel-empty{text-align:center;padding:40px 16px;color:var(--mut);font-size:12px}
-.intel-empty i{font-size:20px;margin-bottom:8px;display:block;opacity:0.3}
-.intel-loader{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top:2px solid var(--red);border-radius:50%;animation:spin .7s linear infinite;margin-top:10px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.fi-thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--elevated)}
+.fi-thumb-yt{width:80px;height:45px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--elevated);position:relative}
+.fi-thumb-yt::after{content:'\25B6';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:white;font-size:14px;text-shadow:0 0 8px rgba(0,0,0,.8)}
+.fi-info{flex:1;min-width:0}
+.fi-show{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px}
+.fi-title{font-size:13px;font-weight:600;color:var(--bright);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fi-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.fi-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut)}
+.fi-dur{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut)}
+.fi-score{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:600}
+.fi-score.s-high{background:rgba(137,255,184,0.1);color:var(--lime)}
+.fi-score.s-mid{background:rgba(248,193,92,0.1);color:var(--gold)}
+.fi-score.s-low{background:rgba(255,255,255,0.05);color:var(--mut)}
+.fi-summary{font-size:11px;color:var(--sec);line-height:1.4;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fi-play{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px;cursor:pointer;background:none;border:none;padding:0;transition:color .2s}
+.fi-play:hover{color:var(--bright)}
+.fi-empty{text-align:center;padding:40px 16px;color:var(--mut);font-size:12px}
+
+/* ── SKELETON LOADING ── */
+.skel{background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.06) 50%,rgba(255,255,255,0.03) 75%);background-size:200% 100%;animation:skelShimmer 1.5s infinite;border-radius:6px}
+@keyframes skelShimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.skel-item{padding:14px;margin-bottom:6px;border-radius:10px}
+.skel-title{height:14px;width:80%;margin-bottom:8px}
+.skel-sub{height:10px;width:60%;margin-bottom:4px}
+.skel-bar{height:8px;width:40%}
+
+/* ── SERIES ── */
 .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .3s}
 .sc:hover{border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.4)}
@@ -87,40 +121,49 @@
 .sc-img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .sc-ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.9) 100%)}
 .sc-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;background:rgba(220,38,38,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
-.sc:hover .sc-play{opacity:1}.sc-play i{color:white;font-size:16px;margin-left:2px}
-.sc-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);padding:3px 8px;border-radius:16px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--sec);border:1px solid rgba(255,255,255,.08)}
+.sc:hover .sc-play{opacity:1}
+.sc-play i{color:white;font-size:16px;margin-left:2px}
+.sc-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);padding:3px 8px;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--sec);border:1px solid rgba(255,255,255,.08)}
 .sc-body{padding:16px 20px 20px}
 .sc-host{font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.sc-name{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:var(--bright);margin-bottom:8px;line-height:1.3}
+.sc-name{font-size:20px;font-weight:700;color:var(--bright);margin-bottom:8px;line-height:1.3}
 .sc-desc{font-size:12px;color:var(--sec);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── SERIES DETAIL ── */
 .sd{display:none;margin-top:24px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--card)}
 .sd.active{display:block;animation:fadeUp .4s ease}
 .sd-top{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
-.sd-title{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:var(--bright)}
+.sd-title{font-size:20px;font-weight:700;color:var(--bright)}
 .sd-x{background:rgba(255,255,255,.05);border:none;color:var(--mut);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
 .sd-x:hover{background:rgba(255,255,255,.1);color:white}
 .sd-main{display:grid;grid-template-columns:1fr 340px}
 .sd-vid iframe{width:100%;aspect-ratio:16/9;border:none;display:block;background:#000}
 .sd-eps{max-height:440px;overflow-y:auto;border-left:1px solid var(--border)}
 .sd-ep{display:flex;gap:10px;padding:10px 14px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);align-items:center}
-.sd-ep:hover{background:var(--hover)}.sd-ep.active{background:rgba(220,38,38,.05);border-left:3px solid var(--red)}
+.sd-ep:hover{background:var(--hover)}
+.sd-ep.active{background:rgba(220,38,38,.05);border-left:3px solid var(--red)}
 .sd-ep-img{width:80px;height:45px;border-radius:5px;object-fit:cover;flex-shrink:0}
 .sd-ep-info{flex:1;min-width:0}
-.sd-ep-n{font-family:'Geist Mono',monospace;font-size:9px;color:var(--red);letter-spacing:1px}
+.sd-ep-n{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);letter-spacing:1px}
 .sd-ep-t{font-size:11px;color:var(--pri);margin-top:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── PODCAST (LEGACY) ── */
 .pod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .pod-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
 .pod-card:hover{border-color:var(--border-h);background:var(--elevated);transform:translateY(-2px)}
 .pod-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--red);opacity:0;transition:opacity .2s}
 .pod-card:hover::before{opacity:1}
-.pod-num{font-family:'Geist Mono',monospace;font-size:28px;font-weight:600;color:rgba(220,38,38,0.1);position:absolute;top:12px;right:16px}
+.pod-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:rgba(220,38,38,0.1);position:absolute;top:12px;right:16px}
 .pod-title{font-size:14px;font-weight:600;color:var(--bright);line-height:1.4;margin-bottom:10px;padding-right:40px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pod-meta{display:flex;align-items:center;gap:12px}
-.pod-dur{font-family:'Geist Mono',monospace;font-size:11px;color:var(--mut)}
+.pod-dur{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mut)}
 .pod-play-btn{width:28px;height:28px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;margin-left:auto;opacity:0;transition:opacity .2s}
-.pod-card:hover .pod-play-btn{opacity:1}.pod-play-btn i{color:white;font-size:10px;margin-left:1px}
+.pod-card:hover .pod-play-btn{opacity:1}
+.pod-play-btn i{color:white;font-size:10px;margin-left:1px}
 .pod-more{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 20px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-size:13px;text-decoration:none;transition:all .2s}
 .pod-more:hover{border-color:var(--red);color:var(--red)}
+
+/* ── BOOKS ── */
 .bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
 .bc{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:all .3s;text-decoration:none;display:block}
 .bc:hover{border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.3)}
@@ -128,114 +171,453 @@
 .bc-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2}
 .bc-spine{position:absolute;left:0;top:8%;bottom:8%;width:3px;border-radius:0 2px 2px 0}
 .bc-txt{padding:16px 14px;position:relative;z-index:1;width:100%}
-.bc-txt-t{font-family:'Instrument Serif',Georgia,serif;font-size:14px;font-weight:400;color:rgba(255,255,255,0.9);line-height:1.3;margin-bottom:4px}
-.bc-txt-a{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase}
+.bc-txt-t{font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);line-height:1.3;margin-bottom:4px}
+.bc-txt-a{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase}
 .bc-info{padding:10px 12px 12px}
-.bc-badge{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--btc);margin-bottom:4px}
-.bc-badge.econ{color:var(--green)}
+.bc-badge{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--btc);margin-bottom:4px}
+.bc-badge.econ{color:#22c55e}
 .bc-name{font-size:11px;font-weight:600;color:var(--bright);margin-bottom:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .bc-auth{font-size:10px;color:var(--sec)}
-.bcat{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:36px;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.bcat{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:36px;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .bcat:first-of-type{margin-top:0}
 .btog{display:flex;align-items:center;gap:10px;margin-top:36px;padding:12px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;width:100%;color:var(--sec);font-size:13px;font-weight:500;transition:all .2s}
 .btog:hover{border-color:var(--border-h);color:var(--bright)}
-.btog i{transition:transform .3s}.btog.open i{transform:rotate(180deg)}
+.btog i{transition:transform .3s}
+.btog.open i{transform:rotate(180deg)}
 .bhid{display:none}.bhid.show{display:block;animation:fadeUp .4s ease}
+
+/* ── NEWSLETTER CTA ── */
 .nl{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:48px;text-align:center;position:relative;overflow:hidden}
 .nl::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--red-g) 0%,transparent 60%);pointer-events:none}
-.nl-h{font-family:'Instrument Serif',Georgia,serif;font-size:28px;color:var(--bright);margin-bottom:10px;position:relative}
+.nl-h{font-size:28px;font-weight:700;color:var(--bright);margin-bottom:10px;position:relative}
 .nl-p{font-size:14px;color:var(--sec);margin-bottom:28px;position:relative}
 .nl-f{display:flex;gap:10px;max-width:400px;margin:0 auto;position:relative}
 .nl-i{flex:1;padding:12px 16px;background:var(--void);border:1px solid var(--border);border-radius:8px;color:var(--bright);font-size:13px;outline:none}
-.nl-i:focus{border-color:var(--red)}.nl-i::placeholder{color:var(--mut)}
+.nl-i:focus{border-color:var(--red)}
+.nl-i::placeholder{color:var(--mut)}
 .nl-b{padding:12px 24px;background:var(--red);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+
+/* ── AUDIO BAR ── */
 .abar{position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,14,.95);border-top:1px solid var(--border);padding:10px 24px;display:none;align-items:center;gap:14px;z-index:1000;backdrop-filter:blur(20px)}
-.abar.active{display:flex}.abar-now{flex:1;font-size:12px;color:var(--pri);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media(max-width:1024px){.intel-dash{grid-template-columns:1fr 1fr}.intel-col:nth-child(3){grid-column:span 2}}
-.sm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:2000;align-items:center;justify-content:center}
-.sm-overlay.active{display:flex}
-.sm-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:480px;width:90%;max-height:85vh;overflow-y:auto;padding:32px;position:relative;animation:fadeUp .3s ease}
-.sm-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.05);border:none;color:var(--mut);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:1}
-.sm-close:hover{background:rgba(255,255,255,.1);color:white}
-.sm-header{display:flex;gap:16px;align-items:center;margin-bottom:20px}
-.sm-cover{width:80px;height:120px;border-radius:8px;flex-shrink:0}
-.sm-title{font-family:'Instrument Serif',Georgia,serif;font-size:22px;color:var(--bright);margin-bottom:4px}
-.sm-author{font-family:'Geist Mono',monospace;font-size:11px;color:var(--sec);text-transform:uppercase;letter-spacing:1px}
-.sm-desc{font-size:13px;color:var(--sec);line-height:1.6;margin-bottom:20px}
-.sm-eps{font-family:'Geist Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:24px;padding:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px}
-.sm-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--red);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
-.sm-cta:hover{background:#b91c1c;box-shadow:0 0 20px rgba(220,38,38,.3)}
-@media(max-width:768px){.hero{padding:60px 0 40px}.hero-metrics{gap:24px;flex-wrap:wrap}.sec{padding:40px 0}.intel-dash{grid-template-columns:1fr}.intel-col:nth-child(3){grid-column:auto}.sg{grid-template-columns:1fr}.sd-main{grid-template-columns:1fr}.sd-eps{max-height:250px;border-left:none;border-top:1px solid var(--border)}.pod-grid{grid-template-columns:1fr}.bg{grid-template-columns:repeat(2,1fr)}.nl{padding:32px 20px}.nl-f{flex-direction:column}}
+.abar.active{display:flex}
+.abar-btn{background:none;border:none;color:var(--sec);cursor:pointer;padding:4px 8px;font-size:16px}
+.abar-btn:hover{color:var(--bright)}
+.abar-now{flex:1;min-width:0}
+.abar-title{font-size:12px;color:var(--pri);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abar-show{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px}
+.abar-progress{height:2px;background:var(--border);border-radius:1px;margin-top:4px;cursor:pointer}
+.abar-progress-fill{height:100%;background:var(--red);border-radius:1px;width:0;transition:width .3s}
+.abar-close{background:none;border:none;color:var(--mut);cursor:pointer;font-size:12px;padding:4px 8px}
+.abar-close:hover{color:var(--bright)}
+
+/* ── NOSTR/KOL ITEMS ── */
+.kol-item{padding:14px;margin-bottom:6px;border-radius:10px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)}
+.kol-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.kol-av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;border:1px solid rgba(255,255,255,0.06)}
+.kol-av.macro{background:rgba(220,38,38,0.1);color:var(--red)}
+.kol-av.protocol{background:rgba(93,228,255,0.1);color:var(--cyan)}
+.kol-av.media{background:rgba(248,193,92,0.1);color:var(--gold)}
+.kol-name{font-size:12px;font-weight:600;color:var(--bright);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kol-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut)}
+.kol-body{font-size:12px;color:var(--pri);line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.kol-body a{color:var(--cyan);text-decoration:none}
+.kol-foot{display:flex;gap:12px;margin-top:8px}
+.kol-link{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);text-decoration:none;display:flex;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:.5px;transition:color .2s}
+.kol-link:hover{color:var(--bright)}
+.kol-loader{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top:2px solid var(--red);border-radius:50%;animation:spin .7s linear infinite;margin-top:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){.feed-matrix{grid-template-columns:1fr 1fr}.feed-col:nth-child(3){grid-column:span 2}}
+@media(max-width:768px){
+  .hero{padding:48px 0 32px}
+  .hero-metrics{gap:20px}
+  .sec{padding:40px 0}
+  .feed-matrix{grid-template-columns:1fr}
+  .feed-col:nth-child(3){grid-column:auto}
+  .sg{grid-template-columns:1fr}
+  .sd-main{grid-template-columns:1fr}
+  .sd-eps{max-height:250px;border-left:none;border-top:1px solid var(--border)}
+  .pod-grid{grid-template-columns:1fr}
+  .bg{grid-template-columns:repeat(2,1fr)}
+  .nl{padding:32px 20px}
+  .nl-f{flex-direction:column}
+  .ticker-wrap{height:32px}
+  .ticker-item{padding:0 16px;font-size:11px}
+}
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="mh"><div class="wrap">
-<div class="hero"><div class="hero-bg"><div class="hero-grid"></div><div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div><div class="hero-orb hero-orb-3"></div><div class="hero-scanline"></div><div class="hero-vignette"></div></div>
-<div class="hero-inner"><div class="hero-tag"><div class="hero-tag-dot"></div><span class="hero-tag-text">Intelligence Network Active</span></div>
-<h1 class="hero-h">The <em>Network</em></h1>
-<p class="hero-sub">Sovereign signal intelligence. Live feeds from Nostr relays, X propagation, and the voices shaping the ecosystem.</p>
-<div class="hero-metrics"><div class="hero-metric"><div class="hero-metric-val">{{ series_count }}</div><div class="hero-metric-lab">Series</div></div><div class="hero-metric"><div class="hero-metric-val">{{ podcast_count }}</div><div class="hero-metric-lab">Episodes</div></div><div class="hero-metric"><div class="hero-metric-val">{{ all_books|length }}</div><div class="hero-metric-lab">Books</div></div><div class="hero-metric"><div class="hero-metric-val" id="liveN">0</div><div class="hero-metric-lab">Live Notes</div></div></div>
-<div class="hero-status"><div class="hero-status-item"><div class="hero-status-dot live"></div>Nostr Relays</div><div class="hero-status-item"><div class="hero-status-dot sync"></div>X Propagation</div></div></div></div>
-<div class="sec" id="signal"><div class="sec-lab">01 — Live Intelligence</div><h2 class="sec-h">Signal Dashboard</h2><p class="sec-desc">Three intelligence streams. Nostr notes, X propagation, and curated thought leader insights.</p>
-<div class="intel-dash">
-<div class="intel-col"><div class="intel-col-head"><div class="intel-col-icon nostr"><i class="fas fa-bolt"></i></div><span class="intel-col-name">Nostr</span><div class="intel-col-status"><div class="intel-col-dot" id="nDot"></div><span class="intel-col-count" id="nCount">0</span></div></div><div class="intel-feed" id="nFeed"><div class="intel-empty"><i class="fas fa-satellite-dish"></i>Connecting to relays...<div class="intel-loader"></div></div></div></div>
-<div class="intel-col"><div class="intel-col-head"><div class="intel-col-icon x"><i class="fab fa-x-twitter"></i></div><span class="intel-col-name">X Propagation</span><div class="intel-col-status"><div class="intel-col-dot" id="xDot"></div><span class="intel-col-count" id="xCount">0</span></div></div><div class="intel-feed" id="xFeed"><div class="intel-empty"><i class="fab fa-x-twitter"></i>Monitoring X channels...<div class="intel-loader"></div></div></div></div>
-<div class="intel-col"><div class="intel-col-head"><div class="intel-col-icon yt"><i class="fas fa-quote-left"></i></div><span class="intel-col-name">Voice Intel</span><div class="intel-col-status"><span class="intel-col-count" id="qCount">0</span></div></div><div class="intel-feed" id="qFeed"><div class="intel-empty"><i class="fas fa-quote-left"></i>Loading insights...<div class="intel-loader"></div></div></div></div>
-</div></div>
-<div class="sec" id="series"><div class="sec-lab">02 — Original Series</div><h2 class="sec-h">Cinematic Deep Dives</h2><p class="sec-desc">Long-form explorations of the books and ideas reshaping monetary thinking.</p>
-<div class="sg">{% for s in series_list %}<div class="sc" onclick="toggleSD('{{ s.key }}')"><div class="sc-img-w"><img class="sc-img" src="https://img.youtube.com/vi/{{ s.first_id }}/hqdefault.jpg" alt="{{ s.title }}" loading="lazy" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ s.first_id }}/mqdefault.jpg'"><div class="sc-ov"></div><div class="sc-play"><i class="fas fa-play"></i></div><div class="sc-badge">{{ s.ep_count }} episodes</div></div><div class="sc-body"><div class="sc-host">{{ s.host }}</div><h3 class="sc-name">{{ s.title }}</h3><p class="sc-desc">{{ s.description }}</p></div></div>{% endfor %}</div>
-<div id="sdPanel" class="sd"><div class="sd-top"><h3 class="sd-title" id="sdTitle"></h3><button class="sd-x" onclick="closeSD()"><i class="fas fa-times"></i></button></div><div class="sd-main"><div class="sd-vid"><iframe id="sdIf" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div><div class="sd-eps" id="sdEps"></div></div></div></div>
-<div class="sec" id="podcasts"><div class="sec-lab">03 — Cypherpunk'd Podcast</div><h2 class="sec-h">Latest Episodes</h2><p class="sec-desc">Conversations with builders, thinkers, and disruptors at the frontier of sound money.</p>
-<div class="pod-grid">{% for ep in latest_episodes %}<div class="pod-card" onclick="playEp('{{ ep.audio_url }}','{{ ep.title|replace("'","") }}')"><div class="pod-num mono">{{ '%02d'|format(loop.index) }}</div><div class="pod-title">{{ ep.title }}</div><div class="pod-meta"><span class="pod-dur mono">{{ ep.duration or '--:--' }}</span><div class="pod-play-btn"><i class="fas fa-play"></i></div></div></div>{% endfor %}</div>
-<a href="/podcasts" class="pod-more">View all episodes <i class="fas fa-arrow-right"></i></a></div>
-<div class="sec" id="books"><div class="sec-lab">04 — Essential Reading</div><h2 class="sec-h">The Library</h2><p class="sec-desc">The books that shaped Cypherpunk'd. Every link supports Protocol Pulse.</p>
-<div class="bcat">Featured on Podcast</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='series' %}<div class="bc" style="cursor:pointer" onclick="showSeriesPanel(this,event)" data-title="{{ b.title }}" data-author="{{ b.author }}" data-url="{{ b.amazon_url }}" data-color="{{ b.get('color','#333') }}" data-desc="{{ b.get('description','A deep dive into the ideas that shaped the Bitcoin movement.') }}" data-episodes="{{ b.get('episode_count',0) }}"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">{% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}<div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></div>{% endif %}{% endfor %}</div>
-<div class="bcat">Bitcoin Essentials</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='essential' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">{% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}<div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div>
-<button class="btog" id="btog" onclick="togB()"><i class="fas fa-chevron-down"></i><span>Show More — Bestsellers & Economics</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--mut)">{{ all_books|selectattr('category','in',['bestseller','economics'])|list|length }} titles</span></button>
-<div class="bhid" id="bmore"><div class="bcat" style="margin-top:20px">Bitcoin Bestsellers</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='bestseller' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">{% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}<div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div>
-<div class="bcat">Austrian Economics</div><div class="bg">{% for b in all_books %}{% if b.get('category')=='economics' %}<a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc"><div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">{% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}<div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div><div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div></div><div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div></a>{% endif %}{% endfor %}</div></div></div>
-<div class="sec" id="subscribe"><div class="nl"><h2 class="nl-h">The signal. Every morning.</h2><p class="nl-p">Daily intelligence brief + weekly premium digest.</p><form class="nl-f" action="/newsletter/subscribe" method="POST"><input type="email" name="email" class="nl-i" placeholder="your@email.com" required><button type="submit" class="nl-b">Subscribe</button></form></div></div>
-</div></div>
-<div id="seriesModal" class="sm-overlay" onclick="if(event.target===this)closeSeriesPanel()">
-<div class="sm-panel">
-<button class="sm-close" onclick="closeSeriesPanel()"><i class="fas fa-times"></i></button>
-<div class="sm-header">
-<div class="sm-cover" id="smCover"></div>
-<div class="sm-info"><h3 class="sm-title" id="smTitle"></h3><p class="sm-author" id="smAuthor"></p></div>
+<div class="mh">
+
+<!-- ═══════════ LIVE TICKER ═══════════ -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="tickerTrack">
+    {% if ticker_items %}
+      {% for t in ticker_items %}{% for _ in range(2) %}
+      <a class="ticker-item" href="{{ t.url }}" target="_blank" rel="noopener">
+        <span class="ticker-src">{{ t.source }}</span>
+        <span class="ticker-title">{{ t.title }}</span>
+        {% if t.score >= 70 %}<span class="ticker-score high">{{ t.score }}</span>
+        {% elif t.score >= 40 %}<span class="ticker-score mid">{{ t.score }}</span>
+        {% else %}<span class="ticker-score low">{{ t.score }}</span>{% endif %}
+        {% if t.time %}<span class="fi-time">{{ t.time }}</span>{% endif %}
+      </a>
+      <div class="ticker-sep"></div>
+      {% endfor %}{% endfor %}
+    {% else %}
+      <span class="ticker-item"><span class="ticker-src">LOADING</span><span class="ticker-title">Syncing feeds...</span></span>
+    {% endif %}
+  </div>
 </div>
-<p class="sm-desc" id="smDesc"></p>
-<div class="sm-eps" id="smEps"></div>
-<a href="#" id="smLink" target="_blank" rel="noopener" class="sm-cta"><i class="fas fa-book"></i> Get the Full Series</a>
+
+<div class="wrap">
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <div class="hero-bg"><div class="hero-grid"></div><div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div><div class="hero-orb hero-orb-3"></div><div class="hero-scanline"></div><div class="hero-vignette"></div></div>
+  <div class="hero-inner">
+    <div class="hero-tag"><div class="hero-tag-dot"></div><span class="hero-tag-text">Media Command Center</span></div>
+    <h1 class="hero-h">Every <em>Voice</em>. Every <em>Signal</em>.</h1>
+    <p class="hero-sub">The definitive Bitcoin media hub. {{ feed_stats.get('feed_count', 0) }} feeds aggregated. Live podcasts, YouTube intelligence, and KOL signals — one screen.</p>
+    <div class="hero-metrics">
+      <div class="hero-metric"><div class="hero-metric-val mono">{{ feed_stats.get('feed_count', 0) }}</div><div class="hero-metric-lab">Feeds</div></div>
+      <div class="hero-metric"><div class="hero-metric-val mono">{{ feed_stats.get('podcast_count', 0) }}</div><div class="hero-metric-lab">Podcast Episodes</div></div>
+      <div class="hero-metric"><div class="hero-metric-val mono">{{ feed_stats.get('video_count', 0) }}</div><div class="hero-metric-lab">Videos</div></div>
+      <div class="hero-metric"><div class="hero-metric-val mono" id="liveN">0</div><div class="hero-metric-lab">Live Notes</div></div>
+    </div>
+  </div>
 </div>
+
+<!-- ═══════════ FEED MATRIX ═══════════ -->
+<div class="sec" id="feeds">
+  <div class="sec-lab">01 — Feed Matrix</div>
+  <h2 class="sec-h">Three Intelligence Streams</h2>
+  <p class="sec-desc">Podcasts, video intelligence, and live KOL signals — all aggregated, scored, and sorted by signal strength.</p>
+
+  <div class="feed-matrix">
+    <!-- COLUMN 1: PODCASTS -->
+    <div class="feed-col">
+      <div class="feed-col-head">
+        <div class="feed-col-icon pod"><i class="fas fa-microphone-alt"></i></div>
+        <span class="feed-col-name">Podcasts</span>
+        <span class="feed-col-count">{{ feed_matrix.podcasts|length }}</span>
+      </div>
+      <div class="feed-list" id="podFeed">
+        {% if feed_matrix.podcasts %}
+          {% for ep in feed_matrix.podcasts %}
+          <div class="fi" {% if ep.audio_url %}onclick="playEp('{{ ep.audio_url }}','{{ ep.title|e }}','{{ ep.feed_name|e }}')"{% endif %}>
+            <div class="fi-head">
+              {% if ep.thumbnail_url %}<img class="fi-thumb" src="{{ ep.thumbnail_url }}" alt="" loading="lazy" onerror="this.style.display='none'">{% endif %}
+              <div class="fi-info">
+                <div class="fi-show">{{ ep.feed_name }}</div>
+                <div class="fi-title">{{ ep.title }}</div>
+              </div>
+            </div>
+            {% if ep.summary_ai %}<div class="fi-summary">{{ ep.summary_ai }}</div>{% endif %}
+            <div class="fi-meta">
+              {% if ep.duration %}<span class="fi-dur"><i class="far fa-clock"></i> {{ ep.duration }}</span>{% endif %}
+              {% if ep.published_at %}<span class="fi-time">{{ ep.published_at[:10] }}</span>{% endif %}
+              {% if ep.signal_score >= 70 %}<span class="fi-score s-high">{{ ep.signal_score }}</span>
+              {% elif ep.signal_score >= 40 %}<span class="fi-score s-mid">{{ ep.signal_score }}</span>
+              {% elif ep.signal_score > 0 %}<span class="fi-score s-low">{{ ep.signal_score }}</span>{% endif %}
+            </div>
+            {% if ep.audio_url %}<button class="fi-play"><i class="fas fa-play"></i> Play Episode</button>{% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="fi-empty">
+            <div class="skel skel-item"><div class="skel skel-title"></div><div class="skel skel-sub"></div><div class="skel skel-bar"></div></div>
+            <div class="skel skel-item"><div class="skel skel-title"></div><div class="skel skel-sub"></div><div class="skel skel-bar"></div></div>
+            <div class="skel skel-item"><div class="skel skel-title"></div><div class="skel skel-sub"></div><div class="skel skel-bar"></div></div>
+            <p style="margin-top:12px;font-size:11px;color:var(--mut)">Syncing 13 podcast feeds...</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- COLUMN 2: VIDEO -->
+    <div class="feed-col">
+      <div class="feed-col-head">
+        <div class="feed-col-icon vid"><i class="fab fa-youtube"></i></div>
+        <span class="feed-col-name">Video Intel</span>
+        <span class="feed-col-count">{{ feed_matrix.videos|length }}</span>
+      </div>
+      <div class="feed-list" id="vidFeed">
+        {% if feed_matrix.videos %}
+          {% for ep in feed_matrix.videos %}
+          <a class="fi" href="{{ ep.video_url or ep.source_url }}" target="_blank" rel="noopener">
+            <div class="fi-head">
+              {% if ep.thumbnail_url %}<div class="fi-thumb-yt" style="background-image:url('{{ ep.thumbnail_url }}');background-size:cover"></div>{% endif %}
+              <div class="fi-info">
+                <div class="fi-show">{{ ep.feed_name }}</div>
+                <div class="fi-title">{{ ep.title }}</div>
+              </div>
+            </div>
+            {% if ep.summary_ai %}<div class="fi-summary">{{ ep.summary_ai }}</div>{% endif %}
+            <div class="fi-meta">
+              {% if ep.published_at %}<span class="fi-time">{{ ep.published_at[:10] }}</span>{% endif %}
+              {% if ep.signal_score >= 70 %}<span class="fi-score s-high">{{ ep.signal_score }}</span>
+              {% elif ep.signal_score >= 40 %}<span class="fi-score s-mid">{{ ep.signal_score }}</span>
+              {% elif ep.signal_score > 0 %}<span class="fi-score s-low">{{ ep.signal_score }}</span>{% endif %}
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="fi-empty">
+            <div class="skel skel-item"><div class="skel skel-title"></div><div class="skel skel-sub"></div><div class="skel skel-bar"></div></div>
+            <div class="skel skel-item"><div class="skel skel-title"></div><div class="skel skel-sub"></div><div class="skel skel-bar"></div></div>
+            <div class="skel skel-item"><div class="skel skel-title"></div><div class="skel skel-sub"></div><div class="skel skel-bar"></div></div>
+            <p style="margin-top:12px;font-size:11px;color:var(--mut)">Syncing 7 YouTube channels...</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- COLUMN 3: KOL / NOSTR LIVE -->
+    <div class="feed-col">
+      <div class="feed-col-head">
+        <div class="feed-col-icon kol"><i class="fas fa-bolt"></i></div>
+        <span class="feed-col-name">KOL Intel</span>
+        <span class="feed-col-count" id="kolCount">0</span>
+      </div>
+      <div class="feed-list" id="kolFeed">
+        <div class="fi-empty"><i class="fas fa-satellite-dish" style="font-size:20px;opacity:.3;display:block;margin-bottom:8px"></i>Connecting to Nostr relays...<div class="kol-loader"></div></div>
+      </div>
+    </div>
+  </div>
 </div>
-<div id="abar" class="abar"><button onclick="togA()" style="background:none;border:none;color:var(--sec);font-size:16px;cursor:pointer;padding:4px 8px"><i id="aIcon" class="fas fa-pause"></i></button><div class="abar-now" id="aNow">Now Playing...</div><button onclick="stopA()" style="background:none;border:none;color:var(--mut);cursor:pointer;font-size:12px"><i class="fas fa-times"></i></button><audio id="aEl"></audio></div>
+
+<!-- ═══════════ ORIGINAL SERIES ═══════════ -->
+<div class="sec" id="series">
+  <div class="sec-lab">02 — Original Series</div>
+  <h2 class="sec-h">Cinematic Deep Dives</h2>
+  <p class="sec-desc">Long-form explorations of the books and ideas reshaping monetary thinking.</p>
+  <div class="sg">
+    {% for s in series_list %}
+    <div class="sc" onclick="toggleSD('{{ s.key }}')">
+      <div class="sc-img-w">
+        <img class="sc-img" src="https://img.youtube.com/vi/{{ s.first_id }}/hqdefault.jpg" alt="{{ s.title }}" loading="lazy" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ s.first_id }}/mqdefault.jpg'">
+        <div class="sc-ov"></div>
+        <div class="sc-play"><i class="fas fa-play"></i></div>
+        <div class="sc-badge">{{ s.ep_count }} episodes</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-host">{{ s.host }}</div>
+        <h3 class="sc-name">{{ s.title }}</h3>
+        <p class="sc-desc">{{ s.description }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div id="sdPanel" class="sd">
+    <div class="sd-top"><h3 class="sd-title" id="sdTitle"></h3><button class="sd-x" onclick="closeSD()"><i class="fas fa-times"></i></button></div>
+    <div class="sd-main"><div class="sd-vid"><iframe id="sdIf" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div><div class="sd-eps" id="sdEps"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════ CYPHERPUNKD PODCAST ═══════════ -->
+<div class="sec" id="podcasts">
+  <div class="sec-lab">03 — Cypherpunk'd Podcast</div>
+  <h2 class="sec-h">Latest Episodes</h2>
+  <p class="sec-desc">Conversations with builders, thinkers, and disruptors at the frontier of sound money.</p>
+  <div class="pod-grid">
+    {% for ep in latest_episodes %}
+    <div class="pod-card" onclick="playEp('{{ ep.audio_url }}','{{ ep.title|replace("'","") }}','Cypherpunkd')">
+      <div class="pod-num mono">{{ '%02d'|format(loop.index) }}</div>
+      <div class="pod-title">{{ ep.title }}</div>
+      <div class="pod-meta">
+        <span class="pod-dur mono">{{ ep.duration or '--:--' }}</span>
+        <div class="pod-play-btn"><i class="fas fa-play"></i></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <a href="/podcasts" class="pod-more">View all episodes <i class="fas fa-arrow-right"></i></a>
+</div>
+
+<!-- ═══════════ BOOKS ═══════════ -->
+<div class="sec" id="books">
+  <div class="sec-lab">04 — Essential Reading</div>
+  <h2 class="sec-h">The Library</h2>
+  <p class="sec-desc">The books that shaped Cypherpunk'd. Every link supports Protocol Pulse.</p>
+  <div class="bcat">Featured on Podcast</div>
+  <div class="bg">
+    {% for b in all_books %}{% if b.get('category')=='series' %}
+    <div class="bc" style="cursor:pointer" onclick="window.open('{{ b.amazon_url }}','_blank')">
+      <div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">
+        {% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}
+        <div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div>
+        <div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div>
+      </div>
+      <div class="bc-info"><div class="bc-badge">Series</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div>
+    </div>
+    {% endif %}{% endfor %}
+  </div>
+  <div class="bcat">Bitcoin Essentials</div>
+  <div class="bg">
+    {% for b in all_books %}{% if b.get('category')=='essential' %}
+    <a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc">
+      <div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">
+        {% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}
+        <div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div>
+        <div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div>
+      </div>
+      <div class="bc-info"><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div>
+    </a>
+    {% endif %}{% endfor %}
+  </div>
+  <button class="btog" id="btog" onclick="togB()"><i class="fas fa-chevron-down"></i><span>Show More — Bestsellers & Economics</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--mut)">{{ all_books|selectattr('category','in',['bestseller','economics'])|list|length }} titles</span></button>
+  <div class="bhid" id="bmore">
+    <div class="bcat" style="margin-top:20px">Bitcoin Bestsellers</div>
+    <div class="bg">
+      {% for b in all_books %}{% if b.get('category')=='bestseller' %}
+      <a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc">
+        <div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">
+          {% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}
+          <div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div>
+          <div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div>
+        </div>
+        <div class="bc-info"><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div>
+      </a>
+      {% endif %}{% endfor %}
+    </div>
+    <div class="bcat">Austrian Economics</div>
+    <div class="bg">
+      {% for b in all_books %}{% if b.get('category')=='economics' %}
+      <a href="{{ b.amazon_url }}" target="_blank" rel="noopener" class="bc">
+        <div class="bc-cov" style="background:linear-gradient(160deg, {{ b.get('color','#333') }}15, {{ b.get('color','#333') }}05)">
+          {% if b.get('cover_url') %}<img class="bc-img" src="{{ b.cover_url }}" alt="{{ b.title }}" loading="lazy" onerror="this.style.display='none'">{% endif %}
+          <div class="bc-spine" style="background:{{ b.get('color','#333') }}"></div>
+          <div class="bc-txt"><div class="bc-txt-t">{{ b.title }}</div><div class="bc-txt-a">{{ b.author }}</div></div>
+        </div>
+        <div class="bc-info"><div class="bc-badge econ">Economics</div><div class="bc-name">{{ b.title }}</div><div class="bc-auth">{{ b.author }}</div></div>
+      </a>
+      {% endif %}{% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ NEWSLETTER CTA ═══════════ -->
+<div class="sec" id="subscribe">
+  <div class="nl">
+    <h2 class="nl-h">The signal. Every morning.</h2>
+    <p class="nl-p">Daily intelligence brief + weekly premium digest.</p>
+    <form class="nl-f" action="/newsletter/subscribe" method="POST">
+      <input type="email" name="email" class="nl-i" placeholder="your@email.com" required>
+      <button type="submit" class="nl-b">Subscribe</button>
+    </form>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+</div><!-- .mh -->
+
+<!-- ═══════════ AUDIO PLAYER BAR ═══════════ -->
+<div id="abar" class="abar">
+  <button class="abar-btn" onclick="togA()" id="aPlayBtn"><i id="aIcon" class="fas fa-pause"></i></button>
+  <div class="abar-now">
+    <div class="abar-show" id="aShow"></div>
+    <div class="abar-title" id="aNow">Now Playing...</div>
+    <div class="abar-progress" onclick="seekA(event)"><div class="abar-progress-fill" id="aProgress"></div></div>
+  </div>
+  <button class="abar-close" onclick="stopA()"><i class="fas fa-times"></i></button>
+  <audio id="aEl"></audio>
+</div>
+
 {% endblock %}
+
 {% block scripts %}
 <script>
+/* ── Series Player ── */
 var SD={{ series_data|tojson }},curS=null;
 function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+ep.title+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
 function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
 function closeSD(){document.getElementById('sdIf').src='';document.getElementById('sdPanel').classList.remove('active');curS=null}
+
+/* ── Audio Player ── */
 var au=document.getElementById('aEl'),pl=false;
-function playEp(u,t){if(!u)return;au.src=u;au.play();pl=true;document.getElementById('aNow').textContent=t;document.getElementById('aIcon').className='fas fa-pause';document.getElementById('abar').classList.add('active')}
+function playEp(u,t,show){if(!u)return;au.src=u;au.play().catch(function(){});pl=true;document.getElementById('aNow').textContent=t;document.getElementById('aShow').textContent=show||'';document.getElementById('aIcon').className='fas fa-pause';document.getElementById('abar').classList.add('active')}
 function togA(){if(pl){au.pause();document.getElementById('aIcon').className='fas fa-play'}else{au.play();document.getElementById('aIcon').className='fas fa-pause'}pl=!pl}
 function stopA(){au.pause();au.src='';pl=false;document.getElementById('abar').classList.remove('active')}
+function seekA(e){if(!au.duration)return;var r=e.currentTarget.getBoundingClientRect();var p=(e.clientX-r.left)/r.width;au.currentTime=au.duration*p}
+au.addEventListener('timeupdate',function(){if(au.duration){document.getElementById('aProgress').style.width=(au.currentTime/au.duration*100)+'%'}});
+au.addEventListener('ended',function(){stopA()});
+
+/* ── Books Toggle ── */
 function togB(){document.getElementById('bmore').classList.toggle('show');document.getElementById('btog').classList.toggle('open')}
+
+/* ── Nostr Live Feed (KOL Column) ── */
 var RELAYS=['wss://relay.damus.io','wss://nos.lol','wss://relay.nostr.band','wss://relay.primal.net'];
 var V={'82341f882b6eabcd2ba7f1ef90aad961cf074af15b9ef44a09f9d2a8fbfbe6a2':{n:'Jack Dorsey',i:'JD',c:'protocol',x:'jack'},'fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52':{n:'Adam Back',i:'AB',c:'protocol',x:'adam3us'},'e88a691e98d9987c964521dff60025f60700378a4879180dcbbb4a5027850411':{n:'NVK',i:'NV',c:'protocol',x:'nvk'},'04c915daefee38317fa734444acee390a8269fe5810b2241e5e6dd343dfbecc9':{n:'ODELL',i:'MO',c:'protocol',x:'ODELL'},'3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d':{n:'Fiatjaf',i:'FJ',c:'protocol',x:'fiatjaf'},'eab0e756d32b80bcd464f3d844b8040303075a13eabc3599a762c9ac7ab91f4f':{n:'Lyn Alden',i:'LA',c:'macro',x:'LynAldenContact'},'85080d3bad70ccdcd7f74c29a44f55bb85cbcd3dd0cbb957da1d215bdb931204':{n:'Preston Pysh',i:'PP',c:'macro',x:'PrestonPysh'},'472f440f29ef996e92a186b8d320ff180c855903882e59d50de1b8bd5669301e':{n:'Marty Bent',i:'MB',c:'media',x:'MartyBent'},'50d94fc2d8580571ee61726abcbcfb7d8e93d66b2ed13740ad0c39cd4de10dba':{n:'American HODL',i:'AH',c:'media',x:'americanhodl8'},'1989034e56b8f606c724f45a12ce84a11841621aaf7182a1f6564f578f2571a0':{n:'Jeff Booth',i:'JB',c:'macro',x:'JeffBooth'},'a341f45ff9758f570a21b000c17d4e53a3a497c8397f26c0e6d61e5acffc7a98':{n:'Saifedean',i:'SA',c:'macro',x:'saifedean'},'5d1d83de3ee5e3009d57e4a2af8bfa4a1b5b1a58f6ec4fd290dba6e048bae9ae':{n:'Natalie Brunell',i:'NB',c:'media',x:'natbrunell'},'4523be58d395b1b196a9b8c82b038b6895cb02b683d0c253a955068dba1facd0':{n:'Michael Saylor',i:'MS',c:'macro',x:'saylor'},'58c741aa630c2da35a56a77c1d05381908bd10504b7519571f2cdae6ce2b993d':{n:'Jameson Lopp',i:'JL',c:'protocol',x:'lopp'},'edcd20558f17d99327d841e4582f9b006331ac4010571eb77dc79c55f1a295c8':{n:'Willy Woo',i:'WW',c:'macro',x:'woonomic'}};
-var pks=Object.keys(V),seen={},nCt=0,xCt=0,rUp=0;
-function startNostr(){RELAYS.forEach(function(url){try{var ws=new WebSocket(url);ws.onopen=function(){rUp++;updND();ws.send(JSON.stringify(["REQ","pp",{kinds:[1],authors:pks,limit:30}]))};ws.onmessage=function(e){try{var m=JSON.parse(e.data);if(m[0]==='EVENT'&&m[2]&&!seen[m[2].id]){seen[m[2].id]=1;var ev=m[2];if(ev.content&&ev.content.length>15){var isReply=ev.tags&&ev.tags.some(function(t){return t[0]==='e'});if(!isReply){addN(ev);if((ev.id.charCodeAt(0)%10)>5)addX(ev)}}}}catch(x){}};ws.onclose=function(){rUp=Math.max(0,rUp-1);updND()};ws.onerror=function(){}}catch(x){}})}
-function updND(){document.getElementById('nDot').style.background=rUp>0?'var(--green)':'var(--red)'}
-function mkAv(v){return '<div class="fi-av '+v.c+'">'+v.i+'</div>'}
-function addN(ev){nCt++;document.getElementById('nCount').textContent=nCt;document.getElementById('liveN').textContent=nCt+xCt;var f=document.getElementById('nFeed');if(f.querySelector('.intel-empty'))f.innerHTML='';var v=V[ev.pubkey]||{n:ev.pubkey.substring(0,8)+'...',i:'??',c:'protocol'};var txt=escH(ev.content);txt=txt.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/\n/g,'<br>');if(txt.length>400)txt=txt.substring(0,400)+'...';var el=document.createElement('div');el.className='fi new';el.innerHTML='<div class="fi-head">'+mkAv(v)+'<span class="fi-name">'+v.n+'</span><span class="fi-time">'+tAgo(ev.created_at)+'</span></div><div class="fi-body">'+txt+'</div><div class="fi-foot"><a href="https://njump.me/'+ev.id+'" target="_blank" class="fi-act"><i class="fas fa-external-link-alt"></i> nostr</a></div>';f.insertBefore(el,f.firstChild);while(f.children.length>40)f.removeChild(f.lastChild)}
-function addX(ev){xCt++;document.getElementById('xCount').textContent=xCt;document.getElementById('liveN').textContent=nCt+xCt;document.getElementById('xDot').style.background='var(--green)';var f=document.getElementById('xFeed');if(f.querySelector('.intel-empty'))f.innerHTML='';var v=V[ev.pubkey]||{n:ev.pubkey.substring(0,8)+'...',i:'??',c:'protocol',x:''};var txt=escH(ev.content);txt=txt.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/\n/g,'<br>');if(txt.length>300)txt=txt.substring(0,300)+'...';var xUrl=v.x?'https://x.com/'+v.x:'#';var el=document.createElement('div');el.className='fi new';el.innerHTML='<div class="fi-head">'+mkAv(v)+'<span class="fi-name">'+v.n+'</span><span class="fi-time">'+tAgo(ev.created_at)+'</span></div><div class="fi-body">'+txt+'</div><div class="fi-foot"><a href="'+xUrl+'" target="_blank" class="fi-act"><i class="fab fa-x-twitter"></i> @'+v.x+'</a></div>';f.insertBefore(el,f.firstChild);while(f.children.length>30)f.removeChild(f.lastChild)}
-var QUOTES=[{n:'Michael Saylor',i:'MS',c:'macro',q:'Bitcoin is the apex property of the human race.',s:'What Bitcoin Did'},{n:'Lyn Alden',i:'LA',c:'macro',q:'The fiscal deficit is the single most important variable for Bitcoin price.',s:'The Investor Podcast'},{n:'Jeff Booth',i:'JB',c:'macro',q:'Technology is deflationary. Central banks print money to offset it.',s:'Bitcoin 2025'},{n:'Preston Pysh',i:'PP',c:'macro',q:'Lightning settles faster than Visa and costs less than a penny.',s:'We Study Billionaires'},{n:'Jack Dorsey',i:'JD',c:'protocol',q:'Nostr is what Twitter should have been.',s:'Nostr Dev Conf'},{n:'Adam Back',i:'AB',c:'protocol',q:'Every generation of cryptographers dreamed of digital cash. Satoshi made it work.',s:'Cypherpunk History'},{n:'Saifedean',i:'SA',c:'macro',q:'Hard money forces low time preference. Fiat money destroys it.',s:'BTC Standard Pod'},{n:'Natalie Brunell',i:'NB',c:'media',q:'Every major bank is quietly building Bitcoin infrastructure.',s:'Coin Stories'},{n:'Marty Bent',i:'MB',c:'media',q:'Bitcoin mining solves the stranded energy problem.',s:'TFTC Podcast'},{n:'American HODL',i:'AH',c:'media',q:'Two types of people: those who understand Bitcoin, and those who will.',s:'BTC Spaces'},{n:'Jameson Lopp',i:'JL',c:'protocol',q:'Self-custody is the entire point. Without it, you have nothing.',s:'Security Workshop'},{n:'Willy Woo',i:'WW',c:'macro',q:'Whales are accumulating at levels not seen since 2020.',s:'BTC Forecast'},{n:'NVK',i:'NV',c:'protocol',q:'The best hardware wallet is the one you actually use.',s:'Coldcard Update'},{n:'Fiatjaf',i:'FJ',c:'protocol',q:'Open protocols always win against closed platforms.',s:'Nostr Talk'},{n:'ODELL',i:'MO',c:'protocol',q:'Privacy is about having something to protect.',s:'Citadel Dispatch'}];
-var qCt=0;function startQuotes(){var f=document.getElementById('qFeed');f.innerHTML='';var now=Math.floor(Date.now()/1000);QUOTES.forEach(function(q,i){setTimeout(function(){var el=document.createElement('div');el.className='fi new'+(i<3?' fi-pin':'');var ts=now-(i*1800);  /* deterministic stagger: 30min per quote */el.innerHTML='<div class="fi-head">'+mkAv(q)+'<span class="fi-name">'+q.n+'</span><span class="fi-time">'+tAgo(ts)+'</span></div><div class="fi-body fi-quote '+q.c+'">\"'+q.q+'\"<div class="fi-src">'+q.s+'</div></div>';f.insertBefore(el,f.firstChild);qCt++;document.getElementById('qCount').textContent=qCt;while(f.children.length>20)f.removeChild(f.lastChild)},i*500)})}
+var pks=Object.keys(V),seen={},kolCt=0,rUp=0;
+
+function startNostr(){
+  RELAYS.forEach(function(url){
+    try{
+      var ws=new WebSocket(url);
+      ws.onopen=function(){rUp++;ws.send(JSON.stringify(["REQ","pp",{kinds:[1],authors:pks,limit:30}]))};
+      ws.onmessage=function(e){
+        try{
+          var m=JSON.parse(e.data);
+          if(m[0]==='EVENT'&&m[2]&&!seen[m[2].id]){
+            seen[m[2].id]=1;
+            var ev=m[2];
+            if(ev.content&&ev.content.length>15){
+              var isReply=ev.tags&&ev.tags.some(function(t){return t[0]==='e'});
+              if(!isReply) addKol(ev);
+            }
+          }
+        }catch(x){}
+      };
+      ws.onclose=function(){rUp=Math.max(0,rUp-1)};
+    }catch(x){}
+  });
+}
+
+function addKol(ev){
+  kolCt++;
+  document.getElementById('kolCount').textContent=kolCt;
+  document.getElementById('liveN').textContent=kolCt;
+  var f=document.getElementById('kolFeed');
+  if(f.querySelector('.fi-empty'))f.innerHTML='';
+  var v=V[ev.pubkey]||{n:ev.pubkey.substring(0,8)+'...',i:'??',c:'protocol',x:''};
+  var txt=escH(ev.content);
+  txt=txt.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,'<br>');
+  if(txt.length>400)txt=txt.substring(0,400)+'...';
+  var xUrl=v.x?'https://x.com/'+v.x:'#';
+  var el=document.createElement('div');
+  el.className='kol-item';
+  el.style.animation='fadeUp .4s ease';
+  el.innerHTML='<div class="kol-head"><div class="kol-av '+v.c+'">'+v.i+'</div><span class="kol-name">'+v.n+'</span><span class="kol-time">'+tAgo(ev.created_at)+'</span></div><div class="kol-body">'+txt+'</div><div class="kol-foot"><a href="https://njump.me/'+ev.id+'" target="_blank" rel="noopener" class="kol-link"><i class="fas fa-external-link-alt"></i> nostr</a><a href="'+xUrl+'" target="_blank" rel="noopener" class="kol-link"><i class="fab fa-x-twitter"></i> @'+v.x+'</a></div>';
+  f.insertBefore(el,f.firstChild);
+  while(f.children.length>40)f.removeChild(f.lastChild);
+}
+
 function escH(t){var d=document.createElement('div');d.appendChild(document.createTextNode(t));return d.innerHTML}
 function tAgo(ts){var d=Math.floor(Date.now()/1000)-ts;if(d<60)return'now';if(d<3600)return Math.floor(d/60)+'m';if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'d'}
-function showSeriesPanel(el,ev){if(ev){ev.preventDefault();ev.stopPropagation()}var t=el.dataset.title,a=el.dataset.author,u=el.dataset.url,c=el.dataset.color||'#333',d=el.dataset.desc,ep=parseInt(el.dataset.episodes)||0;document.getElementById('smTitle').textContent=t;document.getElementById('smAuthor').textContent=a;document.getElementById('smCover').style.background='linear-gradient(160deg,'+c+'30,'+c+'10)';document.getElementById('smDesc').textContent=d;document.getElementById('smLink').href=u;document.getElementById('smEps').textContent=ep>0?ep+' episodes available':'Episodes coming soon';document.getElementById('seriesModal').classList.add('active')}
-function closeSeriesPanel(){document.getElementById('seriesModal').classList.remove('active')}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD();closeSeriesPanel()}});
-startNostr();setTimeout(startQuotes,1200);
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD()}});
+startNostr();
+
+/* ── Auto-refresh feeds via AJAX ── */
+(function(){
+  var podF=document.getElementById('podFeed');
+  var vidF=document.getElementById('vidFeed');
+  if(podF&&podF.querySelector('.fi-empty')){
+    // Feeds empty on first load — trigger sync and poll
+    fetch('/api/media/sync',{method:'POST'}).catch(function(){});
+    setTimeout(function pollFeeds(){
+      fetch('/api/media/matrix').then(function(r){return r.json()}).then(function(d){
+        if(d.podcasts&&d.podcasts.length>0){
+          location.reload();
+        }else{
+          setTimeout(pollFeeds,15000);
+        }
+      }).catch(function(){setTimeout(pollFeeds,30000)});
+    },20000);
+  }
+})();
 </script>
 {% endblock %}
