@@ -78,7 +78,12 @@ body { background: var(--s-bg); }
 .stage-topbar__ticker-inner:hover { animation-play-state: paused; }
 @media (max-width: 768px) {
   .stage-topbar__ticker-inner {
-    animation-duration: 45s;
+    animation-duration: 60s;
+  }
+}
+@media (max-width: 480px) {
+  .stage-topbar__ticker-inner {
+    animation-duration: 80s;
   }
 }
 @keyframes ticker-scroll {
@@ -250,7 +255,7 @@ body { background: var(--s-bg); }
   position: relative;
 }
 .stage-narrative::before {
-  content: 'ORACLE NARRATIVE';
+  content: 'SATOMI NARRATIVE';
   font-family: var(--s-mono); font-size: 8px; letter-spacing: .22em;
   color: var(--s-red); display: block; margin-bottom: 6px;
 }
@@ -716,7 +721,7 @@ body { background: var(--s-bg); }
         </span>
         <span class="ticker-item"><span class="ti-sep">·</span></span>
         <span class="ticker-item">
-          <span class="ti-label">ORACLE</span>
+          <span class="ti-label">SATOMI</span>
           <span class="ti-val" id="tickerOracle">Standing By</span>
         </span>
         <span class="ticker-item"><span class="ti-sep">·</span></span>
@@ -736,7 +741,7 @@ body { background: var(--s-bg); }
         </span>
         <span class="ticker-item"><span class="ti-sep">·</span></span>
         <span class="ticker-item">
-          <span class="ti-label">ORACLE</span>
+          <span class="ti-label">SATOMI</span>
           <span class="ti-val">Standing By</span>
         </span>
         <span class="ticker-item"><span class="ti-sep">·</span></span>
@@ -2220,16 +2225,56 @@ body { background: var(--s-bg); }
 
   function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 
+  // ── TOPBAR TICKER DATA ──────────────────────────────
+  function updateTopbarTicker() {
+    fetch('/api/stage/intel')
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if (!d) return;
+        var price = d.price_float || 0;
+        var fng = d.sentiment_score || '';
+        var fngLabel = d.sentiment_label || '';
+        var hashrate = d.hashrate_eh || '';
+        var priceStr = price ? '$' + Number(price).toLocaleString('en-US',{maximumFractionDigits:0}) : '---';
+        var sentStr = (fng && fngLabel) ? fng + ' \u00b7 ' + fngLabel.toUpperCase() : '\u2014';
+        var netStr = hashrate ? hashrate + ' EH/s' : '\u2014';
+        ['tickerPrice','tickerPrice2'].forEach(function(id){
+          var el = document.getElementById(id); if(el) el.textContent = priceStr;
+        });
+        ['tickerSentiment','tickerSentiment2'].forEach(function(id){
+          var el = document.getElementById(id); if(el) el.textContent = sentStr;
+        });
+        ['tickerTopics','tickerTopics2'].forEach(function(id){
+          var el = document.getElementById(id); if(el) el.textContent = netStr;
+        });
+      })
+      .catch(function(){});
+    // Fallback: direct BTC price if intel doesn't have it
+    fetch('/api/btc-price')
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if (!d || !d.price) return;
+        var priceStr = '$' + Number(d.price).toLocaleString('en-US',{maximumFractionDigits:0});
+        ['tickerPrice','tickerPrice2'].forEach(function(id){
+          var el = document.getElementById(id);
+          if(el && (el.textContent === '---' || el.textContent === 'Loading\u2026')) el.textContent = priceStr;
+        });
+      })
+      .catch(function(){});
+  }
+
   // ── INIT ──────────────────────────────────────────────
   loadIntel();
   loadTranscripts();
   loadNostr();
   loadBriefingSchedule();
+  updateTopbarTicker();
 
   // P1.4: Reduce polling to 30s
   setInterval(loadIntel, 30000);
   setInterval(loadNostr, 30000);
   setInterval(loadBriefingSchedule, 300000);
+  setInterval(updateTopbarTicker, 30000);
 
   // P0.4: Listen for custom event instead of monkey-patching
   function initTxDots(){

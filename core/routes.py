@@ -8941,6 +8941,30 @@ def _fetch_block_height():
         return None
 
 
+@app.route('/api/btc-price')
+def api_btc_price():
+    """Live BTC price endpoint used by nav ticker and stage."""
+    price = _fetch_btc_price()
+    if price:
+        return jsonify({'price': price, 'change_24h': 0})
+    # Fallback: CoinGecko with 24h change
+    try:
+        r = requests.get(
+            'https://api.coingecko.com/api/v3/simple/price',
+            params={'ids': 'bitcoin', 'vs_currencies': 'usd', 'include_24hr_change': 'true'},
+            timeout=5, headers={'User-Agent': 'ProtocolPulse/1.0'}
+        )
+        if r.ok:
+            d = r.json()
+            return jsonify({
+                'price': d.get('bitcoin', {}).get('usd', 0),
+                'change_24h': round(d.get('bitcoin', {}).get('usd_24h_change', 0), 2),
+            })
+    except Exception:
+        pass
+    return jsonify({'price': 0, 'change_24h': 0}), 200
+
+
 # ── Page Route ────────────────────────────────────────────────────────────────
 
 @app.route("/charts")

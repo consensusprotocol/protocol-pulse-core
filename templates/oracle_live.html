@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta http-equiv="Permissions-Policy" content="microphone=*, camera=*">
-<title>Oracle · Protocol Pulse</title>
+<title>Satomi · Protocol Pulse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="preload" href="/oracle/thinking" as="video" type="video/mp4">
@@ -255,7 +255,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 #oracle-float.speaking{border-color:#6cff9f;animation:mini-pulse 0.8s ease-in-out infinite}
 /* Tooltip */
 #oracle-float::after{
-  content:"Talk to Oracle";
+  content:"Talk to Satomi";
   position:absolute;right:80px;
   background:#0f1117;border:1px solid #1e2235;border-radius:4px;
   padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;
@@ -631,14 +631,14 @@ width:100%;margin-top:4px;">
     <div class="ring ring-1"></div>
     <div class="ring ring-2"></div>
     <div class="sigil-avatar">
-      <img src="/static/oracle_avatar.png" alt="Oracle"
+      <img src="/static/oracle_avatar.png" alt="Satomi"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="sigil-fallback" style="display:none">⚡</div>
     </div>
     <div class="sigil-scan"></div>
   </div>
 
-  <h1 class="gate-title">THE <span>ORACLE</span></h1>
+  <h1 class="gate-title">THE <span>SATOMI</span></h1>
   <p class="gate-sub">Sovereign Bitcoin intelligence.<br>Ask anything, in real time.</p>
 
   <button id="gate-btn" onclick="requestMic()">
@@ -651,7 +651,7 @@ width:100%;margin-top:4px;">
           <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
           <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        Speak to the Oracle
+        Speak to Satomi
       </div>
     </div>
   </button>
@@ -664,9 +664,9 @@ width:100%;margin-top:4px;">
 <div id="stage">
 
   <div class="topbar">
-    <span class="topbar-brand">Oracle</span>
+    <span class="topbar-brand">Satomi</span>
     <div class="live-pill"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
-    <a href="/" style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:22px;text-decoration:none;padding:4px 10px;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'" aria-label="Exit Oracle" title="Go to homepage">&times;</a>
+    <a href="/" style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:22px;text-decoration:none;padding:4px 10px;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'" aria-label="Exit Satomi" title="Go to homepage">&times;</a>
   </div>
 
   <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
@@ -704,7 +704,7 @@ width:100%;margin-top:4px;">
   <!-- Vision status + Camera button -->
   <div id="vision-status"></div>
   <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:4px">
-    <button id="cam-btn" onclick="triggerCamera()" title="Show Oracle your screen — it will guide you step by step">
+    <button id="cam-btn" onclick="triggerCamera()" title="Show Satomi your screen — she will guide you step by step">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#556" stroke-width="1.5" stroke-linecap="round"/>
         <circle cx="12" cy="13" r="4" stroke="#556" stroke-width="1.5"/>
@@ -763,7 +763,7 @@ document.addEventListener('gesturestart',function(e){e.preventDefault();},{passi
 document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault();},{passive:false});
 var A='https://avatar.protocolpulse.io';
 var S={
-  GREETING:"Hey. I'm the Oracle — tracking everything happening in Bitcoin right now. On-chain, macro, geopolitical. What brings you here?",
+  GREETING:"Hey. I'm Satomi — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?",
   SOVEREIGNTY_INTRO:"Your sovereignty score is a snapshot of how free you actually are — how much of your financial life you've pulled out of legacy systems.",
   SOVEREIGNTY_ASSESSMENT:"Four pillars: self-custody of your Bitcoin, your own node, private comms, and no KYC on your income. Where are you today?",
   SOVEREIGNTY_COLD_WALLET:"If your Bitcoin is on an exchange, it's not yours — it's an IOU. A hardware wallet fixes that. I can walk you through it.",
@@ -1003,7 +1003,7 @@ function playIntent(intent){
   if(busy&&intent!=='GREETING')return;
   if(intent.indexOf('DAILY_BRIEF')===0&&window._briefFetched)return;
   setBusy(true);
-  setStat('Oracle loading...','#f4c46f',true);
+  setStat('Satomi loading...','#f4c46f',true);
   // Progress messages so user knows it's working, not broken
   var _loadMsgs = ['Initializing...','Rendering response...','Almost ready...'];
   var _loadIdx = 0;
@@ -1013,7 +1013,6 @@ function playIntent(intent){
     else clearInterval(_loadTimer);
   }, 6000);
   var _clearTimer = function(){ clearInterval(_loadTimer); };
-  showSub(S[intent]||'');
   fetchTO(A+'/oracle/speak',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -1046,7 +1045,7 @@ function playIntent(intent){
   })
   .catch(function(e){
     if(e&&e.message&&e.message.indexOf('HTTP')>=0)
-      setStat('Oracle error — try again.','#ff3b5f',false);
+      setStat('Satomi error — try again.','#ff3b5f',false);
   })
   .finally(function(){
     setBusy(false);
@@ -1064,7 +1063,7 @@ function process(text){
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
   setOracleState('PROCESSING');
   setBusy(true);hideCards();hideActionCard();showTX(text);
-  setStat('Oracle thinking...','#f4c46f',true);
+  setStat('Satomi thinking...','#f4c46f',true);
 
   // Phase 2 T1.4: Play thinking loop immediately for instant visual feedback
   vid.src=A+'/oracle/thinking';
@@ -1279,7 +1278,7 @@ function process(text){
     if(e&&(e.message||'').indexOf('timeout')>=0){
       setStat('','#334',false);
     } else if(e&&e.message&&e.message.indexOf('HTTP')>=0){
-      setStat('Oracle error — try again.','#ff3b5f',false);
+      setStat('Satomi error — try again.','#ff3b5f',false);
     }
   })
   .finally(function(){
@@ -1428,7 +1427,7 @@ function handleVisionUpload(evt){
   var file = evt.target.files[0];
   if(!file) return;
   if (busy) {
-    showVisionStatus('Oracle is speaking — wait a moment');
+    showVisionStatus('Satomi is speaking — wait a moment');
     setTimeout(hideVisionStatus, 2000);
     evt.target.value = "";
     return;
