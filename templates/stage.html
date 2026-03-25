@@ -784,9 +784,9 @@ body { background: var(--s-bg); }
           <video class="stage-avatar-vid" id="avatarVid"
                  playsinline webkit-playsinline muted preload="auto"
                  style="display:block;opacity:1;"></video>
-          <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;" onclick="stageWake()">
+          <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.88);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;border:2px solid rgba(251,146,60,.4);transition:border-color .3s;" onmouseenter="this.style.borderColor='rgba(251,146,60,.8)'" onmouseleave="this.style.borderColor='rgba(251,146,60,.4)'" onclick="stageWake()">
             <div style="font-size:48px;">&#9889;</div>
-            <div id="stage-tap-label" style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">Tuning Signal<span id="stage-tap-dots" style="display:inline-block;width:1.5em;text-align:left;">.</span></div>
+            <div id="stage-tap-label" style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">⚡ Start Broadcast<span id="stage-tap-dots" style="display:none" style="display:inline-block;width:1.5em;text-align:left;">.</span></div>
           </div>
           <div class="stage-avatar-scanline"></div>
           <div class="stage-avatar-nameplate">
@@ -1080,7 +1080,7 @@ body { background: var(--s-bg); }
       }
     })
     .catch(function(){
-      safeText(document.getElementById('narrativeText'), 'Intel feed offline — retrying in 30s');
+      // Intel feed temporarily unavailable - retrying silently
       safeText(document.getElementById('tickerOracle'), 'Offline');
     });
   }
@@ -2318,7 +2318,7 @@ body { background: var(--s-bg); }
         clearInterval(_stageReadyPoller);
         clearInterval(dotAnim);
         if (label) {
-          label.textContent = 'TAP TO BEGIN BROADCAST';
+          label.textContent = '⚡ START BROADCAST';
           label.style.opacity = '1';
         }
         var ov = document.getElementById('stage-wake');
@@ -2329,7 +2329,7 @@ body { background: var(--s-bg); }
         // Pre-render timed out — still allow broadcast start (renders on-the-fly)
         _preRenderReady = true;
         if (label) {
-          label.textContent = 'TAP TO BEGIN BROADCAST';
+          label.textContent = '⚡ START BROADCAST';
           label.style.opacity = '1';
         }
         var ov = document.getElementById('stage-wake');
