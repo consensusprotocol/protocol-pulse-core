@@ -547,8 +547,15 @@ def terminal_redirect():
 
 @app.route('/signal-terminal')
 def signal_terminal():
-    """Signal Terminal — redirects to /terminal (Bloomberg-grade rebuild)."""
-    return redirect(url_for('pulse_terminal'))
+    """Signal Terminal — Bloomberg-grade Bitcoin intelligence dashboard."""
+    from services.price_service import PriceService
+    try:
+        ps = PriceService()
+        prices = ps.get_prices()
+        btc_price = prices.get('bitcoin', {}).get('price', 0) if prices else 0
+    except:
+        btc_price = 0
+    return render_template('signal_terminal.html', btc_price=btc_price)
 
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
@@ -3524,6 +3531,40 @@ def sentiment_dashboard():
         anomaly_events=anomaly_events,
     )
 
+
+
+@app.route('/intelligence')
+def intelligence_main():
+    """Intelligence Terminal main page."""
+    return render_template('intelligence_terminal.html')
+
+@app.route('/intelligence/scenarios')
+def intelligence_scenarios():
+    """Intelligence Terminal - Scenarios tab."""
+    try:
+        return render_template('intelligence_terminal.html', active_tab='scenarios')
+    except Exception as e:
+        return render_template('intelligence_terminal.html'), 200
+
+@app.route('/intelligence/alerts')
+def intelligence_alerts():
+    """Intelligence Terminal - Alerts tab."""
+    return render_template('intelligence_terminal.html', active_tab='alerts')
+
+@app.route('/intelligence/stats')
+def intelligence_stats():
+    """Intelligence Terminal - Stats tab."""
+    return render_template('intelligence_terminal.html', active_tab='stats')
+
+@app.route('/intelligence/backtest')
+def intelligence_backtest():
+    """Intelligence Terminal - Backtest tab."""
+    return render_template('intelligence_terminal.html', active_tab='backtest')
+
+@app.route('/intelligence/api')
+def intelligence_api():
+    """Intelligence Terminal - API tab."""
+    return render_template('intelligence_terminal.html', active_tab='api')
 
 @app.route('/intelligence/legacy')
 def intelligence_page():
