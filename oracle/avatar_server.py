@@ -55,7 +55,7 @@ from blink_engine import apply_blink_gradient, generate_blink_schedule
 PORT = 8200
 
 # ─── Greeting pre-render cache ────────────────────────────────────────
-GREETING_TEXT = "Hey. I'm Satomi — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?"
+GREETING_TEXT = "Hey. I'm Sah-toe-mee — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?"
 _GREETING_CACHE_PATH = '/home/ultron/protocol_pulse/oracle/cache/satomi_greeting_cache.mp4'
 
 # Max seconds for a full video render before returning audio-only fallback

@@ -41,38 +41,37 @@ def get_client():
     return Client(TWILIO_SID, TWILIO_AUTH)
 
 
-def generate_incoming_twiml(brief_text: str = None) -> str:
+def generate_incoming_twiml(brief_text: str = None, greeting_prefix: str = None) -> str:
     """
-    TwiML response for when someone calls our Twilio number.
-    Satomi greets them and delivers the latest brief.
+    TwiML response — direct brief delivery, no menu. Warm greeting + date/time + live brief.
     """
+    import datetime
     resp = VoiceResponse()
 
-    # Gather optional: press 1 for full brief, 2 for market summary, hang up for closing
-    gather = Gather(num_digits=1, timeout=3, action='/api/satomi/voice/choice')
-    gather.say(
-        "Hello. I'm Satomi, your Protocol Pulse signal anchor. "
-        "Press 1 for the full intelligence brief. "
-        "Press 2 for a quick market summary. "
-        "Or stay on the line for today's top signal.",
-        voice='Polly.Joanna-Neural',
-        language='en-US'
-    )
-    resp.append(gather)
-
-    # Default: read the brief if no key pressed
-    if brief_text:
-        # Clean text for TTS
-        clean = re.sub(r'[*#_`]', '', brief_text)[:1500]  # max 1500 chars for TTS
-        resp.say(clean, voice='Polly.Joanna-Neural', language='en-US')
+    # Build time-aware greeting
+    now = datetime.datetime.now()
+    hour = now.hour
+    if hour < 12:
+        tod = "Good morning"
+    elif hour < 17:
+        tod = "Good afternoon"
     else:
-        resp.say(
-            "Bitcoin intelligence is loading. Stay sovereign.",
-            voice='Polly.Joanna-Neural',
-            language='en-US'
-        )
+        tod = "Good evening"
+    day_name = now.strftime("%A")
+    month_day = now.strftime("%B %d")
+    time_str = now.strftime("%I:%M %p").lstrip("0")
 
-    resp.say("Signal complete. Stay sovereign.", voice='Polly.Joanna-Neural')
+    opening = (greeting_prefix or
+        f"{tod}. It is {day_name}, {month_day} at {time_str} Eastern. "
+        "This is your Protocol Pulse intelligence signal.")
+
+    if brief_text:
+        clean = re.sub(r'[*#_`]', '', brief_text)[:1800]
+        full_script = f"{opening} {clean} That concludes your briefing. Stay sovereign."
+    else:
+        full_script = f"{opening} Bitcoin intelligence is active. Network fundamentals strong. Stay sovereign."
+
+    resp.say(full_script, voice='Polly.Joanna-Neural', language='en-US')
     return str(resp)
 
 
