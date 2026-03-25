@@ -126,10 +126,10 @@ PHONEME_MAP = {
     r'\bPompliano\b':         'Pom-plee-AH-no',
     r'\bPomp\b':             'Pomp',
     r'\bTimechain\b':         'time-chain',
-    r'\b(\d+)B\b':            r'\1 billion',
     r'\$(\d+)B\b':            r'\1 billion dollars',
     r'\$(\d+)M\b':            r'\1 million dollars',
     r'\$(\d+)T\b':            r'\1 trillion dollars',
+    r'\b(\d+)B\b':            r'\1 billion',
 }
 
 # ── Affiliate / product catalog ────────────────────────────────────────────
