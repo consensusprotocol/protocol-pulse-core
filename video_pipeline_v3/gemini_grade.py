@@ -19,6 +19,74 @@ OUTPUT_DIR = str(PIPELINE_DIR / 'output')
 GRADES_DIR = str(PIPELINE_DIR / 'logs' / 'grades')
 
 
+def upload_video_to_gemini(video_path, gemini_key):
+    """Upload video file to Gemini Files API. Returns file URI or None."""
+    import mimetypes
+    file_size = os.path.getsize(video_path)
+    log(f"Uploading {file_size/1048576:.1f}MB video to Gemini Files API...")
+
+    # Resumable upload initiation
+    init_url = f"https://generativelanguage.googleapis.com/upload/v1beta/files?key={gemini_key}"
+    mime = "video/mp4"
+    init_headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Upload-Protocol": "resumable",
+        "X-Goog-Upload-Command": "start",
+        "X-Goog-Upload-Header-Content-Type": mime,
+        "X-Goog-Upload-Header-Content-Length": str(file_size),
+    }
+    init_body = json.dumps({"file": {"display_name": os.path.basename(video_path)}}).encode()
+
+    try:
+        init_req = urllib.request.Request(init_url, data=init_body, headers=init_headers, method="POST")
+        with urllib.request.urlopen(init_req, timeout=30) as r:
+            upload_url = r.headers.get("X-Goog-Upload-URL")
+        if not upload_url:
+            log("Upload init failed — no upload URL returned")
+            return None
+
+        # Upload file bytes
+        with open(video_path, "rb") as f:
+            video_bytes = f.read()
+
+        upload_headers = {
+            "Content-Length": str(file_size),
+            "X-Goog-Upload-Offset": "0",
+            "X-Goog-Upload-Command": "upload, finalize",
+        }
+        upload_req = urllib.request.Request(upload_url, data=video_bytes, headers=upload_headers, method="PUT")
+        with urllib.request.urlopen(upload_req, timeout=120) as r:
+            result = json.loads(r.read())
+            file_uri = result.get("file", {}).get("uri")
+            file_name = result.get("file", {}).get("name", "")
+            log(f"Video uploaded: {file_uri}")
+
+        # Poll until file is ACTIVE (Gemini processes video after upload)
+        if file_name:
+            status_url = f"https://generativelanguage.googleapis.com/v1beta/{file_name}?key={gemini_key}"
+            for attempt in range(30):  # up to ~150s wait
+                time.sleep(5)
+                try:
+                    status_req = urllib.request.Request(status_url, method="GET")
+                    with urllib.request.urlopen(status_req, timeout=15) as sr:
+                        status_data = json.loads(sr.read())
+                        state = status_data.get("state", "UNKNOWN")
+                        if state == "ACTIVE":
+                            log(f"File ready (ACTIVE) after {(attempt+1)*5}s")
+                            break
+                        log(f"File state: {state} — waiting... ({(attempt+1)*5}s)")
+                except Exception as poll_err:
+                    log(f"Status poll error: {poll_err}")
+            else:
+                log("File never became ACTIVE after 150s — falling back to text-only")
+                return None
+
+        return file_uri
+    except Exception as e:
+        log(f"Video upload failed: {e} — falling back to text-only grading")
+        return None
+
+
 def load_env():
     """Load .env file with error handling (audit P1-2)."""
     try:
@@ -229,6 +297,13 @@ def main():
     except Exception as _et_err:
         log(f"Episode title extraction failed: {_et_err}")
 
+    # ── Upload video to Gemini Files API for two-pass grading ────────
+    file_uri = upload_video_to_gemini(LATEST, GEMINI_KEY)
+    if file_uri:
+        log("Video upload successful — two-pass grading enabled")
+    else:
+        log("Video upload skipped — text-only grading (fallback)")
+
     # ── Build Gemini prompt ───────────────────────────────────────────
     log("Building Gemini grading prompt...")
 
@@ -352,12 +427,33 @@ Grade thresholds:
 Note: Episodes 8-15 minutes (480-900s) are the ideal target format. 5 clips is the target.
 """
 
+    if file_uri:
+        PROMPT = """You have been provided the actual video file to watch.
+Score ALL dimensions based on what you actually see and hear.
+Do NOT write 'Assumed' for any dimension — watch the video.
+For host_authenticity: watch for lip sync quality, natural pacing,
+eye blinks, head movement. Score based on actual observation.
+For no_artifacts: watch for freeze frames, stuttering, compression
+artifacts, black flashes. Score based on actual observation.
+For visual_polish: observe the lower thirds, transitions, cyberpunk
+aesthetic. Score based on actual observation.
+
+""" + PROMPT
+
     # ── Call Gemini ───────────────────────────────────────────────────
     log("Calling Gemini 2.5 Pro for grading (this may take 30-60s)...")
 
     url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={GEMINI_KEY}'
+    if file_uri:
+        parts_list = [
+            {"file_data": {"mime_type": "video/mp4", "file_uri": file_uri}},
+            {"text": PROMPT}
+        ]
+    else:
+        parts_list = [{"text": PROMPT}]
+
     payload = {
-        'contents': [{'parts': [{'text': PROMPT}]}],
+        'contents': [{'parts': parts_list}],
         'generationConfig': {'maxOutputTokens': 8000, 'temperature': 0.05}
     }
 
@@ -366,7 +462,7 @@ Note: Episodes 8-15 minutes (480-900s) are the ideal target format. 5 clips is t
         headers={'Content-Type': 'application/json'})
 
     try:
-        with urllib.request.urlopen(req_obj, timeout=90) as resp:
+        with urllib.request.urlopen(req_obj, timeout=180) as resp:
             d = json.loads(resp.read())
             parts = d['candidates'][0]['content'].get('parts', [])
             text = next((p['text'] for p in parts if 'text' in p), None)
@@ -416,6 +512,17 @@ Note: Episodes 8-15 minutes (480-900s) are the ideal target format. 5 clips is t
     with open(per_render_path, 'w') as f:
         json.dump(result, f, indent=2)
     log(f"Per-render grade saved to {per_render_path}")
+
+    # ── Clean up uploaded file from Gemini ─────────────────────────────
+    if file_uri:
+        file_id = file_uri.split("/files/")[-1]
+        del_url = f"https://generativelanguage.googleapis.com/v1beta/files/{file_id}?key={GEMINI_KEY}"
+        try:
+            del_req = urllib.request.Request(del_url, method="DELETE")
+            urllib.request.urlopen(del_req, timeout=15)
+            log(f"Cleaned up uploaded file: {file_id}")
+        except Exception as e:
+            log(f"File cleanup failed (non-fatal): {e}")
 
     # ── Print full scorecard ──────────────────────────────────────────
     log("=" * 60)
