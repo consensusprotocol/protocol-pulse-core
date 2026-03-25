@@ -4506,7 +4506,7 @@ body {
 }
 
 /* ============================================
-   TXID STREAM — Live Transaction Hero
+   STELLAR NEBULA — ORB + TXID STREAM HERO
    ============================================ */
 #nebula-hero {
     position: relative;
@@ -4514,13 +4514,32 @@ body {
     height: 100vh;
     min-height: 600px;
     overflow: hidden;
-    background: #0A0A0F;
-    border: 2px solid rgba(220, 38, 38, 0.25);
+    background: radial-gradient(ellipse at 50% 50%, #12080a 0%, #0A0A0F 60%, #050508 100%);
     display: flex;
     flex-direction: column;
 }
 
-/* Top HUD */
+/* Corner glows */
+#nebula-hero::before,
+#nebula-hero::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+#nebula-hero::before {
+    top: -120px; left: -120px;
+    background: radial-gradient(circle, rgba(204,0,0,0.12) 0%, transparent 70%);
+}
+#nebula-hero::after {
+    bottom: -120px; right: -120px;
+    background: radial-gradient(circle, rgba(248,193,92,0.08) 0%, transparent 70%);
+}
+
+/* ── HUD BAR ── */
 .txid-hud {
     flex-shrink: 0;
     height: 56px;
@@ -4528,11 +4547,14 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    background: rgba(10, 10, 15, 0.92);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.78rem;
     z-index: 10;
+    position: relative;
 }
 
 .txid-hud__left {
@@ -4589,39 +4611,95 @@ body {
     50% { opacity: 0.35; }
 }
 
-/* Main body: left mempool + right blocks */
+/* ── TWO-PANEL BODY ── */
 .txid-body {
     flex: 1;
     display: flex;
     overflow: hidden;
     min-height: 0;
+    position: relative;
+    z-index: 1;
 }
 
-/* LEFT: Mempool Stream */
+/* ── LEFT: TXID STREAM (45%) ── */
 .txid-mempool {
-    flex: 0 0 65%;
+    flex: 0 0 45%;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    padding: 16px;
+}
+
+.txid-mempool__glass {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(10, 10, 15, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(204, 0, 0, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(204, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Red gradient glow on top edge */
+.txid-mempool__glass::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #CC0000, #F8C15C, #CC0000, transparent);
+    z-index: 1;
 }
 
 .txid-mempool__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 14px 20px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 0.72rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
+}
+
+.txid-mempool__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #CC0000;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.txid-mempool__title-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #CC0000;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+.txid-mempool__live-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #fff;
+    background: #CC0000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    animation: livePulse 2s ease-in-out infinite;
 }
 
 .txid-mempool__rate {
     display: flex;
     align-items: center;
     gap: 6px;
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .txid-mempool__rate-dot {
@@ -4635,45 +4713,69 @@ body {
     flex: 1;
     overflow: hidden;
     position: relative;
-    padding: 6px 12px;
+    padding: 8px 14px;
 }
 
-/* Bottom fade for smooth scroll-off */
 .txid-mempool__stream::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     height: 80px;
-    background: linear-gradient(to bottom, transparent, #0A0A0F);
+    background: linear-gradient(to bottom, transparent, rgba(10, 10, 15, 0.95));
     pointer-events: none;
     z-index: 2;
+}
+
+.txid-mempool__footer {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.35);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.txid-mempool__footer-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #22c55e;
 }
 
 /* TX Card */
 .tx-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 14px;
+    gap: 10px;
+    padding: 9px 14px;
     margin-bottom: 4px;
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 3px solid transparent;
+    border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
     animation: txSlideIn 0.35s cubic-bezier(0.618, 0, 0.382, 1) both;
-    transition: border-color 0.2s, background 0.2s;
-    cursor: default;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 .tx-card:hover {
-    border-color: rgba(248, 193, 92, 0.18);
-    background: rgba(248, 193, 92, 0.04);
+    border-color: rgba(248, 193, 92, 0.25);
+    background: rgba(248, 193, 92, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(248, 193, 92, 0.08);
 }
 
+.tx-card--fee-low  { border-left-color: #22c55e; }
+.tx-card--fee-med  { border-left-color: rgba(255,255,255,0.4); }
+.tx-card--fee-high { border-left-color: #dc2626; }
+
 @keyframes txSlideIn {
-    from { opacity: 0; transform: translateY(-18px); }
+    from { opacity: 0; transform: translateY(-20px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -4689,11 +4791,19 @@ body {
     flex: 1;
 }
 
+.tx-card__amount {
+    color: rgba(255,255,255,0.85);
+    font-size: 10.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .tx-card__fee {
     font-size: 10px;
     font-weight: 600;
     padding: 2px 7px;
-    border-radius: 3px;
+    border-radius: 4px;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -4703,107 +4813,80 @@ body {
 .tx-card__fee--high { color: #dc2626; background: rgba(220, 38, 38, 0.12); }
 
 .tx-card__meta {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.35);
+    font-size: 9.5px;
+    color: rgba(255, 255, 255, 0.3);
     white-space: nowrap;
     flex-shrink: 0;
 }
 
-/* Divider between zones */
-.txid-divider {
-    width: 1px;
-    background: rgba(220, 38, 38, 0.25);
-    flex-shrink: 0;
-}
-
-/* RIGHT: Block Feed */
-.txid-blocks {
-    flex: 0 0 calc(35% - 1px);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+/* ── RIGHT: ORB PANEL (55%) ── */
+.orb-panel {
+    flex: 0 0 55%;
     position: relative;
+    overflow: hidden;
 }
 
-.txid-blocks__header {
-    padding: 10px 20px;
+.orb-panel canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Block confirmation overlay */
+.orb-block-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.4);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    flex-shrink: 0;
-}
-
-.txid-blocks__list {
-    flex: 1;
-    padding: 12px 16px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Block Card */
-.block-card {
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
-    padding: 16px;
-    animation: blockSlideIn 0.4s cubic-bezier(0.618, 0, 0.382, 1) both;
-}
-
-@keyframes blockSlideIn {
-    from { opacity: 0; transform: translateY(-24px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.block-card__height {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: #F8C15C;
-    margin-bottom: 6px;
+    text-shadow: 0 0 40px rgba(248, 193, 92, 0.6), 0 0 80px rgba(248, 193, 92, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    white-space: nowrap;
+    transition: none;
 }
 
-.block-card__badge {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    font-weight: 700;
-    color: #22c55e;
-    background: rgba(34, 197, 94, 0.15);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    padding: 2px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 10px;
+.orb-block-overlay.visible {
+    animation: blockTextPulse 2.5s ease-out forwards;
 }
 
-.block-card__stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+@keyframes blockTextPulse {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+    15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+    30%  { transform: translate(-50%, -50%) scale(1); }
+    70%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 
-.block-card__stat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.58rem;
-    color: rgba(255, 255, 255, 0.35);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+/* Expanding ring on block */
+.orb-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(248, 193, 92, 0.6);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0;
 }
 
-.block-card__stat-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.88);
+.orb-ring.active {
+    animation: ringExpand 1.5s ease-out forwards;
 }
 
-/* Block flash overlay */
+@keyframes ringExpand {
+    0%   { width: 60px; height: 60px; opacity: 0.8; border-width: 2px; }
+    100% { width: 500px; height: 500px; opacity: 0; border-width: 0.5px; }
+}
+
+/* Flash overlay on block */
 .txid-flash {
     position: absolute;
     inset: 0;
@@ -4814,11 +4897,11 @@ body {
 }
 
 .txid-flash.active {
-    animation: blockFlash 0.35s ease-out;
+    animation: blockFlash 0.3s ease-out;
 }
 
 @keyframes blockFlash {
-    0%   { opacity: 0.25; }
+    0%   { opacity: 0.2; }
     100% { opacity: 0; }
 }
 
@@ -4842,26 +4925,23 @@ body {
     display: flex;
 }
 
-/* Responsive */
+/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
     #nebula-hero {
         height: auto;
         min-height: 100vh;
     }
     .txid-body {
-        flex-direction: column;
+        flex-direction: column-reverse;
+    }
+    .orb-panel {
+        flex: none;
+        height: 50vh;
+        min-height: 300px;
     }
     .txid-mempool {
         flex: none;
-        height: 60vh;
-    }
-    .txid-divider {
-        width: 100%;
-        height: 1px;
-    }
-    .txid-blocks {
-        flex: none;
-        height: 40vh;
+        height: 50vh;
     }
     .txid-hud__left {
         gap: 0.8rem;
@@ -4869,6 +4949,7 @@ body {
     }
     .txid-hud__label { display: none; }
     .txid-hud { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+    .orb-block-overlay { font-size: 1.4rem; }
 }
 </style>
 {% endblock %}
@@ -4912,10 +4993,10 @@ body {
 
 
 <!-- ============================================
-     TXID STREAM — Real-time Bitcoin Transactions
+     STELLAR NEBULA — ORB + TXID STREAM HERO
      ============================================ -->
 <div id="nebula-hero">
-    <!-- Block flash overlay -->
+    <!-- Flash overlay -->
     <div class="txid-flash" id="txid-flash"></div>
 
     <!-- Signal interrupted overlay -->
@@ -4923,7 +5004,7 @@ body {
         <div><i class="fas fa-bolt" style="color:#F8C15C;margin-right:8px;"></i>SIGNAL INTERRUPTED — RECONNECTING</div>
     </div>
 
-    <!-- Top HUD -->
+    <!-- HUD BAR -->
     <div class="txid-hud">
         <div class="txid-hud__left">
             <div class="txid-hud__metric">
@@ -4953,34 +5034,41 @@ body {
         </div>
     </div>
 
-    <!-- Two-zone body -->
+    <!-- TWO-PANEL BODY -->
     <div class="txid-body">
-        <!-- LEFT: Mempool Stream -->
+        <!-- LEFT: Glassmorphic TXID Stream -->
         <div class="txid-mempool">
-            <div class="txid-mempool__header">
-                <div class="txid-mempool__rate">
-                    <span class="txid-mempool__rate-dot"></span>
-                    <span id="tx-rate">-- tx/min</span>
+            <div class="txid-mempool__glass">
+                <div class="txid-mempool__header">
+                    <div class="txid-mempool__title">
+                        <span class="txid-mempool__title-dot"></span>
+                        MEMPOOL STREAM
+                        <span class="txid-mempool__live-badge">LIVE</span>
+                    </div>
+                    <div class="txid-mempool__rate">
+                        <span class="txid-mempool__rate-dot"></span>
+                        <span id="tx-rate">-- tx/min</span>
+                    </div>
                 </div>
-                <span id="tx-unconfirmed">-- unconfirmed</span>
-            </div>
-            <div class="txid-mempool__stream" id="tx-stream">
-                <!-- TX cards injected here by JS -->
+                <div class="txid-mempool__stream" id="tx-stream">
+                    <!-- TX cards injected here by JS -->
+                </div>
+                <div class="txid-mempool__footer">
+                    <span class="txid-mempool__footer-dot"></span>
+                    <span id="tx-unconfirmed">--</span> unconfirmed
+                    <span style="margin-left:auto" id="tx-rate-footer"></span>
+                </div>
             </div>
         </div>
 
-        <!-- Divider -->
-        <div class="txid-divider"></div>
-
-        <!-- RIGHT: Block Feed -->
-        <div class="txid-blocks">
-            <div class="txid-blocks__header">Confirmed Blocks</div>
-            <div class="txid-blocks__list" id="block-list">
-                <!-- Block cards injected here by JS -->
-            </div>
+        <!-- RIGHT: Three.js Orb -->
+        <div class="orb-panel" id="orb-panel">
+            <div class="orb-block-overlay" id="orb-block-text"></div>
+            <div class="orb-ring" id="orb-ring"></div>
+            <!-- Three.js canvas injected here -->
         </div>
     </div>
-</div><!-- END TXID STREAM -->
+</div><!-- END STELLAR NEBULA -->
 
 <!-- ============================================
      ZONE 2: THE LOGIC ENGINE
@@ -7368,16 +7456,16 @@ function toggleIntelCard(card, event) {
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
 <!-- ============================================
-     TXID STREAM — Real-time Transaction Engine
-     DataService + WebSocket + DOM card stream
+     STELLAR NEBULA — ORB + TXID ENGINE
+     DataService + WebSocket + Three.js Orb + DOM stream
      ============================================ -->
 <script>
 (function() {
 'use strict';
 
-const MAX_TX_CARDS = 25;
-const MAX_BLOCK_CARDS = 5;
-const FNG_LABELS = {0:'Extreme Fear',25:'Fear',45:'Neutral',55:'Neutral',75:'Greed',100:'Extreme Greed'};
+const MAX_TX_CARDS = 20;
+const isMobile = window.innerWidth < 768;
+const MAX_PARTICLES = isMobile ? 40 : 300;
 
 // ===== NETWORK STATE =====
 window.NetworkState = {
@@ -7405,12 +7493,13 @@ const DataService = {
         setInterval(() => this.fetchFNG(), 300000);
         setInterval(() => this.fetchPrice(), 30000);
         this.healthTimer = setInterval(() => this.checkHealth(), 5000);
-        // TX rate counter: compute every 10s
         setInterval(() => {
-            this.txRateDisplay = Math.round(this.txCount10s * 6); // per min
+            this.txRateDisplay = Math.round(this.txCount10s * 6);
             this.txCount10s = 0;
             const el = document.getElementById('tx-rate');
             if (el) el.textContent = this.txRateDisplay + ' tx/min';
+            const el2 = document.getElementById('tx-rate-footer');
+            if (el2) el2.textContent = this.txRateDisplay + ' tx/min';
         }, 10000);
     },
 
@@ -7457,8 +7546,7 @@ const DataService = {
             const r = await fetch('https://api.alternative.me/fng/?limit=1');
             const d = await r.json();
             if (d.data && d.data[0]) {
-                const val = parseInt(d.data[0].value) || 50;
-                NetworkState.fng = val;
+                NetworkState.fng = parseInt(d.data[0].value) || 50;
                 NetworkState.fngLabel = d.data[0].value_classification || 'Neutral';
             }
             this.dispatch();
@@ -7497,15 +7585,12 @@ const DataService = {
                 try {
                     const msg = JSON.parse(evt.data);
 
-                    // Block event
                     if (msg.block) {
                         NetworkState.blockHeight = msg.block.height;
                         onBlockConfirmed(msg.block);
                     }
 
-                    // Mempool blocks — extract tx previews
                     if (msg.transactions) {
-                        // Direct transaction list from some WS messages
                         for (const tx of msg.transactions) {
                             addTxCard(tx);
                             this.txCount10s++;
@@ -7517,12 +7602,10 @@ const DataService = {
                         NetworkState.feeRate = mb.feeRange
                             ? mb.feeRange[mb.feeRange.length - 1]
                             : NetworkState.feeRate;
-                        // mempool-blocks contains nTx but not individual txids
-                        // We'll generate simulated tx cards from the fee data
                         if (mb.feeRange && mb.feeRange.length > 0) {
                             const count = Math.min(3, mb.feeRange.length);
                             for (let i = 0; i < count; i++) {
-                                addSimulatedTx(mb.feeRange[i], mb.medianFee || mb.feeRange[0]);
+                                addSimulatedTx(mb.feeRange[i]);
                                 this.txCount10s++;
                             }
                         }
@@ -7533,7 +7616,6 @@ const DataService = {
                         NetworkState.unconfirmedCount = msg.mempoolInfo.size || NetworkState.unconfirmedCount;
                     }
 
-                    // live-2h-chart often includes recent txids
                     if (msg['live-2h-chart'] && msg['live-2h-chart'].transactions) {
                         for (const tx of msg['live-2h-chart'].transactions.slice(0, 5)) {
                             addTxCard(tx);
@@ -7623,7 +7705,7 @@ function updateHUD() {
     }
     const ucEl = el('tx-unconfirmed');
     if (ucEl && s.unconfirmedCount) {
-        ucEl.textContent = s.unconfirmedCount.toLocaleString() + ' unconfirmed';
+        ucEl.textContent = s.unconfirmedCount.toLocaleString();
     }
 }
 document.addEventListener('network-update', updateHUD);
@@ -7638,9 +7720,15 @@ function feeClass(rate) {
     return 'tx-card__fee--high';
 }
 
+function feeBorderClass(rate) {
+    if (rate <= 2) return 'tx-card--fee-low';
+    if (rate <= 20) return 'tx-card--fee-med';
+    return 'tx-card--fee-high';
+}
+
 function truncTxid(txid) {
     if (!txid || txid.length < 16) return txid || '—';
-    return txid.slice(0, 8) + '...' + txid.slice(-8);
+    return txid.slice(0, 8) + '\u2026' + txid.slice(-8);
 }
 
 function addTxCard(tx) {
@@ -7649,35 +7737,38 @@ function addTxCard(tx) {
     if (!txid) return;
     if (txSeenIds.has(txid)) return;
     txSeenIds.add(txid);
-    // Keep set from growing unbounded
     if (txSeenIds.size > 500) {
         const arr = Array.from(txSeenIds);
         txSeenIds = new Set(arr.slice(arr.length - 250));
     }
 
     const fee = tx.fee || 0;
-    const vsize = tx.vsize || tx.weight ? Math.ceil((tx.weight || 0) / 4) : 0;
+    const vsize = tx.vsize || (tx.weight ? Math.ceil((tx.weight || 0) / 4) : 0);
     const feeRate = vsize > 0 ? Math.round(fee / vsize) : (tx.feePerVsize || tx.rate || NetworkState.feeRate);
+    const valueBtc = tx.value ? (tx.value / 1e8).toFixed(4) : '';
 
-    const card = document.createElement('div');
-    card.className = 'tx-card';
+    const card = document.createElement('a');
+    card.className = 'tx-card ' + feeBorderClass(feeRate);
+    card.href = 'https://mempool.space/tx/' + txid;
+    card.target = '_blank';
+    card.rel = 'noopener';
     card.innerHTML =
         '<span class="tx-card__txid">' + truncTxid(txid) + '</span>' +
+        (valueBtc ? '<span class="tx-card__amount">' + valueBtc + ' BTC</span>' : '') +
         '<span class="tx-card__fee ' + feeClass(feeRate) + '">' + feeRate + ' sat/vB</span>' +
         '<span class="tx-card__meta">' + (vsize > 0 ? vsize + ' vB' : '') + '</span>';
 
     txStream.insertBefore(card, txStream.firstChild);
 
-    // Trim to max
+    // Spawn orb particle
+    if (window.OrbEngine) window.OrbEngine.spawnParticle(feeRate, tx.value || 0);
+
     while (txStream.children.length > MAX_TX_CARDS) {
         txStream.removeChild(txStream.lastChild);
     }
 }
 
-// Simulated tx from fee data (when WS only gives fee ranges, not full txids)
-let simTxCounter = 0;
-function addSimulatedTx(feeRate, medianFee) {
-    // Generate a plausible-looking hex txid
+function addSimulatedTx(feeRate) {
     const hex = '0123456789abcdef';
     let fakeTxid = '';
     for (let i = 0; i < 64; i++) fakeTxid += hex[Math.floor(Math.random() * 16)];
@@ -7690,13 +7781,11 @@ function addSimulatedTx(feeRate, medianFee) {
     });
 }
 
-// Also poll recent txs directly for richer data
 async function fetchRecentTxs() {
     try {
         const r = await fetch('https://mempool.space/api/mempool/recent');
         const txs = await r.json();
         if (Array.isArray(txs)) {
-            // Add up to 5 newest
             for (const tx of txs.slice(0, 5)) {
                 addTxCard(tx);
                 DataService.txCount10s++;
@@ -7704,54 +7793,328 @@ async function fetchRecentTxs() {
         }
     } catch(e) {}
 }
-// Poll recent txs every 4s for a steady stream
 setInterval(fetchRecentTxs, 4000);
-// Initial fetch
 setTimeout(fetchRecentTxs, 500);
 
 // ===== BLOCK CONFIRMED =====
 function onBlockConfirmed(block) {
     const height = block.height || 0;
-    const txCount = block.tx_count || block.nTx || 0;
-    const totalFees = block.extras ? (block.extras.totalFees || 0) : 0;
-    const miner = block.extras ? (block.extras.pool ? block.extras.pool.name : '—') : '—';
-    const feesBtc = (totalFees / 1e8).toFixed(4);
 
-    // Flash effect
+    // Flash
     const flash = document.getElementById('txid-flash');
     if (flash) {
         flash.classList.remove('active');
-        void flash.offsetWidth; // force reflow
+        void flash.offsetWidth;
         flash.classList.add('active');
     }
 
-    // Build block card
-    const list = document.getElementById('block-list');
-    if (!list) return;
+    // Orb block pulse
+    if (window.OrbEngine) window.OrbEngine.onBlock();
 
-    const card = document.createElement('div');
-    card.className = 'block-card';
-    card.innerHTML =
-        '<div class="block-card__height">#' + height.toLocaleString() + '</div>' +
-        '<div class="block-card__badge">Block Confirmed</div>' +
-        '<div class="block-card__stats">' +
-            '<div><div class="block-card__stat-label">Transactions</div>' +
-            '<div class="block-card__stat-val">' + txCount.toLocaleString() + '</div></div>' +
-            '<div><div class="block-card__stat-label">Total Fees</div>' +
-            '<div class="block-card__stat-val">' + feesBtc + ' BTC</div></div>' +
-            '<div><div class="block-card__stat-label">Miner</div>' +
-            '<div class="block-card__stat-val">' + miner + '</div></div>' +
-            '<div><div class="block-card__stat-label">Size</div>' +
-            '<div class="block-card__stat-val">' + ((block.size || 0) / 1e6).toFixed(2) + ' MB</div></div>' +
-        '</div>';
+    // Block text overlay
+    const textEl = document.getElementById('orb-block-text');
+    if (textEl) {
+        textEl.textContent = 'BLOCK ' + height.toLocaleString();
+        textEl.classList.remove('visible');
+        void textEl.offsetWidth;
+        textEl.classList.add('visible');
+        setTimeout(() => textEl.classList.remove('visible'), 2600);
+    }
 
-    list.insertBefore(card, list.firstChild);
-
-    // Trim to max
-    while (list.children.length > MAX_BLOCK_CARDS) {
-        list.removeChild(list.lastChild);
+    // Expanding ring
+    const ring = document.getElementById('orb-ring');
+    if (ring) {
+        ring.classList.remove('active');
+        void ring.offsetWidth;
+        ring.classList.add('active');
+        setTimeout(() => ring.classList.remove('active'), 1600);
     }
 }
+
+// ===============================================================
+//  THREE.JS ORB ENGINE
+// ===============================================================
+window.OrbEngine = (function() {
+    const container = document.getElementById('orb-panel');
+    if (!container || typeof THREE === 'undefined') return {};
+
+    // Scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+    camera.position.set(0, 0, 4);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
+
+    // Post-processing (bloom) — desktop only
+    let composer = null;
+    if (!isMobile && typeof THREE.EffectComposer !== 'undefined') {
+        composer = new THREE.EffectComposer(renderer);
+        composer.addPass(new THREE.RenderPass(scene, camera));
+        const bloom = new THREE.UnrealBloomPass(
+            new THREE.Vector2(container.clientWidth, container.clientHeight),
+            1.5, 0.4, 0.1
+        );
+        composer.addPass(bloom);
+    }
+
+    // Lighting
+    const pointLight = new THREE.PointLight(0xF8C15C, 2, 10);
+    pointLight.position.set(0, 0, 0);
+    scene.add(pointLight);
+
+    const ambientLight = new THREE.AmbientLight(0x222244, 0.6);
+    scene.add(ambientLight);
+
+    // Core orb
+    const coreGeo = new THREE.SphereGeometry(1.2, 64, 64);
+    const coreMat = new THREE.MeshPhongMaterial({
+        color: 0xCC0000,
+        emissive: 0x880000,
+        emissiveIntensity: 0.6,
+        shininess: 80,
+        transparent: true,
+        opacity: 0.92
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    scene.add(coreMesh);
+
+    // Wireframe overlay
+    const wireMat = new THREE.MeshBasicMaterial({
+        color: 0xCC0000,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.15
+    });
+    const wireMesh = new THREE.Mesh(coreGeo, wireMat);
+    scene.add(wireMesh);
+
+    // Outer glow shells
+    const glowRadii = [1.4, 1.6, 1.8];
+    const glowOpacities = [0.06, 0.04, 0.02];
+    const glowMeshes = [];
+    glowRadii.forEach((r, i) => {
+        const geo = new THREE.SphereGeometry(r, 32, 32);
+        const mat = new THREE.MeshBasicMaterial({
+            color: 0xF8C15C,
+            transparent: true,
+            opacity: glowOpacities[i],
+            side: THREE.BackSide
+        });
+        const m = new THREE.Mesh(geo, mat);
+        scene.add(m);
+        glowMeshes.push(m);
+    });
+
+    // ── PARTICLE SYSTEM (InstancedMesh) ──
+    const particleGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+    const instancedParticles = new THREE.InstancedMesh(particleGeo, particleMat, MAX_PARTICLES);
+    instancedParticles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    // Per-instance color
+    instancedParticles.instanceColor = new THREE.InstancedBufferAttribute(
+        new Float32Array(MAX_PARTICLES * 3), 3
+    );
+    scene.add(instancedParticles);
+
+    // Particle data
+    const particles = [];
+    const dummy = new THREE.Object3D();
+    const colorObj = new THREE.Color();
+
+    function spawnParticle(feeRate, value) {
+        if (particles.length >= MAX_PARTICLES) return;
+
+        // Spawn at random edge of scene
+        const angle = Math.random() * Math.PI * 2;
+        const elevation = (Math.random() - 0.5) * 2;
+        const dist = 3.5 + Math.random();
+
+        const px = Math.cos(angle) * dist;
+        const py = elevation * 1.5;
+        const pz = Math.sin(angle) * dist * 0.6;
+
+        // Color based on fee
+        let col;
+        if (feeRate <= 2) col = 0xF8C15C;      // gold = low
+        else if (feeRate <= 20) col = 0xffffff;  // white = medium
+        else col = 0xCC0000;                     // red = high
+
+        // Size based on value (capped)
+        const scale = Math.min(0.8, 0.15 + (value / 1e8) * 0.3);
+
+        particles.push({
+            x: px, y: py, z: pz,
+            tx: 0, ty: 0, tz: 0, // target = orb center
+            progress: 0,
+            speed: 0.008 + Math.random() * 0.012,
+            color: col,
+            scale: scale,
+            curve: (Math.random() - 0.5) * 2 // curve offset
+        });
+    }
+
+    function updateParticles() {
+        let idx = 0;
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.progress += p.speed;
+
+            if (p.progress >= 1) {
+                // Absorbed into orb — small flash
+                orbFlashIntensity = Math.min(orbFlashIntensity + 0.15, 1.5);
+                particles.splice(i, 1);
+                continue;
+            }
+
+            // Curved path using quadratic bezier
+            const t = p.progress;
+            const inv = 1 - t;
+            // Control point offset
+            const cx = p.x * 0.5 + p.curve * 0.8;
+            const cy = p.y * 0.5 + p.curve * 0.6;
+            const cz = p.z * 0.5;
+
+            const posX = inv * inv * p.x + 2 * inv * t * cx + t * t * p.tx;
+            const posY = inv * inv * p.y + 2 * inv * t * cy + t * t * p.ty;
+            const posZ = inv * inv * p.z + 2 * inv * t * cz + t * t * p.tz;
+
+            dummy.position.set(posX, posY, posZ);
+            dummy.scale.setScalar(p.scale * (1 - t * 0.5));
+            dummy.updateMatrix();
+            instancedParticles.setMatrixAt(idx, dummy.matrix);
+
+            colorObj.setHex(p.color);
+            instancedParticles.instanceColor.setXYZ(idx, colorObj.r, colorObj.g, colorObj.b);
+
+            idx++;
+        }
+
+        // Hide unused instances
+        for (let i = idx; i < MAX_PARTICLES; i++) {
+            dummy.position.set(0, 0, -100);
+            dummy.scale.setScalar(0);
+            dummy.updateMatrix();
+            instancedParticles.setMatrixAt(i, dummy.matrix);
+        }
+
+        instancedParticles.instanceMatrix.needsUpdate = true;
+        instancedParticles.instanceColor.needsUpdate = true;
+        instancedParticles.count = MAX_PARTICLES;
+    }
+
+    // ── ORB STATE ──
+    let orbFlashIntensity = 0;
+    let blockPulseIntensity = 0;
+    let rotationSpeed = 0.002;
+    let targetRotationSpeed = 0.002;
+    let orbBrightness = 0.6;
+    let targetOrbBrightness = 0.6;
+
+    function onBlock() {
+        blockPulseIntensity = 3.0;
+        // Sweep all particles into orb
+        for (const p of particles) {
+            p.speed = 0.08;
+        }
+    }
+
+    // Respond to network data
+    document.addEventListener('network-update', function() {
+        const s = NetworkState;
+        // Price → brightness
+        if (s.btcPrice > 0) {
+            targetOrbBrightness = 0.4 + Math.min(1.2, s.btcPrice / 100000);
+        }
+        // Hashrate → rotation speed
+        if (s.hashrate > 0) {
+            targetRotationSpeed = 0.001 + (s.hashrate / 800) * 0.004;
+        }
+        // F&G → ambient color
+        if (s.fng > 0) {
+            const t = s.fng / 100;
+            // 0 = navy fear, 100 = gold greed
+            const fear = new THREE.Color(0x0a0a3a);
+            const greed = new THREE.Color(0x3a2a0a);
+            ambientLight.color.copy(fear).lerp(greed, t);
+        }
+        // Mempool congestion → glow color shift
+        const congested = s.mempoolVsize > 50;
+        glowMeshes.forEach(m => {
+            m.material.color.setHex(congested ? 0xCC0000 : 0xF8C15C);
+        });
+    });
+
+    // ── RESIZE ──
+    function resize() {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        if (composer) composer.setSize(w, h);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ── ANIMATION LOOP ──
+    const clock = new THREE.Clock();
+    function animate() {
+        requestAnimationFrame(animate);
+        const dt = clock.getDelta();
+        const time = clock.getElapsedTime();
+
+        // Smooth transitions
+        rotationSpeed += (targetRotationSpeed - rotationSpeed) * 0.02;
+        orbBrightness += (targetOrbBrightness - orbBrightness) * 0.02;
+
+        // Rotate orb
+        coreMesh.rotation.y += rotationSpeed;
+        coreMesh.rotation.x = Math.sin(time * 0.3) * 0.05;
+        wireMesh.rotation.y = coreMesh.rotation.y;
+        wireMesh.rotation.x = coreMesh.rotation.x;
+
+        // Orb emissive brightness
+        coreMat.emissiveIntensity = orbBrightness + orbFlashIntensity;
+        orbFlashIntensity *= 0.92;
+
+        // Block pulse — white flash on orb
+        if (blockPulseIntensity > 0.01) {
+            coreMat.emissive.setHex(0xffffff);
+            coreMat.emissiveIntensity = blockPulseIntensity;
+            pointLight.intensity = 2 + blockPulseIntensity * 3;
+            blockPulseIntensity *= 0.93;
+        } else {
+            coreMat.emissive.setHex(0x880000);
+            pointLight.intensity = 2;
+        }
+
+        // Breathe glow
+        glowMeshes.forEach((m, i) => {
+            m.material.opacity = glowOpacities[i] * (1 + Math.sin(time * 0.8 + i) * 0.3);
+            m.rotation.y = time * 0.1 * (i + 1);
+        });
+
+        // Point light
+        pointLight.intensity = 1.5 + orbBrightness + Math.sin(time * 2) * 0.2;
+
+        // Update particles
+        updateParticles();
+
+        if (composer) {
+            composer.render();
+        } else {
+            renderer.render(scene, camera);
+        }
+    }
+    animate();
+
+    return { spawnParticle, onBlock };
+})();
 
 // ===== BOOT =====
 DataService.init();
