@@ -11009,6 +11009,16 @@ def api_search():
         return jsonify([])
 
 
+# ── STAGE BRIEF STATIC FILES ──────────────────────────────────────────────
+
+@app.route('/data/stage_briefs/<path:filename>')
+def serve_stage_brief(filename):
+    """Serve stage brief MP4 and JSON files."""
+    from flask import send_from_directory
+    brief_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'video_pipeline_v3', 'data', 'stage_briefs')
+    return send_from_directory(brief_dir, filename)
+
+
 # ── STAGE BROADCAST ROUTES ──────────────────────────────────────────────────
 
 @app.route('/api/stage/broadcast-queue')
@@ -11109,6 +11119,18 @@ def api_stage_consume_broadcast():
                 next_item = generate_filler_live()
             except Exception as e:
                 logging.warning('filler generation failed: %s', e)
+
+        # Attach video_url from latest brief if not already present
+        if next_item and not next_item.get('video_url'):
+            try:
+                latest_path = queue_path.parent / 'latest.json'
+                if latest_path.exists():
+                    latest = _j.loads(latest_path.read_text())
+                    mp4_url = latest.get('mp4_url', '')
+                    if mp4_url:
+                        next_item['video_url'] = mp4_url
+            except Exception:
+                pass
 
         return jsonify({
             'next_item': next_item,

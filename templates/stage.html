@@ -781,7 +781,7 @@ body { background: var(--s-bg); }
                  style="display:block;opacity:1;"></video>
           <div id="stage-wake" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(4,5,10,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;border-radius:4px;" onclick="stageWake()">
             <div style="font-size:48px;">&#9889;</div>
-            <div id="stage-tap-label" style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">Signal Warming Up<span id="stage-tap-dots" style="display:inline-block;width:1.5em;text-align:left;">.</span></div>
+            <div id="stage-tap-label" style="font-family:var(--s-mono);font-size:12px;color:rgba(255,255,255,.8);letter-spacing:.2em;text-transform:uppercase;">Tuning Signal<span id="stage-tap-dots" style="display:inline-block;width:1.5em;text-align:left;">.</span></div>
           </div>
           <div class="stage-avatar-scanline"></div>
           <div class="stage-avatar-nameplate">
@@ -1459,22 +1459,29 @@ body { background: var(--s-bg); }
     var badge = document.getElementById('stageModeBadge');
     if (badge) { badge.textContent = '● ON AIR'; badge.className = 'stage-mode-badge broadcast'; }
 
-    // Render avatar video via server with script
     setBusy(true);
-    setStatus('Rendering segment…', 'var(--s-gold)');
 
     try {
-      // Generate TTS + avatar via avatar server
-      var resp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text: cleanScript(item.script), intent: 'BROADCAST_SEGMENT'})
-      }, 120000);
-
-      if (!resp.ok) throw new Error('Avatar render failed: HTTP ' + resp.status);
-
-      var blob = await resp.blob();
-      var url = URL.createObjectURL(blob);
+      var blob, url;
+      if (item.video_url) {
+        // Pre-rendered video available — play directly
+        setStatus('Loading segment…', 'var(--s-gold)');
+        var resp = await fetchTO(item.video_url, {}, 30000);
+        if (!resp.ok) throw new Error('Video fetch failed: HTTP ' + resp.status);
+        blob = await resp.blob();
+        url = URL.createObjectURL(blob);
+      } else {
+        // Live render via avatar server
+        setStatus('Rendering segment…', 'var(--s-gold)');
+        var resp = await fetchTO(AVATAR_BASE + '/oracle/speak', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: cleanScript(item.script), intent: 'BROADCAST_SEGMENT'})
+        }, 120000);
+        if (!resp.ok) throw new Error('Avatar render failed: HTTP ' + resp.status);
+        blob = await resp.blob();
+        url = URL.createObjectURL(blob);
+      }
 
       // Start pre-rendering next segment while current plays
       preRenderNext(item.id);
@@ -1571,7 +1578,7 @@ body { background: var(--s-bg); }
       if (lbl) {
         lbl.textContent = 'SIGNAL LOADING\u2026';
         setTimeout(function(){
-          if (!_preRenderReady) lbl.textContent = 'SIGNAL WARMING UP\u2026';
+          if (!_preRenderReady) lbl.textContent = 'TUNING SIGNAL\u2026';
         }, 1500);
       }
       return;
@@ -2304,7 +2311,7 @@ body { background: var(--s-bg); }
   // Pre-render first segment silently so it's ready when user taps
   preRenderFirstSegment();
 
-  // Animate warming dots + flip label when pre-render is ready (30s timeout)
+  // Animate dots + flip label when pre-render is ready (30s timeout)
   (function(){
     var dots = document.getElementById('stage-tap-dots');
     var label = document.getElementById('stage-tap-label');

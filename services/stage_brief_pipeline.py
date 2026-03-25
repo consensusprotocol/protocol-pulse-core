@@ -821,6 +821,40 @@ def generate_brief(brief_type=None):
             os.fsync(f.fileno())
             fcntl.flock(f, fcntl.LOCK_UN)
 
+        # Add to broadcast queue with video_url (direct file write, no module import)
+        try:
+            import uuid
+            from datetime import timedelta
+            queue_path = os.path.join(BRIEFS_DIR, "broadcast_queue.json")
+            queue_item = {
+                "id": str(uuid.uuid4()),
+                "type": "ORACLE_BRIEF",
+                "priority": 1,
+                "script": brief_text[:300],
+                "source_label": f"\U0001f399\ufe0f ORACLE {brief_type.upper()}",
+                "topic_preview": f"Oracle {brief_type.title()} Brief — ${data['btc']['price']:,.0f}",
+                "generated_at": now.isoformat(),
+                "expires_at": (now + timedelta(minutes=240)).isoformat(),
+                "video_url": f"/data/stage_briefs/{mp4_filename}",
+            }
+            with open(queue_path, "a+") as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+                f.seek(0)
+                raw = f.read()
+                items = json.loads(raw) if raw.strip() else []
+                if not isinstance(items, list):
+                    items = []
+                items.append(queue_item)
+                f.seek(0)
+                f.truncate()
+                json.dump(items, f, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+                fcntl.flock(f, fcntl.LOCK_UN)
+            logger.info("Added brief to broadcast queue with video_url: %s", queue_item["video_url"])
+        except Exception as e:
+            logger.warning("Failed to add to broadcast queue: %s", e)
+
         elapsed = round(time.time() - t0, 1)
         logger.info("Stage brief complete in %ss: %s", elapsed, mp4_filename)
         return mp4_path

@@ -261,10 +261,26 @@ def _apply_one_eye(frame, upper_pts, lower_pts, patch, skin_color, intensity, is
 def apply_blink_gradient(frame, intensity, eye_landmarks=None, face_coords=None):
     """
     Public API — called from post_process_frames().
-    DISABLED: blink overlay was creating black oval artifacts on the avatar face.
-    Returns frame unmodified.
+    Uses cached eye landmarks + skin patches for natural eyelid closure.
     """
-    return frame
+    cache = _load_cache()
+    if cache is None:
+        return frame
+
+    result = _apply_one_eye(
+        frame,
+        cache["left_upper"], cache["left_lower"],
+        cache["left_patch"], cache["left_skin"],
+        intensity,
+    )
+    result = _apply_one_eye(
+        result,
+        cache["right_upper"], cache["right_lower"],
+        cache["right_patch"], cache["right_skin"],
+        intensity,
+        is_right=True,
+    )
+    return result
 
 
 def generate_blink_schedule(n_frames, fps, interval_min=2.5, interval_max=5.0, duration=0.22):
