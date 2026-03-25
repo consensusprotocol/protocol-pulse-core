@@ -1010,9 +1010,29 @@ _The autonomous pipeline has activated._
         try:
             flow.fetch_token(code=code)
             credentials = flow.credentials
+            refresh_token = credentials.refresh_token
+
+            # Auto-save refresh token to .env if received
+            if refresh_token:
+                env_path = '/home/ultron/protocol_pulse/.env'
+                try:
+                    with open(env_path, 'r') as ef:
+                        env_content = ef.read()
+                    if 'YOUTUBE_REFRESH_TOKEN=' in env_content:
+                        import re as _re
+                        env_content = _re.sub(r'YOUTUBE_REFRESH_TOKEN=.*', f'YOUTUBE_REFRESH_TOKEN={refresh_token}', env_content)
+                    else:
+                        env_content += f'\nYOUTUBE_REFRESH_TOKEN={refresh_token}\n'
+                    with open(env_path, 'w') as ef:
+                        ef.write(env_content)
+                    os.environ['YOUTUBE_REFRESH_TOKEN'] = refresh_token
+                    logging.info('[YouTube] Refresh token auto-saved to .env')
+                except Exception as save_err:
+                    logging.error(f'[YouTube] Failed to save refresh token: {save_err}')
+
             return {
                 'access_token': credentials.token,
-                'refresh_token': credentials.refresh_token,
+                'refresh_token': refresh_token,
                 'token_uri': credentials.token_uri,
                 'client_id': credentials.client_id,
                 'client_secret': credentials.client_secret
