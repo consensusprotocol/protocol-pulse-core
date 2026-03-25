@@ -905,12 +905,18 @@ def operator_costs():
 @app.route('/solo-slayers')
 def solo_slayers():
     """Solo Miner Tracker - Celebrates independent miners who find blocks"""
-    from services.solo_tracker import solo_tracker
-    
-    stats = solo_tracker.get_stats()
-    leaderboard = solo_tracker.get_leaderboard()
-    solo_blocks = solo_tracker.solo_blocks[:50]
-    
+    import importlib.util
+    # solo_tracker lives in project root services/, not core/services/ — load by path
+    _tracker_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'services', 'solo_tracker.py')
+    spec = importlib.util.spec_from_file_location('solo_tracker', os.path.abspath(_tracker_path))
+    _mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(_mod)
+    tracker = _mod.solo_tracker
+
+    stats = tracker.get_stats()
+    leaderboard = tracker.get_leaderboard()
+    solo_blocks = tracker.solo_blocks[:50]
+
     return render_template('solo_slayers.html',
                          stats=stats,
                          leaderboard=leaderboard,
@@ -9036,6 +9042,11 @@ def api_btc_price():
 
 
 # ── Page Route ────────────────────────────────────────────────────────────────
+
+@app.route("/btc-charts")
+def btc_charts_redirect():
+    """Legacy alias → /charts."""
+    return redirect(url_for('charts'), code=301)
 
 @app.route("/charts")
 def charts():
