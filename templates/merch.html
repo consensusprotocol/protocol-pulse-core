@@ -858,30 +858,31 @@
         }
         
         .holo-showcase {
-            height: 320px;
-            max-width: 320px;
+            height: 200px;
+            max-width: 200px;
+            margin: 0 auto;
         }
         
         .prism-container {
-            width: 180px;
-            height: 180px;
+            width: 110px;
+            height: 110px;
         }
         
-        .prism-face:nth-child(1) { transform: rotateY(0deg) translateZ(90px); }
-        .prism-face:nth-child(2) { transform: rotateY(60deg) translateZ(90px); }
-        .prism-face:nth-child(3) { transform: rotateY(120deg) translateZ(90px); }
-        .prism-face:nth-child(4) { transform: rotateY(180deg) translateZ(90px); }
-        .prism-face:nth-child(5) { transform: rotateY(240deg) translateZ(90px); }
-        .prism-face:nth-child(6) { transform: rotateY(300deg) translateZ(90px); }
+        .prism-face:nth-child(1) { transform: rotateY(0deg) translateZ(55px); }
+        .prism-face:nth-child(2) { transform: rotateY(60deg) translateZ(55px); }
+        .prism-face:nth-child(3) { transform: rotateY(120deg) translateZ(55px); }
+        .prism-face:nth-child(4) { transform: rotateY(180deg) translateZ(55px); }
+        .prism-face:nth-child(5) { transform: rotateY(240deg) translateZ(55px); }
+        .prism-face:nth-child(6) { transform: rotateY(300deg) translateZ(55px); }
         
         .product-core img {
-            width: 120px;
-            height: 120px;
+            width: 72px;
+            height: 72px;
         }
         
         .product-image-container {
-            width: 140px;
-            height: 140px;
+            width: 85px;
+            height: 85px;
         }
         
         .hud-label, .data-stream {
@@ -1529,6 +1530,7 @@ let selectedVariant = null;
 function openProductFromBtn(btn) {
     try {
         var productData = btn.getAttribute('data-product');
+        console.log('Raw product data:', productData);
         var product = JSON.parse(productData);
         openProductModal(product);
     } catch(e) {
@@ -1593,6 +1595,7 @@ function closeProductModal() {
 }
 
 function purchaseProduct() {
+    console.log('Purchase clicked', currentProduct, selectedVariant);
     
     if (!currentProduct) {
         alert('No product selected');
@@ -1622,7 +1625,9 @@ function purchaseProduct() {
         }]
     };
     
-    fetch('/api/merch/checkout', { signal: AbortSignal.timeout(15000) }, {
+    console.log('Checkout data:', checkoutData);
+    
+    fetch('/api/merch/checkout', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -1630,9 +1635,11 @@ function purchaseProduct() {
         body: JSON.stringify(checkoutData)
     })
     .then(response => {
+        console.log('Response status:', response.status);
         return response.json();
     })
     .then(data => {
+        console.log('Checkout response:', data);
         if (data.success && data.checkout_url) {
             // Open Stripe in a new window to avoid iframe restrictions
             var stripeWindow = window.open(data.checkout_url, '_blank', 'noopener,noreferrer');
