@@ -1180,12 +1180,29 @@ function process(text){
       // Play audio: try cached job audio first (no duplicate Kokoro), fallback to /oracle/voice
       var audioFetch;
       if(videoJobId){
-        audioFetch=fetchTO(A+'/oracle/job/'+videoJobId+'/audio',{},35000)
-          .then(function(ar){
-            if(!ar.ok) throw new Error('no cached audio');
-            return ar.blob();
-          })
+        // Poll job audio with retry — server returns 202 while TTS is rendering
+        function pollJobAudio(jobId, attemptsLeft){
+          return fetchTO(A+'/oracle/job/'+jobId+'/audio',{},15000)
+            .then(function(ar){
+              if(ar.status===202){
+                // Still rendering — retry after 2s
+                if(attemptsLeft>0){
+                  return new Promise(function(res){ setTimeout(function(){ res(pollJobAudio(jobId,attemptsLeft-1)); },2000); });
+                } else {
+                  throw new Error('audio timeout after retries');
+                }
+              }
+              if(!ar.ok) throw new Error('no cached audio');
+              return ar.blob().then(function(b){
+                // Validate: must be real audio (>1KB), not a tiny error body
+                if(b.size < 1024) throw new Error('audio blob too small: '+b.size);
+                return b;
+              });
+            });
+        }
+        audioFetch=pollJobAudio(videoJobId, 10)
           .catch(function(){
+            // Fallback: generate fresh TTS
             return fetchTO(A+'/oracle/voice',{
               method:'POST',headers:{'Content-Type':'application/json'},
               body:JSON.stringify({text:responseText})
