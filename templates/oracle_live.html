@@ -290,7 +290,7 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   max-width:min(440px,calc(100vw - 24px));
   aspect-ratio:1/1;
   border-radius:8px;overflow:hidden;
-  background: #050508 url('/static/oracle_avatar.png') center/cover no-repeat;
+  background: #050508;
   overflow: hidden;
   flex-shrink:0;
   min-height: min(440px, calc(100vw - 24px));
@@ -1313,7 +1313,7 @@ function playVid(url){
     vid.onended=function(){
       clearTimeout(_safetyTimer);
       vid.src='';
-      /* Keep avatar visible: video-wrap has background-image of oracle_avatar.png */
+      /* Keep avatar area visible (solid bg, no static image) */
       vid.style.opacity='0';
       if(window._matrixShow) window._matrixShow();
       hideSub();

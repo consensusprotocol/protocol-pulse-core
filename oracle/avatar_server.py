@@ -68,7 +68,7 @@ HEAD_TRANSLATION_Y = 2.0        # pixels — visible vertical drift
 HEAD_PERIOD = 5.0               # seconds per full cycle — slow and natural
 
 # Lock timeout (seconds) — if GPU is busy longer than this, return 503
-LOCK_TIMEOUT = int(os.environ.get("AVATAR_LOCK_TIMEOUT", "120"))  # increased: real-time Q must wait for GPU
+LOCK_TIMEOUT = int(os.environ.get("AVATAR_LOCK_TIMEOUT", "30"))  # fast-fail: user gets retry prompt instead of 2min hang
 
 # Max audio duration (seconds) — longer clips get chunked
 MAX_AUDIO_SECONDS = 30
