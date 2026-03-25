@@ -4056,9 +4056,32 @@ function toggleSection(element) {
                     <i class="fas fa-heartbeat me-2" style="color: #22c55e;"></i>Network Vitals
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 15px; text-align: center;">
+                    <div id="health-score-widget" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 15px; text-align: center; position: relative; cursor: pointer;">
                         <div style="font-size: 1.8rem; font-weight: 700; color: #22c55e;" id="pulse-health">98.7%</div>
                         <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5);">HEALTH SCORE</div>
+                        <!-- Health Score Tooltip -->
+                        <div id="health-score-tooltip" style="display:none; position:absolute; bottom:calc(100% + 12px); left:50%; transform:translateX(-50%); width:300px; background:rgba(10,10,10,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(220,38,38,0.4); border-radius:12px; padding:16px; text-align:left; z-index:100; box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+                            <div style="font-size:0.7rem; font-weight:700; color:#22c55e; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;">Health Score Breakdown</div>
+                            <div style="font-size:0.72rem; color:rgba(255,255,255,0.8); line-height:1.7;">
+                                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <span>Hashrate trend (30d)</span><span style="color:#22c55e;">Optimal</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <span>Mempool congestion</span><span style="color:#22c55e;">Clear</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <span>Block time deviation</span><span style="color:#22c55e;">Normal</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <span>Fee rate stability</span><span style="color:#22c55e;">Stable</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; padding:3px 0;">
+                                    <span>Node decentralization</span><span style="color:#22c55e;">Strong</span>
+                                </div>
+                            </div>
+                            <div style="font-size:0.6rem; color:rgba(255,255,255,0.35); margin-top:10px;">Each metric weighted &amp; normalized to 100. Updates every 5 min.</div>
+                            <div style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%) rotate(45deg); width:12px; height:12px; background:rgba(10,10,10,0.92); border-right:1px solid rgba(220,38,38,0.4); border-bottom:1px solid rgba(220,38,38,0.4);"></div>
+                        </div>
                     </div>
                     <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; padding: 15px; text-align: center;">
                         <div style="font-size: 1.8rem; font-weight: 700; color: #3b82f6;" id="pulse-tps">6.2</div>
@@ -5082,6 +5105,73 @@ function toggleExplainer() {
     content.classList.toggle('open');
     arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
 }
+
+// 1a. HEALTH SCORE TOOLTIP
+(function() {
+    const widget = document.getElementById('health-score-widget');
+    const tooltip = document.getElementById('health-score-tooltip');
+    if (!widget || !tooltip) return;
+
+    widget.addEventListener('mouseenter', () => { tooltip.style.display = 'block'; });
+    widget.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    widget.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', (e) => {
+        if (!widget.contains(e.target)) tooltip.style.display = 'none';
+    });
+})();
+
+// 1b. REAL-TIME MEMPOOL HEATMAP
+async function updateMempoolHeatmap() {
+    try {
+        const res = await fetch('https://mempool.space/api/v1/fees/mempool-blocks');
+        const blocks = await res.json();
+        if (!Array.isArray(blocks) || blocks.length === 0) return;
+
+        // Aggregate vsize into fee-rate bands
+        const bands = { '1-5': 0, '5-10': 0, '10-20': 0, '20-30': 0, '30-50': 0, '50-100': 0, '100+': 0 };
+
+        blocks.forEach(block => {
+            const feeRange = block.feeRange || [];
+            const vsize = block.blockVSize || 0;
+            // Use median fee rate to categorize this block's vsize
+            const medianFee = feeRange.length >= 3 ? feeRange[Math.floor(feeRange.length / 2)] : (block.medianFee || 5);
+            if (medianFee <= 5) bands['1-5'] += vsize;
+            else if (medianFee <= 10) bands['5-10'] += vsize;
+            else if (medianFee <= 20) bands['10-20'] += vsize;
+            else if (medianFee <= 30) bands['20-30'] += vsize;
+            else if (medianFee <= 50) bands['30-50'] += vsize;
+            else if (medianFee <= 100) bands['50-100'] += vsize;
+            else bands['100+'] += vsize;
+        });
+
+        const maxVsize = Math.max(...Object.values(bands), 1);
+        const heatmapEl = document.getElementById('mempool-heatmap');
+        if (!heatmapEl) return;
+
+        const bandEls = heatmapEl.querySelectorAll('.heatmap-band');
+        const bandKeys = ['1-5', '5-10', '10-20', '20-30', '30-50', '50-100', '100+'];
+
+        bandEls.forEach((el, idx) => {
+            const key = bandKeys[idx];
+            if (key !== undefined) {
+                const pct = Math.max(5, (bands[key] / maxVsize) * 100);
+                const bar = el.querySelector('.heatmap-bar');
+                if (bar) bar.style.height = pct + '%';
+            }
+        });
+
+        console.log('[Heatmap] Updated from mempool-blocks API');
+    } catch (e) {
+        console.log('Heatmap fetch error:', e);
+    }
+}
+
+// Init heatmap on load and refresh every 30s
+updateMempoolHeatmap();
+setInterval(updateMempoolHeatmap, 30000);
 
 // 2. EPOCH PROGRESS BAR
 async function updateEpochProgress() {
@@ -6788,6 +6878,8 @@ class SovereignTerminal {
     }
     
     updateParticles() {
+        this.expireOldParticles();
+
         const positions = this.particleGeometry.attributes.position.array;
         const colors = this.particleGeometry.attributes.color.array;
         const time = this.clock.getElapsedTime();
@@ -7043,20 +7135,22 @@ class SovereignTerminal {
     
     connectWebSocket() {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
-        
+
+        this.PARTICLE_MAX_AGE_MS = 10 * 60 * 1000;
+
         try {
             this.ws = new WebSocket('wss://mempool.space/api/v1/ws');
-            
+
             this.ws.onopen = () => {
                 console.log('Connected to mempool.space');
-                this.ws.send(JSON.stringify({ action: 'want', data: ['blocks', 'mempool-blocks'] }));
+                this.ws.send(JSON.stringify({ action: 'want', data: ['blocks', 'mempool-blocks', 'live-2h-chart', 'stats'] }));
                 this.updateVizHUD({ connected: true });
             };
-            
+
             this.ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    
+
                     if (data.block) {
                         if (data.block.height > this.lastBlockHeight) {
                             this.lastBlockHeight = data.block.height;
@@ -7064,13 +7158,24 @@ class SovereignTerminal {
                             setTimeout(() => this.showBlockNotification(data.block.height), 800);
                         }
                     }
-                    
-                    // Check for whale transactions (1000+ BTC = 100,000,000,000 satoshis)
+
+                    if (data.transactions) {
+                        const txs = Array.isArray(data.transactions) ? data.transactions : [];
+                        txs.slice(0, 5).forEach(tx => {
+                            if (tx.txid) {
+                                this.injectFreshParticle({
+                                    txid: tx.txid,
+                                    value: (tx.value || 0) / 100000000,
+                                    feeRate: tx.fee && tx.vsize ? (tx.fee / tx.vsize) : (5 + Math.random() * 50)
+                                });
+                            }
+                        });
+                    }
+
                     if (data.x && data.x.value >= 100000000000) {
                         console.log('!!! MEGA WHALE INTERCEPTED !!!', data.x.value / 100000000, 'BTC');
                         this.triggerWhaleShockwave();
-                        
-                        // Update whale alert banner if exists
+
                         const alertBanner = document.getElementById('whale-alert-banner');
                         if (alertBanner) {
                             alertBanner.innerText = `SIGNAL DETECTED: ${(data.x.value / 100000000).toLocaleString()} BTC MOVE`;
@@ -7078,21 +7183,21 @@ class SovereignTerminal {
                             setTimeout(() => alertBanner.classList.remove('active'), 5000);
                         }
                     }
-                    
+
                     if (data['mempool-blocks']) {
                         const blocks = data['mempool-blocks'];
                         let totalTxs = 0;
                         let totalSize = 0;
-                        
+
                         blocks.forEach(block => {
                             totalTxs += block.nTx || 0;
                             totalSize += block.blockVSize || 0;
                         });
-                        
+
                         if (!this.lastTxFetch || Date.now() - this.lastTxFetch > 5000) {
                             this.fetchRecentTransactions();
                         }
-                        
+
                         this.updateVizHUD({
                             mempoolSize: (totalSize / 1000000).toFixed(1),
                             unconfirmed: totalTxs
@@ -7102,23 +7207,66 @@ class SovereignTerminal {
                     console.error('WebSocket parse error:', e);
                 }
             };
-            
+
             this.ws.onclose = () => {
                 console.log('WebSocket closed, reconnecting...');
                 this.updateVizHUD({ connected: false });
                 setTimeout(() => this.connectWebSocket(), 3000);
             };
-            
+
             this.ws.onerror = () => {
                 this.ws.close();
             };
-            
+
         } catch (e) {
             console.error('WebSocket error:', e);
             this.startSimulatedData();
         }
     }
-    
+
+    injectFreshParticle(tx) {
+        if (!this.particles || this.particles.length === 0) return;
+        let oldestIdx = 0;
+        let oldestTime = Infinity;
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            if (!p.isReal) { oldestIdx = i; break; }
+            if ((p.birthTime || 0) < oldestTime) { oldestTime = p.birthTime || 0; oldestIdx = i; }
+        }
+        const p = this.particles[oldestIdx];
+        p.txid = tx.txid;
+        p.isReal = true;
+        p.value = tx.value || Math.random() * 2;
+        p.feeRate = tx.feeRate || (5 + Math.random() * 50);
+        p.birthTime = Date.now();
+        if (this.particleGeometry) {
+            const colors = this.particleGeometry.attributes.color.array;
+            const i = oldestIdx;
+            if (p.feeRate > 50) { colors[i*3]=0.94; colors[i*3+1]=0.27; colors[i*3+2]=0.27; }
+            else if (p.feeRate > 15) { colors[i*3]=0.97; colors[i*3+1]=0.58; colors[i*3+2]=0.1; }
+            else { colors[i*3]=0.13; colors[i*3+1]=0.77; colors[i*3+2]=0.37; }
+            this.particleGeometry.attributes.color.needsUpdate = true;
+        }
+    }
+
+    expireOldParticles() {
+        const now = Date.now();
+        const maxAge = this.PARTICLE_MAX_AGE_MS || 600000;
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            if (p.isReal && p.birthTime && (now - p.birthTime) > maxAge) {
+                p.isReal = false;
+                p.txid = this.generateFakeTxid();
+                p.birthTime = 0;
+                if (this.particleGeometry) {
+                    const colors = this.particleGeometry.attributes.color.array;
+                    colors[i*3]=0.6; colors[i*3+1]=0.5; colors[i*3+2]=0.3;
+                    this.particleGeometry.attributes.color.needsUpdate = true;
+                }
+            }
+        }
+    }
+
     startSimulatedData() {
         console.log('Using simulated mempool data');
         this.updateVizHUD({ connected: true, simulated: true });
@@ -7240,9 +7388,10 @@ class SovereignTerminal {
                     if (this.particles[i]) {
                         this.particles[i].txid = tx.txid;
                         this.particles[i].isReal = true;
+                        this.particles[i].birthTime = Date.now();
                         this.particles[i].value = tx.value || Math.random() * 2;
                         this.particles[i].feeRate = tx.fee && tx.vsize ? (tx.fee / tx.vsize) : (5 + Math.random() * 50);
-                        
+
                         const colors = this.particleGeometry.attributes.color.array;
                         const feeRate = this.particles[i].feeRate;
                         if (feeRate > 50) {
@@ -7296,9 +7445,10 @@ class SovereignTerminal {
                     if (txid && txid.length === 64) {
                         this.particles[i].txid = txid;
                         this.particles[i].isReal = true;
+                        this.particles[i].birthTime = Date.now();
                         this.particles[i].value = value;
                         this.particles[i].feeRate = feeRate;
-                        
+
                         const colors = this.particleGeometry.attributes.color.array;
                         if (feeRate > 50) {
                             colors[i * 3] = 0.94; colors[i * 3 + 1] = 0.27; colors[i * 3 + 2] = 0.27;

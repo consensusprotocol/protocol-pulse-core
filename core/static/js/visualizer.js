@@ -751,6 +751,9 @@ class SovereignTerminal {
     }
     
     updateParticles() {
+        // Expire stale particles older than 10 minutes
+        this.expireOldParticles();
+
         const positions = this.particleGeometry.attributes.position.array;
         const colors = this.particleGeometry.attributes.color.array;
         const time = this.clock.getElapsedTime();
@@ -1006,20 +1009,23 @@ class SovereignTerminal {
     
     connectWebSocket() {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
-        
+
+        // Particle lifetime: 10 minutes max
+        this.PARTICLE_MAX_AGE_MS = 10 * 60 * 1000;
+
         try {
             this.ws = new WebSocket('wss://mempool.space/api/v1/ws');
-            
+
             this.ws.onopen = () => {
                 console.log('Connected to mempool.space');
-                this.ws.send(JSON.stringify({ action: 'want', data: ['blocks', 'mempool-blocks'] }));
+                this.ws.send(JSON.stringify({ action: 'want', data: ['blocks', 'mempool-blocks', 'live-2h-chart', 'stats'] }));
                 this.updateVizHUD({ connected: true });
             };
-            
+
             this.ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    
+
                     if (data.block) {
                         if (data.block.height > this.lastBlockHeight) {
                             this.lastBlockHeight = data.block.height;
@@ -1027,12 +1033,26 @@ class SovereignTerminal {
                             setTimeout(() => this.showBlockNotification(data.block.height), 800);
                         }
                     }
-                    
+
+                    // Handle live transactions from mempool-blocks updates
+                    if (data.transactions) {
+                        const txs = Array.isArray(data.transactions) ? data.transactions : [];
+                        txs.slice(0, 5).forEach(tx => {
+                            if (tx.txid) {
+                                this.injectFreshParticle({
+                                    txid: tx.txid,
+                                    value: (tx.value || 0) / 100000000,
+                                    feeRate: tx.fee && tx.vsize ? (tx.fee / tx.vsize) : (5 + Math.random() * 50)
+                                });
+                            }
+                        });
+                    }
+
                     // Check for whale transactions (1000+ BTC = 100,000,000,000 satoshis)
                     if (data.x && data.x.value >= 100000000000) {
                         console.log('!!! MEGA WHALE INTERCEPTED !!!', data.x.value / 100000000, 'BTC');
                         this.triggerWhaleShockwave();
-                        
+
                         // Update whale alert banner if exists
                         const alertBanner = document.getElementById('whale-alert-banner');
                         if (alertBanner) {
@@ -1041,21 +1061,21 @@ class SovereignTerminal {
                             setTimeout(() => alertBanner.classList.remove('active'), 5000);
                         }
                     }
-                    
+
                     if (data['mempool-blocks']) {
                         const blocks = data['mempool-blocks'];
                         let totalTxs = 0;
                         let totalSize = 0;
-                        
+
                         blocks.forEach(block => {
                             totalTxs += block.nTx || 0;
                             totalSize += block.blockVSize || 0;
                         });
-                        
+
                         if (!this.lastTxFetch || Date.now() - this.lastTxFetch > 5000) {
                             this.fetchRecentTransactions();
                         }
-                        
+
                         this.updateVizHUD({
                             mempoolSize: (totalSize / 1000000).toFixed(1),
                             unconfirmed: totalTxs
@@ -1065,20 +1085,84 @@ class SovereignTerminal {
                     console.error('WebSocket parse error:', e);
                 }
             };
-            
+
             this.ws.onclose = () => {
                 console.log('WebSocket closed, reconnecting...');
                 this.updateVizHUD({ connected: false });
                 setTimeout(() => this.connectWebSocket(), 3000);
             };
-            
+
             this.ws.onerror = () => {
                 this.ws.close();
             };
-            
+
         } catch (e) {
             console.error('WebSocket error:', e);
             this.startSimulatedData();
+        }
+    }
+
+    /**
+     * Inject a fresh tx into the particle pool, replacing the oldest particle.
+     * Ensures the orb always shows the most recent TXIDs.
+     */
+    injectFreshParticle(tx) {
+        if (!this.particles || this.particles.length === 0) return;
+
+        // Find the oldest particle (by birthTime) or one without a real txid
+        let oldestIdx = 0;
+        let oldestTime = Infinity;
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            if (!p.isReal) { oldestIdx = i; break; }
+            if ((p.birthTime || 0) < oldestTime) {
+                oldestTime = p.birthTime || 0;
+                oldestIdx = i;
+            }
+        }
+
+        const p = this.particles[oldestIdx];
+        p.txid = tx.txid;
+        p.isReal = true;
+        p.value = tx.value || Math.random() * 2;
+        p.feeRate = tx.feeRate || (5 + Math.random() * 50);
+        p.birthTime = Date.now();
+
+        // Update particle color based on fee rate
+        if (this.particleGeometry) {
+            const colors = this.particleGeometry.attributes.color.array;
+            const i = oldestIdx;
+            if (p.feeRate > 50) {
+                colors[i * 3] = 0.94; colors[i * 3 + 1] = 0.27; colors[i * 3 + 2] = 0.27;
+            } else if (p.feeRate > 15) {
+                colors[i * 3] = 0.97; colors[i * 3 + 1] = 0.58; colors[i * 3 + 2] = 0.1;
+            } else {
+                colors[i * 3] = 0.13; colors[i * 3 + 1] = 0.77; colors[i * 3 + 2] = 0.37;
+            }
+            this.particleGeometry.attributes.color.needsUpdate = true;
+        }
+    }
+
+    /**
+     * Expire particles older than PARTICLE_MAX_AGE_MS (10 min).
+     * Called every animation frame from updateParticles.
+     */
+    expireOldParticles() {
+        const now = Date.now();
+        const maxAge = this.PARTICLE_MAX_AGE_MS || 600000;
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            if (p.isReal && p.birthTime && (now - p.birthTime) > maxAge) {
+                p.isReal = false;
+                p.txid = this.generateFakeTxid();
+                p.birthTime = 0;
+                // Fade to default dust color
+                if (this.particleGeometry) {
+                    const colors = this.particleGeometry.attributes.color.array;
+                    colors[i * 3] = 0.6; colors[i * 3 + 1] = 0.5; colors[i * 3 + 2] = 0.3;
+                    this.particleGeometry.attributes.color.needsUpdate = true;
+                }
+            }
         }
     }
     
@@ -1203,9 +1287,10 @@ class SovereignTerminal {
                     if (this.particles[i]) {
                         this.particles[i].txid = tx.txid;
                         this.particles[i].isReal = true;
+                        this.particles[i].birthTime = Date.now();
                         this.particles[i].value = tx.value || Math.random() * 2;
                         this.particles[i].feeRate = tx.fee && tx.vsize ? (tx.fee / tx.vsize) : (5 + Math.random() * 50);
-                        
+
                         const colors = this.particleGeometry.attributes.color.array;
                         const feeRate = this.particles[i].feeRate;
                         if (feeRate > 50) {
@@ -1217,7 +1302,7 @@ class SovereignTerminal {
                         }
                     }
                 });
-                
+
                 this.particleGeometry.attributes.color.needsUpdate = true;
                 console.log(`Loaded ${txsToAssign.length} real TXIDs for initial particles`);
             }
@@ -1259,6 +1344,7 @@ class SovereignTerminal {
                     if (txid && txid.length === 64) {
                         this.particles[i].txid = txid;
                         this.particles[i].isReal = true;
+                        this.particles[i].birthTime = Date.now();
                         this.particles[i].value = value;
                         this.particles[i].feeRate = feeRate;
                         
