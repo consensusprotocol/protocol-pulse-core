@@ -67,7 +67,8 @@ def _has_access() -> bool:
 @intelligence_bp.route("/join")
 def join_page():
     """Pricing / signup page — war room aesthetic."""
-    return render_template("join.html")
+    stripe_key = os.environ.get("STRIPE_PUBLISHABLE_KEY", os.environ.get("STRIPE_PUBLIC_KEY", ""))
+    return render_template("join.html", stripe_key=stripe_key)
 
 
 @intelligence_bp.route("/api/join/register", methods=["POST"])
