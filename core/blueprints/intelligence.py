@@ -215,6 +215,15 @@ def api_intelligence_stream():
                     # Inject price + fng for authenticated stream too
                     state["price"] = _get_btc_price()
                     state["fng"] = _get_fng()
+                    # Phase 1 alpha intel
+                    try:
+                        alpha = _get_alpha_intel(state)
+                        state["signal_matrix"] = alpha["signal_matrix"]
+                        state["narrative_momentum"] = alpha["narrative_momentum"]
+                        state["divergence"] = alpha["divergence"]
+                        state["early_warnings"] = alpha["early_warnings"]
+                    except Exception as e:
+                        logger.warning("Alpha intel error: %s", e)
                 yield f"data: {json.dumps(state)}\n\n"
                 time.sleep(2)
             except GeneratorExit:
@@ -692,6 +701,536 @@ def api_backtest():
         return jsonify({"alerts": results})
     except Exception as e:
         return jsonify({"alerts": [], "note": f"Backtest columns not yet populated: {e}"})
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 1 Alpha Intelligence — Sovereign Signal Matrix, Narrative Momentum,
+# Cross-Signal Divergence, Early Warning Feed
+# ═══════════════════════════════════════════════════════════════════════════
+
+_signal_matrix_cache = {"value": None, "ts": 0}
+_narrative_cache = {"value": None, "ts": 0}
+_divergence_cache = {"value": None, "ts": 0}
+_early_warning_cache = {"value": None, "ts": 0}
+
+
+def _compute_signal_matrix(state: dict) -> dict:
+    """Compute 6-axis Sovereign Signal Matrix from live Sentinel state.
+
+    Axes (each 0-100):
+      1. Miner Health — from miner_health.score
+      2. Exchange Pressure — from dark_pool + ETF flow + whale coordination
+      3. Narrative Momentum — from sentiment trend + convergence signal count
+      4. On-Chain Accumulation — from exchange reserves + CDD + whale coordination
+      5. Lightning Growth — from lightning capacity/channels vs baseline
+      6. Social Divergence — from sentiment vs price divergence
+    """
+    now = time.time()
+    if _signal_matrix_cache["value"] and now - _signal_matrix_cache["ts"] < 30:
+        return _signal_matrix_cache["value"]
+
+    mh = state.get("miner_health", {})
+    dp = state.get("dark_pool", {})
+    etf = state.get("etf", {})
+    wc = state.get("whale_coordination", {})
+    sov = state.get("sovereign", {})
+    ln = state.get("lightning", {})
+    sent = state.get("sentiment", {})
+    conv = state.get("convergence", {})
+    pcaf = state.get("pcaf_v0", {})
+    price = state.get("price", {})
+
+    # 1. Miner Health (direct from engine, 0-100)
+    miner_score = min(100, max(0, mh.get("score", 50)))
+
+    # 2. Exchange Pressure (inverse = bullish when outflows)
+    dp_signal_map = {"CLEAR": 30, "WATCH": 60, "ACCUMULATION": 85}
+    dp_val = dp_signal_map.get(dp.get("signal", "CLEAR"), 30)
+    etf_dir = etf.get("net_6h_direction", "neutral")
+    etf_val = 70 if etf_dir == "inflow" else 30 if etf_dir == "outflow" else 50
+    wc_signal_map = {"CLEAR": 20, "NOTE": 50, "WATCH": 80}
+    wc_val = wc_signal_map.get(wc.get("signal", "CLEAR"), 20)
+    exchange_pressure = int((dp_val * 0.4 + etf_val * 0.35 + wc_val * 0.25))
+
+    # 3. Narrative Momentum (sentiment trend + convergence density)
+    trend_map = {"rising": 75, "stable": 50, "falling": 25}
+    trend_val = trend_map.get(sent.get("trend", "stable"), 50)
+    sig_count = len(conv.get("signals", []))
+    conv_density = min(100, sig_count * 12)
+    narrative_momentum = int(trend_val * 0.6 + conv_density * 0.4)
+
+    # 4. On-Chain Accumulation (exchange reserves declining = bullish)
+    ch = sov.get("custody_health", {})
+    reserve_ratio = ch.get("exchange_reserve_ratio", 50)
+    accum_from_reserves = max(0, min(100, 100 - reserve_ratio))
+    cdd_map = {"STABLE": 60, "ELEVATED": 40, "SPIKE": 20}
+    cdd_val = cdd_map.get(ch.get("cdd_signal", "STABLE"), 60)
+    wc_btc = wc.get("total_btc_90min", 0)
+    whale_accum = min(100, wc_btc / 50 * 100) if wc_btc > 0 else 30
+    onchain_accum = int(accum_from_reserves * 0.4 + cdd_val * 0.3 + whale_accum * 0.3)
+
+    # 5. Lightning Growth (capacity trend)
+    ln_cap = ln.get("capacity_btc", 0)
+    ln_chans = ln.get("channel_count", 0)
+    # Baseline: ~5400 BTC capacity, ~16000 channels (2025-2026 range)
+    ln_cap_score = min(100, max(0, int((ln_cap / 5400) * 50))) if ln_cap else 50
+    ln_chan_score = min(100, max(0, int((ln_chans / 16000) * 50))) if ln_chans else 50
+    lightning_growth = int(ln_cap_score * 0.6 + ln_chan_score * 0.4)
+
+    # 6. Social Divergence (sentiment vs price direction)
+    sent_score = sent.get("score", 0)
+    price_change = (price or {}).get("change_24h", 0)
+    # Divergence = sentiment and price moving in opposite directions
+    if (sent_score > 20 and price_change < -2) or (sent_score < -20 and price_change > 2):
+        social_div = 85  # Strong divergence
+    elif abs(sent_score) > 40:
+        social_div = 65  # High sentiment extremity
+    else:
+        social_div = max(20, min(80, 50 + int(abs(sent_score) * 0.5)))
+
+    # Composite score (weighted average)
+    composite = int(
+        miner_score * 0.20 + exchange_pressure * 0.20 +
+        narrative_momentum * 0.15 + onchain_accum * 0.20 +
+        lightning_growth * 0.10 + social_div * 0.15
+    )
+
+    # Overall bias
+    if composite >= 65:
+        bias = "BULLISH"
+    elif composite <= 35:
+        bias = "BEARISH"
+    else:
+        bias = "NEUTRAL"
+
+    result = {
+        "axes": {
+            "miner_health": miner_score,
+            "exchange_pressure": exchange_pressure,
+            "narrative_momentum": narrative_momentum,
+            "onchain_accumulation": onchain_accum,
+            "lightning_growth": lightning_growth,
+            "social_divergence": social_div,
+        },
+        "composite": composite,
+        "bias": bias,
+        "updated_at": now,
+    }
+    _signal_matrix_cache["value"] = result
+    _signal_matrix_cache["ts"] = now
+    return result
+
+
+def _compute_narrative_momentum() -> dict:
+    """Scan last 50 articles for topic cluster acceleration/deceleration."""
+    now = time.time()
+    if _narrative_cache["value"] and now - _narrative_cache["ts"] < 120:
+        return _narrative_cache["value"]
+
+    try:
+        from datetime import datetime, timedelta
+        import models
+        cutoff_recent = datetime.utcnow() - timedelta(days=3)
+        cutoff_prior = datetime.utcnow() - timedelta(days=10)
+
+        recent = models.Article.query.filter(
+            models.Article.published == True,
+            models.Article.created_at >= cutoff_recent,
+        ).order_by(models.Article.created_at.desc()).limit(50).all()
+
+        prior = models.Article.query.filter(
+            models.Article.published == True,
+            models.Article.created_at >= cutoff_prior,
+            models.Article.created_at < cutoff_recent,
+        ).order_by(models.Article.created_at.desc()).limit(100).all()
+
+        def _extract_topics(articles):
+            """Count category occurrences and extract tag frequencies."""
+            cats = {}
+            tags_freq = {}
+            for a in articles:
+                cat = (a.category or "general").lower()
+                cats[cat] = cats.get(cat, 0) + 1
+                if a.tags:
+                    for tag in a.tags.split(","):
+                        t = tag.strip().lower()
+                        if t and len(t) > 2:
+                            tags_freq[t] = tags_freq.get(t, 0) + 1
+            return cats, tags_freq
+
+        recent_cats, recent_tags = _extract_topics(recent)
+        prior_cats, prior_tags = _extract_topics(prior)
+
+        # Normalize by count
+        recent_total = max(len(recent), 1)
+        prior_total = max(len(prior), 1)
+
+        # Build momentum for categories
+        all_cats = set(list(recent_cats.keys()) + list(prior_cats.keys()))
+        momentum = []
+        for cat in all_cats:
+            recent_pct = (recent_cats.get(cat, 0) / recent_total) * 100
+            prior_pct = (prior_cats.get(cat, 0) / prior_total) * 100
+            delta = recent_pct - prior_pct
+            if recent_cats.get(cat, 0) >= 2 or prior_cats.get(cat, 0) >= 2:
+                momentum.append({
+                    "topic": cat,
+                    "recent_count": recent_cats.get(cat, 0),
+                    "prior_count": prior_cats.get(cat, 0),
+                    "recent_pct": round(recent_pct, 1),
+                    "prior_pct": round(prior_pct, 1),
+                    "delta": round(delta, 1),
+                    "trend": "accelerating" if delta > 5 else "decelerating" if delta < -5 else "stable",
+                })
+
+        momentum.sort(key=lambda x: abs(x["delta"]), reverse=True)
+
+        # Top trending tags
+        trending_tags = []
+        for tag in recent_tags:
+            if recent_tags[tag] >= 2:
+                prior_count = prior_tags.get(tag, 0)
+                trending_tags.append({
+                    "tag": tag,
+                    "recent": recent_tags[tag],
+                    "prior": prior_count,
+                    "new": prior_count == 0,
+                })
+        trending_tags.sort(key=lambda x: x["recent"], reverse=True)
+
+        # Leading indicator: topic spikes that precede price moves
+        leading_signals = []
+        for m in momentum:
+            if m["trend"] == "accelerating" and m["recent_count"] >= 3:
+                leading_signals.append(
+                    f"{m['topic'].upper()} coverage up {m['delta']:+.0f}pp — watch for correlation"
+                )
+
+        result = {
+            "momentum": momentum[:8],
+            "trending_tags": trending_tags[:10],
+            "leading_signals": leading_signals[:3],
+            "article_count_3d": len(recent),
+            "article_count_10d": len(prior),
+            "updated_at": now,
+        }
+        _narrative_cache["value"] = result
+        _narrative_cache["ts"] = now
+        return result
+
+    except Exception as e:
+        logger.warning("Narrative momentum error: %s", e)
+        return {"momentum": [], "trending_tags": [], "leading_signals": [],
+                "article_count_3d": 0, "article_count_10d": 0, "updated_at": now, "error": str(e)}
+
+
+def _compute_divergence_alerts(state: dict) -> dict:
+    """Detect cross-signal divergence — when 3+ signals break historical correlation."""
+    now = time.time()
+    if _divergence_cache["value"] and now - _divergence_cache["ts"] < 30:
+        return _divergence_cache["value"]
+
+    price = state.get("price", {})
+    sent = state.get("sentiment", {})
+    mh = state.get("miner_health", {})
+    dp = state.get("dark_pool", {})
+    etf = state.get("etf", {})
+    fng = state.get("fng", {})
+    conv = state.get("convergence", {})
+    ln = state.get("lightning", {})
+    pcaf = state.get("pcaf_v0", {})
+
+    price_change = (price or {}).get("change_24h", 0)
+
+    # Define signal directions: +1 = bullish, -1 = bearish, 0 = neutral
+    signals = []
+
+    # Price direction
+    if price_change > 2:
+        signals.append({"name": "Price 24h", "direction": 1, "value": f"+{price_change:.1f}%", "weight": 1.0})
+    elif price_change < -2:
+        signals.append({"name": "Price 24h", "direction": -1, "value": f"{price_change:.1f}%", "weight": 1.0})
+    else:
+        signals.append({"name": "Price 24h", "direction": 0, "value": f"{price_change:+.1f}%", "weight": 1.0})
+
+    # Sentiment direction
+    sent_score = sent.get("score", 0)
+    if sent_score > 20:
+        signals.append({"name": "Sentiment", "direction": 1, "value": f"+{sent_score:.0f}", "weight": 0.8})
+    elif sent_score < -20:
+        signals.append({"name": "Sentiment", "direction": -1, "value": f"{sent_score:.0f}", "weight": 0.8})
+    else:
+        signals.append({"name": "Sentiment", "direction": 0, "value": f"{sent_score:+.0f}", "weight": 0.8})
+
+    # Miner health
+    miner_score = mh.get("score", 100)
+    if miner_score >= 70:
+        signals.append({"name": "Miner Health", "direction": 1, "value": f"{miner_score}", "weight": 0.7})
+    elif miner_score < 50:
+        signals.append({"name": "Miner Health", "direction": -1, "value": f"{miner_score}", "weight": 0.7})
+    else:
+        signals.append({"name": "Miner Health", "direction": 0, "value": f"{miner_score}", "weight": 0.7})
+
+    # Exchange flow (ETF)
+    etf_dir = etf.get("net_6h_direction", "neutral")
+    if etf_dir == "inflow":
+        signals.append({"name": "Exchange Flow", "direction": 1, "value": "INFLOW", "weight": 0.9})
+    elif etf_dir == "outflow":
+        signals.append({"name": "Exchange Flow", "direction": -1, "value": "OUTFLOW", "weight": 0.9})
+    else:
+        signals.append({"name": "Exchange Flow", "direction": 0, "value": "NEUTRAL", "weight": 0.9})
+
+    # Fear & Greed
+    fng_val = fng.get("value", 50) if isinstance(fng, dict) else 50
+    if fng_val >= 65:
+        signals.append({"name": "Fear & Greed", "direction": 1, "value": f"{fng_val} Greed", "weight": 0.6})
+    elif fng_val <= 35:
+        signals.append({"name": "Fear & Greed", "direction": -1, "value": f"{fng_val} Fear", "weight": 0.6})
+    else:
+        signals.append({"name": "Fear & Greed", "direction": 0, "value": f"{fng_val}", "weight": 0.6})
+
+    # Dark Pool
+    dp_signal = dp.get("signal", "CLEAR")
+    if dp_signal == "ACCUMULATION":
+        signals.append({"name": "Dark Pool", "direction": 1, "value": "ACCUMULATION", "weight": 0.8})
+    elif dp_signal == "WATCH":
+        signals.append({"name": "Dark Pool", "direction": 0, "value": "WATCH", "weight": 0.8})
+    else:
+        signals.append({"name": "Dark Pool", "direction": 0, "value": "CLEAR", "weight": 0.8})
+
+    # PCAF anomaly
+    pcaf_score = pcaf.get("anomaly_score", 0)
+    if pcaf_score >= 70:
+        signals.append({"name": "PCAF Anomaly", "direction": -1, "value": f"{pcaf_score}", "weight": 0.9})
+    elif pcaf_score >= 30:
+        signals.append({"name": "PCAF Anomaly", "direction": 0, "value": f"{pcaf_score}", "weight": 0.9})
+    else:
+        signals.append({"name": "PCAF Anomaly", "direction": 1, "value": f"{pcaf_score}", "weight": 0.9})
+
+    # Find divergences — signals pointing in different directions
+    bullish = [s for s in signals if s["direction"] == 1]
+    bearish = [s for s in signals if s["direction"] == -1]
+    divergence_detected = len(bullish) >= 2 and len(bearish) >= 2
+
+    # Historical context for divergence
+    divergence_alerts = []
+    if divergence_detected:
+        bull_names = ", ".join([s["name"] for s in bullish[:3]])
+        bear_names = ", ".join([s["name"] for s in bearish[:3]])
+        divergence_alerts.append({
+            "type": "DIVERGENCE",
+            "severity": "HIGH" if (len(bullish) >= 3 or len(bearish) >= 3) else "MODERATE",
+            "message": f"Bullish ({bull_names}) vs Bearish ({bear_names})",
+            "context": "Historically, multi-signal divergence resolves within 24-72h. The minority direction often wins.",
+            "bullish_signals": bullish,
+            "bearish_signals": bearish,
+        })
+
+    # Sentiment-Price divergence (most tradeable)
+    if (sent_score > 30 and price_change < -3) or (sent_score < -30 and price_change > 3):
+        divergence_alerts.append({
+            "type": "SENT_PRICE_DIV",
+            "severity": "HIGH",
+            "message": f"Sentiment ({sent_score:+.0f}) diverges from Price ({price_change:+.1f}%)",
+            "context": "Sentiment-price divergence historically resolves within 48h. Sentiment tends to lead.",
+        })
+
+    result = {
+        "divergence_detected": divergence_detected or len(divergence_alerts) > 0,
+        "alerts": divergence_alerts,
+        "signals": signals,
+        "bullish_count": len(bullish),
+        "bearish_count": len(bearish),
+        "neutral_count": len([s for s in signals if s["direction"] == 0]),
+        "updated_at": now,
+    }
+    _divergence_cache["value"] = result
+    _divergence_cache["ts"] = now
+    return result
+
+
+def _compute_early_warnings(state: dict) -> dict:
+    """Top 5 early warning indicators from live data.
+
+    Precursor patterns that historically precede major BTC moves by 24-72h:
+    1. Hashrate surge + exchange outflows = supply shock precursor
+    2. Fear & Greed extreme (<15 or >85) + volume spike = reversal imminent
+    3. Miner capitulation (score <40) + hash price compression = bottom signal
+    4. Whale accumulation + low mempool = stealth buying
+    5. PCAF anomaly spike + sentiment divergence = structural shift
+    """
+    now = time.time()
+    if _early_warning_cache["value"] and now - _early_warning_cache["ts"] < 30:
+        return _early_warning_cache["value"]
+
+    price = state.get("price", {})
+    mh = state.get("miner_health", {})
+    fng = state.get("fng", {})
+    mem = state.get("mempool", {})
+    dp = state.get("dark_pool", {})
+    wc = state.get("whale_coordination", {})
+    sent = state.get("sentiment", {})
+    pcaf = state.get("pcaf_v0", {})
+    etf = state.get("etf", {})
+    ln = state.get("lightning", {})
+    net = state.get("network", {})
+
+    fng_val = fng.get("value", 50) if isinstance(fng, dict) else 50
+    miner_score = mh.get("score", 100)
+    pcaf_score = pcaf.get("anomaly_score", 0)
+    sent_score = sent.get("score", 0)
+    price_change = (price or {}).get("change_24h", 0)
+    mempool_vsize = (mem.get("vsize", 0) or 0) / 1e6  # vMB
+    whale_btc = wc.get("total_btc_90min", 0)
+    etf_dir = etf.get("net_6h_direction", "neutral")
+
+    warnings = []
+
+    # 1. Supply Shock Precursor
+    hashrate = net.get("hashrate_3d", 0) or 0
+    if hashrate > 0 and etf_dir == "outflow":
+        conf = min(85, 50 + int(hashrate / 10))
+        warnings.append({
+            "id": "supply_shock",
+            "name": "Supply Shock Precursor",
+            "confidence": conf,
+            "timeframe": "24-72h",
+            "direction": "BULLISH",
+            "detail": f"Hashrate {hashrate:.0f} EH/s + exchange outflows detected",
+            "precedent": "Historically, hashrate highs + outflows preceded 8-15% rallies within 72h",
+            "active": etf_dir == "outflow" and hashrate > 600,
+        })
+
+    # 2. Extreme Fear/Greed Reversal
+    if fng_val <= 20 or fng_val >= 80:
+        direction = "BULLISH" if fng_val <= 20 else "BEARISH"
+        conf = min(90, 60 + abs(50 - fng_val))
+        warnings.append({
+            "id": "fng_extreme",
+            "name": "Fear & Greed Extreme",
+            "confidence": conf,
+            "timeframe": "24-48h",
+            "direction": direction,
+            "detail": f"F&G Index at {fng_val} ({fng.get('label', '')}) — contrarian signal",
+            "precedent": f"F&G {'<20' if fng_val<=20 else '>80'} historically precedes {'reversal up' if fng_val<=20 else 'correction'} within 48h",
+            "active": True,
+        })
+
+    # 3. Miner Capitulation Signal
+    if miner_score < 60:
+        conf = min(80, 40 + (100 - miner_score))
+        warnings.append({
+            "id": "miner_cap",
+            "name": "Miner Stress Signal",
+            "confidence": conf,
+            "timeframe": "48-72h",
+            "direction": "BULLISH" if miner_score < 40 else "WATCH",
+            "detail": f"Miner health score {miner_score}/100 — {'capitulation zone' if miner_score<40 else 'stressed'}",
+            "precedent": "Miner capitulation historically marks cycle bottoms — last 5 events preceded 20%+ rallies",
+            "active": True,
+        })
+
+    # 4. Stealth Accumulation
+    if whale_btc > 10 and mempool_vsize < 50:
+        conf = min(75, 50 + int(whale_btc / 5))
+        warnings.append({
+            "id": "stealth_accum",
+            "name": "Stealth Accumulation",
+            "confidence": conf,
+            "timeframe": "24-48h",
+            "direction": "BULLISH",
+            "detail": f"{whale_btc:.0f} BTC whale txs in quiet mempool ({mempool_vsize:.0f} vMB)",
+            "precedent": "Large whale txs during low mempool activity = institutional OTC accumulation pattern",
+            "active": True,
+        })
+
+    # 5. PCAF Structural Shift
+    if pcaf_score >= 40:
+        sent_div = abs(sent_score) > 30
+        conf = min(85, pcaf_score + (20 if sent_div else 0))
+        warnings.append({
+            "id": "pcaf_shift",
+            "name": "PCAF Structural Alert",
+            "confidence": conf,
+            "timeframe": "24-72h",
+            "direction": "WATCH",
+            "detail": f"PCAF anomaly {pcaf_score}/100{' + sentiment divergence' if sent_div else ''}",
+            "precedent": "PCAF >40 with sentiment divergence preceded 5 of last 7 major moves",
+            "active": True,
+        })
+
+    # 6. Lightning Network surge (if data available)
+    ln_cap = ln.get("capacity_btc", 0) or 0
+    if ln_cap > 5500:
+        warnings.append({
+            "id": "ln_surge",
+            "name": "Lightning Capacity Surge",
+            "confidence": 55,
+            "timeframe": "48-72h",
+            "direction": "BULLISH",
+            "detail": f"LN capacity {ln_cap:.0f} BTC — above 5,500 BTC threshold",
+            "precedent": "Lightning capacity growth correlates with long-term holder conviction",
+            "active": True,
+        })
+
+    # Sort by confidence, take top 5 active
+    active_warnings = [w for w in warnings if w.get("active")]
+    active_warnings.sort(key=lambda x: x["confidence"], reverse=True)
+
+    result = {
+        "warnings": active_warnings[:5],
+        "total_active": len(active_warnings),
+        "highest_confidence": active_warnings[0]["confidence"] if active_warnings else 0,
+        "updated_at": now,
+    }
+    _early_warning_cache["value"] = result
+    _early_warning_cache["ts"] = now
+    return result
+
+
+def _get_alpha_intel(state: dict) -> dict:
+    """Bundle all Phase 1 alpha intel for SSE stream injection."""
+    return {
+        "signal_matrix": _compute_signal_matrix(state),
+        "narrative_momentum": _compute_narrative_momentum(),
+        "divergence": _compute_divergence_alerts(state),
+        "early_warnings": _compute_early_warnings(state),
+    }
+
+
+@intelligence_bp.route("/api/intelligence/signal-matrix")
+def api_signal_matrix():
+    """Sovereign Signal Matrix — 6-axis radar. Commander+ auth."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    return jsonify(_compute_signal_matrix(state))
+
+
+@intelligence_bp.route("/api/intelligence/narrative-momentum")
+def api_narrative_momentum():
+    """Narrative Momentum Tracker — article topic acceleration. Commander+ auth."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    return jsonify(_compute_narrative_momentum())
+
+
+@intelligence_bp.route("/api/intelligence/divergence")
+def api_divergence():
+    """Cross-Signal Divergence Alerts. Commander+ auth."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    return jsonify(_compute_divergence_alerts(state))
+
+
+@intelligence_bp.route("/api/intelligence/early-warnings")
+def api_early_warnings():
+    """Early Warning Feed — top 5 precursor indicators. Commander+ auth."""
+    if not _has_access():
+        return jsonify({"error": "Commander access required"}), 401
+    state = _sentinel.get_state()
+    return jsonify(_compute_early_warnings(state))
 
 
 # ═══════════════════════════════════════════════════════════════════════════

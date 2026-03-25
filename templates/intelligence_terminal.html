@@ -1,0 +1,2608 @@
+{% extends "base.html" %}
+
+{% block title %}Intelligence Terminal | Protocol Pulse{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   INTELLIGENCE TERMINAL — War Room Aesthetic
+   Reuters meets Bloomberg meets Matrix Sentinel
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+    /* ── Core surfaces ── */
+    --it-bg: #0A0A0F;
+    --it-surface: #0D0D16;
+    --it-surface-elevated: #12121F;
+    --it-border: #1A1A2E;
+    --it-border-active: #2A2A4E;
+    /* ── Text hierarchy ── */
+    --it-text: #E2E2EF;
+    --it-text-secondary: #8888AA;
+    --it-muted: #555577;
+    --it-label: #8888AA;
+    --it-panel-header: #7777AA;
+    /* ── Semantic colors ── */
+    --it-red: #FF0033;
+    --it-amber: #FFAA00;
+    --it-green: #00FF88;
+    --it-blue: #4488FF;
+    --it-purple: #8B5CF6;
+    --it-gold: #F0B90B;
+    --it-cyan: #00D4FF;
+    /* ── State aliases ── */
+    --it-nominal: #00FF88;
+    --it-watch: #FFAA00;
+    --it-critical: #FF0033;
+    --it-scanning: #00D4FF;
+}
+
+body.intel-terminal {
+    background: var(--it-bg) !important;
+    color: var(--it-text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Hide base.html navigation if present */
+body.intel-terminal nav,
+body.intel-terminal .navbar,
+body.intel-terminal footer,
+body.intel-terminal .site-footer {
+    display: none !important;
+}
+
+.it-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 12px;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.it-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--it-border);
+    background: var(--it-bg);
+}
+.it-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.it-logo {
+    color: var(--it-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.it-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--it-label);
+}
+.it-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--it-text);
+    letter-spacing: 1px;
+}
+.it-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.it-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--it-green);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ── ALERT RAIL ─────────────────────────────────────────────── */
+.it-alert-rail {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-bottom: 1px solid var(--it-border);
+    background: var(--it-surface);
+    min-height: 32px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.it-alert-critical {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--it-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+.it-alert-critical .pulse-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--it-red);
+    animation: criticalPulse 1s ease-in-out infinite;
+}
+@keyframes criticalPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
+    50% { box-shadow: 0 0 0 6px rgba(255,0,0,0); }
+}
+.it-alert-watch {
+    color: var(--it-amber);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+}
+.it-alert-notes {
+    margin-left: auto;
+    color: var(--it-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+/* ── GRID LAYOUT ────────────────────────────────────────────── */
+.it-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr;
+    gap: 1px;
+    background: var(--it-border);
+    margin-top: 1px;
+}
+.it-grid-phase2 {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 1px;
+    background: var(--it-border);
+    margin-top: 0;
+}
+
+/* ── PANEL ──────────────────────────────────────────────────── */
+.it-panel {
+    background: var(--it-bg);
+    padding: 16px;
+    border: 1px solid var(--it-border);
+    min-height: 280px;
+    position: relative;
+}
+.it-panel-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--it-panel-header);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--it-border);
+}
+
+/* ── DATA VALUES ────────────────────────────────────────────── */
+.it-value-primary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--it-text);
+    line-height: 1.1;
+}
+.it-value-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--it-label);
+    margin-top: 2px;
+}
+.it-value-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(26,26,46,0.5);
+}
+.it-value-row-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--it-label);
+}
+.it-value-row-data {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--it-text);
+}
+.it-stale {
+    color: var(--it-muted) !important;
+}
+.it-stale::before {
+    content: "~";
+}
+
+/* ── CRITICAL FLASH ────────────────────────────────────────── */
+@keyframes criticalFlash {
+    0%, 100% { border-color: transparent; }
+    25%, 75% { border-color: var(--it-red); }
+}
+.it-flash-critical {
+    animation: criticalFlash 2s ease !important;
+    border: 2px solid transparent;
+}
+
+/* ── DRILL-DOWN OVERLAY ────────────────────────────────────── */
+.it-drilldown {
+    border-top: 1px solid var(--it-border);
+    padding-top: 8px;
+    margin-top: 8px;
+}
+
+/* ── KEYBOARD HELP OVERLAY ─────────────────────────────────── */
+.it-kb-overlay {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--it-surface);
+    border: 1px solid var(--it-border);
+    padding: 24px;
+    z-index: 200;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--it-text);
+    min-width: 280px;
+}
+.it-kb-overlay h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: var(--it-red);
+}
+.it-kb-overlay .kb-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--it-border);
+}
+.it-kb-overlay .kb-key {
+    background: var(--it-border);
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+/* ── SOVEREIGN SIGNAL MATRIX (Radar Chart) ─────────────────── */
+.it-radar-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.it-radar-composite {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+.it-radar-composite-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+}
+.it-radar-composite-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--it-label);
+    margin-top: 2px;
+}
+.it-radar-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    margin-top: 10px;
+}
+.it-radar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--it-label);
+}
+.it-radar-legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.it-radar-legend-val {
+    margin-left: auto;
+    color: var(--it-text);
+    font-weight: 500;
+}
+
+/* ── NARRATIVE MOMENTUM ────────────────────────────────────── */
+.it-momentum-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(26,26,46,0.3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+}
+.it-momentum-topic {
+    min-width: 80px;
+    color: var(--it-label);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.it-momentum-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: rgba(26,26,46,0.5);
+    position: relative;
+    overflow: hidden;
+}
+.it-momentum-bar {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+.it-momentum-delta {
+    min-width: 50px;
+    text-align: right;
+    font-weight: 700;
+}
+.it-momentum-arrow {
+    font-size: 12px;
+    min-width: 16px;
+    text-align: center;
+}
+.it-leading-signal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 6px;
+    margin: 2px 0;
+    background: rgba(248,193,92,0.06);
+    border-left: 2px solid var(--it-gold);
+    color: var(--it-text);
+}
+
+/* ── DIVERGENCE ALERT ──────────────────────────────────────── */
+.it-divergence-banner {
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--it-red);
+    background: rgba(255,0,51,0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--it-red);
+    font-weight: 700;
+    letter-spacing: 1px;
+    animation: criticalFlash 2s ease-in-out infinite;
+}
+.it-divergence-banner.moderate {
+    border-color: var(--it-amber);
+    background: rgba(255,170,0,0.06);
+    color: var(--it-amber);
+    animation: none;
+}
+.it-divergence-context {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--it-text-secondary);
+    margin-top: 6px;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+.it-signal-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.it-signal-chip.bullish {
+    background: rgba(0,255,136,0.10);
+    color: var(--it-green);
+    border: 1px solid rgba(0,255,136,0.2);
+}
+.it-signal-chip.bearish {
+    background: rgba(255,0,51,0.10);
+    color: var(--it-red);
+    border: 1px solid rgba(255,0,51,0.2);
+}
+.it-signal-chip.neutral {
+    background: rgba(136,136,170,0.10);
+    color: var(--it-label);
+    border: 1px solid rgba(136,136,170,0.2);
+}
+
+/* ── EARLY WARNING FEED ────────────────────────────────────── */
+.it-warning-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(26,26,46,0.5);
+}
+.it-warning-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.it-warning-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--it-text);
+}
+.it-warning-conf {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+.it-warning-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.it-warning-badge.bullish { background: rgba(0,255,136,0.12); color: var(--it-green); }
+.it-warning-badge.bearish { background: rgba(255,0,51,0.12); color: var(--it-red); }
+.it-warning-badge.watch { background: rgba(255,170,0,0.12); color: var(--it-amber); }
+.it-warning-detail {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--it-label);
+    margin-top: 3px;
+}
+.it-warning-precedent {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: var(--it-muted);
+    margin-top: 2px;
+    font-style: italic;
+}
+.it-warning-timeframe {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--it-cyan);
+    margin-top: 2px;
+}
+
+/* ── PHASE 4 ALPHA GRID ───────────────────────────────────── */
+.it-grid-alpha {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--it-border);
+    margin-top: 0;
+}
+.it-grid-alpha-bottom {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1px;
+    background: var(--it-border);
+    margin-top: 0;
+}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+    .it-grid, .it-grid-phase2, .it-grid-alpha, .it-grid-alpha-bottom {
+        grid-template-columns: 1fr;
+    }
+    #network-svg { display: none; }
+    .it-header { flex-wrap: wrap; gap: 8px; }
+    .it-data-rail { flex-wrap: wrap; }
+    .it-panel { min-height: auto; }
+    .it-radar-legend { grid-template-columns: 1fr; }
+}
+
+/* ── ANOMALY BAR ────────────────────────────────────────────── */
+.it-anomaly-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(26,26,46,0.8);
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+}
+.it-anomaly-fill {
+    height: 100%;
+    transition: width 0.5s ease, background 0.5s ease;
+}
+.it-anomaly-fill.green { background: var(--it-green); }
+.it-anomaly-fill.amber { background: var(--it-amber); }
+.it-anomaly-fill.red { background: var(--it-red); }
+
+/* ── FEE HISTOGRAM (ASCII bars) ─────────────────────────────── */
+.it-fee-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+}
+.it-fee-label {
+    width: 80px;
+    text-align: right;
+    color: var(--it-label);
+    flex-shrink: 0;
+}
+.it-fee-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(26,26,46,0.5);
+    position: relative;
+    overflow: hidden;
+}
+.it-fee-bar-fill {
+    height: 100%;
+    background: var(--it-green);
+    transition: width 0.3s ease;
+}
+.it-fee-pct {
+    width: 35px;
+    text-align: right;
+    color: var(--it-muted);
+    flex-shrink: 0;
+}
+
+/* ── WHALE FEED ─────────────────────────────────────────────── */
+.it-whale-feed {
+    max-height: 140px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--it-border) transparent;
+}
+.it-whale-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 0;
+    color: var(--it-text);
+    border-bottom: 1px solid rgba(26,26,46,0.3);
+}
+.it-whale-time {
+    color: var(--it-muted);
+}
+.it-whale-value {
+    color: var(--it-amber);
+    font-weight: 700;
+}
+
+/* ── ACTIVE RULES ───────────────────────────────────────────── */
+.it-rule {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 6px;
+    margin: 2px 0;
+    background: rgba(255,0,0,0.06);
+    border-left: 2px solid var(--it-red);
+    color: var(--it-text);
+}
+.it-rule.watch {
+    border-left-color: var(--it-amber);
+    background: rgba(255,184,0,0.06);
+}
+.it-rule.note {
+    border-left-color: var(--it-muted);
+    background: rgba(68,68,68,0.06);
+}
+
+/* ── DATA RAIL ──────────────────────────────────────────────── */
+.it-data-rail {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 16px;
+    border-top: 1px solid var(--it-border);
+    background: var(--it-surface);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.it-rail-item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+}
+.it-rail-label {
+    color: var(--it-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.it-rail-value {
+    color: var(--it-text);
+    font-weight: 500;
+}
+
+/* ── CONNECTING STATE ───────────────────────────────────────── */
+.it-connecting {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--it-label);
+}
+.it-blink {
+    animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* ── DEMO OVERLAY ───────────────────────────────────────────── */
+.it-demo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,15,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.it-demo-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--it-amber);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 1px solid var(--it-amber);
+    margin-bottom: 12px;
+}
+.it-demo-cta {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--it-label);
+}
+.it-demo-cta a {
+    color: var(--it-amber);
+    text-decoration: none;
+}
+
+/* ── CRITICAL FLASH ─────────────────────────────────────────── */
+@keyframes criticalFlash {
+    0%, 100% { border-color: var(--it-border); }
+    25%, 75% { border-color: var(--it-red); }
+}
+.it-flash-critical {
+    animation: criticalFlash 2s ease-in-out;
+}
+
+/* ── SENTIMENT PULSE ────────────────────────────────────────── */
+.it-sentiment-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+}
+.it-sentiment-trend {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    margin-left: 8px;
+}
+.it-source-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+}
+.it-source-label { color: var(--it-label); min-width: 48px; }
+.it-source-fill-wrap {
+    flex: 1; height: 6px; background: rgba(26,26,46,0.8);
+    overflow: hidden;
+}
+.it-source-fill { height: 100%; transition: width 0.5s ease; }
+.it-source-pct { color: var(--it-muted); min-width: 36px; text-align: right; }
+.it-tier1-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 6px;
+}
+.it-tier1-dot.active { background: var(--it-amber); animation: statusPulse 1.5s ease-in-out infinite; }
+.it-tier1-dot.inactive { background: var(--it-muted); }
+
+/* ── SOVEREIGN LAYER ────────────────────────────────────────── */
+.it-jurisdiction-summary {
+    display: flex; gap: 12px; margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.it-jurisdiction-count {
+    padding: 4px 8px; border-radius: 2px;
+    background: rgba(26,26,46,0.5);
+}
+.it-custody-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+}
+.it-custody-label { color: var(--it-label); min-width: 100px; }
+.it-custody-bar { flex: 1; height: 6px; background: rgba(26,26,46,0.8); overflow: hidden; }
+.it-custody-fill { height: 100%; background: var(--it-green); transition: width 0.5s ease; }
+.it-custody-value { color: var(--it-text); min-width: 60px; text-align: right; }
+
+/* ── NETWORK GRAPH ──────────────────────────────────────────── */
+#network-svg { width: 100%; }
+.it-graph-tooltip {
+    position: absolute; display: none; padding: 6px 10px;
+    background: rgba(15,15,24,0.95); border: 1px solid var(--it-border);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--it-text); pointer-events: none; z-index: 20;
+    white-space: nowrap;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .it-grid { grid-template-columns: 1fr; }
+    .it-grid-phase2 { grid-template-columns: 1fr; }
+    .it-data-rail { flex-direction: column; align-items: flex-start; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PANEL STATE SYSTEM — nominal / watch / critical / scanning
+   ═══════════════════════════════════════════════════════════════════════ */
+.it-panel[data-state="nominal"] {
+    border-left: 2px solid rgba(0,255,136,0.3);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.it-panel[data-state="watch"] {
+    border-left: 2px solid var(--it-amber);
+    background: rgba(255,170,0,0.02);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.it-panel[data-state="critical"] {
+    border-left: 2px solid var(--it-red);
+    background: rgba(255,0,51,0.03);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.it-panel[data-state="critical"] .it-panel-header {
+    color: var(--it-red);
+}
+.it-panel[data-state="scanning"] {
+    border-left: 2px solid var(--it-cyan);
+    position: relative;
+    overflow: hidden;
+}
+.it-panel[data-state="scanning"]::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.08), transparent);
+    animation: scanLine 4s linear infinite;
+}
+@keyframes scanLine {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+.it-panel[data-state="loading"] {
+    opacity: 0.5;
+}
+.it-panel[data-state="loading"] .it-panel-header::after {
+    content: ' ...';
+    animation: blink 1s step-end infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   VALUE FLASH — animate on SSE updates (green up, red down)
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes valueFlashUp {
+    0% { color: var(--it-green); text-shadow: 0 0 6px rgba(0,255,136,0.4); }
+    100% { color: var(--it-text); text-shadow: none; }
+}
+@keyframes valueFlashDown {
+    0% { color: var(--it-red); text-shadow: 0 0 6px rgba(255,0,51,0.4); }
+    100% { color: var(--it-text); text-shadow: none; }
+}
+.value-flash-up { animation: valueFlashUp 450ms ease-out; }
+.value-flash-down { animation: valueFlashDown 450ms ease-out; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TABULAR NUMBERS — prevent width jitter on live updates
+   ═══════════════════════════════════════════════════════════════════════ */
+.it-value-primary,
+.it-value-row-data,
+.it-rail-value,
+.it-sentiment-score,
+.it-fee-pct,
+.it-whale-value {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INTEL SUB-NAVIGATION
+   ═══════════════════════════════════════════════════════════════════════ */
+.intel-subnav {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 36px;
+    background: var(--it-surface);
+    border-bottom: 1px solid var(--it-border);
+    gap: 0;
+}
+.intel-subnav-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--it-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+}
+.intel-subnav-tab:hover {
+    color: var(--it-text-secondary);
+}
+.intel-subnav-tab.active {
+    color: var(--it-text);
+    font-weight: 600;
+    border-bottom-color: var(--it-red);
+}
+.subnav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--it-muted);
+    flex-shrink: 0;
+}
+.subnav-dot.live {
+    background: var(--it-green);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+.subnav-dot.alert {
+    background: var(--it-amber);
+    animation: statusPulse 1.5s ease-in-out infinite;
+}
+.subnav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--it-red);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CONVERGENCE THREAT MATRIX — the screenshot moment
+   ═══════════════════════════════════════════════════════════════════════ */
+.it-threat-matrix {
+    width: 100%;
+    height: 80px;
+    background: var(--it-bg);
+    border: 1px solid var(--it-border);
+    position: relative;
+    overflow: hidden;
+    margin-top: 1px;
+}
+.it-threat-matrix-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(90deg, rgba(26,26,46,0.1) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(26,26,46,0.1) 1px, transparent 1px);
+    background-size: 40px 16px;
+}
+.it-threat-lane {
+    position: absolute;
+    left: 120px;
+    right: 80px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+}
+.it-threat-lane-label {
+    position: absolute;
+    left: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--it-muted);
+    width: 90px;
+}
+.it-threat-lane:nth-child(2) { top: 6px; }
+.it-threat-lane:nth-child(3) { top: 20px; }
+.it-threat-lane:nth-child(4) { top: 34px; }
+.it-threat-lane:nth-child(5) { top: 48px; }
+.it-threat-lane:nth-child(6) { top: 62px; }
+.it-threat-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: absolute;
+    transition: opacity 0.5s ease;
+}
+.it-threat-convergence-line {
+    position: absolute;
+    width: 2px;
+    top: 4px;
+    bottom: 4px;
+    background: linear-gradient(180deg, var(--it-cyan), var(--it-gold));
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(0,212,255,0.4);
+}
+.it-threat-state {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--it-green);
+}
+.it-threat-state.watch { color: var(--it-amber); }
+.it-threat-state.alert { color: var(--it-amber); text-shadow: 0 0 12px rgba(255,170,0,0.3); }
+.it-threat-state.critical {
+    color: var(--it-red);
+    text-shadow: 0 0 16px rgba(255,0,51,0.4);
+    animation: criticalPulse 1s ease-in-out infinite;
+}
+.it-threat-matrix.critical-vignette {
+    box-shadow: inset 0 0 30px rgba(255,0,51,0.08);
+}
+@media (max-width: 900px) {
+    .intel-subnav { overflow-x: auto; }
+    .intel-subnav-tab { padding: 0 10px; font-size: 9px; }
+    .it-threat-matrix { height: 60px; }
+    .it-threat-lane-label { display: none; }
+    .it-threat-lane { left: 8px; }
+    .it-threat-state { font-size: 14px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<body class="intel-terminal">
+<div class="it-container">
+
+    <!-- HEADER -->
+    <div class="it-header">
+        <div class="it-header-left">
+            <div class="it-logo">PP</div>
+            <div class="it-title">Intelligence Terminal</div>
+            <div class="it-status">
+                <div class="it-status-dot"></div>
+                <span id="itConnectionStatus">CONNECTING<span class="it-blink">_</span></span>
+            </div>
+        </div>
+        <div class="it-clock" id="itClock">--:--:-- ET</div>
+    </div>
+
+    <!-- INTEL SUB-NAV -->
+    {% include "macros/intel_subnav.html" %}
+
+    <!-- ALERT RAIL -->
+    <div class="it-alert-rail" id="itAlertRail">
+        {% if demo_mode %}
+        <div class="it-alert-critical" style="display:flex;">
+            <div class="pulse-indicator"></div>
+            <span>[ CLASSIFIED — Commander Access Required ]</span>
+        </div>
+        <div class="it-alert-notes"><a href="/join" style="color:var(--it-cyan);text-decoration:none;">UNLOCK ALERTS →</a></div>
+        {% else %}
+        <div class="it-alert-critical" id="itAlertCritical" style="display:none;">
+            <div class="pulse-indicator"></div>
+            <span id="itCriticalText"></span>
+        </div>
+        <div class="it-alert-watch" id="itAlertWatch" style="display:none;">
+            <span id="itWatchText"></span>
+        </div>
+        <div class="it-alert-notes" id="itAlertNotes">0 NOTES</div>
+        {% endif %}
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="it-grid">
+
+        <!-- SENTINEL CORE -->
+        <div class="it-panel" id="panelSentinel" data-state="nominal">
+            <div class="it-panel-header">Sentinel Core</div>
+            <div class="it-value-label">PCAF ANOMALY SCORE</div>
+            <div class="it-value-primary" id="itPcafScore">--</div>
+            <div class="it-anomaly-bar">
+                <div class="it-anomaly-fill green" id="itAnomalyFill" style="width:0%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Top Signal</span>
+                <span class="it-value-row-data" id="itTopSignal">--</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Confidence</span>
+                <span class="it-value-row-data" id="itConfidence">--%</span>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">ACTIVE RULES</div>
+                <div id="itActiveRules">
+                    <div class="it-connecting">No signals<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- CONVERGENCE DETECTION -->
+        <div class="it-panel" id="panelConvergence" data-state="scanning">
+            <div class="it-panel-header">Convergence Matrix</div>
+            <div class="it-value-label">CONVERGENCE STATE</div>
+            <div class="it-value-primary" id="itConvergenceState" style="font-size:28px">IDLE</div>
+            <div class="it-anomaly-bar" style="margin-top:8px">
+                <div class="it-anomaly-fill green" id="itConvergenceFill" style="width:0%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Active Signals</span>
+                <span class="it-value-row-data" id="itConvergenceSignals">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Contradiction</span>
+                <span class="it-value-row-data" id="itConvergenceContradiction" style="color:var(--it-green)">CLEAR</span>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">PATTERN STATUS</div>
+                <div id="itConvergencePatterns">
+                    <div class="it-connecting">Initializing<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">SIGNAL FEED</div>
+                <div id="itConvergenceSignalFeed" style="max-height:120px;overflow-y:auto">
+                    <div class="it-connecting">Waiting<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- MEMPOOL LIVE -->
+        <div class="it-panel" id="panelMempool" data-state="nominal">
+            <div class="it-panel-header">Mempool Live</div>
+            <div class="it-value-label">UNCONFIRMED TXS</div>
+            <div class="it-value-primary" id="itMempoolCount">--</div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Mempool Size</span>
+                <span class="it-value-row-data" id="itMempoolVsize">-- vMB</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Total Fees</span>
+                <span class="it-value-row-data" id="itMempoolFees">-- BTC</span>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">FEE BANDS (sat/vB)</div>
+                <div id="itFeeHistogram">
+                    <div class="it-connecting">Loading<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">WHALE TX FEED</div>
+                <div class="it-whale-feed" id="itWhaleFeed">
+                    <div class="it-connecting">Monitoring<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- NETWORK STATE -->
+        <div class="it-panel" id="panelNetwork" data-state="nominal">
+            <div class="it-panel-header">Network State</div>
+            <div class="it-value-label">BLOCK HEIGHT</div>
+            <div class="it-value-primary" id="itBlockHeight">--</div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Hashrate (3d avg)</span>
+                <span class="it-value-row-data" id="itHashrate">-- EH/s</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Difficulty Change</span>
+                <span class="it-value-row-data" id="itDifficulty">--%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Next Adj Progress</span>
+                <span class="it-value-row-data" id="itNextAdj">--%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Avg Block Time (10)</span>
+                <span class="it-value-row-data" id="itAvgBlockTime">--s</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Orphans (6h)</span>
+                <span class="it-value-row-data" id="itOrphanCount">--</span>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /it-grid -->
+
+    <!-- CONVERGENCE THREAT MATRIX — the screenshot moment -->
+    <div class="it-threat-matrix" id="itThreatMatrix">
+        <div class="it-threat-matrix-grid"></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:6px">ON-CHAIN</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:20px">MACRO</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:34px">SENTIMENT</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:48px">REGULATORY</span></div>
+        <div class="it-threat-lane"><span class="it-threat-lane-label" style="top:62px">TECHNICAL</span></div>
+        <canvas id="threatCanvas" style="position:absolute;left:120px;top:0;right:80px;bottom:0;width:calc(100% - 200px);height:100%"></canvas>
+        <div class="it-threat-state" id="itThreatState">IDLE</div>
+    </div>
+
+    <!-- PHASE 2 GRID -->
+    <div class="it-grid-phase2">
+
+        <!-- SENTIMENT PULSE (F2) -->
+        <div class="it-panel" id="panelSentiment" data-state="nominal">
+            <div class="it-panel-header">Sentiment Pulse</div>
+            <div class="it-value-label">NETWORK SENTIMENT</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 8px">
+                <div class="it-sentiment-score" id="itSentimentScore" style="color:var(--it-green)">0</div>
+                <span class="it-sentiment-trend" id="itSentimentTrend">→ stable</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">30m Ago</span>
+                <span class="it-value-row-data" id="itSentiment30m">0</span>
+            </div>
+            <div style="margin-top:10px">
+                <div class="it-value-label" style="margin-bottom:6px">SOURCE BREAKDOWN</div>
+                <div class="it-source-bar">
+                    <span class="it-source-label">X</span>
+                    <div class="it-source-fill-wrap"><div class="it-source-fill" id="itSrcX" style="width:0%;background:var(--it-green)"></div></div>
+                    <span class="it-source-pct" id="itSrcXPct">0%</span>
+                </div>
+                <div class="it-source-bar">
+                    <span class="it-source-label">Nostr</span>
+                    <div class="it-source-fill-wrap"><div class="it-source-fill" id="itSrcNostr" style="width:0%;background:#8B5CF6"></div></div>
+                    <span class="it-source-pct" id="itSrcNostrPct">0%</span>
+                </div>
+                <div class="it-source-bar">
+                    <span class="it-source-label">Reddit</span>
+                    <div class="it-source-fill-wrap"><div class="it-source-fill" id="itSrcReddit" style="width:0%;background:#FF4500"></div></div>
+                    <span class="it-source-pct" id="itSrcRedditPct">0%</span>
+                </div>
+            </div>
+            <div class="it-value-row" style="margin-top:8px">
+                <span class="it-value-row-label"><span class="it-tier1-dot inactive" id="itTier1Dot"></span>TIER 1 SIGNAL</span>
+                <span class="it-value-row-data" id="itTier1Status" style="color:var(--it-muted)">QUIET</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Volume (24h)</span>
+                <span class="it-value-row-data" id="itSentimentVolume">0 posts</span>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- NETWORK STATE GRAPH (F5) -->
+        <div class="it-panel" id="panelGraph" data-state="nominal" style="min-height:320px">
+            <div class="it-panel-header">Network State</div>
+            <svg id="network-svg" height="260"></svg>
+            <div class="it-graph-tooltip" id="networkTooltip"></div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SOVEREIGN LAYER (F3) -->
+        <div class="it-panel" id="panelSovereign" data-state="nominal">
+            <div class="it-panel-header">Sovereign Intelligence</div>
+            <div class="it-value-label">LATEST CBDC ALERT</div>
+            <div id="itSovereignAlert" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--it-amber);margin:4px 0 8px;min-height:28px">
+                <div class="it-connecting">Monitoring<span class="it-blink">_</span></div>
+            </div>
+            <div class="it-value-label" style="margin-bottom:4px">JURISDICTIONS</div>
+            <div class="it-jurisdiction-summary">
+                <span class="it-jurisdiction-count" style="color:var(--it-green)"><span id="itJurFriendly">0</span> FRIENDLY</span>
+                <span class="it-jurisdiction-count" style="color:var(--it-amber)"><span id="itJurNeutral">0</span> NEUTRAL</span>
+                <span class="it-jurisdiction-count" style="color:var(--it-red)"><span id="itJurHostile">0</span> HOSTILE</span>
+            </div>
+            <div style="margin-top:10px">
+                <div class="it-value-label" style="margin-bottom:6px">SELF-CUSTODY HEALTH</div>
+                <div class="it-custody-row">
+                    <span class="it-custody-label">Exch Reserves</span>
+                    <div class="it-custody-bar"><div class="it-custody-fill" id="itCustodyReserves" style="width:0%"></div></div>
+                    <span class="it-custody-value" id="itCustodyReservesPct">--%</span>
+                </div>
+                <div class="it-custody-row">
+                    <span class="it-custody-label">Coinjoin Vol</span>
+                    <div class="it-custody-bar"><div class="it-custody-fill" id="itCustodyCoinjoin" style="width:50%;background:var(--it-green)"></div></div>
+                    <span class="it-custody-value" id="itCustodyCoinjoinVal">--</span>
+                </div>
+                <div class="it-custody-row">
+                    <span class="it-custody-label">CDD Signal</span>
+                    <div class="it-custody-bar"><div class="it-custody-fill" id="itCustodyCDD" style="width:30%;background:var(--it-green)"></div></div>
+                    <span class="it-custody-value" id="itCustodyCDDVal">--</span>
+                </div>
+            </div>
+            <div class="it-value-row" style="margin-top:8px">
+                <span class="it-value-row-label">Capital Flight</span>
+                <span class="it-value-row-data" id="itCapitalFlight" style="color:var(--it-green)">CLEAR</span>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /it-grid-phase2 -->
+
+    <!-- PHASE 3 GRID -->
+    <div class="it-grid-phase2">
+
+        <!-- DARK POOL + WHALE COORDINATION (F-P2-6 + F-P3-1) -->
+        <div class="it-panel" id="panelDarkPool" data-state="nominal" data-shortcut="d">
+            <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Dark Pool / Whale Intel</div>
+            <div class="it-value-label">DARK POOL SIGNAL</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 8px">
+                <span class="it-value-primary" id="itDarkPoolSignal" style="font-size:20px;color:var(--it-green)">CLEAR</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Volume (4h)</span>
+                <span class="it-value-row-data" id="itDarkPoolVol">0 BTC</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Tx Count (4h)</span>
+                <span class="it-value-row-data" id="itDarkPoolTx">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Exchange Flow %</span>
+                <span class="it-value-row-data" id="itDarkPoolExchPct">0%</span>
+            </div>
+            <div style="margin-top:10px;border-top:1px solid var(--it-border);padding-top:8px">
+                <div class="it-value-label" style="margin-bottom:4px">WHALE COORDINATION</div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Signal</span>
+                    <span class="it-value-row-data" id="itWhaleCoordSignal" style="color:var(--it-green)">CLEAR</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Txs (90min)</span>
+                    <span class="it-value-row-data" id="itWhaleCoordCount">0</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Taint Linked</span>
+                    <span class="it-value-row-data" id="itWhaleCoordTaint" style="color:var(--it-green)">NO</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Total BTC</span>
+                    <span class="it-value-row-data" id="itWhaleCoordBtc">0</span>
+                </div>
+            </div>
+            <div class="it-drilldown" style="display:none">
+                <div class="it-value-label" style="margin-top:8px">TOP DARK POOL DESTINATIONS</div>
+                <div id="itDarkPoolDest" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--it-muted)">None</div>
+            </div>
+        </div>
+
+        <!-- MINER HEALTH (F-P2-7) -->
+        <div class="it-panel" id="panelMiner" data-state="nominal" data-shortcut="m">
+            <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Miner Health</div>
+            <div class="it-value-label">MINER HEALTH SCORE</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 4px">
+                <span class="it-value-primary" id="itMinerScore">100</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px" id="itMinerLabel">HEALTHY</span>
+            </div>
+            <div class="it-anomaly-bar">
+                <div class="it-anomaly-fill green" id="itMinerFill" style="width:100%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Hashrate Impact</span>
+                <span class="it-value-row-data" id="itMinerHashrate">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Difficulty Impact</span>
+                <span class="it-value-row-data" id="itMinerDifficulty">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Fee Pressure</span>
+                <span class="it-value-row-data" id="itMinerFees">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Block Time</span>
+                <span class="it-value-row-data" id="itMinerBlockTime">0</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Exchange Flow</span>
+                <span class="it-value-row-data" id="itMinerExchFlow">0</span>
+            </div>
+            <div class="it-value-row" id="itMiner90dRow" style="display:none">
+                <span class="it-value-row-label" style="color:var(--it-red)">90-DAY LOW</span>
+                <span class="it-value-row-data" style="color:var(--it-red)">YES</span>
+            </div>
+        </div>
+
+        <!-- PRIVACY TECH + DEFI BTC (F-P3-3 + F-P3-5) -->
+        <div class="it-panel" id="panelPrivacy" data-state="nominal" data-shortcut="p">
+            <div class="it-panel-header" style="cursor:pointer" onclick="toggleDrilldown(this)">Privacy Tech / DeFi</div>
+            <div class="it-value-label">SOVEREIGNTY INDEX</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:4px 0 4px">
+                <span class="it-value-primary" id="itSovIndex" style="font-size:24px">50</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--it-label)">/100</span>
+            </div>
+            <div class="it-anomaly-bar">
+                <div class="it-anomaly-fill green" id="itSovIndexFill" style="width:50%"></div>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Taproot Txs</span>
+                <span class="it-value-row-data" id="itTaprootPct">0%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Tor Nodes</span>
+                <span class="it-value-row-data" id="itTorPct">0%</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Coinjoin</span>
+                <span class="it-value-row-data" id="itCoinjoinSignal">NORMAL</span>
+            </div>
+            <div class="it-value-row">
+                <span class="it-value-row-label">Nostr (24h)</span>
+                <span class="it-value-row-data" id="itNostrEvents">0</span>
+            </div>
+            <div style="margin-top:10px;border-top:1px solid var(--it-border);padding-top:8px">
+                <div class="it-value-label" style="margin-bottom:4px">DEFI BTC COLLATERAL</div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Total in DeFi</span>
+                    <span class="it-value-row-data" id="itDefiBtcTotal">0 BTC</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">24h Delta</span>
+                    <span class="it-value-row-data" id="itDefiBtcDelta">0 BTC</span>
+                </div>
+                <div class="it-value-row">
+                    <span class="it-value-row-label">Signal</span>
+                    <span class="it-value-row-data" id="itDefiBtcSignal" style="color:var(--it-muted)">NEUTRAL</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /it-grid-phase3 -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         PHASE 4: ALPHA INTELLIGENCE — The $5,000/month layer
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ROW 1: Signal Matrix + Divergence Alert -->
+    <div class="it-grid-alpha">
+
+        <!-- SOVEREIGN SIGNAL MATRIX -->
+        <div class="it-panel" id="panelSignalMatrix" data-state="scanning" data-shortcut="x">
+            <div class="it-panel-header">Sovereign Signal Matrix</div>
+            <div class="it-radar-container" style="height:200px">
+                <svg id="radarSvg" width="200" height="200"></svg>
+                <div class="it-radar-composite">
+                    <div class="it-radar-composite-value" id="itMatrixComposite">--</div>
+                    <div class="it-radar-composite-label" id="itMatrixBias">COMPUTING</div>
+                </div>
+            </div>
+            <div class="it-radar-legend" id="itRadarLegend">
+                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-green)"></div>Miner Health<span class="it-radar-legend-val" id="itRL_miner">--</span></div>
+                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-cyan)"></div>Exchange Prs<span class="it-radar-legend-val" id="itRL_exch">--</span></div>
+                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-purple)"></div>Narrative Mom<span class="it-radar-legend-val" id="itRL_narr">--</span></div>
+                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-gold)"></div>On-Chain Acc<span class="it-radar-legend-val" id="itRL_chain">--</span></div>
+                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-amber)"></div>Lightning Grw<span class="it-radar-legend-val" id="itRL_ln">--</span></div>
+                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-red)"></div>Social Div<span class="it-radar-legend-val" id="itRL_social">--</span></div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- CROSS-SIGNAL DIVERGENCE ALERT -->
+        <div class="it-panel" id="panelDivergence" data-state="nominal">
+            <div class="it-panel-header">Cross-Signal Divergence</div>
+            <div id="itDivergenceAlerts">
+                <div class="it-connecting">Scanning signals<span class="it-blink">_</span></div>
+            </div>
+            <div style="margin-top:12px">
+                <div class="it-value-label" style="margin-bottom:6px">SIGNAL ALIGNMENT</div>
+                <div style="display:flex;gap:12px;margin-bottom:8px">
+                    <div style="text-align:center">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--it-green)" id="itDivBullCount">0</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--it-label)">BULLISH</div>
+                    </div>
+                    <div style="text-align:center">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--it-muted)" id="itDivNeutralCount">0</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--it-label)">NEUTRAL</div>
+                    </div>
+                    <div style="text-align:center">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--it-red)" id="itDivBearCount">0</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--it-label)">BEARISH</div>
+                    </div>
+                </div>
+                <div id="itDivSignalChips"></div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /it-grid-alpha row 1 -->
+
+    <!-- ROW 2: Narrative Momentum + Early Warning Feed -->
+    <div class="it-grid-alpha-bottom">
+
+        <!-- NARRATIVE MOMENTUM TRACKER -->
+        <div class="it-panel" id="panelNarrative" data-state="scanning">
+            <div class="it-panel-header">Narrative Momentum Tracker</div>
+            <div style="display:flex;gap:12px;margin-bottom:8px">
+                <div>
+                    <div class="it-value-label">ARTICLES (3D)</div>
+                    <div class="it-value-primary" id="itNarrCount3d" style="font-size:20px">--</div>
+                </div>
+                <div>
+                    <div class="it-value-label">ARTICLES (10D)</div>
+                    <div class="it-value-primary" id="itNarrCount10d" style="font-size:20px">--</div>
+                </div>
+            </div>
+            <div class="it-value-label" style="margin-bottom:6px">TOPIC MOMENTUM</div>
+            <div id="itNarrMomentum">
+                <div class="it-connecting">Analyzing articles<span class="it-blink">_</span></div>
+            </div>
+            <div style="margin-top:10px">
+                <div class="it-value-label" style="margin-bottom:4px">LEADING SIGNALS</div>
+                <div id="itNarrLeading">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--it-muted)">No signals</div>
+                </div>
+            </div>
+            <div style="margin-top:10px">
+                <div class="it-value-label" style="margin-bottom:4px">TRENDING TAGS</div>
+                <div id="itNarrTags" style="display:flex;flex-wrap:wrap;gap:4px">
+                    <div class="it-connecting">Loading<span class="it-blink">_</span></div>
+                </div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- EARLY WARNING FEED -->
+        <div class="it-panel" id="panelEarlyWarning" data-state="scanning">
+            <div class="it-panel-header">Early Warning Feed</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+                <div class="it-value-label">ACTIVE WARNINGS</div>
+                <div class="it-value-primary" id="itEwCount" style="font-size:20px;color:var(--it-amber)">0</div>
+            </div>
+            <div id="itEarlyWarnings">
+                <div class="it-connecting">Scanning precursors<span class="it-blink">_</span></div>
+            </div>
+            {% if demo_mode %}
+            <div class="it-demo-overlay">
+                <div class="it-demo-badge">CLASSIFIED — Commander Access Required</div>
+                <div class="it-demo-cta"><a href="/join" class="demo-unlock-link">Unlock — $49/mo</a></div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /it-grid-alpha row 2 -->
+
+    <!-- DATA RAIL -->
+    <div class="it-data-rail">
+        <div class="it-rail-item">
+            <span class="it-rail-label">BTC</span>
+            <span class="it-rail-value" id="itPrice">$--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">24h</span>
+            <span class="it-rail-value" id="itPriceChange">--%</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">F&G</span>
+            <span class="it-rail-value" id="itFng">--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">LN Cap</span>
+            <span class="it-rail-value" id="itLnCapacity">-- BTC</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">LN Chan</span>
+            <span class="it-rail-value" id="itLnChannels">--</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">ETF</span>
+            <span class="it-rail-value" id="itEtfFlow" style="color:var(--it-muted)">→ NEUTRAL $0M</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">CME</span>
+            <span class="it-rail-value" id="itCmeBasis">+0.0%</span>
+        </div>
+        <div class="it-rail-item">
+            <span class="it-rail-label">Sentinel</span>
+            <span class="it-rail-value" id="itSentinelStatus" style="color:var(--it-green)">ACTIVE</span>
+        </div>
+    </div>
+
+    <!-- KEYBOARD HELP OVERLAY -->
+    <div class="it-kb-overlay" id="itKbOverlay">
+        <h3>KEYBOARD SHORTCUTS</h3>
+        <div class="kb-row"><span class="kb-key">C</span><span>Convergence Matrix</span></div>
+        <div class="kb-row"><span class="kb-key">S</span><span>Sentinel Core</span></div>
+        <div class="kb-row"><span class="kb-key">M</span><span>Mempool Live</span></div>
+        <div class="kb-row"><span class="kb-key">D</span><span>Dark Pool / Whale</span></div>
+        <div class="kb-row"><span class="kb-key">P</span><span>Privacy Tech</span></div>
+        <div class="kb-row"><span class="kb-key">?</span><span>This help</span></div>
+        <div style="margin-top:12px;color:var(--it-muted);font-size:10px">Press any key to close</div>
+    </div>
+
+</div><!-- /it-container -->
+
+<script>
+(function() {
+    'use strict';
+
+    const DEMO_MODE = {{ 'true' if demo_mode else 'false' }};
+    const SSE_URL = '/api/intelligence/stream';
+    let sse = null;
+    let reconnectDelay = 1000;
+    let lastDataTs = 0;
+
+    // ── Clock ──────────────────────────────────────────────────
+    function updateClock() {
+        const now = new Date();
+        const et = now.toLocaleTimeString('en-US', {
+            timeZone: 'America/New_York',
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('itClock').textContent = et + ' ET';
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ── Number formatting ──────────────────────────────────────
+    function fmtNum(n) {
+        if (n === null || n === undefined) return '--';
+        return n.toLocaleString('en-US');
+    }
+    function fmtPrice(n) {
+        if (!n) return '$--';
+        return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0});
+    }
+
+    // ── Staleness check ────────────────────────────────────────
+    function isStale(ts) {
+        if (!ts) return true;
+        return (Date.now() / 1000 - ts) > 60;
+    }
+    function setVal(id, value, ts) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = value;
+        if (isStale(ts)) {
+            el.classList.add('it-stale');
+        } else {
+            el.classList.remove('it-stale');
+        }
+    }
+
+    // ── Fee histogram render ───────────────────────────────────
+    function renderFeeHistogram(histogram) {
+        const container = document.getElementById('itFeeHistogram');
+        if (!histogram || !histogram.length) {
+            container.innerHTML = '<div class="it-connecting">No data<span class="it-blink">_</span></div>';
+            return;
+        }
+        const totalVsize = histogram.reduce((s, b) => s + (b.vsize || 0), 0) || 1;
+        let html = '';
+        for (const band of histogram) {
+            const pct = Math.round((band.vsize / totalVsize) * 100);
+            if (pct === 0 && band.min_fee > 100) continue;
+            const label = band.max_fee >= 9999 ? band.min_fee + '+' : band.min_fee + '-' + band.max_fee;
+            const color = band.min_fee <= 10 ? 'var(--it-green)' :
+                          band.min_fee <= 50 ? 'var(--it-amber)' : 'var(--it-red)';
+            html += `<div class="it-fee-row">
+                <span class="it-fee-label">${label}</span>
+                <div class="it-fee-bar"><div class="it-fee-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+                <span class="it-fee-pct">${pct}%</span>
+            </div>`;
+        }
+        container.innerHTML = html || '<div class="it-connecting">Empty<span class="it-blink">_</span></div>';
+    }
+
+    // ── Whale feed render ──────────────────────────────────────
+    function renderWhaleFeed(whales) {
+        const container = document.getElementById('itWhaleFeed');
+        if (!whales || !whales.length) {
+            container.innerHTML = '<div class="it-connecting">No whales detected<span class="it-blink">_</span></div>';
+            return;
+        }
+        let html = '';
+        for (const w of whales.slice(0, 10)) {
+            const t = new Date(w.timestamp * 1000);
+            const ts = t.toLocaleTimeString('en-US', {hour12: false, hour:'2-digit', minute:'2-digit'});
+            const txid = (w.txid || '').substring(0, 8);
+            html += `<div class="it-whale-item">
+                <span class="it-whale-time">[${ts}]</span>
+                <span class="it-whale-value">${w.value_btc} BTC</span>
+                <span style="color:var(--it-muted)">${txid}...</span>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // ── Active rules render ────────────────────────────────────
+    function renderActiveRules(rules) {
+        const container = document.getElementById('itActiveRules');
+        if (!rules || !rules.length) {
+            container.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--it-muted)">No active signals</div>';
+            return;
+        }
+        let html = '';
+        for (const r of rules) {
+            html += `<div class="it-rule">${r}</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // ── Alert rail render ──────────────────────────────────────
+    function renderAlerts(alerts) {
+        if (!alerts || !alerts.active) return;
+        const active = alerts.active;
+        const criticals = active.filter(a => a.tier === 'CRITICAL');
+        const watches = active.filter(a => a.tier === 'WATCH');
+        const notes = active.filter(a => a.tier === 'NOTE');
+
+        const critEl = document.getElementById('itAlertCritical');
+        const critText = document.getElementById('itCriticalText');
+        if (criticals.length > 0) {
+            critEl.style.display = 'flex';
+            critText.textContent = criticals[0].message;
+        } else {
+            critEl.style.display = 'none';
+        }
+
+        const watchEl = document.getElementById('itAlertWatch');
+        const watchText = document.getElementById('itWatchText');
+        if (watches.length > 0) {
+            watchEl.style.display = 'block';
+            watchText.textContent = watches[0].message;
+        } else {
+            watchEl.style.display = 'none';
+        }
+
+        document.getElementById('itAlertNotes').textContent = notes.length + ' NOTES';
+
+        // Critical flash
+        if (criticals.length > 0 && criticals[0].created_at > lastDataTs - 5) {
+            document.querySelector('.it-container').classList.add('it-flash-critical');
+            setTimeout(() => {
+                document.querySelector('.it-container').classList.remove('it-flash-critical');
+            }, 2000);
+        }
+    }
+
+    // ── Anomaly bar ────────────────────────────────────────────
+    function updateAnomalyBar(score) {
+        const fill = document.getElementById('itAnomalyFill');
+        fill.style.width = Math.min(score, 100) + '%';
+        fill.className = 'it-anomaly-fill ' + (score >= 70 ? 'red' : score >= 30 ? 'amber' : 'green');
+    }
+
+    // ── Convergence panel ─────────────────────────────────────
+    function updateConvergence(conv) {
+        if (!conv) return;
+        const stateEl = document.getElementById('itConvergenceState');
+        const fillEl = document.getElementById('itConvergenceFill');
+        const stateColors = {IDLE:'var(--it-green)',WATCH:'var(--it-amber)',ALERT:'var(--it-red)',CRITICAL:'var(--it-red)'};
+        const statePct = {IDLE:0,WATCH:33,ALERT:66,CRITICAL:100};
+        stateEl.textContent = conv.state || 'IDLE';
+        stateEl.style.color = stateColors[conv.state] || 'var(--it-green)';
+        fillEl.style.width = (statePct[conv.state] || 0) + '%';
+        fillEl.className = 'it-anomaly-fill ' + (conv.state==='CRITICAL'||conv.state==='ALERT' ? 'red' : conv.state==='WATCH' ? 'amber' : 'green');
+
+        const signals = conv.signals || [];
+        document.getElementById('itConvergenceSignals').textContent = signals.length;
+
+        const contraEl = document.getElementById('itConvergenceContradiction');
+        if (conv.contradiction) {
+            contraEl.textContent = 'DETECTED';
+            contraEl.style.color = 'var(--it-red)';
+        } else {
+            contraEl.textContent = 'CLEAR';
+            contraEl.style.color = 'var(--it-green)';
+        }
+
+        // Pattern results
+        const patternsEl = document.getElementById('itConvergencePatterns');
+        const pr = conv.pattern_results || {};
+        const patternKeys = Object.keys(pr);
+        if (patternKeys.length) {
+            patternsEl.innerHTML = patternKeys.map(function(k) {
+                const r = pr[k];
+                const color = r.state==='ALERT'||r.state==='CRITICAL' ? 'var(--it-red)' : r.state==='WATCH' ? 'var(--it-amber)' : 'var(--it-muted)';
+                return '<div class="it-value-row"><span class="it-value-row-label">' + k + '</span><span class="it-value-row-data" style="color:'+color+'">' + r.state + (r.contradiction?' !!':'') + '</span></div>';
+            }).join('');
+        }
+
+        // Signal feed
+        const feedEl = document.getElementById('itConvergenceSignalFeed');
+        if (signals.length) {
+            feedEl.innerHTML = signals.slice(0,10).map(function(s) {
+                const age = s.timestamp ? Math.round((Date.now()/1000 - s.timestamp)/60) + 'm ago' : '';
+                const dw = s.decay_weight !== undefined ? ' dw=' + s.decay_weight.toFixed(2) : '';
+                return '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--it-label);padding:2px 0;border-bottom:1px solid var(--it-border)">' + s.name + ': <span style="color:var(--it-text)">' + s.value + '</span> <span style="color:var(--it-muted)">' + age + dw + '</span></div>';
+            }).join('');
+        }
+    }
+
+    // ── Full state update ──────────────────────────────────────
+    function updateState(state) {
+        lastDataTs = Date.now() / 1000;
+
+        // Connection status
+        document.getElementById('itConnectionStatus').textContent = 'LIVE';
+        document.getElementById('itConnectionStatus').closest('.it-status').style.color = 'var(--it-green)';
+
+        // Mempool
+        const mem = state.mempool || {};
+        setVal('itMempoolCount', fmtNum(mem.count), mem.updated_at);
+        setVal('itMempoolVsize', (mem.vsize ? (mem.vsize / 1e6).toFixed(1) : '--') + ' vMB', mem.updated_at);
+        setVal('itMempoolFees', (mem.total_fee ? (mem.total_fee / 1e8).toFixed(4) : '--') + ' BTC', mem.updated_at);
+        renderFeeHistogram(mem.fee_histogram);
+        renderWhaleFeed(mem.whale_txs);
+
+        // Network
+        const net = state.network || {};
+        setVal('itBlockHeight', fmtNum(net.block_height), net.updated_at);
+        setVal('itHashrate', (net.hashrate_3d || '--') + ' EH/s', net.updated_at);
+        setVal('itDifficulty', (net.difficulty !== undefined ? net.difficulty.toFixed(2) : '--') + '%', net.updated_at);
+        setVal('itNextAdj', (net.next_difficulty_adj_pct || '--') + '%', net.updated_at);
+        setVal('itAvgBlockTime', (net.avg_block_time_10 || '--') + 's', net.updated_at);
+        setVal('itOrphanCount', '' + (net.orphan_count_6h || 0), net.updated_at);
+
+        // PCAF
+        const pcaf = state.pcaf_v0 || {};
+        setVal('itPcafScore', '' + (pcaf.anomaly_score || 0), pcaf.updated_at);
+        setVal('itTopSignal', pcaf.top_signal || 'None', pcaf.updated_at);
+        setVal('itConfidence', (pcaf.confidence_pct || 0) + '%', pcaf.updated_at);
+        updateAnomalyBar(pcaf.anomaly_score || 0);
+        renderActiveRules(pcaf.active_rules);
+
+        // Lightning
+        const ln = state.lightning || {};
+        setVal('itLnCapacity', (ln.capacity_btc || '--') + ' BTC', ln.updated_at);
+        setVal('itLnChannels', fmtNum(ln.channel_count), ln.updated_at);
+
+        // Price (from SSE if available)
+        if (state.price) {
+            document.getElementById('itPrice').textContent = fmtPrice(state.price.usd);
+            const change = state.price.change_24h;
+            const changeEl = document.getElementById('itPriceChange');
+            changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+            changeEl.style.color = change >= 0 ? 'var(--it-green)' : 'var(--it-red)';
+        }
+
+        // FNG
+        if (state.fng) {
+            const fngEl = document.getElementById('itFng');
+            fngEl.textContent = state.fng.value + ' ' + (state.fng.label || '');
+        }
+
+        // Alerts
+        renderAlerts(state.alerts);
+
+        // Convergence
+        updateConvergence(state.convergence);
+
+        // Phase 2: Sentiment Pulse (F2)
+        if (state.sentiment) updateSentiment(state.sentiment);
+
+        // Phase 2: Sovereign Layer (F3)
+        if (state.sovereign) updateSovereign(state.sovereign);
+
+        // Phase 2: ETF Flow Monitor (F4)
+        if (state.etf) updateETF(state.etf);
+
+        // Phase 2: Network State Graph (F5)
+        if (state.network_graph) renderNetworkGraph(state.network_graph);
+
+        // Phase 2 F6: Dark Pool
+        if (state.dark_pool) updateDarkPool(state.dark_pool);
+
+        // Phase 2 F7: Miner Health
+        if (state.miner_health) updateMinerHealth(state.miner_health);
+
+        // Phase 3 F1: Whale Coordination
+        if (state.whale_coordination) updateWhaleCoordination(state.whale_coordination);
+
+        // Phase 3 F3: Privacy Tech
+        if (state.privacy_tech) updatePrivacyTech(state.privacy_tech);
+
+        // Phase 3 F5: DeFi BTC
+        if (state.defi_btc) updateDefiBtc(state.defi_btc);
+
+        // Phase 3 F2: Regulatory (in sovereign panel update)
+        if (state.regulatory) updateRegulatory(state.regulatory);
+
+        // Phase 4 Alpha Intelligence
+        if (state.signal_matrix) renderRadarChart(state.signal_matrix);
+        if (state.narrative_momentum) updateNarrativeMomentum(state.narrative_momentum);
+        if (state.divergence) updateDivergence(state.divergence);
+        if (state.early_warnings) updateEarlyWarnings(state.early_warnings);
+
+        // ── Panel State System (data-state driven by live data) ────
+        updatePanelStates(state);
+
+        // ── Threat Matrix (screenshot moment) ──────────────────────
+        updateThreatMatrix(state);
+    }
+
+    // ── Panel State Logic ───────────────────────────────────────
+    function updatePanelStates(state) {
+        // Sentinel: driven by PCAF anomaly score
+        var pcafScore = (state.pcaf_v0 || {}).anomaly_score || 0;
+        setPanelState('panelSentinel', pcafScore >= 70 ? 'critical' : pcafScore >= 30 ? 'watch' : 'nominal');
+
+        // Convergence: driven by convergence state
+        var convState = ((state.convergence || {}).state || 'IDLE').toLowerCase();
+        setPanelState('panelConvergence', convState === 'critical' ? 'critical' : convState === 'alert' ? 'critical' : convState === 'watch' ? 'watch' : 'scanning');
+
+        // Mempool: driven by mempool fullness (vsize)
+        var vsize = ((state.mempool || {}).vsize || 0) / 1e6; // vMB
+        setPanelState('panelMempool', vsize > 200 ? 'critical' : vsize > 100 ? 'watch' : 'nominal');
+
+        // Miner Health: driven by health score
+        var minerScore = ((state.miner_health || {}).score || 100);
+        setPanelState('panelMiner', minerScore < 50 ? 'critical' : minerScore < 80 ? 'watch' : 'nominal');
+
+        // Sentiment: driven by extreme scores
+        var sentScore = Math.abs((state.sentiment || {}).score || 0);
+        setPanelState('panelSentiment', sentScore > 60 ? 'watch' : 'nominal');
+
+        // Dark Pool: driven by dark pool signal
+        var dpSignal = ((state.dark_pool || {}).signal || 'CLEAR').toUpperCase();
+        setPanelState('panelDarkPool', dpSignal === 'CRITICAL' ? 'critical' : dpSignal !== 'CLEAR' ? 'watch' : 'nominal');
+
+        // Sovereign: driven by capital flight
+        var capFlight = (state.sovereign || {}).capital_flight_signal;
+        setPanelState('panelSovereign', capFlight ? 'watch' : 'nominal');
+    }
+
+    function setPanelState(panelId, newState) {
+        var panel = document.getElementById(panelId);
+        if (panel && panel.dataset.state !== newState) {
+            panel.dataset.state = newState;
+        }
+    }
+
+    // ── Value Flash (animate value changes) ─────────────────────
+    var _prevValues = {};
+    function setValFlash(id, value, ts) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var numVal = parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+        var prev = _prevValues[id];
+        el.textContent = value;
+        if (isStale(ts)) {
+            el.classList.add('it-stale');
+        } else {
+            el.classList.remove('it-stale');
+        }
+        if (prev !== undefined && !isNaN(numVal) && numVal !== prev) {
+            el.classList.remove('value-flash-up', 'value-flash-down');
+            void el.offsetWidth; // force reflow
+            el.classList.add(numVal > prev ? 'value-flash-up' : 'value-flash-down');
+        }
+        if (!isNaN(numVal)) _prevValues[id] = numVal;
+    }
+
+    // ── Threat Matrix Renderer ──────────────────────────────────
+    var _threatSignals = []; // rolling 60min buffer
+    function updateThreatMatrix(state) {
+        var conv = state.convergence || {};
+        var stateEl = document.getElementById('itThreatState');
+        var matrixEl = document.getElementById('itThreatMatrix');
+        var convState = (conv.state || 'IDLE').toUpperCase();
+
+        stateEl.textContent = convState;
+        stateEl.className = 'it-threat-state' + (convState === 'WATCH' ? ' watch' : convState === 'ALERT' ? ' alert' : convState === 'CRITICAL' ? ' critical' : '');
+        matrixEl.classList.toggle('critical-vignette', convState === 'CRITICAL');
+
+        // Plot signals on canvas
+        var canvas = document.getElementById('threatCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width - 200;
+        canvas.height = 80;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        var signals = conv.signals || [];
+        var now = Date.now() / 1000;
+        var windowSec = 3600; // 60 min
+
+        // Lane mapping: on-chain=0, macro=1, sentiment=2, regulatory=3, technical=4
+        var laneColors = ['#00D4FF', '#F0B90B', '#8B5CF6', '#FF0033', '#00FF88'];
+        var laneMap = {onchain:0, chain:0, macro:1, vix:1, spy:1, sentiment:2, regulatory:3, sovereign:3, technical:4, hashrate:4, mining:4};
+
+        signals.forEach(function(s) {
+            var age = now - (s.timestamp || now);
+            if (age > windowSec || age < 0) return;
+            var x = canvas.width * (1 - age / windowSec);
+            var name = (s.name || '').toLowerCase();
+            var lane = 2; // default to sentiment
+            for (var key in laneMap) {
+                if (name.indexOf(key) !== -1) { lane = laneMap[key]; break; }
+            }
+            var y = 6 + lane * 14 + 4;
+            var opacity = Math.max(0.2, 1 - age / windowSec);
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = laneColors[lane];
+            ctx.globalAlpha = opacity;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        });
+    }
+
+    // ── Sentiment Pulse (F2) ────────────────────────────────────
+    function updateSentiment(s) {
+        if (!s) return;
+        var scoreEl = document.getElementById('itSentimentScore');
+        var score = s.score || 0;
+        scoreEl.textContent = (score >= 0 ? '+' : '') + Math.round(score);
+        scoreEl.style.color = score > 20 ? 'var(--it-green)' : score < -20 ? 'var(--it-red)' : 'var(--it-amber)';
+
+        var trendArrow = {rising: '↑', falling: '↓', stable: '→'};
+        document.getElementById('itSentimentTrend').textContent = (trendArrow[s.trend] || '→') + ' ' + (s.trend || 'stable');
+        document.getElementById('itSentimentTrend').style.color = s.trend === 'rising' ? 'var(--it-green)' : s.trend === 'falling' ? 'var(--it-red)' : 'var(--it-muted)';
+
+        document.getElementById('itSentiment30m').textContent = Math.round(s.score_30m_ago || 0);
+
+        // Source breakdown bars
+        var bd = s.source_breakdown || {};
+        var sources = [{id: 'X', val: bd.x || 0}, {id: 'Nostr', val: bd.nostr || 0}, {id: 'Reddit', val: bd.reddit || 0}];
+        sources.forEach(function(src) {
+            var fillId = 'itSrc' + src.id;
+            var pctId = fillId + 'Pct';
+            var absVal = Math.min(Math.abs(src.val), 100);
+            var fill = document.getElementById(fillId);
+            var pct = document.getElementById(pctId);
+            if (fill) fill.style.width = absVal + '%';
+            if (pct) pct.textContent = Math.round(src.val) + '%';
+        });
+
+        // Tier 1 signal
+        var dot = document.getElementById('itTier1Dot');
+        var status = document.getElementById('itTier1Status');
+        if (s.tier1_signal) {
+            dot.className = 'it-tier1-dot active';
+            status.textContent = 'ACTIVE';
+            status.style.color = 'var(--it-amber)';
+        } else {
+            dot.className = 'it-tier1-dot inactive';
+            status.textContent = 'QUIET';
+            status.style.color = 'var(--it-muted)';
+        }
+
+        document.getElementById('itSentimentVolume').textContent = fmtNum(s.volume_24h || 0) + ' posts';
+    }
+
+    // ── Sovereign Layer (F3) ─────────────────────────────────────
+    function updateSovereign(s) {
+        if (!s) return;
+        // Top alert
+        var alertEl = document.getElementById('itSovereignAlert');
+        var alerts = s.top_alerts || [];
+        if (alerts.length > 0) {
+            var a = alerts[0];
+            alertEl.textContent = (a.title || 'No alerts').substring(0, 80);
+            alertEl.style.color = a.is_critical ? 'var(--it-red)' : 'var(--it-amber)';
+        } else {
+            alertEl.innerHTML = '<span style="color:var(--it-green)">NO ACTIVE ALERTS</span>';
+        }
+
+        // Jurisdiction counts
+        var js = s.jurisdiction_summary || {};
+        document.getElementById('itJurFriendly').textContent = js.friendly || 0;
+        document.getElementById('itJurNeutral').textContent = js.neutral || 0;
+        document.getElementById('itJurHostile').textContent = js.hostile || 0;
+
+        // Custody health
+        var ch = s.custody_health || {};
+        var reservePct = ch.exchange_reserve_ratio || 0;
+        var reserveFill = document.getElementById('itCustodyReserves');
+        if (reserveFill) {
+            reserveFill.style.width = Math.min(reservePct, 100) + '%';
+            reserveFill.style.background = reservePct > 60 ? 'var(--it-red)' : reservePct > 40 ? 'var(--it-amber)' : 'var(--it-green)';
+        }
+        document.getElementById('itCustodyReservesPct').textContent = reservePct.toFixed(1) + '%';
+
+        document.getElementById('itCustodyCoinjoinVal').textContent = ch.coinjoin_signal || 'NORMAL';
+        document.getElementById('itCustodyCDDVal').textContent = ch.cdd_signal || 'STABLE';
+
+        // Capital flight
+        var cfEl = document.getElementById('itCapitalFlight');
+        if (s.capital_flight_signal) {
+            cfEl.textContent = '⚠ DETECTED';
+            cfEl.style.color = 'var(--it-amber)';
+        } else {
+            cfEl.textContent = 'CLEAR';
+            cfEl.style.color = 'var(--it-green)';
+        }
+    }
+
+    // ── ETF Flow Monitor (F4) ────────────────────────────────────
+    function updateETF(etf) {
+        if (!etf) return;
+        var el = document.getElementById('itEtfFlow');
+        var dir = etf.net_6h_direction || 'neutral';
+        var arrows = {inflow: '↑', outflow: '↓', neutral: '→'};
+        var colors = {inflow: 'var(--it-green)', outflow: 'var(--it-red)', neutral: 'var(--it-muted)'};
+        var usd = Math.abs(etf.net_6h_usd || 0);
+        var usdStr = usd >= 1e6 ? (usd/1e6).toFixed(0) + 'M' : usd >= 1e3 ? (usd/1e3).toFixed(0) + 'K' : Math.round(usd);
+        el.textContent = (arrows[dir] || '→') + ' ' + dir.toUpperCase() + ' $' + usdStr + ' (est)';
+        el.style.color = colors[dir] || 'var(--it-muted)';
+
+        var cmEl = document.getElementById('itCmeBasis');
+        var rate = etf.deribit_funding_rate || 0;
+        cmEl.textContent = (rate >= 0 ? '+' : '') + (rate * 100).toFixed(3) + '%';
+        cmEl.style.color = rate > 0 ? 'var(--it-green)' : rate < 0 ? 'var(--it-red)' : 'var(--it-muted)';
+    }
+
+    // ── Network State Graph (F5) ─────────────────────────────────
+    var _graphLastRender = 0;
+    var _graphSim = null;
+    function renderNetworkGraph(graphData) {
+        if (!graphData || !graphData.nodes || !graphData.nodes.length) return;
+        var now = Date.now();
+        if (now - _graphLastRender < 5000 && _graphSim) return; // Throttle 5s
+        _graphLastRender = now;
+
+        if (typeof d3 === 'undefined') return; // D3 not loaded yet
+
+        var svg = d3.select('#network-svg');
+        var container = svg.node().parentNode;
+        var width = container.clientWidth - 32;
+        var height = 260;
+        svg.attr('width', width).attr('height', height);
+
+        // Clear previous
+        svg.selectAll('*').remove();
+
+        var g = svg.append('g');
+
+        var nodes = graphData.nodes.map(function(n) { return Object.assign({}, n); });
+        var edges = graphData.edges.map(function(e) { return {source: e.source, target: e.target, weight: e.weight}; });
+
+        // Create simulation
+        _graphSim = d3.forceSimulation(nodes)
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('charge', d3.forceManyBody().strength(-150))
+            .force('link', d3.forceLink(edges).id(function(d) { return d.id; }).distance(100).strength(0.4))
+            .force('collide', d3.forceCollide().radius(function(d) { return (d.size || 8) + 8; }))
+            .alphaDecay(0.05);
+
+        // Draw edges
+        var link = g.selectAll('.graph-link')
+            .data(edges)
+            .enter().append('line')
+            .attr('stroke', 'rgba(26,26,46,0.6)')
+            .attr('stroke-width', function(d) { return Math.max(0.5, d.weight * 2); });
+
+        // Draw nodes
+        var node = g.selectAll('.graph-node')
+            .data(nodes)
+            .enter().append('circle')
+            .attr('r', function(d) { return d.size || 8; })
+            .attr('fill', function(d) { return d.color || '#666'; })
+            .attr('stroke', 'rgba(255,255,255,0.1)')
+            .attr('stroke-width', 1)
+            .style('cursor', 'pointer');
+
+        // Labels for larger nodes
+        var label = g.selectAll('.graph-label')
+            .data(nodes.filter(function(d) { return d.size > 10; }))
+            .enter().append('text')
+            .text(function(d) { return d.label; })
+            .attr('fill', '#888')
+            .attr('font-family', 'JetBrains Mono, monospace')
+            .attr('font-size', '8px')
+            .attr('text-anchor', 'middle')
+            .attr('dy', function(d) { return -(d.size || 8) - 4; });
+
+        // Tooltip
+        var tooltip = document.getElementById('networkTooltip');
+        node.on('mouseover', function(event, d) {
+            tooltip.style.display = 'block';
+            tooltip.textContent = d.label + ' — ' + d.metric;
+            tooltip.style.left = event.offsetX + 10 + 'px';
+            tooltip.style.top = event.offsetY - 10 + 'px';
+        }).on('mouseout', function() {
+            tooltip.style.display = 'none';
+        });
+
+        // Tick
+        _graphSim.on('tick', function() {
+            link
+                .attr('x1', function(d) { return d.source.x; })
+                .attr('y1', function(d) { return d.source.y; })
+                .attr('x2', function(d) { return d.target.x; })
+                .attr('y2', function(d) { return d.target.y; });
+            node
+                .attr('cx', function(d) { return d.x = Math.max(d.size, Math.min(width - d.size, d.x)); })
+                .attr('cy', function(d) { return d.y = Math.max(d.size, Math.min(height - d.size, d.y)); });
+            label
+                .attr('x', function(d) { return d.x; })
+                .attr('y', function(d) { return d.y - (d.size || 8) - 4; });
+        });
+    }
+
+    // ── Dark Pool (F-P2-6) ──────────────────────────────────────
+    function updateDarkPool(dp) {
+        if (!dp) return;
+        var sigEl = document.getElementById('itDarkPoolSignal');
+        var sigColors = {CLEAR:'var(--it-green)',WATCH:'var(--it-amber)',ACCUMULATION:'var(--it-red)'};
+        sigEl.textContent = dp.signal || 'CLEAR';
+        sigEl.style.color = sigColors[dp.signal] || 'var(--it-green)';
+        setVal('itDarkPoolVol', (dp.volume_4h_btc || 0) + ' BTC', dp.updated_at);
+        setVal('itDarkPoolTx', '' + (dp.tx_count_4h || 0), dp.updated_at);
+        setVal('itDarkPoolExchPct', (dp.exchange_pct || 0) + '%', dp.updated_at);
+        var destEl = document.getElementById('itDarkPoolDest');
+        if (destEl && dp.top_destinations && dp.top_destinations.length) {
+            destEl.textContent = dp.top_destinations.join(', ');
+        }
+    }
+
+    // ── Miner Health (F-P2-7) ─────────────────────────────────
+    function updateMinerHealth(mh) {
+        if (!mh) return;
+        var score = mh.score || 100;
+        setVal('itMinerScore', '' + score, mh.updated_at);
+        var labelEl = document.getElementById('itMinerLabel');
+        var labelColors = {HEALTHY:'var(--it-green)',STRESSED:'var(--it-amber)',CAPITULATION_WATCH:'var(--it-red)',CAPITULATION_CRITICAL:'var(--it-red)'};
+        labelEl.textContent = (mh.label || 'HEALTHY').replace(/_/g, ' ');
+        labelEl.style.color = labelColors[mh.label] || 'var(--it-green)';
+        var fill = document.getElementById('itMinerFill');
+        fill.style.width = score + '%';
+        fill.className = 'it-anomaly-fill ' + (score >= 60 ? 'green' : score >= 30 ? 'amber' : 'red');
+        var c = mh.components || {};
+        setVal('itMinerHashrate', (c.hashrate_decline ? c.hashrate_decline.penalty : 0), mh.updated_at);
+        setVal('itMinerDifficulty', (c.difficulty_adj ? c.difficulty_adj.penalty : 0), mh.updated_at);
+        setVal('itMinerFees', (c.fee_softness ? c.fee_softness.penalty : 0), mh.updated_at);
+        setVal('itMinerBlockTime', (c.block_time ? c.block_time.penalty : 0), mh.updated_at);
+        setVal('itMinerExchFlow', (c.miner_exchange_flow ? c.miner_exchange_flow.penalty : 0), mh.updated_at);
+        document.getElementById('itMiner90dRow').style.display = mh.is_90d_low ? 'flex' : 'none';
+    }
+
+    // ── Whale Coordination (F-P3-1) ──────────────────────────
+    function updateWhaleCoordination(wc) {
+        if (!wc) return;
+        var sigEl = document.getElementById('itWhaleCoordSignal');
+        var sigColors = {CLEAR:'var(--it-green)',NOTE:'var(--it-amber)',WATCH:'var(--it-red)'};
+        sigEl.textContent = wc.signal || 'CLEAR';
+        sigEl.style.color = sigColors[wc.signal] || 'var(--it-green)';
+        setVal('itWhaleCoordCount', '' + (wc.tx_count_90min || 0), wc.updated_at);
+        var taintEl = document.getElementById('itWhaleCoordTaint');
+        taintEl.textContent = wc.taint_linked ? 'YES' : 'NO';
+        taintEl.style.color = wc.taint_linked ? 'var(--it-red)' : 'var(--it-green)';
+        setVal('itWhaleCoordBtc', (wc.total_btc_90min || 0) + ' BTC', wc.updated_at);
+    }
+
+    // ── Privacy Tech (F-P3-3) ─────────────────────────────────
+    function updatePrivacyTech(pt) {
+        if (!pt) return;
+        var idx = pt.sovereignty_index || 50;
+        setVal('itSovIndex', '' + Math.round(idx), pt.updated_at);
+        var fill = document.getElementById('itSovIndexFill');
+        fill.style.width = idx + '%';
+        fill.className = 'it-anomaly-fill ' + (idx >= 60 ? 'green' : idx >= 30 ? 'amber' : 'red');
+        setVal('itTaprootPct', (pt.taproot_tx_pct || 0).toFixed(1) + '%', pt.updated_at);
+        setVal('itTorPct', (pt.tor_node_pct || 0).toFixed(1) + '%', pt.updated_at);
+        var cjEl = document.getElementById('itCoinjoinSignal');
+        var cjColors = {NORMAL:'var(--it-green)',ELEVATED:'var(--it-amber)',SPIKE:'var(--it-red)'};
+        cjEl.textContent = pt.coinjoin_signal || 'NORMAL';
+        cjEl.style.color = cjColors[pt.coinjoin_signal] || 'var(--it-green)';
+        setVal('itNostrEvents', fmtNum(pt.nostr_24h_events || 0), pt.updated_at);
+    }
+
+    // ── DeFi BTC (F-P3-5) ────────────────────────────────────
+    function updateDefiBtc(db) {
+        if (!db) return;
+        setVal('itDefiBtcTotal', fmtNum(Math.round(db.total_btc_in_defi || 0)) + ' BTC', db.updated_at);
+        var delta = db.delta_24h_btc || 0;
+        var deltaEl = document.getElementById('itDefiBtcDelta');
+        deltaEl.textContent = (delta >= 0 ? '+' : '') + Math.round(delta) + ' BTC';
+        deltaEl.style.color = delta > 0 ? 'var(--it-green)' : delta < 0 ? 'var(--it-red)' : 'var(--it-muted)';
+        var sigEl = document.getElementById('itDefiBtcSignal');
+        var sigColors = {ACCUMULATING:'var(--it-green)',NEUTRAL:'var(--it-muted)',DECLINING:'var(--it-red)'};
+        sigEl.textContent = db.signal || 'NEUTRAL';
+        sigEl.style.color = sigColors[db.signal] || 'var(--it-muted)';
+    }
+
+    // ── Regulatory Intelligence (F-P3-2) ──────────────────────
+    function updateRegulatory(reg) {
+        if (!reg) return;
+        // Update threat level indicator (add to sovereign panel if not present)
+        var cfEl = document.getElementById('itCapitalFlight');
+        if (reg.threat_level === 'HIGH') {
+            cfEl.textContent = 'REG THREAT: HIGH';
+            cfEl.style.color = 'var(--it-red)';
+        }
+    }
+
+    // ── Sovereign Signal Matrix (Radar Chart) ──────────────────
+    function renderRadarChart(matrix) {
+        if (!matrix || !matrix.axes) return;
+        var svg = document.getElementById('radarSvg');
+        if (!svg) return;
+        var w = 200, h = 200, cx = w/2, cy = h/2, r = 70;
+        var axes = matrix.axes;
+        var keys = ['miner_health','exchange_pressure','narrative_momentum','onchain_accumulation','lightning_growth','social_divergence'];
+        var colors = ['#00FF88','#00D4FF','#8B5CF6','#F0B90B','#FFAA00','#FF0033'];
+        var n = keys.length;
+        var angleStep = (Math.PI * 2) / n;
+
+        // Build SVG content
+        var html = '';
+        // Grid rings
+        for (var ring = 1; ring <= 4; ring++) {
+            var rr = r * ring / 4;
+            var pts = [];
+            for (var i = 0; i < n; i++) {
+                var a = i * angleStep - Math.PI/2;
+                pts.push((cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1));
+            }
+            html += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="rgba(26,26,46,0.6)" stroke-width="0.5"/>';
+        }
+        // Axis lines
+        for (var i = 0; i < n; i++) {
+            var a = i * angleStep - Math.PI/2;
+            html += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(a)).toFixed(1)+'" y2="'+(cy+r*Math.sin(a)).toFixed(1)+'" stroke="rgba(26,26,46,0.4)" stroke-width="0.5"/>';
+        }
+        // Data polygon
+        var dataPts = [];
+        for (var i = 0; i < n; i++) {
+            var val = (axes[keys[i]] || 0) / 100;
+            var a = i * angleStep - Math.PI/2;
+            dataPts.push((cx + r * val * Math.cos(a)).toFixed(1) + ',' + (cy + r * val * Math.sin(a)).toFixed(1));
+        }
+        // Fill color based on bias
+        var fillColor = matrix.bias === 'BULLISH' ? 'rgba(0,255,136,0.12)' : matrix.bias === 'BEARISH' ? 'rgba(255,0,51,0.12)' : 'rgba(255,170,0,0.10)';
+        var strokeColor = matrix.bias === 'BULLISH' ? '#00FF88' : matrix.bias === 'BEARISH' ? '#FF0033' : '#FFAA00';
+        html += '<polygon points="' + dataPts.join(' ') + '" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="1.5" stroke-linejoin="round"/>';
+        // Data points
+        for (var i = 0; i < n; i++) {
+            var val = (axes[keys[i]] || 0) / 100;
+            var a = i * angleStep - Math.PI/2;
+            var px = cx + r * val * Math.cos(a);
+            var py = cy + r * val * Math.sin(a);
+            html += '<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="3" fill="'+colors[i]+'" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>';
+        }
+        svg.innerHTML = html;
+
+        // Composite
+        var compEl = document.getElementById('itMatrixComposite');
+        compEl.textContent = matrix.composite;
+        compEl.style.color = matrix.bias === 'BULLISH' ? 'var(--it-green)' : matrix.bias === 'BEARISH' ? 'var(--it-red)' : 'var(--it-amber)';
+        document.getElementById('itMatrixBias').textContent = matrix.bias;
+
+        // Legend values
+        var legendMap = {miner_health:'itRL_miner',exchange_pressure:'itRL_exch',narrative_momentum:'itRL_narr',onchain_accumulation:'itRL_chain',lightning_growth:'itRL_ln',social_divergence:'itRL_social'};
+        for (var k in legendMap) {
+            var el = document.getElementById(legendMap[k]);
+            if (el) el.textContent = axes[k] || 0;
+        }
+
+        // Panel state
+        setPanelState('panelSignalMatrix', matrix.composite >= 65 ? 'nominal' : matrix.composite <= 35 ? 'critical' : 'watch');
+    }
+
+    // ── Narrative Momentum Tracker ───────────────────────────────
+    function updateNarrativeMomentum(narr) {
+        if (!narr) return;
+        document.getElementById('itNarrCount3d').textContent = narr.article_count_3d || 0;
+        document.getElementById('itNarrCount10d').textContent = narr.article_count_10d || 0;
+
+        // Momentum bars
+        var momEl = document.getElementById('itNarrMomentum');
+        var momentum = narr.momentum || [];
+        if (!momentum.length) {
+            momEl.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--it-muted)">No article data</div>';
+        } else {
+            var html = '';
+            for (var i = 0; i < momentum.length; i++) {
+                var m = momentum[i];
+                var barColor = m.trend === 'accelerating' ? 'var(--it-green)' : m.trend === 'decelerating' ? 'var(--it-red)' : 'var(--it-muted)';
+                var arrow = m.trend === 'accelerating' ? '↑' : m.trend === 'decelerating' ? '↓' : '→';
+                var arrowColor = m.trend === 'accelerating' ? 'var(--it-green)' : m.trend === 'decelerating' ? 'var(--it-red)' : 'var(--it-muted)';
+                var deltaSign = m.delta >= 0 ? '+' : '';
+                html += '<div class="it-momentum-row">' +
+                    '<span class="it-momentum-topic">' + m.topic + '</span>' +
+                    '<div class="it-momentum-bar-wrap"><div class="it-momentum-bar" style="width:' + Math.min(m.recent_pct, 100) + '%;background:' + barColor + '"></div></div>' +
+                    '<span class="it-momentum-delta" style="color:' + arrowColor + '">' + deltaSign + m.delta + 'pp</span>' +
+                    '<span class="it-momentum-arrow" style="color:' + arrowColor + '">' + arrow + '</span>' +
+                    '</div>';
+            }
+            momEl.innerHTML = html;
+        }
+
+        // Leading signals
+        var leadEl = document.getElementById('itNarrLeading');
+        var signals = narr.leading_signals || [];
+        if (signals.length) {
+            leadEl.innerHTML = signals.map(function(s) {
+                return '<div class="it-leading-signal">' + s + '</div>';
+            }).join('');
+        } else {
+            leadEl.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--it-muted)">No leading signals detected</div>';
+        }
+
+        // Trending tags
+        var tagsEl = document.getElementById('itNarrTags');
+        var tags = narr.trending_tags || [];
+        if (tags.length) {
+            tagsEl.innerHTML = tags.slice(0, 8).map(function(t) {
+                var cls = t.new ? 'bullish' : 'neutral';
+                return '<span class="it-signal-chip ' + cls + '">' + t.tag + ' (' + t.recent + ')' + (t.new ? ' NEW' : '') + '</span>';
+            }).join('');
+        } else {
+            tagsEl.innerHTML = '<span class="it-signal-chip neutral">No trending tags</span>';
+        }
+
+        setPanelState('panelNarrative', signals.length > 0 ? 'watch' : 'nominal');
+    }
+
+    // ── Cross-Signal Divergence Alert ────────────────────────────
+    function updateDivergence(div) {
+        if (!div) return;
+        var alertsEl = document.getElementById('itDivergenceAlerts');
+        var alerts = div.alerts || [];
+
+        if (alerts.length > 0) {
+            var html = '';
+            for (var i = 0; i < alerts.length; i++) {
+                var a = alerts[i];
+                var cls = a.severity === 'HIGH' ? '' : ' moderate';
+                html += '<div class="it-divergence-banner' + cls + '">';
+                html += '⚡ DIVERGENCE DETECTED — ' + a.message;
+                if (a.context) {
+                    html += '<div class="it-divergence-context">' + a.context + '</div>';
+                }
+                html += '</div>';
+            }
+            alertsEl.innerHTML = html;
+            setPanelState('panelDivergence', 'critical');
+        } else {
+            alertsEl.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--it-green);font-weight:700">ALL SIGNALS ALIGNED</div>' +
+                '<div style="font-family:Inter,sans-serif;font-size:11px;color:var(--it-label);margin-top:4px">No cross-signal divergence detected</div>';
+            setPanelState('panelDivergence', 'nominal');
+        }
+
+        // Counts
+        document.getElementById('itDivBullCount').textContent = div.bullish_count || 0;
+        document.getElementById('itDivNeutralCount').textContent = div.neutral_count || 0;
+        document.getElementById('itDivBearCount').textContent = div.bearish_count || 0;
+
+        // Signal chips
+        var chipsEl = document.getElementById('itDivSignalChips');
+        var signals = div.signals || [];
+        chipsEl.innerHTML = signals.map(function(s) {
+            var cls = s.direction === 1 ? 'bullish' : s.direction === -1 ? 'bearish' : 'neutral';
+            return '<span class="it-signal-chip ' + cls + '">' + s.name + ': ' + s.value + '</span>';
+        }).join('');
+    }
+
+    // ── Early Warning Feed ───────────────────────────────────────
+    function updateEarlyWarnings(ew) {
+        if (!ew) return;
+        document.getElementById('itEwCount').textContent = ew.total_active || 0;
+        document.getElementById('itEwCount').style.color = ew.total_active > 0 ? 'var(--it-amber)' : 'var(--it-green)';
+
+        var container = document.getElementById('itEarlyWarnings');
+        var warnings = ew.warnings || [];
+        if (!warnings.length) {
+            container.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--it-green);font-weight:700">NO ACTIVE WARNINGS</div>' +
+                '<div style="font-family:Inter,sans-serif;font-size:11px;color:var(--it-label);margin-top:4px">All precursor indicators within normal range</div>';
+            setPanelState('panelEarlyWarning', 'nominal');
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < warnings.length; i++) {
+            var w = warnings[i];
+            var dirCls = w.direction === 'BULLISH' ? 'bullish' : w.direction === 'BEARISH' ? 'bearish' : 'watch';
+            var confColor = w.confidence >= 70 ? 'var(--it-red)' : w.confidence >= 50 ? 'var(--it-amber)' : 'var(--it-muted)';
+            html += '<div class="it-warning-item">' +
+                '<div class="it-warning-header">' +
+                    '<span class="it-warning-name">' + w.name + '</span>' +
+                    '<span class="it-warning-badge ' + dirCls + '">' + w.direction + '</span>' +
+                    '<span class="it-warning-conf" style="color:' + confColor + '">' + w.confidence + '%</span>' +
+                '</div>' +
+                '<div class="it-warning-detail">' + w.detail + '</div>' +
+                '<div class="it-warning-precedent">' + w.precedent + '</div>' +
+                '<div class="it-warning-timeframe">⏱ ' + w.timeframe + '</div>' +
+                '</div>';
+        }
+        container.innerHTML = html;
+        setPanelState('panelEarlyWarning', ew.highest_confidence >= 70 ? 'critical' : ew.total_active > 0 ? 'watch' : 'nominal');
+    }
+
+    // ── Drill-down toggle ─────────────────────────────────────
+    function toggleDrilldown(headerEl) {
+        var panel = headerEl.closest('.it-panel');
+        var dd = panel.querySelector('.it-drilldown');
+        if (dd) {
+            dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    // ── Keyboard Shortcuts ────────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        var overlay = document.getElementById('itKbOverlay');
+        if (overlay.style.display === 'block') {
+            overlay.style.display = 'none';
+            return;
+        }
+        var panelMap = {
+            'c': 'Convergence Matrix',
+            's': 'Sentinel Core',
+            'm': 'Mempool Live',
+            'd': 'Dark Pool / Whale Intel',
+            'p': 'Privacy Tech / DeFi',
+        };
+        if (e.key === '?') {
+            overlay.style.display = 'block';
+            return;
+        }
+        var target = panelMap[e.key.toLowerCase()];
+        if (target) {
+            var headers = document.querySelectorAll('.it-panel-header');
+            headers.forEach(function(h) {
+                if (h.textContent.trim() === target) {
+                    h.closest('.it-panel').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            });
+        }
+    });
+
+    // ── SSE Connection ─────────────────────────────────────────
+    function connectSSE() {
+        if (sse) { sse.close(); }
+        sse = new EventSource(SSE_URL);
+        sse.onopen = function() {
+            reconnectDelay = 1000;
+        };
+        sse.onmessage = function(event) {
+            try {
+                const state = JSON.parse(event.data);
+                if (state.error) return;
+                updateState(state);
+            } catch(e) {
+                console.warn('SSE parse error:', e);
+            }
+        };
+        sse.onerror = function() {
+            sse.close();
+            document.getElementById('itConnectionStatus').innerHTML = 'RECONNECTING<span class="it-blink">_</span>';
+            document.getElementById('itConnectionStatus').closest('.it-status').style.color = 'var(--it-amber)';
+            setTimeout(connectSSE, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+        };
+    }
+
+    // ── Init ───────────────────────────────────────────────────
+    connectSSE();
+
+    // ── Welcome overlay (post-payment) ──────────────────────
+    {% if show_welcome %}
+    (function() {
+        const overlay = document.createElement('div');
+        overlay.id = 'welcomeOverlay';
+        overlay.innerHTML = `
+            <div style="max-width:480px;text-align:center;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--it-red);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">
+                    ◆ TERMINAL ACCESS GRANTED ◆
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;line-height:1.3;">
+                    Welcome, Commander.
+                </div>
+                <div style="text-align:left;font-size:14px;color:var(--it-text);line-height:1.8;margin-bottom:32px;">
+                    <div style="margin-bottom:8px;">› <strong style="color:#fff;">Your first alert</strong> — PCAF is now monitoring every block for anomalies. You'll see them in the alert rail above.</div>
+                    <div style="margin-bottom:8px;">› <strong style="color:#fff;">Check the PCAF score</strong> — top-left panel. When it crosses 0.7, pay attention.</div>
+                    <div>› <strong style="color:#fff;">Explore Scenarios</strong> — Monte Carlo engine runs every 6 hours. Check <a href="/intelligence/scenarios" style="color:var(--it-cyan);">/scenarios</a> for probability distributions.</div>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--it-muted);">
+                    Press <kbd style="background:var(--it-surface-elevated);padding:2px 6px;border-radius:2px;color:var(--it-text);">?</kbd> for keyboard shortcuts &nbsp;·&nbsp; Click anywhere to dismiss
+                </div>
+            </div>
+        `;
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,10,15,0.95);z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+        document.body.appendChild(overlay);
+        function dismiss() { overlay.remove(); }
+        overlay.addEventListener('click', dismiss);
+        document.addEventListener('keydown', function onKey(e) {
+            if (e.key === 'Escape' || e.key === 'Enter') { dismiss(); document.removeEventListener('keydown', onKey); }
+        });
+    })();
+    {% endif %}
+
+})();
+</script>
+{% endblock %}
