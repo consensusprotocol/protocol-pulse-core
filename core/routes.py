@@ -11259,3 +11259,22 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
+@app.route('/v3/<path:fn>')
+def _serve_v3(fn):
+    """Serve static files under /v3/ path — CSS, JS, assets for new site templates."""
+    from flask import make_response, abort
+    import mimetypes
+    static_root = '/home/ultron/protocol_pulse/static'
+    p = os.path.join(static_root, fn)
+    safe_p = os.path.realpath(p)
+    if not safe_p.startswith(os.path.realpath(static_root) + os.sep):
+        abort(403)
+    if not os.path.exists(safe_p):
+        abort(404)
+    data = open(safe_p, 'rb').read()
+    resp = make_response(data)
+    resp.headers['Content-Type'] = mimetypes.guess_type(safe_p)[0] or 'text/plain'
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    return resp
+
