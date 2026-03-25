@@ -966,6 +966,13 @@ Return ONLY the new headline, nothing else."""
             'word_count': word_count
         }
     
+    _BAD_TITLE_PREFIXES = (
+        'This article', 'This update', 'This report', 'As Bitcoin', 'While Bitcoin',
+        'Amidst', 'As the volatility', 'A detailed look', 'Recent fluctuations',
+        'An Overview', 'Current Bitcoin Network Landscape', 'Examining the Current State',
+        'Examining', 'In this article', 'In this report',
+    )
+
     def _extract_or_generate_title(self, content, topic):
         """Extract title from content or generate one using Conversational SEO"""
         try:
@@ -975,19 +982,28 @@ Return ONLY the new headline, nothing else."""
                 # Remove common article prefixes and any "Protocol Pulse" branding
                 title = first_line.replace('# ', '').replace('## ', '').strip()
                 title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
-                if title and not title.endswith('.'):
+                # Reject vague descriptive titles — force AI regeneration
+                if title and any(title.startswith(p) for p in self._BAD_TITLE_PREFIXES):
+                    logging.info("Rejected bad title pattern: '%s' — regenerating", title[:60])
+                elif title and not title.endswith('.'):
                     return title
             
             # Generate title using AI with CONVERSATIONAL SEO (question-based logic)
-            title_prompt = f"""Create a compelling, SEO-friendly headline for an article about: {topic}. 
+            title_prompt = f"""Create a compelling, SEO-friendly headline for an article about: {topic}.
+
+Title must be a specific, punchy headline under 10 words.
+NEVER start with 'This article', 'As Bitcoin', 'While Bitcoin', 'This update',
+'Examining', 'An Overview', 'A detailed look', 'Amidst', 'Recent fluctuations',
+or similar vague descriptive phrases.
 
 CONVERSATIONAL SEO MANDATE:
 - Use QUESTION-BASED headlines that AI assistants and voice search will surface
-- Examples of good question headlines:
+- Examples of good headlines:
+  * "Hashrate Hits All-Time High Despite Price Dip"
+  * "Lightning Network Capacity Surges Past 5,000 BTC"
+  * "Miners Capitulate as Difficulty Adjusts -8%"
   * "How Will the January 22 Difficulty Rise Affect Miners?"
   * "What Does 146.47 T Difficulty Mean for Network Security?"
-  * "Why Are Bitcoin Miners Accumulating Before the Halving?"
-  * "Is the Current Hashrate Sustainable for Small Miners?"
 
 RULES:
 - CRITICAL: Do NOT include 'Protocol Pulse' or any publication name
