@@ -1294,6 +1294,7 @@ function process(text){
         } else {
           audio=new Audio(audioUrl);
           audio.volume=1.0;
+          window._chatAudioEl=audio; /* track so video arrival can stop it */
         }
         window._chatAudioPlaying=true;
         var playPromise = audio.play();
@@ -1348,17 +1349,16 @@ function process(text){
                 .then(function(vb){
                   if(vb){
                     pendingVideoUrl=blobURL(vb);
-                    if(_audioFinished){
-                      // Cross-fade: thinking loop → lip-sync video
-                      vid.style.opacity='0';
-                      setTimeout(function(){
-                        vid.loop=false;
-                        vid.muted=false;
-                        vid.src=pendingVideoUrl;
-                        vid.style.opacity='1';
-                        playVid(pendingVideoUrl);
-                      },300);
-                    }
+                    // Play video immediately when ready — don't wait for _audioFinished
+                    // Stop any separate audio playing first
+                    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;}}catch(e){}
+                    vid.style.opacity='0';
+                    setTimeout(function(){
+                      vid.loop=false;vid.muted=false;
+                      vid.src=pendingVideoUrl;
+                      vid.style.opacity='1';
+                      playVid(pendingVideoUrl);
+                    },150);
                   }
                 })
                 .catch(function(e){console.warn('[Satomi] video fetch error:',e);});
@@ -1406,10 +1406,10 @@ function process(text){
                       clearInterval(pollVideo);
                       _videoHandled=true;
                       pendingVideoUrl=blobURL(vb);
-                      if(_audioFinished){
-                        vid.style.opacity='1';
-                        playVid(pendingVideoUrl);
-                      }
+                      // Play immediately — stop separate audio, show lip-sync video
+                      try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;}}catch(e){}
+                      vid.style.opacity='1';
+                      playVid(pendingVideoUrl);
                     }
                   })
                   .catch(function(){});

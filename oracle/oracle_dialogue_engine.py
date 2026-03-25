@@ -108,9 +108,9 @@ PHONEME_MAP = {
     r'\btaproot\b':         'Tap-root',
     r'\bStratum\b':         'Stray-tum',
     r'\bBlueWallet\b':      'Blue Wallet',
-    r'\bSatomi\b':           'Sah-toe-mee',
-    r'\bSATOMI\b':           'Sah-toe-mee',
-    r'\bsatomi\b':           'Sah-toe-mee',
+    r'\bSatomi\b':           'Seh-toe-mee',
+    r'\bSATOMI\b':           'Seh-toe-mee',
+    r'\bsatomi\b':           'Seh-toe-mee',
     # Technical pronunciation additions
     r'\bexahash\b':           'EX-ah-hash',
     r'\bExahash\b':           'EX-ah-hash',

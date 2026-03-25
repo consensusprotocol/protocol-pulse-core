@@ -2842,13 +2842,25 @@ def youtube_oauth_callback():
     
     tokens = yt.exchange_oauth_code(code)
     
-    if tokens and tokens.get('refresh_token'):
-        refresh_token = tokens['refresh_token']
-        flash(f'YouTube authorized successfully! Add this refresh token to your secrets as YOUTUBE_REFRESH_TOKEN: {refresh_token[:20]}...', 'success')
-        return render_template('admin/youtube_token.html', refresh_token=refresh_token)
-    else:
-        flash('Failed to get refresh token. Please try again.', 'error')
-        return redirect('/admin/youtube-auth')
+    if tokens:
+        refresh_token = tokens.get('refresh_token')
+        access_token = tokens.get('access_token', '')
+        if refresh_token:
+            flash(f'YouTube authorized! Token saved automatically.', 'success')
+            return render_template('admin/youtube_token.html', refresh_token=refresh_token)
+        elif access_token:
+            # Access token received but no refresh token — app was already authorized
+            # Try to use existing refresh token or force re-auth
+            existing_rt = os.environ.get('YOUTUBE_REFRESH_TOKEN', '')
+            if existing_rt:
+                flash('YouTube already authorized. Using existing refresh token.', 'success')
+                return render_template('admin/youtube_token.html', refresh_token=existing_rt)
+            else:
+                # Need to revoke and re-auth — instruct user
+                flash('Access token received but no refresh token. Please revoke access at myaccount.google.com/permissions, remove "Protocol Pulse" if listed, then authorize again.', 'warning')
+                return redirect('/admin/youtube-auth')
+    flash('Authorization failed. Please try again.', 'error')
+    return redirect('/admin/youtube-auth')
 
 @app.route('/admin/api/upload-short', methods=['POST'])
 @login_required
