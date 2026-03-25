@@ -73,6 +73,8 @@ FEATURE_MAP = {
     "oracle-phase2": ("PIPELINE_LAWS.md", "main"),
     "part-cache": ("PIPELINE_LAWS.md", "main"),
     "stage-fix": ("PIPELINE_LAWS.md", "main"),
+    "live-terminal-design": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "social-audit": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -208,6 +210,13 @@ EXPLICIT_FILES = {
         "services/stage_broadcast_service.py",
         "templates/stage.html",
         "oracle/avatar_server.py",
+    ],
+    "live-terminal-design": [
+        "docs/audits/live-terminal-design/live_terminal_excerpt.html",
+    ],
+    "social-audit": [
+        "services/tweet_machine.py",
+        "services/x_daily_top_article.py",
     ],
 }
 
@@ -359,6 +368,134 @@ After answering all 8 questions:
 - How many CRITICAL issues did you find?
 - Is this gospel ready to build from, or does it need fundamental rework?
 - What is the single most dangerous gap?
+""",
+    "live-terminal-design": """## YOUR REVIEW TASK — LIVE TERMINAL VISUAL DESIGN AUDIT (8 DESIGN QUESTIONS)
+
+This is a PRODUCT DESIGN audit, not a code correctness audit.
+Goal: Each LLM independently designs the most breathtaking possible real-time
+visualization of live Bitcoin network data for a browser page.
+
+CONTEXT — what exists today:
+  - live_terminal.html (9,534 lines)
+  - Three.js r128 with UnrealBloom post-processing
+  - Node globe (Three.js WebGL)
+  - 2D canvas mempool bar chart
+  - Multiple Chart.js panels
+  - WebSocket to wss://mempool.space/api/v1/ws (partially implemented)
+  - Data: BTC price, mempool size/fees, hashrate, FNG, block height
+
+The page has GREAT bones but the visualization feels like a collection of
+widgets rather than one coherent living thing.
+
+### Q1. HERO VISUALIZATION
+Design the centerpiece. What does the "heartbeat of Bitcoin" look like in WebGL?
+Be specific about:
+- What each particle/node represents
+- How transactions appear and travel
+- How block confirmations manifest visually
+- Color language (what does fee pressure look like? fear vs greed?)
+- How Fibonacci ratios or golden spiral physics apply
+
+### Q2. DATA MAPPING
+Map each live data point to a visual property.
+BTC price → ? Mempool size → ? Hashrate → ? FNG → ?
+Block time → ? Fee rate → ? Transaction count → ?
+
+### Q3. LAYOUT
+How should the page be organized? The hero vis plus what supporting elements?
+What gets cut from the current page?
+
+### Q4. PERFORMANCE
+Given Three.js r128 on mobile, what are the specific optimizations needed?
+Particle count limits? Instanced mesh vs individual meshes?
+
+### Q5. FIBONACCI/SACRED GEOMETRY
+How specifically would you apply golden ratio or Fibonacci spiral to the
+particle physics? Give concrete math, not vague references.
+
+### Q6. EMOTIONAL IMPACT
+What should a first-time visitor feel in the first 5 seconds? Design that
+moment specifically.
+
+### Q7. DATA FRESHNESS
+How do you handle the WebSocket connection dropping or mempool.space being slow?
+Graceful degradation?
+
+### Q8. KILLER FEATURE
+What is the ONE feature that makes this page something people screenshot and
+share on Twitter?
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- DETAILED DESIGN with specific implementable details
+- VISUAL DESCRIPTION (describe what the user sees)
+- TECHNICAL APPROACH (Three.js specifics, shader details, etc.)
+- WHY THIS WINS over alternatives
+
+### FINAL SUMMARY
+- Your single strongest design idea
+- The one thing that will make people screenshot this
+- How this compares to anything else on the web
+""",
+    "social-audit": """## YOUR REVIEW TASK — SOCIAL PIPELINE PRODUCT AUDIT (8 QUESTIONS)
+
+This is a PRODUCT audit of Protocol Pulse's social media pipeline.
+Goal: make every tweet feel like it was written by a brilliant,
+opinionated Bitcoiner who lives on a Bitcoin standard and has deep
+network intelligence — not an AI bot.
+
+CONTEXT:
+- Protocol Pulse = cypherpunk Bitcoin intelligence platform
+- Audience = Bitcoiners, node runners, sovereign individuals
+- Voice = PBX: contrarian, dry wit, Austrian economics lens
+- Current: 1-2 tweets/day from article summaries
+- Target: viral-worthy, community-resonant content
+
+### Q1 — SENTIMENT MIRRORING
+The user wants to monitor top thought leaders' most-liked posts/comments
+for community sentiment, then create our own version of that content.
+How do you implement this technically? What sources? What's the pipeline?
+Name specific accounts (Preston Pysh, Lyn Alden, Robert Breedlove, TFTC,
+Marty Bent, American HODL, etc.) and how to scrape their trending themes.
+
+### Q2 — CONTENT TYPES
+Beyond article summaries, what 5 tweet formats would drive the most
+engagement for a Bitcoin intelligence brand? Be specific with examples.
+
+### Q3 — TIMING & FREQUENCY
+What is the optimal posting schedule for a Bitcoin intelligence account
+in 2026? Day/time patterns? How many tweets per day?
+
+### Q4 — REPLY STRATEGY
+Should we build automated replies to trending Bitcoin threads?
+How do you do it without looking like a bot?
+
+### Q5 — THREAD FORMAT
+When and how should we use Twitter threads vs single tweets for maximum reach?
+
+### Q6 — DATA INTEGRATION
+We have live BTC price, mempool, FNG, hashrate, block height.
+How do you turn this into compelling social content automatically?
+
+### Q7 — COMMUNITY VOICE
+How do you make AI-generated content feel genuinely human and community-native?
+Specific techniques for the PBX voice (contrarian, dry wit, Austrian economics).
+
+### Q8 — KILLER FORMAT
+What is ONE tweet format that would make Protocol Pulse go viral
+in the Bitcoin community?
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- DETAILED ANSWER with specific implementable details
+- CONCRETE EXAMPLES (actual tweet text examples)
+- TECHNICAL APPROACH (APIs, pipelines, prompts)
+- WHY THIS WINS over alternatives
+
+### FINAL SUMMARY
+- Your top 3 highest-impact recommendations
+- The single most important thing to implement first
+- What will make Protocol Pulse's social presence unmistakable
 """,
     "oracle-phase2": """## YOUR REVIEW TASK — ORACLE PHASE 2: THINKING VIDEO + SSE PUSH (4 QUESTIONS)
 
@@ -517,7 +654,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-tweet_machine.py — Protocol Pulse Social Intelligence Layer
-Phase 3: Daily tweet generation from morning intelligence brief
+tweet_machine.py — Protocol Pulse Social Intelligence Engine
+Phase 4: Sentiment mirroring, format diversity, data-driven tweets, PBX voice
 
-Runs at 6:30am ET daily. Uses morning_intelligence_brief.json to generate 
-3-5 Protocol Pulse tweets. Posts via X API v2 write if credentials exist,
+Runs at 6:30am ET daily (and optionally at 14:00 UTC, 01:00 UTC).
+Uses morning_intelligence_brief.json + thought leader sentiment + live BTC data
+to generate signal-dense tweets. Posts via X API v2 write if credentials exist,
 otherwise queues to pending_tweets.json for manual review.
 
-Voice: authoritative, cypherpunk, signal-dense, no fluff.
-Think Marty Bent meets Bloomberg Terminal.
+Voice: PBX — a cynical, brilliant analyst who has watched fiat systems
+corrode for a decade. Austrian economics lens. Dry wit. Zero fluff.
 """
 
 import json
@@ -18,7 +19,7 @@ import os
 import sqlite3
 import sys
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 # ── Paths ────────────────────────────────────────────────────────────────────
@@ -59,6 +60,114 @@ logger = logging.getLogger("tweet_machine")
 
 CAN_POST = bool(X_ACCESS_TOKEN and X_ACCESS_TOKEN_SECRET and X_API_KEY and X_API_SECRET)
 
+# ── Thought Leader Accounts for Sentiment Mirroring ──────────────────────────
+THOUGHT_LEADERS = [
+    "PrestonPysh",
+    "LynAldenContact",
+    "Breedlove22",
+    "MartyBent",
+    "TFTC21",
+    "American_HODL",
+    "daborado",        # Dylan LeClair
+    "nic__carter",
+]
+
+# Evergreen fallback themes when sentiment radar has no data
+EVERGREEN_THEMES = [
+    "Fiat debasement accelerating globally",
+    "Self-custody as sovereignty in a surveillance state",
+    "Bitcoin network fundamentals strengthening silently",
+]
+
+# ── Tweet Format Templates ───────────────────────────────────────────────────
+# Each format constrains the LLM to produce a structurally distinct tweet.
+TWEET_FORMATS = {
+    "on_chain_signal": {
+        "label": "ON-CHAIN SIGNAL",
+        "instruction": (
+            "Write a tweet anchored to a SPECIFIC on-chain metric or network stat "
+            "(hashrate, mempool fees, exchange outflows, UTXO age, coin days destroyed, etc). "
+            "State the metric, then deliver one sharp implication. "
+            "The metric must come from the data context provided. Never invent numbers."
+        ),
+        "example": "90-day Coin Days Destroyed at a 5-year low. Old hands are not selling. They are waiting for something bigger than a new price high",
+    },
+    "historical_parallel": {
+        "label": "HISTORICAL PARALLEL",
+        "instruction": (
+            "Frame a current Bitcoin or macro event within a HISTORICAL context. "
+            "Reference a specific date, regime, economic episode, or monetary failure from history. "
+            "Draw the parallel to today. Austrian economics lens preferred. "
+            "Make the reader see the pattern."
+        ),
+        "example": "Diocletian's Edict on Maximum Prices failed to stop Roman inflation in 301 AD. Price controls on energy are the same policy with a different toga",
+    },
+    "fiat_failure": {
+        "label": "FIAT FAILURE SNAPSHOT",
+        "instruction": (
+            "Contrast a SPECIFIC fiat system failure (debt level, money printing stat, "
+            "currency collapse, central bank action) against Bitcoin's properties. "
+            "Format: shocking fiat fact, dry-wit observation, Bitcoin as the punchline. "
+            "Use real data from the brief or public knowledge. The gap between what "
+            "institutions say and what they do is your hunting ground."
+        ),
+        "example": "Powell says inflation is transitory. The Fed's balance sheet quietly expands by $50B this week. The denominator is the signal",
+    },
+    "socratic_question": {
+        "label": "SOCRATIC QUESTION",
+        "instruction": (
+            "Ask ONE genuinely uncomfortable question that forces the reader to confront "
+            "a first principle about money, sovereignty, or state power. "
+            "The question must be impossible to ignore and have no easy answer. "
+            "Do NOT answer it yourself. Let it hang."
+        ),
+        "example": "If your bank can freeze your funds on a government request, at what point did you stop owning your money",
+    },
+    "brief_signal": {
+        "label": "INTELLIGENCE BRIEF SIGNAL",
+        "instruction": (
+            "Pick the single highest-signal angle from today's intelligence brief. "
+            "Lead with a specific data point. One observation, one implication, one landing. "
+            "This is the classic Protocol Pulse format."
+        ),
+        "example": "Strategy acquired BTC again. No press conference. No explanation needed",
+    },
+    "community_narrative": {
+        "label": "COMMUNITY NARRATIVE RESPONSE",
+        "instruction": (
+            "The Bitcoin community is currently discussing the themes listed in COMMUNITY NARRATIVES. "
+            "Pick one theme and deliver a CONTRARIAN or deeper-level insight that the community "
+            "hasn't considered. Do NOT agree with the mainstream take. Find the angle everyone missed. "
+            "You are responding to the zeitgeist, not repeating it."
+        ),
+        "example": "Everyone wants the government to provide clarity on Bitcoin. What if the entire point of Bitcoin is that it doesn't need external clarity",
+    },
+}
+
+# ── PBX Voice (strengthened persona) ─────────────────────────────────────────
+PBX_PERSONA = """PERSONA DIRECTIVE (apply before all other instructions):
+You are a ghost analyst inside Protocol Pulse. You have watched fiat monetary systems
+corrode for over a decade. Your worldview is shaped by the Austrian School of Economics:
+you see time preference, malinvestment, and the Cantillon Effect in every headline.
+
+Your tone is dry, understated, and contains a hint of gallows humor about the state
+of the fiat world. You state observations as fact, without hype or emotion.
+You prefer to expose flaws in logic rather than make breathless declarations.
+You respect your audience's intelligence. Never over-explain.
+
+You are NOT a reporter. You are NOT bullish or bearish. You observe the decay of
+one monetary system and the emergence of another with the detachment of someone
+who has already made their choice.
+
+FORBIDDEN LANGUAGE (hard filter):
+- No corporate jargon: leverage, synergy, unpack, deep dive, game-changer
+- No breathless hype: revolution, paradigm shift, bullish af, to the moon
+- No cliches: now more than ever, in a world where, at the end of the day
+- No subjective adjectives: amazing, incredible, exciting, massive
+- No hedging: might, could potentially, it remains to be seen
+- No first person plural: we believe, our view, we think
+"""
+
 TWEET_VOICE_LAWS = """
 PROTOCOL PULSE VOICE LAWS (data-derived, March 2026 study):
 
@@ -79,7 +188,7 @@ LAW 6 - ORIGINAL TAKES ONLY: 84% of top tweets are original positions, not react
 
 LAW 7 - ONE CLEAN IDEA: Max 3 sentences. One observation, one implication, one landing.
 
-IDENTITY LAWS (override everything -- apply first):
+IDENTITY LAWS (override everything):
 
 BITCOIN ONLY: Protocol Pulse is a Bitcoin platform. Not crypto. Not web3. Not DeFi.
   Bitcoin is a monetary protocol. Everything else is noise.
@@ -88,7 +197,7 @@ BITCOIN ONLY: Protocol Pulse is a Bitcoin platform. Not crypto. Not web3. Not De
 CYPHERPUNK ETHOS: Our lens is sovereignty, privacy, sound money, and freedom from
   institutional and state control. We are not a mainstream finance outlet.
   We do not celebrate stablecoin bills, ETF approvals, or institutional on-ramps as victories.
-  We observe them as signals about where power is moving -- and where it isnt.
+  We observe them as signals about where power is moving and where it isnt.
 
 NEVER USE THESE ANGLES:
   - Stablecoin legislation or stablecoin yield
@@ -109,43 +218,324 @@ PREFERRED ANGLES:
   - The gap between what institutions say and what they do
 """
 
-TWEET_GENERATION_PROMPT = """You are the tweet writer for Protocol Pulse -- an autonomous Bitcoin intelligence platform.
+# ── Prompt Template (format-aware) ───────────────────────────────────────────
+TWEET_GENERATION_PROMPT = """{persona}
 
-Generate exactly 1 tweet for @ProtocolPulseHQ based on today's intelligence brief.
-Pick the single highest-signal angle. Make it land.
+You are the tweet writer for Protocol Pulse, an autonomous Bitcoin intelligence platform.
+
+Generate exactly 1 tweet for @ProtocolPulseHQ.
+
+FORMAT DIRECTIVE — you MUST write in this format:
+[{format_label}]
+{format_instruction}
+
+EXAMPLE of this format's voice:
+"{format_example}"
 
 CRITICAL — ANGLE DIVERSITY LAW:
 The recently posted tweets below represent USED angles. You MUST pick a completely
 different angle, different data point, and different framing. Never rephrase a posted tweet.
 If today's brief only has one story, find a different dimension of it (different stat, different
 implication, different audience insight). Repetition destroys credibility.
-A good feed has variety: one macro signal, one protocol stat, one sovereignty/freedom angle.
-Never post the same narrative twice within 48 hours.
 
 INTELLIGENCE BRIEF:
 {brief_text}
+
+{community_narratives}
+
+{live_data}
 
 VOICE LAWS (mandatory):
 {voice_laws}
 
 HARD RULES:
-- Never start with: Just, Hot take, Thread:, GM, Attention, Breaking, We
+- Never start with: Just, Hot take, Thread:, GM, Attention, Breaking, We, Bitcoin is
 - Never use exclamation marks
 - Never end with a period
 - No hashtags
 - No emoji
-- No em dashes (the long dash: --)
+- No em dashes (the long dash)
 - No double dashes (--)
 - No dashes used as pauses or separators of any kind
+- No ellipsis (...)
+- Every number must be real. Never invent statistics.
 
 EXAMPLES OF THE RIGHT VOICE:
 - "Capitalism started in 1602 with the world's first stock exchange. It died in 2026 with the first unrealized gains tax. Neofeudalism arrived quietly"
 - "Strategy acquired BTC again. No press conference. No explanation needed"
 - "Remember all the talk of auditing the gold reserves in Fort Knox last year?"
+- "The Fed is now aggressively hiking rates to fix the problem they aggressively created by printing money. The cure is the poison"
+- "On chain transaction volume dropped 34% while price held. Either accumulation is silent or conviction is cracking"
 
 Respond with a JSON object only. No markdown. No preamble:
-{{"text": "<tweet -- max 280 chars, no trailing period, no emoji, no hashtags>", "angle": "<narrative addressed>", "type": "<stat|observation|question|signal>", "char_count": 0}}"""
+{{"text": "<tweet, max 280 chars, no trailing period, no emoji, no hashtags>", "angle": "<angle_category>", "type": "<stat|observation|question|signal>", "format": "{format_key}", "char_count": 0}}"""
 
+
+# ── Sentiment Mirroring: Thought Leader Theme Scraping ───────────────────────
+
+def fetch_thought_leader_themes() -> list[str]:
+    """Scrape trending themes from top Bitcoin thought leaders.
+
+    Uses the morning brief's dominant_narratives and trending_language as primary
+    signal (already derived from tweet study + nostr). Falls back to evergreen
+    themes if no fresh data available.
+    """
+    themes = []
+
+    # Primary source: morning brief already contains community narrative analysis
+    try:
+        if BRIEF_PATH.exists():
+            with open(BRIEF_PATH) as f:
+                brief = json.load(f)
+            narratives = brief.get("dominant_narratives", [])
+            trending = brief.get("trending_language", [])
+            top_accounts = brief.get("top_accounts_active", [])
+            if narratives:
+                themes.extend(narratives[:3])
+            if trending:
+                themes.append(f"Trending language: {', '.join(trending[:5])}")
+            if top_accounts:
+                themes.append(f"Active voices: {', '.join(top_accounts[:3])}")
+    except Exception as e:
+        logger.warning(f"Could not load brief for sentiment: {e}")
+
+    # Secondary source: check sovereign_intel.db for stored narrative signals
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS emerging_narratives (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                theme TEXT NOT NULL,
+                source_account TEXT,
+                engagement_score REAL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+        rows = conn.execute(
+            "SELECT theme FROM emerging_narratives WHERE created_at > ? ORDER BY engagement_score DESC LIMIT 5",
+            (cutoff,)
+        ).fetchall()
+        conn.close()
+        if rows:
+            themes.extend([r[0] for r in rows])
+    except Exception as e:
+        logger.warning(f"Could not query emerging_narratives: {e}")
+
+    if not themes:
+        logger.info("No fresh sentiment data, using evergreen themes")
+        return EVERGREEN_THEMES
+
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for t in themes:
+        if t.lower() not in seen:
+            seen.add(t.lower())
+            unique.append(t)
+    return unique[:5]
+
+
+def store_narrative(theme: str, source: str = "brief", score: float = 0.0) -> None:
+    """Write a detected narrative theme to sovereign_intel.db for tracking."""
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS emerging_narratives (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                theme TEXT NOT NULL,
+                source_account TEXT,
+                engagement_score REAL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.execute(
+            "INSERT INTO emerging_narratives (theme, source_account, engagement_score, created_at) VALUES (?,?,?,?)",
+            (theme, source, score, datetime.now(timezone.utc).isoformat()),
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.warning(f"Failed to store narrative: {e}")
+
+
+# ── Live Bitcoin Data Feed ───────────────────────────────────────────────────
+
+def fetch_live_btc_data() -> dict:
+    """Fetch real-time BTC network data from mempool.space + alternative.me."""
+    data = {}
+
+    # mempool.space: fees, block height
+    try:
+        req = urllib.request.Request(
+            "https://mempool.space/api/v1/fees/recommended",
+            headers={"User-Agent": "ProtocolPulse/1.0"},
+        )
+        resp = urllib.request.urlopen(req, timeout=10)
+        fees = json.loads(resp.read())
+        data["fee_fastest"] = fees.get("fastestFee", 0)
+        data["fee_hour"] = fees.get("hourFee", 0)
+    except Exception as e:
+        logger.warning(f"mempool fees fetch failed: {e}")
+
+    # mempool.space: block height + hashrate
+    try:
+        req = urllib.request.Request(
+            "https://mempool.space/api/blocks/tip/height",
+            headers={"User-Agent": "ProtocolPulse/1.0"},
+        )
+        resp = urllib.request.urlopen(req, timeout=10)
+        data["block_height"] = int(resp.read().decode().strip())
+    except Exception as e:
+        logger.warning(f"block height fetch failed: {e}")
+
+    try:
+        req = urllib.request.Request(
+            "https://mempool.space/api/v1/mining/hashrate/3d",
+            headers={"User-Agent": "ProtocolPulse/1.0"},
+        )
+        resp = urllib.request.urlopen(req, timeout=10)
+        hr_data = json.loads(resp.read())
+        if hr_data.get("hashrates"):
+            latest = hr_data["hashrates"][-1]
+            data["hashrate_eh"] = round(latest.get("avgHashrate", 0) / 1e18, 1)
+    except Exception as e:
+        logger.warning(f"hashrate fetch failed: {e}")
+
+    # Fear & Greed
+    try:
+        req = urllib.request.Request(
+            "https://api.alternative.me/fng/?limit=1",
+            headers={"User-Agent": "ProtocolPulse/1.0"},
+        )
+        resp = urllib.request.urlopen(req, timeout=10)
+        fng = json.loads(resp.read())
+        if fng.get("data"):
+            data["fng_score"] = int(fng["data"][0].get("value", 50))
+            data["fng_label"] = fng["data"][0].get("value_classification", "Neutral")
+    except Exception as e:
+        logger.warning(f"FNG fetch failed: {e}")
+
+    return data
+
+
+def format_live_data(data: dict) -> str:
+    """Format live BTC data as context block for the LLM prompt."""
+    if not data:
+        return ""
+
+    lines = ["LIVE BITCOIN NETWORK DATA (real-time, use these numbers):"]
+    if "block_height" in data:
+        lines.append(f"  Block Height: {data['block_height']:,}")
+    if "hashrate_eh" in data:
+        lines.append(f"  Hashrate (3d avg): {data['hashrate_eh']} EH/s")
+    if "fee_fastest" in data:
+        lines.append(f"  Fastest Fee: {data['fee_fastest']} sat/vB")
+    if "fee_hour" in data:
+        lines.append(f"  1-Hour Fee: {data['fee_hour']} sat/vB")
+    if "fng_score" in data:
+        lines.append(f"  Fear & Greed: {data['fng_score']} ({data.get('fng_label', '?')})")
+
+    return "\n".join(lines)
+
+
+# ── Format Rotation ──────────────────────────────────────────────────────────
+
+def get_last_formats_used(n: int = 3) -> list[str]:
+    """Return the last N format keys used, to enforce rotation."""
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS auto_tweet (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tweet_text TEXT NOT NULL,
+                tweet_type TEXT DEFAULT 'generated',
+                angle TEXT,
+                status TEXT DEFAULT 'pending',
+                x_tweet_id TEXT,
+                generated_at TEXT,
+                posted_at TEXT,
+                sentiment TEXT,
+                brief_date TEXT,
+                format_used TEXT,
+                narratives_used TEXT,
+                data_injected INTEGER DEFAULT 0
+            )
+        """)
+        rows = conn.execute(
+            "SELECT format_used FROM auto_tweet WHERE format_used IS NOT NULL ORDER BY id DESC LIMIT ?",
+            (n,)
+        ).fetchall()
+        conn.close()
+        return [r[0] for r in rows if r[0]]
+    except Exception as e:
+        logger.warning(f"Could not fetch last formats: {e}")
+        return []
+
+
+def pick_format(brief: dict, themes: list[str]) -> str:
+    """Pick the next tweet format, enforcing no repeat within last 3 posts."""
+    recent = get_last_formats_used(3)
+    available = [k for k in TWEET_FORMATS if k not in recent]
+
+    if not available:
+        available = list(TWEET_FORMATS.keys())
+
+    # Prefer community_narrative if we have fresh themes
+    if themes and themes != EVERGREEN_THEMES and "community_narrative" in available:
+        return "community_narrative"
+
+    # Prefer on_chain_signal if brief has strong data
+    if brief.get("fng") and "on_chain_signal" in available:
+        return "on_chain_signal"
+
+    # Prefer fiat_failure if sentiment is bearish
+    if brief.get("sentiment") == "bearish" and "fiat_failure" in available:
+        return "fiat_failure"
+
+    # Default: first available
+    return available[0]
+
+
+# ── JSON Extraction (robust) ─────────────────────────────────────────────────
+
+def extract_json(raw: str) -> dict:
+    """Robustly extract JSON from LLM response, handling markdown fences."""
+    raw = raw.strip()
+    # Stage 1: direct parse
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
+    # Stage 2: strip markdown fences
+    if raw.startswith("```"):
+        inner = raw.split("```", 2)[1]
+        if inner.startswith("json"):
+            inner = inner[4:]
+        inner = inner.rsplit("```", 1)[0].strip()
+        try:
+            return json.loads(inner)
+        except json.JSONDecodeError:
+            pass
+    # Stage 3: regex extract first JSON object
+    match = re.search(r'\{[^{}]*\}', raw, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group())
+        except json.JSONDecodeError:
+            pass
+    # Stage 4: greedy regex
+    match = re.search(r'\{.*\}', raw, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group())
+        except json.JSONDecodeError:
+            pass
+    logger.error(f"No valid JSON in LLM response: {raw[:200]}")
+    raise ValueError(f"No valid JSON found in LLM response")
+
+
+# ── Core Functions ───────────────────────────────────────────────────────────
 
 def load_brief() -> dict:
     """Load morning intelligence brief."""
@@ -162,12 +552,10 @@ def load_brief() -> dict:
         return json.load(f)
 
 
-
 def get_todays_posted_tweets() -> list[str]:
     """Fetch tweet texts already posted today to avoid repeats."""
     try:
         conn = sqlite3.connect(str(BASE / "instance" / "protocol_pulse.db"))
-        from datetime import timedelta
         cutoff_48h = (datetime.now(timezone.utc) - timedelta(hours=48)).strftime("%Y-%m-%d %H:%M:%S")
         rows = conn.execute(
             "SELECT tweet_content FROM auto_tweet WHERE posted_at >= ? ORDER BY posted_at DESC LIMIT 20",
@@ -197,8 +585,9 @@ def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.40) -
             return True
     return False
 
+
 def generate_tweets(brief: dict, count: int = 1) -> list:
-    """Call Claude Haiku to generate tweets from the brief."""
+    """Call Claude Haiku to generate tweets from the brief with format diversity."""
     if not ANTHROPIC_API_KEY:
         logger.error("ANTHROPIC_API_KEY not set")
         return []
@@ -242,9 +631,42 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
     except Exception as e:
         logger.warning(f"Could not load angle categories: {e}")
 
+    # Sentiment mirroring: fetch thought leader themes
+    themes = fetch_thought_leader_themes()
+    community_block = ""
+    if themes:
+        community_block = (
+            "COMMUNITY NARRATIVES (what the Bitcoin community is discussing right now):\n"
+            + "\n".join(f"  - {t}" for t in themes)
+            + "\nUse these as awareness context. Find a contrarian or deeper angle, not a copy."
+        )
+        logger.info(f"Injected {len(themes)} community themes into prompt")
+
+    # Live BTC data
+    live_data = fetch_live_btc_data()
+    live_block = format_live_data(live_data)
+    if live_block:
+        logger.info(f"Injected live BTC data: {list(live_data.keys())}")
+
+    # Pick format
+    fmt_key = pick_format(brief, themes)
+    fmt = TWEET_FORMATS[fmt_key]
+    logger.info(f"Selected format: [{fmt['label']}] ({fmt_key})")
+
+    # Store detected narratives for analytics
+    for t in themes[:3]:
+        store_narrative(t, source="brief_themes")
+
     prompt = TWEET_GENERATION_PROMPT.format(
+        persona=PBX_PERSONA,
+        format_label=fmt["label"],
+        format_instruction=fmt["instruction"],
+        format_example=fmt["example"],
+        format_key=fmt_key,
         brief_text=brief_text + used_context + banned_concepts_context + available_angles_context,
-        voice_laws=TWEET_VOICE_LAWS
+        community_narratives=community_block,
+        live_data=live_block,
+        voice_laws=TWEET_VOICE_LAWS,
     )
 
     payload = {
@@ -266,15 +688,14 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         resp = urllib.request.urlopen(req, timeout=30)
         data = json.loads(resp.read())
         content = data.get("content", [{}])[0].get("text", "").strip()
-        # Strip markdown fences
-        if content.startswith("```"):
-            content = content.split("```", 2)[1]
-            if content.startswith("json"):
-                content = content[4:]
-            content = content.rsplit("```", 1)[0].strip()
-        parsed = json.loads(content)
+        parsed = extract_json(content)
         if isinstance(parsed, dict):
             parsed = [parsed]
+        # Tag each tweet with metadata for tracking
+        for t in parsed:
+            t["format"] = fmt_key
+            t["narratives_used"] = themes[:3]
+            t["data_injected"] = bool(live_data)
         logger.info(f"Generated {len(parsed)} tweet(s)")
         return parsed
     except Exception as e:
@@ -284,13 +705,11 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
 
 def _strip_hashtags(text: str) -> str:
     """Remove any hashtags from outgoing text. X algorithms penalize them."""
-    import re
     return re.sub(r" #\w+", "", text).strip()
 
 
 def post_to_x(tweet_text: str) -> dict:
     """Post a tweet via X API v2 using OAuth 1.0a."""
-    # Requires: tweepy or manual OAuth 1.0a signing
     try:
         import tweepy
         client = tweepy.Client(
@@ -313,7 +732,6 @@ def post_to_x(tweet_text: str) -> dict:
 
 def queue_tweet(tweet: dict, brief: dict) -> None:
     """Add tweet to pending_tweets.json queue for manual review."""
-    # Load existing queue
     existing = []
     if QUEUE_PATH.exists():
         with open(QUEUE_PATH) as f:
@@ -324,6 +742,7 @@ def queue_tweet(tweet: dict, brief: dict) -> None:
         "text": tweet.get("text", ""),
         "angle": tweet.get("angle", ""),
         "type": tweet.get("type", ""),
+        "format": tweet.get("format", ""),
         "priority": tweet.get("priority", 3),
         "status": "pending",
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -331,17 +750,16 @@ def queue_tweet(tweet: dict, brief: dict) -> None:
         "sentiment": brief.get("sentiment", ""),
     }
 
-    # Dedup by text
     existing_texts = {e.get("text", "") for e in existing}
     if entry["text"] not in existing_texts:
         existing.append(entry)
         with open(QUEUE_PATH, "w") as f:
             json.dump(existing, f, indent=2, ensure_ascii=False)
-        logger.info(f"Queued: {entry['text'][:60]}...")
+        logger.info(f"Queued [{tweet.get('format', '?')}]: {entry['text'][:60]}...")
 
 
 def log_to_db(tweet: dict, posted: bool, tweet_id: str = None) -> None:
-    """Log tweet to sovereign_intel.db auto_tweet table."""
+    """Log tweet to sovereign_intel.db auto_tweet table with format tracking."""
     try:
         conn = sqlite3.connect(str(SOVEREIGN_DB))
         c = conn.cursor()
@@ -356,13 +774,17 @@ def log_to_db(tweet: dict, posted: bool, tweet_id: str = None) -> None:
                 generated_at TEXT,
                 posted_at TEXT,
                 sentiment TEXT,
-                brief_date TEXT
+                brief_date TEXT,
+                format_used TEXT,
+                narratives_used TEXT,
+                data_injected INTEGER DEFAULT 0
             )
         """)
         c.execute(
-            """INSERT INTO auto_tweet 
-               (tweet_text, tweet_type, angle, status, x_tweet_id, generated_at, posted_at, sentiment, brief_date)
-               VALUES (?,?,?,?,?,?,?,?,?)""",
+            """INSERT INTO auto_tweet
+               (tweet_text, tweet_type, angle, status, x_tweet_id, generated_at, posted_at,
+                sentiment, brief_date, format_used, narratives_used, data_injected)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 tweet.get("text", ""),
                 tweet.get("type", "generated"),
@@ -373,6 +795,9 @@ def log_to_db(tweet: dict, posted: bool, tweet_id: str = None) -> None:
                 datetime.now(timezone.utc).isoformat() if posted else None,
                 tweet.get("sentiment", ""),
                 tweet.get("brief_date", ""),
+                tweet.get("format", ""),
+                json.dumps(tweet.get("narratives_used", [])),
+                1 if tweet.get("data_injected") else 0,
             ),
         )
         conn.commit()
@@ -383,7 +808,7 @@ def log_to_db(tweet: dict, posted: bool, tweet_id: str = None) -> None:
 
 def main():
     logger.info("=" * 60)
-    logger.info("Tweet Machine starting")
+    logger.info("Tweet Machine v4 starting (sentiment + formats + data)")
     logger.info("=" * 60)
 
     if not CAN_POST:
@@ -479,4 +904,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
