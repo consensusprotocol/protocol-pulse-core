@@ -990,36 +990,43 @@ _The autonomous pipeline has activated._
         
         return auth_url, state
     
+
     def exchange_oauth_code(self, code):
+        """Exchange auth code for tokens using direct HTTPS POST (bypasses state validation)."""
         if not self.is_oauth_configured():
             return None
-        
-        client_config = {
-            "web": {
-                "client_id": os.environ.get('YOUTUBE_CLIENT_ID'),
-                "client_secret": os.environ.get('YOUTUBE_CLIENT_SECRET'),
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [self._get_oauth_redirect_uri()]
-            }
-        }
-        
-        flow = Flow.from_client_config(client_config, scopes=YOUTUBE_UPLOAD_SCOPES)
-        flow.redirect_uri = self._get_oauth_redirect_uri()
-        
+        import requests as _req
         try:
-            flow.fetch_token(code=code)
-            credentials = flow.credentials
-            refresh_token = credentials.refresh_token
-
-            # Auto-save refresh token to .env if received
+            resp = _req.post(
+                'https://oauth2.googleapis.com/token',
+                data={
+                    'code': code,
+                    'client_id': os.environ.get('YOUTUBE_CLIENT_ID'),
+                    'client_secret': os.environ.get('YOUTUBE_CLIENT_SECRET'),
+                    'redirect_uri': self._get_oauth_redirect_uri(),
+                    'grant_type': 'authorization_code',
+                },
+                timeout=15
+            )
+            logging.info(f'[YouTube] Token exchange status: {resp.status_code}')
+            if not resp.ok:
+                logging.error(f'[YouTube] Token exchange failed: {resp.text[:200]}')
+                return None
+            
+            data = resp.json()
+            refresh_token = data.get('refresh_token')
+            access_token = data.get('access_token')
+            
+            logging.info(f'[YouTube] Got tokens - access: {bool(access_token)}, refresh: {bool(refresh_token)}')
+            
+            # Auto-save refresh token to .env
             if refresh_token:
                 env_path = '/home/ultron/protocol_pulse/.env'
                 try:
                     with open(env_path, 'r') as ef:
                         env_content = ef.read()
+                    import re as _re
                     if 'YOUTUBE_REFRESH_TOKEN=' in env_content:
-                        import re as _re
                         env_content = _re.sub(r'YOUTUBE_REFRESH_TOKEN=.*', f'YOUTUBE_REFRESH_TOKEN={refresh_token}', env_content)
                     else:
                         env_content += f'\nYOUTUBE_REFRESH_TOKEN={refresh_token}\n'
@@ -1028,19 +1035,20 @@ _The autonomous pipeline has activated._
                     os.environ['YOUTUBE_REFRESH_TOKEN'] = refresh_token
                     logging.info('[YouTube] Refresh token auto-saved to .env')
                 except Exception as save_err:
-                    logging.error(f'[YouTube] Failed to save refresh token: {save_err}')
-
+                    logging.error(f'[YouTube] Failed to save: {save_err}')
+            
             return {
-                'access_token': credentials.token,
+                'access_token': access_token,
                 'refresh_token': refresh_token,
-                'token_uri': credentials.token_uri,
-                'client_id': credentials.client_id,
-                'client_secret': credentials.client_secret
+                'token_uri': 'https://oauth2.googleapis.com/token',
+                'client_id': os.environ.get('YOUTUBE_CLIENT_ID'),
+                'client_secret': os.environ.get('YOUTUBE_CLIENT_SECRET'),
             }
         except Exception as e:
-            logging.error(f"Failed to exchange OAuth code: {e}")
+            logging.error(f'[YouTube] exchange_oauth_code error: {e}')
             return None
-    
+
+
     def _get_upload_credentials(self):
         refresh_token = os.environ.get('YOUTUBE_REFRESH_TOKEN')
         if not refresh_token:
