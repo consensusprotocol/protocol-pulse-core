@@ -7,7 +7,7 @@ from flask import render_template, request, jsonify, redirect, url_for, flash, m
 from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app import app, db, limiter
+from app import app, db, limiter, cache
 from models import Article, Podcast, ContentPrompt, User, Advertisement, AutomationRun, LaunchSequence, TargetAlert, NostrEvent, ReplySquadMember, EngagementEvent, ContentPerformance, AnalyticsSummary, UserSegment, Sponsor, CreditAccount, PredictionOracle, WhaleTransaction, AffiliatePartner, AffiliateClick, FeedItem, SentimentSnapshot, PulseEvent, AutoPostDraft, DailyBrief, OracleSession, MarketBriefing, PriceAlert
 import hashlib
 import json
@@ -394,6 +394,7 @@ def get_latest_episode():
 
 
 @app.route('/')
+@cache.cached(timeout=60, key_prefix='view_index')
 def index():
     """Homepage with featured articles, segment-based Bento-box ranking"""
     try:
@@ -411,7 +412,7 @@ def index():
                 "SELECT id FROM articles WHERE published=1 ORDER BY COALESCE(importance_score,0) DESC, created_at DESC LIMIT 3"
             )).fetchall()
             carousel_ids = [r[0] for r in carousel_rows]
-            carousel_articles = [Article.query.get(aid) for aid in carousel_ids if Article.query.get(aid)]
+            carousel_articles = Article.query.filter(Article.id.in_(carousel_ids)).all() if carousel_ids else []
         except Exception:
             carousel_articles = featured_articles[:3] if featured_articles else recent_articles[:3]
     except Exception as _db_err:
@@ -1764,30 +1765,30 @@ def media_hub():
         affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
         
         all_books = [
-            {'title': 'Everything Divided by 21 Million', 'author': 'Knut Svanholm', 'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#dc2626'},
-            {'title': 'The Big Print', 'author': 'Lawrence Lepard', 'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#f59e0b'},
-            {'title': 'Daylight Robbery', 'author': 'Dominic Frisby', 'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#ef4444'},
-            {'title': 'The Genesis Book', 'author': 'Aaron van Wirdum', 'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#8b5cf6'},
-            {'title': 'The Bitcoin Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a'},
-            {'title': 'Broken Money', 'author': 'Lyn Alden', 'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}', 'category': 'essential', 'color': '#3b82f6'},
-            {'title': 'The Fiat Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}', 'category': 'essential', 'color': '#6366f1'},
-            {'title': 'Mastering Bitcoin', 'author': 'Andreas Antonopoulos', 'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}', 'category': 'essential', 'color': '#f59e0b'},
-            {'title': 'The Price of Tomorrow', 'author': 'Jeff Booth', 'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}', 'category': 'essential', 'color': '#10b981'},
-            {'title': 'Softwar', 'author': 'Jason Lowery', 'amazon_url': f'https://www.amazon.com/dp/B0BW3MTQG6?tag={affiliate_tag}', 'category': 'essential', 'color': '#ef4444'},
-            {'title': 'Thank God for Bitcoin', 'author': 'Jimmy Song et al.', 'amazon_url': f'https://www.amazon.com/dp/1641991216?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a'},
-            {'title': 'The Sovereign Individual', 'author': 'Davidson & Rees-Mogg', 'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}', 'category': 'essential', 'color': '#8b5cf6'},
-            {'title': 'Bitcoin Billionaires', 'author': 'Ben Mezrich', 'amazon_url': f'https://www.amazon.com/dp/1250217768?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b'},
-            {'title': 'The Blocksize War', 'author': 'Jonathan Bier', 'amazon_url': f'https://www.amazon.com/dp/B08YQMC2WM?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#dc2626'},
-            {'title': 'Inventing Bitcoin', 'author': 'Yan Pritzker', 'amazon_url': f'https://www.amazon.com/dp/B07MWXRWNB?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f7931a'},
-            {'title': 'The Book of Satoshi', 'author': 'Phil Champagne', 'amazon_url': f'https://www.amazon.com/dp/0996061312?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#6366f1'},
-            {'title': 'Digital Gold', 'author': 'Nathaniel Popper', 'amazon_url': f'https://www.amazon.com/dp/006236250X?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b'},
-            {'title': 'Resistance Money', 'author': 'Andrew Bailey et al.', 'amazon_url': f'https://www.amazon.com/dp/1032609710?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#10b981'},
-            {'title': 'Check Your Financial Privilege', 'author': 'Alex Gladstein', 'amazon_url': f'https://www.amazon.com/dp/B09V2NM9VJ?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#3b82f6'},
-            {'title': 'Bitcoin is Venice', 'author': 'Allen Farrington', 'amazon_url': f'https://www.amazon.com/dp/B09TKNKFRS?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#8b5cf6'},
-            {'title': 'Economics in One Lesson', 'author': 'Henry Hazlitt', 'amazon_url': f'https://www.amazon.com/dp/0517548232?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
-            {'title': 'Human Action', 'author': 'Ludwig von Mises', 'amazon_url': f'https://www.amazon.com/dp/1610167317?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
-            {'title': 'What Has Government Done to Our Money?', 'author': 'Murray Rothbard', 'amazon_url': f'https://www.amazon.com/dp/1610166450?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
-            {'title': 'The Ethics of Money Production', 'author': 'Jorg Guido Hulsmann', 'amazon_url': f'https://www.amazon.com/dp/1610166817?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e'},
+            {'title': 'Everything Divided by 21 Million', 'author': 'Knut Svanholm', 'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#dc2626', 'cover_url': '/static/images/books/everything_21m.jpg'},
+            {'title': 'The Big Print', 'author': 'Lawrence Lepard', 'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#f59e0b', 'cover_url': '/static/images/books/big_print.jpg'},
+            {'title': 'Daylight Robbery', 'author': 'Dominic Frisby', 'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#ef4444', 'cover_url': '/static/images/books/daylight_robbery.jpg'},
+            {'title': 'The Genesis Book', 'author': 'Aaron van Wirdum', 'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#8b5cf6', 'cover_url': '/static/images/books/genesis_book.jpg'},
+            {'title': 'The Bitcoin Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a', 'cover_url': '/static/images/books/bitcoin_standard.jpg'},
+            {'title': 'Broken Money', 'author': 'Lyn Alden', 'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}', 'category': 'essential', 'color': '#3b82f6', 'cover_url': '/static/images/books/broken_money.jpg'},
+            {'title': 'The Fiat Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}', 'category': 'essential', 'color': '#6366f1', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1544526474-L.jpg'},
+            {'title': 'Mastering Bitcoin', 'author': 'Andreas Antonopoulos', 'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}', 'category': 'essential', 'color': '#f59e0b', 'cover_url': '/static/images/books/mastering_bitcoin.jpg'},
+            {'title': 'The Price of Tomorrow', 'author': 'Jeff Booth', 'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}', 'category': 'essential', 'color': '#10b981', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1999257405-L.jpg'},
+            {'title': 'Softwar', 'author': 'Jason Lowery', 'amazon_url': f'https://www.amazon.com/dp/B0BW3MTQG6?tag={affiliate_tag}', 'category': 'essential', 'color': '#ef4444', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1544542895-L.jpg'},
+            {'title': 'Thank God for Bitcoin', 'author': 'Jimmy Song et al.', 'amazon_url': f'https://www.amazon.com/dp/1641991216?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1641991216-L.jpg'},
+            {'title': 'The Sovereign Individual', 'author': 'Davidson & Rees-Mogg', 'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}', 'category': 'essential', 'color': '#8b5cf6', 'cover_url': 'https://covers.openlibrary.org/b/isbn/0684832720-L.jpg'},
+            {'title': 'Bitcoin Billionaires', 'author': 'Ben Mezrich', 'amazon_url': f'https://www.amazon.com/dp/1250217768?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1250217768-L.jpg'},
+            {'title': 'The Blocksize War', 'author': 'Jonathan Bier', 'amazon_url': f'https://www.amazon.com/dp/B08YQMC2WM?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#dc2626', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1916294219-L.jpg'},
+            {'title': 'Inventing Bitcoin', 'author': 'Yan Pritzker', 'amazon_url': f'https://www.amazon.com/dp/B07MWXRWNB?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f7931a', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1097476922-L.jpg'},
+            {'title': 'The Book of Satoshi', 'author': 'Phil Champagne', 'amazon_url': f'https://www.amazon.com/dp/0996061312?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#6366f1', 'cover_url': 'https://covers.openlibrary.org/b/isbn/0996061312-L.jpg'},
+            {'title': 'Digital Gold', 'author': 'Nathaniel Popper', 'amazon_url': f'https://www.amazon.com/dp/006236250X?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b', 'cover_url': 'https://covers.openlibrary.org/b/isbn/006236250X-L.jpg'},
+            {'title': 'Resistance Money', 'author': 'Andrew Bailey et al.', 'amazon_url': f'https://www.amazon.com/dp/1032609710?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#10b981', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1032609710-L.jpg'},
+            {'title': 'Check Your Financial Privilege', 'author': 'Alex Gladstein', 'amazon_url': f'https://www.amazon.com/dp/B09V2NM9VJ?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#3b82f6', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1637587504-L.jpg'},
+            {'title': 'Bitcoin is Venice', 'author': 'Allen Farrington', 'amazon_url': f'https://www.amazon.com/dp/B09TKNKFRS?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#8b5cf6', 'cover_url': 'https://covers.openlibrary.org/b/isbn/9798986175928-L.jpg'},
+            {'title': 'Economics in One Lesson', 'author': 'Henry Hazlitt', 'amazon_url': f'https://www.amazon.com/dp/0517548232?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/0517548232-L.jpg'},
+            {'title': 'Human Action', 'author': 'Ludwig von Mises', 'amazon_url': f'https://www.amazon.com/dp/1610167317?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1610167317-L.jpg'},
+            {'title': 'What Has Government Done to Our Money?', 'author': 'Murray Rothbard', 'amazon_url': f'https://www.amazon.com/dp/1610166450?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1610166450-L.jpg'},
+            {'title': 'The Ethics of Money Production', 'author': 'Jorg Guido Hulsmann', 'amazon_url': f'https://www.amazon.com/dp/1610166817?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1610166817-L.jpg'},
         ]
         
         # Server-side fetch highlights for reliable rendering without JS dependency

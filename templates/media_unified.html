@@ -403,7 +403,7 @@
       {% for book in all_books %}
       <a class="mu-lib-book" href="{{ book.amazon_url }}" target="_blank" rel="noopener">
         <div class="mu-lib-cover" style="background:{{ book.color|default('#222') }}">
-          <span>{{ book.title[:40] }}</span>
+          {% if book.cover_url %}<img src="{{ book.cover_url }}" alt="{{ book.title }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none">{{ book.title[:40] }}</span>{% else %}<span>{{ book.title[:40] }}</span>{% endif %}
         </div>
         <div class="mu-lib-book-title">{{ book.title }}</div>
         <div class="mu-lib-book-author">{{ book.author }}</div>
