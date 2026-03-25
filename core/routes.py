@@ -542,24 +542,28 @@ def value_stream():
 @app.route('/signal-terminal')
 def signal_terminal():
     """Signal Terminal - Premium 3-panel value stream interface"""
-    from services.value_stream_service import value_stream_service
-    from datetime import datetime, timedelta
-    
-    posts = value_stream_service.get_value_stream_enhanced(limit=50)
-    curators = value_stream_service.get_top_curators(limit=10)
-    
-    curator_objects = []
-    for c in curators:
-        curator = models.ValueCreator.query.get(c['id'])
-        if curator:
-            curator_objects.append(curator)
-    
-    sats_hour = db.session.query(db.func.sum(models.ZapEvent.amount_sats)).filter(
-        models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
-    ).scalar() or 0
-    
+    try:
+        from services.value_stream_service import value_stream_service
+        from datetime import datetime, timedelta
+
+        posts = value_stream_service.get_value_stream_enhanced(limit=50)
+        curators = value_stream_service.get_top_curators(limit=10)
+
+        curator_objects = []
+        for c in curators:
+            curator = models.ValueCreator.query.get(c['id'])
+            if curator:
+                curator_objects.append(curator)
+
+        sats_hour = db.session.query(db.func.sum(models.ZapEvent.amount_sats)).filter(
+            models.ZapEvent.created_at >= datetime.utcnow() - timedelta(hours=1)
+        ).scalar() or 0
+    except Exception as e:
+        logging.error("Signal Terminal data fetch failed: %s", e)
+        posts, curator_objects, sats_hour = [], [], 0
+
     hot_topics = ['Bitcoin', 'Lightning', 'Nostr', 'ETF', 'Self-Custody', 'Mining', 'Layer 2']
-    
+
     return render_template('signal_terminal.html',
                           posts=posts,
                           curators=curator_objects,
@@ -10838,7 +10842,7 @@ def pulse_terminal():
             pass
 
     return render_template(
-        "terminal.html",
+        "pulse_terminal.html",
         is_commander=is_commander,
         activated=activated,
         api_key=api_key,
@@ -11248,6 +11252,29 @@ def api_oracle_speak_ratelimited():
     except Exception as e:
         logging.warning('oracle speak proxy error: %s', e)
         return jsonify({'error': 'Oracle unavailable'}), 503
+
+
+# ─── Missing route aliases (cc_site_fixes.md) ───
+
+@app.route('/oracle-live')
+def oracle_live():
+    return render_template('oracle_live.html')
+
+@app.route('/intel')
+def intel_redirect():
+    return redirect('/intelligence/legacy', code=301)
+
+@app.route('/briefings')
+def briefings_redirect():
+    return redirect('/briefing', code=301)
+
+@app.route('/markets')
+def markets_redirect():
+    return redirect('/charts', code=301)
+
+@app.route('/podcast')
+def podcast_redirect():
+    return redirect('/podcasts', code=301)
 
 
 # Error handlers
