@@ -3992,6 +3992,76 @@ def latest_articles():
     articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(10).all()
     return jsonify([{'id': a.id, 'title': a.title, 'summary': a.summary, 'header_image_url': a.header_image_url or '/static/images/placeholder.jpg'} for a in articles])
 
+
+@app.route('/api/v2/articles')
+def api_v2_articles():
+    """V2 JSON articles API for Next.js frontend."""
+    from flask import jsonify
+    page = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 20, type=int), 50)
+    category = request.args.get('category', None)
+    sort = request.args.get('sort', 'newest')
+
+    q = models.Article.query
+    if category:
+        q = q.filter(models.Article.category.ilike(f'%{category}%'))
+    if sort == 'popular':
+        q = q.order_by(models.Article.read_count.desc(), models.Article.created_at.desc())
+    else:
+        q = q.order_by(models.Article.created_at.desc())
+
+    total = q.count()
+    articles = q.offset((page - 1) * per_page).limit(per_page).all()
+
+    return jsonify({
+        'articles': [{
+            'id': a.id,
+            'title': a.title or '',
+            'slug': a.slug or str(a.id),
+            'summary': (a.summary or a.content or '')[:300],
+            'content': a.content or '',
+            'category': a.category or 'Bitcoin',
+            'cover_image_url': a.cover_image_url or '',
+            'author': a.author or 'Protocol Pulse',
+            'created_at': a.created_at.isoformat() if a.created_at else '',
+            'read_count': a.read_count or 0,
+            'published': True,
+        } for a in articles],
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'total_pages': max(1, (total + per_page - 1) // per_page),
+    })
+
+
+@app.route('/api/v2/articles/<slug>')
+def api_v2_article_detail(slug):
+    """Single article by slug or id for Next.js frontend."""
+    from flask import jsonify
+    # Try slug first, then id
+    a = models.Article.query.filter_by(slug=slug).first()
+    if not a:
+        try:
+            a = models.Article.query.get(int(slug))
+        except (ValueError, TypeError):
+            pass
+    if not a:
+        return jsonify({'error': 'not found'}), 404
+    return jsonify({'article': {
+        'id': a.id,
+        'title': a.title or '',
+        'slug': a.slug or str(a.id),
+        'summary': (a.summary or a.content or '')[:300],
+        'content': a.content or '',
+        'category': a.category or 'Bitcoin',
+        'cover_image_url': a.cover_image_url or '',
+        'author': a.author or 'Protocol Pulse',
+        'created_at': a.created_at.isoformat() if a.created_at else '',
+        'read_count': a.read_count or 0,
+        'published': True,
+    }})
+
+
 @app.route('/api/reddit-trends', methods=['GET'])
 @login_required
 @admin_required
