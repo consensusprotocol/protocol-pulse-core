@@ -29,40 +29,40 @@ class PrintfulService:
         }
     
     def get_store_products(self) -> List[Dict]:
-        """Get all products from all Printful stores (Proto P first, then Consensus Protocol)"""
+        """Get products from primary Printful store (Proto P)"""
         if not self.api_key:
             return []
-        
-        all_products = []
-        
-        for store in self.STORES:
-            try:
-                headers = self._get_headers(store['id'])
-                response = requests.get(
-                    f'{self.base_url}/sync/products',
-                    headers=headers,
-                    timeout=30
-                )
-                response.raise_for_status()
-                
-                data = response.json()
-                if data.get('code') == 200:
-                    products = data.get('result', [])
-                    for product in products:
-                        product_id = product.get('id')
-                        if product_id:
-                            detail = self.get_product_details(product_id, store['id'], store['url_base'])
-                            if detail:
-                                detail['store_name'] = store['name']
-                                all_products.append(detail)
-                    self.logger.info(f"Fetched {len(products)} products from {store['name']}")
-                else:
-                    self.logger.error(f"Printful API error for {store['name']}: {data}")
-                    
-            except Exception as e:
-                self.logger.error(f"Error fetching products from {store['name']}: {e}")
-        
-        return all_products
+
+        store = self.STORES[0]  # Proto P only — avoids duplicate products across stores
+        try:
+            headers = self._get_headers(store['id'])
+            response = requests.get(
+                f'{self.base_url}/sync/products',
+                headers=headers,
+                timeout=30
+            )
+            response.raise_for_status()
+
+            data = response.json()
+            if data.get('code') == 200:
+                products = data.get('result', [])
+                all_products = []
+                for product in products:
+                    product_id = product.get('id')
+                    if product_id:
+                        detail = self.get_product_details(product_id, store['id'], store['url_base'])
+                        if detail:
+                            detail['store_name'] = store['name']
+                            all_products.append(detail)
+                self.logger.info(f"Fetched {len(products)} products from {store['name']}")
+                return all_products
+            else:
+                self.logger.error(f"Printful API error for {store['name']}: {data}")
+                return []
+
+        except Exception as e:
+            self.logger.error(f"Error fetching products from {store['name']}: {e}")
+            return []
     
     def get_product_details(self, product_id: int, store_id: str = None, url_base: str = None) -> Optional[Dict]:
         """Get detailed information for a specific product"""
