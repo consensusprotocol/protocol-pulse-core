@@ -2800,6 +2800,29 @@ def api_admin_revenue_stats():
         return jsonify({'available': False, 'error': str(e)})
 
 
+
+@app.route('/admin/youtube-debug')
+@login_required
+def youtube_debug():
+    """Debug YouTube OAuth - shows exact token exchange response."""
+    from services.youtube_service import YouTubeService
+    import requests as _req
+    yt = YouTubeService()
+    results = {
+        'configured': yt.is_oauth_configured(),
+        'redirect_uri': yt._get_oauth_redirect_uri(),
+        'client_id_present': bool(os.environ.get('YOUTUBE_CLIENT_ID')),
+        'client_secret_present': bool(os.environ.get('YOUTUBE_CLIENT_SECRET')),
+        'existing_refresh_token': bool(os.environ.get('YOUTUBE_REFRESH_TOKEN')),
+    }
+    # Test a direct connection to Google
+    try:
+        test = _req.get('https://accounts.google.com/.well-known/openid-configuration', timeout=5)
+        results['google_reachable'] = test.status_code == 200
+    except Exception as e:
+        results['google_reachable'] = str(e)
+    return jsonify(results)
+
 @app.route('/admin/youtube-auth')
 @login_required
 @admin_required
