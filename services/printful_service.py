@@ -1,393 +1,278 @@
+"""
+Protocol Pulse — Printful API v2 Service
+Uses /v2/ endpoints, Bearer token auth, leaky bucket rate limiting aware.
+Store: Proto P (ID: 17589919)
+"""
 import requests
 import logging
-from typing import List, Dict, Optional
+import hashlib
+import hmac
 import os
+import time
+from typing import List, Dict, Optional
+from functools import lru_cache
 
 class PrintfulService:
-    """Service for integrating with Printful API for merch store"""
-    
-    # Multiple store IDs - Proto P first (priority), then Consensus Protocol
+    BASE_URL = 'https://api.printful.com/v2'
+    BASE_URL_V1 = 'https://api.printful.com'  # fallback for unported endpoints
+
+    # Proto P is the primary store
+    PRIMARY_STORE_ID = '17589919'
     STORES = [
         {'id': '17589919', 'name': 'Proto P', 'url_base': 'https://proto-p.printful.me'},
-        {'id': '13051112', 'name': 'Consensus Protocol', 'url_base': 'https://protocolpulse.printful.me'}
+        {'id': '13051112', 'name': 'Consensus Protocol', 'url_base': 'https://protocolpulse.printful.me'},
     ]
-    
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.api_key = os.environ.get('PRINTFUL_API_KEY')
-        self.base_url = 'https://api.printful.com'
-        
+        self._rate_limit_reset = 0
+
         if not self.api_key:
-            self.logger.warning("PRINTFUL_API_KEY not configured - merch functionality disabled")
-    
-    def _get_headers(self, store_id: str) -> Dict:
-        """Get headers for a specific store"""
-        return {
+            self.logger.warning('PRINTFUL_API_KEY not set — merch disabled')
+
+    # ── Auth ──────────────────────────────────────────────────────────────────
+
+    def _headers(self, store_id: str = None) -> Dict:
+        h = {
             'Authorization': f'Bearer {self.api_key}',
             'Content-Type': 'application/json',
-            'X-PF-Store-Id': store_id
         }
-    
-    def get_store_products(self) -> List[Dict]:
-        """Get all products from all Printful stores (Proto P first, then Consensus Protocol)"""
-        if not self.api_key:
-            return []
-        
-        all_products = []
-        
-        for store in self.STORES:
-            try:
-                headers = self._get_headers(store['id'])
-                response = requests.get(
-                    f'{self.base_url}/sync/products',
-                    headers=headers,
-                    timeout=30
-                )
-                response.raise_for_status()
-                
-                data = response.json()
-                if data.get('code') == 200:
-                    products = data.get('result', [])
-                    for product in products:
-                        product_id = product.get('id')
-                        if product_id:
-                            detail = self.get_product_details(product_id, store['id'], store['url_base'])
-                            if detail:
-                                detail['store_name'] = store['name']
-                                all_products.append(detail)
-                    self.logger.info(f"Fetched {len(products)} products from {store['name']}")
-                else:
-                    self.logger.error(f"Printful API error for {store['name']}: {data}")
-                    
-            except Exception as e:
-                self.logger.error(f"Error fetching products from {store['name']}: {e}")
-        
-        return all_products
-    
-    def get_product_details(self, product_id: int, store_id: str = None, url_base: str = None) -> Optional[Dict]:
-        """Get detailed information for a specific product"""
+        sid = store_id or self.PRIMARY_STORE_ID
+        if sid:
+            h['X-PF-Store-Id'] = sid
+        return h
+
+    def _get(self, path: str, store_id: str = None, params: dict = None, v1: bool = False) -> Optional[Dict]:
         if not self.api_key:
             return None
-        
-        # Default to first store if not specified
-        if not store_id:
-            store_id = self.STORES[0]['id']
-        if not url_base:
-            url_base = self.STORES[0]['url_base']
-        
+        base = self.BASE_URL_V1 if v1 else self.BASE_URL
+        url = f'{base}{path}'
         try:
-            headers = self._get_headers(store_id)
-            response = requests.get(
-                f'{self.base_url}/sync/products/{product_id}',
-                headers=headers,
-                timeout=30
-            )
-            response.raise_for_status()
-            
-            data = response.json()
-            if data.get('code') == 200:
-                result = data.get('result')
-                # Attach the store URL base for proper linking
-                if result:
-                    result['_store_url_base'] = url_base
-                return result
-            else:
-                self.logger.error(f"Printful API error for product {product_id}: {data}")
-                return None
-                
+            r = requests.get(url, headers=self._headers(store_id), params=params, timeout=10)
+            # Respect leaky bucket
+            remaining = int(r.headers.get('X-Ratelimit-Remaining', 120))
+            if remaining < 10:
+                reset = float(r.headers.get('X-Ratelimit-Reset', 1))
+                time.sleep(min(reset, 2))
+            if r.status_code == 429:
+                retry = float(r.headers.get('Retry-After', 5))
+                time.sleep(retry)
+                r = requests.get(url, headers=self._headers(store_id), params=params, timeout=10)
+            r.raise_for_status()
+            return r.json()
         except Exception as e:
-            self.logger.error(f"Error fetching Printful product {product_id}: {e}")
+            self.logger.error('Printful GET %s: %s', path, e)
             return None
-    
-    def create_order(self, order_data: Dict, store_id: str = None, confirm: bool = False) -> Optional[Dict]:
-        """Create an order in Printful
-        
-        Args:
-            order_data: Order details including recipient and items
-            store_id: Which store to create order in (defaults to first store)
-            confirm: If False, order is created as draft for review
+
+    def _post(self, path: str, payload: dict, store_id: str = None, v1: bool = False) -> Optional[Dict]:
+        if not self.api_key:
+            return None
+        base = self.BASE_URL_V1 if v1 else self.BASE_URL
+        url = f'{base}{path}'
+        try:
+            r = requests.post(url, headers=self._headers(store_id), json=payload, timeout=15)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            self.logger.error('Printful POST %s: %s', path, e)
+            return None
+
+    # ── Stores ────────────────────────────────────────────────────────────────
+
+    def get_stores(self) -> List[Dict]:
+        data = self._get('/stores')
+        return data.get('data', []) if data else []
+
+    # ── Products (v2 catalog + store sync) ───────────────────────────────────
+
+    def get_store_products(self, store_id: str = None) -> List[Dict]:
         """
-        if not self.api_key:
-            return None
-        
-        if not store_id:
-            store_id = self.STORES[0]['id']
-        
-        try:
-            headers = self._get_headers(store_id)
-            
-            # Add confirm parameter to URL if needed
-            url = f'{self.base_url}/orders'
-            if confirm:
-                url += '?confirm=true'
-            
-            response = requests.post(
-                url,
-                headers=headers,
-                json=order_data,
-                timeout=30
-            )
-            response.raise_for_status()
-            
-            data = response.json()
-            if data.get('code') in [200, 201]:
-                self.logger.info(f"Printful order created: {data.get('result', {}).get('id')}")
-                return data.get('result')
-            else:
-                self.logger.error(f"Printful order creation error: {data}")
-                return None
-                
-        except Exception as e:
-            self.logger.error(f"Error creating Printful order: {e}")
-            return None
-    
-    def get_variant_details(self, variant_id: int, store_id: str = None) -> Optional[Dict]:
-        """Get details for a specific variant"""
-        if not self.api_key:
-            return None
-        
-        if not store_id:
-            store_id = self.STORES[0]['id']
-        
-        try:
-            headers = self._get_headers(store_id)
-            response = requests.get(
-                f'{self.base_url}/sync/variant/{variant_id}',
-                headers=headers,
-                timeout=30
-            )
-            response.raise_for_status()
-            
-            data = response.json()
-            if data.get('code') == 200:
-                return data.get('result')
-            return None
-        except Exception as e:
-            self.logger.error(f"Error getting variant {variant_id}: {e}")
-            return None
-    
-    def get_shipping_rates(self, recipient: Dict, items: List[Dict]) -> List[Dict]:
-        """Get shipping rates for an order"""
-        if not self.api_key:
+        Fetch sync products from store. Falls back to v1 sync endpoint since
+        v2 product sync is not yet available (per Printful docs).
+        """
+        sid = store_id or self.PRIMARY_STORE_ID
+        # v2 doesn't have sync products yet — use v1 sync endpoint
+        data = self._get('/store/products', store_id=sid, params={'limit': 100}, v1=True)
+        if data and data.get('code') == 200:
+            return data.get('result', [])
+
+        # Fallback: return catalog bestsellers if no sync products
+        return self._get_catalog_products()
+
+    def _get_catalog_products(self, limit: int = 20) -> List[Dict]:
+        """Fetch from Printful catalog as fallback."""
+        data = self._get('/catalog-products', params={
+            'limit': limit,
+            'sort_type': 'bestseller',
+            'sort_direction': 'descending',
+            'selling_region_name': 'north_america',
+        })
+        if not data:
             return []
-        
-        try:
-            shipping_data = {
-                'recipient': recipient,
-                'items': items
-            }
-            
-            headers = self._get_headers(self.STORES[0]['id'])
-            response = requests.post(
-                f'{self.base_url}/shipping/rates',
-                headers=headers,
-                json=shipping_data,
-                timeout=30
-            )
-            response.raise_for_status()
-            
-            data = response.json()
-            if data.get('code') == 200:
-                return data.get('result', [])
-            else:
-                self.logger.error(f"Printful shipping rates error: {data}")
-                return []
-                
-        except Exception as e:
-            self.logger.error(f"Error getting Printful shipping rates: {e}")
-            return []
-    
+        products = data.get('data', [])
+        # Normalize to match sync product format
+        normalized = []
+        for p in products:
+            normalized.append({
+                'id': p.get('id'),
+                'external_id': None,
+                'name': p.get('name', ''),
+                'synced': 1,
+                'thumbnail_url': p.get('image', ''),
+                'is_ignored': False,
+                '_catalog': True,
+                'catalog_data': p,
+            })
+        return normalized
+
+    def get_product_variants(self, product_id: str, store_id: str = None) -> List[Dict]:
+        """Get variants for a sync product (v1) or catalog product (v2)."""
+        sid = store_id or self.PRIMARY_STORE_ID
+        # Try v1 sync variants first
+        data = self._get(f'/store/products/{product_id}', store_id=sid, v1=True)
+        if data and data.get('code') == 200:
+            result = data.get('result', {})
+            return result.get('sync_variants', [])
+        # Fallback to v2 catalog variants
+        data = self._get(f'/catalog-products/{product_id}/catalog-variants')
+        return data.get('data', []) if data else []
+
     def format_product_for_display(self, product: Dict) -> Dict:
-        """Format Printful product data for website display"""
-        sync_product = product.get('sync_product', {})
-        sync_variants = product.get('sync_variants', [])
-        store_url_base = product.get('_store_url_base', 'https://proto-p.printful.me')
-        store_name = product.get('store_name', 'Proto P')
-        
-        # Get the main product image
-        main_image = None
-        if sync_variants:
-            files = sync_variants[0].get('files', [])
-            for file_data in files:
-                if file_data.get('type') == 'preview':
-                    main_image = file_data.get('preview_url')
-                    break
-        
-        # Format variants with pricing
-        variants = []
-        for variant in sync_variants:
-            variant_data = {
-                'id': variant.get('id'),
-                'name': variant.get('name', ''),
-                'price': variant.get('retail_price', '0.00'),
-                'currency': variant.get('currency', 'USD'),
-                'size': variant.get('size', ''),
-                'color': variant.get('color', ''),
-                'in_stock': variant.get('availability_status') != 'out_of_stock'
+        """Normalize a product dict for merch.html template."""
+        is_catalog = product.get('_catalog', False)
+
+        if is_catalog:
+            cd = product.get('catalog_data', {})
+            return {
+                'id': product['id'],
+                'name': cd.get('name', product.get('name', 'Unknown')),
+                'thumbnail_url': cd.get('image', ''),
+                'retail_price': None,
+                'currency': 'USD',
+                'variants': [],
+                'sizes': cd.get('sizes', []),
+                'colors': cd.get('colors', []),
+                'description': cd.get('description', ''),
+                'is_ignored': False,
+                'type': cd.get('type', ''),
+                'brand': cd.get('brand', ''),
             }
-            variants.append(variant_data)
-        
-        # Construct store URL using the correct store base URL
-        product_id = sync_product.get('external_id') or sync_product.get('id')
-        store_url = f"{store_url_base}/product/{product_id}" if product_id else None
-        
+
+        # Standard sync product
+        variants = product.get('sync_variants', [])
+        prices = [float(v.get('retail_price', 0)) for v in variants if v.get('retail_price')]
+        min_price = min(prices) if prices else 0
+
+        sizes = list({v.get('size', '') for v in variants if v.get('size')})
+        colors = list({v.get('color', '') for v in variants if v.get('color')})
+
         return {
-            'id': sync_product.get('id'),
-            'name': sync_product.get('name', 'Product'),
-            'thumbnail': sync_product.get('thumbnail_url'),
-            'main_image': main_image,
+            'id': product.get('id'),
+            'external_id': product.get('external_id'),
+            'name': product.get('name', 'Unknown'),
+            'thumbnail_url': product.get('thumbnail_url', ''),
+            'retail_price': f'{min_price:.2f}' if min_price else None,
+            'currency': 'USD',
             'variants': variants,
-            'description': sync_product.get('description', ''),
-            'tags': sync_product.get('tags', []),
-            'is_ignored': sync_product.get('is_ignored', False),
-            'store_url': store_url,
-            'store_name': store_name
+            'sizes': sorted(sizes),
+            'colors': colors,
+            'description': product.get('description', ''),
+            'is_ignored': product.get('is_ignored', False),
+            'type': '',
+            'brand': '',
         }
-    
-    def create_realtime_product(
-        self, 
-        design_url: str, 
-        statement_text: str,
-        sarah_description: str = None,
-        store_id: str = None
-    ) -> Optional[Dict]:
+
+    # ── Orders (v2) ───────────────────────────────────────────────────────────
+
+    def create_draft_order(self, recipient: Dict, items: List[Dict], store_id: str = None) -> Optional[Dict]:
         """
-        Create a draft RTSA product in Printful.
-        Uses the Gildan 64000 Softstyle T-Shirt (black) as base.
-        
-        Args:
-            design_url: URL to the transparent PNG design file
-            statement_text: The ethos statement for the product name
-            sarah_description: Sarah's voice product description
-            store_id: Target store ID (defaults to Proto P)
-        
-        Returns:
-            Dict with created product info or None on failure
+        Create a draft order via v2 API.
+        items format: [{'catalog_variant_id': int, 'quantity': int, 'retail_price': str}]
         """
-        if not self.api_key:
-            self.logger.error("PRINTFUL_API_KEY not configured")
-            return None
-        
-        if not store_id:
-            store_id = self.STORES[0]['id']
-        
-        try:
-            product_name = f"RTSA: {statement_text}"
-            description = sarah_description or f"Real-Time Signal Drop. {statement_text}. A physical record of network inflection. Limited availability."
-            
-            product_data = {
-                "sync_product": {
-                    "name": product_name,
-                    "thumbnail": design_url
-                },
-                "sync_variants": [
-                    {
-                        "variant_id": 4012,
-                        "retail_price": "35.00",
-                        "files": [
-                            {
-                                "url": design_url,
-                                "type": "front"
-                            }
-                        ]
-                    },
-                    {
-                        "variant_id": 4013,
-                        "retail_price": "35.00",
-                        "files": [
-                            {
-                                "url": design_url,
-                                "type": "front"
-                            }
-                        ]
-                    },
-                    {
-                        "variant_id": 4014,
-                        "retail_price": "35.00",
-                        "files": [
-                            {
-                                "url": design_url,
-                                "type": "front"
-                            }
-                        ]
-                    },
-                    {
-                        "variant_id": 4015,
-                        "retail_price": "37.00",
-                        "files": [
-                            {
-                                "url": design_url,
-                                "type": "front"
-                            }
-                        ]
-                    },
-                    {
-                        "variant_id": 4016,
-                        "retail_price": "37.00",
-                        "files": [
-                            {
-                                "url": design_url,
-                                "type": "front"
-                            }
-                        ]
-                    }
-                ]
+        sid = store_id or self.PRIMARY_STORE_ID
+        order_items = []
+        for item in items:
+            order_items.append({
+                'source': 'catalog',
+                'catalog_variant_id': item['catalog_variant_id'],
+                'quantity': item.get('quantity', 1),
+                'retail_price': str(item.get('retail_price', '0.00')),
+                'placements': [{
+                    'placement': 'front',
+                    'technique': 'dtg',
+                    'layers': [{'type': 'file', 'url': item.get('design_url', '')}]
+                }] if item.get('design_url') else [],
+            })
+
+        payload = {
+            'recipient': recipient,
+            'order_items': order_items,
+            'customization': {
+                'packing_slip': {
+                    'store_name': 'Protocol Pulse',
+                    'email': 'orders@protocolpulse.io',
+                    'message': 'Stay sovereign. Stack sats.',
+                }
             }
-            
-            headers = self._get_headers(store_id)
-            response = requests.post(
-                f'{self.base_url}/sync/products',
-                headers=headers,
-                json=product_data,
-                timeout=60
-            )
-            
-            if response.status_code in [200, 201]:
-                data = response.json()
-                if data.get('code') in [200, 201]:
-                    result = data.get('result', {})
-                    self.logger.info(f"RTSA product created: {result.get('id')} - {statement_text}")
-                    return result
-                else:
-                    self.logger.error(f"Printful API error: {data}")
-                    return None
-            else:
-                self.logger.error(f"Printful request failed: {response.status_code} - {response.text}")
-                return None
-                
-        except Exception as e:
-            self.logger.error(f"Error creating RTSA product: {e}")
-            return None
-    
-    def get_catalog_variants(self, product_id: int = 71) -> List[Dict]:
+        }
+        data = self._post('/orders', payload, store_id=sid)
+        return data.get('data') if data else None
+
+    def confirm_order(self, order_id: int, store_id: str = None) -> Optional[Dict]:
+        """Confirm a draft order — triggers fulfillment and charge."""
+        sid = store_id or self.PRIMARY_STORE_ID
+        data = self._post(f'/orders/{order_id}/confirmation', {}, store_id=sid)
+        return data.get('data') if data else None
+
+    def get_order(self, order_id: int, store_id: str = None) -> Optional[Dict]:
+        sid = store_id or self.PRIMARY_STORE_ID
+        data = self._get(f'/orders/{order_id}', store_id=sid)
+        return data.get('data') if data else None
+
+    def estimate_shipping(self, recipient: Dict, items: List[Dict], store_id: str = None) -> List[Dict]:
+        """Get shipping rate options for a cart."""
+        sid = store_id or self.PRIMARY_STORE_ID
+        order_items = [{'catalog_variant_id': i['catalog_variant_id'], 'quantity': i.get('quantity', 1)} for i in items]
+        payload = {'recipient': recipient, 'order_items': order_items, 'currency': 'USD'}
+        data = self._post('/shipping-rates', payload, store_id=sid)
+        return data.get('data', []) if data else []
+
+    # ── Webhook verification (v2 HMAC-SHA256) ─────────────────────────────────
+
+    def verify_webhook(self, payload_bytes: bytes, signature_hex: str, secret_key_hex: str) -> bool:
         """
-        Get available variants for a catalog product.
-        Default product_id 71 = Gildan 64000 Softstyle T-Shirt
+        Verify Printful v2 webhook signature.
+        secret_key_hex is the hex-encoded secret from webhook setup.
         """
-        if not self.api_key:
-            return []
-        
         try:
-            response = requests.get(
-                f'{self.base_url}/products/{product_id}',
-                headers={'Authorization': f'Bearer {self.api_key}'},
-                timeout=30
-            )
-            response.raise_for_status()
-            
-            data = response.json()
-            if data.get('code') == 200:
-                result = data.get('result', {})
-                variants = result.get('variants', [])
-                black_variants = [
-                    v for v in variants 
-                    if v.get('color', '').lower() == 'black'
-                ]
-                return black_variants
-            return []
+            secret_bytes = bytes.fromhex(secret_key_hex)
+            expected = hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
+            return hmac.compare_digest(expected, signature_hex)
         except Exception as e:
-            self.logger.error(f"Error getting catalog variants: {e}")
-            return []
+            self.logger.error('Webhook verification error: %s', e)
+            return False
 
+    # ── Register webhooks (v2) ─────────────────────────────────────────────────
 
-printful_service = PrintfulService()
+    def setup_webhooks(self, webhook_url: str, store_id: str = None) -> Optional[Dict]:
+        """Register order + shipment webhooks pointing to our Flask endpoint."""
+        sid = store_id or self.PRIMARY_STORE_ID
+        payload = {
+            'default_url': webhook_url,
+            'events': [
+                {'type': 'order_created'},
+                {'type': 'order_updated'},
+                {'type': 'order_failed'},
+                {'type': 'shipment_sent'},
+                {'type': 'shipment_delivered'},
+            ]
+        }
+        data = self._post('/webhooks', payload, store_id=sid)
+        return data.get('result') if data else None
+
+    # ── Catalog prices ─────────────────────────────────────────────────────────
+
+    def get_variant_price(self, variant_id: int, currency: str = 'USD') -> Optional[Dict]:
+        data = self._get(f'/catalog-variants/{variant_id}/prices', params={'currency': currency})
+        return data.get('data') if data else None
