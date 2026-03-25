@@ -8,14 +8,14 @@ interface PageProps {
 }
 
 export default async function ArticlesPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
+  const params = await (searchParams ?? Promise.resolve({}));
+  const page = Number(params?.page) || 1;
   const category =
-    typeof params.category === "string" ? params.category : undefined;
+    typeof params?.category === "string" ? params.category : undefined;
 
   const [articlesData, categories] = await Promise.all([
     fetchArticles(page, 20, category),
-    fetchCategories(),
+    fetchCategories().catch(() => null),
   ]);
 
   const articles = articlesData?.articles ?? [];

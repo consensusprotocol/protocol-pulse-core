@@ -37,6 +37,11 @@ app = Flask(__name__, template_folder=str(_core_dir.parent / "templates"), stati
 
 # Security: Uses .env secret, but provides a fallback for local dev
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key_protocol_pulse_2026")
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_NAME"] = "pp_session"
+
 
 # Configure the database
 database_url = os.environ.get("DATABASE_URL", "sqlite:////home/ultron/protocol_pulse/instance/protocol_pulse.db")

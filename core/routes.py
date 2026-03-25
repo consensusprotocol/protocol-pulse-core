@@ -11634,3 +11634,38 @@ def blocks_page():
     from flask import redirect
     return redirect('/live')
 
+
+@app.route('/api/v2/categories')
+def api_v2_categories():
+    """Categories for Next.js articles frontend."""
+    try:
+        from models import Article
+        cats = db.session.query(Article.category, db.func.count(Article.id).label('count'))\
+            .filter(Article.published == True, Article.category.isnot(None))\
+            .group_by(Article.category).order_by(db.text('count DESC')).limit(20).all()
+        return jsonify([{'name': c, 'count': n} for c, n in cats if c])
+    except Exception as e:
+        logging.warning('api_v2_categories error: %s', e)
+        return jsonify([{'name': 'Bitcoin', 'count': 0}])
+
+
+@app.route('/api/v2/prices')
+def api_v2_prices():
+    """Live BTC price for Next.js frontend."""
+    try:
+        import requests as _rq
+        r = _rq.get('https://api.coinbase.com/v2/prices/BTC-USD/spot', timeout=4)
+        if r.ok:
+            price = float(r.json()['data']['amount'])
+            return jsonify({'btc_usd': price, 'source': 'coinbase'})
+    except Exception:
+        pass
+    # Fallback to cached price
+    try:
+        import json as _json
+        with open('/home/ultron/protocol_pulse/data/price_cache.json') as f:
+            cached = _json.load(f)
+        return jsonify({'btc_usd': cached.get('price', 0), 'source': 'cache'})
+    except Exception:
+        return jsonify({'btc_usd': 0, 'source': 'unavailable'})
+
