@@ -11529,3 +11529,29 @@ def _serve_v3(fn):
     resp.headers['Cache-Control'] = 'public, max-age=3600'
     return resp
 
+
+
+# ─── STUB ROUTES for broken pages ────────────────────────────────────────────
+@app.route('/nostr-signal')
+def nostr_signal_redirect():
+    from flask import redirect
+    return redirect('/nostr')
+
+@app.route('/yield')  
+def yield_page():
+    return render_template('coming_soon.html', 
+        page_title='Yield Intelligence',
+        page_desc='Bitcoin yield and income strategies. Coming soon.') if os.path.exists(
+        os.path.join(app.template_folder, 'coming_soon.html')) else render_template('base.html')
+
+@app.route('/network-health')
+def network_health():
+    from flask import redirect
+    return redirect('/live')
+
+
+@app.route('/blocks')
+def blocks_page():
+    from flask import redirect
+    return redirect('/live')
+
