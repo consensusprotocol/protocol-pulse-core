@@ -402,9 +402,11 @@ PATTERN: TPA probabilities must sum to 100%
 
 GPU ALLOCATION UPDATE:
   GPU 0: Kokoro TTS (render pipeline)
-  GPU 1: F5-TTS + PCAF v1 inference + PCAF v1 training (when scheduled)
+  GPU 1: Oracle avatar_server (Wav2Lip + Stage broadcast via HTTP)
   GPU 2: Qwen3-Coder:30b via Ollama (watchdog)
-  GPU 3: Free
+  GPU 3: F5-TTS + PCAF v1 inference + PCAF v1 training (when scheduled)
+  NOTE: Stage uses Oracle avatar_server (cuda:1) via AVATAR_BASE HTTP calls.
+        Stage has no dedicated GPU — it shares Oracle's render semaphore (max 2 concurrent).
 
 ALL 18 TESTS PASSED (T1-T8 PCAF + T1-T10 TPA).
 PATTERN: Freeze frames surviving CFR re-encode (5 per render) — STATUS: SUPERSEDED
@@ -496,3 +498,24 @@ PATTERN: freeze_frames_source — SUPERSEDES ALL PRIOR FREEZE FRAME FIXES
   WATCHDOG: If ANY new make_*_scene function is added, it MUST call
     _ken_burns_motion(label_in, "outv", total_dur) as the final video filter.
     NEVER re-add noise=c0s=3 — that was a band-aid, Ken Burns is the proper fix.
+
+
+FIX RESULT (2026-03-24T06:34:46.546831): freeze_check — iter99
+  Root cause: Mock root cause for freeze_check
+  Outcome: fixed
+
+FIX RESULT (2026-03-24T06:34:46.547070): true_peak_check — iter99
+  Root cause: Mock root cause for true_peak_check
+  Outcome: fixed
+
+FIX RESULT (2026-03-24T06:34:46.547167): script_quality — iter99
+  Root cause: Mock root cause for script_quality
+  Outcome: fixed
+
+## FAILURE PATTERN: Zombie daily_producer.lock blocks ALL renders
+ROOT CAUSE: /tmp/daily_producer.lock held by a dead/zombie PID.
+Every subsequent render exits instantly: "Another daily_producer is already running"
+SYMPTOM: Overnight loop shows 10+ iterations each completing in <2 seconds with FATAL error
+FIX: kill -9 $(pgrep -f "daily_producer" | head -1) 2>/dev/null; rm -f /tmp/daily_producer.lock
+WATCHDOG DETECTION: if render iteration completes in <5 seconds = zombie lock. Clear and retry.
+DATE DISCOVERED: 2026-03-25 - caused entire day's render to fail silently
