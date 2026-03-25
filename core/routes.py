@@ -2848,9 +2848,8 @@ def admin_youtube_auth():
 
 @app.route('/oauth/youtube/callback')
 def youtube_oauth_callback():
-    """Handle YouTube OAuth callback — no login required, Google redirects here"""
-    from services.youtube_service import YouTubeService
-    yt = YouTubeService()
+    """Handle YouTube OAuth callback — exchange code INSTANTLY, no delay."""
+    import requests as _req, re as _re, time as _time
     
     code = request.args.get('code')
     error = request.args.get('error')
@@ -2863,27 +2862,64 @@ def youtube_oauth_callback():
         flash('No authorization code received', 'error')
         return redirect('/admin/youtube-auth')
     
-    tokens = yt.exchange_oauth_code(code)
+    # INSTANT exchange — do this before any other processing
+    client_id = os.environ.get('YOUTUBE_CLIENT_ID', '')
+    client_secret = os.environ.get('YOUTUBE_CLIENT_SECRET', '')
+    redirect_uri = 'https://protocolpulse.io/oauth/youtube/callback'
     
-    if tokens:
-        refresh_token = tokens.get('refresh_token')
-        access_token = tokens.get('access_token', '')
-        if refresh_token:
-            flash(f'YouTube authorized! Token saved automatically.', 'success')
-            return render_template('admin/youtube_token.html', refresh_token=refresh_token)
-        elif access_token:
-            # Access token received but no refresh token — app was already authorized
-            # Try to use existing refresh token or force re-auth
-            existing_rt = os.environ.get('YOUTUBE_REFRESH_TOKEN', '')
-            if existing_rt:
-                flash('YouTube already authorized. Using existing refresh token.', 'success')
-                return render_template('admin/youtube_token.html', refresh_token=existing_rt)
-            else:
-                # Need to revoke and re-auth — instruct user
-                flash('Access token received but no refresh token. Please revoke access at myaccount.google.com/permissions, remove "Protocol Pulse" if listed, then authorize again.', 'warning')
+    try:
+        resp = _req.post(
+            'https://oauth2.googleapis.com/token',
+            data={
+                'code': code,
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'redirect_uri': redirect_uri,
+                'grant_type': 'authorization_code',
+            },
+            timeout=10
+        )
+        logging.info(f'[YouTube] Exchange status: {resp.status_code}, body: {resp.text[:200]}')
+        
+        if resp.ok:
+            data = resp.json()
+            refresh_token = data.get('refresh_token')
+            access_token = data.get('access_token')
+            
+            if refresh_token:
+                # Save to .env immediately
+                env_path = '/home/ultron/protocol_pulse/.env'
+                try:
+                    with open(env_path) as ef:
+                        env_content = ef.read()
+                    if 'YOUTUBE_REFRESH_TOKEN=' in env_content:
+                        env_content = _re.sub(r'YOUTUBE_REFRESH_TOKEN=.*', f'YOUTUBE_REFRESH_TOKEN={refresh_token}', env_content)
+                    else:
+                        env_content += f'\nYOUTUBE_REFRESH_TOKEN={refresh_token}\n'
+                    with open(env_path, 'w') as ef:
+                        ef.write(env_content)
+                    os.environ['YOUTUBE_REFRESH_TOKEN'] = refresh_token
+                    logging.info(f'[YouTube] SUCCESS - refresh token saved: {refresh_token[:20]}...')
+                except Exception as save_err:
+                    logging.error(f'[YouTube] Save failed: {save_err}')
+                flash('YouTube authorized successfully! Auto-publishing enabled.', 'success')
+                return render_template('admin/youtube_token.html', refresh_token=refresh_token)
+            elif access_token:
+                # Already authorized — no new refresh token issued
+                existing_rt = os.environ.get('YOUTUBE_REFRESH_TOKEN', '')
+                if existing_rt:
+                    flash('YouTube already authorized. Existing token active.', 'success')
+                    return render_template('admin/youtube_token.html', refresh_token=existing_rt)
+                flash(f'Access token received but no refresh token (status {resp.status_code}). Revoke access at myaccount.google.com/permissions then retry.', 'warning')
                 return redirect('/admin/youtube-auth')
-    flash('Authorization failed. Please try again.', 'error')
-    return redirect('/admin/youtube-auth')
+        else:
+            flash(f'Google returned error {resp.status_code}: {resp.text[:150]}', 'error')
+            return redirect('/admin/youtube-auth')
+    except Exception as e:
+        logging.error(f'[YouTube] callback exception: {e}')
+        flash(f'Exchange error: {e}', 'error')
+        return redirect('/admin/youtube-auth')
+
 
 @app.route('/admin/api/upload-short', methods=['POST'])
 @login_required
