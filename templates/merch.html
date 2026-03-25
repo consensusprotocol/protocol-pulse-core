@@ -1342,10 +1342,18 @@
             <button class="btn-purchase" id="purchaseBtn" onclick="purchaseProduct()">
                 <i class="fas fa-shopping-cart"></i>Buy Now
             </button>
+            <div id="merch-error" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(255,59,95,.1);border:1px solid rgba(255,59,95,.3);border-radius:6px;font-size:13px;color:#ff6b7f;text-align:center;"></div>
         </div>
     </div>
 </div>
 
+<script>
+function showMerchError(msg){
+  var el=document.getElementById('merch-error');
+  if(!el)return;el.textContent=msg;el.style.display='block';
+  setTimeout(function(){el.style.display='none';},6000);
+}
+</script>
 <script>
 // Advanced Cyber Canvas - Particle Rain & Energy Effects
 const cyberCanvas = document.getElementById('cyber-canvas');
@@ -1535,7 +1543,7 @@ function openProductFromBtn(btn) {
         openProductModal(product);
     } catch(e) {
         console.error('Error parsing product:', e);
-        alert('Unable to load product details. Please refresh the page.');
+        showMerchError('Unable to load product details. Please refresh the page.');
     }
 }
 
@@ -1598,7 +1606,8 @@ function purchaseProduct() {
     console.log('Purchase clicked', currentProduct, selectedVariant);
     
     if (!currentProduct) {
-        alert('No product selected');
+        showMerchError('No product selected');
+
         return;
     }
     
@@ -1607,7 +1616,7 @@ function purchaseProduct() {
     }
     
     if (!selectedVariant) {
-        alert('Please select a size/variant');
+        showMerchError('Please select a size/variant');
         return;
     }
     
@@ -1642,7 +1651,7 @@ function purchaseProduct() {
         console.log('Checkout response:', data);
         if (data.success && data.checkout_url) {
             // Open Stripe in a new window to avoid iframe restrictions
-            var stripeWindow = window.open(data.checkout_url, '_blank', 'noopener,noreferrer');
+            var stripeWindow = null /* mobile-blocked */;
             if (!stripeWindow) {
                 // Fallback if popup blocked
                 window.location.href = data.checkout_url;
@@ -1656,7 +1665,7 @@ function purchaseProduct() {
     })
     .catch(error => {
         console.error('Checkout error:', error);
-        alert('Unable to process checkout: ' + error.message);
+        showMerchError('Unable to process checkout: ' + error.message);
         purchaseBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
         purchaseBtn.disabled = false;
     });
