@@ -108,6 +108,32 @@ DATA_BLIP = os.path.join(ASSETS, "sfx", "data_blip.wav")
 
 # ISSUE 3 FIX: Global whoosh dedup — tracks output paths that already have whoosh/swoosh applied
 _whoosh_applied_parts = set()
+
+# ── FIX 4: NOSTR SPAM FILTER (ported from core/routes.py — can't import routes from assembler) ──
+NOSTR_SPAM_TERMS = [
+    'incest', 'onlyfans', 'nude', 'xxx', 'porn', 'naked', 'sex tape',
+    'teenage', 'teenagegirls', '#nolimit', 'FolloFFFFvh', 'RssazZZZ',
+    'altcoin', 'memecoin', '#solana', '#ethereum', '#eth ', '#nft',
+    'airdrop', 'shitcoin', 'presale', 'pump it',
+]
+NOSTR_SPAM_NPUBS = ['npub1a1c6869a', '50514b']
+
+
+def _is_nostr_spam_assembler(post: dict) -> bool:
+    """Filter explicit content, altcoin spam, and known spam accounts from Nostr posts."""
+    content = post.get('content', post.get('text', '')).lower()
+    npub = post.get('npub', post.get('author', ''))
+    if any(t in content for t in NOSTR_SPAM_TERMS):
+        return True
+    if any(n in npub for n in NOSTR_SPAM_NPUBS):
+        return True
+    # Hashtag farm detection
+    words = content.split()
+    if words:
+        hashtag_ratio = sum(1 for w in words if w.startswith('#')) / len(words)
+        if hashtag_ratio > 0.6:
+            return True
+    return False
 LOWER_SLIDE = os.path.join(ASSETS, "sfx", "lower_slide.wav")
 
 
@@ -319,14 +345,15 @@ def _fetch_btc_price() -> str:
 def _ken_burns_motion(label_in: str, label_out: str, duration: float) -> str:
     """Subtle Ken Burns pan — proper freeze frame fix at source.
 
-    Upscales 2% then slowly pans crop window across the frame.
-    Every output frame has unique pixel content — freezedetect cannot trigger.
-    Replaces the old noise=c0s=3 band-aid that Gemini penalized as 1/10.
+    FIX 7: Smooth sin-curve motion (max 8px H, 4px V) instead of linear drift.
+    Sin curve starts and ends at center — no accumulation, no jitter on long
+    segments or when multiple Ken Burns segments are concatenated.
+    setpts=PTS-STARTPTS after crop resets timestamps for clean concat.
     """
     dur = max(0.1, duration)
     return (f"[{label_in}]scale=1960:1102:flags=lanczos,"
-            f"crop=1920:1080:'20*t/{dur:.2f}':'11*t/{dur:.2f}',"
-            f"setsar=1,format=yuv420p[{label_out}];\n")
+            f"crop=1920:1080:'8*sin(PI*t/{dur:.2f}/2)':'4*sin(PI*t/{dur:.2f}/2)',"
+            f"setpts=PTS-STARTPTS,setsar=1,format=yuv420p[{label_out}];\n")
 
 
 def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
@@ -2809,7 +2836,9 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
     total_dur = audio_dur + 0.3
 
     spaces = signal_content.get("spaces_quotes", [])[:3]
-    nostr = signal_content.get("nostr_posts", [])[:3]
+    # FIX 4: Filter nostr spam BEFORE rendering — spam npubs/content must never appear in video
+    nostr = [p for p in signal_content.get("nostr_posts", [])[:5]
+             if not _is_nostr_spam_assembler(p)][:3]
 
     # Issue 13: If both sources empty, show clean placeholder instead of debug text
     if not spaces and not nostr:
@@ -2931,9 +2960,22 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
         # R26: Primary identity = nip05 if available, else truncated pubkey
         nip05 = post.get("nip05", "")
         display_name = nip05 if nip05 else (post.get("display_name") or post.get("pubkey", "")[:16])
-        text_safe = _sanitize_text(text_raw)
+        # FIX 5: Truncate to 220 chars before wrapping to prevent card overflow
+        text_safe = _sanitize_text(text_raw[:220])
         name_safe = _sanitize_text(display_name)
-        wrapped = _word_wrap(text_safe, max_width=38, max_lines=4)
+        # FIX 5: Use 55 chars/line for smaller font, get list of lines for separate drawtext
+        _nostr_lines = []
+        _nc_current = ""
+        for _nc_word in text_safe.split():
+            if len(_nc_current) + len(_nc_word) + 1 <= 55:
+                _nc_current = (_nc_current + " " + _nc_word).strip()
+            else:
+                if _nc_current:
+                    _nostr_lines.append(_nc_current)
+                _nc_current = _nc_word
+        if _nc_current:
+            _nostr_lines.append(_nc_current)
+        _nostr_lines = _nostr_lines[:4]  # max 4 lines
 
         enable_t = idx * 6
         enable = f"enable='between(t,{enable_t},{total_dur:.1f})'"
@@ -2970,11 +3012,14 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"fontcolor={COLOR_NOSTR}:fontsize=18:x={card_x + 16}:y={card_y + 14}:{enable},"
                # Zap indicator
                f"{zap_indicator}"
-               # Post text
-               f"drawtext=fontfile={FONT_MONO}:"
-               f"text='{wrapped}':"
-               f"fontcolor=0xe8e8e8:fontsize=26:x={card_x + 16}:y={card_y + 50}:"
-               f"line_spacing=8:{enable},"
+               # FIX 5: Word-wrapped post text — separate drawtext per line at fontsize=16
+               + "".join(
+                   f"drawtext=fontfile={FONT_MONO}:"
+                   f"text='{_sanitize_text(line)}':"
+                   f"fontcolor=0xe8e8e8:fontsize=16:x={card_x + 16}:y={card_y + 40 + li * 20}:"
+                   f"{enable},"
+                   for li, line in enumerate(_nostr_lines)
+               ) +
                # R26: FETCHED source at card bottom
                f"drawtext=fontfile={FONT_MONO}:"
                f"text='{fetched_text}':"
@@ -3413,6 +3458,10 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         tweet_text = _word_wrap(_sanitize_text(post.get("text", "")), max_width=55, max_lines=3)
         likes = post.get("likes", 0)
         retweets = post.get("retweets", 0)
+        # FIX 2: Detect zero metrics — suppress "0 likes 0 RTs" which looks broken
+        _likes_int = likes if isinstance(likes, int) else 0
+        _rts_int = retweets if isinstance(retweets, int) else 0
+        _has_real_metrics = _likes_int > 0 or _rts_int > 0
         likes_str = f"{likes:,}" if isinstance(likes, int) else str(likes)
         rt_str = f"{retweets:,}" if isinstance(retweets, int) else str(retweets)
 
@@ -3457,10 +3506,15 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
                    f"fontcolor={COLOR_TEXT}:fontsize=22:x=24:y=52:line_spacing=16:"
                    f"box=0[{tag}txt];\n")
 
-            # Engagement stats bottom
-            fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
-                   f"text='{likes_str} likes  |  {rt_str} RTs':"
-                   f"fontcolor={COLOR_RED}:fontsize=12:x=24:y=h-28[{tag}stats];\n")
+            # Engagement stats bottom — FIX 2: suppress zero metrics
+            if _has_real_metrics:
+                fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
+                       f"text='{likes_str} likes  |  {rt_str} RTs':"
+                       f"fontcolor={COLOR_RED}:fontsize=12:x=24:y=h-28[{tag}stats];\n")
+            else:
+                fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
+                       f"text='via X':fontcolor={COLOR_MUTED}:fontsize=12:"
+                       f"x=24:y=h-28[{tag}stats];\n")
 
             # Source label bottom-right
             fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
@@ -3748,8 +3802,9 @@ def make_remotion_social_card(audio_path: str, posts: list, output_path: str,
     result = _render_remotion("SocialCard", raw_video, props={
         "handle": post.get("handle", "ProtocolPulse"),
         "text": post.get("text", "")[:200],
-        "likes": post.get("likes", 0),
-        "retweets": post.get("retweets", 0),
+        # FIX 2: Pass -1 for zero metrics so Remotion can suppress display
+        "likes": post.get("likes", 0) or -1,
+        "retweets": post.get("retweets", 0) or -1,
         "durationInFrames": frames,
     })
     if not result:
@@ -4595,8 +4650,17 @@ def should_insert_transition(prev_part: str, next_part: str) -> bool:
     # Transition into social or data segments from clip-related segments
     if prev_part in ("react", "clip") and next_part in ("social_segment", "data"):
         return True
+    # FIX 1: Transition out of partner/clip/space_tap into data/intelligence
+    if prev_part in ("partner", "space_tap") and next_part in ("data", "social_segment"):
+        return True
+    # FIX 1: Transition out of data/intelligence into social/signal_active
+    if prev_part == "data" and next_part in ("social_segment", "signal_active"):
+        return True
+    # FIX 1: Transition out of social into signal_active
+    if prev_part == "social_segment" and next_part == "signal_active":
+        return True
     # NO transition for narrator-to-narrator within same flow
-    # e.g., setup→setup, react→react, cold_open→setup, data→social_segment
+    # e.g., setup→setup, react→react, cold_open→setup
     return False
 
 
@@ -4846,23 +4910,28 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             logger.info(f"  R25 FIX 1: PiP rank {rank} source={os.path.basename(pip_source)} (reencoded={reencoded is not None})")
             pip_result = make_pip_preview(pip_source, pip_out)
             if pip_result:
-                pip_previews[rank] = pip_result
-                logger.info(f"  PiP preview for clip #{rank}: ready")
-            else:
-                # FIX 1: Generate dark placeholder so pip_previews[rank] is never NONE/empty
-                pip_dark = os.path.join(work_dir, f"pip_preview_r{rank}_dark.mp4")
-                run_ffmpeg([
-                    "-f", "lavfi", "-i", "color=c=0x0A0A0F:s=716x370:d=8:r=30",
-                    "-t", "8", "-an",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
-                    "-r", "30", "-pix_fmt", "yuv420p",
-                    pip_dark,
-                ], "pip dark fallback", 30)
-                if os.path.exists(pip_dark):
-                    pip_previews[rank] = pip_dark
-                    logger.info(f"  PiP preview for clip #{rank}: dark placeholder")
+                # FIX 6: Verify PiP is real video, not dark placeholder (YAVG > 12)
+                # Dark placeholders cause broken "SIGNAL" overlay boxes at render time
+                try:
+                    _pip_brightness = subprocess.run(
+                        ["ffmpeg", "-v", "error", "-ss", "1",
+                         "-i", pip_result, "-vframes", "3",
+                         "-vf", "signalstats", "-f", "null", "-"],
+                        capture_output=True, text=True, timeout=15)
+                    _yavg_vals = re.findall(r"YAVG:\s*([\d.]+)", _pip_brightness.stderr)
+                    _mean_y = sum(float(v) for v in _yavg_vals) / len(_yavg_vals) if _yavg_vals else 999
+                except Exception:
+                    _mean_y = 999
+                if _mean_y < 12:
+                    # Dark placeholder — skip PiP entirely, fallback to bg_loop or no-PiP
+                    logger.info(f"  FIX 6: PiP for clip #{rank} is dark placeholder (YAVG={_mean_y:.1f}) — skipping, will use bg_loop fallback")
                 else:
-                    logger.warning(f"  R25 FIX 1: PiP preview for clip #{rank} FAILED — will use fallback")
+                    pip_previews[rank] = pip_result
+                    logger.info(f"  PiP preview for clip #{rank}: ready (YAVG={_mean_y:.1f})")
+            else:
+                # FIX 6: Do NOT generate dark placeholders — they cause broken "SIGNAL" boxes
+                # Let the fallback logic at pip_vid assignment use bg_loop instead
+                logger.info(f"  FIX 6: PiP preview for clip #{rank} unavailable — will use bg_loop fallback")
 
     audio_idx = 1 if cold_open_consumed else 0
     prev_segment_type = "intro"
@@ -4872,6 +4941,16 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     try:
         from signal_intelligence import get_signal_content, generate_signal_summary
         signal_content = get_signal_content()
+        # FIX 4: Filter nostr spam at source before any rendering
+        if signal_content and "nostr_posts" in signal_content:
+            _pre_filter = len(signal_content["nostr_posts"])
+            signal_content["nostr_posts"] = [
+                p for p in signal_content["nostr_posts"]
+                if not _is_nostr_spam_assembler(p)
+            ]
+            _post_filter = len(signal_content["nostr_posts"])
+            if _pre_filter != _post_filter:
+                logger.info(f"  FIX 4: Filtered {_pre_filter - _post_filter} nostr spam posts")
         if signal_content and (signal_content.get("spaces_quotes") or signal_content.get("nostr_posts")):
             logger.info(f"  FIX 7: Signal intelligence loaded — {len(signal_content.get('spaces_quotes', []))} spaces, {len(signal_content.get('nostr_posts', []))} nostr")
         elif signal_content and signal_content.get("nostr_posts"):
@@ -5191,13 +5270,48 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     if ok_sw and os.path.exists(swoosh_mixed):
                         current_stitched = swoosh_mixed
                         _whoosh_applied_parts.add(os.path.abspath(swoosh_mixed))
+                # FIX 3: Audio fade-out on social segment to prevent narrator cutoff at boundary
+                _social_dur = ffprobe_duration(current_stitched)
+                if _social_dur > 1.0:
+                    _sfade_tmp = current_stitched + ".audiofade.mp4"
+                    _sfade_st = max(0, _social_dur - 0.5)
+                    _sfade_ok = run_ffmpeg([
+                        "-i", current_stitched,
+                        "-c:v", "copy",
+                        "-af", f"afade=t=out:st={_sfade_st:.3f}:d=0.5",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        _sfade_tmp,
+                    ], "Fix3 social audio fade-out", 60)
+                    if _sfade_ok and os.path.exists(_sfade_tmp):
+                        os.replace(_sfade_tmp, current_stitched)
+                        logger.info(f"  FIX 3: Audio fade-out applied to social segment ({_sfade_st:.1f}s)")
+                    elif os.path.exists(_sfade_tmp):
+                        os.remove(_sfade_tmp)
                 parts.append(current_stitched)
                 dur = ffprobe_duration(current_stitched)
                 logger.info(f"[{part_idx:03d}] SOCIAL CARDS (xfaded): {dur:.1f}s")
                 part_idx += 1
             elif len(card_rendered_paths) == 1:
-                parts.append(card_rendered_paths[0])
-                dur = ffprobe_duration(card_rendered_paths[0])
+                # FIX 3: Audio fade-out on single social card too
+                _single_card = card_rendered_paths[0]
+                _sc_dur = ffprobe_duration(_single_card)
+                if _sc_dur > 1.0:
+                    _sc_fade_tmp = _single_card + ".audiofade.mp4"
+                    _sc_fade_st = max(0, _sc_dur - 0.5)
+                    _sc_fade_ok = run_ffmpeg([
+                        "-i", _single_card,
+                        "-c:v", "copy",
+                        "-af", f"afade=t=out:st={_sc_fade_st:.3f}:d=0.5",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        _sc_fade_tmp,
+                    ], "Fix3 single social card audio fade-out", 60)
+                    if _sc_fade_ok and os.path.exists(_sc_fade_tmp):
+                        os.replace(_sc_fade_tmp, _single_card)
+                        logger.info(f"  FIX 3: Audio fade-out applied to single social card ({_sc_fade_st:.1f}s)")
+                    elif os.path.exists(_sc_fade_tmp):
+                        os.remove(_sc_fade_tmp)
+                parts.append(_single_card)
+                dur = ffprobe_duration(_single_card)
                 logger.info(f"[{part_idx:03d}] SOCIAL CARD (single): {dur:.1f}s")
                 part_idx += 1
 
