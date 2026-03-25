@@ -1233,6 +1233,7 @@ def main():
 
     if args.mode == "reactive":
         run_reactive_check()
+        check_and_dispatch_grade_fixes()  # pick up grader fix specs
     elif args.mode == "health":
         run_health_scan()
     elif args.mode == "pattern":
@@ -1243,6 +1244,102 @@ def main():
         send_daily_briefing()
 
     logger.info("WATCHDOG RUN COMPLETE — mode=%s", args.mode)
+
+
+
+
+def check_and_dispatch_grade_fixes():
+    """
+    Read any cc_fix_iter*.md files written by the grader and dispatch them
+    to a CC session for autonomous application. Deletes the file after dispatch
+    to prevent re-processing.
+    """
+    fix_dir = BASE / "video_pipeline_v3" / "logs"
+    fix_files = sorted(fix_dir.glob("cc_fix_iter*.md"))
+    
+    if not fix_files:
+        return
+    
+    for fix_file in fix_files:
+        try:
+            spec = fix_file.read_text()
+            if not spec.strip():
+                fix_file.unlink()
+                continue
+            
+            logger.info("[GRADE-FIX] Found grade fix spec: %s", fix_file.name)
+            send_telegram(
+                f"\U0001f3af <b>GRADE FIX DISPATCHING</b>\n"
+                f"Spec: <code>{fix_file.name}</code>\n"
+                f"Launching CC session to apply pipeline improvements..."
+            )
+            
+            # Build full prompt: PIPELINE_LAWS + fix spec
+            laws_path = BASE / "PIPELINE_LAWS.md"
+            laws = laws_path.read_text()[:2000] if laws_path.exists() else ""
+            
+            bible_path = BASE / "docs" / "QWEN_CONTEXT_BIBLE.md"
+            bible = bible_path.read_text()[:1000] if bible_path.exists() else ""
+            
+            full_prompt = (
+                "Read ~/protocol_pulse/PIPELINE_LAWS.md first. "
+                "Then read ~/protocol_pulse/docs/QWEN_CONTEXT_BIBLE.md. "
+                f"GRADE FIX SPEC FROM: {fix_file.name}\n\n"
+                f"{spec}\n\n"
+                "Apply ONLY the fixes listed above. "
+                "Run bash ~/protocol_pulse/regression_test.sh — must show 0 FAILs. "
+                "Commit: git add -A && git commit -m "
+                f'"fix(pipeline-auto): {fix_file.stem} grade improvements" && git push. '
+                "Echo GRADE_FIX_COMPLETE when done."
+            )
+            
+            # Write prompt to temp file
+            import tempfile
+            spec_name = f"cc_grade_fix_{fix_file.stem}.md"
+            spec_path = BASE / "docs" / spec_name
+            spec_path.write_text(full_prompt)
+            
+            # Launch CC session
+            subprocess.run(["tmux", "kill-session", "-t", "grade_fix"], capture_output=True)
+            time.sleep(1)
+            subprocess.run([
+                "tmux", "new-session", "-d", "-s", "grade_fix", "-x", "220", "-y", "50"
+            ], capture_output=True)
+            time.sleep(2)
+            
+            # Use load-buffer method (CC PROMPT DELIVERY LAW)
+            import base64
+            encoded = base64.b64encode(full_prompt.encode()).decode()
+            subprocess.run([
+                "bash", "-c",
+                f"echo {encoded} | base64 -d > /tmp/grade_fix_prompt.txt"
+            ], capture_output=True)
+            
+            subprocess.run([
+                "tmux", "send-keys", "-t", "grade_fix",
+                "cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions",
+                "Enter"
+            ], capture_output=True)
+            time.sleep(58)  # Wait for CC to boot
+            
+            subprocess.run([
+                "bash", "-c",
+                "tmux load-buffer -t grade_fix /tmp/grade_fix_prompt.txt && "
+                "tmux paste-buffer -t grade_fix && "
+                'tmux send-keys -t grade_fix "" Enter'
+            ], capture_output=True)
+            
+            logger.info("[GRADE-FIX] CC session launched for %s", fix_file.name)
+            
+            # Delete spec so it's not re-processed
+            fix_file.unlink()
+            logger.info("[GRADE-FIX] Spec deleted: %s", fix_file.name)
+            
+            # Only process one fix file per run to avoid overload
+            break
+            
+        except Exception as e:
+            logger.error("[GRADE-FIX] Error processing %s: %s", fix_file.name, e)
 
 
 if __name__ == "__main__":
