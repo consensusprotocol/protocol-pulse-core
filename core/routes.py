@@ -11365,7 +11365,8 @@ def api_oracle_query():
     """Lightweight stage interrupt — Claude Haiku answers with live BTC context."""
     data = request.get_json(silent=True) or {}
     query = (data.get('query') or '')[:200]
-    context = (data.get('context') or 'Bitcoin')[:100]
+    context = (data.get('context') or 'Bitcoin')[:200]
+    broadcast_script = (data.get('broadcast_script') or '')[:600]
 
     if not query.strip():
         return jsonify({'response': 'I did not catch that. Stay sovereign.'}), 200
@@ -11391,10 +11392,16 @@ def api_oracle_query():
                 'role': 'user',
                 'content': (
                     'You are Satomi, Protocol Pulse\'s live Bitcoin intelligence anchor. '
-                    f'Current BTC price: {btc_price}. Broadcast context: {context}. '
-                    'Answer this question in 1-2 concise sentences (under 150 chars). '
-                    'Be direct, insightful, and stay in character as a sharp Bitcoin analyst. '
-                    f'Question: {query}'
+                    f'Current BTC price: {btc_price}. '
+                    'BROADCAST CONTEXT: You are mid-broadcast. '
+                    f'Current topic: {context}. '
+                    f'Current broadcast script excerpt: {broadcast_script[:400] if broadcast_script else "not available"}. '
+                    'INSTRUCTIONS: '
+                    '1. If the question relates to what you are currently broadcasting about, answer in that context - frame your response as a natural continuation of the conversation. '
+                    '2. If the question is unrelated to the broadcast topic, answer it fresh as a standalone Bitcoin intelligence query. '
+                    '3. Always: 1-2 concise sentences max (under 180 chars), direct, insightful, stay in character. '
+                    '4. Never say you are an AI or that you are searching - just answer as Satomi would. '
+                    f'User asked: {query}'
                 )
             }]
         )

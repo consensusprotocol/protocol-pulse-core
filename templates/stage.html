@@ -1415,6 +1415,7 @@ body { background: var(--s-bg); }
   var _stageRecognition = null;
   var _stageIsRec = false;
   var _currentBroadcastTopic = '';
+  var _currentBroadcastScript = '';  // full script for context-aware responses
   var _preRenderedBlob = null;
   var _preRenderedItem = null;
   var _broadcastPaused = false;
@@ -1492,6 +1493,7 @@ body { background: var(--s-bg); }
   async function playBroadcastItem(item) {
     if (_broadcastPaused) return;
     _currentBroadcastTopic = item.topic_preview || '';
+    _currentBroadcastScript = (item.script || '').substring(0, 600);  // first 600 chars for context
     updateSignalSource(item.source_label || '📡 BROADCASTING');
     updateTicker(item);
 
@@ -1859,6 +1861,7 @@ body { background: var(--s-bg); }
         body: JSON.stringify({
           query: text,
           context: _currentBroadcastTopic || 'Bitcoin market intelligence',
+          broadcast_script: _currentBroadcastScript || '',
           mode: 'stage_interrupt'
         })
       }, 15000);
