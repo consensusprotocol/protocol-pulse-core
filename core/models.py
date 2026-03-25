@@ -33,6 +33,11 @@ class User(UserMixin, db.Model):
     subscription_expires_at = db.Column(db.DateTime)
     # Commander+: opt-in to email alerts for mega whales (≥1000 BTC)
     mega_whale_email_alerts = db.Column(db.Boolean, default=False)
+
+    # Satomi voice call opt-in
+    phone_number = db.Column(db.String(20), nullable=True)  # E.164 format +1XXXXXXXXXX
+    satomi_calls_enabled = db.Column(db.Boolean, default=False)  # opt-in to daily calls
+    satomi_call_time = db.Column(db.String(10), default='09:00')  # preferred call time ET
     
     # --- Auth Methods ---
     def set_password(self, password):

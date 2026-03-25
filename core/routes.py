@@ -11371,6 +11371,136 @@ def podcast_redirect():
     return redirect('/podcasts', code=301)
 
 
+# ─── Satomi Voice / SMS (Twilio webhooks) ───────────────────────────────────
+
+@app.route('/api/satomi/voice', methods=['POST', 'GET'])
+def satomi_voice_incoming():
+    """Twilio webhook: handles incoming calls to our number. Set this URL in Twilio console."""
+    try:
+        from services.satomi_voice import generate_incoming_twiml
+        # Get latest brief from stage broadcast queue
+        brief_text = None
+        try:
+            queue_path = '/home/ultron/protocol_pulse/video_pipeline_v3/data/stage_briefs/broadcast_queue.json'
+            with open(queue_path) as f:
+                queue = json.load(f)
+            if queue:
+                for item in queue:
+                    if item.get('type') not in ('FILLER_INSIGHT',) and item.get('script'):
+                        brief_text = item['script']
+                        break
+                if not brief_text and queue[0].get('script'):
+                    brief_text = queue[0]['script']
+        except Exception:
+            pass
+
+        twiml = generate_incoming_twiml(brief_text)
+        return Response(twiml, mimetype='text/xml')
+    except Exception as e:
+        logging.error(f'satomi_voice_incoming error: {e}')
+        from twilio.twiml.voice_response import VoiceResponse
+        resp = VoiceResponse()
+        resp.say("Signal unavailable. Stay sovereign.", voice='Polly.Joanna')
+        return Response(str(resp), mimetype='text/xml')
+
+
+@app.route('/api/satomi/voice/choice', methods=['POST'])
+def satomi_voice_choice():
+    """Handles menu digit press from incoming call."""
+    try:
+        from services.satomi_voice import generate_choice_twiml
+        digit = request.form.get('Digits', '')
+        brief_text = request.form.get('brief_text', '')
+        twiml = generate_choice_twiml(digit, brief_text, '')
+        return Response(twiml, mimetype='text/xml')
+    except Exception as e:
+        from twilio.twiml.voice_response import VoiceResponse
+        resp = VoiceResponse()
+        resp.say("Stay sovereign.", voice='Polly.Joanna')
+        return Response(str(resp), mimetype='text/xml')
+
+
+@app.route('/api/satomi/voice/outbound-twiml', methods=['POST', 'GET'])
+def satomi_voice_outbound_twiml():
+    """TwiML served when outbound call is answered by subscriber."""
+    try:
+        from services.satomi_voice import generate_incoming_twiml
+        brief_text = None
+        try:
+            queue_path = '/home/ultron/protocol_pulse/video_pipeline_v3/data/stage_briefs/broadcast_queue.json'
+            with open(queue_path) as f:
+                queue = json.load(f)
+            if queue and queue[0].get('script'):
+                brief_text = queue[0]['script']
+        except Exception:
+            pass
+        twiml = generate_incoming_twiml(brief_text)
+        return Response(twiml, mimetype='text/xml')
+    except Exception as e:
+        from twilio.twiml.voice_response import VoiceResponse
+        resp = VoiceResponse()
+        resp.say("Good morning. Satomi here with your Protocol Pulse brief. Stay sovereign.", voice='Polly.Joanna')
+        return Response(str(resp), mimetype='text/xml')
+
+
+@app.route('/api/satomi/sms', methods=['POST'])
+def satomi_sms_incoming():
+    """Twilio webhook: handles incoming SMS."""
+    try:
+        from services.satomi_voice import handle_incoming_sms
+        from_number = request.form.get('From', '')
+        body = request.form.get('Body', '')
+        twiml = handle_incoming_sms(from_number, body)
+        return Response(twiml, mimetype='text/xml')
+    except Exception as e:
+        from twilio.twiml.messaging_response import MessagingResponse
+        resp = MessagingResponse()
+        resp.message("\u26a1 Satomi: protocolpulse.io")
+        return Response(str(resp), mimetype='text/xml')
+
+
+@app.route('/api/satomi/call-subscribers', methods=['POST'])
+def satomi_call_subscribers():
+    """Internal endpoint: trigger outbound calls to all opted-in subscribers."""
+    token = request.headers.get('X-Internal-Token', '')
+    if token != os.environ.get('INTERNAL_API_TOKEN', 'pp-internal-2026'):
+        return jsonify({'error': 'unauthorized'}), 403
+    try:
+        from services.satomi_voice import call_all_opted_in_subscribers
+        brief_text = request.json.get('brief_text', 'Satomi here with your Protocol Pulse daily signal.')
+        results = call_all_opted_in_subscribers(brief_text)
+        return jsonify({'success': True, 'results': results})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ─── Promo Codes ─────────────────────────────────────────────────────────────
+
+@app.route('/api/apply-promo', methods=['POST'])
+def apply_promo_code():
+    """Apply a promo code to unlock premium access for team/testing."""
+    code = request.json.get('code', '').strip().upper()
+
+    PROMO_CODES = {
+        'SOVEREIGN-TEAM-2026': 'commander',
+        'STAY-SOVEREIGN': 'operator',
+    }
+
+    tier = PROMO_CODES.get(code)
+    if not tier:
+        return jsonify({'success': False, 'error': 'Invalid promo code'}), 400
+
+    # Apply to current user if logged in
+    if current_user.is_authenticated:
+        current_user.subscription_tier = tier
+        db.session.commit()
+        return jsonify({'success': True, 'tier': tier, 'message': f'Commander access activated. Welcome, Sovereign.'})
+    else:
+        # Store in session for post-login application
+        session['pending_promo_tier'] = tier
+        return jsonify({'success': True, 'tier': tier, 'redirect': '/login?promo=1'})
+
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
