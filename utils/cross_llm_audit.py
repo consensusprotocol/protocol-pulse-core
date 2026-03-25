@@ -77,6 +77,7 @@ FEATURE_MAP = {
     "social-audit": ("PIPELINE_LAWS.md", "main"),
     "friday-demo": ("PIPELINE_LAWS.md", "main"),
     "oracle-fix": ("PIPELINE_LAWS.md", "main"),
+    "oracle-forensic": ("PIPELINE_LAWS.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -226,6 +227,9 @@ EXPLICIT_FILES = {
         "templates/merch.html",
     ],
     "oracle-fix": [
+        "templates/oracle_live.html",
+    ],
+    "oracle-forensic": [
         "templates/oracle_live.html",
     ],
 }
@@ -668,6 +672,80 @@ For each question (Q1-Q4):
 - SPECIFIC RECOMMENDATION with expected latency savings (ms)
 - IMPLEMENTATION RISK: LOW / MEDIUM / HIGH
 - POTENTIAL GOTCHAS that could cause production issues
+""",
+    "oracle-forensic": """## YOUR REVIEW TASK — ORACLE FORENSIC: GREETING LIP SYNC + RECOVERING LOOP (8 QUESTIONS)
+
+CONFIRMED FACTS FROM SERVER LOGS:
+- Server receives POST /oracle/speak -> returns video/mp4 (646KB greeting cache) -> 200 OK
+- Server receives GET /oracle/thinking -> 206 (thinking loop served)
+- Server receives POST /oracle/chat -> 200 with job_id
+- Server renders Wav2Lip correctly (frames, audio, encoding all confirmed working)
+- ALL server-side is working perfectly
+
+THE BUGS (user-confirmed, reproducible every time):
+BUG 1: Greeting video plays with NO lip sync — Satomi avatar is static/frozen while audio plays
+BUG 2: After greeting, any user speech goes to "Recovering" mode and never produces output
+
+### Q1 — iOS SRC SWAP ON ACTIVELY PLAYING VIDEO
+The thinking loop video plays first (vid.muted=true, vid.loop=true, vid.src=/oracle/thinking).
+When the greeting blob arrives, playVid() sets vid.muted=false, vid.loop=false, vid.src=blobURL.
+On iOS Safari: does changing video.src while a video is actively playing require a user gesture?
+Could iOS suppress the src change or show a frozen frame from the previous video?
+
+### Q2 — BLOB URL VIDEO PLAYBACK
+The greeting is served as a direct video/mp4 response from /oracle/speak (not via job polling).
+The frontend checks content-type 'video' and calls r.blob().then(blobURL).
+Is there any scenario where the blob URL is created but the video element shows a static frame
+instead of playing the lip-sync animation?
+
+### Q3 — RECOVERING STATE MAPPING
+After the greeting plays (or appears to play), _greeted=true is set and startRec() is called.
+recognition.start() fires. User speaks. recognition.onresult fires and sets pending.
+Then recognition.onend fires. process(pending) is called.
+process() calls /oracle/chat -> gets job_id -> polls /oracle/job/{id}/audio -> plays audio.
+WHERE exactly does "Recovering" state appear and what triggers it?
+Map every state transition that could lead to RECOVERING without ever resolving.
+
+### Q4 — RECOVERING NEVER CLEARED
+The oracle server logs show the interactive request received and processed successfully
+(job rendered, audio ready, video ready). But the frontend shows "Recovering".
+This means the frontend either: (a) never receives the job response, (b) receives it but
+fails silently, or (c) the setStat('RECOVERING') is called somewhere and never cleared.
+Find every place setStat('Recovering') is called and what conditions lead there.
+
+### Q5 — AUDIO/VIDEO RACE CONDITION
+Look at the audio polling flow: fetch /oracle/job/{id}/audio with polling retry.
+If this returns 202 (audio not ready), it retries. If it returns 200, it plays audio.
+Is there a race condition where audio 200 is received but the EventSource for video_ready
+fires before audio.onended, causing the state machine to deadlock?
+
+### Q6 — SETTLED GUARD FROM THINKING LOOP
+The video element has a settled guard (_settled flag). If _settled=true from the thinking
+loop's safety timeout, could it prevent the greeting video from ever triggering _finish()?
+
+### Q7 — iOS BLOB URL + VIDEO ELEMENT ISSUES
+On iOS Safari specifically: does fetch() with a blob response work correctly for video/mp4
+of 646KB? Are there any known iOS issues with MediaSource, blob URLs, or video element
+src swapping that would cause the video to render as a static image?
+
+### Q8 — MUTED FLAG RACE
+Is there a timing issue where vid.muted=true is set AFTER playVid() already set it to false?
+Trace every place vid.muted is set in the entire template and identify if any async callback
+could re-mute the video after playVid() unmutes it.
+
+### RESPONSE FORMAT
+For each question (Q1-Q8):
+- ANALYSIS: Detailed trace with line number citations
+- BUG CONFIRMED: Yes/No
+- SEVERITY: CRITICAL / HIGH / MEDIUM
+- ROOT CAUSE: Specific code path
+- FIX: Specific code change with line numbers
+
+### FINAL VERDICT
+- How many CRITICAL issues confirmed?
+- Root cause of the lip sync failure
+- Root cause of the Recovering loop
+- Ordered fix list (most impactful first)
 """,
 }
 

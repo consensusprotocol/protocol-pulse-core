@@ -1326,10 +1326,9 @@ function process(text){
             URL.revokeObjectURL(audioUrl);
             // Audio finished — unmute video if it's playing lip sync
             try{ if(!vid.paused){ vid.muted=false; vid.volume=1.0; } }catch(e){}
-            // Don't replay lip-sync video after audio already finished — just resolve
-            if(pendingVideoUrl){
-              try { URL.revokeObjectURL(pendingVideoUrl); } catch(e) {}
-            }
+            /* FORENSIC FIX: Do NOT revoke pendingVideoUrl here — video may still be
+               playing lip-sync. Revoking while vid uses it triggers vid.onerror.
+               playVid._finish() handles cleanup via vid.removeAttribute('src'). */
             resolve();
           };
 
@@ -1339,6 +1338,12 @@ function process(text){
             function _handleVideoReady(){
               if(_videoHandled) return;
               _videoHandled=true;
+              /* FORENSIC FIX: Skip if audio already finished — user is back in LISTENING.
+                 Playing video after promise chain resolved causes orphan "Recovering" state. */
+              if(_audioFinished){
+                console.log('[Satomi] Video arrived after audio ended — skipping playback');
+                return;
+              }
               fetch(A+'/oracle/job/'+videoJobId)
                 .then(function(vr){
                   if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
@@ -1347,18 +1352,16 @@ function process(text){
                   return null;
                 })
                 .then(function(vb){
-                  if(vb){
+                  if(vb && !_audioFinished){
                     pendingVideoUrl=blobURL(vb);
-                    // Play video immediately when ready — don't wait for _audioFinished
-                    // Stop any separate audio playing first
+                    /* Stop separate TTS audio — lip-sync video has audio baked in */
                     try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;}}catch(e){}
-                    vid.style.opacity='0';
-                    setTimeout(function(){
-                      vid.loop=false;vid.muted=false;
-                      vid.src=pendingVideoUrl;
-                      vid.style.opacity='1';
-                      playVid(pendingVideoUrl);
-                    },150);
+                    window._chatAudioPlaying=false;
+                    /* Let playVid() handle full video element reset + playback */
+                    playVid(pendingVideoUrl).catch(function(e){
+                      console.warn('[Satomi] lip-sync playVid error:',e);
+                      setStat('Ready','#334',false);
+                    });
                   }
                 })
                 .catch(function(e){console.warn('[Satomi] video fetch error:',e);});
@@ -1405,11 +1408,14 @@ function process(text){
                     if(vb){
                       clearInterval(pollVideo);
                       _videoHandled=true;
+                      /* FORENSIC FIX: Skip if audio already finished */
+                      if(_audioFinished) return;
                       pendingVideoUrl=blobURL(vb);
-                      // Play immediately — stop separate audio, show lip-sync video
                       try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;}}catch(e){}
-                      vid.style.opacity='1';
-                      playVid(pendingVideoUrl);
+                      window._chatAudioPlaying=false;
+                      playVid(pendingVideoUrl).catch(function(e){
+                        console.warn('[Satomi] poll playVid error:',e);
+                      });
                     }
                   })
                   .catch(function(){});
@@ -1471,8 +1477,15 @@ function playVid(url){
   return new Promise(function(res,rej){
     console.log('[Satomi] playVid called:',url&&url.substring(0,60));
     setOracleState('RESPONDING');
+    /* FORENSIC FIX: Fully reset video element before loading new source.
+       iOS Safari requires pause+clear+load when switching from thinking loop.
+       Without this, iOS shows the frozen last frame of the previous video. */
+    vid.onerror=null;vid.onended=null;vid.ontimeupdate=null;
+    vid.pause();
+    vid.removeAttribute('src');
+    vid.load();
     vid.loop=false;
-    vid.muted=false; /* FIX: always unmute before playing lip-sync video */
+    vid.muted=true; /* Start muted — iOS autoplay policy. Unmute on canplay. */
     vid.src=url;
     vid.style.opacity='1';
     if(window._matrixHide) window._matrixHide();
@@ -1486,10 +1499,10 @@ function playVid(url){
       clearTimeout(_dynamicTimer);
       vid.ontimeupdate=null;
       if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
-      console.log('[Satomi] playVid settled via:',ok?'success':'error');
-      /* P1-3: Fade out first, then clear src — avoids flash */
+      console.log('[Satomi] playVid settled via:',ok?'success':'error/timeout');
+      vid.onended=null;vid.onerror=null;
       vid.style.opacity='0';
-      setTimeout(function(){ try{vid.src='';}catch(e){} },300);
+      setTimeout(function(){ try{vid.pause();vid.removeAttribute('src');vid.load();}catch(e){} },300);
       if(window._matrixShow) window._matrixShow();
       hideSub();
       try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
@@ -1541,22 +1554,17 @@ function playVid(url){
     };
     vid.onerror=function(e){
       console.warn('[Satomi] vid.onerror:',e);
-      setStat('Recovering\u2026','#f4c46f',true);
-      setTimeout(function(){ _finish(false); },500);
+      /* FORENSIC FIX: No "Recovering" deadlock — finish cleanly so state machine continues */
+      _finish(false);
     };
-    vid.muted=true;
-    vid.volume=1.0;
-    var unmuted=false;
-    function tryUnmute(){
-      if(unmuted)return; unmuted=true;
-      vid.muted=false;
-      vid.volume=1.0;
-    }
+    /* FORENSIC FIX: Unmute on canplay — avoids iOS autoplay block while getting lip-sync audio.
+       Removed contradictory vid.muted=true that was overriding the unmute at function start. */
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
       setStat('Speaking','#6cff9f',false);
       if(!window._chatAudioPlaying){
-        tryUnmute();
+        vid.muted=false;
+        vid.volume=1.0;
       }
     },{once:true});
     var p=vid.play();
@@ -1639,6 +1647,16 @@ function showTapOverlay(){
   var ov=document.getElementById('tap-to-play');
   if(ov){ov.style.display='flex';}
   setStat('Tap to play','#f4c46f',false);
+  /* P2 FORENSIC FIX (Grok): Auto-dismiss after 10s if user ignores — prevents permanent UI block */
+  setTimeout(function(){
+    if(ov&&ov.style.display==='flex'){
+      ov.style.display='none';
+      vid.style.opacity='0';
+      setStat('Ready','#334',false);
+      setBusy(false);
+      setOracleState('LISTENING');
+    }
+  },10000);
 }
 function dismissTapOverlay(){
   var ov=document.getElementById('tap-to-play');
