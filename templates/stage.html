@@ -78,7 +78,7 @@ body { background: var(--s-bg); }
 .stage-topbar__ticker-inner:hover { animation-play-state: paused; }
 @media (max-width: 768px) {
   .stage-topbar__ticker-inner {
-    animation-duration: 90s;
+    animation-duration: 45s;
   }
 }
 @keyframes ticker-scroll {
@@ -1449,6 +1449,29 @@ body { background: var(--s-bg); }
 
   // ── BROADCAST QUEUE CONSUMER ──────────────────────────
   async function startBroadcast() {
+    // Try consume-broadcast first — if queued video_url exists, play it directly
+    try {
+      var resp = await fetch('/api/stage/consume-broadcast', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({})
+      });
+      var data = await resp.json();
+      if (data.next_item) {
+        if (data.next_item.video_url) {
+          // Pre-rendered video available — play directly, then continue queue
+          await playBroadcastItem(data.next_item);
+          return;
+        } else if (data.next_item.script) {
+          // Queue item without video — render via avatar and play
+          await playBroadcastItem(data.next_item);
+          return;
+        }
+      }
+    } catch(e) {
+      console.warn('[Stage] consume-broadcast check failed, falling back to monologue:', e);
+    }
+    // No queued items — fall back to monologue loop
     await runMonologueLoop();
   }
 

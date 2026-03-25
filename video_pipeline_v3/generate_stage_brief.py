@@ -395,6 +395,7 @@ def generate_brief(output_dir):
             "duration": round(duration, 1),
             "mp4_path": mp4_filename,
             "mp4_url": f"/data/stage_briefs/{mp4_filename}",
+            "video_url": f"/data/stage_briefs/{mp4_filename}",
             "episode_date": date_str,
             "script_summary": brief_text[:500],
             "word_count": len(brief_text.split()),

@@ -11148,9 +11148,9 @@ def api_stage_consume_broadcast():
                 latest_path = queue_path.parent / 'latest.json'
                 if latest_path.exists():
                     latest = _j.loads(latest_path.read_text())
-                    mp4_url = latest.get('mp4_url', '')
-                    if mp4_url:
-                        next_item['video_url'] = mp4_url
+                    video_url = latest.get('video_url') or latest.get('mp4_url', '')
+                    if video_url:
+                        next_item['video_url'] = video_url
             except Exception:
                 pass
 

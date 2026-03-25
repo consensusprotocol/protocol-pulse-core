@@ -800,6 +800,7 @@ def generate_brief(brief_type=None):
             "duration": round(duration, 1),
             "mp4_path": mp4_filename,
             "mp4_url": f"/data/stage_briefs/{mp4_filename}",
+            "video_url": f"/data/stage_briefs/{mp4_filename}",
             "episode_date": date_str,
             "brief_type": brief_type,
             "script_summary": brief_text[:500],
