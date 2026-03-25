@@ -11812,14 +11812,28 @@ def satomi_voice_choice():
     """Handles menu digit press from incoming call."""
     try:
         from services.satomi_voice import generate_choice_twiml
+        from twilio.twiml.voice_response import VoiceResponse
         digit = request.form.get('Digits', '')
-        brief_text = request.form.get('brief_text', '')
-        twiml = generate_choice_twiml(digit, brief_text, '')
+        # Fetch live brief text from oracle feed
+        brief_text = ''
+        market_summary = ''
+        try:
+            import sys; sys.path.insert(0, '/home/ultron/protocol_pulse/oracle')
+            from oracle_intelligence_feed import _get_btc_price, _get_recent_articles, _get_pipeline_sentiment, _generate_briefing_text
+            pf, ps = _get_btc_price()
+            arts = _get_recent_articles(3)
+            sent = _get_pipeline_sentiment()
+            brief_text = _generate_briefing_text(arts, sent, pf, ps) or f"Bitcoin is at {ps}. Network fundamentals remain strong. Stay sovereign."
+            market_summary = f"Bitcoin currently at {ps}. Sentiment indicators show mixed signals across institutional and retail flows. Key level to watch."
+        except Exception as bex:
+            brief_text = "Protocol Pulse intelligence signal active. Stay sovereign."
+            market_summary = "Market data loading. Stay sovereign."
+        twiml = generate_choice_twiml(digit, brief_text, market_summary)
         return Response(twiml, mimetype='text/xml')
     except Exception as e:
         from twilio.twiml.voice_response import VoiceResponse
         resp = VoiceResponse()
-        resp.say("Stay sovereign.", voice='Polly.Joanna')
+        resp.say("Intelligence signal complete. Stay sovereign.", voice='Polly.Joanna-Neural')
         return Response(str(resp), mimetype='text/xml')
 
 

@@ -91,13 +91,7 @@
             <div class="hero-btc-block pp-animate-in pp-animate-in-delay-4">
                 <div class="hero-btc-block__left">
                     <div class="hero-btc-block__label">BITCOIN</div>
-                    <div class="hero-btc-block__price" id="heroBtcPrice">
-                        {% if prices and prices.get('bitcoin') %}
-                            ${{ "{:,.0f}".format(prices['bitcoin'].get('usd', 0)) }}
-                        {% else %}
-                            $--,---
-                        {% endif %}
-                    </div>
+                    <div class="hero-btc-block__price" id="heroBtcPrice">—</div>
                     <div id="heroBtcChange" class="hero-btc-block__change {% if prices and prices.get('bitcoin') and prices['bitcoin'].get('usd_24h_change', 0) >= 0 %}hero-btc-block__change--up{% else %}hero-btc-block__change--down{% endif %}">
                         {% if prices and prices.get('bitcoin') %}
                             {% set change = prices['bitcoin'].get('usd_24h_change', 0) %}

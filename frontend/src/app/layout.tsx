@@ -10,6 +10,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Protocol Pulse",
   description: "World-class Bitcoin intelligence",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-192.png",
+  },
   openGraph: {
     title: "Protocol Pulse",
     description: "World-class Bitcoin intelligence",
@@ -44,7 +48,7 @@ export default function RootLayout({
           <nav className="bg-black/60 backdrop-blur-xl border-b border-white/[0.06]">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
               <Link
-                href="/"
+                href="https://protocolpulse.io"
                 className="text-[#CC0000] font-bold text-xl tracking-wider flex-shrink-0 hover:drop-shadow-[0_0_12px_rgba(204,0,0,0.5)] transition-all duration-300"
               >
                 PROTOCOL PULSE
