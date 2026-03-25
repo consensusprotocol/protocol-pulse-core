@@ -164,6 +164,13 @@ body { background: var(--s-bg); }
 @media (max-width: 768px) {
   .stage-desk { width: 100%; max-width: 100%; }
 }
+@keyframes interrupt-border-pulse {
+  0%, 100% { border-color: rgba(248,193,92,.3); box-shadow: 0 0 20px rgba(248,193,92,.1); }
+  50% { border-color: rgba(248,193,92,.8); box-shadow: 0 0 40px rgba(248,193,92,.25); }
+}
+.stage-avatar-wrap.interrupt-pulse {
+  animation: interrupt-border-pulse 1.5s ease-in-out infinite;
+}
 .stage-avatar-wrap {
   width: 100%;
   position: relative;
@@ -1840,55 +1847,66 @@ body { background: var(--s-bg); }
     setStatus('Satomi thinking…', 'var(--s-gold)');
     updateSignalSource('🎤 RESPONDING TO LISTENER');
 
+    // Add gold border pulse to stage container
+    var stageWrap = document.querySelector('.stage-avatar-wrap');
+    if (stageWrap) stageWrap.classList.add('interrupt-pulse');
+
     try {
-      var resp = await fetchTO('/api/oracle/chat', {
+      // 1. Query Claude for a concise answer
+      var resp = await fetchTO('/api/oracle/query', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          text: text,
-          session_id: _stageSessionId,
-          audio_first: true,
-          avatar_source: 'stage_hologram',
-          context: _currentBroadcastTopic
+          query: text,
+          context: _currentBroadcastTopic || 'Bitcoin market intelligence',
+          mode: 'stage_interrupt'
         })
-      }, 90000);
+      }, 15000);
 
-      if (handle429(resp)) { setBusy(false); _resumeBroadcast(); return; }
+      if (handle429 && handle429(resp)) { setBusy(false); _resumeBroadcast(); return; }
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
-      var ct = resp.headers.get('content-type') || '';
-      if (ct.indexOf('video') >= 0) {
-        var blob = await resp.blob();
-        var url = URL.createObjectURL(blob);
-        await playVid(url);
-      } else {
-        var j = await resp.json();
-        if (j.job_id) {
-          // Poll for video
-          var polls = 0;
-          await new Promise(function(resolve) {
-            var pollId = setInterval(function() {
-              polls++;
-              if (polls > 45) { clearInterval(pollId); resolve(); return; }
-              fetch(AVATAR_BASE + '/oracle/job/' + j.job_id)
-                .then(function(vr) { if (vr.ok) return vr.blob(); return null; })
-                .then(function(vb) {
-                  if (vb) {
-                    clearInterval(pollId);
-                    playVid(URL.createObjectURL(vb)).then(resolve).catch(function(){ resolve(); });
-                  }
-                }).catch(function(){});
-            }, 1000);
-          });
-        }
+      var data = await resp.json();
+      var answer = data.response || 'Signal unclear. Stay sovereign.';
+
+      _appendChatMsg(answer, 'oracle');
+      setStatus(answer.length > 80 ? answer.substring(0, 80) + '…' : answer, 'var(--s-gold)', false);
+
+      // 2. Generate TTS audio for the response
+      var ttsResp = await fetchTO(AVATAR_BASE + '/oracle/voice', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: answer})
+      }, 20000);
+
+      if (ttsResp.ok) {
+        var blob = await ttsResp.blob();
+        var audioUrl = URL.createObjectURL(blob);
+        var audio = new Audio(audioUrl);
+
+        await new Promise(function(resolve) {
+          audio.onended = function() {
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+          };
+          audio.onerror = function() {
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+          };
+          audio.play().catch(function() { resolve(); });
+        });
       }
     } catch(e) {
-      console.error('interrupt error:', e);
+      console.error('[Interrupt] query failed:', e);
+      _appendChatMsg('Signal unclear — resuming broadcast.', 'oracle');
     }
 
+    if (stageWrap) stageWrap.classList.remove('interrupt-pulse');
     setBusy(false);
-    // Resume broadcast after 3s countdown
-    _showResumeCountdown();
+    // Resume broadcast after 4s
+    setStatus('Did that answer your question? Continuing in 4s…', 'rgba(255,255,255,.5)', false);
+    updateSignalSource('▶ RESUMING BROADCAST');
+    setTimeout(function() { _resumeBroadcast(); }, 4000);
   }
 
   function _showResumeCountdown() {

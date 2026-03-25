@@ -11348,6 +11348,52 @@ def api_oracle_speak_ratelimited():
         return jsonify({'error': 'Oracle unavailable'}), 503
 
 
+@app.route('/api/oracle/query', methods=['POST'])
+@limiter.limit("10 per minute")
+def api_oracle_query():
+    """Lightweight stage interrupt — Claude Haiku answers with live BTC context."""
+    data = request.get_json(silent=True) or {}
+    query = (data.get('query') or '')[:200]
+    context = (data.get('context') or 'Bitcoin')[:100]
+
+    if not query.strip():
+        return jsonify({'response': 'I did not catch that. Stay sovereign.'}), 200
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic()
+
+        # Fetch live BTC price for context
+        btc_price = 'unknown'
+        try:
+            import requests as _rq
+            r = _rq.get('https://api.coinbase.com/v2/prices/BTC-USD/spot', timeout=3)
+            if r.ok:
+                btc_price = '$' + r.json()['data']['amount']
+        except Exception:
+            pass
+
+        msg = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=150,
+            messages=[{
+                'role': 'user',
+                'content': (
+                    'You are Satomi, Protocol Pulse\'s live Bitcoin intelligence anchor. '
+                    f'Current BTC price: {btc_price}. Broadcast context: {context}. '
+                    'Answer this question in 1-2 concise sentences (under 150 chars). '
+                    'Be direct, insightful, and stay in character as a sharp Bitcoin analyst. '
+                    f'Question: {query}'
+                )
+            }]
+        )
+        response_text = msg.content[0].text.strip()
+        return jsonify({'response': response_text})
+    except Exception as e:
+        logging.warning('oracle query error: %s', e)
+        return jsonify({'response': f'Signal unclear. Current context: {context}. Stay sovereign.'}), 200
+
+
 # ─── Missing route aliases (cc_site_fixes.md) ───
 
 @app.route('/oracle-live')
