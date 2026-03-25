@@ -21,6 +21,11 @@ try:
 except ImportError:
     SocketIO = None
 try:
+    from flask_compress import Compress as _FlaskCompress
+except Exception as _compress_err:
+    _FlaskCompress = None
+    logging.warning("flask-compress not available (%s) — responses will not be gzipped.", _compress_err)
+try:
     from flask_caching import Cache
     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
 except ImportError:
@@ -43,7 +48,16 @@ db = SQLAlchemy(model_class=Base)
 # 2. Create the app instance — use absolute paths so templates/static are always found
 #    whether run as "app:app" from core/ or "core.app:app" from project root
 _core_dir = Path(__file__).resolve().parent
-app = Flask(__name__, template_folder=str(Path(__file__).resolve().parent / "core" / "templates"), static_folder=str(Path(__file__).resolve().parent / "core" / "static"))
+app = Flask(__name__, template_folder=str(Path(__file__).resolve().parent / "templates"), static_folder=str(Path(__file__).resolve().parent / "static"))
+# Search both templates/ AND core/templates/ so intelligence terminal works
+from jinja2 import ChoiceLoader, FileSystemLoader
+_root_templates = str(Path(__file__).resolve().parent / "templates")
+_core_templates = str(Path(__file__).resolve().parent / "core" / "templates")
+app.jinja_loader = ChoiceLoader([
+    FileSystemLoader(_root_templates),
+    FileSystemLoader(_core_templates),
+])
+
 
 # Security: SECRET must be set in environment — no silent insecure fallback
 _session_secret = os.environ.get("SESSION_SECRET", "")
@@ -103,7 +117,7 @@ for _name in _recommended_env:
     if not os.environ.get(_name):
         logging.info("%s not configured (related integration stays degraded/off).", _name)
 
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400  # 1 day default for send_file
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year for versioned static assets
 
 # 3. Initialize extensions
 db.init_app(app)
@@ -114,6 +128,11 @@ login_manager.login_view = "login"
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
 limiter.init_app(app)
+
+if _FlaskCompress is not None:
+    app.config['COMPRESS_REGISTER'] = True
+    app.config['COMPRESS_MIN_SIZE'] = 500
+    _FlaskCompress(app)
 
 if _cache is not None:
     _cache.init_app(app)
@@ -161,10 +180,10 @@ def add_headers(response):
     if request.path.startswith("/static/"):
         # Versioned assets (?v=X) get long cache; images get 1 week; CSS/JS get 1 day
         if any(request.path.endswith(ext) for ext in ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico')):
-            response.cache_control.max_age = 604800  # 1 week
+            response.cache_control.max_age = 31536000  # 1 year
             response.cache_control.public = True
         elif any(request.path.endswith(ext) for ext in ('.css', '.js')):
-            response.cache_control.max_age = 86400  # 1 day
+            response.cache_control.max_age = 604800  # 1 week
             response.cache_control.public = True
         else:
             response.cache_control.max_age = 86400
@@ -211,6 +230,19 @@ def inject_ads(content):
     except Exception as e:
         logging.warning(f"Ad injection failed: {e}")
         return content
+
+@app.template_filter('to_est')
+def to_est_filter(dt):
+    """Convert a naive UTC datetime to Eastern Time for display."""
+    if dt is None:
+        return ""
+    import pytz
+    eastern = pytz.timezone("America/New_York")
+    if dt.tzinfo is None:
+        utc_dt = pytz.utc.localize(dt)
+    else:
+        utc_dt = dt
+    return utc_dt.astimezone(eastern)
 
 @app.template_filter('basename')
 def basename_filter(path):

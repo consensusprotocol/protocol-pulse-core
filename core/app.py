@@ -16,6 +16,11 @@ from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 try:
+    from flask_compress import Compress as _FlaskCompress
+except ImportError:
+    _FlaskCompress = None
+    logging.warning("flask-compress not available — responses will not be gzipped.")
+try:
     from flask_caching import Cache
     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
 except ImportError:
@@ -66,6 +71,13 @@ login_manager.login_view = "login"
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
 limiter.init_app(app)
 
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year for versioned static assets
+
+if _FlaskCompress is not None:
+    app.config['COMPRESS_REGISTER'] = True
+    app.config['COMPRESS_MIN_SIZE'] = 500
+    _FlaskCompress(app)
+
 if _cache is not None:
     _cache.init_app(app)
     cache = _cache
@@ -87,11 +99,22 @@ def inject_csrf():
 
 @app.after_request
 def add_static_cache_headers(response):
-    """Allow browsers to cache static assets for 1 day."""
+    """Cache static assets aggressively: 1 year for images, 1 week for CSS/JS."""
     from flask import request
     if request.path.startswith("/static/"):
-        response.cache_control.max_age = 86400
+        if any(request.path.endswith(ext) for ext in ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico')):
+            response.cache_control.max_age = 31536000  # 1 year
+        elif any(request.path.endswith(ext) for ext in ('.css', '.js')):
+            response.cache_control.max_age = 604800  # 1 week
+        else:
+            response.cache_control.max_age = 86400  # 1 day
         response.cache_control.public = True
+    elif request.path.startswith("/api/"):
+        if "Cache-Control" not in response.headers:
+            response.headers["Cache-Control"] = "private, no-store"
+    else:
+        if "Cache-Control" not in response.headers:
+            response.headers["Cache-Control"] = "public, no-cache, must-revalidate"
     return response
 
 

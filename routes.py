@@ -1279,6 +1279,7 @@ def api_network_data():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/articles')
+@cache.cached(timeout=60, key_prefix='view_articles')
 def articles():
     """Articles page (Replit-style): 3 time windows + archive button.
 
@@ -1559,6 +1560,7 @@ def network_health():
 
 
 @app.route('/charts')
+@cache.cached(timeout=60, key_prefix='view_charts')
 def charts():
     """Interactive BTC charts — price, hashrate, fees."""
     return render_template('charts.html')
@@ -1659,6 +1661,7 @@ def media_hub_redirect():
 
 @app.route('/media')
 @app.route('/media-unified')
+@cache.cached(timeout=60, key_prefix='view_media')
 def media_hub():
     """Media Hub — cinematic dark layout with real data"""
     try:
@@ -1966,30 +1969,41 @@ def sync_podcasts():
         flash(f'Error syncing podcasts: {e}')
         return redirect('/admin/podcasts')
 
+_printful_cache = {'products': None, 'rtsa': None, 'ts': 0}
+
 @app.route('/merch')
 def merch_store():
-    """Merch store page"""
+    """Merch store page — Printful products cached 5 minutes"""
+    import time as _time
     try:
-        products = printful_service.get_store_products()
-        formatted_products = []
-        
-        for product in products:
-            formatted_product = printful_service.format_product_for_display(product)
-            if not formatted_product.get('is_ignored', True):
-                formatted_products.append(formatted_product)
-        
-        rtsa_hot = []
-        rtsa_approved = []
-        rtsa_foundational = []
-        try:
-            from services.rtsa_service import rtsa_service
-            rtsa_hot = rtsa_service.get_hot_products()
-            rtsa_approved = rtsa_service.get_approved_products(limit=6)
-            rtsa_foundational = rtsa_service.get_foundational_statements()
-        except Exception as rtsa_error:
-            logging.warning(f"RTSA products unavailable: {rtsa_error}")
-        
-        return render_template('merch.html', 
+        now = _time.time()
+        if _printful_cache['products'] is not None and now - _printful_cache['ts'] < 300:
+            formatted_products = _printful_cache['products']
+            rtsa_hot, rtsa_approved, rtsa_foundational = _printful_cache['rtsa']
+        else:
+            products = printful_service.get_store_products()
+            formatted_products = []
+            for product in products:
+                formatted_product = printful_service.format_product_for_display(product)
+                if not formatted_product.get('is_ignored', True):
+                    formatted_products.append(formatted_product)
+
+            rtsa_hot = []
+            rtsa_approved = []
+            rtsa_foundational = []
+            try:
+                from services.rtsa_service import rtsa_service
+                rtsa_hot = rtsa_service.get_hot_products()
+                rtsa_approved = rtsa_service.get_approved_products(limit=6)
+                rtsa_foundational = rtsa_service.get_foundational_statements()
+            except Exception as rtsa_error:
+                logging.warning(f"RTSA products unavailable: {rtsa_error}")
+
+            _printful_cache['products'] = formatted_products
+            _printful_cache['rtsa'] = (rtsa_hot, rtsa_approved, rtsa_foundational)
+            _printful_cache['ts'] = now
+
+        return render_template('merch.html',
                              products=formatted_products,
                              rtsa_hot=rtsa_hot,
                              rtsa_approved=rtsa_approved,
