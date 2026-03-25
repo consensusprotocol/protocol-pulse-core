@@ -539,6 +539,12 @@ def value_stream():
                               sats_per_hour=0,
                               market_pulse=default_pulse)
 
+
+@app.route('/terminal')
+def terminal_redirect():
+    """Terminal route — redirect to signal terminal."""
+    return redirect('/signal-terminal')
+
 @app.route('/signal-terminal')
 def signal_terminal():
     """Signal Terminal — redirects to /terminal (Bloomberg-grade rebuild)."""
@@ -2466,6 +2472,20 @@ def signup():
     flash('Registration is disabled. Please contact administrator for access.')
     return redirect('/login')
 
+
+@app.route('/join')
+def join_page():
+    """Premium onboarding / join page."""
+    from services.price_service import PriceService
+    try:
+        ps = PriceService()
+        prices = ps.get_prices()
+        btc_price = prices.get('bitcoin', {}).get('price', 0) if prices else 0
+    except:
+        btc_price = 0
+    stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY', os.environ.get('STRIPE_PUBLIC_KEY', ''))
+    return render_template('join.html', btc_price=btc_price, stripe_key=stripe_key)
+
 @app.route('/admin')
 @login_required
 @admin_required
@@ -2831,9 +2851,25 @@ def admin_youtube_auth():
     from services.youtube_service import YouTubeService
     yt = YouTubeService()
     
+    # Reload env to pick up any recently saved tokens
+    from dotenv import load_dotenv as _ldenv
+    _ldenv('/home/ultron/protocol_pulse/.env', override=True)
+    import importlib, sys
+    # Force reload of env vars into current process
+    for key in ['YOUTUBE_REFRESH_TOKEN', 'YOUTUBE_CLIENT_ID', 'YOUTUBE_CLIENT_SECRET']:
+        val = open('/home/ultron/protocol_pulse/.env').read()
+        import re as _re
+        m = _re.search(rf'^{key}=(.+)$', val, _re.MULTILINE)
+        if m: os.environ[key] = m.group(1).strip()
+    
     is_configured = yt.is_oauth_configured()
     is_authorized = yt.is_upload_authorized()
-    channel_info = yt.get_authorized_channel_info() if is_authorized else None
+    channel_info = None
+    if is_authorized:
+        try:
+            channel_info = yt.get_authorized_channel_info()
+        except Exception:
+            channel_info = {'title': 'Channel connected', 'id': 'authorized', 'thumbnail': None}
     auth_url = None
     
     if is_configured and not is_authorized:
