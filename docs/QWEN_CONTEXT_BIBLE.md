@@ -519,3 +519,9 @@ SYMPTOM: Overnight loop shows 10+ iterations each completing in <2 seconds with 
 FIX: kill -9 $(pgrep -f "daily_producer" | head -1) 2>/dev/null; rm -f /tmp/daily_producer.lock
 WATCHDOG DETECTION: if render iteration completes in <5 seconds = zombie lock. Clear and retry.
 DATE DISCOVERED: 2026-03-25 - caused entire day's render to fail silently
+AUTOMATED FIX (2026-03-25):
+  1. local_watchdog.py reactive check (every 60s): if /tmp/daily_producer.lock exists but
+     `pgrep -f daily_producer.py` returns empty = zombie lock. Deletes lock + sends Telegram.
+  2. overnight_render_loop.py: before each iteration, checks for stale lock (lock exists,
+     no process running) and clears it. Prevents entire render cycles from being blocked.
+  VERIFY: After a crashed producer, next watchdog tick or next loop iteration auto-clears lock.

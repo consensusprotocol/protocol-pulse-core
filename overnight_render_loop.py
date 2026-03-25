@@ -590,6 +590,17 @@ def run_single_render():
         if (time.time()-start)/3600 >= MAX_HOURS:
             log(f"TIME LIMIT ({MAX_HOURS}h). Stopping."); break
         log(f"\n{'='*60}\nITERATION {iteration}/{MAX_ITERATIONS}\n{'='*60}")
+        # Clear stale daily_producer.lock before each iteration
+        _lock_path = "/tmp/daily_producer.lock"
+        if os.path.exists(_lock_path):
+            try:
+                _pgrep = subprocess.run(["pgrep", "-f", "daily_producer.py"],
+                                        capture_output=True, text=True, timeout=5)
+                if not _pgrep.stdout.strip():
+                    os.remove(_lock_path)
+                    log(f"Cleared stale daily_producer.lock (no process running)")
+            except Exception as _e:
+                log(f"WARNING: stale lock check failed: {_e}")
         _save_render_state(iteration, start)  # P0 Fix 5
         video, rlog = run_render(iteration)
         if not video:

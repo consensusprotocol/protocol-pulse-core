@@ -813,6 +813,22 @@ def run_reactive_check():
                     import pathlib; pathlib.Path("/tmp/daily_producer.lock").unlink(missing_ok=True)
                     send_telegram(f"WATCHDOG: Killed zombie producer {_pid} ({_elapsed} at {_cpu}% CPU, 0 audio) — SpaceTap hang")
     except Exception as _ze: logger.debug(f"Zombie check error: {_ze}")
+
+    # Zombie lock detector: /tmp/daily_producer.lock exists but no process running
+    _lock_path = Path("/tmp/daily_producer.lock")
+    if _lock_path.exists():
+        _pgrep = subprocess.run(["pgrep", "-f", "daily_producer.py"], capture_output=True, text=True)
+        if not _pgrep.stdout.strip():
+            # Lock exists but NO daily_producer process — zombie lock
+            _lock_path.unlink(missing_ok=True)
+            logger.warning("ZOMBIE LOCK: /tmp/daily_producer.lock existed with no daily_producer process — deleted")
+            send_telegram(
+                "\u26a0\ufe0f <b>WATCHDOG</b>: Zombie lock /tmp/daily_producer.lock cleared\n"
+                "No daily_producer process was running. Next render will proceed."
+            )
+        else:
+            logger.debug("daily_producer.lock exists and process is running — legitimate")
+
     log_tail = tail_file(OVERNIGHT_LOG, 50)
     # CRITICAL FIX: also scan producer_debug.log — KeyErrors live there not in loop log
     producer_log = Path("/tmp/producer_debug.log")
