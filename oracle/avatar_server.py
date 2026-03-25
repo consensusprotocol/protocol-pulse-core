@@ -213,6 +213,9 @@ _render_semaphore = threading.Semaphore(2)  # max 2 concurrent Wav2Lip renders
 _render_queue_count = 0
 _render_queue_lock = threading.Lock()
 
+# ─── Interactive request signal (cache warmer yields when set) ───────
+INTERACTIVE_REQUEST_PENDING = threading.Event()
+
 
 # ─── SSE event system (Phase 2: push delivery) ───────────────────────
 _job_events = {}          # job_id -> queue.Queue (SSE push events)
@@ -1585,6 +1588,8 @@ def oracle_speak():
 
 def generate_inline(text):
     """Internal helper: generate a video from text and return it."""
+    # Signal cache warmer to yield GPU
+    INTERACTIVE_REQUEST_PENDING.set()
     try:
         audio_bytes = _avatar_tts(text)
     except Exception as e:
@@ -1622,6 +1627,7 @@ def generate_inline(text):
             video_path = frames_to_video(frames, DEFAULT_FPS, audio_path=wav_path)
         finally:
             _render_semaphore.release()
+            INTERACTIVE_REQUEST_PENDING.clear()
 
         if not video_path:
             return jsonify({"error": "Video encoding failed"}), 500
@@ -1657,6 +1663,7 @@ def generate_inline(text):
         )
 
     except Exception as e:
+        INTERACTIVE_REQUEST_PENDING.clear()
         logger.error(f"generate_inline error: {e}", exc_info=True)
         for p in [audio_path, wav_path]:
             try:
@@ -2304,6 +2311,9 @@ if __name__ == "__main__":
 
     # Phase 2 T1.4: Generate thinking loop if missing or stale
     generate_thinking_loop()
+
+    # Wire interactive request event into cache manager
+    oracle_cache_manager.INTERACTIVE_REQUEST_PENDING = INTERACTIVE_REQUEST_PENDING
 
     # Phase 2: Start cache warming in background (delayed 60s to allow incoming requests)
     logger.info("[STARTUP] Oracle cache warmer will start in 60s...")

@@ -45,7 +45,11 @@ RESPONSE_TREE = {
 
 # Track which keys are currently being rendered to avoid duplicate work
 _rendering_keys = set()
+_WARMER_SEMAPHORE = threading.Semaphore(1)  # max 1 cache render at a time, preserves 1 slot for interactive
 _rendering_lock = threading.Lock()
+
+# Set by avatar_server when an interactive request is pending — warmer yields immediately
+INTERACTIVE_REQUEST_PENDING = None  # assigned at startup by avatar_server
 
 
 def _load_index():
@@ -83,6 +87,14 @@ def _render_key(key, text):
         text = random.choice(text)
     out_path = os.path.join(RESPONSES_DIR, f"{key}.mp4")
 
+    # Yield if interactive request is pending
+    if INTERACTIVE_REQUEST_PENDING and INTERACTIVE_REQUEST_PENDING.is_set():
+        logger.info(f"[CACHE] {key} deferred — interactive request pending")
+        return False
+    # Acquire warmer slot - keeps 1 GPU slot free for interactive requests
+    if not _WARMER_SEMAPHORE.acquire(timeout=15):
+        logger.info(f"[CACHE] {key} deferred - interactive request has GPU priority")
+        return
     with _rendering_lock:
         if key in _rendering_keys:
             logger.info(f"[CACHE] {key} already rendering, skip")
@@ -144,6 +156,7 @@ def _render_key(key, text):
     finally:
         with _rendering_lock:
             _rendering_keys.discard(key)
+    _WARMER_SEMAPHORE.release()
 
 
 def warm_cache():
@@ -159,13 +172,19 @@ def warm_cache():
     logger.info(f"[CACHE] Warming {len(stale_keys)}/{len(RESPONSE_TREE)} stale keys: {stale_keys}")
 
     for key in stale_keys:
+        # Yield immediately if an interactive request is waiting for the GPU
+        if INTERACTIVE_REQUEST_PENDING and INTERACTIVE_REQUEST_PENDING.is_set():
+            logger.info(f"[CACHE] Yielding to interactive request — pausing warm cycle")
+            while INTERACTIVE_REQUEST_PENDING.is_set():
+                time.sleep(5)
+            logger.info(f"[CACHE] Interactive request done — resuming warm cycle")
         text = RESPONSE_TREE[key]
         if isinstance(text, list):
             import random
             text = random.choice(text)
         _render_key(key, text)
         # Small delay between renders to avoid GPU contention
-        time.sleep(1)
+        time.sleep(5)  # longer gap gives interactive requests GPU access
 
     logger.info("[CACHE] Warm cycle complete")
 
