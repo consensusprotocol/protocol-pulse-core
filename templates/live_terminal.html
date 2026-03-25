@@ -4504,6 +4504,236 @@ body {
     50% { opacity: 1; }
     100% { transform: scale(1); }
 }
+
+/* ============================================
+   STELLAR NEBULA — Hero Visualization
+   ============================================ */
+#nebula-hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 600px;
+    overflow: hidden;
+    background: #0A0A0F;
+}
+
+#nebula-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Bottom HUD Bar */
+.nebula-hud {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    padding: 14px 20px;
+    background: rgba(10, 10, 15, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    opacity: 0;
+    transition: opacity 0.7s ease-in;
+}
+
+.nebula-hud.visible {
+    opacity: 1;
+}
+
+.nebula-hud__metric {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.nebula-hud__label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.nebula-hud__value {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.nebula-hud__value--gold {
+    color: #F8C15C;
+}
+
+.nebula-hud__status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nebula-hud__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+}
+
+.nebula-hud__dot--live { background: #22c55e; }
+.nebula-hud__dot--delayed { background: #eab308; }
+.nebula-hud__dot--disconnected { background: #dc2626; }
+
+.nebula-hud__status-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Block Share Prompt */
+.nebula-share {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(248, 193, 92, 0.3);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.nebula-share.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.nebula-share__btn {
+    background: rgba(248, 193, 92, 0.2);
+    border: 1px solid rgba(248, 193, 92, 0.4);
+    color: #F8C15C;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: background 0.2s;
+}
+
+.nebula-share__btn:hover {
+    background: rgba(248, 193, 92, 0.35);
+}
+
+/* Audio Toggle */
+.nebula-audio-toggle {
+    position: absolute;
+    bottom: 80px;
+    left: 20px;
+    z-index: 15;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(10, 10, 15, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.nebula-audio-toggle:hover {
+    background: rgba(10, 10, 15, 0.9);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.nebula-audio-toggle.active {
+    color: #F8C15C;
+    border-color: rgba(248, 193, 92, 0.4);
+}
+
+/* Stale overlay */
+#nebula-canvas.stale {
+    filter: grayscale(0.6) brightness(0.7);
+}
+
+/* WebGL fallback */
+.nebula-fallback {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(248, 193, 92, 0.08) 0%, #0A0A0F 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.nebula-fallback__star {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #F8C15C 0%, rgba(248, 193, 92, 0.3) 50%, transparent 70%);
+    animation: fallbackPulse 2s ease-in-out infinite;
+}
+
+@keyframes fallbackPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* Responsive HUD */
+@media (max-width: 768px) {
+    .nebula-hud {
+        gap: 0.8rem;
+        padding: 10px 12px;
+        font-size: 0.7rem;
+        flex-wrap: wrap;
+    }
+    .nebula-hud__label {
+        display: none;
+    }
+    #nebula-hero {
+        height: 70vh;
+        min-height: 400px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #nebula-canvas {
+        display: none;
+    }
+    .nebula-fallback {
+        display: flex;
+    }
+    .nebula-fallback__star {
+        animation: none;
+    }
+}
 </style>
 {% endblock %}
 
@@ -4546,180 +4776,56 @@ body {
 
 
 <!-- ============================================
-     ZONE 1: TACTICAL HORIZON
-     The Cinematic Hook - Pure Visualizer Experience
+     STELLAR NEBULA — The Heartbeat of Bitcoin
+     Full-viewport WebGL hero visualization
      ============================================ -->
-<div class="zone-tactical-horizon">
-    <!-- Sovereign Status Bar - Inside Zone 1 -->
-    <div class="sovereign-status-bar zone-status">
-        <div class="container d-flex justify-content-around align-items-center">
-            <!-- Bitcoin Heartbeat Audio Indicator - Subtle World-Class Touch -->
-            <div class="heartbeat-audio-indicator" id="heartbeat-indicator" onclick="toggleHeartbeatAudio()" title="Toggle Bitcoin Heartbeat">
-                <div class="heartbeat-pulse-ring"></div>
-                <div class="heartbeat-icon">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="heartbeat-waveform">
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                </div>
-            </div>
-            
-            <div class="status-metric">
-                <span class="status-label">Sats/vB</span>
-                <span class="status-value highlight data-mono" id="status-fee-rate">--</span>
-            </div>
-            <div class="status-metric rec-indicator">
-                <span class="rec-dot"></span>
-                <span class="status-label">Hashrate</span>
-                <span class="status-value data-mono" id="status-hashrate">-- EH/s</span>
-            </div>
-            <div class="status-metric">
-                <span class="status-label">Blocks to Retarget</span>
-                <span class="status-value data-mono" id="status-retarget">--</span>
-            </div>
-        </div>
-    </div>
-    
-    <div id="live-terminal-wrapper" style="position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background-color: black;">
-    <!-- Video Background - ABSOLUTE positioned behind visualizer, pushed down so TXIDs float above platform -->
-    <video autoplay muted loop playsinline id="pulse-bg-video" 
-           style="position: absolute; top: 15%; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.6);">
-        <source src="/static/video/pulse-bg.mp4" type="video/mp4">
-    </video>
-    
-    <!-- Gradient Fade: Header into Video (top) -->
-    <div class="video-fade-top"></div>
-    
-    <!-- Gradient Fade: Video into Footer/Dashboard (bottom) -->
-    <div class="video-fade-bottom"></div>
-    
-    <!-- Custom Blockchain Visualizer - ABSOLUTE positioned above video -->
-    <div class="visualizer-container" id="visualizer-container" 
-         style="position: absolute; top: 80px; left: 0; width: 100%; height: calc(100% - 80px); z-index: 1; background: transparent !important;">
-        <canvas id="visualizer-canvas" style="background: transparent !important;"></canvas>
-    </div>
-    
-    <!-- Live Network Status HUD - INSIDE wrapper so it doesn't scroll with page -->
-    <div class="terminal-hud">
-        <div class="hud-title">Live Network Status</div>
-        
-        <div class="hud-metric">
-            <span class="metric-label">Mempool Size</span>
-            <span class="metric-value" id="mempool-size">Loading...</span>
-        </div>
-        
-        <div class="hud-metric">
-            <span class="metric-label">Pending TXs</span>
-            <span class="metric-value" id="pending-txs">--</span>
-        </div>
-        
-        <div class="hud-metric">
-            <span class="metric-label">Next Block Fee</span>
-            <span class="metric-value" id="next-block-fee">-- sat/vB</span>
-        </div>
-        
-        <div class="hud-metric">
-            <span class="metric-label">Low Priority</span>
-            <span class="metric-value fee-low" id="low-fee">-- sat/vB</span>
-        </div>
-        
-        <div class="mempool-viz">
-            <div class="mempool-bar" id="mempool-bar" style="height: 20%"></div>
-            <span class="mempool-label" id="mempool-mb">-- MB</span>
-        </div>
-        
-        <div class="latest-block">
-            <div class="block-header">
-                <span class="block-height" id="block-height">#---,---</span>
-                <span class="block-time" id="block-time">--:--</span>
-            </div>
-            <div class="block-stats">
-                <div class="block-stat">
-                    <div class="block-stat-label">TXs</div>
-                    <div class="block-stat-value" id="block-txs">--</div>
-                </div>
-                <div class="block-stat">
-                    <div class="block-stat-label">Size</div>
-                    <div class="block-stat-value" id="block-size">-- MB</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bitcoin Heartbeat Audio Toggle -->
-        <div class="heartbeat-toggle-wrapper">
-            <button id="audio-toggle" class="audio-toggle-btn" title="Toggle Bitcoin Heartbeat">
-                <i class="fas fa-heartbeat" id="audio-icon"></i>
-            </button>
-            <div class="heartbeat-text">
-                <span class="heartbeat-label">Bitcoin Heartbeat</span>
-                <span class="heartbeat-status" id="audio-label">Tap to listen</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Visualizer HUD Overlay - INSIDE wrapper so it doesn't scroll -->
-    <div class="viz-hud">
-        <div class="viz-hud-title">Mempool Physics</div>
-        <div class="viz-metric">
-            <span class="viz-metric-label">Mempool Size</span>
-            <span class="viz-metric-value" id="viz-mempool-size">-- MB</span>
-        </div>
-        <div class="viz-metric">
-            <span class="viz-metric-label">Unconfirmed</span>
-            <span class="viz-metric-value" id="viz-unconfirmed">--</span>
-        </div>
-        <div class="viz-legend">
-            <div class="viz-legend-title">Fee Rate (sat/vB)</div>
-            <div class="viz-legend-item">
-                <span class="viz-legend-dot low"></span>
-                <span>&lt; 10 (Low Priority)</span>
-            </div>
-            <div class="viz-legend-item">
-                <span class="viz-legend-dot medium"></span>
-                <span>10-50 (Medium)</span>
-            </div>
-            <div class="viz-legend-item">
-                <span class="viz-legend-dot high"></span>
-                <span>&gt; 50 (High Priority)</span>
-            </div>
-        </div>
-    </div>
-</div>
+<div id="nebula-hero">
+    <canvas id="nebula-canvas"></canvas>
 
-<div class="terminal-container" style="background: transparent !important;">
-    
-    
-    <!-- Hidden iframe for external bitfeed (shown on toggle) -->
-    <iframe 
-        src="https://bits.monospace.live/" 
-        class="bitfeed-frame" 
-        id="bitfeed-iframe"
-        allow="fullscreen"
-        loading="lazy"
-        style="display: none;"
-    ></iframe>
-    
-    <div class="terminal-footer">
-        <div class="terminal-status">
-            <div class="status-item">
-                <span class="status-dot"></span>
-                <span>LIVE</span>
-            </div>
-            <div class="status-item">
-                <span id="connection-status">Connected to Bitcoin Network</span>
-            </div>
+    <!-- WebGL Fallback -->
+    <div class="nebula-fallback" id="nebula-fallback" style="display: none;">
+        <div class="nebula-fallback__star"></div>
+    </div>
+
+    <!-- Audio Toggle -->
+    <button class="nebula-audio-toggle" id="nebula-audio-btn" title="Toggle block chime (muted)">
+        <i class="fas fa-volume-mute" id="nebula-audio-icon"></i>
+    </button>
+
+    <!-- Block Share Prompt -->
+    <div class="nebula-share" id="nebula-share">
+        <span id="nebula-share-text">Block #--- just confirmed.</span>
+        <button class="nebula-share__btn" id="nebula-share-btn">Share</button>
+    </div>
+
+    <!-- Bottom HUD Bar -->
+    <div class="nebula-hud" id="nebula-hud">
+        <div class="nebula-hud__metric">
+            <span class="nebula-hud__label">BTC</span>
+            <span class="nebula-hud__value nebula-hud__value--gold" id="hud-price">--</span>
         </div>
-        <div class="terminal-source">
-            Powered by <a href="https://mempool.space" target="_blank">Mempool.space</a> | 
-            Visualization by <a href="https://bits.monospace.live" target="_blank">Bitfeed</a>
+        <div class="nebula-hud__metric">
+            <span class="nebula-hud__label">MEMPOOL</span>
+            <span class="nebula-hud__value" id="hud-mempool">-- vMB</span>
+        </div>
+        <div class="nebula-hud__metric">
+            <span class="nebula-hud__label">FEES</span>
+            <span class="nebula-hud__value" id="hud-fees">-- sat/vB</span>
+        </div>
+        <div class="nebula-hud__metric">
+            <span class="nebula-hud__label">HASHRATE</span>
+            <span class="nebula-hud__value" id="hud-hashrate">-- EH/s</span>
+        </div>
+        <div class="nebula-hud__metric">
+            <span class="nebula-hud__label">BLOCK</span>
+            <span class="nebula-hud__value" id="hud-block">--</span>
+        </div>
+        <div class="nebula-hud__status">
+            <span class="nebula-hud__dot" id="hud-dot"></span>
+            <span class="nebula-hud__status-text" id="hud-status">CONNECTING</span>
         </div>
     </div>
-</div>
-</div><!-- END ZONE 1: TACTICAL HORIZON -->
+</div><!-- END STELLAR NEBULA -->
 
 <!-- ============================================
      ZONE 2: THE LOGIC ENGINE
@@ -7106,28 +7212,836 @@ function toggleIntelCard(card, event) {
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
-<script src="{{ url_for('static', filename='js/visualizer.js') }}?v=20260128h"></script>
+<!-- ============================================
+     STELLAR NEBULA — WebGL Visualization Engine
+     DataService + Three.js r128 + Golden Spiral Physics
+     ============================================ -->
 <script>
-// Ensure video plays on load
-window.addEventListener('DOMContentLoaded', () => {
-    const v = document.getElementById('pulse-bg-video');
-    if (!v) return;
-    
-    const tryPlay = async () => {
-        try { await v.play(); } catch (e) { console.log('Video autoplay blocked'); }
-    };
-    
-    tryPlay();
-    
-    const unlock = () => {
-        tryPlay();
-        window.removeEventListener('click', unlock);
-        window.removeEventListener('touchstart', unlock);
-    };
-    
-    window.addEventListener('click', unlock, { once: true });
-    window.addEventListener('touchstart', unlock, { once: true });
+(function() {
+'use strict';
+
+// ===== CONSTANTS =====
+const PHI = 1.6180339887;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ~2.39996 rad (137.5 deg)
+const SPIRAL_B = Math.log(PHI) / (Math.PI / 2);    // ~0.3063
+const SPAWN_RADIUS = 7.0;
+const BRAND_GOLD = 0xF8C15C;
+const BRAND_BG = 0x0A0A0F;
+const FEE_LOW_COLOR = new THREE.Color(0xF8C15C);
+const FEE_MID_COLOR = new THREE.Color(0xFFFFFF);
+const FEE_HIGH_COLOR = new THREE.Color(0xCC2222);
+
+// Performance tiers
+const isMobile = window.innerWidth < 768 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+const isTablet = !isMobile && window.innerWidth < 1280;
+const MAX_PARTICLES = isMobile ? 500 : (isTablet ? 1500 : 2000);
+const MAX_RING_PARTICLES = isMobile ? 50 : (isTablet ? 150 : 200);
+const MAX_RINGS = isMobile ? 10 : (isTablet ? 20 : 30);
+const BLOOM_ENABLED = !isMobile;
+
+// ===== DATA SERVICE =====
+window.NetworkState = {
+    btcPrice: 0, mempoolVsize: 0, feeRate: 10, hashrate: 600,
+    fng: 50, blockHeight: 0, blockTime: 0, lastUpdated: 0
+};
+
+const DataService = {
+    connectionState: 'disconnected',
+    ws: null,
+    reconnectAttempts: 0,
+    maxReconnect: 12,
+    lastMessage: 0,
+    healthTimer: null,
+
+    init() {
+        this.fetchAll();
+        this.connectWebSocket();
+        // Polling fallbacks
+        setInterval(() => this.fetchMempool(), 10000);
+        setInterval(() => this.fetchFees(), 30000);
+        setInterval(() => this.fetchHashrate(), 60000);
+        setInterval(() => this.fetchFNG(), 300000);
+        // Health monitor
+        this.healthTimer = setInterval(() => this.checkHealth(), 5000);
+    },
+
+    async fetchAll() {
+        await Promise.allSettled([
+            this.fetchMempool(), this.fetchFees(),
+            this.fetchHashrate(), this.fetchFNG(), this.fetchPrice()
+        ]);
+    },
+
+    async fetchMempool() {
+        try {
+            const r = await fetch('https://mempool.space/api/mempool');
+            const d = await r.json();
+            NetworkState.mempoolVsize = Math.round((d.vsize || 0) / 1e6 * 10) / 10;
+            NetworkState.lastUpdated = Date.now();
+            this.dispatch();
+        } catch(e) {}
+    },
+
+    async fetchFees() {
+        try {
+            const r = await fetch('https://mempool.space/api/v1/fees/recommended');
+            const d = await r.json();
+            NetworkState.feeRate = d.fastestFee || 10;
+            this.dispatch();
+        } catch(e) {}
+    },
+
+    async fetchHashrate() {
+        try {
+            const r = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
+            const d = await r.json();
+            if (d.currentHashrate) {
+                NetworkState.hashrate = Math.round(d.currentHashrate / 1e18);
+            }
+            this.dispatch();
+        } catch(e) {}
+    },
+
+    async fetchFNG() {
+        try {
+            const r = await fetch('https://api.alternative.me/fng/?limit=1');
+            const d = await r.json();
+            if (d.data && d.data[0]) {
+                NetworkState.fng = parseInt(d.data[0].value) || 50;
+            }
+            this.dispatch();
+        } catch(e) {}
+    },
+
+    async fetchPrice() {
+        try {
+            const r = await fetch('https://mempool.space/api/v1/prices');
+            const d = await r.json();
+            if (d.USD) NetworkState.btcPrice = d.USD;
+            this.dispatch();
+        } catch(e) {}
+    },
+
+    connectWebSocket() {
+        if (this.ws && this.ws.readyState <= 1) return;
+        try {
+            this.ws = new WebSocket('wss://mempool.space/api/v1/ws');
+            this.ws.onopen = () => {
+                this.ws.send(JSON.stringify({
+                    action: 'want', data: ['blocks', 'mempool-blocks', 'live-2h-chart']
+                }));
+                this.connectionState = 'live';
+                this.reconnectAttempts = 0;
+                this.lastMessage = Date.now();
+                this.dispatch();
+            };
+            this.ws.onmessage = (evt) => {
+                this.lastMessage = Date.now();
+                if (this.connectionState !== 'live') {
+                    this.connectionState = 'live';
+                }
+                try {
+                    const msg = JSON.parse(evt.data);
+                    if (msg.block) {
+                        NetworkState.blockHeight = msg.block.height;
+                        NetworkState.blockTime = Date.now();
+                        document.dispatchEvent(new CustomEvent('nebula-block', { detail: msg.block }));
+                    }
+                    if (msg['mempool-blocks'] && msg['mempool-blocks'].length > 0) {
+                        const mb = msg['mempool-blocks'][0];
+                        NetworkState.feeRate = mb.feeRange ? mb.feeRange[mb.feeRange.length - 1] : NetworkState.feeRate;
+                    }
+                    if (msg.mempoolInfo) {
+                        NetworkState.mempoolVsize = Math.round((msg.mempoolInfo.vsize || 0) / 1e6 * 10) / 10;
+                    }
+                    this.dispatch();
+                } catch(e) {}
+            };
+            this.ws.onclose = () => this.scheduleReconnect();
+            this.ws.onerror = () => { this.ws.close(); };
+        } catch(e) {
+            this.scheduleReconnect();
+        }
+    },
+
+    scheduleReconnect() {
+        if (this.reconnectAttempts >= this.maxReconnect) {
+            this.connectionState = 'disconnected';
+            this.dispatch();
+            return;
+        }
+        this.connectionState = 'delayed';
+        this.dispatch();
+        const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts));
+        this.reconnectAttempts++;
+        setTimeout(() => this.connectWebSocket(), delay);
+    },
+
+    checkHealth() {
+        const elapsed = Date.now() - this.lastMessage;
+        if (this.connectionState === 'live' && elapsed > 15000) {
+            this.connectionState = 'delayed';
+            this.dispatch();
+        }
+        if (elapsed > 30000 && this.connectionState !== 'disconnected') {
+            this.connectionState = 'disconnected';
+            this.dispatch();
+            if (this.ws) this.ws.close();
+            this.connectWebSocket();
+        }
+    },
+
+    dispatch() {
+        document.dispatchEvent(new CustomEvent('network-update', { detail: NetworkState }));
+    }
+};
+
+// ===== HUD UPDATES =====
+function updateHUD() {
+    const s = NetworkState;
+    const el = (id) => document.getElementById(id);
+    if (s.btcPrice) el('hud-price').textContent = '$' + s.btcPrice.toLocaleString();
+    el('hud-mempool').textContent = s.mempoolVsize + ' vMB';
+    el('hud-fees').textContent = s.feeRate + ' sat/vB';
+    if (s.hashrate) el('hud-hashrate').textContent = s.hashrate + ' EH/s';
+    if (s.blockHeight) el('hud-block').textContent = '#' + s.blockHeight.toLocaleString();
+
+    const dot = el('hud-dot');
+    const statusText = el('hud-status');
+    dot.className = 'nebula-hud__dot nebula-hud__dot--' + DataService.connectionState;
+    statusText.textContent = DataService.connectionState.toUpperCase();
+
+    // Stale overlay
+    const canvas = el('nebula-canvas');
+    if (DataService.connectionState === 'disconnected') {
+        canvas.classList.add('stale');
+    } else {
+        canvas.classList.remove('stale');
+    }
+}
+document.addEventListener('network-update', updateHUD);
+
+// ===== THREE.JS STELLAR NEBULA =====
+const canvas = document.getElementById('nebula-canvas');
+
+// WebGL check
+function hasWebGL() {
+    try {
+        const c = document.createElement('canvas');
+        return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch(e) { return false; }
+}
+
+if (!hasWebGL() || typeof THREE === 'undefined') {
+    document.getElementById('nebula-fallback').style.display = 'flex';
+    canvas.style.display = 'none';
+    // Still run data + HUD
+    DataService.init();
+    setTimeout(() => document.getElementById('nebula-hud').classList.add('visible'), 1000);
+} else {
+
+// ----- Scene Setup -----
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(BRAND_BG);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 2, 10);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: !isMobile });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Post-processing (bloom)
+let composer = null;
+let bloomPass = null;
+if (BLOOM_ENABLED && THREE.EffectComposer) {
+    composer = new THREE.EffectComposer(renderer);
+    const renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+    bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        1.0, 0.4, 0.85
+    );
+    if (isTablet) {
+        bloomPass.resolution.set(window.innerWidth * 0.5, window.innerHeight * 0.5);
+        bloomPass.strength = 0.5;
+    }
+    composer.addPass(bloomPass);
+}
+
+// Ambient light for FNG tinting
+const ambientLight = new THREE.AmbientLight(0x222233, 0.3);
+scene.add(ambientLight);
+
+// ----- Central Star -----
+const starGeo = new THREE.SphereBufferGeometry(0.5, 32, 32);
+const starMat = new THREE.ShaderMaterial({
+    uniforms: {
+        uTime: { value: 0 },
+        uPulseFreq: { value: 1.0 },
+        uBrightness: { value: 1.0 },
+        uColor: { value: new THREE.Color(BRAND_GOLD) }
+    },
+    vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform float uTime;
+        uniform float uPulseFreq;
+        void main() {
+            vNormal = normal;
+            vPosition = position;
+            float pulse = 1.0 + 0.08 * sin(uTime * uPulseFreq * 6.2832);
+            vec3 pos = position * pulse;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+    `,
+    fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform float uTime;
+        uniform float uBrightness;
+        uniform vec3 uColor;
+        void main() {
+            float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+            vec3 core = mix(vec3(1.0), uColor, 0.5) * uBrightness;
+            vec3 corona = uColor * intensity * 2.0 * uBrightness;
+            float pulse = 0.5 + 0.5 * sin(uTime * 3.0);
+            vec3 col = core + corona * (0.8 + 0.2 * pulse);
+            gl_FragColor = vec4(col, 1.0);
+        }
+    `,
+    transparent: false
 });
+const starMesh = new THREE.Mesh(starGeo, starMat);
+scene.add(starMesh);
+
+// Star glow (additive sprite)
+const glowGeo = new THREE.SphereBufferGeometry(1.2, 16, 16);
+const glowMat = new THREE.MeshBasicMaterial({
+    color: BRAND_GOLD, transparent: true, opacity: 0.08,
+    side: THREE.BackSide
+});
+const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+scene.add(glowMesh);
+
+// ----- Mempool Particle System (golden spiral paths) -----
+const particlePositions = new Float32Array(MAX_PARTICLES * 3);
+const particleSpiralT = new Float32Array(MAX_PARTICLES);
+const particleStartRadius = new Float32Array(MAX_PARTICLES);
+const particleSpawnAngle = new Float32Array(MAX_PARTICLES);
+const particleFeeRate = new Float32Array(MAX_PARTICLES);
+const particleColors = new Float32Array(MAX_PARTICLES * 3);
+const particleSizes = new Float32Array(MAX_PARTICLES);
+let activeParticles = 0;
+
+// Pre-compute Fibonacci sphere spawn points
+const spawnPoints = [];
+for (let i = 0; i < MAX_PARTICLES; i++) {
+    const y = 1.0 - (2.0 * i) / (MAX_PARTICLES - 1);
+    const radiusAtY = Math.sqrt(1.0 - y * y);
+    const phi = GOLDEN_ANGLE * i;
+    spawnPoints.push(new THREE.Vector3(
+        Math.cos(phi) * radiusAtY * SPAWN_RADIUS,
+        y * SPAWN_RADIUS * 0.5,
+        Math.sin(phi) * radiusAtY * SPAWN_RADIUS
+    ));
+}
+
+// Init particles with random starting t
+for (let i = 0; i < MAX_PARTICLES; i++) {
+    particleSpiralT[i] = Math.random();
+    particleStartRadius[i] = SPAWN_RADIUS * (0.8 + Math.random() * 0.4);
+    particleSpawnAngle[i] = Math.random() * Math.PI * 2;
+    particleFeeRate[i] = Math.random() * 100;
+    particleSizes[i] = isMobile ? 3.0 : 4.0;
+}
+activeParticles = Math.min(100, MAX_PARTICLES); // Start with 100, grow
+
+const particleGeo = new THREE.BufferGeometry();
+particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+particleGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+particleGeo.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
+
+const particleMat = new THREE.ShaderMaterial({
+    uniforms: {
+        uTime: { value: 0 }
+    },
+    vertexShader: `
+        attribute float size;
+        attribute vec3 color;
+        varying vec3 vColor;
+        void main() {
+            vColor = color;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `,
+    fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+            float d = length(gl_PointCoord - vec2(0.5));
+            if (d > 0.5) discard;
+            float alpha = smoothstep(0.5, 0.1, d);
+            gl_FragColor = vec4(vColor, alpha * 0.85);
+        }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexColors: true
+});
+const particlePoints = new THREE.Points(particleGeo, particleMat);
+scene.add(particlePoints);
+
+// Compute golden spiral position for particle
+function spiralPosition(t, startRadius, spawnAngle) {
+    const theta = t * Math.PI * 4 + spawnAngle;
+    const r = startRadius * Math.exp(-SPIRAL_B * t * Math.PI * 4);
+    return {
+        x: r * Math.cos(theta),
+        y: Math.sin(t * Math.PI) * 0.4,
+        z: r * Math.sin(theta)
+    };
+}
+
+// Fee rate to color
+function feeColor(fee) {
+    const c = new THREE.Color();
+    if (fee < 50) {
+        c.lerpColors(FEE_LOW_COLOR, FEE_MID_COLOR, fee / 50);
+    } else {
+        c.lerpColors(FEE_MID_COLOR, FEE_HIGH_COLOR, Math.min((fee - 50) / 150, 1));
+    }
+    return c;
+}
+
+// Update particle positions each frame
+function updateParticles(dt) {
+    // Grow particle count toward mempool density
+    const targetCount = Math.min(MAX_PARTICLES,
+        Math.max(100, Math.round(NetworkState.mempoolVsize * 3)));
+    if (activeParticles < targetCount) {
+        activeParticles = Math.min(activeParticles + 2, targetCount);
+    }
+
+    const baseFee = NetworkState.feeRate || 10;
+
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+        if (i >= activeParticles) {
+            particlePositions[i * 3] = 0;
+            particlePositions[i * 3 + 1] = -100;
+            particlePositions[i * 3 + 2] = 0;
+            continue;
+        }
+
+        // Advance t (higher fee = faster)
+        const speed = 0.02 + (particleFeeRate[i] / 200) * 0.04;
+        particleSpiralT[i] += speed * dt;
+
+        // Recycle if reached center
+        if (particleSpiralT[i] >= 1.0) {
+            particleSpiralT[i] = 0;
+            particleStartRadius[i] = SPAWN_RADIUS * (0.8 + Math.random() * 0.4);
+            particleSpawnAngle[i] = Math.random() * Math.PI * 2;
+            particleFeeRate[i] = baseFee * (0.3 + Math.random() * 2.0);
+        }
+
+        const pos = spiralPosition(particleSpiralT[i], particleStartRadius[i], particleSpawnAngle[i]);
+        particlePositions[i * 3] = pos.x;
+        particlePositions[i * 3 + 1] = pos.y;
+        particlePositions[i * 3 + 2] = pos.z;
+
+        const col = feeColor(particleFeeRate[i]);
+        particleColors[i * 3] = col.r;
+        particleColors[i * 3 + 1] = col.g;
+        particleColors[i * 3 + 2] = col.b;
+    }
+
+    particleGeo.attributes.position.needsUpdate = true;
+    particleGeo.attributes.color.needsUpdate = true;
+}
+
+// ----- Accretion Disk (Confirmed Block Rings) -----
+const accretionRings = [];
+
+function addAccretionRing(blockIndex, txCount) {
+    if (accretionRings.length >= MAX_RINGS) {
+        const oldest = accretionRings.shift();
+        scene.remove(oldest.mesh);
+        oldest.mesh.geometry.dispose();
+        oldest.mesh.material.dispose();
+    }
+
+    const count = Math.min(txCount || MAX_RING_PARTICLES, MAX_RING_PARTICLES);
+    const ringRadius = 1.8 + accretionRings.length * 0.18;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+        const angle = i * GOLDEN_ANGLE;
+        positions[i * 3] = ringRadius * Math.cos(angle);
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 0.05;
+        positions[i * 3 + 2] = ringRadius * Math.sin(angle);
+        const col = new THREE.Color(BRAND_GOLD);
+        colors[i * 3] = col.r;
+        colors[i * 3 + 1] = col.g;
+        colors[i * 3 + 2] = col.b;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const mat = new THREE.PointsMaterial({
+        size: isMobile ? 2.5 : 3.5,
+        vertexColors: true,
+        transparent: true,
+        opacity: 1.0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true
+    });
+
+    const mesh = new THREE.Points(geo, mat);
+    scene.add(mesh);
+
+    accretionRings.push({
+        mesh: mesh,
+        rotationSpeed: 0.0008 + Math.random() * 0.0004,
+        age: 0,
+        maxOpacity: 1.0
+    });
+
+    // Fade older rings
+    accretionRings.forEach((ring, idx) => {
+        const fadeIdx = accretionRings.length - 1 - idx;
+        ring.maxOpacity = Math.max(0.15, 1.0 - fadeIdx * 0.06);
+    });
+}
+
+// ----- Block Shockwave -----
+let shockwave = null;
+let shockwaveTime = 0;
+
+function createShockwave() {
+    if (shockwave) {
+        scene.remove(shockwave);
+        shockwave.geometry.dispose();
+        shockwave.material.dispose();
+    }
+
+    const geo = new THREE.RingBufferGeometry(0.1, 0.3, 64);
+    const mat = new THREE.MeshBasicMaterial({
+        color: BRAND_GOLD,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+    });
+    shockwave = new THREE.Mesh(geo, mat);
+    shockwave.rotation.x = -Math.PI / 2;
+    scene.add(shockwave);
+    shockwaveTime = 0;
+}
+
+function updateShockwave(dt) {
+    if (!shockwave) return;
+    shockwaveTime += dt;
+    const t = shockwaveTime;
+    if (t > 2.0) {
+        scene.remove(shockwave);
+        shockwave.geometry.dispose();
+        shockwave.material.dispose();
+        shockwave = null;
+        return;
+    }
+    const scale = 1 + t * 6;
+    shockwave.scale.set(scale, scale, 1);
+    shockwave.material.opacity = Math.max(0, 0.9 * (1 - t / 2.0));
+}
+
+// ----- Block ID Sprite -----
+let blockSprite = null;
+let blockSpriteTime = 0;
+
+function showBlockID(height) {
+    if (blockSprite) {
+        scene.remove(blockSprite);
+        blockSprite.material.map.dispose();
+        blockSprite.material.dispose();
+    }
+
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, 512, 128);
+    ctx.font = 'bold 56px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.strokeStyle = '#F8C15C';
+    ctx.lineWidth = 3;
+    ctx.strokeText('#' + height.toLocaleString(), 256, 64);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText('#' + height.toLocaleString(), 256, 64);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    const spriteMat = new THREE.SpriteMaterial({
+        map: tex, transparent: true, opacity: 0,
+        blending: THREE.AdditiveBlending
+    });
+    blockSprite = new THREE.Sprite(spriteMat);
+    blockSprite.scale.set(3, 0.75, 1);
+    blockSprite.position.set(0, 0, 0);
+    scene.add(blockSprite);
+    blockSpriteTime = 0;
+}
+
+function updateBlockSprite(dt) {
+    if (!blockSprite) return;
+    blockSpriteTime += dt;
+    const t = blockSpriteTime;
+
+    if (t < 0.3) {
+        blockSprite.material.opacity = t / 0.3;
+    } else if (t < 2.0) {
+        blockSprite.material.opacity = 1.0;
+        blockSprite.material.rotation += dt * 0.3;
+    } else if (t < 2.5) {
+        const fade = 1 - (t - 2.0) / 0.5;
+        blockSprite.material.opacity = fade;
+        blockSprite.scale.multiplyScalar(0.98);
+    } else {
+        scene.remove(blockSprite);
+        blockSprite.material.map.dispose();
+        blockSprite.material.dispose();
+        blockSprite = null;
+    }
+}
+
+// ----- Fear & Greed Ambient -----
+const fngFear = new THREE.Color(0x0A0A2F);
+const fngNeutral = new THREE.Color(BRAND_BG);
+const fngGreed = new THREE.Color(0x2A1A0A);
+const fngLightFear = new THREE.Color(0x1A1A3F);
+const fngLightNeutral = new THREE.Color(0x222233);
+const fngLightGreed = new THREE.Color(0x3A2A1A);
+
+function updateFNGAmbient(fng) {
+    const v = fng / 100;
+    const bgColor = new THREE.Color();
+    const lightColor = new THREE.Color();
+    if (v < 0.5) {
+        bgColor.lerpColors(fngFear, fngNeutral, v * 2);
+        lightColor.lerpColors(fngLightFear, fngLightNeutral, v * 2);
+    } else {
+        bgColor.lerpColors(fngNeutral, fngGreed, (v - 0.5) * 2);
+        lightColor.lerpColors(fngLightNeutral, fngLightGreed, (v - 0.5) * 2);
+    }
+    scene.background = bgColor;
+    ambientLight.color = lightColor;
+}
+
+// ----- Block Event Handler -----
+let blockRingIndex = 0;
+let introShockwaveFired = false;
+
+function onBlockEvent(block) {
+    const height = block.height || NetworkState.blockHeight;
+    const txCount = block.tx_count || 2500;
+
+    // Bloom spike
+    if (bloomPass) {
+        bloomPass.strength = 2.5;
+        setTimeout(() => { if (bloomPass) bloomPass.strength = BLOOM_ENABLED ? 1.0 : 0; }, 1500);
+    }
+
+    createShockwave();
+    showBlockID(height);
+    addAccretionRing(blockRingIndex++, txCount);
+
+    // Share prompt
+    const shareEl = document.getElementById('nebula-share');
+    document.getElementById('nebula-share-text').textContent =
+        'Block #' + height.toLocaleString() + ' just confirmed.';
+    shareEl.classList.add('visible');
+    setTimeout(() => shareEl.classList.remove('visible'), 8000);
+
+    // Audio chime
+    playBlockChime();
+}
+
+document.addEventListener('nebula-block', (e) => onBlockEvent(e.detail));
+
+// Intro shockwave after 5s if no real block
+setTimeout(() => {
+    if (!introShockwaveFired) {
+        introShockwaveFired = true;
+        onBlockEvent({ height: NetworkState.blockHeight || 889248, tx_count: 1500 });
+    }
+}, 5000);
+document.addEventListener('nebula-block', () => { introShockwaveFired = true; });
+
+// ----- Audio (muted by default) -----
+let audioEnabled = false;
+let audioCtx = null;
+
+function playBlockChime() {
+    if (!audioEnabled || !audioCtx) return;
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.5);
+    } catch(e) {}
+}
+
+document.getElementById('nebula-audio-btn').addEventListener('click', () => {
+    audioEnabled = !audioEnabled;
+    if (audioEnabled && !audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const icon = document.getElementById('nebula-audio-icon');
+    const btn = document.getElementById('nebula-audio-btn');
+    icon.className = audioEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+    btn.classList.toggle('active', audioEnabled);
+});
+
+// ----- Share Button -----
+document.getElementById('nebula-share-btn').addEventListener('click', () => {
+    const height = NetworkState.blockHeight || '---';
+    const text = encodeURIComponent(
+        'Block #' + height.toLocaleString() + ' just confirmed on the Bitcoin network. Witnessed live on @protocolpulse'
+    );
+    window.open('https://twitter.com/intent/tweet?text=' + text, '_blank', 'width=550,height=420');
+});
+
+// ----- Star Uniform Updates -----
+function updateStarUniforms() {
+    // Hashrate → pulse freq: 200 EH/s = 0.5 Hz, 800 EH/s = 2.0 Hz
+    const hr = NetworkState.hashrate || 600;
+    const pulseFreq = 0.5 + Math.min(1.5, (hr - 200) / 400);
+    starMat.uniforms.uPulseFreq.value = pulseFreq;
+
+    // Price → brightness: $20K = 0.5, $150K = 2.0
+    const price = NetworkState.btcPrice || 87000;
+    const brightness = 0.5 + Math.min(1.5, (price - 20000) / 86667);
+    starMat.uniforms.uBrightness.value = brightness;
+
+    // Glow pulsing
+    glowMat.opacity = 0.05 + brightness * 0.04;
+}
+
+// ----- Resize -----
+function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener('resize', onResize);
+
+// ----- FPS Monitoring -----
+let fpsAccum = 0;
+let fpsCount = 0;
+let lastFpsDemotion = 0;
+
+// ----- Animation Loop -----
+let prevTime = performance.now();
+let time = 0;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    const now = performance.now();
+    const dt = Math.min((now - prevTime) / 1000, 0.05); // Cap dt to prevent jumps
+    prevTime = now;
+    time += dt;
+
+    // FPS monitoring
+    fpsAccum += dt;
+    fpsCount++;
+    if (fpsAccum >= 3.0) {
+        const avgFps = fpsCount / fpsAccum;
+        if (avgFps < 30 && now - lastFpsDemotion > 10000) {
+            // Reduce particles by 30%
+            activeParticles = Math.max(50, Math.floor(activeParticles * 0.7));
+            lastFpsDemotion = now;
+            console.log('Nebula: FPS demotion, particles now', activeParticles);
+        }
+        fpsAccum = 0;
+        fpsCount = 0;
+    }
+
+    // Update star
+    starMat.uniforms.uTime.value = time;
+    updateStarUniforms();
+
+    // Update particles
+    particleMat.uniforms.uTime.value = time;
+    updateParticles(dt);
+
+    // Update accretion rings
+    accretionRings.forEach(ring => {
+        ring.mesh.rotation.y += ring.rotationSpeed;
+        ring.age += dt;
+        ring.mesh.material.opacity = ring.maxOpacity;
+    });
+
+    // Update shockwave
+    updateShockwave(dt);
+
+    // Update block sprite
+    updateBlockSprite(dt);
+
+    // Update FNG ambient
+    updateFNGAmbient(NetworkState.fng);
+
+    // Render
+    if (composer) {
+        composer.render();
+    } else {
+        renderer.render(scene, camera);
+    }
+}
+
+// ----- Boot Sequence -----
+// 0.0s: Black
+// 0.3s: Star ignites
+starMesh.visible = false;
+glowMesh.visible = false;
+particlePoints.visible = false;
+
+setTimeout(() => {
+    starMesh.visible = true;
+    glowMesh.visible = true;
+}, 300);
+
+// 1.0s: HUD materializes
+setTimeout(() => {
+    document.getElementById('nebula-hud').classList.add('visible');
+}, 1000);
+
+// 2.0s: Particles begin
+setTimeout(() => {
+    particlePoints.visible = true;
+}, 2000);
+
+// Start everything
+DataService.init();
+animate();
+
+} // end WebGL branch
+
+})();
 </script>
 <script>
 // Update Sovereign Status Bar with live network intel
