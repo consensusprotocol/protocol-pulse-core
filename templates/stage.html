@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Oracle Stage — Protocol Pulse Live{% endblock %}
-{% block meta_description %}Bitcoin intelligence. Live. Oracle reports in real time on price, on-chain signals, partner channel transcripts, and Nostr discourse.{% endblock %}
+{% block title %}Satomi Stage — Protocol Pulse Live{% endblock %}
+{% block meta_description %}Bitcoin intelligence. Live. Satomi reports in real time on price, on-chain signals, partner channel transcripts, and Nostr discourse.{% endblock %}
 
 {% block head %}
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,interactive-widget=resizes-content">
@@ -752,7 +752,7 @@ body { background: var(--s-bg); }
   <!-- HEADER -->
   <div class="stage-header">
     <div>
-      <div class="stage-header__title">⚡ Oracle Stage</div>
+      <div class="stage-header__title">⚡ Satomi Stage</div>
       <div class="stage-header__sub">LIVE BITCOIN INTELLIGENCE BROADCAST — PROTOCOLPULSE.IO</div>
     </div>
     <div class="stage-header__right">
@@ -786,12 +786,12 @@ body { background: var(--s-bg); }
           <div class="stage-avatar-scanline"></div>
           <div class="stage-avatar-nameplate">
             <div class="stage-avatar-nameplate__dot"></div>
-            <div class="stage-avatar-nameplate__name">Oracle — Protocol Pulse</div>
+            <div class="stage-avatar-nameplate__name">Satomi — Protocol Pulse</div>
           </div>
           <div style="position:absolute;bottom:14px;right:14px;z-index:50;display:flex;flex-direction:column;align-items:center;gap:5px;">
             <button id="floatingMicBtn"
               onclick="toggleStageMic()"
-              title="Tap to interrupt Oracle"
+              title="Tap to interrupt Satomi"
               style="width:48px;height:48px;border-radius:50%;background:rgba(13,16,23,.85);border:2px solid rgba(255,59,95,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s;backdrop-filter:blur(12px);">
               <span id="fmicIcon">&#9889;</span>
               <span id="fmicStop" style="display:none;font-size:16px;">&#9632;</span>
@@ -830,7 +830,7 @@ body { background: var(--s-bg); }
 
       <!-- Column 2: Narrative -->
       <div>
-        <div class="stage-narrative" id="narrativeText">Loading Oracle narrative…</div>
+        <div class="stage-narrative" id="narrativeText">Loading Satomi narrative…</div>
       </div>
 
       <!-- Column 3: Topics + Broadcast buttons -->
@@ -840,7 +840,7 @@ body { background: var(--s-bg); }
           <span class="stage-topic stage-topic--neut shimmer" style="width:100px;height:20px;">&nbsp;</span>
         </div>
         <div style="margin-top:12px">
-          <div class="stage-brief__section-label">Oracle Broadcast</div>
+          <div class="stage-brief__section-label">Satomi Broadcast</div>
           <div class="stage-controls">
             <button class="stage-btn stage-btn--primary" id="briefBtn" onclick="requestBrief()" aria-label="Request daily Bitcoin briefing">
               ▶ Daily Brief
@@ -878,13 +878,13 @@ body { background: var(--s-bg); }
         </div>
       </div>
 
-      <!-- Interactive Oracle Panel (visible between briefings) -->
+      <!-- Interactive Satomi Panel (visible between briefings) -->
       <div id="interactivePanel" class="stage-interactive-panel">
-        <div style="font-family:var(--s-mono);font-size:9px;letter-spacing:.15em;color:var(--s-muted);text-transform:uppercase;margin-bottom:8px">Ask Oracle Anything</div>
+        <div style="font-family:var(--s-mono);font-size:9px;letter-spacing:.15em;color:var(--s-muted);text-transform:uppercase;margin-bottom:8px">Ask Satomi Anything</div>
         <div class="stage-chat-input">
           <input type="text" id="stageChatInput" placeholder="Ask about Bitcoin..."
                  onkeydown="if(event.key==='Enter')stageChat()">
-          <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak" aria-label="Push to speak — tap to ask Oracle a question" role="button">&#127908;</button>
+          <button class="stage-mic-btn" id="stageMicBtn" onclick="toggleStageMic()" title="Tap to speak" aria-label="Push to speak — tap to ask Satomi a question" role="button">&#127908;</button>
           <button class="stage-btn stage-btn--primary" onclick="stageChat()" style="padding:8px 14px">&#9654;</button>
         </div>
         <div class="stage-chat-history" id="stageChatHistory"></div>
@@ -1832,7 +1832,7 @@ body { background: var(--s-bg); }
 
   async function _handleInterruptQuestion(text) {
     setBusy(true);
-    setStatus('Oracle thinking…', 'var(--s-gold)');
+    setStatus('Satomi thinking…', 'var(--s-gold)');
     updateSignalSource('🎤 RESPONDING TO LISTENER');
 
     try {
@@ -2172,7 +2172,7 @@ body { background: var(--s-bg); }
       }, 25000);
       if (!r.ok) return null;
       var d = await r.json();
-      updateTicker({topic_preview: 'Live Oracle Broadcast'});
+      updateTicker({topic_preview: 'Live Satomi Broadcast'});
       return d.script || null;
     } catch(e) { return null; }
   }

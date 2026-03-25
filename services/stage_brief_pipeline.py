@@ -491,6 +491,14 @@ def _generate_tts_chatterbox(text):
     """Generate TTS via Chatterbox on avatar server. Returns raw audio bytes.
     Retries up to 3 times with 10s delay between attempts.
     """
+    # Normalize numbers and pronunciation before sending to TTS
+    try:
+        sys.path.insert(0, os.path.join(BASE, 'oracle'))
+        from oracle_dialogue_engine import normalize_pronunciation
+        text = normalize_pronunciation(text)
+    except Exception as e:
+        logger.warning("normalize_pronunciation unavailable: %s", e)
+
     for attempt in range(1, 4):
         try:
             logger.info("[TTS] Attempt %d/3 for %d chars of text", attempt, len(text))
