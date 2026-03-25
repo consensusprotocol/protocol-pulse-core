@@ -630,7 +630,8 @@ width:100%;margin-top:4px;">
   <div class="sigil-wrap">
     <div class="ring ring-1"></div>
     <div class="ring ring-2"></div>
-    <div class="sigil-avatar">
+    <div class="sigil-avatar" style="position:relative;">
+      <img src="/static/oracle_avatar.png" alt="Satomi" id="avatar-fallback" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:inherit;opacity:1;"  />
       <img src="/static/oracle_avatar.png" alt="Satomi"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="sigil-fallback" style="display:none">⚡</div>
@@ -1380,12 +1381,10 @@ function initSR(){
     showTX(fin||int);if(fin)pending=fin;
   };
   recognition.onend=function(){
-    if(isRec){
-      setRec(false);
-      // 300ms buffer for trailing final results on iOS
-      var _pend = pending;
-      setTimeout(function(){ if(_pend.trim()) process(_pend); pending=''; }, 300);
-    }
+    setRec(false);
+    // Auto-submit on silence — no tap required
+    var _pend = pending;
+    setTimeout(function(){ if(_pend.trim()&&!busy){process(_pend);pending='';}}, 300);
   };
   recognition.onerror=function(e){console.warn(e.error);setRec(false);};
 }
@@ -1404,12 +1403,7 @@ function stopRec(){
     try{vid.src=A+'/oracle/thinking';vid.loop=true;vid.play().catch(function(){});}catch(e){}
   }
   if(recognition)try{recognition.stop();}catch(e){}
-  // If user manually tapped stop, onend fires with isRec=false so process() is skipped.
-  // Call process() directly here instead.
-  if(_hadRec){
-    var _pend=pending;
-    setTimeout(function(){ if(_pend.trim()&&!busy){process(_pend);pending='';}},300);
-  }
+  // onend will fire after recognition.stop() and handle process() automatically
 }
 function setRec(on){
   mic.classList.toggle('rec',on);
