@@ -799,6 +799,8 @@ function requestMic(){
 
   <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
 
+  <canvas id="satomiOrbitCanvas" style="position:absolute;pointer-events:none;z-index:0;will-change:transform;"></canvas>
+
   <div class="video-wrap" style="position:relative;z-index:1;">
     <div class="holo-scanline"></div>
     <!-- P0-1: Static avatar always visible behind video — never black screen -->
@@ -2441,6 +2443,195 @@ window.addEventListener('beforeunload',function(){
     xhr.send(JSON.stringify({session_id:SESSION_ID}));
   }catch(e){}
 });
+
+/* ── SATOMI PLASMA CORONA + ORBITAL RINGS ── */
+(function(){
+  var canvas=document.getElementById('satomiOrbitCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var wrap=document.querySelector('.video-wrap');
+  var stage=document.getElementById('stage');
+  var vid=document.getElementById('vid');
+  if(!wrap||!stage)return;
+
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var isMobile=window.innerWidth<=640;
+  var PAD=isMobile?24:55;
+  var W=0,H=0,cx=0,cy=0,avatarR=0;
+  var arcs=[];
+  var lastSpawn=0;
+  var drift=0;
+  var running=false;
+  var lastSync=0;
+
+  /* ── Ring particles ── */
+  var RING_COUNTS=isMobile?[8,6,10]:[12,8,16];
+  var ringOffsetFrac=[0.18,0.42,0.75];
+  var ringSpeed=[0.30,-0.20,0.12];
+  var ringSz=[2.2,1.6,1.0];
+  var ringAlpha=[0.70,0.45,0.25];
+  var ringCol=[[255,59,95],[255,90,110],[255,170,170]];
+  var rings=[[],[],[]];
+
+  function initRings(){
+    for(var r=0;r<3;r++){
+      rings[r]=[];
+      for(var i=0;i<RING_COUNTS[r];i++){
+        rings[r].push({
+          a:(2*Math.PI/RING_COUNTS[r])*i,
+          ph:Math.random()*2*Math.PI,
+          ws:0.7+Math.random()*0.6
+        });
+      }
+    }
+  }
+  initRings();
+
+  function sync(){
+    if(stage.style.display==='none')return false;
+    var ow=wrap.offsetWidth;
+    if(ow<10)return false;
+    isMobile=window.innerWidth<=640;
+    PAD=isMobile?24:55;
+    var cw=ow+PAD*2,ch=wrap.offsetHeight+PAD*2;
+    canvas.style.left=(wrap.offsetLeft-PAD)+'px';
+    canvas.style.top=(wrap.offsetTop-PAD)+'px';
+    canvas.style.width=cw+'px';
+    canvas.style.height=ch+'px';
+    if(Math.abs(canvas.width-cw*dpr)>2||Math.abs(canvas.height-ch*dpr)>2){
+      canvas.width=cw*dpr;
+      canvas.height=ch*dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    W=cw;H=ch;cx=cw/2;cy=ch/2;avatarR=ow/2;
+    return true;
+  }
+
+  function speaking(){
+    return vid&&!vid.paused&&parseFloat(vid.style.opacity||0)>0;
+  }
+
+  function spawnArc(t){
+    var mx=isMobile?4:7;
+    if(arcs.length>=mx)return;
+    var a1=Math.random()*Math.PI*2;
+    var spread=0.3+Math.random()*0.5;
+    var a2=a1+(Math.random()>0.5?1:-1)*spread;
+    arcs.push({
+      a1:a1,a2:a2,
+      reach:(isMobile?10:30)+Math.random()*(isMobile?12:35),
+      born:t,
+      life:2000+Math.random()*2000,
+      ctrl:(Math.random()-0.5)*0.5,
+      w:1+Math.random()*1.5
+    });
+  }
+
+  function draw(t){
+    requestAnimationFrame(draw);
+    /* Sync position every 500ms */
+    if(t-lastSync>500){lastSync=t;if(!sync())return;}
+    if(W===0)return;
+
+    ctx.clearRect(0,0,W,H);
+    var sp=speaking();
+    var intensity=sp?1.35:1.0;
+
+    drift+=(sp?0.12:0.06)*0.016;
+
+    /* Spawn plasma arcs */
+    var interval=sp?350:700;
+    if(t-lastSpawn>interval){spawnArc(t);lastSpawn=t;}
+
+    ctx.save();
+    ctx.translate(cx,cy);
+
+    /* ── PLASMA CORONA ARCS ── */
+    ctx.save();
+    ctx.rotate(drift*0.08);
+    for(var i=arcs.length-1;i>=0;i--){
+      var a=arcs[i];
+      var age=t-a.born;
+      if(age>a.life){arcs.splice(i,1);continue;}
+      var al;
+      if(age<300)al=age/300;
+      else if(age>a.life-400)al=(a.life-age)/400;
+      else al=1;
+      al*=0.75*intensity;
+
+      var sx=Math.cos(a.a1)*avatarR,sy=Math.sin(a.a1)*avatarR;
+      var ex=Math.cos(a.a2)*avatarR,ey=Math.sin(a.a2)*avatarR;
+      var mid=(a.a1+a.a2)/2+a.ctrl;
+      var cpx=Math.cos(mid)*(avatarR+a.reach);
+      var cpy=Math.sin(mid)*(avatarR+a.reach);
+
+      /* Glow layer */
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(cpx,cpy,ex,ey);
+      ctx.strokeStyle='rgba(255,59,95,'+(al*0.12)+')';
+      ctx.lineWidth=a.w+6;ctx.lineCap='round';ctx.stroke();
+
+      /* Main arc with radial gradient */
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(cpx,cpy,ex,ey);
+      var gr=ctx.createRadialGradient(0,0,avatarR*0.95,0,0,avatarR+a.reach);
+      gr.addColorStop(0,'rgba(255,59,95,'+al+')');
+      gr.addColorStop(0.6,'rgba(255,80,100,'+(al*0.4)+')');
+      gr.addColorStop(1,'rgba(255,59,95,0)');
+      ctx.strokeStyle=gr;ctx.lineWidth=a.w;ctx.stroke();
+    }
+    ctx.restore();
+
+    /* ── ORBITAL PARTICLE RINGS ── */
+    for(var r=0;r<3;r++){
+      var ps=rings[r];
+      var rr=avatarR+PAD*ringOffsetFrac[r]+4;
+      var spd=ringSpeed[r]*intensity;
+      var sz=ringSz[r]*(sp?1.15:1);
+      var ra=ringAlpha[r]*intensity;
+      var c=ringCol[r];
+
+      for(var j=0;j<ps.length;j++){
+        var p=ps[j];
+        p.a+=spd*0.016;
+        var wobble=Math.sin(t*0.001*p.ws+p.ph)*(isMobile?3:5);
+        var pr=rr+wobble;
+        var px=Math.cos(p.a)*pr,py=Math.sin(p.a)*pr;
+
+        /* Glow */
+        if(sz>1.2){
+          ctx.beginPath();ctx.arc(px,py,sz+2.5,0,Math.PI*2);
+          ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+(ra*0.12)+')';
+          ctx.fill();
+        }
+        /* Dot */
+        ctx.beginPath();ctx.arc(px,py,sz,0,Math.PI*2);
+        ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+ra+')';
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  /* Start when stage becomes visible */
+  var obs=new MutationObserver(function(){
+    if(stage.style.display!=='none'&&!running){
+      running=true;sync();requestAnimationFrame(draw);
+    }
+  });
+  obs.observe(stage,{attributes:true,attributeFilter:['style']});
+  if(stage.style.display!=='none'){running=true;sync();requestAnimationFrame(draw);}
+
+  window.addEventListener('resize',function(){
+    var mob=window.innerWidth<=640;
+    if(mob!==isMobile){
+      isMobile=mob;PAD=mob?24:55;
+      RING_COUNTS=mob?[8,6,10]:[12,8,16];
+      initRings();
+    }
+    sync();
+  });
+})();
+
 </script>
 </body>
 </html>
