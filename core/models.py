@@ -1366,3 +1366,25 @@ class MarketBriefing(db.Model):
     signal_score = db.Column(db.Float)
     published = db.Column(db.Boolean, default=True)
 
+
+# =====================================
+# PANOPTICON — Congressional Disclosure & Whale Intelligence
+# =====================================
+
+class PanopticonEvent(db.Model):
+    """Tracks congressional disclosures, whale alerts, and geopolitical signals."""
+    __tablename__ = 'panopticon_events'
+    id = db.Column(db.Integer, primary_key=True)
+    tier = db.Column(db.String(20), nullable=False, index=True)  # confirmed | flagged | feed
+    entity = db.Column(db.String(200), nullable=False)
+    event_type = db.Column(db.String(40), nullable=False, index=True)  # disclosure | whale | forex | geopolitical | correlation
+    asset = db.Column(db.String(120))
+    amount = db.Column(db.String(80))
+    date_event = db.Column(db.DateTime, index=True)
+    date_filed = db.Column(db.DateTime)
+    correlation_score = db.Column(db.Float)
+    notes = db.Column(db.Text)
+    source_url = db.Column(db.Text)
+    raw_json = db.Column(db.Text)  # Full API response for audit trail
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+

@@ -10,6 +10,7 @@ Sources (all free, no auth):
 - mempool.space — Bitcoin whale wallet monitoring
 - exchangerate.host — Forex/macro sovereign signals
 - Existing article pipeline — Geopolitical events
+- Anthropic API — "Make the Bitcoin Case" AI generation
 """
 
 import logging
@@ -17,12 +18,15 @@ import os
 import time
 import hashlib
 import json
+import re
 from datetime import datetime, timedelta
 from typing import Optional
 
 import requests
 
 logger = logging.getLogger(__name__)
+
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 # ── Cache layer (simple in-memory with TTL) ─────────────────────────────────
 _cache = {}
@@ -116,53 +120,94 @@ CRYPTO_KEYWORDS = [
 # TIER 1: CONFIRMED — STOCK Act Disclosures
 # ═══════════════════════════════════════════════════════════════════════════
 
+def fetch_stock_act_disclosures(limit: int = 50) -> list[dict]:
+    """Fetch STOCK Act disclosures from efts.house.gov, filtered for crypto/fintech keywords."""
+    cache_key = "panopticon_stock_act"
+    cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
+    if cached is not None:
+        return cached[:limit]
+
+    disclosures = []
+
+    # Primary: House EFTS full-text search for financial disclosures
+    search_terms = ['"bitcoin"', '"crypto"', '"coinbase"', '"microstrategy"', '"ibit"', '"etf"']
+    for term in search_terms:
+        try:
+            resp = requests.get(
+                "https://efts.house.gov/LATEST/search-index",
+                params={
+                    "q": term,
+                    "dateRange": "custom",
+                    "startdt": (datetime.utcnow() - timedelta(days=90)).strftime("%m/%d/%Y"),
+                    "enddt": datetime.utcnow().strftime("%m/%d/%Y"),
+                },
+                timeout=15,
+                headers={"User-Agent": "ProtocolPulse/1.0 research@protocolpulse.io"},
+            )
+            if resp.status_code == 200:
+                data = resp.json() if "json" in resp.headers.get("content-type", "") else {}
+                hits = data.get("hits", {}).get("hits", data.get("results", []))
+                for hit in hits:
+                    src = hit.get("_source", hit) if isinstance(hit, dict) else {}
+                    entity = src.get("filing_name", src.get("name", src.get("display_names", ["Unknown"])))
+                    if isinstance(entity, list):
+                        entity = entity[0] if entity else "Unknown"
+                    filed = src.get("filing_date", src.get("file_date", ""))
+                    doc_url = src.get("url", src.get("doc_url", ""))
+                    disclosures.append({
+                        "entity": entity,
+                        "asset": _extract_asset_from_hit(src),
+                        "trade_type": src.get("transaction_type", "disclosure"),
+                        "amount_range": src.get("amount", "See filing"),
+                        "date_filed": filed,
+                        "date_traded": src.get("transaction_date", filed),
+                        "source_url": doc_url or "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
+                        "tier": "confirmed",
+                    })
+            time.sleep(0.5)  # Rate limit courtesy
+        except Exception as e:
+            logger.warning("efts.house.gov fetch failed for %s: %s", term, e)
+            continue
+
+    # Deduplicate by entity+date
+    seen = set()
+    unique = []
+    for d in disclosures:
+        key = f"{d['entity']}:{d['date_filed']}:{d['asset']}"
+        if key not in seen:
+            seen.add(key)
+            unique.append(d)
+    disclosures = unique[:limit]
+
+    _set_cache(cache_key, disclosures)
+    return disclosures
+
+
+def _extract_asset_from_hit(src: dict) -> str:
+    """Extract asset name from EFTS hit source data."""
+    for field in ("asset_name", "asset", "ticker", "description"):
+        val = src.get(field, "")
+        if val:
+            return str(val)
+    # Check text body for crypto keywords
+    text = json.dumps(src).lower()
+    for kw in CRYPTO_KEYWORDS:
+        if kw in text:
+            return kw.upper()
+    return "See filing"
+
+
 def fetch_disclosures(limit: int = 50) -> list[dict]:
-    """Fetch recent STOCK Act disclosures from House clerk, filtered for crypto/fintech."""
+    """Fetch recent STOCK Act disclosures — tries efts.house.gov first, falls back to placeholders."""
     cache_key = "panopticon_disclosures"
     cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
     if cached is not None:
         return cached
 
-    disclosures = []
+    # Try live efts.house.gov first
+    disclosures = fetch_stock_act_disclosures(limit=limit)
 
-    # Primary: House Financial Disclosure search API
-    try:
-        url = "https://efts.sec.gov/LATEST/search-index"
-        params = {
-            "q": '"bitcoin" OR "crypto" OR "coinbase" OR "microstrategy" OR "ibit"',
-            "dateRange": "custom",
-            "startdt": (datetime.utcnow() - timedelta(days=90)).strftime("%Y-%m-%d"),
-            "enddt": datetime.utcnow().strftime("%Y-%m-%d"),
-        }
-        # House clerk endpoint (fallback — often rate-limited)
-        house_url = "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/"
-        # We use the EFTS full-text search for SEC EDGAR filings that include congress members
-        resp = requests.get(
-            "https://efts.sec.gov/LATEST/search-index",
-            params={"q": "congressional stock act", "forms": "4"},
-            timeout=15,
-            headers={"User-Agent": "ProtocolPulse/1.0 research@protocolpulse.io"},
-        )
-        if resp.status_code == 200:
-            data = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {}
-            hits = data.get("hits", {}).get("hits", [])
-            for hit in hits[:limit]:
-                src = hit.get("_source", {})
-                filed = src.get("file_date", "")
-                disclosures.append({
-                    "entity": src.get("display_names", [src.get("entity_name", "Unknown")])[0] if src.get("display_names") else src.get("entity_name", "Unknown"),
-                    "asset": src.get("display_names", [""])[0] if len(src.get("display_names", [])) > 1 else "N/A",
-                    "trade_type": "disclosure",
-                    "amount_range": "See filing",
-                    "date_filed": filed,
-                    "date_traded": filed,
-                    "source_url": f"https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={src.get('file_num', '')}",
-                    "tier": "confirmed",
-                })
-    except Exception as e:
-        logger.warning("EFTS SEC fetch failed: %s", e)
-
-    # Fallback: Capitol Trades public data (scrape-friendly summary)
+    # Fallback to well-known public data
     if not disclosures:
         disclosures = _generate_disclosure_placeholders()
 
@@ -708,3 +753,82 @@ def get_dashboard_data() -> dict:
         "watch_list": watch_list,
         "generated_at": datetime.utcnow().isoformat(),
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MAKE THE BITCOIN CASE — AI-generated cypherpunk argument via Anthropic
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_make_bitcoin_case(event_summary: str) -> dict:
+    """Generate a cypherpunk argument for Bitcoin self-custody based on a specific event.
+
+    Uses Anthropic claude-sonnet-4-6 to produce a concise, compelling Bitcoin case
+    tied to the given event (disclosure, whale movement, geopolitical signal).
+
+    Returns:
+        dict with keys: case_text, event_summary, generated_at, model
+    """
+    cache_key = f"btc_case_{hashlib.sha256(event_summary.encode()).hexdigest()[:16]}"
+    cached = _cached(cache_key, ttl_seconds=3600)  # 1hr cache per event
+    if cached is not None:
+        return cached
+
+    api_key = ANTHROPIC_API_KEY
+    if not api_key:
+        # Try loading from .env file
+        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+        if os.path.exists(env_path):
+            with open(env_path) as f:
+                for line in f:
+                    if line.startswith("ANTHROPIC_API_KEY="):
+                        api_key = line.split("=", 1)[1].strip().strip('"').strip("'")
+                        break
+
+    if not api_key:
+        return {
+            "case_text": "Self-custody is the only guarantee that no institution, government, or counterparty can freeze, seize, or debase your savings. This event is another reminder: when the rules are written by the players, Bitcoin is the exit.",
+            "event_summary": event_summary,
+            "generated_at": datetime.utcnow().isoformat(),
+            "model": "fallback",
+        }
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-sonnet-4-6-20250514",
+            max_tokens=512,
+            messages=[{
+                "role": "user",
+                "content": f"""You are a Bitcoin-first monetary analyst writing for Protocol Pulse PANOPTICON.
+
+Given this event: "{event_summary}"
+
+Write a 3-4 sentence cypherpunk argument for Bitcoin self-custody. Be specific to THIS event.
+Rules:
+- Reference the specific event details (names, amounts, dates)
+- Connect it to Bitcoin's value proposition (censorship resistance, fixed supply, self-sovereignty)
+- End with a concrete call to self-custody
+- Tone: authoritative, urgent, not preachy
+- No hashtags, no emojis, no fluff"""
+            }],
+        )
+        case_text = message.content[0].text.strip()
+
+        result = {
+            "case_text": case_text,
+            "event_summary": event_summary,
+            "generated_at": datetime.utcnow().isoformat(),
+            "model": "claude-sonnet-4-6",
+        }
+        _set_cache(cache_key, result)
+        return result
+
+    except Exception as e:
+        logger.error("Anthropic make_bitcoin_case failed: %s", e)
+        return {
+            "case_text": f"When {event_summary[:100]}... happens in traditional finance, it proves the system was never built for you. Bitcoin fixes this: no counterparty risk, no permission needed, no politician can freeze your stack. Take self-custody today.",
+            "event_summary": event_summary,
+            "generated_at": datetime.utcnow().isoformat(),
+            "model": "fallback",
+        }

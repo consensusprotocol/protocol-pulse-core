@@ -249,6 +249,14 @@ try:
 except Exception as _intel_err:
     logging.warning("Intelligence Terminal blueprint not loaded: %s", _intel_err)
 
+# ── Panopticon Blueprint ────────────────────────────────────────────────
+try:
+    from blueprints.panopticon import panopticon_bp
+    app.register_blueprint(panopticon_bp)
+    logging.info("Panopticon blueprint registered")
+except Exception as _pano_err:
+    logging.warning("Panopticon blueprint not loaded: %s", _pano_err)
+
 # ── Start Sentinel Daemon ────────────────────────────────────────────────
 try:
     import importlib.util as _ilu_sentinel

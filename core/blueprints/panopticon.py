@@ -151,3 +151,25 @@ def api_geopolitical():
     except Exception as e:
         logger.error("Geopolitical API error: %s", e)
         return jsonify({"error": "Failed to fetch geopolitical signals"}), 500
+
+
+@panopticon_bp.route("/api/panopticon/make-bitcoin-case", methods=["POST"])
+def api_make_bitcoin_case():
+    """Generate a cypherpunk Bitcoin self-custody argument for a specific event via Claude."""
+    if not _is_commander():
+        return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+
+    try:
+        body = request.get_json(silent=True) or {}
+        event_summary = body.get("event_summary", "").strip()
+        if not event_summary:
+            return jsonify({"error": "event_summary is required"}), 400
+        if len(event_summary) > 500:
+            event_summary = event_summary[:500]
+
+        from services.panopticon_service import get_make_bitcoin_case
+        result = get_make_bitcoin_case(event_summary)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Make Bitcoin Case API error: %s", e)
+        return jsonify({"error": "Failed to generate Bitcoin case"}), 500
