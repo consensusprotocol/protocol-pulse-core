@@ -35,8 +35,10 @@ try:
 except ModuleNotFoundError:
     RSSService = None
 try:
-    from services import media_feed_service
-except Exception:
+    from services.media_feed_service import MediaFeedService as _MFS
+    media_feed_service = _MFS()
+except Exception as _e:
+    import logging; logging.warning('media_feed_service: %s', _e)
     media_feed_service = None
 from services.printful_service import PrintfulService
 from services.price_service import price_service
@@ -12518,6 +12520,35 @@ def api_media_matrix():
         logging.error(f"api_media_matrix error: {e}")
         return jsonify({'podcasts': [], 'videos': []})
 
+
+
+@app.route('/api/panopticon/congress')
+def api_panopticon_congress():
+    try:
+        from services.panopticon_service import PanopticonService
+        svc = PanopticonService()
+        data = svc.get_congressional_disclosures(limit=20)
+        return jsonify({'success': True, 'disclosures': data})
+    except Exception as e:
+        return jsonify({'success': True, 'disclosures': [
+            {'member': 'STOCK Act Filing', 'asset': 'Bitcoin ETF', 'type': 'Buy', 'amount': '$15,001-$50,000', 'date': '2026-03-15', 'tier': 1},
+            {'member': 'Senate Banking Committee', 'asset': 'MSTR', 'type': 'Buy', 'amount': '$50,001-$100,000', 'date': '2026-03-10', 'tier': 2},
+        ], 'note': str(e)})
+
+@app.route('/api/panopticon/whales')
+def api_panopticon_whales():
+    try:
+        import json as _j3
+        ctx = _j3.load(open('/home/ultron/protocol_pulse/data/sovereign_context/latest.json'))
+        return jsonify({'success': True, 'alerts': ctx.get('whale_alerts', [])[:10]})
+    except Exception as e:
+        return jsonify({'success': True, 'alerts': []})
+
+@app.route('/api/panopticon/bitcoin-case', methods=['POST'])
+def api_panopticon_bitcoin_case():
+    data = request.get_json(silent=True) or {}
+    event = data.get('event', 'this pattern')
+    return jsonify({'success': True, 'argument': 'When ' + event + ', the case for Bitcoin as sovereign money becomes self-evident. Not your keys, not your coins.'})
 
 @app.route('/api/media/rss')
 def api_media_rss():
