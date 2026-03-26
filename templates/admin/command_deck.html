@@ -4,655 +4,841 @@
 
 {% block extra_css %}
 <style>
+/* ── MISSION CONTROL ── */
 .command-deck {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0808 100%);
-    padding: 40px 20px;
+    background: #000;
+    padding: 0;
+    font-family: 'JetBrains Mono', monospace;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Scanline overlay */
+.command-deck::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* ── TOP STATUS BAR ── */
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    background: rgba(220, 38, 38, 0.08);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.status-bar .indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-bar .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    animation: pulse-dot 2s infinite;
+}
+
+.status-bar .dot.offline { background: #dc2626; box-shadow: 0 0 6px rgba(220, 38, 38, 0.6); animation: none; }
+
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ── HEADER ── */
 .deck-header {
     text-align: center;
-    margin-bottom: 40px;
+    padding: 32px 20px 24px;
+    border-bottom: 1px solid rgba(220, 38, 38, 0.15);
 }
 
 .deck-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 2rem;
-    color: var(--pp-red);
+    font-size: 1.6rem;
+    color: #fff;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.35em;
+    margin: 0;
 }
+
+.deck-title span { color: #dc2626; }
 
 .deck-subtitle {
-    color: rgba(255,255,255,0.5);
-    font-size: 0.9rem;
-}
-
-.status-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.status-card {
-    background: rgba(10, 10, 10, 0.9);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    border-radius: 12px;
-    padding: 25px;
-    backdrop-filter: blur(10px);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.card-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.8);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255,255,255,0.3);
     font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    margin-top: 6px;
     text-transform: uppercase;
 }
 
-.status-online {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.status-offline {
-    background: rgba(220, 38, 38, 0.2);
-    color: #dc2626;
-    border: 1px solid rgba(220, 38, 38, 0.3);
-}
-
-.status-row {
+/* ── EMPIRE STATUS ── */
+.empire-beacon {
     display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    margin: 20px 24px;
+    background: rgba(34, 197, 94, 0.06);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 4px;
 }
 
-.status-label {
-    color: rgba(255,255,255,0.5);
-    font-size: 0.85rem;
-}
-
-.status-value {
-    color: white;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-}
-
-.action-btn {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: linear-gradient(135deg, var(--pp-red), #8b0000);
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(220, 38, 38, 0.3);
-}
-
-.action-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.empire-status {
-    text-align: center;
-    padding: 30px;
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: 12px;
-    margin-bottom: 30px;
-}
-
-.empire-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem;
+.empire-beacon .beacon-label {
+    font-size: 0.75rem;
     color: #22c55e;
     text-transform: uppercase;
     letter-spacing: 0.3em;
 }
 
-.log-output {
-    background: #000;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 15px;
-    max-height: 200px;
-    overflow-y: auto;
-    font-family: 'JetBrains Mono', monospace;
+/* ── GRID ── */
+.deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    padding: 20px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ── PANEL ── */
+.panel {
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 3px solid #dc2626;
+    border-radius: 2px;
+    padding: 20px;
+    position: relative;
+}
+
+.panel.panel-green { border-left-color: #22c55e; }
+.panel.panel-orange { border-left-color: #fb923c; }
+.panel.panel-gold { border-left-color: #f59e0b; }
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.panel-title {
     font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.badge {
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+.badge-green { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+.badge-red { background: rgba(220, 38, 38, 0.15); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+.badge-gold { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+/* ── DATA ROWS ── */
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 0.78rem;
+}
+
+.data-label { color: rgba(255,255,255,0.4); }
+.data-value { color: #fff; }
+.data-value.green { color: #22c55e; }
+.data-value.red { color: #dc2626; }
+.data-value.orange { color: #fb923c; }
+
+/* ── BUTTONS ── */
+.cmd-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 14px;
+    background: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 2px;
+    color: #dc2626;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cmd-btn:hover {
+    background: rgba(220, 38, 38, 0.25);
+    border-color: rgba(220, 38, 38, 0.7);
+    color: #fff;
+}
+
+.cmd-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.cmd-btn.btn-green {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.4);
     color: #22c55e;
+}
+.cmd-btn.btn-green:hover { background: rgba(34, 197, 94, 0.25); border-color: rgba(34, 197, 94, 0.7); color: #fff; }
+
+.cmd-btn.btn-orange {
+    background: rgba(251, 146, 60, 0.12);
+    border-color: rgba(251, 146, 60, 0.4);
+    color: #fb923c;
+}
+.cmd-btn.btn-orange:hover { background: rgba(251, 146, 60, 0.25); border-color: rgba(251, 146, 60, 0.7); color: #fff; }
+
+.cmd-btn.btn-gold {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+}
+.cmd-btn.btn-gold:hover { background: rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.7); color: #fff; }
+
+.btn-row { display: flex; gap: 8px; }
+.btn-row .cmd-btn { flex: 1; }
+
+/* ── INPUTS ── */
+.cmd-input {
+    width: 100%;
+    padding: 9px 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+.cmd-input:focus {
+    outline: none;
+    border-color: rgba(220, 38, 38, 0.5);
+}
+
+.cmd-input::placeholder { color: rgba(255,255,255,0.2); }
+
+/* ── FREE SMS ONBOARD ── */
+.free-sms-cta {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02));
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-left: 3px solid #f59e0b;
+    border-radius: 2px;
+    padding: 20px;
+    text-align: center;
+}
+
+.free-sms-cta .cta-headline {
+    font-size: 0.85rem;
+    color: #f59e0b;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 6px;
+}
+
+.free-sms-cta .cta-sub {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 14px;
+}
+
+.free-sms-cta .upsell {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.25);
+    margin-top: 10px;
+}
+
+.free-sms-cta .upsell a { color: #dc2626; text-decoration: none; }
+.free-sms-cta .upsell a:hover { text-decoration: underline; }
+
+/* ── TERMINAL LOG ── */
+.terminal-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+}
+
+.terminal {
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 2px solid #dc2626;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.terminal-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(220, 38, 38, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.terminal-bar .title {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.terminal-feed {
+    padding: 14px;
+    max-height: 260px;
+    overflow-y: auto;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: #22c55e;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.terminal-feed::-webkit-scrollbar { width: 4px; }
+.terminal-feed::-webkit-scrollbar-track { background: transparent; }
+.terminal-feed::-webkit-scrollbar-thumb { background: rgba(220, 38, 38, 0.3); border-radius: 2px; }
+
+.log-line { display: block; }
+.log-line .ts { color: rgba(255,255,255,0.2); }
+.log-line.error { color: #dc2626; }
+.log-line.warn { color: #fb923c; }
+.log-line.info { color: #22c55e; }
+.log-line.system { color: rgba(255,255,255,0.4); }
+
+/* ── TIER TOGGLE ── */
+.tier-toggle {
+    display: flex;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.tier-toggle button {
+    flex: 1;
+    padding: 7px 0;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tier-toggle button.active {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.tier-toggle button:hover:not(.active) { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.5); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .deck-grid { grid-template-columns: 1fr; padding: 12px; }
+    .status-bar { flex-wrap: wrap; gap: 8px; padding: 8px 12px; }
+    .deck-header { padding: 20px 12px 16px; }
+    .deck-title { font-size: 1.1rem; letter-spacing: 0.2em; }
+    .terminal-wrapper { padding: 0 12px 20px; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="command-deck">
-    <div class="container">
-        <div class="deck-header">
-            <h1 class="deck-title"><i class="fas fa-terminal me-3"></i>Sovereign Command Deck</h1>
-            <p class="deck-subtitle">System Control & Dispatch Center</p>
+    <!-- TOP STATUS BAR -->
+    <div class="status-bar">
+        <div class="indicator">
+            <span class="dot {% if scheduler_status.running %}{% else %}offline{% endif %}"></span>
+            <span>Scheduler</span>
         </div>
-        
-        <div class="empire-status">
-            <div class="empire-badge" id="empireStatus">
-                <i class="fas fa-crown me-2"></i>[SYSTEM STATUS: EMPIRE READY]
-            </div>
+        <div class="indicator">
+            <span class="dot {% if telegram_status.initialized %}{% else %}offline{% endif %}"></span>
+            <span>Telegram</span>
         </div>
-        
-        <div class="status-grid">
-            <!-- Scheduler Status -->
-            <div class="status-card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-clock me-2"></i>Scheduler</span>
-                    <span class="status-badge {% if scheduler_status.running %}status-online{% else %}status-offline{% endif %}">
-                        {% if scheduler_status.running %}ACTIVE{% else %}STOPPED{% endif %}
-                    </span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Cypherpunk'd Loop</span>
-                    <span class="status-value">Every 6 Hours</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Social Guard</span>
-                    <span class="status-value">Every 10 Minutes</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Active Jobs</span>
-                    <span class="status-value">{{ scheduler_status.jobs|length if scheduler_status.jobs else 0 }}</span>
-                </div>
-                
-                <button class="action-btn" onclick="activateScheduler()">
-                    <i class="fas fa-play me-2"></i>Activate Scheduler
+        <div class="indicator">
+            <span class="dot" id="barWhale"></span>
+            <span>Whale Intel</span>
+        </div>
+        <div class="indicator">
+            <span class="dot" id="barSms"></span>
+            <span>SMS Dispatch</span>
+        </div>
+        <div style="color: rgba(255,255,255,0.3);" id="deckClock">--:--:--</div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="deck-header">
+        <h1 class="deck-title"><span>//</span> Command Deck</h1>
+        <p class="deck-subtitle">Mission Control &mdash; Protocol Pulse Intelligence Network</p>
+    </div>
+
+    <!-- EMPIRE BEACON -->
+    <div class="empire-beacon" id="empireBeacon">
+        <span class="dot" style="width: 8px; height: 8px;"></span>
+        <span class="beacon-label" id="empireLabel">System Status: Empire Ready</span>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="deck-grid">
+
+        <!-- SIGNAL INTEGRITY (was Zero Hour Audit) -->
+        <div class="panel panel-green">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-satellite-dish me-2"></i>Signal Integrity</span>
+                <span class="badge badge-green" id="integrityBadge">Ready</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Database</span>
+                <span class="data-value" id="auditDb">--</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">GHL CRM</span>
+                <span class="data-value" id="auditGhl">--</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Telegram</span>
+                <span class="data-value" id="auditTelegram">--</span>
+            </div>
+            <button class="cmd-btn btn-green" onclick="runIntegrityCheck()">
+                <i class="fas fa-satellite-dish me-2"></i>Run Integrity Check
+            </button>
+        </div>
+
+        <!-- WHALE INTELLIGENCE -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-water me-2"></i>Whale Intelligence</span>
+                <span class="badge badge-green">Monitoring</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Mega-Whale Threshold</span>
+                <span class="data-value">1,000+ BTC</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Alert Channels</span>
+                <span class="data-value">Nostr / X / Telegram</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Auto-Dispatch</span>
+                <span class="data-value green">Enabled</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Last Scan</span>
+                <span class="data-value" id="lastWhaleScan">--</span>
+            </div>
+            <button class="cmd-btn" onclick="checkWhales()">
+                <i class="fas fa-search me-2"></i>Scan for Whales
+            </button>
+        </div>
+
+        <!-- SOVEREIGN SMS -->
+        <div class="panel panel-orange">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-bolt me-2"></i>Sovereign SMS</span>
+                <span class="badge badge-orange">98% Open Rate</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Mega-Whale Alerts</span>
+                <span class="data-value">&gt;1,000 BTC Threshold</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Target Segments</span>
+                <span class="data-value">Sovereign / Institutional</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Compliance</span>
+                <span class="data-value green">STOP Keyword Active</span>
+            </div>
+
+            <!-- Tier Toggle -->
+            <div class="tier-toggle" id="smsTierToggle">
+                <button class="active" onclick="setSMSTier('free')">Free Tier</button>
+                <button onclick="setSMSTier('commander')">Commander</button>
+            </div>
+
+            <div id="smsTierInfo" style="font-size: 0.68rem; color: rgba(255,255,255,0.35); margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 2px;">
+                Free: Whale alerts only (&gt;1000 BTC moves) &bull; Commander: All signals + market intel
+            </div>
+
+            <input type="tel" id="testPhoneNumber" placeholder="+1 (XXX) XXX-XXXX" class="cmd-input">
+            <button class="cmd-btn btn-orange" onclick="sendSMSTestPulse()">
+                <i class="fas fa-mobile-alt me-2"></i>Send Test Pulse
+            </button>
+        </div>
+
+        <!-- FREE SMS ONBOARDING -->
+        <div class="free-sms-cta">
+            <div class="cta-headline"><i class="fas fa-bell me-2"></i>Free Whale Alerts</div>
+            <div class="cta-sub">Get SMS alerts when whales move 1,000+ BTC. No spam. No cost.</div>
+            <input type="tel" id="freePhoneInput" placeholder="+1 (XXX) XXX-XXXX" class="cmd-input" style="margin-top: 0; text-align: center;">
+            <button class="cmd-btn btn-gold" onclick="enrollFreeAlerts()">
+                <i class="fas fa-paper-plane me-2"></i>Get Free Whale Alerts
+            </button>
+            <div class="upsell">Want full market intelligence? <a href="/terminal/checkout">Upgrade to Commander</a></div>
+        </div>
+
+        <!-- SCHEDULER -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-clock me-2"></i>Scheduler</span>
+                <span class="badge {% if scheduler_status.running %}badge-green{% else %}badge-red{% endif %}">
+                    {% if scheduler_status.running %}Active{% else %}Stopped{% endif %}
+                </span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Cypherpunk'd Loop</span>
+                <span class="data-value">Every 6h</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Social Guard</span>
+                <span class="data-value">Every 10m</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Active Jobs</span>
+                <span class="data-value">{{ scheduler_status.jobs|length if scheduler_status.jobs else 0 }}</span>
+            </div>
+            <button class="cmd-btn" onclick="activateScheduler()">
+                <i class="fas fa-play me-2"></i>Activate Scheduler
+            </button>
+        </div>
+
+        <!-- PULSE OPERATIVE (Telegram) -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fab fa-telegram me-2"></i>Pulse Operative</span>
+                <span class="badge {% if telegram_status.initialized %}badge-green{% else %}badge-red{% endif %}">
+                    {% if telegram_status.initialized %}Connected{% else %}Offline{% endif %}
+                </span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Bot Token</span>
+                <span class="data-value {% if telegram_status.token_configured %}green{% else %}red{% endif %}">
+                    {% if telegram_status.token_configured %}Configured{% else %}Missing{% endif %}
+                </span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Chat ID</span>
+                <span class="data-value {% if telegram_status.channel_configured %}green{% else %}red{% endif %}">
+                    {% if telegram_status.channel_configured %}Configured{% else %}Missing{% endif %}
+                </span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Status</span>
+                <span class="data-value">{% if telegram_status.bot_running %}Running{% else %}Standby{% endif %}</span>
+            </div>
+            <button class="cmd-btn" onclick="sendHeartbeat()">
+                <i class="fas fa-heartbeat me-2"></i>Send Heartbeat
+            </button>
+        </div>
+
+        <!-- GHL HANDSHAKE -->
+        <div class="panel panel-green">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-handshake me-2"></i>GHL Handshake</span>
+                <span class="badge badge-green" id="ghlBadge">Checking...</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">API Connection</span>
+                <span class="data-value" id="ghlApiStatus">Verifying...</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Operative Onboarding</span>
+                <span class="data-value">Webhook Ready</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Custom Fields</span>
+                <span class="data-value" style="font-size: 0.7rem;">signal_points, sovereign_segment</span>
+            </div>
+            <div class="btn-row">
+                <button class="cmd-btn btn-green" onclick="testGHLWebhook()">
+                    <i class="fas fa-satellite-dish me-2"></i>Test Payload
                 </button>
-            </div>
-            
-            <!-- Telegram Status -->
-            <div class="status-card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fab fa-telegram me-2"></i>Pulse Operative</span>
-                    <span class="status-badge {% if telegram_status.initialized %}status-online{% else %}status-offline{% endif %}">
-                        {% if telegram_status.initialized %}CONNECTED{% else %}OFFLINE{% endif %}
-                    </span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Bot Token</span>
-                    <span class="status-value">{% if telegram_status.token_configured %}Configured{% else %}Missing{% endif %}</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Chat ID</span>
-                    <span class="status-value">{% if telegram_status.channel_configured %}Configured{% else %}Missing{% endif %}</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Status</span>
-                    <span class="status-value">{% if telegram_status.bot_running %}Running{% else %}Standby{% endif %}</span>
-                </div>
-                
-                <button class="action-btn" onclick="sendHeartbeat()">
-                    <i class="fas fa-heartbeat me-2"></i>Send Heartbeat
-                </button>
-            </div>
-            
-            <!-- Zero Hour Audit -->
-            <div class="status-card" style="border-color: rgba(34, 197, 94, 0.4);">
-                <div class="card-header">
-                    <span class="card-title" style="color: #22c55e;"><i class="fas fa-check-double me-2"></i>Zero Hour Audit</span>
-                    <span class="status-badge" id="auditBadge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">READY</span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Database</span>
-                    <span class="status-value" id="auditDb">--</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">GHL CRM</span>
-                    <span class="status-value" id="auditGhl">--</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Telegram</span>
-                    <span class="status-value" id="auditTelegram">--</span>
-                </div>
-                
-                <button class="action-btn" onclick="runZeroHourAudit()" style="background: linear-gradient(135deg, #166534, #22c55e);">
-                    <i class="fas fa-satellite-dish me-2"></i>Run Full Audit
-                </button>
-            </div>
-            
-            <!-- Whale Intelligence -->
-            <div class="status-card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-whale me-2"></i>Whale Intelligence</span>
-                    <span class="status-badge status-online">MONITORING</span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Mega-Whale Threshold</span>
-                    <span class="status-value">1,000+ BTC</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Alert Channels</span>
-                    <span class="status-value">Nostr, X, Telegram</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Auto-Dispatch</span>
-                    <span class="status-value">Enabled</span>
-                </div>
-                
-                <button class="action-btn" onclick="checkWhales()">
-                    <i class="fas fa-search me-2"></i>Check for Whales
-                </button>
-            </div>
-            
-            <!-- Privacy Shield -->
-            <div class="status-card" style="border-color: rgba(168, 85, 247, 0.4);">
-                <div class="card-header">
-                    <span class="card-title" style="color: #a855f7;"><i class="fas fa-shield-alt me-2"></i>Privacy Shield</span>
-                    <span class="status-badge" id="privacyShieldBadge" style="background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3);">CHECKING...</span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Tracker Blocking</span>
-                    <span class="status-value" id="trackerStatus">Initializing</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Identity Masking</span>
-                    <span class="status-value" id="identityStatus">Initializing</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Purple Hue</span>
-                    <span class="status-value" id="purpleStatus">Initializing</span>
-                </div>
-                
-                <button class="action-btn" onclick="togglePrivacyShield()" style="background: linear-gradient(135deg, #6b21a8, #a855f7);">
-                    <i class="fas fa-shield-alt me-2"></i>Toggle Privacy Shield
-                </button>
-            </div>
-            
-            <!-- Multi-Agent System -->
-            <div class="status-card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-robot me-2"></i>Multi-Agent System</span>
-                    <span class="status-badge status-online">OPERATIONAL</span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Alex The Quant</span>
-                    <span class="status-value">Ready</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Sarah The Macro</span>
-                    <span class="status-value">Ready</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Walter Cronkite</span>
-                    <span class="status-value">Ready</span>
-                </div>
-                
-                <button class="action-btn" onclick="testAgents()">
-                    <i class="fas fa-vial me-2"></i>Test Agents
-                </button>
-            </div>
-            
-            <!-- GHL Handshake -->
-            <div class="status-card" style="border-color: rgba(34, 197, 94, 0.4);">
-                <div class="card-header">
-                    <span class="card-title" style="color: #22c55e;"><i class="fas fa-handshake me-2"></i>GHL Handshake</span>
-                    <span class="status-badge" id="ghlStatusBadge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">CHECKING...</span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">API Connection</span>
-                    <span class="status-value" id="ghlApiStatus">Verifying...</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Operative Onboarding</span>
-                    <span class="status-value">Webhook Ready</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Custom Fields</span>
-                    <span class="status-value">signal_points, sovereign_segment</span>
-                </div>
-                
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="action-btn" onclick="testGHLWebhook()" style="flex: 1; background: linear-gradient(135deg, #059669, #22c55e);">
-                        <i class="fas fa-satellite-dish me-2"></i>Send Test Payload
-                    </button>
-                    <button class="action-btn" onclick="triggerSarahWelcome()" style="flex: 1;">
-                        <i class="fas fa-envelope me-2"></i>Sarah Welcome
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Sovereign SMS Dispatch -->
-            <div class="status-card" style="border-color: rgba(251, 146, 60, 0.4);">
-                <div class="card-header">
-                    <span class="card-title" style="color: #fb923c;"><i class="fas fa-sms me-2"></i>Sovereign SMS</span>
-                    <span class="status-badge" style="background: rgba(251, 146, 60, 0.2); color: #fb923c;">98% OPEN RATE</span>
-                </div>
-                
-                <div class="status-row">
-                    <span class="status-label">Mega-Whale Alerts</span>
-                    <span class="status-value">&gt;1,000 BTC Threshold</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Target Segments</span>
-                    <span class="status-value">Sovereign Node, Institutional</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Compliance</span>
-                    <span class="status-value">STOP Keyword Included</span>
-                </div>
-                
-                <div style="margin-bottom: 10px;">
-                    <input type="tel" id="testPhoneNumber" placeholder="Your phone number (+1XXXXXXXXXX)" 
-                           style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(251, 146, 60, 0.3); color: #fff; border-radius: 8px;">
-                </div>
-                <button class="action-btn" onclick="sendSMSTestPulse()" style="background: linear-gradient(135deg, #ea580c, #fb923c);">
-                    <i class="fas fa-mobile-alt me-2"></i>SMS Test Pulse
+                <button class="cmd-btn" onclick="triggerSarahWelcome()">
+                    <i class="fas fa-envelope me-2"></i>Sarah Welcome
                 </button>
             </div>
         </div>
-        
-        <div class="status-card mt-4" style="max-width: 1200px; margin: 20px auto;">
-            <div class="card-header">
-                <span class="card-title"><i class="fas fa-terminal me-2"></i>System Log</span>
-                <span class="status-badge status-online">LIVE</span>
+    </div>
+
+    <!-- SYSTEM LOG / INTEL FEED -->
+    <div class="terminal-wrapper">
+        <div class="terminal">
+            <div class="terminal-bar">
+                <span class="title"><i class="fas fa-terminal me-2"></i>System Intelligence Feed</span>
+                <span class="badge badge-green">Live</span>
             </div>
-            <div class="log-output" id="logOutput">
-                [{{ deck_time.strftime('%Y-%m-%d %H:%M:%S') }}] Command Deck initialized
-                [{{ deck_time.strftime('%Y-%m-%d %H:%M:%S') }}] Awaiting operator commands...
-            </div>
+            <div class="terminal-feed" id="terminalFeed"></div>
         </div>
     </div>
 </div>
 
 <script>
-function log(message) {
-    const logOutput = document.getElementById('logOutput');
-    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    logOutput.innerHTML += `\n[${timestamp}] ${message}`;
-    logOutput.scrollTop = logOutput.scrollHeight;
+/* ── TERMINAL LOG ENGINE ── */
+const feed = document.getElementById('terminalFeed');
+let logCount = 0;
+
+function log(msg, level = 'info') {
+    const ts = new Date().toISOString().slice(11, 19);
+    const idx = String(++logCount).padStart(3, '0');
+    const line = document.createElement('span');
+    line.className = `log-line ${level}`;
+    line.innerHTML = `<span class="ts">[${ts}]</span> <span class="ts">${idx}</span> ${escapeHtml(msg)}`;
+    feed.appendChild(line);
+    feed.appendChild(document.createTextNode('\n'));
+    feed.scrollTop = feed.scrollHeight;
 }
 
-async function activateScheduler() {
-    log('Activating scheduler...');
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+
+/* ── CLOCK ── */
+function updateClock() {
+    const now = new Date();
+    document.getElementById('deckClock').textContent = now.toISOString().slice(11, 19) + ' UTC';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ── SIGNAL INTEGRITY (was Zero Hour Audit) ── */
+async function runIntegrityCheck() {
+    log('SIGNAL INTEGRITY: Initiating system-wide check...', 'system');
+    document.getElementById('integrityBadge').textContent = 'Checking...';
+    document.getElementById('integrityBadge').className = 'badge badge-orange';
+
     try {
-        const response = await fetch('/admin/api/activate-scheduler', { method: 'POST' });
-        const data = await response.json();
-        if (data.success) {
-            log('SCHEDULER ACTIVATED - Cypherpunk\'d loop and Social Guard online');
+        const r = await fetch('/admin/api/zero-hour-audit');
+        const d = await r.json();
+
+        setStatus('auditDb', d.database.status);
+        setStatus('auditGhl', d.ghl.status);
+        setStatus('auditTelegram', d.telegram.status);
+
+        if (d.overall === 'EMPIRE READY') {
+            document.getElementById('integrityBadge').textContent = 'All Clear';
+            document.getElementById('integrityBadge').className = 'badge badge-green';
+            log('INTEGRITY CHECK: All systems nominal', 'info');
         } else {
-            log('ERROR: ' + (data.error || 'Unknown error'));
+            document.getElementById('integrityBadge').textContent = 'Degraded';
+            document.getElementById('integrityBadge').className = 'badge badge-orange';
+            log('INTEGRITY CHECK: Degraded — some systems need attention', 'warn');
         }
+
+        log('DB: ' + d.database.message, 'system');
+        log('GHL: ' + d.ghl.message, 'system');
+        log('Telegram: ' + d.telegram.message, 'system');
     } catch (e) {
-        log('ERROR: ' + e.message);
+        document.getElementById('integrityBadge').textContent = 'Error';
+        document.getElementById('integrityBadge').className = 'badge badge-red';
+        log('INTEGRITY ERROR: ' + e.message, 'error');
     }
 }
 
-async function sendHeartbeat() {
-    log('Sending EMPIRE READY heartbeat to Telegram...');
-    try {
-        const response = await fetch('/admin/api/send-heartbeat', { method: 'POST' });
-        const data = await response.json();
-        if (data.success) {
-            log('HEARTBEAT SENT - Pulse Operative confirmed');
-        } else {
-            log('HEARTBEAT FAILED: ' + (data.error || 'Unknown error'));
-        }
-    } catch (e) {
-        log('ERROR: ' + e.message);
+function setStatus(elId, status) {
+    const el = document.getElementById(elId);
+    if (status === 'ONLINE') {
+        el.textContent = 'Online';
+        el.className = 'data-value green';
+    } else {
+        el.textContent = status;
+        el.className = 'data-value red';
     }
 }
 
+/* ── WHALE INTELLIGENCE ── */
 async function checkWhales() {
-    log('Scanning for mega-whales (1000+ BTC)...');
+    log('WHALE SCAN: Scanning mempool for mega-whales (1000+ BTC)...', 'system');
     try {
-        const response = await fetch('/api/whale-watcher');
-        const data = await response.json();
-        log(`Whale scan complete - ${data.transactions?.length || 0} transactions detected`);
+        const r = await fetch('/api/whales');
+        const d = await r.json();
+        const count = d.transactions?.length || d.whales?.length || 0;
+        document.getElementById('lastWhaleScan').textContent = new Date().toISOString().slice(11, 19) + ' UTC';
+        log(`WHALE SCAN: ${count} transaction(s) detected`, count > 0 ? 'warn' : 'info');
     } catch (e) {
-        log('ERROR: ' + e.message);
+        log('WHALE SCAN ERROR: ' + e.message, 'error');
     }
 }
 
-async function testAgents() {
-    log('Testing multi-agent system...');
-    log('Alex The Quant: READY');
-    log('Sarah The Macro: READY');
-    log('Walter Cronkite: READY');
-    log('All agents operational');
-}
-
-function togglePrivacyShield() {
-    const isEnabled = localStorage.getItem('sovereignMode') === 'true';
-    localStorage.setItem('sovereignMode', (!isEnabled).toString());
-    
-    if (!isEnabled) {
-        document.body.classList.add('sovereign-active');
-        log('PRIVACY SHIELD ACTIVATED - Purple hue engaged, trackers blocked');
-        alert('Sovereign Mode Engaged: CDNs Blocked. Identity Masked.');
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: 'SOVEREIGN_MODE', enabled: true });
-        }
-    } else {
-        document.body.classList.remove('sovereign-active');
-        log('Privacy Shield deactivated - Standard mode restored');
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: 'SOVEREIGN_MODE', enabled: false });
-        }
-    }
-    updatePrivacyStatus();
-}
-
-function updatePrivacyStatus() {
-    const isEnabled = localStorage.getItem('sovereignMode') === 'true';
-    const badge = document.getElementById('privacyShieldBadge');
-    const trackerEl = document.getElementById('trackerStatus');
-    const identityEl = document.getElementById('identityStatus');
-    const purpleEl = document.getElementById('purpleStatus');
-    
-    if (isEnabled) {
-        badge.textContent = 'ACTIVE';
-        badge.style.background = 'rgba(34, 197, 94, 0.2)';
-        badge.style.color = '#22c55e';
-        badge.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-        trackerEl.innerHTML = '<span style="color: #22c55e;">🚫 BLOCKED</span>';
-        identityEl.innerHTML = '<span style="color: #22c55e;">🕵️ MASKED</span>';
-        purpleEl.innerHTML = '<span style="color: #a855f7;">🟣 ENGAGED</span>';
-    } else {
-        badge.textContent = 'INACTIVE';
-        badge.style.background = 'rgba(168, 85, 247, 0.2)';
-        badge.style.color = '#a855f7';
-        badge.style.borderColor = 'rgba(168, 85, 247, 0.3)';
-        trackerEl.textContent = 'Disabled';
-        identityEl.textContent = 'Disabled';
-        purpleEl.textContent = 'Disabled';
-    }
-}
-
-function now() {
-    return new Date();
-}
-
-async function testGHLWebhook() {
-    log('Sending test payload to GHL...');
-    log('Payload: { first_name: "Test Operative", signal_points: 750, sovereign_segment: "Sovereign Node" }');
+/* ── SCHEDULER ── */
+async function activateScheduler() {
+    log('SCHEDULER: Activating intelligence loops...', 'system');
     try {
-        const response = await fetch('/admin/api/ghl-webhook-test', { method: 'POST' });
-        const data = await response.json();
-        if (data.success) {
-            log('GHL WEBHOOK SUCCESS: ' + data.message);
-            log('Status Code: ' + data.status_code + ' OK');
-            updateGHLStatus(true);
+        const r = await fetch('/admin/api/activate-scheduler', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) {
+            log('SCHEDULER: Cypherpunk\'d loop + Social Guard now online', 'info');
         } else {
-            log('GHL WEBHOOK FAILED: ' + (data.error || 'Unknown error'));
-            updateGHLStatus(false);
+            log('SCHEDULER ERROR: ' + (d.error || 'Unknown'), 'error');
         }
-    } catch (e) {
-        log('ERROR: ' + e.message);
-        updateGHLStatus(false);
-    }
+    } catch (e) { log('SCHEDULER ERROR: ' + e.message, 'error'); }
+}
+
+/* ── TELEGRAM HEARTBEAT ── */
+async function sendHeartbeat() {
+    log('TELEGRAM: Sending heartbeat to Pulse Operative...', 'system');
+    try {
+        const r = await fetch('/admin/api/send-heartbeat', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) {
+            log('TELEGRAM: Heartbeat confirmed — operative online', 'info');
+        } else {
+            log('TELEGRAM ERROR: ' + (d.error || 'Unknown'), 'error');
+        }
+    } catch (e) { log('TELEGRAM ERROR: ' + e.message, 'error'); }
+}
+
+/* ── GHL ── */
+async function testGHLWebhook() {
+    log('GHL: Sending test payload...', 'system');
+    try {
+        const r = await fetch('/admin/api/ghl-webhook-test', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) {
+            log('GHL WEBHOOK: ' + d.message + ' (HTTP ' + d.status_code + ')', 'info');
+            updateGHL(true);
+        } else {
+            log('GHL WEBHOOK FAILED: ' + (d.error || 'Unknown'), 'error');
+            updateGHL(false);
+        }
+    } catch (e) { log('GHL ERROR: ' + e.message, 'error'); updateGHL(false); }
 }
 
 async function triggerSarahWelcome() {
-    log('Triggering Sarah Welcome emails to recent Scorecard completers...');
+    log('GHL: Triggering Sarah Welcome sequence...', 'system');
     try {
-        const response = await fetch('/admin/api/sarah-welcome', { method: 'POST' });
-        const data = await response.json();
-        if (data.success) {
-            log('SARAH WELCOME: Triggered ' + data.triggered_count + ' emails');
-            log('Total Scorecard contacts: ' + data.total_scorecard_contacts);
+        const r = await fetch('/admin/api/sarah-welcome', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) {
+            log('SARAH WELCOME: ' + d.triggered_count + ' emails triggered (' + d.total_scorecard_contacts + ' contacts)', 'info');
         } else {
-            log('SARAH WELCOME FAILED: ' + (data.error || 'Unknown error'));
+            log('SARAH WELCOME FAILED: ' + (d.error || 'Unknown'), 'error');
         }
-    } catch (e) {
-        log('ERROR: ' + e.message);
+    } catch (e) { log('GHL ERROR: ' + e.message, 'error'); }
+}
+
+function updateGHL(ok) {
+    const badge = document.getElementById('ghlBadge');
+    const api = document.getElementById('ghlApiStatus');
+    if (ok) {
+        badge.textContent = 'Connected';
+        badge.className = 'badge badge-green';
+        api.textContent = '200 OK';
+        api.className = 'data-value green';
+    } else {
+        badge.textContent = 'Error';
+        badge.className = 'badge badge-red';
+        api.textContent = 'Failed';
+        api.className = 'data-value red';
     }
+}
+
+async function verifyGHL() {
+    try {
+        const r = await fetch('/admin/api/ghl-verify');
+        const d = await r.json();
+        updateGHL(d.success);
+        if (d.success) log('GHL: API verified — connected to ' + (d.location_name || 'location'), 'info');
+    } catch (e) { updateGHL(false); }
+}
+
+/* ── SOVEREIGN SMS ── */
+let currentSMSTier = 'free';
+
+function setSMSTier(tier) {
+    currentSMSTier = tier;
+    const btns = document.querySelectorAll('#smsTierToggle button');
+    btns.forEach(b => b.classList.remove('active'));
+    btns[tier === 'free' ? 0 : 1].classList.add('active');
+    const info = document.getElementById('smsTierInfo');
+    if (tier === 'free') {
+        info.textContent = 'Free: Whale alerts only (>1000 BTC moves) \u2022 Commander: All signals + market intel';
+    } else {
+        info.textContent = 'Commander: Full signal intelligence, whale alerts, market regime changes, macro events';
+    }
+    log('SMS TIER: Switched to ' + tier.toUpperCase(), 'system');
 }
 
 async function sendSMSTestPulse() {
-    const phoneInput = document.getElementById('testPhoneNumber');
-    const phoneNumber = phoneInput?.value?.trim();
-    
-    if (!phoneNumber) {
-        log('ERROR: Please enter your phone number for SMS test');
-        alert('Please enter your phone number in the field above.');
-        return;
-    }
-    
-    log('Sending SMS Test Pulse to ' + phoneNumber + '...');
+    const phone = document.getElementById('testPhoneNumber').value.trim();
+    if (!phone) { log('SMS: Enter a phone number first', 'warn'); return; }
+
+    log('SMS: Sending test pulse to ' + phone + ' (tier: ' + currentSMSTier + ')...', 'system');
     try {
-        const response = await fetch('/admin/api/sms-test-pulse', {
+        const r = await fetch('/admin/api/sms-test-pulse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone_number: phoneNumber })
+            body: JSON.stringify({ phone_number: phone, tier: currentSMSTier })
         });
-        const data = await response.json();
-        if (data.success) {
-            log('SMS TEST PULSE SENT: Check your phone!');
-            alert('SMS Test Pulse sent! Check your phone.');
+        const d = await r.json();
+        if (d.success) {
+            log('SMS TEST PULSE SENT: Check your phone', 'info');
         } else {
-            log('SMS FAILED: ' + (data.error || 'Unknown error'));
+            log('SMS FAILED: ' + (d.error || 'Unknown'), 'error');
         }
-    } catch (e) {
-        log('ERROR: ' + e.message);
-    }
+    } catch (e) { log('SMS ERROR: ' + e.message, 'error'); }
 }
 
-function updateGHLStatus(connected) {
-    const badge = document.getElementById('ghlStatusBadge');
-    const apiStatus = document.getElementById('ghlApiStatus');
-    
-    if (connected) {
-        badge.textContent = 'CONNECTED';
-        badge.style.background = 'rgba(34, 197, 94, 0.2)';
-        badge.style.color = '#22c55e';
-        apiStatus.innerHTML = '<span style="color: #22c55e;">200 OK</span>';
-    } else {
-        badge.textContent = 'ERROR';
-        badge.style.background = 'rgba(239, 68, 68, 0.2)';
-        badge.style.color = '#ef4444';
-        apiStatus.innerHTML = '<span style="color: #ef4444;">Connection Failed</span>';
-    }
-}
+/* ── FREE SMS ENROLLMENT ── */
+async function enrollFreeAlerts() {
+    const phone = document.getElementById('freePhoneInput').value.trim();
+    if (!phone) { log('FREE SMS: Enter a phone number', 'warn'); return; }
 
-async function verifyGHLConnection() {
+    log('FREE SMS: Enrolling ' + phone + ' for whale alerts...', 'system');
     try {
-        const response = await fetch('/admin/api/ghl-verify');
-        const data = await response.json();
-        updateGHLStatus(data.success);
-        if (data.success) {
-            log('GHL API VERIFIED: Connected to ' + (data.location_name || 'Location'));
+        const r = await fetch('/admin/api/sms-test-pulse', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone_number: phone, tier: 'free' })
+        });
+        const d = await r.json();
+        if (d.success) {
+            log('FREE SMS: Enrolled! Whale alerts active for ' + phone, 'info');
+            document.getElementById('freePhoneInput').value = '';
+        } else {
+            log('FREE SMS ENROLLMENT FAILED: ' + (d.error || 'Unknown'), 'error');
         }
-    } catch (e) {
-        updateGHLStatus(false);
-    }
+    } catch (e) { log('FREE SMS ERROR: ' + e.message, 'error'); }
 }
 
+/* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {
-    updatePrivacyStatus();
-    if (localStorage.getItem('sovereignMode') === 'true') {
-        document.body.classList.add('sovereign-active');
-    }
-    verifyGHLConnection();
+    log('Command Deck initialized — {{ deck_time.strftime("%Y-%m-%d %H:%M:%S") if deck_time else "now" }} UTC', 'system');
+    log('Operator session active. Awaiting commands.', 'system');
+    verifyGHL();
 });
-
-async function runZeroHourAudit() {
-    log('ZERO HOUR AUDIT: Initiating system check...');
-    document.getElementById('auditBadge').textContent = 'CHECKING...';
-    
-    try {
-        const response = await fetch('/admin/api/zero-hour-audit');
-        const data = await response.json();
-        
-        document.getElementById('auditDb').innerHTML = 
-            data.database.status === 'ONLINE' 
-                ? '<span style="color: #22c55e;">ONLINE</span>' 
-                : '<span style="color: #ef4444;">' + data.database.status + '</span>';
-        
-        document.getElementById('auditGhl').innerHTML = 
-            data.ghl.status === 'ONLINE' 
-                ? '<span style="color: #22c55e;">ONLINE</span>' 
-                : '<span style="color: #f97316;">' + data.ghl.status + '</span>';
-        
-        document.getElementById('auditTelegram').innerHTML = 
-            data.telegram.status === 'ONLINE' 
-                ? '<span style="color: #22c55e;">ONLINE</span>' 
-                : '<span style="color: #f97316;">' + data.telegram.status + '</span>';
-        
-        if (data.overall === 'EMPIRE READY') {
-            document.getElementById('auditBadge').textContent = 'EMPIRE READY';
-            document.getElementById('auditBadge').style.background = 'rgba(34, 197, 94, 0.2)';
-            document.getElementById('auditBadge').style.color = '#22c55e';
-            log('SYSTEM STATUS: EMPIRE READY - All systems operational');
-        } else {
-            document.getElementById('auditBadge').textContent = 'DEGRADED';
-            document.getElementById('auditBadge').style.background = 'rgba(249, 115, 22, 0.2)';
-            document.getElementById('auditBadge').style.color = '#f97316';
-            log('SYSTEM STATUS: DEGRADED - Some systems need attention');
-        }
-        
-        log('Database: ' + data.database.message);
-        log('GHL: ' + data.ghl.message);
-        log('Telegram: ' + data.telegram.message);
-        
-    } catch (e) {
-        log('AUDIT ERROR: ' + e.message);
-        document.getElementById('auditBadge').textContent = 'ERROR';
-        document.getElementById('auditBadge').style.background = 'rgba(239, 68, 68, 0.2)';
-        document.getElementById('auditBadge').style.color = '#ef4444';
-    }
-}
-
-log('Day 1 - Empire awakens. Intelligence flows.');
 </script>
 {% endblock %}

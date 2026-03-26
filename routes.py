@@ -513,6 +513,11 @@ def live_terminal():
     """Live Settlement Terminal - Real-time Bitcoin network visualization"""
     return render_template('live_terminal.html')
 
+@app.route('/sovereign-money')
+def sovereign_money():
+    """The Case for Sovereign Money — purchasing power decay thesis"""
+    return render_template('sovereign_money.html')
+
 @app.route('/terminal')
 def pulse_terminal():
     """Pulse Terminal API landing page — Commander pricing and documentation."""
@@ -6857,13 +6862,15 @@ def command_deck():
         
         return render_template('admin/command_deck.html',
             scheduler_status=scheduler_status,
-            telegram_status=telegram_status
+            telegram_status=telegram_status,
+            deck_time=datetime.utcnow()
         )
     except Exception as e:
         logging.error(f"Command deck error: {e}")
         return render_template('admin/command_deck.html',
             scheduler_status={'running': False, 'jobs': []},
-            telegram_status={'initialized': False}
+            telegram_status={'initialized': False},
+            deck_time=datetime.utcnow()
         )
 
 
