@@ -83,6 +83,8 @@ FEATURE_MAP = {
     "media-command-center": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "panopticon": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "join-page": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "value-stream-mvp": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "value-stream-post-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -260,6 +262,13 @@ EXPLICIT_FILES = {
     "join-page": [
         "templates/join.html",
         "core/routes.py",
+    ],
+    "value-stream-mvp": [
+        "templates/value_stream.html",
+        "services/value_stream_service.py",
+    ],
+    "value-stream-post-audit": [
+        "templates/value_stream.html",
     ],
 }
 
@@ -1067,6 +1076,62 @@ For each question: DETAILED ANALYSIS → SPECIFIC RECOMMENDATION → IMPLEMENTAT
 - Top 3 consensus recommendations across all questions
 - The single highest-ROI feature to build first
 - What to REMOVE as noise
+""",
+    "value-stream-mvp": """## YOUR REVIEW TASK — VALUE STREAM PRE-BUILD AUDIT (5 CRITICAL QUESTIONS)
+
+VALUE STREAM is a Proof of Value social content curation platform powered by Bitcoin Lightning sats.
+The ethos: opt out of Proof of Waste engagement farming. Reclaim your attention.
+Value each other's ideas like we value our limited time on this planet.
+No algorithmic manipulation. No infinite scroll dopamine.
+Content rises by economic signal — sats zapped, not likes clicked.
+
+### Q1 — MVP CRITICAL FEATURES
+What are the 3 most critical features needed for an MVP that demonstrates this vision
+compellingly to a Bitcoin maximalist seeing it for the first time?
+
+### Q2 — CURRENT UI COMMUNICATION
+What does the current UI communicate and what should it communicate instead?
+The page currently shows a URL submission form and a leaderboard but has no content.
+
+### Q3 — EMPTY STATE DESIGN
+How do we make an empty state feel like an invitation rather than abandonment?
+
+### Q4 — DESIGN COMPETITION
+Gemini designs the hero section that communicates the anti-algorithmic ethos without being preachy.
+GPT-4o designs the content card that makes sats-based curation feel natural.
+Grok designs the flow of discovering and zapping content.
+Which wins for the Bitcoin audience? Propose your best design.
+
+### Q5 — BRAND ALIGNMENT
+Does the current implementation match the Protocol Pulse brand (dark, red accent, JetBrains Mono)?
+What specific visual changes are needed?
+
+### RESPONSE FORMAT
+For each question: DETAILED ANALYSIS + SPECIFIC RECOMMENDATION
+### FINAL VERDICT: Top 3 changes needed + Overall assessment
+""",
+    "value-stream-post-audit": """## YOUR REVIEW TASK — VALUE STREAM POST-BUILD AUDIT (5 CRITICAL QUESTIONS)
+
+### Q1 — ETHOS COMMUNICATION
+Does this implementation successfully communicate the Proof of Value ethos?
+Would a Bitcoin maximalist immediately understand what this is and want to participate?
+
+### Q2 — EMPTY STATE
+Is the empty state compelling enough to not feel dead?
+
+### Q3 — CURATOR ECONOMY
+Does the curator economy incentive feel genuine or gimmicky?
+
+### Q4 — FIRST-TIME USER EXPERIENCE
+What single change would most improve the first-time user experience?
+
+### Q5 — COMPETITIVE POSITIONING
+Does this feel like a legitimate competitor to Twitter/Nostr for Bitcoin content curation
+or does it feel like a toy?
+
+### RESPONSE FORMAT
+For each question: DETAILED ANALYSIS + SPECIFIC RECOMMENDATION
+### FINAL VERDICT: Top 3 changes needed + PASS / PASS WITH FIXES / FAIL
 """,
 }
 

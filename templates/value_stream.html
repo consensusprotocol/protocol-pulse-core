@@ -1,473 +1,1081 @@
 {% extends "base.html" %}
 
-{% block title %}Value Stream - Protocol Pulse{% endblock %}
+{% block title %}Value Stream — Proof of Value Content Curation | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Opt out of engagement farming. Content rises by economic signal — sats zapped, not likes clicked. Your attention is sovereign.{% endblock %}
 
 {% block extra_head %}
 <style>
-    .value-stream-hero {
-        background: linear-gradient(135deg, #0a0a12 0%, #1a0a2e 50%, #0a0a12 100%);
-        padding: 60px 0;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    :root {
+        --vs-red: #ff3b5f;
+        --vs-black: #06070b;
+        --vs-panel: #0d0d0d;
+        --vs-gold: #f8c15c;
+        --vs-text: #eef2ff;
+        --vs-muted: #95a0ba;
+        --vs-glow-red: rgba(255,59,95,0.15);
     }
-    
-    .stream-title {
+
+    body { background: var(--vs-black); }
+
+    /* ── HERO ── */
+    .vs-hero {
+        position: relative;
+        padding: 80px 20px 60px;
+        text-align: center;
+        overflow: hidden;
+        background:
+            radial-gradient(ellipse at 20% 30%, var(--vs-glow-red), transparent 60%),
+            radial-gradient(ellipse at 80% 70%, rgba(93,228,255,0.06), transparent 50%),
+            var(--vs-black);
+    }
+    .vs-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 3px,
+            rgba(255,255,255,0.015) 3px,
+            rgba(255,255,255,0.015) 4px
+        );
+        pointer-events: none;
+    }
+    .vs-hero-title {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 2.5rem;
-        color: #f7931a;
-        text-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+        font-size: clamp(2.4rem, 5vw, 3.6rem);
+        font-weight: 900;
+        color: var(--vs-text);
+        letter-spacing: -0.03em;
+        margin: 0 0 12px;
+        text-shadow: 0 4px 28px rgba(0,0,0,0.4);
     }
-    
-    .stream-subtitle {
-        color: rgba(255,255,255,0.7);
-        font-size: 1.1rem;
+    .vs-hero-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+        color: var(--vs-red);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin: 0 0 28px;
+    }
+    .vs-manifesto {
         max-width: 600px;
-        margin: 0 auto;
+        margin: 0 auto 32px;
+        font-size: 13px;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.7);
     }
-    
-    .platform-filters {
+    .vs-manifesto p { margin: 0 0 8px; }
+    .vs-sep {
+        width: 80px;
+        height: 2px;
+        background: var(--vs-red);
+        margin: 0 auto 32px;
+    }
+
+    /* ── STATS ROW ── */
+    .vs-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+    .vs-stat {
+        text-align: center;
+    }
+    .vs-stat-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--vs-muted);
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+    .vs-stat-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.2rem, 2vw, 1.6rem);
+        font-weight: 900;
+        color: var(--vs-text);
+        letter-spacing: -0.03em;
+    }
+
+    /* ── CONTAINER ── */
+    .vs-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── SECTION HEADINGS ── */
+    .vs-section-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--vs-red);
+        font-weight: 800;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255,59,95,0.2);
+    }
+
+    /* ── SUBMIT SECTION ── */
+    .vs-submit {
+        padding: 48px 0 40px;
+    }
+    .vs-submit-text {
+        font-size: 13px;
+        color: var(--vs-muted);
+        margin-bottom: 16px;
+    }
+    .vs-submit-row {
         display: flex;
         gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin: 30px 0;
+        align-items: stretch;
     }
-    
-    .platform-btn {
-        background: rgba(138, 43, 226, 0.2);
-        border: 1px solid rgba(138, 43, 226, 0.4);
-        color: #fff;
-        padding: 8px 20px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    .vs-url-wrap {
+        flex: 1;
+        position: relative;
+    }
+    .vs-url-input {
+        width: 100%;
+        background: #000;
+        border: 1px solid rgba(255,59,95,0.3);
+        color: var(--vs-text);
+        padding: 14px 16px;
         font-family: 'JetBrains Mono', monospace;
-        font-size: 0.85rem;
+        font-size: 14px;
+        border-radius: 4px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
     }
-    
-    .platform-btn:hover, .platform-btn.active {
-        background: rgba(247, 147, 26, 0.3);
-        border-color: #f7931a;
-        color: #f7931a;
+    .vs-url-input:focus {
+        border-color: var(--vs-red);
+        box-shadow: 0 0 16px rgba(255,59,95,0.15);
     }
-    
-    .content-card {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .content-card:hover {
-        border-color: #f7931a;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(247, 147, 26, 0.15);
-    }
-    
-    .content-card.featured {
-        border-color: #f7931a;
-        background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(20, 20, 35, 0.9));
-    }
-    
-    .platform-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
+    .vs-url-input::placeholder { color: rgba(255,255,255,0.25); }
+    .vs-platform-badge {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        padding: 3px 8px;
+        border-radius: 3px;
+        display: none;
         text-transform: uppercase;
+    }
+    .vs-platform-badge.show { display: inline-block; }
+    .vs-platform-badge.x { background: rgba(29,161,242,0.2); color: #1da1f2; }
+    .vs-platform-badge.youtube { background: rgba(255,0,0,0.2); color: #ff4444; }
+    .vs-platform-badge.nostr { background: rgba(138,43,226,0.2); color: #a855f7; }
+    .vs-platform-badge.reddit { background: rgba(255,69,0,0.2); color: #ff4500; }
+    .vs-platform-badge.stacker { background: rgba(248,193,92,0.2); color: var(--vs-gold); }
+    .vs-submit-btn {
+        background: var(--vs-red);
+        color: #fff;
+        border: none;
+        padding: 14px 24px;
         font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        border-radius: 4px;
+        white-space: nowrap;
+        transition: transform 0.15s, box-shadow 0.15s;
     }
-    
-    .platform-twitter { background: rgba(29, 161, 242, 0.2); color: #1da1f2; }
-    .platform-youtube { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
-    .platform-reddit { background: rgba(255, 69, 0, 0.2); color: #ff4500; }
-    .platform-nostr { background: rgba(138, 43, 226, 0.2); color: #8a2be2; }
-    .platform-stacker_news { background: rgba(247, 147, 26, 0.2); color: #f7931a; }
-    
-    .signal-score {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.5rem;
-        color: #00ff88;
-        text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    .vs-submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(255,59,95,0.3);
     }
-    
-    .sats-count {
-        color: #f7931a;
-        font-weight: 600;
+
+    /* ── FEED LAYOUT ── */
+    .vs-feed-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 40px;
+        padding-bottom: 60px;
     }
-    
-    .zap-count {
-        color: rgba(255,255,255,0.6);
+    @media (max-width: 900px) {
+        .vs-feed-layout { grid-template-columns: 1fr; }
     }
-    
-    .curator-badge {
+
+    /* ── CONTENT CARDS ── */
+    .vs-card {
+        background: var(--vs-panel);
+        border-left: 2px solid var(--vs-red);
+        padding: 20px 20px 16px;
+        margin-bottom: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+    .vs-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(255,59,95,0.08);
+    }
+    .vs-card-head {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 6px 12px;
-        background: rgba(138, 43, 226, 0.2);
-        border-radius: 20px;
-        font-size: 0.85rem;
+        justify-content: space-between;
+        margin-bottom: 10px;
     }
-    
-    .curator-badge.verified::after {
-        content: "✓";
-        color: #00ff88;
-        margin-left: 4px;
-    }
-    
-    .zap-btn {
-        background: linear-gradient(135deg, #f7931a, #ff6b00);
-        border: none;
-        color: #000;
-        padding: 10px 24px;
-        border-radius: 8px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    .vs-card-platform {
         font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 3px;
     }
-    
-    .zap-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 20px rgba(247, 147, 26, 0.4);
+    .vs-card-platform.x { background: rgba(29,161,242,0.15); color: #1da1f2; }
+    .vs-card-platform.youtube { background: rgba(255,0,0,0.15); color: #ff4444; }
+    .vs-card-platform.nostr { background: rgba(138,43,226,0.15); color: #a855f7; }
+    .vs-card-platform.reddit { background: rgba(255,69,0,0.15); color: #ff4500; }
+    .vs-card-platform.stacker,
+    .vs-card-platform.stacker_news { background: rgba(248,193,92,0.15); color: var(--vs-gold); }
+    .vs-card-platform.web { background: rgba(255,255,255,0.08); color: var(--vs-muted); }
+    .vs-card-time {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--vs-muted);
     }
-    
-    .curator-leaderboard {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 20px;
+    .vs-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--vs-text);
+        margin-bottom: 6px;
+        line-height: 1.35;
     }
-    
-    .curator-row {
+    .vs-card-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+    .vs-card-title a:hover { color: #fff; }
+    .vs-card-preview {
+        font-size: 13px;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.5;
+        margin-bottom: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .vs-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .vs-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .vs-sats {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .vs-sats.high { color: var(--vs-red); }
+    .vs-sats.mid { color: var(--vs-gold); }
+    .vs-sats.low { color: var(--vs-text); }
+    .vs-zaps {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--vs-muted);
+    }
+    .vs-curator-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--vs-muted);
+    }
+    .vs-curator-tag.top { color: var(--vs-gold); }
+
+    /* ── ZAP BUTTON ── */
+    .vs-zap-btn {
+        background: transparent;
+        border: 1px solid rgba(255,59,95,0.4);
+        color: var(--vs-red);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 14px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .vs-zap-btn:hover {
+        background: var(--vs-red);
+        color: #fff;
+        box-shadow: 0 0 12px rgba(255,59,95,0.3);
+    }
+    .vs-zap-btn .bolt { font-size: 14px; }
+    .vs-zap-btn.zapped {
+        background: var(--vs-red);
+        color: #fff;
+        border-color: var(--vs-red);
+    }
+
+    /* ── ZAP AMOUNT MODAL ── */
+    .vs-zap-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        z-index: 9998;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    .vs-zap-modal-overlay.show { display: flex; }
+    .vs-zap-modal {
+        background: var(--vs-panel);
+        border: 1px solid rgba(255,59,95,0.3);
+        padding: 32px;
+        max-width: 360px;
+        width: 90%;
+        text-align: center;
+    }
+    .vs-zap-modal-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--vs-text);
+        margin-bottom: 8px;
+    }
+    .vs-zap-modal-sub {
+        font-size: 11px;
+        color: var(--vs-muted);
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    .vs-zap-presets {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+    .vs-zap-preset {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: var(--vs-muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 8px 14px;
+        cursor: pointer;
+        transition: all 0.15s;
+        border-radius: 2px;
+    }
+    .vs-zap-preset:hover,
+    .vs-zap-preset.selected {
+        background: rgba(255,59,95,0.15);
+        border-color: var(--vs-red);
+        color: var(--vs-red);
+    }
+    .vs-zap-custom-input {
+        width: 100%;
+        background: #000;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--vs-text);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        padding: 10px;
+        margin-bottom: 16px;
+        outline: none;
+        box-sizing: border-box;
+        border-radius: 2px;
+    }
+    .vs-zap-custom-input:focus { border-color: var(--vs-red); }
+    .vs-zap-confirm-btn {
+        background: var(--vs-red);
+        color: #fff;
+        border: none;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 10px 28px;
+        cursor: pointer;
+        margin-right: 8px;
+        border-radius: 2px;
+    }
+    .vs-zap-cancel-btn {
+        background: transparent;
+        color: var(--vs-muted);
+        border: 1px solid rgba(255,255,255,0.08);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 2px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .vs-empty {
+        padding: 48px 0;
+        text-align: center;
+    }
+    .vs-empty-headline {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.1rem, 2vw, 1.4rem);
+        color: var(--vs-text);
+        font-weight: 700;
+        margin-bottom: 32px;
+        letter-spacing: -0.02em;
+    }
+    .vs-example-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    .vs-example {
+        background: var(--vs-panel);
+        border-left: 2px solid rgba(255,59,95,0.3);
+        padding: 18px;
+        opacity: 0.6;
+        position: relative;
+    }
+    .vs-example-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.16em;
+        color: var(--vs-muted);
+        text-transform: uppercase;
+        font-weight: 800;
+        position: absolute;
+        top: 8px;
+        right: 10px;
+    }
+    .vs-example .vs-card-platform { margin-bottom: 8px; display: inline-block; }
+    .vs-example-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.75);
+        margin-bottom: 6px;
+        line-height: 1.35;
+    }
+    .vs-example-desc {
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        line-height: 1.5;
+    }
+    .vs-example-sats {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--vs-gold);
+        margin-top: 10px;
+    }
+    .vs-cta-link {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: var(--vs-red);
+        font-weight: 700;
+        text-decoration: none;
+        letter-spacing: 0.04em;
+        transition: color 0.2s;
+    }
+    .vs-cta-link:hover { color: #ff6b85; }
+
+    /* ── LEADERBOARD ── */
+    .vs-leaderboard {
+        margin-bottom: 40px;
+    }
+    .vs-leader-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 12px 0;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        opacity: 0;
+        animation: vs-fade-in 0.3s forwards;
     }
-    
-    .curator-row:last-child {
-        border-bottom: none;
+    .vs-leader-row:last-child { border-bottom: none; }
+    .vs-leader-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
-    
-    .curator-rank {
-        width: 30px;
+    .vs-leader-rank {
         font-family: 'JetBrains Mono', monospace;
-        color: #f7931a;
+        font-size: 20px;
+        font-weight: 900;
+        color: var(--vs-red);
+        min-width: 32px;
     }
-    
-    .extension-promo {
-        background: linear-gradient(135deg, rgba(247, 147, 26, 0.2), rgba(138, 43, 226, 0.2));
-        border: 1px solid rgba(247, 147, 26, 0.4);
-        border-radius: 16px;
-        padding: 30px;
-        text-align: center;
-        margin: 40px 0;
+    .vs-leader-row:first-child .vs-leader-rank { color: var(--vs-gold); }
+    .vs-leader-row:first-child { border-left: 2px solid var(--vs-gold); padding-left: 12px; }
+    .vs-leader-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--vs-text);
     }
-    
-    .extension-btn {
-        background: linear-gradient(135deg, #8a2be2, #6b1fa9);
-        border: none;
-        color: #fff;
-        padding: 14px 32px;
-        border-radius: 8px;
+    .vs-leader-right {
+        text-align: right;
+    }
+    .vs-leader-sats {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
         font-weight: 700;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.3s ease;
+        color: var(--vs-text);
     }
-    
-    .extension-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 20px rgba(138, 43, 226, 0.4);
-    }
-    
-    .how-it-works {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 24px;
-        margin: 40px 0;
-    }
-    
-    .how-card {
-        background: rgba(20, 20, 35, 0.8);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 24px;
-        text-align: center;
-    }
-    
-    .how-icon {
-        font-size: 2.5rem;
-        margin-bottom: 16px;
-    }
-    
-    .empty-stream {
-        text-align: center;
-        padding: 60px;
-        color: rgba(255,255,255,0.5);
-    }
-    
-    .submit-form {
-        background: rgba(20, 20, 35, 0.9);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 30px;
-    }
-    
-    .submit-input {
-        background: rgba(0,0,0,0.3);
-        border: 1px solid rgba(138, 43, 226, 0.4);
-        color: #fff;
-        padding: 12px 16px;
-        border-radius: 8px;
-        width: 100%;
+    .vs-leader-row:first-child .vs-leader-sats { color: var(--vs-gold); }
+    .vs-leader-score {
         font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--vs-muted);
     }
-    
-    .submit-input:focus {
-        outline: none;
-        border-color: #f7931a;
+
+    @keyframes vs-fade-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── ANTI-ALGORITHM SECTION ── */
+    .vs-anti {
+        padding: 60px 0;
+        border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .vs-anti-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+        font-weight: 900;
+        color: var(--vs-text);
+        text-align: center;
+        margin-bottom: 8px;
+        letter-spacing: -0.03em;
+    }
+    .vs-anti-sub {
+        font-size: 13px;
+        color: var(--vs-muted);
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .vs-anti-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    .vs-anti-card {
+        background: var(--vs-panel);
+        border: 1px solid rgba(255,59,95,0.12);
+        padding: 24px 20px;
+        transition: border-color 0.2s;
+    }
+    .vs-anti-card:hover {
+        border-color: rgba(255,59,95,0.35);
+    }
+    .vs-anti-card-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--vs-red);
+        margin-bottom: 8px;
+    }
+    .vs-anti-card-desc {
+        font-size: 13px;
+        color: rgba(255,255,255,0.6);
+        line-height: 1.6;
+    }
+    .vs-anti-closing {
+        text-align: center;
+        font-size: 13px;
+        color: rgba(255,255,255,0.5);
+        max-width: 560px;
+        margin: 0 auto;
+        line-height: 1.7;
+    }
+
+    /* ── NOSTR PANEL ── */
+    .vs-nostr {
+        background: var(--vs-panel);
+        border: 1px solid rgba(138,43,226,0.2);
+        padding: 20px;
+        margin-bottom: 32px;
+    }
+    .vs-nostr-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #a855f7;
+        margin-bottom: 8px;
+    }
+    .vs-nostr-desc {
+        font-size: 12px;
+        color: var(--vs-muted);
+        line-height: 1.6;
+    }
+
+    /* ── PLATFORM FILTERS ── */
+    .vs-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+    .vs-filter-btn {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: var(--vs-muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 6px 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 2px;
+        text-decoration: none;
+    }
+    .vs-filter-btn:hover,
+    .vs-filter-btn.active {
+        background: rgba(255,59,95,0.12);
+        border-color: var(--vs-red);
+        color: var(--vs-red);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+        .vs-hero { padding: 48px 16px 36px; }
+        .vs-stats { gap: 20px; }
+        .vs-submit-row { flex-direction: column; }
+        .vs-submit-btn { width: 100%; text-align: center; }
+        .vs-card { padding: 16px; }
+        .vs-card-footer { flex-direction: column; align-items: flex-start; }
+        .vs-example-grid { grid-template-columns: 1fr; }
+        .vs-anti-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── COUNT-UP ANIMATION ── */
+    .vs-count-up {
+        transition: all 0.6s ease-out;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="value-stream-hero text-center">
-    <div class="container">
-        <h1 class="stream-title">
-            <i class="fas fa-bolt"></i> VALUE STREAM
-        </h1>
-        <p class="stream-subtitle">
-            Decentralized content curation powered by sats. The best content rises based on 
-            real economic signals, not engagement farming. Zap to signal value.
-        </p>
-        
-        <div class="platform-filters">
-            <button class="platform-btn active" data-platform="all">ALL PLATFORMS</button>
-            <button class="platform-btn" data-platform="twitter">X/TWITTER</button>
-            <button class="platform-btn" data-platform="youtube">YOUTUBE</button>
-            <button class="platform-btn" data-platform="nostr">NOSTR</button>
-            <button class="platform-btn" data-platform="reddit">REDDIT</button>
-            <button class="platform-btn" data-platform="stacker_news">STACKER NEWS</button>
+<!-- ═══ HERO ═══ -->
+<section class="vs-hero">
+    <h1 class="vs-hero-title">PROOF OF VALUE</h1>
+    <p class="vs-hero-sub">SAT-WEIGHTED CONTENT CURATION</p>
+    <div class="vs-manifesto">
+        <p>The best content rises based on economic signal &mdash; not engagement farming, not algorithmic manipulation, not infinite scroll dopamine loops.</p>
+        <p>Your sat is your vote. Your attention is sovereign. Spend both deliberately.</p>
+    </div>
+    <div class="vs-sep"></div>
+    <div class="vs-stats">
+        <div class="vs-stat">
+            <div class="vs-stat-label">TOTAL VALUE ZAPPED</div>
+            <div class="vs-stat-value"><span class="vs-count-up" data-target="{{ total_sats }}">0</span> SATS</div>
+        </div>
+        <div class="vs-stat">
+            <div class="vs-stat-label">CONTENT PIECES</div>
+            <div class="vs-stat-value"><span class="vs-count-up" data-target="{{ posts|length }}">0</span></div>
+        </div>
+        <div class="vs-stat">
+            <div class="vs-stat-label">TOP CURATOR EARNED</div>
+            <div class="vs-stat-value"><span class="vs-count-up" data-target="{{ curators[0].total_sats_received if curators else 0 }}">0</span> SATS</div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="submit-form">
-                <h5 class="text-white mb-3"><i class="fas fa-plus-circle text-warning"></i> Curate Content</h5>
-                <form id="submit-content-form" class="d-flex gap-3">
-                    <input type="url" class="submit-input flex-grow-1" id="content-url" 
-                           placeholder="Paste URL from any platform..." required>
-                    <button type="submit" class="zap-btn">
-                        <i class="fas fa-paper-plane"></i> SUBMIT
-                    </button>
-                </form>
-                <small class="text-muted mt-2 d-block">Share valuable content and earn curator splits when others zap</small>
+<div class="vs-container">
+
+    <!-- ═══ SUBMIT ═══ -->
+    <section class="vs-submit" id="submit-section">
+        <div class="vs-section-title">SIGNAL VALUE</div>
+        <p class="vs-submit-text">Paste any URL. If it's worth a sat, it belongs here. <span style="color:var(--vs-gold);">Curators earn 10% of every sat zapped on content they discover.</span></p>
+        <form id="vs-submit-form" class="vs-submit-row">
+            <div class="vs-url-wrap">
+                <input type="url" id="vs-url" class="vs-url-input"
+                       placeholder="https://..." required autocomplete="off">
+                <span id="vs-platform-detect" class="vs-platform-badge"></span>
             </div>
-            
-            <div id="value-stream-feed">
-                {% if posts %}
-                    {% for post in posts %}
-                    <div class="content-card {% if post.is_featured %}featured{% endif %}">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <span class="platform-badge platform-{{ post.platform }}">
-                                    {{ post.platform }}
-                                </span>
-                                {% if post.is_featured %}
-                                <span class="badge bg-warning text-dark ms-2">FEATURED</span>
-                                {% endif %}
-                            </div>
-                            <div class="signal-score" title="Signal Score">
-                                {{ "%.1f"|format(post.signal_score) }}
-                            </div>
+            <button type="submit" class="vs-submit-btn">SUBMIT TO THE STREAM</button>
+        </form>
+    </section>
+
+    <!-- ═══ FEED + SIDEBAR ═══ -->
+    <div class="vs-feed-layout">
+        <div>
+            <!-- Platform Filters -->
+            <div class="vs-filters">
+                <a href="/value-stream" class="vs-filter-btn {% if not selected_platform %}active{% endif %}">ALL</a>
+                <a href="/value-stream?platform=x" class="vs-filter-btn {% if selected_platform == 'x' %}active{% endif %}">X</a>
+                <a href="/value-stream?platform=youtube" class="vs-filter-btn {% if selected_platform == 'youtube' %}active{% endif %}">YOUTUBE</a>
+                <a href="/value-stream?platform=nostr" class="vs-filter-btn {% if selected_platform == 'nostr' %}active{% endif %}">NOSTR</a>
+                <a href="/value-stream?platform=reddit" class="vs-filter-btn {% if selected_platform == 'reddit' %}active{% endif %}">REDDIT</a>
+                <a href="/value-stream?platform=stacker" class="vs-filter-btn {% if selected_platform == 'stacker' %}active{% endif %}">STACKER NEWS</a>
+            </div>
+
+            {% if posts %}
+                {% for post in posts %}
+                <div class="vs-card">
+                    <div class="vs-card-head">
+                        <span class="vs-card-platform {{ post.platform or 'web' }}">{{ (post.platform or 'web')|upper }}</span>
+                        <span class="vs-card-time" data-ts="{{ post.submitted_at.isoformat() if post.submitted_at else '' }}"></span>
+                    </div>
+                    <div class="vs-card-title">
+                        <a href="{{ post.original_url }}" target="_blank" rel="noopener">
+                            {{ post.title or 'Untitled' }}
+                        </a>
+                    </div>
+                    {% if post.content_preview %}
+                    <div class="vs-card-preview">{{ post.content_preview[:200] }}</div>
+                    {% endif %}
+                    <div class="vs-card-footer">
+                        <div class="vs-card-meta">
+                            <span class="vs-sats {% if (post.total_sats or 0) > 1000 %}high{% elif (post.total_sats or 0) > 100 %}mid{% else %}low{% endif %}">
+                                &#9889; {{ "{:,}".format(post.total_sats or 0) }} sats
+                            </span>
+                            <span class="vs-zaps">{{ post.zap_count or 0 }} zaps</span>
+                            {% if post.curator %}
+                            <span class="vs-curator-tag {% if loop.index <= 10 %}top{% endif %}">@{{ post.curator.display_name }}{% if (post.total_sats or 0) > 0 %} <span style="color:var(--vs-gold);font-size:10px;" title="Curator earned 10% of zaps">+{{ "{:,}".format(((post.total_sats or 0) * 0.1)|int) }}</span>{% endif %}</span>
+                            {% endif %}
                         </div>
-                        
-                        <h5 class="text-white mb-2">
-                            <a href="{{ post.original_url }}" target="_blank" class="text-decoration-none text-white">
-                                {{ post.title or 'Untitled Content' }}
-                                <i class="fas fa-external-link-alt fa-xs ms-2 text-muted"></i>
-                            </a>
-                        </h5>
-                        
-                        {% if post.content_preview %}
-                        <p class="text-muted mb-3">{{ post.content_preview[:200] }}...</p>
-                        {% endif %}
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="d-flex gap-4">
-                                <span class="sats-count">
-                                    <i class="fas fa-bolt"></i> {{ "{:,}".format(post.total_sats) }} sats
-                                </span>
-                                <span class="zap-count">
-                                    {{ post.zap_count }} zaps
-                                </span>
-                            </div>
-                            
-                            <div class="d-flex align-items-center gap-3">
-                                {% if post.curator %}
-                                <div class="curator-badge {% if post.curator.verified %}verified{% endif %}">
-                                    <i class="fas fa-user-check"></i>
-                                    {{ post.curator.display_name }}
-                                </div>
-                                {% endif %}
-                                
-                                <button class="zap-btn zap-content-btn" data-post-id="{{ post.id }}">
-                                    <i class="fas fa-bolt"></i> ZAP
-                                </button>
-                            </div>
+                        <button class="vs-zap-btn" data-post-id="{{ post.id }}" data-sats="{{ post.total_sats or 0 }}" aria-label="Zap {{ post.title or 'content' }} with sats">
+                            <span class="bolt">&#9889;</span> ZAP
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- ═══ EMPTY STATE ═══ -->
+                <div class="vs-empty">
+                    <div class="vs-empty-headline">THE STREAM IS WAITING FOR ITS FIRST SIGNAL.</div>
+                    <div class="vs-example-grid">
+                        <div class="vs-example">
+                            <span class="vs-example-badge">EXAMPLE</span>
+                            <span class="vs-card-platform nostr">NOSTR</span>
+                            <div class="vs-example-title">Taproot Assets on Lightning: the technical deep-dive every Bitcoiner should read</div>
+                            <div class="vs-example-desc">A respected researcher breaks down the Taproot Assets protocol and its implications for Lightning-native assets without compromising decentralization.</div>
+                            <div class="vs-example-sats">&#9889; 21,000 sats &middot; 47 zaps</div>
+                        </div>
+                        <div class="vs-example">
+                            <span class="vs-example-badge">EXAMPLE</span>
+                            <span class="vs-card-platform x">X</span>
+                            <div class="vs-example-title">Self-custody is not a feature. It is the entire point.</div>
+                            <div class="vs-example-desc">A sovereignty op-ed that cuts through the noise. No hedging. No disclaimers. Just first-principles thinking about why you hold your own keys.</div>
+                            <div class="vs-example-sats">&#9889; 8,400 sats &middot; 23 zaps</div>
+                        </div>
+                        <div class="vs-example">
+                            <span class="vs-example-badge">EXAMPLE</span>
+                            <span class="vs-card-platform youtube">YOUTUBE</span>
+                            <div class="vs-example-title">Live demo: sending 1 sat across the world in 0.3 seconds</div>
+                            <div class="vs-example-desc">A Lightning Network demonstration showing instant, borderless micropayments. The future of money in real-time.</div>
+                            <div class="vs-example-sats">&#9889; 5,000 sats &middot; 31 zaps</div>
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-stream">
-                        <i class="fas fa-stream fa-3x mb-3"></i>
-                        <h4>No Curated Content Yet</h4>
-                        <p>Be the first to curate valuable content and earn sats when others zap!</p>
-                    </div>
-                {% endif %}
-            </div>
+                    <a href="#submit-section" class="vs-cta-link">BE THE FIRST TO SIGNAL VALUE &rarr;</a>
+                </div>
+            {% endif %}
         </div>
-        
-        <div class="col-lg-4">
-            <div class="extension-promo mb-4">
-                <h4 class="text-white mb-3">
-                    <i class="fas fa-puzzle-piece"></i> Browser Extension
-                </h4>
-                <p class="text-muted mb-4">
-                    Zap content anywhere on the web. Curate from any site. 
-                    Connect your Lightning wallet.
-                </p>
-                <a href="/extension" class="extension-btn text-decoration-none">
-                    <i class="fas fa-download me-2"></i> GET EXTENSION
-                </a>
-            </div>
-            
-            <div class="curator-leaderboard">
-                <h5 class="text-white mb-3">
-                    <i class="fas fa-trophy text-warning"></i> Top Curators
-                </h5>
-                
+
+        <!-- ═══ SIDEBAR ═══ -->
+        <div>
+            <!-- Leaderboard -->
+            <div class="vs-leaderboard">
+                <div class="vs-section-title">PROOF OF WORK &mdash; TOP CURATORS</div>
                 {% if curators %}
                     {% for curator in curators[:10] %}
-                    <div class="curator-row">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="curator-rank">#{{ loop.index }}</span>
-                            <div>
-                                <div class="text-white">
-                                    {{ curator.display_name }}
-                                    {% if curator.verified %}
-                                    <i class="fas fa-check-circle text-success fa-xs"></i>
-                                    {% endif %}
-                                </div>
-                                <small class="text-muted">Score: {{ curator.curator_score }}</small>
-                            </div>
+                    <div class="vs-leader-row" style="animation-delay: {{ loop.index * 80 }}ms">
+                        <div class="vs-leader-left">
+                            <span class="vs-leader-rank">{{ loop.index }}</span>
+                            <span class="vs-leader-name">
+                                {{ curator.display_name }}
+                                {% if curator.verified %}<span style="color: var(--vs-gold); margin-left: 4px;" title="Verified">&#10003;</span>{% endif %}
+                            </span>
                         </div>
-                        <div class="text-end">
-                            <div class="sats-count small">{{ "{:,}".format(curator.total_sats_received) }}</div>
-                            <small class="text-muted">{{ curator.total_zaps }} zaps</small>
+                        <div class="vs-leader-right">
+                            <div class="vs-leader-sats">{{ "{:,}".format(curator.total_sats_received or 0) }} sats</div>
+                            <div class="vs-leader-score">score: {{ "%.1f"|format(curator.curator_score or 0) }}</div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-muted text-center py-3">No curators yet</p>
+                    <div style="text-align: center; padding: 24px 0; color: var(--vs-muted); font-size: 13px;">
+                        Curate content. Earn sats. Climb the board.
+                    </div>
                 {% endif %}
             </div>
-            
-            <div class="how-it-works mt-4">
-                <div class="how-card">
-                    <div class="how-icon">🔗</div>
-                    <h6 class="text-white">1. Curate</h6>
-                    <p class="text-muted small mb-0">Share valuable content from any platform</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon">⚡</div>
-                    <h6 class="text-white">2. Zap</h6>
-                    <p class="text-muted small mb-0">Send sats to signal content value</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon">📈</div>
-                    <h6 class="text-white">3. Rise</h6>
-                    <p class="text-muted small mb-0">Best content surfaces via economic signal</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon">💰</div>
-                    <h6 class="text-white">4. Earn</h6>
-                    <p class="text-muted small mb-0">Curators get 10% of zaps to content they share</p>
+
+            <!-- Nostr Panel -->
+            <div class="vs-nostr">
+                <div class="vs-nostr-title">NATIVE ON NOSTR</div>
+                <div class="vs-nostr-desc">
+                    Content submitted here can be bridged as Nostr events (kind:1). Zaps settle natively via Lightning. Connect your Nostr pubkey to claim curator earnings.
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ═══ THE ANTI-ALGORITHM ═══ -->
+    <section class="vs-anti">
+        <h2 class="vs-anti-title">THE ANTI-ALGORITHM</h2>
+        <p class="vs-anti-sub">Content ranked by conviction, not manipulation.</p>
+        <div class="vs-anti-grid">
+            <div class="vs-anti-card">
+                <div class="vs-anti-card-title">PROOF OF VALUE FEED</div>
+                <div class="vs-anti-card-desc">Content ranked by sats received, not engagement metrics. No likes. No retweets. No impression farming. Just economic signal.</div>
+            </div>
+            <div class="vs-anti-card">
+                <div class="vs-anti-card-title">CURATOR ECONOMY</div>
+                <div class="vs-anti-card-desc">Discover valuable content first and earn 10% of all sats zapped to it. Your taste has a price. Prove it.</div>
+            </div>
+            <div class="vs-anti-card">
+                <div class="vs-anti-card-title">SOVEREIGN TIMELINE</div>
+                <div class="vs-anti-card-desc">No algorithmic amplification. No shadow bans. No engagement optimization. Chronological option always available.</div>
+            </div>
+            <div class="vs-anti-card">
+                <div class="vs-anti-card-title">LIGHTNING NATIVE</div>
+                <div class="vs-anti-card-desc">Every interaction is a micropayment. Your attention has a price. Value is transferred, not extracted.</div>
+            </div>
+        </div>
+        <p class="vs-anti-closing">
+            The attention economy is the most sophisticated manipulation tool in human history. Value Stream is the opt-out.
+        </p>
+    </section>
+</div>
+
+<!-- ═══ ZAP AMOUNT MODAL ═══ -->
+<div class="vs-zap-modal-overlay" id="vs-zap-modal">
+    <div class="vs-zap-modal">
+        <div class="vs-zap-modal-title">SIGNAL VALUE</div>
+        <div class="vs-zap-modal-sub">How many sats is this content worth to you?</div>
+        <div class="vs-zap-presets">
+            <button class="vs-zap-preset" data-amount="21">21</button>
+            <button class="vs-zap-preset" data-amount="100">100</button>
+            <button class="vs-zap-preset selected" data-amount="1000">1K</button>
+            <button class="vs-zap-preset" data-amount="5000">5K</button>
+            <button class="vs-zap-preset" data-amount="21000">21K</button>
+        </div>
+        <input type="number" class="vs-zap-custom-input" id="vs-zap-amount" value="1000" min="1" max="1000000">
+        <div>
+            <button class="vs-zap-confirm-btn" id="vs-zap-confirm">&#9889; ZAP</button>
+            <button class="vs-zap-cancel-btn" id="vs-zap-cancel">CANCEL</button>
         </div>
     </div>
 </div>
 
 <script>
-document.querySelectorAll('.platform-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        const platform = this.dataset.platform;
-        window.location.href = platform === 'all' ? '/value-stream' : `/value-stream?platform=${platform}`;
-    });
-});
-
-document.getElementById('submit-content-form')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const url = document.getElementById('content-url').value;
-    
-    try {
-        const response = await fetch('/api/value-stream/submit', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({url: url})
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            alert('Content curated successfully!');
-            window.location.reload();
-        } else {
-            alert(data.error || 'Failed to curate content');
+(function() {
+    // ── COUNT-UP ANIMATION ──
+    document.querySelectorAll('.vs-count-up').forEach(el => {
+        const target = parseInt(el.dataset.target) || 0;
+        if (target === 0) { el.textContent = '0'; return; }
+        const duration = 1200;
+        const start = performance.now();
+        function step(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(target * eased).toLocaleString();
+            if (progress < 1) requestAnimationFrame(step);
         }
-    } catch (err) {
-        alert('Error submitting content');
-    }
-});
+        requestAnimationFrame(step);
+    });
 
-document.querySelectorAll('.zap-content-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-        const postId = this.dataset.postId;
-        
+    // ── RELATIVE TIMESTAMPS ──
+    document.querySelectorAll('.vs-card-time[data-ts]').forEach(el => {
+        const ts = el.dataset.ts;
+        if (!ts) return;
+        const diff = (Date.now() - new Date(ts + 'Z').getTime()) / 1000;
+        if (diff < 60) el.textContent = 'just now';
+        else if (diff < 3600) el.textContent = Math.floor(diff / 60) + 'm ago';
+        else if (diff < 86400) el.textContent = Math.floor(diff / 3600) + 'h ago';
+        else el.textContent = Math.floor(diff / 86400) + 'd ago';
+    });
+
+    // ── PLATFORM AUTO-DETECT ──
+    const urlInput = document.getElementById('vs-url');
+    const badge = document.getElementById('vs-platform-detect');
+    if (urlInput && badge) {
+        urlInput.addEventListener('input', function() {
+            const v = this.value.toLowerCase();
+            let p = null;
+            if (v.includes('youtube.com') || v.includes('youtu.be')) p = 'youtube';
+            else if (v.includes('twitter.com') || v.includes('x.com')) p = 'x';
+            else if (v.includes('nostr') || v.includes('njump') || v.includes('snort')) p = 'nostr';
+            else if (v.includes('reddit.com')) p = 'reddit';
+            else if (v.includes('stacker.news')) p = 'stacker';
+            if (p) {
+                badge.textContent = p.toUpperCase();
+                badge.className = 'vs-platform-badge show ' + p;
+            } else {
+                badge.className = 'vs-platform-badge';
+            }
+        });
+    }
+
+    // ── SUBMIT HANDLER ──
+    const form = document.getElementById('vs-submit-form');
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const url = document.getElementById('vs-url').value.trim();
+            if (!url) return;
+            const btn = form.querySelector('.vs-submit-btn');
+            const orig = btn.textContent;
+            btn.textContent = 'SUBMITTING...';
+            btn.disabled = true;
+            try {
+                const resp = await fetch('/api/value-stream/submit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({url: url})
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    document.getElementById('vs-url').value = '';
+                    const badge = document.getElementById('vs-platform-detect');
+                    if (badge) badge.className = 'vs-platform-badge';
+                    btn.textContent = 'SUBMITTED';
+                    btn.disabled = false;
+                    // Prepend new card to feed
+                    const feed = document.querySelector('.vs-feed-layout > div:first-child');
+                    const empty = feed.querySelector('.vs-empty');
+                    if (empty) empty.remove();
+                    const card = document.createElement('div');
+                    card.className = 'vs-card';
+                    card.style.borderColor = 'var(--vs-gold)';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(-10px)';
+                    const detected = url.includes('youtube') || url.includes('youtu.be') ? 'youtube'
+                        : url.includes('x.com') || url.includes('twitter') ? 'x'
+                        : url.includes('nostr') || url.includes('njump') ? 'nostr'
+                        : url.includes('reddit') ? 'reddit' : 'web';
+                    card.innerHTML = '<div class="vs-card-head"><span class="vs-card-platform ' + detected + '">' + detected.toUpperCase() + '</span><span class="vs-card-time">just now</span></div>'
+                        + '<div class="vs-card-title"><a href="' + url.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener">' + url.replace(/</g,'&lt;') + '</a></div>'
+                        + '<div class="vs-card-footer"><div class="vs-card-meta"><span class="vs-sats low">&#9889; 0 sats</span><span class="vs-zaps">0 zaps</span></div></div>';
+                    const filters = feed.querySelector('.vs-filters');
+                    if (filters && filters.nextElementSibling) {
+                        filters.after(card);
+                    } else {
+                        feed.prepend(card);
+                    }
+                    requestAnimationFrame(() => {
+                        card.style.transition = 'opacity 0.4s, transform 0.4s';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                    setTimeout(() => { card.style.borderColor = ''; btn.textContent = orig; }, 2500);
+                } else {
+                    btn.textContent = data.error || 'FAILED';
+                    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+                }
+            } catch (err) {
+                btn.textContent = 'NETWORK ERROR';
+                setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+            }
+        });
+    }
+
+    // ── ZAP MODAL + HANDLER ──
+    const zapModal = document.getElementById('vs-zap-modal');
+    const zapAmountInput = document.getElementById('vs-zap-amount');
+    const zapConfirm = document.getElementById('vs-zap-confirm');
+    const zapCancel = document.getElementById('vs-zap-cancel');
+    let activeZapBtn = null;
+
+    // Preset buttons
+    document.querySelectorAll('.vs-zap-preset').forEach(p => {
+        p.addEventListener('click', function() {
+            document.querySelectorAll('.vs-zap-preset').forEach(x => x.classList.remove('selected'));
+            this.classList.add('selected');
+            zapAmountInput.value = this.dataset.amount;
+        });
+    });
+    zapAmountInput.addEventListener('input', function() {
+        document.querySelectorAll('.vs-zap-preset').forEach(x => x.classList.remove('selected'));
+    });
+
+    // Open modal
+    document.querySelectorAll('.vs-zap-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            activeZapBtn = this;
+            zapAmountInput.value = 1000;
+            document.querySelectorAll('.vs-zap-preset').forEach(x => x.classList.remove('selected'));
+            document.querySelector('.vs-zap-preset[data-amount="1000"]').classList.add('selected');
+            zapModal.classList.add('show');
+        });
+    });
+
+    // Cancel
+    zapCancel.addEventListener('click', () => { zapModal.classList.remove('show'); activeZapBtn = null; });
+    zapModal.addEventListener('click', function(e) { if (e.target === this) { this.classList.remove('show'); activeZapBtn = null; } });
+
+    // Confirm zap
+    zapConfirm.addEventListener('click', async function() {
+        if (!activeZapBtn) return;
+        const postId = activeZapBtn.dataset.postId;
+        const amount = Math.max(1, parseInt(zapAmountInput.value) || 1);
+        zapModal.classList.remove('show');
+
+        const card = activeZapBtn.closest('.vs-card');
+        const satsEl = card ? card.querySelector('.vs-sats') : null;
+        const zapBtn = activeZapBtn;
+
+        // Show processing state
+        zapBtn.innerHTML = '<span class="bolt">&#9889;</span> ZAPPING...';
+        zapBtn.disabled = true;
+
         if (typeof webln !== 'undefined') {
             try {
                 await webln.enable();
-                const response = await fetch(`/api/value-stream/invoice/${postId}`, {
+                const resp = await fetch('/api/value-stream/invoice/' + postId, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({amount_sats: 1000})
+                    body: JSON.stringify({amount_sats: amount})
                 });
-                const data = await response.json();
-                
+                const data = await resp.json();
                 if (data.invoice) {
-                    const result = await webln.sendPayment(data.invoice);
-                    alert('Zap sent! Thank you for signaling value.');
-                    window.location.reload();
+                    await webln.sendPayment(data.invoice);
+                    // Only update UI on confirmed payment
+                    if (satsEl) {
+                        const current = parseInt(satsEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                        satsEl.innerHTML = '&#9889; ' + (current + amount).toLocaleString() + ' sats';
+                    }
+                    zapBtn.classList.add('zapped');
+                    zapBtn.innerHTML = '<span class="bolt">&#9889;</span> ZAPPED';
+                    zapBtn.disabled = false;
                 }
             } catch (err) {
-                alert('WebLN payment failed: ' + err.message);
+                zapBtn.innerHTML = '<span class="bolt">&#9889;</span> ZAP';
+                zapBtn.disabled = false;
             }
         } else {
-            alert('Please install a WebLN-compatible wallet extension (Alby, etc.)');
+            const msg = document.createElement('div');
+            msg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d0d;border:1px solid rgba(255,59,95,0.4);padding:32px;z-index:9999;max-width:380px;text-align:center;font-family:"JetBrains Mono",monospace;';
+            msg.innerHTML = '<div style="font-size:13px;color:#eef2ff;margin-bottom:12px;">CONNECT LIGHTNING WALLET</div>'
+                + '<div style="font-size:11px;color:#95a0ba;margin-bottom:16px;line-height:1.6;">Install a WebLN-compatible wallet extension like Alby to zap sats directly from your browser.</div>'
+                + '<button onclick="this.parentElement.remove()" style="background:#ff3b5f;border:none;color:#fff;padding:8px 20px;cursor:pointer;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;">DISMISS</button>';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 5000);
         }
+        activeZapBtn = null;
     });
-});
+})();
 </script>
 {% endblock %}
