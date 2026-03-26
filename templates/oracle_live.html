@@ -974,7 +974,13 @@ setTimeout(function(){
 var gate=document.getElementById('gate');
 var stage=document.getElementById('stage');
 var gBtn=document.getElementById('gate-btn');
+/* iOS bfcache fix: always reset gate button on page load */
+if(gBtn){ gBtn.disabled=false; }
 var gStatus=document.getElementById('gate-status');
+/* iOS bfcache: re-enable gate button when page is restored from cache */
+window.addEventListener('pageshow', function(e){
+  if(e.persisted && gBtn){ gBtn.disabled=false; gStatus.textContent=''; }
+});
 var gErr=document.getElementById('gate-error');
 var vid=document.getElementById('vid');
 var sub=document.getElementById('subtitle');
