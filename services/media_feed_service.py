@@ -84,8 +84,9 @@ def compute_signal_score(title: str, description: str, tier: int = 2,
     for kw, weight in SIGNAL_KEYWORDS.items():
         if kw in text:
             keyword_raw += weight
-    # Normalize: max possible ~120 from keywords → scale to 0-40
-    sentiment_score = min(int(keyword_raw * 40 / 80), 40)
+    # Normalize dynamically based on actual max achievable keyword score
+    max_kw = sum(SIGNAL_KEYWORDS.values()) or 1
+    sentiment_score = min(int(keyword_raw * 40 / max_kw), 40)
 
     # ── Recency Component (0-20) ──
     recency_score = 0

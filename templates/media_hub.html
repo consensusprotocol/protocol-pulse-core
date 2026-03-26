@@ -696,180 +696,6 @@ function tAgo(ts){var d=Math.floor(Date.now()/1000)-ts;if(d<60)return'now';if(d<
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD()}});
 startNostr();
 
-/* ── Old network graph + heatmap removed — D3 version at bottom ── */
-/* REMOVED_OLD_NETWORK_START
-  {id:'preston',name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro',tier:1,r:14},
-  {id:'odell',name:'Matt Odell',handle:'@ODELL',cat:'protocol',tier:1,r:15},
-  {id:'marty',name:'Marty Bent',handle:'@MartyBent',cat:'media',tier:1,r:14},
-  {id:'nvk',name:'NVK',handle:'@nvk',cat:'protocol',tier:1,r:13},
-  {id:'natalie',name:'Natalie Brunell',handle:'@natbrunell',cat:'media',tier:1,r:13},
-  {id:'booth',name:'Jeff Booth',handle:'@JeffBooth',cat:'macro',tier:1,r:14},
-  {id:'saif',name:'Saifedean',handle:'@saifedean',cat:'macro',tier:1,r:14},
-  {id:'lopp',name:'Jameson Lopp',handle:'@lopp',cat:'protocol',tier:1,r:13},
-  {id:'willy',name:'Willy Woo',handle:'@woonomic',cat:'macro',tier:1,r:13},
-  {id:'peter',name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media',tier:1,r:14},
-  {id:'breedlove',name:'Robert Breedlove',handle:'@Breedlove22',cat:'macro',tier:1,r:13},
-  {id:'guy',name:'Guy Swann',handle:'@GuySwann',cat:'media',tier:1,r:12},
-  {id:'livera',name:'Stephan Livera',handle:'@stephanlivera',cat:'media',tier:1,r:13},
-  {id:'bhatia',name:'Nik Bhatia',handle:'@timeaborned',cat:'macro',tier:1,r:12},
-  {id:'hodl',name:'American HODL',handle:'@americanhodl8',cat:'media',tier:2,r:11},
-  {id:'fiatjaf',name:'Fiatjaf',handle:'@fiatjaf',cat:'protocol',tier:1,r:12},
-  {id:'gladstein',name:'Alex Gladstein',handle:'@gladstein',cat:'macro',tier:1,r:12},
-  {id:'pomp',name:'Anthony Pompliano',handle:'@APompliano',cat:'media',tier:1,r:14},
-  {id:'max',name:'Max Keiser',handle:'@maxkeiser',cat:'macro',tier:2,r:12},
-  {id:'samson',name:'Samson Mow',handle:'@Excellion',cat:'protocol',tier:1,r:12},
-  {id:'jimmy',name:'Jimmy Song',handle:'@jimmysong',cat:'protocol',tier:1,r:11},
-  {id:'andreas',name:'Andreas Antonopoulos',handle:'@aantonop',cat:'protocol',tier:1,r:13},
-  {id:'elizabeth',name:'Elizabeth Stark',handle:'@staborned',cat:'protocol',tier:1,r:11},
-  {id:'pierre',name:'Pierre Rochard',handle:'@pierre_rochard',cat:'protocol',tier:1,r:11},
-  {id:'cory',name:'Cory Klippsten',handle:'@coryklippsten',cat:'media',tier:1,r:12},
-  {id:'dylan',name:'Dylan LeClair',handle:'@DylanLeClair_',cat:'macro',tier:2,r:11},
-  {id:'checkmate',name:'_Checkmate_',handle:'@_Checkmatey_',cat:'macro',tier:2,r:11},
-  {id:'gigi',name:'Gigi',handle:'@dergigi',cat:'protocol',tier:2,r:10},
-  {id:'beautyon',name:'Beautyon',handle:'@Beautyon_',cat:'protocol',tier:2,r:10},
-  {id:'tuur',name:'Tuur Demeester',handle:'@TuurDemeester',cat:'macro',tier:1,r:12},
-  {id:'plan_b',name:'PlanB',handle:'@100trillionUSD',cat:'macro',tier:1,r:13},
-  {id:'raoul',name:'Raoul Pal',handle:'@RaoulGMI',cat:'macro',tier:1,r:13},
-  {id:'caitlin',name:'Caitlin Long',handle:'@CaitlinLong_',cat:'macro',tier:1,r:11},
-  {id:'balaji',name:'Balaji Srinivasan',handle:'@balaborned',cat:'macro',tier:1,r:12},
-  {id:'matt_c',name:'Matt Corallo',handle:'@TheBlueMatt',cat:'protocol',tier:1,r:11},
-  {id:'giacomo',name:'Giacomo Zucco',handle:'@giacomozucco',cat:'protocol',tier:2,r:10},
-  {id:'alex_b',name:'Alex B',handle:'@alex_b',cat:'macro',tier:2,r:10},
-  {id:'pbx',name:'PBX',handle:'@pbxlife',cat:'media',tier:1,r:12},
-  {id:'swan',name:'Swan Bitcoin',handle:'@SwanBitcoin',cat:'media',tier:2,r:11},
-  {id:'river',name:'River Financial',handle:'@River',cat:'media',tier:2,r:10},
-  {id:'bolt',name:'Bolt Card',handle:'@BoltCard',cat:'protocol',tier:3,r:8},
-  {id:'strike',name:'Strike',handle:'@Strike',cat:'protocol',tier:1,r:12},
-  {id:'unchained',name:'Unchained',handle:'@unchaborned',cat:'media',tier:2,r:10},
-  {id:'fold',name:'Fold App',handle:'@fold_app',cat:'protocol',tier:2,r:9},
-  {id:'bitkey',name:'Bitkey',handle:'@bitaborned',cat:'protocol',tier:2,r:9},
-  {id:'cashapp',name:'Cash App',handle:'@CashApp',cat:'protocol',tier:1,r:11}
-];
-var LINKS=[
-  {s:'saylor',t:'pomp'},{s:'saylor',t:'lyn'},{s:'saylor',t:'preston'},{s:'saylor',t:'breedlove'},
-  {s:'jack',t:'fiatjaf'},{s:'jack',t:'odell'},{s:'jack',t:'strike'},{s:'jack',t:'cashapp'},
-  {s:'adam',t:'samson'},{s:'adam',t:'nvk'},{s:'adam',t:'jimmy'},
-  {s:'lyn',t:'preston'},{s:'lyn',t:'natalie'},{s:'lyn',t:'peter'},{s:'lyn',t:'tuur'},
-  {s:'odell',t:'marty'},{s:'odell',t:'nvk'},{s:'odell',t:'lopp'},{s:'odell',t:'fiatjaf'},
-  {s:'marty',t:'hodl'},{s:'marty',t:'pbx'},{s:'marty',t:'guy'},
-  {s:'peter',t:'livera'},{s:'peter',t:'natalie'},{s:'peter',t:'booth'},
-  {s:'natalie',t:'cory'},{s:'natalie',t:'dylan'},{s:'natalie',t:'gladstein'},
-  {s:'booth',t:'saif'},{s:'booth',t:'breedlove'},{s:'booth',t:'preston'},
-  {s:'livera',t:'guy'},{s:'livera',t:'jimmy'},{s:'livera',t:'bhatia'},
-  {s:'plan_b',t:'willy'},{s:'plan_b',t:'checkmate'},{s:'plan_b',t:'dylan'},
-  {s:'raoul',t:'lyn'},{s:'raoul',t:'pomp'},{s:'raoul',t:'balaji'},
-  {s:'andreas',t:'lopp'},{s:'andreas',t:'jimmy'},{s:'andreas',t:'matt_c'},
-  {s:'pomp',t:'cory'},{s:'pomp',t:'swan'},{s:'pomp',t:'raoul'},
-  {s:'strike',t:'cashapp'},{s:'strike',t:'fold'},{s:'strike',t:'bitkey'},
-  {s:'caitlin',t:'unchained'},{s:'caitlin',t:'pierre'},
-  {s:'samson',t:'adam'},{s:'samson',t:'max'},{s:'samson',t:'giacomo'},
-  {s:'gigi',t:'beautyon'},{s:'gigi',t:'fiatjaf'}
-];
-var catColor={macro:'#dc2626',protocol:'#5de4ff',media:'#f8c15c'};
-var svg=document.getElementById('netSvg');
-if(svg){
-  var w=svg.clientWidth||900,h=svg.clientHeight||500;
-  svg.setAttribute('viewBox','0 0 '+w+' '+h);
-  var ns='http://www.w3.org/2000/svg';
-  // Build id->index map
-  var idxMap={};VOICES.forEach(function(v,i){idxMap[v.id]=i});
-  var links=LINKS.map(function(l){return{source:idxMap[l.s],target:idxMap[l.t]}}).filter(function(l){return l.source!==undefined&&l.target!==undefined});
-  var nodes=VOICES.map(function(v){return Object.assign({},v,{x:w/2+Math.random()*200-100,y:h/2+Math.random()*200-100})});
-
-  // Simple force simulation (no D3 dependency — pure JS)
-  var alpha=1,decay=0.997,repulse=800,attract=0.008,center={x:w/2,y:h/2},cStrength=0.01;
-  function tick(){
-    // Center gravity
-    nodes.forEach(function(n){n.vx=(n.vx||0)+((center.x-n.x)*cStrength);n.vy=(n.vy||0)+((center.y-n.y)*cStrength)});
-    // Repulsion
-    for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){var dx=nodes[j].x-nodes[i].x,dy=nodes[j].y-nodes[i].y,d2=dx*dx+dy*dy+1;var f=repulse*alpha/d2;var fx=dx*f/Math.sqrt(d2),fy=dy*f/Math.sqrt(d2);nodes[i].vx-=fx;nodes[i].vy-=fy;nodes[j].vx+=fx;nodes[j].vy+=fy}}
-    // Attraction
-    links.forEach(function(l){var s=nodes[l.source],t=nodes[l.target],dx=t.x-s.x,dy=t.y-s.y,d=Math.sqrt(dx*dx+dy*dy+1);var f=attract*alpha*(d-80);s.vx+=dx*f/d;s.vy+=dy*f/d;t.vx-=dx*f/d;t.vy-=dy*f/d});
-    // Integrate
-    nodes.forEach(function(n){n.vx*=0.6;n.vy*=0.6;n.x=Math.max(20,Math.min(w-20,n.x+n.vx));n.y=Math.max(20,Math.min(h-20,n.y+n.vy))});
-    alpha*=decay;
-  }
-  // Run simulation
-  for(var si=0;si<300;si++)tick();
-
-  // Render SVG
-  var frag=document.createDocumentFragment();
-  // Links
-  links.forEach(function(l){var line=document.createElementNS(ns,'line');line.setAttribute('class','link');line.setAttribute('x1',nodes[l.source].x);line.setAttribute('y1',nodes[l.source].y);line.setAttribute('x2',nodes[l.target].x);line.setAttribute('y2',nodes[l.target].y);frag.appendChild(line)});
-  // Nodes
-  var hoverEl=document.getElementById('netHover');
-  nodes.forEach(function(n,i){
-    var g=document.createElementNS(ns,'g');
-    var c=document.createElementNS(ns,'circle');
-    c.setAttribute('class','node-circle');
-    c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',n.r);
-    c.setAttribute('fill',catColor[n.cat]||'#888');c.setAttribute('opacity','0.7');
-    c.setAttribute('stroke',catColor[n.cat]||'#888');c.setAttribute('stroke-width','1');c.setAttribute('stroke-opacity','0.3');
-    var t=document.createElementNS(ns,'text');
-    t.setAttribute('x',n.x);t.setAttribute('y',n.y+n.r+12);
-    t.textContent=n.name.split(' ').pop();
-    g.appendChild(c);g.appendChild(t);
-    // Hover
-    c.addEventListener('mouseenter',function(e){
-      c.setAttribute('r',n.r+4);c.setAttribute('opacity','1');
-      document.getElementById('nhName').textContent=n.name;
-      document.getElementById('nhHandle').textContent=n.handle;
-      document.getElementById('nhCat').textContent=n.cat+' voice';
-      document.getElementById('nhTier').innerHTML='T'+n.tier+'<span>Tier</span>';
-      document.getElementById('nhEps').innerHTML=Math.floor(Math.random()*50+5)+'<span>Episodes</span>';
-      document.getElementById('nhSignal').innerHTML=Math.floor(Math.random()*40+50)+'<span>Signal</span>';
-      var rect=svg.getBoundingClientRect();
-      hoverEl.style.left=(n.x+n.r+10)+'px';hoverEl.style.top=(n.y-30)+'px';
-      hoverEl.classList.add('show');
-    });
-    c.addEventListener('mouseleave',function(){c.setAttribute('r',n.r);c.setAttribute('opacity','0.7');hoverEl.classList.remove('show')});
-    frag.appendChild(g);
-  });
-  svg.appendChild(frag);
-}
-})();
-
-/* ── KOL Sentiment Heatmap ── */
-(function(){
-var KOL_LIST=[
-  {name:'Michael Saylor',handle:'@saylor',cat:'macro'},
-  {name:'Lyn Alden',handle:'@LynAldenContact',cat:'macro'},
-  {name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro'},
-  {name:'Matt Odell',handle:'@ODELL',cat:'protocol'},
-  {name:'Marty Bent',handle:'@MartyBent',cat:'media'},
-  {name:'Jeff Booth',handle:'@JeffBooth',cat:'macro'},
-  {name:'Saifedean',handle:'@saifedean',cat:'macro'},
-  {name:'Natalie Brunell',handle:'@natbrunell',cat:'media'},
-  {name:'Willy Woo',handle:'@woonomic',cat:'macro'},
-  {name:'PlanB',handle:'@100trillionUSD',cat:'macro'},
-  {name:'Jack Dorsey',handle:'@jack',cat:'protocol'},
-  {name:'Adam Back',handle:'@adam3us',cat:'protocol'},
-  {name:'Jameson Lopp',handle:'@lopp',cat:'protocol'},
-  {name:'NVK',handle:'@nvk',cat:'protocol'},
-  {name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media'},
-  {name:'Stephan Livera',handle:'@stephanlivera',cat:'media'}
-];
-var grid=document.getElementById('hmGrid');
-if(!grid)return;
-// Build heatmap from Nostr data when available, fallback to simulated scores
-function renderHeatmap(){
-  grid.innerHTML='';
-  KOL_LIST.forEach(function(k){
-    // Score based on latest Nostr content sentiment (simulated until live pipeline)
-    var score=Math.floor(Math.random()*60+30);
-    var cls=score>=65?'bullish':score>=45?'neutral':'bearish';
-    var barCls=score>=65?'bull':score>=45?'neut':'bear';
-    var scoreCls=barCls;
-    var cell=document.createElement('div');
-    cell.className='hm-cell '+cls;
-    cell.innerHTML='<div class="hm-name">'+k.name+'</div><div class="hm-handle">'+k.handle+'</div><div class="hm-bar"><div class="hm-bar-fill '+barCls+'" style="width:'+score+'%"></div></div><div class="hm-score '+scoreCls+'">'+score+'</div><div class="hm-label">Signal</div>';
-    grid.appendChild(cell);
-  });
-}
-// Initial render after Nostr data settles
-setTimeout(renderHeatmap,3000);
-REMOVED_OLD_NETWORK_END */
-
 /* ── Auto-refresh feeds via AJAX ── */
 (function(){
   var podF=document.getElementById('podFeed');
@@ -893,7 +719,7 @@ REMOVED_OLD_NETWORK_END */
   var svg=d3.select('#netSvg');
   if(!svg.node())return;
   var wrap=svg.node().parentElement;
-  var W=wrap.clientWidth,H=500;
+  var W=wrap.clientWidth,H=Math.max(350,Math.min(600,window.innerHeight*0.6));
   svg.attr('width',W).attr('height',H).attr('viewBox','0 0 '+W+' '+H);
 
   var catColor={macro:'#dc2626',protocol:'#5de4ff',media:'#f8c15c'};
@@ -995,7 +821,12 @@ REMOVED_OLD_NETWORK_END */
     console.warn('[MediaGraph] Failed to load network data:',e);
     svg.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle')
       .attr('fill','var(--btc)').attr('font-size','13px').attr('font-family','JetBrains Mono,monospace')
-      .text('Network data loading... Refresh to retry.');
+      .text('Network data loading...');
+    setTimeout(function(){
+      if(!svg.selectAll('.node-circle').size()){
+        location.reload();
+      }
+    },10000);
   });
 })();
 

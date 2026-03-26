@@ -1841,14 +1841,21 @@ def media_hub():
     except Exception as e:
         logging.warning(f"YouTube series error: {e}")
 
-    # Latest Cypherpunk'd episodes (from RSS)
+    # Latest Cypherpunk'd episodes (from media_feed_service DB)
     latest_episodes = []
-    if rss_service:
-        try:
-            all_eps = rss_service.get_latest_episodes(limit=50)
-            latest_episodes = [ep for ep in all_eps if ep.get('show_name', '').lower().startswith('cypherpunk')][:8]
-        except Exception:
-            pass
+    try:
+        cypher_feed = models.MediaFeed.query.filter(models.MediaFeed.name.like("%Cypherpunk%")).first()
+        if cypher_feed:
+            cypher_eps = models.MediaEpisode.query.filter_by(feed_id=cypher_feed.id).order_by(
+                models.MediaEpisode.published_at.desc()).limit(8).all()
+            for ep in cypher_eps:
+                latest_episodes.append({
+                    'title': ep.title,
+                    'audio_url': ep.audio_url or '',
+                    'duration': ep.duration or '',
+                })
+    except Exception:
+        pass
 
     # Commander check
     is_commander = False
@@ -3750,6 +3757,52 @@ def api_batch_classify():
     except Exception as e:
         logging.error("api_batch_classify error: %s", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/sovereign-context')
+def api_sovereign_context():
+    """Return full sovereign context for premium intelligence dashboard."""
+    try:
+        from services.sovereign_context_engine import get_latest_context, get_recent_alerts
+        ctx = get_latest_context() or {}
+        alerts = get_recent_alerts(20)
+        ctx['recent_alerts'] = alerts
+        return jsonify({'success': True, 'data': ctx})
+    except Exception as e:
+        logging.error("api_sovereign_context error: %s", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/intelligence/polymarket')
+def api_polymarket():
+    """Return top Polymarket Bitcoin/macro markets."""
+    try:
+        from services.polymarket_service import get_bitcoin_markets, get_macro_sentiment_score
+        markets = get_bitcoin_markets(5)
+        sentiment = get_macro_sentiment_score()
+        return jsonify({'success': True, 'data': {
+            'markets': markets,
+            'macro_sentiment': sentiment
+        }})
+    except Exception as e:
+        logging.error("api_polymarket error: %s", e)
+        return jsonify({'success': False, 'data': {'markets': [], 'macro_sentiment': 50}})
+
+
+@app.route('/api/intelligence/whale-feed')
+def api_whale_feed():
+    """Return whale alerts from sovereign context."""
+    try:
+        from services.sovereign_context_engine import get_latest_context
+        ctx = get_latest_context() or {}
+        return jsonify({'success': True, 'data': {
+            'alerts': ctx.get('whale_alerts', []),
+            'exchange_flow': ctx.get('exchange_flow', 'neutral'),
+            'fear_greed': ctx.get('fear_greed', {}).get('value', 50),
+        }})
+    except Exception as e:
+        logging.error("api_whale_feed error: %s", e)
+        return jsonify({'success': True, 'data': {'alerts': [], 'exchange_flow': 'neutral', 'fear_greed': 50}})
 
 
 @app.route('/api/intelligence/signal')
