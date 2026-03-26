@@ -747,6 +747,125 @@
   </div>
 </div>
 
+<!-- ═══════════ THE FORK DEBATE — BITCOIN CORE vs BITCOIN KNOTS ═══════════ -->
+<div class="fork-debate" id="forkDebate">
+  <div class="wrap">
+    <div class="fork-debate-header">
+      <div class="fork-debate-label">04 — The Fork Debate</div>
+      <h2 class="fork-debate-title">Bitcoin Core vs Bitcoin Knots</h2>
+      <p class="fork-debate-sub">Two implementations. Two philosophies. One chain. Live signal from the codebases and the minds behind them.</p>
+    </div>
+
+    <div class="fork-arena">
+      <!-- LEFT: BITCOIN KNOTS -->
+      <div class="fork-side knots-side">
+        <div class="fork-side-head">
+          <span class="fork-side-title">Bitcoin Knots</span>
+        </div>
+        <div class="fork-side-subtitle">Policy-first. Spam-resistant. Luke Dashjr's vision.</div>
+        <div class="fork-pill knots">Filters Inscriptions / Ordinals</div>
+
+        <div class="fork-feed-label">
+          <span class="dot" style="background:var(--red)"></span>
+          <span style="color:var(--red)">Luke Dashjr — Live Nostr</span>
+        </div>
+        <div class="fork-feed" id="forkKnotsFeed">
+          <div style="text-align:center;padding:30px 20px;color:var(--mut)">
+            <i class="fas fa-satellite-dish" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
+            <span style="font-size:11px">Connecting to Nostr relays...</span>
+            <div class="kol-loader"></div>
+          </div>
+        </div>
+
+        <div class="fork-feed-label">
+          <i class="fab fa-github" style="font-size:10px;color:var(--mut)"></i>
+          <span>GitHub Activity</span>
+        </div>
+        <div id="forkKnotsGH">
+          <div style="text-align:center;padding:20px;color:var(--mut);font-size:11px">Loading...</div>
+        </div>
+
+        <div class="fork-gh-stat" id="forkKnotsStats">
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="knotsStars">—</div>
+            <div class="fork-gh-stat-label">Stars</div>
+          </div>
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="knotsForks">—</div>
+            <div class="fork-gh-stat-label">Forks</div>
+          </div>
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="knotsIssues">—</div>
+            <div class="fork-gh-stat-label">Issues</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER DIVIDER -->
+      <div class="fork-divider">
+        <div class="fork-div-line"></div>
+        <div class="fork-div-block">
+          <div class="fork-div-block-label">Block Height</div>
+          <div class="fork-div-block-val" id="forkBlockHeight">---,---</div>
+        </div>
+        <div class="fork-div-unity">Both implementations — same chain</div>
+        <div style="margin-top:8px">
+          <span class="mono" style="font-size:8px;color:var(--mut);letter-spacing:1px">THE NETWORK DOESN'T TAKE SIDES</span>
+        </div>
+        <div class="fork-div-line"></div>
+      </div>
+
+      <!-- RIGHT: BITCOIN CORE -->
+      <div class="fork-side core-side">
+        <div class="fork-side-head">
+          <span class="fork-side-title">Bitcoin Core</span>
+        </div>
+        <div class="fork-side-subtitle">Inclusive. Dominant. The reference implementation.</div>
+        <div class="fork-pill core">Allows All Valid Transactions</div>
+
+        <div class="fork-feed-label">
+          <span class="dot" style="background:var(--btc)"></span>
+          <span style="color:var(--btc)">Core Devs — Live Nostr</span>
+        </div>
+        <div class="fork-feed" id="forkCoreFeed">
+          <div style="text-align:center;padding:30px 20px;color:var(--mut)">
+            <i class="fas fa-satellite-dish" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
+            <span style="font-size:11px">Connecting to Nostr relays...</span>
+            <div class="kol-loader"></div>
+          </div>
+        </div>
+
+        <div class="fork-feed-label">
+          <i class="fab fa-github" style="font-size:10px;color:var(--mut)"></i>
+          <span>GitHub Activity</span>
+        </div>
+        <div id="forkCoreGH">
+          <div style="text-align:center;padding:20px;color:var(--mut);font-size:11px">Loading...</div>
+        </div>
+
+        <div class="fork-gh-stat" id="forkCoreStats">
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="coreStars">—</div>
+            <div class="fork-gh-stat-label">Stars</div>
+          </div>
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="coreForks">—</div>
+            <div class="fork-gh-stat-label">Forks</div>
+          </div>
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="coreContribs">—</div>
+            <div class="fork-gh-stat-label">Contributors</div>
+          </div>
+          <div class="fork-gh-stat-item">
+            <div class="fork-gh-stat-val" id="coreIssues">—</div>
+            <div class="fork-gh-stat-label">Open Issues</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════ VOICE NETWORK GRAPH ═══════════ -->
 <div class="sec" id="network">
   <div class="sec-lab">02 — Voice Network</div>
@@ -1087,8 +1206,8 @@ function startNostr(){
                 var isReply=ev.tags&&ev.tags.some(function(t){return t[0]==='e'});
                 if(!isReply){
                   addKol(ev);
-                  if(sub==='core'||CORE_DEV_PKS.indexOf(ev.pubkey)>=0) addToCoreFeed(ev);
-                  if(sub==='knots'||ev.pubkey===KNOTS_PK) addToKnotsFeed(ev);
+                  if(sub==='core'||CORE_DEV_PKS.indexOf(ev.pubkey)>=0){addToCoreFeed(ev);addToForkCoreFeed(ev)}
+                  if(sub==='knots'||ev.pubkey===KNOTS_PK){addToKnotsFeed(ev);addToForkKnotsFeed(ev)}
                 }
               }
             }
@@ -1300,6 +1419,142 @@ function addToKnotsFeed(ev){
 
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD();closeVideoModal(e,true)}});
 startNostr();
+
+/* ═══════════ FORK DEBATE — NOSTR + GITHUB ═══════════ */
+/* Core dev pubkeys for fork debate right side */
+var FORK_CORE_PKS={
+  '89ef92b9ebe6dc1e4ea398f6477f227e95429627b0a33dc89b640e137b256be5':{n:'achow101',i:'AW'},
+  '3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d':{n:'Fiatjaf',i:'FJ'},
+  '04c915daefee38317fa734444acee390a8269fe5810b2241e5e6dd343dfbecc9':{n:'ODELL',i:'MO'},
+  '3f770d65d3a764a9c5cb503ae123e62ec7598ad035d836e2a810f3877a745b24':{n:'Adam Back',i:'AB'}
+};
+
+function _mkForkCard(ev,name,initials,borderColor,avBg){
+  var el=document.createElement('div');
+  el.className='fork-nostr-card';
+  el.style.borderColor=borderColor;
+  var head=document.createElement('div');
+  head.className='card-head';
+  var av=document.createElement('div');
+  av.className='card-av';
+  av.style.cssText='border:1px solid '+borderColor+';color:'+avBg;
+  av.textContent=initials;
+  head.appendChild(av);
+  var nm=document.createElement('span');
+  nm.className='card-name';nm.textContent=name;
+  head.appendChild(nm);
+  var tm=document.createElement('span');
+  tm.className='card-time';tm.textContent=tAgo(ev.created_at);
+  head.appendChild(tm);
+  el.appendChild(head);
+  var body=document.createElement('div');
+  body.className='card-body';
+  var parts=ev.content.split(/(https?:\/\/[^\s]+)/g);
+  parts.forEach(function(part){
+    if(/^https?:\/\//.test(part)){
+      var a=document.createElement('a');
+      a.href=part;a.target='_blank';a.rel='noopener';
+      a.textContent=part.length>50?part.substring(0,50)+'...':part;
+      body.appendChild(a);
+    }else{
+      body.appendChild(document.createTextNode(part));
+    }
+  });
+  el.appendChild(body);
+  return el;
+}
+
+function addToForkKnotsFeed(ev){
+  var f=document.getElementById('forkKnotsFeed');
+  if(!f)return;
+  if(f.querySelector('.kol-loader'))f.innerHTML='';
+  var card=_mkForkCard(ev,'Luke Dashjr','LD','rgba(220,38,38,0.2)','var(--red)');
+  f.insertBefore(card,f.firstChild);
+  while(f.children.length>10)f.removeChild(f.lastChild);
+}
+
+function addToForkCoreFeed(ev){
+  var f=document.getElementById('forkCoreFeed');
+  if(!f)return;
+  if(f.querySelector('.kol-loader'))f.innerHTML='';
+  var info=FORK_CORE_PKS[ev.pubkey]||V[ev.pubkey]||{n:ev.pubkey.substring(0,8),i:'??'};
+  var card=_mkForkCard(ev,info.n,info.i,'rgba(247,147,26,0.2)','var(--btc)');
+  f.insertBefore(card,f.firstChild);
+  while(f.children.length>10)f.removeChild(f.lastChild);
+}
+
+/* GitHub Activity Polling */
+var _ghCache={ts:0,data:null};
+function loadForkGitHub(){
+  if(_ghCache.data&&(Date.now()-_ghCache.ts)<300000){
+    renderForkGH(_ghCache.data);return;
+  }
+  fetch('/api/github/btc-activity').then(function(r){return r.json()}).then(function(d){
+    if(d.success){_ghCache={ts:Date.now(),data:d};renderForkGH(d)}
+  }).catch(function(){});
+}
+
+function renderForkGH(d){
+  /* Knots GitHub */
+  var kf=document.getElementById('forkKnotsGH');
+  if(kf&&d.knots_events){
+    kf.innerHTML='';
+    d.knots_events.forEach(function(ev){
+      var el=document.createElement('div');
+      el.className='fork-gh-item';
+      var type=ev.type==='PullRequestEvent'?'pr':ev.type==='PushEvent'?'push':'issue';
+      var typeLabel=ev.type==='PullRequestEvent'?'PR':ev.type==='PushEvent'?'PUSH':'ISSUE';
+      el.innerHTML='<span class="fork-gh-type '+type+'">'+typeLabel+'</span>'
+        +'<div class="fork-gh-title">'+escH(ev.title||'Activity')+'</div>'
+        +'<div class="fork-gh-meta">'+escH(ev.actor)+' — '+escH(ev.time_ago)+'</div>';
+      kf.appendChild(el);
+    });
+  }
+  /* Knots stats */
+  if(d.knots_repo){
+    var ks=d.knots_repo;
+    document.getElementById('knotsStars').textContent=ks.stars||'—';
+    document.getElementById('knotsForks').textContent=ks.forks||'—';
+    document.getElementById('knotsIssues').textContent=ks.open_issues||'—';
+  }
+
+  /* Core GitHub */
+  var cf=document.getElementById('forkCoreGH');
+  if(cf&&d.core_events){
+    cf.innerHTML='';
+    d.core_events.forEach(function(ev){
+      var el=document.createElement('div');
+      el.className='fork-gh-item';
+      var type=ev.type==='PullRequestEvent'?'pr':ev.type==='PushEvent'?'push':'issue';
+      var typeLabel=ev.type==='PullRequestEvent'?'PR':ev.type==='PushEvent'?'PUSH':'ISSUE';
+      el.innerHTML='<span class="fork-gh-type '+type+'">'+typeLabel+'</span>'
+        +'<div class="fork-gh-title">'+escH(ev.title||'Activity')+'</div>'
+        +'<div class="fork-gh-meta">'+escH(ev.actor)+' — '+escH(ev.time_ago)+'</div>';
+      cf.appendChild(el);
+    });
+  }
+  /* Core stats */
+  if(d.core_repo){
+    var cs=d.core_repo;
+    document.getElementById('coreStars').textContent=cs.stars||'—';
+    document.getElementById('coreForks').textContent=cs.forks||'—';
+    document.getElementById('coreContribs').textContent=cs.contributors||'—';
+    document.getElementById('coreIssues').textContent=cs.open_issues||'—';
+  }
+}
+
+/* Block height for center divider */
+function loadBlockHeight(){
+  fetch('https://mempool.space/api/blocks/tip/height').then(function(r){return r.text()}).then(function(h){
+    var el=document.getElementById('forkBlockHeight');
+    if(el)el.textContent=parseInt(h).toLocaleString();
+  }).catch(function(){});
+}
+
+loadForkGitHub();
+loadBlockHeight();
+setInterval(loadForkGitHub,300000);
+setInterval(loadBlockHeight,60000);
 
 /* ═══════════ SIGNAL SCORE GAMIFICATION ═══════════ */
 var _sigScore=parseInt(localStorage.getItem('pp_signal_score')||'0');

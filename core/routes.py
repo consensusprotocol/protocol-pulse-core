@@ -1119,11 +1119,119 @@ def api_solo_blocks():
         'blocks': blocks
     })
 
+@app.route('/api/github/btc-activity')
+def api_github_btc_activity():
+    """GitHub activity for Bitcoin Core vs Bitcoin Knots rivalry feed"""
+    import time
+    import requests as req
+    from datetime import datetime, timezone
+
+    cache_key = '_gh_btc_activity'
+    cached = getattr(app, cache_key, None)
+    if cached and (time.time() - cached.get('_ts', 0)) < 300:
+        return jsonify(cached)
+
+    headers = {'Accept': 'application/vnd.github.v3+json'}
+
+    def time_ago(iso_str):
+        try:
+            dt = datetime.fromisoformat(iso_str.replace('Z', '+00:00'))
+            delta = datetime.now(timezone.utc) - dt
+            if delta.total_seconds() < 3600:
+                return f"{int(delta.total_seconds() / 60)}m ago"
+            if delta.total_seconds() < 86400:
+                return f"{int(delta.total_seconds() / 3600)}h ago"
+            return f"{int(delta.total_seconds() / 86400)}d ago"
+        except Exception:
+            return ""
+
+    def parse_events(events_raw):
+        items = []
+        for ev in (events_raw or [])[:10]:
+            etype = ev.get('type', '')
+            actor = ev.get('actor', {}).get('login', 'unknown')
+            created = ev.get('created_at', '')
+            title = ''
+            if etype == 'PullRequestEvent':
+                pr = ev.get('payload', {}).get('pull_request', {})
+                action = ev.get('payload', {}).get('action', '')
+                title = f"{action}: {pr.get('title', '')}"
+            elif etype == 'PushEvent':
+                commits = ev.get('payload', {}).get('commits', [])
+                if commits:
+                    title = commits[-1].get('message', '').split('\n')[0]
+                else:
+                    title = 'Push'
+            elif etype == 'IssuesEvent':
+                issue = ev.get('payload', {}).get('issue', {})
+                action = ev.get('payload', {}).get('action', '')
+                title = f"{action}: {issue.get('title', '')}"
+            elif etype == 'IssueCommentEvent':
+                issue = ev.get('payload', {}).get('issue', {})
+                title = f"comment on: {issue.get('title', '')}"
+            else:
+                title = etype.replace('Event', '')
+            items.append({
+                'type': etype,
+                'actor': actor,
+                'title': title[:120],
+                'time_ago': time_ago(created)
+            })
+        return items[:5]
+
+    result = {'success': True}
+
+    try:
+        r = req.get('https://api.github.com/repos/bitcoin/bitcoin/events?per_page=10',
+                     headers=headers, timeout=8)
+        result['core_events'] = parse_events(r.json() if r.status_code == 200 else [])
+    except Exception:
+        result['core_events'] = []
+
+    try:
+        r = req.get('https://api.github.com/repos/bitcoin/bitcoin',
+                     headers=headers, timeout=8)
+        if r.status_code == 200:
+            d = r.json()
+            result['core_repo'] = {
+                'stars': d.get('stargazers_count', 0),
+                'forks': d.get('forks_count', 0),
+                'open_issues': d.get('open_issues_count', 0),
+                'contributors': '900+'
+            }
+    except Exception:
+        pass
+
+    try:
+        r = req.get('https://api.github.com/repos/bitcoinknots/bitcoin/events?per_page=10',
+                     headers=headers, timeout=8)
+        result['knots_events'] = parse_events(r.json() if r.status_code == 200 else [])
+    except Exception:
+        result['knots_events'] = []
+
+    try:
+        r = req.get('https://api.github.com/repos/bitcoinknots/bitcoin',
+                     headers=headers, timeout=8)
+        if r.status_code == 200:
+            d = r.json()
+            result['knots_repo'] = {
+                'stars': d.get('stargazers_count', 0),
+                'forks': d.get('forks_count', 0),
+                'open_issues': d.get('open_issues_count', 0)
+            }
+    except Exception:
+        pass
+
+    result['_ts'] = time.time()
+    setattr(app, cache_key, result)
+    return jsonify(result)
+
+
 @app.route('/.well-known/nostr.json')
 def nostr_nip05():
     """NIP-05 Identity Verification for @user@protocolpulse.io"""
     name = request.args.get('name', '').lower()
-    
+
     known_pubkeys = {
         '_': '36a56b0d52d34afd5f26cbdd8fede3ab89e4a6d8b6e23b7d9d8b6f8f8f8f8f8f',
         'pulse': '36a56b0d52d34afd5f26cbdd8fede3ab89e4a6d8b6e23b7d9d8b6f8f8f8f8f8f',
