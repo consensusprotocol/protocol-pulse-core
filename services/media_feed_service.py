@@ -26,24 +26,24 @@ PODCAST_FEEDS = [
     {"name": "TFTC", "url": "https://feeds.simplecast.com/mGJ8uw1O", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
     {"name": "Stephan Livera", "url": "https://feeds.simplecast.com/KV8z39iS", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
     {"name": "What Bitcoin Did", "url": "https://feeds.simplecast.com/tEJEubMT", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Bitcoin Audible", "url": "https://feeds.castos.com/mj96z", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
+    {"name": "Bitcoin Audible", "url": "https://feeds.megaphone.fm/SWN4978045882", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
     {"name": "Citadel Dispatch", "url": "https://feeds.simplecast.com/M6LkF8NN", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
-    {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/Y2219Riv", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
+    {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/BdGT7E3F", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
     {"name": "Simply Bitcoin", "url": "https://feeds.simplecast.com/7V5b8Zag", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
-    {"name": "Bitcoin Magazine Podcast", "url": "https://anchor.fm/s/cefa18a0/podcast/rss", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Rabbit Hole Recap", "url": "https://feeds.fountain.fm/0EAzqUaM4qqanDr1qNuK", "host": "Matt Odell & Marty Bent", "tier": 1, "color": "#8e44ad", "category": "podcast"},
-    {"name": "The Investor's Podcast", "url": "https://feeds.megaphone.fm/PPLLC8974708240", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
-    {"name": "Coin Stories", "url": "https://rss.libsyn.com/shows/344543/destinations/2813255.xml", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
+    {"name": "Bitcoin Magazine Podcast", "url": "https://feeds.megaphone.fm/bitcoin-magazine", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
+    {"name": "Rabbit Hole Recap", "url": "https://feeds.simplecast.com/Dh1oHsHZ", "host": "Matt Odell & Marty Bent", "tier": 1, "color": "#8e44ad", "category": "podcast"},
+    {"name": "Bitcoin Fundamentals", "url": "https://feeds.simplecast.com/WXOL8WUD", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
+    {"name": "Coin Stories", "url": "https://feeds.simplecast.com/6Z1iM0Fg", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
 ]
 
 YOUTUBE_CHANNELS = [
-    {"name": "Bitcoin Magazine", "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg", "tier": 1, "color": "#f7931a", "category": "video"},
+    {"name": "Bitcoin Magazine", "channel_id": "UCvRRgjjKvabNkSP0w3QdW3A", "tier": 1, "color": "#f7931a", "category": "video"},
     {"name": "Coin Bureau", "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw", "tier": 1, "color": "#00d4aa", "category": "video"},
     {"name": "What Bitcoin Did", "channel_id": "UCBcRF18a7Qf58cCRy5xuWwQ", "tier": 1, "color": "#f7931a", "category": "video"},
-    {"name": "Simply Bitcoin", "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ", "tier": 2, "color": "#e74c3c", "category": "video"},
-    {"name": "Robert Breedlove", "channel_id": "UC43_LTf5Z4lbRjKCq0sIAVg", "tier": 1, "color": "#1abc9c", "category": "video"},
-    {"name": "Natalie Brunell", "channel_id": "UCru3nlhzHrbgK21x0MdB_eg", "tier": 1, "color": "#e91e63", "category": "video"},
-    {"name": "Bitcoin Audible", "channel_id": "UClG-wqz-OuXfzbpqwJd3fVA", "tier": 1, "color": "#9b59b6", "category": "video"},
+    {"name": "Simply Bitcoin", "channel_id": "UCm7SUL4HMiM3UFEWP-E_Qhg", "tier": 2, "color": "#e74c3c", "category": "video"},
+    {"name": "Robert Breedlove", "channel_id": "UCFmHIftfI9HRaL6r3zScKOg", "tier": 1, "color": "#1abc9c", "category": "video"},
+    {"name": "Natalie Brunell", "channel_id": "UCIl1wX8yxEjkbCFBKbhAqeg", "tier": 1, "color": "#e91e63", "category": "video"},
+    {"name": "Bitcoin Audible", "channel_id": "UCJz4rEsEHpx9ht7a5JIHh5g", "tier": 1, "color": "#9b59b6", "category": "video"},
 ]
 
 # ─── SIGNAL SCORE ──────────────────────────────────────────────────────────────
@@ -66,30 +66,44 @@ SIGNAL_KEYWORDS = {
 EXCLUDED_TERMS = ['jill', 'orange is the new jill', 'orange is the nw jill']
 
 
-def compute_signal_score(title: str, description: str, tier: int = 2) -> int:
-    """Compute 0-100 signal score based on content + source tier."""
+def compute_signal_score(title: str, description: str, tier: int = 2,
+                         published_at=None) -> int:
+    """Compute 0-100 signal score: source_tier*40 + sentiment*40 + recency*20.
+
+    - source_tier (40 pts): T1=40, T2=24, T3=12
+    - sentiment (40 pts): keyword density mapped to 0-40 range
+    - recency  (20 pts): <6h=20, <24h=16, <3d=10, <7d=5, older=0
+    """
     text = f"{title} {description}".lower()
-    score = 0
 
-    # Tier bonus: T1=30, T2=15, T3=5
-    tier_bonus = {1: 30, 2: 15, 3: 5}.get(tier, 10)
-    score += tier_bonus
+    # ── Source Tier Component (0-40) ──
+    tier_score = {1: 40, 2: 24, 3: 12}.get(tier, 16)
 
-    # Keyword matching
-    keyword_score = 0
+    # ── Sentiment/Keyword Component (0-40) ──
+    keyword_raw = 0
     for kw, weight in SIGNAL_KEYWORDS.items():
         if kw in text:
-            keyword_score += weight
-    score += min(keyword_score, 50)  # Cap keyword contribution at 50
+            keyword_raw += weight
+    # Normalize: max possible ~120 from keywords → scale to 0-40
+    sentiment_score = min(int(keyword_raw * 40 / 80), 40)
 
-    # Recency bonus (handled at query time, not here)
-    # Length bonus — longer descriptions suggest more substance
-    if len(description) > 200:
-        score += 10
-    elif len(description) > 100:
-        score += 5
+    # ── Recency Component (0-20) ──
+    recency_score = 0
+    if published_at:
+        try:
+            age_hours = (datetime.utcnow() - published_at).total_seconds() / 3600
+            if age_hours < 6:
+                recency_score = 20
+            elif age_hours < 24:
+                recency_score = 16
+            elif age_hours < 72:
+                recency_score = 10
+            elif age_hours < 168:
+                recency_score = 5
+        except Exception:
+            pass
 
-    return min(score, 100)
+    return min(tier_score + sentiment_score + recency_score, 100)
 
 
 def is_excluded(title: str) -> bool:
@@ -208,7 +222,7 @@ def parse_rss_feed(feed_config: dict) -> List[dict]:
             'thumbnail_url': thumb,
             'duration': _parse_duration(entry),
             'published_at': pub_date,
-            'signal_score': compute_signal_score(title, desc, feed_config.get('tier', 2)),
+            'signal_score': compute_signal_score(title, desc, feed_config.get('tier', 2), pub_date),
         })
 
     return episodes
@@ -245,7 +259,7 @@ def parse_youtube_rss(channel_config: dict) -> List[dict]:
             'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
             'duration': '',
             'published_at': pub_date,
-            'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2)),
+            'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
         })
 
     return episodes

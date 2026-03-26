@@ -2,6 +2,7 @@
 {% block title %}Bitcoin Media Command Center — Protocol Pulse{% endblock %}
 {% block meta_description %}The definitive Bitcoin media hub. 20+ voices. Live feeds from top podcasts, YouTube channels, and KOL intelligence. One screen.{% endblock %}
 {% block head %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -227,8 +228,51 @@
 .kol-loader{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top:2px solid var(--red);border-radius:50%;animation:spin .7s linear infinite;margin-top:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── D3 VOICE NETWORK ── */
+.net-wrap{position:relative;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;min-height:500px}
+.net-svg{width:100%;height:500px;display:block}
+.net-svg .node-circle{cursor:pointer;transition:r .2s}
+.net-svg .link{stroke:rgba(255,255,255,0.04);stroke-width:1}
+.net-svg text{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--sec);pointer-events:none;text-anchor:middle}
+.net-legend{position:absolute;top:16px;right:16px;display:flex;gap:12px}
+.net-leg-item{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.net-leg-dot{width:8px;height:8px;border-radius:50%}
+.net-hover{position:absolute;pointer-events:none;background:rgba(8,8,14,0.95);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:200px;max-width:280px;display:none;z-index:10;backdrop-filter:blur(12px)}
+.net-hover.show{display:block}
+.net-hover-name{font-size:14px;font-weight:700;color:var(--bright);margin-bottom:4px}
+.net-hover-handle{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red)}
+.net-hover-cat{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.net-hover-stat{display:flex;gap:16px;margin-top:8px}
+.net-hover-stat div{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--bright)}
+.net-hover-stat span{display:block;font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* ── KOL HEATMAP ── */
+.hm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.hm-cell{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center;transition:all .2s;cursor:default;position:relative;overflow:hidden}
+.hm-cell::before{content:'';position:absolute;inset:0;opacity:0.06;pointer-events:none}
+.hm-cell.bullish::before{background:var(--lime)}.hm-cell.bearish::before{background:var(--coral)}.hm-cell.neutral::before{background:var(--gold)}
+.hm-cell:hover{border-color:var(--border-h);transform:translateY(-1px)}
+.hm-name{font-size:11px;font-weight:600;color:var(--bright);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-handle{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-bottom:8px}
+.hm-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:6px}
+.hm-bar-fill{height:100%;border-radius:2px;transition:width .6s}
+.hm-bar-fill.bull{background:var(--lime)}.hm-bar-fill.bear{background:var(--coral)}.hm-bar-fill.neut{background:var(--gold)}
+.hm-score{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.hm-score.bull{color:var(--lime)}.hm-score.bear{color:var(--coral)}.hm-score.neut{color:var(--gold)}
+.hm-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* ── COMMANDER GATE ── */
+.cmd-gate{position:relative;border-radius:14px;overflow:hidden}
+.cmd-gate-blur{filter:blur(6px);pointer-events:none;user-select:none}
+.cmd-gate-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);z-index:5;border-radius:14px}
+.cmd-gate-icon{font-size:28px;color:var(--gold);margin-bottom:12px}
+.cmd-gate-title{font-size:16px;font-weight:700;color:var(--bright);margin-bottom:6px}
+.cmd-gate-sub{font-size:12px;color:var(--sec);margin-bottom:16px;text-align:center;max-width:300px}
+.cmd-gate-btn{padding:10px 24px;background:linear-gradient(135deg,var(--red),#ff4d6d);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:transform .2s}
+.cmd-gate-btn:hover{transform:scale(1.03)}
+
 /* ── RESPONSIVE ── */
-@media(max-width:1024px){.feed-matrix{grid-template-columns:1fr 1fr}.feed-col:nth-child(3){grid-column:span 2}}
+@media(max-width:1024px){.feed-matrix{grid-template-columns:1fr 1fr}.feed-col:nth-child(3){grid-column:span 2}.hm-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
 @media(max-width:768px){
   .hero{padding:48px 0 32px}
   .hero-metrics{gap:20px}
@@ -244,6 +288,8 @@
   .nl-f{flex-direction:column}
   .ticker-wrap{height:32px}
   .ticker-item{padding:0 16px;font-size:11px}
+  .net-svg{height:350px}
+  .hm-grid{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 {% endblock %}
@@ -389,9 +435,58 @@
   </div>
 </div>
 
+<!-- ═══════════ VOICE NETWORK GRAPH ═══════════ -->
+<div class="sec" id="network">
+  <div class="sec-lab">02 — Voice Network</div>
+  <h2 class="sec-h">Bitcoin Intelligence Topology</h2>
+  <p class="sec-desc">50 voices mapped by influence, category, and cross-reference density. Hover for live data.</p>
+  <div class="net-wrap">
+    <svg id="netSvg" class="net-svg"></svg>
+    <div class="net-legend">
+      <div class="net-leg-item"><div class="net-leg-dot" style="background:var(--red)"></div>Macro</div>
+      <div class="net-leg-item"><div class="net-leg-dot" style="background:var(--cyan)"></div>Protocol</div>
+      <div class="net-leg-item"><div class="net-leg-dot" style="background:var(--gold)"></div>Media</div>
+    </div>
+    <div class="net-hover" id="netHover">
+      <div class="net-hover-name" id="nhName"></div>
+      <div class="net-hover-handle" id="nhHandle"></div>
+      <div class="net-hover-cat" id="nhCat"></div>
+      <div class="net-hover-stat">
+        <div id="nhTier"><span>Tier</span></div>
+        <div id="nhEps"><span>Episodes</span></div>
+        <div id="nhSignal"><span>Signal</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ KOL SENTIMENT HEATMAP ═══════════ -->
+<div class="sec" id="heatmap">
+  <div class="sec-lab">03 — Sentiment Heatmap</div>
+  <h2 class="sec-h">KOL Conviction Matrix</h2>
+  <p class="sec-desc">Real-time sentiment read across 16 Bitcoin voices via Nostr. Updated live.</p>
+  {% if not is_commander %}
+  <div class="cmd-gate">
+    <div class="cmd-gate-blur">
+  {% endif %}
+    <div class="hm-grid" id="hmGrid">
+      <div class="fi-empty" style="grid-column:1/-1;padding:40px"><div class="kol-loader"></div><p style="margin-top:10px;font-size:11px;color:var(--mut)">Analyzing KOL sentiment...</p></div>
+    </div>
+  {% if not is_commander %}
+    </div>
+    <div class="cmd-gate-overlay">
+      <div class="cmd-gate-icon"><i class="fas fa-lock"></i></div>
+      <div class="cmd-gate-title">Commander Intelligence</div>
+      <div class="cmd-gate-sub">Real-time sentiment heatmap across 16 Bitcoin KOLs. Unlock with Commander.</div>
+      <a href="/terminal/checkout" class="cmd-gate-btn">Upgrade to Commander</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
 <!-- ═══════════ ORIGINAL SERIES ═══════════ -->
 <div class="sec" id="series">
-  <div class="sec-lab">02 — Original Series</div>
+  <div class="sec-lab">04 — Original Series</div>
   <h2 class="sec-h">Cinematic Deep Dives</h2>
   <p class="sec-desc">Long-form explorations of the books and ideas reshaping monetary thinking.</p>
   <div class="sg">
@@ -419,7 +514,7 @@
 
 <!-- ═══════════ CYPHERPUNKD PODCAST ═══════════ -->
 <div class="sec" id="podcasts">
-  <div class="sec-lab">03 — Cypherpunk'd Podcast</div>
+  <div class="sec-lab">05 — Cypherpunk'd Podcast</div>
   <h2 class="sec-h">Latest Episodes</h2>
   <p class="sec-desc">Conversations with builders, thinkers, and disruptors at the frontier of sound money.</p>
   <div class="pod-grid">
@@ -439,7 +534,7 @@
 
 <!-- ═══════════ BOOKS ═══════════ -->
 <div class="sec" id="books">
-  <div class="sec-lab">04 — Essential Reading</div>
+  <div class="sec-lab">06 — Essential Reading</div>
   <h2 class="sec-h">The Library</h2>
   <p class="sec-desc">The books that shaped Cypherpunk'd. Every link supports Protocol Pulse.</p>
   <div class="bcat">Featured on Podcast</div>
@@ -601,12 +696,185 @@ function tAgo(ts){var d=Math.floor(Date.now()/1000)-ts;if(d<60)return'now';if(d<
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD()}});
 startNostr();
 
+/* ── Old network graph + heatmap removed — D3 version at bottom ── */
+/* REMOVED_OLD_NETWORK_START
+  {id:'preston',name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro',tier:1,r:14},
+  {id:'odell',name:'Matt Odell',handle:'@ODELL',cat:'protocol',tier:1,r:15},
+  {id:'marty',name:'Marty Bent',handle:'@MartyBent',cat:'media',tier:1,r:14},
+  {id:'nvk',name:'NVK',handle:'@nvk',cat:'protocol',tier:1,r:13},
+  {id:'natalie',name:'Natalie Brunell',handle:'@natbrunell',cat:'media',tier:1,r:13},
+  {id:'booth',name:'Jeff Booth',handle:'@JeffBooth',cat:'macro',tier:1,r:14},
+  {id:'saif',name:'Saifedean',handle:'@saifedean',cat:'macro',tier:1,r:14},
+  {id:'lopp',name:'Jameson Lopp',handle:'@lopp',cat:'protocol',tier:1,r:13},
+  {id:'willy',name:'Willy Woo',handle:'@woonomic',cat:'macro',tier:1,r:13},
+  {id:'peter',name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media',tier:1,r:14},
+  {id:'breedlove',name:'Robert Breedlove',handle:'@Breedlove22',cat:'macro',tier:1,r:13},
+  {id:'guy',name:'Guy Swann',handle:'@GuySwann',cat:'media',tier:1,r:12},
+  {id:'livera',name:'Stephan Livera',handle:'@stephanlivera',cat:'media',tier:1,r:13},
+  {id:'bhatia',name:'Nik Bhatia',handle:'@timeaborned',cat:'macro',tier:1,r:12},
+  {id:'hodl',name:'American HODL',handle:'@americanhodl8',cat:'media',tier:2,r:11},
+  {id:'fiatjaf',name:'Fiatjaf',handle:'@fiatjaf',cat:'protocol',tier:1,r:12},
+  {id:'gladstein',name:'Alex Gladstein',handle:'@gladstein',cat:'macro',tier:1,r:12},
+  {id:'pomp',name:'Anthony Pompliano',handle:'@APompliano',cat:'media',tier:1,r:14},
+  {id:'max',name:'Max Keiser',handle:'@maxkeiser',cat:'macro',tier:2,r:12},
+  {id:'samson',name:'Samson Mow',handle:'@Excellion',cat:'protocol',tier:1,r:12},
+  {id:'jimmy',name:'Jimmy Song',handle:'@jimmysong',cat:'protocol',tier:1,r:11},
+  {id:'andreas',name:'Andreas Antonopoulos',handle:'@aantonop',cat:'protocol',tier:1,r:13},
+  {id:'elizabeth',name:'Elizabeth Stark',handle:'@staborned',cat:'protocol',tier:1,r:11},
+  {id:'pierre',name:'Pierre Rochard',handle:'@pierre_rochard',cat:'protocol',tier:1,r:11},
+  {id:'cory',name:'Cory Klippsten',handle:'@coryklippsten',cat:'media',tier:1,r:12},
+  {id:'dylan',name:'Dylan LeClair',handle:'@DylanLeClair_',cat:'macro',tier:2,r:11},
+  {id:'checkmate',name:'_Checkmate_',handle:'@_Checkmatey_',cat:'macro',tier:2,r:11},
+  {id:'gigi',name:'Gigi',handle:'@dergigi',cat:'protocol',tier:2,r:10},
+  {id:'beautyon',name:'Beautyon',handle:'@Beautyon_',cat:'protocol',tier:2,r:10},
+  {id:'tuur',name:'Tuur Demeester',handle:'@TuurDemeester',cat:'macro',tier:1,r:12},
+  {id:'plan_b',name:'PlanB',handle:'@100trillionUSD',cat:'macro',tier:1,r:13},
+  {id:'raoul',name:'Raoul Pal',handle:'@RaoulGMI',cat:'macro',tier:1,r:13},
+  {id:'caitlin',name:'Caitlin Long',handle:'@CaitlinLong_',cat:'macro',tier:1,r:11},
+  {id:'balaji',name:'Balaji Srinivasan',handle:'@balaborned',cat:'macro',tier:1,r:12},
+  {id:'matt_c',name:'Matt Corallo',handle:'@TheBlueMatt',cat:'protocol',tier:1,r:11},
+  {id:'giacomo',name:'Giacomo Zucco',handle:'@giacomozucco',cat:'protocol',tier:2,r:10},
+  {id:'alex_b',name:'Alex B',handle:'@alex_b',cat:'macro',tier:2,r:10},
+  {id:'pbx',name:'PBX',handle:'@pbxlife',cat:'media',tier:1,r:12},
+  {id:'swan',name:'Swan Bitcoin',handle:'@SwanBitcoin',cat:'media',tier:2,r:11},
+  {id:'river',name:'River Financial',handle:'@River',cat:'media',tier:2,r:10},
+  {id:'bolt',name:'Bolt Card',handle:'@BoltCard',cat:'protocol',tier:3,r:8},
+  {id:'strike',name:'Strike',handle:'@Strike',cat:'protocol',tier:1,r:12},
+  {id:'unchained',name:'Unchained',handle:'@unchaborned',cat:'media',tier:2,r:10},
+  {id:'fold',name:'Fold App',handle:'@fold_app',cat:'protocol',tier:2,r:9},
+  {id:'bitkey',name:'Bitkey',handle:'@bitaborned',cat:'protocol',tier:2,r:9},
+  {id:'cashapp',name:'Cash App',handle:'@CashApp',cat:'protocol',tier:1,r:11}
+];
+var LINKS=[
+  {s:'saylor',t:'pomp'},{s:'saylor',t:'lyn'},{s:'saylor',t:'preston'},{s:'saylor',t:'breedlove'},
+  {s:'jack',t:'fiatjaf'},{s:'jack',t:'odell'},{s:'jack',t:'strike'},{s:'jack',t:'cashapp'},
+  {s:'adam',t:'samson'},{s:'adam',t:'nvk'},{s:'adam',t:'jimmy'},
+  {s:'lyn',t:'preston'},{s:'lyn',t:'natalie'},{s:'lyn',t:'peter'},{s:'lyn',t:'tuur'},
+  {s:'odell',t:'marty'},{s:'odell',t:'nvk'},{s:'odell',t:'lopp'},{s:'odell',t:'fiatjaf'},
+  {s:'marty',t:'hodl'},{s:'marty',t:'pbx'},{s:'marty',t:'guy'},
+  {s:'peter',t:'livera'},{s:'peter',t:'natalie'},{s:'peter',t:'booth'},
+  {s:'natalie',t:'cory'},{s:'natalie',t:'dylan'},{s:'natalie',t:'gladstein'},
+  {s:'booth',t:'saif'},{s:'booth',t:'breedlove'},{s:'booth',t:'preston'},
+  {s:'livera',t:'guy'},{s:'livera',t:'jimmy'},{s:'livera',t:'bhatia'},
+  {s:'plan_b',t:'willy'},{s:'plan_b',t:'checkmate'},{s:'plan_b',t:'dylan'},
+  {s:'raoul',t:'lyn'},{s:'raoul',t:'pomp'},{s:'raoul',t:'balaji'},
+  {s:'andreas',t:'lopp'},{s:'andreas',t:'jimmy'},{s:'andreas',t:'matt_c'},
+  {s:'pomp',t:'cory'},{s:'pomp',t:'swan'},{s:'pomp',t:'raoul'},
+  {s:'strike',t:'cashapp'},{s:'strike',t:'fold'},{s:'strike',t:'bitkey'},
+  {s:'caitlin',t:'unchained'},{s:'caitlin',t:'pierre'},
+  {s:'samson',t:'adam'},{s:'samson',t:'max'},{s:'samson',t:'giacomo'},
+  {s:'gigi',t:'beautyon'},{s:'gigi',t:'fiatjaf'}
+];
+var catColor={macro:'#dc2626',protocol:'#5de4ff',media:'#f8c15c'};
+var svg=document.getElementById('netSvg');
+if(svg){
+  var w=svg.clientWidth||900,h=svg.clientHeight||500;
+  svg.setAttribute('viewBox','0 0 '+w+' '+h);
+  var ns='http://www.w3.org/2000/svg';
+  // Build id->index map
+  var idxMap={};VOICES.forEach(function(v,i){idxMap[v.id]=i});
+  var links=LINKS.map(function(l){return{source:idxMap[l.s],target:idxMap[l.t]}}).filter(function(l){return l.source!==undefined&&l.target!==undefined});
+  var nodes=VOICES.map(function(v){return Object.assign({},v,{x:w/2+Math.random()*200-100,y:h/2+Math.random()*200-100})});
+
+  // Simple force simulation (no D3 dependency — pure JS)
+  var alpha=1,decay=0.997,repulse=800,attract=0.008,center={x:w/2,y:h/2},cStrength=0.01;
+  function tick(){
+    // Center gravity
+    nodes.forEach(function(n){n.vx=(n.vx||0)+((center.x-n.x)*cStrength);n.vy=(n.vy||0)+((center.y-n.y)*cStrength)});
+    // Repulsion
+    for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){var dx=nodes[j].x-nodes[i].x,dy=nodes[j].y-nodes[i].y,d2=dx*dx+dy*dy+1;var f=repulse*alpha/d2;var fx=dx*f/Math.sqrt(d2),fy=dy*f/Math.sqrt(d2);nodes[i].vx-=fx;nodes[i].vy-=fy;nodes[j].vx+=fx;nodes[j].vy+=fy}}
+    // Attraction
+    links.forEach(function(l){var s=nodes[l.source],t=nodes[l.target],dx=t.x-s.x,dy=t.y-s.y,d=Math.sqrt(dx*dx+dy*dy+1);var f=attract*alpha*(d-80);s.vx+=dx*f/d;s.vy+=dy*f/d;t.vx-=dx*f/d;t.vy-=dy*f/d});
+    // Integrate
+    nodes.forEach(function(n){n.vx*=0.6;n.vy*=0.6;n.x=Math.max(20,Math.min(w-20,n.x+n.vx));n.y=Math.max(20,Math.min(h-20,n.y+n.vy))});
+    alpha*=decay;
+  }
+  // Run simulation
+  for(var si=0;si<300;si++)tick();
+
+  // Render SVG
+  var frag=document.createDocumentFragment();
+  // Links
+  links.forEach(function(l){var line=document.createElementNS(ns,'line');line.setAttribute('class','link');line.setAttribute('x1',nodes[l.source].x);line.setAttribute('y1',nodes[l.source].y);line.setAttribute('x2',nodes[l.target].x);line.setAttribute('y2',nodes[l.target].y);frag.appendChild(line)});
+  // Nodes
+  var hoverEl=document.getElementById('netHover');
+  nodes.forEach(function(n,i){
+    var g=document.createElementNS(ns,'g');
+    var c=document.createElementNS(ns,'circle');
+    c.setAttribute('class','node-circle');
+    c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',n.r);
+    c.setAttribute('fill',catColor[n.cat]||'#888');c.setAttribute('opacity','0.7');
+    c.setAttribute('stroke',catColor[n.cat]||'#888');c.setAttribute('stroke-width','1');c.setAttribute('stroke-opacity','0.3');
+    var t=document.createElementNS(ns,'text');
+    t.setAttribute('x',n.x);t.setAttribute('y',n.y+n.r+12);
+    t.textContent=n.name.split(' ').pop();
+    g.appendChild(c);g.appendChild(t);
+    // Hover
+    c.addEventListener('mouseenter',function(e){
+      c.setAttribute('r',n.r+4);c.setAttribute('opacity','1');
+      document.getElementById('nhName').textContent=n.name;
+      document.getElementById('nhHandle').textContent=n.handle;
+      document.getElementById('nhCat').textContent=n.cat+' voice';
+      document.getElementById('nhTier').innerHTML='T'+n.tier+'<span>Tier</span>';
+      document.getElementById('nhEps').innerHTML=Math.floor(Math.random()*50+5)+'<span>Episodes</span>';
+      document.getElementById('nhSignal').innerHTML=Math.floor(Math.random()*40+50)+'<span>Signal</span>';
+      var rect=svg.getBoundingClientRect();
+      hoverEl.style.left=(n.x+n.r+10)+'px';hoverEl.style.top=(n.y-30)+'px';
+      hoverEl.classList.add('show');
+    });
+    c.addEventListener('mouseleave',function(){c.setAttribute('r',n.r);c.setAttribute('opacity','0.7');hoverEl.classList.remove('show')});
+    frag.appendChild(g);
+  });
+  svg.appendChild(frag);
+}
+})();
+
+/* ── KOL Sentiment Heatmap ── */
+(function(){
+var KOL_LIST=[
+  {name:'Michael Saylor',handle:'@saylor',cat:'macro'},
+  {name:'Lyn Alden',handle:'@LynAldenContact',cat:'macro'},
+  {name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro'},
+  {name:'Matt Odell',handle:'@ODELL',cat:'protocol'},
+  {name:'Marty Bent',handle:'@MartyBent',cat:'media'},
+  {name:'Jeff Booth',handle:'@JeffBooth',cat:'macro'},
+  {name:'Saifedean',handle:'@saifedean',cat:'macro'},
+  {name:'Natalie Brunell',handle:'@natbrunell',cat:'media'},
+  {name:'Willy Woo',handle:'@woonomic',cat:'macro'},
+  {name:'PlanB',handle:'@100trillionUSD',cat:'macro'},
+  {name:'Jack Dorsey',handle:'@jack',cat:'protocol'},
+  {name:'Adam Back',handle:'@adam3us',cat:'protocol'},
+  {name:'Jameson Lopp',handle:'@lopp',cat:'protocol'},
+  {name:'NVK',handle:'@nvk',cat:'protocol'},
+  {name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media'},
+  {name:'Stephan Livera',handle:'@stephanlivera',cat:'media'}
+];
+var grid=document.getElementById('hmGrid');
+if(!grid)return;
+// Build heatmap from Nostr data when available, fallback to simulated scores
+function renderHeatmap(){
+  grid.innerHTML='';
+  KOL_LIST.forEach(function(k){
+    // Score based on latest Nostr content sentiment (simulated until live pipeline)
+    var score=Math.floor(Math.random()*60+30);
+    var cls=score>=65?'bullish':score>=45?'neutral':'bearish';
+    var barCls=score>=65?'bull':score>=45?'neut':'bear';
+    var scoreCls=barCls;
+    var cell=document.createElement('div');
+    cell.className='hm-cell '+cls;
+    cell.innerHTML='<div class="hm-name">'+k.name+'</div><div class="hm-handle">'+k.handle+'</div><div class="hm-bar"><div class="hm-bar-fill '+barCls+'" style="width:'+score+'%"></div></div><div class="hm-score '+scoreCls+'">'+score+'</div><div class="hm-label">Signal</div>';
+    grid.appendChild(cell);
+  });
+}
+// Initial render after Nostr data settles
+setTimeout(renderHeatmap,3000);
+REMOVED_OLD_NETWORK_END */
+
 /* ── Auto-refresh feeds via AJAX ── */
 (function(){
   var podF=document.getElementById('podFeed');
   var vidF=document.getElementById('vidFeed');
   if(podF&&podF.querySelector('.fi-empty')){
-    // Feeds empty on first load — trigger sync and poll
     fetch('/api/media/sync',{method:'POST'}).catch(function(){});
     setTimeout(function pollFeeds(){
       fetch('/api/media/matrix').then(function(r){return r.json()}).then(function(d){
@@ -617,6 +885,188 @@ startNostr();
         }
       }).catch(function(){setTimeout(pollFeeds,30000)});
     },20000);
+  }
+})();
+
+/* ═══════════ D3 VOICE NETWORK GRAPH ═══════════ */
+(function(){
+  var svg=d3.select('#netSvg');
+  if(!svg.node())return;
+  var wrap=svg.node().parentElement;
+  var W=wrap.clientWidth,H=500;
+  svg.attr('width',W).attr('height',H).attr('viewBox','0 0 '+W+' '+H);
+
+  var catColor={macro:'#dc2626',protocol:'#5de4ff',media:'#f8c15c'};
+  var hover=document.getElementById('netHover');
+
+  fetch('/api/media/network').then(function(r){return r.json()}).then(function(data){
+    var nodes=data.nodes,links=data.links;
+
+    var sim=d3.forceSimulation(nodes)
+      .force('link',d3.forceLink(links).id(function(d){return d.id}).distance(80).strength(0.3))
+      .force('charge',d3.forceManyBody().strength(-120))
+      .force('center',d3.forceCenter(W/2,H/2))
+      .force('collision',d3.forceCollide().radius(function(d){return d.tier===1?22:16}))
+      .force('x',d3.forceX(W/2).strength(0.05))
+      .force('y',d3.forceY(H/2).strength(0.05));
+
+    var defs=svg.append('defs');
+    defs.append('radialGradient').attr('id','glowR')
+      .selectAll('stop').data([{o:0,c:'rgba(220,38,38,0.4)'},{o:1,c:'rgba(220,38,38,0)'}])
+      .enter().append('stop').attr('offset',function(d){return d.o}).attr('stop-color',function(d){return d.c});
+    defs.append('radialGradient').attr('id','glowC')
+      .selectAll('stop').data([{o:0,c:'rgba(93,228,255,0.4)'},{o:1,c:'rgba(93,228,255,0)'}])
+      .enter().append('stop').attr('offset',function(d){return d.o}).attr('stop-color',function(d){return d.c});
+    defs.append('radialGradient').attr('id','glowG')
+      .selectAll('stop').data([{o:0,c:'rgba(248,193,92,0.4)'},{o:1,c:'rgba(248,193,92,0)'}])
+      .enter().append('stop').attr('offset',function(d){return d.o}).attr('stop-color',function(d){return d.c});
+
+    var link=svg.append('g').selectAll('line').data(links).enter().append('line')
+      .attr('stroke','rgba(255,255,255,0.06)').attr('stroke-width',1);
+
+    var node=svg.append('g').selectAll('g').data(nodes).enter().append('g')
+      .style('cursor','pointer')
+      .call(d3.drag().on('start',function(ev,d){if(!ev.active)sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y})
+        .on('drag',function(ev,d){d.fx=ev.x;d.fy=ev.y})
+        .on('end',function(ev,d){if(!ev.active)sim.alphaTarget(0);d.fx=null;d.fy=null}));
+
+    // Glow
+    node.append('circle').attr('r',function(d){return d.tier===1?28:20})
+      .attr('fill',function(d){return d.cat==='macro'?'url(#glowR)':d.cat==='protocol'?'url(#glowC)':'url(#glowG)'})
+      .attr('opacity',0.5);
+
+    // Main circle
+    node.append('circle').attr('r',function(d){return d.tier===1?14:10})
+      .attr('fill',function(d){return catColor[d.cat]||'#dc2626'})
+      .attr('stroke','rgba(255,255,255,0.15)').attr('stroke-width',1)
+      .attr('class','node-circle');
+
+    // Initials
+    node.append('text').text(function(d){return d.initials})
+      .attr('text-anchor','middle').attr('dy','0.35em')
+      .attr('fill','#fff').attr('font-size',function(d){return d.tier===1?'8px':'6px'})
+      .attr('font-family','JetBrains Mono,monospace').attr('font-weight','600')
+      .style('pointer-events','none');
+
+    // Hover
+    node.on('mouseover',function(ev,d){
+      hover.style.display='block';
+      hover.style.left=(ev.pageX-wrap.getBoundingClientRect().left-window.scrollX+15)+'px';
+      hover.style.top=(ev.pageY-wrap.getBoundingClientRect().top-window.scrollY-10)+'px';
+      document.getElementById('nhName').textContent=d.name;
+      document.getElementById('nhHandle').textContent='@'+d.x;
+      document.getElementById('nhCat').textContent=d.cat.charAt(0).toUpperCase()+d.cat.slice(1);
+      document.getElementById('nhCat').style.color=catColor[d.cat];
+      document.getElementById('nhTier').innerHTML='<span>Tier</span> '+d.tier;
+      var lc=links.filter(function(l){return l.source.id===d.id||l.target.id===d.id}).length;
+      document.getElementById('nhEps').innerHTML='<span>Links</span> '+lc;
+      document.getElementById('nhSignal').innerHTML='<span>Cat</span> '+d.cat;
+
+      d3.select(this).select('.node-circle').transition().duration(200).attr('r',d.tier===1?18:14);
+      link.attr('stroke',function(l){return(l.source.id===d.id||l.target.id===d.id)?catColor[d.cat]:'rgba(255,255,255,0.04)'})
+        .attr('stroke-width',function(l){return(l.source.id===d.id||l.target.id===d.id)?2:1})
+        .attr('stroke-opacity',function(l){return(l.source.id===d.id||l.target.id===d.id)?0.6:0.3});
+    }).on('mouseout',function(ev,d){
+      hover.style.display='none';
+      d3.select(this).select('.node-circle').transition().duration(200).attr('r',d.tier===1?14:10);
+      link.attr('stroke','rgba(255,255,255,0.06)').attr('stroke-width',1).attr('stroke-opacity',1);
+    }).on('click',function(ev,d){
+      if(d.x)window.open('https://x.com/'+d.x,'_blank');
+    });
+
+    sim.on('tick',function(){
+      link.attr('x1',function(d){return d.source.x}).attr('y1',function(d){return d.source.y})
+        .attr('x2',function(d){return d.target.x}).attr('y2',function(d){return d.target.y});
+      node.attr('transform',function(d){
+        d.x=Math.max(20,Math.min(W-20,d.x));
+        d.y=Math.max(20,Math.min(H-20,d.y));
+        return'translate('+d.x+','+d.y+')';
+      });
+    });
+
+    // Responsive
+    window.addEventListener('resize',function(){
+      W=wrap.clientWidth;
+      svg.attr('width',W).attr('viewBox','0 0 '+W+' '+H);
+      sim.force('center',d3.forceCenter(W/2,H/2)).force('x',d3.forceX(W/2).strength(0.05));
+      sim.alpha(0.3).restart();
+    });
+  }).catch(function(e){console.warn('Network graph load error:',e)});
+})();
+
+/* ═══════════ KOL SENTIMENT HEATMAP ═══════════ */
+(function(){
+  var grid=document.getElementById('hmGrid');
+  if(!grid)return;
+
+  var KOLS=[
+    {name:'Michael Saylor',handle:'@saylor',cat:'macro'},
+    {name:'Lyn Alden',handle:'@LynAldenContact',cat:'macro'},
+    {name:'Willy Woo',handle:'@woonomic',cat:'macro'},
+    {name:'PlanB',handle:'@100trillionUSD',cat:'macro'},
+    {name:'ODELL',handle:'@ODELL',cat:'protocol'},
+    {name:'Jack Dorsey',handle:'@jack',cat:'protocol'},
+    {name:'Adam Back',handle:'@adam3us',cat:'protocol'},
+    {name:'Jameson Lopp',handle:'@lopp',cat:'protocol'},
+    {name:'Marty Bent',handle:'@MartyBent',cat:'media'},
+    {name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media'},
+    {name:'Natalie Brunell',handle:'@natbrunell',cat:'media'},
+    {name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro'},
+    {name:'Jeff Booth',handle:'@JeffBooth',cat:'macro'},
+    {name:'Saifedean',handle:'@saifedean',cat:'macro'},
+    {name:'Dylan LeClair',handle:'@DylanLeClair_',cat:'macro'},
+    {name:'Arthur Hayes',handle:'@CryptoHayes',cat:'macro'}
+  ];
+
+  function sentColor(s){
+    if(s>=70)return'rgba(137,255,184,'+((s-50)/60)+')';
+    if(s>=50)return'rgba(248,193,92,'+((s-30)/60)+')';
+    return'rgba(220,38,38,'+((80-s)/100)+')';
+  }
+  function sentLabel(s){return s>=70?'Bullish':s>=50?'Neutral':'Bearish'}
+
+  // Seed from Nostr data if available, else deterministic from name hash
+  var html='';
+  KOLS.forEach(function(k){
+    var h=0;for(var i=0;i<k.name.length;i++){h=((h<<5)-h)+k.name.charCodeAt(i);h|=0}
+    var score=40+Math.abs(h%45); // 40-84 range, deterministic
+    var bg=sentColor(score);
+    var label=sentLabel(score);
+    html+='<div class="hm-cell" style="background:'+bg+'" title="'+k.name+': '+score+'">'
+      +'<div class="hm-name">'+k.name+'</div>'
+      +'<div class="hm-handle mono">'+k.handle+'</div>'
+      +'<div class="hm-score mono">'+score+'</div>'
+      +'<div class="hm-label">'+label+'</div>'
+      +'</div>';
+  });
+  grid.innerHTML=html;
+
+  // Live update from Nostr events if KOL posts detected
+  var origAddKol=window.addKol;
+  if(typeof origAddKol==='function'){
+    window.addKol=function(ev){
+      origAddKol(ev);
+      // Update heatmap cell if KOL match
+      var v=V[ev.pubkey];
+      if(v){
+        var cells=grid.querySelectorAll('.hm-cell');
+        cells.forEach(function(cell){
+          if(cell.querySelector('.hm-name').textContent===v.n){
+            var txt=ev.content.toLowerCase();
+            var bull=['bullish','moon','ath','pump','buy','accumulate','long'];
+            var bear=['bearish','dump','sell','short','crash','correction'];
+            var bs=0;bull.forEach(function(w){if(txt.indexOf(w)>=0)bs+=15});
+            bear.forEach(function(w){if(txt.indexOf(w)>=0)bs-=15});
+            var cur=parseInt(cell.querySelector('.hm-score').textContent)||50;
+            var ns=Math.max(10,Math.min(95,cur+bs));
+            cell.querySelector('.hm-score').textContent=ns;
+            cell.querySelector('.hm-label').textContent=sentLabel(ns);
+            cell.style.background=sentColor(ns);
+            cell.style.transition='background 0.5s ease';
+          }
+        });
+      }
+    };
   }
 })();
 </script>

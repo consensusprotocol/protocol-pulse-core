@@ -1847,6 +1847,14 @@ def media_hub():
         except Exception as _e:
             logging.warning(f'SSR highlights failed: {_e}')
 
+        # Commander gate flag for premium sections (heatmap, etc.)
+        _is_commander = False
+        try:
+            if current_user.is_authenticated:
+                _is_commander = getattr(current_user, 'has_commander_tier', lambda: False)()
+        except Exception:
+            pass
+
         return render_template('media_hub.html',
             series_list=series_list,
             series_data=series_config,
@@ -1859,6 +1867,7 @@ def media_hub():
             feed_matrix=feed_matrix,
             ticker_items=ticker_items,
             feed_stats=feed_stats,
+            is_commander=_is_commander,
         )
 
     except Exception as e:
@@ -1869,7 +1878,7 @@ def media_hub():
             series_list=[], series_data={}, series_count=0,
             latest_episodes=[], podcast_count=0, voice_count=0, all_books=[],
             feed_matrix={'podcasts': [], 'videos': []},
-            ticker_items=[], feed_stats={})
+            ticker_items=[], feed_stats={}, is_commander=False)
 
 
 @app.route('/api/latest-episodes')
@@ -1978,6 +1987,93 @@ def refresh_rss_feeds():
     except Exception as e:
         logging.error(f"Error refreshing RSS feeds: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/media/rss')
+def api_media_rss():
+    """Media Command Center — RSS feed data (podcasts + videos)."""
+    try:
+        from services.media_feed_service import get_feed_matrix, get_ticker_items, get_feed_stats
+        limit = request.args.get('limit', 20, type=int)
+        category = request.args.get('category')  # 'podcast', 'video', or None for all
+        matrix = get_feed_matrix(limit_per_col=limit)
+        if category == 'podcast':
+            data = matrix.get('podcasts', [])
+        elif category == 'video':
+            data = matrix.get('videos', [])
+        else:
+            data = matrix
+        return jsonify({
+            'ok': True,
+            'data': data,
+            'ticker': get_ticker_items(limit=30),
+            'stats': get_feed_stats(),
+        })
+    except Exception as e:
+        logging.error(f"api_media_rss error: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@app.route('/api/media/signal-score')
+def api_media_signal_score():
+    """Compute signal score for given text (used by front-end components)."""
+    try:
+        from services.media_feed_service import compute_signal_score
+        title = request.args.get('title', '')
+        description = request.args.get('description', '')
+        tier = request.args.get('tier', 2, type=int)
+        if not title and not description:
+            return jsonify({'ok': False, 'error': 'title or description required'}), 400
+        score = compute_signal_score(title, description, tier=tier)
+        return jsonify({'ok': True, 'signal_score': score})
+    except Exception as e:
+        logging.error(f"api_media_signal_score error: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@app.route('/api/media/network')
+def api_media_network():
+    """Voice network graph data — nodes (KOLs/shows) and edges (collaborations)."""
+    try:
+        from services.media_feed_service import PODCAST_FEEDS, YOUTUBE_CHANNELS
+        nodes = []
+        for i, feed in enumerate(PODCAST_FEEDS):
+            nodes.append({
+                'id': f'p{i}',
+                'name': feed['name'],
+                'host': feed.get('host', ''),
+                'tier': feed.get('tier', 2),
+                'color': feed.get('color', '#f7931a'),
+                'category': 'podcast',
+            })
+        for i, ch in enumerate(YOUTUBE_CHANNELS):
+            nodes.append({
+                'id': f'y{i}',
+                'name': ch['name'],
+                'tier': ch.get('tier', 2),
+                'color': ch.get('color', '#dc2626'),
+                'category': 'video',
+            })
+        # Edges: connect feeds that share hosts or frequent cross-appearances
+        edges = []
+        host_map = {}
+        for n in nodes:
+            host = n.get('host', n['name']).lower()
+            for key in host_map:
+                if key in host or host in key:
+                    edges.append({'source': host_map[key], 'target': n['id']})
+            host_map[host] = n['id']
+        # Cross-media links (same brand on podcast + video)
+        name_map = {}
+        for n in nodes:
+            base = n['name'].lower().replace(' podcast', '').replace(' magazine', '').strip()
+            if base in name_map and name_map[base] != n['id']:
+                edges.append({'source': name_map[base], 'target': n['id']})
+            name_map[base] = n['id']
+        return jsonify({'ok': True, 'nodes': nodes, 'edges': edges})
+    except Exception as e:
+        logging.error(f"api_media_network error: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
 
 @app.route('/admin/sync-podcasts')
 @login_required
@@ -7393,6 +7489,119 @@ def api_media_ticker():
     from services.media_feed_service import get_ticker_items
     limit = min(int(request.args.get('limit', 30)), 50)
     return jsonify(get_ticker_items(limit=limit))
+
+
+@app.route('/api/media/network')
+def api_media_network():
+    """D3 voice network graph data — 50 Bitcoin voices with edges"""
+    VOICES = [
+        {"id":"jack","name":"Jack Dorsey","initials":"JD","cat":"protocol","tier":1,"x":"jack"},
+        {"id":"adam_back","name":"Adam Back","initials":"AB","cat":"protocol","tier":1,"x":"adam3us"},
+        {"id":"nvk","name":"NVK","initials":"NV","cat":"protocol","tier":1,"x":"nvk"},
+        {"id":"odell","name":"ODELL","initials":"MO","cat":"protocol","tier":1,"x":"ODELL"},
+        {"id":"fiatjaf","name":"Fiatjaf","initials":"FJ","cat":"protocol","tier":2,"x":"fiatjaf"},
+        {"id":"lyn","name":"Lyn Alden","initials":"LA","cat":"macro","tier":1,"x":"LynAldenContact"},
+        {"id":"preston","name":"Preston Pysh","initials":"PP","cat":"macro","tier":1,"x":"PrestonPysh"},
+        {"id":"marty","name":"Marty Bent","initials":"MB","cat":"media","tier":1,"x":"MartyBent"},
+        {"id":"ahodl","name":"American HODL","initials":"AH","cat":"media","tier":2,"x":"americanhodl8"},
+        {"id":"booth","name":"Jeff Booth","initials":"JB","cat":"macro","tier":1,"x":"JeffBooth"},
+        {"id":"saif","name":"Saifedean","initials":"SA","cat":"macro","tier":1,"x":"saifedean"},
+        {"id":"natalie","name":"Natalie Brunell","initials":"NB","cat":"media","tier":1,"x":"natbrunell"},
+        {"id":"saylor","name":"Michael Saylor","initials":"MS","cat":"macro","tier":1,"x":"saylor"},
+        {"id":"lopp","name":"Jameson Lopp","initials":"JL","cat":"protocol","tier":1,"x":"lopp"},
+        {"id":"willy","name":"Willy Woo","initials":"WW","cat":"macro","tier":1,"x":"woonomic"},
+        {"id":"mccormack","name":"Peter McCormack","initials":"PM","cat":"media","tier":1,"x":"PeterMcCormack"},
+        {"id":"livera","name":"Stephan Livera","initials":"SL","cat":"media","tier":1,"x":"stephanlivera"},
+        {"id":"guy","name":"Guy Swann","initials":"GS","cat":"media","tier":1,"x":"TheGuySwann"},
+        {"id":"nik","name":"Nik Bhatia","initials":"NK","cat":"macro","tier":1,"x":"timeabornik"},
+        {"id":"gladstein","name":"Alex Gladstein","initials":"AG","cat":"macro","tier":1,"x":"gladstein"},
+        {"id":"bitcoinmagazine","name":"Bitcoin Magazine","initials":"BM","cat":"media","tier":1,"x":"BitcoinMagazine"},
+        {"id":"antonop","name":"Andreas Antonopoulos","initials":"AA","cat":"protocol","tier":1,"x":"aantonop"},
+        {"id":"blockstream","name":"Blockstream","initials":"BS","cat":"protocol","tier":1,"x":"Blockstream"},
+        {"id":"bitstein","name":"Michael Goldstein","initials":"MG","cat":"protocol","tier":2,"x":"bitstein"},
+        {"id":"breedlove","name":"Robert Breedlove","initials":"RB","cat":"macro","tier":1,"x":"Breedlove22"},
+        {"id":"swan","name":"Swan Bitcoin","initials":"SW","cat":"media","tier":2,"x":"SwanBitcoin"},
+        {"id":"pomp","name":"Anthony Pompliano","initials":"AP","cat":"media","tier":1,"x":"APompliano"},
+        {"id":"corbet","name":"Matt Corbet","initials":"MC","cat":"media","tier":2,"x":"Bitcoin_Sage"},
+        {"id":"pierre","name":"Pierre Rochard","initials":"PR","cat":"protocol","tier":1,"x":"BitcoinPierre"},
+        {"id":"cory","name":"Cory Klippsten","initials":"CK","cat":"media","tier":1,"x":"coryklippsten"},
+        {"id":"elizabeth","name":"Elizabeth Stark","initials":"ES","cat":"protocol","tier":1,"x":"staborik"},
+        {"id":"pbx","name":"PBX","initials":"PX","cat":"media","tier":1,"x":"cypherpunkd_"},
+        {"id":"hayes","name":"Arthur Hayes","initials":"AH2","cat":"macro","tier":1,"x":"CryptoHayes"},
+        {"id":"jimmy","name":"Jimmy Song","initials":"JS","cat":"protocol","tier":1,"x":"JimmySong"},
+        {"id":"alex_leish","name":"Alex Leishman","initials":"AL","cat":"protocol","tier":2,"x":"Leishman"},
+        {"id":"max_keiser","name":"Max Keiser","initials":"MK","cat":"macro","tier":1,"x":"maxkeiser"},
+        {"id":"plan_b","name":"PlanB","initials":"PB","cat":"macro","tier":1,"x":"100trillionUSD"},
+        {"id":"dergigi","name":"Gigi","initials":"GI","cat":"protocol","tier":1,"x":"dergigi"},
+        {"id":"nico","name":"Nico Moran","initials":"NM","cat":"media","tier":2,"x":"nilosophy"},
+        {"id":"parker","name":"Parker Lewis","initials":"PL","cat":"macro","tier":1,"x":"ParkerLewis_"},
+        {"id":"hodlonaut","name":"hodlonaut","initials":"HO","cat":"protocol","tier":2,"x":"hodlonaut"},
+        {"id":"erik","name":"Erik Voorhees","initials":"EV","cat":"protocol","tier":1,"x":"ErikVoorhees"},
+        {"id":"muneeb","name":"Muneeb Ali","initials":"MA","cat":"protocol","tier":2,"x":"muaborik"},
+        {"id":"samson","name":"Samson Mow","initials":"SM","cat":"macro","tier":1,"x":"Excellion"},
+        {"id":"greg","name":"Greg Foss","initials":"GF","cat":"macro","tier":1,"x":"FossGregfoss"},
+        {"id":"dylan","name":"Dylan LeClair","initials":"DL","cat":"macro","tier":1,"x":"DylanLeClair_"},
+        {"id":"btcsessions","name":"BTC Sessions","initials":"BT","cat":"media","tier":2,"x":"BTCsessions"},
+        {"id":"tone","name":"Tone Vays","initials":"TV","cat":"macro","tier":2,"x":"ToneVays"},
+        {"id":"whalemap","name":"Whalemap","initials":"WM","cat":"macro","tier":2,"x":"whale_map"},
+        {"id":"bitdevs","name":"BitDevs","initials":"BD","cat":"protocol","tier":2,"x":"BitDevsNYC"},
+    ]
+    EDGES = [
+        ["odell","marty"],["odell","jack"],["odell","nvk"],
+        ["marty","preston"],["marty","lyn"],["marty","guy"],
+        ["mccormack","livera"],["mccormack","lyn"],["mccormack","booth"],
+        ["livera","saif"],["livera","antonop"],["livera","nik"],
+        ["saylor","pomp"],["saylor","breedlove"],["saylor","max_keiser"],
+        ["lyn","preston"],["lyn","gladstein"],["lyn","nik"],
+        ["adam_back","blockstream"],["adam_back","lopp"],["adam_back","jimmy"],
+        ["natalie","preston"],["natalie","breedlove"],["natalie","saylor"],
+        ["jack","fiatjaf"],["jack","elizabeth"],["jack","dergigi"],
+        ["breedlove","booth"],["breedlove","parker"],["breedlove","saif"],
+        ["pbx","natalie"],["pbx","odell"],["pbx","mccormack"],
+        ["bitcoinmagazine","swan"],["bitcoinmagazine","cory"],
+        ["plan_b","willy"],["plan_b","dylan"],
+        ["hayes","dylan"],["hayes","greg"],
+        ["guy","dergigi"],["guy","saif"],
+        ["lopp","pierre"],["lopp","jimmy"],
+        ["samson","max_keiser"],["samson","adam_back"],
+        ["nico","odell"],["nico","marty"],
+        ["hodlonaut","dergigi"],["hodlonaut","odell"],
+        ["erik","pierre"],["erik","elizabeth"],
+        ["parker","booth"],["parker","lyn"],
+        ["dylan","greg"],["dylan","lyn"],
+        ["tone","willy"],["btcsessions","guy"],
+    ]
+    return jsonify({"nodes": VOICES, "links": [{"source":e[0],"target":e[1]} for e in EDGES]})
+
+
+@app.route('/api/media/signal-score')
+def api_media_signal_score():
+    """Compute signal score for given text"""
+    from services.media_feed_service import compute_signal_score
+    title = request.args.get('title', '')
+    desc = request.args.get('description', '')
+    tier = int(request.args.get('tier', 2))
+    score = compute_signal_score(title, desc, tier)
+    return jsonify({'signal_score': score, 'title': title})
+
+
+@app.route('/api/media/rss')
+def api_media_rss():
+    """Get all podcast RSS feed episodes"""
+    from services.media_feed_service import PODCAST_FEEDS, parse_rss_feed
+    limit = min(int(request.args.get('limit', 20)), 50)
+    all_eps = []
+    for fc in PODCAST_FEEDS:
+        eps = parse_rss_feed(fc)
+        for ep in eps:
+            ep['feed_name'] = fc['name']
+            ep['feed_host'] = fc.get('host', '')
+            ep['feed_color'] = fc.get('color', '#dc2626')
+            if ep.get('published_at'):
+                ep['published_at'] = ep['published_at'].isoformat()
+        all_eps.extend(eps)
+    all_eps.sort(key=lambda x: x.get('published_at', ''), reverse=True)
+    return jsonify(all_eps[:limit])
 
 
 @app.route('/api/media/sync', methods=['POST'])
