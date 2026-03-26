@@ -2539,6 +2539,106 @@ def admin_newsletter():
                            recent_sends=recent_sends, last_send=last_send)
 
 
+@app.route('/api/admin/newsletter/history')
+@login_required
+@admin_required
+def api_admin_newsletter_history():
+    """Newsletter dispatch history — DB sends + queue files."""
+    import glob as _glob
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    queue_dir = os.path.join(project_root, 'data', 'newsletter_queue')
+    sent_dir = os.path.join(queue_dir, 'sent')
+
+    # DB sends
+    sends = models.NewsletterSend.query.order_by(models.NewsletterSend.sent_at.desc()).limit(30).all()
+    db_sends = [{
+        'id': s.id,
+        'subject': s.subject,
+        'recipient_count': s.recipient_count,
+        'open_count': getattr(s, 'open_count', 0),
+        'click_count': getattr(s, 'click_count', 0),
+        'sent_at': s.sent_at.isoformat() + 'Z' if s.sent_at else None,
+        'source': 'db',
+    } for s in sends]
+
+    # Campaigns
+    campaigns = models.NewsletterCampaign.query.order_by(models.NewsletterCampaign.sent_at.desc()).limit(30).all()
+    for c in campaigns:
+        db_sends.append({
+            'id': f'campaign-{c.id}',
+            'subject': c.top_headline or 'Daily Digest',
+            'recipient_count': c.recipient_count,
+            'open_count': 0,
+            'click_count': 0,
+            'sent_at': c.sent_at.isoformat() + 'Z' if c.sent_at else None,
+            'status': c.status,
+            'source': 'campaign',
+        })
+
+    # Queue (pending)
+    pending = []
+    hook_files = sorted(_glob.glob(os.path.join(queue_dir, '*_hook.json')))
+    for hf in hook_files:
+        try:
+            with open(hf) as f:
+                data = json.load(f)
+            pending.append({
+                'filename': os.path.basename(hf),
+                'hook': (data.get('hook', '') or '')[:200],
+                'brief_type': data.get('brief_type', ''),
+                'generated_at': data.get('generated_at', ''),
+            })
+        except Exception:
+            pending.append({'filename': os.path.basename(hf), 'hook': '(parse error)', 'brief_type': '', 'generated_at': ''})
+
+    # Sent files
+    sent_files = []
+    if os.path.isdir(sent_dir):
+        for sf in sorted(os.listdir(sent_dir), reverse=True)[:20]:
+            try:
+                with open(os.path.join(sent_dir, sf)) as f:
+                    data = json.load(f)
+                sent_files.append({
+                    'filename': sf,
+                    'hook': (data.get('hook', '') or '')[:200],
+                    'brief_type': data.get('brief_type', ''),
+                    'generated_at': data.get('generated_at', ''),
+                })
+            except Exception:
+                sent_files.append({'filename': sf, 'hook': '', 'brief_type': '', 'generated_at': ''})
+
+    # Sort DB sends by date
+    db_sends.sort(key=lambda x: x.get('sent_at') or '', reverse=True)
+
+    return jsonify({
+        'dispatches': db_sends,
+        'pending_queue': pending,
+        'sent_queue_files': sent_files,
+    })
+
+
+@app.route('/api/admin/newsletter/preview')
+@login_required
+@admin_required
+def api_admin_newsletter_preview():
+    """Generate and return a preview of the current newsletter HTML."""
+    try:
+        import importlib.util as _ilu
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        _ne_path = os.path.join(project_root, 'services', 'newsletter_engine.py')
+        _ne_spec = _ilu.spec_from_file_location('_newsletter_engine_preview', _ne_path)
+        _ne_mod = _ilu.module_from_spec(_ne_spec)
+        _ne_spec.loader.exec_module(_ne_mod)
+        engine = _ne_mod.NewsletterEngine()
+        articles = engine.get_todays_articles(5)
+        btc_data = engine.get_btc_price()
+        summary = engine.generate_ai_summary(articles)
+        html = engine.generate_html(articles, summary, btc_data)
+        return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
+    except Exception as e:
+        return f'<html><body style="background:#000;color:#f55;padding:40px;font-family:monospace;">Preview error: {e}</body></html>', 500, {'Content-Type': 'text/html'}
+
+
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")
 def login():
@@ -12759,4 +12859,25 @@ def api_media_network():
         {'source':'gigi','target':'beautyon'},{'source':'gigi','target':'fiatjaf'},
     ]
     return jsonify({'nodes': nodes, 'links': links})
+
+
+# ── New Node Tweet Trigger (from globe radar) ──────────────────────
+@app.route('/api/tweet-new-node', methods=['POST'])
+def api_tweet_new_node():
+    data = request.get_json(silent=True) or {}
+    new_count = data.get('new_nodes', 1)
+    total = data.get('total', 0)
+    tweet_text = (
+        f"⚡ {new_count} new Bitcoin node(s) just came online. "
+        f"The network grows stronger. {total:,} sovereign nodes securing "
+        f"the future of money. Want to be next? Ask Satomi how: "
+        f"protocolpulse.io/oracle-live #Bitcoin #RunYourNode #Sovereignty"
+    )
+    try:
+        from services.x_service import post_tweet
+        result = post_tweet(tweet_text, source="node_radar")
+        return jsonify({'success': True, 'tweet': tweet_text, 'result': str(result)})
+    except Exception as e:
+        logging.warning('tweet-new-node failed: %s', e)
+        return jsonify({'success': False, 'error': str(e), 'tweet': tweet_text})
 

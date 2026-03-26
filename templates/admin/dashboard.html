@@ -423,6 +423,92 @@
     </div>
   </div>
 
+  <!-- ================== SECTION 2B: NEWSLETTER INTELLIGENCE ================== -->
+  <div class="pbx-section" id="sec-newsletter">
+    <div class="pbx-section-title" onclick="toggleSection('newsletter')">
+      &#9658; NEWSLETTER INTELLIGENCE — DISPATCH HISTORY & QUEUE
+      <span class="toggle" id="tog-newsletter">&#9660;</span>
+    </div>
+    <div class="pbx-section-body" id="body-newsletter">
+      <!-- Stats bar -->
+      <div class="metric-grid" id="nl-metrics">
+        <div class="metric-card">
+          <span class="metric-label">Total Dispatches</span>
+          <span class="metric-value gold" id="nl-total-dispatches"><span class="pbx-spinner"></span></span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Queue Pending</span>
+          <span class="metric-value" id="nl-queue-pending"><span class="pbx-spinner"></span></span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Last Dispatch</span>
+          <span class="metric-value" style="font-size:11px;" id="nl-last-dispatch">—</span>
+          <span class="metric-sub" id="nl-last-subject"></span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Next Dispatch (UTC)</span>
+          <span class="metric-value gold" style="font-size:13px;" id="nl-next-dispatch">—</span>
+        </div>
+      </div>
+
+      <!-- Action strip -->
+      <div class="action-strip" style="margin-bottom:12px;">
+        <button class="action-btn" style="border-color:var(--red);color:var(--red);" onclick="dispatchNow()" id="nl-dispatch-btn">&#9889; DISPATCH NOW</button>
+        <button class="action-btn gold-border" onclick="previewNewsletter()">&#9638; PREVIEW NEXT EMAIL</button>
+        <a class="action-btn" href="/admin/newsletter">FULL NEWSLETTER ADMIN</a>
+      </div>
+      <div id="nl-dispatch-status" style="display:none;padding:6px 10px;margin-bottom:10px;font-size:10px;border:1px solid var(--border);background:var(--surface2);"></div>
+
+      <div class="two-col">
+        <!-- Dispatch History -->
+        <div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">DISPATCH HISTORY (LAST 15)</div>
+          <table class="pbx-table" id="nl-history-tbl">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Recipients</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="nl-history-body">
+              <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;"><span class="pbx-spinner"></span> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Queue Status -->
+        <div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">PENDING QUEUE</div>
+          <table class="pbx-table" id="nl-queue-tbl">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Type</th>
+                <th>Hook Preview</th>
+              </tr>
+            </thead>
+            <tbody id="nl-queue-body">
+              <tr><td colspan="3" style="color:var(--muted);text-align:center;padding:16px;"><span class="pbx-spinner"></span> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Newsletter Preview Modal -->
+  <div id="nl-preview-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;justify-content:center;align-items:center;">
+    <div style="position:relative;width:640px;max-width:95vw;height:85vh;background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);">
+        <span style="font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;font-weight:700;">NEWSLETTER PREVIEW</span>
+        <button onclick="closePreview()" style="background:none;border:1px solid var(--muted);color:var(--muted);font-family:var(--mono);font-size:10px;padding:2px 8px;cursor:pointer;">&#10005; CLOSE</button>
+      </div>
+      <iframe id="nl-preview-iframe" style="width:100%;height:calc(100% - 36px);border:none;background:#fff;"></iframe>
+    </div>
+  </div>
+
   <!-- ================== SECTION 3: CONTENT ================== -->
   <div class="pbx-section" id="sec-content">
     <div class="pbx-section-title" onclick="toggleSection('content')">
@@ -591,6 +677,7 @@
       <a class="action-btn gold-border" href="/admin/analytics">ANALYTICS</a>
       <a class="action-btn gold-border" href="/admin/command-deck">COMMAND DECK</a>
       <a class="action-btn gold-border" href="/sentiment">SENTIMENT</a>
+      <a class="action-btn gold-border" href="/admin/newsletter">NEWSLETTER</a>
       <a class="action-btn" href="/terminal">TERMINAL</a>
       <a class="action-btn" href="/charts">CHARTS</a>
     </div>
@@ -899,7 +986,7 @@ async function refreshAll(manual) {
 
   const keys = Object.keys(ENDPOINTS);
   // fetch in parallel
-  await Promise.allSettled(keys.map(k => fetchSection(k)));
+  await Promise.allSettled([...keys.map(k => fetchSection(k)), fetchNewsletter()]);
 }
 
 function startCountdown() {
@@ -923,9 +1010,125 @@ function tickClock() {
 setInterval(tickClock, 1000);
 tickClock();
 
+// ======================================================
+// NEWSLETTER INTELLIGENCE
+// ======================================================
+async function fetchNewsletter() {
+  try {
+    const resp = await fetch('/api/admin/newsletter/history');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    updateNewsletter(data);
+  } catch(e) {
+    console.error('Newsletter fetch error:', e);
+  }
+}
+
+function updateNewsletter(d) {
+  const dispatches = d.dispatches || [];
+  const pending = d.pending_queue || [];
+
+  setText('nl-total-dispatches', fmtNum(dispatches.length));
+  setText('nl-queue-pending', fmtNum(pending.length));
+
+  // Last dispatch
+  if (dispatches.length) {
+    const last = dispatches[0];
+    setText('nl-last-dispatch', fmtDate(last.sent_at));
+    const subEl = document.getElementById('nl-last-subject');
+    if (subEl) subEl.textContent = (last.subject || '').slice(0, 60);
+  }
+
+  // Next dispatch — 13:00 UTC daily
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(13, 0, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+  setText('nl-next-dispatch', next.toISOString().slice(11, 16) + ' UTC');
+
+  // History table
+  const tbody = document.getElementById('nl-history-body');
+  if (tbody) {
+    if (dispatches.length) {
+      tbody.innerHTML = dispatches.slice(0, 15).map(s => {
+        const status = s.status || (s.recipient_count > 0 ? 'sent' : 'empty');
+        const badgeCls = status === 'sent' ? 'badge-green' : status === 'failed' ? 'badge-red' : 'badge-gold';
+        return `<tr style="cursor:pointer;" onclick="previewNewsletter()">
+          <td style="color:var(--muted);white-space:nowrap;">${(s.sent_at||'').slice(0,10)}</td>
+          <td>${escHtml((s.subject||'').slice(0,50))}</td>
+          <td style="color:var(--gold)">${fmtNum(s.recipient_count)}</td>
+          <td><span class="badge ${badgeCls}">${escHtml(status)}</span></td>
+        </tr>`;
+      }).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No dispatches yet</td></tr>';
+    }
+  }
+
+  // Queue table
+  const qbody = document.getElementById('nl-queue-body');
+  if (qbody) {
+    if (pending.length) {
+      qbody.innerHTML = pending.map(p => `<tr>
+        <td style="color:var(--muted);font-size:10px;">${escHtml(p.filename)}</td>
+        <td><span class="badge badge-gold">${escHtml(p.brief_type || '—')}</span></td>
+        <td style="font-size:10px;">${escHtml((p.hook||'').slice(0,80))}${(p.hook||'').length > 80 ? '...' : ''}</td>
+      </tr>`).join('');
+    } else {
+      qbody.innerHTML = '<tr><td colspan="3" style="color:var(--green);text-align:center;padding:12px;">&#10003; Queue empty</td></tr>';
+    }
+  }
+}
+
+async function dispatchNow() {
+  const btn = document.getElementById('nl-dispatch-btn');
+  const statusEl = document.getElementById('nl-dispatch-status');
+  if (!confirm('Dispatch the latest newsletter to all subscribers now?')) return;
+  btn.disabled = true;
+  btn.textContent = '... DISPATCHING';
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--gold)';
+  statusEl.textContent = 'Sending newsletter...';
+  try {
+    const resp = await fetch('/api/newsletter/dispatch', { method: 'POST' });
+    const data = await resp.json();
+    if (data.success) {
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = '✓ Dispatched to ' + (data.recipient_count || data.sent || '?') + ' subscribers';
+      fetchNewsletter();
+    } else {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = '✗ ' + (data.error || 'Unknown error');
+    }
+  } catch(e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = '✗ Network error: ' + e.message;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '&#9889; DISPATCH NOW';
+}
+
+function previewNewsletter() {
+  const overlay = document.getElementById('nl-preview-overlay');
+  const iframe = document.getElementById('nl-preview-iframe');
+  overlay.style.display = 'flex';
+  iframe.src = '/api/admin/newsletter/preview';
+}
+
+function closePreview() {
+  document.getElementById('nl-preview-overlay').style.display = 'none';
+  document.getElementById('nl-preview-iframe').src = 'about:blank';
+}
+
+// Close preview on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePreview();
+});
+
 // Boot
 document.addEventListener('DOMContentLoaded', () => {
   refreshAll(true);
+  fetchNewsletter();
   startCountdown();
 });
 </script>
