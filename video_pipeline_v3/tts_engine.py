@@ -1038,7 +1038,23 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         if ok and os.path.exists(output_path):
             _trim_leading_silence(output_path)
             _trim_trailing_silence(output_path)
-            validate_tts_output(output_path)
+            # RETRY: ElevenLabs sometimes returns empty audio - retry up to 3 times
+            _validate_attempts = 0
+            while _validate_attempts < 3:
+                try:
+                    validate_tts_output(output_path)
+                    break  # success
+                except RuntimeError as _ve:
+                    _validate_attempts += 1
+                    log.warning(f'TTS validate fail attempt {_validate_attempts}/3: {_ve}')
+                    if _validate_attempts >= 3:
+                        raise
+                    import time as _t; _t.sleep(3 * _validate_attempts)
+                    # Retry the ElevenLabs call
+                    try:
+                        import os as _os; _os.remove(output_path)
+                    except: pass
+                    tts_elevenlabs(text, output_path, host_num, segment_type=segment_type)
             _tts_cache_put(cache_key, output_path)
         return ok
 

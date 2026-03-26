@@ -51,6 +51,7 @@ TTS_SCRIPT = os.path.join(PIPELINE, 'tts_local.py')
 FORENSICS_TIMEOUT = 600  # 10-minute hard timeout for entire forensics
 MAX_ITERATIONS = 8
 MAX_HOURS = 6
+_CLI_SKIP_SCAN = False  # Set by --skip-scan CLI arg
 RETRY_WAIT_SECONDS = 1800  # 30 minutes
 MAX_ATTEMPTS_PER_CYCLE = 2
 CONSECUTIVE_GRADE_FAILURES_THRESHOLD = int(os.getenv("CONSECUTIVE_GRADE_FAILURES_THRESHOLD", "3"))
@@ -354,12 +355,14 @@ def run_render(iteration):
         log("TTS cache preserved (content lock — iteration > 1)")
     env = load_env()
     render_start = time.time()
+    # Build command: always --skip-scan if CLI flag set or default
+    skip_flag = "--skip-scan" if _CLI_SKIP_SCAN else ""
     # CONTENT LOCK LAW: reuse locked content on iterations > 1
     if iteration > 1:
-        cmd = "python3 daily_producer.py --skip-scan --reuse-content"
+        cmd = f"python3 daily_producer.py {skip_flag} --reuse-content".strip()
         log(f"CONTENT LOCK: passing --reuse-content (iteration {iteration})")
     else:
-        cmd = "python3 daily_producer.py --skip-scan"
+        cmd = f"python3 daily_producer.py {skip_flag}".strip()
     r = run(cmd, timeout=14400, env=env)
     log(f"Render exit: {r.returncode}")
     import glob
@@ -391,6 +394,11 @@ def run_render(iteration):
             log(f"WARNING: ffprobe validation failed: {e}")
     else:
         log("FATAL: no output file produced by this render")
+        # Log last 20 lines of stderr for diagnosis
+        combined = (r.stdout or '') + (r.stderr or '')
+        tail_lines = combined.strip().splitlines()[-20:]
+        if tail_lines:
+            log(f"RENDER STDERR TAIL:\n" + '\n'.join(tail_lines))
     return out, r.stdout + r.stderr
 
 
@@ -590,7 +598,7 @@ def run_single_render():
         if (time.time()-start)/3600 >= MAX_HOURS:
             log(f"TIME LIMIT ({MAX_HOURS}h). Stopping."); break
         log(f"\n{'='*60}\nITERATION {iteration}/{MAX_ITERATIONS}\n{'='*60}")
-        # Clear stale daily_producer.lock before each iteration
+        # Clear stale daily_producer.lock before each iteration — aggressive cleanup
         _lock_path = "/tmp/daily_producer.lock"
         if os.path.exists(_lock_path):
             try:
@@ -599,8 +607,31 @@ def run_single_render():
                 if not _pgrep.stdout.strip():
                     os.remove(_lock_path)
                     log(f"Cleared stale daily_producer.lock (no process running)")
+                else:
+                    # Kill any zombie daily_producer before re-render
+                    _pids = _pgrep.stdout.strip().split('\n')
+                    for _pid in _pids:
+                        try:
+                            _age = subprocess.run(
+                                ["ps", "-p", _pid.strip(), "-o", "etimes="],
+                                capture_output=True, text=True, timeout=5)
+                            _secs = int(_age.stdout.strip()) if _age.stdout.strip() else 0
+                            if _secs > 7200:  # >2h = zombie
+                                os.kill(int(_pid.strip()), 9)
+                                log(f"Killed zombie daily_producer pid={_pid.strip()} (age={_secs}s)")
+                        except Exception:
+                            pass
             except Exception as _e:
                 log(f"WARNING: stale lock check failed: {_e}")
+        # Also force-remove if the lock file exists but is >2h old
+        if os.path.exists(_lock_path):
+            try:
+                _age = time.time() - os.path.getmtime(_lock_path)
+                if _age > 7200:
+                    os.remove(_lock_path)
+                    log(f"Force-removed stale lock (age={_age:.0f}s)")
+            except Exception:
+                pass
         _save_render_state(iteration, start)  # P0 Fix 5
         video, rlog = run_render(iteration)
         if not video:
@@ -832,6 +863,8 @@ def _acquire_singleton():
 
 
 def main():
+    global MAX_ITERATIONS, MAX_HOURS, _CLI_SKIP_SCAN, _total_episodes, _consecutive_failures
+
     parser = argparse.ArgumentParser(
         description="Protocol Pulse overnight render loop — production hardened",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -844,6 +877,8 @@ def main():
     )
     parser.add_argument("--daemon", action="store_true", help="Run as continuous daemon (loop at 08:00 ET daily)")
     parser.add_argument("--dry-run", action="store_true", help="Run startup checks only, no render")
+    parser.add_argument("--skip-scan", action="store_true", help="Pass --skip-scan to daily_producer.py (use cached transcripts)")
+    parser.add_argument("--max-iters", type=int, default=MAX_ITERATIONS, help=f"Max iterations per cycle (default: {MAX_ITERATIONS})")
     args = parser.parse_args()
 
     # Singleton guard — prevent duplicate instances
@@ -858,12 +893,19 @@ def main():
         sys.exit(1)
     log("All startup checks passed")
 
+    # Apply CLI overrides
+    MAX_ITERATIONS = args.max_iters
+    _CLI_SKIP_SCAN = args.skip_scan
+    # Scale MAX_HOURS: ~40min per iteration, capped at 12h for overnight
+    if MAX_ITERATIONS > 8:
+        MAX_HOURS = min(12, max(MAX_HOURS, (MAX_ITERATIONS * 40) // 60 + 1))
+    log(f"Config: max_iters={MAX_ITERATIONS}, max_hours={MAX_HOURS}, skip_scan={_CLI_SKIP_SCAN}, daemon={args.daemon}")
+
     if args.dry_run:
         log("--dry-run mode: startup checks passed, exiting")
         sys.exit(0)
 
     # Load existing heartbeat state
-    global _total_episodes, _consecutive_failures
     try:
         with open(HEARTBEAT_FILE) as f:
             hb = json.load(f)
@@ -874,14 +916,20 @@ def main():
         pass
 
     if args.daemon:
-        log("DAEMON MODE — will loop at 08:00 ET daily")
+        log(f"DAEMON MODE — max_iters={MAX_ITERATIONS}, skip_scan={_CLI_SKIP_SCAN}")
+        cycle_count = 0
         while True:
+            cycle_count += 1
+            log(f"[daemon] Starting cycle {cycle_count}")
             verdict = run_cycle() or "DEGRADED"
             if verdict == "PASS":
+                log(f"[daemon] Grade A on cycle {cycle_count} — sleeping until 8am ET")
                 sleep_until_next_8am_et()
             else:
-                log("[daemon] No Grade A — retrying in 30 min")
-                time.sleep(1800)
+                # Short wait between cycles for overnight batch rendering
+                wait = 120  # 2 min cooldown between cycles
+                log(f"[daemon] Cycle {cycle_count} verdict={verdict} — retrying in {wait}s")
+                time.sleep(wait)
     else:
         run_cycle()
 

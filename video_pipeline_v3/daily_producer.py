@@ -1690,7 +1690,10 @@ def main():
     args = parser.parse_args()
 
     # P0 Fix 1: flock process lock — prevent duplicate producers
-    lock_file = open("/tmp/daily_producer.lock", "w")
+    # GPU-specific lock allows parallel instances on separate GPUs
+    import os as _os
+    _gpu_id = _os.environ.get('CUDA_VISIBLE_DEVICES', '0').replace(',','_')
+    lock_file = open(f"/tmp/daily_producer_gpu{_gpu_id}.lock", "w")
     try:
         fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError:
