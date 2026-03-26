@@ -1226,7 +1226,7 @@ function process(text){
 
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true,avatar_source:"oracle_studio"})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:false,avatar_source:"oracle_studio"})
   },90000)
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -1241,220 +1241,68 @@ function process(text){
       var videoJobId=j.job_id;
       var _pendingCard = j.action_card || null;
 
-      // Play audio: try cached job audio first (no duplicate Kokoro), fallback to /oracle/voice
-      var audioFetch;
-      if(videoJobId){
-        // Poll job audio with retry — server returns 202 while TTS is rendering
-        function pollJobAudio(jobId, attemptsLeft){
-          return fetchTO(A+'/oracle/job/'+jobId+'/audio',{},15000)
-            .then(function(ar){
-              if(ar.status===202){
-                // Still rendering — retry after 2s
-                if(attemptsLeft>0){
-                  return new Promise(function(res){ setTimeout(function(){ res(pollJobAudio(jobId,attemptsLeft-1)); },2000); });
-                } else {
-                  throw new Error('audio timeout after retries');
-                }
-              }
-              if(!ar.ok) throw new Error('no cached audio');
-              return ar.blob().then(function(b){
-                // Validate: must be real audio (>1KB), not a tiny error body
-                if(b.size < 1024) throw new Error('audio blob too small: '+b.size);
-                return b;
-              });
-            });
-        }
-        audioFetch=pollJobAudio(videoJobId, 10)
-          .catch(function(){
-            // Fallback: generate fresh TTS
-            return fetchTO(A+'/oracle/voice',{
-              method:'POST',headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({text:responseText})
-            },35000).then(function(ar){
-              if(!ar.ok) throw new Error('audio failed');
-              return ar.blob();
-            });
-          });
-      } else {
-        audioFetch=fetchTO(A+'/oracle/voice',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({text:responseText})
-        },35000).then(function(ar){
-          if(!ar.ok) throw new Error('audio failed');
-          return ar.blob();
-        });
-      }
-      return audioFetch
-      .then(function(b){
-        return new Blob([b], {type: b.type || 'audio/wav'});
-      })
-      .then(function(audioBlob){
-        var audioUrl=URL.createObjectURL(audioBlob);
-        var audio;
-        if(window._audioUnlocked){
-          audio=window._audioUnlocked;
-          window._audioUnlocked=null;
-          audio.src=audioUrl;
-          audio.volume=1.0;
-          audio.muted=false;
-        } else {
-          audio=new Audio(audioUrl);
-          audio.volume=1.0;
-          window._chatAudioEl=audio; /* track so video arrival can stop it */
-        }
-        window._chatAudioPlaying=true;
-        var playPromise = audio.play();
-        if(playPromise !== undefined){
-          playPromise.then(function(){
-            if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
-            /* P0-4: If video not yet ready, show "Rendering video..." instead of "Speaking" */
-            if(!pendingVideoUrl) setStat('Rendering video\u2026','#f4c46f',true);
-            else setStat('Speaking','#6cff9f',false);
-          }).catch(function(err){
-            console.warn('[Satomi] audio.play() rejected:', err.name);
-            // On mobile, audio may be blocked — set volume via user gesture retry
-            audio.muted = false;
-            audio.volume = 1.0;
-            setTimeout(function(){
-              audio.play().catch(function(e2){
-                console.warn('[Satomi] retry failed:', e2.name);
-                if(audio.onended) audio.onended();
-              });
-            }, 100);
-          });
-        }
+      // Video-first: poll for lip sync video, play once, restart mic
+      setStat('Satomi is thinking… 0s','#f4c46f',true);
+      var _pollAttempts=0, _maxAttempts=45, _pollDone=false;
+      var _thinkSec=0;
 
-        return new Promise(function(resolve){
-          audio.onended=function(){
-            _audioFinished=true;
-            if(_pendingCard){ showActionCard(_pendingCard); _pendingCard=null; }
-            window._chatAudioPlaying=false;
-            URL.revokeObjectURL(audioUrl);
-            // Audio finished — unmute video if it's playing lip sync
-            try{ if(!vid.paused){ vid.muted=false; vid.volume=1.0; } }catch(e){}
-            /* FORENSIC FIX: Do NOT revoke pendingVideoUrl here — video may still be
-               playing lip-sync. Revoking while vid uses it triggers vid.onerror.
-               playVid._finish() handles cleanup via vid.removeAttribute('src'). */
-            resolve();
-          };
+      function _pollForVideo(){
+        if(_pollDone) return;
+        _pollAttempts++;
+        _thinkSec=Math.round(_pollAttempts*2);
+        setStat('Satomi is thinking… '+_thinkSec+'s','#f4c46f',true);
 
-          // Phase 2 T2.1: SSE push replaces polling (with polling fallback)
-          if(videoJobId){
-            var _videoHandled=false;
-            function _handleVideoReady(){
-              if(_videoHandled) return;
-              _videoHandled=true; /* Set synchronously before ANY async — prevents SSE+poll race */
-              /* FORENSIC FIX: Skip if audio already finished — user is back in LISTENING.
-                 Playing video after promise chain resolved causes orphan "Recovering" state. */
-              if(_audioFinished){
-                console.log('[Satomi] Video arrived after audio ended — skipping playback');
-                return;
-              }
-              fetch(A+'/oracle/job/'+videoJobId)
-                .then(function(vr){
-                  if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
-                    return vr.blob();
-                  }
-                  return null;
-                })
-                .then(function(vb){
-                  if(vb && !_audioFinished){
-                    pendingVideoUrl=blobURL(vb);
-                    /* FIX: Decisively stop TTS audio before lip-sync video takes over */
-                    window._chatAudioPlaying=false;
-                    try{
-                      if(window._chatAudioEl){
-                        window._chatAudioEl.onended=null; /* prevent double-resolve */
-                        window._chatAudioEl.pause();
-                        window._chatAudioEl.src='';
-                        window._chatAudioEl.load();
-                        window._chatAudioEl=null;
-                      }
-                    }catch(e){}
-                    /* Short gap ensures iOS audio context clears before video starts */
-                    setTimeout(function(){
-                      vid.muted=false;
-                      playVid(pendingVideoUrl).catch(function(e){
-                        console.warn('[Satomi] lip-sync playVid error:',e);
-                        setStat('Ready','#334',false);
-                      });
-                    }, 80);
-                  }
-                })
-                .catch(function(e){console.warn('[Satomi] video fetch error:',e);});
+        fetch(A+'/oracle/job/'+videoJobId)
+          .then(function(vr){
+            if(_pollDone) return null;
+            if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
+              return vr.blob();
             }
-
-            if(window.EventSource){
-              // SSE push — sub-100ms notification
-              var evtSource=new EventSource(A+'/oracle/job/'+videoJobId+'/stream');
-              evtSource.addEventListener('audio_ready',function(){
-                // Audio already being fetched above — this is informational
-              });
-              evtSource.addEventListener('video_ready',function(){
-                evtSource.close();
-                _handleVideoReady();
-              });
-              evtSource.addEventListener('error',function(e){
-                evtSource.close();
-                // P1-1: SSE error — stop thinking loop but keep static avatar visible
-                vid.loop=false;
-                vid.style.opacity='0'; /* static avatar img underneath remains visible */
-                setStat('Connection issue — retrying\u2026','#f4c46f',true);
-              });
-              evtSource.onerror=function(){
-                // Connection lost — fall back to polling
-                evtSource.close();
-                if(!_videoHandled) _startPollFallback();
-              };
+            return null;
+          })
+          .then(function(vb){
+            if(_pollDone) return;
+            if(vb && vb.size > 10000){
+              _pollDone=true;
+              var url=blobURL(vb);
+              /* Stop thinking counter */
+              if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+              setStat('Speaking','#6cff9f',false);
+              /* Play lip sync video — it has baked audio */
+              playVid(url)
+                .then(function(){
+                  /* Video finished — restart conversation */
+                  setBusy(false);
+                  setOracleState('LISTENING');
+                  hideTX();
+                  setTimeout(startRec, 600);
+                })
+                .catch(function(e){
+                  console.warn('[Satomi] playVid error:',e);
+                  setBusy(false);
+                  setOracleState('LISTENING');
+                  setTimeout(startRec, 600);
+                });
+            } else if(_pollAttempts < _maxAttempts){
+              /* Not ready yet — poll again in 2s */
+              setTimeout(_pollForVideo, 2000);
             } else {
-              _startPollFallback();
+              /* Timeout — give up, restart mic */
+              console.warn('[Satomi] Video poll timeout');
+              setBusy(false);
+              setOracleState('LISTENING');
+              setStat('Tap mic to respond','#ff3b5f',false);
+              setTimeout(startRec, 800);
             }
+          })
+          .catch(function(){ if(_pollAttempts < _maxAttempts) setTimeout(_pollForVideo,2000); });
+      }
 
-            function _startPollFallback(){
-              var pollAttempts=0,maxPollAttempts=60;
-              var pollVideo=setInterval(function(){
-                pollAttempts++;
-                fetch(A+'/oracle/job/'+videoJobId)
-                  .then(function(vr){
-                    if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
-                      return vr.blob();
-                    }
-                    return null;
-                  })
-                  .then(function(vb){
-                    if(vb){
-                      clearInterval(pollVideo);
-                      _videoHandled=true;
-                      /* FORENSIC FIX: Skip if audio already finished */
-                      if(_audioFinished) return;
-                      pendingVideoUrl=blobURL(vb);
-                      window._chatAudioPlaying=false;
-                      try{
-                        if(window._chatAudioEl){
-                          window._chatAudioEl.onended=null;
-                          window._chatAudioEl.pause();
-                          window._chatAudioEl.src='';
-                          window._chatAudioEl.load();
-                          window._chatAudioEl=null;
-                        }
-                      }catch(e){}
-                      setTimeout(function(){
-                        vid.muted=false;
-                        playVid(pendingVideoUrl).catch(function(e){
-                          console.warn('[Satomi] poll playVid error:',e);
-                        });
-                      }, 80);
-                    }
-                  })
-                  .catch(function(){});
-                if(pollAttempts>=maxPollAttempts){
-                  clearInterval(pollVideo);
-                  setBusy(false);mic.disabled=false;
-                }
-              },2000);
-            }
-          }
-        });
+      /* Start polling in 2s (give GPU time to start rendering) */
+      setTimeout(_pollForVideo, 2000);
+
+      /* Return resolved promise so outer .then() fires immediately */
+      return Promise.resolve();
       });
     });
   })
