@@ -3915,6 +3915,15 @@ def intelligence_main():
     except Exception:
         pass
 
+    # ── Intelligence Engine V2 — sentient brain ──
+    v2_ctx = {}
+    try:
+        from services.intelligence_engine_v2 import IntelligenceEngineV2
+        _v2 = IntelligenceEngineV2()
+        v2_ctx = _v2.get_sovereign_context()
+    except Exception:
+        pass
+
     return render_template(
         'intelligence_page.html',
         signal=signal, trending=trending, entities=entities,
@@ -3926,6 +3935,8 @@ def intelligence_main():
         polymarket_markets=polymarket_markets,
         polymarket_sentiment=polymarket_sentiment,
         is_commander=is_commander,
+        v2_ctx=v2_ctx,
+        v2_ctx_json=_json.dumps(v2_ctx, default=str),
     )
 
 @app.route('/intelligence/scenarios')
