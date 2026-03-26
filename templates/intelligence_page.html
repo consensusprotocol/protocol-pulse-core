@@ -56,7 +56,7 @@
   text-transform: uppercase;
   color: #ff3b5f;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin-bottom: 16px;
 }
@@ -162,8 +162,8 @@
 .pcaf-orb-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   padding: 24px 0;
 }
 
@@ -183,8 +183,8 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   pointer-events: none;
 }
 
@@ -220,7 +220,7 @@
 .algo-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 7px 0;
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
@@ -263,7 +263,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .radar-canvas {
@@ -302,7 +302,7 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 14px;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .axis-legend span {
@@ -318,7 +318,7 @@
 .idx-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px 0;
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
@@ -353,7 +353,7 @@
 .fg-gauge-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px 0;
 }
 
@@ -385,7 +385,7 @@
   gap: 3px;
   margin-top: 14px;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-end;
   height: 36px;
 }
 
@@ -576,8 +576,8 @@
 .poly-yes {
   background: rgba(255,255,255,0.12);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 800;
@@ -589,8 +589,8 @@
 .poly-no {
   background: rgba(255,59,95,0.08);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 800;
@@ -617,7 +617,7 @@
   display: grid;
   grid-template-columns: 52px 1fr 36px;
   gap: 10px;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px 0;
   border-bottom: 1px solid rgba(255,255,255,0.03);
 }
@@ -677,13 +677,13 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   margin-top: 3px;
 }
 
 .s-badge {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 3px;
   padding: 1px 6px;
   border-radius: 3px;
@@ -725,7 +725,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
   line-height: 1.8;
 }
 
@@ -787,16 +787,16 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  background: rgba(0,0,0,0.85);
+  align-items: flex-start;
+  justify-content: flex-end;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.92) 100%);
   border-radius: 12px;
 }
 
 .classified-gate::before {
-  content: 'CLASSIFIED';
+  content: 'COMMANDER ACCESS';
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 900;
@@ -868,7 +868,7 @@
 
 .heatmap-label {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   color: rgba(255,255,255,0.35);
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -880,8 +880,8 @@
   aspect-ratio: 1;
   border-radius: 3px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   font-weight: 800;
   font-size: 9px;
   color: rgba(255,255,255,0.6);
@@ -1048,7 +1048,7 @@
         </div>
 
         {% if not is_commander %}
-        <div class="classified-gate">
+        <div class="classified-gate"><div class="classified-panel-hint">COMMANDER INTELLIGENCE</div>
           <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
           <span class="classified-teaser">Full signal breakdown</span>
         </div>
@@ -1176,7 +1176,7 @@
         <div id="divergence-alerts"></div>
 
         {% if not is_commander %}
-        <div class="classified-gate">
+        <div class="classified-gate"><div class="classified-panel-hint">COMMANDER INTELLIGENCE</div>
           <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
           <span class="classified-teaser">3 divergences detected</span>
         </div>
@@ -1216,7 +1216,7 @@
         </div>
 
         {% if not is_commander %}
-        <div class="classified-gate">
+        <div class="classified-gate"><div class="classified-panel-hint">COMMANDER INTELLIGENCE</div>
           <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
           <span class="classified-teaser">1 of 5 markets shown free</span>
         </div>
@@ -1262,7 +1262,7 @@
         </div>
 
         {% if not is_commander %}
-        <div class="classified-gate">
+        <div class="classified-gate"><div class="classified-panel-hint">COMMANDER INTELLIGENCE</div>
           <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
           <span class="classified-teaser">Real-time whale tracking</span>
         </div>
