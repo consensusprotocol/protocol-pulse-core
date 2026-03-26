@@ -310,7 +310,7 @@ def index():
     import os as _os
     default_header_url = "/static/images/default-header.png"
     article_image_urls = {}
-    for a in list(featured_articles) + list(recent_articles):
+    for a in list(featured_articles) + list(recent_articles) + list(bento_articles):
         if a.id in article_image_urls:
             continue
         ciu = (getattr(a, "cover_image_url", None) or "").strip()

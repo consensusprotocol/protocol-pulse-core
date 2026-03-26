@@ -595,7 +595,19 @@ Clean HTML only. No markdown. No backticks. No code fences.
                     # Try to extract TL;DR from generated content first
                     tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
                     fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
-                    return {
+                    
+            # Inject real source URL into content
+            if article_data and article_data.get('source_url'):
+                src_url = article_data['source_url']
+                try:
+                    from urllib.parse import urlparse
+                    src_domain = urlparse(src_url).netloc.replace('www.', '')
+                except:
+                    src_domain = src_url[:40]
+                article_data['content'] = article_data.get('content','').replace(
+                    '{source_url}', src_url
+                ).replace('{source_domain}', src_domain)
+return {
                         'title': title,
                         'content': content,
                         'summary': fallback_summary,
