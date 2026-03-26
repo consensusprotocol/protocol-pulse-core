@@ -544,7 +544,11 @@ FORMAT
 <p class="article-paragraph">[BITCOIN LENS — only if natural, otherwise skip]</p>
 <p class="article-paragraph">[CLOSE]</p>
 <h2 class="article-header">Sources</h2>
-<ul class="sources-list"><li><a href="{source['url']}">{source['source']}</a></li></ul>
+<ul class="sources-list"><li><a href="{source['url']}" target="_blank" rel="noopener">{source['source']}</a></li></ul>
+
+MANDATORY: The Sources section above MUST use the EXACT URL provided: {source['url']}
+Link text MUST be the source name: {source['source']}
+NEVER use placeholder text like 'source 1' or 'source 2'. Use the real URL and source name shown above.
 
 Target: 450-650 words. No shorter than 400. Every sentence earns its place or gets cut.
 Clean HTML only. No markdown. No backticks. No code fences.
@@ -595,19 +599,18 @@ Clean HTML only. No markdown. No backticks. No code fences.
                     # Try to extract TL;DR from generated content first
                     tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
                     fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
-                    
-            # Inject real source URL into content
-            if article_data and article_data.get('source_url'):
-                src_url = article_data['source_url']
-                try:
-                    from urllib.parse import urlparse
-                    src_domain = urlparse(src_url).netloc.replace('www.', '')
-                except:
-                    src_domain = src_url[:40]
-                article_data['content'] = article_data.get('content','').replace(
-                    '{source_url}', src_url
-                ).replace('{source_domain}', src_domain)
-return {
+
+                    # Inject real source URL into content
+                    try:
+                        from urllib.parse import urlparse
+                        src_domain = urlparse(source['url']).netloc.replace('www.', '')
+                    except Exception:
+                        src_domain = source['url'][:40]
+                    content = content.replace(
+                        '{source_url}', source['url']
+                    ).replace('{source_domain}', src_domain)
+
+                    return {
                         'title': title,
                         'content': content,
                         'summary': fallback_summary,

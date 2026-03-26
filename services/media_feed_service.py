@@ -556,6 +556,7 @@ def get_feed_matrix(limit_per_col: int = 20) -> dict:
         feed = ep.feed
         return {
             'id': ep.id,
+            'guid': ep.guid or '',
             'title': ep.title,
             'description': ep.description or '',
             'summary_ai': ep.summary_ai or '',
@@ -573,9 +574,29 @@ def get_feed_matrix(limit_per_col: int = 20) -> dict:
             'feed_tier': feed.tier if feed else 2,
         }
 
+    # Deduplicate podcasts by title similarity (first 50 chars)
+    pod_dicts = [ep_to_dict(ep) for ep in podcasts]
+    seen_titles = set()
+    unique_podcasts = []
+    for ep in pod_dicts:
+        title_key = ep.get('title', '').lower().strip()[:50]
+        if title_key not in seen_titles:
+            seen_titles.add(title_key)
+            unique_podcasts.append(ep)
+
+    # Deduplicate videos by title similarity (first 50 chars)
+    vid_dicts = [ep_to_dict(ep) for ep in videos]
+    seen_vid_titles = set()
+    unique_videos = []
+    for vid in vid_dicts:
+        title_key = vid.get('title', '').lower().strip()[:50]
+        if title_key not in seen_vid_titles:
+            seen_vid_titles.add(title_key)
+            unique_videos.append(vid)
+
     return {
-        'podcasts': [ep_to_dict(ep) for ep in podcasts],
-        'videos': [ep_to_dict(ep) for ep in videos],
+        'podcasts': unique_podcasts[:limit_per_col],
+        'videos': unique_videos[:limit_per_col],
     }
 
 
