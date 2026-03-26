@@ -12613,9 +12613,11 @@ def api_media_matrix():
 @app.route('/api/panopticon/congress')
 def api_panopticon_congress():
     try:
-        from services.panopticon_service import PanopticonService
-        svc = PanopticonService()
-        data = svc.get_congressional_disclosures(limit=20)
+        import importlib.util as _piu
+        _ps = _piu.spec_from_file_location("panopticon_service", "/home/ultron/protocol_pulse/services/panopticon_service.py")
+        _pm = _piu.module_from_spec(_ps); _ps.loader.exec_module(_pm)
+        data, is_live = _pm.fetch_disclosures(limit=20)
+        data, is_live = _pm.fetch_disclosures(limit=20)
         return jsonify({'success': True, 'disclosures': data})
     except Exception as e:
         return jsonify({'success': True, 'disclosures': [
