@@ -1477,13 +1477,21 @@ function playVid(url){
       vid.muted=false; /* Ensure unmuted — no conditions */
       vid.volume=1.0;
     },{once:true});
+    /* iOS fix: start muted (always allowed), unmute immediately after play starts */
+    vid.muted=true;
     var p=vid.play();
     if(p){
-      p.then(function(){}).catch(function(err){
-        console.warn('[Satomi] vid.play() rejected (autoplay):',err);
-        /* P0: iOS Safari — show centered tap-to-play overlay */
+      p.then(function(){
+        vid.muted=false;
+        vid.volume=1.0;
+      }).catch(function(err){
+        console.warn('[Satomi] vid.play() rejected:',err);
+        /* Last resort: show overlay */
         showTapOverlay();
       });
+    } else {
+      vid.muted=false;
+      vid.volume=1.0;
     }
   });
 }
