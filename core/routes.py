@@ -1150,7 +1150,7 @@ def nostr_nip05():
 @app.route('/chat')
 def ask_alex_chat():
     """Ask Alex Chat - LangGraph conversational agent for Bitcoin intelligence"""
-    return render_template('ask_alex_chat.html')
+    from flask import redirect; return redirect('/oracle-live')  # replaced by Oracle
 
 @app.route('/api/chat/ask', methods=['POST'])
 def chat_ask_alex():
@@ -8606,32 +8606,6 @@ def crm_webhook_callback():
 
 
 # Real-Time Intelligence Dashboard & Tracking
-@app.route('/admin/analytics')
-@login_required
-@admin_required
-def realtime_analytics_dashboard():
-    """Real-time analytics dashboard with hot pages, suggestions, and tweet drafts"""
-    try:
-        from services.realtime_intel import realtime_intel
-        
-        stats = realtime_intel.get_realtime_stats()
-        hot_pages = realtime_intel.get_hot_pages(limit=10)
-        suggestions = realtime_intel.get_pending_suggestions(limit=5)
-        pending_tweets = realtime_intel.get_pending_tweets(limit=5)
-        
-        return render_template('admin/realtime_dashboard.html',
-                             stats=stats,
-                             hot_pages=hot_pages,
-                             suggestions=suggestions,
-                             pending_tweets=pending_tweets)
-    except Exception as e:
-        logging.error(f"Analytics dashboard error: {e}")
-        return render_template('admin/realtime_dashboard.html',
-                             stats={},
-                             hot_pages=[],
-                             suggestions=[],
-                             pending_tweets=[])
-
 @app.route('/admin/api/realtime-stats')
 @login_required
 @admin_required
