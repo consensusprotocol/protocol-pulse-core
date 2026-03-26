@@ -1552,18 +1552,13 @@ def articles():
 
 
 def _article_body_without_tldr(content):
-    """Delete ALL text before the first <h2> tag to prevent double-summaries (TL;DR/summary only in Key Takeaways)."""
-    if not content:
-        return ""
-    # Strip embedded TL;DR section divs
+    if not content: return ""
     import re as _rx
-    content = _rx.sub(r'<div[^>]*class="[^"]*tldr[^"]*"[^>]*>.*?</div>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
-    content = _rx.sub(r'<p[^>]*>\s*(?:<[^>]+>)*\s*TL;DR:.*?</p>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
-    first_h2 = re.search(r'<h2[\s>]', content, re.IGNORECASE)
-    if first_h2:
-        return content[first_h2.start():].strip()
-    return content.strip()
-
+    content = _rx.sub(r'<div[^>]*class=["\'][^"\']*tldr[^"\']*["\'][^>]*>.*?</div>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
+    content = _rx.sub(r'<p[^>]*>.*?TL;DR:.*?</p>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
+    content = _rx.sub(r'<h1[^>]*>.*?</h1>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
+    m = _rx.search(r'<h2', content, _rx.IGNORECASE)
+    return content[m.start():].strip() if m else content.strip()
 
 def _article_key_takeaways(article):
     """Extract key takeaways: summary, or TL;DR from content, or first 400 chars."""
