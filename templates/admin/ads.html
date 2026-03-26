@@ -133,8 +133,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Move modal to body to escape .pp-main stacking context (z-index: 1)
+    // so it renders above the fixed navbar (z-index: 1000)
+    var modalEl = document.getElementById('addAdModal');
+    document.body.appendChild(modalEl);
+
     const addAdForm = document.getElementById('addAdForm');
-    const addAdModal = new bootstrap.Modal(document.getElementById('addAdModal'));
+    const addAdModal = new bootstrap.Modal(modalEl);
 
     // Handle form submission
     addAdForm.addEventListener('submit', async function(e) {

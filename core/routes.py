@@ -3651,6 +3651,34 @@ def intelligence_page():
         category_heatmap = []
         anomaly_active = False
 
+    # ── Sovereign context for premium panels ──────────────────────────────────
+    try:
+        from services.sovereign_context_engine import get_latest_context, get_recent_alerts
+        sovereign_ctx = get_latest_context() or {}
+        sovereign_alerts = get_recent_alerts(20)
+    except Exception as e:
+        logging.warning("intelligence_page: sovereign context error: %s", e)
+        sovereign_ctx = {}
+        sovereign_alerts = []
+
+    # ── Polymarket data ───────────────────────────────────────────────────────
+    try:
+        from services.polymarket_service import get_bitcoin_markets, get_macro_sentiment_score
+        polymarket_markets = get_bitcoin_markets(5)
+        polymarket_sentiment = get_macro_sentiment_score()
+    except Exception:
+        polymarket_markets = []
+        polymarket_sentiment = 50
+
+    # ── Commander status ──────────────────────────────────────────────────────
+    is_commander = False
+    try:
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            is_commander = getattr(current_user, 'subscription_tier', '') in ('commander', 'sovereign')
+    except Exception:
+        pass
+
     return render_template(
         'intelligence_page.html',
         signal=signal,
@@ -3668,6 +3696,14 @@ def intelligence_page():
         category_heatmap_json=_json.dumps(category_heatmap),
         anomaly_active=anomaly_active,
         sentiment_summary_json=_json.dumps(sentiment_summary),
+        # Premium dashboard additions
+        sovereign_ctx=sovereign_ctx,
+        sovereign_ctx_json=_json.dumps(sovereign_ctx, default=str),
+        sovereign_alerts=sovereign_alerts,
+        polymarket_markets=polymarket_markets,
+        polymarket_markets_json=_json.dumps(polymarket_markets, default=str),
+        polymarket_sentiment=polymarket_sentiment,
+        is_commander=is_commander,
     )
 
 
@@ -3760,7 +3796,7 @@ def api_batch_classify():
 
 
 @app.route('/api/intelligence/sovereign-context')
-def api_sovereign_context():
+def api_intelligence_sovereign_context():
     """Return full sovereign context for premium intelligence dashboard."""
     try:
         from services.sovereign_context_engine import get_latest_context, get_recent_alerts
@@ -12154,23 +12190,7 @@ def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
-@app.route('/v3/<path:fn>')
-def _serve_v3(fn):
-    """Serve static files under /v3/ path — CSS, JS, assets for new site templates."""
-    from flask import make_response, abort
-    import mimetypes
-    static_root = '/home/ultron/protocol_pulse/static'
-    p = os.path.join(static_root, fn)
-    safe_p = os.path.realpath(p)
-    if not safe_p.startswith(os.path.realpath(static_root) + os.sep):
-        abort(403)
-    if not os.path.exists(safe_p):
-        abort(404)
-    data = open(safe_p, 'rb').read()
-    resp = make_response(data)
-    resp.headers['Content-Type'] = mimetypes.guess_type(safe_p)[0] or 'text/plain'
-    resp.headers['Cache-Control'] = 'public, max-age=3600'
-    return resp
+# _serve_v3 route removed — already defined in app.py
 
 
 
