@@ -1793,8 +1793,8 @@ footer {
 .tx-feed-item .tx-amount.big { color: #f7931a; }
 .tx-feed-item .tx-amount.normal { color: rgba(255,255,255,0.8); }
 .tx-feed-item .tx-usd { color: rgba(255,255,255,0.4); font-size: 0.65rem; min-width: 80px; }
-.tx-feed-item .tx-id { color: rgba(59,130,246,0.7); text-decoration: none; font-size: 0.65rem; }
-.tx-feed-item .tx-id:hover { color: #3b82f6; text-decoration: underline; }
+.tx-feed-item .tx-id { color: rgba(220,38,38,0.7); text-decoration: none; font-size: 0.65rem; }
+.tx-feed-item .tx-id:hover { color: #dc2626; text-decoration: underline; }
 .tx-feed-item .tx-time { color: rgba(255,255,255,0.3); font-size: 0.6rem; margin-left: auto; }
 
 /* SOVEREIGNTY CALCULATOR */
@@ -4251,8 +4251,8 @@ function toggleSection(element) {
                         <div style="font-size: 1.8rem; font-weight: 700; color: #22c55e;" id="pulse-health">98.7%</div>
                         <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5);">HEALTH SCORE</div>
                     </div>
-                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; padding: 15px; text-align: center;">
-                        <div style="font-size: 1.8rem; font-weight: 700; color: #3b82f6;" id="pulse-tps">6.2</div>
+                    <div style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 10px; padding: 15px; text-align: center;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #dc2626;" id="pulse-tps">6.2</div>
                         <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5);">TXS/SEC</div>
                     </div>
                 </div>
@@ -4308,7 +4308,7 @@ function toggleSection(element) {
                         The network is operating at <span style="color: #22c55e; font-weight: 600;">peak efficiency</span> with historically low fees and rising hashrate. 
                         Exchange outflows continue to signal <span style="color: #f7931a; font-weight: 600;">accumulation behavior</span>, while energy metrics demonstrate 
                         Bitcoin's growing role in monetizing stranded renewable capacity. The protocol remains 
-                        <span style="color: #8b5cf6; font-weight: 600;">antifragile</span>—every attack vector explored has only made it stronger.
+                        <span style="color: #dc2626; font-weight: 600;">antifragile</span>—every attack vector explored has only made it stronger.
                     </p>
                     <div id="verdict-timestamp" style="font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 12px; font-family: 'JetBrains Mono', monospace;">
                         Updated: <span id="pulse-update-time">January 29, 2026 at 10:45 AM UTC</span>
@@ -4318,7 +4318,7 @@ function toggleSection(element) {
         </div>
         
         <!-- Signal indicators -->
-        <div style="display: flex; justify-content: center; gap: 30px; padding: 20px; border-top: 1px solid rgba(220, 38, 38, 0.1); background: rgba(139, 92, 246, 0.05);">
+        <div style="display: flex; justify-content: center; gap: 30px; padding: 20px; border-top: 1px solid rgba(220, 38, 38, 0.1); background: rgba(220, 38, 38, 0.03);">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
                 <span style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">Hashrate: <span style="color: #22c55e;">Optimal</span></span>
@@ -4611,7 +4611,7 @@ function toggleSection(element) {
                         <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px;">Network Uptime</div>
                     </div>
                     <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: 700; color: #3b82f6;">50 BTC</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #f7931a;">50 BTC</div>
                         <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px;">First Reward (Unspendable)</div>
                     </div>
                 </div>
@@ -5269,89 +5269,131 @@ async function updateEpochProgress() {
     }
 }
 
-// 3. MINING POOL DISTRIBUTION (using mempool.space mining pool data)
+// 3. MINING POOL DISTRIBUTION — Animated Arc Intelligence
+let poolAnimProgress = 0;
+let poolAnimFrame = null;
+
 async function updateMiningPools() {
     try {
         const res = await fetch('https://mempool.space/api/v1/mining/pools/1w');
         const data = await res.json();
-        
+
         if (data.pools && data.pools.length > 0) {
             const legend = document.getElementById('pool-legend');
-            const colors = ['#f7931a', '#dc2626', '#22c55e', '#3b82f6', '#8b5cf6', '#14b8a6', '#eab308', '#ec4899'];
-            
+            const colors = ['#dc2626', '#f7931a', '#22c55e', '#fff', '#f59e0b', '#14b8a6', '#ec4899', '#eab308'];
+
             if (!legend) return;
             legend.innerHTML = '';
-            
-            // Calculate total blocks to derive percentages
+
             const totalBlocks = data.blockCount || data.pools.reduce((sum, p) => sum + p.blockCount, 0);
-            
-            // Add share percentage to each pool
-            const poolsWithShare = data.pools.slice(0, 6).map(pool => ({
+            const poolsWithShare = data.pools.slice(0, 7).map(pool => ({
                 ...pool,
                 share: (pool.blockCount / totalBlocks) * 100
             }));
-            
+
+            let hasAlert = false;
             poolsWithShare.forEach((pool, i) => {
                 const item = document.createElement('div');
                 item.className = 'pool-legend-item';
+                const alertClass = pool.share > 33 ? ' style="color: #dc2626; font-weight: 700;"' : '';
                 item.innerHTML = `
                     <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: ${colors[i]}"></div>
+                        <div class="pool-legend-dot" style="background: ${colors[i % colors.length]}"></div>
                         <span>${pool.name}</span>
                     </div>
-                    <span class="pool-legend-pct">${pool.share.toFixed(1)}%</span>
+                    <span class="pool-legend-pct"${alertClass}>${pool.share.toFixed(1)}%</span>
                 `;
                 legend.appendChild(item);
-                
-                // Check for centralization warning
-                const warningEl = document.getElementById('pool-warning');
-                if (pool.share > 35 && warningEl) {
-                    warningEl.style.display = 'block';
-                }
+                if (pool.share > 33) hasAlert = true;
             });
-            
-            // Update total hashrate display
+
+            const warningEl = document.getElementById('pool-warning');
+            const warningText = document.getElementById('pool-warning-text');
+            if (hasAlert && warningEl) {
+                const dominant = poolsWithShare.find(p => p.share > 33);
+                warningEl.style.display = 'block';
+                if (warningText && dominant) {
+                    warningText.textContent = `DECENTRALIZATION ALERT: ${dominant.name} at ${dominant.share.toFixed(1)}% — exceeds 33% threshold`;
+                }
+            } else if (warningEl) {
+                warningEl.style.display = 'none';
+            }
+
             if (data.lastEstimatedHashrate) {
                 const hashrateEl = document.getElementById('pool-total-hashrate');
-                if (hashrateEl) {
-                    const ehps = data.lastEstimatedHashrate / 1e18;
-                    hashrateEl.textContent = ehps.toFixed(0) + ' EH/s';
-                }
+                if (hashrateEl) hashrateEl.textContent = (data.lastEstimatedHashrate / 1e18).toFixed(0) + ' EH/s';
             }
-            
-            // Draw simple donut chart
-            drawPoolDonut(poolsWithShare, colors);
+
+            animatePoolArcs(poolsWithShare, colors);
         }
     } catch (e) {
         console.error('Mining pools update error:', e);
     }
 }
 
-function drawPoolDonut(pools, colors) {
+function animatePoolArcs(pools, colors) {
     const canvas = document.getElementById('pool-chart');
     if (!canvas) return;
-    
     const ctx = canvas.getContext('2d');
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = 80;
-    const innerRadius = 50;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    let startAngle = -Math.PI / 2;
-    pools.forEach((pool, i) => {
-        const sliceAngle = (pool.share / 100) * 2 * Math.PI;
-        
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const outerR = 100, innerR = 68, gap = 0.02;
+
+    if (poolAnimFrame) cancelAnimationFrame(poolAnimFrame);
+    poolAnimProgress = 0;
+
+    function draw() {
+        poolAnimProgress = Math.min(poolAnimProgress + 0.025, 1);
+        const ease = 1 - Math.pow(1 - poolAnimProgress, 3);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let startAngle = -Math.PI / 2;
+        pools.forEach((pool, i) => {
+            const fullAngle = (pool.share / 100) * 2 * Math.PI;
+            const drawAngle = fullAngle * ease - gap;
+            if (drawAngle <= 0) return;
+
+            const color = colors[i % colors.length];
+            // Glow
+            ctx.save();
+            ctx.shadowColor = color;
+            ctx.shadowBlur = pool.share > 33 ? 18 : 8;
+            ctx.beginPath();
+            ctx.arc(cx, cy, outerR, startAngle, startAngle + drawAngle);
+            ctx.arc(cx, cy, innerR, startAngle + drawAngle, startAngle, true);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.globalAlpha = pool.share > 33 ? 0.95 : 0.85;
+            ctx.fill();
+            ctx.restore();
+
+            startAngle += fullAngle;
+        });
+
+        // Pulsing ring at 33% threshold mark
+        const threshAngle = -Math.PI / 2 + (0.33 * 2 * Math.PI);
+        const pulseAlpha = 0.3 + 0.3 * Math.sin(Date.now() / 300);
+        ctx.save();
+        ctx.strokeStyle = `rgba(220, 38, 38, ${pulseAlpha})`;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-        ctx.arc(centerX, centerY, innerRadius, startAngle + sliceAngle, startAngle, true);
-        ctx.closePath();
-        ctx.fillStyle = colors[i];
-        ctx.fill();
-        
-        startAngle += sliceAngle;
-    });
+        ctx.moveTo(cx + Math.cos(threshAngle) * innerR, cy + Math.sin(threshAngle) * innerR);
+        ctx.lineTo(cx + Math.cos(threshAngle) * (outerR + 8), cy + Math.sin(threshAngle) * (outerR + 8));
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = `rgba(220, 38, 38, ${pulseAlpha + 0.2})`;
+        ctx.font = '9px JetBrains Mono, monospace';
+        ctx.fillText('33%', cx + Math.cos(threshAngle) * (outerR + 14), cy + Math.sin(threshAngle) * (outerR + 14));
+        ctx.restore();
+
+        if (poolAnimProgress < 1) {
+            poolAnimFrame = requestAnimationFrame(draw);
+        } else {
+            // Keep pulsing the 33% line
+            poolAnimFrame = requestAnimationFrame(draw);
+        }
+    }
+    draw();
 }
 
 // 4. NODE GLOBE (Three.js) - Enhanced with interactive tooltips
@@ -6316,6 +6358,8 @@ function initializeNewModules() {
     updateEpochProgress();
     updateTimechainClock();
     initAdRotation();
+    updateNetworkHealthIndex().catch(e => console.log('NHI error:', e));
+    try { initLightningForceGraph(); } catch(e) { console.log('Lightning graph error:', e); }
     
     // Add clock markers
     const markers = document.querySelector('.clock-markers');
@@ -6342,98 +6386,200 @@ function updateGenesisDaysCount() {
 }
 updateGenesisDaysCount();
 
-// Purchasing power chart moved to /sovereign-money
-function drawPurchasingPowerChart() {
-    return; // moved to /sovereign-money
-    const canvas = document.getElementById('purchasing-power-chart');
+// ============ NETWORK HEALTH INDEX GAUGE ============
+function drawNHIGauge(score) {
+    const canvas = document.getElementById('nhi-gauge-canvas');
     if (!canvas) return;
-    
-    purchasingPowerChartDrawn = true;
     const ctx = canvas.getContext('2d');
-    const containerWidth = canvas.parentElement?.getBoundingClientRect().width || 400;
-    canvas.width = Math.min(containerWidth - 50, 600);
-    canvas.height = 200;
-    
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const radius = 100;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // USD purchasing power decline data (1913-2026, normalized to 1.00 in 1913)
-    const usdData = [
-        { year: 1913, value: 1.00 },
-        { year: 1920, value: 0.50 },
-        { year: 1930, value: 0.58 },
-        { year: 1940, value: 0.70 },
-        { year: 1950, value: 0.42 },
-        { year: 1960, value: 0.35 },
-        { year: 1970, value: 0.27 },
-        { year: 1980, value: 0.13 },
-        { year: 1990, value: 0.08 },
-        { year: 2000, value: 0.06 },
-        { year: 2010, value: 0.045 },
-        { year: 2020, value: 0.035 },
-        { year: 2026, value: 0.03 }
-    ];
-    
-    const padding = { left: 40, right: 20, top: 20, bottom: 30 };
-    const chartWidth = canvas.width - padding.left - padding.right;
-    const chartHeight = canvas.height - padding.top - padding.bottom;
-    
-    // Draw grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-        const y = padding.top + (chartHeight / 5) * i;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0.75 * Math.PI, 2.25 * Math.PI);
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    const scoreAngle = 0.75 * Math.PI + (score / 100) * 1.5 * Math.PI;
+    let arcColor = score >= 80 ? '#22c55e' : score >= 60 ? '#f7931a' : '#dc2626';
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0.75 * Math.PI, scoreAngle);
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = arcColor;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = arcColor;
+    ctx.shadowBlur = 20;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    for (let i = 0; i <= 10; i++) {
+        const angle = 0.75 * Math.PI + (i / 10) * 1.5 * Math.PI;
         ctx.beginPath();
-        ctx.moveTo(padding.left, y);
-        ctx.lineTo(canvas.width - padding.right, y);
+        ctx.moveTo(cx + Math.cos(angle) * (radius - 22), cy + Math.sin(angle) * (radius - 22));
+        ctx.lineTo(cx + Math.cos(angle) * (radius - 16), cy + Math.sin(angle) * (radius - 16));
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 1;
         ctx.stroke();
     }
-    
-    // Draw Y-axis labels
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.font = '10px JetBrains Mono, monospace';
-    ctx.textAlign = 'right';
-    ['$1.00', '$0.80', '$0.60', '$0.40', '$0.20', '$0.00'].forEach((label, i) => {
-        const y = padding.top + (chartHeight / 5) * i + 4;
-        ctx.fillText(label, padding.left - 5, y);
-    });
-    
-    // Draw X-axis labels
-    ctx.textAlign = 'center';
-    ['1920', '1950', '1980', '2000', '2026'].forEach((label, i) => {
-        const x = padding.left + (chartWidth / 4) * i;
-        ctx.fillText(label, x, canvas.height - 5);
-    });
-    
-    // Draw USD decline line
-    ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    usdData.forEach((point, i) => {
-        const x = padding.left + ((point.year - 1913) / (2026 - 1913)) * chartWidth;
-        const y = padding.top + (1 - point.value) * chartHeight;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-    
-    // Fill under USD line
-    ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
-    ctx.lineTo(padding.left, padding.top + chartHeight);
-    ctx.closePath();
-    const gradient = ctx.createLinearGradient(0, padding.top, 0, canvas.height - padding.bottom);
-    gradient.addColorStop(0, 'rgba(220, 38, 38, 0.3)');
-    gradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
-    ctx.fillStyle = gradient;
-    ctx.fill();
-    
-    // Bitcoin line (2009 onwards, inverted - showing appreciation)
-    const btcStartX = padding.left + ((2009 - 1913) / (2026 - 1913)) * chartWidth;
-    ctx.strokeStyle = '#f7931a';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(btcStartX, padding.top + chartHeight - 5);
-    ctx.lineTo(padding.left + chartWidth, padding.top + 10);
-    ctx.stroke();
+
+    const scoreEl = document.getElementById('nhi-score');
+    if (scoreEl) { scoreEl.textContent = Math.round(score); scoreEl.style.color = arcColor; }
+}
+
+async function updateNetworkHealthIndex() {
+    try {
+        const [feesRes, hashrateRes, mempoolRes, lnRes] = await Promise.all([
+            fetch('https://mempool.space/api/v1/fees/recommended'),
+            fetch('https://mempool.space/api/v1/mining/hashrate/1d'),
+            fetch('https://mempool.space/api/mempool'),
+            fetch('https://mempool.space/api/v1/lightning/statistics/latest')
+        ]);
+        const fees = await feesRes.json();
+        const hashrate = await hashrateRes.json();
+        const mempool = await mempoolRes.json();
+        const ln = await lnRes.json();
+
+        const ehps = hashrate.currentHashrate ? hashrate.currentHashrate / 1e18 : 0;
+        const hashrateScore = Math.min(100, Math.max(0, (ehps / 800) * 100));
+        const mempoolVsize = (mempool.vsize || 0) / 1e6;
+        const mempoolScore = Math.min(100, Math.max(0, 100 - (mempoolVsize / 50) * 100));
+        const lnCapacity = ln.latest ? ln.latest.total_capacity / 1e8 : 0;
+        const lightningScore = Math.min(100, Math.max(0, (lnCapacity / 5500) * 100));
+        const nodeEl = document.getElementById('globe-node-count');
+        const nodeCount = nodeEl ? parseInt(nodeEl.textContent.replace(/,/g, '')) || 15000 : 15000;
+        const nodesScore = Math.min(100, Math.max(0, (nodeCount / 18000) * 100));
+
+        const composite = hashrateScore * 0.30 + mempoolScore * 0.25 + lightningScore * 0.25 + nodesScore * 0.20;
+        drawNHIGauge(composite);
+
+        function setBar(barId, scoreId, val) {
+            const bar = document.getElementById(barId);
+            const sc = document.getElementById(scoreId);
+            if (bar) bar.style.width = val + '%';
+            if (sc) sc.textContent = Math.round(val);
+        }
+        setBar('nhi-bar-hashrate', 'nhi-hashrate-score', hashrateScore);
+        setBar('nhi-bar-mempool', 'nhi-mempool-score', mempoolScore);
+        setBar('nhi-bar-lightning', 'nhi-lightning-score', lightningScore);
+        setBar('nhi-bar-nodes', 'nhi-nodes-score', nodesScore);
+    } catch (e) {
+        console.error('NHI update error:', e);
+        drawNHIGauge(75);
+    }
+}
+
+// ============ LIGHTNING FORCE-DIRECTED CHANNEL GRAPH ============
+let lnForceAnimId = null;
+
+function initLightningForceGraph() {
+    const canvas = document.getElementById('lightning-canvas');
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    const dpr = window.devicePixelRatio > 1 ? 2 : 1;
+    canvas.width = container.clientWidth * dpr;
+    canvas.height = container.clientHeight * dpr;
+    canvas.style.width = container.clientWidth + 'px';
+    canvas.style.height = container.clientHeight + 'px';
+    const ctx = canvas.getContext('2d');
+    const s = dpr;
+
+    const nodeCount = 55, hubs = 7;
+    const nodes = [], links = [];
+    for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+            x: canvas.width * 0.15 + Math.random() * canvas.width * 0.7,
+            y: canvas.height * 0.15 + Math.random() * canvas.height * 0.7,
+            vx: 0, vy: 0,
+            r: i < hubs ? 5 * s : (2 + Math.random() * 2) * s,
+            isHub: i < hubs,
+            capacity: i < hubs ? 50 + Math.random() * 200 : 1 + Math.random() * 20,
+            pulsePhase: Math.random() * Math.PI * 2
+        });
+    }
+    for (let i = 0; i < hubs; i++) {
+        for (let j = i + 1; j < hubs; j++) {
+            if (Math.random() < 0.5) links.push({ s: i, t: j, capacity: 20 + Math.random() * 80, pulse: Math.random() });
+        }
+    }
+    for (let i = hubs; i < nodeCount; i++) {
+        const h = Math.floor(Math.random() * hubs);
+        links.push({ s: i, t: h, capacity: 1 + Math.random() * 10, pulse: Math.random() });
+        if (Math.random() < 0.3) links.push({ s: i, t: (h + 1 + Math.floor(Math.random() * (hubs - 1))) % hubs, capacity: 0.5 + Math.random() * 5, pulse: Math.random() });
+    }
+
+    function simulate() {
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                let dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+                let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                let repel = 800 * s / (dist * dist);
+                nodes[i].vx -= (dx / dist) * repel; nodes[i].vy -= (dy / dist) * repel;
+                nodes[j].vx += (dx / dist) * repel; nodes[j].vy += (dy / dist) * repel;
+            }
+        }
+        links.forEach(l => {
+            let dx = nodes[l.t].x - nodes[l.s].x, dy = nodes[l.t].y - nodes[l.s].y;
+            let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            let force = (dist - 60 * s) * 0.003;
+            let fx = (dx / dist) * force, fy = (dy / dist) * force;
+            nodes[l.s].vx += fx; nodes[l.s].vy += fy;
+            nodes[l.t].vx -= fx; nodes[l.t].vy -= fy;
+        });
+        nodes.forEach(n => {
+            n.vx += (canvas.width / 2 - n.x) * 0.0005;
+            n.vy += (canvas.height / 2 - n.y) * 0.0005;
+            n.vx *= 0.92; n.vy *= 0.92;
+            n.x += n.vx; n.y += n.vy;
+            n.x = Math.max(n.r, Math.min(canvas.width - n.r, n.x));
+            n.y = Math.max(n.r, Math.min(canvas.height - n.r, n.y));
+        });
+    }
+
+    let time = 0;
+    function draw() {
+        time += 0.02;
+        simulate();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        links.forEach(l => {
+            const sn = nodes[l.s], tn = nodes[l.t];
+            ctx.beginPath();
+            ctx.moveTo(sn.x, sn.y); ctx.lineTo(tn.x, tn.y);
+            ctx.strokeStyle = `rgba(220, 38, 38, ${Math.min(0.5, 0.08 + l.capacity / 100)})`;
+            ctx.lineWidth = Math.max(0.5, Math.min(2.5, l.capacity / 30)) * s;
+            ctx.stroke();
+
+            l.pulse += 0.008 + Math.random() * 0.002;
+            if (l.pulse > 1) l.pulse = 0;
+            const px = sn.x + (tn.x - sn.x) * l.pulse, py = sn.y + (tn.y - sn.y) * l.pulse;
+            ctx.beginPath();
+            ctx.arc(px, py, 1.5 * s, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,255,${0.3 + 0.4 * Math.sin(l.pulse * Math.PI)})`;
+            ctx.fill();
+        });
+
+        nodes.forEach(n => {
+            const pulse = 1 + 0.15 * Math.sin(time * 2 + n.pulsePhase);
+            if (n.isHub) {
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r * 2.5 * pulse, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(220, 38, 38, 0.12)';
+                ctx.fill();
+            }
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r * pulse, 0, Math.PI * 2);
+            ctx.fillStyle = n.isHub ? '#dc2626' : 'rgba(255, 255, 255, 0.7)';
+            ctx.fill();
+        });
+
+        lnForceAnimId = requestAnimationFrame(draw);
+    }
+
+    for (let i = 0; i < 100; i++) simulate();
+    draw();
 }
 
 // Update State of the Pulse with live data
@@ -6462,14 +6608,6 @@ function updatePulseState() {
     const priceEl = document.getElementById('pulse-price');
     if (priceEl) priceEl.textContent = '$' + Math.round(price).toLocaleString();
     
-    // Update home price in BTC
-    const homeUsdEl = document.getElementById('pp-home-usd');
-    const homeBtcEl = document.getElementById('pp-home-btc');
-    if (homeBtcEl && price > 0) {
-        const homePrice = 434700;
-        homeBtcEl.textContent = (homePrice / price).toFixed(1) + ' BTC';
-    }
-    
     // Update timestamp
     const timestampEl = document.getElementById('pulse-update-time');
     if (timestampEl) {
@@ -6484,7 +6622,7 @@ function updatePulseState() {
 
 // Initialize new visualizations
 setTimeout(() => {
-    drawPurchasingPowerChart();
+    updateNetworkHealthIndex().catch(e => console.log('NHI init error:', e));
     updatePulseState();
     fetchBtcPriceHistory();
     calculateDCA();
@@ -6497,6 +6635,7 @@ setInterval(() => {
     updateEpochProgress();
     updateTimechainClock();
     updatePulseState();
+    updateNetworkHealthIndex().catch(e => console.log('NHI refresh error:', e));
 }, 60000);
 
 // Calculator input listeners
