@@ -23,6 +23,19 @@ from typing import Any, Dict, List, Optional, Tuple
 
 log = logging.getLogger("intelligence_engine_v2")
 
+# Lazy-loaded signal data fetcher (avoid import cycles)
+_signal_fetcher = None
+
+def _get_signal_fetcher():
+    global _signal_fetcher
+    if _signal_fetcher is None:
+        try:
+            from services.signal_data_fetcher import SignalDataFetcher
+            _signal_fetcher = SignalDataFetcher()
+        except Exception as exc:
+            log.warning("SignalDataFetcher unavailable: %s", exc)
+    return _signal_fetcher
+
 # Resolve to project root regardless of whether file lives in services/ or core/services/
 _here = Path(__file__).resolve().parent
 BASE_DIR = _here.parent.parent if _here.parent.name == "core" else _here.parent
@@ -278,25 +291,74 @@ class IntelligenceEngineV2:
         whales = self.ctx.get("whale_alerts", [])
         fg = self.ctx.get("fear_greed", {}).get("value", 50)
 
+        # Try real on-chain data
+        fetcher = _get_signal_fetcher()
+        onchain = {}
+        if fetcher:
+            try:
+                onchain = fetcher.fetch_on_chain_accumulation()
+            except Exception as exc:
+                log.warning("On-chain fetch failed, using fallback: %s", exc)
+
+        # Also check sovereign_context cache
+        if not onchain or onchain.get("accumulation_score") is None:
+            onchain = self.ctx.get("on_chain", {})
+
+        acc_score = onchain.get("accumulation_score")
+        cdd = onchain.get("coin_days_destroyed_7d")
+        active_addr = onchain.get("active_addresses_7d")
+        nvt = onchain.get("nvt_ratio")
+
+        if acc_score is not None:
+            # Real on-chain data available — blend with exchange flow data
+            score = acc_score
+            detail_parts = []
+            confidence = 60
+
+            if cdd is not None:
+                detail_parts.append(f"CDD {cdd:,.0f}")
+                confidence += 5
+            if active_addr is not None:
+                detail_parts.append(f"Addr {active_addr:,.0f}")
+                confidence += 5
+            if nvt is not None:
+                detail_parts.append(f"NVT {nvt:.0f}")
+                confidence += 5
+
+            # Blend with exchange flow signal (±10)
+            if flow == "outflow":
+                score = min(100, score + 10)
+            elif flow == "inflow":
+                score = max(0, score - 10)
+
+            # Fear during accumulation = strong conviction
+            if fg < 30 and score > 55:
+                score = min(100, score + 5)
+                detail_parts.append(f"F&G {fg} (fear+accumulation)")
+
+            detail_parts.append(f"Flow: {flow}")
+            trend = "up" if score > 60 else ("down" if score < 40 else "flat")
+
+            return {"score": score, "trend": trend, "confidence": min(85, confidence),
+                    "detail": ", ".join(detail_parts)}
+
+        # Fallback: original proxy
         base = 50
         if flow == "outflow":
             base += 15
         elif flow == "inflow":
             base -= 15
 
-        # Whale transaction volume as proxy
         whale_txs = len(whales)
         whale_adj = min(20, whale_txs * 4)
-
-        # Fear during outflow = strong accumulation signal
         if flow == "outflow" and fg < 30:
             base += 15
 
         score = max(0, min(100, base + whale_adj))
         trend = "up" if score > 60 else ("down" if score < 40 else "flat")
 
-        return {"score": score, "trend": trend, "confidence": min(80, 40 + whale_txs * 5),
-                "detail": f"Exchange flow: {flow}, {whale_txs} whale alerts, F&G: {fg}"}
+        return {"score": score, "trend": trend, "confidence": min(60, 30 + whale_txs * 5),
+                "detail": f"Proxy: flow={flow}, {whale_txs} whales, F&G {fg} (on-chain APIs unavailable)"}
 
     def _score_halving_cycle_position(self) -> dict:
         last_halving = datetime(2024, 4, 20, tzinfo=timezone.utc)
@@ -351,48 +413,267 @@ class IntelligenceEngineV2:
         change_24h = btc.get("change_24h", 0)
         dominance = btc.get("dominance", 50)
 
-        # Dominance rising + price stable/up = BTC decoupling from risk assets
-        dom_signal = min(30, max(0, (dominance - 50) * 3))
-        # Price momentum component
-        price_signal = min(40, max(0, change_24h * 4 + 20))
-        # Market cap strength
-        mcap = btc.get("market_cap", 0)
-        mcap_signal = min(30, (mcap / 2e12) * 30) if mcap > 0 else 0
+        # Try real macro data first
+        fetcher = _get_signal_fetcher()
+        macro = {}
+        if fetcher:
+            try:
+                macro = fetcher.fetch_macro_correlation()
+            except Exception as exc:
+                log.warning("Macro fetch failed, using fallback: %s", exc)
 
-        score = int(min(100, dom_signal + price_signal + mcap_signal))
+        # If we have sovereign_context macro data (written by SCE cron), use that
+        if not macro or not any(macro.values()):
+            macro = self.ctx.get("macro", {})
+
+        dxy = macro.get("dxy")
+        gold = macro.get("gold_price")
+        btc_dxy_corr = macro.get("btc_vs_dxy_30d_corr")
+        btc_gold_corr = macro.get("btc_vs_gold_30d_corr")
+        real_yield = macro.get("real_yield")
+
+        # Score components from real data
+        score = 0
+        detail_parts = []
+        confidence = 45  # base
+
+        if dxy is not None:
+            # Weak DXY = bullish for BTC (inverse relationship)
+            if dxy < 100:
+                score += 25
+            elif dxy < 104:
+                score += 15
+            else:
+                score += 5
+            detail_parts.append(f"DXY {dxy}")
+            confidence += 10
+
+        if btc_dxy_corr is not None:
+            # Negative BTC-DXY correlation = BTC behaving as expected (inverse to dollar)
+            # Strong negative corr = healthy regime
+            if btc_dxy_corr < -0.3:
+                score += 20
+            elif btc_dxy_corr < 0:
+                score += 10
+            else:
+                score += 5  # positive corr = unusual, but not necessarily bad
+            detail_parts.append(f"BTC-DXY corr {btc_dxy_corr:+.2f}")
+            confidence += 10
+
+        if btc_gold_corr is not None:
+            # Positive BTC-Gold correlation = both acting as stores of value
+            if btc_gold_corr > 0.3:
+                score += 20
+            elif btc_gold_corr > 0:
+                score += 10
+            else:
+                score += 5
+            detail_parts.append(f"BTC-Gold corr {btc_gold_corr:+.2f}")
+            confidence += 5
+
+        if real_yield is not None:
+            # Negative real yield = bullish for hard assets (BTC, gold)
+            if real_yield < 0:
+                score += 20
+            elif real_yield < 1.0:
+                score += 10
+            else:
+                score += 5
+            detail_parts.append(f"Real yield {real_yield:+.1f}%")
+            confidence += 10
+
+        # Fallback: if no real data, use original proxy
+        if not detail_parts:
+            dom_signal = min(30, max(0, (dominance - 50) * 3))
+            price_signal = min(40, max(0, change_24h * 4 + 20))
+            mcap = btc.get("market_cap", 0)
+            mcap_signal = min(30, (mcap / 2e12) * 30) if mcap > 0 else 0
+            score = int(min(100, dom_signal + price_signal + mcap_signal))
+            detail_parts = [f"Dominance {dominance}%", f"24h {change_24h:+.1f}%"]
+            confidence = 40
+        else:
+            # Add dominance bonus
+            dom_bonus = min(15, max(0, (dominance - 50) * 1.5))
+            score += int(dom_bonus)
+
+        score = max(0, min(100, score))
         trend = "up" if change_24h > 1 else ("down" if change_24h < -1 else "flat")
+        confidence = min(90, confidence)
 
-        return {"score": score, "trend": trend, "confidence": 60,
-                "detail": f"Dominance {dominance}%, 24h change {change_24h:+.1f}%"}
+        return {"score": score, "trend": trend, "confidence": round(confidence),
+                "detail": ", ".join(detail_parts)}
 
     def _score_options_market(self) -> dict:
-        # Derived from fear & greed + price volatility as proxy
-        # (Real options data would need Deribit API)
         fg = self.ctx.get("fear_greed", {}).get("value", 50)
         change_24h = abs(self.ctx.get("btc", {}).get("change_24h", 0))
 
-        # High fear + high vol = high implied vol = potential reversal
+        # Try real options data from Deribit
+        fetcher = _get_signal_fetcher()
+        opts = {}
+        if fetcher:
+            try:
+                opts = fetcher.fetch_options_market()
+            except Exception as exc:
+                log.warning("Options fetch failed, using fallback: %s", exc)
+
+        # Also check sovereign_context cache
+        if not opts or not opts.get("put_call_ratio"):
+            opts = self.ctx.get("options", {})
+
+        pcr = opts.get("put_call_ratio")
+        dvol = opts.get("dvol")
+        max_pain = opts.get("max_pain")
+        total_oi = opts.get("total_oi_btc")
+
+        if pcr is not None:
+            # Real Deribit data available
+            score = 50  # neutral baseline
+            detail_parts = []
+            confidence = 60
+
+            # Put/Call ratio interpretation
+            # PCR < 0.7 = bullish (more calls than puts)
+            # PCR 0.7-1.0 = neutral
+            # PCR > 1.0 = bearish/hedging (potential reversal signal)
+            if pcr < 0.5:
+                score += 20  # very bullish options positioning
+            elif pcr < 0.7:
+                score += 10
+            elif pcr > 1.2:
+                score += 15  # extreme put buying → contrarian bullish
+            elif pcr > 1.0:
+                score += 5
+            detail_parts.append(f"P/C {pcr:.2f}")
+
+            # DVOL interpretation
+            if dvol is not None:
+                if dvol < 40:
+                    score += 10  # low vol = calm, potential breakout
+                elif dvol < 60:
+                    score += 15  # moderate vol = healthy
+                elif dvol > 80:
+                    score += 20  # high vol + fear = potential reversal
+                else:
+                    score += 5
+                detail_parts.append(f"DVOL {dvol:.0f}")
+                confidence += 10
+
+            # Max pain context
+            if max_pain is not None:
+                btc_price = self.ctx.get("btc", {}).get("price", 0)
+                if btc_price > 0:
+                    pain_dist = (btc_price - max_pain) / btc_price * 100
+                    if abs(pain_dist) < 5:
+                        score += 10  # price near max pain = magnetic
+                    detail_parts.append(f"MaxPain ${max_pain:,.0f}")
+
+            if total_oi is not None:
+                detail_parts.append(f"OI {total_oi:,.0f} BTC")
+
+            # Fear overlay: extreme fear + high put buying = contrarian bullish
+            if fg < 25 and pcr > 0.9:
+                score += 10
+
+            score = max(0, min(100, score))
+            trend = "up" if pcr < 0.7 else ("down" if pcr > 1.0 else "flat")
+
+            return {"score": score, "trend": trend, "confidence": min(85, confidence),
+                    "detail": ", ".join(detail_parts)}
+
+        # Fallback: original proxy
         vol_score = min(50, change_24h * 10)
         fear_score = min(50, max(0, (50 - fg)))
-
         score = int(min(100, vol_score + fear_score))
         trend = "up" if fg < 30 else ("down" if fg > 70 else "flat")
 
-        return {"score": score, "trend": trend, "confidence": 45,
-                "detail": f"Proxy from F&G ({fg}) + volatility ({change_24h:.1f}%). Real options data pending."}
+        return {"score": score, "trend": trend, "confidence": 35,
+                "detail": f"Proxy: F&G {fg}, vol {change_24h:.1f}% (Deribit unavailable)"}
 
     def _score_futures_basis(self) -> dict:
-        # Futures basis proxy: strong conviction in one direction
         fg = self.ctx.get("fear_greed", {}).get("value", 50)
         poly = self.ctx.get("polymarket", {}).get("macro_sentiment", 50)
 
-        # Market consensus strength as proxy for leveraged positioning
+        # Try real futures data from Binance
+        fetcher = _get_signal_fetcher()
+        futures = {}
+        if fetcher:
+            try:
+                futures = fetcher.fetch_futures_basis()
+            except Exception as exc:
+                log.warning("Futures fetch failed, using fallback: %s", exc)
+
+        # Also check sovereign_context cache
+        if not futures or futures.get("funding_rate") is None:
+            futures = self.ctx.get("futures", {})
+
+        funding = futures.get("funding_rate")
+        annualized = futures.get("annualized_basis")
+        oi = futures.get("open_interest")
+        ls_ratio = futures.get("long_short_ratio")
+
+        if funding is not None:
+            # Real Binance FAPI data available
+            score = 50
+            detail_parts = []
+            confidence = 65
+
+            # Funding rate interpretation
+            # Positive funding = longs pay shorts = bullish market (leverage on long side)
+            # Negative funding = shorts pay longs = bearish / capitulation
+            # Near zero = balanced
+            if funding > 0.0005:
+                score += 15  # moderate bullish leverage
+            elif funding > 0.001:
+                score += 10  # high leverage = potential overheated
+            elif funding < -0.0005:
+                score += 20  # negative funding during fear = contrarian bullish
+            elif funding < 0:
+                score += 10
+            else:
+                score += 5  # neutral
+            detail_parts.append(f"Funding {funding:.4%}")
+
+            if annualized is not None:
+                detail_parts.append(f"Ann. {annualized:+.1f}%")
+                # Extreme annualized basis
+                if annualized > 30:
+                    score -= 5  # overheated
+                elif annualized < -10:
+                    score += 10  # capitulation-level shorting
+
+            if oi is not None:
+                detail_parts.append(f"OI {oi:,.0f} BTC")
+                confidence += 5
+
+            if ls_ratio is not None:
+                # L/S > 1.5 = crowded long, potential squeeze down
+                # L/S < 0.8 = crowded short, potential squeeze up
+                if ls_ratio < 0.8:
+                    score += 15  # short squeeze potential
+                elif ls_ratio < 1.0:
+                    score += 5
+                elif ls_ratio > 2.0:
+                    score -= 5  # too crowded long
+                elif ls_ratio > 1.5:
+                    score += 0
+                else:
+                    score += 10  # balanced
+                detail_parts.append(f"L/S {ls_ratio:.2f}")
+                confidence += 5
+
+            score = max(0, min(100, score))
+            trend = "up" if funding > 0.0001 else ("down" if funding < -0.0001 else "flat")
+
+            return {"score": score, "trend": trend, "confidence": min(85, confidence),
+                    "detail": ", ".join(detail_parts)}
+
+        # Fallback: original proxy
         consensus = abs(fg - 50) + abs(poly - 50)
         score = int(min(100, consensus))
         trend = "up" if (fg > 60 and poly > 60) else ("down" if (fg < 40 and poly < 40) else "flat")
 
-        return {"score": score, "trend": trend, "confidence": 40,
-                "detail": f"Consensus proxy: F&G {fg}, Polymarket {poly}. Real futures data pending."}
+        return {"score": score, "trend": trend, "confidence": 30,
+                "detail": f"Proxy: F&G {fg}, Polymarket {poly} (Binance FAPI unavailable)"}
 
     def compute_signal_scores(self) -> dict:
         """Returns 0-100 score per signal with trend and confidence."""

@@ -752,6 +752,20 @@ class SovereignContextEngine:
         stage = _fetch_stage_brief()
         whale_alerts = _fetch_whale_alerts()
 
+        # Fetch real signal data for 4 critical signals
+        signal_data = {"macro": {}, "options": {}, "futures": {}, "on_chain": {}}
+        fetcher = _get_signal_fetcher()
+        if fetcher:
+            try:
+                signal_data = fetcher.fetch_all()
+                log.info("Signal data fetched: macro=%d, options=%d, futures=%d, onchain=%d fields",
+                         sum(1 for v in signal_data.get("macro", {}).values() if v is not None),
+                         sum(1 for v in signal_data.get("options", {}).values() if v is not None),
+                         sum(1 for v in signal_data.get("futures", {}).values() if v is not None),
+                         sum(1 for v in signal_data.get("on_chain", {}).values() if v is not None))
+            except Exception as exc:
+                log.warning("Signal data fetch failed (non-fatal): %s", exc)
+
         block_height = network.pop("block_height", 0)
 
         world_state = {
@@ -769,6 +783,10 @@ class SovereignContextEngine:
             "exchange_flow": exchange_flow,
             "stage_brief": stage,
             "whale_alerts": whale_alerts,
+            "macro": signal_data.get("macro", {}),
+            "options": signal_data.get("options", {}),
+            "futures": signal_data.get("futures", {}),
+            "on_chain": signal_data.get("on_chain", {}),
             "active_alerts": [],
             "pattern_matches": [],
             "indices": _calculate_proprietary_indices(
