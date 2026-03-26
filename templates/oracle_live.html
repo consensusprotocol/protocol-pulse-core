@@ -1506,6 +1506,10 @@ function _newRecognition(){
 
 function toggleMic(){
   if(busy) return;
+  /* Debounce: ignore taps within 600ms of last tap to prevent double-click glitch */
+  var now = Date.now();
+  if(window._lastMicTap && now - window._lastMicTap < 600) return;
+  window._lastMicTap = now;
   if(isRec){ _submitSpeech(); } else { startRec(); }
 }
 
