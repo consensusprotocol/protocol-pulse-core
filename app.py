@@ -498,6 +498,14 @@ if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true"
     except Exception as _e:
         logging.warning("Scheduler init skipped: %s", _e)
 
+# Media Feed Service — 15-minute background RSS polling
+try:
+    from services.media_feed_service import start_feed_polling
+    start_feed_polling(app)
+    logging.info("Media feed polling started (every 15 min)")
+except Exception as _e:
+    logging.warning("Media feed polling not started: %s", _e)
+
 # Diagnose after routes import so startup logs reflect the real routing table.
 try:
     rules = [r.rule for r in app.url_map.iter_rules()]

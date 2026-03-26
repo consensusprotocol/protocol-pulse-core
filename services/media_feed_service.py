@@ -23,13 +23,13 @@ logger = logging.getLogger(__name__)
 PODCAST_FEEDS = [
     {"name": "Cypherpunk'd", "url": "https://anchor.fm/s/fa724db8/podcast/rss", "host": "PBX", "tier": 1, "color": "#f7931a", "category": "podcast"},
     {"name": "Protocol Pulse", "url": "https://feed.podbean.com/protocolpulse/feed.xml", "host": "Protocol Pulse", "tier": 1, "color": "#dc2626", "category": "podcast"},
-    {"name": "TFTC", "url": "https://feeds.fountain.fm/ZwwaDULvAj0yZvJ5kdB9", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
-    {"name": "Stephan Livera", "url": "https://anchor.fm/s/7d083a4/podcast/rss", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
-    {"name": "What Bitcoin Did", "url": "https://rss.libsyn.com/shows/110634/destinations/607905.xml", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
+    {"name": "TFTC", "url": "https://feeds.simplecast.com/mGJ8uw1O", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
+    {"name": "Stephan Livera", "url": "https://feeds.simplecast.com/KV8z39iS", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
+    {"name": "What Bitcoin Did", "url": "https://feeds.simplecast.com/tEJEubMT", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
     {"name": "Bitcoin Audible", "url": "https://feeds.castos.com/mj96z", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
-    {"name": "Citadel Dispatch", "url": "https://serve.podhome.fm/rss/c90e609a-df1e-596a-bd5e-57bcc8aad6cc", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
+    {"name": "Citadel Dispatch", "url": "https://feeds.simplecast.com/M6LkF8NN", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
     {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/Y2219Riv", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
-    {"name": "Simply Bitcoin", "url": "https://anchor.fm/s/717a2198/podcast/rss", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
+    {"name": "Simply Bitcoin", "url": "https://feeds.simplecast.com/7V5b8Zag", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
     {"name": "Bitcoin Magazine Podcast", "url": "https://anchor.fm/s/cefa18a0/podcast/rss", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
     {"name": "Rabbit Hole Recap", "url": "https://feeds.fountain.fm/0EAzqUaM4qqanDr1qNuK", "host": "Matt Odell & Marty Bent", "tier": 1, "color": "#8e44ad", "category": "podcast"},
     {"name": "The Investor's Podcast", "url": "https://feeds.megaphone.fm/PPLLC8974708240", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
@@ -553,3 +553,38 @@ def _time_ago(dt: datetime) -> str:
     if secs < 86400:
         return f"{secs // 3600}h"
     return f"{secs // 86400}d"
+
+
+# ─── 15-MINUTE AUTO-POLL SCHEDULER ───────────────────────────────────────────
+
+_poll_timer = None
+_poll_started = False
+POLL_INTERVAL = 15 * 60  # 15 minutes
+
+
+def _poll_loop(app):
+    """Recurring sync: runs every POLL_INTERVAL seconds."""
+    global _poll_timer
+    try:
+        sync_all_feeds(app)
+    except Exception as e:
+        logger.error(f"[MediaPoll] Sync error: {e}")
+    _poll_timer = threading.Timer(POLL_INTERVAL, _poll_loop, args=(app,))
+    _poll_timer.daemon = True
+    _poll_timer.start()
+
+
+def start_feed_polling(app=None):
+    """Start the 15-minute background feed polling loop. Safe to call multiple times."""
+    global _poll_started
+    if _poll_started:
+        return
+    _poll_started = True
+    if app is None:
+        from app import app as flask_app
+        app = flask_app
+    logger.info(f"[MediaPoll] Starting feed polling every {POLL_INTERVAL // 60}min")
+    # Initial sync after 10s delay (let app finish startup)
+    t = threading.Timer(10, _poll_loop, args=(app,))
+    t.daemon = True
+    t.start()
