@@ -12,73 +12,75 @@
 ## GPT4O — CYCLE 1 OUTPUT
 ### Q1 — PREMIUM PERCEPTION
 
-**Detailed Analysis:**
-- **Visual Hierarchy:** The page has a well-defined visual hierarchy with clear sections for hero, pricing tiers, and CTAs (lines 998-1229). The use of large headings and distinct sections helps guide the user through the content.
-- **Glassmorphism Quality:** The use of glassmorphism is evident in elements like the pricing cards (lines 241-248) and the promo terminal (lines 511-521). The blur and transparency effects are subtle and add a premium feel.
-- **Typography:** The typography is consistent with the brand's guidelines, using JetBrains Mono for monospace and Inter for sans-serif (lines 25-26). The font sizes and weights are appropriate for the content hierarchy.
-- **Color System:** The color palette adheres to the brand standards, with primary red (#CC2222) used for accents and gold (#F8C15C) for highlights (lines 15-21).
+**DETAILED ANALYSIS:**
+- **Visual Hierarchy:** The page maintains a clear visual hierarchy with distinct sections for hero, pricing tiers, and feature comparison. The use of large, bold headlines (lines 156-159) and contrasting colors helps in drawing attention to key elements.
+- **Glassmorphism Quality:** The glassmorphism effect is well-implemented with subtle blurs and transparency (lines 247, 451). The backdrop-filter property is used effectively to create a premium feel.
+- **Typography:** The typography is consistent with the brand's standards. JetBrains Mono and Inter fonts are used appropriately for different text elements (lines 25-26, 135-157).
+- **Color System:** The color palette adheres to the brand guidelines, with the correct use of red, gold, and white. However, the background color used in line 15 (`#06070b`) does not match the specified dark navy (`#0A0A0F`).
 
-**Severity: LOW**
+**SEVERITY:** MEDIUM
 
-**Specific Fix:** Consider enhancing the glassmorphism effect by increasing the blur radius slightly for more depth, especially on larger screens.
+**SPECIFIC FIX:** Update the background color in the CSS root to `#0A0A0F` to comply with the brand palette.
 
 ### Q2 — PROMO CODE SECURITY
 
-**Detailed Analysis:**
-- **Rate Limiting:** There is client-side rate limiting with a maximum of 5 attempts before locking out for 60 seconds (lines 1439-1451). However, this is not sufficient for server-side protection.
-- **Input Validation:** The input is trimmed and checked for emptiness, but there is no mention of server-side validation for format or length (lines 1435-1436).
-- **Timing Attacks:** There is no explicit mention of protection against timing attacks. The response times could potentially be exploited.
-- **Response Enumeration:** Error messages are generic, which helps prevent enumeration (lines 1475-1476).
+**DETAILED ANALYSIS:**
+- **Rate Limiting:** There is a check for status 429 (lines 1287-1288), indicating some form of rate limiting is implemented.
+- **Input Validation:** The promo code input is trimmed (line 1273), but there is no explicit validation for format or length.
+- **Timing Attacks:** The server response does not seem to vary significantly based on input correctness, reducing timing attack risks.
+- **Response Enumeration:** Error messages are generic (lines 1300-1301), which helps prevent response enumeration attacks.
 
-**Severity: HIGH**
+**SEVERITY:** HIGH
 
-**Specific Fix:** Implement server-side rate limiting and input validation. Use constant-time comparison for promo codes to prevent timing attacks.
+**SPECIFIC FIX:** Implement server-side validation to ensure promo codes meet expected patterns or lengths. Enhance rate limiting by adding a delay mechanism on repeated failed attempts.
 
 ### Q3 — STRIPE INTEGRATION
 
-**Detailed Analysis:**
-- The code does not explicitly mention Stripe integration details, such as handling the `STRIPE_PUBLIC_KEY` or the checkout flow. The signup modal (lines 1252-1272) and form submission (lines 1380-1424) do not show Stripe-specific logic.
-- Error states are handled with messages displayed to the user (lines 1413-1421).
+**DETAILED ANALYSIS:**
+- **STRIPE_PUBLIC_KEY Handling:** The code does not explicitly mention handling of the Stripe public key, which should be securely managed.
+- **Checkout Flow:** The checkout flow is initiated correctly with a POST request to create a session (lines 1241-1245).
+- **Signup Modal:** There is no explicit signup modal mentioned in the code.
+- **Error States:** Error handling is present, with user feedback provided on failure (lines 1251-1255).
 
-**Severity: CRITICAL**
+**SEVERITY:** MEDIUM
 
-**Specific Fix:** Ensure that the Stripe integration is correctly set up with secure handling of the `STRIPE_PUBLIC_KEY`. Implement a clear checkout flow using Stripe's API and handle errors gracefully.
+**SPECIFIC FIX:** Ensure that the Stripe public key is securely stored and accessed. Consider adding a modal to confirm user action before redirecting to checkout.
 
 ### Q4 — MOBILE LAYOUT
 
-**Detailed Analysis:**
-- **Responsive Breakpoints:** The page has media queries for 960px and 600px breakpoints (lines 935-972). The layout adjusts to single-column for smaller screens, and elements like the pricing tiers and promo code input are responsive.
-- **Production Quality:** The mobile layout appears well-structured, with appropriate scaling of text and interactive elements.
+**DETAILED ANALYSIS:**
+- **Responsive Breakpoints:** The CSS includes media queries for 960px (lines 813-827) and 600px (lines 828-850) breakpoints, addressing layout adjustments for smaller screens.
+- **Production Quality:** The mobile layout appears well-structured with adjustments for font sizes and element spacing. However, the particle canvas (lines 1149-1204) might affect performance on mobile devices.
 
-**Severity: LOW**
+**SEVERITY:** LOW
 
-**Specific Fix:** Test on various devices to ensure consistent behavior and consider optimizing the mobile experience by reducing animations that may affect performance.
+**SPECIFIC FIX:** Consider disabling or simplifying the particle animation on mobile devices to enhance performance.
 
 ### Q5 — VISUAL DESIGN SYSTEM COMPLIANCE
 
-**Detailed Analysis:**
-- **Color Palette:** The colors used match the brand's palette, with primary red, gold, and dark navy backgrounds (lines 15-21).
-- **Typography:** The fonts and sizes comply with the brand's typography standards (lines 25-26, 156-162).
-- **Three-Source Glow System:** The glow effects are used effectively in elements like buttons and scan lines (lines 198-199, 731-735).
-- **Glassmorphism:** The glassmorphism elements are consistent with the visual design system (lines 241-248, 511-521).
+**DETAILED ANALYSIS:**
+- **Color Palette:** Mostly compliant, except for the background color issue noted in Q1.
+- **Typography:** Correct fonts and styles are used throughout the document.
+- **Three-Source Glow System:** The glow effects are implemented with shadows and gradients (lines 163, 198).
+- **Glassmorphism:** Proper use of blur and transparency effects (lines 247, 451).
 
-**Severity: LOW**
+**SEVERITY:** LOW
 
-**Specific Fix:** Maintain consistency in glow effects across all interactive elements for a cohesive look.
+**SPECIFIC FIX:** Ensure all colors strictly match the brand palette, particularly the background color.
 
 ### FINAL VERDICT
 
-- **How many CRITICAL issues found?** 1 (Stripe integration)
+- **How many CRITICAL issues found?** None
 - **Top 3 changes needed before production:**
-  1. Implement secure server-side rate limiting and input validation for promo codes.
-  2. Ensure correct Stripe integration with secure key handling and checkout flow.
-  3. Enhance glassmorphism effects for more depth on larger screens.
+  1. Update the background color to match the brand palette.
+  2. Enhance promo code security with stricter validation and improved rate limiting.
+  3. Ensure the Stripe public key is securely handled and consider adding a confirmation modal for checkout.
 - **Overall:** PASS WITH FIXES
 
 ## GROK — CYCLE 1 OUTPUT
 ### AUDIT REPORT: JOIN PAGE PREMIUM AUDIT
 
-I have conducted a thorough review of the provided `join.html` file for the Protocol Pulse /join page. Below are my detailed analyses and recommendations for the five critical questions posed, along with a final verdict.
+I have conducted a thorough review of the provided code for the `/join` page of Protocol Pulse, focusing on the five critical questions outlined in the task. Below is my detailed analysis for each question, including severity ratings, specific fixes, and line number citations. I conclude with a final verdict on the readiness of this feature for production.
 
 ---
 
@@ -86,18 +88,19 @@ I have conducted a thorough review of the provided `join.html` file for the Prot
 **Does the page feel premium enough to justify a $49/mo subscription? Rate the visual hierarchy, glassmorphism quality, typography, color system.**
 
 **DETAILED ANALYSIS:**
-- **Visual Hierarchy (Lines 129-205, 233-421, 676-737):** The page has a strong visual hierarchy with a prominent hero section, clear tiered pricing cards, and a compelling closing CTA. The "Commander" tier is visually emphasized with a scale transform (line 272) and a red accent (lines 277-287), which effectively draws attention to the $49/mo subscription. The use of animations like the scanline (lines 176-205) and equalizer bars (lines 740-760) adds a dynamic, high-tech feel that aligns with a premium intelligence product.
-- **Glassmorphism Quality (Lines 245-248, 447-452):** The glassmorphism effect is implemented with backdrop-filter blur (e.g., line 247), which is visually appealing and modern. However, the opacity and blur levels could be more pronounced for a deeper "glass" effect, especially on pricing cards, to elevate the premium perception further. The current implementation feels slightly understated compared to top-tier SaaS products.
-- **Typography (Lines 7, 25-26, 136-172, 429-443):** The use of JetBrains Mono for kickers and data (line 25) and Inter for body text (line 26) aligns with a professional, tech-focused aesthetic. Headlines are bold and large (e.g., line 159, font-size 56px), which is appropriate for premium branding. However, kicker text (e.g., line 138, 11px) feels slightly small and could be increased to 12-14px for better readability and impact.
-- **Color System (Lines 14-23):** The color palette with red (#ff3b5f), gold (#f8c15c), and cyan (#5de4ff) is vibrant and consistent, reinforcing brand identity. The dark background (#06070b, line 15) enhances contrast, making text and elements pop. However, the red used (#ff3b5f) deviates from the brand's primary red (#CC2222 as per LAW 1), which could dilute brand consistency.
+- **Visual Hierarchy (Lines 129-205, 903-960):** The hero section is well-structured with a strong headline ("PROTOCOL PULSE INTELLIGENCE") and a red accent for emphasis (line 892). The pricing tiers are clearly differentiated with the "Commander" tier visually elevated via scale transform (line 272) and a "FEATURED" badge (line 926). The closing CTA (lines 1107-1121) reinforces the premium feel with a bold call-to-action. However, the social proof section (lines 1124-1134) feels underwhelming for a premium product—stats like "4x RTX 4090" are technical but lack emotional impact for a high-end user.
+- **Glassmorphism Quality (Lines 245-248, 447-452):** The use of backdrop-filter blur (e.g., line 247) for cards and matrix tables creates a modern, premium glass effect. However, the opacity levels (e.g., `rgba(255,255,255,0.04)` on line 244) are too subtle in some areas, diminishing the depth perception on darker backgrounds. This could be enhanced for a more luxurious feel.
+- **Typography (Lines 156-159, 327-334):** The use of Inter for sans-serif and JetBrains Mono for monospace (lines 25-26) aligns with brand standards and provides a tech-forward, professional look. Headlines are appropriately large (56px on line 159), but kicker text (e.g., line 138) at 11px feels slightly small for premium readability, especially on high-DPI displays.
+- **Color System (Lines 14-23):** The color palette uses red (#ff3b5f), gold (#f8c15c), and cyan (#5de4ff) effectively to create a vibrant, energetic feel. The red and gold are used to highlight premium tiers (lines 278, 292), which works well. However, the background color `--j-bg: #06070b` (line 15) is slightly off from the mandated `#0A0A0F` in LAW 1, which could affect brand consistency.
 
 **SEVERITY: MEDIUM**
-- While the page feels premium overall due to animations, hierarchy, and modern effects, minor inconsistencies in color and typography size, along with a slightly underwhelming glassmorphism effect, prevent it from fully reaching a top-tier premium perception.
+- The page feels premium overall due to animations (e.g., scanline on lines 191-205), detailed design elements, and tier differentiation. However, subtle issues in background color deviation, kicker text size, and social proof impact prevent it from fully conveying a $49/mo value.
 
 **SPECIFIC FIX:**
-- Adjust kicker font size to 12-14px for better impact (e.g., line 138: `font-size: 12px;`).
-- Enhance glassmorphism by increasing blur and adjusting opacity (e.g., line 247: `backdrop-filter: blur(20px);` and line 245: `background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));`).
-- Align red color to brand standard #CC2222 (line 20: `--j-red: #CC2222;`).
+- Adjust background color to match LAW 1 (`--j-bg: #0A0A0F` on line 15).
+- Increase kicker text size to 12-13px for better readability (e.g., line 138).
+- Enhance social proof by replacing technical stats with user-centric testimonials or impact metrics (e.g., "Trusted by 500+ Bitcoin Transactors") on lines 1127-1131.
+- Increase opacity of glassmorphism backgrounds (e.g., change `rgba(255,255,255,0.04)` to `rgba(255,255,255,0.08)` on line 244) for more pronounced depth.
 
 ---
 
@@ -105,107 +108,78 @@ I have conducted a thorough review of the provided `join.html` file for the Prot
 **Is the /api/apply-promo endpoint secure against brute force attacks? Check: rate limiting, input validation, timing attacks, response enumeration.**
 
 **DETAILED ANALYSIS:**
-- **Rate Limiting (Lines 1438-1452):** There is a client-side rate-limiting mechanism that locks the promo code input after 5 attempts for 60 seconds (lines 1440-1451). However, this is purely client-side and can be bypassed by disabling JavaScript or directly calling the API endpoint, rendering it ineffective against determined attackers.
-- **Input Validation (Lines 1435-1436):** The code trims the input (line 1436) but does not perform any client-side validation for format or length before sending it to the server. There’s no indication of server-side validation in the provided code, which is a significant concern for preventing malformed or malicious inputs.
-- **Timing Attacks (Lines 1460-1486):** The response handling does not account for timing attacks. The fetch request to `/api/apply-promo` (line 1460) may return different response times for valid vs. invalid codes, potentially allowing attackers to infer information based on timing.
-- **Response Enumeration (Lines 1467-1479):** The response includes specific error messages (line 1475) and success messages (line 1468), which could aid enumeration attacks by confirming whether a code exists or not. Ideally, responses should be generic to prevent information leakage.
+- **Rate Limiting (Lines 1287-1289):** The code checks for a 429 status code (Too Many Requests) and displays a custom error message if encountered. This suggests rate limiting is implemented on the server side, which is good. However, there is no client-side throttling or delay mechanism to prevent rapid successive attempts before hitting the server limit, which could still burden the backend.
+- **Input Validation (Line 1273):** The promo code is trimmed (`promoInput.value.trim()`) to remove whitespace, but there is no explicit validation for length, character set, or format on the client side. This could allow invalid inputs to reach the server, wasting resources.
+- **Timing Attacks (Lines 1281-1305):** The response handling does not appear to introduce artificial delays to mitigate timing attacks. If the server processes valid and invalid codes at different speeds, attackers could infer information based on response time.
+- **Response Enumeration (Lines 1293-1304):** The error messages differentiate between specific failures (e.g., "Invalid access code" vs. "Too many attempts"). While this is user-friendly, it could aid attackers in enumerating valid codes by observing response variations. A generic error message would be safer.
 
-**SEVERITY: CRITICAL**
-- The lack of server-side rate limiting and input validation, combined with potential timing and enumeration vulnerabilities, makes the promo code system highly insecure against brute force attacks.
+**SEVERITY: HIGH**
+- While rate limiting appears to be in place, the lack of client-side validation, potential for timing attacks, and detailed error messages pose security risks for a premium product handling sensitive access codes.
 
 **SPECIFIC FIX:**
-- Implement server-side rate limiting (e.g., limit to 5 attempts per IP per minute) and ensure it cannot be bypassed by client-side manipulation. Add a server-side check in `/api/apply-promo` to return a 429 status code if exceeded.
-- Add server-side input validation to reject invalid formats or overly long inputs (e.g., limit code length to 20 characters).
-- Mitigat
+- Add client-side throttling to limit submission frequency (e.g., disable submit button for 3 seconds after each attempt):
+ 
 
 ## GEMINI — CYCLE 1 OUTPUT
-Excellent. As an AI model specializing in code audits and security analysis, I will conduct a thorough review of the `join-page` feature. My analysis will be grounded in the provided Governing Laws and Technology Stack.
+Here is a complete audit of the `join-page` feature.
+
+### Q1 — PREMIUM PERCEPTION
+
+#### DETAILED ANALYSIS
+The page successfully projects a high-tech, premium "cypherpunk Bloomberg" aesthetic that aligns with its target audience. The overall impression is strong and likely sufficient to justify the price point.
+
+-   **Visual Hierarchy (Strong):** The flow is logical: a bold hero statement, clear pricing tiers with the "Commander" option visually prioritized (lines 269-287), a detailed comparison matrix, and strong closing CTAs. The use of scale (`h1` at 56px, line 158) and visual weight effectively guides the user's eye.
+-   **Glassmorphism (Excellent):** The use of `backdrop-filter: blur(20px)` on cards (line 247) and the matrix (line 451) is well-executed. Combined with the subtle gradients and thin borders, it creates a sophisticated, layered "glass panel" feel that looks modern and expensive.
+-   **Typography (Good, but with VDS violations):** The font pairing of Inter and JetBrains Mono is excellent for this brand. The hierarchy of sizes and weights is generally effective. However, as noted in Q5, it critically deviates from the specified font sizes in the Governing Laws.
+-   **Color System (Good, but with VDS violations):** The defined CSS variables (lines 14-27) create a cohesive and visually striking palette. The dark navy background (`--j-bg`) is a premium choice over pure black. The accent colors are used purposefully. The main issue is that several key colors do not match the brand palette defined in LAW 1.
+-   **Animation & Polish (Excellent):** The subtle animated background (line 44), scanline (line 197), and various hover effects (e.g., lines 259, 406) add a dynamic, "live terminal" feel without being distracting. The one exception is the `<canvas>` particle system, which violates the tech stack rules (see Q5).
+
+#### SEVERITY
+LOW
+
+#### SPECIFIC FIX
+The page's perception is already high. The primary fixes relate to VDS compliance (Q5), not a fundamental failure of design. The most impactful change for *perception* would be to ensure typography is large enough to feel bold and confident, per LAW 3.
 
 ---
 
-### **Q1 — PREMIUM PERCEPTION**
+### Q2 — PROMO CODE SECURITY
 
-Does the page feel premium enough to justify a $49/mo subscription? Rate the visual hierarchy, glassmorphism quality, typography, color system.
+#### DETAILED ANALYSIS
+The frontend code for the `/api/apply-promo` endpoint demonstrates a good understanding of security best practices. The implementation is reasonably secure against common brute-force vectors from the client's perspective.
 
-**DETAILED ANALYSIS**
-The page successfully projects a high-tech, "cypherpunk terminal" aesthetic that aligns with a premium intelligence product. The visual hierarchy is strong, guiding the user from the high-impact hero section (lines 998-1008) to the clear pricing tiers (line 1013), a detailed comparison matrix (line 1071), and a final call-to-action (line 1215).
+1.  **Rate Limiting (Handled):** The Javascript explicitly checks for a `429 Too Many Requests` status code from the server (line 1287). This indicates that a server-side rate limiter is correctly in place and the client is prepared to handle the response. This is the most critical defense, and it appears to be implemented.
+2.  **Input Validation (Sufficient):** The client performs a basic `.trim()` on the input (line 1273). All significant validation (length, character set, etc.) should and must occur on the server. The client's role is minimal here.
+3.  **Timing Attacks (Cannot Verify):** This is a server-side concern. The fix would be to ensure the backend uses a constant-time comparison algorithm for checking the promo code against the database to prevent an attacker from inferring correctness based on response time. This cannot be audited from the provided code.
+4.  **Response Enumeration (Good):** The error message is generic: `res.data.error || 'Invalid access code'` (line 1300). It does not differentiate between "code expired," "code already used," or "code does not exist." This prevents an attacker from enumerating valid codes.
 
--   **Glassmorphism:** The implementation is excellent. The use of `backdrop-filter: blur(16px);` on the pricing cards (line 247) and `blur(12px)` on the feature matrix (line 451) creates a sophisticated, layered depth that feels modern and premium.
--   **Typography:** The font pairing of Inter for sans-serif (line 26) and JetBrains Mono for monospaced elements (line 25) is a classic and effective choice for this aesthetic. Hierarchy within type is generally good, with large headlines and smaller supporting text.
--   **Animations & Effects:** The subtle animated background (`bgShift`, line 46), scanline effect (`scanBeam`, line 200), and particle canvas (line 1279) add a dynamic, "live terminal" feel without being distracting.
+#### SEVERITY
+LOW
 
-However, there are notable deviations from the established brand palette (LAW 1) and typography rules (LAW 3) which undermine the premium feel by suggesting a lack of attention to detail and brand consistency. For a premium product, every detail must be perfect.
+#### SPECIFIC FIX
+The server-side implementation seems robust based on the client's handling. For a minor client-side improvement, you could disable the submit button for a short period after a failed attempt to deter user-driven spamming, although the server-side 429 handling is the primary defense.
 
-**SEVERITY: MEDIUM**
-
-**SPECIFIC FIX**
-The primary issue is a drift from the core brand identity defined in the Governing Laws. To elevate the premium perception, align the page's local CSS variables with the official brand palette.
-
-1.  **Correct the Color Palette:** Update the `:root` variables in the CSS to match LAW 1.
-    ```css
-    /* Fix for lines 15-20 */
-    :root {
-        --j-bg:      #0A0A0F; /* LAW 1: Background */
-        --j-panel:   #0d1118;
-        --j-panel2:  #121824;
-        --j-text:    #FFFFFF; /* LAW 1: White */
-        --j-muted:   #95a0ba;
-        --j-red:     #CC2222; /* LAW 1: Primary Red */
-        /* ... rest of the variables */
-    }
-    ```
-2.  **Correct Typography Sizes:** Adjust font sizes to comply with LAW 3. For example, the body text is far too small.
-    ```css
-    /* Fix for line 167, hero subtitle */
-    .join-hero .join-sub {
-        font-size: 28px; /* LAW 3: Body text 28-32px */
-        /* ... */
-    }
-
-    /* Fix for line 136, hero kicker */
-    .join-hero-kicker {
-        font-size: 24px; /* LAW 3: Kickers 24-28px */
-        /* ... */
-    }
-    ```
+```javascript
+// Add inside the 'else' block for failed promo validation (approx. line 1304)
+promoInput.disabled = true;
+setTimeout(() => {
+    promoInput.disabled = false;
+    promoInput.focus();
+}, 1000); // Prevent resubmission for 1 second
+```
 
 ---
 
-### **Q2 — PROMO CODE SECURITY**
+### Q3 — STRIPE INTEGRATION
 
-Is the /api/apply-promo endpoint secure against brute force attacks? Check: rate limiting, input validation, timing attacks, response enumeration.
+#### DETAILED ANALYSIS
+The Stripe integration for the Commander checkout is implemented correctly and securely, following modern best practices.
 
-**DETAILED ANALYSIS**
-The promo code submission logic (lines 1427-1492) contains a **critical security vulnerability**.
-
--   **Rate Limiting:** The implementation uses a JavaScript-only, client-side rate limit (`promoAttempts`, line 1431). An attacker can trivially bypass this by:
-    1.  Disabling JavaScript.
-    2.  Using a tool like `cURL` or Postman to send requests directly to the `/api/apply-promo` endpoint.
-    3.  Simply reloading the page after every 5 attempts to reset the `promoAttempts` counter.
-    This leaves the backend endpoint completely exposed to automated brute-force attacks, which could allow an attacker to guess valid promo codes, causing potential revenue loss.
--   **Input Validation:** The code performs a `.trim()` (line 1435), which is minimal. All significant validation must happen server-side.
--   **Timing Attacks:** Cannot be assessed from the frontend code, but the backend implementation *must* use a constant-time comparison function when checking codes to prevent timing attacks.
--   **Response Enumeration:** The error messages (`"Invalid access code"`, `"Network error"`) are generic enough to avoid leaking information. This part is handled well.
-
-**SEVERITY: CRITICAL**
-
-**SPECIFIC FIX**
-The client-side rate limit must be removed and replaced with a robust server-side implementation.
-
-1.  **Remove Client-Side Logic:** Delete the JavaScript code block for rate-limiting (lines 1438-1453). It provides a false sense of security.
-2.  **Implement Server-Side Rate Limiting:** The Flask backend must enforce rate limits on the `/api/apply-promo` route. This should be done based on IP address and, if the user is logged in, by user ID.
-    *   **Recommendation:** Use a library like `Flask-Limiter`.
-    *   **Example (Conceptual Flask Code):**
-    ```python
-    from flask import Flask
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
-
-
+1.  **Public Key Handling (Secure):** The code does **not** contain a Stripe public key. It calls a dedicated backend endpoint `/api/v1/checkout/create-session` (line 1241). The backend then presumably uses the Stripe secret key to create a session and returns a redirect URL. The client simply redirects the user with `window.location.href = data.url` (line 1249). This is the Stripe-recommended server-side redirect flow, which prevents key exposure and is PCI compliant.
+2.  **Checkout Flow (Correct):** The user clicks a button, the button enters a disabled/loading state (lines 1238-1239), a request is made to the server, and the user is redirected upon a s
 
 ## CLAUDE'S CYCLE 1 CONSENSUS
 # CONSENSUS REPORT — JOIN-PAGE — CYCLE 1
-Generated: 2026-03-26 00:40
+Generated: 2026-03-26 00:51
 Models: gpt4o, grok, gemini
 
 ---
@@ -214,62 +188,67 @@ Models: gpt4o, grok, gemini
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Q1 Premium Perception | MEDIUM | LOW | MEDIUM | **MEDIUM** |
-| Q2 Promo Code Security | CRITICAL | HIGH | CRITICAL | **CRITICAL** |
-| Q3 Stripe Integration | LOW | CRITICAL | HIGH | **HIGH** |
-| Q4 Mobile Layout | (truncated) | LOW | (truncated) | **LOW** |
-| Q5 Visual Design Compliance | N/A | LOW | N/A | **LOW** |
-| **Overall Verdict** | Pass w/ Fixes | Pass w/ Fixes | Pass w/ Fixes | **PASS WITH FIXES** |
+| Q1 Premium Perception | LOW | MEDIUM | MEDIUM | MEDIUM |
+| Q2 Promo Code Security | LOW | HIGH | HIGH | HIGH |
+| Q3 Stripe Integration | LOW | MEDIUM | MEDIUM | MEDIUM |
+| Q4 Mobile Layout | LOW | LOW | LOW | LOW |
+| Q5 VDS Compliance | CRITICAL | LOW | MEDIUM | CRITICAL |
+| **Overall** | **PASS WITH MINOR FIXES** | **PASS WITH FIXES** | **PASS WITH FIXES** | **PASS WITH FIXES** |
 
-> **Scoring note:** Gemini and GPT-4o diverge sharply on Q3 (LOW vs CRITICAL). This is the report's primary conflict and is resolved below. All three models agree Q2 is the single highest-severity finding.
-
----
-
-## UNANIMOUS FINDINGS (all 3 models agree — implement unconditionally)
-
-### U1 — Client-side-only promo rate limiting is a critical security hole
-**What it is:** The `promoAttempts` counter and 60-second lockout (lines 1431, 1438–1453) exist exclusively in JavaScript. Any attacker using `curl`, Postman, or a browser with JS disabled can hammer `/api/apply-promo` with unlimited requests per second. The backend is completely unprotected.
-
-**File/Lines:** `join.html` lines 1431, 1438–1453 (client-side logic); `/api/apply-promo` backend route (not shown but must be fixed)
-
-**What to change:**
-1. Delete the client-side `promoAttempts` / lockout block entirely — it provides false security and should not exist.
-2. On the Flask backend, add server-side rate limiting keyed on IP + (optionally) user ID using `Flask-Limiter` (e.g., `@limiter.limit("10 per minute")`).
-3. Return HTTP 429 with a `Retry-After` header when the limit is exceeded.
-4. Update the client `.catch()` block to surface a "Too many attempts — please wait" message when a 429 is received.
+> **Synthesizer Note on Scores:** The most significant divergence is Q2 (Gemini: LOW vs. Grok/GPT-4o: HIGH) and Q5 (Gemini: CRITICAL vs. others: LOW/MEDIUM). Gemini's Q2 reasoning is overly optimistic — it defers all validation concerns to "the server" without flagging the observable client-side gaps. Grok and GPT-4o's HIGH rating on Q2 is more defensible. Gemini's Q5 CRITICAL finding is the most rigorous and correct — the other models underweighted it. Consensus severity on Q5 is elevated to CRITICAL.
 
 ---
 
-### U2 — Color palette deviates from LAW 1 brand standards
-**What it is:** The page defines its own local CSS color variables that conflict with the official brand palette. Specifically, the primary red used is `#ff3b5f` (Grok) or a variant, rather than the mandated `#CC2222`. The background is `#06070b` rather than `#0A0A0F`. These deviations signal inconsistency to discerning users and dilute brand trust — exactly the opposite of what a $49/mo premium product needs.
+## UNANIMOUS FINDINGS
+*All 3 models agree — implement unconditionally.*
 
-**File/Lines:** `join.html` lines 14–23 (`:root` CSS variables), line 20 (`--j-red`)
+### U1 — Background Color Deviation
+- **What:** CSS variable `--j-bg` is set to `#06070b` instead of the mandated `#0A0A0F`
+- **File/Line:** `join-page` CSS, approximately line 15
+- **Change:** `--j-bg: #0A0A0F;`
+- **Agreement:** GPT-4o (Q1, Q5), Grok (Q1, Q5), Gemini (Q1, Q5) — all three flagged this independently
 
-**What to change:**
-```css
-/* join.html lines 14–23 — align to LAW 1 */
-:root {
-    --j-bg:     #0A0A0F;   /* LAW 1: canonical background */
-    --j-red:    #CC2222;   /* LAW 1: primary red — NOT #ff3b5f */
-    --j-gold:   #F8C15C;   /* LAW 1: gold accent */
-    --j-white:  #FFFFFF;   /* LAW 1: primary text */
-    /* retain cyan, muted, panel vars as-is if not contradicted by LAW 1 */
-}
-```
+### U2 — Promo Code: No Client-Side Input Validation
+- **What:** The promo input only receives a `.trim()` before submission. No format validation, no length check, no character-set enforcement.
+- **File/Line:** JavaScript, approximately line 1273–1274
+- **Change:** Add a guard before the fetch call:
+  ```javascript
+  if (!code || code.length < 6 || !/^[a-zA-Z0-9\-]+$/.test(code)) {
+      promoMsg.textContent = 'Invalid format. Use alphanumeric characters only.';
+      promoMsg.className = 'join-promo-msg error';
+      return;
+  }
+  ```
+- **Agreement:** GPT-4o (Q2), Grok (Q2), Gemini (Q2, implicitly via "server handles it" with a client-side footnote)
+
+### U3 — Promo Code: No Client-Side Submission Throttle
+- **What:** No delay or cooldown between submission attempts on the client, leaving the server rate limiter as the sole defense. This burdens the backend unnecessarily and introduces latency degradation under spam.
+- **File/Line:** JavaScript, after the failed promo validation response handler, approximately line 1304
+- **Change:** Disable the input/button briefly on failure:
+  ```javascript
+  promoSubmit.disabled = true;
+  promoInput.disabled = true;
+  setTimeout(() => {
+      promoSubmit.disabled = false;
+      promoInput.disabled = false;
+      promoInput.focus();
+  }, 3000);
+  ```
+- **Agreement:** GPT-4o (Q2), Grok (Q2 explicit code), Gemini (Q2 explicit code, 1s version)
 
 ---
 
-## MAJORITY FINDINGS (2 of 3 models agree)
+## MAJORITY FINDINGS
+*2 of 3 models agree — implement unless compelling reason not to.*
 
-### M1 — Stripe error states are insufficiently specific (GPT-4o + Grok)
-**What it is:** The form submission error 
+### M1 — Stripe: Replace
 
 ---
 
 ## ORIGINAL CODE (same code as Cycle 1)
 ## THE CODE (every new and modified file)
 
-### File: templates/join.html (1496 lines)
+### File: templates/join.html (1321 lines)
 ```
    1 | {% extends "base.html" %}
    2 | 
@@ -517,8 +496,8 @@ Models: gpt4o, grok, gemini
  244 |     background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
  245 |     border: 1px solid rgba(255,255,255,0.07);
  246 |     border-radius: 16px;
- 247 |     backdrop-filter: blur(16px);
- 248 |     -webkit-backdrop-filter: blur(16px);
+ 247 |     backdrop-filter: blur(20px);
+ 248 |     -webkit-backdrop-filter: blur(20px);
  249 |     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
  250 |     overflow: hidden;
  251 | }
@@ -535,8 +514,8 @@ Models: gpt4o, grok, gemini
  262 | }
  263 | 
  264 | /* FREE tier */
- 265 | .join-card--free::before { background: var(--j-cyan); }
- 266 | .join-card--free:hover { border-color: rgba(93,228,255,0.15); }
+ 265 | .join-card--free::before { background: #8895a7; }
+ 266 | .join-card--free:hover { border-color: rgba(136,149,167,0.20); }
  267 | 
  268 | /* COMMANDER tier (featured) */
  269 | .join-card--commander {
@@ -593,7 +572,7 @@ Models: gpt4o, grok, gemini
  320 |     text-transform: uppercase;
  321 |     margin-bottom: 14px;
  322 | }
- 323 | .join-card--free .join-card-kicker { color: var(--j-cyan); }
+ 323 | .join-card--free .join-card-kicker { color: #8895a7; }
  324 | .join-card--commander .join-card-kicker { color: var(--j-red); }
  325 | .join-card--sovereign .join-card-kicker { color: var(--j-gold); }
  326 | 
@@ -640,7 +619,7 @@ Models: gpt4o, grok, gemini
  367 |     left: 0; top: 7px;
  368 |     font-size: 10px;
  369 | }
- 370 | .join-card--free .join-features li::before { color: var(--j-cyan); }
+ 370 | .join-card--free .join-features li::before { color: #8895a7; }
  371 | .join-card--commander .join-features li::before { color: var(--j-red); }
  372 | .join-card--sovereign .join-features li::before { color: var(--j-gold); }
  373 | 
@@ -662,14 +641,14 @@ Models: gpt4o, grok, gemini
  389 |     border: none;
  390 | }
  391 | .join-btn--ghost {
- 392 |     background: rgba(93,228,255,0.08);
- 393 |     border: 1px solid rgba(93,228,255,0.20);
- 394 |     color: var(--j-cyan);
+ 392 |     background: rgba(136,149,167,0.08);
+ 393 |     border: 1px solid rgba(136,149,167,0.25);
+ 394 |     color: #8895a7;
  395 | }
  396 | .join-btn--ghost:hover {
- 397 |     background: rgba(93,228,255,0.14);
- 398 |     border-color: rgba(93,228,255,0.35);
- 399 |     box-shadow: 0 4px 20px rgba(93,228,255,0.10);
+ 397 |     background: rgba(136,149,167,0.14);
+ 398 |     border-color: rgba(136,149,167,0.40);
+ 399 |     box-shadow: 0 4px 20px rgba(136,149,167,0.10);
  400 | }
  401 | .join-btn--red {
  402 |     background: var(--j-red);
@@ -721,8 +700,8 @@ Models: gpt4o, grok, gemini
  448 |     border: 1px solid rgba(255,255,255,0.06);
  449 |     border-radius: 14px;
  450 |     overflow: hidden;
- 451 |     backdrop-filter: blur(12px);
- 452 |     -webkit-backdrop-filter: blur(12px);
+ 451 |     backdrop-filter: blur(18px);
+ 452 |     -webkit-backdrop-filter: blur(18px);
  453 | }
  454 | .join-matrix {
  455 |     width: 100%;
@@ -744,7 +723,7 @@ Models: gpt4o, grok, gemini
  471 |     text-align: left;
  472 |     color: var(--j-muted);
  473 | }
- 474 | .join-matrix thead th:nth-child(2) { color: var(--j-cyan); }
+ 474 | .join-matrix thead th:nth-child(2) { color: #8895a7; }
  475 | .join-matrix thead th:nth-child(3) { color: var(--j-red); }
  476 | .join-matrix thead th:nth-child(4) { color: var(--j-gold); }
  477 | .join-matrix tbody td {
@@ -1082,691 +1061,516 @@ Models: gpt4o, grok, gemini
  809 | .join-bottom a:hover { color: var(--j-cyan); }
  810 | .join-bottom a span { color: var(--j-cyan); }
  811 | 
- 812 | /* ── SIGNUP MODAL ── */
- 813 | .signup-modal-overlay {
- 814 |     display: none;
- 815 |     position: fixed; inset: 0;
- 816 |     background: rgba(6,7,11,0.88);
- 817 |     backdrop-filter: blur(8px);
- 818 |     -webkit-backdrop-filter: blur(8px);
- 819 |     z-index: 9999;
- 820 |     align-items: center;
- 821 |     justify-content: center;
- 822 | }
- 823 | .signup-modal-overlay.active { display: flex; }
- 824 | .signup-modal {
- 825 |     background: var(--j-panel);
- 826 |     border: 1px solid rgba(255,255,255,0.08);
- 827 |     border-radius: 16px;
- 828 |     padding: 36px;
- 829 |     width: 100%;
- 830 |     max-width: 420px;
- 831 |     position: relative;
- 832 |     box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 80px rgba(255,59,95,0.06);
- 833 | }
- 834 | .signup-modal::before {
- 835 |     content: '';
- 836 |     position: absolute;
- 837 |     top: 0; left: 24px; right: 24px;
- 838 |     height: 2px;
- 839 |     background: var(--j-red);
- 840 |     border-radius: 0 0 2px 2px;
- 841 | }
- 842 | .signup-modal h2 {
- 843 |     font-family: var(--j-mono);
- 844 |     font-size: 14px;
- 845 |     font-weight: 800;
- 846 |     color: var(--j-text);
- 847 |     text-transform: uppercase;
- 848 |     letter-spacing: 0.14em;
- 849 |     margin: 0 0 6px;
+ 812 | /* ── RESPONSIVE ── */
+ 813 | @media (max-width: 960px) {
+ 814 |     .join-tiers {
+ 815 |         grid-template-columns: 1fr;
+ 816 |         max-width: 500px;
+ 817 |         margin-left: auto;
+ 818 |         margin-right: auto;
+ 819 |     }
+ 820 |     .join-card--commander {
+ 821 |         order: -1;
+ 822 |         transform: none;
+ 823 |     }
+ 824 |     .join-card--commander:hover { transform: translateY(-4px); }
+ 825 |     .join-matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+ 826 |     .join-matrix { min-width: 560px; }
+ 827 | }
+ 828 | @media (max-width: 600px) {
+ 829 |     .join-hero { padding: 48px 0 40px; }
+ 830 |     .join-hero h1 { font-size: 34px; }
+ 831 |     .join-hero .join-sub { font-size: 15px; }
+ 832 |     .join-ticker { flex-wrap: wrap; gap: 10px 16px; font-size: 10px; padding: 8px 12px; }
+ 833 |     .join-card { padding: 24px 20px 22px; }
+ 834 |     .join-card-price { font-size: 38px; }
+ 835 |     .join-promo { margin-left: -4px; margin-right: -4px; }
+ 836 |     .join-promo-body { padding: 20px 16px 16px; }
+ 837 |     .join-promo-row { flex-direction: column; }
+ 838 |     .join-promo-submit { width: 100%; padding: 14px; }
+ 839 |     .join-proof-grid { flex-direction: column; gap: 8px; align-items: center; }
+ 840 |     .join-closing h2 { font-size: 26px; }
+ 841 |     .join-scanline-wrap { width: 200px; }
+ 842 |     @keyframes scanBeam {
+ 843 |         0%   { left: -60px; opacity: 0; }
+ 844 |         8%   { opacity: 1; }
+ 845 |         92%  { opacity: 1; }
+ 846 |         100% { left: 200px; opacity: 0; }
+ 847 |     }
+ 848 |     .join-section-label span { font-size: 9px; }
+ 849 |     .signup-modal { padding: 28px 20px; margin: 16px; }
  850 | }
- 851 | .signup-modal .modal-sub {
- 852 |     color: var(--j-muted);
- 853 |     font-size: 13px;
- 854 |     margin-bottom: 20px;
- 855 | }
- 856 | .signup-modal label {
- 857 |     display: block;
- 858 |     font-family: var(--j-mono);
- 859 |     font-size: 10px;
- 860 |     font-weight: 800;
- 861 |     color: var(--j-muted);
- 862 |     text-transform: uppercase;
- 863 |     letter-spacing: 0.12em;
- 864 |     margin-bottom: 5px;
- 865 | }
- 866 | .signup-modal input[type="email"],
- 867 | .signup-modal input[type="password"] {
- 868 |     display: block;
- 869 |     width: 100%;
- 870 |     padding: 11px 14px;
- 871 |     background: var(--j-bg);
- 872 |     border: 1px solid rgba(255,255,255,0.08);
- 873 |     border-radius: 6px;
- 874 |     color: var(--j-text);
- 875 |     font-family: var(--j-mono);
- 876 |     font-size: 14px;
- 877 |     margin-bottom: 14px;
- 878 |     box-sizing: border-box;
- 879 |     outline: none;
- 880 |     transition: border-color 0.15s;
- 881 | }
- 882 | .signup-modal input:focus { border-color: var(--j-red); }
- 883 | .signup-submit {
- 884 |     display: block;
- 885 |     width: 100%;
- 886 |     padding: 13px;
- 887 |     background: var(--j-red);
- 888 |     color: #fff;
- 889 |     font-family: var(--j-mono);
- 890 |     font-size: 12px;
- 891 |     font-weight: 800;
- 892 |     letter-spacing: 0.10em;
- 893 |     text-transform: uppercase;
- 894 |     border: none;
- 895 |     border-radius: 6px;
- 896 |     cursor: pointer;
- 897 |     transition: background 0.15s;
- 898 |     margin-top: 4px;
- 899 | }
- 900 | .signup-submit:hover { background: #e02e4f; }
- 901 | .signup-submit:disabled { background: #333; cursor: wait; }
- 902 | .modal-error {
- 903 |     color: var(--j-red);
- 904 |     font-family: var(--j-mono);
- 905 |     font-size: 12px;
- 906 |     margin-top: 8px;
- 907 |     display: none;
- 908 | }
- 909 | .modal-close {
- 910 |     position: absolute;
- 911 |     top: 14px; right: 18px;
- 912 |     background: none;
- 913 |     border: none;
- 914 |     color: var(--j-muted);
- 915 |     font-size: 22px;
- 916 |     cursor: pointer;
- 917 |     line-height: 1;
- 918 |     transition: color 0.15s;
- 919 | }
- 920 | .modal-close:hover { color: var(--j-text); }
- 921 | .modal-login-link {
- 922 |     display: block;
- 923 |     text-align: center;
- 924 |     margin-top: 14px;
- 925 |     font-size: 12px;
- 926 |     color: var(--j-muted);
- 927 | }
- 928 | .modal-login-link a {
- 929 |     color: var(--j-cyan);
- 930 |     text-decoration: none;
- 931 | }
- 932 | .modal-login-link a:hover { text-decoration: underline; }
- 933 | 
- 934 | /* ── RESPONSIVE ── */
- 935 | @media (max-width: 960px) {
- 936 |     .join-tiers {
- 937 |         grid-template-columns: 1fr;
- 938 |         max-width: 500px;
- 939 |         margin-left: auto;
- 940 |         margin-right: auto;
- 941 |     }
- 942 |     .join-card--commander {
- 943 |         order: -1;
- 944 |         transform: none;
- 945 |     }
- 946 |     .join-card--commander:hover { transform: translateY(-4px); }
- 947 |     .join-matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
- 948 |     .join-matrix { min-width: 560px; }
- 949 | }
- 950 | @media (max-width: 600px) {
- 951 |     .join-hero { padding: 48px 0 40px; }
- 952 |     .join-hero h1 { font-size: 34px; }
- 953 |     .join-hero .join-sub { font-size: 15px; }
- 954 |     .join-ticker { flex-wrap: wrap; gap: 10px 16px; font-size: 10px; padding: 8px 12px; }
- 955 |     .join-card { padding: 24px 20px 22px; }
- 956 |     .join-card-price { font-size: 38px; }
- 957 |     .join-promo { margin-left: -4px; margin-right: -4px; }
- 958 |     .join-promo-body { padding: 20px 16px 16px; }
- 959 |     .join-promo-row { flex-direction: column; }
- 960 |     .join-promo-submit { width: 100%; padding: 14px; }
- 961 |     .join-proof-grid { flex-direction: column; gap: 8px; align-items: center; }
- 962 |     .join-closing h2 { font-size: 26px; }
- 963 |     .join-scanline-wrap { width: 200px; }
- 964 |     @keyframes scanBeam {
- 965 |         0%   { left: -60px; opacity: 0; }
- 966 |         8%   { opacity: 1; }
- 967 |         92%  { opacity: 1; }
- 968 |         100% { left: 200px; opacity: 0; }
- 969 |     }
- 970 |     .join-section-label span { font-size: 9px; }
- 971 |     .signup-modal { padding: 28px 20px; margin: 16px; }
- 972 | }
- 973 | </style>
- 974 | {% endblock %}
- 975 | 
- 976 | {% block content %}
- 977 | <!-- Animated background layers -->
- 978 | <div class="join-bg"></div>
- 979 | <div class="join-grid"></div>
- 980 | <div class="join-vignette"></div>
- 981 | <canvas id="particleCanvas"></canvas>
- 982 | 
- 983 | <div class="join-page">
- 984 | 
- 985 |     <!-- ═══ GOLD TICKER BAR ═══ -->
- 986 |     <div class="join-ticker" role="marquee" aria-label="Live market data">
- 987 |         <span class="join-ticker-pulse"></span>
- 988 |         <span id="jTicker-btc">BTC ---,---</span>
- 989 |         <span class="join-ticker-sep"></span>
- 990 |         <span id="jTicker-fng">F&amp;G --</span>
- 991 |         <span class="join-ticker-sep"></span>
- 992 |         <span id="jTicker-block">BLOCK ---,---</span>
- 993 |         <span class="join-ticker-sep"></span>
- 994 |         <span>PROTOCOLPULSE.IO</span>
- 995 |     </div>
- 996 | 
- 997 |     <!-- ═══ HERO ═══ -->
- 998 |     <div class="join-hero">
- 999 |         <div class="join-hero-kicker">CONSENSUS INTELLIGENCE</div>
-1000 |         <h1>PROTOCOL PULSE<br><span class="hero-red">INTELLIGENCE</span></h1>
-1001 |         <p class="join-sub">
-1002 |             Sovereign Bitcoin intelligence. Real-time chain analysis, AI-powered signal detection, zero middlemen. Built on bare metal for transactors who verify, not trust.
-1003 |         </p>
-1004 |         <div class="join-scanline-wrap" aria-hidden="true">
-1005 |             <div class="join-scanline-track"></div>
-1006 |             <div class="join-scanline-beam"></div>
-1007 |         </div>
-1008 |     </div>
-1009 | 
-1010 |     <!-- ═══ PRICING TIERS ═══ -->
-1011 |     <div class="join-section-label"><span>SELECT YOUR TIER</span></div>
-1012 | 
-1013 |     <div class="join-tiers">
-1014 | 
-1015 |         <!-- FREE AGENT -->
-1016 |         <div class="join-card join-card--free">
-1017 |             <div class="join-card-kicker">FREE AGENT</div>
-1018 |             <div class="join-card-price">$0<span class="price-sub">/forever</span></div>
-1019 |             <div class="join-card-desc">Public intelligence layer. Intel briefs, market overview, and open-source tools. No signup required.</div>
-1020 |             <ul class="join-features">
-1021 |                 <li>Daily intelligence articles</li>
-1022 |                 <li>BTC price, Fear &amp; Greed, market overview</li>
-1023 |                 <li>Whale Watcher &mdash; large transaction monitor</li>
-1024 |                 <li>Merchant Map &mdash; 10,000+ BTC-accepting businesses</li>
-1025 |                 <li>Public charts &amp; mempool explorer</li>
-1026 |                 <li>RSS, Atom, and Nostr signal feeds</li>
-1027 |                 <li>Solo Slayers &mdash; mining lottery tracker</li>
-1028 |             </ul>
-1029 |             <a href="/articles" class="join-btn join-btn--ghost">Browse Intel</a>
-1030 |         </div>
-1031 | 
-1032 |         <!-- COMMANDER (featured) -->
-1033 |         <div class="join-card join-card--commander">
-1034 |             <div class="join-card-badge">MOST POPULAR</div>
-1035 |             <div class="join-card-kicker">COMMANDER</div>
-1036 |             <div class="join-card-price">$49<span class="price-sub">/mo</span></div>
-1037 |             <div class="join-card-desc">Full terminal access. Oracle AI analyst. Daily video briefings. Real-time alerts. Cancel anytime.</div>
-1038 |             <ul class="join-features">
-1039 |                 <li>Everything in Free Agent</li>
-1040 |                 <li>Signal Terminal &mdash; convergence matrix with 8 live feeds</li>
-1041 |                 <li>PCAF anomaly detection &mdash; GNN on every block</li>
-1042 |                 <li>5-scenario Monte Carlo projection engine</li>
-1043 |                 <li>Oracle AI analyst &mdash; ask anything, get signal</li>
-1044 |                 <li>Daily video briefings + Avatar Stage</li>
-1045 |                 <li>Real-time alert system &mdash; price, whale, narrative</li>
-1046 |                 <li>API access &mdash; 1,000 requests/day</li>
-1047 |             </ul>
-1048 |             <button class="join-btn join-btn--red" id="joinCTA">Access the Terminal &mdash; $49/mo</button>
-1049 |         </div>
-1050 | 
-1051 |         <!-- SOVEREIGN -->
-1052 |         <div class="join-card join-card--sovereign">
-1053 |             <div class="join-card-kicker">SOVEREIGN</div>
-1054 |             <div class="join-card-price">Custom</div>
-1055 |             <div class="join-card-desc">White-glove intelligence. Dedicated infrastructure. Team access. For funds, desks, and sovereign individuals.</div>
-1056 |             <ul class="join-features">
-1057 |                 <li>Everything in Commander</li>
-1058 |                 <li>Team seats with admin panel</li>
-1059 |                 <li>Unlimited API + webhook delivery</li>
-1060 |                 <li>Priority Oracle AI queue &mdash; sub-second</li>
-1061 |                 <li>Custom intelligence reports on demand</li>
-1062 |                 <li>Dedicated infrastructure allocation</li>
-1063 |                 <li>Direct line to the builder</li>
-1064 |             </ul>
-1065 |             <a href="mailto:sovereign@protocolpulse.io?subject=Sovereign%20Access" class="join-btn join-btn--gold">Contact for Access</a>
-1066 |         </div>
-1067 | 
-1068 |     </div>
-1069 | 
-1070 |     <!-- ═══ FEATURE COMPARISON MATRIX ═══ -->
-1071 |     <div class="join-matrix-section">
-1072 |         <div class="join-matrix-kicker">CAPABILITY MATRIX</div>
-1073 |         <div class="join-matrix-title">Compare Every Feature</div>
-1074 |         <div class="join-matrix-wrap">
-1075 |             <table class="join-matrix">
-1076 |                 <thead>
-1077 |                     <tr>
-1078 |                         <th>Feature</th>
-1079 |                         <th>Free Agent</th>
-1080 |                         <th>Commander</th>
-1081 |                         <th>Sovereign</th>
-1082 |                     </tr>
-1083 |                 </thead>
-1084 |                 <tbody>
-1085 |                     <tr>
-1086 |                         <td>Intelligence articles</td>
-1087 |                         <td class="mx-yes">&#10003;</td>
-1088 |                         <td class="mx-yes">&#10003;</td>
-1089 |                         <td class="mx-yes">&#10003;</td>
-1090 |                     </tr>
-1091 |                     <tr>
-1092 |                         <td>Market overview &amp; charts</td>
-1093 |                         <td class="mx-yes">&#10003;</td>
-1094 |                         <td class="mx-yes">&#10003;</td>
-1095 |                         <td class="mx-yes">&#10003;</td>
-1096 |                     </tr>
-1097 |                     <tr>
-1098 |                         <td>Whale Watcher</td>
-1099 |                         <td class="mx-yes">&#10003;</td>
-1100 |                         <td class="mx-yes">&#10003;</td>
-1101 |                         <td class="mx-yes">&#10003;</td>
-1102 |                     </tr>
-1103 |                     <tr>
-1104 |                         <td>Merchant Map</td>
-1105 |                         <td class="mx-yes">&#10003;</td>
-1106 |                         <td class="mx-yes">&#10003;</td>
-1107 |                         <td class="mx-yes">&#10003;</td>
-1108 |                     </tr>
-1109 |                     <tr>
-1110 |                         <td>RSS / Nostr signal feeds</td>
-1111 |                         <td class="mx-yes">&#10003;</td>
-1112 |                         <td class="mx-yes">&#10003;</td>
-1113 |                         <td class="mx-yes">&#10003;</td>
-1114 |                     </tr>
-1115 |                     <tr>
-1116 |                         <td>Signal Terminal</td>
-1117 |                         <td class="mx-no">&#8212;</td>
-1118 |                         <td class="mx-yes">&#10003;</td>
-1119 |                         <td class="mx-yes">&#10003;</td>
-1120 |                     </tr>
-1121 |                     <tr>
-1122 |                         <td>PCAF anomaly detection</td>
-1123 |                         <td class="mx-no">&#8212;</td>
-1124 |                         <td class="mx-yes">&#10003;</td>
-1125 |                         <td class="mx-yes">&#10003;</td>
-1126 |                     </tr>
-1127 |                     <tr>
-1128 |                         <td>Monte Carlo projections</td>
-1129 |                         <td class="mx-no">&#8212;</td>
-1130 |                         <td class="mx-yes">&#10003;</td>
-1131 |                         <td class="mx-yes">&#10003;</td>
-1132 |                     </tr>
-1133 |                     <tr>
-1134 |                         <td>Oracle AI analyst</td>
-1135 |                         <td class="mx-no">&#8212;</td>
-1136 |                         <td class="mx-yes">&#10003;</td>
-1137 |                         <td class="mx-val">PRIORITY</td>
-1138 |                     </tr>
-1139 |                     <tr>
-1140 |                         <td>Daily video briefings</td>
-1141 |                         <td class="mx-no">&#8212;</td>
-1142 |                         <td class="mx-yes">&#10003;</td>
-1143 |                         <td class="mx-yes">&#10003;</td>
-1144 |                     </tr>
-1145 |                     <tr>
-1146 |                         <td>Real-time alerts</td>
-1147 |                         <td class="mx-no">&#8212;</td>
-1148 |                         <td class="mx-yes">&#10003;</td>
-1149 |                         <td class="mx-val">+ WEBHOOK</td>
-1150 |                     </tr>
-1151 |                     <tr>
-1152 |                         <td>API requests</td>
-1153 |                         <td class="mx-val">60/hr</td>
-1154 |                         <td class="mx-val">1,000/day</td>
-1155 |                         <td class="mx-val">UNLIMITED</td>
-1156 |                     </tr>
-1157 |                     <tr>
-1158 |                         <td>Team seats</td>
-1159 |                         <td class="mx-no">&#8212;</td>
-1160 |                         <td class="mx-no">&#8212;</td>
-1161 |                         <td class="mx-yes">&#10003;</td>
-1162 |                     </tr>
-1163 |                     <tr>
-1164 |                         <td>Custom reports</td>
-1165 |                         <td class="mx-no">&#8212;</td>
-1166 |                         <td class="mx-no">&#8212;</td>
-1167 |                         <td class="mx-yes">&#10003;</td>
-1168 |                     </tr>
-1169 |                     <tr>
-1170 |                         <td>Dedicated infrastructure</td>
-1171 |                         <td class="mx-no">&#8212;</td>
-1172 |                         <td class="mx-no">&#8212;</td>
-1173 |                         <td class="mx-yes">&#10003;</td>
-1174 |                     </tr>
-1175 |                     <tr>
-1176 |                         <td>Direct builder access</td>
-1177 |                         <td class="mx-no">&#8212;</td>
-1178 |                         <td class="mx-no">&#8212;</td>
-1179 |                         <td class="mx-yes">&#10003;</td>
-1180 |                     </tr>
-1181 |                 </tbody>
-1182 |             </table>
-1183 |         </div>
-1184 |     </div>
-1185 | 
-1186 |     <!-- ═══ ACCESS CODE TERMINAL ═══ -->
-1187 |     <div class="join-section-label"><span>HAVE AN ACCESS CODE?</span></div>
-1188 | 
-1189 |     <div class="join-promo" id="promoSection">
-1190 |         <div class="join-promo-titlebar">
-1191 |             <div class="join-promo-dots">
-1192 |                 <span></span><span></span><span></span>
-1193 |             </div>
-1194 |             <span class="join-promo-titlebar-text">sovereign_access_terminal v2.1</span>
-1195 |         </div>
-1196 |         <div class="join-promo-body">
-1197 |             <div class="join-promo-header">
-1198 |                 <div class="join-promo-dot" aria-hidden="true"></div>
-1199 |                 <div class="join-promo-label">CLASSIFIED ACCESS TERMINAL</div>
-1200 |             </div>
-1201 |             <div class="join-promo-sub">Team and sovereign access codes unlock premium tiers instantly. Enter your code below.<span class="join-promo-cursor" aria-hidden="true"></span></div>
-1202 |             <div class="join-promo-row">
-1203 |                 <input type="text" class="join-promo-input" id="promoInput"
-1204 |                        placeholder="Enter access code..."
-1205 |                        autocomplete="off" spellcheck="false"
-1206 |                        aria-label="Sovereign access code">
-1207 |                 <button class="join-promo-submit" id="promoSubmit">Authenticate</button>
-1208 |             </div>
-1209 |             <div class="join-promo-msg" id="promoMsg"></div>
-1210 |             <div class="join-promo-hint">Codes are distributed to sovereign-tier teams and early operatives.</div>
-1211 |         </div>
-1212 |     </div>
-1213 | 
-1214 |     <!-- ═══ CLOSING CTA ═══ -->
-1215 |     <div class="join-closing">
-1216 |         <div class="join-eq" aria-hidden="true">
-1217 |             <div class="join-eq-bar"></div>
-1218 |             <div class="join-eq-bar"></div>
-1219 |             <div class="join-eq-bar"></div>
-1220 |             <div class="join-eq-bar"></div>
-1221 |             <div class="join-eq-bar"></div>
-1222 |         </div>
-1223 |         <div class="join-closing-kicker">TOMORROW'S BRIEF STARTS NOW</div>
-1224 |         <h2>Stop Trusting.<br>Start <span class="hero-red">Verifying.</span></h2>
-1225 |         <p>
-1226 |             Protocol Pulse runs on sovereign infrastructure &mdash; 4x RTX 4090 GPUs, bare metal, zero cloud. Every signal is computed locally. Every insight is ours.
-1227 |         </p>
-1228 |         <button class="join-closing-btn" id="joinClosingCTA">Get Commander Access &mdash; $49/mo</button>
-1229 |     </div>
-1230 | 
-1231 |     <!-- ═══ SOCIAL PROOF ═══ -->
-1232 |     <div class="join-proof">
-1233 |         <div class="join-proof-kicker">BUILT ON ULTRON &mdash; SOVEREIGN INFRASTRUCTURE</div>
-1234 |         <div class="join-proof-grid">
-1235 |             <div class="join-proof-stat"><span>4x</span> RTX 4090</div>
-1236 |             <div class="join-proof-stat"><span>Real-time</span> GNN inference</div>
-1237 |             <div class="join-proof-stat"><span>8</span> live data feeds</div>
-1238 |             <div class="join-proof-stat"><span>60s</span> sentinel cycle</div>
-1239 |             <div class="join-proof-stat"><span>0</span> third-party deps</div>
-1240 |             <div class="join-proof-stat"><span>Self-hosted</span> bare metal</div>
-1241 |         </div>
-1242 |     </div>
-1243 | 
-1244 |     <!-- ═══ BOTTOM LINKS ═══ -->
-1245 |     <div class="join-bottom">
-1246 |         <a href="/terminal">Already have access? <span>Open Terminal &rarr;</span></a>
-1247 |     </div>
-1248 | 
-1249 | </div>
-1250 | 
-1251 | <!-- ═══ SIGNUP MODAL ═══ -->
-1252 | <div class="signup-modal-overlay" id="signupOverlay">
-1253 |     <div class="signup-modal">
-1254 |         <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
-1255 |         <h2>Create Account</h2>
-1256 |         <p class="modal-sub">3 fields. No KYC. Straight to the terminal.</p>
-1257 |         <form id="signupForm">
-1258 |             <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is callable else '' }}">
-1259 |             <label for="signupEmail">Email</label>
-1260 |             <input type="email" id="signupEmail" name="email" required autocomplete="email" placeholder="satoshi@protonmail.com">
-1261 | 
-1262 |             <label for="signupPassword">Password</label>
-1263 |             <input type="password" id="signupPassword" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••">
-1264 | 
-1265 |             <label for="signupConfirm">Confirm Password</label>
-1266 |             <input type="password" id="signupConfirm" name="confirm_password" required autocomplete="new-password" minlength="8" placeholder="••••••••">
-1267 | 
-1268 |             <button type="submit" class="signup-submit" id="signupSubmit">Create Account &amp; Subscribe</button>
-1269 |             <div class="modal-error" id="signupError"></div>
-1270 |         </form>
-1271 |         <div class="modal-login-link">Already have an account? <a href="/login">Log in</a></div>
-1272 |     </div>
-1273 | </div>
-1274 | 
-1275 | <script>
-1276 | (function() {
-1277 |     'use strict';
-1278 | 
-1279 |     /* ── Red particle system ── */
-1280 |     var canvas = document.getElementById('particleCanvas');
-1281 |     if (canvas) {
-1282 |         var ctx = canvas.getContext('2d');
-1283 |         var particles = [];
-1284 |         var PARTICLE_COUNT = 40;
-1285 | 
-1286 |         function resizeCanvas() {
-1287 |             canvas.width = window.innerWidth;
-1288 |             canvas.height = window.innerHeight;
-1289 |         }
-1290 |         resizeCanvas();
-1291 |         window.addEventListener('resize', resizeCanvas);
-1292 | 
-1293 |         function Particle() {
-1294 |             this.reset();
-1295 |         }
-1296 |         Particle.prototype.reset = function() {
-1297 |             this.x = Math.random() * canvas.width;
-1298 |             this.y = Math.random() * canvas.height;
-1299 |             this.vx = (Math.random() - 0.5) * 0.3;
-1300 |             this.vy = -Math.random() * 0.4 - 0.1;
-1301 |             this.radius = Math.random() * 1.5 + 0.5;
-1302 |             this.opacity = Math.random() * 0.4 + 0.1;
-1303 |             this.life = Math.random() * 300 + 100;
-1304 |             this.age = 0;
-1305 |         };
-1306 |         Particle.prototype.update = function() {
-1307 |             this.x += this.vx;
-1308 |             this.y += this.vy;
-1309 |             this.age++;
-1310 |             if (this.age > this.life || this.y < -10 || this.x < -10 || this.x > canvas.width + 10) {
-1311 |                 this.reset();
-1312 |                 this.y = canvas.height + 10;
-1313 |             }
-1314 |         };
-1315 |         Particle.prototype.draw = function() {
-1316 |             var fade = 1 - (this.age / this.life);
-1317 |             ctx.beginPath();
-1318 |             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-1319 |             ctx.fillStyle = 'rgba(255,59,95,' + (this.opacity * fade).toFixed(3) + ')';
-1320 |             ctx.fill();
-1321 |         };
-1322 | 
-1323 |         for (var i = 0; i < PARTICLE_COUNT; i++) {
-1324 |             particles.push(new Particle());
-1325 |         }
-1326 | 
-1327 |         function animateParticles() {
-1328 |             ctx.clearRect(0, 0, canvas.width, canvas.height);
-1329 |             for (var j = 0; j < particles.length; j++) {
-1330 |                 particles[j].update();
-1331 |                 particles[j].draw();
-1332 |             }
-1333 |             requestAnimationFrame(animateParticles);
-1334 |         }
-1335 |         animateParticles();
-1336 |     }
-1337 | 
-1338 |     /* ── Live ticker ── */
-1339 |     function fetchTicker() {
-1340 |         fetch('/api/intelligence/state/public')
-1341 |             .then(function(r) { return r.json(); })
-1342 |             .then(function(d) {
-1343 |                 if (d.price && d.price.usd) {
-1344 |                     var el = document.getElementById('jTicker-btc');
-1345 |                     var ch = d.price.change_24h || 0;
-1346 |                     var arrow = ch >= 0 ? ' \u25B2' : ' \u25BC';
-1347 |                     var cls = ch >= 0 ? 'ticker-up' : 'ticker-down';
-1348 |                     el.innerHTML = 'BTC $' + Number(d.price.usd).toLocaleString(undefined, {maximumFractionDigits:0}) +
-1349 |                         ' <span class="' + cls + '">' + arrow + ' ' + Math.abs(ch).toFixed(1) + '%</span>';
-1350 |                 }
-1351 |                 if (d.fng && d.fng.value) {
-1352 |                     document.getElementById('jTicker-fng').textContent = 'F&G ' + d.fng.value + ' ' + (d.fng.label || '');
-1353 |                 }
-1354 |                 if (d.block_height) {
-1355 |                     document.getElementById('jTicker-block').textContent = 'BLOCK ' + Number(d.block_height).toLocaleString();
-1356 |                 }
-1357 |             })
-1358 |             .catch(function() {});
-1359 |     }
-1360 |     fetchTicker();
-1361 |     setInterval(fetchTicker, 30000);
-1362 | 
-1363 |     /* ── Signup modal ── */
-1364 |     var overlay = document.getElementById('signupOverlay');
-1365 |     var closeBtn = document.getElementById('modalClose');
-1366 |     var form = document.getElementById('signupForm');
-1367 |     var errorEl = document.getElementById('signupError');
-1368 |     var submitBtn = document.getElementById('signupSubmit');
-1369 | 
-1370 |     function openSignup() { overlay.classList.add('active'); }
-1371 |     function closeSignup() { overlay.classList.remove('active'); }
-1372 | 
-1373 |     document.getElementById('joinCTA').addEventListener('click', openSignup);
-1374 |     document.getElementById('joinClosingCTA').addEventListener('click', openSignup);
-1375 |     closeBtn.addEventListener('click', closeSignup);
-1376 |     overlay.addEventListener('click', function(e) { if (e.target === overlay) closeSignup(); });
-1377 |     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSignup(); });
-1378 |     window.openSignupModal = openSignup;
-1379 | 
-1380 |     form.addEventListener('submit', function(e) {
-1381 |         e.preventDefault();
-1382 |         errorEl.style.display = 'none';
-1383 |         var email = document.getElementById('signupEmail').value.trim();
-1384 |         var pw = document.getElementById('signupPassword').value;
-1385 |         var confirm = document.getElementById('signupConfirm').value;
-1386 | 
-1387 |         if (pw !== confirm) {
-1388 |             errorEl.textContent = 'Passwords do not match';
-1389 |             errorEl.style.display = 'block';
-1390 |             return;
-1391 |         }
-1392 |         if (pw.length < 8) {
-1393 |             errorEl.textContent = 'Password must be at least 8 characters';
-1394 |             errorEl.style.display = 'block';
-1395 |             return;
-1396 |         }
-1397 | 
-1398 |         submitBtn.disabled = true;
-1399 |         submitBtn.textContent = 'Creating account...';
-1400 | 
-1401 |         fetch('/api/join/register', {
-1402 |             method: 'POST',
-1403 |             headers: { 'Content-Type': 'application/json' },
-1404 |             body: JSON.stringify({ email: email, password: pw })
-1405 |         })
-1406 |         .then(function(r) { return r.json(); })
-1407 |         .then(function(data) {
-1408 |             if (data.success && data.checkout_url) {
-1409 |                 window.location.href = data.checkout_url;
-1410 |             } else if (data.success) {
-1411 |                 window.location.href = '/intelligence?activated=1';
-1412 |             } else {
-1413 |                 errorEl.textContent = data.error || 'Registration failed';
-1414 |                 errorEl.style.display = 'block';
-1415 |                 submitBtn.disabled = false;
-1416 |                 submitBtn.textContent = 'Create Account & Subscribe';
-1417 |             }
-1418 |         })
-1419 |         .catch(function() {
-1420 |             errorEl.textContent = 'Network error \u2014 try again';
-1421 |             errorEl.style.display = 'block';
-1422 |             submitBtn.disabled = false;
-1423 |             submitBtn.textContent = 'Create Account & Subscribe';
-1424 |         });
-1425 |     });
-1426 | 
-1427 |     /* ── Promo code ── */
-1428 |     var promoInput = document.getElementById('promoInput');
-1429 |     var promoSubmit = document.getElementById('promoSubmit');
-1430 |     var promoMsg = document.getElementById('promoMsg');
-1431 |     var promoAttempts = 0;
-1432 |     var promoLocked = false;
-1433 | 
-1434 |     function applyPromo() {
-1435 |         var code = promoInput.value.trim();
-1436 |         if (!code || promoLocked) return;
-1437 | 
-1438 |         /* Client-side rate limiting */
-1439 |         promoAttempts++;
-1440 |         if (promoAttempts > 5) {
-1441 |             promoLocked = true;
-1442 |             promoMsg.textContent = 'Too many attempts. Try again in 60 seconds.';
-1443 |             promoMsg.className = 'join-promo-msg error';
-1444 |             promoSubmit.disabled = true;
-1445 |             setTimeout(function() {
-1446 |                 promoAttempts = 0;
-1447 |                 promoLocked = false;
-1448 |                 promoSubmit.disabled = false;
-1449 |                 promoMsg.style.display = 'none';
-1450 |                 promoMsg.className = 'join-promo-msg';
-1451 |             }, 60000);
-1452 |             return;
-1453 |         }
-1454 | 
-1455 |         promoMsg.className = 'join-promo-msg';
-1456 |         promoMsg.style.display = 'none';
-1457 |         promoSubmit.disabled = true;
-1458 |         promoSubmit.textContent = 'Verifying...';
-1459 | 
-1460 |         fetch('/api/apply-promo', {
-1461 |             method: 'POST',
-1462 |             headers: { 'Content-Type': 'application/json' },
-1463 |             body: JSON.stringify({ code: code })
-1464 |         })
-1465 |         .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
-1466 |         .then(function(res) {
-1467 |             if (res.ok && res.data.success) {
-1468 |                 promoMsg.textContent = '\u2713 ' + (res.data.message || 'Access unlocked. Redirecting...');
-1469 |                 promoMsg.className = 'join-promo-msg success';
-1470 |                 promoAttempts = 0;
-1471 |                 setTimeout(function() {
-1472 |                     window.location.href = res.data.redirect || '/terminal';
-1473 |                 }, 1200);
-1474 |             } else {
-1475 |                 promoMsg.textContent = res.data.error || 'Invalid access code';
-1476 |                 promoMsg.className = 'join-promo-msg error';
-1477 |                 promoSubmit.disabled = false;
-1478 |                 promoSubmit.textContent = 'Authenticate';
-1479 |             }
-1480 |         })
-1481 |         .catch(function() {
-1482 |             promoMsg.textContent = 'Network error \u2014 try again';
-1483 |             promoMsg.className = 'join-promo-msg error';
-1484 |             promoSubmit.disabled = false;
-1485 |             promoSubmit.textContent = 'Authenticate';
-1486 |         });
-1487 |     }
-1488 | 
-1489 |     promoSubmit.addEventListener('click', applyPromo);
-1490 |     promoInput.addEventListener('keydown', function(e) {
-1491 |         if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
-1492 |     });
-1493 | })();
-1494 | </script>
-1495 | {% endblock %}
-1496 | 
+ 851 | 
+ 852 | /* Reduced motion support */
+ 853 | @media (prefers-reduced-motion: reduce) {
+ 854 |     .join-bg::before,
+ 855 |     .join-scanline-beam,
+ 856 |     .join-promo-dot,
+ 857 |     .join-promo-cursor,
+ 858 |     .join-eq-bar,
+ 859 |     .join-card-badge,
+ 860 |     .join-ticker-pulse { animation: none !important; }
+ 861 |     .join-card:hover { transform: none; }
+ 862 |     .join-card--commander { transform: none; }
+ 863 |     .join-card--commander:hover { transform: none; }
+ 864 | }
+ 865 | </style>
+ 866 | {% endblock %}
+ 867 | 
+ 868 | {% block content %}
+ 869 | <!-- Animated background layers -->
+ 870 | <div class="join-bg"></div>
+ 871 | <div class="join-grid"></div>
+ 872 | <div class="join-vignette"></div>
+ 873 | <canvas id="particleCanvas"></canvas>
+ 874 | 
+ 875 | <div class="join-page">
+ 876 | 
+ 877 |     <!-- ═══ GOLD TICKER BAR ═══ -->
+ 878 |     <div class="join-ticker" role="region" aria-label="Live market intelligence feed">
+ 879 |         <span class="join-ticker-pulse"></span>
+ 880 |         <span id="jTicker-btc">BTC ---,---</span>
+ 881 |         <span class="join-ticker-sep"></span>
+ 882 |         <span id="jTicker-fng">F&amp;G --</span>
+ 883 |         <span class="join-ticker-sep"></span>
+ 884 |         <span id="jTicker-block">BLOCK ---,---</span>
+ 885 |         <span class="join-ticker-sep"></span>
+ 886 |         <span>PROTOCOLPULSE.IO</span>
+ 887 |     </div>
+ 888 | 
+ 889 |     <!-- ═══ HERO ═══ -->
+ 890 |     <div class="join-hero">
+ 891 |         <div class="join-hero-kicker">CONSENSUS INTELLIGENCE</div>
+ 892 |         <h1>PROTOCOL PULSE<br><span class="hero-red">INTELLIGENCE</span></h1>
+ 893 |         <p class="join-sub">
+ 894 |             Sovereign Bitcoin intelligence. Real-time chain analysis, AI-powered signal detection, zero middlemen. Built on bare metal for transactors who verify, not trust.
+ 895 |         </p>
+ 896 |         <div class="join-scanline-wrap" aria-hidden="true">
+ 897 |             <div class="join-scanline-track"></div>
+ 898 |             <div class="join-scanline-beam"></div>
+ 899 |         </div>
+ 900 |     </div>
+ 901 | 
+ 902 |     <!-- ═══ PRICING TIERS ═══ -->
+ 903 |     <div class="join-section-label"><span>SELECT YOUR TIER</span></div>
+ 904 | 
+ 905 |     <div class="join-tiers">
+ 906 | 
+ 907 |         <!-- FREE AGENT -->
+ 908 |         <div class="join-card join-card--free">
+ 909 |             <div class="join-card-kicker">FREE AGENT</div>
+ 910 |             <div class="join-card-price">$0<span class="price-sub">/forever</span></div>
+ 911 |             <div class="join-card-desc">Public intelligence layer. Intel briefs, market overview, and open-source tools. No signup required.</div>
+ 912 |             <ul class="join-features">
+ 913 |                 <li>Daily intelligence articles</li>
+ 914 |                 <li>BTC price, Fear &amp; Greed, market overview</li>
+ 915 |                 <li>Whale Watcher &mdash; large transaction monitor</li>
+ 916 |                 <li>Merchant Map &mdash; 10,000+ BTC-accepting businesses</li>
+ 917 |                 <li>Public charts &amp; mempool explorer</li>
+ 918 |                 <li>RSS, Atom, and Nostr signal feeds</li>
+ 919 |                 <li>Solo Slayers &mdash; mining lottery tracker</li>
+ 920 |             </ul>
+ 921 |             <a href="/articles" class="join-btn join-btn--ghost">Browse Intel</a>
+ 922 |         </div>
+ 923 | 
+ 924 |         <!-- COMMANDER (featured) -->
+ 925 |         <div class="join-card join-card--commander">
+ 926 |             <div class="join-card-badge">FEATURED</div>
+ 927 |             <div class="join-card-kicker">COMMANDER</div>
+ 928 |             <div class="join-card-price">$49<span class="price-sub">/mo</span></div>
+ 929 |             <div class="join-card-desc">Full terminal access. Oracle AI analyst. Daily video briefings. Real-time alerts. Cancel anytime.</div>
+ 930 |             <ul class="join-features">
+ 931 |                 <li>Everything in Free Agent</li>
+ 932 |                 <li>Signal Terminal &mdash; convergence matrix with 8 live feeds</li>
+ 933 |                 <li>PCAF anomaly detection &mdash; GNN on every block</li>
+ 934 |                 <li>5-scenario Monte Carlo projection engine</li>
+ 935 |                 <li>Oracle AI analyst &mdash; ask anything, get signal</li>
+ 936 |                 <li>Daily video briefings + Avatar Stage</li>
+ 937 |                 <li>Real-time alert system &mdash; price, whale, narrative</li>
+ 938 |                 <li>API access &mdash; 1,000 requests/day</li>
+ 939 |             </ul>
+ 940 |             <button class="join-btn join-btn--red" id="joinCTA">Access the Terminal &mdash; $49/mo</button>
+ 941 |         </div>
+ 942 | 
+ 943 |         <!-- SOVEREIGN -->
+ 944 |         <div class="join-card join-card--sovereign">
+ 945 |             <div class="join-card-kicker">SOVEREIGN</div>
+ 946 |             <div class="join-card-price">Custom</div>
+ 947 |             <div class="join-card-desc">White-glove intelligence. Dedicated infrastructure. Team access. For funds, desks, and sovereign individuals.</div>
+ 948 |             <ul class="join-features">
+ 949 |                 <li>Everything in Commander</li>
+ 950 |                 <li>Team seats with admin panel</li>
+ 951 |                 <li>Unlimited API + webhook delivery</li>
+ 952 |                 <li>Priority Oracle AI queue &mdash; sub-second</li>
+ 953 |                 <li>Custom intelligence reports on demand</li>
+ 954 |                 <li>Dedicated infrastructure allocation</li>
+ 955 |                 <li>Direct line to the builder</li>
+ 956 |             </ul>
+ 957 |             <a href="mailto:sovereign@protocolpulse.io?subject=Sovereign%20Access" class="join-btn join-btn--gold">Contact for Access</a>
+ 958 |         </div>
+ 959 | 
+ 960 |     </div>
+ 961 | 
+ 962 |     <!-- ═══ FEATURE COMPARISON MATRIX ═══ -->
+ 963 |     <div class="join-matrix-section">
+ 964 |         <div class="join-matrix-kicker">CAPABILITY MATRIX</div>
+ 965 |         <div class="join-matrix-title">Compare Every Feature</div>
+ 966 |         <div class="join-matrix-wrap">
+ 967 |             <table class="join-matrix">
+ 968 |                 <thead>
+ 969 |                     <tr>
+ 970 |                         <th>Feature</th>
+ 971 |                         <th>Free Agent</th>
+ 972 |                         <th>Commander</th>
+ 973 |                         <th>Sovereign</th>
+ 974 |                     </tr>
+ 975 |                 </thead>
+ 976 |                 <tbody>
+ 977 |                     <tr>
+ 978 |                         <td>Intelligence articles</td>
+ 979 |                         <td class="mx-yes">&#10003;</td>
+ 980 |                         <td class="mx-yes">&#10003;</td>
+ 981 |                         <td class="mx-yes">&#10003;</td>
+ 982 |                     </tr>
+ 983 |                     <tr>
+ 984 |                         <td>Market overview &amp; charts</td>
+ 985 |                         <td class="mx-yes">&#10003;</td>
+ 986 |                         <td class="mx-yes">&#10003;</td>
+ 987 |                         <td class="mx-yes">&#10003;</td>
+ 988 |                     </tr>
+ 989 |                     <tr>
+ 990 |                         <td>Whale Watcher</td>
+ 991 |                         <td class="mx-yes">&#10003;</td>
+ 992 |                         <td class="mx-yes">&#10003;</td>
+ 993 |                         <td class="mx-yes">&#10003;</td>
+ 994 |                     </tr>
+ 995 |                     <tr>
+ 996 |                         <td>Merchant Map</td>
+ 997 |                         <td class="mx-yes">&#10003;</td>
+ 998 |                         <td class="mx-yes">&#10003;</td>
+ 999 |                         <td class="mx-yes">&#10003;</td>
+1000 |                     </tr>
+1001 |                     <tr>
+1002 |                         <td>RSS / Nostr signal feeds</td>
+1003 |                         <td class="mx-yes">&#10003;</td>
+1004 |                         <td class="mx-yes">&#10003;</td>
+1005 |                         <td class="mx-yes">&#10003;</td>
+1006 |                     </tr>
+1007 |                     <tr>
+1008 |                         <td>Signal Terminal</td>
+1009 |                         <td class="mx-no">&#8212;</td>
+1010 |                         <td class="mx-yes">&#10003;</td>
+1011 |                         <td class="mx-yes">&#10003;</td>
+1012 |                     </tr>
+1013 |                     <tr>
+1014 |                         <td>PCAF anomaly detection</td>
+1015 |                         <td class="mx-no">&#8212;</td>
+1016 |                         <td class="mx-yes">&#10003;</td>
+1017 |                         <td class="mx-yes">&#10003;</td>
+1018 |                     </tr>
+1019 |                     <tr>
+1020 |                         <td>Monte Carlo projections</td>
+1021 |                         <td class="mx-no">&#8212;</td>
+1022 |                         <td class="mx-yes">&#10003;</td>
+1023 |                         <td class="mx-yes">&#10003;</td>
+1024 |                     </tr>
+1025 |                     <tr>
+1026 |                         <td>Oracle AI analyst</td>
+1027 |                         <td class="mx-no">&#8212;</td>
+1028 |                         <td class="mx-yes">&#10003;</td>
+1029 |                         <td class="mx-val">PRIORITY</td>
+1030 |                     </tr>
+1031 |                     <tr>
+1032 |                         <td>Daily video briefings</td>
+1033 |                         <td class="mx-no">&#8212;</td>
+1034 |                         <td class="mx-yes">&#10003;</td>
+1035 |                         <td class="mx-yes">&#10003;</td>
+1036 |                     </tr>
+1037 |                     <tr>
+1038 |                         <td>Real-time alerts</td>
+1039 |                         <td class="mx-no">&#8212;</td>
+1040 |                         <td class="mx-yes">&#10003;</td>
+1041 |                         <td class="mx-val">+ WEBHOOK</td>
+1042 |                     </tr>
+1043 |                     <tr>
+1044 |                         <td>API requests</td>
+1045 |                         <td class="mx-val">60/hr</td>
+1046 |                         <td class="mx-val">1,000/day</td>
+1047 |                         <td class="mx-val">UNLIMITED</td>
+1048 |                     </tr>
+1049 |                     <tr>
+1050 |                         <td>Team seats</td>
+1051 |                         <td class="mx-no">&#8212;</td>
+1052 |                         <td class="mx-no">&#8212;</td>
+1053 |                         <td class="mx-yes">&#10003;</td>
+1054 |                     </tr>
+1055 |                     <tr>
+1056 |                         <td>Custom reports</td>
+1057 |                         <td class="mx-no">&#8212;</td>
+1058 |                         <td class="mx-no">&#8212;</td>
+1059 |                         <td class="mx-yes">&#10003;</td>
+1060 |                     </tr>
+1061 |                     <tr>
+1062 |                         <td>Dedicated infrastructure</td>
+1063 |                         <td class="mx-no">&#8212;</td>
+1064 |                         <td class="mx-no">&#8212;</td>
+1065 |                         <td class="mx-yes">&#10003;</td>
+1066 |                     </tr>
+1067 |                     <tr>
+1068 |                         <td>Direct builder access</td>
+1069 |                         <td class="mx-no">&#8212;</td>
+1070 |                         <td class="mx-no">&#8212;</td>
+1071 |                         <td class="mx-yes">&#10003;</td>
+1072 |                     </tr>
+1073 |                 </tbody>
+1074 |             </table>
+1075 |         </div>
+1076 |     </div>
+1077 | 
+1078 |     <!-- ═══ ACCESS CODE TERMINAL ═══ -->
+1079 |     <div class="join-section-label"><span>HAVE AN ACCESS CODE?</span></div>
+1080 | 
+1081 |     <div class="join-promo" id="promoSection">
+1082 |         <div class="join-promo-titlebar">
+1083 |             <div class="join-promo-dots">
+1084 |                 <span></span><span></span><span></span>
+1085 |             </div>
+1086 |             <span class="join-promo-titlebar-text">sovereign_access_terminal v2.1</span>
+1087 |         </div>
+1088 |         <div class="join-promo-body">
+1089 |             <div class="join-promo-header">
+1090 |                 <div class="join-promo-dot" aria-hidden="true"></div>
+1091 |                 <div class="join-promo-label">CLASSIFIED ACCESS TERMINAL</div>
+1092 |             </div>
+1093 |             <div class="join-promo-sub">Team and sovereign access codes unlock premium tiers instantly. Enter your code below.<span class="join-promo-cursor" aria-hidden="true"></span></div>
+1094 |             <div class="join-promo-row">
+1095 |                 <input type="text" class="join-promo-input" id="promoInput"
+1096 |                        placeholder="Enter access code..."
+1097 |                        autocomplete="off" spellcheck="false"
+1098 |                        aria-label="Sovereign access code">
+1099 |                 <button class="join-promo-submit" id="promoSubmit">Unlock Terminal</button>
+1100 |             </div>
+1101 |             <div class="join-promo-msg" id="promoMsg"></div>
+1102 |             <div class="join-promo-hint">Codes are distributed to sovereign-tier teams and early operatives.</div>
+1103 |         </div>
+1104 |     </div>
+1105 | 
+1106 |     <!-- ═══ CLOSING CTA ═══ -->
+1107 |     <div class="join-closing">
+1108 |         <div class="join-eq" aria-hidden="true">
+1109 |             <div class="join-eq-bar"></div>
+1110 |             <div class="join-eq-bar"></div>
+1111 |             <div class="join-eq-bar"></div>
+1112 |             <div class="join-eq-bar"></div>
+1113 |             <div class="join-eq-bar"></div>
+1114 |         </div>
+1115 |         <div class="join-closing-kicker">TOMORROW'S BRIEF STARTS NOW</div>
+1116 |         <h2>Stop Trusting.<br>Start <span class="hero-red">Verifying.</span></h2>
+1117 |         <p>
+1118 |             Protocol Pulse runs on sovereign infrastructure &mdash; 4x RTX 4090 GPUs, bare metal, zero cloud. Every signal is computed locally. Every insight is ours.
+1119 |         </p>
+1120 |         <button class="join-closing-btn" id="joinClosingCTA">Get Commander Access &mdash; $49/mo</button>
+1121 |     </div>
+1122 | 
+1123 |     <!-- ═══ SOCIAL PROOF ═══ -->
+1124 |     <div class="join-proof">
+1125 |         <div class="join-proof-kicker">BUILT ON ULTRON &mdash; SOVEREIGN INFRASTRUCTURE</div>
+1126 |         <div class="join-proof-grid">
+1127 |             <div class="join-proof-stat"><span>4x</span> RTX 4090</div>
+1128 |             <div class="join-proof-stat"><span>Real-time</span> GNN inference</div>
+1129 |             <div class="join-proof-stat"><span>8</span> live data feeds</div>
+1130 |             <div class="join-proof-stat"><span>60s</span> sentinel cycle</div>
+1131 |             <div class="join-proof-stat"><span>0</span> third-party deps</div>
+1132 |             <div class="join-proof-stat"><span>Self-hosted</span> bare metal</div>
+1133 |         </div>
+1134 |     </div>
+1135 | 
+1136 |     <!-- ═══ BOTTOM LINKS ═══ -->
+1137 |     <div class="join-bottom">
+1138 |         <a href="/signal-terminal">Already have access? <span>Open Terminal &rarr;</span></a>
+1139 |     </div>
+1140 | 
+1141 | </div>
+1142 | 
+1143 | 
+1144 | <script>
+1145 | (function() {
+1146 |     'use strict';
+1147 | 
+1148 |     /* ── Red particle system ── */
+1149 |     var canvas = document.getElementById('particleCanvas');
+1150 |     if (canvas) {
+1151 |         var ctx = canvas.getContext('2d');
+1152 |         var particles = [];
+1153 |         var PARTICLE_COUNT = 50;
+1154 | 
+1155 |         function resizeCanvas() {
+1156 |             canvas.width = window.innerWidth;
+1157 |             canvas.height = window.innerHeight;
+1158 |         }
+1159 |         resizeCanvas();
+1160 |         window.addEventListener('resize', resizeCanvas);
+1161 | 
+1162 |         function Particle() {
+1163 |             this.reset();
+1164 |         }
+1165 |         Particle.prototype.reset = function() {
+1166 |             this.x = Math.random() * canvas.width;
+1167 |             this.y = Math.random() * canvas.height;
+1168 |             this.vx = (Math.random() - 0.5) * 0.3;
+1169 |             this.vy = -Math.random() * 0.4 - 0.1;
+1170 |             this.radius = Math.random() * 1.5 + 0.5;
+1171 |             this.opacity = Math.random() * 0.4 + 0.1;
+1172 |             this.life = Math.random() * 300 + 100;
+1173 |             this.age = 0;
+1174 |         };
+1175 |         Particle.prototype.update = function() {
+1176 |             this.x += this.vx;
+1177 |             this.y += this.vy;
+1178 |             this.age++;
+1179 |             if (this.age > this.life || this.y < -10 || this.x < -10 || this.x > canvas.width + 10) {
+1180 |                 this.reset();
+1181 |                 this.y = canvas.height + 10;
+1182 |             }
+1183 |         };
+1184 |         Particle.prototype.draw = function() {
+1185 |             var fade = 1 - (this.age / this.life);
+1186 |             ctx.beginPath();
+1187 |             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+1188 |             ctx.fillStyle = 'rgba(255,59,95,' + (this.opacity * fade).toFixed(3) + ')';
+1189 |             ctx.fill();
+1190 |         };
+1191 | 
+1192 |         for (var i = 0; i < PARTICLE_COUNT; i++) {
+1193 |             particles.push(new Particle());
+1194 |         }
+1195 | 
+1196 |         function animateParticles() {
+1197 |             ctx.clearRect(0, 0, canvas.width, canvas.height);
+1198 |             for (var j = 0; j < particles.length; j++) {
+1199 |                 particles[j].update();
+1200 |                 particles[j].draw();
+1201 |             }
+1202 |             requestAnimationFrame(animateParticles);
+1203 |         }
+1204 |         animateParticles();
+1205 |     }
+1206 | 
+1207 |     /* ── Live ticker ── */
+1208 |     function fetchTicker() {
+1209 |         fetch('/api/intelligence/state/public')
+1210 |             .then(function(r) { return r.json(); })
+1211 |             .then(function(d) {
+1212 |                 if (d.price && d.price.usd) {
+1213 |                     var el = document.getElementById('jTicker-btc');
+1214 |                     var ch = d.price.change_24h || 0;
+1215 |                     var arrow = ch >= 0 ? ' \u25B2' : ' \u25BC';
+1216 |                     var cls = ch >= 0 ? 'ticker-up' : 'ticker-down';
+1217 |                     el.innerHTML = 'BTC $' + Number(d.price.usd).toLocaleString(undefined, {maximumFractionDigits:0}) +
+1218 |                         ' <span class="' + cls + '">' + arrow + ' ' + Math.abs(ch).toFixed(1) + '%</span>';
+1219 |                 }
+1220 |                 if (d.fng && d.fng.value) {
+1221 |                     document.getElementById('jTicker-fng').textContent = 'F&G ' + d.fng.value + ' ' + (d.fng.label || '');
+1222 |                 }
+1223 |                 if (d.block_height) {
+1224 |                     document.getElementById('jTicker-block').textContent = 'BLOCK ' + Number(d.block_height).toLocaleString();
+1225 |                 }
+1226 |             })
+1227 |             .catch(function(err) {
+1228 |                 console.error('[ticker] Failed to fetch intelligence state:', err);
+1229 |             });
+1230 |     }
+1231 |     fetchTicker();
+1232 |     setInterval(fetchTicker, 30000);
+1233 | 
+1234 |     /* ── Stripe Commander checkout ── */
+1235 |     function startCheckout() {
+1236 |         var joinBtn = document.getElementById('joinCTA');
+1237 |         var closingBtn = document.getElementById('joinClosingCTA');
+1238 |         joinBtn.disabled = true;
+1239 |         joinBtn.textContent = 'Redirecting to checkout...';
+1240 | 
+1241 |         fetch('/api/v1/checkout/create-session', {
+1242 |             method: 'POST',
+1243 |             headers: { 'Content-Type': 'application/json' },
+1244 |             body: JSON.stringify({})
+1245 |         })
+1246 |         .then(function(r) { return r.json(); })
+1247 |         .then(function(data) {
+1248 |             if (data.url) {
+1249 |                 window.location.href = data.url;
+1250 |             } else {
+1251 |                 joinBtn.disabled = false;
+1252 |                 joinBtn.textContent = 'Access the Terminal \u2014 $49/mo';
+1253 |                 closingBtn.textContent = 'Get Commander Access \u2014 $49/mo';
+1254 |                 alert(data.error || 'Checkout unavailable. Please try again.');
+1255 |             }
+1256 |         })
+1257 |         .catch(function() {
+1258 |             joinBtn.disabled = false;
+1259 |             joinBtn.textContent = 'Access the Terminal \u2014 $49/mo';
+1260 |             alert('Network error \u2014 please try again.');
+1261 |         });
+1262 |     }
+1263 | 
+1264 |     document.getElementById('joinCTA').addEventListener('click', startCheckout);
+1265 |     document.getElementById('joinClosingCTA').addEventListener('click', startCheckout);
+1266 | 
+1267 |     /* ── Promo code ── */
+1268 |     var promoInput = document.getElementById('promoInput');
+1269 |     var promoSubmit = document.getElementById('promoSubmit');
+1270 |     var promoMsg = document.getElementById('promoMsg');
+1271 | 
+1272 |     function applyPromo() {
+1273 |         var code = promoInput.value.trim();
+1274 |         if (!code) return;
+1275 | 
+1276 |         promoMsg.className = 'join-promo-msg';
+1277 |         promoMsg.style.display = 'none';
+1278 |         promoSubmit.disabled = true;
+1279 |         promoSubmit.textContent = 'Verifying...';
+1280 | 
+1281 |         fetch('/api/apply-promo', {
+1282 |             method: 'POST',
+1283 |             headers: { 'Content-Type': 'application/json' },
+1284 |             body: JSON.stringify({ code: code })
+1285 |         })
+1286 |         .then(function(r) {
+1287 |             if (r.status === 429) {
+1288 |                 return { ok: false, data: { error: 'Too many attempts. Please wait and try again.' } };
+1289 |             }
+1290 |             return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+1291 |         })
+1292 |         .then(function(res) {
+1293 |             if (res.ok && res.data.success) {
+1294 |                 promoMsg.textContent = '\u2713 ' + (res.data.message || 'Access unlocked. Redirecting...');
+1295 |                 promoMsg.className = 'join-promo-msg success';
+1296 |                 setTimeout(function() {
+1297 |                     window.location.href = res.data.redirect || '/signal-terminal';
+1298 |                 }, 1200);
+1299 |             } else {
+1300 |                 promoMsg.textContent = res.data.error || 'Invalid access code';
+1301 |                 promoMsg.className = 'join-promo-msg error';
+1302 |                 promoSubmit.disabled = false;
+1303 |                 promoSubmit.textContent = 'Unlock Terminal';
+1304 |             }
+1305 |         })
+1306 |         .catch(function() {
+1307 |             promoMsg.textContent = 'Network error \u2014 try again';
+1308 |             promoMsg.className = 'join-promo-msg error';
+1309 |             promoSubmit.disabled = false;
+1310 |             promoSubmit.textContent = 'Unlock Terminal';
+1311 |         });
+1312 |     }
+1313 | 
+1314 |     promoSubmit.addEventListener('click', applyPromo);
+1315 |     promoInput.addEventListener('keydown', function(e) {
+1316 |         if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
+1317 |     });
+1318 | })();
+1319 | </script>
+1320 | {% endblock %}
+1321 | 
 ```
 
 ---

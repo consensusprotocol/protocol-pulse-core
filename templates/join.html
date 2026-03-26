@@ -12,7 +12,7 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-    --j-bg:      #06070b;
+    --j-bg:      #0A0A0F;
     --j-panel:   #0d1118;
     --j-panel2:  #121824;
     --j-text:    #eef2ff;
@@ -72,10 +72,6 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     background: radial-gradient(ellipse at center, transparent 40%, rgba(6,7,11,0.55) 100%);
 }
 
-/* Red particle canvas */
-#particleCanvas {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-}
 
 /* ── PAGE CONTAINER ── */
 .join-page {
@@ -133,7 +129,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 }
 .join-hero-kicker {
     font-family: var(--j-mono);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -241,7 +237,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 .join-card {
     position: relative;
     padding: 32px 28px 28px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+    background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 16px;
     backdrop-filter: blur(20px);
@@ -846,7 +842,6 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
         100% { left: 200px; opacity: 0; }
     }
     .join-section-label span { font-size: 9px; }
-    .signup-modal { padding: 28px 20px; margin: 16px; }
 }
 
 /* Reduced motion support */
@@ -870,12 +865,11 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 <div class="join-bg"></div>
 <div class="join-grid"></div>
 <div class="join-vignette"></div>
-<canvas id="particleCanvas"></canvas>
 
 <div class="join-page">
 
     <!-- ═══ GOLD TICKER BAR ═══ -->
-    <div class="join-ticker" role="region" aria-label="Live market intelligence feed">
+    <div class="join-ticker" role="region" aria-label="Live market intelligence feed" aria-live="polite">
         <span class="join-ticker-pulse"></span>
         <span id="jTicker-btc">BTC ---,---</span>
         <span class="join-ticker-sep"></span>
@@ -1095,10 +1089,11 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
                 <input type="text" class="join-promo-input" id="promoInput"
                        placeholder="Enter access code..."
                        autocomplete="off" spellcheck="false"
-                       aria-label="Sovereign access code">
+                       aria-label="Sovereign access code"
+                       aria-describedby="promoMsg">
                 <button class="join-promo-submit" id="promoSubmit">Unlock Terminal</button>
             </div>
-            <div class="join-promo-msg" id="promoMsg"></div>
+            <div class="join-promo-msg" id="promoMsg" role="alert"></div>
             <div class="join-promo-hint">Codes are distributed to sovereign-tier teams and early operatives.</div>
         </div>
     </div>
@@ -1122,14 +1117,14 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 
     <!-- ═══ SOCIAL PROOF ═══ -->
     <div class="join-proof">
-        <div class="join-proof-kicker">BUILT ON ULTRON &mdash; SOVEREIGN INFRASTRUCTURE</div>
+        <div class="join-proof-kicker">TRUSTED BY SOVEREIGN OPERATORS</div>
         <div class="join-proof-grid">
-            <div class="join-proof-stat"><span>4x</span> RTX 4090</div>
-            <div class="join-proof-stat"><span>Real-time</span> GNN inference</div>
+            <div class="join-proof-stat"><span>24/7</span> real-time signals</div>
             <div class="join-proof-stat"><span>8</span> live data feeds</div>
-            <div class="join-proof-stat"><span>60s</span> sentinel cycle</div>
-            <div class="join-proof-stat"><span>0</span> third-party deps</div>
+            <div class="join-proof-stat"><span>Sub-second</span> Oracle AI</div>
+            <div class="join-proof-stat"><span>Daily</span> video briefings</div>
             <div class="join-proof-stat"><span>Self-hosted</span> bare metal</div>
+            <div class="join-proof-stat"><span>Zero</span> third-party data</div>
         </div>
     </div>
 
@@ -1144,65 +1139,6 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 <script>
 (function() {
     'use strict';
-
-    /* ── Red particle system ── */
-    var canvas = document.getElementById('particleCanvas');
-    if (canvas) {
-        var ctx = canvas.getContext('2d');
-        var particles = [];
-        var PARTICLE_COUNT = 50;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        function Particle() {
-            this.reset();
-        }
-        Particle.prototype.reset = function() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.3;
-            this.vy = -Math.random() * 0.4 - 0.1;
-            this.radius = Math.random() * 1.5 + 0.5;
-            this.opacity = Math.random() * 0.4 + 0.1;
-            this.life = Math.random() * 300 + 100;
-            this.age = 0;
-        };
-        Particle.prototype.update = function() {
-            this.x += this.vx;
-            this.y += this.vy;
-            this.age++;
-            if (this.age > this.life || this.y < -10 || this.x < -10 || this.x > canvas.width + 10) {
-                this.reset();
-                this.y = canvas.height + 10;
-            }
-        };
-        Particle.prototype.draw = function() {
-            var fade = 1 - (this.age / this.life);
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255,59,95,' + (this.opacity * fade).toFixed(3) + ')';
-            ctx.fill();
-        };
-
-        for (var i = 0; i < PARTICLE_COUNT; i++) {
-            particles.push(new Particle());
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (var j = 0; j < particles.length; j++) {
-                particles[j].update();
-                particles[j].draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-    }
 
     /* ── Live ticker ── */
     function fetchTicker() {
@@ -1226,6 +1162,9 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
             })
             .catch(function(err) {
                 console.error('[ticker] Failed to fetch intelligence state:', err);
+                document.getElementById('jTicker-btc').textContent = 'BTC OFFLINE';
+                document.getElementById('jTicker-fng').textContent = 'F&G --';
+                document.getElementById('jTicker-block').textContent = 'DATA UNAVAILABLE';
             });
     }
     fetchTicker();
@@ -1236,7 +1175,9 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
         var joinBtn = document.getElementById('joinCTA');
         var closingBtn = document.getElementById('joinClosingCTA');
         joinBtn.disabled = true;
+        closingBtn.disabled = true;
         joinBtn.textContent = 'Redirecting to checkout...';
+        closingBtn.textContent = 'Redirecting to checkout...';
 
         fetch('/api/v1/checkout/create-session', {
             method: 'POST',
@@ -1249,6 +1190,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
                 window.location.href = data.url;
             } else {
                 joinBtn.disabled = false;
+                closingBtn.disabled = false;
                 joinBtn.textContent = 'Access the Terminal \u2014 $49/mo';
                 closingBtn.textContent = 'Get Commander Access \u2014 $49/mo';
                 alert(data.error || 'Checkout unavailable. Please try again.');
@@ -1256,7 +1198,9 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
         })
         .catch(function() {
             joinBtn.disabled = false;
+            closingBtn.disabled = false;
             joinBtn.textContent = 'Access the Terminal \u2014 $49/mo';
+            closingBtn.textContent = 'Get Commander Access \u2014 $49/mo';
             alert('Network error \u2014 please try again.');
         });
     }
@@ -1269,9 +1213,26 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     var promoSubmit = document.getElementById('promoSubmit');
     var promoMsg = document.getElementById('promoMsg');
 
+    function throttlePromoUI() {
+        promoInput.disabled = true;
+        promoSubmit.disabled = true;
+        setTimeout(function() {
+            promoInput.disabled = false;
+            promoSubmit.disabled = false;
+            promoSubmit.textContent = 'Unlock Terminal';
+        }, 3000);
+    }
+
     function applyPromo() {
         var code = promoInput.value.trim();
         if (!code) return;
+
+        /* P1: client-side format validation */
+        if (!/^[A-Z0-9\-]{4,32}$/i.test(code)) {
+            promoMsg.textContent = 'Invalid code format';
+            promoMsg.className = 'join-promo-msg error';
+            return;
+        }
 
         promoMsg.className = 'join-promo-msg';
         promoMsg.style.display = 'none';
@@ -1291,6 +1252,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
         })
         .then(function(res) {
             if (res.ok && res.data.success) {
+                promoSubmit.textContent = '\u2713 Access granted!';
                 promoMsg.textContent = '\u2713 ' + (res.data.message || 'Access unlocked. Redirecting...');
                 promoMsg.className = 'join-promo-msg success';
                 setTimeout(function() {
@@ -1299,15 +1261,13 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
             } else {
                 promoMsg.textContent = res.data.error || 'Invalid access code';
                 promoMsg.className = 'join-promo-msg error';
-                promoSubmit.disabled = false;
-                promoSubmit.textContent = 'Unlock Terminal';
+                throttlePromoUI();
             }
         })
         .catch(function() {
             promoMsg.textContent = 'Network error \u2014 try again';
             promoMsg.className = 'join-promo-msg error';
-            promoSubmit.disabled = false;
-            promoSubmit.textContent = 'Unlock Terminal';
+            throttlePromoUI();
         });
     }
 
