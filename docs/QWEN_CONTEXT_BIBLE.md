@@ -525,3 +525,37 @@ AUTOMATED FIX (2026-03-25):
   2. overnight_render_loop.py: before each iteration, checks for stale lock (lock exists,
      no process running) and clears it. Prevents entire render cycles from being blocked.
   VERIFY: After a crashed producer, next watchdog tick or next loop iteration auto-clears lock.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## ORACLE FRONTEND STATE BUGS — 2026-03-25
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PATTERN: setBusy() asymmetric state — mic permanently disabled
+  ROOT CAUSE: setBusy(b) set mic.disabled=true when b=true but NEVER set
+    mic.disabled=false when b=false. Every call to setBusy(true) → setBusy(false)
+    left mic.disabled=true. The "Activate Microphone" gate button (gBtn) also gets
+    disabled=true at the start of requestMic() and is only re-enabled in the catch block.
+  FIX (commit 5e0711be):
+    BEFORE: function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}}
+    AFTER:  function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}else{mic.disabled=false;}}
+  LOCATION: templates/oracle_live.html line ~1596
+  UNIVERSAL PATTERN: If a function sets X=disabled on the true branch, it MUST set
+    X=enabled on the false branch. Never leave state changes without their inverse.
+  WATCHDOG: If oracle mic is unresponsive, check setBusy() for asymmetric state changes.
+
+PATTERN: vid.muted=true in playVid() — greeting plays silent with frozen face
+  ROOT CAUSE (commit 7cbd6955): playVid() set vid.muted=true, then conditionally unmuted
+    on canplay with guard `if(!window._chatAudioPlaying)`. For greetings, the video IS
+    the audio source — it must be unmuted unconditionally.
+  FIX (commit 4d41cb85): vid.muted=false unconditionally before vid.play(), and canplay
+    handler unmutes with no guard condition.
+  UNIVERSAL PATTERN: When a video element IS the audio source (Wav2Lip baked audio),
+    never start it muted. iOS autoplay policy: muted autoplay is allowed, but the greeting
+    flow already has user gesture from requestMic(), so unmuted play is legal.
+
+PATTERN: Duplicate function definitions from patch collisions
+  ROOT CAUSE: 20+ surgical patches in 8 hours can accidentally inject duplicate function
+    definitions if patches target wrong line numbers.
+  PREVENTION: After any patch session, grep for ^function and verify no function name appears
+    more than once. Current file (2026-03-25): 0 duplicates confirmed.
+  WATCHDOG: grep -c '^function requestMic' templates/oracle_live.html must return 1.

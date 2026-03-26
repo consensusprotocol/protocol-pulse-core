@@ -78,6 +78,7 @@ FEATURE_MAP = {
     "friday-demo": ("PIPELINE_LAWS.md", "main"),
     "oracle-fix": ("PIPELINE_LAWS.md", "main"),
     "oracle-forensic": ("PIPELINE_LAWS.md", "main"),
+    "oracle-external": ("PIPELINE_LAWS.md", "main"),
     "media-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
@@ -231,6 +232,9 @@ EXPLICIT_FILES = {
         "templates/oracle_live.html",
     ],
     "oracle-forensic": [
+        "templates/oracle_live.html",
+    ],
+    "oracle-external": [
         "templates/oracle_live.html",
     ],
     "media-audit": [
@@ -754,6 +758,68 @@ For each question (Q1-Q8):
 - Root cause of the Recovering loop
 - Ordered fix list (most impactful first)
 """,
+    "oracle-external": """## YOUR REVIEW TASK — ORACLE EXTERNAL AUDIT: DUPLICATE FUNCTIONS + iOS RELIABILITY (4 QUESTIONS)
+
+You are auditing templates/oracle_live.html — the Satomi AI voice oracle for Protocol Pulse.
+This file has had 20+ surgical patches applied in 8 hours by multiple developers.
+The server side (avatar_server.py, Wav2Lip, Kokoro TTS) is confirmed working — all issues are frontend JS.
+
+The architecture:
+- Gate screen: user taps "Activate Microphone" → requestMic() → getUserMedia → go()
+- go(): hides gate, shows stage, calls initSR() + playIntent('GREETING')
+- playIntent('GREETING'): fetches greeting blob from /oracle/speak, calls playVid()
+- playVid(): pause+removeAttribute+load, muted=false, sets src, plays video with baked audio
+- After greeting: startRec() creates fresh recognition instance, starts listening
+- User speaks → onresult sets pending/transcript → onend auto-submits → process(text)
+- process(): calls /oracle/chat with audio_first:false, polls /oracle/job/{id} every 2s
+- When video blob arrives: playVid() → video plays with baked audio + lip sync
+- After playVid() resolves: setBusy(false) + startRec() → loop continues
+
+Known fix just applied: setBusy(false) was missing `else{mic.disabled=false;}` — mic stayed permanently disabled.
+
+### Q1 — DUPLICATE FUNCTION DEFINITIONS
+Scan the ENTIRE file for any function that is defined more than once. In a 2400-line template
+with 20+ patches, function definitions can be accidentally duplicated when patches are applied
+to the wrong line. List EVERY function name and its line number(s). Flag any function that
+appears more than once. Also check for variable name collisions between global scope and
+function-local scope that could cause shadowing bugs.
+
+### Q2 — iOS SAFARI POLLING RELIABILITY
+The current approach for chat responses is: POST /oracle/chat → get job_id → poll /oracle/job/{id}
+every 2 seconds for up to 45 attempts (90 seconds). The video render takes 8-15 seconds on 4x RTX 4090.
+On iOS Safari specifically:
+- Will the page stay alive during 90 seconds of fetch() polling in the foreground?
+- What happens if the user locks their phone briefly during polling?
+- Is there a risk of iOS killing the page or suspending JS execution during the poll loop?
+- Would a single long-poll fetch be more reliable than repeated short polls?
+
+### Q3 — MINIMAL VIABLE ARCHITECTURE
+After all these patches, is there a clean architectural approach that avoids all these failure modes
+without a full rewrite? Specifically:
+- Can the state machine (IDLE → WELCOME → LISTENING → PROCESSING → RESPONDING → LISTENING) be
+  simplified to prevent state flag desynchronization?
+- Are there redundant state variables that should be consolidated?
+- What is the minimum set of state variables needed for correct operation?
+
+### Q4 — WHAT WILL ACTUALLY WORK ON FRIDAY DEMO
+Given the current code with all patches applied, what is the most likely failure mode
+on an iPhone running iOS Safari during a live demo? Be specific about:
+- The exact sequence of events that could fail
+- Which state variable is most likely to get stuck
+- The single most dangerous race condition remaining
+- What manual recovery action the user should take if it breaks during demo
+
+### RESPONSE FORMAT
+For each question (Q1-Q4):
+- ANALYSIS: Detailed findings with line number citations
+- RISK LEVEL: CRITICAL / HIGH / MEDIUM / LOW
+- RECOMMENDATION: Specific actionable fix or mitigation
+
+### FINAL VERDICT
+- Number of duplicate functions found
+- Top 3 risks for Friday demo, ranked by likelihood
+- Single most important fix still needed (if any)
+""",
     "media-audit": """## YOUR REVIEW TASK — BITCOIN MEDIA COMMAND CENTER ARCHITECTURE (8 DESIGN QUESTIONS)
 
 You are being consulted BEFORE build. The goal: build the definitive Bitcoin media hub page.
@@ -943,7 +1009,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design", "friday-demo", "oracle-fix"}
+HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design", "friday-demo", "oracle-fix", "oracle-external"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 
