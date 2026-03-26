@@ -1253,7 +1253,10 @@
         <div class="whale-feed-list" id="whale-feed">
           {% set whales = sovereign_ctx.whale_alerts if sovereign_ctx and sovereign_ctx.whale_alerts else [] %}
           {% if whales %}
+          {% set _wseen = namespace(msgs=[]) %}
           {% for w in whales %}
+          {% if w.message not in _wseen.msgs %}
+          {% set _wseen.msgs = _wseen.msgs + [w.message] %}
           <div class="whale-entry flash" style="animation-delay:{{ loop.index0 * 0.15 }}s;">
             <span class="whale-tier-badge {{ w.tier|lower }}">{{ w.tier }}</span>
             <div>
@@ -1261,6 +1264,7 @@
               <div class="whale-time">{{ w.rule }} &bull; SCORE {{ w.score }}</div>
             </div>
           </div>
+          {% endif %}
           {% endfor %}
           {% else %}
           <div style="text-align:center;padding:24px 0;">

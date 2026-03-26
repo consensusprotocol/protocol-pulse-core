@@ -6640,6 +6640,12 @@ def subscription_success():
     return render_template('subscription_success.html', session_id=session_id)
 
 
+
+@app.route('/onboarding')
+def onboarding_redirect():
+    from flask import redirect
+    return redirect('/onboarding/commander', 302)
+
 @app.route('/onboarding/commander')
 @login_required
 def commander_onboarding():
