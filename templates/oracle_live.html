@@ -1970,14 +1970,12 @@ function _speakVisionGuidance(d) {
   // Add to session transcript
   _addVisionEntry(d.device_name, d.steps || [], guideText);
 
-  // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
-  fetchTO(A+"/oracle/voice",{method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({text:guideText})},15000)
-  .then(function(ar){
-    if(!ar.ok) throw new Error("voice "+ar.status);
-    return ar.blob();
-  })
+  // VISION -> SATOMI: pipe guidance through Wav2Lip via process()
+  // This makes Satomi actually LIP SYNC the analysis, not just audio
+  hideVisionStatus();
+  setBusy(false); mic.disabled=false;
+  process(guideText);
+  // (voice-only path removed - process() handles TTS + Wav2Lip)
   .then(function(audioBlob){
     hideVisionStatus();
     var audioURL = URL.createObjectURL(audioBlob);
