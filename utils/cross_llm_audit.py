@@ -80,6 +80,7 @@ FEATURE_MAP = {
     "oracle-forensic": ("PIPELINE_LAWS.md", "main"),
     "oracle-external": ("PIPELINE_LAWS.md", "main"),
     "media-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "panopticon": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -242,6 +243,12 @@ EXPLICIT_FILES = {
         "services/rss_service.py",
         "models.py",
         "docs/cc_specs/cc_media_audit.md",
+    ],
+    "panopticon": [
+        "services/panopticon_service.py",
+        "core/blueprints/panopticon.py",
+        "templates/panopticon.html",
+        "services/scheduler.py",
     ],
 }
 
@@ -893,6 +900,58 @@ For each question (Q1-Q8):
 - Top 3 most impactful features for Phase 1 Friday deadline
 - Architecture that scales to 50 feeds without rewrite
 - The single design decision that separates "good media page" from "best Bitcoin media page on the internet"
+""",
+    "panopticon": """## YOUR REVIEW TASK — PANOPTICON INTELLIGENCE DASHBOARD AUDIT (5 CRITICAL QUESTIONS)
+
+You are auditing the PANOPTICON dashboard: a congressional insider trading tracker, whale wallet monitor,
+and geopolitical intelligence feed cross-referenced with Polymarket prediction markets and Bitcoin on-chain data.
+
+Read every file above line-by-line. Your analysis must cite specific line numbers.
+
+### Q1 — CONGRESSIONAL DATA FETCHING ARCHITECTURE
+Is the efts.house.gov API integration correct and production-safe?
+- Does the search-index endpoint actually accept these parameters?
+- Are there rate limits we're violating?
+- Is the XML/JSON parsing robust against schema changes?
+- Is the fallback placeholder system appropriate or misleading?
+
+### Q2 — API RATE LIMITING
+Are all API endpoints properly rate-limited?
+- Blueprint routes: any IP-based throttling?
+- External API calls: mempool.space, exchangerate.host, CoinGecko — are we respecting their limits?
+- Can a malicious user trigger expensive upstream calls by hammering our endpoints?
+- Is the in-memory cache sufficient or do we need Redis/SQLite caching?
+
+### Q3 — CLASSIFIED OVERLAY SECURITY
+Is the Commander-gated CLASSIFIED overlay secure against client-side bypass?
+- Can a free-tier user inspect DOM, remove CSS classes, or modify JS to see data?
+- Is the data actually withheld server-side, or just hidden with CSS?
+- Are the API routes properly guarded (not just the page route)?
+
+### Q4 — CORRELATION TIMELINE LOGIC
+Is the correlation timeline cross-referencing correct?
+- Are temporal correlations actually computed (date math) or just associated?
+- Is the correlation_score meaningful or arbitrary?
+- Could this produce false correlations that look authoritative?
+- Legal risk: does the framing stay within "research correlation" or cross into accusation?
+
+### Q5 — SCALABILITY
+Will this scale under 1000 concurrent users?
+- In-memory cache: thread-safe? Race conditions?
+- External API calls: what happens when 1000 users hit /panopticon simultaneously?
+- Does get_dashboard_data() make too many sequential API calls?
+- Database writes: any N+1 queries or missing indexes?
+
+### RESPONSE FORMAT
+For each question (Q1-Q5):
+- DETAILED ANALYSIS with line number citations
+- SEVERITY: CRITICAL / HIGH / MEDIUM / LOW
+- SPECIFIC FIX with code-level recommendation
+
+### FINAL VERDICT
+- How many CRITICAL issues found?
+- Top 3 changes needed before production
+- Is the legal framing adequate for a public-facing product?
 """,
 }
 
