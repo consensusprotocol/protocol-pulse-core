@@ -23,13 +23,17 @@ logger = logging.getLogger(__name__)
 PODCAST_FEEDS = [
     {"name": "Cypherpunk'd", "url": "https://anchor.fm/s/fa724db8/podcast/rss", "host": "PBX", "tier": 1, "color": "#f7931a", "category": "podcast"},
     {"name": "Protocol Pulse", "url": "https://feed.podbean.com/protocolpulse/feed.xml", "host": "Protocol Pulse", "tier": 1, "color": "#dc2626", "category": "podcast"},
-    {"name": "TFTC", "url": "https://anchor.fm/s/2a4e8034/podcast/rss", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
-    {"name": "Stephan Livera", "url": "https://stephanlivera.com/feed", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
-    {"name": "What Bitcoin Did", "url": "https://rss.libsyn.com/shows/110634/destinations/607905.xml", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Bitcoin Audible", "url": "https://bitcoinaudible.com/feed/", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
-    {"name": "The Bitcoin Layer", "url": "https://thebitcoinlayer.substack.com/feed", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
-    {"name": "Simply Bitcoin", "url": "https://anchor.fm/s/717a2198/podcast/rss", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
-    {"name": "Bitcoin Magazine Podcast", "url": "https://bitcoinmagazine.com/feed", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
+    {"name": "TFTC", "url": "https://feeds.simplecast.com/mGJ8uw1O", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
+    {"name": "Stephan Livera", "url": "https://feeds.simplecast.com/KV8z39iS", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
+    {"name": "What Bitcoin Did", "url": "https://feeds.simplecast.com/tEJEubMT", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
+    {"name": "Bitcoin Audible", "url": "https://feeds.megaphone.fm/SWN4978045882", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
+    {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/BdGT7E3F", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
+    {"name": "Simply Bitcoin", "url": "https://feeds.simplecast.com/7V5b8Zag", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
+    {"name": "Bitcoin Magazine Podcast", "url": "https://feeds.megaphone.fm/bitcoin-magazine", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
+    {"name": "Citadel Dispatch", "url": "https://feeds.simplecast.com/M6LkF8NN", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
+    {"name": "Natalie Brunell", "url": "https://feeds.simplecast.com/6Z1iM0Fg", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
+    {"name": "Rabbit Hole Recap", "url": "https://feeds.simplecast.com/Dh1oHsHZ", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
+    {"name": "Preston Pysh / TIP", "url": "https://feeds.simplecast.com/WXOL8WUD", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
 ]
 
 YOUTUBE_CHANNELS = [

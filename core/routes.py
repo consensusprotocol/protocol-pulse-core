@@ -1792,147 +1792,81 @@ def _get_media_hub_books():
 @app.route('/media')
 @app.route('/media-hub')
 def media_hub():
-    """Media Hub page with live RSS feeds, books, podcasts, and merch"""
+    """Bitcoin Media Command Center — RSS feeds, YouTube, D3 network, signal scores"""
     our_books, recommended_books = _get_media_hub_books()
-    podcast_sections_list = _get_podcast_sections(per_section=6)
-    if not rss_service:
-        return render_template('media_hub_new.html', shows=[], products=[], our_books=our_books, recommended_books=recommended_books, youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=podcast_sections_list, get_thumbnail=YouTubeService.get_thumbnail)
+
+    # Build all_books with category tags for the template book sections
+    all_books = []
+    for b in our_books:
+        b['category'] = 'series'
+        all_books.append(b)
+    for b in recommended_books:
+        if b.get('bestseller'):
+            b['category'] = 'essential'
+        else:
+            b['category'] = 'economics'
+        all_books.append(b)
+
+    # Feed matrix, ticker, stats from media_feed_service
+    feed_matrix = {'podcasts': [], 'videos': []}
+    ticker_items = []
+    feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
+    if media_feed_service:
+        try:
+            feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
+            ticker_items = media_feed_service.get_ticker_items(limit=30)
+            feed_stats = media_feed_service.get_feed_stats()
+        except Exception as e:
+            logging.warning(f"media_feed_service error: {e}")
+
+    # YouTube series data for Original Series section
+    series_list = []
+    series_data = {}
     try:
-        shows = rss_service.get_show_info()
-        products = []
-        try:
-            products = printful_service.get_store_products()
-            products = [printful_service.format_product_for_display(p) for p in products if not printful_service.format_product_for_display(p).get('is_ignored', True)]
-        except Exception as e:
-            logging.warning(f"Could not load merch products: {e}")
-        
-        # Get YouTube series data for Terminal Player (with dynamic API fetching if available)
-        youtube_service_instance = YouTubeService()
-        youtube_series = youtube_service_instance.get_all_dynamic_series()
-        
-        # Get Live Broadcasts data (Cypherpunk'd and Protocol Pulse videos) - make a deep copy
-        import copy
-        live_broadcasts = copy.deepcopy(YouTubeService.LIVE_BROADCASTS)
-        
-        # Dynamically update Protocol Pulse (Coin Bureau) latest video if API available
-        try:
-            coin_bureau_uploads = youtube_service_instance.get_channel_uploads(live_broadcasts['protocol_pulse']['channel_id'], max_results=1)
-            if coin_bureau_uploads:
-                live_broadcasts['protocol_pulse']['latest_id'] = coin_bureau_uploads[0]['id']
-                logging.info(f"Successfully fetched latest Coin Bureau video: {coin_bureau_uploads[0]['id']}")
-            else:
-                logging.warning("No Coin Bureau uploads returned from API - using fallback")
-        except Exception as e:
-            logging.warning(f"Failed to fetch dynamic Coin Bureau video: {e}")
-        
-        # Get active advertisements for sponsor rotation
-        active_ads = models.Advertisement.query.filter_by(is_active=True).all()
-        
-        # Get intel posts for the Intelligence Stream section
-        intel_posts = []
-        try:
-            recent_intel = models.IntelligencePost.query.order_by(
-                models.IntelligencePost.published_at.desc()
-            ).limit(5).all()
-            for post in recent_intel:
-                hours_ago = 1
-                try:
-                    if post.published_at:
-                        hours_ago = int((datetime.utcnow() - post.published_at).total_seconds() / 3600)
-                except:
-                    pass
-                intel_posts.append({
-                    'id': post.id,
-                    'persona': post.persona or 'Alex',
-                    'partner_handle': post.partner_handle or '',
-                    'primary_tweet': post.primary_tweet,
-                    'key_insight': post.key_insight,
-                    'time_ago': f"{hours_ago}h ago" if hours_ago < 24 else f"{hours_ago // 24}d ago",
-                    'x_url': f"https://x.com/ProtocolPulse/status/{post.x_tweet_id}" if post.x_tweet_id else None
-                })
-        except Exception as e:
-            logging.warning(f"Could not load intel posts for media hub: {e}")
-        
-        # New this week: 2 intel, 1 latest episode, 1 featured book
-        new_this_week = []
-        for post in intel_posts[:2]:
-            new_this_week.append({
-                'type': 'intel',
-                'title': (post.get('key_insight') or post.get('primary_tweet') or 'Intel brief')[:80],
-                'url': post.get('x_url') or '#',
-                'meta': post.get('time_ago', '') + ' · ' + (post.get('persona') or ''),
-                'description': post.get('key_insight') or '',
+        yt_svc = YouTubeService()
+        yt_series = yt_svc.get_all_dynamic_series()
+        for key, s in yt_series.items():
+            eps = s.get('episodes') or []
+            if not eps:
+                continue
+            series_list.append({
+                'key': key,
+                'title': s.get('title', key),
+                'host': s.get('host', ''),
+                'description': s.get('description', '')[:200],
+                'first_id': eps[0].get('id', '') if eps else '',
+                'ep_count': len(eps),
             })
-        lb = live_broadcasts.get('cypherpunkd') or {}
-        if lb:
-            new_this_week.append({
-                'type': 'episode',
-                'title': lb.get('title', "Cypherpunk'd // Intel Briefing"),
-                'url': '#section-series',
-                'meta': 'Latest episode',
-                'video_id': lb.get('latest_id'),
-                'series_id': 'everything_21m',
-                'description': lb.get('description', '')[:120],
-            })
-        if our_books:
-            b = our_books[0]
-            new_this_week.append({
-                'type': 'book',
-                'title': b.get('title', ''),
-                'url': b.get('amazon_url', '#'),
-                'meta': 'Featured',
-                'description': (b.get('description') or '')[:100],
-                'cover_url': b.get('cover_url'),
-            })
-        
-        # Unified latest feed (intel + one episode + one book) for "Latest" section
-        latest_feed = []
-        for post in intel_posts:
-            latest_feed.append({
-                'type': 'intel',
-                'title': (post.get('key_insight') or post.get('primary_tweet') or 'Intel brief')[:80],
-                'url': post.get('x_url') or '#',
-                'meta': post.get('time_ago', '') + ' · ' + (post.get('persona') or ''),
-                'description': post.get('key_insight') or '',
-            })
-        if lb and not any(x.get('type') == 'episode' for x in latest_feed):
-            latest_feed.append({
-                'type': 'episode',
-                'title': lb.get('title', "Cypherpunk'd"),
-                'url': '#section-series',
-                'meta': 'Latest',
-                'video_id': lb.get('latest_id'),
-                'series_id': 'everything_21m',
-                'description': lb.get('description', '')[:120],
-            })
-        if our_books:
-            b = our_books[0]
-            latest_feed.append({
-                'type': 'book',
-                'title': b.get('title', ''),
-                'url': b.get('amazon_url', '#'),
-                'meta': 'Sovereign Library',
-                'description': (b.get('description') or '')[:100],
-                'cover_url': b.get('cover_url'),
-            })
-        
-        return render_template('media_hub_new.html',
-                               shows=shows,
-                               products=products,
-                               our_books=our_books,
-                               recommended_books=recommended_books,
-                               youtube_series=youtube_series,
-                               live_broadcasts=live_broadcasts,
-                               active_ads=active_ads,
-                               intel_posts=intel_posts,
-                               new_this_week=new_this_week,
-                               latest_feed=latest_feed,
-                               podcast_sections_list=podcast_sections_list,
-                               series_data={},
-                               get_thumbnail=YouTubeService.get_thumbnail)
+            series_data[key] = s
     except Exception as e:
-        logging.error(f"Error loading media hub: {e}")
-        return render_template('media_hub_new.html', shows=[], products=[], our_books=locals().get('our_books', []), recommended_books=locals().get('recommended_books', []), youtube_series={}, live_broadcasts={}, intel_posts=[], new_this_week=[], latest_feed=[], podcast_sections_list=locals().get('podcast_sections_list') or [], series_data={}, get_thumbnail=YouTubeService.get_thumbnail)
+        logging.warning(f"YouTube series error: {e}")
+
+    # Latest Cypherpunk'd episodes (from RSS)
+    latest_episodes = []
+    if rss_service:
+        try:
+            all_eps = rss_service.get_latest_episodes(limit=50)
+            latest_episodes = [ep for ep in all_eps if ep.get('show_name', '').lower().startswith('cypherpunk')][:8]
+        except Exception:
+            pass
+
+    # Commander check
+    is_commander = False
+    try:
+        if current_user.is_authenticated:
+            is_commander = getattr(current_user, 'subscription_tier', '') in ('commander', 'sovereign')
+    except Exception:
+        pass
+
+    return render_template('media_hub.html',
+                           ticker_items=ticker_items,
+                           feed_stats=feed_stats,
+                           feed_matrix=feed_matrix,
+                           series_list=series_list,
+                           series_data=series_data,
+                           latest_episodes=latest_episodes,
+                           all_books=all_books,
+                           is_commander=is_commander)
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
@@ -12271,4 +12205,155 @@ def api_v2_prices():
         return jsonify({'btc_usd': cached.get('price', 0), 'source': 'cache'})
     except Exception:
         return jsonify({'btc_usd': 0, 'source': 'unavailable'})
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MEDIA COMMAND CENTER — API ROUTES
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route('/api/media/sync', methods=['POST'])
+def api_media_sync():
+    """Trigger background feed sync (RSS + YouTube). Non-blocking."""
+    if not media_feed_service:
+        return jsonify({'error': 'media_feed_service not available'}), 503
+    try:
+        media_feed_service.sync_feeds_background(app)
+        return jsonify({'status': 'sync_started'})
+    except Exception as e:
+        logging.error(f"api_media_sync error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/media/matrix')
+def api_media_matrix():
+    """Get three-column feed matrix data (podcasts, videos)."""
+    if not media_feed_service:
+        return jsonify({'podcasts': [], 'videos': []})
+    try:
+        limit = min(int(request.args.get('limit', 20)), 50)
+        return jsonify(media_feed_service.get_feed_matrix(limit_per_col=limit))
+    except Exception as e:
+        logging.error(f"api_media_matrix error: {e}")
+        return jsonify({'podcasts': [], 'videos': []})
+
+
+@app.route('/api/media/rss')
+def api_media_rss():
+    """Get RSS podcast episodes with signal scores."""
+    if not media_feed_service:
+        return jsonify({'episodes': []})
+    try:
+        limit = min(int(request.args.get('limit', 30)), 100)
+        data = media_feed_service.get_feed_matrix(limit_per_col=limit)
+        return jsonify({'episodes': data.get('podcasts', [])})
+    except Exception as e:
+        logging.error(f"api_media_rss error: {e}")
+        return jsonify({'episodes': []})
+
+
+@app.route('/api/media/youtube')
+def api_media_youtube():
+    """Get YouTube video feed with signal scores."""
+    if not media_feed_service:
+        return jsonify({'videos': []})
+    try:
+        limit = min(int(request.args.get('limit', 20)), 50)
+        data = media_feed_service.get_feed_matrix(limit_per_col=limit)
+        return jsonify({'videos': data.get('videos', [])})
+    except Exception as e:
+        logging.error(f"api_media_youtube error: {e}")
+        return jsonify({'videos': []})
+
+
+@app.route('/api/media/signal-score')
+def api_media_signal_score():
+    """Compute signal score for given title + description."""
+    title = request.args.get('title', '')
+    description = request.args.get('description', '')
+    tier = int(request.args.get('tier', 2))
+    if not title:
+        return jsonify({'error': 'title required'}), 400
+    if media_feed_service:
+        score = media_feed_service.compute_signal_score(title, description, tier)
+    else:
+        score = 0
+    return jsonify({'signal_score': score, 'title': title})
+
+
+@app.route('/api/media/network')
+def api_media_network():
+    """D3 voice network graph data — 50 nodes with links."""
+    nodes = [
+        {'id':'saylor','name':'Michael Saylor','initials':'MS','cat':'macro','tier':1,'x':'saylor'},
+        {'id':'jack','name':'Jack Dorsey','initials':'JD','cat':'protocol','tier':1,'x':'jack'},
+        {'id':'adam','name':'Adam Back','initials':'AB','cat':'protocol','tier':1,'x':'adam3us'},
+        {'id':'lyn','name':'Lyn Alden','initials':'LA','cat':'macro','tier':1,'x':'LynAldenContact'},
+        {'id':'preston','name':'Preston Pysh','initials':'PP','cat':'macro','tier':1,'x':'PrestonPysh'},
+        {'id':'odell','name':'Matt Odell','initials':'MO','cat':'protocol','tier':1,'x':'ODELL'},
+        {'id':'marty','name':'Marty Bent','initials':'MB','cat':'media','tier':1,'x':'MartyBent'},
+        {'id':'nvk','name':'NVK','initials':'NV','cat':'protocol','tier':1,'x':'nvk'},
+        {'id':'natalie','name':'Natalie Brunell','initials':'NB','cat':'media','tier':1,'x':'natbrunell'},
+        {'id':'booth','name':'Jeff Booth','initials':'JB','cat':'macro','tier':1,'x':'JeffBooth'},
+        {'id':'saif','name':'Saifedean','initials':'SA','cat':'macro','tier':1,'x':'saifedean'},
+        {'id':'lopp','name':'Jameson Lopp','initials':'JL','cat':'protocol','tier':1,'x':'lopp'},
+        {'id':'willy','name':'Willy Woo','initials':'WW','cat':'macro','tier':1,'x':'woonomic'},
+        {'id':'peter','name':'Peter McCormack','initials':'PM','cat':'media','tier':1,'x':'PeterMcCormack'},
+        {'id':'breedlove','name':'Robert Breedlove','initials':'RB','cat':'macro','tier':1,'x':'Breedlove22'},
+        {'id':'guy','name':'Guy Swann','initials':'GS','cat':'media','tier':1,'x':'GuySwann'},
+        {'id':'livera','name':'Stephan Livera','initials':'SL','cat':'media','tier':1,'x':'stephanlivera'},
+        {'id':'bhatia','name':'Nik Bhatia','initials':'NB','cat':'macro','tier':1,'x':'timeaborned'},
+        {'id':'hodl','name':'American HODL','initials':'AH','cat':'media','tier':2,'x':'americanhodl8'},
+        {'id':'fiatjaf','name':'Fiatjaf','initials':'FJ','cat':'protocol','tier':1,'x':'fiatjaf'},
+        {'id':'gladstein','name':'Alex Gladstein','initials':'AG','cat':'macro','tier':1,'x':'gladstein'},
+        {'id':'pomp','name':'Anthony Pompliano','initials':'AP','cat':'media','tier':1,'x':'APompliano'},
+        {'id':'max','name':'Max Keiser','initials':'MK','cat':'macro','tier':2,'x':'maxkeiser'},
+        {'id':'samson','name':'Samson Mow','initials':'SM','cat':'protocol','tier':1,'x':'Excellion'},
+        {'id':'jimmy','name':'Jimmy Song','initials':'JS','cat':'protocol','tier':1,'x':'jimmysong'},
+        {'id':'andreas','name':'Andreas Antonopoulos','initials':'AA','cat':'protocol','tier':1,'x':'aantonop'},
+        {'id':'elizabeth','name':'Elizabeth Stark','initials':'ES','cat':'protocol','tier':1,'x':'starkness'},
+        {'id':'pierre','name':'Pierre Rochard','initials':'PR','cat':'protocol','tier':1,'x':'pierre_rochard'},
+        {'id':'cory','name':'Cory Klippsten','initials':'CK','cat':'media','tier':1,'x':'coryklippsten'},
+        {'id':'dylan','name':'Dylan LeClair','initials':'DL','cat':'macro','tier':2,'x':'DylanLeClair_'},
+        {'id':'checkmate','name':'_Checkmate_','initials':'CM','cat':'macro','tier':2,'x':'_Checkmatey_'},
+        {'id':'gigi','name':'Gigi','initials':'GG','cat':'protocol','tier':2,'x':'dergigi'},
+        {'id':'beautyon','name':'Beautyon','initials':'BY','cat':'protocol','tier':2,'x':'Beautyon_'},
+        {'id':'tuur','name':'Tuur Demeester','initials':'TD','cat':'macro','tier':1,'x':'TuurDemeester'},
+        {'id':'plan_b','name':'PlanB','initials':'PB','cat':'macro','tier':1,'x':'100trillionUSD'},
+        {'id':'raoul','name':'Raoul Pal','initials':'RP','cat':'macro','tier':1,'x':'RaoulGMI'},
+        {'id':'caitlin','name':'Caitlin Long','initials':'CL','cat':'macro','tier':1,'x':'CaitlinLong_'},
+        {'id':'balaji','name':'Balaji','initials':'BS','cat':'macro','tier':1,'x':'balajis'},
+        {'id':'matt_c','name':'Matt Corallo','initials':'MC','cat':'protocol','tier':1,'x':'TheBlueMatt'},
+        {'id':'giacomo','name':'Giacomo Zucco','initials':'GZ','cat':'protocol','tier':2,'x':'giacomozucco'},
+        {'id':'alex_b','name':'Alex B','initials':'AB','cat':'macro','tier':2,'x':'alex_b'},
+        {'id':'pbx','name':'PBX','initials':'PB','cat':'media','tier':1,'x':'pbxlife'},
+        {'id':'swan','name':'Swan Bitcoin','initials':'SW','cat':'media','tier':2,'x':'SwanBitcoin'},
+        {'id':'river','name':'River Financial','initials':'RF','cat':'media','tier':2,'x':'River'},
+        {'id':'strike','name':'Strike','initials':'ST','cat':'protocol','tier':1,'x':'Strike'},
+        {'id':'unchained','name':'Unchained','initials':'UC','cat':'media','tier':2,'x':'unchaborned'},
+        {'id':'fold','name':'Fold App','initials':'FA','cat':'protocol','tier':2,'x':'fold_app'},
+        {'id':'bitkey','name':'Bitkey','initials':'BK','cat':'protocol','tier':2,'x':'bitaborned'},
+        {'id':'cashapp','name':'Cash App','initials':'CA','cat':'protocol','tier':1,'x':'CashApp'},
+        {'id':'bolt','name':'Bolt Card','initials':'BC','cat':'protocol','tier':3,'x':'BoltCard'},
+    ]
+    links = [
+        {'source':'saylor','target':'pomp'},{'source':'saylor','target':'lyn'},{'source':'saylor','target':'preston'},{'source':'saylor','target':'breedlove'},
+        {'source':'jack','target':'fiatjaf'},{'source':'jack','target':'odell'},{'source':'jack','target':'strike'},{'source':'jack','target':'cashapp'},
+        {'source':'adam','target':'samson'},{'source':'adam','target':'nvk'},{'source':'adam','target':'jimmy'},
+        {'source':'lyn','target':'preston'},{'source':'lyn','target':'natalie'},{'source':'lyn','target':'peter'},{'source':'lyn','target':'tuur'},
+        {'source':'odell','target':'marty'},{'source':'odell','target':'nvk'},{'source':'odell','target':'lopp'},{'source':'odell','target':'fiatjaf'},
+        {'source':'marty','target':'hodl'},{'source':'marty','target':'pbx'},{'source':'marty','target':'guy'},
+        {'source':'peter','target':'livera'},{'source':'peter','target':'natalie'},{'source':'peter','target':'booth'},
+        {'source':'natalie','target':'cory'},{'source':'natalie','target':'dylan'},{'source':'natalie','target':'gladstein'},
+        {'source':'booth','target':'saif'},{'source':'booth','target':'breedlove'},{'source':'booth','target':'preston'},
+        {'source':'livera','target':'guy'},{'source':'livera','target':'jimmy'},{'source':'livera','target':'bhatia'},
+        {'source':'plan_b','target':'willy'},{'source':'plan_b','target':'checkmate'},{'source':'plan_b','target':'dylan'},
+        {'source':'raoul','target':'lyn'},{'source':'raoul','target':'pomp'},{'source':'raoul','target':'balaji'},
+        {'source':'andreas','target':'lopp'},{'source':'andreas','target':'jimmy'},{'source':'andreas','target':'matt_c'},
+        {'source':'pomp','target':'cory'},{'source':'pomp','target':'swan'},{'source':'pomp','target':'raoul'},
+        {'source':'strike','target':'cashapp'},{'source':'strike','target':'fold'},{'source':'strike','target':'bitkey'},
+        {'source':'caitlin','target':'unchained'},{'source':'caitlin','target':'pierre'},
+        {'source':'samson','target':'adam'},{'source':'samson','target':'max'},{'source':'samson','target':'giacomo'},
+        {'source':'gigi','target':'beautyon'},{'source':'gigi','target':'fiatjaf'},
+    ]
+    return jsonify({'nodes': nodes, 'links': links})
 

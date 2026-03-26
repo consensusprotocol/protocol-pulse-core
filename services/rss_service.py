@@ -38,52 +38,80 @@ class RSSService:
             },
             {
                 'name': 'TFTC',
-                'url': 'https://anchor.fm/s/2a4e8034/podcast/rss',
+                'url': 'https://feeds.simplecast.com/mGJ8uw1O',
                 'category': 'Bitcoin & Culture',
                 'host': 'Marty Bent',
                 'color': '#ff6b35'
             },
             {
                 'name': 'What Bitcoin Did',
-                'url': 'https://rss.libsyn.com/shows/110634/destinations/607905.xml',
+                'url': 'https://feeds.simplecast.com/tEJEubMT',
                 'category': 'Bitcoin & Markets',
                 'host': 'Peter McCormack',
                 'color': '#f7931a'
             },
             {
                 'name': 'Stephan Livera',
-                'url': 'https://stephanlivera.com/feed',
+                'url': 'https://feeds.simplecast.com/KV8z39iS',
                 'category': 'Bitcoin & Economics',
                 'host': 'Stephan Livera',
                 'color': '#4a90d9'
             },
             {
                 'name': 'Bitcoin Audible',
-                'url': 'https://bitcoinaudible.com/feed/',
+                'url': 'https://feeds.megaphone.fm/SWN4978045882',
                 'category': 'Bitcoin & Education',
                 'host': 'Guy Swann',
                 'color': '#9b59b6'
             },
             {
                 'name': 'Simply Bitcoin',
-                'url': 'https://anchor.fm/s/717a2198/podcast/rss',
+                'url': 'https://feeds.simplecast.com/7V5b8Zag',
                 'category': 'Bitcoin & News',
                 'host': 'Nico Moran',
                 'color': '#e74c3c'
             },
             {
                 'name': 'Bitcoin Magazine Podcast',
-                'url': 'https://bitcoinmagazine.com/feed',
+                'url': 'https://feeds.megaphone.fm/bitcoin-magazine',
                 'category': 'Bitcoin & Culture',
                 'host': 'Bitcoin Magazine',
                 'color': '#f7931a'
             },
             {
                 'name': 'The Bitcoin Layer',
-                'url': 'https://thebitcoinlayer.substack.com/feed',
+                'url': 'https://feeds.simplecast.com/BdGT7E3F',
                 'category': 'Bitcoin & Macro',
                 'host': 'Nik Bhatia',
                 'color': '#3498db'
+            },
+            {
+                'name': 'Citadel Dispatch',
+                'url': 'https://feeds.simplecast.com/M6LkF8NN',
+                'category': 'Bitcoin & Privacy',
+                'host': 'Matt Odell',
+                'color': '#27ae60'
+            },
+            {
+                'name': 'Natalie Brunell',
+                'url': 'https://feeds.simplecast.com/6Z1iM0Fg',
+                'category': 'Bitcoin & Culture',
+                'host': 'Natalie Brunell',
+                'color': '#e91e63'
+            },
+            {
+                'name': 'Rabbit Hole Recap',
+                'url': 'https://feeds.simplecast.com/Dh1oHsHZ',
+                'category': 'Bitcoin & Culture',
+                'host': 'Marty Bent',
+                'color': '#ff6b35'
+            },
+            {
+                'name': 'Preston Pysh / TIP',
+                'url': 'https://feeds.simplecast.com/WXOL8WUD',
+                'category': 'Bitcoin & Macro',
+                'host': 'Preston Pysh',
+                'color': '#2c3e50'
             },
         ]
         
