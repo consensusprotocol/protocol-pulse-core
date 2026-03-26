@@ -1059,7 +1059,10 @@ if(gBtn){ gBtn.disabled=false; }
 var gStatus=document.getElementById('gate-status');
 /* iOS bfcache: re-enable gate button when page is restored from cache */
 window.addEventListener('pageshow', function(e){
-  if(e.persisted && gBtn){ gBtn.disabled=false; gStatus.textContent=''; }
+  if(e.persisted){
+    /* Force full reload on bfcache restore - ensures gate tap always unlocks iOS audio */
+    window.location.reload();
+  }
 });
 var gErr=document.getElementById('gate-error');
 var vid=document.getElementById('vid');
@@ -1477,21 +1480,13 @@ function playVid(url){
       vid.muted=false; /* Ensure unmuted — no conditions */
       vid.volume=1.0;
     },{once:true});
-    /* iOS fix: start muted (always allowed), unmute immediately after play starts */
-    vid.muted=true;
     var p=vid.play();
     if(p){
-      p.then(function(){
-        vid.muted=false;
-        vid.volume=1.0;
-      }).catch(function(err){
-        console.warn('[Satomi] vid.play() rejected:',err);
-        /* Last resort: show overlay */
+      p.then(function(){}).catch(function(err){
+        console.warn('[Satomi] vid.play() rejected (autoplay):',err);
+        /* P0: iOS Safari — show centered tap-to-play overlay */
         showTapOverlay();
       });
-    } else {
-      vid.muted=false;
-      vid.volume=1.0;
     }
   });
 }
