@@ -329,10 +329,10 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
 /* Transcript */
 #tx{
   font-family:'JetBrains Mono',monospace;
-  font-size:clamp(10px,2.8vw,12px);color:rgba(255,255,255,0.75);font-style:italic;
+  font-size:clamp(10px,2.8vw,11px);color:#445;font-style:italic;
   min-height:16px;text-align:center;
   opacity:0;transition:opacity .2s;
-  width:100%;overflow:hidden;white-space:normal;word-break:break-word;
+  width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
 }
 #tx.on{opacity:1}
 
@@ -1101,7 +1101,7 @@ function playIntent(intent){
   setBusy(true);
   setStat('Satomi loading\u2026','#f4c46f',true);
   // Show thinking loop during intent loading (never dark screen)
-  try{vid.muted=true;vid.loop=true;vid.src=A+'/oracle/thinking';vid.style.opacity='1';vid.play().catch(function(){vid.style.opacity='0';});try{if(!window._thinkAudio){window._thinkAudio=new Audio('/static/assets/thinking_hum.mp3');window._thinkAudio.loop=true;window._thinkAudio.volume=0.12;}window._thinkAudio.currentTime=0;window._thinkAudio.play().catch(function(){});}catch(e){}}catch(e){}
+  try{vid.muted=true;vid.loop=true;vid.src=A+'/oracle/thinking';vid.style.opacity='1';vid.play().catch(function(){vid.style.opacity='0';});}catch(e){}
   // Progress messages so user knows it's working, not broken
   var _loadMsgs = ['Initializing\u2026','Rendering response\u2026','Almost ready\u2026'];
   var _loadIdx = 0;
@@ -1288,7 +1288,7 @@ function process(text){
               _pollDone=true;
               var url=blobURL(vb);
               /* Stop thinking counter */
-              if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}try{if(window._thinkAudio){window._thinkAudio.pause();window._thinkAudio.currentTime=0;}}catch(e){}
+              if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
               setStat('Speaking','#6cff9f',false);
               /* Play lip sync video — it has baked audio */
               playVid(url)
@@ -1348,7 +1348,7 @@ function process(text){
       var _retryText=text;
       setTimeout(function(){
         setBusy(false);
-        if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}try{if(window._thinkAudio){window._thinkAudio.pause();window._thinkAudio.currentTime=0;}}catch(e){}
+        if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
         setOracleState('LISTENING');
         if(_retryText)process(_retryText);
       },5000);
@@ -1365,7 +1365,7 @@ function process(text){
     }
   })
   .finally(function(){
-    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}try{if(window._thinkAudio){window._thinkAudio.pause();window._thinkAudio.currentTime=0;}}catch(e){}
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
     setBusy(false);hideTX();
     setOracleState('LISTENING');
     /* Ensure mic restarts after any error path too */
@@ -1411,7 +1411,7 @@ function playVid(url){
       clearTimeout(_safetyTimer);
       clearTimeout(_dynamicTimer);
       vid.ontimeupdate=null;
-      if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}try{if(window._thinkAudio){window._thinkAudio.pause();window._thinkAudio.currentTime=0;}}catch(e){}
+      if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
       console.log('[Satomi] playVid settled via:',ok?'success':'error/timeout');
       vid.onended=null;vid.onerror=null;
       vid.style.opacity='0';
@@ -1607,30 +1607,7 @@ function setRec(on){
 }
 
 /* ── HELPERS ── */
-function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';if(t&&t.indexOf('thinking')>=0){startThinkingAudio();}else{stopThinkingAudio();}}
-
-var _thkCtx=null,_thkNodes=[];
-function startThinkingAudio(){
-  try{
-    if(_thkCtx)return;
-    _thkCtx=new(window.AudioContext||window.webkitAudioContext)();
-    [55,110,165].forEach(function(f,i){
-      var o=_thkCtx.createOscillator(),g=_thkCtx.createGain();
-      o.type='sine';o.frequency.value=f;
-      g.gain.value=i===0?0.035:0.015;
-      o.connect(g);g.connect(_thkCtx.destination);o.start();
-      _thkNodes.push(o);
-    });
-  }catch(e){}
-}
-function stopThinkingAudio(){
-  try{
-    _thkNodes.forEach(function(n){try{n.stop();}catch(e){}});
-    _thkNodes=[];
-    if(_thkCtx){_thkCtx.close().catch(function(){});}
-    _thkCtx=null;
-  }catch(e){}
-}
+function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';}
 function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}else{mic.disabled=false;}}
 function showSub(t){sub.textContent=t;sub.classList.add('on');}
 function hideSub(){sub.classList.remove('on');}
@@ -1745,26 +1722,250 @@ function triggerCamera(){
 }
 
 function handleVisionUpload(evt){
-  var file=evt.target.files[0];
-  if(!file)return;
-  if(!file.type.startsWith('image/')){showVisionStatus('Not an image');return;}
-  showVisionStatus('Analyzing...');
-  var img=new Image(),reader=new FileReader();
-  reader.onload=function(e){
-    img.onload=function(){
-      var c=document.createElement("canvas"),MAX=800;
-      var w=img.width,h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
-      c.width=w;c.height=h;
-      c.getContext("2d").drawImage(img,0,0,w,h);
-      var b64=c.toDataURL("image/jpeg",0.8).split(",")[1];
-      if(!b64||b64.length<500){showVisionStatus("Image capture failed - try again");setTimeout(hideVisionStatus,3000);return;}
-      sendVisionImage(b64,"image/jpeg");
-    };
-    img.src=e.target.result;
+  var file = evt.target.files[0];
+  if(!file) return;
+  if (busy) {
+    showVisionStatus('Satomi is speaking — wait a moment');
+    setTimeout(hideVisionStatus, 2000);
+    evt.target.value = "";
+    return;
+  }
+  evt.target.value = "";
+  
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var b64 = e.target.result.split(",")[1];
+    var mime = file.type || "image/jpeg";
+    sendVisionImage(b64, mime);
   };
   reader.readAsDataURL(file);
+}
+
+var SEED_RECOVERY_STEPS = [
+  {
+    label: 'STEP 1 OF 3 — STOP IMMEDIATELY',
+    text: 'Do NOT send any Bitcoin from this wallet until you have moved your funds. Anyone who saw this seed phrase can access your Bitcoin right now.',
+    speak: 'Stop. Do not send any Bitcoin from this wallet. Anyone who saw this seed phrase can steal your funds right now.'
+  },
+  {
+    label: 'STEP 2 OF 3 — MOVE YOUR FUNDS',
+    text: 'On a different device, create a brand new wallet. Generate a NEW seed phrase — write it down on paper only, never photograph it. Transfer ALL funds to the new wallet address immediately.',
+    speak: 'On a different device, create a new wallet with a new seed phrase. Write it on paper only. Transfer all your funds to the new wallet immediately.'
+  },
+  {
+    label: 'STEP 3 OF 3 — SECURE THE NEW WALLET',
+    text: 'Once funds are transferred, the old wallet is abandoned. Store your new seed phrase in a metal backup, split across two secure locations. Never store seed phrases digitally.',
+    speak: 'Once funds are moved, abandon the old wallet. Store your new seed phrase in metal, split across two secure locations. Never store seed phrases digitally.'
+  }
+];
+
+function showSecurityAlert(msg, onDismiss) {
+  var overlay = document.getElementById('vision-security-overlay');
+  var msgEl = document.getElementById('vision-security-msg');
+  var dismissBtn = document.getElementById('vision-security-dismiss');
+  var recoveryPanel = document.getElementById('vision-recovery-panel');
+  if (!overlay || !msgEl) return;
+
+  msgEl.textContent = msg;
+  overlay.style.display = 'flex';
+
+  // Speak the initial alert urgently
+  function speakText(text) {
+    fetchTO(A+'/oracle/voice', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text})
+    }, 20000).then(function(r) {
+      if (!r.ok) return;
+      return r.blob();
+    }).then(function(blob) {
+      if (!blob) return;
+      var alertAudio = new Audio(URL.createObjectURL(blob));
+      alertAudio.volume = 1.0;
+      alertAudio.play().catch(function(){});
+    }).catch(function(){});
+  }
+
+  speakText('SECURITY ALERT. ' + msg +
+    ' Your seed phrase may be compromised. Do not send Bitcoin until you hear the recovery steps.');
+
+  // Dismiss transitions to recovery steps
+  dismissBtn.onclick = function() {
+    dismissBtn.style.display = 'none';
+    msgEl.style.fontSize = '0.9rem';
+    msgEl.style.opacity = '0.7';
+    recoveryPanel.style.display = 'block';
+    _showRecoveryStep(0, speakText);
+  };
+}
+
+function _showRecoveryStep(idx, speakFn) {
+  var steps = SEED_RECOVERY_STEPS;
+  var stepLabel = document.getElementById('vision-recovery-step-label');
+  var stepText = document.getElementById('vision-recovery-step-text');
+  var nextBtn = document.getElementById('vision-recovery-next');
+  var helpBtn = document.getElementById('vision-recovery-help');
+  var closeBtn = document.getElementById('vision-recovery-close');
+
+  if (!stepLabel || !stepText) return;
+
+  stepLabel.textContent = steps[idx].label;
+  stepText.textContent = steps[idx].text;
+  speakFn(steps[idx].speak);
+
+  var isLast = (idx === steps.length - 1);
+  nextBtn.style.display = isLast ? 'none' : 'block';
+  helpBtn.style.display = isLast ? 'block' : 'none';
+  closeBtn.style.display = isLast ? 'block' : 'none';
+
+  nextBtn.onclick = function() {
+    if (idx < steps.length - 1) _showRecoveryStep(idx + 1, speakFn);
+  };
+
+  helpBtn.onclick = function() {
+    // Close overlay and trigger Satomi to help set up new wallet
+    var overlay = document.getElementById('vision-security-overlay');
+    if (overlay) overlay.style.display = 'none';
+    // Inject a vision guidance request for new wallet setup
+    sendVisionImage(null, null, 'help me set up a new hardware wallet safely');
+  };
+
+  closeBtn.onclick = function() {
+    var overlay = document.getElementById('vision-security-overlay');
+    if (overlay) overlay.style.display = 'none';
+  };
+}
+
+function _speakVisionGuidance(d) {
+  var raw = d.guidance_text || d.guidance || d.analysis || d.response
+    || "I can see your hardware. Let me walk you through the next step.";
+  // Hard 30-word cap for TTS speed
+  var words = raw.split(/\s+/);
+  var guideText = words.length > 30 ? words.slice(0,30).join(" ") : raw;
+
+  // Urgent spoken prefix for transaction verdicts
+  if (d.verdict === 'DO NOT SIGN') {
+    guideText = 'WARNING. DO NOT SIGN THIS TRANSACTION. ' + guideText;
+  } else if (d.verdict === 'REVIEW CAREFULLY' && d.red_flags && d.red_flags.length) {
+    guideText = 'REVIEW CAREFULLY. ' + guideText;
+  }
+
+  showVisionStatus("Speaking...");
+  showSub(guideText);
+
+  // Transaction review verdict card
+  if (d.category === 'transaction' && d.verdict) {
+    var verdictColor = d.verdict === 'SAFE TO SIGN'
+      ? '#00d4aa'
+      : d.verdict === 'DO NOT SIGN'
+      ? '#ff3b5f'
+      : '#f5a623';
+
+    var verdictHtml = '<div style="background:rgba(0,0,0,.4);' +
+      'border:2px solid ' + verdictColor + ';border-radius:8px;' +
+      'padding:12px 16px;margin-bottom:12px;">' +
+      '<div style="font-family:monospace;font-size:10px;' +
+      'letter-spacing:.12em;color:' + verdictColor + ';' +
+      'text-transform:uppercase;margin-bottom:6px;">' +
+      '\u26A1 TRANSACTION ANALYSIS</div>' +
+      '<div style="font-size:1.1rem;font-weight:800;' +
+      'color:' + verdictColor + ';margin-bottom:8px;">' +
+      d.verdict + '</div>';
+
+    if (d.recipient_address) {
+      verdictHtml += '<div style="font-family:monospace;font-size:10px;' +
+        'color:rgba(255,255,255,.5);word-break:break-all;">' +
+        'TO: ' + d.recipient_address + '</div>';
+    }
+    if (d.amount_btc) {
+      verdictHtml += '<div style="font-family:monospace;font-size:11px;' +
+        'color:rgba(255,255,255,.7);margin-top:4px;">' +
+        'AMOUNT: ' + d.amount_btc + ' BTC</div>';
+    }
+    if (d.fee_sats) {
+      verdictHtml += '<div style="font-family:monospace;font-size:11px;' +
+        'color:rgba(255,255,255,.6);">' +
+        'FEE: ' + d.fee_sats + ' sats</div>';
+    }
+    if (d.red_flags && d.red_flags.length) {
+      verdictHtml += '<div style="margin-top:8px;">';
+      d.red_flags.forEach(function(flag) {
+        verdictHtml += '<div style="font-family:monospace;font-size:9px;' +
+          'color:#f5a623;letter-spacing:.06em;">\u26A0 ' + flag + '</div>';
+      });
+      verdictHtml += '</div>';
+    }
+    verdictHtml += '</div>';
+
+    var vsEl = document.getElementById('vision-status');
+    if (vsEl) {
+      vsEl.innerHTML = verdictHtml + (vsEl.innerHTML || '');
+      vsEl.classList.add('on');
+    }
+  }
+
+  // Show steps in vision-status area if present
+  if(d.steps && d.steps.length){
+    var stepsHtml = d.steps.map(function(s,i){ return (i+1)+". "+s; }).join("<br>");
+    var el=document.getElementById("vision-status");
+    el.innerHTML = (d.device_name && d.device_name!=="unknown" ? "<b>"+d.device_name+"</b><br>" : "") + stepsHtml;
+    el.classList.add("on");
+  }
+
+  // Add to session transcript
+  _addVisionEntry(d.device_name, d.steps || [], guideText);
+
+  // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
+  fetchTO(A+"/oracle/voice",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text:guideText})},15000)
+  .then(function(ar){
+    if(!ar.ok) throw new Error("voice "+ar.status);
+    return ar.blob();
+  })
+  .then(function(audioBlob){
+    hideVisionStatus();
+    var audioURL = URL.createObjectURL(audioBlob);
+    var audio;
+    if(window._audioUnlocked){
+      audio=window._audioUnlocked;
+      window._audioUnlocked=null;
+      audio.src=audioURL;
+      audio.volume=1.0;
+      audio.muted=false;
+    } else {
+      audio = new Audio(audioURL);
+      audio.volume = 1.0;
+    }
+    return new Promise(function(res){
+      audio.onended = function(){
+        URL.revokeObjectURL(audioURL);
+        setStat("Ready","#334",false);
+        hideSub();
+        if(d.device_name){
+          setTimeout(function(){ showVisionSponsor(d.device_name); },800);
+        }
+        // Prompt for follow-up photo if session is active
+        if (_visionSessionId) {
+          showVisionStatus('Tap camera to show next screen \u2192');
+          setTimeout(function() {
+            hideVisionStatus();
+          }, 4000);
+        }
+        res();
+      };
+      audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
+      var vp = audio.play();
+      if(vp !== undefined){
+        vp.then(function(){ setStat("Speaking","#6cff9f",false); }).catch(function(){ res(); });
+      }
+    });
+  })
+  .catch(function(){
+    showVisionStatus("Ready");
+    setBusy(false);
+    mic.disabled = false;
+  });
 }
 
 function sendVisionImage(b64, mimeType, textOverride){
