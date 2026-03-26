@@ -1213,7 +1213,11 @@
           {% if polymarket_markets %}
           {% for m in polymarket_markets %}
           <div class="poly-item" style="animation-delay:{{ loop.index0 * 0.1 }}s;">
-            <div class="poly-q">{{ m.question }}</div>
+            <div class="poly-q" style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">
+            <span style="flex:1;">{{ m.question }}</span>
+            <a href="{{ m.url or 'https://polymarket.com/markets?tag=bitcoin' }}" target="_blank" rel="noopener"
+               style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,59,95,0.7);text-decoration:none;padding-top:1px;">SRC &#8599;</a>
+          </div>
             {% set yes = m.outcomes.get('Yes', 50) if m.outcomes else 50 %}
             {% set no = m.outcomes.get('No', 50) if m.outcomes else 50 %}
             <div class="poly-bar-track">
@@ -1260,7 +1264,15 @@
           <div class="whale-entry flash" style="animation-delay:{{ loop.index0 * 0.15 }}s;">
             <span class="whale-tier-badge {{ w.tier|lower }}">{{ w.tier }}</span>
             <div>
-              <div class="whale-msg{% if w.score >= 30 %} large-tx{% endif %}">{{ w.message }}</div>
+              <div class="whale-msg{% if w.score >= 30 %} large-tx{% endif %}">
+              {%- set _wparts = w.message.split(' ') -%}
+              {%- set _wtxid = _wparts[-1].rstrip('.') if _wparts else '' -%}
+              {%- if _wtxid and _wtxid|length >= 8 -%}
+                <span>{{ w.message[:-(_wtxid|length + 3)] if '...' in w.message else w.message.replace(_wtxid,'') }}</span>
+                <a href="https://mempool.space/tx/{{ _wtxid }}" target="_blank" rel="noopener"
+                   style="color:#ff3b5f;font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.9;text-decoration:none;border-bottom:1px solid rgba(255,59,95,0.3);">{{ _wtxid[:12] }}... &#8599;</a>
+              {%- else -%}{{ w.message }}{%- endif -%}
+            </div>
               <div class="whale-time">{{ w.rule }} &bull; SCORE {{ w.score }}</div>
             </div>
           </div>
