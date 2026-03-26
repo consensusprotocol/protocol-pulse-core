@@ -1022,8 +1022,8 @@
 <script>
 /* ── Series Player ── */
 var SD={{ series_data|tojson }},curS=null;
-function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
-function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
+function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1&playsinline=1&rel=0';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
+function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
 function closeSD(){document.getElementById('sdIf').src='';document.getElementById('sdPanel').classList.remove('active');curS=null}
 
 /* ── Audio Player ── */
@@ -1036,7 +1036,7 @@ au.addEventListener('timeupdate',function(){if(au.duration){document.getElementB
 au.addEventListener('ended',function(){stopA()});
 
 /* ── YouTube Video Modal ── */
-function openVideoModal(videoId){if(!videoId)return;var modal=document.getElementById('videoModal');var iframe=document.getElementById('vmIframe');iframe.src='https://www.youtube.com/embed/'+videoId+'?autoplay=1&rel=0&modestbranding=1';modal.classList.add('active');document.body.style.overflow='hidden'}
+function openVideoModal(videoId){if(!videoId)return;var modal=document.getElementById('videoModal');var iframe=document.getElementById('vmIframe');iframe.src='https://www.youtube.com/embed/'+videoId+'?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1';modal.classList.add('active');document.body.style.overflow='hidden'}
 function closeVideoModal(e,force){if(force||e.target.id==='videoModal'){var modal=document.getElementById('videoModal');var iframe=document.getElementById('vmIframe');iframe.src='';modal.classList.remove('active');document.body.style.overflow=''}}
 
 /* ── Books Toggle ── */
