@@ -676,6 +676,65 @@ width:100%;margin-top:4px;">
   })();
   </script>
 
+<script>
+/* ISOLATED GATE FUNCTIONS - separate script block, independent of main script */
+/* requestMic and go() are the only things needed to pass the gate */
+
+function requestMic(){
+  var gBtn=document.getElementById('gate-btn');
+  var gStatus=document.getElementById('gate-status');
+  var gErr=document.getElementById('gate-error');
+  var vid=document.getElementById('vid');
+  if(gBtn) gBtn.disabled=true;
+  if(gStatus) gStatus.textContent='Requesting microphone...';
+  if(gErr) gErr.style.display='none';
+
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    if(gStatus) gStatus.textContent='ERR: mediaDevices unavailable on this browser';
+    if(gBtn) gBtn.disabled=false;
+    return;
+  }
+  if(!window.isSecureContext){
+    if(gStatus) gStatus.textContent='ERR: page not served over HTTPS';
+    if(gBtn) gBtn.disabled=false;
+    return;
+  }
+
+  if(gStatus) gStatus.textContent='Calling getUserMedia...';
+  navigator.mediaDevices.getUserMedia({audio:true,video:false})
+    .then(function(stream){
+      stream.getTracks().forEach(function(t){t.stop();});
+      try{
+        var _ac=new(window.AudioContext||window.webkitAudioContext)();
+        var _b=_ac.createBuffer(1,1,22050);
+        var _s=_ac.createBufferSource();
+        _s.buffer=_b;_s.connect(_ac.destination);_s.start(0);
+        setTimeout(function(){try{_ac.close();}catch(e){}},500);
+      }catch(e){}
+      if(vid){vid.muted=true;vid.play().catch(function(){});}
+      window._chatAudioPlaying=false;
+      if(gStatus) gStatus.textContent='';
+      if(typeof go==='function'){ go(); }
+      else { if(gStatus) gStatus.textContent='ERR: go() not defined - main script failed'; }
+    })
+    .catch(function(err){
+      console.warn('[Satomi mic error]',err);
+      if(gBtn) gBtn.disabled=false;
+      if(gStatus) gStatus.textContent='';
+      if(gErr){
+        gErr.style.display='block';
+        var name=err&&err.name?err.name:'';
+        var msg=name==='NotAllowedError'?'Microphone access denied. Allow mic in browser settings.':
+                name==='NotFoundError'?'No microphone detected.':
+                'Microphone unavailable'+(name?' ('+name+')':'')+'.';
+        gErr.innerHTML='<div style="color:rgba(255,59,95,.8);font-size:12px;margin-bottom:10px;">'+msg+'</div>'
+          +'<button onclick="requestMic()" style="background:rgba(255,59,95,.15);border:1px solid rgba(255,59,95,.4);color:#ff3b5f;padding:10px 20px;border-radius:4px;cursor:pointer;font-size:12px;display:block;margin-bottom:8px;width:100%;">RETRY MIC ACCESS</button>'
+          +'<button onclick="goTextMode()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;padding:10px 20px;border-radius:4px;cursor:pointer;font-size:12px;display:block;width:100%;">CONTINUE WITH TEXT INPUT</button>';
+      }
+    });
+}
+</script>
+
   <div id="gate-status">— tap to activate —</div>
   <div id="gate-error"></div>
   <!-- P0: Text input fallback when mic is unavailable -->
