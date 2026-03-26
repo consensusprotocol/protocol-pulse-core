@@ -4333,6 +4333,16 @@ def api_signal_strength():
         _m1 = _i1.module_from_spec(_s1); _s1.loader.exec_module(_m1)
         get_signal_strength = _m1.get_signal_strength
         result = get_signal_strength()
+        try:
+            import json as _j2
+            _ctx = _j2.load(open('/home/ultron/protocol_pulse/data/sovereign_context/latest.json'))
+            result['price'] = _ctx.get('btc',{}).get('price',0)
+            result['block_height'] = _ctx.get('block_height',0)
+            result['mempool_count'] = _ctx.get('mempool',{}).get('unconfirmed',0)
+            result['hashrate'] = _ctx.get('network',{}).get('hashrate_eh',_ctx.get('network',{}).get('hashrate',0))
+            result['fear_greed'] = _ctx.get('fear_greed',{}).get('value',0)
+            result['fear_greed_label'] = _ctx.get('fear_greed',{}).get('label','')
+        except: pass
         return jsonify({'success': True, 'data': result})
     except Exception as e:
         logging.error("api_signal_strength error: %s", e)
