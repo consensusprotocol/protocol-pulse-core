@@ -51,7 +51,7 @@
     z-index: 10;
     background: linear-gradient(180deg, rgba(0,0,0,0.98) 0%, rgba(5,5,10,0.98) 100%);
     padding: 40px 0;
-    margin-top: -80px;
+    margin-top: 0px;
 }
 
 .dashboard-grid {
@@ -277,8 +277,8 @@ body, html {
 }
 
 #live-terminal-wrapper {
-    height: 80vh !important;
-    max-height: 80vh !important;
+    height: 65vh !important;
+    max-height: 65vh !important;
     margin-bottom: 0 !important;
     position: relative;
 }
@@ -332,7 +332,7 @@ section.container {
 
 /* Footer overlap for seamless flow */
 footer {
-    margin-top: -60px !important;
+    margin-top: 16px !important;
     position: relative;
     z-index: 10;
     background: rgba(0,0,0,0.85) !important;
@@ -2352,7 +2352,7 @@ html, body {
     pointer-events: auto !important;
 }
 
-#visualizer-canvas {
+#visualizer-canvas { display: flex; align-items: center; justify-content: center; 
     pointer-events: auto !important;
 }
 
@@ -2364,7 +2364,7 @@ html, body {
 .terminal-container {
     position: relative;
     width: 100%;
-    min-height: calc(80vh - 60px);
+    min-height: calc(65vh - 60px);
     background: transparent;
     overflow: hidden;
 }
@@ -2389,7 +2389,7 @@ html, body {
 .terminal-container,
 .visualizer-container,
 #visualizer-container,
-#visualizer-canvas {
+#visualizer-canvas { display: flex; align-items: center; justify-content: center; 
     background: transparent !important;
     background-color: transparent !important;
 }
@@ -2404,7 +2404,7 @@ html, body {
 
 /* Visualizer canvas must sit above the video */
 .visualizer-container,
-#visualizer-canvas {
+#visualizer-canvas { display: flex; align-items: center; justify-content: center; 
     position: relative;
     z-index: 1;
 }
@@ -2446,7 +2446,7 @@ html, body {
 
 .bitfeed-frame {
     width: 100%;
-    height: calc(100vh - 60px);
+    height: calc(65vh - 60px);
     border: none;
     filter: hue-rotate(330deg) saturate(1.2);
 }
@@ -2469,7 +2469,7 @@ html, body {
     z-index: 1;
 }
 
-#visualizer-canvas {
+#visualizer-canvas { display: flex; align-items: center; justify-content: center; 
     position: absolute;
     top: 0;
     left: 0;
