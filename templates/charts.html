@@ -255,7 +255,7 @@
         <div class="ch-grid">
             <div class="ch-chart-card">
                 <div class="ch-chart-card__header">
-                    <div class="ch-chart-card__title"><i class="fas fa-microchip"></i> Hashrate</div>
+                    <div class="ch-chart-card__title"><i class="fas fa-microchip"></i> Hashrate (3 Month)</div>
                     <div class="ch-chart-card__value" id="chHashrateLabel">--</div>
                 </div>
                 <div class="ch-canvas-wrap" style="height:240px;">
@@ -265,12 +265,23 @@
 
             <div class="ch-chart-card">
                 <div class="ch-chart-card__header">
-                    <div class="ch-chart-card__title"><i class="fas fa-gas-pump"></i> Fee Rates (sat/vB)</div>
-                    <div class="ch-chart-card__value" id="chFeeLabel">--</div>
+                    <div class="ch-chart-card__title"><i class="fas fa-lock"></i> Difficulty Adjustments</div>
+                    <div class="ch-chart-card__value" id="chDiffLabel">--</div>
                 </div>
                 <div class="ch-canvas-wrap" style="height:240px;">
-                    <canvas id="chFeeChart"></canvas>
+                    <canvas id="chDiffChart"></canvas>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mempool Fee Histogram -->
+        <div class="ch-chart-card">
+            <div class="ch-chart-card__header">
+                <div class="ch-chart-card__title"><i class="fas fa-gas-pump"></i> Mempool Fee Distribution</div>
+                <div class="ch-chart-card__value" id="chFeeLabel">--</div>
+            </div>
+            <div class="ch-canvas-wrap" style="height:280px;">
+                <canvas id="chFeeChart"></canvas>
             </div>
         </div>
 
@@ -337,67 +348,88 @@
 (function() {
     'use strict';
 
-    var priceChart, hashrateChart, feeChart;
+    var priceChart, hashrateChart, diffChart, feeChart;
     var currentDays = 30;
 
-    var chartColors = {
+    var C = {
         teal: '#00d4aa',
         tealDim: 'rgba(0, 212, 170, 0.08)',
         amber: '#f5a623',
         amberDim: 'rgba(245, 166, 35, 0.08)',
+        red: '#ff4757',
+        redDim: 'rgba(255, 71, 87, 0.08)',
+        purple: '#a855f7',
+        purpleDim: 'rgba(168, 85, 247, 0.08)',
         grid: 'rgba(255, 255, 255, 0.04)',
         text: 'rgba(255, 255, 255, 0.4)'
     };
 
-    var baseChartOpts = {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: '#111',
-                borderColor: 'rgba(0, 212, 170, 0.3)',
-                borderWidth: 1,
-                titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
-                bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
-                cornerRadius: 8,
-                padding: 10
-            }
-        },
-        scales: {
-            x: {
-                grid: { color: chartColors.grid },
-                ticks: { color: chartColors.text, font: { family: "'JetBrains Mono'", size: 10 }, maxRotation: 0, maxTicksLimit: 8 }
+    function mkOpts(overrides) {
+        var base = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111',
+                    borderColor: 'rgba(0, 212, 170, 0.3)',
+                    borderWidth: 1,
+                    titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
+                    bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
+                    cornerRadius: 8,
+                    padding: 10
+                }
             },
-            y: {
-                grid: { color: chartColors.grid },
-                ticks: { color: chartColors.text, font: { family: "'JetBrains Mono'", size: 10 } }
+            scales: {
+                x: {
+                    grid: { color: C.grid },
+                    ticks: { color: C.text, font: { family: "'JetBrains Mono'", size: 10 }, maxRotation: 0, maxTicksLimit: 8 }
+                },
+                y: {
+                    grid: { color: C.grid },
+                    ticks: { color: C.text, font: { family: "'JetBrains Mono'", size: 10 } }
+                }
+            }
+        };
+        if (overrides) {
+            if (overrides.yCallback) {
+                base.scales.y.ticks.callback = overrides.yCallback;
+            }
+            if (overrides.xCallback) {
+                base.scales.x.ticks.callback = overrides.xCallback;
+            }
+            if (overrides.tooltipLabel) {
+                base.plugins.tooltip.callbacks = { label: overrides.tooltipLabel };
             }
         }
-    };
-
-    function formatPrice(v) {
-        return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        return base;
     }
 
-    function formatCompact(v) {
+    function fmtPrice(v) { return '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+    function fmtCompact(v) {
         if (v >= 1e12) return '$' + (v / 1e12).toFixed(2) + 'T';
         if (v >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
         if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
-        return '$' + v.toLocaleString();
+        return '$' + Number(v).toLocaleString();
     }
-
-    function formatDate(ts, days) {
+    function fmtDate(ts, days) {
         var d = new Date(ts);
         if (days <= 1) return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         if (days <= 30) return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     }
+    function fmtVsize(v) {
+        if (v >= 1e6) return (v / 1e6).toFixed(1) + ' MvB';
+        if (v >= 1e3) return (v / 1e3).toFixed(0) + ' kvB';
+        return v + ' vB';
+    }
 
-    // Fetch BTC summary data
+    function safeEl(id, text) { var e = document.getElementById(id); if (e) e.textContent = text; }
+
+    // ── 1. PRICE SUMMARY (banner + stats) ─────────────────────────
     function fetchSummary() {
-        fetch('/api/charts/price-history', { signal: AbortSignal.timeout(10000) })
+        fetch('/api/charts/price-history')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var prices = data.prices || [];
@@ -405,72 +437,55 @@
                 var latest = prices[prices.length - 1][1];
                 var first = prices[0][1];
                 var pct = ((latest - first) / first) * 100;
-                document.getElementById('chPrice').textContent = formatPrice(latest);
-                var changeEl = document.getElementById('chChange');
-                changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-                changeEl.className = 'ch-price-banner__change ch-price-banner__change--' + (pct >= 0 ? 'up' : 'down');
+                safeEl('chPrice', fmtPrice(latest));
+                var chg = document.getElementById('chChange');
+                if (chg) {
+                    chg.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+                    chg.className = 'ch-price-banner__change ch-price-banner__change--' + (pct >= 0 ? 'up' : 'down');
+                }
                 var vals = prices.map(function(p) { return p[1]; });
-                document.getElementById('chHigh').textContent = formatPrice(Math.max.apply(null, vals));
-                document.getElementById('chLow').textContent = formatPrice(Math.min.apply(null, vals));
+                safeEl('chHigh', fmtPrice(Math.max.apply(null, vals)));
+                safeEl('chLow', fmtPrice(Math.min.apply(null, vals)));
                 var caps = data.market_caps || [];
                 var vols = data.total_volumes || [];
-                if (caps.length) document.getElementById('chMcap').textContent = formatCompact(caps[caps.length - 1][1]);
-                if (vols.length) document.getElementById('chVolume').textContent = formatCompact(vols[vols.length - 1][1]);
+                if (caps.length) safeEl('chMcap', fmtCompact(caps[caps.length - 1][1]));
+                if (vols.length) safeEl('chVolume', fmtCompact(vols[vols.length - 1][1]));
             })
-            .catch(function() {});
+            .catch(function(e) { console.warn('fetchSummary:', e); });
     }
 
-    // Fetch price chart from local API proxy
+    // ── 2. PRICE LINE CHART ───────────────────────────────────────
     function fetchPriceChart(days) {
-        fetch('/api/charts/price-history', { signal: AbortSignal.timeout(10000) })
+        fetch('/api/charts/price-history')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var prices = data.prices || [];
                 if (!prices.length) return;
-                var labels = prices.map(function(p) { return formatDate(p[0], days); });
+                var labels = prices.map(function(p) { return fmtDate(p[0], days); });
                 var values = prices.map(function(p) { return p[1]; });
-
-                document.getElementById('chPriceLabel').textContent = formatPrice(values[values.length - 1] || 0);
+                safeEl('chPriceLabel', fmtPrice(values[values.length - 1] || 0));
 
                 if (priceChart) priceChart.destroy();
                 var ctx = document.getElementById('chPriceChart').getContext('2d');
-
-                var gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-                gradient.addColorStop(0, 'rgba(0, 212, 170, 0.15)');
-                gradient.addColorStop(1, 'rgba(0, 212, 170, 0)');
+                var grad = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+                grad.addColorStop(0, 'rgba(0, 212, 170, 0.15)');
+                grad.addColorStop(1, 'rgba(0, 212, 170, 0)');
 
                 priceChart = new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            borderColor: chartColors.teal,
-                            backgroundColor: gradient,
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            pointHitRadius: 10,
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: Object.assign({}, baseChartOpts, {
-                        scales: Object.assign({}, baseChartOpts.scales, {
-                            y: Object.assign({}, baseChartOpts.scales.y, {
-                                ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
-                                    callback: function(v) { return formatPrice(v); }
-                                })
-                            })
-                        })
-                    })
+                    data: { labels: labels, datasets: [{
+                        data: values, borderColor: C.teal, backgroundColor: grad,
+                        borderWidth: 2, pointRadius: 0, pointHitRadius: 10, fill: true, tension: 0.3
+                    }] },
+                    options: mkOpts({ yCallback: function(v) { return fmtPrice(v); } })
                 });
             })
-            .catch(function() {});
+            .catch(function(e) { console.warn('fetchPriceChart:', e); });
     }
 
-    // Fetch hashrate from mempool.space (CORS-enabled)
+    // ── 3. HASHRATE LINE CHART (from local /api/charts/hashrate-history) ──
     function fetchHashrate() {
-        fetch('https://mempool.space/api/v1/mining/hashrate/3m', { signal: AbortSignal.timeout(12000) })
+        fetch('/api/charts/hashrate-history')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var hashrates = data.hashrates || [];
@@ -478,94 +493,141 @@
                 var labels = hashrates.map(function(h) {
                     return new Date(h.timestamp * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 });
-                var values = hashrates.map(function(h) { return h.avgHashrate / 1e18; }); // EH/s
-
+                var values = hashrates.map(function(h) { return h.avgHashrate / 1e18; });
                 var latest = values[values.length - 1];
-                document.getElementById('chHashrateLabel').textContent = (latest || 0).toFixed(1) + ' EH/s';
+                safeEl('chHashrateLabel', (latest || 0).toFixed(1) + ' EH/s');
 
                 if (hashrateChart) hashrateChart.destroy();
                 var ctx = document.getElementById('chHashrateChart').getContext('2d');
-
                 hashrateChart = new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            borderColor: chartColors.amber,
-                            backgroundColor: chartColors.amberDim,
-                            borderWidth: 1.5,
-                            pointRadius: 0,
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: Object.assign({}, baseChartOpts, {
-                        scales: Object.assign({}, baseChartOpts.scales, {
-                            y: Object.assign({}, baseChartOpts.scales.y, {
-                                ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
-                                    callback: function(v) { return v.toFixed(0) + ' EH/s'; }
-                                })
-                            })
-                        })
+                    data: { labels: labels, datasets: [{
+                        data: values, borderColor: C.amber, backgroundColor: C.amberDim,
+                        borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3
+                    }] },
+                    options: mkOpts({ yCallback: function(v) { return v.toFixed(0) + ' EH/s'; } })
+                });
+            })
+            .catch(function(e) { console.warn('fetchHashrate:', e); });
+    }
+
+    // ── 4. DIFFICULTY ADJUSTMENT BAR CHART ────────────────────────
+    function fetchDifficulty() {
+        fetch('/api/charts/hashrate-history')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var diffs = data.difficulty || [];
+                if (!diffs.length) return;
+                // Sort by block height ascending
+                diffs.sort(function(a, b) { return a.height - b.height; });
+
+                var labels = diffs.map(function(d) {
+                    return new Date(d.time * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+                var pctChanges = diffs.map(function(d) { return ((d.adjustment - 1) * 100); });
+                var colors = pctChanges.map(function(v) { return v >= 0 ? 'rgba(0, 212, 170, 0.7)' : 'rgba(255, 71, 87, 0.7)'; });
+                var borders = pctChanges.map(function(v) { return v >= 0 ? C.teal : C.red; });
+
+                var current = data.currentDifficulty || diffs[diffs.length - 1].difficulty;
+                safeEl('chDiffLabel', (current / 1e12).toFixed(2) + ' T');
+
+                if (diffChart) diffChart.destroy();
+                var ctx = document.getElementById('chDiffChart').getContext('2d');
+                diffChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{
+                        data: pctChanges, backgroundColor: colors, borderColor: borders,
+                        borderWidth: 1, borderRadius: 4
+                    }] },
+                    options: mkOpts({
+                        yCallback: function(v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; },
+                        tooltipLabel: function(ctx) {
+                            var v = ctx.parsed.y;
+                            return 'Adjustment: ' + (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+                        }
                     })
                 });
             })
-            .catch(function() {});
+            .catch(function(e) { console.warn('fetchDifficulty:', e); });
     }
 
-    // Fetch fee data from mempool.space (CORS-enabled)
+    // ── 5. MEMPOOL FEE HISTOGRAM (from local /api/charts/mempool-data) ──
     function fetchFees() {
-        fetch('https://mempool.space/api/v1/fees/recommended', { signal: AbortSignal.timeout(8000) })
+        fetch('/api/charts/mempool-data')
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                var labels = ['Fastest', 'Half Hour', 'Hour', 'Economy', 'Minimum'];
-                var values = [data.fastestFee, data.halfHourFee, data.hourFee, data.economyFee, data.minimumFee];
+                var fees = data.fees || {};
+                var mempool = data.mempool || {};
+                var histogram = mempool.fee_histogram || [];
 
-                document.getElementById('chFeeLabel').textContent = data.fastestFee + ' sat/vB';
+                safeEl('chFeeLabel', (fees.fastestFee || '--') + ' sat/vB fastest');
+
+                // Bucket histogram into fee-rate ranges
+                var buckets = [
+                    { label: '0-1', min: 0, max: 1, vsize: 0 },
+                    { label: '1-2', min: 1, max: 2, vsize: 0 },
+                    { label: '2-5', min: 2, max: 5, vsize: 0 },
+                    { label: '5-10', min: 5, max: 10, vsize: 0 },
+                    { label: '10-20', min: 10, max: 20, vsize: 0 },
+                    { label: '20-50', min: 20, max: 50, vsize: 0 },
+                    { label: '50-100', min: 50, max: 100, vsize: 0 },
+                    { label: '100+', min: 100, max: Infinity, vsize: 0 }
+                ];
+                for (var i = 0; i < histogram.length; i++) {
+                    var feeRate = histogram[i][0];
+                    var vsize = histogram[i][1];
+                    for (var j = 0; j < buckets.length; j++) {
+                        if (feeRate >= buckets[j].min && feeRate < buckets[j].max) {
+                            buckets[j].vsize += vsize;
+                            break;
+                        }
+                    }
+                }
+                // Filter out empty trailing buckets
+                var labels = [], values = [];
+                for (var k = 0; k < buckets.length; k++) {
+                    labels.push(buckets[k].label);
+                    values.push(buckets[k].vsize);
+                }
+
+                var barColors = [
+                    'rgba(0, 212, 170, 0.3)',
+                    'rgba(0, 212, 170, 0.5)',
+                    'rgba(0, 212, 170, 0.7)',
+                    'rgba(245, 166, 35, 0.6)',
+                    'rgba(245, 166, 35, 0.8)',
+                    'rgba(255, 71, 87, 0.6)',
+                    'rgba(255, 71, 87, 0.8)',
+                    'rgba(168, 85, 247, 0.7)'
+                ];
 
                 if (feeChart) feeChart.destroy();
                 var ctx = document.getElementById('chFeeChart').getContext('2d');
-
                 feeChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
+                            label: 'vsize',
                             data: values,
-                            backgroundColor: [
-                                'rgba(255, 71, 87, 0.7)',
-                                'rgba(245, 166, 35, 0.7)',
-                                'rgba(0, 212, 170, 0.7)',
-                                'rgba(0, 212, 170, 0.5)',
-                                'rgba(0, 212, 170, 0.3)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 71, 87, 1)',
-                                'rgba(245, 166, 35, 1)',
-                                'rgba(0, 212, 170, 1)',
-                                'rgba(0, 212, 170, 0.8)',
-                                'rgba(0, 212, 170, 0.6)'
-                            ],
-                            borderWidth: 1,
+                            backgroundColor: barColors.slice(0, values.length),
+                            borderWidth: 0,
                             borderRadius: 4
                         }]
                     },
-                    options: Object.assign({}, baseChartOpts, {
-                        scales: Object.assign({}, baseChartOpts.scales, {
-                            y: Object.assign({}, baseChartOpts.scales.y, {
-                                ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
-                                    callback: function(v) { return v + ' sat/vB'; }
-                                })
-                            })
-                        })
+                    options: mkOpts({
+                        yCallback: function(v) { return fmtVsize(v); },
+                        xCallback: function(v, i) { return labels[i] ? labels[i] + ' sat/vB' : ''; },
+                        tooltipLabel: function(ctx) {
+                            return fmtVsize(ctx.parsed.y) + ' in ' + labels[ctx.dataIndex] + ' sat/vB range';
+                        }
                     })
                 });
             })
-            .catch(function() {});
+            .catch(function(e) { console.warn('fetchFees:', e); });
     }
 
-    // Timeframe buttons
+    // ── TIMEFRAME BUTTONS ─────────────────────────────────────────
     var btns = document.querySelectorAll('#chTimeframe .ch-timeframe__btn');
     btns.forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -576,40 +638,42 @@
         });
     });
 
-    // Init
+    // ── INIT ALL CHARTS ───────────────────────────────────────────
     fetchSummary();
     fetchPriceChart(currentDays);
     fetchHashrate();
+    fetchDifficulty();
     fetchFees();
 
-    // Auto-refresh every 60s — all charts
+    // ── AUTO-REFRESH EVERY 60s ────────────────────────────────────
     setInterval(function() {
         fetchSummary();
         fetchPriceChart(currentDays);
         fetchHashrate();
+        fetchDifficulty();
         fetchFees();
     }, 60000);
 
-    // ═══ PURCHASING POWER DECAY CHARTS ═══
+    // ═══ PURCHASING POWER DECAY CHARTS ════════════════════════════
     var ppCharts = {};
     var ppDays = 365;
 
     var ppAssets = [
-        { id: 'gold', label: 'Gold (XAU)', labelEl: 'ppGoldLabel', canvasId: 'ppGoldChart', color: '#f5a623' },
-        { id: 'silver', label: 'Silver (XAG)', labelEl: 'ppSilverLabel', canvasId: 'ppSilverChart', color: '#c0c0c0' },
-        { id: 'spx', label: 'S&P 500', labelEl: 'ppSpxLabel', canvasId: 'ppSpxChart', color: '#6366f1' },
-        { id: 'dxy', label: 'DXY', labelEl: 'ppDxyLabel', canvasId: 'ppDxyChart', color: '#22c55e' }
+        { id: 'gold', labelEl: 'ppGoldLabel', canvasId: 'ppGoldChart', color: '#f5a623', gradColor: 'rgba(245,166,35,0.15)' },
+        { id: 'silver', labelEl: 'ppSilverLabel', canvasId: 'ppSilverChart', color: '#c0c0c0', gradColor: 'rgba(192,192,192,0.12)' },
+        { id: 'spx', labelEl: 'ppSpxLabel', canvasId: 'ppSpxChart', color: '#6366f1', gradColor: 'rgba(99,102,241,0.15)' },
+        { id: 'dxy', labelEl: 'ppDxyLabel', canvasId: 'ppDxyChart', color: '#22c55e', gradColor: 'rgba(34,197,94,0.12)' }
     ];
 
-    var historicalProfiles = {
-        gold:   { trend: 0.28, vol: 0.08 },
-        silver: { trend: 0.12, vol: 0.18 },
-        spx:    { trend: 0.15, vol: 0.12 },
-        dxy:    { trend: -0.03, vol: 0.04 }
+    var ppProfiles = {
+        gold:   { vol: 0.08 },
+        silver: { vol: 0.18 },
+        spx:    { vol: 0.12 },
+        dxy:    { vol: 0.04 }
     };
 
     function fetchPPCharts(days) {
-        fetch('/api/charts/price-history', { signal: AbortSignal.timeout(10000) })
+        fetch('/api/charts/price-history')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var prices = data.prices || [];
@@ -626,7 +690,7 @@
                 ppAssets.forEach(function(asset) {
                     var baseline = baselineUsd[asset.id];
                     var current = currentUsd[asset.id];
-                    var profile = historicalProfiles[asset.id];
+                    var profile = ppProfiles[asset.id];
                     var labels = [], values = [];
 
                     for (var i = 0; i < prices.length; i++) {
@@ -636,8 +700,7 @@
                         var trend = baseline * Math.pow(current / baseline, progress);
                         var noise = 1 + profile.vol * 0.3 * Math.sin(i * 0.4 + asset.id.charCodeAt(0));
                         var noise2 = 1 + profile.vol * 0.2 * Math.sin(i * 0.15 + (asset.id.charCodeAt(1) || 0));
-                        var assetUsd = trend * noise * noise2;
-                        var assetInBtc = assetUsd / btcPrice;
+                        var assetInBtc = (trend * noise * noise2) / btcPrice;
                         labels.push(days <= 365
                             ? new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                             : new Date(ts).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
@@ -647,42 +710,31 @@
 
                     var step = Math.max(1, Math.floor(labels.length / 30));
                     var thinLabels = labels.map(function(l, idx) { return idx % step === 0 ? l : ''; });
-
                     var latest = values[values.length - 1];
-                    var el = document.getElementById(asset.labelEl);
-                    if (el) {
-                        el.textContent = latest.toFixed(asset.id === 'dxy' || asset.id === 'silver' ? 6 : 4) + ' BTC';
-                    }
+                    safeEl(asset.labelEl, latest.toFixed(asset.id === 'dxy' || asset.id === 'silver' ? 6 : 4) + ' BTC');
 
                     if (ppCharts[asset.id]) ppCharts[asset.id].destroy();
                     var canvas = document.getElementById(asset.canvasId);
                     if (!canvas) return;
                     var ctx2d = canvas.getContext('2d');
                     var grd = ctx2d.createLinearGradient(0, 0, 0, canvas.height || 220);
-                    var gradientColors = {gold:'rgba(245,166,35,0.15)',silver:'rgba(192,192,192,0.12)',spx:'rgba(99,102,241,0.15)',dxy:'rgba(34,197,94,0.12)'};
-                    grd.addColorStop(0, gradientColors[asset.id] || 'rgba(220,38,38,0.12)');
+                    grd.addColorStop(0, asset.gradColor);
                     grd.addColorStop(1, 'rgba(0,0,0,0)');
 
-                    var latestRef = latest;
+                    var ref = latest;
                     ppCharts[asset.id] = new Chart(canvas, {
                         type: 'line',
-                        data: { labels: thinLabels, datasets: [{ data: values, borderColor: asset.color, backgroundColor: grd, borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3 }] },
-                        options: Object.assign({}, baseChartOpts, {
-                            scales: Object.assign({}, baseChartOpts.scales, {
-                                y: Object.assign({}, baseChartOpts.scales.y, {
-                                    ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
-                                        callback: function(v) { return v.toFixed(latestRef > 0.01 ? 4 : 6); }
-                                    })
-                                })
-                            })
-                        })
+                        data: { labels: thinLabels, datasets: [{
+                            data: values, borderColor: asset.color, backgroundColor: grd,
+                            borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3
+                        }] },
+                        options: mkOpts({ yCallback: function(v) { return v.toFixed(ref > 0.01 ? 4 : 6); } })
                     });
                 });
             })
-            .catch(function() {});
+            .catch(function(e) { console.warn('fetchPPCharts:', e); });
     }
 
-    // PP Timeframe buttons
     var ppBtns = document.querySelectorAll('#ppTimeframe .ch-timeframe__btn');
     ppBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -693,7 +745,6 @@
         });
     });
 
-    // Init PP charts
     fetchPPCharts(ppDays);
 })();
 </script>
