@@ -1613,33 +1613,27 @@ function initSR(){
   recognition=new SR();
   recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';recognition.maxAlternatives=1;
   recognition.onresult=function(e){
-  /* FIX 3b: Accumulate interim for iOS fallback */
-  var interim='';
-  for(var i=e.resultIndex;i<e.results.length;i++){
-    if(!e.results[i].isFinal) interim+=e.results[i][0].transcript;
-  }
-  if(interim) window._interimPending=interim;
     var fin='',int='';
-    for(var i=0;i<e.results.length;i++){
-      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
-      else int+=e.results[i][0].transcript;
+    for(var ri=0;ri<e.results.length;ri++){
+      if(e.results[ri].isFinal) fin+=e.results[ri][0].transcript;
+      else int+=e.results[ri][0].transcript;
     }
-    showTX(fin||int);if(fin){pending=fin;console.log('[Satomi] onresult final:',fin.substring(0,50));}
+    /* Store both final and interim so onend can submit either */
+    if(fin){ pending=fin; window._interimPending=''; console.log('[Satomi] final:',fin.substring(0,50)); }
+    else if(int){ window._interimPending=int; }
+    showTX(fin||int);
   };
   recognition.onend=function(){
-    console.log('[Satomi] recognition.onend — pending:',JSON.stringify(pending),'busy:',busy);
-    setRec(false);
-    var _pend=pending;
-    pending='';
-    if(_pend.trim()&&!busy){
-      /* P1: Bridge status — show "Processing..." immediately so user sees feedback */
-      setStat('Processing\u2026','#f4c46f',true);
-      setTimeout(function(){ if(!busy){process(_pend);}},100);
+    setRec(false); isRec=false;
+    var _sub=(pending||window._interimPending||'').trim();
+    pending=''; window._interimPending='';
+    console.log('[Satomi] onend — submitting:',JSON.stringify(_sub.substring(0,40)),'busy:',busy);
+    if(_sub&&!busy){
+      setStat('Processing…','#f4c46f',true);
+      setTimeout(function(){ if(!busy){ process(_sub); } },120);
     } else if(!busy&&_greeted){
-      /* FIX 5: Auto-restart recognition on silence — don't dead-end */
-      console.log('[Satomi] Empty pending — auto-restarting listener');
-      setStat('Listening\u2026','#6cff9f',false);
-      setTimeout(function(){ if(!busy&&!isRec){startRec();} },300);
+      setStat('Listening…','#6cff9f',false);
+      setTimeout(function(){ if(!busy&&!isRec){ try{recognition.start();isRec=true;setRec(true);}catch(e){} } },350);
     }
   };
   recognition.onerror=function(e){console.warn(e.error);setRec(false);};
