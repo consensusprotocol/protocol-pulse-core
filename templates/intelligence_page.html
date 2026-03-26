@@ -314,6 +314,21 @@
   color: rgba(255,255,255,0.5);
 }
 
+.axis-detail-card {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(255,59,95,0.04);
+  border: 1px solid rgba(255,59,95,0.10);
+  border-radius: 4px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  animation: detailSlideIn 0.3s ease forwards;
+}
+@keyframes detailSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Indices rows ── */
 .idx-row {
   display: flex;
@@ -1075,6 +1090,7 @@
           <span style="color:rgba(255,255,255,0.7);">&#9632; LIGHTNING</span>
           <span style="color:#ff3b5f;">&#9632; MARKET</span>
         </div>
+        <div id="axis-detail-card" class="axis-detail-card"></div>
 
         <!-- Protocol Pulse Indices -->
         {% set indices = sovereign_ctx.indices if sovereign_ctx and sovereign_ctx.indices else {} %}
@@ -1551,7 +1567,7 @@
   })();
 
   // ═══════════════════════════════════════════════════════════════
-  // 2. SOVEREIGN SIGNAL MATRIX — Custom Canvas Radar with Physics
+  // 2. SOVEREIGN SIGNAL MATRIX — Alive Canvas Radar with Full Physics
   // ═══════════════════════════════════════════════════════════════
   (function initRadar() {
     const canvas = document.getElementById('radarChart');
@@ -1561,194 +1577,372 @@
     const cx = W / 2, cy = H / 2;
     const maxR = Math.min(W, H) * 0.38;
 
+    const labels = ['MINER', 'EXCHANGE', 'NARRATIVE', 'ON-CHAIN', 'LIGHTNING', 'MARKET'];
+    const n = 6;
+
+    // ── State ──
+    let baseVals = [0, 0, 0, 0, 0, 0];
+    let animVals = [0, 0, 0, 0, 0, 0];
+    let targetVals = [0, 0, 0, 0, 0, 0];
+    let ghostVals = [0, 0, 0, 0, 0, 0];
+    let scoreHistory = labels.map(function() { return []; });
+    let t = 0, entryStart = -1, entered = false;
+    let hoveredAxis = -1, selectedAxis = -1;
+    let flashAlpha = [0, 0, 0, 0, 0, 0];
+
     function computeMatrix() {
       if (!CTX || !CTX.btc) return null;
-      const fg = (CTX.fear_greed || {}).value || 50;
-      const hashrate = (CTX.network || {}).hashrate_eh || 0;
-      const adjPct = (CTX.network || {}).next_adj_pct || 0;
-      const flow = CTX.exchange_flow || 'neutral';
-      const pcaf = CTX.pcaf_score || 0;
-      const kolScore = (CTX.kol || {}).sentiment_score || 50;
-      const artCount = (CTX.narrative || {}).article_count || 0;
-      const lnCap = (CTX.lightning || {}).capacity_btc || 0;
-      const lnChan = (CTX.lightning || {}).channels || 0;
-      const dom = (CTX.btc || {}).dominance || 0;
-      const poly = (CTX.polymarket || {}).macro_sentiment || 50;
-      const whaleN = (CTX.whale_alerts || []).length;
+      var fg = (CTX.fear_greed || {}).value || 50;
+      var hashrate = (CTX.network || {}).hashrate_eh || 0;
+      var adjPct = (CTX.network || {}).next_adj_pct || 0;
+      var flow = CTX.exchange_flow || 'neutral';
+      var pcaf = CTX.pcaf_score || 0;
+      var kolScore = (CTX.kol || {}).sentiment_score || 50;
+      var artCount = (CTX.narrative || {}).article_count || 0;
+      var lnCap = (CTX.lightning || {}).capacity_btc || 0;
+      var lnChan = (CTX.lightning || {}).channels || 0;
+      var dom = (CTX.btc || {}).dominance || 0;
+      var poly = (CTX.polymarket || {}).macro_sentiment || 50;
+      var whaleN = (CTX.whale_alerts || []).length;
 
-      const miner = Math.min(100, Math.max(0,
+      var miner = Math.min(100, Math.max(0,
         (hashrate > 0 ? Math.min(50, hashrate / 20) : 25) +
         (adjPct > 0 ? Math.min(30, adjPct * 10) : 0) +
         (flow === 'outflow' ? 20 : flow === 'inflow' ? -10 : 0)
       ));
-      const exchange = Math.min(100, Math.max(0, (pcaf * 0.5) + ((flow === 'outflow' ? 70 : flow === 'inflow' ? 30 : 50) * 0.5)));
-      const narrative = Math.min(100, Math.max(0, (kolScore * 0.6) + (Math.min(100, artCount * 5) * 0.4)));
-      const onchain = Math.min(100, Math.max(0, (whaleN * 15) + (flow === 'outflow' ? 30 : 10) + (pcaf * 0.2)));
-      const lightning = Math.round((lnCap > 0 ? Math.min(100, (lnCap / 6000) * 80) : 40) * 0.6 + (lnChan > 0 ? Math.min(100, (lnChan / 45000) * 80) : 40) * 0.4);
-      const market = Math.min(100, Math.max(0, (fg * 0.4) + (dom * 0.3) + (poly * 0.3)));
+      var exchange = Math.min(100, Math.max(0, (pcaf * 0.5) + ((flow === 'outflow' ? 70 : flow === 'inflow' ? 30 : 50) * 0.5)));
+      var narrative = Math.min(100, Math.max(0, (kolScore * 0.6) + (Math.min(100, artCount * 5) * 0.4)));
+      var onchain = Math.min(100, Math.max(0, (whaleN * 15) + (flow === 'outflow' ? 30 : 10) + (pcaf * 0.2)));
+      var lightning = Math.round((lnCap > 0 ? Math.min(100, (lnCap / 6000) * 80) : 40) * 0.6 + (lnChan > 0 ? Math.min(100, (lnChan / 45000) * 80) : 40) * 0.4);
+      var market = Math.min(100, Math.max(0, (fg * 0.4) + (dom * 0.3) + (poly * 0.3)));
 
-      const vals = [Math.round(miner), Math.round(exchange), Math.round(narrative), Math.round(onchain), Math.round(lightning), Math.round(market)];
-      const comp = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+      var vals = [Math.round(miner), Math.round(exchange), Math.round(narrative), Math.round(onchain), Math.round(lightning), Math.round(market)];
+      var comp = Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
       return { values: vals, composite: comp, bias: comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : 'NEUTRAL' };
     }
 
-    const matrix = computeMatrix();
-    if (!matrix) return;
+    function ingestMatrix(m) {
+      if (!m) return;
+      ghostVals = animVals.map(function(v) { return Math.round(v); });
+      var prev = baseVals.slice();
+      baseVals = m.values.slice();
+      targetVals = m.values.slice();
+      for (var i = 0; i < n; i++) {
+        scoreHistory[i].push(m.values[i]);
+        if (scoreHistory[i].length > 7) scoreHistory[i].shift();
+        if (Math.abs(baseVals[i] - prev[i]) > 2) flashAlpha[i] = 1.0;
+      }
+      var compEl = document.getElementById('radar-composite');
+      var biasEl = document.getElementById('radar-bias');
+      if (compEl) { compEl.textContent = m.composite; compEl.style.color = m.composite >= 65 ? '#fff' : m.composite <= 35 ? '#ff3b5f' : 'rgba(255,255,255,0.6)'; }
+      if (biasEl) biasEl.textContent = 'SOVEREIGN COMPOSITE \u2022 ' + m.bias;
+    }
 
-    const labels = ['MINER', 'EXCHANGE', 'NARRATIVE', 'ON-CHAIN', 'LIGHTNING', 'MARKET'];
-    const n = 6;
+    var initial = computeMatrix();
+    if (!initial) return;
+    ingestMatrix(initial);
+    animVals = initial.values.slice();
 
-    // Animated values (random walk)
-    let animVals = matrix.values.map(v => v);
-    let targetVals = matrix.values.slice();
+    // ── Geometry ──
+    function axisAngle(i) { return (Math.PI * 2 * i) / n - Math.PI / 2; }
+    function axisXY(i, r) {
+      var a = axisAngle(i);
+      return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    }
 
-    // Update composite display
-    const compEl = document.getElementById('radar-composite');
-    const biasEl = document.getElementById('radar-bias');
-    if (compEl) { compEl.textContent = matrix.composite; compEl.style.color = matrix.composite >= 65 ? '#fff' : matrix.composite <= 35 ? '#ff3b5f' : 'rgba(255,255,255,0.6)'; }
-    if (biasEl) biasEl.textContent = 'SOVEREIGN COMPOSITE \u2022 ' + matrix.bias;
-
-    let t = 0;
-    function drawRadar() {
-      rctx.clearRect(0, 0, W, H);
-      t += 0.016;
-
-      // Hexagonal grid background
-      rctx.strokeStyle = 'rgba(255,255,255,0.03)';
-      rctx.lineWidth = 0.5;
-      for (let ring = 1; ring <= 5; ring++) {
-        const r = (ring / 5) * maxR;
+    // ── 1. HEXAGONAL GRID: 5 concentric hexagons, rgba(255,59,95,0.06→0.18) ──
+    function drawHexGrid(prog) {
+      for (var ring = 1; ring <= 5; ring++) {
+        var r = (ring / 5) * maxR * Math.min(1, prog * 1.2);
+        var alpha = 0.06 + (ring / 5) * 0.12;
+        rctx.strokeStyle = 'rgba(255,59,95,' + alpha.toFixed(3) + ')';
+        rctx.lineWidth = 0.5;
         rctx.beginPath();
-        for (let i = 0; i <= n; i++) {
-          const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-          const x = cx + Math.cos(angle) * r;
-          const y = cy + Math.sin(angle) * r;
-          if (i === 0) rctx.moveTo(x, y);
-          else rctx.lineTo(x, y);
+        for (var i = 0; i <= n; i++) {
+          var xy = axisXY(i % n, r);
+          i === 0 ? rctx.moveTo(xy[0], xy[1]) : rctx.lineTo(xy[0], xy[1]);
         }
         rctx.stroke();
       }
+    }
 
-      // Axis lines with traveling sine wave
-      for (let i = 0; i < n; i++) {
-        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-        const ex = cx + Math.cos(angle) * maxR;
-        const ey = cy + Math.sin(angle) * maxR;
+    // ── 3. FIBONACCI SPIRAL: logarithmic, one revolution, golden opacity ──
+    function drawSpiral() {
+      var b = Math.log(1.6180339887) / (Math.PI / 2);
+      var a = maxR * 0.018;
+      rctx.strokeStyle = 'rgba(255,200,80,0.035)';
+      rctx.lineWidth = 1;
+      rctx.beginPath();
+      var started = false;
+      for (var theta = 0; theta < Math.PI * 2; theta += 0.015) {
+        var r = a * Math.exp(b * theta);
+        if (r > maxR * 1.05) break;
+        var x = cx + Math.cos(theta - Math.PI / 2) * r;
+        var y = cy + Math.sin(theta - Math.PI / 2) * r;
+        if (!started) { rctx.moveTo(x, y); started = true; } else { rctx.lineTo(x, y); }
+      }
+      rctx.stroke();
+    }
 
-        // Axis line
+    // ── 2. PULSING AXES: sine wave outward, amp 2px, period 30px, speed 2px/frame ──
+    function drawAxes(prog) {
+      for (var i = 0; i < n; i++) {
+        var ap = Math.max(0, Math.min(1, (prog - i * 0.1) / 0.25));
+        if (ap <= 0) continue;
+        var angle = axisAngle(i);
+        var reach = maxR * ap;
+
+        // Base line
         rctx.strokeStyle = 'rgba(255,255,255,0.04)';
         rctx.lineWidth = 0.5;
         rctx.beginPath();
         rctx.moveTo(cx, cy);
-        rctx.lineTo(ex, ey);
+        rctx.lineTo(cx + Math.cos(angle) * reach, cy + Math.sin(angle) * reach);
         rctx.stroke();
 
-        // Traveling sine wave on axis
-        const perpAngle = angle + Math.PI / 2;
-        rctx.strokeStyle = 'rgba(255,59,95,0.08)';
-        rctx.lineWidth = 0.8;
+        // Sine wave: amplitude 2px, period 30px, phase = i*60°, speed 2px/frame
+        var perp = angle + Math.PI / 2;
+        var isActive = (hoveredAxis === i || selectedAxis === i);
+        rctx.strokeStyle = 'rgba(255,59,95,' + (isActive ? '0.24' : '0.08') + ')';
+        rctx.lineWidth = isActive ? 1.2 : 0.8;
         rctx.beginPath();
-        for (let d = 0; d <= 1; d += 0.02) {
-          const baseX = cx + Math.cos(angle) * maxR * d;
-          const baseY = cy + Math.sin(angle) * maxR * d;
-          const wave = Math.sin(d * 12 + t * 3 + i * 1.2) * 4 * d;
-          const wx = baseX + Math.cos(perpAngle) * wave;
-          const wy = baseY + Math.sin(perpAngle) * wave;
-          if (d === 0) rctx.moveTo(wx, wy);
-          else rctx.lineTo(wx, wy);
+        for (var d = 0; d <= ap; d += 0.012) {
+          var px = cx + Math.cos(angle) * maxR * d;
+          var py = cy + Math.sin(angle) * maxR * d;
+          var wave = Math.sin((d * maxR) * (Math.PI * 2 / 30) - t * 2 + i * (Math.PI / 3)) * 2 * Math.min(1, d * 3);
+          var wx = px + Math.cos(perp) * wave;
+          var wy = py + Math.sin(perp) * wave;
+          d === 0 ? rctx.moveTo(wx, wy) : rctx.lineTo(wx, wy);
         }
         rctx.stroke();
+      }
+    }
 
-        // Label
-        const labelR = maxR + 24;
-        const lx = cx + Math.cos(angle) * labelR;
-        const ly = cy + Math.sin(angle) * labelR;
-        rctx.fillStyle = 'rgba(255,255,255,0.3)';
+    // ── 9. AXIS LABELS: 200ms stagger, fade from opacity 0 + translateY(8px) ──
+    function drawLabels(prog) {
+      for (var i = 0; i < n; i++) {
+        var lp = Math.max(0, Math.min(1, (prog - 0.5 - i * 0.033) / 0.2));
+        if (lp <= 0) continue;
+        var angle = axisAngle(i);
+        var labelR = maxR + 28;
+        var yShift = (1 - lp) * 8;
+        var lx = cx + Math.cos(angle) * labelR;
+        var ly = cy + Math.sin(angle) * labelR + yShift;
+        var isActive = (hoveredAxis === i || selectedAxis === i);
+        var labelAlpha = (isActive ? 0.85 : 0.3) * lp;
+        rctx.fillStyle = 'rgba(255,255,255,' + labelAlpha.toFixed(3) + ')';
         rctx.font = '700 ' + (W > 500 ? '10' : '8') + 'px "JetBrains Mono", monospace';
         rctx.textAlign = 'center';
         rctx.textBaseline = 'middle';
         rctx.fillText(labels[i], lx, ly);
       }
+    }
 
-      // Random walk animation
-      for (let i = 0; i < n; i++) {
-        const diff = targetVals[i] - animVals[i];
-        animVals[i] += diff * 0.05;
-        // Small random perturbation for "processing" feel
-        if (Math.random() < 0.02) {
-          targetVals[i] = Math.max(0, Math.min(100, matrix.values[i] + (Math.random() - 0.5) * 8));
-        }
-        // Drift back to true value
-        if (Math.random() < 0.01) {
-          targetVals[i] = matrix.values[i];
-        }
-      }
-
-      // Data polygon — fill
-      rctx.fillStyle = 'rgba(255,59,95,0.06)';
+    // ── 8. GHOST TRAIL: previous polygon at 8% opacity ──
+    function drawGhost() {
+      rctx.fillStyle = 'rgba(255,59,95,0.025)';
+      rctx.strokeStyle = 'rgba(255,59,95,0.08)';
+      rctx.lineWidth = 0.8;
       rctx.beginPath();
-      for (let i = 0; i < n; i++) {
-        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-        const r = (animVals[i] / 100) * maxR;
-        const x = cx + Math.cos(angle) * r;
-        const y = cy + Math.sin(angle) * r;
-        if (i === 0) rctx.moveTo(x, y);
-        else rctx.lineTo(x, y);
+      for (var i = 0; i < n; i++) {
+        var xy = axisXY(i, (ghostVals[i] / 100) * maxR);
+        i === 0 ? rctx.moveTo(xy[0], xy[1]) : rctx.lineTo(xy[0], xy[1]);
       }
       rctx.closePath();
       rctx.fill();
+      rctx.stroke();
+    }
 
-      // Data polygon — stroke
-      rctx.strokeStyle = 'rgba(255,59,95,0.5)';
+    // ── 5. FILL POLYGON: rgba(255,59,95,0.10) + rotating radial gradient shimmer (12s) ──
+    function drawFill(prog) {
+      var fp = Math.max(0, Math.min(1, (prog - 0.7) / 0.3));
+      if (fp <= 0) return;
+      var sa = t * (Math.PI * 2 / 12);
+      var sx = cx + Math.cos(sa) * maxR * 0.3;
+      var sy = cy + Math.sin(sa) * maxR * 0.3;
+      var grad = rctx.createRadialGradient(sx, sy, 0, cx, cy, maxR);
+      grad.addColorStop(0, 'rgba(255,59,95,' + (0.16 * fp).toFixed(3) + ')');
+      grad.addColorStop(1, 'rgba(255,59,95,' + (0.06 * fp).toFixed(3) + ')');
+      rctx.fillStyle = grad;
+      rctx.beginPath();
+      for (var i = 0; i < n; i++) {
+        var xy = axisXY(i, (animVals[i] / 100) * maxR);
+        i === 0 ? rctx.moveTo(xy[0], xy[1]) : rctx.lineTo(xy[0], xy[1]);
+      }
+      rctx.closePath();
+      rctx.fill();
+      rctx.strokeStyle = 'rgba(255,59,95,' + (0.55 * fp).toFixed(3) + ')';
       rctx.lineWidth = 1.5;
       rctx.beginPath();
-      for (let i = 0; i < n; i++) {
-        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-        const r = (animVals[i] / 100) * maxR;
-        const x = cx + Math.cos(angle) * r;
-        const y = cy + Math.sin(angle) * r;
-        if (i === 0) rctx.moveTo(x, y);
-        else rctx.lineTo(x, y);
+      for (var i = 0; i < n; i++) {
+        var xy = axisXY(i, (animVals[i] / 100) * maxR);
+        i === 0 ? rctx.moveTo(xy[0], xy[1]) : rctx.lineTo(xy[0], xy[1]);
       }
       rctx.closePath();
       rctx.stroke();
+    }
 
-      // Data points — breathing dots
-      for (let i = 0; i < n; i++) {
-        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-        const r = (animVals[i] / 100) * maxR;
-        const x = cx + Math.cos(angle) * r;
-        const y = cy + Math.sin(angle) * r;
-        const v = animVals[i];
-        const breathe = 1 + 0.3 * Math.sin(t * 2 + i * 0.8);
-        const dotR = (3 + (v / 100) * 3) * breathe;
+    // ── 4. DATA POINTS: breathing 0.85↔1.15, 2s sine, glow 0↔12px + 6. SCORE LABELS ──
+    function drawDots(prog) {
+      for (var i = 0; i < n; i++) {
+        var dp = Math.max(0, Math.min(1, (prog - 0.55 - i * 0.06) / 0.3));
+        if (dp <= 0) continue;
+        var r = (animVals[i] / 100) * maxR;
+        var xy = axisXY(i, r);
+        var x = xy[0], y = xy[1];
+        var v = animVals[i];
 
-        // Glow
-        const glow = rctx.createRadialGradient(x, y, 0, x, y, dotR * 3);
-        const dotColor = v < 33 ? '255,59,95' : v < 66 ? '255,255,255' : '255,255,255';
-        glow.addColorStop(0, 'rgba(' + dotColor + ',0.3)');
-        glow.addColorStop(1, 'rgba(' + dotColor + ',0)');
+        // 10. Spring overshoot on entry
+        var spring = dp < 1 ? 1 + Math.sin(dp * Math.PI * 2.5) * (1 - dp) * 0.25 : 1;
+        // 4. Breathing: 0.85↔1.15, 2s sine, staggered phase per axis
+        var breathe = 0.85 + 0.30 * (0.5 + 0.5 * Math.sin(t * Math.PI + i * (Math.PI / 3)));
+        var scale = breathe * spring;
+        var dotR = (3.5 + (v / 100) * 3) * scale;
+
+        // 4. Red glow shadow 0↔12px in sync
+        var glowBlur = 12 * (0.5 + 0.5 * Math.sin(t * Math.PI + i * (Math.PI / 3)));
+        var isLow = v < 33;
+        var rgb = isLow ? '255,59,95' : '255,255,255';
+
+        rctx.save();
+        rctx.shadowColor = isLow ? 'rgba(255,59,95,0.6)' : 'rgba(255,255,255,0.35)';
+        rctx.shadowBlur = glowBlur;
+
+        // Radial glow halo
+        var glow = rctx.createRadialGradient(x, y, 0, x, y, dotR * 4);
+        glow.addColorStop(0, 'rgba(' + rgb + ',0.4)');
+        glow.addColorStop(0.4, 'rgba(' + rgb + ',0.08)');
+        glow.addColorStop(1, 'rgba(' + rgb + ',0)');
         rctx.fillStyle = glow;
         rctx.beginPath();
-        rctx.arc(x, y, dotR * 3, 0, Math.PI * 2);
+        rctx.arc(x, y, dotR * 4, 0, Math.PI * 2);
         rctx.fill();
 
-        // Dot
-        rctx.fillStyle = v < 33 ? '#ff3b5f' : '#fff';
+        // White flash on score change
+        if (flashAlpha[i] > 0) {
+          var fg = rctx.createRadialGradient(x, y, 0, x, y, dotR * 7);
+          fg.addColorStop(0, 'rgba(255,255,255,' + (flashAlpha[i] * 0.9).toFixed(3) + ')');
+          fg.addColorStop(1, 'rgba(255,255,255,0)');
+          rctx.fillStyle = fg;
+          rctx.beginPath();
+          rctx.arc(x, y, dotR * 7, 0, Math.PI * 2);
+          rctx.fill();
+        }
+
+        rctx.restore();
+
+        // Core dot
+        rctx.fillStyle = isLow ? '#ff3b5f' : '#fff';
         rctx.beginPath();
         rctx.arc(x, y, dotR * 0.5, 0, Math.PI * 2);
         rctx.fill();
 
-        // Value label
-        rctx.fillStyle = 'rgba(255,255,255,0.5)';
-        rctx.font = '800 9px "JetBrains Mono", monospace';
+        // 6. Score label: animate 0→actual on entry (900ms easeOutCubic), JetBrains Mono 11px
+        var countProg = entered ? 1 : Math.min(1, Math.max(0, (prog - 0.4) / 0.9));
+        var eased = 1 - Math.pow(1 - countProg, 3);
+        var displayVal = Math.round(v * eased);
+        rctx.fillStyle = 'rgba(255,255,255,0.55)';
+        rctx.font = '800 11px "JetBrains Mono", monospace';
         rctx.textAlign = 'center';
-        rctx.fillText(Math.round(animVals[i]), x, y - dotR - 6);
+        rctx.fillText(displayVal, x, y - dotR - 8);
       }
+    }
+
+    // ── 7. RANDOM WALK: every 6s each score drifts ±4, smoothly interpolated ──
+    setInterval(function() {
+      for (var i = 0; i < n; i++) {
+        targetVals[i] = Math.max(0, Math.min(100, baseVals[i] + (Math.random() - 0.5) * 8));
+      }
+    }, 6000);
+
+    // ── INTERACTIVITY ──
+    function canvasToChart(e) {
+      var rect = canvas.getBoundingClientRect();
+      var sx = W / rect.width, sy = H / rect.height;
+      return [(e.clientX - rect.left) * sx, (e.clientY - rect.top) * sy];
+    }
+    function nearestAxis(mx, my) {
+      var best = -1, bestD = 55 * (W / 380);
+      for (var i = 0; i < n; i++) {
+        var xy = axisXY(i, maxR + 28);
+        var d = Math.sqrt((mx - xy[0]) * (mx - xy[0]) + (my - xy[1]) * (my - xy[1]));
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      return best;
+    }
+    canvas.addEventListener('mousemove', function(e) {
+      var pt = canvasToChart(e);
+      hoveredAxis = nearestAxis(pt[0], pt[1]);
+      canvas.style.cursor = 'crosshair';
+    });
+    canvas.addEventListener('mouseleave', function() { hoveredAxis = -1; });
+    canvas.addEventListener('click', function(e) {
+      var pt = canvasToChart(e);
+      var ax = nearestAxis(pt[0], pt[1]);
+      selectedAxis = (selectedAxis === ax) ? -1 : ax;
+      showDetailCard();
+    });
+
+    function showDetailCard() {
+      var card = document.getElementById('axis-detail-card');
+      if (!card) return;
+      if (selectedAxis < 0) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      var hist = scoreHistory[selectedAxis];
+      var lbl = labels[selectedAxis];
+      var val = Math.round(animVals[selectedAxis]);
+      var spark = '';
+      if (hist.length > 1) {
+        var mn = Math.min.apply(null, hist), mx = Math.max.apply(null, hist);
+        var rng = (mx - mn) || 1;
+        var pts = hist.map(function(v, j) {
+          return ((j / (hist.length - 1)) * 96 + 2).toFixed(1) + ',' + (26 - ((v - mn) / rng) * 22).toFixed(1);
+        }).join(' ');
+        spark = '<svg width="100" height="28" style="margin-left:8px;"><polyline points="' + pts + '" fill="none" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      }
+      card.innerHTML = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+        + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:800;letter-spacing:0.14em;color:rgba(255,255,255,0.5);">' + lbl + '</span>'
+        + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:18px;font-weight:900;color:#fff;">' + val + '</span>'
+        + spark
+        + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:7px;color:rgba(255,255,255,0.25);margin-left:auto;">LAST ' + hist.length + ' READINGS</span>'
+        + '</div>';
+    }
+
+    // ── Fetch new signal data every 60s ──
+    setInterval(function() {
+      fetch('/api/intelligence/signal').then(function(r) { return r.json(); }).then(function() {
+        var m = computeMatrix();
+        if (m) ingestMatrix(m);
+      }).catch(function() {});
+    }, 60000);
+
+    // ── 10. ENTRY ANIMATION + MAIN LOOP ──
+    function drawRadar(now) {
+      if (entryStart < 0) entryStart = now;
+      rctx.clearRect(0, 0, W, H);
+      var elapsed = (now - entryStart) / 1000;
+      t += 0.016;
+      var ep = Math.min(1, elapsed / 2.2);
+      if (ep >= 1 && !entered) entered = true;
+
+      // Smooth interpolation toward targets (~2s at 0.04/frame)
+      for (var i = 0; i < n; i++) {
+        animVals[i] += (targetVals[i] - animVals[i]) * 0.04;
+        if (flashAlpha[i] > 0) flashAlpha[i] = Math.max(0, flashAlpha[i] - 0.018);
+      }
+
+      // Draw layers in order
+      drawHexGrid(ep);
+      drawSpiral();
+      drawAxes(ep);
+      if (entered) drawGhost();
+      drawFill(ep);
+      drawDots(ep);
+      drawLabels(ep);
 
       requestAnimationFrame(drawRadar);
     }
-    drawRadar();
+    requestAnimationFrame(drawRadar);
   })();
 
   // ═══════════════════════════════════════════════════════════════
