@@ -55,6 +55,22 @@ def generate_article_with_tracking(force: bool = False) -> dict:
     Returns: {success, title, article_id}, {skipped}, or {error}.
     """
     with app_context():
+        # Clean stale locks (older than 10 minutes with no finish)
+        stale_threshold = datetime.utcnow() - timedelta(minutes=10)
+        try:
+            models.AutomationRun.query.filter(
+                models.AutomationRun.task_name == AUTOMATION_TASK_NAME,
+                models.AutomationRun.status == "running",
+                models.AutomationRun.started_at < stale_threshold,
+                models.AutomationRun.finished_at.is_(None),
+            ).update(
+                {"status": "failed", "error": "Stale lock expired", "finished_at": datetime.utcnow()},
+                synchronize_session=False,
+            )
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
         # Skip if we ran recently (unless force=True for manual/admin runs)
         if not force:
             recent = (
@@ -75,10 +91,64 @@ def generate_article_with_tracking(force: bool = False) -> dict:
         db.session.add(run)
         db.session.commit()
         content_engine_error = None
-        reddit_error = None
-        topic = "Bitcoin network and market update"
+        fallback_error = None
 
-        # 1) Try ContentEngine (needs OPENAI_API_KEY for bitcoin_news)
+        # ── PATH 1: RealNewsArticleGenerator (RSS + Claude/GPT-4o rewrite) ────
+        try:
+            from services.article_automation import RealNewsArticleGenerator, _sanitize_title, _is_banned_template
+
+            auto_publish_enabled = lambda: True
+            try:
+                from services.content_generator import auto_publish_enabled
+            except Exception:
+                pass
+
+            generator = RealNewsArticleGenerator()
+            source = generator.select_best_source()
+            if not source:
+                raise ValueError("No RSS sources available")
+            article_data = generator.generate_article_from_source(source)
+            if not article_data:
+                raise ValueError("generate_article_from_source returned None")
+
+            raw_title = article_data.get("title", "")
+            final_title = _sanitize_title(raw_title)
+            if _is_banned_template(final_title):
+                raise ValueError(f"Banned template: {final_title[:80]}")
+
+            publish_allowed = True
+            try:
+                publish_allowed = auto_publish_enabled()
+            except Exception:
+                pass
+
+            article = models.Article(
+                title=final_title,
+                content=article_data["content"],
+                summary=article_data.get("summary", ""),
+                category=article_data.get("category", "Bitcoin"),
+                source_url=(article_data.get("source_url") or "").strip() or None,
+                source_type=(article_data.get("source_type") or "rss"),
+                author="Al Ingle",
+                published=publish_allowed,
+                cover_image_url="/static/images/default-header.png",
+            )
+            db.session.add(article)
+            db.session.commit()
+
+            run.finished_at = datetime.utcnow()
+            run.status = "completed"
+            run.error = None
+            db.session.commit()
+            logger.info(f"[RSS] Published id={article.id}: {final_title[:70]}")
+            return {"success": True, "title": final_title, "article_id": article.id}
+
+        except Exception as e:
+            content_engine_error = str(e)
+            logger.warning("RealNewsArticleGenerator failed: %s", e)
+
+        # ── PATH 2: Fallback to ContentEngine (OpenAI gpt-4o generic) ─────────
+        topic = "Bitcoin network and market update"
         try:
             from services.content_engine import ContentEngine
             engine = ContentEngine()
@@ -99,77 +169,17 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                     "title": article.title if article else topic,
                     "article_id": result["article_id"],
                 }
-            content_engine_error = "; ".join(result.get("errors") or ["No article_id returned"])
+            fallback_error = "; ".join(result.get("errors") or ["No article_id returned"])
         except Exception as e:
-            content_engine_error = str(e)
-            logger.warning("ContentEngine article generation failed: %s", e)
+            fallback_error = str(e)
+            logger.warning("ContentEngine fallback failed: %s", e)
 
-        # 2) Fallback: ContentGenerator with same topic (tries OpenAI → Gemini → Anthropic)
-        try:
-            from services.content_generator import ContentGenerator
-            gen = ContentGenerator()
-            article_data = gen.generate_article(topic, content_type="news_article", source_type="ai_generated")
-            if article_data and not article_data.get("skipped") and article_data.get("title"):
-                article = models.Article(
-                    title=article_data["title"],
-                    content=article_data["content"],
-                    summary=article_data.get("summary", ""),
-                    category=article_data.get("category", "Bitcoin"),
-                    source_type="ai_generated",
-                    author="Al Ingle",
-                    published=True,
-                )
-                db.session.add(article)
-                db.session.commit()
-                run.finished_at = datetime.utcnow()
-                run.status = "completed"
-                run.error = None
-                db.session.commit()
-                return {"success": True, "title": article.title, "article_id": article.id}
-        except Exception as e:
-            reddit_error = str(e)
-            logger.warning("ContentGenerator (ai_generated) fallback failed: %s", e)
-
-        # 3) Fallback: Reddit trending → ContentGenerator
-        try:
-            from services.reddit_service import RedditService
-            from services.content_generator import ContentGenerator
-            reddit = RedditService()
-            ideas = reddit.get_content_ideas(topic_type="bitcoin", limit=1)
-            if ideas:
-                idea = ideas[0]
-                topic_reddit = idea.get("title") or idea.get("article_angle") or topic
-            else:
-                topic_reddit = topic
-            gen = ContentGenerator()
-            article_data = gen.generate_article(topic_reddit, content_type="news_article", source_type="reddit")
-            if article_data and not article_data.get("skipped") and article_data.get("title"):
-                article = models.Article(
-                    title=article_data["title"],
-                    content=article_data["content"],
-                    summary=article_data.get("summary", ""),
-                    category=article_data.get("category", "Bitcoin"),
-                    source_type="reddit",
-                    author="Al Ingle",
-                    published=True,
-                )
-                db.session.add(article)
-                db.session.commit()
-                run.finished_at = datetime.utcnow()
-                run.status = "completed"
-                run.error = None
-                db.session.commit()
-                return {"success": True, "title": article.title, "article_id": article.id}
-        except Exception as e:
-            reddit_error = str(e)
-            logger.warning("Reddit/ContentGenerator fallback failed: %s", e)
-
-        # 4) All paths failed — if no published articles yet, create one stub so the site has something
+        # 3) All paths failed — if no published articles yet, create one stub so the site has something
         err_parts = []
         if content_engine_error:
-            err_parts.append("ContentEngine: " + (content_engine_error[:200] if isinstance(content_engine_error, str) else str(content_engine_error)[:200]))
-        if reddit_error:
-            err_parts.append("Fallbacks: " + reddit_error[:200])
+            err_parts.append("RSS: " + (content_engine_error[:200] if isinstance(content_engine_error, str) else str(content_engine_error)[:200]))
+        if fallback_error:
+            err_parts.append("ContentEngine: " + (fallback_error[:200] if isinstance(fallback_error, str) else str(fallback_error)[:200]))
         full_error = " | ".join(err_parts) if err_parts else "No article generated"
         published_count = models.Article.query.filter_by(published=True).count()
         if published_count == 0:

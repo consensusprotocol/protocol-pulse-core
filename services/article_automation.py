@@ -41,10 +41,10 @@ logger = logging.getLogger(__name__)
 # Bitcoin news RSS feeds
 NEWS_FEEDS = [
     "https://bitcoinmagazine.com/.rss/full/",
-    "https://www.coindesk.com/arc/outboundfeeds/rss/",
     "https://cointelegraph.com/rss",
     "https://decrypt.co/feed",
     "https://www.theblock.co/rss.xml",
+    "https://www.coindesk.com/arc/outboundfeeds/rss/",  # 308 redirect, kept as fallback
 ]
 
 
