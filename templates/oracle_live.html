@@ -1459,7 +1459,15 @@ function process(text){
     });
   })
   .then(function(){
-    setTimeout(pulseMic,500);
+    /* Auto-restart mic after every response — conversational flow */
+    setTimeout(function(){
+      if(_greeted&&!busy&&!isRec&&mic&&recognition){
+        mic.disabled=false;
+        setStat('Listening…','#6cff9f',false);
+        try{ recognition.start(); isRec=true; setRec(true); }
+        catch(e){ console.warn('[Satomi] post-response startRec:',e); }
+      }
+    }, 800); /* 800ms gap after video ends before mic opens */
   })
   .catch(function(e){
     console.error('process error:',e);
@@ -1491,6 +1499,14 @@ function process(text){
     if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
     setBusy(false);hideTX();
     setOracleState('LISTENING');
+    /* Ensure mic restarts after any error path too */
+    setTimeout(function(){
+      if(_greeted&&!busy&&!isRec&&mic&&recognition){
+        mic.disabled=false;
+        try{ recognition.start(); isRec=true; setRec(true); setStat('Listening…','#6cff9f',false); }
+        catch(e){ setStat('Tap mic to respond','#ff3b5f',false); }
+      }
+    }, 1000);
   });
 }
 
@@ -1634,7 +1650,16 @@ function initSR(){
       setTimeout(function(){ if(!busy&&!isRec){ try{recognition.start();isRec=true;setRec(true);}catch(e){} } },350);
     }
   };
-  recognition.onerror=function(e){console.warn(e.error);setRec(false);};
+  recognition.onerror=function(e){
+    console.warn('[Satomi] rec error:',e.error);
+    setRec(false); isRec=false;
+    if(e.error==='no-speech'||e.error==='audio-capture'){
+      /* Recoverable — restart after brief delay */
+      if(_greeted&&!busy) setTimeout(function(){
+        try{recognition.start();isRec=true;setRec(true);}catch(er){}
+      },500);
+    }
+  };
 }
 
 function toggleMic(){if(busy)return;isRec?stopRec():startRec();}
@@ -1648,7 +1673,7 @@ function stopRec(){
   isRec=false;setRec(false);
   /* P1-2: Don't play thinking video here — let recognition.onend → process() be the sole trigger.
      This eliminates the race condition where both stopRec and onend try to set thinking state. */
-  if(recognition)try{recognition.stop();}catch(e){}
+  if(recognition)try{try{recognition.abort();}catch(e){try{recognition.stop();}catch(e2){}} /* abort() is faster on iOS */}catch(e){}
   // onend will fire after recognition.stop() and handle process() automatically
 }
 function setRec(on){
