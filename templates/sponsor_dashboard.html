@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}Campaign Dashboard — {{ campaign.name }} — Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --sd-bg: #000000;
+  --sd-surface: #0a0a0a;
+  --sd-border: rgba(220,38,38,0.25);
+  --sd-red: #dc2626;
+  --sd-gold: #F8C15C;
+  --sd-green: #22c55e;
+  --sd-dim: rgba(255,255,255,0.5);
+  --sd-mono: 'JetBrains Mono', monospace;
+}
+.sd-wrap { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+.sd-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--sd-border); padding-bottom: 1.5rem; }
+.sd-header h1 { font-family: var(--sd-mono); font-size: 1.3rem; color: #fff; margin: 0; }
+.sd-header h1 span { color: var(--sd-red); }
+.sd-header .sd-meta { font-size: 0.8rem; color: var(--sd-dim); font-family: var(--sd-mono); }
+.sd-brand { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--sd-red); margin-bottom: 0.25rem; }
+
+/* KPI Cards */
+.sd-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.sd-kpi { background: var(--sd-surface); border: 1px solid var(--sd-border); border-radius: 12px; padding: 1.25rem; position: relative; overflow: hidden; }
+.sd-kpi::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--sd-red); }
+.sd-kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sd-dim); margin-bottom: 0.5rem; }
+.sd-kpi-value { font-family: var(--sd-mono); font-size: 2rem; font-weight: 700; color: #fff; line-height: 1; }
+.sd-kpi-value.gold { color: var(--sd-gold); }
+.sd-kpi-value.green { color: var(--sd-green); }
+.sd-kpi-value.red { color: var(--sd-red); }
+.sd-kpi-delta { font-size: 0.75rem; color: var(--sd-green); margin-top: 0.35rem; font-family: var(--sd-mono); }
+
+/* Charts */
+.sd-chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+@media (max-width: 768px) { .sd-chart-row { grid-template-columns: 1fr; } }
+.sd-panel { background: var(--sd-surface); border: 1px solid var(--sd-border); border-radius: 12px; padding: 1.25rem; }
+.sd-panel-title { font-family: var(--sd-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sd-dim); margin-bottom: 1rem; }
+.sd-chart-canvas { width: 100%; height: 250px; }
+
+/* Table */
+.sd-table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+.sd-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.sd-table th { font-family: var(--sd-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sd-dim); text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--sd-border); }
+.sd-table td { padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fff; }
+.sd-table tr:hover td { background: rgba(220,38,38,0.05); }
+.sd-table .views { font-family: var(--sd-mono); color: var(--sd-gold); }
+
+/* Export */
+.sd-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.sd-btn { background: linear-gradient(135deg, var(--sd-red), #991b1b); border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-family: var(--sd-mono); font-size: 0.8rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+.sd-btn:hover { background: linear-gradient(135deg, #b91c1c, #7f1d1d); color: #fff; }
+.sd-btn-outline { background: transparent; border: 1px solid var(--sd-border); color: #fff; padding: 10px 20px; border-radius: 8px; font-family: var(--sd-mono); font-size: 0.8rem; cursor: pointer; }
+.sd-btn-outline:hover { border-color: var(--sd-red); }
+
+/* Status badge */
+.sd-status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-family: var(--sd-mono); text-transform: uppercase; letter-spacing: 0.08em; }
+.sd-status.active { background: rgba(34,197,94,0.15); color: var(--sd-green); border: 1px solid rgba(34,197,94,0.3); }
+.sd-status.paused { background: rgba(248,193,92,0.15); color: var(--sd-gold); border: 1px solid rgba(248,193,92,0.3); }
+.sd-status.completed { background: rgba(255,255,255,0.1); color: var(--sd-dim); border: 1px solid rgba(255,255,255,0.2); }
+
+/* Auto-refresh indicator */
+.sd-refresh { position: fixed; bottom: 1rem; right: 1rem; background: var(--sd-surface); border: 1px solid var(--sd-border); border-radius: 8px; padding: 6px 12px; font-family: var(--sd-mono); font-size: 0.7rem; color: var(--sd-dim); z-index: 100; }
+.sd-refresh .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--sd-green); margin-right: 6px; animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Footer */
+.sd-footer { text-align: center; padding: 2rem 0; border-top: 1px solid var(--sd-border); margin-top: 2rem; }
+.sd-footer p { font-size: 0.75rem; color: var(--sd-dim); font-family: var(--sd-mono); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="sd-wrap">
+
+  <!-- Header -->
+  <div class="sd-header">
+    <div>
+      <div class="sd-brand">Protocol Pulse — Campaign Analytics</div>
+      <h1>{{ campaign.name }} <span class="sd-status {{ metrics.status }}">{{ metrics.status }}</span></h1>
+    </div>
+    <div class="sd-meta">
+      {{ metrics.start_date[:10] if metrics.start_date else 'N/A' }} — {{ metrics.end_date[:10] if metrics.end_date else 'Ongoing' }}<br>
+      Last updated: <span id="sd-updated">{{ metrics.generated_at[:19] }}</span>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="sd-kpis">
+    <div class="sd-kpi">
+      <div class="sd-kpi-label">Total Impressions</div>
+      <div class="sd-kpi-value red" id="kpi-impressions">{{ "{:,}".format(metrics.total_impressions) }}</div>
+    </div>
+    <div class="sd-kpi">
+      <div class="sd-kpi-label">Click-Through Rate</div>
+      <div class="sd-kpi-value gold" id="kpi-ctr">{{ metrics.ctr }}%</div>
+    </div>
+    <div class="sd-kpi">
+      <div class="sd-kpi-label">Unique Reach</div>
+      <div class="sd-kpi-value" id="kpi-reach">{{ "{:,}".format(metrics.unique_reach) }}</div>
+    </div>
+    <div class="sd-kpi">
+      <div class="sd-kpi-label">Total Clicks</div>
+      <div class="sd-kpi-value green" id="kpi-clicks">{{ "{:,}".format(metrics.total_clicks) }}</div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="sd-actions">
+    <button class="sd-btn" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+    <button class="sd-btn-outline" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Refresh</button>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="sd-chart-row">
+    <div class="sd-panel">
+      <div class="sd-panel-title">Daily Impressions</div>
+      <canvas id="chart-impressions" class="sd-chart-canvas"></canvas>
+    </div>
+    <div class="sd-panel">
+      <div class="sd-panel-title">Placement Breakdown</div>
+      <canvas id="chart-placement" class="sd-chart-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Click chart -->
+  <div class="sd-panel" style="margin-bottom:2rem;">
+    <div class="sd-panel-title">Daily Clicks</div>
+    <canvas id="chart-clicks" class="sd-chart-canvas"></canvas>
+  </div>
+
+  <!-- Top Articles Table -->
+  <div class="sd-panel">
+    <div class="sd-panel-title">Top Articles — Ad Placements</div>
+    <div class="sd-table-wrap">
+      <table class="sd-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Page</th>
+            <th>Views</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for page in metrics.top_pages %}
+          <tr>
+            <td style="color:var(--sd-dim);">{{ loop.index }}</td>
+            <td><a href="{{ page.path }}" target="_blank" style="color:#fff;text-decoration:none;">{{ page.path | truncate(60) }}</a></td>
+            <td class="views">{{ "{:,}".format(page.views) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" style="color:var(--sd-dim);text-align:center;padding:2rem;">No impression data yet — ads will appear as your campaign runs.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="sd-footer">
+    <p>Protocol Pulse Campaign Analytics &mdash; Real-time data, auto-refreshes every 5 minutes</p>
+    <p>Questions? <a href="mailto:sponsors@protocolpulse.io" style="color:var(--sd-red);">sponsors@protocolpulse.io</a></p>
+  </div>
+
+</section>
+
+<!-- Auto-refresh indicator -->
+<div class="sd-refresh"><span class="dot"></span>Live &mdash; refreshes every 5 min</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ── Data from server ──
+const dailyImpressions = {{ metrics.daily_impressions | tojson }};
+const dailyClicks = {{ metrics.daily_clicks | tojson }};
+const placementBreakdown = {{ metrics.placement_breakdown | tojson }};
+const dashboardToken = "{{ token }}";
+
+// ── Chart: Daily Impressions ──
+const impCtx = document.getElementById('chart-impressions').getContext('2d');
+new Chart(impCtx, {
+  type: 'line',
+  data: {
+    labels: dailyImpressions.map(d => d.date),
+    datasets: [{
+      label: 'Impressions',
+      data: dailyImpressions.map(d => d.count),
+      borderColor: '#dc2626',
+      backgroundColor: 'rgba(220,38,38,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 3,
+      pointBackgroundColor: '#dc2626',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { family: "'JetBrains Mono'", size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { ticks: { color: 'rgba(255,255,255,0.4)', font: { family: "'JetBrains Mono'", size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+    }
+  }
+});
+
+// ── Chart: Daily Clicks ──
+const clickCtx = document.getElementById('chart-clicks').getContext('2d');
+new Chart(clickCtx, {
+  type: 'bar',
+  data: {
+    labels: dailyClicks.map(d => d.date),
+    datasets: [{
+      label: 'Clicks',
+      data: dailyClicks.map(d => d.count),
+      backgroundColor: 'rgba(34,197,94,0.6)',
+      borderColor: '#22c55e',
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { family: "'JetBrains Mono'", size: 10 } }, grid: { display: false } },
+      y: { ticks: { color: 'rgba(255,255,255,0.4)', font: { family: "'JetBrains Mono'", size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+    }
+  }
+});
+
+// ── Chart: Placement Breakdown ──
+const placementCtx = document.getElementById('chart-placement').getContext('2d');
+const placementLabels = Object.keys(placementBreakdown);
+const placementValues = placementLabels.map(k => placementBreakdown[k].impressions || 0);
+const placementColors = ['#dc2626', '#F8C15C', '#22c55e', '#3b82f6', '#a855f7'];
+new Chart(placementCtx, {
+  type: 'doughnut',
+  data: {
+    labels: placementLabels.length ? placementLabels : ['No data'],
+    datasets: [{
+      data: placementValues.length ? placementValues : [1],
+      backgroundColor: placementValues.length ? placementColors.slice(0, placementLabels.length) : ['rgba(255,255,255,0.1)'],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.6)', font: { family: "'JetBrains Mono'", size: 11 } } },
+    }
+  }
+});
+
+// ── Auto-refresh every 5 min ──
+setInterval(() => { location.reload(); }, 5 * 60 * 1000);
+
+// ── Export PDF (print) ──
+function exportPDF() {
+  window.print();
+}
+</script>
+{% endblock %}

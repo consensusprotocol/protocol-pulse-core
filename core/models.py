@@ -1434,3 +1434,97 @@ class MediaEpisode(db.Model):
     signal_score = db.Column(db.Integer, default=0)  # 0-100
     synced_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# =====================================
+# SPONSOR CAMPAIGNS & GUEST OUTREACH
+# =====================================
+
+class SponsorCampaign(db.Model):
+    """A sponsor campaign with token-based dashboard access."""
+    __tablename__ = "sponsor_campaign"
+    __table_args__ = (
+        db.Index('idx_campaign_token', 'dashboard_token'),
+        db.Index('idx_campaign_sponsor', 'sponsor_id'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    sponsor_id = db.Column(db.Integer, db.ForeignKey('sponsor.id'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    dashboard_token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    placement = db.Column(db.String(50), default='article_sidebar')
+    ad_copy = db.Column(db.Text)
+    ad_image_url = db.Column(db.String(500))
+    cta_url = db.Column(db.String(500))
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
+    budget_usd = db.Column(db.Float, default=0)
+    status = db.Column(db.String(30), default='active')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    sponsor = db.relationship('Sponsor', backref=db.backref('campaigns', lazy='dynamic'))
+
+
+class AdImpression(db.Model):
+    """Track individual ad impressions for sponsor campaigns."""
+    __tablename__ = "ad_impression"
+    __table_args__ = (
+        db.Index('idx_ad_imp_campaign_date', 'campaign_id', 'created_at'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('sponsor_campaign.id'), nullable=False)
+    page_path = db.Column(db.String(500))
+    session_id = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AdClick(db.Model):
+    """Track ad clicks for sponsor campaigns."""
+    __tablename__ = "ad_click"
+    __table_args__ = (
+        db.Index('idx_ad_click_campaign_date', 'campaign_id', 'created_at'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('sponsor_campaign.id'), nullable=False)
+    page_path = db.Column(db.String(500))
+    session_id = db.Column(db.String(64))
+    ip_hash = db.Column(db.String(64))
+    user_agent = db.Column(db.String(300))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class GuestOutreach(db.Model):
+    """Pipeline for booking podcast guests on Cypherpunkd."""
+    __tablename__ = "guest_outreach"
+    __table_args__ = (
+        db.Index('idx_guest_status', 'status'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    handle = db.Column(db.String(200))
+    email = db.Column(db.String(200))
+    topics = db.Column(db.Text)
+    bio_notes = db.Column(db.Text)
+    status = db.Column(db.String(30), default='identified')
+    last_outreach_at = db.Column(db.DateTime)
+    scheduled_date = db.Column(db.DateTime)
+    episode_url = db.Column(db.String(500))
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class OutreachEmail(db.Model):
+    """Log of every outreach email sent (sponsor or guest)."""
+    __tablename__ = "outreach_email"
+    __table_args__ = (
+        db.Index('idx_outreach_email_type', 'outreach_type', 'created_at'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    outreach_type = db.Column(db.String(20), nullable=False)
+    recipient_email = db.Column(db.String(200), nullable=False)
+    recipient_name = db.Column(db.String(200))
+    subject = db.Column(db.String(500))
+    body = db.Column(db.Text)
+    sequence_step = db.Column(db.Integer, default=0)
+    resend_id = db.Column(db.String(100))
+    status = db.Column(db.String(30), default='sent')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+

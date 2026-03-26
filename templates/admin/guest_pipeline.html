@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block title %}Guest Pipeline — Cypherpunkd — Protocol Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --gp-bg: #000; --gp-surface: #0a0a0a; --gp-border: rgba(220,38,38,0.25);
+  --gp-red: #dc2626; --gp-gold: #F8C15C; --gp-green: #22c55e; --gp-cyan: #06b6d4;
+  --gp-dim: rgba(255,255,255,0.5); --gp-mono: 'JetBrains Mono', monospace;
+}
+.gp-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem; }
+.gp-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.gp-header h1 { font-family: var(--gp-mono); font-size: 1.2rem; color: #fff; margin: 0; }
+.gp-header h1 span { color: var(--gp-red); }
+.gp-header .gp-subtitle { font-size: 0.8rem; color: var(--gp-dim); }
+
+/* Kanban */
+.gp-kanban { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; overflow-x: auto; min-height: 500px; }
+@media (max-width: 1200px) { .gp-kanban { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .gp-kanban { grid-template-columns: 1fr 1fr; } }
+.gp-col { background: var(--gp-surface); border: 1px solid var(--gp-border); border-radius: 12px; padding: 0.75rem; min-width: 180px; }
+.gp-col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--gp-border); }
+.gp-col-title { font-family: var(--gp-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gp-dim); }
+.gp-col-count { font-family: var(--gp-mono); font-size: 0.7rem; background: rgba(220,38,38,0.15); color: var(--gp-red); padding: 2px 8px; border-radius: 10px; }
+
+/* Cards */
+.gp-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem; cursor: pointer; transition: border-color 0.2s; }
+.gp-card:hover { border-color: var(--gp-red); }
+.gp-card-name { font-size: 0.85rem; font-weight: 600; color: #fff; margin-bottom: 0.25rem; }
+.gp-card-handle { font-family: var(--gp-mono); font-size: 0.7rem; color: var(--gp-cyan); margin-bottom: 0.4rem; }
+.gp-card-topics { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.4rem; }
+.gp-tag { font-size: 0.6rem; background: rgba(220,38,38,0.1); color: var(--gp-red); padding: 2px 6px; border-radius: 4px; font-family: var(--gp-mono); }
+.gp-card-meta { font-size: 0.65rem; color: var(--gp-dim); font-family: var(--gp-mono); }
+
+/* Column accent colors */
+.gp-col[data-stage="identified"] .gp-col-title { color: var(--gp-dim); }
+.gp-col[data-stage="emailed"] .gp-col-title { color: var(--gp-cyan); }
+.gp-col[data-stage="responded"] .gp-col-title { color: var(--gp-gold); }
+.gp-col[data-stage="scheduled"] .gp-col-title { color: var(--gp-green); }
+.gp-col[data-stage="recorded"] .gp-col-title { color: #a855f7; }
+.gp-col[data-stage="published"] .gp-col-title { color: var(--gp-red); }
+
+/* Actions */
+.gp-actions { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.gp-btn { background: linear-gradient(135deg, var(--gp-red), #991b1b); border: none; color: #fff; padding: 8px 16px; border-radius: 8px; font-family: var(--gp-mono); font-size: 0.75rem; cursor: pointer; }
+.gp-btn:hover { background: linear-gradient(135deg, #b91c1c, #7f1d1d); }
+.gp-btn-outline { background: transparent; border: 1px solid var(--gp-border); color: #fff; padding: 8px 16px; border-radius: 8px; font-family: var(--gp-mono); font-size: 0.75rem; cursor: pointer; }
+.gp-btn-outline:hover { border-color: var(--gp-red); }
+
+/* Modal */
+.gp-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+.gp-modal-overlay.active { display: flex; }
+.gp-modal { background: var(--gp-surface); border: 1px solid var(--gp-border); border-radius: 12px; padding: 1.5rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.gp-modal h2 { font-family: var(--gp-mono); font-size: 1rem; color: #fff; margin-bottom: 1rem; }
+.gp-modal label { display: block; font-family: var(--gp-mono); font-size: 0.75rem; color: var(--gp-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; margin-top: 0.75rem; }
+.gp-modal input, .gp-modal select, .gp-modal textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-family: inherit; }
+.gp-modal input:focus, .gp-modal select:focus, .gp-modal textarea:focus { outline: none; border-color: var(--gp-red); }
+.gp-modal textarea { min-height: 80px; resize: vertical; }
+.gp-modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+
+/* Stats bar */
+.gp-stats { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.gp-stat { font-family: var(--gp-mono); font-size: 0.8rem; color: var(--gp-dim); }
+.gp-stat strong { color: #fff; font-size: 1.1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="gp-wrap">
+
+  <div class="gp-header">
+    <div>
+      <h1>Guest Pipeline — <span>Cypherpunkd</span></h1>
+      <div class="gp-subtitle">Podcast guest outreach tracker</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="gp-stats">
+    {% set stages = ['identified','emailed','responded','scheduled','recorded','published'] %}
+    {% for stage in stages %}
+    {% set count = guests | selectattr('status', 'equalto', stage) | list | length %}
+    <div class="gp-stat"><strong>{{ count }}</strong> {{ stage | capitalize }}</div>
+    {% endfor %}
+    <div class="gp-stat"><strong>{{ guests | length }}</strong> Total</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="gp-actions">
+    <button class="gp-btn" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Guest</button>
+    <button class="gp-btn-outline" onclick="runOutreach()"><i class="fas fa-paper-plane"></i> Run Outreach</button>
+    <button class="gp-btn-outline" onclick="seedGuests()"><i class="fas fa-database"></i> Seed Defaults</button>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="gp-kanban">
+    {% for stage in stages %}
+    <div class="gp-col" data-stage="{{ stage }}">
+      <div class="gp-col-header">
+        <span class="gp-col-title">{{ stage | replace('_', ' ') | capitalize }}</span>
+        <span class="gp-col-count">{{ guests | selectattr('status', 'equalto', stage) | list | length }}</span>
+      </div>
+      {% for guest in guests if guest.status == stage %}
+      <div class="gp-card" onclick="openEditModal({{ guest.id }})">
+        <div class="gp-card-name">{{ guest.name }}</div>
+        {% if guest.handle %}<div class="gp-card-handle">{{ guest.handle }}</div>{% endif %}
+        <div class="gp-card-topics">
+          {% if guest.topics %}
+            {% for topic in guest.topics[:3] %}
+            <span class="gp-tag">{{ topic }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="gp-card-meta">
+          {% if guest.last_outreach_at %}Last: {{ guest.last_outreach_at.strftime('%b %d') }}{% endif %}
+          {% if guest.scheduled_date %} | Sched: {{ guest.scheduled_date.strftime('%b %d') }}{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+</section>
+
+<!-- Add/Edit Modal -->
+<div class="gp-modal-overlay" id="guestModal">
+  <div class="gp-modal">
+    <h2 id="modalTitle">Add Guest</h2>
+    <form id="guestForm">
+      <input type="hidden" id="guestId" name="id">
+      <label>Name</label>
+      <input type="text" id="guestName" name="name" required placeholder="e.g. Lyn Alden">
+      <label>Handle (X / Nostr)</label>
+      <input type="text" id="guestHandle" name="handle" placeholder="@handle">
+      <label>Email</label>
+      <input type="email" id="guestEmail" name="email" placeholder="guest@example.com">
+      <label>Topics (comma-separated)</label>
+      <input type="text" id="guestTopics" name="topics" placeholder="macro analysis, Bitcoin savings">
+      <label>Status</label>
+      <select id="guestStatus" name="status">
+        <option value="identified">Identified</option>
+        <option value="emailed">Emailed</option>
+        <option value="responded">Responded</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="recorded">Recorded</option>
+        <option value="published">Published</option>
+      </select>
+      <label>Notes</label>
+      <textarea id="guestNotes" name="notes" placeholder="Bio notes, recent work, talking points..."></textarea>
+      <div class="gp-modal-actions">
+        <button type="submit" class="gp-btn">Save</button>
+        <button type="button" class="gp-btn-outline" onclick="closeModal()">Cancel</button>
+        <button type="button" class="gp-btn-outline" id="btnDelete" style="display:none;color:#ef4444;" onclick="deleteGuest()">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const GUESTS = {{ guests_json | safe }};
+
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = 'Add Guest';
+  document.getElementById('guestForm').reset();
+  document.getElementById('guestId').value = '';
+  document.getElementById('btnDelete').style.display = 'none';
+  document.getElementById('guestModal').classList.add('active');
+}
+
+function openEditModal(id) {
+  const g = GUESTS.find(x => x.id === id);
+  if (!g) return;
+  document.getElementById('modalTitle').textContent = 'Edit: ' + g.name;
+  document.getElementById('guestId').value = g.id;
+  document.getElementById('guestName').value = g.name;
+  document.getElementById('guestHandle').value = g.handle || '';
+  document.getElementById('guestEmail').value = g.email || '';
+  document.getElementById('guestTopics').value = (g.topics || []).join(', ');
+  document.getElementById('guestStatus').value = g.status;
+  document.getElementById('guestNotes').value = g.notes || '';
+  document.getElementById('btnDelete').style.display = 'inline-block';
+  document.getElementById('guestModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('guestModal').classList.remove('active');
+}
+
+document.getElementById('guestForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('guestId').value;
+  const data = {
+    name: document.getElementById('guestName').value,
+    handle: document.getElementById('guestHandle').value,
+    email: document.getElementById('guestEmail').value,
+    topics: document.getElementById('guestTopics').value,
+    status: document.getElementById('guestStatus').value,
+    notes: document.getElementById('guestNotes').value,
+  };
+  const url = id ? `/api/admin/guest/${id}` : '/api/admin/guest';
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+  if (r.ok) { location.reload(); } else { alert('Error saving guest'); }
+});
+
+async function deleteGuest() {
+  const id = document.getElementById('guestId').value;
+  if (!id || !confirm('Delete this guest?')) return;
+  const r = await fetch(`/api/admin/guest/${id}`, { method: 'DELETE' });
+  if (r.ok) { location.reload(); } else { alert('Error deleting guest'); }
+}
+
+async function runOutreach() {
+  if (!confirm('Send next outreach emails to guests with email addresses?')) return;
+  const r = await fetch('/api/admin/guest-outreach/run', { method: 'POST' });
+  const data = await r.json();
+  alert(`Outreach: ${data.sent} sent, ${data.skipped} skipped, ${data.errors} errors`);
+  location.reload();
+}
+
+async function seedGuests() {
+  const r = await fetch('/api/admin/guest/seed', { method: 'POST' });
+  const data = await r.json();
+  alert(`Seeded ${data.count} guests`);
+  location.reload();
+}
+
+// Close modal on overlay click
+document.getElementById('guestModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+</script>
+{% endblock %}
