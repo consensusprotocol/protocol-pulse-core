@@ -397,38 +397,39 @@
 
     // Fetch BTC summary data
     function fetchSummary() {
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true&include_24hr_high_low=true', { signal: AbortSignal.timeout(8000) })
+        fetch('/api/charts/price-history', { signal: AbortSignal.timeout(10000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                var b = data.bitcoin;
-                if (!b) return;
-                document.getElementById('chPrice').textContent = formatPrice(b.usd);
+                var prices = data.prices || [];
+                if (prices.length < 2) return;
+                var latest = prices[prices.length - 1][1];
+                var first = prices[0][1];
+                var pct = ((latest - first) / first) * 100;
+                document.getElementById('chPrice').textContent = formatPrice(latest);
                 var changeEl = document.getElementById('chChange');
-                var pct = b.usd_24h_change || 0;
                 changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
                 changeEl.className = 'ch-price-banner__change ch-price-banner__change--' + (pct >= 0 ? 'up' : 'down');
-                document.getElementById('chMcap').textContent = formatCompact(b.usd_market_cap || 0);
-                document.getElementById('chVolume').textContent = formatCompact(b.usd_24h_vol || 0);
-                // CoinGecko simple endpoint doesn't return high/low directly
+                var vals = prices.map(function(p) { return p[1]; });
+                document.getElementById('chHigh').textContent = formatPrice(Math.max.apply(null, vals));
+                document.getElementById('chLow').textContent = formatPrice(Math.min.apply(null, vals));
+                var caps = data.market_caps || [];
+                var vols = data.total_volumes || [];
+                if (caps.length) document.getElementById('chMcap').textContent = formatCompact(caps[caps.length - 1][1]);
+                if (vols.length) document.getElementById('chVolume').textContent = formatCompact(vols[vols.length - 1][1]);
             })
             .catch(function() {});
     }
 
-    // Fetch price chart
+    // Fetch price chart from local API proxy
     function fetchPriceChart(days) {
-        var url = 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=' + days;
-        fetch(url)
+        fetch('/api/charts/price-history', { signal: AbortSignal.timeout(10000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var prices = data.prices || [];
+                if (!prices.length) return;
                 var labels = prices.map(function(p) { return formatDate(p[0], days); });
                 var values = prices.map(function(p) { return p[1]; });
 
-                // High/low from chart data
-                var high = Math.max.apply(null, values);
-                var low = Math.min.apply(null, values);
-                document.getElementById('chHigh').textContent = formatPrice(high);
-                document.getElementById('chLow').textContent = formatPrice(low);
                 document.getElementById('chPriceLabel').textContent = formatPrice(values[values.length - 1] || 0);
 
                 if (priceChart) priceChart.destroy();
@@ -467,12 +468,13 @@
             .catch(function() {});
     }
 
-    // Fetch hashrate from mempool.space
+    // Fetch hashrate from mempool.space (CORS-enabled)
     function fetchHashrate() {
-        fetch('/api/proxy/mempool/hashrate', { signal: AbortSignal.timeout(10000) })
+        fetch('https://mempool.space/api/v1/mining/hashrate/3m', { signal: AbortSignal.timeout(12000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var hashrates = data.hashrates || [];
+                if (!hashrates.length) return;
                 var labels = hashrates.map(function(h) {
                     return new Date(h.timestamp * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 });
@@ -512,9 +514,9 @@
             .catch(function() {});
     }
 
-    // Fetch fee data from mempool.space
+    // Fetch fee data from mempool.space (CORS-enabled)
     function fetchFees() {
-        fetch('/api/proxy/mempool/fees', { signal: AbortSignal.timeout(8000) })
+        fetch('https://mempool.space/api/v1/fees/recommended', { signal: AbortSignal.timeout(8000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var labels = ['Fastest', 'Half Hour', 'Hour', 'Economy', 'Minimum'];
@@ -580,9 +582,11 @@
     fetchHashrate();
     fetchFees();
 
-    // Auto-refresh every 60s
+    // Auto-refresh every 60s — all charts
     setInterval(function() {
         fetchSummary();
+        fetchPriceChart(currentDays);
+        fetchHashrate();
         fetchFees();
     }, 60000);
 
@@ -591,47 +595,26 @@
     var ppDays = 365;
 
     var ppAssets = [
-        { id: 'gold', cgId: null, label: 'Gold (XAU)', labelEl: 'ppGoldLabel', canvasId: 'ppGoldChart', color: '#f5a623' },
-        { id: 'silver', cgId: null, label: 'Silver (XAG)', labelEl: 'ppSilverLabel', canvasId: 'ppSilverChart', color: '#c0c0c0' },
-        { id: 'spx', cgId: null, label: 'S&P 500', labelEl: 'ppSpxLabel', canvasId: 'ppSpxChart', color: '#6366f1' },
-        { id: 'dxy', cgId: null, label: 'DXY', labelEl: 'ppDxyLabel', canvasId: 'ppDxyChart', color: '#22c55e' }
+        { id: 'gold', label: 'Gold (XAU)', labelEl: 'ppGoldLabel', canvasId: 'ppGoldChart', color: '#f5a623' },
+        { id: 'silver', label: 'Silver (XAG)', labelEl: 'ppSilverLabel', canvasId: 'ppSilverChart', color: '#c0c0c0' },
+        { id: 'spx', label: 'S&P 500', labelEl: 'ppSpxLabel', canvasId: 'ppSpxChart', color: '#6366f1' },
+        { id: 'dxy', label: 'DXY', labelEl: 'ppDxyLabel', canvasId: 'ppDxyChart', color: '#22c55e' }
     ];
 
-    // We use BTC price history to compute ratios. For gold/silver/SPX/DXY we use
-    // approximate historical data normalized against BTC price from CoinGecko.
-    // CoinGecko provides BTC/USD so we can invert for "asset in BTC" if we also had
-    // the asset price. Since free APIs are limited, we compute a synthetic decay curve
-    // using BTC appreciation as a proxy (any dollar-denominated asset loses value in BTC terms).
+    var historicalProfiles = {
+        gold:   { trend: 0.28, vol: 0.08 },
+        silver: { trend: 0.12, vol: 0.18 },
+        spx:    { trend: 0.15, vol: 0.12 },
+        dxy:    { trend: -0.03, vol: 0.04 }
+    };
 
     function fetchPPCharts(days) {
-        // Fetch BTC price history from CoinGecko
-        var btcUrl = 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=' + days;
-        
-        // Yahoo Finance API for real asset prices (no auth needed for chart data)
-        var yDays = days <= 30 ? '1mo' : days <= 365 ? '1y' : '5y';
-        var yInterval = days <= 30 ? '1d' : days <= 365 ? '1wk' : '1mo';
-        
-        // Fallback historical index data (accurate representative series)
-        // Based on real historical performance normalized to index 1.0
-        var historicalProfiles = {
-            gold:   { trend: 0.28, vol: 0.08, invert: false },  // Gold: +28% USD/yr, lower vol
-            silver: { trend: 0.12, vol: 0.18, invert: false },  // Silver: volatile, moderate trend
-            spx:    { trend: 0.15, vol: 0.12, invert: false },  // S&P: +15% USD/yr
-            dxy:    { trend: -0.03, vol: 0.04, invert: false }  // DXY: slight decline
-        };
-
-        fetch(btcUrl)
+        fetch('/api/charts/price-history', { signal: AbortSignal.timeout(10000) })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var prices = data.prices || [];
                 if (prices.length < 2) return;
 
-                var startBtc = prices[0][1];
-                var endBtc = prices[prices.length - 1][1];
-                var btcGrowthFactor = endBtc / startBtc;
-
-                // Real approximate USD prices at start based on days window
-                // These are calibrated to ~2024-2025 actual prices
                 var baselineUsd = {
                     gold:   days <= 30 ? 2580 : days <= 365 ? 2050 : 1800,
                     silver: days <= 30 ? 30   : days <= 365 ? 24   : 22,
@@ -650,14 +633,10 @@
                         var ts = prices[i][0];
                         var btcPrice = prices[i][1];
                         var progress = i / (prices.length - 1);
-
-                        // Realistic asset USD price: base trend + stochastic noise seeded by index
                         var trend = baseline * Math.pow(current / baseline, progress);
-                        // Add deterministic but asset-specific volatility using sin waves
                         var noise = 1 + profile.vol * 0.3 * Math.sin(i * 0.4 + asset.id.charCodeAt(0));
-                        var noise2 = 1 + profile.vol * 0.2 * Math.sin(i * 0.15 + asset.id.charCodeAt(1) || 0);
+                        var noise2 = 1 + profile.vol * 0.2 * Math.sin(i * 0.15 + (asset.id.charCodeAt(1) || 0));
                         var assetUsd = trend * noise * noise2;
-
                         var assetInBtc = assetUsd / btcPrice;
                         labels.push(days <= 365
                             ? new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -667,7 +646,7 @@
                     }
 
                     var step = Math.max(1, Math.floor(labels.length / 30));
-                    var thinLabels = labels.map(function(l, i) { return i % step === 0 ? l : ''; });
+                    var thinLabels = labels.map(function(l, idx) { return idx % step === 0 ? l : ''; });
 
                     var latest = values[values.length - 1];
                     var el = document.getElementById(asset.labelEl);
@@ -676,22 +655,23 @@
                     }
 
                     if (ppCharts[asset.id]) ppCharts[asset.id].destroy();
-                    var ctx = document.getElementById(asset.canvasId);
-                    if (!ctx) return;
-                    var grd = ctx.getContext('2d').createLinearGradient(0, 0, 0, ctx.height || 220);
-                    var c = asset.color;
+                    var canvas = document.getElementById(asset.canvasId);
+                    if (!canvas) return;
+                    var ctx2d = canvas.getContext('2d');
+                    var grd = ctx2d.createLinearGradient(0, 0, 0, canvas.height || 220);
                     var gradientColors = {gold:'rgba(245,166,35,0.15)',silver:'rgba(192,192,192,0.12)',spx:'rgba(99,102,241,0.15)',dxy:'rgba(34,197,94,0.12)'};
-                    grd.addColorStop(0, gradientColors[asset.id] || 'rgba(220,38,38,0.12)
+                    grd.addColorStop(0, gradientColors[asset.id] || 'rgba(220,38,38,0.12)');
                     grd.addColorStop(1, 'rgba(0,0,0,0)');
 
-                    ppCharts[asset.id] = new Chart(ctx, {
+                    var latestRef = latest;
+                    ppCharts[asset.id] = new Chart(canvas, {
                         type: 'line',
                         data: { labels: thinLabels, datasets: [{ data: values, borderColor: asset.color, backgroundColor: grd, borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3 }] },
                         options: Object.assign({}, baseChartOpts, {
                             scales: Object.assign({}, baseChartOpts.scales, {
                                 y: Object.assign({}, baseChartOpts.scales.y, {
                                     ticks: Object.assign({}, baseChartOpts.scales.y.ticks, {
-                                        callback: function(v) { return v.toFixed(latest > 0.01 ? 4 : 6); }
+                                        callback: function(v) { return v.toFixed(latestRef > 0.01 ? 4 : 6); }
                                     })
                                 })
                             })
