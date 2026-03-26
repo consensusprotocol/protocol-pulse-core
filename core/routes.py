@@ -11618,6 +11618,15 @@ def bitnodes_snapshot():
         return resp
 
     try:
+        try:
+            _bc=requests.get("https://api.blockchair.com/bitcoin/nodes",timeout=8)
+            _cnt=len(_bc.json().get("data",{}).get("nodes",{}))
+            if _cnt>0:
+                _p={"node_count":_cnt,"source":"blockchair"}
+                _bitnodes_snapshot_cache["data"]=_p
+                _bitnodes_snapshot_cache["expires"]=now+180
+                return make_response(jsonify(_p))
+        except Exception as _e: logging.debug("bc nodes: %s",_e)
         r = requests.get(_BITNODES_SNAPSHOT_URL, timeout=8,
                          headers={'Accept': 'application/json'})
         r.raise_for_status()
