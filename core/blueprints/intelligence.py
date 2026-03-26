@@ -136,14 +136,97 @@ def join_register():
 
 @intelligence_bp.route("/intelligence")
 def intelligence_terminal():
-    """Full Intelligence Terminal — Commander+ only, demo mode for guests."""
-    just_upgraded = session.pop("just_upgraded", False)
-    activated = request.args.get("activated") == "1"
-    show_welcome = just_upgraded or activated
+    """Intelligence Dashboard — world-class redesign with PCAF orb, signal matrix, divergence engine."""
+    import json as _json
+    from datetime import datetime, timedelta as _td
+    from sqlalchemy import text as _text
 
-    if not _is_commander():
-        return render_template("intelligence_terminal.html", demo_mode=True, show_welcome=False)
-    return render_template("intelligence_terminal.html", demo_mode=False, show_welcome=show_welcome)
+    # ── Commander status ──
+    is_commander = _is_commander()
+
+    # ── Signal strength ──
+    try:
+        from services.intelligence_service import (
+            get_signal_strength, get_trending_topics,
+            get_entity_tracker, get_narrative_timeline, get_intelligence_events
+        )
+        signal = get_signal_strength()
+        trending = get_trending_topics(hours=24)
+        entities = get_entity_tracker(hours=48)
+        narrative_timeline = get_narrative_timeline(days=7)
+        intel_events = get_intelligence_events(limit=8)
+    except Exception as e:
+        logger.error("intelligence_terminal data error: %s", e)
+        signal = {"composite": 50, "label": "NEUTRAL", "color": "#f8c15c", "components": {}, "trajectory": "UNKNOWN"}
+        trending = []
+        entities = []
+        narrative_timeline = []
+        intel_events = []
+
+    # ── Top articles ──
+    top_articles = []
+    try:
+        from app import db as _db2
+        if _db2:
+            imp_rows = _db2.session.execute(
+                _text("""SELECT id, title, sentiment, narrative_label, importance_score,
+                                market_impact_magnitude, created_at
+                         FROM articles WHERE published=1
+                         ORDER BY importance_score DESC NULLS LAST, created_at DESC
+                         LIMIT 15""")
+            ).fetchall()
+            top_articles = [
+                {
+                    "id": r[0], "title": r[1],
+                    "sentiment": r[2] or "unclassified",
+                    "narrative_label": r[3] or "—",
+                    "importance_score": int(r[4] or 50),
+                    "impact": float(r[5] or 5.0),
+                    "created_at": str(r[6]),
+                }
+                for r in imp_rows
+            ]
+    except Exception:
+        pass
+
+    # ── Sovereign context ──
+    sovereign_ctx = {}
+    try:
+        _ctx_path = str(Path(__file__).resolve().parent.parent.parent / "data" / "sovereign_context" / "latest.json")
+        if os.path.exists(_ctx_path):
+            with open(_ctx_path) as f:
+                sovereign_ctx = json.load(f)
+    except Exception:
+        pass
+
+    # ── Polymarket ──
+    polymarket_markets = []
+    polymarket_sentiment = 50
+    try:
+        _pm_path = str(Path(__file__).resolve().parent.parent.parent / "services" / "polymarket_service.py")
+        spec = importlib.util.spec_from_file_location('polymarket_service', _pm_path)
+        _pm = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_pm)
+        polymarket_markets = _pm.get_bitcoin_markets(5)
+        polymarket_sentiment = _pm.get_macro_sentiment_score()
+    except Exception:
+        pass
+
+    return render_template(
+        "intelligence_page.html",
+        signal=signal,
+        trending=trending,
+        entities=entities,
+        narrative_timeline=narrative_timeline,
+        intel_events=intel_events,
+        top_articles=top_articles,
+        signal_json=_json.dumps(signal, default=str),
+        sovereign_ctx=sovereign_ctx,
+        sovereign_ctx_json=_json.dumps(sovereign_ctx, default=str),
+        polymarket_markets=polymarket_markets,
+        polymarket_sentiment=polymarket_sentiment,
+        is_commander=is_commander,
+    )
 
 
 @intelligence_bp.route("/intelligence/demo")

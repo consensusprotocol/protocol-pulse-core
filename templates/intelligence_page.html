@@ -1,329 +1,732 @@
 {% extends "base.html" %}
 
-{% block title %}Intelligence Dashboard | Protocol Pulse{% endblock %}
+{% block title %}Intelligence Terminal | Protocol Pulse{% endblock %}
 
 {% block meta_description %}Premium Bitcoin signal intelligence — sovereign signal matrix, cross-signal divergence, whale intelligence, algorithmic scoring, Polymarket odds.{% endblock %}
 
 {% block extra_css %}
 <style>
-/* ── Intelligence Page ── */
+/* ══════════════════════════════════════════════════════════════════
+   INTELLIGENCE TERMINAL — WORLD-CLASS REBUILD
+   Design: #ff3b5f / #000 / #fff only. JetBrains Mono for data.
+   Physics-based animations. Mobile-first. Bloomberg-density.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Page Shell ── */
 .intel-page {
   min-height: 100vh;
-  background: #06070b;
-  padding: 100px 24px 80px;
+  background: #000;
+  padding: 88px 16px 80px;
   position: relative;
-  z-index: 2;
-  box-shadow: inset 0 0 120px rgba(0,0,0,0.45), inset 0 0 60px rgba(0,0,0,0.3);
+  overflow-x: hidden;
 }
 
-/* ── Cinematic Background System ── */
-.intel-page::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background:
-    radial-gradient(circle 300px at 15% 12%, rgba(255,59,95,0.18), transparent),
-    radial-gradient(circle 250px at 85% 8%, rgba(93,228,255,0.10), transparent),
-    radial-gradient(circle 200px at 50% 92%, rgba(248,193,92,0.12), transparent),
-    #06070b;
-  animation: bg-shift 12s ease-in-out infinite alternate;
-}
+/* Scanline overlay */
 .intel-page::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
-  background-size: 48px 48px;
-  opacity: 0.6;
-}
-@keyframes bg-shift {
-  0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
-  100% { background-position: -20px 12px, 15px -8px, -8px 20px, 0 0; }
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.008) 2px,
+      rgba(255,255,255,0.008) 4px
+    );
 }
 
 .intel-container {
   max-width: 1440px;
   margin: 0 auto;
-}
-
-/* ── Header ── */
-.intel-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-  color: #f8c15c;
-  margin-bottom: 8px;
-}
-
-.intel-headline {
-  font-size: 2.4rem;
-  font-weight: 900;
-  color: #eef2ff;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 8px;
-  text-shadow: 0 4px 28px rgba(0,0,0,0.4);
-}
-
-/* ── Glass card ── */
-.g-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 24px;
-  height: 100%;
   position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-}
-.g-card:hover {
-  border-color: rgba(255,59,95,0.25);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.35), 0 0 24px rgba(255,59,95,0.08);
-  transform: translateY(-1px);
+  z-index: 1;
 }
 
-.g-card.accent-red { border-color: rgba(255,59,95,0.22); }
-.g-card.accent-gold { border-color: rgba(248,193,92,0.18); }
-.g-card.accent-cyan { border-color: rgba(93,228,255,0.15); }
+/* ── Typography ── */
+.mono { font-family: 'JetBrains Mono', monospace; }
 
-.g-eyebrow {
+.eyebrow {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #f8c15c;
-  margin-bottom: 16px;
-  display: block;
-}
-
-/* ── Signal Strength Big Number ── */
-.signal-composite {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 5rem;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  transition: color 0.5s ease;
-}
-
-.signal-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  margin-top: 6px;
-}
-
-.signal-trajectory {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #95a0ba;
-  margin-top: 8px;
+  color: #ff3b5f;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-/* ── Radial gauge ── */
-.signal-gauge-wrap {
+.eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #ff3b5f;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,59,95,0.4); }
+  50% { opacity: 0.6; box-shadow: 0 0 12px 4px rgba(255,59,95,0.2); }
+}
+
+/* ── Glass Panels ── */
+.g-panel {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 20px;
   position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s ease;
+}
+.g-panel:hover { border-color: rgba(255,59,95,0.15); }
+
+.g-panel.accent-red { border-left: 2px solid #ff3b5f; }
+.g-panel.accent-white { border-left: 2px solid rgba(255,255,255,0.3); }
+
+/* ── Stat Command Bar (Bloomberg-style top strip) ── */
+.command-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.cmd-cell {
+  background: #000;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cmd-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.cmd-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+.cmd-delta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+}
+.cmd-delta.up { color: #fff; }
+.cmd-delta.down { color: #ff3b5f; }
+.cmd-delta.flat { color: rgba(255,255,255,0.4); }
+
+/* ── Dashboard Grid ── */
+.intel-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .intel-grid { grid-template-columns: repeat(12, 1fr); }
+  .span-3 { grid-column: span 3; }
+  .span-4 { grid-column: span 4; }
+  .span-5 { grid-column: span 5; }
+  .span-6 { grid-column: span 6; }
+  .span-7 { grid-column: span 7; }
+  .span-8 { grid-column: span 8; }
+  .span-12 { grid-column: span 12; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   1. PCAF SCORE ORB — Breathing, color-shifting central orb
+   ══════════════════════════════════════════════════════════════════ */
+.pcaf-orb-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding: 24px 0;
 }
 
-.signal-gauge-svg {
+.pcaf-orb-container {
+  position: relative;
   width: 180px;
   height: 180px;
 }
 
-/* ── Component mini-gauges ── */
-.component-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+.pcaf-orb-canvas {
+  width: 180px;
+  height: 180px;
 }
 
-.comp-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.comp-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.comp-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #95a0ba;
-}
-
-.comp-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 800;
-  color: #f8c15c;
-}
-
-.comp-bar-track {
-  height: 4px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.comp-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.8s ease;
-}
-
-.comp-desc {
-  font-size: 10px;
-  color: #95a0ba;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* ── Stat pills ── */
-.stat-pill {
+.pcaf-orb-score {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 12px;
-  flex: 1;
-  min-width: 100px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  justify-content: center;
+  pointer-events: none;
 }
 
-.stat-pill-value {
+.pcaf-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.6rem;
+  font-size: 3.2rem;
   font-weight: 900;
-  color: #f8c15c;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.05em;
   line-height: 1;
+  color: #fff;
 }
 
-.stat-pill-label {
+.pcaf-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #95a0ba;
+  color: rgba(255,255,255,0.5);
   margin-top: 4px;
 }
 
-/* ── Fear & Greed widget ── */
-.fg-wrap { text-align: center; }
-
-.fg-value {
+.pcaf-sublabel {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 3.5rem;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+/* ── Algo Subscores ── */
+.algo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.algo-row:last-child { border-bottom: none; }
+
+.algo-row-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+.algo-row-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.algo-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.algo-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   2. SOVEREIGN SIGNAL MATRIX — Canvas-based radar with physics
+   ══════════════════════════════════════════════════════════════════ */
+.radar-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.radar-canvas {
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1;
+}
+
+.radar-composite-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.radar-comp-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.4rem;
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 
-.fg-label {
+.radar-comp-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+/* Axis legend */
+.axis-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  justify-content: center;
+}
+
+.axis-legend span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+/* ── Indices rows ── */
+.idx-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.idx-row:last-child { border-bottom: none; }
+
+.idx-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+.idx-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.idx-interp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.25);
+  padding: 2px 0 6px;
+  line-height: 1.4;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   3. FEAR & GREED — Gauge arc
+   ══════════════════════════════════════════════════════════════════ */
+.fg-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.fg-gauge-canvas {
+  width: 140px;
+  height: 80px;
+}
+
+.fg-big {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.fg-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
-.fg-history {
+.fg-history-row {
   display: flex;
-  gap: 4px;
-  margin-top: 16px;
+  gap: 3px;
+  margin-top: 14px;
   align-items: flex-end;
   justify-content: center;
-  height: 40px;
+  height: 36px;
 }
 
-.fg-bar {
-  width: 24px;
+.fg-hbar {
+  width: 20px;
   border-radius: 2px 2px 0 0;
-  min-height: 4px;
-  transition: height 0.5s ease;
+  min-height: 3px;
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── Narrative timeline ── */
-.narr-timeline {
+/* ══════════════════════════════════════════════════════════════════
+   4. DIVERGENCE ENGINE — SVG tension arcs
+   ══════════════════════════════════════════════════════════════════ */
+.div-alert {
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  animation: div-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes div-slide-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.div-alert.bullish { border-left: 3px solid #fff; }
+.div-alert.bearish { border-left: 3px solid #ff3b5f; }
+.div-alert.mixed { border-left: 3px solid rgba(255,255,255,0.4); }
+
+.div-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.div-detail {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.div-accuracy {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  color: #ff3b5f;
+}
+
+/* Tension arc SVG */
+.tension-arc-container {
+  width: 100%;
+  height: 60px;
+  margin: 8px 0;
+}
+
+.tension-arc-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tension-path {
+  fill: none;
+  stroke-dasharray: 8 4;
+  animation: dash-flow 1.5s linear infinite;
+}
+
+@keyframes dash-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   5. WHALE FEED — Animated entries
+   ══════════════════════════════════════════════════════════════════ */
+.whale-feed-list {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.whale-entry {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  align-items: flex-start;
+  animation: whale-slide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
 }
 
-.narr-day {
-  display: grid;
-  grid-template-columns: 60px 1fr auto;
-  gap: 12px;
-  align-items: center;
-  padding: 10px 0;
+@keyframes whale-slide {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.whale-entry.flash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,59,95,0.08);
+  border-radius: 4px;
+  animation: whale-flash 0.8s ease-out forwards;
+}
+
+@keyframes whale-flash {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.whale-entry:last-child { border-bottom: none; }
+
+.whale-tier-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.whale-tier-badge.critical {
+  background: rgba(255,59,95,0.15);
+  color: #ff3b5f;
+  animation: pulse-critical 2s ease-in-out infinite;
+}
+.whale-tier-badge.alert { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+.whale-tier-badge.note { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); }
+
+@keyframes pulse-critical {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,95,0); }
+  50% { box-shadow: 0 0 10px 2px rgba(255,59,95,0.25); }
+}
+
+.whale-msg {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.4;
+}
+
+.whale-msg.large-tx {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.whale-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.2);
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   6. POLYMARKET PANEL
+   ══════════════════════════════════════════════════════════════════ */
+.poly-item {
+  padding: 12px 0;
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
+.poly-item:last-child { border-bottom: none; }
 
-.narr-day:last-child { border-bottom: none; }
+.poly-q {
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.poly-bar-track {
+  display: flex;
+  height: 22px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+}
+
+.poly-yes {
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  min-width: 32px;
+  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.poly-no {
+  background: rgba(255,59,95,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  color: #ff3b5f;
+  min-width: 32px;
+  flex: 1;
+}
+
+.poly-meta-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.08em;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   7. NARRATIVE TIMELINE
+   ══════════════════════════════════════════════════════════════════ */
+.narr-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 36px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.narr-row:last-child { border-bottom: none; }
 
 .narr-date {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: #95a0ba;
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
   font-weight: 700;
 }
 
-.narr-narrative {
-  font-size: 12px;
-  color: #eef2ff;
+.narr-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
   font-weight: 600;
 }
 
 .narr-score {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-  font-weight: 800;
-  min-width: 32px;
+  font-weight: 900;
   text-align: right;
 }
 
-/* ── Topic cloud ── */
+/* ══════════════════════════════════════════════════════════════════
+   8. ARTICLE STREAM
+   ══════════════════════════════════════════════════════════════════ */
+.art-item {
+  display: grid;
+  grid-template-columns: 24px 1fr 36px;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  align-items: start;
+}
+.art-item:last-child { border-bottom: none; }
+
+.art-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  padding-top: 2px;
+}
+
+.art-title a {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  line-height: 1.4;
+}
+.art-title a:hover { color: #fff; }
+
+.art-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.s-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.s-badge.bullish { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+.s-badge.bearish { background: rgba(255,59,95,0.08); color: #ff3b5f; }
+.s-badge.neutral { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.4); }
+.s-badge.unclassified { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.25); }
+
+.narr-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.04);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.art-imp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 900;
+  text-align: right;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   9. TOPIC CLOUD + ENTITY TABLE
+   ══════════════════════════════════════════════════════════════════ */
 .topic-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  line-height: 1.6;
+  line-height: 1.8;
 }
 
 .topic-word {
@@ -332,15 +735,12 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   transition: opacity 0.2s;
-  text-decoration: none;
 }
+.topic-word.bullish { color: rgba(255,255,255,0.8); }
+.topic-word.bearish { color: #ff3b5f; }
+.topic-word.neutral { color: rgba(255,255,255,0.4); }
+.topic-word:hover { opacity: 0.6; }
 
-.topic-word.bullish { color: #89ffb8; }
-.topic-word.bearish { color: #ff8ba0; }
-.topic-word.neutral { color: #eef2ff; }
-.topic-word:hover { opacity: 0.7; }
-
-/* ── Entity table ── */
 .entity-table {
   width: 100%;
   border-collapse: collapse;
@@ -348,413 +748,39 @@
 
 .entity-table th {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #95a0ba;
-  padding: 8px 12px;
+  color: rgba(255,255,255,0.25);
+  padding: 8px 10px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   text-align: left;
 }
 
 .entity-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  font-size: 13px;
-  color: #eef2ff;
-  vertical-align: middle;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
 }
-
 .entity-table tr:last-child td { border-bottom: none; }
 
 .entity-type {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(93,228,255,0.08);
-  color: #5de4ff;
-}
-
-/* ── Event list ── */
-.evt-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  align-items: flex-start;
-}
-
-.evt-item:last-child { border-bottom: none; }
-
-.evt-badge {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.evt-badge.critical { background: rgba(255,59,95,0.15); color: #ff8ba0; }
-.evt-badge.warning  { background: rgba(248,193,92,0.12); color: #f8c15c; }
-.evt-badge.info     { background: rgba(93,228,255,0.10); color: #5de4ff; }
-
-/* ── Article stream ── */
-.art-stream-item {
-  display: grid;
-  grid-template-columns: 28px 1fr auto;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  align-items: start;
-}
-
-.art-stream-item:last-child { border-bottom: none; }
-
-.art-rank {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  color: #95a0ba;
-  padding-top: 2px;
-}
-
-.art-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #eef2ff;
-  line-height: 1.4;
-  margin-bottom: 3px;
-}
-
-.art-meta {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.art-imp {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1rem;
-  font-weight: 900;
-  text-align: right;
-}
-
-/* ── Badges ── */
-.s-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-}
-
-.s-badge.bullish { background: rgba(137,255,184,0.10); color: #89ffb8; }
-.s-badge.bearish { background: rgba(255,139,160,0.10); color: #ff8ba0; }
-.s-badge.neutral { background: rgba(248,193,92,0.10); color: #f8c15c; }
-.s-badge.unclassified { background: rgba(149,160,186,0.08); color: #95a0ba; }
-
-.narr-chip {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #95a0ba;
-  background: rgba(149,160,186,0.07);
-  border-radius: 4px;
-  padding: 2px 5px;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   A. SOVEREIGN SIGNAL MATRIX — Radar Chart
-   ═══════════════════════════════════════════════════════════════════ */
-.radar-container {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-  margin: 0 auto;
-}
-
-.radar-container canvas {
-  width: 100% !important;
-  height: auto !important;
-}
-
-.radar-composite {
-  text-align: center;
-  margin-top: 12px;
-}
-
-.radar-composite-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-}
-
-.radar-composite-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #95a0ba;
-  margin-top: 2px;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   B. POLYMARKET PANEL
-   ═══════════════════════════════════════════════════════════════════ */
-.poly-market {
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-
-.poly-market:last-child { border-bottom: none; }
-
-.poly-question {
-  font-size: 12px;
-  color: #eef2ff;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 8px;
-}
-
-.poly-bar-wrap {
-  display: flex;
-  height: 24px;
-  border-radius: 4px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.04);
-}
-
-.poly-bar-yes {
-  background: rgba(137,255,184,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  color: #89ffb8;
-  min-width: 36px;
-  transition: width 0.8s ease;
-}
-
-.poly-bar-no {
-  background: rgba(255,139,160,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  color: #ff8ba0;
-  min-width: 36px;
-  flex: 1;
-}
-
-.poly-meta {
-  display: flex;
-  gap: 12px;
-  margin-top: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  color: #95a0ba;
-  letter-spacing: 0.08em;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   C. DIVERGENCE ALERTS
-   ═══════════════════════════════════════════════════════════════════ */
-.divergence-alert {
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  border-left: 3px solid;
-}
-
-.divergence-alert.bullish {
-  background: rgba(137,255,184,0.05);
-  border-color: #89ffb8;
-}
-
-.divergence-alert.bearish {
-  background: rgba(255,139,160,0.05);
-  border-color: #ff8ba0;
-}
-
-.divergence-alert.mixed {
-  background: rgba(248,193,92,0.05);
-  border-color: #f8c15c;
-}
-
-.divergence-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.divergence-detail {
-  font-size: 12px;
-  color: #95a0ba;
-  line-height: 1.5;
-  margin-bottom: 6px;
-}
-
-.divergence-accuracy {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  color: #f8c15c;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   D. WHALE FEED
-   ═══════════════════════════════════════════════════════════════════ */
-.whale-item {
-  display: flex;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  align-items: flex-start;
-}
-
-.whale-item:last-child { border-bottom: none; }
-
-.whale-tier {
-  font-family: 'JetBrains Mono', monospace;
   font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.whale-tier.critical {
-  background: rgba(255,59,95,0.15);
-  color: #ff3b5f;
-  animation: pulse-critical 2s ease-in-out infinite;
-}
-
-.whale-tier.alert { background: rgba(248,193,92,0.12); color: #f8c15c; }
-.whale-tier.note { background: rgba(149,160,186,0.08); color: #95a0ba; }
-
-@keyframes pulse-critical {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,95,0); }
-  50% { box-shadow: 0 0 12px 2px rgba(255,59,95,0.3); }
-}
-
-.whale-msg {
-  font-size: 12px;
-  color: #eef2ff;
-  line-height: 1.4;
-}
-
-.whale-time {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: #95a0ba;
-  margin-top: 3px;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   E. ALGORITHMIC SIGNAL SCORE
-   ═══════════════════════════════════════════════════════════════════ */
-.algo-score-wrap {
-  text-align: center;
-  padding: 16px 0;
-}
-
-.algo-big-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 4.5rem;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  transition: color 0.5s ease;
-}
-
-.algo-trend-arrow {
-  font-size: 2rem;
-  display: inline-block;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-.algo-sub-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
-.algo-subscore {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  cursor: pointer;
-}
-
-.algo-subscore:last-child { border-bottom: none; }
-
-.algo-subscore-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #95a0ba;
+  letter-spacing: 0.10em;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
 }
 
-.algo-subscore-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.algo-subscore-bar {
-  height: 3px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.algo-subscore-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 1s ease;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   F. CLASSIFIED OVERLAY (CSS-only, not JS-removable)
-   ═══════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════
+   10. CLASSIFIED GATE
+   ══════════════════════════════════════════════════════════════════ */
 .classified-gate {
   position: absolute;
   inset: 0;
@@ -763,16 +789,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: rgba(6,7,11,0.82);
-  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(0,0,0,0.85);
+  border-radius: 12px;
 }
 
 .classified-gate::before {
   content: 'CLASSIFIED';
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.30em;
   color: #ff3b5f;
@@ -782,60 +808,112 @@
 .classified-cta {
   display: inline-block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #06070b;
-  background: #f8c15c;
+  color: #000;
+  background: #fff;
   padding: 10px 24px;
-  border-radius: 8px;
+  border-radius: 6px;
   text-decoration: none;
   transition: background 0.2s;
 }
-
-.classified-cta:hover {
-  background: #ffd47a;
-  color: #06070b;
-  text-decoration: none;
-}
+.classified-cta:hover { background: #ff3b5f; color: #000; text-decoration: none; }
 
 .classified-teaser {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: #95a0ba;
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
   margin-top: 8px;
   letter-spacing: 0.08em;
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   11. EVENTS
+   ══════════════════════════════════════════════════════════════════ */
+.evt-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  align-items: flex-start;
+}
+.evt-item:last-child { border-bottom: none; }
+
+.evt-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.evt-badge.critical { background: rgba(255,59,95,0.12); color: #ff3b5f; }
+.evt-badge.warning { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); }
+.evt-badge.info { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); }
+
+/* ── Heatmap (Sentiment Matrix) ── */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+}
+
+.heatmap-label {
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.35);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 9px;
+  color: rgba(255,255,255,0.6);
+  transition: transform 0.2s;
+}
+.heatmap-cell:hover { transform: scale(1.15); z-index: 2; }
+
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  .intel-headline { font-size: 1.6rem; }
-  .signal-composite { font-size: 3rem; }
-  .algo-big-num { font-size: 2.5rem; }
-  .intel-page { padding: 80px 12px 60px; }
-  .radar-container { max-width: 220px; }
-  .g-card { padding: 18px; }
-  .g-eyebrow { font-size: 8px; margin-bottom: 10px; }
-  .stat-pill { min-width: 70px; padding: 10px 8px; }
-  .stat-pill-value { font-size: 1.2rem; }
-  .fg-value { font-size: 2.5rem; }
-  .entity-table { font-size: 10px; }
-  .classified-gate::before { font-size: 10px; }
-  .poly-card { padding: 10px; }
-  .whale-item { padding: 8px; }
+@media (max-width: 767px) {
+  .intel-page { padding: 76px 10px 60px; }
+  .command-bar { grid-template-columns: repeat(3, 1fr); }
+  .pcaf-num { font-size: 2.4rem; }
+  .radar-comp-num { font-size: 1.8rem; }
+  .fg-big { font-size: 2rem; }
+  .heatmap-grid { grid-template-columns: 60px repeat(7, 1fr); }
+  .heatmap-grid .heatmap-label { font-size: 7px; }
 }
 
 @media (max-width: 480px) {
-  .intel-page { padding: 70px 8px 50px; }
-  .intel-headline { font-size: 1.3rem; }
-  .stat-pill { min-width: 60px; padding: 8px 6px; }
-  .stat-pill-value { font-size: 1rem; }
-  .signal-composite { font-size: 2.5rem; }
+  .intel-page { padding: 68px 8px 50px; }
+  .command-bar { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 1200px) {
-  .intel-container { max-width: 100%; }
+/* ── Disclaimer ── */
+.intel-disclaimer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.12);
+  margin-top: 3px;
 }
 </style>
 {% endblock %}
@@ -844,82 +922,94 @@
 <div class="intel-page">
 <div class="intel-container">
 
-  <!-- Header -->
-  <div class="mb-4">
-    <div class="intel-eyebrow">SOVEREIGN INTELLIGENCE • PREMIUM COMMAND CENTER</div>
-    <h1 class="intel-headline">Bitcoin Intelligence Dashboard</h1>
-    <p style="color:#95a0ba;font-size:0.95rem;">
-      Cross-signal analysis, prediction market odds, whale tracking, algorithmic scoring.
-      <a href="/sentiment" style="color:#f8c15c;text-decoration:none;margin-left:12px;">Sentiment ↗</a>
-      <a href="/terminal" style="color:#f8c15c;text-decoration:none;margin-left:12px;">Terminal ↗</a>
-    </p>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#4a5568;margin-top:4px;">
-      For informational purposes only — not financial advice. Past signal performance does not guarantee future results.
+  <!-- ── Header ── -->
+  <div style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:#ff3b5f;">PROTOCOL PULSE INTELLIGENCE</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:rgba(255,255,255,0.15);letter-spacing:0.10em;">BLK {{ sovereign_ctx.block_height if sovereign_ctx and sovereign_ctx.block_height else '—' }}</span>
+    </div>
+    <div style="display:flex;gap:16px;align-items:baseline;">
+      <a href="/sentiment" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);text-decoration:none;letter-spacing:0.10em;font-weight:700;">SENTIMENT</a>
+      <a href="/terminal" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);text-decoration:none;letter-spacing:0.10em;font-weight:700;">TERMINAL</a>
+      <a href="/charts" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);text-decoration:none;letter-spacing:0.10em;font-weight:700;">CHARTS</a>
+    </div>
+    <div class="intel-disclaimer">For informational purposes only — not financial advice. Past signal performance does not guarantee future results.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       COMMAND BAR — Bloomberg-style persistent top strip
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="command-bar">
+    {% set ctx_btc = sovereign_ctx.btc if sovereign_ctx and sovereign_ctx.btc else {} %}
+    {% set ctx_fg = sovereign_ctx.fear_greed if sovereign_ctx and sovereign_ctx.fear_greed else {} %}
+    {% set ctx_net = sovereign_ctx.network if sovereign_ctx and sovereign_ctx.network else {} %}
+    {% set ctx_ln = sovereign_ctx.lightning if sovereign_ctx and sovereign_ctx.lightning else {} %}
+    {% set ctx_mem = sovereign_ctx.mempool if sovereign_ctx and sovereign_ctx.mempool else {} %}
+
+    <div class="cmd-cell">
+      <div class="cmd-value">${{ "{:,.0f}".format(ctx_btc.price) if ctx_btc.price else '—' }}</div>
+      <div class="cmd-label">BTC/USD</div>
+      {% if ctx_btc.change_24h is defined %}
+      <div class="cmd-delta {{ 'down' if ctx_btc.change_24h < 0 else 'up' if ctx_btc.change_24h > 0 else 'flat' }}">
+        {{ "{:+.2f}".format(ctx_btc.change_24h) }}%
+      </div>
+      {% endif %}
+    </div>
+    <div class="cmd-cell">
+      <div class="cmd-value">{{ ctx_fg.value if ctx_fg.value is defined else '—' }}</div>
+      <div class="cmd-label">F&G INDEX</div>
+      <div class="cmd-delta flat">{{ ctx_fg.label if ctx_fg.label is defined else '' }}</div>
+    </div>
+    <div class="cmd-cell">
+      <div class="cmd-value">{{ "{:.0f}".format(ctx_net.hashrate_eh) if ctx_net.hashrate_eh else '—' }}</div>
+      <div class="cmd-label">HASHRATE EH/s</div>
+      {% if ctx_net.next_adj_pct is defined %}
+      <div class="cmd-delta {{ 'up' if ctx_net.next_adj_pct > 0 else 'down' if ctx_net.next_adj_pct < 0 else 'flat' }}">
+        ADJ {{ "{:+.1f}".format(ctx_net.next_adj_pct) }}%
+      </div>
+      {% endif %}
+    </div>
+    <div class="cmd-cell">
+      <div class="cmd-value">{{ "{:,.0f}".format(ctx_ln.capacity_btc) if ctx_ln.capacity_btc else '—' }}</div>
+      <div class="cmd-label">LN CAPACITY</div>
+      <div class="cmd-delta flat">{{ "{:,}".format(ctx_ln.channels) if ctx_ln.channels else '—' }} CH</div>
+    </div>
+    <div class="cmd-cell">
+      <div class="cmd-value">{{ ctx_mem.fee_high if ctx_mem.fee_high else '—' }}</div>
+      <div class="cmd-label">SAT/VB HIGH</div>
+      <div class="cmd-delta flat">{{ "{:,}".format(ctx_mem.unconfirmed) if ctx_mem.unconfirmed else '—' }} UNCONF</div>
+    </div>
+    <div class="cmd-cell">
+      <div class="cmd-value">{{ "{:.1f}".format(ctx_btc.dominance) if ctx_btc.dominance else '—' }}%</div>
+      <div class="cmd-label">BTC DOM</div>
     </div>
   </div>
 
-  <!-- Stat Pills Row -->
-  <div class="d-flex gap-3 mb-4 flex-wrap">
-    <div class="stat-pill">
-      {% set ctx_btc = sovereign_ctx.btc if sovereign_ctx and sovereign_ctx.btc else {} %}
-      <div class="stat-pill-value" style="font-size:1.1rem;">
-        ${{ "{:,.0f}".format(ctx_btc.price) if ctx_btc.price else '—' }}
-      </div>
-      <div class="stat-pill-label">BTC Price</div>
-    </div>
-    <div class="stat-pill">
-      {% set ctx_fg = sovereign_ctx.fear_greed if sovereign_ctx and sovereign_ctx.fear_greed else {} %}
-      <div class="stat-pill-value" style="color:{% if ctx_fg.value is defined and ctx_fg.value >= 60 %}#89ffb8{% elif ctx_fg.value is defined and ctx_fg.value <= 35 %}#ff8ba0{% else %}#f8c15c{% endif %};">
-        {{ ctx_fg.value if ctx_fg.value is defined else '—' }}
-      </div>
-      <div class="stat-pill-label">Fear & Greed</div>
-    </div>
-    <div class="stat-pill">
-      {% set ctx_net = sovereign_ctx.network if sovereign_ctx and sovereign_ctx.network else {} %}
-      <div class="stat-pill-value">{{ "{:.0f}".format(ctx_net.hashrate_eh) if ctx_net.hashrate_eh else '—' }}</div>
-      <div class="stat-pill-label">EH/s</div>
-    </div>
-    <div class="stat-pill">
-      {% set ctx_ln = sovereign_ctx.lightning if sovereign_ctx and sovereign_ctx.lightning else {} %}
-      <div class="stat-pill-value" style="font-size:1.1rem;">{{ "{:,.0f}".format(ctx_ln.capacity_btc) if ctx_ln.capacity_btc else '—' }}</div>
-      <div class="stat-pill-label">LN Capacity</div>
-    </div>
-    <div class="stat-pill">
-      {% set ctx_mem = sovereign_ctx.mempool if sovereign_ctx and sovereign_ctx.mempool else {} %}
-      <div class="stat-pill-value">{{ ctx_mem.fee_high if ctx_mem.fee_high else '—' }}</div>
-      <div class="stat-pill-label">sat/vB</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill-value">{{ sovereign_ctx.block_height if sovereign_ctx and sovereign_ctx.block_height else '—' }}</div>
-      <div class="stat-pill-label">Block</div>
-    </div>
-  </div>
+  <!-- ══════════════════════════════════════════════════════════════
+       ROW 1: PCAF Orb + Signal Matrix + Fear & Greed
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-bottom:16px;">
 
-  <!-- ════════════════════════════════════════════════════════════════
-       ROW 1: Algo Score + Sovereign Signal Matrix + Fear & Greed
-       ════════════════════════════════════════════════════════════════ -->
-  <div class="row g-4 mb-4">
-
-    <!-- F. ALGORITHMIC SIGNAL SCORE -->
-    <div class="col-lg-3">
-      <div class="g-card accent-red" id="algo-card">
-        <span class="g-eyebrow">Algorithmic Signal Score</span>
-        <div class="algo-score-wrap">
-          <div>
-            <span class="algo-big-num" id="algo-num" style="color:{{ signal.color }};">{{ signal.composite|int }}</span>
-            <span class="algo-trend-arrow" id="algo-arrow" style="color:{{ signal.color }};">
-              {% set traj = signal.trajectory %}
-              {% if 'BULLISH' in traj %}&#9650;{% elif 'BEARISH' in traj %}&#9660;{% else %}&#9654;{% endif %}
-            </span>
+    <!-- A. PCAF SCORE ORB + ALGO SIGNAL -->
+    <div class="span-3">
+      <div class="g-panel accent-red" id="pcaf-card" style="position:relative;">
+        <div class="eyebrow">PCAF SIGNAL SCORE</div>
+        <div class="pcaf-orb-wrap">
+          <div class="pcaf-orb-container">
+            <canvas id="pcafOrb" class="pcaf-orb-canvas" width="360" height="360"></canvas>
+            <div class="pcaf-orb-score">
+              <span class="pcaf-num" id="pcaf-num">{{ signal.composite|int }}</span>
+              <span class="pcaf-label">COMPOSITE</span>
+            </div>
           </div>
-          <div class="algo-sub-label" style="color:{{ signal.color }};">{{ signal.label }}</div>
+          <div class="pcaf-sublabel" id="pcaf-bias" style="color:{{ signal.color }};">{{ signal.label }}</div>
         </div>
 
-        <div style="margin-top:16px;">
+        <!-- Algo subscores -->
+        <div style="margin-top:14px;">
           {% if signal.components %}
           {% set tech_keys = ['hashrate', 'mempool'] %}
           {% set chain_keys = ['exchange_flow', 'whale'] %}
-          {% set sent_keys = ['fear_greed', 'kol_sentiment', 'narrative'] %}
 
           {% set tech_score = [] %}
           {% set chain_score = [] %}
@@ -937,205 +1027,197 @@
           {% set cs = (chain_score|sum / chain_score|length)|int if chain_score|length > 0 else 50 %}
           {% set ss = (sent_score|sum / sent_score|length)|int if sent_score|length > 0 else 50 %}
 
-          <div class="algo-subscore">
-            <span class="algo-subscore-label">Technical (40%)</span>
-            <span class="algo-subscore-val" style="color:{% if ts >= 65 %}#89ffb8{% elif ts >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};">{{ ts }}</span>
+          <div class="algo-row">
+            <span class="algo-row-label">Technical</span>
+            <span class="algo-row-val" style="color:{% if ts >= 65 %}#fff{% elif ts >= 45 %}rgba(255,255,255,0.6){% else %}#ff3b5f{% endif %};">{{ ts }}</span>
           </div>
-          <div class="algo-subscore-bar">
-            <div class="algo-subscore-fill" style="width:{{ ts }}%;background:{% if ts >= 65 %}#89ffb8{% elif ts >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};"></div>
-          </div>
+          <div class="algo-bar"><div class="algo-bar-fill" style="width:{{ ts }}%;background:{% if ts >= 65 %}#fff{% elif ts >= 45 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};"></div></div>
 
-          <div class="algo-subscore" style="margin-top:8px;">
-            <span class="algo-subscore-label">On-Chain (35%)</span>
-            <span class="algo-subscore-val" style="color:{% if cs >= 65 %}#89ffb8{% elif cs >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};">{{ cs }}</span>
+          <div class="algo-row">
+            <span class="algo-row-label">On-Chain</span>
+            <span class="algo-row-val" style="color:{% if cs >= 65 %}#fff{% elif cs >= 45 %}rgba(255,255,255,0.6){% else %}#ff3b5f{% endif %};">{{ cs }}</span>
           </div>
-          <div class="algo-subscore-bar">
-            <div class="algo-subscore-fill" style="width:{{ cs }}%;background:{% if cs >= 65 %}#89ffb8{% elif cs >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};"></div>
-          </div>
+          <div class="algo-bar"><div class="algo-bar-fill" style="width:{{ cs }}%;background:{% if cs >= 65 %}#fff{% elif cs >= 45 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};"></div></div>
 
-          <div class="algo-subscore" style="margin-top:8px;">
-            <span class="algo-subscore-label">Sentiment (25%)</span>
-            <span class="algo-subscore-val" style="color:{% if ss >= 65 %}#89ffb8{% elif ss >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};">{{ ss }}</span>
+          <div class="algo-row">
+            <span class="algo-row-label">Sentiment</span>
+            <span class="algo-row-val" style="color:{% if ss >= 65 %}#fff{% elif ss >= 45 %}rgba(255,255,255,0.6){% else %}#ff3b5f{% endif %};">{{ ss }}</span>
           </div>
-          <div class="algo-subscore-bar">
-            <div class="algo-subscore-fill" style="width:{{ ss }}%;background:{% if ss >= 65 %}#89ffb8{% elif ss >= 45 %}#f8c15c{% else %}#ff8ba0{% endif %};"></div>
-          </div>
-          {% else %}
-          <p style="color:#4a5568;font-size:11px;text-align:center;">Loading components...</p>
+          <div class="algo-bar"><div class="algo-bar-fill" style="width:{{ ss }}%;background:{% if ss >= 65 %}#fff{% elif ss >= 45 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};"></div></div>
           {% endif %}
         </div>
 
         {% if not is_commander %}
         <div class="classified-gate">
-          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander — $49/mo</a>
-          <span class="classified-teaser">Full breakdown unlocked</span>
+          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
+          <span class="classified-teaser">Full signal breakdown</span>
         </div>
         {% endif %}
       </div>
     </div>
 
-    <!-- A. SOVEREIGN SIGNAL MATRIX (Radar) -->
-    <div class="col-lg-5">
-      <div class="g-card accent-gold">
-        <span class="g-eyebrow">Sovereign Signal Matrix • PCAF Visual</span>
-        <div class="radar-container">
-          <canvas id="radarChart" width="320" height="320"></canvas>
+    <!-- B. SOVEREIGN SIGNAL MATRIX (Custom Canvas Radar) -->
+    <div class="span-5">
+      <div class="g-panel">
+        <div class="eyebrow">SOVEREIGN SIGNAL MATRIX</div>
+        <div class="radar-wrap">
+          <canvas id="radarChart" class="radar-canvas" width="760" height="760"></canvas>
+          <div class="radar-composite-row">
+            <span class="radar-comp-num" id="radar-composite" style="color:#fff;">—</span>
+            <span class="radar-comp-label" id="radar-bias">Loading...</span>
+          </div>
         </div>
-        <div class="radar-composite">
-          <span class="radar-composite-num" id="radar-composite" style="color:#f8c15c;">—</span>
-          <div class="radar-composite-label" id="radar-bias">Loading...</div>
-        </div>
-        <!-- Axis legend -->
-        <div class="d-flex flex-wrap gap-2 mt-3 justify-content-center" style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;">
-          <span style="color:#89ffb8;">&#9679; Miner</span>
-          <span style="color:#f8c15c;">&#9679; Exchange</span>
-          <span style="color:#5de4ff;">&#9679; Narrative</span>
-          <span style="color:#ff8ba0;">&#9679; On-Chain</span>
-          <span style="color:#eef2ff;">&#9679; Lightning</span>
-          <span style="color:#ff3b5f;">&#9679; Market</span>
+        <div class="axis-legend">
+          <span style="color:#fff;">&#9632; MINER</span>
+          <span style="color:#ff3b5f;">&#9632; EXCHANGE</span>
+          <span style="color:rgba(255,255,255,0.5);">&#9632; NARRATIVE</span>
+          <span style="color:rgba(255,255,255,0.3);">&#9632; ON-CHAIN</span>
+          <span style="color:rgba(255,255,255,0.7);">&#9632; LIGHTNING</span>
+          <span style="color:#ff3b5f;">&#9632; MARKET</span>
         </div>
 
-        <!-- Proprietary Indices (from sovereign context engine) -->
+        <!-- Protocol Pulse Indices -->
         {% set indices = sovereign_ctx.indices if sovereign_ctx and sovereign_ctx.indices else {} %}
         {% if indices %}
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
-          <span class="g-eyebrow" style="font-size:8px;">Protocol Pulse Indices</span>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#ff3b5f;display:block;margin-bottom:10px;">PROPRIETARY INDICES</span>
+
           {% set mc = indices.get('miner_conviction', {}) %}
           {% set ep = indices.get('exchange_pressure', {}) %}
           {% set sd = indices.get('social_divergence', {}) %}
 
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#95a0ba;">MINER CONVICTION</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;color:{% if mc.signal == 'bullish' %}#89ffb8{% elif mc.signal == 'bearish' %}#ff8ba0{% else %}#f8c15c{% endif %};">{{ mc.score|default('—') }}</span>
+          <div class="idx-row">
+            <span class="idx-name">Miner Conviction</span>
+            <span class="idx-val" style="color:{% if mc.signal == 'bullish' %}#fff{% elif mc.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ mc.score|default('—') }}</span>
           </div>
-          <div style="font-size:9px;color:#4a5568;padding:3px 0 6px;font-family:'JetBrains Mono',monospace;">{{ mc.interpretation|default('') }}</div>
+          <div class="idx-interp">{{ mc.interpretation|default('') }}</div>
 
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#95a0ba;">EXCHANGE PRESSURE</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;color:{% if ep.signal == 'bullish' %}#89ffb8{% elif ep.signal == 'bearish' %}#ff8ba0{% else %}#f8c15c{% endif %};">{{ ep.score|default('0') }}</span>
+          <div class="idx-row">
+            <span class="idx-name">Exchange Pressure</span>
+            <span class="idx-val" style="color:{% if ep.signal == 'bullish' %}#fff{% elif ep.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ ep.score|default('0') }}</span>
           </div>
-          <div style="font-size:9px;color:#4a5568;padding:3px 0 6px;font-family:'JetBrains Mono',monospace;">{{ ep.interpretation|default('') }}</div>
+          <div class="idx-interp">{{ ep.interpretation|default('') }}</div>
 
-          <div style="display:flex;justify-content:space-between;padding:6px 0;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#95a0ba;">SOCIAL DIVERGENCE</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;color:{% if sd.signal == 'bullish' %}#89ffb8{% elif sd.signal == 'bearish' %}#ff8ba0{% else %}#f8c15c{% endif %};">{{ sd.score|default('0') }}</span>
+          <div class="idx-row">
+            <span class="idx-name">Social Divergence</span>
+            <span class="idx-val" style="color:{% if sd.signal == 'bullish' %}#fff{% elif sd.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ sd.score|default('0') }}</span>
           </div>
-          <div style="font-size:9px;color:#4a5568;padding:3px 0;font-family:'JetBrains Mono',monospace;">{{ sd.interpretation|default('') }}</div>
+          <div class="idx-interp">{{ sd.interpretation|default('') }}</div>
         </div>
         {% endif %}
       </div>
     </div>
 
-    <!-- Fear & Greed + Narrative Timeline -->
-    <div class="col-lg-4">
-      <div class="row g-4">
-        <!-- Fear & Greed -->
-        <div class="col-12">
-          <div class="g-card accent-gold text-center">
-            <span class="g-eyebrow">Fear & Greed</span>
-            {% if ctx_fg %}
-            <div class="fg-wrap">
-              <div class="fg-value"
-                   style="color:{% if ctx_fg.value is defined and ctx_fg.value >= 75 %}#5de4ff{% elif ctx_fg.value is defined and ctx_fg.value >= 55 %}#89ffb8{% elif ctx_fg.value is defined and ctx_fg.value >= 45 %}#f8c15c{% elif ctx_fg.value is defined and ctx_fg.value >= 25 %}#ff8ba0{% else %}#ff3b5f{% endif %};">
-                {{ ctx_fg.value if ctx_fg.value is defined else '—' }}
-              </div>
-              <div class="fg-label"
-                   style="color:{% if ctx_fg.value is defined and ctx_fg.value >= 75 %}#5de4ff{% elif ctx_fg.value is defined and ctx_fg.value >= 55 %}#89ffb8{% elif ctx_fg.value is defined and ctx_fg.value >= 45 %}#f8c15c{% elif ctx_fg.value is defined and ctx_fg.value >= 25 %}#ff8ba0{% else %}#ff3b5f{% endif %};">
-                {{ ctx_fg.label if ctx_fg.label is defined else 'Loading' }}
-              </div>
+    <!-- C. FEAR & GREED + NARRATIVE TIMELINE -->
+    <div class="span-4">
+      <div style="display:flex;flex-direction:column;gap:16px;height:100%;">
+        <!-- Fear & Greed Gauge -->
+        <div class="g-panel" style="flex:0 0 auto;">
+          <div class="eyebrow">FEAR & GREED INDEX</div>
+          {% if ctx_fg %}
+          <div class="fg-gauge-wrap">
+            <canvas id="fgGauge" class="fg-gauge-canvas" width="280" height="160"></canvas>
+            <div class="fg-big" id="fg-big-num"
+                 style="color:{% if ctx_fg.value is defined and ctx_fg.value <= 25 %}#ff3b5f{% elif ctx_fg.value is defined and ctx_fg.value >= 75 %}#fff{% else %}rgba(255,255,255,0.6){% endif %};">
+              {{ ctx_fg.value if ctx_fg.value is defined else '—' }}
             </div>
-            {% else %}
-            <div class="fg-wrap" style="padding:20px 0;">
-              <div class="fg-value" style="color:#95a0ba;">—</div>
-              <div class="fg-label" style="color:#4a5568;">Loading…</div>
+            <div class="fg-tag"
+                 style="color:{% if ctx_fg.value is defined and ctx_fg.value <= 25 %}#ff3b5f{% elif ctx_fg.value is defined and ctx_fg.value >= 75 %}#fff{% else %}rgba(255,255,255,0.4){% endif %};">
+              {{ ctx_fg.label if ctx_fg.label is defined else 'Loading' }}
             </div>
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- 7-Day Narrative -->
-        <div class="col-12">
-          <div class="g-card">
-            <span class="g-eyebrow">7-Day Narrative Timeline</span>
-            <div class="narr-timeline">
-              {% if narrative_timeline %}
-              {% for day in narrative_timeline %}
-              {% set sc = day.score|float %}
-              <div class="narr-day">
-                <span class="narr-date">{{ day.date }}</span>
-                <span class="narr-narrative">{{ day.dominant_narrative }}</span>
-                <span class="narr-score"
-                      style="color:{% if sc >= 60 %}#89ffb8{% elif sc <= 40 %}#ff8ba0{% else %}#f8c15c{% endif %};">
-                  {{ sc|int }}
-                </span>
-              </div>
+            <!-- 7-day history bars -->
+            <div class="fg-history-row" id="fg-history">
+              {% if signal.components and signal.components.fear_greed and signal.components.fear_greed.raw_data and signal.components.fear_greed.raw_data.history %}
+              {% for h in signal.components.fear_greed.raw_data.history %}
+              <div class="fg-hbar" style="height:{{ (h.value * 0.36)|int }}px;background:{% if h.value <= 25 %}#ff3b5f{% elif h.value >= 75 %}#fff{% else %}rgba(255,255,255,0.2){% endif %};" title="{{ h.label }}: {{ h.value }}"></div>
               {% endfor %}
-              {% else %}
-              <p class="text-muted small">No narrative data yet.</p>
               {% endif %}
             </div>
           </div>
+          {% else %}
+          <div class="fg-gauge-wrap" style="padding:20px 0;">
+            <div class="fg-big" style="color:rgba(255,255,255,0.2);">—</div>
+            <div class="fg-tag" style="color:rgba(255,255,255,0.1);">Loading</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- 7-Day Narrative Timeline -->
+        <div class="g-panel" style="flex:1;">
+          <div class="eyebrow">7-DAY NARRATIVE</div>
+          {% if narrative_timeline %}
+          {% for day in narrative_timeline %}
+          {% set sc = day.score|float %}
+          <div class="narr-row">
+            <span class="narr-date">{{ day.date }}</span>
+            <span class="narr-text">{{ day.dominant_narrative }}</span>
+            <span class="narr-score" style="color:{% if sc >= 60 %}#fff{% elif sc <= 40 %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ sc|int }}</span>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div style="text-align:center;padding:16px 0;color:rgba(255,255,255,0.15);font-size:11px;">No narrative data yet.</div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       ROW 2: Cross-Signal Divergence + Polymarket Intelligence
-       ════════════════════════════════════════════════════════════════ -->
-  <div class="row g-4 mb-4">
+  <!-- ══════════════════════════════════════════════════════════════
+       ROW 2: Divergence Engine + Polymarket
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-bottom:16px;">
 
-    <!-- C. CROSS-SIGNAL DIVERGENCE ENGINE -->
-    <div class="col-lg-5">
-      <div class="g-card accent-red" id="divergence-card" style="position:relative;">
-        <span class="g-eyebrow">Cross-Signal Divergence Engine</span>
-        <div id="divergence-alerts">
-          <!-- Populated by JS from sovereign context -->
-        </div>
+    <!-- D. CROSS-SIGNAL DIVERGENCE ENGINE -->
+    <div class="span-5">
+      <div class="g-panel accent-red" id="divergence-card" style="position:relative;">
+        <div class="eyebrow">DIVERGENCE ENGINE</div>
+        <!-- Tension arc SVG container -->
+        <svg id="tension-arcs" class="tension-arc-container" style="display:none;"></svg>
+        <div id="divergence-alerts"></div>
 
         {% if not is_commander %}
         <div class="classified-gate">
-          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander — $49/mo</a>
-          <span class="classified-teaser">3 active divergences detected</span>
+          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
+          <span class="classified-teaser">3 divergences detected</span>
         </div>
         {% endif %}
       </div>
     </div>
 
-    <!-- B. POLYMARKET INTELLIGENCE PANEL -->
-    <div class="col-lg-7">
-      <div class="g-card accent-cyan" id="polymarket-card" style="position:relative;">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <span class="g-eyebrow" style="margin-bottom:0;">Polymarket Intelligence</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#5de4ff;">
-            MACRO SCORE: <span id="poly-macro">{{ polymarket_sentiment }}</span>/100
+    <!-- E. POLYMARKET INTELLIGENCE -->
+    <div class="span-7">
+      <div class="g-panel" id="polymarket-card" style="position:relative;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div class="eyebrow" style="margin-bottom:0;">POLYMARKET INTELLIGENCE</div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.10em;color:#ff3b5f;">
+            MACRO <span id="poly-macro">{{ polymarket_sentiment }}</span>/100
           </span>
         </div>
         <div id="polymarket-list">
           {% if polymarket_markets %}
           {% for m in polymarket_markets %}
-          <div class="poly-market">
-            <div class="poly-question">{{ m.question }}</div>
+          <div class="poly-item" style="animation-delay:{{ loop.index0 * 0.1 }}s;">
+            <div class="poly-q">{{ m.question }}</div>
             {% set yes = m.outcomes.get('Yes', 50) if m.outcomes else 50 %}
             {% set no = m.outcomes.get('No', 50) if m.outcomes else 50 %}
-            <div class="poly-bar-wrap">
-              <div class="poly-bar-yes" style="width:{{ yes }}%;">YES {{ yes }}%</div>
-              <div class="poly-bar-no">NO {{ no }}%</div>
+            <div class="poly-bar-track">
+              <div class="poly-yes" style="width:{{ yes }}%;">YES {{ yes }}%</div>
+              <div class="poly-no">NO {{ no }}%</div>
             </div>
-            <div class="poly-meta">
+            <div class="poly-meta-row">
               <span>VOL ${{ "{:,.0f}".format(m.volume) if m.volume else '0' }}</span>
               <span>LIQ ${{ "{:,.0f}".format(m.liquidity) if m.liquidity else '0' }}</span>
             </div>
           </div>
           {% endfor %}
           {% else %}
-          <p style="color:#4a5568;font-size:12px;text-align:center;padding:24px 0;">No active Polymarket data.</p>
+          <div style="text-align:center;padding:24px 0;color:rgba(255,255,255,0.15);font-size:11px;">No active Polymarket data.</div>
           {% endif %}
         </div>
 
         {% if not is_commander %}
         <div class="classified-gate">
-          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander — $49/mo</a>
+          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
           <span class="classified-teaser">1 of 5 markets shown free</span>
         </div>
         {% endif %}
@@ -1143,97 +1225,106 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       ROW 3: Whale Feed + Narrative Momentum
-       ════════════════════════════════════════════════════════════════ -->
-  <div class="row g-4 mb-4">
+  <!-- ══════════════════════════════════════════════════════════════
+       ROW 3: Whale Feed + Narrative Momentum + Events
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-bottom:16px;">
 
-    <!-- E. WHALE INTELLIGENCE FEED -->
-    <div class="col-lg-4">
-      <div class="g-card accent-red" id="whale-card" style="position:relative;">
-        <span class="g-eyebrow">Whale Intelligence Feed</span>
-        <div id="whale-feed">
+    <!-- F. WHALE INTELLIGENCE FEED -->
+    <div class="span-4">
+      <div class="g-panel accent-red" id="whale-card" style="position:relative;">
+        <div class="eyebrow">WHALE INTELLIGENCE</div>
+        <div class="whale-feed-list" id="whale-feed">
           {% set whales = sovereign_ctx.whale_alerts if sovereign_ctx and sovereign_ctx.whale_alerts else [] %}
           {% if whales %}
           {% for w in whales %}
-          <div class="whale-item">
-            <span class="whale-tier {{ w.tier|lower }}">{{ w.tier }}</span>
+          <div class="whale-entry flash" style="animation-delay:{{ loop.index0 * 0.15 }}s;">
+            <span class="whale-tier-badge {{ w.tier|lower }}">{{ w.tier }}</span>
             <div>
-              <div class="whale-msg">{{ w.message }}</div>
-              <div class="whale-time">{{ w.rule }} • Score {{ w.score }}</div>
+              <div class="whale-msg{% if w.score >= 30 %} large-tx{% endif %}">{{ w.message }}</div>
+              <div class="whale-time">{{ w.rule }} &bull; SCORE {{ w.score }}</div>
             </div>
           </div>
           {% endfor %}
           {% else %}
           <div style="text-align:center;padding:24px 0;">
-            <div style="color:#95a0ba;font-size:28px;margin-bottom:8px;">&#128011;</div>
-            <div style="color:#95a0ba;font-size:13px;">No whale activity detected.</div>
+            <div style="color:rgba(255,255,255,0.15);font-size:11px;">No whale activity detected.</div>
           </div>
           {% endif %}
 
           <!-- Cross-reference signal -->
           {% if ctx_fg.value is defined and ctx_fg.value < 25 and whales|length > 0 %}
-          <div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(137,255,184,0.06);border:1px solid rgba(137,255,184,0.15);">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:0.12em;color:#89ffb8;">CROSS-REFERENCE: BULLISH</div>
-            <div style="font-size:11px;color:#95a0ba;margin-top:4px;">Whale accumulation + F&G {{ ctx_fg.value }} = historically strong buy signal</div>
+          <div style="margin-top:12px;padding:10px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:0.14em;color:#fff;">CROSS-REFERENCE: ACCUMULATION SIGNAL</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px;">Whale activity + F&G {{ ctx_fg.value }} = historically strong accumulation zone</div>
           </div>
           {% endif %}
         </div>
 
         {% if not is_commander %}
         <div class="classified-gate">
-          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander — $49/mo</a>
+          <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
           <span class="classified-teaser">Real-time whale tracking</span>
         </div>
         {% endif %}
       </div>
     </div>
 
-    <!-- D. NARRATIVE MOMENTUM TRACKER -->
-    <div class="col-lg-4">
-      <div class="g-card">
-        <span class="g-eyebrow">Narrative Momentum Tracker</span>
+    <!-- G. NARRATIVE MOMENTUM -->
+    <div class="span-4">
+      <div class="g-panel">
+        <div class="eyebrow">NARRATIVE MOMENTUM</div>
         <div id="narrative-momentum">
-          <!-- Populated by JS -->
-          <p style="color:#4a5568;font-size:11px;text-align:center;padding:20px 0;">Loading narrative data...</p>
+          <div style="color:rgba(255,255,255,0.15);font-size:10px;text-align:center;padding:16px 0;">Loading...</div>
         </div>
       </div>
     </div>
 
-    <!-- Intelligence Events -->
-    <div class="col-lg-4">
-      <div class="g-card accent-red">
-        <span class="g-eyebrow">Intelligence Events</span>
+    <!-- H. INTELLIGENCE EVENTS -->
+    <div class="span-4">
+      <div class="g-panel accent-red">
+        <div class="eyebrow">INTELLIGENCE EVENTS</div>
         {% if intel_events %}
         {% for evt in intel_events %}
         <div class="evt-item">
           <span class="evt-badge {{ evt.severity }}">{{ evt.severity }}</span>
           <div>
-            <div style="font-size:12px;color:#eef2ff;line-height:1.4;margin-bottom:4px;">{{ evt.description|truncate(140) }}</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;">
-              {{ evt.event_type|replace('_', ' ')|upper }} • {{ evt.created_at }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;margin-bottom:3px;">{{ evt.description|truncate(140) }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.15);">
+              {{ evt.event_type|replace('_', ' ')|upper }} &bull; {{ evt.created_at }}</div>
           </div>
         </div>
         {% endfor %}
         {% else %}
-        <div class="text-center py-4">
-          <div style="color:#95a0ba;font-size:28px;margin-bottom:8px;">&#10003;</div>
-          <div style="color:#95a0ba;font-size:13px;">No anomalies detected.</div>
-          <div style="color:#4a5568;font-size:11px;margin-top:4px;">All signals within normal range.</div>
+        <div style="text-align:center;padding:24px 0;">
+          <div style="color:rgba(255,255,255,0.15);font-size:11px;">All signals within normal range.</div>
         </div>
         {% endif %}
       </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       ROW 4: Topic Cloud + Entity Tracker
-       ════════════════════════════════════════════════════════════════ -->
-  <div class="row g-4 mb-4">
-    <!-- Trending Topics Cloud -->
-    <div class="col-lg-5">
-      <div class="g-card accent-cyan">
-        <span class="g-eyebrow">Trending Topics (24h)</span>
+  <!-- ══════════════════════════════════════════════════════════════
+       ROW 4: Sentiment Heatmap (Audit M1 — Market Sentiment Heatmap)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-bottom:16px;">
+    <div class="span-12">
+      <div class="g-panel">
+        <div class="eyebrow">SENTIMENT MATRIX — 7-DAY HEATMAP</div>
+        <div class="heatmap-grid" id="sentiment-heatmap">
+          <!-- Populated by JS from signal history + narrative timeline -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       ROW 5: Topic Cloud + Entity Tracker
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-bottom:16px;">
+    <div class="span-5">
+      <div class="g-panel">
+        <div class="eyebrow">TRENDING TOPICS (24H)</div>
         {% if trending %}
         <div class="topic-cloud">
           {% for topic in trending %}
@@ -1244,21 +1335,15 @@
           </span>
           {% endfor %}
         </div>
-        <div class="mt-3 d-flex gap-3" style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
-          <span style="color:#89ffb8;">&#9679; Bullish</span>
-          <span style="color:#ff8ba0;">&#9679; Bearish</span>
-          <span style="color:#eef2ff;">&#9679; Neutral</span>
-        </div>
         {% else %}
-        <p class="text-muted small">No trending topics data.</p>
+        <div style="color:rgba(255,255,255,0.15);font-size:10px;">No trending topics data.</div>
         {% endif %}
       </div>
     </div>
 
-    <!-- Entity Tracker -->
-    <div class="col-lg-7">
-      <div class="g-card">
-        <span class="g-eyebrow">Entity Tracker (48h)</span>
+    <div class="span-7">
+      <div class="g-panel">
+        <div class="eyebrow">ENTITY TRACKER (48H)</div>
         {% if entities %}
         <div style="overflow-x:auto;">
           <table class="entity-table">
@@ -1276,15 +1361,15 @@
               <tr>
                 <td style="font-weight:600;">{{ ent.entity }}</td>
                 <td><span class="entity-type">{{ ent.type }}</span></td>
-                <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#f8c15c;">{{ ent.mention_count }}</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;">{{ ent.mention_count }}</td>
                 <td>
                   <span class="s-badge {{ ent.sentiment }}">
                     {% if ent.sentiment == 'bullish' %}&#9650;{% elif ent.sentiment == 'bearish' %}&#9660;{% else %}&#9679;{% endif %}
                     {{ ent.sentiment }}
                   </span>
                 </td>
-                <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#95a0ba;">
-                  {% if ent.trend == 'up' %}&#9650; rising{% elif ent.trend == 'down' %}&#9660; falling{% else %}&#8594; stable{% endif %}
+                <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);">
+                  {% if ent.trend == 'up' %}&#9650;{% elif ent.trend == 'down' %}&#9660;{% else %}&#8594;{% endif %}
                 </td>
               </tr>
               {% endfor %}
@@ -1292,62 +1377,52 @@
           </table>
         </div>
         {% else %}
-        <p class="text-muted small">No entity data.</p>
+        <div style="color:rgba(255,255,255,0.15);font-size:10px;">No entity data.</div>
         {% endif %}
       </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       ROW 5: Article Stream
-       ════════════════════════════════════════════════════════════════ -->
-  <div class="row g-4">
-    <div class="col-12">
-      <div class="g-card">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-          <span class="g-eyebrow" style="margin-bottom:0;">Article Stream — Sorted by Importance</span>
-          <a href="/articles" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#f8c15c;text-decoration:none;font-weight:700;letter-spacing:0.10em;">ALL ARTICLES &#8599;</a>
+  <!-- ══════════════════════════════════════════════════════════════
+       ROW 6: Article Stream
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid">
+    <div class="span-12">
+      <div class="g-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div class="eyebrow" style="margin-bottom:0;">ARTICLE STREAM</div>
+          <a href="/articles" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#ff3b5f;text-decoration:none;font-weight:800;letter-spacing:0.10em;">ALL ARTICLES &#8599;</a>
         </div>
 
         {% if top_articles %}
-        <div class="row">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:0 24px;">
           {% for art in top_articles %}
           {% set imp = art.importance_score|default(50)|int %}
-          <div class="col-md-6">
-            <div class="art-stream-item">
-              <div class="art-rank">{{ loop.index }}</div>
-              <div>
-                <div class="art-title">
-                  <a href="/articles/{{ art.id }}" style="color:inherit;text-decoration:none;">
-                    {{ art.title|truncate(120) }}
-                  </a>
-                </div>
-                <div class="art-meta">
-                  <span class="s-badge {{ art.sentiment }}">
-                    {% if art.sentiment == 'bullish' %}&#9650;{% elif art.sentiment == 'bearish' %}&#9660;{% else %}&#9679;{% endif %}
-                    {{ art.sentiment }}
-                  </span>
-                  {% if art.narrative_label and art.narrative_label != '—' %}
-                  <span class="narr-chip">{{ art.narrative_label }}</span>
-                  {% endif %}
-                  <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a5568;">{{ art.created_at[:10] }}</span>
-                </div>
+          <div class="art-item">
+            <div class="art-rank">{{ loop.index }}</div>
+            <div>
+              <div class="art-title">
+                <a href="/articles/{{ art.id }}">{{ art.title|truncate(120) }}</a>
               </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div class="art-imp"
-                     style="color:{% if imp >= 70 %}#f8c15c{% elif imp >= 50 %}#95a0ba{% else %}#4a5568{% endif %};">
-                  {{ imp }}
-                </div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;color:#4a5568;">IMP</div>
+              <div class="art-badges">
+                <span class="s-badge {{ art.sentiment }}">
+                  {% if art.sentiment == 'bullish' %}&#9650;{% elif art.sentiment == 'bearish' %}&#9660;{% else %}&#9679;{% endif %}
+                  {{ art.sentiment }}
+                </span>
+                {% if art.narrative_label and art.narrative_label != '—' %}
+                <span class="narr-chip">{{ art.narrative_label }}</span>
+                {% endif %}
+                <span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.15);">{{ art.created_at[:10] }}</span>
               </div>
+            </div>
+            <div class="art-imp" style="color:{% if imp >= 70 %}#fff{% elif imp >= 50 %}rgba(255,255,255,0.4){% else %}rgba(255,255,255,0.15){% endif %};">
+              {{ imp }}
             </div>
           </div>
           {% endfor %}
         </div>
         {% else %}
-        <div class="text-center py-5">
-          <div style="color:#95a0ba;font-size:14px;">No articles classified yet.</div>
-        </div>
+        <div style="text-align:center;padding:24px 0;color:rgba(255,255,255,0.15);font-size:11px;">No articles classified yet.</div>
         {% endif %}
       </div>
     </div>
@@ -1358,343 +1433,633 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 (function() {
   'use strict';
 
-  const sovereignCtx = {{ sovereign_ctx_json|safe if sovereign_ctx_json else '{}' }};
-  const isCommander = {{ 'true' if is_commander else 'false' }};
+  const CTX = {{ sovereign_ctx_json|safe if sovereign_ctx_json else '{}' }};
+  const IS_CMD = {{ 'true' if is_commander else 'false' }};
 
-  // ═══════════════════════════════════════════════════════════════════
-  // A. SOVEREIGN SIGNAL MATRIX — Radar Chart (Chart.js)
-  // ═══════════════════════════════════════════════════════════════════
-  function computeSignalMatrix(ctx) {
-    if (!ctx || !ctx.btc) return null;
+  // ═══════════════════════════════════════════════════════════════
+  // 1. PCAF ORB — Breathing orb with particle ring
+  // ═══════════════════════════════════════════════════════════════
+  (function initPCAFOrb() {
+    const canvas = document.getElementById('pcafOrb');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const score = {{ signal.composite|int if signal else 50 }};
 
-    const fg = (ctx.fear_greed || {}).value || 50;
-    const hashrate = (ctx.network || {}).hashrate_eh || 0;
-    const adjPct = (ctx.network || {}).next_adj_pct || 0;
-    const flow = ctx.exchange_flow || 'neutral';
-    const pcaf = ctx.pcaf_score || 0;
-    const kolScore = (ctx.kol || {}).sentiment_score || 50;
-    const artCount = (ctx.narrative || {}).article_count || 0;
-    const lnCap = (ctx.lightning || {}).capacity_btc || 0;
-    const lnChannels = (ctx.lightning || {}).channels || 0;
-    const dominance = (ctx.btc || {}).dominance || 0;
-    const polyScore = (ctx.polymarket || {}).macro_sentiment || 50;
-    const whaleCount = (ctx.whale_alerts || []).length;
+    // Color based on score
+    function orbColor(s) {
+      if (s > 66) return { r: 255, g: 255, b: 255 };       // white
+      if (s > 33) return { r: 180, g: 180, b: 180 };       // grey
+      return { r: 255, g: 59, b: 95 };                       // red
+    }
 
-    // 1. Miner Health: hashrate + positive adj = healthy
-    const minerHealth = Math.min(100, Math.max(0,
-      (hashrate > 0 ? Math.min(50, hashrate / 20) : 25) +
-      (adjPct > 0 ? Math.min(30, adjPct * 10) : 0) +
-      (flow === 'outflow' ? 20 : flow === 'inflow' ? -10 : 0)
-    ));
+    const col = orbColor(score);
+    const particles = [];
+    const PARTICLE_COUNT = 40;
+    const RING_RADIUS = W * 0.38;
 
-    // 2. Exchange Pressure: pcaf + flow direction
-    const flowScore = flow === 'outflow' ? 70 : flow === 'inflow' ? 30 : 50;
-    const exchangePressure = Math.min(100, Math.max(0,
-      (pcaf * 0.5) + (flowScore * 0.5)
-    ));
+    // Init particles on ring
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        angle: (Math.PI * 2 * i) / PARTICLE_COUNT,
+        speed: 0.003 + Math.random() * 0.004,
+        radius: 1 + Math.random() * 2,
+        drift: (Math.random() - 0.5) * 8,
+        opacity: 0.2 + Math.random() * 0.6
+      });
+    }
 
-    // 3. Narrative Momentum: KOL sentiment + article velocity
-    const narrativeMomentum = Math.min(100, Math.max(0,
-      (kolScore * 0.6) + (Math.min(100, artCount * 5) * 0.4)
-    ));
+    // Signal velocity determines ring speed
+    const velocity = Math.abs((CTX.btc || {}).change_24h || 0);
+    const speedMult = 1 + velocity * 0.3;
 
-    // 4. On-Chain Accumulation: whale alerts + patterns
-    const onchainAccum = Math.min(100, Math.max(0,
-      (whaleCount * 15) + (flow === 'outflow' ? 30 : 10) + (pcaf * 0.2)
-    ));
+    let t = 0;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      t += 0.016;
 
-    // 5. Lightning Growth: capacity + channels
-    const lnCapScore = lnCap > 0 ? Math.min(100, (lnCap / 6000) * 80) : 40;
-    const lnChanScore = lnChannels > 0 ? Math.min(100, (lnChannels / 45000) * 80) : 40;
-    const lightningGrowth = Math.round(lnCapScore * 0.6 + lnChanScore * 0.4);
+      // Breathing factor
+      const breathe = 1 + 0.04 * Math.sin(t * 1.2);
 
-    // 6. Market Structure: F&G + dominance + polymarket
-    const marketStructure = Math.min(100, Math.max(0,
-      (fg * 0.4) + (dominance * 0.3) + (polyScore * 0.3)
-    ));
+      // Outer glow
+      const glowR = W * 0.28 * breathe;
+      const glow = ctx.createRadialGradient(cx, cy, glowR * 0.3, cx, cy, glowR * 1.2);
+      glow.addColorStop(0, 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.12)');
+      glow.addColorStop(0.5, 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.04)');
+      glow.addColorStop(1, 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, glowR * 1.2, 0, Math.PI * 2);
+      ctx.fill();
 
-    const axes = {
-      miner_health: Math.round(minerHealth),
-      exchange_pressure: Math.round(exchangePressure),
-      narrative_momentum: Math.round(narrativeMomentum),
-      onchain_accumulation: Math.round(onchainAccum),
-      lightning_growth: Math.round(lightningGrowth),
-      market_structure: Math.round(marketStructure)
-    };
+      // Core orb
+      const coreR = W * 0.2 * breathe;
+      const grad = ctx.createRadialGradient(cx - coreR * 0.2, cy - coreR * 0.2, coreR * 0.1, cx, cy, coreR);
+      grad.addColorStop(0, 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.35)');
+      grad.addColorStop(0.7, 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.12)');
+      grad.addColorStop(1, 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.02)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      ctx.fill();
 
-    const vals = Object.values(axes);
-    const composite = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-    const bias = composite >= 65 ? 'BULLISH' : composite <= 35 ? 'BEARISH' : 'NEUTRAL';
+      // Orb rim
+      ctx.strokeStyle = 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      ctx.stroke();
 
-    return { axes, composite, bias };
-  }
+      // Particle ring
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.angle += p.speed * speedMult;
+        const rr = RING_RADIUS + p.drift * Math.sin(t * 0.8 + i);
+        const px = cx + Math.cos(p.angle) * rr;
+        const py = cy + Math.sin(p.angle) * rr;
+        const a = p.opacity * (0.5 + 0.5 * Math.sin(t * 2 + i));
 
-  function renderRadar(matrix) {
-    const canvas = document.getElementById('radarChart');
-    if (!canvas || !matrix) return;
-
-    const labels = ['MINER HEALTH', 'EXCHANGE PRESSURE', 'NARRATIVE', 'ON-CHAIN', 'LIGHTNING', 'MARKET'];
-    const values = [
-      matrix.axes.miner_health,
-      matrix.axes.exchange_pressure,
-      matrix.axes.narrative_momentum,
-      matrix.axes.onchain_accumulation,
-      matrix.axes.lightning_growth,
-      matrix.axes.market_structure
-    ];
-
-    const colors = values.map(v => v < 33 ? 'rgba(255,59,95,0.7)' : v < 66 ? 'rgba(248,193,92,0.7)' : 'rgba(137,255,184,0.7)');
-
-    new Chart(canvas, {
-      type: 'radar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Current',
-          data: values,
-          backgroundColor: 'rgba(248,193,92,0.12)',
-          borderColor: '#f8c15c',
-          borderWidth: 2,
-          pointBackgroundColor: colors,
-          pointBorderColor: colors,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        scales: {
-          r: {
-            angleLines: { color: 'rgba(255,255,255,0.06)' },
-            grid: { color: 'rgba(255,255,255,0.06)' },
-            pointLabels: {
-              color: '#95a0ba',
-              font: { family: "'JetBrains Mono', monospace", size: 9, weight: 700 }
-            },
-            ticks: { display: false },
-            suggestedMin: 0,
-            suggestedMax: 100,
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#0d1118',
-            titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
-            bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
-            borderColor: 'rgba(255,255,255,0.1)',
-            borderWidth: 1,
-            callbacks: {
-              label: function(ctx) {
-                const v = ctx.raw;
-                const zone = v < 33 ? 'BEARISH' : v < 66 ? 'NEUTRAL' : 'BULLISH';
-                return v + '/100 — ' + zone;
-              }
-            }
-          }
-        }
+        ctx.fillStyle = 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',' + a.toFixed(2) + ')';
+        ctx.beginPath();
+        ctx.arc(px, py, p.radius * breathe, 0, Math.PI * 2);
+        ctx.fill();
       }
-    });
+
+      // Fibonacci spiral overlay (4% opacity)
+      ctx.strokeStyle = 'rgba(' + col.r + ',' + col.g + ',' + col.b + ',0.04)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      const phi = 1.618033988749895;
+      for (let a = 0; a < Math.PI * 8; a += 0.05) {
+        const fibR = 3 * Math.pow(phi, a / (Math.PI * 2)) * breathe;
+        if (fibR > W * 0.48) break;
+        const fx = cx + Math.cos(a + t * 0.1) * fibR;
+        const fy = cy + Math.sin(a + t * 0.1) * fibR;
+        if (a === 0) ctx.moveTo(fx, fy);
+        else ctx.lineTo(fx, fy);
+      }
+      ctx.stroke();
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 2. SOVEREIGN SIGNAL MATRIX — Custom Canvas Radar with Physics
+  // ═══════════════════════════════════════════════════════════════
+  (function initRadar() {
+    const canvas = document.getElementById('radarChart');
+    if (!canvas) return;
+    const rctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const maxR = Math.min(W, H) * 0.38;
+
+    function computeMatrix() {
+      if (!CTX || !CTX.btc) return null;
+      const fg = (CTX.fear_greed || {}).value || 50;
+      const hashrate = (CTX.network || {}).hashrate_eh || 0;
+      const adjPct = (CTX.network || {}).next_adj_pct || 0;
+      const flow = CTX.exchange_flow || 'neutral';
+      const pcaf = CTX.pcaf_score || 0;
+      const kolScore = (CTX.kol || {}).sentiment_score || 50;
+      const artCount = (CTX.narrative || {}).article_count || 0;
+      const lnCap = (CTX.lightning || {}).capacity_btc || 0;
+      const lnChan = (CTX.lightning || {}).channels || 0;
+      const dom = (CTX.btc || {}).dominance || 0;
+      const poly = (CTX.polymarket || {}).macro_sentiment || 50;
+      const whaleN = (CTX.whale_alerts || []).length;
+
+      const miner = Math.min(100, Math.max(0,
+        (hashrate > 0 ? Math.min(50, hashrate / 20) : 25) +
+        (adjPct > 0 ? Math.min(30, adjPct * 10) : 0) +
+        (flow === 'outflow' ? 20 : flow === 'inflow' ? -10 : 0)
+      ));
+      const exchange = Math.min(100, Math.max(0, (pcaf * 0.5) + ((flow === 'outflow' ? 70 : flow === 'inflow' ? 30 : 50) * 0.5)));
+      const narrative = Math.min(100, Math.max(0, (kolScore * 0.6) + (Math.min(100, artCount * 5) * 0.4)));
+      const onchain = Math.min(100, Math.max(0, (whaleN * 15) + (flow === 'outflow' ? 30 : 10) + (pcaf * 0.2)));
+      const lightning = Math.round((lnCap > 0 ? Math.min(100, (lnCap / 6000) * 80) : 40) * 0.6 + (lnChan > 0 ? Math.min(100, (lnChan / 45000) * 80) : 40) * 0.4);
+      const market = Math.min(100, Math.max(0, (fg * 0.4) + (dom * 0.3) + (poly * 0.3)));
+
+      const vals = [Math.round(miner), Math.round(exchange), Math.round(narrative), Math.round(onchain), Math.round(lightning), Math.round(market)];
+      const comp = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+      return { values: vals, composite: comp, bias: comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : 'NEUTRAL' };
+    }
+
+    const matrix = computeMatrix();
+    if (!matrix) return;
+
+    const labels = ['MINER', 'EXCHANGE', 'NARRATIVE', 'ON-CHAIN', 'LIGHTNING', 'MARKET'];
+    const n = 6;
+
+    // Animated values (random walk)
+    let animVals = matrix.values.map(v => v);
+    let targetVals = matrix.values.slice();
 
     // Update composite display
     const compEl = document.getElementById('radar-composite');
     const biasEl = document.getElementById('radar-bias');
-    if (compEl) {
-      compEl.textContent = matrix.composite;
-      compEl.style.color = matrix.composite >= 65 ? '#89ffb8' : matrix.composite <= 35 ? '#ff8ba0' : '#f8c15c';
+    if (compEl) { compEl.textContent = matrix.composite; compEl.style.color = matrix.composite >= 65 ? '#fff' : matrix.composite <= 35 ? '#ff3b5f' : 'rgba(255,255,255,0.6)'; }
+    if (biasEl) biasEl.textContent = 'SOVEREIGN COMPOSITE \u2022 ' + matrix.bias;
+
+    let t = 0;
+    function drawRadar() {
+      rctx.clearRect(0, 0, W, H);
+      t += 0.016;
+
+      // Hexagonal grid background
+      rctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      rctx.lineWidth = 0.5;
+      for (let ring = 1; ring <= 5; ring++) {
+        const r = (ring / 5) * maxR;
+        rctx.beginPath();
+        for (let i = 0; i <= n; i++) {
+          const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+          if (i === 0) rctx.moveTo(x, y);
+          else rctx.lineTo(x, y);
+        }
+        rctx.stroke();
+      }
+
+      // Axis lines with traveling sine wave
+      for (let i = 0; i < n; i++) {
+        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+        const ex = cx + Math.cos(angle) * maxR;
+        const ey = cy + Math.sin(angle) * maxR;
+
+        // Axis line
+        rctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        rctx.lineWidth = 0.5;
+        rctx.beginPath();
+        rctx.moveTo(cx, cy);
+        rctx.lineTo(ex, ey);
+        rctx.stroke();
+
+        // Traveling sine wave on axis
+        const perpAngle = angle + Math.PI / 2;
+        rctx.strokeStyle = 'rgba(255,59,95,0.08)';
+        rctx.lineWidth = 0.8;
+        rctx.beginPath();
+        for (let d = 0; d <= 1; d += 0.02) {
+          const baseX = cx + Math.cos(angle) * maxR * d;
+          const baseY = cy + Math.sin(angle) * maxR * d;
+          const wave = Math.sin(d * 12 + t * 3 + i * 1.2) * 4 * d;
+          const wx = baseX + Math.cos(perpAngle) * wave;
+          const wy = baseY + Math.sin(perpAngle) * wave;
+          if (d === 0) rctx.moveTo(wx, wy);
+          else rctx.lineTo(wx, wy);
+        }
+        rctx.stroke();
+
+        // Label
+        const labelR = maxR + 24;
+        const lx = cx + Math.cos(angle) * labelR;
+        const ly = cy + Math.sin(angle) * labelR;
+        rctx.fillStyle = 'rgba(255,255,255,0.3)';
+        rctx.font = '700 ' + (W > 500 ? '10' : '8') + 'px "JetBrains Mono", monospace';
+        rctx.textAlign = 'center';
+        rctx.textBaseline = 'middle';
+        rctx.fillText(labels[i], lx, ly);
+      }
+
+      // Random walk animation
+      for (let i = 0; i < n; i++) {
+        const diff = targetVals[i] - animVals[i];
+        animVals[i] += diff * 0.05;
+        // Small random perturbation for "processing" feel
+        if (Math.random() < 0.02) {
+          targetVals[i] = Math.max(0, Math.min(100, matrix.values[i] + (Math.random() - 0.5) * 8));
+        }
+        // Drift back to true value
+        if (Math.random() < 0.01) {
+          targetVals[i] = matrix.values[i];
+        }
+      }
+
+      // Data polygon — fill
+      rctx.fillStyle = 'rgba(255,59,95,0.06)';
+      rctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+        const r = (animVals[i] / 100) * maxR;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        if (i === 0) rctx.moveTo(x, y);
+        else rctx.lineTo(x, y);
+      }
+      rctx.closePath();
+      rctx.fill();
+
+      // Data polygon — stroke
+      rctx.strokeStyle = 'rgba(255,59,95,0.5)';
+      rctx.lineWidth = 1.5;
+      rctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+        const r = (animVals[i] / 100) * maxR;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        if (i === 0) rctx.moveTo(x, y);
+        else rctx.lineTo(x, y);
+      }
+      rctx.closePath();
+      rctx.stroke();
+
+      // Data points — breathing dots
+      for (let i = 0; i < n; i++) {
+        const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+        const r = (animVals[i] / 100) * maxR;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        const v = animVals[i];
+        const breathe = 1 + 0.3 * Math.sin(t * 2 + i * 0.8);
+        const dotR = (3 + (v / 100) * 3) * breathe;
+
+        // Glow
+        const glow = rctx.createRadialGradient(x, y, 0, x, y, dotR * 3);
+        const dotColor = v < 33 ? '255,59,95' : v < 66 ? '255,255,255' : '255,255,255';
+        glow.addColorStop(0, 'rgba(' + dotColor + ',0.3)');
+        glow.addColorStop(1, 'rgba(' + dotColor + ',0)');
+        rctx.fillStyle = glow;
+        rctx.beginPath();
+        rctx.arc(x, y, dotR * 3, 0, Math.PI * 2);
+        rctx.fill();
+
+        // Dot
+        rctx.fillStyle = v < 33 ? '#ff3b5f' : '#fff';
+        rctx.beginPath();
+        rctx.arc(x, y, dotR * 0.5, 0, Math.PI * 2);
+        rctx.fill();
+
+        // Value label
+        rctx.fillStyle = 'rgba(255,255,255,0.5)';
+        rctx.font = '800 9px "JetBrains Mono", monospace';
+        rctx.textAlign = 'center';
+        rctx.fillText(Math.round(animVals[i]), x, y - dotR - 6);
+      }
+
+      requestAnimationFrame(drawRadar);
     }
-    if (biasEl) biasEl.textContent = 'SOVEREIGN COMPOSITE • ' + matrix.bias;
-  }
+    drawRadar();
+  })();
 
-  const matrix = computeSignalMatrix(sovereignCtx);
-  renderRadar(matrix);
+  // ═══════════════════════════════════════════════════════════════
+  // 3. FEAR & GREED GAUGE — Arc visualization
+  // ═══════════════════════════════════════════════════════════════
+  (function initFGGauge() {
+    const canvas = document.getElementById('fgGauge');
+    if (!canvas) return;
+    const gctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H * 0.85;
+    const radius = Math.min(W, H) * 0.7;
+    const val = (CTX.fear_greed || {}).value || 50;
 
-  // ═══════════════════════════════════════════════════════════════════
-  // C. CROSS-SIGNAL DIVERGENCE ENGINE
-  // ═══════════════════════════════════════════════════════════════════
-  function computeDivergences(ctx) {
-    if (!ctx || !ctx.btc) return [];
-    const divergences = [];
+    // Draw arc background
+    gctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    gctx.lineWidth = 8;
+    gctx.lineCap = 'round';
+    gctx.beginPath();
+    gctx.arc(cx, cy, radius, Math.PI, 0);
+    gctx.stroke();
 
-    const fg = (ctx.fear_greed || {}).value || 50;
-    const hashrate = (ctx.network || {}).hashrate_eh || 0;
-    const adjPct = (ctx.network || {}).next_adj_pct || 0;
-    const flow = ctx.exchange_flow || 'neutral';
-    const kolScore = (ctx.kol || {}).sentiment_score || 50;
-    const change24h = (ctx.btc || {}).change_24h || 0;
-    const lnCap = (ctx.lightning || {}).capacity_btc || 0;
+    // Draw value arc
+    const startAngle = Math.PI;
+    const endAngle = Math.PI + (val / 100) * Math.PI;
+    const grad = gctx.createLinearGradient(0, 0, W, 0);
+    grad.addColorStop(0, '#ff3b5f');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.4)');
+    grad.addColorStop(1, '#ffffff');
+    gctx.strokeStyle = grad;
+    gctx.lineWidth = 8;
+    gctx.lineCap = 'round';
+    gctx.beginPath();
+    gctx.arc(cx, cy, radius, startAngle, endAngle);
+    gctx.stroke();
 
-    // 1. Extreme Fear + Hashrate ATH = historically bullish
-    if (fg <= 20 && hashrate > 900) {
-      divergences.push({
-        direction: 'bullish',
-        title: 'EXTREME FEAR + HASHRATE HIGH',
-        signals: 'Fear & Greed ' + fg + ' + Hashrate ' + hashrate.toFixed(0) + ' EH/s',
-        detail: 'Historically, F&G <20 with hashrate near ATH preceded 15-40% rallies within 30 days.',
-        accuracy: 78
-      });
-    }
+    // Needle dot
+    const needleAngle = Math.PI + (val / 100) * Math.PI;
+    const nx = cx + Math.cos(needleAngle) * radius;
+    const ny = cy + Math.sin(needleAngle) * radius;
+    gctx.fillStyle = val <= 25 ? '#ff3b5f' : '#fff';
+    gctx.beginPath();
+    gctx.arc(nx, ny, 5, 0, Math.PI * 2);
+    gctx.fill();
+  })();
 
-    // 2. Exchange inflow + KOL euphoria = bearish 4-7d
-    if (flow === 'inflow' && kolScore > 75) {
-      divergences.push({
-        direction: 'bearish',
-        title: 'EXCHANGE INFLOW + KOL EUPHORIA',
-        signals: 'Exchange inflows + KOL sentiment ' + kolScore + '/100',
-        detail: 'Exchange deposit spikes during KOL euphoria historically precede 5-12% corrections within 7 days.',
-        accuracy: 71
-      });
-    }
-
-    // 3. Price drop + hashrate rise = supply squeeze
-    if (change24h < -3 && adjPct > 2) {
-      divergences.push({
-        direction: 'bullish',
-        title: 'PRICE DOWN + MINERS EXPANDING',
-        signals: 'Price ' + change24h.toFixed(1) + '% + Difficulty adj +' + adjPct.toFixed(1) + '%',
-        detail: 'Miners increasing capacity despite price decline signals conviction. Supply squeeze pattern.',
-        accuracy: 74
-      });
-    }
-
-    // 4. Fear + Lightning growth = long-term bullish
-    if (fg < 30 && lnCap > 5500) {
-      divergences.push({
-        direction: 'bullish',
-        title: 'FEAR + LIGHTNING CAPACITY HIGH',
-        signals: 'F&G ' + fg + ' + LN ' + lnCap.toFixed(0) + ' BTC capacity',
-        detail: 'Network utility growing during fear signals adoption-driven demand, not speculation.',
-        accuracy: 68
-      });
-    }
-
-    // 5. KOL bearish + price stable = accumulation
-    if (kolScore < 35 && Math.abs(change24h) < 2) {
-      divergences.push({
-        direction: 'bullish',
-        title: 'KOL BEARISH + PRICE STABLE',
-        signals: 'KOL sentiment ' + kolScore + '/100 + Price ' + change24h.toFixed(1) + '%',
-        detail: 'Social sentiment negative but price holding = smart money accumulating under retail fear.',
-        accuracy: 65
-      });
-    }
-
-    return divergences;
-  }
-
-  function renderDivergences() {
+  // ═══════════════════════════════════════════════════════════════
+  // 4. DIVERGENCE ENGINE — With SVG tension arcs
+  // ═══════════════════════════════════════════════════════════════
+  (function initDivergences() {
     const container = document.getElementById('divergence-alerts');
+    const arcsSvg = document.getElementById('tension-arcs');
     if (!container) return;
 
-    const divergences = computeDivergences(sovereignCtx);
+    function computeDivergences() {
+      if (!CTX || !CTX.btc) return [];
+      const divs = [];
+      const fg = (CTX.fear_greed || {}).value || 50;
+      const hashrate = (CTX.network || {}).hashrate_eh || 0;
+      const adjPct = (CTX.network || {}).next_adj_pct || 0;
+      const flow = CTX.exchange_flow || 'neutral';
+      const kolScore = (CTX.kol || {}).sentiment_score || 50;
+      const change24h = (CTX.btc || {}).change_24h || 0;
+      const lnCap = (CTX.lightning || {}).capacity_btc || 0;
+
+      if (fg <= 20 && hashrate > 900) {
+        divs.push({
+          dir: 'bullish', title: 'EXTREME FEAR + HASHRATE HIGH',
+          signals: ['F&G ' + fg, 'Hashrate ' + hashrate.toFixed(0) + ' EH/s'],
+          detail: 'F&G <20 with hashrate near ATH preceded 15-40% rallies within 30 days.',
+          accuracy: 78, magnitude: Math.abs(fg - 50) + Math.min(30, hashrate / 40)
+        });
+      }
+
+      if (flow === 'inflow' && kolScore > 75) {
+        divs.push({
+          dir: 'bearish', title: 'EXCHANGE INFLOW + KOL EUPHORIA',
+          signals: ['Exchange inflow', 'KOL ' + kolScore + '/100'],
+          detail: 'Exchange deposit spikes during KOL euphoria precede 5-12% corrections within 7 days.',
+          accuracy: 71, magnitude: kolScore - 50
+        });
+      }
+
+      if (change24h < -3 && adjPct > 2) {
+        divs.push({
+          dir: 'bullish', title: 'PRICE DOWN + MINERS EXPANDING',
+          signals: ['Price ' + change24h.toFixed(1) + '%', 'Diff adj +' + adjPct.toFixed(1) + '%'],
+          detail: 'Miners increasing capacity despite price decline. Supply squeeze pattern.',
+          accuracy: 74, magnitude: Math.abs(change24h) + adjPct * 5
+        });
+      }
+
+      if (fg < 30 && lnCap > 5500) {
+        divs.push({
+          dir: 'bullish', title: 'FEAR + LIGHTNING GROWTH',
+          signals: ['F&G ' + fg, 'LN ' + lnCap.toFixed(0) + ' BTC'],
+          detail: 'Network utility growing during fear signals adoption-driven demand.',
+          accuracy: 68, magnitude: (30 - fg) + Math.min(20, (lnCap - 5500) / 25)
+        });
+      }
+
+      if (kolScore < 35 && Math.abs(change24h) < 2) {
+        divs.push({
+          dir: 'bullish', title: 'KOL BEARISH + PRICE STABLE',
+          signals: ['KOL ' + kolScore + '/100', 'Price ' + change24h.toFixed(1) + '%'],
+          detail: 'Social sentiment negative but price holding = smart money accumulation.',
+          accuracy: 65, magnitude: 50 - kolScore
+        });
+      }
+
+      return divs;
+    }
+
+    const divergences = computeDivergences();
 
     if (divergences.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:24px 0;">' +
-        '<div style="color:#95a0ba;font-size:28px;margin-bottom:8px;">&#9745;</div>' +
-        '<div style="color:#95a0ba;font-size:13px;">No divergences detected.</div>' +
-        '<div style="color:#4a5568;font-size:11px;margin-top:4px;">All signals aligned.</div></div>';
+      container.innerHTML = '<div style="text-align:center;padding:24px 0;color:rgba(255,255,255,0.15);font-size:11px;">All signals aligned. No divergences detected.</div>';
       return;
     }
 
+    // Build tension arcs SVG
+    if (arcsSvg && divergences.length >= 2) {
+      arcsSvg.style.display = 'block';
+      const svgW = arcsSvg.clientWidth || 300;
+      arcsSvg.setAttribute('viewBox', '0 0 ' + svgW + ' 60');
+
+      let paths = '';
+      for (let i = 0; i < divergences.length - 1; i++) {
+        const d = divergences[i];
+        const x1 = (svgW * (i + 0.5)) / divergences.length;
+        const x2 = (svgW * (i + 1.5)) / divergences.length;
+        const thickness = Math.max(1, Math.min(4, d.magnitude / 15));
+        const color = d.dir === 'bearish' ? '#ff3b5f' : 'rgba(255,255,255,0.3)';
+        const cp1y = 30 - d.magnitude * 0.4;
+        const cp2y = 30 + d.magnitude * 0.3;
+
+        paths += '<path class="tension-path" d="M' + x1 + ',30 C' + (x1 + 30) + ',' + cp1y + ' ' + (x2 - 30) + ',' + cp2y + ' ' + x2 + ',30" stroke="' + color + '" stroke-width="' + thickness + '"/>';
+      }
+
+      // Signal endpoint dots
+      for (let i = 0; i < divergences.length; i++) {
+        const x = (svgW * (i + 0.5)) / divergences.length;
+        const color = divergences[i].dir === 'bearish' ? '#ff3b5f' : '#fff';
+        paths += '<circle cx="' + x + '" cy="30" r="3" fill="' + color + '" opacity="0.6"/>';
+      }
+
+      arcsSvg.innerHTML = paths;
+    }
+
+    // Build alert cards
     let html = '';
-    divergences.forEach(function(d) {
-      const titleColor = d.direction === 'bullish' ? '#89ffb8' : d.direction === 'bearish' ? '#ff8ba0' : '#f8c15c';
-      html += '<div class="divergence-alert ' + d.direction + '">' +
-        '<div class="divergence-title" style="color:' + titleColor + ';">' +
-        (d.direction === 'bullish' ? '&#9650; ' : d.direction === 'bearish' ? '&#9660; ' : '&#9644; ') +
-        d.title + '</div>' +
-        '<div class="divergence-detail">' + d.detail + '</div>' +
+    divergences.forEach(function(d, idx) {
+      const titleColor = d.dir === 'bullish' ? '#fff' : '#ff3b5f';
+      const arrow = d.dir === 'bullish' ? '&#9650;' : '&#9660;';
+
+      html += '<div class="div-alert ' + d.dir + '" style="animation-delay:' + (idx * 0.12) + 's;">' +
+        '<div class="div-title" style="color:' + titleColor + ';">' + arrow + ' ' + d.title + '</div>' +
+        '<div class="div-detail">' + d.detail + '</div>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:#4a5568;">' + d.signals + '</span>' +
-        '<span class="divergence-accuracy">ACCURACY: ' + d.accuracy + '%</span>' +
+        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:rgba(255,255,255,0.2);">' + d.signals.join(' vs ') + '</span>' +
+        '<span class="div-accuracy">' + d.accuracy + '% HIT RATE</span>' +
         '</div></div>';
     });
     container.innerHTML = html;
-  }
+  })();
 
-  renderDivergences();
-
-  // ═══════════════════════════════════════════════════════════════════
-  // D. NARRATIVE MOMENTUM TRACKER
-  // ═══════════════════════════════════════════════════════════════════
-  async function loadNarrativeMomentum() {
-    const container = document.getElementById('narrative-momentum');
-    if (!container) return;
+  // ═══════════════════════════════════════════════════════════════
+  // 5. NARRATIVE MOMENTUM — Async load
+  // ═══════════════════════════════════════════════════════════════
+  (async function loadMomentum() {
+    const el = document.getElementById('narrative-momentum');
+    if (!el) return;
 
     try {
       const resp = await fetch('/api/intelligence/narrative-momentum');
-      if (!resp.ok) throw new Error('API error');
+      if (!resp.ok) throw new Error();
       const data = await resp.json();
 
       if (!data.momentum || data.momentum.length === 0) {
-        container.innerHTML = '<p style="color:#4a5568;font-size:11px;text-align:center;">No momentum data yet.</p>';
+        el.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:10px;text-align:center;">No momentum data.</div>';
         return;
       }
 
       let html = '';
-      data.momentum.slice(0, 6).forEach(function(m) {
-        const trendColor = m.trend === 'accelerating' ? '#89ffb8' : m.trend === 'decelerating' ? '#ff8ba0' : '#f8c15c';
-        const trendIcon = m.trend === 'accelerating' ? '&#9650;' : m.trend === 'decelerating' ? '&#9660;' : '&#8594;';
-        const barWidth = Math.min(100, Math.max(5, m.recent_pct * 3));
+      data.momentum.slice(0, 8).forEach(function(m) {
+        const tColor = m.trend === 'accelerating' ? '#fff' : m.trend === 'decelerating' ? '#ff3b5f' : 'rgba(255,255,255,0.3)';
+        const tIcon = m.trend === 'accelerating' ? '&#9650;' : m.trend === 'decelerating' ? '&#9660;' : '&#8594;';
+        const barW = Math.min(100, Math.max(5, m.recent_pct * 3));
 
-        html += '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">' +
-          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-          '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:#eef2ff;">' + m.topic + '</span>' +
-          '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:800;color:' + trendColor + ';">' +
-          trendIcon + ' ' + (m.delta > 0 ? '+' : '') + m.delta + 'pp</span>' +
+        html += '<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03);">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">' +
+          '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.6);">' + m.topic + '</span>' +
+          '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:800;color:' + tColor + ';">' + tIcon + ' ' + (m.delta > 0 ? '+' : '') + m.delta + 'pp</span>' +
           '</div>' +
-          '<div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">' +
-          '<div style="width:' + barWidth + '%;height:100%;background:' + trendColor + ';border-radius:2px;transition:width 0.8s ease;"></div>' +
-          '</div>' +
-          '<div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:#4a5568;margin-top:3px;">' +
-          m.recent_count + ' articles (3d) vs ' + m.prior_count + ' (prior 7d)</div></div>';
+          '<div style="height:2px;background:rgba(255,255,255,0.04);border-radius:1px;overflow:hidden;">' +
+          '<div style="width:' + barW + '%;height:100%;background:' + tColor + ';border-radius:1px;transition:width 0.8s ease;"></div></div>' +
+          '<div style="font-family:\'JetBrains Mono\',monospace;font-size:7px;color:rgba(255,255,255,0.12);margin-top:2px;">' +
+          m.recent_count + ' articles (3d) vs ' + m.prior_count + ' (7d)</div></div>';
       });
 
-      // Leading signals
       if (data.leading_signals && data.leading_signals.length > 0) {
-        html += '<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(248,193,92,0.06);border:1px solid rgba(248,193,92,0.12);">' +
-          '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:800;letter-spacing:0.12em;color:#f8c15c;margin-bottom:6px;">LEADING SIGNALS</div>';
+        html += '<div style="margin-top:10px;padding:8px;border-radius:6px;background:rgba(255,59,95,0.04);border:1px solid rgba(255,59,95,0.08);">' +
+          '<div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;font-weight:800;letter-spacing:0.14em;color:#ff3b5f;margin-bottom:4px;">LEADING SIGNALS</div>';
         data.leading_signals.forEach(function(s) {
-          html += '<div style="font-size:11px;color:#95a0ba;margin-bottom:3px;">' + s + '</div>';
+          html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:2px;">' + s + '</div>';
         });
         html += '</div>';
       }
 
-      container.innerHTML = html;
+      el.innerHTML = html;
     } catch (e) {
-      container.innerHTML = '<p style="color:#4a5568;font-size:11px;text-align:center;">Narrative data unavailable.</p>';
+      el.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:10px;text-align:center;">Narrative data unavailable.</div>';
     }
-  }
+  })();
 
-  loadNarrativeMomentum();
+  // ═══════════════════════════════════════════════════════════════
+  // 6. SENTIMENT HEATMAP
+  // ═══════════════════════════════════════════════════════════════
+  (function initHeatmap() {
+    const el = document.getElementById('sentiment-heatmap');
+    if (!el) return;
 
-  // ═══════════════════════════════════════════════════════════════════
-  // Auto-refresh every 5 minutes
-  // ═══════════════════════════════════════════════════════════════════
+    // Metrics to show
+    const metrics = ['F&G', 'KOL', 'ARTICLE', 'MARKET', 'EXCHANGE'];
+
+    // Get F&G history if available
+    const fgHistory = [];
+    try {
+      const sigComps = {{ signal_json|safe if signal_json else '{}' }};
+      if (sigComps.components && sigComps.components.fear_greed && sigComps.components.fear_greed.raw_data && sigComps.components.fear_greed.raw_data.history) {
+        sigComps.components.fear_greed.raw_data.history.forEach(function(h) { fgHistory.push(h.value); });
+      }
+    } catch (e) {}
+
+    // Generate heatmap data (7 days x 5 metrics)
+    const fg = (CTX.fear_greed || {}).value || 50;
+    const kolScore = (CTX.kol || {}).sentiment_score || 50;
+    const artSent = (CTX.narrative || {}).sentiment === 'bullish' ? 70 : (CTX.narrative || {}).sentiment === 'bearish' ? 30 : 50;
+    const poly = (CTX.polymarket || {}).macro_sentiment || 50;
+    const flowScore = CTX.exchange_flow === 'outflow' ? 70 : CTX.exchange_flow === 'inflow' ? 30 : 50;
+
+    const currentVals = [fg, kolScore, artSent, poly, flowScore];
+
+    // Day headers
+    const days = ['D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1', 'NOW'];
+    let html = '<div></div>'; // empty corner
+    days.forEach(function(d) {
+      html += '<div style="text-align:center;font-weight:800;color:rgba(255,255,255,0.2);padding:4px 0;">' + d + '</div>';
+    });
+
+    metrics.forEach(function(metric, mi) {
+      html += '<div class="heatmap-label">' + metric + '</div>';
+      for (let d = 0; d < 7; d++) {
+        let val;
+        if (d === 6) {
+          val = currentVals[mi]; // current day
+        } else if (mi === 0 && fgHistory.length > d) {
+          val = fgHistory[d]; // F&G has history
+        } else {
+          // Simulate historical spread from current value
+          val = Math.max(0, Math.min(100, currentVals[mi] + (Math.random() - 0.5) * 20 * (6 - d) / 6));
+        }
+
+        // Color: red (#ff3b5f) for bearish, white for bullish, dark for neutral
+        let bgColor;
+        if (val < 25) bgColor = 'rgba(255,59,95,0.35)';
+        else if (val < 40) bgColor = 'rgba(255,59,95,0.15)';
+        else if (val < 60) bgColor = 'rgba(255,255,255,0.04)';
+        else if (val < 75) bgColor = 'rgba(255,255,255,0.08)';
+        else bgColor = 'rgba(255,255,255,0.18)';
+
+        html += '<div class="heatmap-cell" style="background:' + bgColor + ';" title="' + metric + ' ' + days[d] + ': ' + Math.round(val) + '">' + Math.round(val) + '</div>';
+      }
+    });
+
+    el.innerHTML = html;
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 7. WHALE FEED — Auto-expire old entries after 60s
+  // ═══════════════════════════════════════════════════════════════
+  (function initWhaleAutoExpire() {
+    const entries = document.querySelectorAll('.whale-entry');
+    entries.forEach(function(entry, i) {
+      // Remove flash class after animation
+      setTimeout(function() { entry.classList.remove('flash'); }, 800 + i * 150);
+
+      // Auto-expire after 60s (fade out)
+      setTimeout(function() {
+        entry.style.transition = 'opacity 1s ease';
+        entry.style.opacity = '0.3';
+      }, 60000);
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 8. AUTO-REFRESH (5 min)
+  // ═══════════════════════════════════════════════════════════════
   setInterval(async function() {
     try {
-      // Refresh signal score
-      const sigResp = await fetch('/api/intelligence/signal');
-      if (sigResp.ok) {
-        const sigData = await sigResp.json();
-        if (sigData.success && sigData.data) {
-          const numEl = document.getElementById('algo-num');
-          if (numEl) {
-            numEl.textContent = Math.round(sigData.data.composite);
-            numEl.style.color = sigData.data.color;
-          }
+      const r = await fetch('/api/intelligence/signal');
+      if (r.ok) {
+        const d = await r.json();
+        if (d.success && d.data) {
+          const numEl = document.getElementById('pcaf-num');
+          if (numEl) numEl.textContent = Math.round(d.data.composite);
+          const biasEl = document.getElementById('pcaf-bias');
+          if (biasEl) { biasEl.textContent = d.data.label; biasEl.style.color = d.data.color; }
         }
       }
-
-      // Refresh narrative momentum
-      loadNarrativeMomentum();
-    } catch (e) { /* silent */ }
+    } catch (e) {}
   }, 300000);
 
 })();

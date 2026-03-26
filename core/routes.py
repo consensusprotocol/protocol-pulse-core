@@ -3634,8 +3634,92 @@ def sentiment_dashboard():
 
 @app.route('/intelligence')
 def intelligence_main():
-    """Intelligence Terminal main page."""
-    return render_template('intelligence_terminal.html')
+    """Intelligence Dashboard — world-class redesign."""
+    import json as _json
+    from datetime import timedelta as _td
+    from sqlalchemy import text as _text
+
+    # ── Commander status ──
+    is_commander = False
+    try:
+        from flask_login import current_user as _cu
+        if _cu.is_authenticated:
+            is_commander = getattr(_cu, 'subscription_tier', '') in ('commander', 'sovereign')
+    except Exception:
+        pass
+
+    # ── Signal + content data ──
+    try:
+        from services.intelligence_service import (
+            get_signal_strength, get_trending_topics,
+            get_entity_tracker, get_narrative_timeline, get_intelligence_events
+        )
+        signal = get_signal_strength()
+        trending = get_trending_topics(hours=24)
+        entities = get_entity_tracker(hours=48)
+        narrative_timeline = get_narrative_timeline(days=7)
+        intel_events = get_intelligence_events(limit=8)
+    except Exception:
+        signal = {"composite": 50, "label": "NEUTRAL", "color": "#f8c15c", "components": {}, "trajectory": "UNKNOWN"}
+        trending, entities, narrative_timeline, intel_events = [], [], [], []
+
+    # ── Top articles ──
+    top_articles = []
+    try:
+        imp_rows = db.session.execute(
+            _text("""SELECT id, title, sentiment, narrative_label, importance_score,
+                            market_impact_magnitude, created_at
+                     FROM articles WHERE published=1
+                     ORDER BY importance_score DESC NULLS LAST, created_at DESC
+                     LIMIT 15""")
+        ).fetchall()
+        top_articles = [
+            {"id": r[0], "title": r[1], "sentiment": r[2] or "unclassified",
+             "narrative_label": r[3] or "\u2014", "importance_score": int(r[4] or 50),
+             "impact": float(r[5] or 5.0), "created_at": str(r[6])}
+            for r in imp_rows
+        ]
+    except Exception:
+        pass
+
+    # ── Sovereign context ──
+    sovereign_ctx = {}
+    try:
+        sovereign_ctx = _load_sovereign_ctx()
+    except Exception:
+        try:
+            _ctx_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'sovereign_context', 'latest.json')
+            if os.path.exists(_ctx_path):
+                with open(_ctx_path) as f:
+                    sovereign_ctx = json.load(f)
+        except Exception:
+            pass
+
+    # ── Polymarket ──
+    polymarket_markets, polymarket_sentiment = [], 50
+    try:
+        import importlib.util as _ilu
+        _pm_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'services', 'polymarket_service.py')
+        _spec = _ilu.spec_from_file_location('polymarket_service', _pm_path)
+        _pm = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_pm)
+        polymarket_markets = _pm.get_bitcoin_markets(5)
+        polymarket_sentiment = _pm.get_macro_sentiment_score()
+    except Exception:
+        pass
+
+    return render_template(
+        'intelligence_page.html',
+        signal=signal, trending=trending, entities=entities,
+        narrative_timeline=narrative_timeline, intel_events=intel_events,
+        top_articles=top_articles,
+        signal_json=_json.dumps(signal, default=str),
+        sovereign_ctx=sovereign_ctx,
+        sovereign_ctx_json=_json.dumps(sovereign_ctx, default=str),
+        polymarket_markets=polymarket_markets,
+        polymarket_sentiment=polymarket_sentiment,
+        is_commander=is_commander,
+    )
 
 @app.route('/intelligence/scenarios')
 def intelligence_scenarios():
