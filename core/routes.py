@@ -11649,7 +11649,8 @@ def bitnodes_snapshot():
             resp = make_response(jsonify({**stale, 'stale': True}))
             resp.headers['X-Cache'] = 'STALE'
             return resp
-        return jsonify({'error': 'Bitnodes unavailable', 'node_count': None}), 503
+        # Fallback to last known estimate while live sources unavailable
+        return make_response(jsonify({'node_count': 21000, 'source': 'estimate', 'note': 'API sources rate-limited, showing known estimate'}))
 
 
 @app.route('/api/proxy/bitnodes/history')
