@@ -27,6 +27,21 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
+# Lazy-loaded signal data fetcher
+_signal_fetcher = None
+
+def _get_signal_fetcher():
+    global _signal_fetcher
+    if _signal_fetcher is None:
+        try:
+            from services.signal_data_fetcher import SignalDataFetcher
+            _signal_fetcher = SignalDataFetcher()
+        except Exception as exc:
+            logging.getLogger("sovereign_context_engine").warning(
+                "SignalDataFetcher unavailable: %s", exc
+            )
+    return _signal_fetcher
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -35,6 +50,7 @@ DATA_DIR = BASE_DIR / "data"
 CONTEXT_DIR = DATA_DIR / "sovereign_context"
 LATEST_PATH = CONTEXT_DIR / "latest.json"
 HISTORY_PATH = CONTEXT_DIR / "history.jsonl"
+DAILY_SNAPSHOTS_DIR = CONTEXT_DIR / "daily_snapshots"
 ALERTS_DB_PATH = DATA_DIR / "sovereign_alerts.db"
 SOVEREIGN_INTEL_DB = DATA_DIR / "sovereign_intel.db"
 SENTINEL_ALERTS_DB = DATA_DIR / "sentinel_alerts.db"
@@ -796,9 +812,60 @@ class SovereignContextEngine:
         with open(HISTORY_PATH, "a") as f:
             f.write(json.dumps(ws, default=str) + "\n")
 
+        # 6. Save daily signal snapshot (one file per day, overwrites)
+        _save_daily_snapshot(ws)
+
         elapsed = time.monotonic() - t0
         log.info("=== Cycle complete in %.1fs — %d alerts ===", elapsed, len(alerts))
         return ws
+
+
+# ===================================================================
+# Daily signal snapshots (for future heatmap with real data)
+# ===================================================================
+
+def _save_daily_snapshot(ws: dict) -> None:
+    """Save a daily signal snapshot — one file per day, last write wins."""
+    try:
+        DAILY_SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        fg = (ws.get("fear_greed") or {}).get("value", 0)
+        kol = (ws.get("kol") or {}).get("sentiment_score", 0)
+        narr = ws.get("narrative") or {}
+        art = 70 if narr.get("sentiment") == "bullish" else (30 if narr.get("sentiment") == "bearish" else 50)
+        poly = (ws.get("polymarket") or {}).get("macro_sentiment", 50)
+        flow = ws.get("exchange_flow", "neutral")
+        exch = 70 if flow == "outflow" else (30 if flow == "inflow" else 50)
+
+        snapshot = {
+            "date": today,
+            "timestamp": ws.get("timestamp", datetime.now(timezone.utc).isoformat()),
+            "signals": {
+                "fear_greed": fg,
+                "kol": kol,
+                "article": art,
+                "market": poly,
+                "exchange": exch,
+            }
+        }
+        path = DAILY_SNAPSHOTS_DIR / f"{today}.json"
+        path.write_text(json.dumps(snapshot, indent=2))
+    except Exception as e:
+        log.warning("daily snapshot save failed: %s", e)
+
+
+def get_daily_signal_history(days: int = 7) -> List[dict]:
+    """Read up to N days of daily signal snapshots (newest first)."""
+    if not DAILY_SNAPSHOTS_DIR.exists():
+        return []
+    files = sorted(DAILY_SNAPSHOTS_DIR.glob("*.json"), reverse=True)[:days]
+    results = []
+    for f in files:
+        try:
+            results.append(json.loads(f.read_text()))
+        except Exception:
+            continue
+    return results
 
 
 # ===================================================================

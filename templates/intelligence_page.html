@@ -872,37 +872,66 @@
 .evt-badge.warning { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); }
 .evt-badge.info { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); }
 
-/* ── Heatmap (Sentiment Matrix) ── */
+/* ── Signal Breakdown (replaces fake heatmap) ── */
 .heatmap-grid {
-  display: grid;
-  grid-template-columns: 80px repeat(7, 1fr);
-  gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
 }
 
-.heatmap-label {
+.signal-row {
   display: flex;
-  align-items: flex-start;
-  color: rgba(255,255,255,0.35);
+  align-items: center;
+  gap: 10px;
+}
+
+.signal-row .label {
+  width: 80px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 4px 0;
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
 }
 
-.heatmap-cell {
-  aspect-ratio: 1;
+.signal-bar-track {
+  flex: 1;
+  height: 22px;
+  background: rgba(255,255,255,0.04);
   border-radius: 3px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  font-weight: 800;
-  font-size: 9px;
-  color: rgba(255,255,255,0.6);
-  transition: transform 0.2s;
+  overflow: hidden;
+  position: relative;
 }
-.heatmap-cell:hover { transform: scale(1.15); z-index: 2; }
+
+.signal-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.signal-meta {
+  width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.signal-meta .score {
+  color: rgba(255,255,255,0.7);
+}
+
+.signal-meta .interp {
+  font-weight: 600;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 /* ── Responsive ── */
 @media (max-width: 767px) {
@@ -911,8 +940,11 @@
   .pcaf-num { font-size: 2.4rem; }
   .radar-comp-num { font-size: 1.8rem; }
   .fg-big { font-size: 2rem; }
-  .heatmap-grid { grid-template-columns: 60px repeat(7, 1fr); }
-  .heatmap-grid .heatmap-label { font-size: 7px; }
+  .heatmap-grid { gap: 8px; }
+  .signal-row .label { width: 60px; font-size: 7px; }
+  .signal-meta { width: 90px; }
+  .signal-meta .score { font-size: 9px; }
+  .signal-meta .interp { font-size: 7px; }
 }
 
 @media (max-width: 480px) {
@@ -1342,9 +1374,9 @@
   <div class="intel-grid" style="margin-bottom:16px;">
     <div class="span-12">
       <div class="g-panel">
-        <div class="eyebrow">SENTIMENT MATRIX — 7-DAY HEATMAP</div>
+        <div class="eyebrow">SIGNAL BREAKDOWN — LIVE</div>
         <div class="heatmap-grid" id="sentiment-heatmap">
-          <!-- Populated by JS from signal history + narrative timeline -->
+          <!-- Populated by JS from real signal data -->
         </div>
       </div>
     </div>
@@ -2406,66 +2438,64 @@
   })();
 
   // ═══════════════════════════════════════════════════════════════
-  // 6. SENTIMENT HEATMAP
+  // 6. SIGNAL BREAKDOWN (real data, no random/fake history)
   // ═══════════════════════════════════════════════════════════════
-  (function initHeatmap() {
+  (function initSignalBreakdown() {
     const el = document.getElementById('sentiment-heatmap');
     if (!el) return;
 
-    // Metrics to show
-    const metrics = ['F&G', 'KOL', 'ARTICLE', 'MARKET', 'EXCHANGE'];
+    // Pull real values from sovereign context + signal API
+    var sigData = {};
+    try { sigData = {{ signal_json|safe if signal_json else '{}' }}; } catch (e) {}
+    var comps = (sigData.components || {});
 
-    // Get F&G history if available
-    const fgHistory = [];
-    try {
-      const sigComps = {{ signal_json|safe if signal_json else '{}' }};
-      if (sigComps.components && sigComps.components.fear_greed && sigComps.components.fear_greed.raw_data && sigComps.components.fear_greed.raw_data.history) {
-        sigComps.components.fear_greed.raw_data.history.forEach(function(h) { fgHistory.push(h.value); });
-      }
-    } catch (e) {}
+    var fg = (CTX.fear_greed || {}).value || 0;
+    var kolScore = (CTX.kol || {}).sentiment_score || 0;
+    var artScore = comps.sentiment ? Math.round(comps.sentiment.score) : ((CTX.narrative || {}).sentiment === 'bullish' ? 70 : (CTX.narrative || {}).sentiment === 'bearish' ? 30 : 50);
+    var mktScore = comps.price_momentum ? Math.round(comps.price_momentum.score) : 50;
+    var exScore = CTX.exchange_flow === 'outflow' ? 70 : CTX.exchange_flow === 'inflow' ? 30 : 50;
 
-    // Generate heatmap data (7 days x 5 metrics)
-    const fg = (CTX.fear_greed || {}).value || 50;
-    const kolScore = (CTX.kol || {}).sentiment_score || 50;
-    const artSent = (CTX.narrative || {}).sentiment === 'bullish' ? 70 : (CTX.narrative || {}).sentiment === 'bearish' ? 30 : 50;
-    const poly = (CTX.polymarket || {}).macro_sentiment || 50;
-    const flowScore = CTX.exchange_flow === 'outflow' ? 70 : CTX.exchange_flow === 'inflow' ? 30 : 50;
+    var signals = [
+      { label: 'F&G',      score: fg,       src: 'Alternative.me' },
+      { label: 'KOL',      score: kolScore,  src: 'Social scan' },
+      { label: 'ARTICLE',  score: artScore,  src: 'Article analysis' },
+      { label: 'MARKET',   score: mktScore,  src: 'Price momentum' },
+      { label: 'EXCHANGE', score: exScore,   src: 'Flow direction' }
+    ];
 
-    const currentVals = [fg, kolScore, artSent, poly, flowScore];
+    function getColor(v) {
+      if (v < 40) return '#ff3b5f';
+      if (v <= 70) return '#f8c15c';
+      return '#22c55e';
+    }
 
-    // Day headers
-    const days = ['D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1', 'NOW'];
-    let html = '<div></div>'; // empty corner
-    days.forEach(function(d) {
-      html += '<div style="text-align:center;font-weight:800;color:rgba(255,255,255,0.2);padding:4px 0;">' + d + '</div>';
-    });
+    function getInterp(v) {
+      if (v < 40) return 'BEARISH';
+      if (v <= 70) return 'NEUTRAL';
+      return 'BULLISH';
+    }
 
-    metrics.forEach(function(metric, mi) {
-      html += '<div class="heatmap-label">' + metric + '</div>';
-      for (let d = 0; d < 7; d++) {
-        let val;
-        if (d === 6) {
-          val = currentVals[mi]; // current day
-        } else if (mi === 0 && fgHistory.length > d) {
-          val = fgHistory[d]; // F&G has history
-        } else {
-          // Simulate historical spread from current value
-          val = Math.max(0, Math.min(100, currentVals[mi] + (Math.random() - 0.5) * 20 * (6 - d) / 6));
-        }
-
-        // Color: red (#ff3b5f) for bearish, white for bullish, dark for neutral
-        let bgColor;
-        if (val < 25) bgColor = 'rgba(255,59,95,0.35)';
-        else if (val < 40) bgColor = 'rgba(255,59,95,0.15)';
-        else if (val < 60) bgColor = 'rgba(255,255,255,0.04)';
-        else if (val < 75) bgColor = 'rgba(255,255,255,0.08)';
-        else bgColor = 'rgba(255,255,255,0.18)';
-
-        html += '<div class="heatmap-cell" style="background:' + bgColor + ';" title="' + metric + ' ' + days[d] + ': ' + Math.round(val) + '">' + Math.round(val) + '</div>';
-      }
+    var html = '';
+    signals.forEach(function(s) {
+      var color = getColor(s.score);
+      var interp = getInterp(s.score);
+      html += '<div class="signal-row">';
+      html += '<div class="label">' + s.label + '</div>';
+      html += '<div class="signal-bar-track"><div class="signal-bar-fill" data-width="' + s.score + '" style="background:' + color + ';"></div></div>';
+      html += '<div class="signal-meta"><span class="score">' + s.score + '/100</span><span class="interp" style="color:' + color + ';">' + interp + '</span></div>';
+      html += '</div>';
     });
 
     el.innerHTML = html;
+
+    // Animate bars on load (0 -> actual width, 800ms easeOut)
+    requestAnimationFrame(function() {
+      var fills = el.querySelectorAll('.signal-bar-fill');
+      fills.forEach(function(bar) {
+        var w = bar.getAttribute('data-width');
+        bar.style.width = w + '%';
+      });
+    });
   })();
 
   // ═══════════════════════════════════════════════════════════════
