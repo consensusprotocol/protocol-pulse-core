@@ -16,12 +16,92 @@ Routes:
 """
 
 import logging
+import re
 from flask import Blueprint, render_template, jsonify, request
 from flask_login import current_user
 
 logger = logging.getLogger(__name__)
 
 panopticon_bp = Blueprint("panopticon", __name__)
+
+# ── Rate limiter (P0 fix for U2 — IP-based throttling on all API routes) ────
+# Applied via before_request to avoid circular import issues with app.limiter
+_rate_limit_store = {}  # IP -> {count, window_start}
+_RATE_LIMIT_WINDOW = 60  # seconds
+_RATE_LIMIT_MAX = 30  # requests per window for general API routes
+_RATE_LIMIT_WHALE = 10  # tighter limit for expensive whale-alerts endpoint (P2 UI-2)
+import time as _time
+
+
+@panopticon_bp.before_request
+def _enforce_rate_limit():
+    """IP-based rate limiting for all /api/panopticon/* routes."""
+    if not request.path.startswith("/api/panopticon/"):
+        return None
+
+    ip = request.remote_addr or "unknown"
+    now = _time.time()
+    key = f"{ip}:{request.path}"
+
+    # Tighter limit for whale-alerts (most expensive upstream call)
+    max_requests = _RATE_LIMIT_WHALE if "whale" in request.path else _RATE_LIMIT_MAX
+
+    entry = _rate_limit_store.get(key)
+    if entry is None or now - entry["start"] > _RATE_LIMIT_WINDOW:
+        _rate_limit_store[key] = {"count": 1, "start": now}
+        return None
+
+    entry["count"] += 1
+    if entry["count"] > max_requests:
+        logger.warning("Rate limit exceeded: %s on %s (%d/%d)", ip, request.path,
+                        entry["count"], max_requests)
+        return jsonify({
+            "error": "Rate limit exceeded",
+            "retry_after": int(_RATE_LIMIT_WINDOW - (now - entry["start"])),
+        }), 429
+
+    return None
+
+_EMPTY_DATA = {
+    "btc_price": None,
+    "events_today": 0,
+    "disclosures": [],
+    "flagged": [],
+    "whales": [],
+    "forex": [],
+    "geopolitical": [],
+    "correlations": [],
+    "watch_list": [],
+    "polymarket": [],
+    "generated_at": None,
+}
+
+# Redacted teaser data for free-tier users (no real Commander data leaked)
+_DEMO_DATA = {
+    "btc_price": None,
+    "events_today": 12,
+    "disclosures": [
+        {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+        {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+        {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+    ],
+    "flagged": [
+        {"entity": "██████████", "asset": "CLASSIFIED", "tier": "flagged", "correlation_score": 0.0, "flag_reason": "CLASSIFIED — Upgrade to Commander"},
+    ],
+    "whales": [
+        {"entity": "██████████", "wallet_label": "CLASSIFIED", "address": "████...████", "txid": "████...████", "amount_btc": 0, "tx_type": "classified", "confirmed": True, "timestamp": "████-██-██", "event_type": "whale"},
+    ],
+    "forex": [],
+    "geopolitical": [
+        {"headline": "CLASSIFIED — Upgrade to Commander for geopolitical intelligence", "category": "classified", "btc_signal": "neutral", "btc_rationale": "CLASSIFIED", "source": "CLASSIFIED", "timestamp": "████-██-██", "event_type": "geopolitical"},
+    ],
+    "correlations": [],
+    "watch_list": [],
+    "polymarket": [
+        {"question": "CLASSIFIED — Upgrade to Commander for prediction market data", "yes_price": None, "volume": 0, "event_type": "prediction", "btc_signal": "neutral"},
+    ],
+    "generated_at": None,
+}
 
 
 def _is_commander() -> bool:
@@ -32,34 +112,39 @@ def _is_commander() -> bool:
     return tier in ("commander", "sovereign")
 
 
+def _sanitize_event_summary(text: str) -> str:
+    """Sanitize user input for the Make Bitcoin Case prompt to prevent injection."""
+    # Strip control characters and excessive whitespace
+    text = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', text)
+    # Remove common prompt injection patterns
+    text = re.sub(r'(?i)(ignore|disregard|forget)\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)', '', text)
+    # Limit to alphanumeric, basic punctuation, and spaces
+    text = re.sub(r'[^\w\s.,;:!?\'"\-()/$%@#&+=]', '', text)
+    return text.strip()[:500]
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # PAGE ROUTE
 # ═══════════════════════════════════════════════════════════════════════════
 
 @panopticon_bp.route("/panopticon")
 def panopticon_page():
-    """PANOPTICON dashboard — Commander tier sees full data, free tier sees CLASSIFIED overlays."""
+    """PANOPTICON dashboard — Commander tier sees full data, free tier sees redacted CLASSIFIED data.
+    SECURITY: Free-tier users receive only redacted placeholder data. Real Commander data is NEVER
+    embedded in the HTML payload for unauthenticated or free-tier users."""
     demo_mode = not _is_commander()
 
-    # Always fetch data — free tier sees structure with overlays
-    try:
-        from services.panopticon_service import get_dashboard_data
-        data = get_dashboard_data()
-    except Exception as e:
-        logger.error("Panopticon data fetch failed: %s", e)
-        data = {
-            "btc_price": None,
-            "events_today": 0,
-            "disclosures": [],
-            "flagged": [],
-            "whales": [],
-            "forex": [],
-            "geopolitical": [],
-            "correlations": [],
-            "watch_list": [],
-            "polymarket": [],
-            "generated_at": None,
-        }
+    if demo_mode:
+        # Free tier: send only redacted demo data — no real data touches the template
+        data = _DEMO_DATA
+    else:
+        # Commander tier: fetch real intelligence data
+        try:
+            from services.panopticon_service import get_dashboard_data
+            data = get_dashboard_data()
+        except Exception as e:
+            logger.error("Panopticon data fetch failed: %s", e)
+            data = _EMPTY_DATA
 
     return render_template(
         "panopticon.html",
@@ -82,10 +167,11 @@ def api_disclosures():
     try:
         from services.panopticon_service import fetch_disclosures
         limit = min(int(request.args.get("limit", 50)), 100)
-        disclosures = fetch_disclosures(limit=limit)
+        disclosures, is_live = fetch_disclosures(limit=limit)
         return jsonify({
             "disclosures": disclosures,
             "count": len(disclosures),
+            "is_live": is_live,
             "tier": "confirmed",
         })
     except Exception as e:
@@ -189,11 +275,12 @@ def api_make_bitcoin_case():
 
     try:
         body = request.get_json(silent=True) or {}
-        event_summary = body.get("event_summary", "").strip()
-        if not event_summary:
+        raw_summary = body.get("event_summary", "").strip()
+        if not raw_summary:
             return jsonify({"error": "event_summary is required"}), 400
-        if len(event_summary) > 500:
-            event_summary = event_summary[:500]
+        event_summary = _sanitize_event_summary(raw_summary)
+        if not event_summary:
+            return jsonify({"error": "event_summary contains no valid content"}), 400
 
         from services.panopticon_service import get_make_bitcoin_case
         result = get_make_bitcoin_case(event_summary)

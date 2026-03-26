@@ -15,10 +15,12 @@ Sources (all free, no auth):
 
 import logging
 import os
+import random
 import time
 import hashlib
 import json
 import re
+import threading
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -27,19 +29,73 @@ import requests
 logger = logging.getLogger(__name__)
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL_ID", "claude-sonnet-4-6-20250514")
 
-# ── Cache layer (simple in-memory with TTL) ─────────────────────────────────
+# ── Cache layer (thread-safe with TTL + thundering herd protection) ─────────
 _cache = {}
+_cache_lock = threading.Lock()
+_cache_inflight = set()
+
 
 def _cached(key: str, ttl_seconds: int = 300):
-    """Return cached value if fresh, else None."""
-    entry = _cache.get(key)
-    if entry and time.time() - entry["ts"] < ttl_seconds:
-        return entry["data"]
+    """Return cached value if fresh, else None. Thread-safe."""
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry and time.time() - entry["ts"] < ttl_seconds:
+            return entry["data"]
     return None
 
+
 def _set_cache(key: str, data):
-    _cache[key] = {"data": data, "ts": time.time()}
+    with _cache_lock:
+        _cache[key] = {"data": data, "ts": time.time()}
+
+
+def _get_or_fetch(key: str, fetch_fn, ttl_seconds: int = 300):
+    """Thread-safe cache fetch with thundering-herd protection.
+    If another thread is already fetching, returns stale data instead of piling on."""
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry and time.time() - entry["ts"] < ttl_seconds:
+            return entry["data"]
+        if key in _cache_inflight:
+            # Return stale data rather than pile on
+            return entry["data"] if entry else None
+        _cache_inflight.add(key)
+    try:
+        data = fetch_fn()
+        _set_cache(key, data)
+        return data
+    finally:
+        with _cache_lock:
+            _cache_inflight.discard(key)
+
+
+# ── Rate-limited HTTP GET with exponential backoff ──────────────────────────
+
+def _rate_limited_get(url, params=None, timeout=10, sleep_secs=1.0, retries=3,
+                      headers=None):
+    """HTTP GET with exponential backoff on 429 responses."""
+    if headers is None:
+        headers = {"User-Agent": "ProtocolPulse/1.0"}
+    for attempt in range(retries):
+        try:
+            resp = requests.get(url, params=params, timeout=timeout, headers=headers)
+            if resp.status_code == 429:
+                wait = sleep_secs * (2 ** attempt) + random.uniform(0, 0.5)
+                logger.warning("Rate limited (429) by %s — backing off %.1fs", url, wait)
+                time.sleep(wait)
+                continue
+            return resp
+        except requests.exceptions.RequestException as e:
+            if attempt < retries - 1:
+                wait = sleep_secs * (2 ** attempt) + random.uniform(0, 0.3)
+                logger.warning("Request failed for %s (attempt %d): %s — retrying in %.1fs",
+                               url, attempt + 1, e, wait)
+                time.sleep(wait)
+            else:
+                raise
+    return resp  # Return last response even if 429
 
 
 # ── KNOWN WHALE WALLETS (public, documented) ────────────────────────────────
@@ -133,7 +189,7 @@ def fetch_stock_act_disclosures(limit: int = 50) -> list[dict]:
     search_terms = ['"bitcoin"', '"crypto"', '"coinbase"', '"microstrategy"', '"ibit"', '"etf"']
     for term in search_terms:
         try:
-            resp = requests.get(
+            resp = _rate_limited_get(
                 "https://efts.house.gov/LATEST/search-index",
                 params={
                     "q": term,
@@ -184,11 +240,17 @@ def fetch_stock_act_disclosures(limit: int = 50) -> list[dict]:
 
 
 def _extract_asset_from_hit(src: dict) -> str:
-    """Extract asset name from EFTS hit source data."""
+    """Extract asset name from EFTS hit source data.
+    Known-good schema fields (as of 2026-03): asset_name, asset, ticker, description."""
     for field in ("asset_name", "asset", "ticker", "description"):
         val = src.get(field, "")
         if val:
             return str(val)
+    # Schema drift detection — log when all known fields return empty
+    logger.warning(
+        "SCHEMA_DRIFT: asset extraction failed on all known fields. "
+        "Keys present: %s", list(src.keys())
+    )
     # Check text body for crypto keywords
     text = json.dumps(src).lower()
     for kw in CRYPTO_KEYWORDS:
@@ -197,8 +259,12 @@ def _extract_asset_from_hit(src: dict) -> str:
     return "See filing"
 
 
-def fetch_disclosures(limit: int = 50) -> list[dict]:
-    """Fetch recent STOCK Act disclosures — tries efts.house.gov first, falls back to placeholders."""
+def fetch_disclosures(limit: int = 50) -> tuple[list[dict], bool]:
+    """Fetch recent STOCK Act disclosures — tries efts.house.gov first, falls back to placeholders.
+
+    Returns:
+        (disclosures, is_live) — is_live=False when using fallback placeholder data.
+    """
     cache_key = "panopticon_disclosures"
     cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
     if cached is not None:
@@ -206,19 +272,30 @@ def fetch_disclosures(limit: int = 50) -> list[dict]:
 
     # Try live efts.house.gov first
     disclosures = fetch_stock_act_disclosures(limit=limit)
+    is_live = bool(disclosures)
+
+    # Schema drift batch warning — if >80% of live hits have "See filing" asset
+    if disclosures:
+        see_filing_count = sum(1 for d in disclosures if d.get("asset") == "See filing")
+        if len(disclosures) > 3 and see_filing_count / len(disclosures) > 0.8:
+            logger.warning(
+                "SCHEMA_DRIFT: >80%% of efts.house.gov results returned 'See filing' "
+                "(%d/%d) — API schema may have changed",
+                see_filing_count, len(disclosures),
+            )
 
     # Fallback to well-known public data
     if not disclosures:
         disclosures = _generate_disclosure_placeholders()
 
-    _set_cache(cache_key, disclosures)
-    return disclosures
+    result = (disclosures, is_live)
+    _set_cache(cache_key, result)
+    return result
 
 
 def _generate_disclosure_placeholders() -> list[dict]:
-    """Generate placeholder disclosures from known public data when APIs are unavailable.
-    These are based on real, publicly documented filings."""
-    now = datetime.utcnow()
+    """Placeholder disclosures based on real public filings. Uses FIXED dates to avoid
+    misleading freshness. All carry is_placeholder=True for UI banner."""
     return [
         {
             "entity": "Rep. Michael McCaul (R-TX)",
@@ -227,14 +304,14 @@ def _generate_disclosure_placeholders() -> list[dict]:
             "amount_range": "$15,001–$50,000",
             "chamber": "house",
             "party": "R",
-            "date_filed": (now - timedelta(days=12)).strftime("%Y-%m-%d"),
-            "date_traded": (now - timedelta(days=38)).strftime("%Y-%m-%d"),
+            "date_filed": "2025-09-15",
+            "date_traded": "2025-08-20",
             "days_to_file": 26,
             "committee": "Foreign Affairs (Chair)",
             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
             "tier": "confirmed",
             "correlation_note": None,
-            "status": "loading",
+            "is_placeholder": True,
         },
         {
             "entity": "Sen. Cynthia Lummis (R-WY)",
@@ -243,14 +320,14 @@ def _generate_disclosure_placeholders() -> list[dict]:
             "amount_range": "$50,001–$100,000",
             "chamber": "senate",
             "party": "R",
-            "date_filed": (now - timedelta(days=8)).strftime("%Y-%m-%d"),
-            "date_traded": (now - timedelta(days=30)).strftime("%Y-%m-%d"),
+            "date_filed": "2025-10-01",
+            "date_traded": "2025-09-10",
             "days_to_file": 22,
             "committee": "Banking (Digital Assets Subcommittee Chair)",
             "source_url": "https://efts.sec.gov/LATEST/search-index?q=lummis",
             "tier": "confirmed",
             "correlation_note": "Trade within 14 days of Senate Banking hearing on stablecoin bill",
-            "status": "loading",
+            "is_placeholder": True,
         },
         {
             "entity": "Rep. Patrick McHenry (R-NC)",
@@ -259,14 +336,14 @@ def _generate_disclosure_placeholders() -> list[dict]:
             "amount_range": "$1,001–$15,000",
             "chamber": "house",
             "party": "R",
-            "date_filed": (now - timedelta(days=20)).strftime("%Y-%m-%d"),
-            "date_traded": (now - timedelta(days=45)).strftime("%Y-%m-%d"),
+            "date_filed": "2025-08-28",
+            "date_traded": "2025-08-03",
             "days_to_file": 25,
             "committee": "Financial Services (former Chair)",
             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
             "tier": "confirmed",
             "correlation_note": None,
-            "status": "loading",
+            "is_placeholder": True,
         },
         {
             "entity": "Rep. Ritchie Torres (D-NY)",
@@ -275,14 +352,14 @@ def _generate_disclosure_placeholders() -> list[dict]:
             "amount_range": "$1,001–$15,000",
             "chamber": "house",
             "party": "D",
-            "date_filed": (now - timedelta(days=5)).strftime("%Y-%m-%d"),
-            "date_traded": (now - timedelta(days=28)).strftime("%Y-%m-%d"),
+            "date_filed": "2025-11-05",
+            "date_traded": "2025-10-13",
             "days_to_file": 23,
             "committee": "Financial Services",
             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
             "tier": "confirmed",
             "correlation_note": "Trade within 7 days of FIT21 markup session",
-            "status": "loading",
+            "is_placeholder": True,
         },
     ]
 
@@ -321,7 +398,7 @@ def fetch_whale_alerts(limit: int = 20) -> list[dict]:
     for address, meta in WHALE_WALLETS.items():
         try:
             url = f"https://mempool.space/api/address/{address}/txs"
-            resp = requests.get(url, timeout=10, headers={"User-Agent": "ProtocolPulse/1.0"})
+            resp = _rate_limited_get(url, timeout=10)
             if resp.status_code != 200:
                 continue
 
@@ -396,12 +473,11 @@ def fetch_forex_signals() -> list[dict]:
     }
 
     try:
-        # exchangerate.host free tier
-        resp = requests.get(
+        # exchangerate.host free tier — ~1000 calls/month
+        resp = _rate_limited_get(
             "https://api.exchangerate.host/latest",
             params={"base": "USD", "symbols": "JPY,CNY,EUR,GBP,CHF"},
             timeout=10,
-            headers={"User-Agent": "ProtocolPulse/1.0"},
         )
         if resp.status_code == 200:
             data = resp.json()
@@ -422,7 +498,8 @@ def fetch_forex_signals() -> list[dict]:
 
     # 10Y Treasury yield proxy (from existing data if available)
     try:
-        resp = requests.get(
+        # fiscaldata.treasury.gov — no documented rate limit, courtesy sleep via _rate_limited_get
+        resp = _rate_limited_get(
             "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates",
             params={
                 "filter": "security_desc:eq:Treasury Notes",
@@ -430,7 +507,6 @@ def fetch_forex_signals() -> list[dict]:
                 "page[size]": "1",
             },
             timeout=10,
-            headers={"User-Agent": "ProtocolPulse/1.0"},
         )
         if resp.status_code == 200:
             data = resp.json()
@@ -487,9 +563,13 @@ def fetch_geopolitical(limit: int = 20) -> list[dict]:
 
     # Pull from our existing article pipeline (sovereign/regulatory tagged)
     try:
-        from app import app, db
+        from flask import has_app_context
+        from app import db
         from models import Article
-        with app.app_context():
+        if not has_app_context():
+            logger.debug("No Flask app context for geopolitical fetch — skipping article pipeline")
+            raise RuntimeError("No app context")
+        with db.session.no_autoflush:
             geo_articles = Article.query.filter(
                 Article.published == True,
                 db.or_(
@@ -522,7 +602,7 @@ def fetch_geopolitical(limit: int = 20) -> list[dict]:
     if not events:
         try:
             gdelt_url = "https://api.gdeltproject.org/api/v2/doc/doc"
-            resp = requests.get(
+            resp = _rate_limited_get(
                 gdelt_url,
                 params={
                     "query": "(bitcoin OR cryptocurrency OR CBDC OR \"digital currency\") sourcelang:eng",
@@ -531,7 +611,6 @@ def fetch_geopolitical(limit: int = 20) -> list[dict]:
                     "format": "json",
                 },
                 timeout=15,
-                headers={"User-Agent": "ProtocolPulse/1.0"},
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -634,7 +713,7 @@ def fetch_polymarket_markets(limit: int = 15) -> list[dict]:
 
     markets = []
     try:
-        resp = requests.get(
+        resp = _rate_limited_get(
             "https://strapi-matic.polymarket.com/markets",
             params={
                 "active": "true",
@@ -642,7 +721,6 @@ def fetch_polymarket_markets(limit: int = 15) -> list[dict]:
                 "_sort": "volume:desc",
             },
             timeout=15,
-            headers={"User-Agent": "ProtocolPulse/1.0"},
         )
         if resp.status_code == 200:
             raw_markets = resp.json() if isinstance(resp.json(), list) else resp.json().get("data", [])
@@ -754,63 +832,100 @@ def _static_polymarket_feed() -> list[dict]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# CORRELATION TIMELINE — Cross-reference engine
+# CORRELATION TIMELINE — Cross-reference engine with temporal windowing
 # ═══════════════════════════════════════════════════════════════════════════
 
+CORRELATION_WINDOW_HOURS = 72  # ±72h temporal window
+
+
+def _parse_date_safe(date_str: str) -> Optional[datetime]:
+    """Parse a date string safely, returning None on failure."""
+    if not date_str:
+        return None
+    for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(date_str[:19], fmt)
+        except (ValueError, TypeError):
+            continue
+    return None
+
+
 def build_correlations(limit: int = 10) -> list[dict]:
-    """Build correlation timeline: cross-reference disclosures with whale movements,
-    geopolitical events, and KOL sentiment."""
+    """Build correlation timeline with genuine ±72h temporal windowing.
+    Only surfaces correlations with minimum 2 co-occurring signals."""
     cache_key = "panopticon_correlations"
     cached = _cached(cache_key, ttl_seconds=600)
     if cached is not None:
         return cached
 
     correlations = []
-    disclosures = fetch_disclosures()
+    disc_result = fetch_disclosures()
+    disclosures = disc_result[0] if isinstance(disc_result, tuple) else disc_result
     whales = fetch_whale_alerts()
     geo = fetch_geopolitical()
 
-    # For each flagged disclosure, find temporally correlated events
+    window = timedelta(hours=CORRELATION_WINDOW_HOURS)
+
     flagged = [d for d in disclosures if d.get("correlation_note")]
     for disc in flagged[:limit]:
-        disc_date = disc.get("date_traded", "")
+        disc_date = _parse_date_safe(disc.get("date_traded", ""))
         if not disc_date:
             continue
 
-        # Find whale events within ±7 days
+        # Find whale events within ±72h window
         related_whales = []
-        for w in whales[:10]:
-            related_whales.append({
-                "type": "whale",
-                "entity": w.get("entity", ""),
-                "amount": f"{w.get('amount_btc', 0)} BTC",
-                "direction": w.get("tx_type", ""),
-                "timestamp": w.get("timestamp", ""),
-            })
+        for w in whales:
+            w_date = _parse_date_safe(w.get("timestamp", ""))
+            if w_date and abs((w_date - disc_date).total_seconds()) <= window.total_seconds():
+                related_whales.append({
+                    "type": "whale",
+                    "entity": w.get("entity", ""),
+                    "amount": f"{w.get('amount_btc', 0)} BTC",
+                    "direction": w.get("tx_type", ""),
+                    "timestamp": w.get("timestamp", ""),
+                    "days_offset": round(abs((w_date - disc_date).total_seconds()) / 86400, 1),
+                })
 
-        # Find geopolitical events within window
+        # Find geopolitical events within ±72h window
         related_geo = []
-        for g in geo[:5]:
-            related_geo.append({
-                "type": "geopolitical",
-                "headline": g.get("headline", ""),
-                "btc_signal": g.get("btc_signal", "neutral"),
-                "timestamp": g.get("timestamp", ""),
-            })
+        for g in geo:
+            g_date = _parse_date_safe(g.get("timestamp", ""))
+            if g_date and abs((g_date - disc_date).total_seconds()) <= window.total_seconds():
+                related_geo.append({
+                    "type": "geopolitical",
+                    "headline": g.get("headline", ""),
+                    "btc_signal": g.get("btc_signal", "neutral"),
+                    "timestamp": g.get("timestamp", ""),
+                    "days_offset": round(abs((g_date - disc_date).total_seconds()) / 86400, 1),
+                })
+
+        # Minimum 2 co-occurring signals required
+        total_related = len(related_whales) + len(related_geo)
+        if total_related < 2:
+            continue
+
+        # Score based on temporal proximity (closer = higher)
+        all_offsets = [r["days_offset"] for r in related_whales + related_geo]
+        avg_offset = sum(all_offsets) / len(all_offsets) if all_offsets else 3.0
+        proximity_score = max(0, 1.0 - (avg_offset / 6.0))
+        correlation_score = round(min(proximity_score * (1 + total_related * 0.1), 1.0), 2)
 
         correlations.append({
             "disclosure": {
                 "entity": disc.get("entity", ""),
                 "asset": disc.get("asset", ""),
                 "trade_type": disc.get("trade_type", ""),
-                "date": disc_date,
+                "date": disc.get("date_traded", ""),
                 "correlation_note": disc.get("correlation_note", ""),
             },
             "related_whales": related_whales[:3],
             "related_geo": related_geo[:3],
-            "correlation_score": 0.65,
+            "correlation_score": correlation_score,
+            "signal_count": total_related,
+            "window_hours": CORRELATION_WINDOW_HOURS,
+            "disclaimer": "PATTERN FOR RESEARCH — NOT VERIFIED. Temporal correlation only.",
             "timeline_summary": f"{disc.get('entity', 'Unknown')} traded {disc.get('asset', 'crypto assets')} — "
-                               f"correlated with {len(related_whales)} whale movements and {len(related_geo)} geopolitical events",
+                               f"{total_related} related signals within {CORRELATION_WINDOW_HOURS}h window",
         })
 
     _set_cache(cache_key, correlations)
@@ -838,10 +953,12 @@ def get_btc_price() -> Optional[float]:
         return cached
 
     try:
-        resp = requests.get(
+        # CoinGecko free tier: ~10-50 calls/min — use rate-limited wrapper
+        resp = _rate_limited_get(
             "https://api.coingecko.com/api/v3/simple/price",
             params={"ids": "bitcoin", "vs_currencies": "usd"},
             timeout=10,
+            sleep_secs=1.2,
         )
         if resp.status_code == 200:
             price = resp.json().get("bitcoin", {}).get("usd")
@@ -859,9 +976,9 @@ def get_btc_price() -> Optional[float]:
 # ═══════════════════════════════════════════════════════════════════════════
 
 def get_dashboard_data() -> dict:
-    """Aggregate all panopticon data for the dashboard."""
+    """Aggregate all panopticon data for the dashboard (Commander tier — full data)."""
     btc_price = get_btc_price()
-    disclosures = fetch_disclosures()
+    disclosures, disclosures_live = fetch_disclosures()
     whales = fetch_whale_alerts()
     forex = fetch_forex_signals()
     geo = fetch_geopolitical()
@@ -885,6 +1002,7 @@ def get_dashboard_data() -> dict:
         "btc_price": btc_price,
         "events_today": max(events_today, len(disclosures) + len(whales)),
         "disclosures": disclosures,
+        "disclosures_live": disclosures_live,
         "flagged": check_correlations(disclosures),
         "whales": whales,
         "forex": forex,
@@ -893,6 +1011,33 @@ def get_dashboard_data() -> dict:
         "watch_list": watch_list,
         "polymarket": polymarket,
         "generated_at": datetime.utcnow().isoformat(),
+    }
+
+
+def get_demo_safe_data() -> dict:
+    """Return redacted data structure for free-tier users.
+    No sensitive Commander-tier data is included — only counts and structure.
+    This ensures CSS overlay bypass cannot expose paid content (P0 fix for U1)."""
+    return {
+        "btc_price": get_btc_price(),  # Public data, safe to show
+        "events_today": 0,
+        "disclosures": [],
+        "disclosures_live": True,
+        "flagged": [],
+        "whales": [],
+        "forex": [],
+        "geopolitical": [],
+        "correlations": [],
+        "watch_list": [],
+        "polymarket": [],
+        "generated_at": datetime.utcnow().isoformat(),
+        "demo_counts": {
+            "disclosures": "12+",
+            "whales": "8+",
+            "flags": "3+",
+            "markets": "15+",
+            "geo": "5+",
+        },
     }
 
 

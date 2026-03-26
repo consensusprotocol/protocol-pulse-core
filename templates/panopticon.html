@@ -986,6 +986,12 @@ body.panopticon-body .pp-footer { display: none !important; }
             </div>
             {% endif %}
 
+            {% if not demo_mode and data.disclosures_live is defined and not data.disclosures_live %}
+            <div class="pn-fallback-banner" style="background:rgba(248,193,92,0.1);border:1px solid var(--pn-gold);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.75rem;color:var(--pn-gold);">
+                <strong>NOTICE:</strong> Live data from efts.house.gov is temporarily unavailable. Displaying documented public examples.
+            </div>
+            {% endif %}
+
             <div id="pnDisclosures">
                 {% for d in data.disclosures %}
                 <div class="pn-card">
