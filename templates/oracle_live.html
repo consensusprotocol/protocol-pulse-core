@@ -1976,7 +1976,6 @@ function _speakVisionGuidance(d) {
   setBusy(false); mic.disabled=false;
   process(guideText);
   // (voice-only path removed - process() handles TTS + Wav2Lip)
-  .then(function(audioBlob){
     hideVisionStatus();
     var audioURL = URL.createObjectURL(audioBlob);
     var audio;
