@@ -642,7 +642,7 @@ width:100%;margin-top:4px;">
   <p class="gate-sub">Sovereign Bitcoin intelligence.<br>Ask anything, in real time.</p>
   <p style="font-family:monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:.1em;margin-top:8px;">BUILD 56134105-v5</p>
 
-  <button id="gate-btn" onclick="requestMic()">
+  <button id="gate-btn">
     <div class="btn-sweep"></div>
     <div class="btn-inner">
       <div class="btn-label">Protocol Pulse Intelligence</div>
@@ -658,23 +658,45 @@ width:100%;margin-top:4px;">
   </button>
   <!-- ORACLE BUILD: 2026-03-25-v5 -->
   <script>
-  /* ISOLATED GATE BOOTSTRAP - zero dependency on main script block */
-  (function(){
-    var BUILD = "2026-03-25-v5";
-    /* Write canary so we know which build is running on device */
-    var st = document.getElementById("gate-status");
-    if(st) st.setAttribute("data-build", BUILD);
-    /* Button starts enabled in HTML - this just double-confirms it */
-    var btn = document.getElementById("gate-btn");
-    if(btn) btn.disabled = false;
-    /* pageshow covers bfcache restore */
-    window.addEventListener("pageshow", function(e){
-      var b = document.getElementById("gate-btn");
-      var s = document.getElementById("gate-status");
-      if(b && !(s && s.textContent.indexOf("Requesting") >= 0)){ b.disabled = false; }
+(function(){
+  window.onerror=function(msg,src,line){
+    var s=document.getElementById("gate-status");
+    if(s)s.textContent="JSERR:"+String(msg).substring(0,60)+" L"+line;
+    return false;
+  };
+  window.addEventListener("unhandledrejection",function(e){
+    var s=document.getElementById("gate-status");
+    if(s)s.textContent="PERR:"+(e.reason&&e.reason.message||"unknown");
+  });
+  function bindBtn(){
+    var btn=document.getElementById("gate-btn");
+    var st=document.getElementById("gate-status");
+    if(!btn){return;}
+    btn.disabled=false;
+    btn.addEventListener("click",function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(st)st.textContent="TAP OK - calling requestMic...";
+      if(typeof requestMic==="function"){
+        requestMic();
+      }else{
+        if(st)st.textContent="ERR: requestMic not defined - main script failed";
+      }
     });
-  })();
-  </script>
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",bindBtn);
+  }else{
+    bindBtn();
+  }
+  window.addEventListener("pageshow",function(e){
+    if(e.persisted){
+      var b=document.getElementById("gate-btn");
+      if(b)b.disabled=false;
+    }
+  });
+})();
+</script>
 
 <script>
 /* ISOLATED GATE FUNCTIONS - separate script block, independent of main script */
@@ -1073,65 +1095,7 @@ var iStop=document.getElementById('i-stop');
 var cards=document.getElementById('cards');
 
 /* ── MIC REQUEST ── */
-function requestMic(){
-  gBtn.disabled=true;
-  gStatus.textContent='Requesting microphone...';
-  gErr.style.display='none';
-
-  var _gst=document.getElementById('gate-status');
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    if(_gst)_gst.textContent='ERR: no mediaDevices';
-    gBtn.disabled=false; return;
-  }
-  if(!window.isSecureContext){
-    if(_gst)_gst.textContent='ERR: not HTTPS';
-    gBtn.disabled=false; return;
-  }
-  if(_gst)_gst.textContent='Calling getUserMedia...';
-  navigator.mediaDevices.getUserMedia({audio:true,video:false})
-    .then(function(stream){
-      stream.getTracks().forEach(function(t){t.stop();});
-      try{
-        var _ac=new(window.AudioContext||window.webkitAudioContext)();
-        var _b=_ac.createBuffer(1,1,22050);
-        var _s=_ac.createBufferSource();
-        _s.buffer=_b;_s.connect(_ac.destination);_s.start(0);
-        setTimeout(function(){try{_ac.close();}catch(e){}},500);
-      }catch(e){}
-      vid.muted=true;
-      vid.play().catch(function(){});
-      window._audioUnlocked=new Audio();
-      window._audioUnlocked.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
-      window._audioUnlocked.volume=0.001;
-      window._audioUnlocked.play().catch(function(){});
-      window._chatAudioPlaying=false;
-      gStatus.textContent='';
-      go();
-    })
-    .catch(function(err){
-      console.warn('[Satomi mic error]',err);
-      gBtn.disabled=false;
-      gStatus.textContent='';
-      gErr.style.display='block';
-      var name=err&&err.name?err.name:'';
-      var msg='';
-      if(name==='NotAllowedError'||name==='PermissionDeniedError'){
-        msg='Microphone access denied. Allow mic in browser settings, then retry.';
-      }else if(name==='NotReadableError'||name==='TrackStartError'){
-        msg='Microphone busy. Close other apps using the mic.';
-      }else if(name==='NotFoundError'){
-        msg='No microphone detected.';
-      }else{
-        msg='Microphone unavailable'+(name?' ('+name+')':'.')+'';
-      }
-      gErr.innerHTML='<div style="font-family:monospace;font-size:10px;color:rgba(255,59,95,.7);text-transform:uppercase;margin-bottom:6px;">MIC UNAVAILABLE</div>'
-        +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:12px;">'+msg+'</div>'
-        +'<div style="display:flex;flex-direction:column;gap:8px;">'
-        +'<button onclick="requestMic()" style="background:rgba(255,59,95,.1);border:1px solid rgba(255,59,95,.3);color:#ff3b5f;font-family:monospace;font-size:11px;padding:10px 16px;border-radius:4px;cursor:pointer;font-weight:600;">RETRY MIC ACCESS</button>'
-        +'<button onclick="goTextMode()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:monospace;font-size:11px;padding:10px 16px;border-radius:4px;cursor:pointer;">CONTINUE WITH TEXT INPUT</button>'
-        +'</div>';
-    });
-}
+/* requestMic defined in isolated block above */
 
 /* ── TRANSITION ── */
 function go(){
