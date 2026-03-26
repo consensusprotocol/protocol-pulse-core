@@ -1018,6 +1018,17 @@ function requestMic(){
   gBtn.disabled=true;
   gStatus.textContent='Requesting microphone...';
   gErr.style.display='none';
+
+  var _gst=document.getElementById('gate-status');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    if(_gst)_gst.textContent='ERR: no mediaDevices';
+    gBtn.disabled=false; return;
+  }
+  if(!window.isSecureContext){
+    if(_gst)_gst.textContent='ERR: not HTTPS';
+    gBtn.disabled=false; return;
+  }
+  if(_gst)_gst.textContent='Calling getUserMedia...';
   navigator.mediaDevices.getUserMedia({audio:true,video:false})
     .then(function(stream){
       stream.getTracks().forEach(function(t){t.stop();});
