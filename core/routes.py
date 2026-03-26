@@ -12874,8 +12874,12 @@ def api_tweet_new_node():
         f"protocolpulse.io/oracle-live #Bitcoin #RunYourNode #Sovereignty"
     )
     try:
-        from services.x_service import post_tweet
-        result = post_tweet(tweet_text, source="node_radar")
+        import importlib, sys
+        spec = importlib.util.spec_from_file_location(
+            "pp_x_service", "/home/ultron/protocol_pulse/services/x_service.py")
+        _x_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_x_mod)
+        result = _x_mod.post_tweet(tweet_text, source="node_radar")
         return jsonify({'success': True, 'tweet': tweet_text, 'result': str(result)})
     except Exception as e:
         logging.warning('tweet-new-node failed: %s', e)

@@ -1679,6 +1679,26 @@ footer {
     border-color: #f7931a;
 }
 
+/* NODE RADAR TOAST */
+.node-radar-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #ff3b5f 0%, #dc2626 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(255, 59, 95, 0.4);
+    animation: nodeRadarSlideIn 0.3s ease;
+}
+@keyframes nodeRadarSlideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
 /* SOVEREIGNTY CALCULATOR */
 .calc-container {
     background: rgba(0,0,0,0.4);
@@ -5481,7 +5501,92 @@ function initNodeGlobe() {
     
     animate();
     
-    nodeGlobe = { globe, nodes, glowSphere, renderer, scene, camera };
+    nodeGlobe = { globe, nodes, glowSphere, renderer, scene, camera, nodesGeometry };
+
+    // ── NEW NODE RADAR — polls Lightning stats for network growth ──
+    let _lastNodeCount = 0;
+    let _lastBlockHeight = 0;
+
+    async function checkNetworkGrowth() {
+        try {
+            const resp = await fetch('https://mempool.space/api/v1/lightning/network/stats');
+            const data = await resp.json();
+            const nodeCount = data.node_count || 0;
+
+            const blockResp = await fetch('https://mempool.space/api/blocks/tip/height');
+            const blockHeight = parseInt(await blockResp.text());
+
+            if (_lastNodeCount > 0 && nodeCount > _lastNodeCount) {
+                const newNodes = nodeCount - _lastNodeCount;
+                showNewNodeAlert(newNodes, nodeCount);
+                triggerNodePulse();
+            }
+            _lastNodeCount = nodeCount;
+
+            if (_lastBlockHeight > 0 && blockHeight > _lastBlockHeight) {
+                triggerBlockPulse();
+            }
+            _lastBlockHeight = blockHeight;
+        } catch(e) { console.log('Node radar poll error:', e); }
+    }
+
+    setInterval(checkNetworkGrowth, 60000);
+    checkNetworkGrowth();
+
+    function showNewNodeAlert(newCount, totalCount) {
+        const toast = document.createElement('div');
+        toast.className = 'node-radar-toast';
+        toast.innerHTML = '<span style="font-size:16px">⚡</span> +' + newCount + ' NEW NODE(S) ONLINE<br><span style="font-size:10px;opacity:0.8">' + totalCount.toLocaleString() + ' total nodes securing the network</span>';
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; setTimeout(()=>toast.remove(),500); }, 5000);
+
+        fetch('/api/tweet-new-node', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({new_nodes: newCount, total: totalCount})
+        }).catch(()=>{});
+    }
+
+    function triggerNodePulse() {
+        // Flash white expanding ring on globe surface
+        const ringGeo = new THREE.RingGeometry(1.03, 1.06, 64);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        // Random orientation
+        ring.rotation.x = Math.random() * Math.PI;
+        ring.rotation.y = Math.random() * Math.PI;
+        scene.add(ring);
+        let scale = 1;
+        const expandInterval = setInterval(() => {
+            scale += 0.02;
+            ring.scale.set(scale, scale, scale);
+            ringMat.opacity -= 0.02;
+            if (ringMat.opacity <= 0) {
+                clearInterval(expandInterval);
+                scene.remove(ring);
+                ringGeo.dispose(); ringMat.dispose();
+            }
+        }, 30);
+    }
+
+    function triggerBlockPulse() {
+        // Orange ripple across globe surface
+        const ringGeo = new THREE.RingGeometry(0.5, 0.55, 64);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xf7931a, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        scene.add(ring);
+        let scale = 1;
+        const expandInterval = setInterval(() => {
+            scale += 0.03;
+            ring.scale.set(scale, scale, scale);
+            ringMat.opacity -= 0.015;
+            if (ringMat.opacity <= 0) {
+                clearInterval(expandInterval);
+                scene.remove(ring);
+                ringGeo.dispose(); ringMat.dispose();
+            }
+        }, 25);
+    }
 }
 
 function resetGlobeRotation() {
