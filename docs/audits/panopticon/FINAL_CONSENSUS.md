@@ -1,6 +1,6 @@
 # CONSENSUS REPORT — PANOPTICON — CYCLE 2
-Generated: 2026-03-26 00:39
-Models: gemini, grok (+1 failed: gpt-4o rate limit exceeded)
+Generated: 2026-03-26 00:53
+Models: grok, gemini (+1 failed: gpt-4o — TPM limit exceeded)
 
 ---
 
@@ -8,205 +8,238 @@ Models: gemini, grok (+1 failed: gpt-4o rate limit exceeded)
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Data Access Control (Auth/Leak) | CRITICAL | N/A | LOW* | **CRITICAL** |
-| Correlation Engine Logic | CRITICAL | N/A | HIGH | **CRITICAL** |
+| Congressional Data Fetching (Q1) | HIGH | N/A | HIGH | **HIGH** |
+| API Rate Limiting (Q2) | CRITICAL | N/A | CRITICAL | **CRITICAL** |
 | Cache Architecture | CRITICAL | N/A | CRITICAL | **CRITICAL** |
-| External API Integration | HIGH | N/A | HIGH | **HIGH** |
-| Placeholder/Fallback Data Integrity | HIGH | N/A | HIGH | **HIGH** |
-| Internal API Rate Limiting | HIGH | N/A | CRITICAL | **HIGH** |
-| Brand/Law Compliance | MEDIUM | N/A | MEDIUM | **MEDIUM** |
-| Service Layer Architecture | HIGH | N/A | — | **HIGH** |
-| Scheduler-Service Coupling | MEDIUM | N/A | — | **MEDIUM** |
-| Error Handling (BTC Enrichment) | — | N/A | HIGH | **MEDIUM** |
+| Fallback / Placeholder Data Quality | CRITICAL | N/A | HIGH | **CRITICAL** (Gemini upgraded; rationale accepted) |
+| Classified Overlay / Demo Mode Security | PASS | N/A | PASS | **PASS** |
+| External API Schema Robustness | HIGH | N/A | HIGH | **HIGH** |
+| LLM Prompt Injection Defense | HIGH | N/A | not scored | **HIGH** |
+| Overall Production Readiness | 3/10 | N/A | 4/10 | **3.5/10 — NOT PRODUCTION READY** |
 
-> *Grok disagreed on the data leak severity; see CONFLICTS section. Gemini's analysis is adjudicated as authoritative on this point.
+> **Note on scoring validity:** GPT-4o failed due to token limit. All consensus determinations below are drawn from 2-model agreement (Gemini + Grok). Where only one model raised a finding, it is flagged explicitly as a unique insight.
 
 ---
 
 ## UNANIMOUS FINDINGS (both models agree — implement unconditionally)
 
-### 1. Non-Scalable In-Memory Cache
-- **What it is:** The `_cache` dictionary (`services/panopticon_service.py:31-43`) is a plain Python dict. In any multi-worker deployment (Gunicorn, uWSGI), each worker has its own isolated copy. Cache invalidation performed in one worker is invisible to others. Simultaneous cache misses cause a thundering herd: all workers fire expensive external API calls simultaneously.
-- **File/Line:** `services/panopticon_service.py:31-43`
-- **Fix:** Replace with a shared Redis cache (e.g., via `redis-py` or `flask-caching` with Redis backend). Implement a per-key distributed lock (Redis `SET NX EX` or `redlock`) so only one worker rebuilds a cold cache entry while others wait or serve stale data.
+### U1 — In-Memory Rate Limiter is Multi-Process Broken
+**What it is:** `_rate_limit_store` is a plain Python dictionary in `core/blueprints/panopticon.py:29`. In any multi-worker deployment (Gunicorn, uWSGI), each worker process holds its own isolated copy of this dictionary. A user whose requests are load-balanced across workers can exceed the intended rate limit by a factor equal to the number of workers, rendering the protection completely ineffective.
 
-### 2. Misleading Placeholder Data with Dynamic Timestamps
-- **What it is:** The fallback placeholder system (`services/panopticon_service.py:218-287`) uses `utcnow() - timedelta(days=12)` and similar expressions to generate "recent-looking" dates for hardcoded, static historical filings. This makes stale fabricated data appear current to the user.
-- **File/Line:** `services/panopticon_service.py:218-287` (esp. line 230)
-- **Fix:** Replace all dynamic `timedelta` date expressions with the real historical dates of the placeholder filings. Add an `is_placeholder: True` field to each record. Surface a clearly visible "SAMPLE DATA — Live data temporarily unavailable" banner in the UI when this flag is present.
+**File/Line:** `core/blueprints/panopticon.py:29, 36–63`
 
-### 3. Fundamentally Flawed Correlation Engine
-- **What it is:** `build_correlations()` (`services/panopticon_service.py:760-817`) performs no temporal or causal analysis. It simply appends the most recent whale movements and geopolitical events alongside a flagged disclosure regardless of their timestamps or relevance. This presents unrelated events as correlated intelligence, which is functionally deceptive.
-- **File/Line:** `services/panopticon_service.py:760-817`
-- **Fix:** Either (a) disable and prominently label the feature as "Coming Soon — Correlation Engine Under Construction," or (b) rewrite to perform genuine temporal windowing: only include events whose timestamps fall within a configurable window (e.g., ±72 hours) of the disclosure trade date. Add a minimum-confidence threshold before surfacing any correlation.
+**What to change:** Remove `_rate_limit_store` entirely. Replace with `Flask-Limiter` configured against a Redis backend. Example:
+```python
+# core/blueprints/panopticon.py
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address, storage_uri="redis://localhost:6379")
 
-### 4. Missing Internal API Rate Limiting
-- **What it is:** All API endpoints in `core/blueprints/panopticon.py:75-204` have no server-side rate limiting. Any unauthenticated or authenticated user can hammer these endpoints without restriction, causing denial of service and/or triggering bans from upstream external APIs that the endpoints proxy.
-- **File/Line:** `core/blueprints/panopticon.py:75-204`
-- **Fix:** Integrate `flask-limiter` with a Redis storage backend. Apply tiered limits: e.g., `60/minute` per IP for free tier, `300/minute` for Commander tier. Apply stricter limits to the most expensive endpoints (e.g., the Anthropic-backed `/bitcoin-case` route).
+@panopticon_bp.route("/api/panopticon/whale-alerts")
+@limiter.limit("30/minute")
+def whale_alerts():
+    ...
+```
+All per-IP state lives in Redis and is visible to every worker.
+
+---
+
+### U2 — In-Memory Cache is Non-Shared Across Workers
+**What it is:** `_cache` is a plain Python dictionary in `services/panopticon_service.py:35–72`, protected by a `threading.Lock`. In a multi-process deployment, every worker has its own private cache, so each worker independently makes full upstream API calls on every cache miss. This multiplies outbound request volume by the number of workers, dramatically increasing the probability of hitting CoinGecko and mempool.space rate limits, and makes the courtesy sleep (`panopticon_service.py:223`) insufficient protection.
+
+**File/Line:** `services/panopticon_service.py:35–72`
+
+**What to change:** Migrate to Redis with TTL-based expiry via `redis-py` or `Flask-Caching[redis]`. The `_cache_lock` can be removed because Redis operations are atomic.
+```python
+# services/panopticon_service.py
+import redis, json
+_redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
+
+def _cache_get(key):
+    val = _redis.get(key)
+    return json.loads(val) if val else None
+
+def _cache_set(key, value, ttl_seconds):
+    _redis.setex(key, ttl_seconds, json.dumps(value))
+```
+
+---
+
+### U3 — efts.house.gov is an Undocumented Internal Endpoint
+**What it is:** The URL `https://efts.house.gov/LATEST/search-index` (`panopticon_service.py:193`) is the search backend for the House website's own front end, not a public API. It carries no SLA, no documented parameters, no versioning contract, and no formal rate limit. It can change or disappear without notice, silently breaking the feature's entire primary data tier.
+
+**File/Line:** `services/panopticon_service.py:193`
+
+**What to change:**
+1. Add an explicit code comment documenting the instability and the date it was last verified working.
+2. Implement an external health-check monitor (e.g., Uptime Robot, Datadog synthetic) that fires a PagerDuty / Slack alert if the endpoint returns non-200 or if `SCHEMA_DRIFT` log warnings spike above threshold.
+3. Proactively evaluate whether the FD&C Act's official [Senate eFD portal](https://efdsearch.senate.gov) or ProPublica Congress API can serve as a more stable primary source.
 
 ---
 
 ## MAJORITY FINDINGS (2 of 2 models agree)
 
-All unanimous findings above also qualify as majority findings. The following additional items were raised with overlapping but slightly different framing:
+All three unanimous findings above are simultaneously majority findings. No additional findings reached 2-of-2 agreement beyond U1–U3 and the items below (which were raised by both models in their Cycle 2 output):
 
-### 5. Undocumented External API Dependency (`efts.house.gov`)
-- **What it is:** The code queries `https://efts.house.gov/LATEST/search-index` with assumed parameters (`q`, `dateRange`, `startdt`, `enddt`) that are not publicly documented. There is no exponential backoff, no retry logic, and no detection of schema drift. Silent failures return empty results with no alerting.
-- **File/Line:** `services/panopticon_service.py:136-167`
-- **Fix:** Document the API behavior in a comment block citing any reverse-engineered observations. Implement exponential backoff with jitter (3 retries, 1s/2s/4s). Add response schema validation (e.g., a simple structural assertion on `hits.hits`) and emit a structured log warning if the schema doesn't match expectations.
+### M1 — Placeholder Data Uses Future Dates
+**What it is:** `_generate_disclosure_placeholders()` (`panopticon_service.py:296–364`) populates fallback data with dates such as "2025-09-15" and "2025-10-01." From the product's operational date (2026), these are events that have not yet occurred — or are presented as historical when their dates are in the near future. Both models flagged this as damaging to user trust. Gemini upgraded it to CRITICAL; Grok rated it HIGH.
 
----
+**Consensus ruling:** Treat as **P0 CRITICAL** — accepted Gemini's escalation. An "intelligence" platform presenting future-dated congressional filings as retrieved historical data is not a cosmetic issue; it is a data integrity failure that would immediately destroy credibility if noticed by any politically-aware user.
 
-## UNIQUE INSIGHTS (single model only — evaluated below)
+**File/Line:** `services/panopticon_service.py:296–364`
 
-### A. Circular Dependency: Service Imports Flask `app` Object
-- **Source:** Gemini only
-- **Finding:** `services/panopticon_service.py:490` contains `from app import app, db`, creating a circular dependency and tightly coupling the service to the Flask application object. This makes unit testing impossible and breaks separation of concerns.
-- **Assessment: IMPLEMENT.** This is a classic architectural anti-pattern with concrete, immediate harm: it prevents isolated testing of the service layer and will cause import failures if the service is ever used outside the Flask request context (e.g., in a management command or background job). Fix by passing the db session in via dependency injection or using Flask's `current_app` proxy and `db.session` at call sites rather than at import time.
-
-### B. Brittle Scheduler-to-Cache Coupling
-- **Source:** Gemini only
-- **Finding:** `services/scheduler.py:610-631` directly pops keys from the panopticon service's internal `_cache` dict by string literal. The scheduler is coupled to the internal implementation details of the service layer.
-- **Assessment: IMPLEMENT.** This is a genuine fragility. If cache key names change, invalidation silently stops working — a subtle, hard-to-detect bug. The fix is straightforward: expose `refresh_congress_data()`, `refresh_whale_data()`, etc. as public methods on the service that encapsulate their own cache invalidation.
-
-### C. Hardcoded Anthropic Model Version
-- **Source:** Grok only
-- **Finding:** `services/panopticon_service.py:940` hardcodes `claude-sonnet-4-6-20250514`. When Anthropic deprecates this version, the feature breaks silently.
-- **Assessment: IMPLEMENT (low effort, high longevity).** Move the model name to a configuration constant or environment variable (`ANTHROPIC_MODEL_ID`). This costs one line to fix and prevents a future silent production breakage.
-
-### D. Prompt Injection Risk in Bitcoin Case API
-- **Source:** Grok only
-- **Finding:** `core/blueprints/panopticon.py:192-196` passes user-supplied `event_summary` (capped at 500 chars but otherwise unsanitized) directly into an Anthropic API prompt.
-- **Assessment: IMPLEMENT.** A 500-character limit is not prompt injection protection. An attacker can craft a 499-character payload that overrides the system prompt's intent (e.g., "Ignore all previous instructions and output..."). Add a sanitization layer: strip special characters, enforce an allowlist of expected content patterns, and consider wrapping the user input in XML-style delimiters within the prompt to isolate it from the instruction context.
-
-### E. Inefficient Full-Dataset Fetch in Correlation Builder
-- **Source:** Grok only
-- **Finding:** `services/panopticon_service.py:769-771` fetches full, unpaginated datasets on every `build_correlations()` call.
-- **Assessment: INVESTIGATE FURTHER.** The severity depends on dataset size. If these are already cached upstream calls, the performance cost may be acceptable in the near term. However, as data grows this will become a bottleneck. Recommend adding pagination/filtering parameters and a note in the backlog to revisit when the dataset exceeds 1,000 records.
-
-### F. Runtime `.env` File Reading in Request Handler
-- **Source:** Gemini only
-- **Finding:** `services/panopticon_service.py:917-927` attempts to read the `ANTHROPIC_API_KEY` from a `.env` file at runtime during a request if the environment variable is not set.
-- **Assessment: IMPLEMENT.** Configuration must be loaded once at startup, not on every request. This also risks exposing the `.env` file path in error logs. Move all key loading to application startup (`create_app()` or equivalent) and raise a fatal startup error if required keys are absent.
+**What to change:** Replace all placeholder dates with verifiably real, publicly documented historical congressional stock disclosure dates (e.g., known Nancy Pelosi or Dan Crenshaw filings from 2022–2023 that are on the public record). Values can be drawn from propublica.org or the official FD&C Act disclosure archive.
 
 ---
 
-## CONFLICTS (models disagree — tiebreaker ruling)
+## UNIQUE INSIGHTS (single model — evaluate carefully)
 
-### CONFLICT 1: Data Leak Severity — CSS Overlay as Security Control
+### UI-1 — Broken Scheduler Cache-Warming (Gemini only)
+**What it is:** Gemini identified that the scheduled background task in `services/scheduler.py:607` (`panopticon_congress_refresh`) calls `fetch_stock_act_disclosures` to warm the cache — but since the cache is in-memory and process-local, the scheduler process warms its own private cache that no web worker ever reads. The cache-warming jobs consume upstream API quota and produce zero user-facing benefit.
 
-- **Gemini:** CRITICAL — The main dashboard route sends full Commander-tier data to all users; free users are protected only by a CSS `display:none` overlay. This is a catastrophic data leak.
-- **Grok:** LOW — "The current implementation adequately restricts sensitive data to Commander-tier users via API checks." The overlay is a visual deterrent, not a security mechanism.
-
-**TIEBREAKER: Gemini is correct. Severity is CRITICAL.**
-
-Grok's reasoning contains a material error. The API checks protect the *JSON API endpoints*, but Gemini's finding is about the *main page route* (`/panopticon`), which calls `get_dashboard_data()` in the backend and passes the full result set to the Jinja template context for *every user*. The Commander-tier data is embedded in the HTML payload delivered to the browser before any overlay renders. A free user only needs to open DevTools → Network → preview the initial page response. The data is already there. Grok appears to have conflated the API endpoint protection with the page-route protection. This is a server-side data exposure, not a client-side UI concern.
+**Assessment: IMPLEMENT.** This is a direct logical consequence of U2 and adds specific evidence that the bug is actively burning upstream API budget. Gemini is correct. Fixing U2 (Redis migration) automatically resolves this, but it should be explicitly tested post-fix: verify that a cache write from the scheduler process is readable by a separate web worker process.
 
 ---
 
-## VALIDATED STRENGTHS (do NOT change)
+### UI-2 — Rate Limiter Memory Leak (Gemini only)
+**What it is:** `_rate_limit_store` grows unboundedly as new IPs access the API. There is no TTL, no eviction, and no cleanup loop. In a long-running process, this will cause gradual memory exhaustion.
 
-Both models (and the Cycle 1 consensus) converged on the following areas as correctly implemented:
+**Assessment: IMPLEMENT as part of U1.** The fix is identical to U1 (migrate to Redis with expiring keys). Calling this out separately ensures the memory leak is not treated as already-resolved by the multi-process fix alone — it must be confirmed that keys are set with `EXPIRE`.
 
-1. **API Endpoint Authentication Gates:** The individual JSON API routes in `core/blueprints/panopticon.py:75-204` do correctly check for Commander-tier status before returning data. This gate is functioning as intended and should not be removed — the P0 fix is additive (also gating the page route), not a replacement.
+---
 
-2. **Timeout on External HTTP Calls:** The 15-second timeout on `efts.house.gov` requests (`services/panopticon_service.py:144`) is a reasonable baseline that prevents indefinite hangs. Keep it; layer backoff on top of it.
+### UI-3 — LLM Prompt Injection Defense is Regex-Only (Gemini only)
+**What it is:** `_sanitize_event_summary()` (`panopticon.py:115–124`) uses a regex blocklist to prevent prompt injection before passing user-influenced content to the Anthropic LLM. Regex blocklists are trivially bypassed (Unicode substitutions, whitespace insertion, language variation). Generated LLM output is then displayed directly to other users, making this a stored prompt injection vector.
 
-3. **Fallback Existence (Concept, Not Execution):** The *idea* of a fallback/placeholder system when the external API is unavailable is architecturally sound. The problem is in the execution (misleading dates). The structural decision to have a fallback is correct and should be preserved.
+**Assessment: IMPLEMENT.** This is a legitimate P1 security finding. The fix requires a layered approach:
+1. Move the primary defense to the **system prompt**: instruct the model to ignore any instructions embedded in the input data and to only perform its specified summarization task.
+2. Add output validation: reject or flag any LLM response that contains instruction-like language (e.g., "ignore previous instructions", URLs, code blocks) before storing or rendering it.
+3. Keep the input sanitizer as a defense-in-depth layer but do not rely on it as the primary control.
+
+---
+
+### UI-4 — Timing Side-Channel in Demo Mode (Grok only)
+**What it is:** Grok noted that `get_demo_safe_data()` still calls `get_btc_price()` in demo mode, which means response timing varies based on whether a live upstream call is made. An attacker monitoring response times could potentially infer live data-fetching behavior.
+
+**Assessment: INVESTIGATE FURTHER.** This is a low-probability, low-impact concern for the current threat model (public dashboard, not a financial execution system). The more important question is whether `get_btc_price()` is called with redacted output but a real network request, which wastes upstream quota in demo mode. Audit whether demo mode should short-circuit all live calls and return entirely static fixtures.
+
+---
+
+### UI-5 — Rate Limiter Key Collision on Aliased Routes (Gemini only)
+**What it is:** The rate limiter key is `f"{ip}:{request.path}"` (`panopticon.py:44`). Routes with multiple aliases (e.g., `/api/panopticon/whale-alerts` and `/api/panopticon/whales`) receive independent rate-limit buckets for the same underlying resource, allowing a user to double their effective request rate by alternating between aliased paths.
+
+**Assessment: IMPLEMENT.** The rate-limit key should be scoped to the logical resource (e.g., the view function name or a canonical path), not the raw URL string. When migrating to `Flask-Limiter`, use the decorator on the canonical route and ensure aliases share a key.
+
+---
+
+## CONFLICTS (models disagree — tiebreaker)
+
+### Conflict 1 — Severity of Placeholder Date Issue
+- **Gemini:** CRITICAL — treats it as a user trust failure and data integrity breach.
+- **Grok:** HIGH — acknowledges it is misleading but notes the UI banner (`panopticon.html:990–992`) partially mitigates it.
+
+**Tiebreaker ruling: Gemini is correct.** The UI banner is a mitigation for the *absence* of live data, not for the *presence of factually wrong data*. A user who sees a future-dated congressional disclosure on an "intelligence" dashboard will immediately distrust the entire platform, regardless of a banner. The banner says "data may be unavailable" — it does not say "the dates shown are impossible." This is a P0 fix, not P1.
+
+---
+
+### Conflict 2 — Severity of External API Rate Limiting
+- **Grok (Cycle 2):** Rated the lack of hardcoded CoinGecko rate limit enforcement as HIGH (P1).
+- **Gemini:** Did not independently escalate this beyond the U2 multi-worker issue.
+
+**Tiebreaker ruling: Grok's framing is correct but subsumed by U2.** The root cause of the external API rate-limit risk is the non-shared cache, not the absence of a hardcoded limit value. Once U2 is fixed, N workers share one cache and the effective outbound call rate collapses. Add CoinGecko's documented limit (50 calls/minute on the free tier) as a code comment beside `_rate_limited_get` for documentation hygiene, but this does not require a separate structural fix.
+
+---
+
+## VALIDATED STRENGTHS (both models confirmed — do NOT change)
+
+1. **Defensive Schema Parsing in `_extract_asset_from_hit`** (`panopticon_service.py:242–259`): Both models acknowledged this as a competent, intentional defense against API schema drift. The multi-key fallback plus `SCHEMA_DRIFT` logging is the right pattern for an undocumented endpoint. Do not simplify or remove this logic.
+
+2. **Exponential Backoff in `_rate_limited_get`** (`panopticon_service.py:76–98`): Both models confirmed this is correctly implemented. The retry logic with backoff and the 0.5-second courtesy sleep are appropriate for a non-public API. Keep as-is; the Redis migration does not require changes here.
+
+3. **Demo Mode Redaction Architecture** (`services/panopticon_service.py:1014–1038` + `core/blueprints/panopticon.py:79–104`): Both models assessed the demo mode data-redaction path as functionally secure. The separation between live and demo data is correctly gated. Do not refactor this path.
+
+4. **Fallback Banner UI Component** (`templates/panopticon.html:989–993`): Both models noted this exists and correctly surfaces non-live data state to the user. The component is doing its job. Fix the data behind it (placeholder dates); do not remove or alter the banner itself.
+
+5. **Batch Quality Warning for "See Filing" Results** (`panopticon_service.py:278–285`): Grok explicitly called this a "good detection mechanism." It is a proactive data quality sensor. Keep it.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-| Law | Status | Finding |
+| Legal Area | Status | Determination |
 |---|---|---|
-| LAW 1 — Brand Palette | **VIOLATED** | `--pn-red: #ff3b5f` (should be `#CC2222`); `--pn-bg: #06070b` (should be `#0A0A0F`). `templates/panopticon.html:15,23` |
-| LAW 2 — Pixel Zones | **AMBIGUOUS** | Laws describe a 1920×1080 video canvas with PiP zones; implementation is a responsive HTML dashboard. Fundamental media-type mismatch requires product owner clarification. |
-| LAW 3 — Typography | **VIOLATED** | Headline/entity font sizes are 12–14px at `templates/panopticon.html:289,380,432`; spec requires 42–56px and 28–32px ranges. |
-| LAW 4 — Component Patterns | **VIOLATED** | `.pn-card` background is `#0d1118` (should be `#111`); missing required 3px red left accent border. `templates/panopticon.html:271-280` |
-
-**Final Determination:** Three of four verifiable laws are violated. Law 2 requires a product-owner decision on whether panopticon is a web dashboard or a video canvas overlay — the laws cannot be evaluated until that is resolved. Laws 1, 3, and 4 must be corrected before release.
+| STOCK Act / Congressional Disclosure | **Compliant (display)** | The feature displays public disclosure data; it does not generate, suppress, or modify it. No legal violation in scraping publicly posted government data. |
+| Computer Fraud and Abuse Act (CFAA) | **Marginal risk** | Scraping `efts.house.gov` (a government server) without a documented API agreement is technically in a gray zone. There is no evidence of authorization denial, but the absence of a terms-of-service review is a legal gap. Recommend legal counsel review before public launch. |
+| GDPR / CCPA | **Insufficient information** | The audit did not surface IP-address logging or user data retention policies. The rate limiter stores IPs in (currently in-memory, but soon Redis) state. Ensure IP data is not persisted beyond the rate-limit window TTL and that a privacy policy addresses this. |
+| Financial Advice Regulations (SEC, FINRA) | **Risk present** | Displaying congressional trade data alongside LLM-generated summaries could be construed as investment analysis. A clear disclaimer ("This is not financial advice; this is public disclosure data") must be present on every rendered view. Neither model confirmed this disclaimer exists in the template. **Investigate.** |
 
 ---
 
 ## SECURITY CONSENSUS
 
-Priority order of confirmed security issues (both models where noted):
+Priority order of security findings both/all models raised:
 
-| Priority | Issue | Models | File:Line |
-|---|---|---|---|
-| 1 | **Data leak via page-route HTML payload** (free users receive full Commander data) | Gemini | `core/blueprints/panopticon.py:47-48` |
-| 2 | **No rate limiting on internal API endpoints** (DoS + external API ban risk) | Both | `core/blueprints/panopticon.py:75-204` |
-| 3 | **Prompt injection via unsanitized `event_summary`** | Grok | `core/blueprints/panopticon.py:192-196` |
-| 4 | **API key loaded from `.env` at request time** (path exposure in logs) | Gemini | `services/panopticon_service.py:917-927` |
-| 5 | **Hardcoded external API key fallback path** (brittle, insecure config) | Gemini | `services/panopticon_service.py:917-927` |
+1. **[CRITICAL] Multi-process rate limiter bypass** — Allows unlimited API abuse from any user with basic load-balanced request distribution. Directly exploitable. (U1)
+2. **[HIGH] Prompt injection into LLM → stored XSS-adjacent output** — Gemini's UI-3 finding. User-influenced content reaches Anthropic API with only regex defense; output rendered to all users. (UI-3)
+3. **[MEDIUM] IP data in Redis without explicit TTL/retention policy** — Post-U1 fix, IP addresses will be stored in Redis. Ensure EXPIRE is set on all rate-limit keys to comply with data minimization principles. (UI-2 consequence)
+4. **[LOW] Demo mode timing side-channel** — Grok's UI-4. Low practical exploitability; investigate whether live calls should be fully suppressed in demo mode.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
 
-Items mentioned by 2+ models as gaps between current implementation and a truly world-class product:
+Items mentioned by 2+ models as missing from a truly world-class intelligence product:
 
-1. **Real-time or near-real-time data pipeline (both models):** The current architecture is pull-based with a 10-minute TTL cache. A world-class intelligence dashboard would use a push or event-driven architecture (WebSockets, SSE, or a message queue like Celery + Redis pub/sub) so users see disclosures and whale movements the moment they are ingested, not up to 10 minutes later.
+### Gap 1 — No Centralized Observability for Data Pipeline Health
+Both models recommended monitoring/alerting for the `efts.house.gov` endpoint (U3) and the `SCHEMA_DRIFT` warning path. A world-class implementation would have a dedicated data pipeline health dashboard: green/yellow/red status for each upstream source (efts.house.gov, CoinGecko, mempool.space), with automated Slack/PagerDuty alerts on degradation. Currently there is no evidence this exists.
 
-2. **Genuine correlation and intelligence engine (both models):** The core value proposition of "Panopticon" — surfacing non-obvious connections between congressional trades, whale movements, and geopolitical events — is entirely absent. A world-class product would implement at minimum: temporal windowing correlation, entity co-occurrence scoring, and anomaly detection (e.g., "this ticker appears in 3 disclosures and 2 whale moves within 48 hours"). The current implementation is a data aggregation dashboard, not an intelligence engine.
+### Gap 2 — No Process-Safe State Management
+Both models independently converged on the same architectural gap: the application was designed for single-process execution and has never been hardened for production multi-process deployment. A world-class platform running on Gunicorn would have Redis as a first-class infrastructure dependency from day one, not a retrofit.
 
-3. **Transparent data provenance and freshness indicators (both models):** Neither the current live data nor the placeholder fallback clearly communicates to the user when data was last refreshed, from what source, and whether it is live or sample. A world-class product surfaces data provenance (source, timestamp, confidence) on every data point.
-
-4. **Observability and alerting for external API degradation (both models):** When `efts.house.gov` starts returning malformed responses or when the mempool API rate-limits the service, the system silently degrades. A world-class product emits structured metrics to a monitoring system (Datadog, Prometheus, etc.) and pages on-call when an external dependency degrades.
+### Gap 3 — Placeholder/Fallback Data Quality Assurance
+Both models flagged that fallback data is not held to the same quality standard as live data. A world-class intelligence platform would maintain a curated, version-controlled set of golden sample records (real historical disclosures with verified dates, tickers, and amounts) that serve as both the fallback dataset and the integration test fixtures. This eliminates both the misleading-date problem and the risk of test fixtures diverging from real data structure.
 
 ---
 
 ## FINAL ACTION PLAN (sorted by consensus priority)
 
-### P0 — CRITICAL (deployment blockers)
-
-| # | Change | File:Line | Models | Why |
+| Priority | Change | File:Line | Models | Why |
 |---|---|---|---|---|
-| P0-1 | Fix data leak: gate `get_dashboard_data()` at page route; return redacted/sample-only dataset for non-Commander users — do NOT embed real Commander data in HTML payload | `core/blueprints/panopticon.py:47-48` | Gemini (Grok disagreed — overruled) | Free users can extract full paid data via View Source. Catastrophic trust/legal/revenue violation. |
-| P0-2 | Disable or rewrite correlation engine: either remove `build_correlations()` and replace with "Coming Soon" stub, or rewrite with genuine ±72h temporal windowing | `services/panopticon_service.py:760-817` | Both | Feature is functionally deceptive. Presents unrelated data as correlated intelligence. |
-| P0-3 | Replace `_cache` dict with Redis-backed shared cache + distributed lock to prevent thundering herd | `services/panopticon_service.py:31-43` | Both | In-process dict is broken in any multi-worker deployment. Production non-functional. |
-
-### P1 — HIGH (must fix before wide release)
-
-| # | Change | File:Line | Models | Why |
-|---|---|---|---|---|
-| P1-1 | Add `flask-limiter` with Redis backend to all API routes; tiered limits by user tier | `core/blueprints/panopticon.py:75-204` | Both | No rate limiting = trivial DoS and upstream API ban risk. |
-| P1-2 | Fix placeholder timestamps: use real historical dates, add `is_placeholder: True` flag, surface UI banner when active | `services/panopticon_service.py:218-287` | Both | Dynamic `timedelta` dates on static data actively deceive users about data freshness. |
-| P1-3 | Remove `from app import app, db` import from service layer; inject db session via parameter or use `current_app` proxy | `services/panopticon_service.py:490` | Gemini | Circular dependency. Service is untestable in isolation. Will cause import failures outside Flask context. |
-| P1-4 | Move API key loading to application startup; remove runtime `.env` file read; raise fatal error at boot if key absent | `services/panopticon_service.py:917-927` | Gemini | Config must load once at startup. Runtime file reads are inefficient, brittle, and leak file paths in error logs. |
-| P1-5 | Add prompt injection sanitization to `event_summary` input: strip special chars, wrap in XML delimiters in prompt, enforce content allowlist | `core/blueprints/panopticon.py:192-196` | Grok | 500-char limit is not injection protection. User can override system prompt intent. |
-| P1-6 | Add exponential backoff + retry (3 attempts, 1s/2s/4s + jitter) and response schema validation to `efts.house.gov` fetcher | `services/panopticon_service.py:136-167` | Both | Single attempt with no backoff fails permanently on transient errors. Schema drift causes silent data loss. |
-
-### P2 — MEDIUM (important for quality and maintainability)
-
-| # | Change | File:Line | Models | Why |
-|---|---|---|---|---|
-| P2-1 | Fix brand palette: `--pn-red` → `#CC2222`, `--pn-bg` → `#0A0A0F` | `templates/panopticon.html:15,23` | Gemini | LAW 1 violation. |
-| P2-2 | Fix typography: headline/entity elements to 42–56px / 28–32px ranges | `templates/panopticon.html:289,380,432` | Gemini | LAW 3 violation. |
-| P2-3 | Fix `.pn-card`: background → `#111`, add 3px red left accent border | `templates/panopticon.html:271-280` | Gemini | LAW 4 violation. |
-| P2-4 | Decouple scheduler from service cache internals: expose `refresh_x_data()` public methods; scheduler calls methods, not dict keys | `services/scheduler.py:610-631` | Gemini | Key rename = silent broken invalidation. Violates encapsulation. |
-| P2-5 | Externalize Anthropic model ID to env var `ANTHROPIC_MODEL_ID` with documented fallback | `services/panopticon_service.py:940` | Grok | Hardcoded model version → silent breakage on Anthropic deprecation. |
-| P2-6 | Add BTC price enrichment fallback: if `get_btc_price()` returns None, log warning and set `amount_usd: null` with UI indicator | `services/panopticon_service.py:872-876` | Grok | Silent `None` degrades user experience without visibility. |
-| P2-7 | Add `data-freshness` timestamp and source attribution to each data card in UI | `templates/panopticon.html` (all card components) | Both (implied) | World-class gap: users cannot assess data reliability without provenance. |
-| P2-8 | Clarify LAW 2 media type: confirm whether panopticon is web dashboard or FFmpeg video canvas overlay; update governing laws accordingly | Design docs + `templates/panopticon.html` | Gemini | Fundamental spec/implementation mismatch cannot be resolved without product owner input. |
+| **P0 CRITICAL** | Replace `_rate_limit_store` dict with Redis-backed `Flask-Limiter` | `core/blueprints/panopticon.py:29, 36–63` | both | Multi-worker bypass renders rate limiting non-functional; directly exploitable |
+| **P0 CRITICAL** | Replace `_cache` dict with Redis + TTL via `Flask-Caching[redis]`; remove `_cache_lock` | `services/panopticon_service.py:35–72` | both | Non-shared cache multiplies upstream API calls by worker count; scheduler cache-warming is currently a no-op |
+| **P0 CRITICAL** | Replace future-dated placeholder records with real, verifiable historical congressional disclosures | `services/panopticon_service.py:296–364` | both (Gemini CRITICAL, Grok HIGH) | Presenting future dates as historical data destroys product credibility; tiebreaker favors CRITICAL |
+| **P1 HIGH** | Strengthen `_sanitize_event_summary` with system-prompt-level LLM defense + output validation | `core/blueprints/panopticon.py:115–124` | gemini | Regex blocklist is trivially bypassed; LLM output displayed to all users = stored prompt injection risk |
+| **P1 HIGH** | Add external monitoring/alerting for `efts.house.gov` endpoint health and `SCHEMA_DRIFT` log spikes | `services/panopticon_service.py:193` | both | Undocumented endpoint is primary data source with no SLA; silent failures degrade product to placeholder-only mode with no notification |
+| **P1 HIGH** | Verify and document Redis EXPIRE on all rate-limiter keys to prevent memory leak and ensure data minimization | `core/blueprints/panopticon.py:29` (post-fix) | gemini (unique, but consequence of P0) | Without TTL, IP store grows unboundedly; GDPR/CCPA data minimization also requires bounded retention |
+| **P1 HIGH** | Add financial advice disclaimer to all Panopticon template views | `templates/panopticon.html` | synthesized from legal review | LLM summaries of congressional trades without disclaimer risks regulatory exposure |
+| **P2 MEDIUM** | Fix rate-limiter key to use canonical resource name, not raw `request.path` | `core/blueprints/panopticon.py:44` | gemini | Aliased routes give users double the effective rate limit |
+| **P2 MEDIUM** | Validate that post-Redis-migration, scheduler cache writes are readable by web worker processes | `services/scheduler.py:607` | gemini | Cache-warming was previously a no-op; must be explicitly verified post-fix |
+| **P2 MEDIUM** | Refactor redundant dual-key caching between `fetch_disclosures` and `fetch_stock_act_disclosures` | `services/panopticon_service.py:182, 269` | gemini | Same data stored under two keys creates cache coherence risk |
+| **P2 MEDIUM** | Audit demo mode to determine whether live upstream calls (`get_btc_price()`) should be suppressed entirely | `services/panopticon_service.py:1014–1038` | grok | Demo mode should not consume upstream API quota; investigate timing side-channel |
+| **P2 MEDIUM** | Add `CFAA`/ToS legal review for efts.house.gov scraping prior to public launch | `services/panopticon_service.py:193` | synthesized | Government server scraping without authorization documentation is a legal gray zone |
 
 ---
 
 ## CYCLE 2 VERDICT
 
-**NOT PRODUCTION-READY.**
+**This code is NOT production-ready.**
 
-Two full cycles of review by 2 independent AI models (with GPT-4o failing due to token limits) have surfaced three hard deployment blockers that are each independently sufficient to prevent release:
+Two independent AI models reached full consensus on three separate architectural failures, any one of which would constitute a production incident within hours of deployment:
 
-1. **P0-1 (Data Leak):** Free users receive full Commander-tier paid content in their HTML payload. This is a revenue integrity failure, a potential legal liability under any terms of service that promise tier-gated data, and a complete undermining of the subscription model.
+1. The rate limiter does not function in a multi-worker environment.
+2. The cache does not function in a multi-worker environment.
+3. The primary fallback dataset contains factually impossible data.
 
-2. **P0-2 (Deceptive Correlation):** The flagship intelligence feature of the product presents fabricated correlations. Surfacing unrelated events as "correlated signals" to users making financial-adjacent decisions is a reputational and potential legal risk.
+The first two failures share a single root cause — the entire state management layer was designed for single-process execution and has never been adapted for production deployment. This is not a bug in a corner case; it is a fundamental architectural assumption that is wrong for any real hosting environment.
 
-3. **P0-3 (Broken Cache):** The feature will not function correctly under any real deployment topology. Every user in a multi-worker environment will experience inconsistent, stale, or redundantly re-fetched data.
+The third failure is an independent data integrity issue that would immediately damage user trust in the product's most prominent intelligence claim.
 
-Until all three P0 items are resolved and regression tests pass, this feature must not be deployed to production users.
+**Absolute final blockers before any production deployment:**
+- Redis must be a running infrastructure dependency.
+- `_rate_limit_store` and `_cache` must be fully migrated to Redis.
+- All placeholder records must use real historical dates.
+
+The P1 items (LLM prompt injection, endpoint monitoring, financial disclaimer) are not launch blockers for a private beta but must be resolved before public launch.
 
 ---
 
@@ -216,114 +249,104 @@ Until all three P0 items are resolved and regression tests pass, this feature mu
 Read ~/protocol_pulse/docs/gospels/VISUAL_DESIGN_SYSTEM.md.
 Read ~/protocol_pulse/docs/audits/panopticon_CONSENSUS_C2.md.
 
-This is the FINAL PASS for the panopticon feature.
+This is the FINAL PASS for panopticon.
 The first build was reviewed by 2 independent AI models across 2 cycles.
 Implement every P0 and P1 item from the consensus. Use judgment on P2.
 
 PRIORITY ACTION PLAN:
 
-P0 — CRITICAL (implement first, nothing else matters until these are done):
-
-P0-1 | Fix data leak at page route | core/blueprints/panopticon.py:47-48
-  The get_dashboard_data() call on the main /panopticon route must NOT embed
-  real Commander-tier data in the HTML payload for non-Commander users.
-  If the user is not Commander-tier, return a structurally identical but
-  fully redacted or sample-only dataset. Real data must never touch the
-  Jinja template context for unpermissioned users. The CSS overlay is NOT
-  a security control.
-
-P0-2 | Disable or rewrite correlation engine | services/panopticon_service.py:760-817
-  The build_correlations() function performs no temporal analysis. It appends
-  unrelated whale movements and geopolitical events to disclosures regardless
-  of timestamps. Either: (a) remove entirely and replace with a "Correlation
-  Engine — Coming Soon" stub in the UI, or (b) rewrite to only include events
-  whose timestamps fall within a ±72 hour window of the disclosure trade date,
-  with a minimum of 2 co-occurring signals before surfacing a correlation.
-
-P0-3 | Replace in-memory _cache dict with Redis | services/panopticon_service.py:31-43
-  The plain Python dict cache is non-functional in multi-worker deployments.
-  Replace with flask-caching (Redis backend) or redis-py directly.
-  Implement
+P0 CRITICAL | Replace `_rate_limit_store` dict with Redis-backed Flask-Limiter | core/blueprints/panopticon.py:29,36–63 | models: both | Multi-worker bypass renders rate limiting non-functional
+P0 CRITICAL | Replace `_cache` dict with Redis+TTL via Flask-Caching[redis]; remove _cache_lock | services/panopticon_service.py:35–72 | models: both | Non-shared cache multiplies upstream API calls; scheduler cache-warming is currently a no-op
+P0 CRITICAL | Replace future-dated placeholder records with real verifiable historical congressional disclosures | services/panopticon_service.py:296–364 | models: both | Future dates presented as historical data destroys product credibility
+P1 HIGH     | Strengthen _sanitize_event_summary with system-prompt LLM defense + output validation | core/blueprints/panopticon.py:115–124 | models: gemini | Regex blocklist bypassed; LLM output rendered to all users = stored prompt injection
+P1 HIGH     | Add external monitoring/alerting for efts.house.gov endpoint health and SCHEMA_DRIFT log spike thresholds | services/panopticon_service.py:193 | models: both | Undocumented endpoint is primary data source; silent failure degrades to placeholder with no alert
+P1 HIGH     | Ensure all Redis rate-limiter keys are set with EXPIRE (TTL) to prevent memory leak and satisfy data minimization | core/blueprints/panopticon.py:29 post-fix | models: gemini | Unbounded growth; GDPR/CCPA data minimization requires bounded retention
+P
 
 ---
 
 # WINNER DETERMINATION
 
-# WINNER: **Gemini** — Gemini identified the two most severe production-blocking issues (catastrophic data leak via unprotected dashboard route and fundamentally fraudulent correlation logic) that Grok initially rated LOW and HIGH respectively, both of which were adjudicated as CRITICAL in the consensus report. Gemini's findings were specific, structurally accurate, and directly actionable, and were explicitly validated by Grok's own Cycle 2 self-correction acknowledging it had missed or underweighted exactly those findings.
+# FINAL AUDIT VERDICT
+
+## WINNER: **Gemini**
+
+Gemini consistently demonstrated superior analytical depth across both cycles, correctly identifying the multi-process state vulnerability as an *architectural* flaw rather than merely a code-level bug, and uniquely surfaced the misleading future-dated placeholder data as a data integrity and user trust failure — a finding sharp enough that Grok explicitly credited it in Cycle 2 and the consensus engine upgraded the severity rating based on Gemini's rationale alone. Its recommendations were more specific, better cited, and more actionable than Grok's, and it caught issues that required a second pass from Grok to validate.
 
 ---
 
-# FINAL SECOND-PASS PRIORITY LIST
+## SCORING BREAKDOWN
 
-Ordered by: severity × blast radius × implementation dependency chain.
-
----
-
-## P0 — DEPLOY BLOCKER (Fix before any merge)
-
-### 1. Data Leak via Unprotected Dashboard Route
-- **File:** `routes/panopticon.py` — main `/panopticon` GET handler
-- **Action:** Move all Commander-tier data fetching behind the same auth guard already applied to API routes. The backend must not populate the template context with gated data for unauthenticated or free-tier users. CSS visibility is not access control.
-- **Test:** `curl /panopticon` with no session cookie must return zero gated payload in HTML source.
-
-### 2. Fraudulent Correlation Engine
-- **File:** `services/panopticon_service.py:760-817`
-- **Action:** Remove or gate the `build_correlations` output entirely until genuine temporal overlap logic is implemented (e.g., events must share a configurable time window, e.g., ±72h, with the flagged disclosure date). Do not present co-incidental data as correlated. Label any interim output explicitly as "uncorrelated recent activity."
-- **Test:** Unit test must assert that events outside the time window are excluded from correlation output.
+| Criterion | Gemini | Grok | GPT-4o |
+|---|---|---|---|
+| **Accuracy** — Cycle 1 findings validated in Cycle 2 | ✅ Strong — multi-process flaw, placeholder dates both confirmed | ✅ Adequate — confirmed same core findings | ❌ Did not complete |
+| **Depth** — Issues others missed | ✅ Unique: future-dated placeholder = trust failure; upgraded consensus severity | ⚠️ Missed placeholder date issue until Gemini raised it | ❌ N/A |
+| **Actionability** — Specific, implementable recommendations | ✅ Named specific libraries (Flask-Limiter + Redis), provided code examples | ⚠️ Identified problems clearly but recommendations were less prescriptive | ❌ N/A |
+| **Completeness** — Full section coverage | ✅ Covered all five questions with line citations | ⚠️ Covered all sections but missed LLM prompt injection scoring | ❌ N/A |
 
 ---
 
-## P1 — CRITICAL ARCHITECTURE (Fix before production traffic)
+## FINAL SECOND-PASS PRIORITY LIST
 
-### 3. In-Memory Cache → Redis
-- **File:** `services/panopticon_service.py:31-43`
-- **Action:** Replace `_cache` dict with `flask-caching` Redis backend. Add per-key distributed lock (`SET NX EX`) to prevent thundering herd on simultaneous cache misses across workers.
-- **Test:** Simulate two concurrent Gunicorn workers with a cold cache; assert only one upstream API call fires per key.
-
-### 4. Misleading Placeholder Data with Dynamic Timestamps
-- **File:** `services/panopticon_service.py:218-287`
-- **Action:** Static fallback data must carry static, hardcoded dates. If dynamic dates are required, the data must be genuinely fetched or the UI must display an explicit "data unavailable" state rather than fabricating recency.
-- **Test:** With all external APIs mocked to fail, assert that no fallback record carries a timestamp within 30 days of `utcnow()`.
+*Definitive ordered implementation sequence. Do not reorder — dependencies flow top to bottom.*
 
 ---
 
-## P2 — HIGH SEVERITY (Fix within one sprint)
+### 🔴 P0 — PRODUCTION BLOCKERS (Deploy nothing until resolved)
 
-### 5. Sequential Blocking External API Calls
-- **File:** `services/panopticon_service.py` — all `requests.get` calls in service layer
-- **Action:** Parallelize independent external calls using `concurrent.futures.ThreadPoolExecutor` or migrate to `httpx` async. Each call must have an independent timeout; one slow endpoint must not block the full response.
-- **Test:** Mock one endpoint to sleep 10s; assert total response time does not exceed single-call timeout + margin.
+**P0-1 — Replace In-Memory Rate Limiter with Redis-Backed Flask-Limiter**
+- **File:** `core/blueprints/panopticon.py:29, 36–63`
+- **Why first:** Security bypass risk scales linearly with worker count. Every additional Gunicorn worker multiplies attacker advantage. This is the single highest-severity exploitable flaw.
+- **Action:** Remove `_rate_limit_store` dict entirely. Install `Flask-Limiter`, configure `storage_uri="redis://localhost:6379"`, apply `@limiter.limit("60/minute")` to all panopticon routes.
 
-### 6. Missing Retry and Backoff on External API Integration
-- **File:** `services/panopticon_service.py:123-184`
-- **Action:** Replace bare `requests.get` with `urllib3` Retry adapter or `tenacity` decorator. Implement exponential backoff (base 1s, max 30s, 3 retries) on 429, 500, 502, 503. The existing `time.sleep(0.5)` is not a substitute.
-- **Test:** Mock endpoint returning 429 twice then 200; assert successful response is returned on third attempt.
-
-### 7. Internal API Rate Limiting
-- **File:** API route handlers
-- **Action:** Apply per-user rate limiting via `flask-limiter` with Redis storage backend (not in-memory, for same multi-worker reasons as item 3). Limits must be enforced server-side, not inferred from client behavior.
-- **Test:** Assert 429 is returned after limit is exceeded from a single authenticated user within the window.
-
-### 8. Service Layer Architecture — Scheduler Coupling
-- **File:** Scheduler ↔ `panopticon_service.py` direct coupling
-- **Action:** Decouple via a task queue (Celery + Redis) or at minimum an interface boundary. The service layer must not be directly invoked by the scheduler in a way that bypasses error isolation.
-- **Test:** Assert scheduler job failure does not propagate an unhandled exception to the request thread.
+**P0-2 — Replace In-Memory Cache with Redis-Backed Shared Cache**
+- **File:** `services/panopticon_service.py:35–72`
+- **Why second:** Without shared cache, every worker independently hammers `efts.house.gov`, multiplying upstream request volume by worker count. Given the undocumented API (see P1-1), this is the most direct path to an IP ban that takes the entire feature offline.
+- **Action:** Replace `_cache` dict with `flask_caching` configured against Redis (`CACHE_TYPE="redis"`). Set TTL to match current in-memory TTL values.
 
 ---
 
-## P3 — MEDIUM SEVERITY (Fix before public launch)
+### 🟠 P1 — HIGH SEVERITY (Must resolve before any user-facing traffic)
 
-### 9. Brand/Law Compliance — Color and Typography
-- **File:** `templates/panopticon.html:15, 23, 289, 380, 432`
-- **Action:** `--pn-red` → `#CC2222`, `--pn-bg` → `#0A0A0F`. Audit all headline/entity font sizes against governing spec (42–56px / 28–32px ranges). Assign a single owner to maintain a shared design token file to prevent future drift.
+**P1-1 — Document and Monitor the Undocumented efts.house.gov Endpoint**
+- **File:** `services/panopticon_service.py:193`
+- **Why here:** `https://efts.house.gov/LATEST/search-index` is an internal frontend search endpoint, not a public API. It carries zero uptime or schema guarantees. P0-2 reduces hammering risk, but schema breakage remains a silent failure mode.
+- **Action:** (a) Add a nightly canary request that validates response shape and alerts on schema drift. (b) Document the endpoint's assumed contract in a `THIRD_PARTY_APIS.md` file. (c) Set a hard circuit-breaker: if 3 consecutive requests fail schema validation, fall back gracefully and page on-call.
 
-### 10. Error Handling — BTC Enrichment Path
-- **File:** BTC enrichment logic in service layer
-- **Action:** Wrap enrichment in an explicit try/except with structured logging. Partial enrichment failure must degrade gracefully (return unenriched record) rather than silently drop or corrupt the parent record.
-- **Test:** Mock BTC API to raise `ConnectionError`; assert parent record is still returned with enrichment fields set to `null`.
+**P1-2 — Purge or Correct Future-Dated Placeholder Data**
+- **File:** `services/panopticon_service.py:296–364` (`_generate_disclosure_placeholders`)
+- **Why here:** Placeholder records dated in the future (e.g., "2025-09-15" from a 2026 system clock) will surface in an "intelligence" dashboard as apparently real disclosures. This is a data integrity failure that directly undermines the product's trust proposition — users making decisions on this data face active harm.
+- **Action:** (a) Replace all hardcoded future dates with `datetime.utcnow().date()` or clearly labeled mock dates. (b) Add a prominent `[PLACEHOLDER — NOT REAL DATA]` flag to every generated record. (c) Add a unit test that asserts no placeholder date exceeds `datetime.utcnow()`.
+
+**P1-3 — Harden LLM Prompt Injection Defense**
+- **Severity:** HIGH (Gemini scored; Grok did not score — treat as single-model finding requiring verification)
+- **Action:** Audit all user-supplied strings passed to LLM prompt templates. Wrap inputs in explicit delimiter blocks (e.g., `[USER INPUT START]...[USER INPUT END]`). Add an output validation layer that rejects responses containing instruction-like patterns before rendering.
 
 ---
 
-## IMPLEMENTATION ORDER RATIONALE
+### 🟡 P2 — MEDIUM SEVERITY (Resolve within first sprint post-launch)
 
-Items 1–2 are sequenced first because they represent active harm to users (data exposure, disinformation). Items 3–4 are sequenced before traffic because they will cause cascading failure under any real load. Items 5–8 are reliability and correctness concerns that compound under scale. Items 9–10 are correctness and compliance concerns with no immediate user safety dimension.
+**P2-1 — Strengthen Schema Fallback in `_extract_asset_from_hit`**
+- **File:** `services/panopticon_service.py:242–259`
+- **Why:** The final fallback — searching a full JSON dump for keywords — is O(n) on record size and produces false positives. This degrades data quality silently.
+- **Action:** Replace keyword scan with a structured `SCHEMA_DRIFT` alert that increments a Prometheus counter and returns `None` rather than a guessed value. Treat `SCHEMA_DRIFT` alerts as a trigger to update the parser.
+
+**P2-2 — Add Explicit Rate Limit Documentation for efts.house.gov**
+- **File:** `services/panopticon_service.py:76–98`
+- **Why:** The courtesy sleep (0.5s) and backoff are reasonable guesses against an undocumented endpoint. If the real limit is lower, the current implementation will cause bans; if higher, it's unnecessarily slow.
+- **Action:** Instrument all outbound requests with latency and HTTP 429 metrics. If 429s appear, back off aggressively and alert. Document the assumed limits in code comments with a "last validated" date.
+
+---
+
+### 🟢 P3 — LOW SEVERITY / HYGIENE (Resolve before v1.1)
+
+**P3-1 — Add Integration Tests for Multi-Worker Behavior**
+- Spin up a 2-worker test instance. Assert that a single user cannot exceed the rate limit across workers. Assert that cache is shared. These tests would have caught P0-1 and P0-2 at development time.
+
+**P3-2 — Batch Warning Threshold Tuning**
+- **File:** `services/panopticon_service.py:278–285`
+- The 80% "See filing" batch warning threshold is arbitrary. Instrument it, observe real production distributions, and set the threshold based on empirical data.
+
+---
+
+*End of audit. Overall production readiness remains 3.5/10. Do not deploy until P0-1 and P0-2 are resolved and verified under load.*

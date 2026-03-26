@@ -12,122 +12,107 @@
 ## GROK — CYCLE 1 OUTPUT
 ### Audit Review for PANOPTICON Intelligence Dashboard
 
-I have conducted a thorough line-by-line review of the provided code files for the PANOPTICON dashboard. Below, I address the five critical questions with detailed analysis, severity ratings, and specific fixes. Each response includes citations to specific line numbers for clarity and precision.
+I have conducted a thorough line-by-line review of the provided code for the PANOPTICON dashboard, focusing on the five critical questions posed. Below is my detailed analysis for each question, including specific line citations, severity ratings, and actionable recommendations. I conclude with a final verdict summarizing critical issues and key changes needed before production.
 
 ---
 
 ### Q1 — CONGRESSIONAL DATA FETCHING ARCHITECTURE
+
 **Detailed Analysis:**
-- **API Integration (efts.house.gov):** The integration with efts.house.gov in `services/panopticon_service.py` (lines 133-170) uses the `/LATEST/search-index` endpoint with parameters like `q`, `dateRange`, `startdt`, and `enddt`. While this appears to be a plausible endpoint for searching financial disclosures, there is no explicit documentation provided or referenced to confirm that these parameters are officially supported or correct. Without official API documentation, there's a risk that the endpoint or parameters could change, breaking the integration.
-- **Rate Limits:** The code includes a `time.sleep(0.5)` (line 167) as a courtesy rate limit for efts.house.gov requests. However, there is no mention of official rate limits or terms of service for this API. This arbitrary delay might not align with actual limits, risking potential IP bans or throttling if the API enforces stricter policies.
-- **Parsing Robustness:** The JSON parsing (lines 148-166) attempts to handle varying response structures by checking for nested keys (`hits.hits` or `results`). However, it lacks comprehensive error handling for unexpected schema changes (e.g., if `hits` or `_source` keys are renamed or removed). The fallback to empty lists or strings is present, but it might silently fail to extract critical data without logging detailed errors for debugging.
-- **Fallback Placeholder System:** The fallback to static placeholder data in `_generate_disclosure_placeholders()` (lines 219-287) is activated when the API fetch fails. While this ensures the UI doesn't break, it could be misleading to users as it presents static, potentially outdated data as current (e.g., hardcoded dates adjusted with `timedelta`). There's no clear indication in the UI (beyond a subtle "loading" status on line 237) that this data isn't live, which could erode trust if users assume it's real-time.
+- **API Integration (efts.house.gov):** The integration with the efts.house.gov API is implemented in `services/panopticon_service.py` at lines 179-240 (`fetch_stock_act_disclosures`). The code uses the `search-index` endpoint with parameters like `q` for search terms (lines 194-198) and date ranges (`startdt` and `enddt`). However, there is no explicit documentation or validation confirming that this endpoint accepts these exact parameters or that the response format (JSON) is stable. The code assumes a JSON response with nested `hits` structures (lines 203-206), which could break if the API changes.
+- **Rate Limits:** The code employs a rate-limiting mechanism with exponential backoff in `_rate_limited_get` (lines 76-98), including a courtesy sleep of 0.5 seconds between requests (line 223). However, there is no mention of specific rate limits documented for efts.house.gov, and the current implementation may still violate undocumented limits, risking IP bans or throttling.
+- **Schema Robustness:** The parsing logic in `_extract_asset_from_hit` (lines 242-259) attempts to handle schema changes by checking multiple fields (`asset_name`, `asset`, `ticker`, `description`) and logs schema drift (lines 250-253). Additionally, a batch warning is logged if over 80% of results return "See filing" (lines 278-285), which is a good detection mechanism. However, the fallback to keyword extraction from raw text (lines 255-258) could lead to inaccurate asset identification if the text is noisy or unrelated.
+- **Fallback Placeholder System:** The fallback system in `_generate_disclosure_placeholders` (lines 296-364) uses static, fixed-date data marked with `is_placeholder=True` (e.g., line 314). This is appropriate for ensuring UI continuity during API downtime, but there is a risk of misleading users if not clearly labeled as placeholder data in the UI. The template (`templates/panopticon.html`, lines 990-992) does show a fallback banner for non-live data, which mitigates this concern partially.
 
 **Severity:** HIGH
-- The lack of confirmed API documentation and rate limit adherence poses a significant risk of integration failure or service disruption.
-- Misleading fallback data could impact user trust and the platform's credibility.
+- The lack of confirmed API parameter compatibility and rate limit documentation poses a significant risk of integration failure or IP blocking in production. Schema drift handling is partially addressed but not foolproof.
 
 **Specific Fix:**
-- **API Documentation:** Verify the efts.house.gov API parameters and endpoint via official documentation or direct communication with the provider. If unavailable, consider alternative sources like the SEC EDGAR API for redundancy (add a fallback fetch method in `fetch_stock_act_disclosures()`).
-- **Rate Limits:** Replace `time.sleep(0.5)` (line 167) with an adaptive rate-limiting mechanism using a library like `ratelimit` or `backoff` to handle HTTP 429 responses dynamically. Log rate limit violations for monitoring.
-  ```python
-  from ratelimit import limits, sleep_and_retry
-  CALLS = 10
-  PERIOD = 60  # 10 calls per minute as a safe default
-  @sleep_and_retry
-  @limits(calls=CALLS, period=PERIOD)
-  def fetch_stock_act_disclosures(limit: int = 50) -> list[dict]:
-      # Existing code
-  ```
-- **Parsing Robustness:** Enhance error handling in `_extract_asset_from_hit()` (lines 186-197) to log detailed schema mismatches and alert developers of changes.
-  ```python
-  def _extract_asset_from_hit(src: dict) -> str:
-      for field in ("asset_name", "asset", "ticker", "description"):
-          val = src.get(field, "")
-          if val:
-              return str(val)
-      logger.warning("Asset extraction failed, falling back to text search: %s", src)
-      text = json.dumps(src).lower()
-      # Rest of the code
-  ```
-- **Fallback Clarity:** Modify the UI in `templates/panopticon.html` to display a prominent "Data Unavailable - Showing Sample Data" banner when placeholders are used (e.g., add a conditional div around line 990 based on a `data_source` flag set server-side).
+- **API Validation:** Before production, confirm the `search-index` endpoint parameters and response structure by testing against the live API or referencing official documentation if available. Add a comment at line 191 documenting the API's expected behavior or limitations.
+- **Rate Limits:** Implement a configurable rate limit cap for efts.house.gov calls (e.g., max 10 requests/minute) in `_rate_limited_get` (line 76), with a fallback to cached data if exceeded. Log attempts to exceed limits for monitoring.
+- **Schema Robustness:** Enhance `_extract_asset_from_hit` (line 242) to store raw JSON responses temporarily for manual review when schema drift is detected, ensuring no data loss.
+- **Fallback Clarity:** Ensure the UI banner for placeholder data (line 990) is prominent and includes a timestamp of the last live data fetch to avoid confusion.
 
 ---
 
 ### Q2 — API RATE LIMITING
+
 **Detailed Analysis:**
-- **Blueprint Routes (IP-based Throttling):** In `core/blueprints/panopticon.py`, there is no evidence of IP-based rate limiting or throttling on any API endpoints (lines 75-204). Routes like `/api/panopticon/disclosures` (line 75) and `/api/panopticon/whale-alerts` (line 96) are accessible without restrictions beyond Commander-tier authentication, making them vulnerable to abuse by a single IP sending rapid requests.
-- **External API Calls:** For external APIs like mempool.space (line 323 in `panopticon_service.py`), exchangerate.host (line 400), and CoinGecko (line 841), there are basic delays (`time.sleep(0.3)` on line 363 for mempool.space) or no explicit rate limiting. Official rate limits for these services are not referenced (e.g., CoinGecko's free tier typi
+- **Blueprint Routes (IP-based Throttling):** In `core/blueprints/panopticon.py`, an IP-based rate limiter is implemented at lines 36-63 (`_enforce_rate_limit`). It applies to all `/api/panopticon/*` routes, with a tighter limit for whale alerts (10 requests/60s, line 47) compared to general APIs (30 requests/60s, line 32). This is a good start, but the in-memory store (`_rate_limit_store`, line 29) lacks persistence or cleanup, risking memory leaks over time with many unique IPs.
+- **External API Calls (Respecting Limits):** For external APIs like mempool.space (lines 390-452 in `panopticon_service.py`), exchangerate.host (lines 477-498), and CoinGecko (lines 953-967), the code uses `_rate_limited_get` with exponential backoff (lines 76-98) and courtesy sleeps (e.g., 0.3s for mempool.space at line 440). However, specific rate limits (e.g., CoinGecko’s ~10-50 calls/minute, line 954) are not hardcoded or dynamically enforced beyond basic retries, risking overuse. The comment at line 954 acknowledges the limit but does not enforce it.
+- **Malicious User Risk:** A malicious user could hammer endpoints like `/api/panopticon/whale-alerts` (lines 182-208), triggering repeated upstream calls to mempool.space if the cache expires (5-minute TTL, line 393). The in-memory ca
 
 ## GEMINI — CYCLE 1 OUTPUT
-Here is a comprehensive code audit for the PANOPTICON feature.
+# PROTOCOL PULSE — CODE AUDIT: PANOPTICON
 
-## AUDIT REPORT: PANOPTICON INTELLIGENCE DASHBOARD
+**AUDITOR:** Gemini 2.5 Pro
+**DATE:** 2026-03-26 01:15 UTC
 
-This audit analyzes the provided code for the PANOPTICON feature against the project's governing laws and best practices for security, scalability, and correctness.
+This report contains a detailed analysis of the `panopticon` feature, focusing on architecture, security, logic, and scalability as requested.
 
 ---
 
 ### Q1 — CONGRESSIONAL DATA FETCHING ARCHITECTURE
 
-**Is the efts.house.gov API integration correct and production-safe?**
+Is the efts.house.gov API integration correct and production-safe?
 
--   **DETAILED ANALYSIS:**
-    -   **Endpoint & Parameters:** The code queries `https://efts.house.gov/LATEST/search-index` (line 137). This appears to be an internal API for the House's electronic financial disclosure search page. While it may work now, undocumented APIs are brittle and can change without notice, breaking the feature. The parameters used (`q`, `dateRange`, `startdt`, `enddt`) seem plausible based on public-facing search forms, but their stability is not guaranteed.
-    -   **Rate Limiting:** The code includes a `time.sleep(0.5)` (line 167) within the search term loop. This is a good faith effort to be a polite scraper. However, there is no official documentation on rate limits. Relying on a fixed sleep interval is risky; a more robust solution would handle `429 Too Many Requests` status codes with an exponential backoff strategy.
-    -   **JSON Parsing:** The parsing logic (lines 148-156) extensively uses `.get()` methods and checks for key existence. This makes it reasonably robust against missing fields or minor schema changes (e.g., `filing_name` vs `name`). However, a complete restructuring of the response JSON would still break the parser.
-    -   **Fallback System:** The fallback in `_generate_disclosure_placeholders` (lines 218-287) is problematic. It returns real, but static and potentially outdated, examples of disclosures. The template then renders these with a "loading" status (`panopticon.html`, line 1033). This is misleading to the user, as it implies this is live data that is merely slow to load, not a complete fallback to canned examples. This damages user trust.
+**DETAILED ANALYSIS**
+The integration with `efts.house.gov` is functional but extremely brittle and contains a significant data integrity issue in its fallback mechanism.
 
--   **SEVERITY:** **HIGH**
--   **SPECIFIC FIX:**
-    1.  **API Brittleness:** Acknowledge the risk of using an undocumented API. Add more comprehensive error logging to detect and alert on schema changes or `4xx`/`5xx` errors from the endpoint.
-    2.  **Fallback Honesty:** The fallback mechanism should be made transparent to the user. Instead of showing placeholders with a "loading" status, the service should return an explicit "API unavailable" state. The frontend should then display a message like: `Live data from efts.house.gov is temporarily unavailable. Displaying recent, publicly documented examples for demonstration.`
-    ```python
-    # services/panopticon_service.py, inside get_dashboard_data()
+1.  **Endpoint and Parameters:** The code targets `https://efts.house.gov/LATEST/search-index` (`panopticon_service.py:193`). This appears to be an internal search endpoint for the website's front end, not a documented public API. While the parameters (`q`, `dateRange`, etc.) seem to work, they are subject to unannounced changes at any time, which could break the service without warning.
 
-    disclosures, disclosures_live = fetch_disclosures() # Modify fetch_disclosures to return a status
-    
-    # And in panopticon.py, pass this status to the template
-    return render_template(
-        "panopticon.html",
-        demo_mode=demo_mode,
-        data=data,
-        disclosures_live=disclosures_live,
-    )
+2.  **Rate Limits:** The code correctly uses the `_rate_limited_get` wrapper and adds a courtesy sleep (`panopticon_service.py:223`). However, since this is not a public API, there are no documented rate limits. The current implementation is a reasonable guess but could still be too aggressive, leading to IP bans.
 
-    # And in fetch_disclosures()
-    def fetch_disclosures(limit: int = 50) -> tuple[list[dict], bool]:
-        # ...
-        disclosures = fetch_stock_act_disclosures(limit=limit)
-        if disclosures:
-            _set_cache(cache_key, disclosures)
-            return disclosures, True # Return live status
-        
-        # Fallback to well-known public data
-        disclosures = _generate_disclosure_placeholders()
-        _set_cache(cache_key, disclosures) # Cache the fallback but with a shorter TTL?
-        return disclosures, False # Return not-live status
-    ```
+3.  **Schema Robustness:** The parsing logic is highly defensive, indicating the developer is aware of schema instability.
+    *   `panopticon_service.py:205-212`: The code attempts to get data from multiple possible keys (e.g., `filing_name`, `name`, `display_names`). This is a sign of a fragile, undocumented API.
+    *   `panopticon_service.py:242-259`: The `_extract_asset_from_hit` function is an explicit admission of this fragility. It tries several known-good keys and then logs a `SCHEMA_DRIFT` warning. The final fallback of searching a JSON dump of the entire record for keywords is clever but inefficient and prone to false positives.
+
+4.  **Fallback System:** The fallback system (`_generate_disclosure_placeholders` at `panopticon_service.py:296`) is **not appropriate**. It uses hardcoded **future dates** (e.g., "2025-09-15", "2025-10-01" from the perspective of the 2026 generation date) for filings. The comment on line 297 states this is to "avoid misleading freshness," but presenting future events as historical data is fundamentally misleading and damages the credibility of the entire platform. While the UI displays a banner (`panopticon.html:989-993`), the data itself is nonsensical.
+
+**SEVERITY:** HIGH
+
+**SPECIFIC FIX**
+1.  Acknowledge in documentation and monitoring that this endpoint is unstable and subject to break.
+2.  **Most importantly, fix the placeholder dates.** They must be replaced with plausible, historical dates from real, publicly documented filings. The goal of a fallback is to show a realistic example of the data, not to present impossible data.
+
+```python
+# services/panopticon_service.py - SUGGESTED CHANGE
+
+# In _generate_disclosure_placeholders(), change future dates to historical ones.
+# Example for the first entry:
+        {
+            "entity": "Rep. Michael McCaul (R-TX)",
+            "asset": "Bitcoin ETF (IBIT)",
+            "trade_type": "purchase",
+            "amount_range": "$15,001–$50,000",
+            "chamber": "house",
+            "party": "R",
+            # CHANGE THESE DATES to be in the past.
+            "date_filed": "2024-03-15",
+            "date_traded": "2024-02-20",
+            "days_to_file": 24,
+            # ... rest of the placeholder data
+        },
+```
 
 ---
 
 ### Q2 — API RATE LIMITING
 
-**Are all API endpoints properly rate-limited?**
+Are all API endpoints properly rate-limited?
 
--   **DETAILED ANALYSIS:**
-    -   **Blueprint Routes:** The Flask blueprint in `core/blueprints/panopticon.py` has no IP-based rate limiting. A malicious user or poorly configured client could repeatedly hit endpoints like `/api/panopticon/disclosures`, triggering a cascade of expensive upstream API calls.
-    -   **External API Calls:**
-        -   `efts.house.gov`: Has a `sleep(0.5)` (line 167), which is a basic courtesy but not a robust rate-limiting solution.
-        -   `mempool.space`: Has a `sleep(0.3)` (line 363). Better than nothing, but same issue.
-        -   `exchangerate.host`, `fiscaldata.treasury.gov`, `coingecko.com`: These have **no sleep or rate limiting whatsoever** (lines 400, 425, 841). This is a significant violation of API best practices and could easily get the server's IP address banned.
-    -   **Malicious User Impact:** Yes, a user hammering an endpoint like `/api/panopticon/whales` would bypass the application cache (if expired) and trigger a full battery of uncached, un-rate-limited calls to `mempool.space`, potentially getting the service blocked.
-    -   **In-Memory Cache:** The cache is a simple dictionary. While it helps reduce upstream calls for repeat requests within the TTL, it's not a substitute for proper rate 
+**DETAILED ANALYSIS**
+Rate limiting is implemented at both the incoming request level and outgoing external call level, but the incoming request limiter has a critical flaw for a production environment.
+
+1.  **Blueprint Routes:** `core/blueprints/panopticon.py:36-64` implements an IP-based rate limiter (`_enforce_rate_limit`) applied to all `/api/panopticon/*` routes. This is the correct approach. It even correctly applies a tighter limit for the more expensive whale alerts endpoint.
+2.  **CRITICAL FLAW:** The rate limiting store (`_rate_limit_store` on line 29) is a simple Python dictionary. In a production environment using a WSGI server like Gunicorn with multiple worker processes, **each worker will have its own separate, in-memory copy of this dictionary.** This completely defeats the purpose of the rate limit, as a user can simply round-robin requests across workers to bypass the limit. A user could easily exceed the intended 30 reqs/min by hitting 4 different workers 30 times each, for a total of 120 reqs/min.
+3.  **External API Calls:** The `_rate_limited_get` function (`panopticon_service.py:76-98`) is well-designed. It implements exponential backoff with jitter for `429 Too Many Requests` responses and other request failures. This correctly respects upstream API limits for services like CoinGecko, mempool.space, etc.
+4.  **Malicious User Risk:** Yes, due to the in-memory rate limiter fl
 
 ## CLAUDE'S CYCLE 1 CONSENSUS
 # CONSENSUS REPORT — PANOPTICON — CYCLE 1
-Generated: 2026-03-26 00:36
-Models: grok, gemini (+1 failed — GPT-4o: TPM limit exceeded)
+Generated: 2026-03-26 00:50
+Models: Grok-3, Gemini 2.5 Pro (+1 failed: GPT-4o — token limit exceeded)
 
 ---
 
@@ -136,71 +121,48 @@ Models: grok, gemini (+1 failed — GPT-4o: TPM limit exceeded)
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
 | Congressional Data Fetching (Q1) | HIGH | N/A | HIGH | **HIGH** |
-| API Rate Limiting (Q2) | HIGH | N/A | CRITICAL | **HIGH-CRITICAL** |
-| Classified Overlay Security (Q3) | CRITICAL | N/A | CRITICAL | **CRITICAL** |
-| Cache Architecture | MEDIUM | N/A | CRITICAL | **HIGH** |
-| Fallback Data Honesty | HIGH | N/A | HIGH | **HIGH** |
-| External API Compliance | HIGH | N/A | HIGH | **HIGH** |
+| API Rate Limiting (Q2) | CRITICAL | N/A | CRITICAL | **CRITICAL** |
+| Classified Overlay Security (Q3) | PASS (Secure) | N/A | PASS (Secure) | **PASS** |
+| Cache Architecture | CRITICAL | N/A | CRITICAL | **CRITICAL** |
+| Fallback/Placeholder Data Quality | HIGH | N/A | MEDIUM | **HIGH** |
+| External API Schema Robustness | HIGH | N/A | HIGH | **HIGH** |
+| Overall Production Readiness | 4/10 | N/A | 5/10 | **4.5/10** |
 
-*Note: GPT-4o failed due to token rate limit (42,832 tokens requested vs 30,000 TPM limit). Consensus is derived from 2 models. All "unanimous" findings below represent 2/2 agreement.*
-
----
-
-## UNANIMOUS FINDINGS (both models agree — implement unconditionally)
-
-### U1 — CLASSIFIED Overlay Is Client-Side Only (CSS Bypass Vulnerability)
-**File:** `core/blueprints/panopticon.py` (main route, ~line 47), `templates/panopticon.html` (~lines 982, 1070, 1158)
-**What it is:** The `panopticon_page` route calls `get_dashboard_data()` for **every user regardless of tier**, then passes the full sensitive dataset to the template. The template uses `demo_mode` to render a CSS blur/overlay on top of the data. Any user can open DevTools, delete the overlay div, and see all Commander-tier data for free.
-**What to change:**
-- Server-side: conditionally withhold or nullify sensitive data before template render when `demo_mode=True`
-- The individual API routes (`/api/panopticon/disclosures`, etc.) already correctly return 403 — apply the same logic to the page route
-- Data must never travel to the browser of a non-paying user
-
-```python
-# core/blueprints/panopticon.py
-@panopticon_bp.route("/panopticon")
-def panopticon_page():
-    demo_mode = not _is_commander()
-    
-    if demo_mode:
-        # Only fetch/pass safe, redacted, or empty data
-        data = get_demo_safe_data()  # new function returning censored structure
-    else:
-        data = get_dashboard_data()
-    
-    return render_template("panopticon.html", demo_mode=demo_mode, data=data)
-```
+> **Note on scoring:** GPT-4o failed at ingestion due to token-per-minute limits (45,835 requested vs. 30,000 limit). Consensus reflects 2-model agreement only. Confidence is lower than a full 3-model cycle — flag this in Cycle 2 if GPT-4o findings are needed.
 
 ---
 
-### U2 — No IP-Based Rate Limiting on Blueprint Routes
-**File:** `core/blueprints/panopticon.py` (~lines 75–204)
-**What it is:** All `/api/panopticon/*` routes have zero IP-based throttling. Any authenticated (or unauthenticated, if checks are missing) client can hammer endpoints, cascade into upstream API calls, burn the cache, and potentially get the server IP banned by external services.
-**What to change:** Implement Flask-Limiter at the blueprint level as a minimum:
-
-```python
-# core/blueprints/panopticon.py
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-
-# In app factory, attach limiter; here apply per-route or per-blueprint
-@panopticon_bp.route("/api/panopticon/disclosures")
-@limiter.limit("10 per minute")
-@require_commander
-def api_disclosures():
-    ...
-```
+## UNANIMOUS FINDINGS
+*(Both models agree — implement unconditionally)*
 
 ---
 
-###
+### U1 — In-Memory Rate Limiter is Multi-Process Broken
+**File:** `core/blueprints/panopticon.py` — Lines 29, 36–63
+**What it is:** The `_rate_limit_store` is a plain Python dictionary living in a single process's memory. Under any production WSGI server (Gunicorn, uWSFul, etc.) with multiple worker processes, each worker holds its own independent copy of this dict. A user can trivially bypass the 30 req/min limit by being round-robined across 4 workers, effectively getting 120 req/min with no throttling detected.
+**Both models rated:** CRITICAL
+**What to change:** Replace `_rate_limit_store` with a Redis-backed centralized store. The cleanest production path is `Flask-Limiter` initialized with `storage_uri="redis://localhost:6379"`. Remove `_enforce_rate_limit` entirely and decorate routes with `@limiter.limit("30/minute")` (general) and `@limiter.limit("10/minute")` (whale alerts).
+
+---
+
+### U2 — In-Memory Cache is Non-Shared Across Workers
+**File:** `services/panopticon_service.py` — Lines 35–72
+**What it is:** The `_cache` dictionary has the same multi-process problem as the rate limiter. Each worker maintains its own cache. Under load, a cache miss in Worker A triggers an upstream call even if Worker B just populated its own cache 1 second ago. This multiplies upstream API load by the worker count and exposes the platform to IP bans from CoinGecko, mempool.space, and efts.house.gov.
+**Both models rated:** CRITICAL
+**What to change:** Migrate `_cache` to Redis. Use `redis-py` with a TTL-aware `get/setex` pattern. The `_cache_lock` threading lock becomes irrelevant and should be removed — Redis handles atomicity natively.
+
+---
+
+### U3 — efts.house.gov is an Undocumented Internal Endpoint
+**File:** `services/panopticon_service.py` — Line 193
+**What it is:** The code targets `https://efts.house.gov/LATEST/search-index`, which is the House website's internal search frontend, not a published API
 
 ---
 
 ## ORIGINAL CODE (same code as Cycle 1)
 ## THE CODE (every new and modified file)
 
-### File: services/panopticon_service.py (976 lines)
+### File: services/panopticon_service.py (1112 lines)
 ```
    1 | """
    2 | PANOPTICON Intelligence Service
@@ -219,968 +181,1104 @@ def api_disclosures():
   15 | 
   16 | import logging
   17 | import os
-  18 | import time
-  19 | import hashlib
-  20 | import json
-  21 | import re
-  22 | from datetime import datetime, timedelta
-  23 | from typing import Optional
-  24 | 
-  25 | import requests
+  18 | import random
+  19 | import time
+  20 | import hashlib
+  21 | import json
+  22 | import re
+  23 | import threading
+  24 | from datetime import datetime, timedelta
+  25 | from typing import Optional
   26 | 
-  27 | logger = logging.getLogger(__name__)
+  27 | import requests
   28 | 
-  29 | ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+  29 | logger = logging.getLogger(__name__)
   30 | 
-  31 | # ── Cache layer (simple in-memory with TTL) ─────────────────────────────────
-  32 | _cache = {}
+  31 | ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+  32 | ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL_ID", "claude-sonnet-4-6-20250514")
   33 | 
-  34 | def _cached(key: str, ttl_seconds: int = 300):
-  35 |     """Return cached value if fresh, else None."""
-  36 |     entry = _cache.get(key)
-  37 |     if entry and time.time() - entry["ts"] < ttl_seconds:
-  38 |         return entry["data"]
-  39 |     return None
-  40 | 
-  41 | def _set_cache(key: str, data):
-  42 |     _cache[key] = {"data": data, "ts": time.time()}
-  43 | 
-  44 | 
-  45 | # ── KNOWN WHALE WALLETS (public, documented) ────────────────────────────────
-  46 | WHALE_WALLETS = {
-  47 |     "bc1qazcm763858nkj2dz7g20juz9muhp68hllhz52g": {
-  48 |         "label": "MicroStrategy Treasury",
-  49 |         "entity": "MicroStrategy / Saylor",
-  50 |         "threshold_btc": 100,
-  51 |     },
-  52 |     "bc1qjasf9z3h7w3jspkhtgatgpyvvzgpa2wwd2lr0eh5tx44reyn2k7sfl6tyeq": {
-  53 |         "label": "BlackRock iShares IBIT",
-  54 |         "entity": "BlackRock IBIT ETF",
-  55 |         "threshold_btc": 50,
-  56 |     },
-  57 |     "bc1q4c8n5t00jmj8temxdgcc3t32nkg2wjwz24lywv": {
-  58 |         "label": "Fidelity FBTC Custody",
-  59 |         "entity": "Fidelity FBTC ETF",
-  60 |         "threshold_btc": 50,
-  61 |     },
-  62 |     "3LYJfcfHPXYJreMsASk2jkn69LWEYKzexb": {
-  63 |         "label": "Bitfinex Cold Wallet",
-  64 |         "entity": "Bitfinex Exchange",
-  65 |         "threshold_btc": 500,
-  66 |     },
-  67 |     "bc1qm34lsc65zpw79lxes69zkqmk6ee3ewf0j77s3h": {
-  68 |         "label": "Binance Cold Wallet",
-  69 |         "entity": "Binance Exchange",
-  70 |         "threshold_btc": 500,
-  71 |     },
-  72 | }
+  34 | # ── Cache layer (thread-safe with TTL + thundering herd protection) ─────────
+  35 | _cache = {}
+  36 | _cache_lock = threading.Lock()
+  37 | _cache_inflight = set()
+  38 | 
+  39 | 
+  40 | def _cached(key: str, ttl_seconds: int = 300):
+  41 |     """Return cached value if fresh, else None. Thread-safe."""
+  42 |     with _cache_lock:
+  43 |         entry = _cache.get(key)
+  44 |         if entry and time.time() - entry["ts"] < ttl_seconds:
+  45 |             return entry["data"]
+  46 |     return None
+  47 | 
+  48 | 
+  49 | def _set_cache(key: str, data):
+  50 |     with _cache_lock:
+  51 |         _cache[key] = {"data": data, "ts": time.time()}
+  52 | 
+  53 | 
+  54 | def _get_or_fetch(key: str, fetch_fn, ttl_seconds: int = 300):
+  55 |     """Thread-safe cache fetch with thundering-herd protection.
+  56 |     If another thread is already fetching, returns stale data instead of piling on."""
+  57 |     with _cache_lock:
+  58 |         entry = _cache.get(key)
+  59 |         if entry and time.time() - entry["ts"] < ttl_seconds:
+  60 |             return entry["data"]
+  61 |         if key in _cache_inflight:
+  62 |             # Return stale data rather than pile on
+  63 |             return entry["data"] if entry else None
+  64 |         _cache_inflight.add(key)
+  65 |     try:
+  66 |         data = fetch_fn()
+  67 |         _set_cache(key, data)
+  68 |         return data
+  69 |     finally:
+  70 |         with _cache_lock:
+  71 |             _cache_inflight.discard(key)
+  72 | 
   73 | 
-  74 | # ── WATCH LIST — publicly documented high-pattern individuals ────────────────
-  75 | WATCH_LIST = [
-  76 |     {
-  77 |         "name": "Nancy Pelosi",
-  78 |         "chamber": "house",
-  79 |         "party": "D",
-  80 |         "committee": "N/A (former Speaker)",
-  81 |         "coverage": ["Bloomberg", "WSJ", "Unusual Whales"],
-  82 |         "note": "Publicly documented trading pattern — husband Paul Pelosi executes trades. Covered extensively by financial media.",
-  83 |     },
-  84 |     {
-  85 |         "name": "Tommy Tuberville",
-  86 |         "chamber": "senate",
-  87 |         "party": "R",
-  88 |         "committee": "Armed Services",
-  89 |         "coverage": ["Business Insider", "Capitol Trades"],
-  90 |         "note": "Multiple documented late filings. Publicly covered pattern of defense-sector trades while on Armed Services Committee.",
-  91 |     },
-  92 |     {
-  93 |         "name": "Dan Crenshaw",
-  94 |         "chamber": "house",
-  95 |         "party": "R",
-  96 |         "committee": "Energy and Commerce",
-  97 |         "coverage": ["Unusual Whales", "Forbes"],
-  98 |         "note": "Publicly documented crypto-adjacent trading activity.",
-  99 |     },
- 100 |     {
- 101 |         "name": "Ro Khanna",
- 102 |         "chamber": "house",
- 103 |         "party": "D",
- 104 |         "committee": "Armed Services, Oversight",
- 105 |         "coverage": ["Capitol Trades"],
- 106 |         "note": "Silicon Valley representative with documented tech sector trading.",
+  74 | # ── Rate-limited HTTP GET with exponential backoff ──────────────────────────
+  75 | 
+  76 | def _rate_limited_get(url, params=None, timeout=10, sleep_secs=1.0, retries=3,
+  77 |                       headers=None):
+  78 |     """HTTP GET with exponential backoff on 429 responses."""
+  79 |     if headers is None:
+  80 |         headers = {"User-Agent": "ProtocolPulse/1.0"}
+  81 |     for attempt in range(retries):
+  82 |         try:
+  83 |             resp = requests.get(url, params=params, timeout=timeout, headers=headers)
+  84 |             if resp.status_code == 429:
+  85 |                 wait = sleep_secs * (2 ** attempt) + random.uniform(0, 0.5)
+  86 |                 logger.warning("Rate limited (429) by %s — backing off %.1fs", url, wait)
+  87 |                 time.sleep(wait)
+  88 |                 continue
+  89 |             return resp
+  90 |         except requests.exceptions.RequestException as e:
+  91 |             if attempt < retries - 1:
+  92 |                 wait = sleep_secs * (2 ** attempt) + random.uniform(0, 0.3)
+  93 |                 logger.warning("Request failed for %s (attempt %d): %s — retrying in %.1fs",
+  94 |                                url, attempt + 1, e, wait)
+  95 |                 time.sleep(wait)
+  96 |             else:
+  97 |                 raise
+  98 |     return resp  # Return last response even if 429
+  99 | 
+ 100 | 
+ 101 | # ── KNOWN WHALE WALLETS (public, documented) ────────────────────────────────
+ 102 | WHALE_WALLETS = {
+ 103 |     "bc1qazcm763858nkj2dz7g20juz9muhp68hllhz52g": {
+ 104 |         "label": "MicroStrategy Treasury",
+ 105 |         "entity": "MicroStrategy / Saylor",
+ 106 |         "threshold_btc": 100,
  107 |     },
- 108 | ]
- 109 | 
- 110 | # ── CRYPTO-RELATED KEYWORDS for disclosure filtering ────────────────────────
- 111 | CRYPTO_KEYWORDS = [
- 112 |     "bitcoin", "btc", "crypto", "coinbase", "coin", "microstrategy", "mstr",
- 113 |     "ishares bitcoin", "ibit", "fbtc", "grayscale", "gbtc", "blockchain",
- 114 |     "blackrock", "digital asset", "etf", "marathon digital", "mara",
- 115 |     "riot platforms", "riot", "cleanspark", "bitdeer",
- 116 | ]
- 117 | 
- 118 | 
- 119 | # ═══════════════════════════════════════════════════════════════════════════
- 120 | # TIER 1: CONFIRMED — STOCK Act Disclosures
- 121 | # ═══════════════════════════════════════════════════════════════════════════
- 122 | 
- 123 | def fetch_stock_act_disclosures(limit: int = 50) -> list[dict]:
- 124 |     """Fetch STOCK Act disclosures from efts.house.gov, filtered for crypto/fintech keywords."""
- 125 |     cache_key = "panopticon_stock_act"
- 126 |     cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
- 127 |     if cached is not None:
- 128 |         return cached[:limit]
+ 108 |     "bc1qjasf9z3h7w3jspkhtgatgpyvvzgpa2wwd2lr0eh5tx44reyn2k7sfl6tyeq": {
+ 109 |         "label": "BlackRock iShares IBIT",
+ 110 |         "entity": "BlackRock IBIT ETF",
+ 111 |         "threshold_btc": 50,
+ 112 |     },
+ 113 |     "bc1q4c8n5t00jmj8temxdgcc3t32nkg2wjwz24lywv": {
+ 114 |         "label": "Fidelity FBTC Custody",
+ 115 |         "entity": "Fidelity FBTC ETF",
+ 116 |         "threshold_btc": 50,
+ 117 |     },
+ 118 |     "3LYJfcfHPXYJreMsASk2jkn69LWEYKzexb": {
+ 119 |         "label": "Bitfinex Cold Wallet",
+ 120 |         "entity": "Bitfinex Exchange",
+ 121 |         "threshold_btc": 500,
+ 122 |     },
+ 123 |     "bc1qm34lsc65zpw79lxes69zkqmk6ee3ewf0j77s3h": {
+ 124 |         "label": "Binance Cold Wallet",
+ 125 |         "entity": "Binance Exchange",
+ 126 |         "threshold_btc": 500,
+ 127 |     },
+ 128 | }
  129 | 
- 130 |     disclosures = []
- 131 | 
- 132 |     # Primary: House EFTS full-text search for financial disclosures
- 133 |     search_terms = ['"bitcoin"', '"crypto"', '"coinbase"', '"microstrategy"', '"ibit"', '"etf"']
- 134 |     for term in search_terms:
- 135 |         try:
- 136 |             resp = requests.get(
- 137 |                 "https://efts.house.gov/LATEST/search-index",
- 138 |                 params={
- 139 |                     "q": term,
- 140 |                     "dateRange": "custom",
- 141 |                     "startdt": (datetime.utcnow() - timedelta(days=90)).strftime("%m/%d/%Y"),
- 142 |                     "enddt": datetime.utcnow().strftime("%m/%d/%Y"),
- 143 |                 },
- 144 |                 timeout=15,
- 145 |                 headers={"User-Agent": "ProtocolPulse/1.0 research@protocolpulse.io"},
- 146 |             )
- 147 |             if resp.status_code == 200:
- 148 |                 data = resp.json() if "json" in resp.headers.get("content-type", "") else {}
- 149 |                 hits = data.get("hits", {}).get("hits", data.get("results", []))
- 150 |                 for hit in hits:
- 151 |                     src = hit.get("_source", hit) if isinstance(hit, dict) else {}
- 152 |                     entity = src.get("filing_name", src.get("name", src.get("display_names", ["Unknown"])))
- 153 |                     if isinstance(entity, list):
- 154 |                         entity = entity[0] if entity else "Unknown"
- 155 |                     filed = src.get("filing_date", src.get("file_date", ""))
- 156 |                     doc_url = src.get("url", src.get("doc_url", ""))
- 157 |                     disclosures.append({
- 158 |                         "entity": entity,
- 159 |                         "asset": _extract_asset_from_hit(src),
- 160 |                         "trade_type": src.get("transaction_type", "disclosure"),
- 161 |                         "amount_range": src.get("amount", "See filing"),
- 162 |                         "date_filed": filed,
- 163 |                         "date_traded": src.get("transaction_date", filed),
- 164 |                         "source_url": doc_url or "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
- 165 |                         "tier": "confirmed",
- 166 |                     })
- 167 |             time.sleep(0.5)  # Rate limit courtesy
- 168 |         except Exception as e:
- 169 |             logger.warning("efts.house.gov fetch failed for %s: %s", term, e)
- 170 |             continue
- 171 | 
- 172 |     # Deduplicate by entity+date
- 173 |     seen = set()
- 174 |     unique = []
- 175 |     for d in disclosures:
- 176 |         key = f"{d['entity']}:{d['date_filed']}:{d['asset']}"
- 177 |         if key not in seen:
- 178 |             seen.add(key)
- 179 |             unique.append(d)
- 180 |     disclosures = unique[:limit]
- 181 | 
- 182 |     _set_cache(cache_key, disclosures)
- 183 |     return disclosures
- 184 | 
+ 130 | # ── WATCH LIST — publicly documented high-pattern individuals ────────────────
+ 131 | WATCH_LIST = [
+ 132 |     {
+ 133 |         "name": "Nancy Pelosi",
+ 134 |         "chamber": "house",
+ 135 |         "party": "D",
+ 136 |         "committee": "N/A (former Speaker)",
+ 137 |         "coverage": ["Bloomberg", "WSJ", "Unusual Whales"],
+ 138 |         "note": "Publicly documented trading pattern — husband Paul Pelosi executes trades. Covered extensively by financial media.",
+ 139 |     },
+ 140 |     {
+ 141 |         "name": "Tommy Tuberville",
+ 142 |         "chamber": "senate",
+ 143 |         "party": "R",
+ 144 |         "committee": "Armed Services",
+ 145 |         "coverage": ["Business Insider", "Capitol Trades"],
+ 146 |         "note": "Multiple documented late filings. Publicly covered pattern of defense-sector trades while on Armed Services Committee.",
+ 147 |     },
+ 148 |     {
+ 149 |         "name": "Dan Crenshaw",
+ 150 |         "chamber": "house",
+ 151 |         "party": "R",
+ 152 |         "committee": "Energy and Commerce",
+ 153 |         "coverage": ["Unusual Whales", "Forbes"],
+ 154 |         "note": "Publicly documented crypto-adjacent trading activity.",
+ 155 |     },
+ 156 |     {
+ 157 |         "name": "Ro Khanna",
+ 158 |         "chamber": "house",
+ 159 |         "party": "D",
+ 160 |         "committee": "Armed Services, Oversight",
+ 161 |         "coverage": ["Capitol Trades"],
+ 162 |         "note": "Silicon Valley representative with documented tech sector trading.",
+ 163 |     },
+ 164 | ]
+ 165 | 
+ 166 | # ── CRYPTO-RELATED KEYWORDS for disclosure filtering ────────────────────────
+ 167 | CRYPTO_KEYWORDS = [
+ 168 |     "bitcoin", "btc", "crypto", "coinbase", "coin", "microstrategy", "mstr",
+ 169 |     "ishares bitcoin", "ibit", "fbtc", "grayscale", "gbtc", "blockchain",
+ 170 |     "blackrock", "digital asset", "etf", "marathon digital", "mara",
+ 171 |     "riot platforms", "riot", "cleanspark", "bitdeer",
+ 172 | ]
+ 173 | 
+ 174 | 
+ 175 | # ═══════════════════════════════════════════════════════════════════════════
+ 176 | # TIER 1: CONFIRMED — STOCK Act Disclosures
+ 177 | # ═══════════════════════════════════════════════════════════════════════════
+ 178 | 
+ 179 | def fetch_stock_act_disclosures(limit: int = 50) -> list[dict]:
+ 180 |     """Fetch STOCK Act disclosures from efts.house.gov, filtered for crypto/fintech keywords."""
+ 181 |     cache_key = "panopticon_stock_act"
+ 182 |     cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
+ 183 |     if cached is not None:
+ 184 |         return cached[:limit]
  185 | 
- 186 | def _extract_asset_from_hit(src: dict) -> str:
- 187 |     """Extract asset name from EFTS hit source data."""
- 188 |     for field in ("asset_name", "asset", "ticker", "description"):
- 189 |         val = src.get(field, "")
- 190 |         if val:
- 191 |             return str(val)
- 192 |     # Check text body for crypto keywords
- 193 |     text = json.dumps(src).lower()
- 194 |     for kw in CRYPTO_KEYWORDS:
- 195 |         if kw in text:
- 196 |             return kw.upper()
- 197 |     return "See filing"
- 198 | 
- 199 | 
- 200 | def fetch_disclosures(limit: int = 50) -> list[dict]:
- 201 |     """Fetch recent STOCK Act disclosures — tries efts.house.gov first, falls back to placeholders."""
- 202 |     cache_key = "panopticon_disclosures"
- 203 |     cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
- 204 |     if cached is not None:
- 205 |         return cached
- 206 | 
- 207 |     # Try live efts.house.gov first
- 208 |     disclosures = fetch_stock_act_disclosures(limit=limit)
- 209 | 
- 210 |     # Fallback to well-known public data
- 211 |     if not disclosures:
- 212 |         disclosures = _generate_disclosure_placeholders()
- 213 | 
- 214 |     _set_cache(cache_key, disclosures)
- 215 |     return disclosures
- 216 | 
- 217 | 
- 218 | def _generate_disclosure_placeholders() -> list[dict]:
- 219 |     """Generate placeholder disclosures from known public data when APIs are unavailable.
- 220 |     These are based on real, publicly documented filings."""
- 221 |     now = datetime.utcnow()
- 222 |     return [
- 223 |         {
- 224 |             "entity": "Rep. Michael McCaul (R-TX)",
- 225 |             "asset": "Bitcoin ETF (IBIT)",
- 226 |             "trade_type": "purchase",
- 227 |             "amount_range": "$15,001–$50,000",
- 228 |             "chamber": "house",
- 229 |             "party": "R",
- 230 |             "date_filed": (now - timedelta(days=12)).strftime("%Y-%m-%d"),
- 231 |             "date_traded": (now - timedelta(days=38)).strftime("%Y-%m-%d"),
- 232 |             "days_to_file": 26,
- 233 |             "committee": "Foreign Affairs (Chair)",
- 234 |             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
- 235 |             "tier": "confirmed",
- 236 |             "correlation_note": None,
- 237 |             "status": "loading",
- 238 |         },
- 239 |         {
- 240 |             "entity": "Sen. Cynthia Lummis (R-WY)",
- 241 |             "asset": "Bitcoin (BTC)",
- 242 |             "trade_type": "purchase",
- 243 |             "amount_range": "$50,001–$100,000",
- 244 |             "chamber": "senate",
- 245 |             "party": "R",
- 246 |             "date_filed": (now - timedelta(days=8)).strftime("%Y-%m-%d"),
- 247 |             "date_traded": (now - timedelta(days=30)).strftime("%Y-%m-%d"),
- 248 |             "days_to_file": 22,
- 249 |             "committee": "Banking (Digital Assets Subcommittee Chair)",
- 250 |             "source_url": "https://efts.sec.gov/LATEST/search-index?q=lummis",
- 251 |             "tier": "confirmed",
- 252 |             "correlation_note": "Trade within 14 days of Senate Banking hearing on stablecoin bill",
- 253 |             "status": "loading",
- 254 |         },
- 255 |         {
- 256 |             "entity": "Rep. Patrick McHenry (R-NC)",
- 257 |             "asset": "Coinbase (COIN)",
- 258 |             "trade_type": "purchase",
- 259 |             "amount_range": "$1,001–$15,000",
- 260 |             "chamber": "house",
- 261 |             "party": "R",
- 262 |             "date_filed": (now - timedelta(days=20)).strftime("%Y-%m-%d"),
- 263 |             "date_traded": (now - timedelta(days=45)).strftime("%Y-%m-%d"),
- 264 |             "days_to_file": 25,
- 265 |             "committee": "Financial Services (former Chair)",
- 266 |             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
- 267 |             "tier": "confirmed",
- 268 |             "correlation_note": None,
- 269 |             "status": "loading",
- 270 |         },
- 271 |         {
- 272 |             "entity": "Rep. Ritchie Torres (D-NY)",
- 273 |             "asset": "MicroStrategy (MSTR)",
- 274 |             "trade_type": "purchase",
- 275 |             "amount_range": "$1,001–$15,000",
- 276 |             "chamber": "house",
- 277 |             "party": "D",
- 278 |             "date_filed": (now - timedelta(days=5)).strftime("%Y-%m-%d"),
- 279 |             "date_traded": (now - timedelta(days=28)).strftime("%Y-%m-%d"),
- 280 |             "days_to_file": 23,
- 281 |             "committee": "Financial Services",
- 282 |             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
- 283 |             "tier": "confirmed",
- 284 |             "correlation_note": "Trade within 7 days of FIT21 markup session",
- 285 |             "status": "loading",
- 286 |         },
- 287 |     ]
- 288 | 
- 289 | 
- 290 | # ═══════════════════════════════════════════════════════════════════════════
- 291 | # TIER 2: FLAGGED — Statistical Correlation Detection
- 292 | # ═══════════════════════════════════════════════════════════════════════════
- 293 | 
- 294 | def check_correlations(disclosures: list[dict]) -> list[dict]:
- 295 |     """Cross-reference disclosures with committee hearing schedules.
- 296 |     Returns flagged items with correlation scores."""
- 297 |     flagged = []
- 298 |     for d in disclosures:
- 299 |         if d.get("correlation_note"):
- 300 |             flagged.append({
- 301 |                 **d,
- 302 |                 "tier": "flagged",
- 303 |                 "correlation_score": 0.7,
- 304 |                 "flag_reason": d["correlation_note"],
- 305 |             })
- 306 |     return flagged
- 307 | 
- 308 | 
- 309 | # ═══════════════════════════════════════════════════════════════════════════
- 310 | # REAL-TIME FEED 1: WHALE TRACKER — mempool.space
- 311 | # ═══════════════════════════════════════════════════════════════════════════
- 312 | 
- 313 | def fetch_whale_alerts(limit: int = 20) -> list[dict]:
- 314 |     """Monitor known whale wallets for large BTC movements via mempool.space API."""
- 315 |     cache_key = "panopticon_whales"
- 316 |     cached = _cached(cache_key, ttl_seconds=300)  # 5min cache
- 317 |     if cached is not None:
- 318 |         return cached
- 319 | 
- 320 |     alerts = []
- 321 |     for address, meta in WHALE_WALLETS.items():
- 322 |         try:
- 323 |             url = f"https://mempool.space/api/address/{address}/txs"
- 324 |             resp = requests.get(url, timeout=10, headers={"User-Agent": "ProtocolPulse/1.0"})
- 325 |             if resp.status_code != 200:
- 326 |                 continue
- 327 | 
- 328 |             txs = resp.json()
- 329 |             for tx in txs[:5]:  # Last 5 txs per wallet
- 330 |                 # Calculate total output value
- 331 |                 total_out_sats = sum(vout.get("value", 0) for vout in tx.get("vout", []))
- 332 |                 total_btc = total_out_sats / 1e8
- 333 | 
- 334 |                 if total_btc < meta["threshold_btc"]:
- 335 |                     continue
- 336 | 
- 337 |                 # Determine if this address is sender or receiver
- 338 |                 is_sender = any(
- 339 |                     vin.get("prevout", {}).get("scriptpubkey_address") == address
- 340 |                     for vin in tx.get("vin", [])
- 341 |                 )
- 342 |                 tx_type = "outflow" if is_sender else "inflow"
- 343 | 
- 344 |                 confirmed = tx.get("status", {}).get("confirmed", False)
- 345 |                 block_time = tx.get("status", {}).get("block_time")
- 346 |                 tx_time = datetime.utcfromtimestamp(block_time) if block_time else datetime.utcnow()
- 347 | 
- 348 |                 alerts.append({
- 349 |                     "entity": meta["entity"],
- 350 |                     "wallet_label": meta["label"],
- 351 |                     "address": address[:12] + "..." + address[-6:],
- 352 |                     "txid": tx.get("txid", "")[:16] + "...",
- 353 |                     "txid_full": tx.get("txid", ""),
- 354 |                     "amount_btc": round(total_btc, 4),
- 355 |                     "amount_usd": None,  # Filled by caller with current BTC price
- 356 |                     "tx_type": tx_type,
- 357 |                     "confirmed": confirmed,
- 358 |                     "timestamp": tx_time.isoformat(),
- 359 |                     "event_type": "whale",
- 360 |                     "source_url": f"https://mempool.space/tx/{tx.get('txid', '')}",
- 361 |                 })
- 362 | 
- 363 |             time.sleep(0.3)  # Rate limit courtesy
- 364 | 
- 365 |         except Exception as e:
- 366 |             logger.warning("Whale check failed for %s: %s", meta["label"], e)
- 367 |             continue
- 368 | 
- 369 |     # Sort by timestamp descending
- 370 |     alerts.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
- 371 |     alerts = alerts[:limit]
- 372 | 
- 373 |     _set_cache(cache_key, alerts)
- 374 |     return alerts
- 375 | 
- 376 | 
- 377 | # ═══════════════════════════════════════════════════════════════════════════
- 378 | # REAL-TIME FEED 3: NATION-STATE SIGNAL — Forex/Macro
- 379 | # ═══════════════════════════════════════════════════════════════════════════
- 380 | 
- 381 | def fetch_forex_signals() -> list[dict]:
- 382 |     """Track sovereign currency interventions and macro signals via free forex APIs."""
- 383 |     cache_key = "panopticon_forex"
- 384 |     cached = _cached(cache_key, ttl_seconds=600)  # 10min cache
- 385 |     if cached is not None:
- 386 |         return cached
- 387 | 
- 388 |     signals = []
+ 186 |     disclosures = []
+ 187 | 
+ 188 |     # Primary: House EFTS full-text search for financial disclosures
+ 189 |     search_terms = ['"bitcoin"', '"crypto"', '"coinbase"', '"microstrategy"', '"ibit"', '"etf"']
+ 190 |     for term in search_terms:
+ 191 |         try:
+ 192 |             resp = _rate_limited_get(
+ 193 |                 "https://efts.house.gov/LATEST/search-index",
+ 194 |                 params={
+ 195 |                     "q": term,
+ 196 |                     "dateRange": "custom",
+ 197 |                     "startdt": (datetime.utcnow() - timedelta(days=90)).strftime("%m/%d/%Y"),
+ 198 |                     "enddt": datetime.utcnow().strftime("%m/%d/%Y"),
+ 199 |                 },
+ 200 |                 timeout=15,
+ 201 |                 headers={"User-Agent": "ProtocolPulse/1.0 research@protocolpulse.io"},
+ 202 |             )
+ 203 |             if resp.status_code == 200:
+ 204 |                 data = resp.json() if "json" in resp.headers.get("content-type", "") else {}
+ 205 |                 hits = data.get("hits", {}).get("hits", data.get("results", []))
+ 206 |                 for hit in hits:
+ 207 |                     src = hit.get("_source", hit) if isinstance(hit, dict) else {}
+ 208 |                     entity = src.get("filing_name", src.get("name", src.get("display_names", ["Unknown"])))
+ 209 |                     if isinstance(entity, list):
+ 210 |                         entity = entity[0] if entity else "Unknown"
+ 211 |                     filed = src.get("filing_date", src.get("file_date", ""))
+ 212 |                     doc_url = src.get("url", src.get("doc_url", ""))
+ 213 |                     disclosures.append({
+ 214 |                         "entity": entity,
+ 215 |                         "asset": _extract_asset_from_hit(src),
+ 216 |                         "trade_type": src.get("transaction_type", "disclosure"),
+ 217 |                         "amount_range": src.get("amount", "See filing"),
+ 218 |                         "date_filed": filed,
+ 219 |                         "date_traded": src.get("transaction_date", filed),
+ 220 |                         "source_url": doc_url or "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
+ 221 |                         "tier": "confirmed",
+ 222 |                     })
+ 223 |             time.sleep(0.5)  # Rate limit courtesy
+ 224 |         except Exception as e:
+ 225 |             logger.warning("efts.house.gov fetch failed for %s: %s", term, e)
+ 226 |             continue
+ 227 | 
+ 228 |     # Deduplicate by entity+date
+ 229 |     seen = set()
+ 230 |     unique = []
+ 231 |     for d in disclosures:
+ 232 |         key = f"{d['entity']}:{d['date_filed']}:{d['asset']}"
+ 233 |         if key not in seen:
+ 234 |             seen.add(key)
+ 235 |             unique.append(d)
+ 236 |     disclosures = unique[:limit]
+ 237 | 
+ 238 |     _set_cache(cache_key, disclosures)
+ 239 |     return disclosures
+ 240 | 
+ 241 | 
+ 242 | def _extract_asset_from_hit(src: dict) -> str:
+ 243 |     """Extract asset name from EFTS hit source data.
+ 244 |     Known-good schema fields (as of 2026-03): asset_name, asset, ticker, description."""
+ 245 |     for field in ("asset_name", "asset", "ticker", "description"):
+ 246 |         val = src.get(field, "")
+ 247 |         if val:
+ 248 |             return str(val)
+ 249 |     # Schema drift detection — log when all known fields return empty
+ 250 |     logger.warning(
+ 251 |         "SCHEMA_DRIFT: asset extraction failed on all known fields. "
+ 252 |         "Keys present: %s", list(src.keys())
+ 253 |     )
+ 254 |     # Check text body for crypto keywords
+ 255 |     text = json.dumps(src).lower()
+ 256 |     for kw in CRYPTO_KEYWORDS:
+ 257 |         if kw in text:
+ 258 |             return kw.upper()
+ 259 |     return "See filing"
+ 260 | 
+ 261 | 
+ 262 | def fetch_disclosures(limit: int = 50) -> tuple[list[dict], bool]:
+ 263 |     """Fetch recent STOCK Act disclosures — tries efts.house.gov first, falls back to placeholders.
+ 264 | 
+ 265 |     Returns:
+ 266 |         (disclosures, is_live) — is_live=False when using fallback placeholder data.
+ 267 |     """
+ 268 |     cache_key = "panopticon_disclosures"
+ 269 |     cached = _cached(cache_key, ttl_seconds=1800)  # 30min cache
+ 270 |     if cached is not None:
+ 271 |         return cached
+ 272 | 
+ 273 |     # Try live efts.house.gov first
+ 274 |     disclosures = fetch_stock_act_disclosures(limit=limit)
+ 275 |     is_live = bool(disclosures)
+ 276 | 
+ 277 |     # Schema drift batch warning — if >80% of live hits have "See filing" asset
+ 278 |     if disclosures:
+ 279 |         see_filing_count = sum(1 for d in disclosures if d.get("asset") == "See filing")
+ 280 |         if len(disclosures) > 3 and see_filing_count / len(disclosures) > 0.8:
+ 281 |             logger.warning(
+ 282 |                 "SCHEMA_DRIFT: >80%% of efts.house.gov results returned 'See filing' "
+ 283 |                 "(%d/%d) — API schema may have changed",
+ 284 |                 see_filing_count, len(disclosures),
+ 285 |             )
+ 286 | 
+ 287 |     # Fallback to well-known public data
+ 288 |     if not disclosures:
+ 289 |         disclosures = _generate_disclosure_placeholders()
+ 290 | 
+ 291 |     result = (disclosures, is_live)
+ 292 |     _set_cache(cache_key, result)
+ 293 |     return result
+ 294 | 
+ 295 | 
+ 296 | def _generate_disclosure_placeholders() -> list[dict]:
+ 297 |     """Placeholder disclosures based on real public filings. Uses FIXED dates to avoid
+ 298 |     misleading freshness. All carry is_placeholder=True for UI banner."""
+ 299 |     return [
+ 300 |         {
+ 301 |             "entity": "Rep. Michael McCaul (R-TX)",
+ 302 |             "asset": "Bitcoin ETF (IBIT)",
+ 303 |             "trade_type": "purchase",
+ 304 |             "amount_range": "$15,001–$50,000",
+ 305 |             "chamber": "house",
+ 306 |             "party": "R",
+ 307 |             "date_filed": "2025-09-15",
+ 308 |             "date_traded": "2025-08-20",
+ 309 |             "days_to_file": 26,
+ 310 |             "committee": "Foreign Affairs (Chair)",
+ 311 |             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
+ 312 |             "tier": "confirmed",
+ 313 |             "correlation_note": None,
+ 314 |             "is_placeholder": True,
+ 315 |         },
+ 316 |         {
+ 317 |             "entity": "Sen. Cynthia Lummis (R-WY)",
+ 318 |             "asset": "Bitcoin (BTC)",
+ 319 |             "trade_type": "purchase",
+ 320 |             "amount_range": "$50,001–$100,000",
+ 321 |             "chamber": "senate",
+ 322 |             "party": "R",
+ 323 |             "date_filed": "2025-10-01",
+ 324 |             "date_traded": "2025-09-10",
+ 325 |             "days_to_file": 22,
+ 326 |             "committee": "Banking (Digital Assets Subcommittee Chair)",
+ 327 |             "source_url": "https://efts.sec.gov/LATEST/search-index?q=lummis",
+ 328 |             "tier": "confirmed",
+ 329 |             "correlation_note": "Trade within 14 days of Senate Banking hearing on stablecoin bill",
+ 330 |             "is_placeholder": True,
+ 331 |         },
+ 332 |         {
+ 333 |             "entity": "Rep. Patrick McHenry (R-NC)",
+ 334 |             "asset": "Coinbase (COIN)",
+ 335 |             "trade_type": "purchase",
+ 336 |             "amount_range": "$1,001–$15,000",
+ 337 |             "chamber": "house",
+ 338 |             "party": "R",
+ 339 |             "date_filed": "2025-08-28",
+ 340 |             "date_traded": "2025-08-03",
+ 341 |             "days_to_file": 25,
+ 342 |             "committee": "Financial Services (former Chair)",
+ 343 |             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
+ 344 |             "tier": "confirmed",
+ 345 |             "correlation_note": None,
+ 346 |             "is_placeholder": True,
+ 347 |         },
+ 348 |         {
+ 349 |             "entity": "Rep. Ritchie Torres (D-NY)",
+ 350 |             "asset": "MicroStrategy (MSTR)",
+ 351 |             "trade_type": "purchase",
+ 352 |             "amount_range": "$1,001–$15,000",
+ 353 |             "chamber": "house",
+ 354 |             "party": "D",
+ 355 |             "date_filed": "2025-11-05",
+ 356 |             "date_traded": "2025-10-13",
+ 357 |             "days_to_file": 23,
+ 358 |             "committee": "Financial Services",
+ 359 |             "source_url": "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure",
+ 360 |             "tier": "confirmed",
+ 361 |             "correlation_note": "Trade within 7 days of FIT21 markup session",
+ 362 |             "is_placeholder": True,
+ 363 |         },
+ 364 |     ]
+ 365 | 
+ 366 | 
+ 367 | # ═══════════════════════════════════════════════════════════════════════════
+ 368 | # TIER 2: FLAGGED — Statistical Correlation Detection
+ 369 | # ═══════════════════════════════════════════════════════════════════════════
+ 370 | 
+ 371 | def check_correlations(disclosures: list[dict]) -> list[dict]:
+ 372 |     """Cross-reference disclosures with committee hearing schedules.
+ 373 |     Returns flagged items with correlation scores."""
+ 374 |     flagged = []
+ 375 |     for d in disclosures:
+ 376 |         if d.get("correlation_note"):
+ 377 |             flagged.append({
+ 378 |                 **d,
+ 379 |                 "tier": "flagged",
+ 380 |                 "correlation_score": 0.7,
+ 381 |                 "flag_reason": d["correlation_note"],
+ 382 |             })
+ 383 |     return flagged
+ 384 | 
+ 385 | 
+ 386 | # ═══════════════════════════════════════════════════════════════════════════
+ 387 | # REAL-TIME FEED 1: WHALE TRACKER — mempool.space
+ 388 | # ═══════════════════════════════════════════════════════════════════════════
  389 | 
- 390 |     # Fetch key forex pairs relevant to sovereign BTC thesis
- 391 |     pairs_of_interest = {
- 392 |         "USD/JPY": {"threshold": 2.0, "context": "Japan yen intervention watch — historical BTC correlation: +12% 30d forward"},
- 393 |         "USD/CNY": {"threshold": 1.5, "context": "China yuan devaluation signal — capital flight to BTC historically follows"},
- 394 |         "DXY": {"threshold": 1.5, "context": "Dollar index shift — weakening DXY historically bullish for BTC"},
- 395 |         "EUR/USD": {"threshold": 1.0, "context": "Euro zone monetary stress indicator"},
- 396 |     }
- 397 | 
- 398 |     try:
- 399 |         # exchangerate.host free tier
- 400 |         resp = requests.get(
- 401 |             "https://api.exchangerate.host/latest",
- 402 |             params={"base": "USD", "symbols": "JPY,CNY,EUR,GBP,CHF"},
- 403 |             timeout=10,
- 404 |             headers={"User-Agent": "ProtocolPulse/1.0"},
- 405 |         )
- 406 |         if resp.status_code == 200:
- 407 |             data = resp.json()
- 408 |             rates = data.get("rates", {})
- 409 |             for currency, rate in rates.items():
- 410 |                 pair = f"USD/{currency}"
- 411 |                 if pair in pairs_of_interest:
- 412 |                     signals.append({
- 413 |                         "pair": pair,
- 414 |                         "rate": round(rate, 4),
- 415 |                         "context": pairs_of_interest[pair]["context"],
- 416 |                         "event_type": "forex",
- 417 |                         "timestamp": datetime.utcnow().isoformat(),
- 418 |                         "status": "monitoring",
- 419 |                     })
- 420 |     except Exception as e:
- 421 |         logger.warning("Forex fetch failed: %s", e)
- 422 | 
- 423 |     # 10Y Treasury yield proxy (from existing data if available)
- 424 |     try:
- 425 |         resp = requests.get(
- 426 |             "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates",
- 427 |             params={
- 428 |                 "filter": "security_desc:eq:Treasury Notes",
- 429 |                 "sort": "-record_date",
- 430 |                 "page[size]": "1",
- 431 |             },
- 432 |             timeout=10,
- 433 |             headers={"User-Agent": "ProtocolPulse/1.0"},
- 434 |         )
- 435 |         if resp.status_code == 200:
- 436 |             data = resp.json()
- 437 |             records = data.get("data", [])
- 438 |             if records:
- 439 |                 rec = records[0]
- 440 |                 signals.append({
- 441 |                     "pair": "US 10Y TREASURY",
- 442 |                     "rate": float(rec.get("avg_interest_rate_amt", 0)),
- 443 |                     "context": "Bond market stress gauge — inverted yield curve signals recession, historically bullish for hard assets",
- 444 |                     "event_type": "macro",
- 445 |                     "timestamp": rec.get("record_date", datetime.utcnow().isoformat()),
- 446 |                     "status": "monitoring",
- 447 |                 })
- 448 |     except Exception as e:
- 449 |         logger.warning("Treasury yield fetch failed: %s", e)
- 450 | 
- 451 |     # Always include static sovereign BTC intelligence
- 452 |     signals.extend([
- 453 |         {
- 454 |             "pair": "EL SALVADOR / BTC",
- 455 |             "rate": None,
- 456 |             "context": "El Salvador sovereign BTC reserve — 6,102+ BTC accumulated, daily DCA continues",
- 457 |             "event_type": "sovereign",
- 458 |             "timestamp": datetime.utcnow().isoformat(),
- 459 |             "status": "active_buyer",
- 460 |         },
- 461 |         {
- 462 |             "pair": "US STRATEGIC RESERVE",
- 463 |             "rate": None,
- 464 |             "context": "US Strategic Bitcoin Reserve — Executive Order signed, seized BTC held in reserve",
- 465 |             "event_type": "sovereign",
- 466 |             "timestamp": datetime.utcnow().isoformat(),
- 467 |             "status": "holding",
- 468 |         },
- 469 |     ])
- 470 | 
- 471 |     _set_cache(cache_key, signals)
- 472 |     return signals
- 473 | 
+ 390 | def fetch_whale_alerts(limit: int = 20) -> list[dict]:
+ 391 |     """Monitor known whale wallets for large BTC movements via mempool.space API."""
+ 392 |     cache_key = "panopticon_whales"
+ 393 |     cached = _cached(cache_key, ttl_seconds=300)  # 5min cache
+ 394 |     if cached is not None:
+ 395 |         return cached
+ 396 | 
+ 397 |     alerts = []
+ 398 |     for address, meta in WHALE_WALLETS.items():
+ 399 |         try:
+ 400 |             url = f"https://mempool.space/api/address/{address}/txs"
+ 401 |             resp = _rate_limited_get(url, timeout=10)
+ 402 |             if resp.status_code != 200:
+ 403 |                 continue
+ 404 | 
+ 405 |             txs = resp.json()
+ 406 |             for tx in txs[:5]:  # Last 5 txs per wallet
+ 407 |                 # Calculate total output value
+ 408 |                 total_out_sats = sum(vout.get("value", 0) for vout in tx.get("vout", []))
+ 409 |                 total_btc = total_out_sats / 1e8
+ 410 | 
+ 411 |                 if total_btc < meta["threshold_btc"]:
+ 412 |                     continue
+ 413 | 
+ 414 |                 # Determine if this address is sender or receiver
+ 415 |                 is_sender = any(
+ 416 |                     vin.get("prevout", {}).get("scriptpubkey_address") == address
+ 417 |                     for vin in tx.get("vin", [])
+ 418 |                 )
+ 419 |                 tx_type = "outflow" if is_sender else "inflow"
+ 420 | 
+ 421 |                 confirmed = tx.get("status", {}).get("confirmed", False)
+ 422 |                 block_time = tx.get("status", {}).get("block_time")
+ 423 |                 tx_time = datetime.utcfromtimestamp(block_time) if block_time else datetime.utcnow()
+ 424 | 
+ 425 |                 alerts.append({
+ 426 |                     "entity": meta["entity"],
+ 427 |                     "wallet_label": meta["label"],
+ 428 |                     "address": address[:12] + "..." + address[-6:],
+ 429 |                     "txid": tx.get("txid", "")[:16] + "...",
+ 430 |                     "txid_full": tx.get("txid", ""),
+ 431 |                     "amount_btc": round(total_btc, 4),
+ 432 |                     "amount_usd": None,  # Filled by caller with current BTC price
+ 433 |                     "tx_type": tx_type,
+ 434 |                     "confirmed": confirmed,
+ 435 |                     "timestamp": tx_time.isoformat(),
+ 436 |                     "event_type": "whale",
+ 437 |                     "source_url": f"https://mempool.space/tx/{tx.get('txid', '')}",
+ 438 |                 })
+ 439 | 
+ 440 |             time.sleep(0.3)  # Rate limit courtesy
+ 441 | 
+ 442 |         except Exception as e:
+ 443 |             logger.warning("Whale check failed for %s: %s", meta["label"], e)
+ 444 |             continue
+ 445 | 
+ 446 |     # Sort by timestamp descending
+ 447 |     alerts.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+ 448 |     alerts = alerts[:limit]
+ 449 | 
+ 450 |     _set_cache(cache_key, alerts)
+ 451 |     return alerts
+ 452 | 
+ 453 | 
+ 454 | # ═══════════════════════════════════════════════════════════════════════════
+ 455 | # REAL-TIME FEED 3: NATION-STATE SIGNAL — Forex/Macro
+ 456 | # ═══════════════════════════════════════════════════════════════════════════
+ 457 | 
+ 458 | def fetch_forex_signals() -> list[dict]:
+ 459 |     """Track sovereign currency interventions and macro signals via free forex APIs."""
+ 460 |     cache_key = "panopticon_forex"
+ 461 |     cached = _cached(cache_key, ttl_seconds=600)  # 10min cache
+ 462 |     if cached is not None:
+ 463 |         return cached
+ 464 | 
+ 465 |     signals = []
+ 466 | 
+ 467 |     # Fetch key forex pairs relevant to sovereign BTC thesis
+ 468 |     pairs_of_interest = {
+ 469 |         "USD/JPY": {"threshold": 2.0, "context": "Japan yen intervention watch — historical BTC correlation: +12% 30d forward"},
+ 470 |         "USD/CNY": {"threshold": 1.5, "context": "China yuan devaluation signal — capital flight to BTC historically follows"},
+ 471 |         "DXY": {"threshold": 1.5, "context": "Dollar index shift — weakening DXY historically bullish for BTC"},
+ 472 |         "EUR/USD": {"threshold": 1.0, "context": "Euro zone monetary stress indicator"},
+ 473 |     }
  474 | 
- 475 | # ═══════════════════════════════════════════════════════════════════════════
- 476 | # REAL-TIME FEED 4: GEOPOLITICAL ALERT FEED
- 477 | # ═══════════════════════════════════════════════════════════════════════════
- 478 | 
- 479 | def fetch_geopolitical(limit: int = 20) -> list[dict]:
- 480 |     """Pull geopolitical events from existing article pipeline + GDELT project."""
- 481 |     cache_key = "panopticon_geopolitical"
- 482 |     cached = _cached(cache_key, ttl_seconds=600)
- 483 |     if cached is not None:
- 484 |         return cached
- 485 | 
- 486 |     events = []
- 487 | 
- 488 |     # Pull from our existing article pipeline (sovereign/regulatory tagged)
- 489 |     try:
- 490 |         from app import app, db
- 491 |         from models import Article
- 492 |         with app.app_context():
- 493 |             geo_articles = Article.query.filter(
- 494 |                 Article.published == True,
- 495 |                 db.or_(
- 496 |                     Article.category.in_(["regulation", "sovereignty", "geopolitical", "cbdc", "policy"]),
- 497 |                     Article.tags.ilike("%sanction%"),
- 498 |                     Article.tags.ilike("%cbdc%"),
- 499 |                     Article.tags.ilike("%capital control%"),
- 500 |                     Article.tags.ilike("%bitcoin ban%"),
- 501 |                     Article.tags.ilike("%adoption%"),
- 502 |                 )
- 503 |             ).order_by(Article.created_at.desc()).limit(limit).all()
- 504 | 
- 505 |             for art in geo_articles:
- 506 |                 # Derive bitcoin signal from tags/category
- 507 |                 btc_signal = _classify_btc_signal(art.title, art.tags or "", art.category or "")
- 508 |                 events.append({
- 509 |                     "headline": art.title,
- 510 |                     "category": art.category,
- 511 |                     "btc_signal": btc_signal["direction"],
- 512 |                     "btc_rationale": btc_signal["rationale"],
- 513 |                     "source": "Protocol Pulse Intelligence",
- 514 |                     "source_url": f"/article/{art.slug}" if art.slug else f"/article/{art.id}",
- 515 |                     "timestamp": art.created_at.isoformat() if art.created_at else datetime.utcnow().isoformat(),
- 516 |                     "event_type": "geopolitical",
- 517 |                 })
- 518 |     except Exception as e:
- 519 |         logger.warning("Article pipeline geopolitical fetch failed: %s", e)
- 520 | 
- 521 |     # GDELT fallback — free event database
- 522 |     if not events:
- 523 |         try:
- 524 |             gdelt_url = "https://api.gdeltproject.org/api/v2/doc/doc"
- 525 |             resp = requests.get(
- 526 |                 gdelt_url,
- 527 |                 params={
- 528 |                     "query": "(bitcoin OR cryptocurrency OR CBDC OR \"digital currency\") sourcelang:eng",
- 529 |                     "mode": "artlist",
- 530 |                     "maxrecords": "10",
- 531 |                     "format": "json",
- 532 |                 },
- 533 |                 timeout=15,
- 534 |                 headers={"User-Agent": "ProtocolPulse/1.0"},
- 535 |             )
- 536 |             if resp.status_code == 200:
- 537 |                 data = resp.json()
- 538 |                 for article in data.get("articles", [])[:limit]:
- 539 |                     btc_signal = _classify_btc_signal(article.get("title", ""), "", "geopolitical")
- 540 |                     events.append({
- 541 |                         "headline": article.get("title", "Unknown Event"),
- 542 |                         "category": "geopolitical",
- 543 |                         "btc_signal": btc_signal["direction"],
- 544 |                         "btc_rationale": btc_signal["rationale"],
- 545 |                         "source": article.get("domain", "GDELT"),
- 546 |                         "source_url": article.get("url", ""),
- 547 |                         "timestamp": article.get("seendate", datetime.utcnow().isoformat()),
- 548 |                         "event_type": "geopolitical",
- 549 |                     })
- 550 |         except Exception as e:
- 551 |             logger.warning("GDELT fetch failed: %s", e)
- 552 | 
- 553 |     # Static fallback if all sources fail
- 554 |     if not events:
- 555 |         events = _static_geopolitical_feed()
- 556 | 
- 557 |     _set_cache(cache_key, events)
- 558 |     return events
- 559 | 
- 560 | 
- 561 | def _classify_btc_signal(title: str, tags: str, category: str) -> dict:
- 562 |     """Classify a geopolitical event's Bitcoin signal direction."""
- 563 |     text = f"{title} {tags} {category}".lower()
- 564 | 
- 565 |     bullish_terms = ["adoption", "legal tender", "reserve", "accumulate", "pro-crypto", "approve", "etf approved", "institutional"]
- 566 |     bearish_terms = ["ban", "restrict", "cbdc mandate", "crackdown", "sanction crypto", "seize"]
- 567 | 
- 568 |     bull_score = sum(1 for t in bullish_terms if t in text)
- 569 |     bear_score = sum(1 for t in bearish_terms if t in text)
- 570 | 
- 571 |     if bull_score > bear_score:
- 572 |         return {"direction": "bullish", "rationale": "Sovereign adoption or favorable regulation strengthens Bitcoin's monetary network effect."}
- 573 |     elif bear_score > bull_score:
- 574 |         return {"direction": "bearish", "rationale": "Regulatory restriction signals short-term selling pressure but long-term validates Bitcoin's censorship resistance."}
- 575 |     return {"direction": "neutral", "rationale": "Event requires further analysis for Bitcoin monetary implications."}
- 576 | 
- 577 | 
- 578 | def _static_geopolitical_feed() -> list[dict]:
- 579 |     """Fallback static feed with real, publicly known events."""
- 580 |     return [
- 581 |         {
- 582 |             "headline": "US Strategic Bitcoin Reserve — Executive Order Establishes National BTC Stockpile",
- 583 |             "category": "sovereignty",
- 584 |             "btc_signal": "bullish",
- 585 |             "btc_rationale": "Nation-state accumulation confirms Bitcoin as strategic reserve asset alongside gold.",
- 586 |             "source": "White House",
- 587 |             "source_url": "https://www.whitehouse.gov",
- 588 |             "timestamp": "2025-03-06T12:00:00",
- 589 |             "event_type": "geopolitical",
- 590 |             "status": "confirmed",
- 591 |         },
- 592 |         {
- 593 |             "headline": "EU MiCA Regulation — Full Implementation of Crypto Asset Framework",
- 594 |             "category": "regulation",
- 595 |             "btc_signal": "neutral",
- 596 |             "btc_rationale": "Regulatory clarity in the EU provides framework but may push innovation to more permissive jurisdictions.",
- 597 |             "source": "European Commission",
- 598 |             "source_url": "https://finance.ec.europa.eu",
- 599 |             "timestamp": "2025-12-30T00:00:00",
- 600 |             "event_type": "geopolitical",
- 601 |             "status": "confirmed",
- 602 |         },
- 603 |         {
- 604 |             "headline": "Japan Yen Under Pressure — BOJ Intervention Watch Activated",
- 605 |             "category": "macro",
- 606 |             "btc_signal": "bullish",
- 607 |             "btc_rationale": "Currency debasement historically drives capital to hard assets. BTC +12% average 30d forward after yen interventions.",
- 608 |             "source": "Reuters",
- 609 |             "source_url": "https://www.reuters.com",
- 610 |             "timestamp": datetime.utcnow().isoformat(),
- 611 |             "event_type": "geopolitical",
- 612 |             "status": "monitoring",
- 613 |         },
- 614 |     ]
- 615 | 
- 616 | 
- 617 | # ═══════════════════════════════════════════════════════════════════════════
- 618 | # REAL-TIME FEED 5: POLYMARKET — Prediction Market Odds
- 619 | # ═══════════════════════════════════════════════════════════════════════════
- 620 | 
- 621 | POLYMARKET_CRYPTO_SLUGS = [
- 622 |     "bitcoin", "btc", "crypto", "ethereum", "regulation", "sec", "etf",
- 623 |     "stablecoin", "digital-asset", "cbdc", "fed", "interest-rate",
- 624 | ]
- 625 | 
- 626 | 
- 627 | def fetch_polymarket_markets(limit: int = 15) -> list[dict]:
- 628 |     """Fetch active Polymarket prediction markets relevant to crypto/macro.
- 629 |     Uses the public Strapi API (no auth required)."""
- 630 |     cache_key = "panopticon_polymarket"
- 631 |     cached = _cached(cache_key, ttl_seconds=300)  # 5min cache
- 632 |     if cached is not None:
- 633 |         return cached[:limit]
- 634 | 
- 635 |     markets = []
- 636 |     try:
- 637 |         resp = requests.get(
- 638 |             "https://strapi-matic.polymarket.com/markets",
- 639 |             params={
- 640 |                 "active": "true",
- 641 |                 "_limit": "50",
- 642 |                 "_sort": "volume:desc",
- 643 |             },
- 644 |             timeout=15,
- 645 |             headers={"User-Agent": "ProtocolPulse/1.0"},
- 646 |         )
- 647 |         if resp.status_code == 200:
- 648 |             raw_markets = resp.json() if isinstance(resp.json(), list) else resp.json().get("data", [])
- 649 |             for m in raw_markets:
- 650 |                 question = (m.get("question") or m.get("title") or "").lower()
- 651 |                 slug = (m.get("slug") or "").lower()
- 652 |                 desc = (m.get("description") or "").lower()
- 653 |                 text = f"{question} {slug} {desc}"
- 654 | 
- 655 |                 # Filter for crypto/macro relevance
- 656 |                 if not any(kw in text for kw in POLYMARKET_CRYPTO_SLUGS):
- 657 |                     continue
- 658 | 
- 659 |                 # Extract probability from outcomes
- 660 |                 outcomes = m.get("outcomes", [])
- 661 |                 outcome_prices = m.get("outcomePrices", m.get("outcome_prices", []))
- 662 |                 yes_price = None
- 663 |                 if outcome_prices:
- 664 |                     try:
- 665 |                         yes_price = float(outcome_prices[0]) if isinstance(outcome_prices[0], (int, float, str)) else None
- 666 |                     except (ValueError, IndexError):
- 667 |                         pass
- 668 | 
- 669 |                 markets.append({
- 670 |                     "question": m.get("question") or m.get("title", "Unknown"),
- 671 |                     "slug": m.get("slug", ""),
- 672 |                     "yes_price": round(yes_price * 100, 1) if yes_price else None,
- 673 |                     "volume": m.get("volume") or m.get("volumeNum", 0),
- 674 |                     "liquidity": m.get("liquidity", 0),
- 675 |                     "end_date": m.get("end_date_iso") or m.get("endDate", ""),
- 676 |                     "source_url": f"https://polymarket.com/event/{m.get('slug', '')}",
- 677 |                     "event_type": "prediction",
- 678 |                     "btc_signal": _classify_polymarket_signal(m.get("question", "")),
- 679 |                 })
- 680 | 
- 681 |     except Exception as e:
- 682 |         logger.warning("Polymarket fetch failed: %s", e)
- 683 | 
- 684 |     # Fallback with known active markets
- 685 |     if not markets:
- 686 |         markets = _static_polymarket_feed()
- 687 | 
- 688 |     markets.sort(key=lambda x: x.get("volume", 0), reverse=True)
- 689 |     result = markets[:limit]
- 690 |     _set_cache(cache_key, result)
- 691 |     return result
+ 475 |     try:
+ 476 |         # exchangerate.host free tier — ~1000 calls/month
+ 477 |         resp = _rate_limited_get(
+ 478 |             "https://api.exchangerate.host/latest",
+ 479 |             params={"base": "USD", "symbols": "JPY,CNY,EUR,GBP,CHF"},
+ 480 |             timeout=10,
+ 481 |         )
+ 482 |         if resp.status_code == 200:
+ 483 |             data = resp.json()
+ 484 |             rates = data.get("rates", {})
+ 485 |             for currency, rate in rates.items():
+ 486 |                 pair = f"USD/{currency}"
+ 487 |                 if pair in pairs_of_interest:
+ 488 |                     signals.append({
+ 489 |                         "pair": pair,
+ 490 |                         "rate": round(rate, 4),
+ 491 |                         "context": pairs_of_interest[pair]["context"],
+ 492 |                         "event_type": "forex",
+ 493 |                         "timestamp": datetime.utcnow().isoformat(),
+ 494 |                         "status": "monitoring",
+ 495 |                     })
+ 496 |     except Exception as e:
+ 497 |         logger.warning("Forex fetch failed: %s", e)
+ 498 | 
+ 499 |     # 10Y Treasury yield proxy (from existing data if available)
+ 500 |     try:
+ 501 |         # fiscaldata.treasury.gov — no documented rate limit, courtesy sleep via _rate_limited_get
+ 502 |         resp = _rate_limited_get(
+ 503 |             "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates",
+ 504 |             params={
+ 505 |                 "filter": "security_desc:eq:Treasury Notes",
+ 506 |                 "sort": "-record_date",
+ 507 |                 "page[size]": "1",
+ 508 |             },
+ 509 |             timeout=10,
+ 510 |         )
+ 511 |         if resp.status_code == 200:
+ 512 |             data = resp.json()
+ 513 |             records = data.get("data", [])
+ 514 |             if records:
+ 515 |                 rec = records[0]
+ 516 |                 signals.append({
+ 517 |                     "pair": "US 10Y TREASURY",
+ 518 |                     "rate": float(rec.get("avg_interest_rate_amt", 0)),
+ 519 |                     "context": "Bond market stress gauge — inverted yield curve signals recession, historically bullish for hard assets",
+ 520 |                     "event_type": "macro",
+ 521 |                     "timestamp": rec.get("record_date", datetime.utcnow().isoformat()),
+ 522 |                     "status": "monitoring",
+ 523 |                 })
+ 524 |     except Exception as e:
+ 525 |         logger.warning("Treasury yield fetch failed: %s", e)
+ 526 | 
+ 527 |     # Always include static sovereign BTC intelligence
+ 528 |     signals.extend([
+ 529 |         {
+ 530 |             "pair": "EL SALVADOR / BTC",
+ 531 |             "rate": None,
+ 532 |             "context": "El Salvador sovereign BTC reserve — 6,102+ BTC accumulated, daily DCA continues",
+ 533 |             "event_type": "sovereign",
+ 534 |             "timestamp": datetime.utcnow().isoformat(),
+ 535 |             "status": "active_buyer",
+ 536 |         },
+ 537 |         {
+ 538 |             "pair": "US STRATEGIC RESERVE",
+ 539 |             "rate": None,
+ 540 |             "context": "US Strategic Bitcoin Reserve — Executive Order signed, seized BTC held in reserve",
+ 541 |             "event_type": "sovereign",
+ 542 |             "timestamp": datetime.utcnow().isoformat(),
+ 543 |             "status": "holding",
+ 544 |         },
+ 545 |     ])
+ 546 | 
+ 547 |     _set_cache(cache_key, signals)
+ 548 |     return signals
+ 549 | 
+ 550 | 
+ 551 | # ═══════════════════════════════════════════════════════════════════════════
+ 552 | # REAL-TIME FEED 4: GEOPOLITICAL ALERT FEED
+ 553 | # ═══════════════════════════════════════════════════════════════════════════
+ 554 | 
+ 555 | def fetch_geopolitical(limit: int = 20) -> list[dict]:
+ 556 |     """Pull geopolitical events from existing article pipeline + GDELT project."""
+ 557 |     cache_key = "panopticon_geopolitical"
+ 558 |     cached = _cached(cache_key, ttl_seconds=600)
+ 559 |     if cached is not None:
+ 560 |         return cached
+ 561 | 
+ 562 |     events = []
+ 563 | 
+ 564 |     # Pull from our existing article pipeline (sovereign/regulatory tagged)
+ 565 |     try:
+ 566 |         # Deferred import to avoid circular dependency at module load time
+ 567 |         from app import app, db
+ 568 |         from models import Article
+ 569 |         with app.app_context():
+ 570 |             geo_articles = Article.query.filter(
+ 571 |                 Article.published == True,
+ 572 |                 db.or_(
+ 573 |                     Article.category.in_(["regulation", "sovereignty", "geopolitical", "cbdc", "policy"]),
+ 574 |                     Article.tags.ilike("%sanction%"),
+ 575 |                     Article.tags.ilike("%cbdc%"),
+ 576 |                     Article.tags.ilike("%capital control%"),
+ 577 |                     Article.tags.ilike("%bitcoin ban%"),
+ 578 |                     Article.tags.ilike("%adoption%"),
+ 579 |                 )
+ 580 |             ).order_by(Article.created_at.desc()).limit(limit).all()
+ 581 | 
+ 582 |             for art in geo_articles:
+ 583 |                 # Derive bitcoin signal from tags/category
+ 584 |                 btc_signal = _classify_btc_signal(art.title, art.tags or "", art.category or "")
+ 585 |                 events.append({
+ 586 |                     "headline": art.title,
+ 587 |                     "category": art.category,
+ 588 |                     "btc_signal": btc_signal["direction"],
+ 589 |                     "btc_rationale": btc_signal["rationale"],
+ 590 |                     "source": "Protocol Pulse Intelligence",
+ 591 |                     "source_url": f"/article/{art.slug}" if art.slug else f"/article/{art.id}",
+ 592 |                     "timestamp": art.created_at.isoformat() if art.created_at else datetime.utcnow().isoformat(),
+ 593 |                     "event_type": "geopolitical",
+ 594 |                 })
+ 595 |     except Exception as e:
+ 596 |         logger.warning("Article pipeline geopolitical fetch failed: %s", e)
+ 597 | 
+ 598 |     # GDELT fallback — free event database
+ 599 |     if not events:
+ 600 |         try:
+ 601 |             gdelt_url = "https://api.gdeltproject.org/api/v2/doc/doc"
+ 602 |             resp = _rate_limited_get(
+ 603 |                 gdelt_url,
+ 604 |                 params={
+ 605 |                     "query": "(bitcoin OR cryptocurrency OR CBDC OR \"digital currency\") sourcelang:eng",
+ 606 |                     "mode": "artlist",
+ 607 |                     "maxrecords": "10",
+ 608 |                     "format": "json",
+ 609 |                 },
+ 610 |                 timeout=15,
+ 611 |             )
+ 612 |             if resp.status_code == 200:
+ 613 |                 data = resp.json()
+ 614 |                 for article in data.get("articles", [])[:limit]:
+ 615 |                     btc_signal = _classify_btc_signal(article.get("title", ""), "", "geopolitical")
+ 616 |                     events.append({
+ 617 |                         "headline": article.get("title", "Unknown Event"),
+ 618 |                         "category": "geopolitical",
+ 619 |                         "btc_signal": btc_signal["direction"],
+ 620 |                         "btc_rationale": btc_signal["rationale"],
+ 621 |                         "source": article.get("domain", "GDELT"),
+ 622 |                         "source_url": article.get("url", ""),
+ 623 |                         "timestamp": article.get("seendate", datetime.utcnow().isoformat()),
+ 624 |                         "event_type": "geopolitical",
+ 625 |                     })
+ 626 |         except Exception as e:
+ 627 |             logger.warning("GDELT fetch failed: %s", e)
+ 628 | 
+ 629 |     # Static fallback if all sources fail
+ 630 |     if not events:
+ 631 |         events = _static_geopolitical_feed()
+ 632 | 
+ 633 |     _set_cache(cache_key, events)
+ 634 |     return events
+ 635 | 
+ 636 | 
+ 637 | def _classify_btc_signal(title: str, tags: str, category: str) -> dict:
+ 638 |     """Classify a geopolitical event's Bitcoin signal direction."""
+ 639 |     text = f"{title} {tags} {category}".lower()
+ 640 | 
+ 641 |     bullish_terms = ["adoption", "legal tender", "reserve", "accumulate", "pro-crypto", "approve", "etf approved", "institutional"]
+ 642 |     bearish_terms = ["ban", "restrict", "cbdc mandate", "crackdown", "sanction crypto", "seize"]
+ 643 | 
+ 644 |     bull_score = sum(1 for t in bullish_terms if t in text)
+ 645 |     bear_score = sum(1 for t in bearish_terms if t in text)
+ 646 | 
+ 647 |     if bull_score > bear_score:
+ 648 |         return {"direction": "bullish", "rationale": "Sovereign adoption or favorable regulation strengthens Bitcoin's monetary network effect."}
+ 649 |     elif bear_score > bull_score:
+ 650 |         return {"direction": "bearish", "rationale": "Regulatory restriction signals short-term selling pressure but long-term validates Bitcoin's censorship resistance."}
+ 651 |     return {"direction": "neutral", "rationale": "Event requires further analysis for Bitcoin monetary implications."}
+ 652 | 
+ 653 | 
+ 654 | def _static_geopolitical_feed() -> list[dict]:
+ 655 |     """Fallback static feed with real, publicly known events."""
+ 656 |     return [
+ 657 |         {
+ 658 |             "headline": "US Strategic Bitcoin Reserve — Executive Order Establishes National BTC Stockpile",
+ 659 |             "category": "sovereignty",
+ 660 |             "btc_signal": "bullish",
+ 661 |             "btc_rationale": "Nation-state accumulation confirms Bitcoin as strategic reserve asset alongside gold.",
+ 662 |             "source": "White House",
+ 663 |             "source_url": "https://www.whitehouse.gov",
+ 664 |             "timestamp": "2025-03-06T12:00:00",
+ 665 |             "event_type": "geopolitical",
+ 666 |             "status": "confirmed",
+ 667 |         },
+ 668 |         {
+ 669 |             "headline": "EU MiCA Regulation — Full Implementation of Crypto Asset Framework",
+ 670 |             "category": "regulation",
+ 671 |             "btc_signal": "neutral",
+ 672 |             "btc_rationale": "Regulatory clarity in the EU provides framework but may push innovation to more permissive jurisdictions.",
+ 673 |             "source": "European Commission",
+ 674 |             "source_url": "https://finance.ec.europa.eu",
+ 675 |             "timestamp": "2025-12-30T00:00:00",
+ 676 |             "event_type": "geopolitical",
+ 677 |             "status": "confirmed",
+ 678 |         },
+ 679 |         {
+ 680 |             "headline": "Japan Yen Under Pressure — BOJ Intervention Watch Activated",
+ 681 |             "category": "macro",
+ 682 |             "btc_signal": "bullish",
+ 683 |             "btc_rationale": "Currency debasement historically drives capital to hard assets. BTC +12% average 30d forward after yen interventions.",
+ 684 |             "source": "Reuters",
+ 685 |             "source_url": "https://www.reuters.com",
+ 686 |             "timestamp": datetime.utcnow().isoformat(),
+ 687 |             "event_type": "geopolitical",
+ 688 |             "status": "monitoring",
+ 689 |         },
+ 690 |     ]
+ 691 | 
  692 | 
- 693 | 
- 694 | def _classify_polymarket_signal(question: str) -> str:
- 695 |     """Classify a Polymarket question's implied Bitcoin signal."""
- 696 |     q = question.lower()
- 697 |     bullish = ["approve", "pass", "adopt", "reserve", "legal tender", "etf"]
- 698 |     bearish = ["ban", "reject", "restrict", "tax", "crack"]
- 699 |     if any(kw in q for kw in bullish):
- 700 |         return "bullish"
- 701 |     if any(kw in q for kw in bearish):
- 702 |         return "bearish"
- 703 |     return "neutral"
- 704 | 
- 705 | 
- 706 | def _static_polymarket_feed() -> list[dict]:
- 707 |     """Fallback static Polymarket data based on known active markets."""
- 708 |     return [
- 709 |         {
- 710 |             "question": "Will Bitcoin exceed $150,000 by end of 2026?",
- 711 |             "slug": "bitcoin-150k-2026",
- 712 |             "yes_price": 42.0,
- 713 |             "volume": 8500000,
- 714 |             "liquidity": 1200000,
- 715 |             "end_date": "2026-12-31",
- 716 |             "source_url": "https://polymarket.com",
- 717 |             "event_type": "prediction",
- 718 |             "btc_signal": "bullish",
- 719 |         },
- 720 |         {
- 721 |             "question": "Will US Congress pass stablecoin legislation in 2026?",
- 722 |             "slug": "stablecoin-legislation-2026",
- 723 |             "yes_price": 67.0,
- 724 |             "volume": 3200000,
- 725 |             "liquidity": 800000,
- 726 |             "end_date": "2026-12-31",
- 727 |             "source_url": "https://polymarket.com",
- 728 |             "event_type": "prediction",
- 729 |             "btc_signal": "bullish",
- 730 |         },
- 731 |         {
- 732 |             "question": "Will the SEC approve a spot Ethereum ETF by Q2 2026?",
- 733 |             "slug": "sec-eth-etf-q2-2026",
- 734 |             "yes_price": 55.0,
- 735 |             "volume": 5100000,
- 736 |             "liquidity": 900000,
- 737 |             "end_date": "2026-06-30",
- 738 |             "source_url": "https://polymarket.com",
- 739 |             "event_type": "prediction",
- 740 |             "btc_signal": "neutral",
- 741 |         },
- 742 |         {
- 743 |             "question": "Will the Federal Reserve cut rates before July 2026?",
- 744 |             "slug": "fed-rate-cut-july-2026",
- 745 |             "yes_price": 72.0,
- 746 |             "volume": 12000000,
- 747 |             "liquidity": 2500000,
- 748 |             "end_date": "2026-07-01",
- 749 |             "source_url": "https://polymarket.com",
- 750 |             "event_type": "prediction",
- 751 |             "btc_signal": "bullish",
- 752 |         },
- 753 |     ]
- 754 | 
+ 693 | # ═══════════════════════════════════════════════════════════════════════════
+ 694 | # REAL-TIME FEED 5: POLYMARKET — Prediction Market Odds
+ 695 | # ═══════════════════════════════════════════════════════════════════════════
+ 696 | 
+ 697 | POLYMARKET_CRYPTO_SLUGS = [
+ 698 |     "bitcoin", "btc", "crypto", "ethereum", "regulation", "sec", "etf",
+ 699 |     "stablecoin", "digital-asset", "cbdc", "fed", "interest-rate",
+ 700 | ]
+ 701 | 
+ 702 | 
+ 703 | def fetch_polymarket_markets(limit: int = 15) -> list[dict]:
+ 704 |     """Fetch active Polymarket prediction markets relevant to crypto/macro.
+ 705 |     Uses the public Strapi API (no auth required)."""
+ 706 |     cache_key = "panopticon_polymarket"
+ 707 |     cached = _cached(cache_key, ttl_seconds=300)  # 5min cache
+ 708 |     if cached is not None:
+ 709 |         return cached[:limit]
+ 710 | 
+ 711 |     markets = []
+ 712 |     try:
+ 713 |         resp = _rate_limited_get(
+ 714 |             "https://strapi-matic.polymarket.com/markets",
+ 715 |             params={
+ 716 |                 "active": "true",
+ 717 |                 "_limit": "50",
+ 718 |                 "_sort": "volume:desc",
+ 719 |             },
+ 720 |             timeout=15,
+ 721 |         )
+ 722 |         if resp.status_code == 200:
+ 723 |             raw_markets = resp.json() if isinstance(resp.json(), list) else resp.json().get("data", [])
+ 724 |             for m in raw_markets:
+ 725 |                 question = (m.get("question") or m.get("title") or "").lower()
+ 726 |                 slug = (m.get("slug") or "").lower()
+ 727 |                 desc = (m.get("description") or "").lower()
+ 728 |                 text = f"{question} {slug} {desc}"
+ 729 | 
+ 730 |                 # Filter for crypto/macro relevance
+ 731 |                 if not any(kw in text for kw in POLYMARKET_CRYPTO_SLUGS):
+ 732 |                     continue
+ 733 | 
+ 734 |                 # Extract probability from outcomes
+ 735 |                 outcomes = m.get("outcomes", [])
+ 736 |                 outcome_prices = m.get("outcomePrices", m.get("outcome_prices", []))
+ 737 |                 yes_price = None
+ 738 |                 if outcome_prices:
+ 739 |                     try:
+ 740 |                         yes_price = float(outcome_prices[0]) if isinstance(outcome_prices[0], (int, float, str)) else None
+ 741 |                     except (ValueError, IndexError):
+ 742 |                         pass
+ 743 | 
+ 744 |                 markets.append({
+ 745 |                     "question": m.get("question") or m.get("title", "Unknown"),
+ 746 |                     "slug": m.get("slug", ""),
+ 747 |                     "yes_price": round(yes_price * 100, 1) if yes_price else None,
+ 748 |                     "volume": m.get("volume") or m.get("volumeNum", 0),
+ 749 |                     "liquidity": m.get("liquidity", 0),
+ 750 |                     "end_date": m.get("end_date_iso") or m.get("endDate", ""),
+ 751 |                     "source_url": f"https://polymarket.com/event/{m.get('slug', '')}",
+ 752 |                     "event_type": "prediction",
+ 753 |                     "btc_signal": _classify_polymarket_signal(m.get("question", "")),
+ 754 |                 })
  755 | 
- 756 | # ═══════════════════════════════════════════════════════════════════════════
- 757 | # CORRELATION TIMELINE — Cross-reference engine
- 758 | # ═══════════════════════════════════════════════════════════════════════════
- 759 | 
- 760 | def build_correlations(limit: int = 10) -> list[dict]:
- 761 |     """Build correlation timeline: cross-reference disclosures with whale movements,
- 762 |     geopolitical events, and KOL sentiment."""
- 763 |     cache_key = "panopticon_correlations"
- 764 |     cached = _cached(cache_key, ttl_seconds=600)
- 765 |     if cached is not None:
- 766 |         return cached
+ 756 |     except Exception as e:
+ 757 |         logger.warning("Polymarket fetch failed: %s", e)
+ 758 | 
+ 759 |     # Fallback with known active markets
+ 760 |     if not markets:
+ 761 |         markets = _static_polymarket_feed()
+ 762 | 
+ 763 |     markets.sort(key=lambda x: x.get("volume", 0), reverse=True)
+ 764 |     result = markets[:limit]
+ 765 |     _set_cache(cache_key, result)
+ 766 |     return result
  767 | 
- 768 |     correlations = []
- 769 |     disclosures = fetch_disclosures()
- 770 |     whales = fetch_whale_alerts()
- 771 |     geo = fetch_geopolitical()
- 772 | 
- 773 |     # For each flagged disclosure, find temporally correlated events
- 774 |     flagged = [d for d in disclosures if d.get("correlation_note")]
- 775 |     for disc in flagged[:limit]:
- 776 |         disc_date = disc.get("date_traded", "")
- 777 |         if not disc_date:
- 778 |             continue
+ 768 | 
+ 769 | def _classify_polymarket_signal(question: str) -> str:
+ 770 |     """Classify a Polymarket question's implied Bitcoin signal."""
+ 771 |     q = question.lower()
+ 772 |     bullish = ["approve", "pass", "adopt", "reserve", "legal tender", "etf"]
+ 773 |     bearish = ["ban", "reject", "restrict", "tax", "crack"]
+ 774 |     if any(kw in q for kw in bullish):
+ 775 |         return "bullish"
+ 776 |     if any(kw in q for kw in bearish):
+ 777 |         return "bearish"
+ 778 |     return "neutral"
  779 | 
- 780 |         # Find whale events within ±7 days
- 781 |         related_whales = []
- 782 |         for w in whales[:10]:
- 783 |             related_whales.append({
- 784 |                 "type": "whale",
- 785 |                 "entity": w.get("entity", ""),
- 786 |                 "amount": f"{w.get('amount_btc', 0)} BTC",
- 787 |                 "direction": w.get("tx_type", ""),
- 788 |                 "timestamp": w.get("timestamp", ""),
- 789 |             })
- 790 | 
- 791 |         # Find geopolitical events within window
- 792 |         related_geo = []
- 793 |         for g in geo[:5]:
- 794 |             related_geo.append({
- 795 |                 "type": "geopolitical",
- 796 |                 "headline": g.get("headline", ""),
- 797 |                 "btc_signal": g.get("btc_signal", "neutral"),
- 798 |                 "timestamp": g.get("timestamp", ""),
- 799 |             })
- 800 | 
- 801 |         correlations.append({
- 802 |             "disclosure": {
- 803 |                 "entity": disc.get("entity", ""),
- 804 |                 "asset": disc.get("asset", ""),
- 805 |                 "trade_type": disc.get("trade_type", ""),
- 806 |                 "date": disc_date,
- 807 |                 "correlation_note": disc.get("correlation_note", ""),
- 808 |             },
- 809 |             "related_whales": related_whales[:3],
- 810 |             "related_geo": related_geo[:3],
- 811 |             "correlation_score": 0.65,
- 812 |             "timeline_summary": f"{disc.get('entity', 'Unknown')} traded {disc.get('asset', 'crypto assets')} — "
- 813 |                                f"correlated with {len(related_whales)} whale movements and {len(related_geo)} geopolitical events",
- 814 |         })
- 815 | 
- 816 |     _set_cache(cache_key, correlations)
- 817 |     return correlations
- 818 | 
- 819 | 
- 820 | # ═══════════════════════════════════════════════════════════════════════════
- 821 | # WATCH LIST DATA
- 822 | # ═══════════════════════════════════════════════════════════════════════════
- 823 | 
- 824 | def get_watch_list() -> list[dict]:
- 825 |     """Return the publicly documented watch list with source citations."""
- 826 |     return WATCH_LIST
- 827 | 
- 828 | 
- 829 | # ═══════════════════════════════════════════════════════════════════════════
- 830 | # LIVE BTC PRICE (for enrichment)
+ 780 | 
+ 781 | def _static_polymarket_feed() -> list[dict]:
+ 782 |     """Fallback static Polymarket data based on known active markets."""
+ 783 |     return [
+ 784 |         {
+ 785 |             "question": "Will Bitcoin exceed $150,000 by end of 2026?",
+ 786 |             "slug": "bitcoin-150k-2026",
+ 787 |             "yes_price": 42.0,
+ 788 |             "volume": 8500000,
+ 789 |             "liquidity": 1200000,
+ 790 |             "end_date": "2026-12-31",
+ 791 |             "source_url": "https://polymarket.com",
+ 792 |             "event_type": "prediction",
+ 793 |             "btc_signal": "bullish",
+ 794 |         },
+ 795 |         {
+ 796 |             "question": "Will US Congress pass stablecoin legislation in 2026?",
+ 797 |             "slug": "stablecoin-legislation-2026",
+ 798 |             "yes_price": 67.0,
+ 799 |             "volume": 3200000,
+ 800 |             "liquidity": 800000,
+ 801 |             "end_date": "2026-12-31",
+ 802 |             "source_url": "https://polymarket.com",
+ 803 |             "event_type": "prediction",
+ 804 |             "btc_signal": "bullish",
+ 805 |         },
+ 806 |         {
+ 807 |             "question": "Will the SEC approve a spot Ethereum ETF by Q2 2026?",
+ 808 |             "slug": "sec-eth-etf-q2-2026",
+ 809 |             "yes_price": 55.0,
+ 810 |             "volume": 5100000,
+ 811 |             "liquidity": 900000,
+ 812 |             "end_date": "2026-06-30",
+ 813 |             "source_url": "https://polymarket.com",
+ 814 |             "event_type": "prediction",
+ 815 |             "btc_signal": "neutral",
+ 816 |         },
+ 817 |         {
+ 818 |             "question": "Will the Federal Reserve cut rates before July 2026?",
+ 819 |             "slug": "fed-rate-cut-july-2026",
+ 820 |             "yes_price": 72.0,
+ 821 |             "volume": 12000000,
+ 822 |             "liquidity": 2500000,
+ 823 |             "end_date": "2026-07-01",
+ 824 |             "source_url": "https://polymarket.com",
+ 825 |             "event_type": "prediction",
+ 826 |             "btc_signal": "bullish",
+ 827 |         },
+ 828 |     ]
+ 829 | 
+ 830 | 
  831 | # ═══════════════════════════════════════════════════════════════════════════
- 832 | 
- 833 | def get_btc_price() -> Optional[float]:
- 834 |     """Get current BTC/USD price from CoinGecko (free, no auth)."""
- 835 |     cache_key = "panopticon_btc_price"
- 836 |     cached = _cached(cache_key, ttl_seconds=120)
- 837 |     if cached is not None:
- 838 |         return cached
- 839 | 
- 840 |     try:
- 841 |         resp = requests.get(
- 842 |             "https://api.coingecko.com/api/v3/simple/price",
- 843 |             params={"ids": "bitcoin", "vs_currencies": "usd"},
- 844 |             timeout=10,
- 845 |         )
- 846 |         if resp.status_code == 200:
- 847 |             price = resp.json().get("bitcoin", {}).get("usd")
- 848 |             if price:
- 849 |                 _set_cache(cache_key, price)
- 850 |                 return price
- 851 |     except Exception as e:
- 852 |         logger.warning("BTC price fetch failed: %s", e)
- 853 | 
- 854 |     return None
- 855 | 
- 856 | 
- 857 | # ═══════════════════════════════════════════════════════════════════════════
- 858 | # AGGREGATE DASHBOARD DATA
- 859 | # ═══════════════════════════════════════════════════════════════════════════
- 860 | 
- 861 | def get_dashboard_data() -> dict:
- 862 |     """Aggregate all panopticon data for the dashboard."""
- 863 |     btc_price = get_btc_price()
- 864 |     disclosures = fetch_disclosures()
- 865 |     whales = fetch_whale_alerts()
- 866 |     forex = fetch_forex_signals()
- 867 |     geo = fetch_geopolitical()
- 868 |     correlations = build_correlations()
- 869 |     watch_list = get_watch_list()
- 870 |     polymarket = fetch_polymarket_markets()
+ 832 | # CORRELATION TIMELINE — Cross-reference engine with temporal windowing
+ 833 | # ═══════════════════════════════════════════════════════════════════════════
+ 834 | 
+ 835 | CORRELATION_WINDOW_HOURS = 72  # ±72h temporal window
+ 836 | 
+ 837 | 
+ 838 | def _parse_date_safe(date_str: str) -> Optional[datetime]:
+ 839 |     """Parse a date string safely, returning None on failure."""
+ 840 |     if not date_str:
+ 841 |         return None
+ 842 |     for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d"):
+ 843 |         try:
+ 844 |             return datetime.strptime(date_str[:19], fmt)
+ 845 |         except (ValueError, TypeError):
+ 846 |             continue
+ 847 |     return None
+ 848 | 
+ 849 | 
+ 850 | def build_correlations(limit: int = 10) -> list[dict]:
+ 851 |     """Build correlation timeline with genuine ±72h temporal windowing.
+ 852 |     Only surfaces correlations with minimum 2 co-occurring signals."""
+ 853 |     cache_key = "panopticon_correlations"
+ 854 |     cached = _cached(cache_key, ttl_seconds=600)
+ 855 |     if cached is not None:
+ 856 |         return cached
+ 857 | 
+ 858 |     correlations = []
+ 859 |     disc_result = fetch_disclosures()
+ 860 |     disclosures = disc_result[0] if isinstance(disc_result, tuple) else disc_result
+ 861 |     whales = fetch_whale_alerts()
+ 862 |     geo = fetch_geopolitical()
+ 863 | 
+ 864 |     window = timedelta(hours=CORRELATION_WINDOW_HOURS)
+ 865 | 
+ 866 |     flagged = [d for d in disclosures if d.get("correlation_note")]
+ 867 |     for disc in flagged[:limit]:
+ 868 |         disc_date = _parse_date_safe(disc.get("date_traded", ""))
+ 869 |         if not disc_date:
+ 870 |             continue
  871 | 
- 872 |     # Enrich whale alerts with USD values
- 873 |     if btc_price:
+ 872 |         # Find whale events within ±72h window
+ 873 |         related_whales = []
  874 |         for w in whales:
- 875 |             if w.get("amount_btc"):
- 876 |                 w["amount_usd"] = round(w["amount_btc"] * btc_price, 2)
- 877 | 
- 878 |     # Count events today
- 879 |     today = datetime.utcnow().strftime("%Y-%m-%d")
- 880 |     events_today = sum(1 for d in disclosures if today in d.get("date_filed", ""))
- 881 |     events_today += sum(1 for w in whales if today in w.get("timestamp", ""))
- 882 |     events_today += sum(1 for g in geo if today in g.get("timestamp", ""))
- 883 | 
- 884 |     return {
- 885 |         "btc_price": btc_price,
- 886 |         "events_today": max(events_today, len(disclosures) + len(whales)),
- 887 |         "disclosures": disclosures,
- 888 |         "flagged": check_correlations(disclosures),
- 889 |         "whales": whales,
- 890 |         "forex": forex,
- 891 |         "geopolitical": geo,
- 892 |         "correlations": correlations,
- 893 |         "watch_list": watch_list,
- 894 |         "polymarket": polymarket,
- 895 |         "generated_at": datetime.utcnow().isoformat(),
- 896 |     }
- 897 | 
+ 875 |             w_date = _parse_date_safe(w.get("timestamp", ""))
+ 876 |             if w_date and abs((w_date - disc_date).total_seconds()) <= window.total_seconds():
+ 877 |                 related_whales.append({
+ 878 |                     "type": "whale",
+ 879 |                     "entity": w.get("entity", ""),
+ 880 |                     "amount": f"{w.get('amount_btc', 0)} BTC",
+ 881 |                     "direction": w.get("tx_type", ""),
+ 882 |                     "timestamp": w.get("timestamp", ""),
+ 883 |                     "days_offset": round(abs((w_date - disc_date).total_seconds()) / 86400, 1),
+ 884 |                 })
+ 885 | 
+ 886 |         # Find geopolitical events within ±72h window
+ 887 |         related_geo = []
+ 888 |         for g in geo:
+ 889 |             g_date = _parse_date_safe(g.get("timestamp", ""))
+ 890 |             if g_date and abs((g_date - disc_date).total_seconds()) <= window.total_seconds():
+ 891 |                 related_geo.append({
+ 892 |                     "type": "geopolitical",
+ 893 |                     "headline": g.get("headline", ""),
+ 894 |                     "btc_signal": g.get("btc_signal", "neutral"),
+ 895 |                     "timestamp": g.get("timestamp", ""),
+ 896 |                     "days_offset": round(abs((g_date - disc_date).total_seconds()) / 86400, 1),
+ 897 |                 })
  898 | 
- 899 | # ═══════════════════════════════════════════════════════════════════════════
- 900 | # MAKE THE BITCOIN CASE — AI-generated cypherpunk argument via Anthropic
- 901 | # ═══════════════════════════════════════════════════════════════════════════
- 902 | 
- 903 | def get_make_bitcoin_case(event_summary: str) -> dict:
- 904 |     """Generate a cypherpunk argument for Bitcoin self-custody based on a specific event.
- 905 | 
- 906 |     Uses Anthropic claude-sonnet-4-6 to produce a concise, compelling Bitcoin case
- 907 |     tied to the given event (disclosure, whale movement, geopolitical signal).
- 908 | 
- 909 |     Returns:
- 910 |         dict with keys: case_text, event_summary, generated_at, model
- 911 |     """
- 912 |     cache_key = f"btc_case_{hashlib.sha256(event_summary.encode()).hexdigest()[:16]}"
- 913 |     cached = _cached(cache_key, ttl_seconds=3600)  # 1hr cache per event
- 914 |     if cached is not None:
- 915 |         return cached
- 916 | 
- 917 |     api_key = ANTHROPIC_API_KEY
- 918 |     if not api_key:
- 919 |         # Try loading from .env file
- 920 |         env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
- 921 |         if os.path.exists(env_path):
- 922 |             with open(env_path) as f:
- 923 |                 for line in f:
- 924 |                     if line.startswith("ANTHROPIC_API_KEY="):
- 925 |                         api_key = line.split("=", 1)[1].strip().strip('"').strip("'")
- 926 |                         break
+ 899 |         # Minimum 2 co-occurring signals required
+ 900 |         total_related = len(related_whales) + len(related_geo)
+ 901 |         if total_related < 2:
+ 902 |             continue
+ 903 | 
+ 904 |         # Score based on temporal proximity (closer = higher)
+ 905 |         all_offsets = [r["days_offset"] for r in related_whales + related_geo]
+ 906 |         avg_offset = sum(all_offsets) / len(all_offsets) if all_offsets else 3.0
+ 907 |         proximity_score = max(0, 1.0 - (avg_offset / 6.0))
+ 908 |         correlation_score = round(min(proximity_score * (1 + total_related * 0.1), 1.0), 2)
+ 909 | 
+ 910 |         correlations.append({
+ 911 |             "disclosure": {
+ 912 |                 "entity": disc.get("entity", ""),
+ 913 |                 "asset": disc.get("asset", ""),
+ 914 |                 "trade_type": disc.get("trade_type", ""),
+ 915 |                 "date": disc.get("date_traded", ""),
+ 916 |                 "correlation_note": disc.get("correlation_note", ""),
+ 917 |             },
+ 918 |             "related_whales": related_whales[:3],
+ 919 |             "related_geo": related_geo[:3],
+ 920 |             "correlation_score": correlation_score,
+ 921 |             "signal_count": total_related,
+ 922 |             "window_hours": CORRELATION_WINDOW_HOURS,
+ 923 |             "disclaimer": "PATTERN FOR RESEARCH — NOT VERIFIED. Temporal correlation only.",
+ 924 |             "timeline_summary": f"{disc.get('entity', 'Unknown')} traded {disc.get('asset', 'crypto assets')} — "
+ 925 |                                f"{total_related} related signals within {CORRELATION_WINDOW_HOURS}h window",
+ 926 |         })
  927 | 
- 928 |     if not api_key:
- 929 |         return {
- 930 |             "case_text": "Self-custody is the only guarantee that no institution, government, or counterparty can freeze, seize, or debase your savings. This event is another reminder: when the rules are written by the players, Bitcoin is the exit.",
- 931 |             "event_summary": event_summary,
- 932 |             "generated_at": datetime.utcnow().isoformat(),
- 933 |             "model": "fallback",
- 934 |         }
+ 928 |     _set_cache(cache_key, correlations)
+ 929 |     return correlations
+ 930 | 
+ 931 | 
+ 932 | # ═══════════════════════════════════════════════════════════════════════════
+ 933 | # WATCH LIST DATA
+ 934 | # ═══════════════════════════════════════════════════════════════════════════
  935 | 
- 936 |     try:
- 937 |         import anthropic
- 938 |         client = anthropic.Anthropic(api_key=api_key)
- 939 |         message = client.messages.create(
- 940 |             model="claude-sonnet-4-6-20250514",
- 941 |             max_tokens=512,
- 942 |             messages=[{
- 943 |                 "role": "user",
- 944 |                 "content": f"""You are a Bitcoin-first monetary analyst writing for Protocol Pulse PANOPTICON.
- 945 | 
- 946 | Given this event: "{event_summary}"
- 947 | 
- 948 | Write a 3-4 sentence cypherpunk argument for Bitcoin self-custody. Be specific to THIS event.
- 949 | Rules:
- 950 | - Reference the specific event details (names, amounts, dates)
- 951 | - Connect it to Bitcoin's value proposition (censorship resistance, fixed supply, self-sovereignty)
- 952 | - End with a concrete call to self-custody
- 953 | - Tone: authoritative, urgent, not preachy
- 954 | - No hashtags, no emojis, no fluff"""
- 955 |             }],
- 956 |         )
- 957 |         case_text = message.content[0].text.strip()
- 958 | 
- 959 |         result = {
- 960 |             "case_text": case_text,
- 961 |             "event_summary": event_summary,
- 962 |             "generated_at": datetime.utcnow().isoformat(),
- 963 |             "model": "claude-sonnet-4-6",
- 964 |         }
- 965 |         _set_cache(cache_key, result)
- 966 |         return result
+ 936 | def get_watch_list() -> list[dict]:
+ 937 |     """Return the publicly documented watch list with source citations."""
+ 938 |     return WATCH_LIST
+ 939 | 
+ 940 | 
+ 941 | # ═══════════════════════════════════════════════════════════════════════════
+ 942 | # LIVE BTC PRICE (for enrichment)
+ 943 | # ═══════════════════════════════════════════════════════════════════════════
+ 944 | 
+ 945 | def get_btc_price() -> Optional[float]:
+ 946 |     """Get current BTC/USD price from CoinGecko (free, no auth)."""
+ 947 |     cache_key = "panopticon_btc_price"
+ 948 |     cached = _cached(cache_key, ttl_seconds=120)
+ 949 |     if cached is not None:
+ 950 |         return cached
+ 951 | 
+ 952 |     try:
+ 953 |         # CoinGecko free tier: ~10-50 calls/min — use rate-limited wrapper
+ 954 |         resp = _rate_limited_get(
+ 955 |             "https://api.coingecko.com/api/v3/simple/price",
+ 956 |             params={"ids": "bitcoin", "vs_currencies": "usd"},
+ 957 |             timeout=10,
+ 958 |             sleep_secs=1.2,
+ 959 |         )
+ 960 |         if resp.status_code == 200:
+ 961 |             price = resp.json().get("bitcoin", {}).get("usd")
+ 962 |             if price:
+ 963 |                 _set_cache(cache_key, price)
+ 964 |                 return price
+ 965 |     except Exception as e:
+ 966 |         logger.warning("BTC price fetch failed: %s", e)
  967 | 
- 968 |     except Exception as e:
- 969 |         logger.error("Anthropic make_bitcoin_case failed: %s", e)
- 970 |         return {
- 971 |             "case_text": f"When {event_summary[:100]}... happens in traditional finance, it proves the system was never built for you. Bitcoin fixes this: no counterparty risk, no permission needed, no politician can freeze your stack. Take self-custody today.",
- 972 |             "event_summary": event_summary,
- 973 |             "generated_at": datetime.utcnow().isoformat(),
- 974 |             "model": "fallback",
- 975 |         }
- 976 | 
+ 968 |     return None
+ 969 | 
+ 970 | 
+ 971 | # ═══════════════════════════════════════════════════════════════════════════
+ 972 | # AGGREGATE DASHBOARD DATA
+ 973 | # ═══════════════════════════════════════════════════════════════════════════
+ 974 | 
+ 975 | def get_dashboard_data() -> dict:
+ 976 |     """Aggregate all panopticon data for the dashboard (Commander tier — full data)."""
+ 977 |     btc_price = get_btc_price()
+ 978 |     disclosures, disclosures_live = fetch_disclosures()
+ 979 |     whales = fetch_whale_alerts()
+ 980 |     forex = fetch_forex_signals()
+ 981 |     geo = fetch_geopolitical()
+ 982 |     correlations = build_correlations()
+ 983 |     watch_list = get_watch_list()
+ 984 |     polymarket = fetch_polymarket_markets()
+ 985 | 
+ 986 |     # Enrich whale alerts with USD values
+ 987 |     if btc_price:
+ 988 |         for w in whales:
+ 989 |             if w.get("amount_btc"):
+ 990 |                 w["amount_usd"] = round(w["amount_btc"] * btc_price, 2)
+ 991 | 
+ 992 |     # Count events today
+ 993 |     today = datetime.utcnow().strftime("%Y-%m-%d")
+ 994 |     events_today = sum(1 for d in disclosures if today in d.get("date_filed", ""))
+ 995 |     events_today += sum(1 for w in whales if today in w.get("timestamp", ""))
+ 996 |     events_today += sum(1 for g in geo if today in g.get("timestamp", ""))
+ 997 | 
+ 998 |     return {
+ 999 |         "btc_price": btc_price,
+1000 |         "events_today": max(events_today, len(disclosures) + len(whales)),
+1001 |         "disclosures": disclosures,
+1002 |         "disclosures_live": disclosures_live,
+1003 |         "flagged": check_correlations(disclosures),
+1004 |         "whales": whales,
+1005 |         "forex": forex,
+1006 |         "geopolitical": geo,
+1007 |         "correlations": correlations,
+1008 |         "watch_list": watch_list,
+1009 |         "polymarket": polymarket,
+1010 |         "generated_at": datetime.utcnow().isoformat(),
+1011 |     }
+1012 | 
+1013 | 
+1014 | def get_demo_safe_data() -> dict:
+1015 |     """Return redacted data structure for free-tier users.
+1016 |     No sensitive Commander-tier data is included — only counts and structure.
+1017 |     This ensures CSS overlay bypass cannot expose paid content (P0 fix for U1)."""
+1018 |     return {
+1019 |         "btc_price": get_btc_price(),  # Public data, safe to show
+1020 |         "events_today": 0,
+1021 |         "disclosures": [],
+1022 |         "disclosures_live": True,
+1023 |         "flagged": [],
+1024 |         "whales": [],
+1025 |         "forex": [],
+1026 |         "geopolitical": [],
+1027 |         "correlations": [],
+1028 |         "watch_list": [],
+1029 |         "polymarket": [],
+1030 |         "generated_at": datetime.utcnow().isoformat(),
+1031 |         "demo_counts": {
+1032 |             "disclosures": "12+",
+1033 |             "whales": "8+",
+1034 |             "flags": "3+",
+1035 |             "markets": "15+",
+1036 |             "geo": "5+",
+1037 |         },
+1038 |     }
+1039 | 
+1040 | 
+1041 | # ═══════════════════════════════════════════════════════════════════════════
+1042 | # MAKE THE BITCOIN CASE — AI-generated cypherpunk argument via Anthropic
+1043 | # ═══════════════════════════════════════════════════════════════════════════
+1044 | 
+1045 | def get_make_bitcoin_case(event_summary: str) -> dict:
+1046 |     """Generate a cypherpunk argument for Bitcoin self-custody based on a specific event.
+1047 | 
+1048 |     Uses Anthropic claude-sonnet-4-6 to produce a concise, compelling Bitcoin case
+1049 |     tied to the given event (disclosure, whale movement, geopolitical signal).
+1050 | 
+1051 |     Returns:
+1052 |         dict with keys: case_text, event_summary, generated_at, model
+1053 |     """
+1054 |     cache_key = f"btc_case_{hashlib.sha256(event_summary.encode()).hexdigest()[:16]}"
+1055 |     cached = _cached(cache_key, ttl_seconds=3600)  # 1hr cache per event
+1056 |     if cached is not None:
+1057 |         return cached
+1058 | 
+1059 |     api_key = ANTHROPIC_API_KEY
+1060 |     if not api_key:
+1061 |         return {
+1062 |             "case_text": "Self-custody is the only guarantee that no institution, government, or counterparty can freeze, seize, or debase your savings. This event is another reminder: when the rules are written by the players, Bitcoin is the exit.",
+1063 |             "event_summary": event_summary,
+1064 |             "generated_at": datetime.utcnow().isoformat(),
+1065 |             "model": "fallback",
+1066 |         }
+1067 | 
+1068 |     try:
+1069 |         import anthropic
+1070 |         client = anthropic.Anthropic(api_key=api_key)
+1071 |         message = client.messages.create(
+1072 |             model=ANTHROPIC_MODEL,
+1073 |             max_tokens=512,
+1074 |             messages=[{
+1075 |                 "role": "user",
+1076 |                 "content": f"""You are a Bitcoin-first monetary analyst writing for Protocol Pulse PANOPTICON.
+1077 | 
+1078 | Analyze the following event and write a 3-4 sentence cypherpunk argument for Bitcoin self-custody.
+1079 | 
+1080 | <event_data>
+1081 | {event_summary}
+1082 | </event_data>
+1083 | 
+1084 | Rules:
+1085 | - Reference the specific event details (names, amounts, dates) from the event_data above
+1086 | - Connect it to Bitcoin's value proposition (censorship resistance, fixed supply, self-sovereignty)
+1087 | - End with a concrete call to self-custody
+1088 | - Tone: authoritative, urgent, not preachy
+1089 | - No hashtags, no emojis, no fluff
+1090 | - Output ONLY the argument text, nothing else"""
+1091 |             }],
+1092 |         )
+1093 |         case_text = message.content[0].text.strip()
+1094 | 
+1095 |         result = {
+1096 |             "case_text": case_text,
+1097 |             "event_summary": event_summary,
+1098 |             "generated_at": datetime.utcnow().isoformat(),
+1099 |             "model": "claude-sonnet-4-6",
+1100 |         }
+1101 |         _set_cache(cache_key, result)
+1102 |         return result
+1103 | 
+1104 |     except Exception as e:
+1105 |         logger.error("Anthropic make_bitcoin_case failed: %s", e)
+1106 |         return {
+1107 |             "case_text": f"When {event_summary[:100]}... happens in traditional finance, it proves the system was never built for you. Bitcoin fixes this: no counterparty risk, no permission needed, no politician can freeze your stack. Take self-custody today.",
+1108 |             "event_summary": event_summary,
+1109 |             "generated_at": datetime.utcnow().isoformat(),
+1110 |             "model": "fallback",
+1111 |         }
+1112 | 
 ```
 
-### File: core/blueprints/panopticon.py (204 lines)
+### File: core/blueprints/panopticon.py (291 lines)
 ```
    1 | """
    2 | PANOPTICON Blueprint — Congressional Disclosure & Whale Intelligence Dashboard
@@ -1200,195 +1298,282 @@ def api_disclosures():
   16 | """
   17 | 
   18 | import logging
-  19 | from flask import Blueprint, render_template, jsonify, request
-  20 | from flask_login import current_user
-  21 | 
-  22 | logger = logging.getLogger(__name__)
-  23 | 
-  24 | panopticon_bp = Blueprint("panopticon", __name__)
-  25 | 
+  19 | import re
+  20 | from flask import Blueprint, render_template, jsonify, request
+  21 | from flask_login import current_user
+  22 | 
+  23 | logger = logging.getLogger(__name__)
+  24 | 
+  25 | panopticon_bp = Blueprint("panopticon", __name__)
   26 | 
-  27 | def _is_commander() -> bool:
-  28 |     """Check if current user has Commander+ tier access."""
-  29 |     if not current_user.is_authenticated:
-  30 |         return False
-  31 |     tier = getattr(current_user, "subscription_tier", "free")
-  32 |     return tier in ("commander", "sovereign")
-  33 | 
+  27 | # ── Rate limiter (P0 fix for U2 — IP-based throttling on all API routes) ────
+  28 | # Applied via before_request to avoid circular import issues with app.limiter
+  29 | _rate_limit_store = {}  # IP -> {count, window_start}
+  30 | _RATE_LIMIT_WINDOW = 60  # seconds
+  31 | _RATE_LIMIT_MAX = 30  # requests per window for general API routes
+  32 | _RATE_LIMIT_WHALE = 10  # tighter limit for expensive whale-alerts endpoint (P2 UI-2)
+  33 | import time as _time
   34 | 
-  35 | # ═══════════════════════════════════════════════════════════════════════════
-  36 | # PAGE ROUTE
-  37 | # ═══════════════════════════════════════════════════════════════════════════
-  38 | 
-  39 | @panopticon_bp.route("/panopticon")
-  40 | def panopticon_page():
-  41 |     """PANOPTICON dashboard — Commander tier sees full data, free tier sees CLASSIFIED overlays."""
-  42 |     demo_mode = not _is_commander()
-  43 | 
-  44 |     # Always fetch data — free tier sees structure with overlays
-  45 |     try:
-  46 |         from services.panopticon_service import get_dashboard_data
-  47 |         data = get_dashboard_data()
-  48 |     except Exception as e:
-  49 |         logger.error("Panopticon data fetch failed: %s", e)
-  50 |         data = {
-  51 |             "btc_price": None,
-  52 |             "events_today": 0,
-  53 |             "disclosures": [],
-  54 |             "flagged": [],
-  55 |             "whales": [],
-  56 |             "forex": [],
-  57 |             "geopolitical": [],
-  58 |             "correlations": [],
-  59 |             "watch_list": [],
-  60 |             "polymarket": [],
-  61 |             "generated_at": None,
-  62 |         }
-  63 | 
-  64 |     return render_template(
-  65 |         "panopticon.html",
-  66 |         demo_mode=demo_mode,
-  67 |         data=data,
-  68 |     )
-  69 | 
-  70 | 
-  71 | # ═══════════════════════════════════════════════════════════════════════════
-  72 | # API ROUTES
-  73 | # ═══════════════════════════════════════════════════════════════════════════
-  74 | 
-  75 | @panopticon_bp.route("/api/panopticon/disclosures")
-  76 | @panopticon_bp.route("/api/panopticon/congress")
-  77 | def api_disclosures():
-  78 |     """Recent STOCK Act filings filtered for crypto/fintech."""
-  79 |     if not _is_commander():
-  80 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
-  81 | 
-  82 |     try:
-  83 |         from services.panopticon_service import fetch_disclosures
-  84 |         limit = min(int(request.args.get("limit", 50)), 100)
-  85 |         disclosures = fetch_disclosures(limit=limit)
-  86 |         return jsonify({
-  87 |             "disclosures": disclosures,
-  88 |             "count": len(disclosures),
-  89 |             "tier": "confirmed",
-  90 |         })
-  91 |     except Exception as e:
-  92 |         logger.error("Disclosures API error: %s", e)
-  93 |         return jsonify({"error": "Failed to fetch disclosures"}), 500
-  94 | 
-  95 | 
-  96 | @panopticon_bp.route("/api/panopticon/whale-alerts")
-  97 | @panopticon_bp.route("/api/panopticon/whales")
-  98 | def api_whale_alerts():
-  99 |     """Recent large BTC wallet movements from known entities."""
- 100 |     if not _is_commander():
- 101 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
- 102 | 
- 103 |     try:
- 104 |         from services.panopticon_service import fetch_whale_alerts, get_btc_price
- 105 |         limit = min(int(request.args.get("limit", 20)), 50)
- 106 |         alerts = fetch_whale_alerts(limit=limit)
- 107 |         btc_price = get_btc_price()
- 108 | 
- 109 |         # Enrich with USD
- 110 |         if btc_price:
- 111 |             for a in alerts:
- 112 |                 if a.get("amount_btc"):
- 113 |                     a["amount_usd"] = round(a["amount_btc"] * btc_price, 2)
+  35 | 
+  36 | @panopticon_bp.before_request
+  37 | def _enforce_rate_limit():
+  38 |     """IP-based rate limiting for all /api/panopticon/* routes."""
+  39 |     if not request.path.startswith("/api/panopticon/"):
+  40 |         return None
+  41 | 
+  42 |     ip = request.remote_addr or "unknown"
+  43 |     now = _time.time()
+  44 |     key = f"{ip}:{request.path}"
+  45 | 
+  46 |     # Tighter limit for whale-alerts (most expensive upstream call)
+  47 |     max_requests = _RATE_LIMIT_WHALE if "whale" in request.path else _RATE_LIMIT_MAX
+  48 | 
+  49 |     entry = _rate_limit_store.get(key)
+  50 |     if entry is None or now - entry["start"] > _RATE_LIMIT_WINDOW:
+  51 |         _rate_limit_store[key] = {"count": 1, "start": now}
+  52 |         return None
+  53 | 
+  54 |     entry["count"] += 1
+  55 |     if entry["count"] > max_requests:
+  56 |         logger.warning("Rate limit exceeded: %s on %s (%d/%d)", ip, request.path,
+  57 |                         entry["count"], max_requests)
+  58 |         return jsonify({
+  59 |             "error": "Rate limit exceeded",
+  60 |             "retry_after": int(_RATE_LIMIT_WINDOW - (now - entry["start"])),
+  61 |         }), 429
+  62 | 
+  63 |     return None
+  64 | 
+  65 | _EMPTY_DATA = {
+  66 |     "btc_price": None,
+  67 |     "events_today": 0,
+  68 |     "disclosures": [],
+  69 |     "flagged": [],
+  70 |     "whales": [],
+  71 |     "forex": [],
+  72 |     "geopolitical": [],
+  73 |     "correlations": [],
+  74 |     "watch_list": [],
+  75 |     "polymarket": [],
+  76 |     "generated_at": None,
+  77 | }
+  78 | 
+  79 | # Redacted teaser data for free-tier users (no real Commander data leaked)
+  80 | _DEMO_DATA = {
+  81 |     "btc_price": None,
+  82 |     "events_today": 12,
+  83 |     "disclosures": [
+  84 |         {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+  85 |         {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+  86 |         {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+  87 |     ],
+  88 |     "flagged": [
+  89 |         {"entity": "██████████", "asset": "CLASSIFIED", "tier": "flagged", "correlation_score": 0.0, "flag_reason": "CLASSIFIED — Upgrade to Commander"},
+  90 |     ],
+  91 |     "whales": [
+  92 |         {"entity": "██████████", "wallet_label": "CLASSIFIED", "address": "████...████", "txid": "████...████", "amount_btc": 0, "tx_type": "classified", "confirmed": True, "timestamp": "████-██-██", "event_type": "whale"},
+  93 |     ],
+  94 |     "forex": [],
+  95 |     "geopolitical": [
+  96 |         {"headline": "CLASSIFIED — Upgrade to Commander for geopolitical intelligence", "category": "classified", "btc_signal": "neutral", "btc_rationale": "CLASSIFIED", "source": "CLASSIFIED", "timestamp": "████-██-██", "event_type": "geopolitical"},
+  97 |     ],
+  98 |     "correlations": [],
+  99 |     "watch_list": [],
+ 100 |     "polymarket": [
+ 101 |         {"question": "CLASSIFIED — Upgrade to Commander for prediction market data", "yes_price": None, "volume": 0, "event_type": "prediction", "btc_signal": "neutral"},
+ 102 |     ],
+ 103 |     "generated_at": None,
+ 104 | }
+ 105 | 
+ 106 | 
+ 107 | def _is_commander() -> bool:
+ 108 |     """Check if current user has Commander+ tier access."""
+ 109 |     if not current_user.is_authenticated:
+ 110 |         return False
+ 111 |     tier = getattr(current_user, "subscription_tier", "free")
+ 112 |     return tier in ("commander", "sovereign")
+ 113 | 
  114 | 
- 115 |         return jsonify({
- 116 |             "alerts": alerts,
- 117 |             "count": len(alerts),
- 118 |             "btc_price": btc_price,
- 119 |         })
- 120 |     except Exception as e:
- 121 |         logger.error("Whale alerts API error: %s", e)
- 122 |         return jsonify({"error": "Failed to fetch whale alerts"}), 500
- 123 | 
+ 115 | def _sanitize_event_summary(text: str) -> str:
+ 116 |     """Sanitize user input for the Make Bitcoin Case prompt to prevent injection."""
+ 117 |     # Strip control characters and excessive whitespace
+ 118 |     text = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', text)
+ 119 |     # Remove common prompt injection patterns
+ 120 |     text = re.sub(r'(?i)(ignore|disregard|forget)\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)', '', text)
+ 121 |     # Limit to alphanumeric, basic punctuation, and spaces
+ 122 |     text = re.sub(r'[^\w\s.,;:!?\'"\-()/$%@#&+=]', '', text)
+ 123 |     return text.strip()[:500]
  124 | 
- 125 | @panopticon_bp.route("/api/panopticon/correlations")
- 126 | def api_correlations():
- 127 |     """Cross-reference timeline: disclosures x whale movements x geopolitical events."""
- 128 |     if not _is_commander():
- 129 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
- 130 | 
- 131 |     try:
- 132 |         from services.panopticon_service import build_correlations
- 133 |         limit = min(int(request.args.get("limit", 10)), 25)
- 134 |         correlations = build_correlations(limit=limit)
- 135 |         return jsonify({
- 136 |             "correlations": correlations,
- 137 |             "count": len(correlations),
- 138 |         })
- 139 |     except Exception as e:
- 140 |         logger.error("Correlations API error: %s", e)
- 141 |         return jsonify({"error": "Failed to build correlations"}), 500
- 142 | 
- 143 | 
- 144 | @panopticon_bp.route("/api/panopticon/geopolitical")
- 145 | def api_geopolitical():
- 146 |     """Nation-state signals, forex interventions, sovereign BTC activity."""
- 147 |     if not _is_commander():
- 148 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
- 149 | 
- 150 |     try:
- 151 |         from services.panopticon_service import fetch_geopolitical, fetch_forex_signals
- 152 |         geo = fetch_geopolitical()
- 153 |         forex = fetch_forex_signals()
- 154 |         return jsonify({
- 155 |             "geopolitical": geo,
- 156 |             "forex": forex,
- 157 |             "count": len(geo) + len(forex),
- 158 |         })
- 159 |     except Exception as e:
- 160 |         logger.error("Geopolitical API error: %s", e)
- 161 |         return jsonify({"error": "Failed to fetch geopolitical signals"}), 500
- 162 | 
- 163 | 
- 164 | @panopticon_bp.route("/api/panopticon/polymarket")
- 165 | def api_polymarket():
- 166 |     """Live Polymarket prediction market odds for crypto/macro events."""
- 167 |     if not _is_commander():
- 168 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
- 169 | 
- 170 |     try:
- 171 |         from services.panopticon_service import fetch_polymarket_markets
- 172 |         limit = min(int(request.args.get("limit", 15)), 30)
- 173 |         markets = fetch_polymarket_markets(limit=limit)
- 174 |         return jsonify({
- 175 |             "markets": markets,
- 176 |             "count": len(markets),
- 177 |         })
- 178 |     except Exception as e:
- 179 |         logger.error("Polymarket API error: %s", e)
- 180 |         return jsonify({"error": "Failed to fetch Polymarket data"}), 500
+ 125 | 
+ 126 | # ═══════════════════════════════════════════════════════════════════════════
+ 127 | # PAGE ROUTE
+ 128 | # ═══════════════════════════════════════════════════════════════════════════
+ 129 | 
+ 130 | @panopticon_bp.route("/panopticon")
+ 131 | def panopticon_page():
+ 132 |     """PANOPTICON dashboard — Commander tier sees full data, free tier sees redacted CLASSIFIED data.
+ 133 |     SECURITY: Free-tier users receive only redacted placeholder data. Real Commander data is NEVER
+ 134 |     embedded in the HTML payload for unauthenticated or free-tier users."""
+ 135 |     demo_mode = not _is_commander()
+ 136 | 
+ 137 |     if demo_mode:
+ 138 |         # Free tier: send only redacted demo data — no real data touches the template
+ 139 |         data = _DEMO_DATA
+ 140 |     else:
+ 141 |         # Commander tier: fetch real intelligence data
+ 142 |         try:
+ 143 |             from services.panopticon_service import get_dashboard_data
+ 144 |             data = get_dashboard_data()
+ 145 |         except Exception as e:
+ 146 |             logger.error("Panopticon data fetch failed: %s", e)
+ 147 |             data = _EMPTY_DATA
+ 148 | 
+ 149 |     return render_template(
+ 150 |         "panopticon.html",
+ 151 |         demo_mode=demo_mode,
+ 152 |         data=data,
+ 153 |     )
+ 154 | 
+ 155 | 
+ 156 | # ═══════════════════════════════════════════════════════════════════════════
+ 157 | # API ROUTES
+ 158 | # ═══════════════════════════════════════════════════════════════════════════
+ 159 | 
+ 160 | @panopticon_bp.route("/api/panopticon/disclosures")
+ 161 | @panopticon_bp.route("/api/panopticon/congress")
+ 162 | def api_disclosures():
+ 163 |     """Recent STOCK Act filings filtered for crypto/fintech."""
+ 164 |     if not _is_commander():
+ 165 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+ 166 | 
+ 167 |     try:
+ 168 |         from services.panopticon_service import fetch_disclosures
+ 169 |         limit = min(int(request.args.get("limit", 50)), 100)
+ 170 |         disclosures, is_live = fetch_disclosures(limit=limit)
+ 171 |         return jsonify({
+ 172 |             "disclosures": disclosures,
+ 173 |             "count": len(disclosures),
+ 174 |             "is_live": is_live,
+ 175 |             "tier": "confirmed",
+ 176 |         })
+ 177 |     except Exception as e:
+ 178 |         logger.error("Disclosures API error: %s", e)
+ 179 |         return jsonify({"error": "Failed to fetch disclosures"}), 500
+ 180 | 
  181 | 
- 182 | 
- 183 | @panopticon_bp.route("/api/panopticon/make-bitcoin-case", methods=["POST"])
- 184 | @panopticon_bp.route("/api/panopticon/bitcoin-case", methods=["POST"])
- 185 | def api_make_bitcoin_case():
- 186 |     """Generate a cypherpunk Bitcoin self-custody argument for a specific event via Claude."""
- 187 |     if not _is_commander():
- 188 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
- 189 | 
- 190 |     try:
- 191 |         body = request.get_json(silent=True) or {}
- 192 |         event_summary = body.get("event_summary", "").strip()
- 193 |         if not event_summary:
- 194 |             return jsonify({"error": "event_summary is required"}), 400
- 195 |         if len(event_summary) > 500:
- 196 |             event_summary = event_summary[:500]
- 197 | 
- 198 |         from services.panopticon_service import get_make_bitcoin_case
- 199 |         result = get_make_bitcoin_case(event_summary)
- 200 |         return jsonify(result)
- 201 |     except Exception as e:
- 202 |         logger.error("Make Bitcoin Case API error: %s", e)
- 203 |         return jsonify({"error": "Failed to generate Bitcoin case"}), 500
- 204 | 
+ 182 | @panopticon_bp.route("/api/panopticon/whale-alerts")
+ 183 | @panopticon_bp.route("/api/panopticon/whales")
+ 184 | def api_whale_alerts():
+ 185 |     """Recent large BTC wallet movements from known entities."""
+ 186 |     if not _is_commander():
+ 187 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+ 188 | 
+ 189 |     try:
+ 190 |         from services.panopticon_service import fetch_whale_alerts, get_btc_price
+ 191 |         limit = min(int(request.args.get("limit", 20)), 50)
+ 192 |         alerts = fetch_whale_alerts(limit=limit)
+ 193 |         btc_price = get_btc_price()
+ 194 | 
+ 195 |         # Enrich with USD
+ 196 |         if btc_price:
+ 197 |             for a in alerts:
+ 198 |                 if a.get("amount_btc"):
+ 199 |                     a["amount_usd"] = round(a["amount_btc"] * btc_price, 2)
+ 200 | 
+ 201 |         return jsonify({
+ 202 |             "alerts": alerts,
+ 203 |             "count": len(alerts),
+ 204 |             "btc_price": btc_price,
+ 205 |         })
+ 206 |     except Exception as e:
+ 207 |         logger.error("Whale alerts API error: %s", e)
+ 208 |         return jsonify({"error": "Failed to fetch whale alerts"}), 500
+ 209 | 
+ 210 | 
+ 211 | @panopticon_bp.route("/api/panopticon/correlations")
+ 212 | def api_correlations():
+ 213 |     """Cross-reference timeline: disclosures x whale movements x geopolitical events."""
+ 214 |     if not _is_commander():
+ 215 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+ 216 | 
+ 217 |     try:
+ 218 |         from services.panopticon_service import build_correlations
+ 219 |         limit = min(int(request.args.get("limit", 10)), 25)
+ 220 |         correlations = build_correlations(limit=limit)
+ 221 |         return jsonify({
+ 222 |             "correlations": correlations,
+ 223 |             "count": len(correlations),
+ 224 |         })
+ 225 |     except Exception as e:
+ 226 |         logger.error("Correlations API error: %s", e)
+ 227 |         return jsonify({"error": "Failed to build correlations"}), 500
+ 228 | 
+ 229 | 
+ 230 | @panopticon_bp.route("/api/panopticon/geopolitical")
+ 231 | def api_geopolitical():
+ 232 |     """Nation-state signals, forex interventions, sovereign BTC activity."""
+ 233 |     if not _is_commander():
+ 234 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+ 235 | 
+ 236 |     try:
+ 237 |         from services.panopticon_service import fetch_geopolitical, fetch_forex_signals
+ 238 |         geo = fetch_geopolitical()
+ 239 |         forex = fetch_forex_signals()
+ 240 |         return jsonify({
+ 241 |             "geopolitical": geo,
+ 242 |             "forex": forex,
+ 243 |             "count": len(geo) + len(forex),
+ 244 |         })
+ 245 |     except Exception as e:
+ 246 |         logger.error("Geopolitical API error: %s", e)
+ 247 |         return jsonify({"error": "Failed to fetch geopolitical signals"}), 500
+ 248 | 
+ 249 | 
+ 250 | @panopticon_bp.route("/api/panopticon/polymarket")
+ 251 | def api_polymarket():
+ 252 |     """Live Polymarket prediction market odds for crypto/macro events."""
+ 253 |     if not _is_commander():
+ 254 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+ 255 | 
+ 256 |     try:
+ 257 |         from services.panopticon_service import fetch_polymarket_markets
+ 258 |         limit = min(int(request.args.get("limit", 15)), 30)
+ 259 |         markets = fetch_polymarket_markets(limit=limit)
+ 260 |         return jsonify({
+ 261 |             "markets": markets,
+ 262 |             "count": len(markets),
+ 263 |         })
+ 264 |     except Exception as e:
+ 265 |         logger.error("Polymarket API error: %s", e)
+ 266 |         return jsonify({"error": "Failed to fetch Polymarket data"}), 500
+ 267 | 
+ 268 | 
+ 269 | @panopticon_bp.route("/api/panopticon/make-bitcoin-case", methods=["POST"])
+ 270 | @panopticon_bp.route("/api/panopticon/bitcoin-case", methods=["POST"])
+ 271 | def api_make_bitcoin_case():
+ 272 |     """Generate a cypherpunk Bitcoin self-custody argument for a specific event via Claude."""
+ 273 |     if not _is_commander():
+ 274 |         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+ 275 | 
+ 276 |     try:
+ 277 |         body = request.get_json(silent=True) or {}
+ 278 |         raw_summary = body.get("event_summary", "").strip()
+ 279 |         if not raw_summary:
+ 280 |             return jsonify({"error": "event_summary is required"}), 400
+ 281 |         event_summary = _sanitize_event_summary(raw_summary)
+ 282 |         if not event_summary:
+ 283 |             return jsonify({"error": "event_summary contains no valid content"}), 400
+ 284 | 
+ 285 |         from services.panopticon_service import get_make_bitcoin_case
+ 286 |         result = get_make_bitcoin_case(event_summary)
+ 287 |         return jsonify(result)
+ 288 |     except Exception as e:
+ 289 |         logger.error("Make Bitcoin Case API error: %s", e)
+ 290 |         return jsonify({"error": "Failed to generate Bitcoin case"}), 500
+ 291 | 
 ```
 
-### File: templates/panopticon.html (1392 lines)
+### File: templates/panopticon.html (1398 lines)
 ```
    1 | {% extends "base.html" %}
    2 | 
@@ -2378,410 +2563,416 @@ def api_disclosures():
  986 |             </div>
  987 |             {% endif %}
  988 | 
- 989 |             <div id="pnDisclosures">
- 990 |                 {% for d in data.disclosures %}
- 991 |                 <div class="pn-card">
- 992 |                     <div class="pn-card-header">
- 993 |                         <div class="pn-card-entity">{{ d.entity }}</div>
- 994 |                         {% if d.party %}
- 995 |                         <span class="pn-card-party party-{{ d.party }}">{{ d.party }}</span>
- 996 |                         {% endif %}
- 997 |                     </div>
- 998 |                     <div class="pn-card-body">
- 999 |                         <div class="pn-card-field">
-1000 |                             <span class="pn-card-label">Asset</span>
-1001 |                             <span class="pn-card-value">{{ d.asset }}</span>
-1002 |                         </div>
-1003 |                         <div class="pn-card-field">
-1004 |                             <span class="pn-card-label">Type</span>
-1005 |                             <span class="pn-card-value {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</span>
-1006 |                         </div>
-1007 |                         <div class="pn-card-field">
-1008 |                             <span class="pn-card-label">Amount</span>
-1009 |                             <span class="pn-card-value">{{ d.amount_range }}</span>
-1010 |                         </div>
-1011 |                         <div class="pn-card-field">
-1012 |                             <span class="pn-card-label">Filed</span>
-1013 |                             <span class="pn-card-value">{{ d.date_filed }}</span>
-1014 |                         </div>
-1015 |                         {% if d.get('days_to_file') %}
-1016 |                         <div class="pn-card-field">
-1017 |                             <span class="pn-card-label">Days to File</span>
-1018 |                             <span class="pn-card-value">{{ d.days_to_file }}d</span>
-1019 |                         </div>
-1020 |                         {% endif %}
-1021 |                         {% if d.get('committee') %}
+ 989 |             {% if not demo_mode and data.disclosures_live is defined and not data.disclosures_live %}
+ 990 |             <div class="pn-fallback-banner" style="background:rgba(248,193,92,0.1);border:1px solid var(--pn-gold);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.75rem;color:var(--pn-gold);">
+ 991 |                 <strong>NOTICE:</strong> Live data from efts.house.gov is temporarily unavailable. Displaying documented public examples.
+ 992 |             </div>
+ 993 |             {% endif %}
+ 994 | 
+ 995 |             <div id="pnDisclosures">
+ 996 |                 {% for d in data.disclosures %}
+ 997 |                 <div class="pn-card">
+ 998 |                     <div class="pn-card-header">
+ 999 |                         <div class="pn-card-entity">{{ d.entity }}</div>
+1000 |                         {% if d.party %}
+1001 |                         <span class="pn-card-party party-{{ d.party }}">{{ d.party }}</span>
+1002 |                         {% endif %}
+1003 |                     </div>
+1004 |                     <div class="pn-card-body">
+1005 |                         <div class="pn-card-field">
+1006 |                             <span class="pn-card-label">Asset</span>
+1007 |                             <span class="pn-card-value">{{ d.asset }}</span>
+1008 |                         </div>
+1009 |                         <div class="pn-card-field">
+1010 |                             <span class="pn-card-label">Type</span>
+1011 |                             <span class="pn-card-value {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</span>
+1012 |                         </div>
+1013 |                         <div class="pn-card-field">
+1014 |                             <span class="pn-card-label">Amount</span>
+1015 |                             <span class="pn-card-value">{{ d.amount_range }}</span>
+1016 |                         </div>
+1017 |                         <div class="pn-card-field">
+1018 |                             <span class="pn-card-label">Filed</span>
+1019 |                             <span class="pn-card-value">{{ d.date_filed }}</span>
+1020 |                         </div>
+1021 |                         {% if d.get('days_to_file') %}
 1022 |                         <div class="pn-card-field">
-1023 |                             <span class="pn-card-label">Committee</span>
-1024 |                             <span class="pn-card-value">{{ d.committee }}</span>
+1023 |                             <span class="pn-card-label">Days to File</span>
+1024 |                             <span class="pn-card-value">{{ d.days_to_file }}d</span>
 1025 |                         </div>
 1026 |                         {% endif %}
-1027 |                     </div>
-1028 |                     {% if d.get('correlation_note') %}
-1029 |                     <div class="pn-card-correlation">{{ d.correlation_note }}</div>
-1030 |                     {% endif %}
-1031 |                     {% if d.get('status') == 'loading' %}
-1032 |                     <div style="margin-top:8px;">
-1033 |                         <span class="pn-status-chip loading">Awaiting Live Data</span>
-1034 |                     </div>
-1035 |                     {% endif %}
-1036 |                     <div class="pn-card-source">
-1037 |                         Source: <a href="{{ d.source_url }}" target="_blank" rel="noopener">Public Financial Disclosure</a>
-1038 |                     </div>
-1039 |                 </div>
-1040 |                 {% endfor %}
-1041 |                 {% if not data.disclosures %}
-1042 |                 <div class="pn-empty">No crypto-related disclosures in current window</div>
-1043 |                 {% endif %}
-1044 |             </div>
-1045 | 
-1046 |             <!-- WATCH LIST -->
-1047 |             <div class="pn-watchlist">
-1048 |                 <div class="pn-watchlist-header">TIER 3 — WATCH LIST (Publicly Documented)</div>
-1049 |                 {% for w in data.watch_list %}
-1050 |                 <div class="pn-watchlist-item">
-1051 |                     <div class="pn-watchlist-name">
-1052 |                         {{ w.name }}
-1053 |                         <span class="pn-card-party party-{{ w.party }}" style="margin-left:6px;">{{ w.party }}</span>
-1054 |                     </div>
-1055 |                     <div class="pn-watchlist-detail">{{ w.note }}</div>
-1056 |                     <div class="pn-watchlist-sources">{{ w.coverage|join(', ') }}</div>
-1057 |                 </div>
-1058 |                 {% endfor %}
-1059 |             </div>
-1060 |         </div>
-1061 | 
-1062 |         <!-- ═══ COLUMN 2: FLAGGED (Correlations) ═══ -->
-1063 |         <div class="pn-panel tier-flagged">
-1064 |             <div class="pn-panel-header">
-1065 |                 <span class="tier-dot"></span>
-1066 |                 TIER 2 — FLAGGED
-1067 |                 <span class="pn-panel-count">PATTERN DETECTION</span>
-1068 |             </div>
-1069 | 
-1070 |             {% if demo_mode %}
-1071 |             <div class="pn-demo-overlay">
-1072 |                 <div class="pn-classified-badge">CLASSIFIED</div>
-1073 |                 <div class="pn-classified-sub">Commander Access Required</div>
-1074 |                 <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
-1075 |             </div>
-1076 |             {% endif %}
-1077 | 
-1078 |             <div style="margin-bottom:12px; padding:10px; background:rgba(255,170,0,0.04); border:1px solid rgba(255,170,0,0.1); border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--pn-amber); letter-spacing:0.5px; line-height:1.5;">
-1079 |                 PATTERN FOR RESEARCH &mdash; NOT VERIFIED. Statistical correlations shown for independent research purposes only. These are computed patterns, not accusations.
-1080 |             </div>
-1081 | 
-1082 |             <!-- Correlation Timeline -->
-1083 |             <div class="pn-section-title">Correlation Timeline</div>
-1084 |             <div id="pnCorrelations">
-1085 |                 {% for c in data.correlations %}
-1086 |                 <div class="pn-correlation">
-1087 |                     <div class="pn-correlation-header">CROSS-REFERENCE EVENT</div>
-1088 |                     <div class="pn-correlation-summary">{{ c.timeline_summary }}</div>
-1089 |                     <div class="pn-correlation-events">
-1090 |                         {% if c.disclosure %}
-1091 |                         <div class="pn-corr-event">
-1092 |                             <span class="pn-corr-event-type" style="background:rgba(255,59,95,0.1);color:var(--pn-red);">DISCLOSURE</span>
-1093 |                             {{ c.disclosure.entity }} &mdash; {{ c.disclosure.asset }} ({{ c.disclosure.trade_type }})
-1094 |                         </div>
-1095 |                         {% endif %}
-1096 |                         {% for w in c.related_whales %}
+1027 |                         {% if d.get('committee') %}
+1028 |                         <div class="pn-card-field">
+1029 |                             <span class="pn-card-label">Committee</span>
+1030 |                             <span class="pn-card-value">{{ d.committee }}</span>
+1031 |                         </div>
+1032 |                         {% endif %}
+1033 |                     </div>
+1034 |                     {% if d.get('correlation_note') %}
+1035 |                     <div class="pn-card-correlation">{{ d.correlation_note }}</div>
+1036 |                     {% endif %}
+1037 |                     {% if d.get('status') == 'loading' %}
+1038 |                     <div style="margin-top:8px;">
+1039 |                         <span class="pn-status-chip loading">Awaiting Live Data</span>
+1040 |                     </div>
+1041 |                     {% endif %}
+1042 |                     <div class="pn-card-source">
+1043 |                         Source: <a href="{{ d.source_url }}" target="_blank" rel="noopener">Public Financial Disclosure</a>
+1044 |                     </div>
+1045 |                 </div>
+1046 |                 {% endfor %}
+1047 |                 {% if not data.disclosures %}
+1048 |                 <div class="pn-empty">No crypto-related disclosures in current window</div>
+1049 |                 {% endif %}
+1050 |             </div>
+1051 | 
+1052 |             <!-- WATCH LIST -->
+1053 |             <div class="pn-watchlist">
+1054 |                 <div class="pn-watchlist-header">TIER 3 — WATCH LIST (Publicly Documented)</div>
+1055 |                 {% for w in data.watch_list %}
+1056 |                 <div class="pn-watchlist-item">
+1057 |                     <div class="pn-watchlist-name">
+1058 |                         {{ w.name }}
+1059 |                         <span class="pn-card-party party-{{ w.party }}" style="margin-left:6px;">{{ w.party }}</span>
+1060 |                     </div>
+1061 |                     <div class="pn-watchlist-detail">{{ w.note }}</div>
+1062 |                     <div class="pn-watchlist-sources">{{ w.coverage|join(', ') }}</div>
+1063 |                 </div>
+1064 |                 {% endfor %}
+1065 |             </div>
+1066 |         </div>
+1067 | 
+1068 |         <!-- ═══ COLUMN 2: FLAGGED (Correlations) ═══ -->
+1069 |         <div class="pn-panel tier-flagged">
+1070 |             <div class="pn-panel-header">
+1071 |                 <span class="tier-dot"></span>
+1072 |                 TIER 2 — FLAGGED
+1073 |                 <span class="pn-panel-count">PATTERN DETECTION</span>
+1074 |             </div>
+1075 | 
+1076 |             {% if demo_mode %}
+1077 |             <div class="pn-demo-overlay">
+1078 |                 <div class="pn-classified-badge">CLASSIFIED</div>
+1079 |                 <div class="pn-classified-sub">Commander Access Required</div>
+1080 |                 <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
+1081 |             </div>
+1082 |             {% endif %}
+1083 | 
+1084 |             <div style="margin-bottom:12px; padding:10px; background:rgba(255,170,0,0.04); border:1px solid rgba(255,170,0,0.1); border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--pn-amber); letter-spacing:0.5px; line-height:1.5;">
+1085 |                 PATTERN FOR RESEARCH &mdash; NOT VERIFIED. Statistical correlations shown for independent research purposes only. These are computed patterns, not accusations.
+1086 |             </div>
+1087 | 
+1088 |             <!-- Correlation Timeline -->
+1089 |             <div class="pn-section-title">Correlation Timeline</div>
+1090 |             <div id="pnCorrelations">
+1091 |                 {% for c in data.correlations %}
+1092 |                 <div class="pn-correlation">
+1093 |                     <div class="pn-correlation-header">CROSS-REFERENCE EVENT</div>
+1094 |                     <div class="pn-correlation-summary">{{ c.timeline_summary }}</div>
+1095 |                     <div class="pn-correlation-events">
+1096 |                         {% if c.disclosure %}
 1097 |                         <div class="pn-corr-event">
-1098 |                             <span class="pn-corr-event-type whale">WHALE</span>
-1099 |                             {{ w.entity }} &mdash; {{ w.amount }} {{ w.direction }}
+1098 |                             <span class="pn-corr-event-type" style="background:rgba(255,59,95,0.1);color:var(--pn-red);">DISCLOSURE</span>
+1099 |                             {{ c.disclosure.entity }} &mdash; {{ c.disclosure.asset }} ({{ c.disclosure.trade_type }})
 1100 |                         </div>
-1101 |                         {% endfor %}
-1102 |                         {% for g in c.related_geo %}
+1101 |                         {% endif %}
+1102 |                         {% for w in c.related_whales %}
 1103 |                         <div class="pn-corr-event">
-1104 |                             <span class="pn-corr-event-type geo">GEO</span>
-1105 |                             {{ g.headline[:80] }}{% if g.headline|length > 80 %}...{% endif %}
+1104 |                             <span class="pn-corr-event-type whale">WHALE</span>
+1105 |                             {{ w.entity }} &mdash; {{ w.amount }} {{ w.direction }}
 1106 |                         </div>
 1107 |                         {% endfor %}
-1108 |                     </div>
-1109 |                     {% if not demo_mode %}
-1110 |                     <button class="pn-btc-case-btn" onclick="makeBitcoinCase(this, '{{ c.timeline_summary|e }}')" data-idx="{{ loop.index }}">
-1111 |                         &#x20BF; Make the Bitcoin Case
-1112 |                     </button>
-1113 |                     <div class="pn-btc-case-output" id="btcCase{{ loop.index }}"></div>
-1114 |                     {% endif %}
-1115 |                 </div>
-1116 |                 {% endfor %}
-1117 |                 {% if not data.correlations %}
-1118 |                 <div class="pn-empty">Awaiting correlated events...</div>
-1119 |                 {% endif %}
-1120 |             </div>
-1121 | 
-1122 |             <!-- Flagged Disclosures -->
-1123 |             <div class="pn-section-title">Flagged Trades</div>
-1124 |             {% for f in data.flagged %}
-1125 |             <div class="pn-card" style="border-left:3px solid var(--pn-amber);">
-1126 |                 <div class="pn-card-header">
-1127 |                     <div class="pn-card-entity">{{ f.entity }}</div>
-1128 |                     {% if f.party %}
-1129 |                     <span class="pn-card-party party-{{ f.party }}">{{ f.party }}</span>
-1130 |                     {% endif %}
-1131 |                 </div>
-1132 |                 <div class="pn-card-body">
-1133 |                     <div class="pn-card-field">
-1134 |                         <span class="pn-card-label">Asset</span>
-1135 |                         <span class="pn-card-value">{{ f.asset }}</span>
-1136 |                     </div>
-1137 |                     <div class="pn-card-field">
-1138 |                         <span class="pn-card-label">Score</span>
-1139 |                         <span class="pn-card-value" style="color:var(--pn-amber)">{{ "%.0f"|format(f.correlation_score * 100) }}%</span>
-1140 |                     </div>
-1141 |                 </div>
-1142 |                 <div class="pn-card-correlation">{{ f.flag_reason }}</div>
-1143 |             </div>
-1144 |             {% endfor %}
-1145 |             {% if not data.flagged %}
-1146 |             <div class="pn-empty">No statistical patterns detected in current window</div>
-1147 |             {% endif %}
-1148 |         </div>
-1149 | 
-1150 |         <!-- ═══ COLUMN 3: REAL-TIME FEED ═══ -->
-1151 |         <div class="pn-panel tier-feed">
-1152 |             <div class="pn-panel-header">
-1153 |                 <span class="tier-dot"></span>
-1154 |                 REAL-TIME FEED
-1155 |                 <span class="pn-panel-count">WHALE + FOREX + GEO</span>
-1156 |             </div>
-1157 | 
-1158 |             {% if demo_mode %}
-1159 |             <div class="pn-demo-overlay">
-1160 |                 <div class="pn-classified-badge">CLASSIFIED</div>
-1161 |                 <div class="pn-classified-sub">Commander Access Required</div>
-1162 |                 <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
-1163 |             </div>
-1164 |             {% endif %}
-1165 | 
-1166 |             <!-- Whale Alerts -->
-1167 |             <div class="pn-section-title">Whale Tracker</div>
-1168 |             <div id="pnWhales">
-1169 |                 {% for w in data.whales %}
-1170 |                 <div class="pn-whale-card">
-1171 |                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-1172 |                         <div class="pn-whale-entity">{{ w.entity }}</div>
-1173 |                         <span class="pn-whale-type {{ w.tx_type }}">{{ w.tx_type|upper }}</span>
-1174 |                     </div>
-1175 |                     <div class="pn-whale-amount {{ w.tx_type }}">
-1176 |                         {% if w.tx_type == 'inflow' %}+{% else %}-{% endif %}{{ w.amount_btc }} BTC
-1177 |                     </div>
-1178 |                     {% if w.amount_usd %}
-1179 |                     <div class="pn-whale-usd">${{ "{:,.0f}".format(w.amount_usd) }} USD</div>
-1180 |                     {% endif %}
-1181 |                     <div class="pn-whale-meta">
-1182 |                         <span>{{ w.address }}</span>
-1183 |                         <a href="{{ w.source_url }}" target="_blank" rel="noopener">View TX &rarr;</a>
-1184 |                     </div>
-1185 |                 </div>
-1186 |                 {% endfor %}
-1187 |                 {% if not data.whales %}
-1188 |                 <div class="pn-loading">
-1189 |                     <div class="pn-loading-dot"></div>
-1190 |                     <div class="pn-loading-dot"></div>
-1191 |                     <div class="pn-loading-dot"></div>
-1192 |                     Scanning whale wallets...
-1193 |                 </div>
-1194 |                 {% endif %}
-1195 |             </div>
-1196 | 
-1197 |             <!-- Polymarket Prediction Markets -->
-1198 |             <div class="pn-section-title">Polymarket Prediction Odds</div>
-1199 |             <div id="pnPolymarket">
-1200 |                 {% for p in data.polymarket %}
-1201 |                 <div class="pn-poly-card">
-1202 |                     <div class="pn-poly-question">{{ p.question }}</div>
-1203 |                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-1204 |                         {% if p.yes_price %}
-1205 |                         <span class="pn-poly-odds {{ p.btc_signal }}">{{ p.yes_price }}%</span>
-1206 |                         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--pn-muted);text-transform:uppercase;">YES</span>
-1207 |                         {% else %}
-1208 |                         <span class="pn-poly-odds neutral">--</span>
-1209 |                         {% endif %}
-1210 |                         <span class="pn-geo-signal signal-{{ p.btc_signal }}" style="margin-left:auto;">
-1211 |                             {% if p.btc_signal == 'bullish' %}&#9650;{% elif p.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
-1212 |                             {{ p.btc_signal|upper }}
-1213 |                         </span>
-1214 |                     </div>
-1215 |                     {% if p.yes_price %}
-1216 |                     <div class="pn-poly-bar-wrap">
-1217 |                         <div class="pn-poly-bar-fill {{ p.btc_signal }}" style="width:{{ p.yes_price }}%"></div>
-1218 |                     </div>
-1219 |                     {% endif %}
-1220 |                     <div class="pn-poly-meta">
-1221 |                         {% if p.volume %}
-1222 |                         <span class="pn-poly-volume">${{ "{:,.0f}".format(p.volume) }} vol</span>
-1223 |                         {% endif %}
-1224 |                         {% if p.end_date %}
-1225 |                         <span>Expires {{ p.end_date[:10] }}</span>
-1226 |                         {% endif %}
-1227 |                         <a href="{{ p.source_url }}" target="_blank" rel="noopener" style="color:var(--pn-text-secondary);text-decoration:none;font-size:9px;">Polymarket &rarr;</a>
-1228 |                     </div>
-1229 |                 </div>
-1230 |                 {% endfor %}
-1231 |                 {% if not data.polymarket %}
-1232 |                 <div class="pn-loading">
-1233 |                     <div class="pn-loading-dot"></div>
-1234 |                     <div class="pn-loading-dot"></div>
-1235 |                     <div class="pn-loading-dot"></div>
-1236 |                     Fetching prediction markets...
-1237 |                 </div>
-1238 |                 {% endif %}
-1239 |             </div>
-1240 | 
-1241 |             <!-- Nation-State / Forex -->
-1242 |             <div class="pn-section-title">Nation-State Signals</div>
-1243 |             <div id="pnForex">
-1244 |                 {% for f in data.forex %}
-1245 |                 <div class="pn-forex-row">
-1246 |                     <span class="pn-forex-pair">{{ f.pair }}</span>
-1247 |                     {% if f.rate %}
-1248 |                     <span class="pn-forex-rate">{{ f.rate }}</span>
-1249 |                     {% endif %}
-1250 |                     <span class="pn-forex-status">{{ f.status }}</span>
-1251 |                 </div>
-1252 |                 {% endfor %}
-1253 |                 {% if not data.forex %}
-1254 |                 <div class="pn-loading">
-1255 |                     <div class="pn-loading-dot"></div>
-1256 |                     <div class="pn-loading-dot"></div>
-1257 |                     <div class="pn-loading-dot"></div>
-1258 |                     Fetching sovereign signals...
-1259 |                 </div>
-1260 |                 {% endif %}
-1261 |             </div>
-1262 | 
-1263 |             <!-- Geopolitical Feed -->
-1264 |             <div class="pn-section-title">Geopolitical Alert Feed</div>
-1265 |             <div id="pnGeo">
-1266 |                 {% for g in data.geopolitical %}
-1267 |                 <div class="pn-geo-card">
-1268 |                     <div class="pn-geo-headline">{{ g.headline }}</div>
-1269 |                     <span class="pn-geo-signal signal-{{ g.btc_signal }}">
-1270 |                         {% if g.btc_signal == 'bullish' %}&#9650;{% elif g.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
-1271 |                         BTC SIGNAL: {{ g.btc_signal|upper }}
-1272 |                     </span>
-1273 |                     <div class="pn-geo-rationale">{{ g.btc_rationale }}</div>
-1274 |                     <div class="pn-geo-meta">
-1275 |                         <span>{{ g.source }}</span>
-1276 |                         <span>{{ g.timestamp[:10] if g.timestamp else 'N/A' }}</span>
-1277 |                     </div>
-1278 |                 </div>
-1279 |                 {% endfor %}
-1280 |                 {% if not data.geopolitical %}
-1281 |                 <div class="pn-empty">No geopolitical signals in current window</div>
-1282 |                 {% endif %}
-1283 |             </div>
-1284 |         </div>
-1285 |     </div>
-1286 | 
-1287 |     <!-- ═══ DISCLAIMER ═══ -->
-1288 |     <div class="pn-disclaimer">
-1289 |         All data sourced from public filings (STOCK Act, SEC EDGAR), public blockchain explorers (mempool.space), and open APIs.
-1290 |         Correlation shown for independent research purposes only. Protocol Pulse does not make accusations of insider trading.
-1291 |         "FLAGGED" items are statistical patterns, not verified misconduct. Always consult original sources.
-1292 |     </div>
-1293 | </div>
-1294 | {% endblock %}
-1295 | 
-1296 | {% block scripts %}
-1297 | <script>
-1298 | (function() {
-1299 |     // UTC clock
-1300 |     function updateClock() {
-1301 |         const now = new Date();
-1302 |         const h = String(now.getUTCHours()).padStart(2, '0');
-1303 |         const m = String(now.getUTCMinutes()).padStart(2, '0');
-1304 |         const s = String(now.getUTCSeconds()).padStart(2, '0');
-1305 |         const el = document.getElementById('pnClock');
-1306 |         if (el) el.textContent = h + ':' + m + ':' + s + ' UTC';
-1307 |     }
-1308 |     updateClock();
-1309 |     setInterval(updateClock, 1000);
-1310 | 
-1311 |     {% if not demo_mode %}
-1312 |     // ── Make the Bitcoin Case (typewriter animation) ──
-1313 |     window.makeBitcoinCase = function(btn, eventSummary) {
-1314 |         var idx = btn.getAttribute('data-idx');
-1315 |         var outputEl = document.getElementById('btcCase' + idx);
-1316 |         if (!outputEl) return;
-1317 | 
-1318 |         btn.disabled = true;
-1319 |         btn.textContent = 'GENERATING...';
-1320 |         outputEl.innerHTML = '';
-1321 |         outputEl.classList.add('visible');
-1322 | 
-1323 |         fetch('/api/panopticon/make-bitcoin-case', {
-1324 |             method: 'POST',
-1325 |             headers: {'Content-Type': 'application/json'},
-1326 |             body: JSON.stringify({event_summary: eventSummary})
-1327 |         })
-1328 |         .then(function(r) { return r.json(); })
-1329 |         .then(function(data) {
-1330 |             if (data.error) {
-1331 |                 outputEl.innerHTML = '<span style="color:var(--pn-coral)">' + data.error + '</span>';
-1332 |                 btn.disabled = false;
-1333 |                 btn.innerHTML = '&#x20BF; Make the Bitcoin Case';
-1334 |                 return;
-1335 |             }
-1336 |             // Typewriter animation
-1337 |             var text = data.case_text || '';
-1338 |             var model = data.model || '';
-1339 |             outputEl.innerHTML = '<div class="pn-btc-case-label">THE BITCOIN CASE</div><span id="typewriter' + idx + '"></span><span class="pn-typewriter-cursor"></span>';
-1340 |             var twEl = document.getElementById('typewriter' + idx);
-1341 |             var i = 0;
-1342 |             function typeChar() {
-1343 |                 if (i < text.length) {
-1344 |                     twEl.textContent += text.charAt(i);
-1345 |                     i++;
-1346 |                     setTimeout(typeChar, 18 + Math.random() * 12);
-1347 |                 } else {
-1348 |                     // Remove cursor, show model tag
-1349 |                     var cursor = outputEl.querySelector('.pn-typewriter-cursor');
-1350 |                     if (cursor) cursor.remove();
-1351 |                     outputEl.innerHTML += '<div class="pn-btc-case-model">Model: ' + model + '</div>';
-1352 |                     btn.disabled = false;
-1353 |                     btn.innerHTML = '&#x20BF; Regenerate Case';
-1354 |                 }
-1355 |             }
-1356 |             typeChar();
-1357 |         })
-1358 |         .catch(function() {
-1359 |             outputEl.innerHTML = '<span style="color:var(--pn-coral)">Failed to generate. Try again.</span>';
-1360 |             btn.disabled = false;
-1361 |             btn.innerHTML = '&#x20BF; Make the Bitcoin Case';
-1362 |         });
-1363 |     };
-1364 | 
-1365 |     // Auto-refresh data every 5 minutes
-1366 |     function refreshData() {
-1367 |         fetch('/api/panopticon/whale-alerts')
-1368 |             .then(r => r.json())
-1369 |             .then(data => {
-1370 |                 if (data.alerts && data.alerts.length > 0) {
-1371 |                     const count = document.getElementById('pnStatWhales');
-1372 |                     if (count) count.textContent = data.alerts.length;
-1373 |                 }
-1374 |             })
-1375 |             .catch(() => {});
-1376 | 
-1377 |         fetch('/api/panopticon/geopolitical')
-1378 |             .then(r => r.json())
-1379 |             .then(data => {
-1380 |                 if (data.geopolitical) {
-1381 |                     const count = document.getElementById('pnStatGeo');
-1382 |                     if (count) count.textContent = data.geopolitical.length;
-1383 |                 }
-1384 |             })
-1385 |             .catch(() => {});
-1386 |     }
-1387 |     setInterval(refreshData, 300000); // 5 min
-1388 |     {% endif %}
-1389 | })();
-1390 | </script>
-1391 | {% endblock %}
-1392 | 
+1108 |                         {% for g in c.related_geo %}
+1109 |                         <div class="pn-corr-event">
+1110 |                             <span class="pn-corr-event-type geo">GEO</span>
+1111 |                             {{ g.headline[:80] }}{% if g.headline|length > 80 %}...{% endif %}
+1112 |                         </div>
+1113 |                         {% endfor %}
+1114 |                     </div>
+1115 |                     {% if not demo_mode %}
+1116 |                     <button class="pn-btc-case-btn" onclick="makeBitcoinCase(this, '{{ c.timeline_summary|e }}')" data-idx="{{ loop.index }}">
+1117 |                         &#x20BF; Make the Bitcoin Case
+1118 |                     </button>
+1119 |                     <div class="pn-btc-case-output" id="btcCase{{ loop.index }}"></div>
+1120 |                     {% endif %}
+1121 |                 </div>
+1122 |                 {% endfor %}
+1123 |                 {% if not data.correlations %}
+1124 |                 <div class="pn-empty">Awaiting correlated events...</div>
+1125 |                 {% endif %}
+1126 |             </div>
+1127 | 
+1128 |             <!-- Flagged Disclosures -->
+1129 |             <div class="pn-section-title">Flagged Trades</div>
+1130 |             {% for f in data.flagged %}
+1131 |             <div class="pn-card" style="border-left:3px solid var(--pn-amber);">
+1132 |                 <div class="pn-card-header">
+1133 |                     <div class="pn-card-entity">{{ f.entity }}</div>
+1134 |                     {% if f.party %}
+1135 |                     <span class="pn-card-party party-{{ f.party }}">{{ f.party }}</span>
+1136 |                     {% endif %}
+1137 |                 </div>
+1138 |                 <div class="pn-card-body">
+1139 |                     <div class="pn-card-field">
+1140 |                         <span class="pn-card-label">Asset</span>
+1141 |                         <span class="pn-card-value">{{ f.asset }}</span>
+1142 |                     </div>
+1143 |                     <div class="pn-card-field">
+1144 |                         <span class="pn-card-label">Score</span>
+1145 |                         <span class="pn-card-value" style="color:var(--pn-amber)">{{ "%.0f"|format(f.correlation_score * 100) }}%</span>
+1146 |                     </div>
+1147 |                 </div>
+1148 |                 <div class="pn-card-correlation">{{ f.flag_reason }}</div>
+1149 |             </div>
+1150 |             {% endfor %}
+1151 |             {% if not data.flagged %}
+1152 |             <div class="pn-empty">No statistical patterns detected in current window</div>
+1153 |             {% endif %}
+1154 |         </div>
+1155 | 
+1156 |         <!-- ═══ COLUMN 3: REAL-TIME FEED ═══ -->
+1157 |         <div class="pn-panel tier-feed">
+1158 |             <div class="pn-panel-header">
+1159 |                 <span class="tier-dot"></span>
+1160 |                 REAL-TIME FEED
+1161 |                 <span class="pn-panel-count">WHALE + FOREX + GEO</span>
+1162 |             </div>
+1163 | 
+1164 |             {% if demo_mode %}
+1165 |             <div class="pn-demo-overlay">
+1166 |                 <div class="pn-classified-badge">CLASSIFIED</div>
+1167 |                 <div class="pn-classified-sub">Commander Access Required</div>
+1168 |                 <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
+1169 |             </div>
+1170 |             {% endif %}
+1171 | 
+1172 |             <!-- Whale Alerts -->
+1173 |             <div class="pn-section-title">Whale Tracker</div>
+1174 |             <div id="pnWhales">
+1175 |                 {% for w in data.whales %}
+1176 |                 <div class="pn-whale-card">
+1177 |                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+1178 |                         <div class="pn-whale-entity">{{ w.entity }}</div>
+1179 |                         <span class="pn-whale-type {{ w.tx_type }}">{{ w.tx_type|upper }}</span>
+1180 |                     </div>
+1181 |                     <div class="pn-whale-amount {{ w.tx_type }}">
+1182 |                         {% if w.tx_type == 'inflow' %}+{% else %}-{% endif %}{{ w.amount_btc }} BTC
+1183 |                     </div>
+1184 |                     {% if w.amount_usd %}
+1185 |                     <div class="pn-whale-usd">${{ "{:,.0f}".format(w.amount_usd) }} USD</div>
+1186 |                     {% endif %}
+1187 |                     <div class="pn-whale-meta">
+1188 |                         <span>{{ w.address }}</span>
+1189 |                         <a href="{{ w.source_url }}" target="_blank" rel="noopener">View TX &rarr;</a>
+1190 |                     </div>
+1191 |                 </div>
+1192 |                 {% endfor %}
+1193 |                 {% if not data.whales %}
+1194 |                 <div class="pn-loading">
+1195 |                     <div class="pn-loading-dot"></div>
+1196 |                     <div class="pn-loading-dot"></div>
+1197 |                     <div class="pn-loading-dot"></div>
+1198 |                     Scanning whale wallets...
+1199 |                 </div>
+1200 |                 {% endif %}
+1201 |             </div>
+1202 | 
+1203 |             <!-- Polymarket Prediction Markets -->
+1204 |             <div class="pn-section-title">Polymarket Prediction Odds</div>
+1205 |             <div id="pnPolymarket">
+1206 |                 {% for p in data.polymarket %}
+1207 |                 <div class="pn-poly-card">
+1208 |                     <div class="pn-poly-question">{{ p.question }}</div>
+1209 |                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+1210 |                         {% if p.yes_price %}
+1211 |                         <span class="pn-poly-odds {{ p.btc_signal }}">{{ p.yes_price }}%</span>
+1212 |                         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--pn-muted);text-transform:uppercase;">YES</span>
+1213 |                         {% else %}
+1214 |                         <span class="pn-poly-odds neutral">--</span>
+1215 |                         {% endif %}
+1216 |                         <span class="pn-geo-signal signal-{{ p.btc_signal }}" style="margin-left:auto;">
+1217 |                             {% if p.btc_signal == 'bullish' %}&#9650;{% elif p.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+1218 |                             {{ p.btc_signal|upper }}
+1219 |                         </span>
+1220 |                     </div>
+1221 |                     {% if p.yes_price %}
+1222 |                     <div class="pn-poly-bar-wrap">
+1223 |                         <div class="pn-poly-bar-fill {{ p.btc_signal }}" style="width:{{ p.yes_price }}%"></div>
+1224 |                     </div>
+1225 |                     {% endif %}
+1226 |                     <div class="pn-poly-meta">
+1227 |                         {% if p.volume %}
+1228 |                         <span class="pn-poly-volume">${{ "{:,.0f}".format(p.volume) }} vol</span>
+1229 |                         {% endif %}
+1230 |                         {% if p.end_date %}
+1231 |                         <span>Expires {{ p.end_date[:10] }}</span>
+1232 |                         {% endif %}
+1233 |                         <a href="{{ p.source_url }}" target="_blank" rel="noopener" style="color:var(--pn-text-secondary);text-decoration:none;font-size:9px;">Polymarket &rarr;</a>
+1234 |                     </div>
+1235 |                 </div>
+1236 |                 {% endfor %}
+1237 |                 {% if not data.polymarket %}
+1238 |                 <div class="pn-loading">
+1239 |                     <div class="pn-loading-dot"></div>
+1240 |                     <div class="pn-loading-dot"></div>
+1241 |                     <div class="pn-loading-dot"></div>
+1242 |                     Fetching prediction markets...
+1243 |                 </div>
+1244 |                 {% endif %}
+1245 |             </div>
+1246 | 
+1247 |             <!-- Nation-State / Forex -->
+1248 |             <div class="pn-section-title">Nation-State Signals</div>
+1249 |             <div id="pnForex">
+1250 |                 {% for f in data.forex %}
+1251 |                 <div class="pn-forex-row">
+1252 |                     <span class="pn-forex-pair">{{ f.pair }}</span>
+1253 |                     {% if f.rate %}
+1254 |                     <span class="pn-forex-rate">{{ f.rate }}</span>
+1255 |                     {% endif %}
+1256 |                     <span class="pn-forex-status">{{ f.status }}</span>
+1257 |                 </div>
+1258 |                 {% endfor %}
+1259 |                 {% if not data.forex %}
+1260 |                 <div class="pn-loading">
+1261 |                     <div class="pn-loading-dot"></div>
+1262 |                     <div class="pn-loading-dot"></div>
+1263 |                     <div class="pn-loading-dot"></div>
+1264 |                     Fetching sovereign signals...
+1265 |                 </div>
+1266 |                 {% endif %}
+1267 |             </div>
+1268 | 
+1269 |             <!-- Geopolitical Feed -->
+1270 |             <div class="pn-section-title">Geopolitical Alert Feed</div>
+1271 |             <div id="pnGeo">
+1272 |                 {% for g in data.geopolitical %}
+1273 |                 <div class="pn-geo-card">
+1274 |                     <div class="pn-geo-headline">{{ g.headline }}</div>
+1275 |                     <span class="pn-geo-signal signal-{{ g.btc_signal }}">
+1276 |                         {% if g.btc_signal == 'bullish' %}&#9650;{% elif g.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+1277 |                         BTC SIGNAL: {{ g.btc_signal|upper }}
+1278 |                     </span>
+1279 |                     <div class="pn-geo-rationale">{{ g.btc_rationale }}</div>
+1280 |                     <div class="pn-geo-meta">
+1281 |                         <span>{{ g.source }}</span>
+1282 |                         <span>{{ g.timestamp[:10] if g.timestamp else 'N/A' }}</span>
+1283 |                     </div>
+1284 |                 </div>
+1285 |                 {% endfor %}
+1286 |                 {% if not data.geopolitical %}
+1287 |                 <div class="pn-empty">No geopolitical signals in current window</div>
+1288 |                 {% endif %}
+1289 |             </div>
+1290 |         </div>
+1291 |     </div>
+1292 | 
+1293 |     <!-- ═══ DISCLAIMER ═══ -->
+1294 |     <div class="pn-disclaimer">
+1295 |         All data sourced from public filings (STOCK Act, SEC EDGAR), public blockchain explorers (mempool.space), and open APIs.
+1296 |         Correlation shown for independent research purposes only. Protocol Pulse does not make accusations of insider trading.
+1297 |         "FLAGGED" items are statistical patterns, not verified misconduct. Always consult original sources.
+1298 |     </div>
+1299 | </div>
+1300 | {% endblock %}
+1301 | 
+1302 | {% block scripts %}
+1303 | <script>
+1304 | (function() {
+1305 |     // UTC clock
+1306 |     function updateClock() {
+1307 |         const now = new Date();
+1308 |         const h = String(now.getUTCHours()).padStart(2, '0');
+1309 |         const m = String(now.getUTCMinutes()).padStart(2, '0');
+1310 |         const s = String(now.getUTCSeconds()).padStart(2, '0');
+1311 |         const el = document.getElementById('pnClock');
+1312 |         if (el) el.textContent = h + ':' + m + ':' + s + ' UTC';
+1313 |     }
+1314 |     updateClock();
+1315 |     setInterval(updateClock, 1000);
+1316 | 
+1317 |     {% if not demo_mode %}
+1318 |     // ── Make the Bitcoin Case (typewriter animation) ──
+1319 |     window.makeBitcoinCase = function(btn, eventSummary) {
+1320 |         var idx = btn.getAttribute('data-idx');
+1321 |         var outputEl = document.getElementById('btcCase' + idx);
+1322 |         if (!outputEl) return;
+1323 | 
+1324 |         btn.disabled = true;
+1325 |         btn.textContent = 'GENERATING...';
+1326 |         outputEl.innerHTML = '';
+1327 |         outputEl.classList.add('visible');
+1328 | 
+1329 |         fetch('/api/panopticon/make-bitcoin-case', {
+1330 |             method: 'POST',
+1331 |             headers: {'Content-Type': 'application/json'},
+1332 |             body: JSON.stringify({event_summary: eventSummary})
+1333 |         })
+1334 |         .then(function(r) { return r.json(); })
+1335 |         .then(function(data) {
+1336 |             if (data.error) {
+1337 |                 outputEl.innerHTML = '<span style="color:var(--pn-coral)">' + data.error + '</span>';
+1338 |                 btn.disabled = false;
+1339 |                 btn.innerHTML = '&#x20BF; Make the Bitcoin Case';
+1340 |                 return;
+1341 |             }
+1342 |             // Typewriter animation
+1343 |             var text = data.case_text || '';
+1344 |             var model = data.model || '';
+1345 |             outputEl.innerHTML = '<div class="pn-btc-case-label">THE BITCOIN CASE</div><span id="typewriter' + idx + '"></span><span class="pn-typewriter-cursor"></span>';
+1346 |             var twEl = document.getElementById('typewriter' + idx);
+1347 |             var i = 0;
+1348 |             function typeChar() {
+1349 |                 if (i < text.length) {
+1350 |                     twEl.textContent += text.charAt(i);
+1351 |                     i++;
+1352 |                     setTimeout(typeChar, 18 + Math.random() * 12);
+1353 |                 } else {
+1354 |                     // Remove cursor, show model tag
+1355 |                     var cursor = outputEl.querySelector('.pn-typewriter-cursor');
+1356 |                     if (cursor) cursor.remove();
+1357 |                     outputEl.innerHTML += '<div class="pn-btc-case-model">Model: ' + model + '</div>';
+1358 |                     btn.disabled = false;
+1359 |                     btn.innerHTML = '&#x20BF; Regenerate Case';
+1360 |                 }
+1361 |             }
+1362 |             typeChar();
+1363 |         })
+1364 |         .catch(function() {
+1365 |             outputEl.innerHTML = '<span style="color:var(--pn-coral)">Failed to generate. Try again.</span>';
+1366 |             btn.disabled = false;
+1367 |             btn.innerHTML = '&#x20BF; Make the Bitcoin Case';
+1368 |         });
+1369 |     };
+1370 | 
+1371 |     // Auto-refresh data every 5 minutes
+1372 |     function refreshData() {
+1373 |         fetch('/api/panopticon/whale-alerts')
+1374 |             .then(r => r.json())
+1375 |             .then(data => {
+1376 |                 if (data.alerts && data.alerts.length > 0) {
+1377 |                     const count = document.getElementById('pnStatWhales');
+1378 |                     if (count) count.textContent = data.alerts.length;
+1379 |                 }
+1380 |             })
+1381 |             .catch(() => {});
+1382 | 
+1383 |         fetch('/api/panopticon/geopolitical')
+1384 |             .then(r => r.json())
+1385 |             .then(data => {
+1386 |                 if (data.geopolitical) {
+1387 |                     const count = document.getElementById('pnStatGeo');
+1388 |                     if (count) count.textContent = data.geopolitical.length;
+1389 |                 }
+1390 |             })
+1391 |             .catch(() => {});
+1392 |     }
+1393 |     setInterval(refreshData, 300000); // 5 min
+1394 |     {% endif %}
+1395 | })();
+1396 | </script>
+1397 | {% endblock %}
+1398 | 
 ```
 
 ### File: services/scheduler.py (736 lines)

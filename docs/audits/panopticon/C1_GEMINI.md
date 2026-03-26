@@ -1,263 +1,195 @@
-Here is a comprehensive code audit for the PANOPTICON feature.
+# PROTOCOL PULSE — CODE AUDIT: PANOPTICON
 
-## AUDIT REPORT: PANOPTICON INTELLIGENCE DASHBOARD
+**AUDITOR:** Gemini 2.5 Pro
+**DATE:** 2026-03-26 01:15 UTC
 
-This audit analyzes the provided code for the PANOPTICON feature against the project's governing laws and best practices for security, scalability, and correctness.
+This report contains a detailed analysis of the `panopticon` feature, focusing on architecture, security, logic, and scalability as requested.
 
 ---
 
 ### Q1 — CONGRESSIONAL DATA FETCHING ARCHITECTURE
 
-**Is the efts.house.gov API integration correct and production-safe?**
+Is the efts.house.gov API integration correct and production-safe?
 
--   **DETAILED ANALYSIS:**
-    -   **Endpoint & Parameters:** The code queries `https://efts.house.gov/LATEST/search-index` (line 137). This appears to be an internal API for the House's electronic financial disclosure search page. While it may work now, undocumented APIs are brittle and can change without notice, breaking the feature. The parameters used (`q`, `dateRange`, `startdt`, `enddt`) seem plausible based on public-facing search forms, but their stability is not guaranteed.
-    -   **Rate Limiting:** The code includes a `time.sleep(0.5)` (line 167) within the search term loop. This is a good faith effort to be a polite scraper. However, there is no official documentation on rate limits. Relying on a fixed sleep interval is risky; a more robust solution would handle `429 Too Many Requests` status codes with an exponential backoff strategy.
-    -   **JSON Parsing:** The parsing logic (lines 148-156) extensively uses `.get()` methods and checks for key existence. This makes it reasonably robust against missing fields or minor schema changes (e.g., `filing_name` vs `name`). However, a complete restructuring of the response JSON would still break the parser.
-    -   **Fallback System:** The fallback in `_generate_disclosure_placeholders` (lines 218-287) is problematic. It returns real, but static and potentially outdated, examples of disclosures. The template then renders these with a "loading" status (`panopticon.html`, line 1033). This is misleading to the user, as it implies this is live data that is merely slow to load, not a complete fallback to canned examples. This damages user trust.
+**DETAILED ANALYSIS**
+The integration with `efts.house.gov` is functional but extremely brittle and contains a significant data integrity issue in its fallback mechanism.
 
--   **SEVERITY:** **HIGH**
--   **SPECIFIC FIX:**
-    1.  **API Brittleness:** Acknowledge the risk of using an undocumented API. Add more comprehensive error logging to detect and alert on schema changes or `4xx`/`5xx` errors from the endpoint.
-    2.  **Fallback Honesty:** The fallback mechanism should be made transparent to the user. Instead of showing placeholders with a "loading" status, the service should return an explicit "API unavailable" state. The frontend should then display a message like: `Live data from efts.house.gov is temporarily unavailable. Displaying recent, publicly documented examples for demonstration.`
-    ```python
-    # services/panopticon_service.py, inside get_dashboard_data()
+1.  **Endpoint and Parameters:** The code targets `https://efts.house.gov/LATEST/search-index` (`panopticon_service.py:193`). This appears to be an internal search endpoint for the website's front end, not a documented public API. While the parameters (`q`, `dateRange`, etc.) seem to work, they are subject to unannounced changes at any time, which could break the service without warning.
 
-    disclosures, disclosures_live = fetch_disclosures() # Modify fetch_disclosures to return a status
-    
-    # And in panopticon.py, pass this status to the template
-    return render_template(
-        "panopticon.html",
-        demo_mode=demo_mode,
-        data=data,
-        disclosures_live=disclosures_live,
-    )
+2.  **Rate Limits:** The code correctly uses the `_rate_limited_get` wrapper and adds a courtesy sleep (`panopticon_service.py:223`). However, since this is not a public API, there are no documented rate limits. The current implementation is a reasonable guess but could still be too aggressive, leading to IP bans.
 
-    # And in fetch_disclosures()
-    def fetch_disclosures(limit: int = 50) -> tuple[list[dict], bool]:
-        # ...
-        disclosures = fetch_stock_act_disclosures(limit=limit)
-        if disclosures:
-            _set_cache(cache_key, disclosures)
-            return disclosures, True # Return live status
-        
-        # Fallback to well-known public data
-        disclosures = _generate_disclosure_placeholders()
-        _set_cache(cache_key, disclosures) # Cache the fallback but with a shorter TTL?
-        return disclosures, False # Return not-live status
-    ```
+3.  **Schema Robustness:** The parsing logic is highly defensive, indicating the developer is aware of schema instability.
+    *   `panopticon_service.py:205-212`: The code attempts to get data from multiple possible keys (e.g., `filing_name`, `name`, `display_names`). This is a sign of a fragile, undocumented API.
+    *   `panopticon_service.py:242-259`: The `_extract_asset_from_hit` function is an explicit admission of this fragility. It tries several known-good keys and then logs a `SCHEMA_DRIFT` warning. The final fallback of searching a JSON dump of the entire record for keywords is clever but inefficient and prone to false positives.
+
+4.  **Fallback System:** The fallback system (`_generate_disclosure_placeholders` at `panopticon_service.py:296`) is **not appropriate**. It uses hardcoded **future dates** (e.g., "2025-09-15", "2025-10-01" from the perspective of the 2026 generation date) for filings. The comment on line 297 states this is to "avoid misleading freshness," but presenting future events as historical data is fundamentally misleading and damages the credibility of the entire platform. While the UI displays a banner (`panopticon.html:989-993`), the data itself is nonsensical.
+
+**SEVERITY:** HIGH
+
+**SPECIFIC FIX**
+1.  Acknowledge in documentation and monitoring that this endpoint is unstable and subject to break.
+2.  **Most importantly, fix the placeholder dates.** They must be replaced with plausible, historical dates from real, publicly documented filings. The goal of a fallback is to show a realistic example of the data, not to present impossible data.
+
+```python
+# services/panopticon_service.py - SUGGESTED CHANGE
+
+# In _generate_disclosure_placeholders(), change future dates to historical ones.
+# Example for the first entry:
+        {
+            "entity": "Rep. Michael McCaul (R-TX)",
+            "asset": "Bitcoin ETF (IBIT)",
+            "trade_type": "purchase",
+            "amount_range": "$15,001–$50,000",
+            "chamber": "house",
+            "party": "R",
+            # CHANGE THESE DATES to be in the past.
+            "date_filed": "2024-03-15",
+            "date_traded": "2024-02-20",
+            "days_to_file": 24,
+            # ... rest of the placeholder data
+        },
+```
 
 ---
 
 ### Q2 — API RATE LIMITING
 
-**Are all API endpoints properly rate-limited?**
+Are all API endpoints properly rate-limited?
 
--   **DETAILED ANALYSIS:**
-    -   **Blueprint Routes:** The Flask blueprint in `core/blueprints/panopticon.py` has no IP-based rate limiting. A malicious user or poorly configured client could repeatedly hit endpoints like `/api/panopticon/disclosures`, triggering a cascade of expensive upstream API calls.
-    -   **External API Calls:**
-        -   `efts.house.gov`: Has a `sleep(0.5)` (line 167), which is a basic courtesy but not a robust rate-limiting solution.
-        -   `mempool.space`: Has a `sleep(0.3)` (line 363). Better than nothing, but same issue.
-        -   `exchangerate.host`, `fiscaldata.treasury.gov`, `coingecko.com`: These have **no sleep or rate limiting whatsoever** (lines 400, 425, 841). This is a significant violation of API best practices and could easily get the server's IP address banned.
-    -   **Malicious User Impact:** Yes, a user hammering an endpoint like `/api/panopticon/whales` would bypass the application cache (if expired) and trigger a full battery of uncached, un-rate-limited calls to `mempool.space`, potentially getting the service blocked.
-    -   **In-Memory Cache:** The cache is a simple dictionary. While it helps reduce upstream calls for repeat requests within the TTL, it's not a substitute for proper rate limiting. On cache expiry, it does nothing to prevent a "thundering herd" problem where many concurrent requests all trigger a new fetch simultaneously.
+**DETAILED ANALYSIS**
+Rate limiting is implemented at both the incoming request level and outgoing external call level, but the incoming request limiter has a critical flaw for a production environment.
 
--   **SEVERITY:** **HIGH**
--   **SPECIFIC FIX:**
-    1.  **Implement Server-Side Rate Limiting:** Use a library like `Flask-Limiter` to apply rate limits to all `/api/panopticon/` routes. This should be configured at the blueprint level.
-    ```python
-    # core/blueprints/panopticon.py (conceptual)
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
+1.  **Blueprint Routes:** `core/blueprints/panopticon.py:36-64` implements an IP-based rate limiter (`_enforce_rate_limit`) applied to all `/api/panopticon/*` routes. This is the correct approach. It even correctly applies a tighter limit for the more expensive whale alerts endpoint.
+2.  **CRITICAL FLAW:** The rate limiting store (`_rate_limit_store` on line 29) is a simple Python dictionary. In a production environment using a WSGI server like Gunicorn with multiple worker processes, **each worker will have its own separate, in-memory copy of this dictionary.** This completely defeats the purpose of the rate limit, as a user can simply round-robin requests across workers to bypass the limit. A user could easily exceed the intended 30 reqs/min by hitting 4 different workers 30 times each, for a total of 120 reqs/min.
+3.  **External API Calls:** The `_rate_limited_get` function (`panopticon_service.py:76-98`) is well-designed. It implements exponential backoff with jitter for `429 Too Many Requests` responses and other request failures. This correctly respects upstream API limits for services like CoinGecko, mempool.space, etc.
+4.  **Malicious User Risk:** Yes, due to the in-memory rate limiter flaw, a malicious user *can* trigger expensive upstream calls by hammering endpoints, with each request being handled by a different worker process. This could exhaust our upstream API quotas or get our server IP-banned.
+5.  **Cache Sufficiency:** The same in-memory issue applies to the cache (`_cache` in `panopticon_service.py:35`). It is not shared between processes. A distributed cache like Redis is essential for this to be effective under load.
 
-    limiter = Limiter(get_remote_address, app=app) # In your app factory
-    
-    panopticon_bp = Blueprint("panopticon", __name__)
-    
-    # Apply a rate limit to all routes in this blueprint
-    limiter.limit("120 per minute")(panopticon_bp)
-    ```
-    2.  **Respect External APIs:** Add `time.sleep()` calls to the `exchangerate` and `coingecko` fetches. Better still, create a centralized `requests` wrapper function that consults a dictionary of known rate limits per domain and automatically sleeps or uses a token bucket algorithm before making a request.
+**SEVERITY:** CRITICAL
+
+**SPECIFIC FIX**
+Replace the in-memory dictionary for rate limiting and caching with a centralized store like Redis. The `Flask-Limiter` extension is a production-ready solution for the rate limiting part.
+
+```python
+# core/blueprints/panopticon.py - CONCEPTUAL FIX
+
+# 1. In your app factory, initialize Flask-Limiter with a Redis store:
+# from flask_limiter import Limiter
+# from flask_limiter.util import get_remote_address
+#
+# limiter = Limiter(
+#     get_remote_address,
+#     app=app,
+#     storage_uri="redis://localhost:6379"
+# )
+
+# 2. Apply the limiter to the blueprint routes instead of the custom implementation.
+# Remove the _rate_limit_store and _enforce_rate_limit function.
+
+from flask import Blueprint, jsonify
+from app import limiter # Assuming limiter is initialized in app factory
+
+panopticon_bp = Blueprint("panopticon", __name__)
+
+@panopticon_bp.route("/api/panopticon/disclosures")
+@limiter.limit("30/minute")
+def api_disclosures():
+    # ...
+
+@panopticon_bp.route("/api/panopticon/whale-alerts")
+@limiter.limit("10/minute") # Tighter limit
+def api_whale_alerts():
+    # ...
+
+# services/panopticon_service.py should be refactored to use a Redis cache.
+```
 
 ---
 
 ### Q3 — CLASSIFIED OVERLAY SECURITY
 
-**Is the Commander-gated CLASSIFIED overlay secure against client-side bypass?**
+Is the Commander-gated CLASSIFIED overlay secure against client-side bypass?
 
--   **DETAILED ANALYSIS:**
-    -   **Data Withholding:** The primary dashboard route `panopticon_page` (line 40) fetches the **full, sensitive dataset** for all users, regardless of tier. The line `data = get_dashboard_data()` (line 47) is executed for everyone.
-    -   **Client-Side Hiding:** The `demo_mode` boolean is passed to the `panopticon.html` template. The template then uses this flag to render a CSS overlay (`pn-demo-overlay`, line 982, 1070, 1158). The sensitive data is still present in the DOM underneath this overlay.
-    -   **Bypass:** A non-paying user can easily bypass this "security" by using their browser's developer tools to delete the overlay div or apply `display: none;` to the `.pn-demo-overlay` class. This exposes all the Commander-tier data for free.
-    -   **API Routes:** The individual API routes (e.g., `/api/panopticon/disclosures`) are correctly guarded with the `_is_commander()` check (line 79), returning a 403 error. This is good. However, the main dashboard page, which is the primary feature entry point, completely fails this check.
+**DETAILED ANALYSIS**
+Yes, the security model is robust and correctly implemented. It is not vulnerable to client-side bypass.
 
--   **SEVERITY:** **CRITICAL**
--   **SPECIFIC FIX:**
-    The fix must be server-side. Data for paying users must **never** be sent to the browsers of free-tier users.
-    Modify the `panopticon_page` route to conditionally fetch or scrub the data.
+1.  **Server-Side Data Withholding (Page):** The primary page route (`/panopticon` in `panopticon.py:130`) makes a clear server-side decision. On line 135, `demo_mode` is set based on the user's authentication status. If `demo_mode` is true, a completely separate, redacted data structure (`_DEMO_DATA` on line 139) is passed to the template. The real data from `get_dashboard_data()` is never fetched or sent to a free-tier user's browser.
+2.  **Client-Side Appearance:** In `panopticon.html`, a user could inspect the DOM and remove the `pn-demo-overlay` div (`panopticon.html:982`). However, the data they would uncover is the hardcoded, redacted `_DEMO_DATA` (e.g., `{"entity": "██████████", ...}`), not the sensitive Commander-tier data.
+3.  **API Route Guards:** All API endpoints (`/api/panopticon/*`) have a guard clause at the very beginning (e.g., `panopticon.py:164`, `panopticon.py:186`). These clauses check `_is_commander()` and immediately return a `403 Forbidden` error if the user is not authenticated and authorized. This correctly prevents a free-tier user from fetching the real data via JavaScript after the page has loaded.
 
-    ```python
-    # core/blueprints/panopticon.py
+The implementation follows the critical security principle of never sending secrets to the client.
 
-    @panopticon_bp.route("/panopticon")
-    def panopticon_page():
-        """PANOPTICON dashboard — Commander tier sees full data, free tier sees CLASSIFIED overlays."""
-        demo_mode = not _is_commander()
-        data = {}
+**SEVERITY:** LOW (No issue found)
 
-        try:
-            from services.panopticon_service import get_dashboard_data, get_watch_list, get_btc_price
-            
-            if not demo_mode:
-                # User has access, fetch all data
-                data = get_dashboard_data()
-            else:
-                # User is free tier, provide only non-sensitive or placeholder data
-                # For example, only fetch what's visible in demo mode (stats, btc price, watch list)
-                data = {
-                    "btc_price": get_btc_price(),
-                    "events_today": 0, # Or a static number
-                    "disclosures": [], # MUST be empty
-                    "flagged": [],     # MUST be empty
-                    "whales": [],      # MUST be empty
-                    "forex": [],       # MUST be empty
-                    "geopolitical": [],# MUST be empty
-                    "correlations": [],# MUST be empty
-                    "watch_list": get_watch_list(), # This is public, so it's okay
-                    "polymarket": [],  # MUST be empty
-                    "generated_at": datetime.utcnow().isoformat(),
-                }
-        except Exception as e:
-            # ... (existing error handling)
-        
-        return render_template(
-            "panopticon.html",
-            demo_mode=demo_mode,
-            data=data,
-        )
-    ```
+**SPECIFIC FIX**
+No fix is required. This part of the code is well-architected.
 
 ---
 
 ### Q4 — CORRELATION TIMELINE LOGIC
 
-**Is the correlation timeline cross-referencing correct?**
+Is the correlation timeline cross-referencing correct?
 
--   **DETAILED ANALYSIS:**
-    -   **Temporal Correlation:** The correlation logic in `build_correlations` (lines 760-818) is **fundamentally incorrect and fabricated**. It does not perform any temporal (date-based) calculations. It simply takes the list of flagged disclosures, and for each one, it associates the *most recent 10 whale alerts and 5 geopolitical events*, regardless of when they occurred relative to the trade (lines 782, 793). A trade from 30 days ago could be "correlated" with a whale movement from 5 minutes ago.
-    -   **Correlation Score:** The `correlation_score` is hardcoded to `0.65` (line 811) and `0.7` in `check_correlations` (line 303). It is not calculated and has no statistical meaning. This is highly misleading and presents an arbitrary number as a quantitative measure of confidence.
-    -   **False Correlations:** This will absolutely produce false correlations that look authoritative on the dashboard. The summary text `correlated with {len(related_whales)} whale movements` (line 813) is a factual statement about the flawed data structure, but it implies a meaningful relationship that does not exist in the code's logic.
-    -   **Legal Risk:** This crosses a dangerous line. While disclaimers exist (`panopticon.html`, lines 1078, 1288), presenting a fabricated "correlation score" and associating unrelated events under a "PATTERN DETECTION" header could be seen as reckless and defamatory, undermining the "for research purposes only" defense. This is a significant legal and reputational risk.
+**DETAILED ANALYSIS**
+The logic correctly performs temporal windowing, but the "score" is a heuristic, and the overall framing carries legal risk.
 
--   **SEVERITY:** **CRITICAL**
--   **SPECIFIC FIX:**
-    The entire `build_correlations` function must be rewritten to perform actual temporal analysis.
+1.  **Temporal Correlation:** The core logic in `build_correlations` (`panopticon_service.py:850-929`) is sound. It correctly parses dates and uses `abs((w_date - disc_date).total_seconds())` (lines 876, 890) to check if different events fall within the `±72h` window. This is a legitimate temporal correlation.
+2.  **Correlation Score:** The `correlation_score` calculation (`panopticon_service.py:905-908`) is not a statistical measure. It's an arbitrary heuristic that combines the number of related events and their average time offset. While it may be useful for ranking, calling it a "correlation score" implies a level of statistical rigor that is not present. This could be misleading to users.
+3.  **False Positives:** The system is highly susceptible to producing false correlations. Any two unrelated events that happen within the 72-hour window will be linked. The requirement for at least 2 co-occurring signals (`panopticon_service.py:901`) helps, but does not eliminate this. The phrase "correlation does not imply causation" is paramount here.
+4.  **Legal Risk:** This is the most significant issue. While disclaimers are present in the service (`panopticon_service.py:923`) and on the front-end (`panopticon.html:1084-1086`), the feature's name ("PANOPTICON"), tagline ("They watch us. Now we watch them."), and UI copy ("FLAGGED", "PATTERN DETECTED") create a strong implication of wrongdoing. A public figure who is "flagged" by this system could argue that the presentation is defamatory, even with fine-print disclaimers.
 
-    ```python
-    # services/panopticon_service.py
-    
-    def build_correlations(limit: int = 10) -> list[dict]:
-        # ... (cache logic as before) ...
-        
-        # ... (fetch disclosures, whales, geo) ...
+**SEVERITY:** MEDIUM
 
-        for disc in flagged[:limit]:
-            try:
-                # Ensure we have valid dates to compare
-                disc_date_str = disc.get("date_traded")
-                if not disc_date_str: continue
-                disc_date = datetime.fromisoformat(disc_date_str.split("T")[0])
-            except (ValueError, TypeError):
-                continue
-
-            # Define a time window, e.g., +/- 7 days
-            window = timedelta(days=7)
-
-            # Find whale events WITHIN THE WINDOW
-            related_whales = []
-            for w in whales:
-                try:
-                    whale_date = datetime.fromisoformat(w.get("timestamp", ""))
-                    if abs(whale_date - disc_date) <= window:
-                        related_whales.append({ ... }) # Append whale data
-                except (ValueError, TypeError):
-                    continue
-
-            # Find geopolitical events WITHIN THE WINDOW
-            related_geo = []
-            for g in geo:
-                try:
-                    geo_date = datetime.fromisoformat(g.get("timestamp", ""))
-                    if abs(geo_date - disc_date) <= window:
-                        related_geo.append({ ... }) # Append geo data
-                except (ValueError, TypeError):
-                    continue
-            
-            # Only add a correlation if related events were actually found
-            if related_whales or related_geo:
-                correlations.append({
-                    "disclosure": { ... },
-                    "related_whales": related_whales[:3],
-                    "related_geo": related_geo[:3],
-                    # REMOVE the arbitrary score. Just present the facts.
-                    "timeline_summary": f"{disc.get('entity')} trade on {disc_date_str} occurred near {len(related_whales)} whale and {len(related_geo)} geopolitical events.",
-                })
-        # ... (set cache and return) ...
-    ```
+**SPECIFIC FIX**
+1.  Rename the `correlation_score` to something more descriptive and less authoritative, such as `proximity_score` or `signal_cluster_score`.
+2.  Make the legal disclaimers more prominent in the UI. A small block of text can be easily missed. Consider a modal pop-up on first use or a more visible banner.
+3.  **Strongly recommend a legal review** of the feature's branding and UI terminology to assess the risk of defamation claims. Softer language like "Events of Interest" instead of "FLAGGED" might be advisable.
 
 ---
 
 ### Q5 — SCALABILITY
 
-**Will this scale under 1000 concurrent users?**
+Will this scale under 1000 concurrent users?
 
--   **DETAILED ANALYSIS:**
-    -   **In-Memory Cache:** The cache is a global `dict` (`_cache = {}`, line 32). In a multi-threaded/multi-process WSGI environment (like Gunicorn, which is standard for Flask), this is not safe. It can lead to race conditions where one thread is writing to the cache while another is reading, causing data corruption. Furthermore, each worker process would have its own separate cache, leading to memory bloat and inconsistent data.
-    -   **Thundering Herd:** When a cache key expires (or is deliberately popped by the scheduler on lines 610-611, 621, 631), there is no lock to prevent multiple concurrent requests from all trying to regenerate the value at once. If 1000 users load the dashboard right after the cache expires, it could trigger 1000 parallel sets of API calls to all external services, almost certainly resulting in being rate-limited/banned and causing a massive spike in server load.
-    -   **Sequential API Calls:** `get_dashboard_data` (line 861) calls `fetch_disclosures`, `fetch_whale_alerts`, `fetch_forex_signals`, etc., *sequentially*. The total response time for the dashboard will be the *sum* of the latencies of all these independent network requests, which will be unacceptably slow.
-    -   **Database Query:** The geopolitical feed query in `fetch_geopolitical` (lines 497-501) uses multiple `tags.ilike("%...%")` clauses. A `LIKE` query with a leading wildcard (`%`) cannot use a standard B-Tree index and will result in a full table scan for every query. On a large `Article` table, this will be extremely slow and could become a database bottleneck. The tech stack mentions "Every DB query on a sort/filter column MUST have an index," and this violates the spirit, if not the letter, of that law.
+**DETAILED ANALYSIS**
+No, the current architecture will not scale to 1000 concurrent users and will likely fail under heavy load.
 
--   **SEVERITY:** **CRITICAL**
--   **SPECIFIC FIX:**
-    1.  **Replace In-Memory Cache:** Immediately replace the global `dict` cache with a proper caching solution. For a single-server setup, `cachelib` provides thread-safe in-process caching. For a multi-process/multi-server setup, an external cache like **Redis** or **Memcached** is required.
-    2.  **Parallelize Data Fetching:** Refactor `get_dashboard_data` to use `concurrent.futures.ThreadPoolExecutor` to execute all independent network/database fetches in parallel. This will reduce the total wait time to roughly the time of the *longest single fetch* instead of the sum of all of them.
-        ```python
-        # services/panopticon_service.py (conceptual)
-        from concurrent.futures import ThreadPoolExecutor
+1.  **In-Memory Cache:** As detailed in Q2, the `_cache` and `_cache_lock` in `panopticon_service.py` are per-process. With multiple workers, the cache hit rate will be drastically reduced, leading to a flood of redundant external API calls. The `thundering-herd protection` is also only per-process, meaning 8 workers could still launch 8 simultaneous requests to an external API when a cache key expires.
+2.  **Synchronous API Calls:** `get_dashboard_data` (`panopticon_service.py:975-984`) makes numerous network-bound calls sequentially: `get_btc_price`, `fetch_disclosures`, `fetch_whale_alerts`, etc. Each call blocks, and the total response time is the sum of all of them. For a single user, this might be a few seconds. For 1000 concurrent users, this will tie up all available worker processes, leading to extreme latency and request timeouts.
+3.  **Database Query Performance:** The query in `fetch_geopolitical` (`panopticon_service.py:574-577`) uses multiple `tags.ilike("%keyword%")` clauses. Wildcard searches at the beginning of a string (`%sanction%`) are notoriously inefficient and cannot use a standard B-tree index, forcing a full table scan. On a large `Article` table, this query will be very slow and contribute to the request bottleneck.
+4.  **Scheduler Background Tasks:** The scheduler (`scheduler.py`) is set to refresh data periodically (e.g., whales every 5 minutes, congress every 30). This is a good design. However, these tasks simply clear the in-memory cache (`_cache.pop(...)`) and re-run the fetch function. This doesn't pre-warm the cache; it just sets it up to be re-filled on the *next user request*. This means the first user to hit an endpoint after a cache clear will experience very high latency.
 
-        def get_dashboard_data() -> dict:
-            with ThreadPoolExecutor(max_workers=5) as executor:
-                future_btc = executor.submit(get_btc_price)
-                future_disclosures = executor.submit(fetch_disclosures)
-                future_whales = executor.submit(fetch_whale_alerts)
-                # ... and so on for all other data sources
-                
-                btc_price = future_btc.result()
-                disclosures = future_disclosures.result()
-                whales = future_whales.result()
-                # ...
-            # ... then assemble the final dictionary
-        ```
-    3.  **Optimize DB Query:** For PostgreSQL, create a GIN or GiST index with `pg_trgm` support on the `Article.tags` column. This will make the wildcard `ILIKE` searches significantly faster.
-        ```sql
-        -- SQL command for the migration
-        CREATE EXTENSION IF NOT EXISTS pg_trgm;
-        CREATE INDEX idx_articles_tags_gin ON articles USING gin (tags gin_trgm_ops);
-        ```
+**SEVERITY:** CRITICAL
+
+**SPECIFIC FIX**
+1.  **Cache:** Immediately replace the in-memory cache with **Redis**. This is the single most important change for scalability.
+2.  **API Calls:** Refactor `get_dashboard_data` to execute the independent data fetches in parallel using Python's `concurrent.futures.ThreadPoolExecutor`. This will significantly reduce the function's total execution time.
+3.  **Database:** Replace the `ilike` queries with a proper full-text search (FTS) engine. For SQLite, this would be FTS5. For a more robust production setup, Elasticsearch or PostgreSQL's FTS would be better. Ensure standard indexes exist on `Article.published` and `Article.created_at`.
+4.  **Scheduler:** Modify the scheduled tasks to not just clear the cache, but to fetch the new data and write it directly into the new Redis cache. This pre-warms the cache so that user requests are always fast.
+
+```python
+# scheduler.py - CONCEPTUAL FIX
+# Change tasks to pre-warm the Redis cache instead of just popping keys.
+
+def panopticon_whale_scan_task():
+    from services.panopticon_service import fetch_whale_alerts
+    # Assume _set_cache is now a function that writes to Redis
+    from services.panopticon_service import _set_cache
+    alerts = fetch_whale_alerts() # This function internally uses a fresh fetch
+    _set_cache("panopticon_whales", alerts) # Now the cache is warm for users
+```
 
 ---
 
-### FINAL VERDICT
+## FINAL VERDICT
 
--   **CRITICAL Issues Found:** 3
-    1.  **Q3 - Data Leakage:** Commander-tier data is sent to all users and hidden client-side, making it trivially accessible.
-    2.  **Q4 - Fabricated Correlations:** The "correlation" logic is not based on temporal analysis and the "score" is a hardcoded, meaningless number.
-    3.  **Q5 - Scalability Failure:** The non-thread-safe cache, sequential API calls, and potential for a thundering herd will cause the service to fail under the specified load.
+*   **How many CRITICAL issues found?**
+    *   **2**: The lack of a shared, distributed cache/rate-limiter and the synchronous, slow data-fetching pipeline make the system unscalable.
 
--   **Top 3 Changes Needed Before Production:**
-    1.  **Server-Side Access Control:** Refactor the main dashboard route (`panopticon_page`) to withhold all sensitive data from free-tier users at the server level.
-    2.  **Fix Correlation Logic:** Rewrite the `build_correlations` function to use actual date/time comparisons to find temporally adjacent events and remove the fabricated `correlation_score`.
-    3.  **Implement a Production-Grade Cache:** Replace the global `dict` cache with Redis or `cachelib`, and parallelize the data fetching in `get_dashboard_data` to ensure acceptable performance.
+*   **Top 3 changes needed before production:**
+    1.  **Replace All In-Memory Stores with Redis:** Both the cache in `panopticon_service.py` and the rate limiter in `panopticon.py` must be migrated to a shared Redis instance to function correctly in a multi-process environment. This is non-negotiable for production.
+    2.  **Parallelize Data Fetching:** The `get_dashboard_data` function must be refactored to fetch data from its various sources concurrently, not sequentially.
+    3.  **Fix Misleading Placeholder Data:** The future-dated placeholder filings must be corrected to use historical data to maintain platform credibility.
 
--   **Legal Framing Adequacy:**
-    **No, the legal framing is currently inadequate.** While disclaimers are present, the system's current implementation of generating fabricated "correlations" and presenting a fake "score" as a quantitative metric would likely be viewed as reckless. It undermines the "for research only" stance by presenting false information as factual analysis. The legal risk is high. Once the correlation logic is fixed to be based on verifiable temporal data and the misleading score is removed, the legal framing becomes much more defensible.
+*   **Is the legal framing adequate for a public-facing product?**
+    *   **No.** While disclaimers exist, they are not sufficient to mitigate the risk posed by the aggressive branding ("PANOPTICON"), UI language ("FLAGGED"), and presentation that strongly implies wrongdoing. The potential for defamation claims is high. **A thorough legal review of the feature's name, copy, and presentation is strongly advised before launch.**

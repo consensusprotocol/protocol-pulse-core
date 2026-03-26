@@ -1,6 +1,6 @@
 # CONSENSUS REPORT — PANOPTICON — CYCLE 1
-Generated: 2026-03-26 00:36
-Models: grok, gemini (+1 failed — GPT-4o: TPM limit exceeded)
+Generated: 2026-03-26 00:50
+Models: Grok-3, Gemini 2.5 Pro (+1 failed: GPT-4o — token limit exceeded)
 
 ---
 
@@ -9,318 +9,304 @@ Models: grok, gemini (+1 failed — GPT-4o: TPM limit exceeded)
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
 | Congressional Data Fetching (Q1) | HIGH | N/A | HIGH | **HIGH** |
-| API Rate Limiting (Q2) | HIGH | N/A | CRITICAL | **HIGH-CRITICAL** |
-| Classified Overlay Security (Q3) | CRITICAL | N/A | CRITICAL | **CRITICAL** |
-| Cache Architecture | MEDIUM | N/A | CRITICAL | **HIGH** |
-| Fallback Data Honesty | HIGH | N/A | HIGH | **HIGH** |
-| External API Compliance | HIGH | N/A | HIGH | **HIGH** |
+| API Rate Limiting (Q2) | CRITICAL | N/A | CRITICAL | **CRITICAL** |
+| Classified Overlay Security (Q3) | PASS (Secure) | N/A | PASS (Secure) | **PASS** |
+| Cache Architecture | CRITICAL | N/A | CRITICAL | **CRITICAL** |
+| Fallback/Placeholder Data Quality | HIGH | N/A | MEDIUM | **HIGH** |
+| External API Schema Robustness | HIGH | N/A | HIGH | **HIGH** |
+| Overall Production Readiness | 4/10 | N/A | 5/10 | **4.5/10** |
 
-*Note: GPT-4o failed due to token rate limit (42,832 tokens requested vs 30,000 TPM limit). Consensus is derived from 2 models. All "unanimous" findings below represent 2/2 agreement.*
-
----
-
-## UNANIMOUS FINDINGS (both models agree — implement unconditionally)
-
-### U1 — CLASSIFIED Overlay Is Client-Side Only (CSS Bypass Vulnerability)
-**File:** `core/blueprints/panopticon.py` (main route, ~line 47), `templates/panopticon.html` (~lines 982, 1070, 1158)
-**What it is:** The `panopticon_page` route calls `get_dashboard_data()` for **every user regardless of tier**, then passes the full sensitive dataset to the template. The template uses `demo_mode` to render a CSS blur/overlay on top of the data. Any user can open DevTools, delete the overlay div, and see all Commander-tier data for free.
-**What to change:**
-- Server-side: conditionally withhold or nullify sensitive data before template render when `demo_mode=True`
-- The individual API routes (`/api/panopticon/disclosures`, etc.) already correctly return 403 — apply the same logic to the page route
-- Data must never travel to the browser of a non-paying user
-
-```python
-# core/blueprints/panopticon.py
-@panopticon_bp.route("/panopticon")
-def panopticon_page():
-    demo_mode = not _is_commander()
-    
-    if demo_mode:
-        # Only fetch/pass safe, redacted, or empty data
-        data = get_demo_safe_data()  # new function returning censored structure
-    else:
-        data = get_dashboard_data()
-    
-    return render_template("panopticon.html", demo_mode=demo_mode, data=data)
-```
+> **Note on scoring:** GPT-4o failed at ingestion due to token-per-minute limits (45,835 requested vs. 30,000 limit). Consensus reflects 2-model agreement only. Confidence is lower than a full 3-model cycle — flag this in Cycle 2 if GPT-4o findings are needed.
 
 ---
 
-### U2 — No IP-Based Rate Limiting on Blueprint Routes
-**File:** `core/blueprints/panopticon.py` (~lines 75–204)
-**What it is:** All `/api/panopticon/*` routes have zero IP-based throttling. Any authenticated (or unauthenticated, if checks are missing) client can hammer endpoints, cascade into upstream API calls, burn the cache, and potentially get the server IP banned by external services.
-**What to change:** Implement Flask-Limiter at the blueprint level as a minimum:
-
-```python
-# core/blueprints/panopticon.py
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-
-# In app factory, attach limiter; here apply per-route or per-blueprint
-@panopticon_bp.route("/api/panopticon/disclosures")
-@limiter.limit("10 per minute")
-@require_commander
-def api_disclosures():
-    ...
-```
+## UNANIMOUS FINDINGS
+*(Both models agree — implement unconditionally)*
 
 ---
 
-### U3 — Misleading Fallback Data (Placeholders Presented as Live)
-**File:** `services/panopticon_service.py` (~lines 219–287), `templates/panopticon.html` (~line 1033)
-**What it is:** When the efts.house.gov API fails, `_generate_disclosure_placeholders()` returns static, hardcoded examples. The template renders these with a "loading" status, implying live data that is slow — not fake data. This is a trust and credibility issue.
-**What to change:**
-- Modify `fetch_disclosures()` (or equivalent) to return a `(data, is_live: bool)` tuple
-- Pass `disclosures_live` flag to the template
-- Template should render a visible banner: *"Live data from efts.house.gov is temporarily unavailable. Displaying documented public examples."*
-
-```python
-# services/panopticon_service.py
-def fetch_disclosures(limit: int = 50) -> tuple[list[dict], bool]:
-    results = fetch_stock_act_disclosures(limit=limit)
-    if results:
-        return results, True
-    return _generate_disclosure_placeholders(), False
-```
+### U1 — In-Memory Rate Limiter is Multi-Process Broken
+**File:** `core/blueprints/panopticon.py` — Lines 29, 36–63
+**What it is:** The `_rate_limit_store` is a plain Python dictionary living in a single process's memory. Under any production WSGI server (Gunicorn, uWSFul, etc.) with multiple worker processes, each worker holds its own independent copy of this dict. A user can trivially bypass the 30 req/min limit by being round-robined across 4 workers, effectively getting 120 req/min with no throttling detected.
+**Both models rated:** CRITICAL
+**What to change:** Replace `_rate_limit_store` with a Redis-backed centralized store. The cleanest production path is `Flask-Limiter` initialized with `storage_uri="redis://localhost:6379"`. Remove `_enforce_rate_limit` entirely and decorate routes with `@limiter.limit("30/minute")` (general) and `@limiter.limit("10/minute")` (whale alerts).
 
 ---
 
-### U4 — External APIs Called Without Documented Rate Limit Compliance
-**File:** `services/panopticon_service.py` (~lines 400, 425, 841)
-**What it is:** `exchangerate.host`, `fiscaldata.treasury.gov`, and `coingecko.com` fetches have **no sleep, no backoff, no rate limiting**. CoinGecko's free tier enforces ~10–50 calls/minute. efts.house.gov and mempool.space have fixed `sleep()` values but no 429 handling.
-**What to change:**
-- Add `time.sleep()` calls to all unthrottled external fetches as a minimum
-- Implement exponential backoff on 429 responses across all external callers
-- Reference and document the known rate limit for each external service in comments
-
-```python
-# Minimum fix for CoinGecko (~line 841)
-time.sleep(1.2)  # Free tier: ~50 calls/min = 1.2s between calls
-
-# Better fix — a shared wrapper
-import time, random
-
-def _rate_limited_get(url, params=None, sleep_secs=1.0, retries=3):
-    for attempt in range(retries):
-        resp = requests.get(url, params=params, timeout=10)
-        if resp.status_code == 429:
-            wait = sleep_secs * (2 ** attempt) + random.uniform(0, 0.5)
-            logger.warning("Rate limited by %s — backing off %.1fs", url, wait)
-            time.sleep(wait)
-            continue
-        resp.raise_for_status()
-        return resp
-    raise RuntimeError(f"Rate limit exhausted after {retries} retries: {url}")
-```
+### U2 — In-Memory Cache is Non-Shared Across Workers
+**File:** `services/panopticon_service.py` — Lines 35–72
+**What it is:** The `_cache` dictionary has the same multi-process problem as the rate limiter. Each worker maintains its own cache. Under load, a cache miss in Worker A triggers an upstream call even if Worker B just populated its own cache 1 second ago. This multiplies upstream API load by the worker count and exposes the platform to IP bans from CoinGecko, mempool.space, and efts.house.gov.
+**Both models rated:** CRITICAL
+**What to change:** Migrate `_cache` to Redis. Use `redis-py` with a TTL-aware `get/setex` pattern. The `_cache_lock` threading lock becomes irrelevant and should be removed — Redis handles atomicity natively.
 
 ---
 
-### U5 — efts.house.gov Is an Undocumented API With No Schema Change Detection
-**File:** `services/panopticon_service.py` (~lines 133–170, 186–197)
-**What it is:** The House efts endpoint is an internal search API, not a published developer API. It will change without notice. The parser handles minor missing keys gracefully but has no mechanism to detect or alert on structural schema changes.
-**What to change:**
-- Add structured logging on unexpected schema shapes (log full payload on parse failure)
-- Add a monitoring hook — if >80% of hits return empty asset names across a batch, emit a warning suggesting API schema drift
-- Document the known-good schema with a version comment
-
-```python
-# services/panopticon_service.py - _extract_asset_from_hit()
-def _extract_asset_from_hit(src: dict) -> str:
-    for field in ("asset_name", "asset", "ticker", "description"):
-        val = src.get(field, "")
-        if val:
-            return str(val)
-    logger.warning(
-        "SCHEMA_DRIFT: asset extraction failed on all known fields. "
-        "Keys present: %s", list(src.keys())
-    )
-    # fall through to text search...
-```
+### U3 — efts.house.gov is an Undocumented Internal Endpoint
+**File:** `services/panopticon_service.py` — Line 193
+**What it is:** The code targets `https://efts.house.gov/LATEST/search-index`, which is the House website's internal search frontend, not a published API. It has no documented parameters, no documented rate limits, no versioning guarantees, and can change or disappear without notice.
+**Both models rated:** HIGH
+**What to change:** (1) Add a prominent `# WARNING: UNDOCUMENTED INTERNAL ENDPOINT` comment at line 193. (2) Add monitoring/alerting that fires immediately when this endpoint returns unexpected schema or HTTP errors — don't let silent failures reach users. (3) Evaluate whether ProPublica's Congress API or a PACER/OpenSecrets partnership provides a stable alternative for STOCK Act disclosures. This is a strategic risk, not just a code fix.
 
 ---
 
-## MAJORITY FINDINGS (2 of 2 models agree)
-
-All five unanimous findings above are also majority findings given the 2-model sample. The following are additionally agreed upon at the majority level:
-
-### M1 — In-Memory Cache Is Not Thread-Safe and Has No Thundering Herd Protection
-**File:** `services/panopticon_service.py` (~lines 31–42)
-**Both models noted:** The `_cache` dict has no locking, no atomic check-and-set, and is wiped on server restart. Under concurrent requests when a cache key expires, multiple threads will simultaneously trigger upstream API fetches.
-**Recommendation:** Migrate to Redis for production or add threading locks with a "fetch in progress" sentinel for the short term:
-
-```python
-import threading
-_cache_lock = threading.Lock()
-_cache_inflight = set()
-
-def _get_or_fetch(key, fetch_fn, ttl):
-    with _cache_lock:
-        if key in _cache and (time.time() - _cache[key]['ts']) < ttl:
-            return _cache[key]['data']
-        if key in _cache_inflight:
-            # Return stale rather than pile on
-            return _cache.get(key, {}).get('data')
-        _cache_inflight.add(key)
-    try:
-        data = fetch_fn()
-        with _cache_lock:
-            _cache[key] = {'data': data, 'ts': time.time()}
-        return data
-    finally:
-        with _cache_lock:
-            _cache_inflight.discard(key)
-```
+### U4 — No Documented or Enforced Rate Caps for External APIs
+**File:** `services/panopticon_service.py` — Lines 76–98, 440, 954
+**What it is:** `_rate_limited_get` implements retry-on-429 with exponential backoff, which is reactive (responds after being rate-limited). It does not proactively enforce known limits. CoinGecko's free tier is ~10–50 calls/minute; the code acknowledges this in a comment (line 954) but does not enforce it. Under concurrent load, multiple workers can collectively exceed the limit simultaneously before any 429 is returned.
+**Both models rated:** HIGH
+**What to change:** Implement proactive per-API call budgets using Redis counters with TTL windows. Example: `INCR coingecko:calls:$(date +%s / 60)` with `EXPIRE 60`; if count > 45, serve stale cache instead of making a live call. Document budget constants as named config values, not magic numbers buried in comments.
 
 ---
 
-## UNIQUE INSIGHTS (only 1 model caught this — evaluate carefully)
+## MAJORITY FINDINGS
+*(2 of 2 models agree — implement unless compelling reason not to)*
 
-### UI-1 — Cache Is Not Persistence-Aware (Grok only)
-**What it is:** Grok specifically called out that server restarts clear all cached data, spiking upstream API calls on cold starts. Gemini addressed thread-safety but not restart persistence explicitly.
-**Assessment: IMPLEMENT** — Cold-start cache warming is a real production concern. Either pre-warm the cache on startup with a background task, or persist to Redis/SQLite. At minimum, add a startup task that pre-populates the most expensive keys (BTC price, whale alerts) before the first request hits.
-
-### UI-2 — `/api/panopticon/whale-alerts` Could Trigger Cascading mempool.space Calls (Grok only)
-**What it is:** Grok specifically traced that a malicious user hammering `/api/panopticon/whale-alerts` could bypass application-layer cache (if expired) and trigger repeated mempool.space calls at whatever rate the code allows.
-**Assessment: IMPLEMENT** — This is a concrete attack vector, not a theoretical one. Rate limiting per U2 above addresses it, but also add the per-endpoint `@limiter.limit()` decorator specifically to whale-alerts with a tight limit (5/minute) since it's the most expensive upstream call.
-
-### UI-3 — `_is_commander()` Check Inconsistency Between Page Route and API Routes (Gemini only)
-**What it is:** Gemini explicitly called out that the API routes correctly return 403, but the main page route does not gate data at all — it just changes what CSS gets rendered. This creates an inconsistency where the "secure" paths (API) are actually secure but the "main" path (HTML page) is not.
-**Assessment: IMPLEMENT (this is U1 restated as an architectural inconsistency)** — The fix for U1 resolves this. Adding a code comment noting the intentional symmetry between API 403 behavior and page data-withholding behavior would prevent future regressions.
-
-### UI-4 — `ratelimit` Library Decorator Approach for Upstream Calls (Grok only)
-**What it is:** Grok suggested wrapping `fetch_stock_act_disclosures()` with `@sleep_and_retry` and `@limits()` from the `ratelimit` library rather than inline `time.sleep()`.
-**Assessment: INVESTIGATE** — This is a valid pattern but introduces a new dependency. Given the project already has `requests`, the exponential backoff wrapper in U4 achieves the same goal without an additional package. Use the inline approach unless `ratelimit` is already a project dependency.
+All unanimous findings above are by definition majority findings in a 2-model cycle. No additional majority findings exist beyond the unanimous set. This section would expand significantly with GPT-4o's input in Cycle 2.
 
 ---
 
-## CONFLICTS (models disagree — tiebreaker)
-
-### C1 — Severity of Rate Limiting Issue: CRITICAL (Grok) vs HIGH (Gemini)
-**Grok:** CRITICAL — lack of rate limiting enables DoS and service disruption  
-**Gemini:** HIGH — same problem, lower severity classification
-
-**Tiebreaker: Grok is correct on severity.** The combination of (a) no IP throttling on routes + (b) no upstream API rate limits + (c) non-thread-safe cache creates a compounding attack surface that can result in IP bans from external services and service degradation for all users. That meets the bar for CRITICAL. The issue is demoted to P0 in the action plan accordingly.
-
-### C2 — Cache Architecture: Redis Now (Grok) vs Locks First (Gemini)
-**Grok:** Replace in-memory cache with Redis immediately  
-**Gemini:** Address thread safety; acknowledged in-memory cache is not production-grade but didn't mandate Redis
-
-**Tiebreaker: Gemini's pragmatic approach is more appropriate for an audit pass.** Redis is the right long-term answer, but mandating it as a P0 fix without knowing infrastructure context is overreaching. The correct phased approach is: (1) add threading locks now (P1), (2) migrate to Redis in a dedicated infrastructure task (P2/backlog). Grok's Redis code sample is valid for the migration but should not block the current pass.
+## UNIQUE INSIGHTS
+*(Single model only — evaluate carefully)*
 
 ---
 
-## VALIDATED STRENGTHS (do NOT change in second pass)
+### UI-1 — Placeholder Dates Are Set in the Future (Gemini only)
+**File:** `services/panopticon_service.py` — Lines 296–364
+**What Gemini caught:** The `_generate_disclosure_placeholders` function uses hardcoded dates like "2025-09-15" and "2025-10-01" which, from a 2026 generation date, are in the recent past — but Gemini's more important point is structural: the comment says these avoid "misleading freshness" but presenting fabricated future/placeholder dates as historical filing records is fundamentally deceptive to users who aren't reading the fine print of a banner.
+**Grok's take:** Grok noted the `is_placeholder=True` flag and the UI banner (line 990) and rated this MEDIUM, accepting it as a reasonable mitigation.
+**Assessment: IMPLEMENT.** Gemini is correct on the principle. The UI banner is not sufficient — users scanning a disclosure table will not context-switch to interpret a banner. Fix: Replace placeholder dates with historically accurate dates from real, publicly documented STOCK Act filings (these are public record). Add a visual badge directly on each placeholder row (e.g., `[EXAMPLE DATA]` inline with the entity name), not just a page-level banner. This is a credibility issue, not just a UX issue.
 
-### VS1 — API Route Authentication Guards
-Both models confirmed: the individual `/api/panopticon/*` routes in `panopticon.py` correctly check `_is_commander()` and return 403 for unauthorized users. This pattern is correct and should be extended to the page route, not replaced.
+---
 
-### VS2 — JSON Parsing Defensive `.get()` Usage
-Both models confirmed: the use of `.get()` throughout `_extract_asset_from_hit()` and the hit parsing loop provides reasonable resilience to minor schema variations (missing optional fields). The parser won't crash on missing keys — it already degrades gracefully. Only the alerting on schema drift is missing (addressed in U5).
+### UI-2 — `_rate_limit_store` Has No Cleanup / Memory Leak (Grok only)
+**File:** `core/blueprints/panopticon.py` — Lines 29, 50
+**What Grok caught:** The in-memory rate limit store accumulates entries for every unique IP that has ever touched the API. There is no eviction or cleanup mechanism. Over time, long-running single-worker deployments (e.g., development/staging) will silently leak memory.
+**Assessment: IMPLEMENT** — but this becomes moot if U1 is fixed (Redis handles TTL natively). If for any reason the in-memory fallback is kept during a transition period, add: `if now - entry["start"] > 3600: del _rate_limit_store[key]` at line 50.
 
-### VS3 — Cache TTL Design
-Both models implicitly validated that the TTL-based cache architecture is correct in concept — the TTL values (e.g., 300s for whale alerts) are reasonable and prevent the most obvious upstream hammering. The architecture is sound; only the implementation (thread safety, persistence) needs improvement.
+---
 
-### VS4 — `time.sleep()` Courtesy Delays on efts.house.gov and mempool.space
-Both models acknowledged these exist and represent a good-faith effort at rate limiting. They are insufficient alone but are correct in spirit. Keep them; augment with proper 429 handling.
+### UI-3 — Keyword Extraction Fallback in `_extract_asset_from_hit` Is Prone to False Positives (Grok only)
+**File:** `services/panopticon_service.py` — Lines 255–258
+**What Grok caught:** When all known asset fields fail, the code falls back to searching a raw JSON dump of the entire record for keyword matches. This is fragile — any field in the record containing a keyword (e.g., an address field containing "Apple Street") could produce a false positive asset identification.
+**Assessment: INVESTIGATE FURTHER.** The fallback is better than returning nothing, but the false-positive risk is real and could silently corrupt displayed data. Minimum fix: narrow the raw-text search to a whitelist of specific fields (e.g., `description`, `comment`, `filing_name`) rather than the entire JSON dump. Log every false-positive candidate with a `KEYWORD_FALLBACK` warning for manual review.
+
+---
+
+## CONFLICTS
+*(Models gave meaningfully different assessments)*
+
+---
+
+### C1 — Severity of the Fallback Placeholder System
+**Grok:** Rated MEDIUM. Accepted the `is_placeholder=True` flag and the UI banner as adequate mitigation. Focused recommendations on banner prominence and timestamps.
+**Gemini:** Rated HIGH. Argued that future-dated or fabricated placeholder data is fundamentally misleading regardless of banner presence, and that the data itself is "nonsensical."
+
+**Tiebreaker verdict: Gemini is correct.** The risk here is not technical — it's reputational and informational. Protocol Pulse positions itself as an intelligence tool. Users discovering that "disclosures" in the table are fabricated, even with a banner, will erode trust disproportionately. The fix cost is low (use real historical filings as examples). Upgrade this to P1 HIGH.
+
+---
+
+### C2 — Overall Security Posture of the Classified Overlay
+**Grok:** Provided detailed analysis of the 403 guards and server-side `_DEMO_DATA` withholding, rating the system as secure but noting DOM inspection risk.
+**Gemini:** Rated the system as fully secure and robustly implemented, explicitly calling out that DOM inspection only reveals `_DEMO_DATA` (redacted data), not real Commander-tier data.
+
+**Tiebreaker verdict: Gemini is correct and more precise.** Both models agree the system is secure; Grok's DOM inspection note is technically accurate but not a real vulnerability since the exposed data is `{"entity": "██████████", ...}`. No conflict requiring action — this is a validated strength.
+
+---
+
+## VALIDATED STRENGTHS
+*(Both models confirmed — do NOT touch in second pass)*
+
+---
+
+### VS1 — Commander Overlay Security Architecture
+The server-side security model is correctly and robustly implemented:
+- `panopticon_page` serves only `_DEMO_DATA` to non-Commander users (line 139) — real data is never fetched for free-tier users
+- All `/api/panopticon/*` endpoints guard with `_is_commander()` at the first line of each handler, returning 403 immediately
+- Client-side DOM manipulation by a free-tier user only exposes redacted `_DEMO_DATA` — there is nothing behind the curtain to steal
+
+**Do not change this architecture. It is production-correct.**
+
+---
+
+### VS2 — External API Retry Logic (`_rate_limited_get`)
+The `_rate_limited_get` function (lines 76–98) correctly implements:
+- Exponential backoff with jitter on 429 responses
+- Retry budgets preventing infinite loops
+- Courtesy sleeps between requests
+
+**The reactive retry logic is well-designed. The only gap is proactive budgeting (addressed in U4) — do not rewrite the existing retry logic.**
+
+---
+
+### VS3 — Schema Drift Detection and Logging
+The `_extract_asset_from_hit` function's `SCHEMA_DRIFT` logging (lines 250–253) and the batch warning for "See filing" returns (lines 278–285) are good observability hooks that will surface API changes before they silently corrupt production data. The multi-key fallback pattern (checking `asset_name`, `asset`, `ticker`, `description` in sequence) is appropriately defensive for an undocumented API.
+
+**Keep these patterns. Extend them per UI-3 recommendation, but do not remove them.**
+
+---
+
+### VS4 — Tiered Rate Limiting on Blueprint Routes (Concept)
+The concept of applying tighter limits to expensive endpoints (10 req/min for whale alerts vs. 30 req/min for general APIs) is architecturally correct and should be preserved when migrating to Redis/Flask-Limiter. The per-endpoint differentiation shows the right engineering instinct.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-### Violations Identified:
-
-| Law/Principle | Status | Finding |
+### Potentially Non-Compliant
+| Area | Issue | Both Models? |
 |---|---|---|
-| **Security: Server-Side Authorization** | ❌ VIOLATED | Sensitive data sent to non-paying users' browsers (U1). CSS is not access control. |
-| **Security: Defense in Depth** | ❌ VIOLATED | No IP rate limiting on any routes (U2). |
-| **API Third-Party Compliance** | ❌ VIOLATED | CoinGecko, exchangerate.host, treasury.gov called without rate limiting (U4). |
-| **Data Integrity / User Trust** | ❌ VIOLATED | Placeholder data presented as live with "loading" status (U3). |
-| **Concurrency Safety** | ⚠️ AT RISK | Non-thread-safe cache dictionary (M1). |
-| **Observability / Fault Detection** | ⚠️ PARTIAL | Schema drift goes undetected (U5); some logging exists but insufficient. |
-| **Authentication on Page Routes** | ✅ COMPLIANT (API routes only) | API routes correctly gated; page route is not. Mixed compliance. |
-| **Graceful Degradation** | ✅ COMPLIANT (mechanism exists) | Fallback system exists; honesty of presentation is the violation, not the mechanism itself. |
+| **STOCK Act / Congressional Data** | Scraping an internal House endpoint not designated for public API use may violate the House's terms of service. Not a criminal violation, but could result in access termination or legal notice. | Implicit in both analyses |
+| **Data Accuracy / Consumer Protection** | Displaying fabricated placeholder data without unambiguous inline labeling in a financial intelligence context could conflict with FTC guidelines on deceptive practices if users act on it. | Gemini explicit, Grok partial |
+
+### Compliant
+| Area | Status |
+|---|---|
+| **Authentication / Authorization (STOCK Act data gating)** | Fully compliant — server-side gating prevents unauthorized data access |
+| **Rate Limiting (intent)** | Intent is compliant; implementation is broken (see U1/U2) but the design shows awareness of upstream TOS |
+
+**Final determination:** The platform is not in violation of any criminal statute, but operates in a legal gray zone regarding the efts.house.gov endpoint. Legal review of the House's web scraping policy is recommended before production launch. The placeholder data presentation should be corrected to avoid FTC deceptive practices exposure.
 
 ---
 
 ## SECURITY CONSENSUS
 
-Priority order (both models flagged all items):
+Priority order of all security-relevant findings both models raised:
 
-1. **🔴 P0 — CSS Overlay Bypass (U1):** Commander-tier data delivered to free users' browsers. Trivially exploitable. Fix immediately.
-2. **🔴 P0 — No Route-Level Rate Limiting (U2):** Every API endpoint is open to hammering. Enables abuse and cascading external API bans.
-3. **🟠 P1 — External API Rate Limit Non-Compliance (U4):** Risk of server IP being banned by CoinGecko et al., causing complete feature outage.
-4. **🟠 P1 — Non-Thread-Safe Cache (M1):** Race conditions under load; thundering herd on cache expiry.
-5. **🟡 P2 — Schema Drift Undetected (U5):** Silent failures when efts.house.gov changes its API response format.
+| Priority | Issue | File | Severity |
+|---|---|---|---|
+| 1 | In-memory rate limiter bypassable via multi-worker round-robin | `panopticon.py:29` | CRITICAL |
+| 2 | In-memory cache non-shared — upstream APIs exposed to worker-multiplied flood | `panopticon_service.py:35` | CRITICAL |
+| 3 | No proactive API budget enforcement — reactive-only leaves window for IP bans | `panopticon_service.py:76-98` | HIGH |
+| 4 | Undocumented endpoint with no change detection alerting | `panopticon_service.py:193` | HIGH |
+| 5 | Placeholder data credibility risk (not a security issue but reputational) | `panopticon_service.py:296` | MEDIUM |
+
+**Classified overlay is NOT a security issue** — it is correctly implemented and requires no action.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
-
-Items mentioned by both models that separate "working code" from a truly world-class implementation:
-
-### WCG1 — No Observability Infrastructure
-Both models flagged the absence of structured alerting. A world-class system would emit metrics (cache hit rate, upstream API latency, error rate by service) to a monitoring backend, with alerts on schema drift, rate limit exhaustion, and fallback activation frequency.
-
-### WCG2 — Fallback Is Not Honest or Graceful
-Both models flagged this. A world-class intelligence dashboard explicitly communicates data freshness and source status to the user. The current system silently degrades in a way that misleads users about data quality.
-
-### WCG3 — No Exponential Backoff on External APIs
-Both models noted the absence of proper retry-with-backoff logic. World-class API integrations handle transient failures (429, 503, network timeouts) with jittered exponential backoff, circuit breakers, and dead-letter logging.
-
-### WCG4 — Cache Architecture Not Production-Grade
-Both models agreed the in-memory dict cache is a prototype pattern. World-class production systems use Redis (or equivalent) for cache durability, cross-process sharing, and atomic operations.
+*(Only items 2+ models mentioned)*
 
 ---
 
-## FINAL ACTION PLAN (sorted by consensus priority)
+### WCG1 — No Stable, Documented Data Source for STOCK Act Disclosures
+Both models flagged that the entire congressional data pillar rests on an undocumented internal endpoint. A world-class financial intelligence platform would either (a) partner with a data vendor (Quiver Quantitative, Capitol Trades, OpenSecrets) that provides a stable, licensed feed, or (b) implement a self-hosted ingestion pipeline that monitors and archives disclosures from the House Clerk's official PDF/XML releases. The current approach is a single point of silent failure.
+
+---
+
+### WCG2 — No Distributed Caching Layer
+Both models independently identified the absence of Redis (or any distributed cache) as a fundamental architectural gap. A world-class platform serving 1,000+ concurrent users requires a shared cache that persists across deployments, is shared across workers, and supports TTL-based invalidation with stale-while-revalidate semantics. This is not a nice-to-have — it is load-bearing infrastructure.
+
+---
+
+### WCG3 — No Observability / Alerting on External API Health
+Both models implied (and Gemini stated explicitly) that the platform has no mechanism to alert operators when the efts.house.gov endpoint, CoinGecko, or mempool.space returns unexpected responses. A world-class system would have: (a) a health-check endpoint that tests each upstream dependency, (b) structured logging with correlation IDs on every external call, and (c) alerting (PagerDuty, Slack webhook, etc.) when schema drift or sustained 429s are detected.
+
+---
+
+## FINAL ACTION PLAN
+*(Sorted by consensus priority)*
 
 | Priority | Change | File:Line | Models | Why |
 |---|---|---|---|---|
-| **P0 CRITICAL** | Withhold Commander-tier data server-side for non-paying users; never send to browser | `core/blueprints/panopticon.py:47` | both | CSS is not access control; trivial client-side bypass exposes paid features for free |
-| **P0 CRITICAL** | Add `get_demo_safe_data()` function returning redacted/null data structure for free tier | `services/panopticon_service.py:new` | both | Server-side complement to P0 above; data scrub must happen before render |
-| **P0 CRITICAL** | Implement Flask-Limiter IP rate limiting on all `/api/panopticon/*` routes | `core/blueprints/panopticon.py:75–204` | both | No throttling enables abuse, cascades to upstream API bans, potential DoS |
-| **P1 HIGH** | Add `time.sleep()` + exponential backoff on `exchangerate.host`, `coingecko.com`, `fiscaldata.treasury.gov` fetches | `services/panopticon_service.py:400, 425, 841` | both | Zero rate limiting risks immediate IP ban from external services, causing full feature outage |
-| **P1 HIGH** | Add 429 response handling with exponential backoff to all external API callers | `services/panopticon_service.py:133–170, 313–363` | both | Fixed sleep is brittle; 429s must be detected and respected to avoid bans |
-| **P1 HIGH** | Return `(data, is_live: bool)` from `fetch_disclosures()`; pass to template; render honest fallback banner | `services/panopticon_service.py:~line 218`, `templates/panopticon.html:~1033` | both | Placeholder data presented as live data destroys user trust; misleads about data quality |
-| **P1 HIGH** | Add threading lock + in-flight sentinel to `_cached()` to prevent race conditions and thundering herd | `services/panopticon_service.py:31–42` | both | Non-thread-safe dict cache will corrupt under concurrent load; cache expiry causes request pile-up |
-| **P1 HIGH** | Log schema drift warning in `_extract_asset_from_hit()` when all known fields return empty | `services/panopticon_service.py:186–197` | both | Silent schema failures make efts.house.gov breakage invisible until users complain |
-| **P2 MEDIUM** | Add startup cache pre-warming task for most expensive keys (BTC price, whale alerts) | `services/panopticon_service.py:new` | grok-unique | Cold start after restart spikes upstream API calls; pre-warm prevents first-request latency cliff |
-| **P2 MEDIUM** | Tighten rate limit specifically on `/api/panopticon/whale-alerts` (5/minute) due to expensive mempool.space calls | `core/blueprints/panopticon.py:~96` | grok-unique | Most expensive upstream call; targeted tight limit prevents cascading mempool.space hammering |
-| **P2 MEDIUM** | Migrate `_cache` dict to Redis with TTL-based key expiry | `services/panopticon_service.py:31–42` | both (future) | In-memory cache is prototype-grade; Redis required for multi-worker deployments and persistence |
-| **P2 MEDIUM** | Add code comment documenting symmetry between API 403 guards and new page data-withholding | `core/blueprints/panopticon.py:40` | gemini-unique | Prevents future developers from regressing the security model by misunderstanding the intent |
+| **P0 CRITICAL** | Replace `_rate_limit_store` dict with Redis via Flask-Limiter; apply `@limiter.limit()` decorators to all API routes | `panopticon.py:29, 36–63` | Both | Multi-worker bypass completely defeats rate limiting in production |
+| **P0 CRITICAL** | Replace `_cache` dict with Redis (`redis-py`, `setex` with TTL); remove `_cache_lock` | `panopticon_service.py:35–72` | Both | Non-shared cache multiplies upstream calls by worker count; IP ban risk |
+| **P0 CRITICAL** | Implement proactive per-API Redis call budgets with TTL windows; serve stale cache when budget exceeded | `panopticon_service.py:76–98, 440, 954` | Both | Reactive-only throttling allows collective worker over-limit bursts |
+| **P1 HIGH** | Add `# WARNING: UNDOCUMENTED INTERNAL ENDPOINT` and monitoring alert on schema/HTTP failure for efts.house.gov | `panopticon_service.py:193` | Both | Silent endpoint change will break the congressional data pillar with no warning |
+| **P1 HIGH** | Replace placeholder future/fabricated dates with real historical STOCK Act filings; add inline `[EXAMPLE DATA]` badge on each placeholder row (not just a page banner) | `panopticon_service.py:296–364`, `panopticon.html:989–993` | Gemini (tiebreaker: correct) | Financial intelligence platform with fabricated data rows is a credibility and potential FTC risk |
+| **P1 HIGH** | Add cleanup/eviction for `_rate_limit_store` entries older than 3600s as interim fix during Redis migration | `panopticon.py:50` | Grok | Memory leak on long-running single-worker instances (dev/staging) |
+| **P2 MEDIUM** | Narrow `_extract_asset_from_hit` raw JSON keyword fallback to a field whitelist; add `KEYWORD_FALLBACK` warning log | `panopticon_service.py:255–258` | Grok | Whole-record keyword search produces false-positive asset IDs silently |
+| **P2 MEDIUM** | Add a `/api/panopticon/health` endpoint that tests each upstream dependency and returns structured status | New route | Both (implied) | No observability into upstream health; failures are invisible until user-reported |
+| **P2 MEDIUM** | Document legal review item: confirm House.gov ToS permits automated access to `efts.house.gov/LATEST/search-index` | Legal / README | Both | Operating in gray zone; access could be terminated or trigger legal contact |
 
 ---
 
 ## CYCLE 1 VERDICT
 
-**The code requires a second build pass before it can be considered production-ready.**
+**The code is NOT ready for a second build pass without addressing P0 items first.**
 
-The P0 CRITICAL finding — Commander-tier data delivered to free users' browsers with only a CSS overlay for "security" — is a fundamental architectural flaw, not a polish issue. It means the feature's core monetization gate is currently broken and exploitable by any user who can open browser DevTools. This must be resolved before any public deployment.
+The classified overlay and authentication architecture are production-correct and should not be touched. However, the platform has two CRITICAL infrastructure failures that would manifest immediately under any realistic production load: the rate limiter is bypassable by design in a multi-worker deployment, and the cache provides no protection against upstream API flooding. These are not edge cases — they are guaranteed failure modes the moment Gunicorn spawns more than one worker.
 
-The P0 rate limiting absence compounds the risk: the system has no defense against abuse that could cascade into external API bans, causing complete feature outages.
+The congressional data pillar's foundation (an undocumented internal endpoint) is a strategic risk that cannot be fully fixed in a code pass but must be acknowledged, monitored, and planned around.
 
-The code shows solid architectural intent (the API routes are correctly gated, the cache TTL design is sound, the parser is defensively written) — this is not a rewrite situation. The second pass is targeted and achievable. The validators' agreement on specific file/line locations means the fixes are well-scoped.
-
-**Verdict: PROCEED TO SECOND PASS — targeted fixes only, no architectural rewrite.**
+**Recommended path:** Fix all P0 items (Redis migration for rate limiter + cache + proactive budgeting) and P1 items (endpoint monitoring + placeholder data) in the second build pass before any load testing or soft launch. P2 items can follow in a third pass.
 
 ---
 
-## SECOND PASS PROMPT (ready to fire into Claude Code)
+## SECOND PASS PROMPT
+*(Ready to fire into Claude Code)*
 
 ```
 Read ~/protocol_pulse/docs/gospels/VISUAL_DESIGN_SYSTEM.md.
 Read ~/protocol_pulse/docs/audits/panopticon_CONSENSUS_C1.md.
 
 This is the SECOND PASS for panopticon.
-The first build was reviewed by 2 independent AI models (Gemini 2.5 Pro, Grok-3)
-across 1 cycle. GPT-4o was unavailable due to token limits.
+The first build was reviewed by 2 independent AI models (Grok-3, Gemini 2.5 Pro)
+across 1 cycle. GPT-4o failed due to token limits — treat this as a 2-model consensus.
+
 Implement every P0 and P1 item from the consensus. Use judgment on P2.
 
 PRIORITY ACTION PLAN:
 
-P0 CRITICAL | Withhold Commander-tier data server-side for free users — never send to browser | core/blueprints/panopticon.py:47 | both models | CSS overlay is not access control; trivial DevTools bypass
-P0 CRITICAL | Add get_demo_safe_data() returning redacted/null structure for free tier | services/panopticon_service.py:new | both models | Server-side data scrub before render
-P0 CRITICAL | Implement Flask-Limiter IP rate limiting on all /api/panopticon/* routes | core/blueprints/panopticon.py:75-204 | both models | No throttling enables abuse and cascading external API bans
+P0 CRITICAL | Replace _rate_limit_store dict with Redis via Flask-Limiter;
+              apply @limiter.limit() decorators to all /api/panopticon/* routes |
+              core/blueprints/panopticon.py:29,36-63 | models: both |
+              Multi-worker round-robin bypass completely defeats rate limiting in
+              any production WSGI deployment. Each worker holds its own dict copy.
 
-P1 HIGH | Add time.sleep() + exponential backoff on exchangerate.host, coingecko.com, fiscaldata.treasury.gov | services/panopticon_service.py:400,425,841 | both models | Zero rate limiting risks IP ban and full feature outage
-P1 HIGH | Add 429
+P0 CRITICAL | Replace _cache dict with Redis (redis-py, setex with TTL);
+              remove _cache_lock threading lock (Redis handles atomicity natively) |
+              services/panopticon_service.py:35-72 | models: both |
+              Non-shared in-memory cache multiplies upstream API calls by worker
+              count. Under load this will cause IP bans from CoinGecko/mempool.space.
+
+P0 CRITICAL | Implement proactive per-API Redis call budgets using TTL counters
+              (INCR + EXPIRE pattern); serve stale cache when budget exceeded;
+              document budget constants as named config values |
+              services/panopticon_service.py:76-98,440,954 | models: both |
+              Reactive-only retry logic allows all workers to simultaneously exceed
+              upstream rate limits before any 429 is returned.
+
+P1 HIGH     | Add WARNING comment documenting undocumented endpoint status;
+              add monitoring alert (log + optional webhook) when efts.house.gov
+              returns unexpected schema or sustained HTTP errors |
+              services/panopticon_service.py:193 | models: both |
+              Silent endpoint change will break the congressional data pillar
+              with zero operator warning.
+
+P1 HIGH     | Replace placeholder future/fabricated dates in
+              _generate_disclosure_placeholders() with real historical STOCK Act
+              filing dates from public record; add inline [EXAMPLE DATA] badge
+              on each placeholder row in the template (not only the page banner) |
+              services/panopticon_service.py:296-364,
+              templates/panopticon.html:989-993 | models: gemini (tiebreaker) |
+              Financial intelligence platform with fabricated data rows is a
+              credibility risk and potential FTC deceptive practices exposure.
+
+P1 HIGH     | Add cleanup/eviction for _rate_limit_store entries older than
+              3600 seconds as interim guard during Redis migration transition |
+              core/blueprints/panopticon.py:50 | models: grok |
+              Memory leak on long-running single-worker instances (dev/staging).
+
+P2 MEDIUM   | Narrow _extract_asset_from_hit raw JSON keyword fallback to a
+              whitelist of specific fields (description, comment, filing_name);
+              add KEYWORD_FALLBACK structured warning log for every hit |
+              services/panopticon_service.py:255-258 | models: grok |
+              Whole-record keyword search produces silent false-positive asset IDs.
+
+P2 MEDIUM   | Add /api/panopticon/health route that tests each upstream dependency
+              (efts.house.gov, CoinGecko, mempool.space, exchangerate.host) and
+              returns structured JSON status with latency |
+              core/blueprints/panopticon.py (new route) | models: both implied |
+              No operator visibility into upstream health; failures are invisible
+              until user-reported.
+
+VALIDATED — do NOT touch — all models confirmed excellent:
+
+1. Commander Overlay Security Architecture:
+   - panopticon_page serves only _DEMO_DATA to non-Commander users (line 139)
+   - Real data is never fetched or transmitted to free-tier users
+   - All /api/panopticon/* routes guard with _is_commander() at first line → 403
+   - DOM inspection by free-tier users only exposes {"entity": "██████████", ...}
+   - This is production-correct. Do not modify this architecture.
+
+2. External API Retry Logic in _rate_limited_get (lines 76-98):

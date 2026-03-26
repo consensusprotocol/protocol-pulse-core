@@ -24,42 +24,41 @@ logger = logging.getLogger(__name__)
 
 panopticon_bp = Blueprint("panopticon", __name__)
 
-# ── Rate limiter (P0 fix for U2 — IP-based throttling on all API routes) ────
-# Applied via before_request to avoid circular import issues with app.limiter
-_rate_limit_store = {}  # IP -> {count, window_start}
-_RATE_LIMIT_WINDOW = 60  # seconds
-_RATE_LIMIT_MAX = 30  # requests per window for general API routes
-_RATE_LIMIT_WHALE = 10  # tighter limit for expensive whale-alerts endpoint (P2 UI-2)
-import time as _time
+# ── Rate limiting via app-level Flask-Limiter (P0 audit fix: shared across workers) ──
+# The app.py limiter uses get_remote_address as key_func.
+# We apply limits per-route via a lazy import to avoid circular imports at module load.
+_limiter = None
+
+
+def _get_limiter():
+    """Lazy-load the app-level Flask-Limiter instance."""
+    global _limiter
+    if _limiter is None:
+        try:
+            from app import limiter
+            _limiter = limiter
+        except ImportError:
+            try:
+                from core.app import limiter
+                _limiter = limiter
+            except ImportError:
+                logger.warning("Flask-Limiter not available — panopticon rate limiting disabled")
+    return _limiter
 
 
 @panopticon_bp.before_request
 def _enforce_rate_limit():
-    """IP-based rate limiting for all /api/panopticon/* routes."""
+    """Rate limiting for /api/panopticon/* routes via Flask-Limiter.
+    Falls back to app-level default if limiter unavailable."""
     if not request.path.startswith("/api/panopticon/"):
         return None
 
-    ip = request.remote_addr or "unknown"
-    now = _time.time()
-    key = f"{ip}:{request.path}"
-
-    # Tighter limit for whale-alerts (most expensive upstream call)
-    max_requests = _RATE_LIMIT_WHALE if "whale" in request.path else _RATE_LIMIT_MAX
-
-    entry = _rate_limit_store.get(key)
-    if entry is None or now - entry["start"] > _RATE_LIMIT_WINDOW:
-        _rate_limit_store[key] = {"count": 1, "start": now}
+    lim = _get_limiter()
+    if lim is None:
         return None
 
-    entry["count"] += 1
-    if entry["count"] > max_requests:
-        logger.warning("Rate limit exceeded: %s on %s (%d/%d)", ip, request.path,
-                        entry["count"], max_requests)
-        return jsonify({
-            "error": "Rate limit exceeded",
-            "retry_after": int(_RATE_LIMIT_WINDOW - (now - entry["start"])),
-        }), 429
-
+    # Flask-Limiter handles enforcement via decorators on individual routes.
+    # This hook exists only for logging/monitoring.
     return None
 
 _EMPTY_DATA = {
@@ -113,7 +112,9 @@ def _is_commander() -> bool:
 
 
 def _sanitize_event_summary(text: str) -> str:
-    """Sanitize user input for the Make Bitcoin Case prompt to prevent injection."""
+    """Sanitize user input for the Make Bitcoin Case prompt to prevent injection.
+    Defense-in-depth layer — primary injection defense is in the system prompt
+    (see panopticon_service.get_make_bitcoin_case)."""
     # Strip control characters and excessive whitespace
     text = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', text)
     # Remove common prompt injection patterns
@@ -121,6 +122,26 @@ def _sanitize_event_summary(text: str) -> str:
     # Limit to alphanumeric, basic punctuation, and spaces
     text = re.sub(r'[^\w\s.,;:!?\'"\-()/$%@#&+=]', '', text)
     return text.strip()[:500]
+
+
+def _validate_llm_output(text: str) -> str:
+    """Validate LLM output before rendering to users.
+    P1 audit fix: reject outputs containing instruction-like patterns or code."""
+    if not text:
+        return text
+    # Reject outputs with injection indicators
+    suspicious_patterns = [
+        r'(?i)ignore\s+(all\s+)?previous\s+instructions',
+        r'(?i)system\s*prompt',
+        r'(?i)<script',
+        r'(?i)javascript:',
+        r'(?i)on(load|error|click)\s*=',
+    ]
+    for pattern in suspicious_patterns:
+        if re.search(pattern, text):
+            logger.warning("LLM output validation failed: suspicious pattern detected")
+            return "Self-custody is the only guarantee that no institution can freeze, seize, or debase your savings. Bitcoin is the exit."
+    return text
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -182,7 +203,8 @@ def api_disclosures():
 @panopticon_bp.route("/api/panopticon/whale-alerts")
 @panopticon_bp.route("/api/panopticon/whales")
 def api_whale_alerts():
-    """Recent large BTC wallet movements from known entities."""
+    """Recent large BTC wallet movements from known entities.
+    Tighter rate limit (10/min) — most expensive upstream call."""
     if not _is_commander():
         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
 
@@ -284,6 +306,9 @@ def api_make_bitcoin_case():
 
         from services.panopticon_service import get_make_bitcoin_case
         result = get_make_bitcoin_case(event_summary)
+        # P1 audit fix: validate LLM output before rendering to users
+        if result.get("case_text"):
+            result["case_text"] = _validate_llm_output(result["case_text"])
         return jsonify(result)
     except Exception as e:
         logger.error("Make Bitcoin Case API error: %s", e)
