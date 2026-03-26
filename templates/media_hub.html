@@ -714,7 +714,7 @@
     <div class="nostr-live" style="position:relative;z-index:2">
       <div class="nostr-live-head">
         <div class="nostr-live-dot" style="background:var(--gold)"></div>
-        <span class="nostr-live-label" style="color:var(--gold)">Bitcoin Knots Signal — Luke Dashjr</span>
+        <span class="nostr-live-label" style="color:var(--gold)">Bitcoin Knots Signal — Conservative Devs</span>
       </div>
       <div class="nostr-live-feed" id="nostrKnotsFeed">
         <div style="text-align:center;padding:20px;color:var(--mut);font-size:11px">Connecting...</div>
@@ -1106,7 +1106,7 @@ function tAgo(ts){var d=Math.floor(Date.now()/1000)-ts;if(d<60)return'now';if(d<
 })();
 
 /* ═══════════ NOSTR LIVE FEED — SIGNAL CARD RENDERING ═══════════ */
-var RELAYS=['wss://relay.damus.io','wss://nos.lol','wss://relay.nostr.band','wss://relay.primal.net'];
+var RELAYS=['wss://relay.damus.io','wss://nos.lol','wss://relay.nostr.band','wss://relay.primal.net','wss://nostr.wine'];
 var V={
   '82341f882b6eabcd2ba7f1ef90aad961cf074af15b9ef44a09f9d2a8fbfbe6a2':{n:'Jack Dorsey',i:'JD',c:'protocol',x:'jack'},
   '3f770d65d3a764a9c5cb503ae123e62ec7598ad035d836e2a810f3877a745b24':{n:'Adam Back',i:'AB',c:'protocol',x:'adam3us',label:'CRYPTOGRAPHER',lc:'var(--gold)'},
@@ -1124,7 +1124,14 @@ var V={
   '4523be58d395b1b196a9b8c82b038b6895cb02b683d0c253a955068dba1facd0':{n:'Michael Saylor',i:'MS',c:'macro',x:'saylor'},
   '58c741aa630c2da35a56a77c1d05381908bd10504b7519571f2cdae6ce2b993d':{n:'Jameson Lopp',i:'JL',c:'protocol',x:'lopp'},
   'edcd20558f17d99327d841e4582f9b006331ac4010571eb77dc79c55f1a295c8':{n:'Willy Woo',i:'WW',c:'macro',x:'woonomic'},
-  'e4336cd525df79fa4d3af364fd9600d4b10dce4215aa4c33ed77ea0842344b10':{n:'Luke Dashjr',i:'LD',c:'protocol',x:'LukeDashjr',label:'BITCOIN KNOTS',lc:'var(--gold)'}
+  'e4336cd525df79fa4d3af364fd9600d4b10dce4215aa4c33ed77ea0842344b10':{n:'Luke Dashjr',i:'LD',c:'protocol',x:'LukeDashjr',label:'BITCOIN KNOTS',lc:'var(--gold)'},
+  '2ef93f01cd2493e04d1090f66f2d769e31f0c28e8aab5f79f01bedb7a1c98d9d':{n:'Peter Todd',i:'PT',c:'protocol',x:'petabortodd',label:'BITCOIN DEV',lc:'var(--gold)'},
+  'b9e76546ba06456ed301d9e52bc49fa48e70a6bf2282be7a1ae72947612023dc':{n:'Matt Corallo',i:'MC',c:'protocol',x:'TheBlueMatt',label:'CORE DEV',lc:'var(--btc)'},
+  '89ef92b9ebe6dc1e4ea398f6477f227e95429627b0a33dc89b640e137b256be5':{n:'achow101',i:'AW',c:'protocol',x:'achaborw101',label:'CORE DEV',lc:'var(--btc)'},
+  '0fa2ad76b69c9e76c04e0e3dfcde5d86e4a3b8b5f09b20fa44024fe62fca12b6':{n:'Gloria Zhao',i:'GZ',c:'protocol',x:'glaborozaborazhao',label:'CORE DEV',lc:'var(--btc)'},
+  'f982dbf6948a0f3d35a1c4a4b1e72dee4dde7ec35f8527a5428fe2e9b29f6d2a':{n:'Pieter Wuille',i:'PW',c:'protocol',x:'pwuille',label:'CORE DEV',lc:'var(--btc)'},
+  '6e468422dfb74a5738702a8823b9b28168abab8655faacb6853cd0ee15deee93':{n:'waxwing',i:'WX',c:'protocol',x:'waxwing__',label:'JOINMARKET',lc:'var(--gold)'},
+  'f7346eb283902ada9d21c109b4e227a7d18e4df1342012862e0984e65cfd8f0b':{n:'John Carvalho',i:'JC',c:'protocol',x:'BitcoinErrorLog',label:'SYNONYM',lc:'var(--gold)'}
 };
 
 /* PBX virtual entry (not a real Nostr pubkey, for labeling) */
@@ -1137,9 +1144,19 @@ var kolSentiment={};
 var CORE_DEV_PKS=[
   '3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d',
   '04c915daefee38317fa734444acee390a8269fe5810b2241e5e6dd343dfbecc9',
-  '3f770d65d3a764a9c5cb503ae123e62ec7598ad035d836e2a810f3877a745b24'
+  '3f770d65d3a764a9c5cb503ae123e62ec7598ad035d836e2a810f3877a745b24',
+  '89ef92b9ebe6dc1e4ea398f6477f227e95429627b0a33dc89b640e137b256be5',
+  '0fa2ad76b69c9e76c04e0e3dfcde5d86e4a3b8b5f09b20fa44024fe62fca12b6',
+  'f982dbf6948a0f3d35a1c4a4b1e72dee4dde7ec35f8527a5428fe2e9b29f6d2a',
+  'b9e76546ba06456ed301d9e52bc49fa48e70a6bf2282be7a1ae72947612023dc'
 ];
-var KNOTS_PK='e4336cd525df79fa4d3af364fd9600d4b10dce4215aa4c33ed77ea0842344b10';
+/* Bitcoin Knots / conservative-sympathetic pubkeys */
+var KNOTS_PKS=[
+  'e4336cd525df79fa4d3af364fd9600d4b10dce4215aa4c33ed77ea0842344b10',
+  '2ef93f01cd2493e04d1090f66f2d769e31f0c28e8aab5f79f01bedb7a1c98d9d',
+  '6e468422dfb74a5738702a8823b9b28168abab8655faacb6853cd0ee15deee93',
+  'f7346eb283902ada9d21c109b4e227a7d18e4df1342012862e0984e65cfd8f0b'
+];
 
 /* Classify signal category from content */
 function classifySignal(txt){
@@ -1168,9 +1185,9 @@ function startNostr(){
           rUp++;retryDelay=1000;
           ws.send(JSON.stringify(["REQ","pp",{kinds:[1],authors:pks,limit:30}]));
           /* Core dev feed */
-          ws.send(JSON.stringify(["REQ","core",{kinds:[1],authors:CORE_DEV_PKS,limit:20}]));
+          ws.send(JSON.stringify(["REQ","core",{kinds:[1],authors:CORE_DEV_PKS,limit:30}]));
           /* Knots feed */
-          ws.send(JSON.stringify(["REQ","knots",{kinds:[1],authors:[KNOTS_PK],limit:10}]));
+          ws.send(JSON.stringify(["REQ","knots",{kinds:[1],authors:KNOTS_PKS,limit:20}]));
         };
         ws.onmessage=function(e){
           try{
@@ -1183,7 +1200,7 @@ function startNostr(){
                 if(!isReply){
                   addKol(ev);
                   if(sub==='core'||CORE_DEV_PKS.indexOf(ev.pubkey)>=0){addToCoreFeed(ev);addToForkCoreFeed(ev)}
-                  if(sub==='knots'||ev.pubkey===KNOTS_PK){addToKnotsFeed(ev);addToForkKnotsFeed(ev)}
+                  if(sub==='knots'||KNOTS_PKS.indexOf(ev.pubkey)>=0){addToKnotsFeed(ev);addToForkKnotsFeed(ev)}
                 }
               }
             }
@@ -1360,6 +1377,7 @@ function addToKnotsFeed(ev){
   var f=document.getElementById('nostrKnotsFeed');
   if(!f)return;
   if(f.querySelector('div[style]')&&!f.querySelector('.signal-card'))f.innerHTML='';
+  var v=V[ev.pubkey]||{n:ev.pubkey.substring(0,8),i:'??',c:'protocol'};
   var el=document.createElement('div');
   el.className='signal-card';
   el.style.borderColor='rgba(248,193,92,0.1)';
@@ -1371,14 +1389,14 @@ function addToKnotsFeed(ev){
   var head=document.createElement('div');
   head.className='signal-card-head';
   var av=document.createElement('div');
-  av.className='signal-card-av protocol';av.textContent='LD';
+  av.className='signal-card-av protocol';av.textContent=v.i;
   head.appendChild(av);
   var nm=document.createElement('span');
-  nm.className='signal-card-handle';nm.textContent='Luke Dashjr';
+  nm.className='signal-card-handle';nm.textContent=v.n;
   head.appendChild(nm);
   var lbl=document.createElement('span');
   lbl.className='signal-card-vlabel';lbl.style.background='rgba(248,193,92,0.1)';lbl.style.color='var(--gold)';
-  lbl.textContent='BITCOIN KNOTS';
+  lbl.textContent=v.label||'BITCOIN KNOTS';
   head.appendChild(lbl);
   var tm=document.createElement('span');
   tm.className='signal-card-time';tm.textContent=tAgo(ev.created_at);
@@ -1390,7 +1408,7 @@ function addToKnotsFeed(ev){
   main.appendChild(body);
   el.appendChild(main);
   f.insertBefore(el,f.firstChild);
-  while(f.children.length>10)f.removeChild(f.lastChild);
+  while(f.children.length>20)f.removeChild(f.lastChild);
 }
 
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSD();closeVideoModal(e,true)}});
@@ -1402,7 +1420,10 @@ var FORK_CORE_PKS={
   '89ef92b9ebe6dc1e4ea398f6477f227e95429627b0a33dc89b640e137b256be5':{n:'achow101',i:'AW'},
   '3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d':{n:'Fiatjaf',i:'FJ'},
   '04c915daefee38317fa734444acee390a8269fe5810b2241e5e6dd343dfbecc9':{n:'ODELL',i:'MO'},
-  '3f770d65d3a764a9c5cb503ae123e62ec7598ad035d836e2a810f3877a745b24':{n:'Adam Back',i:'AB'}
+  '3f770d65d3a764a9c5cb503ae123e62ec7598ad035d836e2a810f3877a745b24':{n:'Adam Back',i:'AB'},
+  '0fa2ad76b69c9e76c04e0e3dfcde5d86e4a3b8b5f09b20fa44024fe62fca12b6':{n:'Gloria Zhao',i:'GZ'},
+  'f982dbf6948a0f3d35a1c4a4b1e72dee4dde7ec35f8527a5428fe2e9b29f6d2a':{n:'Pieter Wuille',i:'PW'},
+  'b9e76546ba06456ed301d9e52bc49fa48e70a6bf2282be7a1ae72947612023dc':{n:'Matt Corallo',i:'MC'}
 };
 
 function _mkForkCard(ev,name,initials,borderColor,avBg){
@@ -1444,9 +1465,10 @@ function addToForkKnotsFeed(ev){
   var f=document.getElementById('forkKnotsFeed');
   if(!f)return;
   if(f.querySelector('.kol-loader'))f.innerHTML='';
-  var card=_mkForkCard(ev,'Luke Dashjr','LD','rgba(220,38,38,0.2)','var(--red)');
+  var v=V[ev.pubkey]||{n:ev.pubkey.substring(0,8),i:'??'};
+  var card=_mkForkCard(ev,v.n,v.i,'rgba(220,38,38,0.2)','var(--red)');
   f.insertBefore(card,f.firstChild);
-  while(f.children.length>10)f.removeChild(f.lastChild);
+  while(f.children.length>15)f.removeChild(f.lastChild);
 }
 
 function addToForkCoreFeed(ev){
