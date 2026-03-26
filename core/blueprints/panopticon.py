@@ -3,11 +3,16 @@ PANOPTICON Blueprint — Congressional Disclosure & Whale Intelligence Dashboard
 "They watch us. Now we watch them."
 
 Routes:
-  /panopticon                     — Main dashboard (Commander-gated)
-  /api/panopticon/disclosures     — STOCK Act filings (crypto-filtered)
-  /api/panopticon/whale-alerts    — Whale wallet movements
-  /api/panopticon/correlations    — Cross-reference timeline
-  /api/panopticon/geopolitical    — Nation-state & macro signals
+  /panopticon                          — Main dashboard (Commander-gated)
+  /api/panopticon/disclosures          — STOCK Act filings (crypto-filtered)
+  /api/panopticon/congress             — Alias for disclosures
+  /api/panopticon/whale-alerts         — Whale wallet movements
+  /api/panopticon/whales               — Alias for whale-alerts
+  /api/panopticon/correlations         — Cross-reference timeline
+  /api/panopticon/geopolitical         — Nation-state & macro signals
+  /api/panopticon/polymarket           — Prediction market odds
+  /api/panopticon/make-bitcoin-case    — AI-generated Bitcoin case (POST)
+  /api/panopticon/bitcoin-case         — Alias for make-bitcoin-case
 """
 
 import logging
@@ -52,6 +57,7 @@ def panopticon_page():
             "geopolitical": [],
             "correlations": [],
             "watch_list": [],
+            "polymarket": [],
             "generated_at": None,
         }
 
@@ -67,6 +73,7 @@ def panopticon_page():
 # ═══════════════════════════════════════════════════════════════════════════
 
 @panopticon_bp.route("/api/panopticon/disclosures")
+@panopticon_bp.route("/api/panopticon/congress")
 def api_disclosures():
     """Recent STOCK Act filings filtered for crypto/fintech."""
     if not _is_commander():
@@ -87,6 +94,7 @@ def api_disclosures():
 
 
 @panopticon_bp.route("/api/panopticon/whale-alerts")
+@panopticon_bp.route("/api/panopticon/whales")
 def api_whale_alerts():
     """Recent large BTC wallet movements from known entities."""
     if not _is_commander():
@@ -116,7 +124,7 @@ def api_whale_alerts():
 
 @panopticon_bp.route("/api/panopticon/correlations")
 def api_correlations():
-    """Cross-reference timeline: disclosures × whale movements × geopolitical events."""
+    """Cross-reference timeline: disclosures x whale movements x geopolitical events."""
     if not _is_commander():
         return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
 
@@ -153,7 +161,27 @@ def api_geopolitical():
         return jsonify({"error": "Failed to fetch geopolitical signals"}), 500
 
 
+@panopticon_bp.route("/api/panopticon/polymarket")
+def api_polymarket():
+    """Live Polymarket prediction market odds for crypto/macro events."""
+    if not _is_commander():
+        return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+
+    try:
+        from services.panopticon_service import fetch_polymarket_markets
+        limit = min(int(request.args.get("limit", 15)), 30)
+        markets = fetch_polymarket_markets(limit=limit)
+        return jsonify({
+            "markets": markets,
+            "count": len(markets),
+        })
+    except Exception as e:
+        logger.error("Polymarket API error: %s", e)
+        return jsonify({"error": "Failed to fetch Polymarket data"}), 500
+
+
 @panopticon_bp.route("/api/panopticon/make-bitcoin-case", methods=["POST"])
+@panopticon_bp.route("/api/panopticon/bitcoin-case", methods=["POST"])
 def api_make_bitcoin_case():
     """Generate a cypherpunk Bitcoin self-custody argument for a specific event via Claude."""
     if not _is_commander():

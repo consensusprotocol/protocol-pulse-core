@@ -79,6 +79,10 @@ TASKS = {
     "btc_milestone_check": {"interval_minutes": 5, "description": "F6: BTC price milestone check — fires campaigns at 100K/120K/.../1M (never repeats)"},
     "daily_metrics_snapshot": {"interval_minutes": 60, "description": "F6: Daily performance metrics snapshot (hourly upsert)"},
     "weekly_performance_analysis": {"cron": "00:00", "cron_day": "sun", "description": "F6: Weekly performance analysis (Sunday 00:00 UTC)"},
+    # PANOPTICON — Congressional disclosure + whale tracker
+    "panopticon_congress_refresh": {"interval_minutes": 30, "description": "PANOPTICON: refresh congressional disclosures from efts.house.gov (every 30m)"},
+    "panopticon_whale_scan": {"interval_minutes": 5, "description": "PANOPTICON: scan whale wallets via mempool.space (every 5m)"},
+    "panopticon_polymarket_refresh": {"interval_minutes": 5, "description": "PANOPTICON: refresh Polymarket prediction odds (every 5m)"},
 }
 
 
@@ -599,6 +603,38 @@ def run_task(name: str) -> Dict:
             logger.warning("stage_brief_%s failed: %s", brief_type, e)
             return {"success": False, "message": str(e), "result": None}
 
+    # ── PANOPTICON tasks ──────────────────────────────────────────────────
+    if name == "panopticon_congress_refresh":
+        try:
+            from services.panopticon_service import fetch_stock_act_disclosures, _cache
+            _cache.pop("panopticon_stock_act", None)
+            _cache.pop("panopticon_disclosures", None)
+            results = fetch_stock_act_disclosures()
+            return {"success": True, "message": f"Congress disclosures: {len(results)} fetched", "result": {"count": len(results)}}
+        except Exception as e:
+            logger.warning("panopticon_congress_refresh failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "panopticon_whale_scan":
+        try:
+            from services.panopticon_service import fetch_whale_alerts, _cache
+            _cache.pop("panopticon_whales", None)
+            alerts = fetch_whale_alerts()
+            return {"success": True, "message": f"Whale scan: {len(alerts)} alerts", "result": {"count": len(alerts)}}
+        except Exception as e:
+            logger.warning("panopticon_whale_scan failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "panopticon_polymarket_refresh":
+        try:
+            from services.panopticon_service import fetch_polymarket_markets, _cache
+            _cache.pop("panopticon_polymarket", None)
+            markets = fetch_polymarket_markets()
+            return {"success": True, "message": f"Polymarket: {len(markets)} markets", "result": {"count": len(markets)}}
+        except Exception as e:
+            logger.warning("panopticon_polymarket_refresh failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -679,6 +715,10 @@ def initialize_scheduler() -> Dict:
             _apscheduler.add_job(generate_ai_summaries, trigger=IntervalTrigger(minutes=60), id="media_ai_summaries", replace_existing=True, max_instances=1)
         except Exception as _mfe:
             logging.warning("Media feed sync job not scheduled: %s", _mfe)
+        # PANOPTICON scheduled tasks
+        _apscheduler.add_job(lambda: run_task("panopticon_congress_refresh"), trigger=IntervalTrigger(minutes=30), id="panopticon_congress_refresh", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("panopticon_whale_scan"), trigger=IntervalTrigger(minutes=5), id="panopticon_whale_scan", replace_existing=True, max_instances=1)
+        _apscheduler.add_job(lambda: run_task("panopticon_polymarket_refresh"), trigger=IntervalTrigger(minutes=5), id="panopticon_polymarket_refresh", replace_existing=True, max_instances=1)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

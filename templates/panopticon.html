@@ -734,6 +734,63 @@ body.panopticon-body .pp-footer { display: none !important; }
     text-transform: uppercase;
 }
 
+/* ── POLYMARKET PANEL ──────────────────────────────────────────── */
+.pn-poly-card {
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+}
+.pn-poly-card:hover { border-color: var(--pn-border-active); }
+.pn-poly-question {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pn-text);
+    line-height: 1.3;
+    margin-bottom: 8px;
+}
+.pn-poly-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+.pn-poly-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+.pn-poly-bar-fill.bullish { background: linear-gradient(90deg, var(--pn-lime), rgba(137,255,184,0.5)); }
+.pn-poly-bar-fill.bearish { background: linear-gradient(90deg, var(--pn-coral), rgba(255,139,160,0.5)); }
+.pn-poly-bar-fill.neutral { background: linear-gradient(90deg, var(--pn-gold), rgba(248,193,92,0.5)); }
+.pn-poly-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-muted);
+}
+.pn-poly-odds {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    margin-right: 4px;
+}
+.pn-poly-odds.bullish { color: var(--pn-lime); }
+.pn-poly-odds.bearish { color: var(--pn-coral); }
+.pn-poly-odds.neutral { color: var(--pn-gold); }
+.pn-poly-volume {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-text-secondary);
+}
+
 /* ── DISCLAIMER ────────────────────────────────────────────────── */
 .pn-disclaimer {
     padding: 12px 16px;
@@ -774,7 +831,7 @@ body.panopticon-body .pp-footer { display: none !important; }
 /* ── HERO STATS ROW ────────────────────────────────────────────── */
 .pn-stats-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 1px;
     background: var(--pn-border);
     margin-bottom: 1px;
@@ -900,6 +957,10 @@ body.panopticon-body .pp-footer { display: none !important; }
         <div class="pn-stat">
             <div class="pn-stat-value" id="pnStatFlags">{{ data.flagged|length }}</div>
             <div class="pn-stat-label">Patterns Flagged</div>
+        </div>
+        <div class="pn-stat">
+            <div class="pn-stat-value" id="pnStatPoly">{{ data.polymarket|length if data.polymarket else 0 }}</div>
+            <div class="pn-stat-label">Prediction Markets</div>
         </div>
         <div class="pn-stat">
             <div class="pn-stat-value" id="pnStatGeo">{{ data.geopolitical|length }}</div>
@@ -1129,6 +1190,50 @@ body.panopticon-body .pp-footer { display: none !important; }
                     <div class="pn-loading-dot"></div>
                     <div class="pn-loading-dot"></div>
                     Scanning whale wallets...
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Polymarket Prediction Markets -->
+            <div class="pn-section-title">Polymarket Prediction Odds</div>
+            <div id="pnPolymarket">
+                {% for p in data.polymarket %}
+                <div class="pn-poly-card">
+                    <div class="pn-poly-question">{{ p.question }}</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        {% if p.yes_price %}
+                        <span class="pn-poly-odds {{ p.btc_signal }}">{{ p.yes_price }}%</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--pn-muted);text-transform:uppercase;">YES</span>
+                        {% else %}
+                        <span class="pn-poly-odds neutral">--</span>
+                        {% endif %}
+                        <span class="pn-geo-signal signal-{{ p.btc_signal }}" style="margin-left:auto;">
+                            {% if p.btc_signal == 'bullish' %}&#9650;{% elif p.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+                            {{ p.btc_signal|upper }}
+                        </span>
+                    </div>
+                    {% if p.yes_price %}
+                    <div class="pn-poly-bar-wrap">
+                        <div class="pn-poly-bar-fill {{ p.btc_signal }}" style="width:{{ p.yes_price }}%"></div>
+                    </div>
+                    {% endif %}
+                    <div class="pn-poly-meta">
+                        {% if p.volume %}
+                        <span class="pn-poly-volume">${{ "{:,.0f}".format(p.volume) }} vol</span>
+                        {% endif %}
+                        {% if p.end_date %}
+                        <span>Expires {{ p.end_date[:10] }}</span>
+                        {% endif %}
+                        <a href="{{ p.source_url }}" target="_blank" rel="noopener" style="color:var(--pn-text-secondary);text-decoration:none;font-size:9px;">Polymarket &rarr;</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.polymarket %}
+                <div class="pn-loading">
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    Fetching prediction markets...
                 </div>
                 {% endif %}
             </div>
