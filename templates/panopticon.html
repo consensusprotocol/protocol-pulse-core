@@ -1007,17 +1007,18 @@ body.panopticon-body .pp-footer { display: none !important; }
     40% { opacity: 1; transform: scale(1.2); }
 }
 
-/* ── HISTORICAL PRECEDENTS TIMELINE ─────────────────────────── */
+/* ── HISTORICAL PRECEDENTS TIMELINE (GLASSMORPHIC REBUILD) ─── */
 .pn-history {
     max-width: 1800px;
     margin: 0 auto;
-    padding: 24px 16px 32px;
+    padding: 32px 16px 40px;
+    position: relative;
 }
 .pn-history-header {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--pn-red);
     margin-bottom: 6px;
@@ -1026,141 +1027,203 @@ body.panopticon-body .pp-footer { display: none !important; }
     font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: var(--pn-muted);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     line-height: 1.6;
 }
 .pn-timeline-scroll {
     overflow-x: auto;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 12px;
+    padding-bottom: 16px;
     scrollbar-width: thin;
-    scrollbar-color: var(--pn-border) transparent;
+    scrollbar-color: rgba(255,59,95,0.3) transparent;
 }
 .pn-timeline-scroll::-webkit-scrollbar { height: 4px; }
-.pn-timeline-scroll::-webkit-scrollbar-thumb { background: var(--pn-border); border-radius: 2px; }
+.pn-timeline-scroll::-webkit-scrollbar-thumb { background: rgba(255,59,95,0.3); border-radius: 2px; }
 .pn-timeline {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     position: relative;
     min-width: max-content;
-    padding: 60px 20px 20px;
+    padding: 140px 40px 140px;
 }
+/* Glowing red timeline line */
 .pn-timeline::before {
     content: '';
     position: absolute;
-    top: 78px;
+    top: 50%;
     left: 20px;
     right: 20px;
-    height: 2px;
-    border-top: 2px dashed var(--pn-red);
-    opacity: 0.5;
+    height: 1px;
+    background: var(--pn-red);
+    opacity: 0.6;
+    transform: translateY(-50%);
+    animation: tlGlow 3s ease-in-out infinite;
 }
+@keyframes tlGlow {
+    0%, 100% { box-shadow: 0 0 4px rgba(255,59,95,0.4); }
+    50% { box-shadow: 0 0 12px rgba(255,59,95,0.6); }
+}
+/* Timeline node container */
 .pn-tl-node {
     position: relative;
-    flex: 0 0 220px;
-    padding-top: 30px;
+    flex: 0 0 auto;
+    min-width: 110px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+/* Above-line events: label on top, dot connects to line */
+.pn-tl-node.tl-above {
+    flex-direction: column-reverse;
+    margin-bottom: 0;
+    margin-top: -120px;
+}
+/* Below-line events */
+.pn-tl-node.tl-below {
+    margin-top: 120px;
+}
+/* Year label */
 .pn-tl-year {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 800;
     color: var(--pn-red);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    white-space: nowrap;
 }
+.tl-above .pn-tl-year { margin-bottom: 0; margin-top: 2px; }
+/* Event name */
 .pn-tl-name {
     font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 10px;
+    font-weight: 600;
     color: var(--pn-white);
     line-height: 1.3;
-    margin-bottom: 8px;
-    padding: 0 8px;
+    max-width: 100px;
+    margin-bottom: 6px;
+    opacity: 0.85;
 }
+.tl-above .pn-tl-name { margin-bottom: 0; margin-top: 6px; }
+/* Stem connecting dot to label area */
+.pn-tl-stem {
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(to bottom, rgba(255,59,95,0.5), rgba(255,59,95,0.1));
+}
+.tl-above .pn-tl-stem {
+    background: linear-gradient(to top, rgba(255,59,95,0.5), rgba(255,59,95,0.1));
+}
+/* The clickable pin dot */
 .pn-tl-dot {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    border: 2px solid var(--pn-red);
-    background: var(--pn-bg);
-    color: var(--pn-red);
-    font-size: 10px;
-    font-weight: 700;
+    background: var(--pn-red);
     cursor: pointer;
     position: relative;
-    transition: box-shadow 0.3s, background 0.3s;
-    box-shadow: 0 0 8px rgba(255,59,95,0.3);
+    flex-shrink: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 6px rgba(255,59,95,0.4);
+    animation: pinPulse 2s ease-in-out infinite;
+    z-index: 2;
+}
+@keyframes pinPulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(255,59,95,0.4), 0 0 0 0 rgba(255,59,95,0.3); }
+    50% { box-shadow: 0 0 8px rgba(255,59,95,0.6), 0 0 0 6px rgba(255,59,95,0); }
 }
 .pn-tl-dot:hover {
-    background: var(--pn-red);
-    color: var(--pn-bg);
-    box-shadow: 0 0 16px rgba(255,59,95,0.6);
+    transform: scale(1.3);
+    box-shadow: 0 0 14px rgba(255,59,95,0.7);
 }
-.pn-tl-info {
-    position: absolute;
-    bottom: calc(100% + 14px);
-    left: 50%;
-    transform: translateX(-50%) translateY(8px);
-    width: 280px;
-    background: var(--pn-surface);
-    border: 1px solid var(--pn-red);
-    border-radius: 4px;
-    padding: 14px;
+.pn-tl-dot.active {
+    background: #fff;
+    box-shadow: 0 0 16px rgba(255,59,95,0.8);
+    animation: none;
+}
+/* Glassmorphic info card — fixed position to avoid clipping */
+.pn-tl-card {
+    position: fixed;
+    max-width: 340px;
+    min-width: 280px;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,59,95,0.4);
+    border-radius: 12px;
+    padding: 20px;
     text-align: left;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s, transform 0.25s;
-    z-index: 100;
+    transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 10000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-.pn-tl-dot:hover + .pn-tl-info,
-.pn-tl-info:hover {
+.pn-tl-card.active {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
     pointer-events: auto;
+    transform: translateY(0);
 }
-.pn-tl-info-title {
+.pn-tl-card-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--pn-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.pn-tl-card-close:hover { color: var(--pn-white); }
+.pn-tl-card-header {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--pn-red);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    padding-right: 24px;
 }
-.pn-tl-info-date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: var(--pn-muted);
-    margin-bottom: 8px;
-}
-.pn-tl-info-desc {
+.pn-tl-card-short {
     font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    color: var(--pn-text-secondary);
-    line-height: 1.5;
+    font-size: 13px;
+    color: var(--pn-white);
+    line-height: 1.7;
     margin-bottom: 10px;
 }
-.pn-tl-info-btc {
+.pn-tl-card-detail {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+.pn-tl-card-btc {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    color: var(--pn-gold);
-    padding: 6px 8px;
-    background: rgba(248,193,92,0.08);
-    border-left: 2px solid var(--pn-gold);
-    line-height: 1.4;
+    color: var(--pn-red);
+    padding: 8px 10px;
+    background: rgba(255,59,95,0.08);
+    border-left: 2px solid var(--pn-red);
+    border-radius: 0 6px 6px 0;
+    line-height: 1.5;
 }
 .pn-history-coda {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--pn-text-secondary);
-    margin-top: 18px;
+    font-size: 11px;
+    color: var(--pn-red);
+    margin-top: 24px;
     line-height: 1.6;
     max-width: 800px;
+    font-style: italic;
+    opacity: 0.85;
 }
-.pn-history-coda strong { color: var(--pn-red); }
 
 /* ── DISCLAIMER ──────────────────────────────────────────────── */
 .pn-disclaimer {
@@ -1836,113 +1899,234 @@ body.panopticon-body .pp-footer { display: none !important; }
     </div>
 </div>
 
-<!-- ═══ HISTORICAL PRECEDENTS TIMELINE ═══ -->
+<!-- ═══ HISTORICAL PRECEDENTS TIMELINE (GLASSMORPHIC) ═══ -->
 <div class="pn-history">
     <div class="pn-history-header">HISTORICAL PRECEDENTS</div>
     <div class="pn-history-subhead">Documented cases of government financial overreach — the pattern Bitcoin was engineered to break.</div>
 
     <div class="pn-timeline-scroll">
-        <div class="pn-timeline">
+        <div class="pn-timeline" id="pn-timeline">
 
-            <!-- 1933 FDR Gold Seizure -->
-            <div class="pn-tl-node">
+            <!-- 1: 60 AD — Roman Coin Debasement (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
+                <div class="pn-tl-year">60 AD</div>
+                <div class="pn-tl-name">Roman Coin Debasement</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="0" onclick="tlToggle(this)"></div>
+            </div>
+
+            <!-- 2: 1544 — Henry VIII (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:40px">
+                <div class="pn-tl-dot" data-evt="1" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-year">1544</div>
+                <div class="pn-tl-name">Henry VIII Great Debasement</div>
+            </div>
+
+            <!-- 3: 1789 — French Assignats (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
+                <div class="pn-tl-year">1789</div>
+                <div class="pn-tl-name">French Assignat Hyperinflation</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="2" onclick="tlToggle(this)"></div>
+            </div>
+
+            <!-- 4: 1921 — Weimar (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="3" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-year">1921</div>
+                <div class="pn-tl-name">Weimar Hyperinflation</div>
+            </div>
+
+            <!-- 5: 1933 — FDR Gold Seizure (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
                 <div class="pn-tl-year">1933</div>
                 <div class="pn-tl-name">FDR Gold Seizure</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">Executive Order 6102</div>
-                    <div class="pn-tl-info-date">April 5, 1933</div>
-                    <div class="pn-tl-info-desc">Citizens forced to surrender gold at $20.67/oz. Penalty: 10 years prison or $10,000 fine. Gold revalued to $35/oz days later — instant 41% confiscation of purchasing power.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: Cannot be seized by executive order. Self-custody means no intermediary to comply.</div>
-                </div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="4" onclick="tlToggle(this)"></div>
             </div>
 
-            <!-- 1971 Nixon Shock -->
-            <div class="pn-tl-node">
+            <!-- 6: 1944 — Bretton Woods (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="5" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-year">1944</div>
+                <div class="pn-tl-name">Bretton Woods Dollar Peg</div>
+            </div>
+
+            <!-- 7: 1946 — Hungary (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
+                <div class="pn-tl-year">1946</div>
+                <div class="pn-tl-name">Hungarian Hyperinflation</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="6" onclick="tlToggle(this)"></div>
+            </div>
+
+            <!-- 8: 1971 — Nixon Shock (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="7" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
                 <div class="pn-tl-year">1971</div>
                 <div class="pn-tl-name">Nixon Shock</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">End of Bretton Woods</div>
-                    <div class="pn-tl-info-date">August 15, 1971</div>
-                    <div class="pn-tl-info-desc">USD-gold convertibility suspended "temporarily". Every dollar became debt-backed fiat overnight. Dollar has lost 87% of purchasing power since.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: Fixed 21M supply. No president, no committee, no emergency decree can print more.</div>
-                </div>
             </div>
 
-            <!-- 2013 Cyprus Bail-In -->
-            <div class="pn-tl-node">
+            <!-- 9: 1980s — S&L Crisis (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
+                <div class="pn-tl-year">1980s</div>
+                <div class="pn-tl-name">S&amp;L Crisis</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="8" onclick="tlToggle(this)"></div>
+            </div>
+
+            <!-- 10: 2001 — Argentina (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="9" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-year">2001</div>
+                <div class="pn-tl-name">Argentina Corralito</div>
+            </div>
+
+            <!-- 11: 2008 — GFC Bailouts (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
+                <div class="pn-tl-year">2008</div>
+                <div class="pn-tl-name">Global Financial Crisis</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="10" onclick="tlToggle(this)"></div>
+            </div>
+
+            <!-- 12: 2013 — Cyprus (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="11" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
                 <div class="pn-tl-year">2013</div>
                 <div class="pn-tl-name">Cyprus Bail-In</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">Bank Deposit Confiscation</div>
-                    <div class="pn-tl-info-date">March 2013</div>
-                    <div class="pn-tl-info-desc">Up to 47.5% of deposits over &euro;100,000 seized from Bank of Cyprus accounts. First modern test of direct bank deposit confiscation to bail out institutions.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: No bank can freeze or confiscate your BTC. Your keys, your coins.</div>
-                </div>
             </div>
 
-            <!-- 2022 Russia SWIFT -->
-            <div class="pn-tl-node">
+            <!-- 13: 2016 — India (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
+                <div class="pn-tl-year">2016</div>
+                <div class="pn-tl-name">India Demonetization</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="12" onclick="tlToggle(this)"></div>
+            </div>
+
+            <!-- 14: 2020 — COVID (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="13" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-year">2020</div>
+                <div class="pn-tl-name">COVID Money Printing</div>
+            </div>
+
+            <!-- 15: 2022 — Russia SWIFT (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
                 <div class="pn-tl-year">2022</div>
                 <div class="pn-tl-name">Russia SWIFT Exclusion</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">Sovereign Reserve Weaponization</div>
-                    <div class="pn-tl-info-date">February 2022</div>
-                    <div class="pn-tl-info-desc">$300B in Russian sovereign reserves frozen. Central bank assets seized across Western jurisdictions. Proof that nation-state reserves can be weaponized.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: No counterparty risk. No central authority can freeze a UTXO on the blockchain.</div>
-                </div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="14" onclick="tlToggle(this)"></div>
             </div>
 
-            <!-- 2022 Canadian Trucker Freeze -->
-            <div class="pn-tl-node">
+            <!-- 16: 2022 — Canada Truckers (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="15" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
                 <div class="pn-tl-year">2022</div>
-                <div class="pn-tl-name">Canada Account Freeze</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">Emergencies Act — Financial Surveillance</div>
-                    <div class="pn-tl-info-date">February 2022</div>
-                    <div class="pn-tl-info-desc">Bank accounts of trucker convoy protesters frozen without court order under Emergencies Act. Personal financial data surveilled and shared across institutions.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: Permissionless transactions. No government can freeze a self-custodied wallet.</div>
-                </div>
+                <div class="pn-tl-name">Canada Trucker Freeze</div>
             </div>
 
-            <!-- 2023 US Banking Crisis -->
-            <div class="pn-tl-node">
+            <!-- 17: 2023 — US Banking (ABOVE) -->
+            <div class="pn-tl-node tl-above" style="margin-right:20px">
                 <div class="pn-tl-year">2023</div>
-                <div class="pn-tl-name">US Banking Crisis</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">Operation Chokepoint 2.0</div>
-                    <div class="pn-tl-info-date">March 2023</div>
-                    <div class="pn-tl-info-desc">SVB, Signature Bank, Silvergate collapse. Crypto-friendly banks systematically shut down. Coordinated regulatory pressure to debank the digital asset industry.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: Operates without banking infrastructure. The network settles 24/7/365 regardless.</div>
-                </div>
+                <div class="pn-tl-name">U.S. Banking Crisis</div>
+                <div class="pn-tl-stem"></div>
+                <div class="pn-tl-dot" data-evt="16" onclick="tlToggle(this)"></div>
             </div>
 
-            <!-- Ongoing CBDC Push -->
-            <div class="pn-tl-node">
+            <!-- 18: NOW — CBDC (BELOW) -->
+            <div class="pn-tl-node tl-below" style="margin-right:20px">
+                <div class="pn-tl-dot" data-evt="17" onclick="tlToggle(this)"></div>
+                <div class="pn-tl-stem"></div>
                 <div class="pn-tl-year">NOW</div>
                 <div class="pn-tl-name">CBDC Push</div>
-                <span class="pn-tl-dot">i</span>
-                <div class="pn-tl-info">
-                    <div class="pn-tl-info-title">Central Bank Digital Currencies</div>
-                    <div class="pn-tl-info-date">Ongoing — 130+ countries</div>
-                    <div class="pn-tl-info-desc">130+ countries developing Central Bank Digital Currencies — programmable money with expiry dates, spending restrictions, and total surveillance of every transaction.</div>
-                    <div class="pn-tl-info-btc">&#x20BF; Bitcoin: Open-source, censorship-resistant, pseudonymous. The antidote to programmable fiat.</div>
-                </div>
             </div>
 
         </div>
     </div>
 
     <div class="pn-history-coda">
-        <strong>WHY HISTORY MATTERS</strong> — These are not conspiracy theories. These are documented events.
-        Bitcoin was built to prevent them.
+        WHY HISTORY MATTERS — These are not conspiracy theories. These are documented events. Bitcoin was built to prevent them.
     </div>
 </div>
+
+<!-- Glassmorphic info card (single, repositioned on click) -->
+<div class="pn-tl-card" id="pn-tl-card">
+    <button class="pn-tl-card-close" onclick="tlClose()">&times;</button>
+    <div class="pn-tl-card-header" id="tlCardHeader"></div>
+    <div class="pn-tl-card-short" id="tlCardShort"></div>
+    <div class="pn-tl-card-detail" id="tlCardDetail"></div>
+    <div class="pn-tl-card-btc" id="tlCardBtc"></div>
+</div>
+
+<script>
+(function(){
+var TL_EVENTS=[
+{year:"60 AD",title:"Roman Coin Debasement",short:"Nero reduces silver content from 90% to near 0% over centuries. Denarius becomes copper-clad.",detail:"Roman emperors starting with Nero systematically reduced silver content in the denarius from ~90% to under 5% to fund wars and government spending. By the Crisis of the Third Century (235\u2013284 AD), 26 emperors ruled in 49 years as the currency collapsed and hyperinflation took hold. The pattern: spend beyond means, debase the money, watch civilization fracture.",btc:"\u26a1 BITCOIN PARALLEL: 21 million coins. No emperor can change that."},
+{year:"1544",title:"Henry VIII Great Debasement",short:"England\u2019s king secretly reduces gold/silver in coins to fund wars. Coins dubbed \u2018Old Coppernose.\u2019",detail:"King Henry VIII reduced gold content from 23 to 20 karat and silver content to just 25% (rest copper) to fund wars with France and Scotland and his lifestyle. Citizens noticed when the copper showed through the silver on the king\u2019s portrait \u2014 the nose turned copper first. Result: Severe inflation, erosion of trust, economic damage lasting decades until reversed by Elizabeth I in 1560.",btc:"\u26a1 BITCOIN PARALLEL: Cryptographically verified. No hidden copper."},
+{year:"1789",title:"French Assignat Hyperinflation",short:"Revolutionary France prints paper money backed by seized church land. Massive over-issue destroys savings.",detail:"The revolutionary government issued paper \u2018assignats\u2019 backed by confiscated church lands, then printed them without restraint to fund wars and deficits. Total issuance: 45 billion livres. Result: Hyperinflation wiped out the middle class, triggered food riots, and contributed to the Reign of Terror. The paper money became so worthless it was burned for heat.",btc:"\u26a1 BITCOIN PARALLEL: Cannot be printed. Supply is fixed at genesis."},
+{year:"1921",title:"Weimar Republic Hyperinflation",short:"Germany prints trillions of marks to pay WWI reparations. A loaf of bread costs 200 billion marks by 1923.",detail:"The German government printed money to pay WWI war reparations imposed by the Treaty of Versailles. By November 1923, a single loaf of bread cost 200 billion marks. Citizens carried cash in wheelbarrows. Middle-class savings were completely destroyed. The resulting economic chaos and resentment directly enabled the rise of extremism. The Reichsbank printed notes so fast new denominations were issued daily.",btc:"\u26a1 BITCOIN PARALLEL: No central bank. No war reparations. 21 million."},
+{year:"1933",title:"FDR Gold Seizure",short:"Executive Order 6102 forces citizens to surrender gold. Penalty: 10 years prison or $10,000 fine.",detail:"President Roosevelt signed Executive Order 6102 requiring all U.S. persons to deliver their gold coins, bullion, and certificates to Federal Reserve banks at $20.67/oz. Days later, the government revalued gold to $35/oz \u2014 an immediate 41% wealth transfer from citizens to the state. Noncompliance carried criminal penalties of up to 10 years imprisonment. This was not a purchase \u2014 it was confiscation.",btc:"\u26a1 BITCOIN PARALLEL: Stored in your head as 12 words. No EO can seize a seed phrase."},
+{year:"1944",title:"Bretton Woods Dollar Peg",short:"USD becomes global reserve currency backed by gold. Seeds Nixon Shock 27 years later.",detail:"44 nations signed the Bretton Woods Agreement making the USD the world reserve currency pegged at $35/oz gold. The U.S. promised to maintain convertibility. For 27 years, the system worked \u2014 until the U.S. printed more dollars than it had gold to back them, setting the stage for Nixon\u2019s 1971 unilateral break.",btc:"\u26a1 BITCOIN PARALLEL: No central peg. No promise of convertibility. It just works."},
+{year:"1946",title:"Hungarian Hyperinflation",short:"Worst hyperinflation in recorded history. Prices doubled every 15 hours. Currency abandoned entirely.",detail:"Post-WWII Hungary experienced the most extreme hyperinflation ever recorded. The Hungarian peng\u0151 lost all value \u2014 at peak, prices doubled every 15.6 hours. The government printed a 100 quintillion peng\u0151 note. Total currency abandoned. A new currency (forint) was introduced, but savings were destroyed absolutely. Workers were paid daily and ran to spend before prices doubled again.",btc:"\u26a1 BITCOIN PARALLEL: Cannot be inflated. Ever."},
+{year:"1971",title:"Nixon Shock",short:"Nixon ends gold convertibility \u2018temporarily.\u2019 54 years later, still temporary.",detail:"On August 15, 1971, President Nixon unilaterally terminated USD convertibility to gold, ending the Bretton Woods system. He called it \u2018temporary.\u2019 Every dollar since has been backed only by government debt. The result: USD has lost 85%+ of its purchasing power since 1971. The move enabled unlimited government spending backed by nothing but future tax obligations and the threat of military force.",btc:"\u26a1 BITCOIN PARALLEL: Born the day Satoshi embedded the bank bailout headline in the genesis block."},
+{year:"1980s",title:"U.S. Savings & Loan Crisis",short:"1,000+ S&Ls fail after deregulation. $160 billion taxpayer bailout. First major \u2018too big to fail.\u2019",detail:"Deregulation of the savings and loan industry combined with government-backed deposit insurance led to reckless lending and outright fraud at over 1,000 institutions. When they failed, taxpayers were forced to cover losses of $124\u2013160 billion. The S&L crisis established the template: privatize profits, socialize losses. Executives faced minimal consequences.",btc:"\u26a1 BITCOIN PARALLEL: No deposit insurance needed. Not your keys, not your coins \u2014 but if it is your keys, no bailout required."},
+{year:"2001",title:"Argentina Corralito",short:"Bank accounts frozen. USD deposits forcibly converted to devalued pesos. Riots in the streets.",detail:"After pegging the peso to the USD, Argentina\u2019s government froze all bank accounts (the \u2018corralito\u2019) limiting withdrawals to $250/week. When the peg broke, USD deposits were forcibly converted to pesos at a rate that immediately lost 70% of value \u2014 wiping out savings overnight. Multiple presidents resigned in weeks. Riots killed dozens. Argentina defaulted on $100 billion in debt.",btc:"\u26a1 BITCOIN PARALLEL: Your wallet. Your keys. No bank holiday can freeze a UTXO."},
+{year:"2008",title:"Global Financial Crisis Bailouts",short:"TARP: $700B. Total Fed backstop: $29 trillion. Banks rescued. Homeowners foreclosed.",detail:"The U.S. government passed TARP ($700B+) and the Federal Reserve provided up to $29 trillion in emergency backstops to rescue banks, AIG, Fannie Mae, Freddie Mac, and the auto industry after the subprime mortgage collapse. While institutions deemed \u2018too big to fail\u2019 were rescued, 10 million Americans lost their homes to foreclosure. The genesis block of Bitcoin was mined January 3, 2009 \u2014 with a newspaper headline about bank bailouts embedded as a timestamp.",btc:"\u26a1 BITCOIN PARALLEL: The genesis block timestamp: \u2018Chancellor on brink of second bailout for banks.\u2019 Satoshi saw this coming."},
+{year:"2013",title:"Cyprus Bail-In",short:"EU forces haircut of 47.5% on deposits over \u20ac100,000. First direct bank account confiscation in modern Europe.",detail:"The European Union forced Cyprus to impose a \u2018bail-in\u2019 as a condition of a \u20ac10B rescue \u2014 directly seizing up to 47.5% of bank deposits over \u20ac100,000. This was the first time in modern history that EU governments explicitly took depositor money to rescue a bank. It established the legal template that deposits are not cash \u2014 they are unsecured loans to the bank.",btc:"\u26a1 BITCOIN PARALLEL: People who held BTC were not subject to the bail-in."},
+{year:"2016",title:"India Demonetization",short:"86% of all currency invalidated overnight. Chaos, queues, economic disruption. Affected 1.3 billion people.",detail:"Indian Prime Minister Modi announced with 4 hours notice that \u20b9500 and \u20b91,000 notes \u2014 86% of all currency in circulation \u2014 were immediately invalid. Citizens had weeks to exchange limited amounts. Result: Cash chaos, severe disruption to the informal economy (which employs 90% of Indians), GDP growth slowed, and the stated goal of eliminating \u2018black money\u2019 largely failed. The demonetization affected 1.3 billion people with near-zero time to prepare.",btc:"\u26a1 BITCOIN PARALLEL: A Bitcoin private key cannot be demonetized by government decree."},
+{year:"2020",title:"COVID Money Printing",short:"$5\u20136 trillion U.S. stimulus + Fed balance sheet to $9T. Highest inflation in 40 years follows.",detail:"The U.S. government passed ~$5\u20136 trillion in fiscal stimulus packages (CARES Act, American Rescue Plan, etc.) while the Federal Reserve doubled its balance sheet from $4T to $9T through quantitative easing. The result: 9.1% inflation in June 2022 \u2014 the highest in 40 years. Purchasing power of savings eroded. Asset owners saw portfolios surge while wage earners fell behind. The Cantillon effect: those closest to the money printer benefit first.",btc:"\u26a1 BITCOIN PARALLEL: Bitcoin supply did not change. 21 million. The halving in May 2020 reduced new issuance. Bitcoiners called it."},
+{year:"2022",title:"Russia SWIFT Exclusion",short:"$300B in sovereign reserves frozen. Proof that nation-state assets are weapons.",detail:"Following Russia\u2019s invasion of Ukraine, Western nations froze approximately $300 billion in Russian central bank reserves held in Western financial institutions. This demonstrated that sovereign wealth \u2014 money a country legally owns \u2014 can be weaponized by adversaries with institutional access. No court order, no due process. Every central bank in the world took note.",btc:"\u26a1 BITCOIN PARALLEL: Censorship-resistant by design. No counterparty holds your sats."},
+{year:"2022",title:"Canada Trucker Freeze",short:"Bank accounts frozen without court order. Protesters financially silenced in 48 hours.",detail:"The Canadian government invoked the Emergencies Act to freeze bank accounts of Freedom Convoy protesters and donors without court orders. Financial institutions were directed to freeze accounts based on government lists. Accounts were blocked within 48 hours of the declaration. A peaceful protest was financially neutralized. The act was later found to have been applied unlawfully by a Federal Court, but the damage was done.",btc:"\u26a1 BITCOIN PARALLEL: Bitcoin transactions cannot be stopped. A node in your home means no one can freeze your economic activity."},
+{year:"2023",title:"U.S. Banking Crisis",short:"SVB, Signature, Silvergate collapse. Crypto-friendly banks systematically shut down \u2014 Operation Chokepoint 2.0.",detail:"Silicon Valley Bank ($212B), Signature Bank ($110B), and Silvergate Bank collapsed in rapid succession. SVB\u2019s failure was partly triggered by the Fed\u2019s rate hiking cycle destroying its bond portfolio. Signature and Silvergate \u2014 both crypto-friendly banks \u2014 were also shut down by regulators. Critics and a Congressional investigation documented \u2018Operation Chokepoint 2.0\u2019: a coordinated effort to deny banking services to crypto businesses.",btc:"\u26a1 BITCOIN PARALLEL: A bank that cannot be closed. Runs 24/7/365. No bank holiday."},
+{year:"NOW",title:"CBDC Push",short:"130+ countries developing programmable digital currencies. Expiry dates. Spending restrictions. Surveillance.",detail:"As of 2026, 130+ countries (representing 98% of global GDP) are developing or piloting Central Bank Digital Currencies. Unlike cash, CBDCs are programmable: governments can set expiry dates (spend it or lose it), restrict what categories of goods can be purchased, tie spending to social credit scores, and surveil every transaction in real time. China\u2019s digital yuan has already been deployed with regional spending restrictions.",btc:"\u26a1 BITCOIN PARALLEL: Bitcoin is the opt-out. Permissionless. Unseizable. 21 million. Forever."}
+];
+var openDot=null,card=document.getElementById('pn-tl-card');
+function tlToggle(dot){
+    var idx=parseInt(dot.dataset.evt),e=TL_EVENTS[idx];
+    if(openDot===dot){tlClose();return;}
+    if(openDot)openDot.classList.remove('active');
+    dot.classList.add('active');
+    openDot=dot;
+    document.getElementById('tlCardHeader').textContent=e.year+' \u2014 '+e.title;
+    document.getElementById('tlCardShort').textContent=e.short;
+    document.getElementById('tlCardDetail').textContent=e.detail;
+    document.getElementById('tlCardBtc').textContent=e.btc;
+    /* Position card near the dot */
+    var r=dot.getBoundingClientRect(),cw=340,ch=card.offsetHeight||300;
+    var left=r.left+r.width/2-cw/2;
+    var top=r.top-ch-12;
+    if(dot.closest('.tl-below'))top=r.bottom+12;
+    if(left<8)left=8;
+    if(left+cw>window.innerWidth-8)left=window.innerWidth-cw-8;
+    if(top<8)top=r.bottom+12;
+    if(top+ch>window.innerHeight-8)top=r.top-ch-12;
+    card.style.left=left+'px';card.style.top=top+'px';
+    card.classList.add('active');
+}
+function tlClose(){
+    card.classList.remove('active');
+    if(openDot){openDot.classList.remove('active');openDot=null;}
+}
+window.tlToggle=tlToggle;window.tlClose=tlClose;
+/* Close on click outside */
+document.addEventListener('click',function(ev){
+    if(!ev.target.closest('.pn-tl-dot')&&!ev.target.closest('.pn-tl-card'))tlClose();
+});
+/* Close on scroll */
+var scr=document.querySelector('.pn-timeline-scroll');
+if(scr)scr.addEventListener('scroll',tlClose);
+})();
+</script>
 
 <!-- ═══ DISCLAIMER ═══ -->
 <div class="pn-disclaimer">
