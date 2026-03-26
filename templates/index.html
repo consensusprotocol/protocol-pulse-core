@@ -186,7 +186,7 @@
         <div class="carousel-wrap pp-reveal" id="featuredCarousel">
             {% for article in carousel_list[:3] %}
             <div class="carousel-slide{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}">
-                <img src="{{ article_image_urls.get(article.id, '/static/images/default-header.png') }}"
+                <img src="{{ (article.cover_image_url or article_image_urls.get(article.id, '/static/images/default-header.png')) }}"
                      alt="{{ article.title }}"
                      class="carousel-slide__img"
                      loading="{% if loop.first %}eager{% else %}lazy{% endif %}"
@@ -286,7 +286,7 @@
             <a href="/articles/{{ article.slug or article.id }}"
                class="article-card pp-reveal"
                data-category="{{ cat_key }}">
-                <img src="{{ article_image_urls.get(article.id, '/static/images/default-header.png') }}"
+                <img src="{{ (article.cover_image_url or article_image_urls.get(article.id, '/static/images/default-header.png')) }}"
                      alt="{{ article.title }}"
                      class="article-card__img"
                      loading="lazy"
