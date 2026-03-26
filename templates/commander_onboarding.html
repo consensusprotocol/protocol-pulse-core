@@ -110,7 +110,7 @@ body { background: #000 !important; overflow: hidden; }
   text-shadow: 0 0 12px var(--co-red-glow);
 }
 
-/* ── Radar (Screen 3) ── */
+/* ── Radar (Screen 3) — Fibonacci Resonance Web ── */
 .co-radar-wrap {
   position: relative;
   width: min(300px, 70vw);
@@ -118,23 +118,86 @@ body { background: #000 !important; overflow: hidden; }
 }
 .co-radar-canvas {
   width: 100%; height: 100%;
+  display: block;
 }
 
-/* ── Avatar glow (Screen 4) ── */
-.co-avatar-wrap {
+/* ── Avatar reveal (Screen 4) — Particle Halo ── */
+.co-avatar-container {
   position: relative;
-  width: 160px; height: 160px;
+  width: 220px; height: 220px;
+  display: flex; align-items: center; justify-content: center;
+}
+.co-avatar-halo-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+.co-avatar-img {
+  position: relative; z-index: 1;
+  width: 180px; height: 180px;
   border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--co-red);
-  animation: coAvatarGlow 3s ease-in-out infinite;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(0.6);
+  filter: blur(20px);
+  transition: opacity 0.6s cubic-bezier(0.34,1.56,0.64,1),
+              transform 0.6s cubic-bezier(0.34,1.56,0.64,1),
+              filter 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 0 2px rgba(255,59,95,0.6), 0 0 40px rgba(255,59,95,0.3);
 }
-@keyframes coAvatarGlow {
-  0%, 100% { box-shadow: 0 0 20px var(--co-red-glow); }
-  50% { box-shadow: 0 0 50px var(--co-red-glow), 0 0 80px rgba(220,38,38,0.15); }
+.co-avatar-img.revealed {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0px);
 }
-.co-avatar-wrap img {
-  width: 100%; height: 100%; object-fit: cover;
+@keyframes coAvatarPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255,59,95,0.6), 0 0 20px rgba(255,59,95,0.3); }
+  50% { box-shadow: 0 0 0 2px rgba(255,59,95,0.8), 0 0 60px rgba(255,59,95,0.4); }
+}
+.co-avatar-img.revealed {
+  animation: coAvatarPulse 2s ease-in-out infinite;
+}
+/* Scan line */
+.co-avatar-scanline {
+  position: absolute; z-index: 2;
+  left: 50%; top: 0;
+  width: 180px; height: 2px;
+  transform: translateX(-50%);
+  background: rgba(255,59,95,0.15);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255,59,95,0.2);
+  animation: coScanDown 4s linear infinite;
+  pointer-events: none;
+  opacity: 0;
+}
+.co-avatar-scanline.active { opacity: 1; }
+@keyframes coScanDown {
+  0% { top: calc(50% - 90px); }
+  100% { top: calc(50% + 90px); }
+}
+/* Satomi title words */
+.co-satomi-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.co-satomi-word.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.co-satomi-word.glow {
+  text-shadow: 0 0 30px rgba(255,59,95,0.8), 0 0 60px rgba(255,59,95,0.4);
+}
+/* Data stream readout */
+.co-data-stream {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255,59,95,0.7);
+  letter-spacing: 0.05em;
+  margin-top: 16px;
+  min-height: 1.2em;
+  text-align: center;
 }
 
 /* ── Briefing cards (Screen 5) ── */
@@ -322,7 +385,8 @@ body { background: #000 !important; overflow: hidden; }
 @media (max-width: 768px) {
   .co-screen { padding: 24px 16px; }
   .co-huge { font-size: 1.4rem; }
-  .co-avatar-wrap { width: 120px; height: 120px; }
+  .co-avatar-container { width: 180px; height: 180px; }
+  .co-avatar-img { width: 140px; height: 140px; }
 }
 </style>
 {% endblock %}
@@ -354,7 +418,7 @@ body { background: #000 !important; overflow: hidden; }
     </div>
   </div>
 
-  <!-- ════════ SCREEN 3 — SIGNAL MATRIX ════════ -->
+  <!-- ════════ SCREEN 3 — SOVEREIGN SIGNAL MATRIX (Fibonacci Resonance Web) ════════ -->
   <div class="co-screen" data-screen="2" id="screen2">
     <div class="co-label" style="margin-bottom:8px;">SOVEREIGN SIGNAL MATRIX</div>
     <div class="co-radar-wrap">
@@ -365,14 +429,17 @@ body { background: #000 !important; overflow: hidden; }
     <button class="co-cta" onclick="goScreen(3)">CONTINUE &rarr;</button>
   </div>
 
-  <!-- ════════ SCREEN 4 — ORACLE INTRO ════════ -->
+  <!-- ════════ SCREEN 4 — SATOMI REVEAL (Particle Halo) ════════ -->
   <div class="co-screen" data-screen="3" id="screen3">
-    <div class="co-avatar-wrap">
-      <img src="/static/oracle_avatar.png" alt="Satomi" onerror="this.style.display='none'">
+    <div class="co-avatar-container" id="satomiContainer">
+      <canvas class="co-avatar-halo-canvas" id="haloCanvas"></canvas>
+      <img class="co-avatar-img" id="satomiAvatar" src="/static/oracle_avatar.png" alt="Satomi" onerror="this.style.display='none'">
+      <div class="co-avatar-scanline" id="satomiScanline"></div>
     </div>
-    <div class="co-huge" style="margin-top:24px;opacity:0" id="oracleTitle">THIS IS SATOMI.</div>
+    <div class="co-huge" style="margin-top:24px;" id="oracleTitle"></div>
     <div class="co-sub" style="opacity:0" id="oracleLine1">She knows every block. Every whale move. Every narrative shift.</div>
     <div class="co-sub" style="opacity:0;margin-top:8px;" id="oracleLine2">She answers in real time. With lip sync. On any device.</div>
+    <div class="co-data-stream" id="satomiDataStream"></div>
     <a href="/oracle-live" class="co-cta" style="opacity:0" id="oracleCta">SPEAK TO SATOMI &rarr;</a>
   </div>
 
@@ -632,24 +699,32 @@ body { background: #000 !important; overflow: hidden; }
     enterBtn.addEventListener('click', function() { goScreen(2); });
   }
 
-  // ════ Screen 2: Radar chart animation ════
+  // ════ Screen 2: Fibonacci Resonance Radar (pure Canvas 2D) ════
   var s2Animated = false;
+  var radarRAF = null;
   function animateScreen2() {
     if (s2Animated) return;
     s2Animated = true;
 
     var canvas = document.getElementById('radarCanvas');
     var ctx = canvas.getContext('2d');
-    var size = canvas.parentElement.clientWidth;
-    canvas.width = size * 2;
-    canvas.height = size * 2;
-    ctx.scale(2, 2);
+    var dpr = window.devicePixelRatio || 1;
+    var size = Math.min(300, canvas.parentElement.clientWidth);
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    ctx.scale(dpr, dpr);
 
-    var labels = ['Miner', 'Exchange', 'Narrative', 'On-Chain', 'Lightning', 'Market'];
-    var colors = ['#89ffb8', '#f8c15c', '#5de4ff', '#ff8ba0', '#eef2ff', '#ff3b5f'];
-    var values = [72, 58, 65, 70, 45, 62]; // defaults
+    var labels = ['Miner', 'Exchange', 'Narrative', 'Accumulation', 'Lightning', 'Market'];
+    var n = 6;
+    var cx = size / 2, cy = size / 2, maxR = size * 0.34;
+    var values = [72, 58, 65, 70, 45, 62];
+    var ghostValues = [68, 62, 60, 65, 50, 58];
+    var displayValues = [0, 0, 0, 0, 0, 0];
+    var driftTargets = values.slice();
+    var driftValues = values.slice();
 
-    // Try to use real signal data
     if (signalData && signalData.components) {
       var c = signalData.components;
       values = [
@@ -660,108 +735,400 @@ body { background: #000 !important; overflow: hidden; }
         c.lightning || 45,
         c.fear_greed?.score || c.market || 62
       ];
+      ghostValues = values.map(function(v) { return Math.max(10, v + (Math.random() * 16 - 8)); });
+      driftTargets = values.slice();
+      driftValues = values.slice();
     }
 
-    var cx = size / 2, cy = size / 2, maxR = size * 0.38;
-    var n = 6;
-    var progress = 0;
+    // Entry animation state
+    var entryStart = null;
+    var axisDrawDuration = 400;
+    var axisStagger = 130;
+    var totalAxisTime = axisStagger * (n - 1) + axisDrawDuration;
+    var dotDropTime = 200;
+    var fillFadeTime = 400;
+    var scoreAnimTime = 800;
+    var entryDone = false;
+    var shimmerAngle = 0;
+    var lastDriftTime = 0;
 
-    function drawRadar(p) {
+    // Label glow state
+    var labelGlowStart = new Array(n).fill(0);
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeOutBounce(t) {
+      if (t < 1/2.75) return 7.5625*t*t;
+      if (t < 2/2.75) return 7.5625*(t-=1.5/2.75)*t+0.75;
+      if (t < 2.5/2.75) return 7.5625*(t-=2.25/2.75)*t+0.9375;
+      return 7.5625*(t-=2.625/2.75)*t+0.984375;
+    }
+
+    // Draw hexagonal ring
+    function drawHexRing(r, alpha) {
+      ctx.beginPath();
+      for (var i = 0; i <= n; i++) {
+        var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+        var x = cx + r * Math.cos(angle);
+        var y = cy + r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(255,59,95,' + alpha + ')';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    // Draw pulsing sine-wave axis
+    function drawAxis(idx, progress, time) {
+      var angle = (Math.PI * 2 * idx / n) - Math.PI / 2;
+      var cosA = Math.cos(angle), sinA = Math.sin(angle);
+      var perpX = -sinA, perpY = cosA;
+      var len = maxR * progress;
+      ctx.beginPath();
+      var steps = 40;
+      for (var s = 0; s <= steps; s++) {
+        var t = s / steps;
+        var dist = len * t;
+        var sineOffset = 3 * Math.sin(dist / 40 * Math.PI * 2 + time * 2 + idx * 1.2);
+        var px = cx + dist * cosA + sineOffset * perpX;
+        var py = cy + dist * sinA + sineOffset * perpY;
+        if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = 'rgba(255,59,95,0.2)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    // Golden ratio spiral (very subtle)
+    function drawGoldenSpiral(time) {
+      var phi = 1.618033988749895;
+      ctx.beginPath();
+      var spiralSteps = 200;
+      for (var s = 0; s < spiralSteps; s++) {
+        var theta = s * 0.08 + time * 0.1;
+        var r = 2 * Math.pow(phi, theta / (Math.PI * 2)) * 0.8;
+        if (r > maxR * 1.1) break;
+        var x = cx + r * Math.cos(theta);
+        var y = cy + r * Math.sin(theta);
+        if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'rgba(255,200,100,0.04)';
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+
+    function drawFrame(ts) {
+      if (!entryStart) entryStart = ts;
+      var elapsed = (ts - entryStart) / 1000;
+      var elapsedMs = ts - entryStart;
       ctx.clearRect(0, 0, size, size);
 
-      // Grid
-      for (var ring = 1; ring <= 4; ring++) {
-        var r = maxR * ring / 4;
-        ctx.beginPath();
-        for (var i = 0; i <= n; i++) {
-          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
-          var x = cx + r * Math.cos(angle);
-          var y = cy + r * Math.sin(angle);
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-        ctx.stroke();
+      // 1. Golden spiral overlay (subtle depth)
+      drawGoldenSpiral(elapsed);
+
+      // 2. Hexagonal rings at 20/40/60/80/100%
+      var ringLevels = [0.2, 0.4, 0.6, 0.8, 1.0];
+      for (var ri = 0; ri < ringLevels.length; ri++) {
+        var alpha = 0.08 + ri * 0.0175;
+        drawHexRing(maxR * ringLevels[ri], alpha);
       }
 
-      // Axes + labels
+      // 3. Pulsing sine-wave axes (staggered entry)
       for (var i = 0; i < n; i++) {
-        var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        ctx.stroke();
+        var axisStart = i * axisStagger;
+        var axisElapsed = elapsedMs - axisStart;
+        if (axisElapsed <= 0) continue;
+        var axisProgress = Math.min(1, axisElapsed / axisDrawDuration);
+        axisProgress = easeOut(axisProgress);
+        drawAxis(i, axisProgress, elapsed);
 
-        // Label
-        var lx = cx + (maxR + 20) * Math.cos(angle);
-        var ly = cy + (maxR + 20) * Math.sin(angle);
-        ctx.font = '10px JetBrains Mono, monospace';
-        ctx.fillStyle = i < Math.ceil(p * n) ? colors[i] : 'rgba(255,255,255,0.2)';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(labels[i], lx, ly);
+        // Label appear with glow
+        if (axisProgress > 0.8) {
+          if (!labelGlowStart[i]) labelGlowStart[i] = ts;
+          var glowAge = (ts - labelGlowStart[i]) / 1000;
+          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          var lx = cx + (maxR + 18) * Math.cos(angle);
+          var ly = cy + (maxR + 18) * Math.sin(angle);
+          var glowAlpha = glowAge < 0.4 ? 0.8 : 0.6;
+          ctx.font = '10px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          if (glowAge < 0.4) {
+            ctx.shadowColor = 'rgba(255,59,95,0.6)';
+            ctx.shadowBlur = 12;
+          }
+          ctx.fillStyle = 'rgba(255,255,255,' + glowAlpha + ')';
+          ctx.fillText(labels[i], lx, ly);
+          ctx.shadowBlur = 0;
+        }
       }
 
-      // Data polygon
-      if (p > 0) {
-        ctx.beginPath();
-        var drawCount = Math.min(n, Math.ceil(p * n));
-        for (var i = 0; i < drawCount; i++) {
-          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
-          var v = values[i] / 100;
-          var frac = (i < drawCount - 1) ? 1 : (p * n - i);
-          var r = maxR * v * Math.min(1, frac);
-          var x = cx + r * Math.cos(angle);
-          var y = cy + r * Math.sin(angle);
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        if (drawCount >= n) ctx.closePath();
-        ctx.fillStyle = 'rgba(220,38,38,0.15)';
-        ctx.fill();
-        ctx.strokeStyle = 'var(--co-red)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+      // 4. Ghost line (previous reading at 15% opacity)
+      var allAxesDone = elapsedMs > totalAxisTime;
+      if (allAxesDone) {
+        var dotPhaseStart = totalAxisTime;
+        var dotElapsed = elapsedMs - dotPhaseStart;
 
-        // Dots
-        for (var i = 0; i < drawCount; i++) {
-          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
-          var v = values[i] / 100;
+        // Ghost polygon
+        if (dotElapsed > 0) {
           ctx.beginPath();
-          ctx.arc(cx + maxR * v * Math.cos(angle), cy + maxR * v * Math.sin(angle), 3, 0, Math.PI * 2);
-          ctx.fillStyle = colors[i];
+          for (var i = 0; i < n; i++) {
+            var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+            var gv = ghostValues[i] / 100;
+            var x = cx + maxR * gv * Math.cos(angle);
+            var y = cy + maxR * gv * Math.sin(angle);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // 5. Data points drop in (easeOut bounce)
+        var dotProgress = Math.min(1, dotElapsed / dotDropTime);
+        dotProgress = easeOutBounce(dotProgress);
+        var currentVals = [];
+        for (var i = 0; i < n; i++) {
+          currentVals[i] = (entryDone ? driftValues[i] : values[i]) * dotProgress;
+        }
+
+        // 6. Fill polygon with rotating shimmer
+        if (dotProgress > 0) {
+          shimmerAngle += 0.008;
+          ctx.beginPath();
+          for (var i = 0; i < n; i++) {
+            var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+            var v = currentVals[i] / 100;
+            var x = cx + maxR * v * Math.cos(angle);
+            var y = cy + maxR * v * Math.sin(angle);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          // Shimmer fill: rotating radial gradient
+          var shimX = cx + 30 * Math.cos(shimmerAngle);
+          var shimY = cy + 30 * Math.sin(shimmerAngle);
+          var grad = ctx.createRadialGradient(shimX, shimY, 0, cx, cy, maxR);
+          grad.addColorStop(0, 'rgba(255,59,95,0.18)');
+          grad.addColorStop(1, 'rgba(255,59,95,0.06)');
+
+          var fadeAlpha = Math.min(1, (dotElapsed - dotDropTime) / fillFadeTime);
+          if (fadeAlpha < 0) fadeAlpha = 0;
+          ctx.globalAlpha = Math.max(0.3, fadeAlpha);
+          ctx.fillStyle = grad;
           ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#dc2626';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        // 7. Breathing data dots + score values
+        for (var i = 0; i < n; i++) {
+          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          var v = currentVals[i] / 100;
+          var dx = cx + maxR * v * Math.cos(angle);
+          var dy = cy + maxR * v * Math.sin(angle);
+          // Breathing scale
+          var breathPhase = elapsed * Math.PI + i * 1.05;
+          var breathScale = 0.8 + 0.4 * (0.5 + 0.5 * Math.sin(breathPhase));
+          var dotR = 3 * breathScale;
+          ctx.beginPath();
+          ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,59,95,0.9)';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(dx, dy, dotR + 4, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255,59,95,0.2)';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+
+          // Score value (animate from 0)
+          var scoreElapsed = elapsedMs - totalAxisTime;
+          var scoreFrac = Math.min(1, Math.max(0, scoreElapsed / scoreAnimTime));
+          scoreFrac = easeOut(scoreFrac);
+          var displayVal = Math.round((entryDone ? driftValues[i] : values[i]) * scoreFrac);
+          ctx.font = '10px JetBrains Mono, monospace';
+          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          var labelAngle = angle;
+          var scoreX = dx + 14 * Math.cos(labelAngle);
+          var scoreY = dy + 14 * Math.sin(labelAngle);
+          ctx.fillText(displayVal, scoreX, scoreY);
         }
       }
+
+      // Mark entry done after all animations complete
+      if (elapsedMs > totalAxisTime + dotDropTime + fillFadeTime + scoreAnimTime && !entryDone) {
+        entryDone = true;
+        lastDriftTime = ts;
+      }
+
+      // 8. Continuous drift (after entry)
+      if (entryDone) {
+        if (ts - lastDriftTime > 5000) {
+          lastDriftTime = ts;
+          for (var i = 0; i < n; i++) {
+            driftTargets[i] = values[i] + (Math.random() * 6 - 3);
+            driftTargets[i] = Math.max(5, Math.min(100, driftTargets[i]));
+          }
+        }
+        for (var i = 0; i < n; i++) {
+          driftValues[i] += (driftTargets[i] - driftValues[i]) * 0.02;
+        }
+      }
+
+      radarRAF = requestAnimationFrame(drawFrame);
     }
 
-    // Animate radar drawing
-    var start = null;
-    var duration = 1200;
-    function animStep(ts) {
-      if (!start) start = ts;
-      progress = Math.min(1, (ts - start) / duration);
-      drawRadar(progress);
-      if (progress < 1) requestAnimationFrame(animStep);
-    }
-    requestAnimationFrame(animStep);
+    radarRAF = requestAnimationFrame(drawFrame);
   }
 
-  // ════ Screen 3: Oracle intro — sequential text reveal ════
+  // ════ Screen 3: Satomi Reveal — Particle Halo + Word Animation ════
   var s3Animated = false;
+  var haloRAF = null;
   function animateScreen3() {
     if (s3Animated) return;
     s3Animated = true;
-    var els = ['oracleTitle', 'oracleLine1', 'oracleLine2', 'oracleCta'];
-    var delays = [300, 1800, 3000, 4200];
-    els.forEach(function(id, i) {
+
+    // Particle halo canvas
+    var haloCanvas = document.getElementById('haloCanvas');
+    var hCtx = haloCanvas.getContext('2d');
+    var container = document.getElementById('satomiContainer');
+    var cw = container.clientWidth;
+    var ch = container.clientHeight;
+    var dpr = window.devicePixelRatio || 1;
+    haloCanvas.width = cw * dpr;
+    haloCanvas.height = ch * dpr;
+    haloCanvas.style.width = cw + 'px';
+    haloCanvas.style.height = ch + 'px';
+    hCtx.scale(dpr, dpr);
+
+    var hcx = cw / 2, hcy = ch / 2;
+    var scale = Math.min(cw, ch) / 220;
+
+    // Build particle rings
+    var particles = [];
+    var rings = [
+      { r: 100 * scale, count: 20, speed: 0.4, size: 1.5, alpha: 0.8 },
+      { r: 130 * scale, count: 30, speed: -0.25, size: 1.0, alpha: 0.5 },
+      { r: 160 * scale, count: 30, speed: 0.15, size: 0.8, alpha: 0.3 }
+    ];
+
+    for (var ri = 0; ri < rings.length; ri++) {
+      var ring = rings[ri];
+      for (var pi = 0; pi < ring.count; pi++) {
+        particles.push({
+          ring: ri,
+          baseR: ring.r,
+          angle: (Math.PI * 2 * pi / ring.count) + Math.random() * 0.3,
+          speed: ring.speed,
+          size: ring.size,
+          alpha: ring.alpha,
+          wobblePhase: Math.random() * Math.PI * 2,
+          wobbleAmp: 8 * scale,
+          spawnDelay: Math.random() * 800,
+          born: false
+        });
+      }
+    }
+
+    var haloStart = null;
+    function drawHalo(ts) {
+      if (!haloStart) haloStart = ts;
+      var elapsed = ts - haloStart;
+      var elapsedS = elapsed / 1000;
+      hCtx.clearRect(0, 0, cw, ch);
+
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        if (elapsed < p.spawnDelay) continue;
+        var age = (elapsed - p.spawnDelay) / 1000;
+        var spawnProgress = Math.min(1, age / 0.6);
+        var currentAngle = p.angle + p.speed * elapsedS;
+        var wobble = p.wobbleAmp * Math.sin(elapsedS * 2.094 + p.wobblePhase);
+        var currentR = (p.baseR + wobble) * spawnProgress;
+        var px = hcx + currentR * Math.cos(currentAngle);
+        var py = hcy + currentR * Math.sin(currentAngle);
+        hCtx.beginPath();
+        hCtx.arc(px, py, p.size * spawnProgress, 0, Math.PI * 2);
+        hCtx.fillStyle = 'rgba(255,59,95,' + (p.alpha * spawnProgress) + ')';
+        hCtx.fill();
+      }
+
+      haloRAF = requestAnimationFrame(drawHalo);
+    }
+    haloRAF = requestAnimationFrame(drawHalo);
+
+    // Avatar reveal
+    var avatar = document.getElementById('satomiAvatar');
+    setTimeout(function() {
+      avatar.classList.add('revealed');
+    }, 100);
+
+    // Scanline activation
+    var scanline = document.getElementById('satomiScanline');
+    setTimeout(function() { scanline.classList.add('active'); }, 800);
+
+    // Word-by-word title: "THIS IS SATOMI."
+    var titleEl = document.getElementById('oracleTitle');
+    var words = ['THIS', 'IS', 'SATOMI.'];
+    titleEl.innerHTML = '';
+    words.forEach(function(word, i) {
+      var span = document.createElement('span');
+      span.className = 'co-satomi-word';
+      span.textContent = word + ' ';
+      titleEl.appendChild(span);
       setTimeout(function() {
-        var el = document.getElementById(id);
-        el.style.transition = 'opacity 0.8s ease';
-        el.style.opacity = '1';
-      }, delays[i]);
+        span.classList.add('visible');
+        if (word === 'SATOMI.') {
+          setTimeout(function() {
+            span.classList.add('glow');
+            setTimeout(function() { span.classList.remove('glow'); }, 800);
+          }, 200);
+        }
+      }, 800 + i * 200);
     });
+
+    // Subtitle reveals
+    setTimeout(function() {
+      var el = document.getElementById('oracleLine1');
+      el.style.transition = 'opacity 0.8s ease';
+      el.style.opacity = '1';
+    }, 2000);
+    setTimeout(function() {
+      var el = document.getElementById('oracleLine2');
+      el.style.transition = 'opacity 0.8s ease';
+      el.style.opacity = '1';
+    }, 3000);
+
+    // Data stream beneath avatar (terminal-style char by char)
+    var streamEl = document.getElementById('satomiDataStream');
+    var price = window._btcPrice || '87,420';
+    var blockHeight = '---';
+    var mempoolTx = '---';
+    if (signalData) {
+      blockHeight = signalData.block_height || signalData.blockHeight || '---';
+      mempoolTx = signalData.mempool_count || signalData.mempoolCount || '---';
+    }
+    var streamText = 'BLOCK: #' + blockHeight + ' | BTC: $' + Number(price).toLocaleString() + ' | MEMPOOL: ' + mempoolTx + ' TX';
+    var streamIdx = 0;
+    streamEl.textContent = '';
+    setTimeout(function() {
+      var streamTimer = setInterval(function() {
+        streamEl.textContent += streamText[streamIdx];
+        streamIdx++;
+        if (streamIdx >= streamText.length) clearInterval(streamTimer);
+      }, 15);
+    }, 3800);
+
+    // CTA
+    setTimeout(function() {
+      var cta = document.getElementById('oracleCta');
+      cta.style.transition = 'opacity 0.8s ease';
+      cta.style.opacity = '1';
+    }, 5000);
   }
 
   // ════ Screen 4: Briefing selection ════
