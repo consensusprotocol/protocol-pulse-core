@@ -1018,64 +1018,47 @@ function requestMic(){
   gBtn.disabled=true;
   gStatus.textContent='Requesting microphone...';
   gErr.style.display='none';
-
-  /* CRITICAL: unlock audio context immediately on this user gesture */
-  try{
-    var _unlockAc=new(window.AudioContext||window.webkitAudioContext)();
-    var _unlockBuf=_unlockAc.createBuffer(1,1,22050);
-    var _unlockSrc=_unlockAc.createBufferSource();
-    _unlockSrc.buffer=_unlockBuf;_unlockSrc.connect(_unlockAc.destination);_unlockSrc.start(0);
-    setTimeout(function(){try{_unlockAc.close();}catch(e){}},300);
-  }catch(e){}
-
-  try{
-    var ac=new(window.AudioContext||window.webkitAudioContext)();
-    var buf=ac.createBuffer(1,1,22050);
-    var src=ac.createBufferSource();
-    src.buffer=buf;src.connect(ac.destination);src.start(0);
-    setTimeout(function(){try{ac.close();}catch(e){}},500);
-  }catch(e){}
-
-  /* Also "unlock" video element immediately */
-  vid.muted=true;
-  vid.play().catch(function(){});
-
-  /* Pre-unlock Audio element for PATH B (chat responses) */
-  window._audioUnlocked = new Audio();
-  window._audioUnlocked.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
-  window._audioUnlocked.volume = 0.001;
-  window._audioUnlocked.play().catch(function(){});
-
-  window._chatAudioPlaying = false;
-
   navigator.mediaDevices.getUserMedia({audio:true,video:false})
     .then(function(stream){
-      stream.getTracks().forEach(function(t){t.stop();}); /* don't need stream, just the gesture */
+      stream.getTracks().forEach(function(t){t.stop();});
+      try{
+        var _ac=new(window.AudioContext||window.webkitAudioContext)();
+        var _b=_ac.createBuffer(1,1,22050);
+        var _s=_ac.createBufferSource();
+        _s.buffer=_b;_s.connect(_ac.destination);_s.start(0);
+        setTimeout(function(){try{_ac.close();}catch(e){}},500);
+      }catch(e){}
+      vid.muted=true;
+      vid.play().catch(function(){});
+      window._audioUnlocked=new Audio();
+      window._audioUnlocked.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+      window._audioUnlocked.volume=0.001;
+      window._audioUnlocked.play().catch(function(){});
+      window._chatAudioPlaying=false;
       gStatus.textContent='';
       go();
     })
     .catch(function(err){
-      console.warn('[Satomi mic error]', err);
+      console.warn('[Satomi mic error]',err);
       gBtn.disabled=false;
       gStatus.textContent='';
       gErr.style.display='block';
-      var name = err && err.name ? err.name : '';
+      var name=err&&err.name?err.name:'';
       var msg='';
-      if(name === 'NotAllowedError' || name === 'PermissionDeniedError'){
-        msg='Microphone access denied. Allow mic in your browser settings, then retry.';
-      } else if(name === 'NotReadableError' || name === 'TrackStartError'){
+      if(name==='NotAllowedError'||name==='PermissionDeniedError'){
+        msg='Microphone access denied. Allow mic in browser settings, then retry.';
+      }else if(name==='NotReadableError'||name==='TrackStartError'){
         msg='Microphone busy. Close other apps using the mic.';
-      } else if(name === 'NotFoundError'){
+      }else if(name==='NotFoundError'){
         msg='No microphone detected.';
-      } else {
-        msg='Microphone unavailable'+(name?' ('+name+')':'.')+'.';
+      }else{
+        msg='Microphone unavailable'+(name?' ('+name+')':'.')+'';
       }
-      /* P0: Styled error + text fallback — demo never stops */
-      gErr.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.1em;color:rgba(255,59,95,.7);text-transform:uppercase;margin-bottom:6px;">MIC UNAVAILABLE</div>'
-        +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:12px;line-height:1.5;">'+msg+'</div>'
+      gErr.innerHTML='<div style="font-family:monospace;font-size:10px;color:rgba(255,59,95,.7);text-transform:uppercase;margin-bottom:6px;">MIC UNAVAILABLE</div>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:12px;">'+msg+'</div>'
         +'<div style="display:flex;flex-direction:column;gap:8px;">'
-        +'<button onclick="requestMic()" style="background:rgba(255,59,95,.1);border:1px solid rgba(255,59,95,.3);color:#ff3b5f;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.05em;padding:10px 16px;border-radius:4px;cursor:pointer;font-weight:600;">RETRY MIC ACCESS</button>'
-        +'<button onclick="goTextMode()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.05em;padding:10px 16px;border-radius:4px;cursor:pointer;font-weight:600;">CONTINUE WITH TEXT INPUT</button>'
+        +'<button onclick="requestMic()" style="background:rgba(255,59,95,.1);border:1px solid rgba(255,59,95,.3);color:#ff3b5f;font-family:monospace;font-size:11px;padding:10px 16px;border-radius:4px;cursor:pointer;font-weight:600;">RETRY MIC ACCESS</button>'
+        +'<button onclick="goTextMode()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:monospace;font-size:11px;padding:10px 16px;border-radius:4px;cursor:pointer;">CONTINUE WITH TEXT INPUT</button>'
         +'</div>';
     });
 }
