@@ -1184,6 +1184,169 @@ body.panopticon-body .pp-footer { display: none !important; }
     padding: 2px 8px;
 }
 .pn-status-chip.loading { background: rgba(255,255,255,0.04); color: var(--pn-muted); }
+
+/* ── CONVICTION SCORE ────────────────────────────────────────── */
+.pn-conviction {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--pn-border);
+}
+.pn-conviction-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--pn-muted);
+}
+.pn-conviction-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+}
+.pn-conviction-score.high { color: var(--pn-red); }
+.pn-conviction-score.medium { color: var(--pn-gold); }
+.pn-conviction-score.low { color: var(--pn-muted); }
+.pn-conviction-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    text-transform: uppercase;
+}
+.pn-conviction-tag.high { background: rgba(255,59,95,0.12); color: var(--pn-red); }
+.pn-conviction-tag.medium { background: rgba(248,193,92,0.12); color: var(--pn-gold); }
+.pn-conviction-tag.low { background: rgba(255,255,255,0.04); color: var(--pn-muted); }
+.pn-conviction-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--pn-border);
+    overflow: hidden;
+}
+.pn-conviction-bar-fill {
+    height: 100%;
+    transition: width 0.8s ease;
+}
+.pn-conviction-bar-fill.high { background: var(--pn-red); box-shadow: 0 0 6px rgba(255,59,95,0.4); }
+.pn-conviction-bar-fill.medium { background: var(--pn-gold); }
+.pn-conviction-bar-fill.low { background: var(--pn-muted); }
+
+/* ── WHALE FLOW CLASSIFICATION ───────────────────────────────── */
+.pn-whale-flow {
+    margin-top: 6px;
+    padding: 6px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.4;
+    border-left: 2px solid var(--pn-border);
+}
+.pn-whale-flow.bullish {
+    background: rgba(137,255,184,0.04);
+    border-left-color: #89ffb8;
+    color: #89ffb8;
+}
+.pn-whale-flow.bearish {
+    background: rgba(255,59,95,0.04);
+    border-left-color: var(--pn-red);
+    color: var(--pn-red);
+}
+.pn-whale-flow.neutral {
+    background: rgba(255,255,255,0.02);
+    border-left-color: var(--pn-muted);
+    color: var(--pn-text-secondary);
+}
+.pn-whale-flow-label {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    opacity: 0.7;
+}
+.pn-whale-signal-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    text-transform: uppercase;
+    margin-left: 8px;
+}
+.pn-whale-signal-tag.bullish { background: rgba(137,255,184,0.12); color: #89ffb8; }
+.pn-whale-signal-tag.bearish { background: rgba(255,59,95,0.12); color: var(--pn-red); }
+.pn-whale-signal-tag.neutral { background: rgba(255,255,255,0.04); color: var(--pn-muted); }
+
+/* ── CORRELATION GAP COLORING ────────────────────────────────── */
+.pn-corr-gap {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+.pn-corr-gap.red { background: rgba(255,59,95,0.12); color: var(--pn-red); }
+.pn-corr-gap.orange { background: rgba(248,193,92,0.12); color: var(--pn-gold); }
+.pn-corr-gap.white { background: rgba(255,255,255,0.06); color: var(--pn-white); }
+
+/* ── POLYMARKET HERO MARKET ──────────────────────────────────── */
+.pn-poly-hero {
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-left: 3px solid var(--pn-gold);
+    padding: 16px;
+    margin-bottom: 10px;
+}
+.pn-poly-hero .pn-poly-question {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.pn-poly-hero .pn-poly-pct {
+    font-size: 28px;
+}
+.pn-poly-hero-bar {
+    height: 6px;
+    background: var(--pn-border);
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: relative;
+}
+.pn-poly-hero-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pn-gold), var(--pn-red));
+    transition: width 1.2s ease;
+    position: relative;
+}
+.pn-poly-hero-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: 2px;
+    height: 10px;
+    background: var(--pn-white);
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+    animation: polyPulse 2s ease-in-out infinite;
+}
+@keyframes polyPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.pn-poly-vol-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--pn-gold);
+    letter-spacing: 1px;
+}
 </style>
 {% endblock %}
 
@@ -1336,6 +1499,16 @@ body.panopticon-body .pp-footer { display: none !important; }
                         </div>
                         {% endif %}
                     </div>
+                    {% if d.get('conviction') and d.conviction.score > 0 %}
+                    <div class="pn-conviction">
+                        <span class="pn-conviction-label">CONVICTION</span>
+                        <span class="pn-conviction-score {{ d.conviction.color }}">{{ d.conviction.score }}%</span>
+                        <span class="pn-conviction-tag {{ d.conviction.color }}">{{ d.conviction.label }}</span>
+                        <div class="pn-conviction-bar">
+                            <div class="pn-conviction-bar-fill {{ d.conviction.color }}" style="width:{{ d.conviction.score }}%"></div>
+                        </div>
+                    </div>
+                    {% endif %}
                     {% if d.get('correlation_note') %}
                     <div class="pn-disc-correlation">{{ d.correlation_note }}</div>
                     {% endif %}
@@ -1395,32 +1568,37 @@ body.panopticon-body .pp-footer { display: none !important; }
             <div id="pnCorrelations">
                 {% for c in data.correlations %}
                 <div class="pn-corr-timeline" data-idx="{{ loop.index }}">
-                    <!-- SVG Connection Diagram -->
-                    <svg width="100%" height="80" viewBox="0 0 500 80" preserveAspectRatio="xMidYMid meet">
-                        <!-- Senator node -->
+                    <!-- Gap indicator -->
+                    {% set gap = c.get('gap_days', 0) %}
+                    {% set gap_color = 'red' if gap < 7 else ('orange' if gap < 30 else 'white') %}
+                    <div class="pn-corr-gap {{ c.get('gap_color', gap_color) }}">
+                        {% if gap < 7 %}&#9888;{% elif gap < 30 %}&#9679;{% else %}&#9675;{% endif %}
+                        {{ gap }} DAY GAP
+                    </div>
+
+                    <!-- SVG Timeline: Trade Date → Event Date -->
+                    <svg width="100%" height="90" viewBox="0 0 500 90" preserveAspectRatio="xMidYMid meet">
+                        <!-- Trade node -->
                         <g class="pn-corr-node" transform="translate(60,40)">
-                            <circle r="10" fill="var(--pn-red)" opacity="0.9"/>
-                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="8" letter-spacing="1">SENATOR</text>
+                            <circle r="10" fill="{{ '#ff3b5f' if gap < 7 else ('#f8c15c' if gap < 30 else '#fff') }}" opacity="0.9"/>
+                            <text y="-16" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">TRADE</text>
+                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7">{{ c.disclosure.date[:10] if c.disclosure else '' }}</text>
                         </g>
-                        <!-- Bill node -->
-                        <g class="pn-corr-node" transform="translate(190,40)">
+                        <!-- Connecting line with gap label -->
+                        <path class="pn-corr-path" d="M70,40 L230,40" stroke="{{ '#ff3b5f' if gap < 7 else ('#f8c15c' if gap < 30 else '#555') }}" stroke-width="2" style="animation-delay:0.2s"/>
+                        <text x="150" y="32" text-anchor="middle" fill="{{ '#ff3b5f' if gap < 7 else '#f8c15c' }}" font-family="JetBrains Mono" font-size="10" font-weight="700">{{ gap }}d</text>
+                        <!-- Event node -->
+                        <g class="pn-corr-node" transform="translate(240,40)">
                             <circle r="10" fill="#fff" opacity="0.7"/>
-                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="8" letter-spacing="1">BILL</text>
+                            <text y="-16" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">EVENT</text>
                         </g>
-                        <!-- Polymarket node -->
-                        <g class="pn-corr-node" transform="translate(320,40)">
-                            <circle r="10" fill="var(--pn-gold)" opacity="0.8"/>
-                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="8" letter-spacing="1">MARKET</text>
+                        <!-- Score -->
+                        <path class="pn-corr-path" d="M250,40 L400,40" stroke="var(--pn-gold)" stroke-width="1.5" style="animation-delay:0.6s"/>
+                        <g class="pn-corr-node" transform="translate(420,40)">
+                            <circle r="14" fill="none" stroke="{{ '#ff3b5f' if c.correlation_score > 0.8 else '#f8c15c' }}" stroke-width="2" opacity="0.8"/>
+                            <text y="4" text-anchor="middle" fill="{{ '#ff3b5f' if c.correlation_score > 0.8 else '#f8c15c' }}" font-family="JetBrains Mono" font-size="10" font-weight="700">{{ "%.0f"|format(c.correlation_score * 100) }}%</text>
+                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">SCORE</text>
                         </g>
-                        <!-- Bitcoin node -->
-                        <g class="pn-corr-node" transform="translate(440,40)">
-                            <circle r="10" fill="var(--pn-red)" opacity="0.9"/>
-                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="8" letter-spacing="1">BITCOIN</text>
-                        </g>
-                        <!-- Connecting bezier curves — thickness = correlation strength -->
-                        <path class="pn-corr-path" d="M70,40 C130,20 130,20 190,40" stroke="var(--pn-red)" stroke-width="2" style="animation-delay:0.2s"/>
-                        <path class="pn-corr-path" d="M200,40 C260,60 260,60 320,40" stroke="#fff" stroke-width="1.5" style="animation-delay:0.6s"/>
-                        <path class="pn-corr-path" d="M330,40 C390,20 390,20 440,40" stroke="var(--pn-gold)" stroke-width="2" style="animation-delay:1.0s"/>
                     </svg>
 
                     <div class="pn-corr-summary">{{ c.timeline_summary }}</div>
@@ -1511,12 +1689,21 @@ body.panopticon-body .pp-footer { display: none !important; }
                     <div class="pn-whale-row">
                         <div class="pn-whale-entity">{{ w.entity }}</div>
                         <span class="pn-whale-type-tag {{ w.tx_type }}">{{ w.tx_type|upper }}</span>
+                        {% if w.get('flow_signal') %}
+                        <span class="pn-whale-signal-tag {{ w.flow_signal }}">{{ w.flow_signal|upper }}</span>
+                        {% endif %}
                     </div>
                     <div class="pn-whale-amt {{ w.tx_type }}">
                         {% if w.tx_type == 'inflow' %}+{% else %}-{% endif %}{{ w.amount_btc }} BTC
                     </div>
                     {% if w.amount_usd %}
                     <div class="pn-whale-usd">${{ "{:,.0f}".format(w.amount_usd) }} USD</div>
+                    {% endif %}
+                    {% if w.get('flow_context') %}
+                    <div class="pn-whale-flow {{ w.flow_signal|default('neutral') }}">
+                        <div class="pn-whale-flow-label">{{ w.flow_label|default('TRANSFER') }}</div>
+                        {{ w.flow_context }}
+                    </div>
                     {% endif %}
                     <div class="pn-whale-size-bar" style="width:{{ [w.amount_btc / 10, 100]|min }}%"></div>
                     <div class="pn-whale-meta">
@@ -1536,9 +1723,43 @@ body.panopticon-body .pp-footer { display: none !important; }
             </div>
 
             <!-- Polymarket -->
-            <div class="pn-section-label">POLYMARKET PREDICTION ODDS</div>
+            <div class="pn-section-label">BITCOIN PREDICTION MARKETS</div>
             <div id="pnPolymarket">
-                {% for p in data.polymarket %}
+                {% if data.polymarket %}
+                <!-- Hero market: highest volume -->
+                {% set hero = data.polymarket[0] %}
+                <div class="pn-poly-hero">
+                    {% if hero.get('event_title') %}
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pn-gold);margin-bottom:6px;">TOP MARKET</div>
+                    {% endif %}
+                    <div class="pn-poly-question">{{ hero.question }}</div>
+                    <div class="pn-poly-row">
+                        {% if hero.yes_price %}
+                        <span class="pn-poly-pct">{{ hero.yes_price }}%</span>
+                        <span class="pn-poly-yes">YES</span>
+                        {% else %}
+                        <span class="pn-poly-pct" style="color:var(--pn-muted)">--</span>
+                        {% endif %}
+                        <span class="pn-poly-signal {{ hero.btc_signal }}">
+                            {% if hero.btc_signal == 'bullish' %}&#9650;{% elif hero.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+                            {{ hero.btc_signal|upper }}
+                        </span>
+                    </div>
+                    {% if hero.yes_price %}
+                    <div class="pn-poly-hero-bar">
+                        <div class="pn-poly-hero-bar-fill" style="width:{{ hero.yes_price }}%"></div>
+                    </div>
+                    {% endif %}
+                    <div class="pn-poly-meta">
+                        {% if hero.volume %}<span class="pn-poly-vol-badge">${{ "{:,.0f}".format(hero.volume) }} TOTAL VOL</span>{% endif %}
+                        {% if hero.volume_24h %}<span>${{ "{:,.0f}".format(hero.volume_24h) }} 24h</span>{% endif %}
+                        {% if hero.end_date %}<span>Expires {{ hero.end_date[:10] }}</span>{% endif %}
+                        {% if hero.source_url %}<a href="{{ hero.source_url }}" target="_blank" rel="noopener">Polymarket &rarr;</a>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Remaining markets -->
+                {% for p in data.polymarket[1:] %}
                 <div class="pn-poly-item">
                     <div class="pn-poly-question">{{ p.question }}</div>
                     <div class="pn-poly-row">
@@ -1560,12 +1781,13 @@ body.panopticon-body .pp-footer { display: none !important; }
                     {% endif %}
                     <div class="pn-poly-meta">
                         {% if p.volume %}<span>${{ "{:,.0f}".format(p.volume) }} vol</span>{% endif %}
+                        {% if p.volume_24h %}<span>${{ "{:,.0f}".format(p.volume_24h) }} 24h</span>{% endif %}
                         {% if p.end_date %}<span>Expires {{ p.end_date[:10] }}</span>{% endif %}
                         {% if p.source_url %}<a href="{{ p.source_url }}" target="_blank" rel="noopener">Polymarket &rarr;</a>{% endif %}
                     </div>
                 </div>
                 {% endfor %}
-                {% if not data.polymarket %}
+                {% else %}
                 <div class="pn-loading">
                     <div class="pn-loading-dot"></div>
                     <div class="pn-loading-dot"></div>
