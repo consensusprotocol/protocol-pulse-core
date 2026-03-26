@@ -1122,6 +1122,8 @@ function playIntent(intent){
   })
   .then(function(){
     if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
+    /* FIX 4: Always reset _audioFinished after response plays */
+    _audioFinished=false;
     if(intent==='GREETING'){
       window._briefFetched=false;
       _greeted=true;
@@ -1166,6 +1168,10 @@ function si(intent){if(busy)return;hideCards();playIntent(intent);}
 /* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
 function process(text){
   console.log('[Satomi] process() called — text:',JSON.stringify((text||'').substring(0,50)),'busy:',busy);
+  /* FIX: Hard-stop any currently playing video/audio before starting response */
+  try{vid.pause();vid.muted=true;vid.loop=false;}catch(e){}
+  try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
+  _audioFinished=false;
   if(!text.trim()||busy)return;
   // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
@@ -1354,14 +1360,25 @@ function process(text){
                 .then(function(vb){
                   if(vb && !_audioFinished){
                     pendingVideoUrl=blobURL(vb);
-                    /* Stop separate TTS audio — lip-sync video has audio baked in */
-                    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;}}catch(e){}
+                    /* FIX: Decisively stop TTS audio before lip-sync video takes over */
                     window._chatAudioPlaying=false;
-                    /* Let playVid() handle full video element reset + playback */
-                    playVid(pendingVideoUrl).catch(function(e){
-                      console.warn('[Satomi] lip-sync playVid error:',e);
-                      setStat('Ready','#334',false);
-                    });
+                    try{
+                      if(window._chatAudioEl){
+                        window._chatAudioEl.onended=null; /* prevent double-resolve */
+                        window._chatAudioEl.pause();
+                        window._chatAudioEl.src='';
+                        window._chatAudioEl.load();
+                        window._chatAudioEl=null;
+                      }
+                    }catch(e){}
+                    /* Short gap ensures iOS audio context clears before video starts */
+                    setTimeout(function(){
+                      vid.muted=false;
+                      playVid(pendingVideoUrl).catch(function(e){
+                        console.warn('[Satomi] lip-sync playVid error:',e);
+                        setStat('Ready','#334',false);
+                      });
+                    }, 80);
                   }
                 })
                 .catch(function(e){console.warn('[Satomi] video fetch error:',e);});
@@ -1411,11 +1428,22 @@ function process(text){
                       /* FORENSIC FIX: Skip if audio already finished */
                       if(_audioFinished) return;
                       pendingVideoUrl=blobURL(vb);
-                      try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;}}catch(e){}
                       window._chatAudioPlaying=false;
-                      playVid(pendingVideoUrl).catch(function(e){
-                        console.warn('[Satomi] poll playVid error:',e);
-                      });
+                      try{
+                        if(window._chatAudioEl){
+                          window._chatAudioEl.onended=null;
+                          window._chatAudioEl.pause();
+                          window._chatAudioEl.src='';
+                          window._chatAudioEl.load();
+                          window._chatAudioEl=null;
+                        }
+                      }catch(e){}
+                      setTimeout(function(){
+                        vid.muted=false;
+                        playVid(pendingVideoUrl).catch(function(e){
+                          console.warn('[Satomi] poll playVid error:',e);
+                        });
+                      }, 80);
                     }
                   })
                   .catch(function(){});
@@ -1585,6 +1613,12 @@ function initSR(){
   recognition=new SR();
   recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';recognition.maxAlternatives=1;
   recognition.onresult=function(e){
+  /* FIX 3b: Accumulate interim for iOS fallback */
+  var interim='';
+  for(var i=e.resultIndex;i<e.results.length;i++){
+    if(!e.results[i].isFinal) interim+=e.results[i][0].transcript;
+  }
+  if(interim) window._interimPending=interim;
     var fin='',int='';
     for(var i=0;i<e.results.length;i++){
       if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
