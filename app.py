@@ -451,6 +451,36 @@ try:
 except Exception as _e:
     logging.warning("Intelligence Terminal blueprint not loaded: %s", _e)
 
+# Sovereign Context Engine — unified intelligence API
+@app.route('/api/sovereign-context')
+def api_sovereign_context():
+    """Serve the latest sovereign context world-state snapshot."""
+    from flask import jsonify
+    try:
+        from services.sovereign_context_engine import get_latest_context, get_recent_alerts
+        ctx = get_latest_context()
+        if not ctx:
+            return jsonify({"error": "No context available — run a cycle first"}), 503
+        return jsonify(ctx)
+    except Exception as _e:
+        logging.warning("Sovereign context API error: %s", _e)
+        return jsonify({"error": str(_e)}), 500
+
+
+@app.route('/api/sovereign-alerts')
+def api_sovereign_alerts():
+    """Serve recent sovereign pattern-match alerts."""
+    from flask import jsonify, request
+    try:
+        from services.sovereign_context_engine import get_recent_alerts
+        limit = min(int(request.args.get('limit', 20)), 100)
+        alerts = get_recent_alerts(limit)
+        return jsonify({"alerts": alerts, "count": len(alerts)})
+    except Exception as _e:
+        logging.warning("Sovereign alerts API error: %s", _e)
+        return jsonify({"error": str(_e)}), 500
+
+
 # Start background APScheduler only when explicitly enabled for this process.
 if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
     try:
