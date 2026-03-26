@@ -1169,7 +1169,7 @@ function si(intent){if(busy)return;hideCards();playIntent(intent);}
 function process(text){
   console.log('[Satomi] process() called — text:',JSON.stringify((text||'').substring(0,50)),'busy:',busy);
   /* FIX: Hard-stop any currently playing video/audio before starting response */
-  try{vid.pause();vid.muted=true;vid.loop=false;}catch(e){}
+  try{vid.pause();vid.loop=false;}catch(e){} /* do not mute — let playVid control mute state */
   try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
   _audioFinished=false;
   if(!text.trim()||busy)return;
@@ -1343,7 +1343,7 @@ function process(text){
             var _videoHandled=false;
             function _handleVideoReady(){
               if(_videoHandled) return;
-              _videoHandled=true;
+              _videoHandled=true; /* Set synchronously before ANY async — prevents SSE+poll race */
               /* FORENSIC FIX: Skip if audio already finished — user is back in LISTENING.
                  Playing video after promise chain resolved causes orphan "Recovering" state. */
               if(_audioFinished){
@@ -1513,7 +1513,7 @@ function playVid(url){
     vid.removeAttribute('src');
     vid.load();
     vid.loop=false;
-    vid.muted=true; /* Start muted — iOS autoplay policy. Unmute on canplay. */
+    vid.muted=false; /* Always unmute — the video IS the audio source */
     vid.src=url;
     vid.style.opacity='1';
     if(window._matrixHide) window._matrixHide();
@@ -1585,15 +1585,12 @@ function playVid(url){
       /* FORENSIC FIX: No "Recovering" deadlock — finish cleanly so state machine continues */
       _finish(false);
     };
-    /* FORENSIC FIX: Unmute on canplay — avoids iOS autoplay block while getting lip-sync audio.
-       Removed contradictory vid.muted=true that was overriding the unmute at function start. */
+    /* Status update when video starts playing */
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
       setStat('Speaking','#6cff9f',false);
-      if(!window._chatAudioPlaying){
-        vid.muted=false;
-        vid.volume=1.0;
-      }
+      vid.muted=false; /* Ensure unmuted — no conditions */
+      vid.volume=1.0;
     },{once:true});
     var p=vid.play();
     if(p){
@@ -1625,6 +1622,7 @@ function initSR(){
   };
   recognition.onend=function(){
     setRec(false); isRec=false;
+    if(busy&&pending){ busy=false; } /* Unblock if busy got stuck but we have text */
     var _sub=(pending||window._interimPending||'').trim();
     pending=''; window._interimPending='';
     console.log('[Satomi] onend — submitting:',JSON.stringify(_sub.substring(0,40)),'busy:',busy);
