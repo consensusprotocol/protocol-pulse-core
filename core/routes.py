@@ -11619,14 +11619,17 @@ def bitnodes_snapshot():
 
     try:
         try:
-            _bc=requests.get("https://api.blockchair.com/bitcoin/nodes",timeout=8)
-            _cnt=len(_bc.json().get("data",{}).get("nodes",{}))
-            if _cnt>0:
-                _p={"node_count":_cnt,"source":"blockchair"}
-                _bitnodes_snapshot_cache["data"]=_p
-                _bitnodes_snapshot_cache["expires"]=now+180
-                return make_response(jsonify(_p))
-        except Exception as _e: logging.debug("bc nodes: %s",_e)
+            import re as _nre
+            _nh=requests.get("https://newhedge.io/bitcoin/node-map",timeout=10,headers={"User-Agent":"Mozilla/5.0"})
+            _nm=_nre.search(r'totalNodes[^0-9]+([0-9]{4,6})',_nh.text) or _nre.search(r'([0-9]{4,6})[^0-9]*nodes',_nh.text,_nre.I)
+            if _nm:
+                _nc=int(_nm.group(1))
+                if _nc>5000:
+                    _p={"node_count":_nc,"source":"newhedge","reachable":True}
+                    _bitnodes_snapshot_cache["data"]=_p
+                    _bitnodes_snapshot_cache["expires"]=now+300
+                    return make_response(jsonify(_p))
+        except Exception as _e: logging.debug("newhedge nodes: %s",_e)
         r = requests.get(_BITNODES_SNAPSHOT_URL, timeout=8,
                          headers={'Accept': 'application/json'})
         r.raise_for_status()
