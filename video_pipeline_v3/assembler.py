@@ -4298,7 +4298,7 @@ def concatenate_parts(parts: list, output_path: str,
              "-c:v", "libx264", "-crf", "17", "-preset", "medium",
              "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
              "-r", "30", "-vsync", "cfr",
-             "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
+             "-vf", f"fps=30,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
              "-video_track_timescale", "90000",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
              "-af", f"aresample=async=1,afade=t=in:d={a_fade_in},afade=t=out:st={max(0, dur - a_fade_out - 0.05)}:d={a_fade_out}",
@@ -4478,7 +4478,7 @@ def concatenate_parts(parts: list, output_path: str,
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(dur),
                 music_mixed
-            ], "continuous bgm mix (infinite loop)", 600)
+            ], "continuous bgm mix (infinite loop)", max(600, int(dur * 0.25)))
             if ok_music and os.path.exists(music_mixed):
                 logger.info(f"  APEX V2: Continuous BGM mixed — infinite loop ({dur:.1f}s episode)")
                 concat_raw = music_mixed
@@ -4599,7 +4599,7 @@ def concatenate_parts(parts: list, output_path: str,
                 # Render11 FIX 6: Normalize whoosh to consistent perceived loudness
                 # loudnorm ensures every whoosh hits at same level regardless of surrounding audio
                 whoosh_fg_parts.append(
-                    f"[ws{ti}]volume=2.5,loudnorm=I=-12:TP=-1.0:LRA=3,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                    f"[ws{ti}]volume=2.5,loudnorm=I=-12:TP=-1.5:LRA=3,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
                 )
             # Amix all whooshes together
             whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(n))
@@ -4645,7 +4645,7 @@ def concatenate_parts(parts: list, output_path: str,
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
          output_path],
-        "concat final encode", 600,
+        "concat final encode", max(600, int(dur * 0.25)),
     )
 
     # Cleanup
