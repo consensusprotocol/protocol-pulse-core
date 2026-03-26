@@ -1392,3 +1392,45 @@ class PanopticonEvent(db.Model):
     raw_json = db.Column(db.Text)  # Full API response for audit trail
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# =====================================
+# MEDIA COMMAND CENTER
+# =====================================
+
+class MediaFeed(db.Model):
+    """External RSS/YouTube feed source for the Media Command Center"""
+    __tablename__ = 'media_feed'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    url = db.Column(db.String(500), nullable=False, unique=True)
+    feed_type = db.Column(db.String(20), nullable=False)  # rss, youtube
+    category = db.Column(db.String(50))  # podcast, video, kol
+    host = db.Column(db.String(100))
+    color = db.Column(db.String(20), default='#dc2626')
+    tier = db.Column(db.Integer, default=2)  # 1=top voice, 2=established, 3=emerging
+    cover_image_url = db.Column(db.String(500))
+    last_synced = db.Column(db.DateTime)
+    episode_count = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    episodes = db.relationship('MediaEpisode', backref='feed', lazy='dynamic')
+
+
+class MediaEpisode(db.Model):
+    """Cached episode/video from an external feed"""
+    __tablename__ = 'media_episode'
+    id = db.Column(db.Integer, primary_key=True)
+    feed_id = db.Column(db.Integer, db.ForeignKey('media_feed.id'), nullable=False)
+    guid = db.Column(db.String(500), unique=True)  # RSS guid or YouTube video ID
+    title = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.Text)
+    summary_ai = db.Column(db.String(300))  # Claude-generated 30-word summary
+    audio_url = db.Column(db.String(1000))
+    video_url = db.Column(db.String(500))
+    source_url = db.Column(db.String(1000))
+    thumbnail_url = db.Column(db.String(500))
+    duration = db.Column(db.String(30))
+    published_at = db.Column(db.DateTime)
+    signal_score = db.Column(db.Integer, default=0)  # 0-100
+    synced_at = db.Column(db.DateTime, default=datetime.utcnow)
+

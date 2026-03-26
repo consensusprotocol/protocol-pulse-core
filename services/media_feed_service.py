@@ -640,6 +640,40 @@ def _time_ago(dt: datetime) -> str:
     return f"{secs // 86400}d"
 
 
+# ─── CLASS WRAPPER ─────────────────────────────────────────────────────────────
+
+class MediaFeedService:
+    """Class wrapper around module-level functions for routes.py compatibility."""
+
+    def __init__(self, app=None):
+        self._app = app
+
+    def sync_all_feeds(self, app=None):
+        return sync_all_feeds(app or self._app)
+
+    def sync_feeds_background(self, app=None):
+        return sync_feeds_background(app or self._app)
+
+    def get_feed_matrix(self, limit_per_col: int = 20) -> dict:
+        return get_feed_matrix(limit_per_col)
+
+    def get_ticker_items(self, limit: int = 30) -> List[dict]:
+        return get_ticker_items(limit)
+
+    def get_feed_stats(self) -> dict:
+        return get_feed_stats()
+
+    def generate_ai_summaries(self, app=None, batch_size: int = 20):
+        return generate_ai_summaries(app or self._app, batch_size)
+
+    def start_feed_polling(self, app=None):
+        return start_feed_polling(app or self._app)
+
+    @staticmethod
+    def compute_signal_score(title, description, tier=2, published_at=None):
+        return compute_signal_score(title, description, tier, published_at)
+
+
 # ─── 15-MINUTE AUTO-POLL SCHEDULER ───────────────────────────────────────────
 
 _poll_timer = None
