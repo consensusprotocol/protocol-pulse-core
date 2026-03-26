@@ -661,34 +661,13 @@ width:100%;margin-top:4px;">
 (function(){
   window.onerror=function(msg,src,line){
     var s=document.getElementById("gate-status");
-    if(s)s.textContent="JSERR:"+String(msg).substring(0,60)+" L"+line;
+    if(s)s.textContent="JSERR:"+String(msg).substring(0,80)+" L"+line;
     return false;
   };
   window.addEventListener("unhandledrejection",function(e){
     var s=document.getElementById("gate-status");
-    if(s)s.textContent="PERR:"+(e.reason&&e.reason.message||"unknown");
+    if(s)s.textContent="PERR:"+(e.reason&&e.reason.message||String(e.reason));
   });
-  function bindBtn(){
-    var btn=document.getElementById("gate-btn");
-    var st=document.getElementById("gate-status");
-    if(!btn){return;}
-    btn.disabled=false;
-    btn.addEventListener("click",function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      if(st)st.textContent="TAP OK - calling requestMic...";
-      if(typeof requestMic==="function"){
-        requestMic();
-      }else{
-        if(st)st.textContent="ERR: requestMic not defined - main script failed";
-      }
-    });
-  }
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",bindBtn);
-  }else{
-    bindBtn();
-  }
   window.addEventListener("pageshow",function(e){
     if(e.persisted){
       var b=document.getElementById("gate-btn");
