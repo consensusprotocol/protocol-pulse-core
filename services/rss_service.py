@@ -38,14 +38,14 @@ class RSSService:
             },
             {
                 'name': 'TFTC',
-                'url': 'https://feeds.simplecast.com/mGJ8uw1O',
+                'url': 'https://anchor.fm/s/tftc/podcast/rss',
                 'category': 'Bitcoin & Culture',
                 'host': 'Marty Bent',
                 'color': '#ff6b35'
             },
             {
                 'name': 'What Bitcoin Did',
-                'url': 'https://feeds.simplecast.com/tEJEubMT',
+                'url': 'https://feeds.libsyn.com/100637/rss',
                 'category': 'Bitcoin & Markets',
                 'host': 'Peter McCormack',
                 'color': '#f7931a'

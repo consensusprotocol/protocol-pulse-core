@@ -4034,7 +4034,10 @@ def api_narrative_momentum():
 def api_signal_strength():
     """Return signal strength composite. Cached 5 minutes."""
     try:
-        from services.intelligence_service import get_signal_strength
+        import importlib.util as _i1
+        _s1 = _i1.spec_from_file_location("is1", "/home/ultron/protocol_pulse/services/intelligence_service.py")
+        _m1 = _i1.module_from_spec(_s1); _s1.loader.exec_module(_m1)
+        get_signal_strength = _m1.get_signal_strength
         result = get_signal_strength()
         return jsonify({'success': True, 'data': result})
     except Exception as e:
@@ -12409,7 +12412,7 @@ def apply_promo_code():
     else:
         # Store in session for post-login application
         session['pending_promo_tier'] = tier
-        return jsonify({'success': True, 'tier': tier, 'redirect': '/login?promo=1'})
+        return jsonify({'success': True, 'tier': tier, 'redirect': '/join?unlocked=' + tier})
 
 
 # Error handlers
