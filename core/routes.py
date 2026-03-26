@@ -5389,6 +5389,10 @@ def get_series_teaser():
 @app.route('/api/trigger-automation', methods=['POST', 'GET'])
 def trigger_automation():
     """Webhook endpoint to trigger article generation (cron or admin). Use ?force=1 with POST when logged in as admin to skip cooldown."""
+    import sys as _asys
+    for _ap in ["/home/ultron/protocol_pulse","/home/ultron/protocol_pulse/core"]:
+        if _ap not in _asys.path: _asys.path.insert(0,_ap)
+    import os as _aos; _aos.chdir("/home/ultron/protocol_pulse/core")
     from services.automation import generate_article_with_tracking
 
     force = request.args.get("force") in ("1", "true", "yes")
