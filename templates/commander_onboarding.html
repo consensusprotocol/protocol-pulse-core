@@ -1,0 +1,847 @@
+{% extends "base.html" %}
+{% block title %}Commander Onboarding — Protocol Pulse{% endblock %}
+{% block extra_css %}
+<style>
+:root {
+  --co-bg: #000000;
+  --co-red: #dc2626;
+  --co-red-glow: rgba(220,38,38,0.3);
+  --co-white: #ffffff;
+  --co-dim: rgba(255,255,255,0.5);
+  --co-surface: #0a0a0a;
+}
+/* Hide base nav/footer during onboarding */
+.navbar, .site-footer, footer, nav { display: none !important; }
+body { background: #000 !important; overflow: hidden; }
+
+.co-wrap {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--co-bg);
+  overflow: hidden;
+}
+
+/* ── Screens ── */
+.co-screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateX(40px);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.co-screen.active {
+  opacity: 1; pointer-events: auto;
+  transform: translateX(0);
+}
+.co-screen.exit-left {
+  opacity: 0; transform: translateX(-40px);
+}
+
+/* ── Typography ── */
+.co-huge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: var(--co-white);
+  text-align: center;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+.co-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  color: var(--co-dim);
+  text-align: center;
+  max-width: 560px;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+.co-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--co-red);
+}
+.co-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Red dot pulse (Screen 1) ── */
+.co-dot {
+  width: 12px; height: 12px;
+  background: var(--co-red);
+  border-radius: 50%;
+  animation: coDotPulse 2s ease-in-out infinite;
+}
+@keyframes coDotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--co-red-glow); transform: scale(1); }
+  50% { box-shadow: 0 0 30px 10px var(--co-red-glow); transform: scale(1.3); }
+}
+
+/* ── Typewriter ── */
+.co-typewriter {
+  overflow: hidden;
+  border-right: 2px solid var(--co-red);
+  white-space: nowrap;
+  animation: coTypeBlink 0.7s step-end infinite;
+  max-width: 100%;
+}
+@keyframes coTypeBlink {
+  50% { border-color: transparent; }
+}
+
+/* ── Data stream (Screen 2) ── */
+.co-stream-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+  color: var(--co-white);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  text-align: center;
+  padding: 6px 0;
+}
+.co-stream-line.visible {
+  opacity: 1; transform: translateY(0);
+  text-shadow: 0 0 12px var(--co-red-glow);
+}
+
+/* ── Radar (Screen 3) ── */
+.co-radar-wrap {
+  position: relative;
+  width: min(300px, 70vw);
+  height: min(300px, 70vw);
+}
+.co-radar-canvas {
+  width: 100%; height: 100%;
+}
+
+/* ── Avatar glow (Screen 4) ── */
+.co-avatar-wrap {
+  position: relative;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--co-red);
+  animation: coAvatarGlow 3s ease-in-out infinite;
+}
+@keyframes coAvatarGlow {
+  0%, 100% { box-shadow: 0 0 20px var(--co-red-glow); }
+  50% { box-shadow: 0 0 50px var(--co-red-glow), 0 0 80px rgba(220,38,38,0.15); }
+}
+.co-avatar-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+/* ── Briefing cards (Screen 5) ── */
+.co-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 720px;
+  width: 100%;
+  margin-top: 24px;
+}
+@media (max-width: 640px) {
+  .co-brief-grid { grid-template-columns: 1fr; gap: 12px; }
+}
+.co-brief-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 24px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.co-brief-card:hover {
+  border-color: rgba(220,38,38,0.3);
+  background: rgba(220,38,38,0.05);
+}
+.co-brief-card.selected {
+  border-color: var(--co-red);
+  background: rgba(220,38,38,0.1);
+  box-shadow: 0 0 20px var(--co-red-glow);
+}
+.co-brief-card h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--co-white);
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+.co-brief-card p {
+  font-size: 0.75rem;
+  color: var(--co-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Arsenal grid (Screen 6) ── */
+.co-arsenal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 680px;
+  width: 100%;
+  margin-top: 24px;
+}
+@media (max-width: 640px) {
+  .co-arsenal-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+.co-arsenal-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 20px 16px;
+  opacity: 0.2;
+  transform: scale(0.95);
+  transition: all 0.5s ease;
+  text-align: center;
+}
+.co-arsenal-item.unlocked {
+  opacity: 1;
+  transform: scale(1);
+  border-color: var(--co-red);
+  box-shadow: 0 0 16px var(--co-red-glow);
+}
+.co-arsenal-item .co-arsenal-icon {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  display: block;
+}
+.co-arsenal-item h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--co-white);
+  margin-bottom: 6px;
+  letter-spacing: 0.06em;
+}
+.co-arsenal-item p {
+  font-size: 0.65rem;
+  color: var(--co-dim);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── Oath (Screen 7) ── */
+.co-oath-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  color: var(--co-white);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  margin: 12px 0;
+}
+.co-oath-line.visible { opacity: 1; }
+
+/* ── CTA button ── */
+.co-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--co-red);
+  color: var(--co-white);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 32px;
+}
+.co-cta:hover {
+  background: #b91c1c;
+  box-shadow: 0 0 30px var(--co-red-glow);
+  transform: translateY(-2px);
+}
+
+/* ── Progress dots ── */
+.co-dots {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.co-dot-nav {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: none; padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.co-dot-nav.active {
+  background: var(--co-red);
+  transform: scale(1.3);
+  box-shadow: 0 0 8px var(--co-red-glow);
+}
+
+/* ── Matrix rain canvas (Screen 2 bg) ── */
+.co-matrix-canvas {
+  position: absolute; inset: 0;
+  z-index: 0;
+  opacity: 0.12;
+}
+
+/* ── BTC price counter ── */
+.co-price-badge {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10001;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.5);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Scroll snap for mobile touch ── */
+@media (max-width: 768px) {
+  .co-screen { padding: 24px 16px; }
+  .co-huge { font-size: 1.4rem; }
+  .co-avatar-wrap { width: 120px; height: 120px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="co-wrap" id="coWrap">
+
+  <!-- ════════ SCREEN 1 — SIGNAL LOCK-ON ════════ -->
+  <div class="co-screen active" data-screen="0" id="screen0">
+    <div class="co-dot" id="lockDot"></div>
+    <div class="co-huge" style="margin-top:24px;opacity:0" id="lockText">SIGNAL ACQUIRED</div>
+    <div class="co-sub" style="opacity:0" id="lockSub">Commander access confirmed — {{ member_number }}</div>
+  </div>
+
+  <!-- ════════ SCREEN 2 — INTELLIGENCE LAYER ════════ -->
+  <div class="co-screen" data-screen="1" id="screen1">
+    <canvas class="co-matrix-canvas" id="matrixCanvas"></canvas>
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:600px;">
+      <div class="co-huge">YOU ARE NOW INSIDE<br>PROTOCOL PULSE</div>
+      <div class="co-sub co-typewriter" id="typewriterEl" style="overflow:hidden;white-space:normal;border:none;"></div>
+      <div style="margin-top:32px;width:100%;max-width:400px;" id="streamLines">
+        <div class="co-stream-line" data-delay="0">BTC: $<span id="slPrice">---</span></div>
+        <div class="co-stream-line" data-delay="400">HASHRATE: <span id="slHash">---</span> EH/s</div>
+        <div class="co-stream-line" data-delay="800">FEAR &amp; GREED: <span id="slFng">---</span> — <span id="slFngLabel">---</span></div>
+        <div class="co-stream-line" data-delay="1200">MEMPOOL: <span id="slMempool">---</span> unconfirmed</div>
+        <div class="co-stream-line" data-delay="1600" style="color:var(--co-red);">Your intelligence layer is now active.</div>
+      </div>
+      <button class="co-cta" id="enterTerminalBtn" style="opacity:0;">ENTER YOUR TERMINAL &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN 3 — SIGNAL MATRIX ════════ -->
+  <div class="co-screen" data-screen="2" id="screen2">
+    <div class="co-label" style="margin-bottom:8px;">SOVEREIGN SIGNAL MATRIX</div>
+    <div class="co-radar-wrap">
+      <canvas class="co-radar-canvas" id="radarCanvas"></canvas>
+    </div>
+    <div class="co-huge" style="font-size:clamp(1.2rem,2.5vw,1.6rem);margin-top:20px;">SIX SIGNALS. ONE COMPOSITE TRUTH.</div>
+    <div class="co-sub">This is what $2,000/month Bloomberg subscribers don't have.</div>
+    <button class="co-cta" onclick="goScreen(3)">CONTINUE &rarr;</button>
+  </div>
+
+  <!-- ════════ SCREEN 4 — ORACLE INTRO ════════ -->
+  <div class="co-screen" data-screen="3" id="screen3">
+    <div class="co-avatar-wrap">
+      <img src="/static/img/satomi_avatar.png" alt="Satomi" onerror="this.style.display='none'">
+    </div>
+    <div class="co-huge" style="margin-top:24px;opacity:0" id="oracleTitle">THIS IS SATOMI.</div>
+    <div class="co-sub" style="opacity:0" id="oracleLine1">She knows every block. Every whale move. Every narrative shift.</div>
+    <div class="co-sub" style="opacity:0;margin-top:8px;" id="oracleLine2">She answers in real time. With lip sync. On any device.</div>
+    <a href="/oracle-live" class="co-cta" style="opacity:0" id="oracleCta">SPEAK TO SATOMI &rarr;</a>
+  </div>
+
+  <!-- ════════ SCREEN 5 — BRIEFING SELECTION ════════ -->
+  <div class="co-screen" data-screen="4" id="screen4">
+    <div class="co-label" style="margin-bottom:6px;">DAILY INTELLIGENCE</div>
+    <div class="co-huge" style="font-size:clamp(1.1rem,2.5vw,1.6rem);">CONFIGURE YOUR BRIEF</div>
+    <div class="co-brief-grid" id="briefGrid">
+      <div class="co-brief-card" data-brief="maximalist" onclick="selectBrief(this)">
+        <h3>BITCOIN MAXIMALIST</h3>
+        <p>Pure on-chain signals, mining intelligence, sovereignty focus. No altcoin noise.</p>
+      </div>
+      <div class="co-brief-card" data-brief="macro" onclick="selectBrief(this)">
+        <h3>MACRO SOVEREIGN</h3>
+        <p>Fed moves, currency wars, BTC vs TradFi correlation. The big picture.</p>
+      </div>
+      <div class="co-brief-card" data-brief="full_spectrum" onclick="selectBrief(this)">
+        <h3>FULL SPECTRUM</h3>
+        <p>Everything — on-chain + macro + geopolitical + KOL sentiment. Maximum signal.</p>
+      </div>
+    </div>
+    <button class="co-cta" id="lockBriefBtn" style="opacity:0.3;pointer-events:none;" onclick="lockBrief()">LOCK IN MY BRIEF &rarr;</button>
+  </div>
+
+  <!-- ════════ SCREEN 6 — INTELLIGENCE ARSENAL ════════ -->
+  <div class="co-screen" data-screen="5" id="screen5">
+    <div class="co-label" style="margin-bottom:6px;">YOUR ARSENAL</div>
+    <div class="co-huge" style="font-size:clamp(1.1rem,2.5vw,1.6rem);">THE INTELLIGENCE ARSENAL</div>
+    <div class="co-arsenal-grid" id="arsenalGrid">
+      <div class="co-arsenal-item" data-idx="0">
+        <span class="co-arsenal-icon">&#x1F534;</span>
+        <h4>THE ORACLE</h4>
+        <p>Live AI intelligence. Voice-activated.</p>
+      </div>
+      <div class="co-arsenal-item" data-idx="1">
+        <span class="co-arsenal-icon">&#x1F441;</span>
+        <h4>PANOPTICON</h4>
+        <p>Congressional trades. Whale wallets. Nation-state signals.</p>
+      </div>
+      <div class="co-arsenal-item" data-idx="2">
+        <span class="co-arsenal-icon">&#x1F4E1;</span>
+        <h4>SIGNAL TERMINAL</h4>
+        <p>Real-time composite intelligence score.</p>
+      </div>
+      <div class="co-arsenal-item" data-idx="3">
+        <span class="co-arsenal-icon">&#x1F399;</span>
+        <h4>MEDIA COMMAND</h4>
+        <p>Every Bitcoin voice. One screen.</p>
+      </div>
+      <div class="co-arsenal-item" data-idx="4">
+        <span class="co-arsenal-icon">&#x1F4C4;</span>
+        <h4>DAILY BRIEF</h4>
+        <p>Your morning intelligence delivered by Satomi.</p>
+      </div>
+      <div class="co-arsenal-item" data-idx="5">
+        <span class="co-arsenal-icon">&#x1F9E0;</span>
+        <h4>SOVEREIGN CONTEXT</h4>
+        <p>Pattern recognition across all data streams.</p>
+      </div>
+    </div>
+    <div class="co-huge" style="font-size:1rem;margin-top:20px;opacity:0" id="arsenalReady">YOUR ARSENAL IS READY.</div>
+    <button class="co-cta" style="opacity:0" id="arsenalCta" onclick="goScreen(6)">CONTINUE &rarr;</button>
+  </div>
+
+  <!-- ════════ SCREEN 7 — THE OATH ════════ -->
+  <div class="co-screen" data-screen="6" id="screen6">
+    <div id="oathLines" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div class="co-oath-line" data-delay="0">Verify. Don't trust.</div>
+      <div class="co-oath-line" data-delay="1500">Stack. Don't speculate.</div>
+      <div class="co-oath-line" data-delay="3000">Signal. Not noise.</div>
+      <div class="co-oath-line" data-delay="5000" style="color:var(--co-dim);font-size:clamp(0.85rem,1.5vw,1rem);">— Welcome to Protocol Pulse.</div>
+    </div>
+    <a href="/signal-terminal" class="co-cta" style="opacity:0" id="finalCta" onclick="markComplete()">ENTER THE TERMINAL</a>
+  </div>
+
+  <!-- ── Progress dots ── -->
+  <div class="co-dots" id="coDots"></div>
+
+  <!-- ── BTC price badge ── -->
+  <div class="co-price-badge" id="priceBadge">BTC $---</div>
+</div>
+
+<script>
+(function() {
+  var TOTAL = 7;
+  var current = 0;
+  var screens = document.querySelectorAll('.co-screen');
+  var dotsEl = document.getElementById('coDots');
+  var signalData = null;
+  var touchStartX = 0;
+  var touchEndX = 0;
+
+  // Build dots
+  for (var i = 0; i < TOTAL; i++) {
+    var d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'co-dot-nav' + (i === 0 ? ' active' : '');
+    d.setAttribute('data-idx', i);
+    d.addEventListener('click', (function(idx) { return function() { goScreen(idx); }; })(i));
+    dotsEl.appendChild(d);
+  }
+
+  function updateDots() {
+    dotsEl.querySelectorAll('.co-dot-nav').forEach(function(d, i) {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  // Navigation
+  window.goScreen = function(idx) {
+    if (idx < 0 || idx >= TOTAL || idx === current) return;
+    var old = screens[current];
+    var next = screens[idx];
+    old.classList.remove('active');
+    old.classList.add('exit-left');
+    setTimeout(function() { old.classList.remove('exit-left'); }, 600);
+    next.classList.add('active');
+    current = idx;
+    updateDots();
+    onEnterScreen(idx);
+  };
+
+  // Keyboard
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      goScreen(current + 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goScreen(current - 1);
+    } else if (e.key === 'Escape') {
+      window.location.href = '/signal-terminal';
+    }
+  });
+
+  // Touch swipe
+  document.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    var diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goScreen(current + 1);
+      else goScreen(current - 1);
+    }
+  });
+
+  // ── Fetch live data ──
+  fetch('/api/intelligence/signal')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      signalData = (d.data || d);
+      var price = signalData.btc_price || signalData.price || 0;
+      if (price) document.getElementById('priceBadge').textContent = 'BTC $' + Number(price).toLocaleString();
+    })
+    .catch(function() {});
+
+  // Also fetch basic data from price endpoint
+  fetch('/api/btc-price')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var p = d.price || d.btc_price || 0;
+      if (p) {
+        document.getElementById('priceBadge').textContent = 'BTC $' + Number(p).toLocaleString();
+        window._btcPrice = p;
+      }
+    })
+    .catch(function() {});
+
+  // ── Screen-specific animations ──
+  function onEnterScreen(idx) {
+    if (idx === 1) animateScreen1();
+    if (idx === 2) animateScreen2();
+    if (idx === 3) animateScreen3();
+    if (idx === 4) animateScreen4();
+    if (idx === 5) animateScreen5();
+    if (idx === 6) animateScreen6();
+  }
+
+  // ════ Screen 0: Auto-advance after 3s ════
+  setTimeout(function() {
+    var lockText = document.getElementById('lockText');
+    var lockSub = document.getElementById('lockSub');
+    lockText.style.transition = 'opacity 0.8s ease';
+    lockText.style.opacity = '1';
+    setTimeout(function() {
+      lockSub.style.transition = 'opacity 0.8s ease';
+      lockSub.style.opacity = '1';
+    }, 800);
+    setTimeout(function() { goScreen(1); }, 3000);
+  }, 500);
+
+  // ════ Screen 1: Matrix rain + typewriter + data stream ════
+  var s1Animated = false;
+  function animateScreen1() {
+    if (s1Animated) return;
+    s1Animated = true;
+
+    // Matrix rain
+    var canvas = document.getElementById('matrixCanvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var cols = Math.floor(canvas.width / 14);
+    var drops = new Array(cols).fill(1);
+    var chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(220,38,38,0.35)';
+      ctx.font = '12px monospace';
+      for (var i = 0; i < drops.length; i++) {
+        var c = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(c, i * 14, drops[i] * 14);
+        if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    var matrixInterval = setInterval(drawMatrix, 50);
+    setTimeout(function() { clearInterval(matrixInterval); }, 15000);
+
+    // Typewriter
+    var tw = document.getElementById('typewriterEl');
+    var twText = 'Most people see the noise. You will see the signal.';
+    var twIdx = 0;
+    tw.textContent = '';
+    tw.style.borderRight = '2px solid var(--co-red)';
+    var twTimer = setInterval(function() {
+      tw.textContent += twText[twIdx];
+      twIdx++;
+      if (twIdx >= twText.length) {
+        clearInterval(twTimer);
+        setTimeout(function() { tw.style.borderRight = 'none'; }, 1000);
+      }
+    }, 30);
+
+    // Data stream lines
+    var lines = document.querySelectorAll('#streamLines .co-stream-line');
+    var price = window._btcPrice || 87000;
+    var sd = signalData || {};
+    document.getElementById('slPrice').textContent = Number(price).toLocaleString();
+    document.getElementById('slHash').textContent = sd.hashrate || sd.components?.onchain?.value || '---';
+    var fng = sd.fear_greed || sd.components?.fear_greed || {};
+    document.getElementById('slFng').textContent = fng.value || fng.score || '---';
+    document.getElementById('slFngLabel').textContent = fng.classification || fng.label || '---';
+    document.getElementById('slMempool').textContent = sd.mempool_count || '---';
+
+    lines.forEach(function(line) {
+      var delay = parseInt(line.getAttribute('data-delay') || 0);
+      setTimeout(function() { line.classList.add('visible'); }, 800 + delay);
+    });
+
+    var enterBtn = document.getElementById('enterTerminalBtn');
+    setTimeout(function() {
+      enterBtn.style.transition = 'opacity 0.5s ease';
+      enterBtn.style.opacity = '1';
+    }, 3000);
+    enterBtn.addEventListener('click', function() { goScreen(2); });
+  }
+
+  // ════ Screen 2: Radar chart animation ════
+  var s2Animated = false;
+  function animateScreen2() {
+    if (s2Animated) return;
+    s2Animated = true;
+
+    var canvas = document.getElementById('radarCanvas');
+    var ctx = canvas.getContext('2d');
+    var size = canvas.parentElement.clientWidth;
+    canvas.width = size * 2;
+    canvas.height = size * 2;
+    ctx.scale(2, 2);
+
+    var labels = ['Miner', 'Exchange', 'Narrative', 'On-Chain', 'Lightning', 'Market'];
+    var colors = ['#89ffb8', '#f8c15c', '#5de4ff', '#ff8ba0', '#eef2ff', '#ff3b5f'];
+    var values = [72, 58, 65, 70, 45, 62]; // defaults
+
+    // Try to use real signal data
+    if (signalData && signalData.components) {
+      var c = signalData.components;
+      values = [
+        c.onchain?.score || c.miner || 72,
+        c.price?.score || c.exchange || 58,
+        c.sentiment?.score || c.narrative || 65,
+        c.onchain?.score || 70,
+        c.lightning || 45,
+        c.fear_greed?.score || c.market || 62
+      ];
+    }
+
+    var cx = size / 2, cy = size / 2, maxR = size * 0.38;
+    var n = 6;
+    var progress = 0;
+
+    function drawRadar(p) {
+      ctx.clearRect(0, 0, size, size);
+
+      // Grid
+      for (var ring = 1; ring <= 4; ring++) {
+        var r = maxR * ring / 4;
+        ctx.beginPath();
+        for (var i = 0; i <= n; i++) {
+          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          var x = cx + r * Math.cos(angle);
+          var y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.stroke();
+      }
+
+      // Axes + labels
+      for (var i = 0; i < n; i++) {
+        var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.stroke();
+
+        // Label
+        var lx = cx + (maxR + 20) * Math.cos(angle);
+        var ly = cy + (maxR + 20) * Math.sin(angle);
+        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.fillStyle = i < Math.ceil(p * n) ? colors[i] : 'rgba(255,255,255,0.2)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labels[i], lx, ly);
+      }
+
+      // Data polygon
+      if (p > 0) {
+        ctx.beginPath();
+        var drawCount = Math.min(n, Math.ceil(p * n));
+        for (var i = 0; i < drawCount; i++) {
+          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          var v = values[i] / 100;
+          var frac = (i < drawCount - 1) ? 1 : (p * n - i);
+          var r = maxR * v * Math.min(1, frac);
+          var x = cx + r * Math.cos(angle);
+          var y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        if (drawCount >= n) ctx.closePath();
+        ctx.fillStyle = 'rgba(220,38,38,0.15)';
+        ctx.fill();
+        ctx.strokeStyle = 'var(--co-red)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Dots
+        for (var i = 0; i < drawCount; i++) {
+          var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          var v = values[i] / 100;
+          ctx.beginPath();
+          ctx.arc(cx + maxR * v * Math.cos(angle), cy + maxR * v * Math.sin(angle), 3, 0, Math.PI * 2);
+          ctx.fillStyle = colors[i];
+          ctx.fill();
+        }
+      }
+    }
+
+    // Animate radar drawing
+    var start = null;
+    var duration = 1200;
+    function animStep(ts) {
+      if (!start) start = ts;
+      progress = Math.min(1, (ts - start) / duration);
+      drawRadar(progress);
+      if (progress < 1) requestAnimationFrame(animStep);
+    }
+    requestAnimationFrame(animStep);
+  }
+
+  // ════ Screen 3: Oracle intro — sequential text reveal ════
+  var s3Animated = false;
+  function animateScreen3() {
+    if (s3Animated) return;
+    s3Animated = true;
+    var els = ['oracleTitle', 'oracleLine1', 'oracleLine2', 'oracleCta'];
+    var delays = [300, 1800, 3000, 4200];
+    els.forEach(function(id, i) {
+      setTimeout(function() {
+        var el = document.getElementById(id);
+        el.style.transition = 'opacity 0.8s ease';
+        el.style.opacity = '1';
+      }, delays[i]);
+    });
+  }
+
+  // ════ Screen 4: Briefing selection ════
+  var selectedBrief = null;
+  window.selectBrief = function(card) {
+    document.querySelectorAll('.co-brief-card').forEach(function(c) { c.classList.remove('selected'); });
+    card.classList.add('selected');
+    selectedBrief = card.getAttribute('data-brief');
+    var btn = document.getElementById('lockBriefBtn');
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  };
+
+  window.lockBrief = function() {
+    if (!selectedBrief) return;
+    // Save to server
+    fetch('/api/user/briefing-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brief_type: selectedBrief })
+    }).catch(function() {});
+    // Also save to localStorage as backup
+    try { localStorage.setItem('pp_briefing_pref', selectedBrief); } catch(e) {}
+    goScreen(5);
+  };
+
+  function animateScreen4() {
+    // Cards already visible, no extra animation needed
+  }
+
+  // ════ Screen 5: Arsenal unlock ════
+  var s5Animated = false;
+  function animateScreen5() {
+    if (s5Animated) return;
+    s5Animated = true;
+
+    var items = document.querySelectorAll('.co-arsenal-item');
+    items.forEach(function(item, i) {
+      setTimeout(function() {
+        item.classList.add('unlocked');
+      }, 300 + i * 350);
+    });
+
+    setTimeout(function() {
+      var ready = document.getElementById('arsenalReady');
+      ready.style.transition = 'opacity 0.6s ease';
+      ready.style.opacity = '1';
+      var cta = document.getElementById('arsenalCta');
+      cta.style.transition = 'opacity 0.5s ease';
+      cta.style.opacity = '1';
+    }, 300 + items.length * 350 + 400);
+  }
+
+  // ════ Screen 6: The Oath ════
+  var s6Animated = false;
+  function animateScreen6() {
+    if (s6Animated) return;
+    s6Animated = true;
+
+    var lines = document.querySelectorAll('.co-oath-line');
+    lines.forEach(function(line) {
+      var delay = parseInt(line.getAttribute('data-delay') || 0);
+      setTimeout(function() { line.classList.add('visible'); }, delay);
+    });
+
+    setTimeout(function() {
+      var cta = document.getElementById('finalCta');
+      cta.style.transition = 'opacity 0.8s ease';
+      cta.style.opacity = '1';
+    }, 6500);
+  }
+
+  // ── Mark onboarding complete ──
+  window.markComplete = function() {
+    fetch('/api/user/onboarding-complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(function() {});
+  };
+
+})();
+</script>
+{% endblock %}

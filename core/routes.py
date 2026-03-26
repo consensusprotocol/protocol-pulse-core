@@ -2372,9 +2372,10 @@ def api_newsletter_subscribe():
         existing.unsubscribed_at = None
         db.session.commit()
         return jsonify({'success': True, 'message': 'Re-subscribed successfully'})
+    unsub_token = str(uuid.uuid4())
     sub = models.NewsletterSubscriber(
         email=email,
-        unsubscribe_token=str(uuid.uuid4()),
+        unsubscribe_token=unsub_token,
         subscribed=True,
         source=source[:50] if isinstance(source, str) else 'api',
     )
@@ -2384,6 +2385,44 @@ def api_newsletter_subscribe():
     if user:
         user.newsletter_subscribed = True
     db.session.commit()
+
+    # Send welcome email via Resend (fire and forget)
+    import threading
+    def _send_welcome():
+        try:
+            resend_key = os.environ.get('RESEND_API_KEY')
+            if not resend_key:
+                return
+            import requests as _req
+            _req.post('https://api.resend.com/emails', json={
+                'from': 'Protocol Pulse <newsletter@protocolpulse.io>',
+                'to': [email],
+                'subject': 'Signal acquired — you are now inside Protocol Pulse',
+                'html': (
+                    '<div style="font-family:monospace;color:#E2E2EF;background:#0A0A0F;padding:32px;">'
+                    '<h1 style="color:#dc2626;font-size:16px;letter-spacing:2px;">SIGNAL ACQUIRED</h1>'
+                    '<p>Welcome to Protocol Pulse.</p>'
+                    '<p>Every morning, you will receive the sharpest Bitcoin intelligence brief '
+                    'on the internet. No filler. No AI slop. Just the signal.</p>'
+                    '<p>What you get:</p>'
+                    '<ul style="color:#9ca3af;">'
+                    '<li>Daily intelligence brief with executive summary</li>'
+                    '<li>On-chain signals most analysts miss</li>'
+                    '<li>Whale movement alerts</li>'
+                    '<li>Macro + geopolitical Bitcoin context</li>'
+                    '</ul>'
+                    '<p style="margin-top:24px;"><a href="https://protocolpulse.io" '
+                    'style="color:#dc2626;">Enter Protocol Pulse &rarr;</a></p>'
+                    '<p style="color:#374151;font-size:11px;margin-top:32px;">'
+                    'You received this because you subscribed at protocolpulse.io.<br>'
+                    f'<a href="https://protocolpulse.io/unsubscribe?token={unsub_token}" style="color:#6b7280;">Unsubscribe</a>'
+                    '</p></div>'
+                ),
+            }, headers={'Authorization': f'Bearer {resend_key}'}, timeout=15)
+        except Exception as _e:
+            logging.warning('Welcome email failed for %s: %s', email, _e)
+    threading.Thread(target=_send_welcome, daemon=True).start()
+
     return jsonify({'success': True, 'message': 'Subscribed to Protocol Pulse'})
 
 
@@ -2427,6 +2466,59 @@ def api_newsletter_send():
     from services.newsletter import NewsletterEngine
     engine = NewsletterEngine()
     result = engine.send()
+    return jsonify(result)
+
+
+@app.route('/api/newsletter/dispatch', methods=['POST'])
+def api_newsletter_dispatch():
+    """Dispatch latest newsletter queue item. Localhost = no auth, external = X-Admin-Secret."""
+    remote = request.remote_addr
+    is_local = remote in ('127.0.0.1', '::1', 'localhost')
+    if not is_local:
+        secret = request.headers.get('X-Admin-Secret', '')
+        if not secret or not ADMIN_SECRET or secret != ADMIN_SECRET:
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+    import glob, shutil
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    queue_dir = os.path.join(project_root, 'data', 'newsletter_queue')
+    sent_dir = os.path.join(queue_dir, 'sent')
+    os.makedirs(sent_dir, exist_ok=True)
+
+    files = sorted(glob.glob(os.path.join(queue_dir, '*_hook.json')))
+    if not files:
+        return jsonify({'success': False, 'error': 'No items in queue'})
+
+    latest = files[-1]
+    try:
+        with open(latest) as f:
+            hook_data = json.load(f)
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Failed to read queue item: {e}'}), 500
+
+    import importlib.util as _ilu
+    _ne_path = os.path.join(project_root, 'services', 'newsletter_engine.py')
+    _ne_spec = _ilu.spec_from_file_location('_newsletter_engine_dispatch', _ne_path)
+    _ne_mod = _ilu.module_from_spec(_ne_spec)
+    _ne_spec.loader.exec_module(_ne_mod)
+    engine = _ne_mod.NewsletterEngine()
+    subscribers = engine.get_subscribers()
+    if not subscribers:
+        # Also check NewsletterSubscriber table
+        subs = models.NewsletterSubscriber.query.filter_by(subscribed=True).all()
+        subscribers = [s.email for s in subs if s.email]
+    if not subscribers:
+        return jsonify({'success': False, 'error': '0 subscribers'})
+
+    articles = engine.get_todays_articles(5)
+    summary = hook_data.get('hook', '') or engine.generate_ai_summary(articles)
+    btc_data = engine.get_btc_price()
+    html = engine.generate_html(articles, summary, btc_data)
+    result = engine.send_newsletter(subscribers, html=html)
+
+    if result.get('success'):
+        shutil.move(latest, os.path.join(sent_dir, os.path.basename(latest)))
+
     return jsonify(result)
 
 
@@ -6239,9 +6331,52 @@ def subscribe_premium(tier):
 @app.route('/subscription/success')
 @login_required
 def subscription_success():
-    """Subscription success page"""
+    """Redirect to commander onboarding if eligible, otherwise show success page."""
+    tier = getattr(current_user, 'subscription_tier', 'free')
+    if tier in ('commander', 'sovereign') and not getattr(current_user, 'onboarding_completed', False):
+        return redirect(url_for('commander_onboarding', member=current_user.id, tier=tier))
     session_id = request.args.get('session_id', '')
     return render_template('subscription_success.html', session_id=session_id)
+
+
+@app.route('/onboarding/commander')
+@login_required
+def commander_onboarding():
+    """Premium commander onboarding — 7-screen experience."""
+    tier = getattr(current_user, 'subscription_tier', 'free')
+    if tier not in ('commander', 'sovereign'):
+        return redirect(url_for('join_page'))
+    if getattr(current_user, 'onboarding_completed', False):
+        return redirect('/signal-terminal')
+    member_number = f"PP-{current_user.id:04d}"
+    join_date = current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else '2026'
+    return render_template('commander_onboarding.html',
+                           member_number=member_number,
+                           join_date=join_date,
+                           user=current_user)
+
+
+@app.route('/api/user/briefing-preference', methods=['POST'])
+@login_required
+def save_briefing_preference():
+    """Save user briefing preference (maximalist|macro|full_spectrum)."""
+    data = request.get_json(silent=True) or {}
+    brief_type = data.get('brief_type', '').strip()
+    if brief_type not in ('maximalist', 'macro', 'full_spectrum'):
+        return jsonify({'success': False, 'error': 'Invalid brief_type'}), 400
+    current_user.briefing_preference = brief_type
+    db.session.commit()
+    return jsonify({'success': True, 'brief_type': brief_type})
+
+
+@app.route('/api/user/onboarding-complete', methods=['POST'])
+@login_required
+def mark_onboarding_complete():
+    """Mark commander onboarding as complete."""
+    current_user.onboarding_completed = True
+    current_user.onboarding_completed_at = datetime.utcnow()
+    db.session.commit()
+    return jsonify({'success': True})
 
 @app.route('/donate', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")

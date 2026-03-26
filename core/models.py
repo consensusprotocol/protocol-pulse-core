@@ -33,6 +33,10 @@ class User(UserMixin, db.Model):
     subscription_expires_at = db.Column(db.DateTime)
     # Commander+: opt-in to email alerts for mega whales (≥1000 BTC)
     mega_whale_email_alerts = db.Column(db.Boolean, default=False)
+    # Commander onboarding
+    briefing_preference = db.Column(db.String(30), default=None)  # maximalist|macro|full_spectrum
+    onboarding_completed = db.Column(db.Boolean, default=False)
+    onboarding_completed_at = db.Column(db.DateTime)
 
     # Satomi voice call opt-in
     phone_number = db.Column(db.String(20), nullable=True)  # E.164 format +1XXXXXXXXXX

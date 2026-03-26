@@ -31,6 +31,10 @@ class User(UserMixin, db.Model):
     subscription_expires_at = db.Column(db.DateTime)
     # Commander+: opt-in to email alerts for mega whales (≥1000 BTC)
     mega_whale_email_alerts = db.Column(db.Boolean, default=False)
+    # Commander onboarding
+    briefing_preference = db.Column(db.String(30), default=None)  # maximalist|macro|full_spectrum
+    onboarding_completed = db.Column(db.Boolean, default=False)
+    onboarding_completed_at = db.Column(db.DateTime)
     
     # --- Auth Methods ---
     def set_password(self, password):

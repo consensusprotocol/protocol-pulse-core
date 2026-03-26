@@ -206,6 +206,24 @@ with app.app_context():
     import models
     # 2. Create the tables (migration-safe: adds new columns/tables without dropping existing)
     db.create_all()
+    # 2a. Commander onboarding columns (safe ALTER TABLE — ignores if already exist)
+    try:
+        from sqlalchemy import text as _sa_text
+        _onb_migrations = [
+            'ALTER TABLE user ADD COLUMN briefing_preference VARCHAR(30)',
+            'ALTER TABLE user ADD COLUMN onboarding_completed BOOLEAN DEFAULT 0',
+            'ALTER TABLE user ADD COLUMN onboarding_completed_at DATETIME',
+        ]
+        _conn = db.engine.connect()
+        for _sql in _onb_migrations:
+            try:
+                _conn.execute(_sa_text(_sql))
+                _conn.commit()
+            except Exception:
+                pass  # Column already exists
+        _conn.close()
+    except Exception as _onb_err:
+        logging.warning("Onboarding migration failed (non-fatal): %s", _onb_err)
     # 2b. SESSION 12 — Run sentiment intelligence migrations (adds article sentiment columns + tables)
     try:
         from utils.db_migrate_sentiment import run_migrations
@@ -279,6 +297,109 @@ try:
 except Exception as e:
     logging.warning("Could not list routes: %s", e)
 
+
+
+# ── APScheduler — Newsletter Daily Dispatch ────────────────────────────
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from apscheduler.triggers.cron import CronTrigger
+
+    def _newsletter_daily_dispatch():
+        """Read latest newsletter_queue item, send via NewsletterEngine, log result."""
+        import glob, shutil, json as _json
+        _project = str(Path(__file__).resolve().parent.parent)
+        _queue_dir = os.path.join(_project, "data", "newsletter_queue")
+        _sent_dir = os.path.join(_queue_dir, "sent")
+        _log_file = os.path.join(_project, "logs", "newsletter_dispatch.log")
+
+        os.makedirs(_sent_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+
+        files = sorted(glob.glob(os.path.join(_queue_dir, "*_hook.json")))
+        if not files:
+            _msg = f"[{datetime.now().isoformat()}] No items in newsletter queue\n"
+            with open(_log_file, "a") as _lf:
+                _lf.write(_msg)
+            logging.info("Newsletter dispatch: no queue items")
+            return
+
+        latest = files[-1]
+        try:
+            with open(latest) as _f:
+                hook_data = _json.load(_f)
+        except Exception as _e:
+            logging.error("Newsletter dispatch: failed to read %s: %s", latest, _e)
+            return
+
+        try:
+            import importlib.util as _ilu_ne
+            _ne_path = os.path.join(_project, 'services', 'newsletter_engine.py')
+            _ne_spec = _ilu_ne.spec_from_file_location('_newsletter_engine_sched', _ne_path)
+            _ne_mod = _ilu_ne.module_from_spec(_ne_spec)
+            _ne_spec.loader.exec_module(_ne_mod)
+            engine = _ne_mod.NewsletterEngine()
+            with app.app_context():
+                subscribers = engine.get_subscribers()
+                if not subscribers:
+                    _msg = f"[{datetime.now().isoformat()}] 0 subscribers — skipped\n"
+                    with open(_log_file, "a") as _lf:
+                        _lf.write(_msg)
+                    return
+
+                articles = engine.get_todays_articles(5)
+                summary = hook_data.get("hook", "") or engine.generate_ai_summary(articles)
+                btc_data = engine.get_btc_price()
+                html = engine.generate_html(articles, summary, btc_data)
+                result = engine.send_newsletter(subscribers, html=html)
+
+                # Move to sent/
+                shutil.move(latest, os.path.join(_sent_dir, os.path.basename(latest)))
+
+                _msg = f"[{datetime.now().isoformat()}] Sent to {result.get('sent', 0)}/{len(subscribers)} — {result}\n"
+                with open(_log_file, "a") as _lf:
+                    _lf.write(_msg)
+                logging.info("Newsletter dispatch complete: %s", result)
+        except Exception as _e:
+            _msg = f"[{datetime.now().isoformat()}] ERROR: {_e}\n"
+            with open(_log_file, "a") as _lf:
+                _lf.write(_msg)
+            logging.error("Newsletter dispatch failed: %s", _e)
+
+    from datetime import datetime as _dt_import
+    # Alias so the closure can use it
+    datetime = _dt_import
+
+    _scheduler = BackgroundScheduler(daemon=True)
+    _scheduler.add_job(
+        _newsletter_daily_dispatch,
+        CronTrigger(hour=12, minute=0, timezone="UTC"),  # 8:00 AM ET = 12:00 UTC
+        id="newsletter_daily",
+        replace_existing=True,
+    )
+    # Onboarding milestone emails — check daily at 14:00 UTC (10 AM ET)
+    def _onboarding_milestone_check():
+        try:
+            import importlib.util as _ilu_ob
+            _ob_path = os.path.join(str(Path(__file__).resolve().parent.parent), 'services', 'onboarding_email_sequence.py')
+            _ob_spec = _ilu_ob.spec_from_file_location('_onboarding_email_seq', _ob_path)
+            _ob_mod = _ilu_ob.module_from_spec(_ob_spec)
+            _ob_spec.loader.exec_module(_ob_mod)
+            result = _ob_mod.check_and_send_milestones()
+            logging.info("Onboarding milestone check: %s", result)
+        except Exception as _e:
+            logging.error("Onboarding milestone check failed: %s", _e)
+
+    _scheduler.add_job(
+        _onboarding_milestone_check,
+        CronTrigger(hour=14, minute=0, timezone="UTC"),  # 10:00 AM ET
+        id="onboarding_milestones",
+        replace_existing=True,
+    )
+
+    _scheduler.start()
+    logging.info("APScheduler started — newsletter_daily 12:00 UTC, onboarding_milestones 14:00 UTC")
+except Exception as _sched_err:
+    logging.warning("APScheduler setup failed (non-fatal): %s", _sched_err)
 
 
 @app.route('/video/<filename>')
