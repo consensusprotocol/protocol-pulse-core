@@ -30,12 +30,61 @@ class RSSService:
                 'color': '#f7931a'
             },
             {
-                'name': 'Protocol Pulse', 
+                'name': 'Protocol Pulse',
                 'url': 'https://feed.podbean.com/protocolpulse/feed.xml',
                 'category': 'Bitcoin & Markets',
                 'host': 'Protocol Pulse',
                 'color': '#dc2626'
-            }
+            },
+            {
+                'name': 'TFTC',
+                'url': 'https://anchor.fm/s/2a4e8034/podcast/rss',
+                'category': 'Bitcoin & Culture',
+                'host': 'Marty Bent',
+                'color': '#ff6b35'
+            },
+            {
+                'name': 'What Bitcoin Did',
+                'url': 'https://rss.libsyn.com/shows/110634/destinations/607905.xml',
+                'category': 'Bitcoin & Markets',
+                'host': 'Peter McCormack',
+                'color': '#f7931a'
+            },
+            {
+                'name': 'Stephan Livera',
+                'url': 'https://stephanlivera.com/feed',
+                'category': 'Bitcoin & Economics',
+                'host': 'Stephan Livera',
+                'color': '#4a90d9'
+            },
+            {
+                'name': 'Bitcoin Audible',
+                'url': 'https://bitcoinaudible.com/feed/',
+                'category': 'Bitcoin & Education',
+                'host': 'Guy Swann',
+                'color': '#9b59b6'
+            },
+            {
+                'name': 'Simply Bitcoin',
+                'url': 'https://anchor.fm/s/717a2198/podcast/rss',
+                'category': 'Bitcoin & News',
+                'host': 'Nico Moran',
+                'color': '#e74c3c'
+            },
+            {
+                'name': 'Bitcoin Magazine Podcast',
+                'url': 'https://bitcoinmagazine.com/feed',
+                'category': 'Bitcoin & Culture',
+                'host': 'Bitcoin Magazine',
+                'color': '#f7931a'
+            },
+            {
+                'name': 'The Bitcoin Layer',
+                'url': 'https://thebitcoinlayer.substack.com/feed',
+                'category': 'Bitcoin & Macro',
+                'host': 'Nik Bhatia',
+                'color': '#3498db'
+            },
         ]
         
         # Episode cache for real-time display

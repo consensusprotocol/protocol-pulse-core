@@ -18,7 +18,7 @@
 
 /* ── TICKER ── */
 .ticker-wrap{position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(220,38,38,0.06),rgba(8,8,14,0.95),rgba(220,38,38,0.06));border-bottom:1px solid var(--border);padding:0;height:36px}
-.ticker-track{display:flex;animation:tickerScroll 120s linear infinite;white-space:nowrap;height:100%;align-items:center}
+.ticker-track{display:flex;animation:tickerScroll 120s linear infinite;white-space:nowrap;height:100%;align-items:center;will-change:transform}
 .ticker-track:hover{animation-play-state:paused}
 .ticker-item{display:inline-flex;align-items:center;gap:6px;padding:0 24px;font-size:12px;color:var(--sec);text-decoration:none;transition:color .2s;flex-shrink:0;height:100%}
 .ticker-item:hover{color:var(--bright)}
@@ -991,7 +991,12 @@ REMOVED_OLD_NETWORK_END */
       sim.force('center',d3.forceCenter(W/2,H/2)).force('x',d3.forceX(W/2).strength(0.05));
       sim.alpha(0.3).restart();
     });
-  }).catch(function(e){console.warn('Network graph load error:',e)});
+  }).catch(function(e){
+    console.warn('[MediaGraph] Failed to load network data:',e);
+    svg.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle')
+      .attr('fill','var(--btc)').attr('font-size','13px').attr('font-family','JetBrains Mono,monospace')
+      .text('Network data loading... Refresh to retry.');
+  });
 })();
 
 /* ═══════════ KOL SENTIMENT HEATMAP ═══════════ */

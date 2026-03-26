@@ -23,17 +23,13 @@ logger = logging.getLogger(__name__)
 PODCAST_FEEDS = [
     {"name": "Cypherpunk'd", "url": "https://anchor.fm/s/fa724db8/podcast/rss", "host": "PBX", "tier": 1, "color": "#f7931a", "category": "podcast"},
     {"name": "Protocol Pulse", "url": "https://feed.podbean.com/protocolpulse/feed.xml", "host": "Protocol Pulse", "tier": 1, "color": "#dc2626", "category": "podcast"},
-    {"name": "TFTC", "url": "https://feeds.simplecast.com/mGJ8uw1O", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
-    {"name": "Stephan Livera", "url": "https://feeds.simplecast.com/KV8z39iS", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
-    {"name": "What Bitcoin Did", "url": "https://feeds.simplecast.com/tEJEubMT", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Bitcoin Audible", "url": "https://feeds.megaphone.fm/SWN4978045882", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
-    {"name": "Citadel Dispatch", "url": "https://feeds.simplecast.com/M6LkF8NN", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
-    {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/BdGT7E3F", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
-    {"name": "Simply Bitcoin", "url": "https://feeds.simplecast.com/7V5b8Zag", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
-    {"name": "Bitcoin Magazine Podcast", "url": "https://feeds.megaphone.fm/bitcoin-magazine", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Rabbit Hole Recap", "url": "https://feeds.simplecast.com/Dh1oHsHZ", "host": "Matt Odell & Marty Bent", "tier": 1, "color": "#8e44ad", "category": "podcast"},
-    {"name": "Bitcoin Fundamentals", "url": "https://feeds.simplecast.com/WXOL8WUD", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
-    {"name": "Coin Stories", "url": "https://feeds.simplecast.com/6Z1iM0Fg", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
+    {"name": "TFTC", "url": "https://anchor.fm/s/2a4e8034/podcast/rss", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
+    {"name": "Stephan Livera", "url": "https://stephanlivera.com/feed", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
+    {"name": "What Bitcoin Did", "url": "https://rss.libsyn.com/shows/110634/destinations/607905.xml", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
+    {"name": "Bitcoin Audible", "url": "https://bitcoinaudible.com/feed/", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
+    {"name": "The Bitcoin Layer", "url": "https://thebitcoinlayer.substack.com/feed", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
+    {"name": "Simply Bitcoin", "url": "https://anchor.fm/s/717a2198/podcast/rss", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
+    {"name": "Bitcoin Magazine Podcast", "url": "https://bitcoinmagazine.com/feed", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
 ]
 
 YOUTUBE_CHANNELS = [
@@ -229,38 +225,89 @@ def parse_rss_feed(feed_config: dict) -> List[dict]:
 
 
 def parse_youtube_rss(channel_config: dict) -> List[dict]:
-    """Parse a YouTube channel RSS feed (no API key needed)."""
-    url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_config['channel_id']}"
-    try:
-        feed = _fetch_feed(url)
-    except Exception as e:
-        logger.error(f"Failed to parse YouTube RSS {channel_config['name']}: {e}")
-        return []
+    """Fetch latest videos from YouTube channel via Data API v3 (RSS deprecated)."""
+    import requests as req
+    api_key = os.environ.get('YOUTUBE_API_KEY')
 
     episodes = []
-    for entry in feed.entries[:10]:
-        title = entry.get('title', '').strip()
-        if not title or is_excluded(title):
-            continue
 
-        desc = _clean_html(entry.get('summary', '') or '')
-        if len(desc) > 500:
-            desc = desc[:497] + '...'
+    if api_key:
+        try:
+            resp = req.get(
+                'https://www.googleapis.com/youtube/v3/search',
+                params={
+                    'key': api_key,
+                    'channelId': channel_config['channel_id'],
+                    'part': 'snippet',
+                    'order': 'date',
+                    'maxResults': 10,
+                    'type': 'video',
+                },
+                timeout=15,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                for item in data.get('items', []):
+                    snippet = item.get('snippet', {})
+                    title = snippet.get('title', '').strip()
+                    if not title or is_excluded(title):
+                        continue
 
-        vid_id = entry.get('yt_videoid', '')
-        pub_date = _parse_rss_date(entry)
+                    vid_id = item.get('id', {}).get('videoId', '')
+                    desc = _clean_html(snippet.get('description', ''))
+                    if len(desc) > 500:
+                        desc = desc[:497] + '...'
 
-        episodes.append({
-            'guid': vid_id or _make_guid(entry, url),
-            'title': title,
-            'description': desc,
-            'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
-            'source_url': entry.get('link', ''),
-            'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
-            'duration': '',
-            'published_at': pub_date,
-            'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
-        })
+                    pub_str = snippet.get('publishedAt', '')
+                    pub_date = None
+                    if pub_str:
+                        try:
+                            pub_date = datetime.strptime(pub_str[:19], '%Y-%m-%dT%H:%M:%S')
+                        except Exception:
+                            pass
+
+                    thumb = snippet.get('thumbnails', {}).get('high', {}).get('url') or \
+                            (f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None)
+
+                    episodes.append({
+                        'guid': vid_id,
+                        'title': title,
+                        'description': desc,
+                        'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else '',
+                        'source_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else '',
+                        'thumbnail_url': thumb,
+                        'duration': '',
+                        'published_at': pub_date,
+                        'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
+                    })
+            else:
+                logger.warning(f"[YouTube] API {resp.status_code} for {channel_config['name']}")
+        except Exception as e:
+            logger.error(f"[YouTube] API error {channel_config['name']}: {e}")
+    else:
+        # Fallback: try RSS (deprecated, may return 404)
+        url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_config['channel_id']}"
+        try:
+            feed = _fetch_feed(url)
+            for entry in feed.entries[:10]:
+                title = entry.get('title', '').strip()
+                if not title or is_excluded(title):
+                    continue
+                vid_id = entry.get('yt_videoid', '')
+                pub_date = _parse_rss_date(entry)
+                episodes.append({
+                    'guid': vid_id or _make_guid(entry, url),
+                    'title': title,
+                    'description': _clean_html(entry.get('summary', '') or '')[:500],
+                    'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
+                    'source_url': entry.get('link', ''),
+                    'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
+                    'duration': '',
+                    'published_at': pub_date,
+                    'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
+                })
+        except Exception as e:
+            logger.error(f"[YouTube] RSS fallback failed {channel_config['name']}: {e}")
 
     return episodes
 
@@ -380,9 +427,28 @@ def sync_all_feeds(app=None):
         return total_new
 
 
+_sync_lock = threading.Lock()
+_sync_in_progress = False
+
+
 def sync_feeds_background(app=None):
-    """Fire-and-forget background sync."""
-    t = threading.Thread(target=sync_all_feeds, args=(app,), daemon=True)
+    """Fire-and-forget background sync with guard against duplicate threads."""
+    global _sync_in_progress
+    with _sync_lock:
+        if _sync_in_progress:
+            logger.info("[MediaSync] Sync already in progress, skipping duplicate.")
+            return None
+        _sync_in_progress = True
+
+    def _run():
+        global _sync_in_progress
+        try:
+            sync_all_feeds(app)
+        finally:
+            with _sync_lock:
+                _sync_in_progress = False
+
+    t = threading.Thread(target=_run, daemon=True)
     t.start()
     return t
 

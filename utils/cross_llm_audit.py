@@ -80,7 +80,9 @@ FEATURE_MAP = {
     "oracle-forensic": ("PIPELINE_LAWS.md", "main"),
     "oracle-external": ("PIPELINE_LAWS.md", "main"),
     "media-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "media-command-center": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "panopticon": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "join-page": ("VISUAL_DESIGN_SYSTEM.md", "main"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
@@ -244,11 +246,20 @@ EXPLICIT_FILES = {
         "models.py",
         "docs/cc_specs/cc_media_audit.md",
     ],
+    "media-command-center": [
+        "templates/media_hub.html",
+        "services/media_feed_service.py",
+        "services/rss_service.py",
+    ],
     "panopticon": [
         "services/panopticon_service.py",
         "core/blueprints/panopticon.py",
         "templates/panopticon.html",
         "services/scheduler.py",
+    ],
+    "join-page": [
+        "templates/join.html",
+        "core/routes.py",
     ],
 }
 
@@ -259,6 +270,7 @@ ROUTE_EXTRACTS = {
     ("stage-avatar-fix", "routes.py"): ["/stage", "/api/stage/"],
     ("oracle-speed", "routes.py"): ["/oracle", "/api/oracle/"],
     ("stage-fix", "routes.py"): ["/stage", "/api/stage/"],
+    ("join-page", "routes.py"): ["/join", "/api/apply-promo"],
 }
 
 CUSTOM_REVIEW_TASKS = {
@@ -952,6 +964,79 @@ For each question (Q1-Q5):
 - How many CRITICAL issues found?
 - Top 3 changes needed before production
 - Is the legal framing adequate for a public-facing product?
+""",
+    "media-command-center": """## YOUR REVIEW TASK — BITCOIN MEDIA COMMAND CENTER AUDIT (5 CRITICAL QUESTIONS)
+
+You are auditing the Bitcoin Media Command Center — the definitive media hub for Bitcoin.
+This page aggregates 13 RSS podcast feeds + 7 YouTube channels with live D3 network graph.
+
+### Q1 — ASYNC RSS FETCHING
+Are all RSS feeds fetched async without blocking Flask workers?
+Check: background threading, sync_feeds_background(), poll interval, error isolation per feed.
+
+### Q2 — D3 NETWORK GRAPH
+Is the D3 force simulation correct for 50 nodes?
+Check: force configuration, node rendering, hover cards, drag interaction, responsive resize.
+Does the data structure (nodes array + links array with source/target) properly feed D3.forceLink?
+
+### Q3 — SIGNAL SCORE ALGORITHM
+Will the Signal Score algorithm (source_tier*40 + sentiment*40 + recency*20) produce meaningful differentiation?
+Check: keyword weighting, tier scoring, recency decay, normalization, edge cases (score > 100).
+
+### Q4 — TICKER ANIMATION
+Is the ticker animation smooth on mobile?
+Check: CSS translateX animation, will-change hints, GPU compositing, pause on hover, item truncation.
+
+### Q5 — FEED URL VALIDITY
+Are all RSS feed URLs valid and likely to return data?
+Check: Simplecast/Megaphone/Anchor URLs, user-agent header, timeout handling, feedparser fallback.
+
+### RESPONSE FORMAT
+For each question (Q1-Q5):
+- DETAILED ANALYSIS with line number citations
+- SEVERITY: CRITICAL / HIGH / MEDIUM / LOW
+- SPECIFIC FIX with code-level recommendation
+
+### FINAL VERDICT
+- How many CRITICAL issues found?
+- Top 3 changes needed before production
+- Overall: PASS / PASS WITH FIXES / FAIL
+""",
+    "join-page": """## YOUR REVIEW TASK — JOIN PAGE PREMIUM AUDIT (5 CRITICAL QUESTIONS)
+
+You are auditing the /join page for a premium Bitcoin intelligence product ($49/mo Commander tier).
+This page is the primary revenue conversion surface. Every pixel matters.
+
+### Q1 — PREMIUM PERCEPTION
+Does the page feel premium enough to justify a $49/mo subscription?
+Rate the visual hierarchy, glassmorphism quality, typography, color system.
+
+### Q2 — PROMO CODE SECURITY
+Is the /api/apply-promo endpoint secure against brute force attacks?
+Check: rate limiting, input validation, timing attacks, response enumeration.
+
+### Q3 — STRIPE INTEGRATION
+Is the Stripe integration correct for Commander checkout?
+Check: STRIPE_PUBLIC_KEY handling, checkout flow, signup modal, error states.
+
+### Q4 — MOBILE LAYOUT
+Is the mobile layout production quality?
+Check responsive breakpoints (960px, 600px).
+
+### Q5 — VISUAL DESIGN SYSTEM COMPLIANCE
+Does the design match the VISUAL_DESIGN_SYSTEM brand standards?
+Check: color palette, typography, three-source glow system, glassmorphism.
+
+### RESPONSE FORMAT
+For each question (Q1-Q5):
+- DETAILED ANALYSIS with line number citations
+- SEVERITY: CRITICAL / HIGH / MEDIUM / LOW
+- SPECIFIC FIX with code-level recommendation
+
+### FINAL VERDICT
+- How many CRITICAL issues found?
+- Top 3 changes needed before production
+- Overall: PASS / PASS WITH FIXES / FAIL
 """,
 }
 
