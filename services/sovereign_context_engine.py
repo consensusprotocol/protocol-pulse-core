@@ -625,6 +625,95 @@ def emit_alerts(alerts: List[Alert]):
 # MAIN ENGINE
 # ===================================================================
 
+def _calculate_proprietary_indices(
+    btc: dict, network: dict, kol: dict,
+    exchange_flow: str, whale_alerts: list, fg: dict
+) -> dict:
+    """Compute Protocol Pulse proprietary branded indices from raw data.
+
+    Three indices (consensus P0 from cross-LLM audit):
+      1. Miner Conviction Index — hashrate strength vs price weakness
+      2. Exchange Pressure Ratio — -2 to +2 flow directional score
+      3. Social-to-Market Divergence — KOL sentiment vs price action delta
+    """
+    hashrate = network.get("hashrate_eh", 0)
+    change_7d = btc.get("change_7d", 0)
+    change_24h = btc.get("change_24h", 0)
+    kol_score = kol.get("sentiment_score", 50)
+    fg_val = fg.get("value", 50)
+
+    # 1. Miner Conviction Index (0-100 scale, >50 = conviction, <50 = capitulation)
+    # Normalized: hashrate relative to ~900 EH/s baseline + inverse price pressure
+    hashrate_norm = min(100, (hashrate / 900) * 50) if hashrate > 0 else 25
+    price_pressure = max(-25, min(25, -change_7d))  # negative change = positive conviction
+    miner_conviction = max(0, min(100, int(hashrate_norm + price_pressure + 25)))
+
+    if miner_conviction >= 70:
+        mc_interp = "Miners expanding despite price consolidation — supply shock precursor."
+        mc_signal = "bullish"
+    elif miner_conviction <= 30:
+        mc_interp = "Miner stress detected — potential capitulation zone."
+        mc_signal = "bearish"
+    else:
+        mc_interp = "Miner activity within normal range."
+        mc_signal = "neutral"
+
+    # 2. Exchange Pressure Ratio (-2 to +2)
+    ep_score = 0
+    if exchange_flow == "outflow":
+        ep_score += 1
+    elif exchange_flow == "inflow":
+        ep_score -= 1
+    # Whale alert direction analysis
+    whale_withdrawals = sum(1 for w in whale_alerts if "withdraw" in (w.get("message", "") or "").lower())
+    whale_deposits = sum(1 for w in whale_alerts if "deposit" in (w.get("message", "") or "").lower())
+    if whale_withdrawals > whale_deposits:
+        ep_score += 1
+    elif whale_deposits > whale_withdrawals:
+        ep_score -= 1
+
+    ep_labels = {
+        2: ("Strong outflow — bullish accumulation", "bullish"),
+        1: ("Net outflow detected", "bullish"),
+        0: ("Neutral exchange flow", "neutral"),
+        -1: ("Net inflow — selling pressure", "bearish"),
+        -2: ("Strong inflow — distribution detected", "bearish"),
+    }
+    ep_interp, ep_signal = ep_labels.get(ep_score, ("Neutral", "neutral"))
+
+    # 3. Social-to-Market Divergence
+    # Formula: (kol_sentiment - 50) - (btc_7d_change * 2)
+    social_div = round((kol_score - 50) - (change_7d * 2), 1)
+
+    if social_div > 20:
+        sd_interp = "Social FOMO ahead of price — potential local top signal."
+        sd_signal = "bearish"
+    elif social_div < -20:
+        sd_interp = "Social capitulation while price holds — potential accumulation zone."
+        sd_signal = "bullish"
+    else:
+        sd_interp = "Social sentiment aligned with price action."
+        sd_signal = "neutral"
+
+    return {
+        "miner_conviction": {
+            "score": miner_conviction,
+            "interpretation": mc_interp,
+            "signal": mc_signal,
+        },
+        "exchange_pressure": {
+            "score": ep_score,
+            "interpretation": ep_interp,
+            "signal": ep_signal,
+        },
+        "social_divergence": {
+            "score": social_div,
+            "interpretation": sd_interp,
+            "signal": sd_signal,
+        },
+    }
+
+
 class SovereignContextEngine:
     """The connective brain that unifies all Protocol Pulse data streams."""
 
@@ -666,6 +755,9 @@ class SovereignContextEngine:
             "whale_alerts": whale_alerts,
             "active_alerts": [],
             "pattern_matches": [],
+            "indices": _calculate_proprietary_indices(
+                btc, network, kol, exchange_flow, whale_alerts, fg
+            ),
         }
 
         elapsed = time.monotonic() - t0

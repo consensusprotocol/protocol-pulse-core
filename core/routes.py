@@ -3653,9 +3653,21 @@ def intelligence_page():
 
     # ── Sovereign context for premium panels ──────────────────────────────────
     try:
-        from services.sovereign_context_engine import get_latest_context, get_recent_alerts
-        sovereign_ctx = get_latest_context() or {}
-        sovereign_alerts = get_recent_alerts(20)
+        sovereign_ctx = _load_sovereign_ctx()
+        # Recent alerts from history file
+        sovereign_alerts = []
+        _hist_path = '/home/ultron/protocol_pulse/data/sovereign_context/history.jsonl'
+        if os.path.exists(_hist_path):
+            import collections as _coll
+            _lines = _coll.deque(open(_hist_path), maxlen=20)
+            for _ln in reversed(list(_lines)):
+                try:
+                    _entry = json.loads(_ln.strip())
+                    for _a in _entry.get('whale_alerts', []):
+                        sovereign_alerts.append(_a)
+                except Exception:
+                    pass
+            sovereign_alerts = sovereign_alerts[:20]
     except Exception as e:
         logging.warning("intelligence_page: sovereign context error: %s", e)
         sovereign_ctx = {}
@@ -3663,9 +3675,15 @@ def intelligence_page():
 
     # ── Polymarket data ───────────────────────────────────────────────────────
     try:
-        from services.polymarket_service import get_bitcoin_markets, get_macro_sentiment_score
-        polymarket_markets = get_bitcoin_markets(5)
-        polymarket_sentiment = get_macro_sentiment_score()
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            'polymarket_service',
+            '/home/ultron/protocol_pulse/services/polymarket_service.py'
+        )
+        _pm = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_pm)
+        polymarket_markets = _pm.get_bitcoin_markets(5)
+        polymarket_sentiment = _pm.get_macro_sentiment_score()
     except Exception:
         polymarket_markets = []
         polymarket_sentiment = 50
@@ -3795,14 +3813,23 @@ def api_batch_classify():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+def _load_sovereign_ctx():
+    """Load sovereign context from JSON file directly."""
+    _ctx_path = os.path.join('/home/ultron/protocol_pulse/data/sovereign_context', 'latest.json')
+    try:
+        if os.path.exists(_ctx_path):
+            with open(_ctx_path) as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {}
+
+
 @app.route('/api/intelligence/sovereign-context')
 def api_intelligence_sovereign_context():
     """Return full sovereign context for premium intelligence dashboard."""
     try:
-        from services.sovereign_context_engine import get_latest_context, get_recent_alerts
-        ctx = get_latest_context() or {}
-        alerts = get_recent_alerts(20)
-        ctx['recent_alerts'] = alerts
+        ctx = _load_sovereign_ctx()
         return jsonify({'success': True, 'data': ctx})
     except Exception as e:
         logging.error("api_sovereign_context error: %s", e)
@@ -3813,9 +3840,15 @@ def api_intelligence_sovereign_context():
 def api_polymarket():
     """Return top Polymarket Bitcoin/macro markets."""
     try:
-        from services.polymarket_service import get_bitcoin_markets, get_macro_sentiment_score
-        markets = get_bitcoin_markets(5)
-        sentiment = get_macro_sentiment_score()
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            'polymarket_service',
+            '/home/ultron/protocol_pulse/services/polymarket_service.py'
+        )
+        _pm = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_pm)
+        markets = _pm.get_bitcoin_markets(5)
+        sentiment = _pm.get_macro_sentiment_score()
         return jsonify({'success': True, 'data': {
             'markets': markets,
             'macro_sentiment': sentiment
@@ -3829,8 +3862,7 @@ def api_polymarket():
 def api_whale_feed():
     """Return whale alerts from sovereign context."""
     try:
-        from services.sovereign_context_engine import get_latest_context
-        ctx = get_latest_context() or {}
+        ctx = _load_sovereign_ctx()
         return jsonify({'success': True, 'data': {
             'alerts': ctx.get('whale_alerts', []),
             'exchange_flow': ctx.get('exchange_flow', 'neutral'),
@@ -3839,6 +3871,71 @@ def api_whale_feed():
     except Exception as e:
         logging.error("api_whale_feed error: %s", e)
         return jsonify({'success': True, 'data': {'alerts': [], 'exchange_flow': 'neutral', 'fear_greed': 50}})
+
+
+@app.route('/api/intelligence/narrative-momentum')
+def api_narrative_momentum():
+    """Return narrative momentum from sovereign context + history."""
+    try:
+        ctx = _load_sovereign_ctx()
+        narrative = ctx.get('narrative', {})
+        kol = ctx.get('kol', {})
+
+        # Build momentum from narrative history
+        _hist_path = '/home/ultron/protocol_pulse/data/sovereign_context/history.jsonl'
+        topic_counts = {}
+        prev_counts = {}
+        if os.path.exists(_hist_path):
+            import collections as _coll
+            _lines = list(_coll.deque(open(_hist_path), maxlen=50))
+            mid = len(_lines) // 2
+            for _ln in _lines[mid:]:
+                try:
+                    _e = json.loads(_ln.strip())
+                    for _t in _e.get('kol', {}).get('top_topics', []):
+                        topic_counts[_t] = topic_counts.get(_t, 0) + 1
+                except Exception:
+                    pass
+            for _ln in _lines[:mid]:
+                try:
+                    _e = json.loads(_ln.strip())
+                    for _t in _e.get('kol', {}).get('top_topics', []):
+                        prev_counts[_t] = prev_counts.get(_t, 0) + 1
+                except Exception:
+                    pass
+
+        # Combine with current narrative
+        all_topics = set(list(topic_counts.keys()) + list(prev_counts.keys()))
+        if narrative.get('dominant_theme'):
+            all_topics.add(narrative['dominant_theme'])
+            topic_counts[narrative['dominant_theme']] = topic_counts.get(narrative['dominant_theme'], 0) + 3
+
+        momentum = []
+        total_recent = max(sum(topic_counts.values()), 1)
+        total_prev = max(sum(prev_counts.values()), 1)
+        for topic in all_topics:
+            recent_pct = round(topic_counts.get(topic, 0) / total_recent * 100, 1)
+            prev_pct = round(prev_counts.get(topic, 0) / total_prev * 100, 1)
+            delta = round(recent_pct - prev_pct, 1)
+            trend = 'accelerating' if delta > 2 else ('decelerating' if delta < -2 else 'stable')
+            momentum.append({
+                'topic': topic,
+                'recent_pct': recent_pct,
+                'prev_pct': prev_pct,
+                'delta': delta,
+                'trend': trend,
+            })
+        momentum.sort(key=lambda x: x['recent_pct'], reverse=True)
+
+        return jsonify({
+            'success': True,
+            'momentum': momentum[:6],
+            'dominant_theme': narrative.get('dominant_theme', 'Bitcoin'),
+            'sentiment': narrative.get('sentiment', 'neutral'),
+        })
+    except Exception as e:
+        logging.error("api_narrative_momentum error: %s", e)
+        return jsonify({'success': False, 'momentum': []})
 
 
 @app.route('/api/intelligence/signal')

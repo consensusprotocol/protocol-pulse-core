@@ -58,13 +58,18 @@ def get_bitcoin_markets(limit=10):
 
 def _parse_outcomes(market):
     """Extract Yes/No probabilities from market."""
+    import json as _json
     try:
-        tokens = market.get('tokens', [])
+        raw_names = market.get('outcomes', [])
+        raw_prices = market.get('outcomePrices', [])
+        # API returns JSON strings, not lists
+        if isinstance(raw_names, str):
+            raw_names = _json.loads(raw_names)
+        if isinstance(raw_prices, str):
+            raw_prices = _json.loads(raw_prices)
         outcomes = {}
-        for t in tokens:
-            outcome = t.get('outcome', '')
-            price = float(t.get('price', 0) or 0)
-            outcomes[outcome] = round(price * 100, 1)  # Convert to %
+        for name, price_str in zip(raw_names, raw_prices):
+            outcomes[name] = round(float(price_str or 0) * 100, 1)
         return outcomes
     except:
         return {}

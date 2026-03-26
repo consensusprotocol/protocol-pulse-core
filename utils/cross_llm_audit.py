@@ -148,9 +148,9 @@ EXPLICIT_FILES = {
         "templates/commander_dashboard.html",
     ],
     "intelligence-terminal": [
-        "docs/VISUAL_DESIGN_SYSTEM.md",
-        "services/morning_brief.py",
-        "video_pipeline_v3/daily_producer.py",
+        "templates/intelligence_page.html",
+        "services/sovereign_context_engine.py",
+        "services/polymarket_service.py",
     ],
     "convergence-detection": [
         "docs/phase2/convergence_detection_foundation.md",
@@ -1037,6 +1037,36 @@ For each question (Q1-Q5):
 - How many CRITICAL issues found?
 - Top 3 changes needed before production
 - Overall: PASS / PASS WITH FIXES / FAIL
+""",
+    "intelligence-terminal": """## YOUR REVIEW TASK — PREMIUM INTELLIGENCE DASHBOARD COMPETITIVE AUDIT
+
+You are auditing a Bitcoin intelligence dashboard that competes with Bloomberg Terminal ($2000/mo), Glassnode ($500/mo), CryptoQuant ($500/mo), and Santiment ($500/mo). The codebase already collects: BTC price, Fear & Greed, mempool fees, hashrate, lightning stats, KOL sentiment, 1300+ articles with sentiment, exchange flows, whale alerts, Polymarket odds, PCAF anomaly score, and stage brief narratives.
+
+### Q1 — COMPETITIVE GAP ANALYSIS
+What specific Bloomberg/Glassnode/CryptoQuant features costing $500-2000/month can we replicate or beat with our existing data? Name exact metrics, charts, and signals.
+
+### Q2 — CROSS-SIGNAL ALPHA
+What are the 5 most powerful cross-signal COMBINATIONS from our data that produce predictive alpha? Give specific, backtestable combinations with historical Bitcoin context. Example: hashrate up + exchange outflows + Fear&Greed < 20 = supply shock precursor.
+
+### Q3 — VISUAL INNOVATION
+What single visual display would make a hedge fund analyst say "I have never seen this before"? Think beyond standard price charts.
+
+### Q4 — ML MODELS FOR RTX 4090
+What open-source ML models (TimeMixer, PatchTST, Chronos, Mamba) can run on RTX 4090 for time-series forecasting without disrupting the render pipeline? Give specific model names, GitHub repos, GPU requirements.
+
+### Q5 — THE $5000/MONTH FEATURE
+What is the single feature worth $5000/month that uses ONLY our existing data? Must be technically feasible in one build session and genuinely unique.
+
+### Q6 — DESIGN COMPETITION
+What would win a Bloomberg vs Protocol Pulse design competition? Compete on both utility AND visual design. What makes our dashboard look like a $5000/month product vs a free tool?
+
+### RESPONSE FORMAT
+For each question: DETAILED ANALYSIS → SPECIFIC RECOMMENDATION → IMPLEMENTATION PRIORITY (P0/P1/P2)
+
+### FINAL SUMMARY
+- Top 3 consensus recommendations across all questions
+- The single highest-ROI feature to build first
+- What to REMOVE as noise
 """,
 }
 
