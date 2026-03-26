@@ -1362,6 +1362,7 @@ function process(text){
       }
     }, 1000);
   });
+}
 
 function blobURL(b){
   if(objURL)try{URL.revokeObjectURL(objURL);}catch(e){}
@@ -1591,7 +1592,7 @@ function setRec(on){
 }
 
 /* ── HELPERS ── */
-function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';var f=document.getElementById("oracle-float");if(f&&_oracleMinimized){if(t==="Speaking")f.classList.add("speaking");else f.classList.remove("speaking");}}
+function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';}
 function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}else{mic.disabled=false;}}
 function showSub(t){sub.textContent=t;sub.classList.add('on');}
 function hideSub(){sub.classList.remove('on');}
@@ -2156,10 +2157,19 @@ function exitOracle(){
   // Reset state
   busy = false; window._briefFetched = false;
   setStat("Ready","#334",false);
-  hideSub(); hideTX();
+  hideSub(); hideTranscript && hideTX();
 }
 
-/* setStat float-indicator logic integrated into original function body above */
+// Keep float speaking indicator in sync
+var _origSetStat = setStat;
+setStat = function(msg, color, spin){
+  _origSetStat(msg, color, spin);
+  var f = document.getElementById("oracle-float");
+  if(f && _oracleMinimized){
+    if(msg === "Speaking") f.classList.add("speaking");
+    else f.classList.remove("speaking");
+  }
+};
 
 /* ── ORACLE IDLE MATRIX ANIMATION ── */
 (function(){
