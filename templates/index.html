@@ -1065,4 +1065,25 @@ function ppLoadVideo(el) {
             }).catch(function() {});
     })();
 </script>
+<script>
+function nlSub(e){
+  e.preventDefault();
+  var em=document.querySelector("#nlForm input[type=email],#nlForm input[name=email]");
+  if(!em||!em.value)return;
+  var btn=document.querySelector("#nlForm button");
+  var orig=btn?btn.innerHTML:"Subscribe";
+  if(btn){btn.innerHTML="...";btn.disabled=true;}
+  fetch("/api/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em.value})})
+  .then(r=>r.json()).then(d=>{
+    if(d.success||String(d.message||"").toLowerCase().includes("subscrib")){
+      if(btn){btn.innerHTML="&#10003; Subscribed!";btn.style.background="#22c55e";}
+      em.value="";
+      setTimeout(()=>{if(btn){btn.innerHTML=orig;btn.style.background="";btn.disabled=false;}},3000);
+    }else{
+      if(btn){btn.innerHTML=orig;btn.disabled=false;}
+      alert(d.message||"Error. Please try again.");
+    }
+  }).catch(()=>{if(btn){btn.innerHTML=orig;btn.disabled=false;}});
+}
+</script>
 {% endblock %}

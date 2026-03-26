@@ -565,30 +565,6 @@
   </div>
 </div>
 
-<!-- ═══════════ CYPHERPUNK'D HERO ═══════════ -->
-<div class="sec" id="cypherpunkd">
-  <div class="cpd-hero">
-    <div class="cpd-badge"><div class="cpd-badge-dot"></div>Latest Episode</div>
-    <div class="cpd-title">CYPHERPUNK'D</div>
-    <p class="cpd-sub">Conversations with builders, thinkers, and disruptors at the frontier of sound money.</p>
-    <div class="cpd-eps">
-      {% for ep in latest_episodes[:3] %}
-      <div class="cpd-ep" onclick="playEp('{{ ep.audio_url }}','{{ ep.title|replace("'","") }}','Cypherpunkd')">
-        <div class="cpd-ep-num mono">EP {{ '%02d'|format(loop.index) }}</div>
-        <div class="cpd-ep-title">{{ ep.title }}</div>
-        <div class="cpd-ep-dur mono"><i class="far fa-clock"></i> {{ ep.duration or '--:--' }}</div>
-        <div class="cpd-ep-play"><i class="fas fa-play"></i> Play Now</div>
-      </div>
-      {% endfor %}
-    </div>
-    <div class="cpd-links">
-      <a href="/podcasts" class="cpd-link"><i class="fas fa-rss"></i> All Episodes</a>
-      <a href="https://open.spotify.com/show/cypherpunkd" target="_blank" rel="noopener" class="cpd-link"><i class="fab fa-spotify"></i> Spotify</a>
-      <a href="https://podcasts.apple.com/podcast/cypherpunkd" target="_blank" rel="noopener" class="cpd-link"><i class="fab fa-apple"></i> Apple</a>
-    </div>
-  </div>
-</div>
-
 <!-- ═══════════ STREAM 1: SOVEREIGN SIGNAL (Podcasts) ═══════════ -->
 <div class="stream-sec" id="stream1">
   <div class="sec-lab">01 — Sovereign Signal</div>
@@ -1010,7 +986,7 @@
   <div class="nl">
     <h2 class="nl-h">The signal. Every morning.</h2>
     <p class="nl-p">Daily intelligence brief + weekly premium digest.</p>
-    <form class="nl-f" action="/newsletter/subscribe" method="POST">
+    <form class="nl-f" id="mhNlForm" onsubmit="mhNlSub(event)">
       <input type="email" name="email" class="nl-i" placeholder="your@email.com" required>
       <button type="submit" class="nl-b">Subscribe</button>
     </form>
@@ -1906,3 +1882,19 @@ updateSentTicker();
 })();
 </script>
 {% endblock %}
+<script>
+function mhNlSub(e){
+  e.preventDefault();
+  var em=e.target.querySelector("input[type=email],input[name=email]");
+  if(!em||!em.value)return;
+  var btn=e.target.querySelector("button");
+  if(btn)btn.textContent="...";
+  fetch("/api/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em.value})})
+  .then(r=>r.json()).then(d=>{
+    if(d.success||String(d.message||"").toLowerCase().includes("subscrib")){
+      if(btn){btn.textContent="Done!";btn.style.background="#22c55e";}em.value="";
+      setTimeout(()=>{if(btn){btn.textContent="Subscribe";btn.style.background="";}},3000);
+    }else{alert(d.message||"Error");if(btn)btn.textContent="Subscribe";}
+  }).catch(()=>{if(btn)btn.textContent="Subscribe";});
+}
+</script>
