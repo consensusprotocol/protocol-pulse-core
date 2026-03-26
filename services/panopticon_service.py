@@ -563,13 +563,10 @@ def fetch_geopolitical(limit: int = 20) -> list[dict]:
 
     # Pull from our existing article pipeline (sovereign/regulatory tagged)
     try:
-        from flask import has_app_context
-        from app import db
+        # Deferred import to avoid circular dependency at module load time
+        from app import app, db
         from models import Article
-        if not has_app_context():
-            logger.debug("No Flask app context for geopolitical fetch — skipping article pipeline")
-            raise RuntimeError("No app context")
-        with db.session.no_autoflush:
+        with app.app_context():
             geo_articles = Article.query.filter(
                 Article.published == True,
                 db.or_(
@@ -1061,16 +1058,6 @@ def get_make_bitcoin_case(event_summary: str) -> dict:
 
     api_key = ANTHROPIC_API_KEY
     if not api_key:
-        # Try loading from .env file
-        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
-        if os.path.exists(env_path):
-            with open(env_path) as f:
-                for line in f:
-                    if line.startswith("ANTHROPIC_API_KEY="):
-                        api_key = line.split("=", 1)[1].strip().strip('"').strip("'")
-                        break
-
-    if not api_key:
         return {
             "case_text": "Self-custody is the only guarantee that no institution, government, or counterparty can freeze, seize, or debase your savings. This event is another reminder: when the rules are written by the players, Bitcoin is the exit.",
             "event_summary": event_summary,
@@ -1082,21 +1069,25 @@ def get_make_bitcoin_case(event_summary: str) -> dict:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-sonnet-4-6-20250514",
+            model=ANTHROPIC_MODEL,
             max_tokens=512,
             messages=[{
                 "role": "user",
                 "content": f"""You are a Bitcoin-first monetary analyst writing for Protocol Pulse PANOPTICON.
 
-Given this event: "{event_summary}"
+Analyze the following event and write a 3-4 sentence cypherpunk argument for Bitcoin self-custody.
 
-Write a 3-4 sentence cypherpunk argument for Bitcoin self-custody. Be specific to THIS event.
+<event_data>
+{event_summary}
+</event_data>
+
 Rules:
-- Reference the specific event details (names, amounts, dates)
+- Reference the specific event details (names, amounts, dates) from the event_data above
 - Connect it to Bitcoin's value proposition (censorship resistance, fixed supply, self-sovereignty)
 - End with a concrete call to self-custody
 - Tone: authoritative, urgent, not preachy
-- No hashtags, no emojis, no fluff"""
+- No hashtags, no emojis, no fluff
+- Output ONLY the argument text, nothing else"""
             }],
         )
         case_text = message.content[0].text.strip()
