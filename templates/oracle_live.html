@@ -1621,66 +1621,120 @@ function playVid(url){
 
 /* ── SPEECH RECOGNITION ── */
 function initSR(){
+  /* iOS-safe: test only, actual instances created fresh per session */
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){micHint.textContent='no speech api';return;}
-  recognition=new SR();
-  recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';recognition.maxAlternatives=1;
-  recognition.onresult=function(e){
-    var fin='',int='';
-    for(var ri=0;ri<e.results.length;ri++){
-      if(e.results[ri].isFinal) fin+=e.results[ri][0].transcript;
-      else int+=e.results[ri][0].transcript;
-    }
-    /* Store both final and interim so onend can submit either */
-    if(fin){ pending=fin; window._interimPending=''; console.log('[Satomi] final:',fin.substring(0,50)); }
-    else if(int){ window._interimPending=int; }
-    showTX(fin||int);
-  };
-  recognition.onend=function(){
-    setRec(false); isRec=false;
-    if(busy&&pending){ busy=false; } /* Unblock if busy got stuck but we have text */
-    var _sub=(pending||window._interimPending||'').trim();
-    pending=''; window._interimPending='';
-    console.log('[Satomi] onend — submitting:',JSON.stringify(_sub.substring(0,40)),'busy:',busy);
-    if(_sub&&!busy){
-      setStat('Processing…','#f4c46f',true);
-      setTimeout(function(){ if(!busy){ process(_sub); } },120);
-    } else if(!busy&&_greeted){
-      setStat('Listening…','#6cff9f',false);
-      setTimeout(function(){ if(!busy&&!isRec){ try{recognition.start();isRec=true;setRec(true);}catch(e){} } },350);
-    }
-  };
-  recognition.onerror=function(e){
-    console.warn('[Satomi] rec error:',e.error);
-    setRec(false); isRec=false;
-    if(e.error==='no-speech'||e.error==='audio-capture'){
-      /* Recoverable — restart after brief delay */
-      if(_greeted&&!busy) setTimeout(function(){
-        try{recognition.start();isRec=true;setRec(true);}catch(er){}
-      },500);
-    }
-  };
+  if(!SR){ micHint.textContent='no speech api'; return; }
+  window._SR = SR; /* store constructor */
+  console.log('[Satomi] SR available');
 }
 
-function toggleMic(){if(busy)return;isRec?stopRec():startRec();}
+function _newRecognition(){
+  if(!window._SR) return null;
+  var r = new window._SR();
+  r.continuous = false;       /* single-shot: fires onend reliably on iOS */
+  r.interimResults = true;
+  r.lang = 'en-US';
+  r.maxAlternatives = 1;
+  return r;
+}
+
+function toggleMic(){
+  if(busy) return;
+  if(isRec){ _submitSpeech(); } else { startRec(); }
+}
+
 function startRec(){
-  if(!recognition){setStat('No speech API','#ff3b5f',false);return;}
-  console.log('[Satomi] startRec called');
-  pending='';isRec=true;setRec(true);setStat('\ud83c\udf99 Listening...','#66d9ff',false);
-  try{recognition.start();console.log('[Satomi] recognition.start() OK');}catch(e){console.warn('[Satomi] recognition.start() error:',e);}
+  if(!window._SR){ setStat('No speech API','#ff3b5f',false); return; }
+  if(isRec) return; /* already recording */
+
+  /* Always create fresh recognition instance — iOS InvalidStateError fix */
+  recognition = _newRecognition();
+  if(!recognition) return;
+
+  var _transcript = '';   /* captured in closure — survives onend */
+  var _submitted  = false;
+
+  recognition.onresult = function(e){
+    var fin='', int='';
+    for(var i=0; i<e.results.length; i++){
+      if(e.results[i].isFinal) fin += e.results[i][0].transcript;
+      else                      int += e.results[i][0].transcript;
+    }
+    if(fin){ _transcript = fin; }
+    else if(int && !_transcript){ _transcript = int; } /* keep best */
+    showTX(_transcript || int);
+    pending = _transcript; /* keep global in sync */
+  };
+
+  recognition.onend = function(){
+    setRec(false); isRec = false;
+    var text = (_transcript || pending || '').trim();
+    _transcript = ''; pending = ''; window._interimPending = '';
+    console.log('[Satomi] onend text:', JSON.stringify(text.substring(0,50)), 'busy:', busy, 'submitted:', _submitted);
+    if(_submitted) return; /* already handled by _submitSpeech */
+    if(text && !busy){
+      setStat('Processing…','#f4c46f',true);
+      setTimeout(function(){ process(text); }, 100);
+    } else if(!busy && _greeted){
+      /* No speech — restart listening after brief pause */
+      setStat('Listening…','#6cff9f',false);
+      setTimeout(startRec, 600);
+    }
+  };
+
+  recognition.onerror = function(e){
+    console.warn('[Satomi] SR error:', e.error);
+    setRec(false); isRec = false;
+    if(e.error === 'no-speech'){
+      if(_greeted && !busy) setTimeout(startRec, 600);
+    } else if(e.error === 'not-allowed'){
+      setStat('Mic permission denied','#ff3b5f',false);
+    }
+  };
+
+  isRec = true; setRec(true);
+  setStat('Listening…','#6cff9f',false);
+  pending = ''; _transcript = '';
+  try{
+    recognition.start();
+    console.log('[Satomi] recognition.start() OK');
+  } catch(e){
+    console.warn('[Satomi] recognition.start() error:', e.message);
+    isRec = false; setRec(false);
+    setStat('Tap mic to speak','#ff3b5f',false);
+  }
 }
+
+function _submitSpeech(){
+  /* Called by tap-to-send — stop recognition and submit what we have */
+  if(!recognition) return;
+  var text = (pending || window._interimPending || '').trim();
+  console.log('[Satomi] _submitSpeech:', JSON.stringify(text.substring(0,40)));
+  if(text && !busy){
+    /* Mark as submitted so onend doesn't double-submit */
+    try{ recognition._submitted = true; }catch(e){}
+    isRec = false; setRec(false);
+    try{ recognition.stop(); }catch(e){}
+    setStat('Processing…','#f4c46f',true);
+    setTimeout(function(){ process(text); pending=''; window._interimPending=''; }, 150);
+  } else {
+    /* No text yet — just stop, onend will handle */
+    isRec = false; setRec(false);
+    try{ recognition.stop(); }catch(e){}
+  }
+}
+
 function stopRec(){
-  isRec=false;setRec(false);
-  /* P1-2: Don't play thinking video here — let recognition.onend → process() be the sole trigger.
-     This eliminates the race condition where both stopRec and onend try to set thinking state. */
-  if(recognition)try{try{recognition.abort();}catch(e){try{recognition.stop();}catch(e2){}} /* abort() is faster on iOS */}catch(e){}
-  // onend will fire after recognition.stop() and handle process() automatically
+  /* Called internally — just stop, let onend handle submission */
+  isRec = false; setRec(false);
+  if(recognition) try{ recognition.stop(); }catch(e){}
 }
+
 function setRec(on){
   mic.classList.toggle('rec',on);
-  iMic.style.display=on?'none':'block';
-  iStop.style.display=on?'block':'none';
-  micHint.textContent=on?'tap to send':'tap to speak';
+  iMic.style.display  = on?'none':'block';
+  iStop.style.display = on?'block':'none';
+  micHint.textContent = on?'tap to send':'tap to speak';
 }
 
 /* ── HELPERS ── */
