@@ -641,7 +641,7 @@ width:100%;margin-top:4px;">
   <h1 class="gate-title">THE <span>SATOMI</span></h1>
   <p class="gate-sub">Sovereign Bitcoin intelligence.<br>Ask anything, in real time.</p>
 
-  <button id="gate-btn" onclick="requestMic()" disabled>
+  <button id="gate-btn" onclick="requestMic()">
     <div class="btn-sweep"></div>
     <div class="btn-inner">
       <div class="btn-label">Protocol Pulse Intelligence</div>
@@ -655,6 +655,25 @@ width:100%;margin-top:4px;">
       </div>
     </div>
   </button>
+  <!-- ORACLE BUILD: 2026-03-25-v5 -->
+  <script>
+  /* ISOLATED GATE BOOTSTRAP - zero dependency on main script block */
+  (function(){
+    var BUILD = "2026-03-25-v5";
+    /* Write canary so we know which build is running on device */
+    var st = document.getElementById("gate-status");
+    if(st) st.setAttribute("data-build", BUILD);
+    /* Button starts enabled in HTML - this just double-confirms it */
+    var btn = document.getElementById("gate-btn");
+    if(btn) btn.disabled = false;
+    /* pageshow covers bfcache restore */
+    window.addEventListener("pageshow", function(e){
+      var b = document.getElementById("gate-btn");
+      var s = document.getElementById("gate-status");
+      if(b && !(s && s.textContent.indexOf("Requesting") >= 0)){ b.disabled = false; }
+    });
+  })();
+  </script>
 
   <div id="gate-status">— tap to activate —</div>
   <div id="gate-error"></div>
@@ -2373,21 +2392,6 @@ window.addEventListener('beforeunload',function(){
     xhr.send(JSON.stringify({session_id:SESSION_ID}));
   }catch(e){}
 });
-</script>
-<script>
-(function(){
-  function resetGate(){
-    var b=document.getElementById("gate-btn");
-    var s=document.getElementById("gate-status");
-    var g=document.getElementById("gate");
-    var inProgress=s&&s.textContent.indexOf("Requesting")>=0;
-    var visible=g&&g.style.display!=="none";
-    if(b&&!inProgress&&visible){b.disabled=false;}
-  }
-  resetGate();
-  document.addEventListener("DOMContentLoaded",resetGate);
-  var n=0,t=setInterval(function(){resetGate();if(++n>=30)clearInterval(t);},100);
-})();
 </script>
 </body>
 </html>
