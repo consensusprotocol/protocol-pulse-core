@@ -2372,9 +2372,7 @@ html, body {
     pointer-events: auto !important;
 }
 
-#visualizer-canvas { display: flex; align-items: center; justify-content: center; 
-    pointer-events: auto !important;
-}
+#visualizer-canvas { display: flex; align-items: center; justify-content: center; position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; }
 
 /* VIDEO MUST NOT BLOCK CLICKS */
 #pulse-bg-video {
@@ -6157,18 +6155,17 @@ function drawPurchasingPowerChart() {
 // Fetch live BTC price from mempool.space API
 async function fetchLiveBtcPrice() {
     try {
-        const res = await fetch('https://mempool.space/api/v1/prices');
+        const res = await fetch('/api/btc-price', {signal: AbortSignal.timeout(4000)});
         const data = await res.json();
-        if (data && data.USD) {
-            window.currentBtcPrice = data.USD;
-            console.log('Live BTC Price:', data.USD);
+        if (data && (data.USD || data.price)) {
+            window.currentBtcPrice = data.price || data.USD;
             updatePulseState();
-            return data.USD;
+            return window.currentBtcPrice;
         }
     } catch (e) {
         console.log('Price fetch error, using cached:', e);
     }
-    return window.currentBtcPrice || 88000;
+    return window.currentBtcPrice || 69000;
 }
 
 // Fetch price immediately and every 30 seconds

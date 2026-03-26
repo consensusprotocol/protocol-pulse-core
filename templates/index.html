@@ -815,7 +815,23 @@ function flashMetric(el) {
 var HALVING_BLOCK = 1050000; // next halving block (estimate post-4th halving)
 
 function updateIntelStrip() {
-    fetch('/api/media/telemetry', { signal: AbortSignal.timeout(6000) })
+    fetch('/api/intelligence/signal', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var data = d.data || d;
+            var score = data.composite || data.score || 50;
+            var fg = data.fear_greed || score;
+            var bullishPct = Math.round(fg);
+            var narList = ['Bitcoin fundamentals strong','Miner conviction holding','Accumulation active','Network health optimal','On-chain signals bullish'];
+            var narrative = data.narrative || narList[Math.floor(Date.now()/3600000) % narList.length];
+            var bEl = document.getElementById('teaser-bullish');
+            if (bEl) bEl.textContent = bullishPct + '%';
+            var nEl = document.getElementById('teaser-narrative');
+            if (nEl) nEl.textContent = narrative;
+            var sEl = document.getElementById('teaser-score');
+            if (sEl) sEl.textContent = score + '/100';
+        }).catch(function() {});
+    fetch('/api/media/telemetry', { signal: AbortSignal.timeout(6000) }), { signal: AbortSignal.timeout(6000) })
         .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
         .then(function(d) {
             // Block height
