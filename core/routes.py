@@ -12142,16 +12142,29 @@ def satomi_call_subscribers():
 # ─── Promo Codes ─────────────────────────────────────────────────────────────
 
 @app.route('/api/apply-promo', methods=['POST'])
+@limiter.limit("10 per minute")
 def apply_promo_code():
     """Apply a promo code to unlock premium access for team/testing."""
-    code = request.json.get('code', '').strip().upper()
+    import hmac, re
+    data = request.get_json(silent=True) or {}
+    code = data.get('code', '').strip().upper()
+
+    # Server-side input validation: max 32 chars, alphanumeric + hyphens only
+    if not code or len(code) > 32 or not re.match(r'^[A-Z0-9\-]{1,32}$', code):
+        return jsonify({'success': False, 'error': 'Invalid promo code'}), 400
 
     PROMO_CODES = {
         'SOVEREIGN-TEAM-2026': 'commander',
         'STAY-SOVEREIGN': 'operator',
     }
 
-    tier = PROMO_CODES.get(code)
+    # Constant-time comparison to prevent timing attacks
+    tier = None
+    for valid_code, valid_tier in PROMO_CODES.items():
+        if hmac.compare_digest(code.encode(), valid_code.encode()):
+            tier = valid_tier
+            break
+
     if not tier:
         return jsonify({'success': False, 'error': 'Invalid promo code'}), 400
 
@@ -12159,7 +12172,7 @@ def apply_promo_code():
     if current_user.is_authenticated:
         current_user.subscription_tier = tier
         db.session.commit()
-        return jsonify({'success': True, 'tier': tier, 'message': f'Commander access activated. Welcome, Sovereign.'})
+        return jsonify({'success': True, 'tier': tier, 'message': 'Commander access activated. Welcome, Sovereign.'})
     else:
         # Store in session for post-login application
         session['pending_promo_tier'] = tier
