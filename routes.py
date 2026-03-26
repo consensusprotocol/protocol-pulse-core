@@ -541,6 +541,27 @@ def merchant_map():
     """Sovereign Merchant Map - Interactive BTC vendor locator"""
     return render_template('merchant_map.html')
 
+# BTCMap proxy with 24h cache
+_btcmap_cache = {'data': None, 'ts': 0}
+
+@app.route('/api/map/btcmap')
+def api_btcmap():
+    """Proxy/cache BTCMap elements — refreshes every 24h"""
+    import time as _time
+    now = _time.time()
+    if _btcmap_cache['data'] and (now - _btcmap_cache['ts']) < 86400:
+        return jsonify(_btcmap_cache['data'])
+    try:
+        resp = requests.get('https://api.btcmap.org/v2/elements?limit=10000', timeout=30)
+        resp.raise_for_status()
+        _btcmap_cache['data'] = resp.json()
+        _btcmap_cache['ts'] = now
+        return jsonify(_btcmap_cache['data'])
+    except Exception as e:
+        if _btcmap_cache['data']:
+            return jsonify(_btcmap_cache['data'])
+        return jsonify({'error': str(e)}), 502
+
 @app.route('/offline')
 def offline():
     """Offline fallback page for PWA"""
@@ -11658,4 +11679,209 @@ def api_latest_episode():
     from flask import jsonify
     ep = get_latest_episode()
     return jsonify(ep)
+
+
+# =========================================================================
+# SPONSOR DASHBOARD + GUEST PIPELINE + AD TRACKING
+# =========================================================================
+
+@app.route('/sponsor/dashboard/<token>')
+def sponsor_dashboard(token):
+    """Client-facing sponsor analytics dashboard. Token-based access, no login."""
+    from models import SponsorCampaign
+    from services.sponsor_outreach_service import get_campaign_metrics
+
+    campaign = SponsorCampaign.query.filter_by(dashboard_token=token).first()
+    if not campaign:
+        return render_template('404.html'), 404
+
+    metrics = get_campaign_metrics(campaign.id, days_back=30)
+    return render_template('sponsor_dashboard.html', campaign=campaign, metrics=metrics, token=token)
+
+
+@app.route('/api/ad-click/<int:campaign_id>', methods=['POST'])
+def api_ad_click(campaign_id):
+    """Track an ad click for a sponsor campaign."""
+    import hashlib
+    from models import AdClick, SponsorCampaign
+
+    campaign = SponsorCampaign.query.get(campaign_id)
+    if not campaign or campaign.status != 'active':
+        return jsonify({"error": "Invalid campaign"}), 404
+
+    ip_raw = request.remote_addr or ""
+    ip_hash = hashlib.sha256(ip_raw.encode()).hexdigest()[:16]
+
+    click = AdClick(
+        campaign_id=campaign_id,
+        page_path=request.json.get("page", "") if request.is_json else request.referrer or "",
+        session_id=request.cookies.get("session_id", ""),
+        ip_hash=ip_hash,
+        user_agent=(request.user_agent.string or "")[:300],
+    )
+    db.session.add(click)
+    db.session.commit()
+
+    if campaign.cta_url:
+        return jsonify({"redirect": campaign.cta_url})
+    return jsonify({"ok": True})
+
+
+@app.route('/api/ad-impression/<int:campaign_id>', methods=['POST'])
+def api_ad_impression(campaign_id):
+    """Track an ad impression (beacon)."""
+    from models import AdImpression, SponsorCampaign
+
+    campaign = SponsorCampaign.query.get(campaign_id)
+    if not campaign or campaign.status != 'active':
+        return '', 204
+
+    imp = AdImpression(
+        campaign_id=campaign_id,
+        page_path=request.json.get("page", "") if request.is_json else "",
+        session_id=request.cookies.get("session_id", ""),
+    )
+    db.session.add(imp)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/api/sponsor/campaign/<int:campaign_id>/metrics')
+@admin_required
+def api_campaign_metrics(campaign_id):
+    """Get campaign metrics as JSON (admin only)."""
+    from services.sponsor_outreach_service import get_campaign_metrics
+    days = request.args.get('days', 30, type=int)
+    return jsonify(get_campaign_metrics(campaign_id, days_back=days))
+
+
+@app.route('/api/sponsor/outreach/run', methods=['POST'])
+@admin_required
+def api_run_sponsor_outreach():
+    """Trigger daily sponsor outreach cycle."""
+    from services.sponsor_outreach_service import run_daily_sponsor_outreach
+    results = run_daily_sponsor_outreach()
+    return jsonify(results)
+
+
+# ── Guest Pipeline Routes ────────────────────────────────────────────────────
+
+@app.route('/admin/guest-pipeline')
+@login_required
+@admin_required
+def admin_guest_pipeline():
+    """Guest booking kanban board."""
+    import json as _json
+    from models import GuestOutreach
+
+    guests_raw = GuestOutreach.query.order_by(GuestOutreach.created_at).all()
+    guests = []
+    for g in guests_raw:
+        topics = []
+        if g.topics:
+            try:
+                topics = _json.loads(g.topics)
+            except (ValueError, TypeError):
+                topics = [t.strip() for t in g.topics.split(",") if t.strip()]
+        guests.append({
+            "id": g.id,
+            "name": g.name,
+            "handle": g.handle,
+            "email": g.email,
+            "topics": topics,
+            "status": g.status,
+            "notes": g.notes,
+            "last_outreach_at": g.last_outreach_at,
+            "scheduled_date": g.scheduled_date,
+        })
+
+    guests_json = _json.dumps([{
+        "id": g["id"], "name": g["name"], "handle": g["handle"],
+        "email": g["email"], "topics": g["topics"], "status": g["status"],
+        "notes": g["notes"],
+    } for g in guests])
+
+    return render_template('admin/guest_pipeline.html', guests=guests, guests_json=guests_json)
+
+
+@app.route('/api/admin/guest', methods=['POST'])
+@admin_required
+def api_add_guest():
+    """Add a new guest to the pipeline."""
+    import json as _json
+    from models import GuestOutreach
+
+    data = request.get_json(force=True)
+    topics_str = data.get("topics", "")
+    topics_json = _json.dumps([t.strip() for t in topics_str.split(",") if t.strip()]) if topics_str else "[]"
+
+    guest = GuestOutreach(
+        name=data["name"],
+        handle=data.get("handle"),
+        email=data.get("email"),
+        topics=topics_json,
+        status=data.get("status", "identified"),
+        notes=data.get("notes"),
+    )
+    db.session.add(guest)
+    db.session.commit()
+    return jsonify({"ok": True, "id": guest.id})
+
+
+@app.route('/api/admin/guest/<int:guest_id>', methods=['PUT'])
+@admin_required
+def api_update_guest(guest_id):
+    """Update a guest in the pipeline."""
+    import json as _json
+    from models import GuestOutreach
+
+    guest = GuestOutreach.query.get_or_404(guest_id)
+    data = request.get_json(force=True)
+
+    if "name" in data:
+        guest.name = data["name"]
+    if "handle" in data:
+        guest.handle = data["handle"]
+    if "email" in data:
+        guest.email = data["email"]
+    if "topics" in data:
+        topics_str = data["topics"]
+        guest.topics = _json.dumps([t.strip() for t in topics_str.split(",") if t.strip()]) if topics_str else "[]"
+    if "status" in data:
+        guest.status = data["status"]
+    if "notes" in data:
+        guest.notes = data["notes"]
+
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@app.route('/api/admin/guest/<int:guest_id>', methods=['DELETE'])
+@admin_required
+def api_delete_guest(guest_id):
+    """Delete a guest from the pipeline."""
+    from models import GuestOutreach
+
+    guest = GuestOutreach.query.get_or_404(guest_id)
+    db.session.delete(guest)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@app.route('/api/admin/guest/seed', methods=['POST'])
+@admin_required
+def api_seed_guests():
+    """Seed default guest list."""
+    from services.sponsor_outreach_service import seed_default_guests
+    count = seed_default_guests()
+    return jsonify({"ok": True, "count": count})
+
+
+@app.route('/api/admin/guest-outreach/run', methods=['POST'])
+@admin_required
+def api_run_guest_outreach():
+    """Trigger guest booking outreach cycle."""
+    from services.sponsor_outreach_service import run_daily_guest_outreach
+    results = run_daily_guest_outreach()
+    return jsonify(results)
 

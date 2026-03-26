@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Sovereign Merchant Map | Protocol Pulse{% endblock %}
+{% block title %}Bitcoin Map | Protocol Pulse{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,6 +12,12 @@
     --pp-dark: #0a0a0a;
     --pp-glass: rgba(10, 10, 10, 0.95);
     --pp-gold: #f59e0b;
+    --pin-orange: #f97316;
+    --pin-purple: #a855f7;
+    --pin-gold: #eab308;
+    --pin-blue: #3b82f6;
+    --pin-teal: #14b8a6;
+    --pin-red: #dc2626;
 }
 
 .map-page {
@@ -60,6 +66,8 @@
     height: calc(100vh - 60px);
     overflow-y: auto;
     z-index: 100;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar-header {
@@ -92,16 +100,18 @@
 
 .stats-bar {
     display: flex;
-    gap: 15px;
-    padding: 20px;
+    gap: 10px;
+    padding: 15px 20px;
     border-bottom: 1px solid rgba(220, 38, 38, 0.2);
     background: rgba(220, 38, 38, 0.05);
+    flex-wrap: wrap;
 }
 
 .stat-card {
     flex: 1;
+    min-width: 65px;
     text-align: center;
-    padding: 12px 8px;
+    padding: 10px 6px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -109,13 +119,13 @@
 
 .stat-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: #fff;
 }
 
 .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -123,14 +133,14 @@
 }
 
 .search-section {
-    padding: 20px;
+    padding: 15px 20px;
     border-bottom: 1px solid rgba(220, 38, 38, 0.2);
 }
 
 .search-input-group {
     display: flex;
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .search-input {
@@ -138,45 +148,36 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 14px 18px;
+    padding: 12px 16px;
     color: #fff;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
-.search-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--pp-red);
-}
+.search-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+.search-input:focus { outline: none; border-color: var(--pp-red); }
 
 .search-btn {
     background: var(--pp-red);
     border: none;
     border-radius: 10px;
-    padding: 14px 20px;
+    padding: 12px 18px;
     color: #fff;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.search-btn:hover {
-    background: #b91c1c;
-    transform: scale(1.05);
-}
+.search-btn:hover { background: #b91c1c; transform: scale(1.05); }
 
 .location-btn {
     width: 100%;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 12px;
+    padding: 10px;
     color: rgba(255, 255, 255, 0.7);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -192,43 +193,45 @@
 }
 
 .category-filter {
-    padding: 15px 20px;
+    padding: 12px 20px;
     border-bottom: 1px solid rgba(220, 38, 38, 0.2);
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
 .category-btn {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 8px 16px;
+    padding: 6px 12px;
     color: rgba(255, 255, 255, 0.7);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    white-space: nowrap;
 }
 
 .category-btn:hover {
-    background: rgba(220, 38, 38, 0.2);
-    border-color: var(--pp-red);
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
 
-.category-btn.active {
-    background: var(--pp-red);
-    border-color: var(--pp-red);
-    color: #fff;
-}
+.category-btn.active { color: #fff; font-weight: 600; }
+.category-btn[data-cat="all"].active { background: var(--pp-red); border-color: var(--pp-red); }
+.category-btn[data-cat="restaurant"].active { background: var(--pin-orange); border-color: var(--pin-orange); }
+.category-btn[data-cat="shop"].active { background: var(--pin-red); border-color: var(--pin-red); }
+.category-btn[data-cat="hotel"].active { background: var(--pin-teal); border-color: var(--pin-teal); }
+.category-btn[data-cat="atm"].active { background: var(--pin-blue); border-color: var(--pin-blue); }
+.category-btn[data-cat="lightning"].active { background: var(--pp-gold); border-color: var(--pp-gold); }
+.category-btn[data-cat="meetup"].active { background: var(--pin-purple); border-color: var(--pin-purple); }
+.category-btn[data-cat="event"].active { background: var(--pin-gold); border-color: var(--pin-gold); }
 
-.category-btn i {
-    font-size: 0.85rem;
-}
+.category-btn i { font-size: 0.8rem; }
 
 .merchant-list {
     flex: 1;
@@ -237,86 +240,67 @@
 }
 
 .merchant-card {
-    padding: 18px 20px;
+    padding: 14px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.merchant-card:hover {
-    background: rgba(220, 38, 38, 0.1);
-}
+.merchant-card:hover { background: rgba(220, 38, 38, 0.1); }
 
 .merchant-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .merchant-name {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #fff;
     margin-bottom: 2px;
 }
 
 .merchant-location {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.5);
 }
 
-.merchant-badges {
-    display: flex;
-    gap: 6px;
-}
+.merchant-badges { display: flex; gap: 6px; }
 
 .badge {
-    font-size: 0.65rem;
-    padding: 4px 8px;
+    font-size: 0.6rem;
+    padding: 3px 7px;
     border-radius: 12px;
     font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
 }
 
-.badge-lightning {
-    background: rgba(245, 158, 11, 0.2);
-    color: var(--pp-gold);
-}
-
-.badge-onchain {
-    background: rgba(220, 38, 38, 0.2);
-    color: var(--pp-red);
-}
-
-.badge-category {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
-}
+.badge-lightning { background: rgba(245, 158, 11, 0.2); color: var(--pp-gold); }
+.badge-onchain { background: rgba(220, 38, 38, 0.2); color: var(--pp-red); }
+.badge-meetup { background: rgba(168, 85, 247, 0.2); color: var(--pin-purple); }
+.badge-event { background: rgba(234, 179, 8, 0.2); color: var(--pin-gold); }
+.badge-pp { background: rgba(220, 38, 38, 0.3); color: #ff4444; font-weight: 700; }
 
 .merchant-meta {
     display: flex;
-    gap: 15px;
-    margin-top: 10px;
+    gap: 12px;
+    margin-top: 8px;
 }
 
 .merchant-meta-item {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.5);
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
-.merchant-meta-item i {
-    color: var(--pp-red);
-    font-size: 0.7rem;
-}
+.merchant-meta-item i { color: var(--pp-red); font-size: 0.65rem; }
 
-.map-container {
-    flex: 1;
-    position: relative;
-}
+.map-container { flex: 1; position: relative; }
 
 #merchant-map {
     width: 100%;
@@ -324,32 +308,10 @@
     background: #111;
 }
 
-.leaflet-tile {
-    filter: saturate(0.15) brightness(1.3) contrast(1.1);
-}
+.leaflet-tile { filter: saturate(0.15) brightness(1.3) contrast(1.1); }
 
-.event-marker {
-    background: #CC2222;
-    border: 2px solid #fff;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 14px;
-    box-shadow: 0 3px 12px rgba(204, 34, 34, 0.8);
-    animation: eventPulse 2s ease-in-out infinite;
-}
-
-@keyframes eventPulse {
-    0%, 100% { box-shadow: 0 3px 12px rgba(204, 34, 34, 0.8); }
-    50% { box-shadow: 0 3px 20px rgba(204, 34, 34, 1), 0 0 30px rgba(204, 34, 34, 0.4); }
-}
-
-.btc-marker {
-    background: var(--pp-red);
+/* --- Pin marker styles --- */
+.pin-marker {
     border: 2px solid #fff;
     border-radius: 50%;
     width: 28px;
@@ -358,13 +320,10 @@
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 13px;
-    box-shadow: 0 3px 12px rgba(220, 38, 38, 0.6);
+    font-size: 12px;
 }
 
-.btc-marker i,
-.btc-marker .fab,
-.btc-marker .fas {
+.pin-marker i, .pin-marker .fab, .pin-marker .fas {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -373,9 +332,47 @@
     height: 100%;
 }
 
-.btc-marker-lightning {
-    background: var(--pp-gold);
-    box-shadow: 0 3px 12px rgba(245, 158, 11, 0.6);
+.pin-merchant { background: var(--pin-orange); box-shadow: 0 3px 12px rgba(249, 115, 22, 0.6); }
+.pin-restaurant { background: var(--pin-orange); box-shadow: 0 3px 12px rgba(249, 115, 22, 0.6); }
+.pin-shop { background: var(--pin-red); box-shadow: 0 3px 12px rgba(220, 38, 38, 0.6); }
+.pin-hotel { background: var(--pin-teal); box-shadow: 0 3px 12px rgba(20, 184, 166, 0.6); }
+.pin-atm { background: var(--pin-blue); box-shadow: 0 3px 12px rgba(59, 130, 246, 0.6); }
+.pin-lightning { background: var(--pp-gold); box-shadow: 0 3px 12px rgba(245, 158, 11, 0.6); }
+
+.pin-meetup {
+    background: var(--pin-purple);
+    box-shadow: 0 3px 12px rgba(168, 85, 247, 0.6);
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+}
+
+.pin-event {
+    background: var(--pin-gold);
+    box-shadow: 0 3px 14px rgba(234, 179, 8, 0.8);
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    animation: eventPulse 2.5s ease-in-out infinite;
+}
+
+.pin-event-pp {
+    background: linear-gradient(135deg, var(--pp-red), #ff4444);
+    box-shadow: 0 3px 16px rgba(220, 38, 38, 0.9);
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+    animation: ppPulse 2s ease-in-out infinite;
+}
+
+@keyframes eventPulse {
+    0%, 100% { box-shadow: 0 3px 14px rgba(234, 179, 8, 0.8); }
+    50% { box-shadow: 0 3px 22px rgba(234, 179, 8, 1), 0 0 30px rgba(234, 179, 8, 0.4); }
+}
+
+@keyframes ppPulse {
+    0%, 100% { box-shadow: 0 3px 16px rgba(220, 38, 38, 0.9); }
+    50% { box-shadow: 0 3px 24px rgba(220, 38, 38, 1), 0 0 40px rgba(220, 38, 38, 0.5); }
 }
 
 .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
@@ -389,6 +386,46 @@
     font-weight: 700;
 }
 
+/* --- Map legend --- */
+.map-legend {
+    position: absolute;
+    bottom: 30px;
+    left: 15px;
+    z-index: 500;
+    background: var(--pp-glass);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    backdrop-filter: blur(20px);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.legend-title {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 0;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+/* --- Popup styles --- */
 .merchant-popup .leaflet-popup-content-wrapper {
     background: var(--pp-glass);
     border: 1px solid rgba(220, 38, 38, 0.3);
@@ -401,15 +438,13 @@
     font-family: 'JetBrains Mono', monospace;
 }
 
-.merchant-popup .leaflet-popup-tip {
-    background: var(--pp-glass);
-}
+.merchant-popup .leaflet-popup-tip { background: var(--pp-glass); }
 
 .popup-name {
     color: var(--pp-red);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .popup-category {
@@ -417,33 +452,30 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .popup-badges {
     display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
     background: rgba(10, 10, 10, 0.6);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 12px;
+    padding: 10px;
     border-radius: 8px;
     border: 1px solid rgba(220, 38, 38, 0.2);
 }
 
-.popup-badges .badge {
-    filter: none !important;
-    box-shadow: none !important;
-}
+.popup-badges .badge { filter: none !important; box-shadow: none !important; }
 
 .popup-detail {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 8px 0;
+    padding: 6px 0;
     color: rgba(255, 255, 255, 0.8);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     line-height: 1.4;
 }
 
@@ -454,32 +486,26 @@
     flex-shrink: 0;
 }
 
-.popup-detail a {
-    color: #60a5fa;
-    text-decoration: none;
-}
-
-.popup-detail a:hover {
-    color: #93c5fd;
-    text-decoration: underline;
-}
+.popup-detail a { color: #60a5fa; text-decoration: none; }
+.popup-detail a:hover { color: #93c5fd; text-decoration: underline; }
 
 .popup-actions {
-    margin-top: 15px;
+    margin-top: 12px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .directions-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: var(--pp-red);
     color: #fff;
-    padding: 10px 18px;
+    padding: 8px 14px;
     border-radius: 8px;
     text-decoration: none;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     transition: all 0.2s ease;
 }
@@ -490,12 +516,26 @@
     transform: translateY(-1px);
 }
 
+.popup-event-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--pin-gold);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.popup-event-date.past { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+
+/* --- Loading --- */
 .loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.9);
     display: flex;
     flex-direction: column;
@@ -507,10 +547,7 @@
     transition: opacity 0.3s ease;
 }
 
-.loading-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
+.loading-overlay.active { opacity: 1; pointer-events: auto; }
 
 .loading-spinner {
     font-family: 'JetBrains Mono', monospace;
@@ -553,28 +590,22 @@
 }
 
 @media (max-width: 992px) {
-    .merchant-sidebar {
-        display: none;
-    }
-    
+    .merchant-sidebar { display: none; }
     .mobile-panel {
         display: block;
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 0; left: 0; right: 0;
         background: var(--pp-glass);
         border-top: 1px solid rgba(220, 38, 38, 0.3);
-        padding: 15px;
+        padding: 12px;
         z-index: 1000;
         backdrop-filter: blur(20px);
     }
+    .map-legend { bottom: 75px; }
 }
 
 @media (min-width: 993px) {
-    .mobile-panel {
-        display: none;
-    }
+    .mobile-panel { display: none; }
 }
 </style>
 {% endblock %}
@@ -592,11 +623,11 @@
         <div class="sidebar-header">
             <div class="sidebar-title">
                 <i class="fab fa-bitcoin"></i>
-                Sovereign Merchant Map
+                Bitcoin Map
             </div>
-            <div class="sidebar-subtitle">Bitcoin-accepting businesses worldwide</div>
+            <div class="sidebar-subtitle">Merchants, meetups, events &amp; ATMs worldwide</div>
         </div>
-        
+
         <div class="stats-bar">
             <div class="stat-card">
                 <div class="stat-value" id="total-count">--</div>
@@ -607,11 +638,15 @@
                 <div class="stat-label">Lightning</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="country-count">80+</div>
-                <div class="stat-label">Countries</div>
+                <div class="stat-value" id="meetup-count">--</div>
+                <div class="stat-label">Meetups</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="event-count">--</div>
+                <div class="stat-label">Events</div>
             </div>
         </div>
-        
+
         <div class="search-section">
             <div class="search-input-group">
                 <input type="text" class="search-input" id="location-search" placeholder="City, ZIP, or Address...">
@@ -624,28 +659,34 @@
                 Use My Location
             </button>
         </div>
-        
+
         <div class="category-filter">
-            <button class="category-btn active" onclick="filterCategory(null, this)">
+            <button class="category-btn active" data-cat="all" onclick="filterCategory(null, this)">
                 <i class="fas fa-globe"></i> All
             </button>
-            <button class="category-btn" onclick="filterCategory('restaurant', this)">
+            <button class="category-btn" data-cat="restaurant" onclick="filterCategory('restaurant', this)">
                 <i class="fas fa-utensils"></i> Food
             </button>
-            <button class="category-btn" onclick="filterCategory('shop', this)">
+            <button class="category-btn" data-cat="shop" onclick="filterCategory('shop', this)">
                 <i class="fas fa-shopping-bag"></i> Retail
             </button>
-            <button class="category-btn" onclick="filterCategory('hotel', this)">
+            <button class="category-btn" data-cat="hotel" onclick="filterCategory('hotel', this)">
                 <i class="fas fa-bed"></i> Lodging
             </button>
-            <button class="category-btn" onclick="filterCategory('atm', this)">
+            <button class="category-btn" data-cat="atm" onclick="filterCategory('atm', this)">
                 <i class="fas fa-money-bill-wave"></i> ATM
             </button>
-            <button class="category-btn" onclick="filterCategory('lightning', this)">
+            <button class="category-btn" data-cat="lightning" onclick="filterCategory('lightning', this)">
                 <i class="fas fa-bolt"></i> Lightning
             </button>
+            <button class="category-btn" data-cat="meetup" onclick="filterCategory('meetup', this)">
+                <i class="fas fa-users"></i> Meetups
+            </button>
+            <button class="category-btn" data-cat="event" onclick="filterCategory('event', this)">
+                <i class="fas fa-star"></i> Events
+            </button>
         </div>
-        
+
         <div class="merchant-list" id="merchant-list">
             <div class="empty-state">
                 <i class="fab fa-bitcoin"></i>
@@ -653,11 +694,21 @@
             </div>
         </div>
     </aside>
-    
+
     <div class="map-container">
         <div id="merchant-map"></div>
+        <div class="map-legend" id="map-legend">
+            <div class="legend-title">Legend</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pin-orange)"></div> Restaurant / Food</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pin-red)"></div> Retail / Shop</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pin-teal)"></div> Lodging</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pin-blue)"></div> Bitcoin ATM</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pp-gold)"></div> Lightning Enabled</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pin-purple)"></div> Bitcoin Meetup</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pin-gold)"></div> Conference / Event</div>
+        </div>
     </div>
-    
+
     <div class="mobile-panel">
         <div class="search-input-group">
             <input type="text" class="search-input" id="mobile-search" placeholder="Search location...">
@@ -666,11 +717,11 @@
             </button>
         </div>
     </div>
-    
+
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-spinner">
             <i class="fas fa-circle-notch fa-spin me-2"></i>
-            Scanning for sovereign merchants...
+            Scanning the Bitcoin network...
         </div>
         <div class="loading-progress">
             <div class="loading-bar"></div>
@@ -685,91 +736,223 @@
 <script>
 let map;
 let markerCluster;
-let allMerchants = [];
-let visibleMerchants = [];
+let allItems = [];       // merchants + meetups + events combined
 let currentCategory = null;
+let eventLayer;          // separate layer for events (not clustered)
+let meetupLayer;         // separate layer for meetups
 
-const btcIcon = L.divIcon({
-    className: 'btc-marker-wrapper',
-    html: '<div class="btc-marker"><i class="fab fa-bitcoin"></i></div>',
-    iconSize: [28, 28],
-    iconAnchor: [14, 14]
-});
+// --- Pin icon factory ---
+function makeIcon(cssClass, icon, size) {
+    size = size || 28;
+    return L.divIcon({
+        className: 'pin-wrapper',
+        html: '<div class="pin-marker ' + cssClass + '"><i class="' + icon + '"></i></div>',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
+    });
+}
 
-const lightningIcon = L.divIcon({
-    className: 'btc-marker-wrapper',
-    html: '<div class="btc-marker btc-marker-lightning"><i class="fas fa-bolt"></i></div>',
-    iconSize: [28, 28],
-    iconAnchor: [14, 14]
-});
+const ICONS = {
+    restaurant: makeIcon('pin-restaurant', 'fas fa-utensils'),
+    shop:       makeIcon('pin-shop', 'fas fa-shopping-bag'),
+    hotel:      makeIcon('pin-hotel', 'fas fa-bed'),
+    atm:        makeIcon('pin-atm', 'fas fa-money-bill-wave'),
+    lightning:  makeIcon('pin-lightning', 'fas fa-bolt'),
+    merchant:   makeIcon('pin-merchant', 'fab fa-bitcoin'),
+    meetup:     makeIcon('pin-meetup', 'fas fa-users', 30),
+    event:      makeIcon('pin-event', 'fas fa-star', 32),
+    eventPP:    makeIcon('pin-event-pp', 'fas fa-star', 34)
+};
+
+// --- Classify merchant by OSM tags ---
+function classifyMerchant(m) {
+    if (m.pinType) return m.pinType; // meetup/event pre-classified
+    if (m.hasLightning) return 'lightning';
+    if (m.category === 'atm' || (m.name && m.name.toLowerCase().includes('atm'))) return 'atm';
+    if (['restaurant','fast_food','cafe','bar','pub','food'].includes(m.category)) return 'restaurant';
+    if (m.category && (m.category.includes('shop') || ['supermarket','convenience','clothes','electronics'].includes(m.category))) return 'shop';
+    if (['hotel','hostel','guest_house','motel','apartment'].includes(m.category)) return 'hotel';
+    return 'merchant';
+}
+
+function iconFor(m) {
+    var cls = classifyMerchant(m);
+    if (cls === 'event' && m.isProtocolPulse) return ICONS.eventPP;
+    return ICONS[cls] || ICONS.merchant;
+}
+
+// --- Bitcoin events data ---
+const BITCOIN_EVENTS = [
+    { name: 'BitcoinDay Naples', lat: 26.142, lon: -81.795, date: '2026-01-17', venue: 'Four Seasons Naples', url: '/events', organizer: 'Protocol Pulse', isProtocolPulse: true, description: 'Premium Bitcoin networking event at Four Seasons Naples.' },
+    { name: 'BTC in DC', lat: 38.907, lon: -77.037, date: '2026-04-15', venue: 'Kennedy Center', url: '/events', organizer: 'Protocol Pulse', isProtocolPulse: true, description: 'Protocol Pulse flagship event at Kennedy Center, Washington DC.' },
+    { name: 'BitcoinDay Tampa', lat: 27.950, lon: -82.457, date: '2026-06-20', venue: 'Tampa Convention Center', url: '/events', organizer: 'Protocol Pulse', isProtocolPulse: true, description: 'Full-day Bitcoin education and networking in Tampa.' },
+    { name: 'Bitcoin 2026', lat: 36.163, lon: -86.781, date: '2026-07-24', venue: 'Music City Center, Nashville', url: 'https://b.tc/conference', organizer: 'Bitcoin Magazine', isProtocolPulse: false, description: 'The world\'s largest Bitcoin conference.' },
+    { name: 'Bitcoin Amsterdam', lat: 52.370, lon: 4.895, date: '2026-10-09', venue: 'Westergas, Amsterdam', url: 'https://b.tc/conference/amsterdam', organizer: 'Bitcoin Magazine', isProtocolPulse: false, description: 'Europe\'s premier Bitcoin conference in Amsterdam.' },
+    { name: 'Pacific Bitcoin', lat: 34.052, lon: -118.243, date: '2026-11-10', venue: 'Los Angeles', url: 'https://pacificbitcoin.com', organizer: 'Pacific Bitcoin', isProtocolPulse: false, description: 'West coast Bitcoin conference in LA.' },
+    { name: 'Mining Disrupt', lat: 25.761, lon: -80.192, date: '2026-07-15', venue: 'Miami Beach Convention Center', url: 'https://miningdisrupt.com', organizer: 'Mining Disrupt', isProtocolPulse: false, description: 'The leading Bitcoin mining conference.' },
+    { name: 'Baltic Honeybadger', lat: 56.946, lon: 24.106, date: '2026-09-05', venue: 'Riga, Latvia', url: 'https://baltichoneybadger.com', organizer: 'Hodl Hodl', isProtocolPulse: false, description: 'Cypherpunk-focused Bitcoin conference in Riga.' },
+    { name: 'Adopting Bitcoin', lat: 13.692, lon: -89.218, date: '2026-11-15', venue: 'San Salvador, El Salvador', url: 'https://adoptingbitcoin.org', organizer: 'Galoy', isProtocolPulse: false, description: 'Technical Bitcoin conference in the first Bitcoin nation.' },
+    { name: 'Bitcoin Atlantis', lat: 35.899, lon: 14.514, date: '2026-03-01', venue: 'Valletta, Malta', url: 'https://bitcoinatlantis.com', organizer: 'Bitcoin Atlantis', isProtocolPulse: false, description: 'Bitcoin conference in Malta bringing together global Bitcoiners.' }
+];
+
+// --- Bitcoin meetups data ---
+const BITCOIN_MEETUPS = [
+    { name: 'Bitcoin Park Nashville', lat: 36.157, lon: -86.774, city: 'Nashville, TN', frequency: 'Weekly', url: 'https://bitcoinpark.com', description: 'Dedicated Bitcoin co-working & event space.' },
+    { name: 'Austin Bitcoin Club', lat: 30.267, lon: -97.743, city: 'Austin, TX', frequency: 'Weekly', url: 'https://austinbitcoinclub.com', description: 'Austin\'s largest Bitcoin-only meetup.' },
+    { name: 'Bitcoin Meetup NYC', lat: 40.713, lon: -74.006, city: 'New York, NY', frequency: 'Monthly', description: 'New York City Bitcoin community meetup.' },
+    { name: 'SF Bitcoin Devs', lat: 37.774, lon: -122.419, city: 'San Francisco, CA', frequency: 'Monthly', description: 'Technical Bitcoin developer meetup.' },
+    { name: 'LA Bitcoin', lat: 34.052, lon: -118.243, city: 'Los Angeles, CA', frequency: 'Monthly', description: 'Los Angeles Bitcoin community.' },
+    { name: 'Miami Bitcoin Meetup', lat: 25.761, lon: -80.192, city: 'Miami, FL', frequency: 'Monthly', description: 'South Florida Bitcoin community.' },
+    { name: 'Chicago BitDevs', lat: 41.878, lon: -87.630, city: 'Chicago, IL', frequency: 'Monthly', description: 'Chicago Bitcoin developers meetup.' },
+    { name: 'Denver Bitcoin', lat: 39.739, lon: -104.990, city: 'Denver, CO', frequency: 'Monthly', description: 'Denver area Bitcoin meetup.' },
+    { name: 'London Bitcoin Devs', lat: 51.509, lon: -0.118, city: 'London, UK', frequency: 'Monthly', description: 'London\'s technical Bitcoin meetup.' },
+    { name: 'Bitcoin Meetup Berlin', lat: 52.520, lon: 13.405, city: 'Berlin, Germany', frequency: 'Bi-weekly', description: 'Berlin\'s thriving Bitcoin community.' },
+    { name: 'Bitcoin Meetup Prague', lat: 50.075, lon: 14.438, city: 'Prague, Czech Republic', frequency: 'Monthly', description: 'Prague\'s cypherpunk Bitcoin meetup. Paralelni Polis area.' },
+    { name: 'Bitcoin Meetup Z\u00fcrich', lat: 47.376, lon: 8.541, city: 'Z\u00fcrich, Switzerland', frequency: 'Monthly', description: 'Swiss Bitcoin community in Crypto Valley.' },
+    { name: 'Riga Bitcoin', lat: 56.946, lon: 24.106, city: 'Riga, Latvia', frequency: 'Monthly', description: 'Baltic Bitcoin community.' },
+    { name: 'Bitcoin Meetup Melbourne', lat: -37.814, lon: 144.963, city: 'Melbourne, Australia', frequency: 'Monthly', description: 'Melbourne Australian Bitcoin meetup.' },
+    { name: 'Tokyo Bitcoin Meetup', lat: 35.682, lon: 139.762, city: 'Tokyo, Japan', frequency: 'Monthly', description: 'Japan Bitcoin community.' },
+    { name: 'Bitcoin Meetup S\u00e3o Paulo', lat: -23.550, lon: -46.633, city: 'S\u00e3o Paulo, Brazil', frequency: 'Monthly', description: 'Brazil\'s largest Bitcoin meetup.' },
+    { name: 'Bitcoin Beach El Zonte', lat: 13.498, lon: -89.384, city: 'El Zonte, El Salvador', frequency: 'Weekly', description: 'The original Bitcoin Beach community.' },
+    { name: 'Singapore Bitcoin', lat: 1.352, lon: 103.820, city: 'Singapore', frequency: 'Monthly', description: 'Singapore Bitcoin community meetup.' },
+    { name: 'Dubai Bitcoin', lat: 25.204, lon: 55.270, city: 'Dubai, UAE', frequency: 'Monthly', description: 'Dubai Bitcoin & Lightning community.' },
+    { name: 'Naples Bitcoin Meetup', lat: 26.142, lon: -81.795, city: 'Naples, FL', frequency: 'Monthly', url: '/events', description: 'Southwest Florida Bitcoin community. Protocol Pulse home base.', isProtocolPulse: true }
+];
 
 function initMap() {
     map = L.map('merchant-map', {
         zoomControl: true,
         attributionControl: false
     }).setView([25, 0], 2);
-    
+
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19
     }).addTo(map);
-    
+
     markerCluster = L.markerClusterGroup({
         showCoverageOnHover: false,
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
         disableClusteringAtZoom: 16
     });
-    
+
+    eventLayer = L.layerGroup().addTo(map);
+    meetupLayer = L.layerGroup().addTo(map);
+
     map.addLayer(markerCluster);
-    map.on('moveend', updateMerchantList);
+    map.on('moveend', updateSidebar);
 
-    loadMerchants();
-    addEventMarkers();
+    loadBTCMapMerchants();
+    addMeetups();
+    addEvents();
+    updateStats();
 }
 
-function addEventMarkers() {
-    var eventIcon = L.divIcon({
-        className: 'event-marker-wrapper',
-        html: '<div class="event-marker"><i class="fas fa-calendar-alt"></i></div>',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+function addEvents() {
+    BITCOIN_EVENTS.forEach(function(evt) {
+        var icon = evt.isProtocolPulse ? ICONS.eventPP : ICONS.event;
+        var marker = L.marker([evt.lat, evt.lon], { icon: icon });
+
+        var now = new Date();
+        var evtDate = new Date(evt.date + 'T00:00:00');
+        var diffMs = evtDate - now;
+        var diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        var dateLabel;
+        if (diffDays > 0) {
+            dateLabel = diffDays + ' day' + (diffDays !== 1 ? 's' : '') + ' away';
+        } else if (diffDays === 0) {
+            dateLabel = 'TODAY';
+        } else {
+            dateLabel = Math.abs(diffDays) + ' day' + (Math.abs(diffDays) !== 1 ? 's' : '') + ' ago';
+        }
+        var isPast = diffDays < 0;
+
+        var popup = '<div class="popup-name">' + escapeHtml(evt.name) + '</div>' +
+            '<div class="popup-category">Bitcoin Conference / Event</div>' +
+            (evt.isProtocolPulse ? '<div style="margin-bottom:8px;"><span class="badge badge-pp">PROTOCOL PULSE EVENT</span></div>' : '') +
+            '<div class="popup-event-date' + (isPast ? ' past' : '') + '"><i class="fas fa-calendar-alt"></i> ' + formatDate(evt.date) + ' &mdash; ' + dateLabel + '</div>' +
+            '<div class="popup-detail"><i class="fas fa-map-marker-alt"></i> ' + escapeHtml(evt.venue) + '</div>' +
+            '<div class="popup-detail"><i class="fas fa-info-circle"></i> ' + escapeHtml(evt.description) + '</div>' +
+            (evt.organizer ? '<div class="popup-detail"><i class="fas fa-user-tie"></i> ' + escapeHtml(evt.organizer) + '</div>' : '') +
+            '<div class="popup-actions">' +
+                '<a href="' + escapeHtml(evt.url) + '" target="_blank" class="directions-btn" style="background:var(--pin-gold);"><i class="fas fa-external-link-alt"></i> Details</a>' +
+                '<a href="https://www.google.com/maps/dir/?api=1&destination=' + evt.lat + ',' + evt.lon + '" target="_blank" class="directions-btn"><i class="fas fa-directions"></i> Directions</a>' +
+            '</div>';
+
+        marker.bindPopup(popup, { className: 'merchant-popup', maxWidth: 320 });
+
+        marker.itemData = {
+            lat: evt.lat, lon: evt.lon, name: evt.name,
+            pinType: 'event', isProtocolPulse: evt.isProtocolPulse,
+            date: evt.date, venue: evt.venue, description: evt.description
+        };
+
+        eventLayer.addLayer(marker);
     });
 
-    var events = [
-        { lat: 26.142, lon: -81.795, name: 'BitcoinDay Naples', date: '2026' },
-        { lat: 27.950, lon: -82.457, name: 'BitcoinDay Tampa', date: '2026' },
-        { lat: 38.907, lon: -77.037, name: 'BitcoinDay DC', date: '2026' },
-        { lat: 36.163, lon: -86.781, name: 'Bitcoin 2026', date: 'Nashville, TN' }
-    ];
-
-    events.forEach(function(evt) {
-        var marker = L.marker([evt.lat, evt.lon], { icon: eventIcon });
-        marker.bindPopup(
-            '<div class="popup-name">' + evt.name + '</div>' +
-            '<div class="popup-category">' + evt.date + '</div>' +
-            '<div class="popup-detail" style="margin-top:8px;"><i class="fas fa-info-circle"></i> Visit <a href="/events">Events page</a> for details</div>',
-            { className: 'merchant-popup', maxWidth: 250 }
-        );
-        marker.addTo(map);
-    });
+    allItems.push(...BITCOIN_EVENTS.map(function(evt) {
+        return {
+            lat: evt.lat, lon: evt.lon, name: evt.name,
+            pinType: 'event', isProtocolPulse: evt.isProtocolPulse,
+            category: 'event', date: evt.date, venue: evt.venue,
+            description: evt.description, url: evt.url
+        };
+    }));
 }
 
-async function loadMerchants() {
+function addMeetups() {
+    BITCOIN_MEETUPS.forEach(function(mu) {
+        var icon = ICONS.meetup;
+        var marker = L.marker([mu.lat, mu.lon], { icon: icon });
+
+        var popup = '<div class="popup-name">' + escapeHtml(mu.name) + '</div>' +
+            '<div class="popup-category">Bitcoin Meetup</div>' +
+            (mu.isProtocolPulse ? '<div style="margin-bottom:8px;"><span class="badge badge-pp">PROTOCOL PULSE</span></div>' : '') +
+            '<div class="popup-badges"><span class="badge badge-meetup"><i class="fas fa-users me-1"></i>' + escapeHtml(mu.frequency) + '</span></div>' +
+            '<div class="popup-detail"><i class="fas fa-map-marker-alt"></i> ' + escapeHtml(mu.city) + '</div>' +
+            '<div class="popup-detail"><i class="fas fa-info-circle"></i> ' + escapeHtml(mu.description) + '</div>' +
+            '<div class="popup-actions">' +
+                (mu.url ? '<a href="' + escapeHtml(mu.url) + '" target="_blank" class="directions-btn" style="background:var(--pin-purple);"><i class="fas fa-external-link-alt"></i> Visit</a>' : '') +
+                '<a href="https://www.google.com/maps/dir/?api=1&destination=' + mu.lat + ',' + mu.lon + '" target="_blank" class="directions-btn"><i class="fas fa-directions"></i> Directions</a>' +
+            '</div>';
+
+        marker.bindPopup(popup, { className: 'merchant-popup', maxWidth: 300 });
+
+        marker.itemData = {
+            lat: mu.lat, lon: mu.lon, name: mu.name,
+            pinType: 'meetup', city: mu.city, frequency: mu.frequency
+        };
+
+        meetupLayer.addLayer(marker);
+    });
+
+    allItems.push(...BITCOIN_MEETUPS.map(function(mu) {
+        return {
+            lat: mu.lat, lon: mu.lon, name: mu.name,
+            pinType: 'meetup', category: 'meetup', city: mu.city,
+            frequency: mu.frequency, description: mu.description,
+            isProtocolPulse: mu.isProtocolPulse
+        };
+    }));
+}
+
+async function loadBTCMapMerchants() {
     showLoading();
     try {
-        const response = await fetch('https://api.btcmap.org/v2/elements?limit=10000');
-        const data = await response.json();
-        
-        let lightningCount = 0;
-        
-        data.forEach(merchant => {
-            if (merchant.osm_json?.lat && merchant.osm_json?.lon) {
-                const tags = merchant.osm_json?.tags || {};
-                const hasLightning = tags['payment:lightning'] === 'yes' || tags['payment:lightning_contactless'] === 'yes';
-                
+        var response = await fetch('/api/map/btcmap');
+        if (!response.ok) throw new Error('API error ' + response.status);
+        var data = await response.json();
+
+        var lightningCount = 0;
+
+        data.forEach(function(merchant) {
+            if (merchant.osm_json && merchant.osm_json.lat && merchant.osm_json.lon) {
+                var tags = (merchant.osm_json && merchant.osm_json.tags) || {};
+                var hasLightning = tags['payment:lightning'] === 'yes' || tags['payment:lightning_contactless'] === 'yes';
+
                 if (hasLightning) lightningCount++;
-                
-                const m = {
+
+                var m = {
                     lat: merchant.osm_json.lat,
                     lon: merchant.osm_json.lon,
                     name: tags.name || 'Bitcoin Merchant',
@@ -780,162 +963,230 @@ async function loadMerchants() {
                     phone: tags.phone || tags['contact:phone'] || '',
                     website: tags.website || tags['contact:website'] || '',
                     hours: tags.opening_hours || '',
-                    raw: merchant
+                    pinType: 'merchant'
                 };
-                
-                allMerchants.push(m);
+
+                allItems.push(m);
             }
         });
-        
-        document.getElementById('total-count').textContent = allMerchants.length.toLocaleString();
+
+        document.getElementById('total-count').textContent = allItems.filter(function(i) { return i.pinType === 'merchant'; }).length.toLocaleString();
         document.getElementById('lightning-count').textContent = lightningCount.toLocaleString();
-        
-        addMarkers();
+
+        addMerchantMarkers();
         hideLoading();
-        updateMerchantList();
-        
+        updateSidebar();
+
     } catch (error) {
-        console.error('Failed to load merchants:', error);
+        console.error('BTCMap load failed, trying direct:', error);
+        // Fallback: direct BTCMap call
+        try {
+            var response2 = await fetch('https://api.btcmap.org/v2/elements?limit=10000');
+            var data2 = await response2.json();
+            var lightningCount2 = 0;
+
+            data2.forEach(function(merchant) {
+                if (merchant.osm_json && merchant.osm_json.lat && merchant.osm_json.lon) {
+                    var tags = (merchant.osm_json && merchant.osm_json.tags) || {};
+                    var hasLightning = tags['payment:lightning'] === 'yes' || tags['payment:lightning_contactless'] === 'yes';
+                    if (hasLightning) lightningCount2++;
+
+                    allItems.push({
+                        lat: merchant.osm_json.lat,
+                        lon: merchant.osm_json.lon,
+                        name: tags.name || 'Bitcoin Merchant',
+                        category: tags.amenity || tags.shop || tags.tourism || 'merchant',
+                        hasLightning: hasLightning,
+                        hasOnchain: tags['payment:bitcoin'] === 'yes',
+                        address: buildAddress(tags),
+                        phone: tags.phone || tags['contact:phone'] || '',
+                        website: tags.website || tags['contact:website'] || '',
+                        hours: tags.opening_hours || '',
+                        pinType: 'merchant'
+                    });
+                }
+            });
+
+            document.getElementById('total-count').textContent = allItems.filter(function(i) { return i.pinType === 'merchant'; }).length.toLocaleString();
+            document.getElementById('lightning-count').textContent = lightningCount2.toLocaleString();
+            addMerchantMarkers();
+        } catch (e2) {
+            console.error('Direct BTCMap also failed:', e2);
+        }
         hideLoading();
+        updateSidebar();
     }
 }
 
-function addMarkers(category = null) {
+function addMerchantMarkers(category) {
     markerCluster.clearLayers();
-    
-    let filtered = allMerchants;
-    
+
+    var merchants = allItems.filter(function(m) { return m.pinType === 'merchant'; });
+    var filtered = merchants;
+
     if (category === 'lightning') {
-        filtered = allMerchants.filter(m => m.hasLightning);
+        filtered = merchants.filter(function(m) { return m.hasLightning; });
     } else if (category === 'restaurant') {
-        filtered = allMerchants.filter(m => ['restaurant', 'fast_food', 'cafe', 'bar', 'pub', 'food'].includes(m.category));
+        filtered = merchants.filter(function(m) { return ['restaurant','fast_food','cafe','bar','pub','food'].includes(m.category); });
     } else if (category === 'shop') {
-        filtered = allMerchants.filter(m => m.category.includes('shop') || ['supermarket', 'convenience', 'clothes', 'electronics'].includes(m.category));
+        filtered = merchants.filter(function(m) { return m.category.indexOf('shop') !== -1 || ['supermarket','convenience','clothes','electronics'].includes(m.category); });
     } else if (category === 'hotel') {
-        filtered = allMerchants.filter(m => ['hotel', 'hostel', 'guest_house', 'motel', 'apartment'].includes(m.category));
+        filtered = merchants.filter(function(m) { return ['hotel','hostel','guest_house','motel','apartment'].includes(m.category); });
     } else if (category === 'atm') {
-        filtered = allMerchants.filter(m => m.category === 'atm' || m.name.toLowerCase().includes('atm'));
+        filtered = merchants.filter(function(m) { return m.category === 'atm' || (m.name && m.name.toLowerCase().indexOf('atm') !== -1); });
     }
-    
-    filtered.forEach(m => {
-        const marker = L.marker([m.lat, m.lon], {
-            icon: m.hasLightning ? lightningIcon : btcIcon
-        });
-        
-        marker.merchantData = m;
-        marker.on('click', () => showMerchantPopup(m, marker));
+
+    filtered.forEach(function(m) {
+        var marker = L.marker([m.lat, m.lon], { icon: iconFor(m) });
+        marker.itemData = m;
+        marker.on('click', function() { showMerchantPopup(m, marker); });
         markerCluster.addLayer(marker);
     });
 }
 
 function filterCategory(category, btn) {
     currentCategory = category;
-    
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+
+    document.querySelectorAll('.category-btn').forEach(function(b) { b.classList.remove('active'); });
     if (btn) btn.classList.add('active');
-    
-    addMarkers(category);
-    updateMerchantList();
+
+    // Show/hide layers based on category
+    if (category === 'meetup') {
+        markerCluster.clearLayers();
+        map.addLayer(meetupLayer);
+        map.removeLayer(eventLayer);
+    } else if (category === 'event') {
+        markerCluster.clearLayers();
+        map.removeLayer(meetupLayer);
+        map.addLayer(eventLayer);
+    } else {
+        // Merchant categories
+        if (!map.hasLayer(meetupLayer)) map.addLayer(meetupLayer);
+        if (!map.hasLayer(eventLayer)) map.addLayer(eventLayer);
+        addMerchantMarkers(category);
+
+        if (category) {
+            // Hide meetup/event layers when filtering specific merchant types
+            map.removeLayer(meetupLayer);
+            map.removeLayer(eventLayer);
+        }
+    }
+
+    updateSidebar();
 }
 
-function updateMerchantList() {
-    const bounds = map.getBounds();
-    const listEl = document.getElementById('merchant-list');
-    
-    let filtered = allMerchants.filter(m => {
+function updateSidebar() {
+    var bounds = map.getBounds();
+    var listEl = document.getElementById('merchant-list');
+
+    var filtered = allItems.filter(function(m) {
         return bounds.contains([m.lat, m.lon]);
     });
-    
-    if (currentCategory === 'lightning') {
-        filtered = filtered.filter(m => m.hasLightning);
+
+    // Apply category filter
+    if (currentCategory === 'meetup') {
+        filtered = filtered.filter(function(m) { return m.pinType === 'meetup'; });
+    } else if (currentCategory === 'event') {
+        filtered = filtered.filter(function(m) { return m.pinType === 'event'; });
+    } else if (currentCategory === 'lightning') {
+        filtered = filtered.filter(function(m) { return m.hasLightning; });
     } else if (currentCategory === 'restaurant') {
-        filtered = filtered.filter(m => ['restaurant', 'fast_food', 'cafe', 'bar', 'pub', 'food'].includes(m.category));
+        filtered = filtered.filter(function(m) { return m.pinType === 'merchant' && ['restaurant','fast_food','cafe','bar','pub','food'].includes(m.category); });
     } else if (currentCategory === 'shop') {
-        filtered = filtered.filter(m => m.category.includes('shop') || ['supermarket', 'convenience', 'clothes', 'electronics'].includes(m.category));
+        filtered = filtered.filter(function(m) { return m.pinType === 'merchant' && (m.category.indexOf('shop') !== -1 || ['supermarket','convenience','clothes','electronics'].includes(m.category)); });
     } else if (currentCategory === 'hotel') {
-        filtered = filtered.filter(m => ['hotel', 'hostel', 'guest_house', 'motel', 'apartment'].includes(m.category));
+        filtered = filtered.filter(function(m) { return m.pinType === 'merchant' && ['hotel','hostel','guest_house','motel','apartment'].includes(m.category); });
     } else if (currentCategory === 'atm') {
-        filtered = filtered.filter(m => m.category === 'atm' || m.name.toLowerCase().includes('atm'));
+        filtered = filtered.filter(function(m) { return m.pinType === 'merchant' && (m.category === 'atm' || (m.name && m.name.toLowerCase().indexOf('atm') !== -1)); });
     }
-    
-    visibleMerchants = filtered.slice(0, 100);
-    
-    if (visibleMerchants.length === 0) {
-        listEl.innerHTML = `
-            <div class="empty-state">
-                <i class="fab fa-bitcoin"></i>
-                <p>No merchants in this view.<br>Zoom out or pan the map to discover more.</p>
-            </div>
-        `;
+
+    var visible = filtered.slice(0, 100);
+
+    if (visible.length === 0) {
+        listEl.innerHTML = '<div class="empty-state"><i class="fab fa-bitcoin"></i><p>No results in this view.<br>Zoom out or pan the map.</p></div>';
         return;
     }
-    
-    listEl.innerHTML = visibleMerchants.map(m => `
-        <div class="merchant-card" onclick="flyToMerchant(${m.lat}, ${m.lon})">
-            <div class="merchant-card-header">
-                <div>
-                    <div class="merchant-name">${escapeHtml(m.name)}</div>
-                    <div class="merchant-location">${escapeHtml(m.address || formatCategory(m.category))}</div>
-                </div>
-                <div class="merchant-badges">
-                    ${m.hasLightning ? '<span class="badge badge-lightning"><i class="fas fa-bolt"></i> LN</span>' : ''}
-                    ${m.hasOnchain ? '<span class="badge badge-onchain"><i class="fab fa-bitcoin"></i></span>' : ''}
-                </div>
-            </div>
-            <div class="merchant-meta">
-                <span class="merchant-meta-item">
-                    <i class="fas fa-tag"></i> ${formatCategory(m.category)}
-                </span>
-                ${m.hours ? `<span class="merchant-meta-item"><i class="fas fa-clock"></i> Open</span>` : ''}
-            </div>
-        </div>
-    `).join('');
+
+    listEl.innerHTML = visible.map(function(m) {
+        var cls = classifyMerchant(m);
+        var badgeHtml = '';
+
+        if (m.pinType === 'event') {
+            badgeHtml = '<span class="badge badge-event"><i class="fas fa-star"></i> Event</span>';
+            if (m.isProtocolPulse) badgeHtml += ' <span class="badge badge-pp">PP</span>';
+        } else if (m.pinType === 'meetup') {
+            badgeHtml = '<span class="badge badge-meetup"><i class="fas fa-users"></i> Meetup</span>';
+            if (m.isProtocolPulse) badgeHtml += ' <span class="badge badge-pp">PP</span>';
+        } else {
+            if (m.hasLightning) badgeHtml += '<span class="badge badge-lightning"><i class="fas fa-bolt"></i> LN</span>';
+            if (m.hasOnchain) badgeHtml += '<span class="badge badge-onchain"><i class="fab fa-bitcoin"></i></span>';
+        }
+
+        var subtitle = '';
+        if (m.pinType === 'event') subtitle = m.venue || formatDate(m.date);
+        else if (m.pinType === 'meetup') subtitle = m.city || '';
+        else subtitle = m.address || formatCategory(m.category);
+
+        var metaHtml = '';
+        if (m.pinType === 'event') {
+            metaHtml = '<span class="merchant-meta-item"><i class="fas fa-calendar-alt"></i> ' + formatDate(m.date) + '</span>';
+        } else if (m.pinType === 'meetup') {
+            metaHtml = '<span class="merchant-meta-item"><i class="fas fa-sync-alt"></i> ' + escapeHtml(m.frequency || 'Regular') + '</span>';
+        } else {
+            metaHtml = '<span class="merchant-meta-item"><i class="fas fa-tag"></i> ' + formatCategory(m.category) + '</span>';
+            if (m.hours) metaHtml += '<span class="merchant-meta-item"><i class="fas fa-clock"></i> Open</span>';
+        }
+
+        return '<div class="merchant-card" onclick="flyToItem(' + m.lat + ',' + m.lon + ')">' +
+            '<div class="merchant-card-header"><div>' +
+                '<div class="merchant-name">' + escapeHtml(m.name) + '</div>' +
+                '<div class="merchant-location">' + escapeHtml(subtitle) + '</div>' +
+            '</div><div class="merchant-badges">' + badgeHtml + '</div></div>' +
+            '<div class="merchant-meta">' + metaHtml + '</div></div>';
+    }).join('');
+}
+
+function updateStats() {
+    document.getElementById('meetup-count').textContent = BITCOIN_MEETUPS.length;
+    document.getElementById('event-count').textContent = BITCOIN_EVENTS.length;
 }
 
 function showMerchantPopup(m, marker) {
-    let detailsHtml = '';
-    
-    if (m.address) {
-        detailsHtml += `<div class="popup-detail"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(m.address)}</div>`;
-    }
-    if (m.phone) {
-        detailsHtml += `<div class="popup-detail"><i class="fas fa-phone"></i> <a href="tel:${m.phone.replace(/\s/g, '')}">${escapeHtml(m.phone)}</a></div>`;
-    }
+    var detailsHtml = '';
+
+    if (m.address) detailsHtml += '<div class="popup-detail"><i class="fas fa-map-marker-alt"></i> ' + escapeHtml(m.address) + '</div>';
+    if (m.phone) detailsHtml += '<div class="popup-detail"><i class="fas fa-phone"></i> <a href="tel:' + m.phone.replace(/\s/g, '') + '">' + escapeHtml(m.phone) + '</a></div>';
     if (m.website) {
-        const displayUrl = m.website.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 40);
-        detailsHtml += `<div class="popup-detail"><i class="fas fa-globe"></i> <a href="${escapeHtml(m.website)}" target="_blank">${escapeHtml(displayUrl)}</a></div>`;
+        var displayUrl = m.website.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 40);
+        detailsHtml += '<div class="popup-detail"><i class="fas fa-globe"></i> <a href="' + escapeHtml(m.website) + '" target="_blank">' + escapeHtml(displayUrl) + '</a></div>';
     }
-    if (m.hours) {
-        detailsHtml += `<div class="popup-detail"><i class="fas fa-clock"></i> ${escapeHtml(m.hours)}</div>`;
-    }
-    
-    const popupContent = `
-        <div class="popup-name">${escapeHtml(m.name)}</div>
-        <div class="popup-category">${formatCategory(m.category)}</div>
-        <div class="popup-badges">
-            ${m.hasLightning ? '<span class="badge badge-lightning"><i class="fas fa-bolt me-1"></i>Lightning</span>' : ''}
-            ${m.hasOnchain ? '<span class="badge badge-onchain"><i class="fab fa-bitcoin me-1"></i>On-chain</span>' : ''}
-        </div>
-        ${detailsHtml}
-        <div class="popup-actions">
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}" target="_blank" class="directions-btn">
-                <i class="fas fa-directions"></i> Get Directions
-            </a>
-        </div>
-    `;
-    
-    marker.bindPopup(popupContent, {
-        className: 'merchant-popup',
-        maxWidth: 300
-    }).openPopup();
+    if (m.hours) detailsHtml += '<div class="popup-detail"><i class="fas fa-clock"></i> ' + escapeHtml(m.hours) + '</div>';
+
+    var cls = classifyMerchant(m);
+    var catLabel = formatCategory(m.category);
+    if (cls === 'lightning') catLabel = 'Lightning-Enabled Business';
+    else if (cls === 'atm') catLabel = 'Bitcoin ATM';
+
+    var popupContent = '<div class="popup-name">' + escapeHtml(m.name) + '</div>' +
+        '<div class="popup-category">' + catLabel + '</div>' +
+        '<div class="popup-badges">' +
+            (m.hasLightning ? '<span class="badge badge-lightning"><i class="fas fa-bolt me-1"></i>Lightning</span>' : '') +
+            (m.hasOnchain ? '<span class="badge badge-onchain"><i class="fab fa-bitcoin me-1"></i>On-chain</span>' : '') +
+        '</div>' +
+        detailsHtml +
+        '<div class="popup-actions">' +
+            '<a href="https://www.google.com/maps/dir/?api=1&destination=' + m.lat + ',' + m.lon + '" target="_blank" class="directions-btn"><i class="fas fa-directions"></i> Directions</a>' +
+        '</div>';
+
+    marker.bindPopup(popupContent, { className: 'merchant-popup', maxWidth: 300 }).openPopup();
 }
 
-function flyToMerchant(lat, lon) {
-    map.flyTo([lat, lon], 16, { duration: 1 });
+function flyToItem(lat, lon) {
+    map.flyTo([lat, lon], 14, { duration: 1 });
 }
 
 function buildAddress(tags) {
-    const parts = [];
+    var parts = [];
     if (tags['addr:housenumber']) parts.push(tags['addr:housenumber']);
     if (tags['addr:street']) parts.push(tags['addr:street']);
     if (tags['addr:city']) parts.push(tags['addr:city']);
@@ -945,27 +1196,32 @@ function buildAddress(tags) {
 
 function formatCategory(cat) {
     if (!cat) return 'Business';
-    return cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return cat.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function escapeHtml(text) {
     if (!text) return '';
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
 async function searchLocation() {
-    const query = document.getElementById('location-search').value;
+    var query = document.getElementById('location-search').value;
     if (!query) return;
-    
+
     try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-        const results = await response.json();
-        
+        var response = await fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query));
+        var results = await response.json();
+
         if (results.length > 0) {
-            const { lat, lon } = results[0];
-            map.flyTo([parseFloat(lat), parseFloat(lon)], 12, { duration: 1.5 });
+            map.flyTo([parseFloat(results[0].lat), parseFloat(results[0].lon)], 12, { duration: 1.5 });
         }
     } catch (error) {
         console.error('Search failed:', error);
@@ -973,35 +1229,25 @@ async function searchLocation() {
 }
 
 function searchLocationMobile() {
-    const query = document.getElementById('mobile-search').value;
-    document.getElementById('location-search').value = query;
+    document.getElementById('location-search').value = document.getElementById('mobile-search').value;
     searchLocation();
 }
 
 function useCurrentLocation() {
     if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
-            pos => {
-                map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, { duration: 1.5 });
-            },
-            err => {
-                alert('Could not get your location. Please enable location services.');
-            }
+            function(pos) { map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, { duration: 1.5 }); },
+            function() { alert('Could not get your location. Please enable location services.'); }
         );
     } else {
         alert('Geolocation is not supported by your browser.');
     }
 }
 
-function showLoading() {
-    document.getElementById('loading-overlay').classList.add('active');
-}
+function showLoading() { document.getElementById('loading-overlay').classList.add('active'); }
+function hideLoading() { document.getElementById('loading-overlay').classList.remove('active'); }
 
-function hideLoading() {
-    document.getElementById('loading-overlay').classList.remove('active');
-}
-
-document.getElementById('location-search').addEventListener('keypress', e => {
+document.getElementById('location-search').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') searchLocation();
 });
 
