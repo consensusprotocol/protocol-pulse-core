@@ -1,5 +1,5 @@
 /**
- * Protocol Pulse — Service Worker v3
+ * Protocol Pulse — Service Worker v4
  * Features:
  *   - Offline article reading (cache recent articles)
  *   - Push notifications for breaking news (Pulse Alerts)
@@ -9,10 +9,13 @@
  *   - Smart cache management (auto-evict old entries)
  */
 
-const CACHE_VERSION = 'protocol-pulse-v3';
-const ARTICLE_CACHE = 'pp-articles-v1';
-const API_CACHE = 'pp-api-v1';
+const CACHE_VERSION = 'protocol-pulse-v4';
+const ARTICLE_CACHE = 'pp-articles-v2';
+const API_CACHE = 'pp-api-v2';
 const OFFLINE_URL = '/offline';
+
+// Pages that must ALWAYS be served from network (real-time/interactive)
+const NETWORK_ONLY_PAGES = ['/oracle-live', '/oracle'];
 
 // Core shell — cached on install for instant load
 const APP_SHELL = [
@@ -102,6 +105,12 @@ self.addEventListener('fetch', (event) => {
   // Sovereign Mode: block trackers
   if (sovereignModeEnabled && isTracker(url.href)) {
     event.respondWith(new Response('', { status: 204 }));
+    return;
+  }
+
+  // Strategy: Real-time pages — always network, never cache
+  if (NETWORK_ONLY_PAGES.some(p => url.pathname === p || url.pathname.startsWith(p + '/'))) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
