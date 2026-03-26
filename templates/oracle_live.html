@@ -1478,8 +1478,12 @@ function playVid(url){
     if(p){
       p.then(function(){}).catch(function(err){
         console.warn('[Satomi] vid.play() rejected (autoplay):',err);
-        /* P0: iOS Safari — show centered tap-to-play overlay */
-        showTapOverlay();
+        /* P0: iOS Safari autoplay rejected - retry once silently before overlay */
+        setTimeout(function(){
+          var retry = vid.play();
+          if(retry){ retry.then(function(){}).catch(function(){ showTapOverlay(); }); }
+          else { showTapOverlay(); }
+        }, 500);
       });
     }
   });
@@ -1497,7 +1501,7 @@ function initSR(){
 function _newRecognition(){
   if(!window._SR) return null;
   var r = new window._SR();
-  r.continuous = false;       /* single-shot: fires onend reliably on iOS */
+  r.continuous = true;        /* continuous: keeps interim results flowing for real-time transcript */
   r.interimResults = true;
   r.lang = 'en-US';
   r.maxAlternatives = 1;
@@ -1912,8 +1916,11 @@ function _speakVisionGuidance(d) {
   // Add to session transcript
   _addVisionEntry(d.device_name, d.steps || [], guideText);
 
-  // VOICE-ONLY: /oracle/voice is ElevenLabs-only, no GPU, ~400ms vs 14s
-  fetchTO(A+"/oracle/voice",{method:"POST",
+  // Route through full avatar pipeline for lip sync
+  setBusy(true);
+  process(guideText);
+  // Legacy voice fetch removed - now uses Wav2Lip via process()
+  if(false) fetchTO(A+"/oracle/voice",{method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({text:guideText})},15000)
   .then(function(ar){
