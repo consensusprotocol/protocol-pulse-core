@@ -1,0 +1,1152 @@
+{% extends "base.html" %}
+
+{% block title %}PANOPTICON — Congressional Intelligence | Protocol Pulse{% endblock %}
+{% block meta_description %}Real-time intelligence dashboard tracking congressional disclosures, whale wallet movements, and geopolitical financial signals cross-referenced with Bitcoin data.{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PANOPTICON — "They watch us. Now we watch them."
+   Bloomberg Terminal × NSA Aesthetic
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+    --pn-bg: #06070b;
+    --pn-surface: #0d1118;
+    --pn-surface-2: #121824;
+    --pn-border: #1a1a2e;
+    --pn-border-active: #2a2a4e;
+    --pn-text: #eef2ff;
+    --pn-text-secondary: #95a0ba;
+    --pn-muted: #555577;
+    --pn-red: #ff3b5f;
+    --pn-gold: #f8c15c;
+    --pn-cyan: #5de4ff;
+    --pn-lime: #89ffb8;
+    --pn-coral: #ff8ba0;
+    --pn-amber: #ffaa00;
+    --pn-purple: #8b5cf6;
+    --pn-confirmed: #ff3b5f;
+    --pn-flagged: #ffaa00;
+    --pn-watch: #5de4ff;
+}
+
+body.panopticon-body {
+    background: var(--pn-bg) !important;
+    color: var(--pn-text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+body.panopticon-body nav,
+body.panopticon-body .navbar,
+body.panopticon-body footer,
+body.panopticon-body .site-footer,
+body.panopticon-body .pp-nav,
+body.panopticon-body .pp-footer { display: none !important; }
+
+.pn-wrap {
+    max-width: 1640px;
+    margin: 0 auto;
+    padding: 0 12px;
+}
+
+/* ── HEADER ────────────────────────────────────────────────────── */
+.pn-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--pn-border);
+    background: var(--pn-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.pn-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.pn-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--pn-red);
+}
+.pn-logo-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pn-muted);
+    margin-top: 2px;
+}
+.pn-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-text-secondary);
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
+.pn-header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.pn-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--pn-text);
+    letter-spacing: 1px;
+}
+.pn-events-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pn-gold);
+    letter-spacing: 1px;
+}
+.pn-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-lime);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.pn-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--pn-lime);
+    animation: pnPulse 2s ease-in-out infinite;
+}
+@keyframes pnPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.pn-back {
+    color: var(--pn-text-secondary);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    transition: color 0.2s;
+}
+.pn-back:hover { color: var(--pn-text); }
+
+/* ── LIVE TICKER ───────────────────────────────────────────────── */
+.pn-ticker {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--pn-border);
+    background: var(--pn-surface);
+    gap: 12px;
+    overflow: hidden;
+    min-height: 36px;
+}
+.pn-ticker-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pn-red);
+    white-space: nowrap;
+    padding: 3px 8px;
+    border: 1px solid rgba(255,59,95,0.3);
+    background: rgba(255,59,95,0.08);
+}
+.pn-ticker-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pn-text);
+    white-space: nowrap;
+    animation: tickerScroll 30s linear infinite;
+    flex: 1;
+}
+@keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.pn-ticker-btc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pn-gold);
+    white-space: nowrap;
+}
+
+/* ── ALERT RAIL ────────────────────────────────────────────────── */
+.pn-alert-rail {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-bottom: 1px solid var(--pn-border);
+    background: rgba(255,59,95,0.04);
+    gap: 16px;
+}
+.pn-alert-critical {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--pn-red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+.pn-alert-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pn-red);
+    animation: critPulse 1s ease-in-out infinite;
+}
+@keyframes critPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,95,0.7); }
+    50% { box-shadow: 0 0 0 6px rgba(255,59,95,0); }
+}
+
+/* ── THREE COLUMN GRID ─────────────────────────────────────────── */
+.pn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 1px;
+    background: var(--pn-border);
+    margin-top: 1px;
+    min-height: calc(100vh - 160px);
+}
+@media (max-width: 1024px) {
+    .pn-grid { grid-template-columns: 1fr; }
+}
+
+/* ── PANEL ─────────────────────────────────────────────────────── */
+.pn-panel {
+    background: var(--pn-bg);
+    padding: 16px;
+    position: relative;
+    overflow-y: auto;
+    max-height: calc(100vh - 160px);
+}
+.pn-panel-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--pn-border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.pn-panel-header .tier-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.tier-confirmed .tier-dot { background: var(--pn-confirmed); }
+.tier-confirmed .pn-panel-header { color: var(--pn-confirmed); }
+.tier-flagged .tier-dot { background: var(--pn-flagged); }
+.tier-flagged .pn-panel-header { color: var(--pn-flagged); }
+.tier-feed .tier-dot { background: var(--pn-watch); }
+.tier-feed .pn-panel-header { color: var(--pn-watch); }
+
+.pn-panel-count {
+    margin-left: auto;
+    font-size: 9px;
+    color: var(--pn-muted);
+    font-weight: 500;
+}
+
+/* ── DISCLOSURE CARD ───────────────────────────────────────────── */
+.pn-card {
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+    position: relative;
+}
+.pn-card:hover { border-color: var(--pn-border-active); }
+.pn-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.pn-card-entity {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-text);
+    line-height: 1.3;
+}
+.pn-card-party {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+.party-R { background: rgba(255,59,95,0.15); color: var(--pn-red); }
+.party-D { background: rgba(93,228,255,0.15); color: var(--pn-cyan); }
+.party-I { background: rgba(139,92,246,0.15); color: var(--pn-purple); }
+
+.pn-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.pn-card-field {
+    display: flex;
+    flex-direction: column;
+}
+.pn-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--pn-muted);
+    margin-bottom: 3px;
+}
+.pn-card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--pn-text);
+}
+.pn-card-value.buy { color: var(--pn-lime); }
+.pn-card-value.sell { color: var(--pn-coral); }
+
+.pn-card-correlation {
+    background: rgba(255,170,0,0.06);
+    border: 1px solid rgba(255,170,0,0.15);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-amber);
+    line-height: 1.4;
+}
+.pn-card-correlation::before {
+    content: "PATTERN DETECTED";
+    display: block;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    color: var(--pn-amber);
+    opacity: 0.7;
+}
+
+.pn-card-source {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-muted);
+}
+.pn-card-source a {
+    color: var(--pn-text-secondary);
+    text-decoration: none;
+}
+.pn-card-source a:hover { color: var(--pn-gold); }
+
+/* ── WHALE CARD ────────────────────────────────────────────────── */
+.pn-whale-card {
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-left: 3px solid var(--pn-cyan);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+}
+.pn-whale-card:hover { border-color: var(--pn-border-active); border-left-color: var(--pn-cyan); }
+.pn-whale-entity {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pn-text);
+    margin-bottom: 6px;
+}
+.pn-whale-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.pn-whale-amount.inflow { color: var(--pn-lime); }
+.pn-whale-amount.outflow { color: var(--pn-coral); }
+.pn-whale-usd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pn-text-secondary);
+    margin-bottom: 6px;
+}
+.pn-whale-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-muted);
+}
+.pn-whale-meta a {
+    color: var(--pn-text-secondary);
+    text-decoration: none;
+}
+.pn-whale-meta a:hover { color: var(--pn-gold); }
+.pn-whale-type {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+.pn-whale-type.inflow { background: rgba(137,255,184,0.1); color: var(--pn-lime); }
+.pn-whale-type.outflow { background: rgba(255,139,160,0.1); color: var(--pn-coral); }
+
+/* ── GEOPOLITICAL CARD ─────────────────────────────────────────── */
+.pn-geo-card {
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+.pn-geo-headline {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+.pn-geo-signal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+.signal-bullish { background: rgba(137,255,184,0.1); color: var(--pn-lime); }
+.signal-bearish { background: rgba(255,139,160,0.1); color: var(--pn-coral); }
+.signal-neutral { background: rgba(149,160,186,0.1); color: var(--pn-text-secondary); }
+.pn-geo-rationale {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-text-secondary);
+    line-height: 1.4;
+    margin-top: 6px;
+}
+.pn-geo-meta {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ── FOREX MINI-CARD ───────────────────────────────────────────── */
+.pn-forex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+.pn-forex-pair {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pn-text);
+}
+.pn-forex-rate {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pn-gold);
+}
+.pn-forex-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-cyan);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ── WATCH LIST SECTION ────────────────────────────────────────── */
+.pn-watchlist {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--pn-border);
+}
+.pn-watchlist-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--pn-cyan);
+    margin-bottom: 12px;
+}
+.pn-watchlist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+.pn-watchlist-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-text);
+    min-width: 140px;
+}
+.pn-watchlist-detail {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-text-secondary);
+    flex: 1;
+}
+.pn-watchlist-sources {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-muted);
+}
+
+/* ── CORRELATION TIMELINE ──────────────────────────────────────── */
+.pn-correlation {
+    background: var(--pn-surface-2);
+    border: 1px solid var(--pn-border);
+    border-left: 3px solid var(--pn-gold);
+    border-radius: 0 8px 8px 0;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+.pn-correlation-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pn-gold);
+    margin-bottom: 8px;
+}
+.pn-correlation-summary {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--pn-text);
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+.pn-correlation-events {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.pn-corr-event {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(248,193,92,0.04);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-text-secondary);
+}
+.pn-corr-event-type {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+.pn-corr-event-type.whale { background: rgba(93,228,255,0.1); color: var(--pn-cyan); }
+.pn-corr-event-type.geo { background: rgba(139,92,246,0.1); color: var(--pn-purple); }
+
+/* ── DEMO / CLASSIFIED OVERLAY ─────────────────────────────────── */
+.pn-demo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(6,7,11,0.88);
+    backdrop-filter: blur(6px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    gap: 12px;
+}
+.pn-classified-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--pn-red);
+    border: 2px solid var(--pn-red);
+    padding: 10px 24px;
+    animation: classifiedFlash 3s ease-in-out infinite;
+}
+@keyframes classifiedFlash {
+    0%, 100% { opacity: 1; border-color: var(--pn-red); }
+    50% { opacity: 0.6; border-color: rgba(255,59,95,0.3); }
+}
+.pn-classified-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pn-text-secondary);
+    letter-spacing: 1px;
+}
+.pn-upgrade-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 24px;
+    background: var(--pn-red);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.pn-upgrade-btn:hover { background: #e02a4d; color: #fff; }
+
+/* ── SECTION DIVIDERS ──────────────────────────────────────────── */
+.pn-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pn-gold);
+    margin: 20px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(248,193,92,0.15);
+}
+
+/* ── DISCLAIMER ────────────────────────────────────────────────── */
+.pn-disclaimer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--pn-border);
+    background: var(--pn-surface);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-muted);
+    text-align: center;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+}
+
+/* ── LOADING STATE ─────────────────────────────────────────────── */
+.pn-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pn-text-secondary);
+}
+.pn-loading-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--pn-cyan);
+    animation: loadDot 1.2s ease-in-out infinite;
+}
+.pn-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.pn-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes loadDot {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* ── HERO STATS ROW ────────────────────────────────────────────── */
+.pn-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--pn-border);
+    margin-bottom: 1px;
+}
+@media (max-width: 768px) {
+    .pn-stats-row { grid-template-columns: 1fr 1fr; }
+}
+.pn-stat {
+    background: var(--pn-bg);
+    padding: 14px 16px;
+    text-align: center;
+}
+.pn-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--pn-text);
+}
+.pn-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--pn-muted);
+    margin-top: 4px;
+}
+
+/* ── EMPTY STATE ───────────────────────────────────────────────── */
+.pn-empty {
+    padding: 30px 16px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pn-muted);
+}
+
+/* ── STATUS CHIP ───────────────────────────────────────────────── */
+.pn-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+.pn-status-chip.loading { background: rgba(93,228,255,0.1); color: var(--pn-cyan); }
+.pn-status-chip.live { background: rgba(137,255,184,0.1); color: var(--pn-lime); }
+.pn-status-chip.stale { background: rgba(85,85,119,0.2); color: var(--pn-muted); }
+</style>
+{% endblock %}
+
+{% block body_class %}panopticon-body{% endblock %}
+
+{% block content %}
+<div class="pn-wrap">
+    <!-- ═══ HEADER ═══ -->
+    <header class="pn-header">
+        <div class="pn-header-left">
+            <div>
+                <div class="pn-logo">PANOPTICON</div>
+                <div class="pn-logo-sub">They watch us. Now we watch them.</div>
+            </div>
+            <span class="pn-tagline">Congressional Disclosure &amp; Whale Intelligence</span>
+        </div>
+        <div class="pn-header-right">
+            <span class="pn-events-count" id="pnEventsCount">{{ data.events_today }} EVENTS TODAY</span>
+            <span class="pn-clock" id="pnClock">--:--:-- UTC</span>
+            <div class="pn-status">
+                <div class="pn-status-dot"></div>
+                <span>SCANNING</span>
+            </div>
+            <a href="/" class="pn-back">&larr; PROTOCOL PULSE</a>
+        </div>
+    </header>
+
+    <!-- ═══ LIVE TICKER ═══ -->
+    <div class="pn-ticker">
+        <span class="pn-ticker-label">LIVE FEED</span>
+        <span class="pn-ticker-text" id="pnTickerText">
+            {% if data.whales %}
+                {% for w in data.whales[:3] %}
+                    {{ w.entity }}: {{ w.amount_btc }} BTC {{ w.tx_type }} &nbsp;&bull;&nbsp;
+                {% endfor %}
+            {% endif %}
+            {% for d in data.disclosures[:3] %}
+                {{ d.entity }} — {{ d.asset }} ({{ d.trade_type }}) &nbsp;&bull;&nbsp;
+            {% endfor %}
+            PANOPTICON monitoring {{ data.events_today }} events &nbsp;&bull;&nbsp; All data from public sources
+        </span>
+        <span class="pn-ticker-btc" id="pnBtcPrice">
+            {% if data.btc_price %}BTC ${{ "{:,.0f}".format(data.btc_price) }}{% else %}BTC --{% endif %}
+        </span>
+    </div>
+
+    {% if demo_mode %}
+    <!-- ═══ CLASSIFIED ALERT ═══ -->
+    <div class="pn-alert-rail">
+        <div class="pn-alert-critical">
+            <div class="pn-alert-dot"></div>
+            <span>[ CLASSIFIED — Commander Access Required ]</span>
+        </div>
+        <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--pn-muted);">
+            Upgrade to Commander to unlock full intelligence feed
+        </span>
+    </div>
+    {% endif %}
+
+    <!-- ═══ STATS ROW ═══ -->
+    <div class="pn-stats-row">
+        <div class="pn-stat">
+            <div class="pn-stat-value" id="pnStatDisclosures">{{ data.disclosures|length }}</div>
+            <div class="pn-stat-label">Disclosures Tracked</div>
+        </div>
+        <div class="pn-stat">
+            <div class="pn-stat-value" id="pnStatWhales">{{ data.whales|length }}</div>
+            <div class="pn-stat-label">Whale Movements</div>
+        </div>
+        <div class="pn-stat">
+            <div class="pn-stat-value" id="pnStatFlags">{{ data.flagged|length }}</div>
+            <div class="pn-stat-label">Patterns Flagged</div>
+        </div>
+        <div class="pn-stat">
+            <div class="pn-stat-value" id="pnStatGeo">{{ data.geopolitical|length }}</div>
+            <div class="pn-stat-label">Geopolitical Signals</div>
+        </div>
+    </div>
+
+    <!-- ═══ THREE COLUMN GRID ═══ -->
+    <div class="pn-grid">
+        <!-- ═══ COLUMN 1: CONFIRMED (STOCK Act) ═══ -->
+        <div class="pn-panel tier-confirmed">
+            <div class="pn-panel-header">
+                <span class="tier-dot"></span>
+                TIER 1 — CONFIRMED
+                <span class="pn-panel-count">STOCK ACT FILINGS</span>
+            </div>
+
+            {% if demo_mode %}
+            <div class="pn-demo-overlay">
+                <div class="pn-classified-badge">CLASSIFIED</div>
+                <div class="pn-classified-sub">Commander Access Required</div>
+                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
+            </div>
+            {% endif %}
+
+            <div id="pnDisclosures">
+                {% for d in data.disclosures %}
+                <div class="pn-card">
+                    <div class="pn-card-header">
+                        <div class="pn-card-entity">{{ d.entity }}</div>
+                        {% if d.party %}
+                        <span class="pn-card-party party-{{ d.party }}">{{ d.party }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pn-card-body">
+                        <div class="pn-card-field">
+                            <span class="pn-card-label">Asset</span>
+                            <span class="pn-card-value">{{ d.asset }}</span>
+                        </div>
+                        <div class="pn-card-field">
+                            <span class="pn-card-label">Type</span>
+                            <span class="pn-card-value {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</span>
+                        </div>
+                        <div class="pn-card-field">
+                            <span class="pn-card-label">Amount</span>
+                            <span class="pn-card-value">{{ d.amount_range }}</span>
+                        </div>
+                        <div class="pn-card-field">
+                            <span class="pn-card-label">Filed</span>
+                            <span class="pn-card-value">{{ d.date_filed }}</span>
+                        </div>
+                        {% if d.get('days_to_file') %}
+                        <div class="pn-card-field">
+                            <span class="pn-card-label">Days to File</span>
+                            <span class="pn-card-value">{{ d.days_to_file }}d</span>
+                        </div>
+                        {% endif %}
+                        {% if d.get('committee') %}
+                        <div class="pn-card-field">
+                            <span class="pn-card-label">Committee</span>
+                            <span class="pn-card-value">{{ d.committee }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if d.get('correlation_note') %}
+                    <div class="pn-card-correlation">{{ d.correlation_note }}</div>
+                    {% endif %}
+                    {% if d.get('status') == 'loading' %}
+                    <div style="margin-top:8px;">
+                        <span class="pn-status-chip loading">Awaiting Live Data</span>
+                    </div>
+                    {% endif %}
+                    <div class="pn-card-source">
+                        Source: <a href="{{ d.source_url }}" target="_blank" rel="noopener">Public Financial Disclosure</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.disclosures %}
+                <div class="pn-empty">No crypto-related disclosures in current window</div>
+                {% endif %}
+            </div>
+
+            <!-- WATCH LIST -->
+            <div class="pn-watchlist">
+                <div class="pn-watchlist-header">TIER 3 — WATCH LIST (Publicly Documented)</div>
+                {% for w in data.watch_list %}
+                <div class="pn-watchlist-item">
+                    <div class="pn-watchlist-name">
+                        {{ w.name }}
+                        <span class="pn-card-party party-{{ w.party }}" style="margin-left:6px;">{{ w.party }}</span>
+                    </div>
+                    <div class="pn-watchlist-detail">{{ w.note }}</div>
+                    <div class="pn-watchlist-sources">{{ w.coverage|join(', ') }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ═══ COLUMN 2: FLAGGED (Correlations) ═══ -->
+        <div class="pn-panel tier-flagged">
+            <div class="pn-panel-header">
+                <span class="tier-dot"></span>
+                TIER 2 — FLAGGED
+                <span class="pn-panel-count">PATTERN DETECTION</span>
+            </div>
+
+            {% if demo_mode %}
+            <div class="pn-demo-overlay">
+                <div class="pn-classified-badge">CLASSIFIED</div>
+                <div class="pn-classified-sub">Commander Access Required</div>
+                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom:12px; padding:10px; background:rgba(255,170,0,0.04); border:1px solid rgba(255,170,0,0.1); border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--pn-amber); letter-spacing:0.5px; line-height:1.5;">
+                PATTERN FOR RESEARCH &mdash; NOT VERIFIED. Statistical correlations shown for independent research purposes only. These are computed patterns, not accusations.
+            </div>
+
+            <!-- Correlation Timeline -->
+            <div class="pn-section-title">Correlation Timeline</div>
+            <div id="pnCorrelations">
+                {% for c in data.correlations %}
+                <div class="pn-correlation">
+                    <div class="pn-correlation-header">CROSS-REFERENCE EVENT</div>
+                    <div class="pn-correlation-summary">{{ c.timeline_summary }}</div>
+                    <div class="pn-correlation-events">
+                        {% if c.disclosure %}
+                        <div class="pn-corr-event">
+                            <span class="pn-corr-event-type" style="background:rgba(255,59,95,0.1);color:var(--pn-red);">DISCLOSURE</span>
+                            {{ c.disclosure.entity }} &mdash; {{ c.disclosure.asset }} ({{ c.disclosure.trade_type }})
+                        </div>
+                        {% endif %}
+                        {% for w in c.related_whales %}
+                        <div class="pn-corr-event">
+                            <span class="pn-corr-event-type whale">WHALE</span>
+                            {{ w.entity }} &mdash; {{ w.amount }} {{ w.direction }}
+                        </div>
+                        {% endfor %}
+                        {% for g in c.related_geo %}
+                        <div class="pn-corr-event">
+                            <span class="pn-corr-event-type geo">GEO</span>
+                            {{ g.headline[:80] }}{% if g.headline|length > 80 %}...{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.correlations %}
+                <div class="pn-empty">Awaiting correlated events...</div>
+                {% endif %}
+            </div>
+
+            <!-- Flagged Disclosures -->
+            <div class="pn-section-title">Flagged Trades</div>
+            {% for f in data.flagged %}
+            <div class="pn-card" style="border-left:3px solid var(--pn-amber);">
+                <div class="pn-card-header">
+                    <div class="pn-card-entity">{{ f.entity }}</div>
+                    {% if f.party %}
+                    <span class="pn-card-party party-{{ f.party }}">{{ f.party }}</span>
+                    {% endif %}
+                </div>
+                <div class="pn-card-body">
+                    <div class="pn-card-field">
+                        <span class="pn-card-label">Asset</span>
+                        <span class="pn-card-value">{{ f.asset }}</span>
+                    </div>
+                    <div class="pn-card-field">
+                        <span class="pn-card-label">Score</span>
+                        <span class="pn-card-value" style="color:var(--pn-amber)">{{ "%.0f"|format(f.correlation_score * 100) }}%</span>
+                    </div>
+                </div>
+                <div class="pn-card-correlation">{{ f.flag_reason }}</div>
+            </div>
+            {% endfor %}
+            {% if not data.flagged %}
+            <div class="pn-empty">No statistical patterns detected in current window</div>
+            {% endif %}
+        </div>
+
+        <!-- ═══ COLUMN 3: REAL-TIME FEED ═══ -->
+        <div class="pn-panel tier-feed">
+            <div class="pn-panel-header">
+                <span class="tier-dot"></span>
+                REAL-TIME FEED
+                <span class="pn-panel-count">WHALE + FOREX + GEO</span>
+            </div>
+
+            {% if demo_mode %}
+            <div class="pn-demo-overlay">
+                <div class="pn-classified-badge">CLASSIFIED</div>
+                <div class="pn-classified-sub">Commander Access Required</div>
+                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
+            </div>
+            {% endif %}
+
+            <!-- Whale Alerts -->
+            <div class="pn-section-title">Whale Tracker</div>
+            <div id="pnWhales">
+                {% for w in data.whales %}
+                <div class="pn-whale-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <div class="pn-whale-entity">{{ w.entity }}</div>
+                        <span class="pn-whale-type {{ w.tx_type }}">{{ w.tx_type|upper }}</span>
+                    </div>
+                    <div class="pn-whale-amount {{ w.tx_type }}">
+                        {% if w.tx_type == 'inflow' %}+{% else %}-{% endif %}{{ w.amount_btc }} BTC
+                    </div>
+                    {% if w.amount_usd %}
+                    <div class="pn-whale-usd">${{ "{:,.0f}".format(w.amount_usd) }} USD</div>
+                    {% endif %}
+                    <div class="pn-whale-meta">
+                        <span>{{ w.address }}</span>
+                        <a href="{{ w.source_url }}" target="_blank" rel="noopener">View TX &rarr;</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.whales %}
+                <div class="pn-loading">
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    Scanning whale wallets...
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Nation-State / Forex -->
+            <div class="pn-section-title">Nation-State Signals</div>
+            <div id="pnForex">
+                {% for f in data.forex %}
+                <div class="pn-forex-row">
+                    <span class="pn-forex-pair">{{ f.pair }}</span>
+                    {% if f.rate %}
+                    <span class="pn-forex-rate">{{ f.rate }}</span>
+                    {% endif %}
+                    <span class="pn-forex-status">{{ f.status }}</span>
+                </div>
+                {% endfor %}
+                {% if not data.forex %}
+                <div class="pn-loading">
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    Fetching sovereign signals...
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Geopolitical Feed -->
+            <div class="pn-section-title">Geopolitical Alert Feed</div>
+            <div id="pnGeo">
+                {% for g in data.geopolitical %}
+                <div class="pn-geo-card">
+                    <div class="pn-geo-headline">{{ g.headline }}</div>
+                    <span class="pn-geo-signal signal-{{ g.btc_signal }}">
+                        {% if g.btc_signal == 'bullish' %}&#9650;{% elif g.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+                        BTC SIGNAL: {{ g.btc_signal|upper }}
+                    </span>
+                    <div class="pn-geo-rationale">{{ g.btc_rationale }}</div>
+                    <div class="pn-geo-meta">
+                        <span>{{ g.source }}</span>
+                        <span>{{ g.timestamp[:10] if g.timestamp else 'N/A' }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.geopolitical %}
+                <div class="pn-empty">No geopolitical signals in current window</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DISCLAIMER ═══ -->
+    <div class="pn-disclaimer">
+        All data sourced from public filings (STOCK Act, SEC EDGAR), public blockchain explorers (mempool.space), and open APIs.
+        Correlation shown for independent research purposes only. Protocol Pulse does not make accusations of insider trading.
+        "FLAGGED" items are statistical patterns, not verified misconduct. Always consult original sources.
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    // UTC clock
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getUTCHours()).padStart(2, '0');
+        const m = String(now.getUTCMinutes()).padStart(2, '0');
+        const s = String(now.getUTCSeconds()).padStart(2, '0');
+        const el = document.getElementById('pnClock');
+        if (el) el.textContent = h + ':' + m + ':' + s + ' UTC';
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    {% if not demo_mode %}
+    // Auto-refresh data every 5 minutes
+    function refreshData() {
+        fetch('/api/panopticon/whale-alerts')
+            .then(r => r.json())
+            .then(data => {
+                if (data.alerts && data.alerts.length > 0) {
+                    const count = document.getElementById('pnStatWhales');
+                    if (count) count.textContent = data.alerts.length;
+                }
+            })
+            .catch(() => {});
+
+        fetch('/api/panopticon/geopolitical')
+            .then(r => r.json())
+            .then(data => {
+                if (data.geopolitical) {
+                    const count = document.getElementById('pnStatGeo');
+                    if (count) count.textContent = data.geopolitical.length;
+                }
+            })
+            .catch(() => {});
+    }
+    setInterval(refreshData, 300000); // 5 min
+    {% endif %}
+})();
+</script>
+{% endblock %}

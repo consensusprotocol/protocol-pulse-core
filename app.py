@@ -451,6 +451,14 @@ try:
 except Exception as _e:
     logging.warning("Intelligence Terminal blueprint not loaded: %s", _e)
 
+# PANOPTICON — Congressional Disclosure & Whale Intelligence Dashboard
+try:
+    from core.blueprints.panopticon import panopticon_bp
+    app.register_blueprint(panopticon_bp)
+    logging.info("Panopticon blueprint registered at /panopticon")
+except Exception as _e:
+    logging.warning("Panopticon blueprint not loaded: %s", _e)
+
 # Sovereign Context Engine — unified intelligence API
 @app.route('/api/sovereign-context')
 def api_sovereign_context():

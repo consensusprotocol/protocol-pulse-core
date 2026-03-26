@@ -1631,6 +1631,37 @@ class SponsorOutreach(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+# =====================================
+# PANOPTICON — Congressional Disclosure & Whale Intelligence
+# =====================================
+
+class PanopticonEvent(db.Model):
+    __tablename__ = "panopticon_events"
+    id = db.Column(db.Integer, primary_key=True)
+    tier = db.Column(db.String(20), nullable=False, index=True)  # confirmed / flagged / watch
+    entity = db.Column(db.String(200), nullable=False)           # person or wallet name
+    event_type = db.Column(db.String(50), nullable=False, index=True)  # disclosure / whale / forex / geopolitical
+    asset = db.Column(db.String(100))                            # BTC, MSTR, IBIT, etc.
+    trade_type = db.Column(db.String(20))                        # buy / sell / transfer
+    amount_range = db.Column(db.String(100))                     # "$1,001-$15,000" or "250 BTC"
+    chamber = db.Column(db.String(20))                           # house / senate
+    party = db.Column(db.String(10))                             # R / D / I
+    date_traded = db.Column(db.DateTime)
+    date_filed = db.Column(db.DateTime)
+    date_event = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    correlation_score = db.Column(db.Float, default=0.0)         # 0-1 pattern strength
+    correlation_note = db.Column(db.Text)                        # "Trade within 5 days of committee hearing"
+    source_url = db.Column(db.String(500))
+    notes = db.Column(db.Text)
+    btc_price_at_event = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.Index('idx_panopticon_tier_date', 'tier', 'date_event'),
+        db.Index('idx_panopticon_entity', 'entity'),
+    )
+
+
 # ── Auto-slug generation on insert ─────────────────────────────────────────
 from sqlalchemy import event as _sa_event
 
