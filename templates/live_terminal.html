@@ -85,7 +85,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.4), transparent);
 }
 
 /* Dynamic Fee-Based Glow States */
@@ -145,13 +145,13 @@
 .panel-icon {
     width: 32px;
     height: 32px;
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.3);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #3b82f6;
+    color: #dc2626;
     font-size: 0.9rem;
 }
 
@@ -1699,6 +1699,104 @@ footer {
     to { transform: translateX(0); opacity: 1; }
 }
 
+
+/* NODE COUNT BANNER — floating over Zone 1 */
+.node-count-banner {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+.node-count-banner .node-count-value { color: #dc2626; font-weight: 700; font-size: 0.9rem; }
+.node-count-banner .node-count-lightning { color: #f7931a; font-weight: 600; }
+
+/* ORB CONTAINER RIPPLE — red pulse on new node (does NOT touch canvas) */
+.orb-node-ripple {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 200px; height: 200px;
+    transform: translate(-50%, -50%) scale(0.5);
+    border: 2px solid rgba(220, 38, 38, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: orbNodeRipple 1.5s ease-out forwards;
+}
+@keyframes orbNodeRipple {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; border-width: 3px; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 1px; }
+}
+
+/* NODE CELEBRATION WIDGET */
+.node-celebration {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10000; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    animation: celebFadeOut 3s ease forwards;
+}
+@keyframes celebFadeOut { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+.node-celebration .celeb-text {
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    animation: celebTextPulse 3s ease forwards;
+}
+@keyframes celebTextPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    20% { transform: scale(1.05); opacity: 1; }
+    80% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+}
+.node-celebration .celeb-title {
+    font-size: 2rem; font-weight: 800; color: #dc2626;
+    text-shadow: 0 0 30px rgba(220,38,38,0.6), 0 0 60px rgba(220,38,38,0.3);
+    letter-spacing: 3px;
+}
+.node-celebration .celeb-sub { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-top: 10px; letter-spacing: 1px; }
+.confetti-particle {
+    position: absolute; width: 6px; height: 6px;
+    pointer-events: none; animation: confettiFall 2.5s ease-out forwards;
+}
+@keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: translateY(300px) rotate(720deg) scale(0.3); }
+}
+
+/* LIVE TX FEED PANEL */
+.live-tx-feed { max-height: 350px; overflow: hidden; position: relative; }
+.live-tx-feed::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+    background: linear-gradient(transparent, rgba(10,10,10,0.95)); pointer-events: none;
+}
+.tx-feed-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    animation: txFeedSlideIn 0.4s ease;
+    transition: opacity 0.5s ease, max-height 0.5s ease;
+}
+.tx-feed-item.expiring { opacity: 0; max-height: 0; padding: 0 12px; overflow: hidden; }
+@keyframes txFeedSlideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.tx-feed-item .tx-amount { font-weight: 700; min-width: 90px; }
+.tx-feed-item .tx-amount.whale { color: #dc2626; }
+.tx-feed-item .tx-amount.big { color: #f7931a; }
+.tx-feed-item .tx-amount.normal { color: rgba(255,255,255,0.8); }
+.tx-feed-item .tx-usd { color: rgba(255,255,255,0.4); font-size: 0.65rem; min-width: 80px; }
+.tx-feed-item .tx-id { color: rgba(59,130,246,0.7); text-decoration: none; font-size: 0.65rem; }
+.tx-feed-item .tx-id:hover { color: #3b82f6; text-decoration: underline; }
+.tx-feed-item .tx-time { color: rgba(255,255,255,0.3); font-size: 0.6rem; margin-left: auto; }
+
 /* SOVEREIGNTY CALCULATOR */
 .calc-container {
     background: rgba(0,0,0,0.4);
@@ -1806,46 +1904,202 @@ footer {
 /* LIGHTNING PULSE */
 .lightning-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
     margin-bottom: 20px;
 }
 
+@media (max-width: 768px) {
+    .lightning-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 .lightning-stat {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 12px;
-    padding: 20px;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 10px;
+    padding: 14px;
     text-align: center;
 }
 
 .lightning-stat-icon {
-    font-size: 1.5rem;
-    color: #8b5cf6;
-    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #dc2626;
+    margin-bottom: 6px;
 }
 
 .lightning-stat-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: white;
     font-weight: 600;
 }
 
 .lightning-stat-label {
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+.lightning-visual {
+    height: 320px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.lightning-visual canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* NETWORK HEALTH INDEX */
+.nhi-gauge-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 30px 20px;
+    flex-wrap: wrap;
+}
+
+.nhi-gauge {
+    position: relative;
+    width: 240px;
+    height: 240px;
+}
+
+.nhi-gauge canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.nhi-gauge-score {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.nhi-gauge-score .score-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+}
+
+.nhi-gauge-score .score-label {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+
+.nhi-components {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-width: 280px;
+}
+
+.nhi-component {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+}
+
+.nhi-component-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.nhi-component-info {
+    flex: 1;
+}
+
+.nhi-component-name {
     font-size: 0.7rem;
     color: rgba(255,255,255,0.5);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-top: 5px;
 }
 
-.lightning-visual {
-    height: 200px;
-    background: rgba(0,0,0,0.4);
-    border-radius: 12px;
-    position: relative;
+.nhi-component-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    margin-top: 6px;
     overflow: hidden;
+}
+
+.nhi-component-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+}
+
+.nhi-component-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    min-width: 30px;
+    text-align: right;
+}
+
+/* MINING POOL ARCS */
+.pool-arc-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    flex-shrink: 0;
+}
+
+.pool-arc-container canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.pool-arc-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.pool-decentralization-alert {
+    display: none;
+    padding: 10px 16px;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.5);
+    border-radius: 8px;
+    color: #dc2626;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 15px;
+    animation: alertFlash 1.5s ease-in-out infinite;
+    text-align: center;
+}
+
+@keyframes alertFlash {
+    0%, 100% { border-color: rgba(220, 38, 38, 0.5); background: rgba(220, 38, 38, 0.15); }
+    50% { border-color: rgba(220, 38, 38, 0.9); background: rgba(220, 38, 38, 0.25); }
 }
 
 /* TIMECHAIN CLOCK */
@@ -2209,7 +2463,7 @@ footer {
 }
 
 .cta-option-icon.email { color: #dc2626; }
-.cta-option-icon.nostr { color: #8b5cf6; }
+.cta-option-icon.nostr { color: #dc2626; }
 .cta-option-icon.twitter { color: #1da1f2; }
 .cta-option-icon.lightning { color: #f7931a; }
 
@@ -3247,6 +3501,13 @@ html, body {
         <canvas id="visualizer-canvas" style="background: transparent !important;"></canvas>
     </div>
     
+    
+    <!-- NODE COUNT BANNER — floating over orb area -->
+    <div class="node-count-banner" id="node-count-banner">
+        <div>&#x2B21; <span class="node-count-value" id="banner-full-nodes">--</span> FULL NODES SECURING THE NETWORK</div>
+        <div style="font-size: 0.6rem; margin-top: 4px; opacity: 0.6;">&#9889; <span class="node-count-lightning" id="banner-lightning-nodes">--</span> Lightning Nodes</div>
+    </div>
+
     <!-- Live Network Status HUD - INSIDE wrapper so it doesn't scroll with page -->
     <div class="terminal-hud">
         <div class="hud-title">Live Network Status</div>
@@ -3438,7 +3699,7 @@ html, body {
 
 <!-- NODE GLOBE - Dashboard Grid Item -->
 <div class="instrument-panel" id="panel-node-globe" style="grid-column: span 2;">
-    <div class="node-globe-showcase" style="background: linear-gradient(180deg, rgba(0, 20, 60, 0.95) 0%, rgba(0, 10, 30, 0.98) 100%); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 20px; padding: 0; overflow: hidden; position: relative;">
+    <div class="node-globe-showcase" style="background: linear-gradient(180deg, rgba(10, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%); border: 2px solid rgba(220, 38, 38, 0.3); border-radius: 20px; padding: 0; overflow: hidden; position: relative;">
         <!-- Animated star field background -->
         <div class="globe-starfield" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none;">
             <div class="star" style="top: 10%; left: 20%; animation-delay: 0s;"></div>
@@ -3448,12 +3709,12 @@ html, body {
             <div class="star" style="top: 45%; left: 50%; animation-delay: 1.5s;"></div>
         </div>
         
-        <div class="module-header" style="padding: 25px 30px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
-            <div class="module-icon" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.5); color: #3b82f6; width: 50px; height: 50px; font-size: 1.3rem;">
+        <div class="module-header" style="padding: 25px 30px 15px; border-bottom: 1px solid rgba(220, 38, 38, 0.2);">
+            <div class="module-icon" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid rgba(220, 38, 38, 0.5); color: #dc2626; width: 50px; height: 50px; font-size: 1.3rem;">
                 <i class="fas fa-globe-americas"></i>
             </div>
             <div>
-                <h3 class="module-title" style="color: #3b82f6; font-size: 1.5rem; letter-spacing: 2px;">NODE GLOBE</h3>
+                <h3 class="module-title" style="color: #dc2626; font-size: 1.5rem; letter-spacing: 2px;">NODE GLOBE</h3>
                 <p class="module-subtitle" style="color: rgba(255,255,255,0.6);">Bitcoin's Decentralized Nervous System</p>
             </div>
         </div>
@@ -3463,29 +3724,29 @@ html, body {
             <div class="globe-visual-area" style="flex: 2; min-width: 300px; position: relative;">
                 <div class="globe-container" id="node-globe" style="height: 400px;">
                     <div class="globe-controls" style="position: absolute; top: 15px; right: 15px; z-index: 10;">
-                        <button class="globe-control-btn" onclick="resetGlobeRotation()" title="Reset View" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6;">
+                        <button class="globe-control-btn" onclick="resetGlobeRotation()" title="Reset View" style="background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.4); color: #dc2626;">
                             <i class="fas fa-sync-alt"></i>
                         </button>
-                        <button class="globe-control-btn" onclick="toggleGlobeAutoRotate()" title="Auto-Rotate" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6;">
+                        <button class="globe-control-btn" onclick="toggleGlobeAutoRotate()" title="Auto-Rotate" style="background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.4); color: #dc2626;">
                             <i class="fas fa-redo"></i>
                         </button>
                     </div>
                     <!-- Node tooltip -->
-                    <div id="node-tooltip" class="node-tooltip" style="display: none; position: absolute; background: rgba(0,0,0,0.95); border: 1px solid rgba(59, 130, 246, 0.6); border-radius: 8px; padding: 12px; pointer-events: none; z-index: 100; min-width: 200px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);">
-                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #3b82f6; margin-bottom: 6px;">NODE INTEL</div>
+                    <div id="node-tooltip" class="node-tooltip" style="display: none; position: absolute; background: rgba(0,0,0,0.95); border: 1px solid rgba(220, 38, 38, 0.6); border-radius: 8px; padding: 12px; pointer-events: none; z-index: 100; min-width: 200px; box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);">
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #dc2626; margin-bottom: 6px;">NODE INTEL</div>
                         <div id="node-tooltip-content"></div>
                     </div>
                 </div>
             </div>
             
             <!-- Live stats panel -->
-            <div class="globe-stats-panel" style="flex: 1; min-width: 280px; padding: 25px; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(59, 130, 246, 0.2);">
-                <div class="globe-stat-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+            <div class="globe-stats-panel" style="flex: 1; min-width: 280px; padding: 25px; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(220, 38, 38, 0.15);">
+                <div class="globe-stat-card" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                        <i class="fas fa-network-wired" style="color: #3b82f6; font-size: 1.2rem;"></i>
+                        <i class="fas fa-network-wired" style="color: #dc2626; font-size: 1.2rem;"></i>
                         <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Reachable Nodes</span>
                     </div>
-                    <div id="globe-node-count" style="font-size: 2.2rem; font-weight: 700; color: #3b82f6; font-family: 'JetBrains Mono', monospace;">18,472</div>
+                    <div id="globe-node-count" style="font-size: 2.2rem; font-weight: 700; color: #dc2626; font-family: 'JetBrains Mono', monospace;">18,472</div>
                     <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 5px;">Real-time via Bitnodes API</div>
                 </div>
                 
@@ -3508,24 +3769,24 @@ html, body {
                 </div>
                 
                 <!-- Top regions live feed -->
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(59, 130, 246, 0.2);">
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(220, 38, 38, 0.15);">
                     <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Top Node Regions</div>
                     <div id="top-node-regions" style="font-size: 0.8rem;">
                         <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                             <span style="color: rgba(255,255,255,0.7);">🇩🇪 Germany</span>
-                            <span style="color: #3b82f6; font-family: 'JetBrains Mono', monospace;">2,847</span>
+                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">2,847</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                             <span style="color: rgba(255,255,255,0.7);">🇺🇸 United States</span>
-                            <span style="color: #3b82f6; font-family: 'JetBrains Mono', monospace;">2,412</span>
+                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">2,412</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                             <span style="color: rgba(255,255,255,0.7);">🇫🇷 France</span>
-                            <span style="color: #3b82f6; font-family: 'JetBrains Mono', monospace;">982</span>
+                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">982</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 8px 0;">
                             <span style="color: rgba(255,255,255,0.7);">🇳🇱 Netherlands</span>
-                            <span style="color: #3b82f6; font-family: 'JetBrains Mono', monospace;">847</span>
+                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">847</span>
                         </div>
                     </div>
                 </div>
@@ -3533,7 +3794,7 @@ html, body {
         </div>
         
         <!-- Bottom insights bar -->
-        <div style="background: rgba(59, 130, 246, 0.1); border-top: 1px solid rgba(59, 130, 246, 0.3); padding: 15px 25px; display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">
+        <div style="background: rgba(220, 38, 38, 0.08); border-top: 1px solid rgba(220, 38, 38, 0.2); padding: 15px 25px; display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite;"></div>
                 <span style="font-size: 0.75rem; color: rgba(255,255,255,0.6);">Each dot represents a <span style="color: #f7931a;">full node</span> validating the entire blockchain</span>
@@ -3579,6 +3840,27 @@ html, body {
     50% { opacity: 1; }
 }
 </style>
+
+
+<!-- LIVE MEMPOOL PULSE - TX Feed Panel -->
+<div class="instrument-panel" id="panel-live-tx-feed" style="grid-column: span 2;">
+    <div class="module-header" style="margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="module-icon" style="background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626;"><i class="fas fa-stream"></i></div>
+        <div>
+            <h3 class="module-title">Live Mempool Pulse</h3>
+            <p class="module-subtitle">Notable Unconfirmed Transactions (&gt;1 BTC)</p>
+        </div>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+            <div style="width: 8px; height: 8px; background: #dc2626; border-radius: 50; animation: pulse 1.5s infinite;"></div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(255,255,255,0.5);" id="tx-feed-count">0 TXs</span>
+        </div>
+    </div>
+    <div class="live-tx-feed" id="live-tx-feed">
+        <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;" id="tx-feed-empty">
+            Listening for notable transactions...
+        </div>
+    </div>
+</div><!-- END panel-live-tx-feed -->
 
         </div><!-- END dashboard-grid -->
     </div><!-- END container -->
@@ -3684,174 +3966,65 @@ html, body {
     </div>
 </section>
 
-<!-- 3. USD VS BITCOIN PURCHASING POWER -->
+<!-- 3. NETWORK HEALTH INDEX -->
 <section class="container">
-    <div class="purchasing-power-showcase" style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.9) 0%, rgba(10, 20, 40, 0.98) 100%); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 20px; overflow: hidden; position: relative;">
-        <!-- Dollar bill pattern background -->
-        <div style="position: absolute; inset: 0; opacity: 0.03; background-image: url('data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 100 100&quot;><text x=&quot;10&quot; y=&quot;50&quot; font-size=&quot;40&quot; fill=&quot;white&quot;>$</text></svg>'); background-size: 80px 80px; pointer-events: none;"></div>
-        
-        <div class="module-header" style="padding: 25px 30px; border-bottom: 1px solid rgba(59, 130, 246, 0.2); position: relative; z-index: 1;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid rgba(220, 38, 38, 0.5); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-dollar-sign" style="font-size: 1.5rem; color: #dc2626;"></i>
-                </div>
-                <div>
-                    <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 2px; margin: 0;">Purchasing Power Decay</h3>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 5px 0 0;">USD vs Bitcoin vs Hard Assets</p>
-                </div>
+    <div class="glass-module" style="border-color: rgba(220, 38, 38, 0.3); background: linear-gradient(135deg, rgba(10, 5, 5, 0.9) 0%, rgba(5, 5, 10, 0.95) 100%);">
+        <div class="module-header">
+            <div class="module-icon" style="background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.3); color: #dc2626;">
+                <i class="fas fa-heartbeat"></i>
             </div>
-            <div style="background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); padding: 8px 15px; border-radius: 8px;">
-                <span style="font-size: 0.8rem; color: #dc2626;"><i class="fas fa-arrow-down me-1"></i>Since 1913: -97% USD</span>
+            <div>
+                <h3 class="module-title" style="color: #dc2626;">Network Health Index</h3>
+                <p class="module-subtitle">Composite Network Strength Score</p>
             </div>
         </div>
-        
-        <!-- Main Chart Area -->
-        <div style="padding: 30px; position: relative; z-index: 1;">
-            <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 15px; padding: 25px; margin-bottom: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px;">USD Relative Purchasing Power (1913 = $1.00)</div>
-                    <div style="display: flex; gap: 15px; font-size: 0.7rem;">
-                        <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 12px; height: 3px; background: #dc2626; border-radius: 2px;"></div> USD</span>
-                        <span style="display: flex; align-items: center; gap: 5px;"><div style="width: 12px; height: 3px; background: #f7931a; border-radius: 2px;"></div> Bitcoin (since 2009)</span>
-                    </div>
-                </div>
-                <canvas id="purchasing-power-chart" style="width: 100%; height: 200px;"></canvas>
-            </div>
-            
-            <!-- Asset Comparison Cards -->
-            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">What $100 in 1971 Buys Today</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
-                <div style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 12px; padding: 18px; text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 8px;">💵</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #dc2626; font-family: 'JetBrains Mono', monospace;">$14</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 5px;">US Dollar</div>
-                    <div style="font-size: 0.6rem; color: #dc2626; margin-top: 3px;">-86%</div>
-                </div>
-                <div style="background: linear-gradient(135deg, rgba(247, 147, 26, 0.15) 0%, rgba(247, 147, 26, 0.05) 100%); border: 1px solid rgba(247, 147, 26, 0.3); border-radius: 12px; padding: 18px; text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 8px;">₿</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #f7931a; font-family: 'JetBrains Mono', monospace;" id="pp-btc-value">$12.8M</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 5px;">Bitcoin (if bought 2009)</div>
-                    <div style="font-size: 0.6rem; color: #22c55e; margin-top: 3px;">+12,800,000%</div>
-                </div>
-                <div style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 18px; text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 8px;">🥇</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #ffd700; font-family: 'JetBrains Mono', monospace;">$6,200</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 5px;">Gold</div>
-                    <div style="font-size: 0.6rem; color: #22c55e; margin-top: 3px;">+6,100%</div>
-                </div>
-                <div style="background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.05) 100%); border: 1px solid rgba(192, 192, 192, 0.3); border-radius: 12px; padding: 18px; text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 8px;">🥈</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #c0c0c0; font-family: 'JetBrains Mono', monospace;">$1,850</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 5px;">Silver</div>
-                    <div style="font-size: 0.6rem; color: #22c55e; margin-top: 3px;">+1,750%</div>
+
+        <div class="nhi-gauge-container">
+            <div class="nhi-gauge">
+                <canvas id="nhi-gauge-canvas" width="480" height="480"></canvas>
+                <div class="nhi-gauge-score">
+                    <div class="score-value" id="nhi-score">--</div>
+                    <div class="score-label">Health Score</div>
                 </div>
             </div>
-            
-            <!-- Real Estate Comparison -->
-            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Median US Home Price in USD vs Bitcoin</div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
-                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; margin-bottom: 12px;">2016</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 6px;">
-                            <div style="font-size: 1.2rem; color: #22c55e; font-weight: 700;">$288,400</div>
-                        </div>
-                        <div style="background: rgba(247, 147, 26, 0.1); padding: 8px; border-radius: 6px;">
-                            <div style="font-size: 1.2rem; color: #f7931a; font-weight: 700;">664 BTC</div>
-                        </div>
+
+            <div class="nhi-components">
+                <div class="nhi-component">
+                    <div class="nhi-component-icon" style="background: rgba(220, 38, 38, 0.15); color: #dc2626;"><i class="fas fa-microchip"></i></div>
+                    <div class="nhi-component-info">
+                        <div class="nhi-component-name">Hashrate Security</div>
+                        <div class="nhi-component-bar"><div class="nhi-component-bar-fill" id="nhi-bar-hashrate" style="width: 0%; background: #dc2626;"></div></div>
                     </div>
+                    <div class="nhi-component-score" id="nhi-hashrate-score" style="color: #dc2626;">--</div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; margin-bottom: 12px;">2020</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 6px;">
-                            <div style="font-size: 1.2rem; color: #22c55e; font-weight: 700;">$328,900</div>
-                        </div>
-                        <div style="background: rgba(247, 147, 26, 0.1); padding: 8px; border-radius: 6px;">
-                            <div style="font-size: 1.2rem; color: #f7931a; font-weight: 700;">45 BTC</div>
-                        </div>
+                <div class="nhi-component">
+                    <div class="nhi-component-icon" style="background: rgba(247, 147, 26, 0.15); color: #f7931a;"><i class="fas fa-water"></i></div>
+                    <div class="nhi-component-info">
+                        <div class="nhi-component-name">Mempool Pressure</div>
+                        <div class="nhi-component-bar"><div class="nhi-component-bar-fill" id="nhi-bar-mempool" style="width: 0%; background: #f7931a;"></div></div>
                     </div>
+                    <div class="nhi-component-score" id="nhi-mempool-score" style="color: #f7931a;">--</div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; margin-bottom: 12px;">2026</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 6px;">
-                            <div style="font-size: 1.2rem; color: #22c55e; font-weight: 700;" id="pp-home-usd">$434,700</div>
-                        </div>
-                        <div style="background: rgba(247, 147, 26, 0.1); padding: 8px; border-radius: 6px;">
-                            <div style="font-size: 1.2rem; color: #f7931a; font-weight: 700;" id="pp-home-btc">4.2 BTC</div>
-                        </div>
+                <div class="nhi-component">
+                    <div class="nhi-component-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;"><i class="fas fa-bolt"></i></div>
+                    <div class="nhi-component-info">
+                        <div class="nhi-component-name">Lightning Capacity</div>
+                        <div class="nhi-component-bar"><div class="nhi-component-bar-fill" id="nhi-bar-lightning" style="width: 0%; background: #22c55e;"></div></div>
                     </div>
+                    <div class="nhi-component-score" id="nhi-lightning-score" style="color: #22c55e;">--</div>
+                </div>
+                <div class="nhi-component">
+                    <div class="nhi-component-icon" style="background: rgba(255, 255, 255, 0.1); color: #fff;"><i class="fas fa-globe"></i></div>
+                    <div class="nhi-component-info">
+                        <div class="nhi-component-name">Node Decentralization</div>
+                        <div class="nhi-component-bar"><div class="nhi-component-bar-fill" id="nhi-bar-nodes" style="width: 0%; background: #fff;"></div></div>
+                    </div>
+                    <div class="nhi-component-score" id="nhi-nodes-score" style="color: #fff;">--</div>
                 </div>
             </div>
-            
-            <!-- Asset Class Race -->
-            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">10-Year Asset Performance Race</div>
-            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 20px;">
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.8rem; color: #f7931a;">₿ Bitcoin</span>
-                        <span style="font-size: 0.8rem; color: #22c55e; font-family: 'JetBrains Mono', monospace;">+28,500%</span>
-                    </div>
-                    <div style="height: 10px; background: rgba(247, 147, 26, 0.15); border-radius: 5px; overflow: hidden;">
-                        <div style="height: 100%; width: 100%; background: linear-gradient(90deg, #f7931a, #ff6600); border-radius: 5px; animation: raceBar 2s ease-out;"></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.8rem; color: #8b5cf6;">📈 S&P 500</span>
-                        <span style="font-size: 0.8rem; color: #22c55e; font-family: 'JetBrains Mono', monospace;">+187%</span>
-                    </div>
-                    <div style="height: 10px; background: rgba(139, 92, 246, 0.15); border-radius: 5px; overflow: hidden;">
-                        <div style="height: 100%; width: 3%; background: #8b5cf6; border-radius: 5px;"></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.8rem; color: #ffd700;">🥇 Gold</span>
-                        <span style="font-size: 0.8rem; color: #22c55e; font-family: 'JetBrains Mono', monospace;">+85%</span>
-                    </div>
-                    <div style="height: 10px; background: rgba(255, 215, 0, 0.15); border-radius: 5px; overflow: hidden;">
-                        <div style="height: 100%; width: 1.5%; background: #ffd700; border-radius: 5px;"></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.8rem; color: #c0c0c0;">🥈 Silver</span>
-                        <span style="font-size: 0.8rem; color: #22c55e; font-family: 'JetBrains Mono', monospace;">+120%</span>
-                    </div>
-                    <div style="height: 10px; background: rgba(192, 192, 192, 0.15); border-radius: 5px; overflow: hidden;">
-                        <div style="height: 100%; width: 2%; background: #c0c0c0; border-radius: 5px;"></div>
-                    </div>
-                </div>
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.8rem; color: #3b82f6;">🏠 Real Estate</span>
-                        <span style="font-size: 0.8rem; color: #22c55e; font-family: 'JetBrains Mono', monospace;">+65%</span>
-                    </div>
-                    <div style="height: 10px; background: rgba(59, 130, 246, 0.15); border-radius: 5px; overflow: hidden;">
-                        <div style="height: 100%; width: 1.2%; background: #3b82f6; border-radius: 5px;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bottom insight -->
-        <div style="padding: 20px 30px; background: rgba(220, 38, 38, 0.08); border-top: 1px solid rgba(220, 38, 38, 0.2);">
-            <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.6; text-align: center;">
-                <i class="fas fa-quote-left me-2" style="color: rgba(220, 38, 38, 0.5);"></i>
-                "The root problem with conventional currency is all the trust that's required to make it work." — <span style="color: #f7931a;">Satoshi Nakamoto</span>
-                <i class="fas fa-quote-right ms-2" style="color: rgba(220, 38, 38, 0.5);"></i>
-            </p>
         </div>
     </div>
 </section>
-
-<style>
-@keyframes raceBar {
-    from { width: 0; }
-}
-</style>
 
 <!-- ENERGY PROOF MODULE -->
 <section class="container">
@@ -4046,17 +4219,17 @@ function toggleSection(element) {
 
 <!-- 5. STATE OF THE PULSE - Command Center -->
 <section class="container" style="margin-bottom: 40px;">
-    <div class="pulse-command-center" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(0, 0, 0, 0.95) 50%, rgba(220, 38, 38, 0.05) 100%); border: 2px solid rgba(139, 92, 246, 0.3); border-radius: 20px; overflow: hidden; position: relative;">
+    <div class="pulse-command-center" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(0, 0, 0, 0.95) 50%, rgba(220, 38, 38, 0.03) 100%); border: 2px solid rgba(220, 38, 38, 0.3); border-radius: 20px; overflow: hidden; position: relative;">
         <!-- Animated grid background -->
-        <div style="position: absolute; inset: 0; background: linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none;"></div>
-        
-        <div class="module-header" style="padding: 25px 30px; border-bottom: 1px solid rgba(139, 92, 246, 0.2); position: relative; z-index: 1;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none;"></div>
+
+        <div class="module-header" style="padding: 25px 30px; border-bottom: 1px solid rgba(220, 38, 38, 0.2); position: relative; z-index: 1;">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 100%); border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-satellite-dish" style="font-size: 1.5rem; color: #8b5cf6;"></i>
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid rgba(220, 38, 38, 0.5); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-satellite-dish" style="font-size: 1.5rem; color: #dc2626;"></i>
                 </div>
                 <div>
-                    <h3 style="font-size: 1.6rem; font-weight: 800; color: #8b5cf6; text-transform: uppercase; letter-spacing: 3px; margin: 0;">State of the Pulse</h3>
+                    <h3 style="font-size: 1.6rem; font-weight: 800; color: #dc2626; text-transform: uppercase; letter-spacing: 3px; margin: 0;">State of the Pulse</h3>
                     <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 5px 0 0;">Real-Time Network Intelligence Brief</p>
                 </div>
             </div>
@@ -4069,7 +4242,7 @@ function toggleSection(element) {
         <!-- Main content grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0; position: relative; z-index: 1;">
             <!-- Network Vitals -->
-            <div style="padding: 25px; border-right: 1px solid rgba(139, 92, 246, 0.1); border-bottom: 1px solid rgba(139, 92, 246, 0.1);">
+            <div style="padding: 25px; border-right: 1px solid rgba(220, 38, 38, 0.1); border-bottom: 1px solid rgba(220, 38, 38, 0.1);">
                 <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;">
                     <i class="fas fa-heartbeat me-2" style="color: #22c55e;"></i>Network Vitals
                 </div>
@@ -4086,7 +4259,7 @@ function toggleSection(element) {
             </div>
             
             <!-- Market Pulse -->
-            <div style="padding: 25px; border-right: 1px solid rgba(139, 92, 246, 0.1); border-bottom: 1px solid rgba(139, 92, 246, 0.1);">
+            <div style="padding: 25px; border-right: 1px solid rgba(220, 38, 38, 0.1); border-bottom: 1px solid rgba(220, 38, 38, 0.1);">
                 <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;">
                     <i class="fas fa-chart-line me-2" style="color: #f7931a;"></i>Market Pulse
                 </div>
@@ -4102,7 +4275,7 @@ function toggleSection(element) {
             </div>
             
             <!-- Fee Conditions -->
-            <div style="padding: 25px; border-bottom: 1px solid rgba(139, 92, 246, 0.1);">
+            <div style="padding: 25px; border-bottom: 1px solid rgba(220, 38, 38, 0.1);">
                 <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;">
                     <i class="fas fa-gas-pump me-2" style="color: #14b8a6;"></i>Fee Conditions
                 </div>
@@ -4124,7 +4297,7 @@ function toggleSection(element) {
         </div>
         
         <!-- Intelligence Summary -->
-        <div style="padding: 25px 30px; border-top: 1px solid rgba(139, 92, 246, 0.2); background: rgba(0,0,0,0.3); position: relative; z-index: 1;">
+        <div style="padding: 25px 30px; border-top: 1px solid rgba(220, 38, 38, 0.15); background: rgba(0,0,0,0.3); position: relative; z-index: 1;">
             <div style="display: flex; align-items: flex-start; gap: 20px;">
                 <div style="width: 50px; height: 50px; background: linear-gradient(135deg, rgba(247, 147, 26, 0.3) 0%, rgba(247, 147, 26, 0.1) 100%); border: 2px solid rgba(247, 147, 26, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <i class="fas fa-brain" style="color: #f7931a; font-size: 1.2rem;"></i>
@@ -4145,7 +4318,7 @@ function toggleSection(element) {
         </div>
         
         <!-- Signal indicators -->
-        <div style="display: flex; justify-content: center; gap: 30px; padding: 20px; border-top: 1px solid rgba(139, 92, 246, 0.15); background: rgba(139, 92, 246, 0.05);">
+        <div style="display: flex; justify-content: center; gap: 30px; padding: 20px; border-top: 1px solid rgba(220, 38, 38, 0.1); background: rgba(139, 92, 246, 0.05);">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
                 <span style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">Hashrate: <span style="color: #22c55e;">Optimal</span></span>
@@ -4253,117 +4426,76 @@ function toggleSection(element) {
     </div>
 </section>
 
-<!-- 8. MINING POOL DISTRIBUTION -->
+<!-- 8. MINING POOL DISTRIBUTION — Animated Arc Intelligence -->
 <section class="container">
-    <div class="glass-module" style="border-color: rgba(139, 92, 246, 0.3);">
+    <div class="glass-module" style="border-color: rgba(220, 38, 38, 0.3);">
         <div class="module-header">
-            <div class="module-icon" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: #8b5cf6;">
+            <div class="module-icon" style="background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.3); color: #dc2626;">
                 <i class="fas fa-server"></i>
             </div>
             <div>
-                <h3 class="module-title" style="color: #8b5cf6;">Mining Pool Distribution</h3>
+                <h3 class="module-title" style="color: #dc2626;">Mining Pool Distribution</h3>
                 <p class="module-subtitle">Who's Securing the Network</p>
             </div>
         </div>
-        
-        <div class="pool-chart-container">
-            <div class="pool-donut">
-                <canvas id="pool-chart" width="200" height="200" style="width: 200px; height: 200px;"></canvas>
-                <div class="pool-donut-center">
-                    <div class="pool-donut-value" id="pool-total-hashrate">-- EH/s</div>
-                    <div class="pool-donut-label">Total Hashrate</div>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; padding: 10px 0;">
+            <div class="pool-arc-container">
+                <canvas id="pool-chart" width="440" height="440"></canvas>
+                <div class="pool-arc-center">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: #fff;" id="pool-total-hashrate">-- EH/s</div>
+                    <div style="font-size: 0.6rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px;">Total Hashrate</div>
                 </div>
             </div>
-            
-            <div class="pool-legend" id="pool-legend">
-                <div class="pool-legend-item">
-                    <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: #f7931a;"></div>
-                        <span>Foundry USA</span>
-                    </div>
-                    <span class="pool-legend-pct">28.5%</span>
-                </div>
-                <div class="pool-legend-item">
-                    <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: #dc2626;"></div>
-                        <span>AntPool</span>
-                    </div>
-                    <span class="pool-legend-pct">16.2%</span>
-                </div>
-                <div class="pool-legend-item">
-                    <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: #22c55e;"></div>
-                        <span>F2Pool</span>
-                    </div>
-                    <span class="pool-legend-pct">11.8%</span>
-                </div>
-                <div class="pool-legend-item">
-                    <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: #3b82f6;"></div>
-                        <span>Binance Pool</span>
-                    </div>
-                    <span class="pool-legend-pct">9.4%</span>
-                </div>
-                <div class="pool-legend-item">
-                    <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: #8b5cf6;"></div>
-                        <span>ViaBTC</span>
-                    </div>
-                    <span class="pool-legend-pct">8.1%</span>
-                </div>
-                <div class="pool-legend-item">
-                    <div class="pool-legend-name">
-                        <div class="pool-legend-dot" style="background: #14b8a6;"></div>
-                        <span>Solo/Unknown</span>
-                    </div>
-                    <span class="pool-legend-pct" style="color: #14b8a6;">26.0%</span>
-                </div>
+
+            <div class="pool-legend" id="pool-legend" style="min-width: 200px;">
+                <!-- Populated by JS -->
             </div>
         </div>
-        
-        <div class="pool-warning" id="pool-warning">
+
+        <div class="pool-decentralization-alert" id="pool-warning">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            <span>Decentralization Alert: One pool approaching 40% threshold</span>
+            <span id="pool-warning-text">DECENTRALIZATION ALERT: Pool exceeding 33% threshold</span>
         </div>
     </div>
 </section>
 
-<!-- 11. LIGHTNING PULSE -->
+<!-- 11. LIGHTNING PULSE — Force-Directed Channel Graph -->
 <section class="container">
-    <div class="glass-module" style="border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(10, 10, 10, 0.8) 0%, rgba(20, 10, 30, 0.6) 100%);">
+    <div class="glass-module" style="border-color: rgba(220, 38, 38, 0.3); background: linear-gradient(135deg, rgba(10, 10, 10, 0.9) 0%, rgba(15, 5, 5, 0.8) 100%);">
         <div class="module-header">
-            <div class="module-icon" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: #8b5cf6;">
+            <div class="module-icon" style="background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.3); color: #dc2626;">
                 <i class="fas fa-bolt"></i>
             </div>
             <div>
-                <h3 class="module-title" style="color: #8b5cf6;">Lightning Pulse</h3>
-                <p class="module-subtitle">Layer 2 Network Health</p>
+                <h3 class="module-title" style="color: #dc2626;">Lightning Pulse</h3>
+                <p class="module-subtitle">Layer 2 Channel Intelligence</p>
             </div>
         </div>
-        
+
         <div class="lightning-grid">
             <div class="lightning-stat">
                 <div class="lightning-stat-icon"><i class="fas fa-database"></i></div>
                 <div class="lightning-stat-value" id="ln-capacity">5,412 BTC</div>
-                <div class="lightning-stat-label">Network Capacity</div>
+                <div class="lightning-stat-label">Capacity</div>
             </div>
             <div class="lightning-stat">
                 <div class="lightning-stat-icon"><i class="fas fa-sitemap"></i></div>
                 <div class="lightning-stat-value" id="ln-nodes">16,847</div>
-                <div class="lightning-stat-label">Active Nodes</div>
+                <div class="lightning-stat-label">Nodes</div>
             </div>
             <div class="lightning-stat">
                 <div class="lightning-stat-icon"><i class="fas fa-exchange-alt"></i></div>
                 <div class="lightning-stat-value" id="ln-channels">73,291</div>
-                <div class="lightning-stat-label">Open Channels</div>
+                <div class="lightning-stat-label">Channels</div>
             </div>
             <div class="lightning-stat">
                 <div class="lightning-stat-icon"><i class="fas fa-tachometer-alt"></i></div>
                 <div class="lightning-stat-value" id="ln-avg-fee">~1 sat</div>
-                <div class="lightning-stat-label">Avg. Routing Fee</div>
+                <div class="lightning-stat-label">Avg Fee</div>
             </div>
         </div>
-        
+
         <div class="lightning-visual" id="lightning-network-visual">
             <canvas id="lightning-canvas"></canvas>
         </div>
@@ -5402,7 +5534,7 @@ function initNodeGlobe() {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
                         <div><span style="color: rgba(255,255,255,0.5);">Uptime:</span> <span style="color: #22c55e;">${nodeData.uptime}d</span></div>
                         <div><span style="color: rgba(255,255,255,0.5);">Peers:</span> <span style="color: #f7931a;">${nodeData.connections}</span></div>
-                        <div style="grid-column: span 2;"><span style="color: rgba(255,255,255,0.5);">Block:</span> <span style="color: #3b82f6; font-family: 'JetBrains Mono', monospace;">#${nodeData.blockHeight.toLocaleString()}</span></div>
+                        <div style="grid-column: span 2;"><span style="color: rgba(255,255,255,0.5);">Block:</span> <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">#${nodeData.blockHeight.toLocaleString()}</span></div>
                     </div>
                 `;
                 
@@ -5501,25 +5633,63 @@ function initNodeGlobe() {
     
     nodeGlobe = { globe, nodes, glowSphere, renderer, scene, camera, nodesGeometry };
 
-    // ── NEW NODE RADAR — polls Lightning stats for network growth ──
-    let _lastNodeCount = 0;
+    // ── NEW NODE RADAR — polls blockchair (full nodes) + mempool.space (lightning) ──
+    let _lastFullNodeCount = 0;
+    let _lastLightningNodeCount = 0;
     let _lastBlockHeight = 0;
+    window._currentBtcPrice = 0;
+
+    // Fetch BTC price for TX feed USD values
+    window.fetchBtcPrice = async function() {
+        try {
+            const r = await fetch('https://mempool.space/api/v1/prices');
+            const d = await r.json();
+            window._currentBtcPrice = d.USD || 0;
+        } catch(e) { /* silent */ }
+    }
+    window.fetchBtcPrice();
+    setInterval(window.fetchBtcPrice, 60000);
 
     async function checkNetworkGrowth() {
         try {
-            const resp = await fetch('https://mempool.space/api/v1/lightning/network/stats');
-            const data = await resp.json();
-            const nodeCount = data.node_count || 0;
+            // Lightning nodes from mempool.space
+            const lnResp = await fetch('https://mempool.space/api/v1/lightning/network/stats');
+            const lnData = await lnResp.json();
+            const lightningCount = lnData.node_count || 0;
 
+            // Full nodes from blockchair (primary) with bitnodes fallback
+            let fullNodeCount = 0;
+            try {
+                const bcResp = await fetch('https://api.blockchair.com/bitcoin/nodes');
+                const bcData = await bcResp.json();
+                fullNodeCount = bcData.data ? bcData.data.count : 0;
+            } catch(e) {
+                try {
+                    const bnResp = await fetch('https://bitnodes.io/api/v1/snapshots/?limit=1');
+                    const bnData = await bnResp.json();
+                    if (bnData.results && bnData.results[0]) {
+                        fullNodeCount = bnData.results[0].total_nodes || 0;
+                    }
+                } catch(e2) { console.log('Both node APIs failed'); }
+            }
+
+            // Block height
             const blockResp = await fetch('https://mempool.space/api/blocks/tip/height');
             const blockHeight = parseInt(await blockResp.text());
 
-            if (_lastNodeCount > 0 && nodeCount > _lastNodeCount) {
-                const newNodes = nodeCount - _lastNodeCount;
-                showNewNodeAlert(newNodes, nodeCount);
+            // Update banner display
+            updateNodeBanner(fullNodeCount, lightningCount);
+
+            // Detect new full nodes
+            if (_lastFullNodeCount > 0 && fullNodeCount > _lastFullNodeCount) {
+                const newNodes = fullNodeCount - _lastFullNodeCount;
+                showNewNodeAlert(newNodes, fullNodeCount);
                 triggerNodePulse();
+                triggerOrbRipple();
+                triggerNodeCelebration(fullNodeCount);
             }
-            _lastNodeCount = nodeCount;
+            _lastFullNodeCount = fullNodeCount;
+            _lastLightningNodeCount = lightningCount;
 
             if (_lastBlockHeight > 0 && blockHeight > _lastBlockHeight) {
                 triggerBlockPulse();
@@ -5528,13 +5698,24 @@ function initNodeGlobe() {
         } catch(e) { console.log('Node radar poll error:', e); }
     }
 
+    // Poll every 60s for node changes, banner updates every 5 min separately
     setInterval(checkNetworkGrowth, 60000);
     checkNetworkGrowth();
+
+    function updateNodeBanner(fullNodes, lightningNodes) {
+        const fullEl = document.getElementById('banner-full-nodes');
+        const lnEl = document.getElementById('banner-lightning-nodes');
+        if (fullEl && fullNodes > 0) fullEl.textContent = fullNodes.toLocaleString();
+        if (lnEl && lightningNodes > 0) lnEl.textContent = lightningNodes.toLocaleString();
+        // Also update globe stat
+        const globeEl = document.getElementById('globe-node-count');
+        if (globeEl && fullNodes > 0) globeEl.textContent = fullNodes.toLocaleString();
+    }
 
     function showNewNodeAlert(newCount, totalCount) {
         const toast = document.createElement('div');
         toast.className = 'node-radar-toast';
-        toast.innerHTML = '<span style="font-size:16px">⚡</span> +' + newCount + ' NEW NODE(S) ONLINE<br><span style="font-size:10px;opacity:0.8">' + totalCount.toLocaleString() + ' total nodes securing the network</span>';
+        toast.innerHTML = '<span style="font-size:16px">⚡</span> NEW NODE ONLINE — The network grows stronger.<br><span style="font-size:10px;opacity:0.8">' + totalCount.toLocaleString() + ' sovereign nodes.</span>';
         document.body.appendChild(toast);
         setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; setTimeout(()=>toast.remove(),500); }, 5000);
 
@@ -5543,6 +5724,44 @@ function initNodeGlobe() {
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify({new_nodes: newCount, total: totalCount})
         }).catch(()=>{});
+    }
+
+    // Red pulse ripple on the visualizer container (NOT the canvas)
+    function triggerOrbRipple() {
+        const container = document.getElementById('visualizer-container');
+        if (!container) return;
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                const ripple = document.createElement('div');
+                ripple.className = 'orb-node-ripple';
+                container.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 1600);
+            }, i * 300);
+        }
+    }
+
+    // Celebration widget with confetti
+    function triggerNodeCelebration(totalNodes) {
+        const celeb = document.createElement('div');
+        celeb.className = 'node-celebration';
+        // Confetti particles
+        const colors = ['#dc2626', '#f7931a', '#3b82f6', '#22c55e', '#f59e0b'];
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-particle';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.left = (30 + Math.random() * 40) + '%';
+            p.style.top = (20 + Math.random() * 30) + '%';
+            p.style.animationDelay = (Math.random() * 0.8) + 's';
+            p.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+            p.style.width = (4 + Math.random() * 6) + 'px';
+            p.style.height = (4 + Math.random() * 6) + 'px';
+            p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            celeb.appendChild(p);
+        }
+        celeb.innerHTML += '<div class="celeb-text"><div class="celeb-title">⚡ THE NETWORK GROWS STRONGER</div><div class="celeb-sub">One more node. One more sovereign. Run yours: protocolpulse.io/oracle-live</div></div>';
+        document.body.appendChild(celeb);
+        setTimeout(() => celeb.remove(), 3500);
     }
 
     function triggerNodePulse() {
@@ -5587,6 +5806,62 @@ function initNodeGlobe() {
     }
 }
 
+
+    // ── LIVE TX FEED FUNCTIONS ──
+    window._txFeedCount = 0;
+    window.TX_FEED_MAX = 20;
+    window.TX_EXPIRE_MS = 30000;
+
+    window.addTxToFeed = function(txid, btcVal) {
+        const feed = document.getElementById('live-tx-feed');
+        const emptyMsg = document.getElementById('tx-feed-empty');
+        if (!feed) return;
+        if (emptyMsg) emptyMsg.remove();
+
+        // Determine color class
+        let colorClass = 'normal';
+        if (btcVal >= 100) colorClass = 'whale';
+        else if (btcVal >= 10) colorClass = 'big';
+
+        const usdVal = window._currentBtcPrice > 0 ? (btcVal * window._currentBtcPrice) : 0;
+        const shortTxid = txid.substring(0, 8);
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+
+        const item = document.createElement('div');
+        item.className = 'tx-feed-item';
+        item.innerHTML = `
+            <span class="tx-amount ${colorClass}">${btcVal >= 10 ? btcVal.toFixed(1) : btcVal.toFixed(3)} BTC</span>
+            <span class="tx-usd">${usdVal > 0 ? '$' + usdVal.toLocaleString(undefined, {maximumFractionDigits: 0}) : ''}</span>
+            <a href="https://mempool.space/tx/${txid}" target="_blank" class="tx-id">${shortTxid}...</a>
+            <span class="tx-time">${timeStr}</span>
+        `;
+
+        feed.insertBefore(item, feed.firstChild);
+        window._txFeedCount++;
+
+        // Update counter
+        const counter = document.getElementById('tx-feed-count');
+        if (counter) counter.textContent = window._txFeedCount + ' TXs';
+
+        // Cap visible items
+        while (feed.children.length > window.TX_FEED_MAX) {
+            feed.removeChild(feed.lastChild);
+        }
+
+        // Auto-expire after 30s
+        setTimeout(() => {
+            item.classList.add('expiring');
+            setTimeout(() => {
+                if (item.parentNode) item.remove();
+                // Re-show empty message if feed is empty
+                if (feed.children.length === 0) {
+                    feed.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);font-family:JetBrains Mono,monospace;font-size:0.75rem;" id="tx-feed-empty">Listening for notable transactions...</div>';
+                }
+            }, 500);
+        }, window.TX_EXPIRE_MS);
+    }
+
 function resetGlobeRotation() {
     if (nodeGlobe) {
         nodeGlobe.globe.rotation.set(0, 0, 0);
@@ -5599,18 +5874,29 @@ function toggleGlobeAutoRotate() {
     globeAutoRotate = !globeAutoRotate;
 }
 
-// Fetch node count from Bitnodes API
+// Fetch node count — blockchair primary, bitnodes fallback (also updates banner)
 async function updateNodeCount() {
     try {
-        const res = await fetch('https://bitnodes.io/api/v1/snapshots/latest/');
-        const data = await res.json();
-        if (data.total_nodes) {
-            document.getElementById('globe-node-count').textContent = data.total_nodes.toLocaleString();
+        let fullNodes = 0;
+        try {
+            const bcRes = await fetch('https://api.blockchair.com/bitcoin/nodes');
+            const bcData = await bcRes.json();
+            fullNodes = bcData.data ? bcData.data.count : 0;
+        } catch(e) {
+            const bnRes = await fetch('https://bitnodes.io/api/v1/snapshots/latest/');
+            const bnData = await bnRes.json();
+            fullNodes = bnData.total_nodes || 0;
+        }
+        if (fullNodes > 0) {
+            document.getElementById('globe-node-count').textContent = fullNodes.toLocaleString();
+            const bannerEl = document.getElementById('banner-full-nodes');
+            if (bannerEl) bannerEl.textContent = fullNodes.toLocaleString();
         }
     } catch (e) {
-        console.log('Bitnodes API unavailable, using estimate');
+        console.log('Node count APIs unavailable');
     }
 }
+setInterval(updateNodeCount, 300000); // 5 min refresh
 
 // 5. SOVEREIGNTY CALCULATOR - Enhanced with full historical data
 let btcPriceHistory = [];
@@ -6056,10 +6342,9 @@ function updateGenesisDaysCount() {
 }
 updateGenesisDaysCount();
 
-// Initialize purchasing power chart
-let purchasingPowerChartDrawn = false;
+// Purchasing power chart moved to /sovereign-money
 function drawPurchasingPowerChart() {
-    if (purchasingPowerChartDrawn) return; // Only draw once
+    return; // moved to /sovereign-money
     const canvas = document.getElementById('purchasing-power-chart');
     if (!canvas) return;
     
@@ -7181,6 +7466,15 @@ class SovereignTerminal {
                         }
                     }
                     
+                    // Live TX Feed: catch notable transactions (>1 BTC)
+                    if (data.x && data.x.value >= 100000000) { // >= 1 BTC
+                        const btcVal = data.x.value / 100000000;
+                        const txid = data.x.hash || '';
+                        if (txid && btcVal >= 1) {
+                            window.addTxToFeed(txid, btcVal);
+                        }
+                    }
+
                     if (data['mempool-blocks']) {
                         const blocks = data['mempool-blocks'];
                         let totalTxs = 0;
@@ -7303,8 +7597,12 @@ class SovereignTerminal {
                         value: valueBtc || Math.random() * 2,
                         feeRate: tx.fee ? (tx.fee / (tx.vsize || 140)) : (5 + Math.random() * 50)
                     });
+                    // Feed notable TXs (>1 BTC) into live TX feed panel
+                    if (valueBtc >= 1 && tx.txid && window.addTxToFeed) {
+                        window.addTxToFeed(tx.txid, valueBtc);
+                    }
                 });
-                
+
                 console.log(`Spawned ${txsToSpawn.length} real transactions`);
             }
         } catch (error) {
