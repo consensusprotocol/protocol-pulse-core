@@ -394,6 +394,27 @@ def merchant_map():
     """Sovereign Merchant Map - Interactive BTC vendor locator"""
     return render_template('merchant_map.html')
 
+# BTCMap proxy with 24h cache
+_btcmap_cache = {'data': None, 'ts': 0}
+
+@app.route('/api/map/btcmap')
+def api_btcmap():
+    """Proxy/cache BTCMap elements — refreshes every 24h"""
+    import time as _time
+    now = _time.time()
+    if _btcmap_cache['data'] and (now - _btcmap_cache['ts']) < 86400:
+        return jsonify(_btcmap_cache['data'])
+    try:
+        resp = requests.get('https://api.btcmap.org/v2/elements?limit=10000', timeout=30)
+        resp.raise_for_status()
+        _btcmap_cache['data'] = resp.json()
+        _btcmap_cache['ts'] = now
+        return jsonify(_btcmap_cache['data'])
+    except Exception as e:
+        if _btcmap_cache['data']:
+            return jsonify(_btcmap_cache['data'])
+        return jsonify({'error': str(e)}), 502
+
 @app.route('/offline')
 def offline():
     """Offline fallback page for PWA"""
@@ -1674,8 +1695,97 @@ def _get_podcast_sections(per_section=6):
 
 @app.route('/podcasts')
 def podcasts():
-    """Redirect to Media Hub Podcasts section."""
-    return redirect(url_for('media_hub') + '#section-podcasts')
+    """Cypherpunk'd series showcase — dedicated podcast page."""
+    series_config = {
+        'everything_21m': {
+            'key': 'everything_21m',
+            'title': 'Everything Divided by 21 Million',
+            'host': 'Matty Ice & Knut Svanholm',
+            'description': "A cinematic exploration of Bitcoin's relationship to time, money, freedom, and human progress.",
+            'episodes': [
+                {'id': 'FA8tvWEydcA', 'title': 'Time | Episode 1'},
+                {'id': 'VDordtHAJhg', 'title': 'Alchemy | Episode 2'},
+                {'id': 'yKbQq66AInU', 'title': 'Ownership | Episode 3'},
+                {'id': 'rkTbEpAOADI', 'title': 'Energy | Episode 4'},
+                {'id': 'qG2xYvTVkw0', 'title': 'Morality | Episode 5'},
+                {'id': 'v7xZPqcXyLk', 'title': 'Memetics | Episode 6'},
+                {'id': 'RZv_1Qcqik4', 'title': 'Symbiosis | Episode 7'},
+                {'id': 'UlYSv9SwQGk', 'title': 'Violence | Episode 8'},
+                {'id': '_ygND311kVE', 'title': 'Deflation | Episode 9'},
+                {'id': 'Nf0LtAk4VBs', 'title': 'Adoption | Episode 10'},
+                {'id': 'Gt8ycm3-NV8', 'title': 'Transition | Episode 11'},
+            ]
+        },
+        'big_print': {
+            'key': 'big_print',
+            'title': 'The Big Print',
+            'host': 'Matty Ice & Lawrence Lepard',
+            'description': 'How the Federal Reserve engineered the most devastating wealth extraction scheme in history.',
+            'episodes': [
+                {'id': 'W09CNU_q6Yo', 'title': 'Why Fixing the Money is the Only Way | Episode 1'},
+                {'id': 'tnthM3uaHbI', 'title': 'How Govt Stole 98.5% Since 1971 | Episode 2'},
+                {'id': 'FRH5w_joMP0', 'title': 'How Inflation Steals Your Life | Episode 3'},
+                {'id': 'JLjG8jAJxbw', 'title': 'The Path to Pure Fiat | Episode 4'},
+                {'id': 'tq_ZYhpW4Vw', 'title': 'How Powell & Yellen Broke It | Episode 5'},
+                {'id': 'Sjp-Kaic2CE', 'title': 'Austrian vs Keynesian | Episode 6'},
+                {'id': 'n6Bi8Kf6ar0', 'title': 'The Sovereign Currency Bubble | Episode 7'},
+                {'id': 'M3M61rLBTl0', 'title': "Bitcoin is God's Gift | Episode 8"},
+                {'id': 'uzUEJZ38RV8', 'title': 'Bitcoin & Real Estate | Episode 9'},
+                {'id': 'y9snxWoEkaU', 'title': 'End of Centralized Power | Episode 10'},
+                {'id': 'hKa8lRDwIos', 'title': 'Digital Scarcity | Episode 11'},
+                {'id': 'FyMWELymqAM', 'title': 'Fix the Money, Fix the World | Episode 12'},
+            ]
+        },
+        'daylight_robbery': {
+            'key': 'daylight_robbery',
+            'title': 'Daylight Robbery',
+            'host': 'Matty Ice & Dominic Frisby',
+            'description': 'The hidden story of how taxation shaped human civilization from ancient empires to modern governments.',
+            'episodes': [
+                {'id': 'ZCc78wvwd6U', 'title': 'The Hidden History of Taxation | Episode 1'},
+                {'id': 'j_V3fjvEuS0', 'title': 'How Taxes Shaped Civilization | Episode 2'},
+                {'id': 'W_TNwftaVMk', 'title': 'Death, Taxes, or Islam | Episode 3'},
+                {'id': '3VDVbbSZYPc', 'title': "The Peasants' Revolt | Episode 4"},
+                {'id': 'brho571r5rY', 'title': 'Tax Wars That Created Nations | Episode 5'},
+                {'id': 'zltb_tXZiWI', 'title': 'How the Richest Controlled Nations | Episode 6'},
+                {'id': '0MDv0d-3t_k', 'title': 'How Tariffs Caused Civil War | Episode 7'},
+                {'id': 'Ym5W3t9WvB8', 'title': 'The Birth of Big Government | Episode 8'},
+                {'id': 'YUHM88mtRxU', 'title': 'Hitler, Banks & Nations | Episode 9'},
+                {'id': 'LcIT9Tgbkm8', 'title': 'How Govts Silently Rob You | Episode 10'},
+                {'id': 'VRSXUD4L2eA', 'title': 'Digital Nomads & Borderless Money | Episode 11'},
+                {'id': '1OAn6QDSsJs', 'title': 'How Data & AI Reshape Taxation | Episode 12'},
+                {'id': 'xPPbMsz8qso', 'title': 'The Perfect Tax System | Episode 13'},
+            ]
+        },
+        'genesis_book': {
+            'key': 'genesis_book',
+            'title': 'The Genesis Book',
+            'host': 'Matty Ice & Aaron van Wirdum',
+            'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
+            'episodes': [
+                {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
+                {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
+                {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
+                {'id': 'TwkR0ncLh0Y', 'title': "Satoshi's Vision | Episode 4"},
+                {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
+            ]
+        },
+    }
+    series_list = []
+    for key, s in series_config.items():
+        series_list.append({
+            'key': key,
+            'title': s['title'],
+            'host': s['host'],
+            'description': s['description'],
+            'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
+            'ep_count': len(s['episodes']),
+        })
+    total_episodes = sum(len(s['episodes']) for s in series_config.values())
+    return render_template('podcasts.html',
+                           series_list=series_list,
+                           series_data=series_config,
+                           total_episodes=total_episodes)
 
 @app.route('/api/podcast/<int:podcast_id>')
 def get_podcast_api(podcast_id):
@@ -1928,27 +2038,93 @@ def media_hub():
         except Exception as e:
             logging.warning(f"media_feed_service error: {e}")
 
-    # YouTube series data for Original Series section
+    # YouTube series data for Original Series section — hardcoded for reliability
+    series_config = {
+        'everything_21m': {
+            'key': 'everything_21m',
+            'title': 'Everything Divided by 21 Million',
+            'host': 'Matty Ice & Knut Svanholm',
+            'description': "A cinematic exploration of Bitcoin's relationship to time, money, freedom, and human progress.",
+            'episodes': [
+                {'id': 'FA8tvWEydcA', 'title': 'Time | Episode 1'},
+                {'id': 'VDordtHAJhg', 'title': 'Alchemy | Episode 2'},
+                {'id': 'yKbQq66AInU', 'title': 'Ownership | Episode 3'},
+                {'id': 'rkTbEpAOADI', 'title': 'Energy | Episode 4'},
+                {'id': 'qG2xYvTVkw0', 'title': 'Morality | Episode 5'},
+                {'id': 'v7xZPqcXyLk', 'title': 'Memetics | Episode 6'},
+                {'id': 'RZv_1Qcqik4', 'title': 'Symbiosis | Episode 7'},
+                {'id': 'UlYSv9SwQGk', 'title': 'Violence | Episode 8'},
+                {'id': '_ygND311kVE', 'title': 'Deflation | Episode 9'},
+                {'id': 'Nf0LtAk4VBs', 'title': 'Adoption | Episode 10'},
+                {'id': 'Gt8ycm3-NV8', 'title': 'Transition | Episode 11'},
+            ]
+        },
+        'big_print': {
+            'key': 'big_print',
+            'title': 'The Big Print',
+            'host': 'Matty Ice & Lawrence Lepard',
+            'description': 'How the Federal Reserve engineered the most devastating wealth extraction scheme in history.',
+            'episodes': [
+                {'id': 'W09CNU_q6Yo', 'title': 'Why Fixing the Money is the Only Way | Episode 1'},
+                {'id': 'tnthM3uaHbI', 'title': 'How Govt Stole 98.5% Since 1971 | Episode 2'},
+                {'id': 'FRH5w_joMP0', 'title': 'How Inflation Steals Your Life | Episode 3'},
+                {'id': 'JLjG8jAJxbw', 'title': 'The Path to Pure Fiat | Episode 4'},
+                {'id': 'tq_ZYhpW4Vw', 'title': 'How Powell & Yellen Broke It | Episode 5'},
+                {'id': 'Sjp-Kaic2CE', 'title': 'Austrian vs Keynesian | Episode 6'},
+                {'id': 'n6Bi8Kf6ar0', 'title': 'The Sovereign Currency Bubble | Episode 7'},
+                {'id': 'M3M61rLBTl0', 'title': "Bitcoin is God's Gift | Episode 8"},
+                {'id': 'uzUEJZ38RV8', 'title': 'Bitcoin & Real Estate | Episode 9'},
+                {'id': 'y9snxWoEkaU', 'title': 'End of Centralized Power | Episode 10'},
+                {'id': 'hKa8lRDwIos', 'title': 'Digital Scarcity | Episode 11'},
+                {'id': 'FyMWELymqAM', 'title': 'Fix the Money, Fix the World | Episode 12'},
+            ]
+        },
+        'daylight_robbery': {
+            'key': 'daylight_robbery',
+            'title': 'Daylight Robbery',
+            'host': 'Matty Ice & Dominic Frisby',
+            'description': 'The hidden story of how taxation shaped human civilization from ancient empires to modern governments.',
+            'episodes': [
+                {'id': 'ZCc78wvwd6U', 'title': 'The Hidden History of Taxation | Episode 1'},
+                {'id': 'j_V3fjvEuS0', 'title': 'How Taxes Shaped Civilization | Episode 2'},
+                {'id': 'W_TNwftaVMk', 'title': 'Death, Taxes, or Islam | Episode 3'},
+                {'id': '3VDVbbSZYPc', 'title': "The Peasants' Revolt | Episode 4"},
+                {'id': 'brho571r5rY', 'title': 'Tax Wars That Created Nations | Episode 5'},
+                {'id': 'zltb_tXZiWI', 'title': 'How the Richest Controlled Nations | Episode 6'},
+                {'id': '0MDv0d-3t_k', 'title': 'How Tariffs Caused Civil War | Episode 7'},
+                {'id': 'Ym5W3t9WvB8', 'title': 'The Birth of Big Government | Episode 8'},
+                {'id': 'YUHM88mtRxU', 'title': 'Hitler, Banks & Nations | Episode 9'},
+                {'id': 'LcIT9Tgbkm8', 'title': 'How Govts Silently Rob You | Episode 10'},
+                {'id': 'VRSXUD4L2eA', 'title': 'Digital Nomads & Borderless Money | Episode 11'},
+                {'id': '1OAn6QDSsJs', 'title': 'How Data & AI Reshape Taxation | Episode 12'},
+                {'id': 'xPPbMsz8qso', 'title': 'The Perfect Tax System | Episode 13'},
+            ]
+        },
+        'genesis_book': {
+            'key': 'genesis_book',
+            'title': 'The Genesis Book',
+            'host': 'Matty Ice & Aaron van Wirdum',
+            'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
+            'episodes': [
+                {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
+                {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
+                {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
+                {'id': 'TwkR0ncLh0Y', 'title': "Satoshi's Vision | Episode 4"},
+                {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
+            ]
+        },
+    }
     series_list = []
-    series_data = {}
-    try:
-        yt_svc = YouTubeService()
-        yt_series = yt_svc.get_all_dynamic_series()
-        for key, s in yt_series.items():
-            eps = s.get('episodes') or []
-            if not eps:
-                continue
-            series_list.append({
-                'key': key,
-                'title': s.get('title', key),
-                'host': s.get('host', ''),
-                'description': s.get('description', '')[:200],
-                'first_id': eps[0].get('id', '') if eps else '',
-                'ep_count': len(eps),
-            })
-            series_data[key] = s
-    except Exception as e:
-        logging.warning(f"YouTube series error: {e}")
+    series_data = series_config
+    for key, s in series_config.items():
+        series_list.append({
+            'key': key,
+            'title': s['title'],
+            'host': s['host'],
+            'description': s['description'],
+            'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
+            'ep_count': len(s['episodes']),
+        })
 
     # Latest Cypherpunk'd episodes (from media_feed_service DB)
     latest_episodes = []

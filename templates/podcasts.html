@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-
-{% block title %}Cypherpunk'd Podcast — Protocol Pulse{% endblock %}
+{% block title %}Cypherpunk'd — Original Series | Protocol Pulse{% endblock %}
+{% block meta_description %}Cinematic deep dives into Bitcoin, money, and freedom. {{ total_episodes }} episodes across {{ series_list|length }} original series from Protocol Pulse.{% endblock %}
 
 {% block head %}
 <script type="application/ld+json">
@@ -8,7 +8,7 @@
     "@context": "https://schema.org",
     "@type": "PodcastSeries",
     "name": "Cypherpunk'd",
-    "description": "Conversations with Bitcoin builders, thinkers, and disruptors at the frontier of sound money.",
+    "description": "Cinematic deep dives into Bitcoin, money, freedom, and the cypherpunk movement.",
     "webFeed": "https://anchor.fm/s/fa724db8/podcast/rss",
     "publisher": {
         "@type": "Organization",
@@ -17,950 +17,195 @@
     }
 }
 </script>
-
-<!-- Open Graph -->
-<meta property="og:title" content="Cypherpunk'd Podcast — Protocol Pulse">
-<meta property="og:description" content="Conversations with Bitcoin builders, thinkers, and disruptors at the frontier of sound money.">
+<meta property="og:title" content="Cypherpunk'd — Original Series | Protocol Pulse">
+<meta property="og:description" content="Cinematic deep dives into Bitcoin, money, and freedom. {{ total_episodes }} episodes across {{ series_list|length }} original series.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
-<meta property="og:url" content="{{ request.url }}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@ProtocolPulse">
-<meta name="twitter:title" content="Cypherpunk'd Podcast — Protocol Pulse">
-<meta name="twitter:description" content="Conversations with Bitcoin builders, thinkers, and disruptors at the frontier of sound money.">
 
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-    --pp-red: #CC2222;
-    --pp-black: #000000;
-    --pp-surface: rgba(20, 20, 20, 0.8);
-    --pp-border: rgba(255, 255, 255, 0.08);
-}
-
-.podcast-page {
-    min-height: 100vh;
-    background: #0a0a0a;
-    padding-top: 80px;
-}
-
-/* Hero */
-.podcast-hero {
-    text-align: center;
-    padding: 60px 20px 40px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.podcast-hero .section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--pp-red);
-    margin-bottom: 16px;
-}
-
-.podcast-hero h1 {
-    font-family: 'Crimson Pro', serif;
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -1px;
-    margin-bottom: 12px;
-}
-
-.podcast-hero .tagline {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.15rem;
-    color: rgba(255, 255, 255, 0.5);
-    margin-bottom: 32px;
-    line-height: 1.6;
-}
-
-/* Platform Links */
-.platform-links {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.platform-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: var(--pp-surface);
-    border: 1px solid var(--pp-border);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.platform-btn:hover {
-    border-color: var(--pp-red);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.platform-btn i {
-    font-size: 1rem;
-}
-
-/* Content Container */
-.podcast-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px 100px;
-}
-
-/* Section Headers */
-.section-header-bar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 32px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--pp-border);
-}
-
-.section-header-bar h2 {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-}
-
-.section-header-bar .rss-icon {
-    color: var(--pp-red);
-}
-
-/* Episode Grid */
-.episode-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 24px;
-    margin-bottom: 40px;
-}
-
-.episode-card {
-    background: var(--pp-surface);
-    border: 1px solid var(--pp-border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.episode-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.12);
-}
-
-.episode-cover {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-}
-
-.episode-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-}
-
-.episode-card:hover .episode-cover img {
-    transform: scale(1.05);
-}
-
-.episode-cover .cover-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.episode-cover .cover-placeholder i {
-    color: var(--pp-red);
-    opacity: 0.3;
-    font-size: 3rem;
-}
-
-.play-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.episode-card:hover .play-overlay {
-    opacity: 1;
-}
-
-.play-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--pp-red);
-    border: none;
-    color: white;
-    font-size: 1.25rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-}
-
-.play-btn:hover {
-    transform: scale(1.1);
-}
-
-.episode-meta {
-    padding: 20px;
-}
-
-.episode-meta .ep-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--pp-red);
-    margin-bottom: 8px;
-}
-
-.episode-meta h3 {
-    font-family: 'Crimson Pro', serif;
-    color: #fff;
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-.episode-meta .ep-desc {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.5);
-    line-height: 1.6;
-    margin-bottom: 14px;
-}
-
-.episode-meta .ep-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.35);
-    margin-bottom: 14px;
-}
-
-.episode-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.episode-actions .btn-play {
-    flex: 1;
-    padding: 8px 16px;
-    background: var(--pp-red);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.episode-actions .btn-play:hover {
-    background: #a81c1c;
-}
-
-.episode-actions .btn-icon {
-    padding: 8px 12px;
-    background: transparent;
-    border: 1px solid var(--pp-border);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.episode-actions .btn-icon:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: #fff;
-}
-
-/* See More Button */
-.see-more-wrap {
-    text-align: center;
-    margin: 24px 0 48px;
-}
-
-.see-more-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    padding: 10px 28px;
-    border-radius: 50px;
-    border: 1px solid var(--pp-border);
-    background: transparent;
-    color: rgba(255, 255, 255, 0.6);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.see-more-btn:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-}
-
-/* Empty / Coming Soon State */
-.coming-soon {
-    text-align: center;
-    padding: 80px 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.coming-soon .cs-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: var(--pp-surface);
-    border: 1px solid var(--pp-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
-}
-
-.coming-soon .cs-icon i {
-    font-size: 2rem;
-    color: var(--pp-red);
-    opacity: 0.6;
-}
-
-.coming-soon h3 {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 12px;
-}
-
-.coming-soon p {
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.5);
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-.coming-soon .subscribe-note {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.35);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-top: 32px;
-    margin-bottom: 16px;
-}
-
-.coming-soon .cta-row {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 24px;
-}
-
-.coming-soon .cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.coming-soon .cta-btn.primary {
-    background: var(--pp-red);
-    color: #fff;
-    border: none;
-}
-
-.coming-soon .cta-btn.primary:hover {
-    background: #a81c1c;
-}
-
-.coming-soon .cta-btn.secondary {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.6);
-    border: 1px solid var(--pp-border);
-}
-
-.coming-soon .cta-btn.secondary:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-}
-
-/* Audio Bar */
-.audio-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border-top: 1px solid var(--pp-border);
-    z-index: 9999;
-    display: none;
-    padding: 12px 0;
-}
-
-.audio-bar-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.ab-art {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--pp-border);
-    flex-shrink: 0;
-    overflow: hidden;
-}
-
-.ab-art i { color: var(--pp-red); }
-.ab-art img { width: 100%; height: 100%; object-fit: cover; }
-
-.ab-info {
-    flex: 0 0 180px;
-    min-width: 0;
-}
-
-.ab-info .ab-title {
-    font-family: 'Crimson Pro', serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.ab-info .ab-host {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.ab-controls {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
-
-.ab-btns {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.ab-btns button {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.6);
-    cursor: pointer;
-    font-size: 0.9rem;
-    padding: 4px;
-}
-
-.ab-btns button:hover { color: #fff; }
-
-.ab-btns .ab-play-btn {
-    width: 40px;
-    height: 40px;
-    background: var(--pp-red);
-    border-radius: 50%;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-}
-
-.ab-progress {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 500px;
-}
-
-.ab-progress .ab-time {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.35);
-    flex-shrink: 0;
-    width: 36px;
-    text-align: center;
-}
-
-.ab-progress .ab-bar {
-    flex: 1;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    cursor: pointer;
-    position: relative;
-}
-
-.ab-progress .ab-bar-fill {
-    height: 100%;
-    background: var(--pp-red);
-    border-radius: 2px;
-    width: 0%;
-    transition: width 0.1s;
-}
-
-.ab-extras {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.ab-extras button {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-    font-size: 0.8rem;
-    padding: 4px;
-}
-
-.ab-extras button:hover { color: #fff; }
-
-.ab-extras .speed-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .podcast-hero { padding: 40px 16px 30px; }
-    .podcast-hero h1 { font-size: 2rem; }
-    .episode-grid { grid-template-columns: 1fr; }
-    .platform-links { gap: 8px; }
-    .platform-btn { padding: 8px 14px; font-size: 0.7rem; }
-    .ab-info { display: none; }
-    .ab-extras { display: none; }
-}
-
-@media (max-width: 480px) {
-    .platform-btn span { display: none; }
-    .platform-btn { padding: 10px 14px; }
+:root{
+  --void:#000;--deep:#040408;--card:#08080e;--elevated:#0e0e16;--hover:#14141e;
+  --border:rgba(255,255,255,0.05);--border-h:rgba(255,255,255,0.1);
+  --bright:#f5f5f5;--pri:#e0e0e0;--sec:rgba(255,255,255,0.5);--mut:rgba(255,255,255,0.25);
+  --red:#dc2626;--red-g:rgba(220,38,38,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.pod-page{font-family:'DM Sans',-apple-system,sans-serif;background:var(--void);color:var(--pri);min-height:100vh;padding-top:80px}
+.pod-inner{max-width:1200px;margin:0 auto;padding:0 24px 80px}
+
+/* ── HERO ── */
+.pod-hero{position:relative;padding:64px 0 48px;border-bottom:1px solid var(--border);margin-bottom:48px;overflow:hidden}
+.pod-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(220,38,38,0.08),transparent 60%);pointer-events:none}
+.pod-badge{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:16px;position:relative}
+.pod-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:dotPulse 1.5s infinite}
+@keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pod-hero h1{font-family:'JetBrains Mono',monospace;font-size:clamp(32px,5vw,56px);font-weight:700;color:var(--bright);letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 40px rgba(220,38,38,0.3);margin-bottom:12px;position:relative}
+.pod-hero-sub{font-size:16px;color:var(--sec);max-width:600px;line-height:1.7;margin-bottom:24px;position:relative}
+.pod-stats{display:flex;gap:32px;position:relative}
+.pod-stat{text-align:center}
+.pod-stat-val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--red)}
+.pod-stat-lab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:4px}
+.pod-platforms{display:flex;gap:12px;margin-top:24px;position:relative;flex-wrap:wrap}
+.pod-plat{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s}
+.pod-plat:hover{border-color:var(--red);color:var(--red)}
+
+/* ── FEATURED ── */
+.pod-featured{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:14px;overflow:hidden;margin-bottom:48px}
+.pod-featured-vid{width:100%;aspect-ratio:16/9;border:none;display:block;background:#000}
+.pod-featured-info{padding:20px 24px;border-top:1px solid var(--border)}
+.pod-featured-lab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.pod-featured-title{font-size:18px;font-weight:700;color:var(--bright);margin-bottom:4px}
+.pod-featured-host{font-size:12px;color:var(--sec)}
+
+/* ── SECTION ── */
+.sec{padding:48px 0;border-top:1px solid var(--border)}
+.sec-lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+.sec-h{font-size:clamp(26px,4vw,38px);font-weight:700;color:var(--bright);letter-spacing:-0.5px;margin-bottom:10px}
+.sec-desc{font-size:14px;color:var(--sec);max-width:480px;line-height:1.6;margin-bottom:40px}
+
+/* ── SERIES CARDS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .3s}
+.sc:hover{border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.4)}
+.sc:hover .sc-img{transform:scale(1.05)}
+.sc-img-w{position:relative;overflow:hidden;aspect-ratio:16/9}
+.sc-img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.sc-ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.9) 100%)}
+.sc-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;background:rgba(220,38,38,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.sc:hover .sc-play{opacity:1}
+.sc-play i{color:white;font-size:16px;margin-left:2px}
+.sc-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);padding:3px 8px;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--sec);border:1px solid rgba(255,255,255,.08)}
+.sc-body{padding:16px 20px 20px}
+.sc-host{font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.sc-name{font-size:20px;font-weight:700;color:var(--bright);margin-bottom:8px;line-height:1.3}
+.sc-desc{font-size:12px;color:var(--sec);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── SERIES DETAIL ── */
+.sd{display:none;margin-top:24px;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--card)}
+.sd.active{display:block;animation:fadeUp .4s ease}
+.sd-top{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+.sd-title{font-size:20px;font-weight:700;color:var(--bright)}
+.sd-x{background:rgba(255,255,255,.05);border:none;color:var(--mut);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.sd-x:hover{background:rgba(255,255,255,.1);color:white}
+.sd-main{display:grid;grid-template-columns:1fr 340px}
+.sd-vid iframe{width:100%;aspect-ratio:16/9;border:none;display:block;background:#000}
+.sd-eps{max-height:440px;overflow-y:auto;border-left:1px solid var(--border)}
+.sd-ep{display:flex;gap:10px;padding:10px 14px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);align-items:center}
+.sd-ep:hover{background:var(--hover)}
+.sd-ep.active{background:rgba(220,38,38,.05);border-left:3px solid var(--red)}
+.sd-ep-img{width:80px;height:45px;border-radius:5px;object-fit:cover;flex-shrink:0}
+.sd-ep-info{flex:1;min-width:0}
+.sd-ep-n{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);letter-spacing:1px}
+.sd-ep-t{font-size:11px;color:var(--pri);margin-top:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── CTA ── */
+.pod-cta{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:40px;text-align:center;margin-top:48px}
+.pod-cta h3{font-size:22px;font-weight:700;color:var(--bright);margin-bottom:8px}
+.pod-cta p{font-size:14px;color:var(--sec);margin-bottom:24px}
+.pod-cta-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.pod-cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
+.pod-cta-btn.primary{background:var(--red);color:white}
+.pod-cta-btn.primary:hover{background:#b91c1c;transform:translateY(-2px)}
+.pod-cta-btn.secondary{border:1px solid var(--border);color:var(--sec)}
+.pod-cta-btn.secondary:hover{border-color:var(--red);color:var(--red)}
+
+@media(max-width:768px){
+  .sg{grid-template-columns:1fr}
+  .sd-main{grid-template-columns:1fr}
+  .sd-eps{max-height:250px;border-left:none;border-top:1px solid var(--border)}
+  .pod-stats{flex-wrap:wrap;gap:16px}
+  .pod-platforms{gap:8px}
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="podcast-page">
-    <!-- Hero -->
-    <div class="podcast-hero">
-        <div class="section-label">Protocol Pulse Podcast</div>
-        <h1>Cypherpunk'd</h1>
-        <p class="tagline">Exploring Bitcoin, Web3, and Digital Liberty.<br>Conversations with builders, thinkers, and disruptors at the frontier of sound money.</p>
+<div class="pod-page">
+<div class="pod-inner">
 
-        <div class="platform-links">
-            <a href="https://podcasts.apple.com" target="_blank" rel="noopener" class="platform-btn">
-                <i class="fab fa-apple"></i> <span>Apple Podcasts</span>
-            </a>
-            <a href="https://open.spotify.com" target="_blank" rel="noopener" class="platform-btn">
-                <i class="fab fa-spotify"></i> <span>Spotify</span>
-            </a>
-            <a href="https://fountain.fm" target="_blank" rel="noopener" class="platform-btn">
-                <i class="fas fa-bolt"></i> <span>Fountain</span>
-            </a>
-            <a href="https://youtube.com/@ProtocolPulse" target="_blank" rel="noopener" class="platform-btn">
-                <i class="fab fa-youtube"></i> <span>YouTube</span>
-            </a>
-            <a href="https://anchor.fm/s/fa724db8/podcast/rss" target="_blank" rel="noopener" class="platform-btn">
-                <i class="fas fa-rss"></i> <span>RSS</span>
-            </a>
-        </div>
+  <!-- HERO -->
+  <div class="pod-hero">
+    <div class="pod-badge"><span class="pod-dot"></span> Protocol Pulse Original</div>
+    <h1>Cypherpunk'd</h1>
+    <p class="pod-hero-sub">Cinematic deep dives into the books and ideas reshaping monetary thinking. Four original series exploring Bitcoin, money, freedom, and the cypherpunk movement.</p>
+    <div class="pod-stats">
+      <div class="pod-stat"><div class="pod-stat-val">{{ series_list|length }}</div><div class="pod-stat-lab">Series</div></div>
+      <div class="pod-stat"><div class="pod-stat-val">{{ total_episodes }}</div><div class="pod-stat-lab">Episodes</div></div>
+      <div class="pod-stat"><div class="pod-stat-val">100%</div><div class="pod-stat-lab">Free</div></div>
     </div>
-
-    <!-- Episodes -->
-    <div class="podcast-content">
-        {% if podcast_sections %}
-            {% for section_name, podcasts in podcast_sections.items() %}
-            <div style="margin-bottom: 48px;">
-                <div class="section-header-bar">
-                    <i class="fas fa-rss rss-icon fa-lg"></i>
-                    <h2>{{ section_name }}</h2>
-                </div>
-
-                <div class="episode-grid">
-                    {% for podcast in podcasts %}
-                    <div class="episode-card">
-                        <div class="episode-cover">
-                            {% if podcast.cover_image_url %}
-                                <img src="{{ podcast.cover_image_url }}" alt="{{ podcast.title }}" loading="lazy" onerror="this.src='/static/images/protocol-pulse-logo-transparent.png'">
-                            {% else %}
-                                <div class="cover-placeholder">
-                                    <i class="fas fa-microphone"></i>
-                                </div>
-                            {% endif %}
-                            <div class="play-overlay">
-                                <button class="play-btn" onclick="playPodcastGlobal('{{ podcast.id }}')">
-                                    <i class="fas fa-play"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="episode-meta">
-                            <div class="ep-tag">
-                                Episode {{ podcast.episode_number or 'N/A' }}
-                                {% if podcast.duration %} &bull; {{ podcast.duration }}{% endif %}
-                            </div>
-                            <h3>{{ podcast.title }}</h3>
-                            <p class="ep-desc">
-                                {{ podcast.description[:120] if podcast.description else 'Deep dive into Bitcoin and sovereign finance.' }}...
-                            </p>
-                            <div class="ep-info">
-                                <span><i class="fas fa-user" style="margin-right:4px;"></i>{{ podcast.host or 'Protocol Pulse' }}</span>
-                                <span>{{ podcast.published_date.strftime('%b %d, %Y') }}</span>
-                            </div>
-                            <div class="episode-actions">
-                                <button class="btn-play" onclick="playPodcastGlobal('{{ podcast.id }}')">
-                                    <i class="fas fa-play" style="margin-right:4px;"></i> Play
-                                </button>
-                                <button class="btn-icon" onclick="sharePodcast('{{ podcast.id }}')">
-                                    <i class="fas fa-share"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                {% set sid = section_name | replace(" ", "-") | replace("'", "") %}
-                <div id="more-episodes-{{ sid }}" style="display: none;" class="episode-grid"></div>
-
-                <div class="see-more-wrap">
-                    <button class="see-more-btn"
-                            id="see-more-btn-{{ sid }}"
-                            data-section="{{ section_name }}" data-sid="{{ sid }}">
-                        <i class="fas fa-chevron-down" style="margin-right:6px;"></i>See More Episodes
-                    </button>
-                </div>
-            </div>
-            {% endfor %}
-
-        {% else %}
-            <!-- Coming Soon State -->
-            <div class="coming-soon">
-                <div class="cs-icon">
-                    <i class="fas fa-microphone"></i>
-                </div>
-                <h3>First Episode Dropping Soon</h3>
-                <p>We're crafting conversations with Bitcoin's most compelling minds &mdash; builders, economists, privacy advocates, and protocol engineers.</p>
-                <p style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">Subscribe on your favorite platform to get notified the moment we go live.</p>
-
-                <div class="subscribe-note">In the meantime</div>
-
-                <div class="cta-row">
-                    <a href="{{ url_for('index') }}" class="cta-btn primary">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                    <a href="{{ url_for('articles') }}" class="cta-btn secondary">
-                        <i class="fas fa-newspaper"></i> Read Articles
-                    </a>
-                    <a href="/oracle" class="cta-btn secondary">
-                        <i class="fas fa-bolt"></i> Ask The Oracle
-                    </a>
-                </div>
-            </div>
-        {% endif %}
+    <div class="pod-platforms">
+      <a href="https://youtube.com/@ProtocolPulse" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
+      <a href="https://podcasts.apple.com" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
+      <a href="https://open.spotify.com" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
+      <a href="https://fountain.fm" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
+      <a href="/rss/podcasts.xml" target="_blank" class="pod-plat"><i class="fas fa-rss"></i> RSS</a>
     </div>
-</section>
+  </div>
 
-<!-- Audio Player Bar -->
-<div id="sovereignAudioBar" class="audio-bar">
-    <div class="audio-bar-inner">
-        <div class="ab-art" id="albumArt">
-            <i class="fas fa-podcast"></i>
-        </div>
-        <div class="ab-info">
-            <div class="ab-title" id="currentTitle">Podcast Title</div>
-            <div class="ab-host" id="currentHost">Host Name</div>
-        </div>
-        <div class="ab-controls">
-            <div class="ab-btns">
-                <button onclick="seekBackward()"><i class="fas fa-backward"></i></button>
-                <button class="ab-play-btn" onclick="togglePlayPause()">
-                    <i id="playPauseIcon" class="fas fa-play"></i>
-                </button>
-                <button onclick="seekForward()"><i class="fas fa-forward"></i></button>
-            </div>
-            <div class="ab-progress">
-                <span class="ab-time" id="currentTime">0:00</span>
-                <div class="ab-bar" onclick="seekTo(event)">
-                    <div class="ab-bar-fill" id="progressBar"></div>
-                </div>
-                <span class="ab-time" id="totalTime">0:00</span>
-            </div>
-        </div>
-        <div class="ab-extras">
-            <button onclick="adjustSpeed()" title="Playback Speed">
-                <span class="speed-label" id="speedLabel">1x</span>
-            </button>
-            <button onclick="toggleVolume()" title="Volume">
-                <i id="volumeIcon" class="fas fa-volume-up"></i>
-            </button>
-            <button onclick="closePlayer()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
+  <!-- FEATURED: Latest Episode -->
+  <div class="pod-featured">
+    <iframe class="pod-featured-vid" src="https://www.youtube.com/embed/FA8tvWEydcA?rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="pod-featured-info">
+      <div class="pod-featured-lab">Featured Episode</div>
+      <div class="pod-featured-title">Everything Divided by 21 Million — Time | Episode 1</div>
+      <div class="pod-featured-host">Matty Ice & Knut Svanholm</div>
     </div>
-    <audio id="audioElement" style="display: none;"></audio>
+  </div>
+
+  <!-- ALL SERIES -->
+  <div class="sec" id="series">
+    <div class="sec-lab">Original Series</div>
+    <h2 class="sec-h">Cinematic Deep Dives</h2>
+    <p class="sec-desc">Long-form explorations of the books and ideas reshaping monetary thinking.</p>
+    <div class="sg">
+      {% for s in series_list %}
+      <div class="sc" onclick="toggleSD('{{ s.key }}')">
+        <div class="sc-img-w">
+          <img class="sc-img" src="https://img.youtube.com/vi/{{ s.first_id }}/hqdefault.jpg" alt="{{ s.title }}" loading="lazy" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ s.first_id }}/mqdefault.jpg'">
+          <div class="sc-ov"></div>
+          <div class="sc-play"><i class="fas fa-play"></i></div>
+          <div class="sc-badge">{{ s.ep_count }} episodes</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-host">{{ s.host }}</div>
+          <h3 class="sc-name">{{ s.title }}</h3>
+          <p class="sc-desc">{{ s.description }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div id="sdPanel" class="sd">
+      <div class="sd-top"><h3 class="sd-title" id="sdTitle"></h3><button class="sd-x" onclick="closeSD()"><i class="fas fa-times"></i></button></div>
+      <div class="sd-main"><div class="sd-vid"><iframe id="sdIf" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div><div class="sd-eps" id="sdEps"></div></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="pod-cta">
+    <h3>Get Intelligence Briefings</h3>
+    <p>Daily Bitcoin insights delivered to your inbox. Join the sovereign signal.</p>
+    <div class="pod-cta-links">
+      <a href="/subscribe" class="pod-cta-btn primary"><i class="fas fa-bolt"></i> Join The Pulse</a>
+      <a href="/media" class="pod-cta-btn secondary"><i class="fas fa-satellite-dish"></i> Media Command Center</a>
+    </div>
+  </div>
+
+</div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let currentPodcast = null;
-let playbackSpeeds = [0.75, 1, 1.25, 1.5, 2];
-let currentSpeedIndex = 1;
-let isMuted = false;
-
-function playPodcastGlobal(podcastId) {
-    fetch(`/api/podcast/${podcastId}`, { signal: AbortSignal.timeout(8000) })
-        .then(response => response.json())
-        .then(podcast => {
-            if (!podcast.audio_url) {
-                alert('Audio not available for this episode yet.');
-                return;
-            }
-            currentPodcast = podcast;
-            document.getElementById('currentTitle').textContent = podcast.title;
-            document.getElementById('currentHost').textContent = podcast.host || 'Protocol Pulse';
-
-            const albumArt = document.getElementById('albumArt');
-            if (podcast.cover_image_url && albumArt) {
-                albumArt.innerHTML = `<img src="${podcast.cover_image_url}" alt="" onerror="this.src='/static/images/protocol-pulse-logo-transparent.png'">`;
-            }
-
-            document.getElementById('sovereignAudioBar').style.display = 'block';
-            const audioElement = document.getElementById('audioElement');
-            audioElement.src = podcast.audio_url;
-            audioElement.play();
-            updatePlayPauseIcon(true);
-        })
-        .catch(error => {
-            console.error('Error loading podcast:', error);
-            alert('Unable to load podcast. Please try again.');
-        });
-}
-
-function togglePlayPause() {
-    const audioElement = document.getElementById('audioElement');
-    if (audioElement.paused) {
-        audioElement.play();
-        updatePlayPauseIcon(true);
-    } else {
-        audioElement.pause();
-        updatePlayPauseIcon(false);
-    }
-}
-
-function updatePlayPauseIcon(isPlaying) {
-    document.getElementById('playPauseIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
-}
-
-function adjustSpeed() {
-    const audioElement = document.getElementById('audioElement');
-    currentSpeedIndex = (currentSpeedIndex + 1) % playbackSpeeds.length;
-    audioElement.playbackRate = playbackSpeeds[currentSpeedIndex];
-    document.getElementById('speedLabel').textContent = playbackSpeeds[currentSpeedIndex] + 'x';
-}
-
-function closePlayer() {
-    const audioElement = document.getElementById('audioElement');
-    audioElement.pause();
-    audioElement.currentTime = 0;
-    document.getElementById('sovereignAudioBar').style.display = 'none';
-}
-
-function seekForward() {
-    const a = document.getElementById('audioElement');
-    a.currentTime = Math.min(a.currentTime + 15, a.duration);
-}
-
-function seekBackward() {
-    const a = document.getElementById('audioElement');
-    a.currentTime = Math.max(a.currentTime - 15, 0);
-}
-
-function seekTo(event) {
-    const a = document.getElementById('audioElement');
-    const rect = event.currentTarget.getBoundingClientRect();
-    a.currentTime = ((event.clientX - rect.left) / rect.width) * a.duration;
-}
-
-function toggleVolume() {
-    const a = document.getElementById('audioElement');
-    isMuted = !isMuted;
-    a.muted = isMuted;
-    document.getElementById('volumeIcon').className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-}
-
-function sharePodcast(podcastId) {
-    if (navigator.share) {
-        navigator.share({ title: 'Cypherpunk\'d Podcast', text: 'Check out this episode!', url: window.location.href });
-    } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
-    }
-}
-
-document.getElementById('audioElement').addEventListener('timeupdate', function() {
-    const audio = this;
-    if (audio.duration) {
-        document.getElementById('progressBar').style.width = ((audio.currentTime / audio.duration) * 100) + '%';
-        document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
-        document.getElementById('totalTime').textContent = formatTime(audio.duration);
-    }
-});
-
-function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return m + ':' + (s < 10 ? '0' : '') + s;
-}
-
-let loadingStates = {};
-
-function loadMoreEpisodes(sectionName, sectionId) {
-    if (loadingStates[sectionId]) return;
-    loadingStates[sectionId] = true;
-
-    const button = document.getElementById(`see-more-btn-${sectionId}`);
-    const container = document.getElementById(`more-episodes-${sectionId}`);
-    const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading...';
-    button.disabled = true;
-
-    const existingEpisodes = container.children.length + 3;
-    const loadLimit = button.dataset.showingAll === 'true' ? 999 : 3;
-
-    fetch(`/api/podcasts/${encodeURIComponent(sectionName)}?offset=${existingEpisodes}&limit=${loadLimit}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.podcasts && data.podcasts.length > 0) {
-                container.style.display = 'grid';
-                data.podcasts.forEach(podcast => {
-                    container.appendChild(createPodcastCard(podcast));
-                });
-                if (button.dataset.showingAll === 'true' || !data.has_more) {
-                    button.style.display = 'none';
-                } else {
-                    button.innerHTML = '<i class="fas fa-expand-alt" style="margin-right:6px;"></i>See All Episodes';
-                    button.dataset.showingAll = 'true';
-                }
-            } else {
-                button.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading more episodes:', error);
-            button.innerHTML = originalHTML;
-        })
-        .finally(() => {
-            loadingStates[sectionId] = false;
-            button.disabled = false;
-        });
-}
-
-function createPodcastCard(podcast) {
-    const card = document.createElement('div');
-    card.className = 'episode-card';
-    card.innerHTML = `
-        <div class="episode-cover">
-            ${podcast.cover_image_url ?
-                `<img src="${podcast.cover_image_url}" alt="${podcast.title}" onerror="this.src='/static/images/protocol-pulse-logo-transparent.png'">` :
-                `<div class="cover-placeholder"><i class="fas fa-microphone"></i></div>`
-            }
-            <div class="play-overlay">
-                <button class="play-btn" onclick="playPodcastGlobal('${podcast.id}')">
-                    <i class="fas fa-play"></i>
-                </button>
-            </div>
-        </div>
-        <div class="episode-meta">
-            <div class="ep-tag">Episode ${podcast.episode_number || 'N/A'}${podcast.duration ? ' &bull; ' + podcast.duration : ''}</div>
-            <h3>${podcast.title}</h3>
-            <p class="ep-desc">${(podcast.description || 'Deep dive into Bitcoin and sovereign finance.').substring(0, 120)}...</p>
-            <div class="ep-info">
-                <span><i class="fas fa-user" style="margin-right:4px;"></i>${podcast.host || 'Protocol Pulse'}</span>
-                <span>${podcast.published_date || ''}</span>
-            </div>
-            <div class="episode-actions">
-                <button class="btn-play" onclick="playPodcastGlobal('${podcast.id}')">
-                    <i class="fas fa-play" style="margin-right:4px;"></i> Play
-                </button>
-                <button class="btn-icon" onclick="sharePodcast('${podcast.id}')">
-                    <i class="fas fa-share"></i>
-                </button>
-            </div>
-        </div>
-    `;
-    return card;
-}
-
-// Bind see-more buttons via data attributes
-document.querySelectorAll('.see-more-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        loadMoreEpisodes(this.dataset.section, this.dataset.sid);
-    });
-});
+var SD={{ series_data|tojson }},curS=null;
+function escH(t){var d=document.createElement('div');d.appendChild(document.createTextNode(t));return d.innerHTML}
+function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1&playsinline=1&rel=0';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
+function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
+function closeSD(){document.getElementById('sdIf').src='';document.getElementById('sdPanel').classList.remove('active');curS=null}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSD()});
 </script>
 {% endblock %}
