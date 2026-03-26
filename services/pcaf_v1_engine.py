@@ -48,9 +48,9 @@ class PCAFv1Engine:
         self.model = None
         self.thresholds = None
         self.device = "cpu"  # default safe
-        self._model_path = _svc_dir.parent / "data" / "pcaf_v1.pt"
-        self._threshold_path = _svc_dir.parent / "data" / "pcaf_v1_thresholds.json"
-        self._metadata_path = _svc_dir.parent / "data" / "pcaf_v1_metadata.json"
+        self._model_path = _svc_dir.parent / "models" / "pcaf_v1.pt"
+        self._threshold_path = _svc_dir.parent / "models" / "pcaf_v1_thresholds.json"
+        self._metadata_path = _svc_dir.parent / "models" / "pcaf_v1_metadata.json"
         self._graph_builder = None  # lazy init
         self._last_load_attempt = 0
         self._executor = ThreadPoolExecutor(max_workers=1)

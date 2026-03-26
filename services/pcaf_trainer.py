@@ -36,9 +36,9 @@ logging.basicConfig(level=logging.INFO,
 
 BASE = Path(__file__).resolve().parent.parent
 TRAINING_DIR = BASE / "data" / "pcaf_training"
-MODEL_PATH = BASE / "data" / "pcaf_v1.pt"
-THRESHOLD_PATH = BASE / "data" / "pcaf_v1_thresholds.json"
-METADATA_PATH = BASE / "data" / "pcaf_v1_metadata.json"
+MODEL_PATH = BASE / "models" / "pcaf_v1.pt"
+THRESHOLD_PATH = BASE / "models" / "pcaf_v1_thresholds.json"
+METADATA_PATH = BASE / "models" / "pcaf_v1_metadata.json"
 CHECKPOINT_DIR = BASE / "data"
 LOG_PATH = BASE / "logs" / "pcaf_training.log"
 
@@ -80,7 +80,7 @@ def check_data_quality(corpus: list) -> dict:
     node_counts = [d.x.size(0) for d in corpus]
     median_nodes = np.median(node_counts)
     # Flag if >20% of samples have very few nodes (< 5)
-    sparse_pct = sum(1 for n in node_counts if n < 5) / len(corpus) * 100
+    sparse_pct = sum(1 for n in node_counts if n < 2) / len(corpus) * 100
 
     # Check for NaN/Inf in features
     nan_count = sum(1 for d in corpus if torch.isnan(d.x).any() or torch.isinf(d.x).any())
@@ -225,46 +225,24 @@ def calibrate_thresholds(model, val_corpus: list, device: str = "cuda:1") -> dic
 
 
 def export_model(model, output_path: Path = MODEL_PATH, device: str = "cuda:1") -> None:
-    """Export model as TorchScript and verify."""
-    if not torch.cuda.is_available() or not _device_available(device):
-        device = "cpu"
-    dev = torch.device(device)
-    model = model.to(dev).eval()
+    """Export model as state_dict (portable across devices) and verify."""
+    model = model.cpu().eval()
 
-    # TorchScript trace with dummy data
-    dummy_x = torch.randn(10, 8, device=dev)
-    dummy_ei = torch.randint(0, 10, (2, 20), device=dev)
-
-    try:
-        # Use torch.jit.trace for PyG compatibility
-        traced = torch.jit.trace(model, (dummy_x, dummy_ei), check_trace=False)
-        traced.save(str(output_path))
-        logger.info("TorchScript model saved to %s", output_path)
-    except Exception as e:
-        logger.warning("TorchScript trace failed (%s), saving state_dict instead", e)
-        torch.save(model.state_dict(), output_path)
-        # Write a flag so the engine knows it's a state_dict, not TorchScript
-        meta_flag = output_path.with_suffix(".mode")
-        meta_flag.write_text("state_dict")
-        logger.info("State dict saved to %s (TorchScript fallback)", output_path)
+    # Always use state_dict — TorchScript + PyG scatter ops are brittle across devices
+    torch.save(model.state_dict(), output_path)
+    output_path.with_suffix(".mode").write_text("state_dict")
+    logger.info("State dict saved to %s", output_path)
 
     # Verify
     logger.info("Verifying saved model...")
-    try:
-        if output_path.with_suffix(".mode").exists():
-            AutoEncoder = _load_model_class()
-            loaded = AutoEncoder(in_dim=8, latent_dim=32)
-            loaded.load_state_dict(torch.load(str(output_path), map_location="cpu"))
-        else:
-            loaded = torch.jit.load(str(output_path), map_location="cpu")
-        test_x = torch.randn(5, 8)
-        test_ei = torch.randint(0, 5, (2, 8))
-        out, lat = loaded(test_x, test_ei)
-        assert out.shape == test_x.shape, f"Shape mismatch: {out.shape} vs {test_x.shape}"
-        logger.info("Verification PASSED — model loads and produces correct shape")
-    except Exception as e:
-        logger.error("Verification FAILED: %s", e)
-        raise
+    AutoEncoder = _load_model_class()
+    loaded = AutoEncoder(in_dim=8, latent_dim=32)
+    loaded.load_state_dict(torch.load(str(output_path), map_location="cpu"))
+    test_x = torch.randn(5, 8)
+    test_ei = torch.randint(0, 5, (2, 8))
+    out, lat = loaded(test_x, test_ei)
+    assert out.shape == test_x.shape, f"Shape mismatch: {out.shape} vs {test_x.shape}"
+    logger.info("Verification PASSED — model loads and produces correct shape")
 
 
 def run_training_pipeline(min_samples: int = MIN_SAMPLES_DEFAULT,

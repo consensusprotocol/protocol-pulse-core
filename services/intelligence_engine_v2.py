@@ -36,6 +36,24 @@ def _get_signal_fetcher():
             log.warning("SignalDataFetcher unavailable: %s", exc)
     return _signal_fetcher
 
+# Lazy-loaded PCAF v1 GNN engine (replaces rule-based on-chain scoring)
+_pcaf_engine = None
+
+def _get_pcaf_engine():
+    global _pcaf_engine
+    if _pcaf_engine is None:
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(
+                "_pcaf_v1_engine",
+                str(Path(__file__).resolve().parent / "pcaf_v1_engine.py"))
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            _pcaf_engine = mod.PCAFv1Engine()
+        except Exception as exc:
+            log.warning("PCAF v1 engine unavailable: %s", exc)
+    return _pcaf_engine
+
 # Resolve to project root regardless of whether file lives in services/ or core/services/
 _here = Path(__file__).resolve().parent
 BASE_DIR = _here.parent.parent if _here.parent.name == "core" else _here.parent
@@ -291,7 +309,50 @@ class IntelligenceEngineV2:
         whales = self.ctx.get("whale_alerts", [])
         fg = self.ctx.get("fear_greed", {}).get("value", 50)
 
-        # Try real on-chain data
+        # ── PCAF GNN inference (primary) ──
+        pcaf = _get_pcaf_engine()
+        if pcaf is not None:
+            try:
+                state_file = "/tmp/sentinel_state.json"
+                import os, json as _json
+                if os.path.exists(state_file):
+                    with open(state_file, "r") as _f:
+                        state = _json.load(_f)
+                    result = pcaf.score(state)
+                    if result.get("model_version") != "v0_fallback":
+                        anomaly = result["anomaly_score"]
+                        # Map anomaly score: high anomaly + outflow = accumulation signal
+                        # (unusual chain state during outflow = smart money moving)
+                        if flow == "outflow":
+                            score = min(100, 50 + anomaly // 2 + 15)
+                        elif flow == "inflow":
+                            score = max(0, 50 - anomaly // 2 - 15)
+                        else:
+                            score = 50 + (anomaly - 50) // 3
+
+                        # Fear + anomaly = conviction signal
+                        if fg < 30 and anomaly > 40:
+                            score = min(100, score + 10)
+
+                        score = max(0, min(100, score))
+                        trend = "up" if score > 60 else ("down" if score < 40 else "flat")
+                        conf = result.get("confidence_pct", 50)
+                        detail_parts = [
+                            f"GNN anomaly={anomaly}",
+                            f"err={result['reconstruction_error']:.4f}",
+                            f"nodes={result['graph_nodes']}",
+                            f"{result['inference_ms']}ms",
+                        ]
+                        if result.get("top_signal"):
+                            detail_parts.append(result["top_signal"])
+                        detail_parts.append(f"Flow: {flow}")
+                        return {"score": score, "trend": trend,
+                                "confidence": min(90, conf),
+                                "detail": f"PCAF v1: {', '.join(detail_parts)}"}
+            except Exception as exc:
+                log.warning("PCAF GNN inference failed, falling back to rules: %s", exc)
+
+        # ── Rule-based fallback ──
         fetcher = _get_signal_fetcher()
         onchain = {}
         if fetcher:
@@ -300,7 +361,6 @@ class IntelligenceEngineV2:
             except Exception as exc:
                 log.warning("On-chain fetch failed, using fallback: %s", exc)
 
-        # Also check sovereign_context cache
         if not onchain or onchain.get("accumulation_score") is None:
             onchain = self.ctx.get("on_chain", {})
 
@@ -310,7 +370,6 @@ class IntelligenceEngineV2:
         nvt = onchain.get("nvt_ratio")
 
         if acc_score is not None:
-            # Real on-chain data available — blend with exchange flow data
             score = acc_score
             detail_parts = []
             confidence = 60
@@ -325,13 +384,11 @@ class IntelligenceEngineV2:
                 detail_parts.append(f"NVT {nvt:.0f}")
                 confidence += 5
 
-            # Blend with exchange flow signal (±10)
             if flow == "outflow":
                 score = min(100, score + 10)
             elif flow == "inflow":
                 score = max(0, score - 10)
 
-            # Fear during accumulation = strong conviction
             if fg < 30 and score > 55:
                 score = min(100, score + 5)
                 detail_parts.append(f"F&G {fg} (fear+accumulation)")
@@ -342,7 +399,6 @@ class IntelligenceEngineV2:
             return {"score": score, "trend": trend, "confidence": min(85, confidence),
                     "detail": ", ".join(detail_parts)}
 
-        # Fallback: original proxy
         base = 50
         if flow == "outflow":
             base += 15

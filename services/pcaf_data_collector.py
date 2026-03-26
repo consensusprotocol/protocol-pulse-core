@@ -49,7 +49,7 @@ class DataCollector:
         tx_start_idx = node_idx
         for tx in whale_txs[:200]:
             features = [
-                float(tx.get("value", 0)),          # value_btc
+                float(tx.get("value_btc", tx.get("value", 0))),  # value_btc
                 float(tx.get("fee_rate", 0)),        # fee_rate_svb
                 float(tx.get("vsize", 0)),           # size_vbytes
                 float(tx.get("rbf", 0)),             # rbf_flag
@@ -123,7 +123,7 @@ class DataCollector:
             float(net.get("avg_block_time_10", 600)),
             float(state.get("mempool", {}).get("count", 0)),
             float(state.get("mempool", {}).get("vsize", 0)) / 1e6,  # MB
-            float(fee_histogram[0]) if fee_histogram else 0.0,  # next_block_fee approx
+            float(fee_histogram[0].get("min_fee", 0) if isinstance(fee_histogram[0], dict) else fee_histogram[0]) if fee_histogram else 0.0,  # next_block_fee approx
             0.0, 0.0,  # pad to 8
         ]
         nodes.append(network_features)
@@ -195,12 +195,27 @@ class DataCollector:
         return data
 
     def _parse_fee_bands(self, histogram: list) -> list:
-        """Parse mempool.space fee histogram into 10 bands."""
+        """Parse fee histogram into 10 bands. Accepts both dict-format and flat format."""
         if not histogram:
             return [{"min_fee": 0, "max_fee": 0, "tx_count": 0,
                      "vsize_total": 0, "pct_of_mempool": 0}]
 
-        # histogram is flat: [fee_rate, vsize, fee_rate, vsize, ...]
+        # Dict-format: [{"min_fee": 1, "max_fee": 5, "vsize": 0, "count": 0}, ...]
+        if isinstance(histogram[0], dict):
+            total_vsize = sum(float(b.get("vsize", 0)) for b in histogram) or 1.0
+            bands = []
+            for b in histogram[:10]:
+                vs = float(b.get("vsize", 0))
+                bands.append({
+                    "min_fee": float(b.get("min_fee", 0)),
+                    "max_fee": float(b.get("max_fee", 0)),
+                    "tx_count": int(b.get("count", 0)),
+                    "vsize_total": vs,
+                    "pct_of_mempool": (vs / total_vsize) * 100,
+                })
+            return bands
+
+        # Flat format: [fee_rate, vsize, fee_rate, vsize, ...]
         bands = []
         total_vsize = 0
         entries = []
@@ -214,7 +229,6 @@ class DataCollector:
             return [{"min_fee": 0, "max_fee": 0, "tx_count": 0,
                      "vsize_total": 0, "pct_of_mempool": 0}]
 
-        # Sort by fee rate and bucket into 10 bands
         entries.sort(key=lambda e: e[0])
         chunk = max(len(entries) // 10, 1)
         for i in range(0, len(entries), chunk):

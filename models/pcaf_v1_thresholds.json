@@ -1,0 +1,10 @@
+{
+  "note_threshold": 1411.9947875976559,
+  "watch_threshold": 3868.648901367188,
+  "critical_threshold": 4142.932548828125,
+  "error_mean": 1511.083610534668,
+  "error_std": 1252.7413098399657,
+  "error_p50": 1061.2296142578125,
+  "calibration_samples": 12,
+  "calibrated_at": 1774552977.8832207
+}
