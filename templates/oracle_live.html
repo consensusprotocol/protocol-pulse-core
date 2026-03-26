@@ -1685,7 +1685,7 @@ function setRec(on){
 
 /* ── HELPERS ── */
 function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';}
-function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}}
+function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}else{mic.disabled=false;}}
 function showSub(t){sub.textContent=t;sub.classList.add('on');}
 function hideSub(){sub.classList.remove('on');}
 function showTX(t){txEl.textContent=t;txEl.classList.add('on');}
