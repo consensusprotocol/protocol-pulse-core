@@ -669,10 +669,7 @@ width:100%;margin-top:4px;">
     if(s)s.textContent="PERR:"+(e.reason&&e.reason.message||String(e.reason));
   });
   window.addEventListener("pageshow",function(e){
-    if(e.persisted){
-      var b=document.getElementById("gate-btn");
-      if(b)b.disabled=false;
-    }
+    if(e.persisted){ window.location.reload(); }
   });
 })();
 </script>
@@ -1059,10 +1056,7 @@ if(gBtn){ gBtn.disabled=false; }
 var gStatus=document.getElementById('gate-status');
 /* iOS bfcache: re-enable gate button when page is restored from cache */
 window.addEventListener('pageshow', function(e){
-  if(e.persisted){
-    /* Force full reload on bfcache restore - ensures gate tap always unlocks iOS audio */
-    window.location.reload();
-  }
+  if(e.persisted){ window.location.reload(); }
 });
 var gErr=document.getElementById('gate-error');
 var vid=document.getElementById('vid');
