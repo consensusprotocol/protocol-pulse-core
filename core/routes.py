@@ -34,6 +34,10 @@ try:
     from services.rss_service import RSSService
 except ModuleNotFoundError:
     RSSService = None
+try:
+    from services import media_feed_service
+except Exception:
+    media_feed_service = None
 from services.printful_service import PrintfulService
 from services.price_service import price_service
 from services.youtube_service import YouTubeService

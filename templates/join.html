@@ -262,8 +262,8 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 }
 
 /* FREE tier */
-.join-card--free::before { background: var(--j-cyan); }
-.join-card--free:hover { border-color: rgba(93,228,255,0.15); }
+.join-card--free::before { background: #8895a7; }
+.join-card--free:hover { border-color: rgba(136,149,167,0.20); }
 
 /* COMMANDER tier (featured) */
 .join-card--commander {
@@ -320,7 +320,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     text-transform: uppercase;
     margin-bottom: 14px;
 }
-.join-card--free .join-card-kicker { color: var(--j-cyan); }
+.join-card--free .join-card-kicker { color: #8895a7; }
 .join-card--commander .join-card-kicker { color: var(--j-red); }
 .join-card--sovereign .join-card-kicker { color: var(--j-gold); }
 
@@ -367,7 +367,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     left: 0; top: 7px;
     font-size: 10px;
 }
-.join-card--free .join-features li::before { color: var(--j-cyan); }
+.join-card--free .join-features li::before { color: #8895a7; }
 .join-card--commander .join-features li::before { color: var(--j-red); }
 .join-card--sovereign .join-features li::before { color: var(--j-gold); }
 
@@ -389,14 +389,14 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     border: none;
 }
 .join-btn--ghost {
-    background: rgba(93,228,255,0.08);
-    border: 1px solid rgba(93,228,255,0.20);
-    color: var(--j-cyan);
+    background: rgba(136,149,167,0.08);
+    border: 1px solid rgba(136,149,167,0.25);
+    color: #8895a7;
 }
 .join-btn--ghost:hover {
-    background: rgba(93,228,255,0.14);
-    border-color: rgba(93,228,255,0.35);
-    box-shadow: 0 4px 20px rgba(93,228,255,0.10);
+    background: rgba(136,149,167,0.14);
+    border-color: rgba(136,149,167,0.40);
+    box-shadow: 0 4px 20px rgba(136,149,167,0.10);
 }
 .join-btn--red {
     background: var(--j-red);
@@ -471,7 +471,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     text-align: left;
     color: var(--j-muted);
 }
-.join-matrix thead th:nth-child(2) { color: var(--j-cyan); }
+.join-matrix thead th:nth-child(2) { color: #8895a7; }
 .join-matrix thead th:nth-child(3) { color: var(--j-red); }
 .join-matrix thead th:nth-child(4) { color: var(--j-gold); }
 .join-matrix tbody td {
@@ -809,128 +809,6 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 .join-bottom a:hover { color: var(--j-cyan); }
 .join-bottom a span { color: var(--j-cyan); }
 
-/* ── SIGNUP MODAL ── */
-.signup-modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(6,7,11,0.88);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-}
-.signup-modal-overlay.active { display: flex; }
-.signup-modal {
-    background: var(--j-panel);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 36px;
-    width: 100%;
-    max-width: 420px;
-    position: relative;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 80px rgba(255,59,95,0.06);
-}
-.signup-modal::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 24px; right: 24px;
-    height: 2px;
-    background: var(--j-red);
-    border-radius: 0 0 2px 2px;
-}
-.signup-modal h2 {
-    font-family: var(--j-mono);
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--j-text);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    margin: 0 0 6px;
-}
-.signup-modal .modal-sub {
-    color: var(--j-muted);
-    font-size: 13px;
-    margin-bottom: 20px;
-}
-.signup-modal label {
-    display: block;
-    font-family: var(--j-mono);
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--j-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 5px;
-}
-.signup-modal input[type="email"],
-.signup-modal input[type="password"] {
-    display: block;
-    width: 100%;
-    padding: 11px 14px;
-    background: var(--j-bg);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    color: var(--j-text);
-    font-family: var(--j-mono);
-    font-size: 14px;
-    margin-bottom: 14px;
-    box-sizing: border-box;
-    outline: none;
-    transition: border-color 0.15s;
-}
-.signup-modal input:focus { border-color: var(--j-red); }
-.signup-submit {
-    display: block;
-    width: 100%;
-    padding: 13px;
-    background: var(--j-red);
-    color: #fff;
-    font-family: var(--j-mono);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s;
-    margin-top: 4px;
-}
-.signup-submit:hover { background: #e02e4f; }
-.signup-submit:disabled { background: #333; cursor: wait; }
-.modal-error {
-    color: var(--j-red);
-    font-family: var(--j-mono);
-    font-size: 12px;
-    margin-top: 8px;
-    display: none;
-}
-.modal-close {
-    position: absolute;
-    top: 14px; right: 18px;
-    background: none;
-    border: none;
-    color: var(--j-muted);
-    font-size: 22px;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.15s;
-}
-.modal-close:hover { color: var(--j-text); }
-.modal-login-link {
-    display: block;
-    text-align: center;
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--j-muted);
-}
-.modal-login-link a {
-    color: var(--j-cyan);
-    text-decoration: none;
-}
-.modal-login-link a:hover { text-decoration: underline; }
-
 /* ── RESPONSIVE ── */
 @media (max-width: 960px) {
     .join-tiers {
@@ -1045,7 +923,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 
         <!-- COMMANDER (featured) -->
         <div class="join-card join-card--commander">
-            <div class="join-card-badge">MOST POPULAR</div>
+            <div class="join-card-badge">FEATURED</div>
             <div class="join-card-kicker">COMMANDER</div>
             <div class="join-card-price">$49<span class="price-sub">/mo</span></div>
             <div class="join-card-desc">Full terminal access. Oracle AI analyst. Daily video briefings. Real-time alerts. Cancel anytime.</div>
@@ -1218,7 +1096,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
                        placeholder="Enter access code..."
                        autocomplete="off" spellcheck="false"
                        aria-label="Sovereign access code">
-                <button class="join-promo-submit" id="promoSubmit">Authenticate</button>
+                <button class="join-promo-submit" id="promoSubmit">Unlock Terminal</button>
             </div>
             <div class="join-promo-msg" id="promoMsg"></div>
             <div class="join-promo-hint">Codes are distributed to sovereign-tier teams and early operatives.</div>
@@ -1257,34 +1135,11 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
 
     <!-- ═══ BOTTOM LINKS ═══ -->
     <div class="join-bottom">
-        <a href="/terminal">Already have access? <span>Open Terminal &rarr;</span></a>
+        <a href="/signal-terminal">Already have access? <span>Open Terminal &rarr;</span></a>
     </div>
 
 </div>
 
-<!-- ═══ SIGNUP MODAL ═══ -->
-<div class="signup-modal-overlay" id="signupOverlay">
-    <div class="signup-modal">
-        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
-        <h2>Create Account</h2>
-        <p class="modal-sub">3 fields. No KYC. Straight to the terminal.</p>
-        <form id="signupForm">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is callable else '' }}">
-            <label for="signupEmail">Email</label>
-            <input type="email" id="signupEmail" name="email" required autocomplete="email" placeholder="satoshi@protonmail.com">
-
-            <label for="signupPassword">Password</label>
-            <input type="password" id="signupPassword" name="password" required autocomplete="new-password" minlength="8" placeholder="••••••••">
-
-            <label for="signupConfirm">Confirm Password</label>
-            <input type="password" id="signupConfirm" name="confirm_password" required autocomplete="new-password" minlength="8" placeholder="••••••••">
-
-            <button type="submit" class="signup-submit" id="signupSubmit">Create Account &amp; Subscribe</button>
-            <div class="modal-error" id="signupError"></div>
-        </form>
-        <div class="modal-login-link">Already have an account? <a href="/login">Log in</a></div>
-    </div>
-</div>
 
 <script>
 (function() {
@@ -1295,7 +1150,7 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     if (canvas) {
         var ctx = canvas.getContext('2d');
         var particles = [];
-        var PARTICLE_COUNT = 40;
+        var PARTICLE_COUNT = 50;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -1376,74 +1231,38 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
     fetchTicker();
     setInterval(fetchTicker, 30000);
 
-    /* ── Signup modal ── */
-    var overlay = document.getElementById('signupOverlay');
-    var closeBtn = document.getElementById('modalClose');
-    var form = document.getElementById('signupForm');
-    var errorEl = document.getElementById('signupError');
-    var submitBtn = document.getElementById('signupSubmit');
+    /* ── Stripe Commander checkout ── */
+    function startCheckout() {
+        var joinBtn = document.getElementById('joinCTA');
+        var closingBtn = document.getElementById('joinClosingCTA');
+        joinBtn.disabled = true;
+        joinBtn.textContent = 'Redirecting to checkout...';
 
-    function openSignup() { overlay.classList.add('active'); }
-    function closeSignup() { overlay.classList.remove('active'); }
-
-    document.getElementById('joinCTA').addEventListener('click', openSignup);
-    document.getElementById('joinClosingCTA').addEventListener('click', openSignup);
-    closeBtn.addEventListener('click', closeSignup);
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeSignup(); });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSignup(); });
-    window.openSignupModal = openSignup;
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        errorEl.style.display = 'none';
-        var email = document.getElementById('signupEmail').value.trim();
-        var pw = document.getElementById('signupPassword').value;
-        var confirm = document.getElementById('signupConfirm').value;
-
-        if (pw !== confirm) {
-            errorEl.textContent = 'Passwords do not match';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (pw.length < 8) {
-            errorEl.textContent = 'Password must be at least 8 characters';
-            errorEl.style.display = 'block';
-            return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
-
-        var csrfEl = document.querySelector('[name=csrf_token]');
-        var csrfToken = csrfEl ? csrfEl.value : '';
-        fetch('/api/join/register', {
+        fetch('/api/v1/checkout/create-session', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({ email: email, password: pw })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (data.success && data.checkout_url) {
-                window.location.href = data.checkout_url;
-            } else if (data.success) {
-                window.location.href = '/intelligence?activated=1';
+            if (data.url) {
+                window.location.href = data.url;
             } else {
-                errorEl.textContent = data.error || 'Registration failed';
-                errorEl.style.display = 'block';
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Create Account & Subscribe';
+                joinBtn.disabled = false;
+                joinBtn.textContent = 'Access the Terminal \u2014 $49/mo';
+                closingBtn.textContent = 'Get Commander Access \u2014 $49/mo';
+                alert(data.error || 'Checkout unavailable. Please try again.');
             }
         })
         .catch(function() {
-            errorEl.textContent = 'Network error \u2014 try again';
-            errorEl.style.display = 'block';
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Account & Subscribe';
+            joinBtn.disabled = false;
+            joinBtn.textContent = 'Access the Terminal \u2014 $49/mo';
+            alert('Network error \u2014 please try again.');
         });
-    });
+    }
+
+    document.getElementById('joinCTA').addEventListener('click', startCheckout);
+    document.getElementById('joinClosingCTA').addEventListener('click', startCheckout);
 
     /* ── Promo code ── */
     var promoInput = document.getElementById('promoInput');
@@ -1475,20 +1294,20 @@ body { background: var(--j-bg) !important; overflow-x: hidden; }
                 promoMsg.textContent = '\u2713 ' + (res.data.message || 'Access unlocked. Redirecting...');
                 promoMsg.className = 'join-promo-msg success';
                 setTimeout(function() {
-                    window.location.href = res.data.redirect || '/terminal';
+                    window.location.href = res.data.redirect || '/signal-terminal';
                 }, 1200);
             } else {
                 promoMsg.textContent = res.data.error || 'Invalid access code';
                 promoMsg.className = 'join-promo-msg error';
                 promoSubmit.disabled = false;
-                promoSubmit.textContent = 'Authenticate';
+                promoSubmit.textContent = 'Unlock Terminal';
             }
         })
         .catch(function() {
             promoMsg.textContent = 'Network error \u2014 try again';
             promoMsg.className = 'join-promo-msg error';
             promoSubmit.disabled = false;
-            promoSubmit.textContent = 'Authenticate';
+            promoSubmit.textContent = 'Unlock Terminal';
         });
     }
 
