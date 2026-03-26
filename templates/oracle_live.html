@@ -1759,6 +1759,7 @@ function handleVisionUpload(evt){
       c.width=w;c.height=h;
       c.getContext("2d").drawImage(img,0,0,w,h);
       var b64=c.toDataURL("image/jpeg",0.8).split(",")[1];
+      if(!b64||b64.length<500){showVisionStatus("Image capture failed - try again");setTimeout(hideVisionStatus,3000);return;}
       sendVisionImage(b64,"image/jpeg");
     };
     img.src=e.target.result;
