@@ -615,7 +615,7 @@ def value_stream_legacy():
 @app.route('/terminal')
 def terminal_redirect():
     """Terminal route — redirect to signal terminal."""
-    return redirect('/signal-terminal')
+    return redirect('/intelligence')
 
 @app.route('/signal-terminal')
 def signal_terminal():
@@ -7015,7 +7015,7 @@ def commander_onboarding():
     if tier not in ('commander', 'sovereign'):
         return redirect(url_for('join_page'))
     if getattr(current_user, 'onboarding_completed', False):
-        return redirect('/signal-terminal')
+        return redirect('/intelligence')
     member_number = f"PP-{current_user.id:04d}"
     join_date = current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else '2026'
     return render_template('commander_onboarding.html',
