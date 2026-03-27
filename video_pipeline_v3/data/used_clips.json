@@ -1,71 +1,20 @@
 {
   "episodes": [
     {
-      "date": "2026-03-26",
-      "video_ids": [
-        "tTkD-DnUPM8",
-        "EasqxUjVu3A",
-        "eCPsutO1Nvw",
-        "taV0gxDljIA",
-        "M4RPTungLqs"
-      ],
-      "channels": [
-        "Bitcoin Magazine Pro",
-        "Simply Bitcoin",
-        "Swan Bitcoin",
-        "CoinTelegraph",
-        "Natalie Brunell"
-      ]
-    },
-    {
-      "date": "2026-03-26",
-      "video_ids": [
-        "nIT-C1EHPyA",
-        "5GMQgtYqYIE",
-        "kFCd7czSCkQ",
-        "etTv2PtW2UA",
-        "JJrhk7uqCCQ"
-      ],
-      "channels": [
-        "Bitfarms",
-        "Bitcoin News Alerts",
-        "Digital Asset News",
-        "Unchained",
-        "Blockware Solutions"
-      ]
-    },
-    {
-      "date": "2026-03-26",
+      "date": "2026-03-27",
       "video_ids": [
         "0QNsBVobp2U",
-        "4yMGeaL4KfY",
-        "0LU7inzjr5o",
+        "5I-5UjZ4lqk",
         "-_C4dZZvWIk",
+        "4nDVYeU6SRw",
         "57GVjvYfpx0"
       ],
       "channels": [
         "Bitcoin Magazine Pro",
         "Simply Bitcoin",
-        "DataDash",
         "Swan Bitcoin",
-        "Blockware Solutions"
-      ]
-    },
-    {
-      "date": "2026-03-26",
-      "video_ids": [
-        "4nDVYeU6SRw",
-        "0oJlXE3jPFA",
-        "1w-ok-_d_K4",
-        "2DIlhctrBcY",
-        "1lVmzfP6_iA"
-      ],
-      "channels": [
         "Altcoin Daily",
-        "CoinGecko",
-        "Riot Platforms",
-        "Anthony Pompliano",
-        "CoinDesk"
+        "Blockware Solutions"
       ]
     }
   ]

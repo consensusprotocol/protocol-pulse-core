@@ -1,42 +1,42 @@
 {
-  "updated_at": "2026-03-27T14:42:14.553508+00:00",
+  "updated_at": "2026-03-27T16:40:01.227094+00:00",
   "btc_price": {
-    "value": 65795,
-    "change_24h": -5.36,
+    "value": 65828,
+    "change_24h": -4.37,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1315868109567,
+    "value": 1318525545239.4084,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 55342467401,
+    "value": 56084195838.07509,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 942480,
+    "value": 942497,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 4.58,
-    "blocks_remaining": 1008,
-    "estimated_date": "2026-04-03T07:30:06.232000+00:00",
+    "percent": 5.06,
+    "blocks_remaining": 991,
+    "estimated_date": "2026-04-03T06:01:46.150000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1002.6 EH/s",
-    "raw_eh": 1002.6,
+    "value": "1005.7 EH/s",
+    "raw_eh": 1005.7,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 39604,
-    "vsize_mb": 13.1,
+    "tx_count": 27532,
+    "vsize_mb": 9.8,
     "source": "mempool.space"
   },
   "recommended_fees": {
-    "fastest": 4,
-    "hour": 3,
-    "economy": 2,
+    "fastest": 3,
+    "hour": 1,
+    "economy": 1,
     "source": "mempool.space"
   },
   "lightning": {
@@ -52,17 +52,17 @@
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 1.612e-05,
-    "annualized": 1.77,
+    "value": 6.23e-06,
+    "annualized": 0.68,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 30088.2,
-    "usd": 1981340450,
+    "btc": 30126.2,
+    "usd": 1983154590,
     "source": "deribit"
   },
   "exchange_volume": {
-    "binance_btc": 149428.2,
+    "binance_btc": 152145.6,
     "coinbase_btc": null,
     "source": "coingecko"
   },

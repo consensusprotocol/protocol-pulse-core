@@ -1,53 +1,42 @@
 [
   {
-    "id": "62965ba4-be45-4a5e-bc1f-39b3f5caad0e",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "**ORACLE MORNING BRIEF \u2014 MARCH 27, 2026**\n\nBitcoin flat at $67,650, but the real story isn't price\u2014it's the institutional supply squeeze unfolding underneath.\n\nJapan's pension fund\u2014$1.5 trillion under management\u2014just moved Bitcoin to formal research agenda. Same week, Kraken secured a Federal Reserv",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE MORNING",
-    "topic_preview": "Oracle Morning Brief \u2014 $67,650",
-    "generated_at": "2026-03-27T10:00:01.804847+00:00",
-    "expires_at": "2026-03-27T14:00:01.804847+00:00",
-    "video_url": "/data/stage_briefs/brief_20260327_1000.mp4"
-  },
-  {
-    "id": "2d7c3feb-928a-402a-8fad-933cb5d1e745",
+    "id": "5166dc75-e4c4-4405-9b55-b4a74f21c196",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at sixty-seven thousand six hundred thirty-three dollars, flat twenty-four hours. Network hashrate holds at 1,091 exahashes. Fear and Greed Index registers Extreme Fear. Fastest fee sits at four satoshis per byte. Thirty-three thousand five hundred three transactions processed in the last block. Block height reaches nine hundred forty-two thousand four hundred fifty-three. Watch for any hash rate shifts above 1,100 exahashes.",
+    "script": "Bitcoin trades at sixty-six thousand three hundred thirteen dollars. Fear gauge reads extreme fear, fifteen point one percent.\n\nHashrate stabilizes at one thousand ninety-one exahashes. Transaction count drops to thirty-six thousand six hundred sixty-one.\n\nNext hour: watch for fee rate spikes above five satoshis per byte. Block height advances to nine hundred forty-two thousand four hundred seventy-nine.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $67,633 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
-    "generated_at": "2026-03-27T10:05:09.253752+00:00",
-    "expires_at": "2026-03-27T14:05:09.253752+00:00"
+    "topic_preview": "BTC $66,313 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
+    "generated_at": "2026-03-27T14:15:17.345626+00:00",
+    "expires_at": "2026-03-27T18:15:17.345626+00:00"
   },
   {
-    "id": "b7cb72b0-153f-4c5c-b17c-7c9bdde2e100",
+    "id": "9e285dfd-b4eb-44cb-a7ab-0d15d7b02c15",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Mempool fees surged 40% in 24 hours.\n\nWatch for on-chain accumulation signals at key resistance levels.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Retail traders actively discussing 69k resistance levels. Watch for coordinated pump signals at 15-minute intervals.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-27T09:55:04.181196+00:00",
-    "expires_at": "2026-03-27T13:55:04.181196+00:00"
+    "generated_at": "2026-03-27T14:00:04.117656+00:00",
+    "expires_at": "2026-03-27T18:00:04.117656+00:00"
   },
   {
-    "id": "4a4495c4-a599-4fe3-9ac4-af2788d78566",
+    "id": "4557c0f5-78bc-4978-892b-f70cafac96ba",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Every four years, the block subsidy cuts in half. This halving mechanism is the most predictable monetary policy in human history. No central banker can override it. No politician can delay it.",
+    "script": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, the network recalibrates to maintain ten-minute block intervals regardless of how much hash power joins or leaves. Self-regulating monetary infrastructure.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Every four years, the block subsidy cuts in half. This halving mechanism is the ",
-    "generated_at": "2026-03-27T09:55:08.988149+00:00",
-    "expires_at": "2026-03-27T13:55:08.988149+00:00"
+    "topic_preview": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, th",
+    "generated_at": "2026-03-27T14:05:04.277307+00:00",
+    "expires_at": "2026-03-27T18:05:04.277307+00:00"
   },
   {
-    "id": "5a300606-06b6-45b9-9e29-5cb0ed5adb29",
+    "id": "fc222a0c-0600-4995-9083-c5c504537f04",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Running a full node costs less than a streaming subscription. For that price, you independently verify every transaction since the genesis block. That's sovereignty you can run on a Raspberry Pi.",
+    "script": "The Bitcoin network has been operational for over 99.98 percent of its existence. No bank, no government system, no tech company can match that uptime. Decentralization isn't just philosophy \u2014 it's resilience.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Running a full node costs less than a streaming subscription. For that price, yo",
-    "generated_at": "2026-03-27T10:00:18.563072+00:00",
-    "expires_at": "2026-03-27T14:00:18.563072+00:00"
+    "topic_preview": "The Bitcoin network has been operational for over 99.98 percent of its existence",
+    "generated_at": "2026-03-27T14:10:04.467501+00:00",
+    "expires_at": "2026-03-27T18:10:04.467501+00:00"
   }
 ]
