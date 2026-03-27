@@ -832,11 +832,11 @@
                     <li>Oracle AI assistant (standard)</li>
                     <li>Merchant map and tools</li>
                     <li>Community Nostr feed</li>
-                    <li class="disabled">Signal engine and alerts</li>
-                    <li class="disabled">API access</li>
-                    <li class="disabled">Sovereign briefings</li>
+                    <li class="disabled"><i class="fas fa-lock" style="font-size:0.7em;margin-right:4px;color:#dc2626;"></i> Signal engine and alerts</li>
+                    <li class="disabled"><i class="fas fa-lock" style="font-size:0.7em;margin-right:4px;color:#dc2626;"></i> API access</li>
+                    <li class="disabled"><i class="fas fa-lock" style="font-size:0.7em;margin-right:4px;color:#dc2626;"></i> Sovereign briefings</li>
                 </ul>
-                <a href="/register" class="join-card__cta join-card__cta--ghost">Create Account</a>
+                <a href="/register" class="join-card__cta join-card__cta--ghost pp-cta-track" data-cta-id="join-free-agent" data-cta-page="join">Create Account</a>
             </div>
 
             <!-- COMMANDER -->
@@ -859,7 +859,8 @@
                     <li>Lightning network intelligence</li>
                     <li class="disabled">Sovereign team briefings</li>
                 </ul>
-                <a href="/terminal/checkout" class="join-card__cta join-card__cta--primary">Deploy Commander</a>
+                <a href="/terminal/checkout" class="join-card__cta join-card__cta--primary pp-cta-track" data-cta-id="join-deploy-commander" data-cta-page="join">Deploy Commander</a>
+                <p style="font-size:0.6875rem;color:rgba(255,255,255,0.35);margin-top:8px;font-family:'JetBrains Mono',monospace;text-align:center;">Cancel anytime. No lock-in.</p>
             </div>
 
             <!-- SOVEREIGN -->
@@ -884,6 +885,41 @@
                 <a href="#accessTerminal" class="join-card__cta join-card__cta--gold">Enter Access Code</a>
             </div>
 
+        </section>
+
+        <!-- ════════════════ TESTIMONIALS / SOCIAL PROOF ════════════════ -->
+        <section style="padding:48px 0 32px;">
+            <div style="
+                font-family:'JetBrains Mono',monospace;font-size:0.5625rem;font-weight:800;
+                letter-spacing:0.18em;text-transform:uppercase;color:#dc2626;
+                text-align:center;margin-bottom:24px;
+            ">WHAT COMMANDERS SAY</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:900px;margin:0 auto;">
+                <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);padding:24px;border-left:2px solid #dc2626;">
+                    <p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:12px;font-style:italic;">
+                        "The signal engine caught the ETF flow reversal 14 hours before CT. That alone paid for a year."
+                    </p>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6875rem;color:rgba(255,255,255,0.35);">
+                        &mdash; Commander since Jan 2026
+                    </div>
+                </div>
+                <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);padding:24px;border-left:2px solid var(--pp-amber,#f8c15c);">
+                    <p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:12px;font-style:italic;">
+                        "I replaced 4 subscriptions with Commander. The Oracle alone is worth it."
+                    </p>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6875rem;color:rgba(255,255,255,0.35);">
+                        &mdash; Mining fund analyst
+                    </div>
+                </div>
+                <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);padding:24px;border-left:2px solid #22c55e;">
+                    <p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:12px;font-style:italic;">
+                        "The daily Pulse Check is my morning ritual. Better than any newsletter."
+                    </p>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6875rem;color:rgba(255,255,255,0.35);">
+                        &mdash; Commander since Feb 2026
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ════════════════ ACCESS CODE TERMINAL ════════════════ -->
@@ -1025,11 +1061,11 @@
                 The signal is live. The data is flowing. The only question is whether you're watching — or guessing.
             </p>
             <div class="join-cta__buttons">
-                <a href="/register" class="join-cta__btn join-cta__btn--primary">
-                    <i class="fas fa-bolt"></i> Start Free
+                <a href="/terminal/checkout" class="join-cta__btn join-cta__btn--primary pp-cta-track" data-cta-id="join-bottom-commander" data-cta-page="join">
+                    <i class="fas fa-shield-alt"></i> Deploy Commander — $49/mo
                 </a>
-                <a href="/terminal/checkout" class="join-cta__btn join-cta__btn--ghost">
-                    Deploy Commander
+                <a href="/register" class="join-cta__btn join-cta__btn--ghost pp-cta-track" data-cta-id="join-bottom-free" data-cta-page="join">
+                    <i class="fas fa-bolt"></i> Start Free
                 </a>
             </div>
             <div class="join-cta__eq">

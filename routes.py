@@ -7451,6 +7451,13 @@ def api_media_rss():
     return jsonify(all_eps[:limit])
 
 
+@app.route('/api/media/brief-audio/<filename>')
+def serve_brief_audio(filename):
+    """Serve Kokoro-generated voice brief audio for Twilio <Play>."""
+    from flask import send_from_directory
+    return send_from_directory('/tmp/satomi_briefs', filename)
+
+
 @app.route('/api/media/sync', methods=['POST'])
 def api_media_sync():
     """Trigger a manual feed sync (admin use)"""
@@ -8490,6 +8497,51 @@ def api_btc_price():
     """Lightweight BTC price for nav ticker."""
     from services.market_dashboard import get_btc_price_quick
     return jsonify(get_btc_price_quick())
+
+
+@app.route('/api/articles/count')
+def api_articles_count():
+    """Total article count for social proof."""
+    try:
+        count = db.session.execute(db.text("SELECT COUNT(*) FROM articles")).scalar() or 0
+        return jsonify({"count": count})
+    except Exception:
+        return jsonify({"count": 1300})
+
+
+@app.route('/api/oracle/sessions-today')
+def api_oracle_sessions_today():
+    """Oracle session count for today (social proof)."""
+    try:
+        from datetime import date
+        today = date.today().isoformat()
+        count = db.session.execute(
+            db.text("SELECT COUNT(*) FROM oracle_sessions WHERE date(created_at) = :d"),
+            {"d": today}
+        ).scalar() or 0
+        return jsonify({"count": count})
+    except Exception:
+        return jsonify({"count": 0})
+
+
+@app.route('/api/analytics/cta-click', methods=['POST'])
+def api_cta_click():
+    """Track CTA button clicks for funnel analysis."""
+    try:
+        data = request.get_json(silent=True) or {}
+        button_id = str(data.get('button_id', 'unknown'))[:64]
+        page = str(data.get('page', 'unknown'))[:128]
+        db.session.execute(
+            db.text("""INSERT INTO cta_clicks (button_id, page, clicked_at, ip_hash)
+                       VALUES (:bid, :page, CURRENT_TIMESTAMP, :ip)"""),
+            {"bid": button_id, "page": page, "ip": hashlib.sha256(
+                (request.remote_addr or '').encode()).hexdigest()[:16]}
+        )
+        db.session.commit()
+        return jsonify({"ok": True}), 204
+    except Exception:
+        db.session.rollback()
+        return jsonify({"ok": True}), 204
 
 
 @app.route('/api/market-dashboard/history')

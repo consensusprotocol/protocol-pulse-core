@@ -102,6 +102,62 @@ a[class*='share']:focus-visible {
     border-color: rgba(204, 34, 34, 0.5) !important;
 }
 
+/* ── Commander nav link subtle pulse glow ── */
+.pp-nav__commander-link {
+    position: relative;
+    animation: pp-commander-glow 2.5s ease-in-out infinite;
+}
+@keyframes pp-commander-glow {
+    0%, 100% { text-shadow: 0 0 4px rgba(220,38,38,0.3); }
+    50% { text-shadow: 0 0 12px rgba(220,38,38,0.6), 0 0 24px rgba(220,38,38,0.2); }
+}
+
+/* ── Mobile persistent bottom banner ── */
+.pp-mobile-commander-banner {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9990;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(220,38,38,0.25);
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+@media (max-width: 768px) {
+    .pp-mobile-commander-banner { display: flex; }
+    body { padding-bottom: 48px; }
+}
+.pp-mobile-commander-banner__info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.5);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.pp-mobile-commander-banner__cta {
+    background: linear-gradient(135deg, #dc2626, #ff3b5f);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.625rem;
+    padding: 6px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+}
+
 /* FINAL OVERRIDE: zero glow on article share buttons */
 .pp-article__share button,
 .pp-article__share button:focus,

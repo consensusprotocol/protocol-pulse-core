@@ -1760,6 +1760,15 @@ class PanopticonEvent(db.Model):
     )
 
 
+class CtaClick(db.Model):
+    __tablename__ = "cta_clicks"
+    id = db.Column(db.Integer, primary_key=True)
+    button_id = db.Column(db.String(64), nullable=False, index=True)
+    page = db.Column(db.String(128), nullable=False)
+    clicked_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    ip_hash = db.Column(db.String(16))
+
+
 # ── Auto-slug generation on insert ─────────────────────────────────────────
 from sqlalchemy import event as _sa_event
 

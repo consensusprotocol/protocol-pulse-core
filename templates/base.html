@@ -147,8 +147,9 @@
                 <a href="/articles" class="pp-nav__link">Briefs</a>
                 <a href="/oracle-live" class="pp-nav__link" style="color:#ff3b5f;font-weight:700;">Oracle</a>
                 
+                <a href="/join" class="pp-nav__link pp-nav__commander-link pp-cta-track" data-cta-id="nav-commander" data-cta-page="nav" style="color:#dc2626;font-weight:700;">Commander</a>
                 <a href="/media" class="pp-nav__link">Media</a>
-                <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage ⚡</a>
+                <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage</a>
                 <div class="nav-dropdown">
                     <a href="#" class="pp-nav__link" onclick="return false;">More ▾</a>
                     <div class="nav-dropdown-menu">
@@ -202,6 +203,7 @@
             <span class="pp-mono pp-tiny pp-text-muted">NAVIGATION</span>
         </div>
         <a href="/" class="pp-nav__link"><i class="fas fa-home" style="width:20px;"></i> Home</a>
+        <a href="/join" class="pp-nav__link pp-cta-track" data-cta-id="mobile-nav-commander" data-cta-page="nav" style="color:#dc2626;font-weight:700;"><i class="fas fa-shield-alt" style="width:20px;"></i> Commander</a>
         <a href="/articles" class="pp-nav__link"><i class="fas fa-terminal" style="width:20px;"></i> Briefs</a>
         <a href="/briefings" class="pp-nav__link" style="color:var(--pp-amber);"><i class="fas fa-video" style="width:20px;"></i> Briefings</a>
         <a href="/media" class="pp-nav__link"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Media Hub</a>
@@ -625,5 +627,38 @@
 
     {% block scripts %}{% endblock %}
     {% block extra_js %}{% endblock %}
+
+    <!-- Mobile persistent Commander banner -->
+    <div class="pp-mobile-commander-banner" id="ppMobileBanner">
+        <div class="pp-mobile-commander-banner__info">
+            <span style="color:#dc2626;">&#9679;</span>
+            <span>LIVE: Oracle active</span>
+            <span style="color:rgba(255,255,255,0.2);">|</span>
+            <span id="mobileBannerBriefs">1,300+ briefs</span>
+        </div>
+        <a href="/join" class="pp-mobile-commander-banner__cta pp-cta-track" data-cta-id="mobile-banner-commander" data-cta-page="mobile-banner">
+            Join Commander &rarr;
+        </a>
+    </div>
+
+    <!-- CTA analytics for all pages -->
+    <script>
+    (function(){
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.pp-cta-track');
+            if (!btn) return;
+            var data = JSON.stringify({
+                button_id: btn.getAttribute('data-cta-id') || 'unknown',
+                page: btn.getAttribute('data-cta-page') || window.location.pathname,
+                timestamp: new Date().toISOString()
+            });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/analytics/cta-click', new Blob([data], {type:'application/json'}));
+            } else {
+                fetch('/api/analytics/cta-click', {method:'POST',headers:{'Content-Type':'application/json'},body:data}).catch(function(){});
+            }
+        });
+    })();
+    </script>
 </body>
 </html>

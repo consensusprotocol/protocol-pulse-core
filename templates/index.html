@@ -38,44 +38,56 @@
 
             <!-- Title -->
             <h1 class="pp-hero__title pp-animate-in pp-animate-in-delay-1">
-                Bitcoin Intelligence <br>
-                <span class="pp-hero__title-accent">for Transactors</span>
+                Never Be Late to <br>
+                <span class="pp-hero__title-accent">the Bitcoin Signal</span>
             </h1>
 
             <!-- Subtitle -->
             <p class="pp-hero__subtitle pp-animate-in pp-animate-in-delay-2">
-                Real-time market signals, investigative reporting, and deep-protocol analysis.
-                Built for people who actually use Bitcoin.
+                The intelligence layer serious Bitcoiners use.
+                Real-time signals, AI-powered analysis, and deep-protocol reporting — before the market moves.
             </p>
 
             <!-- CTAs -->
             <div class="pp-hero__actions pp-animate-in pp-animate-in-delay-3">
-                <a href="/articles" class="pp-btn pp-btn--primary pp-btn--lg">
-                    <i class="fas fa-terminal"></i> Read Intel Briefs
-                </a>
-                <a href="/bitfeed-live" class="pp-btn pp-btn--ghost pp-btn--lg">
-                    <i class="fas fa-heartbeat"></i> Live Pulse
-                </a>
-                <a href="/stage" class="pp-btn pp-btn--primary pp-btn--lg" style="
-                    background:#ff3b5f;
+                <a href="/join" class="pp-btn pp-btn--primary pp-btn--lg pp-cta-track" data-cta-id="hero-commander" data-cta-page="home" style="
+                    background:linear-gradient(135deg, #dc2626 0%, #ff3b5f 100%);
                     border:none;
                     color:#fff;
                     font-weight:800;
                     font-size:1.1rem;
                     padding:16px 36px;
                     letter-spacing:0.04em;
-                    box-shadow:0 0 24px rgba(255,59,95,0.35);
+                    box-shadow:0 0 24px rgba(220,38,38,0.35);
                 ">
-                    <i class="fas fa-broadcast-tower"></i> Watch The Avatar Stage
+                    <i class="fas fa-shield-alt"></i> Access Commander Intelligence
+                </a>
+                <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-briefs" data-cta-page="home">
+                    <i class="fas fa-terminal"></i> Read Intel Briefs
                 </a>
             </div>
-            <p class="pp-animate-in pp-animate-in-delay-3" style="
-                color:rgba(255,255,255,0.55);
-                font-size:0.8125rem;
-                margin-top:10px;
+
+            <!-- Social proof strip -->
+            <div class="pp-hero__proof pp-animate-in pp-animate-in-delay-3" style="
+                display:flex;
+                align-items:center;
+                gap:16px;
+                flex-wrap:wrap;
+                justify-content:center;
+                margin-top:16px;
                 font-family:'JetBrains Mono',monospace;
-                letter-spacing:0.02em;
-            ">Bitcoin intelligence. Real-time signals for transactors.</p>
+                font-size:0.6875rem;
+                color:rgba(255,255,255,0.45);
+                letter-spacing:0.03em;
+            ">
+                <span><span style="color:#dc2626;">&#9679;</span> 1,300+ intelligence briefs</span>
+                <span style="color:rgba(255,255,255,0.15);">|</span>
+                <span>Live AI oracle</span>
+                <span style="color:rgba(255,255,255,0.15);">|</span>
+                <span>X Spaces monitoring</span>
+                <span style="color:rgba(255,255,255,0.15);">|</span>
+                <span>Daily Pulse Check</span>
+            </div>
 
             <!-- New here? path to Dossier -->
             <div class="pp-hero__new-here pp-animate-in pp-animate-in-delay-4" style="animation-delay:0.6s;">
@@ -224,9 +236,44 @@
 {% endif %}
 
 <!-- ═══════════════════════════════════════════════════════════════
+     LIVE PROOF STRIP — real-time credibility indicators
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:24px;padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-reveal" style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:24px;
+            flex-wrap:wrap;
+            padding:14px 24px;
+            background:rgba(220,38,38,0.04);
+            border:1px solid rgba(220,38,38,0.12);
+            border-radius:var(--pp-radius-lg);
+            font-family:'JetBrains Mono',monospace;
+            font-size:0.6875rem;
+            color:rgba(255,255,255,0.6);
+            letter-spacing:0.04em;
+        ">
+            <span style="display:flex;align-items:center;gap:6px;">
+                <span class="pp-pulse-dot"></span>
+                <span style="color:#dc2626;font-weight:700;text-transform:uppercase;">LIVE</span>
+                <span>BTC <span id="proofStripPrice" style="color:#fff;font-weight:700;">$—</span></span>
+            </span>
+            <span style="color:rgba(255,255,255,0.12);">|</span>
+            <span>Last brief: <span id="proofStripLastArticle" style="color:rgba(255,255,255,0.8);">loading...</span></span>
+            <span style="color:rgba(255,255,255,0.12);">|</span>
+            <span><span id="proofStripArticleCount" style="color:#fff;font-weight:700;">1,300</span>+ intelligence briefs published</span>
+            <span style="color:rgba(255,255,255,0.12);">|</span>
+            <span>Oracle sessions today: <span id="proofStripOracleSessions" style="color:var(--pp-amber);font-weight:700;">—</span></span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
      STATS COUNTERS
      ═══════════════════════════════════════════════════════════════ -->
-<section class="pp-section" style="padding-top:36px;">
+<section class="pp-section" style="padding-top:24px;">
     <div class="pp-container">
         <div class="pp-stats-row pp-reveal">
             <div class="pp-stat">
@@ -632,16 +679,62 @@
 <!-- ═══════════════════════════════════════════════════════════════
      NEWSLETTER CTA
      ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════
+     COMMANDER CTA — conversion-focused
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-reveal" style="
+            position:relative;
+            overflow:hidden;
+            border-radius:var(--pp-radius-lg);
+            border:1px solid rgba(220,38,38,0.25);
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(220,38,38,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(220,38,38,0.04) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+            padding:48px 40px;
+            text-align:center;
+        ">
+            <div style="
+                font-family:var(--pp-font-mono);font-size:0.625rem;font-weight:700;
+                color:#dc2626;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;
+                display:inline-flex;align-items:center;gap:6px;
+            ">
+                <span class="pp-pulse-dot"></span> COMMANDER INTELLIGENCE
+            </div>
+            <h2 style="font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;color:#fff;margin-bottom:12px;line-height:1.2;">
+                Stop trading on yesterday's news.
+            </h2>
+            <p style="font-size:0.9375rem;color:rgba(255,255,255,0.55);max-width:520px;margin:0 auto 24px;line-height:1.7;">
+                Commander operators get the signal engine, real-time alerts, API access, and priority Oracle — while everyone else reads the recap.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
+                <a href="/join" class="pp-btn pp-btn--primary pp-btn--lg pp-cta-track" data-cta-id="bottom-commander" data-cta-page="home" style="
+                    background:linear-gradient(135deg, #dc2626 0%, #ff3b5f 100%);
+                    border:none;color:#fff;font-weight:800;padding:16px 36px;
+                    box-shadow:0 0 24px rgba(220,38,38,0.3);
+                ">
+                    <i class="fas fa-shield-alt"></i> Deploy Commander — $49/mo
+                </a>
+            </div>
+            <p style="font-family:var(--pp-font-mono);font-size:0.6875rem;color:rgba(255,255,255,0.3);letter-spacing:0.04em;">
+                Cancel anytime. No lock-in. Bitcoin accepted.
+            </p>
+        </div>
+    </div>
+</section>
+
 <section class="pp-section">
     <div class="pp-container">
         <div class="pp-newsletter pp-reveal">
             <h2 class="pp-newsletter__title">Stay on the Signal</h2>
             <p class="pp-newsletter__subtitle">Daily Bitcoin intelligence delivered to your inbox. No spam, no shilling — just signal.</p>
             <form class="pp-newsletter__form" id="nlForm" onsubmit="nlSub(event)">
-                <input type="email" name="email" class="pp-input" placeholder="your@email.com" required aria-label="Email address">
-                <button type="submit" class="pp-btn pp-btn--primary">Subscribe</button>
+                <input type="email" name="email" class="pp-input" placeholder="Your sovereign signal inbox" required aria-label="Email address">
+                <button type="submit" class="pp-btn pp-btn--primary pp-cta-track" data-cta-id="newsletter-subscribe" data-cta-page="home">Subscribe</button>
             </form>
-            <p class="pp-tiny pp-text-muted pp-mt-2">Join 2,000+ transactors. Unsubscribe anytime.</p>
+            <p class="pp-tiny pp-text-muted pp-mt-2" id="nlMicrocopy">No spam. One daily brief. Unsubscribe anytime.</p>
         </div>
     </div>
 </section>
@@ -1082,19 +1175,90 @@ function ppLoadVideo(el) {
     })();
 </script>
 <script>
+/* ════════════════════════════════════════════════════════════
+   LIVE PROOF STRIP — populate from existing APIs
+   ════════════════════════════════════════════════════════════ */
+(function(){
+    // BTC price for proof strip (reuses existing price data)
+    function updateProofPrice() {
+        fetch('/api/btc-price', { signal: AbortSignal.timeout(5000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var el = document.getElementById('proofStripPrice');
+                if (el && d.price) el.textContent = '$' + d.price.toLocaleString('en-US', {maximumFractionDigits: 0});
+            }).catch(function(){});
+    }
+    updateProofPrice();
+    setInterval(updateProofPrice, 30000);
+
+    // Last article published
+    fetch('/api/articles?limit=1', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var el = document.getElementById('proofStripLastArticle');
+            if (el && d.articles && d.articles.length) {
+                var a = d.articles[0];
+                var title = (a.title || '').substring(0, 40);
+                if ((a.title || '').length > 40) title += '...';
+                el.textContent = title;
+            }
+        }).catch(function(){
+            var el = document.getElementById('proofStripLastArticle');
+            if (el) el.textContent = 'recently';
+        });
+
+    // Article count
+    fetch('/api/articles/count', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var el = document.getElementById('proofStripArticleCount');
+            if (el && d.count) el.textContent = d.count.toLocaleString();
+        }).catch(function(){});
+
+    // Oracle sessions (best effort)
+    fetch('/api/oracle/sessions-today', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var el = document.getElementById('proofStripOracleSessions');
+            if (el && d.count !== undefined) el.textContent = d.count;
+        }).catch(function(){
+            var el = document.getElementById('proofStripOracleSessions');
+            if (el) el.textContent = '—';
+        });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   CTA ANALYTICS TRACKER — tracks all .pp-cta-track clicks
+   ════════════════════════════════════════════════════════════ */
+(function(){
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.pp-cta-track');
+        if (!btn) return;
+        var data = {
+            button_id: btn.getAttribute('data-cta-id') || 'unknown',
+            page: btn.getAttribute('data-cta-page') || window.location.pathname,
+            timestamp: new Date().toISOString()
+        };
+        // Fire and forget — don't block navigation
+        navigator.sendBeacon('/api/analytics/cta-click', JSON.stringify(data));
+    });
+})();
+
 function nlSub(e){
   e.preventDefault();
   var em=document.querySelector("#nlForm input[type=email],#nlForm input[name=email]");
   if(!em||!em.value)return;
   var btn=document.querySelector("#nlForm button");
+  var micro=document.getElementById("nlMicrocopy");
   var orig=btn?btn.innerHTML:"Subscribe";
   if(btn){btn.innerHTML="...";btn.disabled=true;}
   fetch("/api/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em.value})})
   .then(r=>r.json()).then(d=>{
     if(d.success||String(d.message||"").toLowerCase().includes("subscrib")){
       if(btn){btn.innerHTML="&#10003; Subscribed!";btn.style.background="#22c55e";}
+      if(micro){micro.innerHTML="Welcome. Your first brief arrives tomorrow at 6:45 AM ET.";micro.style.color="rgba(255,255,255,0.6)";}
       em.value="";
-      setTimeout(()=>{if(btn){btn.innerHTML=orig;btn.style.background="";btn.disabled=false;}},3000);
+      setTimeout(()=>{if(btn){btn.innerHTML=orig;btn.style.background="";btn.disabled=false;}},4000);
     }else{
       if(btn){btn.innerHTML=orig;btn.disabled=false;}
       alert(d.message||"Error. Please try again.");
