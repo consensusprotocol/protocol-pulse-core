@@ -398,6 +398,8 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   .video-wrap{
     max-width:100%;
     margin:0 auto;
+    flex-shrink:0;
+    min-height:45vh;
   }
   #vid{
     width:100%;
@@ -411,17 +413,23 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   #cam-btn{min-width:48px;min-height:48px}
   #gate-btn{min-height:48px}
   #root{padding-bottom:80px}
+  #vision-transcript-panel{
+    flex-shrink:0;
+    max-height:40vh;
+    overflow-y:auto;
+  }
 }
 
 @media(max-width:640px){
   body{position:fixed;width:100%;overflow:hidden}
   #root{position:relative;height:100dvh}
-  /* Stage: full viewport, vertical stack, no overflow leak */
+  /* Stage: full viewport, vertical stack, scroll below avatar */
   #stage{
     height:100vh;height:100dvh;
     padding:8px 10px 0;
     gap:6px;
-    overflow:hidden;
+    overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
     display:none;flex-direction:column;
   }
 
@@ -437,15 +445,16 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   .stage-controls{gap:4px}
   #minimize-btn,#exit-btn{width:26px;height:26px}
 
-  /* Video: constrain to 60vh max, centered */
+  /* Video: fixed 45vh avatar, never shrink */
   .video-wrap{
-    max-height:60vh;
+    max-height:none;
     max-width:calc(100vw - 20px);
     width:100%;
     aspect-ratio:1/1;
     margin:0 auto;
-    flex-shrink:1;
-    min-height:0;
+    flex-shrink:0;
+    min-height:45vh;
+    height:45vh;
   }
   #vid{
     width:100%;
@@ -520,6 +529,13 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   .btn-inner{padding:14px 20px}
   #gate-status{font-size:10px}
   #gate-error{font-size:11px;max-width:260px}
+
+  /* Vision transcript: scrollable below avatar, capped height */
+  #vision-transcript-panel{
+    flex-shrink:0;
+    max-height:35vh;
+    overflow-y:auto;
+  }
 
   /* Float bubble: smaller on mobile */
   #oracle-float{
