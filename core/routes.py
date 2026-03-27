@@ -7008,7 +7008,6 @@ def onboarding_redirect():
     return redirect('/onboarding/commander', 302)
 
 @app.route('/onboarding/commander')
-@login_required
 def commander_onboarding():
     """Premium commander onboarding — 7-screen experience."""
     tier = getattr(current_user, 'subscription_tier', 'free')
