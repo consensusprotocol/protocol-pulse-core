@@ -9287,6 +9287,249 @@ def proxy_mempool_fees():
         return jsonify({'error':'upstream unavailable'}), 503
 
 
+# ─── MEDIA HUB: NETWORK FEED + VIDEO FEED + LIVE SIGNALS ─────────────────────
+
+@app.route('/api/media/network-feed')
+def api_media_network_feed():
+    """FIFO network feed: latest 8 items from Nostr notes + X posts (newest first)."""
+    import sqlite3 as _sqlite3
+    from pathlib import Path
+    limit = min(int(request.args.get('limit', 8)), 20)
+    items = []
+
+    # ── Nostr signals from nostr_signal.db ──
+    nostr_db = Path(os.path.dirname(__file__)) / 'data' / 'nostr_signal.db'
+    if nostr_db.exists():
+        try:
+            conn = _sqlite3.connect(str(nostr_db))
+            conn.row_factory = _sqlite3.Row
+            rows = conn.execute(
+                'SELECT og_name, content, sentiment_score, classification, category, created_at '
+                'FROM signals WHERE content IS NOT NULL AND content != "" '
+                'ORDER BY created_at DESC LIMIT ?', (limit,)
+            ).fetchall()
+            conn.close()
+            for r in rows:
+                content = (r['content'] or '')[:200].strip()
+                if not content:
+                    continue
+                sentiment = 'neutral'
+                score = r['sentiment_score'] or 50
+                if score >= 60:
+                    sentiment = 'bullish'
+                elif score <= 40:
+                    sentiment = 'bearish'
+                items.append({
+                    'source': r['og_name'] or 'Nostr',
+                    'source_type': 'nostr',
+                    'text': content,
+                    'sentiment': sentiment,
+                    'timestamp': r['created_at'],
+                    'icon': 'fas fa-hashtag',
+                })
+        except Exception as e:
+            logging.warning(f"network-feed nostr: {e}")
+
+    # ── X posts from x_post_ledger.db ──
+    xdb = Path(os.path.dirname(__file__)) / 'data' / 'x_post_ledger.db'
+    if xdb.exists():
+        try:
+            conn = _sqlite3.connect(str(xdb))
+            conn.row_factory = _sqlite3.Row
+            rows = conn.execute(
+                'SELECT tweet_text, source, angle_category, posted_at FROM x_post_ledger '
+                'WHERE allowed = 1 AND tweet_text IS NOT NULL '
+                'ORDER BY posted_at DESC LIMIT ?', (limit,)
+            ).fetchall()
+            conn.close()
+            for r in rows:
+                text = (r['tweet_text'] or '')[:200].strip()
+                if not text:
+                    continue
+                items.append({
+                    'source': r['source'] or 'Protocol Pulse',
+                    'source_type': 'x',
+                    'text': text,
+                    'sentiment': 'neutral',
+                    'timestamp': r['posted_at'],
+                    'icon': 'fab fa-x-twitter',
+                })
+        except Exception as e:
+            logging.warning(f"network-feed x: {e}")
+
+    # ── Pending tweets from social queue ──
+    sq_path = Path(os.path.dirname(__file__)) / 'data' / 'social_queue' / 'pending_tweets.json'
+    if sq_path.exists():
+        try:
+            import json as _json
+            pending = _json.loads(sq_path.read_text())
+            if isinstance(pending, list):
+                for tw in pending[:limit]:
+                    if tw.get('status') == 'posted' and tw.get('text'):
+                        items.append({
+                            'source': 'Protocol Pulse',
+                            'source_type': 'x',
+                            'text': tw['text'][:200],
+                            'sentiment': tw.get('sentiment', 'neutral'),
+                            'timestamp': tw.get('generated_at', ''),
+                            'icon': 'fab fa-x-twitter',
+                        })
+        except Exception:
+            pass
+
+    # Sort by timestamp desc, deduplicate, cap at limit
+    items.sort(key=lambda x: x.get('timestamp') or '', reverse=True)
+    seen = set()
+    deduped = []
+    for item in items:
+        key = item['text'][:80]
+        if key not in seen:
+            seen.add(key)
+            deduped.append(item)
+        if len(deduped) >= limit:
+            break
+
+    return jsonify({'items': deduped, 'updated_at': datetime.utcnow().isoformat()}), 200, {'Cache-Control': 'public, max-age=120'}
+
+
+@app.route('/api/media/video-feed')
+def api_media_video_feed():
+    """FIFO video feed: latest 8 from YouTube RSS + podcast video feeds (newest first)."""
+    limit = min(int(request.args.get('limit', 8)), 20)
+    items = []
+
+    # ── YouTube RSS feeds (no API key needed) ──
+    yt_channels = [
+        {'name': 'Bitcoin Magazine', 'channel_id': 'UCvRRgjjKvabNkSP0w3QdW3A'},
+        {'name': 'Simply Bitcoin', 'channel_id': 'UCm7SUL4HMiM3UFEWP-E_Qhg'},
+        {'name': 'What Bitcoin Did', 'channel_id': 'UCBcRF18a7Qf58cCRy5xuWwQ'},
+        {'name': 'Natalie Brunell', 'channel_id': 'UCIl1wX8yxEjkbCFBKbhAqeg'},
+        {'name': 'Robert Breedlove', 'channel_id': 'UCFmHIftfI9HRaL6r3zScKOg'},
+        {'name': 'Bitcoin Audible', 'channel_id': 'UCJz4rEsEHpx9ht7a5JIHh5g'},
+    ]
+
+    import feedparser as _fp
+    for ch in yt_channels:
+        try:
+            rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={ch['channel_id']}"
+            feed = _fp.parse(rss_url)
+            for entry in feed.entries[:2]:
+                vid_id = ''
+                if hasattr(entry, 'yt_videoid'):
+                    vid_id = entry.yt_videoid
+                elif 'watch?v=' in (entry.get('link', '') or ''):
+                    vid_id = entry.link.split('watch?v=')[-1].split('&')[0]
+                pub = entry.get('published', entry.get('updated', ''))
+                items.append({
+                    'title': entry.get('title', ''),
+                    'channel': ch['name'],
+                    'video_id': vid_id,
+                    'thumbnail': f'https://img.youtube.com/vi/{vid_id}/mqdefault.jpg' if vid_id else '',
+                    'url': entry.get('link', ''),
+                    'published_at': pub,
+                    'platform': 'youtube',
+                })
+        except Exception:
+            pass
+
+    # ── Cypherpunkd podcast RSS (video episodes) ──
+    try:
+        feed = _fp.parse('https://anchor.fm/s/fa724db8/podcast/rss')
+        for entry in feed.entries[:3]:
+            pub = ''
+            if hasattr(entry, 'published'):
+                pub = entry.published
+            items.append({
+                'title': entry.get('title', ''),
+                'channel': "Cypherpunk'd",
+                'video_id': '',
+                'thumbnail': '',
+                'url': entry.get('link', ''),
+                'published_at': pub,
+                'platform': 'podcast',
+            })
+    except Exception:
+        pass
+
+    # Sort by published_at desc, cap at limit
+    items.sort(key=lambda x: x.get('published_at') or '', reverse=True)
+    return jsonify({'items': items[:limit], 'updated_at': datetime.utcnow().isoformat()}), 200, {'Cache-Control': 'public, max-age=300'}
+
+
+@app.route('/api/media/live-signals')
+def api_media_live_signals():
+    """Live signal ticker: latest 12 sovereign intel signals for terminal display."""
+    import sqlite3 as _sqlite3
+    from pathlib import Path
+    limit = min(int(request.args.get('limit', 12)), 30)
+    signals = []
+
+    # ── Primary: sovereign_intel.db signals ──
+    si_path = Path(os.path.dirname(__file__)) / 'data' / 'sovereign_intel.db'
+    if si_path.exists():
+        try:
+            conn = _sqlite3.connect(str(si_path))
+            conn.row_factory = _sqlite3.Row
+            rows = conn.execute(
+                'SELECT name, category, direction, strength, observation, implication, ts_utc '
+                'FROM signals ORDER BY ts_utc DESC LIMIT ?', (limit,)
+            ).fetchall()
+            conn.close()
+            for r in rows:
+                obs = (r['observation'] or '')[:120].strip()
+                if not obs:
+                    obs = r['name'] or 'Signal detected'
+                source_map = {
+                    'fear_greed': 'F&G INDEX', 'funding': 'FUNDING', 'mempool': 'MEMPOOL',
+                    'difficulty': 'HASHRATE', 'price': 'PRICE', 'on_chain': 'ON-CHAIN',
+                }
+                signals.append({
+                    'source': source_map.get(r['category'], (r['category'] or 'INTEL').upper()),
+                    'text': obs,
+                    'direction': r['direction'] or 'neutral',
+                    'strength': r['strength'] or 1,
+                    'timestamp': r['ts_utc'],
+                })
+        except Exception as e:
+            logging.warning(f"live-signals sovereign: {e}")
+
+    # ── Fallback: nostr signals ──
+    if len(signals) < limit:
+        nostr_db = Path(os.path.dirname(__file__)) / 'data' / 'nostr_signal.db'
+        if nostr_db.exists():
+            try:
+                conn = _sqlite3.connect(str(nostr_db))
+                conn.row_factory = _sqlite3.Row
+                remaining = limit - len(signals)
+                rows = conn.execute(
+                    'SELECT og_name, content, sentiment_score, created_at '
+                    'FROM signals WHERE classification IN ("ALPHA","SIGNAL") '
+                    'ORDER BY created_at DESC LIMIT ?', (remaining,)
+                ).fetchall()
+                conn.close()
+                for r in rows:
+                    content = (r['content'] or '')[:120].strip()
+                    if not content:
+                        continue
+                    score = r['sentiment_score'] or 50
+                    direction = 'neutral'
+                    if score >= 60:
+                        direction = 'bullish'
+                    elif score <= 40:
+                        direction = 'bearish'
+                    signals.append({
+                        'source': 'NOSTR',
+                        'text': content,
+                        'direction': direction,
+                        'strength': 2,
+                        'timestamp': r['created_at'],
+                    })
+            except Exception:
+                pass
+
+    return jsonify({'signals': signals, 'updated_at': datetime.utcnow().isoformat()}), 200, {'Cache-Control': 'public, max-age=60'}
+
+
 # ─── MEDIA UNIFIED MISSING ROUTES ───────────────────────────────────────────
 
 @app.route('/api/media/fng')
@@ -9799,6 +10042,23 @@ def api_media_meta_briefing():
     except Exception as e:
         logging.error(f"meta-briefing error: {e}")
         return jsonify({'brief': None, 'headline': 'Intelligence offline', 'stance': 'NEUTRAL', 'cached_at': None}), 200
+
+# ═══════════════════════════════════════════════════════════════════════
+# X SPACES BRIEF — Audio Serving for Twilio <Play>
+# ═══════════════════════════════════════════════════════════════════════
+
+@app.route('/api/media/spaces-brief/<date>')
+def api_media_spaces_brief(date):
+    """Serve pre-synthesized X Spaces intelligence brief MP3 for Twilio <Play>."""
+    import re
+    from flask import send_file
+    if not re.match(r'^\d{4}-\d{2}-\d{2}$', date):
+        return jsonify({'error': 'invalid date format'}), 400
+    brief_path = Path(f'/tmp/spaces_brief_{date}.mp3')
+    if not brief_path.exists():
+        return jsonify({'error': 'brief not found for this date'}), 404
+    return send_file(str(brief_path), mimetype='audio/mpeg', as_attachment=False)
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # ORACLE — F1 Avatar System + Oracle Sanctuary UI

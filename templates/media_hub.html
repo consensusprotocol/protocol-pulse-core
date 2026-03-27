@@ -143,10 +143,79 @@
 .kol-loader{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top:2px solid var(--red);border-radius:50%;animation:spin .7s linear infinite;margin-top:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── SECTION HEADERS ── */
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.sec-head-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.sec-head-icon.net{background:rgba(220,38,38,0.1);color:var(--red);border:1px solid rgba(220,38,38,0.2)}
+.sec-head-icon.vid{background:rgba(248,193,92,0.1);color:var(--gold);border:1px solid rgba(248,193,92,0.2)}
+.sec-head-icon.sig{background:rgba(220,38,38,0.15);color:#ff3333;border:1px solid rgba(220,38,38,0.3)}
+.sec-head-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--bright)}
+.sec-head-updated{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-left:auto}
+
+/* ── NETWORK FEED + VIDEO FEED GRID ── */
+.feed-duo{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:40px 0 0}
+.feed-section{min-width:0}
+.feed-list{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow-y:auto;padding-right:4px}
+.feed-list::-webkit-scrollbar{width:3px}
+.feed-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:2px}
+
+/* ── NETWORK FEED ITEM ── */
+.nfi{display:flex;gap:12px;padding:12px 14px;border-radius:8px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);transition:all .2s}
+.nfi:hover{border-color:rgba(220,38,38,0.2);background:rgba(255,255,255,0.03)}
+.nfi-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:rgba(255,255,255,0.04);color:var(--sec)}
+.nfi-body{flex:1;min-width:0}
+.nfi-source{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:600;color:var(--red);margin-bottom:2px}
+.nfi-text{font-size:12px;color:var(--pri);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nfi-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-top:4px}
+.nfi-sent{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.nfi-sent.bullish{background:#ff0000}.nfi-sent.bearish{background:#333}.nfi-sent.neutral{background:#666}
+
+/* ── VIDEO FEED ITEM ── */
+.vfi{display:flex;gap:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);transition:all .2s;text-decoration:none;color:inherit;cursor:pointer}
+.vfi:hover{border-color:rgba(248,193,92,0.3);background:rgba(255,255,255,0.03);transform:translateY(-1px)}
+.vfi-thumb{width:80px;height:45px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--elevated)}
+.vfi-info{flex:1;min-width:0}
+.vfi-channel{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:600;color:var(--gold);margin-bottom:2px}
+.vfi-title{font-size:12px;font-weight:600;color:var(--bright);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vfi-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-top:3px}
+.vfi-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 5px;border-radius:3px;text-transform:uppercase;font-weight:600;margin-left:6px}
+.vfi-badge.yt{background:rgba(255,0,0,0.1);color:#ff4444}
+.vfi-badge.pod{background:rgba(248,193,92,0.1);color:var(--gold)}
+
+/* ── LIVE SIGNAL TERMINAL ── */
+.signal-terminal{margin:40px 0 0;background:#0a0a0a;border:1px solid rgba(220,38,38,0.15);border-radius:12px;overflow:hidden}
+.signal-terminal-head{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(220,38,38,0.03)}
+.signal-terminal-dots{display:flex;gap:5px}
+.signal-terminal-dots span{width:8px;height:8px;border-radius:50%}
+.signal-terminal-dots span:nth-child(1){background:#ff3333;animation:tagPulse 2s infinite}
+.signal-terminal-dots span:nth-child(2){background:#333}
+.signal-terminal-dots span:nth-child(3){background:#333}
+.signal-terminal-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700}
+.signal-terminal-ts{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-left:auto}
+.signal-feed{max-height:480px;overflow-y:auto;padding:8px 0}
+.signal-feed::-webkit-scrollbar{width:3px}
+.signal-feed::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:2px}
+
+/* ── SIGNAL ITEM ── */
+.sig-item{display:flex;gap:12px;padding:10px 20px;border-left:3px solid #666;transition:all .2s;animation:sigFadeIn .4s ease}
+.sig-item:hover{background:rgba(255,255,255,0.02)}
+.sig-item.bullish{border-left-color:#ff0000}
+.sig-item.bearish{border-left-color:#333}
+.sig-item.neutral{border-left-color:#666}
+.sig-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);min-width:52px;flex-shrink:0;padding-top:2px}
+.sig-src{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:700;min-width:80px;flex-shrink:0;padding-top:2px}
+.sig-src.bullish{color:#ff0000}.sig-src.bearish{color:#555}.sig-src.neutral{color:#888}
+.sig-text{font-size:12px;color:var(--pri);line-height:1.4;flex:1;min-width:0}
+.sig-strength{display:flex;gap:2px;align-items:center;flex-shrink:0;padding-top:2px}
+.sig-strength-bar{width:3px;height:10px;border-radius:1px;background:rgba(255,255,255,0.1)}
+.sig-strength-bar.active{background:var(--red)}
+@keyframes sigFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .matrix{grid-template-columns:1fr 1fr;gap:16px}
   .matrix-col.kol-col{grid-column:span 2}
+  .feed-duo{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
   .matrix{grid-template-columns:1fr;gap:16px}
@@ -156,6 +225,9 @@
   .ticker-item{padding:0 16px;font-size:11px}
   .nl{padding:32px 20px}
   .nl-f{flex-direction:column}
+  .feed-duo{grid-template-columns:1fr}
+  .sig-src{min-width:60px}
+  .sig-time{min-width:44px}
 }
 </style>
 {% endblock %}
@@ -319,6 +391,56 @@
 
   </div><!-- /matrix -->
 
+  <!-- ═══════════ NETWORK FEED + VIDEO BRIEFINGS ═══════════ -->
+  <div class="feed-duo">
+
+    <!-- ── What the Network Is Saying ── -->
+    <div class="feed-section">
+      <div class="sec-head">
+        <div class="sec-head-icon net"><i class="fas fa-satellite-dish"></i></div>
+        <span class="sec-head-title">What the Network Is Saying</span>
+        <span class="sec-head-updated" id="netFeedTs">Loading...</span>
+      </div>
+      <div class="feed-list" id="networkFeed">
+        <div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">
+          <i class="fas fa-satellite-dish" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
+          Syncing network signals...<br><div class="kol-loader"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Video Briefings from the Network ── -->
+    <div class="feed-section">
+      <div class="sec-head">
+        <div class="sec-head-icon vid"><i class="fas fa-play-circle"></i></div>
+        <span class="sec-head-title">Video Briefings from the Network</span>
+        <span class="sec-head-updated" id="vidFeedTs">Loading...</span>
+      </div>
+      <div class="feed-list" id="videoFeedList">
+        <div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">
+          <i class="fas fa-video" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
+          Syncing video feeds...<br><div class="kol-loader"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ LIVE SIGNAL FROM THE NETWORK ═══════════ -->
+  <div class="signal-terminal">
+    <div class="signal-terminal-head">
+      <div class="signal-terminal-dots"><span></span><span></span><span></span></div>
+      <span class="signal-terminal-label">Live Signal from the Network</span>
+      <span class="signal-terminal-ts" id="sigTermTs">Connecting...</span>
+    </div>
+    <div class="signal-feed" id="signalFeed">
+      <div style="text-align:center;padding:40px;color:var(--mut);font-size:12px">
+        <i class="fas fa-bolt" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
+        Awaiting signals...<br><div class="kol-loader"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════ NEWSLETTER CTA ═══════════ -->
   <div class="nl">
     <h3 class="nl-h">Never Miss a Signal</h3>
@@ -440,6 +562,114 @@ document.querySelectorAll('.fi-wave').forEach(function(el){
     },20000);
   }
 })();
+
+/* ═══════════ NETWORK FEED (auto-refresh 30min) ═══════════ */
+function _timeAgo(ts){
+  if(!ts)return '';
+  var d=new Date(ts);if(isNaN(d))return '';
+  var s=Math.floor((Date.now()-d.getTime())/1000);
+  if(s<60)return s+'s ago';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+function _fmtTime(ts){
+  if(!ts)return '';
+  var d=new Date(ts);if(isNaN(d))return '';
+  return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+function loadNetworkFeed(){
+  fetch('/api/media/network-feed').then(function(r){return r.json()}).then(function(d){
+    var el=document.getElementById('networkFeed');
+    var tsEl=document.getElementById('netFeedTs');
+    if(!d.items||!d.items.length){
+      el.innerHTML='<div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">No network signals yet</div>';
+      return;
+    }
+    var html='';
+    d.items.forEach(function(item){
+      html+='<div class="nfi">';
+      html+='<div class="nfi-icon"><i class="'+(item.icon||'fas fa-hashtag')+'"></i></div>';
+      html+='<div class="nfi-body">';
+      html+='<div class="nfi-source"><span class="nfi-sent '+item.sentiment+'"></span>'+_esc(item.source)+' &middot; '+_esc(item.source_type)+'</div>';
+      html+='<div class="nfi-text">'+_esc(item.text)+'</div>';
+      html+='<div class="nfi-time">'+_timeAgo(item.timestamp)+'</div>';
+      html+='</div></div>';
+    });
+    el.innerHTML=html;
+    if(tsEl)tsEl.textContent='Updated '+_timeAgo(d.updated_at);
+  }).catch(function(){});
+}
+
+function loadVideoFeed(){
+  fetch('/api/media/video-feed').then(function(r){return r.json()}).then(function(d){
+    var el=document.getElementById('videoFeedList');
+    var tsEl=document.getElementById('vidFeedTs');
+    if(!d.items||!d.items.length){
+      el.innerHTML='<div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">No video briefings yet</div>';
+      return;
+    }
+    var html='';
+    d.items.forEach(function(item){
+      var clickAttr='';
+      if(item.video_id){
+        clickAttr=' onclick="openVideoModal(\''+item.video_id+'\')"';
+      }else if(item.url){
+        clickAttr=' onclick="window.open(\''+_esc(item.url)+'\',\'_blank\')"';
+      }
+      html+='<div class="vfi"'+clickAttr+'>';
+      if(item.thumbnail){
+        html+='<img class="vfi-thumb" src="'+_esc(item.thumbnail)+'" alt="" loading="lazy">';
+      }
+      html+='<div class="vfi-info">';
+      html+='<div class="vfi-channel">'+_esc(item.channel)+'<span class="vfi-badge '+(item.platform==='youtube'?'yt':'pod')+'">'+_esc(item.platform)+'</span></div>';
+      html+='<div class="vfi-title">'+_esc(item.title)+'</div>';
+      html+='<div class="vfi-meta">'+_timeAgo(item.published_at)+'</div>';
+      html+='</div></div>';
+    });
+    el.innerHTML=html;
+    if(tsEl)tsEl.textContent='Updated '+_timeAgo(d.updated_at);
+  }).catch(function(){});
+}
+
+function loadLiveSignals(){
+  fetch('/api/media/live-signals').then(function(r){return r.json()}).then(function(d){
+    var el=document.getElementById('signalFeed');
+    var tsEl=document.getElementById('sigTermTs');
+    if(!d.signals||!d.signals.length){
+      el.innerHTML='<div style="text-align:center;padding:40px;color:var(--mut);font-size:12px">No active signals</div>';
+      return;
+    }
+    var html='';
+    d.signals.forEach(function(sig){
+      var dir=sig.direction||'neutral';
+      var str=sig.strength||1;
+      html+='<div class="sig-item '+dir+'">';
+      html+='<div class="sig-time">'+_fmtTime(sig.timestamp)+'</div>';
+      html+='<div class="sig-src '+dir+'">'+_esc(sig.source)+'</div>';
+      html+='<div class="sig-text">'+_esc(sig.text)+'</div>';
+      html+='<div class="sig-strength">';
+      for(var i=1;i<=4;i++){
+        html+='<div class="sig-strength-bar'+(i<=str?' active':'')+'"></div>';
+      }
+      html+='</div></div>';
+    });
+    el.innerHTML=html;
+    if(tsEl)tsEl.textContent='Live \u2022 '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false});
+  }).catch(function(){});
+}
+
+function _esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+// Initial load
+loadNetworkFeed();
+loadVideoFeed();
+loadLiveSignals();
+
+// Auto-refresh: network+video every 30min, signals every 60s
+setInterval(function(){loadNetworkFeed();loadVideoFeed()},30*60*1000);
+setInterval(loadLiveSignals,60*1000);
 
 /* ═══════════ NEWSLETTER ═══════════ */
 function mhNlSub(e){
