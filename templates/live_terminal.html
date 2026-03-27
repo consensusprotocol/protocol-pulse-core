@@ -6628,6 +6628,27 @@ setInterval(() => {
 // Calculator input listeners
 document.getElementById('calc-amount')?.addEventListener('change', calculateDCA);
 document.getElementById('calc-start-date')?.addEventListener('change', calculateDCA);
+
+(function() {
+    var zapEx = [{amount:21,msg:'Stack sats!',node:'ACINQ'},{amount:100,msg:'Zap!',node:'Voltage'},{amount:500,msg:'Content',node:'River'},{amount:1000,msg:'LFG!',node:'Fold'},{amount:2100,msg:'Bitcoin fixes this',node:'Strike'},{amount:5000,msg:'Nostr zap',node:'WoS'},{amount:10000,msg:'V4V',node:'Alby'},{amount:21000,msg:'Pleb power',node:'Mutiny'}];
+    function addZap() {
+        var el = document.getElementById('lightning-zap-feed'); if (!el) return;
+        var z = zapEx[Math.floor(Math.random()*zapEx.length)];
+        var amt = Math.round(z.amount*(0.75+Math.random()*0.5));
+        var d = document.createElement('div');
+        d.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 15px;background:rgba(0,0,0,0.2);border-radius:8px;margin-bottom:8px;';
+        d.innerHTML='<i class="fas fa-bolt" style="color:#facc15;font-size:1.2rem;"></i><div style="flex:1;"><div style="color:#facc15;font-family:monospace;font-size:0.9rem;font-weight:600;">'+amt.toLocaleString()+' sats</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;">via '+z.node+' - '+z.msg+'</div></div><div style="color:rgba(255,255,255,0.4);font-size:0.7rem;">now</div>';
+        el.insertBefore(d,el.firstChild); while(el.children.length>6) el.removeChild(el.lastChild);
+    }
+    setTimeout(function(){for(var i=0;i<4;i++) setTimeout(addZap,i*200);},800);
+    function next(){setTimeout(function(){addZap();next();},3000+Math.random()*5000);} next();
+    fetch('/api/signals').then(function(r){return r.json()}).then(function(sig){
+        var ln=sig.lightning||{};
+        if(ln.capacity_btc){var e=document.getElementById('ln-capacity');if(e)e.textContent=Math.round(ln.capacity_btc).toLocaleString()+' BTC';}
+        if(ln.node_count){var e=document.getElementById('ln-nodes');if(e)e.textContent=ln.node_count.toLocaleString();}
+        if(ln.channel_count){var e=document.getElementById('ln-channels');if(e)e.textContent=ln.channel_count.toLocaleString();}
+    }).catch(function(){});
+})();
 </script>
 {% endblock %}
 /**
