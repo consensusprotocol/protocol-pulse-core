@@ -1,41 +1,9 @@
 {
-  "generated_at": "2026-03-23T10:00:00Z",
-  "date": "Monday, March 23, 2026",
-  "btc_price": "$70,682",
-  "btc_change_24h": "3.67%",
-  "fng": "Extreme Fear",
-  "dominant_narratives": [
-    "Bitcoin consolidating ahead of key technical levels",
-    "Market uncertainty amid macroeconomic headwinds",
-    "Cypherpunk ethos resurfaces in decentralized discourse"
-  ],
-  "trending_language": [
-    "satoshi's vision",
-    "digital gold",
-    "on-chain activity",
-    "price action"
-  ],
-  "sentiment": "bearish",
-  "sentiment_reasoning": "The Extreme Fear index and lack of positive community signals indicate a cautious market environment, despite modest price gains.",
-  "top_accounts_active": [
-    "@Bitcoin",
-    "@CryptoPunk",
-    "@SatoshiNakamoto"
-  ],
-  "recommended_tweet_angles": [
-    "Analyze the correlation between on-chain data and recent price movements",
-    "Discuss how Bitcoin's decentralized nature provides resilience during fear periods",
-    "Highlight the importance of long-term thinking in volatile markets"
-  ],
-  "topics_to_avoid": [
-    "Short-term price predictions without data support"
-  ],
-  "engagement_patterns": "Tweets focusing on technical analysis, on-chain metrics, and philosophical discussions about Bitcoin's role in the monetary system are gaining traction.",
-  "protocol_pulse_voice_guidance": "Maintain a data-driven, analytical tone while emphasizing Bitcoin's foundational principles. Avoid speculative commentary and focus on observable trends and community sentiment.",
-  "key_stats_today": {
-    "tweets_analyzed": 0,
-    "nostr_signals": 0,
-    "unique_handles": 0
-  },
-  "generated_by": "local_llm"
+  "generated_at": "2026-03-27T22:08:47Z",
+  "date": "Friday, March 27, 2026",
+  "generated_by": "claude-haiku",
+  "content": "# Bitcoin Morning Brief | March 27, 2026\n\n**The Fear Index is Screaming, But the Network Doesn't Care**\n\nExtreme Fear at 13 while hashrate sits at 1008.7 EH/s\u2014this is signal, not noise. The market panics; the miners don't. Hashrate staying elevated during capitulation tells you something critical: the backbone of Bitcoin's security is held by those who understand the long game. Every miner sticking around in a fear regime is a vote of confidence the suits and panic-traders miss entirely. The network continues its relentless march toward the next halving cycle. Fear is the tax paid by those who don't understand asymmetry.\n\n**707 Days to Halving: The Countdown Begins in Earnest**\n\nLess than two years until the next protocol-level event forces supply scarcity back into focus. History doesn't repeat, but structural forces do rhyme. While retail sentiment drowns in dread, long-term holders and accumulation-focused operators move quietly. The halving calendar is immutable. Price discovery can wait; supply mathematics cannot. Every transaction fee, every block, every hash of work is pushing toward a predetermined inflection point that no central bank can jawbone away.\n\n**The Real Signal: What Extreme Fear Looks Like When Foundations Are Solid**\n\nWhen fear spikes this hard and the network's computational spine doesn't snap, you're witnessing the difference between a system under attack and a system under pressure. Bitcoin's hash securing 707 days toward the next supply shock while sentiment turns septic\u2014that's not fragility, that's proof of work in its truest form. The cypherpunk wager was always: let the paranoid and the patient separate. This is that separation happening in real time.",
+  "btc_price": null,
+  "hashrate": 1008.7,
+  "fear_greed": 13
 }
