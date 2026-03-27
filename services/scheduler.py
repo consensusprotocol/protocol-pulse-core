@@ -705,7 +705,7 @@ def initialize_scheduler() -> Dict:
         # SESSION 2: Daily newsletter briefing — 13:00 UTC (8am Eastern)
         try:
             from services.newsletter_automation import send_daily_briefing
-            _apscheduler.add_job(send_daily_briefing, trigger=CronTrigger(hour=13, minute=0), id="newsletter_daily_briefing", replace_existing=True, max_instances=1)
+            _apscheduler.add_job(send_daily_briefing, trigger=CronTrigger(hour=13, minute=0), id="newsletter_daily_briefing", replace_existing=True, max_instances=1, misfire_grace_time=3600, coalesce=True)
         except Exception as _nle:
             logging.warning("Newsletter automation job not scheduled: %s", _nle)
         # Media feed sync every 15 minutes + AI summaries every hour

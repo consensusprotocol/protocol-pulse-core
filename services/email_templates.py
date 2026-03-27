@@ -236,7 +236,7 @@ def welcome_email(unsubscribe_url: str, site_url: str = SITE_URL_DEFAULT) -> dic
 """ + _footer(unsubscribe_url, site_url)
 
     return {
-        "subject": "Welcome to Protocol Pulse. Your sovereign intelligence brief starts now.",
+        "subject": "Welcome to Protocol Pulse",
         "html": _wrapper(inner),
     }
 

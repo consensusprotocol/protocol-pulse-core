@@ -6258,7 +6258,7 @@ def nostr_page():
             for r in ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band", "wss://relay.primal.net"]
         ]
 
-    pp_npub = os.environ.get("NOSTR_NPUB", "npub1x6jkkr2j6d90mh98wnrml60m3kvgzrmmx4dtpuyzq3jxq9y2g4fqpx80vy")
+    pp_npub = os.environ.get("NOSTR_NPUB", "npub1a38uwcec9u4pqd4dutezcfg3ujfapfm90vzzjtkq9cs2u5tws50stujyhm")
     return render_template(
         'nostr.html',
         top_content=top_content,

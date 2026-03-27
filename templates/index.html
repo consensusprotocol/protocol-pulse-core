@@ -732,6 +732,8 @@
             <p class="pp-newsletter__subtitle">Daily Bitcoin intelligence delivered to your inbox. No spam, no shilling — just signal.</p>
             <form class="pp-newsletter__form" id="nlForm" onsubmit="nlSub(event)">
                 <input type="email" name="email" class="pp-input" placeholder="Your sovereign signal inbox" required aria-label="Email address">
+                <!-- Cloudflare Turnstile CAPTCHA -->
+                <div class="cf-turnstile" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark" data-callback="onTurnstileSuccess" id="nlTurnstile"></div>
                 <button type="submit" class="pp-btn pp-btn--primary pp-cta-track" data-cta-id="newsletter-subscribe" data-cta-page="home">Subscribe</button>
             </form>
             <p class="pp-tiny pp-text-muted pp-mt-2" id="nlMicrocopy">No spam. One daily brief. Unsubscribe anytime.</p>
@@ -763,6 +765,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
 /* ════════════════════════════════════════════════════════════
    CAROUSEL
@@ -1244,6 +1247,9 @@ function ppLoadVideo(el) {
     });
 })();
 
+var _nlTurnstileToken="";
+function onTurnstileSuccess(token){_nlTurnstileToken=token;}
+
 function nlSub(e){
   e.preventDefault();
   var em=document.querySelector("#nlForm input[type=email],#nlForm input[name=email]");
@@ -1252,7 +1258,7 @@ function nlSub(e){
   var micro=document.getElementById("nlMicrocopy");
   var orig=btn?btn.innerHTML:"Subscribe";
   if(btn){btn.innerHTML="...";btn.disabled=true;}
-  fetch("/api/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em.value})})
+  fetch("/api/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em.value,"cf-turnstile-response":_nlTurnstileToken})})
   .then(r=>r.json()).then(d=>{
     if(d.success||String(d.message||"").toLowerCase().includes("subscrib")){
       if(btn){btn.innerHTML="&#10003; Subscribed!";btn.style.background="#22c55e";}

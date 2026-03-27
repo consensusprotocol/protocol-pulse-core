@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-03-27T06:05:02.624948+00:00",
-  "block_height": 942427,
+  "timestamp": "2026-03-27T06:10:02.256986+00:00",
+  "block_height": 942428,
   "btc": {
-    "price": 68564,
-    "change_24h": -1.93,
+    "price": 68635,
+    "change_24h": -1.98,
     "change_7d": 0,
-    "market_cap": 1371906821252.0386,
+    "market_cap": 1372954519077.6218,
     "dominance": 56.4
   },
   "fear_greed": {
@@ -16,19 +16,19 @@
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 21257,
-    "size_mb": 8.1
+    "unconfirmed": 19676,
+    "size_mb": 7.9
   },
   "network": {
-    "hashrate_eh": 993.0,
+    "hashrate_eh": 993.5,
     "difficulty": 0,
-    "next_adj_pct": 4.7,
-    "next_adj_blocks": 1061
+    "next_adj_pct": 4.75,
+    "next_adj_blocks": 1060
   },
   "lightning": {
-    "capacity_btc": 5700.5,
-    "channels": 42215,
-    "nodes": 17369
+    "capacity_btc": 5057.1,
+    "channels": 41109,
+    "nodes": 17438
   },
   "kol": {
     "sentiment_score": 50,

@@ -154,7 +154,7 @@ def nostr_page():
     import os
     pp_npub = os.environ.get(
         "PP_NOSTR_NPUB",
-        "npub1x6jkkr2j6d90mh98wnrml60m3kvgzrmmx4dtpuyzq3jxq9y2g4fqpx80vy"
+        "npub1a38uwcec9u4pqd4dutezcfg3ujfapfm90vzzjtkq9cs2u5tws50stujyhm"
     )
 
     return render_template(
