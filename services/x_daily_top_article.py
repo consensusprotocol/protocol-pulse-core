@@ -236,27 +236,61 @@ def post_to_x(tweet_text: str, image_path: str = None) -> bool:
         return False
 
 
+def _already_posted_article(article_id: int) -> bool:
+    """Check if this article was already posted to X (by article_id in the log)."""
+    log_path = BASE / "logs" / "x_publisher.log"
+    if not log_path.exists():
+        return False
+    try:
+        for line in log_path.read_text().strip().splitlines():
+            try:
+                entry = json.loads(line)
+                if entry.get("article_id") == article_id and entry.get("success"):
+                    logger.info(f"Article {article_id} already posted successfully — skipping")
+                    return True
+            except json.JSONDecodeError:
+                continue
+    except Exception as e:
+        logger.warning(f"Could not check article post history: {e}")
+    return False
+
+
 def run_daily_top_article():
     """Main entry: find top article, generate image, tweet it."""
     logger.info("Starting X daily top article publisher...")
-    
+
     article = get_top_article()
     if not article:
         logger.error("No article found")
         return
-    
+
     logger.info(f"Top article: [{article['id']}] {article['title'][:60]} (reads: {article['read_count']})")
-    
-    # Generate X-optimized card image
-    image_path = generate_x_card_image(article)
-    
+
+    # Article-level dedup: don't tweet the same article twice
+    if _already_posted_article(article["id"]):
+        return
+
     # Compose tweet
     tweet = compose_tweet(article)
     logger.info(f"Tweet ({len(tweet)} chars):\n{tweet}")
-    
+
+    # Global gate check — respect the unified rate limit + similarity dedup
+    try:
+        sys.path.insert(0, str(BASE))
+        from services.x_service import can_post_tweet
+        allowed, reason = can_post_tweet(tweet, source="x_daily_top_article", angle_category="institutional_flow")
+        if not allowed:
+            logger.warning(f"GATE BLOCKED: {reason}")
+            return
+    except Exception as e:
+        logger.warning(f"Gate check import failed (allowing): {e}")
+
+    # Generate X-optimized card image
+    image_path = generate_x_card_image(article)
+
     # Post
     success = post_to_x(tweet, image_path)
-    
+
     # Log result
     log_path = BASE / "logs" / "x_publisher.log"
     with open(log_path, "a") as f:
@@ -268,6 +302,9 @@ def run_daily_top_article():
             "tweet_len": len(tweet),
         }) + "\n")
 
+
+# Alias for scheduler import compatibility
+main = run_daily_top_article
 
 if __name__ == "__main__":
     run_daily_top_article()

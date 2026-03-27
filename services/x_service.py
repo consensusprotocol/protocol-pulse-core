@@ -1,6 +1,7 @@
 import os
 _TWEETS_ENABLED = os.environ.get('ENABLE_TWEETS', 'false').lower() == 'true'
 
+import hashlib
 import logging
 import json
 import re
@@ -25,10 +26,34 @@ logger = logging.getLogger(__name__)
 # GLOBAL POSTING GATE — every posting path MUST call this
 # ============================================================
 _GATE_DB = Path("/home/ultron/protocol_pulse/data/x_post_ledger.db")
+_POSTED_HASHES_FILE = Path("/home/ultron/protocol_pulse/data/posted_tweets.json")
 _MAX_POSTS_PER_24H = 3
 _MIN_GAP_HOURS = 4
 _SIMILARITY_THRESHOLD = 0.30
 _SIMILARITY_WINDOW_HOURS = 72
+
+
+def _content_hash(text: str) -> str:
+    """MD5 hash of normalized tweet text (first 100 chars, lowered, stripped)."""
+    return hashlib.md5(text.strip().lower()[:100].encode()).hexdigest()
+
+
+def _load_posted_hashes() -> set:
+    """Load persistent set of posted tweet content hashes."""
+    if _POSTED_HASHES_FILE.exists():
+        try:
+            return set(json.loads(_POSTED_HASHES_FILE.read_text()))
+        except (json.JSONDecodeError, TypeError):
+            return set()
+    return set()
+
+
+def _save_posted_hash(h: str) -> None:
+    """Append a content hash to the persistent posted tweets file."""
+    hashes = _load_posted_hashes()
+    hashes.add(h)
+    _POSTED_HASHES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    _POSTED_HASHES_FILE.write_text(json.dumps(list(hashes)))
 
 # Narrative categories for angle diversity
 ANGLE_CATEGORIES = [
@@ -136,6 +161,14 @@ def can_post_tweet(text: str, source: str = "unknown", angle_category: str = Non
     """
     _init_gate_db()
     now = datetime.now(timezone.utc)
+
+    # Rule 0: Persistent content-hash dedup (catches exact/near-exact duplicates across ALL time)
+    h = _content_hash(text)
+    if h in _load_posted_hashes():
+        reason = f"BLOCKED: duplicate content hash {h[:8]}... — this text was already posted"
+        logger.warning("[X GATE] %s | source=%s | %s", "BLOCKED", source, reason)
+        return (False, reason)
+
     conn = sqlite3.connect(str(_GATE_DB))
 
     try:
@@ -207,7 +240,8 @@ def can_post_tweet(text: str, source: str = "unknown", angle_category: str = Non
                 _log_gate(conn, now, text, source, angle_category, allowed=False, reason=reason)
                 return (False, reason)
 
-        # All checks passed
+        # All checks passed — record hash to prevent future duplicate
+        _save_posted_hash(h)
         reason = f"ALLOWED: post {count_24h + 1}/{_MAX_POSTS_PER_24H} today, source={source}"
         _log_gate(conn, now, text, source, angle_category, allowed=True, reason=reason)
         return (True, reason)

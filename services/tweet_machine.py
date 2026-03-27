@@ -553,19 +553,50 @@ def load_brief() -> dict:
 
 
 def get_todays_posted_tweets() -> list[str]:
-    """Fetch tweet texts already posted today to avoid repeats."""
+    """Fetch tweet texts already posted in last 48h to avoid repeats.
+
+    Sources checked (in order):
+    1. x_post_ledger.db (global gate — authoritative, all posting paths log here)
+    2. sovereign_intel.db auto_tweet table (tweet_machine's own log)
+    """
+    texts = []
+    cutoff_48h = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat()
+
+    # Source 1: global gate ledger (most reliable — every posting path writes here)
     try:
-        conn = sqlite3.connect(str(BASE / "instance" / "protocol_pulse.db"))
-        cutoff_48h = (datetime.now(timezone.utc) - timedelta(hours=48)).strftime("%Y-%m-%d %H:%M:%S")
-        rows = conn.execute(
-            "SELECT tweet_content FROM auto_tweet WHERE posted_at >= ? ORDER BY posted_at DESC LIMIT 20",
-            (cutoff_48h,)
-        ).fetchall()
-        conn.close()
-        return [r[0] for r in rows if r[0]]
+        ledger_db = BASE / "data" / "x_post_ledger.db"
+        if ledger_db.exists():
+            conn = sqlite3.connect(str(ledger_db))
+            rows = conn.execute(
+                "SELECT tweet_text FROM x_post_ledger WHERE posted_at >= ? AND allowed = 1 ORDER BY posted_at DESC LIMIT 20",
+                (cutoff_48h,)
+            ).fetchall()
+            conn.close()
+            texts.extend(r[0] for r in rows if r[0])
     except Exception as e:
-        logger.warning(f"Could not fetch posted tweets: {e}")
-        return []
+        logger.warning(f"Could not fetch from x_post_ledger: {e}")
+
+    # Source 2: tweet_machine's own log in sovereign_intel.db
+    try:
+        if SOVEREIGN_DB.exists():
+            conn = sqlite3.connect(str(SOVEREIGN_DB))
+            rows = conn.execute(
+                "SELECT tweet_text FROM auto_tweet WHERE posted_at >= ? ORDER BY posted_at DESC LIMIT 20",
+                (cutoff_48h,)
+            ).fetchall()
+            conn.close()
+            texts.extend(r[0] for r in rows if r[0])
+    except Exception as e:
+        logger.warning(f"Could not fetch from sovereign_intel auto_tweet: {e}")
+
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for t in texts:
+        if t not in seen:
+            seen.add(t)
+            unique.append(t)
+    return unique
 
 
 def _keyword_overlap(text_a: str, text_b: str) -> float:
