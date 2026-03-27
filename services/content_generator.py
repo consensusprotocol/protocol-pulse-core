@@ -158,13 +158,23 @@ def _extract_og_image(source_url: str) -> str:
         return ""
 
 
+_FALLBACK_IMAGES = [
+    "https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg",
+    "https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg",
+    "https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg",
+    "https://images.pexels.com/photos/6780789/pexels-photo-6780789.jpeg",
+]
+
+
 def resolve_header_image_url(title: str, article_html: str) -> tuple[str, str, str]:
     """Return (header_image_url, source_url, source_type) for a generated article.
 
     - First try AI-generated hyper-realistic header image via DALL-E.
     - Then try allowlisted source URL og:image.
-    - Fall back to deterministic local header pool so cards never render without images.
+    - Fall back to Pexels Bitcoin image pool so cards never render without images.
     """
+    import random as _rnd
+
     src_url = pick_primary_source_url(article_html)
     src_type = infer_source_type(src_url) if src_url else ""
 
@@ -180,7 +190,11 @@ def resolve_header_image_url(title: str, article_html: str) -> tuple[str, str, s
 
     if not header:
         og_img = _extract_og_image(src_url) if src_url else ""
-        header = (og_img or "").strip() or "/static/images/default-header.png"
+        header = (og_img or "").strip()
+
+    # Never return null/local-only fallback — always a real URL
+    if not header or header == "/static/images/default-header.png" or not header.startswith("http"):
+        header = _rnd.choice(_FALLBACK_IMAGES)
 
     return header, (src_url or ""), (src_type or "")
 

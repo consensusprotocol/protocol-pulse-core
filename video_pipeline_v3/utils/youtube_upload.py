@@ -27,7 +27,7 @@ Meanwhile — Bitcoin-denominated life insurance:
 {meanwhile_link}
 
 Website: https://protocolpulse.io
-Nostr: npub1protocolpulse
+Nostr: npub1x6jkkr2j6d90mh98wnrml60m3kvgzrmmx4dtpuyzq3jxq9y2g4fqpx80vy
 Twitter/X: @protocolpulse_
 
 #Bitcoin #BTC #ProtocolPulse #DailyBrief #Cryptocurrency

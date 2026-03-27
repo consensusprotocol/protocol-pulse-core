@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 FROM_EMAIL = "pulse@protocolpulse.io"
 SITE_URL = os.environ.get("SITE_URL", "https://protocolpulse.io")
-NOSTR_NPUB = os.environ.get("NOSTR_NPUB", "npub1protocolpulse")
+NOSTR_NPUB = os.environ.get("NOSTR_NPUB", "npub1x6jkkr2j6d90mh98wnrml60m3kvgzrmmx4dtpuyzq3jxq9y2g4fqpx80vy")
 RESEND_BASE = "https://api.resend.com"
 RESEND_TIMEOUT = 30  # seconds
 

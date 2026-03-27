@@ -46,9 +46,9 @@ DEFAULT_RELAYS: List[Dict[str, Any]] = [
         "nips": ["NIP-01", "NIP-02", "NIP-09", "NIP-11", "NIP-50"],
     },
     {
-        "url": "wss://nostr.wine",
-        "name": "Nostr Wine",
-        "description": "Curated high-quality relay",
+        "url": "wss://relay.primal.net",
+        "name": "Primal",
+        "description": "High-performance Nostr relay by Primal",
         "nips": ["NIP-01", "NIP-02", "NIP-09", "NIP-11"],
     },
 ]
