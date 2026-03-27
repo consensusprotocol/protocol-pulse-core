@@ -2481,13 +2481,68 @@
   })();
 
   // ═══════════════════════════════════════════════════════════════
-  // 8. AUTO-REFRESH (5 min)
+  // 8. LIVE COMMAND BAR + PCAF REFRESH
   // ═══════════════════════════════════════════════════════════════
-  setInterval(async function() {
+  async function refreshCommandBar() {
     try {
-      const r = await fetch('/api/intelligence/signal');
-      if (r.ok) {
-        const d = await r.json();
+      const r = await fetch('/api/signals');
+      if (!r.ok) return;
+      const sig = await r.json();
+
+      // Update command bar cells
+      const cells = document.querySelectorAll('.cmd-cell');
+      if (cells.length >= 6) {
+        // BTC/USD
+        const bp = sig.btc_price || {};
+        if (bp.value) {
+          cells[0].querySelector('.cmd-value').textContent = '$' + Math.round(bp.value).toLocaleString();
+          const deltaEl = cells[0].querySelector('.cmd-delta');
+          if (deltaEl && bp.change_24h != null) {
+            deltaEl.textContent = (bp.change_24h >= 0 ? '+' : '') + bp.change_24h.toFixed(2) + '%';
+            deltaEl.className = 'cmd-delta ' + (bp.change_24h > 0 ? 'up' : bp.change_24h < 0 ? 'down' : 'flat');
+          }
+        }
+        // F&G
+        const fg = sig.fear_greed || {};
+        if (fg.value != null) {
+          cells[1].querySelector('.cmd-value').textContent = fg.value;
+          const fgDelta = cells[1].querySelector('.cmd-delta');
+          if (fgDelta) fgDelta.textContent = fg.label || '';
+        }
+        // Hashrate
+        const hr = sig.hashrate || {};
+        if (hr.raw_eh) {
+          cells[2].querySelector('.cmd-value').textContent = Math.round(hr.raw_eh);
+          const da = sig.difficulty_adjustment || {};
+          const hrDelta = cells[2].querySelector('.cmd-delta');
+          if (hrDelta && da.percent != null) {
+            hrDelta.textContent = 'ADJ ' + (da.percent >= 0 ? '+' : '') + da.percent.toFixed(1) + '%';
+            hrDelta.className = 'cmd-delta ' + (da.percent > 0 ? 'up' : da.percent < 0 ? 'down' : 'flat');
+          }
+        }
+        // LN Capacity
+        const ln = sig.lightning || {};
+        if (ln.capacity_btc) {
+          cells[3].querySelector('.cmd-value').textContent = Math.round(ln.capacity_btc).toLocaleString();
+          const lnDelta = cells[3].querySelector('.cmd-delta');
+          if (lnDelta && ln.channel_count) lnDelta.textContent = ln.channel_count.toLocaleString() + ' CH';
+        }
+        // Fee
+        const fees = sig.recommended_fees || {};
+        if (fees.fastest) {
+          cells[4].querySelector('.cmd-value').textContent = fees.fastest;
+          const feeDelta = cells[4].querySelector('.cmd-delta');
+          const mp = sig.mempool_size || {};
+          if (feeDelta && mp.tx_count) feeDelta.textContent = mp.tx_count.toLocaleString() + ' UNCONF';
+        }
+      }
+    } catch (e) { /* silent */ }
+
+    // Also refresh PCAF score
+    try {
+      const r2 = await fetch('/api/intelligence/signal');
+      if (r2.ok) {
+        const d = await r2.json();
         if (d.success && d.data) {
           const numEl = document.getElementById('pcaf-num');
           if (numEl) numEl.textContent = Math.round(d.data.composite);
@@ -2496,7 +2551,11 @@
         }
       }
     } catch (e) {}
-  }, 300000);
+  }
+
+  // Refresh command bar every 60s, and PCAF every 5 min
+  refreshCommandBar();
+  setInterval(refreshCommandBar, 60000);
 
 })();
 </script>

@@ -2638,6 +2638,107 @@ body.intel-terminal .site-footer {
         }
     });
 
+    // ── Signal Polling (fills data rail from /api/signals, works without sentinel) ──
+    var _signalPollTimer = null;
+    var _lastSignalTs = 0;
+
+    function pollSignals() {
+        fetch('/api/signals').then(function(r) { return r.json(); }).then(function(sig) {
+            if (!sig || sig.error) return;
+            _lastSignalTs = Date.now();
+
+            // ── Data Rail ──
+            var bp = sig.btc_price || {};
+            if (bp.value) {
+                setValFlash('itPrice', fmtPrice(bp.value));
+                var chEl = document.getElementById('itPriceChange');
+                var ch = bp.change_24h || 0;
+                chEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+                chEl.style.color = ch >= 0 ? 'var(--it-green)' : 'var(--it-red)';
+            }
+            var fg = sig.fear_greed || {};
+            if (fg.value != null) {
+                document.getElementById('itFng').textContent = fg.value + ' ' + (fg.label || '');
+            }
+            var ln = sig.lightning || {};
+            if (ln.capacity_btc != null) {
+                document.getElementById('itLnCapacity').textContent = fmtNum(ln.capacity_btc) + ' BTC';
+                document.getElementById('itLnChannels').textContent = fmtNum(ln.channel_count);
+            }
+            var fr = sig.funding_rate || {};
+            if (fr.annualized != null) {
+                var cmEl = document.getElementById('itCmeBasis');
+                cmEl.textContent = (fr.annualized >= 0 ? '+' : '') + fr.annualized.toFixed(2) + '%';
+                cmEl.style.color = fr.annualized > 0 ? 'var(--it-green)' : fr.annualized < 0 ? 'var(--it-red)' : 'var(--it-muted)';
+            }
+
+            // ── Network State Panel ──
+            var bh = sig.block_height || {};
+            if (bh.value) setValFlash('itBlockHeight', fmtNum(bh.value));
+            var hr = sig.hashrate || {};
+            if (hr.value) setVal('itHashrate', hr.value);
+            var da = sig.difficulty_adjustment || {};
+            if (da.percent != null) setVal('itDifficulty', da.percent.toFixed(2) + '%');
+            if (da.blocks_remaining != null) {
+                var progress = Math.round((2016 - da.blocks_remaining) / 2016 * 100);
+                setVal('itNextAdj', progress + '%');
+            }
+
+            // ── Mempool Panel ──
+            var mp = sig.mempool_size || {};
+            if (mp.tx_count != null) setValFlash('itMempoolCount', fmtNum(mp.tx_count));
+            if (mp.vsize_mb != null) setVal('itMempoolVsize', mp.vsize_mb.toFixed(1) + ' vMB');
+            var fees = sig.recommended_fees || {};
+            if (fees.fastest != null) {
+                var feeHtml = '';
+                [['Priority', fees.fastest], ['Standard', fees.hour], ['Economy', fees.economy]].forEach(function(pair) {
+                    if (pair[1] == null) return;
+                    var pct = Math.min(100, pair[1] / Math.max(1, fees.fastest) * 100);
+                    var color = pair[1] <= 10 ? 'var(--it-green)' : pair[1] <= 50 ? 'var(--it-amber)' : 'var(--it-red)';
+                    feeHtml += '<div class="it-fee-row"><span class="it-fee-label">' + pair[0] + '</span>' +
+                        '<div class="it-fee-bar"><div class="it-fee-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+                        '<span class="it-fee-pct">' + pair[1] + '</span></div>';
+                });
+                var feeEl = document.getElementById('itFeeHistogram');
+                if (feeEl && feeHtml) feeEl.innerHTML = feeHtml;
+            }
+
+            // ── Whale Feed ──
+            var wh = sig.whale_moves || {};
+            if (wh.count > 0 && wh.txs && wh.txs.length > 0) {
+                var whtml = '';
+                wh.txs.forEach(function(t) {
+                    whtml += '<div class="it-whale-item"><span class="it-whale-value">' + t.btc + ' BTC</span> <span style="color:var(--it-muted)">' + t.txid + '...</span></div>';
+                });
+                var whEl = document.getElementById('itWhaleFeed');
+                if (whEl) whEl.innerHTML = whtml;
+            }
+
+            // ── Halving in data rail label ──
+            var halv = sig.halving || {};
+            if (halv.days_to_next) {
+                var etfEl = document.getElementById('itEtfFlow');
+                if (etfEl && etfEl.textContent.indexOf('NEUTRAL') !== -1) {
+                    etfEl.textContent = '⏱ Halving: ' + halv.days_to_next + 'd';
+                    etfEl.style.color = 'var(--it-gold)';
+                }
+            }
+
+            // ── Connection status ──
+            document.getElementById('itConnectionStatus').textContent = 'LIVE';
+            document.getElementById('itConnectionStatus').closest('.it-status').style.color = 'var(--it-green)';
+            document.getElementById('itSentinelStatus').textContent = 'ACTIVE';
+            document.getElementById('itSentinelStatus').style.color = 'var(--it-green)';
+
+        }).catch(function(err) {
+            console.warn('Signal poll error:', err);
+        });
+    }
+
+    // Poll signals immediately, then every 60s
+    pollSignals();
+    _signalPollTimer = setInterval(pollSignals, 60000);
+
     // ── SSE Connection ─────────────────────────────────────────
     function connectSSE() {
         if (sse) { sse.close(); }

@@ -495,6 +495,20 @@ def _get_btc_price() -> dict:
             return result
     except Exception:
         pass
+    # Fallback: read from signals.json (updated every 5 min by cron)
+    if not _price_cache["value"] or _price_cache["value"].get("usd", 0) == 0:
+        try:
+            _sig_path = str(Path(__file__).resolve().parent.parent.parent / "data" / "signals.json")
+            with open(_sig_path) as _f:
+                _sig = json.load(_f)
+            bp = _sig.get("btc_price", {})
+            if bp.get("value"):
+                result = {"usd": bp["value"], "change_24h": bp.get("change_24h", 0)}
+                _price_cache["value"] = result
+                _price_cache["ts"] = now
+                return result
+        except Exception:
+            pass
     return _price_cache["value"] or {"usd": 0, "change_24h": 0}
 
 
@@ -1324,3 +1338,40 @@ def api_early_warnings():
 def intelligence_landing():
     """Public landing page for Intelligence Terminal product."""
     return render_template("intelligence_landing.html")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PUBLIC SIGNAL DATA — /api/signals (no auth, powered by signal_data_fetcher)
+# ═══════════════════════════════════════════════════════════════════════════
+
+_SIGNALS_PATH = str(Path(__file__).resolve().parent.parent.parent / "data" / "signals.json")
+
+
+@intelligence_bp.route("/api/signals")
+def api_signals():
+    """Serve latest signal data from signals.json — public, no auth."""
+    try:
+        with open(_SIGNALS_PATH) as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e), "updated_at": None}), 200
+
+
+@intelligence_bp.route("/api/panopticon/status")
+def api_panopticon_status():
+    """Feed Panopticon counters from live signal data."""
+    try:
+        with open(_SIGNALS_PATH) as f:
+            data = json.load(f)
+        return jsonify({
+            "disclosures": 0,
+            "whale_moves": data.get("whale_moves", {}).get("count", 0),
+            "patterns": data.get("signal_score", {}).get("bull_count", 0) + data.get("signal_score", {}).get("bear_count", 0),
+            "events_today": sum(data.get("signal_score", {}).get(k, 0) for k in ("bull_count", "bear_count", "neutral_count")),
+            "fear_greed": data.get("fear_greed", {}),
+            "hashrate": data.get("hashrate", {}),
+            "updated_at": data.get("updated_at"),
+        })
+    except Exception:
+        return jsonify({"disclosures": 0, "whale_moves": 0, "patterns": 0, "events_today": 0})
