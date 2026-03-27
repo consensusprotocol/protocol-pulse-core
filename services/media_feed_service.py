@@ -529,7 +529,10 @@ def generate_ai_summaries(app=None, batch_size: int = 20):
 # ─── QUERY HELPERS ─────────────────────────────────────────────────────────────
 
 def get_feed_matrix(limit_per_col: int = 20) -> dict:
-    """Get three-column feed data for the Media Hub template."""
+    """Get three-column feed data for the Media Hub template.
+
+    Returns podcasts, videos, and kol (sovereign intel signals / articles).
+    """
     import models
 
     # Podcasts — RSS episodes with audio
@@ -594,10 +597,78 @@ def get_feed_matrix(limit_per_col: int = 20) -> dict:
             seen_vid_titles.add(title_key)
             unique_videos.append(vid)
 
+    # KOL column — sovereign intel signals, falling back to published articles
+    kol_items = _get_kol_items(limit_per_col)
+
     return {
         'podcasts': unique_podcasts[:limit_per_col],
         'videos': unique_videos[:limit_per_col],
+        'kol': kol_items[:limit_per_col],
     }
+
+
+def _get_kol_items(limit: int = 20) -> List[dict]:
+    """Build KOL column from sovereign_intel.db signals, falling back to articles."""
+    import sqlite3
+    import os
+    import models
+
+    items: List[dict] = []
+
+    # Primary: sovereign intel signals
+    si_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           'data', 'sovereign_intel.db')
+    if os.path.exists(si_path):
+        try:
+            conn = sqlite3.connect(si_path)
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                'SELECT name, category, observation, implication, direction, ts_utc '
+                'FROM signals ORDER BY ts_utc DESC LIMIT ?', (limit,)
+            ).fetchall()
+            conn.close()
+            for r in rows:
+                obs = r['observation'] or ''
+                impl = r['implication'] or ''
+                excerpt = (obs + ' ' + impl).strip()[:250]
+                if not excerpt:
+                    continue
+                direction = (r['direction'] or 'neutral').lower()
+                items.append({
+                    'title': r['name'] or 'Signal',
+                    'excerpt': excerpt,
+                    'source': (r['category'] or 'INTEL').upper(),
+                    'direction': direction,
+                    'timestamp': r['ts_utc'] or '',
+                    'type': 'signal',
+                })
+        except Exception as e:
+            logger.warning(f"[KOL] sovereign_intel read error: {e}")
+
+    # Fallback: published articles
+    if len(items) < limit:
+        remaining = limit - len(items)
+        try:
+            arts = models.Article.query.filter_by(published=True).order_by(
+                models.Article.created_at.desc()
+            ).limit(remaining).all()
+            for a in arts:
+                excerpt = (a.summary or a.content or '')[:200].strip()
+                if not excerpt:
+                    continue
+                items.append({
+                    'title': a.title,
+                    'excerpt': excerpt,
+                    'source': 'PROTOCOL PULSE',
+                    'direction': 'neutral',
+                    'timestamp': a.created_at.isoformat() if a.created_at else '',
+                    'type': 'article',
+                    'slug': a.slug or f'article-{a.id}',
+                })
+        except Exception as e:
+            logger.warning(f"[KOL] article fallback error: {e}")
+
+    return items
 
 
 def get_ticker_items(limit: int = 30) -> List[dict]:

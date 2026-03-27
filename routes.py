@@ -1691,19 +1691,16 @@ def media_hub_redirect():
 def media_hub():
     """Media Hub — Bitcoin Media Command Center with Feed Matrix"""
     try:
-        from models import Podcast, MediaFeed, MediaEpisode
-        from services.youtube_service import YouTubeService
         from services.media_feed_service import get_feed_matrix, get_ticker_items, get_feed_stats, sync_feeds_background
-        import copy
 
-        # ── Feed Matrix (aggregated RSS + YouTube) ──
+        # ── Feed Matrix (aggregated RSS + YouTube + KOL) ──
         try:
             feed_matrix = get_feed_matrix(limit_per_col=25)
             ticker_items = get_ticker_items(limit=30)
             feed_stats = get_feed_stats()
         except Exception as fm_err:
             logging.warning(f"Feed matrix not ready: {fm_err}")
-            feed_matrix = {'podcasts': [], 'videos': []}
+            feed_matrix = {'podcasts': [], 'videos': [], 'kol': []}
             ticker_items = []
             feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
 
@@ -1714,186 +1711,10 @@ def media_hub():
             except Exception:
                 pass
 
-        # ── YouTube Series ──
-        youtube_service_instance = YouTubeService()
-
-        series_config = {
-            'everything_21m': {
-                'key': 'everything_21m',
-                'title': 'Everything Divided by 21 Million',
-                'host': 'Matty Ice & Knut Svanholm',
-                'description': 'A cinematic exploration of Bitcoin\'s relationship to time, money, freedom, and human progress.',
-                'episodes': [
-                    {'id': 'FA8tvWEydcA', 'title': 'Time | Episode 1'},
-                    {'id': 'VDordtHAJhg', 'title': 'Alchemy | Episode 2'},
-                    {'id': 'yKbQq66AInU', 'title': 'Ownership | Episode 3'},
-                    {'id': 'rkTbEpAOADI', 'title': 'Energy | Episode 4'},
-                    {'id': 'qG2xYvTVkw0', 'title': 'Morality | Episode 5'},
-                    {'id': 'v7xZPqcXyLk', 'title': 'Memetics | Episode 6'},
-                    {'id': 'RZv_1Qcqik4', 'title': 'Symbiosis | Episode 7'},
-                    {'id': 'UlYSv9SwQGk', 'title': 'Violence | Episode 8'},
-                    {'id': '_ygND311kVE', 'title': 'Deflation | Episode 9'},
-                    {'id': 'Nf0LtAk4VBs', 'title': 'Adoption | Episode 10'},
-                    {'id': 'Gt8ycm3-NV8', 'title': 'Transition | Episode 11'},
-                ]
-            },
-            'big_print': {
-                'key': 'big_print',
-                'title': 'The Big Print',
-                'host': 'Matty Ice & Lawrence Lepard',
-                'description': 'How the Federal Reserve engineered the most devastating wealth extraction scheme in history.',
-                'episodes': [
-                    {'id': 'W09CNU_q6Yo', 'title': 'Why Fixing the Money is the Only Way | Episode 1'},
-                    {'id': 'tnthM3uaHbI', 'title': 'How Govt Stole 98.5% Since 1971 | Episode 2'},
-                    {'id': 'FRH5w_joMP0', 'title': 'How Inflation Steals Your Life | Episode 3'},
-                    {'id': 'JLjG8jAJxbw', 'title': 'The Path to Pure Fiat | Episode 4'},
-                    {'id': 'tq_ZYhpW4Vw', 'title': 'How Powell & Yellen Broke It | Episode 5'},
-                    {'id': 'Sjp-Kaic2CE', 'title': 'Austrian vs Keynesian | Episode 6'},
-                    {'id': 'n6Bi8Kf6ar0', 'title': 'The Sovereign Currency Bubble | Episode 7'},
-                    {'id': 'M3M61rLBTl0', 'title': 'Bitcoin is God\'s Gift | Episode 8'},
-                    {'id': 'uzUEJZ38RV8', 'title': 'Bitcoin & Real Estate | Episode 9'},
-                    {'id': 'y9snxWoEkaU', 'title': 'End of Centralized Power | Episode 10'},
-                    {'id': 'hKa8lRDwIos', 'title': 'Digital Scarcity | Episode 11'},
-                    {'id': 'FyMWELymqAM', 'title': 'Fix the Money, Fix the World | Episode 12'},
-                ]
-            },
-            'daylight_robbery': {
-                'key': 'daylight_robbery',
-                'title': 'Daylight Robbery',
-                'host': 'Matty Ice & Dominic Frisby',
-                'description': 'The hidden story of how taxation shaped human civilization from ancient empires to modern governments.',
-                'episodes': [
-                    {'id': 'ZCc78wvwd6U', 'title': 'The Hidden History of Taxation | Episode 1'},
-                    {'id': 'j_V3fjvEuS0', 'title': 'How Taxes Shaped Civilization | Episode 2'},
-                    {'id': 'W_TNwftaVMk', 'title': 'Death, Taxes, or Islam | Episode 3'},
-                    {'id': '3VDVbbSZYPc', 'title': 'The Peasants\' Revolt | Episode 4'},
-                    {'id': 'brho571r5rY', 'title': 'Tax Wars That Created Nations | Episode 5'},
-                    {'id': 'zltb_tXZiWI', 'title': 'How the Richest Controlled Nations | Episode 6'},
-                    {'id': '0MDv0d-3t_k', 'title': 'How Tariffs Caused Civil War | Episode 7'},
-                    {'id': 'Ym5W3t9WvB8', 'title': 'The Birth of Big Government | Episode 8'},
-                    {'id': 'YUHM88mtRxU', 'title': 'Hitler, Banks & Nations | Episode 9'},
-                    {'id': 'LcIT9Tgbkm8', 'title': 'How Govts Silently Rob You | Episode 10'},
-                    {'id': 'VRSXUD4L2eA', 'title': 'Digital Nomads & Borderless Money | Episode 11'},
-                    {'id': '1OAn6QDSsJs', 'title': 'How Data & AI Reshape Taxation | Episode 12'},
-                    {'id': 'xPPbMsz8qso', 'title': 'The Perfect Tax System | Episode 13'},
-                ]
-            },
-            'genesis_book': {
-                'key': 'genesis_book',
-                'title': 'The Genesis Book',
-                'host': 'Matty Ice & Aaron van Wirdum',
-                'description': 'Exploring the origins of Bitcoin through Aaron van Wirdum\'s seminal work on Austrian economics and the cypherpunk movement.',
-                'episodes': [
-                    {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
-                    {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
-                    {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
-                    {'id': 'TwkR0ncLh0Y', 'title': 'Satoshi\'s Vision | Episode 4'},
-                    {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
-                ]
-            },
-        }
-        
-        # Build series list for template
-        series_list = []
-        for key, s in series_config.items():
-            series_list.append({
-                'key': key,
-                'title': s['title'],
-                'host': s['host'],
-                'description': s['description'],
-                'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
-                'ep_count': len(s['episodes']),
-            })
-        
-        # ── Podcast Episodes ──
-        latest_episodes = Podcast.query.order_by(Podcast.published_date.desc()).limit(12).all()
-        podcast_count = Podcast.query.count()
-        
-        # ── Books ──
-        affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
-        
-        all_books = [
-            {'title': 'Everything Divided by 21 Million', 'author': 'Knut Svanholm', 'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#dc2626', 'cover_url': '/static/images/books/everything_21m.jpg'},
-            {'title': 'The Big Print', 'author': 'Lawrence Lepard', 'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#f59e0b', 'cover_url': '/static/images/books/big_print.jpg'},
-            {'title': 'Daylight Robbery', 'author': 'Dominic Frisby', 'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#ef4444', 'cover_url': '/static/images/books/daylight_robbery.jpg'},
-            {'title': 'The Genesis Book', 'author': 'Aaron van Wirdum', 'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}', 'featured': True, 'category': 'series', 'color': '#8b5cf6', 'cover_url': '/static/images/books/genesis_book.jpg'},
-            {'title': 'The Bitcoin Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a', 'cover_url': '/static/images/books/bitcoin_standard.jpg'},
-            {'title': 'Broken Money', 'author': 'Lyn Alden', 'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}', 'category': 'essential', 'color': '#3b82f6', 'cover_url': '/static/images/books/broken_money.jpg'},
-            {'title': 'The Fiat Standard', 'author': 'Saifedean Ammous', 'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}', 'category': 'essential', 'color': '#6366f1', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1544526474-L.jpg'},
-            {'title': 'Mastering Bitcoin', 'author': 'Andreas Antonopoulos', 'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}', 'category': 'essential', 'color': '#f59e0b', 'cover_url': '/static/images/books/mastering_bitcoin.jpg'},
-            {'title': 'The Price of Tomorrow', 'author': 'Jeff Booth', 'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}', 'category': 'essential', 'color': '#10b981', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1999257405-L.jpg'},
-            {'title': 'Softwar', 'author': 'Jason Lowery', 'amazon_url': f'https://www.amazon.com/dp/B0BW3MTQG6?tag={affiliate_tag}', 'category': 'essential', 'color': '#ef4444', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1544542895-L.jpg'},
-            {'title': 'Thank God for Bitcoin', 'author': 'Jimmy Song et al.', 'amazon_url': f'https://www.amazon.com/dp/1641991216?tag={affiliate_tag}', 'category': 'essential', 'color': '#f7931a', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1641991216-L.jpg'},
-            {'title': 'The Sovereign Individual', 'author': 'Davidson & Rees-Mogg', 'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}', 'category': 'essential', 'color': '#8b5cf6', 'cover_url': 'https://covers.openlibrary.org/b/isbn/0684832720-L.jpg'},
-            {'title': 'Bitcoin Billionaires', 'author': 'Ben Mezrich', 'amazon_url': f'https://www.amazon.com/dp/1250217768?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1250217768-L.jpg'},
-            {'title': 'The Blocksize War', 'author': 'Jonathan Bier', 'amazon_url': f'https://www.amazon.com/dp/B08YQMC2WM?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#dc2626', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1916294219-L.jpg'},
-            {'title': 'Inventing Bitcoin', 'author': 'Yan Pritzker', 'amazon_url': f'https://www.amazon.com/dp/B07MWXRWNB?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f7931a', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1097476922-L.jpg'},
-            {'title': 'The Book of Satoshi', 'author': 'Phil Champagne', 'amazon_url': f'https://www.amazon.com/dp/0996061312?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#6366f1', 'cover_url': 'https://covers.openlibrary.org/b/isbn/0996061312-L.jpg'},
-            {'title': 'Digital Gold', 'author': 'Nathaniel Popper', 'amazon_url': f'https://www.amazon.com/dp/006236250X?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#f59e0b', 'cover_url': 'https://covers.openlibrary.org/b/isbn/006236250X-L.jpg'},
-            {'title': 'Resistance Money', 'author': 'Andrew Bailey et al.', 'amazon_url': f'https://www.amazon.com/dp/1032609710?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#10b981', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1032609710-L.jpg'},
-            {'title': 'Check Your Financial Privilege', 'author': 'Alex Gladstein', 'amazon_url': f'https://www.amazon.com/dp/B09V2NM9VJ?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#3b82f6', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1637587504-L.jpg'},
-            {'title': 'Bitcoin is Venice', 'author': 'Allen Farrington', 'amazon_url': f'https://www.amazon.com/dp/B09TKNKFRS?tag={affiliate_tag}', 'category': 'bestseller', 'color': '#8b5cf6', 'cover_url': 'https://covers.openlibrary.org/b/isbn/9798986175928-L.jpg'},
-            {'title': 'Economics in One Lesson', 'author': 'Henry Hazlitt', 'amazon_url': f'https://www.amazon.com/dp/0517548232?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/0517548232-L.jpg'},
-            {'title': 'Human Action', 'author': 'Ludwig von Mises', 'amazon_url': f'https://www.amazon.com/dp/1610167317?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1610167317-L.jpg'},
-            {'title': 'What Has Government Done to Our Money?', 'author': 'Murray Rothbard', 'amazon_url': f'https://www.amazon.com/dp/1610166450?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1610166450-L.jpg'},
-            {'title': 'The Ethics of Money Production', 'author': 'Jorg Guido Hulsmann', 'amazon_url': f'https://www.amazon.com/dp/1610166817?tag={affiliate_tag}', 'category': 'economics', 'color': '#22c55e', 'cover_url': 'https://covers.openlibrary.org/b/isbn/1610166817-L.jpg'},
-        ]
-        
-        # Server-side fetch highlights for reliable rendering without JS dependency
-        ssr_highlights = []
-        try:
-            import sqlite3 as _sl3, os as _os2
-            si_path = _os2.path.join(_os2.path.dirname(__file__), 'data', 'sovereign_intel.db')
-            if _os2.path.exists(si_path):
-                conn = _sl3.connect(si_path)
-                conn.row_factory = _sl3.Row
-                rows = conn.execute(
-                    'SELECT name, category, observation, implication, direction, ts_utc '
-                    'FROM signals ORDER BY ts_utc DESC LIMIT 10'
-                ).fetchall()
-                conn.close()
-                for r in rows:
-                    obs = r['observation'] or ''
-                    impl = r['implication'] or ''
-                    excerpt = (obs + ' ' + impl).strip()[:200]
-                    if excerpt:
-                        ssr_highlights.append({
-                            'title': r['name'],
-                            'excerpt': excerpt,
-                            'source': (r['category'] or 'INTEL').upper(),
-                            'direction': r['direction'] or 'neutral',
-                            'timestamp': r['ts_utc'],
-                        })
-            if not ssr_highlights:
-                arts = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(8).all()
-                for a in arts:
-                    excerpt = (a.summary or a.content or '')[:180].strip()
-                    if excerpt:
-                        ssr_highlights.append({'title': a.title, 'excerpt': excerpt, 'source': 'PROTOCOL PULSE', 'direction': 'neutral'})
-        except Exception as _e:
-            logging.warning(f'SSR highlights failed: {_e}')
-
-        # Commander gate flag for premium sections (heatmap, etc.)
-        _is_commander = False
-        try:
-            if current_user.is_authenticated:
-                _is_commander = getattr(current_user, 'has_commander_tier', lambda: False)()
-        except Exception:
-            pass
-
         return render_template('media_hub.html',
-            series_list=series_list,
-            series_data=series_config,
-            series_count=len(series_config),
-            latest_episodes=latest_episodes,
-            podcast_count=podcast_count,
-            voice_count=30,
-            ssr_highlights=ssr_highlights,
-            all_books=all_books,
             feed_matrix=feed_matrix,
             ticker_items=ticker_items,
             feed_stats=feed_stats,
-            is_commander=_is_commander,
         )
 
     except Exception as e:
@@ -1901,10 +1722,8 @@ def media_hub():
         import traceback
         traceback.print_exc()
         return render_template('media_hub.html',
-            series_list=[], series_data={}, series_count=0,
-            latest_episodes=[], podcast_count=0, voice_count=0, all_books=[],
-            feed_matrix={'podcasts': [], 'videos': []},
-            ticker_items=[], feed_stats={}, is_commander=False)
+            feed_matrix={'podcasts': [], 'videos': [], 'kol': []},
+            ticker_items=[], feed_stats={})
 
 
 @app.route('/api/latest-episodes')
