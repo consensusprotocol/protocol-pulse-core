@@ -1330,24 +1330,23 @@ def api_network_data():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/articles')
-@cache.cached(timeout=60, key_prefix='view_articles')
+@cache.cached(timeout=60, query_string=True)
 def articles():
-    """Articles page (Replit-style): 3 time windows + archive button.
-
-    Zones:
-    - The 24-Hour Pulse: created within last 24h
-    - The Morning After: created 24–48h ago
-    - The Vault: older than 48h (show 20 behind a button)
-    """
+    """Articles page: 3 time windows + archive button, with optional ?category= filter."""
     now = datetime.utcnow()
+    active_category = request.args.get('category', '').strip() or None
 
     try:
         # Prefer published; if none, fall back to all (so articles are never "gone")
         base_q = models.Article.query.filter(models.Article.published.is_(True)).order_by(models.Article.created_at.desc())
+        if active_category:
+            base_q = base_q.filter(models.Article.category == active_category)
         total_count = base_q.count()
         if total_count == 0:
             logging.info("No published articles; falling back to all articles.")
             base_q = models.Article.query.order_by(models.Article.created_at.desc())
+            if active_category:
+                base_q = base_q.filter(models.Article.category == active_category)
             total_count = base_q.count()
 
         # Time windows
@@ -1453,6 +1452,7 @@ def articles():
         per_page=per_page,
         default_header_url=default_header_url,
         article_image_urls=article_image_urls,
+        active_category=active_category,
     )
 
 def _article_body_without_tldr(content):
@@ -1503,7 +1503,17 @@ def article_detail_slug(slug):
     else:
         a = models.Article.query.filter_by(slug=slug).first()
         if not a:
-            abort(404)
+            # Fallback: handle "article-{id}" slugs from to_api_dict()
+            m = re.match(r'^article-(\d+)$', slug)
+            if m:
+                a = models.Article.query.get(int(m.group(1)))
+            # Also try extracting trailing numeric ID (e.g. "some-title-1234")
+            if not a:
+                m2 = re.match(r'^.+-(\d+)$', slug)
+                if m2:
+                    a = models.Article.query.get(int(m2.group(1)))
+            if not a:
+                abort(404)
     # Render the article using the existing numeric route logic
     return _render_article(a.id)
 

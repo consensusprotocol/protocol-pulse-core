@@ -822,9 +822,9 @@
     <div class="main-content">
         <!-- BUG 3: Category filter pills (wired to API) -->
         <div class="category-filters" id="categoryFilters">
-            <span class="category-pill active" data-category="" onclick="ppFilterCategory(this)">All</span>
+            <span class="category-pill{{ '' if active_category else ' active' }}" data-category="" onclick="ppFilterCategory(this)">All</span>
             {% for cat, count in category_counts.items()|sort(attribute='1', reverse=true) %}
-            <span class="category-pill" data-category="{{ cat }}" onclick="ppFilterCategory(this)">{{ cat }}<span class="pill-count">({{ count }})</span></span>
+            <span class="category-pill{{ ' active' if active_category == cat else '' }}" data-category="{{ cat }}" onclick="ppFilterCategory(this)">{{ cat }}<span class="pill-count">({{ count }})</span></span>
             {% endfor %}
         </div>
 
