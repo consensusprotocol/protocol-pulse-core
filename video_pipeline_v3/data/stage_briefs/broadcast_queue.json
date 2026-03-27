@@ -11,16 +11,6 @@
     "video_url": "/data/stage_briefs/brief_20260327_1000.mp4"
   },
   {
-    "id": "bdd5d8c2-dd2b-47b5-a13d-0a5031f7259a",
-    "type": "PRICE_ALERT",
-    "priority": 1,
-    "script": "Bitcoin dropped 1.06% to $66,927. Price action shows no 24-hour change, indicating consolidation.\n\nWatch for break above $67,500 resistance.",
-    "source_label": "\ud83d\udce1 PRICE ALERT",
-    "topic_preview": "Bitcoin drops to $66,927",
-    "generated_at": "2026-03-27T10:40:04.933540+00:00",
-    "expires_at": "2026-03-27T11:10:04.933540+00:00"
-  },
-  {
     "id": "2d7c3feb-928a-402a-8fad-933cb5d1e745",
     "type": "METRICS_PULSE",
     "priority": 3,

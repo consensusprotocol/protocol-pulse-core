@@ -121,8 +121,8 @@
 .abar-close:hover{color:var(--bright)}
 
 /* ── VIDEO MODAL ── */
-.vm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-.vm-overlay.active{display:flex}
+.vm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);opacity:0;transition:opacity .3s ease}
+.vm-overlay.active{display:flex;opacity:1}
 .vm-wrap{position:relative;width:90vw;max-width:960px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--border);box-shadow:0 32px 96px rgba(0,0,0,.8)}
 .vm-close{position:absolute;top:-40px;right:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:var(--bright);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:2001;transition:all .2s}
 .vm-close:hover{background:var(--red);border-color:var(--red)}
@@ -469,9 +469,19 @@
 
 <!-- ═══════════ VIDEO MODAL ═══════════ -->
 <div class="vm-overlay" id="videoModal" onclick="closeVideoModal(event)">
-  <div class="vm-wrap" onclick="event.stopPropagation()">
-    <button class="vm-close" onclick="closeVideoModal(event,true)"><i class="fas fa-times"></i></button>
-    <iframe id="vmIframe" allow="autoplay;fullscreen" allowfullscreen></iframe>
+  <div style="max-width:960px;width:90vw" onclick="event.stopPropagation()">
+    <div class="vm-wrap">
+      <button class="vm-close" onclick="closeVideoModal(event,true)"><i class="fas fa-times"></i></button>
+      <iframe id="vmIframe" allow="autoplay;fullscreen" allowfullscreen></iframe>
+    </div>
+    <div id="vmMeta" style="padding:16px 4px 0;display:none">
+      <div id="vmTitle" style="font-size:15px;font-weight:700;color:var(--bright,#eef2ff);margin-bottom:6px"></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span id="vmSource" style="font-size:12px;color:var(--mut,#95a0ba)"></span>
+        <span id="vmDate" style="font-size:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:2px 8px;color:var(--mut,#95a0ba);font-family:'JetBrains Mono',monospace"></span>
+      </div>
+      <div id="vmSummary" style="font-size:13px;color:var(--mut,#95a0ba);margin-top:8px;line-height:1.5;max-height:60px;overflow:hidden"></div>
+    </div>
   </div>
 </div>
 
@@ -512,17 +522,26 @@ _audio.addEventListener('timeupdate',function(){
 });
 
 /* ═══════════ VIDEO MODAL ═══════════ */
-function openVideoModal(vid){
+function openVideoModal(vid,title,source,date,summary){
   if(!vid)return;
   document.getElementById('vmIframe').src='https://www.youtube.com/embed/'+vid+'?autoplay=1';
   document.getElementById('videoModal').classList.add('active');
   document.body.style.overflow='hidden';
+  var meta=document.getElementById('vmMeta');
+  if(title||source||date){
+    meta.style.display='block';
+    document.getElementById('vmTitle').textContent=title||'';
+    document.getElementById('vmSource').textContent=source||'';
+    document.getElementById('vmDate').textContent=date||'';
+    document.getElementById('vmSummary').textContent=summary||'';
+  } else { meta.style.display='none'; }
 }
 function closeVideoModal(e,force){
   if(!force&&e&&e.target!==document.getElementById('videoModal'))return;
   document.getElementById('vmIframe').src='';
   document.getElementById('videoModal').classList.remove('active');
   document.body.style.overflow='';
+  document.getElementById('vmMeta').style.display='none';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeVideoModal(e,true)});
 
@@ -614,7 +633,7 @@ function loadVideoFeed(){
     d.items.forEach(function(item){
       var clickAttr='';
       if(item.video_id){
-        clickAttr=' onclick="openVideoModal(\''+item.video_id+'\')"';
+        clickAttr=' onclick="openVideoModal(\''+item.video_id+'\',\''+_esc(item.title)+'\',\''+_esc(item.channel)+'\',\''+_esc(item.published_at||'')+'\',\'\')"';
       }else if(item.url){
         clickAttr=' onclick="window.open(\''+_esc(item.url)+'\',\'_blank\')"';
       }
