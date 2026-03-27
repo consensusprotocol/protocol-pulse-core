@@ -126,8 +126,30 @@ _TERM_MAP = {
     "kWh": "kilowatt hour",
     "MWh": "megawatt hour",
     "GWh": "gigawatt hour",
-    "HODL": "hodl",
-    "hodl": "hodl",
+    "Szabo": "Sha-bo",
+    "szabo": "Sha-bo",
+    "Schnorr": "Shnorr",
+    "schnorr": "Shnorr",
+    "UTXO": "U-T-X-O",
+    "UTXOs": "U-T-X-Os",
+    "multisig": "multi-sig",
+    "Multisig": "multi-sig",
+    "mempool": "mem-pool",
+    "Mempool": "mem-pool",
+    "hashrate": "hash-rate",
+    "Hashrate": "hash-rate",
+    "Bukele": "boo-KEH-leh",
+    "bukele": "boo-KEH-leh",
+    "Gensler": "GENZ-ler",
+    "gensler": "GENZ-ler",
+    "fiat": "fee-at",
+    "Fiat": "fee-at",
+    "HODL": "hoddle",
+    "hodl": "hoddle",
+    "LN": "Lightning Network",
+    "L2": "layer two",
+    "P2P": "peer to peer",
+    "bps": "basis points",
     "DeFi": "dee-fi",
     "dApps": "dee-apps",
     "ETF": "E-T-F",
@@ -219,8 +241,17 @@ def normalize(text: str) -> str:
         return _ORDINAL_MAP.get(m.group(0).lower(), m.group(0))
     text = re.sub(r'\b\d{1,2}(?:st|nd|rd|th)\b', _ordinal_sub, text, flags=re.IGNORECASE)
 
-    # Clean up any double spaces
-    text = re.sub(r'  +', ' ', text).strip()
+    # 8. Contractions — natural spoken cadence
+    for old, new in [("it is ","it's "),("that is ","that's "),("they are ","they're "),
+                      ("does not ","doesn't "),("do not ","don't "),("will not ","won't "),
+                      ("cannot ","can't "),("is not ","isn't "),("are not ","aren't ")]:
+        text = text.replace(old, new)
+
+    # 9. Micro-pause hints — double space after sentence-ending period before capital
+    text = re.sub(r'\. ([A-Z])', r'.  \1', text)
+
+    # Clean up any triple+ spaces (but preserve intentional double spaces from step 9)
+    text = re.sub(r' {3,}', '  ', text).strip()
 
     return text
 

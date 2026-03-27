@@ -274,7 +274,7 @@ def check_tts_smoke():
     url   = f'https://api.elevenlabs.io/v1/text-to-speech/{VOICE}'
     body  = json.dumps({'text': 'Bitcoin. Signal confirmed.',
                         'model_id': 'eleven_turbo_v2_5',
-                        'voice_settings': {'stability': 0.55, 'similarity_boost': 0.80, 'style': 0.15}}).encode()
+                        'voice_settings': {'stability': 0.35, 'similarity_boost': 0.90, 'style': 0.30}}).encode()
     try:
         t0  = time.time()
         req = ul.Request(url, data=body, headers={

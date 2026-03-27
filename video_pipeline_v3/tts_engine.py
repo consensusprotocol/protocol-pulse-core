@@ -98,11 +98,11 @@ _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
     "model_id": "eleven_turbo_v2_5",
-    "speed": 1.2,
+    "speed": 1.18,
     "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.15,
+        "stability": 0.35,
+        "similarity_boost": 0.90,
+        "style": 0.30,
         "use_speaker_boost": True,
     },
 }
@@ -118,11 +118,11 @@ _ERYN_VOICE = {
     "voice_id": "kdnRe2koJdOK4Ovxn2DI",
     "name": "Eryn",
     "model_id": "eleven_turbo_v2_5",
-    "speed": 1.0,
+    "speed": 1.18,
     "voice_settings": {
-        "stability": 0.55,
-        "similarity_boost": 0.80,
-        "style": 0.15,
+        "stability": 0.35,
+        "similarity_boost": 0.90,
+        "style": 0.30,
         "use_speaker_boost": True,
     },
 }
@@ -192,12 +192,12 @@ SILENCE_GAP = 0.08  # seconds between lines — ElevenLabs has natural pauses bu
 
 # Voice mode overrides per segment type (applied to whichever host speaks)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.42, "similarity_boost": 0.85, "style": 0.35},
-    "setup":           {"stability": 0.50, "similarity_boost": 0.85, "style": 0.30},
-    "react":           {"stability": 0.48, "similarity_boost": 0.85, "style": 0.32},
-    "bridge":          {"stability": 0.50, "similarity_boost": 0.85, "style": 0.28},
-    "social_segment":  {"stability": 0.48, "similarity_boost": 0.85, "style": 0.32},
-    "wrap":            {"stability": 0.45, "similarity_boost": 0.85, "style": 0.35},
+    "cold_open":       {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "setup":           {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "react":           {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "bridge":          {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "social_segment":  {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "wrap":            {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
 }
 
 

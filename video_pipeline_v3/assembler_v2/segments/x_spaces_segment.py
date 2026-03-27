@@ -103,7 +103,7 @@ class XSpacesSegment(Segment):
                 json_body={
                     'text': text,
                     'model_id': 'eleven_turbo_v2_5',
-                    'voice_settings': {'stability': 0.5, 'similarity_boost': 0.5},
+                    'voice_settings': {'stability': 0.35, 'similarity_boost': 0.90, 'style': 0.30, 'use_speaker_boost': True},
                 },
                 timeout=30,
             )
