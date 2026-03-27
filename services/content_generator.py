@@ -27,13 +27,13 @@ def _get_local_header_image_pool() -> list[str]:
         project_root = Path(__file__).resolve().parents[1]
         headers_dir = project_root / "core" / "static" / "images" / "headers"
         if not headers_dir.exists():
-            return ["/static/images/default-header.png"]
+            import random as _r; return [_r.choice(['https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg', 'https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg', 'https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg', 'https://images.pexels.com/photos/6780789/pexels-photo-6780789.jpeg', 'https://images.pexels.com/photos/8369648/pexels-photo-8369648.jpeg', 'https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg', 'https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg', 'https://images.pexels.com/photos/2988232/pexels-photo-2988232.jpeg'])]
         names = sorted([p.name for p in headers_dir.iterdir() if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}])
         urls = [f"/static/images/headers/{n}" for n in names]
         # Always include the generic fallback first.
-        return ["/static/images/default-header.png"] + urls
+        import random as _r; return [_r.choice(['https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg', 'https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg', 'https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg', 'https://images.pexels.com/photos/6780789/pexels-photo-6780789.jpeg', 'https://images.pexels.com/photos/8369648/pexels-photo-8369648.jpeg', 'https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg', 'https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg', 'https://images.pexels.com/photos/2988232/pexels-photo-2988232.jpeg'])] + urls
     except Exception:
-        return ["/static/images/default-header.png"]
+        import random as _r; return [_r.choice(['https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg', 'https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg', 'https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg', 'https://images.pexels.com/photos/6780789/pexels-photo-6780789.jpeg', 'https://images.pexels.com/photos/8369648/pexels-photo-8369648.jpeg', 'https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg', 'https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg', 'https://images.pexels.com/photos/2988232/pexels-photo-2988232.jpeg'])]
 
 
 # Cached at import time; safe to use across requests.
@@ -55,7 +55,7 @@ def get_article_header_url(title: str, article_html: str = "") -> str:
 
     # Final fallback: deterministic pick from local pool based on title hash
     import hashlib
-    pool = ARTICLE_HEADER_IMAGE_POOL or ["/static/images/default-header.png"]
+    pool = ARTICLE_HEADER_IMAGE_POOL or ['https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg', 'https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg', 'https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg', 'https://images.pexels.com/photos/6780789/pexels-photo-6780789.jpeg', 'https://images.pexels.com/photos/8369648/pexels-photo-8369648.jpeg', 'https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg', 'https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg', 'https://images.pexels.com/photos/2988232/pexels-photo-2988232.jpeg']
     idx = int(hashlib.md5(title.encode("utf-8")).hexdigest(), 16) % len(pool)
     return pool[idx]
 def _load_allowed_news_domains() -> set[str]:

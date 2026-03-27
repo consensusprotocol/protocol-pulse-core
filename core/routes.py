@@ -556,6 +556,8 @@ def value_stream():
     resp = make_response(render_template('value_stream.html'))
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Vary'] = '*'
+    resp.headers['Expires'] = '0'
     return resp
 
 @app.route('/value-stream-legacy')
