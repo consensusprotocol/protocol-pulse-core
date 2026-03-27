@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Sovereign Reports — Protocol Pulse{% endblock %}
+{% block head %}
+<style>
+.sr-wrap{max-width:900px;margin:0 auto;padding:40px 24px;}
+.sr-header{display:flex;align-items:center;gap:16px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--pp-border);}
+.sr-btn{display:flex;align-items:center;gap:10px;padding:14px 32px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-family:var(--pp-font-mono);font-size:0.85rem;font-weight:700;cursor:pointer;transition:background 0.2s;}
+.sr-btn:hover{background:#b91c1c;} .sr-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.sr-card{background:var(--pp-surface);border:1px solid var(--pp-border);border-radius:8px;padding:32px;margin-top:24px;position:relative;overflow:hidden;}
+.sr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#dc2626,#7f1d1d);}
+.sr-card h2{font-family:var(--pp-font-mono);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#dc2626;margin:24px 0 10px;padding-top:20px;border-top:1px solid var(--pp-border);}
+.sr-card h2:first-child{border-top:none;margin-top:0;padding-top:0;}
+.sr-card p{color:#ccc;line-height:1.8;font-size:0.95rem;margin-bottom:12px;}
+.sr-card strong{color:#fff;}
+.sr-spin{width:20px;height:20px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sr-intro{background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.15);border-radius:8px;padding:20px;margin-bottom:28px;font-size:0.85rem;color:#888;line-height:1.6;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="sr-wrap">
+  <div class="sr-header">
+    <div style="width:56px;height:56px;border-radius:50%;border:2px solid #dc2626;background:rgba(220,38,38,0.1);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">⚡</div>
+    <div>
+      <div style="font-family:var(--pp-font-mono);font-size:0.65rem;letter-spacing:0.15em;color:#dc2626;text-transform:uppercase;margin-bottom:4px;">Sovereign Intelligence · Unrestricted Mode</div>
+      <div style="font-size:1.4rem;font-weight:700;color:#fff;">Private Reports</div>
+    </div>
+    <div style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);border-radius:999px;font-family:var(--pp-font-mono);font-size:0.65rem;color:#dc2626;font-weight:700;">
+      <span style="width:6px;height:6px;background:#22c55e;border-radius:50%;animation:spin 2s linear infinite;"></span> SOVEREIGN ACCESS
+    </div>
+  </div>
+  <div class="sr-intro">
+    <strong style="color:#dc2626;">⚡ Satomi — Unrestricted Analysis Mode.</strong> These reports are generated with full conviction. No hedging. No softening. Live on-chain data. Macro context. Sovereign operator directives. Not financial advice.
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <button class="sr-btn" id="genBtn" onclick="generateReport()"><i class="fas fa-bolt"></i> GENERATE SOVEREIGN REPORT</button>
+    <span id="genTs" style="font-family:var(--pp-font-mono);font-size:0.65rem;color:var(--pp-text-muted);"></span>
+  </div>
+  <div id="reportContainer"></div>
+  <p style="font-family:var(--pp-font-mono);font-size:0.6rem;color:#444;margin-top:32px;padding-top:16px;border-top:1px solid var(--pp-border);">NOT FINANCIAL ADVICE · SOVEREIGN INTELLIGENCE ONLY · PROTOCOL PULSE</p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function generateReport(){
+  var btn=document.getElementById('genBtn');
+  var box=document.getElementById('reportContainer');
+  btn.disabled=true; btn.innerHTML='<span class="sr-spin"></span> GENERATING...';
+  box.innerHTML='<div class="sr-card" style="text-align:center;padding:48px;color:#888;font-family:monospace;">Satomi is analyzing the chain...</div>';
+  fetch('/api/sovereign/generate-report',{method:'POST',headers:{'Content-Type':'application/json'}})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.error){box.innerHTML='<div style="color:#ef4444;padding:24px;font-family:monospace">Error: '+d.error+'</div>';return;}
+      var ts=new Date(d.generated_at+'Z').toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit'});
+      document.getElementById('genTs').textContent='Generated '+ts+' ET';
+      box.innerHTML='<div class="sr-card"><div style="font-family:var(--pp-font-mono);font-size:0.65rem;color:#555;margin-bottom:20px;">CLASSIFIED · SOVEREIGN EYES ONLY · '+ts+' ET</div><div>'+d.report+'</div></div>';
+    })
+    .catch(function(){box.innerHTML='<div style="color:#ef4444;padding:24px">Oracle unavailable.</div>';})
+    .finally(function(){btn.disabled=false;btn.innerHTML='<i class="fas fa-bolt"></i> REGENERATE REPORT';});
+}
+generateReport();
+</script>
+{% endblock %}
