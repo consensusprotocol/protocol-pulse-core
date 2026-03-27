@@ -275,6 +275,7 @@ import re as _re
 # Pre-Flight QC — Grade A Guarantee
 # ---------------------------------------------------------------------------
 MAX_PREFLIGHT_ATTEMPTS = 3
+MAX_EPISODE_DURATION_S = 900  # 15 minutes HARD CAP — grade F if exceeded
 
 _PREFLIGHT_LOG_DIR = os.path.join(BASE, "logs")
 
@@ -440,28 +441,45 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
     issues_str = " ".join(qc.get("issues", []))
 
     # ── Freeze frame fix ──────────────────────────────────────────────────
-    # Force CFR re-encode with fps=30 + PTS reset to eliminate freeze frames.
+    # Root cause: data panels / social cards / signal scenes are visually static.
+    # Ken Burns motion in assembler.py is the proper fix (per PIPELINE_LAWS).
+    # Preflight applies a post-hoc Ken Burns crop as safety net.
     # noise=c0s=3 is BANNED per PIPELINE_LAWS (Gemini penalizes it).
     if "freeze_frames" in issues_str:
-        logger.info("[PREFLIGHT FIX] CFR re-encode with fps=30 + PTS reset to fix freeze frames")
+        freeze_count = qc.get("metrics", {}).get("freeze_frames", 0)
+        logger.info(f"[PREFLIGHT FIX] Ken Burns re-encode to fix {freeze_count} freeze regions")
         tmp = video_path + ".freeze_fix.mp4"
         try:
+            # Scale up 3% then crop back with 6s sin oscillation (30px H, 16px V)
+            # Guarantees >=1px integer displacement per frame at 30fps
             r = subprocess.run(
                 ["ffmpeg", "-y",
-                 "-fflags", "+genpts+igndts+discardcorrupt",
                  "-i", video_path,
-                 "-c:v", "libx264", "-preset", "medium",
-                 "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
-                 "-r", "30", "-vsync", "cfr",
-                 "-vf", "fps=30,setpts=PTS-STARTPTS,format=yuv420p",
+                 "-vf", ("scale=1980:1112:flags=lanczos,"
+                         "crop=1920:1080:'30+30*sin(2*PI*t/6)':'16+16*sin(2*PI*t/6*0.7)',"
+                         "setpts=PTS-STARTPTS,format=yuv420p"),
+                 "-r", "30",
+                 "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                  "-c:a", "copy",
                  "-movflags", "+faststart",
                  tmp],
                 capture_output=True, text=True, timeout=600,
             )
             if r.returncode == 0 and os.path.exists(tmp):
-                os.replace(tmp, video_path)
-                logger.info("[PREFLIGHT FIX] Freeze frame noise fix complete")
+                # Verify the fix reduced freeze frames
+                verify = subprocess.run(
+                    ["ffmpeg", "-i", tmp, "-vf", "freezedetect=n=0.003:d=1.5",
+                     "-f", "null", "-"],
+                    capture_output=True, text=True, timeout=300,
+                )
+                remaining = len(_re.findall(r"freeze_start", verify.stderr))
+                logger.info(f"[PREFLIGHT FIX] Freeze frames: {freeze_count} → {remaining}")
+                if remaining < freeze_count:
+                    os.replace(tmp, video_path)
+                    logger.info("[PREFLIGHT FIX] Ken Burns freeze fix applied")
+                else:
+                    logger.warning("[PREFLIGHT FIX] Ken Burns did not reduce freezes — keeping original")
+                    os.remove(tmp)
             elif os.path.exists(tmp):
                 os.remove(tmp)
         except Exception as e:
@@ -502,7 +520,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
             r = subprocess.run(
                 ["ffmpeg", "-y", "-i", video_path,
                  "-c:v", "copy",
-                 "-af", "loudnorm=I=-14:TP=-2.0:LRA=7:linear=true",
+                 "-af", "alimiter=limit=0.891:level=false,loudnorm=I=-16:TP=-1.5:LRA=11:linear=true",
                  "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                  "-movflags", "+faststart",
                  tmp],
@@ -1361,7 +1379,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             "-r", "30", "-vsync", "cfr",
             "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+            "-af", "asetpts=PTS-STARTPTS,aresample=async=1,alimiter=limit=0.891:level=false",
             "-movflags", "+faststart",
             nuclear_tmp,
         ], capture_output=True, text=True, timeout=600)

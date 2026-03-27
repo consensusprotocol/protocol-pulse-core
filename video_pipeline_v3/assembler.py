@@ -345,14 +345,23 @@ def _fetch_btc_price() -> str:
 def _ken_burns_motion(label_in: str, label_out: str, duration: float) -> str:
     """Subtle Ken Burns pan — proper freeze frame fix at source.
 
-    FIX 7: Smooth sin-curve motion (max 8px H, 4px V) instead of linear drift.
-    Sin curve starts and ends at center — no accumulation, no jitter on long
-    segments or when multiple Ken Burns segments are concatenated.
-    setpts=PTS-STARTPTS after crop resets timestamps for clean concat.
+    Uses sin-curve drift with 6s period so every frame has >=1px integer
+    displacement.  At 30fps the peak velocity is ~31 px/s = 1.05 px/frame,
+    which guarantees unique pixels every frame and beats freezedetect n=0.003.
+
+    Previous 8px/4px amplitude with full-duration period produced only
+    0.02 px/frame — rounded to 0px in the encoder, causing 20 freeze
+    detections per render.
+
+    Amplitude: 30px H, 16px V (1.6% / 1.5% of frame — barely perceptible).
+    Period: 6s (continuous gentle oscillation, no static stretches).
+    Scale headroom: 1980x1112 → crop 1920x1080 (30px each side H, 16 each V).
     """
     dur = max(0.1, duration)
-    return (f"[{label_in}]scale=1960:1102:flags=lanczos,"
-            f"crop=1920:1080:'8*sin(PI*t/{dur:.2f}/2)':'4*sin(PI*t/{dur:.2f}/2)',"
+    # 6s oscillation period — fast enough for >=1 px/frame at 30fps
+    period = 6.0
+    return (f"[{label_in}]scale=1980:1112:flags=lanczos,"
+            f"crop=1920:1080:'30+30*sin(2*PI*t/{period:.1f})':'16+16*sin(2*PI*t/{period:.1f}*0.7)',"
             f"setpts=PTS-STARTPTS,setsar=1,format=yuv420p[{label_out}];\n")
 
 
