@@ -7010,17 +7010,21 @@ def onboarding_redirect():
 @app.route('/onboarding/commander')
 def commander_onboarding():
     """Premium commander onboarding — 7-screen experience."""
-    tier = getattr(current_user, 'subscription_tier', 'free')
-    if tier not in ('commander', 'sovereign'):
-        return redirect(url_for('join_page'))
-    if getattr(current_user, 'onboarding_completed', False):
+    # Allow all users — guests get placeholder values
+    from flask_login import current_user as _cu
+    if not _cu.is_authenticated:
+        return render_template('commander_onboarding.html',
+                               member_number='PP-XXXX',
+                               join_date='2026',
+                               user=None)
+    if getattr(_cu, 'onboarding_completed', False) and not _cu.is_admin:
         return redirect('/intelligence')
-    member_number = f"PP-{current_user.id:04d}"
-    join_date = current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else '2026'
+    member_number = f"PP-{_cu.id:04d}"
+    join_date = _cu.created_at.strftime('%B %d, %Y') if _cu.created_at else '2026'
     return render_template('commander_onboarding.html',
                            member_number=member_number,
                            join_date=join_date,
-                           user=current_user)
+                           user=_cu)
 
 
 @app.route('/api/user/briefing-preference', methods=['POST'])
