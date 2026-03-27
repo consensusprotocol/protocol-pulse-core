@@ -1384,26 +1384,25 @@ def clips_gallery():
     return render_template('clips_gallery.html', clips=clips, status=status)
 
 @app.route('/dashboard')
-def dashboard():
-    """Intelligence Dashboard with real-time Mempool.space metrics and Chart.js visualizations"""
-    # Fetch Bitcoin network stats
-    network_stats = None
-    try:
-        network_stats = NodeService.get_network_stats()
-    except Exception as e:
-        logging.warning(f"Failed to fetch network stats for dashboard: {e}")
-    
-    # Fetch mempool data from Mempool.space API
-    mempool_data = fetch_mempool_data()
-    
-    # Fetch cryptocurrency prices
-    prices = price_service.get_prices()
-    
-    return render_template('dashboard.html',
-                         network_stats=network_stats,
-                         mempool_data=mempool_data,
-                         prices=prices,
-                         price_service=price_service)
+@login_required
+def commander_dashboard():
+    """Commander Terminal — $49/mo subscriber dashboard (Bloomberg-grade)."""
+    if not current_user.has_commander_tier():
+        flash('Commander tier required for dashboard access.', 'warning')
+        return redirect(url_for('join_page'))
+
+    # Auto-generate API key on first visit
+    if not current_user.api_key:
+        import secrets as _sec
+        current_user.api_key = 'pp_live_' + _sec.token_hex(20)
+        db.session.commit()
+
+    # Latest articles for feed
+    articles = models.Article.query.filter_by(published=True).order_by(
+        models.Article.created_at.desc()
+    ).limit(10).all()
+
+    return render_template('dashboard.html', user=current_user, articles=articles)
 
 def fetch_mempool_data():
     """Fetch real-time data from Mempool.space API"""
@@ -1455,6 +1454,109 @@ def fetch_mempool_data():
     except Exception as e:
         logging.error(f"Error fetching mempool data: {e}")
         return {}
+
+# ============================================================
+# COMMANDER DASHBOARD API ROUTES
+# ============================================================
+
+@app.route('/api/dashboard/signals')
+@login_required
+def api_dashboard_signals():
+    """Live signal strip data for Commander dashboard."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    try:
+        prices = price_service.get_prices()
+        btc = prices.get('bitcoin', {}) if prices else {}
+
+        # Fear & Greed
+        fg_score, fg_label = 50, 'Neutral'
+        try:
+            fg_resp = requests.get('https://api.alternative.me/fng/?limit=1', timeout=5)
+            if fg_resp.ok:
+                fg_data = fg_resp.json().get('data', [{}])[0]
+                fg_score = int(fg_data.get('value', 50))
+                fg_label = fg_data.get('value_classification', 'Neutral')
+        except Exception:
+            pass
+
+        # Mempool fees
+        fees = {}
+        try:
+            fee_resp = requests.get('https://mempool.space/api/v1/fees/recommended', timeout=5)
+            if fee_resp.ok:
+                fees = fee_resp.json()
+        except Exception:
+            pass
+
+        # Hashrate
+        hashrate_eh = 0
+        try:
+            hr_resp = requests.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=5)
+            if hr_resp.ok:
+                hashrate_eh = round(hr_resp.json().get('currentHashrate', 0) / 1e18, 1)
+        except Exception:
+            pass
+
+        return jsonify({
+            'btc_price': btc.get('usd', btc.get('price', 0)),
+            'btc_change_24h': btc.get('usd_24h_change', btc.get('change_24h', 0)),
+            'fear_greed_score': fg_score,
+            'fear_greed_label': fg_label,
+            'hashrate_eh': hashrate_eh,
+            'fastest_fee': fees.get('fastestFee', 0),
+            'economy_fee': fees.get('economyFee', 0),
+            'mempool_count': fees.get('mempoolCount', 0),
+        })
+    except Exception as e:
+        logging.warning('dashboard signals error: %s', e)
+        return jsonify({'error': 'Signal fetch failed'}), 500
+
+
+@app.route('/api/dashboard/feed')
+@login_required
+def api_dashboard_feed():
+    """Latest articles for Commander intelligence feed."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    articles = models.Article.query.filter_by(published=True).order_by(
+        models.Article.created_at.desc()
+    ).limit(10).all()
+    now = datetime.utcnow()
+    return jsonify({'articles': [{
+        'id': a.id,
+        'title': a.title,
+        'category': a.category,
+        'created_at': a.created_at.isoformat() if a.created_at else None,
+        'is_new': (now - a.created_at).total_seconds() < 86400 if a.created_at else False,
+        'url': f'/article/{a.id}',
+    } for a in articles]})
+
+
+@app.route('/api/me')
+@login_required
+def api_me():
+    """Current user profile + API key."""
+    return jsonify({
+        'email': current_user.email,
+        'username': current_user.username,
+        'tier': current_user.subscription_tier,
+        'api_key': current_user.api_key,
+        'created_at': current_user.created_at.isoformat() if current_user.created_at else None,
+    })
+
+
+@app.route('/api/dashboard/generate-key', methods=['POST'])
+@login_required
+def api_dashboard_generate_key():
+    """Regenerate Commander API key."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    import secrets as _sec
+    current_user.api_key = 'pp_live_' + _sec.token_hex(20)
+    db.session.commit()
+    return jsonify({'api_key': current_user.api_key})
+
 
 @app.route('/api/network-data')
 def api_network_data():

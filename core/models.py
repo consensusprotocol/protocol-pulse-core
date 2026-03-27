@@ -38,6 +38,9 @@ class User(UserMixin, db.Model):
     onboarding_completed = db.Column(db.Boolean, default=False)
     onboarding_completed_at = db.Column(db.DateTime)
 
+    # Commander API key (pp_live_XXXXXXXX...) — generated on first dashboard visit
+    api_key = db.Column(db.String(64), unique=True, nullable=True, index=True)
+
     # Satomi voice call opt-in
     phone_number = db.Column(db.String(20), nullable=True)  # E.164 format +1XXXXXXXXXX
     satomi_calls_enabled = db.Column(db.Boolean, default=False)  # opt-in to daily calls

@@ -1,109 +1,97 @@
 {% extends "base.html" %}
-{% block title %}Mission Control — Protocol Pulse{% endblock %}
-
-{% block schema %}
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Bitcoin Intelligence Dashboard",
-    "description": "Real-time Bitcoin network metrics including difficulty, hashrate, mempool stats, and fee estimates."
-}
-</script>
-{% endblock %}
+{% block title %}Commander Terminal — Protocol Pulse{% endblock %}
 
 {% block head %}
 <style>
-/* ═══ MISSION CONTROL ═══ */
-.mc-header {
-    padding: 32px 0 24px;
-    border-bottom: 1px solid var(--pp-border);
-}
+/* ═══ COMMANDER TERMINAL ═══ */
+.cmd-wrap { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
 
-.mc-header__row {
+/* ── TOP BAR ── */
+.cmd-topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--pp-border);
 }
-
-.mc-header__title {
+.cmd-topbar__title {
     font-family: var(--pp-font-mono);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--pp-text);
+    color: #fff;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
-
-.mc-status {
+.cmd-topbar__title i { color: #dc2626; }
+.cmd-topbar__meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+}
+.cmd-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    background: rgba(0, 230, 118, 0.08);
-    border: 1px solid rgba(0, 230, 118, 0.2);
-    border-radius: var(--pp-radius-full);
-    font-family: var(--pp-font-mono);
-    font-size: 0.75rem;
-    color: var(--pp-green);
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 999px;
+    color: #dc2626;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
 }
-
-.mc-status__dot {
+.cmd-badge--sovereign {
+    background: rgba(245, 166, 35, 0.12);
+    border-color: rgba(245, 166, 35, 0.3);
+    color: #f5a623;
+}
+.cmd-email { color: var(--pp-text-muted); }
+.cmd-live-dot {
     width: 8px; height: 8px;
-    background: var(--pp-green);
+    background: #22c55e;
     border-radius: 50%;
-    animation: pp-pulse-live 2s ease-in-out infinite;
+    animation: cmd-pulse 2s ease-in-out infinite;
+}
+@keyframes cmd-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 8px 4px rgba(34,197,94,0.15); }
 }
 
-.mc-timestamp {
-    font-family: var(--pp-font-mono);
-    font-size: 0.75rem;
-    color: var(--pp-text-muted);
-}
-
-/* Metric cards */
-.mc-metrics {
+/* ── SIGNAL STRIP (Row 1) ── */
+.cmd-signals {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     padding: 24px 0;
 }
-
-@media (min-width: 768px) {
-    .mc-metrics { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 768px) {
+    .cmd-signals { grid-template-columns: repeat(2, 1fr); }
 }
-
-@media (min-width: 1200px) {
-    .mc-metrics { grid-template-columns: repeat(6, 1fr); }
-}
-
-.mc-metric {
-    padding: 20px;
+.cmd-signal-card {
     background: var(--pp-surface);
     border: 1px solid var(--pp-border);
-    border-radius: var(--pp-radius-md);
-    transition: all 0.25s var(--pp-ease);
+    border-radius: 8px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.2s;
 }
-
-.mc-metric::after {
+.cmd-signal-card:hover { border-color: rgba(220, 38, 38, 0.3); }
+.cmd-signal-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: var(--pp-teal);
-    opacity: 0;
-    transition: opacity 0.25s ease;
+    background: #dc2626;
 }
-
-.mc-metric:hover::after { opacity: 1; }
-.mc-metric:hover { border-color: var(--pp-border-teal); }
-
-.mc-metric__label {
+.cmd-signal-card__label {
     font-family: var(--pp-font-mono);
     font-size: 0.625rem;
     font-weight: 600;
@@ -112,172 +100,337 @@
     color: var(--pp-text-muted);
     margin-bottom: 8px;
 }
-
-.mc-metric__value {
+.cmd-signal-card__value {
     font-family: var(--pp-font-mono);
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--pp-text);
+    color: #fff;
     font-variant-numeric: tabular-nums;
     line-height: 1.2;
 }
-
-.mc-metric__value--teal { color: var(--pp-teal); }
-.mc-metric__value--amber { color: var(--pp-amber); }
-.mc-metric__value--green { color: var(--pp-green); }
-.mc-metric__value--red { color: var(--pp-red); }
-
-.mc-metric__sub {
+.cmd-signal-card__sub {
     font-family: var(--pp-font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.7rem;
     color: var(--pp-text-muted);
     margin-top: 4px;
 }
+.cmd-val-green { color: #22c55e; }
+.cmd-val-red { color: #ef4444; }
+.cmd-val-amber { color: #f5a623; }
 
-/* Panels */
-.mc-panels {
+/* ── TWO-COLUMN (Row 2) ── */
+.cmd-columns {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 3fr 2fr;
     gap: 24px;
-    padding: 24px 0;
+    padding-bottom: 24px;
+}
+@media (max-width: 1024px) {
+    .cmd-columns { grid-template-columns: 1fr; }
 }
 
-@media (min-width: 1024px) {
-    .mc-panels { grid-template-columns: 1fr 1fr; }
-}
-
-.mc-panel {
+/* ── PANELS ── */
+.cmd-panel {
     background: var(--pp-surface);
     border: 1px solid var(--pp-border);
-    border-radius: var(--pp-radius-md);
+    border-radius: 8px;
     overflow: hidden;
 }
-
-.mc-panel__header {
+.cmd-panel__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 14px 20px;
     border-bottom: 1px solid var(--pp-border);
-    background: rgba(255,255,255,0.01);
+    background: rgba(255,255,255,0.015);
 }
-
-.mc-panel__title {
+.cmd-panel__title {
     font-family: var(--pp-font-mono);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--pp-text-secondary);
+    color: var(--pp-text-secondary, #ccc);
     display: flex;
     align-items: center;
     gap: 8px;
 }
+.cmd-panel__body { padding: 16px 20px; }
 
-.mc-panel__body {
-    padding: 20px;
-}
-
-/* Fee table */
-.mc-fee-table {
-    width: 100%;
-    font-family: var(--pp-font-mono);
-    font-size: 0.8125rem;
-}
-
-.mc-fee-table tr { border-bottom: 1px solid var(--pp-border); }
-.mc-fee-table tr:last-child { border-bottom: none; }
-
-.mc-fee-table td {
-    padding: 10px 0;
-    color: var(--pp-text-secondary);
-}
-
-.mc-fee-table td:last-child {
-    text-align: right;
-    font-weight: 600;
-    color: var(--pp-text);
-}
-
-/* Pipeline status */
-.mc-pipeline-item {
+/* ── FEED LIST ── */
+.cmd-feed-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 12px 0;
     border-bottom: 1px solid var(--pp-border);
+    text-decoration: none;
+    transition: background 0.15s;
 }
-
-.mc-pipeline-item:last-child { border-bottom: none; }
-
-.mc-pipeline-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.mc-pipeline-dot--active { background: var(--pp-green); box-shadow: 0 0 8px rgba(0,230,118,0.4); }
-.mc-pipeline-dot--idle { background: var(--pp-amber); }
-.mc-pipeline-dot--error { background: var(--pp-red); box-shadow: 0 0 8px rgba(255,71,87,0.4); }
-.mc-pipeline-dot--off { background: var(--pp-text-dim); }
-
-.mc-pipeline-name {
-    font-size: 0.875rem;
-    color: var(--pp-text);
-    font-weight: 500;
-    flex: 1;
-}
-
-.mc-pipeline-status {
+.cmd-feed-item:last-child { border-bottom: none; }
+.cmd-feed-item:hover { background: rgba(255,255,255,0.02); }
+.cmd-feed-item__badge-new {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #dc2626;
+    color: #fff;
     font-family: var(--pp-font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.55rem;
+    font-weight: 700;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.cmd-feed-item__text { flex: 1; min-width: 0; }
+.cmd-feed-item__title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.cmd-feed-item__meta {
+    font-family: var(--pp-font-mono);
+    font-size: 0.65rem;
+    color: var(--pp-text-muted);
+    margin-top: 4px;
+    display: flex;
+    gap: 10px;
+}
+.cmd-feed-item__cat {
+    color: #dc2626;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* ── ORACLE ── */
+.cmd-oracle-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.cmd-oracle-input input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--pp-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: #fff;
+    font-family: var(--pp-font-mono);
+    font-size: 0.8rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.cmd-oracle-input input:focus { border-color: #dc2626; }
+.cmd-oracle-input input::placeholder { color: var(--pp-text-muted); }
+.cmd-oracle-btn {
+    padding: 10px 18px;
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+.cmd-oracle-btn:hover { background: #b91c1c; }
+.cmd-oracle-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cmd-oracle-response {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--pp-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+    color: var(--pp-text-secondary, #ccc);
+    line-height: 1.5;
+}
+.cmd-oracle-response__q {
+    font-family: var(--pp-font-mono);
+    font-size: 0.65rem;
+    color: var(--pp-text-muted);
+    margin-bottom: 6px;
+}
+
+/* ── API KEY SECTION (Row 3) ── */
+.cmd-api-row {
+    padding-bottom: 24px;
+}
+.cmd-api-key-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--pp-border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+.cmd-api-key-val {
+    font-family: var(--pp-font-mono);
+    font-size: 0.85rem;
+    color: #fff;
+    flex: 1;
+    user-select: all;
+    word-break: break-all;
+}
+.cmd-copy-btn {
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--pp-border);
+    border-radius: 4px;
+    color: var(--pp-text-muted);
+    font-family: var(--pp-font-mono);
+    font-size: 0.65rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.cmd-copy-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.cmd-endpoint-table {
+    width: 100%;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    border-collapse: collapse;
+}
+.cmd-endpoint-table th {
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--pp-text-muted);
+    font-weight: 600;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--pp-border);
+}
+.cmd-endpoint-table td {
+    padding: 10px 12px;
+    color: #fff;
+    border-bottom: 1px solid var(--pp-border);
+}
+.cmd-endpoint-table tr:last-child td { border-bottom: none; }
+.cmd-endpoint-method {
+    display: inline-block;
+    padding: 2px 6px;
+    background: rgba(34,197,94,0.12);
+    color: #22c55e;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 0.6rem;
+}
+
+/* ── ACCOUNT (Row 4) ── */
+.cmd-account-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding-bottom: 48px;
+}
+@media (max-width: 768px) {
+    .cmd-account-row { grid-template-columns: 1fr; }
+}
+.cmd-account-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--pp-border);
+    font-size: 0.8rem;
+}
+.cmd-account-field:last-child { border-bottom: none; }
+.cmd-account-field__label {
+    font-family: var(--pp-font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--pp-text-muted);
 }
+.cmd-account-field__value { color: #fff; font-weight: 500; }
 
-/* Chart placeholder */
-.mc-chart-area {
-    height: 200px;
+.cmd-upgrade-cta {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02));
+    border: 1px solid rgba(245,166,35,0.25);
+    border-radius: 8px;
+    padding: 24px;
 }
-
-.mc-chart-area canvas {
-    width: 100% !important;
-    height: 100% !important;
-}
-
-/* Full-width panel */
-.mc-panel--full {
-    grid-column: 1 / -1;
-}
-
-/* Auto-refresh indicator */
-.mc-refresh {
+.cmd-upgrade-cta__text h3 {
     font-family: var(--pp-font-mono);
-    font-size: 0.6875rem;
-    color: var(--pp-text-dim);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f5a623;
+    margin: 0 0 6px;
+}
+.cmd-upgrade-cta__text p {
+    font-size: 0.8rem;
+    color: var(--pp-text-muted);
+    margin: 0;
+}
+.cmd-upgrade-btn {
+    padding: 10px 24px;
+    background: #f5a623;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.cmd-upgrade-btn:hover { background: #d4900e; }
+
+/* ── PULSE CHECK EMBED ── */
+.cmd-yt-embed {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+.cmd-yt-embed iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+    border-radius: 6px;
 }
 
-.mc-refresh__bar {
-    width: 60px;
-    height: 3px;
-    background: var(--pp-surface-2);
+/* ── REFRESH BAR ── */
+.cmd-refresh-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--pp-font-mono);
+    font-size: 0.65rem;
+    color: var(--pp-text-muted);
+}
+.cmd-refresh-track {
+    width: 50px; height: 3px;
+    background: var(--pp-surface-2, #1a1a1a);
     border-radius: 2px;
     overflow: hidden;
 }
-
-.mc-refresh__fill {
+.cmd-refresh-fill {
     height: 100%;
-    background: var(--pp-teal);
+    background: #dc2626;
     border-radius: 2px;
-    animation: mc-countdown 30s linear infinite;
+    animation: cmd-countdown 30s linear infinite;
 }
-
-@keyframes mc-countdown {
+@keyframes cmd-countdown {
     0% { width: 100%; }
     100% { width: 0%; }
 }
@@ -285,339 +438,403 @@
 {% endblock %}
 
 {% block content %}
-<div class="pp-container">
-    <!-- Header -->
-    <div class="mc-header">
-        <div class="mc-header__row">
-            <h1 class="mc-header__title">
-                <i class="fas fa-satellite-dish" style="color:var(--pp-teal);"></i>
-                Mission Control
-            </h1>
-            <div class="pp-flex pp-items-center pp-gap-md">
-                <div class="mc-status">
-                    <span class="mc-status__dot"></span>
-                    SYSTEMS NOMINAL
-                </div>
-                <div class="mc-refresh">
-                    <div class="mc-refresh__bar"><div class="mc-refresh__fill"></div></div>
-                    <span id="mcRefreshTimer">30s</span>
-                </div>
-            </div>
+<div class="cmd-wrap">
+    <!-- ═══ TOP BAR ═══ -->
+    <div class="cmd-topbar">
+        <div class="cmd-topbar__title">
+            <i class="fas fa-satellite-dish"></i>
+            COMMANDER TERMINAL
         </div>
-        <div class="mc-timestamp" id="mcTimestamp"></div>
-    </div>
-
-    <!-- Primary Metrics -->
-    <div class="mc-metrics">
-        <div class="mc-metric">
-            <div class="mc-metric__label">BTC Price</div>
-            <div class="mc-metric__value mc-metric__value--teal" id="mcBtcPrice">
-                {% if prices and prices.get('bitcoin') %}${{ "{:,.0f}".format(prices['bitcoin'].get('usd', 0)) }}{% else %}--{% endif %}
+        <div class="cmd-topbar__meta">
+            <span class="cmd-email">{{ user.email }}</span>
+            <span class="cmd-badge{% if user.subscription_tier == 'sovereign' %} cmd-badge--sovereign{% endif %}">
+                <span class="cmd-live-dot"></span>
+                {{ user.subscription_tier|upper }}
+            </span>
+            <div class="cmd-refresh-bar">
+                <div class="cmd-refresh-track"><div class="cmd-refresh-fill"></div></div>
+                <span id="cmdRefreshTimer">30s</span>
             </div>
-            <div class="mc-metric__sub" id="mcBtcChange">
-                {% if prices and prices.get('bitcoin') %}{{ "%.1f"|format(prices['bitcoin'].get('usd_24h_change', 0)) }}% 24h{% endif %}
-            </div>
-        </div>
-        <div class="mc-metric">
-            <div class="mc-metric__label">Hashrate</div>
-            <div class="mc-metric__value" id="mcHashrate">
-                {% if mempool_data and mempool_data.get('current_hashrate') %}
-                    {{ "%.0f"|format(mempool_data['current_hashrate'] / 1e18) }} EH/s
-                {% else %}-- EH/s{% endif %}
-            </div>
-            <div class="mc-metric__sub">Network Security</div>
-        </div>
-        <div class="mc-metric">
-            <div class="mc-metric__label">Difficulty</div>
-            <div class="mc-metric__value" id="mcDifficulty">
-                {% if mempool_data and mempool_data.get('current_difficulty') %}
-                    {{ "%.2f"|format(mempool_data['current_difficulty'] / 1e12) }} T
-                {% else %}-- T{% endif %}
-            </div>
-            <div class="mc-metric__sub">
-                {% if mempool_data and mempool_data.get('difficulty_adjustment') %}
-                    Next: {{ "%.1f"|format(mempool_data['difficulty_adjustment'].get('progressPercent', 0)) }}%
-                {% endif %}
-            </div>
-        </div>
-        <div class="mc-metric">
-            <div class="mc-metric__label">Mempool</div>
-            <div class="mc-metric__value mc-metric__value--amber" id="mcMempool">
-                {% if mempool_data and mempool_data.get('count') %}
-                    {{ "{:,}".format(mempool_data['count']) }}
-                {% else %}--{% endif %}
-            </div>
-            <div class="mc-metric__sub">Unconfirmed TXs</div>
-        </div>
-        <div class="mc-metric">
-            <div class="mc-metric__label">Fastest Fee</div>
-            <div class="mc-metric__value" id="mcFastFee">
-                {% if mempool_data and mempool_data.get('fees') %}
-                    {{ mempool_data['fees']['fastest'] }} sat/vB
-                {% else %}-- sat/vB{% endif %}
-            </div>
-            <div class="mc-metric__sub">Priority</div>
-        </div>
-        <div class="mc-metric">
-            <div class="mc-metric__label">Economy Fee</div>
-            <div class="mc-metric__value mc-metric__value--green" id="mcEconFee">
-                {% if mempool_data and mempool_data.get('fees') %}
-                    {{ mempool_data['fees']['economy'] }} sat/vB
-                {% else %}-- sat/vB{% endif %}
-            </div>
-            <div class="mc-metric__sub">Low Priority</div>
         </div>
     </div>
 
-    <!-- Panels -->
-    <div class="mc-panels">
-        <!-- Fee Estimates Panel -->
-        <div class="mc-panel">
-            <div class="mc-panel__header">
-                <div class="mc-panel__title">
-                    <i class="fas fa-tachometer-alt" style="color:var(--pp-amber);"></i>
-                    Fee Estimates
+    <!-- ═══ ROW 1: LIVE SIGNAL STRIP ═══ -->
+    <div class="cmd-signals">
+        <div class="cmd-signal-card">
+            <div class="cmd-signal-card__label">BTC Price</div>
+            <div class="cmd-signal-card__value" id="sigBtcPrice">--</div>
+            <div class="cmd-signal-card__sub" id="sigBtcChange">Loading...</div>
+        </div>
+        <div class="cmd-signal-card">
+            <div class="cmd-signal-card__label">Fear &amp; Greed</div>
+            <div class="cmd-signal-card__value" id="sigFearGreed">--</div>
+            <div class="cmd-signal-card__sub" id="sigFearGreedLabel">Loading...</div>
+        </div>
+        <div class="cmd-signal-card">
+            <div class="cmd-signal-card__label">Hashrate</div>
+            <div class="cmd-signal-card__value" id="sigHashrate">-- EH/s</div>
+            <div class="cmd-signal-card__sub">Network Security</div>
+        </div>
+        <div class="cmd-signal-card">
+            <div class="cmd-signal-card__label">Mempool Fees</div>
+            <div class="cmd-signal-card__value" id="sigFees">-- sat/vB</div>
+            <div class="cmd-signal-card__sub" id="sigFeesEcon">Economy: --</div>
+        </div>
+    </div>
+
+    <!-- ═══ ROW 2: TWO COLUMNS ═══ -->
+    <div class="cmd-columns">
+        <!-- LEFT: Intelligence Feed -->
+        <div class="cmd-panel">
+            <div class="cmd-panel__head">
+                <div class="cmd-panel__title">
+                    <i class="fas fa-rss" style="color:#dc2626;"></i>
+                    YOUR INTELLIGENCE FEED
+                </div>
+                <span id="cmdUnreadCount" style="font-family:var(--pp-font-mono);font-size:0.6rem;color:var(--pp-text-muted);"></span>
+            </div>
+            <div class="cmd-panel__body" id="cmdFeedList" style="max-height:520px;overflow-y:auto;">
+                {% for a in articles %}
+                <a href="/article/{{ a.id }}" class="cmd-feed-item">
+                    {% if a.created_at and (now is not defined or True) %}
+                    {% set age_hours = ((import_datetime_utcnow|default(None)) or 0) %}
+                    {% endif %}
+                    <span class="cmd-feed-item__badge-new" data-created="{{ a.created_at.isoformat() if a.created_at else '' }}" style="display:none;">NEW</span>
+                    <div class="cmd-feed-item__text">
+                        <div class="cmd-feed-item__title">{{ a.title }}</div>
+                        <div class="cmd-feed-item__meta">
+                            <span class="cmd-feed-item__cat">{{ a.category }}</span>
+                            <span>{{ a.created_at.strftime('%b %d, %H:%M') if a.created_at else '' }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- RIGHT: Oracle + Pulse Check -->
+        <div style="display:flex;flex-direction:column;gap:24px;">
+            <!-- Oracle Access -->
+            <div class="cmd-panel">
+                <div class="cmd-panel__head">
+                    <div class="cmd-panel__title">
+                        <i class="fas fa-brain" style="color:#dc2626;"></i>
+                        ORACLE ACCESS
+                    </div>
+                </div>
+                <div class="cmd-panel__body">
+                    <div class="cmd-oracle-input">
+                        <input type="text" id="oracleInput" placeholder="Ask the Oracle anything about Bitcoin..." maxlength="200">
+                        <button class="cmd-oracle-btn" id="oracleSubmit" onclick="askOracle()">ASK</button>
+                    </div>
+                    <div id="oracleResponses"></div>
                 </div>
             </div>
-            <div class="mc-panel__body">
-                <table class="mc-fee-table">
-                    <tr>
-                        <td>Fastest (next block)</td>
-                        <td id="mcFeeFastest">{{ mempool_data.fees.fastest if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
-                    </tr>
-                    <tr>
-                        <td>30 minutes</td>
-                        <td id="mcFee30">{{ mempool_data.fees.half_hour if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
-                    </tr>
-                    <tr>
-                        <td>1 hour</td>
-                        <td id="mcFee60">{{ mempool_data.fees.hour if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
-                    </tr>
-                    <tr>
-                        <td>Economy</td>
-                        <td id="mcFeeEcon">{{ mempool_data.fees.economy if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
-                    </tr>
-                    <tr>
-                        <td>Minimum relay</td>
-                        <td id="mcFeeMin">{{ mempool_data.fees.minimum if mempool_data and mempool_data.fees else '--' }} sat/vB</td>
-                    </tr>
+
+            <!-- Pulse Check -->
+            <div class="cmd-panel">
+                <div class="cmd-panel__head">
+                    <div class="cmd-panel__title">
+                        <i class="fas fa-play-circle" style="color:#dc2626;"></i>
+                        PULSE CHECK — LATEST
+                    </div>
+                </div>
+                <div class="cmd-panel__body">
+                    <div class="cmd-yt-embed">
+                        <iframe src="https://www.youtube.com/embed/L_XrlNO-nv4" allowfullscreen loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ ROW 3: API ACCESS ═══ -->
+    <div class="cmd-api-row">
+        <div class="cmd-panel">
+            <div class="cmd-panel__head">
+                <div class="cmd-panel__title">
+                    <i class="fas fa-key" style="color:#dc2626;"></i>
+                    API ACCESS
+                </div>
+                <button class="cmd-copy-btn" onclick="regenerateKey()" id="regenKeyBtn">
+                    <i class="fas fa-sync-alt"></i> REGENERATE
+                </button>
+            </div>
+            <div class="cmd-panel__body">
+                <div class="cmd-api-key-display">
+                    <code class="cmd-api-key-val" id="apiKeyDisplay">{{ 'pp_live_' + ('*' * 36) }}</code>
+                    <button class="cmd-copy-btn" id="apiKeyToggle" onclick="toggleApiKey()">
+                        <i class="fas fa-eye"></i> REVEAL
+                    </button>
+                    <button class="cmd-copy-btn" onclick="copyApiKey()">
+                        <i class="fas fa-copy"></i> COPY
+                    </button>
+                </div>
+
+                <table class="cmd-endpoint-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Endpoint</th>
+                            <th>Description</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="cmd-endpoint-method">GET</span></td>
+                            <td>/api/dashboard/signals</td>
+                            <td style="color:var(--pp-text-muted);">Live BTC signals (price, F&amp;G, hashrate, fees)</td>
+                            <td><button class="cmd-copy-btn" onclick="copyEndpoint('/api/dashboard/signals')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="cmd-endpoint-method">GET</span></td>
+                            <td>/api/dashboard/feed</td>
+                            <td style="color:var(--pp-text-muted);">Latest intelligence articles</td>
+                            <td><button class="cmd-copy-btn" onclick="copyEndpoint('/api/dashboard/feed')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="cmd-endpoint-method">POST</span></td>
+                            <td>/api/oracle/query</td>
+                            <td style="color:var(--pp-text-muted);">Ask Oracle (Claude Haiku + live BTC context)</td>
+                            <td><button class="cmd-copy-btn" onclick="copyEndpoint('/api/oracle/query')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
+    </div>
 
-        
-
-        <!-- Hashrate Chart -->
-        <div class="mc-panel mc-panel--full">
-            <div class="mc-panel__header">
-                <div class="mc-panel__title">
-                    <i class="fas fa-chart-line" style="color:var(--pp-teal);"></i>
-                    Hashrate (30 Day)
+    <!-- ═══ ROW 4: ACCOUNT + UPGRADE ═══ -->
+    <div class="cmd-account-row">
+        <div class="cmd-panel">
+            <div class="cmd-panel__head">
+                <div class="cmd-panel__title">
+                    <i class="fas fa-user-shield" style="color:#dc2626;"></i>
+                    ACCOUNT
                 </div>
             </div>
-            <div class="mc-panel__body">
-                <div class="mc-chart-area">
-                    <canvas id="mcHashrateChart"></canvas>
+            <div class="cmd-panel__body">
+                <div class="cmd-account-field">
+                    <span class="cmd-account-field__label">Email</span>
+                    <span class="cmd-account-field__value">{{ user.email }}</span>
+                </div>
+                <div class="cmd-account-field">
+                    <span class="cmd-account-field__label">Tier</span>
+                    <span class="cmd-account-field__value" style="color:#dc2626;">{{ user.subscription_tier|upper }}</span>
+                </div>
+                <div class="cmd-account-field">
+                    <span class="cmd-account-field__label">Member Since</span>
+                    <span class="cmd-account-field__value">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}</span>
+                </div>
+                <div class="cmd-account-field">
+                    <span class="cmd-account-field__label">Billing</span>
+                    <span class="cmd-account-field__value">
+                        <a href="/api/stripe/portal" style="color:#dc2626;text-decoration:none;font-family:var(--pp-font-mono);font-size:0.75rem;">
+                            Manage Billing <i class="fas fa-external-link-alt" style="font-size:0.6rem;"></i>
+                        </a>
+                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- Difficulty Adjustment -->
-        <div class="mc-panel">
-            <div class="mc-panel__header">
-                <div class="mc-panel__title">
-                    <i class="fas fa-adjust" style="color:var(--pp-amber);"></i>
-                    Difficulty Adjustment
-                </div>
+        {% if user.subscription_tier == 'commander' %}
+        <div class="cmd-upgrade-cta">
+            <div class="cmd-upgrade-cta__text">
+                <h3><i class="fas fa-crown"></i> SOVEREIGN UPGRADE</h3>
+                <p>Direct Oracle line, whale alerts, priority API, and more.</p>
             </div>
-            <div class="mc-panel__body">
-                {% if mempool_data and mempool_data.get('difficulty_adjustment') %}
-                {% set da = mempool_data['difficulty_adjustment'] %}
-                <div style="margin-bottom:16px;">
-                    <div class="mc-metric__label">Progress</div>
-                    <div style="height:8px;background:var(--pp-surface-2);border-radius:4px;overflow:hidden;margin-top:8px;">
-                        <div style="height:100%;background:var(--pp-teal);border-radius:4px;width:{{ da.get('progressPercent', 0) }}%;transition:width 1s ease;"></div>
-                    </div>
-                    <div class="pp-tiny pp-text-muted pp-mt-1">{{ "%.1f"|format(da.get('progressPercent', 0)) }}% complete</div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div>
-                        <div class="mc-metric__label">Estimated Change</div>
-                        <div class="mc-metric__value" style="font-size:1rem;{% if da.get('difficultyChange', 0) >= 0 %}color:var(--pp-green);{% else %}color:var(--pp-red);{% endif %}">
-                            {{ "%.2f"|format(da.get('difficultyChange', 0)) }}%
-                        </div>
-                    </div>
-                    <div>
-                        <div class="mc-metric__label">Blocks Remaining</div>
-                        <div class="mc-metric__value" style="font-size:1rem;">{{ da.get('remainingBlocks', '--') }}</div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="pp-text-muted pp-text-center pp-small">Loading difficulty data...</div>
-                {% endif %}
+            <a href="/join" class="cmd-upgrade-btn">UPGRADE NOW</a>
+        </div>
+        {% else %}
+        <div class="cmd-panel" style="display:flex;align-items:center;justify-content:center;padding:40px;">
+            <div style="text-align:center;">
+                <i class="fas fa-crown" style="font-size:2rem;color:#f5a623;margin-bottom:12px;display:block;"></i>
+                <span style="font-family:var(--pp-font-mono);font-size:0.8rem;color:#f5a623;font-weight:700;">SOVEREIGN TIER ACTIVE</span>
+                <p style="font-size:0.75rem;color:var(--pp-text-muted);margin-top:6px;">You have maximum clearance.</p>
             </div>
         </div>
-
-        <!-- Quick Links -->
-        <div class="mc-panel">
-            <div class="mc-panel__header">
-                <div class="mc-panel__title">
-                    <i class="fas fa-link" style="color:var(--pp-teal);"></i>
-                    Quick Links
-                </div>
-            </div>
-            <div class="mc-panel__body">
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;">
-                        <i class="fas fa-newspaper" style="width:20px;"></i> Intel Briefs
-                    </a>
-                    <a href="/live" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;">
-                        <i class="fas fa-atom" style="width:20px;"></i> Live Terminal
-                    </a>
-                    <a href="/whale-watcher" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;">
-                        <i class="fas fa-water" style="width:20px;"></i> Whale Watcher
-                    </a>
-                    {% if current_user.is_authenticated and current_user.is_admin %}
-                    <a href="/admin/command-deck" class="pp-btn pp-btn--ghost pp-btn--sm" style="justify-content:flex-start;color:var(--pp-amber);">
-                        <i class="fas fa-user-shield" style="width:20px;"></i> Admin Command Deck
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* ── Timestamp ── */
-function mcUpdateTime() {
-    var el = document.getElementById('mcTimestamp');
-    if (el) {
-        el.textContent = new Date().toLocaleString('en-US', {
-            timeZone: 'America/New_York',
-            weekday: 'short', month: 'short', day: 'numeric',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: true
-        }) + ' EST';
-    }
-}
-mcUpdateTime();
-setInterval(mcUpdateTime, 1000);
+/* ═══ COMMANDER TERMINAL JS ═══ */
 
-/* ── Hashrate Chart ── */
-(function() {
-    var canvas = document.getElementById('mcHashrateChart');
-    if (!canvas) return;
+var _apiKeyRevealed = false;
+var _realApiKey = '{{ user.api_key or "" }}';
+var _oracleHistory = [];
 
-    {% if mempool_data and mempool_data.get('hashrate_history') %}
-    var rawData = {{ mempool_data['hashrate_history']|tojson }};
-    var labels = rawData.map(function(d) {
-        return new Date(d.timestamp * 1000).toLocaleDateString('en-US', {month:'short', day:'numeric'});
-    });
-    var values = rawData.map(function(d) { return d.avgHashrate / 1e18; });
-    {% else %}
-    var labels = [];
-    var values = [];
-    {% endif %}
-
-    if (labels.length > 0) {
-        new Chart(canvas, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'EH/s',
-                    data: values,
-                    borderColor: '#00d4aa',
-                    backgroundColor: 'rgba(0, 212, 170, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    borderWidth: 2,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                },
-                scales: {
-                    x: {
-                        grid: { color: 'rgba(255,255,255,0.04)' },
-                        ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10, family: "'JetBrains Mono'" } }
-                    },
-                    y: {
-                        grid: { color: 'rgba(255,255,255,0.04)' },
-                        ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10, family: "'JetBrains Mono'" },
-                            callback: function(v) { return v.toFixed(0) + ' EH/s'; }
-                        }
-                    }
-                },
-                interaction: { intersect: false, mode: 'index' }
+/* ── Signal Polling ── */
+function loadSignals() {
+    fetch('/api/dashboard/signals')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var priceEl = document.getElementById('sigBtcPrice');
+            var changeEl = document.getElementById('sigBtcChange');
+            if (priceEl && d.btc_price) {
+                priceEl.textContent = '$' + Number(d.btc_price).toLocaleString('en-US', {maximumFractionDigits: 0});
             }
-        });
-    } else {
-        canvas.parentElement.innerHTML = '<div class="pp-text-muted pp-text-center pp-small">No hashrate data available</div>';
-    }
-})();
+            if (changeEl && d.btc_change_24h !== undefined) {
+                var ch = Number(d.btc_change_24h).toFixed(1);
+                changeEl.textContent = ch + '% 24h';
+                changeEl.className = 'cmd-signal-card__sub ' + (ch >= 0 ? 'cmd-val-green' : 'cmd-val-red');
+            }
 
-/* ── Auto-refresh every 30s ── */
-var mcRefreshInterval = 30;
-var mcRefreshCount = mcRefreshInterval;
+            var fgEl = document.getElementById('sigFearGreed');
+            var fgLabel = document.getElementById('sigFearGreedLabel');
+            if (fgEl && d.fear_greed_score !== undefined) {
+                fgEl.textContent = d.fear_greed_score;
+                var score = d.fear_greed_score;
+                fgEl.className = 'cmd-signal-card__value ' + (score >= 60 ? 'cmd-val-green' : score <= 40 ? 'cmd-val-red' : 'cmd-val-amber');
+            }
+            if (fgLabel && d.fear_greed_label) fgLabel.textContent = d.fear_greed_label;
 
+            var hrEl = document.getElementById('sigHashrate');
+            if (hrEl && d.hashrate_eh) hrEl.textContent = d.hashrate_eh + ' EH/s';
+
+            var feeEl = document.getElementById('sigFees');
+            var econEl = document.getElementById('sigFeesEcon');
+            if (feeEl && d.fastest_fee) feeEl.textContent = d.fastest_fee + ' sat/vB';
+            if (econEl && d.economy_fee) econEl.textContent = 'Economy: ' + d.economy_fee + ' sat/vB';
+        })
+        .catch(function() {});
+}
+
+loadSignals();
+setInterval(loadSignals, 30000);
+
+/* ── Refresh countdown ── */
+var _refreshCount = 30;
 setInterval(function() {
-    mcRefreshCount--;
-    var el = document.getElementById('mcRefreshTimer');
-    if (el) el.textContent = mcRefreshCount + 's';
-    if (mcRefreshCount <= 0) {
-        mcRefreshCount = mcRefreshInterval;
-        mcRefreshData();
-    }
+    _refreshCount--;
+    if (_refreshCount <= 0) _refreshCount = 30;
+    var el = document.getElementById('cmdRefreshTimer');
+    if (el) el.textContent = _refreshCount + 's';
 }, 1000);
 
-function mcRefreshData() {
-    // Refresh mempool data
-    fetch('https://mempool.space/api/v1/fees/recommended')
-        .then(function(r) { return r.json(); })
-        .then(function(fees) {
-            var ff = document.getElementById('mcFeeFastest');
-            var f30 = document.getElementById('mcFee30');
-            var f60 = document.getElementById('mcFee60');
-            var fe = document.getElementById('mcFeeEcon');
-            var fm = document.getElementById('mcFeeMin');
-            if (ff) ff.textContent = fees.fastestFee + ' sat/vB';
-            if (f30) f30.textContent = fees.halfHourFee + ' sat/vB';
-            if (f60) f60.textContent = fees.hourFee + ' sat/vB';
-            if (fe) fe.textContent = fees.economyFee + ' sat/vB';
-            if (fm) fm.textContent = fees.minimumFee + ' sat/vB';
-            var mcFast = document.getElementById('mcFastFee');
-            var mcEcon = document.getElementById('mcEconFee');
-            if (mcFast) mcFast.textContent = fees.fastestFee + ' sat/vB';
-            if (mcEcon) mcEcon.textContent = fees.economyFee + ' sat/vB';
-        }).catch(function(){});
+/* ── NEW badges ── */
+(function() {
+    var now = Date.now();
+    document.querySelectorAll('.cmd-feed-item__badge-new').forEach(function(badge) {
+        var created = badge.getAttribute('data-created');
+        if (created) {
+            var age = now - new Date(created + 'Z').getTime();
+            if (age < 86400000) badge.style.display = 'inline-block';
+        }
+    });
+    var newCount = document.querySelectorAll('.cmd-feed-item__badge-new[style*="inline"]').length;
+    var countEl = document.getElementById('cmdUnreadCount');
+    if (countEl && newCount > 0) countEl.textContent = newCount + ' NEW';
+})();
 
-    fetch('https://mempool.space/api/mempool')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            var el = document.getElementById('mcMempool');
-            if (el) el.textContent = data.count.toLocaleString();
-        }).catch(function(){});
+/* ── Oracle ── */
+function askOracle() {
+    var input = document.getElementById('oracleInput');
+    var btn = document.getElementById('oracleSubmit');
+    var query = (input.value || '').trim();
+    if (!query) return;
 
-    // Refresh BTC price
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch('/api/oracle/query', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({query: query, context: 'Bitcoin'})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var resp = d.response || d.error || 'No response';
+        _oracleHistory.unshift({q: query, a: resp});
+        if (_oracleHistory.length > 3) _oracleHistory.pop();
+        renderOracleHistory();
+        input.value = '';
+    })
+    .catch(function() {
+        _oracleHistory.unshift({q: query, a: 'Oracle unavailable. Try again.'});
+        if (_oracleHistory.length > 3) _oracleHistory.pop();
+        renderOracleHistory();
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'ASK';
+    });
+}
+
+function renderOracleHistory() {
+    var container = document.getElementById('oracleResponses');
+    container.innerHTML = _oracleHistory.map(function(item) {
+        return '<div class="cmd-oracle-response">' +
+            '<div class="cmd-oracle-response__q">Q: ' + escapeHtml(item.q) + '</div>' +
+            '<div>' + escapeHtml(item.a) + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+document.getElementById('oracleInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') askOracle();
+});
+
+/* ── API Key ── */
+function toggleApiKey() {
+    var el = document.getElementById('apiKeyDisplay');
+    var btn = document.getElementById('apiKeyToggle');
+    _apiKeyRevealed = !_apiKeyRevealed;
+    if (_apiKeyRevealed) {
+        el.textContent = _realApiKey;
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i> HIDE';
+    } else {
+        el.textContent = 'pp_live_' + '************************************';
+        btn.innerHTML = '<i class="fas fa-eye"></i> REVEAL';
+    }
+}
+
+function copyApiKey() {
+    navigator.clipboard.writeText(_realApiKey).then(function() {
+        showCopyToast('API key copied');
+    });
+}
+
+function copyEndpoint(endpoint) {
+    var base = window.location.origin;
+    navigator.clipboard.writeText(base + endpoint).then(function() {
+        showCopyToast('Endpoint copied');
+    });
+}
+
+function regenerateKey() {
+    if (!confirm('Regenerate your API key? The old key will stop working immediately.')) return;
+    var btn = document.getElementById('regenKeyBtn');
+    btn.disabled = true;
+    fetch('/api/dashboard/generate-key', {method: 'POST'})
         .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.bitcoin) {
-                var pEl = document.getElementById('mcBtcPrice');
-                var cEl = document.getElementById('mcBtcChange');
-                if (pEl) pEl.textContent = '$' + data.bitcoin.usd.toLocaleString('en-US', {maximumFractionDigits: 0});
-                if (cEl) cEl.textContent = data.bitcoin.usd_24h_change.toFixed(1) + '% 24h';
+        .then(function(d) {
+            if (d.api_key) {
+                _realApiKey = d.api_key;
+                _apiKeyRevealed = false;
+                toggleApiKey(); // show new key
+                showCopyToast('New key generated');
             }
-        }).catch(function(){});
+        })
+        .finally(function() { btn.disabled = false; });
+}
+
+/* ── Utils ── */
+function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function showCopyToast(msg) {
+    var toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:10px 20px;background:#dc2626;color:#fff;border-radius:6px;font-family:var(--pp-font-mono);font-size:0.75rem;z-index:9999;animation:fadeIn 0.2s;';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 2000);
 }
 </script>
 {% endblock %}
