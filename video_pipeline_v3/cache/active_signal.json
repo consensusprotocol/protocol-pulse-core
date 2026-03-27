@@ -1,6 +1,6 @@
 {
-  "fetched_at": 1774633504.6537366,
-  "fetched_at_iso": "2026-03-27T17:45:04.653746+00:00",
+  "fetched_at": 1774634409.086361,
+  "fetched_at_iso": "2026-03-27T18:00:09.086372+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 85,
+      "events_filtered": 86,
       "error": null
     }
   ],
@@ -46,15 +46,6 @@
       "created_at": 1774623609,
       "relay": "wss://relay.damus.io",
       "score": 100,
-      "has_zap": false
-    },
-    {
-      "text": "State actors are coming for your sats.\n\nBitrefill just took a hit from Lazarus Group (yes, North Korea). The good news: customer funds were safe because Lightning is non-custodial by design. The attackers hit corporate systems, not the protocol itself.\n\nThis is the lesson everyone's going to keep learning the hard way: self-custody isn't paranoia\u2014it's threat modeling. When nation-states see your infrastructure as a revenue stream, being your own bank stops sounding crazy and starts sounding necessary.\n\nMeanwhile, Nostr keeps shipping. Amethyst just landed full NIP-47 support. Notedeck is doing signed releases via NIP-94 events. The stack gets quieter and stronger while the headlines get louder.\n\nBTC: 6K and surviving.",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774620050,
-      "relay": "wss://nos.lol",
-      "score": 90,
       "has_zap": false
     },
     {
@@ -73,6 +64,15 @@
       "created_at": 1774626297,
       "relay": "wss://relay.damus.io",
       "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83c\udf1f Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility\n\n\"They told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain...\"\n\n\u2014 Paris\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcda Read now: https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udd22 id#411799070",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1774634103,
+      "relay": "wss://nos.lol",
+      "score": 75,
       "has_zap": false
     },
     {
@@ -108,6 +108,15 @@
       "display_name": "npub11bf32990...cb5661",
       "created_at": 1774623104,
       "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Bitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nWhy this matters more than the headlines suggest:\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nFull analysis:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
+      "pubkey": "0bdc6d96347bb86525329bfcaa8ff8c8a7da94299523cde5629d8fcf9cb63350",
+      "display_name": "npub10bdc6d96...b63350",
+      "created_at": 1774633562,
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -166,15 +175,6 @@
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.92 oz | 24hr: -4.65%\n1 oz Gold: 6,702,413 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 30.7 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-03-27 | 14:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1774620065,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
       "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **BTC Weekly Technical Analysis - Nostriches Only**\n\nYou are about to an analysis that the mainstream crypto media refuses to show you. While the herd chases headlines about recoveries, the smart money i...\n\n\ud83d\udc64 Rhodes\n\nhttps://image.nostr.build/4c2541852dd90d8ee59b197a25925d88f48e447cc9195ce34a32721b61902b7f.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w13bitcoin02\n\n\ud83d\udcca id#156897563",
       "pubkey": "d9c2ec9765485f7f39a1b59c4ef7578879d2d17908364e1031129cc7b72f692d",
       "display_name": "npub1d9c2ec97...2f692d",
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 233,
+  "total_filtered": 234,
   "total_scored": 20
 }

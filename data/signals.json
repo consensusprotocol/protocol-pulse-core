@@ -1,48 +1,48 @@
 {
-  "updated_at": "2026-03-27T17:50:02.071288+00:00",
+  "updated_at": "2026-03-27T18:10:01.346786+00:00",
   "btc_price": {
-    "value": 65625,
-    "change_24h": -4.62,
+    "value": 65679,
+    "change_24h": -4.03,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1313358972356.9104,
+    "value": 1312488827003.7075,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 57018116165.8831,
+    "value": 56180365840.51105,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 942501,
+    "value": 942502,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 4.72,
-    "blocks_remaining": 987,
-    "estimated_date": "2026-04-03T07:04:17.357000+00:00",
+    "percent": 4.61,
+    "blocks_remaining": 986,
+    "estimated_date": "2026-04-03T07:24:39.362000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1008.6 EH/s",
-    "raw_eh": 1008.6,
+    "value": "1007.9 EH/s",
+    "raw_eh": 1007.9,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 31998,
-    "vsize_mb": 11.1,
+    "tx_count": 32725,
+    "vsize_mb": 11.6,
     "source": "mempool.space"
   },
   "recommended_fees": {
-    "fastest": 5,
+    "fastest": 4,
     "hour": 4,
     "economy": 1,
     "source": "mempool.space"
   },
   "lightning": {
-    "node_count": 17396,
-    "channel_count": 41423,
-    "capacity_btc": 5239.0,
+    "node_count": 17438,
+    "channel_count": 41109,
+    "capacity_btc": 5057.1,
     "source": "mempool.space"
   },
   "fear_greed": {
@@ -52,17 +52,17 @@
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 1.155e-05,
+    "value": 1.152e-05,
     "annualized": 1.26,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 30183.4,
-    "usd": 1980719580,
+    "btc": 30167.3,
+    "usd": 1981185500,
     "source": "deribit"
   },
   "exchange_volume": {
-    "binance_btc": null,
+    "binance_btc": 150265.5,
     "coinbase_btc": null,
     "source": "coingecko"
   },

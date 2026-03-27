@@ -1,5 +1,16 @@
 [
   {
+    "id": "5c82a72b-30bf-410c-a2bd-ebe2fdf0a8de",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "# MIDDAY BRIEF \u2014 March 27, 2026\n\n**Bitcoin down 4.2% to $65,603. Extreme Fear at 13. Here's what matters.**\n\nArthur Hayes just laid out the entire macro thesis in seven words: rocks and magic internet money. While geopolitical chaos forces the Fed's hand toward monetary expansion, Hayes is holding h",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
+    "topic_preview": "Oracle Midday Brief \u2014 $65,603",
+    "generated_at": "2026-03-27T18:00:01.949645+00:00",
+    "expires_at": "2026-03-27T22:00:01.949645+00:00",
+    "video_url": "/data/stage_briefs/brief_20260327_1800.mp4"
+  },
+  {
     "id": "5166dc75-e4c4-4405-9b55-b4a74f21c196",
     "type": "METRICS_PULSE",
     "priority": 3,
@@ -10,24 +21,14 @@
     "expires_at": "2026-03-27T18:15:17.345626+00:00"
   },
   {
-    "id": "9e285dfd-b4eb-44cb-a7ab-0d15d7b02c15",
+    "id": "abf80fea-eb9f-4396-9b92-fa09aff928e3",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Retail traders actively discussing 69k resistance levels. Watch for coordinated pump signals at 15-minute intervals.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Mempool fees surged 40% in 24 hours.\n\nWatch for on-chain accumulation patterns in the next hour.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-27T14:00:04.117656+00:00",
-    "expires_at": "2026-03-27T18:00:04.117656+00:00"
-  },
-  {
-    "id": "4557c0f5-78bc-4978-892b-f70cafac96ba",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, the network recalibrates to maintain ten-minute block intervals regardless of how much hash power joins or leaves. Self-regulating monetary infrastructure.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, th",
-    "generated_at": "2026-03-27T14:05:04.277307+00:00",
-    "expires_at": "2026-03-27T18:05:04.277307+00:00"
+    "generated_at": "2026-03-27T18:00:25.930230+00:00",
+    "expires_at": "2026-03-27T22:00:25.930230+00:00"
   },
   {
     "id": "fc222a0c-0600-4995-9083-c5c504537f04",

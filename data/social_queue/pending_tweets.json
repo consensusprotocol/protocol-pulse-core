@@ -304,5 +304,17 @@
     "generated_at": "2026-03-27T06:42:07.390882+00:00",
     "brief_date": "Monday, March 23, 2026",
     "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260327_180006_0",
+    "text": "Extreme Fear at 13 means retail is paralyzed. 4 sat/vB fees mean users aren't moving coins either. Who exactly is transacting at block 942502",
+    "angle": "network_fundamentals",
+    "type": "question",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-03-27T18:00:06.651514+00:00",
+    "brief_date": "Monday, March 23, 2026",
+    "sentiment": "bearish"
   }
 ]
