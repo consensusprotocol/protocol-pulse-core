@@ -587,6 +587,16 @@ body { background: #000 !important; overflow: hidden; }
   });
 
   // ── Fetch live data ──
+  fetch('/api/signals').then(function(r){return r.json()}).then(function(sig){
+    if(!sig||sig.error)return;
+    var bp=sig.btc_price||{};
+    if(bp.value){window._btcPrice=bp.value;var pe=document.getElementById('slPrice');if(pe)pe.textContent=Number(bp.value).toLocaleString();var pb=document.getElementById('priceBadge');if(pb)pb.textContent='BTC $'+Number(bp.value).toLocaleString();}
+    var fg=sig.fear_greed||{};
+    var fe=document.getElementById('slFng');if(fe&&fg.value!=null)fe.textContent=fg.value;
+    var fl=document.getElementById('slFngLabel');if(fl&&fg.label)fl.textContent=fg.label;
+    var hr=sig.hashrate||{};var he=document.getElementById('slHash');if(he&&hr.raw_eh)he.textContent=Math.round(hr.raw_eh)+'';
+    var mp=sig.mempool_size||{};var me=document.getElementById('slMempool');if(me&&mp.tx_count)me.textContent=mp.tx_count.toLocaleString();
+}).catch(function(){});
   fetch('/api/intelligence/signal')
     .then(function(r) { return r.json(); })
     .then(function(d) {
@@ -677,7 +687,7 @@ body { background: #000 !important; overflow: hidden; }
 
     // Data stream lines
     var lines = document.querySelectorAll('#streamLines .co-stream-line');
-    var price = window._btcPrice || 87000;
+    var price = window._btcPrice || 0;
     var sd = signalData || {};
     document.getElementById('slPrice').textContent = Number(price).toLocaleString();
     document.getElementById('slHash').textContent = sd.hashrate || sd.components?.onchain?.value || '---';
