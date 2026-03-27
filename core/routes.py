@@ -19,6 +19,26 @@ from functools import wraps
 from datetime import datetime, timedelta
 import threading
 
+
+# ── Cloudflare Turnstile CAPTCHA verification ────────────────────────────────
+
+def verify_turnstile(token):
+    """Verify a Cloudflare Turnstile token. Returns True if valid."""
+    secret = os.environ.get('TURNSTILE_SECRET_KEY', '')
+    if not secret:
+        logging.warning("TURNSTILE_SECRET_KEY not set — skipping captcha check")
+        return True
+    try:
+        resp = requests.post(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            data={'secret': secret, 'response': token},
+            timeout=5,
+        )
+        return resp.json().get('success', False)
+    except Exception as e:
+        logging.error(f"Turnstile verification error: {e}")
+        return False
+
 # Import services
 # Note: Ensure these services are also using relative imports if they cause loops
 from services.ai_service import AIService
@@ -2649,6 +2669,10 @@ def newsletter_subscribe():
 def api_newsletter_subscribe():
     """Subscribe to newsletter — JSON API."""
     data = request.get_json(silent=True) or {}
+    # Cloudflare Turnstile bot check
+    cf_token = data.get('cf-turnstile-response', '')
+    if not verify_turnstile(cf_token):
+        return jsonify({'success': False, 'message': 'CAPTCHA verification failed'}), 403
     email = (data.get('email') or request.form.get('email', '')).strip().lower()
     if not email or '@' not in email:
         return jsonify({'success': False, 'message': 'Valid email required'}), 400
@@ -2680,35 +2704,8 @@ def api_newsletter_subscribe():
     import threading
     def _send_welcome():
         try:
-            resend_key = os.environ.get('RESEND_API_KEY')
-            if not resend_key:
-                return
-            import requests as _req
-            _req.post('https://api.resend.com/emails', json={
-                'from': 'Protocol Pulse <newsletter@protocolpulse.io>',
-                'to': [email],
-                'subject': 'Signal acquired — you are now inside Protocol Pulse',
-                'html': (
-                    '<div style="font-family:monospace;color:#E2E2EF;background:#0A0A0F;padding:32px;">'
-                    '<h1 style="color:#dc2626;font-size:16px;letter-spacing:2px;">SIGNAL ACQUIRED</h1>'
-                    '<p>Welcome to Protocol Pulse.</p>'
-                    '<p>Every morning, you will receive the sharpest Bitcoin intelligence brief '
-                    'on the internet. No filler. No AI slop. Just the signal.</p>'
-                    '<p>What you get:</p>'
-                    '<ul style="color:#9ca3af;">'
-                    '<li>Daily intelligence brief with executive summary</li>'
-                    '<li>On-chain signals most analysts miss</li>'
-                    '<li>Whale movement alerts</li>'
-                    '<li>Macro + geopolitical Bitcoin context</li>'
-                    '</ul>'
-                    '<p style="margin-top:24px;"><a href="https://protocolpulse.io" '
-                    'style="color:#dc2626;">Enter Protocol Pulse &rarr;</a></p>'
-                    '<p style="color:#374151;font-size:11px;margin-top:32px;">'
-                    'You received this because you subscribed at protocolpulse.io.<br>'
-                    f'<a href="https://protocolpulse.io/unsubscribe?token={unsub_token}" style="color:#6b7280;">Unsubscribe</a>'
-                    '</p></div>'
-                ),
-            }, headers={'Authorization': f'Bearer {resend_key}'}, timeout=15)
+            from services.newsletter_service import _send_welcome_email
+            _send_welcome_email(email, unsub_token)
         except Exception as _e:
             logging.warning('Welcome email failed for %s: %s', email, _e)
     threading.Thread(target=_send_welcome, daemon=True).start()
@@ -2937,6 +2934,12 @@ def login():
         session.modified = True
 
     if request.method == 'POST':
+        # Cloudflare Turnstile bot check
+        cf_token = request.form.get('cf-turnstile-response', '')
+        if not verify_turnstile(cf_token):
+            flash('CAPTCHA verification failed. Please try again.', 'error')
+            return render_template('login.html')
+
         # CSRF check for login — lenient: if token missing from session, allow but warn
         form_token = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token', '')
         session_token = session.get('csrf_token', '')

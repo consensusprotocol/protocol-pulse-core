@@ -149,7 +149,8 @@ def confirmation_email(confirm_url: str, email: str, site_url: str = SITE_URL_DE
 
 def welcome_email(unsubscribe_url: str, site_url: str = SITE_URL_DEFAULT) -> dict:
     """
-    Welcome email sent after confirmation.
+    Welcome email sent immediately on signup.
+    PBX voice — direct, cypherpunk, no filler.
     Returns {subject, html}.
     """
     inner = _header() + f"""
@@ -157,14 +158,20 @@ def welcome_email(unsubscribe_url: str, site_url: str = SITE_URL_DEFAULT) -> dic
             <td style="padding:40px 32px;">
               <h1 style="margin:0 0 8px;font-size:28px;font-weight:800;color:#F8C15C;
                          letter-spacing:1px;text-align:center;">
-                WELCOME TO PROTOCOL PULSE
+                YOU'RE IN.
               </h1>
-              <p style="margin:0 0 24px;font-size:13px;color:#555;text-align:center;
+              <p style="margin:0 0 28px;font-size:13px;color:#555;text-align:center;
                          text-transform:uppercase;letter-spacing:2px;">
-                You're in the feed
+                The signal is locked
               </p>
-              <p style="margin:0 0 24px;font-size:15px;color:#b0b0b0;line-height:1.7;">
-                Your subscription is confirmed. Here's what you'll receive:
+
+              <p style="margin:0 0 16px;font-size:15px;color:#b0b0b0;line-height:1.8;">
+                Most people wake up to noise. You just opted into signal.
+              </p>
+              <p style="margin:0 0 24px;font-size:15px;color:#b0b0b0;line-height:1.8;">
+                Every morning at <strong style="color:#F8C15C;">6:45 AM ET</strong>,
+                Protocol Pulse lands in your inbox. No opinions. No filler.
+                Just the intelligence that moves markets &mdash; distilled to five minutes.
               </p>
 
               <table width="100%" cellpadding="0" cellspacing="0"
@@ -174,44 +181,62 @@ def welcome_email(unsubscribe_url: str, site_url: str = SITE_URL_DEFAULT) -> dic
                   <td style="padding:20px 24px;">
                     <p style="margin:0 0 12px;font-size:11px;text-transform:uppercase;
                                letter-spacing:2px;color:#dc2626;font-weight:700;">
-                      YOUR DAILY BRIEFING INCLUDES
+                      WHAT HITS YOUR INBOX
                     </p>
-                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>Daily Bitcoin Intelligence</strong> — top stories + analysis
+                    <p style="margin:0 0 10px;font-size:14px;color:#d0d0d0;line-height:1.6;">
+                      &#9654;&nbsp; <strong style="color:#fff;">Daily Intelligence Brief</strong>
+                      &mdash; top stories from 80+ sources, verified against on-chain data
                     </p>
-                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>Oracle Briefings</strong> — AI-curated market signal
+                    <p style="margin:0 0 10px;font-size:14px;color:#d0d0d0;line-height:1.6;">
+                      &#9654;&nbsp; <strong style="color:#fff;">Oracle Signal Score</strong>
+                      &mdash; our proprietary sentiment + velocity reading on Bitcoin
                     </p>
-                    <p style="margin:0;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>Pulse Check Alerts</strong> — network stat of the day
+                    <p style="margin:0 0 10px;font-size:14px;color:#d0d0d0;line-height:1.6;">
+                      &#9654;&nbsp; <strong style="color:#fff;">Network Pulse</strong>
+                      &mdash; hashrate, difficulty, mempool pressure, whale movements
+                    </p>
+                    <p style="margin:0;font-size:14px;color:#d0d0d0;line-height:1.6;">
+                      &#9654;&nbsp; <strong style="color:#fff;">Macro Context</strong>
+                      &mdash; the geopolitical signals most analysts sleep through
                     </p>
                   </td>
                 </tr>
               </table>
 
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <p style="margin:0 0 28px;font-size:14px;color:#888;line-height:1.7;
+                         border-left:3px solid #dc2626;padding-left:16px;">
+                This is the free tier. It's already better than 90% of what's out there.
+                But if you want the real edge &mdash; live terminal, sovereign API keys,
+                on-chain alerts before they hit Twitter &mdash; Commander access is where
+                operators live.
+              </p>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                 <tr>
                   <td align="center">
-                    <a href="{site_url}"
-                       style="display:inline-block;padding:14px 36px;
+                    <a href="{site_url}/terminal"
+                       style="display:inline-block;padding:16px 40px;
                               background:#dc2626;color:#fff;font-size:15px;
-                              font-weight:700;text-decoration:none;
-                              border-radius:6px;letter-spacing:0.5px;">
-                      Read Today's Briefing &rarr;
+                              font-weight:800;text-decoration:none;
+                              border-radius:6px;letter-spacing:1px;
+                              font-family:monospace;">
+                      UNLOCK COMMANDER ACCESS &rarr;
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin:0;font-size:13px;color:#666;text-align:center;">
-                First issue arrives tomorrow morning (UTC). Stay sovereign.
+              <p style="margin:0;font-size:13px;color:#555;text-align:center;
+                         font-family:monospace;">
+                6:45 AM ET. Every day. No exceptions.<br>
+                Stay sovereign.
               </p>
             </td>
           </tr>
 """ + _footer(unsubscribe_url, site_url)
 
     return {
-        "subject": "Signal confirmed. You're in the feed.",
+        "subject": "Welcome to Protocol Pulse. Your sovereign intelligence brief starts now.",
         "html": _wrapper(inner),
     }
 

@@ -53,7 +53,7 @@ class NewsletterService:
     def subscribe_user(self, email: str, name: str = None) -> bool:
         """Subscribe user to newsletter and save to database"""
         try:
-            # Save to database
+            # Save to User table
             existing_user = models.User.query.filter_by(email=email).first()
             if not existing_user:
                 user = models.User()
@@ -67,14 +67,40 @@ class NewsletterService:
                 existing_user.newsletter_subscribed = True
                 db.session.commit()
                 logging.info(f"Existing user resubscribed: {email}")
-            
-            # Send welcome email only when provider is enabled; never block local subscription.
-            if self.enabled:
-                self.send_welcome_email(email, name)
+
+            # Ensure NewsletterSubscriber record exists (needed for unsubscribe token)
+            import uuid
+            unsub_token = None
+            sub = models.NewsletterSubscriber.query.filter_by(email=email.strip().lower()).first()
+            if not sub:
+                unsub_token = str(uuid.uuid4())
+                sub = models.NewsletterSubscriber(
+                    email=email.strip().lower(),
+                    unsubscribe_token=unsub_token,
+                    subscribed=True,
+                    source='subscribe_user',
+                )
+                db.session.add(sub)
+                db.session.commit()
             else:
-                logging.info("Newsletter provider disabled; local subscription stored without email send.")
+                unsub_token = sub.unsubscribe_token
+                if not sub.subscribed:
+                    sub.subscribed = True
+                    sub.unsubscribed_at = None
+                    db.session.commit()
+
+            # Send welcome email via Resend (fire-and-forget thread)
+            import threading
+            def _send():
+                try:
+                    from services.newsletter_service import _send_welcome_email
+                    _send_welcome_email(email.strip().lower(), unsub_token)
+                except Exception as e:
+                    logging.warning("Welcome email failed for %s: %s", email, e)
+            threading.Thread(target=_send, daemon=True).start()
+
             return True
-            
+
         except Exception as e:
             logging.error(f"Newsletter subscription error: {e}")
             return False
