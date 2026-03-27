@@ -2966,7 +2966,9 @@ def login():
         if user and user.password_hash and user.check_password(password):
             login_user(user)
             session.pop('csrf_token', None)  # Clear token after successful login
-            return redirect('/admin')
+            if getattr(user, 'is_admin', False):
+                return redirect('/admin')
+            return redirect('/')
         else:
             flash('Invalid username or password')
             return render_template('login.html')
@@ -12910,42 +12912,59 @@ def satomi_voice_choice():
 
 @app.route('/api/satomi/tts')
 def satomi_tts_audio():
-    """Serve Satomi's Kokoro voice as audio for Twilio <Play> tag."""
-    import subprocess, tempfile, hashlib
-    text = request.args.get('text', 'Protocol Pulse intelligence signal.')[:600]
-    # Try Kokoro first (same voice as oracle), fall back to ElevenLabs
+    """Serve Satomi's Kokoro voice as audio for Twilio <Play> tag.
+    MUST always return valid audio — never 500/503 (Twilio hangs up on errors).
+    """
+    import io
+    from flask import send_file
+
+    def _silence_wav():
+        """Return 1-second 8kHz mono silence WAV — always valid for Twilio."""
+        import struct
+        sr, dur, bits = 8000, 1, 16
+        n = sr * dur
+        data = b'\x00\x00' * n
+        hdr = struct.pack('<4sI4s4sIHHIIHH4sI',
+            b'RIFF', 36 + len(data), b'WAVE', b'fmt ', 16, 1, 1,
+            sr, sr * bits // 8, bits // 8, bits, b'data', len(data))
+        return hdr + data
+
     try:
-        import sys
-        sys.path.insert(0, '/home/ultron/protocol_pulse/oracle')
-        from avatar_server import _avatar_tts
-        audio_bytes = _avatar_tts(text)
-        if audio_bytes and len(audio_bytes) > 1000:
-            import io
-            from flask import send_file
-            return send_file(io.BytesIO(audio_bytes), mimetype='audio/wav',
-                           as_attachment=False, download_name='satomi.wav')
+        text = request.args.get('text', 'Protocol Pulse intelligence signal.')[:600]
+        # Try Kokoro first (same voice as oracle), fall back to ElevenLabs
+        try:
+            import sys
+            sys.path.insert(0, '/home/ultron/protocol_pulse/oracle')
+            from avatar_server import _avatar_tts
+            audio_bytes = _avatar_tts(text)
+            if audio_bytes and len(audio_bytes) > 1000:
+                return send_file(io.BytesIO(audio_bytes), mimetype='audio/wav',
+                               as_attachment=False, download_name='satomi.wav')
+        except Exception as e:
+            logging.warning(f'[SatomiTTS] Kokoro failed: {e}')
+        # ElevenLabs fallback
+        try:
+            import requests as _req
+            xi_key = os.environ.get('ELEVENLABS_API_KEY', '')
+            voice_id = os.environ.get('ELEVENLABS_VOICE_ID', 'cgSgspJ2msm6clMCkdW9')
+            r = _req.post(f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}',
+                headers={'xi-api-key': xi_key, 'Content-Type': 'application/json'},
+                json={'text': text, 'model_id': 'eleven_turbo_v2_5',
+                      'voice_settings': {'stability': 0.5, 'similarity_boost': 0.8}},
+                timeout=15)
+            if r.ok:
+                return send_file(io.BytesIO(r.content), mimetype='audio/mpeg',
+                               as_attachment=False, download_name='satomi.mp3')
+        except Exception as e:
+            logging.warning(f'[SatomiTTS] ElevenLabs failed: {e}')
+        # Final fallback — 1s silence WAV (valid audio, Twilio won't hang up)
+        logging.warning('[SatomiTTS] All TTS failed, returning silence WAV')
+        return send_file(io.BytesIO(_silence_wav()), mimetype='audio/wav',
+                        as_attachment=False, download_name='satomi.wav')
     except Exception as e:
-        logging.warning(f'[SatomiTTS] Kokoro failed: {e}')
-    # ElevenLabs fallback
-    try:
-        import requests as _req
-        xi_key = os.environ.get('ELEVENLABS_API_KEY', '')
-        voice_id = os.environ.get('ELEVENLABS_VOICE_ID', 'cgSgspJ2msm6clMCkdW9')
-        r = _req.post(f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}',
-            headers={'xi-api-key': xi_key, 'Content-Type': 'application/json'},
-            json={'text': text, 'model_id': 'eleven_turbo_v2_5',
-                  'voice_settings': {'stability': 0.5, 'similarity_boost': 0.8}},
-            timeout=15)
-        if r.ok:
-            import io
-            from flask import send_file
-            return send_file(io.BytesIO(r.content), mimetype='audio/mpeg',
-                           as_attachment=False, download_name='satomi.mp3')
-    except Exception as e:
-        logging.warning(f'[SatomiTTS] ElevenLabs failed: {e}')
-    # Final fallback - empty WAV
-    from flask import abort
-    abort(503)
+        logging.error(f'[SatomiTTS] Fatal error: {e}')
+        return send_file(io.BytesIO(_silence_wav()), mimetype='audio/wav',
+                        as_attachment=False, download_name='satomi.wav')
 
 @app.route('/api/satomi/voice/outbound-twiml', methods=['POST', 'GET'])
 def satomi_voice_outbound_twiml():
@@ -13669,7 +13688,24 @@ def api_auth_register():
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        return jsonify({'success': True, 'redirect': '/login'})
+
+        # Send welcome email via Resend
+        try:
+            import resend
+            resend.api_key = os.getenv('RESEND_API_KEY')
+            if resend.api_key:
+                resend.Emails.send({
+                    "from": "Protocol Pulse <intel@protocolpulse.io>",
+                    "to": email,
+                    "subject": "You're in. Daily Bitcoin signal starts now.",
+                    "html": "<h2>Welcome to Protocol Pulse.</h2><p>Every morning: the signal, not the noise.</p><p>What you get: daily Bitcoin briefs, live Oracle access, on-chain intelligence.</p><p>Your first brief is live now at <a href='https://protocolpulse.io'>protocolpulse.io</a></p><p><a href='https://protocolpulse.io/oracle'>Consult the Oracle &rarr;</a></p>"
+                })
+        except Exception as mail_err:
+            logging.warning('Welcome email failed for %s: %s', email, mail_err)
+
+        # Auto-login the new user and redirect to onboarding
+        login_user(user)
+        return jsonify({'success': True, 'redirect': '/onboarding/commander'})
     except Exception as e:
         db.session.rollback()
         logging.error('Registration error: %s', e)

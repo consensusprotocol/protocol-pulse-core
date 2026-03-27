@@ -1,142 +1,298 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Protocol Pulse</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}Login - Protocol Pulse{% endblock %}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #06070b;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-{% block content %}
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-75">
-            <div class="col-md-6 col-lg-4">
-                <div class="card bg-secondary border-0 shadow-lg">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-broadcast-tower text-primary fa-3x mb-3"></i>
-                            <h2 class="h3 fw-bold text-white">Welcome Back</h2>
-                            <p class="text-muted">Sign in to access your Protocol Pulse dashboard</p>
+        /* Ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -40%; left: -20%;
+            width: 140%; height: 140%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(220, 38, 38, 0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 80%, rgba(220, 38, 38, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 0 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 48px 40px 40px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .brand h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .brand p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .alert {
+            background: rgba(220, 38, 38, 0.12);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #fca5a5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .form-group input:focus {
+            border-color: rgba(220, 38, 38, 0.5);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            font-size: 15px;
+            padding: 4px;
+        }
+
+        .password-toggle:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+            margin-top: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            font-size: 13px;
+        }
+
+        .links a {
+            color: rgba(255, 255, 255, 0.45);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .links a:hover {
+            color: #dc2626;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .cf-turnstile {
+            margin: 16px 0 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Hidden CSRF field */
+        input[name="csrf_token"] { display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-broadcast-tower"></i></div>
+                <h1>Welcome back, Commander.</h1>
+                <p>Your intelligence network is live.</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>{{ message }}</span>
                         </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else 'warning' }} alert-dismissible fade show" role="alert">
-                                        <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+            <form method="post" id="loginForm">
+                <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
 
-                        <form method="post" class="needs-validation" novalidate>
-                            <div class="mb-4">
-                                <label for="username" class="form-label text-white">
-                                    <i class="fas fa-user me-2"></i>Username
-                                </label>
-                                <input type="text" 
-                                       class="form-control form-control-lg" 
-                                       id="username" 
-                                       name="username" 
-                                       placeholder="Enter your username"
-                                       required>
-                                <div class="invalid-feedback">
-                                    Please enter your username.
-                                </div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label for="password" class="form-label text-white">
-                                    <i class="fas fa-lock me-2"></i>Password
-                                </label>
-                                <div class="input-group">
-                                    <input type="password" 
-                                           class="form-control form-control-lg" 
-                                           id="password" 
-                                           name="password" 
-                                           placeholder="Enter your password"
-                                           required>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
-                                        <i id="passwordToggleIcon" class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="invalid-feedback">
-                                    Please enter your password.
-                                </div>
-                            </div>
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input type="email"
+                           id="username"
+                           name="username"
+                           placeholder="you@example.com"
+                           autocomplete="email"
+                           required
+                           autofocus>
+                </div>
 
-                            <div class="mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
-                                    <label class="form-check-label text-muted" for="rememberMe">
-                                        Remember me for 30 days
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Cloudflare Turnstile CAPTCHA -->
-                            <div class="cf-turnstile mb-3" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark"></div>
-
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                            </button>
-
-                            <div class="text-center">
-                                <a href="#" class="text-primary text-decoration-none me-3">
-                                    <i class="fas fa-key me-1"></i>Forgot Password?
-                                </a>
-                                <a href="{{ url_for('signup') }}" class="text-primary text-decoration-none">
-                                    <i class="fas fa-user-plus me-1"></i>Create Account
-                                </a>
-                            </div>
-                        </form>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrap">
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               placeholder="Enter your password"
+                               autocomplete="current-password"
+                               required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i id="pwIcon" class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        Your data is protected with enterprise-grade security
-                    </p>
+                <!-- Cloudflare Turnstile CAPTCHA -->
+                <div class="cf-turnstile" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark"></div>
+
+                <button type="submit" class="submit-btn">Sign In</button>
+
+                <div class="links">
+                    <a href="/register">New here? Create account &rarr;</a>
+                    <a href="#">Forgot password?</a>
                 </div>
-            </div>
+            </form>
+        </div>
+
+        <div class="footer-note">
+            <i class="fas fa-shield-alt"></i>
+            <span>Your sovereignty is protected.</span>
         </div>
     </div>
-</section>
-{% endblock %}
 
-{% block extra_scripts %}
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script>
-// Form validation
-(function() {
-    'use strict';
-    window.addEventListener('load', function() {
-        var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
-
-// Password toggle
-function togglePassword() {
-    const passwordField = document.getElementById('password');
-    const passwordToggleIcon = document.getElementById('passwordToggleIcon');
-    
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        passwordToggleIcon.className = 'fas fa-eye-slash';
-    } else {
-        passwordField.type = 'password';
-        passwordToggleIcon.className = 'fas fa-eye';
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script>
+    function togglePassword() {
+        const pw = document.getElementById('password');
+        const icon = document.getElementById('pwIcon');
+        if (pw.type === 'password') {
+            pw.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            pw.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
     }
-}
-
-// Auto-focus username field
-document.getElementById('username').focus();
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>
