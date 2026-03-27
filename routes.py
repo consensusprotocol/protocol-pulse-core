@@ -2674,6 +2674,24 @@ def admin_post_to_x():
         else:
             return jsonify({'success': False, 'error': 'Failed to post to X'}), 500
 
+@app.route('/api/admin/publish-social/<slug>')
+@login_required
+@admin_required
+def admin_publish_social(slug):
+    """Manual trigger: publish an article to Nostr + X."""
+    article = models.Article.query.filter_by(slug=slug).first()
+    if not article:
+        article = models.Article.query.filter_by(id=slug).first()
+    if not article:
+        return jsonify({"error": "Article not found"}), 404
+    try:
+        from core.social_publisher import SocialPublisher
+        result = SocialPublisher().publish_article(article.title, article.slug or str(article.id), article.content)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/admin/api/x-status')
 @login_required
 @admin_required
@@ -2865,12 +2883,24 @@ def api_generate_article():
             except Exception as e:
                 logging.error(f"Auto-publish to Substack failed for article '{article.title}': {e}")
         
+        # ── Auto-publish to Nostr + X ──
+        social_result = None
+        if publish_allowed:
+            try:
+                from core.social_publisher import SocialPublisher
+                social_result = SocialPublisher().publish_article(
+                    article.title, article.slug or str(article.id), article.content
+                )
+            except Exception as e:
+                logging.error("Social auto-publish failed (non-blocking): %s", e)
+
         return jsonify({
             'success': True,
             'article_id': article.id,
             'title': article.title,
             'published': bool(publish_allowed),
             'substack_url': substack_url,
+            'social': social_result,
             'message': ('Article auto-approved and published' if publish_allowed else 'Article saved as DRAFT (ENABLE_AUTO_PUBLISH=false)') + (f' to Substack: {substack_url}' if substack_url else ''),
             'fact_check_passed': True,
             'fact_check_warnings': []

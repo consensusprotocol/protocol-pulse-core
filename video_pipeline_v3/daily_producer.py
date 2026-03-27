@@ -1576,6 +1576,20 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         manifest["upload_result"] = upload_result
         if is_enabled("telegram_alerts") and upload_result.get("url"):
             alert_upload_success(date_str, upload_result["url"])
+
+        # Auto-publish to Nostr + X after successful YouTube upload
+        if upload_result.get("url"):
+            try:
+                import sys
+                sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                from core.social_publisher import SocialPublisher
+                yt_id = upload_result.get("video_id", "")
+                social_result = SocialPublisher().publish_episode(yt_title, yt_id, yt_description)
+                print(f"  Social publish: nostr={social_result.get('nostr', {}).get('success')}, x={social_result.get('twitter', {}).get('success')}")
+                manifest["social_publish"] = social_result
+            except Exception as e:
+                logger.error("Social auto-publish episode failed (non-blocking): %s", e)
+                print(f"  Social publish failed (non-blocking): {e}")
     elif quality_score < 85:
         logger.warning(f"QUALITY HOLD: Score {quality_score} < 85. Episode held for review.")
         hold_path = os.path.join(run_dir, "HOLD_FOR_REVIEW.txt")

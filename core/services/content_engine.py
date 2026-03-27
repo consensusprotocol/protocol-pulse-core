@@ -186,8 +186,18 @@ APPROVE if score >= 7, REJECT if score < 7.
                     result["success"] = True
                     result["substack_url"] = substack_url
                     result["message"] = f"AI approved and published (Score: {review.get('score')}/10)"
-                    
+
                     logging.info(f"Article {article_id} AI-approved and published: {substack_url}")
+
+                    # Auto-publish to Nostr + X
+                    try:
+                        from core.social_publisher import SocialPublisher
+                        social_result = SocialPublisher().publish_article(
+                            article.title, article.slug or str(article.id), article.content
+                        )
+                        result["social"] = social_result
+                    except Exception as e:
+                        logging.error("Social auto-publish failed (non-blocking): %s", e)
                 else:
                     result["errors"].append("Failed to publish to Substack")
                     

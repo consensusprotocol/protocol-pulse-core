@@ -280,7 +280,14 @@ def monitor_content_impl():
                 
         except Exception as e:
             logging.error(f"Auto-publish to Substack failed for social trend '{article.title}': {e}")
-    
+
+        # Auto-publish to Nostr + X
+        try:
+            from core.social_publisher import SocialPublisher
+            SocialPublisher().publish_article(article.title, article.slug or str(article.id), article.content)
+        except Exception as e:
+            logging.error("Social auto-publish failed (non-blocking): %s", e)
+
     logging.info(f"Social monitoring completed: {len(trends)} articles generated, {published_count} published to Substack")
     
     return jsonify({'trends': trends})
