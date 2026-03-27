@@ -13926,3 +13926,17 @@ def api_panopticon_sovereign_analysis():
 @app.route('/api/telemetry', methods=['POST'])
 def api_telemetry():
     return jsonify({'ok': True}), 200
+
+@app.route('/video/latest')
+def serve_latest_video():
+    import os, glob
+    output_base = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'video_pipeline_v3', 'output')
+    pattern = os.path.join(output_base, '**', 'pulse_check_*.mp4')
+    files = [f for f in glob.glob(pattern, recursive=True) if not any(x in f for x in ['.bgl_', '.intro_', '.music_', '.concat_'])]
+    if not files:
+        return 'No video available', 404
+    latest = sorted(files)[-1]
+    dirname = os.path.dirname(latest)
+    filename = os.path.basename(latest)
+    from flask import send_from_directory
+    return send_from_directory(dirname, filename, mimetype='video/mp4')
