@@ -9,7 +9,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 import logging
 import json
 import random
-from flask import Flask, session
+from flask import Flask, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
@@ -311,6 +311,18 @@ with app.app_context():
         run_migrations(db)
     except Exception as _mige:
         logging.warning("db_migrate_sentiment failed (non-fatal): %s", _mige)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+
+@app.route('/force-logout')
+def force_logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 
 def _run_dev_server():
     port = 5000
