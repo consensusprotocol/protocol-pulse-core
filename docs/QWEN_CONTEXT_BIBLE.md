@@ -559,3 +559,21 @@ PATTERN: Duplicate function definitions from patch collisions
   PREVENTION: After any patch session, grep for ^function and verify no function name appears
     more than once. Current file (2026-03-25): 0 duplicates confirmed.
   WATCHDOG: grep -c '^function requestMic' templates/oracle_live.html must return 1.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## GRADE-DRIVEN PATTERNS — 2026-03-26
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PATTERN: 62-MIN RENDER ROOT CAUSE
+  No dialogue duration cap before TTS. SPACE_CLIP entries were TTS-d instead of skipped.
+  FIX: MAX_EPISODE_DURATION_S=900. SPACE_CLIP now treated as CLIP in tts_engine.py.
+  LESSON: Always cap at script level, not just output level.
+
+PATTERN: ORACLE go() UNDEFINED
+  ROOT CAUSE: Orphaned ).catch() block caused paren imbalance in block 3.
+  Node.js new Function() catches it. Brace count alone insufficient.
+  Flask must be hard-restarted (kill -9) not HUP when template block structure changes.
+
+PATTERN: RELAY AUTONOMOUS PATTERN
+  One batch call with base64-encoded nohup master script on Ultron.
+  Never rely on sequential external HTTP calls — Cloudflare drops 2nd request.

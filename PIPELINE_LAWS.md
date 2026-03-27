@@ -250,3 +250,30 @@ ORACLE MANDATORY TESTS:
 NEVER commit oracle changes without all 5 tests passing.
 This law exists because commit 2c542a0d looked correct but silenced Oracle in production.
 Theoretical fixes that break in practice are worse than no fix.
+
+---
+
+## GRADE-DRIVEN LAWS (2026-03-26)
+
+### LAW G-1: MAX EPISODE DURATION = 900s
+- Hard cap enforced at Step 7a. Render > 900s is auto-trimmed.
+- Never negotiate this. 15 minutes is the absolute ceiling.
+
+### LAW G-2: TRUE PEAK < -1.5 dBTP
+- `alimiter=limit=0.891:level=false` MUST precede ALL loudnorm calls. No exceptions.
+
+### LAW G-3: noise=c0s=3 IS PERMANENTLY BANNED
+- Freeze fix = `fps=30,setpts=PTS-STARTPTS` only.
+- See LAW: FREEZE FRAMES AT SOURCE for the approved Ken Burns approach.
+
+### LAW G-4: PBX IS THE SOLE HOST
+- `host_num=2` hardcoded in tts_engine.py.
+- `SPACE_CLIP` treated as `CLIP`. External clips = B-roll only, never narrated by any other voice.
+
+### LAW G-5: GRADE TARGET = B (80+)
+- C (70-79) = acceptable interim.
+- D or F = DO NOT PUBLISH. Fix before next render.
+
+### LAW G-6: GRADING IS MANDATORY
+- Every render must produce a `grades/*.json` file.
+- If grading fails, log it and alert — never silently skip.
