@@ -1,0 +1,125 @@
+{
+  "grade": "F",
+  "overall_score": 32,
+  "broadcast_ready": false,
+  "technical_score": 10,
+  "content_score": 65,
+  "production_score": 20,
+  "dimensions": {
+    "duration_check": {
+      "score": 0,
+      "note": "At 3729.4 seconds (62.2 minutes), the episode is over 4 times the maximum ideal length of 900s. This is a critical structural failure for a daily intelligence brief."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080 as required."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is within the ideal range."
+    },
+    "loudness_check": {
+      "score": 7,
+      "note": "Integrated loudness is -13.2 LUFS, which is slightly hot but within the acceptable -18 to -12 LUFS range."
+    },
+    "true_peak_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: True peak is 0.4 dBFS, which is above the 0 dBFS limit. This indicates audio clipping and will cause distortion on many playback systems."
+    },
+    "black_frames_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data reports 13 mid-video black frame segments. The video is unwatchable in its current state. This is a catastrophic render error."
+    },
+    "silence_check": {
+      "score": 6,
+      "note": "One mid-video silence gap was detected. This is a minor issue but points to a larger problem with the edit or render."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data reports 32 freeze frames. The video is fundamentally broken and cannot be broadcast."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Codecs are h264/aac, which is the standard."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File streams and bitrate are within acceptable parameters."
+    },
+    "clip_relevance": {
+      "score": 9,
+      "note": "Clips from Simply Bitcoin, Arthur Hayes, and others are highly relevant. The content selection is strong and aligns with the show's editorial focus."
+    },
+    "script_quality": {
+      "score": 3,
+      "note": "The script is a disjointed mess. It's unclear who the narrator is supposed to be, as multiple voices are used, breaking the show's format. The analysis is shallow and serves only to connect disparate clips."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The episode opens with a strong, rapid-fire summary of the key signals, effectively creating a hook."
+    },
+    "narrative_arc": {
+      "score": 3,
+      "note": "There is no discernible narrative arc. The episode jumps between topics and speakers without a clear thesis, feeling more like a long, random compilation of clips."
+    },
+    "host_authenticity": {
+      "score": 1,
+      "note": "CRITICAL FAILURE: The host is not PBX. The video features a multitude of different speakers and voices, completely violating the single-host format of the show. This is a fundamental identity failure."
+    },
+    "episode_title": {
+      "score": 9,
+      "note": "The title is specific, compelling, and accurately reflects a major theme of the episode."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode contains no ad reads, sponsor segments, or off-topic filler."
+    },
+    "timeliness": {
+      "score": 8,
+      "note": "The news and data points discussed appear to be from the last 24-48 hours, making the content timely."
+    },
+    "music_mix": {
+      "score": 4,
+      "note": "The background music is often too loud, competing with the narration and various clip audio. Ducking is inconsistent and ineffective."
+    },
+    "transitions": {
+      "score": 1,
+      "note": "While some intended glitch transitions are present, they are completely nullified by the dozens of jarring hard cuts, black frames, and freezes that plague the edit."
+    },
+    "visual_polish": {
+      "score": 3,
+      "note": "The core branding assets are well-designed, but the overall presentation is a chaotic mix of different video sources, screen recordings, and layouts. The numerous render artifacts destroy any sense of polish."
+    },
+    "no_artifacts": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: The video is riddled with severe artifacts, including 32 freeze frames and 13 mid-video black screens, making it unwatchable."
+    },
+    "audio_quality": {
+      "score": 3,
+      "note": "Audio quality is highly inconsistent between different speakers. The master track is clipped (True Peak > 0 dBFS), which is a major technical fault."
+    },
+    "pacing": {
+      "score": 1,
+      "note": "The pacing is abysmal. The extreme length of over one hour combined with constant technical glitches makes the episode feel incredibly slow and broken."
+    }
+  },
+  "critical_failures": [
+    "True Peak at 0.4 dBFS indicates audio clipping.",
+    "13 mid-video black frame segments detected.",
+    "32 freeze frames detected.",
+    "Video does not feature the sole host, PBX, but a collection of unidentified speakers, violating the show's core format.",
+    "Duration of 62.2 minutes is far too long for a daily brief."
+  ],
+  "warnings": [
+    "Integrated loudness is slightly high at -13.2 LUFS.",
+    "Audio mix is inconsistent and music often overpowers speech.",
+    "Narrative is disjointed and lacks a clear, guiding thesis."
+  ],
+  "strengths": [
+    "Strong, engaging cold open.",
+    "High-quality, relevant clips from credible sources.",
+    "Episode title is specific and compelling."
+  ],
+  "verdict": "This episode is a catastrophic technical and editorial failure; it is unwatchably broken with dozens of glitches and does not even feature the correct host.",
+  "recommendation": "DO_NOT_PUBLISH"
+}

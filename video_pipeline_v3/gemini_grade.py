@@ -483,6 +483,9 @@ aesthetic. Score based on actual observation.
     elif '```' in clean:
         clean = clean.split('```')[1].split('```')[0].strip()
 
+    # Fix trailing commas before } or ] (common Gemini output issue)
+    clean = re.sub(r',\s*([}\]])', r'\1', clean)
+
     try:
         result = json.loads(clean)
     except json.JSONDecodeError as e:

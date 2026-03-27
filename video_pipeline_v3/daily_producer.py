@@ -1543,6 +1543,57 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         json.dump(manifest, f, indent=2)
     timing["13_quality_gate"] = round(time.time() - t0, 2)
 
+    # ── Step 13b: GEMINI GRADING ──────────────────────────────────────────
+    print("\n[STEP 13b] GEMINI GRADING...")
+    t0_grade = time.time()
+    try:
+        grade_script = os.path.join(BASE, "gemini_grade.py")
+        grade_result = subprocess.run(
+            [sys.executable, grade_script, final_video],
+            capture_output=True, text=True, timeout=600,
+        )
+        grade_stdout = grade_result.stdout.strip()
+        grade_line = [l for l in grade_stdout.splitlines() if l.startswith("GRADE_")]
+        if grade_line:
+            parts = grade_line[-1].split("|")
+            gemini_grade = parts[0].replace("GRADE_", "").replace("_PASS", "").replace("_FAIL", "")
+            gemini_score = int(parts[1]) if len(parts) > 1 else 0
+            gemini_verdict = parts[3] if len(parts) > 3 else ""
+            logger.info(f"Gemini grade: {gemini_grade} ({gemini_score}/100) — {gemini_verdict}")
+            print(f"  Gemini Grade: {gemini_grade} | Score: {gemini_score}/100")
+            print(f"  Verdict: {gemini_verdict}")
+            manifest["gemini_grade"] = gemini_grade
+            manifest["gemini_score"] = gemini_score
+            manifest["gemini_verdict"] = gemini_verdict
+        else:
+            logger.warning(f"Gemini grading returned no grade line. stderr: {grade_result.stderr[-300:]}")
+            print(f"  Gemini grading: no grade line returned (exit {grade_result.returncode})")
+
+        # Copy grade JSON to grades/ directory
+        grades_dir = os.path.join(BASE, "grades")
+        os.makedirs(grades_dir, exist_ok=True)
+        logs_grades_dir = os.path.join(BASE, "logs", "grades")
+        if os.path.isdir(logs_grades_dir):
+            import glob as _grade_glob
+            _grade_files = sorted(_grade_glob.glob(os.path.join(logs_grades_dir, "grade_*.json")),
+                                  key=os.path.getmtime)
+            if _grade_files:
+                latest_grade_json = _grade_files[-1]
+                dest = os.path.join(grades_dir, os.path.basename(latest_grade_json))
+                shutil.copy2(latest_grade_json, dest)
+                logger.info(f"Grade JSON copied to {dest}")
+    except subprocess.TimeoutExpired:
+        logger.warning("Gemini grading timed out after 600s")
+        print("  Gemini grading: TIMED OUT (600s)")
+    except Exception as e:
+        logger.warning(f"Gemini grading failed (non-fatal): {e}")
+        print(f"  Gemini grading failed: {e}")
+    timing["13b_gemini_grade"] = round(time.time() - t0_grade, 2)
+
+    # Write manifest again with gemini grade
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+
     # ── Step 14: STAGE BRIEF (post Grade-A render) ─────────────────────────
     if quality_score >= 85:
         try:
