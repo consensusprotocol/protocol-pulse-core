@@ -101,6 +101,15 @@ def inject_csrf():
 def add_static_cache_headers(response):
     """Cache static assets aggressively: 1 year for images, 1 week for CSS/JS."""
     from flask import request
+
+    # MICROPHONE: Permissions-Policy header required for getUserMedia in Chrome
+    mic_routes = ('/oracle', '/stage', '/avatar', '/live')
+    if any(request.path.startswith(p) for p in mic_routes) or request.path == '/':
+        response.headers['Permissions-Policy'] = 'microphone=*, camera=*'
+        response.headers['Feature-Policy'] = 'microphone *; camera *'
+    else:
+        response.headers['Permissions-Policy'] = 'microphone=(self), camera=(self)'
+
     if request.path.startswith("/static/"):
         if any(request.path.endswith(ext) for ext in ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico')):
             response.cache_control.max_age = 31536000  # 1 year
