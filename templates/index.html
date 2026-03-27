@@ -532,24 +532,8 @@
                     <h2 class="pp-section__title">Pulse Check</h2>
                     <p class="pp-section__subtitle">Daily Bitcoin intelligence briefing</p>
                 </div>
-                <div class="pp-video-embed" id="pulseCheckEmbed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;">
-                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:8px;" allowfullscreen loading="lazy"></iframe>
-                    {% if latest_episode and latest_episode.video_url %}
-                    <img src="{{ latest_episode.thumbnail_url }}" alt="Pulse Check thumbnail" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">
-                    {% endif %}
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ppLoadVideo(this)">
-                        <div style="text-align:center;">
-                            <div style="width:64px;height:64px;border-radius:50%;background:var(--pp-red, #CC2222);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 24px rgba(220,38,38,0.4);">
-                                <i class="fas fa-play" style="color:#fff;font-size:1.25rem;margin-left:3px;"></i>
-                            </div>
-                            {% if latest_episode and latest_episode.title %}
-                            <div class="pp-label" style="color:#fff;font-weight:600;">{{ latest_episode.title }}</div>
-                            <div class="pp-tiny pp-text-muted" style="margin-top:4px;">{{ latest_episode.date }}</div>
-                            {% else %}
-                            <div class="pp-label">Watch Latest Episode</div>
-                            {% endif %}
-                        </div>
-                    </div>
+                <div id="pulseCheckEmbed" style="position:relative;width:100%;border-radius:8px;overflow:hidden;background:#000;">
+                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1&autoplay=0" style="width:100%;aspect-ratio:16/9;display:block;border:0;border-radius:8px;" allowfullscreen loading="lazy" title="Pulse Check - Daily Bitcoin Intelligence"></iframe>
                 </div>
             </div>
             <div>
