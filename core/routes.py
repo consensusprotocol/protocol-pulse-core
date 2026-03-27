@@ -13899,17 +13899,3 @@ def briefs_redirect():
 def affiliates():
     return render_template('affiliates.html')
 
-@app.route('/go/<partner_slug>')
-def affiliate_redirect(partner_slug):
-    import json as _j
-    try:
-        import os as _os
-        rp = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'data', 'referrals.json')
-        with open(rp) as f:
-            refs = _j.load(f)
-        for cat in refs.values():
-            if isinstance(cat, dict) and partner_slug in cat:
-                return redirect(cat[partner_slug].get('url', '/affiliates'), 302)
-    except Exception:
-        pass
-    return redirect('/affiliates', 302)
