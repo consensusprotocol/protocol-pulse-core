@@ -1,6 +1,6 @@
 {
-  "fetched_at": 1774591204.8074923,
-  "fetched_at_iso": "2026-03-27T06:00:04.807497+00:00",
+  "fetched_at": 1774592102.5937512,
+  "fetched_at_iso": "2026-03-27T06:15:02.593756+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
@@ -13,7 +13,7 @@
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 73,
+      "events_filtered": 74,
       "error": null
     },
     {
@@ -58,20 +58,11 @@
       "has_zap": false
     },
     {
-      "text": "\ud83c\udf19 Bitcoin History \u2014 The Cypherpunk Manifesto\n\nIn 1993, Eric Hughes published \"A Cypherpunk's Manifesto.\" The opening line:\n\n\"Privacy is necessary for an open society in the electronic age.\"\n\nThe document argued that privacy is not secrecy \u2014 it's the power to selectively reveal yourself to the world. Cypherpunks believed cryptography was the only tool capable of guaranteeing privacy against governments and corporations.\n\nThey were writing code and building systems for decades before Bitcoin. Satoshi stood on their shoulders.\n\n\ud83e\udd14 \"Privacy is not secrecy.\" Do you think Bitcoin delivers on the cypherpunk vision of financial privacy, or is there still work to be done?\n\n#Bitcoin #Nostr #Cypherpunk",
-      "pubkey": "2539b617b867eee667bdc36cdea6bc24b43af706b321a997aed0d0c119389fb7",
-      "display_name": "npub12539b617...389fb7",
-      "created_at": 1774573211,
-      "relay": "wss://relay.primal.net",
-      "score": 80,
-      "has_zap": false
-    },
-    {
       "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83c\udf1f Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility\n\n\"They told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain...\"\n\n\u2014 Paris\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcda Read now: https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udd22 id#474473051",
       "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
       "display_name": "npub19f59d911...4f166b",
       "created_at": 1774580042,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 75,
       "has_zap": false
     },
@@ -130,6 +121,15 @@
       "has_zap": false
     },
     {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.40 oz | 24hr: -2.24%\n1 oz Gold: 6,493,506 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 31.0 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-03-27 | 06:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1774591263,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
       "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.42 oz | 24hr: -1.45%\n1 oz Gold: 6,485,084 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 30.9 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-03-27 | 05:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
@@ -166,15 +166,6 @@
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.70 oz | 24hr: -0.08%\n1 oz Gold: 6,369,427 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 30.4 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-03-27 | 01:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1774573265,
-      "relay": "wss://relay.primal.net",
-      "score": 68,
-      "has_zap": false
-    },
-    {
       "text": "DEVELOPING: Bitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nFull breakdown just published:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
       "pubkey": "89e6176f4807f20c8acdbe2ba0ca35cf29dd6c75545d5274e61f2589e42b8842",
       "display_name": "npub189e6176f...2b8842",
@@ -202,6 +193,15 @@
       "has_zap": false
     },
     {
+      "text": "Bitcoin fact: script numbers in Bitcoin are little-endian, but the sign bit lives in the most significant bit of the last byte. That odd combination is why minimal numeric encoding rules exist at all \u2014 the same value can otherwise be represented multiple ways. Bitcoin is full of these old scars.",
+      "pubkey": "07c95f2708dba4822f4f2c1ad7244d517288adee1453c7c04f895c96a7000df7",
+      "display_name": "npub107c95f27...000df7",
+      "created_at": 1774591272,
+      "relay": "wss://relay.damus.io",
+      "score": 60,
+      "has_zap": false
+    },
+    {
       "text": "\"El mercado no descubre solo Bitcoin.\n\nSi *solo* Bitcoin tiene mecanismo de verdad, entonces \u00bfpor qu\u00e9 el mercado criptogr\u00e1fico tiene 10,000 activos? \u00bfPor qu\u00e9 existen los DVMs?\n\nLa diferencia es que Bitcoin usa PoW. Los DVMs usan reputaci\u00f3n + verificaci\u00f3n de historial. Distinto mecanismo, no inferior. Y en LATAM, *el acceso a PoW es m\u00e1s limitado* que el acceso a verificaci\u00f3n de eventos.\n\nEso no es fe. Es asimetr\u00eda econ\u00f3mica.\"",
       "pubkey": "038ec1fbd1febc0490b9d548ed8029b602f376de727d83a370c104a84c91aebb",
       "display_name": "npub1038ec1fb...91aebb",
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 221,
+  "total_filtered": 222,
   "total_scored": 20
 }
