@@ -1492,241 +1492,87 @@
     </div>
   </div>
 
-  {% if v2_ctx %}
   <!-- ══════════════════════════════════════════════════════════════
-       V2 ENGINE: CYCLE POSITION CHART
+       PULSE CHECK — DAILY BITCOIN INTELLIGENCE BRIEFING
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-top:16px;">
+    <div class="span-8">
+      <div class="g-panel accent-red" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px 8px;">
+          <div class="eyebrow">PULSE CHECK — DAILY BRIEFING</div>
+        </div>
+        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0a;">
+          <iframe
+            width="100%" height="100%"
+            src="https://www.youtube.com/embed/L_XrlNO-nv4?rel=0&modestbranding=1&color=white"
+            title="Pulse Check — Daily Bitcoin Intelligence Briefing"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:0 0 4px 4px;">
+          </iframe>
+        </div>
+      </div>
+    </div>
+    <div class="span-4">
+      <div class="g-panel accent-white" style="min-height:200px;">
+        <div class="eyebrow" style="color:rgba(255,255,255,0.5);">
+          <span style="color:#ff3b5f;">&#9679;</span>&nbsp; LATEST EPISODE
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:900;color:#fff;margin:12px 0 6px;">
+          Grade A Broadcast
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3);line-height:1.6;margin-bottom:16px;">
+          Daily Bitcoin intelligence briefing covering price action, on-chain metrics, macro signals, and sovereign thesis updates.
+        </div>
+        <a href="https://www.youtube.com/watch?v=L_XrlNO-nv4" target="_blank"
+           style="display:block; padding:10px 16px; background:#cc2222; color:#fff;
+                  text-align:center; border-radius:4px; font-size:0.8rem;
+                  font-family:'JetBrains Mono',monospace; text-decoration:none;">
+          &#9654; WATCH LATEST EPISODE
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       4-YEAR HALVING CYCLE OVERLAY — Chart.js Interactive
        ══════════════════════════════════════════════════════════════ -->
   <div class="intel-grid" style="margin-top:16px;">
     <div class="span-12">
       <div class="g-panel accent-red">
         <div class="eyebrow">4-YEAR HALVING CYCLE OVERLAY</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:12px;">
-          Price multiplier from halving price — current cycle vs historical
+          Price multiplier from halving price — current cycle vs historical (log scale)
         </div>
-        <canvas id="cycleChart" width="1200" height="400" style="width:100%;height:auto;max-height:400px;"></canvas>
-        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.10em;color:rgba(255,255,255,0.25);">
-            &#9632; <span style="color:rgba(255,100,100,0.4);">2012</span> &nbsp;
-            &#9632; <span style="color:rgba(100,200,255,0.4);">2016</span> &nbsp;
-            &#9632; <span style="color:rgba(180,140,255,0.4);">2020</span> &nbsp;
-            &#9632; <span style="color:#ff3b5f;">2024 (CURRENT)</span>
-          </span>
+        <div style="position:relative;height:380px;">
+          <canvas id="cycleChartJs"></canvas>
         </div>
-        {% if v2_ctx.cycle_chart %}
         <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:14px;">
           <div style="font-family:'JetBrains Mono',monospace;">
             <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
-            <div style="font-size:20px;font-weight:900;color:#fff;">{{ v2_ctx.cycle_chart.current_day }}</div>
+            <div style="font-size:20px;font-weight:900;color:#fff;">706</div>
           </div>
           <div style="font-family:'JetBrains Mono',monospace;">
             <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
-            <div style="font-size:20px;font-weight:900;color:#ff3b5f;">{{ v2_ctx.cycle_chart.current_multiplier }}x</div>
+            <div style="font-size:20px;font-weight:900;color:#ff3b5f;">1.03x</div>
           </div>
           <div style="font-family:'JetBrains Mono',monospace;">
             <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
-            <div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.5);">${{ "{:,.0f}".format(v2_ctx.cycle_chart.halving_price) }}</div>
+            <div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
           </div>
         </div>
-        {% endif %}
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       V2 ENGINE: PATTERN DETECTION + PREDICTIVE ESTIMATES
-       ══════════════════════════════════════════════════════════════ -->
-  <div class="intel-grid" style="margin-top:16px;">
-    <!-- Pattern Detection -->
-    <div class="span-6">
-      <div class="g-panel accent-red" style="min-height:300px;">
-        <div class="eyebrow">HISTORICAL PATTERN DETECTION</div>
-        {% if v2_ctx.patterns %}
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:900;color:#fff;margin-bottom:14px;">
-          {{ v2_ctx.patterns|length }} Pattern{{ 's' if v2_ctx.patterns|length != 1 }} Detected
-        </div>
-        {% for p in v2_ctx.patterns[:5] %}
-        <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-            <div style="flex:1;">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;color:{% if p.signal == 'bullish' %}#fff{% elif p.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};line-height:1.3;">
-                {% if p.signal == 'bullish' %}&#9650;{% elif p.signal == 'bearish' %}&#9660;{% else %}&#9679;{% endif %}
-                {{ p.title }}
-              </div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3);line-height:1.5;margin-top:4px;">
-                {{ p.description }}
-              </div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.15);margin-top:3px;letter-spacing:0.08em;">
-                REF: {{ p.reference_period }}
-              </div>
-            </div>
-            <div style="text-align:right;flex-shrink:0;">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:900;color:{% if p.confidence >= 75 %}#fff{% elif p.confidence >= 50 %}rgba(255,255,255,0.5){% else %}rgba(255,255,255,0.25){% endif %};">
-                {{ p.confidence }}%
-              </div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.2);text-transform:uppercase;">CONF</div>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.15);font-family:'JetBrains Mono',monospace;font-size:10px;">
-          No historical patterns matched current conditions.
-        </div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Predictive Estimates -->
-    <div class="span-6">
-      <div class="g-panel accent-white" style="min-height:300px;">
-        <div class="eyebrow" style="color:rgba(255,255,255,0.5);">
-          <span style="color:#ff3b5f;">&#9679;</span>&nbsp; PREDICTIVE ESTIMATES
-        </div>
-        {% if v2_ctx.estimates and v2_ctx.estimates.estimates %}
-        {% for est in v2_ctx.estimates.estimates %}
-        <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:0.08em;color:rgba(255,255,255,0.6);text-transform:uppercase;">
-              {{ est.title }}
-            </div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:{% if est.probability >= 65 %}#fff{% elif est.probability >= 45 %}rgba(255,255,255,0.5){% else %}#ff3b5f{% endif %};">
-              {{ est.probability }}%
-            </div>
-          </div>
-          <!-- Confidence bar -->
-          <div style="height:3px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden;">
-            <div style="height:100%;width:{{ est.probability }}%;background:{% if est.direction == 'bullish' %}#fff{% elif est.direction == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.3){% endif %};border-radius:2px;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);"></div>
-          </div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);margin-top:4px;line-height:1.4;">
-            {{ est.basis }} &bull; {{ est.timeframe }}
-          </div>
-        </div>
-        {% endfor %}
-        {% if v2_ctx.estimates.disclaimer %}
-        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.12);margin-top:10px;line-height:1.5;font-style:italic;">
-          {{ v2_ctx.estimates.disclaimer }}
-        </div>
-        {% endif %}
-        {% else %}
-        <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.15);font-family:'JetBrains Mono',monospace;font-size:10px;">
-          Estimates computing...
-        </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════════
-       V2 ENGINE: 10 CORE SIGNALS + CORRELATION MATRIX
-       ══════════════════════════════════════════════════════════════ -->
-  <div class="intel-grid" style="margin-top:16px;">
-    <!-- 10 Core Signals -->
-    <div class="span-7">
-      <div class="g-panel accent-red">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div class="eyebrow" style="margin-bottom:0;">10-SIGNAL INTELLIGENCE MATRIX</div>
-          {% if v2_ctx.signal_scores %}
-          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:900;color:{{ v2_ctx.signal_scores.color }};">
-            {{ v2_ctx.signal_scores.composite }}
-            <span style="font-size:8px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-left:4px;">{{ v2_ctx.signal_scores.label }}</span>
-          </div>
-          {% endif %}
-        </div>
-        {% if v2_ctx.signal_scores and v2_ctx.signal_scores.signals %}
-        {% for key, sig in v2_ctx.signal_scores.signals.items() %}
-        <div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div style="flex:1;">
-              <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:0.08em;color:rgba(255,255,255,0.5);text-transform:uppercase;">{{ sig.name }}</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:{% if sig.trend == 'up' %}rgba(255,255,255,0.4){% elif sig.trend == 'down' %}rgba(255,59,95,0.5){% else %}rgba(255,255,255,0.15){% endif %};">
-                  {% if sig.trend == 'up' %}&#9650;{% elif sig.trend == 'down' %}&#9660;{% else %}&#9644;{% endif %}
-                </span>
-              </div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.15);margin-top:2px;">{{ sig.description }}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:60px;height:2px;background:rgba(255,255,255,0.04);border-radius:1px;overflow:hidden;">
-                <div style="height:100%;width:{{ sig.score }}%;background:{% if sig.score >= 60 %}#fff{% elif sig.score >= 40 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};border-radius:1px;"></div>
-              </div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:{% if sig.score >= 60 %}#fff{% elif sig.score >= 40 %}rgba(255,255,255,0.4){% else %}#ff3b5f{% endif %};min-width:28px;text-align:right;">
-                {{ sig.score }}
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Signal Correlation Matrix -->
-    <div class="span-5">
-      <div class="g-panel accent-white">
-        <div class="eyebrow" style="color:rgba(255,255,255,0.5);">SIGNAL CORRELATION</div>
-        {% if v2_ctx.correlation %}
-        <div style="display:flex;gap:16px;margin-bottom:16px;">
-          <div style="font-family:'JetBrains Mono',monospace;">
-            <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Alignment</div>
-            <div style="font-size:24px;font-weight:900;color:#fff;">{{ v2_ctx.correlation.alignment }}%</div>
-          </div>
-          <div style="font-family:'JetBrains Mono',monospace;">
-            <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Consensus</div>
-            <div style="font-size:24px;font-weight:900;color:{% if v2_ctx.correlation.consensus == 'BULLISH' %}#fff{% elif v2_ctx.correlation.consensus == 'BEARISH' %}#ff3b5f{% else %}rgba(255,255,255,0.4){% endif %};">
-              {{ v2_ctx.correlation.consensus }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Bullish / Bearish / Neutral groupings -->
-        {% if v2_ctx.correlation.bullish %}
-        <div style="margin-bottom:10px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:0.14em;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:4px;">BULLISH ({{ v2_ctx.correlation.bullish|length }})</div>
-          {% for s in v2_ctx.correlation.bullish %}
-          <span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:3px;margin:2px 2px 2px 0;">{{ s.name }} {{ s.score }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-        {% if v2_ctx.correlation.bearish %}
-        <div style="margin-bottom:10px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:0.14em;color:rgba(255,59,95,0.4);text-transform:uppercase;margin-bottom:4px;">BEARISH ({{ v2_ctx.correlation.bearish|length }})</div>
-          {% for s in v2_ctx.correlation.bearish %}
-          <span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;color:#ff3b5f;background:rgba(255,59,95,0.06);padding:3px 8px;border-radius:3px;margin:2px 2px 2px 0;">{{ s.name }} {{ s.score }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-        {% if v2_ctx.correlation.neutral %}
-        <div style="margin-bottom:10px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:0.14em;color:rgba(255,255,255,0.15);text-transform:uppercase;margin-bottom:4px;">NEUTRAL ({{ v2_ctx.correlation.neutral|length }})</div>
-          {% for s in v2_ctx.correlation.neutral %}
-          <span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.02);padding:3px 8px;border-radius:3px;margin:2px 2px 2px 0;">{{ s.name }} {{ s.score }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-
-        <!-- Top divergences -->
-        {% if v2_ctx.correlation.divergences %}
-        <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.04);padding-top:10px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:0.14em;color:#ff3b5f;text-transform:uppercase;margin-bottom:6px;">TOP DIVERGENCES</div>
-          {% for d in v2_ctx.correlation.divergences[:3] %}
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-family:'JetBrains Mono',monospace;">
-            <span style="font-size:8px;color:rgba(255,255,255,0.4);">{{ d.signal_a }} ({{ d.score_a }}) vs {{ d.signal_b }} ({{ d.score_b }})</span>
-            <span style="font-size:9px;font-weight:900;color:#ff3b5f;">&#916; {{ d.spread }}</span>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
 
 </div><!-- /intel-container -->
 </div><!-- /intel-page -->
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (function() {
   'use strict';
@@ -2516,93 +2362,122 @@
   })();
 
   // ═══════════════════════════════════════════════════════════════
-  // V2: CYCLE POSITION CHART — 4-year halving overlay (log scale)
+  // HALVING CYCLE OVERLAY — Chart.js interactive (log scale)
   // ═══════════════════════════════════════════════════════════════
-  (function initCycleChart() {
-    const canvas = document.getElementById('cycleChart');
-    if (!canvas || !V2.cycle_chart) return;
-    const c = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = 1200 * dpr;
-    canvas.height = 400 * dpr;
-    c.scale(dpr, dpr);
-    const W = 1200, H = 400;
-    const PAD = { top: 30, right: 40, bottom: 40, left: 60 };
+  (function initHalvingChart() {
+    var canvas = document.getElementById('cycleChartJs');
+    if (!canvas) return;
 
-    const cycles = V2.cycle_chart.cycles || {};
-    const currentDay = V2.cycle_chart.current_day || 0;
+    var halvingPrices = {2012: 12, 2016: 650, 2020: 8600, 2024: 63800};
+    var rawData = {
+      2012: {0:1, 100:2.5, 200:8, 300:40, 365:80, 500:50, 600:30, 700:20, 800:15, 900:10, 1000:8, 1400:5},
+      2016: {0:1, 100:1.2, 200:1.8, 300:2.5, 365:2.9, 400:3.5, 500:5, 550:8, 580:14, 600:10, 700:6, 800:4, 1000:3, 1400:4},
+      2020: {0:1, 100:1.5, 200:2.5, 300:4, 365:6, 400:7.5, 500:7, 530:8, 540:7, 600:4, 700:3, 800:3.5, 1000:4, 1400:7},
+      2024: {0:1, 50:0.95, 100:1.0, 150:1.05, 200:1.1, 250:1.05, 300:1.02, 350:0.98, 400:0.97, 500:0.95, 600:0.97, 706:1.03}
+    };
 
-    const maxDay = 1460;
-    let maxMult = 0;
-    Object.values(cycles).forEach(function(cyc) {
-      (cyc.points || []).forEach(function(p) { if (p.mult > maxMult) maxMult = p.mult; });
-    });
-    maxMult = Math.min(maxMult, 100);
-    const logMax = Math.log10(Math.max(maxMult, 2));
-
-    function xPos(day) { return PAD.left + (day / maxDay) * (W - PAD.left - PAD.right); }
-    function yPos(mult) {
-      var lv = Math.log10(Math.max(mult, 0.1));
-      return PAD.top + (1 - lv / logMax) * (H - PAD.top - PAD.bottom);
+    function toPoints(obj) {
+      return Object.keys(obj).map(function(k) { return {x: parseInt(k), y: obj[k]}; })
+        .sort(function(a,b) { return a.x - b.x; });
     }
 
-    c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
+    var todayPlugin = {
+      id: 'todayLine',
+      afterDraw: function(chart) {
+        var xScale = chart.scales.x, yScale = chart.scales.y, ctx = chart.ctx;
+        var xPx = xScale.getPixelForValue(706);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,34,34,0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xPx, yScale.top);
+        ctx.lineTo(xPx, yScale.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#ff2222';
+        ctx.font = '800 10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('TODAY', xPx, yScale.top - 6);
+        ctx.restore();
+      }
+    };
 
-    // Grid
-    c.strokeStyle = 'rgba(255,255,255,0.03)'; c.lineWidth = 1;
-    [1, 2, 5, 10, 20, 50].forEach(function(m) {
-      if (m <= maxMult) {
-        var y = yPos(m);
-        c.beginPath(); c.moveTo(PAD.left, y); c.lineTo(W - PAD.right, y); c.stroke();
-        c.fillStyle = 'rgba(255,255,255,0.15)';
-        c.font = '600 9px JetBrains Mono, monospace';
-        c.textAlign = 'right';
-        c.fillText(m + 'x', PAD.left - 8, y + 3);
+    var glowPlugin = {
+      id: 'glowDot',
+      afterDatasetsDraw: function(chart) {
+        var ds = chart.getDatasetMeta(3);
+        if (!ds || !ds.data.length) return;
+        var lastPt = ds.data[ds.data.length - 1];
+        if (!lastPt) return;
+        var ctx = chart.ctx;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(lastPt.x, lastPt.y, 12, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,34,34,0.2)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(lastPt.x, lastPt.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#ff2222';
+        ctx.fill();
+        ctx.restore();
+      }
+    };
+
+    new Chart(canvas, {
+      type: 'line',
+      plugins: [todayPlugin, glowPlugin],
+      data: {
+        datasets: [
+          {label: '2012', data: toPoints(rawData[2012]), borderColor: '#ff4444', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 0, tension: 0.3},
+          {label: '2016', data: toPoints(rawData[2016]), borderColor: '#888888', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 0, tension: 0.3},
+          {label: '2020', data: toPoints(rawData[2020]), borderColor: '#aaaaaa', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 0, tension: 0.3},
+          {label: '2024 (CURRENT)', data: toPoints(rawData[2024]), borderColor: '#ff2222', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0.3}
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {mode: 'index', intersect: false},
+        scales: {
+          x: {
+            type: 'linear', min: 0, max: 1400,
+            title: {display: true, text: 'Days Since Halving', color: 'rgba(255,255,255,0.3)', font: {family: "'JetBrains Mono', monospace", size: 10, weight: 700}},
+            grid: {color: 'rgba(255,255,255,0.05)'},
+            ticks: {color: 'rgba(255,255,255,0.25)', font: {family: "'JetBrains Mono', monospace", size: 9}, stepSize: 200}
+          },
+          y: {
+            type: 'logarithmic', min: 0.5,
+            title: {display: true, text: 'Multiplier vs Halving Price', color: 'rgba(255,255,255,0.3)', font: {family: "'JetBrains Mono', monospace", size: 10, weight: 700}},
+            grid: {color: 'rgba(255,255,255,0.05)'},
+            ticks: {color: 'rgba(255,255,255,0.25)', font: {family: "'JetBrains Mono', monospace", size: 9},
+              callback: function(v) { return v + 'x'; }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true, position: 'top',
+            labels: {color: 'rgba(255,255,255,0.5)', font: {family: "'JetBrains Mono', monospace", size: 9, weight: 700}, boxWidth: 12, padding: 16}
+          },
+          tooltip: {
+            backgroundColor: 'rgba(10,10,10,0.95)', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.7)',
+            titleFont: {family: "'JetBrains Mono', monospace", size: 11, weight: 800},
+            bodyFont: {family: "'JetBrains Mono', monospace", size: 10},
+            borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+            callbacks: {
+              title: function(items) { return 'Day ' + Math.round(items[0].parsed.x); },
+              label: function(ctx) {
+                var year = [2012,2016,2020,2024][ctx.datasetIndex];
+                var mult = ctx.parsed.y.toFixed(2);
+                var price = '$' + Math.round(ctx.parsed.y * halvingPrices[year]).toLocaleString();
+                return ctx.dataset.label + ': ' + mult + 'x (' + price + ')';
+              }
+            }
+          }
+        }
       }
     });
-
-    c.fillStyle = 'rgba(255,255,255,0.15)';
-    c.font = '600 9px JetBrains Mono, monospace';
-    c.textAlign = 'center';
-    [0, 200, 400, 600, 800, 1000, 1200, 1400].forEach(function(d) {
-      c.fillText('D' + d, xPos(d), H - PAD.bottom + 18);
-    });
-
-    var colors = { '2012': 'rgba(255,100,100,0.35)', '2016': 'rgba(100,200,255,0.35)', '2020': 'rgba(180,140,255,0.35)', '2024': '#ff3b5f' };
-    var lw = { '2012': 1, '2016': 1, '2020': 1, '2024': 2.5 };
-
-    ['2012', '2016', '2020', '2024'].forEach(function(name) {
-      var cyc = cycles[name];
-      if (!cyc || !cyc.points || cyc.points.length < 2) return;
-      var pts = cyc.points.slice().sort(function(a, b) { return a.day - b.day; });
-      c.strokeStyle = colors[name] || 'rgba(255,255,255,0.2)';
-      c.lineWidth = lw[name] || 1;
-      c.beginPath();
-      pts.forEach(function(p, i) {
-        var x = xPos(p.day), y = yPos(p.mult);
-        if (i === 0) c.moveTo(x, y); else c.lineTo(x, y);
-      });
-      c.stroke();
-      if (cyc.peak_day > 0 && name !== '2024') {
-        c.fillStyle = colors[name];
-        c.beginPath(); c.arc(xPos(cyc.peak_day), yPos(cyc.peak_mult), 3, 0, Math.PI * 2); c.fill();
-      }
-    });
-
-    // Current position marker
-    var cx = xPos(currentDay), cy = yPos(V2.cycle_chart.current_multiplier || 1);
-    c.fillStyle = '#ff3b5f';
-    c.beginPath(); c.arc(cx, cy, 5, 0, Math.PI * 2); c.fill();
-    c.strokeStyle = 'rgba(255,59,95,0.3)'; c.lineWidth = 1;
-    c.beginPath(); c.arc(cx, cy, 10, 0, Math.PI * 2); c.stroke();
-    c.strokeStyle = 'rgba(255,59,95,0.15)';
-    c.setLineDash([4, 4]);
-    c.beginPath(); c.moveTo(cx, PAD.top); c.lineTo(cx, H - PAD.bottom); c.stroke();
-    c.setLineDash([]);
-    c.fillStyle = '#ff3b5f';
-    c.font = '800 10px JetBrains Mono, monospace';
-    c.textAlign = 'center';
-    c.fillText('DAY ' + currentDay, cx, PAD.top - 8);
   })();
 
   // ═══════════════════════════════════════════════════════════════
