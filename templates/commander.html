@@ -1,240 +1,463 @@
 {% extends "base.html" %}
 {% block title %}Commander — Protocol Pulse{% endblock %}
-{% block meta_description %}Protocol Pulse Commander: premium Bitcoin intelligence API. Real-time signals, sentiment analysis, spaces monitoring, TradFi correlation. $49/mo.{% endblock %}
+{% block meta_description %}What the network saw while you were sleeping. Protocol Pulse Commander — live Bitcoin intelligence, $49/mo.{% endblock %}
 
 {% block content %}
 <style>
-    .commander-hero {
+    :root {
+        --bg: #06070b;
+        --panel: #0d1118;
+        --red: #ff3b5f;
+        --gold: #f8c15c;
+        --cyan: #5de4ff;
+        --text: #eef2ff;
+        --muted: #95a0ba;
+        --glow-red: rgba(255,59,95,0.14);
+        --glow-cyan: rgba(93,228,255,0.08);
+    }
+
+    .cmd-page {
         min-height: 100vh;
-        background: #000;
-        color: #fff;
-        font-family: 'JetBrains Mono', monospace;
-    }
-    .commander-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 60px 24px;
-    }
-    .commander-badge {
-        display: inline-block;
-        padding: 6px 16px;
-        border: 1px solid #F7931A;
-        color: #F7931A;
-        font-size: 0.75rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        margin-bottom: 24px;
-    }
-    .commander-title {
-        font-size: 3rem;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 16px;
-        background: linear-gradient(135deg, #F7931A, #FFD700);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    .commander-subtitle {
-        font-size: 1.2rem;
-        color: #888;
-        margin-bottom: 48px;
-        max-width: 600px;
-    }
-    .price-block {
+        background: var(--bg);
         display: flex;
-        align-items: baseline;
-        gap: 8px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Three-source background glow (VDS Section 3) */
+    .cmd-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 600px 500px at 15% 20%, var(--glow-red), transparent),
+            radial-gradient(ellipse 500px 400px at 85% 15%, var(--glow-cyan), transparent),
+            radial-gradient(ellipse 400px 300px at 50% 90%, rgba(248,193,92,0.06), transparent);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Subtle scanlines (VDS Layer 4) */
+    .cmd-page::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 3px,
+            rgba(255,255,255,0.015) 3px,
+            rgba(255,255,255,0.015) 4px
+        );
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .cmd-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 960px;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Wordmark */
+    .cmd-wordmark {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        color: var(--red);
+        text-transform: uppercase;
+        margin-bottom: 48px;
+    }
+
+    /* Headline */
+    .cmd-headline {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: clamp(2rem, 5.5vw, 3.4rem);
+        font-weight: 900;
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        color: var(--text);
+        margin: 0 0 16px;
+        text-shadow: 0 4px 28px rgba(0,0,0,0.4);
+    }
+
+    .cmd-subline {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: #555;
+        letter-spacing: 0.02em;
+        margin-bottom: 48px;
+    }
+
+    .cmd-subline .cmd-time-ago {
+        color: var(--gold);
+        font-weight: 700;
+    }
+
+    /* Signal cards row */
+    .cmd-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
         margin-bottom: 40px;
     }
-    .price-amount {
-        font-size: 3.5rem;
-        font-weight: 900;
-        color: #F7931A;
+
+    @media (max-width: 700px) {
+        .cmd-cards { grid-template-columns: 1fr; }
     }
-    .price-period {
-        font-size: 1.2rem;
-        color: #666;
+
+    .cmd-card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 24px 20px;
+        text-align: left;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s;
     }
-    .features-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 48px;
+
+    .cmd-card:hover {
+        border-color: rgba(255,59,95,0.25);
     }
-    @media (max-width: 600px) {
-        .features-grid { grid-template-columns: 1fr; }
-        .commander-title { font-size: 2rem; }
+
+    .cmd-card--locked {
+        filter: blur(6px);
+        user-select: none;
+        pointer-events: none;
     }
-    .feature-card {
-        background: #0a0a0a;
-        border: 1px solid #1a1a1a;
-        border-left: 3px solid #F7931A;
-        padding: 20px;
-        border-radius: 4px;
+
+    .cmd-card__lock-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(6,7,11,0.6);
+        z-index: 2;
+        filter: none !important;
+        border-radius: 16px;
     }
-    .feature-card h3 {
-        color: #F7931A;
-        font-size: 0.9rem;
-        margin: 0 0 8px;
+
+    .cmd-card__lock-overlay i {
+        font-size: 1.5rem;
+        color: var(--muted);
+        margin-bottom: 8px;
+    }
+
+    .cmd-card__lock-overlay span {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        letter-spacing: 1px;
     }
-    .feature-card p {
-        color: #999;
-        font-size: 0.85rem;
-        margin: 0;
-        line-height: 1.5;
-    }
-    .cta-button {
-        display: inline-block;
-        padding: 16px 48px;
-        background: linear-gradient(135deg, #F7931A, #E88A00);
-        color: #000;
+
+    .cmd-card__eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
         font-weight: 800;
-        font-size: 1.1rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cmd-card__eyebrow i {
+        font-size: 0.8rem;
+    }
+
+    .cmd-card__eyebrow .icon-whale { color: var(--red); }
+    .cmd-card__eyebrow .icon-spaces { color: #f59e0b; }
+    .cmd-card__eyebrow .icon-miner { color: var(--cyan); }
+
+    .cmd-card__score {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.8rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .cmd-card__score .score-label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        vertical-align: super;
+        margin-left: 4px;
+    }
+
+    .cmd-card__score .score-label--bullish { color: #89ffb8; }
+    .cmd-card__score .score-label--bearish { color: #ff8ba0; }
+    .cmd-card__score .score-label--neutral { color: var(--muted); }
+
+    .cmd-card__detail {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .cmd-card__confidence {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cmd-card__confidence-bar {
+        flex: 1;
+        height: 3px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .cmd-card__confidence-fill {
+        height: 100%;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--red), var(--gold));
+    }
+
+    .cmd-card__confidence-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+    }
+
+    /* Proof text */
+    .cmd-proof {
+        margin-bottom: 8px;
+    }
+
+    .cmd-proof p {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 0.95rem;
+        color: #555;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .cmd-proof p strong {
+        color: var(--text);
+        font-weight: 700;
+    }
+
+    /* CTA */
+    .cmd-cta-wrap {
+        margin: 32px auto 0;
+        max-width: 400px;
+    }
+
+    .cmd-cta {
+        display: block;
+        width: 100%;
+        padding: 18px 36px;
+        background: linear-gradient(135deg, #dc2626, var(--red));
+        color: #fff;
+        font-family: Inter, system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 1.05rem;
+        letter-spacing: 0.03em;
         text-decoration: none;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        transition: box-shadow 0.3s;
+        text-align: center;
+        box-shadow: 0 0 40px rgba(220,38,38,0.3);
+        transition: box-shadow 0.3s, transform 0.15s;
     }
-    .cta-button:hover {
-        box-shadow: 0 0 30px rgba(247, 147, 26, 0.4);
+
+    .cmd-cta:hover {
+        box-shadow: 0 0 60px rgba(220,38,38,0.5);
+        transform: translateY(-1px);
     }
-    .cta-button:disabled {
+
+    .cmd-cta:disabled {
         opacity: 0.5;
         cursor: wait;
     }
-    .endpoint-list {
-        margin: 48px 0;
-        padding: 0;
-        list-style: none;
-    }
-    .endpoint-list li {
-        padding: 12px 0;
-        border-bottom: 1px solid #111;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .endpoint-method {
-        background: #1a1a1a;
-        color: #4ade80;
-        padding: 2px 8px;
+
+    .cmd-footer-links {
+        margin-top: 20px;
+        font-family: 'JetBrains Mono', monospace;
         font-size: 0.7rem;
-        border-radius: 2px;
-        font-weight: 700;
+        color: #444;
+        letter-spacing: 0.02em;
     }
-    .endpoint-path {
-        color: #ccc;
-        font-size: 0.9rem;
+
+    .cmd-footer-links a {
+        color: #555;
+        text-decoration: none;
+        transition: color 0.2s;
     }
-    .endpoint-desc {
-        color: #666;
-        font-size: 0.8rem;
-        margin-left: auto;
+
+    .cmd-footer-links a:hover {
+        color: var(--gold);
     }
-    .glow-border {
-        box-shadow: 0 0 60px rgba(247, 147, 26, 0.1), inset 0 0 60px rgba(247, 147, 26, 0.05);
-        border: 1px solid rgba(247, 147, 26, 0.2);
-        border-radius: 8px;
-        padding: 40px;
-        margin-bottom: 48px;
+
+    /* Locked card wrapper needs blur on child only */
+    .cmd-card-wrap--locked {
+        position: relative;
+    }
+
+    .cmd-card-wrap--locked .cmd-card {
+        filter: blur(6px);
+        user-select: none;
     }
 </style>
 
-<div class="commander-hero">
-    <div class="commander-container">
-        <div class="commander-badge">Premium Intelligence</div>
-        <h1 class="commander-title">PROTOCOL PULSE<br>COMMANDER</h1>
-        <p class="commander-subtitle">
-            Production-grade Bitcoin intelligence API. Real-time signals, sentiment composites,
-            X Spaces monitoring, TradFi correlation — delivered at machine speed.
+<div class="cmd-page">
+    <div class="cmd-inner">
+
+        <!-- Wordmark -->
+        <div class="cmd-wordmark">Protocol Pulse</div>
+
+        <!-- Headline -->
+        <h1 class="cmd-headline">
+            What the network saw<br>while you were sleeping.
+        </h1>
+        <p class="cmd-subline">
+            Commander operators received this <span class="cmd-time-ago">6 hours ago</span>.
         </p>
 
-        <div class="glow-border">
-            <div class="price-block">
-                <span class="price-amount">$49</span>
-                <span class="price-period">/month</span>
+        <!-- Signal Cards -->
+        <div class="cmd-cards">
+
+            <!-- Card 1: Whale / On-Chain Accumulation (VISIBLE) -->
+            <div class="cmd-card">
+                <div class="cmd-card__eyebrow">
+                    <i class="fas fa-bolt icon-whale"></i>
+                    WHALE ALERT
+                </div>
+                {% if signals.get('on_chain_accumulation') %}
+                <div class="cmd-card__score">
+                    {{ signals.on_chain_accumulation.score }}
+                    {% if signals.on_chain_accumulation.trend == 'up' %}
+                    <span class="score-label score-label--bullish">ACCUMULATING</span>
+                    {% elif signals.on_chain_accumulation.trend == 'down' %}
+                    <span class="score-label score-label--bearish">DISTRIBUTING</span>
+                    {% else %}
+                    <span class="score-label score-label--neutral">NEUTRAL</span>
+                    {% endif %}
+                </div>
+                <p class="cmd-card__detail">{{ signals.on_chain_accumulation.detail }}</p>
+                <div class="cmd-card__confidence">
+                    <div class="cmd-card__confidence-bar">
+                        <div class="cmd-card__confidence-fill" style="width:{{ signals.on_chain_accumulation.confidence }}%"></div>
+                    </div>
+                    <span class="cmd-card__confidence-label">{{ signals.on_chain_accumulation.confidence }}% CONF</span>
+                </div>
+                {% else %}
+                <div class="cmd-card__score">72 <span class="score-label score-label--bullish">ACCUMULATING</span></div>
+                <p class="cmd-card__detail">Exchange outflows detected across major venues</p>
+                {% endif %}
             </div>
 
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Live Signals</h3>
-                    <p>Real-time BTC signal score computed from on-chain, sentiment, social, macro, and whale activity.</p>
+            <!-- Card 2: Narrative Velocity / Spaces Intel (VISIBLE) -->
+            <div class="cmd-card">
+                <div class="cmd-card__eyebrow">
+                    <i class="fas fa-microphone icon-spaces"></i>
+                    X SPACES INTEL
                 </div>
-                <div class="feature-card">
-                    <h3>Spaces Monitor</h3>
-                    <p>Live Bitcoin Twitter/X Spaces detection with transcription summaries and sentiment analysis.</p>
+                {% if signals.get('narrative_velocity') %}
+                <div class="cmd-card__score">
+                    {{ signals.narrative_velocity.score }}
+                    {% if signals.narrative_velocity.trend == 'up' %}
+                    <span class="score-label score-label--bullish">ACCELERATING</span>
+                    {% elif signals.narrative_velocity.trend == 'down' %}
+                    <span class="score-label score-label--bearish">FADING</span>
+                    {% else %}
+                    <span class="score-label score-label--neutral">STEADY</span>
+                    {% endif %}
                 </div>
-                <div class="feature-card">
-                    <h3>Sentiment Composite</h3>
-                    <p>Multi-source sentiment analysis: Fear &amp; Greed, social velocity, narrative detection, market impact.</p>
+                <p class="cmd-card__detail">{{ signals.narrative_velocity.detail }}</p>
+                <div class="cmd-card__confidence">
+                    <div class="cmd-card__confidence-bar">
+                        <div class="cmd-card__confidence-fill" style="width:{{ signals.narrative_velocity.confidence }}%"></div>
+                    </div>
+                    <span class="cmd-card__confidence-label">{{ signals.narrative_velocity.confidence }}% CONF</span>
                 </div>
-                <div class="feature-card">
-                    <h3>TradFi Signals</h3>
-                    <p>Traditional finance correlation data: DXY, yields, SPX, gold — with BTC relevance scoring.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Alert Webhooks</h3>
-                    <p>Push breaking alerts to your webhook endpoint when signal velocity exceeds your threshold.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>1000 req/day</h3>
-                    <p>Production-ready rate limits. Simple API key auth. JSON responses. Zero login friction.</p>
-                </div>
+                {% else %}
+                <div class="cmd-card__score">64 <span class="score-label score-label--neutral">STEADY</span></div>
+                <p class="cmd-card__detail">Narrative momentum tracked across KOL network</p>
+                {% endif %}
             </div>
 
-            <button class="cta-button" id="activate-btn" onclick="activateCommander()">
-                ACTIVATE COMMANDER
+            <!-- Card 3: Miner Signal (LOCKED / BLURRED) -->
+            <div class="cmd-card-wrap--locked">
+                <div class="cmd-card">
+                    <div class="cmd-card__eyebrow">
+                        <i class="fas fa-hammer icon-miner"></i>
+                        MINER SIGNAL
+                    </div>
+                    {% if signals.get('miner_conviction') %}
+                    <div class="cmd-card__score">
+                        {{ signals.miner_conviction.score }}
+                        <span class="score-label score-label--bullish">EXPANDING</span>
+                    </div>
+                    <p class="cmd-card__detail">{{ signals.miner_conviction.detail }}</p>
+                    <div class="cmd-card__confidence">
+                        <div class="cmd-card__confidence-bar">
+                            <div class="cmd-card__confidence-fill" style="width:{{ signals.miner_conviction.confidence|default(70) }}%"></div>
+                        </div>
+                        <span class="cmd-card__confidence-label">{{ signals.miner_conviction.confidence|default(70) }}% CONF</span>
+                    </div>
+                    {% else %}
+                    <div class="cmd-card__score">81 <span class="score-label score-label--bullish">EXPANDING</span></div>
+                    <p class="cmd-card__detail">Hashrate conviction signal with difficulty adjustment</p>
+                    {% endif %}
+                </div>
+                <!-- Lock overlay sits OUTSIDE the blurred card -->
+                <div class="cmd-card__lock-overlay">
+                    <i class="fas fa-lock"></i>
+                    <span>Commander only</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proof text -->
+        <div class="cmd-proof">
+            <p><strong>Commander operators saw all three in real-time.</strong></p>
+            <p>You're seeing this now.</p>
+        </div>
+
+        <!-- CTA -->
+        <div class="cmd-cta-wrap">
+            <button class="cmd-cta" id="cmd-activate" onclick="activateCommander()">
+                Activate Commander &mdash; $49/mo
             </button>
         </div>
 
-        <h2 style="color:#F7931A;font-size:1.2rem;letter-spacing:2px;margin-bottom:24px;">API ENDPOINTS</h2>
-        <ul class="endpoint-list">
-            <li>
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/v1/signals/live</span>
-                <span class="endpoint-desc">Real-time signal score</span>
-            </li>
-            <li>
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/v1/spaces/live</span>
-                <span class="endpoint-desc">Active Spaces monitor</span>
-            </li>
-            <li>
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/v1/tradfi/signals</span>
-                <span class="endpoint-desc">TradFi correlation data</span>
-            </li>
-            <li>
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/v1/sentiment/composite</span>
-                <span class="endpoint-desc">Sentiment composite score</span>
-            </li>
-            <li>
-                <span class="endpoint-method">POST</span>
-                <span class="endpoint-path">/api/v1/alerts/webhook</span>
-                <span class="endpoint-desc">Register alert webhook</span>
-            </li>
-        </ul>
-
-        <div style="margin-top:48px;padding:24px;background:#0a0a0a;border-radius:4px;border:1px solid #1a1a1a;">
-            <p style="color:#888;font-size:0.8rem;margin:0 0 12px;">Quick start after activation:</p>
-            <pre style="color:#4ade80;font-size:0.85rem;overflow-x:auto;margin:0;"><code>curl -s https://protocolpulse.io/api/v1/signals/live \
-  -H "X-Commander-Key: YOUR_API_KEY" | jq .</code></pre>
+        <!-- Footer links -->
+        <div class="cmd-footer-links">
+            Pay in Bitcoin &rarr; coming soon &nbsp;|&nbsp;
+            <a href="/commander/dashboard">Already a Commander? Log in</a>
         </div>
     </div>
 </div>
 
 <script>
 async function activateCommander() {
-    const btn = document.getElementById('activate-btn');
+    const btn = document.getElementById('cmd-activate');
     btn.disabled = true;
-    btn.textContent = 'CONNECTING TO STRIPE...';
+    btn.textContent = 'CONNECTING...';
     try {
         const resp = await fetch('/api/v1/checkout/create-session', {
             method: 'POST',
@@ -245,11 +468,11 @@ async function activateCommander() {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            btn.textContent = 'ERROR — TRY AGAIN';
+            btn.textContent = 'ERROR \u2014 TRY AGAIN';
             btn.disabled = false;
         }
     } catch(e) {
-        btn.textContent = 'ERROR — TRY AGAIN';
+        btn.textContent = 'ERROR \u2014 TRY AGAIN';
         btn.disabled = false;
     }
 }

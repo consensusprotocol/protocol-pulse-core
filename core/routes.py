@@ -13572,7 +13572,44 @@ def api_auth_register():
         return jsonify({'error': 'Registration failed. Try again.'}), 500
 
 
-# ── Commander Welcome ─────────────────────────────────────────────────────────
+# ── Commander Pages ───────────────────────────────────────────────────────────
+
+@app.route('/commander')
+def commander_page():
+    """Commander conversion page — live signal proof, one dramatic screen."""
+    signals = {}
+    btc_price = None
+    kol_quote = None
+
+    try:
+        _project = str(Path(__file__).resolve().parent.parent)
+        sys.path.insert(0, _project) if _project not in sys.path else None
+        from services.intelligence_engine_v2 import IntelligenceEngineV2
+        engine = IntelligenceEngineV2()
+        all_signals = engine.compute_signal_scores()
+        for key in ("on_chain_accumulation", "narrative_velocity", "miner_conviction"):
+            if key in all_signals:
+                signals[key] = all_signals[key]
+    except Exception as e:
+        logging.warning(f"Commander signals failed: {e}")
+
+    try:
+        from services.panopticon_service import get_btc_price
+        btc_price = get_btc_price()
+    except Exception:
+        btc_price = None
+
+    try:
+        from services.intelligence_engine_v2 import _read_json, LATEST_PATH
+        ctx = _read_json(LATEST_PATH) or {}
+        whale_alerts = ctx.get("whale_alerts", [])
+        if whale_alerts:
+            kol_quote = whale_alerts[0].get("message", "")[:120]
+    except Exception:
+        kol_quote = None
+
+    return render_template('commander.html', signals=signals, btc_price=btc_price, kol_quote=kol_quote)
+
 
 @app.route('/commander/welcome')
 def commander_welcome():
