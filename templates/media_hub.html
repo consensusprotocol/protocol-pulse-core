@@ -152,8 +152,8 @@
 .sec-head-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--bright)}
 .sec-head-updated{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-left:auto}
 
-/* ── NETWORK FEED + VIDEO FEED GRID ── */
-.feed-duo{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:40px 0 0}
+/* ── NETWORK FEED GRID ── */
+.feed-duo{padding:40px 0 0}
 .feed-section{min-width:0}
 .feed-list{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow-y:auto;padding-right:4px}
 .feed-list::-webkit-scrollbar{width:3px}
@@ -170,17 +170,23 @@
 .nfi-sent{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
 .nfi-sent.bullish{background:#ff0000}.nfi-sent.bearish{background:#333}.nfi-sent.neutral{background:#666}
 
-/* ── VIDEO FEED ITEM ── */
-.vfi{display:flex;gap:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);transition:all .2s;text-decoration:none;color:inherit;cursor:pointer}
-.vfi:hover{border-color:rgba(248,193,92,0.3);background:rgba(255,255,255,0.03);transform:translateY(-1px)}
-.vfi-thumb{width:80px;height:45px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--elevated)}
-.vfi-info{flex:1;min-width:0}
-.vfi-channel{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:600;color:var(--gold);margin-bottom:2px}
-.vfi-title{font-size:12px;font-weight:600;color:var(--bright);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.vfi-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-top:3px}
-.vfi-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 5px;border-radius:3px;text-transform:uppercase;font-weight:600;margin-left:6px}
-.vfi-badge.yt{background:rgba(255,0,0,0.1);color:#ff4444}
-.vfi-badge.pod{background:rgba(248,193,92,0.1);color:var(--gold)}
+/* ── VIDEO INTEL SERIES CARDS ── */
+.vi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.vi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .3s;text-decoration:none;color:inherit}
+.vi-card:hover{border-color:rgba(220,38,38,0.4);transform:translateY(-3px);box-shadow:0 12px 40px rgba(220,38,38,0.08)}
+.vi-card:hover .vi-img{transform:scale(1.05)}
+.vi-img-w{position:relative;overflow:hidden;aspect-ratio:16/9;background:var(--elevated)}
+.vi-img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.vi-ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.85) 100%)}
+.vi-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:rgba(220,38,38,.85);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.vi-card:hover .vi-play{opacity:1}
+.vi-play i{color:white;font-size:13px;margin-left:2px}
+.vi-dur{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--pri);border:1px solid rgba(255,255,255,.08)}
+.vi-score{position:absolute;bottom:8px;left:8px;background:rgba(220,38,38,.85);padding:2px 8px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:white;font-weight:700}
+.vi-new{position:absolute;top:8px;left:8px;background:var(--red);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:white;font-weight:700;animation:tagPulse 2s infinite}
+.vi-body{padding:12px 14px 14px}
+.vi-src{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px}
+.vi-title{font-size:13px;font-weight:700;color:var(--bright);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* ── LIVE SIGNAL TERMINAL ── */
 .signal-terminal{margin:40px 0 0;background:#0a0a0a;border:1px solid rgba(220,38,38,0.15);border-radius:12px;overflow:hidden}
@@ -215,7 +221,7 @@
 @media(max-width:1024px){
   .matrix{grid-template-columns:1fr 1fr;gap:16px}
   .matrix-col.kol-col{grid-column:span 2}
-  .feed-duo{grid-template-columns:1fr 1fr}
+  .feed-duo{grid-template-columns:1fr}
 }
 @media(max-width:768px){
   .matrix{grid-template-columns:1fr;gap:16px}
@@ -317,7 +323,7 @@
       </div>
     </div>
 
-    <!-- ── COLUMN 2: VIDEO INTEL ── -->
+    <!-- ── COLUMN 2: VIDEO INTEL (Series Cards) ── -->
     <div class="matrix-col">
       <div class="matrix-head">
         <div class="matrix-head-icon vid"><i class="fas fa-play"></i></div>
@@ -326,29 +332,28 @@
       </div>
       <div class="matrix-feed" id="vidFeed">
         {% if feed_matrix.videos %}
+          <div class="vi-grid">
           {% for ep in feed_matrix.videos %}
-          <a class="fi" href="{{ ep.source_url or ep.video_url or '#' }}" target="_blank" rel="noopener" data-voice="{{ ep.feed_name|lower }}" onclick="event.preventDefault();openVideoModal('{{ ep.guid }}')">
-            <div class="fi-row">
+          <div class="vi-card" onclick="openVideoModal('{{ ep.guid }}','{{ ep.title|e }}','{{ ep.feed_name|e }}','{{ ep.published_at[:10] if ep.published_at else '' }}','{{ ep.summary_ai|e if ep.summary_ai else '' }}')">
+            <div class="vi-img-w">
               {% if ep.thumbnail_url %}
-              <div class="fi-thumb-yt">
-                <img src="{{ ep.thumbnail_url }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">
-                <div class="fi-play-ov"><div class="fi-play-circle"><i class="fas fa-play"></i></div></div>
-              </div>
+              <img class="vi-img" src="{{ ep.thumbnail_url }}" alt="" loading="lazy">
               {% endif %}
-              <div class="fi-info">
-                <div class="fi-show vid">{{ ep.feed_name }}</div>
-                <div class="fi-title">{{ ep.title }}</div>
-                <div class="fi-meta">
-                  {% if ep.published_at %}<span class="fi-time">{{ ep.published_at[:10] }}</span>{% endif %}
-                  {% if ep.signal_score >= 70 %}<span class="fi-score high">{{ ep.signal_score }}</span>
-                  {% elif ep.signal_score >= 40 %}<span class="fi-score mid">{{ ep.signal_score }}</span>
-                  {% elif ep.signal_score > 0 %}<span class="fi-score low">{{ ep.signal_score }}</span>{% endif %}
-                </div>
-                {% if ep.summary_ai %}<div class="fi-summary">{{ ep.summary_ai }}</div>{% endif %}
-              </div>
+              <div class="vi-ov"></div>
+              <div class="vi-play"><i class="fas fa-play"></i></div>
+              {% if ep.duration %}<div class="vi-dur">{{ ep.duration }}</div>{% endif %}
+              {% if ep.signal_score > 0 %}<div class="vi-score">{{ ep.signal_score }}</div>{% endif %}
+              {% if ep.published_at %}
+              <div class="vi-new" data-pub="{{ ep.published_at }}" style="display:none">NEW</div>
+              {% endif %}
             </div>
-          </a>
+            <div class="vi-body">
+              <div class="vi-src">{{ ep.feed_name }}</div>
+              <div class="vi-title">{{ ep.title }}</div>
+            </div>
+          </div>
           {% endfor %}
+          </div>
         {% else %}
           <div class="fi-empty">
             <i class="fas fa-video" style="font-size:20px;opacity:.3;display:block;margin-bottom:10px"></i>
@@ -391,7 +396,7 @@
 
   </div><!-- /matrix -->
 
-  <!-- ═══════════ NETWORK FEED + VIDEO BRIEFINGS ═══════════ -->
+  <!-- ═══════════ NETWORK FEED ═══════════ -->
   <div class="feed-duo">
 
     <!-- ── What the Network Is Saying ── -->
@@ -405,21 +410,6 @@
         <div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">
           <i class="fas fa-satellite-dish" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
           Syncing network signals...<br><div class="kol-loader"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Video Briefings from the Network ── -->
-    <div class="feed-section">
-      <div class="sec-head">
-        <div class="sec-head-icon vid"><i class="fas fa-play-circle"></i></div>
-        <span class="sec-head-title">Video Briefings from the Network</span>
-        <span class="sec-head-updated" id="vidFeedTs">Loading...</span>
-      </div>
-      <div class="feed-list" id="videoFeedList">
-        <div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">
-          <i class="fas fa-video" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
-          Syncing video feeds...<br><div class="kol-loader"></div>
         </div>
       </div>
     </div>
@@ -558,13 +548,18 @@ document.querySelectorAll('.fi-wave').forEach(function(el){
   }
 });
 
-/* ═══════════ NEW BADGE (48h window) ═══════════ */
+/* ═══════════ NEW BADGE (7-day window for video intel, 48h for podcasts) ═══════════ */
 (function(){
-  var now=Date.now(),cutoff=48*3600*1000;
+  var now=Date.now();
   document.querySelectorAll('.fi-new[data-pub]').forEach(function(el){
     var pub=el.getAttribute('data-pub');if(!pub)return;
     var d=new Date(pub);
-    el.style.display=(!isNaN(d)&&(now-d.getTime())<cutoff)?'flex':'none';
+    el.style.display=(!isNaN(d)&&(now-d.getTime())<48*3600*1000)?'flex':'none';
+  });
+  document.querySelectorAll('.vi-new[data-pub]').forEach(function(el){
+    var pub=el.getAttribute('data-pub');if(!pub)return;
+    var d=new Date(pub);
+    el.style.display=(!isNaN(d)&&(now-d.getTime())<7*24*3600*1000)?'inline-block':'none';
   });
 })();
 
@@ -621,37 +616,6 @@ function loadNetworkFeed(){
   }).catch(function(){});
 }
 
-function loadVideoFeed(){
-  fetch('/api/media/video-feed').then(function(r){return r.json()}).then(function(d){
-    var el=document.getElementById('videoFeedList');
-    var tsEl=document.getElementById('vidFeedTs');
-    if(!d.items||!d.items.length){
-      el.innerHTML='<div style="text-align:center;padding:32px;color:var(--mut);font-size:12px">No video briefings yet</div>';
-      return;
-    }
-    var html='';
-    d.items.forEach(function(item){
-      var clickAttr='';
-      if(item.video_id){
-        clickAttr=' onclick="openVideoModal(\''+item.video_id+'\',\''+_esc(item.title)+'\',\''+_esc(item.channel)+'\',\''+_esc(item.published_at||'')+'\',\'\')"';
-      }else if(item.url){
-        clickAttr=' onclick="window.open(\''+_esc(item.url)+'\',\'_blank\')"';
-      }
-      html+='<div class="vfi"'+clickAttr+'>';
-      if(item.thumbnail){
-        html+='<img class="vfi-thumb" src="'+_esc(item.thumbnail)+'" alt="" loading="lazy">';
-      }
-      html+='<div class="vfi-info">';
-      html+='<div class="vfi-channel">'+_esc(item.channel)+'<span class="vfi-badge '+(item.platform==='youtube'?'yt':'pod')+'">'+_esc(item.platform)+'</span></div>';
-      html+='<div class="vfi-title">'+_esc(item.title)+'</div>';
-      html+='<div class="vfi-meta">'+_timeAgo(item.published_at)+'</div>';
-      html+='</div></div>';
-    });
-    el.innerHTML=html;
-    if(tsEl)tsEl.textContent='Updated '+_timeAgo(d.updated_at);
-  }).catch(function(){});
-}
-
 function loadLiveSignals(){
   fetch('/api/media/live-signals').then(function(r){return r.json()}).then(function(d){
     var el=document.getElementById('signalFeed');
@@ -683,11 +647,10 @@ function _esc(s){if(!s)return '';var d=document.createElement('div');d.textConte
 
 // Initial load
 loadNetworkFeed();
-loadVideoFeed();
 loadLiveSignals();
 
-// Auto-refresh: network+video every 30min, signals every 60s
-setInterval(function(){loadNetworkFeed();loadVideoFeed()},30*60*1000);
+// Auto-refresh: network every 30min, signals every 60s
+setInterval(loadNetworkFeed,30*60*1000);
 setInterval(loadLiveSignals,60*1000);
 
 /* ═══════════ NEWSLETTER ═══════════ */
