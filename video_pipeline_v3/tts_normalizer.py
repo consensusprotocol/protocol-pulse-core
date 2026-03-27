@@ -111,6 +111,14 @@ _HASHRATE_MAP = {
 _TERM_MAP = {
     "SHA-256": "S-H-A 256",
     "SHA256": "S-H-A 256",
+    "exahash": "exa-hash",
+    "exahashes": "exa-hashes",
+    "petahash": "peta-hash",
+    "petahashes": "peta-hashes",
+    "terahash": "tera-hash",
+    "terahashes": "tera-hashes",
+    "gigahash": "giga-hash",
+    "megahash": "mega-hash",
     "kWh": "kilowatt hour",
     "MWh": "megawatt hour",
     "GWh": "gigawatt hour",
@@ -211,3 +219,7 @@ def normalize(text: str) -> str:
     text = re.sub(r'  +', ' ', text).strip()
 
     return text
+
+
+# Public alias for convenience
+normalize_text = normalize
