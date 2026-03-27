@@ -1,6 +1,13 @@
 *.mp4
 *.wav
+*.mp3
 *.pyc
+*.pt
+*.pth
+*.pkl
+*.db
+*.sqlite
+*.sqlite3
 __pycache__/
 logs/
 night_prompts/
@@ -11,7 +18,7 @@ test_*
 .env
 venv/
 data/episodes/
-*.mp3
+data/pulse_events.jsonl
 uploads/*.png
 uploads/*.jpg
 /tmp/*.png
@@ -24,14 +31,10 @@ node_modules/
 *.part
 x_spaces_scraper/cache/
 video_pipeline_v3/remotion/node_modules/
-x_spaces_scraper/cache/
 gfpgan/weights/
 oracle/gfpgan/weights/
-*.pth
 video_pipeline_v3/tts_cache/
 gunicorn.pid
-.env
-video_pipeline_v3/data/yt_cookies.txt
 video_pipeline_v3/data/yt_cookies.txt
 docs/audits/*.md
 !docs/audits/AUDIT_REGISTRY.json
@@ -41,6 +44,22 @@ video_pipeline_v3/voices/*.wav
 video_pipeline_v3/voices/*.pt
 video_pipeline_v3/voices/segments/
 video_pipeline_v3/voices/finetune/checkpoints/
+video_pipeline_v3/voices/tests/
 docs/cc_watchdog_autofix_*.md
-video_pipeline_v3/voices/tests/*.pt
-video_pipeline_v3/voices/tests/*.pth
+
+# Model checkpoints & tensor files
+*.ckpt
+*.safetensors
+
+# Python bytecode
+*.pyo
+
+# Output & audio caches
+video_pipeline_v3/output/
+video_pipeline_v3/audio_cache/
+
+# Env variants
+.env.*
+
+# Misc large files
+nohup.out

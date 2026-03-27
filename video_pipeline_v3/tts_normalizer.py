@@ -112,7 +112,11 @@ _TERM_MAP = {
     "SHA-256": "S-H-A 256",
     "SHA256": "S-H-A 256",
     "exahash": "exa-hash",
+    "Exahash": "exa-hash",
+    "EXAHASH": "exa-hash",
     "exahashes": "exa-hashes",
+    "Exahashes": "exa-hashes",
+    "EXAHASHES": "exa-hashes",
     "petahash": "peta-hash",
     "petahashes": "peta-hashes",
     "terahash": "tera-hash",
@@ -184,10 +188,10 @@ def normalize(text: str) -> str:
         text
     )
 
-    # 2. Bare scale (no dollar sign): 1T, 2B — only when followed by word boundary
+    # 2. Bare scale (no dollar sign): 47K, 2B — word boundary after scale letter
     #    Avoid matching things like "T1" or mid-word
     text = re.sub(
-        r'\b([\d,.]+)\s*([TBMKtbmk])(?=\s|$|[,.])',
+        r'\b([\d,.]+)\s*([TBMKtbmk])\b',
         _expand_bare_scale,
         text
     )

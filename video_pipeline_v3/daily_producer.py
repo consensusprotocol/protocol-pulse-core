@@ -440,11 +440,10 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
     issues_str = " ".join(qc.get("issues", []))
 
     # ── Freeze frame fix ──────────────────────────────────────────────────
-    # Content-level freezes (static social cards / signal scenes) need
-    # imperceptible temporal noise to break pixel-identical frames.
-    # Plain CFR re-encode does NOT fix content-level freezes.
+    # Force CFR re-encode with fps=30 + PTS reset to eliminate freeze frames.
+    # noise=c0s=3 is BANNED per PIPELINE_LAWS (Gemini penalizes it).
     if "freeze_frames" in issues_str:
-        logger.info("[PREFLIGHT FIX] Re-encoding with temporal noise to break content-level freezes")
+        logger.info("[PREFLIGHT FIX] CFR re-encode with fps=30 + PTS reset to fix freeze frames")
         tmp = video_path + ".freeze_fix.mp4"
         try:
             r = subprocess.run(
@@ -454,7 +453,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
                  "-c:v", "libx264", "-preset", "medium",
                  "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
                  "-r", "30", "-vsync", "cfr",
-                 "-vf", "noise=c0s=3:c0f=t,setpts=PTS-STARTPTS,format=yuv420p",
+                 "-vf", "fps=30,setpts=PTS-STARTPTS,format=yuv420p",
                  "-c:a", "copy",
                  "-movflags", "+faststart",
                  tmp],
@@ -577,6 +576,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     final_video = os.path.join(run_dir, f"pulse_check_{date_str}.mp4")
     timing = {}
     t_pipeline_start = time.time()
+    clips = []  # initialized early; set properly in content fetch path
+    sel_path = os.path.join(run_dir, "selections.json")
+    script_path = os.path.join(run_dir, "script.json")
 
     # Ensure music directory exists
     ensure_music_dir()
@@ -1302,8 +1304,11 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     t0 = time.time()
     thumb_data = script.get("thumbnail", {})
     top_quote = ""
-    if clips:
-        top_quote = clips[0].get("quote", "")
+    try:
+        if clips:
+            top_quote = clips[0].get("quote", "")
+    except (NameError, UnboundLocalError):
+        pass
     thumb_path = os.path.join(run_dir, "thumbnail.png")
     generate_thumbnail(
         thumb_data.get("headline", script.get("episode_title", "PULSE CHECK")),

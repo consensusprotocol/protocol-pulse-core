@@ -268,5 +268,29 @@
     "generated_at": "2026-03-26T05:30:38.016419+00:00",
     "brief_date": "Monday, March 23, 2026",
     "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260327_053752_0",
+    "text": "1 sat/vB fees while Extreme Fear reads 13. The market isn't moving because it's terrified. It's moving because nobody needs to move. Conviction accumulation looks identical to capitulation until it doesn't",
+    "angle": "macro_monetary",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-03-27T05:37:52.319709+00:00",
+    "brief_date": "Monday, March 23, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260327_055434_0",
+    "text": "1 sat/vB fees at extreme fear. The market is pricing in capitulation while the network operates at minimum cost. History shows this is when holders accumulate, not when they panic",
+    "angle": "macro_monetary",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-03-27T05:54:34.530150+00:00",
+    "brief_date": "Monday, March 23, 2026",
+    "sentiment": "bearish"
   }
 ]

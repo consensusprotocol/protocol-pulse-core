@@ -2797,6 +2797,446 @@
       "production_score": 35,
       "topics": [],
       "recorded_at": "2026-03-25T15:45:07Z"
+    },
+    {
+      "render_id": "2026-03-27",
+      "date": "2026-03-27",
+      "overall_score": 4,
+      "grade": "F",
+      "clips": [],
+      "dimensions": {
+        "duration_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Duration is 0.0 seconds. The file is empty. Rule: Under 180s is an automatic F."
+        },
+        "resolution_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Resolution is 0x0. No video stream detected. Rule: Anything other than 1080p or 720p is a fail."
+        },
+        "framerate_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Framerate is 0.0 fps. No video stream detected. Rule: Under 15fps is a score of 0."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: No audio stream present to measure loudness. This is a total failure."
+        },
+        "true_peak_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: No audio stream present to measure true peak. This is a total failure."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: While technically zero mid-video black frames, the entire file is a void of data, which is the ultimate black frame failure."
+        },
+        "silence_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: While technically zero mid-video silence gaps, the entire file is silent, which is the ultimate audio failure."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The entire non-existent video can be considered a single, eternal freeze frame. Total failure."
+        },
+        "codec_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Codecs are 'unknown' because no video or audio streams exist."
+        },
+        "file_integrity_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The file container is empty. 0 streams, 0 bitrate, 0 bytes. This is a failed render."
+        },
+        "clip_relevance": {
+          "score": 0,
+          "note": "Cannot be assessed. No content in the file."
+        },
+        "script_quality": {
+          "score": 0,
+          "note": "Cannot be assessed. No content in the file."
+        },
+        "cold_open_hook": {
+          "score": 0,
+          "note": "Cannot be assessed. No content in the file."
+        },
+        "narrative_arc": {
+          "score": 0,
+          "note": "Cannot be assessed. No content in the file."
+        },
+        "host_authenticity": {
+          "score": 0,
+          "note": "Cannot be assessed. PBX voice is not present."
+        },
+        "episode_title": {
+          "score": 9,
+          "note": "Excellent title. It's specific, punchy, and creates intrigue. This is the only salvageable component of the episode."
+        },
+        "no_filler": {
+          "score": 0,
+          "note": "Cannot be assessed. The absence of content is not the same as being filler-free."
+        },
+        "timeliness": {
+          "score": 0,
+          "note": "Cannot be assessed. No content in the file."
+        },
+        "music_mix": {
+          "score": 0,
+          "note": "Cannot be assessed. No audio present."
+        },
+        "transitions": {
+          "score": 0,
+          "note": "Cannot be assessed. No video present."
+        },
+        "visual_polish": {
+          "score": 0,
+          "note": "Cannot be assessed. No visuals present."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The entire file is an artifact of a catastrophic render failure."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: There is no audio."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "Cannot be assessed. No content to pace."
+        }
+      },
+      "technical_score": 0,
+      "content_score": 11,
+      "production_score": 0,
+      "topics": [],
+      "recorded_at": "2026-03-27T00:52:31Z"
+    },
+    {
+      "render_id": "2026-03-27",
+      "date": "2026-03-27",
+      "overall_score": 49,
+      "grade": "F",
+      "clips": [],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 633.9s (10.6 min) is within the ideal 8-15 minute range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the broadcast standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, which is perfect for the format."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness is -14.3 LUFS, perfectly within the -16 to -14 LUFS target range."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True Peak is -1.5 dBFS, safely below the -1.0 dBFS maximum."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Forensic data confirms 12 mid-video black frame segments. The rubric specifies 2 or more is a critical failure. This makes the episode unpublishable."
+        },
+        "silence_check": {
+          "score": 10,
+          "note": "No mid-video silence gaps detected."
+        },
+        "freeze_check": {
+          "score": 10,
+          "note": "No freeze frames detected in the video."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is good, with a high bitrate of 8115 kbps ensuring quality source material."
+        },
+        "clip_relevance": {
+          "score": 10,
+          "note": "Clips from Simply Bitcoin, Arthur Hayes, and Saifedean Ammous are highly relevant and editorially aligned, focusing on institutional adoption, supply shock, and macroeconomics."
+        },
+        "script_quality": {
+          "score": 10,
+          "note": "The narration is exceptional, providing a sharp, insightful throughline that connects disparate news events into a powerful, cohesive thesis about a coordinated institutional supply squeeze."
+        },
+        "cold_open_hook": {
+          "score": 10,
+          "note": "The cold open is excellent, rapidly listing several major, seemingly contradictory market signals to create immediate intrigue."
+        },
+        "narrative_arc": {
+          "score": 10,
+          "note": "The episode follows a clear and logical arc, building its case from individual signals to a broad macro conclusion. The flow is compelling."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX's performance is flawless for the show's format. The delivery is authoritative, clear, and perfectly paced. No issues observed."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "The title 'Saylor's Billion-Dollar War Move Changes Everything' is specific, compelling, and accurately reflects the episode's central argument."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The episode is extremely dense and information-rich with zero filler content."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "The content is highly timely, referencing market data and news from the past 24-48 hours, including a headline marked '1 hour ago'."
+        },
+        "music_mix": {
+          "score": 10,
+          "note": "The background music and sidechaining are perfectly mixed, supporting the narration without overpowering it and maintaining the show's high-energy feel."
+        },
+        "transitions": {
+          "score": 2,
+          "note": "The intended glitch transitions are good, but the frequent, jarring cuts to black (identified as black frames) are a major failure in the edit/render process."
+        },
+        "visual_polish": {
+          "score": 10,
+          "note": "The cyberpunk aesthetic, including lower thirds, data dashboards, and overall branding, is executed to a very high standard."
+        },
+        "no_artifacts": {
+          "score": 3,
+          "note": "The video is plagued by numerous black frame artifacts, which are a severe form of visual error."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "The host's narration audio is studio-quality: clean, crisp, and perfectly processed. Clip audio is also well-balanced."
+        },
+        "pacing": {
+          "score": 10,
+          "note": "The pacing is rapid and engaging, effectively holding viewer attention for the entire duration."
+        }
+      },
+      "technical_score": 90,
+      "content_score": 100,
+      "production_score": 75,
+      "topics": [],
+      "recorded_at": "2026-03-27T01:07:08Z"
+    },
+    {
+      "render_id": "2026-03-27",
+      "date": "2026-03-27",
+      "overall_score": 39,
+      "grade": "F",
+      "clips": [],
+      "dimensions": {
+        "duration_check": {
+          "score": 6,
+          "note": "Duration is 297.0 seconds. This is under the ideal 480s (8 min) target and falls into the 'acceptable but short' category."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the required standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, which is ideal."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness is -13.9 LUFS, which is within the target -16 to -14 LUFS range."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True Peak is -1.9 dBFS, safely below the -1.0 dBFS limit."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 6 mid-video black frame segments were detected. The rubric states 2 or more is a critical failure."
+        },
+        "silence_check": {
+          "score": 10,
+          "note": "No mid-video silence gaps were detected."
+        },
+        "freeze_check": {
+          "score": 10,
+          "note": "No freeze frames were detected."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Video uses the standard h264/aac codec combination."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is clean with both streams present. Bitrate is high but acceptable."
+        },
+        "clip_relevance": {
+          "score": 10,
+          "note": "Clips from Simply Bitcoin, Arthur Hayes, and Coin Stories (Dylan LeClair) are high-signal, editorially aligned, and highly relevant."
+        },
+        "script_quality": {
+          "score": 10,
+          "note": "The script is exceptional, weaving multiple major news stories into a coherent and powerful thesis about a structural market shift. It provides significant analytical value."
+        },
+        "cold_open_hook": {
+          "score": 10,
+          "note": "The cold open is strong, specific, and immediately engaging, listing several major market-moving events."
+        },
+        "narrative_arc": {
+          "score": 10,
+          "note": "The episode follows a clear and logical narrative arc, building a compelling case from the ground up."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "The PBX host voice is clear, authoritative, and well-paced throughout the episode."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "The title 'Saylor's Billion-Dollar War Move Changes Everything' is punchy, specific, and accurately reflects the episode's central theme."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The episode is dense with information and contains no filler, ad reads, or off-topic segments."
+        },
+        "timeliness": {
+          "score": 9,
+          "note": "The news and analysis feel very current and relevant to the present market conditions."
+        },
+        "music_mix": {
+          "score": 10,
+          "note": "The background music fits the aesthetic, is mixed at an appropriate level, and ducks correctly for narration."
+        },
+        "transitions": {
+          "score": 10,
+          "note": "Glitch transitions are used effectively and consistently, ensuring a smooth flow between segments."
+        },
+        "visual_polish": {
+          "score": 10,
+          "note": "The visual presentation, including the cyberpunk grid, lower thirds, and clip treatments, is polished and professional."
+        },
+        "no_artifacts": {
+          "score": 10,
+          "note": "Aside from the black frames which are graded separately, the video is free of compression artifacts, stuttering, or other visual glitches."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "The host narration audio is clean, clear, and free of noise or clipping."
+        },
+        "pacing": {
+          "score": 10,
+          "note": "The pacing is excellent; the episode is tight and information-dense without feeling rushed."
+        }
+      },
+      "technical_score": 46,
+      "content_score": 99,
+      "production_score": 100,
+      "topics": [],
+      "recorded_at": "2026-03-27T01:35:29Z"
+    },
+    {
+      "render_id": "2026-03-27",
+      "date": "2026-03-27",
+      "overall_score": 92,
+      "grade": "F",
+      "clips": [],
+      "dimensions": {
+        "duration_check": {
+          "score": 7,
+          "note": "Duration is 297.0 seconds. This is just under the 300s acceptable floor, making it short for the format but not an automatic failure."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, which meets the standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, which is ideal."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness is -13.9 LUFS, which is slightly hot but within the target -16 to -14 LUFS range."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True Peak is -1.9 dBFS, safely below the -1.0 dBFS limit."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Forensic data confirms 6 separate mid-video black frame segments. Per the rubric, 2 or more is a critical failure."
+        },
+        "silence_check": {
+          "score": 10,
+          "note": "No mid-video silence gaps detected."
+        },
+        "freeze_check": {
+          "score": 10,
+          "note": "No freeze frames detected."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is clean, both streams are present, and the bitrate is high, ensuring good quality."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Clips from Simply Bitcoin and Cointelegraph (Arthur Hayes) are highly relevant, focusing on the core Bitcoin thesis of institutional adoption and capital rotation from gold."
+        },
+        "script_quality": {
+          "score": 9,
+          "note": "The narration is excellent, providing a strong connective tissue between seemingly disparate news items (Japan pension fund, Kraken, Saylor) to build a compelling supply shock narrative."
+        },
+        "cold_open_hook": {
+          "score": 9,
+          "note": "The episode opens with a rapid-fire summary of major institutional news, effectively creating urgency and hooking the viewer."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The narrative flows logically from identifying institutional moves to analyzing the supply-side impact, culminating in a contrarian take on the bearish price action. Very cohesive."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX's voice is clear, authoritative, and well-paced. The delivery is natural and confident throughout."
+        },
+        "episode_title": {
+          "score": 9,
+          "note": "The title 'Saylor's Billion-Dollar War Move Changes Everything' is punchy, specific, and accurately reflects the episode's thesis on structural market changes."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The episode is dense with signal. There are no ad reads, sponsor segments, or off-topic diversions."
+        },
+        "timeliness": {
+          "score": 9,
+          "note": "The news discussed is contemporary and highly relevant to the current market cycle's macro narrative."
+        },
+        "music_mix": {
+          "score": 10,
+          "note": "The background music fits the aesthetic, is mixed at an appropriate level, and sidechain ducking for the narration is executed perfectly."
+        },
+        "transitions": {
+          "score": 10,
+          "note": "Glitch transitions are used consistently and effectively, reinforcing the show's visual identity."
+        },
+        "visual_polish": {
+          "score": 10,
+          "note": "The overall visual presentation is excellent. The cyberpunk aesthetic, lower thirds, and split-screen compositions are professional and consistent."
+        },
+        "no_artifacts": {
+          "score": 10,
+          "note": "Aside from the critical black frames (graded separately), the video is free of stuttering, compression artifacts, or other visual glitches."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "The narration audio is exceptionally clean, with no background noise, echo, or clipping."
+        },
+        "pacing": {
+          "score": 10,
+          "note": "The pacing is tight and energetic. The episode delivers a high density of information efficiently without feeling rushed."
+        }
+      },
+      "technical_score": 87,
+      "content_score": 93,
+      "production_score": 100,
+      "topics": [],
+      "recorded_at": "2026-03-27T01:37:49Z"
     }
   ]
 }

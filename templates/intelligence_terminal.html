@@ -293,28 +293,105 @@ body.intel-terminal .site-footer {
     font-size: 11px;
 }
 
-/* ── SOVEREIGN SIGNAL MATRIX (Radar Chart) ─────────────────── */
-.it-radar-container {
+/* ── SOVEREIGN SIGNAL MATRIX (Hex Orb Grid) ────────────────── */
+.sovereign-hex-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    position: relative;
+    padding: 8px 0 60px;
+}
+.sovereign-hex {
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    background: rgba(13,17,24,0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
-}
-.it-radar-composite {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    aspect-ratio: 1 / 1.05;
     text-align: center;
-    pointer-events: none;
+    position: relative;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    padding: 18px 4px 12px;
 }
-.it-radar-composite-value {
+.sovereign-hex::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    background: rgba(13,17,24,0.92);
+    z-index: -1;
+}
+.sovereign-hex::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 1;
+    pointer-events: none;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.sovereign-hex-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 32px;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--it-label);
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+.sovereign-hex-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
     font-weight: 700;
     line-height: 1;
+    color: #eef2ff;
 }
-.it-radar-composite-label {
+.sovereign-hex-trend {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+}
+.sovereign-hex-center {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 52%;
+    aspect-ratio: 1 / 1.05;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    background: rgba(13,17,24,0.90);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    animation: hexPulse 3s ease-in-out infinite;
+}
+.sovereign-hex-center::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    border: 1px solid rgba(248,193,92,0.25);
+    pointer-events: none;
+}
+.sovereign-hex-center .sovereign-hex-label {
+    font-size: 7px;
+    letter-spacing: 2px;
+    color: #f8c15c;
+}
+.sovereign-hex-center .sovereign-hex-score {
+    font-size: 30px;
+    font-weight: 800;
+}
+.sovereign-hex-center .sovereign-hex-bias {
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
     letter-spacing: 2px;
@@ -322,30 +399,16 @@ body.intel-terminal .site-footer {
     color: var(--it-label);
     margin-top: 2px;
 }
-.it-radar-legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px 12px;
-    margin-top: 10px;
-}
-.it-radar-legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: var(--it-label);
-}
-.it-radar-legend-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-.it-radar-legend-val {
-    margin-left: auto;
-    color: var(--it-text);
-    font-weight: 500;
+/* Score-based glow states */
+.hex-high::after { border-color: rgba(255,0,0,0.45); }
+.hex-high { filter: drop-shadow(0 0 6px rgba(255,0,0,0.2)); }
+.hex-mid::after { border-color: rgba(255,102,0,0.4); }
+.hex-mid { filter: drop-shadow(0 0 5px rgba(255,102,0,0.15)); }
+.hex-low::after { border-color: #333; }
+.hex-low { filter: none; }
+@keyframes hexPulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.03); }
 }
 
 /* ── NARRATIVE MOMENTUM ────────────────────────────────────── */
@@ -528,7 +591,8 @@ body.intel-terminal .site-footer {
     .it-header { flex-wrap: wrap; gap: 8px; }
     .it-data-rail { flex-wrap: wrap; }
     .it-panel { min-height: auto; }
-    .it-radar-legend { grid-template-columns: 1fr; }
+    .sovereign-hex-grid { grid-template-columns: 1fr 1fr; gap: 6px; padding-bottom: 50px; }
+    .sovereign-hex-center { width: 60%; }
 }
 
 /* ── ANOMALY BAR ────────────────────────────────────────────── */
@@ -1442,20 +1506,45 @@ body.intel-terminal .site-footer {
         <!-- SOVEREIGN SIGNAL MATRIX -->
         <div class="it-panel" id="panelSignalMatrix" data-state="scanning" data-shortcut="x">
             <div class="it-panel-header">Sovereign Signal Matrix</div>
-            <div class="it-radar-container" style="height:200px">
-                <svg id="radarSvg" width="200" height="200"></svg>
-                <div class="it-radar-composite">
-                    <div class="it-radar-composite-value" id="itMatrixComposite">--</div>
-                    <div class="it-radar-composite-label" id="itMatrixBias">COMPUTING</div>
+            <div class="sovereign-hex-grid" id="sovereignHexGrid">
+                <!-- Row 1: Top 3 signals -->
+                <div class="sovereign-hex" id="hexMiner">
+                    <div class="sovereign-hex-label">Miner Health</div>
+                    <div class="sovereign-hex-score" id="itRL_miner">--</div>
+                    <div class="sovereign-hex-trend" id="itHT_miner"></div>
                 </div>
-            </div>
-            <div class="it-radar-legend" id="itRadarLegend">
-                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-green)"></div>Miner Health<span class="it-radar-legend-val" id="itRL_miner">--</span></div>
-                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-cyan)"></div>Exchange Prs<span class="it-radar-legend-val" id="itRL_exch">--</span></div>
-                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-purple)"></div>Narrative Mom<span class="it-radar-legend-val" id="itRL_narr">--</span></div>
-                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-gold)"></div>On-Chain Acc<span class="it-radar-legend-val" id="itRL_chain">--</span></div>
-                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-amber)"></div>Lightning Grw<span class="it-radar-legend-val" id="itRL_ln">--</span></div>
-                <div class="it-radar-legend-item"><div class="it-radar-legend-dot" style="background:var(--it-red)"></div>Social Div<span class="it-radar-legend-val" id="itRL_social">--</span></div>
+                <div class="sovereign-hex" id="hexExchange">
+                    <div class="sovereign-hex-label">Exchange Pressure</div>
+                    <div class="sovereign-hex-score" id="itRL_exch">--</div>
+                    <div class="sovereign-hex-trend" id="itHT_exch"></div>
+                </div>
+                <div class="sovereign-hex" id="hexNarrative">
+                    <div class="sovereign-hex-label">Narrative Mom</div>
+                    <div class="sovereign-hex-score" id="itRL_narr">--</div>
+                    <div class="sovereign-hex-trend" id="itHT_narr"></div>
+                </div>
+                <!-- Row 2: Bottom 3 signals -->
+                <div class="sovereign-hex" id="hexOnchain">
+                    <div class="sovereign-hex-label">On-Chain Acc</div>
+                    <div class="sovereign-hex-score" id="itRL_chain">--</div>
+                    <div class="sovereign-hex-trend" id="itHT_chain"></div>
+                </div>
+                <div class="sovereign-hex" id="hexMacro">
+                    <div class="sovereign-hex-label">Macro Correlation</div>
+                    <div class="sovereign-hex-score" id="itRL_macro">--</div>
+                    <div class="sovereign-hex-trend" id="itHT_macro"></div>
+                </div>
+                <div class="sovereign-hex" id="hexOptions">
+                    <div class="sovereign-hex-label">Options Market</div>
+                    <div class="sovereign-hex-score" id="itRL_options">--</div>
+                    <div class="sovereign-hex-trend" id="itHT_options"></div>
+                </div>
+                <!-- Center hex: Sovereign Score (absolute positioned) -->
+                <div class="sovereign-hex-center" id="hexCenter">
+                    <div class="sovereign-hex-label">Sovereign Score</div>
+                    <div class="sovereign-hex-score" id="itMatrixComposite">--</div>
+                    <div class="sovereign-hex-bias" id="itMatrixBias">COMPUTING</div>
+                </div>
             </div>
             {% if demo_mode %}
             <div class="it-demo-overlay">
@@ -2306,67 +2395,74 @@ body.intel-terminal .site-footer {
         }
     }
 
-    // ── Sovereign Signal Matrix (Radar Chart) ──────────────────
+    // ── Sovereign Signal Matrix (Hex Orb Grid) ─────────────────
     function renderRadarChart(matrix) {
         if (!matrix || !matrix.axes) return;
-        var svg = document.getElementById('radarSvg');
-        if (!svg) return;
-        var w = 200, h = 200, cx = w/2, cy = h/2, r = 70;
         var axes = matrix.axes;
-        var keys = ['miner_health','exchange_pressure','narrative_momentum','onchain_accumulation','lightning_growth','social_divergence'];
-        var colors = ['#00FF88','#00D4FF','#8B5CF6','#F0B90B','#FFAA00','#FF0033'];
-        var n = keys.length;
-        var angleStep = (Math.PI * 2) / n;
 
-        // Build SVG content
-        var html = '';
-        // Grid rings
-        for (var ring = 1; ring <= 4; ring++) {
-            var rr = r * ring / 4;
-            var pts = [];
-            for (var i = 0; i < n; i++) {
-                var a = i * angleStep - Math.PI/2;
-                pts.push((cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1));
+        // Map keys to hex element IDs and trend IDs
+        var hexMap = {
+            miner_health:        { score: 'itRL_miner',   trend: 'itHT_miner',   hex: 'hexMiner' },
+            exchange_pressure:   { score: 'itRL_exch',    trend: 'itHT_exch',    hex: 'hexExchange' },
+            narrative_momentum:  { score: 'itRL_narr',    trend: 'itHT_narr',    hex: 'hexNarrative' },
+            onchain_accumulation:{ score: 'itRL_chain',   trend: 'itHT_chain',   hex: 'hexOnchain' },
+            macro_correlation:   { score: 'itRL_macro',   trend: 'itHT_macro',   hex: 'hexMacro' },
+            options_market:      { score: 'itRL_options', trend: 'itHT_options', hex: 'hexOptions' }
+        };
+
+        for (var k in hexMap) {
+            var val = axes[k] || 0;
+            var ids = hexMap[k];
+            // Update score
+            var scoreEl = document.getElementById(ids.score);
+            if (scoreEl) scoreEl.textContent = val;
+            // Apply glow class
+            var hexEl = document.getElementById(ids.hex);
+            if (hexEl) {
+                hexEl.classList.remove('hex-high', 'hex-mid', 'hex-low');
+                if (val >= 70) hexEl.classList.add('hex-high');
+                else if (val >= 40) hexEl.classList.add('hex-mid');
+                else hexEl.classList.add('hex-low');
             }
-            html += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="rgba(26,26,46,0.6)" stroke-width="0.5"/>';
+            // Update trend indicator
+            var trendEl = document.getElementById(ids.trend);
+            if (trendEl) {
+                var prev = trendEl.dataset.prev ? parseInt(trendEl.dataset.prev) : val;
+                var diff = val - prev;
+                trendEl.dataset.prev = val;
+                if (diff > 0) {
+                    trendEl.textContent = '\u25B2 +' + diff;
+                    trendEl.style.color = '#5de4ff';
+                } else if (diff < 0) {
+                    trendEl.textContent = '\u25BC ' + diff;
+                    trendEl.style.color = '#ff3b5f';
+                } else {
+                    trendEl.textContent = '\u25C6 0';
+                    trendEl.style.color = 'var(--it-label)';
+                }
+            }
+            // Score color
+            if (scoreEl) {
+                scoreEl.style.color = val >= 70 ? '#ff3b5f' : val >= 40 ? '#f8c15c' : '#eef2ff';
+            }
         }
-        // Axis lines
-        for (var i = 0; i < n; i++) {
-            var a = i * angleStep - Math.PI/2;
-            html += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(a)).toFixed(1)+'" y2="'+(cy+r*Math.sin(a)).toFixed(1)+'" stroke="rgba(26,26,46,0.4)" stroke-width="0.5"/>';
-        }
-        // Data polygon
-        var dataPts = [];
-        for (var i = 0; i < n; i++) {
-            var val = (axes[keys[i]] || 0) / 100;
-            var a = i * angleStep - Math.PI/2;
-            dataPts.push((cx + r * val * Math.cos(a)).toFixed(1) + ',' + (cy + r * val * Math.sin(a)).toFixed(1));
-        }
-        // Fill color based on bias
-        var fillColor = matrix.bias === 'BULLISH' ? 'rgba(0,255,136,0.12)' : matrix.bias === 'BEARISH' ? 'rgba(255,0,51,0.12)' : 'rgba(255,170,0,0.10)';
-        var strokeColor = matrix.bias === 'BULLISH' ? '#00FF88' : matrix.bias === 'BEARISH' ? '#FF0033' : '#FFAA00';
-        html += '<polygon points="' + dataPts.join(' ') + '" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="1.5" stroke-linejoin="round"/>';
-        // Data points
-        for (var i = 0; i < n; i++) {
-            var val = (axes[keys[i]] || 0) / 100;
-            var a = i * angleStep - Math.PI/2;
-            var px = cx + r * val * Math.cos(a);
-            var py = cy + r * val * Math.sin(a);
-            html += '<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="3" fill="'+colors[i]+'" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>';
-        }
-        svg.innerHTML = html;
 
-        // Composite
+        // Composite center hex
         var compEl = document.getElementById('itMatrixComposite');
-        compEl.textContent = matrix.composite;
-        compEl.style.color = matrix.bias === 'BULLISH' ? 'var(--it-green)' : matrix.bias === 'BEARISH' ? 'var(--it-red)' : 'var(--it-amber)';
-        document.getElementById('itMatrixBias').textContent = matrix.bias;
+        if (compEl) {
+            compEl.textContent = matrix.composite;
+            compEl.style.color = matrix.bias === 'BULLISH' ? 'var(--it-green)' : matrix.bias === 'BEARISH' ? 'var(--it-red)' : 'var(--it-amber)';
+        }
+        var biasEl = document.getElementById('itMatrixBias');
+        if (biasEl) biasEl.textContent = matrix.bias;
 
-        // Legend values
-        var legendMap = {miner_health:'itRL_miner',exchange_pressure:'itRL_exch',narrative_momentum:'itRL_narr',onchain_accumulation:'itRL_chain',lightning_growth:'itRL_ln',social_divergence:'itRL_social'};
-        for (var k in legendMap) {
-            var el = document.getElementById(legendMap[k]);
-            if (el) el.textContent = axes[k] || 0;
+        // Center hex glow
+        var centerEl = document.getElementById('hexCenter');
+        if (centerEl) {
+            centerEl.classList.remove('hex-high', 'hex-mid', 'hex-low');
+            if (matrix.composite >= 70) centerEl.classList.add('hex-high');
+            else if (matrix.composite >= 40) centerEl.classList.add('hex-mid');
+            else centerEl.classList.add('hex-low');
         }
 
         // Panel state

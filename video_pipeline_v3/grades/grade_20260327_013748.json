@@ -1,0 +1,119 @@
+{
+  "grade": "F",
+  "overall_score": 92,
+  "broadcast_ready": false,
+  "technical_score": 87,
+  "content_score": 93,
+  "production_score": 100,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 297.0 seconds. This is just under the 300s acceptable floor, making it short for the format but not an automatic failure."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, which meets the standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -13.9 LUFS, which is slightly hot but within the target -16 to -14 LUFS range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -1.9 dBFS, safely below the -1.0 dBFS limit."
+    },
+    "black_frames_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data confirms 6 separate mid-video black frame segments. Per the rubric, 2 or more is a critical failure."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No mid-video silence gaps detected."
+    },
+    "freeze_check": {
+      "score": 10,
+      "note": "No freeze frames detected."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard h264/aac codecs used."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File container is clean, both streams are present, and the bitrate is high, ensuring good quality."
+    },
+    "clip_relevance": {
+      "score": 9,
+      "note": "Clips from Simply Bitcoin and Cointelegraph (Arthur Hayes) are highly relevant, focusing on the core Bitcoin thesis of institutional adoption and capital rotation from gold."
+    },
+    "script_quality": {
+      "score": 9,
+      "note": "The narration is excellent, providing a strong connective tissue between seemingly disparate news items (Japan pension fund, Kraken, Saylor) to build a compelling supply shock narrative."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The episode opens with a rapid-fire summary of major institutional news, effectively creating urgency and hooking the viewer."
+    },
+    "narrative_arc": {
+      "score": 9,
+      "note": "The narrative flows logically from identifying institutional moves to analyzing the supply-side impact, culminating in a contrarian take on the bearish price action. Very cohesive."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's voice is clear, authoritative, and well-paced. The delivery is natural and confident throughout."
+    },
+    "episode_title": {
+      "score": 9,
+      "note": "The title 'Saylor's Billion-Dollar War Move Changes Everything' is punchy, specific, and accurately reflects the episode's thesis on structural market changes."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is dense with signal. There are no ad reads, sponsor segments, or off-topic diversions."
+    },
+    "timeliness": {
+      "score": 9,
+      "note": "The news discussed is contemporary and highly relevant to the current market cycle's macro narrative."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music fits the aesthetic, is mixed at an appropriate level, and sidechain ducking for the narration is executed perfectly."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Glitch transitions are used consistently and effectively, reinforcing the show's visual identity."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The overall visual presentation is excellent. The cyberpunk aesthetic, lower thirds, and split-screen compositions are professional and consistent."
+    },
+    "no_artifacts": {
+      "score": 10,
+      "note": "Aside from the critical black frames (graded separately), the video is free of stuttering, compression artifacts, or other visual glitches."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The narration audio is exceptionally clean, with no background noise, echo, or clipping."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is tight and energetic. The episode delivers a high density of information efficiently without feeling rushed."
+    }
+  },
+  "critical_failures": [
+    "The render contains 6 mid-video black frame segments, which is a critical failure and makes the episode unpublishable."
+  ],
+  "warnings": [
+    "At 297 seconds, the episode is shorter than the ideal 8-15 minute target format."
+  ],
+  "strengths": [
+    "Exceptional narrative construction that synthesizes multiple major news events into a powerful and cohesive thesis about a Bitcoin supply shock.",
+    "A-grade production quality with a strong visual aesthetic, clean audio, and tight pacing.",
+    "Authoritative and engaging host delivery that adds significant value to the analysis."
+  ],
+  "verdict": "This is an outstanding episode in terms of content and production, but it is rendered completely unpublishable by a critical technical failure in the form of multiple mid-video black frames.",
+  "recommendation": "FIX_AND_RERENDER"
+}

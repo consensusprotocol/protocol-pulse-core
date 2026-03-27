@@ -10117,6 +10117,29 @@ def api_media_spaces_brief(date):
     return send_file(str(brief_path), mimetype='audio/mpeg', as_attachment=False)
 
 
+@app.route('/api/admin/spaces-brief', methods=['POST'])
+def api_admin_spaces_brief():
+    """Generate and deliver X Spaces intelligence brief on demand (admin only)."""
+    from services.spaces_brief_service import generate_and_deliver_spaces_brief, generate_spaces_brief_script
+    # Admin check: require relay token or logged-in admin
+    token = (request.json or {}).get('token', '') if request.is_json else ''
+    relay_token = os.environ.get('ULTRON_RELAY_TOKEN', '')
+    if not (token and relay_token and token == relay_token):
+        if not (hasattr(current_user, 'is_authenticated') and current_user.is_authenticated
+                and getattr(current_user, 'role', '') == 'admin'):
+            return jsonify({'error': 'unauthorized'}), 403
+    script_only = (request.json or {}).get('script_only', False) if request.is_json else False
+    try:
+        if script_only:
+            script = generate_spaces_brief_script()
+            return jsonify({'script': script, 'length': len(script)})
+        result = generate_and_deliver_spaces_brief()
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"admin spaces-brief error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 # ═══════════════════════════════════════════════════════════════════════
 # ORACLE — F1 Avatar System + Oracle Sanctuary UI
 # ═══════════════════════════════════════════════════════════════════════

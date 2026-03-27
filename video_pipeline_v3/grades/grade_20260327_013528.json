@@ -1,0 +1,119 @@
+{
+  "grade": "F",
+  "overall_score": 39,
+  "broadcast_ready": false,
+  "technical_score": 46,
+  "content_score": 99,
+  "production_score": 100,
+  "dimensions": {
+    "duration_check": {
+      "score": 6,
+      "note": "Duration is 297.0 seconds. This is under the ideal 480s (8 min) target and falls into the 'acceptable but short' category."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -13.9 LUFS, which is within the target -16 to -14 LUFS range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -1.9 dBFS, safely below the -1.0 dBFS limit."
+    },
+    "black_frames_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: 6 mid-video black frame segments were detected. The rubric states 2 or more is a critical failure."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No mid-video silence gaps were detected."
+    },
+    "freeze_check": {
+      "score": 10,
+      "note": "No freeze frames were detected."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Video uses the standard h264/aac codec combination."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File container is clean with both streams present. Bitrate is high but acceptable."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Simply Bitcoin, Arthur Hayes, and Coin Stories (Dylan LeClair) are high-signal, editorially aligned, and highly relevant."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The script is exceptional, weaving multiple major news stories into a coherent and powerful thesis about a structural market shift. It provides significant analytical value."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The cold open is strong, specific, and immediately engaging, listing several major market-moving events."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode follows a clear and logical narrative arc, building a compelling case from the ground up."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "The PBX host voice is clear, authoritative, and well-paced throughout the episode."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Saylor's Billion-Dollar War Move Changes Everything' is punchy, specific, and accurately reflects the episode's central theme."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is dense with information and contains no filler, ad reads, or off-topic segments."
+    },
+    "timeliness": {
+      "score": 9,
+      "note": "The news and analysis feel very current and relevant to the present market conditions."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music fits the aesthetic, is mixed at an appropriate level, and ducks correctly for narration."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Glitch transitions are used effectively and consistently, ensuring a smooth flow between segments."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual presentation, including the cyberpunk grid, lower thirds, and clip treatments, is polished and professional."
+    },
+    "no_artifacts": {
+      "score": 10,
+      "note": "Aside from the black frames which are graded separately, the video is free of compression artifacts, stuttering, or other visual glitches."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The host narration audio is clean, clear, and free of noise or clipping."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is excellent; the episode is tight and information-dense without feeling rushed."
+    }
+  },
+  "critical_failures": [
+    "The episode contains 6 mid-video black frame segments, which is an automatic failure according to the grading rubric."
+  ],
+  "warnings": [
+    "At 4.9 minutes, the episode is shorter than the ideal 8-15 minute target length."
+  ],
+  "strengths": [
+    "The script and narrative are of exceptionally high quality, providing a sophisticated and unique analysis of current market events.",
+    "Source selection is top-tier, featuring credible and editorially aligned voices like Arthur Hayes and Dylan LeClair.",
+    "Overall production quality, including visuals, audio mix, and pacing, is broadcast-ready."
+  ],
+  "verdict": "This is an A-grade episode in terms of content and production, completely ruined by a critical technical failure in the render process.",
+  "recommendation": "FIX_AND_RERENDER"
+}

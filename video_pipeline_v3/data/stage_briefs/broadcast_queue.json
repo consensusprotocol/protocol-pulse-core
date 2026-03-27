@@ -1,62 +1,52 @@
 [
   {
-    "id": "b1b0cfd4-9912-44b9-bb63-117cda93c93e",
-    "type": "METRICS_PULSE",
-    "priority": 3,
-    "script": "Bitcoin trades at $68,823.155, unchanged from yesterday.\n\nNetwork hashrate sits at 999.2 exahashes.\n\nFear and Greed index registers Extreme Fear at 10.\n\nFastest transaction fee remains at 1 satoshi.\n\n11,190 transactions processed in the last block.\n\nBlock 942,380 mined.\n\nWatch for any fee spikes above 2 satoshis.",
-    "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $68,823 \u00b7 FNG 10 \u00b7 999.2 EH/s",
-    "generated_at": "2026-03-26T23:10:08.291441+00:00",
-    "expires_at": "2026-03-27T03:10:08.291441+00:00"
-  },
-  {
-    "id": "22c7dca0-2d81-467c-a9ff-f2d2f220b6b6",
+    "id": "e5d91347-1b5b-4f98-ae4e-322bbf20ae3e",
     "type": "ARTICLE_TEASER",
     "priority": 3,
-    "script": "David Sacks exits White House crypto advisory role.\n\nBitcoin adoption hangs in legislative limbo.\n\nWatch Congress next week for final crypto policy votes.",
+    "script": "Simon Gerovich, CEO of Metaplanet, will speak at Bitcoin 2026 in Las Vegas.\n\nHis company now holds over 1,200 Bitcoin as corporate treasury.\n\nWatch for his keynote on hospitality sector Bitcoin adoption.\n\nNext signal: Bitcoin 2026 speaker lineup reveals more institutional commitments.",
     "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "David Sacks Exits White House, Leaves Crypto Policy Hanging",
-    "generated_at": "2026-03-27T00:05:03.903795+00:00",
-    "expires_at": "2026-03-27T04:05:03.903795+00:00"
+    "topic_preview": "Bitcoin 2026: Simon Gerovich's Unlikely Ascent",
+    "generated_at": "2026-03-27T05:50:07.216042+00:00",
+    "expires_at": "2026-03-27T09:50:07.216042+00:00"
   },
   {
-    "id": "bc2ac528-6a58-4f7b-9282-2fe57e625de6",
+    "id": "a1f1ce76-874a-47cc-9c4c-b835fa150292",
+    "type": "METRICS_PULSE",
+    "priority": 3,
+    "script": "Bitcoin trades at sixty-eight thousand five hundred fifty-eight dollars, flat twenty-four hours. Hashrate holds steady at one thousand ninety-one exahashes. Fear and greed index clocks in at thirteen, extreme fear. Fastest fee remains at one satoshi. Fifteen thousand eight hundred fifty-seven transactions processed in the latest block. Block height reaches nine hundred forty-two thousand four hundred twenty-six. Watch for any significant change in transaction volume or fee rates.",
+    "source_label": "\ud83d\udcca METRICS PULSE",
+    "topic_preview": "BTC $68,559 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
+    "generated_at": "2026-03-27T05:55:12.898409+00:00",
+    "expires_at": "2026-03-27T09:55:12.898409+00:00"
+  },
+  {
+    "id": "9f6741b5-fd09-4c8e-9d34-cdfe1053606f",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Traders are debating whether the recent breakout above $63,000 holds momentum. Watch for confirmation at $64,000 resistance level.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Retail traders obsess over hourly candles. Watch for institutional accumulation signals in mempool data.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-26T23:05:04.129655+00:00",
-    "expires_at": "2026-03-27T03:05:04.129655+00:00"
+    "generated_at": "2026-03-27T05:50:09.385807+00:00",
+    "expires_at": "2026-03-27T09:50:09.385807+00:00"
   },
   {
-    "id": "25caa4b3-e57a-4898-93ea-9d9effa8c7bd",
+    "id": "20cccf73-249c-4349-a0f1-b76a986fda6b",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The Lightning Network processed more transactions last month than the entire Bitcoin base layer did in its first four years. Layer-two scaling isn't theoretical anymore \u2014 it's quietly becoming the rails for instant, near-free payments worldwide.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The Lightning Network processed more transactions last month than the entire Bit",
-    "generated_at": "2026-03-26T23:05:04.136842+00:00",
-    "expires_at": "2026-03-27T03:05:04.136842+00:00"
+    "script": "Hashrate surged to 1,092 EH/s, signaling institutional accumulation. Mempool fees remain negligible at 1 sat/vbyte. Fear & Greed index sits at 13, indicating extreme fear. This confirms the market's readiness for a significant price move. Watch for mempool activity spikes above 5 sat/vbyte.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate surged to 1,092 EH/s, signaling institutional accumulation. Mempool fee",
+    "generated_at": "2026-03-27T05:50:15.385435+00:00",
+    "expires_at": "2026-03-27T07:50:15.385435+00:00"
   },
   {
-    "id": "9fcddde4-3777-4c2c-9a64-f8d11d457503",
+    "id": "fd4c6c96-c7c8-489c-bb17-be767836915c",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Satoshi Nakamoto's last known communication was in December 2010. Fifteen years later, the protocol runs exactly as designed. No CEO, no board meetings, no emergency patches. The code is the constitution.",
+    "script": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for block space exceeds supply. That's not a bug \u2014 it's proof that people value the security of final settlement enough to pay for it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Satoshi Nakamoto's last known communication was in December 2010. Fifteen years ",
-    "generated_at": "2026-03-26T23:05:04.139917+00:00",
-    "expires_at": "2026-03-27T03:05:04.139917+00:00"
-  },
-  {
-    "id": "4d41e550-bdbe-4b6c-bcbd-eb9485e29741",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
-    "generated_at": "2026-03-26T23:05:04.142455+00:00",
-    "expires_at": "2026-03-27T03:05:04.142455+00:00"
+    "topic_preview": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for bloc",
+    "generated_at": "2026-03-27T05:50:15.394291+00:00",
+    "expires_at": "2026-03-27T09:50:15.394291+00:00"
   }
 ]

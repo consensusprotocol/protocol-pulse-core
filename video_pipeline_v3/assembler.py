@@ -4090,14 +4090,22 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
         logger.info(f"  WHOOSH DEDUP: Skipping transition whoosh — already applied to {os.path.basename(output_path)}")
         has_whoosh = False  # render without whoosh
 
+    # BLACK FRAME FIX: Use bg_loop (animated) instead of solid COLOR_BG (0x0A0A0F)
+    # Solid dark bg triggers blackdetect pix_th=0.05 → Gemini penalizes as black frames
+    _use_bg_loop = os.path.exists(BG_LOOP)
+    if _use_bg_loop:
+        _bg_input = ["-stream_loop", "-1", "-i", BG_LOOP]
+        _bg_vf_prefix = f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration + 0.5},setpts=PTS-STARTPTS,eq=brightness=-0.1:contrast=0.9,"
+    else:
+        _bg_input = ["-f", "lavfi", "-i", f"color=c=0x1A1A2F:s=1920x1080:d={duration}:r=30"]
+        _bg_vf_prefix = ""
+
     if has_whoosh:
-        # 0.35s red sweep transition + whoosh — visible broadcast cue
         ok = run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+            *_bg_input,
             "-i", GLITCH_WHOOSH,
             "-filter_complex",
-            # Red horizontal wipe: thin red bar sweeps left-to-right
-            f"[0:v]drawbox=x='(t/{duration})*1920-40':y=0:w=40:h=1080:"
+            f"[0:v]{_bg_vf_prefix}drawbox=x='(t/{duration})*1920-40':y=0:w=40:h=1080:"
             f"color={COLOR_RED}@0.8:t=fill,"
             f"fade=t=in:d=0.05,fade=t=out:st={max(0, duration - 0.1):.2f}:d=0.1[outv];"
             f"[1:a]atrim=0:{duration},asetpts=PTS-STARTPTS,volume=3.0,"
@@ -4110,8 +4118,9 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
             output_path,
         ], "red sweep transition + whoosh", 30)
     else:
+        # Use brighter color (0x1A1A2F) to avoid blackdetect false positives
         ok = run_ffmpeg([
-            "-f", "lavfi", "-i", f"color=c={COLOR_BG}:s=1920x1080:d={duration}:r=30",
+            "-f", "lavfi", "-i", f"color=c=0x1A1A2F:s=1920x1080:d={duration}:r=30",
             "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
             "-t", str(duration),
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M",
@@ -4299,7 +4308,7 @@ def concatenate_parts(parts: list, output_path: str,
              "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
              "-r", "30", "-vsync", "cfr",
              "-vf", f"fps=30,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
-             "-video_track_timescale", "90000",
+             "-video_track_timescale", "15360",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
              "-af", f"aresample=async=1,afade=t=in:d={a_fade_in},afade=t=out:st={max(0, dur - a_fade_out - 0.05)}:d={a_fade_out}",
              tmp],
@@ -4397,13 +4406,44 @@ def concatenate_parts(parts: list, output_path: str,
         for p in normalized:
             f.write(f"file '{os.path.abspath(p)}'\n")
 
-    # Concat demuxer with stream copy (parts are already normalized)
+    # TS-based concatenation: convert parts → MPEG-TS → concat protocol → re-encode
+    # Fixes timestamp inflation caused by mixed timebases in MP4 concat demuxer
     concat_raw = output_path + ".concat_raw.mp4"
+    ts_files = []
+    for ci, cp in enumerate(normalized):
+        ts_path = cp + ".ts"
+        ts_ok = run_ffmpeg(
+            ["-i", cp,
+             "-c", "copy", "-bsf:v", "h264_mp4toannexb",
+             "-f", "mpegts", ts_path],
+            f"ts convert part {ci}", 30,
+        )
+        if ts_ok and os.path.exists(ts_path):
+            ts_files.append(ts_path)
+        else:
+            logger.warning(f"TS convert failed for part {ci} — using MP4 fallback")
+            ts_files.append(cp)
+    ts_concat_str = "|".join(ts_files)
     ok = run_ffmpeg(
-        ["-f", "concat", "-safe", "0", "-i", concat_file,
-         "-c", "copy", concat_raw],
-        "concat demux", 300,
+        ["-fflags", "+genpts",
+         "-i", f"concat:{ts_concat_str}",
+         "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+         "-r", "30", "-vsync", "cfr",
+         "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+         "-af", "asetpts=PTS-STARTPTS",
+         "-avoid_negative_ts", "make_zero",
+         "-movflags", "+faststart",
+         concat_raw],
+        "TS concat re-encode", 600,
     )
+    # Clean up TS files
+    for ts_path in ts_files:
+        if ts_path.endswith(".ts") and os.path.exists(ts_path):
+            try:
+                os.remove(ts_path)
+            except OSError:
+                pass
 
     if not ok or not os.path.exists(concat_raw):
         logger.error("Concat demuxer failed")
@@ -5321,29 +5361,34 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if os.path.exists(CARD_SWOOSH) and len(card_rendered_paths) > 1:
                     swoosh_mixed = current_stitched + ".swoosh.mp4"
                     card_durs = [ffprobe_duration(p) for p in card_rendered_paths]
-                    swoosh_inputs = []
-                    swoosh_fg_parts = []
-                    cumul = 0.0
-                    for si in range(len(card_durs) - 1):
-                        cumul += card_durs[si] - 0.4
-                        swoosh_inputs.extend(["-i", CARD_SWOOSH])
-                        delay_ms = int(cumul * 1000)
-                        swoosh_fg_parts.append(f"[{si+1}:a]volume=0.5,adelay={delay_ms}|{delay_ms}[sw_{si}]")
-                    sw_labels = "".join(f"[sw_{si}]" for si in range(len(card_durs) - 1))
-                    swoosh_fg_parts.append(f"{sw_labels}amix=inputs={len(card_durs)-1}:duration=longest[all_sw]")
-                    swoosh_fg_parts.append(f"[0:a][all_sw]amix=inputs=2:duration=first:weights=1 0.5[outa]")
-                    swoosh_fg = ";\n".join(swoosh_fg_parts)
-                    ok_sw = run_ffmpeg(
-                        ["-i", current_stitched] + swoosh_inputs +
-                        ["-filter_complex", swoosh_fg,
-                         "-map", "0:v", "-map", "[outa]",
-                         "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-                         swoosh_mixed],
-                        "card swoosh mix", 120,
-                    )
-                    if ok_sw and os.path.exists(swoosh_mixed):
-                        current_stitched = swoosh_mixed
-                        _whoosh_applied_parts.add(os.path.abspath(swoosh_mixed))
+                    # Skip swoosh if any card < 2s — adelay filter fails on very short clips
+                    _min_card_dur = min(card_durs) if card_durs else 0
+                    if _min_card_dur < 2.0:
+                        logger.info(f"  SWOOSH SKIP: card too short ({_min_card_dur:.1f}s < 2.0s min)")
+                    else:
+                        swoosh_inputs = []
+                        swoosh_fg_parts = []
+                        cumul = 0.0
+                        for si in range(len(card_durs) - 1):
+                            cumul += card_durs[si] - 0.4
+                            swoosh_inputs.extend(["-i", CARD_SWOOSH])
+                            delay_ms = int(cumul * 1000)
+                            swoosh_fg_parts.append(f"[{si+1}:a]volume=0.5,adelay={delay_ms}|{delay_ms}[sw_{si}]")
+                        sw_labels = "".join(f"[sw_{si}]" for si in range(len(card_durs) - 1))
+                        swoosh_fg_parts.append(f"{sw_labels}amix=inputs={len(card_durs)-1}:duration=longest[all_sw]")
+                        swoosh_fg_parts.append(f"[0:a][all_sw]amix=inputs=2:duration=first:weights=1 0.5[outa]")
+                        swoosh_fg = ";\n".join(swoosh_fg_parts)
+                        ok_sw = run_ffmpeg(
+                            ["-i", current_stitched] + swoosh_inputs +
+                            ["-filter_complex", swoosh_fg,
+                             "-map", "0:v", "-map", "[outa]",
+                             "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                             swoosh_mixed],
+                            "card swoosh mix", 120,
+                        )
+                        if ok_sw and os.path.exists(swoosh_mixed):
+                            current_stitched = swoosh_mixed
+                            _whoosh_applied_parts.add(os.path.abspath(swoosh_mixed))
                 # FIX 3: Audio fade-out on social segment to prevent narrator cutoff at boundary
                 _social_dur = ffprobe_duration(current_stitched)
                 if _social_dur > 1.0:
