@@ -692,8 +692,8 @@ body { background: #000 !important; overflow: hidden; }
     document.getElementById('slPrice').textContent = Number(price).toLocaleString();
     document.getElementById('slHash').textContent = sd.hashrate || sd.components?.onchain?.value || '---';
     var fng = sd.fear_greed || sd.components?.fear_greed || {};
-    document.getElementById('slFng').textContent = fng.value || fng.score || '---';
-    document.getElementById('slFngLabel').textContent = fng.classification || fng.label || '---';
+    document.getElementById('slFng').textContent = (typeof fng === 'number' ? fng : (fng.value || fng.score || sd.fear_greed || '---'));
+    document.getElementById('slFngLabel').textContent = (typeof fng === 'number' ? (sd.fear_greed_label || 'Extreme Fear') : (fng.classification || fng.label || sd.fear_greed_label || '---'));
     document.getElementById('slMempool').textContent = sd.mempool_count || '---';
 
     lines.forEach(function(line) {
