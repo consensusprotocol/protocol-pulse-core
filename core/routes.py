@@ -13470,6 +13470,35 @@ def twilio_morning_brief():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# ── GPU Scheduler Admin API ───────────────────────────────────────────────────
+
+@app.route('/api/admin/gpu-status')
+def api_gpu_status():
+    try:
+        from services.gpu_scheduler import get_scheduler
+        sched = get_scheduler()
+        return jsonify(sched.status())
+    except Exception as e:
+        logging.error(f'GPU status error: {e}')
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/gpu-render', methods=['POST'])
+@login_required
+def api_gpu_render():
+    """Request a manual render via GPU scheduler."""
+    try:
+        from services.gpu_scheduler import get_scheduler
+        data = request.get_json() or {}
+        episode = data.get('episode', f"manual_{datetime.utcnow().strftime('%Y%m%d_%H%M')}")
+        sched = get_scheduler()
+        result = sched.request_render(episode)
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f'GPU render request error: {e}')
+        return jsonify({'error': str(e)}), 500
+
+
 # ── Stripe Commander Checkout ──────────────────────────────────────────────────
 
 @app.route('/checkout/commander')

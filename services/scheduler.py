@@ -85,6 +85,12 @@ TASKS = {
     "panopticon_congress_refresh": {"interval_minutes": 30, "description": "PANOPTICON: refresh congressional disclosures from efts.house.gov (every 30m)"},
     "panopticon_whale_scan": {"interval_minutes": 5, "description": "PANOPTICON: scan whale wallets via mempool.space (every 5m)"},
     "panopticon_polymarket_refresh": {"interval_minutes": 5, "description": "PANOPTICON: refresh Polymarket prediction odds (every 5m)"},
+    # ── 3x Daily Pulse Check Renders (GPU 0 — render_lane) ──
+    "pulse_render_morning": {"cron_est": "03:00", "description": "Pulse Check Episode 1 render (3:00 AM ET → publish 7 AM ET)"},
+    "pulse_render_midday": {"cron_est": "08:30", "description": "Pulse Check Episode 2 render (8:30 AM ET → publish 12 PM ET)"},
+    "pulse_render_afternoon": {"cron_est": "14:00", "description": "Pulse Check Episode 3 render (2:00 PM ET → publish 6 PM ET)"},
+    # GPU health monitor
+    "gpu_health_monitor": {"interval_minutes": 5, "description": "GPU health: temp, VRAM, deadlock detection, queue processing"},
 }
 
 
@@ -662,6 +668,35 @@ def run_task(name: str) -> Dict:
             logger.warning("panopticon_polymarket_refresh failed: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    # ── 3x Daily Pulse Check Renders ─────────────────────────────────────────
+    if name in ("pulse_render_morning", "pulse_render_midday", "pulse_render_afternoon"):
+        try:
+            from services.gpu_scheduler import get_scheduler, run_episode_render
+            sched = get_scheduler()
+            episode_label = {
+                "pulse_render_morning": "morning",
+                "pulse_render_midday": "midday",
+                "pulse_render_afternoon": "afternoon",
+            }[name]
+            episode_name = f"pulse_check_{episode_label}_{datetime.utcnow().strftime('%Y%m%d')}"
+            result = sched.request_render(episode_name)
+            return {"success": True, "message": f"Render {result['status']}: {episode_name}", "result": result}
+        except Exception as e:
+            logger.error("pulse_render %s failed: %s", name, e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "gpu_health_monitor":
+        try:
+            from services.gpu_scheduler import get_scheduler
+            sched = get_scheduler()
+            health = sched.status()
+            alerts = health.get("health", {}).get("alerts", [])
+            sched.process_queue()
+            return {"success": True, "message": f"GPU health OK, {len(alerts)} alerts", "result": health}
+        except Exception as e:
+            logger.warning("gpu_health_monitor failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
 
 
@@ -749,6 +784,18 @@ def initialize_scheduler() -> Dict:
         _apscheduler.add_job(lambda: run_task("panopticon_congress_refresh"), trigger=IntervalTrigger(minutes=30), id="panopticon_congress_refresh", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("panopticon_whale_scan"), trigger=IntervalTrigger(minutes=5), id="panopticon_whale_scan", replace_existing=True, max_instances=1)
         _apscheduler.add_job(lambda: run_task("panopticon_polymarket_refresh"), trigger=IntervalTrigger(minutes=5), id="panopticon_polymarket_refresh", replace_existing=True, max_instances=1)
+        # ── 3x Daily Pulse Check Renders (GPU 0 render_lane) ─────────────────
+        _apscheduler.add_job(lambda: run_task("pulse_render_morning"), trigger=CronTrigger(hour=3, minute=0, timezone=_et), id="pulse_render_morning", replace_existing=True, max_instances=1, misfire_grace_time=1800)
+        _apscheduler.add_job(lambda: run_task("pulse_render_midday"), trigger=CronTrigger(hour=8, minute=30, timezone=_et), id="pulse_render_midday", replace_existing=True, max_instances=1, misfire_grace_time=1800)
+        _apscheduler.add_job(lambda: run_task("pulse_render_afternoon"), trigger=CronTrigger(hour=14, minute=0, timezone=_et), id="pulse_render_afternoon", replace_existing=True, max_instances=1, misfire_grace_time=1800)
+        # GPU health monitor — every 5 minutes
+        _apscheduler.add_job(lambda: run_task("gpu_health_monitor"), trigger=IntervalTrigger(minutes=5), id="gpu_health_monitor", replace_existing=True, max_instances=1)
+        # Start GPU health background thread
+        try:
+            from services.gpu_scheduler import get_scheduler as _get_gpu_sched
+            _get_gpu_sched().start_health_monitor()
+        except Exception as _ghe:
+            logging.warning("GPU health monitor thread not started: %s", _ghe)
         _apscheduler.start()
         _scheduler_started_at = datetime.utcnow()
     return {"success": True, "started_at": _scheduler_started_at.isoformat(), "mode": "apscheduler"}

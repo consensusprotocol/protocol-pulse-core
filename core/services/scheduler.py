@@ -29,6 +29,11 @@ TASKS = {
     "briefing_pre_market": {"cron": "11:45", "description": "Pre-market briefing (06:45 ET / 11:45 UTC)"},
     "briefing_open":       {"cron": "14:15", "description": "Market-open briefing (09:15 ET / 14:15 UTC)"},
     "briefing_close":      {"cron": "21:15", "description": "Market-close briefing (16:15 ET / 21:15 UTC)"},
+    # ── 3x Daily Pulse Check Renders (GPU 0 — render_lane) ──
+    "pulse_render_morning": {"cron_est": "03:00", "description": "Pulse Check Episode 1 render (3:00 AM ET → publish 7 AM ET)"},
+    "pulse_render_midday": {"cron_est": "08:30", "description": "Pulse Check Episode 2 render (8:30 AM ET → publish 12 PM ET)"},
+    "pulse_render_afternoon": {"cron_est": "14:00", "description": "Pulse Check Episode 3 render (2:00 PM ET → publish 6 PM ET)"},
+    "gpu_health_monitor": {"interval_minutes": 5, "description": "GPU health: temp, VRAM, deadlock detection, queue processing"},
 }
 
 
@@ -142,7 +147,79 @@ def run_task(name: str) -> Dict:
             logger.warning("x_spaces_sentiment_update: %s", e)
             return {"success": False, "message": str(e), "result": None}
 
+    # ── 3x Daily Pulse Check Renders (GPU 0 — render_lane) ──────────────────
+    if name in ("pulse_render_morning", "pulse_render_midday", "pulse_render_afternoon"):
+        try:
+            from services.gpu_scheduler import get_scheduler
+            sched = get_scheduler()
+            episode_label = {
+                "pulse_render_morning": "morning",
+                "pulse_render_midday": "midday",
+                "pulse_render_afternoon": "afternoon",
+            }[name]
+            episode_name = f"pulse_check_{episode_label}_{datetime.utcnow().strftime('%Y%m%d')}"
+            result = sched.request_render(episode_name)
+            return {"success": True, "message": f"Render {result['status']}: {episode_name}", "result": result}
+        except Exception as e:
+            logger.error("pulse_render %s failed: %s", name, e)
+            return {"success": False, "message": str(e), "result": None}
+
+    if name == "gpu_health_monitor":
+        try:
+            from services.gpu_scheduler import get_scheduler
+            sched = get_scheduler()
+            health = sched.status()
+            alerts = health.get("health", {}).get("alerts", [])
+            sched.process_queue()
+            return {"success": True, "message": f"GPU health OK, {len(alerts)} alerts", "result": health}
+        except Exception as e:
+            logger.warning("gpu_health_monitor failed: %s", e)
+            return {"success": False, "message": str(e), "result": None}
+
     return {"success": False, "message": f"Unknown task: {name}", "result": None}
+
+
+def initialize_scheduler() -> Dict:
+    """Start APScheduler with all GPU render + health tasks."""
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        from apscheduler.triggers.cron import CronTrigger
+        from apscheduler.triggers.interval import IntervalTrigger
+    except ImportError:
+        return {"success": False, "error": "apscheduler not installed"}
+
+    _et = "America/New_York"
+    sched = BackgroundScheduler(timezone="UTC")
+    # 3x daily renders
+    sched.add_job(lambda: run_task("pulse_render_morning"), trigger=CronTrigger(hour=3, minute=0, timezone=_et), id="pulse_render_morning", replace_existing=True, max_instances=1, misfire_grace_time=1800)
+    sched.add_job(lambda: run_task("pulse_render_midday"), trigger=CronTrigger(hour=8, minute=30, timezone=_et), id="pulse_render_midday", replace_existing=True, max_instances=1, misfire_grace_time=1800)
+    sched.add_job(lambda: run_task("pulse_render_afternoon"), trigger=CronTrigger(hour=14, minute=0, timezone=_et), id="pulse_render_afternoon", replace_existing=True, max_instances=1, misfire_grace_time=1800)
+    # GPU health every 5 min
+    sched.add_job(lambda: run_task("gpu_health_monitor"), trigger=IntervalTrigger(minutes=5), id="gpu_health_monitor", replace_existing=True, max_instances=1)
+    sched.start()
+    # Start GPU health monitor thread
+    try:
+        from services.gpu_scheduler import get_scheduler as _get_gpu_sched
+        _get_gpu_sched().start_health_monitor()
+    except Exception:
+        pass
+    return {"success": True, "started_at": datetime.utcnow().isoformat(), "mode": "apscheduler"}
+
+
+def get_scheduler_status() -> Dict:
+    """Return scheduler status with GPU info."""
+    try:
+        from services.gpu_scheduler import get_scheduler
+        gpu_status = get_scheduler().status()
+    except Exception:
+        gpu_status = {}
+    jobs = [{"name": name, **meta} for name, meta in TASKS.items()]
+    return {
+        "running": True,
+        "tasks": jobs,
+        "task_count": len(jobs),
+        "gpu": gpu_status,
+    }
 
 
 def run_all_due() -> List[Dict]:
