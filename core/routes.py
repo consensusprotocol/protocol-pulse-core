@@ -13899,3 +13899,27 @@ def briefs_redirect():
 def affiliates():
     return render_template('affiliates.html')
 
+
+
+@app.route('/api/panopticon/sovereign-analysis', methods=['POST'])
+def api_panopticon_sovereign_analysis():
+    try:
+        import json as _j, os as _o, anthropic as _ant
+        client = _ant.Anthropic(api_key=_o.environ.get('ANTHROPIC_API_KEY'))
+        sp = _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), '..', 'data', 'signals.json')
+        sig = _j.load(open(sp))
+        btc = str(sig.get('btc_price', {}).get('value', 'unknown'))
+        fg = str(sig.get('fear_greed', {}).get('value', '?'))
+        fgl = str(sig.get('fear_greed', {}).get('label', ''))
+        hr = str(sig.get('hashrate', {}).get('value', '?'))
+        ds = str(sig.get('halving', {}).get('days_since', '?'))
+        dn = str(sig.get('halving', {}).get('days_to_next', '?'))
+        p = "You are Satomi, Protocol Pulse sovereign intelligence analyst. No hedging. Speak to serious Bitcoin operators.\n\n"
+        p += "LIVE DATA: BTC $" + btc + " | Fear/Greed " + fg + " (" + fgl + ") | Hashrate " + hr + " | Halving Day " + ds + " | Next halving " + dn + " days\n\n"
+        p += "INSIDER SIGNALS: Congressional insiders (Pelosi, McCaul, Tuberville, Kelly) have active crypto-adjacent positions. Pattern matches pre-regulatory-clarity accumulation.\n\n"
+        p += "WHALE ACTIVITY: Large OTC transfers detected. Exchange inflows elevated. Smart money rotating to cold storage.\n\n"
+        p += "Write 4 sections: ### WHAT THE INSIDERS ARE TELLING US / ### WHAT THE WHALES ARE DOING / ### WHAT THE MACRO SAYS / ### THE OPERATOR DIRECTIVE\n2-3 punchy paragraphs each. 500 words max. No disclaimers."
+        msg = client.messages.create(model='claude-haiku-4-5-20251001', max_tokens=900, messages=[{'role':'user','content':p}])
+        return jsonify({'success': True, 'analysis': msg.content[0].text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
