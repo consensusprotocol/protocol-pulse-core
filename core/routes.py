@@ -14,6 +14,7 @@ import logging
 import requests
 import os
 import re
+import stripe
 import uuid
 from functools import wraps
 from datetime import datetime, timedelta
@@ -13467,6 +13468,50 @@ def twilio_morning_brief():
     except Exception as e:
         logging.error('Morning brief error: %s', e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ── Stripe Commander Checkout ──────────────────────────────────────────────────
+
+@app.route('/checkout/commander')
+def checkout_commander():
+    stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Protocol Pulse Commander',
+                        'description': 'Full tactical Bitcoin intelligence. Priority Oracle, Signal Engine, Pulse Terminal.',
+                    },
+                    'unit_amount': 4900,
+                    'recurring': {'interval': 'month'},
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=request.host_url + 'commander/welcome?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=request.host_url + 'value-stream',
+        )
+        return redirect(session.url, code=303)
+    except Exception as e:
+        logging.error(f'Stripe checkout error: {e}')
+        return redirect('/value-stream')
+
+
+# ── Registration ──────────────────────────────────────────────────────────────
+
+@app.route('/register')
+def register_page():
+    return render_template('register.html')
+
+
+# ── Commander Welcome ─────────────────────────────────────────────────────────
+
+@app.route('/commander/welcome')
+def commander_welcome():
+    return render_template('commander_welcome.html')
 
 
 @app.route('/api/admin/spaces-alert', methods=['POST'])

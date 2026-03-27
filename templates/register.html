@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Register — Protocol Pulse{% endblock %}
+{% block meta_description %}Create your Protocol Pulse account.{% endblock %}
+
+{% block content %}
+<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000;padding:40px 20px;">
+    <div style="width:100%;max-width:400px;">
+        <div style="text-align:center;margin-bottom:32px;">
+            <h1 style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:800;letter-spacing:0.08em;color:#dc2626;text-transform:uppercase;margin:0 0 8px;">
+                Protocol Pulse
+            </h1>
+            <p style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(255,255,255,0.4);letter-spacing:0.04em;">
+                Create your operator account
+            </p>
+        </div>
+
+        <form id="registerForm" style="background:#0a0a0a;border:1px solid rgba(220,38,38,0.2);border-radius:4px;padding:32px 28px;">
+            <div id="formError" style="display:none;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:4px;padding:10px 14px;margin-bottom:20px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#dc2626;"></div>
+
+            <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:0.6875rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">
+                Email
+            </label>
+            <input type="email" name="email" required autocomplete="email" style="
+                width:100%;box-sizing:border-box;background:#050505;border:1px solid rgba(255,255,255,0.1);
+                border-radius:4px;padding:12px 14px;color:#fff;font-family:'JetBrains Mono',monospace;
+                font-size:0.875rem;margin-bottom:20px;outline:none;transition:border-color 0.2s;
+            " onfocus="this.style.borderColor='rgba(220,38,38,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+
+            <label style="display:block;font-family:'JetBrains Mono',monospace;font-size:0.6875rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">
+                Password
+            </label>
+            <input type="password" name="password" required minlength="8" autocomplete="new-password" style="
+                width:100%;box-sizing:border-box;background:#050505;border:1px solid rgba(255,255,255,0.1);
+                border-radius:4px;padding:12px 14px;color:#fff;font-family:'JetBrains Mono',monospace;
+                font-size:0.875rem;margin-bottom:24px;outline:none;transition:border-color 0.2s;
+            " onfocus="this.style.borderColor='rgba(220,38,38,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+
+            <button type="submit" style="
+                width:100%;background:linear-gradient(135deg,#dc2626,#ff3b5f);color:#fff;border:none;
+                border-radius:4px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:0.8125rem;
+                font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;
+                box-shadow:0 0 20px rgba(220,38,38,0.25);
+            " onmouseover="this.style.boxShadow='0 0 32px rgba(220,38,38,0.4)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='0 0 20px rgba(220,38,38,0.25)';this.style.transform=''">
+                <i class="fas fa-shield-alt"></i> Create Account
+            </button>
+
+            <p style="text-align:center;margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:0.6875rem;color:rgba(255,255,255,0.3);">
+                Already have an account? <a href="/login" style="color:#dc2626;text-decoration:none;">Log in</a>
+            </p>
+        </form>
+    </div>
+</section>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const err = document.getElementById('formError');
+    err.style.display = 'none';
+    const data = {
+        email: form.email.value,
+        password: form.password.value
+    };
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+            window.location.href = json.redirect || '/login';
+        } else {
+            err.textContent = json.error || 'Registration failed.';
+            err.style.display = 'block';
+        }
+    } catch(ex) {
+        err.textContent = 'Network error. Try again.';
+        err.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}
