@@ -18,6 +18,11 @@
       "name": "River",
       "description": "bitcoin-first accumulation and recurring buys.",
       "url": "https://river.com/"
+    },
+    "swan": {
+      "name": "Swan Bitcoin",
+      "description": "long-term bitcoin savings plans and guided onboarding.",
+      "url": "https://www.swanbitcoin.com/"
     }
   },
   "hardware": {
@@ -30,6 +35,59 @@
       "name": "Trezor",
       "description": "hardware wallet custody stack for long-term bitcoin storage.",
       "url": "https://trezor.io/"
+    },
+    "jade": {
+      "name": "Blockstream Jade",
+      "description": "air-gapped hardware wallet with QR-based signing.",
+      "url": "https://blockstream.com/jade/"
+    }
+  },
+  "custody": {
+    "unchained": {
+      "name": "Unchained",
+      "description": "collaborative multisig custody for true bitcoin ownership.",
+      "url": "https://unchained.com/"
+    },
+    "casa": {
+      "name": "Casa",
+      "description": "guided multisig security with recovery support.",
+      "url": "https://keys.casa/"
+    }
+  },
+  "payments": {
+    "strike": {
+      "name": "Strike",
+      "description": "lightning-native payments for sending and spending bitcoin.",
+      "url": "https://strike.me/"
+    },
+    "opennode": {
+      "name": "OpenNode",
+      "description": "merchant bitcoin payment stack for invoices and checkout.",
+      "url": "https://www.opennode.com/"
+    },
+    "btcpay": {
+      "name": "BTCPay Server",
+      "description": "free, open-source, self-hosted bitcoin payment processor.",
+      "url": "https://btcpayserver.org/"
+    }
+  },
+  "lending": {
+    "hodlhodl": {
+      "name": "Hodl Hodl",
+      "description": "peer-to-peer bitcoin-backed lending marketplace.",
+      "url": "https://hodlhodl.com/"
+    }
+  },
+  "infrastructure": {
+    "voltage": {
+      "name": "Voltage",
+      "description": "enterprise-grade lightning node hosting and management.",
+      "url": "https://voltage.cloud/"
+    },
+    "amboss": {
+      "name": "Amboss",
+      "description": "lightning network intelligence and node analytics.",
+      "url": "https://amboss.space/"
     }
   }
 }

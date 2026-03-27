@@ -2534,6 +2534,7 @@ def merch_store():
         except Exception as rtsa_error:
             logging.warning(f"RTSA products unavailable: {rtsa_error}")
         
+        app.logger.warning(f'MERCH_DEBUG: returning {len(formatted_products)} products')
         return render_template('merch.html', 
                              products=formatted_products,
                              rtsa_hot=rtsa_hot,
@@ -13893,3 +13894,22 @@ def twilio_spaces_alert():
 def briefs_redirect():
     return redirect(url_for('articles'), 302)
 
+
+@app.route('/affiliates')
+def affiliates():
+    return render_template('affiliates.html')
+
+@app.route('/go/<partner_slug>')
+def affiliate_redirect(partner_slug):
+    import json as _j
+    try:
+        import os as _os
+        rp = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'data', 'referrals.json')
+        with open(rp) as f:
+            refs = _j.load(f)
+        for cat in refs.values():
+            if isinstance(cat, dict) and partner_slug in cat:
+                return redirect(cat[partner_slug].get('url', '/affiliates'), 302)
+    except Exception:
+        pass
+    return redirect('/affiliates', 302)

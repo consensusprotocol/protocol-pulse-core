@@ -1,0 +1,1016 @@
+{% extends "base.html" %}
+
+{% block title %}Sovereignty Stack — Tools That Make You Free | Protocol Pulse{% endblock %}
+
+{% block head %}
+<meta name="description" content="Curated Bitcoin tools for sovereignty — self-custody, accumulation, insurance, and merchant infrastructure. No sales pitches, just tools that make you free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Geist+Mono&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --void: #000;
+    --deep: #040408;
+    --card: #08080e;
+    --elevated: #0e0e16;
+    --hover: #14141e;
+    --border: rgba(255,255,255,0.05);
+    --border-h: rgba(255,255,255,0.1);
+    --bright: #f5f5f5;
+    --pri: #e0e0e0;
+    --sec: rgba(255,255,255,0.5);
+    --mut: rgba(255,255,255,0.25);
+    --red: #dc2626;
+    --red-g: rgba(220,38,38,0.12);
+    --gold: #f7931a;
+    --gold-g: rgba(247,147,26,0.10);
+    --blue: #3b82f6;
+    --blue-g: rgba(59,130,246,0.10);
+    --green: #22c55e;
+    --green-g: rgba(34,197,94,0.10);
+    --purple: #8b5cf6;
+    --purple-g: rgba(139,92,246,0.10);
+    --cyan: #06b6d4;
+    --cyan-g: rgba(6,182,212,0.10);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.aff-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+}
+
+.aff-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--sec);
+    text-decoration: none;
+    font-size: 13px;
+    font-family: 'Geist Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-bottom: 60px;
+    transition: color 0.2s;
+}
+.aff-back:hover { color: var(--bright); }
+
+.aff-hero {
+    text-align: center;
+    margin-bottom: 80px;
+    animation: fadeUp 0.6s ease;
+}
+
+.aff-hero-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 20px;
+}
+
+.aff-hero h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 400;
+    color: var(--bright);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 24px;
+}
+
+.aff-hero-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--sec);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.aff-philosophy {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 80px;
+    animation: fadeUp 0.6s ease 0.1s both;
+}
+
+.aff-philosophy-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+}
+
+.aff-philosophy p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--pri);
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+.aff-philosophy p:last-child { margin-bottom: 0; }
+
+.aff-philosophy strong {
+    color: var(--bright);
+    font-weight: 600;
+}
+
+.aff-disclosure {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--mut);
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+}
+
+.aff-section {
+    margin-bottom: 80px;
+    animation: fadeUp 0.6s ease 0.2s both;
+}
+
+.aff-sec-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sec);
+    margin-bottom: 14px;
+}
+
+.aff-sec-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(24px, 3.5vw, 34px);
+    font-weight: 400;
+    color: var(--bright);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.aff-sec-desc {
+    font-size: 14px;
+    color: var(--sec);
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 40px;
+}
+
+.aff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.aff-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.aff-card:hover {
+    border-color: var(--border-h);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.aff-card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.aff-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.aff-card-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--bright);
+}
+
+.aff-card-tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--sec);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.aff-card-body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--pri);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.aff-card-detail {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--sec);
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.aff-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.aff-tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--sec);
+    text-transform: uppercase;
+}
+
+.aff-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    align-self: flex-start;
+}
+
+.aff-card-cta i {
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.aff-card-cta:hover i {
+    transform: translateX(3px);
+}
+
+/* ========================================
+   MEANWHILE — HERO SPOTLIGHT
+   ======================================== */
+
+.meanwhile-spotlight {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 80px;
+    animation: fadeUp 0.6s ease 0.15s both;
+}
+
+.meanwhile-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0a1628 0%, #0d0d1a 40%, #0a0a12 100%);
+    z-index: 0;
+}
+
+.meanwhile-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.meanwhile-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.meanwhile-inner {
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 480px;
+}
+
+.meanwhile-left {
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid rgba(59,130,246,0.08);
+}
+
+.meanwhile-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.meanwhile-label::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--blue);
+}
+
+.meanwhile-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 400;
+    color: var(--bright);
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+}
+
+.meanwhile-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--sec);
+    line-height: 1.8;
+    margin-bottom: 32px;
+}
+
+.meanwhile-quote {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 18px;
+    color: var(--pri);
+    font-style: italic;
+    line-height: 1.6;
+    padding-left: 20px;
+    border-left: 2px solid var(--blue);
+    margin-bottom: 40px;
+}
+
+.meanwhile-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--bright);
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 14px 28px;
+    border-radius: 10px;
+    transition: all 0.3s;
+    align-self: flex-start;
+}
+
+.meanwhile-cta:hover {
+    background: rgba(59,130,246,0.2);
+    border-color: rgba(59,130,246,0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(59,130,246,0.15);
+    color: white;
+}
+
+.meanwhile-cta i {
+    font-size: 11px;
+    transition: transform 0.2s;
+}
+
+.meanwhile-cta:hover i {
+    transform: translateX(4px);
+}
+
+.meanwhile-right {
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+}
+
+.mw-stat {
+    padding: 20px 24px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(59,130,246,0.08);
+    border-radius: 12px;
+    transition: border-color 0.2s;
+}
+
+.mw-stat:hover {
+    border-color: rgba(59,130,246,0.2);
+}
+
+.mw-stat-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+}
+
+.mw-stat-val {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--pri);
+    line-height: 1.6;
+}
+
+.mw-stat-val strong {
+    color: var(--bright);
+    font-weight: 600;
+}
+
+/* Card color variants */
+.aff-card--gold .aff-card-icon { background: var(--gold-g); color: var(--gold); }
+.aff-card--gold .aff-card-cta { background: var(--gold-g); color: var(--gold); border: 1px solid rgba(247,147,26,0.2); }
+.aff-card--gold .aff-card-cta:hover { background: rgba(247,147,26,0.2); border-color: rgba(247,147,26,0.4); }
+
+.aff-card--green .aff-card-icon { background: var(--green-g); color: var(--green); }
+.aff-card--green .aff-card-cta { background: var(--green-g); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.aff-card--green .aff-card-cta:hover { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.4); }
+
+.aff-card--red .aff-card-icon { background: var(--red-g); color: var(--red); }
+.aff-card--red .aff-card-cta { background: var(--red-g); color: var(--red); border: 1px solid rgba(220,38,38,0.2); }
+.aff-card--red .aff-card-cta:hover { background: rgba(220,38,38,0.2); border-color: rgba(220,38,38,0.4); }
+
+.aff-card--purple .aff-card-icon { background: var(--purple-g); color: var(--purple); }
+.aff-card--purple .aff-card-cta { background: var(--purple-g); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+.aff-card--purple .aff-card-cta:hover { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.4); }
+
+.aff-card--blue .aff-card-icon { background: var(--blue-g); color: var(--blue); }
+.aff-card--blue .aff-card-cta { background: var(--blue-g); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+.aff-card--blue .aff-card-cta:hover { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.4); }
+
+.aff-card--cyan .aff-card-icon { background: var(--cyan-g); color: var(--cyan); }
+.aff-card--cyan .aff-card-cta { background: var(--cyan-g); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
+.aff-card--cyan .aff-card-cta:hover { background: rgba(6,182,212,0.2); border-color: rgba(6,182,212,0.4); }
+
+/* Footer */
+.aff-footer {
+    text-align: center;
+    padding-top: 60px;
+    border-top: 1px solid var(--border);
+}
+
+.aff-footer p {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--mut);
+    letter-spacing: 0.5px;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .aff-page { padding: 24px 16px 80px; }
+    .aff-hero { margin-bottom: 50px; }
+    .aff-philosophy { padding: 24px; }
+    .aff-grid { grid-template-columns: 1fr; }
+    .meanwhile-inner { grid-template-columns: 1fr; }
+    .meanwhile-left { padding: 32px 24px; border-right: none; border-bottom: 1px solid rgba(59,130,246,0.08); }
+    .meanwhile-right { padding: 24px; }
+    .aff-section { margin-bottom: 50px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="aff-page">
+
+    <a href="/" class="aff-back"><i class="fas fa-arrow-left"></i> Back to Base</a>
+
+    <div class="aff-hero">
+        <div class="aff-hero-label">Sovereignty Stack</div>
+        <h1>Tools That Make You Free</h1>
+        <p class="aff-hero-sub">
+            These are not products we sell. They are tools we use. Each one removes a dependency, 
+            eliminates a counterparty, or protects something that matters. We only recommend what 
+            we would hand to a friend.
+        </p>
+    </div>
+
+    <div class="aff-philosophy">
+        <div class="aff-philosophy-label">Our Approach</div>
+        <p>
+            Most affiliate pages exist to extract clicks. Ours exists to save you time. 
+            Every tool here solves a real problem that Bitcoiners face — <strong>custody, accumulation, 
+            protection, or commerce</strong> — and we explain exactly why, with no hype and no hidden agendas.
+        </p>
+        <p>
+            We do not list products because they pay well. We list them because they work. 
+            <strong>If a tool stops serving its users, it leaves this page.</strong> Some of these links 
+            are affiliate partnerships. Some are not. The criteria is the same either way: 
+            does this tool make you more sovereign?
+        </p>
+        <div class="aff-disclosure">
+            Disclosure: Protocol Pulse may receive compensation when you use certain partner links. 
+            This never influences our selection or editorial coverage. We maintain the same standard 
+            regardless of partnership status.
+        </div>
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- MEANWHILE — FEATURED SPOTLIGHT                   -->
+    <!-- ================================================ -->
+
+    <div class="meanwhile-spotlight">
+        <div class="meanwhile-bg"></div>
+        <div class="meanwhile-inner">
+            <div class="meanwhile-left">
+                <div class="meanwhile-label">Featured — Generational Protection</div>
+                <h2 class="meanwhile-title">Meanwhile</h2>
+                <p class="meanwhile-sub">
+                    Most Bitcoiners have a plan for their keys. Almost none have a plan for what happens to 
+                    their stack when they die. Meanwhile is the first life insurance company denominated entirely 
+                    in Bitcoin — your death benefit is paid in BTC, not fiat that has lost 98% of its purchasing 
+                    power since the Fed was created.
+                </p>
+                <blockquote class="meanwhile-quote">
+                    "The point of generational wealth is that it actually reaches the next generation — 
+                    in the same money you earned it in."
+                </blockquote>
+                <a href="/go/meanwhile" class="meanwhile-cta">
+                    Explore Meanwhile <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="meanwhile-right">
+                <div class="mw-stat">
+                    <div class="mw-stat-label">What It Is</div>
+                    <div class="mw-stat-val">
+                        <strong>Bitcoin-denominated life insurance</strong> built for long-horizon holders. 
+                        Your premiums are in BTC. Your death benefit is in BTC. No forced fiat conversion at any point.
+                    </div>
+                </div>
+                <div class="mw-stat">
+                    <div class="mw-stat-label">Why It Matters</div>
+                    <div class="mw-stat-val">
+                        Without proper planning, your Bitcoin gets liquidated into fiat during probate. 
+                        <strong>Your heirs inherit dollars, not sats.</strong> Meanwhile solves the estate 
+                        planning gap that no traditional insurer touches.
+                    </div>
+                </div>
+                <div class="mw-stat">
+                    <div class="mw-stat-label">Who It's For</div>
+                    <div class="mw-stat-val">
+                        Bitcoiners with <strong>significant holdings</strong> who want their generational 
+                        wealth to survive them — in the hardest money ever created, not a depreciating unit 
+                        of account.
+                    </div>
+                </div>
+                <div class="mw-stat">
+                    <div class="mw-stat-label">Availability</div>
+                    <div class="mw-stat-val">
+                        Bermuda-regulated. Available in <strong>select regions</strong>. 
+                        Application takes ~10 minutes. Underwriting is human-reviewed.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- ACCUMULATE — Stack Sats                          -->
+    <!-- ================================================ -->
+
+    <div class="aff-section">
+        <div class="aff-sec-label">01 — Accumulate</div>
+        <h2 class="aff-sec-title">Stack Without Thinking</h2>
+        <p class="aff-sec-desc">
+            The best strategy is the one you never have to remember. Automated recurring buys 
+            remove emotion from the equation and let dollar-cost averaging do the work.
+        </p>
+
+        <div class="aff-grid">
+            <div class="aff-card aff-card--gold">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-water"></i></div>
+                    <div>
+                        <div class="aff-card-name">River</div>
+                        <div class="aff-card-tag">Bitcoin-only accumulation</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    A Bitcoin-only exchange built for people who plan to hold for decades, not trade for weeks. 
+                    Automatic recurring buys, Lightning withdrawals, and zero altcoin noise. River treats Bitcoin 
+                    as savings technology, not a speculative asset.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-bolt" style="color: var(--gold); margin-right: 6px;"></i>
+                    Lightning withdrawals standard. No minimum DCA amount. Bitcoin-only — no altcoin distractions.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">US</span>
+                    <span class="aff-tag">KYC</span>
+                    <span class="aff-tag">Auto-DCA</span>
+                    <span class="aff-tag">Lightning</span>
+                </div>
+                <a href="/go/river" class="aff-card-cta">Explore River <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--green">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-feather-alt"></i></div>
+                    <div>
+                        <div class="aff-card-name">Swan Bitcoin</div>
+                        <div class="aff-card-tag">Long-term savings plans</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    Built for the long game. Swan offers automatic Bitcoin savings plans, IRA options, 
+                    and an advisor network for people who see Bitcoin as a multi-decade commitment. 
+                    The interface is deliberately simple — fewer buttons, fewer mistakes.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-shield-alt" style="color: var(--green); margin-right: 6px;"></i>
+                    IRA accounts available. Advisor network for guided onboarding. Auto-withdrawal to cold storage.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">US</span>
+                    <span class="aff-tag">DCA</span>
+                    <span class="aff-tag">IRA</span>
+                    <span class="aff-tag">Beginner-Friendly</span>
+                </div>
+                <a href="/go/swan" class="aff-card-cta">Explore Swan <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- SELF-CUSTODY — Own Your Keys                     -->
+    <!-- ================================================ -->
+
+    <div class="aff-section">
+        <div class="aff-sec-label">02 — Self-Custody</div>
+        <h2 class="aff-sec-title">Own Your Keys</h2>
+        <p class="aff-sec-desc">
+            Not your keys, not your Bitcoin. Self-custody is the entire point. 
+            These tools move your Bitcoin off exchange risk and into your direct control.
+        </p>
+
+        <div class="aff-grid">
+            <div class="aff-card aff-card--red">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-microchip"></i></div>
+                    <div>
+                        <div class="aff-card-name">Trezor</div>
+                        <div class="aff-card-tag">Open-source hardware wallet</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    The original hardware wallet, still one of the best. Fully open-source firmware means 
+                    anyone can audit the code that secures your Bitcoin. No black boxes, no trust assumptions. 
+                    Your keys never touch the internet.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-code" style="color: var(--red); margin-right: 6px;"></i>
+                    Open-source firmware. Air-gapped signing options. Supports passphrase for hidden wallets.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">Hardware</span>
+                    <span class="aff-tag">Open Source</span>
+                </div>
+                <a href="/go/trezor" class="aff-card-cta">Explore Trezor <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--purple">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-key"></i></div>
+                    <div>
+                        <div class="aff-card-name">Blockstream Jade</div>
+                        <div class="aff-card-tag">Air-gapped Bitcoin security</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    Blockstream's hardware wallet with full air-gap capability via camera-based QR signing. 
+                    No USB, no Bluetooth, no wireless attack surface. Built by the team behind Liquid and 
+                    Bitcoin satellite — pure protocol focus.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-qrcode" style="color: var(--purple); margin-right: 6px;"></i>
+                    Fully air-gapped via QR code. Open source. Camera-based signing eliminates all wired connections.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">Air-Gapped</span>
+                    <span class="aff-tag">Open Source</span>
+                </div>
+                <a href="/go/jade" class="aff-card-cta">Explore Jade <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--blue">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-lock"></i></div>
+                    <div>
+                        <div class="aff-card-name">Unchained</div>
+                        <div class="aff-card-tag">Collaborative multisig custody</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    True ownership through collaborative multisig. Unchained holds one key, you hold two. 
+                    No single point of failure — not even Unchained can move your Bitcoin without you. 
+                    This is self-custody with a safety net.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-users" style="color: var(--blue); margin-right: 6px;"></i>
+                    2-of-3 multisig. You control the majority of keys. Inheritance planning built in.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">US</span>
+                    <span class="aff-tag">Multisig</span>
+                    <span class="aff-tag">Inheritance</span>
+                </div>
+                <a href="/go/unchained" class="aff-card-cta">Explore Unchained <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--cyan">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <div class="aff-card-name">Casa</div>
+                        <div class="aff-card-tag">Guided multisig security</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    Multi-signature security with guided setup and recovery. Casa eliminates single points 
+                    of failure while keeping the UX approachable. If you lose a key, you can recover. 
+                    If Casa disappears, your Bitcoin is still yours.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-life-ring" style="color: var(--cyan); margin-right: 6px;"></i>
+                    2-of-3 or 3-of-5 multisig. Guided recovery process. No single key compromise risk.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">Multisig</span>
+                    <span class="aff-tag">Guided UX</span>
+                </div>
+                <a href="/go/casa" class="aff-card-cta">Explore Casa <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- TRANSACT — Use Your Bitcoin                      -->
+    <!-- ================================================ -->
+
+    <div class="aff-section">
+        <div class="aff-sec-label">03 — Transact</div>
+        <h2 class="aff-sec-title">Use Your Bitcoin</h2>
+        <p class="aff-sec-desc">
+            Bitcoin is money. These tools let you send, spend, and accept it — 
+            instantly, globally, with near-zero fees via the Lightning Network.
+        </p>
+
+        <div class="aff-grid">
+            <div class="aff-card aff-card--green">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-bolt"></i></div>
+                    <div>
+                        <div class="aff-card-name">Strike</div>
+                        <div class="aff-card-tag">Instant Bitcoin payments</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    The simplest way to send and receive Bitcoin anywhere in the world. Lightning-native 
+                    from the ground up — payments settle in seconds for fractions of a penny. Strike is 
+                    what makes Bitcoin feel like the future of money, not just a store of value.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-globe" style="color: var(--green); margin-right: 6px;"></i>
+                    Lightning-native. Instant settlement. Global corridors for cross-border payments.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">US</span>
+                    <span class="aff-tag">Global Corridors</span>
+                    <span class="aff-tag">Lightning</span>
+                    <span class="aff-tag">Mobile</span>
+                </div>
+                <a href="/go/strike" class="aff-card-cta">Explore Strike <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--gold">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-store"></i></div>
+                    <div>
+                        <div class="aff-card-name">OpenNode</div>
+                        <div class="aff-card-tag">Merchant Bitcoin payments</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    Add Bitcoin as a payment rail to any business without rebuilding your commerce stack. 
+                    OpenNode handles invoicing, checkout integration, and Lightning — you focus on running 
+                    your business. Built for merchants who want Bitcoin revenue without the complexity.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-plug" style="color: var(--gold); margin-right: 6px;"></i>
+                    API-first. Drop-in checkout. Handles both on-chain and Lightning payments.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Business</span>
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">API</span>
+                    <span class="aff-tag">Lightning</span>
+                </div>
+                <a href="/go/opennode" class="aff-card-cta">Explore OpenNode <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- BORROW — Liquidity Without Selling               -->
+    <!-- ================================================ -->
+
+    <div class="aff-section">
+        <div class="aff-sec-label">04 — Borrow</div>
+        <h2 class="aff-sec-title">Liquidity Without Selling</h2>
+        <p class="aff-sec-desc">
+            Sometimes you need cash but selling Bitcoin is the wrong move. 
+            These tools let you access liquidity while keeping your stack intact.
+        </p>
+
+        <div class="aff-grid">
+            <div class="aff-card aff-card--purple">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-handshake"></i></div>
+                    <div>
+                        <div class="aff-card-name">Hodl Hodl</div>
+                        <div class="aff-card-tag">Peer-to-peer Bitcoin lending</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    A peer-to-peer lending marketplace where Bitcoin is the collateral and there is no 
+                    central custodian. Your Bitcoin is held in multisig escrow — not on someone's balance sheet. 
+                    Unlock liquidity without a single KYC form and without sale pressure on your stack.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-network-wired" style="color: var(--purple); margin-right: 6px;"></i>
+                    P2P marketplace. Multisig escrow. No central custodian holds your Bitcoin.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">P2P</span>
+                    <span class="aff-tag">Non-Custodial</span>
+                    <span class="aff-tag">Experienced</span>
+                </div>
+                <a href="/go/hodlhodl" class="aff-card-cta">Explore Hodl Hodl <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- INFRASTRUCTURE — Build on Bitcoin                -->
+    <!-- ================================================ -->
+
+    <div class="aff-section">
+        <div class="aff-sec-label">05 — Infrastructure</div>
+        <h2 class="aff-sec-title">Build on Bitcoin</h2>
+        <p class="aff-sec-desc">
+            For builders, node operators, and businesses running on the Lightning Network.
+        </p>
+
+        <div class="aff-grid">
+            <div class="aff-card aff-card--cyan">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-server"></i></div>
+                    <div>
+                        <div class="aff-card-name">Voltage</div>
+                        <div class="aff-card-tag">Lightning node hosting</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    Enterprise-grade Lightning node hosting without the DevOps overhead. Voltage lets you 
+                    deploy and manage Lightning nodes in minutes — whether you're routing payments, building 
+                    apps, or running infrastructure for your business.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-cloud" style="color: var(--cyan); margin-right: 6px;"></i>
+                    Managed Lightning nodes. One-click deployment. Enterprise-grade uptime and monitoring.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">Infrastructure</span>
+                    <span class="aff-tag">Lightning</span>
+                </div>
+                <a href="/go/voltage" class="aff-card-cta">Explore Voltage <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--blue">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-chart-network"></i></div>
+                    <div>
+                        <div class="aff-card-name">Amboss</div>
+                        <div class="aff-card-tag">Lightning network intelligence</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    The intelligence layer for Lightning Network operators. Amboss provides node analytics, 
+                    channel recommendations, and network-wide insights that help you route more efficiently 
+                    and earn more from your Lightning node.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-chart-line" style="color: var(--blue); margin-right: 6px;"></i>
+                    Node analytics. Channel recommendations. Network intelligence and scoring.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">Analytics</span>
+                    <span class="aff-tag">Lightning</span>
+                </div>
+                <a href="/go/amboss" class="aff-card-cta">Explore Amboss <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="aff-card aff-card--red">
+                <div class="aff-card-head">
+                    <div class="aff-card-icon"><i class="fas fa-cash-register"></i></div>
+                    <div>
+                        <div class="aff-card-name">BTCPay Server</div>
+                        <div class="aff-card-tag">Self-hosted payment processing</div>
+                    </div>
+                </div>
+                <div class="aff-card-body">
+                    Free, open-source, self-hosted payment processor. No third party ever touches your money. 
+                    BTCPay Server is the most sovereign way to accept Bitcoin — you run the server, 
+                    you control the keys, you answer to no one.
+                </div>
+                <div class="aff-card-detail">
+                    <i class="fas fa-lock-open" style="color: var(--red); margin-right: 6px;"></i>
+                    Free and open source. Self-hosted. Zero fees. Complete payment sovereignty.
+                </div>
+                <div class="aff-card-tags">
+                    <span class="aff-tag">Global</span>
+                    <span class="aff-tag">Self-Hosted</span>
+                    <span class="aff-tag">Open Source</span>
+                    <span class="aff-tag">Free</span>
+                </div>
+                <a href="/go/btcpay" class="aff-card-cta">Explore BTCPay <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="aff-footer">
+        <p>
+            Protocol Pulse may receive compensation when you use certain partner links. 
+            This never influences our selection criteria. Every tool on this page 
+            exists because it makes Bitcoiners more sovereign — not because it pays us to be here.
+        </p>
+    </div>
+
+</div>
+{% endblock %}
