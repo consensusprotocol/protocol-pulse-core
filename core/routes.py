@@ -13922,3 +13922,7 @@ def api_panopticon_sovereign_analysis():
         return jsonify({'success': True, 'analysis': msg.content[0].text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/telemetry', methods=['POST'])
+def api_telemetry():
+    return jsonify({'ok': True}), 200
