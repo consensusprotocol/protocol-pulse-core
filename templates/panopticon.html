@@ -2102,14 +2102,16 @@ function tlToggle(dot){
     document.getElementById('tlCardDetail').textContent=e.detail;
     document.getElementById('tlCardBtc').textContent=e.btc;
     /* Position card near the dot */
-    var r=dot.getBoundingClientRect(),cw=340,ch=card.offsetHeight||300;
+    var r=dot.getBoundingClientRect(),cw=340;
+    card.style.visibility='hidden';card.style.display='block';
+    var ch=card.offsetHeight||300;
+    card.style.visibility='';card.style.display='';
     var left=r.left+r.width/2-cw/2;
-    var top=r.top-ch-12;
-    if(dot.closest('.tl-below'))top=r.bottom+12;
+    var top=r.top+window.scrollY-ch-16;
+    if(dot.closest('.tl-below'))top=r.bottom+window.scrollY+12;
     if(left<8)left=8;
     if(left+cw>window.innerWidth-8)left=window.innerWidth-cw-8;
-    if(top<8)top=r.bottom+12;
-    if(top+ch>window.innerHeight-8)top=r.top-ch-12;
+    if(top<8)top=r.bottom+window.scrollY+12;
     card.style.left=left+'px';card.style.top=top+'px';
     card.classList.add('active');
 }
