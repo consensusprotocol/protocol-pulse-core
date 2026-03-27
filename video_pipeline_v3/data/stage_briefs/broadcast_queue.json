@@ -11,14 +11,14 @@
     "video_url": "/data/stage_briefs/brief_20260327_1800.mp4"
   },
   {
-    "id": "5166dc75-e4c4-4405-9b55-b4a74f21c196",
+    "id": "61ae5e04-7753-4856-825a-f8126e29a3e8",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at sixty-six thousand three hundred thirteen dollars. Fear gauge reads extreme fear, fifteen point one percent.\n\nHashrate stabilizes at one thousand ninety-one exahashes. Transaction count drops to thirty-six thousand six hundred sixty-one.\n\nNext hour: watch for fee rate spikes above five satoshis per byte. Block height advances to nine hundred forty-two thousand four hundred seventy-nine.",
+    "script": "Bitcoin trading at $65,724, down 3.76% in 24 hours. Fear and Greed index at Extreme Fear, 13. Miners hashing 1,091.9 exahashes. Fast fee at 6 satoshis. 35,785 transactions in the last hour. Block 942,502. Watch for any mining pool reorgs.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $66,313 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
-    "generated_at": "2026-03-27T14:15:17.345626+00:00",
-    "expires_at": "2026-03-27T18:15:17.345626+00:00"
+    "topic_preview": "BTC $65,724 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
+    "generated_at": "2026-03-27T18:25:09.566944+00:00",
+    "expires_at": "2026-03-27T22:25:09.566944+00:00"
   },
   {
     "id": "abf80fea-eb9f-4396-9b92-fa09aff928e3",
@@ -31,13 +31,23 @@
     "expires_at": "2026-03-27T22:00:25.930230+00:00"
   },
   {
-    "id": "fc222a0c-0600-4995-9083-c5c504537f04",
+    "id": "ae06fb8f-d1f0-4b6b-9cb5-014ef5f4ba58",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The Bitcoin network has been operational for over 99.98 percent of its existence. No bank, no government system, no tech company can match that uptime. Decentralization isn't just philosophy \u2014 it's resilience.",
+    "script": "Hashrate breached 1092 EH/s, confirming mining capital flows remain robust despite price stagnation. Fear & greed index at 13 signals extreme fear gripping the market. Mempool fees stable at 5 sat/vbyte. Watch for any mempool congestion signals.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate breached 1092 EH/s, confirming mining capital flows remain robust despi",
+    "generated_at": "2026-03-27T18:15:15.964209+00:00",
+    "expires_at": "2026-03-27T20:15:15.964209+00:00"
+  },
+  {
+    "id": "a02c8f67-c1ce-4800-a238-b489636711d3",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Multisig wallets eliminate single points of failure. A two-of-three setup means no single key compromise can drain your funds. This is how institutions are beginning to custody billions in bitcoin.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The Bitcoin network has been operational for over 99.98 percent of its existence",
-    "generated_at": "2026-03-27T14:10:04.467501+00:00",
-    "expires_at": "2026-03-27T18:10:04.467501+00:00"
+    "topic_preview": "Multisig wallets eliminate single points of failure. A two-of-three setup means ",
+    "generated_at": "2026-03-27T18:20:04.545869+00:00",
+    "expires_at": "2026-03-27T22:20:04.545869+00:00"
   }
 ]

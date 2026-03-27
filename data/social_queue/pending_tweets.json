@@ -316,5 +316,17 @@
     "generated_at": "2026-03-27T18:00:06.651514+00:00",
     "brief_date": "Monday, March 23, 2026",
     "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260327_184528_0",
+    "text": "Extreme Fear at 13 while fees collapse to 1 sat/vB. The market is terrified. The network is efficient. One measures sentiment. The other measures who actually transacts. Notice which one lies",
+    "angle": "macro_monetary",
+    "type": "contrarian_take",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-03-27T18:45:28.401486+00:00",
+    "brief_date": "Monday, March 23, 2026",
+    "sentiment": "bearish"
   }
 ]

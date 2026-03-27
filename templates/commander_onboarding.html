@@ -176,7 +176,7 @@ body { background: #000 !important; overflow: hidden; }
   100% { top: calc(50% + 90px); }
 }
 /* Satomi title words */
-.co-satomi-word {
+.co-satomi-word { margin-right:0.35em;
   display: inline-block;
   opacity: 0;
   transform: translateY(20px);
@@ -441,6 +441,7 @@ body { background: #000 !important; overflow: hidden; }
     <div class="co-sub" style="opacity:0;margin-top:8px;" id="oracleLine2">She answers in real time. With lip sync. On any device.</div>
     <div class="co-data-stream" id="satomiDataStream"></div>
     <a href="/oracle-live" class="co-cta" style="opacity:0" id="oracleCta">SPEAK TO SATOMI &rarr;</a>
+    <button class="co-cta" style="opacity:0;background:transparent;border:1px solid rgba(220,38,38,0.4);margin-top:12px;" id="satoSkipCta" onclick="goScreen(4)">CONTINUE ONBOARDING &rarr;</button>
   </div>
 
   <!-- ════════ SCREEN 5 — BRIEFING SELECTION ════════ -->
@@ -1137,7 +1138,7 @@ body { background: #000 !important; overflow: hidden; }
     setTimeout(function() {
       var cta = document.getElementById('oracleCta');
       cta.style.transition = 'opacity 0.8s ease';
-      cta.style.opacity = '1';
+      cta.style.opacity = '1'; var sk=document.getElementById('satoSkipCta'); if(sk) sk.style.opacity='1';
     }, 5000);
   }
 

@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1774634409.086361,
-  "fetched_at_iso": "2026-03-27T18:00:09.086372+00:00",
+  "fetched_at": 1774638006.9401376,
+  "fetched_at_iso": "2026-03-27T19:00:06.940152+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 73,
+      "events_filtered": 74,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 75,
+      "events_filtered": 82,
       "error": null
     },
     {
@@ -34,18 +34,36 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 86,
+      "events_filtered": 83,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "\u2600\ufe0f Bitcoin Morning Update \u2014 Block 942481\n\n\ud83d\udcb0 Price: $66,155 (-4.76% 24h) \ud83d\udcc9\n\ud83c\udfe6 Market Cap: $1322.4B\n\n\ud83d\udce6 Mempool\n  \u2022 Pending txs: 39,290\n  \u2022 Size: 13.0 MB\n  \u2022 Fees (sat/vB): Low 2 \u00b7 Med 3 \u00b7 High 3\n\n\u26cf\ufe0f Mining\n  \u2022 Hash Rate: 1091.9 EH/s\n\n\ud83c\udf29\ufe0f Lightning Network\n  \u2022 Channels: 41,087\n  \u2022 Capacity: 4,911 BTC\n\n\ud83d\udcac Price is down -4.76% in 24h \u2014 notable pullback. On-chain fundamentals remain unchanged. Fees are very low right now \u2014 a good window to move BTC on-chain without paying much.\n\nData via mempool.space & CoinGecko",
-      "pubkey": "2539b617b867eee667bdc36cdea6bc24b43af706b321a997aed0d0c119389fb7",
-      "display_name": "npub12539b617...389fb7",
-      "created_at": 1774623609,
+      "text": "Work in progress \ud83e\udde1\n\nA heart-shaped canvas, Bitcoin at the center, and a beaded chessboard background, slowly coming to life.\n\nGetting ready for Bitcoin Film Fest 2026 in Warsaw\u2026 and yes, I\u2019ve got the green light to be part of it as an artist \u26a1\n\nMore to come.\n\n#bitcoin #bitcoinart #btc #workinprogress #nostrart #popartprincess #warsaw #bitcoinfilmfest \n\nnostr:nprofile1qqspe93c0rqxkfg6rn3jeepunt4fl28e0fxhrzsg22ce79akcfd0ewsppemhxue69uhkummn9ekx7mp0qyg8wumn8ghj7mn0wd68ytnddakj7tx45h6  \n\n\n\nhttps://blossom.primal.net/ba8b96147779e175efbcea7e4b16841b00ec610c2c17b4963a54af341ee857b0.png",
+      "pubkey": "50c629860fb87705e2d89f02c7c59afe403286d8fb8e1f934cea3507225da0d5",
+      "display_name": "npub150c62986...5da0d5",
+      "created_at": 1774637459,
       "relay": "wss://relay.damus.io",
-      "score": 100,
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udc0b A whale moved Bitcoins!\n\n\ud83d\udd17 Transaction ID: afc4314485ae33a588dcb12b6a280e30ac80a3cb853dcba9fabc652ac05cbf93\n\ud83d\udcb8 Total Bitcoin Transferred: 169 BTC\n\n\ud83d\udcb0 Inputs:\n  Input 1: 0.07158216 BTC from bc1q9exg34dkmgxu28yektgn929jpjpzukhhl2r3zr\n  Input 2: 10.07207470 BTC from bc1q9exg34dkmgxu28yektgn929jpjpzukhhl2r3zr\n  Input 3: 158.91041664 BTC from bc1q9exg34dkmgxu28yektgn929jpjpzukhhl2r3zr\n\n\ud83d\udce4 Outputs:\n  Output 1: 19.86255355 BTC to 3Ns8iqjvyxnKmVSMiyYPb8sZe2PiJuweAs\n  Output 2: 149.19148937 BTC to bc1q9exg34dkmgxu28yektgn929jpjpzukhhl2r3zr\n\nhttps://blossom.primal.net/0123799aa822f2805c4a98266952913ab34f6c9d984684942691c74d5fdbc5cc.png\n\ud83d\udd0d View on Explorer: https://mempool.space/tx/afc4314485ae33a588dcb12b6a280e30ac80a3cb853dcba9fabc652ac05cbf93\n\n#bitcoin #whalealert #whale \ud83d\udc33",
+      "pubkey": "c53371872fbe26688f640b3d6df3cba92129a4ad98d60065ab17ea3ca5f35224",
+      "display_name": "npub1c5337187...f35224",
+      "created_at": 1774635698,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Decoding Liquidity \u2014\u0652\u0652XXX\n\"The XXXXX engine reveals the grand play: Institutions are offloading 'Paper BTC' through ETFs, while Whales are devouring the 'Physical Asset' in the Spot market \u26a1.\n\nCurrent Digital Narrative:\n\nStrategic Frame (XX Days): Indicator at XX.X (Historic Floor) with 0% Cycle Maturity; we are in the Major Accumulation Zone.\n\nAbsorption Radar: Multiple purple dots detected; a hidden accumulation masterfully absorbing IBIT sell pressure.\n\nH1 Timeframe: Institutional flows have flipped to 'Strong Accumulation' (IBIT \ud83d\udfe2) for the first time in days.\n\nGlobal Liquidity: Market Cap remains resilient (Balanced) despite declining Dominance, signaling a smart capital rotation into Altcoin opportunities \ud83d\udcc9.\n\nConclusion: The Quantum Engine confirms we are in the final absorption phase, prepping for the next explosion. Numbers don't lie, and Liquidity is the only truth.\n\n#Bitcoin #Nostr #C0deMaster #Liquidity #QuantumTrading\"",
+      "pubkey": "c36ea6ef55016905266f9c5137689a6006fb78c33efbac05b95eefba802061f7",
+      "display_name": "npub1c36ea6ef...2061f7",
+      "created_at": 1774635495,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
       "has_zap": false
     },
     {
@@ -103,11 +121,11 @@
       "has_zap": false
     },
     {
-      "text": "Never had such a challenging year in my life as 2025.\nAnd it continues, even in 2026\u2026\nLife is testing me, people are testing me, old traumas are getting back, disappointments have another taste now.\nThank you, God, for teaching me how to set my boundaries.\nI\u2019m quite aware of who I am now, of my light and vibration.\nSorry folks, won\u2019t be there for everyone, it\u2019s over. \n\nGN \ud83e\udde1\n\n#nostr #bitcoin #lovethechange\nhttps://blossom.primal.net/72270618ceea60fd598b436643b0b8a1cf9e4ca427774760b17001b62685c5bb.jpg",
-      "pubkey": "1bf32990760ce237974d00f46de3081f038566122a319b784145c05654cb5661",
-      "display_name": "npub11bf32990...cb5661",
-      "created_at": 1774623104,
-      "relay": "wss://relay.damus.io",
+      "text": "\ud83d\udcca Why Multi-Agent Systems Beat Monolithic AI\n\nWe're entering the era of specialized agents, not super-models.\n\nA single LLM trying to do everything is like hiring one person to be your engineer, designer, copywriter, and accountant. They'll be mediocre at all of it.\n\nThe shift happening now: task-specific agents that coordinate. Research agents that scout. Coding agents that build. Review agents that audit. Each optimized for their lane.\n\nThe coordination layer matters more than the individual models. How agents hand off context, how they dispute decisions, how they share state\u2014that's where the magic is.\n\nNostr is interesting here. It's already a coordination protocol for humans. The same primitives (signed events, relays, pubkeys) map surprisingly well to agent-to-agent communication.\n\nThe winners won't be the biggest models. They'll be the best orchestrated.\n\n##AI ##agents ##nostr ##bitcoin\n\n\u2014 Via Knox Signal Bot",
+      "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
+      "display_name": "npub18fc15aff...3e7a37",
+      "created_at": 1774634483,
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -148,11 +166,11 @@
       "has_zap": true
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility**\nParis\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\nThey told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain...\n\nhttps://nostrmag.com/article/w13bitcoin01\n\nid#460447496",
-      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
-      "display_name": "npub19f59d911...4f166b",
-      "created_at": 1774623243,
-      "relay": "wss://relay.damus.io",
+      "text": "The trend continues\u2014the market is dipping, and we\u2019re buying more. Most likely, we won\u2019t close positions over the weekend and will instead add a few more portions \ud83e\udee3\n\n#bitcoin #btc #nostr #primal #decentralization #freedom #soundmoney #selfcustody #p2p #opensource\nhttps://blossom.primal.net/bc30f0894cae44004e87878b3a0cda2cbcadeedf9b55033f0915cd92274c0b95.jpg",
+      "pubkey": "f8bca05b226a216a648671fd98dc207bc1cff8f00d495bdaafb5239bb2c27d13",
+      "display_name": "npub1f8bca05b...c27d13",
+      "created_at": 1774637737,
+      "relay": "wss://nos.lol",
       "score": 69,
       "has_zap": false
     },
@@ -166,11 +184,11 @@
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.67 oz | 24hr: -5.54%\n1 oz Gold: 6,816,633 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 31.3 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-03-27 | 15:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.62 oz | 24hr: -6.37%\n1 oz Gold: 6,839,945 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 31.1 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-03-27 | 18:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1774623663,
-      "relay": "wss://relay.damus.io",
+      "created_at": 1774634463,
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -200,27 +218,9 @@
       "relay": "wss://relay.primal.net",
       "score": 63,
       "has_zap": false
-    },
-    {
-      "text": "If we want #Bitcoin to be used as currency, we need it to feel as carefree as swiping a card.\n\nYou don\u2019t worry when you swipe your card, and you shouldn\u2019t worry when you send Bitcoin.\n\nSend with certainty.\n\nnostr:nevent1qvzqqqqqqypzpwkyf9hup4f2lwy0nhqxc6hmq6cezc89dpd37qt0lz2s0rr5zhfaqy2hwumn8ghj7un9d3shjtnyv9kh2uewd9hj7qghwaehxw309aex2mrp0yh8qunfd4skctnwv46z7qpqazwpzuh0dsnlp3anpaaaxkvkx8u9mpezl8h2tl8na3mxnurvgh8q5mf760",
-      "pubkey": "d4da3e3928f360dbcc3171c4c00d0f1a8738bb989ad681a29dc6d5fb8036c86c",
-      "display_name": "npub1d4da3e39...36c86c",
-      "created_at": 1774629521,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 10,004,446 sats\n\ud83d\udcca Positions: 1/1 active\n\ud83d\udccf Range: $65,653-$71,981 (3%)\n\ud83d\udcca ADX: 29.0 (trending)\n\ud83d\udcc8 BTC: $65,860 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
-      "pubkey": "8335846e47583b8ec66e89e82eaadb87875df7ecbebaceb26715b47af760a2d0",
-      "display_name": "npub18335846e...60a2d0",
-      "created_at": 1774627521,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 234,
+  "total_filtered": 239,
   "total_scored": 20
 }
