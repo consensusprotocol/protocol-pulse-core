@@ -551,7 +551,16 @@ def bitfeed_ultimate():
 
 @app.route('/value-stream')
 def value_stream():
-    """Value Stream - Sovereign Intelligence Market"""
+    """Value Stream - Commander Pricing Page"""
+    from flask import make_response
+    resp = make_response(render_template('value_stream.html'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
+
+@app.route('/value-stream-legacy')
+def value_stream_legacy():
+    """Value Stream Legacy - Sovereign Intelligence Market"""
     default_pulse = {'value': 0, 'label': 'Neutral', 'zap_volume_24h': 0, 'posts_with_zaps_24h': 0, 'ratio': 0}
     try:
         from services.value_stream_service import value_stream_service
