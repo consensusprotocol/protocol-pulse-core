@@ -1274,6 +1274,39 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         return False
     write_render_context(7, "ok")
 
+    # ── Step 7a: DURATION HARD CAP (15 min = 900s) ──────────────────────
+    try:
+        _dur_r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", final_video],
+            capture_output=True, text=True, timeout=30,
+        )
+        _raw_dur = float(_dur_r.stdout.strip()) if _dur_r.stdout.strip() else 0
+        if _raw_dur > MAX_EPISODE_DURATION_S:
+            logger.warning(f"[DURATION CAP] {_raw_dur:.0f}s > {MAX_EPISODE_DURATION_S}s — trimming")
+            print(f"\n  [DURATION CAP] {_raw_dur:.0f}s exceeds {MAX_EPISODE_DURATION_S}s — trimming...")
+            _trim_tmp = final_video + ".trimmed.mp4"
+            _trim_r = subprocess.run(
+                ["ffmpeg", "-y", "-i", final_video,
+                 "-t", str(MAX_EPISODE_DURATION_S),
+                 "-c:v", "libx264", "-preset", "medium",
+                 "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
+                 "-r", "30", "-vsync", "cfr",
+                 "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+                 "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+                 "-af", "asetpts=PTS-STARTPTS",
+                 "-movflags", "+faststart",
+                 _trim_tmp],
+                capture_output=True, text=True, timeout=600,
+            )
+            if _trim_r.returncode == 0 and os.path.exists(_trim_tmp):
+                os.replace(_trim_tmp, final_video)
+                print(f"  [DURATION CAP] Trimmed to {MAX_EPISODE_DURATION_S}s")
+            elif os.path.exists(_trim_tmp):
+                os.remove(_trim_tmp)
+    except Exception as e:
+        logger.warning(f"[DURATION CAP] Check failed: {e}")
+
     # ── Step 7b: PRE-FLIGHT QC (Grade A Guarantee) ───────────────────────
     print("\n[STEP 7b] PRE-FLIGHT QC...")
     t0 = time.time()
