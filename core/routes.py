@@ -13536,6 +13536,42 @@ def register_page():
     return render_template('register.html')
 
 
+@app.route('/api/auth/register', methods=['POST'])
+@limiter.limit("5 per minute")
+def api_auth_register():
+    """JSON registration endpoint for the /register form."""
+    data = request.get_json() or {}
+    email = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+
+    if not email or '@' not in email:
+        return jsonify({'error': 'Valid email required'}), 400
+    if len(password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+
+    # Use email local part as username, deduplicate if needed
+    base_username = email.split('@')[0][:60]
+    username = base_username
+    suffix = 1
+    while models.User.query.filter_by(username=username).first():
+        username = f"{base_username}{suffix}"
+        suffix += 1
+
+    if models.User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered'}), 409
+
+    try:
+        user = models.User(username=username, email=email)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success': True, 'redirect': '/login'})
+    except Exception as e:
+        db.session.rollback()
+        logging.error('Registration error: %s', e)
+        return jsonify({'error': 'Registration failed. Try again.'}), 500
+
+
 # ── Commander Welcome ─────────────────────────────────────────────────────────
 
 @app.route('/commander/welcome')
