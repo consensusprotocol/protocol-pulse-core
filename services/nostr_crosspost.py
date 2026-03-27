@@ -67,15 +67,20 @@ class NostrCrossPoster:
 
             posted = 0
             for relay in self.relays[:3]:
-                try:
-                    ws = websocket.create_connection(relay, timeout=10)
-                    msg = json.dumps(["EVENT", event])
-                    ws.send(msg)
-                    ws.close()
-                    posted += 1
-                    logger.info(f"Posted to Nostr relay: {relay}")
-                except Exception as e:
-                    logger.warning(f"Nostr relay {relay} failed: {e}")
+                for attempt in range(3):
+                    try:
+                        ws = websocket.create_connection(relay, timeout=10)
+                        msg = json.dumps(["EVENT", event])
+                        ws.send(msg)
+                        ws.close()
+                        posted += 1
+                        logger.info(f"Posted to Nostr relay: {relay}")
+                        break
+                    except Exception as e:
+                        if attempt == 2:
+                            logger.warning(f"Nostr relay {relay} failed after 3 attempts: {e}")
+                        else:
+                            time.sleep(2 ** attempt)
 
             return {"success": posted > 0, "relays_posted": posted}
 

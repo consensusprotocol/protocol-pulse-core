@@ -43,6 +43,8 @@ NITTER_INSTANCES = [
     "https://nitter.privacydev.net",
     "https://nitter.poast.org",
     "https://nitter.1d4.us",
+    "https://nitter.cz",
+    "https://xcancel.com",
 ]
 
 # ── Bitcoin/freedom keyword filter ───────────────────────────────────────────

@@ -177,30 +177,34 @@ Replies to respond to:
 
 Generate 1 response for each reply. Short, sharp, conversational."""
 
-        try:
-            headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-            resp = requests.post(
-                "https://api.x.ai/v1/chat/completions",
-                headers=headers,
-                json={
-                    "model": "grok-3-mini",
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    "max_tokens": 500,
-                    "temperature": 0.85
-                },
-                timeout=45
-            )
-            resp.raise_for_status()
-            raw = resp.json()["choices"][0]["message"]["content"]
-            raw = raw.replace("```json", "").replace("```", "").strip()
-            return json.loads(raw)
-
-        except Exception as e:
-            logger.error(f"Response generation failed: {e}")
-            return []
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        payload = {
+            "model": "grok-3-mini",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "max_tokens": 500,
+            "temperature": 0.85
+        }
+        for attempt in range(3):
+            try:
+                resp = requests.post(
+                    "https://api.x.ai/v1/chat/completions",
+                    headers=headers,
+                    json=payload,
+                    timeout=45
+                )
+                resp.raise_for_status()
+                raw = resp.json()["choices"][0]["message"]["content"]
+                raw = raw.replace("```json", "").replace("```", "").strip()
+                return json.loads(raw)
+            except Exception as e:
+                if attempt == 2:
+                    logger.error(f"Response generation failed after 3 attempts: {e}")
+                    return []
+                logger.debug(f"Generation attempt {attempt+1} failed: {e}")
+                time.sleep(2 ** attempt)
 
     def run_reply_back_cycle(self, max_replies_per_cycle=3) -> Dict:
         """Main entry: find our tweets, find best replies, respond."""

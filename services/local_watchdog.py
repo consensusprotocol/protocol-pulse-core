@@ -936,6 +936,29 @@ def run_health_scan():
         free_gb, last_grade, patches_24h,
     )
 
+    # Social automation health — check log mtimes
+    social_logs = {
+        "morning_brief": BASE / "logs" / "morning_brief_cron.log",
+        "tweet_machine": BASE / "core" / "logs" / "tweet_machine_cron.log",
+        "nitter_scraper": BASE / "logs" / "nitter_scraper.log",
+        "nostr_cron": BASE / "logs" / "nostr_cron.log",
+        "substack_digest": BASE / "logs" / "substack_digest.log",
+        "comment_radar": BASE / "logs" / "comment_radar.log",
+        "reply_engine": BASE / "logs" / "reply_engine.log",
+    }
+    stale_social = []
+    for name, log_path in social_logs.items():
+        if log_path.exists():
+            mtime = datetime.fromtimestamp(log_path.stat().st_mtime, tz=timezone.utc)
+            age_hours = (datetime.now(timezone.utc) - mtime).total_seconds() / 3600
+            if age_hours > 25:
+                stale_social.append(f"{name} ({age_hours:.0f}h stale)")
+        else:
+            stale_social.append(f"{name} (no log)")
+    checks["social_stale"] = stale_social
+    if stale_social:
+        logger.warning("Social stale: %s", ", ".join(stale_social))
+
     # Alert if critical services down
     issues = []
     if not checks["render_loop"]:
@@ -944,6 +967,8 @@ def run_health_scan():
         issues.append("\u274c Flask DOWN")
     if not checks["ollama"]:
         issues.append("\u274c Ollama DOWN")
+    if stale_social:
+        issues.append(f"\u26a0\ufe0f Social stale: {', '.join(stale_social)}")
 
     if issues:
         send_telegram(

@@ -1,0 +1,17 @@
+[Unit]
+Description=Protocol Pulse Social Automation Daemon
+After=network.target protocolpulse.service
+
+[Service]
+Type=simple
+User=ultron
+WorkingDirectory=/home/ultron/protocol_pulse
+ExecStart=/usr/bin/python3 /home/ultron/protocol_pulse/services/social_daemon.py
+Restart=always
+RestartSec=30
+StandardOutput=append:/home/ultron/protocol_pulse/logs/social_daemon.log
+StandardError=append:/home/ultron/protocol_pulse/logs/social_daemon.log
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

@@ -12,6 +12,7 @@ import logging
 import os
 import sqlite3
 import sys
+import time
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -89,21 +90,25 @@ def fetch_mentions() -> list:
     if not PP_USER_ID:
         logger.warning("PP_X_USER_ID not set in .env — skipping mention fetch")
         return []
-    try:
-        url = f"https://api.twitter.com/2/users/{PP_USER_ID}/mentions?tweet.fields=conversation_id,author_id,text,created_at&expansions=author_id&max_results=10"
-        req = urllib.request.Request(
-            url,
-            headers={
-                "Authorization": f"Bearer {TWITTER_BEARER_TOKEN}",
-                "User-Agent": "ProtocolPulse/1.0",
-            },
-        )
-        resp = urllib.request.urlopen(req, timeout=15)
-        data = json.loads(resp.read())
-        return data.get("data", [])
-    except Exception as e:
-        logger.warning(f"Mention fetch failed: {e}")
-        return []
+    url = f"https://api.twitter.com/2/users/{PP_USER_ID}/mentions?tweet.fields=conversation_id,author_id,text,created_at&expansions=author_id&max_results=10"
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "Authorization": f"Bearer {TWITTER_BEARER_TOKEN}",
+                    "User-Agent": "ProtocolPulse/1.0",
+                },
+            )
+            resp = urllib.request.urlopen(req, timeout=15)
+            data = json.loads(resp.read())
+            return data.get("data", [])
+        except Exception as e:
+            if attempt == 2:
+                logger.warning(f"Mention fetch failed after 3 attempts: {e}")
+                return []
+            logger.debug(f"Mention fetch attempt {attempt+1} failed: {e}")
+            time.sleep(2 ** attempt)
 
 
 def draft_reply(original_text: str, reply_user: str, reply_text: str) -> dict:
@@ -120,24 +125,28 @@ def draft_reply(original_text: str, reply_user: str, reply_text: str) -> dict:
         "max_tokens": 300,
         "messages": [{"role": "user", "content": prompt}],
     }
-    req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
-        data=json.dumps(payload).encode(),
-        headers={
-            "Content-Type": "application/json",
-            "x-api-key": ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-        },
-    )
-    try:
-        resp = urllib.request.urlopen(req, timeout=20)
-        content = json.loads(resp.read()).get("content", [{}])[0].get("text", "").strip()
-        if content.startswith("```"):
-            content = content.split("```", 2)[1].lstrip("json").strip().rsplit("```", 1)[0].strip()
-        return json.loads(content)
-    except Exception as e:
-        logger.warning(f"Draft failed: {e}")
-        return {"draft": None, "reasoning": str(e)}
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(
+                "https://api.anthropic.com/v1/messages",
+                data=json.dumps(payload).encode(),
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                },
+            )
+            resp = urllib.request.urlopen(req, timeout=20)
+            content = json.loads(resp.read()).get("content", [{}])[0].get("text", "").strip()
+            if content.startswith("```"):
+                content = content.split("```", 2)[1].lstrip("json").strip().rsplit("```", 1)[0].strip()
+            return json.loads(content)
+        except Exception as e:
+            if attempt == 2:
+                logger.warning(f"Draft failed after 3 attempts: {e}")
+                return {"draft": None, "reasoning": str(e)}
+            logger.debug(f"Draft attempt {attempt+1} failed: {e}")
+            time.sleep(2 ** attempt)
 
 
 def save_draft(original_id: str, original_text: str, reply: dict, result: dict):
