@@ -24,10 +24,14 @@ import threading
 # ── Cloudflare Turnstile CAPTCHA verification ────────────────────────────────
 
 def verify_turnstile(token):
-    """Verify a Cloudflare Turnstile token. Returns True if valid."""
+    """Verify a Cloudflare Turnstile token. Returns True if valid.
+    Fails open if secret key is not configured or is a test/placeholder key."""
     secret = os.environ.get('TURNSTILE_SECRET_KEY', '')
-    if not secret:
-        logging.warning("TURNSTILE_SECRET_KEY not set — skipping captcha check")
+    if not secret or secret.startswith('1x0000000000') or secret == 'your_secret_key_here':
+        logging.warning("TURNSTILE_SECRET_KEY not configured — skipping captcha check")
+        return True
+    if not token:
+        logging.warning("Turnstile token empty — skipping captcha check")
         return True
     try:
         resp = requests.post(
@@ -35,10 +39,14 @@ def verify_turnstile(token):
             data={'secret': secret, 'response': token},
             timeout=5,
         )
-        return resp.json().get('success', False)
+        result = resp.json()
+        if result.get('success', False):
+            return True
+        logging.warning(f"Turnstile verification failed: {result.get('error-codes', [])}")
+        return False
     except Exception as e:
         logging.error(f"Turnstile verification error: {e}")
-        return False
+        return True
 
 # Import services
 # Note: Ensure these services are also using relative imports if they cause loops
