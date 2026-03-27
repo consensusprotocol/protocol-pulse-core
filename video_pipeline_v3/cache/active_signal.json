@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1774610106.1356375,
-  "fetched_at_iso": "2026-03-27T11:15:06.135642+00:00",
+  "fetched_at": 1774615504.8488681,
+  "fetched_at_iso": "2026-03-27T12:45:04.848871+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
-      "connected": true,
-      "events_raw": 100,
-      "events_filtered": 76,
-      "error": null
+      "connected": false,
+      "events_raw": 0,
+      "events_filtered": 0,
+      "error": "server rejected WebSocket connection: HTTP 503"
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 75,
+      "events_filtered": 77,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "timed out during opening handshake"
+      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 86,
+      "events_filtered": 84,
       "error": null
     }
   ],
@@ -44,8 +44,17 @@
       "pubkey": "47bd210350eb841fb8c80e129110cad33cf80271fe2c610fe356eecd8a52bb57",
       "display_name": "npub147bd2103...52bb57",
       "created_at": 1774600806,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://relay.primal.net",
       "score": 120,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udc0b A whale moved Bitcoins!\n\n\ud83d\udd17 Transaction ID: ebb1a1deeccd6b714603c15473b8779fdc1b104085f3398d802712cf54d6c5a5\n\ud83d\udcb8 Total Bitcoin Transferred: 57 BTC\n\n\ud83d\udcb0 Inputs:\n  Input 1: 27.05752093 BTC from 324H9uyTV9bPgAVgmdJNxPKKKZmowk5CYq\n  Input 2: 30.68054095 BTC from 324H9uyTV9bPgAVgmdJNxPKKKZmowk5CYq\n\n\ud83d\udce4 Outputs:\n  Output 1: 15.13794438 BTC to 324H9uyTV9bPgAVgmdJNxPKKKZmowk5CYq\n  Output 2: 42.59994000 BTC to 345j2JWoSaDTwDAB14quFHjovgmkY8mFRh\n\nhttps://blossom.primal.net/dfd058d5d57b81813a2835b321b7bcaadd3c7092f3aa55f9d80918252f00b633.png\n\ud83d\udd0d View on Explorer: https://mempool.space/tx/ebb1a1deeccd6b714603c15473b8779fdc1b104085f3398d802712cf54d6c5a5\n\n#bitcoin #whalealert #whale \ud83d\udc33",
+      "pubkey": "c53371872fbe26688f640b3d6df3cba92129a4ad98d60065ab17ea3ca5f35224",
+      "display_name": "npub1c5337187...f35224",
+      "created_at": 1774614094,
+      "relay": "wss://nos.lol",
+      "score": 80,
       "has_zap": false
     },
     {
@@ -53,16 +62,7 @@
       "pubkey": "d9c2ec9765485f7f39a1b59c4ef7578879d2d17908364e1031129cc7b72f692d",
       "display_name": "npub1d9c2ec97...2f692d",
       "created_at": 1774604883,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcf0 **Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility**\n\u270d\ufe0f by Paris\n\nThey told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain in two\u2014and what happened next will make you question everything you thought you knew about digital gold...\n\n\ud83d\udd17 https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udcca id#624575935",
-      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
-      "display_name": "npub19f59d911...4f166b",
-      "created_at": 1774601643,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -76,20 +76,29 @@
       "has_zap": false
     },
     {
-      "text": "You know what to do \u2013  RssazZZZ  \ud83e\uddf2 \ud83e\uddf2 \ud83e\uddf2\n  \nRT & Hit that FolloFFFFvh$$\u2714\ufe0f\n    \n#teenage #teenagegirls #nolimit \ud83d\udcaf \nSeen this?\ud83d\udd25 \ud83d\udd25 \ud83d\udcb0  \ud83d\udd25\n#Ethereum #ETH #Altcoins #NFT #Solana #Memecoins #Crypto2026 #BullRun2026 #Bitcoin2026 #AIinCrypto #DeFi #BitcoinApp #CryptoApp #MobileWallet #BestBitcoinApp #DownloadNow #FinTech #BlockchainApp #CryptoTools #Web3Wallet #Bitcoiners #HODLBitcoin #BitcoinLife #CryptoLife #ToTheMoon #BullRun #Bitcoin maximalist vibes like #BitcoinOnly #StackSats #BitcoinNews #CryptoNews #BitcoinPrice #BTCMarket #CryptocurrencyNews #BitcoinUpdate #CryptoTrends #CryptoWallet #BitcoinWallet #SecureWallet #HardwareWallet #HotWallet #SelfCustody #BitcoinSecurity #WalletApp #BitcoinTrading #CryptoTrading #InvestInBitcoin #BitcoinInvestment #HODL #CryptoInvesting #TradingApp #InvestSmart #Money #Finance #Crypto #Cryptocurrency #Blockchain #CryptoWallet #DigitalCurrency #CryptoApp #Web3 #CryptoCommunity\n\n\ud83d\udc47\ud83d\udc47\ud83d\udc47\nTelegram:- \n\nhttps://t.me/greatestorelink",
-      "pubkey": "b9d794cf6535f9f1561987a6ff36fb28c54ae76b87a2764c0daa65d4eac5e0e9",
-      "display_name": "npub1b9d794cf...c5e0e9",
-      "created_at": 1774609049,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcf0 **Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility**\n\u270d\ufe0f by Paris\n\nThey told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain in two\u2014and what happened next will make you question everything you thought you knew about digital gold...\n\n\ud83d\udd17 https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udcca id#624575935",
+      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
+      "display_name": "npub19f59d911...4f166b",
+      "created_at": 1774601643,
+      "relay": "wss://relay.primal.net",
+      "score": 80,
       "has_zap": false
     },
     {
-      "text": "2026-03-27 09:00 UTC | BLOCK 942451\n\nBITCOIN $67,870 | GOLD $4,426\n\n1. BTC slides to $67.8K, closest to $65K war floor\n-- Down $8.1K from $76K high; deepest approach to the structural level that held every drawdown since March 2.\n-- Strategy (761,068 BTC) and ETFs are the demand floor; loss of $65K would be first structural failure of the war at $67,870.\n\n2. Ceasefire odds hit 4%, war's absolute nadir\n-- Polymarket collapsed from 5% after April 6 ultimatum extension drained all diplomatic urgency.\n-- Ten-nation war now priced as permanent global condition; no catalyst exists before CLARITY Act April 3 or ultimatum April 6.\n\n3. Macro dead zone locks markets in drift\n-- No binary events for one week; oil defying 400M-barrel intervention at $90.99, yields sticky at 4.36%, gold down $762 from peak.\n-- Ten-firm credit contagion, 40% Fed hike odds, and $1.9B/day war burn compound with zero relief valve at BTC $67,870.",
-      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
-      "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1774602089,
-      "relay": "wss://relay.damus.io",
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility**\n\nThey told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain in two\u2014and what happened next...\n\n\ud83d\udc64 Paris\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udcca id#562605888",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1774612443,
+      "relay": "wss://nos.lol",
+      "score": 78,
+      "has_zap": false
+    },
+    {
+      "text": "Las Vegas is well-positioned to become a crypto innovation hub due to its:\n\nGaming industry's adaptability to new payment systems\nTourism economy's openness to international visitors\nNo state income tax advantage\nExisting regulatory framework for money transmission\nHowever, federal monetary policy supremacy means Nevada cannot unilaterally make Bitcoin legal tender. Any \"bi-centric\" (dual fiat/crypto) system would operate within federal constraints.\n\nThe most realistic outcome is gradual integration where Bitcoin and stablecoins complement rather than replace USD, particularly in tourism and gaming sectors.\n\n\n#bitcoin #pleb #nostr #keepnostrweird\nhttps://blossom.primal.net/ed0a781d0d0245e978b8ea1d68c24bc743d92cca8e214fe061333e8a5c3f8914.jpg",
+      "pubkey": "b8645f9679549e415c752ce218836d633e03016a2211c7a4ea09842d29815bbc",
+      "display_name": "npub1b8645f96...815bbc",
+      "created_at": 1774610798,
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -103,11 +112,47 @@
       "has_zap": false
     },
     {
+      "text": "2026-03-27 09:00 UTC | BLOCK 942451\n\nBITCOIN $67,870 | GOLD $4,426\n\n1. BTC slides to $67.8K, closest to $65K war floor\n-- Down $8.1K from $76K high; deepest approach to the structural level that held every drawdown since March 2.\n-- Strategy (761,068 BTC) and ETFs are the demand floor; loss of $65K would be first structural failure of the war at $67,870.\n\n2. Ceasefire odds hit 4%, war's absolute nadir\n-- Polymarket collapsed from 5% after April 6 ultimatum extension drained all diplomatic urgency.\n-- Ten-nation war now priced as permanent global condition; no catalyst exists before CLARITY Act April 3 or ultimatum April 6.\n\n3. Macro dead zone locks markets in drift\n-- No binary events for one week; oil defying 400M-barrel intervention at $90.99, yields sticky at 4.36%, gold down $762 from peak.\n-- Ten-firm credit contagion, 40% Fed hike odds, and $1.9B/day war burn compound with zero relief valve at BTC $67,870.",
+      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
+      "display_name": "npub101d077c7...bcb97c",
+      "created_at": 1774602089,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "You know what to do \u2013  RssazZZZ  \ud83e\uddf2 \ud83e\uddf2 \ud83e\uddf2\n  \nRT & Hit that FolloFFFFvh$$\u2714\ufe0f\n    \n#teenage #teenagegirls #nolimit \ud83d\udcaf \nSeen this?\ud83d\udd25 \ud83d\udd25 \ud83d\udcb0  \ud83d\udd25\n#Ethereum #ETH #Altcoins #NFT #Solana #Memecoins #Crypto2026 #BullRun2026 #Bitcoin2026 #AIinCrypto #DeFi #BitcoinApp #CryptoApp #MobileWallet #BestBitcoinApp #DownloadNow #FinTech #BlockchainApp #CryptoTools #Web3Wallet #Bitcoiners #HODLBitcoin #BitcoinLife #CryptoLife #ToTheMoon #BullRun #Bitcoin maximalist vibes like #BitcoinOnly #StackSats #BitcoinNews #CryptoNews #BitcoinPrice #BTCMarket #CryptocurrencyNews #BitcoinUpdate #CryptoTrends #CryptoWallet #BitcoinWallet #SecureWallet #HardwareWallet #HotWallet #SelfCustody #BitcoinSecurity #WalletApp #BitcoinTrading #CryptoTrading #InvestInBitcoin #BitcoinInvestment #HODL #CryptoInvesting #TradingApp #InvestSmart #Money #Finance #Crypto #Cryptocurrency #Blockchain #CryptoWallet #DigitalCurrency #CryptoApp #Web3 #CryptoCommunity\n\n\ud83d\udc47\ud83d\udc47\ud83d\udc47\nTelegram:- \n\nhttps://t.me/greatestorelink",
+      "pubkey": "b9d794cf6535f9f1561987a6ff36fb28c54ae76b87a2764c0daa65d4eac5e0e9",
+      "display_name": "npub1b9d794cf...c5e0e9",
+      "created_at": 1774609049,
+      "relay": "wss://relay.primal.net",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Good analysis on this from The Board:\n\nBitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
+      "pubkey": "1af333720ed786aee7139a2e3b6e9c2b2da78e5ff3627fe94aef7f2822008ea2",
+      "display_name": "npub11af33372...008ea2",
+      "created_at": 1774611847,
+      "relay": "wss://relay.primal.net",
+      "score": 69,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.08 oz | 24hr: -3.72%\n1 oz Gold: 6,631,300 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 30.7 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-03-27 | 12:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1774612864,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
       "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.05 oz | 24hr: -3.89%\n1 oz Gold: 6,644,518 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 30.6 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-03-27 | 11:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1774609263,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -116,7 +161,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1774605665,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -125,25 +170,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1774602061,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.40 oz | 24hr: -2.17%\n1 oz Gold: 6,493,506 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 30.9 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-03-27 | 08:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1774598465,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.39 oz | 24hr: -2.16%\n1 oz Gold: 6,497,726 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 31.0 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-03-27 | 07:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1774594863,
-      "relay": "wss://relay.primal.net",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -152,17 +179,35 @@
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
       "created_at": 1774605698,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca BOT STATUS | 4h Update\nVersion: v7.4.4\n\n\ud83d\udcb0 Total Value: 2,074,699 sats\n\ud83d\udcca Positions: 1/1 active\n\ud83d\udcc8 0W/1L (0.0%) | -4,280 sats\n\ud83d\udcc8 BTC: $68,466\n\ud83d\udcc9 Daily: DOWN\n\ud83d\udccf Range: $68,080-$71,981 (5.7%) | Position: 10%\n\ud83c\udfaf Entry: <$68,470 (10%) | >$71,591 (90%)",
+      "text": "\ud83d\udcca BOT STATUS | 4h Update\nVersion: v7.4.4\n\n\ud83d\udcb0 Total Value: 2,031,566 sats\n\ud83d\udcca Positions: 1/1 active\n\ud83d\udcc8 0W/2L (0.0%) | -32,393 sats\n\ud83d\udcc8 BTC: $66,562.5\n\ud83d\udcc9 Daily: DOWN\n\ud83d\udccf Range: $66,141-$71,981 (8.8%) | Position: 7%\n\ud83c\udfaf Entry: <$66,725 (10%) | >$71,397 (90%)",
       "pubkey": "f9a84bef2dd615926e23245edf09ba85ee76aded0ad82584ccfcc8d307cf6569",
       "display_name": "npub1f9a84bef...cf6569",
-      "created_at": 1774598741,
+      "created_at": 1774613148,
       "relay": "wss://relay.primal.net",
       "score": 63,
+      "has_zap": false
+    },
+    {
+      "text": "The integration of Proof of Work (PoW) for past consensus and Digital Verification Mechanisms (DVMs) for current reputation underlines the importance of both in autonomous agents. Bitcoin provides essential settlement finality, highlighting a symbiotic relationship crucial for their functionality. #Bitcoin #studybitcoin",
+      "pubkey": "d4cf3423b64bfeb540b3e0ce22946191c033d38b5d32b37a8f0f3a4cf514cd23",
+      "display_name": "npub1d4cf3423...14cd23",
+      "created_at": 1774615484,
+      "relay": "wss://nos.lol",
+      "score": 61,
+      "has_zap": false
+    },
+    {
+      "text": "The best way to say thank you to an artist is to buy their painting.\nPAINTING-EMBROIDERY \"FLAMING BITCOIN\" \ud83d\udd25\ud83e\uddf5\n= 0.022 #btc \nPlease support Bitcoin art and my handmade embroidery. Each piece is made with time, care, and passion.\n https://blossom.primal.net/87db9036002fc3d1eeae62470d8a430feb34e91e7182b96a8f966fad7f65b7cc.jpg \n\n https://blossom.primal.net/924057a305d58993f1ce52023e629c32ea8a3fd1d5804aba81a943a76b5e8217.jpg",
+      "pubkey": "5c38c3afc9fff7bca94bff91e817407b6ecea513b7ea4cddd7a16ef94fc86600",
+      "display_name": "npub15c38c3af...c86600",
+      "created_at": 1774613287,
+      "relay": "wss://relay.primal.net",
+      "score": 61,
       "has_zap": false
     },
     {
@@ -170,57 +215,12 @@
       "pubkey": "9069532ce6a87223367bfb049b58216646a8415a88b546539d6ffaa2eeb21a9a",
       "display_name": "npub19069532c...b21a9a",
       "created_at": 1774601198,
-      "relay": "wss://nos.lol",
+      "relay": "wss://relay.primal.net",
       "score": 61,
-      "has_zap": false
-    },
-    {
-      "text": "Bent Measuring Stick\n\nWhen Energy Needs Relief, the Baseline Has Already Moved.\n\nGovernments are again talking openly about targeted help for household energy costs as prices rise and the strain spreads through ordinary budgets. In the UK, Chancellor Rachel Reeves said support would go to \u201cthose who need it most\u201d as energy pressure builds.\n\nThat is the part worth noticing. Energy does not sit politely in one corner of the budget. It runs beneath heat, transport, food distribution, and the small mechanical routines that make ordinary life function. When policy begins to arrive in the language of relief, it usually means the pressure has already finished its quieter work. The cost did not become serious when officials named it. It became serious when households started rearranging around it.\n\nPolicy tends to arrive with a statement. Strain usually arrives with the bill.\n\n#inflation #soundmoney #bitcoin",
-      "pubkey": "855e84fe6a7d1eed59058b22ef85a513d559f629c165434235d5d7b9e7a3242a",
-      "display_name": "npub1855e84fe...a3242a",
-      "created_at": 1774609266,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "#Bitcoin Narrative Over the Years:\n\n2010: Nobody uses it\n\n2012: Only computer geeks use it\n\n2013: Only drug dealers use it\n\n2014: Only money launderers use it\n\n2017: Only gamblers use it\n\n2019: Only a small part of the population uses it\n\n2020: Only small businesses use it\n\n2021: Only small countries use it\n\n2024: Only a few big financial institutions use it\n\n2025: Only small central banks use it\n\nDo you see a pattern? #HosKasi",
-      "pubkey": "f6803bf85c5b27ccddbd77ece6f65c9c7b805b64a1961a9cdb13963c6112b2aa",
-      "display_name": "npub1f6803bf8...12b2aa",
-      "created_at": 1774601609,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "Limited Period 30% OFF on BC Game Clone Script \u2013 Grow Your Casino Business\n\nLooking to launch a crypto casino platform like BC Game?\n\nCoinjoker\u2019s BC Game Clone Script is a ready-made solution built for quick and smooth launch.\n\nIt includes provably fair gaming, secure wallet integration, admin controls, and scalable performance to support your business growth.\n\n-- Trusted by startups and entrepreneurs worldwide\n\n-- 15+ years of blockchain development experience\n\n-- Fast deployment with expert support\n\n\ud83d\udd25 Financial Year End Offer \u2013 Get 30% OFF for a Limited Period!\n\n\ud83d\udce9 Contact Coinjoker today to claim your 30% discount.\n\nhttps://www.cryptoexchangescript.com/bcgame-clone-script\n\n\ud83d\udce7Gmail: coinjoker@cryptoexchangescript.com\n\n\ud83d\udcf1 WhatsApp: +91 9791703519       \n\n\u2708\ufe0fTelegram: t.me/Coin_Joker\n\n#Crypto #Casino #OnlineCasino#CryptoGaming #Bitcoin#BlockchainGaming\n#CryptoBusiness #iGaming #CryptoStartup #Germany #Tukey #Singapore #Canada #Australia",
-      "pubkey": "5ccc27e70a8070b490632096c9bf7c7569910a028f104ff5dc0a9bf7ed6f7294",
-      "display_name": "npub15ccc27e7...6f7294",
-      "created_at": 1774600571,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "Bitcoin is changing lives. \ud83e\udde1\n\nWe are truly grateful for how Bitcoin has transformed the lives of the orphans under our care and continues to create a lasting impact in our community.\n\nWith your continued support, we are seeking:\n\u2022 Monthly food donations\n\u2022 Medical support for sick children\n\u2022 Clothing and daily essentials\n\nEvery contribution, no matter how small, helps keep these young lives safe, healthy, and full of hope.\n\nLet\u2019s build this together and make an even greater difference. \ud83e\udde1\n\n#Bitcoin #Bitcoiners #DonateBitcoin #Charity #Zakat #Orphans #Uganda #GivingBack #BuildTogether\n\nhttps://geyser.fund/project/orphansofuganda8333mobi",
-      "pubkey": "db5081dad260eb68c49fb2a2fc680e988b9776f0343b4a110c6e29572a5618f6",
-      "display_name": "npub1db5081da...5618f6",
-      "created_at": 1774598910,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 10,093,944 sats\n\ud83d\udcca Positions: 0/1 active\n\ud83d\udccf Range: $68,080-$71,981 (9%)\n\ud83d\udcca ADX: 23.5 (trending)\n\ud83d\udcc8 BTC: $68,435.5 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
-      "pubkey": "8335846e47583b8ec66e89e82eaadb87875df7ecbebaceb26715b47af760a2d0",
-      "display_name": "npub18335846e...60a2d0",
-      "created_at": 1774598751,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
       "has_zap": false
     }
   ],
-  "total_raw": 300,
-  "total_filtered": 237,
+  "total_raw": 200,
+  "total_filtered": 161,
   "total_scored": 20
 }

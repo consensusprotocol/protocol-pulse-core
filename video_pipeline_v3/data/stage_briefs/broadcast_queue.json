@@ -31,16 +31,6 @@
     "expires_at": "2026-03-27T13:55:04.181196+00:00"
   },
   {
-    "id": "f9f43bb5-d433-4e2c-a4ca-15e5b69913ef",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hashrate surged to 1092 EH/s, confirming network security strength despite price stagnation. Fear & Greed index at 13 signals extreme fear gripping the market. Mempool fees remain stubbornly high at 3 sat/vbyte. Watch for any miner consolidation signals.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate surged to 1092 EH/s, confirming network security strength despite price",
-    "generated_at": "2026-03-27T09:55:08.911466+00:00",
-    "expires_at": "2026-03-27T11:55:08.911466+00:00"
-  },
-  {
     "id": "4a4495c4-a599-4fe3-9ac4-af2788d78566",
     "type": "FILLER_INSIGHT",
     "priority": 5,
