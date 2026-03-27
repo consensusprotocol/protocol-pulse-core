@@ -8,7 +8,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 import logging
 import json
 import random
-from flask import Flask, session
+from flask import Flask, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
@@ -189,6 +189,18 @@ def article_header_display_filter(article):
 def load_user(user_id):
     import models
     return models.User.query.get(int(user_id))
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+
+@app.route('/force-logout')
+def force_logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 
 # =====================================
 # THE IGNITION ZONE (CRITICAL ORDER)
