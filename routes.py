@@ -676,10 +676,15 @@ def value_stream():
         if curator:
             curator_objects.append(curator)
     
-    return render_template('value_stream.html', 
+    # Commander subscriber count for conversion social proof
+    from models import User
+    commander_count = User.query.filter(User.subscription_tier.in_(['commander', 'sovereign'])).count()
+
+    return render_template('value_stream.html',
                           posts=post_objects,
                           curators=curator_objects,
-                          selected_platform=platform)
+                          selected_platform=platform,
+                          commander_count=commander_count)
 
 @app.route('/signal-terminal')
 def signal_terminal():
