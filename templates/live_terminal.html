@@ -4460,46 +4460,33 @@ function toggleSection(element) {
     </div>
 </section>
 
-<!-- 11. LIGHTNING PULSE — Force-Directed Channel Graph -->
+<!-- 11. LIGHTNING PULSE - Real-time Stats + Live Zap Feed -->
 <section class="container">
-    <div class="glass-module" style="border-color: rgba(220, 38, 38, 0.3); background: linear-gradient(135deg, rgba(10, 10, 10, 0.9) 0%, rgba(15, 5, 5, 0.8) 100%);">
-        <div class="module-header">
-            <div class="module-icon" style="background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.3); color: #dc2626;">
-                <i class="fas fa-bolt"></i>
-            </div>
-            <div>
-                <h3 class="module-title" style="color: #dc2626;">Lightning Pulse</h3>
-                <p class="module-subtitle">Layer 2 Channel Intelligence</p>
-            </div>
+  <div id="panel-lightning-pulse" style="background:rgba(28,28,30,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px;">
+    <div style="background:linear-gradient(180deg,rgba(250,204,21,0.1) 0%,rgba(234,179,8,0.03) 100%);border:2px solid rgba(250,204,21,0.4);border-radius:20px;overflow:hidden;min-height:350px;">
+      <div style="display:flex;align-items:center;gap:16px;padding:20px 25px 15px;border-bottom:1px solid rgba(250,204,21,0.2);">
+        <div style="width:45px;height:45px;background:linear-gradient(135deg,rgba(250,204,21,0.3),rgba(250,204,21,0.1));border:2px solid rgba(250,204,21,0.5);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#facc15;font-size:1.2rem;"><i class="fas fa-bolt"></i></div>
+        <div><h3 style="color:#facc15;font-size:1.3rem;font-weight:600;letter-spacing:2px;margin:0;">LIGHTNING PULSE</h3><p style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin:2px 0 0;">Real-time Zaps &amp; Payments</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+        <div style="border-right:1px solid rgba(250,204,21,0.2);padding:20px 25px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;"><div style="width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.5s infinite;"></div><span style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;">Network Stats</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+            <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:15px;text-align:center;"><div id="ln-capacity" style="font-size:1.5rem;font-weight:700;color:#facc15;font-family:'JetBrains Mono',monospace;">5,400+ BTC</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-top:5px;">BTC Capacity</div></div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:15px;text-align:center;"><div id="ln-channels" style="font-size:1.5rem;font-weight:700;color:#22c55e;font-family:'JetBrains Mono',monospace;">75K+</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-top:5px;">Channels</div></div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:15px;text-align:center;"><div id="ln-nodes" style="font-size:1.5rem;font-weight:700;color:#3b82f6;font-family:'JetBrains Mono',monospace;">16K+</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-top:5px;">Nodes</div></div>
+            <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:15px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#a855f7;font-family:'JetBrains Mono',monospace;">&lt;1s</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-top:5px;">Avg Settlement</div></div>
+          </div>
+          <div style="margin-top:20px;padding:15px;background:rgba(250,204,21,0.08);border-radius:12px;border:1px solid rgba(250,204,21,0.2);"><div style="font-size:0.75rem;color:rgba(255,255,255,0.7);line-height:1.5;"><i class="fas fa-bolt" style="color:#facc15;margin-right:6px;"></i>The Lightning Network enables instant Bitcoin payments with fees typically under 1 satoshi.</div></div>
         </div>
-
-        <div class="lightning-grid">
-            <div class="lightning-stat">
-                <div class="lightning-stat-icon"><i class="fas fa-database"></i></div>
-                <div class="lightning-stat-value" id="ln-capacity">5,412 BTC</div>
-                <div class="lightning-stat-label">Capacity</div>
-            </div>
-            <div class="lightning-stat">
-                <div class="lightning-stat-icon"><i class="fas fa-sitemap"></i></div>
-                <div class="lightning-stat-value" id="ln-nodes">16,847</div>
-                <div class="lightning-stat-label">Nodes</div>
-            </div>
-            <div class="lightning-stat">
-                <div class="lightning-stat-icon"><i class="fas fa-exchange-alt"></i></div>
-                <div class="lightning-stat-value" id="ln-channels">73,291</div>
-                <div class="lightning-stat-label">Channels</div>
-            </div>
-            <div class="lightning-stat">
-                <div class="lightning-stat-icon"><i class="fas fa-tachometer-alt"></i></div>
-                <div class="lightning-stat-value" id="ln-avg-fee">~1 sat</div>
-                <div class="lightning-stat-label">Avg Fee</div>
-            </div>
+        <div style="padding:20px 25px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:15px;"><div style="width:8px;height:8px;background:#facc15;border-radius:50%;animation:pulse 1.5s infinite;"></div><span style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;">Live Zap Feed</span></div>
+          <div id="lightning-zap-feed" style="max-height:200px;overflow-y:auto;"></div>
         </div>
-
-        <div class="lightning-visual" id="lightning-network-visual">
-            <canvas id="lightning-canvas"></canvas>
-        </div>
+      </div>
+      <div style="background:rgba(250,204,21,0.1);border-top:1px solid rgba(250,204,21,0.2);padding:12px 20px;text-align:center;"><span style="font-size:0.7rem;color:rgba(255,255,255,0.5);"><i class="fas fa-info-circle" style="color:#facc15;margin-right:4px;"></i>Instant, near-zero fee global payments powered by Layer 2</span></div>
     </div>
+  </div>
 </section>
 
 <!-- 12. TIMECHAIN CLOCK -->
