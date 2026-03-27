@@ -422,6 +422,7 @@
             required
             autocomplete="email"
           >
+          <div class="cf-turnstile" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark" data-size="compact"></div>
           <button type="submit" class="nl-btn" id="heroBtn">JOIN THE SIGNAL</button>
         </form>
         <div class="nl-toast" id="heroToast"></div>
@@ -508,6 +509,7 @@
         <p class="nl-preview-cta-text">Get this every morning &rarr;</p>
         <form class="nl-preview-cta-form" id="previewForm" onsubmit="nlSubscribe(event, 'previewForm')">
           <input type="email" name="email" class="nl-input" placeholder="Your sovereign signal inbox" required style="max-width:280px;">
+          <div class="cf-turnstile" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark" data-size="compact"></div>
           <button type="submit" class="nl-btn">START RECEIVING</button>
         </form>
         <div class="nl-toast" id="previewToast" style="margin-top:12px"></div>
@@ -551,6 +553,7 @@
       <form id="footerForm" onsubmit="nlSubscribe(event, 'footerForm')"
             style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:480px;margin:0 auto">
         <input type="email" name="email" class="nl-input" placeholder="Your sovereign signal inbox" required style="flex:1;min-width:220px;">
+        <div class="cf-turnstile" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark" data-size="compact"></div>
         <button type="submit" class="nl-btn">JOIN THE SIGNAL</button>
       </form>
       <div class="nl-toast" id="footerToast" style="margin-top:16px;max-width:480px;margin-left:auto;margin-right:auto;"></div>
@@ -572,6 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 {% endif %}
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
 async function nlSubscribe(e, formId) {
   e.preventDefault();
@@ -583,6 +587,10 @@ async function nlSubscribe(e, formId) {
 
   if (!email) return;
 
+  // Get Turnstile token from the form's widget
+  const turnstileInput = form.querySelector('[name="cf-turnstile-response"]');
+  const cfToken = turnstileInput ? turnstileInput.value : '';
+
   const orig = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'SENDING...';
@@ -592,7 +600,7 @@ async function nlSubscribe(e, formId) {
     const resp = await fetch('/newsletter/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, 'cf-turnstile-response': cfToken })
     });
     const data = await resp.json();
 
@@ -616,6 +624,9 @@ async function nlSubscribe(e, formId) {
   } finally {
     btn.disabled = false;
     btn.textContent = orig;
+    // Reset Turnstile widget for re-submission
+    const widget = form.querySelector('.cf-turnstile');
+    if (widget && window.turnstile) turnstile.reset(widget);
   }
 }
 </script>

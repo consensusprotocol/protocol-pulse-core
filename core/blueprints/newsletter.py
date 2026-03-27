@@ -19,6 +19,24 @@ newsletter_bp = Blueprint("newsletter_main", __name__)
 
 SITE_URL = os.environ.get("SITE_URL", "https://protocolpulse.io")
 FROM_EMAIL = "pulse@protocolpulse.io"
+
+
+def _verify_turnstile(token: str) -> bool:
+    """Verify a Cloudflare Turnstile token. Returns True if valid."""
+    secret = os.environ.get('TURNSTILE_SECRET_KEY', '')
+    if not secret:
+        logging.warning("TURNSTILE_SECRET_KEY not set — skipping captcha check")
+        return True
+    try:
+        resp = requests.post(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            data={'secret': secret, 'response': token},
+            timeout=5,
+        )
+        return resp.json().get('success', False)
+    except Exception as e:
+        logging.error(f"Turnstile verification error: {e}")
+        return False
 RESEND_BASE = "https://api.resend.com"
 
 
@@ -300,10 +318,18 @@ def newsletter_subscribe():
         if request.is_json:
             payload = request.get_json(silent=True) or {}
             email = str(payload.get("email", "")).strip().lower()
+            cf_token = payload.get("cf-turnstile-response", "")
             is_ajax = True
         else:
             email = str(request.form.get("email", "")).strip().lower()
+            cf_token = request.form.get("cf-turnstile-response", "")
             is_ajax = False
+
+        # Cloudflare Turnstile bot check
+        if not _verify_turnstile(cf_token):
+            if is_ajax:
+                return jsonify({"success": False, "message": "CAPTCHA verification failed"}), 403
+            return redirect(url_for("newsletter_main.newsletter_page") + "?error=captcha")
 
         if not email or "@" not in email or "." not in email.split("@")[-1]:
             if is_ajax:

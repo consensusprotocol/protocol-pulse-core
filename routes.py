@@ -34,6 +34,26 @@ import models
 from datetime import datetime, timedelta
 
 
+# ── Cloudflare Turnstile CAPTCHA verification ────────────────────────────────
+
+def verify_turnstile(token):
+    """Verify a Cloudflare Turnstile token. Returns True if valid."""
+    secret = os.environ.get('TURNSTILE_SECRET_KEY', '')
+    if not secret:
+        logging.warning("TURNSTILE_SECRET_KEY not set — skipping captcha check")
+        return True
+    try:
+        resp = requests.post(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            data={'secret': secret, 'response': token},
+            timeout=5,
+        )
+        return resp.json().get('success', False)
+    except Exception as e:
+        logging.error(f"Turnstile verification error: {e}")
+        return False
+
+
 # Initialize services
 ai_service = AIService()
 reddit_service = RedditService()
@@ -2144,6 +2164,12 @@ def contact():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        # Cloudflare Turnstile bot check
+        cf_token = request.form.get('cf-turnstile-response', '')
+        if not verify_turnstile(cf_token):
+            flash('CAPTCHA verification failed. Please try again.', 'error')
+            return render_template('login.html')
+
         login_input = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         user = User.query.filter_by(username=login_input).first()
