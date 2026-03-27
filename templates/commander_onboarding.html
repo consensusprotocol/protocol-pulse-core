@@ -420,13 +420,46 @@ body { background: #000 !important; overflow: hidden; }
 
   <!-- ════════ SCREEN 3 — SOVEREIGN SIGNAL MATRIX (Fibonacci Resonance Web) ════════ -->
   <div class="co-screen" data-screen="2" id="screen2">
-    <div class="co-label" style="margin-bottom:8px;">SOVEREIGN SIGNAL MATRIX</div>
+    <div class="co-label" style="margin-bottom:4px;">SOVEREIGN SIGNAL MATRIX</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#555;margin-bottom:16px;letter-spacing:0.1em;">LIVE ON-CHAIN COMPOSITE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:480px;margin:0 auto 20px;width:100%;">
+      <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;text-transform:uppercase;margin-bottom:6px;">BTC Price</div>
+        <div id="ssm_price" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#dc2626;">$--,---</div>
+        <div id="ssm_price_chg" style="font-size:0.65rem;margin-top:2px;color:#666;">-- 24h</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;text-transform:uppercase;margin-bottom:6px;">Fear & Greed</div>
+        <div id="ssm_fg" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#f7931a;">--</div>
+        <div id="ssm_fg_label" style="font-size:0.65rem;margin-top:2px;color:#666;">---</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;text-transform:uppercase;margin-bottom:6px;">Hashrate</div>
+        <div id="ssm_hash" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#22c55e;">---</div>
+        <div style="font-size:0.65rem;margin-top:2px;color:#666;">Network Security</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;text-transform:uppercase;margin-bottom:6px;">Mempool</div>
+        <div id="ssm_mempool" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#fff;">--</div>
+        <div id="ssm_fees" style="font-size:0.65rem;margin-top:2px;color:#666;">-- sat/vB</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;text-transform:uppercase;margin-bottom:6px;">Halving</div>
+        <div id="ssm_halving" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#8b5cf6;">Day --</div>
+        <div id="ssm_halving_sub" style="font-size:0.65rem;margin-top:2px;color:#666;">-- to next</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;text-transform:uppercase;margin-bottom:6px;">Lightning</div>
+        <div id="ssm_ln" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#facc15;">-- BTC</div>
+        <div id="ssm_ln_ch" style="font-size:0.65rem;margin-top:2px;color:#666;">-- channels</div>
+      </div>
+    </div>
     <div class="co-radar-wrap">
       <canvas class="co-radar-canvas" id="radarCanvas"></canvas>
     </div>
-    <div class="co-huge" style="font-size:clamp(1.2rem,2.5vw,1.6rem);margin-top:20px;">SIX SIGNALS. ONE COMPOSITE TRUTH.</div>
-    <div class="co-sub">This is what $2,000/month Bloomberg subscribers don't have.</div>
-    <button class="co-cta" onclick="goScreen(3)">CONTINUE &rarr;</button>
+    <div class="co-huge" style="font-size:clamp(1rem,2vw,1.4rem);margin-top:16px;">SIX SIGNALS. ONE COMPOSITE TRUTH.</div>
+    <div class="co-sub" style="margin-top:6px;">This is what $2,000/month Bloomberg subscribers don't have.</div>
+    <button class="co-cta" onclick="goScreen(3)" style="margin-top:20px;">CONTINUE &rarr;</button>
   </div>
 
   <!-- ════════ SCREEN 4 — SATOMI REVEAL (Particle Halo) ════════ -->
@@ -1220,6 +1253,39 @@ body { background: #000 !important; overflow: hidden; }
     }).catch(function() {});
   };
 
+})();
+
+// SSM Live Signals
+(function(){
+  fetch('/api/signals').then(function(r){return r.json()}).then(function(d){
+    var bp=d.btc_price||{};
+    if(bp.value){
+      var pe=document.getElementById('ssm_price');
+      if(pe) pe.textContent='$'+Number(bp.value).toLocaleString('en-US',{maximumFractionDigits:0});
+      var chg=bp.change_24h||0;
+      var ce=document.getElementById('ssm_price_chg');
+      if(ce){ce.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'% 24h';ce.style.color=chg>=0?'#22c55e':'#ef4444';}
+    }
+    var fg=d.fear_greed||{};
+    if(fg.value!=null){
+      var fe=document.getElementById('ssm_fg');if(fe){fe.textContent=fg.value;fe.style.color=fg.value>=60?'#22c55e':fg.value<=40?'#ef4444':'#f7931a';}
+      var fl=document.getElementById('ssm_fg_label');if(fl)fl.textContent=fg.label||'';
+    }
+    var hr=d.hashrate||{};
+    var he=document.getElementById('ssm_hash');
+    if(he&&hr.raw_eh)he.textContent=Math.round(hr.raw_eh)+' EH/s';
+    else if(he&&hr.value)he.textContent=hr.value;
+    var mp=d.mempool_size||{};
+    var me=document.getElementById('ssm_mempool');if(me&&mp.tx_count)me.textContent=mp.tx_count.toLocaleString()+' TX';
+    var fees=d.recommended_fees||{};
+    var fe2=document.getElementById('ssm_fees');if(fe2&&fees.fastest)fe2.textContent=fees.fastest+' sat/vB priority';
+    var hv=d.halving||{};
+    var hve=document.getElementById('ssm_halving');if(hve&&hv.days_since)hve.textContent='Day '+hv.days_since;
+    var hvs=document.getElementById('ssm_halving_sub');if(hvs&&hv.days_to_next)hvs.textContent=hv.days_to_next+' days to next';
+    var ln=d.lightning||{};
+    var lne=document.getElementById('ssm_ln');if(lne&&ln.capacity_btc)lne.textContent=Math.round(ln.capacity_btc).toLocaleString()+' BTC';
+    var lnc=document.getElementById('ssm_ln_ch');if(lnc&&ln.channel_count)lnc.textContent=ln.channel_count.toLocaleString()+' channels';
+  }).catch(function(){});
 })();
 </script>
 {% endblock %}
