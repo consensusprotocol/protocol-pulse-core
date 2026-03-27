@@ -1,0 +1,29 @@
+{
+  "drafts": [
+    {
+      "id": "radar_1774632264_208",
+      "timestamp": "2026-03-27T17:24:24.027447+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2037564598669205598",
+      "source_author": "TheBitcoinConf",
+      "source_text": "BITCOIN 2026 AGENDA JUST DROPPED\u203c\ufe0f\n\n1ST ROUND - MORE TO COME \ud83d\udc40 https://t.co/5mg70NXs3s",
+      "source_url": "https://x.com/TheBitcoinConf/status/2037564598669205598",
+      "velocity": 100.9,
+      "crowd_thesis": "excitement for the Bitcoin 2026 agenda reveal",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "any surprises in this first round or are we just warming up?",
+          "tweet_raw": "any surprises in this first round or are we just warming up?",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 74.5,
+          "reasoning": "prompts engagement"
+        }
+      ],
+      "selected": null
+    }
+  ]
+}

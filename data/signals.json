@@ -1,48 +1,48 @@
 {
-  "updated_at": "2026-03-27T16:40:01.227094+00:00",
+  "updated_at": "2026-03-27T17:50:02.071288+00:00",
   "btc_price": {
-    "value": 65828,
-    "change_24h": -4.37,
+    "value": 65625,
+    "change_24h": -4.62,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1318525545239.4084,
+    "value": 1313358972356.9104,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 56084195838.07509,
+    "value": 57018116165.8831,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 942497,
+    "value": 942501,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 5.06,
-    "blocks_remaining": 991,
-    "estimated_date": "2026-04-03T06:01:46.150000+00:00",
+    "percent": 4.72,
+    "blocks_remaining": 987,
+    "estimated_date": "2026-04-03T07:04:17.357000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1005.7 EH/s",
-    "raw_eh": 1005.7,
+    "value": "1008.6 EH/s",
+    "raw_eh": 1008.6,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 27532,
-    "vsize_mb": 9.8,
+    "tx_count": 31998,
+    "vsize_mb": 11.1,
     "source": "mempool.space"
   },
   "recommended_fees": {
-    "fastest": 3,
-    "hour": 1,
+    "fastest": 5,
+    "hour": 4,
     "economy": 1,
     "source": "mempool.space"
   },
   "lightning": {
-    "node_count": 17372,
-    "channel_count": 42027,
-    "capacity_btc": 5704.9,
+    "node_count": 17396,
+    "channel_count": 41423,
+    "capacity_btc": 5239.0,
     "source": "mempool.space"
   },
   "fear_greed": {
@@ -52,17 +52,17 @@
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 6.23e-06,
-    "annualized": 0.68,
+    "value": 1.155e-05,
+    "annualized": 1.26,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 30126.2,
-    "usd": 1983154590,
+    "btc": 30183.4,
+    "usd": 1980719580,
     "source": "deribit"
   },
   "exchange_volume": {
-    "binance_btc": 152145.6,
+    "binance_btc": null,
     "coinbase_btc": null,
     "source": "coingecko"
   },

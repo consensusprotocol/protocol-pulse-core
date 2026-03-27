@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-03-27T16:40:02.114108+00:00",
-  "block_height": 942497,
+  "timestamp": "2026-03-27T17:50:03.267775+00:00",
+  "block_height": 942501,
   "btc": {
-    "price": 65804,
-    "change_24h": -4.41,
+    "price": 65589,
+    "change_24h": -4.67,
     "change_7d": 0,
-    "market_cap": 1316747854879.1216,
+    "market_cap": 1313358972356.9104,
     "dominance": 55.9
   },
   "fear_greed": {
@@ -14,21 +14,21 @@
   },
   "mempool": {
     "fee_low": 1,
-    "fee_mid": 1,
-    "fee_high": 3,
-    "unconfirmed": 27532,
-    "size_mb": 9.8
+    "fee_mid": 4,
+    "fee_high": 5,
+    "unconfirmed": 31995,
+    "size_mb": 11.1
   },
   "network": {
-    "hashrate_eh": 1005.7,
+    "hashrate_eh": 1008.6,
     "difficulty": 0,
-    "next_adj_pct": 5.06,
-    "next_adj_blocks": 991
+    "next_adj_pct": 4.72,
+    "next_adj_blocks": 987
   },
   "lightning": {
-    "capacity_btc": 5677.5,
-    "channels": 42000,
-    "nodes": 17402
+    "capacity_btc": 5292.1,
+    "channels": 41162,
+    "nodes": 17353
   },
   "kol": {
     "sentiment_score": 50,
@@ -43,7 +43,7 @@
   "polymarket": {
     "macro_sentiment": 50,
     "top_market": "Will bitcoin hit $1m before GTA VI?",
-    "top_probability": 51.4
+    "top_probability": 51.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -90,49 +90,49 @@
   ],
   "macro": {
     "dxy": null,
-    "gold_price": 4558.6,
-    "sp500": 6461.25,
-    "btc_vs_gold_30d_corr": 0.03,
-    "btc_vs_dxy_30d_corr": -0.761,
+    "gold_price": 4528.8,
+    "sp500": 6438.75,
+    "btc_vs_gold_30d_corr": 0.049,
+    "btc_vs_dxy_30d_corr": -0.775,
     "real_yield": null,
-    "ten_year_yield": 4.42
+    "ten_year_yield": 4.43
   },
   "options": {
-    "put_call_ratio": 0.696,
-    "dvol": 54.6,
+    "put_call_ratio": 0.695,
+    "dvol": 54.5,
     "max_pain": 60000.0,
-    "total_call_oi": 204812.4,
-    "total_put_oi": 142484.5,
-    "total_oi_btc": 347296.9,
-    "avg_mark_iv": 57.6
+    "total_call_oi": 208983.3,
+    "total_put_oi": 145156.7,
+    "total_oi_btc": 354140.0,
+    "avg_mark_iv": 57.4
   },
   "futures": {
-    "funding_rate": 5.85e-06,
-    "annualized_basis": 0.64,
-    "open_interest": 30078.27,
-    "open_interest_usd": 1982683670.0,
+    "funding_rate": 1.133e-05,
+    "annualized_basis": 1.24,
+    "open_interest": 30211.7,
+    "open_interest_usd": 1981400950.0,
     "long_short_ratio": null,
-    "mark_price": 65935.41,
-    "index_price": 65917.47,
-    "basis_pct": 0.6021
+    "mark_price": 65599.36,
+    "index_price": 65583.89,
+    "basis_pct": 0.5928
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 6443824.0,
+    "coin_days_destroyed_7d": 5713173.0,
     "active_addresses_7d": 613774.0,
-    "tx_volume_usd_7d": 55524799214.0,
-    "nvt_ratio": 24.5,
+    "tx_volume_usd_7d": 54622943737.0,
+    "nvt_ratio": 24.9,
     "accumulation_score": 75
   },
   "active_alerts": [
     {
       "pattern_id": "SUPPLY_SHOCK",
       "title": "Miners not capitulating \u2014 supply shock risk",
-      "description": "Hashrate 1005.7 EH/s (adj +5.06%), price down -4.41% \u2014 miners holding.",
+      "description": "Hashrate 1008.6 EH/s (adj +4.72%), price down -4.67% \u2014 miners holding.",
       "severity": "WATCH",
-      "ts": "2026-03-27T16:40:02.114259+00:00",
+      "ts": "2026-03-27T17:50:03.268103+00:00",
       "data": {
-        "hashrate": 1005.7,
-        "change_24h": -4.41
+        "hashrate": 1008.6,
+        "change_24h": -4.67
       }
     }
   ],
@@ -141,7 +141,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 80,
+      "score": 81,
       "interpretation": "Miners expanding despite price consolidation \u2014 supply shock precursor.",
       "signal": "bullish"
     },
