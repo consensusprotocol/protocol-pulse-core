@@ -35,6 +35,10 @@ except ImportError:
     HAS_REQUESTS = False
 
 from relay import get_key
+try:
+    from video_pipeline_v3.tts_normalizer import normalize as tts_normalize
+except ImportError:
+    from tts_normalizer import normalize as tts_normalize
 
 logger = logging.getLogger(__name__)
 
@@ -805,6 +809,8 @@ def tts_local(text: str, output_path: str, host: int = 1,
     """
     # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
     text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
+    # Bitcoin/finance pronunciation normalizer (runs first)
+    text = tts_normalize(text)
     text = expand_numbers_for_tts(text)
     text = apply_pronunciation_map(text)
     # Prosody planner: add natural delivery markers before TTS
@@ -948,6 +954,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
     # These tags are for script structure — narrator should never read them aloud
     text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
+    # Bitcoin/finance pronunciation normalizer (runs first)
+    text = tts_normalize(text)
     # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
     text = expand_numbers_for_tts(text)
     # R25 FIX 7: Apply pronunciation map (Pysh→PISH, etc.) — was defined but never called
@@ -1093,10 +1101,8 @@ def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str) -> dic
     host = entry.get("host")
     text = entry.get("text", "")
 
-    if provider == "local":
-        host_num = host if host in (1, 2) else 2
-    else:
-        host_num = 2  # ElevenLabs: single-host Option A preserved
+    # PBX-ONLY ENFORCEMENT: ALL narration uses host 2 (PBX). No exceptions.
+    host_num = 2
 
     voice = VOICES[host_num]
     segment_type = entry.get("type", "")
@@ -1190,7 +1196,7 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     clip_entries = {}  # dialogue_index → clip metadata
 
     for i, entry in enumerate(dialogue):
-        if entry.get("host") == "CLIP":
+        if entry.get("host") in ("CLIP", "SPACE_CLIP"):
             clip_entries[i] = entry
         else:
             tts_jobs.append((i, entry))
@@ -1224,11 +1230,11 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         host = entry.get("host")
         text = entry.get("text", "")
 
-        if host == "CLIP":
+        if host in ("CLIP", "SPACE_CLIP"):
             clip_duration = float(entry.get("duration", 30.0))
             lines.append({
                 "path": None,
-                "host": "CLIP",
+                "host": host,
                 "duration": clip_duration,
                 "start": current_time,
                 "source": entry.get("source", ""),
