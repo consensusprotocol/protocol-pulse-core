@@ -1985,7 +1985,7 @@ def merch_store():
             formatted_products = []
             for product in products:
                 formatted_product = printful_service.format_product_for_display(product)
-                if not formatted_product.get('is_ignored', True):
+                if not formatted_product.get('is_ignored', False):
                     formatted_products.append(formatted_product)
 
             rtsa_hot = []
