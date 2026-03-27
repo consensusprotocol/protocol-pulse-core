@@ -1976,48 +1976,6 @@ function _speakVisionGuidance(d) {
   setBusy(false); mic.disabled=false;
   process(guideText);
   // (voice-only path removed - process() handles TTS + Wav2Lip)
-    hideVisionStatus();
-    var audioURL = URL.createObjectURL(audioBlob);
-    var audio;
-    if(window._audioUnlocked){
-      audio=window._audioUnlocked;
-      window._audioUnlocked=null;
-      audio.src=audioURL;
-      audio.volume=1.0;
-      audio.muted=false;
-    } else {
-      audio = new Audio(audioURL);
-      audio.volume = 1.0;
-    }
-    return new Promise(function(res){
-      audio.onended = function(){
-        URL.revokeObjectURL(audioURL);
-        setStat("Ready","#334",false);
-        hideSub();
-        if(d.device_name){
-          setTimeout(function(){ showVisionSponsor(d.device_name); },800);
-        }
-        // Prompt for follow-up photo if session is active
-        if (_visionSessionId) {
-          showVisionStatus('Tap camera to show next screen \u2192');
-          setTimeout(function() {
-            hideVisionStatus();
-          }, 4000);
-        }
-        res();
-      };
-      audio.onerror = function(){ URL.revokeObjectURL(audioURL); res(); };
-      var vp = audio.play();
-      if(vp !== undefined){
-        vp.then(function(){ setStat("Speaking","#6cff9f",false); }).catch(function(){ res(); });
-      }
-    });
-  })
-  .catch(function(){
-    showVisionStatus("Ready");
-    setBusy(false);
-    mic.disabled = false;
-  });
 }
 
 function sendVisionImage(b64, mimeType, textOverride){
