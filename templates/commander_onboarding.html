@@ -1115,7 +1115,7 @@ body { background: #000 !important; overflow: hidden; }
 
     // Data stream beneath avatar (terminal-style char by char)
     var streamEl = document.getElementById('satomiDataStream');
-    var price = window._btcPrice || '87,420';
+    var price = window._btcPrice || 0;
     var blockHeight = '---';
     var mempoolTx = '---';
     if (signalData) {
