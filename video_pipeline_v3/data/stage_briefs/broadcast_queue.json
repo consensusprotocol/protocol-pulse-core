@@ -1,52 +1,73 @@
 [
   {
-    "id": "e5d91347-1b5b-4f98-ae4e-322bbf20ae3e",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Simon Gerovich, CEO of Metaplanet, will speak at Bitcoin 2026 in Las Vegas.\n\nHis company now holds over 1,200 Bitcoin as corporate treasury.\n\nWatch for his keynote on hospitality sector Bitcoin adoption.\n\nNext signal: Bitcoin 2026 speaker lineup reveals more institutional commitments.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Bitcoin 2026: Simon Gerovich's Unlikely Ascent",
-    "generated_at": "2026-03-27T05:50:07.216042+00:00",
-    "expires_at": "2026-03-27T09:50:07.216042+00:00"
+    "id": "62965ba4-be45-4a5e-bc1f-39b3f5caad0e",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**ORACLE MORNING BRIEF \u2014 MARCH 27, 2026**\n\nBitcoin flat at $67,650, but the real story isn't price\u2014it's the institutional supply squeeze unfolding underneath.\n\nJapan's pension fund\u2014$1.5 trillion under management\u2014just moved Bitcoin to formal research agenda. Same week, Kraken secured a Federal Reserv",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MORNING",
+    "topic_preview": "Oracle Morning Brief \u2014 $67,650",
+    "generated_at": "2026-03-27T10:00:01.804847+00:00",
+    "expires_at": "2026-03-27T14:00:01.804847+00:00",
+    "video_url": "/data/stage_briefs/brief_20260327_1000.mp4"
   },
   {
-    "id": "a1f1ce76-874a-47cc-9c4c-b835fa150292",
+    "id": "bdd5d8c2-dd2b-47b5-a13d-0a5031f7259a",
+    "type": "PRICE_ALERT",
+    "priority": 1,
+    "script": "Bitcoin dropped 1.06% to $66,927. Price action shows no 24-hour change, indicating consolidation.\n\nWatch for break above $67,500 resistance.",
+    "source_label": "\ud83d\udce1 PRICE ALERT",
+    "topic_preview": "Bitcoin drops to $66,927",
+    "generated_at": "2026-03-27T10:40:04.933540+00:00",
+    "expires_at": "2026-03-27T11:10:04.933540+00:00"
+  },
+  {
+    "id": "2d7c3feb-928a-402a-8fad-933cb5d1e745",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at sixty-eight thousand five hundred fifty-eight dollars, flat twenty-four hours. Hashrate holds steady at one thousand ninety-one exahashes. Fear and greed index clocks in at thirteen, extreme fear. Fastest fee remains at one satoshi. Fifteen thousand eight hundred fifty-seven transactions processed in the latest block. Block height reaches nine hundred forty-two thousand four hundred twenty-six. Watch for any significant change in transaction volume or fee rates.",
+    "script": "Bitcoin trades at sixty-seven thousand six hundred thirty-three dollars, flat twenty-four hours. Network hashrate holds at 1,091 exahashes. Fear and Greed Index registers Extreme Fear. Fastest fee sits at four satoshis per byte. Thirty-three thousand five hundred three transactions processed in the last block. Block height reaches nine hundred forty-two thousand four hundred fifty-three. Watch for any hash rate shifts above 1,100 exahashes.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $68,559 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
-    "generated_at": "2026-03-27T05:55:12.898409+00:00",
-    "expires_at": "2026-03-27T09:55:12.898409+00:00"
+    "topic_preview": "BTC $67,633 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
+    "generated_at": "2026-03-27T10:05:09.253752+00:00",
+    "expires_at": "2026-03-27T14:05:09.253752+00:00"
   },
   {
-    "id": "9f6741b5-fd09-4c8e-9d34-cdfe1053606f",
+    "id": "b7cb72b0-153f-4c5c-b17c-7c9bdde2e100",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Retail traders obsess over hourly candles. Watch for institutional accumulation signals in mempool data.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Mempool fees surged 40% in 24 hours.\n\nWatch for on-chain accumulation signals at key resistance levels.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-27T05:50:09.385807+00:00",
-    "expires_at": "2026-03-27T09:50:09.385807+00:00"
+    "generated_at": "2026-03-27T09:55:04.181196+00:00",
+    "expires_at": "2026-03-27T13:55:04.181196+00:00"
   },
   {
-    "id": "20cccf73-249c-4349-a0f1-b76a986fda6b",
+    "id": "f9f43bb5-d433-4e2c-a4ca-15e5b69913ef",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate surged to 1,092 EH/s, signaling institutional accumulation. Mempool fees remain negligible at 1 sat/vbyte. Fear & Greed index sits at 13, indicating extreme fear. This confirms the market's readiness for a significant price move. Watch for mempool activity spikes above 5 sat/vbyte.",
+    "script": "Hashrate surged to 1092 EH/s, confirming network security strength despite price stagnation. Fear & Greed index at 13 signals extreme fear gripping the market. Mempool fees remain stubbornly high at 3 sat/vbyte. Watch for any miner consolidation signals.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate surged to 1,092 EH/s, signaling institutional accumulation. Mempool fee",
-    "generated_at": "2026-03-27T05:50:15.385435+00:00",
-    "expires_at": "2026-03-27T07:50:15.385435+00:00"
+    "topic_preview": "Hashrate surged to 1092 EH/s, confirming network security strength despite price",
+    "generated_at": "2026-03-27T09:55:08.911466+00:00",
+    "expires_at": "2026-03-27T11:55:08.911466+00:00"
   },
   {
-    "id": "fd4c6c96-c7c8-489c-bb17-be767836915c",
+    "id": "4a4495c4-a599-4fe3-9ac4-af2788d78566",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for block space exceeds supply. That's not a bug \u2014 it's proof that people value the security of final settlement enough to pay for it.",
+    "script": "Every four years, the block subsidy cuts in half. This halving mechanism is the most predictable monetary policy in human history. No central banker can override it. No politician can delay it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for bloc",
-    "generated_at": "2026-03-27T05:50:15.394291+00:00",
-    "expires_at": "2026-03-27T09:50:15.394291+00:00"
+    "topic_preview": "Every four years, the block subsidy cuts in half. This halving mechanism is the ",
+    "generated_at": "2026-03-27T09:55:08.988149+00:00",
+    "expires_at": "2026-03-27T13:55:08.988149+00:00"
+  },
+  {
+    "id": "5a300606-06b6-45b9-9e29-5cb0ed5adb29",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Running a full node costs less than a streaming subscription. For that price, you independently verify every transaction since the genesis block. That's sovereignty you can run on a Raspberry Pi.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Running a full node costs less than a streaming subscription. For that price, yo",
+    "generated_at": "2026-03-27T10:00:18.563072+00:00",
+    "expires_at": "2026-03-27T14:00:18.563072+00:00"
   }
 ]

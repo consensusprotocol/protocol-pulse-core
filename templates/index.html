@@ -575,16 +575,25 @@
                         </div>
                     </a>
                 {% elif featured_podcasts %}
-                    {% for podcast in featured_podcasts[:1] %}
-                    <a href="/podcasts" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;">
-                        <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
-                            <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
+                    {% for podcast in featured_podcasts[:3] %}
+                    <div class="pp-card pp-mb-2" style="padding:14px;">
+                        <div style="display:flex;gap:12px;">
+                            <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
+                            </div>
+                            <div style="min-width:0;flex:1;">
+                                <div class="pp-small" style="font-weight:600;color:var(--pp-text);">{{ podcast.title }}</div>
+                                <div class="pp-tiny pp-text-muted">{{ podcast.published_date.strftime('%b %d') if podcast.published_date else '' }}</div>
+                            </div>
                         </div>
-                        <div style="min-width:0;">
-                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);">{{ podcast.title }}</div>
-                            <div class="pp-tiny pp-text-muted">{{ podcast.published_date.strftime('%b %d') if podcast.published_date else '' }}</div>
-                        </div>
-                    </a>
+                        {% if podcast.audio_url %}
+                        <audio controls preload="none" style="width:100%;margin-top:8px;height:32px;">
+                            <source src="{{ podcast.audio_url }}" type="audio/mpeg">
+                        </audio>
+                        {% else %}
+                        <a href="{{ podcast.url or '/podcasts' }}" target="_blank" rel="noopener" class="pp-tiny" style="display:inline-block;margin-top:8px;color:var(--pp-red, #CC2222);">Listen on Spotify/Apple &rarr;</a>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 {% else %}
                     <div class="pp-card" style="padding:16px;text-align:center;">

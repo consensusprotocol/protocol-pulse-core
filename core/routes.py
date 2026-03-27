@@ -6842,6 +6842,38 @@ def subscribe_premium(tier):
         flash(f"Error: {result.get('error', 'Unknown error')}")
         return redirect(url_for('premium_page'))
 
+@app.route('/api/v1/checkout/create-session', methods=['POST'])
+def api_checkout_create_session():
+    """Create Stripe checkout session for Commander subscription (called from /commander page)."""
+    import stripe
+    stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+    if not stripe.api_key:
+        return jsonify({'error': 'Stripe not configured'}), 500
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Protocol Pulse Commander',
+                        'description': 'Full tactical Bitcoin intelligence. Priority Oracle, Signal Engine, Pulse Terminal.',
+                    },
+                    'unit_amount': 4900,
+                    'recurring': {'interval': 'month'},
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=request.host_url.rstrip('/') + '/onboarding/commander?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=request.host_url.rstrip('/') + '/commander',
+        )
+        return jsonify({'url': session.url})
+    except Exception as e:
+        logging.error(f'Stripe checkout session error: {e}')
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/subscription/success')
 @login_required
 def subscription_success():
@@ -8975,6 +9007,70 @@ def api_podcasts_channels():
     except Exception as e:
         logging.error(f"Channel cards error: {e}")
         return jsonify([])
+
+
+@app.route('/api/media/network-feed')
+def api_media_network_feed():
+    """What the Network Is Saying — latest articles as network signals."""
+    try:
+        from models import Article
+        articles = Article.query.filter_by(published=True).order_by(
+            Article.created_at.desc()
+        ).limit(8).all()
+        items = []
+        for a in articles:
+            items.append({
+                'source': a.source_name if hasattr(a, 'source_name') and a.source_name else 'Protocol Pulse',
+                'source_type': getattr(a, 'category', 'analysis') or 'analysis',
+                'text': (a.summary or a.title or '')[:200],
+                'timestamp': a.created_at.isoformat() if a.created_at else None,
+                'sentiment': getattr(a, 'sentiment', 'neutral') or 'neutral',
+                'icon': 'fas fa-newspaper',
+                'url': f'/article/{a.slug}' if a.slug else '#',
+            })
+        return jsonify({'items': items, 'updated_at': items[0]['timestamp'] if items else None})
+    except Exception as e:
+        logging.error(f"network-feed error: {e}")
+        return jsonify({'items': [], 'updated_at': None})
+
+
+@app.route('/api/media/video-feed')
+def api_media_video_feed():
+    """Video Briefings from the Network — latest video/podcast entries."""
+    try:
+        items = []
+        if media_feed_service:
+            data = media_feed_service.get_feed_matrix(limit_per_col=8)
+            for v in (data.get('videos') or [])[:8]:
+                items.append({
+                    'title': v.get('title', ''),
+                    'channel': v.get('feed_name') or v.get('source', 'Unknown'),
+                    'thumbnail': v.get('thumbnail_url', ''),
+                    'url': v.get('source_url') or v.get('video_url', '#'),
+                    'video_id': v.get('guid', ''),
+                    'platform': 'youtube',
+                    'published_at': v.get('published_at', ''),
+                })
+        if not items:
+            from models import Article
+            vids = Article.query.filter(
+                Article.published == True,
+                Article.category.in_(['video', 'media', 'podcast'])
+            ).order_by(Article.created_at.desc()).limit(8).all()
+            for a in vids:
+                items.append({
+                    'title': a.title or '',
+                    'channel': getattr(a, 'source_name', '') or 'Protocol Pulse',
+                    'thumbnail': a.cover_image_url or '',
+                    'url': f'/article/{a.slug}' if a.slug else '#',
+                    'video_id': '',
+                    'platform': 'article',
+                    'published_at': a.created_at.isoformat() if a.created_at else '',
+                })
+        return jsonify({'items': items, 'updated_at': items[0]['published_at'] if items else None})
+    except Exception as e:
+        logging.error(f"video-feed error: {e}")
+        return jsonify({'items': [], 'updated_at': None})
 
 
 @app.route('/api/media/sources')

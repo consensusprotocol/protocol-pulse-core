@@ -292,5 +292,17 @@
     "generated_at": "2026-03-27T05:54:34.530150+00:00",
     "brief_date": "Monday, March 23, 2026",
     "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260327_064207_0",
+    "text": "Consolidation at 70k while fees collapse to 1 sat/vB. The network is telling you something. When fear peaks and transaction costs crater, who actually needs Bitcoin more: the scared or the excluded",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-03-27T06:42:07.390882+00:00",
+    "brief_date": "Monday, March 23, 2026",
+    "sentiment": "bearish"
   }
 ]
