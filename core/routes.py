@@ -13414,3 +13414,74 @@ def api_run_guest_outreach():
     results = run_daily_guest_outreach()
     return jsonify(results)
 
+
+# ===== TWILIO SMS + VOICE DELIVERY =====
+
+@app.route('/api/admin/test-sms', methods=['POST'])
+@admin_required
+def twilio_test_sms():
+    """Send a test SMS via Twilio."""
+    try:
+        from services.twilio_service import send_sms
+        data = request.get_json() or {}
+        to = data.get('to') or os.environ.get('PBX_PHONE_NUMBER')
+        message = data.get('message', 'Protocol Pulse: Satomi online. Systems nominal. Test SMS successful.')
+        if not to:
+            return jsonify({'success': False, 'error': 'No phone number provided and PBX_PHONE_NUMBER not set'}), 400
+        ok = send_sms(to, message)
+        return jsonify({'success': ok, 'to': to})
+    except Exception as e:
+        logging.error('Test SMS error: %s', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/test-call', methods=['POST'])
+@admin_required
+def twilio_test_call():
+    """Place a test voice call via Twilio."""
+    try:
+        from services.twilio_service import send_voice_call
+        data = request.get_json() or {}
+        to = data.get('to') or os.environ.get('PBX_PHONE_NUMBER')
+        message = data.get('message', 'This is Satomi from Protocol Pulse. Your intelligence system is online and operational. All systems nominal.')
+        if not to:
+            return jsonify({'success': False, 'error': 'No phone number provided and PBX_PHONE_NUMBER not set'}), 400
+        ok = send_voice_call(to, message)
+        return jsonify({'success': ok, 'to': to})
+    except Exception as e:
+        logging.error('Test call error: %s', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/morning-brief', methods=['POST'])
+@admin_required
+def twilio_morning_brief():
+    """Generate and deliver morning intelligence brief via voice call + SMS."""
+    try:
+        from services.satomi_brief_generator import generate_and_deliver_brief
+        result = generate_and_deliver_brief()
+        return jsonify(result)
+    except Exception as e:
+        logging.error('Morning brief error: %s', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/spaces-alert', methods=['POST'])
+@admin_required
+def twilio_spaces_alert():
+    """Send X Spaces hot-detection SMS alert."""
+    try:
+        from services.twilio_service import send_spaces_alert
+        data = request.get_json() or {}
+        to = data.get('to') or os.environ.get('PBX_PHONE_NUMBER')
+        title = data.get('title', 'Bitcoin X Space')
+        speaker = data.get('speaker', 'Unknown')
+        score = data.get('score', 80)
+        if not to:
+            return jsonify({'success': False, 'error': 'No phone number provided and PBX_PHONE_NUMBER not set'}), 400
+        ok = send_spaces_alert(to, title, speaker, score)
+        return jsonify({'success': ok, 'to': to})
+    except Exception as e:
+        logging.error('Spaces alert error: %s', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
