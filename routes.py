@@ -9482,6 +9482,24 @@ def api_media_network_feed():
         if len(deduped) >= limit:
             break
 
+    # ── Fallback: if no items from Nostr/X, pull latest articles from DB ──
+    if not deduped:
+        try:
+            from models import Article
+            arts = Article.query.order_by(Article.created_at.desc()).limit(limit).all()
+            for a in arts:
+                deduped.append({
+                    'source': a.source or 'Protocol Pulse',
+                    'source_type': 'Bitcoin',
+                    'text': (a.title or '')[:200],
+                    'sentiment': 'neutral',
+                    'timestamp': a.created_at.isoformat() if a.created_at else '',
+                    'icon': 'fas fa-newspaper',
+                    'url': f'/article/{a.slug}' if a.slug else '#',
+                })
+        except Exception as e:
+            logging.warning(f"network-feed articles fallback: {e}")
+
     return jsonify({'items': deduped, 'updated_at': datetime.utcnow().isoformat()}), 200, {'Cache-Control': 'public, max-age=120'}
 
 
