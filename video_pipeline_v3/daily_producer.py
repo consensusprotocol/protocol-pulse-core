@@ -455,13 +455,10 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
             r = subprocess.run(
                 ["ffmpeg", "-y",
                  "-i", video_path,
-                 "-vf", ("scale=1980:1112:flags=lanczos,"
-                         "crop=1920:1080:'30+30*sin(2*PI*t/6)':'16+16*sin(2*PI*t/6*0.7)',"
-                         "setpts=PTS-STARTPTS,format=yuv420p"),
+                 "-vf", "mpdecimate=max=0:hi=64:lo=32:frac=0.33,setpts=N/FRAME_RATE/TB",
                  "-r", "30",
                  "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                  "-c:a", "copy",
-                 "-movflags", "+faststart",
                  tmp],
                 capture_output=True, text=True, timeout=600,
             )
