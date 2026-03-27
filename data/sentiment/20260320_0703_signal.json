@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-03-20T07:03:29.796460+00:00",
+  "brief_type": "evening",
+  "score": -75,
+  "bullish_signals": [
+    "Network hashrate holding steady at 960.7 EH/s",
+    "Mempool fluid with no congestion (1 sat/vB fees)",
+    "On-chain activity continuing normally",
+    "Problem appears external to blockchain infrastructure"
+  ],
+  "bearish_signals": [
+    "Complete price discovery failure across major exchanges",
+    "Extreme fear index at 11/100",
+    "Possible coordinated exchange outage or network partition",
+    "Uncharted black swan territory if not resolved quickly"
+  ],
+  "neutral_topics": [
+    "Technical infrastructure diagnostics",
+    "Exchange status monitoring"
+  ]
+}

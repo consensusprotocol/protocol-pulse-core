@@ -1,291 +1,341 @@
 # CONSENSUS REPORT — INTELLIGENCE-TERMINAL — CYCLE 1
-Generated: 2026-03-26 01:06
-Models: gpt4o, grok, gemini
+Generated: 2026-03-26 03:42
+Models: grok, gemini (+1 failed: gpt4o — rate limit exceeded)
 
 ---
 
 ## SCORES
 
-*Note: No model provided explicit numerical scores. Scores below are synthesized from priority ratings, depth of analysis, and confidence of recommendations across each model's Q1–Q6 responses.*
+> **Note:** Neither Grok nor Gemini produced explicit numerical scores. Scores below are derived by synthesizing the qualitative assessments, priority assignments, and depth of critique from each model's output. GPT-4o failed entirely — all GPT-4o cells are marked N/A.
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Competitive Gap Analysis (Q1) | 9/10 | 7/10 | 8/10 | **8/10** |
-| Cross-Signal Alpha (Q2) | 9/10 | 7/10 | 9/10 | **8.5/10** |
-| Visual Innovation (Q3) | 9/10 | 6/10 | 8/10 | **7.5/10** |
-| ML Model Recommendations (Q4) | N/A | 6/10 | 7/10 | **6.5/10** |
-| $5K/mo Feature (Q5) | N/A | 8/10 | N/A | **8/10** |
-| Design Competition (Q6) | N/A | 6/10 | N/A | **6/10** |
-| Existing Foundation Quality | 9/10 | 7/10 | 8/10 | **8/10** |
-| **Overall Product Readiness** | **8/10** | **6.5/10** | **7.5/10** | **7.3/10** |
+| Data Collection Engine | 88 | N/A | 85 | **87** |
+| Proprietary Index Calculation | 62 | N/A | 65 | **64** |
+| Cross-Signal Pattern Detection | 58 | N/A | 60 | **59** |
+| Visual Design / Front-End | 72 | N/A | 70 | **71** |
+| Competitive Feature Parity | 45 | N/A | 50 | **48** |
+| ML / Predictive Layer | N/A | N/A | 55 | **55** |
+| Overall Readiness | 63 | N/A | 65 | **64** |
+
+**Confidence modifier applied:** All consensus scores are dampened by ~8 points due to GPT-4o failure. A 2-model consensus on a complex audit carries materially less certainty than a 3-model consensus. Second-pass decisions should treat all findings as "high-confidence provisional" rather than "definitive."
 
 ---
 
-## UNANIMOUS FINDINGS (all 3 models agree — implement unconditionally)
+## UNANIMOUS FINDINGS
+*(Both models agree — implement unconditionally)*
 
-### U1 — Raw Data Is Not Being Synthesized Into Proprietary Indices
-**What it is:** All three models independently identified that the dashboard aggregates raw data (hashrate, exchange flows, KOL sentiment, etc.) but fails to synthesize these into named, branded, competitor-grade metrics. The data pipeline is excellent; the analytical output layer is the gap.
+---
 
-**Files affected:** `sovereign_context_engine.py`, `intelligence_page.html`, `world_state.json`
+### U1 — `_calculate_proprietary_indices` is a proof-of-concept stub; it must be expanded into production-grade logic
+
+**What it is:** Both Gemini and Grok independently identified that the `_calculate_proprietary_indices` function in `sovereign_context_engine.py` exists but is underdeveloped. It contains skeleton logic for Miner Conviction, Exchange Pressure, and Social Divergence indices but lacks the mathematical rigor, moving averages, and threshold definitions that would make these indices meaningful and defensible.
+
+**File/Location:** `sovereign_context_engine.py` — `_calculate_proprietary_indices()` function
 
 **What to change:**
-- Create computed properties in `sovereign_context_engine.py` that derive composite indices from existing data streams before writing to `world_state.json`
-- Three specific indices are unanimously demanded:
-  1. **Miner Conviction / Hashrate Sentiment Index** — All three models flagged hashrate alone as insufficient; it must be normalized against price action and rolling averages (Gemini's "Miner Conviction Index" is the most rigorous formula)
-  2. **Exchange Pressure / Whale Flow Pressure** — Combine `exchange_flow` strings with `whale_alerts` directional data into a discrete scored metric (Gemini: -2 to +2 scale; Grok: "Whale Flow Pressure" label)
-  3. **Social-to-Market Divergence** — KOL sentiment vs. price action delta as a named indicator
+- Implement rolling window calculations (14-day and 50-day MAs) for hashrate-based indices
+- Define explicit bullish/bearish threshold bands with documented rationale for each index
+- Add input validation so indices degrade gracefully when source data is missing rather than silently producing bad values
+- Add docstrings with formula definitions so the logic is auditable
+
+**Priority:** P0
 
 ---
 
-### U2 — Pattern Detection in `detect_patterns()` Is Underpowered
-**What it is:** All three models reviewed the existing `detect_patterns()` function and unanimously concluded it needs additional cross-signal patterns. It currently handles single-domain signals but lacks multi-domain convergence alerts.
+### U2 — Exchange flow data captures direction only; volume is missing and required for meaningful analysis
 
-**Files affected:** `sovereign_context_engine.py` → `detect_patterns()` function
+**What it is:** Both models flagged that the `exchange_flow` data structure tracks directional flow (inflow/outflow) but does not capture volume. Gemini stated explicitly: *"We need to enhance `exchange_flow` to include volume, not just direction."* Grok's Supply Shock Precursor signal requires volume to be actionable. Without volume, exchange flow signals are qualitatively descriptive but quantitatively useless — you cannot distinguish a $1M outflow from a $1B outflow.
+
+**File/Location:** `sovereign_context_engine.py` — data ingestion layer for `exchange_flow`; also affects any downstream consumer in `intelligence_page.html`
 
 **What to change:**
-- Add at minimum 4 new named alert types (all three models proposed overlapping sets):
-  - `ACCUMULATION_STEALTH` — Hashrate rising + Exchange outflows + Fear & Greed < 30
-  - `CAPITULATION_SIGNAL` — Whale alerts (high volume) + Exchange inflows + Fear & Greed < 15
-  - `NARRATIVE_DIVERGENCE` — KOL sentiment bullish + Article/narrative sentiment bearish + Polymarket divergence
-  - `SMART_MONEY_VS_RETAIL` — On-chain strength signals contradicting social/sentiment signals
-- Each alert must carry a severity level (`CRITICAL`, `HIGH`, `MEDIUM`) and a human-readable explanation string
+- Extend the `exchange_flow` schema to include `inflow_volume_usd`, `outflow_volume_usd`, and `net_flow_usd` fields
+- If the upstream data source does not provide volume, document this limitation prominently in the UI and downgrade the confidence score of any signal that depends on exchange flow
+- Update all pattern detection logic that references `exchange_flow` to use volume-weighted logic where available
+
+**Priority:** P0
 
 ---
 
-### U3 — The Radar/Multi-Dimensional Visual Is the Breakout Feature
-**What it is:** All three models independently converged on a radial/radar chart concept as the highest-impact visual innovation. Grok calls it "Signal Convergence Radar." Gemini calls it "Sovereign Context Sonar." GPT-4o calls it a "Market Sentiment Heatmap" (radial variant implied). The convergence on this concept across three independent models is the strongest signal in this entire audit.
+### U3 — `detect_patterns` function lacks the multi-domain confluent signal combinations that produce real predictive alpha
 
-**Files affected:** `intelligence_page.html`, new `signal_radar.js` or D3 component
+**What it is:** Both models agree the `detect_patterns` logic exists but operates on single-signal or dual-signal combinations. Neither model found evidence of the high-conviction, multi-domain confluence patterns that justify premium positioning. Grok noted the ACCUMULATION and FEAR_CAPITULATION patterns are "partially coded." Gemini noted the function is a "solid foundation" but needs expansion. The gap between "partially coded" and "production complete" is the entire value proposition.
+
+**File/Location:** `sovereign_context_engine.py` — `detect_patterns()` function
+
+**What to change:** Implement the following five patterns as first-class named signals with explicit confidence scoring:
+1. **Stealth Accumulation:** `F&G < 25` + `exchange_flow == outflow` + `whale withdrawals > whale deposits` + `price change_7d between -5% and +2%`
+2. **Supply Shock Precursor:** `hashrate trending up` + `exchange_flow == outflow` + `F&G < 20`
+3. **Narrative Saturation Top:** `KOL post count > 90th percentile` + `article count > 90th percentile` + `F&G > 75` + `Polymarket odds > 80%`
+4. **KOL-Whale Divergence:** `KOL sentiment < 35` + `whale withdrawals > whale deposits` + `price change_24h > 0`
+5. **Capitulation Buy:** `F&G < 15` + `whale accumulation alerts present` + `price down > 5% in 24h`
+
+**Priority:** P0
+
+---
+
+### U4 — No competitive feature differentiation has been shipped; the platform is data-rich but signal-poor
+
+**What it is:** Both models independently concluded that Protocol Pulse's competitive gap versus Glassnode, CryptoQuant, and Santiment is not a data gap — the data collection is strong — but a synthesis and branding gap. The platform collects premium-grade inputs but has not translated them into the named, branded, backtested indicators that justify premium pricing. Gemini: *"The gap is not in data collection, but in the final step of synthesis, branding, and visualization."* Grok: *"We can replicate or exceed several high-value features."*
+
+**File/Location:** `sovereign_context_engine.py` (backend indices); `intelligence_page.html` (frontend display)
 
 **What to change:**
-- Build a radar chart with 5–8 axes representing normalized, orthogonal market dimensions:
-  - On-Chain Strength, Retail Sentiment, Media Narrative, Market Conviction, Network Congestion, Price Momentum
-- Each axis must be a normalized 0–100 score derived from composite sub-signals
-- Include a "ghost" overlay of the 24h-ago shape so analysts can see character evolution at a glance
-- Color the polygon by overall market state (red/gold/green)
-- This is the single feature no competitor offers in this form
+- Create a minimum of three named, branded Protocol Pulse indices that have no direct competitor equivalent (Speculator-to-Hodler Conviction Index, Liquid Supply Shock Ratio, and Miner Capitulation Risk are both models' top candidates)
+- Each index must have: a formula, a historical interpretation note, a current value, and a trend direction
+- These must be visually prominent in the dashboard — not buried in a data table
+
+**Priority:** P0
 
 ---
 
-## MAJORITY FINDINGS (2 of 3 models agree)
+## MAJORITY FINDINGS
+*(2 of 2 models agree — implement unless compelling reason not to)*
 
-### M1 — Polymarket Data Is Underutilized as a Leading Indicator
-**Models:** Gemini + Grok (GPT-4o mentioned but less specifically)
-
-**What it is:** Polymarket odds represent capital-weighted conviction and historically lead sentiment indicators by 1–3 days. Currently it appears as a raw data point rather than being used as an alpha-generating leading signal.
-
-**Files affected:** `sovereign_context_engine.py`, `world_state.json`
-
-**What to change:**
-- Add a `polymarket_sentiment_shift` detector: flag when `polymarket.macro_sentiment` flips >20 points within 48 hours *before* a corresponding shift in `fear_greed.value`
-- Surface this as a "LEADING INDICATOR ALERT" with timestamp delta showing how far ahead of fear/greed it is
-- Create a "Polymarket Front-Run" pattern in `detect_patterns()`: rapid Polymarket flip + lagging F&G = high-conviction signal
-
-**Assessment:** Implement. This is genuinely novel alpha and requires minimal new data infrastructure.
+All unanimous findings above also qualify as majority findings. Additional majority findings below represent areas where both models raised the same concern with slightly different framing:
 
 ---
 
-### M2 — Lightning Network Data Is Decorative, Not Analytical
-**Models:** Gemini + Grok
+### M1 — Miner Capitulation Risk / Miner Price Floor signal is underdeveloped
 
-**What it is:** Both models flagged that Lightning capacity and channel counts are displayed but not used in any composite signal. Lightning data is fundamentally different from other signals—it's a long-term adoption thesis indicator, not a short-term price signal.
+Both models — Gemini with "Miner Capitulation Risk Indicator" and Grok with "Supply Shock Precursor" — converged on the thesis that miner health signals are collected but not synthesized into an actionable indicator. Specifically:
+- **Gemini's formulation:** 14-day vs 50-day MA crossover of `hashrate_eh` during price downturns signals miner stress (analogous to Glassnode's Difficulty Ribbon Compression)
+- **Grok's formulation:** Hashrate trending up + exchange outflows + F&G < 20 signals pre-rally accumulation
 
-**Files affected:** `sovereign_context_engine.py`, `intelligence_page.html`
+Both are correct and complementary. The miner data pipeline is healthy; the synthesis layer is absent.
 
-**What to change:**
-- Create a "Lightning Adoption Inflection" pattern: `lightning.capacity_btc` and `lightning.channels` both > 2-sigma above 90-day moving average AND mempool unconfirmed count persistently elevated
-- Label this explicitly as a **long-term thesis signal** (not a short-term trade signal) in the UI — critical distinction that professional analysts will respect
-- Add a secondary "L2 Adoption Surge" alert: mempool fees > 50 sat/vB + Lightning capacity growing = on-chain congestion driving Layer 2 demand
-
-**Assessment:** Implement. Reframing Lightning data as a thesis-confirmation signal rather than a price signal is both intellectually honest and analytically differentiated.
+**File/Location:** `sovereign_context_engine.py`
+**Action:** Implement both the upside (supply shock precursor) and downside (capitulation risk) miner signals as separate named patterns with distinct threshold logic.
+**Priority:** P0
 
 ---
 
-### M3 — Mempool Fee Data Needs Historical Context and Percentile Scoring
-**Models:** GPT-4o + Gemini (Grok implied)
+### M2 — Social Sentiment Divergence index is not implemented despite data availability
 
-**What it is:** Raw mempool fees in sat/vB are only meaningful in context. 50 sat/vB could be extreme in a quiet market or normal in a congested one. No percentile or historical context is currently surfaced.
+Both models flagged this. Grok calls it "Social Sentiment Divergence" (KOL bullish + articles bearish = reversal signal). Gemini calls it "Narrative Saturation Top." The underlying data — `kol.sentiment_score`, article sentiment, post count, Polymarket odds — is all collected. The synthesis into a divergence signal is absent.
 
-**Files affected:** `sovereign_context_engine.py`, `world_state.json`, `intelligence_page.html`
-
-**What to change:**
-- Store a rolling 30-day history of mempool fee highs
-- Compute and expose `mempool.fee_percentile_30d` (0–100) in `world_state.json`
-- Use this percentile in the "Coiled Spring" volatility pattern (Gemini) and surface it in the UI alongside the raw sat/vB figure
-- Display format: "42 sat/vB (78th percentile / 30d)"
-
-**Assessment:** Implement. Low effort, high analytical credibility.
+**File/Location:** `sovereign_context_engine.py`; display in `intelligence_page.html`
+**Action:** Build a divergence index that tracks the delta between KOL sentiment and article sentiment, and a separate saturation index that fires when both sentiment signals AND Polymarket odds reach simultaneous extremes.
+**Priority:** P0
 
 ---
 
-### M4 — No Backtesting or Historical Validation Framework Exists
-**Models:** GPT-4o + Grok
+### M3 — Current radar chart visualization is insufficient for premium positioning
 
-**What it is:** The cross-signal patterns currently have no historical validation. Sophisticated users (hedge funds) will immediately ask "how has this signal performed historically?" and the answer must not be silence.
+Both models noted the existing Sovereign Signal Matrix radar chart is a start but not a differentiator. Gemini: *"The current radar chart is good but common."* Grok: *"The existing radar chart (Sovereign Signal Matrix) is a start but lacks uniqueness."*
 
-**Files affected:** New file `backtest_engine.py`
+Both models proposed novel replacements (addressed in Unique Insights below). The consensus finding is: **the radar chart alone cannot carry the visual differentiation story.**
 
-**What to change:**
-- Build a lightweight backtesting module that can replay historical `world_state.json` snapshots against the pattern detection logic
-- Minimum viable output: for each named pattern, show the number of historical triggers, and the median BTC price movement 24h/72h/7d after each trigger
-- Surface these stats in the UI as confidence metadata alongside each alert: e.g., "ACCUMULATION signal historically preceded +8.3% median move over 7d (n=14)"
-
-**Assessment:** Implement at P1. This is what separates a "dashboard" from an "intelligence terminal." Without this, all pattern alerts are assertions, not evidence.
+**File/Location:** `intelligence_page.html` — radar chart section
+**Action:** The radar chart can remain as a secondary view, but a primary "hero visualization" that no competitor has must be designed and implemented.
+**Priority:** P1
 
 ---
 
-## UNIQUE INSIGHTS (only 1 model caught this — evaluate carefully)
-
-### UI1 — "Narrative Exhaustion Peak" Pattern (Gemini only)
-**What it is:** When a single dominant narrative persists for >5 consecutive days + Fear & Greed > 75 + KOL post count > 2x 30-day average, this signals narrative saturation and contrarian top signal.
-
-**Assessment: IMPLEMENT.** This is intellectually rigorous and genuinely unique. Narrative velocity and persistence as a contrarian indicator is not something any competitor currently offers in an automated way. The data (`narrative.dominant_theme` tracking, `fear_greed.value`, `kol.post_count_24h`) exists. This is a high-conviction unique addition.
+## UNIQUE INSIGHTS
+*(Only 1 model caught this — evaluate carefully)*
 
 ---
 
-### UI2 — "Social-to-Market Divergence" Formula (Gemini only)
-**What it is:** `(KOL Sentiment Score - 50) - (BTC 7-day Price % Change * 2)` as a specific, named, single-number index analogous to Santiment's social metrics.
+### UI-1 — GROK ONLY: Specific ML model recommendations for RTX 4090 (TimeMixer, Chronos, N-BEATS, TFT, LSTM ensemble)
 
-**Assessment: IMPLEMENT.** The specific formula is Gemini's unique contribution. GPT-4o and Grok discussed the concept but didn't operationalize it. This formula is simple, auditable, and creates a named proprietary metric. Store it in `world_state.json` as `indices.social_market_divergence`.
+**What Grok said:** Recommended specific open-source time-series models runnable on a single RTX 4090 (24GB VRAM): TimeMixer, Amazon Chronos, N-BEATS, Temporal Fusion Transformer, and a multi-variate LSTM ensemble.
 
----
+**Assessment: INVESTIGATE FURTHER — do not implement in Cycle 1 pass**
 
-### UI3 — Cross-Signal Anomaly Detector as $5K/Month Premium Feature (GPT-4o only)
-**What it is:** A dedicated "anomaly detection" product tier that identifies rare simultaneous multi-signal conditions that historically precede major market movements. Marketed specifically to hedge funds and institutional investors as a standalone premium.
+The recommendations are technically reasonable. TimeMixer and TFT are legitimate state-of-the-art time-series architectures. Amazon Chronos is a genuine foundation model for time-series. However:
+1. Gemini did not address ML at all, so there is zero corroboration
+2. GPU inference for financial time-series on a production server shared with video rendering is an infrastructure risk that requires a dedicated capacity planning conversation
+3. VRAM contention between render pipeline and inference could cause both to fail under load
+4. Model drift and retraining cadence for volatile assets like BTC is a non-trivial operational problem
 
-**Assessment: INVESTIGATE FURTHER.** The concept is sound and the monetization logic is strong (GPT-4o is the only model to think about pricing tiers and institutional GTM strategy). However, this requires the backtesting framework (M4) to exist first — you cannot sell anomaly detection to institutions without validated historical performance. Revisit in Cycle 2 after M4 is implemented.
-
----
-
-### UI4 — RTX 4090 ML Model Deployment with VRAM Partitioning (Grok only)
-**What it is:** Specific guidance on deploying TimeMixer and PatchTST within 8GB VRAM for inference to avoid contention with the HeyGen/Wav2Lip render pipeline. Includes the insight that inference can run on one 4090 while rendering uses the other.
-
-**Assessment: IMPLEMENT — but P2.** The VRAM partitioning insight is technically sound and the specific concern about render pipeline contention is the correct engineering constraint. TimeMixer for multivariate BTC forecasting using hashrate, F&G, and exchange flows as inputs is the right model choice. However, this is infrastructure work that should not block the analytical and visual improvements above. Schedule for after P0/P1 are stable.
+**Recommended action:** Create a separate ML infrastructure spike ticket. Do not block the Cycle 1 build pass on this. Revisit in Cycle 2 after the core signal synthesis layer is complete.
 
 ---
 
-### UI5 — "Miner Conviction Index" Specific Formula (Gemini only)
-**What it is:** `(Current Hashrate / 90-day Avg Hashrate) - (BTC Price % Change over 30 days)` as the Puell Multiple analog.
+### UI-2 — GROK ONLY: "Signal Convergence Globe" — 3D spherical visualization using CSS 3D transforms
 
-**Assessment: IMPLEMENT.** While all three models agreed hashrate needs synthesis (U1), only Gemini provided a specific, actionable, mathematically sound formula. This is the implementation to use. Store the 90-day rolling hashrate average in state and compute this index on each update cycle.
+**What Grok said:** A 3D sphere where each meridian represents a signal axis, with sphere surface distortion encoding bullish/bearish signals (outward = bullish, inward = bearish). Hover interactions reveal historical trends.
 
----
+**Assessment: SKIP for Cycle 1, revisit in Cycle 3**
 
-### UI6 — Clickable Radar Axes Revealing Component Sparklines (Gemini only)
-**What it is:** In the radar chart (U3), clicking any axis would drill down to show the underlying sub-signals and their sparklines. Transforms the radar from a display into an interactive investigation tool.
+Creative and genuinely novel. However:
+1. CSS 3D transforms cannot produce a convincing interactive sphere that encodes data accurately. The physics described (surface distortion encoding signal strength) would require either WebGL/Three.js or Canvas, which may conflict with tech stack constraints
+2. Gemini's "Gravity Well" proposal is substantially more feasible with the same tech stack and conveys the same conceptual value (multi-dimensional market tension)
+3. Risk of producing an impressive-looking but misleading visualization if the sphere geometry is approximated rather than mathematically accurate
 
-**Assessment: IMPLEMENT at P1.** This is the feature that turns a "pretty chart" into a "professional tool." Analysts will click. This interaction model is standard in Bloomberg and Glassnode. The effort is moderate (click handler + sparkline panel component) but the professional credibility gain is disproportionate.
-
----
-
-## CONFLICTS (models disagree — your tiebreaker)
-
-### C1 — Visual Innovation: Heatmap (GPT-4o) vs. Radar/Sonar (Grok + Gemini)
-**GPT-4o says:** Build a sentiment heatmap showing sentiment across metrics and timeframes.
-**Grok + Gemini say:** Build a radar/sonar chart showing multi-dimensional signal convergence.
-
-**VERDICT: Radar/Sonar wins.** Two vs. one, and the qualitative argument is stronger. A heatmap is a well-understood format that every competitor already uses. A live radar chart that changes shape as market conditions shift is genuinely novel and creates the "what is that?" reaction that drives demos and word-of-mouth among institutional users. The heatmap is not wrong — it could be a secondary view — but it should not be the flagship innovation.
+**Recommended action:** Acknowledge the creative concept. When WebGL is approved for the stack, revisit as a Cycle 3 visual enhancement.
 
 ---
 
-### C2 — Implementation of ML Models: Specific Repos (GPT-4o) vs. General Guidance (Grok)
-**GPT-4o says:** TimeMixer repo is `github.com/locuslab/TimeMix`, PatchTST is `github.com/patchtst/patchtst`, Chronos is `github.com/chronos/chronos`.
-**Grok says:** TimeMixer repo is `github.com/tsinghuarui/TimeMixer`, PatchTST correct, and provides VRAM-aware deployment guidance.
+### UI-3 — GEMINI ONLY: "Sovereign Market Gravity Well" — 2D topographical surface plot with price orb
 
-**VERDICT: GPT-4o's repo URLs appear to be hallucinated or incorrect.** The official TimeMixer paper is from Tsinghua (Grok is directionally correct). The "locuslab" organization is associated with a different project (DEQ). Do not use GPT-4o's repo links without manual verification. Grok's VRAM guidance is the more operationally useful contribution here regardless. **Action:** Verify all repos manually before implementation. Use `tsinghua-earth/TimeMixer` as the starting search point.
+**What Gemini said:** A 2D topographical map with Fundamental Strength on X, Sentiment/Liquidity Momentum on Y, and BTC Price on Z (color/height). A "price orb" moves across the surface. Gravity wells represent forced convergence zones. Buildable with SVG and CSS transforms.
 
----
+**Assessment: IMPLEMENT — this is the most actionable visual innovation in the report**
 
-### C3 — Priority of ML Features: P2 (GPT-4o/Grok) vs. Not Mentioned (Gemini)
-**GPT-4o + Grok say:** ML forecasting models should be P2.
-**Gemini says:** Does not recommend ML models at all — focuses entirely on analytical synthesis of existing data.
+This is conceptually superior to the radar chart and feasible within the stated tech stack constraints. Key reasons to implement:
+1. It synthesizes three dimensions of market data into a single geographic metaphor that is immediately intuitive to hedge fund analysts (price surfaces, stress topology, and regime analysis are familiar concepts)
+2. The "Gravity Well = high fundamental strength + low sentiment = buy zone" framing is a genuinely novel way to communicate what the underlying data already supports
+3. SVG + CSS transforms can credibly approximate this within the existing stack
+4. No competitor offers a visualization structured this way
 
-**VERDICT: Gemini is implicitly correct on sequencing, GPT-4o/Grok are right on the feature.** Gemini's silence on ML is a signal: the existing data is not yet fully synthesized, so running ML on top of unsynthesized data is premature. The right order is: (1) implement composite indices and pattern detection upgrades, (2) implement backtesting, (3) then apply ML. Mark ML as P2 with an explicit dependency on M4 (backtesting framework) being complete first.
-
----
-
-### C4 — "$5K Feature": Anomaly Detector (GPT-4o) vs. Polymarket Front-Run (Grok) vs. Sovereign Context Sonar (Gemini)
-**GPT-4o says:** The anomaly detector is the $5K feature.
-**Grok says:** The full cross-signal alpha system is the value prop.
-**Gemini says:** The Sovereign Context Sonar radar is the differentiator.
-
-**VERDICT: The $5K/month feature is the combination of the radar + validated cross-signal alerts + backtested performance stats.** No single feature stands alone. GPT-4o is right that anomaly detection is the monetization frame (it's what you tell institutional clients). Gemini is right that the radar is the demo hook. Grok is right that the cross-signal alerts are the core analytical engine. Build them as one integrated product: the radar is the visual, the alerts are the engine, and "anomaly detection with backtested performance" is the sales pitch.
+**Implementation note:** The "Z-axis as price" concept should be rendered as color gradient (heatmap) rather than true 3D surface to remain within SVG constraints. The "price orb" can be a positioned element that moves based on the two composite index values. Historical path of the orb over 30 days would add significant analytical value.
 
 ---
 
-## VALIDATED STRENGTHS (all models agree this is already excellent)
+### UI-4 — GEMINI ONLY: Speculator-to-Hodler Conviction Index formula
 
-1. **Data Pipeline Architecture** — All three models praised the breadth and quality of data streams being collected. The `sovereign_context_engine.py` data aggregation layer, `world_state.json` state management, and the existing range of sources (BTC metrics, Fear & Greed, mempool, Lightning, KOL sentiment, articles, whale alerts, Polymarket, PCAF) are production-grade. **Do not restructure the data collection layer.**
+**What Gemini said:** Formula: `(LN Capacity Growth % + Hashrate Growth %) / (KOL Sentiment Score Delta % + F&G Value)`. High score = fundamentals outpacing hype. Low score = speculation dominating.
 
-2. **PCAF Anomaly Score** — All models referenced this as a unique, existing differentiator that competitors do not have. It should be featured more prominently in the UI but the underlying logic is solid. **Do not change the PCAF calculation.**
+**Assessment: IMPLEMENT**
 
-3. **Existing `detect_patterns()` Foundation** — All models confirmed the existing pattern detection architecture is the correct approach and the right place to extend. The function structure, alert format, and severity system are sound. **Extend it; do not rewrite it.**
+This is a concrete, defensible formula that uses only data already collected. It produces a single number that tells a clear story (is network growth outpacing narrative?). It has no direct competitor equivalent. The formula has a reasonable economic interpretation. The only risk is denominator-approaching-zero when F&G is very low — add a floor of 1 to the denominator.
 
-4. **Stage Brief Narrative System** — The narrative labeling and dominant theme tracking was praised by all models as a genuine differentiator. Gemini's "Narrative Exhaustion Peak" pattern builds on it, but the underlying system is excellent. **Do not change the narrative generation logic.**
+---
 
-5. **Front-End SVG/Gauge Components** — The existing `signal-gauge-svg` and clean visual design language were referenced positively by Grok and Gemini as the right foundation to extend (specifically: extend to radar, not replace). **Do not redesign the component system from scratch.**
+### UI-5 — GROK ONLY: Whale Transaction Heatmap — plot whale alerts by tier and time
+
+**What Grok said:** Plot whale alerts by tier (e.g., $10M+, $50M+, $100M+) and time on a heatmap to show accumulation/distribution spikes over 24h/7d windows.
+
+**Assessment: IMPLEMENT**
+
+Simple to build, high visual impact, directly competitive with Santiment/CryptoQuant whale analytics. The data is already collected (`whale_alerts`). A heatmap with time on X-axis and tier on Y-axis, colored by net direction (green = withdrawals, red = deposits), would be immediately legible and premium-feeling. This is a P1 addition that requires minimal backend work.
+
+---
+
+## CONFLICTS
+*(Models gave contradictory or incompatible recommendations — tiebreaker applied)*
+
+---
+
+### C1 — Primary hero visualization: 3D Globe (Grok) vs. 2D Gravity Well (Gemini)
+
+**Grok's position:** Build a 3D CSS sphere (Signal Convergence Globe)
+**Gemini's position:** Build a 2D topographical surface visualization (Gravity Well)
+
+**Tiebreaker verdict: Gemini is correct for Cycle 1.**
+
+Reasoning:
+1. Grok's sphere requires CSS 3D transforms to simulate genuine 3D data encoding, which will produce either a visually impressive but analytically misleading result or a technically fragile component
+2. Gemini's gravity well can be accurately rendered as a 2D heatmap/surface with SVG, which is mathematically honest
+3. The "price orb moving across a risk topology" metaphor is more intuitive to financial analysts than a distorted sphere
+4. Grok's globe concept is not eliminated — it is deferred to when WebGL is stack-approved
+
+**Final decision:** Implement Gemini's Gravity Well as the P1 hero visualization. Log Grok's Globe as a Cycle 3 candidate.
+
+---
+
+### C2 — Exchange Reserve visualization: Cumulative chart (Grok) vs. Volume-weighted ratio (Gemini)
+
+**Grok's position:** Visualize exchange flow as a cumulative net inflow/outflow chart over 7/30/90 days
+**Gemini's position:** Build a Liquid Supply Shock Ratio (withdrawals + outflows) / (deposits + inflows)
+
+**Tiebreaker verdict: Both are correct and non-conflicting — implement sequentially.**
+
+The cumulative chart (Grok) is the display layer. The Supply Shock Ratio (Gemini) is the derived signal layer. They answer different questions. The chart shows historical behavior; the ratio surfaces an actionable threshold signal. Implement Gemini's ratio as the calculated metric and Grok's cumulative chart as the visualization for it.
+
+**Implementation order:** Ratio calculation first (P0, backend), cumulative chart second (P1, frontend).
+
+---
+
+### C3 — Stock-to-Flow approximation: implement (Grok) vs. not mentioned (Gemini)
+
+**Grok's position:** Use block height and BTC price to calculate a simplified S2F ratio as a long-term valuation metric
+**Gemini's position:** Not mentioned
+
+**Tiebreaker verdict: Implement with a prominent disclaimer.**
+
+S2F is a known and contested model. Its predictive validity after the 2021-2022 deviation has been widely questioned in quantitative finance circles. However, it remains a widely-referenced metric that premium platform users expect to see. The implementation should:
+1. Display the S2F value and the price-to-S2F ratio
+2. Include a visible disclaimer: "S2F is a reference model; its predictive accuracy has been debated post-2021"
+3. Not be presented as a Protocol Pulse proprietary signal — it is a standard industry reference metric
+
+---
+
+## VALIDATED STRENGTHS
+*(Both models confirmed these are already excellent — do NOT change in second pass)*
+
+---
+
+**VS1 — Data Collection Architecture in `sovereign_context_engine.py`**
+Both models praised the breadth and quality of data collection. Gemini: *"high-quality codebase with a robust data collection engine at its core."* Grok: identified 12 distinct live data streams as sufficient to compete with premium platforms. The ingestion layer, data schema, and collection cadence are sound. Do not refactor the collection architecture.
+
+**VS2 — Brand Visual Identity and Front-End Aesthetic**
+Both models noted the front-end adheres to brand laws and is visually appealing. Gemini: *"The front-end is visually appealing and adheres to the specified brand laws."* Grok implicitly validated this by focusing all visual critique on adding new components rather than replacing existing ones. Do not alter the existing color system, typography, or layout structure.
+
+**VS3 — Polymarket Integration as a Unique Data Asset**
+Both models called out Polymarket odds as a differentiating data source that competitors lack. This integration is already present and functioning. It should be amplified (included in more signal calculations) but not modified at the collection layer.
+
+**VS4 — KOL Sentiment Pipeline**
+Both models used KOL sentiment data as a component in their highest-priority signal combinations, implying confidence in the existing pipeline. The collection and scoring mechanism is validated. Enhancement should be at the synthesis layer, not the collection layer.
+
+**VS5 — Existing Pattern Detection Framework (`detect_patterns`)**
+Both models called this a "solid foundation" (Gemini) or noted patterns are "partially coded" (Grok). The architecture of the function — not its current contents — is validated. The framework is the right structure; it needs more patterns, not a rewrite.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-*Note: No model raised explicit legal/regulatory compliance concerns. The following is synthesized from implicit requirements in the recommendations.*
+*(Based on model outputs referencing "brand laws" and visual design system)*
 
-**Fully Compliant (no model raised concerns):**
-- Data display of publicly available market data (BTC price, Fear & Greed, mempool) — compliant
-- Sentiment aggregation from public sources — compliant
-- Polymarket odds display — compliant as information display, not as regulated financial advice
+| Law | Status | Determination |
+|---|---|---|
+| Brand visual identity (color, typography) | ✅ COMPLIANT | Both models confirmed adherence |
+| No WebGL / Three.js in current tech stack | ✅ COMPLIANT | Both models worked within this constraint |
+| Data transparency / source attribution | ⚠️ PARTIAL | No model confirmed source attribution is visible in UI for proprietary indices |
+| Proprietary index methodology disclosure | ❌ VIOLATION | Indices are presented without formula documentation visible to users |
+| Signal confidence scoring | ❌ VIOLATION | Pattern detection outputs binary signals without confidence levels |
 
-**Requires Attention (implied by institutional user targeting):**
-- **Financial Advice Disclaimer:** All three models discuss targeting hedge funds and institutional investors. Any feature framed as a "signal" or "alert" that could be construed as investment advice requires explicit disclaimer language in the UI. Recommendation: Add a persistent "For informational purposes only — not financial advice" footer and per-alert disclaimer. **Priority: P0 from a liability standpoint.**
-- **Backtested Performance Disclosure:** M4 (backtesting framework) surfaces historical signal performance. If this is shown to institutional clients, it likely triggers "past performance" disclosure requirements depending on jurisdiction. Any backtested stat must be accompanied by: "Past signal performance does not guarantee future results." **Priority: P0 before any institutional demo.**
-
-**No consensus on violations** — no model flagged GDPR, CCPA, or securities law violations in the current implementation.
+**Action required:**
+- Add formula documentation to all proprietary indices (tooltip or modal)
+- Add confidence level (0-100) to all detected patterns based on how many constituent signals are confirmed vs. proxied
 
 ---
 
 ## SECURITY CONSENSUS
 
-*Note: Models focused on product/feature audit rather than security code review. No security vulnerabilities were explicitly identified in code. The following reflects consensus-implied security considerations.*
+Neither model performed an explicit security audit. The following are inferred from architectural observations in both outputs:
 
-**No explicit security vulnerabilities flagged by any model.**
+| Issue | Severity | Source |
+|---|---|---|
+| No mention of API key management for external data sources (exchange flow, whale alerts, Polymarket) | HIGH | Inferred from both models' data ingestion references |
+| No rate limiting mentioned on the intelligence endpoint | MEDIUM | Inferred from data freshness architecture |
+| Proprietary index calculations running server-side with no output caching mentioned — potential DoS via re-calculation on every request | MEDIUM | Inferred from `sovereign_context_engine.py` architecture |
+| No mention of input sanitization for KOL sentiment text ingestion pipeline | LOW-MEDIUM | Inferred from NLP pipeline architecture |
 
-**Implicit security considerations from recommendations:**
-1. **API Key Management for New Data Sources** — As M1 (Polymarket expansion) and UI4 (ML model deployment) add new external integrations, ensure all API credentials remain in environment variables/secrets manager, never hardcoded. Current pattern appears sound; maintain it.
-2. **ML Model Input Validation** — If UI4 (RTX 4090 ML inference) is implemented, add input sanitization before feeding data to inference pipeline to prevent adversarial data injection.
-3. **Backtesting Data Integrity** — Historical `world_state.json` snapshots used for backtesting (M4) must be write-protected/checksummed to prevent retroactive manipulation of "historical" performance claims.
-
-**Security audit recommendation:** A dedicated security-focused Cycle 2 audit pass is warranted before any institutional client access is granted, specifically targeting authentication, API exposure, and data integrity.
+**Note:** A dedicated security audit cycle is recommended before any public launch. Neither model was tasked with security review, so these are structural inferences only.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
+*(Only items both models mentioned)*
 
-*Items mentioned by 2+ models as missing from a truly world-class intelligence terminal:*
+1. **Branded, backtested proprietary indices with documented methodology** — Both models independently identified this as the single largest gap between Protocol Pulse and platforms commanding $500-2000/month. The data exists. The synthesis does not. This is the entire value proposition delta.
 
-### WCG1 — No Proprietary Named Metrics (all 3 models)
-Bloomberg sells MVRV. Glassnode sells SOPR. We sell raw numbers with no brand equity. A world-class terminal has 3–5 proprietary named indices that become industry vocabulary. We have the data to create them; we haven't created them yet.
+2. **Multi-signal confluence patterns are absent from production logic** — Both models flagged that the most predictive signals require 3-5 simultaneous conditions across different data domains. Current implementation detects 1-2 signal patterns. The gap between 2-signal and 5-signal confluence detection is the gap between a data dashboard and a genuine intelligence terminal.
 
-### WCG2 — No Multi-Dimensional Signal Synthesis Visualization (all 3 models)
-Every competitor shows charts. None shows a live "fingerprint" of market conditions across 6+ orthogonal dimensions simultaneously. The radar chart is the gap between "crypto dashboard" and "intelligence terminal."
+3. **Volume data in exchange flow signals** — Both models built their highest-conviction signals around exchange flow volume. Neither has it. This is a specific, fixable data gap that gates multiple downstream features.
 
-### WCG3 — No Validated Historical Signal Performance (2 models: GPT-4o, Grok)
-Alerts without historical accuracy data are opinions. Alerts with "triggered 14 times historically, median +8.3% BTC move in 7 days (n=14)" are evidence. The backtesting gap is the gap between a retail tool and an institutional tool.
+4. **Historical backtesting visualization** — Both models referenced historical price action (2019, 2020, 2021 examples) as context for signal validity, but neither found evidence this historical context is surfaced to users in the UI. A world-class intelligence terminal shows users *when a pattern last fired and what happened next*.
 
-### WCG4 — No Leading Indicator Layer (2 models: Gemini, Grok)
-Polymarket data is being used as a sentiment indicator when it should be used as a *leading* indicator. A world-class terminal distinguishes between lagging indicators (price, F&G), coincident indicators (exchange flows), and leading indicators (Polymarket, whale alerts) and labels them explicitly.
-
-### WCG5 — Macro Correlation Layer Absent (2 models: GPT-4o, Grok)
-Bloomberg's core value is cross-asset correlation. BTC vs. S&P 500, BTC vs. DXY, BTC vs. gold — none of this is currently surfaced. Polymarket macro sentiment is a partial proxy but not a substitute. A world-class terminal must show BTC's relationship to macro conditions.
+5. **No "hero" differentiated visualization beyond the radar chart** — Both models agreed the current radar chart is table stakes, not a differentiator. A hedge fund analyst will not subscribe to a $500/month platform because of a radar chart.
 
 ---
 
-## FINAL ACTION PLAN (sorted by consensus priority)
+## FINAL ACTION PLAN
+*(Sorted by consensus priority)*
 
-| Priority | Change | File:Line | Models | Why |
+---
+
+**P0 CRITICAL**
+
+| # | Change | File:Location | Models | Why |
 |---|---|---|---|---|
-| **P0 CRITICAL** | Add financial advice disclaimer to all alert outputs and UI | `intelligence_page.html` (footer + per-alert), `sovereign_context_engine.py` (alert objects) | All (implied) | Institutional targeting without disclaimers is a liability |
-| **P0 CRITICAL** | Implement "Miner Conviction Index" composite: `(hashrate / 90d_avg_hashrate) - (price_30d_pct_change)` | `sovereign_context_engine.py` → new `compute_indices()` function | All (U1, UI5) | Core gap vs. Glassnode/Puell Multiple; uses existing data |
-| **P0 CRITICAL** | Implement "Exchange Pressure Ratio" discrete scored metric (-2 to +2) from exchange_flow + whale_alerts | `sovereign_context_engine.py` → `compute_indices()`, `world_state.json` schema | All (U1) | Replicates CryptoQuant's core value prop using existing data |
-| **P0 CRITICAL** | Implement "Social-to-Market Divergence" index: `(kol_sentiment - 50) - (btc_change_7d * 2)` | `sovereign_context_engine.py` → `compute_indices()` | All (U1, UI2) | Santiment analog; single formula, high analytical value |
-| **P0 CRITICAL** | Add `ACCUM
+| P0-1 | Expand `_calculate_proprietary_indices` with full MA logic, threshold bands, and graceful degradation | `sovereign_context_engine.py:_calculate_proprietary_indices()` | Both | Core value proposition; currently a stub |
+| P0-2 | Add `inflow_volume_usd`, `outflow_volume_usd`, `net_flow_usd` to exchange_flow schema | `sovereign_context_engine.py:exchange_flow ingestion` | Both | Required for all meaningful exchange signal calculations |
+| P0-3 | Implement Stealth Accumulation pattern (F&G<25 + outflow + whale withdrawals > deposits + flat price) | `sovereign_context_engine.py:detect_patterns()` | Both (Gemini primary) | Highest-conviction bottom signal; data already collected |
+| P0-4 | Implement Supply Shock Precursor pattern (hashrate up + exchange outflows + F&G<20) | `sovereign_context_engine.py:detect_patterns()` | Both (Grok primary) | Pre-rally accumulation signal with historical precedent |
+| P0-5 | Implement Narrative Saturation Top pattern (KOL>90th pct + articles>90th pct + F&G>75 + Polymarket>80%) | `sovereign_context_engine.py:detect_patterns()` | Both (Gemini primary) | "Sell the news" setup; uses unique Polymarket integration |
+| P0-6 | Implement KOL-Whale Divergence pattern (KOL sentiment<35 + whale withdrawals>deposits + price change_24h>0) | `sovereign_context_engine.py:detect_patterns()` | Both | Non-obvious signal; smart

@@ -1427,6 +1427,8 @@ var FORK_CORE_PKS={
 };
 
 function _mkForkCard(ev,name,initials,borderColor,avBg){
+  var wrap=document.createElement('a');
+  wrap.href=ev.id?'https://njump.me/'+ev.id:'#';wrap.target='_blank';wrap.rel='noopener';wrap.style.textDecoration='none';wrap.style.color='inherit';wrap.style.display='block';
   var el=document.createElement('div');
   el.className='fork-nostr-card';
   el.style.borderColor=borderColor;
@@ -1458,7 +1460,8 @@ function _mkForkCard(ev,name,initials,borderColor,avBg){
     }
   });
   el.appendChild(body);
-  return el;
+  wrap.appendChild(el);
+  return wrap;
 }
 
 function addToForkKnotsFeed(ev){
@@ -1498,6 +1501,8 @@ function renderForkGH(d){
   if(kf&&d.knots_events){
     kf.innerHTML='';
     d.knots_events.forEach(function(ev){
+      var a=document.createElement('a');
+      a.href=ev.html_url||'#';a.target='_blank';a.rel='noopener';a.style.textDecoration='none';a.style.color='inherit';a.style.display='block';
       var el=document.createElement('div');
       el.className='fork-gh-item';
       var type=ev.type==='PullRequestEvent'?'pr':ev.type==='PushEvent'?'push':'issue';
@@ -1505,7 +1510,8 @@ function renderForkGH(d){
       el.innerHTML='<span class="fork-gh-type '+type+'">'+typeLabel+'</span>'
         +'<div class="fork-gh-title">'+escH(ev.title||'Activity')+'</div>'
         +'<div class="fork-gh-meta">'+escH(ev.actor)+' — '+escH(ev.time_ago)+'</div>';
-      kf.appendChild(el);
+      a.appendChild(el);
+      kf.appendChild(a);
     });
   }
   /* Knots stats */
@@ -1521,6 +1527,8 @@ function renderForkGH(d){
   if(cf&&d.core_events){
     cf.innerHTML='';
     d.core_events.forEach(function(ev){
+      var a=document.createElement('a');
+      a.href=ev.html_url||'#';a.target='_blank';a.rel='noopener';a.style.textDecoration='none';a.style.color='inherit';a.style.display='block';
       var el=document.createElement('div');
       el.className='fork-gh-item';
       var type=ev.type==='PullRequestEvent'?'pr':ev.type==='PushEvent'?'push':'issue';
@@ -1528,7 +1536,8 @@ function renderForkGH(d){
       el.innerHTML='<span class="fork-gh-type '+type+'">'+typeLabel+'</span>'
         +'<div class="fork-gh-title">'+escH(ev.title||'Activity')+'</div>'
         +'<div class="fork-gh-meta">'+escH(ev.actor)+' — '+escH(ev.time_ago)+'</div>';
-      cf.appendChild(el);
+      a.appendChild(el);
+      cf.appendChild(a);
     });
   }
   /* Core stats */

@@ -4,16 +4,12 @@
 
 {% block head %}
 <style>
-:root {
-    --pp-red: #dc2626;
-    --pp-dark: #0a0a0a;
-    --pp-glass: rgba(10, 10, 10, 0.95);
-}
-
+body { background: var(--pp-bg-primary) !important; }
 .intel-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
-    padding: 100px 20px 60px;
+    background: var(--pp-bg-primary);
+    padding: 100px 24px 60px;
+    font-family: 'DM Sans', sans-serif;
 }
 
 .intel-container {
@@ -40,7 +36,7 @@
 }
 
 .intel-title i {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .quick-actions {
@@ -66,18 +62,18 @@
 }
 
 .quick-btn:hover {
-    border-color: var(--pp-red);
+    border-color: var(--pp-accent);
     color: #fff;
 }
 
 .quick-btn.primary {
-    background: var(--pp-red);
-    border-color: var(--pp-red);
+    background: var(--pp-accent);
+    border-color: var(--pp-accent);
     color: #fff;
 }
 
 .quick-btn.primary:hover {
-    background: #b91c1c;
+    opacity: 0.95;
 }
 
 .metrics-grid {
@@ -88,9 +84,9 @@
 }
 
 .metric-card {
-    background: var(--pp-glass);
-    border: 1px solid rgba(220, 38, 38, 0.2);
-    border-radius: 12px;
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
     padding: 20px;
     text-align: center;
 }
@@ -104,7 +100,7 @@
 }
 
 .metric-value.highlight {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .metric-value.success {
@@ -132,9 +128,9 @@
 }
 
 .dash-panel {
-    background: var(--pp-glass);
-    border: 1px solid rgba(220, 38, 38, 0.2);
-    border-radius: 16px;
+    background: var(--pp-bg-card);
+    border: 1px solid var(--pp-border-subtle);
+    border-radius: var(--pp-radius-lg);
     padding: 25px;
 }
 
@@ -159,12 +155,12 @@
 }
 
 .panel-title i {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .panel-badge {
-    background: rgba(220, 38, 38, 0.2);
-    color: var(--pp-red);
+    background: var(--pp-accent-soft);
+    color: var(--pp-accent);
     padding: 4px 12px;
     border-radius: 15px;
     font-family: 'JetBrains Mono', monospace;
@@ -197,7 +193,7 @@
 .item-type {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
-    color: var(--pp-red);
+    color: var(--pp-accent);
     text-transform: uppercase;
 }
 
@@ -220,7 +216,7 @@
 }
 
 .item-content a {
-    color: var(--pp-red);
+    color: var(--pp-accent);
     text-decoration: none;
 }
 
@@ -279,7 +275,7 @@
 .squad-handle {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.85rem;
-    color: var(--pp-red);
+    color: var(--pp-accent);
     font-weight: 600;
 }
 
@@ -308,7 +304,7 @@
 }
 
 .back-link:hover {
-    color: var(--pp-red);
+    color: var(--pp-accent);
 }
 
 .empty-state {
@@ -349,103 +345,6 @@
             </div>
         </div>
         
-        <!-- Live Price Ticker -->
-        <div class="price-ticker-bar" style="display: flex; gap: 20px; margin-bottom: 20px; padding: 15px 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 10px; flex-wrap: wrap; justify-content: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="color: #f7931a; font-weight: 600;">₿ BTC</span>
-                <span style="font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 1.1rem;">
-                    {% if prices and prices.bitcoin %}{{ price_service.format_price(prices.bitcoin.price) }}{% else %}$--{% endif %}
-                </span>
-                <span style="font-size: 0.8rem; {% if prices and prices.bitcoin and prices.bitcoin.change_24h >= 0 %}color: #22c55e;{% else %}color: #ef4444;{% endif %}">
-                    {% if prices and prices.bitcoin %}{{ price_service.format_change(prices.bitcoin.change_24h) }}{% endif %}
-                </span>
-            </div>
-            <div style="width: 1px; background: rgba(255,255,255,0.2);"></div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="color: #ffd700; font-weight: 600;">🥇 GOLD</span>
-                <span style="font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 1.1rem;">
-                    {% if prices and prices.gold %}{{ price_service.format_price(prices.gold.price) }}{% else %}$--{% endif %}
-                </span>
-                <span style="font-size: 0.8rem; {% if prices and prices.gold and prices.gold.change_24h >= 0 %}color: #22c55e;{% else %}color: #ef4444;{% endif %}">
-                    {% if prices and prices.gold %}{{ price_service.format_change(prices.gold.change_24h) }}{% endif %}
-                </span>
-            </div>
-            <div style="width: 1px; background: rgba(255,255,255,0.2);"></div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="color: #c0c0c0; font-weight: 600;">🥈 SILVER</span>
-                <span style="font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 1.1rem;">
-                    {% if prices and prices.silver %}{{ price_service.format_price(prices.silver.price) }}{% else %}$--{% endif %}
-                </span>
-                <span style="font-size: 0.8rem; {% if prices and prices.silver and prices.silver.change_24h >= 0 %}color: #22c55e;{% else %}color: #ef4444;{% endif %}">
-                    {% if prices and prices.silver %}{{ price_service.format_change(prices.silver.change_24h) }}{% endif %}
-                </span>
-            </div>
-        </div>
-        
-        <!-- X SPACES LIVE INTEL PANEL -->
-        <div id="xs-panel" style="margin-bottom:24px;padding:20px 24px;background:rgba(10,10,10,0.97);border:1px solid rgba(220,38,38,0.35);border-radius:14px;">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-            <span id="xs-live-dot" style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block;animation:xsPulse 1.5s infinite;"></span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#fff;letter-spacing:2px;text-transform:uppercase;">X SPACES // LIVE INTEL</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
-            <!-- Sentiment -->
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;text-align:center;">
-              <div id="xs-score" style="font-family:'JetBrains Mono',monospace;font-size:2.2rem;font-weight:700;color:#fff;">--</div>
-              <div id="xs-label" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:4px;">SENTIMENT</div>
-            </div>
-            <!-- Active Spaces -->
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;text-align:center;">
-              <div id="xs-active" style="font-family:'JetBrains Mono',monospace;font-size:2.2rem;font-weight:700;color:#fff;">0</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:4px;">ACTIVE SPACES</div>
-              <div id="xs-confidence" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.3);margin-top:2px;">--</div>
-            </div>
-            <!-- Top Host -->
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;text-align:center;">
-              <div id="xs-host" style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#ffd700;word-break:break-all;">--</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:4px;">TOP HOST</div>
-            </div>
-            <!-- Topics -->
-            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;text-align:center;">
-              <div id="xs-topics" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:32px;"></div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:4px;">HOT TOPICS</div>
-            </div>
-          </div>
-          <!-- Top Quote -->
-          <div id="xs-quote-strip" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(0,0,0,0.5);border-left:3px solid #dc2626;border-radius:4px;">
-            <span id="xs-quote" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:rgba(255,255,255,0.7);font-style:italic;"></span>
-          </div>
-        </div>
-        <style>
-          @keyframes xsPulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(220,38,38,0.7)} 50%{opacity:0.6;box-shadow:0 0 0 6px rgba(220,38,38,0)} }
-        </style>
-        <script>
-        (function(){
-          function fetchXS(){
-            fetch('/api/spaces/live').then(r=>r.json()).then(d=>{
-              const sc=document.getElementById('xs-score');
-              const lb=document.getElementById('xs-label');
-              if(sc)sc.textContent=d.score;
-              if(lb){
-                lb.textContent=d.label;
-                lb.style.color=d.label==='BULLISH'?'#22c55e':d.label==='BEARISH'?'#ef4444':'rgba(255,255,255,0.5)';
-              }
-              const ac=document.getElementById('xs-active');if(ac)ac.textContent=d.active_count;
-              const cf=document.getElementById('xs-confidence');if(cf)cf.textContent=d.confidence;
-              const ho=document.getElementById('xs-host');if(ho)ho.textContent=d.top_host||'--';
-              const tp=document.getElementById('xs-topics');
-              if(tp){tp.innerHTML='';(d.topics||[]).forEach(t=>{const s=document.createElement('span');s.textContent=t;s.style.cssText='font-family:JetBrains Mono,monospace;font-size:0.6rem;background:rgba(220,38,38,0.2);color:#dc2626;padding:2px 8px;border-radius:8px;';tp.appendChild(s);})}
-              const qs=document.getElementById('xs-quote-strip'),qt=document.getElementById('xs-quote');
-              if(qs&&qt){if(d.top_quote&&d.top_quote.length>20){qs.style.display='block';qt.textContent='"'+d.top_quote+'"';}else{qs.style.display='none';}}
-              const dot=document.getElementById('xs-live-dot');
-              if(dot)dot.style.background=d.active_count>0?'#dc2626':'#555';
-            }).catch(()=>{});
-          }
-          fetchXS();
-          setInterval(fetchXS,60000);
-        })();
-        </script>
-
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-value">{{ articles_count }}</div>

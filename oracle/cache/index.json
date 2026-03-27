@@ -1,57 +1,57 @@
 {
   "GREETING": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/GREETING.mp4",
-    "generated_at_ts": 1774029555.8738997,
-    "duration_s": 14.73
+    "generated_at_ts": 1774561887.6724603,
+    "duration_s": 11.83
   },
   "SOVEREIGNTY_INTRO": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_INTRO.mp4",
-    "generated_at_ts": 1774029582.094135,
+    "generated_at_ts": 1774502026.106901,
     "duration_s": 15.43
   },
   "SOVEREIGNTY_ASSESSMENT": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_ASSESSMENT.mp4",
-    "generated_at_ts": 1774029600.602786,
+    "generated_at_ts": 1774503989.783371,
     "duration_s": 14.87
   },
   "SOVEREIGNTY_COLD_WALLET": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_COLD_WALLET.mp4",
-    "generated_at_ts": 1774029618.2504048,
+    "generated_at_ts": 1774398477.6280794,
     "duration_s": 13.77
   },
   "SOVEREIGNTY_NODE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_NODE.mp4",
-    "generated_at_ts": 1774029635.8830998,
+    "generated_at_ts": 1774177959.6282043,
     "duration_s": 14.4
   },
   "SOVEREIGNTY_BITAXE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_BITAXE.mp4",
-    "generated_at_ts": 1774029656.2098644,
+    "generated_at_ts": 1774177983.798391,
     "duration_s": 17.0
   },
   "SOVEREIGNTY_LIFE_INSURANCE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_LIFE_INSURANCE.mp4",
-    "generated_at_ts": 1774029675.9133134,
+    "generated_at_ts": 1774166236.3275218,
     "duration_s": 17.8
   },
   "SOVEREIGNTY_RESIDENCY": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/SOVEREIGNTY_RESIDENCY.mp4",
-    "generated_at_ts": 1774029694.1579297,
+    "generated_at_ts": 1774178204.9834101,
     "duration_s": 16.11
   },
   "DAILY_BRIEF_INTRO": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/DAILY_BRIEF_INTRO.mp4",
-    "generated_at_ts": 1774029708.0681403,
+    "generated_at_ts": 1774166282.2598443,
     "duration_s": 7.41
   },
   "UNKNOWN_QUESTION": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/UNKNOWN_QUESTION.mp4",
-    "generated_at_ts": 1774029722.1693156,
+    "generated_at_ts": 1774178411.6982028,
     "duration_s": 8.18
   },
   "GOODBYE": {
     "path": "/home/ultron/protocol_pulse/oracle/cache/responses/GOODBYE.mp4",
-    "generated_at_ts": 1774029734.3361247,
+    "generated_at_ts": 1774178432.0498328,
     "duration_s": 5.23
   }
 }

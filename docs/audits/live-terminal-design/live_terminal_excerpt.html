@@ -1,0 +1,1624 @@
+
+============================================================
+=== CSS VARIABLES & ZONE ARCHITECTURE (lines 1-100 of 9534) ===
+============================================================
+
+    1 | {% extends "base.html" %}
+    2 | 
+    3 | {% block title %}Live Settlement Terminal | Protocol Pulse{% endblock %}
+    4 | 
+    5 | {% block head %}
+    6 | <style>
+    7 | :root {
+    8 |     --pp-bitcoin: #f7931a;
+    9 |     --pp-bitcoin-dark: #c16c00;
+   10 |     --pp-bitcoin-glow: rgba(247, 147, 26, 0.5);
+   11 |     --pp-dark: #0a0a0a;
+   12 |     --pp-glass: rgba(10, 10, 10, 0.9);
+   13 |     --zone-border: rgba(255, 255, 255, 0.06);
+   14 |     --fee-green: #22c55e;
+   15 |     --fee-yellow: #eab308;
+   16 |     --fee-red: #dc2626;
+   17 | 
+   18 |     /* Apple-style spacing system */
+   19 |     --space-xs: 8px;
+   20 |     --space-sm: 16px;
+   21 |     --space-md: 32px;
+   22 |     --space-lg: 64px;
+   23 |     --space-xl: 96px;
+   24 | 
+   25 |     /* Apple-style colors */
+   26 |     --apple-bg: #000000;
+   27 |     --apple-card: rgba(28, 28, 30, 0.8);
+   28 |     --apple-card-border: rgba(255, 255, 255, 0.08);
+   29 |     --apple-text-primary: rgba(255, 255, 255, 0.92);
+   30 |     --apple-text-secondary: rgba(255, 255, 255, 0.55);
+   31 |     --apple-text-tertiary: rgba(255, 255, 255, 0.35);
+   32 | 
+   33 |     /* Refined accent colors */
+   34 |     --accent-bitcoin: #f7931a;
+   35 |     --accent-green: #30d158;
+   36 |     --accent-red: #ff453a;
+   37 |     --accent-blue: #0a84ff;
+   38 |     --accent-purple: #bf5af2;
+   39 | }
+   40 | 
+   41 | /* ============================================
+   42 |    OPERATION SOVEREIGN TIGHTENING
+   43 |    Three-Zone Architecture
+   44 |    ============================================ */
+   45 | 
+   46 | /* Google Fonts - Premium Serif for Analysis */
+   47 | @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap');
+   48 | 
+   49 | /* ZONE 1: TACTICAL HORIZON */
+   50 | .zone-tactical-horizon {
+   51 |     position: relative;
+   52 |     width: 100%;
+   53 |     height: auto;
+   54 |     overflow: hidden;
+   55 |     background: #000;
+   56 | }
+   57 | 
+   58 | /* BITCOIN HEARTBEAT AUDIO INDICATOR - World-Class Subtle Touch */
+   59 | .heartbeat-audio-indicator {
+   60 |     display: flex;
+   61 |     align-items: center;
+   62 |     gap: 8px;
+   63 |     padding: 6px 14px;
+   64 |     background: rgba(220, 38, 38, 0.08);
+   65 |     border: 1px solid rgba(220, 38, 38, 0.15);
+   66 |     border-radius: 20px;
+   67 |     cursor: pointer;
+   68 |     position: relative;
+   69 |     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+   70 |     opacity: 0.7;
+   71 | }
+   72 | 
+   73 | .heartbeat-audio-indicator:hover {
+   74 |     opacity: 1;
+   75 |     background: rgba(220, 38, 38, 0.12);
+   76 |     border-color: rgba(220, 38, 38, 0.25);
+   77 |     transform: scale(1.02);
+   78 | }
+   79 | 
+   80 | .heartbeat-audio-indicator.active {
+   81 |     opacity: 1;
+   82 |     background: rgba(220, 38, 38, 0.15);
+   83 |     border-color: rgba(220, 38, 38, 0.4);
+   84 | }
+   85 | 
+   86 | .heartbeat-pulse-ring {
+   87 |     position: absolute;
+   88 |     inset: -4px;
+   89 |     border-radius: 24px;
+   90 |     border: 1px solid rgba(220, 38, 38, 0);
+   91 |     pointer-events: none;
+   92 |     transition: all 0.3s ease;
+   93 | }
+   94 | 
+   95 | .heartbeat-audio-indicator.active .heartbeat-pulse-ring {
+   96 |     animation: heartbeatRingPulse 1.5s ease-in-out infinite;
+   97 | }
+   98 | 
+   99 | @keyframes heartbeatRingPulse {
+  100 |     0%, 100% {
+
+============================================================
+=== ZONE LOGIC ENGINE & SOVEREIGN ARCHIVE CSS (lines 186-300 of 9534) ===
+============================================================
+
+  186 | .zone-logic-engine {
+  187 |     position: relative;
+  188 |     z-index: 10;
+  189 |     background: transparent;
+  190 |     padding: 30px 0 var(--space-lg) 0;
+  191 |     margin-top: 0;
+  192 | }
+  193 | 
+  194 | .dashboard-grid {
+  195 |     display: grid;
+  196 |     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  197 |     gap: var(--space-md);
+  198 |     transition: opacity 0.3s ease;
+  199 | }
+  200 | 
+  201 | @media (max-width: 991px) {
+  202 |     .dashboard-grid {
+  203 |         grid-template-columns: 1fr;
+  204 |     }
+  205 | }
+  206 | 
+  207 | /* Dashboard Instrument Panels - Apple Style */
+  208 | .instrument-panel {
+  209 |     background: var(--apple-card);
+  210 |     border: 1px solid var(--apple-card-border);
+  211 |     border-radius: 20px;
+  212 |     padding: var(--space-md);
+  213 |     position: relative;
+  214 |     overflow: hidden;
+  215 |     transition: transform 0.2s ease;
+  216 | }
+  217 | 
+  218 | .instrument-panel::before {
+  219 |     display: none;
+  220 | }
+  221 | 
+  222 | /* Simplified fee states - subtle, not distracting */
+  223 | .instrument-panel.fee-low,
+  224 | .instrument-panel.fee-medium,
+  225 | .instrument-panel.fee-high {
+  226 |     border-color: var(--apple-card-border);
+  227 |     box-shadow: none;
+  228 |     animation: none;
+  229 | }
+  230 | 
+  231 | @keyframes pulseHighFee {
+  232 |     0%, 100% { box-shadow: none; }
+  233 | }
+  234 | 
+  235 | /* Cleaner hover - no sibling dimming */
+  236 | .dashboard-grid:hover .instrument-panel {
+  237 |     opacity: 1;
+  238 |     transition: opacity 0.4s ease;
+  239 | }
+  240 | 
+  241 | .dashboard-grid:hover .instrument-panel:hover,
+  242 | .instrument-panel:hover {
+  243 |     opacity: 1;
+  244 |     transform: translateY(-4px);
+  245 | }
+  246 | 
+  247 | .instrument-panel .panel-header {
+  248 |     display: flex;
+  249 |     align-items: center;
+  250 |     gap: var(--space-sm);
+  251 |     margin-bottom: var(--space-md);
+  252 |     padding-bottom: var(--space-sm);
+  253 |     border-bottom: none;
+  254 | }
+  255 | 
+  256 | .panel-icon {
+  257 |     width: 44px;
+  258 |     height: 44px;
+  259 |     background: rgba(255, 255, 255, 0.06);
+  260 |     border: none;
+  261 |     border-radius: 12px;
+  262 |     display: flex;
+  263 |     align-items: center;
+  264 |     justify-content: center;
+  265 |     color: var(--accent-blue);
+  266 |     font-size: 1.1rem;
+  267 | }
+  268 | 
+  269 | .panel-title {
+  270 |     font-family: 'SF Pro Display', -apple-system, sans-serif;
+  271 |     font-size: 1.1rem;
+  272 |     font-weight: 600;
+  273 |     letter-spacing: -0.02em;
+  274 |     color: var(--apple-text-primary);
+  275 |     text-transform: none;
+  276 |     margin: 0;
+  277 | }
+  278 | 
+  279 | /* ZONE 3: SOVEREIGN ARCHIVE - Apple Style Folders */
+  280 | .zone-sovereign-archive {
+  281 |     position: relative;
+  282 |     z-index: 10;
+  283 |     background: transparent;
+  284 |     padding: 20px 0 var(--space-lg) 0;
+  285 | }
+  286 | 
+  287 | .archive-folder {
+  288 |     background: var(--apple-card);
+  289 |     border: 1px solid var(--apple-card-border);
+  290 |     border-radius: 16px;
+  291 |     margin-bottom: var(--space-sm);
+  292 |     overflow: hidden;
+  293 |     transition: all 0.3s ease;
+  294 | }
+  295 | 
+  296 | .archive-folder.collapsed {
+  297 |     background: var(--apple-card);
+  298 | }
+  299 | 
+  300 | .archive-folder-header {
+
+============================================================
+=== NODE GLOBE CSS (lines 1838-1920 of 9534) ===
+============================================================
+
+ 1838 | /* NODE GLOBE */
+ 1839 | .globe-container {
+ 1840 |     width: 100%;
+ 1841 |     height: 400px;
+ 1842 |     position: relative;
+ 1843 |     border-radius: 12px;
+ 1844 |     overflow: hidden;
+ 1845 |     background: radial-gradient(circle at center, rgba(10, 10, 30, 0.8) 0%, rgba(0, 0, 0, 0.95) 100%);
+ 1846 | }
+ 1847 | 
+ 1848 | .globe-stats-overlay {
+ 1849 |     position: absolute;
+ 1850 |     bottom: 20px;
+ 1851 |     left: 20px;
+ 1852 |     background: rgba(0,0,0,0.7);
+ 1853 |     backdrop-filter: blur(10px);
+ 1854 |     border: 1px solid rgba(255,255,255,0.1);
+ 1855 |     border-radius: 10px;
+ 1856 |     padding: 15px 20px;
+ 1857 | }
+ 1858 | 
+ 1859 | .globe-stat-row {
+ 1860 |     display: flex;
+ 1861 |     align-items: center;
+ 1862 |     gap: 10px;
+ 1863 |     margin-bottom: 8px;
+ 1864 | }
+ 1865 | 
+ 1866 | .globe-stat-row:last-child {
+ 1867 |     margin-bottom: 0;
+ 1868 | }
+ 1869 | 
+ 1870 | .globe-stat-icon {
+ 1871 |     color: #f7931a;
+ 1872 |     width: 20px;
+ 1873 | }
+ 1874 | 
+ 1875 | .globe-stat-label {
+ 1876 |     font-size: 0.7rem;
+ 1877 |     color: rgba(255,255,255,0.5);
+ 1878 | }
+ 1879 | 
+ 1880 | .globe-stat-value {
+ 1881 |     font-family: 'JetBrains Mono', monospace;
+ 1882 |     font-size: 0.9rem;
+ 1883 |     color: white;
+ 1884 | }
+ 1885 | 
+ 1886 | .globe-controls {
+ 1887 |     position: absolute;
+ 1888 |     top: 15px;
+ 1889 |     right: 15px;
+ 1890 |     display: flex;
+ 1891 |     gap: 8px;
+ 1892 | }
+ 1893 | 
+ 1894 | .globe-control-btn {
+ 1895 |     width: 36px;
+ 1896 |     height: 36px;
+ 1897 |     background: rgba(0,0,0,0.6);
+ 1898 |     border: 1px solid rgba(255,255,255,0.2);
+ 1899 |     border-radius: 8px;
+ 1900 |     color: white;
+ 1901 |     cursor: pointer;
+ 1902 |     display: flex;
+ 1903 |     align-items: center;
+ 1904 |     justify-content: center;
+ 1905 |     transition: all 0.2s;
+ 1906 | }
+ 1907 | 
+ 1908 | .globe-control-btn:hover {
+ 1909 |     background: rgba(247, 147, 26, 0.3);
+ 1910 |     border-color: #f7931a;
+ 1911 | }
+ 1912 | 
+ 1913 | /* SOVEREIGNTY CALCULATOR */
+ 1914 | .calc-container {
+ 1915 |     background: rgba(0,0,0,0.4);
+ 1916 |     border-radius: 12px;
+ 1917 |     padding: 25px;
+ 1918 | }
+ 1919 | 
+ 1920 | .calc-inputs {
+
+============================================================
+=== VISUALIZER CANVAS CSS (lines 3020-3100 of 9534) ===
+============================================================
+
+ 3020 |     pointer-events: none !important;
+ 3021 | }
+ 3022 | 
+ 3023 | /* VISUALIZER MUST RECEIVE ALL MOUSE EVENTS */
+ 3024 | #visualizer-container {
+ 3025 |     z-index: 10 !important;
+ 3026 |     pointer-events: auto !important;
+ 3027 | }
+ 3028 | 
+ 3029 | #visualizer-canvas {
+ 3030 |     pointer-events: auto !important;
+ 3031 | }
+ 3032 | 
+ 3033 | /* VIDEO MUST NOT BLOCK CLICKS */
+ 3034 | #pulse-bg-video {
+ 3035 |     pointer-events: none !important;
+ 3036 | }
+ 3037 | 
+ 3038 | .terminal-container {
+ 3039 |     position: relative;
+ 3040 |     width: 100%;
+ 3041 |     min-height: auto;
+ 3042 |     background: transparent;
+ 3043 |     overflow: hidden;
+ 3044 | }
+ 3045 | 
+ 3046 | /* LIVE TERMINAL PAGE SPECIFIC - Video Background */
+ 3047 | .pulse-video-background {
+ 3048 |     position: fixed;
+ 3049 |     inset: 0;
+ 3050 |     z-index: -2;
+ 3051 |     overflow: hidden;
+ 3052 |     pointer-events: none;
+ 3053 | }
+ 3054 | 
+ 3055 | #pulse-bg-video {
+ 3056 |     width: 100%;
+ 3057 |     height: 100%;
+ 3058 |     object-fit: cover;
+ 3059 |     display: block;
+ 3060 | }
+ 3061 | 
+ 3062 | /* Transparent containers for video visibility - ONLY on this page */
+ 3063 | .terminal-container,
+ 3064 | .visualizer-container,
+ 3065 | #visualizer-container,
+ 3066 | #visualizer-canvas {
+ 3067 |     background: transparent !important;
+ 3068 |     background-color: transparent !important;
+ 3069 | }
+ 3070 | 
+ 3071 | /* Kill any pseudo-element overlays */
+ 3072 | .terminal-container::before,
+ 3073 | .terminal-container::after,
+ 3074 | .visualizer-container::before,
+ 3075 | .visualizer-container::after {
+ 3076 |     display: none !important;
+ 3077 | }
+ 3078 | 
+ 3079 | /* Visualizer canvas must sit above the video */
+ 3080 | .visualizer-container,
+ 3081 | #visualizer-canvas {
+ 3082 |     position: relative;
+ 3083 |     z-index: 1;
+ 3084 | }
+ 3085 | 
+ 3086 | .back-nav {
+ 3087 |     position: fixed;
+ 3088 |     top: 80px;
+ 3089 |     left: 20px;
+ 3090 |     z-index: 1000;
+ 3091 | }
+ 3092 | 
+ 3093 | .back-btn {
+ 3094 |     display: inline-flex;
+ 3095 |     align-items: center;
+ 3096 |     gap: 10px;
+ 3097 |     background: var(--pp-glass);
+ 3098 |     border: 1px solid rgba(247, 147, 26, 0.3);
+ 3099 |     border-radius: 12px;
+ 3100 |     padding: 12px 20px;
+
+============================================================
+=== HTML STRUCTURE (Zones, Canvas, Status Bar) (lines 4507-4620 of 9534) ===
+============================================================
+
+ 4507 | </style>
+ 4508 | {% endblock %}
+ 4509 | 
+ 4510 | {% block content %}
+ 4511 | <!-- Whale Alert Banner -->
+ 4512 | <div id="whale-alert-banner"></div>
+ 4513 | 
+ 4514 | <nav class="back-nav">
+ 4515 |     <a href="/" class="back-btn">
+ 4516 |         <i class="fas fa-arrow-left"></i>
+ 4517 |         <span>Back to Home</span>
+ 4518 |     </a>
+ 4519 | </nav>
+ 4520 | 
+ 4521 | <!-- Mobile TX Popup Card (outside terminal-container for proper z-index) -->
+ 4522 | <div class="tx-popup-overlay" id="tx-popup-overlay" onclick="closeTxPopup()"></div>
+ 4523 | <div class="tx-popup-card" id="tx-popup-card">
+ 4524 |     <button class="tx-popup-close" onclick="closeTxPopup()">&times;</button>
+ 4525 |     <div class="tx-popup-header">Transaction Details</div>
+ 4526 |     <div class="tx-popup-amount" id="tx-popup-amount">0.0000 BTC</div>
+ 4527 |     <div class="tx-popup-fiat" id="tx-popup-fiat">~$0.00 USD</div>
+ 4528 |     <div class="tx-popup-txid">
+ 4529 |         <div class="tx-popup-txid-label">Transaction ID</div>
+ 4530 |         <div class="tx-popup-txid-value" id="tx-popup-txid">...</div>
+ 4531 |     </div>
+ 4532 |     <div class="tx-popup-meta">
+ 4533 |         <div class="tx-popup-meta-item">
+ 4534 |             <div class="tx-popup-meta-label">Fee Rate</div>
+ 4535 |             <div class="tx-popup-meta-value" id="tx-popup-fee">-- sat/vB</div>
+ 4536 |         </div>
+ 4537 |         <div class="tx-popup-meta-item">
+ 4538 |             <div class="tx-popup-meta-label">Status</div>
+ 4539 |             <div class="tx-popup-meta-value" style="color: #eab308;">Unconfirmed</div>
+ 4540 |         </div>
+ 4541 |     </div>
+ 4542 |     <button type="button" class="tx-popup-verify" id="tx-popup-verify">
+ 4543 |         <i class="fas fa-external-link-alt"></i>Verify on Mempool.space
+ 4544 |     </button>
+ 4545 | </div>
+ 4546 | 
+ 4547 | 
+ 4548 | <!-- ============================================
+ 4549 |      ZONE 1: TACTICAL HORIZON
+ 4550 |      The Cinematic Hook - Pure Visualizer Experience
+ 4551 |      ============================================ -->
+ 4552 | <div class="zone-tactical-horizon">
+ 4553 |     <!-- Sovereign Status Bar - Inside Zone 1 -->
+ 4554 |     <div class="sovereign-status-bar zone-status">
+ 4555 |         <div class="container d-flex justify-content-around align-items-center">
+ 4556 |             <!-- Bitcoin Heartbeat Audio Indicator - Subtle World-Class Touch -->
+ 4557 |             <div class="heartbeat-audio-indicator" id="heartbeat-indicator" onclick="toggleHeartbeatAudio()" title="Toggle Bitcoin Heartbeat">
+ 4558 |                 <div class="heartbeat-pulse-ring"></div>
+ 4559 |                 <div class="heartbeat-icon">
+ 4560 |                     <i class="fas fa-heart"></i>
+ 4561 |                 </div>
+ 4562 |                 <div class="heartbeat-waveform">
+ 4563 |                     <span class="wave-bar"></span>
+ 4564 |                     <span class="wave-bar"></span>
+ 4565 |                     <span class="wave-bar"></span>
+ 4566 |                     <span class="wave-bar"></span>
+ 4567 |                     <span class="wave-bar"></span>
+ 4568 |                 </div>
+ 4569 |             </div>
+ 4570 | 
+ 4571 |             <div class="status-metric">
+ 4572 |                 <span class="status-label">Sats/vB</span>
+ 4573 |                 <span class="status-value highlight data-mono" id="status-fee-rate">--</span>
+ 4574 |             </div>
+ 4575 |             <div class="status-metric rec-indicator">
+ 4576 |                 <span class="rec-dot"></span>
+ 4577 |                 <span class="status-label">Hashrate</span>
+ 4578 |                 <span class="status-value data-mono" id="status-hashrate">-- EH/s</span>
+ 4579 |             </div>
+ 4580 |             <div class="status-metric">
+ 4581 |                 <span class="status-label">Blocks to Retarget</span>
+ 4582 |                 <span class="status-value data-mono" id="status-retarget">--</span>
+ 4583 |             </div>
+ 4584 |         </div>
+ 4585 |     </div>
+ 4586 | 
+ 4587 |     <div id="live-terminal-wrapper" style="position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background-color: black;">
+ 4588 |     <!-- Video Background - ABSOLUTE positioned behind visualizer, pushed down so TXIDs float above platform -->
+ 4589 |     <video autoplay muted loop playsinline id="pulse-bg-video"
+ 4590 |            style="position: absolute; top: 15%; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.6);">
+ 4591 |         <source src="/static/video/pulse-bg.mp4" type="video/mp4">
+ 4592 |     </video>
+ 4593 | 
+ 4594 |     <!-- Gradient Fade: Header into Video (top) -->
+ 4595 |     <div class="video-fade-top"></div>
+ 4596 | 
+ 4597 |     <!-- Gradient Fade: Video into Footer/Dashboard (bottom) -->
+ 4598 |     <div class="video-fade-bottom"></div>
+ 4599 | 
+ 4600 |     <!-- Custom Blockchain Visualizer - ABSOLUTE positioned above video -->
+ 4601 |     <div class="visualizer-container" id="visualizer-container"
+ 4602 |          style="position: absolute; top: 80px; left: 0; width: 100%; height: calc(100% - 80px); z-index: 1; background: transparent !important;">
+ 4603 |         <canvas id="visualizer-canvas" style="background: transparent !important;"></canvas>
+ 4604 |     </div>
+ 4605 | 
+ 4606 |     <!-- Live Network Status HUD - INSIDE wrapper so it doesn't scroll with page -->
+ 4607 |     <div class="terminal-hud">
+ 4608 |         <div class="hud-title">Live Network Status</div>
+ 4609 | 
+ 4610 |         <div class="hud-metric">
+ 4611 |             <span class="metric-label">Mempool Size</span>
+ 4612 |             <span class="metric-value" id="mempool-size">Loading...</span>
+ 4613 |         </div>
+ 4614 | 
+ 4615 |         <div class="hud-metric">
+ 4616 |             <span class="metric-label">Pending TXs</span>
+ 4617 |             <span class="metric-value" id="pending-txs">--</span>
+ 4618 |         </div>
+ 4619 | 
+ 4620 |         <div class="hud-metric">
+
+============================================================
+=== ZONE LOGIC ENGINE HTML (lines 4728-4830 of 9534) ===
+============================================================
+
+ 4728 | <section class="zone-logic-engine">
+ 4729 |     <div class="container">
+ 4730 |         <div class="dashboard-grid" id="dashboard-grid">
+ 4731 | 
+ 4732 | <!-- SOVEREIGN HEALTH HUD - First Grid Item -->
+ 4733 | <div class="instrument-panel" id="panel-sovereign-health" style="grid-column: span 2;">
+ 4734 |         <div class="module-header" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+ 4735 |             <div class="module-icon" style="background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626;"><i class="fas fa-heartbeat"></i></div>
+ 4736 |             <div>
+ 4737 |                 <h3 class="module-title">Sovereign Health</h3>
+ 4738 |                 <p class="module-subtitle">Real-time Network Vitals</p>
+ 4739 |             </div>
+ 4740 |         </div>
+ 4741 | 
+ 4742 |         <div class="row">
+ 4743 |             <div class="col-md-5">
+ 4744 |                 <div class="pulse-heartbeat">
+ 4745 |                     <div class="heartbeat-visual">
+ 4746 |                         <div class="heartbeat-ring"></div>
+ 4747 |                         <div class="heartbeat-ring"></div>
+ 4748 |                         <div class="heartbeat-core"></div>
+ 4749 |                     </div>
+ 4750 |                     <div class="heartbeat-info">
+ 4751 |                         <div class="heartbeat-label">Network Heartbeat</div>
+ 4752 |                         <div class="heartbeat-value" id="health-block-time">9:42</div>
+ 4753 |                         <span class="heartbeat-status normal" id="health-status">On Schedule</span>
+ 4754 |                         <div class="variance-alert" id="variance-alert" style="display: none;">
+ 4755 |                             <div class="variance-alert-badge"><i class="fas fa-broadcast-tower"></i> SIGNAL</div>
+ 4756 |                             <div class="variance-alert-text">High Variance Detected. The Poisson tail is lengthening. Block crystallization remains secure but delayed.</div>
+ 4757 |                         </div>
+ 4758 |                     </div>
+ 4759 |                 </div>
+ 4760 |             </div>
+ 4761 |             <div class="col-md-7">
+ 4762 |                 <div class="fee-friction-calc">
+ 4763 |                     <div class="fee-friction-header">
+ 4764 |                         <span class="fee-friction-title">Cost of Absolute Finality</span>
+ 4765 |                         <span class="fee-friction-label">Fee-Friction Calculator</span>
+ 4766 |                     </div>
+ 4767 |                     <div class="fee-scale">
+ 4768 |                         <div class="fee-tier">
+ 4769 |                             <div class="fee-tier-label">Economy</div>
+ 4770 |                             <div class="fee-tier-value low" id="fee-economy">1</div>
+ 4771 |                             <div class="fee-tier-time">~60 min</div>
+ 4772 |                         </div>
+ 4773 |                         <div class="fee-tier">
+ 4774 |                             <div class="fee-tier-label">Standard</div>
+ 4775 |                             <div class="fee-tier-value medium" id="fee-standard">3</div>
+ 4776 |                             <div class="fee-tier-time">~30 min</div>
+ 4777 |                         </div>
+ 4778 |                         <div class="fee-tier">
+ 4779 |                             <div class="fee-tier-label">Priority</div>
+ 4780 |                             <div class="fee-tier-value high" id="fee-priority">5</div>
+ 4781 |                             <div class="fee-tier-time">~10 min</div>
+ 4782 |                         </div>
+ 4783 |                         <div class="fee-tier">
+ 4784 |                             <div class="fee-tier-label">Urgent</div>
+ 4785 |                             <div class="fee-tier-value urgent" id="fee-urgent">8</div>
+ 4786 |                             <div class="fee-tier-time">Next Block</div>
+ 4787 |                         </div>
+ 4788 |                     </div>
+ 4789 |                     <div class="finality-cost">
+ 4790 |                         <div class="finality-label">Avg. Finality Cost (140 vB TX)</div>
+ 4791 |                         <div class="finality-value" id="finality-cost">~$0.45</div>
+ 4792 |                     </div>
+ 4793 |                 </div>
+ 4794 |             </div>
+ 4795 |         </div>
+ 4796 | </div><!-- END panel-sovereign-health -->
+ 4797 | 
+ 4798 | <!-- NODE GLOBE - Dashboard Grid Item -->
+ 4799 | <div class="instrument-panel" id="panel-node-globe" style="grid-column: span 2;">
+ 4800 |     <div class="node-globe-showcase" style="background: linear-gradient(180deg, rgba(0, 20, 60, 0.95) 0%, rgba(0, 10, 30, 0.98) 100%); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 20px; padding: 0; overflow: hidden; position: relative;">
+ 4801 |         <!-- Animated star field background -->
+ 4802 |         <div class="globe-starfield" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none;">
+ 4803 |             <div class="star" style="top: 10%; left: 20%; animation-delay: 0s;"></div>
+ 4804 |             <div class="star" style="top: 30%; left: 80%; animation-delay: 1s;"></div>
+ 4805 |             <div class="star" style="top: 60%; left: 15%; animation-delay: 2s;"></div>
+ 4806 |             <div class="star" style="top: 80%; left: 70%; animation-delay: 0.5s;"></div>
+ 4807 |             <div class="star" style="top: 45%; left: 50%; animation-delay: 1.5s;"></div>
+ 4808 |         </div>
+ 4809 | 
+ 4810 |         <div class="module-header" style="padding: 25px 30px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+ 4811 |             <div class="module-icon" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.5); color: #3b82f6; width: 50px; height: 50px; font-size: 1.3rem;">
+ 4812 |                 <i class="fas fa-globe-americas"></i>
+ 4813 |             </div>
+ 4814 |             <div>
+ 4815 |                 <h3 class="module-title" style="color: #3b82f6; font-size: 1.5rem; letter-spacing: 2px;">NODE GLOBE</h3>
+ 4816 |                 <p class="module-subtitle" style="color: rgba(255,255,255,0.6);">Bitcoin's Decentralized Nervous System</p>
+ 4817 |             </div>
+ 4818 |         </div>
+ 4819 | 
+ 4820 |         <div class="globe-main-container" style="display: flex; flex-wrap: wrap; min-height: 550px;">
+ 4821 |             <!-- Globe visualization -->
+ 4822 |             <div class="globe-visual-area" style="flex: 2; min-width: 300px; position: relative; display: flex; flex-direction: column;">
+ 4823 |                 <div class="globe-container" id="node-globe" style="height: 480px; flex-shrink: 0;">
+ 4824 |                     <div class="globe-controls" style="position: absolute; top: 15px; right: 15px; z-index: 10;">
+ 4825 |                         <button class="globe-control-btn" onclick="resetGlobeRotation()" title="Reset View" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6;">
+ 4826 |                             <i class="fas fa-sync-alt"></i>
+ 4827 |                         </button>
+ 4828 |                         <button class="globe-control-btn" onclick="toggleGlobeAutoRotate()" title="Auto-Rotate" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6;">
+ 4829 |                             <i class="fas fa-redo"></i>
+ 4830 |                         </button>
+
+============================================================
+=== NODE GLOBE HTML (lines 4798-4850 of 9534) ===
+============================================================
+
+ 4798 | <!-- NODE GLOBE - Dashboard Grid Item -->
+ 4799 | <div class="instrument-panel" id="panel-node-globe" style="grid-column: span 2;">
+ 4800 |     <div class="node-globe-showcase" style="background: linear-gradient(180deg, rgba(0, 20, 60, 0.95) 0%, rgba(0, 10, 30, 0.98) 100%); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 20px; padding: 0; overflow: hidden; position: relative;">
+ 4801 |         <!-- Animated star field background -->
+ 4802 |         <div class="globe-starfield" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none;">
+ 4803 |             <div class="star" style="top: 10%; left: 20%; animation-delay: 0s;"></div>
+ 4804 |             <div class="star" style="top: 30%; left: 80%; animation-delay: 1s;"></div>
+ 4805 |             <div class="star" style="top: 60%; left: 15%; animation-delay: 2s;"></div>
+ 4806 |             <div class="star" style="top: 80%; left: 70%; animation-delay: 0.5s;"></div>
+ 4807 |             <div class="star" style="top: 45%; left: 50%; animation-delay: 1.5s;"></div>
+ 4808 |         </div>
+ 4809 | 
+ 4810 |         <div class="module-header" style="padding: 25px 30px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+ 4811 |             <div class="module-icon" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.5); color: #3b82f6; width: 50px; height: 50px; font-size: 1.3rem;">
+ 4812 |                 <i class="fas fa-globe-americas"></i>
+ 4813 |             </div>
+ 4814 |             <div>
+ 4815 |                 <h3 class="module-title" style="color: #3b82f6; font-size: 1.5rem; letter-spacing: 2px;">NODE GLOBE</h3>
+ 4816 |                 <p class="module-subtitle" style="color: rgba(255,255,255,0.6);">Bitcoin's Decentralized Nervous System</p>
+ 4817 |             </div>
+ 4818 |         </div>
+ 4819 | 
+ 4820 |         <div class="globe-main-container" style="display: flex; flex-wrap: wrap; min-height: 550px;">
+ 4821 |             <!-- Globe visualization -->
+ 4822 |             <div class="globe-visual-area" style="flex: 2; min-width: 300px; position: relative; display: flex; flex-direction: column;">
+ 4823 |                 <div class="globe-container" id="node-globe" style="height: 480px; flex-shrink: 0;">
+ 4824 |                     <div class="globe-controls" style="position: absolute; top: 15px; right: 15px; z-index: 10;">
+ 4825 |                         <button class="globe-control-btn" onclick="resetGlobeRotation()" title="Reset View" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6;">
+ 4826 |                             <i class="fas fa-sync-alt"></i>
+ 4827 |                         </button>
+ 4828 |                         <button class="globe-control-btn" onclick="toggleGlobeAutoRotate()" title="Auto-Rotate" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6;">
+ 4829 |                             <i class="fas fa-redo"></i>
+ 4830 |                         </button>
+ 4831 |                     </div>
+ 4832 |                     <!-- Mobile Zoom Controls -->
+ 4833 |                     <div class="globe-zoom-controls" id="globe-zoom-controls">
+ 4834 |                         <button class="globe-zoom-btn" onclick="event.preventDefault(); event.stopPropagation(); globeZoomIn(); return false;" title="Zoom In">
+ 4835 |                             <i class="fas fa-search-plus"></i>
+ 4836 |                         </button>
+ 4837 |                         <button class="globe-zoom-btn" onclick="event.preventDefault(); event.stopPropagation(); globeZoomOut(); return false;" title="Zoom Out">
+ 4838 |                             <i class="fas fa-search-minus"></i>
+ 4839 |                         </button>
+ 4840 |                     </div>
+ 4841 |                     <!-- Node tooltip -->
+ 4842 |                     <div id="node-tooltip" class="node-tooltip" style="display: none; position: absolute; background: rgba(0,0,0,0.95); border: 1px solid rgba(59, 130, 246, 0.6); border-radius: 8px; padding: 12px; pointer-events: none; z-index: 100; min-width: 200px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);">
+ 4843 |                         <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #3b82f6; margin-bottom: 6px;">NODE INTEL</div>
+ 4844 |                         <div id="node-tooltip-content"></div>
+ 4845 |                     </div>
+ 4846 |                 </div>
+ 4847 | 
+ 4848 |                 <!-- ROTATING AD BANNER - Under the globe in blue area -->
+ 4849 |                 <div style="border-top: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center;">
+ 4850 |                     <div id="globe-ad-container">
+
+============================================================
+=== ZONE SOVEREIGN ARCHIVE HTML (lines 5206-5300 of 9534) ===
+============================================================
+
+ 5206 | <section class="zone-sovereign-archive">
+ 5207 |     <div class="container">
+ 5208 | 
+ 5209 | <!-- SOVEREIGNTY CALCULATOR - HIDDEN (moved to Pulse Intel Grid) -->
+ 5210 | <div class="archive-folder collapsed" id="folder-calculator" style="display: none;">
+ 5211 |     <div class="archive-folder-header" onclick="toggleArchiveFolder(this.parentElement)">
+ 5212 |         <div class="archive-folder-title">
+ 5213 |             <i class="fas fa-calculator"></i>
+ 5214 |             <span>Sovereignty Calculator</span>
+ 5215 |             <span style="color: rgba(255,255,255,0.3); font-size: 0.65rem; margin-left: 10px;">DCA Strategy Tool</span>
+ 5216 |         </div>
+ 5217 |         <i class="fas fa-chevron-down archive-folder-toggle"></i>
+ 5218 |     </div>
+ 5219 |     <div class="archive-folder-content">
+ 5220 |     <div class="sovereignty-calc-showcase" style="background: linear-gradient(180deg, rgba(0, 30, 20, 0.95) 0%, rgba(0, 15, 10, 0.98) 100%); border: 2px solid rgba(34, 197, 94, 0.4); border-radius: 20px; overflow: hidden;">
+ 5221 |         <div class="module-header" style="padding: 25px 30px; border-bottom: 1px solid rgba(34, 197, 94, 0.2);">
+ 5222 |             <div style="display: flex; align-items: center; gap: 15px;">
+ 5223 |                 <div style="width: 55px; height: 55px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%); border: 2px solid rgba(34, 197, 94, 0.5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+ 5224 |                     <i class="fas fa-calculator" style="font-size: 1.4rem; color: #22c55e;"></i>
+ 5225 |                 </div>
+ 5226 |                 <div>
+ 5227 |                     <h3 style="font-size: 1.4rem; font-weight: 800; color: #22c55e; text-transform: uppercase; letter-spacing: 2px; margin: 0;">Sovereignty Calculator</h3>
+ 5228 |                     <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 5px 0 0;">What If You'd Stacked?</p>
+ 5229 |                 </div>
+ 5230 |             </div>
+ 5231 |         </div>
+ 5232 | 
+ 5233 |         <div style="padding: 25px 30px;">
+ 5234 |             <!-- Input Controls -->
+ 5235 |             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 25px;">
+ 5236 |                 <div>
+ 5237 |                     <label style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Amount ($)</label>
+ 5238 |                     <input type="number" id="calc-amount" value="50" min="1" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px 15px; color: #22c55e; font-size: 1.2rem; font-family: 'JetBrains Mono', monospace;">
+ 5239 |                 </div>
+ 5240 |                 <div>
+ 5241 |                     <label style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Frequency</label>
+ 5242 |                     <select id="calc-frequency" onchange="calculateDCA()" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px 15px; color: #22c55e; font-size: 1rem;">
+ 5243 |                         <option value="daily">Daily</option>
+ 5244 |                         <option value="weekly" selected>Weekly</option>
+ 5245 |                         <option value="monthly">Monthly</option>
+ 5246 |                     </select>
+ 5247 |                 </div>
+ 5248 |                 <div>
+ 5249 |                     <label style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Start Date</label>
+ 5250 |                     <input type="date" id="calc-start-date" value="2021-01-01" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px 15px; color: #22c55e; font-size: 1rem;">
+ 5251 |                 </div>
+ 5252 |             </div>
+ 5253 | 
+ 5254 |             <!-- Preset Buttons -->
+ 5255 |             <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px;">
+ 5256 |                 <button onclick="setCalcPreset('inception', event)" style="background: linear-gradient(135deg, rgba(247, 147, 26, 0.4) 0%, rgba(247, 147, 26, 0.15) 100%); border: 1px solid rgba(247, 147, 26, 0.6); color: #f7931a; padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s; font-weight: 600;">
+ 5257 |                     <i class="fas fa-star me-1"></i> Since Inception
+ 5258 |                 </button>
+ 5259 |                 <button onclick="setCalcPreset('halving', event)" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s;">Since Last Halving</button>
+ 5260 |                 <button onclick="setCalcPreset('2020', event)" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s;">Since 2020</button>
+ 5261 |                 <button onclick="setCalcPreset('ath', event)" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s;">Since $69K Top</button>
+ 5262 |                 <button onclick="setCalcPreset('year', event)" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.3s;">Past Year</button>
+ 5263 |             </div>
+ 5264 | 
+ 5265 |             <!-- Results Grid -->
+ 5266 |             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">
+ 5267 |                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
+ 5268 |                     <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Invested</div>
+ 5269 |                     <div id="calc-invested" style="font-size: 1.6rem; font-weight: 700; color: #f7931a; font-family: 'JetBrains Mono', monospace;">$10,400</div>
+ 5270 |                 </div>
+ 5271 |                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
+ 5272 |                     <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">BTC Accumulated</div>
+ 5273 |                     <div id="calc-btc" style="font-size: 1.6rem; font-weight: 700; color: #f7931a; font-family: 'JetBrains Mono', monospace;">0.2847 BTC</div>
+ 5274 |                 </div>
+ 5275 |                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
+ 5276 |                     <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Current Value</div>
+ 5277 |                     <div id="calc-value" style="font-size: 1.6rem; font-weight: 700; color: #22c55e; font-family: 'JetBrains Mono', monospace;">$28,470</div>
+ 5278 |                 </div>
+ 5279 |                 <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 20px; text-align: center;">
+ 5280 |                     <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Gain</div>
+ 5281 |                     <div id="calc-gain" style="font-size: 1.6rem; font-weight: 700; color: #22c55e; font-family: 'JetBrains Mono', monospace;">+173.8%</div>
+ 5282 |                 </div>
+ 5283 |             </div>
+ 5284 | 
+ 5285 |             <!-- Chart Area -->
+ 5286 |             <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(34, 197, 94, 0.15); border-radius: 12px; padding: 20px; height: 200px; position: relative;">
+ 5287 |                 <div style="position: absolute; top: 10px; left: 15px; font-size: 0.65rem; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px;">Portfolio Growth Over Time</div>
+ 5288 |                 <canvas id="stack-chart" style="width: 100%; height: 100%;"></canvas>
+ 5289 |             </div>
+ 5290 | 
+ 5291 |             <!-- Insight -->
+ 5292 |             <div style="margin-top: 20px; padding: 15px 20px; background: rgba(247, 147, 26, 0.08); border-left: 3px solid #f7931a; border-radius: 0 8px 8px 0;">
+ 5293 |                 <p style="margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.6;">
+ 5294 |                     <i class="fas fa-lightbulb me-2" style="color: #f7931a;"></i>
+ 5295 |                     <strong style="color: #f7931a;">DCA Strategy:</strong> Dollar-cost averaging reduces timing risk by spreading purchases over time. This calculator uses historical Bitcoin prices to show what consistent stacking would have achieved.
+ 5296 |                 </p>
+ 5297 |             </div>
+ 5298 |         </div>
+ 5299 |     </div>
+ 5300 | </section>
+
+============================================================
+=== THREE.JS IMPORTS (lines 7099-7115 of 9534) ===
+============================================================
+
+ 7099 | <!-- Three.js Core -->
+ 7100 | <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+ 7101 | <!-- Three.js Post-Processing -->
+ 7102 | <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+ 7103 | <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+ 7104 | <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+ 7105 | <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+ 7106 | <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+ 7107 | <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+ 7108 | 
+ 7109 | <script src="{{ url_for('static', filename='js/visualizer.js') }}?v=20260128h"></script>
+ 7110 | <script>
+ 7111 | // Ensure video plays on load
+ 7112 | window.addEventListener('DOMContentLoaded', () => {
+ 7113 |     const v = document.getElementById('pulse-bg-video');
+ 7114 |     if (!v) return;
+ 7115 | 
+
+============================================================
+=== STATUS BAR UPDATE (lines 7132-7200 of 9534) ===
+============================================================
+
+ 7132 | <script>
+ 7133 | // Update Sovereign Status Bar with live network intel
+ 7134 | async function updateSovereignStatusBar() {
+ 7135 |     try {
+ 7136 |         const [feesRes, hashrateRes, diffRes] = await Promise.all([
+ 7137 |             fetch('https://mempool.space/api/v1/fees/recommended'),
+ 7138 |             fetch('https://mempool.space/api/v1/mining/hashrate/1d'),
+ 7139 |             fetch('https://mempool.space/api/v1/difficulty-adjustment')
+ 7140 |         ]);
+ 7141 | 
+ 7142 |         const fees = await feesRes.json();
+ 7143 |         const hashrate = await hashrateRes.json();
+ 7144 |         const diff = await diffRes.json();
+ 7145 | 
+ 7146 |         // Fastest fee in sats/vB
+ 7147 |         document.getElementById('status-fee-rate').textContent = fees.fastestFee + ' sat/vB';
+ 7148 | 
+ 7149 |         // Hashrate in EH/s
+ 7150 |         if (hashrate.currentHashrate) {
+ 7151 |             const ehps = (hashrate.currentHashrate / 1e18).toFixed(2);
+ 7152 |             document.getElementById('status-hashrate').textContent = ehps + ' EH/s';
+ 7153 |         }
+ 7154 | 
+ 7155 |         // Blocks until difficulty retarget
+ 7156 |         if (diff.remainingBlocks !== undefined) {
+ 7157 |             document.getElementById('status-retarget').textContent = diff.remainingBlocks.toLocaleString();
+ 7158 |         }
+ 7159 | 
+ 7160 |         // Update Intel Strip - Difficulty (use current difficulty from API)
+ 7161 |         try {
+ 7162 |             const difficultyRes = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
+ 7163 |             const diffData = await difficultyRes.json();
+ 7164 |             if (diffData.currentDifficulty) {
+ 7165 |                 const diffT = (diffData.currentDifficulty / 1e12).toFixed(2);
+ 7166 |                 document.getElementById('intel-difficulty').textContent = diffT + ' T';
+ 7167 |             }
+ 7168 |         } catch (diffErr) {
+ 7169 |             console.log('Difficulty fetch error:', diffErr);
+ 7170 |         }
+ 7171 |     } catch (e) {
+ 7172 |         console.error('Status bar update error:', e);
+ 7173 |     }
+ 7174 | }
+ 7175 | 
+ 7176 | // Update Sovereign Intelligence Dashboard
+ 7177 | async function updateNetworkIntel() {
+ 7178 |     try {
+ 7179 |         const [lnRes, blocksRes, mempoolRes, hashrateRes] = await Promise.all([
+ 7180 |             fetch('https://mempool.space/api/v1/lightning/statistics/latest'),
+ 7181 |             fetch('https://mempool.space/api/blocks/tip/height'),
+ 7182 |             fetch('https://mempool.space/api/mempool'),
+ 7183 |             fetch('https://mempool.space/api/v1/mining/hashrate/1d')
+ 7184 |         ]);
+ 7185 | 
+ 7186 |         // Lightning Network capacity
+ 7187 |         const ln = await lnRes.json();
+ 7188 |         if (ln.latest && ln.latest.total_capacity) {
+ 7189 |             const btcCapacity = (ln.latest.total_capacity / 100000000).toLocaleString();
+ 7190 |             document.getElementById('intel-lightning').textContent = btcCapacity + ' BTC';
+ 7191 |         }
+ 7192 | 
+ 7193 |         // Block height and halving ETA
+ 7194 |         const currentHeight = await blocksRes.json();
+ 7195 |         document.getElementById('intel-height').textContent = '#' + currentHeight.toLocaleString();
+ 7196 | 
+ 7197 |         const nextHalving = 1050000;
+ 7198 |         const blocksRemaining = nextHalving - currentHeight;
+ 7199 |         const daysRemaining = Math.round((blocksRemaining * 10) / 1440);
+ 7200 |         document.getElementById('intel-halving').textContent = daysRemaining.toLocaleString() + ' days';
+
+============================================================
+=== MEMPOOL DATA FUNCTIONS (lines 7225-7310 of 9534) ===
+============================================================
+
+ 7225 | async function updateMempoolData() {
+ 7226 |     try {
+ 7227 |         const [mempoolRes, feesRes, blocksRes] = await Promise.all([
+ 7228 |             fetch('https://mempool.space/api/mempool'),
+ 7229 |             fetch('https://mempool.space/api/v1/fees/recommended'),
+ 7230 |             fetch('https://mempool.space/api/blocks')
+ 7231 |         ]);
+ 7232 | 
+ 7233 |         const mempool = await mempoolRes.json();
+ 7234 |         const fees = await feesRes.json();
+ 7235 |         const blocks = await blocksRes.json();
+ 7236 | 
+ 7237 |         const mempoolMB = (mempool.vsize / 1000000).toFixed(1);
+ 7238 |         const mempoolPercent = Math.min((mempool.vsize / 300000000) * 100, 100);
+ 7239 | 
+ 7240 |         document.getElementById('mempool-size').textContent = mempoolMB + ' vMB';
+ 7241 |         document.getElementById('pending-txs').textContent = mempool.count.toLocaleString();
+ 7242 |         document.getElementById('mempool-mb').textContent = mempoolMB + ' MB';
+ 7243 |         document.getElementById('mempool-bar').style.height = mempoolPercent + '%';
+ 7244 | 
+ 7245 |         const nextBlockFee = fees.fastestFee;
+ 7246 |         const feeEl = document.getElementById('next-block-fee');
+ 7247 |         feeEl.textContent = nextBlockFee + ' sat/vB';
+ 7248 |         feeEl.className = 'metric-value ' + (nextBlockFee < 10 ? 'fee-low' : nextBlockFee < 50 ? 'fee-medium' : 'fee-high');
+ 7249 | 
+ 7250 |         document.getElementById('low-fee').textContent = fees.hourFee + ' sat/vB';
+ 7251 | 
+ 7252 |         // Update heatmap elements
+ 7253 |         const heatmapTotalTxs = document.getElementById('heatmap-total-txs');
+ 7254 |         if (heatmapTotalTxs) heatmapTotalTxs.textContent = mempool.count.toLocaleString();
+ 7255 | 
+ 7256 |         const heatmapMedianFee = document.querySelectorAll('#heatmap-median-fee');
+ 7257 |         const medianFee = Math.round((fees.fastestFee + fees.hourFee) / 2);
+ 7258 |         heatmapMedianFee.forEach(el => el.textContent = medianFee + ' sat/vB');
+ 7259 | 
+ 7260 |         // Update fee distribution grid from histogram
+ 7261 |         if (mempool.fee_histogram && mempool.fee_histogram.length > 0) {
+ 7262 |             const histogram = mempool.fee_histogram;
+ 7263 |             let fee1_5 = 0, fee5_10 = 0, fee10_20 = 0, fee20_50 = 0, fee50 = 0;
+ 7264 |             histogram.forEach(([feeRate, vsize]) => {
+ 7265 |                 if (feeRate <= 5) fee1_5 += Math.round(vsize / 1000);
+ 7266 |                 else if (feeRate <= 10) fee5_10 += Math.round(vsize / 1000);
+ 7267 |                 else if (feeRate <= 20) fee10_20 += Math.round(vsize / 1000);
+ 7268 |                 else if (feeRate <= 50) fee20_50 += Math.round(vsize / 1000);
+ 7269 |                 else fee50 += Math.round(vsize / 1000);
+ 7270 |             });
+ 7271 |             const updateGridFee = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val > 999 ? (val/1000).toFixed(1) + 'k' : val; };
+ 7272 |             updateGridFee('grid-fee-1-5', fee1_5);
+ 7273 |             updateGridFee('grid-fee-5-10', fee5_10);
+ 7274 |             updateGridFee('grid-fee-10-20', fee10_20);
+ 7275 |             updateGridFee('grid-fee-20-50', fee20_50);
+ 7276 |             updateGridFee('grid-fee-50', fee50);
+ 7277 |             updateGridFee('fee-1-5-count', fee1_5);
+ 7278 |             updateGridFee('fee-5-10-count', fee5_10);
+ 7279 |             updateGridFee('fee-10-20-count', fee10_20);
+ 7280 |             updateGridFee('fee-20-30-count', Math.round(fee20_50 * 0.6));
+ 7281 |             updateGridFee('fee-30-50-count', Math.round(fee20_50 * 0.4));
+ 7282 |             updateGridFee('fee-50-100-count', Math.round(fee50 * 0.7));
+ 7283 |             updateGridFee('fee-100-count', Math.round(fee50 * 0.3));
+ 7284 |         }
+ 7285 | 
+ 7286 |         if (blocks.length > 0) {
+ 7287 |             const latest = blocks[0];
+ 7288 |             document.getElementById('block-height').textContent = '#' + latest.height.toLocaleString();
+ 7289 | 
+ 7290 |             const blockTime = new Date(latest.timestamp * 1000);
+ 7291 |             const now = new Date();
+ 7292 |             const minAgo = Math.floor((now - blockTime) / 60000);
+ 7293 |             document.getElementById('block-time').textContent = minAgo + ' min ago';
+ 7294 | 
+ 7295 |             document.getElementById('block-txs').textContent = latest.tx_count.toLocaleString();
+ 7296 |             document.getElementById('block-size').textContent = (latest.size / 1000000).toFixed(2) + ' MB';
+ 7297 |         }
+ 7298 | 
+ 7299 |         if (nextBlockFee <= 5) {
+ 7300 |             checkAndNotifyLowFees(nextBlockFee);
+ 7301 |         }
+ 7302 | 
+ 7303 |     } catch (error) {
+ 7304 |         console.error('Mempool data fetch error:', error);
+ 7305 |         document.getElementById('connection-status').textContent = 'Reconnecting...';
+ 7306 |     }
+ 7307 | }
+ 7308 | 
+ 7309 | function checkAndNotifyLowFees(fee) {
+ 7310 |     if ('Notification' in window && Notification.permission === 'granted') {
+
+============================================================
+=== SETTLEMENT PULSE (lines 7394-7425 of 9534) ===
+============================================================
+
+ 7394 |             fetch('https://mempool.space/api/blocks'),
+ 7395 |             fetch('https://mempool.space/api/v1/fees/recommended'),
+ 7396 |             fetch('https://mempool.space/api/mempool'),
+ 7397 |             fetch('https://mempool.space/api/v1/difficulty-adjustment'),
+ 7398 |             fetch('https://mempool.space/api/blocks/tip/height')
+ 7399 |         ]);
+ 7400 | 
+ 7401 |         window.mempoolCache = {
+ 7402 |             blocks: await blocksRes.json(),
+ 7403 |             fees: await feesRes.json(),
+ 7404 |             mempool: await mempoolRes.json(),
+ 7405 |             difficulty: await diffRes.json(),
+ 7406 |             height: await heightRes.json(),
+ 7407 |             lastFetch: now
+ 7408 |         };
+ 7409 | 
+ 7410 |         return window.mempoolCache;
+ 7411 |     } catch (e) {
+ 7412 |         console.error('Mempool data fetch error:', e);
+ 7413 |         return window.mempoolCache;
+ 7414 |     }
+ 7415 | }
+ 7416 | 
+ 7417 | // Master update function for all Intelligence Descent modules
+ 7418 | async function updateIntelligenceDescent() {
+ 7419 |     const data = await fetchMempoolData();
+ 7420 |     if (!data.blocks) return;
+ 7421 | 
+ 7422 |     // 1. Update Sovereign Health HUD
+ 7423 |     updateSovereignHealthFromCache(data);
+ 7424 | 
+ 7425 |     // 2. Update Protocol Roadmap
+
+============================================================
+=== EPOCH PROGRESS & MINING POOLS (lines 7606-7710 of 9534) ===
+============================================================
+
+ 7606 | async function updateEpochProgress() {
+ 7607 |     if (!window.mempoolCache.difficulty || !window.mempoolCache.height) return;
+ 7608 | 
+ 7609 |     const diff = window.mempoolCache.difficulty;
+ 7610 |     const height = window.mempoolCache.height;
+ 7611 | 
+ 7612 |     const blocksInEpoch = height % 2016;
+ 7613 |     const percentage = ((blocksInEpoch / 2016) * 100).toFixed(1);
+ 7614 |     const blocksRemaining = 2016 - blocksInEpoch;
+ 7615 | 
+ 7616 |     const barFill = document.getElementById('epoch-bar-fill');
+ 7617 |     const barText = document.getElementById('epoch-bar-text');
+ 7618 |     const blockCurrent = document.getElementById('epoch-block-current');
+ 7619 |     const blocksRem = document.getElementById('epoch-blocks-remaining');
+ 7620 |     const adjustment = document.getElementById('epoch-adjustment');
+ 7621 |     const timeRem = document.getElementById('epoch-time-remaining');
+ 7622 | 
+ 7623 |     if (barFill) barFill.style.width = percentage + '%';
+ 7624 |     if (barText) barText.textContent = percentage + '%';
+ 7625 |     if (blockCurrent) blockCurrent.textContent = blocksInEpoch.toLocaleString();
+ 7626 |     if (blocksRem) blocksRem.textContent = blocksRemaining.toLocaleString();
+ 7627 | 
+ 7628 |     if (diff.difficultyChange !== undefined && adjustment) {
+ 7629 |         const change = diff.difficultyChange.toFixed(2);
+ 7630 |         adjustment.textContent = (change >= 0 ? '+' : '') + change + '%';
+ 7631 |         adjustment.className = 'epoch-stat-value ' + (change >= 0 ? 'positive' : 'negative');
+ 7632 |     }
+ 7633 | 
+ 7634 |     if (diff.remainingTime !== undefined && timeRem) {
+ 7635 |         const days = Math.floor(diff.remainingTime / 86400000);
+ 7636 |         const hours = Math.floor((diff.remainingTime % 86400000) / 3600000);
+ 7637 |         timeRem.textContent = '~' + days + 'd ' + hours + 'h';
+ 7638 |     }
+ 7639 | }
+ 7640 | 
+ 7641 | // 3. MINING POOL DISTRIBUTION (using mempool.space mining pool data)
+ 7642 | async function updateMiningPools() {
+ 7643 |     try {
+ 7644 |         const res = await fetch('https://mempool.space/api/v1/mining/pools/1w');
+ 7645 |         const data = await res.json();
+ 7646 | 
+ 7647 |         if (data.pools && data.pools.length > 0) {
+ 7648 |             const legend = document.getElementById('pool-legend');
+ 7649 |             const colors = ['#f7931a', '#dc2626', '#22c55e', '#3b82f6', '#8b5cf6', '#14b8a6', '#eab308', '#ec4899'];
+ 7650 | 
+ 7651 |             if (!legend) return;
+ 7652 |             legend.innerHTML = '';
+ 7653 | 
+ 7654 |             // Calculate total blocks to derive percentages
+ 7655 |             const totalBlocks = data.blockCount || data.pools.reduce((sum, p) => sum + p.blockCount, 0);
+ 7656 | 
+ 7657 |             // Add share percentage to each pool
+ 7658 |             const poolsWithShare = data.pools.slice(0, 6).map(pool => ({
+ 7659 |                 ...pool,
+ 7660 |                 share: (pool.blockCount / totalBlocks) * 100
+ 7661 |             }));
+ 7662 | 
+ 7663 |             poolsWithShare.forEach((pool, i) => {
+ 7664 |                 const item = document.createElement('div');
+ 7665 |                 item.className = 'pool-legend-item';
+ 7666 |                 item.innerHTML = `
+ 7667 |                     <div class="pool-legend-name">
+ 7668 |                         <div class="pool-legend-dot" style="background: ${colors[i]}"></div>
+ 7669 |                         <span>${pool.name}</span>
+ 7670 |                     </div>
+ 7671 |                     <span class="pool-legend-pct">${pool.share.toFixed(1)}%</span>
+ 7672 |                 `;
+ 7673 |                 legend.appendChild(item);
+ 7674 | 
+ 7675 |                 // Check for centralization warning
+ 7676 |                 const warningEl = document.getElementById('pool-warning');
+ 7677 |                 if (pool.share > 35 && warningEl) {
+ 7678 |                     warningEl.style.display = 'block';
+ 7679 |                 }
+ 7680 |             });
+ 7681 | 
+ 7682 |             // Update total hashrate display
+ 7683 |             if (data.lastEstimatedHashrate) {
+ 7684 |                 const hashrateEl = document.getElementById('pool-total-hashrate');
+ 7685 |                 if (hashrateEl) {
+ 7686 |                     const ehps = data.lastEstimatedHashrate / 1e18;
+ 7687 |                     hashrateEl.textContent = ehps.toFixed(0) + ' EH/s';
+ 7688 |                 }
+ 7689 |             }
+ 7690 | 
+ 7691 |             // Draw simple donut chart
+ 7692 |             drawPoolDonut(poolsWithShare, colors);
+ 7693 |         }
+ 7694 |     } catch (e) {
+ 7695 |         console.error('Mining pools update error:', e);
+ 7696 |     }
+ 7697 | }
+ 7698 | 
+ 7699 | function drawPoolDonut(pools, colors) {
+ 7700 |     const canvas = document.getElementById('pool-chart');
+ 7701 |     if (!canvas) return;
+ 7702 | 
+ 7703 |     const ctx = canvas.getContext('2d');
+ 7704 |     const centerX = canvas.width / 2;
+ 7705 |     const centerY = canvas.height / 2;
+ 7706 |     const radius = 80;
+ 7707 |     const innerRadius = 50;
+ 7708 | 
+ 7709 |     ctx.clearRect(0, 0, canvas.width, canvas.height);
+ 7710 | 
+
+============================================================
+=== NODE GLOBE THREE.JS (CORE) (lines 7726-8060 of 9534) ===
+============================================================
+
+ 7726 | // 4. NODE GLOBE (Three.js) - Enhanced with interactive tooltips
+ 7727 | let nodeGlobe = null;
+ 7728 | let globeAutoRotate = true;
+ 7729 | let nodeDataArray = []; // Store node data for tooltips
+ 7730 | 
+ 7731 | // Node data with accurate geographic coordinates for major Bitcoin node concentrations
+ 7732 | const nodeRegions = [
+ 7733 |     { name: 'Germany', flag: '🇩🇪', city: 'Frankfurt', version: '/Satoshi:25.0.0/', lat: 50.1, lon: 8.7, count: 2847 },
+ 7734 |     { name: 'Germany', flag: '🇩🇪', city: 'Berlin', version: '/Satoshi:26.0.0/', lat: 52.5, lon: 13.4, count: 1200 },
+ 7735 |     { name: 'Germany', flag: '🇩🇪', city: 'Munich', version: '/Satoshi:25.1.0/', lat: 48.1, lon: 11.6, count: 800 },
+ 7736 |     { name: 'United States', flag: '🇺🇸', city: 'San Francisco', version: '/Satoshi:26.0.0/', lat: 37.7, lon: -122.4, count: 2412 },
+ 7737 |     { name: 'United States', flag: '🇺🇸', city: 'New York', version: '/Satoshi:25.1.0/', lat: 40.7, lon: -74.0, count: 1850 },
+ 7738 |     { name: 'United States', flag: '🇺🇸', city: 'Chicago', version: '/Satoshi:25.0.0/', lat: 41.9, lon: -87.6, count: 950 },
+ 7739 |     { name: 'United States', flag: '🇺🇸', city: 'Los Angeles', version: '/Satoshi:26.0.0/', lat: 34.0, lon: -118.2, count: 780 },
+ 7740 |     { name: 'United States', flag: '🇺🇸', city: 'Austin', version: '/Satoshi:25.1.0/', lat: 30.3, lon: -97.7, count: 620 },
+ 7741 |     { name: 'United Kingdom', flag: '🇬🇧', city: 'London', version: '/Satoshi:24.1.0/', lat: 51.5, lon: -0.1, count: 847 },
+ 7742 |     { name: 'France', flag: '🇫🇷', city: 'Paris', version: '/Satoshi:26.0.0/', lat: 48.8, lon: 2.3, count: 982 },
+ 7743 |     { name: 'Netherlands', flag: '🇳🇱', city: 'Amsterdam', version: '/Satoshi:25.0.0/', lat: 52.4, lon: 4.9, count: 847 },
+ 7744 |     { name: 'Japan', flag: '🇯🇵', city: 'Tokyo', version: '/Satoshi:25.0.0/', lat: 35.7, lon: 139.7, count: 523 },
+ 7745 |     { name: 'Singapore', flag: '🇸🇬', city: 'Singapore', version: '/Satoshi:24.0.1/', lat: 1.3, lon: 103.8, count: 312 },
+ 7746 |     { name: 'Canada', flag: '🇨🇦', city: 'Toronto', version: '/Satoshi:26.0.0/', lat: 43.7, lon: -79.4, count: 489 },
+ 7747 |     { name: 'Australia', flag: '🇦🇺', city: 'Sydney', version: '/Satoshi:25.0.0/', lat: -33.9, lon: 151.2, count: 287 },
+ 7748 | ];
+ 7749 | 
+ 7750 | function initNodeGlobe() {
+ 7751 |     const container = document.getElementById('node-globe');
+ 7752 |     if (!container || !window.THREE) return;
+ 7753 | 
+ 7754 |     const width = container.clientWidth;
+ 7755 |     const height = container.clientHeight || 400;
+ 7756 | 
+ 7757 |     // Scene setup
+ 7758 |     const scene = new THREE.Scene();
+ 7759 |     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+ 7760 |     camera.position.z = 2.8;
+ 7761 | 
+ 7762 |     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+ 7763 |     renderer.setSize(width, height);
+ 7764 |     renderer.setClearColor(0x000000, 0);
+ 7765 |     container.insertBefore(renderer.domElement, container.firstChild);
+ 7766 | 
+ 7767 |     // Globe with glow effect
+ 7768 |     const globeGeometry = new THREE.SphereGeometry(1, 64, 64);
+ 7769 |     const globeMaterial = new THREE.MeshBasicMaterial({
+ 7770 |         color: 0x1a3a6e,
+ 7771 |         wireframe: true,
+ 7772 |         transparent: true,
+ 7773 |         opacity: 0.25
+ 7774 |     });
+ 7775 |     const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+ 7776 |     scene.add(globe);
+ 7777 | 
+ 7778 |     // Add inner glow sphere
+ 7779 |     const glowGeometry = new THREE.SphereGeometry(0.98, 32, 32);
+ 7780 |     const glowMaterial = new THREE.MeshBasicMaterial({
+ 7781 |         color: 0x0a1628,
+ 7782 |         transparent: true,
+ 7783 |         opacity: 0.8
+ 7784 |     });
+ 7785 |     const glowSphere = new THREE.Mesh(glowGeometry, glowMaterial);
+ 7786 |     scene.add(glowSphere);
+ 7787 | 
+ 7788 |     // Generate nodes with data
+ 7789 |     nodeDataArray = [];
+ 7790 |     const nodePositions = [];
+ 7791 |     const nodeSizes = [];
+ 7792 |     const nodeColors = [];
+ 7793 | 
+ 7794 |     // Calculate total count for weighted distribution
+ 7795 |     const totalNodes = nodeRegions.reduce((sum, r) => sum + r.count, 0);
+ 7796 | 
+ 7797 |     for (let i = 0; i < 400; i++) {
+ 7798 |         let region;
+ 7799 |         let lat, lon;
+ 7800 | 
+ 7801 |         // Weighted selection based on actual node counts per region
+ 7802 |         let rand = Math.random() * totalNodes;
+ 7803 |         let cumulative = 0;
+ 7804 |         for (const r of nodeRegions) {
+ 7805 |             cumulative += r.count;
+ 7806 |             if (rand <= cumulative) {
+ 7807 |                 region = r;
+ 7808 |                 break;
+ 7809 |             }
+ 7810 |         }
+ 7811 |         if (!region) region = nodeRegions[0];
+ 7812 | 
+ 7813 |         // Wide spread across region for visual symmetry (25-45 degree spread)
+ 7814 |         const clusterSpread = 25 + Math.random() * 20;
+ 7815 |         lat = region.lat + (Math.random() - 0.5) * clusterSpread;
+ 7816 |         lon = region.lon + (Math.random() - 0.5) * clusterSpread;
+ 7817 | 
+ 7818 |         const phi = (90 - lat) * (Math.PI / 180);
+ 7819 |         const theta = (lon + 180) * (Math.PI / 180);
+ 7820 |         const r = 1.02;
+ 7821 | 
+ 7822 |         const x = r * Math.sin(phi) * Math.cos(theta);
+ 7823 |         const y = r * Math.cos(phi);
+ 7824 |         const z = r * Math.sin(phi) * Math.sin(theta);
+ 7825 | 
+ 7826 |         nodePositions.push(x, y, z);
+ 7827 | 
+ 7828 |         // Store node data for tooltips
+ 7829 |         const uptimeDays = Math.floor(Math.random() * 1000) + 30;
+ 7830 |         const blockHeight = 879000 + Math.floor(Math.random() * 100);
+ 7831 |         nodeDataArray.push({
+ 7832 |             region: region.name,
+ 7833 |             flag: region.flag,
+ 7834 |             city: region.city,
+ 7835 |             version: region.version,
+ 7836 |             uptime: uptimeDays,
+ 7837 |             blockHeight: blockHeight,
+ 7838 |             connections: Math.floor(Math.random() * 100) + 8,
+ 7839 |             position: { x, y, z }
+ 7840 |         });
+ 7841 |     }
+ 7842 | 
+ 7843 |     const nodesGeometry = new THREE.BufferGeometry();
+ 7844 |     nodesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(nodePositions, 3));
+ 7845 | 
+ 7846 |     const nodesMaterial = new THREE.PointsMaterial({
+ 7847 |         color: 0xf7931a,
+ 7848 |         size: 0.025,
+ 7849 |         transparent: true,
+ 7850 |         opacity: 0.9,
+ 7851 |         sizeAttenuation: true
+ 7852 |     });
+ 7853 | 
+ 7854 |     const nodes = new THREE.Points(nodesGeometry, nodesMaterial);
+ 7855 |     scene.add(nodes);
+ 7856 | 
+ 7857 |     // Raycaster for hover detection
+ 7858 |     const raycaster = new THREE.Raycaster();
+ 7859 |     raycaster.params.Points.threshold = 0.05;
+ 7860 |     const mouse = new THREE.Vector2();
+ 7861 |     const tooltip = document.getElementById('node-tooltip');
+ 7862 |     const tooltipContent = document.getElementById('node-tooltip-content');
+ 7863 | 
+ 7864 |     // Mouse interaction
+ 7865 |     let isDragging = false;
+ 7866 |     let previousMousePosition = { x: 0, y: 0 };
+ 7867 | 
+ 7868 |     renderer.domElement.addEventListener('mousedown', (e) => {
+ 7869 |         isDragging = true;
+ 7870 |         previousMousePosition = { x: e.clientX, y: e.clientY };
+ 7871 |     });
+ 7872 | 
+ 7873 |     renderer.domElement.addEventListener('mousemove', (e) => {
+ 7874 |         const rect = renderer.domElement.getBoundingClientRect();
+ 7875 |         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+ 7876 |         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+ 7877 | 
+ 7878 |         if (isDragging) {
+ 7879 |             const deltaX = e.clientX - previousMousePosition.x;
+ 7880 |             const deltaY = e.clientY - previousMousePosition.y;
+ 7881 | 
+ 7882 |             globe.rotation.y += deltaX * 0.005;
+ 7883 |             nodes.rotation.y += deltaX * 0.005;
+ 7884 |             glowSphere.rotation.y += deltaX * 0.005;
+ 7885 |             globe.rotation.x += deltaY * 0.005;
+ 7886 |             nodes.rotation.x += deltaY * 0.005;
+ 7887 |             glowSphere.rotation.x += deltaY * 0.005;
+ 7888 | 
+ 7889 |             previousMousePosition = { x: e.clientX, y: e.clientY };
+ 7890 |             tooltip.style.display = 'none';
+ 7891 |         } else {
+ 7892 |             // Hover detection
+ 7893 |             raycaster.setFromCamera(mouse, camera);
+ 7894 |             const intersects = raycaster.intersectObject(nodes);
+ 7895 | 
+ 7896 |             if (intersects.length > 0) {
+ 7897 |                 const idx = intersects[0].index;
+ 7898 |                 const nodeData = nodeDataArray[idx];
+ 7899 | 
+ 7900 |                 tooltipContent.innerHTML = `
+ 7901 |                     <div style="font-size: 1rem; margin-bottom: 8px;">${nodeData.flag} <span style="color: #fff;">${nodeData.city}, ${nodeData.region}</span></div>
+ 7902 |                     <div style="font-size: 0.7rem; color: rgba(255,255,255,0.6); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace;">${nodeData.version}</div>
+ 7903 |                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
+ 7904 |                         <div><span style="color: rgba(255,255,255,0.5);">Uptime:</span> <span style="color: #22c55e;">${nodeData.uptime}d</span></div>
+ 7905 |                         <div><span style="color: rgba(255,255,255,0.5);">Peers:</span> <span style="color: #f7931a;">${nodeData.connections}</span></div>
+ 7906 |                         <div style="grid-column: span 2;"><span style="color: rgba(255,255,255,0.5);">Block:</span> <span style="color: #3b82f6; font-family: 'JetBrains Mono', monospace;">#${nodeData.blockHeight.toLocaleString()}</span></div>
+ 7907 |                     </div>
+ 7908 |                 `;
+ 7909 | 
+ 7910 |                 tooltip.style.display = 'block';
+ 7911 |                 tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+ 7912 |                 tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+ 7913 |             } else {
+ 7914 |                 tooltip.style.display = 'none';
+ 7915 |             }
+ 7916 |         }
+ 7917 |     });
+ 7918 | 
+ 7919 |     renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+ 7920 |     renderer.domElement.addEventListener('mouseleave', () => {
+ 7921 |         isDragging = false;
+ 7922 |         tooltip.style.display = 'none';
+ 7923 |     });
+ 7924 | 
+ 7925 |     // Hide tooltip on scroll to prevent it from floating over other content
+ 7926 |     window.addEventListener('scroll', () => {
+ 7927 |         tooltip.style.display = 'none';
+ 7928 |     }, { passive: true });
+ 7929 | 
+ 7930 |     // Mouse wheel zoom
+ 7931 |     renderer.domElement.addEventListener('wheel', (e) => {
+ 7932 |         e.preventDefault();
+ 7933 |         camera.position.z += e.deltaY * 0.002;
+ 7934 |         camera.position.z = Math.max(1.5, Math.min(5, camera.position.z));
+ 7935 |     }, { passive: false });
+ 7936 | 
+ 7937 |     // Touch support for mobile
+ 7938 |     let touchStartDistance = 0;
+ 7939 |     let isTouchDragging = false;
+ 7940 |     let previousTouchPosition = { x: 0, y: 0 };
+ 7941 | 
+ 7942 |     renderer.domElement.addEventListener('touchstart', (e) => {
+ 7943 |         if (e.touches.length === 1) {
+ 7944 |             isTouchDragging = true;
+ 7945 |             previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+ 7946 |         } else if (e.touches.length === 2) {
+ 7947 |             // Pinch zoom - calculate initial distance
+ 7948 |             const dx = e.touches[0].clientX - e.touches[1].clientX;
+ 7949 |             const dy = e.touches[0].clientY - e.touches[1].clientY;
+ 7950 |             touchStartDistance = Math.sqrt(dx * dx + dy * dy);
+ 7951 |         }
+ 7952 |     }, { passive: true });
+ 7953 | 
+ 7954 |     renderer.domElement.addEventListener('touchmove', (e) => {
+ 7955 |         if (e.touches.length === 1 && isTouchDragging) {
+ 7956 |             const deltaX = e.touches[0].clientX - previousTouchPosition.x;
+ 7957 |             const deltaY = e.touches[0].clientY - previousTouchPosition.y;
+ 7958 | 
+ 7959 |             globe.rotation.y += deltaX * 0.008;
+ 7960 |             nodes.rotation.y += deltaX * 0.008;
+ 7961 |             glowSphere.rotation.y += deltaX * 0.008;
+ 7962 |             globe.rotation.x += deltaY * 0.008;
+ 7963 |             nodes.rotation.x += deltaY * 0.008;
+ 7964 |             glowSphere.rotation.x += deltaY * 0.008;
+ 7965 | 
+ 7966 |             previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+ 7967 |             tooltip.style.display = 'none';
+ 7968 |         } else if (e.touches.length === 2) {
+ 7969 |             // Pinch zoom
+ 7970 |             const dx = e.touches[0].clientX - e.touches[1].clientX;
+ 7971 |             const dy = e.touches[0].clientY - e.touches[1].clientY;
+ 7972 |             const distance = Math.sqrt(dx * dx + dy * dy);
+ 7973 | 
+ 7974 |             if (touchStartDistance > 0) {
+ 7975 |                 const delta = touchStartDistance - distance;
+ 7976 |                 camera.position.z += delta * 0.01;
+ 7977 |                 camera.position.z = Math.max(1.5, Math.min(5, camera.position.z));
+ 7978 |                 touchStartDistance = distance;
+ 7979 |             }
+ 7980 |         }
+ 7981 |     }, { passive: true });
+ 7982 | 
+ 7983 |     renderer.domElement.addEventListener('touchend', () => {
+ 7984 |         isTouchDragging = false;
+ 7985 |         touchStartDistance = 0;
+ 7986 |     }, { passive: true });
+ 7987 | 
+ 7988 |     // Animation with pulsing nodes
+ 7989 |     let time = 0;
+ 7990 |     function animate() {
+ 7991 |         requestAnimationFrame(animate);
+ 7992 |         time += 0.01;
+ 7993 | 
+ 7994 |         if (globeAutoRotate && !isDragging) {
+ 7995 |             globe.rotation.y += 0.001;
+ 7996 |             nodes.rotation.y += 0.001;
+ 7997 |             glowSphere.rotation.y += 0.001;
+ 7998 |         }
+ 7999 | 
+ 8000 |         // Subtle pulse effect
+ 8001 |         nodesMaterial.opacity = 0.7 + Math.sin(time * 2) * 0.2;
+ 8002 | 
+ 8003 |         renderer.render(scene, camera);
+ 8004 |     }
+ 8005 | 
+ 8006 |     animate();
+ 8007 | 
+ 8008 |     // Set initial rotation to center on North America (longitude ~-100°)
+ 8009 |     // Y rotation of ~1.75 radians rotates globe to show North America
+ 8010 |     const northAmericaRotation = 1.75;
+ 8011 |     globe.rotation.y = northAmericaRotation;
+ 8012 |     nodes.rotation.y = northAmericaRotation;
+ 8013 |     glowSphere.rotation.y = northAmericaRotation;
+ 8014 | 
+ 8015 |     nodeGlobe = { globe, nodes, glowSphere, renderer, scene, camera };
+ 8016 | }
+ 8017 | 
+ 8018 | // Default rotation for North America view
+ 8019 | const NORTH_AMERICA_ROTATION = 1.75;
+ 8020 | 
+ 8021 | function resetGlobeRotation() {
+ 8022 |     if (nodeGlobe) {
+ 8023 |         // Reset to North America centered view
+ 8024 |         nodeGlobe.globe.rotation.set(0, NORTH_AMERICA_ROTATION, 0);
+ 8025 |         nodeGlobe.nodes.rotation.set(0, NORTH_AMERICA_ROTATION, 0);
+ 8026 |         if (nodeGlobe.glowSphere) nodeGlobe.glowSphere.rotation.set(0, NORTH_AMERICA_ROTATION, 0);
+ 8027 |     }
+ 8028 | }
+ 8029 | 
+ 8030 | function toggleGlobeAutoRotate() {
+ 8031 |     globeAutoRotate = !globeAutoRotate;
+ 8032 | }
+ 8033 | 
+ 8034 | // Globe zoom controls
+ 8035 | const globeZoomLimits = { min: 1.5, max: 5.0, step: 0.3 };
+ 8036 | let currentGlobeZoom = 2.8;
+ 8037 | 
+ 8038 | function globeZoomIn() {
+ 8039 |     if (nodeGlobe && nodeGlobe.camera) {
+ 8040 |         currentGlobeZoom = Math.max(globeZoomLimits.min, currentGlobeZoom - globeZoomLimits.step);
+ 8041 |         nodeGlobe.camera.position.z = currentGlobeZoom;
+ 8042 |         console.log('Globe zoom in:', currentGlobeZoom);
+ 8043 |     }
+ 8044 | }
+ 8045 | 
+ 8046 | function globeZoomOut() {
+ 8047 |     if (nodeGlobe && nodeGlobe.camera) {
+ 8048 |         currentGlobeZoom = Math.min(globeZoomLimits.max, currentGlobeZoom + globeZoomLimits.step);
+ 8049 |         nodeGlobe.camera.position.z = currentGlobeZoom;
+ 8050 |         console.log('Globe zoom out:', currentGlobeZoom);
+ 8051 |     }
+ 8052 | }
+ 8053 | 
+ 8054 | // Mobile pinch-to-zoom for Node Globe
+ 8055 | function initGlobePinchZoom() {
+ 8056 |     const container = document.getElementById('node-globe');
+ 8057 |     if (!container) return;
+ 8058 | 
+ 8059 |     let initialDistance = 0;
+ 8060 |     let initialZoom = currentGlobeZoom;
+
+============================================================
+=== AUDIO BARS & INIT (lines 8700-8800 of 9534) ===
+============================================================
+
+ 8700 | }
+ 8701 | 
+ 8702 | function playWhaleChime() {
+ 8703 |     if (!heartbeatEnabled || !audioContext) return;
+ 8704 | 
+ 8705 |     const oscillator = audioContext.createOscillator();
+ 8706 |     const gainNode = audioContext.createGain();
+ 8707 | 
+ 8708 |     oscillator.type = 'triangle';
+ 8709 |     oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+ 8710 |     oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.5);
+ 8711 | 
+ 8712 |     gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+ 8713 |     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+ 8714 | 
+ 8715 |     oscillator.connect(gainNode);
+ 8716 |     gainNode.connect(audioContext.destination);
+ 8717 | 
+ 8718 |     oscillator.start(audioContext.currentTime);
+ 8719 |     oscillator.stop(audioContext.currentTime + 0.8);
+ 8720 | }
+ 8721 | 
+ 8722 | function animateAudioBars() {
+ 8723 |     if (!heartbeatEnabled) return;
+ 8724 | 
+ 8725 |     const bars = document.querySelectorAll('#audio-visualizer .audio-bar');
+ 8726 |     bars.forEach(bar => {
+ 8727 |         bar.style.height = (10 + Math.random() * 30) + 'px';
+ 8728 |     });
+ 8729 | 
+ 8730 |     setTimeout(animateAudioBars, 100);
+ 8731 | }
+ 8732 | 
+ 8733 | // 9. GENESIS BLOCK EXPAND
+ 8734 | function toggleGenesisExpand() {
+ 8735 |     const expanded = document.getElementById('genesis-expanded');
+ 8736 |     const btn = document.querySelector('.genesis-expand-btn i');
+ 8737 | 
+ 8738 |     if (expanded.style.display === 'none') {
+ 8739 |         expanded.style.display = 'block';
+ 8740 |         btn.className = 'fas fa-minus me-1';
+ 8741 |     } else {
+ 8742 |         expanded.style.display = 'none';
+ 8743 |         btn.className = 'fas fa-plus me-1';
+ 8744 |     }
+ 8745 | }
+ 8746 | 
+ 8747 | // 10. CTA FUNCTIONS
+ 8748 | function subscribeEmail(event) {
+ 8749 |     event.preventDefault();
+ 8750 |     const email = event.target.querySelector('input').value;
+ 8751 |     alert('Thank you for subscribing! You\'ll receive the Daily Pulse at 6am EST.');
+ 8752 |     event.target.reset();
+ 8753 | }
+ 8754 | 
+ 8755 | function showLightningTip() {
+ 8756 |     // Would integrate with Lightning tip jar
+ 8757 |     alert('Lightning tip jar coming soon! ⚡');
+ 8758 | }
+ 8759 | 
+ 8760 | // Initialize new modules - Wait for DOM and Three.js
+ 8761 | function initializeNewModules() {
+ 8762 |     // Only proceed if DOM is ready and cache is available
+ 8763 |     if (document.readyState === 'loading') {
+ 8764 |         document.addEventListener('DOMContentLoaded', initializeNewModules);
+ 8765 |         return;
+ 8766 |     }
+ 8767 | 
+ 8768 |     // Init Node Globe (requires Three.js)
+ 8769 |     if (typeof THREE !== 'undefined') {
+ 8770 |         try { initNodeGlobe(); } catch (e) { console.log('Globe init error:', e); }
+ 8771 |     } else {
+ 8772 |         console.log('Three.js not loaded for globe');
+ 8773 |     }
+ 8774 | 
+ 8775 |     updateNodeCount();
+ 8776 |     fetchBtcPriceHistory().then(() => calculateDCA()).catch(e => console.log('DCA calc error:', e));
+ 8777 |     updateMiningPools().catch(e => console.log('Mining pools error:', e));
+ 8778 |     updateLightningPulse().catch(e => console.log('Lightning error:', e));
+ 8779 |     updateEpochProgress();
+ 8780 |     updateTimechainClock();
+ 8781 |     initAdRotation();
+ 8782 | 
+ 8783 |     // Generate 60 precision tick marks for Holographic Horizon clock
+ 8784 |     const tickContainer = document.querySelector('.clock-tick-marks');
+ 8785 |     if (tickContainer && tickContainer.querySelectorAll('.tick-mark').length === 0) {
+ 8786 |         for (let i = 0; i < 60; i++) {
+ 8787 |             const tick = document.createElement('div');
+ 8788 |             tick.className = 'tick-mark';
+ 8789 |             const isMajor = i % 5 === 0;
+ 8790 |             const angle = i * 6; // 360/60 = 6 degrees per tick
+ 8791 | 
+ 8792 |             // Position ticks on inner rim
+ 8793 |             const tickLength = isMajor ? 12 : 6;
+ 8794 |             const tickWidth = isMajor ? 3 : 1;
+ 8795 |             const radius = 140; // Distance from center
+ 8796 | 
+ 8797 |             tick.style.cssText = `
+ 8798 |                 position: absolute;
+ 8799 |                 width: ${tickWidth}px;
+ 8800 |                 height: ${tickLength}px;
+
+============================================================
+=== END OF FILE (lines 9480-9534 of 9534) ===
+============================================================
+
+ 9480 |   { amount: 2100, message: 'Bitcoin fixes this', node: 'Strike' },
+ 9481 |   { amount: 5000, message: 'Nostr zap', node: 'WoS' },
+ 9482 |   { amount: 10000, message: 'V4V ⚡', node: 'Alby' },
+ 9483 |   { amount: 21000, message: 'Pleb power', node: 'Mutiny' },
+ 9484 | ];
+ 9485 | 
+ 9486 | function addLightningZap() {
+ 9487 |     const container = document.getElementById('lightning-zap-feed');
+ 9488 |     if (!container) return;
+ 9489 | 
+ 9490 |     const zap = lightningZapExamples[Math.floor(Math.random() * lightningZapExamples.length)];
+ 9491 |     const variation = Math.random() * 0.5 + 0.75; // 0.75 to 1.25
+ 9492 |     const amount = Math.round(zap.amount * variation);
+ 9493 | 
+ 9494 |     const zapEl = document.createElement('div');
+ 9495 |     zapEl.className = 'lightning-zap';
+ 9496 |     zapEl.innerHTML = `
+ 9497 |         <div class="zap-icon"><i class="fas fa-bolt"></i></div>
+ 9498 |         <div style="flex: 1;">
+ 9499 |             <div style="color: #facc15; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 600;">
+ 9500 |                 ${amount.toLocaleString()} sats
+ 9501 |             </div>
+ 9502 |             <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem;">
+ 9503 |                 via ${zap.node} • ${zap.message}
+ 9504 |             </div>
+ 9505 |         </div>
+ 9506 |         <div style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">now</div>
+ 9507 |     `;
+ 9508 | 
+ 9509 |     container.insertBefore(zapEl, container.firstChild);
+ 9510 | 
+ 9511 |     // Keep only last 6 zaps
+ 9512 |     while (container.children.length > 6) {
+ 9513 |         container.removeChild(container.lastChild);
+ 9514 |     }
+ 9515 | }
+ 9516 | 
+ 9517 | // Add initial zaps and simulate ongoing activity
+ 9518 | setTimeout(() => {
+ 9519 |     for (let i = 0; i < 4; i++) {
+ 9520 |         setTimeout(() => addLightningZap(), i * 200);
+ 9521 |     }
+ 9522 | }, 2000);
+ 9523 | 
+ 9524 | // Simulate new zaps at random intervals (3-8 seconds)
+ 9525 | function scheduleNextZap() {
+ 9526 |     const delay = 3000 + Math.random() * 5000;
+ 9527 |     setTimeout(() => {
+ 9528 |         addLightningZap();
+ 9529 |         scheduleNextZap();
+ 9530 |     }, delay);
+ 9531 | }
+ 9532 | scheduleNextZap();
+ 9533 | </script>
+ 9534 | {% endblock %}

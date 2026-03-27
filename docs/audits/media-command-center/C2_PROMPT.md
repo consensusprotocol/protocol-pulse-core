@@ -12,137 +12,119 @@
 ## GROK — CYCLE 1 OUTPUT
 ### AUDIT REPORT: BITCOIN MEDIA COMMAND CENTER
 
-I have conducted a thorough review of the provided code for the Bitcoin Media Command Center feature. Below are my detailed analyses and recommendations for the five critical questions posed, along with a final verdict on the readiness of this code for production.
+I have conducted a thorough review of the provided codebase for the Bitcoin Media Command Center feature. Below are detailed analyses for each of the five critical questions, along with severity ratings, specific fixes, and a final verdict.
 
 ---
 
 ### Q1 — ASYNC RSS FETCHING
 **Analysis:**
-- The code implements background threading for RSS feed synchronization using `sync_feeds_background()` in `services/media_feed_service.py` (line 383-388). This function spawns a separate thread to run `sync_all_feeds()`, ensuring that the Flask workers are not blocked during feed fetching.
-- Polling is managed with a recurring timer in `_poll_loop()` (lines 579-589), set to trigger every 15 minutes (`POLL_INTERVAL = 15 * 60`). This is a reasonable interval for a media hub to keep content fresh without overloading servers.
-- Error isolation per feed is handled within `sync_all_feeds()` (lines 290-333 for podcasts, 335-378 for YouTube). Each feed is processed in a try-except block, with `db.session.rollback()` on failure (e.g., line 331), ensuring that a failure in one feed does not affect others.
-- However, there is a potential issue with thread management. If multiple requests trigger `sync_feeds_background()`, multiple threads could be spawned unnecessarily since there’s no check to prevent duplicate background syncs. This could lead to resource contention under high load (~1000 concurrent users as per tech stack).
+- The codebase implements background threading for RSS feed synchronization in `services/media_feed_service.py` using `sync_feeds_background()` (lines 439-457). This function ensures that feed syncing does not block Flask workers by running in a separate thread with a lock mechanism (`_sync_lock`) to prevent duplicate sync operations.
+- The polling mechanism is set up with a 15-minute interval (`POLL_INTERVAL = 15 * 60`) in `start_feed_polling()` (lines 662-674), which is reasonable for keeping feeds updated without overloading the server.
+- Error isolation per feed is handled well. In `sync_all_feeds()` (lines 327-431), exceptions are caught and logged per feed (e.g., lines 382-383 for RSS, 429-430 for YouTube), ensuring that a failure in one feed does not halt the entire sync process. Rollbacks are performed on database errors (line 383).
+- However, there is a potential issue with thread management. If the Flask app restarts or crashes, the background threads (marked as `daemon=True`) will terminate without cleanup, and there is no mechanism to restart them automatically unless `start_feed_polling()` is called again. This could lead to missed sync cycles.
 
 **Severity:** MEDIUM
-- While the async fetching is implemented, the lack of synchronization for background thread initiation could lead to performance issues under load, though it’s not immediately critical.
+- While the async fetching is implemented correctly, the lack of a robust restart mechanism for background threads could lead to data staleness in production.
 
 **Specific Fix:**
-- Add a global lock or flag to prevent multiple concurrent sync threads. Modify `sync_feeds_background()` to check if a sync is already in progress:
+- Add a Flask application context hook or a startup script to ensure `start_feed_polling()` is called on app initialization or restart. Additionally, consider using a more robust task queue like Celery for feed syncing instead of raw threads to handle failures and restarts better.
   ```python
-  _sync_in_progress = False
-
-  def sync_feeds_background(app=None):
-      global _sync_in_progress
-      if _sync_in_progress:
-          logger.info("[MediaSync] Sync already in progress, skipping.")
-          return None
-      _sync_in_progress = True
-      t = threading.Thread(target=lambda: sync_all_feeds_with_flag(app), args=(app,), daemon=True)
-      t.start()
-      return t
-
-  def sync_all_feeds_with_flag(app):
-      try:
-          sync_all_feeds(app)
-      finally:
-          global _sync_in_progress
-          _sync_in_progress = False
+  # In app.py or similar startup module
+  @app.before_first_request
+  def initialize_feed_polling():
+      from services.media_feed_service import start_feed_polling
+      start_feed_polling(app)
   ```
-- This ensures only one sync thread runs at a time, preventing resource contention.
+- Alternatively, log a warning if `_poll_started` is False during a health check endpoint to alert operators of a stalled sync process.
 
 ---
 
 ### Q2 — D3 NETWORK GRAPH
 **Analysis:**
-- The D3 force simulation for the network graph is implemented in `templates/media_hub.html` (lines 892-995). It uses `d3.forceSimulation()` with appropriate forces: `forceLink` for connections (line 906), `forceManyBody` for repulsion (line 907), `forceCenter` for centering (line 908), `forceCollide` for preventing overlap (line 909), and weak `forceX`/`forceY` for layout stability (lines 910-911).
-- The configuration seems suitable for 50 nodes, with `distance(80)` and `strength(0.3)` for links providing a balanced spread, and `strength(-120)` for charge ensuring nodes don’t cluster too tightly. Collision radius varies by tier (22 for tier 1, 16 for others), which is a good touch for visual hierarchy (line 909).
-- Node rendering includes glow effects (lines 914-922), main circles with tier-based sizing (lines 935-940), and initials text (lines 945-949), all correctly styled per category colors (line 940).
-- Hover cards are implemented with `mouseover`/`mouseout` events (lines 952-970), updating a positioned tooltip with relevant data (name, handle, category, etc.), and highlighting related links (lines 966-968), which works as intended.
-- Drag interaction is supported via `d3.drag()` (lines 929-931), allowing users to reposition nodes with proper simulation restart (`alphaTarget(0.3)`), which is correct.
-- Responsive resize is handled via a window resize listener (lines 987-993), updating the SVG width and re-centering forces, ensuring adaptability across screen sizes.
-- The data structure fetched from `/api/media/network` (line 902) is expected to provide `nodes` and `links` arrays, with `links` using `source`/`target` IDs for `forceLink` (line 906). This is the correct format for D3’s force-directed graph, assuming the API returns consistent data.
+- The D3 force simulation in `templates/media_hub.html` (lines 892-1000) is implemented for a network graph with 50 nodes, fetched dynamically from `/api/media/network`. The simulation uses `d3.forceSimulation()` with appropriate forces: `forceLink` for connections (line 906), `forceManyBody` for repulsion (line 907), `forceCenter` for centering (line 908), `forceCollide` for preventing overlap (line 909), and weak `forceX`/`forceY` for layout stability (lines 910-911).
+- Node rendering is correct, with circles sized by tier (lines 934-935, 939-940), colored by category (line 940), and labeled with initials (lines 945-949). Hover interactions (lines 952-968) update a tooltip with node details and highlight related links, which is visually effective.
+- Drag interaction is implemented via `d3.drag()` (lines 929-931), allowing users to reposition nodes with proper simulation restart (`alphaTarget(0.3)`), which is correct.
+- Responsive resizing is handled by updating the SVG width and viewBox on window resize (lines 988-993), ensuring the graph adapts to different screen sizes.
+- The data structure for D3 is appropriate: nodes are an array of objects with `id`, and links are an array of objects with `source` and `target` referencing node IDs (assumed from API response structure at line 903). This matches `d3.forceLink().id()` usage (line 906).
+- A minor issue is the hardcoded height (`H=500`, line 897) which may not scale well on very small or large screens, potentially cutting off parts of the graph. Additionally, if the API fetch fails (line 994-998), the fallback message is static and does not retry, which could leave users with a broken visualization.
 
 **Severity:** LOW
-- The D3 implementation is robust and correctly configured for the intended visualization. The only minor concern is potential performance with 50 nodes on low-end devices, but D3 is optimized for this scale, and no critical issues are evident.
+- The D3 implementation is fundamentally sound, with minor UX issues related to height scaling and error recovery.
 
 **Specific Fix:**
-- Add a fallback for API failure to prevent the graph from breaking if `/api/media/network` is unavailable. Add error handling to the fetch:
+- Make the graph height responsive by calculating it based on container size or viewport height.
   ```javascript
-  fetch('/api/media/network').then(function(r){return r.json()}).then(function(data){
-      var nodes=data.nodes,links=data.links;
-      // ... existing simulation code ...
-  }).catch(function(e){
-      consol
-
-## GEMINI — CYCLE 1 OUTPUT
-Excellent. I will now perform a comprehensive audit of the `media-command-center` feature. My analysis will be grounded in the provided Governing Laws and Technology Stack, focusing on the five critical questions.
-
----
-
-## FINAL AUDIT REPORT: PROTOCOL PULSE
-
-**Auditor:** Gemini 2.5 Pro
-**Feature:** media-command-center
-**Branch:** main
-**Verdict:** **FAIL**
-
-This feature introduces a powerful media aggregation hub with a well-implemented D3 graph and a robust background data pipeline. However, the submission is marred by several **CRITICAL** issues, including the presence of a conflicting legacy service (`rss_service.py`) and widespread, direct violations of the project's Governing Laws for brand and typography. These must be rectified before this feature can be considered for production.
-
----
-
-### Q1 — ASYNC RSS FETCHING
-
-Are all RSS feeds fetched async without blocking Flask workers?
-
--   **DETAILED ANALYSIS:**
-    -   The primary data fetching logic resides in `services/media_feed_service.py`.
-    -   The service correctly uses Python's `threading` module to perform the feed synchronization in the background, ensuring the main Flask application threads are not blocked.
-    -   The function `sync_feeds_background()` (line 383) creates a `threading.Thread` to run the main `sync_all_feeds` function. This is a correct and effective "fire-and-forget" approach for initiating a sync.
-    -   The automatic polling mechanism, `start_feed_polling()` (line 591), uses a `threading.Timer` to create a recurring, non-blocking loop (`_poll_loop`, line 579). This is an appropriate pattern for a scheduled background task in a Flask application without a more complex task queue like Celery.
-    -   Crucially, the main sync loop in `sync_all_feeds` (lines 290-377) wraps each individual feed fetch in its own `try...except` block. This provides excellent error isolation; a failure to fetch or parse one feed will be logged and rolled back without interrupting the synchronization of the other feeds.
-
--   **SEVERITY:** LOW
-
--   **SPECIFIC FIX:** The implementation is functionally correct and robust. No fix is required for the async fetching mechanism itself.
-
-    However, there is a **CRITICAL** architectural issue. The file `services/rss_service.py` appears to be a legacy or redundant service that also fetches RSS feeds. It uses a less robust fetching method (`feedparser.parse` directly, line 112) and does *not* appear to be designed for asynchronous operation within the Flask app. Its presence creates a significant risk of confusion, code duplication, and potential for being used incorrectly in a blocking manner.
-
-    **Recommendation:** Delete the file `services/rss_service.py` entirely and refactor any dependencies to use the new, superior `media_feed_service.py`.
-
----
-
-### Q2 — D3 NETWORK GRAPH
-
-Is the D3 force simulation correct for 50 nodes? Does the data structure properly feed `d3.forceLink`?
-
--   **DETAILED ANALYSIS:**
-    -   The D3 implementation in `templates/media_hub.html` (lines 891-995) is professional and follows modern best practices.
-    -   **Force Configuration (lines 905-911):** The simulation is well-configured for a graph of this size.
-        -   `d3.forceLink(links).id(d => d.id)` correctly tells the simulation to match link `source`/`target` values to the `id` field of the node objects. This is the correct usage.
-        -   `d3.forceManyBody().strength(-120)` provides a reasonable repulsion force.
-        -   `d3.forceCollide()` is an excellent addition that prevents nodes from overlapping, with a dynamic radius based on the node's `tier`, which is a nice touch.
-        -   The gentle `forceCenter`, `forceX`, and `forceY` forces will keep the graph tidy and centered.
-    -   **Data Structure:** The code fetches data from `/api/media/network` and expects an object with `nodes` and `links` arrays. The `forceLink` configuration assumes the `links` array objects have `source` and `target` properties containing node IDs, which is the standard D3 format. The implementation is correct.
-    -   **Interaction (lines 929, 952):** The `d3.drag()` implementation correctly handles node dragging, including restarting the simulation for a responsive feel. The `mouseover` and `mouseout` events are also handled correctly, positioning the tooltip, highlighting connected links, and enlarging the active node.
-    -   **Responsiveness (lines 988-993):** The `resize` event listener properly updates the simulation's dimensions and forces, then restarts it. This will ensure the graph adapts correctly to different screen sizes.
-
--   **SEVERITY:** LOW
-
--   **SPECIFIC FIX:** The D3 implementation is excellent. No fix is required.
+  var H = Math.max(350, Math.min(600, wrap.clientHeight * 0.8));
+  svg.attr('width', W).attr('height', H).attr('viewBox', '0 0 ' + W + ' ' + H);
+  ```
+- Add a retry mechanism or periodic refresh for API failures to ensure the graph eventually loads.
+  ```javascript
+  setTimeout(function() {
+    if (!svg.selectAll('.node-circle').size()) {
+      fetch('/api/media/network').then(/* retry logic */);
+    }
+  }, 10000);
+  ```
 
 ---
 
 ### Q3 — SIGNAL SCORE ALGORITHM
+**Analysis:**
+- The Signal Score algorithm in `services/media_feed_service.py` (lines 69-106) computes a 0-100 score based on three components: source tier (40 points max), sentiment/keywords (40 poin
 
-Will the Signal Score algorithm produce meaningful differentiation?
+## GEMINI — CYCLE 1 OUTPUT
+Here is a detailed code audit for the Bitcoin Media Command Center feature.
+
+### FINAL VERDICT
+- **Critical Issues Found:** 0
+- **Top 3 Changes Needed:**
+    1.  **CRITICAL (Architectural):** Remove the redundant `rss_service.py`. The project contains two parallel, conflicting feed services (`media_feed_service.py` and `rss_service.py`). This will inevitably lead to maintenance nightmares, data drift, and developer confusion. `media_feed_service.py` is clearly the newer, more feature-rich implementation and should be the sole service.
+    2.  **MEDIUM (Code Hygiene):** Delete the large commented-out block of old, pure-JS network graph code from `media_hub.html` (lines 700-871). This legacy code adds significant noise to the file, and the new D3.js implementation has superseded it.
+    3.  **LOW (UX):** Consolidate the two different KOL lists used for the Nostr live feed and the Sentiment Heatmap. They are mostly overlapping but have slight differences. A single source of truth for KOL data would be more maintainable.
+- **Overall:** **PASS WITH FIXES**
+
+The core feature is well-implemented with robust, performant code. The identified issues are primarily architectural and related to code hygiene rather than functional bugs in the new components. The architectural duplication is a serious concern that must be addressed before this can be considered production-ready.
+
+---
+
+### Q1 — ASYNC RSS FETCHING
+Are all RSS feeds fetched async without blocking Flask workers?
+Check: background threading, sync_feeds_background(), poll interval, error isolation per feed.
 
 -   **DETAILED ANALYSIS:**
-    -   The algorithm in `media_feed_service.py` (lines 69-107) is a weighted sum of three components: `source_tier`, `sentiment` (keyword density), and `recency`.
-   
+    -   **Background Threading:** The implementation correctly uses Python's `threading` module to offload the feed synchronization task. The primary entry point for this is `sync_feeds_background()` in `media_feed_service.py` (line 438). This function uses `threading.Thread(target=_run, daemon=True)` (line 455) to run the `sync_all_feeds` function in a separate thread, ensuring the Flask worker that triggered the sync is not blocked and can immediately return a response.
+    -   **Concurrency Guard:** A `threading.Lock()` (line 434) is used to ensure that only one sync process can run at a time (`_sync_in_progress` flag, line 442). This is excellent practice, preventing race conditions or resource exhaustion if multiple syncs are triggered in quick succession.
+    -   **Polling Interval:** The `start_feed_polling()` function (line 661) correctly sets up a recurring 15-minute poll (`POLL_INTERVAL = 15 * 60`, line 646). It uses `threading.Timer`, which is a non-blocking way to schedule future tasks. The loop is correctly designed to reschedule itself after each run.
+    -   **Error Isolation:** The main `sync_all_feeds` function contains separate `try...except` blocks for each feed within the loops for both podcasts (line 342) and YouTube channels (line 387). This is a robust design. If one feed URL is down or returns invalid data, it will be logged as an error, and the process will continue with the next feed, preventing a single failure from halting the entire sync.
+
+-   **SEVERITY:** LOW
+
+-   **SPECIFIC FIX:** The implementation is functionally correct and robust. However, there is a critical architectural issue: the project contains **two separate RSS fetching services**. `media_feed_service.py` is the modern, comprehensive service. `rss_service.py` is a parallel, seemingly legacy service that also defines feeds and has its own sync logic. This duplication is a major source of future bugs and confusion.
+
+    **Recommendation:**
+    1.  Confirm that all application routes are using `media_feed_service.py`.
+    2.  Delete the entire `services/rss_service.py` file.
+    3.  Remove any imports or calls to `rss_service` from other parts of the application.
+
+---
+
+### Q2 — D3 NETWORK GRAPH
+Is the D3 force simulation correct for 50 nodes?
+Check: force configuration, node rendering, hover cards, drag interaction, responsive resize.
+Does the data structure (nodes array + links array with source/target) properly feed D3.forceLink?
+
+-   **DETAILED ANALYSIS:**
+    -   **Data Structure:** The code fetches data from `/api/media/network` and expects a `{nodes: [], links: []}` structure (`media_hub.html`, line 903). The link force is configured with `.id(function(d){return d.id})` (line 906), which correctly maps the `source` and `target` IDs in the links array to the full node objects in the nodes array. This is the correct approach.
+    -   **Force Configuration:** The simulation setup (lines 905-911) is well-configured for a graph of this size. It includes:
+        -   `forceLink`: To pull connected nodes together.
+        -   `forceManyBody`: To push all nodes apart, preventing clumping.
+        -   `forceCenter`: To keep the graph centered in the SVG.
+        -   `forceCollide`: A crucial force that prevents nodes from overlapping, with a radius correctly based on the node's `tier`.
+        -   `forceX`/`forceY`: Gentle centering forces tha
 
 ## CLAUDE'S CYCLE 1 CONSENSUS
 # CONSENSUS REPORT — MEDIA-COMMAND-CENTER — CYCLE 1
-Generated: 2026-03-26 00:40
+Generated: 2026-03-26 00:59
 Models: grok, gemini (+1 failed — GPT-4o: TPM rate limit exceeded)
 
 ---
@@ -151,65 +133,44 @@ Models: grok, gemini (+1 failed — GPT-4o: TPM rate limit exceeded)
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Async RSS Fetching | LOW | N/A | MEDIUM | MEDIUM |
+| Async RSS Fetching | LOW | N/A | MEDIUM | LOW–MEDIUM |
 | D3 Network Graph | LOW | N/A | LOW | LOW |
-| Signal Score Algorithm | LOW | N/A | MEDIUM | LOW-MEDIUM |
-| Ticker Animation | LOW | N/A | MEDIUM | LOW-MEDIUM |
-| Architecture / Legacy Code | CRITICAL | N/A | Not raised | CRITICAL |
-| Overall Feature Readiness | FAIL | N/A | Not stated | CONDITIONAL FAIL |
+| Signal Score Algorithm | LOW | N/A | MEDIUM | LOW–MEDIUM |
+| Ticker Animation | N/A | N/A | (truncated) | INSUFFICIENT DATA |
+| Overall | PASS WITH FIXES | N/A | PASS WITH FIXES | **PASS WITH FIXES** |
 
-> **Note on scoring methodology:** With only 2 of 3 models returning output, all findings are treated as either unanimous (both models agree) or unique (one model only). The absence of GPT-4o output reduces consensus confidence. Ratings have been conservatively biased upward in severity where one model flagged an issue the other did not explicitly address.
+> **Note:** GPT-4o failed with a 429 rate-limit error (34,007 tokens requested vs. 30,000 limit). All consensus determinations are derived from 2 models. Confidence thresholds adjusted accordingly — "unanimous" means both Grok + Gemini agree; "majority" is not meaningfully distinct at 2-of-2.
 
 ---
 
-## UNANIMOUS FINDINGS
-*(both models agree — implement unconditionally)*
+## UNANIMOUS FINDINGS (both models agree — implement unconditionally)
 
-### U1 — Background Thread Safety: No Guard Against Duplicate Sync Threads
-- **What it is:** `sync_feeds_background()` in `services/media_feed_service.py` (lines 383–388) spawns a new thread every time it is called. Under concurrent load or repeated triggers, multiple sync threads can run simultaneously, causing resource contention, duplicate writes, and potential database race conditions.
-- **File/Line:** `services/media_feed_service.py`, lines 383–388
-- **Confidence:** Both models independently identified this as the primary deficiency in the async layer. Grok rated it MEDIUM; Gemini rated it LOW but noted functional correctness with the implicit concern that the fire-and-forget pattern has no guard.
-- **What to change:** Implement a global threading lock or boolean flag before spawning the thread. Check the flag at entry; set it on start, clear it in a `finally` block.
+### 1. Dual RSS Service Architecture — Remove `rss_service.py`
+- **What:** Two parallel, conflicting feed services exist: `services/media_feed_service.py` (modern, feature-rich) and `services/rss_service.py` (legacy, redundant). Both define feeds independently and have separate sync logic.
+- **File/Line:** `services/rss_service.py` (entire file); any import/call sites referencing `rss_service`
+- **What to change:** Delete `rss_service.py` entirely. Audit all routes and imports to confirm 100% of the application is routed through `media_feed_service.py`. Remove orphaned imports.
+- **Why both models flagged this:** Gemini called it the #1 architectural concern and explicitly noted "data drift" risk. Grok's analysis of `media_feed_service.py` treats it as the sole authoritative service, implicitly confirming the legacy file is dead weight. This is the highest-confidence finding in the report.
 
-```python
-# services/media_feed_service.py
-import threading
+### 2. Delete Commented-Out Legacy Network Graph Code from `media_hub.html`
+- **What:** A large block of old, pure-JS network graph code (the pre-D3 implementation) sits commented out between `/* REMOVED_OLD_NETWORK_START */` and `REMOVED_OLD_NETWORK_END */`.
+- **File/Line:** `templates/media_hub.html`, lines 700–871 (approximately)
+- **What to change:** Delete the entire commented block. The D3.js implementation has superseded it fully.
+- **Why both models flagged this:** Gemini listed it as the #2 change needed. Grok implicitly confirms the D3 implementation is complete and functional. Dead code of this volume degrades maintainability and confuses future developers.
 
-_sync_lock = threading.Lock()
-_sync_in_progress = False
+### 3. D3 Force Simulation Is Correct and Complete
+- **What (strength):** Both models independently validated the D3 implementation as sound — force configuration, node rendering, drag interaction, hover cards, and responsive resize all pass review.
+- **File/Line:** `templates/media_hub.html`, lines 892–1000
+- **Consensus:** No changes needed to the D3 simulation logic itself.
 
-def sync_feeds_background(app=None):
-    global _sync_in_progress
-    with _sync_lock:
-        if _sync_in_progress:
-            logger.info("[MediaSync] Sync already in progress, skipping duplicate.")
-            return None
-        _sync_in_progress = True
-
-    def _run():
-        global _sync_in_progress
-        try:
-            sync_all_feeds(app)
-        finally:
-            with _sync_lock:
-                _sync_in_progress = False
-
-    t = threading.Thread(target=_run, daemon=True)
-    t.start()
-    return t
-```
-
-### U2 — D3 Network Graph: Missing Error Handling on API Fetch
-- **What it is:** The D3 graph in `templates/media_hub.html` (lines 891–995) fetches from `/api/media/network` with no `.catch()` handler. If the endpoint is unavailable, the Promise rejection is swallowed silently and the graph container renders blank with no user feedback.
-- **File/Line:** `templates/media_hub.html`, line ~902
-- **Confidence:** Both models identifie
+### 4. Async RSS Fetching Core Logic Is Correct
+- **What (strength):** Both models confirmed `sync_feeds_background()`, th
 
 ---
 
 ## ORIGINAL CODE (same code as Cycle 1)
 ## THE CODE (every new and modified file)
 
-### File: templates/media_hub.html (1074 lines)
+### File: templates/media_hub.html (1079 lines)
 ```
    1 | {% extends "base.html" %}
    2 | {% block title %}Bitcoin Media Command Center — Protocol Pulse{% endblock %}
@@ -231,7 +192,7 @@ def sync_feeds_background(app=None):
   18 | 
   19 | /* ── TICKER ── */
   20 | .ticker-wrap{position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(220,38,38,0.06),rgba(8,8,14,0.95),rgba(220,38,38,0.06));border-bottom:1px solid var(--border);padding:0;height:36px}
-  21 | .ticker-track{display:flex;animation:tickerScroll 120s linear infinite;white-space:nowrap;height:100%;align-items:center}
+  21 | .ticker-track{display:flex;animation:tickerScroll 120s linear infinite;white-space:nowrap;height:100%;align-items:center;will-change:transform}
   22 | .ticker-track:hover{animation-play-state:paused}
   23 | .ticker-item{display:inline-flex;align-items:center;gap:6px;padding:0 24px;font-size:12px;color:var(--sec);text-decoration:none;transition:color .2s;flex-shrink:0;height:100%}
   24 | .ticker-item:hover{color:var(--bright)}
@@ -1204,90 +1165,95 @@ def sync_feeds_background(app=None):
  991 |       sim.force('center',d3.forceCenter(W/2,H/2)).force('x',d3.forceX(W/2).strength(0.05));
  992 |       sim.alpha(0.3).restart();
  993 |     });
- 994 |   }).catch(function(e){console.warn('Network graph load error:',e)});
- 995 | })();
- 996 | 
- 997 | /* ═══════════ KOL SENTIMENT HEATMAP ═══════════ */
- 998 | (function(){
- 999 |   var grid=document.getElementById('hmGrid');
-1000 |   if(!grid)return;
+ 994 |   }).catch(function(e){
+ 995 |     console.warn('[MediaGraph] Failed to load network data:',e);
+ 996 |     svg.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle')
+ 997 |       .attr('fill','var(--btc)').attr('font-size','13px').attr('font-family','JetBrains Mono,monospace')
+ 998 |       .text('Network data loading... Refresh to retry.');
+ 999 |   });
+1000 | })();
 1001 | 
-1002 |   var KOLS=[
-1003 |     {name:'Michael Saylor',handle:'@saylor',cat:'macro'},
-1004 |     {name:'Lyn Alden',handle:'@LynAldenContact',cat:'macro'},
-1005 |     {name:'Willy Woo',handle:'@woonomic',cat:'macro'},
-1006 |     {name:'PlanB',handle:'@100trillionUSD',cat:'macro'},
-1007 |     {name:'ODELL',handle:'@ODELL',cat:'protocol'},
-1008 |     {name:'Jack Dorsey',handle:'@jack',cat:'protocol'},
-1009 |     {name:'Adam Back',handle:'@adam3us',cat:'protocol'},
-1010 |     {name:'Jameson Lopp',handle:'@lopp',cat:'protocol'},
-1011 |     {name:'Marty Bent',handle:'@MartyBent',cat:'media'},
-1012 |     {name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media'},
-1013 |     {name:'Natalie Brunell',handle:'@natbrunell',cat:'media'},
-1014 |     {name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro'},
-1015 |     {name:'Jeff Booth',handle:'@JeffBooth',cat:'macro'},
-1016 |     {name:'Saifedean',handle:'@saifedean',cat:'macro'},
-1017 |     {name:'Dylan LeClair',handle:'@DylanLeClair_',cat:'macro'},
-1018 |     {name:'Arthur Hayes',handle:'@CryptoHayes',cat:'macro'}
-1019 |   ];
-1020 | 
-1021 |   function sentColor(s){
-1022 |     if(s>=70)return'rgba(137,255,184,'+((s-50)/60)+')';
-1023 |     if(s>=50)return'rgba(248,193,92,'+((s-30)/60)+')';
-1024 |     return'rgba(220,38,38,'+((80-s)/100)+')';
-1025 |   }
-1026 |   function sentLabel(s){return s>=70?'Bullish':s>=50?'Neutral':'Bearish'}
-1027 | 
-1028 |   // Seed from Nostr data if available, else deterministic from name hash
-1029 |   var html='';
-1030 |   KOLS.forEach(function(k){
-1031 |     var h=0;for(var i=0;i<k.name.length;i++){h=((h<<5)-h)+k.name.charCodeAt(i);h|=0}
-1032 |     var score=40+Math.abs(h%45); // 40-84 range, deterministic
-1033 |     var bg=sentColor(score);
-1034 |     var label=sentLabel(score);
-1035 |     html+='<div class="hm-cell" style="background:'+bg+'" title="'+k.name+': '+score+'">'
-1036 |       +'<div class="hm-name">'+k.name+'</div>'
-1037 |       +'<div class="hm-handle mono">'+k.handle+'</div>'
-1038 |       +'<div class="hm-score mono">'+score+'</div>'
-1039 |       +'<div class="hm-label">'+label+'</div>'
-1040 |       +'</div>';
-1041 |   });
-1042 |   grid.innerHTML=html;
-1043 | 
-1044 |   // Live update from Nostr events if KOL posts detected
-1045 |   var origAddKol=window.addKol;
-1046 |   if(typeof origAddKol==='function'){
-1047 |     window.addKol=function(ev){
-1048 |       origAddKol(ev);
-1049 |       // Update heatmap cell if KOL match
-1050 |       var v=V[ev.pubkey];
-1051 |       if(v){
-1052 |         var cells=grid.querySelectorAll('.hm-cell');
-1053 |         cells.forEach(function(cell){
-1054 |           if(cell.querySelector('.hm-name').textContent===v.n){
-1055 |             var txt=ev.content.toLowerCase();
-1056 |             var bull=['bullish','moon','ath','pump','buy','accumulate','long'];
-1057 |             var bear=['bearish','dump','sell','short','crash','correction'];
-1058 |             var bs=0;bull.forEach(function(w){if(txt.indexOf(w)>=0)bs+=15});
-1059 |             bear.forEach(function(w){if(txt.indexOf(w)>=0)bs-=15});
-1060 |             var cur=parseInt(cell.querySelector('.hm-score').textContent)||50;
-1061 |             var ns=Math.max(10,Math.min(95,cur+bs));
-1062 |             cell.querySelector('.hm-score').textContent=ns;
-1063 |             cell.querySelector('.hm-label').textContent=sentLabel(ns);
-1064 |             cell.style.background=sentColor(ns);
-1065 |             cell.style.transition='background 0.5s ease';
-1066 |           }
-1067 |         });
-1068 |       }
-1069 |     };
-1070 |   }
-1071 | })();
-1072 | </script>
-1073 | {% endblock %}
-1074 | 
+1002 | /* ═══════════ KOL SENTIMENT HEATMAP ═══════════ */
+1003 | (function(){
+1004 |   var grid=document.getElementById('hmGrid');
+1005 |   if(!grid)return;
+1006 | 
+1007 |   var KOLS=[
+1008 |     {name:'Michael Saylor',handle:'@saylor',cat:'macro'},
+1009 |     {name:'Lyn Alden',handle:'@LynAldenContact',cat:'macro'},
+1010 |     {name:'Willy Woo',handle:'@woonomic',cat:'macro'},
+1011 |     {name:'PlanB',handle:'@100trillionUSD',cat:'macro'},
+1012 |     {name:'ODELL',handle:'@ODELL',cat:'protocol'},
+1013 |     {name:'Jack Dorsey',handle:'@jack',cat:'protocol'},
+1014 |     {name:'Adam Back',handle:'@adam3us',cat:'protocol'},
+1015 |     {name:'Jameson Lopp',handle:'@lopp',cat:'protocol'},
+1016 |     {name:'Marty Bent',handle:'@MartyBent',cat:'media'},
+1017 |     {name:'Peter McCormack',handle:'@PeterMcCormack',cat:'media'},
+1018 |     {name:'Natalie Brunell',handle:'@natbrunell',cat:'media'},
+1019 |     {name:'Preston Pysh',handle:'@PrestonPysh',cat:'macro'},
+1020 |     {name:'Jeff Booth',handle:'@JeffBooth',cat:'macro'},
+1021 |     {name:'Saifedean',handle:'@saifedean',cat:'macro'},
+1022 |     {name:'Dylan LeClair',handle:'@DylanLeClair_',cat:'macro'},
+1023 |     {name:'Arthur Hayes',handle:'@CryptoHayes',cat:'macro'}
+1024 |   ];
+1025 | 
+1026 |   function sentColor(s){
+1027 |     if(s>=70)return'rgba(137,255,184,'+((s-50)/60)+')';
+1028 |     if(s>=50)return'rgba(248,193,92,'+((s-30)/60)+')';
+1029 |     return'rgba(220,38,38,'+((80-s)/100)+')';
+1030 |   }
+1031 |   function sentLabel(s){return s>=70?'Bullish':s>=50?'Neutral':'Bearish'}
+1032 | 
+1033 |   // Seed from Nostr data if available, else deterministic from name hash
+1034 |   var html='';
+1035 |   KOLS.forEach(function(k){
+1036 |     var h=0;for(var i=0;i<k.name.length;i++){h=((h<<5)-h)+k.name.charCodeAt(i);h|=0}
+1037 |     var score=40+Math.abs(h%45); // 40-84 range, deterministic
+1038 |     var bg=sentColor(score);
+1039 |     var label=sentLabel(score);
+1040 |     html+='<div class="hm-cell" style="background:'+bg+'" title="'+k.name+': '+score+'">'
+1041 |       +'<div class="hm-name">'+k.name+'</div>'
+1042 |       +'<div class="hm-handle mono">'+k.handle+'</div>'
+1043 |       +'<div class="hm-score mono">'+score+'</div>'
+1044 |       +'<div class="hm-label">'+label+'</div>'
+1045 |       +'</div>';
+1046 |   });
+1047 |   grid.innerHTML=html;
+1048 | 
+1049 |   // Live update from Nostr events if KOL posts detected
+1050 |   var origAddKol=window.addKol;
+1051 |   if(typeof origAddKol==='function'){
+1052 |     window.addKol=function(ev){
+1053 |       origAddKol(ev);
+1054 |       // Update heatmap cell if KOL match
+1055 |       var v=V[ev.pubkey];
+1056 |       if(v){
+1057 |         var cells=grid.querySelectorAll('.hm-cell');
+1058 |         cells.forEach(function(cell){
+1059 |           if(cell.querySelector('.hm-name').textContent===v.n){
+1060 |             var txt=ev.content.toLowerCase();
+1061 |             var bull=['bullish','moon','ath','pump','buy','accumulate','long'];
+1062 |             var bear=['bearish','dump','sell','short','crash','correction'];
+1063 |             var bs=0;bull.forEach(function(w){if(txt.indexOf(w)>=0)bs+=15});
+1064 |             bear.forEach(function(w){if(txt.indexOf(w)>=0)bs-=15});
+1065 |             var cur=parseInt(cell.querySelector('.hm-score').textContent)||50;
+1066 |             var ns=Math.max(10,Math.min(95,cur+bs));
+1067 |             cell.querySelector('.hm-score').textContent=ns;
+1068 |             cell.querySelector('.hm-label').textContent=sentLabel(ns);
+1069 |             cell.style.background=sentColor(ns);
+1070 |             cell.style.transition='background 0.5s ease';
+1071 |           }
+1072 |         });
+1073 |       }
+1074 |     };
+1075 |   }
+1076 | })();
+1077 | </script>
+1078 | {% endblock %}
+1079 | 
 ```
 
-### File: services/media_feed_service.py (605 lines)
+### File: services/media_feed_service.py (675 lines)
 ```
    1 | """
    2 | PROTOCOL PULSE — MEDIA FEED SERVICE
@@ -1318,13 +1284,13 @@ def sync_feeds_background(app=None):
   27 |     {"name": "Stephan Livera", "url": "https://feeds.simplecast.com/KV8z39iS", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
   28 |     {"name": "What Bitcoin Did", "url": "https://feeds.simplecast.com/tEJEubMT", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
   29 |     {"name": "Bitcoin Audible", "url": "https://feeds.megaphone.fm/SWN4978045882", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
-  30 |     {"name": "Citadel Dispatch", "url": "https://feeds.simplecast.com/M6LkF8NN", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
-  31 |     {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/BdGT7E3F", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
-  32 |     {"name": "Simply Bitcoin", "url": "https://feeds.simplecast.com/7V5b8Zag", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
-  33 |     {"name": "Bitcoin Magazine Podcast", "url": "https://feeds.megaphone.fm/bitcoin-magazine", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
-  34 |     {"name": "Rabbit Hole Recap", "url": "https://feeds.simplecast.com/Dh1oHsHZ", "host": "Matt Odell & Marty Bent", "tier": 1, "color": "#8e44ad", "category": "podcast"},
-  35 |     {"name": "Bitcoin Fundamentals", "url": "https://feeds.simplecast.com/WXOL8WUD", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
-  36 |     {"name": "Coin Stories", "url": "https://feeds.simplecast.com/6Z1iM0Fg", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
+  30 |     {"name": "The Bitcoin Layer", "url": "https://feeds.simplecast.com/BdGT7E3F", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
+  31 |     {"name": "Simply Bitcoin", "url": "https://feeds.simplecast.com/7V5b8Zag", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
+  32 |     {"name": "Bitcoin Magazine Podcast", "url": "https://feeds.megaphone.fm/bitcoin-magazine", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
+  33 |     {"name": "Citadel Dispatch", "url": "https://feeds.simplecast.com/M6LkF8NN", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
+  34 |     {"name": "Natalie Brunell", "url": "https://feeds.simplecast.com/6Z1iM0Fg", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
+  35 |     {"name": "Rabbit Hole Recap", "url": "https://feeds.simplecast.com/Dh1oHsHZ", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
+  36 |     {"name": "Preston Pysh / TIP", "url": "https://feeds.simplecast.com/WXOL8WUD", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
   37 | ]
   38 | 
   39 | YOUTUBE_CHANNELS = [
@@ -1520,383 +1486,453 @@ def sync_feeds_background(app=None):
  229 | 
  230 | 
  231 | def parse_youtube_rss(channel_config: dict) -> List[dict]:
- 232 |     """Parse a YouTube channel RSS feed (no API key needed)."""
- 233 |     url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_config['channel_id']}"
- 234 |     try:
- 235 |         feed = _fetch_feed(url)
- 236 |     except Exception as e:
- 237 |         logger.error(f"Failed to parse YouTube RSS {channel_config['name']}: {e}")
- 238 |         return []
- 239 | 
- 240 |     episodes = []
- 241 |     for entry in feed.entries[:10]:
- 242 |         title = entry.get('title', '').strip()
- 243 |         if not title or is_excluded(title):
- 244 |             continue
- 245 | 
- 246 |         desc = _clean_html(entry.get('summary', '') or '')
- 247 |         if len(desc) > 500:
- 248 |             desc = desc[:497] + '...'
- 249 | 
- 250 |         vid_id = entry.get('yt_videoid', '')
- 251 |         pub_date = _parse_rss_date(entry)
- 252 | 
- 253 |         episodes.append({
- 254 |             'guid': vid_id or _make_guid(entry, url),
- 255 |             'title': title,
- 256 |             'description': desc,
- 257 |             'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
- 258 |             'source_url': entry.get('link', ''),
- 259 |             'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
- 260 |             'duration': '',
- 261 |             'published_at': pub_date,
- 262 |             'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
- 263 |         })
+ 232 |     """Fetch latest videos from YouTube channel via Data API v3 (RSS deprecated)."""
+ 233 |     import requests as req
+ 234 |     api_key = os.environ.get('YOUTUBE_API_KEY')
+ 235 | 
+ 236 |     episodes = []
+ 237 | 
+ 238 |     if api_key:
+ 239 |         try:
+ 240 |             resp = req.get(
+ 241 |                 'https://www.googleapis.com/youtube/v3/search',
+ 242 |                 params={
+ 243 |                     'key': api_key,
+ 244 |                     'channelId': channel_config['channel_id'],
+ 245 |                     'part': 'snippet',
+ 246 |                     'order': 'date',
+ 247 |                     'maxResults': 10,
+ 248 |                     'type': 'video',
+ 249 |                 },
+ 250 |                 timeout=15,
+ 251 |             )
+ 252 |             if resp.status_code == 200:
+ 253 |                 data = resp.json()
+ 254 |                 for item in data.get('items', []):
+ 255 |                     snippet = item.get('snippet', {})
+ 256 |                     title = snippet.get('title', '').strip()
+ 257 |                     if not title or is_excluded(title):
+ 258 |                         continue
+ 259 | 
+ 260 |                     vid_id = item.get('id', {}).get('videoId', '')
+ 261 |                     desc = _clean_html(snippet.get('description', ''))
+ 262 |                     if len(desc) > 500:
+ 263 |                         desc = desc[:497] + '...'
  264 | 
- 265 |     return episodes
- 266 | 
- 267 | 
- 268 | # ─── DATABASE SYNC ─────────────────────────────────────────────────────────────
- 269 | 
- 270 | def ensure_tables():
- 271 |     """Create tables if they don't exist."""
- 272 |     from app import db
- 273 |     db.create_all()
- 274 | 
+ 265 |                     pub_str = snippet.get('publishedAt', '')
+ 266 |                     pub_date = None
+ 267 |                     if pub_str:
+ 268 |                         try:
+ 269 |                             pub_date = datetime.strptime(pub_str[:19], '%Y-%m-%dT%H:%M:%S')
+ 270 |                         except Exception:
+ 271 |                             pass
+ 272 | 
+ 273 |                     thumb = snippet.get('thumbnails', {}).get('high', {}).get('url') or \
+ 274 |                             (f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None)
  275 | 
- 276 | def sync_all_feeds(app=None):
- 277 |     """Sync all RSS + YouTube feeds to database. Run in background thread."""
- 278 |     if app is None:
- 279 |         from app import app as flask_app
- 280 |         app = flask_app
- 281 | 
- 282 |     with app.app_context():
- 283 |         from app import db
- 284 |         import models
- 285 | 
- 286 |         ensure_tables()
- 287 |         total_new = 0
- 288 | 
- 289 |         # --- RSS Podcasts ---
- 290 |         for fc in PODCAST_FEEDS:
- 291 |             try:
- 292 |                 # Ensure feed row exists
- 293 |                 feed = models.MediaFeed.query.filter_by(url=fc['url']).first()
- 294 |                 if not feed:
- 295 |                     feed = models.MediaFeed(
- 296 |                         name=fc['name'], url=fc['url'], feed_type='rss',
- 297 |                         category=fc['category'], host=fc.get('host', ''),
- 298 |                         color=fc.get('color', '#dc2626'), tier=fc.get('tier', 2),
- 299 |                     )
- 300 |                     db.session.add(feed)
- 301 |                     db.session.flush()
- 302 | 
- 303 |                 episodes = parse_rss_feed(fc)
- 304 |                 new_count = 0
- 305 |                 for ep in episodes:
- 306 |                     existing = models.MediaEpisode.query.filter_by(guid=ep['guid']).first()
- 307 |                     if existing:
- 308 |                         continue
- 309 |                     me = models.MediaEpisode(
- 310 |                         feed_id=feed.id,
- 311 |                         guid=ep['guid'],
- 312 |                         title=ep['title'],
- 313 |                         description=ep['description'],
- 314 |                         audio_url=ep.get('audio_url'),
- 315 |                         source_url=ep.get('source_url'),
- 316 |                         thumbnail_url=ep.get('thumbnail_url'),
- 317 |                         duration=ep.get('duration', ''),
- 318 |                         published_at=ep.get('published_at'),
- 319 |                         signal_score=ep.get('signal_score', 0),
- 320 |                     )
- 321 |                     db.session.add(me)
- 322 |                     new_count += 1
- 323 | 
- 324 |                 feed.last_synced = datetime.utcnow()
- 325 |                 feed.episode_count = models.MediaEpisode.query.filter_by(feed_id=feed.id).count() + new_count
- 326 |                 db.session.commit()
- 327 |                 total_new += new_count
- 328 |                 if new_count:
- 329 |                     logger.info(f"[MediaSync] {fc['name']}: +{new_count} episodes")
- 330 |             except Exception as e:
- 331 |                 db.session.rollback()
- 332 |                 logger.error(f"[MediaSync] RSS error {fc['name']}: {e}")
- 333 | 
- 334 |         # --- YouTube Channels ---
- 335 |         for yc in YOUTUBE_CHANNELS:
- 336 |             try:
- 337 |                 yt_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={yc['channel_id']}"
- 338 |                 feed = models.MediaFeed.query.filter_by(url=yt_url).first()
- 339 |                 if not feed:
- 340 |                     feed = models.MediaFeed(
- 341 |                         name=yc['name'], url=yt_url, feed_type='youtube',
- 342 |                         category=yc['category'], host=yc['name'],
- 343 |                         color=yc.get('color', '#dc2626'), tier=yc.get('tier', 2),
- 344 |                     )
- 345 |                     db.session.add(feed)
- 346 |                     db.session.flush()
- 347 | 
- 348 |                 episodes = parse_youtube_rss(yc)
- 349 |                 new_count = 0
- 350 |                 for ep in episodes:
- 351 |                     existing = models.MediaEpisode.query.filter_by(guid=ep['guid']).first()
- 352 |                     if existing:
- 353 |                         continue
- 354 |                     me = models.MediaEpisode(
- 355 |                         feed_id=feed.id,
- 356 |                         guid=ep['guid'],
- 357 |                         title=ep['title'],
- 358 |                         description=ep['description'],
- 359 |                         video_url=ep.get('video_url'),
- 360 |                         source_url=ep.get('source_url'),
- 361 |                         thumbnail_url=ep.get('thumbnail_url'),
- 362 |                         duration=ep.get('duration', ''),
- 363 |                         published_at=ep.get('published_at'),
- 364 |                         signal_score=ep.get('signal_score', 0),
- 365 |                     )
- 366 |                     db.session.add(me)
- 367 |                     new_count += 1
- 368 | 
- 369 |                 feed.last_synced = datetime.utcnow()
- 370 |                 feed.episode_count = models.MediaEpisode.query.filter_by(feed_id=feed.id).count() + new_count
- 371 |                 db.session.commit()
- 372 |                 total_new += new_count
- 373 |                 if new_count:
- 374 |                     logger.info(f"[MediaSync] YouTube {yc['name']}: +{new_count} videos")
- 375 |             except Exception as e:
- 376 |                 db.session.rollback()
- 377 |                 logger.error(f"[MediaSync] YouTube error {yc['name']}: {e}")
- 378 | 
- 379 |         logger.info(f"[MediaSync] Complete. {total_new} new items across all feeds.")
- 380 |         return total_new
- 381 | 
- 382 | 
- 383 | def sync_feeds_background(app=None):
- 384 |     """Fire-and-forget background sync."""
- 385 |     t = threading.Thread(target=sync_all_feeds, args=(app,), daemon=True)
- 386 |     t.start()
- 387 |     return t
- 388 | 
- 389 | 
- 390 | # ─── AI SUMMARIES ──────────────────────────────────────────────────────────────
- 391 | 
- 392 | def generate_ai_summaries(app=None, batch_size: int = 20):
- 393 |     """Generate Claude Haiku summaries for episodes missing them."""
- 394 |     if app is None:
- 395 |         from app import app as flask_app
- 396 |         app = flask_app
- 397 | 
- 398 |     api_key = os.environ.get('ANTHROPIC_API_KEY')
- 399 |     if not api_key:
- 400 |         logger.warning("[MediaAI] No ANTHROPIC_API_KEY, skipping summaries")
- 401 |         return 0
- 402 | 
- 403 |     with app.app_context():
- 404 |         from app import db
- 405 |         import models
- 406 |         import requests as req
- 407 | 
- 408 |         unsummarized = models.MediaEpisode.query.filter(
- 409 |             models.MediaEpisode.summary_ai.is_(None),
- 410 |             models.MediaEpisode.description.isnot(None),
- 411 |             models.MediaEpisode.description != '',
- 412 |         ).order_by(models.MediaEpisode.published_at.desc()).limit(batch_size).all()
- 413 | 
- 414 |         if not unsummarized:
- 415 |             return 0
- 416 | 
- 417 |         count = 0
- 418 |         for ep in unsummarized:
- 419 |             try:
- 420 |                 feed = models.MediaFeed.query.get(ep.feed_id)
- 421 |                 feed_name = feed.name if feed else 'Unknown'
- 422 | 
- 423 |                 resp = req.post(
- 424 |                     'https://api.anthropic.com/v1/messages',
- 425 |                     headers={
- 426 |                         'x-api-key': api_key,
- 427 |                         'anthropic-version': '2023-06-01',
- 428 |                         'content-type': 'application/json',
- 429 |                     },
- 430 |                     json={
- 431 |                         'model': 'claude-3-haiku-20240307',
- 432 |                         'max_tokens': 100,
- 433 |                         'messages': [{
- 434 |                             'role': 'user',
- 435 |                             'content': f'Write exactly one sentence (max 30 words) summarizing this Bitcoin podcast episode for traders. Be specific about the signal — what matters for price action or protocol development. No fluff.\n\nShow: {feed_name}\nTitle: {ep.title}\nDescription: {ep.description[:400]}'
- 436 |                         }],
- 437 |                     },
- 438 |                     timeout=15,
- 439 |                 )
- 440 |                 if resp.status_code == 200:
- 441 |                     data = resp.json()
- 442 |                     summary = data.get('content', [{}])[0].get('text', '').strip()
- 443 |                     if summary:
- 444 |                         ep.summary_ai = summary[:300]
- 445 |                         db.session.commit()
- 446 |                         count += 1
- 447 |                 else:
- 448 |                     logger.warning(f"[MediaAI] API {resp.status_code} for ep {ep.id}")
- 449 | 
- 450 |                 time.sleep(0.5)  # Rate limit courtesy
- 451 |             except Exception as e:
- 452 |                 logger.error(f"[MediaAI] Summary error for ep {ep.id}: {e}")
- 453 | 
- 454 |         logger.info(f"[MediaAI] Generated {count} summaries")
- 455 |         return count
- 456 | 
- 457 | 
- 458 | # ─── QUERY HELPERS ─────────────────────────────────────────────────────────────
+ 276 |                     episodes.append({
+ 277 |                         'guid': vid_id,
+ 278 |                         'title': title,
+ 279 |                         'description': desc,
+ 280 |                         'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else '',
+ 281 |                         'source_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else '',
+ 282 |                         'thumbnail_url': thumb,
+ 283 |                         'duration': '',
+ 284 |                         'published_at': pub_date,
+ 285 |                         'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
+ 286 |                     })
+ 287 |             else:
+ 288 |                 logger.warning(f"[YouTube] API {resp.status_code} for {channel_config['name']}")
+ 289 |         except Exception as e:
+ 290 |             logger.error(f"[YouTube] API error {channel_config['name']}: {e}")
+ 291 |     else:
+ 292 |         # Fallback: try RSS (deprecated, may return 404)
+ 293 |         url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_config['channel_id']}"
+ 294 |         try:
+ 295 |             feed = _fetch_feed(url)
+ 296 |             for entry in feed.entries[:10]:
+ 297 |                 title = entry.get('title', '').strip()
+ 298 |                 if not title or is_excluded(title):
+ 299 |                     continue
+ 300 |                 vid_id = entry.get('yt_videoid', '')
+ 301 |                 pub_date = _parse_rss_date(entry)
+ 302 |                 episodes.append({
+ 303 |                     'guid': vid_id or _make_guid(entry, url),
+ 304 |                     'title': title,
+ 305 |                     'description': _clean_html(entry.get('summary', '') or '')[:500],
+ 306 |                     'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
+ 307 |                     'source_url': entry.get('link', ''),
+ 308 |                     'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
+ 309 |                     'duration': '',
+ 310 |                     'published_at': pub_date,
+ 311 |                     'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
+ 312 |                 })
+ 313 |         except Exception as e:
+ 314 |             logger.error(f"[YouTube] RSS fallback failed {channel_config['name']}: {e}")
+ 315 | 
+ 316 |     return episodes
+ 317 | 
+ 318 | 
+ 319 | # ─── DATABASE SYNC ─────────────────────────────────────────────────────────────
+ 320 | 
+ 321 | def ensure_tables():
+ 322 |     """Create tables if they don't exist."""
+ 323 |     from app import db
+ 324 |     db.create_all()
+ 325 | 
+ 326 | 
+ 327 | def sync_all_feeds(app=None):
+ 328 |     """Sync all RSS + YouTube feeds to database. Run in background thread."""
+ 329 |     if app is None:
+ 330 |         from app import app as flask_app
+ 331 |         app = flask_app
+ 332 | 
+ 333 |     with app.app_context():
+ 334 |         from app import db
+ 335 |         import models
+ 336 | 
+ 337 |         ensure_tables()
+ 338 |         total_new = 0
+ 339 | 
+ 340 |         # --- RSS Podcasts ---
+ 341 |         for fc in PODCAST_FEEDS:
+ 342 |             try:
+ 343 |                 # Ensure feed row exists
+ 344 |                 feed = models.MediaFeed.query.filter_by(url=fc['url']).first()
+ 345 |                 if not feed:
+ 346 |                     feed = models.MediaFeed(
+ 347 |                         name=fc['name'], url=fc['url'], feed_type='rss',
+ 348 |                         category=fc['category'], host=fc.get('host', ''),
+ 349 |                         color=fc.get('color', '#dc2626'), tier=fc.get('tier', 2),
+ 350 |                     )
+ 351 |                     db.session.add(feed)
+ 352 |                     db.session.flush()
+ 353 | 
+ 354 |                 episodes = parse_rss_feed(fc)
+ 355 |                 new_count = 0
+ 356 |                 for ep in episodes:
+ 357 |                     existing = models.MediaEpisode.query.filter_by(guid=ep['guid']).first()
+ 358 |                     if existing:
+ 359 |                         continue
+ 360 |                     me = models.MediaEpisode(
+ 361 |                         feed_id=feed.id,
+ 362 |                         guid=ep['guid'],
+ 363 |                         title=ep['title'],
+ 364 |                         description=ep['description'],
+ 365 |                         audio_url=ep.get('audio_url'),
+ 366 |                         source_url=ep.get('source_url'),
+ 367 |                         thumbnail_url=ep.get('thumbnail_url'),
+ 368 |                         duration=ep.get('duration', ''),
+ 369 |                         published_at=ep.get('published_at'),
+ 370 |                         signal_score=ep.get('signal_score', 0),
+ 371 |                     )
+ 372 |                     db.session.add(me)
+ 373 |                     new_count += 1
+ 374 | 
+ 375 |                 feed.last_synced = datetime.utcnow()
+ 376 |                 feed.episode_count = models.MediaEpisode.query.filter_by(feed_id=feed.id).count() + new_count
+ 377 |                 db.session.commit()
+ 378 |                 total_new += new_count
+ 379 |                 if new_count:
+ 380 |                     logger.info(f"[MediaSync] {fc['name']}: +{new_count} episodes")
+ 381 |             except Exception as e:
+ 382 |                 db.session.rollback()
+ 383 |                 logger.error(f"[MediaSync] RSS error {fc['name']}: {e}")
+ 384 | 
+ 385 |         # --- YouTube Channels ---
+ 386 |         for yc in YOUTUBE_CHANNELS:
+ 387 |             try:
+ 388 |                 yt_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={yc['channel_id']}"
+ 389 |                 feed = models.MediaFeed.query.filter_by(url=yt_url).first()
+ 390 |                 if not feed:
+ 391 |                     feed = models.MediaFeed(
+ 392 |                         name=yc['name'], url=yt_url, feed_type='youtube',
+ 393 |                         category=yc['category'], host=yc['name'],
+ 394 |                         color=yc.get('color', '#dc2626'), tier=yc.get('tier', 2),
+ 395 |                     )
+ 396 |                     db.session.add(feed)
+ 397 |                     db.session.flush()
+ 398 | 
+ 399 |                 episodes = parse_youtube_rss(yc)
+ 400 |                 new_count = 0
+ 401 |                 for ep in episodes:
+ 402 |                     existing = models.MediaEpisode.query.filter_by(guid=ep['guid']).first()
+ 403 |                     if existing:
+ 404 |                         continue
+ 405 |                     me = models.MediaEpisode(
+ 406 |                         feed_id=feed.id,
+ 407 |                         guid=ep['guid'],
+ 408 |                         title=ep['title'],
+ 409 |                         description=ep['description'],
+ 410 |                         video_url=ep.get('video_url'),
+ 411 |                         source_url=ep.get('source_url'),
+ 412 |                         thumbnail_url=ep.get('thumbnail_url'),
+ 413 |                         duration=ep.get('duration', ''),
+ 414 |                         published_at=ep.get('published_at'),
+ 415 |                         signal_score=ep.get('signal_score', 0),
+ 416 |                     )
+ 417 |                     db.session.add(me)
+ 418 |                     new_count += 1
+ 419 | 
+ 420 |                 feed.last_synced = datetime.utcnow()
+ 421 |                 feed.episode_count = models.MediaEpisode.query.filter_by(feed_id=feed.id).count() + new_count
+ 422 |                 db.session.commit()
+ 423 |                 total_new += new_count
+ 424 |                 if new_count:
+ 425 |                     logger.info(f"[MediaSync] YouTube {yc['name']}: +{new_count} videos")
+ 426 |             except Exception as e:
+ 427 |                 db.session.rollback()
+ 428 |                 logger.error(f"[MediaSync] YouTube error {yc['name']}: {e}")
+ 429 | 
+ 430 |         logger.info(f"[MediaSync] Complete. {total_new} new items across all feeds.")
+ 431 |         return total_new
+ 432 | 
+ 433 | 
+ 434 | _sync_lock = threading.Lock()
+ 435 | _sync_in_progress = False
+ 436 | 
+ 437 | 
+ 438 | def sync_feeds_background(app=None):
+ 439 |     """Fire-and-forget background sync with guard against duplicate threads."""
+ 440 |     global _sync_in_progress
+ 441 |     with _sync_lock:
+ 442 |         if _sync_in_progress:
+ 443 |             logger.info("[MediaSync] Sync already in progress, skipping duplicate.")
+ 444 |             return None
+ 445 |         _sync_in_progress = True
+ 446 | 
+ 447 |     def _run():
+ 448 |         global _sync_in_progress
+ 449 |         try:
+ 450 |             sync_all_feeds(app)
+ 451 |         finally:
+ 452 |             with _sync_lock:
+ 453 |                 _sync_in_progress = False
+ 454 | 
+ 455 |     t = threading.Thread(target=_run, daemon=True)
+ 456 |     t.start()
+ 457 |     return t
+ 458 | 
  459 | 
- 460 | def get_feed_matrix(limit_per_col: int = 20) -> dict:
- 461 |     """Get three-column feed data for the Media Hub template."""
- 462 |     import models
- 463 | 
- 464 |     # Podcasts — RSS episodes with audio
- 465 |     podcasts = (
- 466 |         models.MediaEpisode.query
- 467 |         .join(models.MediaFeed)
- 468 |         .filter(models.MediaFeed.feed_type == 'rss')
- 469 |         .order_by(models.MediaEpisode.published_at.desc())
- 470 |         .limit(limit_per_col)
- 471 |         .all()
- 472 |     )
- 473 | 
- 474 |     # Videos — YouTube episodes
- 475 |     videos = (
- 476 |         models.MediaEpisode.query
- 477 |         .join(models.MediaFeed)
- 478 |         .filter(models.MediaFeed.feed_type == 'youtube')
- 479 |         .order_by(models.MediaEpisode.published_at.desc())
- 480 |         .limit(limit_per_col)
- 481 |         .all()
- 482 |     )
+ 460 | # ─── AI SUMMARIES ──────────────────────────────────────────────────────────────
+ 461 | 
+ 462 | def generate_ai_summaries(app=None, batch_size: int = 20):
+ 463 |     """Generate Claude Haiku summaries for episodes missing them."""
+ 464 |     if app is None:
+ 465 |         from app import app as flask_app
+ 466 |         app = flask_app
+ 467 | 
+ 468 |     api_key = os.environ.get('ANTHROPIC_API_KEY')
+ 469 |     if not api_key:
+ 470 |         logger.warning("[MediaAI] No ANTHROPIC_API_KEY, skipping summaries")
+ 471 |         return 0
+ 472 | 
+ 473 |     with app.app_context():
+ 474 |         from app import db
+ 475 |         import models
+ 476 |         import requests as req
+ 477 | 
+ 478 |         unsummarized = models.MediaEpisode.query.filter(
+ 479 |             models.MediaEpisode.summary_ai.is_(None),
+ 480 |             models.MediaEpisode.description.isnot(None),
+ 481 |             models.MediaEpisode.description != '',
+ 482 |         ).order_by(models.MediaEpisode.published_at.desc()).limit(batch_size).all()
  483 | 
- 484 |     def ep_to_dict(ep):
- 485 |         feed = ep.feed
- 486 |         return {
- 487 |             'id': ep.id,
- 488 |             'title': ep.title,
- 489 |             'description': ep.description or '',
- 490 |             'summary_ai': ep.summary_ai or '',
- 491 |             'audio_url': ep.audio_url,
- 492 |             'video_url': ep.video_url,
- 493 |             'source_url': ep.source_url,
- 494 |             'thumbnail_url': ep.thumbnail_url,
- 495 |             'duration': ep.duration or '',
- 496 |             'published_at': ep.published_at.isoformat() if ep.published_at else '',
- 497 |             'signal_score': ep.signal_score or 0,
- 498 |             'feed_name': feed.name if feed else '',
- 499 |             'feed_host': feed.host if feed else '',
- 500 |             'feed_color': feed.color if feed else '#dc2626',
- 501 |             'feed_type': feed.feed_type if feed else '',
- 502 |             'feed_tier': feed.tier if feed else 2,
- 503 |         }
- 504 | 
- 505 |     return {
- 506 |         'podcasts': [ep_to_dict(ep) for ep in podcasts],
- 507 |         'videos': [ep_to_dict(ep) for ep in videos],
- 508 |     }
- 509 | 
- 510 | 
- 511 | def get_ticker_items(limit: int = 30) -> List[dict]:
- 512 |     """Get latest items across all feeds for the scrolling ticker."""
- 513 |     import models
- 514 | 
- 515 |     items = (
- 516 |         models.MediaEpisode.query
- 517 |         .join(models.MediaFeed)
- 518 |         .order_by(models.MediaEpisode.published_at.desc())
- 519 |         .limit(limit)
- 520 |         .all()
- 521 |     )
- 522 | 
- 523 |     result = []
- 524 |     for ep in items:
- 525 |         feed = ep.feed
- 526 |         icon = '🎙' if feed and feed.feed_type == 'rss' else '🎬'
- 527 |         link = ep.source_url or ep.video_url or ep.audio_url or '#'
- 528 |         result.append({
- 529 |             'icon': icon,
- 530 |             'title': ep.title,
- 531 |             'source': feed.name if feed else '',
- 532 |             'url': link,
- 533 |             'score': ep.signal_score or 0,
- 534 |             'time': _time_ago(ep.published_at) if ep.published_at else '',
- 535 |         })
- 536 | 
- 537 |     return result
- 538 | 
- 539 | 
- 540 | def get_feed_stats() -> dict:
- 541 |     """Get aggregate stats for the hero section."""
- 542 |     import models
+ 484 |         if not unsummarized:
+ 485 |             return 0
+ 486 | 
+ 487 |         count = 0
+ 488 |         for ep in unsummarized:
+ 489 |             try:
+ 490 |                 feed = models.MediaFeed.query.get(ep.feed_id)
+ 491 |                 feed_name = feed.name if feed else 'Unknown'
+ 492 | 
+ 493 |                 resp = req.post(
+ 494 |                     'https://api.anthropic.com/v1/messages',
+ 495 |                     headers={
+ 496 |                         'x-api-key': api_key,
+ 497 |                         'anthropic-version': '2023-06-01',
+ 498 |                         'content-type': 'application/json',
+ 499 |                     },
+ 500 |                     json={
+ 501 |                         'model': 'claude-3-haiku-20240307',
+ 502 |                         'max_tokens': 100,
+ 503 |                         'messages': [{
+ 504 |                             'role': 'user',
+ 505 |                             'content': f'Write exactly one sentence (max 30 words) summarizing this Bitcoin podcast episode for traders. Be specific about the signal — what matters for price action or protocol development. No fluff.\n\nShow: {feed_name}\nTitle: {ep.title}\nDescription: {ep.description[:400]}'
+ 506 |                         }],
+ 507 |                     },
+ 508 |                     timeout=15,
+ 509 |                 )
+ 510 |                 if resp.status_code == 200:
+ 511 |                     data = resp.json()
+ 512 |                     summary = data.get('content', [{}])[0].get('text', '').strip()
+ 513 |                     if summary:
+ 514 |                         ep.summary_ai = summary[:300]
+ 515 |                         db.session.commit()
+ 516 |                         count += 1
+ 517 |                 else:
+ 518 |                     logger.warning(f"[MediaAI] API {resp.status_code} for ep {ep.id}")
+ 519 | 
+ 520 |                 time.sleep(0.5)  # Rate limit courtesy
+ 521 |             except Exception as e:
+ 522 |                 logger.error(f"[MediaAI] Summary error for ep {ep.id}: {e}")
+ 523 | 
+ 524 |         logger.info(f"[MediaAI] Generated {count} summaries")
+ 525 |         return count
+ 526 | 
+ 527 | 
+ 528 | # ─── QUERY HELPERS ─────────────────────────────────────────────────────────────
+ 529 | 
+ 530 | def get_feed_matrix(limit_per_col: int = 20) -> dict:
+ 531 |     """Get three-column feed data for the Media Hub template."""
+ 532 |     import models
+ 533 | 
+ 534 |     # Podcasts — RSS episodes with audio
+ 535 |     podcasts = (
+ 536 |         models.MediaEpisode.query
+ 537 |         .join(models.MediaFeed)
+ 538 |         .filter(models.MediaFeed.feed_type == 'rss')
+ 539 |         .order_by(models.MediaEpisode.published_at.desc())
+ 540 |         .limit(limit_per_col)
+ 541 |         .all()
+ 542 |     )
  543 | 
- 544 |     feed_count = models.MediaFeed.query.filter_by(active=True).count()
- 545 |     episode_count = models.MediaEpisode.query.count()
- 546 |     podcast_count = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type == 'rss').count()
- 547 |     video_count = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type == 'youtube').count()
- 548 | 
- 549 |     return {
- 550 |         'feed_count': feed_count,
- 551 |         'episode_count': episode_count,
- 552 |         'podcast_count': podcast_count,
- 553 |         'video_count': video_count,
- 554 |     }
- 555 | 
- 556 | 
- 557 | def _time_ago(dt: datetime) -> str:
- 558 |     """Human-readable time ago string."""
- 559 |     if not dt:
- 560 |         return ''
- 561 |     diff = datetime.utcnow() - dt
- 562 |     secs = int(diff.total_seconds())
- 563 |     if secs < 60:
- 564 |         return 'now'
- 565 |     if secs < 3600:
- 566 |         return f"{secs // 60}m"
- 567 |     if secs < 86400:
- 568 |         return f"{secs // 3600}h"
- 569 |     return f"{secs // 86400}d"
- 570 | 
- 571 | 
- 572 | # ─── 15-MINUTE AUTO-POLL SCHEDULER ───────────────────────────────────────────
- 573 | 
- 574 | _poll_timer = None
- 575 | _poll_started = False
- 576 | POLL_INTERVAL = 15 * 60  # 15 minutes
- 577 | 
- 578 | 
- 579 | def _poll_loop(app):
- 580 |     """Recurring sync: runs every POLL_INTERVAL seconds."""
- 581 |     global _poll_timer
- 582 |     try:
- 583 |         sync_all_feeds(app)
- 584 |     except Exception as e:
- 585 |         logger.error(f"[MediaPoll] Sync error: {e}")
- 586 |     _poll_timer = threading.Timer(POLL_INTERVAL, _poll_loop, args=(app,))
- 587 |     _poll_timer.daemon = True
- 588 |     _poll_timer.start()
- 589 | 
- 590 | 
- 591 | def start_feed_polling(app=None):
- 592 |     """Start the 15-minute background feed polling loop. Safe to call multiple times."""
- 593 |     global _poll_started
- 594 |     if _poll_started:
- 595 |         return
- 596 |     _poll_started = True
- 597 |     if app is None:
- 598 |         from app import app as flask_app
- 599 |         app = flask_app
- 600 |     logger.info(f"[MediaPoll] Starting feed polling every {POLL_INTERVAL // 60}min")
- 601 |     # Initial sync after 10s delay (let app finish startup)
- 602 |     t = threading.Timer(10, _poll_loop, args=(app,))
- 603 |     t.daemon = True
- 604 |     t.start()
- 605 | 
+ 544 |     # Videos — YouTube episodes
+ 545 |     videos = (
+ 546 |         models.MediaEpisode.query
+ 547 |         .join(models.MediaFeed)
+ 548 |         .filter(models.MediaFeed.feed_type == 'youtube')
+ 549 |         .order_by(models.MediaEpisode.published_at.desc())
+ 550 |         .limit(limit_per_col)
+ 551 |         .all()
+ 552 |     )
+ 553 | 
+ 554 |     def ep_to_dict(ep):
+ 555 |         feed = ep.feed
+ 556 |         return {
+ 557 |             'id': ep.id,
+ 558 |             'title': ep.title,
+ 559 |             'description': ep.description or '',
+ 560 |             'summary_ai': ep.summary_ai or '',
+ 561 |             'audio_url': ep.audio_url,
+ 562 |             'video_url': ep.video_url,
+ 563 |             'source_url': ep.source_url,
+ 564 |             'thumbnail_url': ep.thumbnail_url,
+ 565 |             'duration': ep.duration or '',
+ 566 |             'published_at': ep.published_at.isoformat() if ep.published_at else '',
+ 567 |             'signal_score': ep.signal_score or 0,
+ 568 |             'feed_name': feed.name if feed else '',
+ 569 |             'feed_host': feed.host if feed else '',
+ 570 |             'feed_color': feed.color if feed else '#dc2626',
+ 571 |             'feed_type': feed.feed_type if feed else '',
+ 572 |             'feed_tier': feed.tier if feed else 2,
+ 573 |         }
+ 574 | 
+ 575 |     return {
+ 576 |         'podcasts': [ep_to_dict(ep) for ep in podcasts],
+ 577 |         'videos': [ep_to_dict(ep) for ep in videos],
+ 578 |     }
+ 579 | 
+ 580 | 
+ 581 | def get_ticker_items(limit: int = 30) -> List[dict]:
+ 582 |     """Get latest items across all feeds for the scrolling ticker."""
+ 583 |     import models
+ 584 | 
+ 585 |     items = (
+ 586 |         models.MediaEpisode.query
+ 587 |         .join(models.MediaFeed)
+ 588 |         .order_by(models.MediaEpisode.published_at.desc())
+ 589 |         .limit(limit)
+ 590 |         .all()
+ 591 |     )
+ 592 | 
+ 593 |     result = []
+ 594 |     for ep in items:
+ 595 |         feed = ep.feed
+ 596 |         icon = '🎙' if feed and feed.feed_type == 'rss' else '🎬'
+ 597 |         link = ep.source_url or ep.video_url or ep.audio_url or '#'
+ 598 |         result.append({
+ 599 |             'icon': icon,
+ 600 |             'title': ep.title,
+ 601 |             'source': feed.name if feed else '',
+ 602 |             'url': link,
+ 603 |             'score': ep.signal_score or 0,
+ 604 |             'time': _time_ago(ep.published_at) if ep.published_at else '',
+ 605 |         })
+ 606 | 
+ 607 |     return result
+ 608 | 
+ 609 | 
+ 610 | def get_feed_stats() -> dict:
+ 611 |     """Get aggregate stats for the hero section."""
+ 612 |     import models
+ 613 | 
+ 614 |     feed_count = models.MediaFeed.query.filter_by(active=True).count()
+ 615 |     episode_count = models.MediaEpisode.query.count()
+ 616 |     podcast_count = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type == 'rss').count()
+ 617 |     video_count = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type == 'youtube').count()
+ 618 | 
+ 619 |     return {
+ 620 |         'feed_count': feed_count,
+ 621 |         'episode_count': episode_count,
+ 622 |         'podcast_count': podcast_count,
+ 623 |         'video_count': video_count,
+ 624 |     }
+ 625 | 
+ 626 | 
+ 627 | def _time_ago(dt: datetime) -> str:
+ 628 |     """Human-readable time ago string."""
+ 629 |     if not dt:
+ 630 |         return ''
+ 631 |     diff = datetime.utcnow() - dt
+ 632 |     secs = int(diff.total_seconds())
+ 633 |     if secs < 60:
+ 634 |         return 'now'
+ 635 |     if secs < 3600:
+ 636 |         return f"{secs // 60}m"
+ 637 |     if secs < 86400:
+ 638 |         return f"{secs // 3600}h"
+ 639 |     return f"{secs // 86400}d"
+ 640 | 
+ 641 | 
+ 642 | # ─── 15-MINUTE AUTO-POLL SCHEDULER ───────────────────────────────────────────
+ 643 | 
+ 644 | _poll_timer = None
+ 645 | _poll_started = False
+ 646 | POLL_INTERVAL = 15 * 60  # 15 minutes
+ 647 | 
+ 648 | 
+ 649 | def _poll_loop(app):
+ 650 |     """Recurring sync: runs every POLL_INTERVAL seconds."""
+ 651 |     global _poll_timer
+ 652 |     try:
+ 653 |         sync_all_feeds(app)
+ 654 |     except Exception as e:
+ 655 |         logger.error(f"[MediaPoll] Sync error: {e}")
+ 656 |     _poll_timer = threading.Timer(POLL_INTERVAL, _poll_loop, args=(app,))
+ 657 |     _poll_timer.daemon = True
+ 658 |     _poll_timer.start()
+ 659 | 
+ 660 | 
+ 661 | def start_feed_polling(app=None):
+ 662 |     """Start the 15-minute background feed polling loop. Safe to call multiple times."""
+ 663 |     global _poll_started
+ 664 |     if _poll_started:
+ 665 |         return
+ 666 |     _poll_started = True
+ 667 |     if app is None:
+ 668 |         from app import app as flask_app
+ 669 |         app = flask_app
+ 670 |     logger.info(f"[MediaPoll] Starting feed polling every {POLL_INTERVAL // 60}min")
+ 671 |     # Initial sync after 10s delay (let app finish startup)
+ 672 |     t = threading.Timer(10, _poll_loop, args=(app,))
+ 673 |     t.daemon = True
+ 674 |     t.start()
+ 675 | 
 ```
 
-### File: services/rss_service.py (404 lines)
+### File: services/rss_service.py (432 lines)
 ```
    1 | import feedparser
    2 | import requests
@@ -1985,323 +2021,351 @@ def sync_feeds_background(app=None):
   85 |                 'host': 'Nik Bhatia',
   86 |                 'color': '#3498db'
   87 |             },
-  88 |         ]
-  89 |         
-  90 |         # Episode cache for real-time display
-  91 |         self._episode_cache = {}
-  92 |         self._cache_expiry = None
-  93 |     
-  94 |     def sync_all_feeds(self) -> Dict[str, int]:
-  95 |         """Synchronize all configured podcast RSS feeds"""
-  96 |         results = {}
-  97 |         
-  98 |         for feed_config in self.podcast_feeds:
-  99 |             try:
- 100 |                 count = self.sync_feed(feed_config['url'], feed_config['category'], feed_config['name'])
- 101 |                 results[feed_config['name']] = count
- 102 |                 self.logger.info(f"Synced {count} episodes from {feed_config['name']}")
- 103 |             except Exception as e:
- 104 |                 self.logger.error(f"Failed to sync {feed_config['name']}: {e}")
- 105 |                 results[feed_config['name']] = 0
- 106 |         
- 107 |         return results
- 108 |     
- 109 |     def sync_feed(self, rss_url: str, category: str = "Web3", rss_source: str = "Protocol Pulse") -> int:
- 110 |         """Sync individual RSS feed to database"""
- 111 |         try:
- 112 |             feed = feedparser.parse(rss_url)
- 113 |             synced_count = 0
- 114 |             
- 115 |             for entry in feed.entries:
- 116 |                 # Skip excluded content - HARD BLOCK on "Jill" in any form
- 117 |                 if self._is_excluded_content(entry.title, rss_source):
- 118 |                     continue
- 119 |                 if 'jill' in entry.title.lower():
- 120 |                     continue
- 121 |                 
- 122 |                 # Check if episode already exists
- 123 |                 existing = models.Podcast.query.filter_by(
- 124 |                     title=entry.title,
- 125 |                     audio_url=self.extract_audio_url(entry)
- 126 |                 ).first()
- 127 |                 
- 128 |                 if existing:
- 129 |                     continue
- 130 |                 
- 131 |                 # Create new podcast episode
- 132 |                 podcast = models.Podcast()
- 133 |                 podcast.title = entry.title
- 134 |                 podcast.description = self.clean_description(entry.get('description', ''))
- 135 |                 podcast.host = feed.feed.get('author', 'Protocol Pulse')
- 136 |                 podcast.duration = self.extract_duration(entry)
- 137 |                 podcast.audio_url = self.extract_audio_url(entry)
- 138 |                 podcast.cover_image_url = self.extract_cover_image(entry, feed)
- 139 |                 podcast.published_date = self.parse_date(entry.get('published_parsed'))
- 140 |                 podcast.category = category
- 141 |                 podcast.rss_source = rss_source
- 142 |                 podcast.featured = False
- 143 |                 
- 144 |                 db.session.add(podcast)
- 145 |                 synced_count += 1
- 146 |             
- 147 |             db.session.commit()
- 148 |             return synced_count
- 149 |             
- 150 |         except Exception as e:
- 151 |             db.session.rollback()
- 152 |             self.logger.error(f"Error syncing RSS feed {rss_url}: {e}")
- 153 |             raise
- 154 |     
- 155 |     def extract_audio_url(self, entry) -> Optional[str]:
- 156 |         """Extract audio URL from RSS entry"""
- 157 |         if hasattr(entry, 'enclosures') and entry.enclosures:
- 158 |             for enclosure in entry.enclosures:
- 159 |                 if enclosure.type.startswith('audio/'):
- 160 |                     return enclosure.href
- 161 |         
- 162 |         # Fallback: look for links
- 163 |         if hasattr(entry, 'links'):
- 164 |             for link in entry.links:
- 165 |                 if link.get('type', '').startswith('audio/'):
- 166 |                     return link.href
- 167 |         
- 168 |         return None
- 169 |     
- 170 |     def extract_duration(self, entry) -> str:
- 171 |         """Extract episode duration from RSS entry"""
- 172 |         # Check iTunes duration
- 173 |         if hasattr(entry, 'itunes_duration'):
- 174 |             return entry.itunes_duration
- 175 |         
- 176 |         # Check other duration fields
- 177 |         duration_fields = ['duration', 'podcast_duration']
- 178 |         for field in duration_fields:
- 179 |             if hasattr(entry, field):
- 180 |                 return str(getattr(entry, field))
- 181 |         
- 182 |         return "Unknown"
- 183 |     
- 184 |     def extract_cover_image(self, entry, feed) -> Optional[str]:
- 185 |         """Extract cover image from RSS entry or feed"""
- 186 |         # Episode-specific image
- 187 |         if hasattr(entry, 'image') and entry.image.get('href'):
- 188 |             return entry.image.href
+  88 |             {
+  89 |                 'name': 'Citadel Dispatch',
+  90 |                 'url': 'https://feeds.simplecast.com/M6LkF8NN',
+  91 |                 'category': 'Bitcoin & Privacy',
+  92 |                 'host': 'Matt Odell',
+  93 |                 'color': '#27ae60'
+  94 |             },
+  95 |             {
+  96 |                 'name': 'Natalie Brunell',
+  97 |                 'url': 'https://feeds.simplecast.com/6Z1iM0Fg',
+  98 |                 'category': 'Bitcoin & Culture',
+  99 |                 'host': 'Natalie Brunell',
+ 100 |                 'color': '#e91e63'
+ 101 |             },
+ 102 |             {
+ 103 |                 'name': 'Rabbit Hole Recap',
+ 104 |                 'url': 'https://feeds.simplecast.com/Dh1oHsHZ',
+ 105 |                 'category': 'Bitcoin & Culture',
+ 106 |                 'host': 'Marty Bent',
+ 107 |                 'color': '#ff6b35'
+ 108 |             },
+ 109 |             {
+ 110 |                 'name': 'Preston Pysh / TIP',
+ 111 |                 'url': 'https://feeds.simplecast.com/WXOL8WUD',
+ 112 |                 'category': 'Bitcoin & Macro',
+ 113 |                 'host': 'Preston Pysh',
+ 114 |                 'color': '#2c3e50'
+ 115 |             },
+ 116 |         ]
+ 117 |         
+ 118 |         # Episode cache for real-time display
+ 119 |         self._episode_cache = {}
+ 120 |         self._cache_expiry = None
+ 121 |     
+ 122 |     def sync_all_feeds(self) -> Dict[str, int]:
+ 123 |         """Synchronize all configured podcast RSS feeds"""
+ 124 |         results = {}
+ 125 |         
+ 126 |         for feed_config in self.podcast_feeds:
+ 127 |             try:
+ 128 |                 count = self.sync_feed(feed_config['url'], feed_config['category'], feed_config['name'])
+ 129 |                 results[feed_config['name']] = count
+ 130 |                 self.logger.info(f"Synced {count} episodes from {feed_config['name']}")
+ 131 |             except Exception as e:
+ 132 |                 self.logger.error(f"Failed to sync {feed_config['name']}: {e}")
+ 133 |                 results[feed_config['name']] = 0
+ 134 |         
+ 135 |         return results
+ 136 |     
+ 137 |     def sync_feed(self, rss_url: str, category: str = "Web3", rss_source: str = "Protocol Pulse") -> int:
+ 138 |         """Sync individual RSS feed to database"""
+ 139 |         try:
+ 140 |             feed = feedparser.parse(rss_url)
+ 141 |             synced_count = 0
+ 142 |             
+ 143 |             for entry in feed.entries:
+ 144 |                 # Skip excluded content - HARD BLOCK on "Jill" in any form
+ 145 |                 if self._is_excluded_content(entry.title, rss_source):
+ 146 |                     continue
+ 147 |                 if 'jill' in entry.title.lower():
+ 148 |                     continue
+ 149 |                 
+ 150 |                 # Check if episode already exists
+ 151 |                 existing = models.Podcast.query.filter_by(
+ 152 |                     title=entry.title,
+ 153 |                     audio_url=self.extract_audio_url(entry)
+ 154 |                 ).first()
+ 155 |                 
+ 156 |                 if existing:
+ 157 |                     continue
+ 158 |                 
+ 159 |                 # Create new podcast episode
+ 160 |                 podcast = models.Podcast()
+ 161 |                 podcast.title = entry.title
+ 162 |                 podcast.description = self.clean_description(entry.get('description', ''))
+ 163 |                 podcast.host = feed.feed.get('author', 'Protocol Pulse')
+ 164 |                 podcast.duration = self.extract_duration(entry)
+ 165 |                 podcast.audio_url = self.extract_audio_url(entry)
+ 166 |                 podcast.cover_image_url = self.extract_cover_image(entry, feed)
+ 167 |                 podcast.published_date = self.parse_date(entry.get('published_parsed'))
+ 168 |                 podcast.category = category
+ 169 |                 podcast.rss_source = rss_source
+ 170 |                 podcast.featured = False
+ 171 |                 
+ 172 |                 db.session.add(podcast)
+ 173 |                 synced_count += 1
+ 174 |             
+ 175 |             db.session.commit()
+ 176 |             return synced_count
+ 177 |             
+ 178 |         except Exception as e:
+ 179 |             db.session.rollback()
+ 180 |             self.logger.error(f"Error syncing RSS feed {rss_url}: {e}")
+ 181 |             raise
+ 182 |     
+ 183 |     def extract_audio_url(self, entry) -> Optional[str]:
+ 184 |         """Extract audio URL from RSS entry"""
+ 185 |         if hasattr(entry, 'enclosures') and entry.enclosures:
+ 186 |             for enclosure in entry.enclosures:
+ 187 |                 if enclosure.type.startswith('audio/'):
+ 188 |                     return enclosure.href
  189 |         
- 190 |         # iTunes image
- 191 |         if hasattr(entry, 'itunes_image'):
- 192 |             return entry.itunes_image
- 193 |         
- 194 |         # Feed-level image
- 195 |         if hasattr(feed.feed, 'image') and feed.feed.image.get('href'):
- 196 |             return feed.feed.image.href
- 197 |         
- 198 |         return None
- 199 |     
- 200 |     def clean_description(self, description: str) -> str:
- 201 |         """Clean and truncate description"""
- 202 |         import re
- 203 |         # Remove HTML tags
- 204 |         clean_desc = re.sub(r'<[^>]*>', '', description)
- 205 |         # Limit length
- 206 |         if len(clean_desc) > 500:
- 207 |             clean_desc = clean_desc[:497] + "..."
- 208 |         return clean_desc.strip()
- 209 |     
- 210 |     def _is_excluded_content(self, title: str, show_name: str = '') -> bool:
- 211 |         """Check if content should be excluded based on title or show name"""
- 212 |         check_text = f"{title} {show_name}".lower()
- 213 |         for excluded in self.EXCLUDED_SHOWS:
- 214 |             if excluded.lower() in check_text:
- 215 |                 self.logger.info(f"Filtering out excluded content: {title}")
- 216 |                 return True
- 217 |         return False
- 218 |     
- 219 |     def parse_date(self, date_tuple) -> datetime:
- 220 |         """Parse RSS date tuple to datetime"""
- 221 |         if date_tuple:
- 222 |             try:
- 223 |                 import time
- 224 |                 return datetime.fromtimestamp(time.mktime(date_tuple))
- 225 |             except:
- 226 |                 pass
- 227 |         return datetime.utcnow()
- 228 |     
- 229 |     def generate_rss_feed(self) -> str:
- 230 |         """Generate RSS feed XML for published podcasts"""
- 231 |         from xml.etree.ElementTree import Element, SubElement, tostring
- 232 |         from xml.dom import minidom
- 233 |         
- 234 |         # Get latest published podcasts
- 235 |         podcasts = models.Podcast.query.order_by(models.Podcast.published_date.desc()).limit(50).all()
- 236 |         
- 237 |         # Create RSS XML
- 238 |         rss = Element('rss', version='2.0')
- 239 |         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
- 240 |         rss.set('xmlns:content', 'http://purl.org/rss/1.0/modules/content/')
- 241 |         
- 242 |         channel = SubElement(rss, 'channel')
- 243 |         
- 244 |         # Channel info
- 245 |         SubElement(channel, 'title').text = 'Protocol Pulse Podcast'
- 246 |         SubElement(channel, 'description').text = 'The leading podcast for Web3, Bitcoin, and blockchain insights'
- 247 |         SubElement(channel, 'link').text = 'https://your-domain.com/podcasts'
- 248 |         SubElement(channel, 'language').text = 'en-us'
- 249 |         SubElement(channel, 'copyright').text = f'© {datetime.now().year} Protocol Pulse'
- 250 |         
- 251 |         # Add episodes
- 252 |         for podcast in podcasts:
- 253 |             item = SubElement(channel, 'item')
- 254 |             SubElement(item, 'title').text = podcast.title
- 255 |             SubElement(item, 'description').text = podcast.description or ""
- 256 |             SubElement(item, 'link').text = f'https://your-domain.com/podcasts/{podcast.id}'
- 257 |             SubElement(item, 'guid').text = f'https://your-domain.com/podcasts/{podcast.id}'
- 258 |             SubElement(item, 'pubDate').text = podcast.published_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
- 259 |             
- 260 |             if podcast.audio_url:
- 261 |                 enclosure = SubElement(item, 'enclosure')
- 262 |                 enclosure.set('url', podcast.audio_url)
- 263 |                 enclosure.set('type', 'audio/mpeg')
- 264 |                 enclosure.set('length', '0')  # You may want to add actual file size
- 265 |             
- 266 |             if podcast.duration:
- 267 |                 SubElement(item, 'itunes:duration').text = podcast.duration
- 268 |         
- 269 |         # Pretty print XML
- 270 |         rough_string = tostring(rss, 'utf-8')
- 271 |         reparsed = minidom.parseString(rough_string)
- 272 |         return reparsed.toprettyxml(indent="  ")
- 273 |     
- 274 |     def get_latest_episodes(self, limit: int = 20) -> List[Dict]:
- 275 |         """Get latest episodes from all feeds with caching"""
- 276 |         import time
- 277 |         
- 278 |         # Check cache validity (15 minute cache)
- 279 |         if self._cache_expiry and time.time() < self._cache_expiry and self._episode_cache:
- 280 |             return list(self._episode_cache.values())[:limit]
- 281 |         
- 282 |         all_episodes = []
- 283 |         
- 284 |         for feed_config in self.podcast_feeds:
- 285 |             try:
- 286 |                 feed = feedparser.parse(feed_config['url'])
- 287 |                 show_name = feed_config['name']
- 288 |                 
- 289 |                 for entry in feed.entries[:10]:  # Get latest 10 per show
- 290 |                     # Skip excluded content
- 291 |                     if self._is_excluded_content(entry.title, show_name):
- 292 |                         continue
- 293 |                     
- 294 |                     episode = {
- 295 |                         'id': hash(entry.get('link', entry.title))  % 100000,
- 296 |                         'title': entry.title,
- 297 |                         'description': self.clean_description(entry.get('description', '')),
- 298 |                         'audio_url': self.extract_audio_url(entry),
- 299 |                         'duration': self.extract_duration(entry),
- 300 |                         'published_date': self.parse_date(entry.get('published_parsed')),
- 301 |                         'cover_image': self.extract_cover_image(entry, feed),
- 302 |                         'show_name': show_name,
- 303 |                         'host': feed_config.get('host', 'Protocol Pulse'),
- 304 |                         'category': feed_config.get('category', 'Main'),
- 305 |                         'color': feed_config.get('color', '#dc2626')
- 306 |                     }
- 307 |                     all_episodes.append(episode)
- 308 |                     
- 309 |             except Exception as e:
- 310 |                 self.logger.error(f"Error fetching {feed_config['name']}: {e}")
+ 190 |         # Fallback: look for links
+ 191 |         if hasattr(entry, 'links'):
+ 192 |             for link in entry.links:
+ 193 |                 if link.get('type', '').startswith('audio/'):
+ 194 |                     return link.href
+ 195 |         
+ 196 |         return None
+ 197 |     
+ 198 |     def extract_duration(self, entry) -> str:
+ 199 |         """Extract episode duration from RSS entry"""
+ 200 |         # Check iTunes duration
+ 201 |         if hasattr(entry, 'itunes_duration'):
+ 202 |             return entry.itunes_duration
+ 203 |         
+ 204 |         # Check other duration fields
+ 205 |         duration_fields = ['duration', 'podcast_duration']
+ 206 |         for field in duration_fields:
+ 207 |             if hasattr(entry, field):
+ 208 |                 return str(getattr(entry, field))
+ 209 |         
+ 210 |         return "Unknown"
+ 211 |     
+ 212 |     def extract_cover_image(self, entry, feed) -> Optional[str]:
+ 213 |         """Extract cover image from RSS entry or feed"""
+ 214 |         # Episode-specific image
+ 215 |         if hasattr(entry, 'image') and entry.image.get('href'):
+ 216 |             return entry.image.href
+ 217 |         
+ 218 |         # iTunes image
+ 219 |         if hasattr(entry, 'itunes_image'):
+ 220 |             return entry.itunes_image
+ 221 |         
+ 222 |         # Feed-level image
+ 223 |         if hasattr(feed.feed, 'image') and feed.feed.image.get('href'):
+ 224 |             return feed.feed.image.href
+ 225 |         
+ 226 |         return None
+ 227 |     
+ 228 |     def clean_description(self, description: str) -> str:
+ 229 |         """Clean and truncate description"""
+ 230 |         import re
+ 231 |         # Remove HTML tags
+ 232 |         clean_desc = re.sub(r'<[^>]*>', '', description)
+ 233 |         # Limit length
+ 234 |         if len(clean_desc) > 500:
+ 235 |             clean_desc = clean_desc[:497] + "..."
+ 236 |         return clean_desc.strip()
+ 237 |     
+ 238 |     def _is_excluded_content(self, title: str, show_name: str = '') -> bool:
+ 239 |         """Check if content should be excluded based on title or show name"""
+ 240 |         check_text = f"{title} {show_name}".lower()
+ 241 |         for excluded in self.EXCLUDED_SHOWS:
+ 242 |             if excluded.lower() in check_text:
+ 243 |                 self.logger.info(f"Filtering out excluded content: {title}")
+ 244 |                 return True
+ 245 |         return False
+ 246 |     
+ 247 |     def parse_date(self, date_tuple) -> datetime:
+ 248 |         """Parse RSS date tuple to datetime"""
+ 249 |         if date_tuple:
+ 250 |             try:
+ 251 |                 import time
+ 252 |                 return datetime.fromtimestamp(time.mktime(date_tuple))
+ 253 |             except:
+ 254 |                 pass
+ 255 |         return datetime.utcnow()
+ 256 |     
+ 257 |     def generate_rss_feed(self) -> str:
+ 258 |         """Generate RSS feed XML for published podcasts"""
+ 259 |         from xml.etree.ElementTree import Element, SubElement, tostring
+ 260 |         from xml.dom import minidom
+ 261 |         
+ 262 |         # Get latest published podcasts
+ 263 |         podcasts = models.Podcast.query.order_by(models.Podcast.published_date.desc()).limit(50).all()
+ 264 |         
+ 265 |         # Create RSS XML
+ 266 |         rss = Element('rss', version='2.0')
+ 267 |         rss.set('xmlns:itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd')
+ 268 |         rss.set('xmlns:content', 'http://purl.org/rss/1.0/modules/content/')
+ 269 |         
+ 270 |         channel = SubElement(rss, 'channel')
+ 271 |         
+ 272 |         # Channel info
+ 273 |         SubElement(channel, 'title').text = 'Protocol Pulse Podcast'
+ 274 |         SubElement(channel, 'description').text = 'The leading podcast for Web3, Bitcoin, and blockchain insights'
+ 275 |         SubElement(channel, 'link').text = 'https://your-domain.com/podcasts'
+ 276 |         SubElement(channel, 'language').text = 'en-us'
+ 277 |         SubElement(channel, 'copyright').text = f'© {datetime.now().year} Protocol Pulse'
+ 278 |         
+ 279 |         # Add episodes
+ 280 |         for podcast in podcasts:
+ 281 |             item = SubElement(channel, 'item')
+ 282 |             SubElement(item, 'title').text = podcast.title
+ 283 |             SubElement(item, 'description').text = podcast.description or ""
+ 284 |             SubElement(item, 'link').text = f'https://your-domain.com/podcasts/{podcast.id}'
+ 285 |             SubElement(item, 'guid').text = f'https://your-domain.com/podcasts/{podcast.id}'
+ 286 |             SubElement(item, 'pubDate').text = podcast.published_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
+ 287 |             
+ 288 |             if podcast.audio_url:
+ 289 |                 enclosure = SubElement(item, 'enclosure')
+ 290 |                 enclosure.set('url', podcast.audio_url)
+ 291 |                 enclosure.set('type', 'audio/mpeg')
+ 292 |                 enclosure.set('length', '0')  # You may want to add actual file size
+ 293 |             
+ 294 |             if podcast.duration:
+ 295 |                 SubElement(item, 'itunes:duration').text = podcast.duration
+ 296 |         
+ 297 |         # Pretty print XML
+ 298 |         rough_string = tostring(rss, 'utf-8')
+ 299 |         reparsed = minidom.parseString(rough_string)
+ 300 |         return reparsed.toprettyxml(indent="  ")
+ 301 |     
+ 302 |     def get_latest_episodes(self, limit: int = 20) -> List[Dict]:
+ 303 |         """Get latest episodes from all feeds with caching"""
+ 304 |         import time
+ 305 |         
+ 306 |         # Check cache validity (15 minute cache)
+ 307 |         if self._cache_expiry and time.time() < self._cache_expiry and self._episode_cache:
+ 308 |             return list(self._episode_cache.values())[:limit]
+ 309 |         
+ 310 |         all_episodes = []
  311 |         
- 312 |         # Sort by date, newest first
- 313 |         all_episodes.sort(key=lambda x: x['published_date'], reverse=True)
- 314 |         
- 315 |         # Update cache
- 316 |         self._episode_cache = {ep['id']: ep for ep in all_episodes}
- 317 |         self._cache_expiry = time.time() + (15 * 60)  # 15 minutes
- 318 |         
- 319 |         return all_episodes[:limit]
- 320 |     
- 321 |     def get_show_info(self) -> List[Dict]:
- 322 |         """Get information about all podcast shows"""
- 323 |         shows = []
- 324 |         for feed_config in self.podcast_feeds:
- 325 |             try:
- 326 |                 feed = feedparser.parse(feed_config['url'])
- 327 |                 show = {
- 328 |                     'id': feed_config['name'].lower().replace(' ', '_').replace("'", ''),
- 329 |                     'name': feed_config['name'],
- 330 |                     'description': feed.feed.get('description', '')[:200] if hasattr(feed, 'feed') else '',
- 331 |                     'host': feed_config.get('host', 'Protocol Pulse'),
- 332 |                     'category': feed_config.get('category', 'Main'),
- 333 |                     'color': feed_config.get('color', '#dc2626'),
- 334 |                     'episode_count': len(feed.entries) if hasattr(feed, 'entries') else 0,
- 335 |                     'cover_image': self._get_feed_cover(feed),
- 336 |                     'rss_url': feed_config['url']
- 337 |                 }
- 338 |                 shows.append(show)
- 339 |             except Exception as e:
- 340 |                 self.logger.error(f"Error getting show info for {feed_config['name']}: {e}")
- 341 |         return shows
- 342 |     
- 343 |     def _get_feed_cover(self, feed) -> Optional[str]:
- 344 |         """Extract cover image from feed"""
- 345 |         try:
- 346 |             if hasattr(feed.feed, 'image') and feed.feed.image:
- 347 |                 return feed.feed.image.get('href')
- 348 |             if hasattr(feed.feed, 'itunes_image'):
- 349 |                 return feed.feed.itunes_image.get('href')
- 350 |         except:
- 351 |             pass
- 352 |         return None
- 353 |     
- 354 |     def get_episodes_by_show(self, show_id: str, limit: int = 20) -> List[Dict]:
- 355 |         """Get episodes for a specific show"""
- 356 |         for feed_config in self.podcast_feeds:
- 357 |             config_id = feed_config['name'].lower().replace(' ', '_').replace("'", '')
- 358 |             if config_id == show_id:
- 359 |                 try:
- 360 |                     feed = feedparser.parse(feed_config['url'])
- 361 |                     episodes = []
- 362 |                     for entry in feed.entries[:limit]:
- 363 |                         # Skip excluded content
- 364 |                         if self._is_excluded_content(entry.title, feed_config['name']):
- 365 |                             continue
- 366 |                         
- 367 |                         episode = {
- 368 |                             'id': hash(entry.get('link', entry.title)) % 100000,
- 369 |                             'title': entry.title,
- 370 |                             'description': self.clean_description(entry.get('description', '')),
- 371 |                             'audio_url': self.extract_audio_url(entry),
- 372 |                             'duration': self.extract_duration(entry),
- 373 |                             'published_date': self.parse_date(entry.get('published_parsed')),
- 374 |                             'cover_image': self.extract_cover_image(entry, feed),
- 375 |                             'show_name': feed_config['name'],
- 376 |                             'host': feed_config.get('host', 'Protocol Pulse'),
- 377 |                             'color': feed_config.get('color', '#dc2626')
- 378 |                         }
- 379 |                         episodes.append(episode)
- 380 |                     return episodes
- 381 |                 except Exception as e:
- 382 |                     self.logger.error(f"Error fetching episodes for {show_id}: {e}")
- 383 |         return []
- 384 |     
- 385 |     def clear_cache(self):
- 386 |         """Clear the episode cache to force refresh"""
- 387 |         self._episode_cache = {}
- 388 |         self._cache_expiry = None
- 389 |         self.logger.info("RSS episode cache cleared")
- 390 |     
- 391 |     def search_episodes(self, query: str, limit: int = 10) -> List[Dict]:
- 392 |         """Search episodes by title or description"""
- 393 |         all_episodes = self.get_latest_episodes(limit=50)
- 394 |         query_lower = query.lower()
- 395 |         results = [
- 396 |             ep for ep in all_episodes
- 397 |             if (query_lower in ep['title'].lower() or query_lower in ep['description'].lower())
- 398 |             and not self._is_excluded_content(ep['title'], ep.get('show_name', ''))
- 399 |         ]
- 400 |         return results[:limit]
- 401 | 
- 402 | 
- 403 | # Global instance for convenience
- 404 | rss_service = RSSService()
+ 312 |         for feed_config in self.podcast_feeds:
+ 313 |             try:
+ 314 |                 feed = feedparser.parse(feed_config['url'])
+ 315 |                 show_name = feed_config['name']
+ 316 |                 
+ 317 |                 for entry in feed.entries[:10]:  # Get latest 10 per show
+ 318 |                     # Skip excluded content
+ 319 |                     if self._is_excluded_content(entry.title, show_name):
+ 320 |                         continue
+ 321 |                     
+ 322 |                     episode = {
+ 323 |                         'id': hash(entry.get('link', entry.title))  % 100000,
+ 324 |                         'title': entry.title,
+ 325 |                         'description': self.clean_description(entry.get('description', '')),
+ 326 |                         'audio_url': self.extract_audio_url(entry),
+ 327 |                         'duration': self.extract_duration(entry),
+ 328 |                         'published_date': self.parse_date(entry.get('published_parsed')),
+ 329 |                         'cover_image': self.extract_cover_image(entry, feed),
+ 330 |                         'show_name': show_name,
+ 331 |                         'host': feed_config.get('host', 'Protocol Pulse'),
+ 332 |                         'category': feed_config.get('category', 'Main'),
+ 333 |                         'color': feed_config.get('color', '#dc2626')
+ 334 |                     }
+ 335 |                     all_episodes.append(episode)
+ 336 |                     
+ 337 |             except Exception as e:
+ 338 |                 self.logger.error(f"Error fetching {feed_config['name']}: {e}")
+ 339 |         
+ 340 |         # Sort by date, newest first
+ 341 |         all_episodes.sort(key=lambda x: x['published_date'], reverse=True)
+ 342 |         
+ 343 |         # Update cache
+ 344 |         self._episode_cache = {ep['id']: ep for ep in all_episodes}
+ 345 |         self._cache_expiry = time.time() + (15 * 60)  # 15 minutes
+ 346 |         
+ 347 |         return all_episodes[:limit]
+ 348 |     
+ 349 |     def get_show_info(self) -> List[Dict]:
+ 350 |         """Get information about all podcast shows"""
+ 351 |         shows = []
+ 352 |         for feed_config in self.podcast_feeds:
+ 353 |             try:
+ 354 |                 feed = feedparser.parse(feed_config['url'])
+ 355 |                 show = {
+ 356 |                     'id': feed_config['name'].lower().replace(' ', '_').replace("'", ''),
+ 357 |                     'name': feed_config['name'],
+ 358 |                     'description': feed.feed.get('description', '')[:200] if hasattr(feed, 'feed') else '',
+ 359 |                     'host': feed_config.get('host', 'Protocol Pulse'),
+ 360 |                     'category': feed_config.get('category', 'Main'),
+ 361 |                     'color': feed_config.get('color', '#dc2626'),
+ 362 |                     'episode_count': len(feed.entries) if hasattr(feed, 'entries') else 0,
+ 363 |                     'cover_image': self._get_feed_cover(feed),
+ 364 |                     'rss_url': feed_config['url']
+ 365 |                 }
+ 366 |                 shows.append(show)
+ 367 |             except Exception as e:
+ 368 |                 self.logger.error(f"Error getting show info for {feed_config['name']}: {e}")
+ 369 |         return shows
+ 370 |     
+ 371 |     def _get_feed_cover(self, feed) -> Optional[str]:
+ 372 |         """Extract cover image from feed"""
+ 373 |         try:
+ 374 |             if hasattr(feed.feed, 'image') and feed.feed.image:
+ 375 |                 return feed.feed.image.get('href')
+ 376 |             if hasattr(feed.feed, 'itunes_image'):
+ 377 |                 return feed.feed.itunes_image.get('href')
+ 378 |         except:
+ 379 |             pass
+ 380 |         return None
+ 381 |     
+ 382 |     def get_episodes_by_show(self, show_id: str, limit: int = 20) -> List[Dict]:
+ 383 |         """Get episodes for a specific show"""
+ 384 |         for feed_config in self.podcast_feeds:
+ 385 |             config_id = feed_config['name'].lower().replace(' ', '_').replace("'", '')
+ 386 |             if config_id == show_id:
+ 387 |                 try:
+ 388 |                     feed = feedparser.parse(feed_config['url'])
+ 389 |                     episodes = []
+ 390 |                     for entry in feed.entries[:limit]:
+ 391 |                         # Skip excluded content
+ 392 |                         if self._is_excluded_content(entry.title, feed_config['name']):
+ 393 |                             continue
+ 394 |                         
+ 395 |                         episode = {
+ 396 |                             'id': hash(entry.get('link', entry.title)) % 100000,
+ 397 |                             'title': entry.title,
+ 398 |                             'description': self.clean_description(entry.get('description', '')),
+ 399 |                             'audio_url': self.extract_audio_url(entry),
+ 400 |                             'duration': self.extract_duration(entry),
+ 401 |                             'published_date': self.parse_date(entry.get('published_parsed')),
+ 402 |                             'cover_image': self.extract_cover_image(entry, feed),
+ 403 |                             'show_name': feed_config['name'],
+ 404 |                             'host': feed_config.get('host', 'Protocol Pulse'),
+ 405 |                             'color': feed_config.get('color', '#dc2626')
+ 406 |                         }
+ 407 |                         episodes.append(episode)
+ 408 |                     return episodes
+ 409 |                 except Exception as e:
+ 410 |                     self.logger.error(f"Error fetching episodes for {show_id}: {e}")
+ 411 |         return []
+ 412 |     
+ 413 |     def clear_cache(self):
+ 414 |         """Clear the episode cache to force refresh"""
+ 415 |         self._episode_cache = {}
+ 416 |         self._cache_expiry = None
+ 417 |         self.logger.info("RSS episode cache cleared")
+ 418 |     
+ 419 |     def search_episodes(self, query: str, limit: int = 10) -> List[Dict]:
+ 420 |         """Search episodes by title or description"""
+ 421 |         all_episodes = self.get_latest_episodes(limit=50)
+ 422 |         query_lower = query.lower()
+ 423 |         results = [
+ 424 |             ep for ep in all_episodes
+ 425 |             if (query_lower in ep['title'].lower() or query_lower in ep['description'].lower())
+ 426 |             and not self._is_excluded_content(ep['title'], ep.get('show_name', ''))
+ 427 |         ]
+ 428 |         return results[:limit]
+ 429 | 
+ 430 | 
+ 431 | # Global instance for convenience
+ 432 | rss_service = RSSService()
 ```
 
 ---

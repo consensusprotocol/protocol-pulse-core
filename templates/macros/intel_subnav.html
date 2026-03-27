@@ -1,0 +1,32 @@
+{# Intelligence Sub-Navigation — included in all /intelligence/* pages #}
+<style>
+.intel-subnav{display:flex;align-items:center;padding:0 16px;height:36px;background:#0D0D16;border-bottom:1px solid #1A1A2E;gap:0}
+.intel-subnav-tab{display:flex;align-items:center;gap:6px;padding:0 16px;height:36px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;text-transform:uppercase;letter-spacing:2px;color:#555577;text-decoration:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.intel-subnav-tab:hover{color:#8888AA}
+.intel-subnav-tab.active{color:#E2E2EF;font-weight:600;border-bottom-color:#FF0033}
+.subnav-dot{width:6px;height:6px;border-radius:50%;background:#555577;flex-shrink:0}
+.subnav-dot.live{background:#00FF88;animation:subnavPulse 2s ease-in-out infinite}
+.subnav-dot.alert{background:#FFAA00;animation:subnavPulse 1.5s ease-in-out infinite}
+.subnav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#FF0033;color:#fff;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1}
+@keyframes subnavPulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+<nav class="intel-subnav" id="intelSubnav">
+    <a href="/intelligence" class="intel-subnav-tab{% if request.path == '/intelligence' %} active{% endif %}">
+        <span class="subnav-dot live" id="subnavDotWarRoom"></span> WAR ROOM
+    </a>
+    <a href="/intelligence/scenarios" class="intel-subnav-tab{% if '/scenarios' in request.path %} active{% endif %}">
+        <span class="subnav-dot" id="subnavDotScenarios"></span> SCENARIOS
+    </a>
+    <a href="/intelligence/alerts" class="intel-subnav-tab{% if '/alerts' in request.path and '/stats' not in request.path %} active{% endif %}">
+        ALERTS <span class="subnav-badge" id="subnavAlertBadge" style="display:none">0</span>
+    </a>
+    <a href="/intelligence/alerts/stats" class="intel-subnav-tab{% if '/stats' in request.path %} active{% endif %}">
+        STATS
+    </a>
+    <a href="/intelligence/backtest" class="intel-subnav-tab{% if '/backtest' in request.path %} active{% endif %}">
+        BACKTEST
+    </a>
+    <a href="/intelligence/api" class="intel-subnav-tab{% if '/api' in request.path %} active{% endif %}">
+        API
+    </a>
+</nav>

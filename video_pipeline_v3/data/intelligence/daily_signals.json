@@ -1,66 +1,70 @@
 {
   "topic_velocity": [
     {
-      "topic": "mining",
-      "channels": 9,
-      "sentiment": "bearish",
-      "velocity_score": 100
-    },
-    {
       "topic": "price",
       "channels": 12,
       "sentiment": "bullish",
-      "velocity_score": 100
+      "velocity_score": 18,
+      "authority_score": 18,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
     },
     {
       "topic": "regulation",
       "channels": 10,
       "sentiment": "bullish",
-      "velocity_score": 100
+      "velocity_score": 15,
+      "authority_score": 15,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
     },
     {
       "topic": "lightning",
       "channels": 9,
       "sentiment": "bullish",
-      "velocity_score": 100
+      "velocity_score": 14,
+      "authority_score": 14,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "mining",
+      "channels": 9,
+      "sentiment": "bearish",
+      "velocity_score": 14,
+      "authority_score": 14,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
     },
     {
       "topic": "macro",
       "channels": 10,
       "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "institutional",
-      "channels": 9,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "privacy",
-      "channels": 11,
-      "sentiment": "bullish",
-      "velocity_score": 100
-    },
-    {
-      "topic": "self-custody",
-      "channels": 5,
-      "sentiment": "bullish",
-      "velocity_score": 80
-    },
-    {
-      "topic": "etf",
-      "channels": 3,
-      "sentiment": "neutral",
-      "velocity_score": 50
+      "velocity_score": 8,
+      "authority_score": 8,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": true,
+  "breaking_threshold": false,
   "recommended_topics": [
-    "mining",
     "price",
-    "regulation"
+    "regulation",
+    "lightning"
   ],
-  "scan_time": "2026-03-16T05:31:17Z",
-  "total_videos_48h": 17
+  "dominant_narrative": "price",
+  "market_mood": "neutral",
+  "total_tweets_analyzed": 0,
+  "thought_leaders_active": 0,
+  "scan_time": "2026-03-20T17:38:54Z"
 }

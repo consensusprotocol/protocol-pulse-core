@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 # Token auth — uses env var or falls back to hardcoded
 # Set via: export ULTRON_RELAY_TOKEN="your_token"
-TOKEN = os.environ.get("ULTRON_RELAY_TOKEN", "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552")
+TOKEN = "57eadb9f3e6503ecf381b9046f90f7c21dd98e1d9c17bc8d83061649b081edcf"
 
 def check_auth():
     """Validate token from JSON body."""

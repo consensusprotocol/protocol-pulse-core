@@ -1,0 +1,108 @@
+ASR_config: /home/ultron/.cache/cached_path/8e321395b137fbbf44eca1c0606719f4f289b96709c2266cd92294a81b50c719.29c6d0c3b986a0dbb6bf7b3cd8a04109aedc7b752b437bafffaaa008db50e146
+ASR_path: /home/ultron/.cache/cached_path/70deb8eeb3fbb7e6a13a06af4b930cef1489e9c9f836d5845ad8a93ba773dc34.b33f593158b7cb7e559ee098cc16a03c840aeb22dbfd117166cdce080a13f61b
+F0_path: /home/ultron/.cache/cached_path/a3b7392f80b2b03ea383e66acc43d77bfe178608ad06adb0e481a7e1917ff1d7.67fb6bd33a7c4582d210837b95bf22633375f02adbdbd73a8f3957fcbaffc04c
+PLBERT_dir: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/plbert
+batch_size: 1
+data_params:
+  OOD_data: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/OOD_texts.txt
+  min_length: 50
+  root_path: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/wavs
+  train_data: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/train_list.txt
+  val_data: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/val_list.txt
+device: cuda
+epochs: 60
+load_only_params: true
+log_dir: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/checkpoints
+log_interval: 10
+loss_params:
+  diff_epoch: 5
+  joint_epoch: 20
+  lambda_F0: 1.0
+  lambda_ce: 20.0
+  lambda_diff: 1.0
+  lambda_dur: 1.0
+  lambda_gen: 1.0
+  lambda_mel: 5.0
+  lambda_mono: 1.0
+  lambda_norm: 1.0
+  lambda_s2s: 1.0
+  lambda_slm: 1.0
+  lambda_sty: 1.0
+max_len: 200
+model_params:
+  decoder:
+    resblock_dilation_sizes:
+    - - 1
+      - 3
+      - 5
+    - - 1
+      - 3
+      - 5
+    - - 1
+      - 3
+      - 5
+    resblock_kernel_sizes:
+    - 3
+    - 7
+    - 11
+    type: hifigan
+    upsample_initial_channel: 512
+    upsample_kernel_sizes:
+    - 20
+    - 10
+    - 6
+    - 4
+    upsample_rates:
+    - 10
+    - 5
+    - 3
+    - 2
+  diffusion:
+    dist:
+      estimate_sigma_data: true
+      mean: -3.0
+      sigma_data: 0.2
+      std: 1.0
+    embedding_mask_proba: 0.1
+    transformer:
+      head_features: 64
+      multiplier: 2
+      num_heads: 8
+      num_layers: 3
+  dim_in: 64
+  dropout: 0.2
+  hidden_dim: 512
+  max_conv_dim: 512
+  max_dur: 50
+  multispeaker: true
+  n_layer: 3
+  n_mels: 80
+  n_token: 178
+  slm:
+    hidden: 768
+    initial_channel: 64
+    model: microsoft/wavlm-base-plus
+    nlayers: 13
+    sr: 16000
+  style_dim: 128
+optimizer_params:
+  bert_lr: 1.0e-05
+  ft_lr: 0.0001
+  lr: 0.0001
+preprocess_params:
+  spect_params:
+    hop_length: 300
+    n_fft: 2048
+    win_length: 1200
+  sr: 24000
+pretrained_model: /home/ultron/protocol_pulse/video_pipeline_v3/voices/styletts2/pretrained_base.pth
+save_freq: 5
+second_stage_load_pretrained: true
+slmadv_params:
+  batch_percentage: 0.5
+  iter: 10
+  max_len: 200
+  min_len: 400
+  scale: 0.01
+  sig: 1.5
+  thresh: 5

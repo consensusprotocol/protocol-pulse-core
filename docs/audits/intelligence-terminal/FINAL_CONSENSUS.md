@@ -1,6 +1,6 @@
 # CONSENSUS REPORT — INTELLIGENCE-TERMINAL — CYCLE 2
-Generated: 2026-03-26 01:09
-Models: gpt4o, grok, gemini
+Generated: 2026-03-26 03:45
+Models: grok, gemini (+1 failed — GPT-4o rate limit exceeded)
 
 ---
 
@@ -8,262 +8,209 @@ Models: gpt4o, grok, gemini
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Competitive Gap Analysis | 9/10 | 9/10 | 9/10 | **9/10** |
-| Cross-Signal Alpha / Pattern Detection | 9/10 | 8/10 | 9/10 | **8.7/10** |
-| Visual Innovation / UI | 6/10 | 7/10 | 8/10 | **7/10** |
-| ML Model Recommendations | N/A | 7/10 | 6/10 | **6.5/10** |
-| $5K/mo Feature | N/A | 8/10 | 8/10 | **8/10** |
-| Design Competition | N/A | 7/10 | 7/10 | **7/10** |
-| Existing Foundation Quality | 9/10 | N/A | 8/10 | **8.5/10** |
-| **Overall Product Readiness** | **6/10** | **7/10** | **8/10** | **7/10** |
+| Data Collection Engine | 60 | N/A | 85 | **72** |
+| Proprietary Index Calculation | 65 | N/A | 60 | **62** |
+| Cross-Signal Pattern Detection | 30 | N/A | 62 | **46** |
+| Visual Design / Front-End | 75 | N/A | 68 | **71** |
+| Competitive Feature Parity | 45 | N/A | 52 | **48** |
+| ML / Predictive Layer | N/A | N/A | 55 | **55** |
+| Security / Paywall Architecture | 25 | N/A | N/A | **25** |
+| Overall Readiness | 40 | N/A | 62 | **51** |
 
-> **Auditor note on scoring divergence:** Gemini's lower overall readiness score (6/10) reflects recognition that the core value proposition (branded indices) does not yet exist — the product is solid as a data aggregator but incomplete as an intelligence terminal. GPT-4o and Grok weighted existing foundation more generously. The true readiness is **7/10**: shippable as a beta, not as a premium product.
+> **Synthesizer Note:** GPT-4o failed due to token rate limits. Consensus scores are derived from 2 models only. Confidence is moderate — not the full 3-model signal. The overall readiness score of **51** reflects a feature that has strong foundations but critical architectural blockers preventing production deployment. The wide divergence between Gemini (40) and Grok (62) on Overall Readiness is itself a signal: Gemini's architectural discovery (D1 below) is the reason for the gap and should be treated as dispositive.
 
 ---
 
 ## UNANIMOUS FINDINGS
-*All 3 models flagged these. Implement unconditionally.*
+*(Both active models agree — implement unconditionally)*
 
----
+### U1 — `_calculate_proprietary_indices` is a Stub, Not a Production Feature
+- **What it is:** The function responsible for calculating the signature branded indices (Miner Conviction, Exchange Pressure, Social Divergence) uses hardcoded baseline values and simplistic point-in-time logic rather than rolling statistical calculations. Specifically, `miner_conviction` uses a hardcoded `900 EH/s` baseline (Gemini, line 647) that will decay in accuracy as the network grows. There is no threshold validation, no historical smoothing, and no backtesting framework.
+- **File/Line:** `sovereign_context_engine.py`, lines 628–714
+- **What to change:** Replace hardcoded baselines with rolling moving averages (14-day and 50-day MAs of hashrate). Implement explicit bullish/bearish threshold zones. Add output validation to ensure scores stay within expected ranges. The formula structure proposed in Cycle 1 by Gemini (Miner Capitulation Risk, Liquid Supply Shock Ratio, Speculator-to-Hodler Conviction Index) should be the implementation target.
 
-### U1 — Raw Data Is Not Synthesized Into Proprietary Branded Indices
-**What it is:** The `sovereign_context_engine.py` gathers excellent ingredients (hashrate, exchange flows, whale alerts, KOL sentiment, BTC price) but outputs them as disconnected raw data points. Competitors like Glassnode and CryptoQuant charge $500/mo precisely because they brand and synthesize raw data into named, interpretable indices (SOPR, MVRV, Puell Multiple). Protocol Pulse has the inputs but skips this synthesis step entirely.
-
-**File/Line:** `sovereign_context_engine.py` — `build_world_state()` function (lines 632–667 for data collection); `intelligence_page.html` lines 530–554 (Component Breakdown card)
-
-**What to change:**
-Create a new function `_calculate_proprietary_indices(ws)` called inside `build_world_state()` that computes and appends to `world_state`:
-
-1. **`indices.miner_conviction`** — Formula: `(current_hashrate / 90d_avg_hashrate) - (btc_price_30d_pct_change)`. Positive = miners expanding despite price stagnation (supply shock precursor). Negative = miner capitulation. Data: `network.hashrate_eh`, `btc.price` historical.
-
-2. **`indices.exchange_pressure`** — Discrete -2 to +2 scale: `+2` = `exchange_flow == 'outflow'` AND whale alerts show large withdrawals; `+1` = outflow only; `0` = neutral; `-1` = inflow only; `-2` = inflow AND whale deposits. Data: `exchange_flow`, `whale_alerts`.
-
-3. **`indices.social_divergence`** — Formula: `(kol_sentiment_score - 50) - (btc_7d_change * 2)`. Large positive = social FOMO ahead of price (potential top). Large negative = capitulation (potential bottom). Data: `kol.sentiment_score`, `btc.change_7d`.
-
-Store results in `latest.json` alongside existing world state fields. Update `intelligence_page.html` to replace the generic Component Breakdown card with a dedicated "Protocol Pulse Indices" card displaying score, sparkline, and interpretation text.
-
----
-
-### U2 — `detect_patterns()` Is Underpowered: Single-Domain Checks Only
-**What it is:** The existing pattern detection at `sovereign_context_engine.py:452` performs simplistic, single-domain condition checks. The system's true moat is its ability to correlate across on-chain, social, market, and sentiment domains simultaneously — but this capability is unused. All three models independently identified this as the most critical functional gap.
-
-**File/Line:** `sovereign_context_engine.py:452–591`
-
-**What to change:**
-Add at minimum three new multi-domain alert patterns. Recommended implementations from consensus:
-
-- **`ACCUMULATION_STEALTH` / "Coiled Spring":** `exchange_flow == 'outflow'` AND `hashrate trending up` AND `fear_greed < 35` AND `price_7d_change < 3%`. Interpretation: Smart money accumulating during public fear — historically a high-probability setup.
-- **`SMART_MONEY_DIVERGENCE`:** `exchange_flow == 'outflow'` AND `hashrate_growth > 5%` AND `kol_sentiment_score < 40`. Interpretation: On-chain behavior contradicts social sentiment — one side is wrong.
-- **`NARRATIVE_EXHAUSTION_PEAK`:** `kol_sentiment_score > 80` AND `price_7d_change < 2%` AND `fear_greed > 75`. Interpretation: Social euphoria not supported by price action — potential local top.
-- **`MEMPOOL_PRESSURE_SIGNAL`:** `mempool_fee > 50 sat/vB` AND `lightning_capacity trending up`. Interpretation: On-chain congestion accelerating Layer 2 adoption — structural demand signal.
-
----
-
-### U3 — Proprietary Indices Must Ship With Interpretation/Rationale Text
-**What it is:** All three models noted (Gemini most explicitly) that an index score without context is meaningless to users. A "Miner Conviction Index" of 85 has no actionable value unless the user understands the scale, what 85 means, and what they should consider doing with that information. This is the "so what?" layer.
-
-**File/Line:** `sovereign_context_engine.py` (index calculation function, new); `intelligence_page.html` (indices display card)
-
-**What to change:**
-Each index and each new pattern alert must include a static `interpretation` field stored in `latest.json`:
-```python
-"indices": {
-  "miner_conviction": {
-    "score": 82,
-    "interpretation": "Miners are expanding operations despite price consolidation. Historically precedes supply shock and upward price pressure.",
-    "signal": "bullish"
-  }
-}
-```
-Render `interpretation` text beneath each index score in the UI. This is a content requirement, not just a UI requirement — it must be populated in the backend.
+### U2 — Exchange Flow Data Has No Volume, Making It Quantitatively Useless
+- **What it is:** The `_fetch_exchange_flow` function captures only the *direction* of exchange flows (inflow vs. outflow) but not the *magnitude* (USD or BTC volume). A $10,000 outflow and a $1,000,000,000 outflow are treated as identical signals. Any index, alert, or pattern detection built on top of this data is fundamentally unreliable for quantitative analysis.
+- **File/Line:** `sovereign_context_engine.py`, lines 349–388
+- **What to change:** The `_fetch_exchange_flow` function must be rewritten to source data that includes USD/BTC volume for both inflows and outflows. The existing string-scraping approach against other database tables is brittle and must be replaced with a proper data source or API integration. All downstream indices and pattern detectors that consume `exchange_flow` must be updated to use the volume field once available.
 
 ---
 
 ## MAJORITY FINDINGS
-*2 of 3 models flagged these. Implement unless compelling reason not to.*
+*(2 of 2 active models agree — implement unless compelling reason not to)*
 
----
+> With only 2 active models, all agreements are effectively unanimous. The findings below were emphasized with slightly different framing or priority between models but represent full consensus.
 
-### M1 — Market Sentiment Heatmap as Visual Differentiator
-**Models:** GPT-4o, Grok (Gemini endorsed as P1 in final list)
-**What it is:** A 2D heatmap visualizing sentiment across multiple metrics (Fear & Greed, KOL sentiment, article sentiment, Polymarket odds) against time, enabling at-a-glance detection of divergences and sentiment shifts.
-**File/Line:** `intelligence_page.html` — new section approximately after line 616 (Row 2 or 3 of dashboard grid)
-**Recommendation: Implement.** This is the single most differentiated visual element proposed. Competitors do not offer this specific view. It directly complements the new `indices.social_divergence` metric and transforms abstract numbers into an immediately legible market picture. Medium implementation effort, high perceived value.
+### M1 — Proprietary Indices Must Be Visualized, Not Displayed as Static Text
+- **What it is:** Both models converged on the idea that the competitive moat comes from *branded, visualized* indices — not just calculated values displayed as numbers. Grok explicitly called out that `intelligence_page.html` (lines 999–1025) displays indices as static text. Gemini noted that competitors win by branding indicators with clear "Bullish Crossover" / "Bearish Divergence" visual zones.
+- **File/Line:** `intelligence_page.html`, lines 999–1025
+- **What to change:** Replace static text output of proprietary indices with interactive charts. Each index should have a time-series visualization with labeled threshold zones (e.g., green zone above 70 = "Accumulation Confirmed," red zone below 30 = "Capitulation Risk"). Use the existing charting library already present in the codebase.
 
----
+### M2 — Whale Alert Fetch is Hard-Capped at 5 Records, Missing Critical Signals
+- **What it is:** The whale alerts fetch in `sovereign_context_engine.py` (lines 401–417) uses a hard limit of 5 records from `sentinel_alerts.db`. During high-activity periods (exactly when whale signals are most actionable), this cap will silently drop critical intelligence.
+- **File/Line:** `sovereign_context_engine.py`, lines 401–417
+- **What to change:** Increase the limit or implement dynamic windowing. Consider fetching the last N hours of data (e.g., 24h rolling window) rather than a static record count. Add a metadata field to the response indicating whether the result set was truncated.
 
-### M2 — Cross-Signal Anomaly Detector as Premium/$5K-per-Month Feature
-**Models:** GPT-4o, Grok
-**What it is:** An alert system that detects rare multi-domain confluences — conditions that have historically appeared fewer than 5 times per year — and surfaces them as high-confidence, institutional-grade signals. This is the feature that justifies a premium price tier.
-**File/Line:** `sovereign_context_engine.py` — extend `detect_patterns()` at lines 452–591 with anomaly-scoring logic; add a `rarity_score` or `confluence_count` field to alerts
-**Recommendation: Implement as P1.** The specific patterns from U2 (above) are the building blocks. The "Anomaly Detector" is what you call them collectively when marketing the feature. Implement the patterns first (U2/P0), then wrap them in an anomaly-scoring layer (P1) that tracks historical frequency and surfaces "this signal has only appeared 3 times in 18 months" context.
-
----
-
-### M3 — Historical Trend Visualization Missing From UI
-**Models:** Grok, Gemini (implied in UI redesign recommendation)
-**What it is:** The dashboard displays current-state data and recent alerts but provides no historical context for the new indices or existing metrics beyond the Fear & Greed history bars. A 7-day or 30-day sparkline per index is the minimum required for users to assess trend direction.
-**File/Line:** `intelligence_page.html` — component breakdown section lines 530–553; new indices card (from U1)
-**Recommendation: Implement with the indices card (P0/P1 boundary).** Sparklines are low-effort (Chart.js or inline SVG) and are required for the indices to be interpretable. A raw score of 82 for Miner Conviction is less useful than a score of 82 that was 40 last week. Fold this into the P0 indices implementation.
-
----
-
-### M4 — Alert Deduplication Is Fragile
-**Models:** Grok (explicit), Gemini (implied in reliability discussion)
-**What it is:** The fingerprinting logic for alert deduplication at `sovereign_context_engine.py:436–439` only considers pattern ID and hour. If underlying data fluctuates across multiple cycles within the same hour, the same substantively meaningful alert can still fire multiple times or, conversely, be suppressed when conditions have genuinely changed.
-**File/Line:** `sovereign_context_engine.py:436–439`
-**Recommendation: Implement.** Fix is low-risk and low-effort. Include key triggering data values (e.g., the specific fee threshold crossed, the specific exchange flow direction) in the fingerprint hash. This improves signal-to-noise ratio, which is critical for a product positioning itself as institutional-grade.
-
-```python
-# Current (fragile)
-fingerprint = f"{pattern_id}_{hour}"
-
-# Recommended
-fingerprint = hashlib.md5(
-    f"{pattern_id}_{hour}_{key_value_1}_{key_value_2}".encode()
-).hexdigest()
-```
+### M3 — Cross-Signal Patterns Are Promising but Lack Validation Infrastructure
+- **What it is:** Both models agreed that the cross-signal pattern library (`detect_patterns`, lines 452–591) contains valuable signal combinations (e.g., "Hashrate Up + Exchange Outflows + F&G < 20") but lacks any backtesting or historical validation. Grok cautioned against over-reliance on historical patterns cited in narrative form without quantitative validation. Gemini noted the backend and frontend detection are out of sync.
+- **File/Line:** `sovereign_context_engine.py`, lines 452–591
+- **What to change:** Add a confidence weighting system to each pattern based on historical occurrence rate. Even a simple lookup table of "this pattern preceded a 20%+ move within 30 days in X of Y occurrences" adds credibility. Priority patterns to validate first: Stealth Accumulation, Narrative Saturation Top.
 
 ---
 
 ## UNIQUE INSIGHTS
-*Single-model observations. Evaluated individually.*
+*(Only 1 model caught this — evaluated carefully)*
 
----
+### [GEMINI UNIQUE] — D1: Critical Business Logic Embedded in Frontend JavaScript, Bypassing Paywall and Creating Dual Sources of Truth
+- **What it is:** Gemini identified what may be the most severe architectural flaw in the codebase. The `computeSignalMatrix` (line 1372) and `computeDivergences` (line 1521) functions in `intelligence_page.html` perform substantive intelligence calculations in the user's browser. This creates three distinct problems:
+  1. **Security:** The paywall is implemented as a CSS overlay (`.classified-gate`, line 758). The underlying data and logic are delivered to every user regardless of subscription status. Any user can inspect the page source to access "premium" divergence signals. This is not a paywall — it is a visual obstruction.
+  2. **Architecture:** The backend `detect_patterns` function and the frontend `computeDivergences` function are independent implementations of the same conceptual task. They will inevitably drift out of sync, producing contradictory results between what the backend logs and what users see.
+  3. **Scalability:** Logic embedded in frontend JS cannot be reused for backend alerting, API endpoints, email notifications, or historical analysis.
+- **File/Line:** `intelligence_page.html`, lines 758, 1372, 1521
+- **Assessment:** **IMPLEMENT — P0.** This is the highest-severity finding of the entire two-cycle audit. It is a security vulnerability, an architectural anti-pattern, and a business risk simultaneously. Grok did not catch this. The fact that only one model flagged it does not reduce its severity — it increases our obligation to act on it. The fix is non-negotiable before any paid tier goes live.
 
-### UI1 — Brittle Keyword-Based Sentiment Heuristics (Gemini only)
-**What it is:** Gemini identified that `polymarket_service.py:92–95` classifies market questions as bullish/bearish using hard-coded keyword matching (e.g., "approve," "reject"). This is fragile for negated or nuanced questions ("Will the SEC *fail* to approve...?"). Similarly, `sovereign_context_engine.py:247–252` uses keyword counting for KOL sentiment with no semantic nuance.
+### [GROK UNIQUE] — Stock-to-Flow Approximation Using Existing Block Height Data
+- **What it is:** Grok proposed using the already-collected `block_height` and `btc.price` data to calculate a simplified S2F ratio, directly competing with Glassnode's premium S2F offering.
+- **Assessment:** **INVESTIGATE FURTHER.** The S2F model is well-understood, and the data is already available. However, S2F is a long-term valuation model and its predictive validity has been widely disputed post-2022. Implementing it as a "valuation reference" rather than a "predictive signal" is the correct framing. Add it as a P2 branded metric with clear disclaimers. Do not represent it as a forward-looking indicator.
 
-**Assessment: Implement as P2 (technical debt, not blocking).** This is the most technically substantive unique finding in the entire audit. It represents genuine reliability risk for the `indices.social_divergence` index and any KOL-dependent patterns. However, a full LLM-based sentiment replacement is a significant engineering investment. **Immediate action:** Add a negation-detection wrapper to the existing keyword classifier (check for "not," "fail," "won't," "reject" before the primary keyword). **Medium-term action:** Replace with a lightweight fine-tuned classifier or an API call to a small sentiment model. Do not deploy the Social Divergence Index as a premium feature until this is addressed.
+### [GROK UNIQUE] — No Real-Time Alert Updates Without Full Page Reload
+- **What it is:** The dashboard auto-refreshes signal scores every 5 minutes (lines 1679–1698 in `intelligence_page.html`) but whale alerts and divergence alerts require a full page reload to update.
+- **Assessment:** **IMPLEMENT — P1.** This is a UX gap that directly impacts the "intelligence terminal" experience. High-frequency alerts (whale movements, divergence crossovers) lose their value if they're delayed by page reload cycles. The existing 5-minute refresh mechanism should be extended to include alert components via the same polling architecture.
 
----
+### [GEMINI UNIQUE] — Silent Exception Swallowing in Polymarket Service
+- **What it is:** In `services/polymarket_service.py`, the `_parse_outcomes` function (line 74) uses a bare `except:` block, silently catching all exceptions and potentially returning corrupt or empty data with no log trace.
+- **Assessment:** **IMPLEMENT — P1.** Silent data corruption in a service that feeds market intelligence signals is unacceptable. This is a standard engineering hygiene issue that is trivially fixed and high-impact.
 
-### UI2 — API Fetching Has No Caching or Parallel Execution (Grok only)
-**What it is:** `sovereign_context_engine.py:111–417` makes all API calls sequentially with only basic error handling. Under API downtime or high load, this creates cascading delays across the entire cycle, degrading data freshness.
-
-**Assessment: Implement as P2.** This is a valid scalability concern. However, since this is a single-user or low-concurrency terminal (not a multi-tenant SaaS with thousands of simultaneous users), the immediate risk is low. **Recommended fix:** Convert the sequential fetch loop to `asyncio.gather()` or `ThreadPoolExecutor` with a per-source timeout and a stale-cache fallback. This is a P2 but should be scheduled before any public launch or significant user growth.
-
----
-
-### UI3 — The "Why" Layer Is Entirely Missing From Current Product (Gemini only)
-**What it is:** Gemini identified a strategic gap beyond just adding interpretation fields to new indices — the entire product currently surfaces *what* without surfacing *why*. This extends to the stage brief, alert history, and component breakdown. A Bloomberg Terminal analyst doesn't just read numbers; they read annotated analysis.
-
-**Assessment: Implement partially at P1, fully at P2.** The interpretation fields required in U3 address the immediate gap for new indices. The broader vision — contextual annotations across all major dashboard sections — is a longer-term product design effort. At minimum, the existing Stage Brief narrative (which appears to be generated already) should be more prominently featured as the "editorial voice" of the dashboard, not buried below statistics.
+### [GROK UNIQUE] — Social Sentiment Divergence Index as Competitive Feature
+- **What it is:** Combining KOL sentiment and article sentiment into a divergence index (e.g., KOL bullish + articles bearish = potential reversal signal) as a direct competitor to Santiment's Social Volume/Divergence offering.
+- **Assessment:** **IMPLEMENT — P1.** The data already exists. The combination is novel, branded, and directly replicates a $500/month paid feature. This should be one of the first additions to `_calculate_proprietary_indices` after the architectural fixes are complete.
 
 ---
 
 ## CONFLICTS
-*Models gave contradictory recommendations. Tiebreaker provided.*
+*(Models gave contradictory signals — synthesizer tiebreaker applied)*
 
----
+### Conflict 1 — Overall Readiness Score: Gemini (40) vs. Grok (62)
+- **Gemini's position:** The paywall security flaw and frontend business logic make the feature unfit for production. Score: 40.
+- **Grok's position:** The feature is functional with known gaps, close to production with targeted fixes. Score: 62.
+- **Tiebreaker — Gemini is correct.** The CSS-only paywall bypassing premium data is not a UX deficiency — it is a billing integrity failure. A paying user who discovers a free user can access the same "classified" data through DevTools will churn and dispute their charge. This alone makes the current state non-shippable for any commercial tier. Grok's higher score appears to reflect optimism about the feature set without adequately weighting the security risk.
 
-### C1 — Backtesting Framework: P1 (GPT-4o) vs. P2 (Grok/Gemini)
-**GPT-4o** prioritized a backtesting framework for validating cross-signal combinations at P1. **Grok** explicitly disagreed, arguing P2 behind real-time implementation. **Gemini** did not rank it highly.
+### Conflict 2 — Cross-Signal Pattern Detection Score: Gemini (30) vs. Grok (62)
+- **Gemini's position:** The backend/frontend split is a critical architectural flaw warranting a 30/100.
+- **Grok's position:** The patterns are promising and actionable, warranting a 62/100 with caveats about validation.
+- **Tiebreaker — Gemini is correct on direction, Grok is correct on nuance.** The frontend JS duplication is a genuine architectural problem. However, Grok's point that the patterns themselves are valuable is also true. The *logic* deserves a 62; the *architecture* deserves a 30. The consensus score of 46 appropriately reflects that a good feature is currently built on a broken foundation.
 
-**Tiebreaker: Grok and Gemini are correct. P2.**
-Rationale: Real-time alerts shipping with poor or unvalidated patterns is worse than no alerts. However, building a backtesting framework before shipping the patterns inverts the value delivery sequence. The right order is: (1) implement patterns based on historical domain knowledge [P0], (2) ship and observe real-world performance [P0/P1], (3) build backtesting infrastructure to iterate and improve [P2]. A backtesting framework with no patterns to backtest is an empty tool.
-
----
-
-### C2 — Overall Readiness Score: 6/10 (Gemini) vs. 7–8/10 (GPT-4o, Grok)
-**Gemini** scored the product 6/10 overall, arguing the absence of proprietary indices means the core value proposition doesn't exist yet. **GPT-4o** gave 7/10; **Grok** gave 8/10, weighted toward foundation quality.
-
-**Tiebreaker: Gemini's framing is strategically correct, but the numeric split is a matter of definition.**
-Both positions are defensible depending on what you're measuring. As a *data aggregation tool*: 8/10, ready to ship. As a *premium intelligence terminal competing with Glassnode at $500/mo*: 6/10, not yet ready. Since the explicit goal is to compete with premium tools and justify a premium price, **Gemini's score is the operative one for launch decisions.** The product should not be marketed as a premium intelligence terminal until P0 items are implemented.
-
----
-
-### C3 — ML/TimeMixer Priority: P1 (GPT-4o) vs. P2 (Grok)
-**GPT-4o** listed ML model integration at P1. **Grok** listed it at P2.
-
-**Tiebreaker: Grok is correct. P2.**
-Rationale: ML forecasting is a powerful future capability but requires training data, validation infrastructure, and meaningful historical depth in the world state database before it can produce reliable outputs. Shipping ML forecasts before the foundational proprietary indices exist would be building the roof before the walls. Implement indices and pattern detection first; ML forecasting is a Phase 2 differentiator.
+### Conflict 3 — Data Collection Engine Score: Gemini (60) vs. Grok (85)
+- **Gemini's position:** The missing volume data and brittle fetch functions are fundamental data quality failures. Score: 60.
+- **Grok's position:** The engine is largely capable and comprehensive. Score: 85.
+- **Tiebreaker — Split decision, lean toward Gemini.** Grok's 85 reflects the breadth and sophistication of the data collection architecture, which is genuinely impressive. However, Gemini is correct that a data pipeline which produces directional-only exchange flow signals is quantitatively broken for any serious analytics use case. Consensus score of 72 is appropriate — strong architecture, meaningful data gap.
 
 ---
 
 ## VALIDATED STRENGTHS
-*All models confirmed these are excellent. Do NOT change them.*
+*(Both models confirmed these areas are excellent — do NOT change in the second pass)*
 
----
-
-1. **Data Collection Infrastructure in `sovereign_context_engine.py`:** The breadth and reliability of data sources (BTC price, Fear & Greed, mempool fees, hashrate, Lightning stats, KOL sentiment, exchange flows, whale alerts, Polymarket odds, PCAF anomaly score) is genuinely competitive. All three models agreed this is a strong foundation that rivals or exceeds what most premium competitors collect.
-
-2. **The `sovereign_context_engine` Cycle Architecture:** The periodic world-state build cycle, the `build_world_state()` orchestration function, and the output to `world_state.json` / `latest.json` is well-structured. Do not refactor this architecture; extend it with the `_calculate_proprietary_indices()` function as an additive step.
-
-3. **Stage Brief / Narrative Generation:** The existing stage brief generation that produces human-readable market narrative is a genuine differentiator. It is ahead of competitors in natural language output. It needs more prominence in the UI, not replacement or redesign.
-
-4. **Front-End Performance and Cleanliness (`intelligence_page.html`):** The existing UI is described as "clean" by all models. The layout grid, stat pills, and alert feed are solid. The redesign needed is additive (new indices card, heatmap section) — not a ground-up rebuild.
-
-5. **PCAF Anomaly Score:** The Polymarket/Cross-Asset-Flow anomaly scoring is a unique data point not available from any competitor. It should be prominently featured in the new indices section, not buried in the raw data feed.
+1. **Brand Aesthetic and Visual Design Language:** Both models agreed the front-end adheres well to the specified brand laws. The dark terminal aesthetic, color palette, and typography are strong and should not be modified.
+2. **Data Collection Breadth:** The `sovereign_context_engine.py` collects an impressive range of signals (BTC price, Fear & Greed, mempool fees, hashrate, Lightning stats, KOL sentiment, article sentiment, exchange flows, whale alerts, Polymarket odds, PCAF anomaly score). The diversity of data sources is a genuine competitive asset.
+3. **Narrative Synthesis via Stage Brief:** The stage brief narrative mechanism is a differentiating feature that competitors do not offer. Both models praised this as a unique capability.
+4. **Polymarket Integration:** The use of Polymarket odds as a macro sentiment overlay is a novel competitive advantage not available in Glassnode, CryptoQuant, or Santiment. Preserve this integration.
+5. **Overall Structural Architecture of `sovereign_context_engine.py`:** The concept of a centralized intelligence brain that coordinates all data fetching and synthesis is the correct architectural pattern — the problem is that it isn't being fully respected by the frontend. The architecture itself is sound.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-*Note: No models explicitly audited for specific legal compliance (GDPR, financial regulations, etc.). The following is a synthesized assessment based on the code's functional description.*
-
-**Areas requiring investigation before public launch:**
-
-| Regulation | Status | Assessment |
+| Law | Status | Finding |
 |---|---|---|
-| Financial Advice Disclaimers | ⚠️ UNKNOWN | If the product surfaces "buy/sell" signals or pattern alerts to paying users, it may constitute investment advice in many jurisdictions. All signal outputs must include explicit "not financial advice" disclaimers. The interpretation fields (U3) must be carefully worded. |
-| Data Source Terms of Service | ⚠️ UNKNOWN | KOL data, Polymarket odds, and exchange flow data are aggregated from third-party sources. Each source's ToS must be reviewed for commercial redistribution rights before charging users. |
-| GDPR / User Data | ✅ LOW RISK | No models identified user PII collection. Risk appears low unless user authentication is added. |
-| OFAC / Sanctions | ✅ NOT APPLICABLE | The product is a read-only analytics terminal, not a transaction processor. |
-
-**Final determination:** Legal review of financial advice classification and data source ToS is required before public monetization. This is a business/legal action item, not a code change.
+| Single Source of Truth | ❌ VIOLATED | Business logic split between `sovereign_context_engine.py` and `intelligence_page.html` JS creates two independent calculation engines. |
+| Paywall Integrity | ❌ VIOLATED | CSS-only gate sends premium data to all users regardless of subscription status. |
+| Data Quality | ⚠️ PARTIAL | Exchange flow direction captured but volume missing; whale alert hard cap may truncate signal. |
+| No Silent Failures | ❌ VIOLATED | Bare `except:` in `polymarket_service.py` line 74 swallows errors silently. |
+| Brand Consistency | ✅ COMPLIANT | Both models confirmed visual design adherence. |
+| Proprietary Index Branding | ⚠️ PARTIAL | Names exist but formulas are not production-grade; indices are not visualized competitively. |
+| Competitive Feature Parity | ⚠️ PARTIAL | Data exists to compete with $500/month tools; implementation is incomplete. |
 
 ---
 
 ## SECURITY CONSENSUS
 
-*Models did not conduct a deep security audit. The following reflects findings from the combined reviews.*
+**Critical security issues flagged by at least 1 model, ordered by severity:**
 
-| Issue | Severity | Models | File |
-|---|---|---|---|
-| API Key Exposure Risk | ⚠️ MEDIUM | Implied by all (data aggregation architecture) | `sovereign_context_engine.py` — ensure all API keys are loaded from environment variables or secrets manager, never hardcoded |
-| No rate-limit / auth on dashboard endpoint | ⚠️ MEDIUM | Not explicitly flagged but implied by single-user assumption | If served publicly, the intelligence endpoint must require authentication |
-| Sequential API calls with no timeout caps | ⚠️ LOW-MEDIUM | Grok (explicit) | `sovereign_context_engine.py:111–417` — uncapped API calls could hang cycles indefinitely |
-| Keyword-based sentiment injection risk | ⚠️ LOW | Gemini (explicit) | If any third-party KOL content is rendered directly in UI, XSS risk exists; sanitize all external text before render |
+1. **🔴 P0 — CSS Paywall Bypass (Gemini, unique):** Premium intelligence data is delivered to all users in the page HTML. The subscription gate is purely visual. Any user can access classified signals via browser DevTools. This is a billing fraud risk and must be resolved with server-side conditional rendering before any commercial launch.
 
-**Priority order:** (1) Verify API keys are not hardcoded anywhere in the repo. (2) Add authentication to the dashboard if it will be publicly hosted. (3) Add per-API-call timeouts. (4) Sanitize external text content before rendering.
+2. **🟠 P1 — No Input Validation on Signal Calculation Inputs (inferred from both models):** Neither model explicitly named this, but the absence of data validation on inputs to `_calculate_proprietary_indices` means malformed or missing upstream data (e.g., a null hashrate reading) could produce corrupted index scores that propagate silently to the dashboard.
+
+3. **🟡 P2 — Silent Exception in Polymarket Service (Gemini, unique):** Bare `except:` block in `_parse_outcomes` (line 74) prevents any visibility into data corruption events in a production environment. An exception here means the Polymarket odds feed could silently return zeros or stale data.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
-*What the combined intelligence of 3 models says is missing from a truly world-class product. Only items 2+ models mentioned.*
+*(Items mentioned by 2+ models as missing from a truly world-class product)*
 
-1. **Proprietary Branded Indices (ALL 3 models):** The gap between "data aggregator" and "intelligence terminal" is entirely defined by this. Bloomberg, Glassnode, and CryptoQuant are selling named, interpretable intellectual property — not raw feeds. Protocol Pulse collects all the necessary ingredients but skips the synthesis step. This is the defining gap.
+1. **Historical Backtesting for Cross-Signal Patterns** *(both models)*: Every competitor at the $500+/month tier provides historical performance data for their signals. "This pattern preceded a 15%+ move in 7 of 9 historical occurrences" is what converts a dashboard into a decision-support tool. Without this, Protocol Pulse is a display — not intelligence.
 
-2. **Multi-Domain Cross-Signal Alert Patterns (ALL 3 models):** The system can see across on-chain, social, market, and sentiment domains simultaneously — a capability its competitors cannot easily replicate. The current pattern detection ignores this advantage entirely. Shipping single-domain patterns while sitting on a multi-domain data set is the biggest missed opportunity in the codebase.
+2. **Volume-Weighted Exchange Flow Signals** *(both models)*: World-class platforms (CryptoQuant, Glassnode) lead with magnitude, not just direction. The entire exchange flow signal layer needs to be rebuilt on volumetric data to reach competitive parity.
 
-3. **Contextual "So What?" Layer (Gemini + implied by GPT-4o/Grok):** World-class intelligence tools don't just surface data — they surface interpretation. The product needs a persistent editorial voice (the Stage Brief is a start) and per-signal interpretation text. Without this, even the best indices require users to do their own analysis, which reduces the value proposition.
+3. **Interactive, Branded Proprietary Index Charts with Threshold Zones** *(both models)*: Glassnode and Santiment don't just show numbers — they show colored zones, crossover events, and alert thresholds. The current static text display of proprietary indices is the equivalent of Bloomberg Terminal showing a number in a text file. Visualization is not cosmetic — it is the product.
 
-4. **Historical Trend Context for Indices (Grok + Gemini):** A score without a trend is half an answer. Every world-class metric tool shows you where you are and where you've been. The absence of sparklines or historical context for any index prevents users from developing intuition for the product's outputs.
-
-5. **Unique Visual Differentiation (GPT-4o + Grok):** The current UI is clean but generic — it could be any analytics dashboard. A Market Sentiment Heatmap or similar visually novel element would create a "product identity" moment that users remember and share. Bloomberg has its orange. Glassnode has its charting style. Protocol Pulse needs its signature visual.
+4. **Real-Time Alert Architecture** *(Grok primary, Gemini secondary)*: A terminal-grade product must push alerts to users, not require them to refresh. WebSocket or SSE architecture for whale alerts and divergence crossovers would differentiate Protocol Pulse from static dashboard competitors.
 
 ---
 
 ## FINAL ACTION PLAN
+*(Sorted by consensus priority)*
 
-### P0 CRITICAL
+**P0 CRITICAL**
 
-| # | Change | File:Line | Models | Why |
+| Priority | Change | File:Line | Models | Why |
 |---|---|---|---|---|
-| P0.1 | Create `_calculate_proprietary_indices(ws)` function implementing Miner Conviction Index, Exchange Pressure Ratio (-2 to +2), and Social Divergence Indicator; call from `build_world_state()`; store results in `latest.json` | `sovereign_context_engine.py:632–667` (extend) | ALL 3 | Core value proposition gap; without this the product cannot be positioned as a premium intelligence terminal |
-| P0.2 | Add `interpretation` and `signal` fields to each new index object in the computed world state | `sovereign_context_engine.py` — new index function | ALL 3 | An uninterpreted score has no user value; this is required for the indices to be usable |
-| P0.3 | Add at least 3 new multi-domain pattern alerts to `detect_patterns()`: `ACCUMULATION_STEALTH`, `SMART_MONEY_DIVERGENCE`, `NARRATIVE_EXHAUSTION_PEAK`; each must span at least 2 data domains | `sovereign_context_engine.py:452–591` | ALL 3 | Single-domain patterns do not leverage the system's multi-domain data advantage; this is the primary alpha generation mechanism |
-| P0.4 | Replace Component Breakdown card with "Protocol Pulse Indices" card displaying score, 7-day sparkline, signal direction, and interpretation text for each index | `intelligence_page.html:530–554` | ALL 3 | UI must reflect the new indices; current generic display buries the most valuable new data |
-| P0.5 | Fix alert deduplication fingerprint to include key triggering data values in the hash | `sovereign_context_engine.py:436–439` | Grok + Gemini | Fragile deduplication produces noise; institutional users will not tolerate duplicate alerts |
+| P0.1 | Move `computeSignalMatrix` and `computeDivergences` logic from frontend JS to `sovereign_context_engine.py`. Pass computed results to template as server-side context variables. | `intelligence_page.html` lines 1372, 1521 → `sovereign_context_engine.py` | Gemini (unique, high confidence) | Single source of truth violation; architectural anti-pattern; renders backend `detect_patterns` redundant and contradictory |
+| P0.2 | Implement server-side paywall gating. Modify the Flask route serving `intelligence_page.html` to conditionally exclude premium signal data from template context if `is_commander` is false. CSS gate must be removed. | Flask route handler + `intelligence_page.html` line 758 | Gemini (unique, high confidence) | CSS-only paywall is a billing integrity failure — premium data is delivered to all users |
+| P0.3 | Rewrite `_fetch_exchange_flow` to source volumetric data (USD/BTC inflow and outflow totals), replacing the current direction-only string scraping approach | `sovereign_context_engine.py` lines 349–388 | Both models | Directional-only exchange flow makes all downstream indices and patterns quantitatively meaningless |
+| P0.4 | Expand `_calculate_proprietary_indices` with rolling MA baselines (14-day / 50-day), replace hardcoded `900 EH/s` baseline, add threshold validation and bullish/bearish zone outputs | `sovereign_context_engine.py` lines 628–714 | Both models | Current implementation is a non-production stub; hardcoded baselines decay over time |
+
+**P1 HIGH**
+
+| Priority | Change | File:Line | Models | Why |
+|---|---|---|---|---|
+| P1.1 | Add interactive time-series charts for all proprietary indices with labeled threshold zones (Bullish/Bearish/Neutral bands). Replace static text display. | `intelligence_page.html` lines 999–1025 | Both models | Competitive parity requires visualization — displaying numbers is not a premium product |
+| P1.2 | Replace bare `except:` in `_parse_outcomes` with specific exception types and structured logging | `services/polymarket_service.py` line 74 | Gemini (unique) | Silent failure in a live intelligence feed is a production data quality risk |
+| P1.3 | Extend 5-minute auto-refresh to include whale alerts and divergence alert components without full page reload. Implement polling or SSE for alert components. | `intelligence_page.html` lines 1679–1698 | Grok (unique) | Alert latency defeats the "terminal" value proposition; high-frequency signals must be near-real-time |
+| P1.4 | Add Social Sentiment Divergence Index to `_calculate_proprietary_indices`: combine KOL sentiment score with article sentiment to surface divergence as a reversal signal | `sovereign_context_engine.py` lines 628–714 | Grok (unique) | Directly replicates Santiment's $500/month Social Divergence feature using already-collected data |
+| P1.5 | Increase whale alert fetch from hard cap of 5 to a 24-hour rolling window with truncation metadata | `sovereign_context_engine.py` lines 401–417 | Grok (unique, Gemini inferred) | Hard cap of 5 silently drops signals during peak activity — worst-case failure mode |
+| P1.6 | Add time-based caching to all `_fetch_...` functions (Redis or `functools.lru_cache`) to improve resilience and performance | `sovereign_context_engine.py`, all `_fetch_` functions | Gemini (unique) | No caching means every render cycle makes full external calls; single API failure takes down the entire intelligence layer |
+
+**P2 MEDIUM**
+
+| Priority | Change | File:Line | Models | Why |
+|---|---|---|---|---|
+| P2.1 | Add confidence weighting to `detect_patterns` using historical occurrence lookup table | `sovereign_context_engine.py` lines 452–591 | Both models | Patterns without historical validation are assertions, not intelligence |
+| P2.2 | Implement simplified Stock-to-Flow ratio using existing `block_height` and `btc.price` data; display as long-term valuation reference (not predictive signal) | `sovereign_context_engine.py` + `intelligence_page.html` | Grok (unique) | Replicates Glassnode premium feature using already-collected data; must be framed carefully |
+| P2.3 | Visualize exchange flow as cumulative 7/30/90-day net inflow/outflow chart showing accumulation/distribution phases (requires P0.3 volume data first) | `intelligence_page.html` | Grok (unique) | Directly competes with CryptoQuant's Exchange Net Position Change; visually compelling |
+| P2.4 | Implement Speculator-to-Hodler Conviction Index: `(LN Capacity Growth + Hashrate Growth) / (KOL Sentiment Delta + F&G Value)` | `sovereign_context_engine.py` lines 628–714 | Gemini Cycle 1 | Unique branded metric that uses Lightning data as a differentiator vs. all named competitors |
 
 ---
 
-### P1 HIGH
+## CYCLE 2 VERDICT
 
-| # | Change | File:Line | Models | Why |
-|---|---|---|---|---|
-| P1.1 | Implement Market Sentiment Heatmap visualizing Fear & Greed, KOL sentiment,
+**Production Ready: NO**
+
+The intelligence-terminal feature has a genuinely impressive foundation — the data collection breadth, the narrative synthesis capability, and the visual design are all competitive-grade assets. However, three blockers make the current state non-shippable:
+
+**Absolute Final Blockers:**
+
+1. **The CSS paywall is a commercial fraud risk.** Premium data is delivered to every user. This cannot be in a production release with any paid tier attached. It will generate chargebacks, user trust failures, and potential legal exposure.
+
+2. **Business logic split across backend and frontend creates an unmaintainable system.** Two independent calculation engines will diverge over time, producing contradictory intelligence for users and engineers alike. Every future feature built on this foundation will compound the problem.
+
+3. **Exchange flow data is directionally captured but volumetrically empty.** Any index or pattern built on direction-only flow data cannot be defended as "institutional-grade intelligence." This is a core data quality issue, not a feature gap.
+
+Resolve P0.1 through P0.4. The P1 items significantly improve product quality but the P0 items are the gate. After the second pass, re-run a targeted audit focused specifically on the paywall architecture and the data ingestion pipeline.
+
+---
+
+## SECOND PASS PROMPT
+*(
 
 ---
 
@@ -271,113 +218,80 @@ Rationale: ML forecasting is a powerful future capability but requires training 
 
 # WINNER: **Gemini**
 
-Gemini delivered the highest-quality analysis by correctly identifying the *strategic* gap — not just the technical one — framing the missing synthesis layer as a product positioning failure and intellectual property opportunity, not merely a UI improvement. This insight (branded proprietary indices as competitive repositioning) was confirmed by all three Cycle 2 reviews as the single most important finding, and Gemini articulated it with the most precision, including concrete formulas, named indices, and a clear competitive rationale that proved durable under peer scrutiny.
+Gemini consistently identified the highest-leverage architectural issues — specifically the P0 data integrity flaw (exchange flow lacking volume data, rendering signals quantitatively useless) and the strategic branding layer for proprietary metrics — findings that proved decisive enough to single-handedly explain the 22-point readiness gap between the two models and were validated as "dispositive" by the consensus synthesizer. Its recommendations were not only accurate in Cycle 2 but were framed with specific formulas, named indices, and file-level citations, making them immediately actionable rather than directionally correct.
 
 ---
 
 # FINAL SECOND-PASS PRIORITY LIST
-
-Definitive ordered implementation backlog synthesized from all unanimous, majority, and minority findings across both cycles.
-
----
-
-## TIER 1 — P0: SHIP NOTHING ELSE FIRST
-
-### 1. Proprietary Branded Indices Engine
-**Why first:** Unanimous across all 3 models, confirmed in Cycle 2 as the single highest-leverage change. Transforms the product category from "data aggregator" to "intelligence terminal." Everything downstream (alerts, UI, pricing) depends on this layer existing.
-
-**What to build:**
-- `_calculate_proprietary_indices(ws)` inside `sovereign_context_engine.py`, called at the end of `build_world_state()`
-- **Miner Conviction Index:** `(current_hashrate / 90d_avg_hashrate) - (btc_price_30d_pct_change)` — signals supply shock precursor or miner capitulation
-- **Exchange Pressure Ratio:** Discrete state model `(+2 to -2)` combining `exchange_flow` string + whale alert direction
-- **Narrative Heat Score:** KOL sentiment score × article sentiment score × recency weight — single number summarizing information environment temperature
-- **Liquidity Stress Index:** Mempool fee sat/vB normalized against 30-day baseline + Lightning capacity delta
-- Expose all four as named fields on the `world_state` dict and render them as primary cards on `intelligence_page.html`, above the raw data component breakdown
+*Definitive ordered implementation backlog derived from all Cycle 1 + Cycle 2 findings*
 
 ---
 
-### 2. `detect_patterns()` — Backtestable Named Signal Recipes
-**Why second:** The function exists but is underspecified. Named patterns are the delivery mechanism for index value — they convert indices into alerts users act on. This is what justifies the subscription price.
+## 🔴 P0 — CRITICAL BLOCKERS (Production is unsafe without these)
 
-**What to build — implement these specific patterns with exact threshold logic:**
+### P0-1 — Fix Exchange Flow: Add Volume Quantification
+- **Finding:** U2 / Gemini D1. Current `exchange_flow` records only direction (inflow/outflow), not magnitude. A $10K outflow and a $1B outflow are treated identically. Every signal derived from this data is structurally weak.
+- **File:** `sovereign_context_engine.py` — exchange flow ingestion layer
+- **Action:** Modify the data fetch to capture USD/BTC volume alongside direction. Add a volume-weighted net flow calculation. Gate any Exchange Pressure index display behind a `volume_available: bool` flag until this is resolved. Do not ship Exchange Pressure as a paid feature in its current form.
 
-| Pattern Name | Condition | Signal |
-|---|---|---|
-| **Coiled Spring** | Hashrate 90d ATH + Exchange Pressure ≥ +1 + Fear & Greed < 25 | Strong bullish accumulation |
-| **Stealth Accumulation** | Whale alerts net outflow 3 consecutive days + price flat ±2% | Institutional positioning, pre-move |
-| **Narrative Exhaustion Peak** | KOL sentiment > 0.85 + article volume spike + price stagnant | Sentiment top, distribution risk |
-| **Smart Money Divergence** | Exchange inflows rising + Fear & Greed > 75 + whale net outflow | Retail buying, smart money exiting |
-| **Miner Capitulation Floor** | Miner Conviction Index < -0.3 + hashrate 30d decline > 10% | Historical bottom signal |
+### P0-2 — Replace Hardcoded Baselines in `_calculate_proprietary_indices`
+- **Finding:** U1 — unanimous. `miner_conviction` uses a static `900 EH/s` baseline (line 647). As network hashrate grows, this baseline becomes increasingly wrong, silently degrading signal quality with no visible failure.
+- **File:** `sovereign_context_engine.py`, lines 628–714
+- **Action:** Replace all hardcoded scalar baselines with rolling moving averages. Minimum: 14-day MA for hashrate, 30-day MA for exchange flow magnitude, 7-day MA for social sentiment. Add a `baseline_staleness_warning` if the rolling window has fewer than N data points. Log when fallback to hardcoded values occurs.
 
-Each pattern returns: `{name, confidence_score, historical_hit_rate_placeholder, recommended_action}`.
-
----
-
-## TIER 2 — P1: COMPETITIVE PARITY FEATURES
-
-### 3. Competitor Feature Direct-Map (Grok's "Mimic/Beat" Framework)
-**Why:** Grok's structured approach of mapping specific competitor features and explicitly building equivalents prevents scope drift and gives the product team a checklist against paid tiers.
-
-**What to build:**
-- **vs. Glassnode:** HODLer Net Position proxy using whale alert + exchange flow 30d trend. Label it "Long-Term Holder Pressure Index"
-- **vs. CryptoQuant:** Miner-specific outflow tracking from whale alerts filtered by known miner wallet tags. Label it "Miner Distribution Signal"
-- **vs. Santiment:** Social volume proxy by normalizing article_count + KOL mention_count per 24h window into a "Social Momentum Score"
-- **vs. Bloomberg:** BTC/S&P 500 correlation coefficient using existing BTC price data + a free macro feed (FRED API, no cost). Label it "Macro Decoupling Index"
+### P0-3 — Implement Paywall Architecture
+- **Finding:** Gemini identified Security/Paywall at 25 — the lowest score in the entire audit. No other subsystem scored this low. There is currently no enforcement layer preventing free users from accessing premium signal data.
+- **File:** Not yet created — requires new `auth_middleware.py` or equivalent
+- **Action:** Define tier boundaries explicitly (Free / Pro / Institutional). Implement server-side route guards — not just front-end UI hiding. Premium API endpoints must validate session/token before returning data. This is a revenue integrity issue, not just a feature gap.
 
 ---
 
-### 4. $5,000/Month Anchor Feature — Cross-Signal Anomaly Detector
-**Why:** GPT-4o and Grok both identified this. Every premium product needs one feature that is so uniquely valuable it anchors the high-end pricing tier. This is it.
+## 🟠 P1 — HIGH PRIORITY (Ship within current sprint)
 
-**What to build:**
-- A composite anomaly score that fires when ≥ 3 of the 4 proprietary indices simultaneously move 2σ from their 90-day mean in a directionally consistent way
-- Output: `PROTOCOL PULSE ALERT — MULTI-SIGNAL CONVERGENCE DETECTED` with the specific indices triggered, their deviation scores, and the last 3 historical instances of a similar convergence with outcome data
-- Deliver via: dashboard banner + email/webhook + dedicated alert history page
-- Gate this behind the premium subscription tier as the explicit upgrade driver
+### P1-1 — Build Rolling Statistical Framework for All Indices
+- **Finding:** U1 extension. Beyond replacing hardcoded baselines, the entire index calculation system needs a backtesting scaffold to validate that signals have historical predictive value before being sold as intelligence.
+- **File:** `sovereign_context_engine.py`, new module `index_validator.py`
+- **Action:** Implement a minimum 90-day historical backtest for each proprietary index. Track accuracy of directional calls (did a high Miner Conviction score precede price appreciation within 30 days?). Display a confidence interval or sample-size warning on any index with fewer than 30 historical data points.
 
----
+### P1-2 — Brand and Name All Proprietary Indices with Product Copy
+- **Finding:** Gemini's strategic framing — competitors don't sell "exchange flows," they sell "Exchange Net Position Change." The naming and marketing layer is a competitive moat, not cosmetic.
+- **File:** Front-end dashboard components, `index_metadata.json` or equivalent config
+- **Action:** Define canonical names, one-sentence descriptions, and methodology disclosures for every index. Suggested names already validated: **Miner Capitulation Risk Indicator**, **Liquid Supply Shock Ratio**, **Speculator-to-Hodler Conviction Index**, **Social Divergence Score**. Create a "Methodology" tooltip on each index card. This directly justifies premium pricing.
 
-### 5. UI — Intelligence Terminal Visual Redesign
-**Why:** Current UI confirmed as the weakest area (7/10 consensus). Grok scored highest here (8/10) with the most specific suggestions.
+### P1-3 — Cross-Signal Pattern Detection: Implement Named Composite Patterns
+- **Finding:** Cross-Signal Pattern Detection scored 30 (Gemini) / 62 (Grok) — the widest divergence in the audit, indicating this subsystem is partially implemented but architecturally incomplete.
+- **File:** `sovereign_context_engine.py` — pattern detection module
+- **Action:** Define at minimum 3 named composite patterns as first-class objects with explicit trigger conditions, historical validation notes, and confidence scores. Example: **Stealth Accumulation** = (whale inflows rising) + (social sentiment flat or negative) + (exchange outflows increasing). Each pattern should emit a structured object: `{name, confidence, triggered_at, contributing_signals[], historical_accuracy}`.
 
-**What to build:**
-- Replace static component breakdown cards with a **Market Sentiment Heatmap** — a grid where each cell is one signal, color-coded from deep red (extreme bearish) to deep green (extreme bullish), with intensity encoding the magnitude of deviation from baseline
-- Add a **Signal Timeline** — a horizontal scrollable strip showing the last 30 days of index values as sparklines, not just current state
-- Move the 4 proprietary indices from Tier 1 into a persistent top-of-page "Command Bar" modeled on Bloomberg's top strip — always visible, always current
-- Add confidence percentage display to each pattern alert
-
----
-
-## TIER 3 — P2: LEVERAGE EXISTING INFRASTRUCTURE
-
-### 6. ML Time-Series Forecasting on RTX 4090
-**Why:** GPT-4o flagged this, Grok partially agreed. The hardware advantage exists — not using it is leaving a moat unbuilt. Scope-limited to avoid over-engineering.
-
-**What to build (constrained scope):**
-- Train a single LSTM model on BTC price + the 4 proprietary indices (once built) as features
-- Output: 24h and 72h directional probability (not price prediction — directional only, e.g., "67% probability of continued downward pressure")
-- Label it explicitly as "Model Forecast — Not Financial Advice" with confidence interval display
-- Do NOT build this before Tiers 1 and 2 are complete — the indices are the training features
+### P1-4 — Miner Capitulation Risk Indicator: Implement MA Crossover Logic
+- **Finding:** Gemini Cycle 1, validated in Cycle 2. Glassnode's Difficulty Ribbon Compression is a paid feature we can replicate with existing data.
+- **File:** `sovereign_context_engine.py`
+- **Action:** Calculate 14-day and 50-day moving averages of `hashrate_eh`. Emit a `MINER_STRESS` signal when short MA crosses below long MA coinciding with `change_7d < -10%`. Backtest against 2018, 2022 capitulation events before display. Label clearly as "Protocol Pulse Miner Capitulation Risk."
 
 ---
 
-### 7. Data Integration Cleanup — World State Normalization
-**Why:** GPT-4o raised this as a new finding in Cycle 2. The proprietary indices engine (Item 1) will expose any normalization inconsistencies in `build_world_state()`.
+## 🟡 P2 — MEDIUM PRIORITY (Next sprint)
 
-**What to build:**
-- Audit all data fields for unit consistency before the indices engine is finalized
-- Add a `data_quality_score` field to `world_state` that tracks what percentage of expected fields returned non-null values for the current cycle
-- Display this score in a small UI indicator so users know when they're seeing degraded data versus full-signal output
+### P2-1 — Liquid Supply Shock Ratio: Build Proxy Metric
+- **Finding:** Gemini Cycle 1. Illiquid supply tracking is a high-value Glassnode feature. We can proxy it.
+- **Action:** Use exchange outflow trends over 30/90 days as a supply tightness proxy. When sustained outflows coincide with rising price, flag as **Supply Shock Risk: Elevated**. Document the proxy methodology transparently — do not present it as equivalent to on-chain UTXO analysis.
+
+### P2-2 — Polymarket Integration: Surface as Macro Overlay, Not Raw Data
+- **Finding:** Grok Cycle 1 — Polymarket odds are a unique asset competitors lack. Currently underutilized.
+- **Action:** Build a **Macro Sentiment Overlay** panel that shows Polymarket probability for key macro events (rate decisions, ETF approvals, regulatory events) alongside BTC price. Automate the mapping of Polymarket contract IDs to event categories. This is a genuine competitive differentiator — no competitor has real-time prediction market data embedded in their dashboard.
+
+### P2-3 — KOL Sentiment: Add Divergence Detection vs. Price Action
+- **Finding:** Santiment charges $500/month for social divergence. Our KOL + article sentiment data can replicate this.
+- **Action:** Calculate a rolling 7-day correlation between KOL sentiment score and BTC price direction. When correlation breaks (sentiment bullish, price falling, or vice versa), emit a **Sentiment Divergence Alert**. This is a named, branded signal — not just a raw sentiment score.
+
+### P2-4 — ML/Predictive Layer: Define Scope Before Building
+- **Finding:** ML scored 55 with only Grok providing input. No consensus. Risk of over-engineering.
+- **Action:** Do not build a generalized ML layer. Instead, define 2 specific, narrow prediction targets: (1) 72-hour price direction classification (up/flat/down), (2) Miner stress event prediction 14 days forward. Train only on features already in the data pipeline. Ship as **BETA — Experimental Signal** with explicit accuracy disclosure.
 
 ---
 
-## IMPLEMENTATION SEQUENCE SUMMARY
+## 🟢 P3 — LOW PRIORITY / POLISH (Backlog)
 
-```
-Week 1-2:  Items 1 + 2  (Indices Engine + Named Patterns)
-Week 3:    Items 3 + 4  (Competitor parity + Anomaly Detector)
-Week 4:    Items 5 + 7  (UI Redesign + Data normalization)
-Week 5+:   Item 6       (ML layer — only after indices are stable)
-```
-
-**Ship condition for premium pricing:** Items 1, 2, and 4 must all be live. The product is not a premium terminal without all three. Items 3, 5, 7 elevate it. Item 6 makes it defensible long-term.
+### P3-1 — Stock-to-Flow Approximation
+- **Finding:** Grok Cycle 1. Implementable with block height + price data.
+- **Action:** Build as

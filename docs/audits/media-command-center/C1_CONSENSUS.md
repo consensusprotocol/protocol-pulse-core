@@ -1,5 +1,5 @@
 # CONSENSUS REPORT — MEDIA-COMMAND-CENTER — CYCLE 1
-Generated: 2026-03-26 00:40
+Generated: 2026-03-26 00:59
 Models: grok, gemini (+1 failed — GPT-4o: TPM rate limit exceeded)
 
 ---
@@ -8,310 +8,259 @@ Models: grok, gemini (+1 failed — GPT-4o: TPM rate limit exceeded)
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Async RSS Fetching | LOW | N/A | MEDIUM | MEDIUM |
+| Async RSS Fetching | LOW | N/A | MEDIUM | LOW–MEDIUM |
 | D3 Network Graph | LOW | N/A | LOW | LOW |
-| Signal Score Algorithm | LOW | N/A | MEDIUM | LOW-MEDIUM |
-| Ticker Animation | LOW | N/A | MEDIUM | LOW-MEDIUM |
-| Architecture / Legacy Code | CRITICAL | N/A | Not raised | CRITICAL |
-| Overall Feature Readiness | FAIL | N/A | Not stated | CONDITIONAL FAIL |
+| Signal Score Algorithm | LOW | N/A | MEDIUM | LOW–MEDIUM |
+| Ticker Animation | N/A | N/A | (truncated) | INSUFFICIENT DATA |
+| Overall | PASS WITH FIXES | N/A | PASS WITH FIXES | **PASS WITH FIXES** |
 
-> **Note on scoring methodology:** With only 2 of 3 models returning output, all findings are treated as either unanimous (both models agree) or unique (one model only). The absence of GPT-4o output reduces consensus confidence. Ratings have been conservatively biased upward in severity where one model flagged an issue the other did not explicitly address.
+> **Note:** GPT-4o failed with a 429 rate-limit error (34,007 tokens requested vs. 30,000 limit). All consensus determinations are derived from 2 models. Confidence thresholds adjusted accordingly — "unanimous" means both Grok + Gemini agree; "majority" is not meaningfully distinct at 2-of-2.
 
 ---
 
-## UNANIMOUS FINDINGS
-*(both models agree — implement unconditionally)*
+## UNANIMOUS FINDINGS (both models agree — implement unconditionally)
 
-### U1 — Background Thread Safety: No Guard Against Duplicate Sync Threads
-- **What it is:** `sync_feeds_background()` in `services/media_feed_service.py` (lines 383–388) spawns a new thread every time it is called. Under concurrent load or repeated triggers, multiple sync threads can run simultaneously, causing resource contention, duplicate writes, and potential database race conditions.
-- **File/Line:** `services/media_feed_service.py`, lines 383–388
-- **Confidence:** Both models independently identified this as the primary deficiency in the async layer. Grok rated it MEDIUM; Gemini rated it LOW but noted functional correctness with the implicit concern that the fire-and-forget pattern has no guard.
-- **What to change:** Implement a global threading lock or boolean flag before spawning the thread. Check the flag at entry; set it on start, clear it in a `finally` block.
+### 1. Dual RSS Service Architecture — Remove `rss_service.py`
+- **What:** Two parallel, conflicting feed services exist: `services/media_feed_service.py` (modern, feature-rich) and `services/rss_service.py` (legacy, redundant). Both define feeds independently and have separate sync logic.
+- **File/Line:** `services/rss_service.py` (entire file); any import/call sites referencing `rss_service`
+- **What to change:** Delete `rss_service.py` entirely. Audit all routes and imports to confirm 100% of the application is routed through `media_feed_service.py`. Remove orphaned imports.
+- **Why both models flagged this:** Gemini called it the #1 architectural concern and explicitly noted "data drift" risk. Grok's analysis of `media_feed_service.py` treats it as the sole authoritative service, implicitly confirming the legacy file is dead weight. This is the highest-confidence finding in the report.
+
+### 2. Delete Commented-Out Legacy Network Graph Code from `media_hub.html`
+- **What:** A large block of old, pure-JS network graph code (the pre-D3 implementation) sits commented out between `/* REMOVED_OLD_NETWORK_START */` and `REMOVED_OLD_NETWORK_END */`.
+- **File/Line:** `templates/media_hub.html`, lines 700–871 (approximately)
+- **What to change:** Delete the entire commented block. The D3.js implementation has superseded it fully.
+- **Why both models flagged this:** Gemini listed it as the #2 change needed. Grok implicitly confirms the D3 implementation is complete and functional. Dead code of this volume degrades maintainability and confuses future developers.
+
+### 3. D3 Force Simulation Is Correct and Complete
+- **What (strength):** Both models independently validated the D3 implementation as sound — force configuration, node rendering, drag interaction, hover cards, and responsive resize all pass review.
+- **File/Line:** `templates/media_hub.html`, lines 892–1000
+- **Consensus:** No changes needed to the D3 simulation logic itself.
+
+### 4. Async RSS Fetching Core Logic Is Correct
+- **What (strength):** Both models confirmed `sync_feeds_background()`, the `_sync_lock` concurrency guard, the 15-minute polling interval, and per-feed error isolation are correctly implemented.
+- **File/Line:** `services/media_feed_service.py`, lines 327–674
+- **Consensus:** The threading model works. Concerns are about operational robustness (restart behavior), not correctness.
+
+---
+
+## MAJORITY FINDINGS (2 of 2 models agree — functionally unanimous given GPT-4o failure)
+
+All findings above qualify. Additional items where both models touched the same concern with different framing:
+
+### 5. Signal Score Normalization — Divergent Interpretation (see CONFLICTS below)
+Both models looked at the `min(int(keyword_raw * 40 / 80), 40)` normalization on line 88 but reached opposite conclusions. This is elevated to a **CONFLICT** — see that section.
+
+### 6. Background Thread Restart Robustness
+- **What:** Grok flagged (MEDIUM) that daemon threads terminate on app crash/restart with no automatic restart mechanism. Gemini acknowledged the polling implementation is correct but did not rate this as a risk.
+- **File/Line:** `services/media_feed_service.py`, lines 661–674; `app.py` (startup hooks)
+- **Consensus:** Grok is right that this is a production operational gap. Gemini's silence isn't disagreement — it's a scope difference.
+- **Recommendation:** Implement.
+
+---
+
+## UNIQUE INSIGHTS (only 1 model caught this — evaluate carefully)
+
+### U1 — Grok: Hardcoded D3 Graph Height (`H=500`)
+- **Model:** Grok only
+- **What:** The SVG height is hardcoded at 500px, which may clip on small viewports or underuse large ones.
+- **File/Line:** `templates/media_hub.html`, line 897
+- **Proposed fix:**
+  ```javascript
+  var H = Math.max(350, Math.min(600, wrap.clientHeight * 0.8));
+  ```
+- **Assessment: IMPLEMENT.** This is a trivial one-liner with meaningful UX benefit. The resize listener already exists (line 988), so this is low risk to add. Gemini's silence here is not exculpatory — it's a genuine gap.
+
+### U2 — Grok: Signal Score API Failure Has No Retry
+- **Model:** Grok only
+- **What:** If the `/api/media/network` fetch fails, the fallback is a static message with no retry, leaving users with a permanently broken visualization.
+- **File/Line:** `templates/media_hub.html`, lines 994–998
+- **Proposed fix:**
+  ```javascript
+  setTimeout(function() {
+    if (!svg.selectAll('.node-circle').size()) {
+      fetch('/api/media/network').then(/* retry logic */);
+    }
+  }, 10000);
+  ```
+- **Assessment: IMPLEMENT.** Single-attempt API calls for primary visualizations are fragile. A simple delayed retry is low-cost insurance. Mark as P2.
+
+### U3 — Gemini: KOL List Duplication (Nostr feed vs. Sentiment Heatmap)
+- **Model:** Gemini only
+- **What:** Two slightly different KOL lists exist — one for the Nostr live feed and one for the Sentiment Heatmap. They overlap but diverge, creating a maintenance burden.
+- **Assessment: INVESTIGATE FURTHER.** Gemini rated this LOW. Without the code visible here, it's unclear whether this is intentional (the two features may legitimately need different KOL sets) or accidental drift. Before deleting either list, confirm the product intent. If they should be identical, extract to a shared constant. If they're intentionally different, document why.
+
+### U4 — Grok: Ticker Animation Mobile Readability
+- **Model:** Grok only (output truncated before completing)
+- **What:** On mobile, ticker height drops to 32px and font to 11px. The 120s animation duration may be too slow for smaller viewports.
+- **Assessment: INVESTIGATE FURTHER.** The output was cut off so we have incomplete analysis. Flag for manual QA on actual mobile devices before deciding. This is a UX judgment call, not a bug.
+
+---
+
+## CONFLICTS (models disagree — tiebreaker)
+
+### CONFLICT 1 — Signal Score Normalization: Bug vs. Correct
+
+| | Gemini | Grok |
+|---|---|---|
+| **Position** | `min(keyword_raw * 40/80, 40)` is **correct** — maps raw ≥80 to max 40, provides proper ceiling | `40/80` normalization assumes max raw of 80, which is **too low** — multiple keywords can accumulate to 120+, causing premature capping |
+| **Severity** | LOW | MEDIUM |
+| **Fix proposed** | None | Change divisor from 80 to 120 |
+
+**Tiebreaker — Grok is more technically precise here.**
+
+Gemini's framing ("maps a raw score of 80+ to the maximum 40 points") is actually describing the bug, not the fix. If the maximum achievable raw keyword score is >80 (which Grok's example of "bitcoin halving etf" = 35 alone suggests, with many more keywords in the list), then `40/80` normalizes incorrectly — it will hit the `min(..., 40)` ceiling at a raw score of 80 when the actual maximum is 120+. This means articles with more than 80 raw keyword points get the same sentiment score as those with exactly 80, compressing differentiation in the upper range.
+
+However, Grok's proposed fix (`40/120`) needs validation against the actual `SIGNAL_KEYWORDS` dict to determine the true maximum achievable raw score. The correct fix is:
 
 ```python
-# services/media_feed_service.py
-import threading
-
-_sync_lock = threading.Lock()
-_sync_in_progress = False
-
-def sync_feeds_background(app=None):
-    global _sync_in_progress
-    with _sync_lock:
-        if _sync_in_progress:
-            logger.info("[MediaSync] Sync already in progress, skipping duplicate.")
-            return None
-        _sync_in_progress = True
-
-    def _run():
-        global _sync_in_progress
-        try:
-            sync_all_feeds(app)
-        finally:
-            with _sync_lock:
-                _sync_in_progress = False
-
-    t = threading.Thread(target=_run, daemon=True)
-    t.start()
-    return t
+# Compute MAX_KEYWORD_SCORE once at module load from actual keyword weights
+MAX_KEYWORD_SCORE = sum(SIGNAL_KEYWORDS.values())  # Dynamic, not hardcoded
+sentiment_score = min(int(keyword_raw * 40 / MAX_KEYWORD_SCORE), 40)
 ```
 
-### U2 — D3 Network Graph: Missing Error Handling on API Fetch
-- **What it is:** The D3 graph in `templates/media_hub.html` (lines 891–995) fetches from `/api/media/network` with no `.catch()` handler. If the endpoint is unavailable, the Promise rejection is swallowed silently and the graph container renders blank with no user feedback.
-- **File/Line:** `templates/media_hub.html`, line ~902
-- **Confidence:** Both models identified this. Grok raised it explicitly; Gemini rated the D3 implementation LOW severity overall but the fix pattern was consistent with Grok's recommendation.
-- **What to change:** Add a `.catch()` block that renders a user-visible fallback message within the SVG container.
-
-```javascript
-// templates/media_hub.html — around line 902
-fetch('/api/media/network')
-  .then(function(r) {
-    if (!r.ok) throw new Error('Network response ' + r.status);
-    return r.json();
-  })
-  .then(function(data) {
-    var nodes = data.nodes, links = data.links;
-    // ... existing simulation code ...
-  })
-  .catch(function(e) {
-    console.warn('[MediaGraph] Failed to load network data:', e);
-    svg.append('text')
-      .attr('x', W / 2).attr('y', H / 2)
-      .attr('text-anchor', 'middle')
-      .attr('fill', '#f7931a')
-      .attr('font-size', '14px')
-      .text('Network data unavailable. Refresh to retry.');
-  });
-```
+**Verdict:** Implement Grok's intent with the dynamic computation above. Rate as **P1**.
 
 ---
 
-## MAJORITY FINDINGS
-*(2 of 2 available models agree)*
+## VALIDATED STRENGTHS (do NOT change in the second pass)
 
-> With only two models, all unanimous findings above are also the majority findings. The following are findings where both models converged on the same subsystem concern but differed in severity rating — included here for completeness and to distinguish from strictly unanimous items.
+Both models independently confirmed these as correct and well-implemented:
 
-### M1 — Signal Score: Keyword Normalization Ceiling May Cap Prematurely
-- **What it is:** Both models noted the keyword scoring normalization (`min(int(keyword_raw * 40 / 80), 40)`) assumes a maximum meaningful raw score of 80. If a title contains many high-weight keywords, the score clips at 40 before the full relevance signal is captured. Gemini rated this LOW (acceptable as-is); Grok rated MEDIUM and proposed rebalancing.
-- **File/Line:** `services/media_feed_service.py`, lines 83–88
-- **Consensus direction:** Investigate with real data before changing. The normalization ceiling is a design assumption that may be valid. Do not rebalance weights without empirical scoring distribution data.
-
-### M2 — Ticker Animation: GPU Hint Missing
-- **What it is:** Both models confirmed the `translateX` animation is correctly implemented (GPU-compositable, seamless loop, pause-on-hover). Gemini specifically recommended adding `will-change: transform` as a browser hint; Grok flagged the animation as MEDIUM without proposing this specific micro-fix.
-- **File/Line:** `templates/media_hub.html`, line ~21 (`.ticker-track` CSS rule)
-- **What to change:**
-
-```css
-/* templates/media_hub.html — .ticker-track rule */
-.ticker-track {
-  display: flex;
-  animation: tickerScroll 120s linear infinite;
-  white-space: nowrap;
-  height: 100%;
-  will-change: transform; /* ADD THIS — hints GPU compositing layer */
-}
-```
-
----
-
-## UNIQUE INSIGHTS
-*(only 1 model caught this — evaluated carefully)*
-
-### UI1 — [GEMINI ONLY] Legacy `rss_service.py` Architectural Conflict
-- **What it is:** Gemini identified the existence of `services/rss_service.py` as a legacy or redundant service that also fetches RSS feeds, but via a blocking `feedparser.parse` call (line 112) without the async protections of the new `media_feed_service.py`. This creates dual-service confusion, code duplication risk, and a path by which future developers could introduce blocking RSS calls.
-- **File/Line:** `services/rss_service.py`, entire file; particularly line 112
-- **Assessment:** **IMPLEMENT — CRITICAL PRIORITY.** This is the single most dangerous finding in the report. Legacy services that replicate functionality of a new service are a near-certain source of future bugs. Even if `rss_service.py` is not currently imported by any active route, it remains a liability:
-  - Any developer unfamiliar with the codebase may import from it
-  - Future refactors may accidentally call it
-  - It may still be registered in `__init__.py` or imported transitively
-  - **Action:** Audit all imports across the codebase. If `rss_service.py` has no unique logic not present in `media_feed_service.py`, delete it. If it contains unique logic, migrate that logic to `media_feed_service.py` and then delete it. Add a comment in `media_feed_service.py` confirming it is the authoritative RSS service.
-
-### UI2 — [GROK ONLY] Signal Score Tier Weight May Overshadow Content Relevance
-- **What it is:** Grok argued that tier contributing 40% of total score means a Tier 1 source with weak/irrelevant content outscores a Tier 2 source with strong, on-topic content. Proposed shifting to 30/50/20 (tier/sentiment/recency).
-- **File/Line:** `services/media_feed_service.py`, lines 79–80
-- **Assessment:** **INVESTIGATE FURTHER — do not implement yet.** Gemini explicitly validated the 40/40/20 split as "logical" and provided a concrete scoring example (Tier 1 ETF halving article ~90 vs. week-old Tier 2 article ~29) demonstrating meaningful differentiation. Rebalancing without production data is premature optimization. Log signal scores for the first 500 articles in staging and inspect the distribution histogram before adjusting weights. If scores cluster in the 40–60 band for >60% of content, then revisit.
-
-### UI3 — [GROK ONLY] Case Sensitivity in Keyword Matching
-- **What it is:** Grok flagged that keyword matching may be case-sensitive, potentially missing matches like "Bitcoin" vs "bitcoin."
-- **File/Line:** `services/media_feed_service.py`, line 85
-- **Assessment:** **SKIP — already handled.** Grok acknowledged in the same paragraph that the text is lowercased at line 77 before keyword comparison. This is a self-refuting finding. The implementation is correct. No change needed.
-
----
-
-## CONFLICTS
-*(models gave contradictory assessments — tiebreaker applied)*
-
-### C1 — Signal Score Algorithm Overall Quality
-- **Grok:** MEDIUM severity — algorithm functional but risky due to tier dominance
-- **Gemini:** LOW severity — algorithm well-conceived, no fix required, provided concrete examples proving differentiation
-- **Tiebreaker verdict: Gemini is correct.** The concrete scoring examples Gemini provided (90 vs. 29 for the scenario described) demonstrate that the algorithm does produce meaningful differentiation across its full range. Grok's concern is valid as a future-proofing consideration but does not constitute a current deficiency. The tier weighting being high is a deliberate product decision (credibility matters for a Bitcoin media signal feed) not an implementation error. **Hold the current weights; revisit after production data is available.**
-
-### C2 — Async RSS Fetching Severity
-- **Grok:** MEDIUM — duplicate threads are a live risk under load
-- **Gemini:** LOW — implementation is "functionally correct and robust"
-- **Tiebreaker verdict: Grok is correct on the fix; Gemini is correct on the framing.** The current code is functionally correct in the happy path but the thread guard is a genuine gap at ~1000 concurrent user scale. The fix (U1 above) is low-effort and high-value. Implement it regardless of severity label. Rating: MEDIUM in consensus.
-
-### C3 — D3 Network Graph Overall Assessment
-- **Both models:** LOW severity — no meaningful conflict
-- **Verdict:** Unanimous agreement. D3 implementation is strong.
-
----
-
-## VALIDATED STRENGTHS
-*(all available models confirmed excellent — do NOT modify in second pass)*
-
-1. **Per-feed error isolation in `sync_all_feeds()`** — Each feed wrapped in its own `try...except` with `db.session.rollback()`. A single bad feed cannot corrupt the sync of others. Lines 290–378 of `media_feed_service.py`. Both models validated this explicitly.
-
-2. **D3 force simulation configuration** — The combination of `forceLink`, `forceManyBody(-120)`, `forceCollide` (tier-dynamic radius), `forceCenter`, and gentle `forceX`/`forceY` is well-calibrated for 50 nodes. Both models rated this excellent. Do not adjust force strengths.
-
-3. **D3 `forceLink` data structure** — The `id(d => d.id)` accessor correctly maps `source`/`target` in links to node `id` fields. The API contract and the D3 configuration are aligned. Both models confirmed this is correct.
-
-4. **D3 drag and hover interactions** — `d3.drag()` with `alphaTarget(0.3)` restart, `mouseover`/`mouseout` tooltip positioning, and link highlighting are all correctly implemented. Both models validated.
-
-5. **D3 responsive resize handler** — Window resize listener correctly updates SVG dimensions and re-centers forces. Both models confirmed.
-
-6. **Ticker animation `translateX` approach** — GPU-compositable, no layout reflow, seamless loop via `-50%` translation with duplicated items, pause-on-hover via `animation-play-state`. Both models confirmed this is the correct implementation pattern.
-
-7. **Ticker ellipsis truncation** — `text-overflow: ellipsis` on long titles correctly handles overflow. Both models validated.
-
-8. **Polling mechanism `_poll_loop()` with `threading.Timer`** — Non-blocking recurring poll at 15-minute intervals is appropriate for this scale and correct for a Flask app without Celery. Both models validated the pattern.
-
-9. **Signal score total capped at 100** — `min(..., 100)` prevents overflow from unusual keyword combinations. Both models confirmed correct.
-
-10. **Recency decay curve** — 20/16/10/5/0 point structure across 6h/24h/3d/7d/beyond brackets is appropriately aggressive for a breaking-news command center. Both models validated as appropriate.
+1. **`sync_feeds_background()` threading model** — Daemon thread, lock guard, non-blocking return. Correct. Do not refactor.
+2. **Per-feed error isolation in `sync_all_feeds()`** — Separate try/except per feed, logging, rollback on DB error. Correct. Do not touch.
+3. **15-minute polling interval** — Appropriate cadence. Do not change.
+4. **D3 force configuration** — `forceLink`, `forceManyBody`, `forceCenter`, `forceCollide`, `forceX/Y` are all correctly configured for 50 nodes.
+5. **D3 drag interaction** — `d.fx`/`d.fy` pin-on-drag, null-on-release, `alphaTarget(0.3)` restart is textbook correct D3.
+6. **D3 hover/link highlighting logic** — Efficient enough for this scale, correctly identifies connected links.
+7. **D3 responsive resize listener** — Updates width, re-centers forces, restarts simulation. Robust.
+8. **D3 data structure** — `{nodes: [], links: []}` with `.id(d => d.id)` on forceLink is the correct approach.
+9. **Signal score tier weighting** — 40/24/12 for tiers 1/2/3 provides meaningful differentiation.
+10. **Signal score recency decay buckets** — <6h/24h/3d/7d step function is simple and effective.
+11. **Signal score final cap at 100** — `min(..., 100)` correctly handles potential overflow.
+12. **CSS ticker `will-change: transform`** — GPU acceleration hint is correct practice.
+13. **Ticker pause-on-hover** — Correct UX pattern.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-> **Note:** Gemini's output explicitly references "Governing Laws" violations for brand and typography, rating this CRITICAL and the primary reason for the FAIL verdict. Grok's output did not include analysis of Governing Laws compliance (its output was truncated at Q4). This creates an asymmetric analysis.
+Both models did not flag explicit legal/regulatory violations. Based on the feature description (RSS aggregation, media monitoring, signal scoring):
 
-### Violations Flagged
+| Area | Status |
+|---|---|
+| **RSS/Content Aggregation** | ✅ No flags — fetching publicly available RSS feeds is standard practice |
+| **YouTube Data** | ⚠️ INVESTIGATE — If using YouTube Data API, confirm API quota compliance and ToS adherence re: caching/display |
+| **Data Retention** | ⚠️ INVESTIGATE — Feed items stored in DB; confirm retention policy aligns with any applicable privacy requirements |
+| **Copyright** | ✅ Displaying feed metadata (titles, descriptions) is generally fair use; full content reproduction would not be |
 
-| Law Category | Status | Source |
-|---|---|---|
-| Brand / Visual Design System | **CRITICAL VIOLATION** (Gemini) | Gemini only — Grok truncated |
-| Typography standards | **CRITICAL VIOLATION** (Gemini) | Gemini only — Grok truncated |
-| Async/non-blocking architecture | Partial compliance — gap identified | Both models |
-
-### Determination
-
-**Gemini's CRITICAL brand/typography violations must be treated as confirmed deficiencies** even though Grok did not reach that section of analysis (truncation artifact, not disagreement). The Governing Laws are non-negotiable constraints defined in the project's `VISUAL_DESIGN_SYSTEM.md`. Any deviation from the design system constitutes a production blocker regardless of how many models caught it.
-
-**Required action before second pass:** Read `VISUAL_DESIGN_SYSTEM.md` in full and audit every CSS class, font reference, and color value in `templates/media_hub.html` against the law definitions. This is a mandatory pre-condition for the second pass prompt.
+**Final determination:** No confirmed violations. Two areas warrant a quick policy check before production launch.
 
 ---
 
 ## SECURITY CONSENSUS
 
-Neither model flagged explicit security vulnerabilities (SQL injection, XSS, auth bypass, etc.) as primary findings. However, the following security-adjacent concerns emerge from the combined analysis:
+Neither model raised explicit security vulnerabilities as primary findings. However, the following are implied by the architecture:
 
-### S1 — RSS Feed Input Not Explicitly Sanitized
-- **Risk:** RSS feeds are external, attacker-controlled data. If feed titles/descriptions are rendered without escaping into the ticker or D3 tooltips, XSS is possible.
-- **Priority:** HIGH — Investigate before production
-- **Action:** Confirm that Jinja2 autoescaping is active for all template variables and that D3 tooltip content uses `.text()` (not `.html()`) when rendering feed data. `.text()` is XSS-safe; `.html()` is not.
+| Risk | Source | Priority |
+|---|---|---|
+| **RSS feed URL injection** | External feed URLs stored/fetched — confirm sanitization before DB write and HTTP request | P1 |
+| **API endpoint `/api/media/network` exposure** | No auth check mentioned — confirm route is protected appropriately | P1 |
+| **Thread safety on DB writes** | `sync_all_feeds()` runs in background thread — confirm SQLAlchemy session scoping is thread-safe | P1 |
+| **No SSRF protection on feed fetching** | If feed URLs are user-configurable, an SSRF guard is mandatory | P2 |
 
-### S2 — No Rate Limiting on `/api/media/network`
-- **Risk:** The network graph API endpoint appears to return the full graph data on every call. Without rate limiting, this endpoint could be used for data scraping or to trigger expensive database queries.
-- **Priority:** MEDIUM
-- **Action:** Apply Flask-Limiter or equivalent rate limiting to `/api/media/network`.
-
-### S3 — Background Thread Exception Handling
-- **Risk:** If `sync_all_feeds()` raises an unhandled exception at the top level (outside per-feed try/except), the daemon thread dies silently and polling stops permanently until restart.
-- **Priority:** MEDIUM
-- **Action:** Wrap the top-level call inside `sync_feeds_background`'s target function in a broad `except Exception` with logging, independent of the per-feed error isolation.
+**Neither model explicitly audited auth/security layers** — this is a gap created by the GPT-4o failure. Recommend a focused security review of the API endpoints before production.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
-*(items mentioned by 2+ models — what separates good from exceptional)*
 
-### WC1 — No Celery/Redis Task Queue (Both Models Implied)
-Both models noted the `threading.Timer` polling approach as "appropriate for Flask without Celery" — a qualified endorsement that implicitly acknowledges the limitation. At production scale (~1000 concurrent users), thread-based polling is fragile: threads are lost on process restart, there is no visibility into task state, no retry logic, and no dead-letter queue for failed syncs. A world-class media command center would use Celery + Redis (already in the tech stack per the brief) for durable, observable, retryable background jobs. This is the single largest architectural gap between "functional" and "production-grade."
+Items mentioned by 2+ models as missing from a truly world-class product:
 
-### WC2 — No User-Visible Sync Status Indicator (Both Models Implied)
-Both models described the sync mechanism as "fire-and-forget." Neither identified a UI mechanism for users to see when feeds were last updated, whether a sync is in progress, or whether any feeds failed. A world-class product would surface this: a "Last updated 3 minutes ago · 2 feeds failed" status line in the UI, backed by a `/api/media/sync-status` endpoint that reads the sync state from Redis or the database.
+### GAP 1 — Operational Resilience for Background Threads (both models touched this)
+Raw `threading.Timer` is not production-grade for critical background work. World-class implementations use Celery + Redis/RabbitMQ (or APScheduler with persistent job storage) so that jobs survive restarts, failures are retried with backoff, and operators have visibility into job health. The current implementation has no job status dashboard, no retry-on-failure, and no alerting if polling silently dies.
+
+### GAP 2 — Single Source of Truth for KOL/Feed Configuration (both models touched this)
+Feed lists, KOL lists, and keyword weights are hardcoded in Python files. A world-class system externalizes this to a database table or config file with an admin UI, enabling operators to add/remove feeds, adjust signal weights, and tune KOL lists without code deploys.
+
+### GAP 3 — Dead Code Accumulation Pattern (both models flagged instances)
+Two models independently found dead code (legacy RSS service, commented-out graph code). This suggests a pattern of not cleaning up superseded implementations. A world-class codebase enforces deletion of superseded code as part of the merge/review process.
 
 ---
 
-## FINAL ACTION PLAN
-*(sorted by consensus priority)*
+## FINAL ACTION PLAN (sorted by consensus priority)
 
 | Priority | Change | File:Line | Models | Why |
 |---|---|---|---|---|
-| **P0 CRITICAL** | Delete or migrate `rss_service.py` — audit all imports, consolidate all RSS logic into `media_feed_service.py` | `services/rss_service.py` entire file | gemini (unique — CRITICAL) | Legacy blocking service creates dual-code-path risk; any future import of it introduces blocking RSS calls into Flask workers |
-| **P0 CRITICAL** | Audit all template variables and D3 tooltip rendering against `VISUAL_DESIGN_SYSTEM.md` — fix every brand/typography law violation | `templates/media_hub.html` — full file | gemini (unique — CRITICAL) | Governing Laws are non-negotiable production requirements; violations identified as reason for FAIL verdict |
-| **P0 CRITICAL** | Confirm D3 tooltip uses `.text()` not `.html()` for all feed-derived content; confirm Jinja2 autoescaping active for all ticker content | `templates/media_hub.html` lines ~952–970 and ticker template | security consensus | External RSS data rendered without escaping = XSS vector |
-| **P1 HIGH** | Add threading lock/flag guard to `sync_feeds_background()` to prevent duplicate concurrent sync threads | `services/media_feed_service.py` lines 383–388 | both models (U1) | Without guard, concurrent triggers spawn multiple threads causing DB race conditions and resource contention at scale |
-| **P1 HIGH** | Add `.catch()` error handler to D3 network graph API fetch with user-visible SVG fallback message | `templates/media_hub.html` line ~902 | both models (U2) | Silent Promise rejection leaves graph container blank with no user feedback on API failure |
-| **P1 HIGH** | Wrap top-level `sync_all_feeds()` call in broad `except Exception` with logging inside background thread target | `services/media_feed_service.py` lines 383–388 | security consensus (S3) | Unhandled top-level exception silently kills daemon thread; polling stops until process restart |
-| **P1 HIGH** | Apply rate limiting to `/api/media/network` endpoint | Route handler for `/api/media/network` | security consensus (S2) | Full graph data returned on every call; no protection against scraping or expensive repeated queries |
-| **P2 MEDIUM** | Add `will-change: transform` to `.ticker-track` CSS rule | `templates/media_hub.html` line ~21 | gemini (M2) | Browser hint for GPU compositing layer; low-effort, measurable mobile performance improvement |
-| **P2 MEDIUM** | Log signal scores for first 500 articles in staging; generate distribution histogram to validate 40/40/20 weight split | `services/media_feed_service.py` lines 79–106 | grok (UI2 — investigate) | Validate tier-dominance concern with real data before committing to current weights or rebalancing |
-| **P2 MEDIUM** | Add "Last synced" status indicator to UI backed by sync timestamp stored in DB or Redis | `templates/media_hub.html` + sync service | both models (WC2 implied) | World-class media command center surfaces feed health to users; currently zero visibility into sync state |
+| **P0 CRITICAL** | Delete `rss_service.py` entirely; audit all import sites | `services/rss_service.py` (entire file) | Both | Two conflicting feed services guarantee data drift and maintenance failure in production |
+| **P0 CRITICAL** | Confirm all routes use `media_feed_service.py`; remove orphaned `rss_service` imports | All route files + `__init__.py` | Both | Required companion action to above deletion |
+| **P1 HIGH** | Fix Signal Score normalization: replace hardcoded `40/80` with dynamic `40/MAX_KEYWORD_SCORE` | `services/media_feed_service.py:88` | Grok (conflict resolved) | Static divisor compresses differentiation in high-keyword content; dynamic computation is self-correcting |
+| **P1 HIGH** | Add startup hook to guarantee `start_feed_polling()` is called on app init/restart | `app.py` (startup) + `media_feed_service.py:661` | Grok (Gemini implied) | Daemon threads die on restart; no auto-recovery means silent data staleness |
+| **P1 HIGH** | Audit `/api/media/network` and all media API endpoints for authentication guards | Routes serving `/api/media/*` | Security gap (both models silent = needs explicit check) | Unauthenticated data APIs are a standard attack surface |
+| **P2 MEDIUM** | Delete commented-out legacy JS graph code | `templates/media_hub.html:700–871` | Both | ~170 lines of dead code; degrades maintainability and readability |
+| **P2 MEDIUM** | Make D3 graph height responsive | `templates/media_hub.html:897` | Grok | `H=500` hardcoded; trivial fix with meaningful UX benefit |
+| **P2 MEDIUM** | Add delayed retry on `/api/media/network` fetch failure | `templates/media_hub.html:994–998` | Grok | Single-attempt fetches for primary visualizations are fragile |
+| **P2 MEDIUM** | Consolidate KOL lists (Nostr + Sentiment Heatmap) to single source after confirming intent | (KOL definition files) | Gemini | Divergent lists will drift further over time |
+| **P3 LOW** | Investigate mobile ticker readability (32px height, 11px font, 120s duration) | `templates/media_hub.html:289–290` | Grok (truncated) | QA on real devices before deciding — not a confirmed bug |
+| **P3 LOW** | Document YouTube API quota compliance and content caching policy | `services/media_feed_service.py` (YouTube section) | Compliance gap | Protect against ToS violations before scale |
 
 ---
 
 ## CYCLE 1 VERDICT
 
-**CONDITIONAL FAIL — Second build pass required before production.**
+**PASS WITH FIXES — READY FOR SECOND BUILD PASS**
 
-The feature demonstrates strong engineering fundamentals: the D3 implementation is professional and well-configured, the per-feed error isolation is correct, the signal score algorithm produces meaningful differentiation, and the ticker animation uses GPU-compositable transforms correctly. These are not minor wins — they represent the majority of the feature's complexity done right.
+The core implementation is architecturally sound and functionally correct. The D3 simulation, async RSS threading, error isolation, and signal scoring logic all demonstrate thoughtful engineering. The identified issues are fixable in a single focused pass without rearchitecting the feature. The P0 deletion of `rss_service.py` is the only item that carries real production risk — everything else is polish, robustness, and hygiene.
 
-However, three blockers prevent production approval:
-
-1. **The legacy `rss_service.py`** is an unacceptable architectural liability that must be eliminated before any further development compounds the confusion.
-2. **Governing Law violations** in brand/typography are non-negotiable per the project's constitution and cannot be shipped.
-3. **The thread guard gap** in `sync_feeds_background()` is a live concurrency defect at the stated production scale.
-
-The code is architecturally sound enough that a focused second pass can resolve all P0 and P1 items without fundamental rework. This is a refinement pass, not a rebuild.
+**Caveat:** GPT-4o's failure means this consensus is built on 2 models rather than 3. Confidence in findings is HIGH for items where both Gemini and Grok agreed, MEDIUM for unique insights. The security audit gap (no model explicitly reviewed auth layers) should be addressed manually or in a separate targeted pass.
 
 ---
 
-## SECOND PASS PROMPT
-*(ready to fire into Claude Code)*
+## SECOND PASS PROMPT (ready to fire into Claude Code)
 
 ```
 Read ~/protocol_pulse/docs/gospels/VISUAL_DESIGN_SYSTEM.md.
 Read ~/protocol_pulse/docs/audits/media-command-center_CONSENSUS_C1.md.
 
 This is the SECOND PASS for media-command-center.
-The first build was reviewed by 2 independent AI models (Gemini 2.5 Pro, Grok-3)
-across 1 cycle. GPT-4o was rate-limited and did not contribute.
+The first build was reviewed by 2 independent AI models (Grok-3, Gemini 2.5 Pro)
+across 1 cycle. GPT-4o failed due to rate limits.
 Implement every P0 and P1 item from the consensus. Use judgment on P2.
 
 PRIORITY ACTION PLAN:
 
-P0 CRITICAL | Delete or migrate rss_service.py — audit all imports across the
-              entire codebase, consolidate all RSS logic exclusively into
-              media_feed_service.py, confirm no remaining import references
-              | services/rss_service.py (entire file) | gemini | Legacy blocking
-              service creates dual-code-path risk
+P0 CRITICAL | Delete services/rss_service.py entirely | services/rss_service.py | models: both | Two conflicting feed services guarantee data drift in production
+P0 CRITICAL | Audit all route files and __init__.py; remove every import or call to rss_service; confirm 100% of feed logic routes through media_feed_service.py | all route files | models: both | Required companion to deletion above
 
-P0 CRITICAL | Audit every CSS class, font reference, color value, and spacing
-              token in templates/media_hub.html against VISUAL_DESIGN_SYSTEM.md.
-              Fix every brand and typography violation identified by Gemini.
-              | templates/media_hub.html (full file) | gemini | Governing Laws
-              violations are production blockers
+P1 HIGH | Fix Signal Score keyword normalization — replace hardcoded divisor 80 with dynamic MAX_KEYWORD_SCORE = sum(SIGNAL_KEYWORDS.values()) computed once at module load | services/media_feed_service.py:88 | models: grok (conflict resolved in consensus) | Static divisor compresses score differentiation for high-keyword content
+P1 HIGH | Add startup hook to guarantee start_feed_polling() is called on app init and survives restarts — add @app.before_first_request or equivalent in app.py | app.py + services/media_feed_service.py:661 | models: grok | Daemon threads die on app restart with no auto-recovery; silent data staleness results
+P1 HIGH | Audit /api/media/network and all /api/media/* endpoints for authentication guards — confirm no unauthenticated exposure | routes serving /api/media/* | security gap | Neither model explicitly reviewed auth; standard attack surface requires explicit verification
 
-P0 CRITICAL | Audit all D3 tooltip rendering — confirm .text() is used (not
-              .html()) for all feed-derived content. Confirm Jinja2 autoescaping
-              is active for all ticker template variables. If .html() is found,
-              replace with .text() immediately.
-              | templates/media_hub.html lines ~952-970 + ticker block | security
+P2 MEDIUM | Delete commented-out legacy JS network graph code block | templates/media_hub.html:700–871 | models: both | ~170 lines of dead code superseded by D3 implementation
+P2 MEDIUM | Make D3 graph height responsive: replace hardcoded H=500 with var H = Math.max(350, Math.min(600, wrap.clientHeight * 0.8)) | templates/media_hub.html:897 | models: grok | Trivial fix; meaningful UX improvement on varied viewport sizes
+P2 MEDIUM | Add delayed retry (10s) on /api/media/network fetch failure before showing static error | templates/media_hub.html:994–998 | models: grok | Primary visualization should self-heal on transient API failures
+P2 MEDIUM | Investigate KOL list duplication between Nostr feed and Sentiment Heatmap — if intent is identical, extract to shared constant; if intentionally different, add a comment documenting why | KOL definition locations | models: gemini | Divergent lists will drift and confuse future maintainers
 
-P1 HIGH | Add threading lock + boolean flag guard to sync_feeds_background() to
-          prevent duplicate concurrent sync threads. Use threading.Lock() for
-          thread-safe flag mutation. Clear flag in finally block.
-          | services/media_feed_service.py lines 383-388 | both models
+VALIDATED — do NOT touch (all models confirmed excellent):
+- sync_feeds_background() threading model (daemon thread, lock guard, non-blocking)
+- Per-feed error isolation in sync_all_feeds() (separate try/except, logging, DB rollback)
+- 15-minute polling interval (POLL_INTERVAL = 15 * 60)
+- D3 force configuration (forceLink, forceManyBody, forceCenter, forceCollide, forceX/Y)
+- D3 drag interaction (d.fx/d.fy pin pattern, alphaTarget(0.3) restart)
+- D3 hover card and link highlighting logic
+- D3 responsive resize listener
+- D3 data structure ({nodes, links} with .id(d => d.id) on forceLink)
+- Signal score tier weighting (40/24/12 for tiers 1/2/3)
+- Signal score recency decay buckets (<6h/24h/3d/7d)
+- Signal score final cap: min(..., 100)
+- CSS ticker will-change: transform and pause-on-hover
 
-P1 HIGH | Add .catch() error handler to D3 network graph fetch('/api/media/network')
-          chain. Render SVG text fallback: "Network data unavailable. Refresh to
-          retry." in brand orange (#f7931a) at center of graph container.
-          | templates/media_hub.html line ~902 | both models
-
-P1 HIGH | Wrap the top-level sync_all_feeds() call inside the background thread
-          target function in a broad except Exception as e: block with
-          logger.error() logging. Ensure the _sync_in_progress flag is cleared
-          in finally regardless of exception.
-          | services/media_feed_service.py lines 383
+After implementing all P0 and P1 items, and any P2 items where the fix
+is unambiguous:
+1. Run regression_test.sh — must show zero FAILs
+2. Manually verify the D3 network graph loads and renders correctly
+3. Confirm rss_service.py no longer exists in the codebase
+4. Confirm signal score normalization uses dynamic MAX_KEYWORD_SCORE
+5. git add -A && git commit -m "feat(media-command-center): post-audit pass — consensus improvements (C1)"
+6. git push origin main
+```

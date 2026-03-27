@@ -1,0 +1,34 @@
+{
+  "clips": [
+    {
+      "rank": 1,
+      "video_id": "GOLDEN_TEST_1",
+      "channel": "GoldenTest",
+      "video_title": "Golden Path Test Clip 1",
+      "start_seconds": 0,
+      "end_seconds": 30,
+      "quote": "This is a test clip for the golden path harness.",
+      "why": "Deterministic test fixture",
+      "host_setup": "Host introduces test clip one",
+      "host_react": "Host reacts to test clip one",
+      "score": 100,
+      "engagement_score": 1.5
+    },
+    {
+      "rank": 2,
+      "video_id": "GOLDEN_TEST_2",
+      "channel": "GoldenTest",
+      "video_title": "Golden Path Test Clip 2",
+      "start_seconds": 0,
+      "end_seconds": 25,
+      "quote": "This is test clip two for the golden path harness.",
+      "why": "Deterministic test fixture",
+      "host_setup": "Host introduces test clip two",
+      "host_react": "Host reacts to test clip two",
+      "score": 90,
+      "engagement_score": 1.3
+    }
+  ],
+  "episode_title": "GOLDEN PATH TEST EPISODE",
+  "cold_open": "Institutional capital is quietly reshaping the Bitcoin landscape."
+}

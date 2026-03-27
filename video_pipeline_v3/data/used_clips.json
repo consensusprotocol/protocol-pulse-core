@@ -1,37 +1,71 @@
 {
   "episodes": [
     {
-      "date": "2026-03-18",
+      "date": "2026-03-26",
       "video_ids": [
-        "GdfvYL1vKRk",
-        "-_C4dZZvWIk",
+        "tTkD-DnUPM8",
+        "EasqxUjVu3A",
+        "eCPsutO1Nvw",
         "taV0gxDljIA",
-        "uvXvlI3HRlM",
         "M4RPTungLqs"
       ],
       "channels": [
-        "Coin Bureau",
+        "Bitcoin Magazine Pro",
+        "Simply Bitcoin",
         "Swan Bitcoin",
         "CoinTelegraph",
-        "Simply Bitcoin",
         "Natalie Brunell"
       ]
     },
     {
-      "date": "2026-03-18",
+      "date": "2026-03-26",
       "video_ids": [
-        "pkZqnM22l8Y",
-        "tTkD-DnUPM8",
-        "zflAVKCaPfU",
-        "Ma6N9qacoa0",
-        "etTv2PtW2UA"
+        "nIT-C1EHPyA",
+        "5GMQgtYqYIE",
+        "kFCd7czSCkQ",
+        "etTv2PtW2UA",
+        "JJrhk7uqCCQ"
       ],
       "channels": [
-        "The Bitcoin Layer",
+        "Bitfarms",
+        "Bitcoin News Alerts",
+        "Digital Asset News",
+        "Unchained",
+        "Blockware Solutions"
+      ]
+    },
+    {
+      "date": "2026-03-26",
+      "video_ids": [
+        "0QNsBVobp2U",
+        "4yMGeaL4KfY",
+        "0LU7inzjr5o",
+        "-_C4dZZvWIk",
+        "57GVjvYfpx0"
+      ],
+      "channels": [
         "Bitcoin Magazine Pro",
-        "Robert Breedlove",
+        "Simply Bitcoin",
+        "DataDash",
         "Swan Bitcoin",
-        "Unchained"
+        "Blockware Solutions"
+      ]
+    },
+    {
+      "date": "2026-03-26",
+      "video_ids": [
+        "4nDVYeU6SRw",
+        "0oJlXE3jPFA",
+        "1w-ok-_d_K4",
+        "2DIlhctrBcY",
+        "1lVmzfP6_iA"
+      ],
+      "channels": [
+        "Altcoin Daily",
+        "CoinGecko",
+        "Riot Platforms",
+        "Anthony Pompliano",
+        "CoinDesk"
       ]
     }
   ]

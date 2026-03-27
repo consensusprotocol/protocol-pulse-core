@@ -55,7 +55,7 @@ from blink_engine import apply_blink_gradient, generate_blink_schedule
 PORT = 8200
 
 # ─── Greeting pre-render cache ────────────────────────────────────────
-GREETING_TEXT = "Hey. I'm Seh-toe-mee — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?"
+GREETING_TEXT = "Hey. I'm Satomi — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?"
 _GREETING_CACHE_PATH = '/home/ultron/protocol_pulse/oracle/cache/satomi_greeting_cache.mp4'
 
 # Max seconds for a full video render before returning audio-only fallback
@@ -1581,21 +1581,25 @@ def oracle_speak():
     intent = data["intent"].upper()
 
     # Try pre-rendered greeting cache (instant for mobile)
-    if intent == "GREETING" and os.path.exists(_GREETING_CACHE_PATH):
-        # Validate: must be >10KB and start with MP4 magic bytes (not HTML error)
-        try:
-            fsize = os.path.getsize(_GREETING_CACHE_PATH)
-            with open(_GREETING_CACHE_PATH, 'rb') as _f:
-                magic = _f.read(4)
-            is_valid = fsize > 10240 and magic[:2] != b'<!'
-        except Exception:
-            is_valid = False
-        if is_valid:
-            logger.info(f'[GREETING] Serving cache ({fsize//1024}KB)')
-            return send_file(_GREETING_CACHE_PATH, mimetype='video/mp4')
-        else:
-            logger.warning(f'[GREETING] Cache corrupt ({fsize}B) - regenerating')
-            os.remove(_GREETING_CACHE_PATH)
+    if intent == "GREETING":
+        # Rotation: pick from up to 3 greeting variants
+        import random as _random
+        _rotation_manifest = os.path.join(os.path.dirname(_GREETING_CACHE_PATH), 'greeting_rotation.json')
+        _candidates = []
+        if os.path.exists(_rotation_manifest):
+            try:
+                import json as _json
+                _rot = _json.load(open(_rotation_manifest))
+                _candidates = [p for p in _rot.get('greetings', []) if os.path.exists(p) and os.path.getsize(p) > 10240]
+            except Exception:
+                pass
+        if not _candidates and os.path.exists(_GREETING_CACHE_PATH):
+            _candidates = [_GREETING_CACHE_PATH]
+        if _candidates:
+            _chosen = _random.choice(_candidates)
+            fsize = os.path.getsize(_chosen)
+            logger.info(f'[GREETING] Serving {os.path.basename(_chosen)} ({fsize//1024}KB)')
+            return send_file(_chosen, mimetype='video/mp4')
 
     # Try daily brief
     if intent == "DAILY_BRIEF":

@@ -14,7 +14,7 @@
         var bubble = document.createElement('button');
         bubble.id = 'ppChatBubble';
         bubble.className = 'pp-chat-bubble';
-        bubble.setAttribute('aria-label', 'Ask Alex — AI Analyst');
+        bubble.setAttribute('aria-label', 'Ask Satomi — AI Analyst');
         bubble.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/><path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>';
         bubble.onclick = toggleChat;
         document.body.appendChild(bubble);
@@ -30,7 +30,7 @@
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                     </div>
                     <div>
-                        <div class="pp-chat-panel__name">Alex</div>
+                        <div class="pp-chat-panel__name">Satomi</div>
                         <div class="pp-chat-panel__status"><span class="pp-chat-panel__dot"></span>Protocol Pulse AI</div>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
             <div class="pp-chat-panel__messages" id="ppChatMessages">
                 <div class="pp-chat-msg pp-chat-msg--assistant">
                     <div class="pp-chat-msg__content">
-                        Hey, I'm Alex — your Protocol Pulse AI analyst. Ask me anything about Bitcoin, crypto markets, or topics from our Intel Briefs.
+                        Hey, I'm Satomi — your Protocol Pulse AI analyst. Ask me anything about Bitcoin, crypto markets, or topics from our Intel Briefs.
                     </div>
                 </div>
             </div>

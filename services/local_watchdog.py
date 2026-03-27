@@ -773,16 +773,21 @@ def run_reactive_check():
     )
 
     # Check render loop alive — auto-restart during active hours (8am-11pm ET)
+    # WATCHDOG_ALWAYS_ON=1 overrides hours check for overnight renders
     loop_alive = process_alive("overnight_render_loop")
     if not loop_alive:
         # ET = UTC-4 (EDT) or UTC-5 (EST). Use UTC-4 for summer.
         et_hour = (datetime.now(timezone.utc) - timedelta(hours=4)).hour
-        if 8 <= et_hour <= 23:
-            logger.warning("Render loop DEAD during active hours (ET %d:00) — auto-restarting", et_hour)
+        always_on = os.environ.get("WATCHDOG_ALWAYS_ON", "0") == "1"
+        if always_on or 8 <= et_hour <= 23:
+            logger.warning("Render loop DEAD during active hours (ET %d:00, always_on=%s) — auto-restarting", et_hour, always_on)
             clear_pyc()
+            _restart_cmd = "cd ~/protocol_pulse && python3 overnight_render_loop.py --daemon"
+            if always_on:
+                _restart_cmd += " --skip-scan"
             subprocess.run([
                 "tmux", "send-keys", "-t", "render_main",
-                "cd ~/protocol_pulse && git pull && python3 overnight_render_loop.py --daemon",
+                _restart_cmd,
                 "Enter",
             ], capture_output=True)
             send_telegram(
@@ -791,7 +796,7 @@ def run_reactive_check():
                 "Auto-restarted in tmux <code>render_main</code>"
             )
         else:
-            logger.info("Render loop dead but outside active hours (ET %d:00) — skipping restart", et_hour)
+            logger.info("Render loop dead but outside active hours (ET %d:00, set WATCHDOG_ALWAYS_ON=1 for overnight) — skipping restart", et_hour)
 
     # Tail the log
     # Zombie detection: producer running >90min with 0 audio files = hung

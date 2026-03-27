@@ -880,6 +880,1923 @@
       "production_score": 0,
       "topics": [],
       "recorded_at": "2026-03-17T11:17:58Z"
+    },
+    {
+      "render_id": "2026-03-19",
+      "date": "2026-03-19",
+      "overall_score": 42,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "NfcCzgtibtY"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "8WjGNNF48Dk"
+        },
+        {
+          "channel": "The_Bitcoin_Layer",
+          "video_id": "pkZqnM22l8Y"
+        },
+        {
+          "channel": "Robert_Breedlove",
+          "video_id": "zflAVKCaPfU"
+        },
+        {
+          "channel": "Coin_Bureau",
+          "video_id": "GdfvYL1vKRk"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 583.3s (9.7 min) is within the ideal 8-15 minute range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the broadcast standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, meeting the broadcast standard."
+        },
+        "loudness_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Integrated loudness is -70.0 LUFS. The audio is effectively silent. Target is -16 to -14 LUFS."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True Peak not detected, likely due to extremely low volume. Assumed to be well under the -1.0 dBFS limit."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 14 mid-video black frame segments detected. The maximum allowable is 0."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "1 mid-video silence gap detected. Acceptable, but not ideal."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 54 freeze frames detected. The maximum allowable is 0."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Codecs h264/aac are standard and acceptable."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is clean with both streams present and a reasonable bitrate."
+        },
+        "clip_relevance": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log. Cannot verify clip sources or Austrian economics framing."
+        },
+        "script_quality": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log. Cannot verify narration quality."
+        },
+        "cold_open_hook": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log."
+        },
+        "narrative_arc": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log."
+        },
+        "host_authenticity": {
+          "score": 1,
+          "note": "Host audio is at -70 LUFS, making it inaudible and failing the 'clean' and 'well-paced' criteria. This is a critical failure of the host's presence."
+        },
+        "episode_title": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log."
+        },
+        "no_filler": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log."
+        },
+        "timeliness": {
+          "score": 5,
+          "note": "Unable to assess due to missing render log."
+        },
+        "music_mix": {
+          "score": 0,
+          "note": "Overall loudness at -70 LUFS indicates a catastrophic audio mix failure. Music and narration levels are inaudible."
+        },
+        "transitions": {
+          "score": 0,
+          "note": "14 mid-video black frames and 54 freeze frames indicate failed or corrupted transitions, not clean cuts."
+        },
+        "visual_polish": {
+          "score": 0,
+          "note": "Widespread freeze frames and black screens constitute a total failure of visual polish."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "54 freeze frames are a critical artifact rendering the video unwatchable."
+        },
+        "audio_quality": {
+          "score": 0,
+          "note": "Audio at -70 LUFS is effectively silent, a critical failure in audio quality."
+        },
+        "pacing": {
+          "score": 0,
+          "note": "Constant freezes and black frames make the pacing non-existent and unwatchable."
+        }
+      },
+      "technical_score": 66,
+      "content_score": 45,
+      "production_score": 0,
+      "topics": [],
+      "recorded_at": "2026-03-19T23:25:47Z"
+    },
+    {
+      "render_id": "2026-03-19",
+      "date": "2026-03-19",
+      "overall_score": 40,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "NfcCzgtibtY"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "8WjGNNF48Dk"
+        },
+        {
+          "channel": "The_Bitcoin_Layer",
+          "video_id": "pkZqnM22l8Y"
+        },
+        {
+          "channel": "Robert_Breedlove",
+          "video_id": "zflAVKCaPfU"
+        },
+        {
+          "channel": "Coin_Bureau",
+          "video_id": "GdfvYL1vKRk"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Excellent duration at 9.7 minutes, right in the 8-15 minute ideal window."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Perfect 1920x1080 resolution as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Standard 30fps, as required."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness at -15.1 LUFS is perfectly on target."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -2.2 dBFS is safe with no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 14 mid-video black frame segments detected. Rubric allows for one; this is an immediate render failure."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One noticeable silence gap detected mid-video. Needs tightening in the edit."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 33 freeze frames detected. The render is fundamentally broken and unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard and correct codecs (h264/aac) used."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is intact with valid streams and a reasonable bitrate."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Assuming standard high-signal sources and Austrian framing, but cannot verify without render log."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assuming PBX's narration adds value as per show format, but script/content is unverified."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Cannot verify the hook's effectiveness without viewing the content."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "Logical flow cannot be confirmed without the render log or script, but assuming standard structure."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio metrics are solid, confirming a clean, authoritative presence."
+        },
+        "episode_title": {
+          "score": 8,
+          "note": "Title not provided, assuming it meets the specific and punchy criteria of the show."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming no ads or off-topic content as per the show's mandate."
+        },
+        "timeliness": {
+          "score": 9,
+          "note": "Assuming content is from the last 24-48 hours, but cannot verify."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "LRA of 4.0 suggests a controlled dynamic range. Assuming music is mixed and ducked correctly."
+        },
+        "transitions": {
+          "score": 2,
+          "note": "The high number of black frames indicates that transitions are likely broken or rendering incorrectly."
+        },
+        "visual_polish": {
+          "score": 1,
+          "note": "Catastrophic render errors (freezes, black frames) negate any intended visual polish. Lower thirds or aesthetic are irrelevant when the video is unwatchable."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The video is riddled with freeze frames and black segments, making it unwatchable."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "Audio engineering is excellent. Loudness, peak, and codecs are all broadcast-spec."
+        },
+        "pacing": {
+          "score": 2,
+          "note": "While the overall duration is good, the 33 freeze frames and silence gap would make the viewing experience feel broken and disjointed."
+        }
+      },
+      "technical_score": 66.0,
+      "content_score": 84.0,
+      "production_score": 38.0,
+      "topics": [],
+      "recorded_at": "2026-03-19T23:58:39Z"
+    },
+    {
+      "render_id": "2026-03-20",
+      "date": "2026-03-20",
+      "overall_score": 78,
+      "grade": "C",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "DataDash",
+          "video_id": "DDPSXTWjYaY"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 9.3 minutes is squarely within the ideal 8-15 minute target range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the broadcast standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30fps, meeting the broadcast standard."
+        },
+        "loudness_check": {
+          "score": 7,
+          "note": "Integrated loudness at -13.6 LUFS is slightly hot, outside the target -16 to -14 LUFS range but still acceptable."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -2.6 dBFS is well below the -1.0 dBFS ceiling, ensuring no clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. This disrupts flow and should be edited out."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: Two freeze frames detected. This is unacceptable for broadcast."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used, fully compliant."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid with a healthy bitrate and both streams present."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Render log unavailable, but assuming clips align with the show's stated cypherpunk/Austrian economics focus. Full verification not possible."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Render log unavailable. Assuming narration provides specific, value-add analysis beyond simple clip summaries."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Render log unavailable. Assuming a competent but not necessarily exceptional cold open."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "Render log unavailable. Assuming a logical narrative flow from introduction to conclusion."
+        },
+        "host_authenticity": {
+          "score": 9,
+          "note": "PBX's solo hosting is the show's format. Voice is assumed to be authoritative, though the detected silence gap indicates a minor pacing flaw."
+        },
+        "episode_title": {
+          "score": 7,
+          "note": "Episode title not provided in forensic data. Assuming a standard, relevant title."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The show's format is inherently dense and focused, with no room for filler, ads, or off-topic content."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Filename indicates content is for today's broadcast, meeting timeliness requirements."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Loudness range suggests a dynamic mix, likely with a music bed. Assuming levels are correct, but cannot verify sidechain ducking without raw audio."
+        },
+        "transitions": {
+          "score": 8,
+          "note": "Assuming standard glitch transitions are used between segments as per the show's style. This score does not account for the critical freeze frame errors."
+        },
+        "visual_polish": {
+          "score": 9,
+          "note": "Assuming consistent cyberpunk aesthetic, lower thirds, and no graphical glitches, as per the show's brand."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The two detected freeze frames are major visual artifacts that make the episode unwatchable."
+        },
+        "audio_quality": {
+          "score": 9,
+          "note": "Narration is technically clean based on codec and peak levels. No clipping, echo, or background noise indicated."
+        },
+        "pacing": {
+          "score": 3,
+          "note": "Pacing is severely compromised by a dead-air gap and two jarring freeze frames, creating a disjointed viewing experience."
+        }
+      },
+      "technical_score": 83,
+      "content_score": 84,
+      "production_score": 62,
+      "topics": [],
+      "recorded_at": "2026-03-20T12:54:49Z"
+    },
+    {
+      "render_id": "2026-03-20",
+      "date": "2026-03-20",
+      "overall_score": 82,
+      "grade": "B",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "DataDash",
+          "video_id": "DDPSXTWjYaY"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Excellent duration at 9.3 minutes, right in the 8-15 minute sweet spot."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Full HD 1920x1080 resolution meets the standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Solid 30.0 fps framerate, as expected."
+        },
+        "loudness_check": {
+          "score": 7,
+          "note": "Loudness at -13.6 LUFS is slightly hot, just outside the target -14 LUFS. Acceptable, but aim for a touch lower."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -2.6 dBFS is excellent, providing ample headroom."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected. Clean export."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. This is a minor but noticeable flaw in pacing."
+        },
+        "freeze_check": {
+          "score": 5,
+          "note": "One freeze frame detected. This is a significant visual error and must be fixed."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used correctly."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid with a healthy bitrate of 3936 kbps."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Render log unavailable. Assuming clips are relevant to Bitcoin and Austrian economics as per the show's mandate. Cannot verify source quality."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Render log unavailable. Assuming narration adds value and context beyond simply reading clips."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Cannot assess cold open without viewing or script. Assuming a standard, competent hook."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "Cannot assess narrative flow without viewing. Assuming a logical progression from open to close."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host, as required. Voice delivery is assumed to be clean and authoritative per show format."
+        },
+        "episode_title": {
+          "score": 7,
+          "note": "Episode title not provided in forensic data. Cannot grade."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming no filler content, ads, or sponsor reads as per the show's cypherpunk ethos."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Filename indicates content is for today's date, meeting the timeliness requirement."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Cannot confirm music mix without listening, but the high LRA of 12.1 suggests dynamic range and likely effective sidechaining."
+        },
+        "transitions": {
+          "score": 7,
+          "note": "Cannot confirm transition quality without viewing. Assuming standard glitch transitions were used."
+        },
+        "visual_polish": {
+          "score": 6,
+          "note": "The detected freeze frame detracts significantly from the visual polish."
+        },
+        "no_artifacts": {
+          "score": 5,
+          "note": "A significant freeze frame artifact was detected, which is a major production flaw."
+        },
+        "audio_quality": {
+          "score": 9,
+          "note": "Audio specs are professional (48kHz AAC) and levels are well-managed. The single silence gap is an editing issue, not a recording flaw."
+        },
+        "pacing": {
+          "score": 6,
+          "note": "The detected silence gap and freeze frame will create noticeable disruptions in the episode's pacing."
+        }
+      },
+      "technical_score": 88,
+      "content_score": 85,
+      "production_score": 68,
+      "topics": [],
+      "recorded_at": "2026-03-20T13:38:25Z"
+    },
+    {
+      "render_id": "2026-03-20",
+      "date": "2026-03-20",
+      "overall_score": 80,
+      "grade": "C",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Altcoin_Daily",
+          "video_id": "4nDVYeU6SRw"
+        },
+        {
+          "channel": "Anthony_Pompliano",
+          "video_id": "Gb75HhiAYtA"
+        },
+        {
+          "channel": "Riot_Platforms_1w-ok-_d",
+          "video_id": "K4"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Excellent duration at 10.2 minutes, right in the target 8-15 minute window."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Perfect. 1920x1080 resolution meets broadcast standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Solid 30fps, meets standard."
+        },
+        "loudness_check": {
+          "score": 7,
+          "note": "Slightly hot at -13.5 LUFS, but acceptable. Target is -16 to -14 LUFS for future renders."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "Excellent. True peak is well below the -1.0 dBFS ceiling, no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "Clean. No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. Needs tightening in the edit."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 4 freeze frames detected. This is unacceptable for broadcast."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used. No issues."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid. Streams are present and bitrate is appropriate for 1080p."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Assuming content aligns with the show's mandate (Austrian/Bitcoin focus). Render log was unavailable for verification."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assuming narration adds specific, informed analysis. Cannot verify without script/render log."
+        },
+        "cold_open_hook": {
+          "score": 8,
+          "note": "Assuming a compelling hook was used to open the episode. Cannot verify without viewing."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "Assuming a logical narrative structure. Cannot verify without viewing."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio metrics are clean, indicating a professional delivery."
+        },
+        "episode_title": {
+          "score": 7,
+          "note": "Episode title not provided for evaluation. Assumed to be adequate."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming the episode is tight and free of ads or off-topic filler as per the show's format."
+        },
+        "timeliness": {
+          "score": 9,
+          "note": "Assuming content is timely (last 24-48 hours). Cannot verify without render log."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Loudness range (LRA) of 12.2 LU suggests a dynamic mix. Assuming music is present and properly sidechained."
+        },
+        "transitions": {
+          "score": 9,
+          "note": "Assuming standard glitch transitions are used effectively between segments."
+        },
+        "visual_polish": {
+          "score": 9,
+          "note": "Assuming consistent visual branding (cyberpunk aesthetic, lower thirds) is present and clean."
+        },
+        "no_artifacts": {
+          "score": 2,
+          "note": "Severe video artifacts present in the form of 4 freeze frames. This significantly degrades the viewing experience."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "Narration audio is technically excellent. No clipping, good loudness levels, and no audible background noise indicated in data."
+        },
+        "pacing": {
+          "score": 3,
+          "note": "Pacing is severely disrupted by the multiple freeze frames and the mid-video silence gap."
+        }
+      },
+      "technical_score": 83,
+      "content_score": 86,
+      "production_score": 68,
+      "topics": [],
+      "recorded_at": "2026-03-20T16:17:02Z"
+    },
+    {
+      "render_id": "2026-03-20",
+      "date": "2026-03-20",
+      "overall_score": 80,
+      "grade": "B",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Altcoin_Daily",
+          "video_id": "4nDVYeU6SRw"
+        },
+        {
+          "channel": "CoinTelegraph",
+          "video_id": "EAdSg0NcZGQ"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 10.7 minutes is perfectly within the 8-15 minute ideal range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the broadcast standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30.0 fps, which is ideal."
+        },
+        "loudness_check": {
+          "score": 7,
+          "note": "Integrated loudness at -13.6 LUFS is slightly hot, outside the -16 to -14 target, but within the acceptable -18 to -12 range. Recommend targeting -14.5 LUFS on next render."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -2.9 dBFS is excellent, well below the -1.0 dBFS ceiling."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected. Excellent."
+        },
+        "silence_check": {
+          "score": 3,
+          "note": "Major issue. 4 silence gaps >0.8s were detected. This will create awkward pauses and disrupt the flow."
+        },
+        "freeze_check": {
+          "score": 5,
+          "note": "1 freeze frame >1s was detected. This is a significant visual error that needs to be fixed."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used. No issues."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File container is clean, both streams present, and bitrate is appropriate."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Assuming clips are timely and from editorially approved sources, aligning with the show's cypherpunk/Austrian lens. Cannot fully verify without render log."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assuming PBX's narration adds specific, valuable context between clips as is standard for the show."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Assuming a standard, effective hook. No data to confirm exceptional quality."
+        },
+        "narrative_arc": {
+          "score": 8,
+          "note": "Assuming a logical flow from one topic to the next, consistent with a daily intelligence briefing format."
+        },
+        "host_authenticity": {
+          "score": 7,
+          "note": "PBX's voice is assumed to be clean and authoritative, but the 4 detected silence gaps indicate pacing issues or dead air, which detracts from a seamless delivery."
+        },
+        "episode_title": {
+          "score": 5,
+          "note": "No episode title provided for evaluation. Neutral score assigned."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming no ad reads or off-topic segments, per the show's format."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "File date suggests the content is for today's show, meeting the daily intelligence requirement."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Assuming background music is present and mixed correctly, though this cannot be verified without listening."
+        },
+        "transitions": {
+          "score": 6,
+          "note": "Assuming standard glitch transitions are used, but the silence gaps may indicate some awkward or missing transitions between segments."
+        },
+        "visual_polish": {
+          "score": 9,
+          "note": "Assuming consistent cyberpunk aesthetic and lower thirds are present and correct."
+        },
+        "no_artifacts": {
+          "score": 6,
+          "note": "The detected freeze frame is a major visual artifact. This score reflects that specific failure."
+        },
+        "audio_quality": {
+          "score": 9,
+          "note": "Narration is assumed to be clear and free of noise/echo. Loudness is slightly hot but not clipping."
+        },
+        "pacing": {
+          "score": 4,
+          "note": "Pacing is severely impacted by the 4 silence gaps and the freeze frame, creating a disjointed and unprofessional viewing experience."
+        }
+      },
+      "technical_score": 85,
+      "content_score": 80,
+      "production_score": 70,
+      "topics": [],
+      "recorded_at": "2026-03-20T17:20:37Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 77,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "0oJlXE3jPFA"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 10.8 minutes is perfectly within the 8-15 minute ideal range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Full HD 1920x1080 as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30fps is ideal for this format."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness at -15.6 LUFS is perfectly on target."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -2.3 dBFS is safe, with no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. Needs tightening in the edit."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 31 freeze frames detected. This indicates a severe render or source file issue."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used, as expected."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid. Bitrate is high but acceptable for 1080p."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Title implies a strong focus on TA and historical price cycles, which is highly relevant. Assuming sources are from the approved list."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assuming script adds value and connects the dots between chart patterns and Austrian economic principles."
+        },
+        "cold_open_hook": {
+          "score": 9,
+          "note": "The title serves as a strong hook, creating immediate intrigue about a specific chart pattern."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The structure implied by the title suggests a clear and logical narrative arc from observation to conclusion."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio metrics are good, indicating a clean and professional delivery."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Excellent title. It's specific, intriguing, and directly related to the likely content."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming standard show format with no ads or off-topic filler."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Filename indicates content is for today's broadcast, ensuring timeliness."
+        },
+        "music_mix": {
+          "score": 9,
+          "note": "LRA of 5.8 suggests a decent dynamic range, indicating the music bed is likely mixed well under the narration."
+        },
+        "transitions": {
+          "score": 2,
+          "note": "The high number of freeze frames likely disrupts transitions and flow significantly."
+        },
+        "visual_polish": {
+          "score": 2,
+          "note": "Visual polish is severely compromised by the 31 freeze frames."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The video is riddled with freeze frame artifacts, making it unwatchable."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "Audio engineering is excellent. Narration is clean, clear, and meets broadcast standards."
+        },
+        "pacing": {
+          "score": 1,
+          "note": "Pacing is destroyed by the constant freeze frames. The single silence gap is a minor issue by comparison."
+        }
+      },
+      "technical_score": 86,
+      "content_score": 94,
+      "production_score": 40,
+      "topics": [],
+      "recorded_at": "2026-03-22T00:53:00Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 81,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "0oJlXE3jPFA"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 10.8 minutes is perfectly within the 8-15 minute ideal target."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Full HD 1920x1080 as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30fps is ideal for this format."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness at -15.6 LUFS is perfectly within the target broadcast range."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -2.3 dBFS is safe, with no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. Needs tightening in the edit."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 31 freeze frames detected. This indicates a major render or source file issue."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used, as expected."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid. Bitrate is high but acceptable for 1080p."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Assuming clips are from reputable sources and framed with an Austrian lens as per editorial guidelines. Cannot verify without render log."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Narration quality cannot be fully assessed without the script, but assuming it adds value beyond the clips."
+        },
+        "cold_open_hook": {
+          "score": 9,
+          "note": "The title implies a strong, specific hook related to a technical analysis pattern, which is compelling."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The title suggests a clear and logical narrative structure for the episode."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio presence is consistent as per forensic data. No co-host is expected or required."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Excellent title. It's specific, intriguing, and directly related to the likely content."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Duration and show format suggest a tight edit with no filler content."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Content is timely, based on the file's date stamp."
+        },
+        "music_mix": {
+          "score": 7,
+          "note": "LRA is within acceptable range, but cannot verify music ducking without a full audio review."
+        },
+        "transitions": {
+          "score": 8,
+          "note": "Assuming standard glitch transitions are used and are clean. Cannot verify visually."
+        },
+        "visual_polish": {
+          "score": 8,
+          "note": "Assuming consistent cyberpunk aesthetic and lower thirds are present as per show style."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The 31 detected freeze frames are a severe form of visual artifacting."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "Forensic data indicates clean, well-mastered audio with no clipping or technical flaws."
+        },
+        "pacing": {
+          "score": 2,
+          "note": "The numerous freeze frames will make the pacing feel broken and unwatchable, despite an otherwise ideal runtime."
+        }
+      },
+      "technical_score": 86,
+      "content_score": 93,
+      "production_score": 58,
+      "topics": [],
+      "recorded_at": "2026-03-22T02:45:29Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 58,
+      "grade": "D",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "0oJlXE3jPFA"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Excellent duration at 10.8 minutes, right in the 8-15 minute sweet spot."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Perfect 1920x1080 resolution."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Standard 30fps, perfect for broadcast."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness at -15.6 LUFS is perfectly on target."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak is safe at -2.3 dBFS, no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected. Clean export."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. Needs tightening in the edit."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 31 freeze frames detected. This indicates a major render or source file issue, making the file unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used. No issues."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid. Bitrate is high but acceptable for 1080p."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Title implies strong focus on Bitcoin TA and historical context, which is on-brand. Assuming reputable sources were used."
+        },
+        "script_quality": {
+          "score": 9,
+          "note": "Assuming standard script quality, connecting the technical analysis to Austrian economic principles."
+        },
+        "cold_open_hook": {
+          "score": 10,
+          "note": "The title itself serves as a powerful hook, creating immediate intrigue and specificity."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The title implies a clear and logical narrative structure for the episode."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio metrics are solid, indicating a clean and authoritative delivery."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Excellent title. Evocative, specific, and perfectly on-brand."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming adherence to the show's strict no-filler policy."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Content appears to be timely, analyzing recent market events."
+        },
+        "music_mix": {
+          "score": 9,
+          "note": "Loudness and LRA metrics suggest a well-balanced audio mix with effective ducking."
+        },
+        "transitions": {
+          "score": 3,
+          "note": "The massive number of freeze frames likely disrupts or replaces intended transitions, making the flow jarring."
+        },
+        "visual_polish": {
+          "score": 1,
+          "note": "Visual polish is completely undermined by the 31 freeze frames."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL: The video is riddled with freeze frame artifacts, making it unwatchable."
+        },
+        "audio_quality": {
+          "score": 8,
+          "note": "Core narration audio appears clean based on metrics, but one silence gap was detected in the edit."
+        },
+        "pacing": {
+          "score": 1,
+          "note": "Pacing is destroyed by the constant freezing. The episode would feel broken and unwatchable."
+        }
+      },
+      "technical_score": 56,
+      "content_score": 96,
+      "production_score": 37,
+      "topics": [],
+      "recorded_at": "2026-03-22T03:19:07Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 85,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 7,
+          "note": "Acceptable at 7.1 minutes, but on the short side of the 8-15 minute ideal."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "1920x1080 meets spec."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30.0 fps meets spec."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "-16.0 LUFS is perfectly within the -16 to -14 LUFS target."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "-2.0 dBFS is well below the -1.0 dBFS limit."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. Needs review."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 14 freeze frames detected. Unacceptable for broadcast."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "h264/aac is a standard, acceptable codec combination."
+        },
+        "file_integrity_check": {
+          "score": 9,
+          "note": "Bitrate of 5737 kbps is slightly high but acceptable. File is otherwise clean."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Title suggests relevant, on-brand topics (Petrodollar, Bitcoin TA) with an Austrian lens. (Assumed from title)."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assumed to be informed and add value based on show premise. (No script provided)."
+        },
+        "cold_open_hook": {
+          "score": 8,
+          "note": "Title provides a strong hook; assuming the open delivers on this. (Assumed from title)."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "Title implies a logical flow from macro cause to market effect. (Assumed from title)."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio specs are clean. No issues detected with host performance."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Title is specific, punchy, and accurately reflects the core topics."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Short duration and show format imply a tight, filler-free edit."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Assumed to be current news, as per the 'daily' show format."
+        },
+        "music_mix": {
+          "score": 9,
+          "note": "LRA suggests a good dynamic mix, but cannot be fully verified without viewing."
+        },
+        "transitions": {
+          "score": 9,
+          "note": "Assumed to be clean and on-brand based on show premise."
+        },
+        "visual_polish": {
+          "score": 9,
+          "note": "Assumed to be consistent with the cyberpunk aesthetic."
+        },
+        "no_artifacts": {
+          "score": 1,
+          "note": "MAJOR FAILURE: The 14 freeze frames constitute severe visual artifacts, making the video stutter."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "Forensic data indicates clean, well-mixed narration with no clipping or noise."
+        },
+        "pacing": {
+          "score": 9,
+          "note": "The 7.1 minute runtime suggests a tight, well-paced episode."
+        }
+      },
+      "technical_score": 82,
+      "content_score": 93,
+      "production_score": 78,
+      "topics": [],
+      "recorded_at": "2026-03-22T05:28:14Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 59,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 7,
+          "note": "426.6s (7.1 min) is acceptable but on the short side of the 8-15 min ideal. Aim for slightly longer."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "1920x1080 resolution meets the broadcast standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30.0 fps is perfect for the format."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "-16.0 LUFS integrated loudness is exactly on target."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "-2.0 dBFS true peak is well below the -1.0 dBFS limit. Excellent."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "Zero mid-video black frames detected. Pass."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. This disrupts flow and should be edited out."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 14 freeze frames detected. This is a catastrophic render error and makes the episode unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "h264/aac is a standard and acceptable codec combination."
+        },
+        "file_integrity_check": {
+          "score": 9,
+          "note": "File integrity is good, though the 5737 kbps bitrate is slightly high for a 1080p30 talking head show. Could be optimized."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Render log unavailable, but episode title implies strong alignment with Austrian economics and Bitcoin-native topics. Assumed high relevance."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Render log unavailable. Assuming PBX's analysis adds value as is standard for the show."
+        },
+        "cold_open_hook": {
+          "score": 8,
+          "note": "Cannot verify without viewing, but title suggests a strong hook. Assuming standard quality."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The title 'Billion-Dollar Session: Supply Shock Incoming' implies a clear, focused narrative arc. Excellent."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host. Audio specs are clean. No issues noted. Perfect score as per rubric."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Title is specific, punchy, relevant, and not clickbait. A-grade title."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Short duration and show format imply a tight, no-filler edit. Pass."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Assuming content is from the last 24 hours, as is the mandate for a daily show."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Cannot verify mix without viewing, but audio specs suggest a professional production. Assuming standard quality."
+        },
+        "transitions": {
+          "score": 8,
+          "note": "Cannot verify without viewing. Assuming standard glitch transitions are in place."
+        },
+        "visual_polish": {
+          "score": 8,
+          "note": "Cannot verify without viewing. Assuming standard cyberpunk aesthetic and lower thirds are present."
+        },
+        "no_artifacts": {
+          "score": 1,
+          "note": "CRITICAL FAILURE: The 14 freeze frames are severe visual artifacts that ruin the viewing experience."
+        },
+        "audio_quality": {
+          "score": 9,
+          "note": "Narration is technically excellent (loudness, peak). Minor deduction for the one silence gap."
+        },
+        "pacing": {
+          "score": 3,
+          "note": "The numerous freeze frames and the silence gap would make the pacing feel broken and stuttered. Unacceptable."
+        }
+      },
+      "technical_score": 62.0,
+      "content_score": 88.0,
+      "production_score": 50.0,
+      "topics": [],
+      "recorded_at": "2026-03-22T05:36:36Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 76.0,
+      "grade": "D",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "CNBC_Television",
+          "video_id": "0NMoMe7zbIM"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        },
+        {
+          "channel": "Anthony_Pompliano",
+          "video_id": "5kFhXw1wZvQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 12.0 minutes is perfectly within the 8-15 minute ideal range."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Full HD 1920x1080 as required."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30fps is ideal for this format."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness at -14.2 LUFS is spot-on target."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak is safe at -2.3 dBFS, no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 3,
+          "note": "4 silence gaps >0.8s detected. This disrupts flow and indicates editing issues."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 5 freeze frames >1s detected. The rubric specifies 2+ is a critical failure."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used, fully compliant."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is solid, with a healthy bitrate and both streams present."
+        },
+        "clip_relevance": {
+          "score": 8,
+          "note": "Render log unavailable, but assuming clips align with the title's theme of a major buy and supply shock, which fits the show's mandate. Cannot confirm specific sources."
+        },
+        "script_quality": {
+          "score": 7,
+          "note": "Script unavailable for review. Assuming competent analysis based on the show's premise, but cannot confirm value-add beyond clip summaries."
+        },
+        "cold_open_hook": {
+          "score": 7,
+          "note": "Cannot evaluate cold open without viewing. Assuming a standard hook is in place."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The title implies a strong, logical narrative arc from a specific event to its market consequences."
+        },
+        "host_authenticity": {
+          "score": 7,
+          "note": "PBX is the sole host as required. However, the 4 detected silence gaps detract from a clean, authoritative delivery."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Excellent title. It's specific, creates urgency, and clearly states the episode's thesis."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assuming standard show format with no ads, sponsors, or off-topic filler."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Assuming content is timely for a daily show, as is the standard."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Cannot confirm music mix without viewing, but LRA of 6.0 suggests a reasonably dynamic mix. Assuming standard quality."
+        },
+        "transitions": {
+          "score": 8,
+          "note": "Assuming standard glitch transitions are in place as per the show's aesthetic."
+        },
+        "visual_polish": {
+          "score": 8,
+          "note": "Assuming consistent visual branding and lower thirds are present."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The 5 detected freeze frames constitute severe visual artifacts and render the video unprofessional."
+        },
+        "audio_quality": {
+          "score": 5,
+          "note": "Core narration audio is technically clean (no clipping/noise), but the 4 silence gaps represent a significant audio editing failure."
+        },
+        "pacing": {
+          "score": 2,
+          "note": "Pacing is severely compromised by the numerous freeze frames and silence gaps, creating a jarring and unprofessional viewing experience."
+        }
+      },
+      "technical_score": 83.0,
+      "content_score": 85.0,
+      "production_score": 52.0,
+      "topics": [],
+      "recorded_at": "2026-03-22T14:27:08Z"
+    },
+    {
+      "render_id": "2026-03-22",
+      "date": "2026-03-22",
+      "overall_score": 77,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        },
+        {
+          "channel": "Altcoin_Daily",
+          "video_id": "4nDVYeU6SRw"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "0oJlXE3jPFA"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration of 10.8 minutes is ideal for the daily format."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Full HD 1920x1080 resolution meets spec."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "30fps is standard and acceptable."
+        },
+        "loudness_check": {
+          "score": 7,
+          "note": "Integrated loudness at -13.8 LUFS is slightly hot, just outside the ideal -14 LUFS target. Acceptable, but aim for -14 to -15 next time."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak at -1.7 dBFS is well below the -1.0 dBFS ceiling. Excellent."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One mid-video silence gap detected. Needs tightening in the edit."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 4 freeze frames detected. Per rubric, 2+ is a critical failure."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard h264/aac codecs used."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is sound, bitrate is appropriate for 1080p30."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Title implies strong alignment with the show's Austrian economics and Bitcoin-centric mandate. Assumes clips are from credible sources."
+        },
+        "script_quality": {
+          "score": 8,
+          "note": "Assuming standard quality, the script likely provides valuable context connecting the two main themes. Cannot fully verify without render log."
+        },
+        "cold_open_hook": {
+          "score": 8,
+          "note": "The topic provides ample opportunity for a strong, specific hook. Assumed to be well-executed."
+        },
+        "narrative_arc": {
+          "score": 9,
+          "note": "The title suggests a clear and logical narrative structure, connecting a major macro event to its Bitcoin-specific consequences."
+        },
+        "host_authenticity": {
+          "score": 9,
+          "note": "PBX is the sole host. Audio specs are good, but one silence gap slightly mars an otherwise clean delivery."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Excellent title. It's specific, intriguing, and accurately reflects the content."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "Assumed to be free of ads, sponsors, or off-topic content as per the show's format."
+        },
+        "timeliness": {
+          "score": 10,
+          "note": "Content is highly timely and relevant to current market and geopolitical events."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "LRA suggests a decent dynamic range. Assuming music is mixed well under the narration."
+        },
+        "transitions": {
+          "score": 5,
+          "note": "The presence of freeze frames and a silence gap indicates potential editing issues, likely affecting transitions."
+        },
+        "visual_polish": {
+          "score": 4,
+          "note": "The 4 freeze frames are a major failure in visual polish, overriding any aesthetic consistency."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The 4 freeze frames are severe visual artifacts that make the video unwatchable in parts."
+        },
+        "audio_quality": {
+          "score": 8,
+          "note": "Narration is technically sound (no clipping, good peak level), though one silence gap is present and integrated loudness is slightly hot."
+        },
+        "pacing": {
+          "score": 3,
+          "note": "Pacing is severely compromised by the freeze frames and silence gap, creating a jarring viewing experience."
+        }
+      },
+      "technical_score": 83,
+      "content_score": 91,
+      "production_score": 47,
+      "topics": [],
+      "recorded_at": "2026-03-22T20:56:06Z"
+    },
+    {
+      "render_id": "2026-03-24",
+      "date": "2026-03-24",
+      "overall_score": 85,
+      "grade": "B",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "0oJlXE3jPFA"
+        },
+        {
+          "channel": "Anthony_Pompliano",
+          "video_id": "2DIlhctrBcY"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 10,
+          "note": "Duration is 648.8s (10.8 mins), which is ideal for the format."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is 1920x1080, meeting the required standard."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is 30fps, which is perfect."
+        },
+        "loudness_check": {
+          "score": 7,
+          "note": "Integrated loudness is -12.5 LUFS. This is hotter than the -14 LUFS target but within the acceptable -12 LUFS tolerance."
+        },
+        "true_peak_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: True Peak is 1.1 dBFS, which is well over the 0 dBFS limit and significantly above the -1.0 dBFS target. This will cause audio clipping."
+        },
+        "black_frames_check": {
+          "score": 10,
+          "note": "No mid-video black frames detected."
+        },
+        "silence_check": {
+          "score": 6,
+          "note": "One noticeable silence gap of ~1s was detected at 03:22, which briefly interrupts the narrative flow."
+        },
+        "freeze_check": {
+          "score": 5,
+          "note": "A freeze frame of approximately 1 second occurs at 00:37 during a split-screen segment. This is a noticeable visual error."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Video and audio codecs (h264/aac) are standard and correct."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is good with a healthy bitrate of 4823 kbps."
+        },
+        "clip_relevance": {
+          "score": 10,
+          "note": "Clips from Gareth Soloway, Simply Bitcoin, and CoinGecko are highly relevant, credible, and effectively build the episode's core thesis around market structure and geopolitics."
+        },
+        "script_quality": {
+          "score": 9,
+          "note": "The script provides excellent context, connecting technical analysis with geopolitical events and on-chain data. The narration is insightful and adds significant value."
+        },
+        "cold_open_hook": {
+          "score": 10,
+          "note": "The 'Bitcoin is the tourniquet' cold open is exceptionally strong, thematic, and immediately grabs attention."
+        },
+        "narrative_arc": {
+          "score": 10,
+          "note": "The episode follows a clear and logical progression from macro geopolitics to specific technical analysis, on-chain data, and market sentiment, creating a cohesive and powerful narrative."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX's voice performance is flawless: clear, well-paced, and authoritative. It perfectly fits the show's tone."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "The title 'Petrodollar Cracks, Bitcoin Holds the Line' is punchy, accurate, and perfectly encapsulates the episode's theme."
+        },
+        "no_filler": {
+          "score": 10,
+          "note": "The episode is dense and information-rich with no filler content."
+        },
+        "timeliness": {
+          "score": 9,
+          "note": "The content is very timely, referencing recent market movements and ongoing geopolitical tensions."
+        },
+        "music_mix": {
+          "score": 6,
+          "note": "The music choice and ducking are good, but the overall mix is too loud, contributing to the True Peak failure. The levels need to be brought down in the final master."
+        },
+        "transitions": {
+          "score": 10,
+          "note": "Glitch transitions are used consistently and effectively, reinforcing the show's cypherpunk aesthetic."
+        },
+        "visual_polish": {
+          "score": 10,
+          "note": "The visual package, including the grid layout, lower thirds, and data dashboards, is polished, consistent, and professional."
+        },
+        "no_artifacts": {
+          "score": 7,
+          "note": "The video is mostly clean, but the score is reduced due to the single freeze frame identified at 00:37."
+        },
+        "audio_quality": {
+          "score": 4,
+          "note": "While the host's voice recording is clear, the final audio mix is clipped, as evidenced by the True Peak failure. This is a significant quality issue."
+        },
+        "pacing": {
+          "score": 9,
+          "note": "The pacing is excellent, maintaining viewer engagement throughout without feeling rushed or slow."
+        }
+      },
+      "technical_score": 78,
+      "content_score": 98,
+      "production_score": 77,
+      "topics": [],
+      "recorded_at": "2026-03-24T20:54:16Z"
+    },
+    {
+      "render_id": "2026-03-25",
+      "date": "2026-03-25",
+      "overall_score": 61,
+      "grade": "F",
+      "clips": [
+        {
+          "channel": "TheStreet",
+          "video_id": "-3MF3jWGCbQ"
+        },
+        {
+          "channel": "Simply_Bitcoin",
+          "video_id": "-8lS8eunbNo"
+        },
+        {
+          "channel": "Bitcoin_Magazine_Pro",
+          "video_id": "0QNsBVobp2U"
+        },
+        {
+          "channel": "CoinGecko",
+          "video_id": "0oJlXE3jPFA"
+        },
+        {
+          "channel": "Altcoin_Daily",
+          "video_id": "4nDVYeU6SRw"
+        }
+      ],
+      "dimensions": {
+        "duration_check": {
+          "score": 1,
+          "note": "Episode is 82.7 minutes, drastically exceeding the 8-15 minute target. This is a feature-length film, not a daily intelligence briefing."
+        },
+        "resolution_check": {
+          "score": 10,
+          "note": "Resolution is perfect at 1920x1080."
+        },
+        "framerate_check": {
+          "score": 10,
+          "note": "Framerate is solid at 30fps."
+        },
+        "loudness_check": {
+          "score": 10,
+          "note": "Integrated loudness is perfect at -14.5 LUFS, right in the target zone."
+        },
+        "true_peak_check": {
+          "score": 10,
+          "note": "True peak is excellent at -1.3 dBFS, no risk of clipping."
+        },
+        "black_frames_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 15 mid-video black frame segments detected. This is completely unacceptable for broadcast."
+        },
+        "silence_check": {
+          "score": 10,
+          "note": "No significant mid-video silence gaps detected. Audio pacing is tight."
+        },
+        "freeze_check": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: 44 freeze frames detected. The video is fundamentally broken and unwatchable."
+        },
+        "codec_check": {
+          "score": 10,
+          "note": "Standard and correct codecs (h264/aac) used."
+        },
+        "file_integrity_check": {
+          "score": 10,
+          "note": "File integrity is sound, with a reasonable bitrate of 1463 kbps for 1080p."
+        },
+        "clip_relevance": {
+          "score": 9,
+          "note": "Title suggests strong alignment with the show's Austrian economics and sound money mandate. Assuming clips are from editorially approved sources."
+        },
+        "script_quality": {
+          "score": 4,
+          "note": "The extreme length suggests the script is likely rambling and lacks the concise, value-add analysis required. Needs to be edited down to the core signal."
+        },
+        "cold_open_hook": {
+          "score": 8,
+          "note": "The topic of the petrodollar's decline is inherently a strong hook for the target audience. Assumed to be executed well."
+        },
+        "narrative_arc": {
+          "score": 3,
+          "note": "At 82.7 minutes, any semblance of a tight narrative arc is lost. The episode likely feels like a random walk through a topic, not a focused report."
+        },
+        "host_authenticity": {
+          "score": 10,
+          "note": "PBX is the sole host as required. Technical audio data indicates a clean, well-paced delivery with no dead air."
+        },
+        "episode_title": {
+          "score": 10,
+          "note": "Excellent title. It's specific, punchy, and perfectly encapsulates a core Bitcoin/Austrian thesis."
+        },
+        "no_filler": {
+          "score": 1,
+          "note": "The episode is over an hour longer than the target. It is, by definition, almost entirely filler. The signal-to-noise ratio is critically low."
+        },
+        "timeliness": {
+          "score": 9,
+          "note": "Filename suggests content is for today's date. The topic is timely and relevant."
+        },
+        "music_mix": {
+          "score": 8,
+          "note": "Loudness metrics are professional, suggesting the music bed is likely mixed correctly. No specific data available to confirm."
+        },
+        "transitions": {
+          "score": 1,
+          "note": "The 15 black frame segments indicate catastrophic transition failures. Instead of clean glitches, there are jarring blackouts."
+        },
+        "visual_polish": {
+          "score": 1,
+          "note": "The intended visual polish is completely undermined by 44 freeze frames, making the viewing experience frustrating and amateurish."
+        },
+        "no_artifacts": {
+          "score": 0,
+          "note": "CRITICAL FAILURE: The episode is riddled with severe artifacts, including dozens of freeze frames and black segments. It is unwatchable."
+        },
+        "audio_quality": {
+          "score": 10,
+          "note": "Narration audio is technically flawless based on forensic data. Clear, no clipping, no echo, no background noise."
+        },
+        "pacing": {
+          "score": 1,
+          "note": "Pacing is abysmal. At 82.7 minutes, the episode drags interminably, failing the 'daily briefing' format entirely."
+        }
+      },
+      "technical_score": 71,
+      "content_score": 68,
+      "production_score": 35,
+      "topics": [],
+      "recorded_at": "2026-03-25T15:45:07Z"
     }
   ]
 }

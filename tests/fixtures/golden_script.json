@@ -1,0 +1,63 @@
+{
+  "cold_open": "Institutional capital is quietly reshaping the Bitcoin landscape — and the charts are confirming what the smart money already knows.",
+  "episode_title": "GOLDEN PATH TEST EPISODE",
+  "dialogue": [
+    {
+      "host": 2,
+      "text": "Institutional capital is quietly reshaping the Bitcoin landscape and the charts are confirming what the smart money already knows.",
+      "type": "cold_open",
+      "headline": "GOLDEN PATH COLD OPEN"
+    },
+    {
+      "host": 2,
+      "text": "A parallel channel stretching from the twenty twenty COVID lows through the bear market bottom is pointing to a breakout zone just above eighty five thousand dollars. Three macro lows. One structure. The technicals are speaking loud and clear.",
+      "type": "setup",
+      "clip_rank": 1,
+      "headline": "PARALLEL CHANNEL POINTS TO 85K"
+    },
+    {
+      "host": "CLIP",
+      "rank": 1
+    },
+    {
+      "host": 2,
+      "text": "When a chart pattern survives three generational shocks and the trendline holds, that is not noise. That is conviction written in price. The distribution phase is shaking out weak hands exactly where the structure is strongest.",
+      "type": "react",
+      "clip_rank": 1,
+      "headline": "PARALLEL CHANNEL POINTS TO 85K"
+    },
+    {
+      "host": 2,
+      "text": "Meanwhile the macro backdrop is shifting underneath everything. The petrodollar system that has anchored global reserve flows for half a century is showing cracks, and that changes what every trend line on every Bitcoin chart actually means.",
+      "type": "setup",
+      "clip_rank": 2,
+      "headline": "PETRODOLLAR CRACKS WIDEN"
+    },
+    {
+      "host": "CLIP",
+      "rank": 2
+    },
+    {
+      "host": 2,
+      "text": "If dollar hegemony weakens, reserve managers worldwide will need a neutral settlement layer. Bitcoin is the only credible candidate. The supply squeeze from institutional buying is just the opening act.",
+      "type": "react",
+      "clip_rank": 2,
+      "headline": "PETRODOLLAR CRACKS WIDEN"
+    },
+    {
+      "host": 2,
+      "text": "That is Protocol Pulse for today. Signal over noise. We will see you in the next one.",
+      "type": "wrap",
+      "headline": "WRAP"
+    }
+  ],
+  "thumbnail": {
+    "headline": "GOLDEN PATH TEST",
+    "subtext": "Testing 1-2-3"
+  },
+  "segments_summary": [
+    "Technical channel analysis pointing to $85K",
+    "Petrodollar system showing cracks"
+  ],
+  "shorts_quotes": []
+}

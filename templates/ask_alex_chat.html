@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Ask Alex | Protocol Pulse{% endblock %}
+{% block title %}Ask Satomi | Protocol Pulse{% endblock %}
 
 {% block head %}
 <style>
 :root {
     --pp-red: #dc2626;
     --pp-dark: #0a0a0a;
-    --alex-blue: #3b82f6;
+    --satomi-blue: #3b82f6;
 }
 
 .chat-page {
@@ -34,7 +34,7 @@
 }
 
 .chat-title i {
-    color: var(--alex-blue);
+    color: var(--satomi-blue);
     margin-right: 12px;
 }
 
@@ -73,7 +73,7 @@
 .hud-value {
     font-family: 'JetBrains Mono', monospace;
     font-size: 1rem;
-    color: var(--alex-blue);
+    color: var(--satomi-blue);
     font-weight: 600;
 }
 
@@ -112,8 +112,8 @@
     font-size: 1.1rem;
 }
 
-.message.alex .message-avatar {
-    background: linear-gradient(135deg, var(--alex-blue) 0%, #1d4ed8 100%);
+.message.satomi .message-avatar {
+    background: linear-gradient(135deg, var(--satomi-blue) 0%, #1d4ed8 100%);
     color: #fff;
 }
 
@@ -129,7 +129,7 @@
     max-width: 70%;
 }
 
-.message.alex .message-content {
+.message.satomi .message-content {
     border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
@@ -174,7 +174,7 @@
 }
 
 .chat-input:focus {
-    border-color: var(--alex-blue);
+    border-color: var(--satomi-blue);
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
@@ -183,7 +183,7 @@
 }
 
 .send-btn {
-    background: var(--alex-blue);
+    background: var(--satomi-blue);
     border: none;
     border-radius: 10px;
     padding: 14px 24px;
@@ -225,7 +225,7 @@
 .typing-dot {
     width: 8px;
     height: 8px;
-    background: var(--alex-blue);
+    background: var(--satomi-blue);
     border-radius: 50%;
     animation: typing 1.4s infinite ease-in-out;
 }
@@ -260,7 +260,7 @@
 
 .quick-btn:hover {
     background: rgba(59, 130, 246, 0.2);
-    border-color: var(--alex-blue);
+    border-color: var(--satomi-blue);
     color: #fff;
 }
 
@@ -278,7 +278,7 @@
 <div class="chat-page">
     <div class="chat-container">
         <div class="chat-header">
-            <h1 class="chat-title"><i class="fas fa-chart-line"></i>Ask Alex</h1>
+            <h1 class="chat-title"><i class="fas fa-chart-line"></i>Ask Satomi</h1>
             <p class="chat-subtitle">Your on-chain intelligence analyst. Ask about network metrics, mining economics, or Bitcoin fundamentals. Powered by live data.</p>
         </div>
         
@@ -299,10 +299,10 @@
         
         <div class="chat-box">
             <div class="chat-messages" id="chatMessages">
-                <div class="message alex">
+                <div class="message satomi">
                     <div class="message-avatar"><i class="fas fa-chart-line"></i></div>
                     <div class="message-content">
-                        <div class="message-text">I'm Alex, Protocol Pulse's on-chain quant analyst. I analyze Bitcoin network data and provide ground truth intelligence. Ask me anything about network metrics, mining economics, or market dynamics. The network doesn't lie.</div>
+                        <div class="message-text">I'm Satomi, Protocol Pulse's on-chain quant analyst. I analyze Bitcoin network data and provide ground truth intelligence. Ask me anything about network metrics, mining economics, or market dynamics. The network doesn't lie.</div>
                         <div class="message-time">Just now</div>
                     </div>
                 </div>
@@ -362,7 +362,7 @@ async function loadNetworkData() {
 
 function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user' : 'alex'}`;
+    messageDiv.className = `message ${isUser ? 'user' : 'satomi'}`;
     
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

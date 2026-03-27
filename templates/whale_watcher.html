@@ -350,20 +350,20 @@
         <div class="whale-list" id="whale-list">
             {% if initial_whales %}
             {% for tx in initial_whales %}
-            <div class="whale-tx {% if tx.btc >= 500 %}mega{% endif %}" style="border-left-color: {% if tx.btc >= 500 %}#eab308{% else %}var(--pp-red){% endif %};">
-                <div class="tx-icon {% if tx.btc >= 500 %}mega{% endif %}">
-                    <i class="fas {% if tx.btc >= 500 %}fa-crown{% else %}fa-water{% endif %}" style="color: {% if tx.btc >= 500 %}#eab308{% else %}var(--pp-red){% endif %};"></i>
+            <div class="whale-tx {% if tx.btc_amount >= 500 %}mega{% endif %}" style="border-left-color: {% if tx.btc_amount >= 500 %}#eab308{% else %}var(--pp-red){% endif %};">
+                <div class="tx-icon {% if tx.btc_amount >= 500 %}mega{% endif %}">
+                    <i class="fas {% if tx.btc_amount >= 500 %}fa-crown{% else %}fa-water{% endif %}" style="color: {% if tx.btc_amount >= 500 %}#eab308{% else %}var(--pp-red){% endif %};"></i>
                 </div>
                 <div class="tx-info">
-                    <div class="tx-amount">{{ "%.2f"|format(tx.btc) }} BTC</div>
+                    <div class="tx-amount">{{ "%.2f"|format(tx.btc_amount) }} BTC</div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="background: {% if tx.btc >= 500 %}#eab30830{% else %}#dc262630{% endif %}; color: {% if tx.btc >= 500 %}#eab308{% else %}#dc2626{% endif %}; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">{% if tx.btc >= 500 %}MEGA WHALE{% else %}WHALE{% endif %}</span>
+                        <span style="background: {% if tx.btc_amount >= 500 %}#eab30830{% else %}#dc262630{% endif %}; color: {% if tx.btc_amount >= 500 %}#eab308{% else %}#dc2626{% endif %}; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">{% if tx.btc_amount >= 500 %}MEGA WHALE{% else %}WHALE{% endif %}</span>
                         <div class="tx-hash">
                             <a href="https://mempool.space/tx/{{ tx.txid }}" target="_blank">{{ tx.txid[:16] }}...</a>
                         </div>
                     </div>
                 </div>
-                <div class="tx-usd">${{ "%.2f"|format(tx.btc * 67000 / 1000000) }}M</div>
+                <div class="tx-usd">${{ "%.2f"|format(tx.btc_amount * 67000 / 1000000) }}M</div>
                 <div class="tx-time" title="Block #{{ tx.block or '?' }}">recent</div>
             </div>
             {% endfor %}
@@ -448,8 +448,8 @@ function renderWhales() {
         largest.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
 
     listEl.innerHTML = whales.map(tx => {
-        const usdValue = tx.btc * (btcPrice || 67000);
-        const isMega = tx.btc >= 500;
+        const usdValue = tx.btc_amount * (btcPrice || 67000);
+        const isMega = tx.btc_amount >= 500;
         const timeAgo = getTimeAgo(tx.time);
         const iconClass = isMega ? 'fa-crown' : 'fa-water';
         const iconColor = isMega ? '#eab308' : 'var(--pp-red)';
@@ -469,7 +469,7 @@ function renderWhales() {
                     <i class="fas ${iconClass}" style="color: ${iconColor};"></i>
                 </div>
                 <div class="tx-info">
-                    <div class="tx-amount">${tx.btc.toLocaleString(undefined, {maximumFractionDigits: 2})} BTC</div>
+                    <div class="tx-amount">${tx.btc_amount.toLocaleString(undefined, {maximumFractionDigits: 2})} BTC</div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="background: ${labelColor}30; color: ${labelColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">${label}</span>
                         <div class="tx-hash">

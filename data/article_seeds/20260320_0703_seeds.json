@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-03-20T07:03:29.796460+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "The Night Bitcoin Disappeared From Price Discovery: Inside the Historic Exchange Data Failure",
+      "angle": "Deep dive into what happens when price feeds fail across the entire ecosystem while on-chain activity continues",
+      "tags": [
+        "bitcoin",
+        "infrastructure",
+        "exchanges",
+        "data-feeds",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "Why Hashrate and Mempool Don't Care: Separating On-Chain Health From Exchange Liquidity",
+      "angle": "Technical analysis of how miners and transactions continued normally while price discovery collapsed",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mempool",
+        "network-health",
+        "technical"
+      ]
+    },
+    {
+      "headline": "Black Swan or Glitch? The Three Scenarios Behind Bitcoin's Price Feed Vanishing Act",
+      "angle": "Forensic breakdown of coordinated outage vs. network partition vs. data infrastructure failure",
+      "tags": [
+        "bitcoin",
+        "market-structure",
+        "risk-analysis",
+        "infrastructure"
+      ]
+    }
+  ]
+}

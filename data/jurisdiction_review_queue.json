@@ -1,0 +1,30 @@
+[
+  {
+    "jurisdiction": "Singapore",
+    "source": "CoinDesk",
+    "title": "Ripple taps Singapore's central bank sandbox to test stablecoin-powered trade finance with RLUSD",
+    "flagged_at": 1774420088.8938978,
+    "status": "pending_review"
+  },
+  {
+    "jurisdiction": "Eu",
+    "source": "CoinDesk",
+    "title": "Crypto broker Bitpanda launches blockchain to connect EU banks with tokenized assets",
+    "flagged_at": 1774430969.3184264,
+    "status": "pending_review"
+  },
+  {
+    "jurisdiction": "Sec",
+    "source": "CoinDesk",
+    "title": "Crypto broker Bitpanda launches blockchain to connect EU banks with tokenized assets",
+    "flagged_at": 1774430969.3184285,
+    "status": "pending_review"
+  },
+  {
+    "jurisdiction": "Uk",
+    "source": "CoinDesk",
+    "title": "UK political crypto donations banned by Starmer government",
+    "flagged_at": 1774459060.6213086,
+    "status": "pending_review"
+  }
+]

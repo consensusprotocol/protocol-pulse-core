@@ -54,7 +54,7 @@ def select_top_articles(n_min=MIN_ARTICLES, n_max=MAX_ARTICLES) -> list:
     import models
 
     already_published = _load_ledger()
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    cutoff = datetime.utcnow() - timedelta(hours=168)
 
     with app.app_context():
         articles = (

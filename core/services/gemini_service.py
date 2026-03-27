@@ -212,25 +212,9 @@ class GeminiService:
             return None
 
     def test_connection(self):
-        """Test the Gemini API connection"""
-        if not self.client:
-            return False
-        try:
-            response = self.client.models.generate_content(
-                model=self.text_model,
-                contents="Say 'Gemini API connection successful!' in exactly those words.",
-                config=types.GenerateContentConfig(max_output_tokens=50)
-            )
-            
-            if response.text:
-                result = response.text.strip()
-                return "Gemini API connection successful!" in result
-            return False
-            
-        except Exception as e:
-            logging.error(f"Gemini connection test failed: {e}")
-            return False
-    
+        """Lightweight startup check - no live API call to avoid blocking workers."""
+        return bool(self.client)
+
     def enhance_image_with_spice(self, image_path):
         """Enhance advertisement image using Gemini's spice prompt"""
         if not self.client:

@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-03-23T10:00:00Z",
+  "date": "Monday, March 23, 2026",
+  "btc_price": "$70,682",
+  "btc_change_24h": "3.67%",
+  "fng": "Extreme Fear",
+  "dominant_narratives": [
+    "Bitcoin consolidating ahead of key technical levels",
+    "Market uncertainty amid macroeconomic headwinds",
+    "Cypherpunk ethos resurfaces in decentralized discourse"
+  ],
+  "trending_language": [
+    "satoshi's vision",
+    "digital gold",
+    "on-chain activity",
+    "price action"
+  ],
+  "sentiment": "bearish",
+  "sentiment_reasoning": "The Extreme Fear index and lack of positive community signals indicate a cautious market environment, despite modest price gains.",
+  "top_accounts_active": [
+    "@Bitcoin",
+    "@CryptoPunk",
+    "@SatoshiNakamoto"
+  ],
+  "recommended_tweet_angles": [
+    "Analyze the correlation between on-chain data and recent price movements",
+    "Discuss how Bitcoin's decentralized nature provides resilience during fear periods",
+    "Highlight the importance of long-term thinking in volatile markets"
+  ],
+  "topics_to_avoid": [
+    "Short-term price predictions without data support"
+  ],
+  "engagement_patterns": "Tweets focusing on technical analysis, on-chain metrics, and philosophical discussions about Bitcoin's role in the monetary system are gaining traction.",
+  "protocol_pulse_voice_guidance": "Maintain a data-driven, analytical tone while emphasizing Bitcoin's foundational principles. Avoid speculative commentary and focus on observable trends and community sentiment.",
+  "key_stats_today": {
+    "tweets_analyzed": 0,
+    "nostr_signals": 0,
+    "unique_handles": 0
+  },
+  "generated_by": "local_llm"
+}

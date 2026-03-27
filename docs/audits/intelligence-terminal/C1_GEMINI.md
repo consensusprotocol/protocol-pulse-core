@@ -1,4 +1,4 @@
-Excellent. This is a high-quality codebase with a robust data aggregation engine. The foundation is solid, and the front-end is clean. My audit will focus on leveraging these assets to create an undeniable competitive advantage and justify a premium price point.
+Excellent. This is a high-quality codebase with a robust data collection engine at its core. The front-end is visually appealing and adheres to the specified brand laws. The challenge now is to leverage these powerful data assets to create an undeniable competitive advantage.
 
 Here is my competitive audit and strategic analysis.
 
@@ -6,186 +6,191 @@ Here is my competitive audit and strategic analysis.
 
 ### Q1 — COMPETITIVE GAP ANALYSIS
 
+What specific Bloomberg/Glassnode/CryptoQuant features costing $500-2000/month can we replicate or beat with our existing data?
+
 **DETAILED ANALYSIS**
-Bloomberg, Glassnode, and CryptoQuant excel at creating proprietary, named metrics from raw on-chain data. Users pay for these well-defined, industry-standard indicators (e.g., MVRV, SOPR, Puell Multiple). Our `sovereign_context_engine` gathers the necessary ingredients but currently presents them as disconnected raw data points on the front-end (e.g., "Hashrate", "BTC Price"). The competitive gap is not in data collection, but in data synthesis and branding. We can replicate the *spirit* and *utility* of these expensive metrics by combining our existing data streams.
+Competitors like Glassnode and CryptoQuant win by creating and branding proprietary on-chain metrics. Users don't just pay for "exchange flows"; they pay for Glassnode's "Exchange Net Position Change" or CryptoQuant's "All Exchanges Netflow". These are often simple calculations presented as indispensable, branded indicators.
+
+Our `sovereign_context_engine.py` already collects the foundational data for these metrics: exchange flows, whale movements, miner data (hashrate/difficulty), and market sentiment (F&G). We also have unique assets they lack, like real-time Polymarket odds and structured KOL/narrative sentiment. The gap is not in data collection, but in the final step of synthesis, branding, and visualization.
+
+The `_calculate_proprietary_indices` function is a P0 proof-of-concept for this exact strategy and should be expanded aggressively.
 
 **SPECIFIC RECOMMENDATION**
-Reframe our existing data points into proprietary, named "Protocol Pulse Indices" that mimic the functionality of top-tier competitor metrics.
+We can immediately create a suite of "Protocol Pulse Indices" that directly compete with paid offerings.
 
-1.  **"Miner Conviction Index" (Replicates Puell Multiple/Difficulty Ribbon):**
-    *   **Formula:** `(Current Hashrate / 90-day Avg Hashrate) - (BTC Price % Change over 30 days)`.
-    *   **Interpretation:** A high positive score indicates miners are expanding operations (high conviction) despite price stagnating or falling—a classic supply shock precursor. A sharp negative score indicates potential miner capitulation.
-    *   **Data Used:** `network.hashrate_eh`, `btc.price` (historical).
+1.  **Miner Capitulation Risk Indicator:** Glassnode sells a "Difficulty Ribbon Compression" indicator. We can replicate this.
+    *   **Formula:** Calculate a 14-day and 50-day moving average of our `hashrate_eh`. When the short MA crosses below the long MA during a price downturn (`change_7d < -10%`), it signals miner stress.
+    *   **Data Used:** `network.hashrate_eh`, `btc.change_7d`.
 
-2.  **"Exchange Pressure Ratio" (Replicates Exchange Net Position Change):**
-    *   **Formula:** A discrete state model based on our `exchange_flow` string and whale alerts. Visualize it as a historical bar chart.
-    *   **States:**
-        *   `+2` (Strong Outflow): `exchange_flow == 'outflow'` AND `whale_alerts` show large exchange withdrawals.
-        *   `+1` (Outflow): `exchange_flow == 'outflow'`.
-        *   `0` (Neutral): `exchange_flow == 'neutral'`.
-        *   `-1` (Inflow): `exchange_flow == 'inflow'`.
-        *   `-2` (Strong Inflow): `exchange_flow == 'inflow'` AND `whale_alerts` show large exchange deposits.
-    *   **Data Used:** `exchange_flow`, `whale_alerts`.
+2.  **Liquid Supply Shock Ratio:** Competitors track illiquid supply. We can proxy this by combining whale alerts with exchange flow data.
+    *   **Formula:** `(Whale Withdrawals in 24h + Total Exchange Outflow Volume) / (Whale Deposits in 24h + Total Exchange Inflow Volume)`. A ratio > 1 suggests a supply shock is building.
+    *   **Data Used:** `whale_alerts`, `exchange_flow`. (Note: We need to enhance `exchange_flow` to include volume, not just direction).
 
-3.  **"Social-to-Market Divergence Indicator" (Replicates Santiment's Social Metrics):**
-    *   **Formula:** `(KOL Sentiment Score - 50) - (BTC 7-day Price % Change * 2)`.
-    *   **Interpretation:** A large positive number shows social media sentiment is running far ahead of price action (FOMO, potential top). A large negative number shows extreme social fear disproportionate to the actual price drop (capitulation, potential bottom).
-    *   **Data Used:** `kol.sentiment_score`, `btc.change_7d`.
+3.  **Speculator-to-Hodler Conviction Index:** This pits short-term sentiment against long-term network health.
+    *   **Formula:** `(LN Capacity Growth % + Hashrate Growth %) / (KOL Sentiment Score Delta % + F&G Value)`. A low score indicates froth and speculation dominating fundamentals. A high score shows network growth is outpacing hype.
+    *   **Data Used:** `lightning.capacity_btc`, `network.hashrate_eh`, `kol.sentiment_score`, `fear_greed.value`.
 
-**IMPLEMENTATION PRIORITY:** **P0**
-This is a low-effort, high-impact change. It requires minimal backend calculation and primarily involves front-end changes to display and brand these new indices. It immediately elevates the dashboard's perceived analytical depth.
+Display these as dedicated charts with clear "Bullish Crossover" or "Bearish Divergence" zones, just as our competitors do.
+
+**IMPLEMENTATION PRIORITY: P0**
+The logic for these indices can be added directly to `sovereign_context_engine.py` in a single session. The front-end would require new chart components.
 
 ---
 
 ### Q2 — CROSS-SIGNAL ALPHA
 
+What are the 5 most powerful cross-signal COMBINATIONS from our data that produce predictive alpha?
+
 **DETAILED ANALYSIS**
-The existing `detect_patterns` function is a great start. True alpha, however, comes from identifying non-obvious, multi-stage sequences of events across different domains (on-chain, social, derivatives). These are the patterns that algorithms and high-frequency funds hunt for. Our data diversity is a significant advantage here.
+The `detect_patterns` function is a solid foundation. True alpha comes from identifying non-obvious, multi-domain confluences that precede major market moves. The key is combining network health, market sentiment, and narrative velocity.
 
 **SPECIFIC RECOMMENDATION**
-Implement the following five backtestable, alpha-generating cross-signal alerts in `sovereign_context_engine.py`:
 
-1.  **The "Coiled Spring" (Volatility Precursor):**
-    *   **Combination:** `mempool.fee_high` > 90th percentile (last 30 days) + `btc.change_24h` is between -1% and 1% (low volatility) + `polymarket.top_probability` for a major binary event (e.g., FOMC decision) is between 40-60%.
-    *   **Interpretation:** The market is paying a premium for on-chain settlement and is uncertain about a major catalyst, yet price is compressed. This indicates large players are positioning for a significant move. Signals high probability of a volatility expansion within 24-48 hours.
+1.  **The "Stealth Accumulation" Pattern:**
+    *   **Signal:** `Fear & Greed < 25` + `exchange_flow == "outflow"` + `(Whale Withdrawals > Whale Deposits)` + `Price action is flat/down (change_7d between -5% and 2%)`.
+    *   **Context:** Retail is terrified, but large entities are actively moving coins off exchanges to cold storage while the price is suppressed. This was visible at the $29k bottom in July 2021 and the post-FTX lows. It is one of the highest-conviction bottom signals.
 
-2.  **The "Smart Money Divergence":**
-    *   **Combination:** `exchange_flow` is 'outflow' + `network.hashrate_eh` is rising > `network.next_adj_pct` is positive + **BUT** `kol.sentiment_score` < 40 AND `narrative.sentiment` is 'bearish' or 'neutral'.
-    *   **Interpretation:** On-chain metrics show strength and accumulation (smart money is buying and securing the network). Off-chain social/media metrics show fear (retail/weak hands are selling). This is a powerful, high-conviction bullish signal.
+2.  **The "Narrative Saturation Top" Pattern:**
+    *   **Signal:** `KOL Post Count (24h) > 90th percentile` + `Article count > 90th percentile` for a specific theme (e.g., "ETF") + `Fear & Greed > 75` + `Polymarket odds for related event > 80%`.
+    *   **Context:** The narrative has reached maximum penetration; everyone who could buy the rumor has. This is a classic "sell the news" setup. The pre-ETF approval peak in early 2024 is the canonical example.
 
-3.  **The "Narrative Exhaustion Peak":**
-    *   **Combination:** A single `narrative.dominant_theme` persists for > 5 consecutive days + `fear_greed.value` > 75 + `kol.post_count_24h` is > 2x the 30-day average.
-    *   **Interpretation:** A single narrative has saturated the market, leading to euphoria and peak social engagement. This is a classic contrarian signal for a local top and a coming narrative rotation.
+3.  **The "Miner's Price Floor" Signal:**
+    *   **Signal:** `btc.price` approaches the estimated cost of production (a metric we need to add, calculable from `network.difficulty` and energy price estimates) + `network.next_adj_pct` is negative + `Fear & Greed < 20`.
+    *   **Context:** The price is low enough to stress miners, forcing some to turn off (negative difficulty adjustment), creating a capitulation event that often forms a generational price floor, as seen in late 2018 and 2022.
 
-4.  **The "Lightning Adoption Inflection":**
-    *   **Combination:** `lightning.capacity_btc` and `lightning.channels` both show a > 2-sigma move above their 90-day moving average + `mempool.unconfirmed` tx count is persistently high.
-    *   **Interpretation:** On-chain congestion is forcing a statistically significant and accelerating move to Layer 2. This is not a short-term price signal, but a fundamental thesis-confirming signal of network maturation, indicating long-term strength.
+4.  **The "On-Chain Demand Shock" Signal:**
+    *   **Signal:** `mempool.fee_high > 150 sat/vB` for `> 12 hours` + `lightning.capacity_btc` shows an accelerated growth rate + `exchange_flow != "inflow"`.
+    *   **Context:** This indicates a frantic demand for blockspace that is *not* for selling on exchanges. It's often driven by new use cases (e.g., Ordinals) or a rush to self-custody, consuming available supply and preceding a price squeeze.
 
-5.  **The "Polymarket Front-Run":**
-    *   **Combination:** `polymarket.macro_sentiment` score flips from < 40 to > 60 within 48 hours + **BEFORE** a corresponding flip is seen in `fear_greed.value` or `kol.sentiment_score`.
-    *   **Interpretation:** Prediction markets, representing capital-weighted conviction, are often the fastest-moving sentiment indicator. A sharp reversal on Polymarket can front-run broader market sentiment shifts by 1-3 days.
+5.  **The "KOL-Whale Divergence" Signal:**
+    *   **Signal:** `kol.sentiment_score < 35` (KOLs are bearish/mocking) + `(Whale Withdrawals > Whale Deposits)` + `btc.change_24h` is positive.
+    *   **Context:** Influencers are farming engagement with fear, but large, quiet money is accumulating and has enough force to push the price up against the social consensus. This indicates a powerful, non-obvious buyer is in the market.
 
-**IMPLEMENTATION PRIORITY:** **P0**
-These are the core reason a user would pay a premium. Implementing these as high-severity alerts in the backend is critical to the product's value proposition.
+**IMPLEMENTATION PRIORITY: P0**
+These rules can be added directly to the `detect_patterns` logic in `sovereign_context_engine.py`.
 
 ---
 
 ### Q3 — VISUAL INNOVATION
 
+What single visual display would make a hedge fund analyst say "I have never seen this before"?
+
 **DETAILED ANALYSIS**
-A hedge fund analyst has seen every possible line chart, bar chart, and heatmap. To impress them, we must visualize a *relationship* between disparate data types that they cannot easily see elsewhere. The "wow" factor comes from synthesizing our entire `world_state.json` into a single, intuitive, and dynamic glyph.
+Hedge fund analysts are inundated with charts. To impress them, a visual must synthesize multiple, complex data dimensions into an instantly intuitive and actionable display. The current radar chart is good but common. We need to visualize the *dynamics and tension* between different market forces.
 
 **SPECIFIC RECOMMENDATION**
-Create a **"Sovereign Context Sonar"** display.
+**The "Sovereign Market Gravity Well"**
 
-*   **Concept:** A radial (or radar) chart that plots the live, normalized state of the most critical, orthogonal market dimensions. It provides an instant "fingerprint" of the market's character.
-*   **Axes (Example 8):**
-    1.  **On-Chain Strength:** (Hashrate, Exchange Flows)
-    2.  **Retail Sentiment:** (KOL Score, F&G Index)
-    3.  **Media Narrative:** (Article Sentiment, Narrative Velocity)
-    4.  **Market Conviction:** (Polymarket Sentiment, Whale Movements)
-    5.  **Network Congestion:** (Mempool Fees, Unconfirmed TXs)
-    6.  **Price Momentum:** (24h change, 7d change)
-*   **The "Wow" Factor:**
-    1.  **Live Shape:** The current data forms a colored polygon. The shape instantly tells a story. An expanded shape on "On-Chain Strength" but contracted on "Retail Sentiment" is the "Smart Money Divergence" pattern visualized.
-    2.  **Historical Trace:** A faded line shows the polygon's shape from 24 hours ago. A dotted line shows the 7-day average shape. The analyst can immediately see *how the market character is evolving*.
-    3.  **Clickable Axes:** Clicking an axis could reveal the underlying component metrics and their sparklines.
+Imagine a 2D topographical map or a 3D surface plot.
+*   **The Z-Axis (Height/Color):** Represents `BTC Price`.
+*   **The X-Axis:** Represents "Fundamental Strength" (a composite index of `hashrate`, `LN capacity`, `positive difficulty adjustments`).
+*   **The Y-Axis:** Represents "Sentiment/Liquidity Momentum" (a composite index of `F&G`, `KOL score`, `exchange_flow` direction, `Polymarket score`).
 
-This is not just another chart; it's a holistic, multi-dimensional market MRI. No competitor offers a comparable at-a-glance synthesis.
+**How it works:**
+*   A healthy bull market shows the price (a glowing orb) moving towards the top-right corner (high fundamentals, high sentiment).
+*   A "Gravity Well" (a deep depression in the surface) forms when sentiment is low (bottom of the Y-axis). If the price orb is dragged into this well *while fundamental strength is high* (right side of the X-axis), it represents a high-conviction "buy the dip" zone. The visual shows the price is being pulled down by sentiment, but is anchored by strong fundamentals.
+*   Conversely, a "Volcano Peak" forms when sentiment is euphoric (top of Y-axis) but fundamentals are lagging (left of X-axis). This is a visually obvious "distribution top" zone.
 
-**IMPLEMENTATION PRIORITY:** **P1**
-This is a major front-end feature requiring significant D3.js or SVG work, but it would become the visual centerpiece of the entire application and a powerful marketing asset.
+This display isn't just a chart; it's a model of market physics. It provides a strategic, high-level overview that no competitor offers, turning complex data into a simple geographical metaphor. It can be built with SVG and CSS transforms to adhere to the tech stack.
+
+**IMPLEMENTATION PRIORITY: P2**
+This is a high-effort, high-reward feature. It would become the signature visual of the entire platform.
 
 ---
 
 ### Q4 — ML MODELS FOR RTX 4090
 
+What open-source ML models can run on RTX 4090 for time-series forecasting without disrupting the render pipeline?
+
 **DETAILED ANALYSIS**
-The key constraints are using an RTX 4090 and not disrupting the rendering pipeline, which implies a backend, offline or near-real-time inference task. Time-series forecasting is the goal. Of the models listed, Chronos is the strongest candidate for this application due to its foundation model approach, which excels at zero-shot forecasting on new datasets without extensive re-training.
+The key constraints are the RTX 4090's VRAM (24GB) and the need for fast inference to avoid becoming a bottleneck. The listed models are excellent choices. We should focus on pre-trained foundation models to deliver value quickly without a lengthy training process.
 
 **SPECIFIC RECOMMENDATION**
-Use **Amazon's Chronos** for multi-series forecasting on our synthesized metrics.
+1.  **Model for Forecasting:** **Amazon Chronos**
+    *   **GitHub:** Search for "amazon-chronos-t5-large" on Hugging Face Hub.
+    *   **Reasoning:** Chronos is a family of pre-trained models specifically for time-series forecasting. The `large` model (800M parameters) fits comfortably on an RTX 4090 and excels at zero-shot forecasting. We can feed it our historical price, hashrate, and sentiment data to generate probabilistic 7-day and 30-day forecast cones for our charts.
+    *   **GPU Requirement:** ~8GB VRAM for the `large` model, inference is very fast.
 
-*   **Model:** `amazon/chronos-t5-large`
-*   **GitHub Repo:** `https://github.com/amazon-science/chronos-forecasting`
-*   **GPU Requirements:** The `large` model (710M parameters) is well-suited for inference on a 24GB RTX 4090. Batching predictions for multiple time series at once will be efficient.
-*   **Implementation Strategy:**
-    1.  **Don't Forecast Price Directly:** Forecasting price is a commodity. Our edge is our unique data.
-    2.  **Forecast the "Alpha" Signals:** Create time-series from our proprietary indices (e.g., the "Miner Conviction Index," "Social-to-Market Divergence").
-    3.  **Generate Forecasts:** Every hour, run a batch inference job on the 4090 to predict the next 24-48 hours for these key indices.
-    4.  **Visualize the Forecast:** On the dashboard, display the historical line chart for each index, and append the Chronos-generated forecast as a dotted line with a confidence interval. This gives users a forward-looking view of the *market dynamics*, not just price.
+2.  **Model for Anomaly Detection:** **TimeMixer**
+    *   **GitHub:** `google-research/timeseries-foundation-models` (TimeMixer is part of this).
+    *   **Reasoning:** TimeMixer is an extremely lightweight MLP-based model. Its strength is processing many time-series variables simultaneously to find anomalous deviations. We can feed it *all 20+ of our data streams in real-time* (price, fees, hashrate, sentiment scores, etc.). It would learn the normal inter-variable relationships and flag when one metric deviates significantly from its expected value based on the others (e.g., "Anomaly: Mempool fees are spiking while price and on-chain volume are flat"). This is far more advanced than our current divergence detection.
+    *   **GPU Requirement:** < 4GB VRAM. Trivial to run.
 
-This moves the dashboard from being purely descriptive (what happened) to predictive (what might happen), providing immense value.
+**Implementation:** These should run as a separate Python microservice. The `sovereign_context_engine` queries this service once per cycle and caches the results (the forecast and any active anomalies) in the `latest.json` state. This decouples ML inference from data collection.
 
-**IMPLEMENTATION PRIORITY:** **P2**
-This is a research-heavy task. It should be implemented after the core alpha signals and visualization are perfected. It's a powerful enhancement, not a foundational feature.
+**IMPLEMENTATION PRIORITY: P1**
 
 ---
 
 ### Q5 — THE $5000/MONTH FEATURE
 
+What is the single feature worth $5000/month that uses ONLY our existing data?
+
 **DETAILED ANALYSIS**
-A $5000/month feature must provide an undeniable, proprietary edge that a fund can directly monetize. This edge is almost always about being *early*. With our article, KOL, and stage brief data, we are sitting on a goldmine of textual information. The key is to track not what a narrative *is*, but the *rate of change* of its adoption.
+The highest value isn't more data; it's opinionated, actionable strategy derived from that data. A user paying $5k/month is a fund or a serious professional trader. They don't have time to interpret 20 charts; they need a clear "So what?". The data we have is sufficient to build an automated, institutional-grade strategist.
 
 **SPECIFIC RECOMMENDATION**
-**"Narrative Velocity & Rotation Tracker"**
+**The "Regime Change Detector & Automated Playbook"**
 
-This feature moves beyond a simple topic cloud to a quantitative dashboard for narrative traders. It is technically feasible in a focused build session.
+This feature elevates the dashboard from an intelligence tool to a strategic co-pilot.
 
-1.  **Backend Process (Python):**
-    *   **Vectorize:** Every 15 minutes, take all new article titles, KOL posts, and stage brief summaries. Use a fast, lightweight model like `sentence-transformers/all-MiniLM-L6-v2` to convert them into vector embeddings.
-    *   **Cluster:** Use a density-based clustering algorithm like HDBSCAN on the recent embeddings (e.g., last 6 hours) to identify emerging narrative clusters automatically, without pre-defined keywords.
-    *   **Track & Score:** For each cluster, calculate two metrics:
-        *   **Magnitude:** Number of items in the cluster (how big is the narrative?).
-        *   **Velocity:** The first derivative of Magnitude (how fast is it growing?).
+1.  **Regime Detection Engine:**
+    *   Using the full `world_state`, create a classifier in `sovereign_context_engine.py` that categorizes the market into one of 5 distinct, named regimes at all times.
+    *   **Regime 1: Bullish Expansion** (Price trend up, F&G > 60, high on-chain activity, positive narrative).
+    *   **Regime 2: Euphoric Topping** (F&G > 85, extreme KOL hype, negative divergences like price rising on falling volume/whale inflows).
+    *   **Regime 3: Bearish Contraction** (Price trend down, F&G < 40, low on-chain activity, exchange inflows).
+    *   **Regime 4: Capitulation Bottoming** (F&G < 15, miner stress, extreme negative narrative, but whale accumulation signals starting).
+    *   **Regime 5: Sideways Accumulation** (Flat price, low volatility, F&G neutral/fear, strong exchange outflows, rising hashrate).
 
-2.  **Frontend Visualization:**
-    *   A simple 2x2 matrix (a "Magic Quadrant" for narratives):
-        *   **Top-Right (Emerging):** Low Magnitude, High Velocity. **This is the alpha.** These are new narratives taking off before they hit the mainstream.
-        *   **Top-Left (Dominant):** High Magnitude, High Velocity. The current hot topic.
-        *   **Bottom-Left (Fading):** High Magnitude, Low/Negative Velocity. The narrative is saturated and dying. Signal to exit positions.
-        *   **Bottom-Right (Niche):** Low Magnitude, Low Velocity. Background noise.
+2.  **The Automated Playbook:**
+    *   For each regime, we display a dedicated, hard-coded "Playbook" panel.
+    *   **Example for "Sideways Accumulation" Regime:**
+        *   **THESIS:** "Market is in a low-volatility accumulation phase. Weak hands have exited, while smart money is building long-term positions. Expect potential shakeouts to capture liquidity."
+        *   **PRIMARY STRATEGY:** "Increase spot exposure via DCA. Avoid leverage due to shakeout risk."
+        *   **SIGNALS TO WATCH FOR REGIME CHANGE:** "A break of [BTC price level], F&G crossing above 50, a spike in `pcaf_score`."
+        *   **HISTORICAL ANALOGS:** "This regime is similar to Q3 2020 and Q2 2023."
 
-This is a real-time map of the market's attention economy. For a narrative-driven fund, knowing what's in the "Emerging" quadrant 12-24 hours before anyone else is worth well over $5000/month. It uses ONLY our existing data.
+This feature is worth $5k/month because it closes the loop from data -> information -> insight -> strategy. It provides a framework for thinking that is more valuable than any single data point.
 
-**IMPLEMENTATION PRIORITY:** **P0**
-This is the single most valuable and unique feature we can build. It directly generates monetizable alpha for a sophisticated user base.
+**IMPLEMENTATION PRIORITY: P0**
+This is surprisingly low-tech. The classification is a series of `if/elif` statements. The playbooks are just high-quality, pre-written text. It's a logic and content feature, not a heavy engineering lift.
 
 ---
 
 ### Q6 — DESIGN COMPETITION
 
+What would win a Bloomberg vs Protocol Pulse design competition?
+
 **DETAILED ANALYSIS**
-Bloomberg's design language prioritizes information density, speed, and keyboard-driven interaction over modern aesthetics. It feels like a professional tool, not a website. Our current design is clean but slightly too "web 2.0"—too much padding, large fonts, and not enough density. To compete, we must marry our modern aesthetic with Bloomberg's utilitarian ethos.
+Bloomberg's design is iconic for its utility, information density, and perceived complexity. It feels powerful and serious. Our current design is aesthetically superior—clean, modern, and visually engaging. To *win*, we must match Bloomberg's utility while retaining our superior aesthetic. A $5000/month product must *feel* like a command center, not just a webpage.
 
 **SPECIFIC RECOMMENDATION**
-To win a design competition, we must win on both **UTILITY** and **VISUALS**.
 
-*   **Utility - The "Command Palette":**
-    *   Implement a global `Cmd+K` / `Ctrl+K` command palette. This is the single biggest UI/UX upgrade. A pro user wants to type `Cmd+K` -> "Miner Conv" -> `Enter` and instantly see the Miner Conviction Index, without touching their mouse. This mimics the core Bloomberg workflow and signals that this is a power user tool.
+1.  **Information Density & Modularity:**
+    *   The current design is a fixed, scrolling layout. A "Terminal" needs a modular grid system (e.g., `react-grid-layout` or a CSS Grid implementation). Allow Commander-tier users to drag, drop, resize, and configure their dashboard panels. A hedge fund analyst wants to put their 4 most critical charts in the top-left, not scroll to find them. This is the single biggest signifier of a professional tool.
 
-*   **Visual Design - "The Terminal Aesthetic":**
-    *   **Information Density:** Reduce padding in `.g-card` from `24px` to `16px`. Decrease font sizes for labels and metadata (`.comp-label`, `.art-meta`) from `9px` to a crisper `8px` or `9px` with tighter letter-spacing. The goal is to fit more actionable data on the screen.
-    *   **Data-Ink Ratio:** Enhance tables. In the `.entity-table`, add two new columns: a 7-day sentiment sparkline (a tiny line graph) and a volume sparkbar. This puts historical context directly in the row, a hallmark of professional terminals.
-    *   **Structure & Hierarchy:** Use a stricter grid. Make the `.g-card` borders sharper (reduce `border-radius` to `8px`). Use single-pixel lines (`1px solid rgba(255,255,255,0.1)`) instead of `rgba(255,255,255,0.04)` for table row separators to create a more defined, "engineered" look.
-    *   **Color Discipline:** The color palette is good. Use it with more discipline. Reserve the primary red `#CC2222` *only* for critical alerts or negative changes. This trains the user's eye to associate it with immediate action.
+2.  **Data Provenance & Interactivity:**
+    *   Every number should be a source of deeper information. On hover, the "78" for F&G should show a mini sparkline of its 7-day trend. On click, it should open a modal with the full history and a link to the source (`alternative.me`). This builds immense trust and utility. The `whale-time` element (`{{ w.rule }} • Score {{ w.score }}`) is a great example of this; apply it everywhere.
 
-A $5000/month product feels like a cockpit, not a brochure. It's dense, fast, and every pixel serves a purpose. These changes shift our UI from a passive dashboard to an active analysis terminal.
+3.  **Aesthetic of Precision:**
+    *   The current design uses colors well for sentiment. To elevate it, introduce more subtle visual cues for data quality and recency. A small, pulsing green dot next to a metric could mean "updated < 60s ago". A yellow dot for "< 5 min", and red for "stale". Use monospaced fonts (`JetBrains Mono`) for *all* numerical data to ensure alignment and a "data-first" feel. The use of inline styles should be minimized and moved to the CSS block for maintainability and consistency. For example, lines 851-858 contain multiple inline styles that could be classes.
 
-**IMPLEMENTATION PRIORITY:** **P1**
-A focused design sprint to implement these changes would dramatically increase the product's perceived value and professional credibility.
+**Our winning proposition:** We offer the same data density and customizability as a Bloomberg terminal, but with a vastly superior, modern UI/UX that is both more intuitive and more aesthetically pleasing. We win on both utility AND design.
+
+**IMPLEMENTATION PRIORITY: P1**
 
 ---
 
 ### FINAL SUMMARY
 
-**TOP 3 CONSENSUS RECOMMENDATIONS**
-1.  **Implement the "Narrative Velocity & Rotation Tracker":** This is the unique, alpha-generating killer feature that justifies a high price point.
-2.  **Synthesize and Brand Proprietary Indices:** Immediately reframe existing data into high-value named metrics ("Miner Conviction Index", etc.) to compete directly with Glassnode/CryptoQuant.
-3.  **Launch a "Terminal" UI/UX Refresh:** Introduce a Command Palette (`Cmd+K`) and increase information density to match the workflow and feel of a professional-grade tool.
+**Top 3 Consensus Recommendations:**
+1.  **Build the "Regime Change Detector & Automated Playbook" (Q5).** This is the highest value-add for the lowest engineering cost, directly justifying the premium price point by providing actionable strategy.
+2.  **Brand and Visualize Proprietary Indices (Q1, Q2).** Systematically convert our raw data combinations into branded, chartable metrics like the "Liquid Supply Shock Ratio" to build a competitive moat against Glassnode/etc.
+3.  **Evolve the UI into a Modular "Commander Mode" (Q6).** Introduce a customizable grid layout and deeper interactivity. This transforms the product from a dashboard into a professional-grade terminal.
 
-**THE SINGLE HIGHEST-ROI FEATURE TO BUILD FIRST**
-The **"Narrative Velocity & Rotation Tracker"**. It uses only existing data, is technically straightforward with modern NLP libraries, and provides a proprietary edge that no competitor currently offers in this form. It is the clearest path to justifying a premium subscription.
+**The Single Highest-ROI Feature to Build First:**
+The **"Regime Change Detector & Automated Playbook"**. It requires no new data sources, minimal back-end logic, and primarily high-quality text content. It instantly reframes the product's value proposition from "data visualization" to "automated strategic advice," which is what the target market pays for.
 
-**WHAT TO REMOVE AS NOISE**
-The **"Trending Topics (24h)" word cloud**. It is visually uninspired and provides low-density information. Its function is completely superseded by the far superior "Narrative Velocity & Rotation Tracker". Replacing the word cloud with the 2x2 narrative matrix would be a direct upgrade, removing a generic component and adding a power-user feature in its place.
+**What to REMOVE as Noise:**
+1.  **Client-Side "Secret Sauce" Logic:** The JavaScript in `intelligence_page.html` (lines 1372-1589) calculates the `SignalMatrix` and `Divergences` client-side. This is a critical risk. It exposes proprietary logic, can be manipulated, and adds processing load to the user's machine. **This logic must be moved to the back-end** (`sovereign_context_engine.py`) and the results passed to the front-end as part of the context object.
+2.  **De-emphasize Generic Modules:** The "Topic Cloud" and "Entity Tracker" are useful but are not unique differentiators. They are standard in many crypto analytics tools. They should be moved to a secondary tab (e.g., "Social Intelligence") to free up prime dashboard real estate for the more alpha-generative, unique features like the Regime Playbook and the Market Gravity Well.

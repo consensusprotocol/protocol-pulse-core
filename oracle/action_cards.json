@@ -1,4 +1,37 @@
 {
+  "trezor": {
+    "id": "trezor",
+    "title": "Trezor Model One Hardware Wallet",
+    "description": "The original Bitcoin hardware wallet. Battle-tested since 2014.",
+    "url": "https://www.amazon.com/dp/B00R6MKDDE?tag=protocolpulse-20",
+    "cta": "View on Amazon \u2192",
+    "category": "amazon",
+    "triggers": [
+      "hardware wallet",
+      "cold storage",
+      "self-custody",
+      "private keys",
+      "seed phrase",
+      "trezor",
+      "custody",
+      "secure wallet",
+      "offline wallet"
+    ]
+  },
+  "ledger": {
+    "id": "ledger",
+    "title": "Ledger Nano X Hardware Wallet",
+    "description": "Industry-leading security with Bluetooth. Store 5,500+ coins offline.",
+    "url": "https://www.amazon.com/dp/B07M6R4NK3?tag=protocolpulse-20",
+    "cta": "View on Amazon \u2192",
+    "category": "amazon",
+    "triggers": [
+      "ledger",
+      "bluetooth wallet",
+      "mobile wallet",
+      "ios wallet"
+    ]
+  },
   "meanwhile": {
     "id": "meanwhile",
     "title": "Meanwhile Bitcoin Life Insurance",
@@ -6,7 +39,18 @@
     "url": "https://meanwhile.app?ref=KKM73K",
     "cta": "Learn More \u2192",
     "category": "affiliate",
-    "triggers": ["insurance", "wealth", "estate", "inheritance", "legacy", "family", "retirement", "generational", "protection", "life insurance"]
+    "triggers": [
+      "insurance",
+      "wealth",
+      "estate",
+      "inheritance",
+      "legacy",
+      "family",
+      "retirement",
+      "generational",
+      "protection",
+      "life insurance"
+    ]
   },
   "rns": {
     "id": "rns",
@@ -15,16 +59,18 @@
     "url": "https://rns.id?ref=protocol-pulse",
     "cta": "Get Residency \u2192",
     "category": "affiliate",
-    "triggers": ["residency", "privacy", "regulation", "kyc", "surveillance", "jurisdiction", "offshore", "identity", "censorship", "freedom tech"]
-  },
-  "coldcard": {
-    "id": "coldcard",
-    "title": "Coldcard MK4 Hardware Wallet",
-    "description": "The gold standard for Bitcoin self-custody.",
-    "url": "https://www.amazon.com/dp/B0CQV9TT3X?tag=protocolpulse-20",
-    "cta": "View on Amazon \u2192",
-    "category": "amazon",
-    "triggers": ["hardware wallet", "cold storage", "self-custody", "private keys", "seed phrase", "multisig", "coldcard", "trezor", "ledger", "custody"]
+    "triggers": [
+      "residency",
+      "privacy",
+      "regulation",
+      "kyc",
+      "surveillance",
+      "jurisdiction",
+      "offshore",
+      "identity",
+      "censorship",
+      "freedom tech"
+    ]
   },
   "bitcoin_standard": {
     "id": "bitcoin_standard",
@@ -33,7 +79,53 @@
     "url": "https://www.amazon.com/dp/1119473861?tag=protocolpulse-20",
     "cta": "View on Amazon \u2192",
     "category": "amazon",
-    "triggers": ["bitcoin standard", "saifedean", "sound money", "book", "learn bitcoin", "getting started", "new to bitcoin", "understand bitcoin"]
+    "triggers": [
+      "bitcoin standard",
+      "saifedean",
+      "sound money",
+      "book",
+      "learn bitcoin",
+      "getting started",
+      "new to bitcoin",
+      "understand bitcoin",
+      "recommend book"
+    ]
+  },
+  "layered_money": {
+    "id": "layered_money",
+    "title": "Layered Money \u2014 Nik Bhatia",
+    "description": "How Bitcoin fits into the global monetary system. Essential reading.",
+    "url": "https://www.amazon.com/dp/B08LX7G4JH?tag=protocolpulse-20",
+    "cta": "View on Amazon \u2192",
+    "category": "amazon",
+    "triggers": [
+      "layered money",
+      "nik bhatia",
+      "monetary system",
+      "central bank",
+      "reserve currency",
+      "dollar",
+      "fed",
+      "federal reserve",
+      "gold standard",
+      "bretton woods"
+    ]
+  },
+  "gradually_then_suddenly": {
+    "id": "gradually_then_suddenly",
+    "title": "Gradually, Then Suddenly \u2014 Parker Lewis",
+    "description": "The most compelling case for Bitcoin ever written.",
+    "url": "https://www.amazon.com/dp/B0CLYDWNS3?tag=protocolpulse-20",
+    "cta": "View on Amazon \u2192",
+    "category": "amazon",
+    "triggers": [
+      "parker lewis",
+      "gradually then suddenly",
+      "bitcoin fixes this",
+      "hyperbitcoinization",
+      "case for bitcoin",
+      "why bitcoin"
+    ]
   },
   "curated_mining": {
     "id": "curated_mining",
@@ -42,6 +134,16 @@
     "url": "https://curatedmining.io",
     "cta": "Learn More \u2192",
     "category": "internal",
-    "triggers": ["mining", "mine bitcoin", "miner", "asic", "hashrate", "home mining", "mining setup"]
+    "triggers": [
+      "mining",
+      "mine bitcoin",
+      "miner",
+      "asic",
+      "hashrate",
+      "home mining",
+      "mining setup",
+      "solo mining",
+      "mining profitability"
+    ]
   }
 }

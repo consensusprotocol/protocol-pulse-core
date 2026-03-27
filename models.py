@@ -171,7 +171,7 @@ class Article(db.Model):
         url = (self.header_image_url or "").strip()
         if _valid(url):
             return url
-        return "/static/images/default-header.png"
+        return "https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
 
     def to_api_dict(self, include_content=False):
         """Law 2: API response dict."""

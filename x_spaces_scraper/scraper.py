@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 CACHE_DIR = Path(__file__).parent / "cache"
 
 # ── Search queries for live/ended space discovery ──────────────────────────
-SEARCH_QUERIES = ["bitcoin", "btc", "sound money", "bitcoin mining"]
+SEARCH_QUERIES = ["bitcoin", "btc", "sound money", "bitcoin mining", "market crash", "federal reserve", "macro bitcoin"]
 TIER1_HANDLES = {
     "saylor","jack","lopp","ODELL","matt_odell","MartyBent","PrestonPysh",
     "stephanlivera","natbrunell","LynAldenContact","gladstein","saifedean",
@@ -38,6 +38,7 @@ TIER1_HANDLES = {
     "thebitcoinlayer","WhatBitcoinDid","TheBitcoinConf",
     "TonySeverinoCMT","ts_hodl","BritishHodl","TheBTCTherapist",
     "bitstein","parman_the",
+    "zerohedge","KobeissiLetter","RaoulGMI","TaviCosta",
 }
 TIER2_HANDLES = {
     "caitlinlong_","wclementeiii","sethforprivacy","parkerlewis",
@@ -635,3 +636,42 @@ if __name__ == "__main__":
             print(f"  score={c['score']:.1f} | {c['text'][:80]}")
     else:
         print("\nNo clips this run (spaces may have ended or had no speech)")
+
+
+# Compatibility shim
+from dataclasses import dataclass
+
+@dataclass
+class SpaceInfo:
+    space_id: str
+    title: str = ""
+    host: str = ""
+    url: str = ""
+    state: str = "ended"
+    date: str = ""
+    detected_via: str = "search"
+    participant_count: int = 0
+
+    def to_dict(self):
+        return {"space_id":self.space_id,"title":self.title,"host":self.host,"url":self.url,"state":self.state,"started_at":self.date,"participant_count":self.participant_count}
+
+
+class XSpacesScraper:
+    def __init__(self): self.db=None; self._done=set()
+
+    def find_spaces(self,skip_processed=True):
+        raw=find_live_bitcoin_spaces()
+        out=[]
+        for s in raw:
+            sid=s.get("space_id","")
+            if skip_processed and sid in self._done: continue
+            out.append(SpaceInfo(space_id=sid,title=s.get("title",""),host=s.get("host",s.get("creator_id","")),url=s.get("url",f"https://twitter.com/i/spaces/{sid}"),state=s.get("state","ended"),date=s.get("started_at",""),detected_via=s.get("detected_via","search"),participant_count=s.get("participant_count",0)))
+        return out
+
+    def mark_processed(self,sid):
+        self._done.add(sid)
+        if self.db:
+            try:
+                from datetime import datetime as _dt
+                self.db.upsert(sid,published_at=_dt.utcnow().isoformat())
+            except Exception as _e: logger.warning(f"mark_processed: {_e}")

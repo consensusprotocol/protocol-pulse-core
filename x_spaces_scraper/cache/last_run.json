@@ -1,9 +1,21 @@
 {
-  "spaces_found": 27,
-  "transcripts_fetched": 10,
+  "spaces_found": 38,
+  "transcripts_attempted": 10,
+  "transcripts_fetched": 0,
   "articles_generated": 0,
   "articles_published": 0,
-  "errors": [],
-  "timestamp": "2026-03-13T08:54:11.165893",
-  "elapsed_s": 249.2
+  "errors": [
+    "Unusable transcript for 1RJZzjoNvboJB (source=context_only)",
+    "Unusable transcript for 1DxleEBWAmmKL (source=context_only)",
+    "Unusable transcript for 1rGmqodrVnWGy (source=context_only)",
+    "Unusable transcript for 1dxYljpaNeQJX (source=context_only)",
+    "Unusable transcript for 1nJOLEvqlQnxR (source=context_only)",
+    "Unusable transcript for 1qKVmQZpQnaxB (source=context_only)",
+    "Unusable transcript for 1dGYljzpZpLKX (source=context_only)",
+    "Unusable transcript for 1vKpPrgEjkVKE (source=context_only)",
+    "Unusable transcript for 1vJpPrgOzVkJE (source=context_only)",
+    "Unusable transcript for 1NGaraDpOkRJj (source=context_only)"
+  ],
+  "timestamp": "2026-03-19T09:24:19.497648",
+  "elapsed_s": 32.6
 }

@@ -1,6 +1,6 @@
 # CONSENSUS REPORT — PANOPTICON — CYCLE 2
-Generated: 2026-03-26 00:53
-Models: grok, gemini (+1 failed: gpt-4o — TPM limit exceeded)
+Generated: 2026-03-26 06:21
+Models: gemini, grok (+1 failed: gpt4o — token limit exceeded)
 
 ---
 
@@ -8,196 +8,256 @@ Models: grok, gemini (+1 failed: gpt-4o — TPM limit exceeded)
 
 | Subsystem | Gemini | GPT-4o | Grok | Consensus |
 |---|---|---|---|---|
-| Congressional Data Fetching (Q1) | HIGH | N/A | HIGH | **HIGH** |
-| API Rate Limiting (Q2) | CRITICAL | N/A | CRITICAL | **CRITICAL** |
+| API Rate Limiting | CRITICAL | N/A | CRITICAL | **CRITICAL** |
 | Cache Architecture | CRITICAL | N/A | CRITICAL | **CRITICAL** |
-| Fallback / Placeholder Data Quality | CRITICAL | N/A | HIGH | **CRITICAL** (Gemini upgraded; rationale accepted) |
-| Classified Overlay / Demo Mode Security | PASS | N/A | PASS | **PASS** |
-| External API Schema Robustness | HIGH | N/A | HIGH | **HIGH** |
-| LLM Prompt Injection Defense | HIGH | N/A | not scored | **HIGH** |
-| Overall Production Readiness | 3/10 | N/A | 4/10 | **3.5/10 — NOT PRODUCTION READY** |
+| Scheduler Cache Invalidation | CRITICAL | N/A | (not scored) | **CRITICAL** |
+| Congressional Data Fetching | HIGH | N/A | HIGH | **HIGH** |
+| Fallback Data Transparency | HIGH | N/A | MEDIUM-HIGH | **HIGH** |
+| Brand / Law Compliance | MEDIUM | N/A | MEDIUM | **MEDIUM** |
+| API Schema Validation | MEDIUM | N/A | MEDIUM | **MEDIUM** |
+| Circuit Breaker / Upstream Failure | (not scored) | N/A | HIGH | **HIGH** |
+| Demo Mode Data Leak | (not scored) | N/A | MEDIUM | **INVESTIGATE** |
+| Anthropic API Timeout/Retry | (not scored) | N/A | MEDIUM | **MEDIUM** |
 
-> **Note on scoring validity:** GPT-4o failed due to token limit. All consensus determinations below are drawn from 2-model agreement (Gemini + Grok). Where only one model raised a finding, it is flagged explicitly as a unique insight.
-
----
-
-## UNANIMOUS FINDINGS (both models agree — implement unconditionally)
-
-### U1 — In-Memory Rate Limiter is Multi-Process Broken
-**What it is:** `_rate_limit_store` is a plain Python dictionary in `core/blueprints/panopticon.py:29`. In any multi-worker deployment (Gunicorn, uWSGI), each worker process holds its own isolated copy of this dictionary. A user whose requests are load-balanced across workers can exceed the intended rate limit by a factor equal to the number of workers, rendering the protection completely ineffective.
-
-**File/Line:** `core/blueprints/panopticon.py:29, 36–63`
-
-**What to change:** Remove `_rate_limit_store` entirely. Replace with `Flask-Limiter` configured against a Redis backend. Example:
-```python
-# core/blueprints/panopticon.py
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address, storage_uri="redis://localhost:6379")
-
-@panopticon_bp.route("/api/panopticon/whale-alerts")
-@limiter.limit("30/minute")
-def whale_alerts():
-    ...
-```
-All per-IP state lives in Redis and is visible to every worker.
+*GPT-4o failed due to TPM rate limit (57,273 tokens requested vs. 30,000 limit). Consensus is derived from 2 models only. Confidence is slightly reduced on non-unanimous items, noted where relevant.*
 
 ---
 
-### U2 — In-Memory Cache is Non-Shared Across Workers
-**What it is:** `_cache` is a plain Python dictionary in `services/panopticon_service.py:35–72`, protected by a `threading.Lock`. In a multi-process deployment, every worker has its own private cache, so each worker independently makes full upstream API calls on every cache miss. This multiplies outbound request volume by the number of workers, dramatically increasing the probability of hitting CoinGecko and mempool.space rate limits, and makes the courtesy sleep (`panopticon_service.py:223`) insufficient protection.
+## UNANIMOUS FINDINGS (all 2 models agree — implement unconditionally)
 
-**File/Line:** `services/panopticon_service.py:35–72`
+### U1 — API Rate Limiting Is Non-Functional
+**Both models rated this CRITICAL.**
 
-**What to change:** Migrate to Redis with TTL-based expiry via `redis-py` or `Flask-Caching[redis]`. The `_cache_lock` can be removed because Redis operations are atomic.
-```python
-# services/panopticon_service.py
-import redis, json
-_redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
+- **What it is:** Flask-Limiter is initialized in `core/blueprints/panopticon.py` (lines 27–63), creating the full infrastructure for rate limiting. However, no `@limiter.limit()` or `@_get_limiter().limit()` decorators are applied to any API route handler (e.g., `/api/panopticon/disclosures` at line 181, `/api/panopticon/whale-alerts` at line 203, and all subsequent API routes through line 316). The protection mechanism exists but is never activated.
+- **File/Line:** `core/blueprints/panopticon.py`, lines 181, 203, 233, and all API route definitions through ~line 316.
+- **What to change:** Apply rate limit decorators to every API endpoint. Use tiered limits based on endpoint cost. Example:
+  ```python
+  @panopticon_bp.route('/api/panopticon/disclosures')
+  @_get_limiter().limit("20 per minute; 200 per hour")
+  def api_disclosures():
+      ...
 
-def _cache_get(key):
-    val = _redis.get(key)
-    return json.loads(val) if val else None
+  @panopticon_bp.route('/api/panopticon/whale-alerts')
+  @_get_limiter().limit("30 per minute")
+  def api_whale_alerts():
+      ...
+  ```
 
-def _cache_set(key, value, ttl_seconds):
-    _redis.setex(key, ttl_seconds, json.dumps(value))
-```
+### U2 — In-Memory Cache Is Unfit for Production
+**Both models rated this CRITICAL.**
 
----
+- **What it is:** `SimpleCache` is used as the caching backend (`services/panopticon_service.py`, line 52). This is a process-local cache. In any production deployment using multiple Gunicorn workers (the standard), each worker maintains its own isolated cache. This causes: (a) cache stampedes where every worker independently calls upstream APIs simultaneously; (b) the 30-minute TTL being violated routinely; (c) potential upstream rate limit violations from the burst of redundant calls; and (d) inconsistent data served to users depending on which worker handles their request. The code comments on lines 37–38 acknowledge Redis is needed for production — this self-documented gap was never closed.
+- **File/Line:** `services/panopticon_service.py`, lines 34–120, particularly line 52.
+- **What to change:** Replace `SimpleCache` with a Redis-backed Flask-Caching instance for all production deployments:
+  ```python
+  # services/panopticon_service.py
+  cache_config = {
+      "CACHE_TYPE": "RedisCache",
+      "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
+      "CACHE_DEFAULT_TIMEOUT": 1800,
+  }
+  ```
+  Add `REDIS_URL` to environment configuration and deployment documentation. Ensure staging environment mirrors production in this regard.
 
-### U3 — efts.house.gov is an Undocumented Internal Endpoint
-**What it is:** The URL `https://efts.house.gov/LATEST/search-index` (`panopticon_service.py:193`) is the search backend for the House website's own front end, not a public API. It carries no SLA, no documented parameters, no versioning contract, and no formal rate limit. It can change or disappear without notice, silently breaking the feature's entire primary data tier.
+### U3 — Undocumented efts.house.gov Endpoint Used for Health Check
+**Both models rated this HIGH.**
 
-**File/Line:** `services/panopticon_service.py:193`
+- **What it is:** The `check_efts_health` function (`services/panopticon_service.py`, lines 1407–1441) queries `https://efts.house.gov/LATEST/search-index` — an endpoint explicitly described in the code comments (line 1408) as undocumented. The function is used to determine whether the system should enter fallback mode, making its reliability load-bearing for the user experience. Undocumented government API endpoints are changed or removed without notice, with no deprecation cycle.
+- **File/Line:** `services/panopticon_service.py`, lines 1407–1441, specifically line 1414.
+- **What to change:** Replace with a stable, documented check. A HEAD request to the House Disclosure portal's main page is sufficient to determine connectivity:
+  ```python
+  response = requests.head(
+      "https://disclosures-clerk.house.gov/",
+      timeout=5,
+      headers={"User-Agent": HEADERS["User-Agent"]}
+  )
+  return response.status_code < 500
+  ```
 
-**What to change:**
-1. Add an explicit code comment documenting the instability and the date it was last verified working.
-2. Implement an external health-check monitor (e.g., Uptime Robot, Datadog synthetic) that fires a PagerDuty / Slack alert if the endpoint returns non-200 or if `SCHEMA_DRIFT` log warnings spike above threshold.
-3. Proactively evaluate whether the FD&C Act's official [Senate eFD portal](https://efdsearch.senate.gov) or ProPublica Congress API can serve as a more stable primary source.
+### U4 — Fallback Data Not Clearly Labeled as Historical
+**Both models flagged this (HIGH / MEDIUM-HIGH).**
+
+- **What it is:** When live data is unavailable, `_generate_disclosure_placeholders` (lines 436–642 in `services/panopticon_service.py`) returns historical verified filings. These are merged with live data in the response (lines 423–431). The existing banner in `templates/panopticon.html` (lines 1294–1297) indicates data is "temporarily unavailable" but does not communicate that what is being shown is a curated static historical dataset. Users may believe they are viewing recent disclosures.
+- **File/Line:** `templates/panopticon.html`, lines 1294–1297.
+- **What to change:** Update banner text to be explicit:
+  ```html
+  <!-- BEFORE -->
+  <div class="fallback-banner">Live data temporarily unavailable</div>
+
+  <!-- AFTER -->
+  <div class="fallback-banner">
+    ⚠ Live feed unavailable — displaying a static set of verified historical
+    disclosures for reference. Data may not reflect recent filings.
+    <a href="#" class="retry-link">Retry live connection</a>
+  </div>
+  ```
 
 ---
 
 ## MAJORITY FINDINGS (2 of 2 models agree)
 
-All three unanimous findings above are simultaneously majority findings. No additional findings reached 2-of-2 agreement beyond U1–U3 and the items below (which were raised by both models in their Cycle 2 output):
+*Note: With only 2 functional models, "majority" and "unanimous" overlap. Items listed here were noted with different emphasis or framing by each model but represent shared concerns.*
 
-### M1 — Placeholder Data Uses Future Dates
-**What it is:** `_generate_disclosure_placeholders()` (`panopticon_service.py:296–364`) populates fallback data with dates such as "2025-09-15" and "2025-10-01." From the product's operational date (2026), these are events that have not yet occurred — or are presented as historical when their dates are in the near future. Both models flagged this as damaging to user trust. Gemini upgraded it to CRITICAL; Grok rated it HIGH.
+### M1 — QuiverQuant Response Has No Schema Validation
+- **What it is:** The JSON response from QuiverQuant is parsed with only a type check (`isinstance(resp, list)`, line 321 in `services/panopticon_service.py`). Field names like `Ticker` and `TransactionDate` (lines 325–349) are accessed directly. If QuiverQuant renames fields, adds null values, or restructures the response, the code will fail silently or produce corrupt data.
+- **File/Line:** `services/panopticon_service.py`, lines 319–349.
+- **Recommendation:** Implement `pydantic` schema validation:
+  ```python
+  from pydantic import BaseModel, validator
+  from typing import Optional
 
-**Consensus ruling:** Treat as **P0 CRITICAL** — accepted Gemini's escalation. An "intelligence" platform presenting future-dated congressional filings as retrieved historical data is not a cosmetic issue; it is a data integrity failure that would immediately destroy credibility if noticed by any politically-aware user.
+  class QuiverDisclosure(BaseModel):
+      Ticker: str
+      TransactionDate: str
+      Representative: Optional[str] = "Unknown"
+      Transaction: Optional[str] = "Unknown"
+      Range: Optional[str] = "$1K - $15K"
 
-**File/Line:** `services/panopticon_service.py:296–364`
+      @validator('Ticker')
+      def ticker_must_not_be_empty(cls, v):
+          assert v and v.strip(), "Ticker cannot be empty"
+          return v.upper()
+  ```
 
-**What to change:** Replace all placeholder dates with verifiably real, publicly documented historical congressional stock disclosure dates (e.g., known Nancy Pelosi or Dan Crenshaw filings from 2022–2023 that are on the public record). Values can be drawn from propublica.org or the official FD&C Act disclosure archive.
-
----
-
-## UNIQUE INSIGHTS (single model — evaluate carefully)
-
-### UI-1 — Broken Scheduler Cache-Warming (Gemini only)
-**What it is:** Gemini identified that the scheduled background task in `services/scheduler.py:607` (`panopticon_congress_refresh`) calls `fetch_stock_act_disclosures` to warm the cache — but since the cache is in-memory and process-local, the scheduler process warms its own private cache that no web worker ever reads. The cache-warming jobs consume upstream API quota and produce zero user-facing benefit.
-
-**Assessment: IMPLEMENT.** This is a direct logical consequence of U2 and adds specific evidence that the bug is actively burning upstream API budget. Gemini is correct. Fixing U2 (Redis migration) automatically resolves this, but it should be explicitly tested post-fix: verify that a cache write from the scheduler process is readable by a separate web worker process.
-
----
-
-### UI-2 — Rate Limiter Memory Leak (Gemini only)
-**What it is:** `_rate_limit_store` grows unboundedly as new IPs access the API. There is no TTL, no eviction, and no cleanup loop. In a long-running process, this will cause gradual memory exhaustion.
-
-**Assessment: IMPLEMENT as part of U1.** The fix is identical to U1 (migrate to Redis with expiring keys). Calling this out separately ensures the memory leak is not treated as already-resolved by the multi-process fix alone — it must be confirmed that keys are set with `EXPIRE`.
-
----
-
-### UI-3 — LLM Prompt Injection Defense is Regex-Only (Gemini only)
-**What it is:** `_sanitize_event_summary()` (`panopticon.py:115–124`) uses a regex blocklist to prevent prompt injection before passing user-influenced content to the Anthropic LLM. Regex blocklists are trivially bypassed (Unicode substitutions, whitespace insertion, language variation). Generated LLM output is then displayed directly to other users, making this a stored prompt injection vector.
-
-**Assessment: IMPLEMENT.** This is a legitimate P1 security finding. The fix requires a layered approach:
-1. Move the primary defense to the **system prompt**: instruct the model to ignore any instructions embedded in the input data and to only perform its specified summarization task.
-2. Add output validation: reject or flag any LLM response that contains instruction-like language (e.g., "ignore previous instructions", URLs, code blocks) before storing or rendering it.
-3. Keep the input sanitizer as a defense-in-depth layer but do not rely on it as the primary control.
+### M2 — Brand Palette CSS Violations
+- **What it is:** `templates/panopticon.html` defines CSS variables that violate Governing Law 1. Specifically: `--pn-bg: #000` (line 15) uses pure black, which is explicitly prohibited; `--pn-red: #ff3b5f` (line 23) uses an incorrect red that deviates from the mandated `#CC2222`.
+- **File/Line:** `templates/panopticon.html`, lines 15 and 23.
+- **What to change:**
+  ```css
+  :root {
+      --pn-bg: #0A0A0F;     /* FIX: was #000 — pure black prohibited */
+      --pn-red: #CC2222;    /* FIX: was #ff3b5f — wrong brand red */
+      --pn-red-dim: rgba(204, 34, 34, 0.12); /* update derived value */
+  }
+  ```
 
 ---
 
-### UI-4 — Timing Side-Channel in Demo Mode (Grok only)
-**What it is:** Grok noted that `get_demo_safe_data()` still calls `get_btc_price()` in demo mode, which means response timing varies based on whether a live upstream call is made. An attacker monitoring response times could potentially infer live data-fetching behavior.
+## UNIQUE INSIGHTS (only 1 model caught this — evaluate carefully)
 
-**Assessment: INVESTIGATE FURTHER.** This is a low-probability, low-impact concern for the current threat model (public dashboard, not a financial execution system). The more important question is whether `get_btc_price()` is called with redacted output but a real network request, which wastes upstream quota in demo mode. Audit whether demo mode should short-circuit all live calls and return entirely static fixtures.
+### X1 — Scheduler Cache Invalidation Is Completely Broken (Gemini — CRITICAL)
+**Assessment: IMPLEMENT IMMEDIATELY**
 
----
+This is the most significant new finding from Cycle 2. Gemini identified that `services/scheduler.py` (lines 607–637) attempts to proactively refresh cached data by importing and manipulating `_cache` from `panopticon_service`. However, `panopticon_service.py` exports no variable named `_cache` — the fallback dictionary is named `_cache_dict` (line 69). This causes an `ImportError`. Furthermore, even if the name were corrected, the scheduler would be manipulating the dictionary fallback while the application uses the Flask-Caching `SimpleCache` instance — a completely separate object. The scheduled refresh tasks are entirely non-functional. Data only refreshes when TTL expires organically. The scheduler cron jobs exist and appear to run, but they accomplish nothing. This is a silent failure that will be invisible in logs unless the `ImportError` is surfaced.
 
-### UI-5 — Rate Limiter Key Collision on Aliased Routes (Gemini only)
-**What it is:** The rate limiter key is `f"{ip}:{request.path}"` (`panopticon.py:44`). Routes with multiple aliases (e.g., `/api/panopticon/whale-alerts` and `/api/panopticon/whales`) receive independent rate-limit buckets for the same underlying resource, allowing a user to double their effective request rate by alternating between aliased paths.
+**Fix:**
+```python
+# services/scheduler.py — refactor refresh tasks to use
+# the Flask-Caching instance directly via the app context
+from flask import current_app
 
-**Assessment: IMPLEMENT.** The rate-limit key should be scoped to the logical resource (e.g., the view function name or a canonical path), not the raw URL string. When migrating to `Flask-Limiter`, use the decorator on the canonical route and ensure aliases share a key.
+def panopticon_congress_refresh():
+    with app.app_context():
+        cache = current_app.extensions['cache']  # Flask-Caching instance
+        cache.delete('panopticon_stock_act')
+        fetch_stock_act_disclosures(force_refresh=True)
+```
+
+### X2 — Circuit Breaker Lacks Active Response (Grok — HIGH)
+**Assessment: IMPLEMENT**
+
+Grok identified that the `_EFTS_FAIL_COUNT` circuit breaker (`services/panopticon_service.py`, line 1403) increments a failure counter and logs errors after `_EFTS_CIRCUIT_BREAKER_THRESHOLD` failures (line 1405), but takes no active action: no admin notification, no automatic disabling of the health check, no status flag visible to the monitoring layer. The system continues hammering a failing endpoint. Add a flag that actively short-circuits subsequent health check calls after threshold is breached, and integrate with whatever alerting system is in use.
+
+**Fix:**
+```python
+_EFTS_CIRCUIT_OPEN = False  # Add module-level flag
+
+def check_efts_health():
+    global _EFTS_FAIL_COUNT, _EFTS_CIRCUIT_OPEN
+    if _EFTS_CIRCUIT_OPEN:
+        logger.warning("EFTS circuit breaker OPEN — skipping health check")
+        return False
+    # ... existing logic ...
+    if _EFTS_FAIL_COUNT >= _EFTS_CIRCUIT_BREAKER_THRESHOLD:
+        _EFTS_CIRCUIT_OPEN = True
+        # TODO: send admin alert here
+```
+
+### X3 — Live BTC Price Leaked in Demo Mode (Grok — MEDIUM)
+**Assessment: INVESTIGATE**
+
+Grok observed that `btc_price` in `core/blueprints/panopticon.py` (line 80) is populated with real data from `get_btc_price()` even when serving the demo/free-tier response. The intent appears to be full redaction for non-Commander users, but `btc_price` is included as live data. This is a minor inconsistency — BTC price is public information — but it violates the stated design intent and could set a precedent for similar leaks in other fields. Investigate whether this is intentional (BTC price used as a hook to show value) or an oversight. If the latter, redact or replace with a static value.
+
+### X4 — Anthropic API Has No Timeout or Retry Logic (Grok — MEDIUM)
+**Assessment: IMPLEMENT**
+
+`get_make_bitcoin_case` (`services/panopticon_service.py`, lines 1346–1389) calls the Anthropic API without explicit timeout or retry configuration. If Anthropic's API is slow or returns a 5xx, the function will hang for the default `httpx` timeout (which may be very long or None) and not retry. This directly degrades the user experience on the dashboard's AI commentary feature.
+
+**Fix:**
+```python
+response = anthropic_client.messages.create(
+    model="claude-opus-4-5",
+    max_tokens=1024,
+    timeout=15.0,  # Add explicit timeout
+    messages=[{"role": "user", "content": prompt}],
+)
+```
+Wrap with retry logic using `tenacity` or a simple `try/except` with one retry.
 
 ---
 
 ## CONFLICTS (models disagree — tiebreaker)
 
-### Conflict 1 — Severity of Placeholder Date Issue
-- **Gemini:** CRITICAL — treats it as a user trust failure and data integrity breach.
-- **Grok:** HIGH — acknowledges it is misleading but notes the UI banner (`panopticon.html:990–992`) partially mitigates it.
+### Conflict 1: Severity of Fallback Data Transparency Issue
+- **Gemini:** HIGH — users may be significantly misled by unlabeled historical data.
+- **Grok:** MEDIUM-HIGH — the existing banner provides partial mitigation; risk is real but not catastrophic.
+- **Tiebreaker: Gemini is correct.** The existing banner says data is "temporarily unavailable," which implies the underlying data is current-but-unreachable. Showing historical data under that label is materially misleading. Users making decisions based on what they believe are recent congressional disclosures, when they are actually viewing 12-month-old filings, is a trust and potential accuracy issue. Rate this HIGH and fix it at P1.
 
-**Tiebreaker ruling: Gemini is correct.** The UI banner is a mitigation for the *absence* of live data, not for the *presence of factually wrong data*. A user who sees a future-dated congressional disclosure on an "intelligence" dashboard will immediately distrust the entire platform, regardless of a banner. The banner says "data may be unavailable" — it does not say "the dates shown are impossible." This is a P0 fix, not P1.
-
----
-
-### Conflict 2 — Severity of External API Rate Limiting
-- **Grok (Cycle 2):** Rated the lack of hardcoded CoinGecko rate limit enforcement as HIGH (P1).
-- **Gemini:** Did not independently escalate this beyond the U2 multi-worker issue.
-
-**Tiebreaker ruling: Grok's framing is correct but subsumed by U2.** The root cause of the external API rate-limit risk is the non-shared cache, not the absence of a hardcoded limit value. Once U2 is fixed, N workers share one cache and the effective outbound call rate collapses. Add CoinGecko's documented limit (50 calls/minute on the free tier) as a code comment beside `_rate_limited_get` for documentation hygiene, but this does not require a separate structural fix.
+### Conflict 2: Brand Palette Urgency
+- **Gemini:** Implied must-fix before deployment (included in compliance violations section).
+- **Grok:** Agreed it needs fixing but suggested it could be post-launch if critical issues take precedence.
+- **Tiebreaker: Grok is correct on urgency, Gemini is correct on the bug.** The palette violation is real and must be fixed, but it does not block deployment in the same way that unthrottled API endpoints or broken cache invalidation do. Classify as P2 — fix in the same pass but do not gate deployment on it if timelines are tight.
 
 ---
 
-## VALIDATED STRENGTHS (both models confirmed — do NOT change)
+## VALIDATED STRENGTHS (all models agree this is already excellent)
 
-1. **Defensive Schema Parsing in `_extract_asset_from_hit`** (`panopticon_service.py:242–259`): Both models acknowledged this as a competent, intentional defense against API schema drift. The multi-key fallback plus `SCHEMA_DRIFT` logging is the right pattern for an undocumented endpoint. Do not simplify or remove this logic.
-
-2. **Exponential Backoff in `_rate_limited_get`** (`panopticon_service.py:76–98`): Both models confirmed this is correctly implemented. The retry logic with backoff and the 0.5-second courtesy sleep are appropriate for a non-public API. Keep as-is; the Redis migration does not require changes here.
-
-3. **Demo Mode Redaction Architecture** (`services/panopticon_service.py:1014–1038` + `core/blueprints/panopticon.py:79–104`): Both models assessed the demo mode data-redaction path as functionally secure. The separation between live and demo data is correctly gated. Do not refactor this path.
-
-4. **Fallback Banner UI Component** (`templates/panopticon.html:989–993`): Both models noted this exists and correctly surfaces non-live data state to the user. The component is doing its job. Fix the data behind it (placeholder dates); do not remove or alter the banner itself.
-
-5. **Batch Quality Warning for "See Filing" Results** (`panopticon_service.py:278–285`): Grok explicitly called this a "good detection mechanism." It is a proactive data quality sensor. Keep it.
+1. **Fallback System Existence:** Both models validated that the decision to implement `_generate_disclosure_placeholders` (lines 436–642) is architecturally sound. Having a rich fallback that prevents empty dashboards is the right call. The system design is good; only the labeling needs improvement.
+2. **Exponential Backoff on Rate Limits:** The `_rate_limited_get` wrapper (lines 123–146) with exponential backoff on 429 responses is correctly implemented and the right approach for upstream API calls.
+3. **QuiverQuant as Primary Source:** Both models agreed that using QuiverQuant rather than scraping `efts.house.gov` directly is a sound architectural decision. It offloads rate limit management and schema maintenance to a specialized third party.
+4. **Demo Mode / Tiered Access Gate:** The redaction logic for non-Commander users (`core/blueprints/panopticon.py`, lines 79–103) is structurally sound. The concept is correct; only the BTC price edge case (X3) is worth investigating.
+5. **Health Check Circuit Breaker Concept:** Both models acknowledged that having `_EFTS_FAIL_COUNT` and a threshold is the right pattern. The implementation needs improvement (X2), but the design intent is validated.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-| Legal Area | Status | Determination |
+| Law | Status | Detail |
 |---|---|---|
-| STOCK Act / Congressional Disclosure | **Compliant (display)** | The feature displays public disclosure data; it does not generate, suppress, or modify it. No legal violation in scraping publicly posted government data. |
-| Computer Fraud and Abuse Act (CFAA) | **Marginal risk** | Scraping `efts.house.gov` (a government server) without a documented API agreement is technically in a gray zone. There is no evidence of authorization denial, but the absence of a terms-of-service review is a legal gap. Recommend legal counsel review before public launch. |
-| GDPR / CCPA | **Insufficient information** | The audit did not surface IP-address logging or user data retention policies. The rate limiter stores IPs in (currently in-memory, but soon Redis) state. Ensure IP data is not persisted beyond the rate-limit window TTL and that a privacy policy addresses this. |
-| Financial Advice Regulations (SEC, FINRA) | **Risk present** | Displaying congressional trade data alongside LLM-generated summaries could be construed as investment analysis. A clear disclaimer ("This is not financial advice; this is public disclosure data") must be present on every rendered view. Neither model confirmed this disclaimer exists in the template. **Investigate.** |
+| LAW 1 — Brand Palette | **VIOLATED** | `--pn-bg: #000` (pure black prohibited); `--pn-red: #ff3b5f` (must be `#CC2222`). File: `templates/panopticon.html`, lines 15, 23. |
+| LAW 2 — Typography | **UNREVIEWED** — GPT-4o unavailable | No definitive finding; neither model flagged violations. |
+| LAW 3 — Component Standards | **UNREVIEWED** — GPT-4o unavailable | No definitive finding. |
+| Other Laws | **UNREVIEWED** — GPT-4o unavailable | With only 2 of 3 models available, Law compliance coverage is incomplete. A targeted CSS/HTML pass against the full Visual Design System is recommended before final deployment. |
+
+**Determination:** LAW 1 is definitively violated. Full law compliance cannot be confirmed without GPT-4o's coverage. The second pass prompt should explicitly include a CSS compliance review.
 
 ---
 
 ## SECURITY CONSENSUS
 
-Priority order of security findings both/all models raised:
+Priority order of security issues flagged by both/all available models:
 
-1. **[CRITICAL] Multi-process rate limiter bypass** — Allows unlimited API abuse from any user with basic load-balanced request distribution. Directly exploitable. (U1)
-2. **[HIGH] Prompt injection into LLM → stored XSS-adjacent output** — Gemini's UI-3 finding. User-influenced content reaches Anthropic API with only regex defense; output rendered to all users. (UI-3)
-3. **[MEDIUM] IP data in Redis without explicit TTL/retention policy** — Post-U1 fix, IP addresses will be stored in Redis. Ensure EXPIRE is set on all rate-limit keys to comply with data minimization principles. (UI-2 consequence)
-4. **[LOW] Demo mode timing side-channel** — Grok's UI-4. Low practical exploitability; investigate whether live calls should be fully suppressed in demo mode.
+1. **[CRITICAL] Unthrottled API Endpoints** — No rate limiting on any API route. Direct DoS vector. Attackers can also use the endpoints to exhaust all upstream API quotas (QuiverQuant, CoinGecko, Anthropic) within minutes, causing complete service degradation. Both models flagged.
+
+2. **[HIGH] Upstream API Quota Exhaustion via Cache Miss** — With broken scheduler invalidation and process-local SimpleCache, each Gunicorn worker will independently exhaust upstream rate limits. This is a reliability issue with security implications (service availability). Both models flagged.
+
+3. **[MEDIUM] Undocumented Endpoint Dependency** — Reliance on undocumented government API creates potential for supply-chain-style disruption if the endpoint is repurposed, monitored, or blocked. Both models flagged.
+
+4. **[MEDIUM] Demo Mode Data Boundary** — Possible unintentional data exposure in free-tier responses (BTC price). Grok only.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
 
-Items mentioned by 2+ models as missing from a truly world-class intelligence product:
+Items mentioned by 2+ models that separate this from a truly world-class implementation:
 
-### Gap 1 — No Centralized Observability for Data Pipeline Health
-Both models recommended monitoring/alerting for the `efts.house.gov` endpoint (U3) and the `SCHEMA_DRIFT` warning path. A world-class implementation would have a dedicated data pipeline health dashboard: green/yellow/red status for each upstream source (efts.house.gov, CoinGecko, mempool.space), with automated Slack/PagerDuty alerts on degradation. Currently there is no evidence this exists.
+1. **No production-grade shared cache (both models):** A world-class real-time intelligence dashboard cannot use a process-local in-memory cache. Redis with appropriate TTL strategies, cache warming on startup, and cache-aside patterns is the minimum bar.
 
-### Gap 2 — No Process-Safe State Management
-Both models independently converged on the same architectural gap: the application was designed for single-process execution and has never been hardened for production multi-process deployment. A world-class platform running on Gunicorn would have Redis as a first-class infrastructure dependency from day one, not a retrofit.
+2. **No API rate limiting enforcement (both models):** A world-class product protects its upstream API budget and its own infrastructure. The absence of any enforced rate limits is not just a security gap — it signals the feature was never production-hardened.
 
-### Gap 3 — Placeholder/Fallback Data Quality Assurance
-Both models flagged that fallback data is not held to the same quality standard as live data. A world-class intelligence platform would maintain a curated, version-controlled set of golden sample records (real historical disclosures with verified dates, tickers, and amounts) that serve as both the fallback dataset and the integration test fixtures. This eliminates both the misleading-date problem and the risk of test fixtures diverging from real data structure.
+3. **Silent failure modes throughout (both models):** The broken scheduler, the non-functional circuit breaker, the ImportError in cache invalidation — these all fail silently. A world-class system emits structured alerts, updates a health dashboard, and pages on-call when critical subsystems malfunction. None of this exists.
+
+4. **No schema validation on upstream APIs (both models):** Third-party APIs change. A world-class integration validates the contract on every response and fails loudly when the contract breaks, rather than silently producing corrupt data.
 
 ---
 
@@ -205,41 +265,32 @@ Both models flagged that fallback data is not held to the same quality standard 
 
 | Priority | Change | File:Line | Models | Why |
 |---|---|---|---|---|
-| **P0 CRITICAL** | Replace `_rate_limit_store` dict with Redis-backed `Flask-Limiter` | `core/blueprints/panopticon.py:29, 36–63` | both | Multi-worker bypass renders rate limiting non-functional; directly exploitable |
-| **P0 CRITICAL** | Replace `_cache` dict with Redis + TTL via `Flask-Caching[redis]`; remove `_cache_lock` | `services/panopticon_service.py:35–72` | both | Non-shared cache multiplies upstream API calls by worker count; scheduler cache-warming is currently a no-op |
-| **P0 CRITICAL** | Replace future-dated placeholder records with real, verifiable historical congressional disclosures | `services/panopticon_service.py:296–364` | both (Gemini CRITICAL, Grok HIGH) | Presenting future dates as historical data destroys product credibility; tiebreaker favors CRITICAL |
-| **P1 HIGH** | Strengthen `_sanitize_event_summary` with system-prompt-level LLM defense + output validation | `core/blueprints/panopticon.py:115–124` | gemini | Regex blocklist is trivially bypassed; LLM output displayed to all users = stored prompt injection risk |
-| **P1 HIGH** | Add external monitoring/alerting for `efts.house.gov` endpoint health and `SCHEMA_DRIFT` log spikes | `services/panopticon_service.py:193` | both | Undocumented endpoint is primary data source with no SLA; silent failures degrade product to placeholder-only mode with no notification |
-| **P1 HIGH** | Verify and document Redis EXPIRE on all rate-limiter keys to prevent memory leak and ensure data minimization | `core/blueprints/panopticon.py:29` (post-fix) | gemini (unique, but consequence of P0) | Without TTL, IP store grows unboundedly; GDPR/CCPA data minimization also requires bounded retention |
-| **P1 HIGH** | Add financial advice disclaimer to all Panopticon template views | `templates/panopticon.html` | synthesized from legal review | LLM summaries of congressional trades without disclaimer risks regulatory exposure |
-| **P2 MEDIUM** | Fix rate-limiter key to use canonical resource name, not raw `request.path` | `core/blueprints/panopticon.py:44` | gemini | Aliased routes give users double the effective rate limit |
-| **P2 MEDIUM** | Validate that post-Redis-migration, scheduler cache writes are readable by web worker processes | `services/scheduler.py:607` | gemini | Cache-warming was previously a no-op; must be explicitly verified post-fix |
-| **P2 MEDIUM** | Refactor redundant dual-key caching between `fetch_disclosures` and `fetch_stock_act_disclosures` | `services/panopticon_service.py:182, 269` | gemini | Same data stored under two keys creates cache coherence risk |
-| **P2 MEDIUM** | Audit demo mode to determine whether live upstream calls (`get_btc_price()`) should be suppressed entirely | `services/panopticon_service.py:1014–1038` | grok | Demo mode should not consume upstream API quota; investigate timing side-channel |
-| **P2 MEDIUM** | Add `CFAA`/ToS legal review for efts.house.gov scraping prior to public launch | `services/panopticon_service.py:193` | synthesized | Government server scraping without authorization documentation is a legal gray zone |
+| **P0 CRITICAL** | Apply `@_get_limiter().limit()` decorators to ALL API route handlers | `core/blueprints/panopticon.py:181, 203, 233` and all subsequent API routes | Both | Direct DoS vector; upstream API quota exhaustion; system is completely unprotected |
+| **P0 CRITICAL** | Replace `SimpleCache` with Redis-backed Flask-Caching for production | `services/panopticon_service.py:52` | Both | Multi-worker cache stampedes; redundant upstream calls; service degradation under load |
+| **P0 CRITICAL** | Fix scheduler cache invalidation — correct import name and target correct cache instance | `services/scheduler.py:607–637` | Gemini (unique, confirmed critical) | ImportError causes silent failure; scheduled refresh tasks are entirely non-functional |
+| **P1 HIGH** | Replace undocumented `efts.house.gov/LATEST/search-index` health check with stable HEAD request | `services/panopticon_service.py:1407–1441, line 1414` | Both | Undocumented endpoint can change without notice; health check produces unreliable signals |
+| **P1 HIGH** | Update fallback data banner to explicitly state data is historical, not live | `templates/panopticon.html:1294–1297` | Both | Users may make decisions based on data they believe is recent; trust and accuracy risk |
+| **P1 HIGH** | Add active response to circuit breaker (set open flag, alert admin) | `services/panopticon_service.py:1403–1405` | Grok (unique, validated) | Counter increments but system continues hammering failing endpoint; no operator notification |
+| **P1 HIGH** | Add explicit timeout and retry logic to Anthropic API call | `services/panopticon_service.py:1346–1389` | Grok (unique, validated) | Hanging requests degrade dashboard UX; no retry on transient 5xx |
+| **P2 MEDIUM** | Fix CSS variable brand palette violations | `templates/panopticon.html:15, 23` | Both | LAW 1 violation; `--pn-bg:#000` and `--pn-red:#ff3b5f` both incorrect |
+| **P2 MEDIUM** | Implement `pydantic` schema validation on QuiverQuant API response | `services/panopticon_service.py:319–349` | Both | Silent failures or corrupt data if upstream changes field names or structure |
+| **P2 MEDIUM** | Investigate and resolve BTC price exposure in demo mode | `core/blueprints/panopticon.py:80` | Grok (unique) | May be intentional but violates stated redaction design intent; needs explicit decision |
 
 ---
 
 ## CYCLE 2 VERDICT
 
-**This code is NOT production-ready.**
+**Production Ready: NO**
 
-Two independent AI models reached full consensus on three separate architectural failures, any one of which would constitute a production incident within hours of deployment:
+This code has three P0 blockers that must be resolved before any production deployment:
 
-1. The rate limiter does not function in a multi-worker environment.
-2. The cache does not function in a multi-worker environment.
-3. The primary fallback dataset contains factually impossible data.
+1. **Zero API rate limiting** — the protection infrastructure exists but was never wired up. This is a single-line-per-route fix with outsized impact.
+2. **Process-local cache in a multi-worker environment** — this is a known, self-documented issue in the codebase that was never resolved. It will cause service degradation immediately upon multi-worker deployment.
+3. **Broken scheduler cache invalidation** — a silent `ImportError` means the entire proactive refresh system is non-operational. This is particularly insidious because the system *appears* to have scheduled refresh capability.
 
-The first two failures share a single root cause — the entire state management layer was designed for single-process execution and has never been adapted for production deployment. This is not a bug in a corner case; it is a fundamental architectural assumption that is wrong for any real hosting environment.
+**Confidence note:** With GPT-4o unavailable, this consensus is based on 2 of 3 models. The findings on P0 items are high-confidence because both available models independently identified them. Law compliance coverage is incomplete and a full CSS audit pass against `VISUAL_DESIGN_SYSTEM.md` is warranted. If GPT-4o becomes available, a targeted Cycle 3 review of the template layer and law compliance is recommended.
 
-The third failure is an independent data integrity issue that would immediately damage user trust in the product's most prominent intelligence claim.
-
-**Absolute final blockers before any production deployment:**
-- Redis must be a running infrastructure dependency.
-- `_rate_limit_store` and `_cache` must be fully migrated to Redis.
-- All placeholder records must use real historical dates.
-
-The P1 items (LLM prompt injection, endpoint monitoring, financial disclaimer) are not launch blockers for a private beta but must be resolved before public launch.
+The architectural bones are sound — the fallback system, the QuiverQuant integration choice, the circuit breaker concept, and the tiered access model are all correct decisions. The gaps are in hardening, not in design. Estimated remediation: 1–2 focused engineering sessions.
 
 ---
 
@@ -250,103 +301,94 @@ Read ~/protocol_pulse/docs/gospels/VISUAL_DESIGN_SYSTEM.md.
 Read ~/protocol_pulse/docs/audits/panopticon_CONSENSUS_C2.md.
 
 This is the FINAL PASS for panopticon.
-The first build was reviewed by 2 independent AI models across 2 cycles.
-Implement every P0 and P1 item from the consensus. Use judgment on P2.
+The first build was reviewed by 2 independent AI models (Gemini 2.5 Pro, Grok-3)
+across 2 cycles. Implement every P0 and P1 item from the consensus. Use judgment on P2.
 
 PRIORITY ACTION PLAN:
-
-P0 CRITICAL | Replace `_rate_limit_store` dict with Redis-backed Flask-Limiter | core/blueprints/panopticon.py:29,36–63 | models: both | Multi-worker bypass renders rate limiting non-functional
-P0 CRITICAL | Replace `_cache` dict with Redis+TTL via Flask-Caching[redis]; remove _cache_lock | services/panopticon_service.py:35–72 | models: both | Non-shared cache multiplies upstream API calls; scheduler cache-warming is currently a no-op
-P0 CRITICAL | Replace future-dated placeholder records with real verifiable historical congressional disclosures | services/panopticon_service.py:296–364 | models: both | Future dates presented as historical data destroys product credibility
-P1 HIGH     | Strengthen _sanitize_event_summary with system-prompt LLM defense + output validation | core/blueprints/panopticon.py:115–124 | models: gemini | Regex blocklist bypassed; LLM output rendered to all users = stored prompt injection
-P1 HIGH     | Add external monitoring/alerting for efts.house.gov endpoint health and SCHEMA_DRIFT log spike thresholds | services/panopticon_service.py:193 | models: both | Undocumented endpoint is primary data source; silent failure degrades to placeholder with no alert
-P1 HIGH     | Ensure all Redis rate-limiter keys are set with EXPIRE (TTL) to prevent memory leak and satisfy data minimization | core/blueprints/panopticon.py:29 post-fix | models: gemini | Unbounded growth; GDPR/CCPA data minimization requires bounded retention
-P
 
 ---
 
 # WINNER DETERMINATION
 
-# FINAL AUDIT VERDICT
-
 ## WINNER: **Gemini**
 
-Gemini consistently demonstrated superior analytical depth across both cycles, correctly identifying the multi-process state vulnerability as an *architectural* flaw rather than merely a code-level bug, and uniquely surfaced the misleading future-dated placeholder data as a data integrity and user trust failure — a finding sharp enough that Grok explicitly credited it in Cycle 2 and the consensus engine upgraded the severity rating based on Gemini's rationale alone. Its recommendations were more specific, better cited, and more actionable than Grok's, and it caught issues that required a second pass from Grok to validate.
+Gemini delivered the highest-quality analysis across both cycles. In Cycle 1, it proactively cross-referenced Governing Laws before addressing the five questions — catching the brand palette violation that both other models missed entirely — while simultaneously identifying the two most critical architectural flaws (non-functional rate limiting, process-local cache) with precise file/line citations. In Cycle 2, it demonstrated intellectual honesty by explicitly naming what it missed and why, provided the most concrete user-transparency fix (specific banner text language), and its Cycle 1 findings were validated unanimously by the consensus report, confirming the highest accuracy rate of any single model.
 
----
+**Runner-up: Grok** — Strongest on circuit breaker / upstream failure handling and the Demo Mode data leak, which Gemini missed entirely and which earned an "INVESTIGATE" flag in consensus. Grok's `pydantic` schema validation suggestion was more actionable than Gemini's generic recommendation.
 
-## SCORING BREAKDOWN
-
-| Criterion | Gemini | Grok | GPT-4o |
-|---|---|---|---|
-| **Accuracy** — Cycle 1 findings validated in Cycle 2 | ✅ Strong — multi-process flaw, placeholder dates both confirmed | ✅ Adequate — confirmed same core findings | ❌ Did not complete |
-| **Depth** — Issues others missed | ✅ Unique: future-dated placeholder = trust failure; upgraded consensus severity | ⚠️ Missed placeholder date issue until Gemini raised it | ❌ N/A |
-| **Actionability** — Specific, implementable recommendations | ✅ Named specific libraries (Flask-Limiter + Redis), provided code examples | ⚠️ Identified problems clearly but recommendations were less prescriptive | ❌ N/A |
-| **Completeness** — Full section coverage | ✅ Covered all five questions with line citations | ⚠️ Covered all sections but missed LLM prompt injection scoring | ❌ N/A |
+**GPT-4o: Disqualified** — Token limit failure; no scoreable output in either cycle.
 
 ---
 
 ## FINAL SECOND-PASS PRIORITY LIST
 
-*Definitive ordered implementation sequence. Do not reorder — dependencies flow top to bottom.*
+Definitive ordered implementation list, synthesized from both cycles, all models, and the consensus report. Items marked 🔴 CRITICAL must block any production deployment.
 
 ---
 
-### 🔴 P0 — PRODUCTION BLOCKERS (Deploy nothing until resolved)
+### 🔴 TIER 1 — PRODUCTION BLOCKERS (Implement before any deployment)
 
-**P0-1 — Replace In-Memory Rate Limiter with Redis-Backed Flask-Limiter**
-- **File:** `core/blueprints/panopticon.py:29, 36–63`
-- **Why first:** Security bypass risk scales linearly with worker count. Every additional Gunicorn worker multiplies attacker advantage. This is the single highest-severity exploitable flaw.
-- **Action:** Remove `_rate_limit_store` dict entirely. Install `Flask-Limiter`, configure `storage_uri="redis://localhost:6379"`, apply `@limiter.limit("60/minute")` to all panopticon routes.
+**1. [U1] Apply Rate Limit Decorators to All API Routes**
+- **File:** `core/blueprints/panopticon.py`, lines 181, 203, 233, and all API routes through ~line 316
+- **Action:** Apply `@limiter.limit()` decorators with tiered limits by endpoint cost. High-cost endpoints (AI analysis, whale alerts) get tighter limits than low-cost status endpoints. The infrastructure already exists — it is simply never activated.
+- **Why first:** Every API endpoint is currently completely unprotected. A single malicious or misconfigured client can exhaust all upstream API quotas (QuiverQuant, Anthropic) in seconds, taking down the entire service.
 
-**P0-2 — Replace In-Memory Cache with Redis-Backed Shared Cache**
-- **File:** `services/panopticon_service.py:35–72`
-- **Why second:** Without shared cache, every worker independently hammers `efts.house.gov`, multiplying upstream request volume by worker count. Given the undocumented API (see P1-1), this is the most direct path to an IP ban that takes the entire feature offline.
-- **Action:** Replace `_cache` dict with `flask_caching` configured against Redis (`CACHE_TYPE="redis"`). Set TTL to match current in-memory TTL values.
+**2. [U2] Replace Process-Local Cache with Distributed Cache**
+- **File:** `services/panopticon_service.py`, lines 34–120
+- **Action:** Replace `SimpleCache` with Redis (via `flask-caching` with `RedisCache` backend). All cache keys, TTLs, and invalidation logic already exist — only the backend needs to swap. Add a `CACHE_TYPE=redis` config path with a `SimpleCache` fallback for local dev only.
+- **Why second:** In any multi-worker deployment (gunicorn, uvicorn, k8s), each worker maintains an independent cache. Every worker misses every other worker's cached data, multiplying upstream API calls by the worker count and defeating all rate-limit budgeting.
 
----
-
-### 🟠 P1 — HIGH SEVERITY (Must resolve before any user-facing traffic)
-
-**P1-1 — Document and Monitor the Undocumented efts.house.gov Endpoint**
-- **File:** `services/panopticon_service.py:193`
-- **Why here:** `https://efts.house.gov/LATEST/search-index` is an internal frontend search endpoint, not a public API. It carries zero uptime or schema guarantees. P0-2 reduces hammering risk, but schema breakage remains a silent failure mode.
-- **Action:** (a) Add a nightly canary request that validates response shape and alerts on schema drift. (b) Document the endpoint's assumed contract in a `THIRD_PARTY_APIS.md` file. (c) Set a hard circuit-breaker: if 3 consecutive requests fail schema validation, fall back gracefully and page on-call.
-
-**P1-2 — Purge or Correct Future-Dated Placeholder Data**
-- **File:** `services/panopticon_service.py:296–364` (`_generate_disclosure_placeholders`)
-- **Why here:** Placeholder records dated in the future (e.g., "2025-09-15" from a 2026 system clock) will surface in an "intelligence" dashboard as apparently real disclosures. This is a data integrity failure that directly undermines the product's trust proposition — users making decisions on this data face active harm.
-- **Action:** (a) Replace all hardcoded future dates with `datetime.utcnow().date()` or clearly labeled mock dates. (b) Add a prominent `[PLACEHOLDER — NOT REAL DATA]` flag to every generated record. (c) Add a unit test that asserts no placeholder date exceeds `datetime.utcnow()`.
-
-**P1-3 — Harden LLM Prompt Injection Defense**
-- **Severity:** HIGH (Gemini scored; Grok did not score — treat as single-model finding requiring verification)
-- **Action:** Audit all user-supplied strings passed to LLM prompt templates. Wrap inputs in explicit delimiter blocks (e.g., `[USER INPUT START]...[USER INPUT END]`). Add an output validation layer that rejects responses containing instruction-like patterns before rendering.
+**3. [U3] Fix Scheduler Cache Invalidation**
+- **File:** Scheduler registration code (consensus-flagged CRITICAL, Gemini primary finding)
+- **Action:** Ensure the background scheduler invalidates the shared cache (Redis after fix #2), not a process-local reference. Verify the scheduler runs in exactly one worker process, not one per worker. Use a distributed lock (Redis `SET NX`) to enforce single-scheduler execution.
+- **Why third:** A scheduler that invalidates a local cache nobody else reads, or that runs N times across N workers, produces either stale data for all users or N× the upstream API call volume.
 
 ---
 
-### 🟡 P2 — MEDIUM SEVERITY (Resolve within first sprint post-launch)
+### 🟠 TIER 2 — HIGH SEVERITY (Implement within first sprint post-launch)
 
-**P2-1 — Strengthen Schema Fallback in `_extract_asset_from_hit`**
-- **File:** `services/panopticon_service.py:242–259`
-- **Why:** The final fallback — searching a full JSON dump for keywords — is O(n) on record size and produces false positives. This degrades data quality silently.
-- **Action:** Replace keyword scan with a structured `SCHEMA_DRIFT` alert that increments a Prometheus counter and returns `None` rather than a guessed value. Treat `SCHEMA_DRIFT` alerts as a trigger to update the parser.
+**4. [H1] Congressional Data Fetching — Undocumented Endpoint Risk**
+- **File:** `services/panopticon_service.py`, lines 1414–1415
+- **Action:** Replace the undocumented `efts.house.gov/LATEST/search-index?q=bitcoin&page[size]=1` health check with the officially documented House Disclosure search endpoint. Document the chosen endpoint's rate limits explicitly in code comments. Add a circuit breaker (see item #6) around this call.
+- **Why:** The health check currently validates system status against an endpoint that can change schema or disappear without notice, producing false-healthy status readings.
 
-**P2-2 — Add Explicit Rate Limit Documentation for efts.house.gov**
-- **File:** `services/panopticon_service.py:76–98`
-- **Why:** The courtesy sleep (0.5s) and backoff are reasonable guesses against an undocumented endpoint. If the real limit is lower, the current implementation will cause bans; if higher, it's unnecessarily slow.
-- **Action:** Instrument all outbound requests with latency and HTTP 429 metrics. If 429s appear, back off aggressively and alert. Document the assumed limits in code comments with a "last validated" date.
+**5. [H2] Fallback Data Transparency — User-Facing Banner**
+- **File:** `templates/panopticon.html`, line 1295
+- **Action:** Replace the current fallback banner with explicit language: *"LIVE DATA UNAVAILABLE — Displaying a static set of verified historical examples. Figures do not reflect current positions."* Add a timestamp of when the fallback was activated. Color-code the banner distinctly from the live-data state (use `--pn-gold` warning color, not the standard surface color).
+- **Why:** Users currently cannot distinguish live data from historical fallback data. In a financial intelligence dashboard, this is a material transparency failure and a potential regulatory liability.
+
+**6. [H3] Circuit Breaker for All Upstream API Calls**
+- **File:** `services/panopticon_service.py`, all external HTTP call sites
+- **Action:** Wrap QuiverQuant, `efts.house.gov`, and Anthropic API calls with a circuit breaker pattern (use `pybreaker` or implement manually with Redis state). After N consecutive failures, open the circuit, serve cached/fallback data immediately, and retry on a backoff schedule rather than hammering a failing upstream.
+- **Why:** Currently, upstream failures cause cascading timeouts on every user request. The fallback exists but is only reached after full timeout exhaustion, degrading UX and wasting resources.
+
+**7. [H4] Add Schema Validation on All External API Responses**
+- **File:** `services/panopticon_service.py`, QuiverQuant response parsing (~line 319)
+- **Action:** Define `pydantic` models for QuiverQuant disclosure responses and Anthropic API responses. Validate on ingest. On `ValidationError`, log the full raw response at WARNING level and route to fallback — do not propagate a `KeyError` or `TypeError` to the user.
+- **Why (Grok's specific recommendation validated):** Schema changes from external APIs are silent failures under the current implementation. `pydantic` makes the contract explicit and failures observable.
 
 ---
 
-### 🟢 P3 — LOW SEVERITY / HYGIENE (Resolve before v1.1)
+### 🟡 TIER 3 — MEDIUM SEVERITY (Implement within first two sprints)
 
-**P3-1 — Add Integration Tests for Multi-Worker Behavior**
-- Spin up a 2-worker test instance. Assert that a single user cannot exceed the rate limit across workers. Assert that cache is shared. These tests would have caught P0-1 and P0-2 at development time.
+**8. [M1] Brand Palette Compliance — CSS Variables**
+- **File:** `templates/panopticon.html`, lines 15–27
+- **Action:**
+  ```css
+  --pn-bg: #0A0A0F;   /* was #000 — violates "never pure black" */
+  --pn-red: #CC2222;  /* was #ff3b5f — violates Primary Red spec */
+  --pn-red-dim: rgba(204, 34, 34, 0.12); /* adjust to match */
+  ```
+- **Why:** Violates LAW 1 of Governing Laws. Pure black backgrounds and off-spec reds will cause visual inconsistency if any shared component library or future template references the canonical palette.
 
-**P3-2 — Batch Warning Threshold Tuning**
-- **File:** `services/panopticon_service.py:278–285`
-- The 80% "See filing" batch warning threshold is arbitrary. Instrument it, observe real production distributions, and set the threshold based on empirical data.
+**9. [M2] Demo Mode Data Leak Investigation**
+- **File:** Flagged by Grok, consensus status: INVESTIGATE
+- **Action:** Audit all routes for conditional logic gated on a `demo_mode` flag. Verify that demo mode cannot be activated by a client-supplied parameter (query string, cookie, header). Ensure demo data cannot be served to authenticated non-demo users due to a flag precedence bug.
+- **Why:** Grok flagged this; Gemini did not assess it. Until audited, the risk level is unknown. If demo data can be triggered by a client parameter, it is a data integrity vulnerability.
 
----
+**10. [M3] Anthropic API Timeout and Retry Hardening**
+- **File:** `services/panopticon_service.py`, Anthropic API call sites
+- **Action:** Set an explicit `timeout` on all `anthropic` client calls (recommend 30s max). Add a retry wrapper with exponential backoff (max 2 retries) specifically for 529 (overloaded) responses. Do not retry on 4xx errors. Log token usage per call to monitor quota burn rate.
+- **Why:** Anthropic's API has variable latency and overload responses. Without an explicit timeout, a slow Anthropic response holds a worker thread indefinitely, compounding under the multi-worker cache problem identified in item #2.
 
-*End of audit. Overall production readiness remains 3.5/10. Do not deploy until P0-1 and P0-2 are resolved and verified under load.*
+**

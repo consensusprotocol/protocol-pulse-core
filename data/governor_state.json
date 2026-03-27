@@ -1,0 +1,305 @@
+{
+  "slot_index": 4,
+  "history": [
+    {
+      "slot": "market_macro",
+      "title": "Bitcoin Whale Surfaces: 2,100 BTC Moves After 13 Years",
+      "article_id": 160,
+      "published_at": "2026-03-22T11:45:14.767735"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Crypto Collateral: CFTC's New Rules",
+      "article_id": 161,
+      "published_at": "2026-03-22T12:00:16.837720"
+    },
+    {
+      "slot": "regulation",
+      "title": "AI Auditing: Why Humans Aren't Obsolete Yet",
+      "article_id": 162,
+      "published_at": "2026-03-22T12:45:15.258681"
+    },
+    {
+      "slot": "freedom_tech",
+      "title": "Bitcoin Options: Fear and the Surveillance Economy",
+      "article_id": 163,
+      "published_at": "2026-03-22T13:00:19.270386"
+    },
+    {
+      "slot": "lightning",
+      "title": "Bitcoin's Wall Street Tango: A Dangerous Dance",
+      "article_id": 164,
+      "published_at": "2026-03-22T13:45:16.059486"
+    },
+    {
+      "slot": "wildcard",
+      "title": "Brazil's Crypto Tax Debate Hits Election Speedbump",
+      "article_id": 165,
+      "published_at": "2026-03-22T14:00:18.828559"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "When Stablecoins Tumble: Resolv's $25M Blow",
+      "article_id": 166,
+      "published_at": "2026-03-22T14:45:17.013047"
+    },
+    {
+      "slot": "mining_intel",
+      "title": "Bitcoin Miners Turn to AI, Difficulty Drops 7.8%",
+      "article_id": 167,
+      "published_at": "2026-03-22T15:00:19.982955"
+    },
+    {
+      "slot": "market_macro",
+      "title": "Ethereum Whale Makes Bold $19.5M Move",
+      "article_id": 168,
+      "published_at": "2026-03-22T15:45:16.426705"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "The $25 Million Mirage: Resolv's Stablecoin Crisis",
+      "article_id": 169,
+      "published_at": "2026-03-22T16:00:21.757938"
+    },
+    {
+      "slot": "regulation",
+      "title": "AI Tackles Court Chaos in Los Angeles",
+      "article_id": 170,
+      "published_at": "2026-03-22T16:45:18.960757"
+    },
+    {
+      "slot": "freedom_tech",
+      "title": "Surveillance Capitalism and Bitcoin Resilience",
+      "article_id": 171,
+      "published_at": "2026-03-22T17:00:17.818472"
+    },
+    {
+      "slot": "lightning",
+      "title": "From Meme to Nightmare: Hailey Welsh's Crypto Trauma",
+      "article_id": 172,
+      "published_at": "2026-03-22T17:45:15.658841"
+    },
+    {
+      "slot": "wildcard",
+      "title": "Eightco Bets Big on AI with OpenAI Boost",
+      "article_id": 173,
+      "published_at": "2026-03-22T18:00:15.475596"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Fidelity's Crypto Gambit: A Broker-Dealer Bet",
+      "article_id": 174,
+      "published_at": "2026-03-22T18:45:14.117211"
+    },
+    {
+      "slot": "mining_intel",
+      "title": "BitFuFu's Cloud Mining Gamble: A Risky Shift",
+      "article_id": 175,
+      "published_at": "2026-03-22T19:00:16.330079"
+    },
+    {
+      "slot": "market_macro",
+      "title": "Bitcoin's $68K Dip Sparks $400M Liquidations",
+      "article_id": 176,
+      "published_at": "2026-03-22T19:45:14.548563"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "DeFi Dodges a Bullet with USR Exploit",
+      "article_id": 177,
+      "published_at": "2026-03-22T20:00:19.671536"
+    },
+    {
+      "slot": "regulation",
+      "title": "SEC's Crypto Shift: The Gensler Era's Swan Song",
+      "article_id": 178,
+      "published_at": "2026-03-22T20:45:17.394188"
+    },
+    {
+      "slot": "freedom_tech",
+      "title": "White House Crypto Accord: Friend or Foe?",
+      "article_id": 179,
+      "published_at": "2026-03-22T21:00:11.913813"
+    },
+    {
+      "slot": "lightning",
+      "title": "DeFi Drama: $24M Exploit Leaves No Assets Lost",
+      "article_id": 180,
+      "published_at": "2026-03-22T21:45:15.028940"
+    },
+    {
+      "slot": "wildcard",
+      "title": "Bitcoin Steadies as Gold Slips: A Market Split",
+      "article_id": 181,
+      "published_at": "2026-03-22T22:00:18.089570"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Stablecoin Chaos: $25M Vanishes into Ether",
+      "article_id": 182,
+      "published_at": "2026-03-22T22:45:16.669385"
+    },
+    {
+      "slot": "mining_intel",
+      "title": "Bitcoin Mining Faces AI-Driven Exodus",
+      "article_id": 183,
+      "published_at": "2026-03-22T23:00:16.832078"
+    },
+    {
+      "slot": "market_macro",
+      "title": "Crypto ETFs Finally Shed Their Chains",
+      "article_id": 184,
+      "published_at": "2026-03-22T23:45:15.441481"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Impersonation Scam Sparks CoinDCX Controversy",
+      "article_id": 185,
+      "published_at": "2026-03-23T00:00:18.667648"
+    },
+    {
+      "slot": "regulation",
+      "title": "Banks Bet Big on Tokenized Deposits",
+      "article_id": 186,
+      "published_at": "2026-03-23T00:45:13.607212"
+    },
+    {
+      "slot": "freedom_tech",
+      "title": "Crypto Legislation: Liberty or Surveillance?",
+      "article_id": 187,
+      "published_at": "2026-03-23T01:00:18.524405"
+    },
+    {
+      "slot": "lightning",
+      "title": "Crypto Gaming: Dead or Evolving?",
+      "article_id": 188,
+      "published_at": "2026-03-23T01:45:15.772434"
+    },
+    {
+      "slot": "wildcard",
+      "title": "CoinDCX Fraud Allegation: A Case of Mistaken Identity?",
+      "article_id": 189,
+      "published_at": "2026-03-23T02:00:17.706713"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "NYSE's Crypto Options Revolution: The Cap is Gone",
+      "article_id": 190,
+      "published_at": "2026-03-23T02:45:18.348127"
+    },
+    {
+      "slot": "mining_intel",
+      "title": "Bitcoin Mining Faces AI Exodus",
+      "article_id": 191,
+      "published_at": "2026-03-23T03:00:17.375705"
+    },
+    {
+      "slot": "market_macro",
+      "title": "Saylor Gambles Again: $2.9B Bitcoin Bet",
+      "article_id": 192,
+      "published_at": "2026-03-23T03:45:18.206388"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Bitcoin's Resilience Amid Oil Shock",
+      "article_id": 193,
+      "published_at": "2026-03-23T04:00:15.607727"
+    },
+    {
+      "slot": "regulation",
+      "title": "Fidelity's Crypto Clarity Crusade",
+      "article_id": 194,
+      "published_at": "2026-03-23T04:45:15.308319"
+    },
+    {
+      "slot": "freedom_tech",
+      "title": "Bitcoin's Subtle Dance with Volatility",
+      "article_id": 195,
+      "published_at": "2026-03-23T05:00:14.441520"
+    },
+    {
+      "slot": "lightning",
+      "title": "Scaramucci Bets on Bitcoin's Time-Tested Cycle",
+      "article_id": 196,
+      "published_at": "2026-03-23T05:45:17.841281"
+    },
+    {
+      "slot": "wildcard",
+      "title": "AI Could Kill Internet Ads, Says a16z",
+      "article_id": 197,
+      "published_at": "2026-03-23T06:00:16.124495"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "CoinDCX's Identity Crisis Unmasked",
+      "article_id": 198,
+      "published_at": "2026-03-23T07:45:16.458384"
+    },
+    {
+      "slot": "mining_intel",
+      "title": "BitFuFu's Cloud Mining Gamble",
+      "article_id": 199,
+      "published_at": "2026-03-23T08:00:19.517247"
+    },
+    {
+      "slot": "market_macro",
+      "title": "$70M Crypto Bet from Hong Kong's Gaming Giant",
+      "article_id": 200,
+      "published_at": "2026-03-23T08:45:17.445301"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Bithumb Gambles on Controversial CEO Reappointment",
+      "article_id": 201,
+      "published_at": "2026-03-23T09:00:20.119683"
+    },
+    {
+      "slot": "regulation",
+      "title": "Nevada Shuts Down Kalshi: A Legal Earthquake",
+      "article_id": 202,
+      "published_at": "2026-03-23T09:45:22.172888"
+    },
+    {
+      "slot": "freedom_tech",
+      "title": "Decentralized Tools Rise Amidst Global Unrest",
+      "article_id": 203,
+      "published_at": "2026-03-23T10:00:17.580804"
+    },
+    {
+      "slot": "lightning",
+      "title": "Bitcoin's Meteoric Rise Amid Middle East Tensions",
+      "article_id": 204,
+      "published_at": "2026-03-23T21:00:18.351080"
+    },
+    {
+      "slot": "wildcard",
+      "title": "Swedish Bitcoin Firm's Bold Move: Triple or Nothing",
+      "article_id": 205,
+      "published_at": "2026-03-23T23:45:17.589832"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "Ethereum's $10 Billion Bet: What's Next?",
+      "article_id": 206,
+      "published_at": "2026-03-24T00:00:16.899240"
+    },
+    {
+      "slot": "mining_intel",
+      "title": "Biotech to Blockchain: NovaBay's Surprising Leap",
+      "article_id": 207,
+      "published_at": "2026-03-24T00:45:23.430252"
+    },
+    {
+      "slot": "market_macro",
+      "title": "Crypto ETFs Bleed Cash, But Bulls Aren't Flinching",
+      "article_id": 208,
+      "published_at": "2026-03-24T01:00:23.099161"
+    },
+    {
+      "slot": "bitcoin_news",
+      "title": "H100's Bold Move: Tripling Bitcoin Holdings",
+      "article_id": 1,
+      "published_at": "2026-03-24T01:45:15.570276"
+    }
+  ]
+}
