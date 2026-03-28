@@ -64,3 +64,7 @@ video_pipeline_v3/audio_cache/
 # Misc large files
 nohup.out
 video_pipeline_v3/config/youtube_tokens.json
+video_pipeline_v4/output/
+video_pipeline_v4/logs/
+video_pipeline_v4/remotion/node_modules/
+video_pipeline_v4/remotion/public/assets/
