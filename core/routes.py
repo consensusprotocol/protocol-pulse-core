@@ -13942,6 +13942,16 @@ def api_panopticon_sovereign_analysis():
 def api_telemetry():
     return jsonify({'ok': True}), 200
 
+
+@app.route('/video/v4-latest')
+def video_v4_latest():
+    import glob, os
+    from flask import send_file, abort
+    files = sorted(glob.glob('/home/ultron/protocol_pulse/video_pipeline_v4/output/**/*.mp4', recursive=True))
+    full = [f for f in files if os.path.getsize(f) > 10_000_000]
+    if not full: abort(404)
+    return send_file(full[-1], mimetype='video/mp4', as_attachment=False, conditional=True)
+
 @app.route('/video/latest')
 def serve_latest_video():
     import os, glob
