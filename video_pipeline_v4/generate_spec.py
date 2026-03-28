@@ -13,11 +13,11 @@ OUTPUT_PATH = Path(__file__).parent / "episode_spec.json"
 FPS = 30
 
 SEGMENTS = [
-    {"id": "cold_open", "label": "Cold Open", "duration_sec": 4},
-    {"id": "narration", "label": "Market Narration", "duration_sec": 20},
-    {"id": "intelligence", "label": "Intelligence Brief", "duration_sec": 30},
-    {"id": "pip", "label": "Picture-in-Picture Analysis", "duration_sec": 45},
-    {"id": "outro", "label": "Outro", "duration_sec": 15},
+    {"id": "cold_open", "label": "Cold Open", "duration_seconds": 4},
+    {"id": "narration", "label": "Market Narration", "duration_seconds": 20},
+    {"id": "intelligence", "label": "Intelligence Brief", "duration_seconds": 30},
+    {"id": "pip", "label": "Picture-in-Picture Analysis", "duration_seconds": 45},
+    {"id": "outro", "label": "Outro", "duration_seconds": 15},
 ]
 
 
@@ -31,13 +31,13 @@ def generate():
     difficulty = signals.get("difficulty_adjustment", {})
     signal_score = signals.get("signal_score", {})
 
-    total_frames = sum(s["duration_sec"] * FPS for s in SEGMENTS)
+    total_frames = sum(s["duration_seconds"] * FPS for s in SEGMENTS)
 
     spec = {
         "date": today,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "fps": FPS,
-        "total_duration_sec": sum(s["duration_sec"] for s in SEGMENTS),
+        "total_duration_sec": sum(s["duration_seconds"] for s in SEGMENTS),
         "total_frames": total_frames,
         "signals": {
             "btc_price": btc_price.get("value"),
@@ -53,11 +53,11 @@ def generate():
 
     frame_offset = 0
     for seg in SEGMENTS:
-        frames = seg["duration_sec"] * FPS
+        frames = seg["duration_seconds"] * FPS
         spec["segments"].append({
             "id": seg["id"],
             "label": seg["label"],
-            "duration_sec": seg["duration_sec"],
+            "duration_seconds": seg["duration_seconds"],
             "frames": frames,
             "from_frame": frame_offset,
             "to_frame": frame_offset + frames,
