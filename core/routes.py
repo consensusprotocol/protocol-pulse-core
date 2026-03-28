@@ -1768,7 +1768,18 @@ def article_detail(article_id):
     if not key_takeaways_bullets and key_takeaways_text:
         key_takeaways_bullets = [key_takeaways_text]
     body_html = _article_body_without_tldr(article.content or "")
+    # Resolve and SAVE image to DB if missing (fixes blank images on detail page)
     header_image_url = article.resolve_cover_image() if hasattr(article, 'resolve_cover_image') else (article.cover_image_url or article.header_image_url or "/static/images/default-header.png")
+    if not header_image_url or header_image_url == "/static/images/default-header.png":
+        try:
+            from services.image_search import get_article_image
+            fetched = get_article_image(article.title, article.category or "bitcoin")
+            if fetched and fetched != "/static/images/default-header.png":
+                header_image_url = fetched
+                article.cover_image_url = fetched
+                db.session.commit()
+        except Exception:
+            pass
 
     # P3 Affiliate CTA injection — contextual, AI-classified, privacy-first
     affiliate_cta = None
