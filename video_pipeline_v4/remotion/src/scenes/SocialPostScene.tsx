@@ -37,7 +37,7 @@ export const SocialPostScene: React.FC<SocialPostSceneProps> = ({
   // Ken Burns: slow left→right pan, 0→40px
   const panX = interpolate(
     frame,
-    [0, segment.duration_seconds * FPS],
+    [0, Math.max((segment.duration_seconds ?? 15) * FPS, 1)],
     [0, 40],
     { extrapolateRight: "clamp" }
   );

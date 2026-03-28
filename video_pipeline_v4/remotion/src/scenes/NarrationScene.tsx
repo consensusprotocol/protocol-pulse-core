@@ -33,7 +33,7 @@ export const NarrationScene: React.FC<NarrationSceneProps> = ({
   // Chart Ken Burns
   const chartScale = interpolate(
     frame,
-    [0, segment.duration_seconds * FPS],
+    [0, Math.max((segment.duration_seconds ?? 15) * FPS, 1)],
     [1.0, 1.02],
     { extrapolateRight: "clamp" }
   );

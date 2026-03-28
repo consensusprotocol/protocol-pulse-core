@@ -48,7 +48,7 @@ function buildTimeline(spec: EpisodeSpec): {
 
   for (let i = 0; i < spec.segments.length; i++) {
     const seg = spec.segments[i];
-    const durationFrames = Math.round(seg.duration_seconds * FPS);
+    const durationFrames = Math.round((seg.duration_seconds ?? 15) * FPS);
 
     // Insert GlitchCut between segments (dedup: skip if within 60 frames)
     if (i > 0 && currentFrame - lastTransitionFrame >= GLITCH_DEDUP_FRAMES) {

@@ -31,7 +31,7 @@ export const IntelligenceScene: React.FC<IntelligenceSceneProps> = ({
   // Chart Ken Burns: 1.0→1.02 zoom
   const chartScale = interpolate(
     frame,
-    [0, segment.duration_seconds * FPS],
+    [0, Math.max((segment.duration_seconds ?? 15) * FPS, 1)],
     [1.0, 1.02],
     { extrapolateRight: "clamp" }
   );

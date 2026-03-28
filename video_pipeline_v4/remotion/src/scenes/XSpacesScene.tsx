@@ -43,7 +43,7 @@ export const XSpacesScene: React.FC<XSpacesSceneProps> = ({ segment }) => {
   const scrollY = transcriptLength > 500
     ? interpolate(
         frame,
-        [0, segment.duration_seconds * FPS],
+        [0, Math.max((segment.duration_seconds ?? 15) * FPS, 1)],
         [0, -(transcriptLength / 3)],
         { extrapolateRight: "clamp" }
       )
