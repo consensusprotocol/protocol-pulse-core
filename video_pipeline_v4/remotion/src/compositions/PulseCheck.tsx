@@ -48,7 +48,7 @@ function buildTimeline(spec: EpisodeSpec): {
 
   for (let i = 0; i < spec.segments.length; i++) {
     const seg = spec.segments[i];
-    const durationFrames = Math.round((seg.duration_seconds ?? 15) * FPS);
+    const durationFrames = Math.round(Math.max((seg.duration_seconds ?? 15) * FPS, 1));
 
     // Insert GlitchCut between segments (dedup: skip if within 60 frames)
     if (i > 0 && currentFrame - lastTransitionFrame >= GLITCH_DEDUP_FRAMES) {
@@ -174,16 +174,45 @@ export const RemotionRoot: React.FC = () => {
   );
 };
 
+/** Normalize raw spec from generate_spec.py → EpisodeSpec shape */
+function normalizeSpec(raw: Record<string, unknown>): EpisodeSpec {
+  const signals = (raw.signals ?? {}) as Record<string, unknown>;
+  const hashRaw = signals.hashrate ?? raw.hashrate ?? 0;
+  return {
+    date: (raw.date as string) ?? "unknown",
+    btc_price:
+      (raw.btc_price as number) ??
+      (signals.btc_price as number) ??
+      0,
+    fear_greed:
+      (raw.fear_greed as EpisodeSpec["fear_greed"]) ?? {
+        value: (signals.fear_greed_value as number) ?? 50,
+        label: (signals.fear_greed_label as string) ?? "Neutral",
+      },
+    hashrate:
+      (raw.hashrate as number) ??
+      (typeof hashRaw === "string"
+        ? parseFloat(hashRaw) || 0
+        : (hashRaw as number)),
+    etf_flow: (raw.etf_flow as string) ?? (signals.etf_flow as string),
+    mempool_fees:
+      (raw.mempool_fees as string) ?? (signals.mempool_fees as string),
+    halving_countdown:
+      (raw.halving_countdown as string) ??
+      (signals.halving_countdown as string),
+    episode_title: raw.episode_title as string,
+    segments: (raw.segments as Segment[]) ?? [],
+  };
+}
+
 const PulseCheckWrapper: React.FC<PulseCheckProps> = () => {
-  // In render mode, the spec is loaded via inputProps.
-  // In preview mode, use the default spec.
   const inputProps = getInputProps();
   let spec: EpisodeSpec;
 
   try {
     const specData = inputProps as Record<string, unknown>;
     if (specData?.spec && typeof specData.spec === "object") {
-      spec = specData.spec as EpisodeSpec;
+      spec = normalizeSpec(specData.spec as Record<string, unknown>);
     } else {
       spec = DEFAULT_SPEC;
     }
