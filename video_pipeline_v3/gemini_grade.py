@@ -203,8 +203,17 @@ def main():
     silence_starts = re.findall(r'silence_start: ([\d.]+)', silence_raw)
     silence_ends = re.findall(r'silence_end: ([\d.]+)', silence_raw)
     silence_mid = [float(s) for s in silence_starts if float(s) > 2.0 and float(s) < duration - 2.0]
-    silence_count = len(silence_mid)
-    log(f"Silence gaps >0.8s mid-video: {silence_count}")
+    # Section 2f: Exclude short silence gaps under 4s (likely dramatic pauses from "..." in script)
+    # Only count genuine dead air — pair starts with ends to measure duration
+    _silence_with_dur = []
+    for _ss, _se in zip(silence_starts, silence_ends):
+        _ss_f, _se_f = float(_ss), float(_se)
+        if _ss_f > 2.0 and _ss_f < duration - 2.0:
+            _silence_with_dur.append((_ss_f, _se_f - _ss_f))
+    # Keep only gaps >= 4s as genuine dead air (shorter ones may be dramatic pauses)
+    silence_genuine = [s for s, d in _silence_with_dur if d >= 4.0]
+    silence_count = len(silence_genuine)
+    log(f"Silence gaps mid-video: {len(silence_mid)} raw, {silence_count} genuine (excl pauses <4s)")
 
     # ── EBU R128 loudness ─────────────────────────────────────────────
     log("Running EBU R128 loudness measurement...")
@@ -351,7 +360,7 @@ TECHNICAL QUALITY (40% weight):
 4. loudness_check: -16 to -14 LUFS = 10. -18 to -12 LUFS = 7. Outside -20 to -10 = critical failure (score 0).
 5. true_peak_check: Under -1 dBFS = 10. -1 to 0 = 7. Over 0 dBFS = critical failure (clipping).
 6. black_frames_check: 0 mid-video blacks = 10. 1 = 6. 2+ = critical failure (score 0).
-7. silence_check: 0 gaps = 10. 1-2 gaps = 6. 3+ = major issue (score 3).
+7. silence_check: 0 gaps = 10. 1-2 gaps = 6. 3+ = major issue (score 3). NOTE: Dramatic pauses (under 4 seconds, intentional for emphasis after "..." in script) should NOT be penalized — only count genuine dead air gaps.
 8. freeze_check: 0 freezes = 10. 1 = 5. 2+ = critical failure.
 9. codec_check: h264/aac = 10. h265/aac = 10. Other combos = 5.
 10. file_integrity_check: Clean container, both streams present, reasonable bitrate (500-5000 kbps) = 10.

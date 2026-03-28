@@ -38,7 +38,8 @@ async def capture_chart(chart_key: str, width=1920, height=1080) -> str:
         page = await browser.new_page(viewport={"width": width, "height": height})
 
         await page.goto(url, wait_until="networkidle", timeout=30000)
-        await page.wait_for_timeout(4000)
+        # Session fix 6b: Increased settle time to reduce chart jitter
+        await page.wait_for_timeout(6000)
 
         # Hide UI chrome — we want just the chart
         await page.evaluate("document.querySelectorAll('.tv-header, .tv-main-panel__toolbar, .chart-gui-wrapper .toolbar-top, .chart-controls-bar').forEach(e => { if (e) e.style.display = 'none'; });")

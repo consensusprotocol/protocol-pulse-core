@@ -115,6 +115,8 @@ NOSTR_SPAM_TERMS = [
     'teenage', 'teenagegirls', '#nolimit', 'FolloFFFFvh', 'RssazZZZ',
     'altcoin', 'memecoin', '#solana', '#ethereum', '#eth ', '#nft',
     'airdrop', 'shitcoin', 'presale', 'pump it',
+    # Session fix 8c: Filter Nick Szabo references (contested attribution, editorial risk)
+    'nick szabo', 'szabo',
 ]
 NOSTR_SPAM_NPUBS = ['npub1a1c6869a', '50514b']
 
@@ -1163,12 +1165,17 @@ def fetch_youtube_thumbnail(clip_info: dict) -> str:
 
 # ── PiP preview for narration segments ──────────────────────────────────────
 
-def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) -> str:
+def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0,
+                     position_pct: float = 0.5) -> str:
     """Extract a muted PiP preview clip for overlay during narration.
 
     Issue 2: 820x462 PiP (right 40% panel), positioned at x=1056, y=200.
     ACTUAL VIDEO playing (muted), not static image with pan.
     Thin 2px white border at 30% opacity.
+
+    Args:
+        position_pct: Where in the clip to extract from (0.0=start, 0.5=mid, 1.0=end).
+                      Default 0.5 (midpoint). Use 0.15 for clip_a, 0.60 for clip_b.
     """
     if not clip_path or not os.path.exists(clip_path):
         logger.warning(f"PiP: clip path missing: {clip_path} — generating dark placeholder")
@@ -1239,8 +1246,11 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     actual_dur = min(duration, clip_dur - 0.5)
     if actual_dur <= 0:
         actual_dur = min(duration, clip_dur)
-    # Extract from MIDPOINT of clip (better face shots)
-    start = max(0, (clip_dur / 2) - (actual_dur / 2))
+    # Extract from position_pct of clip (default midpoint for backward compat)
+    start = max(0, (clip_dur * position_pct) - (actual_dur / 2))
+    # Clamp so we don't exceed clip bounds
+    if start + actual_dur > clip_dur:
+        start = max(0, clip_dur - actual_dur)
     ok = run_ffmpeg([
         "-ss", str(start), "-i", pip_source,
         "-t", str(actual_dur), "-an",
@@ -1276,11 +1286,35 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
         except Exception:
             frame_count = 0
         if pip_out_dur < 2.0 or frame_count < 15:
-            logger.error(f"PiP STILL IMAGE detected: dur={pip_out_dur:.1f}s frames={frame_count} src={clip_path}")
+            logger.warning(f"PiP STILL IMAGE detected: dur={pip_out_dur:.1f}s frames={frame_count} — applying Ken Burns")
+            # Session fix 3e: Static frame banned — create Ken Burns pan/zoom from thumbnail
+            ken_burns_path = output_path + ".kenburns.mp4"
+            kb_ok = run_ffmpeg([
+                "-loop", "1", "-t", str(duration),
+                "-i", output_path,
+                "-vf", (
+                    "scale=800:420:flags=lanczos,"
+                    "zoompan=z='min(zoom+0.001,1.08)':d=1:s=716x370:fps=30,"
+                    "setsar=1,format=yuv420p"
+                ),
+                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                "-r", "30", "-an",
+                ken_burns_path,
+            ], "pip ken burns from thumbnail", 60)
+            if kb_ok and os.path.exists(ken_burns_path) and os.path.getsize(ken_burns_path) > 10000:
+                os.replace(ken_burns_path, output_path)
+                logger.info(f"PiP Ken Burns effect applied: {duration:.1f}s from static thumbnail")
+                return output_path
+            # Ken Burns failed — fall through to black check or return empty
             try:
                 os.remove(output_path)
             except OSError:
                 pass
+            if os.path.exists(ken_burns_path):
+                try:
+                    os.remove(ken_burns_path)
+                except OSError:
+                    pass
             return ""
 
         # FIX BLACK: Sample mid-frame brightness to detect silent black output.
@@ -1356,19 +1390,48 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0) ->
     return ""
 
 
-def _ensure_pip_placeholder() -> str:
-    """Generate dark solid PiP placeholder (never bg_loop — that's for narrator bg only)."""
+def _ensure_pip_placeholder(channel_name: str = "", topic_title: str = "") -> str:
+    """Generate branded PiP placeholder with channel name + topic text overlay.
+
+    Session fix 3c: Never show black frame — show dark card with text instead.
+    """
+    # Use channel-specific placeholder if names provided
+    if channel_name or topic_title:
+        safe_channel = _sanitize_text(channel_name or "PARTNER CHANNEL")[:30]
+        safe_topic = _sanitize_text(topic_title or "COMING UP")[:40]
+        placeholder_path = PIP_PLACEHOLDER + f".{hash(channel_name + topic_title) & 0xFFFF:04x}.mp4"
+        ok = run_ffmpeg([
+            "-f", "lavfi", "-i",
+            f"color=c=0x111111:s=716x370:d=8:r=30",
+            "-vf",
+            (f"drawbox=x=0:y=0:w=716:h=3:color={COLOR_RED}:t=fill,"
+             f"drawtext=fontfile={FONT_BOLD}:text='{safe_channel}':"
+             f"fontcolor={COLOR_WHITE}:fontsize=28:x=(w-text_w)/2:y=140,"
+             f"drawtext=fontfile={FONT_MONO}:text='{safe_topic}':"
+             f"fontcolor={COLOR_MUTED}:fontsize=20:x=(w-text_w)/2:y=185"),
+            "-c:v", "libx264", "-crf", "20", "-preset", "ultrafast",
+            "-an",
+            placeholder_path,
+        ], "generate branded pip placeholder", 30)
+        if ok and os.path.exists(placeholder_path):
+            logger.info(f"PiP branded placeholder: {safe_channel} / {safe_topic}")
+            return placeholder_path
+
+    # Fallback: generic dark placeholder
     if os.path.exists(PIP_PLACEHOLDER) and os.path.getsize(PIP_PLACEHOLDER) > 10000:
         return PIP_PLACEHOLDER
     ok = run_ffmpeg([
         "-f", "lavfi", "-i",
-        "color=c=0x0A0A0F:s=716x370:d=8:r=30",
+        "color=c=0x111111:s=716x370:d=8:r=30",
+        "-vf",
+        (f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE':"
+         f"fontcolor={COLOR_RED}@0.5:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2"),
         "-c:v", "libx264", "-crf", "20", "-preset", "ultrafast",
         "-an",
         PIP_PLACEHOLDER,
     ], "generate dark pip placeholder", 60)
     if ok and os.path.exists(PIP_PLACEHOLDER):
-        logger.info(f"PiP placeholder generated (dark fallback): {PIP_PLACEHOLDER}")
+        logger.info(f"PiP placeholder generated (branded fallback): {PIP_PLACEHOLDER}")
         return PIP_PLACEHOLDER
     return ""
 
@@ -1864,6 +1927,11 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     _ep_fs = 36 if _ep_l2 else 48
 
     fg += (f"[base]"
+           # Session fix 4a: Clean dark left panel overlay (masks bg_loop on left half)
+           f"drawbox=x=0:y=0:w=960:h=1080:color=0x0d0d0d@0.92:t=fill,"
+           f"drawbox=x=46:y=50:w=2:h=990:color={COLOR_RED}@0.12:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='LIVE INTELLIGENCE':"
+           f"fontcolor={COLOR_RED}@0.25:fontsize=11:x=55:y=58,"
            # Red accent line at top of left panel
            f"drawbox=x=40:y=80:w=80:h=3:color={COLOR_RED}:t=fill,"
            # "PULSE CHECK" kicker — red monospace uppercase
@@ -1911,77 +1979,38 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
            f"rate=30,format=rgba[waveform];\n")
     fg += f"[lp_mid][waveform]overlay=30:555:shortest=1[lp_wave];\n"
 
-    # ── BOTTOM THIRD (y=680..1040): rotating sponsor carousel ──
-    # 3 sponsor cards rotating every 8s using FFmpeg enable=between(t,...)
-    # Card design: dark bg, red left accent, white text, monospace
+# ── BOTTOM THIRD (y=680..1040): daily sponsor card ──
+    # Session fix 7a: Daily sponsor rotation (Curated Mining / Meanwhile / River)
+    import datetime as _dt_sp_nar
+    _NAR_SPONSORS = [
+        {"name": "CURATED MINING", "tagline": "White-glove Bitcoin mining", "url": "curatedmining.io"},
+        {"name": "MEANWHILE", "tagline": "Bitcoin Life Insurance", "url": "meanwhile.bm"},
+        {"name": "RIVER", "tagline": "Buy Bitcoin. Earn Bitcoin.", "url": "river.com"},
+    ]
+    _nar_sp = _NAR_SPONSORS[_dt_sp_nar.date.today().timetuple().tm_yday % len(_NAR_SPONSORS)]
+    _sp_name = _nar_sp["name"]
+    _sp_tagline = _nar_sp["tagline"]
+    _sp_url = _nar_sp["url"]
 
-    # Sponsor card 1 (0s–8s): Curated Mining
-    _c1_start, _c1_end = 0.0, 8.0
-    # Sponsor card 2 (8s–16s): Digital Residency
-    _c2_start, _c2_end = 8.0, 16.0
-    # Sponsor card 3 (16s+): Protocol Pulse+
-    _c3_start = 16.0
-
-    # "PARTNERS" section label (always visible)
+    # "PARTNERS" section label + daily sponsor card
     fg += (f"[lp_wave]"
            f"drawbox=x=40:y=670:w=60:h=2:color={COLOR_RED}@0.6:t=fill,"
            f"drawtext=fontfile={FONT_MONO}:text='PARTNERS':"
            f"fontcolor={COLOR_RED}@0.7:fontsize=13:x=40:y=680,"
-
-           # ── Card 1: Curated Mining (0–8s) ──
-           # Card background
-           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill:"
-           f"enable='between(t,{_c1_start},{_c1_end})',"
-           # Red left accent
-           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill:"
-           f"enable='between(t,{_c1_start},{_c1_end})',"
-           # Sponsor name
-           f"drawtext=fontfile={FONT_BOLD}:text='CURATED MINING':"
-           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730:"
-           f"enable='between(t,{_c1_start},{_c1_end})',"
-           # Tagline
-           f"drawtext=fontfile={FONT_MONO}:text='White-glove Bitcoin mining':"
-           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762:"
-           f"enable='between(t,{_c1_start},{_c1_end})',"
-           # URL
-           f"drawtext=fontfile={FONT_MONO}:text='curatedmining.io':"
-           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795:"
-           f"enable='between(t,{_c1_start},{_c1_end})',"
-
-           # ── Card 2: Digital Residency (8–16s) ──
-           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill:"
-           f"enable='between(t,{_c2_start},{_c2_end})',"
-           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill:"
-           f"enable='between(t,{_c2_start},{_c2_end})',"
-           f"drawtext=fontfile={FONT_BOLD}:text='DIGITAL RESIDENCY':"
-           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730:"
-           f"enable='between(t,{_c2_start},{_c2_end})',"
-           f"drawtext=fontfile={FONT_MONO}:text='Sovereign ID via RNS.ID':"
-           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762:"
-           f"enable='between(t,{_c2_start},{_c2_end})',"
-           f"drawtext=fontfile={FONT_MONO}:text='protocolpulse.io/digital-residency':"
-           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795:"
-           f"enable='between(t,{_c2_start},{_c2_end})',"
-
-           # ── Card 3: Protocol Pulse+ (16s+) ──
-           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill:"
-           f"enable='gte(t,{_c3_start})',"
-           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill:"
-           f"enable='gte(t,{_c3_start})',"
-           f"drawtext=fontfile={FONT_BOLD}:text='PROTOCOL PULSE+':"
-           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730:"
-           f"enable='gte(t,{_c3_start})',"
-           f"drawtext=fontfile={FONT_MONO}:text='Premium intelligence':"
-           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762:"
-           f"enable='gte(t,{_c3_start})',"
-           f"drawtext=fontfile={FONT_MONO}:text='protocolpulse.io':"
-           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795:"
-           f"enable='gte(t,{_c3_start})',"
-
+           # Daily sponsor card (single card, rotates daily)
+           f"drawbox=x=40:y=710:w=880:h=120:color=0x111111@0.82:t=fill,"
+           f"drawbox=x=40:y=710:w=3:h=120:color={COLOR_RED}:t=fill,"
+           f"drawtext=fontfile={FONT_BOLD}:text='{_sp_name}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=24:x=60:y=730,"
+           f"drawtext=fontfile={FONT_MONO}:text='{_sp_tagline}':"
+           f"fontcolor={COLOR_WHITE}@0.65:fontsize=16:x=60:y=762,"
+           f"drawtext=fontfile={FONT_MONO}:text='{_sp_url}':"
+           f"fontcolor={COLOR_GOLD}:fontsize=14:x=60:y=795,"
            # Watermark at bottom-left
            f"drawtext=fontfile={FONT_MONO}:text='PROTOCOL PULSE':"
            f"fontcolor={COLOR_RED}@0.4:fontsize=12:x=40:y=1040"
            f"[left_done];\n")
+
 
     # === RIGHT PANEL (x=960..1920): looping PiP video or solid dark ===
     has_pip = bool(pip_video_path and os.path.exists(pip_video_path)
@@ -1993,13 +2022,12 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
         # Trim stream_loop output to total_dur, reset PTS to prevent freeze frames
         fg += (f"[{pip_idx}:v]trim=0:{total_dur},setpts=PTS-STARTPTS,"
                f"scale=960:1080:force_original_aspect_ratio=increase,"
-               f"crop=960:1080,setsar=1,fps=30,"
-               f"hue=s=0.3,"
-               f"setpts=PTS-STARTPTS[pip_raw];\n")
-        # Red vignette overlay at 15% opacity
-        fg += (f"color=c=0x880000:s=960x1080:d={total_dur}:r=30,"
-               f"vignette=PI/3:mode=backward[pip_vig];\n")
-        fg += f"[pip_raw][pip_vig]blend=all_mode=screen:all_opacity=0.15[pip_panel];\n"
+               # Session fix 3d: Face centering — crop biased to upper 30% where faces sit
+               f"crop=960:1080:(iw-960)/2:'max(0,(ih-1080)*0.3)',setsar=1,fps=30,"
+               # Session fix 3a: Neutral gray PIP — desaturate fully, no red tint
+               f"hue=s=0.0,"
+               f"eq=saturation=0.0:brightness=0.0,"
+               f"setpts=PTS-STARTPTS[pip_panel];\n")
     else:
         # No PiP — solid dark right panel
         fg += f"color=c=0x0A0A0F:s=960x1080:d={total_dur}:r=30[pip_panel];\n"
@@ -2158,24 +2186,41 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     _chart_map = {
         "price": os.path.join(_chart_dir, "price_chart.png"),
         "hashrate": os.path.join(_chart_dir, "hashrate_chart.png"),
+        "difficulty": os.path.join(_chart_dir, "hashrate_chart.png"),  # reuse hashrate chart
         "mempool": os.path.join(_chart_dir, "dominance_chart.png"),
+        "etf": os.path.join(_chart_dir, "price_chart.png"),  # ETF overlaid on price
+        "lth": os.path.join(_chart_dir, "dominance_chart.png"),  # LTH supply via dominance
     }
 
-    # Determine chart_keyword from script_text if not provided
+    # Session fix 6a: Strict segment→chart keyword routing
+    # Priority order: specific topics first, then general BTC price as default
     if not chart_keyword and script_text:
         _st = script_text.lower()
-        if any(kw in _st for kw in ("price", "$", "rally", "dump", "correction", "btc at", "bitcoin at")):
-            chart_keyword = "price"
-        elif any(kw in _st for kw in ("hashrate", "hash rate", "eh/s", "mining", "difficulty", "miner")):
+        if any(kw in _st for kw in ("hashrate", "hash rate", "eh/s", "mining", "miner")):
             chart_keyword = "hashrate"
+        elif any(kw in _st for kw in ("difficulty", "difficulty adjustment", "retarget")):
+            chart_keyword = "difficulty"
+        elif any(kw in _st for kw in ("long-term holder", "long term holder", "lth", "lth supply")):
+            chart_keyword = "lth"
+        elif any(kw in _st for kw in ("etf", "etf flow", "etf inflow", "etf outflow", "spot etf")):
+            chart_keyword = "etf"
         elif any(kw in _st for kw in ("mempool", "sat/vb", "fees", "congestion", "transaction")):
             chart_keyword = "mempool"
+        elif any(kw in _st for kw in ("price", "$", "rally", "dump", "correction", "btc at", "bitcoin at")):
+            chart_keyword = "price"
+        else:
+            chart_keyword = "price"  # default to BTC price chart
 
     _fg_value = _intel_data.get("fear_greed_value", 0)
     _fg_label = _intel_data.get("fear_greed_label", "N/A")
 
     inputs = [audio_path]
-    fg = _get_bg_layer(inputs, total_dur, "bb_bg")
+    # Session fix 4b: Solid dark background for intelligence segment (no bg_loop)
+    fg = (f"color=c=0x0d0d0d:s=1920x1080:d={total_dur + 2.0}:r=30,"
+          f"drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+          f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+          f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
+          f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill[bb_bg];\n")
 
     # Top eyebrow
     import datetime
@@ -2223,23 +2268,26 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     while len(use_metrics) < 6:
         use_metrics.append(default_metrics[len(use_metrics)])
 
-    card_w, card_h, gap = 280, 80, 12
+    # Session fix 4c: 2 rows of 3 metric cards, 40% larger
+    card_w, card_h, gap = 392, 112, 16  # 40% larger than 280x80
     grid_x, grid_y = 40, 140
     last = "ds_headline"
     for mi, (mlabel, mval, mdelta, mpos) in enumerate(use_metrics):
-        mx = grid_x + mi * (card_w + gap)
-        my = grid_y
+        col = mi % 3
+        row = mi // 3
+        mx = grid_x + col * (card_w + gap)
+        my = grid_y + row * (card_h + gap)
         dc = COLOR_GREEN if mpos else COLOR_CORAL
         out = f"ds_m{mi}"
         fg += (f"[{last}]"
                f"drawbox=x={mx}:y={my}:w={card_w}:h={card_h}:color={COLOR_PANEL2}@0.95:t=fill,"
-               f"drawbox=x={mx}:y={my}:w={card_w}:h=3:color={COLOR_RED}@0.6:t=fill,"
+               f"drawbox=x={mx}:y={my}:w={card_w}:h=4:color={COLOR_RED}@0.6:t=fill,"
                f"drawtext=fontfile={FONT_MONO}:text='{mlabel}':"
-               f"fontcolor={COLOR_GOLD}:fontsize=10:x={mx+10}:y={my+10},"
+               f"fontcolor={COLOR_GOLD}:fontsize=14:x={mx+14}:y={my+14},"
                f"drawtext=fontfile={FONT_BOLD}:text='{mval}':"
-               f"fontcolor={COLOR_WHITE}:fontsize=22:x={mx+10}:y={my+28},"
+               f"fontcolor={COLOR_WHITE}:fontsize=30:x={mx+14}:y={my+38},"
                f"drawtext=fontfile={FONT_MONO}:text='{mdelta}':"
-               f"fontcolor={dc}:fontsize=11:x={mx+10}:y={my+58}"
+               f"fontcolor={dc}:fontsize=15:x={mx+14}:y={my+80}"
                f"[{out}];\n")
         last = out
 
@@ -2307,49 +2355,45 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
                f"[ds_chart_done];\n")
         logger.info("  Charts: none available — dark fallback")
 
-    # Sponsor rotation strip
-    sponsors = [
+# Session fix 7a: Daily sponsor rotation for data segment
+    import datetime as _dt_sp_ds
+    _DS_SPONSORS = [
         {"name": "Meanwhile", "tagline": "Bitcoin Life Insurance",
          "cta": "Get covered in Bitcoin  protocolpulse.io/meanwhile", "color": COLOR_GOLD},
         {"name": "Curated Mining", "tagline": "White-Glove Bitcoin Mining",
-         "cta": "Start mining  curatedmining.com", "color": COLOR_CYAN},
-        {"name": "Protocol Pulse", "tagline": "Bitcoin Intelligence Daily",
-         "cta": "Subscribe  protocolpulse.io", "color": COLOR_RED},
+         "cta": "Start mining  curatedmining.com", "color": COLOR_RED},
+        {"name": "River", "tagline": "Buy Bitcoin. Earn Bitcoin.",
+         "cta": "Start stacking  river.com", "color": COLOR_GOLD},
     ]
-    slot_dur = total_dur / 3.0
+    _ds_sp = _DS_SPONSORS[_dt_sp_ds.date.today().timetuple().tm_yday % len(_DS_SPONSORS)]
     strip_x, strip_y, strip_w, strip_h = 40, 730, 1840, 120
 
     last_sp = "ds_chart_done"
-    for si, sp in enumerate(sponsors):
-        t_start = si * slot_dur
-        t_end = (si + 1) * slot_dur
-        enable = f"enable='between(t,{t_start:.3f},{t_end:.3f})'"
-        sp_name = _sanitize_text(sp["name"])
-        sp_tagline = _sanitize_text(sp["tagline"])
-        sp_cta = _sanitize_text(sp["cta"])
-        sp_color = sp["color"]
-        out_sp = f"ds_sp{si}"
-        fg += (f"[{last_sp}]"
-               f"drawbox=x={strip_x}:y={strip_y}:w={strip_w}:h={strip_h}:"
-               f"color={COLOR_PANEL2}@0.95:t=fill:{enable},"
-               f"drawbox=x={strip_x}:y={strip_y}:w=6:h={strip_h}:"
-               f"color={sp_color}@1.0:t=fill:{enable},"
-               f"drawtext=fontfile={FONT_MONO}:text='SPONSORED BY':"
-               f"fontcolor={COLOR_GOLD}:fontsize=10:x={strip_x+20}:y={strip_y+18}:{enable},"
-               f"drawtext=fontfile={FONT_BOLD}:text='{sp_name}':"
-               f"fontcolor={COLOR_WHITE}:fontsize=34:x={strip_x+20}:y={strip_y+38}:{enable},"
-               f"drawtext=fontfile={FONT_MONO}:text='{sp_tagline}':"
-               f"fontcolor={COLOR_MUTED}:fontsize=15:x={strip_x+20}:y={strip_y+80}:{enable},"
-               f"drawtext=fontfile={FONT_MONO}:text='{sp_cta}':"
-               f"fontcolor={sp_color}:fontsize=14:"
-               f"x={strip_x+strip_w}-tw-20:y={strip_y+80}:{enable},"
-               f"drawbox=x={strip_x+strip_w-100}:y={strip_y+8}:w=90:h=22:"
-               f"color={sp_color}@0.15:t=fill:{enable},"
-               f"drawtext=fontfile={FONT_MONO}:text='PARTNER':"
-               f"fontcolor={sp_color}:fontsize=10:"
-               f"x={strip_x+strip_w-90}:y={strip_y+13}:{enable}"
-               f"[{out_sp}];\n")
-        last_sp = out_sp
+    sp_name = _sanitize_text(_ds_sp["name"])
+    sp_tagline = _sanitize_text(_ds_sp["tagline"])
+    sp_cta = _sanitize_text(_ds_sp["cta"])
+    sp_color = _ds_sp["color"]
+    fg += (f"[{last_sp}]"
+           f"drawbox=x={strip_x}:y={strip_y}:w={strip_w}:h={strip_h}:"
+           f"color={COLOR_PANEL2}@0.95:t=fill,"
+           f"drawbox=x={strip_x}:y={strip_y}:w=6:h={strip_h}:"
+           f"color={sp_color}@1.0:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='SPONSORED BY':"
+           f"fontcolor={COLOR_GOLD}:fontsize=10:x={strip_x+20}:y={strip_y+18},"
+           f"drawtext=fontfile={FONT_BOLD}:text='{sp_name}':"
+           f"fontcolor={COLOR_WHITE}:fontsize=34:x={strip_x+20}:y={strip_y+38},"
+           f"drawtext=fontfile={FONT_MONO}:text='{sp_tagline}':"
+           f"fontcolor={COLOR_MUTED}:fontsize=15:x={strip_x+20}:y={strip_y+80},"
+           f"drawtext=fontfile={FONT_MONO}:text='{sp_cta}':"
+           f"fontcolor={sp_color}:fontsize=14:"
+           f"x={strip_x+strip_w}-tw-20:y={strip_y+80},"
+           f"drawbox=x={strip_x+strip_w-100}:y={strip_y+8}:w=90:h=22:"
+           f"color={sp_color}@0.15:t=fill,"
+           f"drawtext=fontfile={FONT_MONO}:text='PARTNER':"
+           f"fontcolor={sp_color}:fontsize=10:"
+           f"x={strip_x+strip_w-90}:y={strip_y+13}"
+           f"[ds_sp0];\n")
+    last_sp = "ds_sp0"
 
     fg += _build_corner_brackets_fg(last_sp, "ds_corners")
     wave_fg, ds_audio_pad = _build_narration_wave("ds_corners", "ds_wave", "ds_a_out")
@@ -3007,15 +3051,17 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                    f"[{out_label}];\n")
             last_label = out_label
     else:
-        # FIX 7: No live spaces — show placeholder panel
+        # Session fix 8e: Clean placeholder — subtle monitoring status, no red box
         fg += (f"[{last_label}]"
-               f"drawbox=x=60:y=150:w=1080:h=260:color=0x0a0a0a@0.85:t=fill,"
-               f"drawbox=x=60:y=150:w=1080:h=260:color={COLOR_GOLD}@0.3:t=1,"
-               f"drawtext=fontfile={FONT_BOLD}:text='NO LIVE SPACES DETECTED':"
-               f"fontcolor={COLOR_GOLD}:fontsize=28:x=120:y=230,"
+               f"drawbox=x=60:y=150:w=1080:h=260:color=0x0a0a0a@0.6:t=fill,"
+               f"drawbox=x=60:y=150:w=3:h=260:color={COLOR_GOLD}@0.4:t=fill,"
+               f"drawtext=fontfile={FONT_MONO}:text='MONITORING':"
+               f"fontcolor={COLOR_GOLD}@0.5:fontsize=13:x=80:y=170,"
+               f"drawtext=fontfile={FONT_BOLD}:text='AWAITING LIVE SIGNAL':"
+               f"fontcolor={COLOR_WHITE}@0.6:fontsize=22:x=80:y=200,"
                f"drawtext=fontfile={FONT_MONO}:"
-               f"text='X Spaces monitoring active  --  next capture when live Bitcoin spaces detected':"
-               f"fontcolor={COLOR_MUTED}:fontsize=14:x=120:y=280"
+               f"text='X Spaces capture active  //  next signal when live Bitcoin spaces detected':"
+               f"fontcolor={COLOR_MUTED}:fontsize=13:x=80:y=240"
                f"[sc_placeholder];\n")
         last_label = "sc_placeholder"
         logger.info("  FIX 7: No real X Spaces data — showing placeholder")
@@ -3098,11 +3144,19 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
                f"[{out_label}];\n")
         last_label = out_label
 
-    # ── FIX 6: SPONSOR STRIP — Curated Mining branding ──
+    # Session fix 7a: Daily sponsor rotation (Curated Mining / Meanwhile / River)
+    import datetime as _dt_sponsor
+    _SPONSORS = [
+        {"name": "CURATED MINING", "url": "CURATEDMINING.COM", "tagline": "White-glove Bitcoin mining"},
+        {"name": "MEANWHILE", "url": "MEANWHILE.COM  //  CODE KKM73K", "tagline": "Bitcoin life insurance"},
+        {"name": "RIVER", "url": "RIVER.COM", "tagline": "Buy Bitcoin with no minimums"},
+    ]
+    _sponsor = _SPONSORS[_dt_sponsor.date.today().timetuple().tm_yday % len(_SPONSORS)]
+    _sp_text = f"SPONSORED BY\\:  {_sponsor['name']}  //  {_sponsor['url']}"
     fg += (f"[{last_label}]drawbox=x=60:y=990:w=1800:h=50:color=0x050505@0.90:t=fill,"
            f"drawbox=x=60:y=990:w=1800:h=2:color={COLOR_SIG_RED}@0.6:t=fill,"
            f"drawbox=x=60:y=990:w=4:h=50:color={COLOR_SIG_RED}@0.8:t=fill,"
-           f"drawtext=fontfile={FONT_MONO}:text='SPONSORED BY\\:  CURATED MINING  //  LEARN MORE AT CURATEDMINING.COM':"
+           f"drawtext=fontfile={FONT_MONO}:text='{_sp_text}':"
            f"fontcolor={COLOR_WHITE}:fontsize=14:x=960-(text_w/2):y=1008"
            f"[sig_sponsored];\n")
 
@@ -3526,7 +3580,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         handle = _sanitize_text(post.get("handle", "unknown"))
         if not handle.startswith("@"):
             handle = f"@{handle}"
-        tweet_text = _word_wrap(_sanitize_text(post.get("text", "")), max_width=55, max_lines=3)
+        # Session fix 9a: Larger tweet text (52px vs 22px) — reduce wrap width to compensate
+        tweet_text = _word_wrap(_sanitize_text(post.get("text", "")), max_width=32, max_lines=3)
         likes = post.get("likes", 0)
         retweets = post.get("retweets", 0)
         # FIX 2: Detect zero metrics — suppress "0 likes 0 RTs" which looks broken
@@ -3572,9 +3627,10 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
                    f"fontcolor={COLOR_RED}:fontsize=14:x=38:y=16[{tag}hdl];\n")
 
             # Tweet text — bold for readability
+            # Session fix 9a: Tweet text bumped to 52px for readability
             fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
                    f"text='{tweet_text}':"
-                   f"fontcolor={COLOR_TEXT}:fontsize=22:x=24:y=52:line_spacing=16:"
+                   f"fontcolor={COLOR_TEXT}:fontsize=52:x=24:y=52:line_spacing=12:"
                    f"box=0[{tag}txt];\n")
 
             # Engagement stats bottom — FIX 2: suppress zero metrics
@@ -3593,7 +3649,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
                    f"x=w-80:y=h-30[{tag}src];\n")
 
         # Overlay card on base with fade-in
-        fade_start = ci * 0.4
+        # Session fix 9c: 0.5s delay before tweet cards appear
+        fade_start = 0.5 + ci * 0.4
         fg += f"[{tag}g][{tag}src]overlay={card_x}:{cy}:format=auto,fade=t=in:st={fade_start}:d=0.3[{tag}out];\n"
         last_v = f"{tag}out"
 
@@ -4608,28 +4665,31 @@ def concatenate_parts(parts: list, output_path: str,
                 logger.info("  BG loop ambient audio mixed (boosted at transitions)")
                 concat_raw = bgl_mixed
 
-    # FIX 6: Mix whoosh SFX at transition points between segments
+    # FIX 6: Mix whoosh SFX at EVERY segment boundary — offset=0 relative to cut
     # FIX 6B: Single input + asplit (was N inputs → ffmpeg filter graph explosion at 30+ parts)
-    # FIX 4 (UX): Track which parts already have whoosh to prevent double whoosh
+    # Session fix: Whoosh fires AT the frame cut, 2s dedup, ALL boundaries covered
     has_whoosh = os.path.exists(GLITCH_WHOOSH)
-    _whooshed_parts = set()  # indices of parts that already contain whoosh/swoosh
-    for pidx, p in enumerate(valid):
-        bn = os.path.basename(p).lower()
-        if "transition" in bn or "xfade" in bn or "swoosh" in bn:
-            _whooshed_parts.add(pidx)
-            _whooshed_parts.add(pidx + 1)  # next part also has entrance whoosh from transition
     if has_whoosh and len(valid) > 1:
         # Calculate transition timestamps (cumulative durations of each part)
+        # SFX fires AT the boundary (offset=0 relative to cut point)
         transition_times = []
         cumulative = 0.0
         for pidx, p in enumerate(valid[:-1]):
             pdur = ffprobe_duration(p)
             cumulative += pdur
-            # FIX 4: skip if this boundary already has whoosh
-            if pidx not in _whooshed_parts and (pidx + 1) not in _whooshed_parts:
-                transition_times.append(cumulative)
+            # Place whoosh exactly at the cut point (subtract 0.05s so SFX starts
+            # just before the visual cut for perceived synchronization)
+            t_whoosh = max(0, cumulative - 0.05)
+            transition_times.append(t_whoosh)
+
+        # 2-second dedup: remove any whoosh within 2s of a previous one
+        deduped_times = []
+        for t in transition_times:
+            if not deduped_times or (t - deduped_times[-1]) >= 2.0:
+                deduped_times.append(t)
             else:
-                logger.info(f"  FIX 4: Skipping whoosh at part {pidx}→{pidx+1} (already has transition SFX)")
+                logger.info(f"  WHOOSH DEDUP: Skipping whoosh at {t:.2f}s (within 2s of {deduped_times[-1]:.2f}s)")
+        transition_times = deduped_times
 
         # Cap at 20 whooshes — thin out evenly if too many
         MAX_WHOOSH = 20
@@ -4999,13 +5059,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             clip_thumbnails[rank] = tp
             logger.info(f"  Thumbnail for clip #{rank}: {os.path.basename(tp)}")
 
-    # Build PiP preview map: rank → pip_path
+    # Build PiP preview map: rank → pip_path (A/B rotation)
+    # Session fix 3b: Extract TWO clips per topic — clip_a at 15%, clip_b at 60%
     # R25 FIX 1: Also search output/clips/ as fallback for PiP source
-    pip_previews = {}
+    pip_previews = {}    # rank → pip_path (clip_a for setup, used as default)
+    pip_previews_b = {}  # rank → pip_path (clip_b for react/recap)
     for rank, cinfo in extracted_clips.items():
         clip_path = cinfo.get("path", "")
         if clip_path and os.path.exists(clip_path):
-            pip_out = os.path.join(work_dir, f"pip_preview_r{rank}.mp4")
             clips_dir = os.path.join(os.path.dirname(work_dir), "clips")
             output_clips_dir = os.path.join(BASE, "output", "clips")
             reencoded = None
@@ -5027,30 +5088,43 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                         break
             pip_source = reencoded if reencoded and os.path.getsize(reencoded) > 50000 else clip_path
             logger.info(f"  R25 FIX 1: PiP rank {rank} source={os.path.basename(pip_source)} (reencoded={reencoded is not None})")
-            pip_result = make_pip_preview(pip_source, pip_out)
-            if pip_result:
-                # FIX 6: Verify PiP is real video, not dark placeholder (YAVG > 12)
-                # Dark placeholders cause broken "SIGNAL" overlay boxes at render time
+
+            def _verify_pip(pip_result, rank_val, label):
+                """Verify PiP is real video, not dark placeholder."""
+                if not pip_result:
+                    return None
                 try:
-                    _pip_brightness = subprocess.run(
+                    _pip_br = subprocess.run(
                         ["ffmpeg", "-v", "error", "-ss", "1",
                          "-i", pip_result, "-vframes", "3",
                          "-vf", "signalstats", "-f", "null", "-"],
                         capture_output=True, text=True, timeout=15)
-                    _yavg_vals = re.findall(r"YAVG:\s*([\d.]+)", _pip_brightness.stderr)
+                    _yavg_vals = re.findall(r"YAVG:\s*([\d.]+)", _pip_br.stderr)
                     _mean_y = sum(float(v) for v in _yavg_vals) / len(_yavg_vals) if _yavg_vals else 999
                 except Exception:
                     _mean_y = 999
                 if _mean_y < 12:
-                    # Dark placeholder — skip PiP entirely, fallback to bg_loop or no-PiP
-                    logger.info(f"  FIX 6: PiP for clip #{rank} is dark placeholder (YAVG={_mean_y:.1f}) — skipping, will use bg_loop fallback")
-                else:
-                    pip_previews[rank] = pip_result
-                    logger.info(f"  PiP preview for clip #{rank}: ready (YAVG={_mean_y:.1f})")
-            else:
-                # FIX 6: Do NOT generate dark placeholders — they cause broken "SIGNAL" boxes
-                # Let the fallback logic at pip_vid assignment use bg_loop instead
-                logger.info(f"  FIX 6: PiP preview for clip #{rank} unavailable — will use bg_loop fallback")
+                    logger.info(f"  FIX 6: PiP {label} for clip #{rank_val} is dark (YAVG={_mean_y:.1f}) — skipping")
+                    return None
+                logger.info(f"  PiP {label} for clip #{rank_val}: ready (YAVG={_mean_y:.1f})")
+                return pip_result
+
+            # Clip A: 15% into content (for setup/intro narration)
+            pip_out_a = os.path.join(work_dir, f"pip_preview_r{rank}_a.mp4")
+            pip_a = make_pip_preview(pip_source, pip_out_a, position_pct=0.15)
+            pip_a = _verify_pip(pip_a, rank, "clip_a")
+            if pip_a:
+                pip_previews[rank] = pip_a
+
+            # Clip B: 60% into content (for react/recap narration)
+            pip_out_b = os.path.join(work_dir, f"pip_preview_r{rank}_b.mp4")
+            pip_b = make_pip_preview(pip_source, pip_out_b, position_pct=0.60)
+            pip_b = _verify_pip(pip_b, rank, "clip_b")
+            if pip_b:
+                pip_previews_b[rank] = pip_b
+            elif pip_a:
+                # If clip_b failed, fallback to clip_a for react segments too
+                pip_previews_b[rank] = pip_a
 
     audio_idx = 1 if cold_open_consumed else 0
     prev_segment_type = "intro"
@@ -5505,8 +5579,11 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             if entry_type == "cold_open":
                 pip_vid = ""
             elif entry_type in ("setup", "react") and clip_rank:
-                # FIX 3: SETUP for clip N → pip_previews[N]. REACT for clip N → pip_previews[N].
-                pip_vid = pip_previews.get(clip_rank, "")
+                # Session fix 3b: A/B rotation — SETUP uses clip_a, REACT uses clip_b
+                if entry_type == "react":
+                    pip_vid = pip_previews_b.get(clip_rank, pip_previews.get(clip_rank, ""))
+                else:
+                    pip_vid = pip_previews.get(clip_rank, "")
                 logger.info(f"  PiP clip #{clip_rank} path: {pip_vid or 'NONE'}")
                 # FIX 2: NEVER use intro_tag as PiP source
                 if pip_vid and os.path.abspath(pip_vid) == os.path.abspath(INTRO_TAG):

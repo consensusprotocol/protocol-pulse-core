@@ -700,12 +700,13 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         timestamped_text = clip.get("timestamped_text", "")
         if timestamped_text:
             # Backward search for clean clip START
-            adjusted_start = find_sentence_boundary(timestamped_text, start, direction='backward', max_search_seconds=5)
+            # Session fix 5: Increased search window from 5s to 8s for better sentence boundaries
+            adjusted_start = find_sentence_boundary(timestamped_text, start, direction='backward', max_search_seconds=8)
             if adjusted_start != start:
                 logger.info(f"  Sentence boundary: clip #{rank} start {start}s -> {adjusted_start}s")
                 start = adjusted_start
             # Forward search for clean clip END
-            adjusted_end = find_sentence_boundary(timestamped_text, end, direction='forward', max_search_seconds=5)
+            adjusted_end = find_sentence_boundary(timestamped_text, end, direction='forward', max_search_seconds=8)
             if adjusted_end != end:
                 logger.info(f"  Sentence boundary: clip #{rank} end {end}s -> {adjusted_end}s")
                 end = adjusted_end
@@ -743,6 +744,21 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                         os.remove(trimmed)
 
             # Render20: No hard clip duration cap — quality over runtime
+
+            # Session fix 5: Add 1.5s audio fade-out for clean clip endings
+            _clip_dur_fo = ffprobe_duration(output_path)
+            if _clip_dur_fo > 3.0:
+                _fade_out_st = max(0, _clip_dur_fo - 1.5)
+                _faded = output_path + ".faded.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-af", f"afade=t=out:st={_fade_out_st:.2f}:d=1.5",
+                    "-c:v", "copy", _faded,
+                ], "clip_fade_out", 30) and os.path.exists(_faded):
+                    os.replace(_faded, output_path)
+                    logger.info(f"  Fade-out: clip #{rank} at {_fade_out_st:.1f}s (1.5s taper)")
+                elif os.path.exists(_faded):
+                    os.remove(_faded)
 
             # Issue 5: Second-pass ad read scan
             if _second_pass_ad_read(output_path, clip.get("channel", ""), rank):

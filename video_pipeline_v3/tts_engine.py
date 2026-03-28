@@ -98,7 +98,7 @@ _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
     "model_id": "eleven_turbo_v2_5",
-    "speed": 1.18,
+    "speed": 1.20,
     "voice_settings": {
         "stability": 0.35,
         "similarity_boost": 0.90,
@@ -557,12 +557,25 @@ PRONUNCIATION_MAP = {
     "mempool": "mem-pool",
     "multisig": "MUL-tee-sig",
     "satoshis": "sah-TOH-sheez",
-    "MicroStrategy": "MY-crow-STRAT-uh-jee",
+    "MicroStrategy": "My-crow-Strategy",
     "Coinbase": "KOYN-base",
     "Binance": "BY-nance",
     "Chainalysis": "CHAIN-uh-LY-sis",
     # Issue 10: BTC → Bitcoin spoken form
     "BTC": "Bitcoin",
+    # Session fix: hyphen removal to prevent ElevenLabs stretch
+    "on-chain": "on chain",
+    # Session fix: written-out large numbers → numeral form for natural TTS
+    "one and a half trillion": "1.5 trillion",
+    "one-and-a-half trillion": "1.5 trillion",
+    "one and a half billion": "1.5 billion",
+    "one-and-a-half billion": "1.5 billion",
+    "one and a half million": "1.5 million",
+    "one-and-a-half million": "1.5 million",
+    "two and a half trillion": "2.5 trillion",
+    "two-and-a-half trillion": "2.5 trillion",
+    "two and a half billion": "2.5 billion",
+    "two-and-a-half billion": "2.5 billion",
 }
 
 
@@ -634,6 +647,57 @@ def apply_pronunciation_map(text: str) -> str:
         pattern = re.compile(r'\b' + re.escape(written) + r'\b', re.IGNORECASE)
         text = pattern.sub(phonetic, text)
     return text
+
+
+def strip_right_opener(text: str) -> str:
+    """Strip narration that opens with 'Right' as the first word.
+
+    Replaces with the second sentence, or removes the 'Right, ' prefix.
+    """
+    stripped = text.strip()
+    if not stripped:
+        return stripped
+    # Match "Right," or "Right " or "Right." at the start (case-insensitive)
+    if re.match(r'^[Rr]ight[\s,.\-—]+', stripped):
+        # Try to find second sentence
+        after = re.sub(r'^[Rr]ight[\s,.\-—]+', '', stripped).strip()
+        if after:
+            # Capitalize first letter
+            return after[0].upper() + after[1:] if len(after) > 1 else after.upper()
+        return stripped  # fallback: return original if nothing left
+    return stripped
+
+
+def _trim_trailing_mumble(audio_path: str) -> None:
+    """Trim trailing artifact/mumble from ElevenLabs TTS output.
+
+    Uses silenceremove to strip non-intelligible tail audio below -40dB
+    in the last 0.3 seconds. Applied to every ElevenLabs clip.
+    """
+    try:
+        dur = ffprobe_duration(audio_path)
+        if dur <= 1.0:
+            return
+        trimmed = audio_path + ".mumble_trim.m4a"
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-i", audio_path,
+             "-af", "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-40dB",
+             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", trimmed],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 5000:
+            dur_after = ffprobe_duration(trimmed)
+            # Sanity: don't trim more than 15% of audio
+            if dur_after >= dur * 0.85:
+                os.replace(trimmed, audio_path)
+                if dur - dur_after > 0.05:
+                    logger.info(f"[TTS] Trimmed trailing mumble: {dur:.2f}s → {dur_after:.2f}s")
+            else:
+                os.remove(trimmed)
+        elif os.path.exists(trimmed):
+            os.remove(trimmed)
+    except Exception as e:
+        logger.debug(f"[TTS] Trailing mumble trim skipped: {e}")
 
 
 def _trim_trailing_silence(audio_path: str) -> None:
@@ -809,6 +873,8 @@ def tts_local(text: str, output_path: str, host: int = 1,
     """
     # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
     text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
+    # Session fix: Never start narration with "Right" as opening word
+    text = strip_right_opener(text)
     # Bitcoin/finance pronunciation normalizer (runs first)
     text = tts_normalize(text)
     text = expand_numbers_for_tts(text)
@@ -848,6 +914,7 @@ def tts_local(text: str, output_path: str, host: int = 1,
     if ok and os.path.exists(output_path):
         _trim_leading_silence(output_path)
         _trim_trailing_silence(output_path)
+        _trim_trailing_mumble(output_path)
         validate_tts_output(output_path)
         _tts_cache_put(cache_key, output_path)
         elapsed = time.time() - start_t
@@ -954,6 +1021,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
     # These tags are for script structure — narrator should never read them aloud
     text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
+    # Session fix: Never start narration with "Right" as opening word
+    text = strip_right_opener(text)
     # Bitcoin/finance pronunciation normalizer (runs first)
     text = tts_normalize(text)
     # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
@@ -1046,6 +1115,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
         if ok and os.path.exists(output_path):
             _trim_leading_silence(output_path)
             _trim_trailing_silence(output_path)
+            _trim_trailing_mumble(output_path)
             # RETRY: ElevenLabs sometimes returns empty audio - retry up to 3 times
             _validate_attempts = 0
             while _validate_attempts < 3:
@@ -1087,6 +1157,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     if ok and os.path.exists(output_path):
         _trim_leading_silence(output_path)
         _trim_trailing_silence(output_path)
+        _trim_trailing_mumble(output_path)
         validate_tts_output(output_path)
         _tts_cache_put(cache_key, output_path)
     return ok
@@ -1177,6 +1248,23 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         }
     """
     os.makedirs(output_dir, exist_ok=True)
+
+    # Section 2e: Ensure final PBX narration ends with sign-off
+    _SIGNOFF = "Stay free. Stay sovereign. This is PBX, Protocol Pulse."
+    if dialogue:
+        # Find the last non-CLIP entry (the wrap/closing narration)
+        for _i in range(len(dialogue) - 1, -1, -1):
+            _entry = dialogue[_i]
+            if _entry.get("host") not in ("CLIP", "SPACE_CLIP"):
+                _text = _entry.get("text", "")
+                if "Stay free" not in _text and "This is PBX" not in _text:
+                    # Append sign-off to the final narration segment
+                    if _text.rstrip().endswith(('.', '!', '?', '"')):
+                        _entry["text"] = _text.rstrip() + " " + _SIGNOFF
+                    else:
+                        _entry["text"] = _text.rstrip() + ". " + _SIGNOFF
+                    logger.info(f"[TTS] Injected PBX sign-off into final narration segment")
+                break
 
     _active_provider = _get_tts_provider()
     if _active_provider == "local":

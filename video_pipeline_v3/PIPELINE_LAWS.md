@@ -549,3 +549,30 @@ ORACLE MANDATORY TESTS:
 NEVER commit oracle changes without all 5 tests passing.
 This law exists because commit 2c542a0d looked correct but silenced Oracle in production.
 Theoretical fixes that break in practice are worse than no fix.
+
+### LAW: QUALITY PASS SESSION (2026-03-28)
+Comprehensive quality pass codified the following rules:
+
+1. **TTS Speed**: PBX voice speed = 1.20 (Mark voice). Never below 1.15.
+2. **Pronunciation Map**: MicroStrategy = "My-crow-Strategy". Trillion/billion/million spelled as digits.
+3. **RIGHT Filter**: `strip_right_opener()` runs on ALL TTS text. "Right, so..." → "So..."
+4. **Trailing Mumble Trim**: `_trim_trailing_mumble()` runs on every TTS clip. -40dB threshold, 0.3s min.
+5. **Sign-Off Injection**: Last non-CLIP dialogue entry gets "Stay free. Stay sovereign. This is PBX, Protocol Pulse."
+6. **Dramatic Pauses**: Silence gaps < 4s are NOT penalized by Gemini grader (intentional dramatic pauses).
+7. **Transition Whoosh**: Fires at EVERY part boundary, offset -0.05s for perceived sync, 2s dedup minimum.
+8. **PIP Neutral Gray**: No red vignette on PIP. `hue=s=0.0,eq=saturation=0.0:brightness=0.0`.
+9. **PIP A/B Rotation**: Setup segments use clip_a (15% position), react segments use clip_b (60% position).
+10. **PIP Branded Fallback**: `_ensure_pip_placeholder()` shows channel name + topic, not black frame.
+11. **Ken Burns for Stills**: Static PIP thumbnails get zoompan animation, never returned as empty.
+12. **Face Centering Crop**: PIP crop biases to upper 30% of frame for face positioning.
+13. **Left Panel Dark**: 92% dark overlay on left panel (x=0..960) masks bg_loop bleed-through.
+14. **Intelligence Segment**: Solid #0d0d0d background — no bg_loop (reduces visual noise on data).
+15. **Metric Cards 2×3**: Two rows of 3 cards (was 1×6), each card 392×112 (40% larger).
+16. **Chart Keyword Routing**: Strict mapping: hashrate/mining→hashrate, difficulty→hashrate, lth→dominance, etf→price, mempool→dominance, price→price.
+17. **Chart Settle Time**: 6s Playwright wait (was 4s) to reduce chart jitter.
+18. **Sponsor Daily Rotation**: `SPONSORS[day_of_year % 3]` across Curated Mining / Meanwhile / River. All three scenes: narrator_pip, data_segment, signal_active.
+19. **Nick Szabo Filter**: "nick szabo" and "szabo" added to NOSTR_SPAM_TERMS.
+20. **X Spaces Placeholder**: Subtle "AWAITING LIVE SIGNAL" card (no red box).
+21. **Sentence Boundary**: max_search_seconds=8 (was 5). 1.5s audio fade-out on all extracted clips.
+22. **Tweet Text Size**: 52px (was 22px), word wrap max_width=32.
+23. **Tweet Card Delay**: 0.5s delay before cards fade in (was immediate).
