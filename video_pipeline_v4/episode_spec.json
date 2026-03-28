@@ -24,7 +24,8 @@
       "duration_seconds": 4,
       "frames": 120,
       "from_frame": 0,
-      "to_frame": 120
+      "to_frame": 120,
+      "type": "cold_open"
     },
     {
       "id": "narration",
@@ -32,7 +33,8 @@
       "duration_seconds": 20,
       "frames": 600,
       "from_frame": 120,
-      "to_frame": 720
+      "to_frame": 720,
+      "type": "narration"
     },
     {
       "id": "intelligence",
@@ -40,7 +42,8 @@
       "duration_seconds": 30,
       "frames": 900,
       "from_frame": 720,
-      "to_frame": 1620
+      "to_frame": 1620,
+      "type": "intelligence"
     },
     {
       "id": "pip",
@@ -48,7 +51,8 @@
       "duration_seconds": 45,
       "frames": 1350,
       "from_frame": 1620,
-      "to_frame": 2970
+      "to_frame": 2970,
+      "type": "pip"
     },
     {
       "id": "outro",
@@ -56,7 +60,8 @@
       "duration_seconds": 15,
       "frames": 450,
       "from_frame": 2970,
-      "to_frame": 3420
+      "to_frame": 3420,
+      "type": "outro"
     }
   ]
 }
