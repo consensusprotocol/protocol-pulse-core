@@ -5364,7 +5364,7 @@ def ai_review_article(article_id):
 @app.route('/api/latest-articles')
 def latest_articles():
     articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(10).all()
-    return jsonify([{'id': a.id, 'title': a.title, 'summary': a.summary, 'header_image_url': a.header_image_url or '/static/images/placeholder.jpg'} for a in articles])
+    return jsonify([{'id': a.id, 'title': a.title, 'summary': a.summary, 'cover_image_url': a.cover_image_url or a.header_image_url or '', 'header_image_url': a.cover_image_url or a.header_image_url or ''} for a in articles])
 
 
 @app.route('/api/v2/articles')
