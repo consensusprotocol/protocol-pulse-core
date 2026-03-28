@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Audio, staticFile } from "remotion";
+import { ASSETS } from "../assets";
 import { LeftPanel } from "../components/LeftPanel";
 import { RightPip } from "../components/RightPip";
 import { Ticker } from "../components/Ticker";
@@ -24,8 +25,14 @@ export const PipScene: React.FC<PipSceneProps> = ({ segment, spec }) => {
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {/* Narration audio */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
       )}
+      {/* Background music — same contemplative track, consistent across all narration */}
+      <Audio
+        src={staticFile(ASSETS.NARRATION_BG_MUSIC)}
+        volume={0.08}
+        loop
+      />
 
       {/* Left panel */}
       <div style={{ position: "absolute", left: 0, top: 0 }}>

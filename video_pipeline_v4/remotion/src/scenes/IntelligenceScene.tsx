@@ -76,7 +76,7 @@ export const IntelligenceScene: React.FC<IntelligenceSceneProps> = ({
     <AbsoluteFill style={{ backgroundColor: BRAND.SURFACE_DARK }}>
       {/* Narration audio */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
       )}
 
       {/* TOP SECTION: header bar */}

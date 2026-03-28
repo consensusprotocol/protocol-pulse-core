@@ -1,5 +1,5 @@
 import React from "react";
-import { interpolate, useCurrentFrame, Video, Img } from "remotion";
+import { interpolate, useCurrentFrame, Video, Img, staticFile } from "remotion";
 import { BRAND, FPS } from "../types";
 
 interface RightPipProps {
@@ -63,7 +63,7 @@ export const RightPip: React.FC<RightPipProps> = ({
             }}
           >
             <Video
-              src={clipPath}
+              src={staticFile(clipPath!)}
               style={{
                 width: "100%",
                 height: "100%",

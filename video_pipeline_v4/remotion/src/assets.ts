@@ -37,6 +37,8 @@ export const ASSETS = {
 
   // B-roll fallback directory
   BROLL_DIR: "/assets/broll/",
+  // Narration background music — fixed track, plays on all narration segments
+  NARRATION_BG_MUSIC: "/assets/music/contemplative_01.mp3",
 } as const;
 
 /**

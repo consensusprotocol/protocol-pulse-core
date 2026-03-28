@@ -42,8 +42,14 @@ export const NarrationScene: React.FC<NarrationSceneProps> = ({
     <AbsoluteFill style={{ backgroundColor: "#0a0a0a" }}>
       {/* Narration audio */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
       )}
+      {/* Background music — contemplative_01, low volume, loops */}
+      <Audio
+        src={staticFile(ASSETS.NARRATION_BG_MUSIC)}
+        volume={0.08}
+        loop
+      />
 
       {/* Logo centered */}
       <Img
