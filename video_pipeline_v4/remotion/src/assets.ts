@@ -24,11 +24,11 @@ export const ASSETS = {
   DATA_BLIP: "/assets/sfx/data_blip.wav",
 
   // Charts (captured fresh each run, placed in public/data/)
-  CHART_PRICE: "/data/charts/btc_price.png",
-  CHART_HASHRATE: "/data/charts/hashrate.png",
-  CHART_DIFFICULTY: "/data/charts/difficulty.png",
-  CHART_LTH: "/data/charts/lth_supply.png",
-  CHART_ETF: "/data/charts/etf_flow.png",
+  CHART_PRICE: "/assets/charts/btc_price.png",
+  CHART_HASHRATE: "/assets/charts/hashrate.png",
+  CHART_DIFFICULTY: "/assets/charts/difficulty.png",
+  CHART_LTH: "/assets/charts/lth_supply.png",
+  CHART_ETF: "/assets/charts/etf_flow.png",
 
   // Fonts (loaded via @font-face in Remotion)
   FONT_JETBRAINS: "/assets/fonts/JetBrainsMono-Bold.ttf",
