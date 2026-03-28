@@ -13,11 +13,11 @@ OUTPUT_PATH = Path(__file__).parent / "episode_spec.json"
 FPS = 30
 
 SEGMENTS = [
-    {"id": "cold_open", "label": "Cold Open", "duration_seconds": 4},
-    {"id": "narration", "label": "Market Narration", "duration_seconds": 20},
-    {"id": "intelligence", "label": "Intelligence Brief", "duration_seconds": 30},
-    {"id": "pip", "label": "Picture-in-Picture Analysis", "duration_seconds": 45},
-    {"id": "outro", "label": "Outro", "duration_seconds": 15},
+    {"id": "cold_open", "type": "cold_open", "label": "Cold Open", "duration_seconds": 4},
+    {"id": "narration", "type": "narration", "label": "Market Narration", "duration_seconds": 20},
+    {"id": "intelligence", "type": "intelligence", "label": "Intelligence Brief", "duration_seconds": 30},
+    {"id": "pip", "type": "pip", "label": "Picture-in-Picture Analysis", "duration_seconds": 45},
+    {"id": "outro", "type": "outro", "label": "Outro", "duration_seconds": 15},
 ]
 
 

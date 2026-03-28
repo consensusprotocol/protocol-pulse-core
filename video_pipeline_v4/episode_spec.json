@@ -1,0 +1,62 @@
+{
+  "date": "2026-03-28",
+  "generated_at": "2026-03-28T21:24:40.958866+00:00",
+  "fps": 30,
+  "total_duration_sec": 114,
+  "total_frames": 3420,
+  "signals": {
+    "btc_price": 66773,
+    "btc_change_24h": 1.06,
+    "fear_greed_value": 12,
+    "fear_greed_label": "Extreme Fear",
+    "hashrate": "1035.0 EH/s",
+    "difficulty_pct": 6.74,
+    "signal_score": {
+      "bull_count": 4,
+      "bear_count": 1,
+      "neutral_count": 0
+    }
+  },
+  "segments": [
+    {
+      "id": "cold_open",
+      "label": "Cold Open",
+      "duration_seconds": 4,
+      "frames": 120,
+      "from_frame": 0,
+      "to_frame": 120
+    },
+    {
+      "id": "narration",
+      "label": "Market Narration",
+      "duration_seconds": 20,
+      "frames": 600,
+      "from_frame": 120,
+      "to_frame": 720
+    },
+    {
+      "id": "intelligence",
+      "label": "Intelligence Brief",
+      "duration_seconds": 30,
+      "frames": 900,
+      "from_frame": 720,
+      "to_frame": 1620
+    },
+    {
+      "id": "pip",
+      "label": "Picture-in-Picture Analysis",
+      "duration_seconds": 45,
+      "frames": 1350,
+      "from_frame": 1620,
+      "to_frame": 2970
+    },
+    {
+      "id": "outro",
+      "label": "Outro",
+      "duration_seconds": 15,
+      "frames": 450,
+      "from_frame": 2970,
+      "to_frame": 3420
+    }
+  ]
+}
