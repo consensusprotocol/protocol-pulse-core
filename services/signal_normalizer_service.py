@@ -552,7 +552,7 @@ class SignalNormalizer:
         """Compute all signals and write to signals_normalized table."""
         # Lazy import to avoid circular deps
         sys.path.insert(0, str(BASE_DIR / "core"))
-        from app import app, db as flask_db
+        import sys as _sys2; _sys2.path.insert(0, str(BASE_DIR / "core")); from app import app, db as flask_db
         from models_intelligence import SignalNormalized as SNModel
 
         results = self.compute_all()

@@ -23,6 +23,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 sys.path.insert(0, str(BASE_DIR / "core"))
+sys.path.insert(0, str(BASE_DIR / "services"))
+os.chdir(str(BASE_DIR / "core"))  # ensure working dir matches existing Flask context
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,10 +35,10 @@ log = logging.getLogger("convergence_cycle")
 
 def migrate_tables():
     """Create intelligence tables if they don't exist."""
-    from core.app import app, db
+    from app import app, db
 
     # Import models so SQLAlchemy knows about them
-    from core.models_intelligence import SignalRaw, SignalNormalized, ConvergenceState, EntityRegistry
+    from models_intelligence import SignalRaw, SignalNormalized, ConvergenceState, EntityRegistry
 
     with app.app_context():
         # Create only the new tables (won't touch existing ones)
@@ -59,9 +61,9 @@ def migrate_tables():
 
 def run_convergence_cycle():
     """Execute full convergence cycle: compute signals → compute convergence → persist."""
-    from core.app import app, db
-    from core.models_intelligence import SignalNormalized, ConvergenceState
-    from services.signal_normalizer_service import SignalNormalizer, compute_convergence
+    from app import app, db
+    from models_intelligence import SignalNormalized, ConvergenceState
+    from signal_normalizer_service import SignalNormalizer, compute_convergence
 
     normalizer = SignalNormalizer()
     results = normalizer.compute_all()

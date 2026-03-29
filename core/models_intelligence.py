@@ -11,7 +11,7 @@ Add to core/models.py or import separately.
 
 import uuid
 from datetime import datetime
-from core import db
+from app import db
 
 
 def _uuid():

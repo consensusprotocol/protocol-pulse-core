@@ -51,8 +51,8 @@ def _parse_json_field(field):
 @intel_api_v1.route('/api/v1/intelligence/signals/latest')
 def get_latest_signals():
     """Returns latest normalized signals for all or specific keys."""
-    from core.models_intelligence import SignalNormalized
-    from core import db
+    from models_intelligence import SignalNormalized
+    from app import db
 
     asset = request.args.get('asset', 'BTC')
     keys_param = request.args.get('keys', '')
@@ -107,7 +107,7 @@ def get_latest_signals():
 @intel_api_v1.route('/api/v1/intelligence/signals/history')
 def get_signal_history():
     """Returns historical scores for a specific signal."""
-    from core.models_intelligence import SignalNormalized
+    from models_intelligence import SignalNormalized
 
     signal_key = request.args.get('signal_key')
     if not signal_key:
@@ -156,7 +156,7 @@ def get_signal_history():
 @intel_api_v1.route('/api/v1/intelligence/convergence/latest')
 def get_convergence_latest():
     """Returns latest convergence state — flagship Commander endpoint."""
-    from core.models_intelligence import ConvergenceState
+    from models_intelligence import ConvergenceState
 
     regime_key = request.args.get('regime_key', 'btc_global')
     asset = request.args.get('asset', 'BTC')
@@ -209,7 +209,7 @@ def get_convergence_latest():
 @intel_api_v1.route('/api/v1/intelligence/convergence/graph')
 def get_convergence_graph():
     """Returns graph payload for the frontend Orb/Web visualization."""
-    from core.models_intelligence import ConvergenceState
+    from models_intelligence import ConvergenceState
 
     regime_key = request.args.get('regime_key', 'btc_global')
     asset_param = request.args.get('asset', 'BTC')
@@ -243,7 +243,7 @@ def get_sovereign_matrix():
     Returns the Sovereign Signal Matrix payload — the public-facing composite.
     Combines latest signals + convergence into one response.
     """
-    from core.models_intelligence import SignalNormalized, ConvergenceState
+    from models_intelligence import SignalNormalized, ConvergenceState
 
     signal_keys = ['miner_conviction', 'exchange_pressure', 'insider_heat']
     domains = []
@@ -317,7 +317,7 @@ def get_sovereign_matrix():
 def _compute_live_convergence():
     """Compute convergence live from data files when DB is empty."""
     try:
-        from services.signal_normalizer_service import SignalNormalizer, compute_convergence
+        import sys as _sys; _sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent.parent.parent)); from services.signal_normalizer_service import SignalNormalizer, compute_convergence
         normalizer = SignalNormalizer()
         results = normalizer.compute_all()
         conv = compute_convergence(results)
@@ -337,7 +337,7 @@ def _compute_live_convergence():
 def _compute_live_convergence_graph():
     """Compute graph payload live."""
     try:
-        from services.signal_normalizer_service import SignalNormalizer, compute_convergence
+        import sys as _sys; _sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent.parent.parent)); from services.signal_normalizer_service import SignalNormalizer, compute_convergence
         normalizer = SignalNormalizer()
         results = normalizer.compute_all()
         conv = compute_convergence(results)

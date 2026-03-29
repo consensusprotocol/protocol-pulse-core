@@ -292,6 +292,10 @@ except Exception as _intel_err:
 try:
     from blueprints.panopticon import panopticon_bp
     app.register_blueprint(panopticon_bp)
+
+    # Convergence Engine V1 API
+    from blueprints.intelligence_api_v1 import intel_api_v1
+    app.register_blueprint(intel_api_v1)
     logging.info("Panopticon blueprint registered")
 except Exception as _pano_err:
     logging.warning("Panopticon blueprint not loaded: %s", _pano_err)
