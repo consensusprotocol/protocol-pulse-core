@@ -1,47 +1,52 @@
 import os, logging, requests
-from typing import Dict
 logger = logging.getLogger(__name__)
-_CACHE: Dict[str, str] = {}
+_CACHE = {}
 DEFAULT = "/static/images/default-header.png"
-TOPIC_MAP = {
-    "mining": "bitcoin mining facility servers",
-    "hashrate": "data center server rack",
-    "etf": "stock market wall street trading",
-    "halving": "bitcoin cryptocurrency gold",
-    "lightning": "lightning network technology",
-    "regulation": "government law financial",
-    "inflation": "economy financial crisis",
-    "blackrock": "wall street asset management",
-    "saylor": "bitcoin corporate treasury",
-    "defi": "decentralized finance blockchain",
-    "stablecoin": "cryptocurrency digital currency",
-    "default": "bitcoin cryptocurrency technology dark",
+QUERIES = {
+    "mining": ["bitcoin mining facility","data center servers gpu","cryptocurrency mining rig","server farm technology"],
+    "hashrate": ["data center server rack","computing infrastructure","network hardware technology"],
+    "etf": ["wall street stock market","financial trading floor","investment finance charts"],
+    "halving": ["bitcoin gold digital","cryptocurrency scarcity","bitcoin blockchain network"],
+    "regulation": ["government law financial","capitol building regulation","financial compliance law"],
+    "defi": ["decentralized blockchain finance","smart contract technology"],
+    "stablecoin": ["digital currency finance","cryptocurrency payment"],
+    "gamestop": ["stock market retail trading","financial markets volatility"],
+    "ripple": ["cross border payment technology","financial network digital"],
+    "ethereum": ["blockchain smart contract","ethereum network technology"],
+    "bear": ["bear market financial decline","stock market falling chart"],
+    "bull": ["bull market financial growth","cryptocurrency price rising"],
+    "macro": ["global economy finance","macro economic trends"],
+    "prediction": ["financial prediction market","data analytics forecast"],
+    "default": ["bitcoin cryptocurrency dark","blockchain technology network","digital currency abstract","crypto finance technology","bitcoin protocol network","cryptocurrency market data"],
 }
-def _query(title, category=""):
+def _pick(title, category, aid=0):
     t = f"{title} {category}".lower()
-    for kw, q in TOPIC_MAP.items():
+    for kw, opts in QUERIES.items():
         if kw in t:
-            return q
-    return TOPIC_MAP["default"]
-def get_pexels_image(title, category="bitcoin"):
+            return opts[aid % len(opts)]
+    opts = QUERIES["default"]
+    return opts[aid % len(opts)]
+def get_pexels_image(title, category="bitcoin", article_id=0):
     api_key = os.environ.get("PEXELS_API_KEY","").strip()
     if not api_key:
         return DEFAULT
-    q = _query(title, category)
-    if q in _CACHE:
-        return _CACHE[q]
+    q = _pick(title, category, article_id)
+    page = (article_id % 4) + 1
+    ck = f"{q}|{page}"
+    if ck in _CACHE:
+        return _CACHE[ck]
     try:
         r = requests.get("https://api.pexels.com/v1/search",
             headers={"Authorization": api_key},
-            params={"query": q, "per_page": 3, "orientation": "landscape"},
+            params={"query": q, "per_page": 5, "page": page, "orientation": "landscape"},
             timeout=8)
         r.raise_for_status()
-        photos = r.json().get("photos", [])
+        photos = r.json().get("photos",[])
         if photos:
-            url = photos[0]["src"]["large2x"]
-            _CACHE[q] = url
+            url = photos[article_id % len(photos)]["src"]["large2x"]
+            _CACHE[ck] = url
             return url
     except Exception as e:
-        logger.error(f"Pexels error: {e}")
-    _CACHE[q] = DEFAULT
+        logger.error(f"Pexels: {e}")
+    _CACHE[ck] = DEFAULT
     return DEFAULT
