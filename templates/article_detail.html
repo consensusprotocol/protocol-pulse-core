@@ -128,15 +128,23 @@
                 </time>
             </div>
 
-            <!-- TL;DR (collapsible) -->
-            {% if article.summary %}
-            <div class="ppa-tldr">
-                <button class="ppa-tldr__toggle" onclick="ppToggleTldr(this)" aria-expanded="false">
-                    <span class="ppa-tldr__label"><i class="fas fa-bolt"></i> TL;DR</span>
-                    <i class="fas fa-chevron-down ppa-tldr__caret"></i>
+            <!-- TL;DR glassmorphic card — collapsed by default -->
+            {% set tldr_text = article.summary or "" %}
+            {% if not tldr_text %}
+              {% set tldr_match = article.content|regex_search("TL;DR:\s*([^<]+)") if article.content else "" %}
+            {% endif %}
+            {% if tldr_text %}
+            <div class="ppa-tldr-glass" id="ppTldrCard">
+                <button class="ppa-tldr-glass__toggle" onclick="ppToggleTldr()" aria-expanded="false" aria-controls="ppTldrBody">
+                    <div class="ppa-tldr-glass__left">
+                        <span class="ppa-tldr-glass__icon">⚡</span>
+                        <span class="ppa-tldr-glass__label">SIGNAL BRIEF</span>
+                        <span class="ppa-tldr-glass__hint">tap to expand</span>
+                    </div>
+                    <i class="fas fa-chevron-down ppa-tldr-glass__caret" id="ppTldrCaret"></i>
                 </button>
-                <div class="ppa-tldr__body" id="ppTldrBody" hidden>
-                    {{ article.summary }}
+                <div class="ppa-tldr-glass__body" id="ppTldrBody">
+                    {{ tldr_text }}
                 </div>
             </div>
             {% endif %}
