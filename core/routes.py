@@ -1772,8 +1772,8 @@ def article_detail(article_id):
     header_image_url = article.resolve_cover_image() if hasattr(article, 'resolve_cover_image') else (article.cover_image_url or article.header_image_url or "/static/images/default-header.png")
     if not header_image_url or header_image_url == "/static/images/default-header.png":
         try:
-            from services.image_search import get_article_image
-            fetched = get_article_image(article.title, article.category or "bitcoin")
+            from services.pexels_image import get_pexels_image
+            fetched = get_pexels_image(article.title or "", article.category or "bitcoin")
             if fetched and fetched != "/static/images/default-header.png":
                 header_image_url = fetched
                 article.cover_image_url = fetched
