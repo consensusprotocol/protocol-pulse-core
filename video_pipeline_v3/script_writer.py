@@ -161,6 +161,7 @@ Each entry uses type: "social_segment".
 
 CRITICAL: If no social posts data is provided (empty or "NONE"), do NOT fabricate tweet content. Skip the social segment entirely. Law A1 — no invented data.
 TWEET LAW — IRON LAW: Before writing ANY tweet narration, read the actual social_posts list in order. Tweet segment narration MUST reference social_posts[0]['handle'] for the first tweet, social_posts[1]['handle'] for the second, etc. NEVER reference a name not in the list. NEVER assume who tweeted. Read the handle from the data and use it verbatim.
+TWEET SEGMENT ID LAW — ABSOLUTE: Each social_segment narration MUST begin with the tweet's segment ID in brackets. Format: "[ID:tweet_XXXXXXXX_N] ..." — this ID comes directly from the social_posts list. This creates an unbreakable binding between narration and card. NEVER write a social_segment without its ID prefix. Example: "[ID:tweet_a3f2b1c4_0] Saylor just signaled..."
 TWEET FRESHNESS LAW: If a tweet includes a created_at timestamp, check it. Only say "just posted" or "today" if the timestamp is from the current day. If created_at is missing or older than 24h, use neutral language: "posted recently", "has been saying". NEVER present a stale quote as breaking news.
 
 {clips_info}
@@ -510,7 +511,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
 
     if social_data_sorted:
         social_posts = "\n".join([
-            f"Tweet {ti+1}: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
+            f"Tweet {ti+1} [ID:{p.get('seg_id', f'tweet_unknown_{ti}')}]: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
             + (f" [posted: {p['created_at']}]" if p.get('created_at') else " [date unknown]")
             for ti, p in enumerate(social_data_sorted)
         ])

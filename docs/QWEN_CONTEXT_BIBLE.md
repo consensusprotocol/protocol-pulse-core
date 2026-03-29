@@ -577,3 +577,10 @@ PATTERN: ORACLE go() UNDEFINED
 PATTERN: RELAY AUTONOMOUS PATTERN
   One batch call with base64-encoded nohup master script on Ultron.
   Never rely on sequential external HTTP calls — Cloudflare drops 2nd request.
+
+PATTERN: TWEET SEGMENT ID BINDING (permanent fix - Mar 28 2026)
+  Every social post gets a deterministic seg_id: tweet_{md5[:8]}_{index}
+  LLM narration embeds [ID:tweet_XXXXXXXX_N] prefix per social_segment entry
+  Assembler reorders tweet_card_posts by seg_id order extracted from narration
+  Strip ID prefix before TTS so it's never spoken (restore after TTS for assembler)
+  This is the ONLY correct tweet-narration sync mechanism. Never revert to handle matching.

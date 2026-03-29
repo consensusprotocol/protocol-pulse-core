@@ -4948,30 +4948,59 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         for ti, tp in enumerate(tweet_card_posts):
             logger.info(f"    CARD #{ti}: @{tp.get('handle', '?')} — {tp.get('text', '')[:40]}")
 
-        # Cross-check narrator handles vs card handles
+        # NEW: ID-based binding — extract [ID:tweet_XXXXXXXX_N] from narration
         _social_dialogue = [d for d in dialogue if d.get("type") == "social_segment"
                             and d.get("host") in (1, 2, "1", "2")]
-        _narrator_handles = []
+
+        # Extract seg_ids from narration in order
+        _narrator_seg_ids = []
         for sd in _social_dialogue:
-            for h in re.findall(r'@(\w+)', sd.get("text", "")):
-                h_lower = h.lower()
-                if h_lower not in _narrator_handles:
-                    _narrator_handles.append(h_lower)
-        _card_handles = [tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts]
-        if _narrator_handles and _card_handles:
-            if _narrator_handles[:len(_card_handles)] == _card_handles[:len(_narrator_handles)]:
-                logger.info(f"  FIX A VERIFIED: narrator handles {_narrator_handles} match card order {_card_handles}")
-            else:
-                logger.warning(f"  FIX A MISMATCH: narrator={_narrator_handles} vs cards={_card_handles} — reordering")
-                handle_to_post = {tp.get("handle", "").lower().lstrip("@"): tp for tp in tweet_card_posts}
-                reordered = []
-                for nh in _narrator_handles:
-                    if nh in handle_to_post:
-                        reordered.append(handle_to_post.pop(nh))
-                reordered.extend(handle_to_post.values())
+            id_match = re.search(r'\[ID:(tweet_[a-f0-9]+_\d+)\]', sd.get("text", ""))
+            if id_match:
+                _narrator_seg_ids.append(id_match.group(1))
+
+        # Build seg_id → post map
+        _seg_id_to_post = {tp.get("seg_id", ""): tp for tp in tweet_card_posts if tp.get("seg_id")}
+
+        if _narrator_seg_ids and _seg_id_to_post:
+            # Reorder tweet_card_posts to EXACTLY match narration order by seg_id
+            reordered = []
+            for sid in _narrator_seg_ids:
+                if sid in _seg_id_to_post:
+                    reordered.append(_seg_id_to_post.pop(sid))
+            # Append any remaining posts not mentioned (shouldn't happen but safe fallback)
+            reordered.extend(_seg_id_to_post.values())
+            if reordered:
                 tweet_card_posts = reordered
                 for ri, rp in enumerate(tweet_card_posts):
                     rp["display_order"] = ri
+                logger.info(f"  ID-BIND: Reordered {len(reordered)} tweet cards by seg_id — GUARANTEED MATCH")
+                for ri, rp in enumerate(tweet_card_posts):
+                    logger.info(f"    BOUND #{ri}: seg_id={rp.get('seg_id')} @{rp.get('handle')} → narration seg {ri}")
+        else:
+            logger.warning("  ID-BIND: No seg_ids found in narration — falling back to handle matching")
+            # Fallback: old @handle matching for backwards compat
+            _narrator_handles = []
+            for sd in _social_dialogue:
+                for h in re.findall(r'@(\w+)', sd.get("text", "")):
+                    h_lower = h.lower()
+                    if h_lower not in _narrator_handles:
+                        _narrator_handles.append(h_lower)
+            _card_handles = [tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts]
+            if _narrator_handles and _card_handles:
+                if _narrator_handles[:len(_card_handles)] == _card_handles[:len(_narrator_handles)]:
+                    logger.info(f"  FIX A VERIFIED: narrator handles {_narrator_handles} match card order {_card_handles}")
+                else:
+                    logger.warning(f"  FIX A MISMATCH: narrator={_narrator_handles} vs cards={_card_handles} — reordering")
+                    handle_to_post = {tp.get("handle", "").lower().lstrip("@"): tp for tp in tweet_card_posts}
+                    reordered = []
+                    for nh in _narrator_handles:
+                        if nh in handle_to_post:
+                            reordered.append(handle_to_post.pop(nh))
+                    reordered.extend(handle_to_post.values())
+                    tweet_card_posts = reordered
+                    for ri, rp in enumerate(tweet_card_posts):
+                        rp["display_order"] = ri
 
     # --- 0+1. INTRO TAG + COLD OPEN (merged: PBX narrates over intro) ---
     intro_tag_dur = 0.0

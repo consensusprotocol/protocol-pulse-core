@@ -1074,8 +1074,13 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             sorted_social = get_todays_social_posts(max_posts=5)
             if sorted_social:
                 sorted_social.sort(key=lambda p: p.get("likes", 0), reverse=True)
+                # Assign deterministic seg_id for tweet↔narration binding
+                import hashlib as _seg_hashlib
                 for si, sp in enumerate(sorted_social):
-                    logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} — {sp.get('text', '')[:40]}")
+                    raw = sp.get("tweet_url") or sp.get("url") or sp.get("text", "")
+                    sp["seg_id"] = f"tweet_{_seg_hashlib.md5(raw.encode()).hexdigest()[:8]}_{si}"
+                    sp["display_order"] = si
+                    logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} [seg_id={sp['seg_id']}] — {sp.get('text', '')[:40]}")
         except Exception as e:
             logger.warning(f"Social posts fetch failed: {e}")
 
@@ -1157,11 +1162,24 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                              social_posts_count=len(sorted_social),
                              space_tap_available=bool(selections.get("space_tap_clips")))
 
+        # Strip seg_id prefix from social_segment narration before TTS (binding tag, not spoken)
+        # Keep originals in dialogue for assembler ID-binding — only strip the TTS copy
+        import re as _strip_re
+        _seg_id_originals = {}
+        for _di, _entry in enumerate(dialogue):
+            if _entry.get("type") == "social_segment" and _strip_re.search(r'^\[ID:tweet_[a-f0-9]+_\d+\]', _entry.get("text", "")):
+                _seg_id_originals[_di] = _entry["text"]
+                _entry["text"] = _strip_re.sub(r'^\[ID:tweet_[a-f0-9]+_\d+\]\s*', '', _entry["text"])
+
         # ── Step 6: TTS ───────────────────────────────────────────────────────
         print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
         t0 = time.time()
         audio_dir = os.path.join(run_dir, "audio")
         audio_data = generate_dialogue_audio(dialogue, audio_dir)
+
+        # Restore seg_id prefixes after TTS so assembler can read them for card binding
+        for _di, _orig_text in _seg_id_originals.items():
+            dialogue[_di]["text"] = _orig_text
         successful = sum(1 for l in audio_data.get("lines", [])
                          if l.get("path") and os.path.exists(l.get("path", "")))
         print(f"  Audio: {successful}/{len(speech_lines)} lines")
