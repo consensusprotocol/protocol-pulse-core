@@ -53,7 +53,7 @@ export const XSpacesScene: React.FC<XSpacesSceneProps> = ({ segment }) => {
     <AbsoluteFill style={{ backgroundColor: BRAND.SURFACE_DARKER }}>
       {/* Narration audio (PBX intro) */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} />
       )}
 
       {/* Spaces audio (plays to completion) */}

@@ -25,7 +25,7 @@ export const PipScene: React.FC<PipSceneProps> = ({ segment, spec }) => {
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {/* Narration audio */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} />
       )}
       {/* Background music — same contemplative track, consistent across all narration */}
       <Audio

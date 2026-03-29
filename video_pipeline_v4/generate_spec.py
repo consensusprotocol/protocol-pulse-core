@@ -2,8 +2,18 @@
 """
 Generate episode_spec.json from data/signals.json for V4 Remotion pipeline.
 Outputs: video_pipeline_v4/episode_spec.json
+
+TTS note: narration_audio files should be generated with ElevenLabs at speed 1.20
+(matching v3 tts_engine.py PBX settings: voice HmUVvDlHsEz0m3eUGLgu, model
+eleven_turbo_v2_5, stability 0.35, similarity_boost 0.90, style 0.30).
+Do NOT apply playbackRate slowdown in Remotion — naturalness comes from voice config.
+
+Usage:
+  python3 generate_spec.py            # standard spec from signals.json
+  python3 generate_spec.py --hybrid   # hybrid spec from v3 episode_manifest.json
 """
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -70,4 +80,8 @@ def generate():
 
 
 if __name__ == "__main__":
-    generate()
+    if "--hybrid" in sys.argv:
+        from hybrid_producer import hybrid_generate
+        hybrid_generate()
+    else:
+        generate()

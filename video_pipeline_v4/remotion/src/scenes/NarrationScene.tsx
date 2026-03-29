@@ -3,6 +3,7 @@ import {
   AbsoluteFill,
   Audio,
   Img,
+  Video,
   staticFile,
   useCurrentFrame,
   interpolate,
@@ -19,8 +20,8 @@ interface NarrationSceneProps {
 
 /**
  * NarrationScene — PBX full-frame narration.
- * Background: solid #0a0a0a. No bg_loop.
- * Content varies by narration context.
+ * Background: looped bg_loop.mp4 at 15% opacity + dark overlay.
+ * Animated red pulse ring around logo for "live broadcast" feel.
  */
 export const NarrationScene: React.FC<NarrationSceneProps> = ({
   segment,
@@ -38,17 +39,69 @@ export const NarrationScene: React.FC<NarrationSceneProps> = ({
     { extrapolateRight: "clamp" }
   );
 
+  // Pulse ring: repeating scale(1.0→1.4) + opacity(0.6→0) every 90 frames
+  const pulsePhase = frame % 90;
+  const pulseScale = interpolate(pulsePhase, [0, 90], [1.0, 1.4], {
+    extrapolateRight: "clamp",
+  });
+  const pulseOpacity = interpolate(pulsePhase, [0, 90], [0.6, 0], {
+    extrapolateRight: "clamp",
+  });
+
   return (
     <AbsoluteFill style={{ backgroundColor: "#0a0a0a" }}>
+      {/* Animated background video — looped, subtle */}
+      <Video
+        src={staticFile(ASSETS.BG_LOOP)}
+        loop
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: 0.15,
+        }}
+      />
+
+      {/* Dark overlay for readability */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0,0,0,0.75)",
+        }}
+      />
+
       {/* Narration audio */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} />
       )}
       {/* Background music — contemplative_01, low volume, loops */}
       <Audio
         src={staticFile(ASSETS.NARRATION_BG_MUSIC)}
         volume={0.08}
         loop
+      />
+
+      {/* Pulse ring behind logo — "live broadcast" effect */}
+      <div
+        style={{
+          position: "absolute",
+          top: 60,
+          left: "50%",
+          width: 120,
+          height: 120,
+          transform: `translateX(-50%) scale(${pulseScale})`,
+          opacity: pulseOpacity,
+          borderRadius: "50%",
+          border: `3px solid ${BRAND.PRIMARY_RED}`,
+          pointerEvents: "none",
+        }}
       />
 
       {/* Logo centered */}

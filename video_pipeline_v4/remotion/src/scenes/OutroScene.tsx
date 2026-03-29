@@ -27,7 +27,7 @@ export const OutroScene: React.FC<OutroSceneProps> = ({ segment }) => {
 
       {/* PBX sign-off narration mixed over outro */}
       {segment.narration_audio && (
-        <Audio src={staticFile(segment.narration_audio)} volume={1} playbackRate={0.75} />
+        <Audio src={staticFile(segment.narration_audio)} volume={1} />
       )}
     </AbsoluteFill>
   );
