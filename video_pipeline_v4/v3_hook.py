@@ -6,6 +6,7 @@ V3 is never touched.
 """
 import time
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -37,35 +38,24 @@ def find_new_v3_outputs(seen: set) -> list[Path]:
             continue
         for mp4 in date_dir.glob("*.mp4"):
             key = str(mp4.relative_to(V3_OUTPUT))
-            if key not in seen:
+            if key not in seen and "pulse_check" in mp4.name and "norm" not in mp4.name and "concat" not in mp4.name:
                 new.append(mp4)
     return new
 
 
 def trigger_v4_render():
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    print(f"[{ts}] Generating V4 spec...")
-    result = subprocess.run(
-        [sys.executable, str(V4_DIR / "generate_spec.py")],
-        capture_output=True, text=True,
+    print(f"[{ts}] Triggering hybrid render (v3 content + v4 design)...")
+    # Use CUDA_VISIBLE_DEVICES=0 so hybrid uses GPU 0, not interfering with v3
+    env = {**os.environ, "CUDA_VISIBLE_DEVICES": "0"}
+    result = subprocess.Popen(
+        [sys.executable, str(V4_DIR / "hybrid_producer.py")],
         cwd=str(V4_DIR.parent),
+        env=env,
+        stdout=open(str(V4_DIR / "logs/v3_hook_hybrid.log"), "a"),
+        stderr=subprocess.STDOUT,
     )
-    if result.returncode != 0:
-        print(f"[{ts}] generate_spec FAILED: {result.stderr}")
-        return False
-
-    spec_path = V4_DIR / "episode_spec.json"
-    print(f"[{ts}] Rendering V4...")
-    result = subprocess.run(
-        [sys.executable, str(V4_DIR / "producer_v4.py"), str(spec_path)],
-        capture_output=True, text=True,
-        cwd=str(V4_DIR.parent),
-    )
-    if result.returncode != 0:
-        print(f"[{ts}] V4 render FAILED: {result.stderr[-1000:]}")
-        return False
-
-    print(f"[{ts}] V4 render complete")
+    print(f"[{ts}] Hybrid render launched (PID {result.pid})")
     return True
 
 
