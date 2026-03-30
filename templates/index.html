@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Protocol Pulse | Bitcoin Intelligence Hub{% endblock %}
+{% block title %}Protocol Pulse | Bitcoin Intelligence Hub<!-- Signal Orb -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="/static/js/signal_orb.js"></script>
+{% endblock %}
 
 {% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}
 
@@ -22,48 +25,67 @@
 <!-- ═══════════════════════════════════════════════════════════════
      HERO SECTION
      ═══════════════════════════════════════════════════════════════ -->
-<section class="pp-hero">
-    <!-- Ambient orbs -->
-    <div class="pp-hero__orb pp-hero__orb--1"></div>
-    <div class="pp-hero__orb pp-hero__orb--2"></div>
-    <div class="pp-hero__orb pp-hero__orb--3"></div>
+
+<style>
+.orb-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 100px;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+}
+</style>
+
+<section class="pp-hero" style="position:relative;">
+    <!-- Signal Orb — live convergence visualization -->
+    <div id="signal-orb-container" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;opacity:0.6;"></div>
+    <!-- Ambient orbs (kept as fallback) -->
+    <div class="pp-hero__orb pp-hero__orb--1" style="opacity:0.3;"></div>
+    <div class="pp-hero__orb pp-hero__orb--2" style="opacity:0.3;"></div>
+    <div class="pp-hero__orb pp-hero__orb--3" style="opacity:0.3;"></div>
 
     <div class="pp-container">
         <div class="pp-hero__content">
+            <!-- Convergence Score — LIVE from engine -->
+            <div style="margin-bottom:12px;text-align:center;">
+                <span id="orb-convergence-score" style="font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;color:#00d68f;line-height:1;text-shadow:0 0 30px rgba(0,214,143,0.12);"></span>
+                <div style="margin-top:2px;">
+                    <span id="orb-label" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#888;letter-spacing:0.05em;"></span>
+                </div>
+                <div style="margin-top:2px;">
+                    <span id="orb-thesis" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;letter-spacing:0.03em;"></span>
+                </div>
+                <div id="orb-domain-pills" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+            </div>
+
             <!-- Live badge -->
             <div class="pp-hero__badge pp-animate-in">
                 <span class="pp-pulse-dot"></span>
-                LIVE INTELLIGENCE FEED
+                SOVEREIGN CONVERGENCE ENGINE
             </div>
 
             <!-- Title -->
             <h1 class="pp-hero__title pp-animate-in pp-animate-in-delay-1">
-                Never Be Late to <br>
-                <span class="pp-hero__title-accent">the Bitcoin Signal</span>
+                The network doesn't lie.<br>
+                <span class="pp-hero__title-accent">The chain never sleeps.</span>
             </h1>
 
             <!-- Subtitle -->
             <p class="pp-hero__subtitle pp-animate-in pp-animate-in-delay-2">
-                The intelligence layer serious Bitcoiners use.
-                Real-time signals, AI-powered analysis, and deep-protocol reporting — before the market moves.
+                On-chain truth. Sovereign intelligence. Built for those who understand what's coming.
             </p>
 
-            <!-- CTAs -->
+            <!-- CTAs - minimal, discovery-first -->
             <div class="pp-hero__actions pp-animate-in pp-animate-in-delay-3">
-                <a href="/commander" class="pp-btn pp-btn--primary pp-btn--lg pp-cta-track" data-cta-id="hero-commander" data-cta-page="home" style="
-                    background:linear-gradient(135deg, #dc2626 0%, #ff3b5f 100%);
-                    border:none;
-                    color:#fff;
-                    font-weight:800;
-                    font-size:1.1rem;
-                    padding:16px 36px;
-                    letter-spacing:0.04em;
-                    box-shadow:0 0 24px rgba(220,38,38,0.35);
-                ">
-                    <i class="fas fa-shield-alt"></i> Access Commander Intelligence
-                </a>
                 <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-briefs" data-cta-page="home">
                     <i class="fas fa-terminal"></i> Read Intel Briefs
+                </a>
+                <a href="/oracle-live" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-oracle" data-cta-page="home" style="color:var(--pp-red,#CC2222);border-color:rgba(220,38,38,0.3);">
+                    ⚡ Consult The Oracle
                 </a>
             </div>
 
@@ -190,6 +212,7 @@
                 <img src="{{ (article.cover_image_url or article_image_urls.get(article.id, '/static/images/default-header.png')) }}"
                      alt="{{ article.title }}"
                      class="carousel-slide__img"
+                     onerror="this.style.display='none';this.parentElement.style.background='#111'"
                      loading="{% if loop.first %}eager{% else %}lazy{% endif %}"
                      decoding="async">
                 <div class="carousel-slide__overlay"></div>
@@ -325,6 +348,7 @@
                 <img src="{{ (article.cover_image_url or article_image_urls.get(article.id, '/static/images/default-header.png')) }}"
                      alt="{{ article.title }}"
                      class="article-card__img"
+                     onerror="this.src='/static/images/default-header.png'"
                      loading="lazy"
                      decoding="async">
                 <div class="article-card__body">
