@@ -878,7 +878,7 @@ FORMAT: Use <h1 class="article-header">, <div class="tldr-section">, <p class="a
                 seo_description=clean_text(article_data["seo_description"]),
                 source_type="ai_generated",
                 published=False,  # Require manual approval by default
-                author="Al Ingle",
+                author="Protocol Pulse",
                 cover_image_url=header_url,
             )
             

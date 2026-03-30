@@ -174,6 +174,15 @@ def fetch_rss_for_slot(slot: str, limit: int = 20) -> List[Dict]:
                 summary = entry.get("summary", entry.get("description", ""))[:1000]
                 if not title or not url:
                     continue
+                # BITCOIN-ONLY GATE — reject anything not Bitcoin-relevant
+                _btc_keywords = ["bitcoin", "btc", "satoshi", "sats", "halving", 
+                                 "mining", "miner", "hashrate", "lightning", "layer 2",
+                                 "etf", "strategic reserve", "digital gold", "proof of work",
+                                 "block reward", "difficulty", "mempool", "utxo", "node",
+                                 "self-custody", "cold storage", "hardware wallet"]
+                _title_lower = title.lower() + " " + summary.lower()
+                if not any(kw in _title_lower for kw in _btc_keywords):
+                    continue  # skip non-Bitcoin stories entirely
                 # Apply slot filter
                 if keywords and not _title_matches_filter(title, keywords):
                     continue

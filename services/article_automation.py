@@ -762,7 +762,7 @@ def run_article_generation_cycle() -> Dict:
                 title=final_title,
                 content=article_data['content'],
                 summary=article_data['summary'],
-                author="Protocol Pulse AI",
+                author="Protocol Pulse",
                 category="Bitcoin",
                 source_url=article_data['source_url'],
                 source_type=article_data['source_type'],
