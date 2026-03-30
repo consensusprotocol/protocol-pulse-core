@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Protocol Pulse | Bitcoin Intelligence Hub<!-- Signal Orb -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script src="/static/js/signal_orb.js"></script>
+{% block title %}Protocol Pulse | Bitcoin Intelligence Hub
 {% endblock %}
 
 {% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}
@@ -1279,4 +1277,9 @@ function nlSub(e){
   }).catch(()=>{if(btn){btn.innerHTML=orig;btn.disabled=false;}});
 }
 </script>
+
+<!-- Signal Orb — Three.js convergence visualization -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="/static/js/signal_orb.js"></script>
+
 {% endblock %}
