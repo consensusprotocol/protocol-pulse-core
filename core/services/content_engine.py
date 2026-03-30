@@ -535,6 +535,15 @@ APPROVE if score >= 7, REJECT if score < 7.
             )
             
             db.session.add(article)
+            # IMAGE HOOK: assign cover image at creation time
+            if not article.cover_image_url or article.cover_image_url == '/static/images/default-header.png':
+                try:
+                    from services.pexels_image import get_pexels_image as _gpx
+                    _img = _gpx(article.title or '', article.category or 'bitcoin', 0)
+                    if _img and 'default-header' not in _img:
+                        article.cover_image_url = _img
+                except Exception:
+                    pass
             db.session.commit()
             
             return article

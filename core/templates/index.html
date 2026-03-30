@@ -2142,6 +2142,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         dashPriceChange.className = 'metric-change-sm ' + (change >= 0 ? 'text-success' : 'text-danger');
                     }
                     if (whalePrice) whalePrice.textContent = '$' + btcPrice.toLocaleString();
+                    // Nav BTC price
+                    const proofPrice = document.getElementById('proofStripPrice');
+                    if (proofPrice) proofPrice.textContent = '$' + btcPrice.toLocaleString();
+                    // Nav ticker change
+                    const navChange = document.getElementById('nav-btc-change');
+                    if (navChange) {
+                        const ch = data.bitcoin.change_24h;
+                        navChange.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+                        navChange.style.color = ch >= 0 ? '#22c55e' : '#dc2626';
+                    }
                     
                     // Fee Data
                     const fees = data.fees;

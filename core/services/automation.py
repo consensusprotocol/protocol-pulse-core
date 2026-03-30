@@ -131,9 +131,17 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 source_type=(article_data.get("source_type") or "rss"),
                 author="Al Ingle",
                 published=publish_allowed,
-                cover_image_url="/static/images/default-header.png",
+                cover_image_url="",
             )
             db.session.add(article)
+            if not article.cover_image_url:
+                try:
+                    from services.pexels_image import get_pexels_image as _gpx
+                    _img = _gpx(article.title or '', article.category or 'bitcoin', 0)
+                    if _img and 'default-header' not in _img:
+                        article.cover_image_url = _img
+                except Exception:
+                    pass
             db.session.commit()
 
             run.finished_at = datetime.utcnow()
