@@ -153,7 +153,14 @@ def load_existing_tweets() -> dict:
     if not RAW_TWEETS_PATH.exists():
         return {}
     with open(RAW_TWEETS_PATH) as f:
-        tweets = json.load(f)
+        raw = f.read()
+        try:
+            tweets = json.loads(raw)
+        except json.JSONDecodeError:
+            # Recover from appended/corrupt JSON
+            decoder = json.JSONDecoder()
+            tweets, _ = decoder.raw_decode(raw)
+            logger.warning(f'Recovered {len(tweets)} tweets from corrupt JSON')
     return {str(t.get("id", "")): t for t in tweets if t.get("id")}
 
 
