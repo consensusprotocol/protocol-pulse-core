@@ -1106,7 +1106,7 @@
     <!-- B. SOVEREIGN SIGNAL MATRIX (Custom Canvas Radar) -->
     <div class="span-5">
       <div class="g-panel">
-        <div class="eyebrow">SOVEREIGN SIGNAL MATRIX</div>
+        <div class="eyebrow">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</div>
         <div class="radar-wrap">
           <canvas id="radarChart" class="radar-canvas" width="760" height="760"></canvas>
           <div class="radar-composite-row">
@@ -1115,12 +1115,12 @@
           </div>
         </div>
         <div class="axis-legend">
-          <span style="color:#fff;">&#9632; MINER</span>
-          <span style="color:#ff3b5f;">&#9632; EXCHANGE</span>
-          <span style="color:rgba(255,255,255,0.5);">&#9632; NARRATIVE</span>
-          <span style="color:rgba(255,255,255,0.3);">&#9632; ON-CHAIN</span>
-          <span style="color:rgba(255,255,255,0.7);">&#9632; LIGHTNING</span>
-          <span style="color:#ff3b5f;">&#9632; MARKET</span>
+          <span style="color:#dc2626;">&#9632; MCX Miner</span>
+          <span style="color:#f97316;">&#9632; EPX Exchange</span>
+          <span style="color:#8b5cf6;">&#9632; IHX Insider</span>
+          <span style="color:#a855f7;">&#9632; OPX Options</span>
+          <span style="color:#06b6d4;">&#9632; FDX Futures</span>
+          <span style="color:#22c55e;">&#9632; OCX On-Chain</span>
         </div>
         <div id="axis-detail-card" class="axis-detail-card"></div>
 
@@ -1702,7 +1702,7 @@
     const cx = W / 2, cy = H / 2;
     const maxR = Math.min(W, H) * 0.38;
 
-    const labels = ['MINER', 'EXCHANGE', 'NARRATIVE', 'ON-CHAIN', 'LIGHTNING', 'MARKET'];
+    const labels = ['MCX', 'EPX', 'IHX', 'OPX', 'FDX', 'OCX'];
     const n = 6;
 
     // ── State ──
@@ -1715,36 +1715,28 @@
     let hoveredAxis = -1, selectedAxis = -1;
     let flashAlpha = [0, 0, 0, 0, 0, 0];
 
+    var _orbCache = null;
     function computeMatrix() {
-      if (!CTX || !CTX.btc) return null;
-      var fg = (CTX.fear_greed || {}).value || 50;
-      var hashrate = (CTX.network || {}).hashrate_eh || 0;
-      var adjPct = (CTX.network || {}).next_adj_pct || 0;
-      var flow = CTX.exchange_flow || 'neutral';
-      var pcaf = CTX.pcaf_score || 0;
-      var kolScore = (CTX.kol || {}).sentiment_score || 50;
-      var artCount = (CTX.narrative || {}).article_count || 0;
-      var lnCap = (CTX.lightning || {}).capacity_btc || 0;
-      var lnChan = (CTX.lightning || {}).channels || 0;
-      var dom = (CTX.btc || {}).dominance || 0;
-      var poly = (CTX.polymarket || {}).macro_sentiment || 50;
-      var whaleN = (CTX.whale_alerts || []).length;
-
-      var miner = Math.min(100, Math.max(0,
-        (hashrate > 0 ? Math.min(50, hashrate / 20) : 25) +
-        (adjPct > 0 ? Math.min(30, adjPct * 10) : 0) +
-        (flow === 'outflow' ? 20 : flow === 'inflow' ? -10 : 0)
-      ));
-      var exchange = Math.min(100, Math.max(0, (pcaf * 0.5) + ((flow === 'outflow' ? 70 : flow === 'inflow' ? 30 : 50) * 0.5)));
-      var narrative = Math.min(100, Math.max(0, (kolScore * 0.6) + (Math.min(100, artCount * 5) * 0.4)));
-      var onchain = Math.min(100, Math.max(0, (whaleN * 15) + (flow === 'outflow' ? 30 : 10) + (pcaf * 0.2)));
-      var lightning = Math.round((lnCap > 0 ? Math.min(100, (lnCap / 6000) * 80) : 40) * 0.6 + (lnChan > 0 ? Math.min(100, (lnChan / 45000) * 80) : 40) * 0.4);
-      var market = Math.min(100, Math.max(0, (fg * 0.4) + (dom * 0.3) + (poly * 0.3)));
-
-      var vals = [Math.round(miner), Math.round(exchange), Math.round(narrative), Math.round(onchain), Math.round(lightning), Math.round(market)];
-      var comp = Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
+      if (_orbCache) return _orbCache;
+      // Fallback from CTX until /api/orb loads
+      var idx = (CTX.indices || {});
+      var mc = (idx.miner_conviction || {}).score || 50;
+      var ep = (idx.exchange_pressure || {}).score || 50;
+      var sd = (idx.social_divergence || {}).score || 50;
+      var vals = [mc, ep, sd, 50, 50, 50];
+      var comp = Math.round(vals.reduce(function(a,b){return a+b;},0) / vals.length);
       return { values: vals, composite: comp, bias: comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : 'NEUTRAL' };
     }
+    // Async load from convergence engine
+    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+      var n = d.nodes || {};
+      var order = ['mcx','epx','ihx','opx','fdx','ocx'];
+      var vals = order.map(function(k){ return Math.round((n[k]||{}).score||50); });
+      var comp = Math.round((d.composite||{}).score||50);
+      var bias = comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : (comp >= 55 ? 'CAUTIOUS BULLISH' : 'NEUTRAL');
+      _orbCache = { values: vals, composite: comp, bias: bias };
+      ingestMatrix(_orbCache);
+    }).catch(function(){});
 
     function ingestMatrix(m) {
       if (!m) return;
