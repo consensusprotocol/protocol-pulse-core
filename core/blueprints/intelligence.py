@@ -134,7 +134,7 @@ def join_register():
     return jsonify({"success": True, "checkout_url": None})
 
 
-@intelligence_bp.route("/intelligence")
+@intelligence_bp.route("/intelligence-v2")
 def intelligence_terminal():
     """Intelligence Dashboard — world-class redesign with PCAF orb, signal matrix, divergence engine."""
     import json as _json
