@@ -1853,7 +1853,11 @@
         rctx.font = '700 ' + (W > 500 ? '10' : '8') + 'px "JetBrains Mono", monospace';
         rctx.textAlign = 'center';
         rctx.textBaseline = 'middle';
+        rctx.fillStyle = (typeof axisColors !== 'undefined' && axisColors[i]) ? axisColors[i] : 'rgba(255,255,255,0.55)';
         rctx.fillText(labels[i], lx, ly);
+        // Score value next to label
+        rctx.font = '800 ' + (W > 500 ? '12' : '9') + 'px "JetBrains Mono", monospace';
+        rctx.fillText(Math.round(animVals[i]), lx, ly + (W > 500 ? 14 : 11));
       }
     }
 
