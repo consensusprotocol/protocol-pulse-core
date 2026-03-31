@@ -823,6 +823,18 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
 <!-- ═══ MAIN GRID ════════════════════════════════════════════════════ -->
 <div class="main-grid">
+<!-- Fullscreen radar overlay -->
+<div id="ssm-fs" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(4,4,4,0.98);z-index:99999;overflow-y:auto;">
+  <button onclick="document.getElementById('ssm-fs').style.display='none';document.body.style.overflow='';" style="position:fixed;top:16px;right:16px;z-index:100000;background:rgba(220,38,38,0.2);border:1px solid #dc2626;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 16px;border-radius:4px;cursor:pointer;">X CLOSE</button>
+  <div style="max-width:900px;margin:60px auto;padding:20px;text-align:center;">
+    <canvas id="ssm-radar-fs" width="700" height="700" style="max-width:100%;"></canvas>
+    <div style="margin-top:12px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;color:#fff;" id="ssm-fs-comp">--</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-fs-bias">SOVEREIGN COMPOSITE</span>
+    </div>
+  </div>
+</div>
+
 
 <!-- ─── LEFT COLUMN: Markets ────────────────────────────────────── -->
 <div class="col col-left">
