@@ -1558,6 +1558,50 @@ def api_dashboard_generate_key():
     return jsonify({'api_key': current_user.api_key})
 
 
+
+@app.route('/api/orb')
+def api_orb_public():
+    import json as _j
+    from pathlib import Path as _P
+    from flask import jsonify as _jfy
+    from datetime import datetime, timezone
+    try:
+        snap = _P('/home/ultron/protocol_pulse/data/sovereign_context/latest.json')
+        if not snap.exists():
+            return _jfy({"status":"initializing","composite":{"score":50,"pattern":"SYNCING"},"nodes":{"mcx":{"score":50},"epx":{"score":50},"ihx":{"score":50}},"streams":{"hashrate":50,"fear_greed":50,"fees":50,"exchange_flow":50,"kol":50}})
+        d = _j.loads(snap.read_text())
+        fg_val = float((d.get('fear_greed') or {}).get('value', 50))
+        hashrate = float((d.get('network') or {}).get('hashrate_eh', 0))
+        hash_score = min(100.0, (hashrate / 1200.0) * 100.0)
+        indices = d.get('indices') or {}
+        mcx = float((indices.get('miner_conviction') or {}).get('score', 50))
+        ep_raw = float((indices.get('exchange_pressure') or {}).get('score', 0))
+        epx = max(0.0, min(100.0, 50.0 + ep_raw * 25.0))
+        sd_raw = float((indices.get('social_divergence') or {}).get('score', 0))
+        ihx = max(0.0, min(100.0, 50.0 + sd_raw * 0.5))
+        composite = round((mcx*0.35) + (epx*0.20) + (ihx*0.10) + (fg_val*0.20) + (hash_score*0.15), 1)
+        patterns = d.get('pattern_matches') or []
+        pattern = patterns[0].replace('_',' ') if patterns else ('ACCUMULATION' if composite>70 else ('CONSTRUCTIVE' if composite>55 else ('MONITORING' if composite>40 else 'WATCH')))
+        ex = d.get('exchange_flow', 'neutral')
+        mem = d.get('mempool') or {}
+        fee_h = float(mem.get('fee_high', 2))
+        fee_score = max(0.0, min(100.0, 100.0 - fee_h * 2.0))
+        flow_score = 70.0 if ex=='outflow' else (30.0 if ex=='inflow' else 50.0)
+        kol_score = float((d.get('kol') or {}).get('sentiment_score', 50))
+        ts = d.get('timestamp','')
+        try:
+            dt = datetime.fromisoformat(ts.replace('Z','+00:00'))
+            age_s = (datetime.now(timezone.utc) - dt).total_seconds()
+            status = 'live' if age_s < 600 else 'stale'
+        except Exception:
+            age_s = 0
+            status = 'live'
+        return _jfy({"status":status,"timestamp":ts,"age_seconds":round(age_s),"composite":{"score":composite,"pattern":pattern},"nodes":{"mcx":{"score":round(mcx,1),"label":"MCX"},"epx":{"score":round(epx,1),"label":"EPX"},"ihx":{"score":round(ihx,1),"label":"IHX"}},"streams":{"hashrate":round(hash_score,1),"fear_greed":fg_val,"fees":round(fee_score,1),"exchange_flow":flow_score,"kol":kol_score}})
+    except Exception as exc:
+        import logging; logging.warning('orb api: %s', exc)
+        return _jfy({"status":"error","composite":{"score":50,"pattern":"OFFLINE"},"nodes":{"mcx":{"score":50},"epx":{"score":50},"ihx":{"score":50}},"streams":{"hashrate":50,"fear_greed":50,"fees":50,"exchange_flow":50,"kol":50}})
+
+
 @app.route('/api/network-data')
 def api_network_data():
     """Server-side API for network data - avoids CORS issues"""
