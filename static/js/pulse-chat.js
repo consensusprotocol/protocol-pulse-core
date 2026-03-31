@@ -411,7 +411,7 @@
                 max-height: calc(100vh - 64px);
                 border-radius: 16px 16px 0 0;
             }
-            .pp-chat-bubble { bottom: 84px; right: 14px; }
+            .pp-chat-bubble { display: none !important; }
         }
     `;
     document.head.appendChild(style);

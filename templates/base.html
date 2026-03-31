@@ -99,6 +99,7 @@
     {% block head %}{% endblock %}
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="{{ '/static/css/pp-homepage.css' }}?v=4.0">
+<style>.pp-chat-bubble { display: none !important; }</style>
 </head>
 <body class="pp-body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} rank-3-active{% endif %}{% block body_class %}{% endblock %}">
 
