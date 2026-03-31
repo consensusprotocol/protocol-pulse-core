@@ -740,14 +740,7 @@ def signal_terminal():
             mempool['fee_high'] = d.get('fastestFee', 20)
     except:
         pass
-    # Enrich mempool from sovereign context
-    try:
-        _smem = sovereign_ctx.get('mempool', {})
-        mempool['unconfirmed_count'] = _smem.get('unconfirmed', 0)
-        mempool['size_mb'] = _smem.get('size_mb', 0)
-        mempool['block_height'] = sovereign_ctx.get('block_height', 0)
-    except:
-        pass
+    # Mempool enrichment moved to sovereign_ctx block below
     try:
         r = _req.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=1.5)
         if r.ok:
@@ -812,6 +805,11 @@ def signal_terminal():
             price['dominance'] = _sbtc.get('dominance', 0)
         if price.get('change_24h', 0) == 0 and _sbtc.get('change_24h'):
             price['change_24h'] = _sbtc.get('change_24h', 0)
+        # Enrich mempool from sovereign context
+        _smem = sovereign_ctx.get('mempool', {})
+        mempool['unconfirmed_count'] = _smem.get('unconfirmed', 0)
+        mempool['size_mb'] = _smem.get('size_mb', 0)
+        mempool['block_height'] = sovereign_ctx.get('block_height', 0)
         # Enrich lightning
         _sln = sovereign_ctx.get('lightning', {})
         lightning = {
