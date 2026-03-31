@@ -391,8 +391,7 @@ def compute_insider_heat(signals: dict, context: dict) -> dict:
       - Active alerts / pattern matches (sovereign_context)
       - Fear & Greed as context
     
-    Note: STOCK Act disclosure data will be wired separately via
-    panopticon_service when that feed is production-stable.
+    Now includes STOCK Act congressional disclosures via Panopticon API.
     """
     drivers = []
     counterweights = []
@@ -464,13 +463,74 @@ def compute_insider_heat(signals: dict, context: dict) -> dict:
         fg_score = 30
         counterweights.append(f"Extreme greed (F&G: {fg}) — caution warranted")
 
-    # --- FINAL FORMULA ---
+    # --- Sub-metric 6: Congressional STOCK Act filings (Panopticon) ---
+    stock_act_score = 50  # neutral default
+    btc_adjacent_tickers = {
+        "COIN": 1.0, "MARA": 0.9, "RIOT": 0.9, "CLSK": 0.85, "MSTR": 0.95,
+        "IBIT": 1.0, "FBTC": 1.0, "GBTC": 1.0, "BITF": 0.85, "HUT": 0.8,
+        "PYPL": 0.5, "SQ": 0.55, "HOOD": 0.5, "NVDA": 0.3, "AMD": 0.3,
+    }
+    try:
+        import urllib.request as _ureq
+        _req = _ureq.Request("http://localhost:5000/api/panopticon/congress",
+                             headers={"User-Agent": "ProtocolPulse/Convergence"})
+        with _ureq.urlopen(_req, timeout=5) as _resp:
+            panopticon = json.loads(_resp.read())
+        disclosures = panopticon.get("disclosures", [])
+        features["stock_act_filing_count"] = len(disclosures)
+
+        if disclosures:
+            btc_relevant = 0
+            total_relevance = 0.0
+            buys = 0
+            sells = 0
+            fast_filers = 0
+
+            for d in disclosures[:20]:
+                ticker = d.get("ticker", "")
+                relevance = btc_adjacent_tickers.get(ticker, 0.1)
+                total_relevance += relevance
+                if relevance >= 0.5:
+                    btc_relevant += 1
+                trade_type = str(d.get("trade_type", "")).lower()
+                if "purchase" in trade_type or "buy" in trade_type:
+                    buys += 1
+                elif "sale" in trade_type or "sell" in trade_type:
+                    sells += 1
+                days = d.get("days_to_file", 45)
+                if isinstance(days, (int, float)) and days < 15:
+                    fast_filers += 1
+
+            features["stock_act_btc_relevant"] = btc_relevant
+            features["stock_act_buys"] = buys
+            features["stock_act_sells"] = sells
+            features["stock_act_fast_filers"] = fast_filers
+
+            volume_score = min(80, 40 + len(disclosures) * 3)
+            relevance_score = min(90, 40 + total_relevance * 8)
+            urgency_score = min(85, 40 + fast_filers * 12)
+
+            stock_act_score = 0.4 * volume_score + 0.35 * relevance_score + 0.25 * urgency_score
+
+            if btc_relevant >= 2:
+                drivers.append(f"{btc_relevant} BTC-adjacent congressional trades detected")
+            if fast_filers >= 2:
+                drivers.append(f"{fast_filers} fast-filed disclosures (< 15 days)")
+            if buys > sells and btc_relevant > 0:
+                drivers.append(f"Congressional buying bias ({buys} buys vs {sells} sells)")
+            elif sells > buys and btc_relevant > 0:
+                counterweights.append(f"Congressional selling ({sells} sells vs {buys} buys)")
+    except Exception as _e:
+        features["stock_act_error"] = str(_e)[:100]
+
+    # --- FINAL FORMULA (reweighted with STOCK Act) ---
     raw_score = (
-        0.24 * poly_score +
-        0.20 * narrative_score +
-        0.18 * alert_score +
-        0.22 * kol_score +
-        0.16 * fg_score
+        0.18 * poly_score +
+        0.15 * narrative_score +
+        0.12 * alert_score +
+        0.18 * kol_score +
+        0.12 * fg_score +
+        0.25 * stock_act_score
     )
     score = _clamp(raw_score)
 
