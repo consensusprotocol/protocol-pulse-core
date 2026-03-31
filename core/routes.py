@@ -13020,6 +13020,19 @@ def podcast_redirect():
 
 # ─── Satomi Voice / SMS (Twilio webhooks) ───────────────────────────────────
 
+
+
+# ── Brief Audio Delivery (Twilio <Play> endpoint) ──────────────────────────
+@app.route('/api/media/brief-audio/<filename>')
+def serve_brief_audio(filename):
+    import os
+    from flask import send_from_directory, abort
+    briefs_dir = '/tmp/satomi_briefs'
+    filepath = os.path.join(briefs_dir, filename)
+    if not os.path.exists(filepath):
+        abort(404)
+    return send_from_directory(briefs_dir, filename, mimetype='audio/mpeg')
+
 @app.route('/api/satomi/voice', methods=['POST', 'GET'])
 def satomi_voice_incoming():
     """Twilio webhook: handles incoming calls to our number. Set this URL in Twilio console."""
