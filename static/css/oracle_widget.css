@@ -310,12 +310,12 @@
 /* ── Mobile bottom sheet (≤768px) ──────────────────────────── */
 @media (max-width: 768px) {
     #ow-bubble {
-        width: 56px; height: 56px;
-        bottom: 16px; right: 16px;
+        width: 52px; height: 52px;
+        bottom: 68px; right: 14px;
     }
 
     .oracle-tooltip {
-        bottom: 84px; right: 16px;
+        bottom: 132px; right: 14px;
         max-width: calc(100vw - 48px);
     }
 
