@@ -59,58 +59,127 @@ def _get_btc_price() -> dict:
         return {"price": 0, "change_24h_pct": 0}
 
 
-def _get_top_signals(limit: int = 3) -> list:
-    """Pull top signals from sovereign_context/latest.json."""
+def _get_full_intelligence() -> dict:
+    """Pull ALL intelligence from sovereign_context + convergence API."""
+    intel = {
+        "signals": [],
+        "options": {},
+        "futures": {},
+        "macro": {},
+        "onchain": {},
+        "convergence": {},
+        "whale_alerts": [],
+        "lightning": {},
+        "polymarket": {},
+    }
     try:
         ctx_path = BASE / "data" / "sovereign_context" / "latest.json"
         if not ctx_path.exists():
-            return []
+            return intel
         data = json.loads(ctx_path.read_text())
 
-        # Try explicit signals list first
-        signals = data.get("signals", data.get("top_signals", []))
-        if signals:
-            result = []
-            for s in signals[:limit]:
-                if isinstance(s, dict):
-                    title = s.get("title") or s.get("headline") or s.get("name", "Signal")
-                    summary = s.get("summary") or s.get("description") or s.get("content", "")
-                    result.append({"title": title, "summary": summary[:200]})
-                elif isinstance(s, str):
-                    result.append({"title": s[:100], "summary": ""})
-            return result
-
-        # Build signals from structured context fields
-        result = []
+        # Fear & Greed
         fg = data.get("fear_greed", {})
-        if fg and fg.get("value"):
-            result.append({
-                "title": f"Fear and Greed Index at {fg['value']}",
-                "summary": fg.get("classification", ""),
-            })
-        mempool = data.get("mempool", {})
-        if mempool and mempool.get("pending_tx"):
-            fee = mempool.get("median_fee", "unknown")
-            result.append({
-                "title": f"Mempool: {mempool['pending_tx']:,} pending transactions",
-                "summary": f"Median fee {fee} sat/vB",
-            })
+        if fg.get("value"):
+            intel["signals"].append(f"Fear & Greed: {fg['value']}/100 ({fg.get('label', '')})")
+
+        # Network
         net = data.get("network", {})
-        if net and net.get("hashrate"):
-            result.append({
-                "title": f"Network hashrate at {net['hashrate']}",
-                "summary": net.get("difficulty_change", ""),
-            })
-        narrative = data.get("narrative", {})
-        if narrative and narrative.get("dominant_theme"):
-            result.append({
-                "title": f"Dominant narrative: {narrative['dominant_theme']}",
-                "summary": f"Sentiment: {narrative.get('sentiment', 'neutral')}",
-            })
-        return result[:limit]
+        if net.get("hashrate_eh"):
+            adj = net.get("next_adj_pct", 0)
+            intel["signals"].append(f"Hashrate: {net['hashrate_eh']} EH/s, next difficulty adjustment {adj:+.1f}%")
+
+        # Options
+        opts = data.get("options", {})
+        if opts.get("put_call_ratio"):
+            intel["options"] = {
+                "put_call": opts.get("put_call_ratio"),
+                "dvol": opts.get("dvol"),
+                "max_pain": opts.get("max_pain"),
+                "total_oi_btc": opts.get("total_oi_btc"),
+                "avg_iv": opts.get("avg_mark_iv"),
+            }
+
+        # Futures
+        fut = data.get("futures", {})
+        if fut.get("funding_rate") is not None:
+            intel["futures"] = {
+                "funding_rate": fut.get("funding_rate"),
+                "annualized_basis": fut.get("annualized_basis"),
+                "open_interest_btc": fut.get("open_interest"),
+                "open_interest_usd": fut.get("open_interest_usd"),
+                "basis_pct": fut.get("basis_pct"),
+            }
+
+        # Macro
+        macro = data.get("macro", {})
+        if macro:
+            intel["macro"] = {
+                "gold": macro.get("gold_price"),
+                "sp500": macro.get("sp500"),
+                "ten_yr_yield": macro.get("ten_year_yield"),
+                "btc_gold_corr": macro.get("btc_vs_gold_30d_corr"),
+                "btc_dxy_corr": macro.get("btc_vs_dxy_30d_corr"),
+            }
+
+        # On-chain
+        oc = data.get("on_chain", {})
+        if oc:
+            intel["onchain"] = {
+                "active_addresses_7d": oc.get("active_addresses_7d"),
+                "coin_days_destroyed": oc.get("coin_days_destroyed_7d"),
+                "nvt_ratio": oc.get("nvt_ratio"),
+                "accumulation_score": oc.get("accumulation_score"),
+                "tx_volume_usd_7d": oc.get("tx_volume_usd_7d"),
+            }
+
+        # Whale alerts
+        alerts = data.get("whale_alerts", [])
+        if alerts:
+            intel["whale_alerts"] = [a.get("message", "")[:100] for a in alerts[:3]]
+
+        # Lightning
+        ln = data.get("lightning", {})
+        if ln.get("capacity_btc"):
+            intel["lightning"] = {
+                "capacity_btc": ln.get("capacity_btc"),
+                "channels": ln.get("channels"),
+                "nodes": ln.get("nodes"),
+            }
+
+        # Polymarket
+        pm = data.get("polymarket", {})
+        if pm.get("top_market"):
+            intel["polymarket"] = {
+                "top_market": pm.get("top_market"),
+                "probability": pm.get("top_probability"),
+            }
+
+        # Convergence (from API)
+        try:
+            req = urllib.request.Request("http://localhost:5000/api/v1/intelligence/convergence/latest",
+                                         headers={"User-Agent": "ProtocolPulse/Brief"})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                conv = json.loads(resp.read())
+            intel["convergence"] = {
+                "score": conv.get("convergence_score"),
+                "thesis": conv.get("dominant_thesis", {}).get("label"),
+                "direction": conv.get("dominant_thesis", {}).get("direction"),
+                "aligned": conv.get("aligned_signals", []),
+                "conflicting": conv.get("conflicting_signals", []),
+            }
+        except Exception:
+            pass
+
     except Exception as e:
-        logger.warning("Signal fetch failed: %s", e)
-        return []
+        logger.warning("Intelligence fetch failed: %s", e)
+    return intel
+
+
+def _get_top_signals(limit: int = 3) -> list:
+    """Legacy wrapper — still called by template fallback."""
+    intel = _get_full_intelligence()
+    return [{"title": s, "summary": ""} for s in intel.get("signals", [])[:limit]]
 
 
 def _get_spaces_highlight() -> dict:
@@ -167,6 +236,14 @@ def generate_brief_script() -> str:
     signals = _get_top_signals(3)
     spaces = _get_spaces_highlight()
     sentiment = _get_social_sentiment()
+    # Log what data we have for debugging
+    intel = _get_full_intelligence()
+    logger.info("Brief data: %d signals, options=%s, futures=%s, macro=%s, convergence=%s",
+                len(intel.get("signals", [])),
+                bool(intel.get("options")),
+                bool(intel.get("futures")),
+                bool(intel.get("macro")),
+                bool(intel.get("convergence")))
     today = datetime.now(timezone.utc).strftime("%B %d, %Y")
 
     price_str = f"${btc['price']:,.0f}" if btc["price"] else "price unavailable"
@@ -193,50 +270,77 @@ def generate_brief_script() -> str:
 
 
 def _generate_with_claude(today, price_str, direction, pct, signals, spaces, sentiment) -> str:
-    """Use Claude to generate a polished 90-second voice script."""
+    """Use Claude to generate a polished 90-second voice script with ALL data."""
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         return ""
 
-    signal_text = ""
-    for i, s in enumerate(signals[:3], 1):
-        signal_text += f"  Signal {i}: {s['title']}"
-        if s["summary"]:
-            signal_text += f" - {s['summary'][:150]}"
-        signal_text += "\n"
+    intel = _get_full_intelligence()
 
-    spaces_text = ""
+    data_lines = [
+        f"Date: {today}",
+        f"BTC Price: {price_str}, {direction} {pct:.1f}% in 24h",
+    ]
+    for s in intel.get("signals", []):
+        data_lines.append(f"Signal: {s}")
+
+    opts = intel.get("options", {})
+    if opts.get("put_call"):
+        data_lines.append(f"Options: Put/Call {opts['put_call']:.2f}, DVOL {opts.get('dvol', '?')}, Max Pain ${opts.get('max_pain', 0):,.0f}, OI {opts.get('total_oi_btc', 0):,.0f} BTC")
+
+    fut = intel.get("futures", {})
+    if fut.get("funding_rate") is not None:
+        data_lines.append(f"Futures: Funding {fut['funding_rate']:.6f}, Basis {fut.get('annualized_basis', 0):.1f}% annualized, OI {fut.get('open_interest_btc', 0):,.0f} BTC")
+
+    macro = intel.get("macro", {})
+    if macro.get("gold"):
+        data_lines.append(f"Macro: Gold ${macro['gold']:,.0f}, S&P {macro.get('sp500', '?'):,}, 10yr {macro.get('ten_yr_yield', '?')}%, BTC-DXY corr {macro.get('btc_dxy_corr', '?')}")
+
+    oc = intel.get("onchain", {})
+    if oc.get("active_addresses_7d"):
+        data_lines.append(f"On-chain: {oc['active_addresses_7d']:,.0f} active addr 7d, NVT {oc.get('nvt_ratio', '?')}, Accum {oc.get('accumulation_score', '?')}/100")
+
+    conv = intel.get("convergence", {})
+    if conv.get("score"):
+        data_lines.append(f"Convergence: {conv['score']:.1f}/100, Thesis: {conv.get('thesis', '?')}, Aligned: {conv.get('aligned', [])}, Conflicting: {conv.get('conflicting', [])}")
+
+    alerts = intel.get("whale_alerts", [])
+    if alerts:
+        data_lines.append(f"Whales: {'; '.join(alerts[:2])}")
+
     if spaces:
-        spaces_text = f"X Spaces highlight: {spaces['speaker']} on '{spaces['title']}' (score: {spaces.get('score', 'N/A')})"
+        data_lines.append(f"X Spaces: {spaces.get('speaker', '?')} on '{spaces.get('title', '?')}'")
 
-    prompt = f"""Write a 90-second spoken intelligence briefing script. Read it aloud naturally.
+    data_block = "\n".join(f"- {l}" for l in data_lines)
 
-DATA:
-- Date: {today}
-- BTC: {price_str}, {direction} {pct:.1f}% in 24h
-- Top signals:
-{signal_text}- {spaces_text or 'No X Spaces highlight today.'}
-- Social sentiment: {sentiment}
+    prompt = f"""You are the voice of Protocol Pulse, a sovereign Bitcoin intelligence briefing.
+Write a 90-second spoken script. Authoritative, direct, cypherpunk edge.
 
-FORMAT (strict):
-"Good morning. Protocol Pulse sovereign intelligence brief for {today}.
-Bitcoin is trading at {price_str}, {direction} {pct:.1f} percent in the last 24 hours.
-[Signal 1]: [1 sentence].
-[Signal 2]: [1 sentence].
-[Optional spaces line].
-Social sentiment is {sentiment}.
-That's your brief. Stay sovereign."
+ALL AVAILABLE DATA:
+{data_block}
+
+STRUCTURE:
+1. "Good morning. Protocol Pulse intelligence brief for {today}."
+2. Price + direction (one sentence, spell out numbers for speech)
+3. The MOST interesting convergence or divergence in the data (2-3 sentences). If miners are bullish but fear is extreme, SAY that. If options diverge from spot, CALL IT OUT.
+4. One macro insight — gold, yields, correlations — what it means for Bitcoin
+5. One on-chain insight — accumulation, whale moves, NVT
+6. Convergence Engine thesis in one punchy sentence
+7. Close with exactly: "That's your brief. Stay sovereign."
 
 RULES:
-- No emojis, no markdown, no URLs
-- Plain spoken English, concise, authoritative
-- Under 250 words total
-- Every number spelled for speech (e.g. "eighty-seven thousand")"""
+- No emojis, no markdown, no URLs, no hashtags
+- Plain spoken English for phone delivery
+- Spell out all numbers (sixty-seven thousand, not 67,000)
+- Under 280 words total
+- Be opinionated. Take a stance.
+- Say "stay sovereign" EXACTLY ONCE at the very end
+- Sound like a cypherpunk intelligence officer, not a news anchor"""
 
     try:
         payload = json.dumps({
             "model": "claude-haiku-4-5-20251001",
-            "max_tokens": 500,
+            "max_tokens": 700,
             "messages": [{"role": "user", "content": prompt}],
         }).encode()
 
@@ -258,8 +362,6 @@ RULES:
         logger.warning("Claude brief generation failed: %s", e)
     return ""
 
-
-# ── Delivery ─────────────────────────────────────────────────────────────────
 
 def generate_and_deliver_brief():
     """Main entry: generate brief, deliver via voice call + SMS summary."""
