@@ -124,9 +124,37 @@ def load_narrative_context() -> dict:
         return {}
 
 
+
+def load_sovereign_context() -> dict:
+    """Load sovereign_context/latest.json for rich signal data."""
+    ctx_path = BASE / "data" / "sovereign_context" / "latest.json"
+    if not ctx_path.exists():
+        return {}
+    try:
+        with open(ctx_path) as f:
+            return json.load(f)
+    except Exception as e:
+        logger.warning(f"sovereign_context load failed: {e}")
+        return {}
+
 def load_bitcoin_price() -> dict:
     """Fetch current BTC price + FNG from CoinGecko."""
     result = {"price": "N/A", "change_24h": "N/A", "fng": "N/A"}
+    # Try sovereign_context first (always fresh, updated every 5 min)
+    try:
+        ctx = load_sovereign_context()
+        btc = ctx.get("btc", {})
+        fg = ctx.get("fear_greed", {})
+        if btc.get("price"):
+            result["price"] = f"${btc['price']:,.0f}"
+            result["change_24h"] = f"{btc.get('change_24h', 0):+.1f}%"
+        if fg.get("value"):
+            result["fng"] = fg.get("label", "Unknown")
+            result["fng_score"] = fg.get("value", "?")
+        if result["price"] != "N/A":
+            return result  # sovereign_context had data
+    except Exception:
+        pass  # Fall through to CoinGecko
     try:
         req = urllib.request.Request(
             "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true",
@@ -294,9 +322,25 @@ def main():
     )
 
     if not tweets and not nostr_signals:
-        logger.warning("No signal data available — run nitter_scraper.py first")
-        # Still produce a brief with market data only
-        tweets = []
+        logger.warning("No signal data available -- enriching from sovereign_context")
+        ctx = load_sovereign_context()
+        if ctx:
+            net = ctx.get("network", {})
+            opts = ctx.get("options", {})
+            futures = ctx.get("futures", {})
+            onchain = ctx.get("on_chain", {})
+            tweets = []
+            if net.get("hashrate_eh"):
+                tweets.append({"text": f"Bitcoin hashrate at {net['hashrate_eh']} EH/s", "handle": "mempool_space"})
+            if opts.get("put_call_ratio"):
+                tweets.append({"text": f"Options P/C ratio: {opts['put_call_ratio']:.2f}, DVOL: {opts.get('dvol', 'N/A')}", "handle": "deribit"})
+            if futures.get("funding_rate") is not None:
+                tweets.append({"text": f"Funding: {futures['funding_rate']:.6f}, OI: {futures.get('open_interest', 0):,.0f} BTC", "handle": "binance"})
+            if onchain.get("active_addresses_7d"):
+                tweets.append({"text": f"Active addresses 7d: {onchain['active_addresses_7d']:,.0f}, NVT: {onchain.get('nvt_ratio', 'N/A')}", "handle": "blockchain"})
+            logger.info(f"Enriched with {len(tweets)} sovereign_context signals")
+        else:
+            tweets = []
 
     # Build prompt
     prompt = build_prompt(tweets, nostr_signals, price_data, narrative_ctx)
