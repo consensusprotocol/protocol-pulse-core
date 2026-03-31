@@ -666,27 +666,34 @@ def signal_terminal():
         ctx_path = "/home/ultron/protocol_pulse/data/sovereign_context/latest.json"
         with open(ctx_path) as _cf:
             _ctx = _stj.load(_cf)
-        btc = _ctx.get('btc', {})
+        # Price: use internal API (CoinGecko via price_service works for this endpoint)
+        try:
+            _pr = _req.get('http://localhost:5000/api/btc-price', timeout=3).json()
+            _btc_price = _pr.get('price', 0)
+            _btc_change = _pr.get('change_24h', 0)
+        except Exception:
+            _btc_price = 0
+            _btc_change = 0
         price = {
-            'price': btc.get('price', 0),
-            'change_24h': btc.get('change_24h', 0),
-            'change_7d': btc.get('change_7d', 0),
-            'change_30d': btc.get('change_30d', 0),
-            'market_cap': btc.get('market_cap', 0),
-            'volume_24h': btc.get('volume_24h', 0),
-            'dominance': btc.get('dominance', 0),
+            'price': _btc_price,
+            'change_24h': _btc_change,
+            'change_7d': _ctx.get('btc', {}).get('change_7d', 0),
+            'change_30d': _ctx.get('btc', {}).get('change_30d', 0),
+            'market_cap': _ctx.get('btc', {}).get('market_cap', 0),
+            'volume_24h': _ctx.get('btc', {}).get('volume_24h', 0),
+            'dominance': _ctx.get('btc', {}).get('dominance', 0),
         }
-        # Also pull F&G from context
+        # F&G from sovereign context
         _fg = _ctx.get('fear_greed', {})
         fg = int(_fg.get('value', 25))
         fg_class = str(_fg.get('label', 'Fear')).lower().replace(' ', '-')
-        # Mining data
+        # Mining from sovereign context
         _net = _ctx.get('network', {})
         onchain['hashrate'] = _net.get('hashrate_eh', 0)
         onchain['difficulty'] = _net.get('difficulty', 0)
-        onchain['block_height'] = _net.get('block_height', 0)
+        onchain['block_height'] = _ctx.get('block_height', 0)
     except Exception as e:
-        logging.warning(f'[SignalTerminal] sovereign_context: {e}')
+        logging.warning(f'[SignalTerminal] data load: {e}')
     try:
         r = _req.get('https://api.alternative.me/fng/?limit=1', timeout=1.5)
         if r.ok:
