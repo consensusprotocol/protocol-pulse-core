@@ -311,12 +311,12 @@
 @media (max-width: 768px) {
     #ow-bubble {
         width: 52px; height: 52px;
-        bottom: 110px; right: 14px;
+        bottom: 140px; right: 14px;
         z-index: 99999 !important;
     }
 
     .oracle-tooltip {
-        bottom: 174px; right: 14px;
+        bottom: 204px; right: 14px;
         z-index: 99999 !important;
         max-width: calc(100vw - 48px);
     }
