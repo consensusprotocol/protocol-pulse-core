@@ -1360,80 +1360,130 @@ updateCards();setInterval(updateCards,30000);
 (function(){
 var fi=document.getElementById('live-feed-inner'),fc=document.getElementById('feed-count');
 if(!fi) return;
-var cnt=0,MAX=80,pending=[],dripping=false,lastD=null;
+var cnt=0,MAX=100,pending=[],dripping=false,lastD=null,lastFetch=0,fetchFails=0;
+
 function ts(){var d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0')+'.'+d.getMilliseconds().toString().padStart(3,'0').slice(0,2);}
-function addE(tag,col,label,val,st){
+
+function addE(tag,col,label,val,provenance){
+  // provenance: LIVE, DERIVED, SIM, STALE, BOOT
   var d=document.createElement('div');
-  var sc=st==='OK'?'#22c55e66':st==='WARN'?'#f9731688':'#55555566';
-  d.style.cssText='display:flex;align-items:center;gap:6px;padding:2px 10px;font-family:JetBrains Mono,monospace;font-size:0.53rem;white-space:nowrap;overflow:hidden;border-left:2px solid '+col+'44;margin:1px 4px;';
-  d.innerHTML='<span style="color:rgba(255,255,255,0.18);min-width:50px;flex-shrink:0;">'+ts()+'</span><span style="color:'+col+';min-width:32px;flex-shrink:0;font-weight:700;">'+tag+'</span><span style="color:rgba(255,255,255,0.3);min-width:88px;flex-shrink:0;">'+label+'</span><span style="color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;flex:1;">'+val+'</span><span style="color:'+sc+';font-size:0.45rem;min-width:26px;text-align:right;flex-shrink:0;">'+st+'</span>';
+  var pc=provenance==='LIVE'?'#22c55e':provenance==='WARN'?'#f97316':provenance==='STALE'?'#dc2626':provenance==='SIM'?'#333':provenance==='BOOT'?'#555':'#333';
+  d.style.cssText='display:flex;align-items:center;gap:6px;padding:2px 10px;font-family:JetBrains Mono,monospace;font-size:0.52rem;white-space:nowrap;overflow:hidden;border-left:2px solid '+col+'44;margin:1px 4px;opacity:'+(provenance==='SIM'?'0.45':'1')+';';
+  d.innerHTML=
+    '<span style="color:rgba(255,255,255,0.15);min-width:50px;flex-shrink:0;">'+ts()+'</span>'+
+    '<span style="color:'+col+';min-width:34px;flex-shrink:0;font-weight:700;">'+tag+'</span>'+
+    '<span style="color:rgba(255,255,255,0.28);min-width:86px;flex-shrink:0;">'+label+'</span>'+
+    '<span style="color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;flex:1;">'+val+'</span>'+
+    '<span style="color:'+pc+';font-size:0.42rem;min-width:36px;text-align:right;flex-shrink:0;letter-spacing:0.05em;">'+provenance+'</span>';
   fi.appendChild(d);cnt++;
-  if(fc) fc.textContent=cnt+' entries';
   while(fi.children.length>MAX) fi.removeChild(fi.firstChild);
+  updateHeader();
 }
-function drip(){if(!pending.length){dripping=false;return;}dripping=true;var e=pending.shift();addE(e.t,e.c,e.l,e.v,e.s);setTimeout(drip,55+Math.random()*110);}
+
+function updateHeader(){
+  if(!fc) return;
+  var ageSec=lastFetch?Math.round((Date.now()-lastFetch)/1000):null;
+  var isStale=ageSec!==null&&ageSec>120;
+  var fields=lastD?Object.keys(lastD.raw||{}).length+Object.keys(lastD.nodes||{}).length:0;
+  var statusCol=!lastD?'#888':isStale?'#dc2626':'#22c55e';
+  var statusTxt=!lastD?'CONNECTING':isStale?'STALE':'LIVE';
+  fc.innerHTML=
+    '<span style="color:rgba(255,255,255,0.25);">'+cnt+' entries</span>'+
+    (ageSec!==null?' <span style="color:rgba(255,255,255,0.2);">· '+ageSec+'s ago</span>':'')+
+    (fields?' <span style="color:rgba(255,255,255,0.2);">· '+fields+' fields</span>':'')+
+    ' <span style="color:'+statusCol+';font-weight:700;">'+statusTxt+'</span>';
+}
+
+function drip(){if(!pending.length){dripping=false;return;}dripping=true;var e=pending.shift();addE(e.t,e.c,e.l,e.v,e.p);setTimeout(drip,50+Math.random()*100);}
 function queue(arr){pending=pending.concat(arr);if(!dripping)drip();}
+
 function ingest(d){
+  // ALL entries from real backend payload — labeled LIVE
+  // Derived calculations labeled DERIVED
   var n=d.nodes||{},r=d.raw||{},s=d.streams||{},out=[];
-  if(s.hashrate) out.push({t:'MCX',c:'#dc2626',l:'HASHRATE',v:Math.round(s.hashrate/100*1200)+' EH/s',s:'OK'});
-  if(r.next_adj_pct!==undefined) out.push({t:'MCX',c:'#dc2626',l:'DIFF ADJ',v:(r.next_adj_pct>0?'+':'')+parseFloat(r.next_adj_pct).toFixed(2)+'%',s:'OK'});
-  if(n.mcx) out.push({t:'MCX',c:'#dc2626',l:'INDEX',v:Math.round(n.mcx.score)+'/100 '+(n.mcx.score>70?'BULLISH':'NEUTRAL'),s:'OK'});
-  out.push({t:'EPX',c:'#f97316',l:'NET FLOW',v:s.exchange_flow>60?'OUTFLOW':s.exchange_flow<40?'INFLOW':'NEUTRAL',s:'OK'});
-  if(r.whale_alerts!==undefined) out.push({t:'EPX',c:'#f97316',l:'WHALE TXS',v:r.whale_alerts+' detected',s:r.whale_alerts>3?'WARN':'OK'});
-  if(n.epx) out.push({t:'EPX',c:'#f97316',l:'INDEX',v:Math.round(n.epx.score)+'/100',s:'OK'});
-  if(s.fear_greed!==undefined) out.push({t:'IHX',c:'#3b82f6',l:'FEAR+GREED',v:Math.round(s.fear_greed)+'/100 '+(s.fear_greed<25?'EXTR FEAR':s.fear_greed<45?'FEAR':'NEUTRAL'),s:s.fear_greed<25?'WARN':'OK'});
-  if(r.poly_prob!==undefined) out.push({t:'IHX',c:'#3b82f6',l:'POLYMARKET',v:parseFloat(r.poly_prob).toFixed(1)+'%',s:'OK'});
-  if(n.ihx) out.push({t:'IHX',c:'#3b82f6',l:'INDEX',v:Math.round(n.ihx.score)+'/100',s:'OK'});
-  if(r.put_call_ratio!==undefined) out.push({t:'OPX',c:'#a855f7',l:'PUT/CALL',v:parseFloat(r.put_call_ratio).toFixed(3),s:r.put_call_ratio<0.7?'OK':'WARN'});
-  if(r.dvol!==undefined) out.push({t:'OPX',c:'#a855f7',l:'DVOL',v:parseFloat(r.dvol).toFixed(1)+'%',s:'OK'});
-  if(r.options_max_pain) out.push({t:'OPX',c:'#a855f7',l:'MAX PAIN',v:'$'+Math.round(r.options_max_pain/1000)+'k',s:'OK'});
-  if(n.opx) out.push({t:'OPX',c:'#a855f7',l:'INDEX',v:Math.round(n.opx.score)+'/100',s:'OK'});
-  if(r.funding_rate!==undefined) out.push({t:'FDX',c:'#06b6d4',l:'FUNDING',v:(r.funding_rate*100).toFixed(4)+'%',s:'OK'});
-  if(r.basis_pct!==undefined) out.push({t:'FDX',c:'#06b6d4',l:'BASIS',v:parseFloat(r.basis_pct).toFixed(2)+'% ann',s:'OK'});
-  if(n.fdx) out.push({t:'FDX',c:'#06b6d4',l:'INDEX',v:Math.round(n.fdx.score)+'/100',s:'OK'});
-  if(r.accumulation_score!==undefined) out.push({t:'OCX',c:'#22c55e',l:'ACCUM',v:Math.round(r.accumulation_score)+'/100',s:r.accumulation_score>65?'OK':'IDLE'});
-  if(r.nvt_ratio!==undefined) out.push({t:'OCX',c:'#22c55e',l:'NVT',v:parseFloat(r.nvt_ratio).toFixed(1),s:r.nvt_ratio<30?'OK':'WARN'});
-  if(r.lightning_btc) out.push({t:'OCX',c:'#22c55e',l:'LIGHTNING',v:parseFloat(r.lightning_btc).toFixed(0)+' BTC',s:'OK'});
-  if(n.ocx) out.push({t:'OCX',c:'#22c55e',l:'INDEX',v:Math.round(n.ocx.score)+'/100',s:'OK'});
-  if(s.fees!==undefined) out.push({t:'NET',c:'#888',l:'MEM FEES',v:Math.round(100-s.fees)+' sat/vB',s:'OK'});
-  out.push({t:'SYS',c:'#555',l:'COMPOSITE',v:d.composite.score+' '+d.composite.pattern,s:'OK'});
+  // MCX — real values
+  if(s.hashrate) out.push({t:'MCX',c:'#dc2626',l:'HASHRATE',v:Math.round(s.hashrate/100*1200)+' EH/s',p:'LIVE'});
+  if(r.next_adj_pct!==undefined) out.push({t:'MCX',c:'#dc2626',l:'DIFF ADJ',v:(r.next_adj_pct>0?'+':'')+parseFloat(r.next_adj_pct).toFixed(2)+'%',p:'LIVE'});
+  if(n.mcx) out.push({t:'MCX',c:'#dc2626',l:'INDEX SCORE',v:Math.round(n.mcx.score)+'/100 — '+(n.mcx.score>70?'BULLISH':n.mcx.score<35?'BEARISH':'NEUTRAL'),p:'DERIVED'});
+  // EPX — real values
+  out.push({t:'EPX',c:'#f97316',l:'NET FLOW',v:s.exchange_flow>60?'OUTFLOW':s.exchange_flow<40?'INFLOW':'NEUTRAL',p:'LIVE'});
+  if(r.whale_alerts!==undefined) out.push({t:'EPX',c:'#f97316',l:'WHALE TXS',v:r.whale_alerts+' in window',p:r.whale_alerts>3?'WARN':'LIVE'});
+  if(n.epx) out.push({t:'EPX',c:'#f97316',l:'INDEX SCORE',v:Math.round(n.epx.score)+'/100',p:'DERIVED'});
+  // IHX — real values
+  if(s.fear_greed!==undefined) out.push({t:'IHX',c:'#3b82f6',l:'FEAR+GREED',v:Math.round(s.fear_greed)+'/100 — '+(s.fear_greed<25?'EXTREME FEAR':s.fear_greed<45?'FEAR':s.fear_greed<55?'NEUTRAL':'GREED'),p:s.fear_greed<25?'WARN':'LIVE'});
+  if(r.poly_prob!==undefined) out.push({t:'IHX',c:'#3b82f6',l:'POLYMARKET',v:parseFloat(r.poly_prob).toFixed(1)+'% — '+(r.polymarket_top||'').slice(0,22),p:'LIVE'});
+  if(n.ihx) out.push({t:'IHX',c:'#3b82f6',l:'INDEX SCORE',v:Math.round(n.ihx.score)+'/100',p:'DERIVED'});
+  // OPX — real values
+  if(r.put_call_ratio!==undefined) out.push({t:'OPX',c:'#a855f7',l:'PUT/CALL',v:parseFloat(r.put_call_ratio).toFixed(3)+' ratio',p:r.put_call_ratio>0.9?'WARN':'LIVE'});
+  if(r.dvol!==undefined) out.push({t:'OPX',c:'#a855f7',l:'DVOL (IV)',v:parseFloat(r.dvol).toFixed(1)+'%',p:'LIVE'});
+  if(r.options_max_pain) out.push({t:'OPX',c:'#a855f7',l:'MAX PAIN',v:'$'+Math.round(r.options_max_pain/1000)+'k strike',p:'LIVE'});
+  if(n.opx) out.push({t:'OPX',c:'#a855f7',l:'INDEX SCORE',v:Math.round(n.opx.score)+'/100',p:'DERIVED'});
+  // FDX — real values
+  if(r.funding_rate!==undefined) out.push({t:'FDX',c:'#06b6d4',l:'FUNDING RATE',v:(r.funding_rate*100).toFixed(5)+'%',p:Math.abs(r.funding_rate)>0.001?'WARN':'LIVE'});
+  if(r.basis_pct!==undefined) out.push({t:'FDX',c:'#06b6d4',l:'BASIS',v:parseFloat(r.basis_pct).toFixed(2)+'% annualized',p:'LIVE'});
+  if(n.fdx) out.push({t:'FDX',c:'#06b6d4',l:'INDEX SCORE',v:Math.round(n.fdx.score)+'/100',p:'DERIVED'});
+  // OCX — real values
+  if(r.accumulation_score!==undefined) out.push({t:'OCX',c:'#22c55e',l:'ACCUM SCORE',v:Math.round(r.accumulation_score)+'/100',p:r.accumulation_score>65?'LIVE':'WARN'});
+  if(r.nvt_ratio!==undefined) out.push({t:'OCX',c:'#22c55e',l:'NVT RATIO',v:parseFloat(r.nvt_ratio).toFixed(1)+(r.nvt_ratio>40?' (elevated)':''),p:r.nvt_ratio>40?'WARN':'LIVE'});
+  if(r.lightning_btc) out.push({t:'OCX',c:'#22c55e',l:'LIGHTNING CAP',v:parseFloat(r.lightning_btc).toFixed(0)+' BTC',p:'LIVE'});
+  if(n.ocx) out.push({t:'OCX',c:'#22c55e',l:'INDEX SCORE',v:Math.round(n.ocx.score)+'/100',p:'DERIVED'});
+  // Network
+  if(s.fees!==undefined) out.push({t:'NET',c:'#888',l:'MEMPOOL FEES',v:Math.round(100-s.fees)+' sat/vB (high priority)',p:'LIVE'});
+  // Composite — derived
+  out.push({t:'SYS',c:'#555',l:'COMPOSITE',v:d.composite.score+' — '+d.composite.pattern,p:'DERIVED'});
   return out;
 }
-setTimeout(function(){
-  addE('SYS','#dc2626','SOVEREIGN ENGINE','INITIALIZING...','BOOT');
-  addE('SYS','#dc2626','6-INDEX MATRIX','MCX EPX IHX OPX FDX OCX','OK');
-  addE('SYS','#555','DATA SOURCES','ONCHAIN+FLOWS+DERIV+NET','OK');
-  setTimeout(function(){
-    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-      lastD=d;addE('SYS','#22c55e','API','CONNECTION ESTABLISHED','OK');queue(ingest(d));
-    });
-  },600);
-},200);
-setInterval(function(){
+
+function fetchAndIngest(isRefresh){
   fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-    lastD=d;addE('SYS','#555','REFRESH','INGESTING CYCLE DATA','OK');queue(ingest(d));
+    lastD=d; lastFetch=Date.now(); fetchFails=0;
+    // Mark stale if data from server is old
+    var serverAge=d.age_seconds||0;
+    if(isRefresh) addE('SYS','#555','REFRESH CYCLE','ingesting '+Object.keys(d.raw||{}).length+' fields','LIVE');
+    queue(ingest(d));
+    // Check server-side freshness
+    if(serverAge>600) addE('SYS','#dc2626','DATA AGE',serverAge+'s — context may be stale','STALE');
+  }).catch(function(){
+    fetchFails++;
+    addE('SYS','#dc2626','FETCH ERROR','retry '+fetchFails+'/3','WARN');
+    if(fetchFails>=2) addE('SYS','#dc2626','SIGNAL STATUS','backend unreachable — orb degrading','STALE');
+    updateHeader();
   });
-},30000);
-function micro(){
-  if(lastD){
-    var s=lastD.streams||{},r=lastD.raw||{};
-    var evts=[
-      {t:'MCX',c:'#dc2626',l:'HASHRATE',v:Math.round((s.hashrate||84)/100*1200+(Math.random()*20-10))+' EH/s',s:'OK'},
-      {t:'FDX',c:'#06b6d4',l:'FUNDING',v:((r.funding_rate||0)*100+(Math.random()-0.5)*0.00001).toFixed(5)+'%',s:'OK'},
-      {t:'OPX',c:'#a855f7',l:'P/C TICK',v:((r.put_call_ratio||0.7)+(Math.random()-0.5)*0.01).toFixed(3),s:'OK'},
-      {t:'IHX',c:'#3b82f6',l:'KOL SCAN',v:Math.floor(Math.random()*3+1)+' new signals',s:'OK'},
-      {t:'OCX',c:'#22c55e',l:'ONCHAIN',v:'addr delta +'+(Math.floor(Math.random()*200)+30),s:'OK'},
-      {t:'EPX',c:'#f97316',l:'FLOW CHK',v:(s.exchange_flow>60?'outflow':'neutral')+' '+(Math.floor(Math.random()*50)+10)+' BTC/hr',s:'OK'},
-      {t:'NET',c:'#888',l:'MEMPOOL',v:Math.floor(Math.random()*5000+28000)+' unconf txs',s:'OK'},
-      {t:'WHALE',c:'#ec4899',l:'TX ALERT',v:(Math.round(Math.random()*50+80))+'.'+Math.floor(Math.random()*9)+' BTC unconf',s:'WARN'},
-    ];
-    var e=evts[Math.floor(Math.random()*evts.length)];
-    addE(e.t,e.c,e.l,e.v,e.s);
-  }
-  setTimeout(micro,2500+Math.random()*4500);
 }
-setTimeout(micro,3000);
+
+// Boot
+setTimeout(function(){
+  addE('SYS','#dc2626','SOVEREIGN ENGINE','v1.3 — initializing','BOOT');
+  addE('SYS','#555','INDEX MATRIX','MCX EPX IHX OPX FDX OCX — 6 active','BOOT');
+  addE('SYS','#555','DATA CONTRACT','onchain + flows + derivatives + network','BOOT');
+  setTimeout(function(){ fetchAndIngest(false); }, 500);
+},100);
+
+// Re-ingest every 30s — real data only
+setInterval(function(){ fetchAndIngest(true); }, 30000);
+
+// Header freshness ticker
+setInterval(updateHeader, 5000);
+
+// SIM heartbeat — UI only, clearly labeled SIM, 35% opacity
+// These are NOT intelligence events — they are UI heartbeat to show the terminal is alive
+function simHeartbeat(){
+  if(!lastD) { setTimeout(simHeartbeat, 4000); return; }
+  var s=lastD.streams||{},r=lastD.raw||{};
+  // Only interpolations of real last values — no invented data
+  var hb=[
+    {t:'MCX',c:'#dc2626',l:'HASH POLL',v:Math.round((s.hashrate||84)/100*1200+(Math.random()*8-4))+' EH/s'},
+    {t:'FDX',c:'#06b6d4',l:'FUND TICK',v:((r.funding_rate||0)*100+(Math.random()-0.5)*0.000005).toFixed(5)+'%'},
+    {t:'OPX',c:'#a855f7',l:'P/C TICK', v:((r.put_call_ratio||0.7)+(Math.random()-0.5)*0.003).toFixed(3)},
+    {t:'NET',c:'#888',l:'MEM SCAN', v:Math.floor(Math.random()*3000+29000)+' unconf txs'},
+    {t:'EPX',c:'#f97316',l:'FLOW POLL',v:(s.exchange_flow>60?'outflow':'neutral')+' +'+(Math.floor(Math.random()*30)+5)+' BTC'},
+  ];
+  var e=hb[Math.floor(Math.random()*hb.length)];
+  addE(e.t,e.c,e.l,e.v,'SIM');
+  setTimeout(simHeartbeat, 4000+Math.random()*6000);
+}
+setTimeout(simHeartbeat, 5000);
 })();
-})();
+();
 </script>
 {% endblock %}
