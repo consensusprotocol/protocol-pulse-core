@@ -1560,6 +1560,7 @@ def api_dashboard_generate_key():
 
 
 @app.route('/api/orb')
+@limiter.exempt
 def api_orb_public():
     import json as _j
     from pathlib import Path as _P
