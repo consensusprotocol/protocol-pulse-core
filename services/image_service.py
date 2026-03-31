@@ -79,26 +79,18 @@ class ImageGenerationService:
         filename = f"header_{safe_title}_{timestamp}.jpg"
         filepath = HEADERS_DIR / filename
 
-        # Priority: Pexels (90%, needs API key) → Grok (all articles, XAI key) → OpenAI → fallback
-        use_grok = force_grok or _is_top_article(title)
+        # Priority: Grok (primary) -> DALL-E (secondary) -> Pexels KILLED
+        # Every article gets a unique AI-generated image. No more stock photo repetition.
         image = None
 
-        # 1. Pexels first (if key available)
-        if self.pexels_key:
-            logger.info(f"Using Pexels stock photo for: {title[:50]}")
-            image = self._fetch_pexels_image(title, category)
-
-        # 2. Grok — for top articles always, for ALL articles when Pexels unavailable
-        if image is None and self.xai_key:
-            if use_grok:
-                logger.info(f"Top article — using Grok: {title[:50]}")
-            else:
-                logger.info(f"Pexels unavailable — using Grok for: {title[:50]}")
+        # 1. Grok (primary — hyper-realistic, unique per article)
+        if self.xai_key:
+            logger.info(f"Generating Grok image for: {title[:50]}")
             image = self._generate_grok_image(title)
 
-        # 3. OpenAI DALL-E (rate-limited fallback)
+        # 2. OpenAI DALL-E (fallback if Grok fails)
         if image is None and self.openai_key:
-            logger.info(f"Grok failed — falling back to OpenAI for: {title[:50]}")
+            logger.info(f"Grok failed, using DALL-E for: {title[:50]}")
             image = self._generate_openai_image(title)
 
         if image is None:
