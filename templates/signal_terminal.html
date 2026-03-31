@@ -862,11 +862,11 @@ body { background: var(--bg) !important; overflow: hidden; }
         </div>
         <div class="data-row">
             <span class="label">MARKET CAP</span>
-            <span class="value" id="market-cap">{{ price.market_cap | default('—') }}</span>
+            <span class="value" id="market-cap">{% if price and price.market_cap and price.market_cap > 0 %}${{ '{:,.0f}'.format((price.market_cap / 1000000000)|int) }}B{% else %}—{% endif %}</span>
         </div>
         <div class="data-row">
             <span class="label">24H VOLUME</span>
-            <span class="value" id="volume-24h">{{ price.volume_24h | default('—') }}</span>
+            <span class="value" id="volume-24h">{% if price and price.volume_24h and price.volume_24h > 0 %}${{ '{:,.0f}'.format((price.volume_24h / 1000000)|int) }}M{% else %}—{% endif %}</span>
         </div>
         <div class="data-row">
             <span class="label">BTC DOMINANCE</span>
