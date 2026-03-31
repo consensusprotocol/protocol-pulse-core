@@ -546,7 +546,7 @@ body { background: #000 !important; overflow: hidden; }
       <div class="co-oath-line" data-delay="3000">Signal. Not noise.</div>
       <div class="co-oath-line" data-delay="5000" style="color:var(--co-dim);font-size:clamp(0.85rem,1.5vw,1rem);">— Welcome to Protocol Pulse.</div>
     </div>
-    <a href="/signal-terminal" class="co-cta" style="opacity:0" id="finalCta" onclick="markComplete()">ENTER THE TERMINAL</a>
+    <a href="/terminal" class="co-cta" style="opacity:0" id="finalCta" onclick="markComplete()">ENTER THE TERMINAL</a>
   </div>
 
   <!-- ── Progress dots ── -->
@@ -639,7 +639,7 @@ body { background: #000 !important; overflow: hidden; }
       e.preventDefault();
       goScreen(current - 1);
     } else if (e.key === 'Escape') {
-      window.location.href = '/signal-terminal';
+      window.location.href = '/terminal';
     }
   });
 

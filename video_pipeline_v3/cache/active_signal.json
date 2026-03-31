@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1774987206.9141471,
-  "fetched_at_iso": "2026-03-31T20:00:06.914151+00:00",
+  "fetched_at": 1774989906.9376347,
+  "fetched_at_iso": "2026-03-31T20:45:06.937658+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 82,
+      "events_filtered": 76,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 90,
+      "events_filtered": 83,
       "error": null
     },
     {
@@ -34,11 +34,20 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 82,
+      "events_filtered": 77,
       "error": null
     }
   ],
   "nostr_posts": [
+    {
+      "text": "Built something for the plebs.\n\nClixel is a free multiplayer browser game \u2014 a pixel moves across the screen, first to click it wins the pot of sats. Every miss from every player grows it.\n\nInstant payout via Lightning.    No catch.\n\nclixel.io/play\n\nWould love to hear what you all think. \u26a1\n\n#plebchain #bitcoin #lightning #zaps\n\nhttps://blossom.primal.net/b82e160ab98bd85068c62dee285c0054801c6a1f1878719fa372b4724e1b0103.mp4",
+      "pubkey": "9128a5ac21fb02d2a2b032b3ecc35beea17c57dc912b6784b1b366ab2fbc2b8d",
+      "display_name": "npub19128a5ac...bc2b8d",
+      "created_at": 1774988975,
+      "relay": "wss://relay.damus.io",
+      "score": 80,
+      "has_zap": false
+    },
     {
       "text": "\ud83d\udcca U.S. Senators Unveil \u2018Mined in America Act\u2019 to Reshore BTC Mining, Codify Bitcoin Strategic Reserve\n\n\u2022 U.S. Senators Bill Cassidy and Cynthia Lummis introduce \"Mined in America Act\" to reshore bitcoin mining within the US.\n\u2022 The bill aims to reduce reliance on Chinese hardware and create a Strategic Bitcoin Reserve.\n\u2022 Key provisions include incentives for domestic mining, tax credits, and a reserve fund to support price stabilization.\n\u2022 The legislation seeks to promote energy independence and diversify global bitcoin supply chains.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/u-s-senators-mining-bitcoin-reserve-bill\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #self-custody #regulation #mining #privacy #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: U.S. Senators Unveil \u2018Mined in America Act\u2019 to Restip7faea45d78b1820c3278325c3e591512",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
@@ -71,7 +80,7 @@
       "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
       "display_name": "npub1794833e5...f9c731",
       "created_at": 1774980187,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://relay.primal.net",
       "score": 80,
       "has_zap": false
     },
@@ -85,30 +94,21 @@
       "has_zap": false
     },
     {
-      "text": "\ud83d\udea8\ud83d\udea8\ud83d\udea8JUST IN!\ud83d\udea8\ud83d\udea8\ud83d\udea8\n\nI JUST FOUND #BITCOIN's Creator aka SATOSHI NAKAMOTO's phone number and it's located in Island! http://bitcoin.org/ was created on 18/08/2008 probably by himself with an anonymous registrar Finally we have a hotline for #bitcoin, so many asked for it.\n\n#bitcoin #nostr #satoshi #zap #nostr\n\nhttps://media.openresist.com/23407968c59593cfa4b8b39bbaa94a16a3aa7adbe169dd414564f74d8d7e9251.jpeg\n\nhttps://media.openresist.com/03e1e84b839d99156462002b12eac5d3924f515171196583243fb6a2c01d83c7.webp",
-      "pubkey": "8a862a33f231fe9beea89bef933404fa14a2f603c3377903fb2993d36d5c5cca",
-      "display_name": "npub18a862a33...5c5cca",
-      "created_at": 1774979404,
-      "relay": "wss://relay.damus.io",
-      "score": 78,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 9,718,632 sats\n\ud83d\udcca Positions: 0/1 active\n\ud83d\udcc8 1W/2L (33.3%) | -244,045 sats\n\ud83d\udd34 REAL P&L: -374,368 sats (-3.7%)\n\ud83d\udccf Range: $65909-$68335 (36%)\n\ud83d\udcca ADX: 24.0 (trending)\n\ud83d\udcc8 BTC: $66775 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
+      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 9,718,632 sats\n\ud83d\udcca Positions: 0/1 active\n\ud83d\udcc8 1W/2L (33.3%) | -244,045 sats\n\ud83d\udd34 REAL P&L: -374,368 sats (-3.7%)\n\ud83d\udccf Range: $65909-$68525 (75%)\n\ud83d\udcca ADX: 20.8 (trending)\n\ud83d\udcc8 BTC: $67863 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
       "pubkey": "8335846e47583b8ec66e89e82eaadb87875df7ecbebaceb26715b47af760a2d0",
       "display_name": "npub18335846e...60a2d0",
-      "created_at": 1774973102,
-      "relay": "wss://relay.primal.net",
+      "created_at": 1774987514,
+      "relay": "wss://nos.lol",
       "score": 72,
       "has_zap": false
     },
     {
-      "text": "If there was no fiat money in the world at all what would determine the value of bitcoin? Like how much would a coffee cost in a bitcoin only world?\n\n#asknostr #nostr #btc #bitcoin #fiat #money #currency #crypto #value #banks #economy",
-      "pubkey": "e99a4fa9e019bf73afac9b8e2f2548f77b103f20445af963f6edd3e8f849ec9a",
-      "display_name": "npub1e99a4fa9...49ec9a",
-      "created_at": 1774973397,
-      "relay": "wss://relay.primal.net",
-      "score": 71,
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/8cae5b0b190ea6360cedc540fd864f179fd9f62225ed85934c62ddb5729c56db.jpg\n\n\ud83d\udcf0 **Bitcoin\u2019s Digital Gold Narrative Faces Reckoning as Institutions Retreat**\n\u270d\ufe0f by Madrid\n\nA top crypto voice just called Bitcoin a failure, on-chain data shows the smart money is running for the exits, and a shadow network of accounts is being exposed for manipulating your fear. This is not a drill. The fight for Bitcoins soul has begun.\n\n\ud83d\udd17 https://nostrmag.com/article/w14bitcoin01\n\n\ud83d\udcca id#110628650",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1774989792,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
       "has_zap": false
     },
     {
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 254,
+  "total_filtered": 236,
   "total_scored": 20
 }

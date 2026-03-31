@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-03-31T20:10:05.786455+00:00",
-  "block_height": 943104,
+  "timestamp": "2026-03-31T20:45:02.906893+00:00",
+  "block_height": 943110,
   "btc": {
-    "price": 0,
-    "change_24h": 0,
+    "price": 67984,
+    "change_24h": 2.08,
     "change_7d": 0,
-    "market_cap": 0,
-    "dominance": 0
+    "market_cap": 1360574331322.0386,
+    "dominance": 56.2
   },
   "fear_greed": {
     "value": 11,
@@ -15,20 +15,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 24086,
-    "size_mb": 14.3
+    "fee_high": 1,
+    "unconfirmed": 16264,
+    "size_mb": 12.6
   },
   "network": {
-    "hashrate_eh": 1009.0,
+    "hashrate_eh": 1009.1,
     "difficulty": 0,
-    "next_adj_pct": 3.78,
-    "next_adj_blocks": 384
+    "next_adj_pct": 3.93,
+    "next_adj_blocks": 378
   },
   "lightning": {
-    "capacity_btc": 5292.1,
-    "channels": 41162,
-    "nodes": 17353
+    "capacity_btc": 5704.9,
+    "channels": 42027,
+    "nodes": 17372
   },
   "kol": {
     "sentiment_score": 50,
@@ -54,73 +54,73 @@
   "whale_alerts": [
     {
       "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774987335.402476
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 150.76 BTC unconfirmed 3921f6d1...",
+      "score": 10,
+      "created_at": 1774988140.442705
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 150.76 BTC unconfirmed 3921f6d1...",
+      "score": 10,
+      "created_at": 1774988140.0949986
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 1000.01 BTC unconfirmed 43c440a0...",
+      "score": 10,
+      "created_at": 1774988044.9109845
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 1000.01 BTC unconfirmed 43c440a0...",
+      "score": 10,
+      "created_at": 1774988044.6272812
     },
     {
       "tier": "NOTE",
       "rule": "Hashrate cliff",
       "message": "Hashrate cliff: 20.7% drop vs 24h prior",
       "score": 35,
-      "created_at": 1774987335.4008772
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774987335.381744
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774987006.4923964
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774987006.2306972
+      "created_at": 1774987947.6902463
     }
   ],
   "macro": {
     "dxy": null,
-    "gold_price": 4714.4,
-    "sp500": 6571.5,
-    "btc_vs_gold_30d_corr": 0.171,
-    "btc_vs_dxy_30d_corr": -0.674,
+    "gold_price": 4708.1,
+    "sp500": 6576.5,
+    "btc_vs_gold_30d_corr": 0.169,
+    "btc_vs_dxy_30d_corr": -0.666,
     "real_yield": null,
     "ten_year_yield": 4.31
   },
   "options": {
     "put_call_ratio": 0.673,
-    "dvol": 52.1,
+    "dvol": 52.3,
     "max_pain": 60000.0,
-    "total_call_oi": 226937.2,
-    "total_put_oi": 152715.6,
-    "total_oi_btc": 379652.8,
+    "total_call_oi": 226957.8,
+    "total_put_oi": 152746.7,
+    "total_oi_btc": 379704.5,
     "avg_mark_iv": 55.8
   },
   "futures": {
-    "funding_rate": 2.729e-05,
-    "annualized_basis": 2.99,
-    "open_interest": 29700.15,
-    "open_interest_usd": 2019388990.0,
+    "funding_rate": 2.873e-05,
+    "annualized_basis": 3.15,
+    "open_interest": 29745.02,
+    "open_interest_usd": 2021102850.0,
     "long_short_ratio": null,
-    "mark_price": 68009.06,
-    "index_price": 67992.56,
-    "basis_pct": 3.2789
+    "mark_price": 67963.13,
+    "index_price": 67947.6,
+    "basis_pct": 3.2853
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 21017298.0,
+    "coin_days_destroyed_7d": 22197744.0,
     "active_addresses_7d": 601151.0,
-    "tx_volume_usd_7d": 52973395010.0,
-    "nvt_ratio": 25.7,
+    "tx_volume_usd_7d": 53823632527.0,
+    "nvt_ratio": 25.3,
     "accumulation_score": 65
   },
   "active_alerts": [],

@@ -11,14 +11,14 @@
     "video_url": "/data/stage_briefs/brief_20260331_1800.mp4"
   },
   {
-    "id": "5ef604e6-13ec-459b-a3a0-7086e55b5ff3",
+    "id": "48d0f191-3ac3-4956-986e-fcea52184c36",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Gemini Credit Card partnership tweet. Natalie Brunell promoting Bitcoin spending with 4% sat back. Ledn Bitcoin-backed loans with 0.25% first loan discount. Abun hosting with one month free. Thought leader positioning. Watch for institutional adoption signals. Next: Bitcoin spending velocity metrics.",
+    "script": "Bitcoin adoption metrics surge 23% in Q3 as institutional nodes expand globally.\n\nWatch for next week's chain analysis showing new mining pool consolidations.",
     "source_label": "\ud83e\udde0 @NATBRUNELL",
-    "topic_preview": "R to @natbrunell: Paid partnerships:\n@Gemini: Invest as you spend with the Gemin",
-    "generated_at": "2026-03-31T18:30:06.648391+00:00",
-    "expires_at": "2026-03-31T20:30:06.648391+00:00"
+    "topic_preview": "I'm looking for a talented video editor/motion graphics animator for an upcoming",
+    "generated_at": "2026-03-31T20:35:04.210508+00:00",
+    "expires_at": "2026-03-31T22:35:04.210508+00:00"
   },
   {
     "id": "e3fdbb45-99a1-4ce5-a2d8-8cbfc4461547",
@@ -39,5 +39,15 @@
     "topic_preview": "price",
     "generated_at": "2026-03-31T19:30:17.511215+00:00",
     "expires_at": "2026-03-31T23:30:17.511215+00:00"
+  },
+  {
+    "id": "0d66c816-4103-4455-b1dd-3c119dea2653",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Hashrate breached 905 EH/s, signaling institutional accumulation. Fear & Greed index at 11 indicates extreme fear. Mempool fee remains at 1 sat/vbyte. Sovereign individuals hoard when others panic. Watch for mempool fee spikes above 2 sat/vbyte.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate breached 905 EH/s, signaling institutional accumulation. Fear & Greed i",
+    "generated_at": "2026-03-31T20:30:21.147056+00:00",
+    "expires_at": "2026-03-31T22:30:21.147056+00:00"
   }
 ]

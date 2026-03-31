@@ -648,6 +648,7 @@ def terminal_redirect():
     """Terminal route — redirect to signal terminal."""
     return redirect('/intelligence')
 
+@app.route('/terminal')
 @app.route('/signal-terminal')
 def signal_terminal():
     """Signal Terminal — Bloomberg-grade Bitcoin intelligence dashboard."""
@@ -4438,7 +4439,7 @@ def sentiment_dashboard():
 @app.route('/intelligence')
 def intelligence_main():
     """Intelligence → Signal Terminal (merged)."""
-    return redirect('/signal-terminal', code=302)
+    return redirect('/terminal', code=302)
 
 @app.route('/intelligence/legacy')
 def intelligence_legacy_page():
