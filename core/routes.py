@@ -659,7 +659,43 @@ def signal_terminal():
     lightning = {'capacity': 0, 'channels': 0, 'nodes': 0}
     fg = 25
     fg_class = 'extreme-fear'
-    signal = {'score': 0, 'direction': 'neutral'}
+    signal = {'score': 0, 'direction': 'neutral', 'classification': 'NEUTRAL', 'delta': 0}
+    # Pull real data from convergence engine
+    try:
+        import json as _sj2
+        ctx_path = "/home/ultron/protocol_pulse/data/sovereign_context/latest.json"
+        with open(ctx_path) as _cf2:
+            _sc = _sj2.load(_cf2)
+        _idx = _sc.get('indices', {})
+        _mc = _idx.get('miner_conviction', {})
+        _ep = _idx.get('exchange_pressure', {})
+        _sd = _idx.get('social_divergence', {})
+        # Composite from convergence
+        _orb_resp = _req.get('http://localhost:5000/api/orb', timeout=3).json()
+        _comp = _orb_resp.get('composite', {})
+        _comp_score = round(_comp.get('score', 0))
+        _pattern = _comp.get('pattern', 'NEUTRAL')
+        if _comp_score >= 65:
+            _class = 'BULLISH'
+        elif _comp_score >= 55:
+            _class = 'CAUTIOUS BULLISH'
+        elif _comp_score <= 35:
+            _class = 'BEARISH'
+        elif _comp_score <= 45:
+            _class = 'CAUTIOUS BEARISH'
+        else:
+            _class = 'NEUTRAL'
+        signal = {
+            'score': _comp_score,
+            'direction': 'bullish' if _comp_score >= 55 else ('bearish' if _comp_score <= 45 else 'neutral'),
+            'classification': _class,
+            'delta': 0,
+            'pattern': _pattern,
+            'miner_conviction': _mc.get('score', 0),
+            'exchange_pressure': _ep.get('score', 0),
+        }
+    except Exception:
+        pass
     latest = []
     try:
         import json as _stj
@@ -712,9 +748,21 @@ def signal_terminal():
             onchain['hashrate'] = round(hs / 1e18, 1) if hs else 0
     except:
         pass
+    macro = {}
+    try:
+        _macro_raw = _ctx.get('macro', {})
+        macro = {
+            'dxy': _macro_raw.get('dxy'),
+            'gold': _macro_raw.get('gold_price'),
+            'sp500': _macro_raw.get('sp500'),
+            'btc_gold_ratio': round(price.get('price', 0) / _macro_raw.get('gold_price', 1), 2) if _macro_raw.get('gold_price') else None,
+            'btc_gold_corr': _macro_raw.get('btc_vs_gold_30d_corr'),
+        }
+    except Exception:
+        pass
     try:
         from models import Article
-        latest = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(5).all()
+        latest = Article.query.filter_by(published=True).order_by(Article.created_at.desc()).limit(8).all()
     except:
         pass
     is_commander = False
