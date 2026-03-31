@@ -1703,6 +1703,8 @@
     const maxR = Math.min(W, H) * 0.38;
 
     const labels = ['MCX', 'EPX', 'IHX', 'OPX', 'FDX', 'OCX'];
+    const axisColors = ['#dc2626', '#f97316', '#8b5cf6', '#a855f7', '#06b6d4', '#22c55e'];
+    const axisDescs = ['Miner Conviction', 'Exchange Pressure', 'Insider Heat', 'Options Pressure', 'Futures/Derivatives', 'On-Chain Activity'];
     const n = 6;
 
     // ── State ──
@@ -2058,6 +2060,18 @@
       drawLabels(ep);
 
       requestAnimationFrame(drawRadar);
+
+    // Live refresh from convergence engine every 30s
+    setInterval(function() {
+      fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+        var n = d.nodes || {};
+        var order = ['mcx','epx','ihx','opx','fdx','ocx'];
+        var vals = order.map(function(k){ return Math.round((n[k]||{}).score||50); });
+        var comp = Math.round((d.composite||{}).score||50);
+        var bias = comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : (comp >= 55 ? 'CAUTIOUS BULLISH' : 'NEUTRAL');
+        ingestMatrix({ values: vals, composite: comp, bias: bias });
+      }).catch(function(){});
+    }, 30000);
     }
     requestAnimationFrame(drawRadar);
   })();
