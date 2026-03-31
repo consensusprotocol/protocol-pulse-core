@@ -1317,11 +1317,14 @@ function nlSub(e){
 (function(){
 function bootOrb(){
   var cv=document.getElementById('sovereign-orb-canvas');
-  if(!cv){return;}
+  if(!cv){setTimeout(bootOrb,100);return;}
   if(typeof SovereignOrb==='undefined'){setTimeout(bootOrb,100);return;}
+  var dpr=window.devicePixelRatio||1;
+  cv.style.width='680px';cv.style.height='680px';
+  cv.width=Math.round(680*dpr);cv.height=Math.round(680*dpr);
   try{window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}catch(e){console.error('Orb error:',e);}
 }
-setTimeout(bootOrb,200);
+setTimeout(bootOrb,400);
 function updateCards(){
   fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
     var n=d.nodes||{},r=d.raw||{},s=d.streams||{};
