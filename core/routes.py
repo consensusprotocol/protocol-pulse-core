@@ -6301,7 +6301,7 @@ def api_donation_pulse():
         import sys
         if "/home/ultron/protocol_pulse" not in sys.path:
             sys.path.insert(0, "/home/ultron/protocol_pulse")
-        from services.donation_map_service import DonationMapService
+        import sys; sys.path.insert(0, "/home/ultron/protocol_pulse"); from services.donation_map_service import DonationMapService
         svc = DonationMapService()
         return jsonify(svc.get_donation_pulse())
     except Exception as e:
@@ -6310,7 +6310,7 @@ def api_donation_pulse():
 @app.route('/api/donations/by-state')
 def api_donations_by_state():
     try:
-        from services.donation_map_service import DonationMapService
+        import sys; sys.path.insert(0, "/home/ultron/protocol_pulse"); from services.donation_map_service import DonationMapService
         svc = DonationMapService()
         state = request.args.get('state', None)
         data = svc.get_contributions_by_state(state, per_page=20)
