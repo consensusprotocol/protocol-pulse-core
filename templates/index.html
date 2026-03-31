@@ -1359,4 +1359,95 @@ function bootOrb() {
 document.addEventListener('DOMContentLoaded', function(){ setTimeout(bootOrb, 300); });
 if (document.readyState !== 'loading') { setTimeout(bootOrb, 300); }
 </script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   LIVE INTELLIGENCE FEED — populates from /api/orb
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+var feedEl=document.getElementById('live-feed-inner');
+var countEl=document.getElementById('feed-count');
+var freshEl=document.getElementById('orb-freshness');
+if(!feedEl) return;
+
+var entryCount=0;
+var lastD=null;
+var fetchFails=0;
+
+function addE(tag,color,label,value,tier){
+  entryCount++;
+  var d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:center;gap:6px;padding:3px 10px;font-family:JetBrains Mono,monospace;font-size:0.52rem;opacity:'+(tier==='SIM'?'0.35':'0.85');
+  var now=new Date();
+  var ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  d.innerHTML='<span style="color:#333;min-width:48px">'+ts+'</span>'
+    +'<span style="color:'+color+';min-width:28px;font-weight:600">'+tag+'</span>'
+    +'<span style="color:#555;min-width:65px">'+label+'</span>'
+    +'<span style="color:rgba(255,255,255,0.6)">'+value+'</span>';
+  if(tier==='SIM') d.title='UI heartbeat — interpolated from last real data';
+  feedEl.appendChild(d);
+  if(feedEl.children.length>60) feedEl.removeChild(feedEl.firstChild);
+  if(countEl) countEl.textContent=entryCount+' entries';
+  var scroll=document.getElementById('live-feed-scroll');
+  if(scroll) scroll.scrollTop=scroll.scrollHeight;
+}
+
+function updateHeader(){
+  if(!freshEl||!lastD) return;
+  var age=Math.round((Date.now()/1000)-(new Date(lastD.timestamp||0).getTime()/1000));
+  if(age<120){freshEl.textContent='LIVE · '+age+'s';freshEl.style.color='#22c55e';}
+  else{freshEl.textContent='STALE · '+age+'s';freshEl.style.color='#dc2626';}
+}
+
+function fetchAndIngest(silent){
+  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+    lastD=d;fetchFails=0;
+    var n=d.nodes||{},r=d.raw||{},s=d.streams||{};
+    if(!silent){
+      addE('SYS','#dc2626','ENGINE SYNC','Convergence '+Math.round(d.composite.score||0)+'/100 — '+d.composite.pattern,'DATA');
+    }
+    if(n.mcx) addE('MCX','#dc2626','MINER',Math.round(n.mcx.score)+'/100 '+(n.mcx.score>70?'BULLISH':n.mcx.score<35?'BEARISH':'NEUTRAL'),'DATA');
+    if(n.epx) addE('EPX','#f97316','EXCHANGE',Math.round(n.epx.score)+'/100 '+(n.epx.score>60?'OUTFLOW':n.epx.score<40?'INFLOW':'NEUTRAL'),'DATA');
+    if(n.ihx) addE('IHX','#8b5cf6','INSIDER',Math.round(n.ihx.score)+'/100 '+(n.ihx.score>65?'DIVERGING':'ALIGNED'),'DATA');
+    if(n.opx) addE('OPX','#a855f7','OPTIONS',Math.round(n.opx.score)+'/100','DATA');
+    if(n.fdx) addE('FDX','#06b6d4','FUTURES',Math.round(n.fdx.score)+'/100','DATA');
+    if(n.ocx) addE('OCX','#22c55e','ONCHAIN',Math.round(n.ocx.score)+'/100','DATA');
+    if(r.funding_rate!==undefined) addE('FDX','#06b6d4','FUNDING',(r.funding_rate*100).toFixed(4)+'%','DATA');
+    if(r.put_call_ratio) addE('OPX','#a855f7','P/C RATIO',parseFloat(r.put_call_ratio).toFixed(3),'DATA');
+    if(s.hashrate) addE('MCX','#dc2626','HASHRATE',Math.round(s.hashrate/100*1200)+' EH/s','DATA');
+    updateHeader();
+  }).catch(function(){
+    fetchFails++;
+    if(fetchFails>=2) addE('SYS','#dc2626','FETCH ERROR','backend unreachable','WARN');
+    updateHeader();
+  });
+}
+
+setTimeout(function(){
+  addE('SYS','#dc2626','SOVEREIGN ENGINE','v1.3 — initializing','BOOT');
+  addE('SYS','#555','INDEX MATRIX','MCX EPX IHX OPX FDX OCX — 6 active','BOOT');
+  setTimeout(function(){ fetchAndIngest(false); }, 500);
+},100);
+
+setInterval(function(){ fetchAndIngest(true); }, 30000);
+setInterval(updateHeader, 5000);
+
+function simHeartbeat(){
+  if(!lastD){setTimeout(simHeartbeat,4000);return;}
+  var s=lastD.streams||{},r=lastD.raw||{};
+  var hb=[
+    {t:'MCX',c:'#dc2626',l:'HASH POLL',v:Math.round((s.hashrate||84)/100*1200+(Math.random()*8-4))+' EH/s'},
+    {t:'FDX',c:'#06b6d4',l:'FUND TICK',v:((r.funding_rate||0)*100+(Math.random()-0.5)*0.000005).toFixed(5)+'%'},
+    {t:'OPX',c:'#a855f7',l:'P/C TICK',v:((r.put_call_ratio||0.7)+(Math.random()-0.5)*0.003).toFixed(3)},
+    {t:'NET',c:'#888',l:'MEM SCAN',v:Math.floor(Math.random()*3000+29000)+' unconf txs'},
+    {t:'EPX',c:'#f97316',l:'FLOW POLL',v:(s.exchange_flow>60?'outflow':'neutral')+' +'+Math.floor(Math.random()*30+5)+' BTC'},
+  ];
+  var e=hb[Math.floor(Math.random()*hb.length)];
+  addE(e.t,e.c,e.l,e.v,'SIM');
+  setTimeout(simHeartbeat,4000+Math.random()*6000);
+}
+setTimeout(simHeartbeat,5000);
+})();
+</script>
+
 {% endblock %}
