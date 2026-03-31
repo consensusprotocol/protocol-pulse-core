@@ -27,9 +27,9 @@ def render(episode_spec_path: str, output_path: str = None, test: bool = False):
     spec_dest = REMOTION_DIR / "public" / "episode_spec.json"
     spec_dest.write_text(json.dumps(spec, indent=2))
 
-    # Write props file (absolute path, not inline JSON)
+    # Write props file with embedded spec so PulseCheckWrapper can read it
     props_file = REMOTION_DIR / "public" / "render_props.json"
-    props_file.write_text(json.dumps({"specPath": "/episode_spec.json"}))
+    props_file.write_text(json.dumps({"spec": spec}))
 
     cmd = [
         "npx",

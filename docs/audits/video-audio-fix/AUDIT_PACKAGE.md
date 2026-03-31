@@ -1,7 +1,7 @@
 # PROTOCOL PULSE — CODE AUDIT PACKAGE
 # Feature: video-audio-fix
 # Branch: feature/video-audio-fix
-# Generated: 2026-03-12 20:55 UTC
+# Generated: 2026-03-28 01:37 UTC
 # Purpose: Pre-merge quality gate. 3 independent AI models will review this.
 # You are one of: Gemini 2.5 Pro / GPT-4o / Grok-3
 # Other top AI models will also review this same code. Put your best work forward.
@@ -36,41 +36,317 @@
 
 ## THE CODE (every new and modified file)
 
-### File: .gitignore (33 lines)
+### File: .env.example (86 lines)
+```
+   1 | # Protocol Pulse – copy to .env and fill in values
+   2 | # See LAUNCH_CHECKLIST.md in repo root for production steps.
+   3 | 
+   4 | # ============ REQUIRED (production) ============
+   5 | # Use a long random string in production (e.g. openssl rand -hex 32)
+   6 | SESSION_SECRET=your_secret_here
+   7 | 
+   8 | # Database (default SQLite; use Postgres for production)
+   9 | DATABASE_URL=sqlite:///protocol_pulse.db
+  10 | 
+  11 | # ============ SERVER ============
+  12 | PORT=5000
+  13 | # FLASK_ENV=production   # set on Render / your host
+  14 | 
+  15 | # ============ OPTIONAL: AI / Content ============
+  16 | # XAI / Grok
+  17 | XAI_API_KEY=
+  18 | # OpenAI (images, some AI features)
+  19 | OPENAI_API_KEY=
+  20 | # Anthropic
+  21 | ANTHROPIC_API_KEY=
+  22 | # Google Gemini
+  23 | GEMINI_API_KEY=
+  24 | 
+  25 | # ============ OPTIONAL: Monetization ============
+  26 | # Stripe – payments and subscriptions
+  27 | STRIPE_SECRET_KEY=
+  28 | STRIPE_WEBHOOK_SECRET=
+  29 | # Lightning / tips
+  30 | LIGHTNING_ADDRESS=
+  31 | # Amazon affiliate (book links, etc.)
+  32 | AMAZON_AFFILIATE_TAG=protocolpulse-20
+  33 | 
+  34 | # ============ OPTIONAL: CRM / Email ============
+  35 | # GoHighLevel (GHL)
+  36 | GHL_API_KEY=
+  37 | GHL_LOCATION_ID=
+  38 | GHL_WEBHOOK_URL=
+  39 | GHL_SARAH_WORKFLOW_ID=
+  40 | # ConvertKit
+  41 | CONVERTKIT_API_KEY=
+  42 | CONVERTKIT_FORM_ID=
+  43 | # SendGrid (newsletter / transactional)
+  44 | SENDGRID_API_KEY=
+  45 | SENDGRID_FROM_EMAIL=noreply@protocolpulse.io
+  46 | # Where to send contact form notifications (optional)
+  47 | CONTACT_EMAIL=
+  48 | 
+  49 | # ============ OPTIONAL: Social / X (Twitter) ============
+  50 | # Required for posting tweets and Spaces search
+  51 | # TWITTER_API_KEY=
+  52 | # TWITTER_API_SECRET=
+  53 | # TWITTER_ACCESS_TOKEN=
+  54 | # TWITTER_ACCESS_TOKEN_SECRET=
+  55 | # TWITTER_BEARER_TOKEN=
+  56 | # AUTOPOST_X=false
+  57 | 
+  58 | # ============ OPTIONAL: Other services ============
+  59 | # Site URL (for links in emails, sitemap, etc.)
+  60 | SITE_URL=https://protocolpulse.io
+  61 | # Printful (merch)
+  62 | PRINTFUL_API_KEY=
+  63 | # Reddit (intel)
+  64 | REDDIT_CLIENT_ID=
+  65 | REDDIT_CLIENT_SECRET=
+  66 | REDDIT_USER_AGENT=
+  67 | # YouTube (embeds / auth)
+  68 | YOUTUBE_API_KEY=
+  69 | YOUTUBE_CLIENT_ID=
+  70 | YOUTUBE_CLIENT_SECRET=
+  71 | YOUTUBE_REFRESH_TOKEN=
+  72 | # Telegram alerts (required for pipeline notifications)
+  73 | TELEGRAM_BOT_TOKEN=
+  74 | TELEGRAM_CHAT_ID=
+  75 | # Twilio SMS (optional — critical-only alerts)
+  76 | TWILIO_ACCOUNT_SID=
+  77 | TWILIO_AUTH_TOKEN=
+  78 | TWILIO_FROM=
+  79 | TWILIO_TO=
+  80 | # AssemblyAI (transcription)
+  81 | ASSEMBLYAI_API_KEY=
+  82 | # Substack (sync)
+  83 | SUBSTACK_EMAIL=
+  84 | SUBSTACK_PUBLICATION_URL=
+  85 | SUBSTACK_PASSWORD=
+  86 | 
+```
+
+### File: .github/workflows/heartbeat.yml (55 lines)
+```
+   1 | name: Pipeline Heartbeat
+   2 | 
+   3 | on:
+   4 |   schedule:
+   5 |     - cron: '0 */6 * * *'
+   6 |   workflow_dispatch:
+   7 | 
+   8 | jobs:
+   9 |   check_pipeline_health:
+  10 |     runs-on: ubuntu-latest
+  11 |     steps:
+  12 |       - uses: actions/checkout@v4
+  13 | 
+  14 |       - name: Check last render timestamp
+  15 |         run: |
+  16 |           if [ -f logs/throughput.json ]; then
+  17 |             LAST_RENDER=$(python3 -c "
+  18 |           import json, time
+  19 |           try:
+  20 |               d = json.load(open('logs/throughput.json'))
+  21 |               last = d.get('last_render_epoch', 0)
+  22 |               hours_ago = (time.time() - last) / 3600
+  23 |               print(f'{hours_ago:.1f}')
+  24 |           except:
+  25 |               print('999')
+  26 |             ")
+  27 |             echo "Last render: ${LAST_RENDER}h ago"
+  28 |             if python3 -c "exit(0 if float('${LAST_RENDER}') < 12 else 1)"; then
+  29 |               echo "✅ Render pipeline active"
+  30 |             else
+  31 |               echo "⚠️ WARNING: No render in ${LAST_RENDER} hours"
+  32 |               if [ -n "${{ secrets.TELEGRAM_BOT_TOKEN }}" ]; then
+  33 |                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+  34 |                   -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+  35 |                   -d "text=⚠️ Protocol Pulse: No render completed in ${LAST_RENDER}h. Orchestrator may be down. Check Ultron."
+  36 |               fi
+  37 |             fi
+  38 |           else
+  39 |             echo "No throughput.json found — pipeline may not be running"
+  40 |           fi
+  41 | 
+  42 |       - name: Report current best grade
+  43 |         run: |
+  44 |           if [ -f logs/best_grade.json ]; then
+  45 |             python3 -c "
+  46 |           import json
+  47 |           d = json.load(open('logs/best_grade.json'))
+  48 |           score = d.get('score', 0)
+  49 |           promoted = d.get('promoted_at', 'unknown')
+  50 |           print(f'Current best grade: {score}/100 promoted at {promoted}')
+  51 |             "
+  52 |           else
+  53 |             echo "No best_grade.json found"
+  54 |           fi
+  55 | 
+```
+
+### File: .github/workflows/pipeline_gate.yml (89 lines)
+```
+   1 | name: Pipeline Integrity Gate
+   2 | 
+   3 | on:
+   4 |   push:
+   5 |     branches: [main, render-stable]
+   6 |   pull_request:
+   7 |     branches: [main]
+   8 | 
+   9 | jobs:
+  10 |   enforce_pipeline_integrity:
+  11 |     runs-on: ubuntu-latest
+  12 |     steps:
+  13 |       - uses: actions/checkout@v4
+  14 |         with:
+  15 |           fetch-depth: 2
+  16 | 
+  17 |       - name: Check for audit evidence (pipeline files changed)
+  18 |         run: |
+  19 |           CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -E "video_pipeline_v3/.*\\.py|smart_render_loop|assembler|dual_gpu_orchestrator" || true)
+  20 |           if [ -n "$CHANGED" ]; then
+  21 |             echo "Pipeline files changed: $CHANGED"
+  22 |             COMMIT_MSG=$(git log -1 --pretty=%B)
+  23 |             if echo "$COMMIT_MSG" | grep -q "HOTFIX-EXEMPT"; then
+  24 |               echo "HOTFIX-EXEMPT — skipping audit check"
+  25 |               exit 0
+  26 |             fi
+  27 |             if [ -f "docs/audits/AUDIT_REGISTRY.json" ]; then
+  28 |               LAST=$(python3 -c "import json; d=json.load(open('docs/audits/AUDIT_REGISTRY.json')); print(d.get('last_audit','never'))" 2>/dev/null || echo "unknown")
+  29 |               echo "Audit registry found — last audit: $LAST"
+  30 |             else
+  31 |               echo "BLOCKED: Pipeline code changed without audit registry."
+  32 |               echo "Run: python3 utils/cross_llm_audit.py --feature <feature>"
+  33 |               echo "Then commit docs/audits/AUDIT_REGISTRY.json"
+  34 |               exit 1
+  35 |             fi
+  36 |           else
+  37 |             echo "No pipeline files changed"
+  38 |           fi
+  39 | 
+  40 |       - name: Set up Python
+  41 |         uses: actions/setup-python@v4
+  42 |         with:
+  43 |           python-version: '3.11'
+  44 | 
+  45 |       - name: Install dependencies
+  46 |         run: pip install pyyaml requests 2>/dev/null || true
+  47 | 
+  48 |       - name: Syntax check all pipeline Python files
+  49 |         run: |
+  50 |           ERRORS=0
+  51 |           for f in $(find video_pipeline_v3/ -name "*.py" 2>/dev/null); do
+  52 |             if ! python3 -m py_compile "$f" 2>/dev/null; then
+  53 |               echo "SYNTAX ERROR: $f"
+  54 |               python3 -m py_compile "$f"
+  55 |               ERRORS=$((ERRORS + 1))
+  56 |             fi
+  57 |           done
+  58 |           for f in smart_render_loop.py dual_gpu_orchestrator.py; do
+  59 |             if [ -f "$f" ]; then
+  60 |               if ! python3 -m py_compile "$f" 2>/dev/null; then
+  61 |                 echo "SYNTAX ERROR: $f"
+  62 |                 ERRORS=$((ERRORS + 1))
+  63 |               fi
+  64 |             fi
+  65 |           done
+  66 |           if [ "$ERRORS" -eq 0 ]; then
+  67 |             echo "All syntax OK"
+  68 |           else
+  69 |             echo "$ERRORS syntax errors found"
+  70 |             exit 1
+  71 |           fi
+  72 | 
+  73 |       - name: Check best_grade.json not regressed
+  74 |         run: |
+  75 |           if [ -f logs/best_grade.json ]; then
+  76 |             python3 -c "import json; d=json.load(open('logs/best_grade.json')); print(f\"Grade: {d.get('score',0)}/100 at {d.get('promoted_at','never')}\")"
+  77 |           else
+  78 |             echo "No best_grade.json yet"
+  79 |           fi
+  80 | 
+  81 |       - name: Notify on failure
+  82 |         if: failure()
+  83 |         run: |
+  84 |           if [ -n "${{ secrets.TELEGRAM_BOT_TOKEN }}" ]; then
+  85 |             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+  86 |               -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+  87 |               -d "text=Pipeline Integrity Gate FAILED: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+  88 |           fi
+  89 | 
+```
+
+### File: .gitignore (67 lines)
 ```
    1 | *.mp4
    2 | *.wav
-   3 | *.pyc
-   4 | __pycache__/
-   5 | logs/
-   6 | night_prompts/
-   7 | *.log
-   8 | instance/
-   9 | test_*
-  10 | /tmp/
-  11 | .env
-  12 | venv/
-  13 | data/episodes/
-  14 | *.mp3
-  15 | uploads/*.png
-  16 | uploads/*.jpg
-  17 | /tmp/*.png
-  18 | /tmp/*.jpg
-  19 | attached_assets/*.png
-  20 | attached_assets/*.jpg
-  21 | # Allow fallback cover images (Law 1)
-  22 | !static/images/default-covers/*.jpg
-  23 | node_modules/
-  24 | *.part
-  25 | x_spaces_scraper/cache/
-  26 | video_pipeline_v3/remotion/node_modules/
-  27 | x_spaces_scraper/cache/
-  28 | gfpgan/weights/
-  29 | oracle/gfpgan/weights/
-  30 | *.pth
-  31 | video_pipeline_v3/tts_cache/
-  32 | gunicorn.pid
-  33 | 
+   3 | *.mp3
+   4 | *.pyc
+   5 | *.pt
+   6 | *.pth
+   7 | *.pkl
+   8 | *.db
+   9 | *.sqlite
+  10 | *.sqlite3
+  11 | __pycache__/
+  12 | logs/
+  13 | night_prompts/
+  14 | *.log
+  15 | instance/
+  16 | test_*
+  17 | /tmp/
+  18 | .env
+  19 | venv/
+  20 | data/episodes/
+  21 | data/pulse_events.jsonl
+  22 | uploads/*.png
+  23 | uploads/*.jpg
+  24 | /tmp/*.png
+  25 | /tmp/*.jpg
+  26 | attached_assets/*.png
+  27 | attached_assets/*.jpg
+  28 | # Allow fallback cover images (Law 1)
+  29 | !static/images/default-covers/*.jpg
+  30 | node_modules/
+  31 | *.part
+  32 | x_spaces_scraper/cache/
+  33 | video_pipeline_v3/remotion/node_modules/
+  34 | gfpgan/weights/
+  35 | oracle/gfpgan/weights/
+  36 | video_pipeline_v3/tts_cache/
+  37 | gunicorn.pid
+  38 | video_pipeline_v3/data/yt_cookies.txt
+  39 | docs/audits/*.md
+  40 | !docs/audits/AUDIT_REGISTRY.json
+  41 | 
+  42 | # TTS voice assets — large binaries, never commit
+  43 | video_pipeline_v3/voices/*.wav
+  44 | video_pipeline_v3/voices/*.pt
+  45 | video_pipeline_v3/voices/segments/
+  46 | video_pipeline_v3/voices/finetune/checkpoints/
+  47 | video_pipeline_v3/voices/tests/
+  48 | docs/cc_watchdog_autofix_*.md
+  49 | 
+  50 | # Model checkpoints & tensor files
+  51 | *.ckpt
+  52 | *.safetensors
+  53 | 
+  54 | # Python bytecode
+  55 | *.pyo
+  56 | 
+  57 | # Output & audio caches
+  58 | video_pipeline_v3/output/
+  59 | video_pipeline_v3/audio_cache/
+  60 | 
+  61 | # Env variants
+  62 | .env.*
+  63 | 
+  64 | # Misc large files
+  65 | nohup.out
+  66 | video_pipeline_v3/config/youtube_tokens.json
+  67 | 
 ```
 
 ### File: AUDIT_PROTOCOL.md (273 lines)
@@ -604,7 +880,7 @@
   73 | 
 ```
 
-### File: PIPELINE_LAWS.md (74 lines)
+### File: PIPELINE_LAWS.md (280 lines)
 ```
    1 | # PROTOCOL PULSE — PIPELINE LAWS
    2 | ## Status: ACTIVE (being refined via 10-cycle gauntlet)
@@ -636,7 +912,7 @@
   28 | 
   29 | ## TTS (locked)
   30 | - Host 1 (Eryn): ID kdnRe2koJdOK4Ovxn2DI at 1.12x speed — sharp female setup/bridge host
-  31 | - Host 2 (Mark): ID 1SM7GgM6IMuvQlz2BwM3 at 1.10x speed — male contrarian/react host
+  31 | - Host 2 (PBX): ID HmUVvDlHsEz0m3eUGLgu at 1.0x speed — male contrarian/react host, ALWAYS opens episode
   32 | - DUAL HOST RESTORED 2026-03-10: both voices MUST render in every episode
   33 | - Speed param: top-level body param, NOT inside voice_settings
   34 | - Fallback chain: ElevenLabs → pyttsx3 → gTTS → silence
@@ -674,15 +950,221 @@
   66 | 
   67 | ## CYCLE LEARNINGS
   68 | 
-  69 | ### PRE-GAUNTLET (cycles 1-3 on feature/video-audio-fix)
-  70 | - Fixed: ElevenLabs fallback chain (gTTS added), AV sync, gold rail in make_host_visual, subtitle band in make_host_visual, per-segment loudnorm removed, bg color 0x0A0A0F, ffmpeg timeout raised to 300s
-  71 | - Locked: Single loudnorm in concatenate_parts()
-  72 | - Open: Subtitle band inconsistency (~50% of frames missing it), LUFS low (-17.7) due to cached silence audio
-  73 | 
-  74 | 
+  69 | ---
+  70 | 
+  71 | ## ADDED MARCH 17 2026
+  72 | 
+  73 | ### LAW: AUDIO MIX
+  74 | - `amix` BGM must use `duration=first` and `weight>=0.08`
+  75 | - Audio stream guard MUST verify audio stream exists before mix (`if "audio" not in _ac.stdout` → skip mix)
+  76 | - TTS-anchored mix ensures BGM never outlives narration
+  77 | 
+  78 | ### LAW: HOST DEFAULT
+  79 | - Segment host default MUST be `2` (PBX), never `1`
+  80 | - Any `host:1` in script output is normalized to `host:2`
+  81 | 
+  82 | ### LAW: TTS FALLBACK BANNED
+  83 | - `_generate_fallback_silent_audio` MUST raise `RuntimeError`, never generate silence
+  84 | - Silent renders are pipeline-killing defects — fail fast, never ship silence
+  85 | 
+  86 | ### LAW: GEMINI GRADING
+  87 | - Exclude `.mp4`, `bgl_audio/`, archived files, and `test_` directories from grading candidates
+  88 | - Gemini grades only the real final render, not intermediate artifacts
+  89 | 
+  90 | ### LAW: VOICE LOCK
+  91 | - Only voice ID `HmUVvDlHsEz0m3eUGLgu` (PBX) is permitted
+  92 | - Validate voice exists and is active via ElevenLabs `/v1/voices/{voice_id}` API in preflight
+  93 | 
+  94 | ### LAW: PREFLIGHT MANDATORY
+  95 | - Before every render, preflight MUST validate:
+  96 |   1. Voice ID is live (ElevenLabs API check)
+  97 |   2. ElevenLabs quota usage < 95%
+  98 |   3. Disk free space > 5 GB
+  99 |   4. `ffprobe` and `ffmpeg` binaries are accessible
+ 100 |   5. Anthropic API ping succeeds
+ 101 | - Render MUST NOT proceed if any preflight check fails
+ 102 | 
+ 103 | ### LAW: SOLO HOST
+ 104 | - PBX only — no dual host in current pipeline
+ 105 | - Script writer outputs only `host:2` segments
+ 106 | - No `host:1` voice rendering permitted
+ 107 | 
+ 108 | ### LAW: JSON RETRY
+ 109 | - `script_writer` JSON parse uses 3-attempt retry
+ 110 | - On `JSONDecodeError`, send raw output back to LLM for repair before next attempt
+ 111 | - After 3 failures, raise and abort render
+ 112 | 
+ 113 | ### LAW: YT-DLP COOKIES
+ 114 | - Use `data/yt_cookies.txt` if present and non-empty
+ 115 | - Export from logged-in YouTube browser session (`yt-dlp --cookies-from-browser chrome`)
+ 116 | - Prevents rate limiting on high-frequency extraction runs
+ 117 | 
+ 118 | ### LAW: CLIP MINIMUM
+ 119 | - Hard fail is 3 clips from 2 channels minimum — never require 5/5
+ 120 | - Quality-aware fallback fills gaps before hard fail gate
+ 121 | 
+ 122 | ### LAW: EPISODE SCHEDULE
+ 123 | - Three daily episodes at 06:00, 12:00, 18:00 UTC via cron
+ 124 | - Separate log files per run: `episode_morning.log`, `episode_noon.log`, `episode_evening.log`
+ 125 | 
+ 126 | ### LAW: CLIP ARCHIVE
+ 127 | - Every extracted clip archived to `data/clip_archive/CHANNEL/VIDEO_ID.mp4`
+ 128 | - On yt-dlp failure, always try archive fallback (max 7 days old) before skipping clip
+ 129 | - `utils/clip_archive.py`: `save_clip()`, `get_fallback_clip()`, `list_archive()`
+ 130 | 
+ 131 | ---
+ 132 | 
+ 133 | ### PRE-GAUNTLET (cycles 1-3 on feature/video-audio-fix)
+ 134 | - Fixed: ElevenLabs fallback chain (gTTS added), AV sync, gold rail in make_host_visual, subtitle band in make_host_visual, per-segment loudnorm removed, bg color 0x0A0A0F, ffmpeg timeout raised to 300s
+ 135 | - Locked: Single loudnorm in concatenate_parts()
+ 136 | - Open: Subtitle band inconsistency (~50% of frames missing it), LUFS low (-17.7) due to cached silence audio
+ 137 | 
+ 138 | 
+ 139 | ---
+ 140 | 
+ 141 | ## LAWS ADDED 2026-03-24 — SESSION 5 INTENSIVE (ENFORCE PERMANENTLY)
+ 142 | 
+ 143 | ### LAW: GPU ISOLATION (INVIOLABLE)
+ 144 | - Pipeline (daily_producer.py) runs on cuda:0 ONLY via CUDA_VISIBLE_DEVICES=0 set in load_env()
+ 145 | - Avatar server (oracle/avatar_server.py) runs on cuda:1 ONLY
+ 146 | - Stage avatar runs on cuda:2 or cuda:3 — NEVER cuda:1
+ 147 | - SadTalker is BANNED and must NEVER run — kill on sight (it consumes 3GB+ on cuda:1)
+ 148 | - Duplicate avatar_server processes must NEVER coexist — one process per avatar system
+ 149 | - If any GPU assignment drifts: pipeline will 503 avatar, avatar will 503 stage — verify with nvidia-smi before every render cycle
+ 150 | 
+ 151 | ### LAW: FREEZE FRAMES AT SOURCE (NOT AT OUTPUT)
+ 152 | - Freeze frames MUST be fixed in clip_extractor.py at generation time, NOT in assembler.py at output
+ 153 | - All static image-to-video conversions MUST use Ken Burns zoompan motion:
+ 154 |   `zoompan=z=min(zoom+0.002,1.05):d=125:s=1920x1080,setsar=1`
+ 155 | - noise=c0s=3 freeze frame patches in assembler.py are PERMANENTLY BANNED
+ 156 | - Gemini penalizes output-level freeze patching as evidence of poor source quality (score 1/10)
+ 157 | - The _ken_burns_motion() helper in assembler.py is the ONLY approved static-to-video method
+ 158 | - After any clip generation change: run ffmpeg freezedetect on output before committing
+ 159 | 
+ 160 | ### LAW: CROSS-LLM AUDIT BEFORE ANY CODE CHANGE
+ 161 | - Every CC session that touches pipeline code MUST run the full 2-cycle cross-LLM audit via utils/cross_llm_audit.py BEFORE implementing any fix
+ 162 | - Audit order: register feature in FEATURE_MAP → cycle 1 (Gemini+GPT-4o+Grok parallel) → save c1.json → cycle 2 cross-examination → save c2.json → synthesize consensus → implement consensus fixes ONLY
+ 163 | - No fix gets implemented without 2-cycle audit consensus. No exceptions. No shortcuts.
+ 164 | - Vague agreement is NOT consensus. Consensus = same file, same function, same root cause from Qwen + 1 external LLM minimum
+ 165 | 
+ 166 | ### LAW: QWEN FIRST (COST LAW)
+ 167 | - Qwen3 runs locally on cuda:2/3 via Ollama at localhost:11434 — $0 per call
+ 168 | - Qwen reads all files and identifies candidates BEFORE any external LLM call
+ 169 | - External LLMs (Gemini, GPT-4o, Grok) receive ONLY Qwen's pre-filtered findings (≤120 lines max)
+ 170 | - Full file sends to external LLMs are BANNED — surgical payloads only
+ 171 | - If Qwen confidence ≥ 0.85 and no external LLM disagrees: implement without external call
+ 172 | - Token budget: $2 soft limit per improvement cycle. $5 hard limit. Above hard limit: pause + Telegram alert
+ 173 | 
+ 174 | ### LAW: GEMINI GRADING — TWO-PASS MANDATORY
+ 175 | - PASS 1: Technical dimensions (ffprobe hard data only) — deterministic, no LLM hallucination possible
+ 176 | - PASS 2: Content dimensions — upload actual MP4 to Gemini via Files API for genuine multimodal evaluation
+ 177 | - "Assumed acceptable based on lack of specific error data" notes in grade output = GRADING FAILURE
+ 178 | - Content scores (script_quality, cold_open_hook, narrative_arc, host_authenticity, visual_polish, pacing) MUST come from Gemini watching the actual video, not from render log inference
+ 179 | - Any grade where 3+ content dimensions show "assumed" = discard and re-grade with video upload
+ 180 | 
+ 181 | ### LAW: CRITICAL FAILURE GATING
+ 182 | - Any single dimension scoring 0/10 on: host_authenticity, black_frames_check, true_peak_check, freeze_check = broadcast_ready MUST be False regardless of overall weighted score
+ 183 | - A high overall score with one 0/10 critical dimension is NOT a Grade A
+ 184 | - Grade A requires: overall_score ≥ 88 AND zero 0/10 scores on critical dimensions AND broadcast_ready = True
+ 185 | 
+ 186 | ### LAW: 10-CONSECUTIVE-A CONVERGENCE
+ 187 | - Pipeline is NOT locked until 10 CONSECUTIVE Grade A renders (score ≥ 88, broadcast_ready=True)
+ 188 | - Consecutive counter tracked in: video_pipeline_v3/logs/consecutive_a_grades.txt
+ 189 | - Counter resets to 0 on ANY non-A grade
+ 190 | - On each Grade A: Telegram "Grade A #{n}/10 — {n} more to lock"
+ 191 | - On 10/10: Telegram "PIPELINE LOCKED — 10 consecutive Grade A renders" then exit improvement loop
+ 192 | 
+ 193 | ### LAW: RENDER IMPROVEMENT LOOP INTEGRATION
+ 194 | - render_improvement_loop.py runs automatically after every failed grade
+ 195 | - It reads the grade JSON, identifies failing dimensions, maps to DIMENSION_MAP, runs Qwen→LLM audit, implements consensus fix, verifies, git pulls into render_main, signals next iteration
+ 196 | - overnight_render_loop.py polls for /tmp/fix_complete_iterN flag before firing next iteration
+ 197 | - The loop NEVER touches render_main tmux session — read-only access to logs only
+ 198 | - The loop runs as a detached subprocess — does NOT block the overnight render timeout
+ 199 | 
+ 200 | ### LAW: SESSION CONTEXT DISCIPLINE
+ 201 | - Every CC session starts fresh — never reuse a session that has burned >80% context
+ 202 | - Context warning at 11%: kill immediately and relaunch fresh
+ 203 | - Prompt delivery always via tmux load-buffer, never send-keys for complex prompts
+ 204 | - One CC session at a time on the same repo — no parallel sessions
+ 205 | 
+ 206 | ### LAW: AVATAR SERVER UPTIME
+ 207 | - avatar_server must be running at all times via systemd or watchdog
+ 208 | - Health check: curl http://localhost:8200/health must return {"status":"ok"} before render starts
+ 209 | - If health check fails at render preflight: abort render, alert Telegram, attempt restart
+ 210 | - The watchdog_llm tmux session must verify avatar health every 5 minutes
+ 211 | 
+ 212 | ### LAW: ANTI-HALLUCINATION IN AUDIT SESSIONS
+ 213 | - Audit prompts MUST include: "Only report issues you can verify from the code/data provided. Do not speculate."
+ 214 | - Issues ranked by impact: CRITICAL (0/10) → HIGH (1-4) → MEDIUM (5-7) → LOW (8-9)
+ 215 | - CRITICAL issues fixed first. HIGH only after CRITICAL resolved. MEDIUM only after HIGH eliminated.
+ 216 | - LOW issues (score 8-9) are NEVER touched while any CRITICAL or HIGH issue exists
+ 217 | - Focus is always on the biggest score impact, not the most interesting technical problem
+ 218 | 
+ 219 | 
+ 220 | ### LAW: CONTENT LOCK — ITERATE ON ASSEMBLY, NOT CONTENT
+ 221 | The single most important law for grade stability:
+ 222 | 
+ 223 | - Iteration 1: Full pipeline run — fetch content, scan channels, select clips, generate script, TTS
+ 224 |   Saves: script.json, clips/, tts_cache/ to video_pipeline_v3/output/YYYY-MM-DD/locked_content/
+ 225 | - Iterations 2-N: Skip Steps 1-6 entirely. Load from locked_content/. Re-run ONLY Step 7+ (assembly/encode)
+ 226 |   Flag: daily_producer.py --reuse-content
+ 227 |   overnight_render_loop.py passes --reuse-content on all iterations > 1
+ 228 | - Grade A achieved: delete locked_content/, start fresh next cycle with new content fetch
+ 229 | - RATIONALE: Every re-fetch introduces new variables (different clips, script, TTS) making it
+ 230 |   impossible to isolate whether an assembly fix worked. Content must be locked so each iteration
+ 231 |   is a controlled experiment — same content, only assembly changes.
+ 232 | - NEVER wipe tts_cache on iterations > 1 (currently: rm -rf tts_cache every iteration — FIX THIS)
+ 233 | 
+ 234 | ### LAW: LIVE ENDPOINT TESTING MANDATORY BEFORE ANY COMMIT
+ 235 | For any fix touching oracle/avatar_server.py or any user-facing avatar endpoint:
+ 236 | ALL 5 tests below MUST pass before git commit. Results MUST appear in commit message.
+ 237 | 
+ 238 | ORACLE MANDATORY TESTS:
+ 239 |   1. curl -s http://localhost:8200/health | python3 -m json.tool | grep status
+ 240 |      EXPECTED: "status": "ok"
+ 241 |   2. curl -s -X POST http://localhost:8200/oracle/speak
+ 242 |      EXPECTED: HTTP 200, text or video in response
+ 243 |   3. curl -s -X POST http://localhost:8200/oracle/chat -d '{"text":"what is bitcoin","session_id":"test"}'
+ 244 |      EXPECTED: HTTP 200, job_id present
+ 245 |   4. curl -s http://localhost:8200/oracle/job/$JOB_ID (after 20s)
+ 246 |      EXPECTED: 200 or 202, NOT 404
+ 247 |   5. Second speak request after first: must be 200 not 503
+ 248 |      EXPECTED: semaphore released, GPU not stuck
+ 249 | 
+ 250 | NEVER commit oracle changes without all 5 tests passing.
+ 251 | This law exists because commit 2c542a0d looked correct but silenced Oracle in production.
+ 252 | Theoretical fixes that break in practice are worse than no fix.
+ 253 | 
+ 254 | ---
+ 255 | 
+ 256 | ## GRADE-DRIVEN LAWS (2026-03-26)
+ 257 | 
+ 258 | ### LAW G-1: MAX EPISODE DURATION = 900s
+ 259 | - Hard cap enforced at Step 7a. Render > 900s is auto-trimmed.
+ 260 | - Never negotiate this. 15 minutes is the absolute ceiling.
+ 261 | 
+ 262 | ### LAW G-2: TRUE PEAK < -1.5 dBTP
+ 263 | - `alimiter=limit=0.891:level=false` MUST precede ALL loudnorm calls. No exceptions.
+ 264 | 
+ 265 | ### LAW G-3: noise=c0s=3 IS PERMANENTLY BANNED
+ 266 | - Freeze fix = `fps=30,setpts=PTS-STARTPTS` only.
+ 267 | - See LAW: FREEZE FRAMES AT SOURCE for the approved Ken Burns approach.
+ 268 | 
+ 269 | ### LAW G-4: PBX IS THE SOLE HOST
+ 270 | - `host_num=2` hardcoded in tts_engine.py.
+ 271 | - `SPACE_CLIP` treated as `CLIP`. External clips = B-roll only, never narrated by any other voice.
+ 272 | 
+ 273 | ### LAW G-5: GRADE TARGET = B (80+)
+ 274 | - C (70-79) = acceptable interim.
+ 275 | - D or F = DO NOT PUBLISH. Fix before next render.
+ 276 | 
+ 277 | ### LAW G-6: GRADING IS MANDATORY
+ 278 | - Every render must produce a `grades/*.json` file.
+ 279 | - If grading fails, log it and alert — never silently skip.
+ 280 | 
 ```
 
-### File: PIPELINE_LESSONS.md (360 lines)
+### File: PIPELINE_LESSONS.md (1864 lines)
 ```
    1 | # Pipeline Lessons Learned
    2 | 
@@ -1044,6 +1526,1797 @@
  358 | ### WATCHDOG [2026-03-12 20:51] RENDER-HEARTBEAT - smart_loop
  359 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
  360 | 
+ 361 | ### WATCHDOG [2026-03-12 20:56] RENDER-HEARTBEAT - smart_loop
+ 362 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 363 | 
+ 364 | ### WATCHDOG [2026-03-12 21:01] RENDER-HEARTBEAT - smart_loop
+ 365 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 366 | 
+ 367 | ### WATCHDOG [2026-03-12 21:06] RENDER-HEARTBEAT - smart_loop
+ 368 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 369 | 
+ 370 | ### WATCHDOG [2026-03-12 21:11] RENDER-HEARTBEAT - smart_loop
+ 371 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 372 | 
+ 373 | ### WATCHDOG [2026-03-12 21:16] RENDER-HEARTBEAT - smart_loop
+ 374 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 375 | 
+ 376 | ### WATCHDOG [2026-03-12 21:22] RENDER-HEARTBEAT - smart_loop
+ 377 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 378 | 
+ 379 | ### WATCHDOG [2026-03-12 21:27] RENDER-HEARTBEAT - smart_loop
+ 380 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 381 | 
+ 382 | ### WATCHDOG [2026-03-12 21:32] RENDER-HEARTBEAT - smart_loop
+ 383 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 384 | 
+ 385 | ### WATCHDOG [2026-03-12 21:37] RENDER-HEARTBEAT - smart_loop
+ 386 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 387 | 
+ 388 | ### WATCHDOG [2026-03-12 21:42] RENDER-HEARTBEAT - smart_loop
+ 389 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 390 | 
+ 391 | ### WATCHDOG [2026-03-12 21:47] RENDER-HEARTBEAT - smart_loop
+ 392 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 393 | 
+ 394 | ### WATCHDOG [2026-03-12 21:52] RENDER-HEARTBEAT - smart_loop
+ 395 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 396 | 
+ 397 | ### WATCHDOG [2026-03-12 21:57] RENDER-HEARTBEAT - smart_loop
+ 398 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 399 | 
+ 400 | ### WATCHDOG [2026-03-12 22:02] RENDER-HEARTBEAT - smart_loop
+ 401 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 402 | 
+ 403 | ### WATCHDOG [2026-03-12 22:07] RENDER-HEARTBEAT - smart_loop
+ 404 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 405 | 
+ 406 | ### WATCHDOG [2026-03-12 22:12] RENDER-HEARTBEAT - smart_loop
+ 407 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 408 | 
+ 409 | ### WATCHDOG [2026-03-12 22:17] RENDER-HEARTBEAT - smart_loop
+ 410 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 411 | 
+ 412 | ### WATCHDOG [2026-03-12 22:22] RENDER-HEARTBEAT - smart_loop
+ 413 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 414 | 
+ 415 | ### WATCHDOG [2026-03-12 22:27] RENDER-HEARTBEAT - smart_loop
+ 416 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 417 | 
+ 418 | ### WATCHDOG [2026-03-12 22:32] RENDER-HEARTBEAT - smart_loop
+ 419 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 420 | 
+ 421 | ### WATCHDOG [2026-03-12 22:37] RENDER-HEARTBEAT - smart_loop
+ 422 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 423 | 
+ 424 | ### WATCHDOG [2026-03-12 22:42] RENDER-HEARTBEAT - smart_loop
+ 425 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 426 | 
+ 427 | ### WATCHDOG [2026-03-12 22:47] RENDER-HEARTBEAT - smart_loop
+ 428 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 429 | 
+ 430 | ### WATCHDOG [2026-03-12 22:52] RENDER-HEARTBEAT - smart_loop
+ 431 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 432 | 
+ 433 | ### WATCHDOG [2026-03-12 22:57] RENDER-HEARTBEAT - smart_loop
+ 434 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 435 | 
+ 436 | ### WATCHDOG [2026-03-12 23:02] RENDER-HEARTBEAT - smart_loop
+ 437 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 438 | 
+ 439 | ### WATCHDOG [2026-03-12 23:07] RENDER-HEARTBEAT - smart_loop
+ 440 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 441 | 
+ 442 | ### WATCHDOG [2026-03-12 23:12] RENDER-HEARTBEAT - smart_loop
+ 443 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 444 | 
+ 445 | ### WATCHDOG [2026-03-12 23:17] RENDER-HEARTBEAT - smart_loop
+ 446 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 447 | 
+ 448 | ### WATCHDOG [2026-03-12 23:22] RENDER-HEARTBEAT - smart_loop
+ 449 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 450 | 
+ 451 | ### WATCHDOG [2026-03-12 23:27] RENDER-HEARTBEAT - smart_loop
+ 452 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 453 | 
+ 454 | ### WATCHDOG [2026-03-12 23:32] RENDER-HEARTBEAT - smart_loop
+ 455 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 456 | 
+ 457 | ### WATCHDOG [2026-03-12 23:37] RENDER-HEARTBEAT - smart_loop
+ 458 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 459 | 
+ 460 | ### WATCHDOG [2026-03-12 23:42] RENDER-HEARTBEAT - smart_loop
+ 461 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 462 | 
+ 463 | ### WATCHDOG [2026-03-12 23:47] RENDER-HEARTBEAT - smart_loop
+ 464 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 465 | 
+ 466 | ### WATCHDOG [2026-03-12 23:52] RENDER-HEARTBEAT - smart_loop
+ 467 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 468 | 
+ 469 | ### WATCHDOG [2026-03-12 23:57] RENDER-HEARTBEAT - smart_loop
+ 470 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 471 | 
+ 472 | ### WATCHDOG [2026-03-13 00:02] RENDER-HEARTBEAT - smart_loop
+ 473 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 474 | 
+ 475 | ### WATCHDOG [2026-03-13 00:07] RENDER-HEARTBEAT - smart_loop
+ 476 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 477 | 
+ 478 | ### WATCHDOG [2026-03-13 00:12] RENDER-HEARTBEAT - smart_loop
+ 479 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 480 | 
+ 481 | ### WATCHDOG [2026-03-13 00:17] RENDER-HEARTBEAT - smart_loop
+ 482 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 483 | 
+ 484 | ### WATCHDOG [2026-03-13 00:22] RENDER-HEARTBEAT - smart_loop
+ 485 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 486 | 
+ 487 | ### WATCHDOG [2026-03-13 00:27] RENDER-HEARTBEAT - smart_loop
+ 488 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 489 | 
+ 490 | ### WATCHDOG [2026-03-13 00:32] RENDER-HEARTBEAT - smart_loop
+ 491 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 492 | 
+ 493 | ### WATCHDOG [2026-03-13 00:37] RENDER-HEARTBEAT - smart_loop
+ 494 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 495 | 
+ 496 | ### WATCHDOG [2026-03-13 00:42] RENDER-HEARTBEAT - smart_loop
+ 497 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 498 | 
+ 499 | ### WATCHDOG [2026-03-13 00:47] RENDER-HEARTBEAT - smart_loop
+ 500 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 501 | 
+ 502 | ### WATCHDOG [2026-03-13 00:52] RENDER-HEARTBEAT - smart_loop
+ 503 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 504 | 
+ 505 | ### WATCHDOG [2026-03-13 00:57] RENDER-HEARTBEAT - smart_loop
+ 506 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 507 | 
+ 508 | ### WATCHDOG [2026-03-13 01:02] RENDER-HEARTBEAT - smart_loop
+ 509 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 510 | 
+ 511 | ### WATCHDOG [2026-03-13 01:07] RENDER-HEARTBEAT - smart_loop
+ 512 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 513 | 
+ 514 | ### WATCHDOG [2026-03-13 01:12] RENDER-HEARTBEAT - smart_loop
+ 515 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 516 | 
+ 517 | ### WATCHDOG [2026-03-13 01:17] RENDER-HEARTBEAT - smart_loop
+ 518 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 519 | 
+ 520 | ### WATCHDOG [2026-03-13 01:22] RENDER-HEARTBEAT - smart_loop
+ 521 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 522 | 
+ 523 | ### WATCHDOG [2026-03-13 01:27] RENDER-HEARTBEAT - smart_loop
+ 524 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 525 | 
+ 526 | ### WATCHDOG [2026-03-13 01:32] RENDER-HEARTBEAT - smart_loop
+ 527 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 528 | 
+ 529 | ### WATCHDOG [2026-03-13 01:37] RENDER-HEARTBEAT - smart_loop
+ 530 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 531 | 
+ 532 | ### WATCHDOG [2026-03-13 01:42] RENDER-HEARTBEAT - smart_loop
+ 533 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 534 | 
+ 535 | ### WATCHDOG [2026-03-13 01:47] RENDER-HEARTBEAT - smart_loop
+ 536 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 537 | 
+ 538 | ### WATCHDOG [2026-03-13 01:52] RENDER-HEARTBEAT - smart_loop
+ 539 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 540 | 
+ 541 | ### WATCHDOG [2026-03-13 01:57] RENDER-HEARTBEAT - smart_loop
+ 542 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 543 | 
+ 544 | ### WATCHDOG [2026-03-13 02:02] RENDER-HEARTBEAT - smart_loop
+ 545 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 546 | 
+ 547 | ### WATCHDOG [2026-03-13 02:07] RENDER-HEARTBEAT - smart_loop
+ 548 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 549 | 
+ 550 | ### WATCHDOG [2026-03-13 02:12] RENDER-HEARTBEAT - smart_loop
+ 551 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 552 | 
+ 553 | ### WATCHDOG [2026-03-13 02:17] RENDER-HEARTBEAT - smart_loop
+ 554 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 555 | 
+ 556 | ### WATCHDOG [2026-03-13 02:22] RENDER-HEARTBEAT - smart_loop
+ 557 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 558 | 
+ 559 | ### WATCHDOG [2026-03-13 02:27] RENDER-HEARTBEAT - smart_loop
+ 560 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 561 | 
+ 562 | ### WATCHDOG [2026-03-13 02:32] RENDER-HEARTBEAT - smart_loop
+ 563 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 564 | 
+ 565 | ### WATCHDOG [2026-03-13 02:37] RENDER-HEARTBEAT - smart_loop
+ 566 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 567 | 
+ 568 | ### WATCHDOG [2026-03-13 02:42] RENDER-HEARTBEAT - smart_loop
+ 569 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 570 | 
+ 571 | ### PROMOTION [2026-03-13 02:42] render-stable updated
+ 572 | Score 24 beats previous best 0. Main merged to render-stable.
+ 573 | 
+ 574 | ---
+ 575 | 
+ 576 | ### ORCHESTRATOR [2026-03-13 02:42] GPU1 PROMOTED to render-stable
+ 577 | Score: 24/100 — experimental beat stable.
+ 578 | 
+ 579 | ---
+ 580 | 
+ 581 | ### WATCHDOG [2026-03-13 02:47] RENDER-HEARTBEAT - smart_loop
+ 582 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 583 | 
+ 584 | ### WATCHDOG [2026-03-13 02:52] RENDER-HEARTBEAT - smart_loop
+ 585 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 586 | 
+ 587 | ### WATCHDOG [2026-03-13 02:57] RENDER-HEARTBEAT - smart_loop
+ 588 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 589 | 
+ 590 | ### WATCHDOG [2026-03-13 03:02] RENDER-HEARTBEAT - smart_loop
+ 591 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 592 | 
+ 593 | ### WATCHDOG [2026-03-13 03:07] RENDER-HEARTBEAT - smart_loop
+ 594 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 595 | 
+ 596 | ### WATCHDOG [2026-03-13 03:12] RENDER-HEARTBEAT - smart_loop
+ 597 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 598 | 
+ 599 | ### WATCHDOG [2026-03-13 03:17] RENDER-HEARTBEAT - smart_loop
+ 600 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 601 | 
+ 602 | ### WATCHDOG [2026-03-13 03:22] RENDER-HEARTBEAT - smart_loop
+ 603 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 604 | 
+ 605 | ### WATCHDOG [2026-03-13 03:27] RENDER-HEARTBEAT - smart_loop
+ 606 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 607 | 
+ 608 | ### WATCHDOG [2026-03-13 03:32] RENDER-HEARTBEAT - smart_loop
+ 609 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 610 | 
+ 611 | ### WATCHDOG [2026-03-13 03:37] RENDER-HEARTBEAT - smart_loop
+ 612 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 613 | 
+ 614 | ### WATCHDOG [2026-03-13 03:42] RENDER-HEARTBEAT - smart_loop
+ 615 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 616 | 
+ 617 | ### WATCHDOG [2026-03-13 03:47] RENDER-HEARTBEAT - smart_loop
+ 618 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 619 | 
+ 620 | ### WATCHDOG [2026-03-13 03:52] RENDER-HEARTBEAT - smart_loop
+ 621 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 622 | 
+ 623 | ### WATCHDOG [2026-03-13 03:57] RENDER-HEARTBEAT - smart_loop
+ 624 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 625 | 
+ 626 | ### WATCHDOG [2026-03-13 04:02] RENDER-HEARTBEAT - smart_loop
+ 627 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 628 | 
+ 629 | ### WATCHDOG [2026-03-13 04:07] RENDER-HEARTBEAT - smart_loop
+ 630 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 631 | 
+ 632 | ### WATCHDOG [2026-03-13 04:12] RENDER-HEARTBEAT - smart_loop
+ 633 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 634 | 
+ 635 | ### WATCHDOG [2026-03-13 04:17] RENDER-HEARTBEAT - smart_loop
+ 636 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 637 | 
+ 638 | ### WATCHDOG [2026-03-13 04:22] RENDER-HEARTBEAT - smart_loop
+ 639 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 640 | 
+ 641 | ### WATCHDOG [2026-03-13 04:27] RENDER-HEARTBEAT - smart_loop
+ 642 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 643 | 
+ 644 | ### WATCHDOG [2026-03-13 04:32] RENDER-HEARTBEAT - smart_loop
+ 645 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 646 | 
+ 647 | ### WATCHDOG [2026-03-13 04:37] RENDER-HEARTBEAT - smart_loop
+ 648 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 649 | 
+ 650 | ### WATCHDOG [2026-03-13 04:42] RENDER-HEARTBEAT - smart_loop
+ 651 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 652 | 
+ 653 | ### WATCHDOG [2026-03-13 04:47] RENDER-HEARTBEAT - smart_loop
+ 654 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 655 | 
+ 656 | ### WATCHDOG [2026-03-13 04:52] RENDER-HEARTBEAT - smart_loop
+ 657 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 658 | 
+ 659 | ### WATCHDOG [2026-03-13 04:57] RENDER-HEARTBEAT - smart_loop
+ 660 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 661 | 
+ 662 | ### WATCHDOG [2026-03-13 05:02] RENDER-HEARTBEAT - smart_loop
+ 663 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 664 | 
+ 665 | ### WATCHDOG [2026-03-13 05:07] RENDER-HEARTBEAT - smart_loop
+ 666 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 667 | 
+ 668 | ### WATCHDOG [2026-03-13 05:12] RENDER-HEARTBEAT - smart_loop
+ 669 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 670 | 
+ 671 | ### WATCHDOG [2026-03-13 05:17] RENDER-HEARTBEAT - smart_loop
+ 672 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 673 | 
+ 674 | ### WATCHDOG [2026-03-13 05:22] RENDER-HEARTBEAT - smart_loop
+ 675 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 676 | 
+ 677 | ### WATCHDOG [2026-03-13 05:27] RENDER-HEARTBEAT - smart_loop
+ 678 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 679 | 
+ 680 | ### WATCHDOG [2026-03-13 05:32] RENDER-HEARTBEAT - smart_loop
+ 681 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 682 | 
+ 683 | ### WATCHDOG [2026-03-13 05:37] RENDER-HEARTBEAT - smart_loop
+ 684 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 685 | 
+ 686 | ### WATCHDOG [2026-03-13 05:42] RENDER-HEARTBEAT - smart_loop
+ 687 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 688 | 
+ 689 | ### WATCHDOG [2026-03-13 05:47] RENDER-HEARTBEAT - smart_loop
+ 690 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 691 | 
+ 692 | ### WATCHDOG [2026-03-13 05:52] RENDER-HEARTBEAT - smart_loop
+ 693 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 694 | 
+ 695 | ### WATCHDOG [2026-03-13 05:57] RENDER-HEARTBEAT - smart_loop
+ 696 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 697 | 
+ 698 | ### WATCHDOG [2026-03-13 06:02] RENDER-HEARTBEAT - smart_loop
+ 699 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 700 | 
+ 701 | ### WATCHDOG [2026-03-13 06:07] RENDER-HEARTBEAT - smart_loop
+ 702 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 703 | 
+ 704 | ### WATCHDOG [2026-03-13 06:12] RENDER-HEARTBEAT - smart_loop
+ 705 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 706 | 
+ 707 | ### WATCHDOG [2026-03-13 06:17] RENDER-HEARTBEAT - smart_loop
+ 708 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 709 | 
+ 710 | ### WATCHDOG [2026-03-13 06:22] RENDER-HEARTBEAT - smart_loop
+ 711 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 712 | 
+ 713 | ### WATCHDOG [2026-03-13 06:27] RENDER-HEARTBEAT - smart_loop
+ 714 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 715 | 
+ 716 | ### WATCHDOG [2026-03-13 06:32] RENDER-HEARTBEAT - smart_loop
+ 717 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 718 | 
+ 719 | ### WATCHDOG [2026-03-13 06:37] RENDER-HEARTBEAT - smart_loop
+ 720 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 721 | 
+ 722 | ### WATCHDOG [2026-03-13 06:42] RENDER-HEARTBEAT - smart_loop
+ 723 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 724 | 
+ 725 | ### WATCHDOG [2026-03-13 06:47] RENDER-HEARTBEAT - smart_loop
+ 726 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 727 | 
+ 728 | ### WATCHDOG [2026-03-13 06:52] RENDER-HEARTBEAT - smart_loop
+ 729 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 730 | 
+ 731 | ### WATCHDOG [2026-03-13 06:57] RENDER-HEARTBEAT - smart_loop
+ 732 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 733 | 
+ 734 | ### WATCHDOG [2026-03-13 07:02] RENDER-HEARTBEAT - smart_loop
+ 735 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 736 | 
+ 737 | ### WATCHDOG [2026-03-13 07:07] RENDER-HEARTBEAT - smart_loop
+ 738 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 739 | 
+ 740 | ### WATCHDOG [2026-03-13 07:12] RENDER-HEARTBEAT - smart_loop
+ 741 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 742 | 
+ 743 | ### WATCHDOG [2026-03-13 07:17] RENDER-HEARTBEAT - smart_loop
+ 744 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 745 | 
+ 746 | ### WATCHDOG [2026-03-13 07:22] RENDER-HEARTBEAT - smart_loop
+ 747 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 748 | 
+ 749 | ### WATCHDOG [2026-03-13 07:27] RENDER-HEARTBEAT - smart_loop
+ 750 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 751 | 
+ 752 | ### WATCHDOG [2026-03-13 07:32] RENDER-HEARTBEAT - smart_loop
+ 753 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 754 | 
+ 755 | ### WATCHDOG [2026-03-13 07:37] RENDER-HEARTBEAT - smart_loop
+ 756 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 757 | 
+ 758 | ### WATCHDOG [2026-03-13 07:42] RENDER-HEARTBEAT - smart_loop
+ 759 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 760 | 
+ 761 | ### WATCHDOG [2026-03-13 07:47] RENDER-HEARTBEAT - smart_loop
+ 762 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 763 | 
+ 764 | ### WATCHDOG [2026-03-13 07:53] RENDER-HEARTBEAT - smart_loop
+ 765 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 766 | 
+ 767 | ### WATCHDOG [2026-03-13 07:58] RENDER-HEARTBEAT - smart_loop
+ 768 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 769 | 
+ 770 | ### WATCHDOG [2026-03-13 08:03] RENDER-HEARTBEAT - smart_loop
+ 771 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 772 | 
+ 773 | ### WATCHDOG [2026-03-13 08:08] RENDER-HEARTBEAT - smart_loop
+ 774 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 775 | 
+ 776 | ### WATCHDOG [2026-03-13 08:13] RENDER-HEARTBEAT - smart_loop
+ 777 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 778 | 
+ 779 | ### WATCHDOG [2026-03-13 08:18] RENDER-HEARTBEAT - smart_loop
+ 780 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 781 | 
+ 782 | ### WATCHDOG [2026-03-13 08:23] RENDER-HEARTBEAT - smart_loop
+ 783 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 784 | 
+ 785 | ### WATCHDOG [2026-03-13 08:28] RENDER-HEARTBEAT - smart_loop
+ 786 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 787 | 
+ 788 | ### WATCHDOG [2026-03-13 08:33] RENDER-HEARTBEAT - smart_loop
+ 789 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 790 | 
+ 791 | ### WATCHDOG [2026-03-13 08:38] RENDER-HEARTBEAT - smart_loop
+ 792 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 793 | 
+ 794 | ### WATCHDOG [2026-03-13 08:43] RENDER-HEARTBEAT - smart_loop
+ 795 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 796 | 
+ 797 | ### WATCHDOG [2026-03-13 08:48] RENDER-HEARTBEAT - smart_loop
+ 798 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 799 | 
+ 800 | ### WATCHDOG [2026-03-13 08:53] RENDER-HEARTBEAT - smart_loop
+ 801 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 802 | 
+ 803 | ### WATCHDOG [2026-03-13 08:58] RENDER-HEARTBEAT - smart_loop
+ 804 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 805 | 
+ 806 | ### WATCHDOG [2026-03-13 09:03] RENDER-HEARTBEAT - smart_loop
+ 807 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 808 | 
+ 809 | ### WATCHDOG [2026-03-13 09:08] RENDER-HEARTBEAT - smart_loop
+ 810 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 811 | 
+ 812 | ### WATCHDOG [2026-03-13 09:13] RENDER-HEARTBEAT - smart_loop
+ 813 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 814 | 
+ 815 | ### WATCHDOG [2026-03-13 09:18] RENDER-HEARTBEAT - smart_loop
+ 816 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 817 | 
+ 818 | ### WATCHDOG [2026-03-13 09:23] RENDER-HEARTBEAT - smart_loop
+ 819 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 820 | 
+ 821 | ### WATCHDOG [2026-03-13 09:28] RENDER-HEARTBEAT - smart_loop
+ 822 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 823 | 
+ 824 | ### WATCHDOG [2026-03-13 09:33] RENDER-HEARTBEAT - smart_loop
+ 825 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 826 | 
+ 827 | ### WATCHDOG [2026-03-13 09:38] RENDER-HEARTBEAT - smart_loop
+ 828 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 829 | 
+ 830 | ### WATCHDOG [2026-03-13 09:43] RENDER-HEARTBEAT - smart_loop
+ 831 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 832 | 
+ 833 | ### WATCHDOG [2026-03-13 09:48] RENDER-HEARTBEAT - smart_loop
+ 834 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 835 | 
+ 836 | ### WATCHDOG [2026-03-13 09:53] RENDER-HEARTBEAT - smart_loop
+ 837 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 838 | 
+ 839 | ### WATCHDOG [2026-03-13 09:58] RENDER-HEARTBEAT - smart_loop
+ 840 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 841 | 
+ 842 | ### WATCHDOG [2026-03-13 10:03] RENDER-HEARTBEAT - smart_loop
+ 843 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 844 | 
+ 845 | ### WATCHDOG [2026-03-13 10:08] RENDER-HEARTBEAT - smart_loop
+ 846 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 847 | 
+ 848 | ### WATCHDOG [2026-03-13 10:13] RENDER-HEARTBEAT - smart_loop
+ 849 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 850 | 
+ 851 | ### WATCHDOG [2026-03-13 10:18] RENDER-HEARTBEAT - smart_loop
+ 852 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 853 | 
+ 854 | ### WATCHDOG [2026-03-13 10:23] RENDER-HEARTBEAT - smart_loop
+ 855 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 856 | 
+ 857 | ### WATCHDOG [2026-03-13 10:28] RENDER-HEARTBEAT - smart_loop
+ 858 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 859 | 
+ 860 | ### WATCHDOG [2026-03-13 10:33] RENDER-HEARTBEAT - smart_loop
+ 861 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 862 | 
+ 863 | ### WATCHDOG [2026-03-13 10:38] RENDER-HEARTBEAT - smart_loop
+ 864 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 865 | 
+ 866 | ### WATCHDOG [2026-03-13 10:43] RENDER-HEARTBEAT - smart_loop
+ 867 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 868 | 
+ 869 | ### WATCHDOG [2026-03-13 10:48] RENDER-HEARTBEAT - smart_loop
+ 870 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 871 | 
+ 872 | ### WATCHDOG [2026-03-13 10:53] RENDER-HEARTBEAT - smart_loop
+ 873 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 874 | 
+ 875 | ### WATCHDOG [2026-03-13 10:58] RENDER-HEARTBEAT - smart_loop
+ 876 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 877 | 
+ 878 | ### WATCHDOG [2026-03-13 11:03] RENDER-HEARTBEAT - smart_loop
+ 879 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 880 | 
+ 881 | ### WATCHDOG [2026-03-13 11:08] RENDER-HEARTBEAT - smart_loop
+ 882 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 883 | 
+ 884 | ### WATCHDOG [2026-03-13 11:13] RENDER-HEARTBEAT - smart_loop
+ 885 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 886 | 
+ 887 | ### WATCHDOG [2026-03-13 11:18] RENDER-HEARTBEAT - smart_loop
+ 888 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 889 | 
+ 890 | ### WATCHDOG [2026-03-13 11:23] RENDER-HEARTBEAT - smart_loop
+ 891 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 892 | 
+ 893 | ### WATCHDOG [2026-03-13 11:28] RENDER-HEARTBEAT - smart_loop
+ 894 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 895 | 
+ 896 | ### WATCHDOG [2026-03-13 11:33] RENDER-HEARTBEAT - smart_loop
+ 897 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 898 | 
+ 899 | ### WATCHDOG [2026-03-13 11:38] RENDER-HEARTBEAT - smart_loop
+ 900 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 901 | 
+ 902 | ### WATCHDOG [2026-03-13 11:43] RENDER-HEARTBEAT - smart_loop
+ 903 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 904 | 
+ 905 | ### WATCHDOG [2026-03-13 11:48] RENDER-HEARTBEAT - smart_loop
+ 906 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 907 | 
+ 908 | ### WATCHDOG [2026-03-13 11:53] RENDER-HEARTBEAT - smart_loop
+ 909 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 910 | 
+ 911 | ### WATCHDOG [2026-03-13 11:58] RENDER-HEARTBEAT - smart_loop
+ 912 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 913 | 
+ 914 | ### WATCHDOG [2026-03-13 12:03] RENDER-HEARTBEAT - smart_loop
+ 915 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 916 | 
+ 917 | ### WATCHDOG [2026-03-13 12:08] RENDER-HEARTBEAT - smart_loop
+ 918 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 919 | 
+ 920 | ### WATCHDOG [2026-03-13 12:13] RENDER-HEARTBEAT - smart_loop
+ 921 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 922 | 
+ 923 | ### WATCHDOG [2026-03-13 12:18] RENDER-HEARTBEAT - smart_loop
+ 924 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 925 | 
+ 926 | ### WATCHDOG [2026-03-13 12:23] RENDER-HEARTBEAT - smart_loop
+ 927 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 928 | 
+ 929 | ### WATCHDOG [2026-03-13 12:28] RENDER-HEARTBEAT - smart_loop
+ 930 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 931 | 
+ 932 | ### WATCHDOG [2026-03-13 12:33] RENDER-HEARTBEAT - smart_loop
+ 933 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 934 | 
+ 935 | ### WATCHDOG [2026-03-13 12:38] RENDER-HEARTBEAT - smart_loop
+ 936 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 937 | 
+ 938 | ### WATCHDOG [2026-03-13 12:43] RENDER-HEARTBEAT - smart_loop
+ 939 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 940 | 
+ 941 | ### WATCHDOG [2026-03-13 12:48] RENDER-HEARTBEAT - smart_loop
+ 942 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 943 | 
+ 944 | ### WATCHDOG [2026-03-13 12:53] RENDER-HEARTBEAT - smart_loop
+ 945 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 946 | 
+ 947 | ### WATCHDOG [2026-03-13 12:58] RENDER-HEARTBEAT - smart_loop
+ 948 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 949 | 
+ 950 | ### WATCHDOG [2026-03-13 13:03] RENDER-HEARTBEAT - smart_loop
+ 951 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 952 | 
+ 953 | ### WATCHDOG [2026-03-13 13:08] RENDER-HEARTBEAT - smart_loop
+ 954 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 955 | 
+ 956 | ### WATCHDOG [2026-03-13 13:13] RENDER-HEARTBEAT - smart_loop
+ 957 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 958 | 
+ 959 | ### WATCHDOG [2026-03-13 13:18] RENDER-HEARTBEAT - smart_loop
+ 960 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 961 | 
+ 962 | ### WATCHDOG [2026-03-13 13:23] RENDER-HEARTBEAT - smart_loop
+ 963 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 964 | 
+ 965 | ### WATCHDOG [2026-03-13 13:28] RENDER-HEARTBEAT - smart_loop
+ 966 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 967 | 
+ 968 | ### WATCHDOG [2026-03-13 13:33] RENDER-HEARTBEAT - smart_loop
+ 969 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 970 | 
+ 971 | ### WATCHDOG [2026-03-13 13:38] RENDER-HEARTBEAT - smart_loop
+ 972 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 973 | 
+ 974 | ### WATCHDOG [2026-03-13 13:43] RENDER-HEARTBEAT - smart_loop
+ 975 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 976 | 
+ 977 | ### WATCHDOG [2026-03-13 13:48] RENDER-HEARTBEAT - smart_loop
+ 978 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 979 | 
+ 980 | ### WATCHDOG [2026-03-13 13:53] RENDER-HEARTBEAT - smart_loop
+ 981 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 982 | 
+ 983 | ### WATCHDOG [2026-03-13 13:58] RENDER-HEARTBEAT - smart_loop
+ 984 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 985 | 
+ 986 | ### WATCHDOG [2026-03-13 14:03] RENDER-HEARTBEAT - smart_loop
+ 987 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 988 | 
+ 989 | ### WATCHDOG [2026-03-13 14:08] RENDER-HEARTBEAT - smart_loop
+ 990 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 991 | 
+ 992 | ### WATCHDOG [2026-03-13 14:13] RENDER-HEARTBEAT - smart_loop
+ 993 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 994 | 
+ 995 | ### WATCHDOG [2026-03-13 14:18] RENDER-HEARTBEAT - smart_loop
+ 996 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+ 997 | 
+ 998 | ### WATCHDOG [2026-03-13 14:23] RENDER-HEARTBEAT - smart_loop
+ 999 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1000 | 
+1001 | ### WATCHDOG [2026-03-13 14:28] RENDER-HEARTBEAT - smart_loop
+1002 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1003 | 
+1004 | ### WATCHDOG [2026-03-13 14:33] RENDER-HEARTBEAT - smart_loop
+1005 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1006 | 
+1007 | ### WATCHDOG [2026-03-13 14:38] RENDER-HEARTBEAT - smart_loop
+1008 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1009 | 
+1010 | ### WATCHDOG [2026-03-13 14:43] RENDER-HEARTBEAT - smart_loop
+1011 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1012 | 
+1013 | ### WATCHDOG [2026-03-13 14:48] RENDER-HEARTBEAT - smart_loop
+1014 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1015 | 
+1016 | ### WATCHDOG [2026-03-13 14:53] RENDER-HEARTBEAT - smart_loop
+1017 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1018 | 
+1019 | ### WATCHDOG [2026-03-13 14:58] RENDER-HEARTBEAT - smart_loop
+1020 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1021 | 
+1022 | ### WATCHDOG [2026-03-13 15:03] RENDER-HEARTBEAT - smart_loop
+1023 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1024 | 
+1025 | ### WATCHDOG [2026-03-13 15:08] RENDER-HEARTBEAT - smart_loop
+1026 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1027 | 
+1028 | ### WATCHDOG [2026-03-13 15:13] RENDER-HEARTBEAT - smart_loop
+1029 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1030 | 
+1031 | ### WATCHDOG [2026-03-13 15:18] RENDER-HEARTBEAT - smart_loop
+1032 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1033 | 
+1034 | ### WATCHDOG [2026-03-13 15:23] RENDER-HEARTBEAT - smart_loop
+1035 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1036 | 
+1037 | ### WATCHDOG [2026-03-13 15:28] RENDER-HEARTBEAT - smart_loop
+1038 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1039 | 
+1040 | ### WATCHDOG [2026-03-13 15:33] RENDER-HEARTBEAT - smart_loop
+1041 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1042 | 
+1043 | ### WATCHDOG [2026-03-13 15:38] RENDER-HEARTBEAT - smart_loop
+1044 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1045 | 
+1046 | ### WATCHDOG [2026-03-13 15:43] RENDER-HEARTBEAT - smart_loop
+1047 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1048 | 
+1049 | ### WATCHDOG [2026-03-13 15:48] RENDER-HEARTBEAT - smart_loop
+1050 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1051 | 
+1052 | ### WATCHDOG [2026-03-13 15:53] RENDER-HEARTBEAT - smart_loop
+1053 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1054 | 
+1055 | ### WATCHDOG [2026-03-13 15:58] RENDER-HEARTBEAT - smart_loop
+1056 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1057 | 
+1058 | ### WATCHDOG [2026-03-13 16:03] RENDER-HEARTBEAT - smart_loop
+1059 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1060 | 
+1061 | ### WATCHDOG [2026-03-13 16:08] RENDER-HEARTBEAT - smart_loop
+1062 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1063 | 
+1064 | ### WATCHDOG [2026-03-13 16:13] RENDER-HEARTBEAT - smart_loop
+1065 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1066 | 
+1067 | ### WATCHDOG [2026-03-13 16:18] RENDER-HEARTBEAT - smart_loop
+1068 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1069 | 
+1070 | ### WATCHDOG [2026-03-13 16:23] RENDER-HEARTBEAT - smart_loop
+1071 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1072 | 
+1073 | ### WATCHDOG [2026-03-13 16:28] RENDER-HEARTBEAT - smart_loop
+1074 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1075 | 
+1076 | ### WATCHDOG [2026-03-13 16:33] RENDER-HEARTBEAT - smart_loop
+1077 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1078 | 
+1079 | ### WATCHDOG [2026-03-13 16:38] RENDER-HEARTBEAT - smart_loop
+1080 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1081 | 
+1082 | ### WATCHDOG [2026-03-13 16:43] RENDER-HEARTBEAT - smart_loop
+1083 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1084 | 
+1085 | ### WATCHDOG [2026-03-13 16:48] RENDER-HEARTBEAT - smart_loop
+1086 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1087 | 
+1088 | ### WATCHDOG [2026-03-13 16:53] RENDER-HEARTBEAT - smart_loop
+1089 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1090 | 
+1091 | ### WATCHDOG [2026-03-13 16:58] RENDER-HEARTBEAT - smart_loop
+1092 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1093 | 
+1094 | ### WATCHDOG [2026-03-13 17:03] RENDER-HEARTBEAT - smart_loop
+1095 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1096 | 
+1097 | ### WATCHDOG [2026-03-13 17:08] RENDER-HEARTBEAT - smart_loop
+1098 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1099 | 
+1100 | ### WATCHDOG [2026-03-13 17:13] RENDER-HEARTBEAT - smart_loop
+1101 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1102 | 
+1103 | ### WATCHDOG [2026-03-13 17:18] RENDER-HEARTBEAT - smart_loop
+1104 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1105 | 
+1106 | ### WATCHDOG [2026-03-13 17:23] RENDER-HEARTBEAT - smart_loop
+1107 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1108 | 
+1109 | ### WATCHDOG [2026-03-13 17:28] RENDER-HEARTBEAT - smart_loop
+1110 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1111 | 
+1112 | ### WATCHDOG [2026-03-13 17:33] RENDER-HEARTBEAT - smart_loop
+1113 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1114 | 
+1115 | ### WATCHDOG [2026-03-13 17:38] RENDER-HEARTBEAT - smart_loop
+1116 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1117 | 
+1118 | ### WATCHDOG [2026-03-13 17:43] RENDER-HEARTBEAT - smart_loop
+1119 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1120 | 
+1121 | ### WATCHDOG [2026-03-13 17:48] RENDER-HEARTBEAT - smart_loop
+1122 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1123 | 
+1124 | ### WATCHDOG [2026-03-13 17:53] RENDER-HEARTBEAT - smart_loop
+1125 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1126 | 
+1127 | ### WATCHDOG [2026-03-13 17:58] RENDER-HEARTBEAT - smart_loop
+1128 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1129 | 
+1130 | ### WATCHDOG [2026-03-13 18:03] RENDER-HEARTBEAT - smart_loop
+1131 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1132 | 
+1133 | ### WATCHDOG [2026-03-13 18:08] RENDER-HEARTBEAT - smart_loop
+1134 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1135 | 
+1136 | ### WATCHDOG [2026-03-13 18:13] RENDER-HEARTBEAT - smart_loop
+1137 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1138 | 
+1139 | ### WATCHDOG [2026-03-13 18:18] RENDER-HEARTBEAT - smart_loop
+1140 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1141 | 
+1142 | ### WATCHDOG [2026-03-13 18:23] RENDER-HEARTBEAT - smart_loop
+1143 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1144 | 
+1145 | ### WATCHDOG [2026-03-13 18:28] RENDER-HEARTBEAT - smart_loop
+1146 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1147 | 
+1148 | ### WATCHDOG [2026-03-13 18:33] RENDER-HEARTBEAT - smart_loop
+1149 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1150 | 
+1151 | ### WATCHDOG [2026-03-13 18:38] RENDER-HEARTBEAT - smart_loop
+1152 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1153 | 
+1154 | ### WATCHDOG [2026-03-13 18:44] RENDER-HEARTBEAT - smart_loop
+1155 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1156 | 
+1157 | ### WATCHDOG [2026-03-13 18:49] RENDER-HEARTBEAT - smart_loop
+1158 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1159 | 
+1160 | ### WATCHDOG [2026-03-13 18:54] RENDER-HEARTBEAT - smart_loop
+1161 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1162 | 
+1163 | ### WATCHDOG [2026-03-13 18:59] RENDER-HEARTBEAT - smart_loop
+1164 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1165 | 
+1166 | ### WATCHDOG [2026-03-13 19:04] RENDER-HEARTBEAT - smart_loop
+1167 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1168 | 
+1169 | ### WATCHDOG [2026-03-13 19:09] RENDER-HEARTBEAT - smart_loop
+1170 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1171 | 
+1172 | ### WATCHDOG [2026-03-13 19:14] RENDER-HEARTBEAT - smart_loop
+1173 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1174 | 
+1175 | ### WATCHDOG [2026-03-13 19:19] RENDER-HEARTBEAT - smart_loop
+1176 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1177 | 
+1178 | ### WATCHDOG [2026-03-13 19:24] RENDER-HEARTBEAT - smart_loop
+1179 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1180 | 
+1181 | ### WATCHDOG [2026-03-13 19:29] RENDER-HEARTBEAT - smart_loop
+1182 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1183 | 
+1184 | ### WATCHDOG [2026-03-13 19:34] RENDER-HEARTBEAT - smart_loop
+1185 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1186 | 
+1187 | ### WATCHDOG [2026-03-13 19:39] RENDER-HEARTBEAT - smart_loop
+1188 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1189 | 
+1190 | ### WATCHDOG [2026-03-13 19:44] RENDER-HEARTBEAT - smart_loop
+1191 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1192 | 
+1193 | ### WATCHDOG [2026-03-13 19:49] RENDER-HEARTBEAT - smart_loop
+1194 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1195 | 
+1196 | ### WATCHDOG [2026-03-13 19:54] RENDER-HEARTBEAT - smart_loop
+1197 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1198 | 
+1199 | ### WATCHDOG [2026-03-13 19:59] RENDER-HEARTBEAT - smart_loop
+1200 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1201 | 
+1202 | ### WATCHDOG [2026-03-13 20:04] RENDER-HEARTBEAT - smart_loop
+1203 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1204 | 
+1205 | ### WATCHDOG [2026-03-13 20:09] RENDER-HEARTBEAT - smart_loop
+1206 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1207 | 
+1208 | ### WATCHDOG [2026-03-13 20:14] RENDER-HEARTBEAT - smart_loop
+1209 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1210 | 
+1211 | ### WATCHDOG [2026-03-13 20:19] RENDER-HEARTBEAT - smart_loop
+1212 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1213 | 
+1214 | ### WATCHDOG [2026-03-13 20:24] RENDER-HEARTBEAT - smart_loop
+1215 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1216 | 
+1217 | ### WATCHDOG [2026-03-13 20:29] RENDER-HEARTBEAT - smart_loop
+1218 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1219 | 
+1220 | ### WATCHDOG [2026-03-13 20:34] RENDER-HEARTBEAT - smart_loop
+1221 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1222 | 
+1223 | ### WATCHDOG [2026-03-13 20:39] RENDER-HEARTBEAT - smart_loop
+1224 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1225 | 
+1226 | ### WATCHDOG [2026-03-13 20:44] RENDER-HEARTBEAT - smart_loop
+1227 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1228 | 
+1229 | ### WATCHDOG [2026-03-13 20:49] RENDER-HEARTBEAT - smart_loop
+1230 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1231 | 
+1232 | ### WATCHDOG [2026-03-13 20:54] RENDER-HEARTBEAT - smart_loop
+1233 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1234 | 
+1235 | ### WATCHDOG [2026-03-13 20:59] RENDER-HEARTBEAT - smart_loop
+1236 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1237 | 
+1238 | ### WATCHDOG [2026-03-13 21:04] RENDER-HEARTBEAT - smart_loop
+1239 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1240 | 
+1241 | ### WATCHDOG [2026-03-13 21:09] RENDER-HEARTBEAT - smart_loop
+1242 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1243 | 
+1244 | ### WATCHDOG [2026-03-13 21:14] RENDER-HEARTBEAT - smart_loop
+1245 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1246 | 
+1247 | ### WATCHDOG [2026-03-13 21:19] RENDER-HEARTBEAT - smart_loop
+1248 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1249 | 
+1250 | ### WATCHDOG [2026-03-13 21:24] RENDER-HEARTBEAT - smart_loop
+1251 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1252 | 
+1253 | ### WATCHDOG [2026-03-13 21:29] RENDER-HEARTBEAT - smart_loop
+1254 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1255 | 
+1256 | ### WATCHDOG [2026-03-13 21:34] RENDER-HEARTBEAT - smart_loop
+1257 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1258 | 
+1259 | ### WATCHDOG [2026-03-13 21:39] RENDER-HEARTBEAT - smart_loop
+1260 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1261 | 
+1262 | ### WATCHDOG [2026-03-13 21:44] RENDER-HEARTBEAT - smart_loop
+1263 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1264 | 
+1265 | ### WATCHDOG [2026-03-13 21:49] RENDER-HEARTBEAT - smart_loop
+1266 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1267 | 
+1268 | ### WATCHDOG [2026-03-13 21:54] RENDER-HEARTBEAT - smart_loop
+1269 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1270 | 
+1271 | ### WATCHDOG [2026-03-13 21:59] RENDER-HEARTBEAT - smart_loop
+1272 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1273 | 
+1274 | ### WATCHDOG [2026-03-13 22:04] RENDER-HEARTBEAT - smart_loop
+1275 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1276 | 
+1277 | ### WATCHDOG [2026-03-13 22:09] RENDER-HEARTBEAT - smart_loop
+1278 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1279 | 
+1280 | ### WATCHDOG [2026-03-13 22:14] RENDER-HEARTBEAT - smart_loop
+1281 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1282 | 
+1283 | ### WATCHDOG [2026-03-13 22:19] RENDER-HEARTBEAT - smart_loop
+1284 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1285 | 
+1286 | ### WATCHDOG [2026-03-13 22:24] RENDER-HEARTBEAT - smart_loop
+1287 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1288 | 
+1289 | ### WATCHDOG [2026-03-13 22:29] RENDER-HEARTBEAT - smart_loop
+1290 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1291 | 
+1292 | ### WATCHDOG [2026-03-13 22:34] RENDER-HEARTBEAT - smart_loop
+1293 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1294 | 
+1295 | ### WATCHDOG [2026-03-13 22:39] RENDER-HEARTBEAT - smart_loop
+1296 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1297 | 
+1298 | ### WATCHDOG [2026-03-13 22:44] RENDER-HEARTBEAT - smart_loop
+1299 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1300 | 
+1301 | ### WATCHDOG [2026-03-13 22:49] RENDER-HEARTBEAT - smart_loop
+1302 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1303 | 
+1304 | ### WATCHDOG [2026-03-13 22:54] RENDER-HEARTBEAT - smart_loop
+1305 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1306 | 
+1307 | ### WATCHDOG [2026-03-13 22:59] RENDER-HEARTBEAT - smart_loop
+1308 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1309 | 
+1310 | ### WATCHDOG [2026-03-13 23:04] RENDER-HEARTBEAT - smart_loop
+1311 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1312 | 
+1313 | ### WATCHDOG [2026-03-13 23:09] RENDER-HEARTBEAT - smart_loop
+1314 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1315 | 
+1316 | ### WATCHDOG [2026-03-13 23:14] RENDER-HEARTBEAT - smart_loop
+1317 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1318 | 
+1319 | ### WATCHDOG [2026-03-13 23:19] RENDER-HEARTBEAT - smart_loop
+1320 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1321 | 
+1322 | ### WATCHDOG [2026-03-13 23:24] RENDER-HEARTBEAT - smart_loop
+1323 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1324 | 
+1325 | ### WATCHDOG [2026-03-13 23:29] RENDER-HEARTBEAT - smart_loop
+1326 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1327 | 
+1328 | ### WATCHDOG [2026-03-13 23:34] RENDER-HEARTBEAT - smart_loop
+1329 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1330 | 
+1331 | ### WATCHDOG [2026-03-13 23:39] RENDER-HEARTBEAT - smart_loop
+1332 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1333 | 
+1334 | ### WATCHDOG [2026-03-13 23:44] RENDER-HEARTBEAT - smart_loop
+1335 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1336 | 
+1337 | ### WATCHDOG [2026-03-13 23:49] RENDER-HEARTBEAT - smart_loop
+1338 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1339 | 
+1340 | ### WATCHDOG [2026-03-13 23:54] RENDER-HEARTBEAT - smart_loop
+1341 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1342 | 
+1343 | ### WATCHDOG [2026-03-13 23:59] RENDER-HEARTBEAT - smart_loop
+1344 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1345 | 
+1346 | ### WATCHDOG [2026-03-14 00:04] RENDER-HEARTBEAT - smart_loop
+1347 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1348 | 
+1349 | ### WATCHDOG [2026-03-14 00:09] RENDER-HEARTBEAT - smart_loop
+1350 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1351 | 
+1352 | ### WATCHDOG [2026-03-14 00:14] RENDER-HEARTBEAT - smart_loop
+1353 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1354 | 
+1355 | ### WATCHDOG [2026-03-14 00:19] RENDER-HEARTBEAT - smart_loop
+1356 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1357 | 
+1358 | ### WATCHDOG [2026-03-14 00:24] RENDER-HEARTBEAT - smart_loop
+1359 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1360 | 
+1361 | ### WATCHDOG [2026-03-14 00:29] RENDER-HEARTBEAT - smart_loop
+1362 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1363 | 
+1364 | ### WATCHDOG [2026-03-14 00:34] RENDER-HEARTBEAT - smart_loop
+1365 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1366 | 
+1367 | ### WATCHDOG [2026-03-14 00:39] RENDER-HEARTBEAT - smart_loop
+1368 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1369 | 
+1370 | ### WATCHDOG [2026-03-14 00:44] RENDER-HEARTBEAT - smart_loop
+1371 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1372 | 
+1373 | ### WATCHDOG [2026-03-14 00:49] RENDER-HEARTBEAT - smart_loop
+1374 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1375 | 
+1376 | ### WATCHDOG [2026-03-14 00:54] RENDER-HEARTBEAT - smart_loop
+1377 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1378 | 
+1379 | ### WATCHDOG [2026-03-14 00:59] RENDER-HEARTBEAT - smart_loop
+1380 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1381 | 
+1382 | ### WATCHDOG [2026-03-14 01:04] RENDER-HEARTBEAT - smart_loop
+1383 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1384 | 
+1385 | ### WATCHDOG [2026-03-14 01:09] RENDER-HEARTBEAT - smart_loop
+1386 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1387 | 
+1388 | ### WATCHDOG [2026-03-14 01:14] RENDER-HEARTBEAT - smart_loop
+1389 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1390 | 
+1391 | ### WATCHDOG [2026-03-14 01:19] RENDER-HEARTBEAT - smart_loop
+1392 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1393 | 
+1394 | ### WATCHDOG [2026-03-14 01:24] RENDER-HEARTBEAT - smart_loop
+1395 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1396 | 
+1397 | ### WATCHDOG [2026-03-14 01:29] RENDER-HEARTBEAT - smart_loop
+1398 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1399 | 
+1400 | ### WATCHDOG [2026-03-14 01:34] RENDER-HEARTBEAT - smart_loop
+1401 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1402 | 
+1403 | ### WATCHDOG [2026-03-14 01:39] RENDER-HEARTBEAT - smart_loop
+1404 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1405 | 
+1406 | ### WATCHDOG [2026-03-14 01:44] RENDER-HEARTBEAT - smart_loop
+1407 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1408 | 
+1409 | ### WATCHDOG [2026-03-14 01:49] RENDER-HEARTBEAT - smart_loop
+1410 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1411 | 
+1412 | ### WATCHDOG [2026-03-14 01:54] RENDER-HEARTBEAT - smart_loop
+1413 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1414 | 
+1415 | ### WATCHDOG [2026-03-14 01:59] RENDER-HEARTBEAT - smart_loop
+1416 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1417 | 
+1418 | ### WATCHDOG [2026-03-14 02:04] RENDER-HEARTBEAT - smart_loop
+1419 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1420 | 
+1421 | ### WATCHDOG [2026-03-14 02:09] RENDER-HEARTBEAT - smart_loop
+1422 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1423 | 
+1424 | ### WATCHDOG [2026-03-14 02:14] RENDER-HEARTBEAT - smart_loop
+1425 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1426 | 
+1427 | ### WATCHDOG [2026-03-14 02:19] RENDER-HEARTBEAT - smart_loop
+1428 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1429 | 
+1430 | ### WATCHDOG [2026-03-14 02:24] RENDER-HEARTBEAT - smart_loop
+1431 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1432 | 
+1433 | ### WATCHDOG [2026-03-14 02:29] RENDER-HEARTBEAT - smart_loop
+1434 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1435 | 
+1436 | ### WATCHDOG [2026-03-14 02:34] RENDER-HEARTBEAT - smart_loop
+1437 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1438 | 
+1439 | ### WATCHDOG [2026-03-14 02:39] RENDER-HEARTBEAT - smart_loop
+1440 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1441 | 
+1442 | ### WATCHDOG [2026-03-14 02:44] RENDER-HEARTBEAT - smart_loop
+1443 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1444 | 
+1445 | ### WATCHDOG [2026-03-14 02:49] RENDER-HEARTBEAT - smart_loop
+1446 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1447 | 
+1448 | ### WATCHDOG [2026-03-14 02:54] RENDER-HEARTBEAT - smart_loop
+1449 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1450 | 
+1451 | ### WATCHDOG [2026-03-14 02:59] RENDER-HEARTBEAT - smart_loop
+1452 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1453 | 
+1454 | ### WATCHDOG [2026-03-14 03:04] RENDER-HEARTBEAT - smart_loop
+1455 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1456 | 
+1457 | ### WATCHDOG [2026-03-14 03:09] RENDER-HEARTBEAT - smart_loop
+1458 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1459 | 
+1460 | ### WATCHDOG [2026-03-14 03:14] RENDER-HEARTBEAT - smart_loop
+1461 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1462 | 
+1463 | ### WATCHDOG [2026-03-14 03:19] RENDER-HEARTBEAT - smart_loop
+1464 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1465 | 
+1466 | ### WATCHDOG [2026-03-14 03:24] RENDER-HEARTBEAT - smart_loop
+1467 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1468 | 
+1469 | ### WATCHDOG [2026-03-14 03:29] RENDER-HEARTBEAT - smart_loop
+1470 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1471 | 
+1472 | ### WATCHDOG [2026-03-14 03:34] RENDER-HEARTBEAT - smart_loop
+1473 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1474 | 
+1475 | ### WATCHDOG [2026-03-14 03:39] RENDER-HEARTBEAT - smart_loop
+1476 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1477 | 
+1478 | ### WATCHDOG [2026-03-14 03:44] RENDER-HEARTBEAT - smart_loop
+1479 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1480 | 
+1481 | ### WATCHDOG [2026-03-14 03:49] RENDER-HEARTBEAT - smart_loop
+1482 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1483 | 
+1484 | ### WATCHDOG [2026-03-14 03:54] RENDER-HEARTBEAT - smart_loop
+1485 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1486 | 
+1487 | ### WATCHDOG [2026-03-14 03:59] RENDER-HEARTBEAT - smart_loop
+1488 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1489 | 
+1490 | ### WATCHDOG [2026-03-14 04:04] RENDER-HEARTBEAT - smart_loop
+1491 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1492 | 
+1493 | ### WATCHDOG [2026-03-14 04:09] RENDER-HEARTBEAT - smart_loop
+1494 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1495 | 
+1496 | ### WATCHDOG [2026-03-14 04:14] RENDER-HEARTBEAT - smart_loop
+1497 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1498 | 
+1499 | ### WATCHDOG [2026-03-14 04:19] RENDER-HEARTBEAT - smart_loop
+1500 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1501 | 
+1502 | ### WATCHDOG [2026-03-14 04:24] RENDER-HEARTBEAT - smart_loop
+1503 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1504 | 
+1505 | ### WATCHDOG [2026-03-14 04:29] RENDER-HEARTBEAT - smart_loop
+1506 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1507 | 
+1508 | ### WATCHDOG [2026-03-14 04:34] RENDER-HEARTBEAT - smart_loop
+1509 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1510 | 
+1511 | ### WATCHDOG [2026-03-14 04:39] RENDER-HEARTBEAT - smart_loop
+1512 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1513 | 
+1514 | ### WATCHDOG [2026-03-14 04:44] RENDER-HEARTBEAT - smart_loop
+1515 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1516 | 
+1517 | ### WATCHDOG [2026-03-14 04:49] RENDER-HEARTBEAT - smart_loop
+1518 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1519 | 
+1520 | ### WATCHDOG [2026-03-14 04:54] RENDER-HEARTBEAT - smart_loop
+1521 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1522 | 
+1523 | ### WATCHDOG [2026-03-14 04:59] RENDER-HEARTBEAT - smart_loop
+1524 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1525 | 
+1526 | ### WATCHDOG [2026-03-14 05:04] RENDER-HEARTBEAT - smart_loop
+1527 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1528 | 
+1529 | ### WATCHDOG [2026-03-14 05:09] RENDER-HEARTBEAT - smart_loop
+1530 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1531 | 
+1532 | ### WATCHDOG [2026-03-14 05:14] RENDER-HEARTBEAT - smart_loop
+1533 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1534 | 
+1535 | ### WATCHDOG [2026-03-14 05:19] RENDER-HEARTBEAT - smart_loop
+1536 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1537 | 
+1538 | ### WATCHDOG [2026-03-14 05:24] RENDER-HEARTBEAT - smart_loop
+1539 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1540 | 
+1541 | ### WATCHDOG [2026-03-14 05:30] RENDER-HEARTBEAT - smart_loop
+1542 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1543 | 
+1544 | ### WATCHDOG [2026-03-14 05:35] RENDER-HEARTBEAT - smart_loop
+1545 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1546 | 
+1547 | ### WATCHDOG [2026-03-14 05:40] RENDER-HEARTBEAT - smart_loop
+1548 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1549 | 
+1550 | ### WATCHDOG [2026-03-14 05:45] RENDER-HEARTBEAT - smart_loop
+1551 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1552 | 
+1553 | ### WATCHDOG [2026-03-14 05:50] RENDER-HEARTBEAT - smart_loop
+1554 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1555 | 
+1556 | ### WATCHDOG [2026-03-14 05:55] RENDER-HEARTBEAT - smart_loop
+1557 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1558 | 
+1559 | ### WATCHDOG [2026-03-14 06:00] RENDER-HEARTBEAT - smart_loop
+1560 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1561 | 
+1562 | ### WATCHDOG [2026-03-14 06:05] RENDER-HEARTBEAT - smart_loop
+1563 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1564 | 
+1565 | ### WATCHDOG [2026-03-14 06:10] RENDER-HEARTBEAT - smart_loop
+1566 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1567 | 
+1568 | ### WATCHDOG [2026-03-14 06:15] RENDER-HEARTBEAT - smart_loop
+1569 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1570 | 
+1571 | ### WATCHDOG [2026-03-14 06:20] RENDER-HEARTBEAT - smart_loop
+1572 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1573 | 
+1574 | ### WATCHDOG [2026-03-14 06:25] RENDER-HEARTBEAT - smart_loop
+1575 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1576 | 
+1577 | ### WATCHDOG [2026-03-14 06:30] RENDER-HEARTBEAT - smart_loop
+1578 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1579 | 
+1580 | ### WATCHDOG [2026-03-14 06:35] RENDER-HEARTBEAT - smart_loop
+1581 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1582 | 
+1583 | ### WATCHDOG [2026-03-14 06:40] RENDER-HEARTBEAT - smart_loop
+1584 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1585 | 
+1586 | ### WATCHDOG [2026-03-14 06:45] RENDER-HEARTBEAT - smart_loop
+1587 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1588 | 
+1589 | ### WATCHDOG [2026-03-14 06:50] RENDER-HEARTBEAT - smart_loop
+1590 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1591 | 
+1592 | ### WATCHDOG [2026-03-14 06:55] RENDER-HEARTBEAT - smart_loop
+1593 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1594 | 
+1595 | ### WATCHDOG [2026-03-14 07:00] RENDER-HEARTBEAT - smart_loop
+1596 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1597 | 
+1598 | ### WATCHDOG [2026-03-14 07:05] RENDER-HEARTBEAT - smart_loop
+1599 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1600 | 
+1601 | ### WATCHDOG [2026-03-14 07:10] RENDER-HEARTBEAT - smart_loop
+1602 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1603 | 
+1604 | ### WATCHDOG [2026-03-14 07:15] RENDER-HEARTBEAT - smart_loop
+1605 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1606 | 
+1607 | ### WATCHDOG [2026-03-14 07:20] RENDER-HEARTBEAT - smart_loop
+1608 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1609 | 
+1610 | ### WATCHDOG [2026-03-14 07:25] RENDER-HEARTBEAT - smart_loop
+1611 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1612 | 
+1613 | ### WATCHDOG [2026-03-14 07:30] RENDER-HEARTBEAT - smart_loop
+1614 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1615 | 
+1616 | ### WATCHDOG [2026-03-14 07:35] RENDER-HEARTBEAT - smart_loop
+1617 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1618 | 
+1619 | ### WATCHDOG [2026-03-14 07:40] RENDER-HEARTBEAT - smart_loop
+1620 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1621 | 
+1622 | ### WATCHDOG [2026-03-14 07:45] RENDER-HEARTBEAT - smart_loop
+1623 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1624 | 
+1625 | ### WATCHDOG [2026-03-14 07:50] RENDER-HEARTBEAT - smart_loop
+1626 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1627 | 
+1628 | ### WATCHDOG [2026-03-14 07:55] RENDER-HEARTBEAT - smart_loop
+1629 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1630 | 
+1631 | ### WATCHDOG [2026-03-14 08:00] RENDER-HEARTBEAT - smart_loop
+1632 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1633 | 
+1634 | ### WATCHDOG [2026-03-14 08:05] RENDER-HEARTBEAT - smart_loop
+1635 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1636 | 
+1637 | ### WATCHDOG [2026-03-14 08:10] RENDER-HEARTBEAT - smart_loop
+1638 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1639 | 
+1640 | ### WATCHDOG [2026-03-14 08:15] RENDER-HEARTBEAT - smart_loop
+1641 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1642 | 
+1643 | ### WATCHDOG [2026-03-14 08:20] RENDER-HEARTBEAT - smart_loop
+1644 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1645 | 
+1646 | ### WATCHDOG [2026-03-14 08:25] RENDER-HEARTBEAT - smart_loop
+1647 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1648 | 
+1649 | ### WATCHDOG [2026-03-14 08:30] RENDER-HEARTBEAT - smart_loop
+1650 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1651 | 
+1652 | ### WATCHDOG [2026-03-14 08:35] RENDER-HEARTBEAT - smart_loop
+1653 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1654 | 
+1655 | ### WATCHDOG [2026-03-14 08:40] RENDER-HEARTBEAT - smart_loop
+1656 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1657 | 
+1658 | ### WATCHDOG [2026-03-14 08:45] RENDER-HEARTBEAT - smart_loop
+1659 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1660 | 
+1661 | ### WATCHDOG [2026-03-14 08:50] RENDER-HEARTBEAT - smart_loop
+1662 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1663 | 
+1664 | ### WATCHDOG [2026-03-14 08:55] RENDER-HEARTBEAT - smart_loop
+1665 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1666 | 
+1667 | ### WATCHDOG [2026-03-14 09:00] RENDER-HEARTBEAT - smart_loop
+1668 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1669 | 
+1670 | ### WATCHDOG [2026-03-14 09:05] RENDER-HEARTBEAT - smart_loop
+1671 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1672 | 
+1673 | ### WATCHDOG [2026-03-14 09:10] RENDER-HEARTBEAT - smart_loop
+1674 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1675 | 
+1676 | ### WATCHDOG [2026-03-14 09:15] RENDER-HEARTBEAT - smart_loop
+1677 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1678 | 
+1679 | ### WATCHDOG [2026-03-14 09:20] RENDER-HEARTBEAT - smart_loop
+1680 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1681 | 
+1682 | ### WATCHDOG [2026-03-14 09:25] RENDER-HEARTBEAT - smart_loop
+1683 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1684 | 
+1685 | ### WATCHDOG [2026-03-14 09:30] RENDER-HEARTBEAT - smart_loop
+1686 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1687 | 
+1688 | ### WATCHDOG [2026-03-14 09:35] RENDER-HEARTBEAT - smart_loop
+1689 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1690 | 
+1691 | ### WATCHDOG [2026-03-14 09:40] RENDER-HEARTBEAT - smart_loop
+1692 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1693 | 
+1694 | ### WATCHDOG [2026-03-14 09:45] RENDER-HEARTBEAT - smart_loop
+1695 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1696 | 
+1697 | ### WATCHDOG [2026-03-14 09:50] RENDER-HEARTBEAT - smart_loop
+1698 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1699 | 
+1700 | ### WATCHDOG [2026-03-14 09:55] RENDER-HEARTBEAT - smart_loop
+1701 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1702 | 
+1703 | ### WATCHDOG [2026-03-14 10:00] RENDER-HEARTBEAT - smart_loop
+1704 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1705 | 
+1706 | ### WATCHDOG [2026-03-14 10:05] RENDER-HEARTBEAT - smart_loop
+1707 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1708 | 
+1709 | ### WATCHDOG [2026-03-14 10:10] RENDER-HEARTBEAT - smart_loop
+1710 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1711 | 
+1712 | ### WATCHDOG [2026-03-14 10:15] RENDER-HEARTBEAT - smart_loop
+1713 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1714 | 
+1715 | ### WATCHDOG [2026-03-14 10:20] RENDER-HEARTBEAT - smart_loop
+1716 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1717 | 
+1718 | ### WATCHDOG [2026-03-14 10:25] RENDER-HEARTBEAT - smart_loop
+1719 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1720 | 
+1721 | ### WATCHDOG [2026-03-14 10:30] RENDER-HEARTBEAT - smart_loop
+1722 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1723 | 
+1724 | ### WATCHDOG [2026-03-14 10:35] RENDER-HEARTBEAT - smart_loop
+1725 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1726 | 
+1727 | ### WATCHDOG [2026-03-14 10:40] RENDER-HEARTBEAT - smart_loop
+1728 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1729 | 
+1730 | ### WATCHDOG [2026-03-14 10:45] RENDER-HEARTBEAT - smart_loop
+1731 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1732 | 
+1733 | ### WATCHDOG [2026-03-14 10:50] RENDER-HEARTBEAT - smart_loop
+1734 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1735 | 
+1736 | ### WATCHDOG [2026-03-14 10:55] RENDER-HEARTBEAT - smart_loop
+1737 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1738 | 
+1739 | ### WATCHDOG [2026-03-14 11:00] RENDER-HEARTBEAT - smart_loop
+1740 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1741 | 
+1742 | ### WATCHDOG [2026-03-14 11:05] RENDER-HEARTBEAT - smart_loop
+1743 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1744 | 
+1745 | ### WATCHDOG [2026-03-14 11:10] RENDER-HEARTBEAT - smart_loop
+1746 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1747 | 
+1748 | ### WATCHDOG [2026-03-14 11:15] RENDER-HEARTBEAT - smart_loop
+1749 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1750 | 
+1751 | ### WATCHDOG [2026-03-14 11:20] RENDER-HEARTBEAT - smart_loop
+1752 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1753 | 
+1754 | ### WATCHDOG [2026-03-14 11:25] RENDER-HEARTBEAT - smart_loop
+1755 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1756 | 
+1757 | ### WATCHDOG [2026-03-14 11:30] RENDER-HEARTBEAT - smart_loop
+1758 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1759 | 
+1760 | ### WATCHDOG [2026-03-14 11:35] RENDER-HEARTBEAT - smart_loop
+1761 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1762 | 
+1763 | ### WATCHDOG [2026-03-14 11:40] RENDER-HEARTBEAT - smart_loop
+1764 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1765 | 
+1766 | ### WATCHDOG [2026-03-14 11:45] RENDER-HEARTBEAT - smart_loop
+1767 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1768 | 
+1769 | ### WATCHDOG [2026-03-14 11:50] RENDER-HEARTBEAT - smart_loop
+1770 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1771 | 
+1772 | ### WATCHDOG [2026-03-14 11:55] RENDER-HEARTBEAT - smart_loop
+1773 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1774 | 
+1775 | ### WATCHDOG [2026-03-14 12:00] RENDER-HEARTBEAT - smart_loop
+1776 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1777 | 
+1778 | ### WATCHDOG [2026-03-14 12:05] RENDER-HEARTBEAT - smart_loop
+1779 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1780 | 
+1781 | ### WATCHDOG [2026-03-14 12:10] RENDER-HEARTBEAT - smart_loop
+1782 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1783 | 
+1784 | ### WATCHDOG [2026-03-14 12:15] RENDER-HEARTBEAT - smart_loop
+1785 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1786 | 
+1787 | ### WATCHDOG [2026-03-14 12:20] RENDER-HEARTBEAT - smart_loop
+1788 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1789 | 
+1790 | ### WATCHDOG [2026-03-14 12:25] RENDER-HEARTBEAT - smart_loop
+1791 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1792 | 
+1793 | ### WATCHDOG [2026-03-14 12:30] RENDER-HEARTBEAT - smart_loop
+1794 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1795 | 
+1796 | ### WATCHDOG [2026-03-14 12:35] RENDER-HEARTBEAT - smart_loop
+1797 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1798 | 
+1799 | ### WATCHDOG [2026-03-14 12:40] RENDER-HEARTBEAT - smart_loop
+1800 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1801 | 
+1802 | ### WATCHDOG [2026-03-14 12:45] RENDER-HEARTBEAT - smart_loop
+1803 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1804 | 
+1805 | ### WATCHDOG [2026-03-14 12:50] RENDER-HEARTBEAT - smart_loop
+1806 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1807 | 
+1808 | ### WATCHDOG [2026-03-14 12:55] RENDER-HEARTBEAT - smart_loop
+1809 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1810 | 
+1811 | ### WATCHDOG [2026-03-14 13:00] RENDER-HEARTBEAT - smart_loop
+1812 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1813 | 
+1814 | ### WATCHDOG [2026-03-14 13:05] RENDER-HEARTBEAT - smart_loop
+1815 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1816 | 
+1817 | ### WATCHDOG [2026-03-14 13:10] RENDER-HEARTBEAT - smart_loop
+1818 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1819 | 
+1820 | ### WATCHDOG [2026-03-14 13:15] RENDER-HEARTBEAT - smart_loop
+1821 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1822 | 
+1823 | ### WATCHDOG [2026-03-14 13:20] RENDER-HEARTBEAT - smart_loop
+1824 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1825 | 
+1826 | ### WATCHDOG [2026-03-14 13:25] RENDER-HEARTBEAT - smart_loop
+1827 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1828 | 
+1829 | ### WATCHDOG [2026-03-14 13:30] RENDER-HEARTBEAT - smart_loop
+1830 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1831 | 
+1832 | ### WATCHDOG [2026-03-14 13:35] RENDER-HEARTBEAT - smart_loop
+1833 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1834 | 
+1835 | ### WATCHDOG [2026-03-14 13:40] RENDER-HEARTBEAT - smart_loop
+1836 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1837 | 
+1838 | ### WATCHDOG [2026-03-14 13:45] RENDER-HEARTBEAT - smart_loop
+1839 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1840 | 
+1841 | ### WATCHDOG [2026-03-14 13:50] RENDER-HEARTBEAT - smart_loop
+1842 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1843 | 
+1844 | ### WATCHDOG [2026-03-14 13:55] RENDER-HEARTBEAT - smart_loop
+1845 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1846 | 
+1847 | ### WATCHDOG [2026-03-14 14:00] RENDER-HEARTBEAT - smart_loop
+1848 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1849 | 
+1850 | ### WATCHDOG [2026-03-14 14:05] RENDER-HEARTBEAT - smart_loop
+1851 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1852 | 
+1853 | ### WATCHDOG [2026-03-14 14:10] RENDER-HEARTBEAT - smart_loop
+1854 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1855 | 
+1856 | ### WATCHDOG [2026-03-14 14:15] RENDER-HEARTBEAT - smart_loop
+1857 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1858 | 
+1859 | ### WATCHDOG [2026-03-14 14:20] RENDER-HEARTBEAT - smart_loop
+1860 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1861 | 
+1862 | ### WATCHDOG [2026-03-14 14:25] RENDER-HEARTBEAT - smart_loop
+1863 | Progress: [20:20:54] ITERATION 1/8 — 0.0h elapsed | no grade yet
+1864 | 
+```
+
+### File: PIPELINE_STATE_SNAPSHOT.md (283 lines)
+```
+   1 | # PROTOCOL PULSE — PIPELINE STATE SNAPSHOT
+   2 | **Last updated:** 2026-03-13 ~02:30 UTC (Session 16, Chat 2)
+   3 | **Repo:** consensusprotocol/protocol-pulse-core (main branch)
+   4 | **Server:** Ultron — AMD EPYC 9R14 / 4x RTX 4090, relay at relay.protocolpulse.io/exec
+   5 | 
+   6 | ---
+   7 | 
+   8 | ## 🔴 CURRENT STATUS — READ FIRST
+   9 | 
+  10 | **Both GPUs are MID-RENDER right now.** Iteration 2 on GPU0 (render-stable), GPU1 on main.
+  11 | - GPU0: Started ~02:25 UTC — ETA ~03:15-03:25 UTC
+  12 | - GPU1: Running in parallel (experimental slot)
+  13 | - Render watcher PID 4177269 — fires Telegram + download link the moment any render lands
+  14 | - Last grade: F(48/100) — that was iteration 1 on pre-fix code. Iteration 2 has all 9 fixes.
+  15 | - **Do NOT kill the orchestrator. Do NOT touch render output dirs.**
+  16 | 
+  17 | ---
+  18 | 
+  19 | ## LAUNCH COMMANDS (permanent)
+  20 | 
+  21 | ```bash
+  22 | # CC session (never use -p flag):
+  23 | tmux new-session -s NAME \; send-keys 'cd ~/protocol_pulse && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions' Enter
+  24 | 
+  25 | # Orchestrator (if dead):
+  26 | tmux new-session -d -s gpu_orchestrator -x 220 -y 50
+  27 | tmux send-keys -t gpu_orchestrator 'cd ~/protocol_pulse && python3 dual_gpu_orchestrator.py >> logs/orchestrator.log 2>&1' Enter
+  28 | 
+  29 | # Relay pattern (python3 urllib only, never curl):
+  30 | # POST https://relay.protocolpulse.io/exec
+  31 | # {"token":"<REDACTED — stored in .env>","cmd":"..."}
+  32 | # Header: User-Agent: Mozilla/5.0
+  33 | ```
+  34 | 
+  35 | ---
+  36 | 
+  37 | ## GOSPEL FILES (load into every CC session that touches these areas)
+  38 | 
+  39 | - `~/protocol_pulse/PIPELINE_LAWS.md` — audio targets, color palette, timing, TTS rules
+  40 | - `~/protocol_pulse/PIPELINE_LESSONS.md` — 518+ lines of hard-won lessons
+  41 | - `~/protocol_pulse/PIPELINE_STATE_SNAPSHOT.md` — this file (cross-LLM onboarding)
+  42 | - `~/protocol_pulse/ARTICLE_PAGE_LAWS.md` — article code gospel
+  43 | - `~/protocol_pulse/video_pipeline_v3/VISUAL_DESIGN_SYSTEM.md` — 542 lines, color/typography gospel
+  44 | 
+  45 | ---
+  46 | 
+  47 | ## INFRASTRUCTURE
+  48 | 
+  49 | | Service | Location | Status |
+  50 | |---------|----------|--------|
+  51 | | Flask/Gunicorn | port 5000, ~/protocol_pulse/core/app.py | ✅ |
+  52 | | Oracle Live (FastAPI) | port 8202 | ✅ |
+  53 | | Video file server | port 5100 | ✅ |
+  54 | | Avatar server | port 8200, avatar.protocolpulse.io | ✅ |
+  55 | | CF Tunnel | protocolpulse.io → Ultron | ✅ |
+  56 | | Orchestrator | tmux:gpu_orchestrator | ✅ RUNNING |
+  57 | | Render watcher | PID 4177269 (nohup) | ✅ |
+  58 | | Watchdog | tmux:watchdog | ✅ |
+  59 | 
+  60 | ---
+  61 | 
+  62 | ## VIDEO PIPELINE — COMPLETE STATE
+  63 | 
+  64 | ### Architecture
+  65 | - `dual_gpu_orchestrator.py` — runs both GPUs forever. GPU0=render-stable, GPU1=main
+  66 | - `video_pipeline_v3/daily_producer.py` — manifest builder + render orchestration
+  67 | - `video_pipeline_v3/assembler.py` — FFmpeg filtergraph assembly (~4019 lines)
+  68 | - `video_pipeline_v3/tts_engine.py` — ElevenLabs TTS, cache, validation
+  69 | - `video_pipeline_v3/gemini_grade.py` — Gemini 2.5 Pro grader (10 criteria × 10pts)
+  70 | 
+  71 | ### Grader Criteria (90+/100 = Grade A)
+  72 | host_authenticity, episode_title, no_filler, timeliness, music_mix, transitions, visual_polish, no_artifacts, audio_quality, pacing
+  73 | 
+  74 | ### Hosts
+  75 | | Role | Voice ID | Speed | Notes |
+  76 | |------|----------|-------|-------|
+  77 | | Eryn (HOST_1) | kdnRe2koJdOK4Ovxn2DI | 1.12x | ElevenLabs — sharp female host |
+  78 | | Mark (HOST_2) | 1SM7GgM6IMuvQlz2BwM3 | 1.10x | ElevenLabs — male contrarian |
+  79 | | Oracle Jessica | cgSgspJ2msm6clMCkdW9 | — | Oracle briefings only |
+  80 | 
+  81 | **BANNED VOICE ID (caused 48h of silent renders):** uxKr2vlA4hYgXZR1oPRT — deleted voice, ElevenLabs returns 200 + 0 bytes silently
+  82 | 
+  83 | ### Music
+  84 | - 30 Suno tracks at `video_pipeline_v3/assets/music/`
+  85 | - Custom whoosh: `assets/sfx/custom_whoosh.mp3`
+  86 | - Sidechain ducking: -18dB idle → -30dB under voice
+  87 | 
+  88 | ---
+  89 | 
+  90 | ## ALL FIXES APPLIED THIS SESSION (commits dcbf6742, 27f38e83, 5daba551, e0c9fe0a)
+  91 | 
+  92 | ### ✅ CONFIRMED FIXED — DO NOT RE-FLAG
+  93 | 
+  94 | **Audio (P0 — biggest grade impact):**
+  95 | - `assembler.py` — Per-segment `loudnorm` removed from ALL 5 locations (lines 583, 1028, 1560, 2267, 2485). Single loudnorm now ONLY in `concatenate_parts()` at lines 3123/3339. This was causing LUFS drift to -17.7 and over-compression.
+  96 | - `tts_engine.py` — All audio helpers now 48000Hz stereo: `_generate_silence()` (was `r=44100:cl=mono`), `_mp3_to_m4a()` (was `-ar 44100 -ac 1`), `tts_inworld()` wav decode (was `-ar 44100 -ac 1`)
+  97 | - `assembler.py` — Duplicate `aformat` after `alimiter` removed (was at lines 2267, 2485)
+  98 | - TTS cache wiped (had stale 44100Hz files) — `video_pipeline_v3/tts_cache/`
+  99 | 
+ 100 | **TTS Hardening (P1):**
+ 101 | - `tts_engine.py` — `_get_tts_provider()` now hard-fails on anything != "elevenlabs" with RuntimeError
+ 102 | - `tts_engine.py` — `tts_inworld()` stubbed to raise RuntimeError with ban message
+ 103 | - `tts_engine.py` — Inworld branch removed from `generate_dialogue_audio()` — always calls `tts_elevenlabs()`
+ 104 | - `tts_engine.py` — `_tts_cache_get()` now validates cache hits via `validate_tts_output()`, raises size gate to 10240 bytes, deletes corrupt cache on hit
+ 105 | - `tts_engine.py` — `ffprobe_duration()` now returns -1.0 (not 0.0) on failure + logs warning
+ 106 | - `tts_engine.py` — `MAX_CHUNK_CHARS = 500` constant injected (was accidentally eaten by Inworld stub regex)
+ 107 | 
+ 108 | **Pipeline Integrity (P1):**
+ 109 | - `daily_producer.py` — Post-render health check now blocks `return passed` → `return passed and hc_passed`
+ 110 | - `daily_producer.py` — 5 clips from 5 unique channels now hard-enforced in production mode (not test_mode)
+ 111 | 
+ 112 | **Color Palette (P1/P2):**
+ 113 | - `assembler.py` — `COLOR_RED` constant: `0xFF0000` → `0xFF3333` ✅
+ 114 | - `assembler.py` — 7 solid border drawboxes: `0xFF0000@0.85+` → `0xFF3333` ✅
+ 115 | - `assembler.py` — 2 bare `fontcolor=0xFFFFFF` (no opacity) → `0xF4F5F8` ✅
+ 116 | - `assembler.py` — 5 `0xFF0033` (off-spec red) → `{COLOR_RED}` ✅
+ 117 | - `assembler.py` — `BV2_MUTED = "0xFFFFFF"` → `COLOR_WHITE` (warm white) ✅
+ 118 | - `assembler.py` — Info bar base: `0x000000@0.75` → `{COLOR_BG}@0.75` (navy, not pure black) ✅
+ 119 | 
+ 120 | **Other:**
+ 121 | - `daily_producer.py` — `COLOR_RED` was `0xFF0000` → `0xFF3333` ✅
+ 122 | - `daily_producer.py` — Duration health check: `400-600s` → `480-900s` ✅
+ 123 | - `daily_producer.py` — BTC price: CoinGecko primary + mempool fallback, no hardcoded `$97,000` ✅
+ 124 | - `daily_producer.py` — BTC price docstring updated ✅
+ 125 | 
+ 126 | ### ✅ WHAT IS NOT A BUG (do not let LLMs re-flag these)
+ 127 | - `_tts_generate_silence_fallback()` — intentionally hard-fails. Silence = F grade. This is correct.
+ 128 | - `expand_numbers_for_tts` — already wired at lines 301 and 385 of tts_engine.py
+ 129 | - `BV2_STARK_WHITE` — maps to `COLOR_WHITE = 0xF4F5F8`, not pure white
+ 130 | - Atmospheric grid overlays at `0xFF0000@0.04-0.12` — low opacity, imperceptible, leave them
+ 131 | - `fontcolor=0x000000` on gold info bar text — intentional dark text on gold background
+ 132 | - `0x000000` panel overlays at lines 887, 920 — subtle overlays, not the banned solid pure black
+ 133 | 
+ 134 | ---
+ 135 | 
+ 136 | ## MULTI-LLM AUDIT SYSTEM
+ 137 | 
+ 138 | **Prompt template for other LLMs:** (serves files via Flask static)
+ 139 | - Snapshot: `https://protocolpulse.io/static/llm_context/PIPELINE_STATE_SNAPSHOT.md`
+ 140 | - Files: `/static/llm_context/assembler.py`, `daily_producer.py`, `tts_engine.py`
+ 141 | - Note: Gemini and Perplexity can't fetch these URLs — paste file contents directly
+ 142 | 
+ 143 | **LLM performance this session:**
+ 144 | - **Grok** — Most reliable. Found real P1s both rounds (COLOR_RED, duration cap, BTC fallback, 0xFF0033 ticker, 44kHz)
+ 145 | - **ChatGPT** — Strong on cross-validation and synthesis. Correctly called out loudnorm P0, cache validation, health gate, 5-clip enforcement
+ 146 | - **Perplexity** — Good code reading. Caught Inworld footgun, 44kHz, cache validation, info bar pure black
+ 147 | - **Gemini** — Solid but flagged already-fixed items (duplicate aformat, pure white) — checked "already fixed" list needed
+ 148 | - **Venice** — Useless. Ignored structured prompt entirely. Do not use.
+ 149 | 
+ 150 | **Cross-LLM audit law:** Claude Code builds → all LLMs audit actual code (not specs) → Claude synthesizes → second CC pass on P0+P1 → merge
+ 151 | 
+ 152 | ---
+ 153 | 
+ 154 | ## PENDING / OUTSTANDING
+ 155 | 
+ 156 | ### IMMEDIATE (after Grade A render lands)
+ 157 | 1. Review Telegram link when render_watcher fires
+ 158 | 2. Check grade_report.log for breakdown
+ 159 | 3. If Grade A → `git tag grade-a-$(date +%Y%m%d) && promote_to_stable.sh`
+ 160 | 4. If still failing → check grade breakdown, identify new failure mode, iterate
+ 161 | 
+ 162 | ### PARKED (do not build until Grade A locked)
+ 163 | - PBX Report pipeline — spec at `/tmp/pbx_report_spec.md`, voice profile at `pbx_report/voice_training/PBX_VOICE_PROFILE.md` (239 lines)
+ 164 | - Sponsor Agent — spec at `SPONSOR_AGENT_SPEC.md`
+ 165 | - RNS.ID / Palau Digital Residency affiliate ($300/referral) — add to partners section
+ 166 | - Sovereignty Stack
+ 167 | - HeyGen Oracle Briefings (Sarah avatar d259c335..., PBX avatar 3be8ed14...)
+ 168 | 
+ 169 | ### KNOWN OPEN ISSUES
+ 170 | - Duration cap: script generates ~603s, QC max 900s — word budget enforcement in `script_writer.py` still loose
+ 171 | - Resend domain not verified → no overnight email alerts
+ 172 | - Channel scanner not on cron (manual scan via --skip-scan flag)
+ 173 | - Dual app.py issue — `core/app.py` has hardcoded dev secret key
+ 174 | - Caller ID "Protocol Pulse" — buy Twilio toll-free + CNAM (~$2/mo)
+ 175 | - `apply_blink()` in avatar_server.py creates black oval artifacts — replace body with `return frame` no-op
+ 176 | 
+ 177 | ---
+ 178 | 
+ 179 | ## MORNING / NEW CHAT CHECK COMMANDS
+ 180 | 
+ 181 | ```bash
+ 182 | # Is render done?
+ 183 | ls -lh ~/protocol_pulse/video_pipeline_v3/output/2026-03-13/pulse_check_*.mp4 2>/dev/null
+ 184 | 
+ 185 | # Grade result
+ 186 | tail -20 ~/protocol_pulse/video_pipeline_v3/logs/grade_report.log
+ 187 | 
+ 188 | # Orchestrator alive?
+ 189 | ps aux | grep dual_gpu_orchestrator | grep -v grep
+ 190 | tail -5 ~/protocol_pulse/logs/orchestrator.log
+ 191 | 
+ 192 | # GPU utilization
+ 193 | nvidia-smi --query-gpu=index,utilization.gpu,power.draw --format=csv,noheader
+ 194 | 
+ 195 | # TTS confirmed ElevenLabs + correct IDs?
+ 196 | grep "TTS_PROVIDER\|ELEVEN" ~/protocol_pulse/.env | head -3
+ 197 | grep "kdnRe2koJdOK4Ovxn2DI\|1SM7GgM6IMuvQlz2BwM3" ~/protocol_pulse/video_pipeline_v3/tts_engine.py | head -2
+ 198 | 
+ 199 | # No loudnorm in segments?
+ 200 | grep -n "loudnorm" ~/protocol_pulse/video_pipeline_v3/assembler.py | grep -v "3089\|3123\|3134\|3159\|3328\|3338\|3339\|concatenate\|BUG5"
+ 201 | 
+ 202 | # No 44100Hz?
+ 203 | grep -n "44100\|cl=mono" ~/protocol_pulse/video_pipeline_v3/tts_engine.py
+ 204 | 
+ 205 | # No banned reds?
+ 206 | grep -n "0xFF0033\|0xFF0000@0.8" ~/protocol_pulse/video_pipeline_v3/assembler.py
+ 207 | 
+ 208 | # Render watcher alive?
+ 209 | ps aux | grep render_watcher | grep -v grep
+ 210 | ```
+ 211 | 
+ 212 | ---
+ 213 | 
+ 214 | ## KEY FILE LOCATIONS
+ 215 | 
+ 216 | ```
+ 217 | ~/protocol_pulse/
+ 218 | ├── PIPELINE_LAWS.md                    ← gospel
+ 219 | ├── PIPELINE_LESSONS.md                 ← 518+ lines hard-won lessons
+ 220 | ├── PIPELINE_STATE_SNAPSHOT.md          ← this file
+ 221 | ├── ARTICLE_PAGE_LAWS.md                ← article code gospel
+ 222 | ├── dual_gpu_orchestrator.py            ← both GPUs, runs forever
+ 223 | ├── render_watcher.py                   ← Telegram alert on render complete (PID 4177269)
+ 224 | ├── .env                                ← TTS_PROVIDER=elevenlabs, all API keys
+ 225 | ├── logs/
+ 226 | │   ├── orchestrator.log
+ 227 | │   ├── best_grade.json                 ← {"score":0} — first Grade A will update this
+ 228 | │   └── runtime_status.json
+ 229 | ├── video_pipeline_v3/
+ 230 | │   ├── assembler.py                    ← FFmpeg filtergraph (~4019 lines)
+ 231 | │   ├── daily_producer.py               ← main pipeline orchestration
+ 232 | │   ├── tts_engine.py                   ← ElevenLabs TTS + cache + validation
+ 233 | │   ├── gemini_grade.py                 ← Gemini 2.5 Pro grader
+ 234 | │   ├── VISUAL_DESIGN_SYSTEM.md         ← 542 lines, color/typography gospel
+ 235 | │   ├── tts_cache/                      ← cleared this session (stale 44100Hz)
+ 236 | │   ├── logs/grade_report.log           ← full grade breakdowns
+ 237 | │   └── output/2026-03-13/             ← today's renders land here
+ 238 | ├── pbx_report/voice_training/
+ 239 | │   └── PBX_VOICE_PROFILE.md            ← 239-line PBX voice analysis
+ 240 | └── core/static/llm_context/            ← files served for LLM audits
+ 241 | ```
+ 242 | 
+ 243 | ---
+ 244 | 
+ 245 | ## RECENT COMMITS (this session)
+ 246 | 
+ 247 | ```
+ 248 | 27f38e83  fix(tts): inject missing MAX_CHUNK_CHARS eaten by Inworld stub regex
+ 249 | dcbf6742  fix(pipeline): ALL 9 AUDIT FIXES — loudnorm segments, 48kHz, Inworld ban, cache validate, health gate, 5-clip enforce, color palette purge
+ 250 | 5daba551  fix(assembler): 0xFF3333 solid borders, no pure-white fontcolor, remove duplicate aformat
+ 251 | 428dfc55  chore: refresh llm_context with fixed daily_producer
+ 252 | 326b8636  fix(pipeline): remove em-dash from BTC fallback comment
+ 253 | 302374da  fix(pipeline): syntax error in daily_producer BTC fallback comment
+ 254 | e0c9fe0a  fix(pipeline): Grok P1s — COLOR_RED 0xFF3333 + duration 480-900s + BTC CoinGecko fallback
+ 255 | 64e170ba  docs: add PIPELINE_STATE_SNAPSHOT.md — full cross-LLM onboarding doc
+ 256 | ```
+ 257 | 
+ 258 | ---
+ 259 | 
+ 260 | ## RELAY TOOL KNOWLEDGE
+ 261 | 
+ 262 | - Hard ~30s connection timeout — unsuitable for LLM API calls (60-120s)
+ 263 | - Pattern for long ops: fire into named tmux session, wait with sleep(), read via tmux capture-pane or log tail
+ 264 | - Python pycache must be explicitly cleared after editing .py files
+ 265 | - Gemini 2.5 Pro thinking model: `parts[]` where index 0 is thought block (no text key) — parse with `next((p["text"] for p in parts if "text" in p), ...)`
+ 266 | - File writes via base64 chunked encoding (500-char chunks → /tmp/file.b64 → base64 -d)
+ 267 | - Token: `<REDACTED — stored in .env>`
+ 268 | 
+ 269 | ## SESSION UPDATE — 03:36 UTC Mar 13
+ 270 | 
+ 271 | ### Additional fixes committed this session (post-snapshot):
+ 272 | - `aa18b339` fix(pipeline): quality-aware clip fallback — 3Mbps floor, retry ranked alternates
+ 273 | - `99e4d19f` fix(grader): EBU R128 regex — handle both 'I:' and 'Integrated loudness' formats  
+ 274 | - `5f8d44d8` fix(selector): JSON parse robustness + episode memory last-7-episodes dedup
+ 275 | - `[latest]` fix(tts): declare _KEY_CACHE module-level dict (NameError crash at TTS step)
+ 276 | 
+ 277 | ### Current blocker resolved:
+ 278 | NameError: name '_KEY_CACHE' is not defined — fixed and synced to render-stable
+ 279 | 
+ 280 | ### Still watching:
+ 281 | - First clean render into output/2026-03-13/ pending
+ 282 | - Pre-flight assertions + selector safety layer flagged as P0 post-Grade-A work
+ 283 | 
 ```
 
 ### File: STRIPE_SETUP.md (124 lines)
@@ -1246,1348 +3519,574 @@
   68 | 
 ```
 
-### File: app.py (440 lines)
+### File: app.py (566 lines)
 ```
    1 | import os
    2 | from pathlib import Path
    3 | from dotenv import load_dotenv
-   4 | # Load .env from the same directory as this file (core/) so it works from any cwd
-   5 | load_dotenv(Path(__file__).resolve().parent / ".env")
-   6 | 
-   7 | import logging
-   8 | import json
-   9 | import random
-  10 | from flask import Flask, session
-  11 | from flask_sqlalchemy import SQLAlchemy
-  12 | from flask_migrate import Migrate
-  13 | from sqlalchemy.orm import DeclarativeBase
-  14 | from flask_login import LoginManager
-  15 | from flask_limiter import Limiter
-  16 | from flask_limiter.util import get_remote_address
-  17 | try:
-  18 |     from flask_socketio import SocketIO
-  19 | except ImportError:
-  20 |     SocketIO = None
-  21 | try:
-  22 |     from flask_caching import Cache
-  23 |     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
-  24 | except ImportError:
-  25 |     _cache = None
-  26 | 
-  27 | # Configure logging (default info; keep noisy transport libs quiet).
-  28 | logging.basicConfig(level=logging.INFO)
-  29 | logging.getLogger("urllib3").setLevel(logging.WARNING)
-  30 | logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
-  31 | logging.getLogger("requests").setLevel(logging.WARNING)
-  32 | logging.getLogger("werkzeug").setLevel(logging.INFO)
-  33 | 
-  34 | class Base(DeclarativeBase):
-  35 |     pass
-  36 | 
-  37 | # 1. Initialize DB WITHOUT app first to prevent circular loops
-  38 | db = SQLAlchemy(model_class=Base)
-  39 | 
-  40 | # 2. Create the app instance — use absolute paths so templates/static are always found
-  41 | #    whether run as "app:app" from core/ or "core.app:app" from project root
-  42 | _core_dir = Path(__file__).resolve().parent
-  43 | app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folder=str(_core_dir / "static"))
-  44 | 
-  45 | # Security: SECRET must be set in environment — no silent insecure fallback
-  46 | _session_secret = os.environ.get("SESSION_SECRET", "")
-  47 | if not _session_secret:
-  48 |     logging.critical("SESSION_SECRET not set — using ephemeral key. Set SESSION_SECRET in environment for production.")
-  49 |     import secrets as _secrets_mod
-  50 |     _session_secret = _secrets_mod.token_hex(32)
-  51 | app.secret_key = _session_secret
-  52 | 
-  53 | # Public network endpoints (local by default, cloudflared-ready when set in .env)
-  54 | app.config["PUBLIC_HUB_URL"] = os.environ.get("PUBLIC_HUB_URL", "http://127.0.0.1:5000").rstrip("/")
-  55 | app.config["PUBLIC_AI_URL"] = os.environ.get("PUBLIC_AI_URL", "http://127.0.0.1:11434").rstrip("/")
-  56 | app.config["PUBLIC_SSH_HOST"] = os.environ.get("PUBLIC_SSH_HOST", "").strip()
-  57 | app.config["USE_DOUBLE_PIPE"] = os.environ.get("USE_DOUBLE_PIPE", "false").strip().lower() in {
-  58 |     "1", "true", "yes", "on"
-  59 | }
-  60 | 
-  61 | # Configure the database
-  62 | database_url = os.environ.get("DATABASE_URL", "sqlite:///protocol_pulse.db")
-  63 | # Replit (and some Heroku-style hosts) emit postgres:// — SQLAlchemy 1.4+ requires postgresql://
-  64 | if database_url.startswith("postgres://"):
-  65 |     database_url = database_url.replace("postgres://", "postgresql://", 1)
-  66 | if database_url.startswith("sqlite:"):
-  67 |     # SQLite: remove unsupported charset param added by older code
-  68 |     if "charset=utf8mb4" in database_url:
-  69 |         database_url = database_url.replace("?charset=utf8mb4", "").replace("&charset=utf8mb4", "")
-  70 | 
-  71 | app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-  72 | app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-  73 |     "pool_recycle": 300,
-  74 |     "pool_pre_ping": True,
-  75 | }
-  76 | 
-  77 | # Startup env diagnostics.
-  78 | # Required vars: missing → log CRITICAL (feature is broken without these).
-  79 | # Recommended vars: missing → log INFO (integration degrades gracefully).
-  80 | _required_env = ["SESSION_SECRET", "DATABASE_URL", "RESEND_API_KEY"]
-  81 | _recommended_env = [
-  82 |     "TWITTER_API_KEY",
-  83 |     "TWITTER_API_SECRET",
-  84 |     "TWITTER_ACCESS_TOKEN",
-  85 |     "TWITTER_ACCESS_TOKEN_SECRET",
-  86 | ]
-  87 | for _name in _required_env:
-  88 |     if not os.environ.get(_name):
-  89 |         logging.critical(
-  90 |             "REQUIRED env var %s is missing — dependent features will fail.", _name
-  91 |         )
-  92 | for _name in _recommended_env:
-  93 |     if not os.environ.get(_name):
-  94 |         logging.info("%s not configured (related integration stays degraded/off).", _name)
-  95 | 
-  96 | app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400  # 1 day default for send_file
-  97 | 
-  98 | # 3. Initialize extensions
-  99 | db.init_app(app)
- 100 | migrate = Migrate(app, db)
- 101 | login_manager = LoginManager()
- 102 | login_manager.init_app(app)
- 103 | login_manager.login_view = "login"
- 104 | 
- 105 | limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
- 106 | limiter.init_app(app)
- 107 | 
- 108 | if _cache is not None:
- 109 |     _cache.init_app(app)
- 110 |     cache = _cache
- 111 | else:
- 112 |     class _NullCache:
- 113 |         def init_app(self, app): pass
- 114 |         def cached(self, timeout=None, key_prefix=None):
- 115 |             def decorator(f): return f
- 116 |             return decorator
- 117 |     cache = _NullCache()
- 118 | 
- 119 | if SocketIO is not None:
- 120 |     socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
- 121 | else:
- 122 |     socketio = None
- 123 | 
- 124 | @app.context_processor
- 125 | def inject_csrf():
- 126 |     """Inject CSRF token for forms. Generate once per session."""
- 127 |     if "csrf_token" not in session:
- 128 |         session["csrf_token"] = os.urandom(32).hex()
- 129 |     return {
- 130 |         "csrf_token": session.get("csrf_token"),
- 131 |         "public_hub_url": app.config.get("PUBLIC_HUB_URL"),
- 132 |         "public_ai_url": app.config.get("PUBLIC_AI_URL"),
- 133 |         "public_ssh_host": app.config.get("PUBLIC_SSH_HOST"),
- 134 |         "use_double_pipe": app.config.get("USE_DOUBLE_PIPE", False),
- 135 |     }
- 136 | 
- 137 | 
- 138 | @app.after_request
- 139 | def add_headers(response):
- 140 |     """Add cache, security, and performance headers to every response."""
- 141 |     from flask import request
- 142 | 
- 143 |     # ── Security headers ──
- 144 |     response.headers["X-Content-Type-Options"] = "nosniff"
- 145 |     response.headers["X-Frame-Options"] = "SAMEORIGIN"
- 146 |     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
- 147 |     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
- 148 |     response.headers["X-XSS-Protection"] = "1; mode=block"
- 149 | 
- 150 |     # ── Cache strategy ──
- 151 |     if request.path.startswith("/static/"):
- 152 |         # Versioned assets (?v=X) get long cache; images get 1 week; CSS/JS get 1 day
- 153 |         if any(request.path.endswith(ext) for ext in ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico')):
- 154 |             response.cache_control.max_age = 604800  # 1 week
- 155 |             response.cache_control.public = True
- 156 |         elif any(request.path.endswith(ext) for ext in ('.css', '.js')):
- 157 |             response.cache_control.max_age = 86400  # 1 day
- 158 |             response.cache_control.public = True
- 159 |         else:
- 160 |             response.cache_control.max_age = 86400
- 161 |             response.cache_control.public = True
- 162 |     elif request.path.startswith("/api/"):
- 163 |         # P1-3: API endpoints default to private/no-store — prevents user-specific
- 164 |         # data leaking through shared caches. Individual routes may opt into caching.
- 165 |         if "Cache-Control" not in response.headers:
- 166 |             response.headers["Cache-Control"] = "private, no-store"
- 167 |     else:
- 168 |         # HTML pages: no-cache but allow revalidation
- 169 |         if "Cache-Control" not in response.headers:
- 170 |             response.headers["Cache-Control"] = "public, no-cache, must-revalidate"
- 171 | 
- 172 |     return response
- 173 | 
- 174 | 
- 175 | # 4. Define Template Filters
- 176 | @app.template_filter('inject_ads')
- 177 | def inject_ads(content):
- 178 |     import models
- 179 |     from flask import g
- 180 |     try:
- 181 |         if not hasattr(g, '_active_ads'):
- 182 |             g._active_ads = models.Advertisement.query.filter_by(is_active=True).all()
- 183 |         active_ads = g._active_ads
- 184 |         if not active_ads:
- 185 |             return content
- 186 |         ad = random.choice(active_ads)
- 187 |         from markupsafe import escape as _esc
- 188 |         ad_html = f'''
- 189 |         <div class="native-ad-unit my-4 p-3 border-start border-danger bg-dark rounded">
- 190 |             <small class="text-muted d-block mb-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">Protocol Partner</small>
- 191 |             <a href="/ads/go/{ad.id}" rel="noopener" class="text-decoration-none">
- 192 |                 <img src="{_esc(ad.image_url or '')}" class="img-fluid mb-2 rounded" style="max-height: 150px;" alt="{_esc(ad.name or '')}">
- 193 |                 <p class="mb-0 text-white fw-bold">{_esc(ad.name or '')}</p>
- 194 |             </a>
- 195 |         </div>
- 196 |         '''
- 197 |         parts = content.split('</p>', 2)
- 198 |         if len(parts) > 2:
- 199 |             return parts[0] + '</p>' + parts[1] + '</p>' + ad_html + parts[2]
- 200 |         return content + ad_html
- 201 |     except Exception as e:
- 202 |         logging.warning(f"Ad injection failed: {e}")
- 203 |         return content
- 204 | 
- 205 | @app.template_filter('basename')
- 206 | def basename_filter(path):
- 207 |     """Return the basename of a path for use in templates (e.g. clip filename)."""
- 208 |     if not path:
- 209 |         return ""
- 210 |     return os.path.basename(str(path).strip())
- 211 | 
- 212 | @app.template_filter('from_json')
- 213 | def from_json_filter(value):
- 214 |     if not value:
- 215 |         return []
- 216 |     try:
- 217 |         return json.loads(value)
- 218 |     except (json.JSONDecodeError, TypeError):
- 219 |         return []
- 220 | 
- 221 | # Distinct header image per article: when stored URL is missing or the old single default, use pool by title
- 222 | _OLD_SINGLE_DEFAULT_HEADER = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
- 223 | 
- 224 | @app.template_filter('article_header_display')
- 225 | def article_header_display_filter(article):
- 226 |     """Return a distinct header image URL for this article (avoids same image on every card)."""
- 227 |     if article is None:
- 228 |         return _OLD_SINGLE_DEFAULT_HEADER
- 229 |     stored = (getattr(article, "header_image_url", None) or "").strip()
- 230 |     if stored and stored != _OLD_SINGLE_DEFAULT_HEADER:
- 231 |         return stored
- 232 |     return "/static/images/default-header.png"
- 233 | 
- 234 | # 5. User loader for Flask-Login
- 235 | @login_manager.user_loader
- 236 | def load_user(user_id):
- 237 |     import models
- 238 |     try:
- 239 |         return models.User.query.get(int(user_id))
- 240 |     except (ValueError, TypeError):
- 241 |         return None
- 242 | 
- 243 | # =====================================
- 244 | # THE IGNITION ZONE (CRITICAL ORDER)
- 245 | # =====================================
- 246 | # When we run as python app.py, __name__ is "__main__". Later, "import routes" does
- 247 | # "from app import app", which loads this file again as module "app" (a second Flask
- 248 | # app). Routes then register on that second app, but we call app.run() on this one → 404.
- 249 | # So make "app" resolve to this same module when we are the main script.
- 250 | if __name__ == "__main__":
- 251 |     import sys
- 252 |     sys.modules["app"] = sys.modules["__main__"]
- 253 | 
- 254 | with app.app_context():
- 255 |     # 1. Load the models into memory first
- 256 |     import models
- 257 |     # Create any missing tables at startup (idempotent — safe to always run).
- 258 |     # Set ENABLE_RUNTIME_DB_CREATE_ALL=false to suppress on managed migration envs.
- 259 |     if os.environ.get("ENABLE_RUNTIME_DB_CREATE_ALL", "true").strip().lower() not in {"0", "false", "no", "off"}:
- 260 |         try:
- 261 |             db.create_all()
- 262 |         except Exception as _dbe:
- 263 |             logging.warning("db.create_all() failed (non-fatal): %s", _dbe)
- 264 | 
- 265 |     # p3-sentiment-intel: migration-safe column/table additions
- 266 |     try:
- 267 |         from utils.db_migrate_sentiment import run_migrations
- 268 |         run_migrations(db)
- 269 |     except Exception as _mige:
- 270 |         logging.warning("db_migrate_sentiment failed (non-fatal): %s", _mige)
- 271 | 
- 272 | def _run_dev_server():
- 273 |     port = 5000
- 274 |     host = "0.0.0.0"
- 275 |     print(f"Starting Protocol Pulse -> http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
- 276 |     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
- 277 |     if socketio is not None:
- 278 |         socketio.run(app, host=host, port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
- 279 |     else:
- 280 |         app.run(host=host, port=port, debug=False, use_reloader=False)
- 281 | 
- 282 | # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
- 283 | import routes
- 284 | from routes_api_v2 import api_v2
- 285 | try:
- 286 |     from routes_api_terminal import terminal_bp, provision_demo_key
- 287 |     app.register_blueprint(terminal_bp)
- 288 |     with app.app_context():
- 289 |         provision_demo_key()
- 290 | except Exception as e:
- 291 |     logging.critical("Terminal API blueprint failed to load: %s", e)
- 292 | try:
- 293 |     from routes_commander import commander_bp, commander_pages_bp
- 294 |     app.register_blueprint(commander_bp)
- 295 |     app.register_blueprint(commander_pages_bp)
- 296 |     logging.info("Commander API blueprint registered at /api/v1")
- 297 | except Exception as _e:
- 298 |     logging.warning("Commander blueprint not loaded: %s", _e)
- 299 | try:
- 300 |     from routes_newsletter_trigger import newsletter_trigger_bp
- 301 |     app.register_blueprint(newsletter_trigger_bp)
- 302 | except Exception as e:
- 303 |     logging.critical("Newsletter trigger blueprint failed to load: %s", e)
- 304 | 
- 305 | # B1 Newsletter Engine — hard fail if feature is active
- 306 | from routes_newsletter_b1 import newsletter_b1_bp
- 307 | app.register_blueprint(newsletter_b1_bp)
- 308 | logging.info("B1 Newsletter blueprint registered")
- 309 | app.register_blueprint(api_v2)
- 310 | from onboarding_routes import onboarding_bp
- 311 | app.register_blueprint(onboarding_bp)
- 312 | 
- 313 | from oracle_routes import oracle_bp
- 314 | app.register_blueprint(oracle_bp)
- 315 | 
- 316 | # SESSION 2: Blueprint Architecture — Newsletter main routes
- 317 | try:
- 318 |     from core.blueprints.newsletter import newsletter_bp
- 319 |     app.register_blueprint(newsletter_bp)
- 320 |     logging.info("Newsletter main blueprint registered (/newsletter)")
- 321 | except Exception as _e:
- 322 |     logging.warning("Newsletter main blueprint not loaded: %s", _e)
- 323 | 
- 324 | # SESSION 10 — Article Rebuild: new /api/v2/articles endpoint
- 325 | try:
- 326 |     from routes_articles import articles_api_bp
- 327 |     app.register_blueprint(articles_api_bp)
- 328 |     logging.info("Articles API blueprint registered (/api/v2/articles)")
- 329 | except Exception as _e:
- 330 |     logging.warning("Articles API blueprint not loaded: %s", _e)
- 331 | 
- 332 | # SESSION 8 — Nostr Feed
- 333 | try:
- 334 |     from routes_nostr import nostr_bp
- 335 |     app.register_blueprint(nostr_bp)
- 336 |     logging.info("Nostr Feed blueprint registered (/nostr)")
- 337 | except Exception as _e:
- 338 |     logging.warning("Nostr Feed blueprint not loaded: %s", _e)
- 339 | 
- 340 | # SESSION 5 — Mining Intel Blueprint
- 341 | try:
- 342 |     from core.blueprints.mining import mining_bp
- 343 |     app.register_blueprint(mining_bp)
- 344 |     logging.info("Mining Intel blueprint registered at /mining-intel")
- 345 | except Exception as _e:
- 346 |     logging.warning("Mining Intel blueprint not loaded: %s", _e)
- 347 | 
- 348 | # SESSION 6 — Schiff Bot Blueprint
- 349 | try:
- 350 |     from core.blueprints.schiff import schiff_bp
- 351 |     app.register_blueprint(schiff_bp)
- 352 |     logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
- 353 | except Exception as _e:
- 354 |     logging.warning("Schiff Bot blueprint not loaded: %s", _e)
- 355 | 
- 356 | 
- 357 | # CURATED MINING — White-glove service landing page
- 358 | try:
- 359 |     from core.blueprints.curated_mining import curated_mining_bp
- 360 |     app.register_blueprint(curated_mining_bp)
- 361 |     logging.info("Curated Mining blueprint registered at /curated-mining")
- 362 | except Exception as _e:
- 363 |     logging.warning("Curated Mining blueprint not loaded: %s", _e)
- 364 | # SESSION 7 — Oracle Avatar Blueprint
- 365 | try:
- 366 |     from core.blueprints.oracle_avatar import oracle_avatar_bp
- 367 |     app.register_blueprint(oracle_avatar_bp)
- 368 |     logging.info("Oracle Avatar blueprint registered (/oracle-live, /api/oracle/*)")
- 369 | except Exception as _e:
- 370 |     logging.warning("Oracle Avatar blueprint not loaded: %s", _e)
- 371 | 
- 372 | try:
- 373 |     from services.video_engine.dashboard.app import dashboard_bp
- 374 |     app.register_blueprint(dashboard_bp)
- 375 |     logging.info("Dashboard blueprint registered at /dashboard/")
- 376 | except ImportError as _e:
- 377 |     logging.warning("Dashboard blueprint not loaded: %s", _e)
- 378 | 
- 379 | # SPONSOR AGENT V2 — Outreach pipeline
- 380 | try:
- 381 |     from core.blueprints.sponsor import sponsor_bp
- 382 |     app.register_blueprint(sponsor_bp)
- 383 |     logging.info("Sponsor Agent blueprint registered at /sponsor-agent")
- 384 | except Exception as _e:
- 385 |     logging.warning("Sponsor Agent blueprint not loaded: %s", _e)
- 386 | 
- 387 | # F4/F7 — Briefings Blueprint (public /briefings page)
- 388 | try:
- 389 |     from core.blueprints.briefings import briefings_bp
- 390 |     app.register_blueprint(briefings_bp)
- 391 |     logging.info("Briefings blueprint registered at /briefings")
- 392 | except Exception as _e:
- 393 |     logging.warning("Briefings blueprint not loaded: %s", _e)
- 394 | 
- 395 | # Start background APScheduler only when explicitly enabled for this process.
- 396 | if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
- 397 |     try:
- 398 |         from services.scheduler import initialize_scheduler
- 399 |         _sch = initialize_scheduler()
- 400 |         logging.info("Scheduler initialized: %s", _sch)
- 401 |     except Exception as _e:
- 402 |         logging.warning("Scheduler init skipped: %s", _e)
- 403 | 
- 404 | # Diagnose after routes import so startup logs reflect the real routing table.
- 405 | try:
- 406 |     rules = [r.rule for r in app.url_map.iter_rules()]
- 407 |     has_root = "/" in rules
- 408 |     logging.info("Routes registered: %s ... (/) present: %s", len(rules), has_root)
- 409 |     if not has_root:
- 410 |         logging.warning("Missing '/' route! Sample rules: %s", rules[:20])
- 411 | except Exception as e:
- 412 |     logging.warning("Could not list routes: %s", e)
- 413 | 
- 414 | if __name__ == "__main__":
- 415 |     _run_dev_server()
- 416 | @app.route('/a/<path:fn>')
- 417 | def _serve_asset(fn):
- 418 |     from flask import make_response, abort
- 419 |     import mimetypes, os as _o
- 420 |     p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
- 421 |     if not _o.path.exists(p): abort(404)
- 422 |     data = open(p,'rb').read()
- 423 |     resp = make_response(data)
- 424 |     resp.headers['Content-Type'] = mimetypes.guess_type(p)[0] or 'text/plain'
- 425 |     resp.headers['Cache-Control'] = 'public, max-age=3600'
- 426 |     return resp
- 427 | 
- 428 | @app.route('/v3/<path:fn>')
- 429 | def _serve_v3(fn):
- 430 |     from flask import make_response, abort
- 431 |     import mimetypes, os as _o
- 432 |     p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
- 433 |     if not _o.path.exists(p): abort(404)
- 434 |     data = open(p,'rb').read()
- 435 |     resp = make_response(data)
- 436 |     resp.headers['Content-Type'] = mimetypes.guess_type(p)[0] or 'text/plain'
- 437 |     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
- 438 |     resp.headers['Pragma'] = 'no-cache'
- 439 |     return resp
- 440 | 
-```
-
-### File: blueprints/curated_mining.py (7 lines)
-```
-   1 | from flask import Blueprint, render_template
-   2 | curated_mining_bp = Blueprint('curated_mining', __name__)
-   3 | 
-   4 | @curated_mining_bp.route('/curated-mining')
-   5 | def curated_mining():
-   6 |     return render_template('curated_mining.html')
-   7 | 
-```
-
-### File: cc_watchdog.py (226 lines)
-```
-   1 | #!/usr/bin/env python3
-   2 | """
-   3 | cc_watchdog.py — Universal CC Session Watchdog
-   4 | Monitors all active CC sessions every 60s.
-   5 | Detects stalls, restarts them, logs everything.
-   6 | Runs as a persistent daemon in tmux:watchdog
-   7 | """
-   8 | import subprocess, time, os, json, re
-   9 | from datetime import datetime
-  10 | 
-  11 | BASE = '/home/ultron/protocol_pulse'
-  12 | LOG = f'{BASE}/logs/watchdog.log'
-  13 | DISCORD_WEBHOOK = None  # add later if wanted
-  14 | 
-  15 | # Sessions to monitor: name → prompt file (for restart)
-  16 | WATCHED = {
-  17 |     'smart_loop':       {'type': 'python',  'cmd': 'python3 smart_render_loop.py', 'log': 'video_pipeline_v3/logs/smart_loop_run3.log', 'critical': True},
-  18 |     'sovereignty_stack':{'type': 'cc',      'prompt': 'docs/cc_sovereignty_stack.md', 'critical': False},
-  19 |     'flask_main':       {'type': 'service', 'cmd': 'bash run_flask.sh',             'critical': True},
-  20 |     'video_server':     {'type': 'service', 'cmd': 'python3 video_file_server.py',  'critical': True},
-  21 | }
-  22 | 
-  23 | # Stall detection: if pane output hasn't changed in N seconds, it's stalled
-  24 | STALL_TIMEOUT = {
-  25 |     'cc':      600,   # 10 min — CC can think for a while, but not 10 min silently
-  26 |     'python':  300,   # 5 min  — render loop should be logging regularly
-  27 |     'service': 120,   # 2 min  — services should respond
-  28 | }
-  29 | 
-  30 | os.makedirs(f'{BASE}/logs', exist_ok=True)
-  31 | pane_snapshots = {}   # session_name → (last_content, last_change_time)
-  32 | restart_counts = {}   # session_name → count
-  33 | MAX_RESTARTS = 3
-  34 | 
-  35 | def log(msg):
-  36 |     ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-  37 |     line = f'[{ts}] {msg}'
-  38 |     print(line, flush=True)
-  39 |     with open(LOG, 'a') as f:
-  40 |         f.write(line + '\n')
-  41 | 
-  42 | def session_alive(name):
-  43 |     return subprocess.run(f'tmux has-session -t {name} 2>/dev/null',
-  44 |                          shell=True).returncode == 0
-  45 | 
-  46 | def get_pane(name):
-  47 |     r = subprocess.run(f'tmux capture-pane -t {name} -p 2>/dev/null',
-  48 |                       shell=True, capture_output=True, text=True)
-  49 |     # Strip blank lines and ANSI codes
-  50 |     lines = [re.sub(r'\x1b\[[0-9;]*m', '', l) for l in r.stdout.split('\n') if l.strip()]
-  51 |     return '\n'.join(lines[-15:])  # last 15 non-empty lines
-  52 | 
-  53 | def is_stalled(name, stype):
-  54 |     content = get_pane(name)
-  55 |     now = time.time()
-  56 |     timeout = STALL_TIMEOUT.get(stype, 300)
-  57 |     
-  58 |     prev_content, prev_time = pane_snapshots.get(name, (None, now))
-  59 |     
-  60 |     if content != prev_content:
-  61 |         pane_snapshots[name] = (content, now)
-  62 |         return False  # actively changing
-  63 |     
-  64 |     elapsed = now - prev_time
-  65 |     if elapsed > timeout:
-  66 |         return True, elapsed
-  67 |     return False
-  68 | 
-  69 | def detect_cc_stuck(name):
-  70 |     """CC-specific stall patterns"""
-  71 |     content = get_pane(name)
-  72 |     stuck_patterns = [
-  73 |         'bypass permissions on',  # sitting at prompt, not working
-  74 |         'ctrl+g to edit in Vim',  # waiting for input
-  75 |         'Pasted text #1',         # got paste but didn't process it
-  76 |     ]
-  77 |     # If ONLY these patterns and nothing else in last 5 lines — it's stuck
-  78 |     last_lines = content.split('\n')[-5:]
-  79 |     last_text = ' '.join(last_lines)
-  80 |     has_work = any(x in last_text for x in ['Reading', 'Writing', 'Bash', 'Creating', '✓', '⎽', 'TokenCount'])
-  81 |     is_idle = any(p in last_text for p in stuck_patterns)
-  82 |     return is_idle and not has_work
-  83 | 
-  84 | def restart_cc_session(name, config):
-  85 |     count = restart_counts.get(name, 0) + 1
-  86 |     restart_counts[name] = count
-  87 |     if count > MAX_RESTARTS:
-  88 |         log(f'WATCHDOG: {name} hit max restarts ({MAX_RESTARTS}) — NOT restarting. Manual intervention needed.')
-  89 |         return False
-  90 |     
-  91 |     log(f'WATCHDOG: Restarting stalled CC session {name} (restart #{count})')
-  92 |     subprocess.run(f'tmux kill-session -t {name} 2>/dev/null', shell=True)
-  93 |     time.sleep(3)
-  94 |     
-  95 |     prompt_file = config.get('prompt')
-  96 |     if prompt_file and os.path.exists(f'{BASE}/{prompt_file}'):
-  97 |         subprocess.run(
-  98 |             f'tmux new-session -d -s {name} "cd {BASE} && unset ANTHROPIC_API_KEY && claude --dangerously-skip-permissions"',
-  99 |             shell=True
- 100 |         )
- 101 |         time.sleep(12)
- 102 |         # Send as a proper Claude instruction, not a paste
- 103 |         subprocess.run(
- 104 |             f'tmux send-keys -t {name} "Execute the build task defined in {prompt_file}. Read that file first using the Read tool, then complete every step." Enter',
- 105 |             shell=True
- 106 |         )
- 107 |         log(f'WATCHDOG: {name} restarted with prompt from {prompt_file}')
- 108 |         return True
- 109 |     return False
- 110 | 
- 111 | def restart_python_session(name, config):
- 112 |     count = restart_counts.get(name, 0) + 1
- 113 |     restart_counts[name] = count
- 114 |     if count > MAX_RESTARTS:
- 115 |         log(f'WATCHDOG: {name} hit max restarts — NOT restarting.')
- 116 |         return False
- 117 |     log(f'WATCHDOG: Restarting stalled python session {name} (restart #{count})')
- 118 |     subprocess.run(f'tmux kill-session -t {name} 2>/dev/null', shell=True)
- 119 |     time.sleep(3)
- 120 |     cmd = config['cmd']
- 121 |     log_file = config.get('log', f'logs/{name}.log')
- 122 |     subprocess.run(
- 123 |         f'tmux new-session -d -s {name} "cd {BASE} && {cmd} 2>&1 | tee {log_file}"',
- 124 |         shell=True
- 125 |     )
- 126 |     log(f'WATCHDOG: {name} restarted')
- 127 |     return True
- 128 | 
- 129 | def check_render_progress():
- 130 |     """Special check: is the render loop making actual progress?"""
- 131 |     log_file = f'{BASE}/video_pipeline_v3/logs/smart_loop_run3.log'
- 132 |     if not os.path.exists(log_file):
- 133 |         return 'no log yet'
- 134 |     lines = open(log_file).readlines()
- 135 |     # Find last grade
- 136 |     grades = [l.strip() for l in lines if 'GRADE:' in l]
- 137 |     iterations = [l.strip() for l in lines if 'ITERATION' in l and '/8' in l]
- 138 |     last_grade = grades[-1] if grades else 'no grade yet'
- 139 |     current_iter = iterations[-1] if iterations else 'iteration 1 running'
- 140 |     return f'{current_iter} | {last_grade}'
- 141 | 
- 142 | 
- 143 | def append_to_lessons(event_type, session, detail):
- 144 |     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
- 145 |     line = "\n### WATCHDOG [" + ts + "] " + event_type + " - " + session + "\n" + str(detail) + "\n"
- 146 |     try:
- 147 |         with open(BASE + "/PIPELINE_LESSONS.md", "a") as fh:
- 148 |             fh.write(line)
- 149 |     except Exception as ex:
- 150 |         log("LESSONS write error: " + str(ex))
- 151 | 
- 152 | 
- 153 | def write_status_file():
- 154 |     status = {
- 155 |         'timestamp': datetime.now().isoformat(),
- 156 |         'sessions': {},
- 157 |         'render_progress': check_render_progress(),
- 158 |     }
- 159 |     for name in WATCHED:
- 160 |         alive = session_alive(name)
- 161 |         status['sessions'][name] = {
- 162 |             'alive': alive,
- 163 |             'restarts': restart_counts.get(name, 0),
- 164 |         }
- 165 |     with open(f'{BASE}/logs/watchdog_status.json', 'w') as f:
- 166 |         json.dump(status, f, indent=2)
- 167 | 
- 168 | def main():
- 169 |     log('=' * 60)
- 170 |     log('CC WATCHDOG STARTED — monitoring all active sessions')
- 171 |     log('Sessions: ' + ', '.join(WATCHED.keys()))
- 172 |     log('=' * 60)
- 173 |     
- 174 |     # Initial snapshot
- 175 |     for name in WATCHED:
- 176 |         if session_alive(name):
- 177 |             pane_snapshots[name] = (get_pane(name), time.time())
- 178 |     
- 179 |     check_interval = 60  # seconds between checks
- 180 |     status_interval = 300  # write status file every 5 min
- 181 |     last_status = time.time()
- 182 |     
- 183 |     while True:
- 184 |         time.sleep(check_interval)
- 185 |         now = time.time()
- 186 |         
- 187 |         for name, config in WATCHED.items():
- 188 |             stype = config['type']
- 189 |             
- 190 |             if not session_alive(name):
- 191 |                 if config.get('critical'):
- 192 |                     log(f'WATCHDOG: CRITICAL session {name} is DEAD')
- 193 |                     if stype == 'python':
- 194 |                         restart_python_session(name, config)
- 195 |                     elif stype == 'cc':
- 196 |                         restart_cc_session(name, config)
- 197 |                 continue
- 198 |             
- 199 |             # Check for stall
- 200 |             stall = is_stalled(name, stype)
- 201 |             if stall:
- 202 |                 elapsed = time.time() - pane_snapshots.get(name, (None, now))[1]
- 203 |                 log(f'WATCHDOG: {name} stalled for {elapsed:.0f}s')
- 204 |                 if stype == 'cc' and detect_cc_stuck(name):
- 205 |                     log(f'WATCHDOG: CC-specific stall detected in {name} — restarting')
- 206 |                     restart_cc_session(name, config)
- 207 |                 elif stype == 'python' and config.get('critical'):
- 208 |                     restart_python_session(name, config)
- 209 |             
- 210 |             # Log a heartbeat every 5 min
- 211 |             if now - last_status >= status_interval:
- 212 |                 content = get_pane(name)
- 213 |                 last_line = [l for l in content.split('\n') if l.strip()]
- 214 |                 last_line = last_line[-1] if last_line else '(empty)'
- 215 |                 log(f'HEARTBEAT {name}: {last_line[:80]}')
- 216 |         
- 217 |         if now - last_status >= status_interval:
- 218 |             write_status_file()
- 219 |             progress = check_render_progress()
- 220 |             log(f'RENDER PROGRESS: {progress}')
- 221 |             append_to_lessons('RENDER-HEARTBEAT', 'smart_loop', f'Progress: {progress}')
- 222 |             last_status = now
- 223 | 
- 224 | if __name__ == '__main__':
- 225 |     main()
- 226 | 
-```
-
-### File: core/app.py (201 lines)
-```
-   1 | import os
-   2 | from blueprints.curated_mining import curated_mining_bp
-   3 | from pathlib import Path
-   4 | from dotenv import load_dotenv
-   5 | # Load .env from the same directory as this file (core/) so it works from any cwd
-   6 | load_dotenv(Path(__file__).resolve().parent / ".env")
-   7 | 
-   8 | import logging
-   9 | import json
-  10 | import random
-  11 | from flask import Flask, session
-  12 | from flask_sqlalchemy import SQLAlchemy
-  13 | from flask_migrate import Migrate
-  14 | from sqlalchemy.orm import DeclarativeBase
-  15 | from flask_login import LoginManager
-  16 | from flask_limiter import Limiter
-  17 | from flask_limiter.util import get_remote_address
-  18 | try:
-  19 |     from flask_caching import Cache
-  20 |     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
+   4 | import sys
+   5 | sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "core"))
+   6 | # Load .env from the same directory as this file (core/) so it works from any cwd
+   7 | load_dotenv(Path(__file__).resolve().parent / ".env")
+   8 | 
+   9 | import logging
+  10 | import json
+  11 | import random
+  12 | from flask import Flask, session, redirect, url_for
+  13 | from flask_sqlalchemy import SQLAlchemy
+  14 | from flask_migrate import Migrate
+  15 | from sqlalchemy.orm import DeclarativeBase
+  16 | from flask_login import LoginManager
+  17 | from flask_limiter import Limiter
+  18 | from flask_limiter.util import get_remote_address
+  19 | try:
+  20 |     from flask_socketio import SocketIO
   21 | except ImportError:
-  22 |     _cache = None
-  23 | 
-  24 | # Configure logging
-  25 | logging.basicConfig(level=logging.DEBUG)
-  26 | 
-  27 | class Base(DeclarativeBase):
-  28 |     pass
-  29 | 
-  30 | # 1. Initialize DB WITHOUT app first to prevent circular loops
-  31 | db = SQLAlchemy(model_class=Base)
-  32 | 
-  33 | # 2. Create the app instance — use absolute paths so templates/static are always found
-  34 | #    whether run as "app:app" from core/ or "core.app:app" from project root
-  35 | _core_dir = Path(__file__).resolve().parent
-  36 | app = Flask(__name__, template_folder=str(_core_dir / "templates"), static_folder=str(_core_dir / "static"))
-  37 | 
-  38 | # Security: Uses .env secret, but provides a fallback for local dev
-  39 | app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key_protocol_pulse_2026")
-  40 | 
-  41 | # Configure the database
-  42 | database_url = os.environ.get("DATABASE_URL", "sqlite:///protocol_pulse.db")
-  43 | if database_url.startswith("sqlite:"):
-  44 |     # Ensure UTF-8 support for Bitcoin symbols
-  45 |     if "?" not in database_url:
-  46 |         database_url += "?charset=utf8mb4"
+  22 |     SocketIO = None
+  23 | try:
+  24 |     from flask_compress import Compress as _FlaskCompress
+  25 | except Exception as _compress_err:
+  26 |     _FlaskCompress = None
+  27 |     logging.warning("flask-compress not available (%s) — responses will not be gzipped.", _compress_err)
+  28 | try:
+  29 |     from flask_caching import Cache
+  30 |     _cache = Cache(config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60})
+  31 | except ImportError:
+  32 |     _cache = None
+  33 |     logging.warning("flask_caching not available — running with null cache. Install flask-caching for production.")
+  34 | 
+  35 | # Configure logging (default info; keep noisy transport libs quiet).
+  36 | logging.basicConfig(level=logging.INFO)
+  37 | logging.getLogger("urllib3").setLevel(logging.WARNING)
+  38 | logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+  39 | logging.getLogger("requests").setLevel(logging.WARNING)
+  40 | logging.getLogger("werkzeug").setLevel(logging.INFO)
+  41 | 
+  42 | class Base(DeclarativeBase):
+  43 |     pass
+  44 | 
+  45 | # 1. Initialize DB WITHOUT app first to prevent circular loops
+  46 | db = SQLAlchemy(model_class=Base)
   47 | 
-  48 | app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-  49 | app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-  50 |     "pool_recycle": 300,
-  51 |     "pool_pre_ping": True,
-  52 | }
-  53 | 
-  54 | # 3. Initialize extensions
-  55 | db.init_app(app)
-  56 | migrate = Migrate(app, db)
-  57 | login_manager = LoginManager()
-  58 | login_manager.init_app(app)
-  59 | login_manager.login_view = "login"
+  48 | # 2. Create the app instance — use absolute paths so templates/static are always found
+  49 | #    whether run as "app:app" from core/ or "core.app:app" from project root
+  50 | _core_dir = Path(__file__).resolve().parent
+  51 | app = Flask(__name__, template_folder=str(Path(__file__).resolve().parent / "templates"), static_folder=str(Path(__file__).resolve().parent / "static"))
+  52 | # Search both templates/ AND core/templates/ so intelligence terminal works
+  53 | from jinja2 import ChoiceLoader, FileSystemLoader
+  54 | _root_templates = str(Path(__file__).resolve().parent / "templates")
+  55 | _core_templates = str(Path(__file__).resolve().parent / "core" / "templates")
+  56 | app.jinja_loader = ChoiceLoader([
+  57 |     FileSystemLoader(_root_templates),
+  58 |     FileSystemLoader(_core_templates),
+  59 | ])
   60 | 
-  61 | limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
-  62 | limiter.init_app(app)
-  63 | 
-  64 | if _cache is not None:
-  65 |     _cache.init_app(app)
-  66 |     cache = _cache
-  67 | else:
-  68 |     class _NullCache:
-  69 |         def init_app(self, app): pass
-  70 |         def cached(self, timeout=None, key_prefix=None):
-  71 |             def decorator(f): return f
-  72 |             return decorator
-  73 |     cache = _NullCache()
-  74 | 
-  75 | @app.context_processor
-  76 | def inject_csrf():
-  77 |     """Inject CSRF token for forms. Generate once per session."""
-  78 |     if "csrf_token" not in session:
-  79 |         session["csrf_token"] = os.urandom(32).hex()
-  80 |     return {"csrf_token": session.get("csrf_token")}
-  81 | 
-  82 | 
-  83 | @app.after_request
-  84 | def add_static_cache_headers(response):
-  85 |     """Allow browsers to cache static assets for 1 day."""
-  86 |     from flask import request
-  87 |     if request.path.startswith("/static/"):
-  88 |         response.cache_control.max_age = 86400
-  89 |         response.cache_control.public = True
-  90 |     return response
-  91 | 
-  92 | 
-  93 | # 4. Define Template Filters
-  94 | @app.template_filter('inject_ads')
-  95 | def inject_ads(content):
-  96 |     import models
-  97 |     try:
-  98 |         active_ads = models.Advertisement.query.filter_by(is_active=True).all()
-  99 |         if not active_ads:
- 100 |             return content
- 101 |         ad = random.choice(active_ads)
- 102 |         ad_html = f'''
- 103 |         <div class="native-ad-unit my-4 p-3 border-start border-danger bg-dark rounded">
- 104 |             <small class="text-muted d-block mb-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">Protocol Partner</small>
- 105 |             <a href="{ad.target_url}" target="_blank" rel="noopener" class="text-decoration-none">
- 106 |                 <img src="{ad.image_url}" class="img-fluid mb-2 rounded" style="max-height: 150px;" alt="{ad.name}">
- 107 |                 <p class="mb-0 text-white fw-bold">{ad.name}</p>
- 108 |             </a>
- 109 |         </div>
- 110 |         '''
- 111 |         parts = content.split('</p>', 2)
- 112 |         if len(parts) > 2:
- 113 |             return parts[0] + '</p>' + parts[1] + '</p>' + ad_html + parts[2]
- 114 |         return content + ad_html
- 115 |     except Exception as e:
- 116 |         logging.warning(f"Ad injection failed: {e}")
- 117 |         return content
- 118 | 
- 119 | @app.template_filter('from_json')
- 120 | def from_json_filter(value):
- 121 |     if not value:
- 122 |         return []
- 123 |     try:
- 124 |         return json.loads(value)
- 125 |     except (json.JSONDecodeError, TypeError):
- 126 |         return []
- 127 | 
- 128 | # 5. User loader for Flask-Login
- 129 | @login_manager.user_loader
- 130 | def load_user(user_id):
- 131 |     import models
- 132 |     return models.User.query.get(int(user_id))
- 133 | 
- 134 | # =====================================
- 135 | # THE IGNITION ZONE (CRITICAL ORDER)
- 136 | # =====================================
- 137 | # When we run as python app.py, __name__ is "__main__". Later, "import routes" does
- 138 | # "from app import app", which loads this file again as module "app" (a second Flask
- 139 | # app). Routes then register on that second app, but we call app.run() on this one → 404.
- 140 | # So make "app" resolve to this same module when we are the main script.
- 141 | if __name__ == "__main__":
- 142 |     import sys
- 143 |     sys.modules["app"] = sys.modules["__main__"]
- 144 | 
- 145 | with app.app_context():
- 146 |     # 1. Load the models into memory first
- 147 |     import models
- 148 |     # 2. Create the tables (migration-safe: adds new columns/tables without dropping existing)
- 149 |     db.create_all()
- 150 |     # 2b. SESSION 12 — Run sentiment intelligence migrations (adds article sentiment columns + tables)
- 151 |     try:
- 152 |         from utils.db_migrate_sentiment import run_migrations
- 153 |         run_migrations(db)
- 154 |         logging.info("SESSION 12: sentiment-intel migrations applied")
- 155 |     except Exception as _e:
- 156 |         logging.warning("SESSION 12: db_migrate_sentiment failed: %s", _e)
- 157 |     # 3. ONLY NOW load the routes
- 158 |     import routes
- 159 |     # 4. Register Terminal API blueprint
- 160 |     try:
- 161 |         from routes_premium_api import premium_api
- 162 |         app.register_blueprint(premium_api)
- 163 |         logging.info("Terminal API blueprint registered")
- 164 |         # 5. Provision demo API key for playground
- 165 |         from services.api_key_service import provision_demo_key
- 166 |         provision_demo_key(db, models)
- 167 |     except Exception as e:
- 168 |         logging.warning("Terminal API blueprint not loaded: %s", e)
- 169 |     # 6. Initialize FTS5 search index (SESSION 17 — GLOBAL SEARCH)
- 170 |     try:
- 171 |         import importlib.util as _ilu
- 172 |         import os as _os
- 173 |         _svc_path = _os.path.join(_os.path.dirname(__file__), 'services', 'search_service.py')
- 174 |         _spec = _ilu.spec_from_file_location('search_service', _svc_path)
- 175 |         _search_svc = _ilu.module_from_spec(_spec)
- 176 |         _spec.loader.exec_module(_search_svc)
- 177 |         _search_svc.init_fts_index(db)
- 178 |         _search_svc.populate_fts_index(db)
- 179 |         logging.info("FTS5 search index initialized")
- 180 |     except Exception as _fts_init_err:
- 181 |         logging.warning("FTS5 search index init failed (non-fatal): %s", _fts_init_err)
- 182 | 
- 183 | app.register_blueprint(curated_mining_bp)
- 184 | 
- 185 | # Diagnose: confirm / and /debug-routes are registered (debug 404)
- 186 | try:
- 187 |     rules = [r.rule for r in app.url_map.iter_rules()]
- 188 |     has_root = "/" in rules
- 189 |     logging.info("Routes registered: %s ... (/) present: %s", len(rules), has_root)
- 190 |     if not has_root:
- 191 |         logging.warning("Missing '/' route! Sample rules: %s", rules[:20])
- 192 | except Exception as e:
- 193 |     logging.warning("Could not list routes: %s", e)
- 194 | 
- 195 | if __name__ == "__main__":
- 196 |     port = int(os.environ.get("PORT", 5000))
- 197 |     print(f"Starting Protocol Pulse → http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
- 198 |     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
- 199 |     app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)
- 200 | 
- 201 | 
-```
-
-### File: core/blueprints/__init__.py (3 lines)
-```
-   1 | # core/blueprints — Protocol Pulse Blueprint Architecture
-   2 | # Each module exposes a Flask Blueprint. Register them all in app.py.
-   3 | 
-```
-
-### File: core/blueprints/affiliates.py (237 lines)
-```
-   1 | """
-   2 | core/blueprints/affiliates.py
-   3 | Protocol Pulse SESSION 13 — Affiliate Revenue Engine Blueprint
-   4 | 
-   5 | Routes:
-   6 |   GET  /bitcoin-insurance          — Meanwhile landing page
-   7 |   GET  /digital-residency          — RNS.ID landing page (alias)
-   8 |   GET  /go/meanwhile               — Click redirect → Meanwhile
-   9 |   GET  /go/rns                     — Click redirect → RNS.ID
-  10 |   GET  /api/affiliate/click        — Click tracking + redirect
-  11 |   GET  /admin/affiliates           — Admin dashboard
-  12 | """
-  13 | 
-  14 | import hashlib
-  15 | import logging
-  16 | import os
-  17 | from datetime import datetime
-  18 | 
-  19 | from flask import (
-  20 |     Blueprint,
-  21 |     redirect,
-  22 |     render_template,
-  23 |     request,
-  24 |     jsonify,
-  25 |     url_for,
-  26 | )
-  27 | from flask_login import login_required
-  28 | 
-  29 | logger = logging.getLogger(__name__)
-  30 | 
-  31 | affiliates_bp = Blueprint(
-  32 |     "affiliates",
-  33 |     __name__,
-  34 |     url_prefix="",
-  35 | )
-  36 | 
-  37 | # Affiliate destination URLs
-  38 | AFFILIATE_URLS = {
-  39 |     "meanwhile": "https://meanwhile.app?ref=KKM73K",
-  40 |     "rns": "https://rns.id?ref=protocol-pulse",
-  41 | }
-  42 | 
-  43 | 
-  44 | # ────────────────────────────────────────────────────────────
-  45 | # Helpers
-  46 | # ────────────────────────────────────────────────────────────
-  47 | def _get_user_hash(ip: str) -> str:
-  48 |     """SHA256(ip + date.today() + TRACKING_SALT)[:16] — daily rotating."""
-  49 |     from services.affiliate_injector import hash_user
-  50 |     return hash_user(ip)
-  51 | 
-  52 | 
-  53 | def _get_client_ip() -> str:
-  54 |     return (
-  55 |         request.headers.get("X-Forwarded-For", request.remote_addr or "")
-  56 |         .split(",")[0]
-  57 |         .strip()
-  58 |     )
-  59 | 
-  60 | 
-  61 | def _get_ab_variant(user_hash: str) -> str:
-  62 |     """50/50 A/B split based on last nibble of user_hash."""
-  63 |     return "A" if int(user_hash[-1], 16) < 8 else "B"
-  64 | 
-  65 | 
-  66 | def _record_click_db(partner: str, article_id: str, user_hash: str, variant: str):
-  67 |     """Write click to affiliate_clicks table (lazy import to avoid circular deps)."""
-  68 |     try:
-  69 |         from app import db
-  70 |         from services.affiliate_injector import record_click
-  71 |         record_click(db, partner, article_id, user_hash, variant)
-  72 |     except Exception as exc:
-  73 |         logger.warning("_record_click_db failed: %s", exc)
-  74 | 
-  75 | 
-  76 | # ────────────────────────────────────────────────────────────
-  77 | # Landing Pages
-  78 | # ────────────────────────────────────────────────────────────
-  79 | @affiliates_bp.route("/bitcoin-insurance")
-  80 | def bitcoin_insurance():
-  81 |     """Meanwhile Bitcoin Life Insurance landing page — SESSION 13."""
-  82 |     return render_template("bitcoin_insurance.html")
-  83 | 
-  84 | 
-  85 | # ────────────────────────────────────────────────────────────
-  86 | # GET /api/affiliate/click  — Click tracking + redirect
-  87 | # ────────────────────────────────────────────────────────────
-  88 | @affiliates_bp.route("/api/affiliate/click")
-  89 | def affiliate_click():
-  90 |     """
-  91 |     Track affiliate click and redirect to partner URL.
-  92 | 
-  93 |     Query params:
-  94 |       partner    — 'meanwhile' | 'rns'
-  95 |       article_id — source article (optional, defaults to 'direct')
-  96 | 
-  97 |     LAW: TRACKING_SALT MUST be set — raises RuntimeError if missing.
-  98 |     LAW: Never store raw IP — always SHA256 hash.
-  99 |     LAW: 50/50 A/B via user_hash last nibble.
- 100 |     """
- 101 |     partner = request.args.get("partner", "").strip().lower()
- 102 |     article_id = request.args.get("article_id", "direct")
- 103 | 
- 104 |     if partner not in AFFILIATE_URLS:
- 105 |         return redirect("/", code=302)
- 106 | 
- 107 |     ip = _get_client_ip()
- 108 | 
- 109 |     # TRACKING_SALT hard-fail — raises RuntimeError if not set (per LAW)
- 110 |     user_hash = _get_user_hash(ip)
- 111 | 
- 112 |     # A/B variant: 50/50 deterministic from user_hash
- 113 |     variant = _get_ab_variant(user_hash)
- 114 | 
- 115 |     # Record click asynchronously (fire-and-forget; don't block redirect)
- 116 |     _record_click_db(partner, str(article_id), user_hash, variant)
- 117 | 
- 118 |     # Redirect to affiliate URL
- 119 |     dest = AFFILIATE_URLS[partner]
- 120 |     resp = redirect(dest, code=302)
- 121 |     resp.headers["Cache-Control"] = "no-store, no-cache"
- 122 |     return resp
- 123 | 
- 124 | 
- 125 | # ────────────────────────────────────────────────────────────
- 126 | # Short redirect aliases (/go/*)
- 127 | # ────────────────────────────────────────────────────────────
- 128 | @affiliates_bp.route("/go/meanwhile-s13")
- 129 | def go_meanwhile_s13():
- 130 |     """Session 13 short link for Meanwhile."""
- 131 |     ip = _get_client_ip()
- 132 |     user_hash = _get_user_hash(ip)
- 133 |     variant = _get_ab_variant(user_hash)
- 134 |     referrer = request.args.get("ref", request.referrer or "direct")
- 135 |     _record_click_db("meanwhile", referrer[:200], user_hash, variant)
- 136 |     resp = redirect(AFFILIATE_URLS["meanwhile"], code=302)
- 137 |     resp.headers["Cache-Control"] = "no-store, no-cache"
- 138 |     return resp
- 139 | 
- 140 | 
- 141 | @affiliates_bp.route("/go/rns-s13")
- 142 | def go_rns_s13():
- 143 |     """Session 13 short link for RNS.ID."""
- 144 |     ip = _get_client_ip()
- 145 |     user_hash = _get_user_hash(ip)
- 146 |     variant = _get_ab_variant(user_hash)
- 147 |     referrer = request.args.get("ref", request.referrer or "direct")
- 148 |     _record_click_db("rns", referrer[:200], user_hash, variant)
- 149 |     resp = redirect(AFFILIATE_URLS["rns"], code=302)
- 150 |     resp.headers["Cache-Control"] = "no-store, no-cache"
- 151 |     return resp
- 152 | 
- 153 | 
- 154 | # ────────────────────────────────────────────────────────────
- 155 | # Admin Dashboard
- 156 | # ────────────────────────────────────────────────────────────
- 157 | @affiliates_bp.route("/admin/affiliates-s13")
- 158 | @login_required
- 159 | def admin_affiliates_s13():
- 160 |     """
- 161 |     Admin affiliate analytics dashboard (SESSION 13).
- 162 |     Shows click counts per partner, A/B performance, recent clicks.
- 163 |     """
- 164 |     try:
- 165 |         from app import db
- 166 |         from sqlalchemy import text
- 167 |         from services.affiliate_injector import (
- 168 |             _init_affiliate_clicks_table,
- 169 |             compute_ab_stats,
- 170 |             PARTNER_CONFIG,
- 171 |         )
- 172 | 
- 173 |         _init_affiliate_clicks_table(db)
- 174 | 
- 175 |         # Totals per partner
- 176 |         totals = db.session.execute(text(
- 177 |             "SELECT partner, COUNT(*) as total "
- 178 |             "FROM affiliate_clicks "
- 179 |             "WHERE clicked_at >= date('now', '-30 days') "
- 180 |             "GROUP BY partner"
- 181 |         )).fetchall()
- 182 |         totals_map = {r[0]: r[1] for r in totals}
- 183 | 
- 184 |         # Daily clicks last 30 days
- 185 |         daily = db.session.execute(text(
- 186 |             "SELECT partner, date(clicked_at) as day, COUNT(*) as cnt "
- 187 |             "FROM affiliate_clicks "
- 188 |             "WHERE clicked_at >= date('now', '-30 days') "
- 189 |             "GROUP BY partner, day ORDER BY day DESC"
- 190 |         )).fetchall()
- 191 |         daily_by_partner = {}
- 192 |         for r in daily:
- 193 |             daily_by_partner.setdefault(r[0], []).append({"date": r[1], "clicks": r[2]})
- 194 | 
- 195 |         # Recent clicks (last 20, k-anon: show truncated hash only)
- 196 |         recent = db.session.execute(text(
- 197 |             "SELECT partner, article_id, substr(user_hash,1,8) as hash_prefix, "
- 198 |             "variant, clicked_at "
- 199 |             "FROM affiliate_clicks "
- 200 |             "ORDER BY clicked_at DESC LIMIT 20"
- 201 |         )).fetchall()
- 202 | 
- 203 |         # A/B stats
- 204 |         ab_stats = {
- 205 |             "meanwhile": compute_ab_stats("meanwhile", db),
- 206 |             "rns": compute_ab_stats("rns", db),
- 207 |         }
- 208 | 
- 209 |         # Estimated earnings (conservative 2% conversion)
- 210 |         earnings = {}
- 211 |         for partner_key, cfg in PARTNER_CONFIG.items():
- 212 |             t = totals_map.get(partner_key, 0)
- 213 |             earnings[partner_key] = round(t * 0.02 * cfg["estimated_commission"], 2)
- 214 | 
- 215 |         return render_template(
- 216 |             "admin/affiliates_s13.html",
- 217 |             totals_map=totals_map,
- 218 |             daily_by_partner=daily_by_partner,
- 219 |             recent=recent,
- 220 |             ab_stats=ab_stats,
- 221 |             earnings=earnings,
- 222 |             partner_cfg=PARTNER_CONFIG,
- 223 |         )
- 224 | 
- 225 |     except Exception as exc:
- 226 |         logger.error("admin_affiliates_s13 error: %s", exc)
- 227 |         return render_template(
- 228 |             "admin/affiliates_s13.html",
- 229 |             totals_map={},
- 230 |             daily_by_partner={},
- 231 |             recent=[],
- 232 |             ab_stats={},
- 233 |             earnings={},
- 234 |             partner_cfg={},
- 235 |             error=str(exc),
- 236 |         )
- 237 | 
-```
-
-### File: core/blueprints/api.py (24 lines)
-```
-   1 | """
-   2 | API BLUEPRINT — Protocol Pulse
-   3 | ================================
-   4 | Owns: /api/* (non-terminal, non-charts, non-mining)
-   5 | Status: Core API routes in routes_api_v2.py (api_v2). Additional in routes.py.
-   6 | TODO: Extract remaining /api/* routes from routes.py here (future session).
-   7 | """
-   8 | from flask import Blueprint
-   9 | 
-  10 | api_bp = Blueprint("api_main", __name__)
-  11 | 
-  12 | # Routes already in routes_api_v2.api_v2 (keep there):
-  13 | #   /api/v2/* — V2 API endpoints
-  14 | 
-  15 | # Routes to migrate from routes.py:
-  16 | #   GET  /api/sentiment        — sentiment summary
-  17 | #   GET  /api/articles         — articles list
-  18 | #   GET  /api/price            — BTC price proxy
-  19 | #   GET  /api/mempool          — mempool stats proxy
-  20 | #   GET  /api/fear-greed       — fear & greed index
-  21 | #   GET  /api/search           — article search
-  22 | #   POST /api/affiliates/impression — affiliate impression beacon
-  23 | #   POST /api/affiliates/click      — affiliate click beacon
-  24 | 
-```
-
-### File: core/blueprints/articles.py (23 lines)
-```
-   1 | """
-   2 | ARTICLES BLUEPRINT — Protocol Pulse
-   3 | =====================================
-   4 | Owns: /articles, /article/<id>, /category/*
-   5 | Status: Routes currently live in routes.py.
-   6 | TODO: Extract article routes from routes.py into this blueprint (future session).
-   7 | """
-   8 | from flask import Blueprint
-   9 | 
-  10 | articles_bp = Blueprint("articles_main", __name__)
-  11 | 
-  12 | # Routes to migrate from routes.py:
-  13 | #   GET  /articles             — articles listing
-  14 | #   GET  /article/<id>         — article detail
-  15 | #   GET  /articles/<category>  — category listing
-  16 | #   GET  /bitcoin              — Bitcoin category
-  17 | #   GET  /defi                 — DeFi category
-  18 | #   GET  /regulation           — Regulation category
-  19 | #   GET  /privacy              — Privacy category
-  20 | #   GET  /innovation           — Innovation category
-  21 | #   POST /admin/generate       — Article generation (admin)
-  22 | #   POST /admin/publish/<id>   — Publish article (admin)
-  23 | 
-```
-
-### File: core/blueprints/briefings.py (119 lines)
-```
-   1 | """
-   2 | BRIEFINGS BLUEPRINT — Protocol Pulse
-   3 | ======================================
-   4 | GET /briefings — Public page showing last 7 days of HeyGen Sarah briefings.
-   5 | Pulls from market_briefings table + oracle_briefing/output/ filesystem.
-   6 | """
-   7 | import os
-   8 | from datetime import datetime, timedelta
-   9 | from pathlib import Path
-  10 | from flask import Blueprint, render_template, jsonify
-  11 | 
-  12 | briefings_bp = Blueprint("briefings", __name__)
-  13 | 
-  14 | 
-  15 | def _get_fs_briefings(days: int = 7) -> list[dict]:
-  16 |     """Scan oracle_briefing/output/ for briefing videos."""
-  17 |     base = Path(os.path.dirname(os.path.abspath(__file__))).parent.parent / "oracle_briefing" / "output"
-  18 |     briefings = []
-  19 |     cutoff = datetime.now() - timedelta(days=days)
-  20 | 
-  21 |     if not base.exists():
-  22 |         return briefings
-  23 | 
-  24 |     for date_dir in sorted(base.iterdir(), reverse=True):
-  25 |         if not date_dir.is_dir():
-  26 |             continue
-  27 |         try:
-  28 |             dir_date = datetime.strptime(date_dir.name, "%Y-%m-%d")
-  29 |             if dir_date < cutoff:
-  30 |                 break
-  31 |         except ValueError:
-  32 |             continue
-  33 | 
-  34 |         for mp4 in sorted(date_dir.glob("briefing_*.mp4"), reverse=True):
-  35 |             parts = mp4.stem.split("_")
-  36 |             btype = parts[1] if len(parts) > 1 else "unknown"
-  37 |             btime = parts[2] if len(parts) > 2 else "0000"
-  38 |             size_mb = round(mp4.stat().st_size / 1024 / 1024, 1)
-  39 | 
-  40 |             # Check for matching script
-  41 |             script_path = mp4.with_suffix(".txt")
-  42 |             script_text = ""
-  43 |             if script_path.exists():
-  44 |                 script_text = script_path.read_text()[:500]
-  45 | 
-  46 |             briefings.append({
-  47 |                 "date": date_dir.name,
-  48 |                 "type": btype,
-  49 |                 "time": f"{btime[:2]}:{btime[2:]}" if len(btime) == 4 else btime,
-  50 |                 "file": str(mp4),
-  51 |                 "filename": mp4.name,
-  52 |                 "size_mb": size_mb,
-  53 |                 "script_preview": script_text,
-  54 |                 "video_url": f"/briefings/video/{date_dir.name}/{mp4.name}",
-  55 |             })
-  56 | 
-  57 |     return briefings
-  58 | 
-  59 | 
-  60 | def _get_db_briefings(days: int = 7) -> list[dict]:
-  61 |     """Pull briefings from MarketBriefing DB table."""
-  62 |     try:
-  63 |         from models import MarketBriefing
-  64 |         cutoff = datetime.now() - timedelta(days=days)
-  65 |         rows = MarketBriefing.query.filter(
-  66 |             MarketBriefing.generated_at >= cutoff,
-  67 |             MarketBriefing.status == "completed",
-  68 |         ).order_by(MarketBriefing.generated_at.desc()).all()
-  69 | 
-  70 |         return [{
-  71 |             "date": r.scheduled_date or r.generated_at.strftime("%Y-%m-%d"),
-  72 |             "type": r.briefing_type,
-  73 |             "time": r.generated_at.strftime("%H:%M") if r.generated_at else "",
-  74 |             "title": r.title,
-  75 |             "script_preview": (r.script_text or "")[:500],
-  76 |             "video_url": r.video_url or "",
-  77 |             "duration": r.duration_seconds,
-  78 |             "btc_price": r.btc_price_at_generation,
-  79 |             "source": "db",
-  80 |         } for r in rows]
-  81 |     except Exception:
-  82 |         return []
-  83 | 
-  84 | 
-  85 | @briefings_bp.route("/briefings")
-  86 | def briefings_page():
-  87 |     """Public page: last 7 days of Oracle Briefings."""
-  88 |     fs_briefings = _get_fs_briefings(days=7)
-  89 |     db_briefings = _get_db_briefings(days=7)
-  90 | 
-  91 |     # Merge: prefer DB entries, supplement with filesystem
-  92 |     all_briefings = db_briefings + fs_briefings
-  93 | 
-  94 |     # Group by date
-  95 |     by_date = {}
-  96 |     for b in all_briefings:
-  97 |         date = b["date"]
-  98 |         if date not in by_date:
-  99 |             by_date[date] = []
- 100 |         by_date[date].append(b)
+  61 | 
+  62 | # Security: SECRET must be set in environment — no silent insecure fallback
+  63 | _session_secret = os.environ.get("SESSION_SECRET", "")
+  64 | if not _session_secret:
+  65 |     logging.critical("SESSION_SECRET not set — using ephemeral key. Set SESSION_SECRET in environment for production.")
+  66 |     if not os.environ.get("FLASK_DEBUG", ""):
+  67 |         raise RuntimeError("SESSION_SECRET must be set in production. Run: python3 scripts/generate_secret.py")
+  68 |     import secrets as _secrets_mod
+  69 |     _session_secret = _secrets_mod.token_hex(32)
+  70 | app.secret_key = _session_secret
+  71 | 
+  72 | # Public network endpoints (local by default, cloudflared-ready when set in .env)
+  73 | app.config["PUBLIC_HUB_URL"] = os.environ.get("PUBLIC_HUB_URL", "http://127.0.0.1:5000").rstrip("/")
+  74 | app.config["PUBLIC_AI_URL"] = os.environ.get("PUBLIC_AI_URL", "http://127.0.0.1:11434").rstrip("/")
+  75 | app.config["PUBLIC_SSH_HOST"] = os.environ.get("PUBLIC_SSH_HOST", "").strip()
+  76 | app.config["TURNSTILE_SITE_KEY"] = os.environ.get("TURNSTILE_SITE_KEY", "")
+  77 | app.config["USE_DOUBLE_PIPE"] = os.environ.get("USE_DOUBLE_PIPE", "false").strip().lower() in {
+  78 |     "1", "true", "yes", "on"
+  79 | }
+  80 | 
+  81 | # Configure the database
+  82 | database_url = os.environ.get("DATABASE_URL", "sqlite:///protocol_pulse.db")
+  83 | # Replit (and some Heroku-style hosts) emit postgres:// — SQLAlchemy 1.4+ requires postgresql://
+  84 | if database_url.startswith("postgres://"):
+  85 |     database_url = database_url.replace("postgres://", "postgresql://", 1)
+  86 | if database_url.startswith("sqlite:"):
+  87 |     # SQLite: remove unsupported charset param added by older code
+  88 |     if "charset=utf8mb4" in database_url:
+  89 |         database_url = database_url.replace("?charset=utf8mb4", "").replace("&charset=utf8mb4", "")
+  90 |     # SQLite: resolve relative paths against the app directory so gunicorn CWD doesn't matter
+  91 |     _prefix = "sqlite:///"
+  92 |     if database_url.startswith(_prefix) and not database_url[len(_prefix):].startswith("/"):
+  93 |         _rel_path = database_url[len(_prefix):]
+  94 |         database_url = _prefix + os.path.join(os.path.dirname(os.path.abspath(__file__)), _rel_path)
+  95 | 
+  96 | app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+  97 | app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+  98 |     "pool_recycle": 300,
+  99 |     "pool_pre_ping": True,
+ 100 | }
  101 | 
- 102 |     return render_template("briefings.html", briefings_by_date=by_date)
- 103 | 
- 104 | 
- 105 | @briefings_bp.route("/api/briefings")
- 106 | def briefings_api():
- 107 |     """JSON API: last 7 days of briefings."""
- 108 |     fs_briefings = _get_fs_briefings(days=7)
- 109 |     db_briefings = _get_db_briefings(days=7)
- 110 |     return jsonify({"briefings": db_briefings + fs_briefings})
- 111 | 
- 112 | 
- 113 | @briefings_bp.route("/briefings/video/<date>/<filename>")
- 114 | def briefing_video(date, filename):
- 115 |     """Serve briefing video files."""
- 116 |     from flask import send_from_directory
- 117 |     video_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent.parent / "oracle_briefing" / "output" / date
- 118 |     return send_from_directory(str(video_dir), filename)
- 119 | 
-```
-
-### File: core/blueprints/charts.py (24 lines)
-```
-   1 | """
-   2 | CHARTS BLUEPRINT — Protocol Pulse
-   3 | ===================================
-   4 | Owns: /charts, /charts/*, /api/charts/*
-   5 | Status: Routes currently live in routes.py (p3-charts session).
-   6 | TODO: Extract chart routes from routes.py into this blueprint (future session).
-   7 | """
-   8 | from flask import Blueprint
-   9 | 
-  10 | charts_bp = Blueprint("charts_main", __name__)
-  11 | 
-  12 | # Routes to migrate from routes.py:
-  13 | #   GET  /charts                         — charts.html (9 sections)
-  14 | #   GET  /charts/embed/<chart_id>        — embeddable chart widget
-  15 | #   GET  /api/charts/price-history       — proxy CoinGecko
-  16 | #   GET  /api/charts/mempool-data        — proxy mempool.space
-  17 | #   GET  /api/charts/hashrate-history    — proxy blockchair
-  18 | #   GET  /api/charts/pool-distribution   — mining pool donut
-  19 | #   GET  /api/charts/fee-history         — mempool fees
-  20 | #   GET  /api/charts/lightning           — lightning stats
-  21 | #   GET  /api/charts/fear-greed          — F&G index
-  22 | #   POST /api/charts/price-alert         — set price alert
-  23 | #   POST /api/charts/ai-explain          — Claude Haiku chart analysis
-  24 | 
+ 102 | # Startup env diagnostics.
+ 103 | # Required vars: missing → log CRITICAL (feature is broken without these).
+ 104 | # Recommended vars: missing → log INFO (integration degrades gracefully).
+ 105 | _required_env = ["SESSION_SECRET", "DATABASE_URL", "RESEND_API_KEY"]
+ 106 | _recommended_env = [
+ 107 |     "TWITTER_API_KEY",
+ 108 |     "TWITTER_API_SECRET",
+ 109 |     "TWITTER_ACCESS_TOKEN",
+ 110 |     "TWITTER_ACCESS_TOKEN_SECRET",
+ 111 | ]
+ 112 | for _name in _required_env:
+ 113 |     if not os.environ.get(_name):
+ 114 |         logging.critical(
+ 115 |             "REQUIRED env var %s is missing — dependent features will fail.", _name
+ 116 |         )
+ 117 | for _name in _recommended_env:
+ 118 |     if not os.environ.get(_name):
+ 119 |         logging.info("%s not configured (related integration stays degraded/off).", _name)
+ 120 | 
+ 121 | app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year for versioned static assets
+ 122 | 
+ 123 | # 3. Initialize extensions
+ 124 | db.init_app(app)
+ 125 | migrate = Migrate(app, db)
+ 126 | login_manager = LoginManager()
+ 127 | login_manager.init_app(app)
+ 128 | login_manager.login_view = "login"
+ 129 | 
+ 130 | limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
+ 131 | limiter.init_app(app)
+ 132 | 
+ 133 | if _FlaskCompress is not None:
+ 134 |     app.config['COMPRESS_REGISTER'] = True
+ 135 |     app.config['COMPRESS_MIN_SIZE'] = 500
+ 136 |     _FlaskCompress(app)
+ 137 | 
+ 138 | if _cache is not None:
+ 139 |     _cache.init_app(app)
+ 140 |     cache = _cache
+ 141 | else:
+ 142 |     class _NullCache:
+ 143 |         def init_app(self, app): pass
+ 144 |         def cached(self, timeout=None, key_prefix=None):
+ 145 |             def decorator(f): return f
+ 146 |             return decorator
+ 147 |     cache = _NullCache()
+ 148 | 
+ 149 | if SocketIO is not None:
+ 150 |     socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+ 151 | else:
+ 152 |     socketio = None
+ 153 | 
+ 154 | @app.context_processor
+ 155 | def inject_csrf():
+ 156 |     """Inject CSRF token for forms. Generate once per session."""
+ 157 |     if "csrf_token" not in session:
+ 158 |         session["csrf_token"] = os.urandom(32).hex()
+ 159 |     return {
+ 160 |         "csrf_token": session.get("csrf_token"),
+ 161 |         "public_hub_url": app.config.get("PUBLIC_HUB_URL"),
+ 162 |         "public_ai_url": app.config.get("PUBLIC_AI_URL"),
+ 163 |         "public_ssh_host": app.config.get("PUBLIC_SSH_HOST"),
+ 164 |         "use_double_pipe": app.config.get("USE_DOUBLE_PIPE", False),
+ 165 |     }
+ 166 | 
+ 167 | 
+ 168 | @app.after_request
+ 169 | def add_headers(response):
+ 170 |     """Add cache, security, and performance headers to every response."""
+ 171 |     from flask import request
+ 172 | 
+ 173 |     # ── Security headers ──
+ 174 |     response.headers["X-Content-Type-Options"] = "nosniff"
+ 175 |     response.headers["X-Frame-Options"] = "SAMEORIGIN"
+ 176 |     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+ 177 |     response.headers["Permissions-Policy"] = "geolocation=()"
+ 178 |     response.headers["X-XSS-Protection"] = "1; mode=block"
+ 179 | 
+ 180 |     # ── Cache strategy ──
+ 181 |     if request.path.startswith("/static/"):
+ 182 |         # Versioned assets (?v=X) get long cache; images get 1 week; CSS/JS get 1 day
+ 183 |         if any(request.path.endswith(ext) for ext in ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico')):
+ 184 |             response.cache_control.max_age = 31536000  # 1 year
+ 185 |             response.cache_control.public = True
+ 186 |         elif any(request.path.endswith(ext) for ext in ('.css', '.js')):
+ 187 |             response.cache_control.max_age = 604800  # 1 week
+ 188 |             response.cache_control.public = True
+ 189 |         else:
+ 190 |             response.cache_control.max_age = 86400
+ 191 |             response.cache_control.public = True
+ 192 |     elif request.path.startswith("/api/"):
+ 193 |         # P1-3: API endpoints default to private/no-store — prevents user-specific
+ 194 |         # data leaking through shared caches. Individual routes may opt into caching.
+ 195 |         if "Cache-Control" not in response.headers:
+ 196 |             response.headers["Cache-Control"] = "private, no-store"
+ 197 |     else:
+ 198 |         # HTML pages: no-cache but allow revalidation
+ 199 |         if "Cache-Control" not in response.headers:
+ 200 |             response.headers["Cache-Control"] = "public, no-cache, must-revalidate"
+ 201 | 
+ 202 |     return response
+ 203 | 
+ 204 | 
+ 205 | # 4. Define Template Filters
+ 206 | @app.template_filter('inject_ads')
+ 207 | def inject_ads(content):
+ 208 |     import models
+ 209 |     from flask import g
+ 210 |     try:
+ 211 |         if not hasattr(g, '_active_ads'):
+ 212 |             g._active_ads = models.Advertisement.query.filter_by(is_active=True).all()
+ 213 |         active_ads = g._active_ads
+ 214 |         if not active_ads:
+ 215 |             return content
+ 216 |         ad = random.choice(active_ads)
+ 217 |         from markupsafe import escape as _esc
+ 218 |         ad_html = f'''
+ 219 |         <div class="native-ad-unit my-4 p-3 border-start border-danger bg-dark rounded">
+ 220 |             <small class="text-muted d-block mb-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">Protocol Partner</small>
+ 221 |             <a href="/ads/go/{ad.id}" rel="noopener" class="text-decoration-none">
+ 222 |                 <img src="{_esc(ad.image_url or '')}" class="img-fluid mb-2 rounded" style="max-height: 150px;" alt="{_esc(ad.name or '')}">
+ 223 |                 <p class="mb-0 text-white fw-bold">{_esc(ad.name or '')}</p>
+ 224 |             </a>
+ 225 |         </div>
+ 226 |         '''
+ 227 |         parts = content.split('</p>', 2)
+ 228 |         if len(parts) > 2:
+ 229 |             return parts[0] + '</p>' + parts[1] + '</p>' + ad_html + parts[2]
+ 230 |         return content + ad_html
+ 231 |     except Exception as e:
+ 232 |         logging.warning(f"Ad injection failed: {e}")
+ 233 |         return content
+ 234 | 
+ 235 | @app.template_filter('to_est')
+ 236 | def to_est_filter(dt):
+ 237 |     """Convert a naive UTC datetime to Eastern Time for display."""
+ 238 |     if dt is None:
+ 239 |         return ""
+ 240 |     import pytz
+ 241 |     eastern = pytz.timezone("America/New_York")
+ 242 |     if dt.tzinfo is None:
+ 243 |         utc_dt = pytz.utc.localize(dt)
+ 244 |     else:
+ 245 |         utc_dt = dt
+ 246 |     return utc_dt.astimezone(eastern)
+ 247 | 
+ 248 | @app.template_filter('basename')
+ 249 | def basename_filter(path):
+ 250 |     """Return the basename of a path for use in templates (e.g. clip filename)."""
+ 251 |     if not path:
+ 252 |         return ""
+ 253 |     return os.path.basename(str(path).strip())
+ 254 | 
+ 255 | @app.template_filter('from_json')
+ 256 | def from_json_filter(value):
+ 257 |     if not value:
+ 258 |         return []
+ 259 |     try:
+ 260 |         return json.loads(value)
+ 261 |     except (json.JSONDecodeError, TypeError):
+ 262 |         return []
+ 263 | 
+ 264 | # Distinct header image per article: when stored URL is missing or the old single default, use pool by title
+ 265 | _OLD_SINGLE_DEFAULT_HEADER = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200"
+ 266 | 
+ 267 | @app.template_filter('article_header_display')
+ 268 | def article_header_display_filter(article):
+ 269 |     """Return a distinct header image URL for this article (avoids same image on every card)."""
+ 270 |     if article is None:
+ 271 |         return _OLD_SINGLE_DEFAULT_HEADER
+ 272 |     stored = (getattr(article, "header_image_url", None) or "").strip()
+ 273 |     if stored and stored != _OLD_SINGLE_DEFAULT_HEADER:
+ 274 |         return stored
+ 275 |     return "/static/images/default-header.png"
+ 276 | 
+ 277 | # 5. User loader for Flask-Login
+ 278 | @login_manager.user_loader
+ 279 | def load_user(user_id):
+ 280 |     import models
+ 281 |     try:
+ 282 |         return models.User.query.get(int(user_id))
+ 283 |     except (ValueError, TypeError):
+ 284 |         return None
+ 285 | 
+ 286 | # =====================================
+ 287 | # THE IGNITION ZONE (CRITICAL ORDER)
+ 288 | # =====================================
+ 289 | # When we run as python app.py, __name__ is "__main__". Later, "import routes" does
+ 290 | # "from app import app", which loads this file again as module "app" (a second Flask
+ 291 | # app). Routes then register on that second app, but we call app.run() on this one → 404.
+ 292 | # So make "app" resolve to this same module when we are the main script.
+ 293 | if __name__ == "__main__":
+ 294 |     import sys
+ 295 |     sys.modules["app"] = sys.modules["__main__"]
+ 296 | 
+ 297 | with app.app_context():
+ 298 |     # 1. Load the models into memory first
+ 299 |     import models
+ 300 |     # Create any missing tables at startup (idempotent — safe to always run).
+ 301 |     # Set ENABLE_RUNTIME_DB_CREATE_ALL=false to suppress on managed migration envs.
+ 302 |     if os.environ.get("ENABLE_RUNTIME_DB_CREATE_ALL", "true").strip().lower() not in {"0", "false", "no", "off"}:
+ 303 |         try:
+ 304 |             db.create_all()
+ 305 |         except Exception as _dbe:
+ 306 |             logging.warning("db.create_all() failed (non-fatal): %s", _dbe)
+ 307 | 
+ 308 |     # p3-sentiment-intel: migration-safe column/table additions
+ 309 |     try:
+ 310 |         from utils.db_migrate_sentiment import run_migrations
+ 311 |         run_migrations(db)
+ 312 |     except Exception as _mige:
+ 313 |         logging.warning("db_migrate_sentiment failed (non-fatal): %s", _mige)
+ 314 | 
+ 315 | @app.route('/logout')
+ 316 | def logout():
+ 317 |     session.clear()
+ 318 |     return redirect(url_for('index'))
+ 319 | 
+ 320 | 
+ 321 | @app.route('/force-logout')
+ 322 | def force_logout():
+ 323 |     session.clear()
+ 324 |     return redirect(url_for('login'))
+ 325 | 
+ 326 | 
+ 327 | def _run_dev_server():
+ 328 |     port = 5000
+ 329 |     host = "0.0.0.0"
+ 330 |     print(f"Starting Protocol Pulse -> http://127.0.0.1:{port}/ (debug routes: http://127.0.0.1:{port}/debug-routes)")
+ 331 |     # Disable reloader so the process that binds the port is the same one that loaded routes (avoids 404 from reloader child)
+ 332 |     if socketio is not None:
+ 333 |         socketio.run(app, host=host, port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
+ 334 |     else:
+ 335 |         app.run(host=host, port=port, debug=False, use_reloader=False)
+ 336 | 
+ 337 | # Keep routes import near the very bottom so the app object and extensions are fully initialized first.
+ 338 | import routes
+ 339 | from routes_api_v2 import api_v2
+ 340 | try:
+ 341 |     from routes_api_terminal import terminal_bp, provision_demo_key
+ 342 |     app.register_blueprint(terminal_bp)
+ 343 |     with app.app_context():
+ 344 |         provision_demo_key()
+ 345 | except Exception as e:
+ 346 |     logging.critical("Terminal API blueprint failed to load: %s", e)
+ 347 | try:
+ 348 |     from routes_commander import commander_bp, commander_pages_bp
+ 349 |     app.register_blueprint(commander_bp)
+ 350 |     app.register_blueprint(commander_pages_bp)
+ 351 |     logging.info("Commander API blueprint registered at /api/v1")
+ 352 | except Exception as _e:
+ 353 |     logging.critical("Commander blueprint not loaded: %s", _e)
+ 354 | try:
+ 355 |     from routes_newsletter_trigger import newsletter_trigger_bp
+ 356 |     app.register_blueprint(newsletter_trigger_bp)
+ 357 | except Exception as e:
+ 358 |     logging.critical("Newsletter trigger blueprint failed to load: %s", e)
+ 359 | 
+ 360 | # B1 Newsletter Engine — hard fail if feature is active
+ 361 | from routes_newsletter_b1 import newsletter_b1_bp
+ 362 | app.register_blueprint(newsletter_b1_bp)
+ 363 | logging.info("B1 Newsletter blueprint registered")
+ 364 | app.register_blueprint(api_v2)
+ 365 | from onboarding_routes import onboarding_bp
+ 366 | app.register_blueprint(onboarding_bp)
+ 367 | 
+ 368 | from oracle_routes import oracle_bp
+ 369 | app.register_blueprint(oracle_bp)
+ 370 | assert 'oracle' in app.blueprints, 'FATAL: Oracle blueprint failed to register'
+ 371 | 
+ 372 | # SESSION 2: Blueprint Architecture — Newsletter main routes
+ 373 | try:
+ 374 |     from core.blueprints.newsletter import newsletter_bp
+ 375 |     app.register_blueprint(newsletter_bp)
+ 376 |     logging.info("Newsletter main blueprint registered (/newsletter)")
+ 377 | except Exception as _e:
+ 378 |     logging.warning("Newsletter main blueprint not loaded: %s", _e)
+ 379 | 
+ 380 | # SESSION 10 — Article Rebuild: new /api/v2/articles endpoint
+ 381 | try:
+ 382 |     from routes_articles import articles_api_bp
+ 383 |     app.register_blueprint(articles_api_bp)
+ 384 |     logging.info("Articles API blueprint registered (/api/v2/articles)")
+ 385 | except Exception as _e:
+ 386 |     logging.warning("Articles API blueprint not loaded: %s", _e)
+ 387 | 
+ 388 | # SESSION 8 — Nostr Feed
+ 389 | try:
+ 390 |     from routes_nostr import nostr_bp
+ 391 |     app.register_blueprint(nostr_bp)
+ 392 |     logging.info("Nostr Feed blueprint registered (/nostr)")
+ 393 | except Exception as _e:
+ 394 |     logging.warning("Nostr Feed blueprint not loaded: %s", _e)
+ 395 | 
+ 396 | # SESSION 5 — Mining Intel Blueprint
+ 397 | try:
+ 398 |     from core.blueprints.mining import mining_bp
+ 399 |     app.register_blueprint(mining_bp)
+ 400 |     logging.info("Mining Intel blueprint registered at /mining-intel")
+ 401 | except Exception as _e:
+ 402 |     logging.warning("Mining Intel blueprint not loaded: %s", _e)
+ 403 | 
+ 404 | # SESSION 6 — Schiff Bot Blueprint
+ 405 | try:
+ 406 |     from core.blueprints.schiff import schiff_bp
+ 407 |     app.register_blueprint(schiff_bp)
+ 408 |     logging.info("Schiff Bot blueprint registered (/schiff, /api/schiff/*)")
+ 409 | except Exception as _e:
+ 410 |     logging.warning("Schiff Bot blueprint not loaded: %s", _e)
+ 411 | 
+ 412 | 
+ 413 | # CURATED MINING — White-glove service landing page
+ 414 | try:
+ 415 |     from core.blueprints.curated_mining import curated_mining_bp
+ 416 |     app.register_blueprint(curated_mining_bp)
+ 417 |     logging.info("Curated Mining blueprint registered at /curated-mining")
+ 418 | except Exception as _e:
+ 419 |     logging.warning("Curated Mining blueprint not loaded: %s", _e)
+ 420 | # SESSION 7 — Oracle Avatar Blueprint
+ 421 | try:
+ 422 |     from core.blueprints.oracle_avatar import oracle_avatar_bp
+ 423 |     app.register_blueprint(oracle_avatar_bp)
+ 424 |     logging.info("Oracle Avatar blueprint registered (/oracle-live, /api/oracle/*)")
+ 425 | except Exception as _e:
+ 426 |     logging.critical("Oracle Avatar blueprint not loaded: %s", _e)
+ 427 | 
+ 428 | try:
+ 429 |     from services.video_engine.dashboard.app import dashboard_bp
+ 430 |     app.register_blueprint(dashboard_bp)
+ 431 |     logging.info("Dashboard blueprint registered at /dashboard/")
+ 432 | except ImportError as _e:
+ 433 |     logging.warning("Dashboard blueprint not loaded: %s", _e)
+ 434 | 
+ 435 | # SPONSOR AGENT V2 — Outreach pipeline
+ 436 | try:
+ 437 |     from core.blueprints.sponsor import sponsor_bp
+ 438 |     app.register_blueprint(sponsor_bp)
+ 439 |     logging.info("Sponsor Agent blueprint registered at /sponsor-agent")
+ 440 | except Exception as _e:
+ 441 |     logging.warning("Sponsor Agent blueprint not loaded: %s", _e)
+ 442 | 
+ 443 | # F4/F7 — Briefings Blueprint (public /briefings page)
+ 444 | try:
+ 445 |     from core.blueprints.briefings import briefings_bp
+ 446 |     app.register_blueprint(briefings_bp)
+ 447 |     logging.info("Briefings blueprint registered at /briefings")
+ 448 | except Exception as _e:
+ 449 |     logging.warning("Briefings blueprint not loaded: %s", _e)
+ 450 | 
+ 451 | # Montage Blueprint (daily highlights montage)
+ 452 | try:
+ 453 |     from core.blueprints.montage_routes import montage_bp
+ 454 |     app.register_blueprint(montage_bp)
+ 455 |     logging.info("Montage blueprint registered at /montage")
+ 456 | except Exception as _e:
+ 457 |     logging.warning("Montage blueprint not loaded: %s", _e)
+ 458 | 
+ 459 | # Intelligence Terminal Blueprint
+ 460 | try:
+ 461 |     from blueprints.intelligence import intelligence_bp
+ 462 |     app.register_blueprint(intelligence_bp)
+ 463 |     logging.info("Intelligence Terminal blueprint registered")
+ 464 | except Exception as _e:
+ 465 |     logging.warning("Intelligence Terminal blueprint not loaded: %s", _e)
+ 466 | 
+ 467 | # PANOPTICON — Congressional Disclosure & Whale Intelligence Dashboard
+ 468 | try:
+ 469 |     from core.blueprints.panopticon import panopticon_bp
+ 470 |     app.register_blueprint(panopticon_bp)
+ 471 |     logging.info("Panopticon blueprint registered at /panopticon")
+ 472 | except Exception as _e:
+ 473 |     logging.warning("Panopticon blueprint not loaded: %s", _e)
+ 474 | 
+ 475 | # Sovereign Context Engine — unified intelligence API
+ 476 | @app.route('/api/sovereign-context')
+ 477 | def api_sovereign_context():
+ 478 |     """Serve the latest sovereign context world-state snapshot."""
+ 479 |     from flask import jsonify
+ 480 |     try:
+ 481 |         from services.sovereign_context_engine import get_latest_context, get_recent_alerts
+ 482 |         ctx = get_latest_context()
+ 483 |         if not ctx:
+ 484 |             return jsonify({"error": "No context available — run a cycle first"}), 503
+ 485 |         return jsonify(ctx)
+ 486 |     except Exception as _e:
+ 487 |         logging.warning("Sovereign context API error: %s", _e)
+ 488 |         return jsonify({"error": str(_e)}), 500
+ 489 | 
+ 490 | 
+ 491 | @app.route('/api/sovereign-alerts')
+ 492 | def api_sovereign_alerts():
+ 493 |     """Serve recent sovereign pattern-match alerts."""
+ 494 |     from flask import jsonify, request
+ 495 |     try:
+ 496 |         from services.sovereign_context_engine import get_recent_alerts
+ 497 |         limit = min(int(request.args.get('limit', 20)), 100)
+ 498 |         alerts = get_recent_alerts(limit)
+ 499 |         return jsonify({"alerts": alerts, "count": len(alerts)})
+ 500 |     except Exception as _e:
+ 501 |         logging.warning("Sovereign alerts API error: %s", _e)
+ 502 |         return jsonify({"error": str(_e)}), 500
+ 503 | 
+ 504 | 
+ 505 | # Start background APScheduler only when explicitly enabled for this process.
+ 506 | if os.environ.get("ENABLE_APSCHEDULER", "false").strip().lower() in {"1", "true", "yes", "on"}:
+ 507 |     try:
+ 508 |         from services.scheduler import initialize_scheduler
+ 509 |         _sch = initialize_scheduler()
+ 510 |         logging.info("Scheduler initialized: %s", _sch)
+ 511 |     except Exception as _e:
+ 512 |         logging.warning("Scheduler init skipped: %s", _e)
+ 513 | 
+ 514 | # Media Feed Service — 15-minute background RSS polling
+ 515 | try:
+ 516 |     from services.media_feed_service import start_feed_polling
+ 517 |     start_feed_polling(app)
+ 518 |     logging.info("Media feed polling started (every 15 min)")
+ 519 | except Exception as _e:
+ 520 |     logging.warning("Media feed polling not started: %s", _e)
+ 521 | 
+ 522 | # Diagnose after routes import so startup logs reflect the real routing table.
+ 523 | try:
+ 524 |     rules = [r.rule for r in app.url_map.iter_rules()]
+ 525 |     has_root = "/" in rules
+ 526 |     logging.info("Routes registered: %s ... (/) present: %s", len(rules), has_root)
+ 527 |     if not has_root:
+ 528 |         logging.warning("Missing '/' route! Sample rules: %s", rules[:20])
+ 529 | except Exception as e:
+ 530 |     logging.warning("Could not list routes: %s", e)
+ 531 | 
+ 532 | if __name__ == "__main__":
+ 533 |     _run_dev_server()
+ 534 | _STATIC_ROOT = os.path.realpath('/home/ultron/protocol_pulse/static')
+ 535 | 
+ 536 | @app.route('/a/<path:fn>')
+ 537 | def _serve_asset(fn):
+ 538 |     from flask import make_response, abort
+ 539 |     import mimetypes, os as _o
+ 540 |     p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
+ 541 |     safe_p = _o.path.realpath(p)
+ 542 |     if not safe_p.startswith(_STATIC_ROOT + _o.sep):
+ 543 |         abort(403)
+ 544 |     if not _o.path.exists(safe_p): abort(404)
+ 545 |     data = open(safe_p,'rb').read()
+ 546 |     resp = make_response(data)
+ 547 |     resp.headers['Content-Type'] = mimetypes.guess_type(safe_p)[0] or 'text/plain'
+ 548 |     resp.headers['Cache-Control'] = 'public, max-age=3600'
+ 549 |     return resp
+ 550 | 
+ 551 | @app.route('/v3/<path:fn>')
+ 552 | def _serve_v3(fn):
+ 553 |     from flask import make_response, abort
+ 554 |     import mimetypes, os as _o
+ 555 |     p = _o.path.join('/home/ultron/protocol_pulse/static', fn)
+ 556 |     safe_p = _o.path.realpath(p)
+ 557 |     if not safe_p.startswith(_STATIC_ROOT + _o.sep):
+ 558 |         abort(403)
+ 559 |     if not _o.path.exists(safe_p): abort(404)
+ 560 |     data = open(safe_p,'rb').read()
+ 561 |     resp = make_response(data)
+ 562 |     resp.headers['Content-Type'] = mimetypes.guess_type(safe_p)[0] or 'text/plain'
+ 563 |     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+ 564 |     resp.headers['Pragma'] = 'no-cache'
+ 565 |     return resp
+ 566 | 
 ```
 
 ---
@@ -2661,3 +4160,4 @@ what would it be? One sentence. Make it count.
 
 ### SECTION 10: FINAL VERDICT
 In 2-3 sentences: is this code ready for production? What must change first?
+

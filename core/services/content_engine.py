@@ -531,7 +531,7 @@ APPROVE if score >= 7, REJECT if score < 7.
                 seo_description=clean_text(article_data["seo_description"]),
                 source_type="ai_generated",
                 published=False,  # Require manual approval by default
-                author="Al Ingle"
+                author="Protocol Pulse"
             )
             
             db.session.add(article)

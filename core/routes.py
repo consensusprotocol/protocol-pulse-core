@@ -3824,7 +3824,7 @@ def api_generate_article():
                 category=article_data.get('category', 'Web3'),
                 tags=article_data.get('tags', ''),
                 source_type=source_type,
-                author="Al Ingle",
+                author="Protocol Pulse",
                 seo_title=article_data.get('seo_title', article_data['title']),
                 seo_description=article_data.get('seo_description', article_data['title'][:150]),
                 published=False  # BLOCKED - saved as draft for review
@@ -3851,7 +3851,7 @@ def api_generate_article():
             category=article_data.get('category', 'Web3'),
             tags=article_data.get('tags', ''),
             source_type=source_type,
-            author="Al Ingle",
+            author="Protocol Pulse",
             seo_title=article_data.get('seo_title', article_data['title']),
             seo_description=article_data.get('seo_description', article_data['title'][:150]),
             published=True  # Fact-check passed - auto-approved

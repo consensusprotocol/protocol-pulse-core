@@ -129,7 +129,7 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 category=article_data.get("category", "Bitcoin"),
                 source_url=(article_data.get("source_url") or "").strip() or None,
                 source_type=(article_data.get("source_type") or "rss"),
-                author="Al Ingle",
+                author="Protocol Pulse",
                 published=publish_allowed,
                 cover_image_url="",
             )
@@ -254,7 +254,7 @@ def generate_from_trending_reddit() -> dict:
                             summary=article_data.get("summary", ""),
                             category=article_data.get("category", "Bitcoin"),
                             source_type="reddit",
-                            author="Al Ingle",
+                            author="Protocol Pulse",
                             published=False,
                         )
                         db.session.add(article)

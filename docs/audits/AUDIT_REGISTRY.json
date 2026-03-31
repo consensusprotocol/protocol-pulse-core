@@ -1,17 +1,8 @@
 {
-  "last_audit": "2026-03-26T18:51:59.604192+00:00",
-  "feature": "value-stream-post-audit",
-  "commit": "7f579983",
+  "last_audit": "2026-03-28T05:45:01.923433+00:00",
+  "feature": "video-audio-fix",
+  "commit": "a4c0a1b0",
   "audits": [
-    {
-      "feature": "content-lock",
-      "date": "2026-03-24",
-      "models": [
-        "gemini",
-        "gpt4o",
-        "grok"
-      ]
-    },
     {
       "feature": "oracle-speak-revert",
       "date": "2026-03-24",
@@ -177,6 +168,15 @@
     {
       "feature": "value-stream-post-audit",
       "date": "2026-03-26",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "video-audio-fix",
+      "date": "2026-03-28",
       "models": [
         "gemini",
         "gpt4o",

@@ -1,10 +1,10 @@
 {
-  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-24/clips/clip_5_Andreas_Antonopoulos_AYAreuNzx58.mp4",
+  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-29/clips/clip_5_Andreas_Antonopoulos_AYAreuNzx58.mp4",
   "video_id": "AYAreuNzx58",
   "channel": "Andreas_Antonopoulos",
   "start": 0,
-  "end": 36,
-  "duration": 33.55,
-  "quote": "The lightning network is a layer 2 network. That means it is a network that runs as an overlay above Bitcoin. And it's important to understand that just because it has a different name, doesn't mean that this is something that is different from Bitcoin. It works differently from Bitcoin on bugs.",
-  "archived_at": 1774329371.624773
+  "end": 40,
+  "duration": 37.547,
+  "quote": "The Lightning Network is a layer two network that runs as an overlay above Bitcoin. Just because it has a different name doesn't mean this is something different from Bitcoin. When you are using the Lightning Network, you are using Bitcoin. You are transacting in Bitcoin. The Lightning Network has the same security guarantees as Bitcoin. You don't necessarily need to trust anyone else.",
+  "archived_at": 1774765236.8700075
 }

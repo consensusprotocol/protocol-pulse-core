@@ -1,10 +1,10 @@
 {
-  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-24/clips/clip_5_CoinGecko_8WjGNNF48Dk.mp4",
+  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-03-29/clips/clip_8_CoinGecko_8WjGNNF48Dk.mp4",
   "video_id": "8WjGNNF48Dk",
   "channel": "CoinGecko",
-  "start": 0,
-  "end": 39,
-  "duration": 35.3,
-  "quote": "After the 2008 financial crisis, a mysterious figure named Satoshi Nakamoto created Bitcoin, a decentralized, uncensorable currency meant to give people financial sovereignty. Its transactions were irreversible, borderless, and pseudonymous, with every wallet identified only by a string of letters and numbers.",
-  "archived_at": 1774368084.2039258
+  "start": 35,
+  "end": 68,
+  "duration": 46.067,
+  "quote": "Bitcoin still barely two years old at the time fit perfectly. Its transactions were irreversible, borderless, and pseudonymous, with every wallet identified only by a string of letters and numbers. To the users flocking to the Silk Road, that felt like true economic freedom.",
+  "archived_at": 1774751124.8379133
 }

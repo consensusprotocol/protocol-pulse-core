@@ -224,7 +224,7 @@ def monitor_content_impl():
             source_type=trend['type'],
             published=True,  # Auto-approved for hands-off publishing
             category='Web3',
-            author="Al Ingle"
+            author="Protocol Pulse"
         )
         db.session.add(article)
         db.session.commit()  # Commit each article separately for Substack publishing

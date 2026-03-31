@@ -1,11 +1,17 @@
 {
-  "timestamp": "2026-03-02T19:01:22.068106",
-  "total_articles": 2,
-  "pexels_success": 2,
+  "timestamp": "2026-03-28T02:40:24.052640",
+  "total_articles": 83,
+  "pexels_success": 83,
   "failed": 0,
-  "grok_candidates": 1,
+  "grok_candidates": 7,
   "grok_ids": [
-    1826
+    1880,
+    1925,
+    2083,
+    2101,
+    2112,
+    2113,
+    2114
   ],
-  "elapsed_seconds": 25.9
+  "elapsed_seconds": 78.4
 }

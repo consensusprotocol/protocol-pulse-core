@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-03-28T18:00:14.159011+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Treasury Insolvency: How $47T in Liabilities Validates Bitcoin's Core Design",
+      "angle": "Connect Treasury's documented accounting insolvency to Satoshi's original thesis\u2014Bitcoin as monetary hedge against structural government fiscal failure",
+      "tags": [
+        "bitcoin",
+        "macro",
+        "treasury",
+        "monetary-policy",
+        "analysis"
+      ]
+    },
+    {
+      "headline": "Bitcoin Beats Gold: Why 2-Year ETF Adoption Proves Technical Superiority",
+      "angle": "Compare Bitcoin's institutional adoption speed to gold's 15-year timeline; analyze divisibility, mobility, and resilience as engineering advantages, not marketing",
+      "tags": [
+        "bitcoin",
+        "gold",
+        "etf",
+        "institutional-adoption",
+        "comparison"
+      ]
+    },
+    {
+      "headline": "Extreme Fear at 12: Why Current Mempool Signals Suggest Institutional Positioning Phase",
+      "angle": "On-chain metrics (26.7k mempool, 1 sat/vB fees, 1027.7 EH/s hashrate) indicate accumulation conditions ahead of macro catalyst",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "fear-greed",
+        "technical-analysis"
+      ]
+    }
+  ]
+}

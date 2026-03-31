@@ -1,53 +1,42 @@
 [
   {
-    "id": "5c82a72b-30bf-410c-a2bd-ebe2fdf0a8de",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "# MIDDAY BRIEF \u2014 March 27, 2026\n\n**Bitcoin down 4.2% to $65,603. Extreme Fear at 13. Here's what matters.**\n\nArthur Hayes just laid out the entire macro thesis in seven words: rocks and magic internet money. While geopolitical chaos forces the Fed's hand toward monetary expansion, Hayes is holding h",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
-    "topic_preview": "Oracle Midday Brief \u2014 $65,603",
-    "generated_at": "2026-03-27T18:00:01.949645+00:00",
-    "expires_at": "2026-03-27T22:00:01.949645+00:00",
-    "video_url": "/data/stage_briefs/brief_20260327_1800.mp4"
+    "id": "d2992dc0-2e40-49e6-9218-dd41c781f875",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Polymarket traders price Bitcoin's next all-time high at 15% probability by 2026.\n\nBitcoin remains in its long-term bear market correction.\n\nWatch Polymarket's 2027 projection for the next major Bitcoin price catalyst.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "No New Bitcoin Highs Until 2027, Say Experts",
+    "generated_at": "2026-03-31T00:05:05.612566+00:00",
+    "expires_at": "2026-03-31T04:05:05.612566+00:00"
   },
   {
-    "id": "61ae5e04-7753-4856-825a-f8126e29a3e8",
+    "id": "9971c725-0779-4341-b3a1-1abdeb1d1402",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $65,724, down 3.76% in 24 hours. Fear and Greed index at Extreme Fear, 13. Miners hashing 1,091.9 exahashes. Fast fee at 6 satoshis. 35,785 transactions in the last hour. Block 942,502. Watch for any mining pool reorgs.",
+    "script": "Bitcoin trading at $67,048, up 0.98% in 24 hours. Hashrate holding steady at 904.8 exahashes.\n\nFear and Greed index at Extreme Fear level 11. Fastest fee sits at 3 satoshis per byte.\n\n31,660 transactions processed in the latest block. Block height 942,997.\n\nWatch for any miner reorganization activity in the next 24 hours.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $65,724 \u00b7 FNG 13 \u00b7 1091.9 EH/s",
-    "generated_at": "2026-03-27T18:25:09.566944+00:00",
-    "expires_at": "2026-03-27T22:25:09.566944+00:00"
+    "topic_preview": "BTC $67,048 \u00b7 FNG 11 \u00b7 904.8 EH/s",
+    "generated_at": "2026-03-31T01:10:11.857589+00:00",
+    "expires_at": "2026-03-31T05:10:11.857589+00:00"
   },
   {
-    "id": "abf80fea-eb9f-4396-9b92-fa09aff928e3",
+    "id": "540cac54-781b-4b65-8dc6-c3d7154f21e8",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Mempool fees surged 40% in 24 hours.\n\nWatch for on-chain accumulation patterns in the next hour.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Mempool fees surged 40% in 24 hours.\n\nWatch for on-chain accumulation signals in the next hour.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-27T18:00:25.930230+00:00",
-    "expires_at": "2026-03-27T22:00:25.930230+00:00"
+    "generated_at": "2026-03-30T23:10:11.561631+00:00",
+    "expires_at": "2026-03-31T03:10:11.561631+00:00"
   },
   {
-    "id": "ae06fb8f-d1f0-4b6b-9cb5-014ef5f4ba58",
+    "id": "19138816-3e41-49db-8e77-774885239dc2",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate breached 1092 EH/s, confirming mining capital flows remain robust despite price stagnation. Fear & greed index at 13 signals extreme fear gripping the market. Mempool fees stable at 5 sat/vbyte. Watch for any mempool congestion signals.",
+    "script": "Bitcoin sits at $0, zero price action. Fear & Greed index at 11. Hashrate stable at 905 EH/s. Mempool fast fee at 2 sat/vbyte. Sovereign individuals accumulate. Watch mempool activity for next signal.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 1092 EH/s, confirming mining capital flows remain robust despi",
-    "generated_at": "2026-03-27T18:15:15.964209+00:00",
-    "expires_at": "2026-03-27T20:15:15.964209+00:00"
-  },
-  {
-    "id": "a02c8f67-c1ce-4800-a238-b489636711d3",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Multisig wallets eliminate single points of failure. A two-of-three setup means no single key compromise can drain your funds. This is how institutions are beginning to custody billions in bitcoin.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Multisig wallets eliminate single points of failure. A two-of-three setup means ",
-    "generated_at": "2026-03-27T18:20:04.545869+00:00",
-    "expires_at": "2026-03-27T22:20:04.545869+00:00"
+    "topic_preview": "Bitcoin sits at $0, zero price action. Fear & Greed index at 11. Hashrate stable",
+    "generated_at": "2026-03-31T01:05:12.160486+00:00",
+    "expires_at": "2026-03-31T03:05:12.160486+00:00"
   }
 ]

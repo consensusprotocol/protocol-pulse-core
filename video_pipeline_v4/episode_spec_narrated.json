@@ -1,0 +1,42 @@
+{
+  "date": "2026-03-28",
+  "btc_price": 66794,
+  "fear_greed": {"value": 12, "label": "Extreme Fear"},
+  "hashrate": 1038.6,
+  "mempool_tx": 31482,
+  "fees_fastest": 3,
+  "halving_day": 708,
+  "segments": [
+    {
+      "type": "cold_open",
+      "duration_seconds": 4
+    },
+    {
+      "type": "narration",
+      "narration_audio": "/assets/audio/narration_intro_20260328.wav",
+      "narration_text": "Bitcoin at $66,794. Fear & Greed at 12 — Extreme Fear. Hashrate at 1,038 EH/s. The network doesn't lie. Stay free. Stay sovereign.",
+      "duration_seconds": 53.64,
+      "pbx_clip": "/assets/pbx_Paul-Broadcaster.mp4",
+      "topic": "btc_price"
+    },
+    {
+      "type": "intelligence",
+      "duration_seconds": 25,
+      "chart_type": "btc_price",
+      "topic": "market_intelligence"
+    },
+    {
+      "type": "pip",
+      "clip_path": "/assets/clips/simply_bitcoin_clip.mp4",
+      "clip_path_b": "/assets/clips/bitcoin_layer_clip.mp4",
+      "narration_audio": "/assets/audio/narration_pip_20260328.wav",
+      "narration_text": "Block after block, the network settles billions without permission. This is what conviction looks like when the market tests you.",
+      "duration_seconds": 31.86,
+      "topic": "partner_content"
+    },
+    {
+      "type": "outro",
+      "duration_seconds": 15
+    }
+  ]
+}

@@ -1,385 +1,264 @@
 # CONSENSUS REPORT — VIDEO-AUDIO-FIX — CYCLE 2
-Generated: 2026-03-12 20:58
-Models: grok, gemini (+1 failed: gpt4o — quota exceeded)
+Generated: 2026-03-28 01:42
+Models: Gemini 2.5 Pro, Grok 3 (+1 failed: GPT-4o — rate limit exceeded)
 
-> **Audit Integrity Note:** GPT-4o failed with a quota error and contributed zero findings this cycle. All consensus determinations below are based on 2 of 3 models (Grok + Gemini). Confidence thresholds are adjusted accordingly: "unanimous" means 2/2, "majority" means 2/2. Unique insights are single-model observations. No tiebreaker conflicts can be resolved with statistical authority — editorial judgment is applied explicitly where needed.
+> **Note on model count:** GPT-4o failed with a 429 token-limit error. All consensus thresholds below are calculated from 2 available models. "Unanimous" = both Gemini + Grok agree. GPT-4o's Cycle 1 output is referenced where it provides signal, but is not counted toward Cycle 2 consensus.
 
 ---
 
 ## SCORES
 
-| Subsystem       | Gemini | GPT-4o | Grok | Consensus |
-|-----------------|--------|--------|------|-----------|
-| Correctness     | 2/10   | N/A    | 3/10 | **2/10**  |
-| Law Compliance  | 2/10   | N/A    | 2/10 | **2/10**  |
-| Security        | —/10   | N/A    | 4/10 | **3/10**  |
-| Backend Quality | 3/10   | N/A    | 3/10 | **3/10**  |
-| Frontend Quality| —/10   | N/A    | N/A  | **N/A**   |
-| **Overall**     | **2/10** | N/A  | **3/10** | **2/10** |
+| Subsystem        | Gemini | GPT-4o       | Grok | Consensus |
+|------------------|--------|--------------|------|-----------|
+| Correctness      | 3/10   | ~4/10 (C1)   | 4/10 | **3/10**  |
+| Law Compliance   | 1/10   | ~4/10 (C1)   | 5/10 | **2/10**  |
+| Security         | N/A    | N/A          | 7/10 | **7/10**  |
+| Frontend Quality | N/A    | N/A          | N/A  | **N/A**   |
+| Backend Quality  | 4/10   | N/A          | 5/10 | **4/10**  |
+| Overall          | 2/10   | N/A          | 5/10 | **3/10**  |
 
-> **Scoring rationale:** Consensus defaults to the lower score when models diverge, consistent with a safety-first audit protocol. The overall 2/10 reflects: (1) complete absence of the feature being audited, (2) a critical architectural dual-entry-point flaw, and (3) documented, persistent pipeline law violations across every measured iteration.
+> **Consensus methodology:** Where scores diverge, the lower score is adopted — both because Gemini's Cycle 2 analysis was markedly deeper and because audits should err toward caution. Grok's 5/10 overall reflects a less complete Cycle 1 baseline; Gemini's 2/10 reflects the full picture including internally contradictory law documents. Consensus lands at 3/10.
 
 ---
 
 ## UNANIMOUS FINDINGS
-*(Both models agree — implement unconditionally)*
+*(Both Gemini and Grok agree — implement unconditionally)*
 
----
+### U-1: CI Gate Does Not Execute `regression_test.sh`
+- **File:** `.github/workflows/pipeline_gate.yml`
+- **What it is:** The "Pipeline Integrity Gate" workflow checks syntax and audit-file existence but **never invokes `regression_test.sh`**. This is pure process theater — the gate passes on a broken codebase as long as YAML parses and a registry file exists.
+- **What to change:** Add a step that explicitly runs `bash regression_test.sh` and fails the workflow (`exit 1`) on any non-zero return code. This step must be non-skippable and must run before the merge check.
 
-### U1 — Core Feature Code Is Entirely Absent
-**What it is:** The `feature/video-audio-fix` branch contains zero lines of video or audio processing code. The branch's stated purpose — fixing AV sync, freeze frames, and audio loudness — is wholly unaddressed by the submitted code. The only evidence of the problem domain is in documentation (`PIPELINE_LESSONS.md`), not in any executable fix.
+### U-2: Race Conditions on Shared JSON State Files
+- **Files:** `.github/workflows/heartbeat.yml`, `.github/workflows/pipeline_gate.yml`
+- **What it is:** Multiple CI jobs read and write `throughput.json`, `best_grade.json`, and `AUDIT_REGISTRY.json` with no file locking. Concurrent pipeline runs will produce partial reads, JSON parse failures, or silently corrupt state.
+- **What to change:** Use atomic writes (write to `.tmp` file, then `os.replace()` / POSIX `rename()` which is atomic). For reads inside CI shell scripts, wrap with `flock -x` or use a Python context manager with `fcntl.flock`. This eliminates the TOCTOU window entirely.
 
-**Evidence:** `PIPELINE_LESSONS.md` throughout; referenced files `smart_render_loop.py` and audio normalization scripts are not present in the diff.
+### U-3: Silent Blueprint Registration Failures in `app.py`
+- **File:** `app.py`, lines 340–474
+- **What it is:** Every blueprint registration is wrapped in a `try/except` that logs a critical/warning but allows the server to continue starting. A missing or broken blueprint means the application runs in a permanently degraded state with no external failure signal.
+- **What to change:** In non-debug mode (`app.config['DEBUG'] is False`), re-raise blueprint registration exceptions as fatal errors. The server must refuse to start rather than serve a crippled application. Pattern: catch the exception, log it, then `sys.exit(1)` or re-raise.
 
-**What to change:** The actual render loop, audio limiter, AV sync validation, and post-render forensics scripts must be committed to this branch and submitted for audit before any further review is meaningful. This is a prerequisite, not a recommendation.
-
----
-
-### U2 — Dual Application Entry Points (Critical Architectural Flaw)
-**What it is:** Two Flask application factory files coexist: `app.py` (root) and `core/app.py`. They diverge on security, logging, database initialization, and application logic. Depending on WSGI server configuration, the application can behave as two completely different systems.
-
-**Specific divergences:**
-
-| Concern | `app.py` (root) | `core/app.py` |
-|---|---|---|
-| Secret key | Loaded from env, safe fallback | Hardcoded dev string (line 39) |
-| Logging | Configured for production | DEBUG level enabled (line 25) |
-| DB URL | Robust parsing, strips bad params | Appends `charset=utf8mb4` to SQLite URLs (line 46), breaking them |
-| Ad injection caching | Uses `g` object, cached per-request (line 181) | Re-queries DB on every request (line 97) |
-| Security headers | Full suite: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, caching strategy (line 138) | Minimal static cache headers only (line 83) |
-
-**What to change:** Delete `core/app.py`. Promote `app.py` (root) as the single application factory. Migrate any unique blueprint registrations from `core/app.py` into `app.py`. Update all imports, WSGI configs, and deployment scripts to reference only `app:app`.
-
----
-
-### U3 — Pipeline Law Violation: Audio Clipping (True Peak)
-**What it is:** Every measured iteration in `PIPELINE_LESSONS.md` reports a true peak output of `+0.4 dBTP`. The governing law (`PIPELINE_LAWS.md:23`) mandates a ceiling of `≤ -2.0 dBTP` (Gemini surfaced the updated spec; prior consensus used `-1.0 dBTP` — see Unique Insights U3 below). The violation magnitude is at least 2.4 dB and possibly 3.4 dB depending on which spec version applies. No limiter is applied in the pipeline.
-
-**File/Line:** `PIPELINE_LAWS.md:23`; audio render script (not submitted).
-
-**What to change:** Implement a true peak limiter (e.g., `ffmpeg`'s `alimiter` filter with `limit=-2.0dBTP` or `loudnorm` with `tp=-2.0`) in the audio render stage. Add a post-render `ffmpeg -af ebur128` verification step that fails the build if true peak exceeds the threshold.
-
----
-
-### U4 — Pipeline Law Violation: Freeze Frames and AV Sync Failures
-**What it is:** `PIPELINE_LESSONS.md` consistently reports 11–15 multi-second freeze frames per render across every iteration. This is not an intermittent bug — it is a systematic failure of the assembly pipeline. The feature branch was created to fix this. No fix has been committed.
-
-**File/Line:** `PIPELINE_LESSONS.md` (iterations 1–N); `PIPELINE_LAWS.md` Law 3.
-
-**What to change:** Implement pre-assembly raw clip validation using `ffprobe` to check each source clip for: (a) audio stream presence, (b) video stream continuity, (c) matching sample rates and frame rates. Reject and log any clip that fails validation before passing to the assembler.
-
----
-
-### U5 — N+1 Query Problems
-**What it is:** Two independent N+1 database query patterns identified:
-1. `core/app.py:97` — `inject_ads` filter re-queries all active ads on every request, vs. the correctly cached version in `app.py:181` which stores results in the `g` object.
-2. `core/blueprints/affiliates.py:176–180` — Admin dashboard executes unbatched raw SQL queries for each partner record without joins or caching.
-
-**What to change:**
-- For (1): Resolved by eliminating `core/app.py` per U2. Verify `app.py:181` caching pattern is preserved in the consolidated factory.
-- For (2): Refactor to a single JOIN query or use SQLAlchemy's `joinedload`/`subqueryload` to batch-fetch related partner data.
+### U-4: Hardcoded Absolute Path for Static Asset Serving
+- **File:** `app.py`, lines 536–566 (`_serve_asset`, `_serve_v3`)
+- **What it is:** The path `/home/ultron/protocol_pulse/static` is hardcoded. Any deployment to a different host, container, or CI environment will produce immediate 404/403 errors on all static assets.
+- **What to change:** Replace with `os.path.join(app.root_path, 'static')` or derive from an environment variable `STATIC_ROOT`. Add a startup assertion that this path exists and is readable.
 
 ---
 
 ## MAJORITY FINDINGS
-*(2 of 2 models agree — implement unless there is a compelling reason not to)*
+*(2 of 2 models agree — implement unless compelling reason not to)*
 
-> Since only 2 models contributed, all findings with dual agreement have been promoted to Unanimous. There are no findings in the "majority but not unanimous" tier this cycle.
+All four unanimous findings above are also majority findings by definition with only two models. The following are additional issues where both models provided supporting signal (one explicitly, one via implication):
+
+### M-1: Incorrect Jinja `ChoiceLoader` Template Paths
+- **File:** `app.py`, lines 53–59
+- **What it is:** The `ChoiceLoader` resolves to `core/templates` and `core/core/templates` (since `app.py` lives in `core/`). The comment on line 52 describes the intent as `templates/` (project root) and `core/templates/`. The second path is almost certainly non-existent, making template fallback silently broken.
+- **What to change:** Anchor both loaders to the **project root**, not `__file__`. Use `Path(__file__).resolve().parent.parent / "templates"` for the root loader and `Path(__file__).resolve().parent / "templates"` for the core loader. Verify both directories exist at startup.
+
+### M-2: `pip install` with `|| true` Masking CI Failures
+- **File:** `.github/workflows/pipeline_gate.yml`, line 46
+- **What it is:** `pip install pyyaml requests 2>/dev/null || true` will silently succeed even if the install fails. Subsequent steps will produce confusing `ModuleNotFoundError` failures with no clear root cause.
+- **What to change:** Remove `|| true`. Let `pip install` fail loudly. If transient network issues are a concern, use `pip install --retry 3` instead of swallowing the error.
 
 ---
 
 ## UNIQUE INSIGHTS
-*(Single-model observations — evaluated individually)*
+*(Only one model caught this — evaluated individually)*
 
----
+### UI-1: Directly Contradictory Laws in `PIPELINE_LAWS.md` — **IMPLEMENT (P0)**
+- **Source:** Gemini only
+- **File:** `PIPELINE_LAWS.md`, lines 32, 104, 270
+- **What it is:** The document simultaneously mandates `DUAL HOST RESTORED — both voices MUST render in every episode` (line 32) and `LAW: SOLO HOST - PBX only — no dual host in current pipeline` (line 104) and `LAW G-4: PBX IS THE SOLE HOST` (line 270). These are mutually exclusive. No engineer can comply with this document.
+- **Assessment: IMPLEMENT.** This is arguably the highest-severity finding in the entire audit. A contradictory law document is worse than no document — it actively causes bugs by making compliance impossible. Deprecated laws must be struck through or moved to an `ARCHIVE` section with a dated note. The current authoritative law must be unambiguous. Resolution: mark lines 32's dual-host mandate as `[DEPRECATED 2026-03-10 — superseded by G-4]` and confirm with the team which state is correct.
 
-### UI1 — Hardcoded Absolute Path in Asset-Serving Routes *(Gemini only)*
-**Finding:** `app.py` lines 420 and 432 hardcode `/home/ultron/protocol_pulse/static` as the base path for `_serve_asset` and `_serve_v3` routes.
+### UI-2: `PIPELINE_LESSONS.md` Shows Non-Converging Failure Loop — **INVESTIGATE**
+- **Source:** Gemini only
+- **What it is:** The lessons log repeats identical failures across dozens of iterations (TTS failures, freeze frames, audio true-peak violations) with no evidence of the `render_improvement_loop.py` actually resolving them. The "10-CONSECUTIVE-A CONVERGENCE" law is described but never achieved.
+- **Assessment: INVESTIGATE.** This is a process-level red flag, not a code bug. It suggests either the improvement loop is not running, its fixes are not being committed, or the convergence criteria are unreachable. Before this branch merges, audit whether `render_improvement_loop.py` is actually executing and producing durable fixes. If not, the entire feedback loop is broken and no amount of CI gates will produce quality output.
 
-**Assessment: IMPLEMENT.** This is a high-confidence finding. Hardcoded absolute paths are a textbook fragility — they break in Docker, CI/CD, staging, any developer's local machine, and any future server migration. Replace with `os.path.join(current_app.root_path, 'static', fn)` or a configurable `STATIC_ASSET_PATH` environment variable. Additionally, this pattern needs path traversal sanitization (see UI2 below).
+### UI-3: Missing Audio Sampling Rate Validation (44100 Hz regression risk) — **IMPLEMENT (P1)**
+- **Source:** Grok only
+- **File:** Preflight section of `daily_producer.py` / `PIPELINE_LAWS.md:96-100`
+- **What it is:** Past incidents show audio reverting to 44100 Hz from the mandated 48000 Hz, causing AV sync issues. No explicit preflight check enforces the sampling rate before render begins.
+- **Assessment: IMPLEMENT.** Given that this is the `video-audio-fix` branch — whose entire purpose is to fix audio-visual issues — the absence of a sampling-rate assertion is a direct gap in the feature's own scope. Add `ffprobe`-based sampling rate validation to the preflight checklist and fail the pipeline if any audio asset is not 48000 Hz.
 
----
+### UI-4: No Timeout Retry/Graceful Degradation for FFmpeg Operations — **IMPLEMENT (P1)**
+- **Source:** Grok only
+- **What it is:** Timeout values are defined (300s filtergraph, 600s concatenation) but there is no retry logic or graceful degradation when timeouts are hit. A timeout silently produces an incomplete render.
+- **Assessment: IMPLEMENT.** Silent degradation on timeout is exactly the class of bug this branch claims to fix. Add: (1) a retry with backoff (max 2 retries), (2) a hard failure with `sys.exit(1)` if all retries are exhausted, (3) a post-timeout `ffprobe` check to confirm output file duration matches expected duration.
 
-### UI2 — Asset Route Path Traversal Risk *(Grok only, but reinforces UI1)*
-**Finding:** `/a/<path:fn>` and `/v3/<path:fn>` in `app.py:417–438` serve files using only `os.path.exists()` without validating that the resolved path stays within the intended static directory. A crafted request like `/a/../../../etc/passwd` could escape the static root.
+### UI-5: Missing Audio Bitrate Enforcement Post-Render — **IMPLEMENT (P1)**
+- **Source:** Grok only
+- **File:** `gemini_grade.py` / post-render validation
+- **What it is:** `PIPELINE_LAWS.md` mandates 192k audio bitrate, but there is no evidence of post-render validation or CI enforcement of this constraint.
+- **Assessment: IMPLEMENT.** Add `ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate` to the post-render forensic check and fail grading if bitrate falls below 192k.
 
-**Assessment: IMPLEMENT.** This is a legitimate security vulnerability. The fix is to resolve the final path with `os.path.realpath()` and assert it starts with `os.path.realpath(static_base)` before serving. Combine the fix with UI1 when resolving.
+### UI-6: N+1 Query in `inject_ads` Template Filter — **IMPLEMENT (P2)**
+- **Source:** Grok / GPT-4o Cycle 1
+- **File:** `app.py`, lines 209–233
+- **What it is:** `inject_ads` queries `Advertisement` models on every invocation without caching. If called in a template loop, this produces O(n) database queries.
+- **Assessment: IMPLEMENT (P2).** Add a `functools.lru_cache` with a short TTL or a request-scoped cache (e.g., `flask.g`) to memoize the ad query within a single request lifecycle. Not blocking for merge, but a real performance risk under load.
 
-```python
-# Recommended pattern
-safe_base = os.path.realpath(os.path.join(current_app.root_path, 'static'))
-requested = os.path.realpath(os.path.join(safe_base, fn))
-if not requested.startswith(safe_base + os.sep):
-    abort(403)
-```
-
----
-
-### UI3 — Divergent True Peak Law Specification *(Gemini only)*
-**Finding:** `PIPELINE_LAWS.md:23` was updated to mandate `≤ -2.0 dBTP`. The Cycle 1 consensus and Grok's analysis operated against an older implied target of `-1.0 dBTP`. The pipeline's actual output of `+0.4 dBTP` violates both, but the stricter current law must govern.
-
-**Assessment: IMPLEMENT (documentation alignment).** Audit all internal documentation, comments, and CI/CD validation scripts to use `-2.0 dBTP` as the authoritative ceiling. The audio limiter fix (U3) must target the current spec, not the historical one. The fact that the spec itself drifted without updating all references is itself a process failure worth flagging.
-
----
-
-### UI4 — Inconsistent Blueprint Registration with Silent Failures *(Grok only)*
-**Finding:** `app.py:287–402` registers blueprints inside `try/except` blocks that log failures but allow the application to start. Critical features (e.g., terminal API) can silently become unavailable in production with no alerting.
-
-**Assessment: IMPLEMENT.** At minimum, failed blueprint registrations during startup should be treated as fatal errors (re-raise the exception) unless the blueprint is explicitly flagged as optional. Add a startup health check endpoint that enumerates registered blueprints so monitoring can detect partial initialization.
-
----
-
-### UI5 — Watchdog Subprocess Timeout Absence *(Grok only)*
-**Finding:** `cc_watchdog.py` calls `subprocess.run()` for `tmux capture-pane` (lines 47–48) without a `timeout` parameter. A hung `tmux` session causes the watchdog itself to stall indefinitely.
-
-**Assessment: IMPLEMENT.** Add `timeout=10` (or an environment-configurable value) to all `subprocess.run()` calls in the watchdog, with a `subprocess.TimeoutExpired` handler that logs the timeout and continues the monitoring loop.
-
----
-
-### UI6 — Watchdog File Write Race Condition *(Gemini Cycle 1, Grok Cycle 2)*
-**Finding:** `cc_watchdog.py:147` appends to `PIPELINE_LESSONS.md` without a file lock. Concurrent watchdog instances could produce interleaved writes.
-
-**Assessment: INVESTIGATE FURTHER.** The watchdog is likely designed to run as a single instance, making this a low-probability event. However, the fix is trivial (`fcntl.flock` or Python's `filelock` library) and the downside of corrupted documentation logs is disproportionate to the effort. Implement the lock.
+### UI-7: CSRF Token Race Condition (`app.py:159-165`) — **SKIP / LOW PRIORITY**
+- **Source:** Grok / GPT-4o Cycle 1
+- **What it is:** Simultaneous requests before session update could produce inconsistent CSRF tokens.
+- **Assessment: SKIP for now.** Flask's session mechanism is inherently request-scoped (each request gets its own session context). A true race here requires the same session cookie to be used by two concurrent requests, which is an edge case in normal usage. Flask-WTF handles CSRF rotation safely. Flag for future review if session concurrency becomes a pattern, but do not block merge on this.
 
 ---
 
 ## CONFLICTS
-*(Models gave contradictory signals — editorial tiebreaker applied)*
+*(Models gave different recommendations — tiebreaker applied)*
 
-There are no hard contradictions between Grok and Gemini this cycle. The models converge on all major findings and differ only in emphasis and granularity. The only resolvable tension is in scoring: Grok scored Security at 4/10 while Gemini did not provide an explicit security score. Given the path traversal finding (UI2) and the hardcoded secret key in `core/app.py:39` (unanimously flagged), the consensus security score is set at 3/10 — lower than Grok's assessment to account for Gemini's implicit severity weighting of the architectural flaws.
+### C-1: Overall Severity Assessment
+- **Gemini:** 2/10 overall. The project has the *illusion* of discipline but not the execution. The law document is incoherent. This is process theater.
+- **Grok:** 5/10 overall. Significant issues but fixable; no major auth bypass or injection vulnerabilities.
+- **Tiebreaker: Gemini is correct.** Grok's Cycle 2 output acknowledges it was working from an incomplete Cycle 1 baseline and defers heavily to Gemini's findings. The internally contradictory law document (UI-1) is not a minor issue — it is a root cause that will regenerate bugs indefinitely. A codebase governed by a self-contradictory specification cannot be considered 5/10. **Consensus: 3/10 overall.**
+
+### C-2: `SESSION_SECRET` RuntimeError on Missing Config
+- **Grok:** Disagrees this is a problem — raising `RuntimeError` is correct security behavior.
+- **GPT-4o (C1):** Flagged as an edge case that doesn't handle misconfigured environments gracefully.
+- **Tiebreaker: Grok is correct.** Failing fast on a missing `SESSION_SECRET` is exactly correct behavior. Security > deployment convenience. This is not a bug; it is a feature. **Do not change this.**
+
+### C-3: Law Compliance Score
+- **Gemini:** 1/10 — catastrophic, gate doesn't run tests, laws are contradictory.
+- **Grok:** 5/10 — partial compliance with audio targets per documentation.
+- **Tiebreaker: Gemini is correct.** A CI gate that skips the mandated regression test is a 0% compliance score on the most critical law. The law document being internally contradictory makes compliance *logically impossible*. Grok's score of 5/10 reflects the documentation describing compliance, not the code achieving it. **Consensus: 2/10** (one point above Gemini's floor because some laws — e.g., ffprobe forensics being defined — show intent even if execution is incomplete).
 
 ---
 
 ## VALIDATED STRENGTHS
-*(Both models confirmed these are already well-implemented — do NOT change)*
+*(Both models confirmed — do NOT change in second pass)*
 
-> **Honest assessment:** Neither model identified substantive areas of genuine excellence in this branch. The following represent the *least problematic* elements, not celebrated strengths.
+### VS-1: `SESSION_SECRET` Security Enforcement
+Both models (Grok explicitly, Gemini implicitly by not flagging it) confirm that raising `RuntimeError` when `SESSION_SECRET` is absent in non-debug mode is correct and should not be changed.
 
-- **Root `app.py` Secret Key Handling (lines 46–51):** Both models acknowledged this is the correct implementation — loads from environment with a safe fallback. Preserve this pattern when consolidating entry points.
-- **Root `app.py` Security Headers (`add_headers`, line 138):** The comprehensive security header suite in the root `app.py` is correctly implemented. This is the version that must be preserved in the consolidated factory.
-- **Root `app.py` Ad Injection Caching (`g` object, line 181):** Correctly uses the Flask request context to cache per-request database lookups. Preserve this pattern.
+### VS-2: Timeout Values Are Defined
+Both models acknowledge that timeout constants exist (300s, 600s). The gap is in enforcement, not in the values themselves. Do not change the timeout constants — add retry logic around them.
 
-> **Note:** The absence of genuine "world-class" validated strengths is itself a finding. This codebase does not have sections that both models praised without reservation.
+### VS-3: Structured Forensic Logging Intent
+The intent to run `ffprobe`, `blackdetect`, `silencedetect`, and `ebur128` post-render is correct and well-structured. The issue is enforcement in CI, not the design of the checks themselves.
+
+### VS-4: `AUDIT_REGISTRY.json` Existence Check
+The concept of maintaining an audit registry and checking for its existence in CI is sound practice. The problem is race conditions in access, not the registry's existence.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-| Law | Status | Evidence |
-|---|---|---|
-| Audio True Peak ≤ -2.0 dBTP | 🔴 **VIOLATED** | Every iteration in `PIPELINE_LESSONS.md` reports +0.4 dBTP |
-| Audio Loudness -14 LUFS | 🔴 **UNVERIFIED** | No measurement code present; no compliant output confirmed |
-| AV Sync Check Before Assembler | 🔴 **VIOLATED** | No pre-assembly validation exists; 11–15 freeze frames per render |
-| Post-render forensics (ffprobe, blackdetect, silencedetect, ebur128) | 🔴 **VIOLATED** | Not implemented; `PIPELINE_LESSONS.md` shows failures that would have been caught by forensics |
-| No hardcoded secrets | 🔴 **VIOLATED** | `core/app.py:39` hardcodes development secret key |
-| Single application entry point | 🔴 **VIOLATED** | Two conflicting factories exist |
+| Law | Status | Finding |
+|-----|--------|---------|
+| Never skip `regression_test.sh` — zero FAILs before commit | ❌ **VIOLATED** | `pipeline_gate.yml` does not execute `regression_test.sh` at all |
+| Always run auto-forensic after render: ffprobe, blackdetect, silencedetect, ebur128 | ⚠️ **PARTIAL** | Defined in code but not enforced as CI gate failure condition |
+| Audio true peak ≤ -2.0 dBTP (or -1 dBTP per spec) | ❌ **AMBIGUOUS/VIOLATED** | Law document contains contradictory thresholds (-1 dBTP vs ≤ -2.0 dBTP); no post-render enforcement in CI |
+| Audio bitrate 192k | ⚠️ **UNVERIFIED** | No post-render bitrate check in grading scripts |
+| Audio sampling rate 48000 Hz | ⚠️ **UNVERIFIED** | No preflight enforcement; historical regressions to 44100 Hz documented |
+| DUAL HOST — both voices MUST render | ❌ **CONTRADICTED** | Directly contradicted by SOLO HOST laws on lines 104 and 270 of same document |
+| PBX IS THE SOLE HOST (G-4) | ❌ **CONTRADICTED** | Directly contradicted by line 32 of same document |
+| 10-CONSECUTIVE-A CONVERGENCE | ❌ **NOT ACHIEVED** | Lessons log shows repeating identical failures with no convergence |
 
-**Final Determination:** The branch is in comprehensive violation of both pipeline production laws and basic application security laws. No law was found to be in full, verified compliance.
+**Final determination:** Law compliance is **critically deficient**. The CI gate is non-functional as a quality enforcer. The law document itself is incoherent. Before any other fix, the law document must be reconciled and the CI gate must actually run the mandated tests.
 
 ---
 
 ## SECURITY CONSENSUS
 
-Ranked by severity:
+Both models (Grok explicitly scoring 7/10, Gemini implicitly by not flagging injection or auth bypass) agree there are **no critical auth or injection vulnerabilities** in the reviewed surface. The security concerns are operational, not adversarial:
 
-| Priority | Issue | File:Line | Severity |
-|---|---|---|---|
-| 1 | Hardcoded secret key in `core/app.py` | `core/app.py:39` | **Critical** — enables session forgery if this entry point is used |
-| 2 | Path traversal in asset-serving routes | `app.py:417–438` | **High** — potential arbitrary file read |
-| 3 | Missing security headers when `core/app.py` is the active factory | `core/app.py:83` | **High** — XSS, clickjacking, MIME sniffing exposure |
-| 4 | DEBUG logging enabled in production via `core/app.py` | `core/app.py:25` | **Medium** — stack traces and internal state exposed in logs/responses |
-| 5 | No CSRF locking under high concurrency | `app.py:127–128` | **Low** — theoretical; Flask session storage is generally thread-safe with proper config |
+| Priority | Issue | File |
+|----------|-------|------|
+| **P1** | Hardcoded absolute path `/home/ultron/...` leaks deployment topology and breaks portability | `app.py:536-566` |
+| **P1** | Silent blueprint failures mean the app can serve requests on broken, potentially insecure routes | `app.py:340-474` |
+| **P2** | Shared JSON state files writable by CI without locking — not an injection risk but a data integrity risk | `heartbeat.yml`, `pipeline_gate.yml` |
+| **P3** | CSRF token edge case under extreme concurrency — theoretical, not currently exploitable | `app.py:159-165` |
+
+No SQL injection, no authentication bypass, no secrets in source were flagged by either model. Security posture is the **strongest area** of this codebase.
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
-*(Items mentioned by 2+ models as missing from a truly world-class implementation)*
+*(Only items 2+ models mentioned)*
 
-1. **Automated pipeline compliance enforcement** *(both models)*: A world-class video pipeline does not rely on post-hoc documentation of failures in `PIPELINE_LESSONS.md`. It has CI/CD gates that run `ffprobe` + `ebur128` + `blackdetect` + `silencedetect` on every render output and fail the build if any threshold is violated. The current system has humans reading logs and manually noting the same failures across a dozen iterations.
+### WCG-1: The CI Gate Is Decorative, Not Functional
+Both models flagged this. A world-class pipeline has CI gates that actually run the test suite. This codebase has CI gates that check if a JSON file exists. The gap between what the documentation *describes* and what the code *does* is the defining quality problem of this branch.
 
-2. **Observable, testable audio/video processing** *(both models)*: The core pipeline code is entirely absent from version control review. A world-class system has unit-testable audio processing functions, regression fixtures (known-good input → known-good output), and integration tests that run the full render pipeline against synthetic clips. None of this infrastructure exists or was submitted.
+### WCG-2: No Atomic State Management for Pipeline Artifacts
+Both models flagged race conditions on shared JSON files. A world-class pipeline uses atomic writes (write-then-rename) and read locks. The current approach will produce non-deterministic failures at scale.
 
-3. **Single, authoritative application factory** *(both models)*: A world-class Flask application has one `create_app()` factory, one configuration hierarchy (base → development → production), and zero ambiguity about which code runs in which environment. The dual-entry-point architecture is the antithesis of this.
+### WCG-3: Application Fails Open Instead of Fast
+Both models flagged silent blueprint failures. A world-class production application fails immediately and loudly on startup misconfiguration. The current design fails silently and serves a degraded experience indefinitely.
 
-4. **Proactive forensics, not reactive documentation** *(both models)*: `PIPELINE_LESSONS.md` is a forensic diary of failures. A world-class system turns every entry in that document into a regression test so the failure cannot recur silently. The lessons are being learned and written down but not encoded into automated prevention.
+### WCG-4: Audio Quality Laws Are Unenforced at the Gate
+Both models (Grok explicitly on sampling rate and bitrate; Gemini on true-peak ambiguity) flagged that audio quality laws exist in documentation but are not enforced by the CI gate. A world-class audio pipeline validates every quality constraint — sampling rate, bitrate, true peak — as a hard gate before any artifact is accepted.
 
 ---
 
 ## FINAL ACTION PLAN
 
 | Priority | Change | File:Line | Models | Why |
-|---|---|---|---|---|
-| **P0 CRITICAL** | Submit actual video/audio fix code (render loop, audio limiter, AV sync validator) for audit | Not yet committed | Both | The branch cannot be reviewed or shipped without its core purpose present |
-| **P0 CRITICAL** | Eliminate `core/app.py`; consolidate into root `app.py` as sole factory | `core/app.py`, `app.py` | Both | Hardcoded secret, DEBUG logging, broken DB URL, missing security headers — all from this file |
-| **P0 CRITICAL** | Implement true peak limiter targeting ≤ -2.0 dBTP in audio render stage | Audio render script (not submitted); `PIPELINE_LAWS.md:23` | Both | Every iteration violates this law; current output is +0.4 dBTP |
-| **P0 CRITICAL** | Implement pre-assembly clip validation with `ffprobe` (audio stream, continuity, sample rate, frame rate) | Render pipeline (not submitted); `PIPELINE_LAWS.md` Law 3 | Both | 11–15 freeze frames per render; systematic failure, not edge case |
-| **P0 CRITICAL** | Add post-render forensics gate (`ffprobe`, `blackdetect`, `silencedetect`, `ebur128`) that fails build on violation | Render pipeline (not submitted) | Both | Required by law; currently not implemented; would catch all recurring failures automatically |
-| **P0 CRITICAL** | Fix path traversal vulnerability in asset-serving routes with `realpath` boundary check | `app.py:417–438` | Both (Grok direct, Gemini via UI1) | Potential arbitrary file read; trivial to exploit |
-| **P1 HIGH** | Replace hardcoded `/home/ultron/protocol_pulse/static` with `current_app.root_path`-relative path | `app.py:420, 432` | Gemini | Breaks in every environment except one specific server; must be resolved before containerization |
-| **P1 HIGH** | Fix N+1 in `inject_ads` — ensure `g`-cached version from `app.py:181` is the only implementation after factory consolidation | `core/app.py:97`, `app.py:181` | Both | Resolved partially by P0 factory consolidation; verify explicitly |
-| **P1 HIGH** | Refactor admin dashboard partner queries to JOIN or `joinedload` | `core/blueprints/affiliates.py:176–180` | Both | N+1 query degrades performance with any non-trivial partner count |
-| **P1 HIGH** | Make failed blueprint registrations fatal on startup; add health endpoint listing registered blueprints | `app.py:287–402` | Grok | Silent partial initialization is invisible to monitoring |
-| **P1 HIGH** | Update all internal docs, CI scripts, and validation logic to use `-2.0 dBTP` as the authoritative ceiling | `PIPELINE_LAWS.md:23`, all referencing docs | Gemini | Law updated; old spec (`-1.0 dBTP`) still in use in some references; creates compliance ambiguity |
-| **P2 MEDIUM** | Add `timeout=10` to all `subprocess.run()` calls in watchdog | `cc_watchdog.py:47–48` | Grok | Hung `tmux` stalls watchdog indefinitely; fix is one argument |
-| **P2 MEDIUM** | Add file lock (`fcntl.flock` or `filelock`) to `append_to_lessons()` | `cc_watchdog.py:147` | Both | Prevents interleaved writes on concurrent watchdog instances; trivial fix |
-| **P2 MEDIUM** | Add timeout/locking to watchdog session restart to prevent concurrent restart conflicts | `cc_watchdog.py:184–222` | Grok | Race condition if multiple watchdog instances target same session; low probability but zero-cost to fix |
+|----------|--------|-----------|--------|-----|
+| **P0 CRITICAL** | Add `bash regression_test.sh` step to CI gate; fail workflow on any non-zero exit | `pipeline_gate.yml` | Both | Core law violation; gate is non-functional without this |
+| **P0 CRITICAL** | Reconcile contradictory DUAL HOST vs SOLO HOST laws; deprecate old entries with dated notes | `PIPELINE_LAWS.md:32,104,270` | Gemini (unique but P0) | Self-contradictory spec makes correct implementation impossible |
+| **P0 CRITICAL** | Add true-peak threshold reconciliation — resolve `-1 dBTP` vs `≤ -2.0 dBTP` conflict | `PIPELINE_LAWS.md` | Gemini | Ambiguous spec ships non-compliant audio silently |
+| **P1 HIGH** | Replace hardcoded `/home/ultron/protocol_pulse/static` with `os.path.join(app.root_path, 'static')` | `app.py:536-566` | Both | Breaks on any non-Ultron deployment immediately |
+| **P1 HIGH** | Fix `ChoiceLoader` paths to anchor at project root, not `core/` directory | `app.py:53-59` | Both | Template resolution fails for project-root templates; `core/core/templates` is non-existent |
+| **P1 HIGH** | In non-debug mode: convert blueprint `try/except` to `sys.exit(1)` on failure | `app.py:340-474` | Both | Application must not serve requests in partially broken state |
+| **P1 HIGH** | Use atomic writes (`write to .tmp → os.replace()`) for all shared JSON state files | `heartbeat.yml`, `pipeline_gate.yml` | Both | Eliminates race condition on concurrent CI runs |
+| **P1 HIGH** | Add `flock` or equivalent read lock when CI reads shared JSON state files | `heartbeat.yml`, `pipeline_gate.yml` | Both | Prevents partial-read JSON parse failures |
+| **P1 HIGH** | Add preflight `ffprobe` sampling-rate assertion (must be 48000 Hz) before render begins | `daily_producer.py` preflight | Grok (unique, in-scope for branch) | This branch exists to fix AV sync; missing this is a direct gap |
+| **P1 HIGH** | Add post-render `ffprobe` bitrate check (must be ≥ 192k); fail grading if not met | `gemini_grade.py` / post-render | Grok (unique, in-scope) | Mandated by law; currently unverified |
+| **P1 HIGH** | Add FFmpeg timeout retry logic (max 2 retries with backoff) + hard exit on exhaustion | `daily_producer.py` FFmpeg calls | Grok (unique, in-scope) | Silent timeout = silent broken audio output |
+| **P1 HIGH** | Investigate `render_improvement_loop.py` — confirm it is executing and producing durable fixes | `render_improvement_loop.py` | Gemini (unique) | Lessons log shows repeating identical failures; loop may not be running |
+| **P2 MEDIUM** | Remove `|| true` from `pip install` in CI gate; let failures propagate | `pipeline_gate.yml:46` | Gemini | Masks dependency install failures, causes confusing downstream errors |
+| **P2 MEDIUM** | Add request-scoped cache (`flask.g`) to `inject_ads` to prevent N+1 queries | `app.py:209-233` | Grok/GPT-4o C1 | Performance risk under load; not merge-blocking but real |
+| **P2 MEDIUM** | Add startup assertion that static path exists and is readable | `app.py` startup | Both (implied) | Catches misconfiguration at boot rather than at first request |
 
 ---
 
 ## CYCLE 2 VERDICT
 
-**NOT production-ready. Hard blockers remain.**
+**This code is NOT production-ready.**
 
-After two full cycles of review across 2 active models (GPT-4o failed), the verdict is unambiguous:
+After two full cycles of multi-model review, the verdict is unambiguous. The blockers fall into two categories:
 
-**The `feature/video-audio-fix` branch does not contain the fix it was created to deliver.** The branch name is `video-audio-fix`. No video or audio processing code was committed. The pipeline has been producing systematically broken output — `+0.4 dBTP` true peaks, 11–15 freeze frames, silent gaps — across every documented iteration. None of these failures are addressed by the submitted code.
+**Category A — The Gate Doesn't Work:**
+The single most important finding in this entire audit is that `pipeline_gate.yml` does not run `regression_test.sh`. Every other quality guarantee — the law document, the audit registry, the grading system — depends on the assumption that the regression test was run and passed. It was not. This means every commit on this branch has been merged through a gate that was, by design, incapable of catching regressions. This is not a configuration mistake; it is a systemic process failure.
 
-Additionally, the submitted code introduces a critical architectural regression in the form of two conflicting application factories with divergent security postures, one of which has a hardcoded secret key and production-level DEBUG logging enabled.
+**Category B — The Laws Are Self-Contradictory:**
+The governing document (`PIPELINE_LAWS.md`) simultaneously mandates dual-host and solo-host rendering. No implementation can comply with both. Until the law document is reconciled, any implementation is wrong by definition. This is the root cause of the repeating failure loops documented in `PIPELINE_LESSONS.md`.
 
-**Absolute final blockers:**
-1. The core feature code must be written and committed.
-2. `core/app.py` must be eliminated before any deployment.
-3. The audio pipeline must enforce the true peak law before any video is published.
-
-The codebase as submitted scores **2/10 overall**. The path to production requires completing the feature that the branch was created to implement.
-
----
-
-## SECOND PASS PROMPT
-
-```
-Read ~/protocol_pulse/docs/gospels/VIDEO_AUDIO_FIX_GOSPEL.md.
-Read ~/protocol_pulse/docs/audits/video-audio-fix_CONSENSUS_C2.md.
-
-This is the FINAL PASS for video-audio-fix.
-The branch was reviewed by 2 independent AI models (GPT-4o quota-failed) across 2 cycles.
-Implement every P0 and P1 item from the consensus. Use judgment on P2.
-
-PRIORITY ACTION PLAN:
-
-P0 CRITICAL | Submit and implement actual video/audio fix code (render loop, audio limiter w/ ≤-2.0dBTP true peak limiter, AV sync validator using ffprobe) | smart_render_loop.py + audio processing scripts | models: both | Core purpose of branch; not yet committed
-P0 CRITICAL | Eliminate core/app.py entirely; consolidate into app.py as sole Flask factory | core/app.py, app.py | models: both | Hardcoded secret (line 39), DEBUG logging (line 25), broken SQLite charset append (line 46), missing security headers (line 83)
-P0 CRITICAL | Implement true peak limiter at ≤ -2.0 dBTP in audio render stage + ebur128 post-render gate that fails build on violation | audio render script | models: both | Every iteration outputs +0.4 dBTP; violates PIPELINE_LAWS.md:23
-P0 CRITICAL | Implement pre-assembly clip validation: ffprobe each source clip for audio stream presence, video continuity, sample/frame rate match; reject failing clips before assembler | render pipeline | models: both | 11–15 freeze frames per render; systematic failure; violates PIPELINE_LAWS.md Law 3
-P0 CRITICAL | Add post-render forensics gate: ffprobe + blackdetect + silencedetect + ebur128; fail build if any threshold violated | render pipeline | models: both | Required by PIPELINE_LAWS.md; not implemented; would auto-catch all recurring failures
-P0 CRITICAL | Fix path traversal vulnerability: replace os.path.exists() gate with os.path.realpath() boundary assertion in _serve_asset and _serve_v3 | app.py:417-438
+**Absolute final blockers before merge:**
+1. `pipeline_gate.yml` must execute `regression_test.sh` and produce zero FAILs.
+2. `PIPELINE_LAWS.md` must resolve the
 
 ---
 
 # WINNER DETERMINATION
 
-# META-AUDIT DETERMINATION
-
-## WINNER: **Gemini**
-
-Gemini delivered the highest-quality analysis across both cycles by being the first and most precise identifier of the P0-level dual application entry point flaw — a finding so structurally significant that both Grok and GPT-4o (Cycle 1 partial) acknowledged missing it entirely in their Cycle 2 self-corrections. Gemini's findings proved most accurate in Cycle 2 validation, demonstrated superior depth by connecting individual file-level observations into a systemic architectural diagnosis, and produced the most actionable specifics (exact line numbers, exact divergences between `app.py` and `core/app.py` including the hardcoded secret key at line 39, the SQLite charset bug at line 46, and the N+1 `inject_ads` query at line 97), while maintaining thorough coverage across correctness, security, and backend quality simultaneously.
+## WINNER: Gemini — Gemini delivered the most rigorous, accurate, and deeply traced analysis across both cycles, correctly identifying the P0 CI theater issue, the subtle `core/core/templates` path bug, the race condition on shared JSON state files, and the silent blueprint failure pattern — all of which were validated as real by Cycle 2 consensus. Its Cycle 2 self-audit was also the most intellectually honest and structurally complete, explicitly acknowledging its own gaps while adding net-new depth rather than restating prior findings.
 
 ---
 
-# FINAL SECOND-PASS PRIORITY LIST
-*Definitive ordered implementation sequence — based on 2-cycle cross-model consensus, severity weighting, and dependency ordering*
+## FINAL SECOND-PASS PRIORITY LIST
 
----
+**P0 — Merge Blocker**
 
-## P0 — SHIP-BLOCKING (Fix Before Any Merge)
+1. **Add `regression_test.sh` execution to `pipeline_gate.yml`** — The CI gate is process theater. Insert a mandatory, non-skippable `bash regression_test.sh` step that fails the workflow on any non-zero exit code. Nothing ships until this passes. *(Unanimous: Gemini + Grok)*
 
-### P0-1 — Eliminate Dual Application Entry Points
-**Finding source:** Gemini (Cycle 1, confirmed by Grok Cycle 2 self-correction)
-**Consensus level:** Unanimous
-**Action:**
-- Designate `app.py` (root) as the single canonical application factory — it has safer secret key handling, correct logging configuration, and proper SQLite URL parsing
-- Delete or fully deprecate `core/app.py`
-- Audit all WSGI configurations, Docker entrypoints, CI scripts, and deployment manifests to ensure zero references to `core.app` or `core:app` remain
-- Run a grep across the entire repo: `grep -r "core.app\|core:app\|from core import app" .`
-- Verification gate: only one import path to the Flask app instance should exist post-fix
+**P1 — Must Fix Before Production**
 
-**Why first:** Every other backend finding is rendered ambiguous until you know which app is running. Security fixes applied to the wrong factory are no-ops.
+2. **Fix Jinja `ChoiceLoader` paths in `app.py:53-59`** — Replace the erroneous `core/core/templates` path with the project-root `templates/` directory. Verify both loaders resolve correctly against the actual filesystem before merging. *(Gemini; confirmed Cycle 2)*
 
----
+3. **Replace hardcoded `/home/ultron/protocol_pulse/static` paths in `app.py:536-566`** — Substitute with an environment variable or `os.path`-relative construction anchored to the app root. The current form breaks on every deployment environment except the original dev machine. *(Grok; confirmed Cycle 2)*
 
-### P0-2 — Remove Hardcoded Development Secret Key in `core/app.py`
-**Finding source:** Gemini (Cycle 1, line 39)
-**Consensus level:** Unanimous (subcomponent of P0-1, but independently ship-blocking if `core/app.py` is ever loaded)
-**Action:**
-- Until `core/app.py` is deleted, immediately replace the hardcoded secret key with `os.environ.get('SECRET_KEY')` with a hard crash (`raise RuntimeError`) if the variable is absent
-- Rotate any session tokens or signed cookies issued while the hardcoded key was active in any environment
-- Add a pre-commit hook and CI lint rule: `grep -r "SECRET_KEY\s*=\s*['\"]" . --include="*.py"` must return zero results
+4. **Add file locking to shared JSON state reads in `heartbeat.yml` and `pipeline_gate.yml`** — Concurrent CI jobs reading `throughput.json`, `best_grade.json`, and `AUDIT_REGISTRY.json` without locking will produce flaky failures and silently corrupt state. Implement `flock` or an atomic read pattern. *(Gemini + Grok)*
 
-**Why second:** A hardcoded secret key is an active credential exposure. It lives at the intersection of P0-1 — resolving the entry point ambiguity without also rotating this key leaves the security posture unchanged.
+5. **Harden blueprint registration blocks in `app.py:340-474`** — The broad `try/except` pattern allows the application to boot in a partially broken state with no operator signal. At minimum, log a structured `CRITICAL`-level error on each caught exception and expose a `/healthz` endpoint that returns non-200 if any required blueprint failed to register. *(Gemini)*
 
----
+**P2 — Fix in Follow-On Sprint**
 
-### P0-3 — Core Feature Code Does Not Exist — Write It
-**Finding source:** Gemini + Grok (Cycle 1), confirmed unanimous
-**Consensus level:** Unanimous (U1 in final consensus report)
-**Action:**
-- Create `pipeline/smart_render_loop.py` (or equivalent path referenced in `PIPELINE_LESSONS.md`) implementing the following mandatory pipeline stages in order:
-  1. Raw clip validation — run `ffprobe` on every input before assembler contact
-  2. AV sync enforcement — detect and reject clips with sync drift above threshold
-  3. Audio normalization — target -14 LUFS integrated, -1 dBTP true peak ceiling, using `ffmpeg` `loudnorm` filter in two-pass mode
-  4. Freeze frame detection — `blackdetect` post-render, fail build if >0 freeze frames detected
-  5. Silence gap detection — `silencedetect` post-render, fail build if silence gap >500ms detected outside designated pause zones
-  6. Post-render forensics — mandatory `ebur128` report written to `/logs/render_[timestamp]_ebur128.txt`
-- Each stage must be a discrete, independently testable function
-- Write one integration test per stage that asserts failure mode behavior, not just success path
+6. **Resolve N+1 query pattern in `app.py:209-233`** — Identified by Grok; batch the database calls or introduce eager loading. Acceptable to defer only if a follow-on ticket is created and assigned before this branch merges.
 
-**Why third:** This is the stated reason the branch exists. P0-1 and P0-2 are prerequisites because the pipeline code must be attached to a stable, known application factory with a secure configuration.
+7. **Add JSON parse error handling in `heartbeat.yml` lines 16-40** — The silent fallback to `999` masks genuine filesystem or encoding failures. Wrap the parse in explicit error handling that emits a named alert rather than a numeric sentinel. *(Grok)*
 
----
-
-## P1 — CRITICAL (Fix Within This Sprint)
-
-### P1-1 — Fix SQLite Charset Mutation Bug in `core/app.py` Line 46
-**Finding source:** Gemini (Cycle 1)
-**Consensus level:** Single-model, high confidence, corroborated by structural evidence
-**Action:**
-- The pattern of string-appending `?charset=utf8mb4` to a SQLite URL is non-functional for SQLite and will corrupt the connection string in production if the database URL is ever switched to MySQL without explicit environment variable management
-- Remove the charset append from the SQLite path entirely
-- Add a database URL validation function that detects engine type from the URL scheme and applies charset parameters conditionally only for MySQL/MariaDB URLs
-- Add an assertion test: `assert "charset" not in sqlite_url`
-
----
-
-### P1-2 — Fix N+1 Query in `inject_ads` Filter (`core/app.py` line 97)
-**Finding source:** Gemini (Cycle 1)
-**Consensus level:** Single-model, confirmed by Grok Cycle 2 acknowledgment
-**Action:**
-- The `inject_ads` template filter re-queries the database on every HTTP request without caching, unlike the correctly implemented version in root `app.py`
-- Port the caching implementation from root `app.py`'s `inject_ads` directly — do not rewrite it
-- Add a request-scoped cache using Flask's `g` object: `g._ad_cache` populated on first access, reused within the same request lifecycle
-- Add a load test assertion: 100 sequential requests to any ad-injecting endpoint must produce exactly 1 database query for ads, not 100
-
----
-
-### P1-3 — Fix N+1 Query in Admin Dashboard (`core/blueprints/affiliates.py`)
-**Finding source:** Grok (Cycle 1)
-**Consensus level:** Single-model, acknowledged by Gemini Cycle 2
-**Action:**
-- Identify all ORM loops in the affiliates admin view that trigger per-row queries
-- Rewrite using `joinedload()` or `selectinload()` as appropriate for the relationship type
-- Verify with SQLAlchemy query logging enabled: `SQLALCHEMY_ECHO=True` in test environment, assert query count is O(1) not O(n) for a fixture dataset of 100 affiliates
-
----
-
-## P2 — HIGH (Fix Before Next Sprint Closes)
-
-### P2-1 — Add Locking Mechanism to `cc_watchdog.py` Concurrent Restart Logic
-**Finding source:** Grok (Cycle 1), confirmed by Gemini Cycle 2 acknowledgment
-**Consensus level:** Cross-model confirmed
-**Action:**
-- Multiple watchdog instances can simultaneously detect a dead session and attempt concurrent restarts, causing race conditions and duplicate session spawning
-- Implement a file-based or Redis-based mutex lock: acquire lock before restart attempt, release on completion or timeout
-- Add a maximum restart attempt counter per session ID with exponential backoff (suggested: 3 attempts, 2x backoff starting at 5 seconds)
-- Log all lock acquisition failures explicitly to the watchdog log
-
----
-
-### P2-2 — Fix Unsafe File Append in `cc_watchdog.py`
-**Finding source:** Gemini (Cycle 1)
-**Consensus level:** Single-model, structurally sound
-**Action:**
-- Replace bare file append operations with atomic write pattern: write to `.tmp` file, `os.replace()` into final path
-- Ensure all file handles are opened with explicit encoding (`encoding='utf-8'`) and wrapped in `try/finally` or context managers
-- Add rotation logic: watchdog log files must not grow unbounded — implement size-based rotation at 10MB with 5 backup files
-
----
+8. **Audit and resolve contradictory governing law documents** — Gemini's Cycle 2 noted internally contradictory law definitions contributing to the 1/10 law compliance score. Before the next feature branch opens, a single canonical law document must be established and all CI references updated to point to it.

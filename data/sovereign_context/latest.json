@@ -1,34 +1,34 @@
 {
-  "timestamp": "2026-03-27T19:00:02.900116+00:00",
-  "block_height": 942505,
+  "timestamp": "2026-03-31T02:35:02.820201+00:00",
+  "block_height": 943006,
   "btc": {
-    "price": 65818,
-    "change_24h": -3.82,
+    "price": 67840,
+    "change_24h": 1.83,
     "change_7d": 0,
-    "market_cap": 1316664232911.8218,
-    "dominance": 55.9
+    "market_cap": 1358876737925.4482,
+    "dominance": 56.3
   },
   "fear_greed": {
-    "value": 13,
+    "value": 11,
     "label": "Extreme Fear"
   },
   "mempool": {
-    "fee_low": 2,
-    "fee_mid": 4,
-    "fee_high": 5,
-    "unconfirmed": 32871,
-    "size_mb": 11.8
+    "fee_low": 1,
+    "fee_mid": 1,
+    "fee_high": 2,
+    "unconfirmed": 21927,
+    "size_mb": 14.3
   },
   "network": {
-    "hashrate_eh": 1010.9,
+    "hashrate_eh": 1017.4,
     "difficulty": 0,
-    "next_adj_pct": 4.38,
-    "next_adj_blocks": 983
+    "next_adj_pct": 4.56,
+    "next_adj_blocks": 482
   },
   "lightning": {
-    "capacity_btc": 5057.1,
-    "channels": 41109,
-    "nodes": 17438
+    "capacity_btc": 5706.3,
+    "channels": 41986,
+    "nodes": 17342
   },
   "kol": {
     "sentiment_score": 50,
@@ -43,102 +43,88 @@
   "polymarket": {
     "macro_sentiment": 50,
     "top_market": "Will bitcoin hit $1m before GTA VI?",
-    "top_probability": 51.3
+    "top_probability": 51.0
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "# ORACLE BRIEF\n\n**Bitcoin's at $65,906 \u2014 and Arthur Hayes just told you the entire macro thesis: rocks and magic internet money. Hold hard assets, wait for the money printer.**\n\nThat's Austrian econom",
-    "brief_type": "unknown"
+    "narrative": "# ORACLE EVENING BRIEF | March 30, 2026\n\n**THE SETUP IS STRUCTURAL.**\n\nBitcoin flat at $66,575 while fear hits 8\u2014extreme territory. But flatness during chaos is the signal. A parallel channel spanning",
+    "brief_type": "evening"
   },
   "whale_alerts": [
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 369.4 BTC unconfirmed f3ab2a92...",
-      "score": 10,
-      "created_at": 1774637805.962931
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1774924409.6159132
     },
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 369.4 BTC unconfirmed f3ab2a92...",
-      "score": 10,
-      "created_at": 1774637805.9581685
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1774924408.7309172
     },
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 1884.63 BTC unconfirmed 20c54786...",
-      "score": 10,
-      "created_at": 1774636668.616272
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1774924408.7308598
     },
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 1065.96 BTC unconfirmed 1ea048a0...",
-      "score": 10,
-      "created_at": 1774636369.567787
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1774924408.7257543
     },
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 1065.96 BTC unconfirmed 1ea048a0...",
-      "score": 10,
-      "created_at": 1774636369.3655186
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1774924085.0618334
     }
   ],
   "macro": {
     "dxy": null,
-    "gold_price": 4543.2,
-    "sp500": 6425.75,
-    "btc_vs_gold_30d_corr": 0.035,
-    "btc_vs_dxy_30d_corr": -0.78,
+    "gold_price": 4618.2,
+    "sp500": 6445.25,
+    "btc_vs_gold_30d_corr": 0.131,
+    "btc_vs_dxy_30d_corr": -0.786,
     "real_yield": null,
-    "ten_year_yield": 4.44
+    "ten_year_yield": 4.34
   },
   "options": {
-    "put_call_ratio": 0.693,
-    "dvol": 54.4,
+    "put_call_ratio": 0.696,
+    "dvol": 54.1,
     "max_pain": 60000.0,
-    "total_call_oi": 209414.8,
-    "total_put_oi": 145183.6,
-    "total_oi_btc": 354598.4,
-    "avg_mark_iv": 56.9
+    "total_call_oi": 216404.1,
+    "total_put_oi": 150625.4,
+    "total_oi_btc": 367029.5,
+    "avg_mark_iv": 58.3
   },
   "futures": {
-    "funding_rate": 1.216e-05,
-    "annualized_basis": 1.33,
-    "open_interest": 30135.46,
-    "open_interest_usd": 1981384860.0,
+    "funding_rate": 2.119e-05,
+    "annualized_basis": 2.32,
+    "open_interest": 29637.53,
+    "open_interest_usd": 2015298970.0,
     "long_short_ratio": null,
-    "mark_price": 65762.33,
-    "index_price": 65749.28,
-    "basis_pct": 0.5806
+    "mark_price": 68017.62,
+    "index_price": 67998.21,
+    "basis_pct": 0.593
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 5973801.0,
-    "active_addresses_7d": 613774.0,
-    "tx_volume_usd_7d": 54963327412.0,
-    "nvt_ratio": 24.7,
+    "coin_days_destroyed_7d": 6302326.0,
+    "active_addresses_7d": 602391.0,
+    "tx_volume_usd_7d": 56465473875.0,
+    "nvt_ratio": 24.1,
     "accumulation_score": 75
   },
-  "active_alerts": [
-    {
-      "pattern_id": "SUPPLY_SHOCK",
-      "title": "Miners not capitulating \u2014 supply shock risk",
-      "description": "Hashrate 1010.9 EH/s (adj +4.38%), price down -3.82% \u2014 miners holding.",
-      "severity": "WATCH",
-      "ts": "2026-03-27T19:00:02.900225+00:00",
-      "data": {
-        "hashrate": 1010.9,
-        "change_24h": -3.82
-      }
-    }
-  ],
-  "pattern_matches": [
-    "SUPPLY_SHOCK"
-  ],
+  "active_alerts": [],
+  "pattern_matches": [],
   "indices": {
     "miner_conviction": {
       "score": 81,
