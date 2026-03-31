@@ -171,22 +171,7 @@
 </div>
 </div>
 </section>
-<script src="/static/js/sovereign_orb.js" onload="window._orbJsLoaded=true"></script>
-<script>
-(function(){
-function bootOrb(){
-  var cv=document.getElementById('sovereign-orb-canvas');
-  if(!cv){return;}
-  if(typeof SovereignOrb==='undefined'){setTimeout(bootOrb,100);return;}
-  cv.style.width='420px';cv.style.height='420px';
-  cv.width=840;cv.height=840;
-  try{window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}catch(e){console.error('Orb error:',e);}
-}
-setTimeout(bootOrb,200);
-function updateCards(){fetch('/api/orb').then(function(r){return r.json()}).then(function(d){document.getElementById('mcx-score').textContent=Math.round(d.nodes.mcx.score);document.getElementById('epx-score').textContent=Math.round(d.nodes.epx.score);document.getElementById('ihx-score').textContent=Math.round(d.nodes.ihx.score);document.getElementById('composite-score').textContent=d.composite.score;document.getElementById('composite-pattern').textContent=d.composite.pattern.toUpperCase();}).catch(function(e){console.warn('orb cards',e)});}
-updateCards();setInterval(updateCards,30000);
-})();
-</script>
+
 
 <!-- ═══════════════════════════════════════════════════════════════
      INTEL STRIP — above-the-fold data bar
@@ -1332,4 +1317,20 @@ function nlSub(e){
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <script src="/static/js/signal_orb.js"></script>
 
+<script src="/static/js/sovereign_orb.js" onload="window._orbJsLoaded=true"></script>
+<script>
+(function(){
+function bootOrb(){
+  var cv=document.getElementById('sovereign-orb-canvas');
+  if(!cv){return;}
+  if(typeof SovereignOrb==='undefined'){setTimeout(bootOrb,100);return;}
+  cv.style.width='420px';cv.style.height='420px';
+  cv.width=840;cv.height=840;
+  try{window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}catch(e){console.error('Orb error:',e);}
+}
+setTimeout(bootOrb,200);
+function updateCards(){fetch('/api/orb').then(function(r){return r.json()}).then(function(d){document.getElementById('mcx-score').textContent=Math.round(d.nodes.mcx.score);document.getElementById('epx-score').textContent=Math.round(d.nodes.epx.score);document.getElementById('ihx-score').textContent=Math.round(d.nodes.ihx.score);document.getElementById('composite-score').textContent=d.composite.score;document.getElementById('composite-pattern').textContent=d.composite.pattern.toUpperCase();}).catch(function(e){console.warn('orb cards',e)});}
+updateCards();setInterval(updateCards,30000);
+})();
+</script>
 {% endblock %}
