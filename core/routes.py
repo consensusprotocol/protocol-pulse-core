@@ -11644,6 +11644,97 @@ def _next_briefing_utc_epoch() -> int:
         return 0
 
 
+
+
+# ── Stage API Routes ────────────────────────────────────────────────────────
+
+@app.route('/api/stage/intel')
+def api_stage_intel():
+    """Feed the Stage intel panel from recent articles + convergence data."""
+    try:
+        articles = models.Article.query.filter_by(published=True).order_by(
+            models.Article.created_at.desc()
+        ).limit(8).all()
+
+        items = []
+        for a in articles:
+            items.append({
+                "title": a.title,
+                "summary": (a.summary or a.content or "")[:200].replace("<", "").replace(">", ""),
+                "category": a.category or "Bitcoin",
+                "url": f"/articles/{a.slug or a.id}",
+                "published_at": a.created_at.isoformat() if a.created_at else None,
+                "sentiment": "neutral",
+                "author": a.author or "Protocol Pulse",
+            })
+
+        return jsonify({"items": items, "count": len(items)})
+    except Exception as e:
+        return jsonify({"items": [], "error": str(e)})
+
+
+@app.route('/api/stage/transcripts')
+def api_stage_transcripts():
+    """Feed the Partner Channel Intelligence panel from media episodes."""
+    try:
+        episodes = models.MediaEpisode.query.order_by(
+            models.MediaEpisode.published_at.desc()
+        ).limit(6).all()
+
+        items = []
+        for ep in episodes:
+            feed = models.MediaFeed.query.get(ep.feed_id) if ep.feed_id else None
+            items.append({
+                "title": ep.title,
+                "channel": feed.name if feed else "Unknown",
+                "thumbnail": ep.thumbnail_url or "",
+                "url": ep.source_url or ep.video_url or "",
+                "published_at": ep.published_at.isoformat() if ep.published_at else None,
+                "description": (ep.description or "")[:150],
+                "type": "video" if ep.video_url else "podcast",
+            })
+
+        return jsonify({"items": items, "count": len(items)})
+    except Exception as e:
+        return jsonify({"items": [], "error": str(e)})
+
+
+@app.route('/api/stage/signal')
+def api_stage_signal():
+    """Feed the Stage signal panel from sovereign context + convergence."""
+    try:
+        import json as _json
+        ctx_path = "/home/ultron/protocol_pulse/data/sovereign_context/latest.json"
+        ctx = {}
+        try:
+            with open(ctx_path) as f:
+                ctx = _json.load(f)
+        except Exception:
+            pass
+
+        btc = ctx.get("btc", {})
+        fg = ctx.get("fear_greed", {})
+        net = ctx.get("network", {})
+        opts = ctx.get("options", {})
+        fut = ctx.get("futures", {})
+
+        return jsonify({
+            "price": btc.get("price", 0),
+            "change_24h": btc.get("change_24h", 0),
+            "fear_greed": fg.get("value", 0),
+            "fear_greed_label": fg.get("label", "Unknown"),
+            "hashrate_eh": net.get("hashrate_eh", 0),
+            "difficulty_adj": net.get("next_adj_pct", 0),
+            "funding_rate": fut.get("funding_rate"),
+            "put_call_ratio": opts.get("put_call_ratio"),
+            "dvol": opts.get("dvol"),
+            "timestamp": ctx.get("timestamp"),
+            "nostr": {"status": "scanning", "events": 0},
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
 @app.route('/stage')
 def stage_page():
     """24/7 autonomous Bitcoin broadcast station."""
