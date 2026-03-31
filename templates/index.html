@@ -174,7 +174,8 @@
 <script src="/static/js/sovereign_orb.js"></script>
 <script>
 (function(){
-var orb=new SovereignOrb('sovereign-orb-canvas','/api/orb');
+function bootOrb(){var cv=document.getElementById('sovereign-orb-canvas');if(!cv)return;cv.width=840;cv.height=840;window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',bootOrb);}else{setTimeout(bootOrb,50);}
 function updateCards(){fetch('/api/orb').then(function(r){return r.json()}).then(function(d){document.getElementById('mcx-score').textContent=Math.round(d.nodes.mcx.score);document.getElementById('epx-score').textContent=Math.round(d.nodes.epx.score);document.getElementById('ihx-score').textContent=Math.round(d.nodes.ihx.score);document.getElementById('composite-score').textContent=d.composite.score;document.getElementById('composite-pattern').textContent=d.composite.pattern.toUpperCase();}).catch(function(e){console.warn('orb cards',e)});}
 updateCards();setInterval(updateCards,30000);
 })();

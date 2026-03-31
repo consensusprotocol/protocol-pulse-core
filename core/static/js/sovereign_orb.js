@@ -22,12 +22,12 @@ class SovereignOrb {
 
     resize() {
         const dpr = window.devicePixelRatio || 1;
-        const r = this.canvas.getBoundingClientRect();
-        this.canvas.width = r.width * dpr;
-        this.canvas.height = r.height * dpr;
+        const w=this.canvas.offsetWidth||420,h=this.canvas.offsetHeight||420;
+        this.canvas.width=w*dpr;
+        this.canvas.height=h*dpr;
         this.ctx.scale(dpr, dpr);
-        this.w = r.width;
-        this.h = r.height;
+        this.w=w;
+        this.h=h;
     }
 
     async fetchData() {
