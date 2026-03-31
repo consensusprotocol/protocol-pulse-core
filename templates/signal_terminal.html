@@ -52,7 +52,7 @@ body { background: var(--bg) !important; overflow: hidden; }
     display: flex;
     flex-direction: column;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto; overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -186,7 +186,7 @@ body { background: var(--bg) !important; overflow: hidden; }
     grid-template-columns: var(--col-left) 1fr var(--col-right);
     gap: var(--gap);
     padding: var(--gap);
-    overflow: hidden;
+    overflow: visible;
     z-index: 1;
     min-height: 0;
 }
@@ -1202,6 +1202,50 @@ body { background: var(--bg) !important; overflow: hidden; }
     </div>
 
 </div>
+    <!-- ═══ HALVING CYCLE OVERLAY ═══════════════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">4-YEAR HALVING CYCLE OVERLAY</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
+            Price multiplier from halving price — current cycle vs historical (log scale)
+        </div>
+        <div style="position:relative;height:320px;padding:8px 12px;">
+            <canvas id="halvingCycleChart"></canvas>
+        </div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;padding:8px 12px;">
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
+                <div style="font-size:18px;font-weight:900;color:#fff;" id="halving-day">706</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
+                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-mult">1.03x</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
+                <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Current</div>
+                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-current">${{ '{:,.0f}'.format(price.price|int) if price and price.price else '—' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
+        </div>
+    </div>
+
+
+
 </div><!-- /main-grid -->
 
 <!-- ═══ GOLD INFO BAR ═══════════════════════════════════════════════ -->
@@ -1662,49 +1706,6 @@ body { background: var(--bg) !important; overflow: hidden; }
 
 })();
 </script>
-
-    <!-- ═══ HALVING CYCLE OVERLAY ═══════════════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div class="panel-header">
-            <span class="panel-label">4-YEAR HALVING CYCLE OVERLAY</span>
-            <span class="panel-badge live">LIVE</span>
-        </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
-            Price multiplier from halving price — current cycle vs historical (log scale)
-        </div>
-        <div style="position:relative;height:320px;padding:8px 12px;">
-            <canvas id="halvingCycleChart"></canvas>
-        </div>
-        <div style="display:flex;gap:24px;flex-wrap:wrap;padding:8px 12px;">
-            <div style="font-family:'JetBrains Mono',monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
-                <div style="font-size:18px;font-weight:900;color:#fff;" id="halving-day">706</div>
-            </div>
-            <div style="font-family:'JetBrains Mono',monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
-                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-mult">1.03x</div>
-            </div>
-            <div style="font-family:'JetBrains Mono',monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
-                <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
-            </div>
-            <div style="font-family:'JetBrains Mono',monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Current</div>
-                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-current">${{ '{:,.0f}'.format(price.price|int) if price and price.price else '—' }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div class="panel-header">
-            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
-            <span class="panel-badge live">LIVE</span>
-        </div>
-        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
-        </div>
-    </div>
-
 
 {% endblock %}
 
