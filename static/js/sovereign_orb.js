@@ -34,8 +34,8 @@ class SovereignOrb {
     resize() {
         const dpr=window.devicePixelRatio||1;
         // If canvas already has explicit pixel dimensions, use them
-        const w = this.canvas.offsetWidth || (this.canvas.width/dpr) || 680;
-        const h = this.canvas.offsetHeight || (this.canvas.height/dpr) || 680;
+        const w = Math.min(this.canvas.parentElement.clientWidth || this.canvas.offsetWidth || 680, 680);
+        const h = w;  // keep square
         this.canvas.width=Math.round(w*dpr);
         this.canvas.height=Math.round(h*dpr);
         this.ctx.scale(dpr,dpr);

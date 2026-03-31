@@ -136,14 +136,26 @@
     <div class="pp-hero__pulse-line"></div>
 </section>
 
+
+<style>
+@media (max-width: 768px) {
+  #convergence-engine { padding: 24px 0 !important; }
+  #convergence-engine > div > div { gap: 16px !important; }
+  .orb-container { max-width: 100% !important; }
+  #sovereign-orb-canvas { max-width: 340px !important; margin: 0 auto !important; }
+}
+@media (max-width: 480px) {
+  #sovereign-orb-canvas { max-width: 280px !important; }
+}
+</style>
 <!-- ═══════════════ SOVEREIGN CONVERGENCE ENGINE ═══════════════ -->
-<section id="convergence-engine" style="background:#060606;border-top:1px solid rgba(220,38,38,0.15);border-bottom:1px solid rgba(220,38,38,0.15);padding:60px 0;position:relative;overflow:hidden;">
+<section id="convergence-engine" style="background:#060606;border-top:1px solid rgba(220,38,38,0.15);border-bottom:1px solid rgba(220,38,38,0.15);padding:40px 0;position:relative;overflow:hidden;">
 <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
-<div style="display:flex;align-items:center;gap:48px;flex-wrap:wrap;">
-<div style="flex:0 0 680px;max-width:680px;">
-<canvas id="sovereign-orb-canvas" style="width:680px;height:680px;border-radius:50%;background:#060606;display:block;"></canvas>
+<div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:center;">
+<div class="orb-container" style="flex:1 1 100%;max-width:680px;min-width:0;">
+<canvas id="sovereign-orb-canvas" style="width:100%;aspect-ratio:1;max-width:680px;border-radius:50%;background:#060606;display:block;margin:0 auto;"></canvas>
 </div>
-<div style="flex:1;min-width:280px;">
+<div style="flex:1;min-width:260px;max-width:100%;">
 <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.15em;color:#dc2626;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;background:#dc2626;border-radius:50%;animation:pulseDot 2s ease-in-out infinite;display:inline-block;"></span>Sovereign Convergence Engine</div>
 <h2 style="font-family:'JetBrains Mono',monospace;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:#fff;margin:0 0 8px;line-height:1.1;">Protocol Intelligence<br><span style="color:#dc2626;">Barometer</span></h2>
 <p style="color:rgba(255,255,255,0.45);font-size:0.9rem;line-height:1.6;margin:0 0 32px;max-width:400px;">Six sovereign indices synthesized in real time — mining physics, exchange flows, derivatives structure, on-chain accumulation, social divergence, and options pressure. Each data point feeds directly into the visual.</p>
@@ -1347,10 +1359,11 @@ function bootOrb() {
   if (typeof SovereignOrb !== 'function') { setTimeout(bootOrb, 250); return; }
   if (window._sOrb) return;
   var dpr = window.devicePixelRatio || 1;
-  cv.style.width = '680px';
-  cv.style.height = '680px';
-  cv.setAttribute('width', Math.round(680 * dpr));
-  cv.setAttribute('height', Math.round(680 * dpr));
+  var size = Math.min(cv.parentElement.clientWidth || 680, 680);
+  cv.style.width = size + 'px';
+  cv.style.height = size + 'px';
+  cv.setAttribute('width', Math.round(size * dpr));
+  cv.setAttribute('height', Math.round(size * dpr));
   try {
     window._sOrb = new SovereignOrb('sovereign-orb-canvas', '/api/orb');
     console.log('Orb booted', cv.width, cv.height);
