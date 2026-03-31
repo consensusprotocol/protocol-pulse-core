@@ -1998,7 +1998,7 @@
       hoveredAxis = nearestAxis(pt[0], pt[1]);
       canvas.style.cursor = 'crosshair';
     });
-    canvas.addEventListener('mouseleave', function() { hoveredAxis = -1; });
+    canvas.addEventListener('mouseleave', function() { hoveredAxis = -1; showDetailCard(); });
     canvas.addEventListener('click', function(e) {
       var pt = canvasToChart(e);
       var ax = nearestAxis(pt[0], pt[1]);
@@ -2006,29 +2006,57 @@
       showDetailCard();
     });
 
+    var _orbData = null;
+    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){_orbData=d;}).catch(function(){});
+
+    var _axisDescs = {
+      MCX:'Miner conviction — hashrate resilience vs price. High = miners absorbing sell pressure, expanding operations despite consolidation.',
+      EPX:'Exchange pressure — net flow direction + whale operations. High = coins leaving exchanges (accumulation signal).',
+      IHX:'Insider heat — congressional STOCK Act trades + KOL divergence + Polymarket. High = informed positioning detected.',
+      OPX:'Options pressure — put/call skew + implied vol + max pain. High = call-side dominance, protective puts low.',
+      FDX:'Futures basis — funding rate + annualized premium + open interest. High = bullish futures structure, contango.',
+      OCX:'On-chain activity — CDD + active addresses + tx volume + accumulation score. High = network usage expanding.'
+    };
+    var _axisTiers = {
+      MCX:'PRIMARY · SUPPLY', EPX:'PRIMARY · FLOW', IHX:'PRIMARY · SENTIMENT',
+      OPX:'SECONDARY · DERIVATIVES', FDX:'SECONDARY · FUTURES', OCX:'SECONDARY · ON-CHAIN'
+    };
+
     function showDetailCard() {
       var card = document.getElementById('axis-detail-card');
       if (!card) return;
-      if (selectedAxis < 0) { card.style.display = 'none'; return; }
+      if (selectedAxis < 0 && hoveredAxis < 0) { card.style.display = 'none'; return; }
+      var idx = selectedAxis >= 0 ? selectedAxis : hoveredAxis;
       card.style.display = 'block';
-      var hist = scoreHistory[selectedAxis];
-      var lbl = labels[selectedAxis];
-      var val = Math.round(animVals[selectedAxis]);
+      var hist = scoreHistory[idx];
+      var lbl = labels[idx];
+      var val = Math.round(animVals[idx]);
+      var col = (typeof axisColors !== 'undefined') ? axisColors[idx] : '#ff3b5f';
+      var desc = (typeof axisDescs !== 'undefined') ? axisDescs[idx] : _axisDescs[lbl] || '';
+      var tier = _axisTiers[lbl] || '';
+      var regime = val > 70 ? 'EXPANSION' : val < 35 ? 'SUPPRESSION' : 'NEUTRAL';
+      var regimeCol = val > 70 ? '#22c55e' : val < 35 ? '#ef4444' : '#f8c15c';
+      var dir = val > 55 ? '\u2191' : val < 45 ? '\u2193' : '\u2192';
+
       var spark = '';
       if (hist.length > 1) {
         var mn = Math.min.apply(null, hist), mx = Math.max.apply(null, hist);
         var rng = (mx - mn) || 1;
         var pts = hist.map(function(v, j) {
-          return ((j / (hist.length - 1)) * 96 + 2).toFixed(1) + ',' + (26 - ((v - mn) / rng) * 22).toFixed(1);
+          return ((j / (hist.length - 1)) * 140 + 2).toFixed(1) + ',' + (30 - ((v - mn) / rng) * 26).toFixed(1);
         }).join(' ');
-        spark = '<svg width="100" height="28" style="margin-left:8px;"><polyline points="' + pts + '" fill="none" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        spark = '<svg width="146" height="32" style="margin-top:8px;"><polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       }
-      card.innerHTML = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
-        + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:800;letter-spacing:0.14em;color:rgba(255,255,255,0.5);">' + lbl + '</span>'
-        + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:18px;font-weight:900;color:#fff;">' + val + '</span>'
-        + spark
-        + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:7px;color:rgba(255,255,255,0.25);margin-left:auto;">LAST ' + hist.length + ' READINGS</span>'
-        + '</div>';
+
+      card.innerHTML = ''
+        + '<div style="font-size:7px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.3);margin-bottom:4px;">' + tier + '</div>'
+        + '<div style="display:flex;align-items:baseline;gap:8px;">'
+        + '<span style="font-size:1.9rem;font-weight:800;color:#fff;line-height:1;">' + val + '</span>'
+        + '<span style="font-size:11px;font-weight:700;color:' + col + ';">' + lbl + ' ' + dir + '</span>'
+        + '</div>'
+        + '<div style="font-size:8px;font-weight:700;letter-spacing:0.1em;color:' + regimeCol + ';margin-top:4px;">' + regime + '</div>'
+        + '<div style="font-size:0.6rem;color:rgba(255,255,255,0.4);line-height:1.55;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px;margin-top:6px;">' + (_axisDescs[lbl] || '') + '</div>'
+        + spark;
     }
 
     // ── Fetch new signal data every 60s ──
