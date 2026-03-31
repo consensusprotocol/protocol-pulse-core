@@ -1500,7 +1500,7 @@ body.panopticon-body .pp-footer { display: none !important; }
 <div class="pn-main">
     <div class="pn-grid">
 
-        <!-- ═══ COLUMN 1: CONFIRMED DISCLOSURES ═══ -->
+        <!-- ═══ COLUMN 1: CONFIRMED DISCLOSURES (FREE in demo) ═══ -->
         <div class="pn-panel pn-tier-confirmed">
             <div class="pn-panel-head">
                 <span class="tier-dot"></span>
@@ -1508,14 +1508,6 @@ body.panopticon-body .pp-footer { display: none !important; }
                 <span class="pn-tier-badge tier-1">STOCK ACT</span>
                 <span class="tier-count">{{ data.disclosures|length }} FILED</span>
             </div>
-
-            {% if demo_mode %}
-            <div class="pn-classified-overlay">
-                <div class="pn-classified-stamp">CLASSIFIED</div>
-                <div class="pn-classified-sub">Commander Access Required</div>
-                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
-            </div>
-            {% endif %}
 
             {% if not demo_mode and data.disclosures_live is defined and not data.disclosures_live %}
             <div class="pn-fallback-banner">
@@ -1728,21 +1720,13 @@ body.panopticon-body .pp-footer { display: none !important; }
             {% endif %}
         </div>
 
-        <!-- ═══ COLUMN 3: REAL-TIME FEED ═══ -->
+        <!-- ═══ COLUMN 3: REAL-TIME FEED (FREE in demo) ═══ -->
         <div class="pn-panel pn-tier-feed">
             <div class="pn-panel-head">
                 <span class="tier-dot"></span>
                 <span class="tier-label">REAL-TIME FEED</span>
                 <span class="tier-count">WHALE + MARKET + GEO</span>
             </div>
-
-            {% if demo_mode %}
-            <div class="pn-classified-overlay">
-                <div class="pn-classified-stamp">CLASSIFIED</div>
-                <div class="pn-classified-sub">Commander Access Required</div>
-                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
-            </div>
-            {% endif %}
 
             <!-- Whale Tracker -->
             <div class="pn-section-label">WHALE TRACKER</div>
@@ -1893,6 +1877,28 @@ body.panopticon-body .pp-footer { display: none !important; }
                 {% if not data.geopolitical %}
                 <div class="pn-empty">No geopolitical signals in current window</div>
                 {% endif %}
+            </div>
+
+            <!-- Political Donation Pulse -->
+            <div class="pn-section-label">POLITICAL DONATION PULSE</div>
+            <div id="pnDonations" style="padding:12px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+                    <div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-red);" id="donPulseScore">--</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">PULSE SCORE</div>
+                    </div>
+                    <div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-white);" id="donCommittees">--</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">CRYPTO COMMITTEES</div>
+                    </div>
+                    <div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-gold);" id="donStates">--</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">STATES ACTIVE</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;text-align:center;">
+                    <span id="donLabel" style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 12px;border:1px solid var(--pn-border);background:rgba(255,59,95,0.04);color:var(--pn-muted);">LOADING</span>
+                </div>
             </div>
         </div>
 
@@ -2155,6 +2161,69 @@ if(scr)scr.addEventListener('scroll',tlClose);
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    // ── Whale Tracker: fetch from /api/orb (works for all users) ──
+    (function() {
+        var el = document.getElementById('pnWhales');
+        if (!el) return;
+        function loadWhales() {
+            fetch('/api/orb')
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var raw = d.raw || {};
+                    var whales = raw.whale_alerts_list || [];
+                    if (!whales.length) {
+                        el.innerHTML = '<div class="pn-empty">No whale activity detected</div>';
+                        return;
+                    }
+                    var html = '';
+                    whales.slice(0, 5).forEach(function(w) {
+                        var tierCol = w.tier === 'CRITICAL' ? '#ef4444' : (w.tier === 'WARNING' ? '#f97316' : 'var(--pn-muted)');
+                        var isInflow = (w.message || '').toLowerCase().indexOf('inflow') >= 0;
+                        var flowClass = isInflow ? 'inflow' : 'outflow';
+                        html += '<div class="pn-whale-item ' + flowClass + '">';
+                        html += '<div class="pn-whale-row">';
+                        html += '<div class="pn-whale-entity" style="color:' + tierCol + ';font-weight:700;font-size:9px;letter-spacing:1px;">' + (w.tier || 'NOTE') + '</div>';
+                        html += '</div>';
+                        html += '<div style="font-size:12px;color:rgba(255,255,255,0.7);padding:4px 0;">' + (w.message || '') + '</div>';
+                        html += '<div class="pn-whale-meta"><span style="color:var(--pn-muted);font-size:10px;">Score: ' + (w.score || 0) + '</span></div>';
+                        html += '</div>';
+                    });
+                    el.innerHTML = html;
+                    var c = document.getElementById('pnStatWhales');
+                    if (c) c.textContent = whales.length;
+                })
+                .catch(function() {});
+        }
+        loadWhales();
+        setInterval(loadWhales, 60000);
+    })();
+
+    // ── Political Donation Pulse ──
+    (function() {
+        fetch('/api/donations/pulse')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                var sc = document.getElementById('donPulseScore');
+                var cm = document.getElementById('donCommittees');
+                var st = document.getElementById('donStates');
+                var lb = document.getElementById('donLabel');
+                if (sc) sc.textContent = d.score || 0;
+                if (cm) cm.textContent = d.crypto_committees || 0;
+                if (st) st.textContent = d.states_active || 0;
+                if (lb) {
+                    var label = d.label || 'UNAVAILABLE';
+                    var col = label === 'HIGH' ? 'var(--pn-red)' : (label === 'MODERATE' ? 'var(--pn-gold)' : 'var(--pn-muted)');
+                    lb.textContent = label;
+                    lb.style.color = col;
+                    lb.style.borderColor = col;
+                }
+            })
+            .catch(function() {
+                var lb = document.getElementById('donLabel');
+                if (lb) { lb.textContent = 'UNAVAILABLE'; }
+            });
+    })();
 
     {% if not demo_mode %}
     // ── Make the Bitcoin Case (typewriter 18ms/char, gold cursor) ──
