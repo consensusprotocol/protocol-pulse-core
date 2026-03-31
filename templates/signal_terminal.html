@@ -851,7 +851,7 @@ footer, .pp-footer, .site-footer { display: none !important; }
             </span>
         </div>
         <div class="sats-per-dollar">
-            <div class="val" id="sats-dollar">{{ '%,.0f' | format(100000000 / price.price) if price and price.price else '—' }}</div>
+            <div class="val" id="sats-dollar">{{ '{:,.0f}'.format((100000000 / price.price)|int) if price and price.price else '—' }}</div>
             <div class="unit">SATS PER DOLLAR</div>
         </div>
     </div>
@@ -1211,7 +1211,7 @@ footer, .pp-footer, .site-footer { display: none !important; }
     <span id="bar-price">BTC ${{ '{:,.0f}'.format(price.price) if price and price.price else '—' }}</span>
     <div class="ticker-scroll">
         <div class="ticker-track" id="ticker-track">
-            <span class="ticker-item">SATS/$ <span id="t-sats">{{ '%,.0f' | format(100000000 / price.price) if price and price.price else '—' }}</span></span>
+            <span class="ticker-item">SATS/$ <span id="t-sats">{{ '{:,.0f}'.format((100000000 / price.price)|int) if price and price.price else '—' }}</span></span>
             <span class="ticker-item">BLOCK <span id="t-block">{{ mempool.block_height | default('—') if mempool else '—' }}</span></span>
             <span class="ticker-item">MEMPOOL <span id="t-mempool">{{ mempool.unconfirmed_count | default('—') if mempool else '—' }}</span> TXS</span>
             <span class="ticker-item">FEE <span id="t-fee">{{ mempool.fee_fast | default('—') if mempool else '—' }}</span> SAT/VB</span>
@@ -1220,7 +1220,7 @@ footer, .pp-footer, .site-footer { display: none !important; }
             <span class="ticker-item">LN <span id="t-ln">{{ lightning.capacity | default('—') if lightning else '—' }}</span> BTC</span>
             <span class="ticker-item">ARTICLES <span id="t-articles">{{ latest.total | default(0) if latest else 0 }}</span></span>
             <!-- Duplicate for seamless scroll -->
-            <span class="ticker-item">SATS/$ <span>{{ '%,.0f' | format(100000000 / price.price) if price and price.price else '—' }}</span></span>
+            <span class="ticker-item">SATS/$ <span>{{ '{:,.0f}'.format((100000000 / price.price)|int) if price and price.price else '—' }}</span></span>
             <span class="ticker-item">BLOCK <span>{{ mempool.block_height | default('—') if mempool else '—' }}</span></span>
             <span class="ticker-item">MEMPOOL <span>{{ mempool.unconfirmed_count | default('—') if mempool else '—' }}</span> TXS</span>
             <span class="ticker-item">FEE <span>{{ mempool.fee_fast | default('—') if mempool else '—' }}</span> SAT/VB</span>
