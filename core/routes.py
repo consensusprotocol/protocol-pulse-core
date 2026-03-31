@@ -731,10 +731,27 @@ def signal_terminal():
             is_commander = t in ('commander', 'sovereign', 'admin')
     except:
         pass
+    # Build alerts from latest articles for the Intelligence Feed
+    alerts = []
+    try:
+        for art in latest:
+            alerts.append({
+                'time': art.created_at.strftime('%H:%M') if art.created_at else '--:--',
+                'title': art.title,
+                'url': f'/articles/{art.slug or art.id}',
+                'is_alert': False,
+            })
+    except Exception:
+        pass
+
+    # Pass fg as dict (template expects fg.value / fg.classification)
+    fg_dict = {'value': fg, 'classification': fg_class.replace('-', ' ').title()}
+
     return render_template('signal_terminal.html',
         price=price, mempool=mempool, onchain=onchain,
-        lightning=lightning, fg=fg, fg_class=fg_class,
-        signal=signal, latest=latest, is_commander=is_commander)
+        lightning=lightning, fg=fg_dict, fg_class=fg_class,
+        signal=signal, latest=latest, is_commander=is_commander,
+        alerts=alerts, macro={})
 
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
