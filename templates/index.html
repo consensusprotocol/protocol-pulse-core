@@ -1336,19 +1336,28 @@ function nlSub(e){
 }
 </script>
 
-<script src="/static/js/sovereign_orb.js" onload="window._orbJsLoaded=true"></script>
+<script src="/static/js/sovereign_orb.js?v=1774939322"></script>
 <script>
 (function(){
+var _orbBoots=0;
 function bootOrb(){
+  _orbBoots++;
+  if(_orbBoots>50){console.error('Orb boot gave up');return;}
   var cv=document.getElementById('sovereign-orb-canvas');
-  if(!cv){setTimeout(bootOrb,100);return;}
-  if(typeof SovereignOrb==='undefined'){setTimeout(bootOrb,100);return;}
+  if(!cv){setTimeout(bootOrb,200);return;}
+  if(typeof SovereignOrb!=='function'){setTimeout(bootOrb,200);return;}
+  if(window._sOrb){return;}
   var dpr=window.devicePixelRatio||1;
   cv.style.width='680px';cv.style.height='680px';
-  cv.width=Math.round(680*dpr);cv.height=Math.round(680*dpr);
-  try{window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}catch(e){console.error('Orb error:',e);}
+  cv.setAttribute('width',Math.round(680*dpr));
+  cv.setAttribute('height',Math.round(680*dpr));
+  try{
+    window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');
+    console.log('Orb booted ok, w='+cv.width+' h='+cv.height);
+  }catch(e){console.error('Orb boot error:',e);}
 }
-setTimeout(bootOrb,400);
+document.addEventListener('DOMContentLoaded',function(){setTimeout(bootOrb,300);});
+if(document.readyState!=='loading'){setTimeout(bootOrb,300);}
 function updateCards(){
   fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
     var n=d.nodes||{},r=d.raw||{},s=d.streams||{};
