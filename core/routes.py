@@ -291,6 +291,37 @@ def _index_cache_key():
     return "index_" + (str(current_user.id) if current_user.is_authenticated else "anon")
 
 
+
+# ── First-visit redirect to onboarding ──────────────────────────────────────
+@app.before_request
+def _first_visit_onboarding():
+    """Redirect first-time visitors to onboarding. Cookie-based, skips bots/API/assets."""
+    if request.path != '/':
+        return None
+    # Skip if cookie exists (returning visitor)
+    if request.cookies.get('pp_visited'):
+        return None
+    # Skip bots
+    ua = (request.headers.get('User-Agent') or '').lower()
+    if any(b in ua for b in ('bot', 'crawl', 'spider', 'google', 'bing', 'slurp', 'curl', 'wget')):
+        return None
+    # Skip if coming back from onboarding (referer check)
+    ref = (request.headers.get('Referer') or '').lower()
+    if 'onboarding' in ref or 'signal-terminal' in ref:
+        return None
+    # Redirect to onboarding
+    resp = redirect('/onboarding/commander')
+    return resp
+
+
+@app.after_request
+def _set_visited_cookie(response):
+    """Set pp_visited cookie on onboarding and homepage responses."""
+    if request.path in ('/', '/onboarding/commander', '/signal-terminal'):
+        if not request.cookies.get('pp_visited'):
+            response.set_cookie('pp_visited', '1', max_age=365*24*60*60, httponly=True, samesite='Lax')
+    return response
+
 @app.route('/')
 @cache.cached(timeout=60, key_prefix=_index_cache_key)
 def index():
