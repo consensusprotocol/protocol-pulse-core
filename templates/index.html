@@ -148,28 +148,75 @@
 <div style="flex:1;min-width:280px;">
 <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.15em;color:#dc2626;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;background:#dc2626;border-radius:50%;animation:pulseDot 2s ease-in-out infinite;display:inline-block;"></span>Sovereign Convergence Engine</div>
 <h2 style="font-family:'JetBrains Mono',monospace;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:#fff;margin:0 0 8px;line-height:1.1;">Protocol Intelligence<br><span style="color:#dc2626;">Barometer</span></h2>
-<p style="color:rgba(255,255,255,0.45);font-size:0.9rem;line-height:1.6;margin:0 0 32px;max-width:400px;">Three proprietary indices synthesized from on-chain data, exchange flows, and network metrics. Updated every 5 minutes.</p>
-<div style="display:flex;flex-direction:column;gap:12px;">
-<div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
-<div><div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#dc2626;letter-spacing:0.12em;margin-bottom:4px;">MCX — MINER CONVICTION</div><div style="color:rgba(255,255,255,0.5);font-size:0.75rem;" id="mcx-interp">Miners expanding despite price consolidation</div></div>
-<div id="mcx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:#dc2626;min-width:48px;text-align:right;">—</div>
+<p style="color:rgba(255,255,255,0.45);font-size:0.9rem;line-height:1.6;margin:0 0 32px;max-width:400px;">Six sovereign indices synthesized in real time — mining physics, exchange flows, derivatives structure, on-chain accumulation, social divergence, and options pressure. Each data point feeds directly into the visual.</p>
+<div style="display:flex;flex-direction:column;gap:10px;">
+<div id="orb-mcx-card" style="background:rgba(220,38,38,0.05);border:1px solid rgba(220,38,38,0.18);border-radius:10px;padding:12px 16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#dc2626;letter-spacing:0.14em;">MCX -- MINER CONVICTION</div>
+    <div style="display:flex;align-items:baseline;gap:6px;"><span id="mcx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:#dc2626;">--</span><span id="mcx-dir" style="font-size:0.9rem;color:#666;">-></span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">HASHRATE</div><div id="live-hashrate" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.55);text-align:right;">-- EH/s</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">DIFF ADJ</div><div id="live-diffadj" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.55);text-align:right;">--%</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">SIGNAL</div><div id="mcx-signal" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#dc2626;text-align:right;">--</div>
+  </div>
 </div>
-<div style="background:rgba(249,115,22,0.06);border:1px solid rgba(249,115,22,0.2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
-<div><div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#f97316;letter-spacing:0.12em;margin-bottom:4px;">EPX — EXCHANGE PRESSURE</div><div style="color:rgba(255,255,255,0.5);font-size:0.75rem;" id="epx-interp">Exchange flow monitoring</div></div>
-<div id="epx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:#f97316;min-width:48px;text-align:right;">—</div>
+<div id="orb-epx-card" style="background:rgba(249,115,22,0.05);border:1px solid rgba(249,115,22,0.18);border-radius:10px;padding:12px 16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#f97316;letter-spacing:0.14em;">EPX -- EXCHANGE PRESSURE</div>
+    <div style="display:flex;align-items:baseline;gap:6px;"><span id="epx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:#f97316;">--</span><span id="epx-dir" style="font-size:0.9rem;color:#666;">-></span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">NET FLOW</div><div id="live-flow" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.55);text-align:right;">--</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">WHALE TXS</div><div id="live-whale" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.55);text-align:right;">-- detected</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">SIGNAL</div><div id="epx-signal" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#f97316;text-align:right;">--</div>
+  </div>
 </div>
-<div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
-<div><div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#3b82f6;letter-spacing:0.12em;margin-bottom:4px;">IHX — INSIDER HEAT</div><div style="color:rgba(255,255,255,0.5);font-size:0.75rem;" id="ihx-interp">Social divergence analysis</div></div>
-<div id="ihx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:#3b82f6;min-width:48px;text-align:right;">—</div>
+<div id="orb-ihx-card" style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.18);border-radius:10px;padding:12px 16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#3b82f6;letter-spacing:0.14em;">IHX -- INSIDER HEAT</div>
+    <div style="display:flex;align-items:baseline;gap:6px;"><span id="ihx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:#3b82f6;">--</span><span id="ihx-dir" style="font-size:0.9rem;color:#666;">-></span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">FEAR & GREED</div><div id="live-fg" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.55);text-align:right;">--</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">POLYMARKET</div><div id="live-poly" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.55);text-align:right;">--%</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);">SIGNAL</div><div id="ihx-signal" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#3b82f6;text-align:right;">--</div>
+  </div>
 </div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+  <div style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:8px;padding:10px 12px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#a855f7;letter-spacing:0.1em;margin-bottom:6px;">OPX</div>
+    <div id="opx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:#a855f7;margin-bottom:4px;">--</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.53rem;color:rgba(255,255,255,0.22);">P/C <span id="live-pcr" style="color:rgba(168,85,247,0.7);">--</span></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.53rem;color:rgba(255,255,255,0.22);">DVOL <span id="live-dvol" style="color:rgba(168,85,247,0.7);">--</span></div>
+  </div>
+  <div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:8px;padding:10px 12px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#06b6d4;letter-spacing:0.1em;margin-bottom:6px;">FDX</div>
+    <div id="fdx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:#06b6d4;margin-bottom:4px;">--</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.53rem;color:rgba(255,255,255,0.22);">FUND <span id="live-fund" style="color:rgba(6,182,212,0.7);">--</span></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.53rem;color:rgba(255,255,255,0.22);">BASIS <span id="live-basis" style="color:rgba(6,182,212,0.7);">--</span>%</div>
+  </div>
+  <div style="background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.15);border-radius:8px;padding:10px 12px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#22c55e;letter-spacing:0.1em;margin-bottom:6px;">OCX</div>
+    <div id="ocx-score" style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:#22c55e;margin-bottom:4px;">--</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.53rem;color:rgba(255,255,255,0.22);">ACCUM <span id="live-accum" style="color:rgba(34,197,94,0.7);">--</span></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.53rem;color:rgba(255,255,255,0.22);">NVT <span id="live-nvt" style="color:rgba(34,197,94,0.7);">--</span></div>
+  </div>
 </div>
-<div style="display:flex;gap:16px;margin-top:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,0.05);">
-<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:0.1em;">SOVEREIGN v1.3</span>
-<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:0.1em;">SOURCES: ONCHAIN · FLOWS · NETWORK</span>
+<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.3);letter-spacing:0.12em;">COMPOSITE SCORE</div>
+    <div style="display:flex;align-items:baseline;gap:10px;">
+      <span id="composite-score" style="font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:#fff;">--</span>
+      <span id="composite-pattern" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#dc2626;letter-spacing:0.1em;">SYNCING</span>
+    </div>
+  </div>
+  <div id="orb-conclusion" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.35);line-height:1.6;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;">Initializing sovereign intelligence...</div>
 </div>
-<div style="margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
-<div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.4);letter-spacing:0.12em;">COMPOSITE SCORE</div>
-<div style="display:flex;align-items:baseline;gap:10px;"><span id="composite-score" style="font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:800;color:#fff;">—</span><span id="composite-pattern" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#dc2626;letter-spacing:0.1em;">SYNCING</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 2px;">
+  <span style="font-family:'JetBrains Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.12);letter-spacing:0.08em;">SOVEREIGN v1.3 - ONCHAIN - FLOWS - NETWORK</span>
+  <span id="orb-freshness" style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#22c55e;">LIVE</span>
+</div>
 </div>
 </div>
 </div>
