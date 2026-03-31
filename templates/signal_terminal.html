@@ -1202,6 +1202,64 @@ body { background: var(--bg) !important; overflow: hidden; }
     </div>
 
 </div>
+
+    <!-- ═══ SOVEREIGN SIGNAL MATRIX ═══════════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 12px;">
+            <!-- Radar canvas -->
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+                <canvas id="ssm-radar" width="420" height="420" style="max-width:100%;"></canvas>
+                <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);text-align:center;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:900;color:#fff;" id="ssm-composite">—</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
+                </div>
+            </div>
+            <!-- Live convergence feed -->
+            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;">
+                <div style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;">
+                    <span style="font-size:8px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.35);">CONVERGENCE FEED</span>
+                    <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;"></span><span id="cf-count" style="font-size:7px;color:rgba(255,255,255,0.2);">0</span></span>
+                </div>
+                <div id="cf-scroll" style="flex:1;max-height:350px;overflow-y:auto;display:flex;flex-direction:column-reverse;">
+                    <div id="cf-inner" style="display:flex;flex-direction:column;gap:0;padding:2px 0;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Axis detail card on click -->
+        <div id="ssm-detail" style="display:none;margin:8px 12px;padding:10px 14px;background:rgba(255,59,95,0.04);border:1px solid rgba(255,59,95,0.10);border-radius:4px;"></div>
+    </div>
+
+    <!-- ═══ POLYMARKET + WHALE ALERTS ═════════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <!-- Polymarket -->
+            <div>
+                <div class="panel-header">
+                    <span class="panel-label">POLYMARKET INTELLIGENCE</span>
+                    <span class="panel-badge">LIVE</span>
+                </div>
+                <div id="poly-list" style="padding:4px 12px;">
+                    <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading prediction markets...</div>
+                </div>
+            </div>
+            <!-- Whale alerts -->
+            <div>
+                <div class="panel-header">
+                    <span class="panel-label">WHALE INTELLIGENCE</span>
+                    <span class="panel-badge live">LIVE</span>
+                </div>
+                <div id="whale-list" style="padding:4px 12px;max-height:200px;overflow-y:auto;">
+                    <div style="color:rgba(255,255,255,0.15);font-size:10px;">Monitoring whale movements...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- ═══ HALVING CYCLE OVERLAY ═══════════════════════════════════════ -->
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
         <div class="panel-header">
@@ -1809,6 +1867,151 @@ body { background: var(--bg) !important; overflow: hidden; }
       html+='<div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:'+col+';margin-top:4px;">'+s+'</div>';
       html+='<div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:6px;"><div style="height:100%;width:'+s+'%;background:'+col+';border-radius:2px;"></div></div>';
       html+='</div>';
+    });
+    el.innerHTML=html;
+  }).catch(function(){});
+})();
+</script>
+
+<script>
+/* ═══ SOVEREIGN SIGNAL MATRIX RADAR ═══ */
+(function(){
+  var canvas = document.getElementById('ssm-radar');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var cx = W/2, cy = H/2, maxR = Math.min(W,H)*0.38;
+  var labels = ['MCX','EPX','IHX','OPX','FDX','OCX'];
+  var colors = ['#dc2626','#f97316','#8b5cf6','#a855f7','#06b6d4','#22c55e'];
+  var descs = ['Miner Conviction','Exchange Pressure','Insider Heat','Options Pressure','Futures/Derivatives','On-Chain Activity'];
+  var n = 6, vals = [50,50,50,50,50,50], animVals = [50,50,50,50,50,50];
+
+  function angle(i) { return (Math.PI*2*i)/n - Math.PI/2; }
+  function xy(i,r) { var a=angle(i); return [cx+Math.cos(a)*r, cy+Math.sin(a)*r]; }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    // Grid hexagons
+    for (var g=1;g<=5;g++) {
+      var gr=maxR*g/5;
+      ctx.beginPath();
+      for(var i=0;i<n;i++){var p=xy(i,gr);i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
+      ctx.closePath();ctx.strokeStyle='rgba(255,255,255,'+(0.03+g*0.01)+')';ctx.lineWidth=0.5;ctx.stroke();
+    }
+    // Axis lines
+    for(var i=0;i<n;i++){var p=xy(i,maxR);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(p[0],p[1]);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=0.5;ctx.stroke();}
+    // Data polygon
+    ctx.beginPath();
+    for(var i=0;i<n;i++){var r=maxR*animVals[i]/100;var p=xy(i,r);i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
+    ctx.closePath();ctx.fillStyle='rgba(220,38,38,0.08)';ctx.fill();ctx.strokeStyle='rgba(220,38,38,0.6)';ctx.lineWidth=1.5;ctx.stroke();
+    // Points + labels
+    for(var i=0;i<n;i++){
+      var r=maxR*animVals[i]/100;var p=xy(i,r);
+      ctx.beginPath();ctx.arc(p[0],p[1],3,0,Math.PI*2);ctx.fillStyle=colors[i];ctx.fill();
+      // Label
+      var lp=xy(i,maxR+22);
+      ctx.font='700 9px "JetBrains Mono",monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle=colors[i];ctx.fillText(labels[i],lp[0],lp[1]);
+      ctx.font='800 11px "JetBrains Mono",monospace';ctx.fillStyle='#fff';
+      ctx.fillText(Math.round(animVals[i]),lp[0],lp[1]+13);
+    }
+    // Animate
+    for(var i=0;i<n;i++) animVals[i]+=(vals[i]-animVals[i])*0.08;
+    requestAnimationFrame(draw);
+  }
+
+  function fetchRadar(){
+    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+      var nd=d.nodes||{};var order=['mcx','epx','ihx','opx','fdx','ocx'];
+      order.forEach(function(k,i){vals[i]=Math.round((nd[k]||{}).score||50);});
+      var comp=Math.round((d.composite||{}).score||50);
+      var bias=comp>=65?'BULLISH':comp>=55?'CAUTIOUS BULLISH':comp<=35?'BEARISH':'NEUTRAL';
+      var ce=document.getElementById('ssm-composite');if(ce)ce.textContent=comp;
+      var be=document.getElementById('ssm-bias');if(be)be.textContent='SOVEREIGN COMPOSITE • '+bias;
+    }).catch(function(){});
+  }
+  fetchRadar();setInterval(fetchRadar,30000);
+  requestAnimationFrame(draw);
+
+  // Click detail
+  canvas.addEventListener('click',function(e){
+    var r=canvas.getBoundingClientRect();var mx=e.clientX-r.left,my=e.clientY-r.top;
+    var best=-1,bestD=999;
+    for(var i=0;i<n;i++){var p=xy(i,maxR);var dx=mx-p[0],dy=my-p[1];var dist=Math.sqrt(dx*dx+dy*dy);if(dist<bestD){bestD=dist;best=i;}}
+    var card=document.getElementById('ssm-detail');if(!card)return;
+    if(bestD>60||best<0){card.style.display='none';return;}
+    var v=Math.round(vals[best]);var regime=v>70?'EXPANSION':v<35?'SUPPRESSION':'NEUTRAL';
+    var regCol=v>70?'#22c55e':v<35?'#ef4444':'#f8c15c';
+    card.style.display='block';
+    card.innerHTML='<div style="font-size:7px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.3);">'+descs[best].toUpperCase()+'</div>'
+      +'<div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;"><span style="font-size:1.8rem;font-weight:800;color:#fff;">'+v+'</span><span style="font-size:11px;font-weight:700;color:'+colors[best]+';">'+labels[best]+'</span></div>'
+      +'<div style="font-size:8px;font-weight:700;color:'+regCol+';margin-top:3px;">'+regime+'</div>';
+  });
+})();
+
+/* ═══ CONVERGENCE FEED ═══ */
+(function(){
+  var el=document.getElementById('cf-inner'),cnt=document.getElementById('cf-count');
+  if(!el)return;var ec=0;
+  function add(tag,col,lbl,val,t){
+    ec++;var d=document.createElement('div');
+    d.style.cssText='display:flex;gap:5px;padding:2px 8px;font-family:JetBrains Mono,monospace;font-size:0.46rem;opacity:'+(t==='SIM'?'0.25':'0.8');
+    var now=new Date(),ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+    d.innerHTML='<span style="color:#333;min-width:38px">'+ts+'</span><span style="color:'+col+';min-width:20px;font-weight:600">'+tag+'</span><span style="color:#555;min-width:44px">'+lbl+'</span><span style="color:rgba(255,255,255,0.5)">'+val+'</span>';
+    el.appendChild(d);if(el.children.length>60)el.removeChild(el.firstChild);
+    if(cnt)cnt.textContent=ec;var s=document.getElementById('cf-scroll');if(s)s.scrollTop=s.scrollHeight;
+  }
+  function fetchFeed(){
+    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+      var n=d.nodes||{},r=d.raw||{};
+      add('SYS','#dc2626','SYNC','Score '+Math.round((d.composite||{}).score||0)+' — '+(d.composite||{}).pattern,'DATA');
+      ['mcx','epx','ihx','opx','fdx','ocx'].forEach(function(k){
+        var nd=n[k];if(!nd)return;
+        var cols={mcx:'#dc2626',epx:'#f97316',ihx:'#8b5cf6',opx:'#a855f7',fdx:'#06b6d4',ocx:'#22c55e'};
+        add(k.toUpperCase(),cols[k]||'#888',nd.desc||k,Math.round(nd.score)+'/100','DATA');
+      });
+      if(r.funding_rate!==undefined)add('FDX','#06b6d4','FUND',(r.funding_rate*100).toFixed(4)+'%','DATA');
+      if(r.put_call_ratio)add('OPX','#a855f7','P/C',parseFloat(r.put_call_ratio).toFixed(3),'DATA');
+    }).catch(function(){});
+  }
+  setTimeout(function(){add('SYS','#dc2626','ENGINE','Convergence v1.3 — online','BOOT');setTimeout(fetchFeed,500);},200);
+  setInterval(fetchFeed,30000);
+  function sim(){
+    var hb=[{t:'MCX',c:'#dc2626',l:'HASH',v:Math.round(980+Math.random()*40)+' EH/s'},{t:'NET',c:'#888',l:'MEM',v:Math.floor(25000+Math.random()*5000)+' txs'},{t:'FDX',c:'#06b6d4',l:'FUND',v:(Math.random()*0.01).toFixed(5)+'%'}];
+    var e=hb[Math.floor(Math.random()*hb.length)];add(e.t,e.c,e.l,e.v,'SIM');setTimeout(sim,6000+Math.random()*8000);
+  }
+  setTimeout(sim,5000);
+})();
+
+/* ═══ POLYMARKET ═══ */
+(function(){
+  var el=document.getElementById('poly-list');if(!el)return;
+  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+    var ctx=d.raw||{};var pm=ctx.polymarket||{};
+    var top=pm.top_market||'';var prob=pm.top_probability||0;var sent=pm.macro_sentiment||50;
+    if(!top){el.innerHTML='<div style="color:rgba(255,255,255,0.2);font-size:9px;">No prediction data</div>';return;}
+    el.innerHTML='<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+      +'<div style="font-size:10px;color:rgba(255,255,255,0.7);">'+top+'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:6px;">'
+      +'<div style="flex:1;background:rgba(34,197,94,0.15);border-radius:3px;padding:3px 8px;text-align:center;"><span style="font-size:11px;font-weight:700;color:#22c55e;">YES '+prob.toFixed(1)+'%</span></div>'
+      +'<div style="flex:1;background:rgba(239,68,68,0.15);border-radius:3px;padding:3px 8px;text-align:center;"><span style="font-size:11px;font-weight:700;color:#ef4444;">NO '+(100-prob).toFixed(1)+'%</span></div>'
+      +'</div></div>'
+      +'<div style="margin-top:8px;font-size:8px;color:rgba(255,255,255,0.3);">MACRO SENTIMENT: <span style="color:#f8c15c;font-weight:700;">'+sent+'/100</span></div>';
+  }).catch(function(){el.innerHTML='<div style="color:rgba(255,255,255,0.15);font-size:9px;">Unavailable</div>';});
+})();
+
+/* ═══ WHALE ALERTS ═══ */
+(function(){
+  var el=document.getElementById('whale-list');if(!el)return;
+  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+    var raw=d.raw||{};var whales=raw.whale_alerts||[];
+    if(!whales.length){el.innerHTML='<div style="color:rgba(255,255,255,0.2);font-size:9px;">No whale activity detected</div>';return;}
+    var html='';
+    whales.slice(0,5).forEach(function(w){
+      var tierCol=w.tier==='CRITICAL'?'#ef4444':w.tier==='WARNING'?'#f97316':'#555';
+      html+='<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:9px;">'
+        +'<span style="color:'+tierCol+';font-weight:700;font-size:7px;letter-spacing:0.1em;">'+w.tier+'</span> '
+        +'<span style="color:rgba(255,255,255,0.6);">'+w.message+'</span></div>';
     });
     el.innerHTML=html;
   }).catch(function(){});

@@ -4437,7 +4437,12 @@ def sentiment_dashboard():
 
 @app.route('/intelligence')
 def intelligence_main():
-    """Intelligence Dashboard — world-class redesign."""
+    """Intelligence → Signal Terminal (merged)."""
+    return redirect('/signal-terminal', code=302)
+
+@app.route('/intelligence/legacy')
+def intelligence_legacy_page():
+    """Legacy Intelligence Dashboard — world-class redesign (kept for reference)."""
     import json as _json
     from datetime import timedelta as _td
     from sqlalchemy import text as _text
@@ -4563,7 +4568,7 @@ def intelligence_api():
     """Intelligence Terminal - API tab."""
     return render_template('intelligence_terminal.html', active_tab='api')
 
-@app.route('/intelligence/legacy')
+@app.route('/intelligence/legacy-v1')
 def intelligence_page():
     """
     SESSION 12 UPGRADE — Signal Intelligence command center (legacy).
