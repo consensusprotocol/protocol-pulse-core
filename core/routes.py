@@ -6184,6 +6184,21 @@ def trigger_automation():
     result = generate_article_with_tracking(force=force)
     
     if result.get('success'):
+        # Generate Grok image if article has no cover image
+        aid = result.get('article_id')
+        if aid:
+            try:
+                art = models.Article.query.get(aid)
+                if art and (not art.cover_image_url or 'unsplash' in (art.cover_image_url or '') or 'pexels' in (art.cover_image_url or '')):
+                    from services.image_service import ImageGenerationService
+                    img_svc = ImageGenerationService()
+                    img_url = img_svc.generate_article_header_image(title=art.title, category=art.category or 'Bitcoin')
+                    if img_url and 'default-header' not in img_url:
+                        art.cover_image_url = img_url
+                        db.session.commit()
+                        logging.info(f"Generated Grok image for article {aid}: {img_url}")
+            except Exception as img_err:
+                logging.warning(f"Image gen for article {aid} failed: {img_err}")
         msg = f"Article generated: {result.get('title')}"
         if result.get('stub'):
             msg += " (stub — add OPENAI_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY to enable real drafting)"
