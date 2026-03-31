@@ -325,7 +325,7 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 category=category,
                 source_url=(article_data.get("source_url") or "").strip() or None,
                 source_type=(article_data.get("source_type") or "rss"),
-                author="Al Ingle",
+                author="Protocol Pulse",
                 published=publish_allowed,
                 cover_image_url=header_url if (header_url and "default-header" not in (header_url or "")) else __import__("random").choice(["https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800&q=80","https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80","https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80","https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=800&q=80","https://images.unsplash.com/photo-1516245834210-c4c142787335?w=800&q=80","https://images.unsplash.com/photo-1605792657660-596af9009e82?w=800&q=80"]),
             )
@@ -426,7 +426,7 @@ def generate_breaking_article_with_tracking() -> dict:
                 summary="",
                 category=article_data.get("category", "Bitcoin"),
                 tags=article_data.get("tags", "bitcoin,breaking,news"),
-                author="Al Ingle",
+                author="Protocol Pulse",
                 seo_title=article_data.get("seo_title", article_data["title"]),
                 seo_description=article_data.get("seo_description", ""),
                 source_url=(article_data.get("source_url") or "").strip() or None,
@@ -469,7 +469,7 @@ def generate_from_trending_reddit() -> dict:
                             summary=article_data.get("summary", ""),
                             category=article_data.get("category", "Bitcoin"),
                             source_type="reddit",
-                            author="Al Ingle",
+                            author="Protocol Pulse",
                             published=False,
                         )
                         db.session.add(article)

@@ -102,7 +102,7 @@ def generate_blockware_article(item: dict) -> dict | None:
         from openai import OpenAI
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
-        prompt = f"""You are Al Ingle, senior editor at Protocol Pulse. You have received raw intelligence from a mining and macro research source. Your job is to synthesize this into a Protocol Pulse article — adding your own analysis, Bitcoin-native context, and editorial perspective.
+        prompt = f"""You are Protocol Pulse, senior editor at Protocol Pulse. You have received raw intelligence from a mining and macro research source. Your job is to synthesize this into a Protocol Pulse article — adding your own analysis, Bitcoin-native context, and editorial perspective.
 
 SOURCE INTELLIGENCE:
 Headline: {item["title"]}
@@ -199,7 +199,7 @@ def publish_blockware_article():
                 category=article_data["category"],
                 source_url=article_data["source_url"],
                 source_type=article_data["source_type"],
-                author="Al Ingle",
+                author="Protocol Pulse",
                 published=True,
             )
             db.session.add(article)

@@ -103,17 +103,50 @@ class ImageGenerationService:
 
         if image is None:
             logger.warning(f"All image sources failed for: {title[:50]}")
+            # Last resort: return a Pexels URL directly (no download)
+            if self.pexels_key:
+                try:
+                    import random as _rnd
+                    queries = _build_pexels_queries(title, category)
+                    for q in queries[:2]:
+                        resp = requests.get("https://api.pexels.com/v1/search",
+                            headers={"Authorization": self.pexels_key},
+                            params={"query": q, "per_page": 5, "page": _rnd.randint(1, 5)}, timeout=8)
+                        if resp.status_code == 200:
+                            photos = resp.json().get("photos", [])
+                            if photos:
+                                url = _rnd.choice(photos)["src"]["large"]
+                                logger.info(f"Returning Pexels URL directly: {url[:60]}")
+                                return url
+                except Exception as e:
+                    logger.warning(f"Pexels URL fallback failed: {e}")
             image = self._generate_fallback_image(title)
 
-        # Apply brand overlay and save
-        image = _resize_and_crop(image, TARGET_WIDTH, TARGET_HEIGHT)
-        image = _apply_brand_overlay(image)
-        image.save(str(filepath), "JPEG", quality=85, optimize=True)
-
-        result_path = f"/static/images/headers/{filename}"
-        size_kb = filepath.stat().st_size // 1024
-        logger.info(f"Saved header image: {result_path} ({size_kb}KB)")
-        return result_path
+        try:
+            # Apply brand overlay and save
+            image = _resize_and_crop(image, TARGET_WIDTH, TARGET_HEIGHT)
+            image = _apply_brand_overlay(image)
+            image.save(str(filepath), "JPEG", quality=85, optimize=True)
+            result_path = f"/static/images/headers/{filename}"
+            size_kb = filepath.stat().st_size // 1024
+            logger.info(f"Saved header image: {result_path} ({size_kb}KB)")
+            return result_path
+        except Exception as save_err:
+            logger.error(f"Image save failed: {save_err}")
+            # Return Pexels URL as absolute last resort
+            if self.pexels_key:
+                try:
+                    import random as _rnd
+                    resp = requests.get("https://api.pexels.com/v1/search",
+                        headers={"Authorization": self.pexels_key},
+                        params={"query": "bitcoin", "per_page": 3}, timeout=8)
+                    if resp.status_code == 200:
+                        photos = resp.json().get("photos", [])
+                        if photos:
+                            return _rnd.choice(photos)["src"]["large"]
+                except:
+                    pass
+            return "/static/images/default-header.png"
 
     # ─── PEXELS (PRIMARY — 90% of articles) ────────────────────────
 
