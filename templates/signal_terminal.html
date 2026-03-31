@@ -2000,8 +2000,8 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 (function(){
   var el=document.getElementById('poly-list');if(!el)return;
   fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-    var ctx=d.raw||{};var pm=ctx.polymarket||{};
-    var top=pm.top_market||'';var prob=pm.top_probability||0;var sent=pm.macro_sentiment||50;
+    var raw=d.raw||{};var pm=raw.polymarket||{};
+    var top=pm.top_market||raw.polymarket_top||'';var prob=pm.top_probability||raw.poly_prob||0;var sent=pm.macro_sentiment||50;
     if(!top){el.innerHTML='<div style="color:rgba(255,255,255,0.2);font-size:9px;">No prediction data</div>';return;}
     el.innerHTML='<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
       +'<div style="font-size:10px;color:rgba(255,255,255,0.7);">'+top+'</div>'
@@ -2017,7 +2017,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 (function(){
   var el=document.getElementById('whale-list');if(!el)return;
   fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-    var raw=d.raw||{};var whales=raw.whale_alerts||[];
+    var raw=d.raw||{};var whales=raw.whale_alerts_list||[];
     if(!whales.length){el.innerHTML='<div style="color:rgba(255,255,255,0.2);font-size:9px;">No whale activity detected</div>';return;}
     var html='';
     whales.slice(0,5).forEach(function(w){
