@@ -788,11 +788,57 @@ def signal_terminal():
     # Pass fg as dict (template expects fg.value / fg.classification)
     fg_dict = {'value': fg, 'classification': fg_class.replace('-', ' ').title()}
 
+    # Pass FULL sovereign context for rich data display
+    sovereign_ctx = {}
+    try:
+        import json as _stj2
+        with open("/home/ultron/protocol_pulse/data/sovereign_context/latest.json") as _cf3:
+            sovereign_ctx = _stj2.load(_cf3)
+        # Enrich price with sovereign data
+        _sbtc = sovereign_ctx.get('btc', {})
+        if price.get('market_cap', 0) == 0 and _sbtc.get('market_cap'):
+            price['market_cap'] = _sbtc.get('market_cap', 0)
+        if price.get('volume_24h', 0) == 0 and _sbtc.get('volume_24h'):
+            price['volume_24h'] = _sbtc.get('volume_24h', 0)
+        if price.get('dominance', 0) == 0 and _sbtc.get('dominance'):
+            price['dominance'] = _sbtc.get('dominance', 0)
+        if price.get('change_24h', 0) == 0 and _sbtc.get('change_24h'):
+            price['change_24h'] = _sbtc.get('change_24h', 0)
+        # Enrich lightning
+        _sln = sovereign_ctx.get('lightning', {})
+        lightning = {
+            'capacity': _sln.get('capacity_btc', 0),
+            'channels': _sln.get('channels', 0),
+            'nodes': _sln.get('nodes', 0),
+        }
+        # Enrich onchain
+        _snet = sovereign_ctx.get('network', {})
+        onchain['block_height'] = sovereign_ctx.get('block_height', 0)
+        onchain['next_adj_pct'] = _snet.get('next_adj_pct', 0)
+        onchain['next_adj_blocks'] = _snet.get('next_adj_blocks', 0)
+        # Build macro from sovereign
+        _smac = sovereign_ctx.get('macro', {})
+        macro = {
+            'dxy': _smac.get('dxy'),
+            'gold': _smac.get('gold_price'),
+            'sp500': _smac.get('sp500'),
+            'btc_gold_ratio': round(price.get('price', 0) / _smac['gold_price'], 2) if _smac.get('gold_price') else None,
+        }
+        # Options + Futures
+        _sopt = sovereign_ctx.get('options', {})
+        _sfut = sovereign_ctx.get('futures', {})
+    except Exception as _e:
+        logging.warning(f'[Terminal] sovereign enrichment: {_e}')
+        macro = {}
+        _sopt = {}
+        _sfut = {}
+
     return render_template('signal_terminal.html',
         price=price, mempool=mempool, onchain=onchain,
         lightning=lightning, fg=fg_dict, fg_class=fg_class,
         signal=signal, latest=latest, is_commander=is_commander,
-        alerts=alerts, macro={})
+        alerts=alerts, macro=macro, sovereign_ctx=sovereign_ctx,
+        options=_sopt, futures=_sfut)
 
 @app.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
