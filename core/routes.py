@@ -10768,13 +10768,18 @@ def _fetch_fear_greed():
         return None
 
 @_ttl_cache(30)
+_btc_price_cache = {"price": 0, "ts": 0}
+
 def _fetch_btc_price():
     """Fetch current BTC price with 3-source fallback chain. Cache 30s."""
+    import time as _t
+    if _btc_price_cache["price"] and (_t.time() - _btc_price_cache["ts"]) < 30:
+        return _btc_price_cache["price"]
     # Source 1: Coinbase
     try:
         r = requests.get("https://api.coinbase.com/v2/prices/BTC-USD/spot", timeout=8, headers=CHARTS_HEADERS)
         r.raise_for_status()
-        return float(r.json()["data"]["amount"])
+        _p = float(r.json()["data"]["amount"]); _btc_price_cache["price"] = _p; _btc_price_cache["ts"] = _t.time(); return _p
     except Exception as e:
         logging.warning("BTC price Coinbase error: %s", e)
     # Source 2: CoinGecko
