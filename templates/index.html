@@ -967,7 +967,7 @@ function updateIntelStrip() {
             var sEl = document.getElementById('teaser-score');
             if (sEl) sEl.textContent = score + '/100';
         }).catch(function() {});
-    fetch('/api/media/telemetry', { signal: AbortSignal.timeout(6000) }), { signal: AbortSignal.timeout(6000) })
+    fetch('/api/media/telemetry', { signal: AbortSignal.timeout(6000) })
         .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
         .then(function(d) {
             // Block height
