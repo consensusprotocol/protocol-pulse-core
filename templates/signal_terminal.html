@@ -2,6 +2,7 @@
 {% block title %}Signal Terminal — Protocol Pulse{% endblock %}
 
 {% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1661,4 +1662,154 @@ body { background: var(--bg) !important; overflow: hidden; }
 
 })();
 </script>
+
+    <!-- ═══ HALVING CYCLE OVERLAY ═══════════════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">4-YEAR HALVING CYCLE OVERLAY</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
+            Price multiplier from halving price — current cycle vs historical (log scale)
+        </div>
+        <div style="position:relative;height:320px;padding:8px 12px;">
+            <canvas id="halvingCycleChart"></canvas>
+        </div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;padding:8px 12px;">
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
+                <div style="font-size:18px;font-weight:900;color:#fff;" id="halving-day">706</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
+                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-mult">1.03x</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
+                <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Current</div>
+                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-current">${{ '{:,.0f}'.format(price.price|int) if price and price.price else '—' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
+        </div>
+    </div>
+
+
 {% endblock %}
+
+<script>
+/* ═══ HALVING CYCLE CHART ═══ */
+(function(){
+  var canvas = document.getElementById('halvingCycleChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  var halvingPrices = {2012:12, 2016:650, 2020:8600, 2024:63800};
+  var rawData = {
+    2012: {0:1, 100:2.5, 200:8, 300:40, 365:80, 500:50, 600:30, 700:20, 800:15, 900:10, 1000:8, 1400:5},
+    2016: {0:1, 100:1.2, 200:1.8, 300:2.5, 365:2.9, 400:3.5, 500:5, 550:8, 580:14, 600:10, 700:6, 800:4, 1000:3, 1400:4},
+    2020: {0:1, 100:1.5, 200:2.5, 300:4, 365:6, 400:7.5, 500:7, 530:8, 540:7, 600:4, 700:3, 800:3.5, 1000:4, 1400:7},
+    2024: {0:1, 50:0.95, 100:1.0, 150:1.05, 200:1.1, 250:1.05, 300:1.02, 350:0.98, 400:0.97, 500:0.95, 600:0.97, 706:1.03}
+  };
+
+  function toPoints(obj) {
+    return Object.keys(obj).map(function(k){return {x:parseInt(k),y:obj[k]};}).sort(function(a,b){return a.x-b.x;});
+  }
+
+  var todayPlugin = {
+    id:'todayLine',
+    afterDraw:function(chart){
+      var xScale=chart.scales.x,yScale=chart.scales.y,ctx=chart.ctx;
+      var xPx=xScale.getPixelForValue(706);
+      ctx.save();ctx.strokeStyle='rgba(255,34,34,0.4)';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(xPx,yScale.top);ctx.lineTo(xPx,yScale.bottom);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle='#ff2222';ctx.font='800 10px "JetBrains Mono",monospace';ctx.textAlign='center';
+      ctx.fillText('TODAY',xPx,yScale.top-6);ctx.restore();
+    }
+  };
+
+  var glowPlugin = {
+    id:'glowDot',
+    afterDatasetsDraw:function(chart){
+      var ds=chart.getDatasetMeta(3);if(!ds||!ds.data.length)return;
+      var pt=ds.data[ds.data.length-1];if(!pt)return;var ctx=chart.ctx;ctx.save();
+      ctx.beginPath();ctx.arc(pt.x,pt.y,12,0,Math.PI*2);ctx.fillStyle='rgba(255,34,34,0.2)';ctx.fill();
+      ctx.beginPath();ctx.arc(pt.x,pt.y,6,0,Math.PI*2);ctx.fillStyle='#ff2222';ctx.fill();ctx.restore();
+    }
+  };
+
+  new Chart(canvas,{
+    type:'line', plugins:[todayPlugin,glowPlugin],
+    data:{datasets:[
+      {label:'2012',data:toPoints(rawData[2012]),borderColor:'#ff4444',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,tension:0.3},
+      {label:'2016',data:toPoints(rawData[2016]),borderColor:'#888888',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,tension:0.3},
+      {label:'2020',data:toPoints(rawData[2020]),borderColor:'#aaaaaa',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,tension:0.3},
+      {label:'2024 (CURRENT)',data:toPoints(rawData[2024]),borderColor:'#ff2222',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.3}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{type:'linear',min:0,max:1400,
+          title:{display:true,text:'Days Since Halving',color:'rgba(255,255,255,0.3)',font:{family:"'JetBrains Mono',monospace",size:10,weight:700}},
+          grid:{color:'rgba(255,255,255,0.05)'},
+          ticks:{color:'rgba(255,255,255,0.25)',font:{family:"'JetBrains Mono',monospace",size:9},stepSize:200}
+        },
+        y:{type:'logarithmic',min:0.5,
+          title:{display:true,text:'Multiplier vs Halving Price',color:'rgba(255,255,255,0.3)',font:{family:"'JetBrains Mono',monospace",size:10,weight:700}},
+          grid:{color:'rgba(255,255,255,0.05)'},
+          ticks:{color:'rgba(255,255,255,0.25)',font:{family:"'JetBrains Mono',monospace",size:9},callback:function(v){return v+'x';}}
+        }
+      },
+      plugins:{
+        legend:{display:true,position:'top',labels:{color:'rgba(255,255,255,0.5)',font:{family:"'JetBrains Mono',monospace",size:9,weight:700},boxWidth:12,padding:16}},
+        tooltip:{
+          backgroundColor:'rgba(10,10,10,0.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,0.7)',
+          titleFont:{family:"'JetBrains Mono',monospace",size:11,weight:800},
+          bodyFont:{family:"'JetBrains Mono',monospace",size:10},
+          borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+          callbacks:{
+            title:function(items){return 'Day '+Math.round(items[0].parsed.x);},
+            label:function(ctx){
+              var year=[2012,2016,2020,2024][ctx.datasetIndex];
+              return ctx.dataset.label+': '+ctx.parsed.y.toFixed(2)+'x ($'+Math.round(ctx.parsed.y*halvingPrices[year]).toLocaleString()+')';
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ═══ CONVERGENCE BREAKDOWN ═══ */
+(function(){
+  var el=document.getElementById('convergence-breakdown');
+  if(!el) return;
+  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+    var nodes=d.nodes||{};
+    var html='';
+    var order=['mcx','epx','ihx','opx','fdx','ocx'];
+    order.forEach(function(key){
+      var n=nodes[key];if(!n)return;
+      var s=Math.round(n.score);
+      var col=s>=65?'#22c55e':s<=35?'#ef4444':'#f8c15c';
+      html+='<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:10px 12px;">';
+      html+='<div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);text-transform:uppercase;">'+n.label+' — '+n.desc+'</div>';
+      html+='<div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:'+col+';margin-top:4px;">'+s+'</div>';
+      html+='<div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:6px;"><div style="height:100%;width:'+s+'%;background:'+col+';border-radius:2px;"></div></div>';
+      html+='</div>';
+    });
+    el.innerHTML=html;
+  }).catch(function(){});
+})();
+</script>
