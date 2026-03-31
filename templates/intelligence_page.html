@@ -1157,19 +1157,6 @@
     </div>
 
     
-    <!-- LIVE CONVERGENCE FEED (next to radar) -->
-    <div class="span-7" style="min-height:400px;">
-      <div class="g-panel accent-red" style="height:100%;display:flex;flex-direction:column;">
-        <div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>LIVE CONVERGENCE FEED</span>
-          <span style="display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse-dot 1s ease-in-out infinite;"></span><span id="intel-feed-count" style="font-size:7px;color:rgba(255,255,255,0.3);">0</span></span>
-        </div>
-        <div id="intel-live-feed" style="flex:1;overflow-y:auto;max-height:560px;display:flex;flex-direction:column-reverse;">
-          <div id="intel-feed-inner" style="display:flex;flex-direction:column;gap:1px;padding:4px 0;"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- C. FEAR & GREED + NARRATIVE TIMELINE -->
     <div class="span-4">
       <div style="display:flex;flex-direction:column;gap:16px;height:100%;">
@@ -1548,6 +1535,33 @@
       </div>
     </div>
   </div>
+
+  
+  <!-- ══════════════════════════════════════════════════════════════
+       CONVERGENCE DASHBOARD — Live convergence engine data
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="intel-grid" style="margin-top:16px;">
+    <div class="span-12">
+      <div class="g-panel accent-red">
+        <div class="eyebrow">LIVE CONVERGENCE FEED</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+          <!-- Left: Index breakdown -->
+          <div id="intel-convergence-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;"></div>
+          <!-- Right: Live ticker feed -->
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;">
+            <div style="padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);">REAL-TIME EVENTS</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;display:inline-block;"></span><span id="intel-ev-count" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);">0</span></span>
+            </div>
+            <div id="intel-ev-scroll" style="height:240px;overflow-y:auto;display:flex;flex-direction:column-reverse;">
+              <div id="intel-ev-inner" style="display:flex;flex-direction:column;gap:1px;padding:2px 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ══════════════════════════════════════════════════════════════
        4-YEAR HALVING CYCLE OVERLAY — Chart.js Interactive

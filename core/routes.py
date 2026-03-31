@@ -6294,6 +6294,31 @@ def trigger_automation():
             'message': result.get('error', 'Unknown error')
         }), 500
 
+
+@app.route('/api/donations/pulse')
+def api_donation_pulse():
+    try:
+        import sys
+        if "/home/ultron/protocol_pulse" not in sys.path:
+            sys.path.insert(0, "/home/ultron/protocol_pulse")
+        from services.donation_map_service import DonationMapService
+        svc = DonationMapService()
+        return jsonify(svc.get_donation_pulse())
+    except Exception as e:
+        return jsonify({"score": 0, "label": "UNAVAILABLE", "error": str(e)})
+
+@app.route('/api/donations/by-state')
+def api_donations_by_state():
+    try:
+        from services.donation_map_service import DonationMapService
+        svc = DonationMapService()
+        state = request.args.get('state', None)
+        data = svc.get_contributions_by_state(state, per_page=20)
+        return jsonify({"results": data[:20], "count": len(data)})
+    except Exception as e:
+        return jsonify({"results": [], "error": str(e)})
+
+
 @app.route('/health/automation')
 def automation_health():
     """Health check endpoint for automation monitoring"""
