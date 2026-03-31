@@ -97,11 +97,11 @@
 
 .pp-hero__title {
     font-family: var(--pp-font-body);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-size: clamp(1.8rem, 4.5vw, 3.5rem);
     font-weight: 700;
     color: var(--pp-text);
-    line-height: 1.1;
-    letter-spacing: -0.03em;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
     margin-bottom: 20px;
     max-width: 700px;
 }
