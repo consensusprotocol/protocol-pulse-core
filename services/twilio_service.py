@@ -76,13 +76,10 @@ def send_morning_brief_call(to: str, brief_text: str) -> bool:
     """Place a voice call delivering the morning intelligence brief with Kokoro voice."""
     try:
         brief_url = _generate_and_url(brief_text)
-        outro_url = _generate_and_url('End of brief. Stay sovereign.')
         twiml = (
             f'<Response>'
             f'<Pause length="1"/>'
             f'<Play>{brief_url}</Play>'
-            f'<Pause length="1"/>'
-            f'<Play>{outro_url}</Play>'
             f'</Response>'
         )
         call = get_client().calls.create(
