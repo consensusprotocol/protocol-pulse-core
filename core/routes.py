@@ -694,14 +694,7 @@ def signal_terminal():
         onchain['block_height'] = _ctx.get('block_height', 0)
     except Exception as e:
         logging.warning(f'[SignalTerminal] data load: {e}')
-    try:
-        r = _req.get('https://api.alternative.me/fng/?limit=1', timeout=1.5)
-        if r.ok:
-            d = r.json().get('data', [{}])[0]
-            fg = int(d.get('value', 25))
-            fg_class = d.get('value_classification', 'Fear').lower().replace(' ', '-')
-    except:
-        pass
+    # F&G already loaded from sovereign_context above — no external API needed
     try:
         r = _req.get('https://mempool.space/api/v1/fees/recommended', timeout=1.5)
         if r.ok:
