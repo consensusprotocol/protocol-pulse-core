@@ -643,10 +643,7 @@ def value_stream_legacy():
                               market_pulse=default_pulse)
 
 
-@app.route('/terminal')
-def terminal_redirect():
-    """Terminal route — redirect to signal terminal."""
-    return redirect('/intelligence')
+# /terminal now handled by signal_terminal() below
 
 @app.route('/terminal')
 @app.route('/signal-terminal')
