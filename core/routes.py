@@ -1844,8 +1844,8 @@ def _article_body_without_tldr(content):
     content = _rx.sub(r'<div[^>]*class=["\'][^"\']*tldr[^"\']*["\'][^>]*>.*?</div>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
     content = _rx.sub(r'<p[^>]*>.*?TL;DR:.*?</p>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
     content = _rx.sub(r'<h1[^>]*>.*?</h1>', '', content, flags=_rx.DOTALL|_rx.IGNORECASE)
-    m = _rx.search(r'<h2', content, _rx.IGNORECASE)
-    return content[m.start():].strip() if m else content.strip()
+    # Return full content after h1/tldr removal — do NOT truncate at h2
+    return content.strip()
 
 def _article_key_takeaways(article):
     """Extract key takeaways: summary, or TL;DR from content, or first 400 chars."""
