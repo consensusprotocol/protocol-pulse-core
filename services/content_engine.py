@@ -857,9 +857,10 @@ FORMAT: Use <h1 class="article-header">, <div class="tldr-section">, <p class="a
                 try:
                     from services.image_service import generate_article_header_image
                     img_path = generate_article_header_image(article_data.get("title", "Bitcoin News"))
-                    # Verify the file actually exists on disk
-                    if img_path and not os.path.exists(img_path.lstrip("/")):
-                        logging.warning(f"Image generation returned path but file missing: {img_path}")
+                    # Accept URLs directly (Pexels returns https:// URLs)
+                    # Only verify local file paths, not remote URLs
+                    if img_path and not img_path.startswith("http") and not os.path.exists(img_path.lstrip("/")):
+                        logging.warning(f"Local image path missing: {img_path}")
                         img_path = None
                     if img_path:
                         header_url = img_path
