@@ -1825,6 +1825,8 @@ def api_orb_public():
                 "lightning_btc":float((d.get('lightning') or {}).get('capacity_btc',0)),
                 "options_max_pain":float(opts.get('max_pain',0)),
                 "next_adj_pct":float((d.get('network') or {}).get('next_adj_pct',0)),
+                "whale_alerts_list":(d.get('whale_alerts') or [])[:5],
+                "polymarket":d.get('polymarket', {}),
             }
         })
     except Exception as exc:
