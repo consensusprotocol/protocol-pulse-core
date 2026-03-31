@@ -41,16 +41,13 @@
 
 body { background: var(--bg) !important; overflow: hidden; }
 
-/* Hide base.html nav, footer, and mobile menu for full-screen terminal */
-.pp-nav, #ppNav, .pp-nav__mobile, #ppMobileNav,
-footer, .pp-footer, .site-footer { display: none !important; }
 
 .terminal-root {
     font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
     background: var(--bg);
     color: var(--text);
-    height: 100vh;
-    width: 100vw;
+    min-height: calc(100vh - 60px);
+    width: 100%;
     display: flex;
     flex-direction: column;
     position: relative;

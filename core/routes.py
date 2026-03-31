@@ -662,22 +662,31 @@ def signal_terminal():
     signal = {'score': 0, 'direction': 'neutral'}
     latest = []
     try:
-        from services.price_service import PriceService
-        ps = PriceService()
-        prices = ps.get_prices()
-        if prices and prices.get('bitcoin'):
-            b = prices['bitcoin']
-            price = {
-                'price': b.get('price', 0) or b.get('usd', 0),
-                'change_24h': b.get('change_24h', 0),
-                'change_7d': b.get('change_7d', 0),
-                'change_30d': b.get('change_30d', 0),
-                'market_cap': b.get('market_cap', 0),
-                'volume_24h': b.get('volume_24h', 0),
-                'dominance': b.get('dominance', 0),
-            }
+        import json as _stj
+        ctx_path = "/home/ultron/protocol_pulse/data/sovereign_context/latest.json"
+        with open(ctx_path) as _cf:
+            _ctx = _stj.load(_cf)
+        btc = _ctx.get('btc', {})
+        price = {
+            'price': btc.get('price', 0),
+            'change_24h': btc.get('change_24h', 0),
+            'change_7d': btc.get('change_7d', 0),
+            'change_30d': btc.get('change_30d', 0),
+            'market_cap': btc.get('market_cap', 0),
+            'volume_24h': btc.get('volume_24h', 0),
+            'dominance': btc.get('dominance', 0),
+        }
+        # Also pull F&G from context
+        _fg = _ctx.get('fear_greed', {})
+        fg = int(_fg.get('value', 25))
+        fg_class = str(_fg.get('label', 'Fear')).lower().replace(' ', '-')
+        # Mining data
+        _net = _ctx.get('network', {})
+        onchain['hashrate'] = _net.get('hashrate_eh', 0)
+        onchain['difficulty'] = _net.get('difficulty', 0)
+        onchain['block_height'] = _net.get('block_height', 0)
     except Exception as e:
-        logging.warning(f'[SignalTerminal] price: {e}')
+        logging.warning(f'[SignalTerminal] sovereign_context: {e}')
     try:
         r = _req.get('https://api.alternative.me/fng/?limit=1', timeout=1.5)
         if r.ok:
