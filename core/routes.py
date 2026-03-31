@@ -1597,7 +1597,81 @@ def api_orb_public():
         except Exception:
             age_s = 0
             status = 'live'
-        return _jfy({"status":status,"timestamp":ts,"age_seconds":round(age_s),"composite":{"score":composite,"pattern":pattern},"nodes":{"mcx":{"score":round(mcx,1),"label":"MCX"},"epx":{"score":round(epx,1),"label":"EPX"},"ihx":{"score":round(ihx,1),"label":"IHX"}},"streams":{"hashrate":round(hash_score,1),"fear_greed":fg_val,"fees":round(fee_score,1),"exchange_flow":flow_score,"kol":kol_score}})
+        # Extra nodes from rich data
+        opts = d.get('options') or {}
+        futs = d.get('futures') or {}
+        onch = d.get('on_chain') or {}
+        macro = d.get('macro') or {}
+        poly = d.get('polymarket') or {}
+        whale_alerts = d.get('whale_alerts') or []
+        
+        # OPX: Options Pressure Index (put/call + DVOL)
+        pcr = float(opts.get('put_call_ratio') or 0.7)
+        dvol = float(opts.get('dvol') or 50)
+        opx = round(max(0, min(100, (1 - pcr) * 50 + (dvol - 40) * 0.5 + 50)), 1)
+        
+        # FDX: Futures/Derivatives Index (funding rate + basis + OI)
+        funding = float(futs.get('funding_rate') or 0)
+        basis = float(futs.get('annualized_basis') or 0)
+        fdx = round(max(0, min(100, 50 + funding * 1000000 + basis * 5)), 1)
+        
+        # OCX: On-Chain Index (accumulation score + NVT + active addresses)
+        acc_score = float(onch.get('accumulation_score') or 50)
+        nvt = float(onch.get('nvt_ratio') or 50)
+        nvt_score = max(0, min(100, 100 - nvt * 1.5))
+        ocx = round((acc_score * 0.6 + nvt_score * 0.4), 1)
+
+        # Whale score
+        whale_count = len(whale_alerts)
+        whale_score = min(100, 50 + whale_count * 8)
+        
+        # Polymarket score
+        poly_score = float(poly.get('macro_sentiment') or 50)
+        
+        # Macro correlation score
+        dxy_corr = float(macro.get('btc_vs_dxy_30d_corr') or 0)
+        macro_score = round(max(0, min(100, 50 - dxy_corr * 40)), 1)
+
+        return _jfy({"status":status,"timestamp":ts,"age_seconds":round(age_s),
+            "composite":{"score":composite,"pattern":pattern},
+            "nodes":{
+                "mcx":{"score":round(mcx,1),"label":"MCX","desc":"Miner Conviction"},
+                "epx":{"score":round(epx,1),"label":"EPX","desc":"Exchange Pressure"},
+                "ihx":{"score":round(ihx,1),"label":"IHX","desc":"Insider Heat"},
+                "opx":{"score":opx,"label":"OPX","desc":"Options Pressure"},
+                "fdx":{"score":fdx,"label":"FDX","desc":"Futures/Derivatives"},
+                "ocx":{"score":ocx,"label":"OCX","desc":"On-Chain Activity"},
+            },
+            "streams":{
+                "hashrate":round(hash_score,1),
+                "fear_greed":fg_val,
+                "fees":round(fee_score,1),
+                "exchange_flow":flow_score,
+                "kol":kol_score,
+                "polymarket":round(poly_score,1),
+                "whale":round(whale_score,1),
+                "macro_corr":macro_score,
+                "put_call":round(pcr*100,1),
+                "accum":round(acc_score,1),
+            },
+            "raw":{
+                "put_call_ratio":pcr,
+                "dvol":dvol,
+                "funding_rate":funding,
+                "basis_pct":basis,
+                "accumulation_score":acc_score,
+                "nvt_ratio":nvt,
+                "whale_alerts":whale_count,
+                "polymarket_top":poly.get('top_market',''),
+                "poly_prob":poly.get('top_probability',0),
+                "gold_price":macro.get('gold_price',0),
+                "sp500":macro.get('sp500',0),
+                "dxy_corr":dxy_corr,
+                "lightning_btc":float((d.get('lightning') or {}).get('capacity_btc',0)),
+                "options_max_pain":float(opts.get('max_pain',0)),
+                "next_adj_pct":float((d.get('network') or {}).get('next_adj_pct',0)),
+            }
+        })
     except Exception as exc:
         import logging; logging.warning('orb api: %s', exc)
         return _jfy({"status":"error","composite":{"score":50,"pattern":"OFFLINE"},"nodes":{"mcx":{"score":50},"epx":{"score":50},"ihx":{"score":50}},"streams":{"hashrate":50,"fear_greed":50,"fees":50,"exchange_flow":50,"kol":50}})
