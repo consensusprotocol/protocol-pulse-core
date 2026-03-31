@@ -55,7 +55,7 @@
     <link rel="stylesheet" href="{{ '/static/css/pp-style.css' }}?v=6.0">
     <link rel="stylesheet" href="{{ '/static/css/pp-coindesk.css' }}?v=6.0">
     <link rel="stylesheet" href="{{ '/static/css/pp-fixes.css' }}?v=9.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/oracle_widget.css') }}?v=12.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/oracle_widget.css') }}?v=13.0">
     {% if current_user.is_authenticated and ((current_user.operative_rank or 0)|int) >= 3 %}
     <link rel="stylesheet" href="{{ '/static/css/stealth-alpha.css' }}?v=3.0">
     {% endif %}
@@ -98,7 +98,7 @@
 
     {% block head %}{% endblock %}
     {% block extra_css %}{% endblock %}
-    <link rel="stylesheet" href="{{ '/static/css/pp-homepage.css' }}?v=4.0">
+    <link rel="stylesheet" href="{{ '/static/css/pp-homepage.css' }}?v=5.0">
 <style>.pp-chat-bubble { display: none !important; }</style>
 </head>
 <body class="pp-body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} rank-3-active{% endif %}{% block body_class %}{% endblock %}">
