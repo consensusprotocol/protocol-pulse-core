@@ -1,40 +1,40 @@
 {
-  "updated_at": "2026-03-31T02:35:01.914128+00:00",
+  "updated_at": "2026-03-31T14:20:01.146541+00:00",
   "btc_price": {
-    "value": 67912,
-    "change_24h": 1.93,
+    "value": 67471,
+    "change_24h": -0.04,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1358876737925.4482,
+    "value": 1348571564743.0457,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 41398395673.56614,
+    "value": 51999322655.316925,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 943006,
+    "value": 943072,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 4.56,
-    "blocks_remaining": 482,
-    "estimated_date": "2026-04-03T07:27:52.666000+00:00",
+    "percent": 4.06,
+    "blocks_remaining": 416,
+    "estimated_date": "2026-04-03T09:00:15.192000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1017.4 EH/s",
-    "raw_eh": 1017.4,
+    "value": "1009.5 EH/s",
+    "raw_eh": 1009.5,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 21893,
-    "vsize_mb": 14.3,
+    "tx_count": 17471,
+    "vsize_mb": 13.1,
     "source": "mempool.space"
   },
   "recommended_fees": {
-    "fastest": 2,
+    "fastest": 1,
     "hour": 1,
     "economy": 1,
     "source": "mempool.space"
@@ -52,26 +52,26 @@
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 2.086e-05,
-    "annualized": 2.28,
+    "value": 3.598e-05,
+    "annualized": 3.94,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 29676.3,
-    "usd": 2015166360,
+    "btc": 29754.9,
+    "usd": 2013833430,
     "source": "deribit"
   },
   "exchange_volume": {
-    "binance_btc": 110248.6,
+    "binance_btc": null,
     "coinbase_btc": null,
     "source": "coingecko"
   },
   "halving": {
-    "days_since": 710,
-    "days_to_next": 748,
+    "days_since": 711,
+    "days_to_next": 747,
     "next_block": 1050000,
     "current_subsidy": 3.125,
-    "progress_pct": 48.7,
+    "progress_pct": 48.8,
     "source": "calculated"
   },
   "whale_moves": {
@@ -101,8 +101,8 @@
     "source": "unavailable"
   },
   "signal_score": {
-    "bull_count": 4,
+    "bull_count": 3,
     "bear_count": 1,
-    "neutral_count": 0
+    "neutral_count": 1
   }
 }

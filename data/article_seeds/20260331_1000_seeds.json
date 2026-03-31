@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-03-31T10:00:15.461813+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 11: Why Bitcoin's Extreme Fear Gauge Signals Opportunity, Not Danger",
+      "angle": "Historical pattern analysis of Extreme Fear readings and subsequent rallies; network fundamentals supporting the dip",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-gauge",
+        "accumulation",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "Bitcoin's Fee Floor: How 1 Sat/vB Changes the Accumulation Game",
+      "angle": "Technical deep-dive into mempool clearing, fee economics, and what historical low fees mean for whale positioning",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "network-health",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "The 904.8 EH/s Signal: Why Bitcoin's Hashrate Peak Contradicts the Panic Narrative",
+      "angle": "Miner commitment during fear cycles; what hashrate strength reveals about long-term conviction vs. short-term price action",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "network-security",
+        "macro"
+      ]
+    }
+  ]
+}

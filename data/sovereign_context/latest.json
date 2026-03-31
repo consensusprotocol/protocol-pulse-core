@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-03-31T02:35:02.820201+00:00",
-  "block_height": 943006,
+  "timestamp": "2026-03-31T14:20:02.032567+00:00",
+  "block_height": 943072,
   "btc": {
-    "price": 67840,
-    "change_24h": 1.83,
+    "price": 67575,
+    "change_24h": 0.11,
     "change_7d": 0,
-    "market_cap": 1358876737925.4482,
-    "dominance": 56.3
+    "market_cap": 1348571564743.0457,
+    "dominance": 0
   },
   "fear_greed": {
     "value": 11,
@@ -15,20 +15,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 21927,
-    "size_mb": 14.3
+    "fee_high": 1,
+    "unconfirmed": 17471,
+    "size_mb": 13.1
   },
   "network": {
-    "hashrate_eh": 1017.4,
+    "hashrate_eh": 1008.5,
     "difficulty": 0,
-    "next_adj_pct": 4.56,
-    "next_adj_blocks": 482
+    "next_adj_pct": 4.06,
+    "next_adj_blocks": 416
   },
   "lightning": {
-    "capacity_btc": 5706.3,
-    "channels": 41986,
-    "nodes": 17342
+    "capacity_btc": 5057.1,
+    "channels": 41109,
+    "nodes": 17438
   },
   "kol": {
     "sentiment_score": 50,
@@ -48,79 +48,79 @@
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "# ORACLE EVENING BRIEF | March 30, 2026\n\n**THE SETUP IS STRUCTURAL.**\n\nBitcoin flat at $66,575 while fear hits 8\u2014extreme territory. But flatness during chaos is the signal. A parallel channel spanning",
-    "brief_type": "evening"
+    "narrative": "**BITCOIN MORNING BRIEF**\n\nBitcoin holding steady at $66,044\u2014flat overnight, but that's the story. Extreme Fear gauge at 11 signals capitulation territory. This is where survivors accumulate.\n\nNetwork",
+    "brief_type": "morning"
   },
   "whale_alerts": [
     {
-      "tier": "NOTE",
+      "tier": "WATCH",
       "rule": "Hashrate cliff",
       "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774924409.6159132
+      "score": 65,
+      "created_at": 1774966441.7079422
     },
     {
-      "tier": "NOTE",
+      "tier": "WATCH",
       "rule": "Hashrate cliff",
       "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774924408.7309172
+      "score": 65,
+      "created_at": 1774966441.6893492
     },
     {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774924408.7308598
+      "tier": "WATCH",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 60% of last 10 blocks",
+      "score": 65,
+      "created_at": 1774966441.0780408
     },
     {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774924408.7257543
+      "tier": "WATCH",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 60% of last 10 blocks",
+      "score": 65,
+      "created_at": 1774966441.074123
     },
     {
-      "tier": "NOTE",
+      "tier": "WATCH",
       "rule": "Hashrate cliff",
       "message": "Hashrate cliff: 20.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1774924085.0618334
+      "score": 65,
+      "created_at": 1774965759.3519318
     }
   ],
   "macro": {
     "dxy": null,
-    "gold_price": 4618.2,
-    "sp500": 6445.25,
-    "btc_vs_gold_30d_corr": 0.131,
-    "btc_vs_dxy_30d_corr": -0.786,
+    "gold_price": 4636.2,
+    "sp500": 6493.25,
+    "btc_vs_gold_30d_corr": 0.137,
+    "btc_vs_dxy_30d_corr": -0.708,
     "real_yield": null,
-    "ten_year_yield": 4.34
+    "ten_year_yield": 4.31
   },
   "options": {
-    "put_call_ratio": 0.696,
-    "dvol": 54.1,
+    "put_call_ratio": 0.671,
+    "dvol": 53.5,
     "max_pain": 60000.0,
-    "total_call_oi": 216404.1,
-    "total_put_oi": 150625.4,
-    "total_oi_btc": 367029.5,
-    "avg_mark_iv": 58.3
+    "total_call_oi": 225287.6,
+    "total_put_oi": 151237.2,
+    "total_oi_btc": 376524.8,
+    "avg_mark_iv": 56.2
   },
   "futures": {
-    "funding_rate": 2.119e-05,
-    "annualized_basis": 2.32,
-    "open_interest": 29637.53,
-    "open_interest_usd": 2015298970.0,
+    "funding_rate": 3.813e-05,
+    "annualized_basis": 4.18,
+    "open_interest": 29985.27,
+    "open_interest_usd": 2013045930.0,
     "long_short_ratio": null,
-    "mark_price": 68017.62,
-    "index_price": 67998.21,
-    "basis_pct": 0.593
+    "mark_price": 67150.96,
+    "index_price": 67134.49,
+    "basis_pct": 3.3177
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 6302326.0,
-    "active_addresses_7d": 602391.0,
-    "tx_volume_usd_7d": 56465473875.0,
-    "nvt_ratio": 24.1,
+    "coin_days_destroyed_7d": 9549086.0,
+    "active_addresses_7d": 601151.0,
+    "tx_volume_usd_7d": 54371624180.0,
+    "nvt_ratio": 25.0,
     "accumulation_score": 75
   },
   "active_alerts": [],

@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-03-31T10:00:15.461813+00:00",
+  "brief_type": "morning",
+  "score": 65,
+  "bullish_signals": [
+    "Extreme Fear gauge at 11 (historically precedes rallies)",
+    "Hashrate climbing to 904.8 exahashes (network strength)",
+    "Mempool congestion eased to under 19k transactions",
+    "Fees bottoming at 1 sat/vB (optimal entry conditions)",
+    "Asia consolidation pattern intact (no panic)",
+    "Network self-regulating despite macro headwinds",
+    "Difficulty adjustment approaching (natural support)"
+  ],
+  "bearish_signals": [
+    "Risk of complacency if volume doesn't confirm by US open",
+    "Lack of volume confirmation could extend consolidation"
+  ],
+  "neutral_topics": [
+    "Price flatness overnight at $66,044",
+    "Macro headwinds continuing"
+  ]
+}
