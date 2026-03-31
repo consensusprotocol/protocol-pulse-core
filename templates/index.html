@@ -1376,7 +1376,43 @@ function bootOrb(){
   try{window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}catch(e){console.error('Orb error:',e);}
 }
 setTimeout(bootOrb,200);
-function updateCards(){fetch('/api/orb').then(function(r){return r.json()}).then(function(d){document.getElementById('mcx-score').textContent=Math.round(d.nodes.mcx.score);document.getElementById('epx-score').textContent=Math.round(d.nodes.epx.score);document.getElementById('ihx-score').textContent=Math.round(d.nodes.ihx.score);document.getElementById('composite-score').textContent=d.composite.score;document.getElementById('composite-pattern').textContent=d.composite.pattern.toUpperCase();}).catch(function(e){console.warn('orb cards',e)});}
+function updateCards(){
+  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+    var n=d.nodes||{},r=d.raw||{},s=d.streams||{};
+    var set=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+    if(n.mcx){set('mcx-score',Math.round(n.mcx.score));set('mcx-signal',n.mcx.score>70?'BULLISH':n.mcx.score<35?'BEARISH':'NEUTRAL');}
+    set('live-hashrate',Math.round((s.hashrate||0)/100*1200)+' EH/s');
+    set('live-diffadj',(r.next_adj_pct||0)>0?'+'+parseFloat(r.next_adj_pct||0).toFixed(2)+'%':parseFloat(r.next_adj_pct||0).toFixed(2)+'%');
+    if(n.epx){set('epx-score',Math.round(n.epx.score));set('epx-signal',n.epx.score>60?'OUTFLOW':n.epx.score<40?'INFLOW':'NEUTRAL');}
+    set('live-flow',s.exchange_flow>60?'OUTFLOW':s.exchange_flow<40?'INFLOW':'NEUTRAL');
+    set('live-whale',(r.whale_alerts||0)+' detected');
+    if(n.ihx){set('ihx-score',Math.round(n.ihx.score));set('ihx-signal',n.ihx.score>65?'DIVERGING':'ALIGNED');}
+    set('live-fg',Math.round(s.fear_greed||0)+'/100');
+    set('live-poly',parseFloat(r.poly_prob||0).toFixed(1)+'%');
+    if(n.opx) set('opx-score',Math.round(n.opx.score));
+    set('live-pcr',parseFloat(r.put_call_ratio||0).toFixed(3));
+    set('live-dvol',Math.round(r.dvol||0));
+    if(n.fdx) set('fdx-score',Math.round(n.fdx.score));
+    set('live-fund',parseFloat((r.funding_rate||0)*100).toFixed(4)+'%');
+    set('live-basis',parseFloat(r.basis_pct||0).toFixed(2));
+    if(n.ocx) set('ocx-score',Math.round(n.ocx.score));
+    set('live-accum',Math.round(r.accumulation_score||0)+'/100');
+    set('live-nvt',parseFloat(r.nvt_ratio||0).toFixed(1));
+    set('composite-score',d.composite.score);
+    set('composite-pattern',d.composite.pattern.toUpperCase());
+    var score=d.composite.score,mcxS=n.mcx?n.mcx.score:50,epxS=n.epx?n.epx.score:50,ocxS=n.ocx?n.ocx.score:50,opxS=n.opx?n.opx.score:50;
+    var c='Mixed signals — monitoring for directional catalyst';
+    if(mcxS>75&&ocxS>65) c='Miners & on-chain aligning — supply shock building';
+    else if(mcxS>75&&epxS<40) c='Strong miner conviction with neutral exchange flow';
+    else if(opxS<35) c='Derivatives cooling — spot market leading price discovery';
+    else if(score>70) c='Multi-signal convergence — high conviction state detected';
+    else if(score<35) c='Broad divergence — elevated protocol uncertainty';
+    else if(epxS>65) c='Exchange outflows accelerating — accumulation bias present';
+    set('orb-conclusion',c);
+    var fresh=document.getElementById('orb-freshness');
+    if(fresh){fresh.textContent='LIVE';fresh.style.color='#22c55e';}
+  }).catch(function(){var fresh=document.getElementById('orb-freshness');if(fresh){fresh.textContent='RETRY';fresh.style.color='#dc2626';}});
+}
 updateCards();setInterval(updateCards,30000);
 })();
 </script>
