@@ -44,7 +44,6 @@ TOP_ARTICLE_INDICATORS = [
     'just in:',
 ]
 
-
 class ImageGenerationService:
     """Pexels-first image service with Grok fallback for premium articles."""
 
@@ -95,23 +94,6 @@ class ImageGenerationService:
 
         if image is None:
             logger.warning(f"All image sources failed for: {title[:50]}")
-            # Last resort: return a Pexels URL directly (no download)
-            if self.pexels_key:
-                try:
-                    import random as _rnd
-                    queries = _build_pexels_queries(title, category)
-                    for q in queries[:2]:
-                        resp = requests.get("https://api.pexels.com/v1/search",
-                            headers={"Authorization": self.pexels_key},
-                            params={"query": q, "per_page": 5, "page": _rnd.randint(1, 5)}, timeout=8)
-                        if resp.status_code == 200:
-                            photos = resp.json().get("photos", [])
-                            if photos:
-                                url = _rnd.choice(photos)["src"]["large"]
-                                logger.info(f"Returning Pexels URL directly: {url[:60]}")
-                                return url
-                except Exception as e:
-                    logger.warning(f"Pexels URL fallback failed: {e}")
             image = self._generate_fallback_image(title)
 
         try:
@@ -125,19 +107,6 @@ class ImageGenerationService:
             return result_path
         except Exception as save_err:
             logger.error(f"Image save failed: {save_err}")
-            # Return Pexels URL as absolute last resort
-            if self.pexels_key:
-                try:
-                    import random as _rnd
-                    resp = requests.get("https://api.pexels.com/v1/search",
-                        headers={"Authorization": self.pexels_key},
-                        params={"query": "bitcoin", "per_page": 3}, timeout=8)
-                    if resp.status_code == 200:
-                        photos = resp.json().get("photos", [])
-                        if photos:
-                            return _rnd.choice(photos)["src"]["large"]
-                except:
-                    pass
             return "/static/images/default-header.png"
 
     # ─── PEXELS (PRIMARY — 90% of articles) ────────────────────────
@@ -322,9 +291,7 @@ class ImageGenerationService:
 
         return img
 
-
 # ─── HELPER FUNCTIONS ──────────────────────────────────────────────
-
 
 def _safe_filename(title):
     """Convert title to safe filename."""
@@ -332,12 +299,10 @@ def _safe_filename(title):
     safe = re.sub(r'\s+', '_', safe).strip('_')
     return safe[:80]
 
-
 def _is_top_article(title):
     """Check if article deserves Grok generation (named people/brands)."""
     lower = title.lower()
     return any(indicator in lower for indicator in TOP_ARTICLE_INDICATORS)
-
 
 def _build_pexels_queries(title, category=None):
     """Build search queries from article title, most specific to most general."""
@@ -437,7 +402,6 @@ def _build_pexels_queries(title, category=None):
 
     return unique[:5]  # Max 5 queries to avoid rate limits
 
-
 def _build_grok_prompt(title):
     """Build a cinematic prompt for Grok image generation."""
     return (
@@ -450,7 +414,6 @@ def _build_grok_prompt(title):
         "The image should tell the STORY behind the headline through visual metaphor. "
         "Mood: sophisticated, authoritative, like a TIME magazine cover photo."
     )
-
 
 def _resize_and_crop(img, target_w, target_h):
     """Resize and center-crop to exact dimensions."""
@@ -475,7 +438,6 @@ def _resize_and_crop(img, target_w, target_h):
     img = img.crop((left, top, left + target_w, top + target_h))
 
     return img
-
 
 def _apply_brand_overlay(img):
     """Apply subtle red/black brand overlay for cohesive look."""
@@ -515,7 +477,6 @@ def _apply_brand_overlay(img):
 
 # Singleton instance (imported by other modules)
 image_service = ImageGenerationService()
-
 
 # Standalone function aliases (imported by other modules)
 def generate_article_header_image(title, category=None):
