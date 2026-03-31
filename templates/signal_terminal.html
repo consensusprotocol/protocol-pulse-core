@@ -1244,13 +1244,13 @@ footer, .pp-footer, .site-footer { display: none !important; }
 
     // ── State ──────────────────────────────────────────────────────
     const S = {
-        price: {{ price | tojson | default('{}') }},
-        mempool: {{ mempool | tojson | default('{}') }},
-        fg: {{ fg | tojson | default('{}') }},
-        onchain: {{ onchain | tojson | default('{}') }},
-        lightning: {{ lightning | tojson | default('{}') }},
-        macro: {{ macro | tojson | default('{}') }},
-        signal: {{ signal | tojson | default('{}') }},
+        price: {{ (price or {}) | tojson }},
+        mempool: {{ (mempool or {}) | tojson }},
+        fg: {{ (fg or 25) | tojson }},
+        onchain: {{ (onchain or {}) | tojson }},
+        lightning: {{ (lightning or {}) | tojson }},
+        macro: {{ (macro or {}) | tojson }},
+        signal: {{ (signal or {}) | tojson }},
         isCommander: {{ 'true' if is_commander else 'false' }},
         lastBlockTs: null,
     };
