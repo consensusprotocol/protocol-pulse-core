@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1774966503.0665493,
-  "fetched_at_iso": "2026-03-31T14:15:03.066554+00:00",
+  "fetched_at": 1774987206.9141471,
+  "fetched_at_iso": "2026-03-31T20:00:06.914151+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 80,
+      "events_filtered": 82,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 87,
+      "events_filtered": 90,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 77,
+      "events_filtered": 82,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "\ud83d\udcc8 Trump-Linked American Bitcoin (ABTC) Surpasses 7,000 BTC as Treasury Growth Accelerates; Mining Peer Slides\n\n\u2022 ABTC surpasses 7,000 BTC in corporate reserves.\n\u2022 The company's treasury growth accelerates following its Nasdaq debut.\n\u2022 American Bitcoin Corp. is a mining peer of Trump-linked ABTC.\n\u2022 Treasury growth indicates increased adoption and confidence in the asset.\n\u2022 No direct correlation between ABTC's growth and Donald Trump's involvement.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/trump-linked-abtc-surpasses-7000-btc\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #mining #macro #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Trump-Linked American Bitcoin (ABTC) Surpasses 7,0tipf1624679c31bf9168a0610727172b207",
+      "text": "\ud83d\udcca U.S. Senators Unveil \u2018Mined in America Act\u2019 to Reshore BTC Mining, Codify Bitcoin Strategic Reserve\n\n\u2022 U.S. Senators Bill Cassidy and Cynthia Lummis introduce \"Mined in America Act\" to reshore bitcoin mining within the US.\n\u2022 The bill aims to reduce reliance on Chinese hardware and create a Strategic Bitcoin Reserve.\n\u2022 Key provisions include incentives for domestic mining, tax credits, and a reserve fund to support price stabilization.\n\u2022 The legislation seeks to promote energy independence and diversify global bitcoin supply chains.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/u-s-senators-mining-bitcoin-reserve-bill\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #self-custody #regulation #mining #privacy #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: U.S. Senators Unveil \u2018Mined in America Act\u2019 to Restip7faea45d78b1820c3278325c3e591512",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965646,
+      "created_at": 1774986361,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "Senators Cassidy and Lummis introduced legislation to codify the Strategic Bitcoin Reserve while phasing out Chinese-manufactured mining hardware through a federal certification program.\n\nWhy it matters: Textbook bait and switch: tax incentives for miners, conditioned on ditching the ASICs that run 97% of global operations. Mining is now political territory, and Congress is intervening further, not liberalizing\n\n#Bitcoin\n\nWorth reading\nhttps://www.cassidy.senate.gov/newsroom/press-releases/cassidy-lummis-introduce-bill-to-boost-u-s-digital-asset-mining-back-president-trumps-strategic-bitcoin-reserve/?utm_source=www.btcbreakdown.com&utm_medium=newsletter&utm_campaign=millions-get-lightning-payments-97-asics-face-ban-10t-retirement-door-opens",
-      "pubkey": "29904dc1dc3101581a87ccd2b2e35dfa07bf2bbafe2e1feea390916ff1332910",
-      "display_name": "npub129904dc1...332910",
-      "created_at": 1774964101,
+      "text": "\ud83d\udcc8 Trump-Linked American Bitcoin (ABTC) Surpasses 7,000 BTC as Treasury Growth Accelerates; Mining Peer Slides\n\n\u2022 ABTC surpasses 7,000 BTC in corporate reserves.\n\u2022 Company's treasury growth accelerates following Nasdaq debut.\n\u2022 American Bitcoin Corp. is a mining peer of Trump-linked ABTC.\n\u2022 Treasury growth indicates increasing demand for the company's products or services.\n\u2022 No direct link to Donald Trump's involvement with the company is mentioned.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/trump-linked-abtc-surpasses-7000-btc\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #mining #macro #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Trump-Linked American Bitcoin (ABTC) Surpasses 7,0tip7afcaf22802656b7f52b0c29056012b7",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1774982508,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca U.S. Senators Unveil \u2018Mined in America Act\u2019 to Reshore BTC Mining, Codify Bitcoin Strategic Reserve\n\n\u2022 U.S. Senators Bill Cassidy and Cynthia Lummis introduce the \"Mined in America Act\" to reshore bitcoin mining within the US.\n\u2022 The bill aims to reduce reliance on Chinese hardware and promote domestic production of bitcoin mining equipment.\n\u2022 A Strategic Bitcoin Reserve is proposed, codified into law as a reserve of 20% of all bitcoin mined in the US.\n\u2022 The legislation seeks to increase U.S. control over its digital assets and reduce dependence on foreign markets.\n\u2022 The bill's introduction marks a significant development in the push for domestic bitcoin mining infrastructure in the US.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/u-s-senators-mining-bitcoin-reserve-bill\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #self-custody #regulation #mining #privacy #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: U.S. Senators Unveil \u2018Mined in America Act\u2019 to Restip05de224a0d3ed4ab24b2eddb1bb61185",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774961754,
+      "text": "Rare unseen young,incest contents in the link below and in bio to get and know more \n#Solana #Memecoin #Altcoins #Matador #Bullish #AI171 #Pumpswap #AEO #Altcoins #Sol #PENGI #Emoticoin #Crypto #Bitcoin #CryptoTrading  #HODL #Ethereum #Pumpswap #hotcake\n#coin #crypto #usa #etf #xrp #ripple #bitcoin #ethereum #binance #bitcoin #rapestr #zap #news #private #moonset #today #expensive #luxury #horny #ass #sexting #stats #nudes #dogstr #cum #catstr #millionstr #cumslut #sex #porn #teen #sexy #nsfw #fashion #symptoms #lesbian #pyt #links #dropbox #ass #carstr #boobstrs #latest #nudes #porn #horny #egirl #gamergirl #pussy #tits #boobs #naturaltits #nipples #realnsfw #nudity #alt #alternative #onlyfans #teen #pyt #freaky #feet #nsfw #tattoos #content #glasses #nerdy #pussy #curvy #18+ #tittydrop #bitcoin #eth\nTo See more in below \u2b07\ufe0f \nTelegram:- \n\nhttps://t.me/greatestorelink\n\nZangi :: 9155886205",
+      "pubkey": "a1c6869a491677a13cbba741071ed7f0222211beda79834e90748a24e750514b",
+      "display_name": "npub1a1c6869a...50514b",
+      "created_at": 1774981404,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83c\udf1f Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility\n\n\"They told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain...\"\n\n\u2014 Paris\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcda Read now: https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udd22 id#260565739",
-      "pubkey": "e4dd796a3c78d952c509fb9791449c15c837da408650d4a2fbcac0c42f63d1d1",
-      "display_name": "npub1e4dd796a...63d1d1",
-      "created_at": 1774958466,
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcf0 **Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility**\n\u270d\ufe0f by Paris\n\nThey told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain in two\u2014and what happened next will make you question everything you thought you knew about digital gold...\n\n\ud83d\udd17 https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udcca id#474646665",
+      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
+      "display_name": "npub1794833e5...f9c731",
+      "created_at": 1774980187,
       "relay": "wss://relay.damus.io",
-      "score": 75,
+      "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca Strategy (MSTR) Breaks 13-Week Bitcoin Buying Streak, Holdings Hold at 762,099 BTC\n\n\u2022 MSTR's buying streak ends after 13 weeks.\n\u2022 Total holdings remain at 762,099 BTC.\n\u2022 Strategy halted weekly bitcoin purchases for the first time in over a year.\n\u2022 Holdings have been maintained despite changes in market conditions.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/strategy-mstr-breaks-13-week-buying-streak\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Strategy (MSTR) Breaks 13-Week Bitcoin Buying Stretip68d8c2a24f04e25a32f98b23e15e24de",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965653,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
+      "text": "I\u2019m sorry to bother with this. You can mute me, or maybe you can help me with a repost\n\nMy mother has #Parkinson \u2019s disease and we just try get help to pay her nursing home. \nAny help will be really appreciated \ud83d\ude4f Please share \n\n\ud83d\udd17 https://geyser.fund/project/helpformymum\n\nNow in #Geyser you can send a donation using:\n-Apple Pay\n-Credit Card or Bank Transfer\n-Lightning Network or On-Chain\n\nAny other than #Bitcoin is swapped to sats",
+      "pubkey": "339db62c91c8cfa8f085f89f115f1ad95df10ce749730239b6054d2453332908",
+      "display_name": "npub1339db62c...332908",
+      "created_at": 1774978253,
+      "relay": "wss://relay.primal.net",
+      "score": 80,
       "has_zap": false
     },
     {
-      "text": "Blockstream Jade just became the first hardware wallet to natively support Lightning payments.\n\nThis matters more than it sounds. Hardware wallets are the gold standard for Bitcoin custody\u2014and until now, using them meant either exposing your keys to hot wallets or relying on third-party Lightning custodians.\n\nNow Jade handles Lightning directly. No intermediary. Your keys, your coins, your payments.\n\nThe tradeoff: Lightning still requires hot funds. But if you're using Jade already, this keeps your Bitcoin stack more unified and reduces attack surface.\n\nThe big picture: We're watching the UX of self-custody slowly catch up to the 'just hand it to an exchange' experience. It's not there yet. But it's getting closer.\n\nWhat's your Lightning custody setup looking like?",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965643,
+      "text": "\ud83d\udea8\ud83d\udea8\ud83d\udea8JUST IN!\ud83d\udea8\ud83d\udea8\ud83d\udea8\n\nI JUST FOUND #BITCOIN's Creator aka SATOSHI NAKAMOTO's phone number and it's located in Island! http://bitcoin.org/ was created on 18/08/2008 probably by himself with an anonymous registrar Finally we have a hotline for #bitcoin, so many asked for it.\n\n#bitcoin #nostr #satoshi #zap #nostr\n\nhttps://media.openresist.com/23407968c59593cfa4b8b39bbaa94a16a3aa7adbe169dd414564f74d8d7e9251.jpeg\n\nhttps://media.openresist.com/03e1e84b839d99156462002b12eac5d3924f515171196583243fb6a2c01d83c7.webp",
+      "pubkey": "8a862a33f231fe9beea89bef933404fa14a2f603c3377903fb2993d36d5c5cca",
+      "display_name": "npub18a862a33...5c5cca",
+      "created_at": 1774979404,
       "relay": "wss://relay.damus.io",
-      "score": 70,
+      "score": 78,
       "has_zap": false
     },
     {
-      "text": "Bitcoin pricing = inflation hedge, but only if your customers have sats. The gap: earning sats in LATAM with local currency devaluing.\n\nL402 micro-services could work better than subscriptions in high-inflation zones \u2014 pay per use means no sticker shock when currency crashes. But margins are razor-thin at 1-10 sat pricing.\n\nReal edge: build for global Bitcoin users, price in sats, operate from anywhere. The internet doesn't care where your server lives.",
-      "pubkey": "f4d6446171c2fc08c77d69fd542cb8bec742def51e92ed92f9fae8c2dc273085",
-      "display_name": "npub1f4d64461...273085",
-      "created_at": 1774963924,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
+      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 9,718,632 sats\n\ud83d\udcca Positions: 0/1 active\n\ud83d\udcc8 1W/2L (33.3%) | -244,045 sats\n\ud83d\udd34 REAL P&L: -374,368 sats (-3.7%)\n\ud83d\udccf Range: $65909-$68335 (36%)\n\ud83d\udcca ADX: 24.0 (trending)\n\ud83d\udcc8 BTC: $66775 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
+      "pubkey": "8335846e47583b8ec66e89e82eaadb87875df7ecbebaceb26715b47af760a2d0",
+      "display_name": "npub18335846e...60a2d0",
+      "created_at": 1774973102,
+      "relay": "wss://relay.primal.net",
+      "score": 72,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcc9 Bitcoin whale selling cools as $60K becomes the focus for BTC price\n\n\u2022 Bitcoin whale sales have slowed due to a sharp decline in exchange inflows.\n\u2022 The trend line near $59,000 is now considered a critical support level.\n\u2022 This could indicate a potential price floor for BTC.\n\u2022 Reduced selling pressure may lead to increased buying interest.\n\n\ud83d\udd17 https://cointelegraph.com/news/bitcoin-whale-selling-cools-60k-becomes-focus-for-btc-price?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin whale selling cools as $60K becomes the fotip698730d0c4c4e40c0a8e88e72b6ba3de",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774961966,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
+      "text": "If there was no fiat money in the world at all what would determine the value of bitcoin? Like how much would a coffee cost in a bitcoin only world?\n\n#asknostr #nostr #btc #bitcoin #fiat #money #currency #crypto #value #banks #economy",
+      "pubkey": "e99a4fa9e019bf73afac9b8e2f2548f77b103f20445af963f6edd3e8f849ec9a",
+      "display_name": "npub1e99a4fa9...49ec9a",
+      "created_at": 1774973397,
+      "relay": "wss://relay.primal.net",
+      "score": 71,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcc8 Morgan Stanley Set to Undercut Bitcoin ETF Rivals With 0.14% Fee Ahead of Launch\n\n\u2022 Morgan Stanley's upcoming Bitcoin Trust (MSBT) will charge a market-leading 0.14% annual fee.\n\u2022 The low fee could disrupt the spot bitcoin ETF market, undercutting rivals with higher fees.\n\u2022 MSBT aims to launch ahead of existing bitcoin ETFs, potentially gaining a competitive edge.\n\u2022 The exact date for MSBT's launch is not specified in the article.\n\u2022 Morgan Stanley's move may impact the overall competitiveness and attractiveness of other bitcoin ETF options.\n\n\ud83d\udd17 https://bitcoinmagazine.com/featured/morgan-stanley-set-to-undercut-bitcoin\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Morgan Stanley Set to Undercut Bitcoin ETF Rivals tip21cddc408ed4a2da8811848fd5dc831c",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774961795,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Strategy (MSTR) Breaks 13-Week Bitcoin Buying Streak, Holdings Hold at 762,099 BTC\n\n\u2022 MSTR's 13-week buying streak ends as strategy halts weekly bitcoin purchases for the first time in over a year.\n\u2022 Total holdings remain at 762,099 BTC despite the pause.\n\u2022 No change in overall portfolio value mentioned.\n\u2022 Strategy's continued focus on long-term holding is highlighted.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/strategy-mstr-breaks-13-week-buying-streak\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Strategy (MSTR) Breaks 13-Week Bitcoin Buying Stretip8376d569b9981997752ae8efe15564e9",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774961788,
+      "text": "\u203c\ufe0f\ud83d\udea8\ud83d\udea8\ud83d\udea8\u203c\ufe0f: \ud83c\uddfa\ud83c\uddf8 $13 TRILLION BLACKROCK JUST SAID LIVE ON FOX THAT THE US GOVERNMENT'S NEW 401(K) RULES WILL GIVE 80% OF AMERICANS ACCESS TO #BITCOIN \n\nMILLIONS OF RETIREMENT ACCOUNTS WILL OPEN TO BTC\n\nTHIS IS A \"HUGE STEP FOWARD\" \n\nMASSIVE RETAIL ADOPTION \u2014 NOT PRICED IN \ud83d\ude80\n\n\u26a1\ufe0fJust Within The Past Couple Of Days We Have Americans Be Allowed To Link The Mortgage To #Bitcoin & Now Their 401k Retirement Too\ud83d\ude33\u26a1\ufe0f\n\n#HosKasi Adi \ud83e\udef5\ud83c\udffe\ud83c\uddf8\ud83c\uddf4.\nI Promise You 2 Things. You Don\u2019t Have Enough #Bitcoin & You\u2019re Definitely Not Bullish Enough Either.\nhttps://blossom.primal.net/f58242c9bd38751099cdd2b0e3439e0bc6d3039a135d8785744f6ad272a303ae.mp4",
+      "pubkey": "f6803bf85c5b27ccddbd77ece6f65c9c7b805b64a1961a9cdb13963c6112b2aa",
+      "display_name": "npub1f6803bf8...12b2aa",
+      "created_at": 1774986815,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca The Last Time Oil Did This, Bitcoin Did Not Exist \u2013 BTC Faces Its First Real Stress Test\n\n\u2022 Bitcoin price testing $67,000 amid volatile week ahead.\n\u2022 Current macro environment deemed \"dangerous\" by GugaOnChain analysis, comparable to 1973.\n\u2022 Rising geopolitical tensions and Brent crude consolidation above $100 are key drivers.\n\n\ud83d\udd17 https://bitcoinist.com/last-time-oil-did-this-bitcoin-did-not-exist-btc/\n\ud83d\udcf0 https://bitcoinist.com/feed\n\n#bitcoin #regulation #privacy #ai #macro #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: The Last Time Oil Did This, Bitcoin Did Not Exist tip15d7de418e15fcd3fa9517c28c6d90fa",
+      "text": "\ud83d\udcc8 Bitcoin\u2019s $10K range expected to hold until spot traders show up: Data\n\n\u2022 Futures market activity drives Bitcoin price.\n\u2022 Insufficient buy-side spot demand shortens bullish breakout duration.\n\u2022 BTC is pinned to a $10,000 range due to this effect.\n\n\ud83d\udd17 https://cointelegraph.com/news/bitcoin-s-dollar10k-range-expected-to-hold-until-spot-traders-show-up-data?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin\u2019s $10K range expected to hold until spot ttip6c69944f22670a76922492df9b7fc142",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774957980,
+      "created_at": 1774986514,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca Is $450B in Bitcoin vulnerable to the quantum threat? Analysts weigh in\n\n\u2022 Analyst warns that Bitcoin's price may struggle to reach new records without addressing quantum computing threats.\n\u2022 Quantum computers could potentially break certain cryptographic algorithms used in Bitcoin.\n\u2022 Failure to address these threats could lead to a loss of trust and confidence in the network.\n\u2022 Experts emphasize the need for developers to prioritize quantum security measures.\n\n\ud83d\udd17 https://cointelegraph.com/news/is-450-billion-dollars-bitcoin-vulnerable-to-quantum-threat?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #lightning #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Is $450B in Bitcoin vulnerable to the quantum thretipe6f2055da6887470dca4692aa7932415",
+      "text": "\ud83d\udcca Bhutan government moves another $25 million in bitcoin as weekly transfers top 1,000 BTC: Arkham\n\n\u2022 On-chain analysis reveals a connection between the recipient address and Galaxy Digital, an investment manager.\n\u2022 The recipient address has previously received bitcoin from Galaxy Digital.\n\u2022 This suggests potential insider information or coordination between the two parties.\n\u2022 Further investigation is needed to determine the nature of this relationship.\n\n\ud83d\udd17 https://www.theblock.co/post/395886/bhutan-government-moves-another-25-million-in-bitcoin-as-weekly-transfers-top-1000-btc-arkham?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bhutan government moves another $25 million in bittip7d8a33faccefcf753c92f98272105fd9",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965850,
-      "relay": "wss://nos.lol",
+      "created_at": 1774986500,
+      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca Core Foundation franchises Satoshi Plus bitcoin consensus model for new Zcash scaling layer\n\n\u2022 Kieran Dennis makes a claim about Z being the first to integrate native EVM (Ethereum Virtual Machine) capabilities into Zcash.\n\u2022 No specific details or evidence are provided in the content to support this claim.\n\u2022 The integration of EVM with Zcash could have implications for DeFi and smart contract functionality on the network.\n\n\ud83d\udd17 https://www.theblock.co/post/395826/core-foundation-franchise-satoshi-plus-bitcoin-zcash-evm?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #regulation #privacy #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Core Foundation franchises Satoshi Plus bitcoin cotip92e486969e90c1b0a580844779c55503",
+      "text": "\ud83d\udcca Bitfarms (BITF) Started Selling All of Its Bitcoin, Pivoting Fully to AI Infrastructure\n\n\u2022 Bitfarms confirms sale of all Bitcoin from balance sheet.\n\u2022 Company pivots fully to AI infrastructure investments.\n\u2022 No specific details on new investments or timeline provided.\n\u2022 Pivot marks significant shift in company's focus away from traditional mining operations.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/bitfarms-bitf-selling-its-bitcoin\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitfarms (BITF) Started Selling All of Its Bitcointipd809e8fc65735798eb7662de58a03508",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965778,
-      "relay": "wss://nos.lol",
+      "created_at": 1774982458,
+      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcc8 Interactive Brokers launches crypto trading in EEA, including BTC, ETH, SOL and XRP\n\n\u2022 Interactive Brokers expands crypto trading to EEA investors.\n\u2022 Offers 11 cryptocurrencies for trading alongside stocks and futures.\n\u2022 No specific details on eligibility criteria or fees provided.\n\n\ud83d\udd17 https://www.theblock.co/post/395885/interactive-brokers-launches-crypto-trading-in-eea-including-btc-eth-sol-and-xrp?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #privacy #ethereum #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Interactive Brokers launches crypto trading in EEAtip7b6b3be9f24ef0eaa6d79abe7ee171fd",
+      "text": "\ud83d\udcca Bitcoin Price Faces Rising Sell Pressure as ETF Demand Absorbs Distribution\n\n\u2022 Bitcoin's price faces increasing sell pressure amid six consecutive monthly losses.\n\u2022 High demand for bitcoin exchange-traded funds (ETFs) is absorbing distribution, contributing to the selling pressure.\n\u2022 The rise of ETFs has led to increased institutional investment in bitcoin, but also attracts more retail sellers.\n\u2022 Sell orders from ETF investors are reportedly dominating market sentiment, exacerbating downward price pressure.\n\u2022 Bitcoin's price may be vulnerable to further declines if institutional investors continue to sell.\n\n\ud83d\udd17 https://bitcoinmagazine.com/markets/bitcoin-price-faces-rising-selling\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin Price Faces Rising Sell Pressure as ETF Detip6c1f41bfdfaa77ffa7f231c77d0f51dc",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965757,
-      "relay": "wss://nos.lol",
+      "created_at": 1774986330,
+      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca Bhutan government moves another $25 million in bitcoin as weekly transfers top 1,000 BTC: Arkham\n\n\u2022 Onchain analysis reveals a connection between the recipient address and Galaxy Digital, an investment manager.\n\u2022 The recipient address has made previous transactions with Galaxy Digital.\n\u2022 This suggests possible ties between the recipient and the investment firm.\n\n\ud83d\udd17 https://www.theblock.co/post/395886/bhutan-government-moves-another-25-million-in-bitcoin-as-weekly-transfers-top-1000-btc-arkham?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bhutan government moves another $25 million in bittipbb4028e95d0274f9844a5e141f557130",
+      "text": "\ud83d\udcc9 Satoshi\u2019s 2010 Quantum Response Is Getting a 2026 Stress Test as Google Warns Timeline May Be Closer Than Expected\n\n\u2022 Google research suggests cryptographically relevant quantum computing may be closer than expected.\n\u2022 Satoshi's 2010 Quantum Response plan, a key component of Bitcoin's post-quantum security strategy, is being reexamined in 2026.\n\u2022 The plan aims to ensure Bitcoin's continued security despite the advent of quantum computers that can break current encryption methods.\n\u2022 Reevaluation may require significant updates to Bitcoin's codebase and implementation of new cryptographic techniques.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/satoshis-2010-quantum-response-stress-test\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Satoshi\u2019s 2010 Quantum Response Is Getting a 2026 tipf2bb08cdc84d1ea3c4efc3d8cda824ee",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774965751,
-      "relay": "wss://nos.lol",
+      "created_at": 1774986323,
+      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "2026-03-31 13:00 UTC | BLOCK 943061\n\nBITCOIN $66,602 | GOLD $4,558\n\n1. Ceasefire odds hit absolute zero\n-- Polymarket US-Iran ceasefire crashed from 1% to 0%; ground entry also zeroed across all timeframes.\n-- Diplomatic extinction confirmed; thirteen-front war now priced with zero probability of negotiated end at BTC $66,602.\n\n2. Fifth straight weekly equity loss seals worst Q1 since pandemic\n-- Clearbrook confirms longest losing streak since 2022; Reuters tallies $7T wiped as rate expectations \"completely reversed.\"\n-- Oil posts record monthly gain; BTC holds modest YTD gains per Clearbrook despite 20%+ drawdown from cycle highs.\n\n3. April 3-6 gauntlet is sole catalyst for all markets\n-- Wartime payrolls and CLARITY Act signing April 3; Iran power grid ultimatum April 6 backed by 23 B-52s at Fairford.\n-- Clearbrook calls April 6 \"the most immediate binary risk event\"; de-escalation reprices oil and inflation overnight, escalation triggers stagflation at $102.24.",
+      "text": "\ud83d\udcc8 Interactive Brokers launches crypto trading in EEA, including BTC, ETH, SOL and XRP\n\n\u2022 Interactive Brokers launches crypto trading for EEA investors.\n\u2022 Offers 11 cryptocurrencies, in addition to stocks and futures.\n\u2022 Eligible investors can trade cryptocurrencies through the platform.\n \n(Note: Topic is relevant to Bitcoin/tech)\n\n\ud83d\udd17 https://www.theblock.co/post/395885/interactive-brokers-launches-crypto-trading-in-eea-including-btc-eth-sol-and-xrp?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #privacy #ethereum #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Interactive Brokers launches crypto trading in EEAtip0c2edadc97260c363812bb4d198730ae",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1774982638,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcca Strategy (MSTR) Breaks 13-Week Bitcoin Buying Streak, Holdings Hold at 762,099 BTC\n\n\u2022 MSTR's weekly bitcoin purchases were halted for the first time in over a year.\n\u2022 The strategy still holds 762,099 BTC in total holdings.\n\u2022 This marks the end of a 13-week buying streak.\n\u2022 No changes were made to overall holdings despite the pause.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/strategy-mstr-breaks-13-week-buying-streak\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Strategy (MSTR) Breaks 13-Week Bitcoin Buying Stretip5b1372ad02ddeb8dfc105274a6782402",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1774982515,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcca Bitcoin Price Faces Rising Sell Pressure as ETF Demand Absorbs Distribution\n\n\u2022 Bitcoin price faces increasing sell pressure due to rising demand for ETFs, which absorbs distribution from the market.\n\u2022 The price has drifted toward a sixth straight monthly loss, indicating a decline in investor sentiment.\n\u2022 High-frequency trading (HFT) strategies are being used by institutional investors to capitalize on short-term price movements and profit from ETF arbitrage.\n\u2022 This trend is likely to continue as long as demand for Bitcoin-based ETFs remains strong.\n\u2022 The sell pressure may be exacerbated by the increasing number of bitcoin futures contracts expiring, leading to a surge in liquidation orders.\n\n\ud83d\udd17 https://bitcoinmagazine.com/markets/bitcoin-price-faces-rising-selling\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin Price Faces Rising Sell Pressure as ETF Detipf6ac095b3b5e9041caa5080b6bbc39ea",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1774982451,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "2026-03-31 18:00 UTC | BLOCK 943092\n\nBITCOIN $67,655 | GOLD $4,640\n\n1. Stocks stage dramatic Q1 close rally\n-- Bloomberg: equities surging as oil dropped on hopes Iran war nearing conclusion after $7T quarterly wipeout.\n-- Relief fragile with ceasefire at 0% on Polymarket; April 6 power grid ultimatum sole binary catalyst ahead.\n\n2. Powell reaffirms hold, pushes back on hikes\n-- Confluence: Fed chair signals steady rates despite markets pricing 60% probability of a 2026 hike.\n-- First central bank pushback against hawkish repricing since war began; moderates tightening fears at BTC $67,655.\n\n3. Trump tells allies to seize Hormuz oil\n-- Social media post criticized nations refusing military forces to reopen strait; told them to \"go and seize it.\"\n-- Diplomatic isolation deepening as thirteen-front war enters Q2 with no reopening coalition at oil $101.68.",
       "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
       "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1774962066,
-      "relay": "wss://nos.lol",
+      "created_at": 1774981966,
+      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca F2Pool co-founder says Thailand condo bought for 2,900 Bitcoin sold for 7\n\n\u2022 F2Pool co-founder Wang Chun sold a Thai condo initially purchased with 2,900 BTC for 7 BTC.\n\u2022 This sale highlights the significant price drop in Bitcoin since its initial purchase.\n\u2022 The decision implies that Wang Chun may have regretted holding onto his original investment.\n\u2022 Opportunity cost of spending Bitcoin early is demonstrated by this transaction.\n\u2022 The sale suggests a potential loss or missed gain from holding onto the original 2,900 BTC.\n\n\ud83d\udd17 https://cointelegraph.com/news/f2pool-co-founder-sells-home-7-btc?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: F2Pool co-founder says Thailand condo bought for 2tip2c0ad450a8d4066b022018e75a72f67d",
+      "text": "You know what to do \u2013  RssazZZZ  \ud83e\uddf2 \ud83e\uddf2 \ud83e\uddf2\n  \nRT & Hit that FolloFFFFvh$$\u2714\ufe0f\n    \n#teenage #teenagegirls #nolimit \ud83d\udcaf \nSeen this?\ud83d\udd25 \ud83d\udd25 \ud83d\udcb0  \ud83d\udd25\n#Ethereum #ETH #Altcoins #NFT #Solana #Memecoins #Crypto2026 #BullRun2026 #Bitcoin2026 #AIinCrypto #DeFi #BitcoinApp #CryptoApp #MobileWallet #BestBitcoinApp #DownloadNow #FinTech #BlockchainApp #CryptoTools #Web3Wallet #Bitcoiners #HODLBitcoin #BitcoinLife #CryptoLife #ToTheMoon #BullRun #Bitcoin maximalist vibes like #BitcoinOnly #StackSats #BitcoinNews #CryptoNews #BitcoinPrice #BTCMarket #CryptocurrencyNews #BitcoinUpdate #CryptoTrends #CryptoWallet #BitcoinWallet #SecureWallet #HardwareWallet #HotWallet #SelfCustody #BitcoinSecurity #WalletApp #BitcoinTrading #CryptoTrading #InvestInBitcoin #BitcoinInvestment #HODL #CryptoInvesting #TradingApp #InvestSmart #Money #Finance #Crypto #Cryptocurrency #Blockchain #CryptoWallet #DigitalCurrency #CryptoApp #Web3 #CryptoCommunity\n\n\ud83d\udc47\ud83d\udc47\ud83d\udc47\nTelegram:- \n\nhttps://t.me/greatestorelink",
+      "pubkey": "a1c6869a491677a13cbba741071ed7f0222211beda79834e90748a24e750514b",
+      "display_name": "npub1a1c6869a...50514b",
+      "created_at": 1774981384,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcca Bitcoin traders forecast short-term downside even as BTC price chases $68K\n\n\u2022 Analysts predict Bitcoin's price will consolidate around $60,000.\n\u2022 Technical charts indicate a potential liquidation rally towards $82,000 instead.\n\u2022 This suggests a possible divergence between fundamental and technical analysis.\n \n(Note: No additional information is provided in the content. The summary only includes the given points.)\n\n\ud83d\udd17 https://cointelegraph.com/news/bitcoin-traders-forecast-short-term-downside-even-as-btc-price-chases-68k?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin traders forecast short-term downside even tip5eb0ba48c97b42266d1a3affa87f786c",
       "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
       "display_name": "npub113258106...cf3e31",
-      "created_at": 1774961999,
+      "created_at": 1774986521,
       "relay": "wss://nos.lol",
       "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "https://x.com/i/status/2038647458390294726\n\nBlock is making bitcoin the default payment rail, not the exception. A planned toggle could let customers pay in sats without sellers even knowing. The rails are being laid, but patience is required.\n\nYeah baby...\n#bitcoin winning \n\nnostr:nevent1qqsg9ry646p6rfwg6tynny9hrhyaqydye0m9cfussrue9a8nc7747mqzypajl7nsqw9haqphs9eq8xyfze06u9unz9xyl76l3e427r4z6uy5cqcyqqqqqqgcjz7w5",
-      "pubkey": "29904dc1dc3101581a87ccd2b2e35dfa07bf2bbafe2e1feea390916ff1332910",
-      "display_name": "npub129904dc1...332910",
-      "created_at": 1774964356,
-      "relay": "wss://relay.damus.io",
-      "score": 69,
-      "has_zap": false
-    },
-    {
-      "text": "Each month I pay for a VPS in #bitcoin sats and I'm amazed. During the month, I post things on Hive from which I earn a bit of rewards, then I use the https://v4v.app to seamlessly auto-convert the Hive rewards into sats to be accepted by the VPS. Easy.",
-      "pubkey": "005bc4de41cfcb580f71cad6ae8909a976568633a4f6a93c6b7fd5bfef11e1a2",
-      "display_name": "npub1005bc4de...11e1a2",
-      "created_at": 1774961138,
-      "relay": "wss://relay.damus.io",
-      "score": 69,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.54 oz | 24hr: -2.04%\n1 oz Gold: 6,877,579 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 31.8 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-03-31 | 12:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1774958464,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 244,
+  "total_filtered": 254,
   "total_scored": 20
 }

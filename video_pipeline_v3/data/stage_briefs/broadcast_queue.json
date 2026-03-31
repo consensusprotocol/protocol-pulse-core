@@ -1,42 +1,43 @@
 [
   {
-    "id": "33705356-d41f-4766-a5cc-f03dfa4416b4",
+    "id": "ba8911e7-78b4-4203-8dd2-46c528d42b23",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**BITCOIN MIDDAY BRIEF**\n\nPrice holding steady at $67,460\u2014flat overnight, but the real story's underneath. Extreme Fear reading at 11 is a contrarian green flag. When sentiment's this compressed, we typically see volatility compression before the breakout.\n\nNetwork fundamentals remain solid. Hashrat",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
+    "topic_preview": "Oracle Midday Brief \u2014 $67,460",
+    "generated_at": "2026-03-31T18:00:01.413261+00:00",
+    "expires_at": "2026-03-31T22:00:01.413261+00:00",
+    "video_url": "/data/stage_briefs/brief_20260331_1800.mp4"
+  },
+  {
+    "id": "5ef604e6-13ec-459b-a3a0-7086e55b5ff3",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Bitcoin's monetary policy is mathematically unseizable. Central banks print unlimited money while Bitcoin's supply is capped at 21 million. The one-way bet is clear. Watch the next Bitcoin halving cycle for the next major scarcity signal.",
-    "source_label": "\ud83e\udde0 @ADAM3US",
-    "topic_preview": "mathematical unseizable scarcity\nlong term it's a one way thing - QE infinity vs",
-    "generated_at": "2026-03-31T12:25:04.675367+00:00",
-    "expires_at": "2026-03-31T14:25:04.675367+00:00"
+    "script": "Gemini Credit Card partnership tweet. Natalie Brunell promoting Bitcoin spending with 4% sat back. Ledn Bitcoin-backed loans with 0.25% first loan discount. Abun hosting with one month free. Thought leader positioning. Watch for institutional adoption signals. Next: Bitcoin spending velocity metrics.",
+    "source_label": "\ud83e\udde0 @NATBRUNELL",
+    "topic_preview": "R to @natbrunell: Paid partnerships:\n@Gemini: Invest as you spend with the Gemin",
+    "generated_at": "2026-03-31T18:30:06.648391+00:00",
+    "expires_at": "2026-03-31T20:30:06.648391+00:00"
   },
   {
-    "id": "d9a3a735-c7f3-4549-8281-92fd21dfd522",
+    "id": "e3fdbb45-99a1-4ce5-a2d8-8cbfc4461547",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at $66,849.565, flat 24-hour change.\n\nHashrate holds steady at 904.8 exahashes.\n\nFear and Greed index at Extreme Fear, 11.\n\nFastest fee sits at 4 satoshis per byte.\n\n31,784 transactions processed in the last hour.\n\nBlock height 943,064.\n\nWatch for any mining difficulty adjustments in the next two blocks.",
+    "script": "Bitcoin trading at $67,560.245, flat 24-hour change. Hashrate at 904.8 EH, confirming network security. Fear and Greed index at Extreme Fear, 11. Fastest fee at 2 sat/vB. 30,230 transactions processed. Block 943,091. Watch for mempool congestion signals.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $66,850 \u00b7 FNG 11 \u00b7 904.8 EH/s",
-    "generated_at": "2026-03-31T13:40:12.898973+00:00",
-    "expires_at": "2026-03-31T17:40:12.898973+00:00"
+    "topic_preview": "BTC $67,560 \u00b7 FNG 11 \u00b7 904.8 EH/s",
+    "generated_at": "2026-03-31T18:05:13.433767+00:00",
+    "expires_at": "2026-03-31T22:05:13.433767+00:00"
   },
   {
-    "id": "3ced3ab3-2f65-4046-83dd-091b0a857a2f",
+    "id": "d9396be9-26ce-4cc0-a827-a12d6019655b",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Mempool fees surged 40% in 24 hours.\n\nWatch for on-chain accumulation signals in the next hour.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Market makers aggressively testing $67K resistance. Watch for breakout confirmation above 200-period EMA.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-31T11:25:07.122903+00:00",
-    "expires_at": "2026-03-31T15:25:07.122903+00:00"
-  },
-  {
-    "id": "01f4a7b9-9498-4080-be78-a71c257795b3",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hashrate breached 905 EH/s, signaling institutional accumulation. Fear & Greed index at 11 indicates extreme panic. Mempool fee remains at 3 sat/vbyte. Bitcoin miners are securing the network at unprecedented scale. Watch for retest of $70,000 resistance.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 905 EH/s, signaling institutional accumulation. Fear & Greed i",
-    "generated_at": "2026-03-31T12:20:11.708382+00:00",
-    "expires_at": "2026-03-31T14:20:11.708382+00:00"
+    "generated_at": "2026-03-31T19:30:17.511215+00:00",
+    "expires_at": "2026-03-31T23:30:17.511215+00:00"
   }
 ]

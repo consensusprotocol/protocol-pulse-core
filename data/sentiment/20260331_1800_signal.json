@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-03-31T18:00:15.462047+00:00",
+  "brief_type": "midday",
+  "score": 42,
+  "bullish_signals": [
+    "Extreme Fear reading (11) is contrarian bullish\u2014sentiment divorced from fundamentals",
+    "Hashrate climbing to 904.8 EH/s shows miner conviction despite sideways price",
+    "Fees bottomed at 3 sat/vB\u2014cheapest in weeks, signaling network health",
+    "Coiled spring volatility compression pattern typically precedes directional moves",
+    "No negative macro catalysts on horizon\u2014absence of news bullish in fear environment"
+  ],
+  "bearish_signals": [
+    "Price flat overnight\u2014no immediate momentum",
+    "Absence of positive catalysts to trigger reversal"
+  ],
+  "neutral_topics": [
+    "Block height progression (943,090)",
+    "Mempool transaction backlog (32,503)"
+  ]
+}

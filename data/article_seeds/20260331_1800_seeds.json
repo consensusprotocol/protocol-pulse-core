@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-03-31T18:00:15.462047+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 11: Why Bitcoin's Extreme Sentiment Could Signal an Imminent Reversal",
+      "angle": "Contrarian analysis of fear extremes as leading indicators; historical precedent for volatility breakouts after sentiment compression",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-gauge",
+        "technical-analysis",
+        "volatility"
+      ]
+    },
+    {
+      "headline": "Hashrate at 904.8 EH/s: The Hidden Bullish Signal Miners Are Sending",
+      "angle": "Miner behavior as conviction metric; why hashrate climbs during sideways price action suggest institutional strength",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "on-chain",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "3 sat/vB Fees: Your Window to Move Bitcoin Is Open\u2014Here's Why It Matters",
+      "angle": "Network capacity deep dive; when to move coins during fee bottoms and what it signals about network health",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "network",
+        "transaction-costs"
+      ]
+    }
+  ]
+}

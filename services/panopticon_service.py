@@ -29,7 +29,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL_ID", "claude-sonnet-4-6-20250514")
+ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL_ID", "claude-sonnet-4-20250514")
 
 # ── Cache layer (Flask-Caching with TTL + thundering herd protection) ────────
 # P0 audit fix: Replaced plain dict cache with Flask-Caching (SimpleCache).
