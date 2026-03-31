@@ -32,10 +32,14 @@ class SovereignOrb {
     }
 
     resize() {
-        const w=this.canvas.offsetWidth||520,h=this.canvas.offsetHeight||520;
         const dpr=window.devicePixelRatio||1;
-        this.canvas.width=w*dpr;this.canvas.height=h*dpr;
-        this.ctx.scale(dpr,dpr);this.w=w;this.h=h;
+        // If canvas already has explicit pixel dimensions, use them
+        const w = this.canvas.offsetWidth || (this.canvas.width/dpr) || 680;
+        const h = this.canvas.offsetHeight || (this.canvas.height/dpr) || 680;
+        this.canvas.width=Math.round(w*dpr);
+        this.canvas.height=Math.round(h*dpr);
+        this.ctx.scale(dpr,dpr);
+        this.w=w;this.h=h;
     }
 
     async fetchData() {
