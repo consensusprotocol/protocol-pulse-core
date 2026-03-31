@@ -303,7 +303,7 @@ def _first_visit_onboarding():
         return None
     # Skip bots
     ua = (request.headers.get('User-Agent') or '').lower()
-    if any(b in ua for b in ('bot', 'crawl', 'spider', 'google', 'bing', 'slurp', 'curl', 'wget')):
+    if any(b in ua for b in ('bot', 'crawl', 'spider', 'google', 'bing', 'slurp', 'facebookexternal', 'twitterbot')):
         return None
     # Skip if coming back from onboarding (referer check)
     ref = (request.headers.get('Referer') or '').lower()
