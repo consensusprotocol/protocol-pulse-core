@@ -1326,8 +1326,6 @@ function bootOrb(){
   var cv=document.getElementById('sovereign-orb-canvas');
   if(!cv){return;}
   if(typeof SovereignOrb==='undefined'){setTimeout(bootOrb,100);return;}
-  cv.style.width='420px';cv.style.height='420px';
-  cv.width=840;cv.height=840;
   try{window._sOrb=new SovereignOrb('sovereign-orb-canvas','/api/orb');}catch(e){console.error('Orb error:',e);}
 }
 setTimeout(bootOrb,200);
