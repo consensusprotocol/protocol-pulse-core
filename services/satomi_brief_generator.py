@@ -380,15 +380,36 @@ def generate_and_deliver_brief():
     call_ok = send_morning_brief_call(pbx_number, script)
     logger.info("Voice call result: %s", "OK" if call_ok else "FAILED")
 
-    # SMS summary (first 300 chars)
+    # SMS summary to PBX
     sms_text = f"[PROTOCOL PULSE BRIEF]\n{script[:280]}..."
     sms_ok = send_sms(pbx_number, sms_text)
-    logger.info("SMS summary result: %s", "OK" if sms_ok else "FAILED")
+    logger.info("SMS to PBX: %s", "OK" if sms_ok else "FAILED")
+
+    # Deliver SMS to ALL subscribers
+    sub_count = 0
+    try:
+        import sys as _sys2
+        _sys2.path.insert(0, str(BASE / "core"))
+        from app import app as _app, db as _db
+        from models import SmsSubscriber
+        with _app.app_context():
+            subs = SmsSubscriber.query.filter_by(subscribed=True).all()
+            for sub in subs:
+                if sub.phone != pbx_number:
+                    try:
+                        send_sms(sub.phone, sms_text)
+                        sub_count += 1
+                    except Exception as _e:
+                        logger.warning("SMS to %s failed: %s", sub.phone, _e)
+        logger.info("SMS delivered to %d additional subscribers", sub_count)
+    except Exception as _e:
+        logger.warning("Subscriber delivery failed: %s", _e)
 
     result = {
         "success": call_ok or sms_ok,
         "call_delivered": call_ok,
         "sms_delivered": sms_ok,
+        "subscriber_sms_count": sub_count,
         "script_length": len(script),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

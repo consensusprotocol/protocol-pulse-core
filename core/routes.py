@@ -13098,6 +13098,81 @@ def podcast_redirect():
 
 
 # ── Brief Audio Delivery (Twilio <Play> endpoint) ──────────────────────────
+
+
+# ── SMS Brief Subscription ──────────────────────────────────────────────────
+
+@app.route('/api/sms/subscribe', methods=['POST'])
+@limiter.limit("5 per minute")
+def api_sms_subscribe():
+    """Subscribe a phone number to the daily Protocol Pulse voice/SMS brief."""
+    import re
+    data = request.get_json(silent=True) or {}
+    raw_phone = (data.get('phone') or request.form.get('phone', '')).strip()
+
+    # Normalize: strip non-digits, ensure +1 prefix for US
+    digits = re.sub(r'[^0-9]', '', raw_phone)
+    if len(digits) == 10:
+        digits = '1' + digits
+    if len(digits) == 11 and digits.startswith('1'):
+        phone = '+' + digits
+    elif len(digits) > 10:
+        phone = '+' + digits
+    else:
+        return jsonify({'success': False, 'message': 'Enter a valid US phone number'}), 400
+
+    existing = models.SmsSubscriber.query.filter_by(phone=phone).first()
+    if existing and existing.subscribed:
+        return jsonify({'success': False, 'message': 'Already subscribed'}), 409
+    if existing and not existing.subscribed:
+        existing.subscribed = True
+        existing.unsubscribed_at = None
+        db.session.commit()
+        # Send welcome SMS
+        import threading
+        threading.Thread(target=_send_sms_welcome, args=(phone,), daemon=True).start()
+        return jsonify({'success': True, 'message': 'Re-subscribed to daily brief'})
+
+    sub = models.SmsSubscriber(phone=phone, subscribed=True, source='website')
+    db.session.add(sub)
+    db.session.commit()
+
+    # Send welcome SMS
+    import threading
+    threading.Thread(target=_send_sms_welcome, args=(phone,), daemon=True).start()
+
+    return jsonify({'success': True, 'message': 'Subscribed to daily intelligence brief'})
+
+
+@app.route('/api/sms/unsubscribe', methods=['POST'])
+def api_sms_unsubscribe():
+    """Unsubscribe from SMS briefs. Text STOP or call this endpoint."""
+    data = request.get_json(silent=True) or {}
+    phone = (data.get('phone') or '').strip()
+    if not phone:
+        return jsonify({'success': False, 'message': 'Phone required'}), 400
+    sub = models.SmsSubscriber.query.filter_by(phone=phone).first()
+    if sub:
+        sub.subscribed = False
+        sub.unsubscribed_at = db.func.now()
+        db.session.commit()
+    return jsonify({'success': True, 'message': 'Unsubscribed'})
+
+
+def _send_sms_welcome(phone):
+    """Send welcome SMS to new subscriber."""
+    try:
+        from services.twilio_service import send_sms
+        send_sms(phone, (
+            "[PROTOCOL PULSE] Welcome, operative. "
+            "You'll receive a daily sovereign intelligence brief every morning at 6:45 AM ET. "
+            "Real data. No hype. Stay sovereign. "
+            "Reply STOP to unsubscribe."
+        ))
+    except Exception as e:
+        logging.warning(f"Welcome SMS failed for {phone}: {e}")
+
+
 @app.route('/api/media/brief-audio/<filename>')
 def serve_brief_audio(filename):
     import os

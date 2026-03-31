@@ -1531,3 +1531,16 @@ class OutreachEmail(db.Model):
     status = db.Column(db.String(30), default='sent')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+
+# ── SMS Subscribers (daily voice brief) ─────────────────────────────────────
+
+class SmsSubscriber(db.Model):
+    """Phone numbers subscribed to the daily Protocol Pulse voice/SMS brief."""
+    __tablename__ = 'sms_subscribers'
+    id = db.Column(db.Integer, primary_key=True)
+    phone = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    subscribed = db.Column(db.Boolean, default=True)
+    source = db.Column(db.String(50), default='website')
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    unsubscribed_at = db.Column(db.DateTime, nullable=True)

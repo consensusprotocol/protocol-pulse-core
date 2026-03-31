@@ -776,6 +776,30 @@
                 <button type="submit" class="pp-btn pp-btn--primary pp-cta-track" data-cta-id="newsletter-subscribe" data-cta-page="home">Subscribe</button>
             </form>
             <p class="pp-tiny pp-text-muted pp-mt-2" id="nlMicrocopy">No spam. One daily brief. Unsubscribe anytime.</p>
+            <!-- SMS Brief Signup -->
+            <div style="margin-top:16px;padding:16px;border:1px solid rgba(220,38,38,0.15);border-radius:12px;background:rgba(220,38,38,0.03);max-width:420px;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
+                    &#9888; DAILY VOICE BRIEF — 6:45 AM ET
+                </div>
+                <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#888;margin:0 0 10px 0;">
+                    Get a 90-second intelligence debrief delivered to your phone every morning. Real data, not news.
+                </p>
+                <form id="smsForm" onsubmit="smsSub(event)" style="display:flex;gap:8px;">
+                    <input type="tel" name="phone" class="pp-input" placeholder="+1 (239) 555-0199"
+                           required aria-label="Phone number"
+                           style="flex:1;font-size:0.8rem;padding:8px 12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#fff;font-family:'JetBrains Mono',monospace;">
+                    <button type="submit" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        padding:8px 16px;background:#dc2626;color:#fff;border:none;
+                        border-radius:6px;cursor:pointer;white-space:nowrap;
+                        letter-spacing:0.05em;
+                    ">Subscribe</button>
+                </form>
+                <p style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#555;margin:6px 0 0 0;">
+                    US numbers only. Reply STOP anytime. No spam — one brief per day.
+                </p>
+            </div>
+
         </div>
     </div>
 </section>
