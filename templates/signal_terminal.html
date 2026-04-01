@@ -1986,7 +1986,16 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     const canvas = document.getElementById('ssm-radar');
     if (!canvas) return;
     const rctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
+    // HiDPI / Retina scaling — render at native pixel density
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = canvas.clientWidth || 600;
+    var cssH = canvas.clientHeight || 600;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    rctx.scale(dpr, dpr);
+    const W = cssW, H = cssH;
     const cx = W / 2, cy = H / 2;
     const maxR = Math.min(W, H) * 0.38;
 
