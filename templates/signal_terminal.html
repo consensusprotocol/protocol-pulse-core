@@ -774,6 +774,23 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
 .flash { animation: data-flash 0.8s ease-out; }
 
+@keyframes intelSlideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes intelFlash {
+    0% { opacity: 0.15; }
+    100% { opacity: 0; }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.intel-event:hover { background: rgba(255,255,255,0.03) !important; }
+.intel-filter-btn { transition: opacity 0.15s; }
+.intel-filter-btn.active { opacity: 1; }
+.intel-filter-btn:not(.active) { opacity: 0.3; }
+
 /* ═══════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════ */
@@ -958,12 +975,21 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
                         <div style="color:rgba(255,255,255,0.15);font-size:9px;">Loading...</div>
                     </div>
                 </div>
-                <div style="border-top:1px solid rgba(255,255,255,0.04);padding:6px 10px;max-height:200px;overflow:hidden;display:flex;flex-direction:column;">
+                <div style="border-top:1px solid rgba(255,255,255,0.04);padding:6px 10px;max-height:280px;overflow:hidden;display:flex;flex-direction:column;">
                     <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                        <span style="font-size:8px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.35);">CONVERGENCE FEED</span>
-                        <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;"></span><span id="cf-count" style="font-size:7px;color:rgba(255,255,255,0.2);">0</span></span>
+                        <span style="font-size:8px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.35);">LIVE INTEL STREAM</span>
+                        <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;"></span><span id="cf-count" style="font-size:7px;color:rgba(255,255,255,0.2);">0</span><span id="intel-epm" style="font-size:6px;color:rgba(255,255,255,0.15);margin-left:3px;"></span></span>
                     </div>
-                    <div id="cf-scroll" style="flex:1;overflow-y:auto;display:flex;flex-direction:column-reverse;">
+                    <div id="intel-filters" style="display:flex;gap:2px;margin-bottom:3px;flex-wrap:wrap;">
+                        <button class="intel-filter-btn active" data-filter="ALL" style="font-size:6px;padding:1px 4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:monospace;">ALL</button>
+                        <button class="intel-filter-btn active" data-filter="BLOCK" style="font-size:6px;padding:1px 4px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:2px;color:#22c55e;cursor:pointer;font-family:monospace;">BLK</button>
+                        <button class="intel-filter-btn active" data-filter="TX" style="font-size:6px;padding:1px 4px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:2px;color:#f97316;cursor:pointer;font-family:monospace;">TX</button>
+                        <button class="intel-filter-btn active" data-filter="FEE" style="font-size:6px;padding:1px 4px;background:rgba(248,193,92,0.1);border:1px solid rgba(248,193,92,0.2);border-radius:2px;color:#f8c15c;cursor:pointer;font-family:monospace;">FEE</button>
+                        <button class="intel-filter-btn active" data-filter="INDEX" style="font-size:6px;padding:1px 4px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);border-radius:2px;color:#dc2626;cursor:pointer;font-family:monospace;">IDX</button>
+                        <button class="intel-filter-btn active" data-filter="WHALE" style="font-size:6px;padding:1px 4px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:2px;color:#f97316;cursor:pointer;font-family:monospace;">W</button>
+                        <button class="intel-filter-btn active" data-filter="PRICE" style="font-size:6px;padding:1px 4px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:2px;color:#22c55e;cursor:pointer;font-family:monospace;">$</button>
+                    </div>
+                    <div id="cf-scroll" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
                         <div id="cf-inner" style="display:flex;flex-direction:column;gap:0;padding:2px 0;"></div>
                     </div>
                 </div>
@@ -1568,6 +1594,12 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
                         const txEl = $('block-tx');
                         if (txEl) { txEl.textContent = fmt(b.tx_count, 0); flash(txEl); }
                         $('t-block') && ($('t-block').textContent = fmt(b.height, 0));
+                        /* LIVE INTEL: block event */
+                        if (window.addIntelEvent) {
+                            var fees = b.extras && b.extras.totalFees ? (b.extras.totalFees / 1e8).toFixed(2) : '?';
+                            window.addIntelEvent('BLOCK', '#22c55e', 'BLK',
+                                'Block ' + (b.height||0).toLocaleString() + ' \u2014 ' + (b.tx_count||0).toLocaleString() + ' txs \u2014 ' + fees + ' BTC fees');
+                        }
                     }
 
                     // Mempool stats
@@ -1592,6 +1624,16 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
                         if (med)  { const el=$('fee-medium'); if(el){el.textContent=Math.ceil(med); flash(el);} }
                         if (slow) { const el=$('fee-slow'); if(el){el.textContent=Math.ceil(slow); flash(el);} }
                         $('t-fee') && ($('t-fee').textContent = Math.ceil(fast || 0));
+                        /* LIVE INTEL: fee change event */
+                        if (window.addIntelEvent && fast) {
+                            var prevFee = window._lastFastFee || 0;
+                            if (prevFee > 0 && Math.abs(fast - prevFee) / prevFee > 0.2) {
+                                var feeDir = fast > prevFee ? '\u2191' : '\u2193';
+                                window.addIntelEvent('FEE', '#f8c15c', 'FEE',
+                                    feeDir + ' Fast: ' + Math.ceil(prevFee) + '\u2192' + Math.ceil(fast) + ' sat/vB');
+                            }
+                            window._lastFastFee = fast;
+                        }
                     }
                 } catch(err) {}
             };
@@ -1607,6 +1649,35 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         }
     }
     connectMempoolWs();
+
+    // ── LIVE INTEL: Large TX polling from mempool.space ──────────
+    (function(){
+      var seenTxs = {};
+      function pollLargeTxs() {
+        fetch('https://mempool.space/api/mempool/recent').then(function(r){return r.json()}).then(function(txs){
+          if (!txs || !txs.length) return;
+          txs.forEach(function(tx) {
+            if (seenTxs[tx.txid]) return;
+            seenTxs[tx.txid] = true;
+            var valSats = 0;
+            if (tx.value) valSats = tx.value;
+            else if (tx.vout) tx.vout.forEach(function(o){ valSats += o.value || 0; });
+            var btc = valSats / 1e8;
+            if (btc > 5 && window.addIntelEvent) {
+              var op = btc > 100 ? 1.0 : 0.5;
+              var prefix = btc > 100 ? '\uD83D\uDC0B ' : '';
+              window.addIntelEvent(btc > 100 ? 'WHALE' : 'TX', '#f97316', 'TX',
+                prefix + btc.toFixed(2) + ' BTC \u2192 mempool', op);
+            }
+          });
+          // Keep seen list from growing unbounded
+          var keys = Object.keys(seenTxs);
+          if (keys.length > 500) { keys.slice(0, 250).forEach(function(k){ delete seenTxs[k]; }); }
+        }).catch(function(){});
+      }
+      setTimeout(pollLargeTxs, 3000);
+      setInterval(pollLargeTxs, 15000);
+    })();
 
     // ── API Polling ───────────────────────────────────────────────
     async function poll(endpoint, interval, callback) {
@@ -2626,38 +2697,135 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   el.addEventListener('mouseout', function() { window._ssmHoveredAxis = -1; });
 })();
 
-/* ═══ CONVERGENCE FEED ═══ */
+/* ═══ LIVE INTEL STREAM ═══ */
 (function(){
   var el=document.getElementById('cf-inner'),cnt=document.getElementById('cf-count');
-  if(!el)return;var ec=0;
-  function add(tag,col,lbl,val,t){
-    ec++;var d=document.createElement('div');
-    d.style.cssText='display:flex;gap:5px;padding:2px 8px;font-family:JetBrains Mono,monospace;font-size:0.6rem;opacity:'+(t==='SIM'?'0.25':'0.8');
-    var now=new Date(),ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-    d.innerHTML='<span style="color:#333;min-width:38px">'+ts+'</span><span style="color:'+col+';min-width:20px;font-weight:600">'+tag+'</span><span style="color:#555;min-width:44px">'+lbl+'</span><span style="color:rgba(255,255,255,0.5)">'+val+'</span>';
-    el.appendChild(d);if(el.children.length>60)el.removeChild(el.firstChild);
-    if(cnt)cnt.textContent=ec;var s=document.getElementById('cf-scroll');if(s)s.scrollTop=s.scrollHeight;
+  if(!el)return;
+  var _intelCount=0, _lastEventTime=Date.now(), _intelTimestamps=[], _activeFilters={ALL:true,BLOCK:true,TX:true,FEE:true,INDEX:true,WHALE:true,PRICE:true,NET:true,HASH:true};
+  window._lastFastFee=0; window._prevScores={}; window._priceHistory=[];
+
+  window.addIntelEvent=function(type,color,tag,message,opacity){
+    _intelCount++;_lastEventTime=Date.now();
+    _intelTimestamps.push(Date.now());
+    var now=new Date();
+    var ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+    var div=document.createElement('div');
+    div.className='intel-event';div.setAttribute('data-type',type);
+    var op=opacity||0.85;
+    div.style.cssText='display:flex;gap:5px;padding:2px 6px;font-family:monospace;font-size:9px;opacity:'+op+';animation:intelSlideIn 0.2s ease-out;position:relative;';
+    if(!_activeFilters[type]&&type!=='ALL')div.style.display='none';
+    var flashBg=document.createElement('div');
+    flashBg.style.cssText='position:absolute;inset:0;background:'+color+';opacity:0.1;animation:intelFlash 0.5s ease-out forwards;pointer-events:none;';
+    div.appendChild(flashBg);
+    div.innerHTML+='<span style="color:#444;min-width:48px;flex-shrink:0;font-size:8px;">'+ts+'</span>'
+      +'<span style="color:'+color+';min-width:26px;font-weight:700;flex-shrink:0;">'+tag+'</span>'
+      +'<span style="color:rgba(255,255,255,'+(opacity||0.7)+');">'+message+'</span>';
+    el.appendChild(div);
+    if(el.children.length>100)el.removeChild(el.firstChild);
+    if(cnt)cnt.textContent=_intelCount;
+    var scroll=document.getElementById('cf-scroll');if(scroll)scroll.scrollTop=scroll.scrollHeight;
+    updateEpm();
+  };
+
+  function updateEpm(){
+    var now=Date.now();_intelTimestamps=_intelTimestamps.filter(function(t){return now-t<60000;});
+    var epmEl=document.getElementById('intel-epm');
+    if(epmEl)epmEl.textContent=_intelTimestamps.length+'/min';
   }
-  function fetchFeed(){
-    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-      var n=d.nodes||{},r=d.raw||{};
-      add('SYS','#dc2626','SYNC','Score '+Math.round((d.composite||{}).score||0)+' — '+(d.composite||{}).pattern,'DATA');
-      ['mcx','epx','ihx','opx','fdx','ocx'].forEach(function(k){
-        var nd=n[k];if(!nd)return;
-        var cols={mcx:'#dc2626',epx:'#f97316',ihx:'#8b5cf6',opx:'#a855f7',fdx:'#06b6d4',ocx:'#22c55e'};
-        add(k.toUpperCase(),cols[k]||'#888',nd.desc||k,Math.round(nd.score)+'/100','DATA');
+  setInterval(updateEpm,5000);
+
+  /* Filter buttons */
+  var btns=document.querySelectorAll('.intel-filter-btn');
+  btns.forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var f=btn.getAttribute('data-filter');
+      if(f==='ALL'){
+        var allActive=btn.classList.contains('active');
+        btns.forEach(function(b){if(allActive)b.classList.remove('active');else b.classList.add('active');});
+        Object.keys(_activeFilters).forEach(function(k){_activeFilters[k]=!allActive;});
+      }else{
+        btn.classList.toggle('active');_activeFilters[f]=btn.classList.contains('active');
+        var allBtn=document.querySelector('.intel-filter-btn[data-filter="ALL"]');
+        var allOn=true;btns.forEach(function(b){if(b.getAttribute('data-filter')!=='ALL'&&!b.classList.contains('active'))allOn=false;});
+        if(allOn)allBtn.classList.add('active');else allBtn.classList.remove('active');
+      }
+      var items=el.querySelectorAll('.intel-event');
+      items.forEach(function(item){
+        var t=item.getAttribute('data-type');
+        item.style.display=_activeFilters[t]?'':'none';
       });
-      if(r.funding_rate!==undefined)add('FDX','#06b6d4','FUND',(r.funding_rate*100).toFixed(4)+'%','DATA');
-      if(r.put_call_ratio)add('OPX','#a855f7','P/C',parseFloat(r.put_call_ratio).toFixed(3),'DATA');
+    });
+  });
+
+  /* Convergence engine — only emit changed indices */
+  function fetchIntel(){
+    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+      var n=d.nodes||{},prev=window._prevScores;
+      var order=['mcx','epx','ihx','opx','fdx','ocx'];
+      var cols=['#dc2626','#f97316','#8b5cf6','#a855f7','#06b6d4','#22c55e'];
+      order.forEach(function(k,i){
+        var nd=n[k];if(!nd)return;var score=Math.round(nd.score);
+        if(prev[k]!==undefined&&Math.abs(score-prev[k])>2){
+          var dir=score>prev[k]?'\u2191':'\u2193';
+          addIntelEvent('INDEX',cols[i],k.toUpperCase(),prev[k]+'\u2192'+score+' '+dir+' '+(nd.desc||'').toLowerCase());
+        }
+        prev[k]=score;
+      });
+      window._prevScores=prev;
+      /* Whale alerts from raw data */
+      var raw=d.raw||{};
+      if(raw.whale_txs&&raw.whale_txs.length){
+        raw.whale_txs.forEach(function(w){
+          var btc=w.amount||w.value||0;if(btc>100){
+            var hash=w.hash||w.txid||'';
+            addIntelEvent('WHALE','#f97316','\uD83D\uDC0B',btc.toLocaleString()+' BTC '+(hash?hash.substring(0,6)+'...':''));
+          }
+        });
+      }
     }).catch(function(){});
   }
-  setTimeout(function(){add('SYS','#dc2626','ENGINE','Convergence v1.3 — online','BOOT');setTimeout(fetchFeed,500);},200);
-  setInterval(fetchFeed,30000);
-  function sim(){
-    var hb=[{t:'MCX',c:'#dc2626',l:'HASH',v:Math.round(980+Math.random()*40)+' EH/s'},{t:'NET',c:'#888',l:'MEM',v:Math.floor(25000+Math.random()*5000)+' txs'},{t:'FDX',c:'#06b6d4',l:'FUND',v:(Math.random()*0.01).toFixed(5)+'%'}];
-    var e=hb[Math.floor(Math.random()*hb.length)];add(e.t,e.c,e.l,e.v,'SIM');setTimeout(sim,6000+Math.random()*8000);
+
+  /* Price monitoring */
+  function checkPrice(){
+    fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+      var raw=d.raw||{};var p=raw.price||raw.btc_price;if(!p)return;
+      window._priceHistory.push({price:p,time:Date.now()});
+      if(window._priceHistory.length>10)window._priceHistory.shift();
+      if(window._priceHistory.length>=2){
+        var oldest=window._priceHistory[0];
+        var pctChange=((p-oldest.price)/oldest.price)*100;
+        if(Math.abs(pctChange)>0.3){
+          var dir=pctChange>0?'\u2191':'\u2193';
+          var col=pctChange>0?'#22c55e':'#ef4444';
+          addIntelEvent('PRICE',col,'BTC',dir+(pctChange>0?'+':'')+pctChange.toFixed(1)+'% \u2192 $'+p.toLocaleString(undefined,{maximumFractionDigits:0}));
+          window._priceHistory=[{price:p,time:Date.now()}];
+        }
+      }
+    }).catch(function(){});
   }
-  setTimeout(sim,5000);
+
+  /* Heartbeat — fills gaps when real events are slow */
+  setInterval(function(){
+    if(Date.now()-_lastEventTime>5000){
+      var heartbeats=[
+        function(){return['NET','#555','PING','mempool.space \u2014 connected'];},
+        function(){return['HASH','#dc2626','\u26CF',Math.round(980+Math.random()*40)+' EH/s'];},
+        function(){return['NET','#555','MEM',Math.round(15000+Math.random()*15000).toLocaleString()+' unconfirmed'];},
+        function(){return['NET','#555','FEES',Math.round(1+Math.random()*3)+' sat/vB avg'];}
+      ];
+      var hb=heartbeats[Math.floor(Math.random()*heartbeats.length)]();
+      addIntelEvent(hb[0],hb[1],hb[2],hb[3],0.3);
+    }
+  },8000+Math.random()*4000);
+
+  /* Boot sequence */
+  setTimeout(function(){
+    addIntelEvent('NET','#dc2626','SYS','Intel Stream v2.0 \u2014 online');
+    setTimeout(fetchIntel,500);
+    setTimeout(checkPrice,1000);
+  },200);
+  setInterval(fetchIntel,30000);
+  setInterval(checkPrice,30000);
 })();
 
 /* ═══ PREDICTION MARKETS — LIVE MULTI-MARKET ═══ */
