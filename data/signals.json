@@ -1,36 +1,36 @@
 {
-  "updated_at": "2026-03-31T20:45:01.931150+00:00",
+  "updated_at": "2026-04-01T05:35:01.099241+00:00",
   "btc_price": {
-    "value": 68000,
-    "change_24h": 2.11,
+    "value": null,
+    "change_24h": null,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1360574331322.0386,
+    "value": null,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 57696359956.37836,
+    "value": null,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 943110,
+    "value": 943165,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 3.93,
-    "blocks_remaining": 378,
-    "estimated_date": "2026-04-03T09:24:25.418000+00:00",
+    "percent": 3.92,
+    "blocks_remaining": 323,
+    "estimated_date": "2026-04-03T09:24:55.808000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1009.1 EH/s",
-    "raw_eh": 1009.1,
+    "value": "1002.0 EH/s",
+    "raw_eh": 1002.0,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 16255,
-    "vsize_mb": 12.6,
+    "tx_count": 18791,
+    "vsize_mb": 10.2,
     "source": "mempool.space"
   },
   "recommended_fees": {
@@ -40,35 +40,35 @@
     "source": "mempool.space"
   },
   "lightning": {
-    "node_count": 17438,
-    "channel_count": 41109,
-    "capacity_btc": 5057.1,
+    "node_count": 17369,
+    "channel_count": 42215,
+    "capacity_btc": 5700.5,
     "source": "mempool.space"
   },
   "fear_greed": {
-    "value": 11,
+    "value": 8,
     "label": "Extreme Fear",
-    "previous": 8,
+    "previous": 11,
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 2.883e-05,
-    "annualized": 3.16,
+    "value": 8.609e-05,
+    "annualized": 9.43,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 29718.0,
-    "usd": 2021196420,
+    "btc": 29464.2,
+    "usd": 2020991470,
     "source": "deribit"
   },
   "exchange_volume": {
-    "binance_btc": 126619.2,
+    "binance_btc": null,
     "coinbase_btc": null,
     "source": "coingecko"
   },
   "halving": {
-    "days_since": 711,
-    "days_to_next": 747,
+    "days_since": 712,
+    "days_to_next": 746,
     "next_block": 1050000,
     "current_subsidy": 3.125,
     "progress_pct": 48.8,
@@ -101,7 +101,7 @@
     "source": "unavailable"
   },
   "signal_score": {
-    "bull_count": 4,
+    "bull_count": 3,
     "bear_count": 1,
     "neutral_count": 0
   }

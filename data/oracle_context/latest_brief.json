@@ -1,11 +1,13 @@
 {
-  "generated_at": "2026-03-31T18:00:15.462047+00:00",
-  "brief_type": "midday",
+  "generated_at": "2026-04-01T02:00:14.746459+00:00",
+  "brief_type": "evening",
   "bullets": [
-    "Extreme fear readings (below 20) historically precede volatile reversals\u2014compression followed by expansion is the pattern",
-    "Hashrate strength during consolidation = institutional miners adding rigs, not dumping; conviction signal",
-    "First resistance $68.5k is critical; break above unlocks test of $70k with volume confirmation needed for sustained rally"
+    "Extreme fear (CFI: 8) typically precedes either violent reversals or continued compression\u2014no directional bias yet",
+    "Mempool clearing despite 18,126 tx congestion signals patient holders; watch for on-chain liquidation evidence",
+    "Support cascade risk below $67K; Asian session volatility likely catalyst for directional breakout",
+    "Hashrate stability (906.7 EH/s) = miner conviction; margin compression not forcing capitulation",
+    "Volume signals unreliable until markets reopen; size risk accordingly until direction confirmed"
   ],
-  "sentiment_score": 42,
-  "brief_summary": "**BITCOIN MIDDAY BRIEF**\n\nPrice holding steady at $67,460\u2014flat overnight, but the real story's underneath. Extreme Fear reading at 11 is a contrarian green flag. When sentiment's this compressed, we typically see volatility compression before the breakout.\n\nNetwork fundamentals remain solid. Hashrat"
+  "sentiment_score": 15,
+  "brief_summary": "**BITCOIN EVENING BRIEF**\n\nBitcoin flatlined at $67,730\u2014zero movement in twenty-four hours. That stasis masks something sharper: extreme fear gripping the market at a reading of 8. Psychological capitulation, not price discovery.\n\n**The setup:** Mempool's congested with 18,126 transactions but fees "
 }

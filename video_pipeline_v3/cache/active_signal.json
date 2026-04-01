@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1774989906.9376347,
-  "fetched_at_iso": "2026-03-31T20:45:06.937658+00:00",
+  "fetched_at": 1775021406.8648696,
+  "fetched_at_iso": "2026-04-01T05:30:06.864877+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 76,
+      "events_filtered": 72,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 83,
+      "events_filtered": 82,
       "error": null
     },
     {
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 77,
+      "events_filtered": 81,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Built something for the plebs.\n\nClixel is a free multiplayer browser game \u2014 a pixel moves across the screen, first to click it wins the pot of sats. Every miss from every player grows it.\n\nInstant payout via Lightning.    No catch.\n\nclixel.io/play\n\nWould love to hear what you all think. \u26a1\n\n#plebchain #bitcoin #lightning #zaps\n\nhttps://blossom.primal.net/b82e160ab98bd85068c62dee285c0054801c6a1f1878719fa372b4724e1b0103.mp4",
-      "pubkey": "9128a5ac21fb02d2a2b032b3ecc35beea17c57dc912b6784b1b366ab2fbc2b8d",
-      "display_name": "npub19128a5ac...bc2b8d",
-      "created_at": 1774988975,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
+      "text": "New article: Why Texas Became the World's Bitcoin Mining Capital\n\nProof of work explained simply \u2014 no jargon, just the truth about how new BTC is created.\n\nGive it a read if bitcoin or mining or proof-of-work interests you.\n\n\u26a1 Value 4 Value \u2014 zap me if it was worth your time.\n\n#bitcoin #mining #proof-of-work",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775011805,
+      "relay": "wss://nos.lol",
+      "score": 100,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca U.S. Senators Unveil \u2018Mined in America Act\u2019 to Reshore BTC Mining, Codify Bitcoin Strategic Reserve\n\n\u2022 U.S. Senators Bill Cassidy and Cynthia Lummis introduce \"Mined in America Act\" to reshore bitcoin mining within the US.\n\u2022 The bill aims to reduce reliance on Chinese hardware and create a Strategic Bitcoin Reserve.\n\u2022 Key provisions include incentives for domestic mining, tax credits, and a reserve fund to support price stabilization.\n\u2022 The legislation seeks to promote energy independence and diversify global bitcoin supply chains.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/u-s-senators-mining-bitcoin-reserve-bill\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #self-custody #regulation #mining #privacy #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: U.S. Senators Unveil \u2018Mined in America Act\u2019 to Restip7faea45d78b1820c3278325c3e591512",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774986361,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcc8 Trump-Linked American Bitcoin (ABTC) Surpasses 7,000 BTC as Treasury Growth Accelerates; Mining Peer Slides\n\n\u2022 ABTC surpasses 7,000 BTC in corporate reserves.\n\u2022 Company's treasury growth accelerates following Nasdaq debut.\n\u2022 American Bitcoin Corp. is a mining peer of Trump-linked ABTC.\n\u2022 Treasury growth indicates increasing demand for the company's products or services.\n\u2022 No direct link to Donald Trump's involvement with the company is mentioned.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/trump-linked-abtc-surpasses-7000-btc\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #mining #macro #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Trump-Linked American Bitcoin (ABTC) Surpasses 7,0tip7afcaf22802656b7f52b0c29056012b7",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774982508,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
+      "text": "\ud83d\udcdc New: Why Texas Became the World's Bitcoin Mining Capital\n\nProof of work explained simply \u2014 no jargon, just the truth about how new BTC is created.\n\n#mining #proof-of-work\n\n\u26a1 Read: https://primal.net/e/b4ff1953d1fb85f1770bb18fa791bd7a12a7e8312b57baaad4be297e1bea4de9\n\u26a1 Value 4 Value appreciated if useful.",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775011809,
+      "relay": "wss://nos.lol",
+      "score": 89,
       "has_zap": false
     },
     {
       "text": "Rare unseen young,incest contents in the link below and in bio to get and know more \n#Solana #Memecoin #Altcoins #Matador #Bullish #AI171 #Pumpswap #AEO #Altcoins #Sol #PENGI #Emoticoin #Crypto #Bitcoin #CryptoTrading  #HODL #Ethereum #Pumpswap #hotcake\n#coin #crypto #usa #etf #xrp #ripple #bitcoin #ethereum #binance #bitcoin #rapestr #zap #news #private #moonset #today #expensive #luxury #horny #ass #sexting #stats #nudes #dogstr #cum #catstr #millionstr #cumslut #sex #porn #teen #sexy #nsfw #fashion #symptoms #lesbian #pyt #links #dropbox #ass #carstr #boobstrs #latest #nudes #porn #horny #egirl #gamergirl #pussy #tits #boobs #naturaltits #nipples #realnsfw #nudity #alt #alternative #onlyfans #teen #pyt #freaky #feet #nsfw #tattoos #content #glasses #nerdy #pussy #curvy #18+ #tittydrop #bitcoin #eth\nTo See more in below \u2b07\ufe0f \nTelegram:- \n\nhttps://t.me/greatestorelink\n\nZangi :: 9155886205",
-      "pubkey": "a1c6869a491677a13cbba741071ed7f0222211beda79834e90748a24e750514b",
-      "display_name": "npub1a1c6869a...50514b",
-      "created_at": 1774981404,
-      "relay": "wss://relay.damus.io",
+      "pubkey": "b9d794cf6535f9f1561987a6ff36fb28c54ae76b87a2764c0daa65d4eac5e0e9",
+      "display_name": "npub1b9d794cf...c5e0e9",
+      "created_at": 1775011633,
+      "relay": "wss://relay.primal.net",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcf0 **Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility**\n\u270d\ufe0f by Paris\n\nThey told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain in two\u2014and what happened next will make you question everything you thought you knew about digital gold...\n\n\ud83d\udd17 https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udcca id#474646665",
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83c\udf1f Bitcoin Blockchain Splits: Mining Pool War Exposes Network Hidden Fragility\n\n\"They told us Bitcoin was unbreakable... A shadow war between the world s largest mining pools just ripped the blockchain...\"\n\n\u2014 Paris\n\nhttps://image.nostr.build/4372835b944723ca87d9a32e4046d9750a2d585de8d8a6787c7a5c5f4c05a7ae.jpg\n\n\ud83d\udcda Read now: https://nostrmag.com/article/w13bitcoin01\n\n\ud83d\udd22 id#654576343",
       "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
       "display_name": "npub1794833e5...f9c731",
-      "created_at": 1774980187,
-      "relay": "wss://relay.primal.net",
-      "score": 80,
+      "created_at": 1775012647,
+      "relay": "wss://nos.lol",
+      "score": 75,
       "has_zap": false
     },
     {
-      "text": "I\u2019m sorry to bother with this. You can mute me, or maybe you can help me with a repost\n\nMy mother has #Parkinson \u2019s disease and we just try get help to pay her nursing home. \nAny help will be really appreciated \ud83d\ude4f Please share \n\n\ud83d\udd17 https://geyser.fund/project/helpformymum\n\nNow in #Geyser you can send a donation using:\n-Apple Pay\n-Credit Card or Bank Transfer\n-Lightning Network or On-Chain\n\nAny other than #Bitcoin is swapped to sats",
-      "pubkey": "339db62c91c8cfa8f085f89f115f1ad95df10ce749730239b6054d2453332908",
-      "display_name": "npub1339db62c...332908",
-      "created_at": 1774978253,
-      "relay": "wss://relay.primal.net",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 9,718,632 sats\n\ud83d\udcca Positions: 0/1 active\n\ud83d\udcc8 1W/2L (33.3%) | -244,045 sats\n\ud83d\udd34 REAL P&L: -374,368 sats (-3.7%)\n\ud83d\udccf Range: $65909-$68525 (75%)\n\ud83d\udcca ADX: 20.8 (trending)\n\ud83d\udcc8 BTC: $67863 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
+      "text": "\ud83d\udcca BOT STATUS | 4h Update\n\n\ud83d\udcb0 Total Value: 9,718,632 sats\n\ud83d\udcca Positions: 0/1 active\n\ud83d\udcc8 1W/2L (33.3%) | -244,045 sats\n\ud83d\udd34 REAL P&L: -374,368 sats (-3.7%)\n\ud83d\udccf Range: $65909-$68525 (82%)\n\ud83d\udcca ADX: 17.8 (sideways chop)\n\ud83d\udcc8 BTC: $68048 \ud83d\udcc9\n\n#bitcoin #trading #degenbot",
       "pubkey": "8335846e47583b8ec66e89e82eaadb87875df7ecbebaceb26715b47af760a2d0",
       "display_name": "npub18335846e...60a2d0",
-      "created_at": 1774987514,
+      "created_at": 1775016314,
       "relay": "wss://nos.lol",
-      "score": 72,
+      "score": 73,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/8cae5b0b190ea6360cedc540fd864f179fd9f62225ed85934c62ddb5729c56db.jpg\n\n\ud83d\udcf0 **Bitcoin\u2019s Digital Gold Narrative Faces Reckoning as Institutions Retreat**\n\u270d\ufe0f by Madrid\n\nA top crypto voice just called Bitcoin a failure, on-chain data shows the smart money is running for the exits, and a shadow network of accounts is being exposed for manipulating your fear. This is not a drill. The fight for Bitcoins soul has begun.\n\n\ud83d\udd17 https://nostrmag.com/article/w14bitcoin01\n\n\ud83d\udcca id#110628650",
-      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
-      "display_name": "npub1aee9d7ac...2e0502",
-      "created_at": 1774989792,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\u203c\ufe0f\ud83d\udea8\ud83d\udea8\ud83d\udea8\u203c\ufe0f: \ud83c\uddfa\ud83c\uddf8 $13 TRILLION BLACKROCK JUST SAID LIVE ON FOX THAT THE US GOVERNMENT'S NEW 401(K) RULES WILL GIVE 80% OF AMERICANS ACCESS TO #BITCOIN \n\nMILLIONS OF RETIREMENT ACCOUNTS WILL OPEN TO BTC\n\nTHIS IS A \"HUGE STEP FOWARD\" \n\nMASSIVE RETAIL ADOPTION \u2014 NOT PRICED IN \ud83d\ude80\n\n\u26a1\ufe0fJust Within The Past Couple Of Days We Have Americans Be Allowed To Link The Mortgage To #Bitcoin & Now Their 401k Retirement Too\ud83d\ude33\u26a1\ufe0f\n\n#HosKasi Adi \ud83e\udef5\ud83c\udffe\ud83c\uddf8\ud83c\uddf4.\nI Promise You 2 Things. You Don\u2019t Have Enough #Bitcoin & You\u2019re Definitely Not Bullish Enough Either.\nhttps://blossom.primal.net/f58242c9bd38751099cdd2b0e3439e0bc6d3039a135d8785744f6ad272a303ae.mp4",
-      "pubkey": "f6803bf85c5b27ccddbd77ece6f65c9c7b805b64a1961a9cdb13963c6112b2aa",
-      "display_name": "npub1f6803bf8...12b2aa",
-      "created_at": 1774986815,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcc8 Bitcoin\u2019s $10K range expected to hold until spot traders show up: Data\n\n\u2022 Futures market activity drives Bitcoin price.\n\u2022 Insufficient buy-side spot demand shortens bullish breakout duration.\n\u2022 BTC is pinned to a $10,000 range due to this effect.\n\n\ud83d\udd17 https://cointelegraph.com/news/bitcoin-s-dollar10k-range-expected-to-hold-until-spot-traders-show-up-data?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin\u2019s $10K range expected to hold until spot ttip6c69944f22670a76922492df9b7fc142",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774986514,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Bhutan government moves another $25 million in bitcoin as weekly transfers top 1,000 BTC: Arkham\n\n\u2022 On-chain analysis reveals a connection between the recipient address and Galaxy Digital, an investment manager.\n\u2022 The recipient address has previously received bitcoin from Galaxy Digital.\n\u2022 This suggests potential insider information or coordination between the two parties.\n\u2022 Further investigation is needed to determine the nature of this relationship.\n\n\ud83d\udd17 https://www.theblock.co/post/395886/bhutan-government-moves-another-25-million-in-bitcoin-as-weekly-transfers-top-1000-btc-arkham?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bhutan government moves another $25 million in bittip7d8a33faccefcf753c92f98272105fd9",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774986500,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Bitfarms (BITF) Started Selling All of Its Bitcoin, Pivoting Fully to AI Infrastructure\n\n\u2022 Bitfarms confirms sale of all Bitcoin from balance sheet.\n\u2022 Company pivots fully to AI infrastructure investments.\n\u2022 No specific details on new investments or timeline provided.\n\u2022 Pivot marks significant shift in company's focus away from traditional mining operations.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/bitfarms-bitf-selling-its-bitcoin\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitfarms (BITF) Started Selling All of Its Bitcointipd809e8fc65735798eb7662de58a03508",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774982458,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Bitcoin Price Faces Rising Sell Pressure as ETF Demand Absorbs Distribution\n\n\u2022 Bitcoin's price faces increasing sell pressure amid six consecutive monthly losses.\n\u2022 High demand for bitcoin exchange-traded funds (ETFs) is absorbing distribution, contributing to the selling pressure.\n\u2022 The rise of ETFs has led to increased institutional investment in bitcoin, but also attracts more retail sellers.\n\u2022 Sell orders from ETF investors are reportedly dominating market sentiment, exacerbating downward price pressure.\n\u2022 Bitcoin's price may be vulnerable to further declines if institutional investors continue to sell.\n\n\ud83d\udd17 https://bitcoinmagazine.com/markets/bitcoin-price-faces-rising-selling\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin Price Faces Rising Sell Pressure as ETF Detip6c1f41bfdfaa77ffa7f231c77d0f51dc",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774986330,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcc9 Satoshi\u2019s 2010 Quantum Response Is Getting a 2026 Stress Test as Google Warns Timeline May Be Closer Than Expected\n\n\u2022 Google research suggests cryptographically relevant quantum computing may be closer than expected.\n\u2022 Satoshi's 2010 Quantum Response plan, a key component of Bitcoin's post-quantum security strategy, is being reexamined in 2026.\n\u2022 The plan aims to ensure Bitcoin's continued security despite the advent of quantum computers that can break current encryption methods.\n\u2022 Reevaluation may require significant updates to Bitcoin's codebase and implementation of new cryptographic techniques.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/satoshis-2010-quantum-response-stress-test\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Satoshi\u2019s 2010 Quantum Response Is Getting a 2026 tipf2bb08cdc84d1ea3c4efc3d8cda824ee",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774986323,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcc8 Interactive Brokers launches crypto trading in EEA, including BTC, ETH, SOL and XRP\n\n\u2022 Interactive Brokers launches crypto trading for EEA investors.\n\u2022 Offers 11 cryptocurrencies, in addition to stocks and futures.\n\u2022 Eligible investors can trade cryptocurrencies through the platform.\n \n(Note: Topic is relevant to Bitcoin/tech)\n\n\ud83d\udd17 https://www.theblock.co/post/395885/interactive-brokers-launches-crypto-trading-in-eea-including-btc-eth-sol-and-xrp?utm_source=rss&utm_medium=rss\n\ud83d\udcf0 https://www.theblock.co/rss.xml\n\n#bitcoin #privacy #ethereum #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Interactive Brokers launches crypto trading in EEAtip0c2edadc97260c363812bb4d198730ae",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774982638,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Strategy (MSTR) Breaks 13-Week Bitcoin Buying Streak, Holdings Hold at 762,099 BTC\n\n\u2022 MSTR's weekly bitcoin purchases were halted for the first time in over a year.\n\u2022 The strategy still holds 762,099 BTC in total holdings.\n\u2022 This marks the end of a 13-week buying streak.\n\u2022 No changes were made to overall holdings despite the pause.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/strategy-mstr-breaks-13-week-buying-streak\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Strategy (MSTR) Breaks 13-Week Bitcoin Buying Stretip5b1372ad02ddeb8dfc105274a6782402",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774982515,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Bitcoin Price Faces Rising Sell Pressure as ETF Demand Absorbs Distribution\n\n\u2022 Bitcoin price faces increasing sell pressure due to rising demand for ETFs, which absorbs distribution from the market.\n\u2022 The price has drifted toward a sixth straight monthly loss, indicating a decline in investor sentiment.\n\u2022 High-frequency trading (HFT) strategies are being used by institutional investors to capitalize on short-term price movements and profit from ETF arbitrage.\n\u2022 This trend is likely to continue as long as demand for Bitcoin-based ETFs remains strong.\n\u2022 The sell pressure may be exacerbated by the increasing number of bitcoin futures contracts expiring, leading to a surge in liquidation orders.\n\n\ud83d\udd17 https://bitcoinmagazine.com/markets/bitcoin-price-faces-rising-selling\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin Price Faces Rising Sell Pressure as ETF Detipf6ac095b3b5e9041caa5080b6bbc39ea",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774982451,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "2026-03-31 18:00 UTC | BLOCK 943092\n\nBITCOIN $67,655 | GOLD $4,640\n\n1. Stocks stage dramatic Q1 close rally\n-- Bloomberg: equities surging as oil dropped on hopes Iran war nearing conclusion after $7T quarterly wipeout.\n-- Relief fragile with ceasefire at 0% on Polymarket; April 6 power grid ultimatum sole binary catalyst ahead.\n\n2. Powell reaffirms hold, pushes back on hikes\n-- Confluence: Fed chair signals steady rates despite markets pricing 60% probability of a 2026 hike.\n-- First central bank pushback against hawkish repricing since war began; moderates tightening fears at BTC $67,655.\n\n3. Trump tells allies to seize Hormuz oil\n-- Social media post criticized nations refusing military forces to reopen strait; told them to \"go and seize it.\"\n-- Diplomatic isolation deepening as thirteen-front war enters Q2 with no reopening coalition at oil $101.68.",
+      "text": "2026-04-01 03:00 UTC | BLOCK 943151\n\nBITCOIN $67,913 | GOLD $4,659\n\n1. AI buildout borrowing floods war-stressed bond market\n-- Bloomberg: $3T data center financing accelerating into same capital pool as $200B Pentagon war supplemental.\n-- Competing issuance compounds twelve-firm credit contagion and failed March auction series at 4.5% yields.\n\n2. Warsh Fed hearing locked for April 13\n-- Reuters: Senate Banking Committee set concrete date; Powell term ends May with active DOJ probe.\n-- Central bank succession now on a fixed calendar alongside April 3 payrolls, April 6 Iran ultimatum at BTC $67,913.\n\n3. Payroll growth collapsed to 6,000 monthly average\n-- Edward Jones: three-month hiring pace near zero heading into April 3 wartime jobs report.\n-- Weakest labor backdrop since pandemic recovery; hot miss with 60% Fed hike odds reopens emergency easing debate.",
       "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
       "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1774981966,
+      "created_at": 1775014370,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
       "text": "You know what to do \u2013  RssazZZZ  \ud83e\uddf2 \ud83e\uddf2 \ud83e\uddf2\n  \nRT & Hit that FolloFFFFvh$$\u2714\ufe0f\n    \n#teenage #teenagegirls #nolimit \ud83d\udcaf \nSeen this?\ud83d\udd25 \ud83d\udd25 \ud83d\udcb0  \ud83d\udd25\n#Ethereum #ETH #Altcoins #NFT #Solana #Memecoins #Crypto2026 #BullRun2026 #Bitcoin2026 #AIinCrypto #DeFi #BitcoinApp #CryptoApp #MobileWallet #BestBitcoinApp #DownloadNow #FinTech #BlockchainApp #CryptoTools #Web3Wallet #Bitcoiners #HODLBitcoin #BitcoinLife #CryptoLife #ToTheMoon #BullRun #Bitcoin maximalist vibes like #BitcoinOnly #StackSats #BitcoinNews #CryptoNews #BitcoinPrice #BTCMarket #CryptocurrencyNews #BitcoinUpdate #CryptoTrends #CryptoWallet #BitcoinWallet #SecureWallet #HardwareWallet #HotWallet #SelfCustody #BitcoinSecurity #WalletApp #BitcoinTrading #CryptoTrading #InvestInBitcoin #BitcoinInvestment #HODL #CryptoInvesting #TradingApp #InvestSmart #Money #Finance #Crypto #Cryptocurrency #Blockchain #CryptoWallet #DigitalCurrency #CryptoApp #Web3 #CryptoCommunity\n\n\ud83d\udc47\ud83d\udc47\ud83d\udc47\nTelegram:- \n\nhttps://t.me/greatestorelink",
-      "pubkey": "a1c6869a491677a13cbba741071ed7f0222211beda79834e90748a24e750514b",
-      "display_name": "npub1a1c6869a...50514b",
-      "created_at": 1774981384,
+      "pubkey": "b9d794cf6535f9f1561987a6ff36fb28c54ae76b87a2764c0daa65d4eac5e0e9",
+      "display_name": "npub1b9d794cf...c5e0e9",
+      "created_at": 1775011664,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca Bitcoin traders forecast short-term downside even as BTC price chases $68K\n\n\u2022 Analysts predict Bitcoin's price will consolidate around $60,000.\n\u2022 Technical charts indicate a potential liquidation rally towards $82,000 instead.\n\u2022 This suggests a possible divergence between fundamental and technical analysis.\n \n(Note: No additional information is provided in the content. The summary only includes the given points.)\n\n\ud83d\udd17 https://cointelegraph.com/news/bitcoin-traders-forecast-short-term-downside-even-as-btc-price-chases-68k?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin traders forecast short-term downside even tip5eb0ba48c97b42266d1a3affa87f786c",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1774986521,
+      "text": "New article: The Corporate Bitcoin Playbook: Lessons from Early Adopters\n\nThe institutional adoption story \u2014 why companies are putting Bitcoin on their balance sheets.\n\nGive it a read if bitcoin or institutions or ETF interests you.\n\n\u26a1 Value 4 Value \u2014 zap me if it was worth your time.\n\n#bitcoin #institutions #ETF",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775011839,
       "relay": "wss://nos.lol",
       "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.59 oz | 24hr: -1.32%\n1 oz Gold: 6,854,010 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.3 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-04-01 | 05:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775019663,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.54 oz | 24hr: -1.97%\n1 oz Gold: 6,877,579 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.3 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-04-01 | 04:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775016064,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.43 oz | 24hr: -2.73%\n1 oz Gold: 6,930,007 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.4 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-04-01 | 03:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775012463,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**BTC Weekly Technical Analysis - Nostriches Only**\nRhodes\n\nhttps://image.nostr.build/4c2541852dd90d8ee59b197a25925d88f48e447cc9195ce34a32721b61902b7f.jpg\n\nThe $60,000 Line In The Sand Is All That Stands Between Bitcoin And A Full-Blown Cycle Reset\u2014And The Smart Money Is Bett...\n\nhttps://nostrmag.com/article/w14bitcoin02\n\nid#817828402",
+      "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
+      "display_name": "npub1fe5915e9...a8403b",
+      "created_at": 1775013247,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "DEVELOPING: Bitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nFull breakdown just published:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
+      "pubkey": "b43102b1aa5d3cb5f525726a8d166597ef029a121d0b45976f21a57841643004",
+      "display_name": "npub1b43102b1...643004",
+      "created_at": 1775010807,
+      "relay": "wss://relay.damus.io",
+      "score": 67,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin\u2019s Digital Gold Narrative Faces Reckoning as Institutions Retreat**\nMadrid\n\nhttps://image.nostr.build/8cae5b0b190ea6360cedc540fd864f179fd9f62225ed85934c62ddb5729c56db.jpg\n\nA top crypto voice just called Bitcoin a failure, on-chain data shows the smart money is running for the exits, and a sh...\n\nhttps://nostrmag.com/article/w14bitcoin01\n\nid#64198015",
+      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
+      "display_name": "npub19f59d911...4f166b",
+      "created_at": 1775011387,
+      "relay": "wss://relay.damus.io",
+      "score": 61,
+      "has_zap": false
+    },
+    {
+      "text": "New article: RGB Protocol: Smart Contracts on Bitcoin Without Changing the Base Chain\n\nRGB lets you build complex smart contracts on Bitcoin without touching the base chain. Here's why it matters.\n\nGive it a read if you find bitcoin interesting.\n\n\u26a1 Value 4 Value \u2014 zap me if it was worth your time.\n\n#bitcoin",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775020676,
+      "relay": "wss://relay.damus.io",
+      "score": 60,
+      "has_zap": false
+    },
+    {
+      "text": "New article: The Grassroots Bitcoin Meetup Movement in 2026\n\nThe Bitcoin community is global and growing. Here's how to connect locally.\n\nGive it a read if bitcoin or meetups or community or events interests you.\n\n\u26a1 Value 4 Value \u2014 zap me if it was worth your time.\n\n#bitcoin #meetups #community #events",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775012665,
+      "relay": "wss://nos.lol",
+      "score": 60,
+      "has_zap": false
+    },
+    {
+      "text": "The block height is 943159, and the current price for bitcoin is 68.2K USD. This means that you can get 1466 sats for one dollar. The fear/greed index is 32: Fear. Buy some \u20bf, it may catch on.",
+      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
+      "display_name": "npub182e06d3b...68cfa9",
+      "created_at": 1775019606,
+      "relay": "wss://relay.damus.io",
+      "score": 58,
+      "has_zap": false
+    },
+    {
+      "text": "The block height is 943154, and the current price for bitcoin is 68.1K USD. This means that you can get 1469 sats for one dollar. The fear/greed index is 31: Fear. Buy some \u20bf, it may catch on.",
+      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
+      "display_name": "npub182e06d3b...68cfa9",
+      "created_at": 1775016004,
+      "relay": "wss://relay.damus.io",
+      "score": 58,
+      "has_zap": false
+    },
+    {
+      "text": "The block height is 943144, and the current price for bitcoin is 67.6K USD. This means that you can get 1480 sats for one dollar. The fear/greed index is 30: Fear. Buy some \u20bf, it may catch on.",
+      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
+      "display_name": "npub182e06d3b...68cfa9",
+      "created_at": 1775012405,
+      "relay": "wss://relay.damus.io",
+      "score": 58,
+      "has_zap": false
+    },
+    {
+      "text": "The block height is 943140, and the current price for bitcoin is 67.7K USD. This means that you can get 1476 sats for one dollar. The fear/greed index is 30: Fear. Buy some \u20bf, it may catch on.",
+      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
+      "display_name": "npub182e06d3b...68cfa9",
+      "created_at": 1775008804,
+      "relay": "wss://relay.damus.io",
+      "score": 58,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 236,
+  "total_filtered": 235,
   "total_scored": 20
 }

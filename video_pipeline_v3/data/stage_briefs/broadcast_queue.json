@@ -1,53 +1,53 @@
 [
   {
-    "id": "ba8911e7-78b4-4203-8dd2-46c528d42b23",
+    "id": "b0e5cf4b-cd50-4972-813a-f11c8c484f87",
     "type": "ORACLE_BRIEF",
     "priority": 1,
-    "script": "**BITCOIN MIDDAY BRIEF**\n\nPrice holding steady at $67,460\u2014flat overnight, but the real story's underneath. Extreme Fear reading at 11 is a contrarian green flag. When sentiment's this compressed, we typically see volatility compression before the breakout.\n\nNetwork fundamentals remain solid. Hashrat",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
-    "topic_preview": "Oracle Midday Brief \u2014 $67,460",
-    "generated_at": "2026-03-31T18:00:01.413261+00:00",
-    "expires_at": "2026-03-31T22:00:01.413261+00:00",
-    "video_url": "/data/stage_briefs/brief_20260331_1800.mp4"
+    "script": "**BITCOIN EVENING BRIEF**\n\nBitcoin flatlined at $67,730\u2014zero movement in twenty-four hours. That stasis masks something sharper: extreme fear gripping the market at a reading of 8. Psychological capitulation, not price discovery.\n\n**The setup:** Mempool's congested with 18,126 transactions but fees ",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $67,730",
+    "generated_at": "2026-04-01T02:00:01.691007+00:00",
+    "expires_at": "2026-04-01T06:00:01.691007+00:00",
+    "video_url": "/data/stage_briefs/brief_20260401_0200.mp4"
   },
   {
-    "id": "48d0f191-3ac3-4956-986e-fcea52184c36",
+    "id": "69189765-4c07-4364-8961-f67e90c373be",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Bitcoin adoption metrics surge 23% in Q3 as institutional nodes expand globally.\n\nWatch for next week's chain analysis showing new mining pool consolidations.",
-    "source_label": "\ud83e\udde0 @NATBRUNELL",
-    "topic_preview": "I'm looking for a talented video editor/motion graphics animator for an upcoming",
-    "generated_at": "2026-03-31T20:35:04.210508+00:00",
-    "expires_at": "2026-03-31T22:35:04.210508+00:00"
+    "script": "Saylor claims Stronach is less volatile than S&P 500 stocks or any major asset class.\n\nBitcoin miners remain concentrated in China, with 65% of hash rate still there.\n\nWatch for any regulatory signals from Beijing on mining operations.",
+    "source_label": "\ud83e\udde0 @SAYLOR",
+    "topic_preview": "Over the past 30 days, $STRC has been less volatile than every company in the S&",
+    "generated_at": "2026-04-01T04:50:05.516448+00:00",
+    "expires_at": "2026-04-01T06:50:05.516448+00:00"
   },
   {
-    "id": "e3fdbb45-99a1-4ce5-a2d8-8cbfc4461547",
+    "id": "c72ad476-53c7-4225-8288-02262c92df18",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $67,560.245, flat 24-hour change. Hashrate at 904.8 EH, confirming network security. Fear and Greed index at Extreme Fear, 11. Fastest fee at 2 sat/vB. 30,230 transactions processed. Block 943,091. Watch for mempool congestion signals.",
+    "script": "Bitcoin trades at $67,821.055, unchanged from yesterday.\n\nHashrate holds steady at 906.7 exahashes.\n\nFear and Greed index reads \"Extreme Fear\" at 8.\n\nFastest fee remains at 3 satoshis per byte.\n\n21,162 transactions processed in the latest block.\n\nBlock 943,140 mined.\n\nWatch for any miner withdrawals from the 2024 halvening cycle.\n\nNext signal: on-chain activity from large UTXO clusters.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $67,560 \u00b7 FNG 11 \u00b7 904.8 EH/s",
-    "generated_at": "2026-03-31T18:05:13.433767+00:00",
-    "expires_at": "2026-03-31T22:05:13.433767+00:00"
+    "topic_preview": "BTC $67,821 \u00b7 FNG 8 \u00b7 906.7 EH/s",
+    "generated_at": "2026-04-01T02:20:13.820006+00:00",
+    "expires_at": "2026-04-01T06:20:13.820006+00:00"
   },
   {
-    "id": "d9396be9-26ce-4cc0-a827-a12d6019655b",
+    "id": "7e138200-9e9d-40cb-8384-e1dfe20ccee6",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Solana's DEX volumes collapse to 2024 lows. DApp revenue holds steady. Price target: $75. Watch Bitcoin's on-chain behavior for early warning signals.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "Is Solana's DEX Decline a Canary in the Crypto Coal Mine?",
+    "generated_at": "2026-04-01T02:50:08.113696+00:00",
+    "expires_at": "2026-04-01T06:50:08.113696+00:00"
+  },
+  {
+    "id": "665b3e3e-11b7-43a1-a7df-1e80e1fc9ff8",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Market makers aggressively testing $67K resistance. Watch for breakout confirmation above 200-period EMA.",
+    "script": "Bitcoin's price action dominates Nostr discourse. Network miners are accumulating Bitcoin at unprecedented rates. Watch for on-chain accumulation signals in the next 24 hours.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "price",
-    "generated_at": "2026-03-31T19:30:17.511215+00:00",
-    "expires_at": "2026-03-31T23:30:17.511215+00:00"
-  },
-  {
-    "id": "0d66c816-4103-4455-b1dd-3c119dea2653",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hashrate breached 905 EH/s, signaling institutional accumulation. Fear & Greed index at 11 indicates extreme fear. Mempool fee remains at 1 sat/vbyte. Sovereign individuals hoard when others panic. Watch for mempool fee spikes above 2 sat/vbyte.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 905 EH/s, signaling institutional accumulation. Fear & Greed i",
-    "generated_at": "2026-03-31T20:30:21.147056+00:00",
-    "expires_at": "2026-03-31T22:30:21.147056+00:00"
+    "generated_at": "2026-04-01T03:30:19.137497+00:00",
+    "expires_at": "2026-04-01T07:30:19.137497+00:00"
   }
 ]

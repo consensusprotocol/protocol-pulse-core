@@ -77,6 +77,9 @@ def get_bitcoin_markets(limit=10):
                 {'question': 'Will Bitcoin ETF daily volume exceed $10B in 2026?', 'slug': '', 'volume': 0, 'liquidity': 0, 'end_date': '2026-12-31', 'outcomes': {'Yes': 52.1, 'No': 47.9}, 'source': 'curated'},
                 {'question': 'Will the Fed cut rates below 4% by Q4 2026?', 'slug': '', 'volume': 0, 'liquidity': 0, 'end_date': '2026-12-31', 'outcomes': {'Yes': 45.3, 'No': 54.7}, 'source': 'curated'},
                 {'question': 'Will any country adopt Bitcoin as legal tender in 2026?', 'slug': '', 'volume': 0, 'liquidity': 0, 'end_date': '2026-12-31', 'outcomes': {'Yes': 22.8, 'No': 77.2}, 'source': 'curated'},
+                {'question': 'Will gold price exceed $5,000/oz by end of 2026?', 'slug': '', 'volume': 0, 'liquidity': 0, 'end_date': '2026-12-31', 'outcomes': {'Yes': 44.6, 'No': 55.4}, 'source': 'curated'},
+                {'question': 'Will US enter a recession (2 consecutive GDP decline quarters) by 2027?', 'slug': '', 'volume': 0, 'liquidity': 0, 'end_date': '2027-03-31', 'outcomes': {'Yes': 35.2, 'No': 64.8}, 'source': 'curated'},
+                {'question': 'Will the SEC approve a spot Ethereum ETF by Q2 2026?', 'slug': '', 'volume': 0, 'liquidity': 0, 'end_date': '2026-06-30', 'outcomes': {'Yes': 71.3, 'No': 28.7}, 'source': 'curated'},
             ]
             existing_qs = {m['question'].lower() for m in filtered}
             for cm in curated:

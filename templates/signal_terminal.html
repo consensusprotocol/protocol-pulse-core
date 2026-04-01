@@ -879,7 +879,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             <!-- Polymarket -->
             <div>
                 <div class="panel-header">
-                    <span class="panel-label">POLYMARKET INTELLIGENCE</span>
+                    <span class="panel-label">PREDICTION MARKETS</span>
                     <span class="panel-badge">LIVE</span>
                 </div>
                 <div id="poly-list" style="padding:4px 12px;">
@@ -2504,7 +2504,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   setTimeout(sim,5000);
 })();
 
-/* ═══ POLYMARKET INTELLIGENCE — LIVE MULTI-MARKET ═══ */
+/* ═══ PREDICTION MARKETS — LIVE MULTI-MARKET ═══ */
 (function(){
   var el=document.getElementById('poly-list');if(!el)return;
   
@@ -2550,7 +2550,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       });
       
       html += sentimentBar(sentiment);
-      html += '<div style="font-size:7px;color:rgba(255,255,255,0.12);margin-top:4px;">'+markets.length+' markets tracked \u2022 Source: Polymarket Gamma API \u2022 Live</div>';
+      html += '<div style="font-size:7px;color:rgba(255,255,255,0.12);margin-top:4px;">'+markets.length+' markets tracked \u2022 Sources: Polymarket + Curated Intel \u2022 Live</div>';
       el.innerHTML = html;
     }).catch(function(err){
       console.warn('Polymarket fetch error:', err);
