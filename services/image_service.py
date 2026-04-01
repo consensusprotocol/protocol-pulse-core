@@ -403,65 +403,152 @@ def _build_pexels_queries(title, category=None):
     return unique[:5]  # Max 5 queries to avoid rate limits
 
 def _build_grok_prompt(title):
-    """Build a varied, hyper-realistic prompt based on article topic."""
+    """Build a unique, hyper-realistic prompt — title-driven so every article gets a distinct image."""
     import hashlib
 
     tl = title.lower()
+    h = int(hashlib.md5(title.encode()).hexdigest()[:8], 16)
 
-    if any(w in tl for w in ["mining", "miner", "hashrate", "difficulty", "asic"]):
-        scene = "Inside a massive Bitcoin mining facility. Rows of glowing ASIC rigs, heat haze, industrial scale. Workers in hard hats. Cables and blue LED status lights."
-        camera = "Shot on Sony A7R V, 24mm wide angle, industrial photography"
-    elif any(w in tl for w in ["congress", "senator", "regulation", "sec", "policy", "law", "bill", "warren"]):
-        scene = "The marble halls of the U.S. Capitol building, dramatic afternoon light through tall windows. Legislators in heated discussion. Documents and gavels on mahogany desks."
-        camera = "Shot on Leica Q3, 28mm, political photojournalism"
-    elif any(w in tl for w in ["etf", "institutional", "morgan", "blackrock", "fidelity", "401k", "retirement"]):
-        scene = "A high-end trading floor with massive screens showing charts. Traders in suits. Glass offices, city skyline through floor-to-ceiling windows at golden hour."
-        camera = "Shot on Nikon Z9, 50mm f/1.4, shallow DOF, corporate editorial"
-    elif any(w in tl for w in ["market", "price", "surge", "crash", "bull", "bear", "rally", "stumble"]):
-        scene = "Dramatic cityscape with overlaid light trails suggesting data flow. Rain-wet streets reflecting neon. The tension between order and chaos in financial markets."
-        camera = "Shot on Fujifilm GFX100, 45mm, long exposure urban photography"
-    elif any(w in tl for w in ["lightning", "layer 2", "network", "node"]):
-        scene = "A futuristic network operations center with holographic displays. Clean, minimal, cyberpunk aesthetic. Blue and white light in darkness."
-        camera = "Shot on Canon R5, 35mm, sci-fi editorial"
-    elif any(w in tl for w in ["hack", "theft", "heist", "fraud", "scam", "behind bars"]):
-        scene = "A dark room lit only by multiple monitors. Hooded figure silhouetted against screens of scrolling code. Digital forensics atmosphere."
-        camera = "Shot on Sony A1, 85mm f/1.2, thriller cinematography"
-    elif any(w in tl for w in ["oil", "energy", "gold", "macro", "inflation", "fed", "rate", "yield"]):
-        scene = "Split composition: physical commodities like gold bars or oil infrastructure on one side, digital displays on the other. Industrial meets digital. Atmospheric haze."
-        camera = "Shot on Hasselblad X2D, 65mm, editorial still life"
-    elif any(w in tl for w in ["trump", "president", "white house", "executive"]):
-        scene = "The White House South Lawn at dusk, warm light from windows. Secret Service silhouettes. American flags. Power and consequence."
-        camera = "Shot on Canon R3, 70-200mm, political wire photography"
-    else:
-        h = int(hashlib.md5(title.encode()).hexdigest()[:8], 16) % 5
+    # Category detection — but with multiple scene variants per category
+    if any(w in tl for w in ["mining", "miner", "hashrate", "difficulty", "asic", "bitfarms", "mara", "riot", "cleanspark"]):
         scenes = [
-            "Aerial view of a sprawling data center at twilight, surrounded by mountains. Steam from cooling systems. The scale of digital infrastructure.",
-            "A journalist working late, surrounded by screens showing financial data. Monitor glow on their face. Discovery and determination.",
-            "Close-up of weathered hands holding a hardware wallet. Shallow depth of field. The human side of digital sovereignty.",
-            "A boardroom at golden hour. Empty chairs around a long table, documents scattered. Through the window, a city skyline.",
-            "Street-level view of a financial district at dawn. Morning light between skyscrapers. A lone figure walking with purpose.",
+            "Inside a cavernous Bitcoin mining warehouse at night. Thousands of ASIC rigs in perfect rows, blue LED status lights flickering. Heat haze rising from the machines. A lone technician with a flashlight.",
+            "Aerial drone shot of a remote mining facility surrounded by snow-capped mountains. Steam rising from cooling towers. Utility lines stretching to the horizon. Industrial scale in pristine wilderness.",
+            "Close-up of a mining rig circuit board, extreme macro photography. Copper traces and silicon chips in sharp focus. Heat sink fins catching light. The microscopic heart of Bitcoin.",
+            "A mining operator studying server rack diagnostics on a handheld tablet. Dark server room, faces lit blue by screens. Rows of machines disappear into darkness behind them.",
+        ]
+        cameras = ["Sony A7R V, 24mm wide angle", "DJI Mavic 3, aerial", "Nikon Z9, 100mm macro", "Leica Q3, 35mm documentary"]
+    elif any(w in tl for w in ["congress", "senator", "regulation", "sec", "policy", "law", "bill", "warren", "gensler", "cftc", "clarity act"]):
+        scenes = [
+            "The marble halls of the U.S. Capitol building at dusk. Dramatic shafts of late light through tall windows. A lone legislator silhouetted, papers in hand.",
+            "A Senate hearing room: long mahogany table, nameplates, water pitchers. Empty chairs but documents scattered — testimony about to begin. Overhead lighting creates drama.",
+            "Exterior of the SEC headquarters in Washington D.C. on an overcast day. American flag at half-staff. Security checkpoint visible. Institutional weight.",
+            "A congressional aide rushing through marble corridors, arms full of briefing documents. Blurred background suggests urgency. Power and bureaucracy in motion.",
+        ]
+        cameras = ["Leica Q3, 28mm political", "Canon R3, 24mm architectural", "Nikon Z8, 35mm editorial", "Sony A7IV, 85mm f/1.4"]
+    elif any(w in tl for w in ["etf", "blackrock", "fidelity", "401k", "retirement", "institutional", "morgan stanley", "goldman"]):
+        scenes = [
+            "A sleek trading floor at dawn: massive curved screens showing Bitcoin ETF inflows, traders arriving with coffee. Floor-to-ceiling glass overlooking a waking city.",
+            "An executive in a corner office studying a tablet showing Bitcoin ETF performance charts. City skyline behind her at golden hour. Decision at scale.",
+            "Close-up of a Bloomberg terminal screen showing ETF ticker data. Fingers typing. Blurred trading floor background. Institutional capital moving.",
+            "The lobby of a major financial institution: marble floors, high ceilings, digital displays showing market data. A security guard watches. Old money meets new asset.",
+        ]
+        cameras = ["Nikon Z9, 50mm f/1.4", "Canon R5, 35mm", "Sony A1, 85mm macro", "Hasselblad X2D, 45mm"]
+    elif any(w in tl for w in ["price", "surge", "crash", "bull", "bear", "rally", "plunge", "liquidation", "dip", "ath", "all-time"]):
+        scenes = [
+            "Rain-soaked financial district at night. Street lights reflect in puddles. A digital billboard shows cryptocurrency prices. One figure with an umbrella walks past.",
+            "A trader's multiple monitor setup in a dark home office. Charts everywhere. An energy drink half-drunk. The solitary intensity of market watching at 3am.",
+            "Aerial view of Wall Street intersection at rush hour. Yellow cabs, suits, motion blur. The physical city underneath the digital markets.",
+            "A stock ticker display in a public space, strangers looking up at numbers. Diverse crowd reactions — some alarmed, some excited. Markets touching everyday life.",
+        ]
+        cameras = ["Fujifilm GFX100, 45mm", "Sony A7IV, 35mm documentary", "DJI Mavic 3, aerial", "Leica M11, 28mm street"]
+    elif any(w in tl for w in ["hack", "theft", "heist", "fraud", "scam", "exploit", "breach", "attack", "stolen", "phishing"]):
+        scenes = [
+            "A darkened room lit only by the glow of multiple monitors showing scrolling terminal code. A silhouetted figure hunched forward. Digital forensics atmosphere.",
+            "Close-up of a person's hands on a keyboard, faces obscured. Extreme shallow depth of field. Monitor glow catching just the knuckles. Menace and anonymity.",
+            "Law enforcement agents in a server room, pointing flashlights at equipment being seized. Evidence bags. The moment digital crime meets physical reality.",
+            "A cracked phone screen on concrete showing a crypto wallet with zero balance. Dramatic lighting from one side. The human cost of digital theft.",
+        ]
+        cameras = ["Sony A1, 85mm f/1.2 thriller", "Nikon Z9, 50mm macro", "Canon R3, 24mm documentary", "Leica SL2, 35mm"]
+    elif any(w in tl for w in ["quantum", "technology", "ai ", "artificial intelligence", "algorithm"]):
+        scenes = [
+            "A quantum computing lab: cylindrical cryogenic chambers suspended from the ceiling, golden connectors, cables descending into a machine that operates near absolute zero.",
+            "A researcher in a clean room suit working with fiber optic cables. Blue light from optical equipment. The frontier of computation made physical.",
+            "A server farm corridor at night. Emergency lighting only. The hum of cooling fans. Endless racks of the digital infrastructure underpinning civilization.",
+            "Close-up of a computer chip being installed with robotic precision arms. Extreme macro, shallow DOF. Silicon and human ingenuity.",
+        ]
+        cameras = ["Canon R5, 35mm sci-fi editorial", "Sony A7R V, 85mm", "Leica Q3, 28mm", "Nikon Z9, 100mm macro"]
+    elif any(w in tl for w in ["lightning", "layer 2", "node", "wallet", "self-custody", "hardware wallet", "coldcard", "ledger", "passport"]):
+        scenes = [
+            "Weathered hands holding a small hardware wallet device. Extreme shallow DOF, background completely blurred. The weight of self-sovereignty in a palm.",
+            "A node operator in their home office: a Raspberry Pi with LED indicators, cables, a small screen showing block height. Unpretentious digital sovereignty.",
+            "A network visualization: glowing nodes connected by light trails across a dark background. Geographic spread of the Bitcoin network made tangible.",
+            "A person at a kitchen table setting up a cold storage device. Natural window light. Ordinary space, extraordinary act of financial self-determination.",
+        ]
+        cameras = ["Nikon Z8, 85mm macro intimate", "Sony A7IV, 35mm documentary", "Canon R6 II, 24mm", "Fuji X-T5, 56mm natural light"]
+    elif any(w in tl for w in ["trump", "president", "white house", "executive order", "david sacks"]):
+        scenes = [
+            "The White House South Lawn at dusk. Warm amber light from windows. American flags in a light breeze. Power and consequence made architectural.",
+            "A press briefing podium in a wood-panelled room. Microphones clustered. Empty chairs facing it. The moment before a market-moving announcement.",
+            "Pennsylvania Avenue at night with long-exposure light trails. The White House illuminated in the background. History in motion.",
+            "A high-ranking official's desk: leather blotter, sealed documents, pen poised. Hand visible but face cropped. Authority and decision.",
+        ]
+        cameras = ["Canon R3, 70-200mm political", "Leica Q3, 28mm", "Nikon Z9, 24mm long exposure", "Sony A1, 85mm"]
+    elif any(w in tl for w in ["defi", "solana", "ethereum", "uniswap", "aave", "protocol", "smart contract", "dao", "nft"]):
+        scenes = [
+            "A developer's multiple-monitor setup: code on one screen, protocol architecture diagrams on another. Empty coffee cups. The unglamorous reality of building decentralized finance.",
+            "A conference panel on stage: speakers in front of a large screen showing blockchain data visualizations. Audience silhouettes in the foreground.",
+            "Close-up of a laptop screen showing Solidity code or a DeFi protocol dashboard. Shallow DOF, soft background light. The beauty of functional code.",
+            "A hacker space: whiteboards covered in protocol architecture diagrams, laptops open, energy drinks. Where decentralized finance gets built.",
+        ]
+        cameras = ["Sony A7IV, 35mm documentary", "Canon R5, 50mm event", "Nikon Z8, 85mm macro", "Leica Q3, 28mm"]
+    elif any(w in tl for w in ["stablecoin", "usdt", "usdc", "tether", "circle", "payment"]):
+        scenes = [
+            "A split-second currency exchange moment: hands passing a phone showing a stablecoin transfer. Motion blur on the hands. Instant settlement made human.",
+            "A merchant's point-of-sale display showing crypto payment options alongside traditional methods. A customer deciding. Commerce at the frontier.",
+            "Stack of physical dollar bills next to a phone showing a digital equivalent. Hard light creating drama. The two faces of the same value.",
+            "An international money transfer office, late at night. Fluorescent light, a teller window, a customer sending remittance. Stablecoins disrupting this.",
+        ]
+        cameras = ["Leica M11, 35mm street", "Canon R6 II, 50mm", "Sony A7R V, 85mm still life", "Nikon Z9, 28mm"]
+    elif any(w in tl for w in ["oil", "gold", "macro", "inflation", "fed ", "rate", "yield", "recession", "gdp", "bond"]):
+        scenes = [
+            "Oil refinery towers at dawn, fire stacks burning against a pink sky. Industrial scale and environmental tension. The old energy system.",
+            "A gold vault interior: stacked bars catching warm light, narrow perspective, the density of physical wealth stored underground.",
+            "A Federal Reserve building exterior on a grey morning. The institution that moves markets. Understated architecture, massive power.",
+            "Economic data on a screen: charts trending in different directions, a hand pointing. The complexity of macro in one frame.",
+        ]
+        cameras = ["Hasselblad X2D, 65mm", "Leica SL2, 50mm", "Canon R3, 35mm", "Nikon Z9, 85mm"]
+    else:
+        # Default: title-seeded unique scenes so no two articles get the same fallback
+        scenes = [
+            "A journalist working late at a standing desk surrounded by multiple screens showing financial data. Monitor glow on their face. The 3am pursuit of truth.",
+            "Aerial view of a sprawling data center at twilight, surrounded by mountains. Steam from cooling systems rising into cold air. The physical scale of the digital world.",
+            "Close-up of weathered hands holding a hardware wallet. Shallow depth of field, soft warm background. The human side of digital sovereignty.",
+            "A boardroom at golden hour: long table, empty chairs, documents scattered. Through floor-to-ceiling glass, a city skyline. Decision made and departed.",
+            "Street-level view of a financial district at dawn. Morning light cutting between towers. A lone figure walking toward the light with purpose.",
+            "A conference room where a deal just happened: champagne glasses half-empty, documents signed on the table. No people, just evidence of importance.",
+            "A satellite view of Earth at night showing city lights — a metaphor for the global network of money, information, and power.",
+            "A cargo ship at a port at dusk, cranes silhouetted. The physical infrastructure of global trade. Bitcoin as counterpoint.",
         ]
         cameras = [
-            "Shot on Leica SL2, 50mm, aerial photography",
             "Shot on Sony A7IV, 35mm, documentary style",
+            "Shot on DJI Mavic 3, aerial photography",
             "Shot on Nikon Z8, 85mm macro, intimate portrait",
             "Shot on Canon R6 II, 24mm, architectural editorial",
             "Shot on Fuji X-T5, 56mm, street photography",
+            "Shot on Leica Q3, 28mm, still life editorial",
+            "Shot on Hasselblad X2D, 45mm, conceptual",
+            "Shot on Canon R3, 70-200mm, telephoto compression",
         ]
-        scene = scenes[h]
-        camera = cameras[h]
+        scene = scenes[h % len(scenes)]
+        camera = cameras[h % len(cameras)]
+        return (
+            f"Hyper-realistic photograph for the news headline: \'{title}\'. "
+            f"{scene} "
+            f"{camera}. "
+            "Color grading: deep shadows with subtle warm highlights, cinematic color science. "
+            "CRITICAL: Must look like a REAL photograph. NOT AI render. NOT 3D. NOT illustration. "
+            "NO text, NO typography, NO logos, NO crypto symbols. NO borders, NO frames, NO watermarks. Full bleed."
+        )
+
+    # For categorized articles — pick sub-variant using title hash
+    variant = h % len(scenes)
+    scene = scenes[variant]
+    camera = cameras[variant]
 
     return (
-        f"Hyper-realistic photograph for the news headline: '{title}'. "
+        f"Hyper-realistic photograph for the news headline: \'{title}\'. "
         f"{scene} "
         f"{camera}. "
         "Color grading: deep shadows with subtle warm highlights, cinematic color science. "
-        "Teal and orange complementary tones in shadows and highlights. "
+        "Teal and orange complementary tones. "
         "CRITICAL: Must look like a REAL photograph by a professional photojournalist. "
         "NOT an AI render. NOT a 3D scene. NOT a digital illustration. "
         "NO text, NO typography, NO logos, NO Bitcoin coin symbols, NO crypto symbols. "
         "NO borders, NO frames, NO watermarks. Full bleed edge to edge."
     )
+
+
 
 def _resize_and_crop(img, target_w, target_h):
     """Resize and center-crop to exact dimensions."""
