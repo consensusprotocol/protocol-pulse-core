@@ -82,37 +82,26 @@ class PriceService:
         except Exception as e:
             logging.error(f"Error fetching Gold price: {e}")
         
-        # Calculate Silver price from gold/silver ratio
-        # The gold/silver ratio is historically around 80:1, currently ~88:1
-        # Using PAX Gold which tracks physical gold at ~$2900/oz
-        # Silver spot is ~$32/oz
+        # Real Silver spot from Yahoo Finance SI=F
         try:
-            if prices['gold']['price'] > 0:
-                # Gold tokens track 1 oz of gold (~$2900-3000)
-                # But PAX Gold shows ~$5000 due to premium
-                # Actual gold spot is ~$2900, silver spot is ~$32
-                # Ratio: 2900/32 = ~90
-                GOLD_SILVER_RATIO = 88  # Current market ratio
-                
-                # If PAX gold is showing premium price, adjust
-                gold_price = prices['gold']['price']
-                if gold_price > 4000:  # PAX Gold has premium
-                    # Estimate actual gold spot from PAX (roughly 1.7x premium)
-                    actual_gold_spot = gold_price / 1.72
-                    silver_price = actual_gold_spot / GOLD_SILVER_RATIO
-                else:
-                    silver_price = gold_price / GOLD_SILVER_RATIO
-                
-                prices['silver'] = {
-                    'price': silver_price,
-                    'change_24h': prices['gold']['change_24h'],  # Use gold's change as proxy
-                    'market_cap': 0
-                }
-        except Exception as e:
-            logging.error(f"Error calculating Silver price: {e}")
-        
-        # Update cache
-        # Add alias keys for template compatibility
+            import urllib.request as _ur2, json as _j2
+            _req2 = _ur2.Request('https://query1.finance.yahoo.com/v8/finance/chart/SI=F?interval=1d&range=2d', headers={'User-Agent': 'Mozilla/5.0'})
+            with _ur2.urlopen(_req2, timeout=5) as _r2:
+                _d2 = _j2.loads(_r2.read())
+            _m2 = _d2['chart']['result'][0]['meta']
+            _sp = float(_m2.get('regularMarketPrice', 0) or 0)
+            _sprev = float(_m2.get('chartPreviousClose', _sp) or _sp)
+            _schg = round((_sp - _sprev) / _sprev * 100, 2) if _sprev else 0
+            if _sp > 5:
+                prices['silver'] = {'price': _sp, 'change_24h': _schg, 'market_cap': 0}
+            else:
+                raise ValueError(f'Bad silver: {_sp}')
+        except Exception as _se:
+            logging.warning(f'Silver fetch failed: {_se}')
+            if prices.get('gold', {}).get('price', 0) > 0:
+                prices['silver'] = {'price': round(prices['gold']['price'] / 88, 2), 'change_24h': prices['gold'].get('change_24h', 0), 'market_cap': 0}
+
+
         for _k in ["bitcoin", "gold", "silver"]:
             prices[_k]["usd"] = prices[_k]["price"]
             prices[_k]["usd_24h_change"] = prices[_k]["change_24h"]
