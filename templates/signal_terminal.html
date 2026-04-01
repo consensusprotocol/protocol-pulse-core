@@ -983,7 +983,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
                 </div>
             </div>
         </div>
-        <div id="ssm-detail" style="display:none;margin:4px 8px;padding:12px 14px;background:rgba(10,10,10,0.95);border:1px solid rgba(220,38,38,0.25);border-radius:6px;position:relative;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
+        <div id="ssm-detail" style="display:none;position:fixed;padding:14px 16px;background:rgba(8,8,12,0.96);border:1px solid rgba(220,38,38,0.3);border-radius:8px;z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,0.7);pointer-events:none;max-width:280px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
     </div>
 </div>
 
@@ -2410,15 +2410,19 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       return [(e.clientX - rect.left) * sx, (e.clientY - rect.top) * sy];
     }
     function nearestAxis(mx, my) {
-      var best = -1, bestD = 55 * (W / 380);
+      var best = -1, bestD = 60 * (W / 380);
       for (var i = 0; i < n; i++) {
-        var xy = axisXY(i, maxR + 28);
-        var d = Math.sqrt((mx - xy[0]) * (mx - xy[0]) + (my - xy[1]) * (my - xy[1]));
+        // Check both label position AND data point position
+        var xyLabel = axisXY(i, maxR + 28);
+        var xyData = axisXY(i, maxR * animVals[i] / 100);
+        var dLabel = Math.sqrt((mx - xyLabel[0]) * (mx - xyLabel[0]) + (my - xyLabel[1]) * (my - xyLabel[1]));
+        var dData = Math.sqrt((mx - xyData[0]) * (mx - xyData[0]) + (my - xyData[1]) * (my - xyData[1]));
+        var d = Math.min(dLabel, dData);
         if (d < bestD) { bestD = d; best = i; }
       }
       return best;
     }
-    // ── HOVER EVENTS (added for terminal) ──
+    // ── HOVER EVENTS — floating tooltip follows mouse ──
     canvas.addEventListener('mousemove', function(e) {
       var pt = canvasToChart(e);
       var newHover = nearestAxis(pt[0], pt[1]);
@@ -2426,6 +2430,16 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       if (newHover !== hoveredAxis) {
         hoveredAxis = newHover;
         if (selectedAxis < 0) showDetailCard();
+      }
+      // Position tooltip near mouse
+      var card = document.getElementById('ssm-detail');
+      if (card && card.style.display !== 'none') {
+        var x = e.clientX + 16;
+        var y = e.clientY - 10;
+        if (x + 280 > window.innerWidth) x = e.clientX - 296;
+        if (y + 200 > window.innerHeight) y = e.clientY - 200;
+        card.style.left = x + 'px';
+        card.style.top = y + 'px';
       }
     });
     canvas.addEventListener('mouseleave', function() {
@@ -2457,7 +2471,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     };
 
     function showDetailCard() {
-      console.log('HOVER: axis='+hoveredAxis+' sel='+selectedAxis);
+      
       var card = document.getElementById('ssm-detail');
       if (!card) return;
       if (selectedAxis < 0 && hoveredAxis < 0) { card.style.display = 'none'; return; }
