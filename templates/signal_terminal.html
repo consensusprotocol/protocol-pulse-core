@@ -2726,14 +2726,14 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     var div=document.createElement('div');
     div.className='intel-event';div.setAttribute('data-type',type);
     var op=opacity||0.85;
-    div.style.cssText='display:flex;gap:5px;padding:2px 6px;font-family:monospace;font-size:13px;opacity:'+op+';animation:intelSlideIn 0.2s ease-out;position:relative;';
+    div.style.cssText='display:flex;gap:6px;padding:4px 8px;font-family:monospace;font-size:13px;opacity:'+op+';animation:intelSlideIn 0.2s ease-out;position:relative;';
     if(!_activeFilters[type]&&type!=='ALL')div.style.display='none';
     var flashBg=document.createElement('div');
     flashBg.style.cssText='position:absolute;inset:0;background:'+color+';opacity:0.1;animation:intelFlash 0.5s ease-out forwards;pointer-events:none;';
     div.appendChild(flashBg);
-    div.innerHTML+='<span style="color:#444;min-width:48px;flex-shrink:0;font-size:8px;">'+ts+'</span>'
-      +'<span style="color:'+color+';min-width:26px;font-weight:700;flex-shrink:0;">'+tag+'</span>'
-      +'<span style="color:rgba(255,255,255,'+(opacity||0.7)+');">'+message+'</span>';
+    div.innerHTML+='<span style="color:#666;min-width:56px;flex-shrink:0;font-size:12px;">'+ts+'</span>'
+      +'<span style="color:'+color+';min-width:32px;font-weight:700;flex-shrink:0;font-size:13px;">'+tag+'</span>'
+      +'<span style="color:rgba(255,255,255,' +(opacity||0.7)+');font-size:13px;">'+message+'</span>';
     el.appendChild(div);
     if(el.children.length>100)el.removeChild(el.firstChild);
     if(cnt)cnt.textContent=_intelCount;
