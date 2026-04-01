@@ -962,7 +962,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
         <div style="display:grid;grid-template-columns:1fr 420px;gap:0;">
             <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:4px;">
-                <canvas id="ssm-radar" width="800" height="800" style="max-width:100%;width:100%;"></canvas>
+                <canvas id="ssm-radar" width="800" height="800" style="max-width:100%;width:100%;max-height:calc(100vh - 160px);aspect-ratio:1/1;"></canvas>
                 <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);text-align:center;">
                     <span style="font-family:monospace;font-size:22px;font-weight:900;color:#fff;" id="ssm-composite">--</span>
                     <span style="font-family:monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
