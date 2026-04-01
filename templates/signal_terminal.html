@@ -887,11 +887,11 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
         <div class="data-row">
             <span class="label">BTC DOMINANCE</span>
-            <span class="value gold" id="btc-dom">{{ price.dominance | default('—') }}</span>
+            <span class="value gold" id="btc-dom">{{ price.dominance if price is defined and price else '—' }}</span>
         </div>
         <div class="data-row">
             <span class="label">CIRCULATING</span>
-            <span class="value">{{ price.circulating | default('19.8M BTC') }}</span>
+            <span class="value">{{ price.circulating if price is defined and price else '19.8M BTC' }}</span>
         </div>
     </div>
 
