@@ -11123,6 +11123,12 @@ def api_btc_price():
     return jsonify({'price': 0, 'change_24h': 0}), 200
 
 
+@app.route('/wall')
+def bitcoin_wall():
+    """Bitcoin Intelligence Wall — ambient display."""
+    return render_template('bitcoin_wall.html')
+
+
 # ── Page Route ────────────────────────────────────────────────────────────────
 
 @app.route("/btc-charts")

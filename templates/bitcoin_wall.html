@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bitcoin Intelligence Wall | Protocol Pulse</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#050505;font-family:'JetBrains Mono',monospace}
+canvas{display:block;width:100vw;height:100vh}
+body.cursor-hidden{cursor:none}
+</style>
+</head>
+<body>
+<canvas id="wall"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONFIG
+   ═══════════════════════════════════════════════════════════════════════════ */
+var RED       = '#dc2626';
+var RED_RGB   = [220, 38, 38];
+var BG        = '#050505';
+var DIM       = '#333333';
+var GOLD      = '#F8C15C';
+var GREEN     = '#10B981';
+var FONT      = "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace";
+
+var MAX_TX_DOTS    = 60;
+var MAX_RIPPLES    = 6;
+var ECG_LEN        = 800;
+var SEISMO_LEN     = 500;
+var API_INTERVAL   = 30000;
+var WS_URL         = 'wss://mempool.space/api/v1/ws';
+var ORB_URL        = '/api/orb';
+var PRICE_URL      = '/api/btc-price';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════════════════ */
+var W = 0, H = 0, dpr = 1;
+var canvas, ctx;
+var gridOff, gridCtx;       // offscreen: grid background
+var mapOff, mapCtx;          // offscreen: world map outlines
+var mapProjection = null;
+var worldData = null;
+var mapReady = false;
+
+// Data
+var btcPrice      = 0;
+var priceChange   = 0;
+var displayPrice  = 0;
+var blockHeight   = 0;
+var mempoolCount  = 0;
+var mempoolVsize  = 0;
+var fearGreed     = 50;
+var hashrate      = 0;
+var lightningBtc  = 0;
+var orbNodes      = {mcx:50,epx:50,ihx:50,opx:50,fdx:50,ocx:50};
+var orbScore      = 50;
+
+// Animation
+var txDots     = [];   // {x, y, born, alpha}
+var ripples    = [];   // {x, y, radius, maxRadius, born}
+var ecgBuffer  = new Float32Array(ECG_LEN);
+var ecgPhase   = 0;
+var ecgBpm     = 60;
+var seismoBuffer = new Float32Array(SEISMO_LEN);
+var seismoPhase  = 0;
+var scanY        = 0;
+var blockFlash   = 0;   // countdown for block found flash
+var blockFlatline = 0;  // ECG flatline after block spike
+var lastFrame    = 0;
+var frameCount   = 0;
+
+// Cursor
+var cursorTimer  = null;
+var cursorHidden = false;
+
+// WebSocket
+var ws = null;
+var wsRetries = 0;
+var wsMaxRetries = 20;
+
+// Fee tiers (for reactor rods)
+var feeTiers = [5, 10, 20, 50]; // sat/vB
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BITCOIN ADOPTION MAP — WEIGHTED TX DOT LOCATIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+var adoptionMap = [
+    {lat:38,  lon:-98,  w:0.25, jx:15, jy:8},   // US
+    {lat:51,  lon:10,   w:0.09, jx:4,  jy:3},   // Germany
+    {lat:54,  lon:-2,   w:0.06, jx:3,  jy:3},   // UK
+    {lat:36,  lon:138,  w:0.06, jx:4,  jy:4},   // Japan
+    {lat:56,  lon:-106, w:0.05, jx:15, jy:8},   // Canada
+    {lat:52,  lon:5,    w:0.04, jx:1,  jy:1},   // Netherlands
+    {lat:1,   lon:104,  w:0.04, jx:1,  jy:1},   // Singapore
+    {lat:-25, lon:133,  w:0.03, jx:10, jy:8},   // Australia
+    {lat:-10, lon:-51,  w:0.03, jx:12, jy:10},  // Brazil
+    {lat:22,  lon:78,   w:0.03, jx:8,  jy:8},   // India
+    {lat:47,  lon:2,    w:0.04, jx:3,  jy:3},   // France
+    {lat:37,  lon:127,  w:0.04, jx:2,  jy:2},   // South Korea
+    {lat:47,  lon:8,    w:0.03, jx:2,  jy:2},   // Switzerland
+    {lat:25,  lon:55,   w:0.03, jx:2,  jy:2},   // UAE
+    {lat:14,  lon:101,  w:0.02, jx:3,  jy:3},   // Thailand
+    {lat:-34, lon:-58,  w:0.02, jx:3,  jy:3},   // Argentina
+    {lat:13,  lon:-89,  w:0.02, jx:1,  jy:1},   // El Salvador
+    {lat:60,  lon:25,   w:0.02, jx:2,  jy:2},   // Finland
+    {lat:35,  lon:33,   w:0.015,jx:1,  jy:1},   // Cyprus
+    {lat:-41, lon:174,  w:0.015,jx:3,  jy:3},   // New Zealand
+    {lat:40,  lon:-4,   w:0.02, jx:3,  jy:3},   // Spain
+    {lat:42,  lon:12,   w:0.02, jx:3,  jy:3},   // Italy
+    {lat:59,  lon:18,   w:0.015,jx:2,  jy:2},   // Sweden
+    {lat:52,  lon:21,   w:0.015,jx:2,  jy:2},   // Poland
+];
+
+// Mining hubs for block ripples
+var miningHubs = [
+    {lat:31, lon:-99},   // Texas
+    {lat:30, lon:104},   // Sichuan
+    {lat:48, lon:67},    // Kazakhstan
+    {lat:65, lon:-19},   // Iceland
+    {lat:61, lon:-150},  // Alaska (Marathon)
+    {lat:46, lon:-73},   // Quebec (Bitfarms)
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ECG WAVEFORM — GAUSSIAN COMPONENT MODEL
+   ═══════════════════════════════════════════════════════════════════════════ */
+function ecgWaveform(t) {
+    // t: 0-1 within one heartbeat cycle
+    // Returns ~-0.3 to ~1.0
+    var v = 0;
+    v += 0.15 * Math.exp(-Math.pow((t - 0.12) / 0.025, 2));  // P wave
+    v -= 0.12 * Math.exp(-Math.pow((t - 0.22) / 0.008, 2));  // Q dip
+    v += 1.00 * Math.exp(-Math.pow((t - 0.26) / 0.014, 2));  // R spike
+    v -= 0.28 * Math.exp(-Math.pow((t - 0.30) / 0.010, 2));  // S dip
+    v += 0.05 * Math.exp(-Math.pow((t - 0.34) / 0.015, 2));  // small recovery
+    v += 0.22 * Math.exp(-Math.pow((t - 0.46) / 0.040, 2));  // T wave
+    return v;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CANVAS SETUP
+   ═══════════════════════════════════════════════════════════════════════════ */
+function initCanvas() {
+    canvas = document.getElementById('wall');
+    ctx = canvas.getContext('2d');
+    resize();
+}
+
+function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Rebuild offscreen canvases
+    buildGrid();
+    if (worldData) buildMap();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   OFFSCREEN: GRID BACKGROUND
+   ═══════════════════════════════════════════════════════════════════════════ */
+function buildGrid() {
+    gridOff = document.createElement('canvas');
+    gridOff.width = W * dpr;
+    gridOff.height = H * dpr;
+    gridCtx = gridOff.getContext('2d');
+    gridCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Background
+    gridCtx.fillStyle = BG;
+    gridCtx.fillRect(0, 0, W, H);
+
+    // Grid lines
+    var spacing = 40;
+    gridCtx.strokeStyle = 'rgba(220,38,38,0.025)';
+    gridCtx.lineWidth = 0.5;
+    gridCtx.beginPath();
+    for (var x = 0; x < W; x += spacing) {
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, H);
+    }
+    for (var y = 0; y < H; y += spacing) {
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(W, y);
+    }
+    gridCtx.stroke();
+
+    // Subtle crosshairs at intersections (every 4th intersection)
+    gridCtx.strokeStyle = 'rgba(220,38,38,0.04)';
+    gridCtx.lineWidth = 0.5;
+    for (var x = 0; x < W; x += spacing * 4) {
+        for (var y = 0; y < H; y += spacing * 4) {
+            gridCtx.beginPath();
+            gridCtx.moveTo(x - 3, y);
+            gridCtx.lineTo(x + 3, y);
+            gridCtx.moveTo(x, y - 3);
+            gridCtx.lineTo(x, y + 3);
+            gridCtx.stroke();
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   OFFSCREEN: WORLD MAP
+   ═══════════════════════════════════════════════════════════════════════════ */
+function buildMap() {
+    var mapW = Math.floor(W * 0.52);
+    var mapH = Math.floor(H * 0.45);
+
+    mapOff = document.createElement('canvas');
+    mapOff.width = mapW * dpr;
+    mapOff.height = mapH * dpr;
+    mapCtx = mapOff.getContext('2d');
+    mapCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    mapProjection = d3.geoNaturalEarth1()
+        .fitSize([mapW, mapH], worldData);
+
+    var path = d3.geoPath()
+        .projection(mapProjection)
+        .context(mapCtx);
+
+    // Country outlines
+    mapCtx.clearRect(0, 0, mapW, mapH);
+    mapCtx.beginPath();
+    path(worldData);
+    mapCtx.strokeStyle = 'rgba(220,38,38,0.08)';
+    mapCtx.lineWidth = 0.5;
+    mapCtx.stroke();
+
+    // Very faint fill
+    mapCtx.fillStyle = 'rgba(220,38,38,0.015)';
+    mapCtx.fill();
+
+    mapReady = true;
+}
+
+function loadWorldMap() {
+    d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(function(world) {
+        worldData = topojson.feature(world, world.objects.countries);
+        buildMap();
+    }).catch(function(err) {
+        console.warn('World map failed to load:', err);
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TX DOT HELPERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+function randomTxLocation() {
+    if (!mapProjection) return null;
+    var r = Math.random();
+    var cumulative = 0;
+    for (var i = 0; i < adoptionMap.length; i++) {
+        cumulative += adoptionMap[i].w;
+        if (r < cumulative) {
+            var a = adoptionMap[i];
+            var lon = a.lon + (Math.random() - 0.5) * a.jx * 2;
+            var lat = a.lat + (Math.random() - 0.5) * a.jy * 2;
+            return mapProjection([lon, lat]);
+        }
+    }
+    // Fallback: random location
+    return mapProjection([(Math.random() - 0.5) * 300, (Math.random() - 0.5) * 120]);
+}
+
+function spawnTxDot() {
+    var pos = randomTxLocation();
+    if (!pos || isNaN(pos[0])) return;
+    if (txDots.length >= MAX_TX_DOTS) txDots.shift();
+    txDots.push({x: pos[0], y: pos[1], born: performance.now()});
+}
+
+function spawnBlockRipple() {
+    if (!mapProjection) return;
+    var hub = miningHubs[Math.floor(Math.random() * miningHubs.length)];
+    var pos = mapProjection([hub.lon, hub.lat]);
+    if (!pos || isNaN(pos[0])) return;
+    var mapW = Math.floor(W * 0.52);
+    var maxR = Math.max(mapW, Math.floor(H * 0.45)) * 0.6;
+    if (ripples.length >= MAX_RIPPLES) ripples.shift();
+    ripples.push({x: pos[0], y: pos[1], radius: 0, maxRadius: maxR, born: performance.now()});
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WEBSOCKET — MEMPOOL.SPACE
+   ═══════════════════════════════════════════════════════════════════════════ */
+function connectWS() {
+    try {
+        ws = new WebSocket(WS_URL);
+    } catch(e) {
+        scheduleReconnect();
+        return;
+    }
+
+    ws.onopen = function() {
+        wsRetries = 0;
+        ws.send(JSON.stringify({action:'init'}));
+        ws.send(JSON.stringify({action:'want', data:['blocks','stats','mempool-blocks']}));
+    };
+
+    ws.onmessage = function(e) {
+        try {
+            var d = JSON.parse(e.data);
+
+            if (d.block) {
+                onNewBlock(d.block);
+            }
+            if (d.mempoolInfo) {
+                onMempoolUpdate(d.mempoolInfo);
+            }
+            if (d['mempool-blocks']) {
+                onFeeUpdate(d['mempool-blocks']);
+            }
+
+            // Spawn tx dots on any message (rough tx activity proxy)
+            if (d.mempoolInfo || d['mempool-blocks']) {
+                var count = 1 + Math.floor(Math.random() * 3);
+                for (var i = 0; i < count; i++) spawnTxDot();
+            }
+        } catch(err) {}
+    };
+
+    ws.onclose = function() { scheduleReconnect(); };
+    ws.onerror = function() { ws.close(); };
+}
+
+function scheduleReconnect() {
+    if (wsRetries >= wsMaxRetries) return;
+    var delay = Math.min(30000, 1000 * Math.pow(1.5, wsRetries));
+    wsRetries++;
+    setTimeout(connectWS, delay);
+}
+
+function onNewBlock(block) {
+    blockHeight = block.height || blockHeight;
+    blockFlash = 2.0; // 2 seconds of flash
+    blockFlatline = 0.5; // 0.5s ECG flatline
+
+    // Spawn ripple on map
+    spawnBlockRipple();
+
+    // Spawn burst of tx dots
+    for (var i = 0; i < 8; i++) spawnTxDot();
+}
+
+function onMempoolUpdate(info) {
+    mempoolCount = info.count || 0;
+    mempoolVsize = info.vsize || 0;
+
+    // Map mempool count to heart rate
+    if (mempoolCount < 5000)       ecgBpm = 45;
+    else if (mempoolCount < 15000) ecgBpm = 60;
+    else if (mempoolCount < 30000) ecgBpm = 80;
+    else if (mempoolCount < 60000) ecgBpm = 100;
+    else                           ecgBpm = 130;
+}
+
+function onFeeUpdate(blocks) {
+    if (blocks && blocks.length > 0) {
+        var fees = [];
+        for (var i = 0; i < Math.min(4, blocks.length); i++) {
+            fees.push(blocks[i].feeRange ? blocks[i].feeRange[0] : 5);
+        }
+        feeTiers = fees;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   API FETCHERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+function fetchOrb() {
+    fetch(ORB_URL).then(function(r){return r.json()}).then(function(d) {
+        if (d.nodes) {
+            orbNodes.mcx = (d.nodes.mcx && d.nodes.mcx.score) || 50;
+            orbNodes.epx = (d.nodes.epx && d.nodes.epx.score) || 50;
+            orbNodes.ihx = (d.nodes.ihx && d.nodes.ihx.score) || 50;
+            orbNodes.opx = (d.nodes.opx && d.nodes.opx.score) || 50;
+            orbNodes.fdx = (d.nodes.fdx && d.nodes.fdx.score) || 50;
+            orbNodes.ocx = (d.nodes.ocx && d.nodes.ocx.score) || 50;
+        }
+        if (d.composite) orbScore = d.composite.score || 50;
+        if (d.streams) {
+            fearGreed = d.streams.fear_greed || 50;
+        }
+        if (d.raw) {
+            hashrate = d.raw.hashrate_ehs || hashrate;
+            lightningBtc = d.raw.lightning_btc || lightningBtc;
+        }
+    }).catch(function(){});
+}
+
+function fetchPrice() {
+    fetch(PRICE_URL).then(function(r){return r.json()}).then(function(d) {
+        if (d.price) {
+            btcPrice = d.price;
+            priceChange = d.change_24h || 0;
+        }
+    }).catch(function(){});
+}
+
+function fetchHashrate() {
+    fetch('https://mempool.space/api/v1/mining/hashrate/3d').then(function(r){return r.json()}).then(function(d) {
+        if (d.currentHashrate) {
+            hashrate = d.currentHashrate / 1e18; // Convert H/s to EH/s
+        }
+    }).catch(function(){});
+}
+
+function fetchBlockHeight() {
+    fetch('https://mempool.space/api/blocks/tip/height').then(function(r){return r.text()}).then(function(t) {
+        var h = parseInt(t, 10);
+        if (h > 0) blockHeight = h;
+    }).catch(function(){});
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: CRT SCAN LINE
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawScanLine(dt) {
+    scanY += dt * 30; // 30px/s
+    if (scanY > H + 20) scanY = -20;
+
+    var grad = ctx.createLinearGradient(0, scanY - 15, 0, scanY + 15);
+    grad.addColorStop(0, 'rgba(220,38,38,0)');
+    grad.addColorStop(0.4, 'rgba(220,38,38,0.03)');
+    grad.addColorStop(0.5, 'rgba(220,38,38,0.05)');
+    grad.addColorStop(0.6, 'rgba(220,38,38,0.03)');
+    grad.addColorStop(1, 'rgba(220,38,38,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, scanY - 15, W, 30);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: WORLD MAP + TX DOTS + RIPPLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawWorldMap(now) {
+    var mapX = Math.floor(W * 0.45);
+    var mapY = Math.floor(H * 0.04);
+    var mapW = Math.floor(W * 0.52);
+    var mapH = Math.floor(H * 0.45);
+
+    // Draw cached map outlines
+    if (mapReady && mapOff) {
+        ctx.drawImage(mapOff, mapX, mapY, mapW, mapH);
+    }
+
+    if (!mapProjection) return;
+
+    // Draw ripples (behind dots)
+    for (var r = ripples.length - 1; r >= 0; r--) {
+        var rip = ripples[r];
+        var age = (now - rip.born) / 1000;
+        if (age > 3) { ripples.splice(r, 1); continue; }
+
+        var progress = age / 3;
+        var radius = rip.maxRadius * progress;
+        var alpha = 0.4 * (1 - progress);
+
+        ctx.beginPath();
+        ctx.arc(mapX + rip.x, mapY + rip.y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(220,38,38,' + alpha.toFixed(3) + ')';
+        ctx.lineWidth = 2 * (1 - progress) + 0.5;
+        ctx.stroke();
+
+        // Inner ripple
+        if (radius > 10) {
+            ctx.beginPath();
+            ctx.arc(mapX + rip.x, mapY + rip.y, radius * 0.6, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(220,38,38,' + (alpha * 0.5).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    }
+
+    // Draw tx dots
+    for (var i = txDots.length - 1; i >= 0; i--) {
+        var dot = txDots[i];
+        var age = (now - dot.born) / 1000;
+        if (age > 2.5) { txDots.splice(i, 1); continue; }
+
+        var alpha = age < 0.15 ? age / 0.15 : Math.max(0, 1 - (age - 0.15) / 2.35);
+        var r = age < 0.15 ? 2 + 3 * (age / 0.15) : 5 * (1 - (age - 0.15) / 2.35) + 1;
+
+        // Glow
+        ctx.beginPath();
+        ctx.arc(mapX + dot.x, mapY + dot.y, r + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(220,38,38,' + (alpha * 0.15).toFixed(3) + ')';
+        ctx.fill();
+
+        // Core
+        ctx.beginPath();
+        ctx.arc(mapX + dot.x, mapY + dot.y, Math.max(1, r), 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(220,38,38,' + alpha.toFixed(3) + ')';
+        ctx.fill();
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: ECG HEARTBEAT
+   ═══════════════════════════════════════════════════════════════════════════ */
+function updateECG(dt) {
+    // Scroll speed: pixels per second based on BPM
+    var scrollSpeed = ECG_LEN * (ecgBpm / 60) * 0.12;
+    var scrollPx = Math.max(1, Math.round(scrollSpeed * dt));
+
+    // Shift buffer left
+    for (var i = 0; i < ECG_LEN - scrollPx; i++) {
+        ecgBuffer[i] = ecgBuffer[i + scrollPx];
+    }
+
+    // Generate new values
+    var beatsPerSec = ecgBpm / 60;
+    var phasePerPx = beatsPerSec / (scrollSpeed);
+
+    for (var i = ECG_LEN - scrollPx; i < ECG_LEN; i++) {
+        if (blockFlatline > 0) {
+            ecgBuffer[i] = 0;
+            blockFlatline -= dt / scrollPx;
+        } else {
+            var val = ecgWaveform(ecgPhase % 1);
+            // Scale amplitude by BPM (higher = more intense)
+            var amp = 0.6 + 0.4 * Math.min(1, ecgBpm / 100);
+            ecgBuffer[i] = val * amp;
+            ecgPhase += phasePerPx;
+        }
+    }
+
+    // Block spike injection
+    if (blockFlash > 1.8) {
+        ecgBuffer[ECG_LEN - 1] = 2.0;
+        ecgBuffer[ECG_LEN - 2] = 1.5;
+        ecgBuffer[ECG_LEN - 3] = -0.8;
+    }
+}
+
+function drawECG() {
+    var ecgX = Math.floor(W * 0.03);
+    var ecgY = Math.floor(H * 0.28);
+    var ecgW = Math.floor(W * 0.38);
+    var ecgH = Math.floor(H * 0.22);
+    var midY = ecgY + ecgH * 0.5;
+    var ampScale = ecgH * 0.35;
+
+    // Gradient for trail effect (old=faint, new=bright)
+    var grad = ctx.createLinearGradient(ecgX, 0, ecgX + ecgW, 0);
+    grad.addColorStop(0, 'rgba(220,38,38,0.03)');
+    grad.addColorStop(0.3, 'rgba(220,38,38,0.12)');
+    grad.addColorStop(0.7, 'rgba(220,38,38,0.4)');
+    grad.addColorStop(1, 'rgba(220,38,38,0.9)');
+
+    // Glow layer
+    ctx.beginPath();
+    var step = ecgW / ECG_LEN;
+    for (var i = 0; i < ECG_LEN; i++) {
+        var x = ecgX + i * step;
+        var y = midY - ecgBuffer[i] * ampScale;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(220,38,38,0.15)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // Main trace
+    ctx.beginPath();
+    for (var i = 0; i < ECG_LEN; i++) {
+        var x = ecgX + i * step;
+        var y = midY - ecgBuffer[i] * ampScale;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Bright tip (last 20px)
+    ctx.beginPath();
+    var tipStart = Math.max(0, ECG_LEN - 30);
+    for (var i = tipStart; i < ECG_LEN; i++) {
+        var x = ecgX + i * step;
+        var y = midY - ecgBuffer[i] * ampScale;
+        if (i === tipStart) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = RED;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // BPM label
+    var fontSize = Math.max(11, Math.floor(H * 0.014));
+    ctx.font = fontSize + 'px ' + FONT;
+    ctx.fillStyle = 'rgba(220,38,38,0.5)';
+    ctx.fillText('BPM: ' + ecgBpm, ecgX, ecgY + ecgH + fontSize + 4);
+
+    // Tx rate
+    var txRate = (mempoolCount > 0) ? (ecgBpm / 15).toFixed(1) : '--';
+    ctx.fillText(txRate + ' tx/s', ecgX + Math.floor(ecgW * 0.3), ecgY + ecgH + fontSize + 4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: CONVERGENCE RADAR
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawRadar(now) {
+    var size = Math.min(200, Math.floor(H * 0.22), Math.floor(W * 0.14));
+    var cx = Math.floor(W * 0.08) + size / 2;
+    var cy = Math.floor(H * 0.62) + size / 2;
+    var radius = size * 0.42;
+
+    var labels = ['MCX','EPX','IHX','OPX','FDX','OCX'];
+    var values = [orbNodes.mcx, orbNodes.epx, orbNodes.ihx, orbNodes.opx, orbNodes.fdx, orbNodes.ocx];
+    var n = 6;
+
+    // Axis rings (3 levels)
+    for (var ring = 1; ring <= 3; ring++) {
+        var r = radius * ring / 3;
+        ctx.beginPath();
+        for (var i = 0; i <= n; i++) {
+            var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+            var x = cx + Math.cos(angle) * r;
+            var y = cy + Math.sin(angle) * r;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(220,38,38,' + (0.04 + ring * 0.02) + ')';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+    }
+
+    // Axis lines
+    for (var i = 0; i < n; i++) {
+        var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+        ctx.strokeStyle = 'rgba(220,38,38,0.06)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+
+        // Axis pulse (sine wave)
+        var pulse = Math.sin(now / 1000 * 1.5 + i) * 0.05 + 1;
+        var tipR = radius * pulse;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(angle) * tipR, cy + Math.sin(angle) * tipR, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(220,38,38,0.15)';
+        ctx.fill();
+    }
+
+    // Data polygon with ghost trail
+    var ghostPhases = [0.97, 0.985, 1.0];
+    var ghostAlphas = [0.05, 0.12, 0.35];
+    for (var g = 0; g < ghostPhases.length; g++) {
+        ctx.beginPath();
+        for (var i = 0; i <= n; i++) {
+            var idx = i % n;
+            var angle = (idx / n) * Math.PI * 2 - Math.PI / 2;
+            var val = (values[idx] / 100) * ghostPhases[g];
+            var r = radius * val;
+            var x = cx + Math.cos(angle) * r;
+            var y = cy + Math.sin(angle) * r;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = 'rgba(220,38,38,' + ghostAlphas[g] + ')';
+        ctx.lineWidth = g === ghostPhases.length - 1 ? 1.5 : 1;
+        ctx.stroke();
+        if (g === ghostPhases.length - 1) {
+            ctx.fillStyle = 'rgba(220,38,38,0.05)';
+            ctx.fill();
+        }
+    }
+
+    // Data points with particles
+    for (var i = 0; i < n; i++) {
+        var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+        var val = values[i] / 100;
+        var r = radius * val;
+        var px = cx + Math.cos(angle) * r;
+        var py = cy + Math.sin(angle) * r;
+
+        // Point glow
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(220,38,38,0.2)';
+        ctx.fill();
+
+        // Point core
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(220,38,38,0.6)';
+        ctx.fill();
+    }
+
+    // Edge light traveling around polygon
+    var edgePhase = (now / 3000) % 1;
+    var edgeIdx = Math.floor(edgePhase * n);
+    var edgeFrac = (edgePhase * n) % 1;
+    var a1 = (edgeIdx / n) * Math.PI * 2 - Math.PI / 2;
+    var a2 = ((edgeIdx + 1) / n) * Math.PI * 2 - Math.PI / 2;
+    var v1 = values[edgeIdx] / 100;
+    var v2 = values[(edgeIdx + 1) % n] / 100;
+    var er = radius * (v1 + (v2 - v1) * edgeFrac);
+    var ea = a1 + (a2 - a1) * edgeFrac;
+    var ex = cx + Math.cos(ea) * (radius * (v1 * (1 - edgeFrac) + v2 * edgeFrac));
+    var ey = cy + Math.sin(ea) * (radius * (v1 * (1 - edgeFrac) + v2 * edgeFrac));
+
+    ctx.beginPath();
+    ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(220,38,38,0.7)';
+    ctx.fill();
+
+    // Labels (very dim)
+    var labelSize = Math.max(8, Math.floor(H * 0.009));
+    ctx.font = '300 ' + labelSize + 'px ' + FONT;
+    ctx.fillStyle = 'rgba(220,38,38,0.2)';
+    ctx.textAlign = 'center';
+    for (var i = 0; i < n; i++) {
+        var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+        var lx = cx + Math.cos(angle) * (radius + 14);
+        var ly = cy + Math.sin(angle) * (radius + 14);
+        ctx.fillText(labels[i], lx, ly + labelSize * 0.35);
+    }
+    ctx.textAlign = 'left';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: HASHRATE SEISMOGRAPH
+   ═══════════════════════════════════════════════════════════════════════════ */
+function updateSeismograph(dt) {
+    // Shift left
+    var shift = Math.max(1, Math.round(80 * dt));
+    for (var i = 0; i < SEISMO_LEN - shift; i++) {
+        seismoBuffer[i] = seismoBuffer[i + shift];
+    }
+
+    // Generate new values (Brownian-like noise + slow oscillation)
+    for (var i = SEISMO_LEN - shift; i < SEISMO_LEN; i++) {
+        seismoPhase += dt * 0.3 / shift;
+        var base = Math.sin(seismoPhase * 2) * 0.3;
+        var noise = (Math.random() - 0.5) * 0.15;
+        var prev = i > 0 ? seismoBuffer[i - 1] : 0;
+        seismoBuffer[i] = prev * 0.92 + (base + noise) * 0.08;
+
+        // Occasional larger deflection
+        if (Math.random() < 0.003) {
+            seismoBuffer[i] += (Math.random() - 0.5) * 0.6;
+        }
+    }
+
+    // Block found causes big deflection
+    if (blockFlash > 1.5) {
+        seismoBuffer[SEISMO_LEN - 1] = (Math.random() > 0.5 ? 1 : -1) * 0.8;
+    }
+}
+
+function drawSeismograph() {
+    var sx = Math.floor(W * 0.46);
+    var sy = Math.floor(H * 0.53);
+    var sw = Math.floor(W * 0.50);
+    var sh = Math.floor(H * 0.12);
+    var midY = sy + sh * 0.5;
+    var amp = sh * 0.4;
+
+    // Paper scroll background
+    ctx.fillStyle = 'rgba(220,38,38,0.015)';
+    ctx.fillRect(sx, sy, sw, sh);
+
+    // Center line
+    ctx.beginPath();
+    ctx.moveTo(sx, midY);
+    ctx.lineTo(sx + sw, midY);
+    ctx.strokeStyle = 'rgba(220,38,38,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Waveform with gradient
+    var grad = ctx.createLinearGradient(sx, 0, sx + sw, 0);
+    grad.addColorStop(0, 'rgba(220,38,38,0.05)');
+    grad.addColorStop(0.5, 'rgba(220,38,38,0.25)');
+    grad.addColorStop(1, 'rgba(220,38,38,0.7)');
+
+    // Glow
+    ctx.beginPath();
+    var step = sw / SEISMO_LEN;
+    for (var i = 0; i < SEISMO_LEN; i++) {
+        var x = sx + i * step;
+        var y = midY - seismoBuffer[i] * amp;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(220,38,38,0.1)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Main trace
+    ctx.beginPath();
+    for (var i = 0; i < SEISMO_LEN; i++) {
+        var x = sx + i * step;
+        var y = midY - seismoBuffer[i] * amp;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Label
+    var fontSize = Math.max(11, Math.floor(H * 0.013));
+    ctx.font = '300 ' + fontSize + 'px ' + FONT;
+    ctx.fillStyle = DIM;
+    var hrText = hashrate > 0 ? (hashrate > 1000 ? (hashrate / 1000).toFixed(0) + ' ZH/s' : hashrate.toFixed(0) + ' EH/s') : '--- EH/s';
+    ctx.fillText(hrText, sx + 6, sy + sh + fontSize + 4);
+
+    // Seismograph title
+    ctx.fillStyle = 'rgba(220,38,38,0.15)';
+    ctx.fillText('HASHRATE', sx + sw - 80, sy - 4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: MEMPOOL REACTOR
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawReactor(now) {
+    var rx = Math.floor(W * 0.48);
+    var ry = Math.floor(H * 0.69);
+    var rSize = Math.min(160, Math.floor(H * 0.18), Math.floor(W * 0.10));
+    var cx = rx + rSize;
+    var cy = ry + rSize;
+    var coreRadius = rSize * 0.45;
+
+    // Mempool pressure (0-1)
+    var memMB = mempoolVsize / 1000000;
+    var pressure = Math.min(1, memMB / 100);
+    var pulse = Math.sin(now / 500 * (1 + pressure * 2)) * 0.1 * pressure;
+
+    // Core glow — outer
+    var outerR = coreRadius * (1.4 + pulse);
+    var outerGrad = ctx.createRadialGradient(cx, cy, coreRadius * 0.3, cx, cy, outerR);
+    if (pressure > 0.8) {
+        outerGrad.addColorStop(0, 'rgba(255,255,255,0.15)');
+        outerGrad.addColorStop(0.3, 'rgba(220,38,38,' + (0.3 + pulse) + ')');
+    } else if (pressure > 0.4) {
+        outerGrad.addColorStop(0, 'rgba(220,38,38,' + (0.15 + pulse) + ')');
+        outerGrad.addColorStop(0.3, 'rgba(220,38,38,' + (0.08 + pulse * 0.5) + ')');
+    } else {
+        outerGrad.addColorStop(0, 'rgba(220,38,38,' + (0.06 + pulse * 0.3) + ')');
+        outerGrad.addColorStop(0.3, 'rgba(220,38,38,0.02)');
+    }
+    outerGrad.addColorStop(1, 'rgba(220,38,38,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+    ctx.fillStyle = outerGrad;
+    ctx.fill();
+
+    // Block cooling effect
+    var coolAlpha = blockFlash > 0 ? Math.min(1, blockFlash) * 0.3 : 0;
+
+    // Core circle
+    var coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+    if (coolAlpha > 0) {
+        coreGrad.addColorStop(0, 'rgba(40,40,60,' + (0.8 - coolAlpha * 0.3) + ')');
+        coreGrad.addColorStop(1, 'rgba(20,20,30,0.9)');
+    } else {
+        var coreIntensity = 0.03 + pressure * 0.12;
+        coreGrad.addColorStop(0, 'rgba(220,38,38,' + coreIntensity + ')');
+        coreGrad.addColorStop(0.7, 'rgba(60,10,10,' + (0.3 + pressure * 0.2) + ')');
+        coreGrad.addColorStop(1, 'rgba(20,5,5,0.8)');
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
+
+    // Core border
+    ctx.strokeStyle = 'rgba(220,38,38,' + (0.15 + pressure * 0.25) + ')';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // High pressure pulsing border
+    if (pressure > 0.8) {
+        var flashAlpha = (Math.sin(now / 200) * 0.5 + 0.5) * 0.3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreRadius + 3, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(220,38,38,' + flashAlpha + ')';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // Control rods (fee tiers)
+    var rodCount = feeTiers.length;
+    for (var i = 0; i < rodCount; i++) {
+        var angle = (i / rodCount) * Math.PI * 2 - Math.PI / 2;
+        var fee = feeTiers[i] || 5;
+        var rodH = Math.min(coreRadius * 0.8, fee * 0.6 + 5);
+        var rodW = 4;
+        var rodDist = coreRadius + 8;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        ctx.fillStyle = 'rgba(220,38,38,' + (0.2 + Math.min(fee / 100, 0.5)) + ')';
+        ctx.fillRect(rodDist, -rodW / 2, rodH, rodW);
+        // Rod cap
+        ctx.fillStyle = 'rgba(220,38,38,' + (0.4 + Math.min(fee / 80, 0.4)) + ')';
+        ctx.fillRect(rodDist + rodH - 3, -rodW / 2 - 1, 3, rodW + 2);
+        ctx.restore();
+    }
+
+    // Center text — mempool count
+    var fontSize = Math.max(10, Math.floor(rSize * 0.14));
+    ctx.font = '500 ' + fontSize + 'px ' + FONT;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(220,38,38,' + (0.4 + pressure * 0.3) + ')';
+    ctx.fillText(formatNum(mempoolCount) + ' txs', cx, cy + fontSize * 0.4);
+
+    // "MEMPOOL" label above
+    ctx.font = '300 ' + Math.floor(fontSize * 0.7) + 'px ' + FONT;
+    ctx.fillStyle = 'rgba(220,38,38,0.25)';
+    ctx.fillText('MEMPOOL', cx, cy - fontSize * 0.8);
+
+    ctx.textAlign = 'left';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: PRICE DISPLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+function updatePrice(dt) {
+    if (btcPrice <= 0) return;
+    // Smooth interpolation
+    var diff = btcPrice - displayPrice;
+    if (Math.abs(diff) < 1) {
+        displayPrice = btcPrice;
+    } else {
+        displayPrice += diff * Math.min(1, dt * 3);
+    }
+}
+
+function drawPrice() {
+    var px = Math.floor(W * 0.04);
+    var py = Math.floor(H * 0.06);
+    var priceFontSize = Math.max(28, Math.floor(H * 0.048));
+
+    // Glow behind price
+    var glowColor = priceChange >= 0 ? '16,185,129' : '220,38,38';
+    var glowR = priceFontSize * 3;
+    var glowGrad = ctx.createRadialGradient(px + glowR * 0.3, py, 0, px + glowR * 0.3, py, glowR);
+    glowGrad.addColorStop(0, 'rgba(' + glowColor + ',0.04)');
+    glowGrad.addColorStop(1, 'rgba(' + glowColor + ',0)');
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(px - 20, py - priceFontSize * 1.2, glowR * 1.5, priceFontSize * 3);
+
+    // Price
+    var priceStr = displayPrice > 0 ? '$' + formatNum(Math.round(displayPrice)) : '$--,---';
+    ctx.font = '700 ' + priceFontSize + 'px ' + FONT;
+    ctx.fillStyle = '#e5e5e5';
+    ctx.fillText(priceStr, px, py);
+
+    // 24h change
+    var changeFontSize = Math.max(12, Math.floor(priceFontSize * 0.32));
+    ctx.font = '400 ' + changeFontSize + 'px ' + FONT;
+    if (priceChange !== 0) {
+        var arrow = priceChange >= 0 ? '\u25B2' : '\u25BC';
+        var changeColor = priceChange >= 0 ? GREEN : RED;
+        ctx.fillStyle = changeColor;
+        ctx.fillText(arrow + ' ' + Math.abs(priceChange).toFixed(2) + '%', px, py + changeFontSize + 8);
+    }
+
+    // Sats per dollar
+    if (displayPrice > 0) {
+        var sats = Math.round(100000000 / displayPrice);
+        ctx.fillStyle = 'rgba(248,193,92,0.4)';
+        ctx.font = '300 ' + changeFontSize + 'px ' + FONT;
+        ctx.fillText(formatNum(sats) + ' sats/$', px, py + changeFontSize * 2 + 16);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: AMBIENT COUNTERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawCounters() {
+    var fontSize = Math.max(11, Math.floor(H * 0.014));
+    ctx.font = '400 ' + fontSize + 'px ' + FONT;
+
+    // Block height (bottom-left, below radar)
+    var blkX = Math.floor(W * 0.04);
+    var blkY = Math.floor(H * 0.88);
+    ctx.fillStyle = DIM;
+    ctx.fillText('BLK ' + (blockHeight > 0 ? formatNum(blockHeight) : '---,---'), blkX, blkY);
+
+    // Lightning (below block height)
+    var lnBtc = lightningBtc > 0 ? formatNum(Math.round(lightningBtc)) : '---';
+    ctx.fillStyle = DIM;
+    ctx.fillText('\u26A1 ' + lnBtc + ' BTC', blkX, blkY + fontSize + 6);
+
+    // Fear & Greed (bottom-right)
+    var fgX = Math.floor(W * 0.82);
+    var fgY = Math.floor(H * 0.85);
+    var fgLabel = '';
+    var fgColor = DIM;
+    if (fearGreed < 25) { fgLabel = 'EXTREME FEAR'; fgColor = '#ef4444'; }
+    else if (fearGreed < 45) { fgLabel = 'FEAR'; fgColor = '#f97316'; }
+    else if (fearGreed <= 55) { fgLabel = 'NEUTRAL'; fgColor = '#6b7280'; }
+    else if (fearGreed < 75) { fgLabel = 'GREED'; fgColor = '#22c55e'; }
+    else { fgLabel = 'EXTREME GREED'; fgColor = '#10b981'; }
+
+    ctx.fillStyle = fgColor;
+    ctx.font = '500 ' + Math.floor(fontSize * 1.3) + 'px ' + FONT;
+    ctx.fillText('F&G: ' + fearGreed, fgX, fgY);
+    ctx.font = '300 ' + Math.floor(fontSize * 0.85) + 'px ' + FONT;
+    ctx.fillText(fgLabel, fgX, fgY + fontSize + 6);
+
+    // Convergence score (near radar)
+    var scoreX = Math.floor(W * 0.04);
+    var scoreY = Math.floor(H * 0.60);
+    ctx.fillStyle = 'rgba(220,38,38,0.3)';
+    ctx.font = '500 ' + Math.floor(fontSize * 1.1) + 'px ' + FONT;
+    ctx.fillText('ORB: ' + orbScore, scoreX, scoreY);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: WATERMARK
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawWatermark() {
+    var fontSize = Math.max(9, Math.floor(H * 0.010));
+    ctx.font = '400 ' + fontSize + 'px ' + FONT;
+    ctx.fillStyle = 'rgba(220,38,38,0.06)';
+    ctx.textAlign = 'right';
+    ctx.fillText('PROTOCOL PULSE', W - 20, H - 14);
+    ctx.textAlign = 'left';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAW: BLOCK FLASH OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+function drawBlockFlash() {
+    if (blockFlash <= 0) return;
+    var alpha = Math.min(0.08, blockFlash * 0.04);
+    ctx.fillStyle = 'rgba(220,38,38,' + alpha.toFixed(4) + ')';
+    ctx.fillRect(0, 0, W, H);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITY
+   ═══════════════════════════════════════════════════════════════════════════ */
+function formatNum(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN ANIMATION LOOP
+   ═══════════════════════════════════════════════════════════════════════════ */
+function frame(ts) {
+    requestAnimationFrame(frame);
+
+    var dt = lastFrame ? Math.min(0.1, (ts - lastFrame) / 1000) : 0.016;
+    lastFrame = ts;
+    frameCount++;
+
+    // Countdown timers
+    if (blockFlash > 0) blockFlash = Math.max(0, blockFlash - dt);
+    // blockFlatline is decremented inside updateECG per-pixel
+
+    // Update simulations
+    updateECG(dt);
+    updateSeismograph(dt);
+    updatePrice(dt);
+
+    // Periodically spawn tx dots (ambient activity even without WS data)
+    if (frameCount % 40 === 0) spawnTxDot();
+
+    // === DRAW ===
+
+    // Layer 0: Background grid
+    if (gridOff) {
+        ctx.drawImage(gridOff, 0, 0, W, H);
+    } else {
+        ctx.fillStyle = BG;
+        ctx.fillRect(0, 0, W, H);
+    }
+
+    // CRT scan line
+    drawScanLine(dt);
+
+    // Layer 1: World map + dots + ripples
+    drawWorldMap(ts);
+
+    // Layer 2: ECG heartbeat
+    drawECG();
+
+    // Layer 3: Convergence radar
+    drawRadar(ts);
+
+    // Layer 4: Hashrate seismograph
+    drawSeismograph();
+
+    // Layer 5: Mempool reactor
+    drawReactor(ts);
+
+    // Layer 6: Price display
+    drawPrice();
+
+    // Layer 7: Ambient counters
+    drawCounters();
+
+    // Layer 8: Watermark
+    drawWatermark();
+
+    // Block flash overlay (top layer)
+    drawBlockFlash();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EVENT HANDLERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+function setupEvents() {
+    // Resize
+    window.addEventListener('resize', function() {
+        resize();
+    });
+
+    // Click → fullscreen toggle
+    canvas.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+            (document.documentElement.requestFullscreen ||
+             document.documentElement.webkitRequestFullscreen ||
+             document.documentElement.mozRequestFullScreen ||
+             function(){}).call(document.documentElement);
+        } else {
+            (document.exitFullscreen ||
+             document.webkitExitFullscreen ||
+             document.mozCancelFullScreen ||
+             function(){}).call(document);
+        }
+    });
+
+    // ESC handled natively by fullscreen API
+
+    // Cursor auto-hide
+    function showCursor() {
+        document.body.classList.remove('cursor-hidden');
+        clearTimeout(cursorTimer);
+        cursorTimer = setTimeout(function() {
+            document.body.classList.add('cursor-hidden');
+        }, 3000);
+    }
+    document.addEventListener('mousemove', showCursor);
+    showCursor();
+
+    // Fullscreen change → resize
+    document.addEventListener('fullscreenchange', function() { setTimeout(resize, 100); });
+    document.addEventListener('webkitfullscreenchange', function() { setTimeout(resize, 100); });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════════════════ */
+function init() {
+    initCanvas();
+    setupEvents();
+
+    // Load world map
+    loadWorldMap();
+
+    // Connect WebSocket
+    connectWS();
+
+    // Fetch API data immediately and then periodically
+    fetchOrb();
+    fetchPrice();
+    fetchHashrate();
+    fetchBlockHeight();
+    setInterval(fetchOrb, API_INTERVAL);
+    setInterval(fetchPrice, API_INTERVAL);
+    setInterval(fetchHashrate, 120000);  // hashrate every 2min
+    setInterval(fetchBlockHeight, 60000); // block height every 1min (backup to WS)
+
+    // Initialize ECG buffer with flat baseline + a couple of heartbeats
+    for (var i = 0; i < ECG_LEN; i++) {
+        var t = (i / ECG_LEN) * 4; // ~4 heartbeats in buffer
+        ecgBuffer[i] = ecgWaveform(t % 1) * 0.5;
+    }
+
+    // Start animation loop
+    requestAnimationFrame(frame);
+}
+
+// Wait for fonts to load, then init
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(init);
+} else {
+    window.addEventListener('load', init);
+}
+
+})();
+</script>
+</body>
+</html>
