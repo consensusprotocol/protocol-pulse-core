@@ -929,6 +929,12 @@
                 </div>
                 <div class="timeline-node major">
                     <div class="timeline-dot"></div>
+                    <div class="timeline-year">2021</div>
+                    <div class="timeline-event">Bitcoin Hits \$69K ATH</div>
+                    <div class="timeline-desc">Market cap peaks at $1.27 trillion. Every central bank on earth takes notice.</div>
+</div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
                     <div class="timeline-year">Now</div>
                     <div class="timeline-event">The Code Runs</div>
                     <div class="timeline-desc">Bitcoin: block 900,000+</div>
@@ -1173,7 +1179,14 @@ const PORTRAIT_IMAGES = {
     'Philip Zimmermann': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Philip_Zimmermann.jpg/440px-Philip_Zimmermann.jpg',
     'Ralph Merkle': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/RalphMerkle.jpg/440px-RalphMerkle.jpg',
     'Julian Assange': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Julian_Assange_26C3.jpg/440px-Julian_Assange_26C3.jpg',
-    'Adam Back': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Adam_Back_profile_photo.jpg/440px-Adam_Back_profile_photo.jpg'
+    'Adam Back': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Adam_Back_profile_photo.jpg/440px-Adam_Back_profile_photo.jpg',
+    'Hal Finney': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Hal_Finney_%28computer_scientist%29.jpg/440px-Hal_Finney_%28computer_scientist%29.jpg',
+    'Tim May': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Timothy_C_May.jpg/440px-Timothy_C_May.jpg',
+    'Eric Hughes': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/EricHughes.jpg/440px-EricHughes.jpg',
+    'John Gilmore': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/John_Gilmore_at_EFF.jpg/440px-John_Gilmore_at_EFF.jpg',
+    'Nick Szabo': 'https://unavatar.io/twitter/NickSzabo4',
+    'Wei Dai': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Wei_Dai_2004.jpg/440px-Wei_Dai_2004.jpg',
+    'Satoshi Nakamoto': null
 };
 
 /* Load portraits into gallery cards */
@@ -1183,7 +1196,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = card.getAttribute('data-name');
         if (PORTRAIT_IMAGES[name]) {
             const img = card.querySelector('.portrait-img');
-            if (img) img.src = PORTRAIT_IMAGES[name];
+            if (img) {
+                img.onload = function() { this.style.display='block'; var ini=card.querySelector('.portrait-initials'); if(ini) ini.style.display='none'; };
+                img.onerror = function() { this.style.display='none'; };
+                img.src = PORTRAIT_IMAGES[name];
+            }
         }
     });
 
@@ -1249,11 +1266,15 @@ function openExhibit(name) {
 
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
 }
 
 function closeExhibit() {
-    document.getElementById('exhibitModal').classList.remove('active');
+    var el = document.getElementById('exhibitModal');
+    el.classList.remove('active');
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.documentElement.style.overflow = '';
 }
 </script>
 {% endblock %}
