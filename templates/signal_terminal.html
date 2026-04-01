@@ -2476,41 +2476,83 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   setTimeout(sim,5000);
 })();
 
-/* ═══ POLYMARKET ═══ */
+/* ═══ POLYMARKET INTELLIGENCE — LIVE MULTI-MARKET ═══ */
 (function(){
   var el=document.getElementById('poly-list');if(!el)return;
-  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-    var raw=d.raw||{};var pm=raw.polymarket||{};
-    var top=pm.top_market||raw.polymarket_top||'';var prob=pm.top_probability||raw.poly_prob||0;var sent=pm.macro_sentiment||50;
-    var html='';
-    // Main market
-    if(top){
-      html+='<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
-        +'<div style="font-size:10px;color:rgba(255,255,255,0.7);">'+top+'</div>'
-        +'<div style="display:flex;gap:6px;margin-top:5px;">'
-        +'<div style="flex:1;background:rgba(34,197,94,0.15);border-radius:3px;padding:3px 6px;text-align:center;"><span style="font-size:10px;font-weight:700;color:#22c55e;">YES '+prob.toFixed(1)+'%</span></div>'
-        +'<div style="flex:1;background:rgba(239,68,68,0.15);border-radius:3px;padding:3px 6px;text-align:center;"><span style="font-size:10px;font-weight:700;color:#ef4444;">NO '+(100-prob).toFixed(1)+'%</span></div>'
-        +'</div></div>';
-    }
-    // Additional curated Bitcoin prediction markets
-    var extra = [
-      {q:'Will BTC reach $100K by end of 2026?', yes:62.3},
-      {q:'Will a US Bitcoin Strategic Reserve be established?', yes:41.7},
-      {q:'Will El Salvador still hold BTC by 2027?', yes:88.1},
-      {q:'Will Bitcoin ETF daily volume exceed $10B?', yes:55.9},
-    ];
-    extra.forEach(function(m){
-      html+='<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);">'
-        +'<div style="font-size:9px;color:rgba(255,255,255,0.5);">'+m.q+'</div>'
-        +'<div style="display:flex;gap:4px;margin-top:3px;">'
-        +'<div style="flex:'+Math.round(m.yes)+';background:rgba(34,197,94,0.12);border-radius:2px;padding:1px 4px;"><span style="font-size:8px;color:#22c55e;">'+m.yes+'%</span></div>'
-        +'<div style="flex:'+Math.round(100-m.yes)+';background:rgba(239,68,68,0.08);border-radius:2px;padding:1px 4px;text-align:right;"><span style="font-size:8px;color:#ef4444;">'+(100-m.yes).toFixed(1)+'%</span></div>'
-        +'</div></div>';
+  
+  function fetchMarkets() {
+    fetch('/api/polymarket/markets').then(function(r){return r.json()}).then(function(d){
+      var markets = d.markets || [];
+      var sentiment = d.sentiment_score || 50;
+      
+      if (!markets.length) {
+        // Fallback to /api/orb single market
+        fetch('/api/orb').then(function(r2){return r2.json()}).then(function(d2){
+          var raw=d2.raw||{};var pm=raw.polymarket||{};
+          var top=pm.top_market||raw.polymarket_top||'';
+          var prob=pm.top_probability||raw.poly_prob||0;
+          if(!top){el.innerHTML='<div style="color:rgba(255,255,255,0.2);font-size:9px;">No prediction data available</div>';return;}
+          el.innerHTML=renderMarket(top, prob, true) + sentimentBar(pm.macro_sentiment||50);
+        }).catch(function(){});
+        return;
+      }
+      
+      var html = '';
+      markets.slice(0, 6).forEach(function(m, idx) {
+        var q = m.question || '';
+        var outcomes = m.outcomes || {};
+        var yes = outcomes.Yes || outcomes.yes || 50;
+        var no = outcomes.No || outcomes.no || (100 - yes);
+        var vol = m.volume || 0;
+        var volStr = vol > 1000000 ? (vol/1000000).toFixed(1)+'M' : vol > 1000 ? (vol/1000).toFixed(0)+'K' : vol.toFixed(0);
+        
+        html += '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">';
+        html += '<span style="font-size:9px;color:rgba(255,255,255,0.65);flex:1;line-height:1.4;">'+q+'</span>';
+        html += '<a href="https://polymarket.com/event/'+((m.slug||'').split('/')[0])+'" target="_blank" rel="noopener" style="font-size:7px;color:rgba(255,59,95,0.5);text-decoration:none;flex-shrink:0;">SRC &#8599;</a>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:4px;margin-top:4px;">';
+        html += '<div style="flex:'+Math.round(yes)+';background:rgba(34,197,94,0.12);border-radius:2px;padding:2px 6px;"><span style="font-size:9px;font-weight:700;color:#22c55e;">YES '+yes.toFixed(1)+'%</span></div>';
+        html += '<div style="flex:'+Math.round(no)+';background:rgba(239,68,68,0.08);border-radius:2px;padding:2px 6px;text-align:right;"><span style="font-size:9px;font-weight:700;color:#ef4444;">NO '+no.toFixed(1)+'%</span></div>';
+        html += '</div>';
+        if (vol > 0) {
+          html += '<div style="font-size:7px;color:rgba(255,255,255,0.15);margin-top:2px;">VOL $'+volStr+'</div>';
+        }
+        html += '</div>';
+      });
+      
+      html += sentimentBar(sentiment);
+      html += '<div style="font-size:7px;color:rgba(255,255,255,0.12);margin-top:4px;">'+markets.length+' markets tracked \u2022 Source: Polymarket Gamma API \u2022 Live</div>';
+      el.innerHTML = html;
+    }).catch(function(err){
+      console.warn('Polymarket fetch error:', err);
+      el.innerHTML='<div style="color:rgba(255,255,255,0.15);font-size:9px;">API temporarily unavailable</div>';
     });
-    html+='<div style="margin-top:6px;font-size:7px;color:rgba(255,255,255,0.2);">MACRO SENTIMENT: <span style="color:#f8c15c;font-weight:700;">'+sent+'/100</span> • Sources: Polymarket, Kalshi</div>';
-    el.innerHTML=html;
-  }).catch(function(){el.innerHTML='<div style="color:rgba(255,255,255,0.15);font-size:9px;">Unavailable</div>';});
+  }
+  
+  function sentimentBar(score) {
+    var col = score > 60 ? '#22c55e' : score < 40 ? '#ef4444' : '#f8c15c';
+    return '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04);">'
+      +'<div style="display:flex;justify-content:space-between;font-size:8px;">'
+      +'<span style="color:rgba(255,255,255,0.3);">MACRO SENTIMENT</span>'
+      +'<span style="color:'+col+';font-weight:700;">'+score+'/100</span></div>'
+      +'<div style="height:3px;background:rgba(255,255,255,0.04);border-radius:2px;margin-top:3px;">'
+      +'<div style="height:100%;width:'+score+'%;background:'+col+';border-radius:2px;transition:width 0.5s;"></div></div></div>';
+  }
+  
+  function renderMarket(q, prob, isPrimary) {
+    return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+      +'<div style="font-size:'+(isPrimary?'10':'9')+'px;color:rgba(255,255,255,0.7);">'+q+'</div>'
+      +'<div style="display:flex;gap:6px;margin-top:5px;">'
+      +'<div style="flex:1;background:rgba(34,197,94,0.15);border-radius:3px;padding:3px 6px;text-align:center;"><span style="font-size:10px;font-weight:700;color:#22c55e;">YES '+prob.toFixed(1)+'%</span></div>'
+      +'<div style="flex:1;background:rgba(239,68,68,0.15);border-radius:3px;padding:3px 6px;text-align:center;"><span style="font-size:10px;font-weight:700;color:#ef4444;">NO '+(100-prob).toFixed(1)+'%</span></div>'
+      +'</div></div>';
+  }
+  
+  fetchMarkets();
+  setInterval(fetchMarkets, 300000); // Refresh every 5 minutes
 })();
+
 
 /* ═══ WHALE ALERTS ═══ */
 (function(){

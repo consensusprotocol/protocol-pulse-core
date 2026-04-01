@@ -6419,6 +6419,24 @@ def api_congress_top_traders():
         return jsonify({"traders": [], "error": str(e)})
 
 
+
+@app.route('/api/polymarket/markets')
+def api_polymarket_markets():
+    """Live Polymarket prediction markets — top Bitcoin/crypto/macro markets."""
+    try:
+        from services.polymarket_service import get_bitcoin_markets, get_macro_sentiment_score
+        markets = get_bitcoin_markets(8)
+        sentiment = get_macro_sentiment_score()
+        return jsonify({
+            "markets": markets,
+            "sentiment_score": sentiment,
+            "count": len(markets),
+            "source": "polymarket_gamma_api"
+        })
+    except Exception as e:
+        return jsonify({"markets": [], "sentiment_score": 50, "error": str(e)})
+
+
 @app.route('/health/automation')
 def automation_health():
     """Health check endpoint for automation monitoring"""
