@@ -746,6 +746,17 @@ def signal_terminal():
             mempool['fee_high'] = d.get('fastestFee', 20)
     except:
         pass
+    # Latest block data (TX count + time since)
+    try:
+        r = requests.get('https://mempool.space/api/v1/blocks', timeout=2)
+        if r.ok:
+            blocks = r.json()
+            if blocks and len(blocks) > 0:
+                latest_block = blocks[0]
+                mempool['block_tx_count'] = latest_block.get('tx_count', 0)
+                mempool['block_timestamp'] = latest_block.get('timestamp', 0)
+    except:
+        pass
     # Mempool enrichment moved to sovereign_ctx block below
     try:
         r = _req.get('https://mempool.space/api/v1/mining/hashrate/1m', timeout=1.5)
@@ -837,16 +848,21 @@ def signal_terminal():
         mempool['block_height'] = sovereign_ctx.get('block_height', 0)
         # Enrich lightning
         _sln = sovereign_ctx.get('lightning', {})
+        _ln_cap = _sln.get('capacity_btc', 0) or 0
+        _ln_ch = _sln.get('channels', 0) or 0
         lightning = {
-            'capacity': _sln.get('capacity_btc', 0),
-            'channels': _sln.get('channels', 0),
+            'capacity': _ln_cap,
+            'channels': _ln_ch,
             'nodes': _sln.get('nodes', 0),
+            'avg_capacity': round(_ln_cap / _ln_ch, 4) if _ln_ch > 0 else 0,
         }
         # Enrich onchain
         _snet = sovereign_ctx.get('network', {})
         onchain['block_height'] = sovereign_ctx.get('block_height', 0)
         onchain['next_adj_pct'] = _snet.get('next_adj_pct', 0)
         onchain['next_adj_blocks'] = _snet.get('next_adj_blocks', 0)
+        onchain['next_adjustment'] = str(round(_snet.get('next_adj_pct', 0), 1)) + '%' if _snet.get('next_adj_pct') else None
+        onchain['blocks_to_halving'] = max(0, 1050000 - (sovereign_ctx.get('block_height', 0) or 0))
         # Build macro from sovereign
         _smac = sovereign_ctx.get('macro', {})
         macro = {
@@ -1757,12 +1773,22 @@ def api_orb_public():
         hashrate = float((d.get('network') or {}).get('hashrate_eh', 0))
         hash_score = min(100.0, (hashrate / 1200.0) * 100.0)
         indices = d.get('indices') or {}
+        # MCX — Miner Conviction (0-100)
         mcx = float((indices.get('miner_conviction') or {}).get('score', 50))
-        ep_raw = float((indices.get('exchange_pressure') or {}).get('score', 0))
-        epx = max(0.0, min(100.0, 50.0 + ep_raw * 25.0))
-        sd_raw = float((indices.get('social_divergence') or {}).get('score', 0))
-        ihx = max(0.0, min(100.0, 50.0 + sd_raw * 0.5))
-        composite = round((mcx*0.35) + (epx*0.20) + (ihx*0.10) + (fg_val*0.20) + (hash_score*0.15), 1)
+        # EPX — Exchange Pressure: now real 0-100 from OKX L/S + taker ratio
+        epx = float((indices.get('exchange_pressure') or {}).get('score', 50))
+        # IHX — Insider Heat: now real 0-100 from QuiverQuant congressional trading
+        ihx = float((indices.get('insider_heat') or {}).get('score', 50))
+        # OPX — Options Pressure: put/call ratio from Deribit
+        pcr = float((d.get('options') or {}).get('put_call_ratio') or 0.7)
+        opx = round(max(0.0, min(100.0, (1.5 - pcr) / 1.0 * 100.0)), 1)
+        # FDX — Futures/Derivatives: funding rate
+        fr = float((d.get('futures') or {}).get('funding_rate') or 0)
+        fdx = round(max(0.0, min(100.0, 50.0 + (-fr / 0.0005) * 30.0)), 1)
+        # OCX — On-Chain Activity: accumulation score
+        ocx = float((d.get('on_chain') or {}).get('accumulation_score') or 50)
+        # Composite convergence score — weighted average of all 6
+        composite = round((mcx*0.25) + (epx*0.20) + (ihx*0.10) + (opx*0.15) + (fdx*0.15) + (ocx*0.15), 1)
         patterns = d.get('pattern_matches') or []
         pattern = patterns[0].replace('_',' ') if patterns else ('ACCUMULATION' if composite>70 else ('CONSTRUCTIVE' if composite>55 else ('MONITORING' if composite>40 else 'WATCH')))
         ex = d.get('exchange_flow', 'neutral')
