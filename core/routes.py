@@ -9585,6 +9585,57 @@ def api_media_video_feed():
         return jsonify({'items': [], 'updated_at': None})
 
 
+
+@app.route('/api/media/live-signals')
+def api_media_live_signals():
+    import json as _j, os as _o
+    ctx_path = _o.join(_o.dirname(_o.abspath(__file__)), '..', 'data', 'sovereign_context', 'latest.json')
+    signals = []
+    try:
+        ctx = _j.load(open(ctx_path))
+        ts = ctx.get('timestamp', '')
+        btc = ctx.get('btc', {})
+        price = btc.get('price') or btc.get('usd')
+        change = float(btc.get('change_24h') or btc.get('pct_24h') or 0)
+        if price:
+            d2 = 'bullish' if change > 0 else 'bearish' if change < 0 else 'neutral'
+            signals.append({'source':'BTC/USD','text':f'${float(price):,.0f} ({change:+.2f}% 24h)','direction':d2,'strength':3,'timestamp':ts})
+        fg = ctx.get('fear_greed', {})
+        fgv = fg.get('value') if isinstance(fg, dict) else fg
+        if fgv is not None:
+            fgv = int(fgv)
+            label = 'Extreme Fear' if fgv<25 else 'Fear' if fgv<45 else 'Neutral' if fgv<55 else 'Greed' if fgv<75 else 'Extreme Greed'
+            fd = 'bearish' if fgv<45 else 'neutral' if fgv<55 else 'bullish'
+            signals.append({'source':'FEAR & GREED','text':f'{fgv}/100 - {label}','direction':fd,'strength':4 if fgv<25 or fgv>75 else 2,'timestamp':ts})
+        mem = ctx.get('mempool', {})
+        if isinstance(mem, dict):
+            fee = mem.get('fast_fee') or mem.get('fastest_fee') or mem.get('fee')
+            txs = mem.get('tx_count') or mem.get('unconfirmed')
+            if fee: signals.append({'source':'MEMPOOL','text':f'Fast fee: {fee} sat/vB' + (f' - {int(txs):,} unconf' if txs else ''),'direction':'neutral','strength':2,'timestamp':ts})
+        net = ctx.get('network', {})
+        if isinstance(net, dict):
+            hr = net.get('hashrate_eh') or net.get('hashrate')
+            diff = net.get('difficulty') or net.get('diff_adj_pct')
+            if hr: signals.append({'source':'HASHRATE','text':f'{float(hr):.0f} EH/s' + (f' | adj {float(diff):+.2f}%' if diff else ''),'direction':'bullish','strength':2,'timestamp':ts})
+        ef = ctx.get('exchange_flow','')
+        if ef:
+            ed = 'bullish' if 'outflow' in str(ef).lower() else 'bearish' if 'inflow' in str(ef).lower() else 'neutral'
+            signals.append({'source':'EXCHANGE FLOW','text':str(ef).upper(),'direction':ed,'strength':2,'timestamp':ts})
+        whales = ctx.get('whale_alerts', [])
+        if isinstance(whales, list) and whales: signals.append({'source':'WHALE WATCH','text':f'{len(whales)} large txs detected','direction':'neutral','strength':3,'timestamp':ts})
+        narrative = ctx.get('narrative','')
+        if narrative and len(str(narrative)) > 20: signals.append({'source':'SOVEREIGN AI','text':str(narrative)[:150],'direction':'neutral','strength':2,'timestamp':ts})
+        kols = ctx.get('kol', [])
+        if isinstance(kols, list):
+            for k in kols[:3]:
+                if isinstance(k, dict):
+                    name = k.get('name') or k.get('handle','')
+                    sig2 = k.get('signal') or k.get('observation') or k.get('text','')
+                    if name and sig2: signals.append({'source':name.upper()[:18],'text':str(sig2)[:120],'direction':k.get('direction','neutral'),'strength':2,'timestamp':ts})
+    except Exception as e: logging.warning(f'live-signals err: {e}')
+    if not signals: signals.append({'source':'SYSTEM','text':'Signal engine initializing...','direction':'neutral','strength':1,'timestamp':''})
+    return jsonify({'signals':signals,'count':len(signals),'updated_at':signals[0]['timestamp'] if signals else ''})
+
 @app.route('/api/media/sources')
 def api_media_sources():
     """Get curated sources from supported_sources.json"""

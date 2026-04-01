@@ -530,31 +530,9 @@ def generate_ai_summaries(app=None, batch_size: int = 20):
 # ─── QUERY HELPERS ─────────────────────────────────────────────────────────────
 
 def get_feed_matrix(limit_per_col: int = 20) -> dict:
-    """Get three-column feed data for the Media Hub template.
-
-    Returns podcasts, videos, and kol (sovereign intel signals / articles).
-    """
+    # Caps per source + interleaves for variety
     import models
-
-    # Podcasts — RSS episodes with audio
-    podcasts = (
-        models.MediaEpisode.query
-        .join(models.MediaFeed)
-        .filter(models.MediaFeed.feed_type == 'rss')
-        .order_by(models.MediaEpisode.published_at.desc())
-        .limit(limit_per_col)
-        .all()
-    )
-
-    # Videos — YouTube episodes
-    videos = (
-        models.MediaEpisode.query
-        .join(models.MediaFeed)
-        .filter(models.MediaFeed.feed_type == 'youtube')
-        .order_by(models.MediaEpisode.published_at.desc())
-        .limit(limit_per_col)
-        .all()
-    )
+    MAX_PER_SOURCE = 3
 
     def ep_to_dict(ep):
         feed = ep.feed
@@ -578,162 +556,97 @@ def get_feed_matrix(limit_per_col: int = 20) -> dict:
             'feed_tier': feed.tier if feed else 2,
         }
 
-    # Deduplicate podcasts by title similarity (first 50 chars)
-    pod_dicts = [ep_to_dict(ep) for ep in podcasts]
-    seen_titles = set()
-    unique_podcasts = []
-    for ep in pod_dicts:
-        title_key = ep.get('title', '').lower().strip()[:50]
-        if title_key not in seen_titles:
-            seen_titles.add(title_key)
-            unique_podcasts.append(ep)
-
-    # Deduplicate videos by title similarity (first 50 chars)
-    vid_dicts = [ep_to_dict(ep) for ep in videos]
-    seen_vid_titles = set()
-    unique_videos = []
-    for vid in vid_dicts:
-        title_key = vid.get('title', '').lower().strip()[:50]
-        if title_key not in seen_vid_titles:
-            seen_vid_titles.add(title_key)
-            unique_videos.append(vid)
-
-    # KOL column — sovereign intel signals, falling back to published articles
-    kol_items = _get_kol_items(limit_per_col)
+    def build_varied_list(feed_type, limit):
+        feeds = (models.MediaFeed.query
+                 .filter_by(feed_type=feed_type, active=True)
+                 .filter(models.MediaFeed.episode_count > 0)
+                 .order_by(models.MediaFeed.tier.asc(), models.MediaFeed.last_synced.desc())
+                 .all())
+        buckets = []
+        seen_titles = set()
+        seen_sources = {}  # name -> count, cap per source NAME not feed_id
+        for feed in feeds:
+            src_name = feed.name or 'unknown'
+            if seen_sources.get(src_name, 0) >= MAX_PER_SOURCE:
+                continue  # already have enough from this source name
+            eps = (models.MediaEpisode.query
+                   .filter_by(feed_id=feed.id)
+                   .order_by(models.MediaEpisode.published_at.desc())
+                   .limit(MAX_PER_SOURCE).all())
+            bucket = []
+            for ep in eps:
+                key = (ep.title or '').lower().strip()[:50]
+                if key not in seen_titles and ep.title and seen_sources.get(src_name, 0) < MAX_PER_SOURCE:
+                    seen_titles.add(key)
+                    seen_sources[src_name] = seen_sources.get(src_name, 0) + 1
+                    bucket.append(ep_to_dict(ep))
+            if bucket:
+                buckets.append(bucket)
+        result = []
+        for i in range(MAX_PER_SOURCE):
+            for bucket in buckets:
+                if i < len(bucket) and len(result) < limit:
+                    result.append(bucket[i])
+        return result
 
     return {
-        'podcasts': unique_podcasts[:limit_per_col],
-        'videos': unique_videos[:limit_per_col],
-        'kol': kol_items[:limit_per_col],
+        'podcasts': build_varied_list('rss', limit_per_col),
+        'videos': build_varied_list('youtube', limit_per_col),
+        'kol': _get_kol_items(limit_per_col),
     }
+
+
 
 
 def _get_kol_items(limit: int = 20) -> List[dict]:
-    """Build KOL column from sovereign_intel.db signals, falling back to articles."""
-    import sqlite3
-    import os
-    import models
-
+    import json as _json, os as _os, models
     items: List[dict] = []
-
-    # Primary: sovereign intel signals
-    si_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           'data', 'sovereign_intel.db')
-    if os.path.exists(si_path):
-        try:
-            conn = sqlite3.connect(si_path)
-            conn.row_factory = sqlite3.Row
-            rows = conn.execute(
-                'SELECT name, category, observation, implication, direction, ts_utc '
-                'FROM signals ORDER BY ts_utc DESC LIMIT ?', (limit,)
-            ).fetchall()
-            conn.close()
-            for r in rows:
-                obs = r['observation'] or ''
-                impl = r['implication'] or ''
-                excerpt = (obs + ' ' + impl).strip()[:250]
-                if not excerpt:
-                    continue
-                direction = (r['direction'] or 'neutral').lower()
-                items.append({
-                    'title': r['name'] or 'Signal',
-                    'excerpt': excerpt,
-                    'source': (r['category'] or 'INTEL').upper(),
-                    'direction': direction,
-                    'timestamp': r['ts_utc'] or '',
-                    'type': 'signal',
-                })
-        except Exception as e:
-            logger.warning(f"[KOL] sovereign_intel read error: {e}")
-
-    # Fallback: published articles
+    ctx_path = _os.join(_os.dirname(_os.dirname(_os.abspath(__file__))), "data", "sovereign_context", "latest.json")
+    try:
+        ctx = _json.load(open(ctx_path))
+        ts = ctx.get("timestamp", "")[:10]
+        btc = ctx.get("btc", {})
+        price = btc.get("price") or btc.get("usd")
+        change = float(btc.get("change_24h") or btc.get("pct_24h") or 0)
+        if price:
+            d2 = "bullish" if change > 0 else "bearish" if change < 0 else "neutral"
+            items.append({"title": f"BTC ${float(price):,.0f} ({change:+.2f}%)", "excerpt": f"Bitcoin trading at ${float(price):,.0f}, {change:+.2f}% in 24 hours.", "source": "MARKET", "direction": d2, "timestamp": ts, "type": "signal"})
+        fg = ctx.get("fear_greed", {})
+        fgv = fg.get("value") if isinstance(fg, dict) else fg
+        if fgv is not None:
+            fgv = int(fgv)
+            label = "Extreme Fear" if fgv<25 else "Fear" if fgv<45 else "Neutral" if fgv<55 else "Greed" if fgv<75 else "Extreme Greed"
+            fd = "bearish" if fgv<45 else "neutral" if fgv<55 else "bullish"
+            items.append({"title": f"Fear & Greed: {fgv}/100", "excerpt": f"Market sentiment at {fgv}/100 - {label}. Extreme fear historically signals accumulation opportunity.", "source": "SENTIMENT", "direction": fd, "timestamp": ts, "type": "signal"})
+        net = ctx.get("network", {})
+        if isinstance(net, dict):
+            hr = net.get("hashrate_eh") or net.get("hashrate")
+            diff = net.get("difficulty") or net.get("diff_adj_pct")
+            if hr: items.append({"title": f"Hashrate: {float(hr):.0f} EH/s", "excerpt": f"Bitcoin network hashrate at {float(hr):.0f} EH/s" + (f". Next difficulty adj: {float(diff):+.2f}%." if diff else "."), "source": "NETWORK", "direction": "bullish", "timestamp": ts, "type": "signal"})
+        ef = ctx.get("exchange_flow", "")
+        if ef:
+            ed = "bullish" if "outflow" in str(ef).lower() else "bearish" if "inflow" in str(ef).lower() else "neutral"
+            items.append({"title": f"Exchange Flow: {str(ef).title()}", "excerpt": f"Net exchange flow: {ef}. Outflows = self-custody accumulation.", "source": "ON-CHAIN", "direction": ed, "timestamp": ts, "type": "signal"})
+        whales = ctx.get("whale_alerts", [])
+        if isinstance(whales, list) and whales: items.append({"title": f"{len(whales)} Whale Transactions", "excerpt": f"{len(whales)} large Bitcoin transactions detected. Whale movements often precede significant price action.", "source": "WHALE WATCH", "direction": "neutral", "timestamp": ts, "type": "signal"})
+        narrative = ctx.get("narrative", "")
+        if narrative and len(str(narrative)) > 20: items.append({"title": "Sovereign AI Narrative", "excerpt": str(narrative)[:250], "source": "SOVEREIGN AI", "direction": "neutral", "timestamp": ts, "type": "signal"})
+        kols = ctx.get("kol", [])
+        if isinstance(kols, list):
+            for k in kols[:4]:
+                if isinstance(k, dict):
+                    kname = k.get("name") or k.get("handle", "")
+                    ksig = k.get("signal") or k.get("observation") or k.get("text", "")
+                    if kname and ksig: items.append({"title": kname, "excerpt": str(ksig)[:200], "source": "KOL SIGNAL", "direction": k.get("direction", "neutral"), "timestamp": ts, "type": "signal"})
+    except Exception as e: logger.warning(f"[KOL] latest.json error: {e}")
     if len(items) < limit:
-        remaining = limit - len(items)
         try:
-            arts = models.Article.query.filter_by(published=True).order_by(
-                models.Article.created_at.desc()
-            ).limit(remaining).all()
+            arts = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(limit - len(items)).all()
             for a in arts:
-                excerpt = (a.summary or a.content or '')[:200].strip()
-                if not excerpt:
-                    continue
-                items.append({
-                    'title': a.title,
-                    'excerpt': excerpt,
-                    'source': 'PROTOCOL PULSE',
-                    'direction': 'neutral',
-                    'timestamp': a.created_at.isoformat() if a.created_at else '',
-                    'type': 'article',
-                    'slug': a.slug or f'article-{a.id}',
-                })
-        except Exception as e:
-            logger.warning(f"[KOL] article fallback error: {e}")
-
-    return items
-
-
-def get_ticker_items(limit: int = 30) -> List[dict]:
-    """Get latest items across all feeds for the scrolling ticker."""
-    import models
-
-    items = (
-        models.MediaEpisode.query
-        .join(models.MediaFeed)
-        .order_by(models.MediaEpisode.published_at.desc())
-        .limit(limit)
-        .all()
-    )
-
-    result = []
-    for ep in items:
-        feed = ep.feed
-        icon = '🎙' if feed and feed.feed_type == 'rss' else '🎬'
-        link = ep.source_url or ep.video_url or ep.audio_url or '#'
-        result.append({
-            'icon': icon,
-            'title': ep.title,
-            'source': feed.name if feed else '',
-            'url': link,
-            'score': ep.signal_score or 0,
-            'time': _time_ago(ep.published_at) if ep.published_at else '',
-        })
-
-    return result
-
-
-def get_feed_stats() -> dict:
-    """Get aggregate stats for the hero section."""
-    import models
-
-    feed_count = models.MediaFeed.query.filter_by(active=True).count()
-    episode_count = models.MediaEpisode.query.count()
-    podcast_count = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type == 'rss').count()
-    video_count = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type == 'youtube').count()
-
-    return {
-        'feed_count': feed_count,
-        'episode_count': episode_count,
-        'podcast_count': podcast_count,
-        'video_count': video_count,
-    }
-
-
-def _time_ago(dt: datetime) -> str:
-    """Human-readable time ago string."""
-    if not dt:
-        return ''
-    diff = datetime.utcnow() - dt
-    secs = int(diff.total_seconds())
-    if secs < 60:
-        return 'now'
-    if secs < 3600:
-        return f"{secs // 60}m"
-    if secs < 86400:
-        return f"{secs // 3600}h"
-    return f"{secs // 86400}d"
-
-
-# ─── CLASS WRAPPER ─────────────────────────────────────────────────────────────
+                excerpt = (a.summary or a.content or "")[:180].strip()
+                if excerpt: items.append({"title": a.title, "excerpt": excerpt, "source": "PROTOCOL PULSE", "direction": "neutral", "timestamp": (a.created_at.isoformat() if a.created_at else "")[:10], "type": "article", "slug": a.slug or f"article-{a.id}"})
+        except Exception as e: logger.warning(f"[KOL] article fallback: {e}")
+    return items[:limit]
 
 class MediaFeedService:
     """Class wrapper around module-level functions for routes.py compatibility."""
