@@ -601,43 +601,60 @@ def get_feed_matrix(limit_per_col: int = 20) -> dict:
 def _get_kol_items(limit: int = 20) -> List[dict]:
     import json as _json, os as _os, models
     items: List[dict] = []
-    ctx_path = _os.join(_os.dirname(_os.dirname(_os.abspath(__file__))), "data", "sovereign_context", "latest.json")
+    # Find project root by looking for data/ directory
+    here = _os.path.abspath(_os.path.dirname(__file__))
+    root = here
+    for _ in range(4):
+        candidate = _os.path.join(root, "data", "sovereign_context", "latest.json")
+        if _os.path.exists(candidate):
+            break
+        root = _os.path.dirname(root)
+    else:
+        candidate = ""
     try:
-        ctx = _json.load(open(ctx_path))
+        if not candidate or not _os.path.exists(candidate): raise FileNotFoundError(candidate)
+        ctx = _json.load(open(candidate))
         ts = ctx.get("timestamp", "")[:10]
-        btc = ctx.get("btc", {})
-        price = btc.get("price") or btc.get("usd")
-        change = float(btc.get("change_24h") or btc.get("pct_24h") or 0)
+        btc = ctx.get("btc", {}) if isinstance(ctx.get("btc"), dict) else {}
+        price = btc.get("price")
+        change = float(btc.get("change_24h") or 0)
         if price:
             d2 = "bullish" if change > 0 else "bearish" if change < 0 else "neutral"
             items.append({"title": f"BTC ${float(price):,.0f} ({change:+.2f}%)", "excerpt": f"Bitcoin trading at ${float(price):,.0f}, {change:+.2f}% in 24 hours.", "source": "MARKET", "direction": d2, "timestamp": ts, "type": "signal"})
-        fg = ctx.get("fear_greed", {})
-        fgv = fg.get("value") if isinstance(fg, dict) else fg
+        fg = ctx.get("fear_greed", {}) if isinstance(ctx.get("fear_greed"), dict) else {}
+        fgv = fg.get("value")
+        fglabel = fg.get("label", "")
         if fgv is not None:
             fgv = int(fgv)
-            label = "Extreme Fear" if fgv<25 else "Fear" if fgv<45 else "Neutral" if fgv<55 else "Greed" if fgv<75 else "Extreme Greed"
             fd = "bearish" if fgv<45 else "neutral" if fgv<55 else "bullish"
-            items.append({"title": f"Fear & Greed: {fgv}/100", "excerpt": f"Market sentiment at {fgv}/100 - {label}. Extreme fear historically signals accumulation opportunity.", "source": "SENTIMENT", "direction": fd, "timestamp": ts, "type": "signal"})
-        net = ctx.get("network", {})
-        if isinstance(net, dict):
-            hr = net.get("hashrate_eh") or net.get("hashrate")
-            diff = net.get("difficulty") or net.get("diff_adj_pct")
-            if hr: items.append({"title": f"Hashrate: {float(hr):.0f} EH/s", "excerpt": f"Bitcoin network hashrate at {float(hr):.0f} EH/s" + (f". Next difficulty adj: {float(diff):+.2f}%." if diff else "."), "source": "NETWORK", "direction": "bullish", "timestamp": ts, "type": "signal"})
+            items.append({"title": f"Fear & Greed: {fgv}/100", "excerpt": f"Market sentiment at {fgv}/100 - {fglabel}. Extreme fear historically signals accumulation opportunity.", "source": "SENTIMENT", "direction": fd, "timestamp": ts, "type": "signal"})
+        net = ctx.get("network", {}) if isinstance(ctx.get("network"), dict) else {}
+        hr = net.get("hashrate_eh")
+        adj = net.get("next_adj_pct")
+        if hr: items.append({"title": f"Hashrate: {float(hr):.0f} EH/s", "excerpt": f"Bitcoin network hashrate at {float(hr):.0f} EH/s" + (f". Next difficulty adj: {float(adj):+.2f}%." if adj else "."), "source": "NETWORK", "direction": "bullish", "timestamp": ts, "type": "signal"})
         ef = ctx.get("exchange_flow", "")
-        if ef:
-            ed = "bullish" if "outflow" in str(ef).lower() else "bearish" if "inflow" in str(ef).lower() else "neutral"
-            items.append({"title": f"Exchange Flow: {str(ef).title()}", "excerpt": f"Net exchange flow: {ef}. Outflows = self-custody accumulation.", "source": "ON-CHAIN", "direction": ed, "timestamp": ts, "type": "signal"})
+        if ef: items.append({"title": f"Exchange Flow: {str(ef).title()}", "excerpt": f"Net exchange flow: {ef}.", "source": "ON-CHAIN", "direction": "bullish" if "out" in str(ef).lower() else "bearish" if "in" in str(ef).lower() else "neutral", "timestamp": ts, "type": "signal"})
         whales = ctx.get("whale_alerts", [])
-        if isinstance(whales, list) and whales: items.append({"title": f"{len(whales)} Whale Transactions", "excerpt": f"{len(whales)} large Bitcoin transactions detected. Whale movements often precede significant price action.", "source": "WHALE WATCH", "direction": "neutral", "timestamp": ts, "type": "signal"})
-        narrative = ctx.get("narrative", "")
-        if narrative and len(str(narrative)) > 20: items.append({"title": "Sovereign AI Narrative", "excerpt": str(narrative)[:250], "source": "SOVEREIGN AI", "direction": "neutral", "timestamp": ts, "type": "signal"})
-        kols = ctx.get("kol", [])
-        if isinstance(kols, list):
-            for k in kols[:4]:
-                if isinstance(k, dict):
-                    kname = k.get("name") or k.get("handle", "")
-                    ksig = k.get("signal") or k.get("observation") or k.get("text", "")
-                    if kname and ksig: items.append({"title": kname, "excerpt": str(ksig)[:200], "source": "KOL SIGNAL", "direction": k.get("direction", "neutral"), "timestamp": ts, "type": "signal"})
+        if isinstance(whales, list) and whales: items.append({"title": f"{len(whales)} Whale Transactions", "excerpt": f"{len(whales)} large Bitcoin transactions detected.", "source": "WHALE WATCH", "direction": "neutral", "timestamp": ts, "type": "signal"})
+        poly = ctx.get("polymarket", {}) if isinstance(ctx.get("polymarket"), dict) else {}
+        prob = poly.get("top_probability")
+        mkt = poly.get("top_market", "")
+        if prob and mkt: items.append({"title": f"Polymarket: {float(prob):.1f}%", "excerpt": f"{mkt}: {float(prob):.1f}% probability.", "source": "POLYMARKET", "direction": "neutral", "timestamp": ts, "type": "signal"})
+        macro = ctx.get("macro", {}) if isinstance(ctx.get("macro"), dict) else {}
+        gold = macro.get("gold_price"); sp = macro.get("sp500")
+        if gold or sp: items.append({"title": "Macro Snapshot", "excerpt": (f"Gold: ${float(gold):,.0f}. " if gold else "") + (f"S&P 500: {float(sp):,.0f}." if sp else ""), "source": "MACRO", "direction": "neutral", "timestamp": ts, "type": "signal"})
+        options = ctx.get("options", {}) if isinstance(ctx.get("options"), dict) else {}
+        pcr = options.get("put_call_ratio"); dvol = options.get("dvol"); mp = options.get("max_pain")
+        if pcr: items.append({"title": f"Options: P/C {float(pcr):.3f}", "excerpt": f"Put/call ratio {float(pcr):.3f}" + (f", DVOL {float(dvol):.1f}%" if dvol else "") + (f", max pain ${float(mp):,.0f}" if mp else "") + ".", "source": "OPTIONS", "direction": "bearish" if pcr>0.9 else "neutral", "timestamp": ts, "type": "signal"})
+        futures = ctx.get("futures", {}) if isinstance(ctx.get("futures"), dict) else {}
+        fr = futures.get("funding_rate"); basis = futures.get("annualized_basis")
+        if fr is not None: items.append({"title": f"Funding Rate: {float(fr)*100:.5f}%", "excerpt": f"Perpetual funding rate {float(fr)*100:.5f}%" + (f", annualized basis {float(basis):.2f}%" if basis else "") + ".", "source": "FUTURES", "direction": "bullish" if float(fr)<0 else "neutral" if abs(float(fr))<0.0001 else "bearish", "timestamp": ts, "type": "signal"})
+        narrative = ctx.get("narrative", {}) if isinstance(ctx.get("narrative"), dict) else {}
+        theme = narrative.get("dominant_theme", ""); sent = narrative.get("sentiment", "")
+        if theme: items.append({"title": f"Narrative: {theme}", "excerpt": f"Dominant market narrative: {theme}. Overall sentiment: {sent}.", "source": "SOVEREIGN AI", "direction": sent if sent in ["bullish","bearish"] else "neutral", "timestamp": ts, "type": "signal"})
+        stage = ctx.get("stage_brief", {}) if isinstance(ctx.get("stage_brief"), dict) else {}
+        brief_text = stage.get("narrative", "")
+        if brief_text and len(brief_text) > 30: items.append({"title": "Stage Brief", "excerpt": str(brief_text)[:250], "source": "STAGE", "direction": "neutral", "timestamp": ts, "type": "signal"})
     except Exception as e: logger.warning(f"[KOL] latest.json error: {e}")
     if len(items) < limit:
         try:
@@ -647,6 +664,22 @@ def _get_kol_items(limit: int = 20) -> List[dict]:
                 if excerpt: items.append({"title": a.title, "excerpt": excerpt, "source": "PROTOCOL PULSE", "direction": "neutral", "timestamp": (a.created_at.isoformat() if a.created_at else "")[:10], "type": "article", "slug": a.slug or f"article-{a.id}"})
         except Exception as e: logger.warning(f"[KOL] article fallback: {e}")
     return items[:limit]
+
+
+
+
+def get_feed_stats() -> dict:
+    import models
+    try:
+        total_feeds = models.MediaFeed.query.filter_by(active=True).count()
+        total_eps = models.MediaEpisode.query.count()
+        pod_eps = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type=="rss").count()
+        vid_eps = models.MediaEpisode.query.join(models.MediaFeed).filter(models.MediaFeed.feed_type=="youtube").count()
+        return {"feed_count": total_feeds, "episode_count": total_eps, "podcast_count": pod_eps, "video_count": vid_eps}
+    except Exception as e:
+        logger.warning(f"get_feed_stats error: {e}")
+        return {"feed_count": 0, "episode_count": 0, "podcast_count": 0, "video_count": 0}
+
 
 class MediaFeedService:
     """Class wrapper around module-level functions for routes.py compatibility."""

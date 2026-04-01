@@ -2476,7 +2476,10 @@ def media_hub():
             threading.Thread(target=_bg_sync, daemon=True).start()
             feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
             ticker_items = media_feed_service.get_ticker_items(limit=30)
-            feed_stats = media_feed_service.get_feed_stats()
+            try:
+                feed_stats = media_feed_service.get_feed_stats()
+            except Exception:
+                feed_stats = {"feed_count": len(set(ep.get("feed_name","") for ep in feed_matrix.get("podcasts",[]) + feed_matrix.get("videos",[]))), "episode_count": len(feed_matrix.get("podcasts",[]))+len(feed_matrix.get("videos",[])), "podcast_count": len(feed_matrix.get("podcasts",[])), "video_count": len(feed_matrix.get("videos",[]))}
         except Exception as e:
             logging.warning(f"media_feed_service error: {e}")
 
