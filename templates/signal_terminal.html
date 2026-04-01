@@ -2303,6 +2303,53 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
       requestAnimationFrame(drawRadar);
     }
+
+    // ── DRAG TO STRETCH (snaps back to real values) ──
+    var isDragging = false, dragAxis = -1;
+    canvas.addEventListener('mousedown', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      var sx = W / rect.width, sy = H / rect.height;
+      var mx = (e.clientX - rect.left) * sx, my = (e.clientY - rect.top) * sy;
+      // Find nearest data point
+      var best = -1, bestD = 9999;
+      for (var i = 0; i < n; i++) {
+        var r = maxR * animVals[i] / 100;
+        var p = axisXY(i, r);
+        var dx = mx - p[0], dy = my - p[1];
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bestD) { bestD = dist; best = i; }
+      }
+      if (bestD < 25 && best >= 0) {
+        isDragging = true;
+        dragAxis = best;
+        canvas.style.cursor = 'grabbing';
+        e.preventDefault();
+      }
+    });
+    canvas.addEventListener('mousemove', function(e) {
+      if (!isDragging || dragAxis < 0) return;
+      var rect = canvas.getBoundingClientRect();
+      var sx = W / rect.width, sy = H / rect.height;
+      var mx = (e.clientX - rect.left) * sx, my = (e.clientY - rect.top) * sy;
+      // Calculate distance from center along this axis
+      var dx = mx - cx, dy = my - cy;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var newVal = Math.max(5, Math.min(100, (dist / maxR) * 100));
+      targetVals[dragAxis] = newVal;
+    });
+    function endDrag() {
+      if (isDragging && dragAxis >= 0) {
+        // Snap back to real values
+        targetVals[dragAxis] = baseVals[dragAxis];
+        flashAlpha[dragAxis] = 0.6;
+        isDragging = false;
+        dragAxis = -1;
+        canvas.style.cursor = 'crosshair';
+      }
+    }
+    canvas.addEventListener('mouseup', endDrag);
+    canvas.addEventListener('mouseleave', endDrag);
+
     requestAnimationFrame(drawRadar);
 
     // Live refresh from convergence engine every 30s (OUTSIDE drawRadar)
@@ -2351,7 +2398,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         var signal = s>65?'BULLISH':s<35?'BEARISH':'NEUTRAL';
         var sigCol = s>65?'#22c55e':s<35?'#ef4444':'#f8c15c';
         
-        html += '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+        html += '<div data-axis="'+order.indexOf(k)+'" style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
         html += '<span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;color:'+col+';font-weight:700;">'+names[k]+'</span>';
         html += '<span style="display:flex;align-items:center;gap:6px;">';
@@ -2378,6 +2425,21 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   
   renderIndices();
   setInterval(renderIndices, 30000);
+})();
+
+
+/* ═══ INDICES → RADAR CROSS-LINK ═══ */
+(function(){
+  // When hovering an index bar, highlight the corresponding radar axis
+  // Uses window._ssmHoveredAxis which the radar reads
+  window._ssmHoveredAxis = -1;
+  var el = document.getElementById('ssm-indices');
+  if (!el) return;
+  el.addEventListener('mouseover', function(e) {
+    var row = e.target.closest('[data-axis]');
+    if (row) { window._ssmHoveredAxis = parseInt(row.getAttribute('data-axis')); }
+  });
+  el.addEventListener('mouseout', function() { window._ssmHoveredAxis = -1; });
 })();
 
 /* ═══ CONVERGENCE FEED ═══ */
@@ -2457,11 +2519,32 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     var raw=d.raw||{};var whales=raw.whale_alerts_list||[];
     if(!whales.length){el.innerHTML='<div style="color:rgba(255,255,255,0.2);font-size:9px;">No whale activity detected</div>';return;}
     var html='';
-    whales.slice(0,5).forEach(function(w){
-      var tierCol=w.tier==='CRITICAL'?'#ef4444':w.tier==='WARNING'?'#f97316':'#555';
-      html+='<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:9px;">'
-        +'<span style="color:'+tierCol+';font-weight:700;font-size:7px;letter-spacing:0.1em;">'+w.tier+'</span> '
-        +'<span style="color:rgba(255,255,255,0.6);">'+w.message+'</span></div>';
+    whales.slice(0,5).forEach(function(w,idx){
+      var tierCol=w.tier==='CRITICAL'?'#ef4444':w.tier==='WARNING'?'#f97316':'#f97316';
+      var tierBg=w.tier==='CRITICAL'?'rgba(239,68,68,0.06)':'rgba(249,115,22,0.04)';
+      var msg=w.message||'';
+      var btcMatch=msg.match(/([\d.]+)\s*BTC/);
+      var btcAmt=btcMatch?btcMatch[1]:'?';
+      var hashMatch=msg.match(/([a-f0-9]{8})/);
+      var txHash=hashMatch?hashMatch[1]+'...':'';
+      var isNew=idx===0;
+      html+='<div class="whale-card'+(isNew?' whale-new':'')+'" style="'
+        +'background:'+tierBg+';'
+        +'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);'
+        +'border:1px solid rgba(249,115,22,'+(isNew?'0.25':'0.08')+');'
+        +'border-radius:6px;padding:8px 10px;margin-bottom:4px;'
+        +'transition:border-color 0.3s,box-shadow 0.3s;'
+        +(isNew?'animation:whaleGlow 2s ease-out;':'')
+        +'">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+        +'<span style="font-size:14px;">🐋</span>'
+        +'<span style="font-family:monospace;font-size:12px;font-weight:800;color:#f97316;">'+btcAmt+' BTC</span>'
+        +'</div>'
+        +'<span style="font-family:monospace;font-size:7px;font-weight:700;letter-spacing:0.1em;color:'+tierCol+';padding:2px 6px;border:1px solid '+tierCol+';border-radius:3px;">'+w.tier+'</span>'
+        +'</div>'
+        +'<div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">TX '+txHash+' \u2022 unconfirmed</div>'
+        +'</div>';
     });
     el.innerHTML=html;
   }).catch(function(){});
