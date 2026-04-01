@@ -1886,6 +1886,25 @@ body.panopticon-body .pp-footer { display: none !important; }
                     <div>
                         <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-red);" id="donPulseScore">--</div>
                         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">PULSE SCORE</div>
+
+            <!-- Congressional Trading — STOCK Act -->
+            <div class="pn-section-label">CONGRESSIONAL STOCK TRADES</div>
+            <div id="pnCongress" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading STOCK Act filings...</div>
+            </div>
+
+            <!-- Party Breakdown -->
+            <div class="pn-section-label">PARTY TRADING BREAKDOWN</div>
+            <div id="pnPartyBreakdown" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Analyzing party patterns...</div>
+            </div>
+
+            <!-- IHX Score -->
+            <div class="pn-section-label">INSIDER HEAT INDEX (IHX)</div>
+            <div id="pnIHX" style="padding:12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Computing insider heat...</div>
+            </div>
+
                     </div>
                     <div>
                         <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-white);" id="donCommittees">--</div>
@@ -2302,5 +2321,67 @@ if(scr)scr.addEventListener('scroll',tlClose);
     setInterval(refreshData, 300000);
     {% endif %}
 })();
+
+
+/* ═══ CONGRESSIONAL TRADING ═══ */
+(function(){
+  // Recent trades
+  fetch('/api/congress/trades').then(function(r){return r.json()}).then(function(d){
+    var el = document.getElementById('pnCongress');
+    if (!el) return;
+    var trades = d.trades || [];
+    if (!trades.length) { el.innerHTML = '<div style="color:#555;font-size:10px;">No trades available</div>'; return; }
+    var html = '';
+    trades.slice(0, 8).forEach(function(t) {
+      var isBuy = (t.transaction || '').toLowerCase().indexOf('purchase') >= 0;
+      var partyCol = t.party === 'D' ? '#3b82f6' : t.party === 'R' ? '#ef4444' : '#888';
+      html += '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:\'JetBrains Mono\',monospace;font-size:9px;">';
+      html += '<span style="color:' + partyCol + ';font-weight:700;min-width:14px;">' + (t.party || '?') + '</span>';
+      html += '<span style="color:rgba(255,255,255,0.6);min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (t.member || 'Unknown') + '</span>';
+      html += '<span style="color:' + (isBuy ? '#22c55e' : '#ef4444') + ';font-weight:600;min-width:45px;">' + (isBuy ? 'BUY' : 'SELL') + '</span>';
+      html += '<span style="color:#f8c15c;font-weight:700;min-width:40px;">' + (t.ticker || '???') + '</span>';
+      html += '<span style="color:rgba(255,255,255,0.3);margin-left:auto;">' + (t.amount || '') + '</span>';
+      html += '</div>';
+    });
+    if (d.trades && d.trades[0] && d.trades[0].source === 'fallback') {
+      html += '<div style="font-size:7px;color:rgba(255,255,255,0.2);margin-top:8px;">Source: Public STOCK Act filings (add QUIVER_API_KEY for live data)</div>';
+    }
+    el.innerHTML = html;
+  }).catch(function(e){ console.warn('Congress trades:', e); });
+
+  // Party breakdown
+  fetch('/api/congress/trades').then(function(r){return r.json()}).then(function(d){
+    var el = document.getElementById('pnPartyBreakdown');
+    if (!el) return;
+    var pb = d.party_breakdown || {};
+    var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
+    [{k:'D',label:'DEMOCRAT',col:'#3b82f6'},{k:'R',label:'REPUBLICAN',col:'#ef4444'},{k:'I',label:'INDEPENDENT',col:'#888'}].forEach(function(p){
+      var data = pb[p.k] || {buys:0,sells:0,total:0};
+      html += '<div style="text-align:center;padding:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:4px;">';
+      html += '<div style="font-size:7px;font-weight:700;letter-spacing:0.12em;color:' + p.col + ';">' + p.label + '</div>';
+      html += '<div style="font-size:18px;font-weight:900;color:#fff;margin-top:4px;">' + data.total + '</div>';
+      html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:2px;">' + data.buys + ' BUY / ' + data.sells + ' SELL</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }).catch(function(){});
+
+  // IHX Score
+  fetch('/api/congress/ihx').then(function(r){return r.json()}).then(function(d){
+    var el = document.getElementById('pnIHX');
+    if (!el) return;
+    var s = d.score || 50;
+    var col = s > 65 ? '#22c55e' : s < 35 ? '#ef4444' : '#f8c15c';
+    var signal = (d.signal || 'neutral').toUpperCase();
+    el.innerHTML = '<div style="display:flex;align-items:center;gap:12px;">'
+      + '<div style="font-size:28px;font-weight:900;color:' + col + ';">' + s + '</div>'
+      + '<div><div style="font-size:10px;font-weight:700;color:' + col + ';">' + signal + '</div>'
+      + '<div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:2px;">' + (d.interpretation || '') + '</div></div></div>'
+      + '<div style="height:3px;background:rgba(255,255,255,0.04);border-radius:2px;margin-top:8px;"><div style="height:100%;width:' + s + '%;background:' + col + ';border-radius:2px;"></div></div>'
+      + '<div style="font-size:7px;color:rgba(255,255,255,0.2);margin-top:6px;">' + (d.trade_count || 0) + ' trades analyzed • ' + (d.crypto_trades || 0) + ' crypto-adjacent</div>';
+  }).catch(function(){});
+})();
+
 </script>
 {% endblock %}

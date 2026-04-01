@@ -6376,6 +6376,35 @@ def api_donations_by_state():
         return jsonify({"results": [], "error": str(e)})
 
 
+
+@app.route('/api/congress/trades')
+def api_congress_trades():
+    try:
+        from services.congress_trading_service import CongressTradingService
+        svc = CongressTradingService()
+        return jsonify({"trades": svc.get_recent_trades(20), "party_breakdown": svc.get_party_breakdown()})
+    except Exception as e:
+        return jsonify({"trades": [], "error": str(e)})
+
+@app.route('/api/congress/ihx')
+def api_congress_ihx():
+    try:
+        from services.congress_trading_service import CongressTradingService
+        svc = CongressTradingService()
+        return jsonify(svc.get_insider_heat_score())
+    except Exception as e:
+        return jsonify({"score": 50, "signal": "neutral", "error": str(e)})
+
+@app.route('/api/congress/top-traders')
+def api_congress_top_traders():
+    try:
+        from services.congress_trading_service import CongressTradingService
+        svc = CongressTradingService()
+        return jsonify({"traders": svc.get_top_traders(10)})
+    except Exception as e:
+        return jsonify({"traders": [], "error": str(e)})
+
+
 @app.route('/health/automation')
 def automation_health():
     """Health check endpoint for automation monitoring"""
