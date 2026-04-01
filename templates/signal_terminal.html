@@ -995,7 +995,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
                 </div>
             </div>
         </div>
-        <div id="ssm-detail" style="display:none;margin:4px 8px;padding:8px 10px;background:rgba(255,59,95,0.04);border:1px solid rgba(255,59,95,0.10);border-radius:4px;"></div>
+        <div id="ssm-detail" style="display:none;margin:4px 8px;padding:12px 14px;background:rgba(10,10,10,0.95);border:1px solid rgba(220,38,38,0.25);border-radius:6px;position:relative;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
     </div>
 </div>
 
@@ -2460,6 +2460,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     };
 
     function showDetailCard() {
+      console.log('HOVER: axis='+hoveredAxis+' sel='+selectedAxis);
       var card = document.getElementById('ssm-detail');
       if (!card) return;
       if (selectedAxis < 0 && hoveredAxis < 0) { card.style.display = 'none'; return; }
