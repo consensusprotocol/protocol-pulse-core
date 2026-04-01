@@ -1911,14 +1911,8 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     var _orbCache = null;
     function computeMatrix() {
       if (_orbCache) return _orbCache;
-      // Fallback from CTX until /api/orb loads
-      var idx = (CTX.indices || {});
-      var mc = (idx.miner_conviction || {}).score || 50;
-      var ep = (idx.exchange_pressure || {}).score || 50;
-      var sd = (idx.social_divergence || {}).score || 50;
-      var vals = [mc, ep, sd, 50, 50, 50];
-      var comp = Math.round(vals.reduce(function(a,b){return a+b;},0) / vals.length);
-      return { values: vals, composite: comp, bias: comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : 'NEUTRAL' };
+      // Return defaults until /api/orb loads (no CTX dependency)
+      return { values: [50, 50, 50, 50, 50, 50], composite: 50, bias: 'LOADING' };
     }
     // Async load from convergence engine
     fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
