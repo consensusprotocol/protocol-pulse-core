@@ -3151,6 +3151,22 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   /* Boot sequence */
   setTimeout(function(){
     addIntelEvent('NET','#dc2626','SYS','Intel Stream v2.0 \u2014 online');
+
+    // Update block time from server-rendered timestamp
+    (function updateBlockTime(){
+      var el = document.getElementById('block-time');
+      if (!el) return;
+      var ts = parseInt(el.getAttribute('data-ts') || '0');
+      if (!ts) return;
+      function update() {
+        var ago = Math.floor(Date.now()/1000) - ts;
+        if (ago < 60) el.textContent = ago + 's AGO';
+        else if (ago < 3600) el.textContent = Math.floor(ago/60) + 'm ' + (ago%60) + 's AGO';
+        else el.textContent = Math.floor(ago/3600) + 'h ' + Math.floor((ago%3600)/60) + 'm AGO';
+      }
+      update();
+      setInterval(update, 1000);
+    })();
     setTimeout(fetchIntel,500);
     setTimeout(checkPrice,1000);
   },200);

@@ -748,7 +748,7 @@ def signal_terminal():
         pass
     # Latest block data (TX count + time since)
     try:
-        r = requests.get('https://mempool.space/api/v1/blocks', timeout=2)
+        r = _req.get('https://mempool.space/api/v1/blocks', timeout=2)
         if r.ok:
             blocks = r.json()
             if blocks and len(blocks) > 0:
