@@ -1252,7 +1252,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
         <div class="data-row">
             <span class="label">TIME SINCE</span>
-            <span class="value" id="block-time">—</span>
+            <span class="value" id="block-time" data-ts="{{ mempool.block_timestamp if mempool and mempool.block_timestamp else 0 }}">---</span>
         </div>
         <div class="data-row">
             <span class="label">TX COUNT</span>
