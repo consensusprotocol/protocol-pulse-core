@@ -9890,7 +9890,7 @@ def api_artists_submit():
     try:
         db.session.execute(db.text("""
             CREATE TABLE IF NOT EXISTS artist_submissions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 category TEXT NOT NULL,
                 description TEXT NOT NULL,

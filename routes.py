@@ -1761,6 +1761,41 @@ def media_hub():
             ticker_items=[], feed_stats={})
 
 
+@app.route('/api/books/metrics')
+def api_book_metrics():
+    """Sovereign Book Library — live metrics for bubble chart visualization."""
+    import json as _json
+    metrics_path = os.path.join(os.path.dirname(__file__), 'data', 'book_metrics.json')
+    featured_path = os.path.join(os.path.dirname(__file__), 'data', 'featured_book.json')
+    try:
+        with open(metrics_path) as f:
+            metrics = _json.load(f)
+        books = metrics.get('books', [])
+        last_updated = metrics.get('last_updated', '')
+    except Exception:
+        books = []
+        last_updated = ''
+    featured = None
+    try:
+        with open(featured_path) as f:
+            featured = _json.load(f)
+        if featured.get('end_date'):
+            from datetime import datetime as _dt
+            end = _dt.fromisoformat(featured['end_date'])
+            if _dt.now() > end:
+                featured = None
+    except Exception:
+        featured = None
+    rising = [b for b in books if b.get('is_rising')]
+    rising.sort(key=lambda b: b.get('bsr_change', 0))
+    return jsonify({
+        'books': books,
+        'rising': rising[:5],
+        'featured': featured,
+        'last_updated': last_updated,
+    })
+
+
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
     """API endpoint to get latest podcast episodes from RSS feeds"""
@@ -7861,7 +7896,7 @@ def api_artists_submit():
     try:
         db.session.execute(db.text("""
             CREATE TABLE IF NOT EXISTS artist_submissions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 category TEXT NOT NULL,
                 description TEXT NOT NULL,
