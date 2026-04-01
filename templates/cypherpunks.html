@@ -1,221 +1,1259 @@
 {% extends "base.html" %}
 
-{% block title %}Cypherpunks | Protocol Pulse{% endblock %}
+{% block title %}The Cypherpunks — A Museum | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Walk through the history of the cypherpunk movement. From Diffie-Hellman to Bitcoin — the visionaries who wrote code to break the state.{% endblock %}
 
 {% block head %}
 <style>
+/* ══════════════════════════════════════════════════
+   THE CYPHERPUNKS MUSEUM — Protocol Pulse
+   ══════════════════════════════════════════════════ */
+
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+}
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    97% { opacity: 0.9; }
+    98% { opacity: 1; }
+}
+@keyframes cursorBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.15); }
+    50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.3); }
+}
+@keyframes typeWriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+@keyframes nodeGlow {
+    0%, 100% { box-shadow: 0 0 6px rgba(247, 147, 26, 0.4); }
+    50% { box-shadow: 0 0 16px rgba(247, 147, 26, 0.8); }
+}
+
 :root {
-    --pp-red: #CC0000;
-    --pp-dark: #0a0a0a;
-    --cp-purple: #a855f7;
+    --museum-bg: #050505;
+    --museum-surface: #0a0a0a;
+    --museum-card: rgba(10, 10, 10, 0.92);
+    --museum-red: #dc2626;
+    --museum-gold: #f7931a;
+    --museum-green: #22c55e;
+    --museum-dim: rgba(255,255,255,0.45);
+    --museum-border: rgba(220, 38, 38, 0.15);
 }
 
-.cypherpunks-page {
+.museum-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0510 50%, #0a0a0a 100%);
-    padding: 100px 20px 60px;
+    background: var(--museum-bg);
+    position: relative;
+    overflow-x: hidden;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-.cp-header {
+/* Scanline overlay */
+.museum-page::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(220, 38, 38, 0.06);
+    z-index: 1000;
+    pointer-events: none;
+    animation: scanline 8s linear infinite;
+}
+.museum-page::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* ── HERO ── */
+.museum-hero {
     text-align: center;
+    padding: 140px 20px 100px;
+    position: relative;
+    background: radial-gradient(ellipse at 50% 30%, rgba(220,38,38,0.06) 0%, transparent 60%);
+}
+.museum-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h60v60H0z' fill='none'/%3E%3Cpath d='M30 0v60M0 30h60' stroke='rgba(220,38,38,0.04)' stroke-width='0.5'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+.hero-overline {
+    font-size: 0.7rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--museum-red);
+    margin-bottom: 30px;
+    opacity: 0.8;
+}
+.hero-title {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -1px;
+    margin-bottom: 25px;
+    animation: flicker 4s infinite;
+    text-shadow: 0 0 60px rgba(220,38,38,0.15);
+}
+.hero-subtitle {
+    font-size: clamp(0.85rem, 2vw, 1.15rem);
+    color: var(--museum-dim);
+    max-width: 750px;
+    margin: 0 auto 40px;
+    line-height: 1.8;
+    letter-spacing: 0.5px;
+}
+.hero-subtitle em {
+    color: var(--museum-gold);
+    font-style: normal;
+}
+.hero-divider {
+    width: 60px;
+    height: 2px;
+    background: var(--museum-red);
+    margin: 0 auto;
+}
+
+/* ── SECTION HEADERS ── */
+.museum-section {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 80px 20px;
+}
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--museum-red);
+    margin-bottom: 12px;
+}
+.section-label::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--museum-red);
+}
+.section-heading {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+.section-desc {
+    font-size: 0.85rem;
+    color: var(--museum-dim);
+    max-width: 600px;
+    line-height: 1.7;
     margin-bottom: 50px;
 }
 
-.cp-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 2.5rem;
-    color: #fff;
-    margin-bottom: 15px;
-}
-
-.cp-title i {
-    color: var(--cp-purple);
-    margin-right: 15px;
-}
-
-.cp-subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.6);
-    max-width: 700px;
+/* ── MANIFESTO ── */
+.manifesto-section {
+    max-width: 900px;
     margin: 0 auto;
-    line-height: 1.7;
+    padding: 40px 20px 80px;
 }
-
-.cp-quote {
-    background: rgba(168, 85, 247, 0.1);
-    border-left: 4px solid var(--cp-purple);
-    padding: 25px 30px;
-    margin: 40px auto;
-    max-width: 800px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-style: italic;
+.manifesto-terminal {
+    background: rgba(5, 5, 5, 0.95);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
 }
-
-.cp-quote-author {
-    margin-top: 15px;
-    font-size: 0.85rem;
-    color: var(--cp-purple);
-    font-style: normal;
-}
-
-.pioneers-section {
-    max-width: 1200px;
-    margin: 0 auto 60px;
-}
-
-.section-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--cp-purple);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 25px;
+.terminal-header {
+    background: rgba(220, 38, 38, 0.08);
+    padding: 10px 16px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(220, 38, 38, 0.15);
+}
+.terminal-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.5);
+}
+.terminal-dot:nth-child(2) { background: rgba(247, 147, 26, 0.5); }
+.terminal-dot:nth-child(3) { background: rgba(34, 197, 94, 0.5); }
+.terminal-title {
+    font-size: 0.7rem;
+    color: var(--museum-dim);
+    margin-left: 8px;
+    letter-spacing: 1px;
+}
+.terminal-body {
+    padding: 30px;
+}
+.manifesto-line {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.9;
+    margin-bottom: 20px;
+    padding-left: 20px;
+    border-left: 2px solid rgba(220, 38, 38, 0.3);
+}
+.manifesto-line:last-child {
+    margin-bottom: 0;
+}
+.manifesto-line .highlight {
+    color: var(--museum-gold);
+}
+.manifesto-attribution {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--museum-red);
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(220, 38, 38, 0.1);
 }
 
-.pioneers-grid {
+/* ── GALLERY ── */
+.gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    gap: 24px;
 }
 
-.pioneer-card {
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid rgba(168, 85, 247, 0.2);
-    border-radius: 16px;
-    padding: 25px;
-    transition: all 0.3s ease;
+.exhibit-card {
+    background: var(--museum-card);
+    border: 1px solid var(--museum-border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+.exhibit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--museum-red), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+.exhibit-card:hover {
+    border-color: rgba(220, 38, 38, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(220, 38, 38, 0.08);
+}
+.exhibit-card:hover::before { opacity: 1; }
+
+.portrait-frame {
+    width: 100%;
+    height: 220px;
+    background: linear-gradient(135deg, #0d0d0d 0%, #141414 50%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.portrait-frame::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(5,5,5,0.9) 100%);
+    pointer-events: none;
+}
+.portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%) contrast(1.1) brightness(0.7);
+    transition: filter 0.4s;
+}
+.exhibit-card:hover .portrait-img {
+    filter: grayscale(60%) contrast(1.1) brightness(0.8);
+}
+.portrait-initials {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: rgba(220, 38, 38, 0.25);
+    letter-spacing: 4px;
+    position: relative;
+    z-index: 1;
+}
+.portrait-initials.satoshi {
+    font-size: 3.5rem;
+    color: rgba(247, 147, 26, 0.3);
+    text-shadow: 0 0 40px rgba(247, 147, 26, 0.15);
+}
+.portrait-frame .exhibit-number {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.2);
+    z-index: 2;
+    letter-spacing: 1px;
+}
+.portrait-frame .classified-stamp {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    font-size: 0.55rem;
+    color: rgba(220, 38, 38, 0.4);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    z-index: 2;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    padding: 2px 8px;
+    border-radius: 2px;
 }
 
-.pioneer-card:hover {
-    border-color: var(--cp-purple);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+.exhibit-info {
+    padding: 20px;
 }
-
-.pioneer-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.1rem;
+.exhibit-name {
+    font-size: 1.05rem;
     color: #fff;
-    margin-bottom: 8px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.exhibit-tagline {
+    font-size: 0.78rem;
+    color: var(--museum-dim);
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+.exhibit-era {
+    font-size: 0.68rem;
+    color: var(--museum-red);
+    letter-spacing: 1px;
+}
+.exhibit-cta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.25);
+    margin-top: 12px;
+    transition: color 0.3s;
+}
+.exhibit-card:hover .exhibit-cta {
+    color: var(--museum-red);
 }
 
-.pioneer-role {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 10px;
+/* ── TIMELINE ── */
+.timeline-section {
+    padding: 80px 0;
+    overflow: hidden;
+}
+.timeline-section .museum-section {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.timeline-track-wrapper {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 40px 20px 30px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--museum-red) transparent;
+    -webkit-overflow-scrolling: touch;
+}
+.timeline-track-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+.timeline-track-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+.timeline-track-wrapper::-webkit-scrollbar-thumb {
+    background: var(--museum-red);
+    border-radius: 2px;
+}
+.timeline-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: max-content;
+    position: relative;
+    padding-top: 30px;
+}
+.timeline-track::before {
+    content: '';
+    position: absolute;
+    top: 37px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(220,38,38,0.3) 5%, rgba(220,38,38,0.3) 95%, transparent);
+}
+.timeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 160px;
+    position: relative;
+    padding: 0 10px;
+}
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--museum-red);
+    border: 2px solid var(--museum-bg);
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+.timeline-node.major .timeline-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--museum-gold);
+    animation: nodeGlow 3s infinite;
+}
+.timeline-year {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--museum-gold);
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+.timeline-event {
+    font-size: 0.72rem;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 4px;
+    max-width: 140px;
+}
+.timeline-desc {
+    font-size: 0.62rem;
+    color: var(--museum-dim);
+    text-align: center;
+    max-width: 140px;
     line-height: 1.5;
 }
 
-.pioneer-era {
-    font-family: 'JetBrains Mono', monospace;
+/* ── HALL OF CODE ── */
+.code-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+.code-card {
+    background: var(--museum-card);
+    border: 1px solid rgba(34, 197, 94, 0.12);
+    border-radius: 10px;
+    padding: 24px;
+    transition: all 0.3s;
+    position: relative;
+}
+.code-card:hover {
+    border-color: rgba(34, 197, 94, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.code-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.code-project-name {
+    font-size: 1rem;
+    color: var(--museum-green);
+    font-weight: 600;
+}
+.code-year {
+    font-size: 0.7rem;
+    color: var(--museum-dim);
+    background: rgba(34, 197, 94, 0.08);
+    padding: 2px 10px;
+    border-radius: 4px;
+}
+.code-creator {
     font-size: 0.75rem;
-    color: var(--cp-purple);
-}
-
-.articles-section {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.article-card {
-    display: block;
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid rgba(168, 85, 247, 0.2);
-    border-radius: 16px;
-    padding: 25px;
-    margin-bottom: 20px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.article-card:hover {
-    border-color: var(--cp-purple);
-    transform: translateX(5px);
-}
-
-.article-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.2rem;
-    color: #fff;
+    color: rgba(255,255,255,0.6);
     margin-bottom: 10px;
 }
-
-.article-meta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
+.code-desc {
+    font-size: 0.78rem;
+    color: var(--museum-dim);
+    line-height: 1.7;
+}
+.code-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-top: 12px;
+}
+.code-badge.genesis {
+    background: rgba(247, 147, 26, 0.12);
+    color: var(--museum-gold);
+    border: 1px solid rgba(247, 147, 26, 0.2);
+}
+.code-badge.privacy {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--museum-red);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+}
+.code-badge.crypto {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--museum-green);
+    border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
-.empty-state {
+/* ── ARTICLES ── */
+.article-link {
+    display: block;
+    background: var(--museum-card);
+    border: 1px solid var(--museum-border);
+    border-radius: 10px;
+    padding: 22px;
+    margin-bottom: 14px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.article-link:hover {
+    border-color: rgba(220, 38, 38, 0.4);
+    transform: translateX(6px);
+}
+.article-link-title {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 6px;
+}
+.article-link-meta {
+    font-size: 0.75rem;
+    color: var(--museum-dim);
+}
+.empty-articles {
     text-align: center;
-    padding: 60px 20px;
-    color: rgba(255, 255, 255, 0.5);
-    font-family: 'JetBrains Mono', monospace;
+    padding: 50px 20px;
+    color: var(--museum-dim);
+    font-size: 0.85rem;
 }
 
-.empty-state i {
-    font-size: 3rem;
-    color: var(--cp-purple);
+/* ── EXHIBIT MODAL ── */
+.exhibit-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    overflow-y: auto;
+    padding: 40px 20px;
+}
+.exhibit-modal-overlay.active {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    animation: fadeInUp 0.3s ease;
+}
+.exhibit-modal {
+    background: #0a0a0a;
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 16px;
+    max-width: 720px;
+    width: 100%;
+    margin: 20px 0;
+    overflow: hidden;
+    position: relative;
+}
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+.modal-close:hover {
+    border-color: var(--museum-red);
+    background: rgba(220, 38, 38, 0.15);
+}
+.modal-portrait {
+    width: 100%;
+    height: 260px;
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.modal-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(80%) contrast(1.1) brightness(0.7);
+}
+.modal-portrait .portrait-initials {
+    font-size: 4rem;
+}
+.modal-portrait::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 100px;
+    background: linear-gradient(transparent, #0a0a0a);
+    pointer-events: none;
+}
+.modal-body {
+    padding: 30px;
+}
+.modal-name {
+    font-size: 1.6rem;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.modal-era {
+    font-size: 0.75rem;
+    color: var(--museum-red);
+    letter-spacing: 1px;
     margin-bottom: 20px;
-    opacity: 0.5;
+}
+.modal-bio {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.85;
+    margin-bottom: 24px;
+}
+.modal-quote {
+    background: rgba(220, 38, 38, 0.06);
+    border-left: 3px solid var(--museum-red);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.85);
+    font-style: italic;
+    line-height: 1.7;
+}
+.modal-contributions-title {
+    font-size: 0.7rem;
+    color: var(--museum-red);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.modal-contributions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+.contribution-tag {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.7);
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    padding: 5px 12px;
+    border-radius: 4px;
+}
+.modal-connection {
+    background: rgba(247, 147, 26, 0.06);
+    border: 1px solid rgba(247, 147, 26, 0.15);
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+.modal-connection-title {
+    font-size: 0.68rem;
+    color: var(--museum-gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.modal-connection-text {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.7;
 }
 
-.empty-state p {
-    font-size: 0.9rem;
+/* ── SCROLL REVEAL ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .museum-hero { padding: 110px 16px 70px; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .portrait-frame { height: 160px; }
+    .exhibit-info { padding: 14px; }
+    .exhibit-name { font-size: 0.9rem; }
+    .exhibit-tagline { font-size: 0.72rem; }
+    .code-grid { grid-template-columns: 1fr; }
+    .museum-section { padding: 50px 16px; }
+    .manifesto-section { padding: 20px 16px 50px; }
+    .terminal-body { padding: 20px; }
+    .manifesto-line { font-size: 0.82rem; }
+    .modal-body { padding: 20px; }
+    .modal-name { font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+    .gallery-grid { grid-template-columns: 1fr; }
+    .portrait-frame { height: 200px; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="cypherpunks-page">
-    <div class="container">
-        <div class="cp-header">
-            <h1 class="cp-title"><i class="fas fa-mask"></i>Cypherpunks</h1>
-            <p class="cp-subtitle">Honoring the visionaries who laid the cryptographic foundations for Bitcoin and digital freedom. Their code is law, their legacy is liberty.</p>
-        </div>
-        
-        <blockquote class="cp-quote">
-            "Privacy is necessary for an open society in the electronic age. Privacy is not secrecy. A private matter is something one doesn't want the whole world to know, but a secret matter is something one doesn't want anybody to know. Privacy is the power to selectively reveal oneself to the world."
-            <div class="cp-quote-author">— Eric Hughes, A Cypherpunk's Manifesto (1993)</div>
-        </blockquote>
-        
-        <div class="pioneers-section">
-            <div class="section-title"><i class="fas fa-users"></i> The Pioneers</div>
-            <div class="pioneers-grid">
-                {% for pioneer in pioneers %}
-                <div class="pioneer-card">
-                    <div class="pioneer-name">{{ pioneer.name }}</div>
-                    <div class="pioneer-role">{{ pioneer.role }}</div>
-                    <div class="pioneer-era">{{ pioneer.era }}</div>
+<div class="museum-page">
+
+    <!-- ════════════ HERO ══════════════ -->
+    <section class="museum-hero">
+        <div class="hero-overline">Protocol Pulse — Exhibit Hall</div>
+        <h1 class="hero-title">The Cypherpunks</h1>
+        <p class="hero-subtitle">
+            <em>They Wrote the Code. They Broke the State. They Built Bitcoin.</em>
+        </p>
+        <div class="hero-divider"></div>
+    </section>
+
+    <!-- ══════════ MANIFESTO ══════════ -->
+    <section class="manifesto-section reveal">
+        <div class="manifesto-terminal">
+            <div class="terminal-header">
+                <span class="terminal-dot"></span>
+                <span class="terminal-dot"></span>
+                <span class="terminal-dot"></span>
+                <span class="terminal-title">A CYPHERPUNK'S MANIFESTO — ERIC HUGHES, 9 MARCH 1993</span>
+            </div>
+            <div class="terminal-body">
+                <div class="manifesto-line">
+                    <span class="highlight">Privacy is necessary for an open society in the electronic age.</span> Privacy is not secrecy. A private matter is something one doesn't want the whole world to know, but a secret matter is something one doesn't want anybody to know. Privacy is the power to selectively reveal oneself to the world.
                 </div>
-                {% endfor %}
+                <div class="manifesto-line">
+                    We cannot expect governments, corporations, or other large, faceless organizations to grant us privacy out of their beneficence. We must defend our own privacy if we expect to have any. <span class="highlight">We must come together and create systems which allow anonymous transactions to take place.</span>
+                </div>
+                <div class="manifesto-line">
+                    <span class="highlight">Cypherpunks write code.</span> We know that someone has to write software to defend privacy, and since we can't get privacy unless we all do, we're going to write it.
+                </div>
+                <div class="manifesto-line">
+                    We the Cypherpunks are dedicated to building anonymous systems. We are defending our privacy with cryptography, with anonymous mail forwarding systems, with digital signatures, and with electronic money.
+                </div>
+                <div class="manifesto-attribution">— Eric Hughes, Berkeley, California, 1993</div>
             </div>
         </div>
-        
-        <div class="articles-section">
-            <div class="section-title"><i class="fas fa-newspaper"></i> Cypherpunk Articles</div>
-            
-            {% if articles %}
-                {% for article in articles %}
-                <a href="/article/{{ article.id }}" class="article-card">
-                    <div class="article-title">{{ article.title }}</div>
-                    <div class="article-meta">{{ article.created_at.strftime('%B %d, %Y') }} • {{ article.author }}</div>
-                </a>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-feather-alt"></i>
-                    <p>Cypherpunk articles are being written.<br>Check back soon for deep dives into the pioneers who made Bitcoin possible.</p>
+    </section>
+
+    <!-- ══════════ GALLERY ══════════ -->
+    <section class="museum-section">
+        <div class="section-label reveal">The Exhibit</div>
+        <h2 class="section-heading reveal">The Pioneers</h2>
+        <p class="section-desc reveal">Thirteen individuals who laid the cryptographic foundations for a world where privacy is a right, not a privilege. Click to enter each exhibit.</p>
+
+        <div class="gallery-grid">
+            {% for pioneer in pioneers %}
+            <div class="exhibit-card reveal" data-name="{{ pioneer.name }}" onclick="openExhibit('{{ pioneer.name }}')">
+                <div class="portrait-frame">
+                    <span class="exhibit-number">EXHIBIT {{ '%02d' % loop.index }}</span>
+                    <span class="portrait-initials {% if pioneer.name == 'Satoshi Nakamoto' %}satoshi{% endif %}" id="initials-{{ loop.index }}">
+                        {% if pioneer.name == 'Satoshi Nakamoto' %}?{% else %}{{ pioneer.name.split()[0][0] }}{{ pioneer.name.split()[-1][0] }}{% endif %}
+                    </span>
+                    <img class="portrait-img" id="img-{{ loop.index }}" style="display:none;position:absolute;top:0;left:0;"
+                         onerror="this.style.display='none'; document.getElementById('initials-{{ loop.index }}').style.display='flex';"
+                         onload="this.style.display='block'; document.getElementById('initials-{{ loop.index }}').style.display='none';">
+                    {% if pioneer.name == 'Satoshi Nakamoto' %}
+                    <span class="classified-stamp">Identity Unknown</span>
+                    {% endif %}
                 </div>
-            {% endif %}
+                <div class="exhibit-info">
+                    <div class="exhibit-name">{{ pioneer.name }}</div>
+                    <div class="exhibit-tagline">{{ pioneer.role }}</div>
+                    <div class="exhibit-era">{{ pioneer.era }}</div>
+                    <div class="exhibit-cta"><i class="fas fa-arrow-right" style="font-size:0.6rem"></i> View Exhibit</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ══════════ TIMELINE ══════════ -->
+    <section class="timeline-section">
+        <div class="museum-section" style="padding-bottom:0">
+            <div class="section-label reveal">The Timeline</div>
+            <h2 class="section-heading reveal">From Cipher to Coin</h2>
+            <p class="section-desc reveal">Five decades of cryptographic breakthroughs that made digital sovereignty possible.</p>
+        </div>
+        <div class="timeline-track-wrapper">
+            <div class="timeline-track">
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1976</div>
+                    <div class="timeline-event">Diffie-Hellman</div>
+                    <div class="timeline-desc">Public-key cryptography invented</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1977</div>
+                    <div class="timeline-event">RSA Algorithm</div>
+                    <div class="timeline-desc">Rivest, Shamir, Adleman publish RSA</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1982</div>
+                    <div class="timeline-event">Blind Signatures</div>
+                    <div class="timeline-desc">Chaum invents anonymous digital cash</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1985</div>
+                    <div class="timeline-event">DigiCash Founded</div>
+                    <div class="timeline-desc">First electronic cash company</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1988</div>
+                    <div class="timeline-event">Crypto Anarchist Manifesto</div>
+                    <div class="timeline-desc">Timothy May envisions crypto-liberty</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1991</div>
+                    <div class="timeline-event">PGP Released</div>
+                    <div class="timeline-desc">Zimmermann gives encryption to the people</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1992</div>
+                    <div class="timeline-event">Cypherpunks Mailing List</div>
+                    <div class="timeline-desc">Hughes, May, Gilmore launch the movement</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1993</div>
+                    <div class="timeline-event">Cypherpunk Manifesto</div>
+                    <div class="timeline-desc">Eric Hughes codifies the philosophy</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1997</div>
+                    <div class="timeline-event">Hashcash</div>
+                    <div class="timeline-desc">Adam Back invents proof-of-work</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">1998</div>
+                    <div class="timeline-event">b-money & Bit Gold</div>
+                    <div class="timeline-desc">Wei Dai and Nick Szabo design digital gold</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2002</div>
+                    <div class="timeline-event">Tor Project</div>
+                    <div class="timeline-desc">Anonymous routing goes live</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2004</div>
+                    <div class="timeline-event">RPOW</div>
+                    <div class="timeline-desc">Hal Finney builds reusable proof-of-work</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2006</div>
+                    <div class="timeline-event">WikiLeaks</div>
+                    <div class="timeline-desc">Assange proves crypto enables accountability</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2008</div>
+                    <div class="timeline-event">Bitcoin Whitepaper</div>
+                    <div class="timeline-desc">Satoshi publishes the blueprint</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2009</div>
+                    <div class="timeline-event">Genesis Block</div>
+                    <div class="timeline-desc">"Chancellor on brink of second bailout"</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2009</div>
+                    <div class="timeline-event">First BTC Transaction</div>
+                    <div class="timeline-desc">Satoshi sends 10 BTC to Hal Finney</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2010</div>
+                    <div class="timeline-event">Satoshi Vanishes</div>
+                    <div class="timeline-desc">The creator disappears forever</div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2014</div>
+                    <div class="timeline-event">Hal Finney Passes</div>
+                    <div class="timeline-desc">A cypherpunk legend preserved in cryo</div>
+                </div>
+                <div class="timeline-node major">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">Now</div>
+                    <div class="timeline-event">The Code Runs</div>
+                    <div class="timeline-desc">Bitcoin: block 900,000+</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ HALL OF CODE ══════════ -->
+    <section class="museum-section">
+        <div class="section-label reveal">Hall of Code</div>
+        <h2 class="section-heading reveal">Landmark Projects</h2>
+        <p class="section-desc reveal">The code that changed civilization. Each project a brick in the wall of digital sovereignty.</p>
+
+        <div class="code-grid">
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">PGP</span>
+                    <span class="code-year">1991</span>
+                </div>
+                <div class="code-creator">Philip Zimmermann</div>
+                <div class="code-desc">Pretty Good Privacy — the first widely available strong encryption for the masses. Published as free software, triggering a federal investigation and establishing the precedent that code is speech.</div>
+                <span class="code-badge privacy">Privacy</span>
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">Hashcash</span>
+                    <span class="code-year">1997</span>
+                </div>
+                <div class="code-creator">Adam Back</div>
+                <div class="code-desc">A proof-of-work system originally designed to limit email spam. Its core mechanism — computational puzzles that cost real energy to solve — became the foundation of Bitcoin mining.</div>
+                <span class="code-badge genesis">Bitcoin Precursor</span>
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">b-money</span>
+                    <span class="code-year">1998</span>
+                </div>
+                <div class="code-creator">Wei Dai</div>
+                <div class="code-desc">A theoretical proposal for a decentralized digital currency with an anonymous, distributed ledger. Never implemented, but directly cited in the Bitcoin whitepaper as foundational inspiration.</div>
+                <span class="code-badge genesis">Bitcoin Precursor</span>
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">Bit Gold</span>
+                    <span class="code-year">1998</span>
+                </div>
+                <div class="code-creator">Nick Szabo</div>
+                <div class="code-desc">A mechanism for decentralized digital scarcity using chained proof-of-work. Never launched, but considered the closest direct ancestor to Bitcoin's architecture.</div>
+                <span class="code-badge genesis">Bitcoin Precursor</span>
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">Tor</span>
+                    <span class="code-year">2002</span>
+                </div>
+                <div class="code-creator">Dingledine, Mathewson, Syverson</div>
+                <div class="code-desc">The Onion Router — anonymity network that routes traffic through encrypted relays worldwide. Essential infrastructure for privacy, whistleblowing, and censorship resistance.</div>
+                <span class="code-badge privacy">Privacy</span>
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">RPOW</span>
+                    <span class="code-year">2004</span>
+                </div>
+                <div class="code-creator">Hal Finney</div>
+                <div class="code-desc">Reusable Proofs of Work — a system for transferring proof-of-work tokens. Bridged the gap between Hashcash's one-time proofs and Bitcoin's reusable digital currency.</div>
+                <span class="code-badge genesis">Bitcoin Precursor</span>
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-header">
+                    <span class="code-project-name">Bitcoin</span>
+                    <span class="code-year">2009</span>
+                </div>
+                <div class="code-creator">Satoshi Nakamoto</div>
+                <div class="code-desc">A peer-to-peer electronic cash system. Combined proof-of-work, a distributed ledger, cryptographic signatures, and economic incentives into a trustless monetary network. 31,000 lines of C++ that changed everything.</div>
+                <span class="code-badge genesis">Genesis</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ ARTICLES ══════════ -->
+    <section class="museum-section">
+        <div class="section-label reveal">The Archives</div>
+        <h2 class="section-heading reveal">Further Reading</h2>
+        <p class="section-desc reveal">Deep dives into the cypherpunk movement and its legacy.</p>
+
+        {% if articles %}
+            {% for article in articles %}
+            <a href="/article/{{ article.id }}" class="article-link reveal">
+                <div class="article-link-title">{{ article.title }}</div>
+                <div class="article-link-meta">{{ article.created_at.strftime('%B %d, %Y') }} · {{ article.author }}</div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty-articles reveal">
+                <p>Archives are being compiled. Check back for deep dives into the pioneers who made Bitcoin possible.</p>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+<!-- ══════════ EXHIBIT MODAL ══════════ -->
+<div class="exhibit-modal-overlay" id="exhibitModal" onclick="if(event.target===this)closeExhibit()">
+    <div class="exhibit-modal">
+        <button class="modal-close" onclick="closeExhibit()">&times;</button>
+        <div class="modal-portrait" id="modalPortrait">
+            <span class="portrait-initials" id="modalInitials"></span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-name" id="modalName"></div>
+            <div class="modal-era" id="modalEra"></div>
+            <div class="modal-bio" id="modalBio"></div>
+            <div class="modal-quote" id="modalQuote"></div>
+            <div class="modal-contributions-title">KEY CONTRIBUTIONS</div>
+            <div class="modal-contributions" id="modalContributions"></div>
+            <div class="modal-connection" id="modalConnection">
+                <div class="modal-connection-title">Connection to Bitcoin</div>
+                <div class="modal-connection-text" id="modalConnectionText"></div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   EXHIBIT DATA — Embedded for zero-latency modals
+   ══════════════════════════════════════════════════ */
+const EXHIBITS = {
+    'Satoshi Nakamoto': {
+        initials: '?',
+        specialClass: 'satoshi',
+        era: '2008 – 2010 (active)',
+        bio: 'The pseudonymous creator of Bitcoin who released the whitepaper "Bitcoin: A Peer-to-Peer Electronic Cash System" on October 31, 2008 and launched the network on January 3, 2009. Satoshi mined the genesis block — embedding the headline "Chancellor on brink of second bailout for banks" — then collaborated with early developers via email and the Bitcointalk forum before vanishing in April 2011. An estimated 1.1 million BTC sit untouched in wallets attributed to Satoshi. No one knows their true identity.',
+        quote: 'The root problem with conventional currency is all the trust that\'s required to make it work. The central bank must be trusted not to debase the currency, but the history of fiat currencies is full of breaches of that trust.',
+        contributions: ['Bitcoin Protocol', 'Proof-of-Work Consensus', 'Genesis Block', 'Blockchain Architecture', 'UTXO Model'],
+        connection: 'Satoshi IS Bitcoin. Every prior cypherpunk project — Hashcash, b-money, Bit Gold, RPOW — was synthesized into Bitcoin\'s elegant design. The creator then did the most cypherpunk thing possible: disappeared, leaving the code to speak for itself.'
+    },
+    'Hal Finney': {
+        initials: 'HF',
+        era: '1992 – 2014',
+        bio: 'Legendary cryptographer who received the very first Bitcoin transaction — 10 BTC from Satoshi Nakamoto on January 12, 2009. A key developer of PGP 2.0 and creator of Reusable Proofs of Work (RPOW), Finney was among the first to run Bitcoin\'s software alongside Satoshi. Despite being diagnosed with ALS in 2009, he continued contributing to Bitcoin until his death in August 2014. His body was cryopreserved by the Alcor Life Extension Foundation.',
+        quote: 'Bitcoin seems to be a very promising idea. I like the idea of basing security on the assumption that the CPU power of honest participants outweighs that of the attacker.',
+        contributions: ['First BTC Transaction Recipient', 'RPOW System', 'PGP 2.0 Development', 'Early Bitcoin Mining & Bug Fixes'],
+        connection: 'Hal Finney was Bitcoin\'s first believer. He ran the second node, received the first transaction, reported the first bugs, and mined blocks in Bitcoin\'s earliest days. His RPOW system was the most direct technical ancestor to Bitcoin\'s reusable proof-of-work.'
+    },
+    'Nick Szabo': {
+        initials: 'NS',
+        era: '1990s – present',
+        bio: 'Polymath computer scientist, legal scholar, and cryptographer who designed Bit Gold in 1998 — widely considered the most direct precursor to Bitcoin. Coined the term "smart contracts" in 1994 and pioneered theoretical work on digital property rights and trustless agreements. His deep interdisciplinary knowledge of cryptography, economics, and law made him uniquely positioned to envision decentralized money.',
+        quote: 'Trusted third parties are security holes.',
+        contributions: ['Bit Gold Design', 'Smart Contracts Concept', 'Digital Property Rights Theory', 'Secure Timestamping'],
+        connection: 'Bit Gold is the closest known ancestor to Bitcoin\'s architecture. Szabo\'s concept of unforgeable digital scarcity through computational proof-of-work directly maps to Bitcoin\'s mining mechanism. His "smart contracts" concept later inspired Ethereum and the entire programmable money movement.'
+    },
+    'Adam Back': {
+        initials: 'AB',
+        era: '1997 – present',
+        bio: 'British cryptographer who invented Hashcash in 1997, a proof-of-work system designed to combat email spam. Hashcash became the core mining mechanism cited in the Bitcoin whitepaper. Back is now CEO of Blockstream, building Bitcoin infrastructure including the Liquid sidechain and satellite network. One of the few people Satoshi directly emailed before launching Bitcoin.',
+        quote: 'Bitcoin is the first time we\'ve achieved digital scarcity. You can\'t copy it, you can\'t counterfeit it, and no government can inflate it away.',
+        contributions: ['Hashcash (Proof-of-Work)', 'Blockstream', 'Liquid Network', 'Bitcoin Satellite'],
+        connection: 'Hashcash is cited in the Bitcoin whitepaper as foundational technology. The proof-of-work concept — that solving a computational puzzle proves real-world energy expenditure — is the beating heart of Bitcoin mining. Satoshi contacted Back personally before launching Bitcoin.'
+    },
+    'Wei Dai': {
+        initials: 'WD',
+        era: '1998 – present',
+        bio: 'Computer engineer and cryptographer who proposed b-money in November 1998, a protocol for a decentralized digital currency maintained by an anonymous distributed network. Also created the Crypto++ cryptographic library, one of the most widely-used crypto libraries in the world. Intensely private, Wei Dai rarely makes public appearances.',
+        quote: 'I am fascinated by Tim May\'s crypto-anarchy. Unlike the communities traditionally associated with the word "anarchy," in a crypto-anarchy the government is not temporarily destroyed but permanently forbidden.',
+        contributions: ['b-money Proposal', 'Crypto++ Library', 'VMAC Algorithm', 'Digital Cash Theory'],
+        connection: 'The b-money proposal is the FIRST citation in the Bitcoin whitepaper. Wei Dai\'s concept of a decentralized ledger maintained by participants who prove computational work directly influenced Bitcoin\'s design. The smallest unit of Ether is named "wei" in his honor.'
+    },
+    'David Chaum': {
+        initials: 'DC',
+        era: '1983 – present',
+        bio: 'The godfather of digital currency. In 1982, Chaum invented blind signatures — a cryptographic technique enabling anonymous digital payments. He founded DigiCash in 1990 and launched ecash, the world\'s first digital currency, which was tested by Deutsche Bank and others. Though DigiCash went bankrupt in 1998, every digital currency since stands on Chaum\'s foundational work.',
+        quote: 'You have to let people approach you on their own terms. Security without identification protects the privacy of the individual.',
+        contributions: ['Blind Signatures', 'DigiCash / eCash', 'Mix Networks', 'Anonymous Credentials', 'Dining Cryptographers Problem'],
+        connection: 'Chaum solved the fundamental problem of digital cash: how to prove a payment is valid without revealing who made it. His blind signature scheme and digital cash concepts established the entire field that Bitcoin later revolutionized by removing the need for a trusted central server.'
+    },
+    'Timothy C. May': {
+        initials: 'TM',
+        era: '1988 – 2018',
+        bio: 'Former Intel physicist who authored "The Crypto Anarchist Manifesto" in 1988, predicting that cryptography would fundamentally alter the relationship between individuals and the state. Co-founded the Cypherpunks mailing list in 1992 with Eric Hughes and John Gilmore. His vision of "crypto-anarchy" — where cryptography enables individuals to transact, communicate, and organize beyond government reach — directly prefigured Bitcoin. Passed away in 2018.',
+        quote: 'Just as the technology of printing altered and reduced the power of medieval guilds and the social power structure, so too will cryptologic methods fundamentally alter the nature of corporations and of government interference in economic transactions.',
+        contributions: ['Crypto Anarchist Manifesto', 'Cypherpunks Mailing List Co-founder', 'BlackNet Concept', 'Cyphernomicon FAQ'],
+        connection: 'May\'s Crypto Anarchist Manifesto (1988) was the philosophical declaration of independence that inspired the entire cypherpunk movement. His vision of anonymous digital cash, untraceable transactions, and economic sovereignty became reality twenty years later with Bitcoin.'
+    },
+    'Eric Hughes': {
+        initials: 'EH',
+        era: '1993 – present',
+        bio: 'Mathematician and programmer who co-founded the Cypherpunks mailing list and authored "A Cypherpunk\'s Manifesto" on March 9, 1993 — the definitive statement of the movement\'s philosophy. The manifesto\'s central thesis — "Cypherpunks write code" — established that privacy must be built with technology, not begged from legislators. Hughes organized the first physical cypherpunk meetings in the San Francisco Bay Area.',
+        quote: 'Cypherpunks write code. We know that someone has to write software to defend privacy, and since we can\'t get privacy unless we all do, we\'re going to write it.',
+        contributions: ['A Cypherpunk\'s Manifesto', 'Cypherpunks Mailing List Co-founder', 'Anonymous Remailer Systems', 'Cypherpunk Philosophy'],
+        connection: 'Hughes\' manifesto crystallized the ethos that produced Bitcoin. "Cypherpunks write code" is not a slogan — it is a strategic doctrine. The insistence on building systems rather than petitioning authorities is what led, step by step, from anonymous remailers to PGP to Hashcash to Bitcoin.'
+    },
+    'John Gilmore': {
+        initials: 'JG',
+        era: '1990s – present',
+        bio: 'Early Sun Microsystems employee (employee #5) who became one of the most important digital rights activists in history. Co-founded both the Electronic Frontier Foundation (EFF) and the Cypherpunks mailing list. His famous declaration "The Net interprets censorship as damage and routes around it" became a defining principle of internet freedom. Funded key legal battles for encryption rights.',
+        quote: 'The Net interprets censorship as damage and routes around it.',
+        contributions: ['EFF Co-founder', 'Cypherpunks Mailing List Co-founder', 'GNU Project Contributor', 'Digital Rights Legal Battles'],
+        connection: 'Gilmore\'s legal and financial support was crucial to establishing that strong encryption is a constitutional right, not a weapon. Without the legal precedents he helped fund — especially against US export controls on cryptography — the tools needed to build Bitcoin might have remained classified.'
+    },
+    'Philip Zimmermann': {
+        initials: 'PZ',
+        era: '1991 – present',
+        bio: 'Creator of Pretty Good Privacy (PGP), the most widely used email encryption software in history. When Zimmermann published PGP as free software in 1991, the US government launched a three-year criminal investigation for "exporting munitions" — because strong encryption was classified as a weapon. The case was eventually dropped, establishing the principle that publishing cryptographic code is protected speech.',
+        quote: 'If privacy is outlawed, only outlaws will have privacy.',
+        contributions: ['PGP Encryption', 'OpenPGP Standard', 'Silent Circle', 'ZRTP Voice Encryption'],
+        connection: 'PGP proved that military-grade encryption could be given to ordinary people — and that the government couldn\'t stop it. This legal and philosophical victory was essential to Bitcoin: if publishing strong crypto code were still illegal, the Bitcoin whitepaper and software could never have been freely distributed.'
+    },
+    'Julian Assange': {
+        initials: 'JA',
+        era: '2006 – present',
+        bio: 'Australian publisher, activist, and programmer who founded WikiLeaks in 2006, creating the world\'s first large-scale platform for anonymous whistleblowing using cryptographic submission systems. A cypherpunk in the truest sense — he used code to enable accountability. Spent seven years in the Ecuadorian embassy in London and years in Belmarsh prison for publishing classified documents that exposed government and corporate malfeasance.',
+        quote: 'Cryptography is the ultimate form of non-violent direct action.',
+        contributions: ['WikiLeaks', 'Rubberhose Deniable Encryption', 'Anonymous Submission Systems', 'Crypto-Enabled Whistleblowing'],
+        connection: 'WikiLeaks proved that cryptography could hold the most powerful institutions on earth accountable. When traditional payment processors blocked WikiLeaks in 2010, Bitcoin provided an uncensorable alternative — one of Bitcoin\'s earliest and most consequential real-world use cases.'
+    },
+    'Whitfield Diffie': {
+        initials: 'WD',
+        era: '1976 – present',
+        bio: 'American cryptographer who, alongside Martin Hellman, invented public-key cryptography in 1976 — arguably the most important breakthrough in the history of cryptography. The Diffie-Hellman key exchange enabled two parties to establish a shared secret over an insecure channel without prior contact. This single innovation made secure internet communication, digital signatures, and ultimately cryptocurrency possible.',
+        quote: 'The way to build a secure system is not to make everything secret. The way to build a secure system is to make the mechanism for encryption public.',
+        contributions: ['Diffie-Hellman Key Exchange', 'Public-Key Cryptography', 'Turing Award (2015)', 'Cryptographic Revolution'],
+        connection: 'Without Diffie-Hellman, there is no Bitcoin. Public-key cryptography is the foundation upon which all cryptocurrency rests — it enables users to have a public address (public key) while maintaining exclusive control of their funds (private key). Every Bitcoin transaction uses Diffie\'s invention.'
+    },
+    'Ralph Merkle': {
+        initials: 'RM',
+        era: '1970s – present',
+        bio: 'Computer scientist who independently invented public-key cryptography and created Merkle trees — a data structure where every leaf node is labeled with the hash of a data block, and every non-leaf node is labeled with the cryptographic hash of its children. This elegant structure enables efficient and secure verification of large data sets. Merkle\'s work on cryptographic hashing laid essential groundwork for blockchain technology.',
+        quote: 'The goal of cryptography is to enable two entities to communicate in a way that is private — to share information without fear of eavesdroppers.',
+        contributions: ['Merkle Trees', 'Public-Key Cryptography', 'Cryptographic Hashing', 'Merkle Puzzles'],
+        connection: 'Merkle trees are fundamental to Bitcoin\'s block structure. Every Bitcoin block organizes its transactions into a Merkle tree, enabling any node to efficiently verify that a transaction is included in a block without downloading the entire blockchain. This is how SPV (Simplified Payment Verification) wallets work.'
+    }
+};
+
+/* ── IMAGE MAP (Wikipedia Commons where available, graceful fallback) ── */
+const PORTRAIT_IMAGES = {
+    'David Chaum': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/David_Chaum_in_2019.png/440px-David_Chaum_in_2019.png',
+    'Whitfield Diffie': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Whitfield_Diffie_Royal_Society.jpg/440px-Whitfield_Diffie_Royal_Society.jpg',
+    'Philip Zimmermann': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Philip_Zimmermann.jpg/440px-Philip_Zimmermann.jpg',
+    'Ralph Merkle': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/RalphMerkle.jpg/440px-RalphMerkle.jpg',
+    'Julian Assange': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Julian_Assange_26C3.jpg/440px-Julian_Assange_26C3.jpg',
+    'Adam Back': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Adam_Back_profile_photo.jpg/440px-Adam_Back_profile_photo.jpg'
+};
+
+/* Load portraits into gallery cards */
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.exhibit-card');
+    cards.forEach(function(card, idx) {
+        const name = card.getAttribute('data-name');
+        if (PORTRAIT_IMAGES[name]) {
+            const img = card.querySelector('.portrait-img');
+            if (img) img.src = PORTRAIT_IMAGES[name];
+        }
+    });
+
+    /* Scroll reveal */
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+    /* Keyboard close */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeExhibit();
+    });
+});
+
+/* ── MODAL LOGIC ── */
+function openExhibit(name) {
+    const data = EXHIBITS[name];
+    if (!data) return;
+    const overlay = document.getElementById('exhibitModal');
+
+    /* Portrait */
+    const portrait = document.getElementById('modalPortrait');
+    const initials = document.getElementById('modalInitials');
+    const existingImg = portrait.querySelector('img');
+    if (existingImg) existingImg.remove();
+
+    if (PORTRAIT_IMAGES[name]) {
+        const img = document.createElement('img');
+        img.src = PORTRAIT_IMAGES[name];
+        img.alt = name;
+        img.onerror = function() { this.remove(); initials.style.display = 'flex'; };
+        img.onload = function() { initials.style.display = 'none'; };
+        portrait.insertBefore(img, initials);
+    }
+    initials.textContent = data.initials;
+    initials.className = 'portrait-initials' + (data.specialClass ? ' ' + data.specialClass : '');
+    initials.style.display = PORTRAIT_IMAGES[name] ? 'none' : 'flex';
+
+    /* Text */
+    document.getElementById('modalName').textContent = name;
+    document.getElementById('modalEra').textContent = data.era;
+    document.getElementById('modalBio').textContent = data.bio;
+    document.getElementById('modalQuote').textContent = '"' + data.quote + '"';
+
+    /* Contributions */
+    const contEl = document.getElementById('modalContributions');
+    contEl.innerHTML = '';
+    data.contributions.forEach(function(c) {
+        const tag = document.createElement('span');
+        tag.className = 'contribution-tag';
+        tag.textContent = c;
+        contEl.appendChild(tag);
+    });
+
+    /* Connection */
+    document.getElementById('modalConnectionText').textContent = data.connection;
+
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeExhibit() {
+    document.getElementById('exhibitModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+</script>
 {% endblock %}

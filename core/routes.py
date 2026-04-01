@@ -7915,6 +7915,7 @@ CYPHERPUNKS = [
     {'name': 'Eric Hughes', 'role': 'Cypherpunk Manifesto Author', 'era': '1993-present'},
     {'name': 'John Gilmore', 'role': 'EFF Co-founder, Cypherpunks Co-founder', 'era': '1990s-present'},
     {'name': 'Philip Zimmermann', 'role': 'PGP Creator', 'era': '1991-present'},
+    {'name': 'Julian Assange', 'role': 'WikiLeaks Founder, Crypto Freedom Advocate', 'era': '2006-present'},
     {'name': 'Whitfield Diffie', 'role': 'Public-key Cryptography Pioneer', 'era': '1976-present'},
     {'name': 'Ralph Merkle', 'role': 'Merkle Trees, Public-key Cryptography', 'era': '1970s-present'},
 ]
@@ -7987,6 +7988,21 @@ CYPHERPUNK_DOSSIERS = {
         'bio': 'Computer scientist who independently invented public-key cryptography and created Merkle trees in the 1970s. Merkle trees are now fundamental to Bitcoin\'s block structure and transaction verification.',
         'quote': 'The goal of cryptography is to enable two entities to communicate in a way that is private.',
         'contributions': ['Merkle Trees', 'Public-Key Cryptography', 'Cryptographic Hashing']
+    },
+    'John Gilmore': {
+        'bio': 'Co-founder of the Electronic Frontier Foundation (EFF) and the Cypherpunks mailing list. Sun Microsystems early employee who became a tireless advocate for digital civil liberties and strong encryption. Fought against government attempts to restrict cryptography.',
+        'quote': 'The Net interprets censorship as damage and routes around it.',
+        'contributions': ['EFF Co-founder', 'Cypherpunks Mailing List', 'Digital Rights Advocacy', 'GNU Project Contributor']
+    },
+    'Philip Zimmermann': {
+        'bio': 'Creator of Pretty Good Privacy (PGP), the most widely used email encryption software in the world. Faced a three-year federal investigation for publishing strong encryption as free software. His work established the principle that civilians deserve military-grade privacy.',
+        'quote': 'If privacy is outlawed, only outlaws will have privacy.',
+        'contributions': ['PGP Encryption', 'OpenPGP Standard', 'Silent Circle', 'ZRTP Protocol']
+    },
+    'Julian Assange': {
+        'bio': 'Australian publisher and activist who founded WikiLeaks in 2006, using cryptographic tools to enable anonymous whistleblowing at scale. A cypherpunk who demonstrated the power of cryptography to hold institutions accountable. Spent years in asylum and prison for publishing classified documents.',
+        'quote': 'Cryptography is the ultimate form of non-violent direct action.',
+        'contributions': ['WikiLeaks', 'Anonymous Submission Systems', 'Crypto-Enabled Whistleblowing', 'Rubberhose Deniable Encryption']
     }
 }
 
