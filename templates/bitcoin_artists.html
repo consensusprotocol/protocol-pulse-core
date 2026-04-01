@@ -163,15 +163,7 @@
     box-shadow: 0 30px 80px rgba(247, 147, 26, 0.08);
 }
 
-.spotlight-visual {
-    background: linear-gradient(135deg, rgba(247, 147, 26, 0.2) 0%, rgba(247, 147, 26, 0.05) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 6rem;
-    min-height: 280px;
-    position: relative;
-}
+.spotlight-visual { overflow:hidden; padding:0; background:#111; }
 
 .spotlight-visual::after {
     content: '';
@@ -401,6 +393,7 @@
     transition: all 0.25s ease;
 }
 
+.artist-link i, .artist-link svg { flex-shrink: 0; width: 14px; text-align: center; }
 .artist-link:hover {
     background: var(--btc-orange);
     color: #000;
@@ -610,7 +603,7 @@
     <div class="spotlight-section">
         <div class="spotlight-label">Featured Artist</div>
         <div class="spotlight-card">
-            <div class="spotlight-visual">{{ featured.image_emoji if featured else '\ud83c\udfa8' }}</div>
+            <div <div class="spotlight-visual" style="overflow:hidden;padding:0;"><img id="spotlightImg" src="https://unavatar.io/twitter/SusanVanV1" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.style.background='#1a1a1a'"></div>
             <div class="spotlight-info">
                 <div class="spotlight-badge">{{ featured.category if featured else 'Visual Art' }} &middot; Weekly Spotlight</div>
                 <h2 class="spotlight-name">{{ featured.name if featured else 'Essence of Bitcoin' }}</h2>
@@ -645,7 +638,7 @@
 
             
             <!-- Essence of Bitcoin -->
-            <div class="artist-card" data-cat="visual"><div class="artist-img-wrap"><img src="https://unavatar.io/twitter/SusanVanV1" alt="Essence of Bitcoin" loading="lazy" onerror="this.style.background='#1a1a1a'"><div class="artist-cat-badge" style="background:#f7931a;">Visual Art</div></div><div class="artist-body"><div class="artist-meta"><span class="artist-handle">@SusanVanV1</span></div><h3 class="artist-name">Essence of Bitcoin</h3><p class="artist-desc">Stunning wood-burned Bitcoin art. 12,000 volts burn lightning channels into wood.</p><div class="artist-links"><a href="https://essenceofbitcoin.com" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a><a href="https://x.com/SusanVanV1" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a><a href="#" class="artist-link zap-btn" title="Zap"><i class="fas fa-bolt"></i> Zap</a></div></div></div>
+            
             <div class="artist-card" data-cat="visual"><div class="artist-img-wrap"><img src="https://unavatar.io/twitter/pascalboyart" alt="Pascal Boyart" loading="lazy" onerror="this.style.background='#1a1a1a'"><div class="artist-cat-badge" style="background:#f7931a;">Visual Art</div></div><div class="artist-body"><div class="artist-meta"><span class="artist-handle">@pascalboyart</span></div><h3 class="artist-name">Pascal Boyart</h3><p class="artist-desc">Pioneering street artist who hid Bitcoin QR codes in Paris murals since 2013.</p><div class="artist-links"><a href="https://pboy.fr" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a><a href="https://x.com/pascalboyart" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a><a href="#" class="artist-link zap-btn" title="Zap"><i class="fas fa-bolt"></i> Zap</a></div></div></div>
             <div class="artist-card" data-cat="visual"><div class="artist-img-wrap"><img src="https://unavatar.io/twitter/cryptograffiti" alt="Cryptograffiti" loading="lazy" onerror="this.style.background='#1a1a1a'"><div class="artist-cat-badge" style="background:#f7931a;">Visual Art</div></div><div class="artist-body"><div class="artist-meta"><span class="artist-handle">@cryptograffiti</span></div><h3 class="artist-name">Cryptograffiti</h3><p class="artist-desc">Early Bitcoin street artist since 2013. Billboards, puzzles, sovereign money iconography.</p><div class="artist-links"><a href="https://cryptograffiti.com" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a><a href="https://x.com/cryptograffiti" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a><a href="#" class="artist-link zap-btn" title="Zap"><i class="fas fa-bolt"></i> Zap</a></div></div></div>
             <div class="artist-card" data-cat="physical"><div class="artist-img-wrap"><img src="https://unavatar.io/twitter/transparentartist" alt="Transparent Artist" loading="lazy" onerror="this.style.background='#1a1a1a'"><div class="artist-cat-badge" style="background:#28b482;">Physical Goods</div></div><div class="artist-body"><div class="artist-meta"><span class="artist-handle">@transparentartist</span></div><h3 class="artist-name">Transparent Artist</h3><p class="artist-desc">Banksy-inspired Bitcoin prints by Josh Leidolf. Artwork sent to space on SpaceX.</p><div class="artist-links"><a href="https://x.com/transparentartist" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a><a href="#" class="artist-link zap-btn" title="Zap"><i class="fas fa-bolt"></i> Zap</a></div></div></div>
