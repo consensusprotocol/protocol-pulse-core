@@ -962,7 +962,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
         <div style="display:grid;grid-template-columns:1fr 420px;gap:0;">
             <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:4px;">
-                <canvas id="ssm-radar" width="600" height="600" style="max-width:100%;width:100%;"></canvas>
+                <canvas id="ssm-radar" width="800" height="800" style="max-width:100%;width:100%;"></canvas>
                 <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);text-align:center;">
                     <span style="font-family:monospace;font-size:22px;font-weight:900;color:#fff;" id="ssm-composite">--</span>
                     <span style="font-family:monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
@@ -970,24 +970,24 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             </div>
             <div style="display:flex;flex-direction:column;gap:0;border-left:1px solid rgba(255,255,255,0.04);">
                 <div style="padding:8px 10px;flex:1;overflow-y:auto;">
-                    <div style="font-family:monospace;font-size:11px;font-weight:800;letter-spacing:0.14em;color:#dc2626;margin-bottom:8px;">PROPRIETARY INDICES</div>
+                    <div style="font-family:monospace;font-size:13px;font-weight:800;letter-spacing:0.14em;color:#dc2626;margin-bottom:8px;">PROPRIETARY INDICES</div>
                     <div id="ssm-indices" style="display:flex;flex-direction:column;gap:4px;">
                         <div style="color:rgba(255,255,255,0.15);font-size:9px;">Loading...</div>
                     </div>
                 </div>
                 <div style="border-top:1px solid rgba(255,255,255,0.04);padding:6px 10px;max-height:280px;overflow:hidden;display:flex;flex-direction:column;">
                     <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                        <span style="font-size:11px;font-weight:700;letter-spacing:0.10em;color:rgba(255,255,255,0.4);">LIVE INTEL STREAM</span>
-                        <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;"></span><span id="cf-count" style="font-size:10px;color:rgba(255,255,255,0.25);">0</span><span id="intel-epm" style="font-size:9px;color:rgba(255,255,255,0.2);margin-left:3px;"></span></span>
+                        <span style="font-size:13px;font-weight:700;letter-spacing:0.10em;color:rgba(255,255,255,0.5);">LIVE INTEL STREAM</span>
+                        <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;"></span><span id="cf-count" style="font-size:12px;color:rgba(255,255,255,0.3);">0</span><span id="intel-epm" style="font-size:11px;color:rgba(255,255,255,0.25);margin-left:3px;"></span></span>
                     </div>
                     <div id="intel-filters" style="display:flex;gap:2px;margin-bottom:3px;flex-wrap:wrap;">
-                        <button class="intel-filter-btn active" data-filter="ALL" style="font-size:9px;padding:3px 6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:monospace;">ALL</button>
-                        <button class="intel-filter-btn active" data-filter="BLOCK" style="font-size:9px;padding:3px 6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:2px;color:#22c55e;cursor:pointer;font-family:monospace;">BLK</button>
-                        <button class="intel-filter-btn active" data-filter="TX" style="font-size:9px;padding:3px 6px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:2px;color:#f97316;cursor:pointer;font-family:monospace;">TX</button>
-                        <button class="intel-filter-btn active" data-filter="FEE" style="font-size:9px;padding:3px 6px;background:rgba(248,193,92,0.1);border:1px solid rgba(248,193,92,0.2);border-radius:2px;color:#f8c15c;cursor:pointer;font-family:monospace;">FEE</button>
-                        <button class="intel-filter-btn active" data-filter="INDEX" style="font-size:9px;padding:3px 6px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);border-radius:2px;color:#dc2626;cursor:pointer;font-family:monospace;">IDX</button>
-                        <button class="intel-filter-btn active" data-filter="WHALE" style="font-size:9px;padding:3px 6px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:2px;color:#f97316;cursor:pointer;font-family:monospace;">W</button>
-                        <button class="intel-filter-btn active" data-filter="PRICE" style="font-size:9px;padding:3px 6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:2px;color:#22c55e;cursor:pointer;font-family:monospace;">$</button>
+                        <button class="intel-filter-btn active" data-filter="ALL" style="font-size:10px;padding:3px 7px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:monospace;">ALL</button>
+                        <button class="intel-filter-btn active" data-filter="BLOCK" style="font-size:10px;padding:3px 7px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:2px;color:#22c55e;cursor:pointer;font-family:monospace;">BLK</button>
+                        <button class="intel-filter-btn active" data-filter="TX" style="font-size:10px;padding:3px 7px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:2px;color:#f97316;cursor:pointer;font-family:monospace;">TX</button>
+                        <button class="intel-filter-btn active" data-filter="FEE" style="font-size:10px;padding:3px 7px;background:rgba(248,193,92,0.1);border:1px solid rgba(248,193,92,0.2);border-radius:2px;color:#f8c15c;cursor:pointer;font-family:monospace;">FEE</button>
+                        <button class="intel-filter-btn active" data-filter="INDEX" style="font-size:10px;padding:3px 7px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);border-radius:2px;color:#dc2626;cursor:pointer;font-family:monospace;">IDX</button>
+                        <button class="intel-filter-btn active" data-filter="WHALE" style="font-size:10px;padding:3px 7px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:2px;color:#f97316;cursor:pointer;font-family:monospace;">W</button>
+                        <button class="intel-filter-btn active" data-filter="PRICE" style="font-size:10px;padding:3px 7px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:2px;color:#22c55e;cursor:pointer;font-family:monospace;">$</button>
                     </div>
                     <div id="cf-scroll" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
                         <div id="cf-inner" style="display:flex;flex-direction:column;gap:0;padding:2px 0;"></div>
@@ -1988,14 +1988,14 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     const rctx = canvas.getContext('2d');
     // HiDPI / Retina scaling — render at native pixel density
     var dpr = window.devicePixelRatio || 1;
-    var cssW = canvas.clientWidth || 600;
-    var cssH = canvas.clientHeight || 600;
-    canvas.width = cssW * dpr;
-    canvas.height = cssH * dpr;
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = cssH + 'px';
+    var rect = canvas.getBoundingClientRect();
+    var cssW = rect.width > 0 ? rect.width : 800;
+    var cssH = rect.height > 0 ? rect.height : 800;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
     rctx.scale(dpr, dpr);
     const W = cssW, H = cssH;
+    console.log('SSM Radar: ' + canvas.width + 'x' + canvas.height + ' @ ' + dpr + 'x DPR');
     const cx = W / 2, cy = H / 2;
     const maxR = Math.min(W, H) * 0.38;
 
@@ -2726,7 +2726,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     var div=document.createElement('div');
     div.className='intel-event';div.setAttribute('data-type',type);
     var op=opacity||0.85;
-    div.style.cssText='display:flex;gap:5px;padding:2px 6px;font-family:monospace;font-size:11px;opacity:'+op+';animation:intelSlideIn 0.2s ease-out;position:relative;';
+    div.style.cssText='display:flex;gap:5px;padding:2px 6px;font-family:monospace;font-size:13px;opacity:'+op+';animation:intelSlideIn 0.2s ease-out;position:relative;';
     if(!_activeFilters[type]&&type!=='ALL')div.style.display='none';
     var flashBg=document.createElement('div');
     flashBg.style.cssText='position:absolute;inset:0;background:'+color+';opacity:0.1;animation:intelFlash 0.5s ease-out forwards;pointer-events:none;';
