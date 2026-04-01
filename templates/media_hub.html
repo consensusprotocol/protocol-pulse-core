@@ -753,7 +753,7 @@ function mhNlSub(e){
         var canvas=document.getElementById('bookBubbleChart');
         if(!canvas)return;
         var ctx=canvas.getContext('2d');
-        var now=new Date();
+        var PP_ASINS=['B0DVTCVX8J','9916697191','0241360846','B0CQLMQRH7'];
         var ppBooks=[],risingBooks=[],stableBooks=[];
         books.forEach(function(b){
             if(PP_ASINS.indexOf(b.asin)>=0)ppBooks.push(b);
@@ -763,7 +763,7 @@ function mhNlSub(e){
         function mkPts(arr){
             return arr.map(function(b){
                 var bsr=b.bsr||50000;
-                // Bubble size: lower BSR = bigger. Log scale for visibility
+                // Log-scale bubble: lower BSR = bigger bubble
                 var r=Math.max(6,Math.min(32,32-Math.log10(bsr)*5.5));
                 // X: BSR momentum — negative=improving, positive=declining
                 var x=Math.max(-42,Math.min(22,b.bsr_change||0));
@@ -773,8 +773,8 @@ function mhNlSub(e){
             });
         }
         var datasets=[
-            {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.5)',borderColor:'rgba(220,38,38,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.7)'},
-            {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.4)',borderColor:'rgba(34,197,94,0.7)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.6)'},
+            {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.55)',borderColor:'rgba(220,38,38,0.9)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.8)'},
+            {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.45)',borderColor:'rgba(34,197,94,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.7)'},
             {label:'Stable',data:mkPts(stableBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
         ];
         if(bookChart)bookChart.destroy();
@@ -784,26 +784,64 @@ function mhNlSub(e){
                 responsive:true,maintainAspectRatio:false,
                 animation:{duration:1200,easing:'easeOutQuart'},
                 scales:{
-                    x:{title:{display:true,text:'BSR MOMENTUM',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:-45,max:25,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9},callback:function(v){return v<=-20?'HOT':v<=-10?'RISING':v<=0?'STABLE':'COOLING';}}},
-                    y:{title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:0,max:105,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9}}}
+                    x:{
+                        title:{display:true,text:'BSR MOMENTUM',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
+                        min:-45,max:25,
+                        grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
+                        ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9},
+                            callback:function(v){
+                                if(v===-40)return 'HOT';
+                                if(v===-20)return 'RISING';
+                                if(v===0)return 'STABLE';
+                                if(v===20)return 'COOLING';
+                                return '';
+                            }
+                        }
+                    },
+                    y:{
+                        title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
+                        min:0,max:105,
+                        grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
+                        ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9}}
+                    }
                 },
                 plugins:{
-                    legend:{display:false},
+                    legend:{
+                        display:true,
+                        position:'top',
+                        labels:{color:'rgba(255,255,255,0.6)',font:{family:'JetBrains Mono',size:9},boxWidth:10,padding:16}
+                    },
                     tooltip:{
-                        backgroundColor:'#16161c',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
-                        titleFont:{family:'Outfit',size:13,weight:'700'},bodyFont:{family:'JetBrains Mono',size:11},
-                        titleColor:'#fafafa',bodyColor:'rgba(255,255,255,0.7)',padding:12,cornerRadius:8,
+                        backgroundColor:'#0d0d0d',
+                        borderColor:'rgba(255,255,255,0.12)',borderWidth:1,
+                        titleFont:{family:'JetBrains Mono',size:12,weight:'700'},
+                        bodyFont:{family:'JetBrains Mono',size:10},
+                        titleColor:'#fff',bodyColor:'rgba(255,255,255,0.65)',
+                        padding:14,cornerRadius:8,
                         callbacks:{
                             title:function(items){return items[0].raw.book.title;},
-                            label:function(item){var b=item.raw.book;var l=[b.author,'BSR: #'+b.bsr.toLocaleString()];if(b.bsr_change)l.push('24h: '+(b.bsr_change>0?'+':'')+b.bsr_change+'%');if(b.is_rising)l.push('RISING STAR');return l;}
+                            label:function(item){
+                                var b=item.raw.book;
+                                var lines=['by '+b.author,'BSR: #'+b.bsr.toLocaleString()];
+                                if(b.bsr_change)lines.push('Momentum: '+(b.bsr_change>0?'+':'')+b.bsr_change+'%');
+                                if(b.is_rising)lines.push('RISING STAR');
+                                if(b.is_breakout)lines.push('INITIAL BREAKOUT');
+                                return lines;
+                            }
                         }
                     }
                 },
-                onClick:function(evt,elements){if(elements.length>0){var b=bookChart.data.datasets[elements[0].datasetIndex].data[elements[0].index].book;if(b.amazon_url)window.open(b.amazon_url,'_blank');}},
+                onClick:function(evt,elements){
+                    if(elements.length>0){
+                        var b=bookChart.data.datasets[elements[0].datasetIndex].data[elements[0].index].book;
+                        if(b.amazon_url)window.open(b.amazon_url,'_blank');
+                    }
+                },
                 onHover:function(evt,elements){evt.native.target.style.cursor=elements.length>0?'pointer':'default';}
             }
         });
     }
+
 
     function renderRisingStars(rising){
         var section=document.getElementById('risingStarsSection');

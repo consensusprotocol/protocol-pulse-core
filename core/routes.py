@@ -2610,23 +2610,43 @@ def media_hub():
 @app.route('/api/books/metrics')
 def api_book_metrics():
     """Sovereign Book Library — live metrics for bubble chart visualization."""
+    from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
+    def _ensure_affiliate(url, tag='protocolpulse-20'):
+        """Enforce affiliate tag server-side — single source of truth."""
+        if not url or 'amazon.com' not in url:
+            return url
+        parsed = urlparse(url)
+        qs = parse_qs(parsed.query, keep_blank_values=True)
+        qs['tag'] = [tag]
+        return urlunparse(parsed._replace(query=urlencode(qs, doseq=True)))
+
+    PP_ASINS = ['B0DVTCVX8J', '9916697191', '0241360846', 'B0CQLMQRH7']
+
     metrics_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'book_metrics.json')
     featured_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'featured_book.json')
+
+    books = []
+    last_updated = ''
+    fetch_health = {}
     try:
         with open(metrics_path) as f:
             metrics = json.load(f)
         books = metrics.get('books', [])
         last_updated = metrics.get('last_updated', '')
+        fetch_health = metrics.get('fetch_health', {})
     except Exception:
-        books = []
-        last_updated = ''
+        pass
+
+    # Enforce affiliate tag on every outbound URL
+    for b in books:
+        b['amazon_url'] = _ensure_affiliate(b.get('amazon_url', ''))
 
     # Load featured book
     featured = None
     try:
         with open(featured_path) as f:
             featured = json.load(f)
-        # Check end_date
         if featured.get('end_date'):
             from datetime import datetime
             end = datetime.fromisoformat(featured['end_date'])
@@ -2635,16 +2655,56 @@ def api_book_metrics():
     except Exception:
         featured = None
 
-    # Rising stars: BSR improved >10% (negative bsr_change = sales going UP)
+    # Featured fallback rotation chain
+    if featured is None and books:
+        # 1. Top PP series by velocity
+        pp = [b for b in books if b.get('asin') in PP_ASINS]
+        pp_sorted = sorted(pp, key=lambda b: b.get('velocity', 0), reverse=True)
+        # 2. Top rising star
+        rising_sorted = sorted([b for b in books if b.get('is_rising')], key=lambda b: b.get('bsr_change', 0))
+        # 3. Best BSR overall
+        bsr_sorted = sorted(books, key=lambda b: b.get('bsr', 999999))
+        candidate = (pp_sorted or rising_sorted or bsr_sorted or [None])[0]
+        if candidate:
+            featured = {
+                'title': candidate['title'],
+                'author': candidate['author'],
+                'cover_url': candidate['cover_url'],
+                'amazon_url': candidate['amazon_url'],
+                'headline': 'Currently Trending in Sovereign Money',
+                'body_text': f"BSR #{candidate['bsr']:,} — {candidate.get('category', 'Bitcoin')}",
+                'badge': 'TRENDING',
+            }
+
+    # Rising stars sorted by biggest rank improvement
     rising = [b for b in books if b.get('is_rising')]
     rising.sort(key=lambda b: b.get('bsr_change', 0))
 
+    # Stale indicator
+    stale = False
+    if last_updated:
+        try:
+            from datetime import datetime, timezone, timedelta
+            lu = datetime.fromisoformat(last_updated)
+            if lu.tzinfo is None:
+                lu = lu.replace(tzinfo=timezone.utc)
+            stale = (datetime.now(timezone.utc) - lu) > timedelta(hours=48)
+        except Exception:
+            pass
+
     return jsonify({
-        'books': books,
-        'rising': rising[:5],
-        'featured': featured,
+        'status': 'ok',
+        'source': 'amazon_scrape',
         'last_updated': last_updated,
+        'stale': stale,
+        'stale_after_hours': 48,
+        'fetch_health': fetch_health,
+        'featured': featured,
+        'rising': rising[:5],
+        'books': books,
     })
+
+
 
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
