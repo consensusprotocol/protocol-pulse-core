@@ -1,402 +1,953 @@
 {% extends "base.html" %}
 
-{% block title %}Bitcoin Artists & Creators | Protocol Pulse{% endblock %}
+{% block title %}Sovereign Creativity Hub — Bitcoin Artists & Creators | Protocol Pulse{% endblock %}
+
+{% block meta_description %}Discover Bitcoin's finest artists, makers, and creators. Visual art, digital art, physical goods, apparel, and content from the sovereign creativity movement.{% endblock %}
 
 {% block head %}
 <style>
 :root {
-    --pp-red: #dc2626;
-    --pp-dark: #0a0a0a;
     --btc-orange: #f7931a;
-    --pp-glass: rgba(10, 10, 10, 0.85);
+    --btc-orange-dim: rgba(247, 147, 26, 0.15);
+    --hub-bg: #050505;
+    --hub-surface: rgba(10, 10, 10, 0.88);
+    --hub-border: rgba(255, 255, 255, 0.06);
+    --hub-text: rgba(255, 255, 255, 0.7);
+    --hub-text-dim: rgba(255, 255, 255, 0.45);
 }
 
-.artists-page {
+.hub-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0808 50%, #0a0a0a 100%);
+    background: var(--hub-bg);
     padding-top: 100px;
     padding-bottom: 80px;
 }
 
-.artists-hero {
+/* ─── HERO ─── */
+.hub-hero {
     text-align: center;
-    padding: 60px 20px;
+    padding: 70px 20px 40px;
     max-width: 900px;
     margin: 0 auto;
+    position: relative;
 }
 
-.hero-label {
+.hub-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(247, 147, 26, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hub-hero > * { position: relative; z-index: 1; }
+
+.hub-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--pp-red);
+    font-size: 0.7rem;
+    color: var(--btc-orange);
     text-transform: uppercase;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
-.artists-title {
+.hub-label::before, .hub-label::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--btc-orange);
+    opacity: 0.4;
+}
+
+.hub-title {
     font-family: 'Crimson Pro', serif;
-    font-size: 3.5rem;
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 700;
     color: #fff;
     margin-bottom: 20px;
-    line-height: 1.1;
+    line-height: 1.05;
 }
 
-.artists-title span {
-    color: var(--btc-orange);
+.hub-title span {
+    background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.artists-subtitle {
+.hub-subtitle {
     font-family: 'Crimson Pro', serif;
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.15rem;
+    color: var(--hub-text);
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.7;
 }
 
-.category-tabs {
+/* ─── FILTER BAR ─── */
+.filter-bar {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    padding: 40px 20px;
+    gap: 10px;
+    padding: 30px 20px 10px;
     flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.tab-btn {
-    padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: rgba(255, 255, 255, 0.7);
+.filter-btn {
+    padding: 10px 22px;
+    background: transparent;
+    border: 1px solid var(--hub-border);
+    border-radius: 100px;
+    color: var(--hub-text-dim);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-.tab-btn:hover, .tab-btn.active {
+.filter-btn:hover {
+    color: var(--btc-orange);
+    border-color: rgba(247, 147, 26, 0.4);
+    background: rgba(247, 147, 26, 0.05);
+}
+
+.filter-btn.active {
     background: var(--btc-orange);
     color: #000;
     border-color: var(--btc-orange);
+    font-weight: 600;
 }
 
-.creators-grid {
+/* ─── FEATURED SPOTLIGHT ─── */
+.spotlight-section {
+    max-width: 1100px;
+    margin: 50px auto 30px;
+    padding: 0 20px;
+}
+
+.spotlight-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+}
+
+.spotlight-card {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    background: var(--hub-surface);
+    border: 1px solid rgba(247, 147, 26, 0.2);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.spotlight-card:hover {
+    border-color: rgba(247, 147, 26, 0.5);
+    box-shadow: 0 30px 80px rgba(247, 147, 26, 0.08);
+}
+
+.spotlight-visual {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.2) 0%, rgba(247, 147, 26, 0.05) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6rem;
+    min-height: 280px;
+    position: relative;
+}
+
+.spotlight-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(247, 147, 26, 0.1), transparent 70%);
+}
+
+.spotlight-info {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.spotlight-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--btc-orange);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    padding: 5px 12px;
+    background: rgba(247, 147, 26, 0.1);
+    border: 1px solid rgba(247, 147, 26, 0.2);
+    border-radius: 100px;
+    display: inline-block;
+    margin-bottom: 16px;
+    width: fit-content;
+}
+
+.spotlight-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.spotlight-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--hub-text-dim);
+    margin-bottom: 16px;
+}
+
+.spotlight-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    color: var(--hub-text);
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+
+.spotlight-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.spotlight-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.spotlight-link.primary {
+    background: var(--btc-orange);
+    color: #000;
+}
+
+.spotlight-link.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(247, 147, 26, 0.3);
+}
+
+.spotlight-link.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.spotlight-link.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.spotlight-link.zap {
+    background: rgba(247, 147, 26, 0.1);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    color: var(--btc-orange);
+}
+
+.spotlight-link.zap:hover {
+    background: rgba(247, 147, 26, 0.2);
+}
+
+/* ─── ARTIST GRID ─── */
+.grid-section {
     max-width: 1400px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
-.creator-card {
-    background: var(--pp-glass);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+.grid-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.grid-header-line {
+    flex: 1;
+    height: 1px;
+    background: var(--hub-border);
+}
+
+.grid-header-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--hub-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    white-space: nowrap;
+}
+
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.artist-card {
+    background: var(--hub-surface);
+    border: 1px solid var(--hub-border);
     border-radius: 20px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(40px);
+    backdrop-filter: blur(20px);
 }
 
-.creator-card:hover {
-    transform: translateY(-8px);
-    border-color: var(--btc-orange);
-    box-shadow: 0 20px 60px rgba(247, 147, 26, 0.15);
+.artist-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(247, 147, 26, 0.4);
+    box-shadow: 0 20px 60px rgba(247, 147, 26, 0.12);
 }
 
-.creator-banner {
-    height: 120px;
-    background: linear-gradient(135deg, rgba(247, 147, 26, 0.3) 0%, rgba(220, 38, 38, 0.2) 100%);
+.artist-card.hidden {
+    display: none;
+}
+
+.artist-banner {
+    height: 100px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    text-shadow: none;
-    -webkit-text-fill-color: initial;
-    -webkit-background-clip: unset;
+    font-size: 2.5rem;
+    overflow: hidden;
 }
 
-.creator-content {
-    padding: 1.5rem;
+.artist-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
 }
 
-.creator-type {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--btc-orange);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
+.artist-banner > span { position: relative; z-index: 1; }
+
+.artist-banner.cat-visual::before { background: linear-gradient(135deg, rgba(247, 147, 26, 0.25), rgba(220, 120, 10, 0.08)); }
+.artist-banner.cat-digital::before { background: linear-gradient(135deg, rgba(130, 80, 255, 0.25), rgba(80, 40, 160, 0.08)); }
+.artist-banner.cat-physical::before { background: linear-gradient(135deg, rgba(40, 180, 130, 0.25), rgba(20, 100, 70, 0.08)); }
+.artist-banner.cat-apparel::before { background: linear-gradient(135deg, rgba(220, 50, 50, 0.25), rgba(140, 30, 30, 0.08)); }
+.artist-banner.cat-content::before { background: linear-gradient(135deg, rgba(60, 140, 230, 0.25), rgba(30, 80, 140, 0.08)); }
+
+.artist-body {
+    padding: 20px 24px 24px;
 }
 
-.creator-name {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #fff;
+.artist-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 10px;
 }
 
-.creator-desc {
-    font-family: 'Crimson Pro', serif;
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.65);
-    line-height: 1.6;
-    margin-bottom: 15px;
+.artist-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-weight: 600;
 }
 
-.creator-links {
+.artist-category.visual { background: rgba(247, 147, 26, 0.15); color: #f7931a; }
+.artist-category.digital { background: rgba(130, 80, 255, 0.15); color: #a78bfa; }
+.artist-category.physical { background: rgba(40, 180, 130, 0.15); color: #34d399; }
+.artist-category.apparel { background: rgba(220, 50, 50, 0.15); color: #f87171; }
+.artist-category.content { background: rgba(60, 140, 230, 0.15); color: #60a5fa; }
+
+.artist-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--hub-text-dim);
+}
+
+.artist-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.artist-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.92rem;
+    color: var(--hub-text);
+    line-height: 1.6;
+    margin-bottom: 18px;
+    min-height: 44px;
+}
+
+.artist-links {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-.creator-link {
+.artist-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 7px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.7);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 }
 
-.creator-link:hover {
+.artist-link:hover {
     background: var(--btc-orange);
     color: #000;
     border-color: var(--btc-orange);
 }
 
-.creator-link.shop {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-    color: var(--pp-red);
+.artist-link.zap-btn {
+    background: rgba(247, 147, 26, 0.08);
+    border-color: rgba(247, 147, 26, 0.2);
+    color: var(--btc-orange);
 }
 
-.creator-link.shop:hover {
-    background: var(--pp-red);
-    color: #fff;
+.artist-link.zap-btn:hover {
+    background: var(--btc-orange);
+    color: #000;
 }
 
-.section-divider {
-    text-align: center;
-    padding: 60px 20px 30px;
-}
-
-.divider-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 4px;
-}
-
+/* ─── SUBMIT FORM ─── */
 .submit-section {
-    max-width: 800px;
+    max-width: 700px;
     margin: 60px auto;
     padding: 0 20px;
 }
 
 .submit-card {
-    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--pp-glass) 100%);
-    border: 1px solid rgba(247, 147, 26, 0.3);
+    background: var(--hub-surface);
+    border: 1px solid rgba(247, 147, 26, 0.15);
     border-radius: 24px;
-    padding: 50px;
+    padding: 50px 40px;
+}
+
+.submit-header {
     text-align: center;
+    margin-bottom: 35px;
 }
 
 .submit-title {
     font-family: 'Crimson Pro', serif;
-    font-size: 2rem;
+    font-size: 1.8rem;
     color: #fff;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .submit-desc {
     font-family: 'Crimson Pro', serif;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 25px;
+    font-size: 1rem;
+    color: var(--hub-text-dim);
+}
+
+.submit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group.full { grid-column: 1 / -1; }
+
+.form-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--hub-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.form-input, .form-select, .form-textarea {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--btc-orange);
+    box-shadow: 0 0 0 3px rgba(247, 147, 26, 0.1);
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+}
+
+.form-select option {
+    background: #111;
+    color: #fff;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
 }
 
 .submit-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    padding: 14px 28px;
+    padding: 14px 32px;
     background: var(--btc-orange);
     color: #000;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    text-decoration: none;
+    border: none;
     border-radius: 12px;
+    cursor: pointer;
     transition: all 0.3s ease;
+    margin-top: 8px;
 }
 
 .submit-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
 }
+
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.submit-status {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    margin-top: 12px;
+    min-height: 24px;
+}
+
+.submit-status.success { color: #34d399; }
+.submit-status.error { color: #f87171; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+    .spotlight-card {
+        grid-template-columns: 1fr;
+    }
+    .spotlight-visual {
+        min-height: 180px;
+        font-size: 4rem;
+    }
+    .spotlight-info {
+        padding: 28px;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .artists-grid {
+        grid-template-columns: 1fr;
+    }
+    .submit-card {
+        padding: 30px 24px;
+    }
+    .filter-bar {
+        gap: 6px;
+    }
+    .filter-btn {
+        padding: 8px 16px;
+        font-size: 0.65rem;
+    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="artists-page">
-    <div class="artists-hero">
-        <div class="hero-label">Sovereign Creativity</div>
-        <h1 class="artists-title">Bitcoin <span>Artists & Creators</span></h1>
-        <p class="artists-subtitle">Discover the artists, makers, and creators building beautiful things in the Bitcoin ecosystem. Support sovereign art.</p>
+<div class="hub-page">
+
+    <!-- HERO -->
+    <div class="hub-hero">
+        <div class="hub-label">Protocol Pulse</div>
+        <h1 class="hub-title">Sovereign <span>Creativity Hub</span></h1>
+        <p class="hub-subtitle">Bitcoin's artists, makers, and creators. Discover sovereign art, support creators directly, and explore the growing culture of freedom through craft.</p>
     </div>
-    
-    <div class="category-tabs">
-        <button class="tab-btn active" data-category="all">All Creators</button>
-        <button class="tab-btn" data-category="visual">Visual Art</button>
-        <button class="tab-btn" data-category="physical">Physical Goods</button>
-        <button class="tab-btn" data-category="digital">Digital Art</button>
-        <button class="tab-btn" data-category="content">Content</button>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <button class="filter-btn active" data-cat="all">All</button>
+        <button class="filter-btn" data-cat="visual">Visual Art</button>
+        <button class="filter-btn" data-cat="digital">Digital Art</button>
+        <button class="filter-btn" data-cat="physical">Physical Goods</button>
+        <button class="filter-btn" data-cat="apparel">Apparel</button>
+        <button class="filter-btn" data-cat="content">Content & Comics</button>
     </div>
-    
-    <div class="creators-grid">
-        <div class="creator-card" data-category="visual">
-            <div class="creator-banner">🎨</div>
-            <div class="creator-content">
-                <div class="creator-type">Visual Artist</div>
-                <h3 class="creator-name">FractalEncrypt</h3>
-                <p class="creator-desc">Stunning Bitcoin-themed digital art and generative pieces. Every piece tells a story of sovereignty.</p>
-                <div class="creator-links">
-                    <a href="https://twitter.com/FractalEncrypt" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="#" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="physical">
-            <div class="creator-banner">🔥</div>
-            <div class="creator-content">
-                <div class="creator-type">Apparel & Goods</div>
-                <h3 class="creator-name">Orange Pill App</h3>
-                <p class="creator-desc">Premium Bitcoin apparel and merchandise. Wear your conviction.</p>
-                <div class="creator-links">
-                    <a href="https://twitter.com/orangepillapp" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="https://orangepillapp.com" target="_blank" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="physical">
-            <div class="creator-banner">⚡</div>
-            <div class="creator-content">
-                <div class="creator-type">Hardware Art</div>
-                <h3 class="creator-name">Coinkite</h3>
-                <p class="creator-desc">Beautiful hardware wallets and Bitcoin accessories. Function meets art.</p>
-                <div class="creator-links">
-                    <a href="https://twitter.com/coinkite" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="https://coinkite.com" target="_blank" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="digital">
-            <div class="creator-banner">🖼️</div>
-            <div class="creator-content">
-                <div class="creator-type">Digital Artist</div>
-                <h3 class="creator-name">Bitcoin Art Gallery</h3>
-                <p class="creator-desc">Curated collection of the finest Bitcoin art from around the world.</p>
-                <div class="creator-links">
-                    <a href="#" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="#" class="creator-link shop"><i class="fas fa-globe"></i> Gallery</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="content">
-            <div class="creator-banner">📖</div>
-            <div class="creator-content">
-                <div class="creator-type">Author</div>
-                <h3 class="creator-name">Saifedean Ammous</h3>
-                <p class="creator-desc">Author of The Bitcoin Standard. Essential reading for every sovereign.</p>
-                <div class="creator-links">
-                    <a href="https://twitter.com/saaboratilmand" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="https://saifedean.com" target="_blank" class="creator-link shop"><i class="fas fa-book"></i> Books</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="physical">
-            <div class="creator-banner">👕</div>
-            <div class="creator-content">
-                <div class="creator-type">Apparel</div>
-                <h3 class="creator-name">Bitcoin Magazine Store</h3>
-                <p class="creator-desc">Official Bitcoin Magazine merch. Conference exclusives and classics.</p>
-                <div class="creator-links">
-                    <a href="https://twitter.com/bitcoinmagazine" target="_blank" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="https://store.bitcoinmagazine.com" target="_blank" class="creator-link shop"><i class="fas fa-store"></i> Shop</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="visual">
-            <div class="creator-banner">🖌️</div>
-            <div class="creator-content">
-                <div class="creator-type">Comic Artist</div>
-                <h3 class="creator-name">Bitcoin Comics</h3>
-                <p class="creator-desc">Original Bitcoin-themed comics and graphic novels. Orange-pilling through art.</p>
-                <div class="creator-links">
-                    <a href="#" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="#" class="creator-link shop"><i class="fas fa-book-open"></i> Read</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="creator-card" data-category="digital">
-            <div class="creator-banner">🎭</div>
-            <div class="creator-content">
-                <div class="creator-type">Meme Lord</div>
-                <h3 class="creator-name">Bitcoin Meme Hub</h3>
-                <p class="creator-desc">The finest Bitcoin memes. Humor that hits harder than a block reward.</p>
-                <div class="creator-links">
-                    <a href="#" class="creator-link"><i class="fab fa-x-twitter"></i> X</a>
-                    <a href="#" class="creator-link"><i class="fab fa-instagram"></i> Instagram</a>
+
+    <!-- FEATURED SPOTLIGHT -->
+    <div class="spotlight-section">
+        <div class="spotlight-label">Featured Artist</div>
+        <div class="spotlight-card">
+            <div class="spotlight-visual">{{ featured.image_emoji if featured else '\ud83c\udfa8' }}</div>
+            <div class="spotlight-info">
+                <div class="spotlight-badge">{{ featured.category if featured else 'Visual Art' }} &middot; Weekly Spotlight</div>
+                <h2 class="spotlight-name">{{ featured.name if featured else 'Essence of Bitcoin' }}</h2>
+                <div class="spotlight-handle">{{ featured.handle if featured else '@SusanVanV1' }}</div>
+                <p class="spotlight-desc">{{ featured.description if featured else 'Breathtaking visual art capturing the philosophical essence of Bitcoin \u2014 sovereignty, freedom, and sound money.' }}</p>
+                <div class="spotlight-actions">
+                    {% if featured and featured.website %}
+                    <a href="{{ featured.website }}" target="_blank" class="spotlight-link primary"><i class="fas fa-globe"></i> Visit</a>
+                    {% else %}
+                    <a href="https://essenceofbitcoin.com" target="_blank" class="spotlight-link primary"><i class="fas fa-globe"></i> Visit</a>
+                    {% endif %}
+                    {% if featured and featured.twitter %}
+                    <a href="{{ featured.twitter }}" target="_blank" class="spotlight-link secondary"><i class="fab fa-x-twitter"></i> Follow</a>
+                    {% else %}
+                    <a href="https://x.com/SusanVanV1" target="_blank" class="spotlight-link secondary"><i class="fab fa-x-twitter"></i> Follow</a>
+                    {% endif %}
+                    <a href="#" class="spotlight-link zap" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
                 </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- ARTIST GRID -->
+    <div class="grid-section">
+        <div class="grid-header">
+            <span class="grid-header-line"></span>
+            <span class="grid-header-text">All Creators</span>
+            <span class="grid-header-line"></span>
+        </div>
+
+        <div class="artists-grid">
+
+            <!-- Essence of Bitcoin -->
+            <div class="artist-card" data-cat="visual">
+                <div class="artist-banner cat-visual"><span>&#127912;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category visual">Visual Art</span>
+                        <span class="artist-handle">@SusanVanV1</span>
+                    </div>
+                    <h3 class="artist-name">Essence of Bitcoin</h3>
+                    <p class="artist-desc">Stunning visual art capturing the philosophical essence of Bitcoin through sovereignty, freedom, and sound money.</p>
+                    <div class="artist-links">
+                        <a href="https://essenceofbitcoin.com" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a>
+                        <a href="https://x.com/SusanVanV1" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BitcoinArtMag -->
+            <div class="artist-card" data-cat="visual">
+                <div class="artist-banner cat-visual"><span>&#128444;&#65039;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category visual">Visual Art</span>
+                        <span class="artist-handle">@BitcoinArtMag</span>
+                    </div>
+                    <h3 class="artist-name">Bitcoin Art Magazine</h3>
+                    <p class="artist-desc">Curating and showcasing the finest Bitcoin art from around the world. A gallery of sovereign expression.</p>
+                    <div class="artist-links">
+                        <a href="https://bitcoinartmagazine.com" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a>
+                        <a href="https://x.com/BitcoinArtMag" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FractalEncrypt -->
+            <div class="artist-card" data-cat="digital">
+                <div class="artist-banner cat-digital"><span>&#128156;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category digital">Digital Art</span>
+                        <span class="artist-handle">@FractalEncrypt</span>
+                    </div>
+                    <h3 class="artist-name">FractalEncrypt</h3>
+                    <p class="artist-desc">Generative and fractal art inspired by Bitcoin's mathematical beauty. Every piece tells a story of sovereignty.</p>
+                    <div class="artist-links">
+                        <a href="https://x.com/FractalEncrypt" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bitcoin Comics -->
+            <div class="artist-card" data-cat="content">
+                <div class="artist-banner cat-content"><span>&#128214;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category content">Content & Comics</span>
+                        <span class="artist-handle">@BitcoinComics</span>
+                    </div>
+                    <h3 class="artist-name">Bitcoin Comics</h3>
+                    <p class="artist-desc">Original Bitcoin-themed comics and graphic stories. Orange-pilling the world one panel at a time.</p>
+                    <div class="artist-links">
+                        <a href="https://x.com/BitcoinComics" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Anik Malcolm -->
+            <div class="artist-card" data-cat="physical">
+                <div class="artist-banner cat-physical"><span>&#128444;&#65039;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category physical">Physical Goods</span>
+                        <span class="artist-handle">@AnikMalcolm</span>
+                    </div>
+                    <h3 class="artist-name">Anik Malcolm</h3>
+                    <p class="artist-desc">Physical art and prints celebrating Bitcoin culture. Limited edition works that bridge digital and tangible art.</p>
+                    <div class="artist-links">
+                        <a href="https://x.com/AnikMalcolm" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bitcoin Meme Hub -->
+            <div class="artist-card" data-cat="content">
+                <div class="artist-banner cat-content"><span>&#128520;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category content">Content & Comics</span>
+                        <span class="artist-handle">@BitcoinMemeHub</span>
+                    </div>
+                    <h3 class="artist-name">Bitcoin Meme Hub</h3>
+                    <p class="artist-desc">The finest Bitcoin memes on the internet. Humor that hits harder than a halving.</p>
+                    <div class="artist-links">
+                        <a href="https://x.com/BitcoinMemeHub" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 21ideas -->
+            <div class="artist-card" data-cat="content">
+                <div class="artist-banner cat-content"><span>&#128161;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category content">Content & Comics</span>
+                        <span class="artist-handle">@21ideas</span>
+                    </div>
+                    <h3 class="artist-name">21ideas</h3>
+                    <p class="artist-desc">Educational content meets artistic expression. Making Bitcoin concepts beautiful and accessible to all.</p>
+                    <div class="artist-links">
+                        <a href="https://x.com/21ideas" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coinkite -->
+            <div class="artist-card" data-cat="physical">
+                <div class="artist-banner cat-physical"><span>&#9889;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category physical">Physical Goods</span>
+                        <span class="artist-handle">@COLDCARDwallet</span>
+                    </div>
+                    <h3 class="artist-name">Coinkite</h3>
+                    <p class="artist-desc">Beautiful hardware wallets and Bitcoin accessories where function meets art. The gold standard of self-custody.</p>
+                    <div class="artist-links">
+                        <a href="https://coinkite.com" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a>
+                        <a href="https://x.com/COLDCARDwallet" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orange Pill App -->
+            <div class="artist-card" data-cat="apparel">
+                <div class="artist-banner cat-apparel"><span>&#128293;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category apparel">Apparel</span>
+                        <span class="artist-handle">@orangepillapp</span>
+                    </div>
+                    <h3 class="artist-name">Orange Pill App</h3>
+                    <p class="artist-desc">Premium Bitcoin apparel and merchandise. Wear your conviction with style and sovereignty.</p>
+                    <div class="artist-links">
+                        <a href="https://orangepillapp.com" target="_blank" class="artist-link"><i class="fas fa-globe"></i> Website</a>
+                        <a href="https://x.com/orangepillapp" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bitcoin Magazine Store -->
+            <div class="artist-card" data-cat="apparel">
+                <div class="artist-banner cat-apparel"><span>&#128085;</span></div>
+                <div class="artist-body">
+                    <div class="artist-meta">
+                        <span class="artist-category apparel">Apparel</span>
+                        <span class="artist-handle">@bitcoinmagazine</span>
+                    </div>
+                    <h3 class="artist-name">Bitcoin Magazine Store</h3>
+                    <p class="artist-desc">Official Bitcoin Magazine merch. Conference exclusives, classics, and limited drops for true Bitcoiners.</p>
+                    <div class="artist-links">
+                        <a href="https://store.bitcoinmagazine.com" target="_blank" class="artist-link"><i class="fas fa-store"></i> Shop</a>
+                        <a href="https://x.com/bitcoinmagazine" target="_blank" class="artist-link"><i class="fab fa-x-twitter"></i> X</a>
+                        <a href="#" class="artist-link zap-btn" title="Support on Nostr"><i class="fas fa-bolt"></i> Zap</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SUBMIT FORM -->
     <div class="submit-section">
         <div class="submit-card">
-            <h3 class="submit-title">Are You a Bitcoin Creator?</h3>
-            <p class="submit-desc">We're always looking to feature more sovereign artists and makers. Submit your work to be included.</p>
-            <a href="mailto:creators@protocolpulse.ai" class="submit-btn"><i class="fas fa-palette"></i> Submit Your Work</a>
+            <div class="submit-header">
+                <h3 class="submit-title">Submit Your Work</h3>
+                <p class="submit-desc">Are you a Bitcoin creator? Get featured in the Sovereign Creativity Hub.</p>
+            </div>
+            <form class="submit-form" id="artist-submit-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Name / Handle</label>
+                        <input type="text" class="form-input" name="name" placeholder="Your artist name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">Select...</option>
+                            <option value="visual">Visual Art</option>
+                            <option value="digital">Digital Art</option>
+                            <option value="physical">Physical Goods</option>
+                            <option value="apparel">Apparel</option>
+                            <option value="content">Content & Comics</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Website</label>
+                        <input type="url" class="form-input" name="website" placeholder="https://your-site.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nostr npub</label>
+                        <input type="text" class="form-input" name="nostr_npub" placeholder="npub1...">
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" name="description" placeholder="Tell us about your work..." required></textarea>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Sample Work URL</label>
+                    <input type="url" class="form-input" name="sample_url" placeholder="Link to your portfolio or sample piece">
+                </div>
+                <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit for Review</button>
+                <div class="submit-status" id="submit-status"></div>
+            </form>
         </div>
     </div>
+
 </div>
 
 <script>
-document.querySelectorAll('.tab-btn').forEach(btn => {
+/* ─── Category Filter ─── */
+document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        
-        const category = this.dataset.category;
-        document.querySelectorAll('.creator-card').forEach(card => {
-            if (category === 'all' || card.dataset.category === category) {
-                card.style.display = 'block';
+        const cat = this.dataset.cat;
+        document.querySelectorAll('.artist-card').forEach(card => {
+            if (cat === 'all' || card.dataset.cat === cat) {
+                card.classList.remove('hidden');
             } else {
-                card.style.display = 'none';
+                card.classList.add('hidden');
             }
         });
     });
+});
+
+/* ─── Submit Form ─── */
+document.getElementById('artist-submit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.submit-btn');
+    const status = document.getElementById('submit-status');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    status.textContent = '';
+    status.className = 'submit-status';
+
+    const data = {};
+    new FormData(this).forEach((v, k) => { data[k] = v; });
+
+    try {
+        const res = await fetch('/api/artists/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+            status.textContent = 'Submission received! We\'ll review your work soon.';
+            status.className = 'submit-status success';
+            this.reset();
+        } else {
+            status.textContent = result.error || 'Something went wrong. Try again.';
+            status.className = 'submit-status error';
+        }
+    } catch (err) {
+        status.textContent = 'Network error. Please try again.';
+        status.className = 'submit-status error';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
 });
 </script>
 {% endblock %}

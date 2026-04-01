@@ -2605,6 +2605,45 @@ def media_hub():
                            all_books=all_books,
                            is_commander=is_commander)
 
+@app.route('/api/books/metrics')
+def api_book_metrics():
+    """Sovereign Book Library — live metrics for bubble chart visualization."""
+    metrics_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'book_metrics.json')
+    featured_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'featured_book.json')
+    try:
+        with open(metrics_path) as f:
+            metrics = json.load(f)
+        books = metrics.get('books', [])
+        last_updated = metrics.get('last_updated', '')
+    except Exception:
+        books = []
+        last_updated = ''
+
+    # Load featured book
+    featured = None
+    try:
+        with open(featured_path) as f:
+            featured = json.load(f)
+        # Check end_date
+        if featured.get('end_date'):
+            from datetime import datetime
+            end = datetime.fromisoformat(featured['end_date'])
+            if datetime.now() > end:
+                featured = None
+    except Exception:
+        featured = None
+
+    # Rising stars: BSR improved >10% (negative bsr_change = sales going UP)
+    rising = [b for b in books if b.get('is_rising')]
+    rising.sort(key=lambda b: b.get('bsr_change', 0))
+
+    return jsonify({
+        'books': books,
+        'rising': rising[:5],
+        'featured': featured,
+        'last_updated': last_updated,
+    })
+
 @app.route('/api/latest-episodes')
 def get_latest_episodes():
     """API endpoint to get latest podcast episodes from RSS feeds"""
@@ -9809,8 +9848,71 @@ def bitcoin_music():
 
 @app.route('/bitcoin-artists')
 def bitcoin_artists():
-    """Bitcoin Artists & Creators page"""
-    return render_template('bitcoin_artists.html')
+    """Sovereign Creativity Hub — Bitcoin Artists & Creators"""
+    featured = None
+    try:
+        feat_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'featured_artist.json')
+        with open(feat_path, 'r') as f:
+            featured = type('Featured', (), json.load(f))()
+    except Exception:
+        pass
+    return render_template('bitcoin_artists.html', featured=featured)
+
+
+@app.route('/api/artists/submit', methods=['POST'])
+def api_artists_submit():
+    """Accept artist submissions for the Sovereign Creativity Hub"""
+    try:
+        data = request.get_json(force=True)
+    except Exception:
+        return jsonify({'error': 'Invalid JSON'}), 400
+
+    name = (data.get('name') or '').strip()
+    category = (data.get('category') or '').strip()
+    description = (data.get('description') or '').strip()
+
+    if not name or not category or not description:
+        return jsonify({'error': 'Name, category, and description are required'}), 400
+
+    if len(name) > 200 or len(description) > 2000:
+        return jsonify({'error': 'Input too long'}), 400
+
+    allowed_cats = {'visual', 'digital', 'physical', 'apparel', 'content'}
+    if category not in allowed_cats:
+        return jsonify({'error': 'Invalid category'}), 400
+
+    website = (data.get('website') or '').strip()[:500]
+    nostr_npub = (data.get('nostr_npub') or '').strip()[:200]
+    sample_url = (data.get('sample_url') or '').strip()[:500]
+
+    try:
+        db.session.execute(db.text("""
+            CREATE TABLE IF NOT EXISTS artist_submissions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                category TEXT NOT NULL,
+                description TEXT NOT NULL,
+                website TEXT,
+                nostr_npub TEXT,
+                sample_url TEXT,
+                status TEXT DEFAULT 'pending',
+                submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+        db.session.execute(db.text("""
+            INSERT INTO artist_submissions (name, category, description, website, nostr_npub, sample_url)
+            VALUES (:name, :category, :description, :website, :nostr_npub, :sample_url)
+        """), {
+            'name': name, 'category': category, 'description': description,
+            'website': website, 'nostr_npub': nostr_npub, 'sample_url': sample_url
+        })
+        db.session.commit()
+    except Exception as e:
+        logging.error(f"Artist submission DB error: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Server error saving submission'}), 500
+
+    return jsonify({'status': 'ok', 'message': 'Submission received'}), 200
 
 @app.route('/freedom-tech')
 def freedom_tech():
