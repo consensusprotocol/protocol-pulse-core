@@ -828,7 +828,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
         <div class="panel-header">
             <span class="panel-label">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</span>
-            <button onclick="document.getElementById('ssm-fs').style.display='block';document.body.style.overflow='hidden';initFsRadar();" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;border-radius:3px;cursor:pointer;margin-right:8px;" title="Fullscreen">&#x26F6; EXPAND</button>
+            <button onclick="document.getElementById('ssm-fs').style.display='block';document.body.style.overflow='hidden';initFsRadar();" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-family:\x27JetBrains Mono\x27,monospace;font-size:8px;padding:2px 8px;border-radius:3px;cursor:pointer;margin-right:8px;" title="Fullscreen">&#x26F6; EXPAND</button>
             <span class="panel-badge live">LIVE</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 12px;">
@@ -836,8 +836,8 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             <div style="position:relative;display:flex;align-items:center;justify-content:center;">
                 <canvas id="ssm-radar" width="420" height="420" style="max-width:100%;"></canvas>
                 <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);text-align:center;">
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:900;color:#fff;" id="ssm-composite">—</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
+                    <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:24px;font-weight:900;color:#fff;" id="ssm-composite">—</span>
+                    <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
                 </div>
             </div>
             <!-- Live convergence feed -->
@@ -856,7 +856,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     
         <!-- Proprietary Indices Bar Graph -->
         <div style="padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);margin-top:8px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:0.18em;color:#dc2626;margin-bottom:10px;">PROPRIETARY INDICES</div>
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:8px;font-weight:800;letter-spacing:0.18em;color:#dc2626;margin-bottom:10px;">PROPRIETARY INDICES</div>
             <div id="ssm-indices" style="display:flex;flex-direction:column;gap:6px;">
                 <div style="color:rgba(255,255,255,0.15);font-size:9px;">Loading indices...</div>
             </div>
@@ -896,26 +896,26 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             <span class="panel-label">4-YEAR HALVING CYCLE OVERLAY</span>
             <span class="panel-badge live">LIVE</span>
         </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
+        <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
             Price multiplier from halving price — current cycle vs historical (log scale)
         </div>
         <div style="position:relative;height:320px;padding:8px 12px;">
             <canvas id="halvingCycleChart"></canvas>
         </div>
         <div style="display:flex;gap:24px;flex-wrap:wrap;padding:8px 12px;">
-            <div style="font-family:'JetBrains Mono',monospace;">
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
                 <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
                 <div style="font-size:18px;font-weight:900;color:#fff;" id="halving-day">706</div>
             </div>
-            <div style="font-family:'JetBrains Mono',monospace;">
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
                 <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
                 <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-mult">1.03x</div>
             </div>
-            <div style="font-family:'JetBrains Mono',monospace;">
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
                 <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
                 <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
             </div>
-            <div style="font-family:'JetBrains Mono',monospace;">
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
                 <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Current</div>
                 <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-current">${{ '{:,.0f}'.format(price.price|int) if price and price.price else '—' }}</div>
             </div>
@@ -937,12 +937,12 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
 <!-- Fullscreen radar overlay -->
 <div id="ssm-fs" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(4,4,4,0.98);z-index:99999;overflow-y:auto;">
-  <button onclick="document.getElementById('ssm-fs').style.display='none';document.body.style.overflow='';" style="position:fixed;top:16px;right:16px;z-index:100000;background:rgba(220,38,38,0.2);border:1px solid #dc2626;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 16px;border-radius:4px;cursor:pointer;">X CLOSE</button>
+  <button onclick="document.getElementById('ssm-fs').style.display='none';document.body.style.overflow='';" style="position:fixed;top:16px;right:16px;z-index:100000;background:rgba(220,38,38,0.2);border:1px solid #dc2626;color:#fff;font-family:\x27JetBrains Mono\x27,monospace;font-size:11px;padding:6px 16px;border-radius:4px;cursor:pointer;">X CLOSE</button>
   <div style="max-width:900px;margin:60px auto;padding:20px;text-align:center;">
     <canvas id="ssm-radar-fs" width="700" height="700" style="max-width:100%;"></canvas>
     <div style="margin-top:12px;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;color:#fff;" id="ssm-fs-comp">--</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-fs-bias">SOVEREIGN COMPOSITE</span>
+      <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:28px;font-weight:900;color:#fff;" id="ssm-fs-comp">--</span>
+      <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-fs-bias">SOVEREIGN COMPOSITE</span>
     </div>
   </div>
 </div>
@@ -1313,9 +1313,9 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             {% if alerts %}
             {% for a in alerts[:8] %}
             <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;" onclick="window.location='{{ a.url }}'">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);">{{ a.time }} UTC</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;">{{ a.title }}</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;letter-spacing:0.1em;color:#dc2626;margin-top:2px;">INTEL</div>
+                <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;color:rgba(255,255,255,0.3);">{{ a.time }} UTC</div>
+                <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;">{{ a.title }}</div>
+                <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:7px;font-weight:700;letter-spacing:0.1em;color:#dc2626;margin-top:2px;">INTEL</div>
             </div>
             {% endfor %}
             {% else %}
@@ -2353,14 +2353,14 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         
         html += '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-        html += '<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:'+col+';font-weight:700;">'+names[k]+'</span>';
+        html += '<span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;color:'+col+';font-weight:700;">'+names[k]+'</span>';
         html += '<span style="display:flex;align-items:center;gap:6px;">';
         html += '<span style="font-size:8px;font-weight:700;color:'+sigCol+';">'+signal+'</span>';
-        html += '<span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:#fff;">'+s+'</span>';
+        html += '<span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:13px;font-weight:900;color:#fff;">'+s+'</span>';
         html += '</span></div>';
         html += '<div style="height:4px;background:rgba(255,255,255,0.04);border-radius:2px;margin-top:4px;">';
         html += '<div style="height:100%;width:'+s+'%;background:'+col+';border-radius:2px;transition:width 0.8s ease;"></div></div>';
-        html += '<div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.3);margin-top:3px;line-height:1.4;">'+insights[k](s)+'</div>';
+        html += '<div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:7px;color:rgba(255,255,255,0.3);margin-top:3px;line-height:1.4;">'+insights[k](s)+'</div>';
         html += '</div>';
       });
       
