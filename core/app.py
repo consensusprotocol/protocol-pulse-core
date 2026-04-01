@@ -421,6 +421,31 @@ try:
         replace_existing=True,
     )
 
+
+    # ── Media Feed Sync — every 30 minutes ──────────────────────────────────
+    def _media_feed_sync_job():
+        """APScheduler: sync RSS + YouTube feeds every 30 min inside Flask context."""
+        try:
+            import importlib.util as _ilu
+            _mfs_path = os.path.join(str(Path(__file__).resolve().parent), 'services', 'media_feed_service.py')
+            _spec = _ilu.spec_from_file_location('_mfs_sched', _mfs_path)
+            _mod = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            with app.app_context():
+                total = _mod.sync_all_feeds(app)
+                logging.info(f'[APScheduler/FeedSync] Complete — {total} new items')
+        except Exception as _fe:
+            logging.error(f'[APScheduler/FeedSync] Failed: {_fe}')
+
+    _scheduler.add_job(
+        _media_feed_sync_job,
+        'interval',
+        minutes=30,
+        id='media_feed_sync',
+        replace_existing=True,
+    )
+    logging.info('APScheduler: media_feed_sync added (every 30 min)')
+
     _scheduler.start()
     logging.info("APScheduler started — newsletter_daily 12:00 UTC, onboarding_milestones 14:00 UTC")
 except Exception as _sched_err:

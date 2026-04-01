@@ -2468,11 +2468,11 @@ def media_hub():
         try:
             # Force background refresh every page load so content stays current
             import threading
-            def _bg_sync():
+            def _bg_sync(_app=app):
                 try:
-                    media_feed_service.sync_all_feeds()
-                except Exception:
-                    pass
+                    media_feed_service.sync_all_feeds(_app)
+                except Exception as _bge:
+                    import logging as _l; _l.warning(f'bg_sync error: {_bge}')
             threading.Thread(target=_bg_sync, daemon=True).start()
             feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
             ticker_items = media_feed_service.get_ticker_items(limit=30)
