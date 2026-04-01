@@ -154,15 +154,37 @@
                 <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage</a>
                 <div class="nav-dropdown">
                     <a href="#" class="pp-nav__link" onclick="return false;">More ▾</a>
-                    <div class="nav-dropdown-menu">
-                        <a href="/podcasts" class="nav-dropdown-item"><i class="fas fa-podcast"></i> Podcasts</a>
-                        <a href="/charts" class="nav-dropdown-item"><i class="fas fa-chart-area"></i> Charts</a>
-                        <a href="/panopticon" class="nav-dropdown-item"><i class="fas fa-eye"></i> Panopticon</a>
-                        <a href="/sovereign-money" class="nav-dropdown-item"><i class="fas fa-coins"></i> Sovereign Money</a>
-                        <a href="/nostr" class="nav-dropdown-item"><i class="fas fa-satellite-dish"></i> Nostr</a>
+                    <div class="nav-dropdown-menu" style="min-width:230px;max-height:85vh;overflow-y:auto;">
+                        <div style="padding:4px 14px 2px;font-size:0.58rem;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Intelligence</div>
+                        <a href="/terminal" class="nav-dropdown-item"><i class="fas fa-terminal" style="color:#00d68f;width:14px;"></i> Terminal</a>
+                        <a href="/panopticon" class="nav-dropdown-item"><i class="fas fa-eye" style="color:#dc2626;width:14px;"></i> Panopticon</a>
+                        <a href="/charts" class="nav-dropdown-item"><i class="fas fa-chart-area" style="width:14px;"></i> Charts</a>
+                        <a href="/sentiment" class="nav-dropdown-item"><i class="fas fa-brain" style="width:14px;"></i> Sentiment</a>
+                        <a href="/dossier" class="nav-dropdown-item"><i class="fas fa-folder-open" style="width:14px;"></i> Dossier</a>
                         <div class="nav-dropdown-divider"></div>
-                        <a href="/map" class="nav-dropdown-item"><i class="fas fa-map-marked-alt"></i> Maps</a>
-                        <a href="/merch" class="nav-dropdown-item"><i class="fas fa-tshirt"></i> Merch</a>
+                        <div style="padding:4px 14px 2px;font-size:0.58rem;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Media & Content</div>
+                        <a href="/media" class="nav-dropdown-item"><i class="fas fa-play-circle" style="width:14px;"></i> Media Hub</a>
+                        <a href="/podcasts" class="nav-dropdown-item"><i class="fas fa-podcast" style="width:14px;"></i> Podcasts</a>
+                        <a href="/bitcoin-music" class="nav-dropdown-item"><i class="fas fa-music" style="color:#f59e0b;width:14px;"></i> Bitcoin Music</a>
+                        <a href="/bitcoin-artists" class="nav-dropdown-item"><i class="fas fa-paint-brush" style="color:#ec4899;width:14px;"></i> Artists</a>
+                        <div class="nav-dropdown-divider"></div>
+                        <div style="padding:4px 14px 2px;font-size:0.58rem;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Sovereign Library</div>
+                        <a href="/sovereign-money" class="nav-dropdown-item"><i class="fas fa-book" style="color:#f7931a;width:14px;"></i> Sovereign Money</a>
+                        <a href="/media#books" class="nav-dropdown-item"><i class="fas fa-book-open" style="width:14px;"></i> Book Series</a>
+                        <a href="/freedom-tech" class="nav-dropdown-item"><i class="fas fa-shield-alt" style="color:#22c55e;width:14px;"></i> Freedom Tech</a>
+                        <a href="/cypherpunks" class="nav-dropdown-item"><i class="fas fa-lock" style="width:14px;"></i> Cypherpunks</a>
+                        <div class="nav-dropdown-divider"></div>
+                        <div style="padding:4px 14px 2px;font-size:0.58rem;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Network</div>
+                        <a href="/map" class="nav-dropdown-item"><i class="fas fa-map-marked-alt" style="width:14px;"></i> Bitcoin Maps</a>
+                        <a href="/nostr" class="nav-dropdown-item"><i class="fas fa-satellite-dish" style="width:14px;"></i> Nostr</a>
+                        <a href="/events" class="nav-dropdown-item"><i class="fas fa-calendar-alt" style="width:14px;"></i> Events</a>
+                        <a href="/merch" class="nav-dropdown-item"><i class="fas fa-tshirt" style="width:14px;"></i> Merch</a>
+                        <a href="/about" class="nav-dropdown-item"><i class="fas fa-info-circle" style="width:14px;"></i> About</a>
+                        <div class="nav-dropdown-divider"></div>
+                        <div style="padding:4px 14px 2px;font-size:0.58rem;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Partners</div>
+                        <a href="/affiliates" class="nav-dropdown-item"><i class="fas fa-handshake" style="color:#a855f7;width:14px;"></i> Affiliates</a>
+                        <a href="/curated-mining" class="nav-dropdown-item"><i class="fas fa-microchip" style="color:#f97316;width:14px;"></i> Curated Mining</a>
+                        <a href="/sponsors" class="nav-dropdown-item"><i class="fas fa-star" style="width:14px;"></i> Sponsor Us</a>
                     </div>
                 </div>
                 {% if current_user.is_authenticated %}

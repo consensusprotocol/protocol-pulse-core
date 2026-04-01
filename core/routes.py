@@ -2466,6 +2466,14 @@ def media_hub():
     feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
     if media_feed_service:
         try:
+            # Force background refresh every page load so content stays current
+            import threading
+            def _bg_sync():
+                try:
+                    media_feed_service.sync_all_feeds()
+                except Exception:
+                    pass
+            threading.Thread(target=_bg_sync, daemon=True).start()
             feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
             ticker_items = media_feed_service.get_ticker_items(limit=30)
             feed_stats = media_feed_service.get_feed_stats()
@@ -2797,6 +2805,12 @@ def admin_x_reply_reject(inbox_id):
     db.session.commit()
     flash('Draft rejected.')
     return redirect('/admin/x-replies')
+
+
+@app.route('/curated-mining')
+def curated_mining_page():
+    """Curated Mining — white-glove Bitcoin mining service."""
+    return render_template('curated_mining.html')
 
 @app.route('/merch')
 def merch_store():
