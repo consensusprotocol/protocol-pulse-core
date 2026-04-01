@@ -2421,12 +2421,6 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       }
       return best;
     }
-    canvas.addEventListener('mousemove', function(e) {
-      var pt = canvasToChart(e);
-      hoveredAxis = nearestAxis(pt[0], pt[1]);
-      canvas.style.cursor = 'crosshair';
-    });
-    canvas.addEventListener('mouseleave', function() { hoveredAxis = -1; showDetailCard(); });
     // ── HOVER EVENTS (added for terminal) ──
     canvas.addEventListener('mousemove', function(e) {
       var pt = canvasToChart(e);
