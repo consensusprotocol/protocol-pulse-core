@@ -1160,102 +1160,6 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
 </div><!-- /main-grid -->
 
-<!-- PP Signal + Market Regime + Trending (moved from center col) -->
-<div style="padding:0 8px;margin-top:8px;">
-    <!-- Signal Intelligence -->
-    <div class="panel {{ 'locked' if not is_commander else '' }}">
-        <div class="panel-header">
-            <span class="panel-label">PP SIGNAL INTELLIGENCE</span>
-            <span class="panel-badge">PROPRIETARY</span>
-        </div>
-        <div class="panel-content">
-            <div class="signal-hero">
-                {% set sig_score = signal.score | default(50) if signal else 50 %}
-                {% set sig_class = signal.classification | default('NEUTRAL') if signal else 'NEUTRAL' %}
-                {% set sig_delta = signal.delta | default(0) if signal else 0 %}
-                <div class="signal-score-ring">
-                    <svg viewBox="0 0 96 96">
-                        <circle class="bg-ring" cx="48" cy="48" r="40" />
-                        <circle class="fg-ring" id="signal-ring" cx="48" cy="48" r="40"
-                            stroke="{{ 'var(--lime)' if sig_score >= 65 else ('var(--coral)' if sig_score < 35 else 'var(--gold)') }}"
-                            stroke-dasharray="{{ 251.3 }}"
-                            stroke-dashoffset="{{ 251.3 - (251.3 * sig_score / 100) }}" />
-                    </svg>
-                    <div class="score-text">
-                        <span class="num" id="signal-score">{{ sig_score }}</span>
-                        <span class="delta {{ 'delta-up' if sig_delta >= 0 else 'delta-down' }}" id="signal-delta">{{ ('+' if sig_delta >= 0 else '') }}{{ sig_delta }}</span>
-                    </div>
-                </div>
-                <div class="signal-details">
-                    <div class="signal-classification" id="signal-class"
-                        style="color: {{ 'var(--lime)' if sig_score >= 65 else ('var(--coral)' if sig_score < 35 else 'var(--gold)') }}">
-                        {{ sig_class }}
-                    </div>
-                    <div class="signal-components" id="signal-comps">
-                        {% if signal and signal.components %}
-                        {% for key, val in signal.components.items() %}
-                        <div class="signal-comp">
-                            <span class="lbl">{{ key | replace('_', ' ') | truncate(12, True, '') }}</span>
-                            <div class="bar-wrap"><div class="bar-fill" style="width:{{ val }}%; background: {{ 'var(--lime)' if val >= 60 else ('var(--coral)' if val < 40 else 'var(--gold)') }}"></div></div>
-                            <span class="val">{{ val }}</span>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% if not is_commander %}
-        <div class="lock-overlay">
-            <div class="lock-icon">&#128274;</div>
-            <div class="lock-text">COMMANDER ACCESS</div>
-            <a href="/terminal/checkout" class="lock-cta">UNLOCK $49/MO</a>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Market Regime -->
-    <div class="panel regime-bar" id="regime-panel">
-        <span class="regime-label">MARKET REGIME</span>
-        <span class="regime-value" id="regime-value">CALCULATING...</span>
-        <span class="regime-conf" id="regime-conf"></span>
-    </div>
-
-    <!-- Intelligence Feed -->
-    
-
-    <!-- Trending Topics -->
-    <div class="panel {{ 'locked' if not is_commander else '' }}">
-        <div class="panel-header">
-            <span class="panel-label">TRENDING TOPICS</span>
-            <span class="panel-badge">VELOCITY</span>
-        </div>
-        <div class="panel-content" id="topics-list">
-            {% if topics and topics is iterable %}
-            {% for t in topics[:8] %}
-            <div class="topic-row">
-                <span class="rank">{{ loop.index }}</span>
-                <span class="name">{{ t.name | default(t) if t is mapping else t }}</span>
-                <span class="velocity">{{ t.velocity | default('') if t is mapping else '' }}</span>
-            </div>
-            {% endfor %}
-            {% else %}
-            <div style="padding:12px; color:var(--muted); font-size:10px; text-align:center;">NO TOPICS DATA</div>
-            {% endif %}
-        </div>
-        {% if not is_commander %}
-        <div class="lock-overlay">
-            <div class="lock-icon">&#128274;</div>
-            <div class="lock-text">COMMANDER ACCESS</div>
-            <a href="/terminal/checkout" class="lock-cta">UNLOCK $49/MO</a>
-        </div>
-        {% endif %}
-    </div>
-
-
-</div>
-
-
 <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
         <div class="panel-header">
@@ -1837,6 +1741,102 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     <!-- ═══ INTELLIGENCE FEED (moved to bottom) ═══ -->
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px; max-height: 400px; overflow: hidden; display: flex; flex-direction: column;">
         <div class="panel-header">
+<!-- PP Signal + Market Regime + Trending (moved from center col) -->
+<div style="padding:0 8px;margin-top:8px;">
+    <!-- Signal Intelligence -->
+    <div class="panel {{ 'locked' if not is_commander else '' }}">
+        <div class="panel-header">
+            <span class="panel-label">PP SIGNAL INTELLIGENCE</span>
+            <span class="panel-badge">PROPRIETARY</span>
+        </div>
+        <div class="panel-content">
+            <div class="signal-hero">
+                {% set sig_score = signal.score | default(50) if signal else 50 %}
+                {% set sig_class = signal.classification | default('NEUTRAL') if signal else 'NEUTRAL' %}
+                {% set sig_delta = signal.delta | default(0) if signal else 0 %}
+                <div class="signal-score-ring">
+                    <svg viewBox="0 0 96 96">
+                        <circle class="bg-ring" cx="48" cy="48" r="40" />
+                        <circle class="fg-ring" id="signal-ring" cx="48" cy="48" r="40"
+                            stroke="{{ 'var(--lime)' if sig_score >= 65 else ('var(--coral)' if sig_score < 35 else 'var(--gold)') }}"
+                            stroke-dasharray="{{ 251.3 }}"
+                            stroke-dashoffset="{{ 251.3 - (251.3 * sig_score / 100) }}" />
+                    </svg>
+                    <div class="score-text">
+                        <span class="num" id="signal-score">{{ sig_score }}</span>
+                        <span class="delta {{ 'delta-up' if sig_delta >= 0 else 'delta-down' }}" id="signal-delta">{{ ('+' if sig_delta >= 0 else '') }}{{ sig_delta }}</span>
+                    </div>
+                </div>
+                <div class="signal-details">
+                    <div class="signal-classification" id="signal-class"
+                        style="color: {{ 'var(--lime)' if sig_score >= 65 else ('var(--coral)' if sig_score < 35 else 'var(--gold)') }}">
+                        {{ sig_class }}
+                    </div>
+                    <div class="signal-components" id="signal-comps">
+                        {% if signal and signal.components %}
+                        {% for key, val in signal.components.items() %}
+                        <div class="signal-comp">
+                            <span class="lbl">{{ key | replace('_', ' ') | truncate(12, True, '') }}</span>
+                            <div class="bar-wrap"><div class="bar-fill" style="width:{{ val }}%; background: {{ 'var(--lime)' if val >= 60 else ('var(--coral)' if val < 40 else 'var(--gold)') }}"></div></div>
+                            <span class="val">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if not is_commander %}
+        <div class="lock-overlay">
+            <div class="lock-icon">&#128274;</div>
+            <div class="lock-text">COMMANDER ACCESS</div>
+            <a href="/terminal/checkout" class="lock-cta">UNLOCK $49/MO</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Market Regime -->
+    <div class="panel regime-bar" id="regime-panel">
+        <span class="regime-label">MARKET REGIME</span>
+        <span class="regime-value" id="regime-value">CALCULATING...</span>
+        <span class="regime-conf" id="regime-conf"></span>
+    </div>
+
+    <!-- Intelligence Feed -->
+    
+
+    <!-- Trending Topics -->
+    <div class="panel {{ 'locked' if not is_commander else '' }}">
+        <div class="panel-header">
+            <span class="panel-label">TRENDING TOPICS</span>
+            <span class="panel-badge">VELOCITY</span>
+        </div>
+        <div class="panel-content" id="topics-list">
+            {% if topics and topics is iterable %}
+            {% for t in topics[:8] %}
+            <div class="topic-row">
+                <span class="rank">{{ loop.index }}</span>
+                <span class="name">{{ t.name | default(t) if t is mapping else t }}</span>
+                <span class="velocity">{{ t.velocity | default('') if t is mapping else '' }}</span>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="padding:12px; color:var(--muted); font-size:10px; text-align:center;">NO TOPICS DATA</div>
+            {% endif %}
+        </div>
+        {% if not is_commander %}
+        <div class="lock-overlay">
+            <div class="lock-icon">&#128274;</div>
+            <div class="lock-text">COMMANDER ACCESS</div>
+            <a href="/terminal/checkout" class="lock-cta">UNLOCK $49/MO</a>
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>
+
+
             <span class="panel-label">INTELLIGENCE FEED</span>
             <span class="panel-badge live">LIVE</span>
         </div>
