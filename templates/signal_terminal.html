@@ -834,45 +834,6 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
     </div>
 
-    <!-- ═══ SOVEREIGN SIGNAL MATRIX ═══════════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div class="panel-header">
-            <span class="panel-label">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</span>
-            <button onclick="document.getElementById('ssm-fs').style.display='block';document.body.style.overflow='hidden';initFsRadar();" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-family:\x27JetBrains Mono\x27,monospace;font-size:8px;padding:2px 8px;border-radius:3px;cursor:pointer;margin-right:8px;" title="Fullscreen">&#x26F6; EXPAND</button>
-            <span class="panel-badge live">LIVE</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 12px;">
-            <!-- Radar canvas -->
-            <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-                <canvas id="ssm-radar" width="600" height="600" style="max-width:100%;width:100%;"></canvas>
-                <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);text-align:center;">
-                    <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:24px;font-weight:900;color:#fff;" id="ssm-composite">—</span>
-                    <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
-                </div>
-            </div>
-            <!-- Live convergence feed -->
-            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;">
-                <div style="padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;">
-                    <span style="font-size:8px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.35);">CONVERGENCE FEED</span>
-                    <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;"></span><span id="cf-count" style="font-size:7px;color:rgba(255,255,255,0.2);">0</span></span>
-                </div>
-                <div id="cf-scroll" style="flex:1;max-height:350px;overflow-y:auto;display:flex;flex-direction:column-reverse;">
-                    <div id="cf-inner" style="display:flex;flex-direction:column;gap:0;padding:2px 0;"></div>
-                </div>
-            </div>
-        </div>
-        <!-- Axis detail card on click -->
-        <div id="ssm-detail" style="display:none;margin:8px 12px;padding:10px 14px;background:rgba(255,59,95,0.04);border:1px solid rgba(255,59,95,0.10);border-radius:4px;"></div>
-    
-        <!-- Proprietary Indices Bar Graph -->
-        <div style="padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);margin-top:8px;">
-            <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:8px;font-weight:800;letter-spacing:0.18em;color:#dc2626;margin-bottom:10px;">PROPRIETARY INDICES</div>
-            <div id="ssm-indices" style="display:flex;flex-direction:column;gap:6px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:9px;">Loading indices...</div>
-            </div>
-        </div>
-    </div>
-
     <!-- ═══ POLYMARKET + WHALE ALERTS ═════════════════════════════════ -->
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -1060,6 +1021,42 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
 <!-- ─── CENTER COLUMN: Intelligence ─────────────────────────────── -->
 <div class="col col-center">
+
+    <!-- ═══ SOVEREIGN SIGNAL MATRIX (embedded in center column) ═══ -->
+    <div class="panel" style="margin-bottom:8px;">
+        <div class="panel-header">
+            <span class="panel-label">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</span>
+            <button onclick="document.getElementById('ssm-fs').style.display='block';document.body.style.overflow='hidden';initFsRadar();" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-family:monospace;font-size:8px;padding:2px 8px;border-radius:3px;cursor:pointer;margin-right:4px;">&#x26F6; EXPAND</button>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:4px;">
+            <canvas id="ssm-radar" width="600" height="600" style="max-width:100%;width:100%;"></canvas>
+            <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);text-align:center;">
+                <span style="font-family:monospace;font-size:22px;font-weight:900;color:#fff;" id="ssm-composite">—</span>
+                <span style="font-family:monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
+            </div>
+        </div>
+        <div id="ssm-detail" style="display:none;margin:4px 8px;padding:8px 10px;background:rgba(255,59,95,0.04);border:1px solid rgba(255,59,95,0.10);border-radius:4px;"></div>
+        <!-- Proprietary Indices Bar Graph -->
+        <div style="padding:6px 8px;border-top:1px solid rgba(255,255,255,0.04);margin-top:4px;">
+            <div style="font-family:monospace;font-size:8px;font-weight:800;letter-spacing:0.18em;color:#dc2626;margin-bottom:6px;">PROPRIETARY INDICES</div>
+            <div id="ssm-indices" style="display:flex;flex-direction:column;gap:4px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:9px;">Loading indices...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Convergence Feed (below radar, still in center col) -->
+    <div class="panel" style="margin-bottom:8px;max-height:250px;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="panel-header">
+            <span class="panel-label">CONVERGENCE FEED</span>
+            <span style="display:flex;align-items:center;gap:3px;"><span style="width:4px;height:4px;background:#22c55e;border-radius:50%;"></span><span id="cf-count" style="font-size:7px;color:rgba(255,255,255,0.2);">0</span></span>
+        </div>
+        <div id="cf-scroll" style="flex:1;overflow-y:auto;display:flex;flex-direction:column-reverse;">
+            <div id="cf-inner" style="display:flex;flex-direction:column;gap:0;padding:2px 0;"></div>
+        </div>
+    </div>
+
 
     <!-- Signal Intelligence -->
     <div class="panel {{ 'locked' if not is_commander else '' }}">
