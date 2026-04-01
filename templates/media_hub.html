@@ -441,6 +441,48 @@
     </form>
   </div>
 
+  <!-- ═══════════ SOVEREIGN BOOK LIBRARY ═══════════ -->
+  <div id="books" style="padding:48px 0 0;">
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="display:inline-flex;align-items:center;gap:0.6rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);padding:0.5rem 1.4rem;border-radius:999px;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1rem;"><i class="fas fa-chart-line"></i> SOVEREIGN LIBRARY</div>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;color:var(--bright);letter-spacing:-0.03em;margin-bottom:0.5rem;">Live Book Metrics</h2>
+      <p style="font-size:0.95rem;color:var(--mut);max-width:600px;margin:0 auto;line-height:1.5;">Bloomberg terminal for sovereign money books. Bubble size = sales velocity. Position = recency vs. rank momentum.</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--mut);margin-top:0.5rem;"><span style="display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;margin-right:4px;animation:tagPulse 2s infinite;vertical-align:middle;"></span> <span id="bookMetricsUpdated">Loading...</span></div>
+    </div>
+
+    <!-- Featured Book Banner -->
+    <div id="featuredBookBanner" style="display:none;"></div>
+
+    <!-- Bubble Chart -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fas fa-circle" style="color:#22c55e;font-size:6px;vertical-align:middle;margin-right:4px;"></i> SALES VELOCITY MAP</span>
+        <div style="display:flex;gap:1rem;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--mut);">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px;vertical-align:middle;"></span>Rising</span>
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f7931a;margin-right:4px;vertical-align:middle;"></span>Stable</span>
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;margin-right:4px;vertical-align:middle;"></span>PP Series</span>
+        </div>
+      </div>
+      <canvas id="bookBubbleChart" style="width:100%!important;height:420px!important;"></canvas>
+    </div>
+
+    <!-- Rising Stars -->
+    <div id="risingStarsSection" style="display:none;margin-bottom:2.5rem;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-arrow-trend-up" style="color:#22c55e;"></i> RISING STARS — BSR improved &gt;10% in 24h</div>
+      <div id="risingStarsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
+    </div>
+
+    <!-- Bestsellers Grid -->
+    <div style="margin-top:2rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fab fa-amazon" style="color:var(--btc);margin-right:4px;"></i> SOVEREIGN MONEY BESTSELLERS</span>
+        <span id="bestsellersCount" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--btc);background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.2);padding:0.15rem 0.5rem;border-radius:4px;">0 BOOKS</span>
+      </div>
+      <div id="bestsellersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;"></div>
+    </div>
+  </div>
+
 </div><!-- /wrap -->
 
 </div><!-- /mh -->
@@ -478,6 +520,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 /* ═══════════ AUDIO PLAYER ═══════════ */
 var _audio=document.getElementById('audioEl');
@@ -671,5 +714,134 @@ function mhNlSub(e){
     }else{alert(d.message||"Error");if(btn)btn.textContent="Subscribe";}
   }).catch(function(){if(btn)btn.textContent="Subscribe";});
 }
+
+/* ═══════════ SOVEREIGN BOOK LIBRARY ═══════════ */
+(function(){
+    var bookChart=null;
+    var PP_ASINS=['B0DVTCVX8J','9916697191','0241360846','B0CQLMQRH7'];
+
+    function fetchBookMetrics(){
+        fetch('/api/books/metrics').then(function(r){return r.json()}).then(function(data){
+            renderFeaturedBook(data.featured);
+            renderBubbleChart(data.books);
+            renderRisingStars(data.rising);
+            renderBestsellersGrid(data.books);
+            if(data.last_updated){
+                var d=new Date(data.last_updated);
+                var el=document.getElementById('bookMetricsUpdated');
+                if(el) el.textContent='Updated '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+            }
+        }).catch(function(e){console.warn('Book metrics:',e)});
+    }
+
+    function renderFeaturedBook(f){
+        var el=document.getElementById('featuredBookBanner');
+        if(!f||!el){if(el)el.style.display='none';return;}
+        el.style.display='block';
+        el.innerHTML='<div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;background:linear-gradient(135deg,var(--card) 0%,rgba(220,38,38,0.06) 100%);border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:2rem;margin-bottom:2.5rem;position:relative;overflow:hidden;border-left:4px solid var(--red);">'+
+            '<div style="width:140px;height:200px;border-radius:8px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);flex-shrink:0;"><img src="'+_esc(f.cover_url)+'" alt="'+_esc(f.title)+'" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>'+
+            '<div style="display:flex;flex-direction:column;justify-content:center;">'+
+                '<div style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--red);color:#fff;font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;width:fit-content;"><i class="fas fa-star"></i> '+_esc(f.badge||'FEATURED')+'</div>'+
+                '<div style="font-size:1.4rem;font-weight:700;color:var(--bright);margin-bottom:0.5rem;letter-spacing:-0.02em;">'+_esc(f.headline||f.title)+'</div>'+
+                '<div style="font-size:0.9rem;color:var(--sec);line-height:1.6;margin-bottom:1rem;">'+_esc(f.body_text||'')+'</div>'+
+                '<a href="'+_esc(f.amazon_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--red);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;width:fit-content;"><i class="fab fa-amazon"></i> Get on Amazon</a>'+
+            '</div></div>';
+    }
+
+    function renderBubbleChart(books){
+        if(!books||!books.length)return;
+        var canvas=document.getElementById('bookBubbleChart');
+        if(!canvas)return;
+        var ctx=canvas.getContext('2d');
+        var now=new Date();
+        var ppBooks=[],risingBooks=[],stableBooks=[];
+        books.forEach(function(b){
+            if(PP_ASINS.indexOf(b.asin)>=0)ppBooks.push(b);
+            else if(b.is_rising)risingBooks.push(b);
+            else stableBooks.push(b);
+        });
+        function mkPts(arr){
+            return arr.map(function(b){
+                var pub=new Date(b.published);
+                var mo=Math.max(1,(now-pub)/(1000*60*60*24*30));
+                var recency=Math.max(1,100-Math.min(100,mo));
+                var v=b.velocity||50;
+                return {x:recency,y:v,r:Math.max(8,Math.min(35,v*0.35)),book:b};
+            });
+        }
+        var datasets=[
+            {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.5)',borderColor:'rgba(220,38,38,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.7)'},
+            {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.4)',borderColor:'rgba(34,197,94,0.7)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.6)'},
+            {label:'Stable',data:mkPts(stableBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
+        ];
+        if(bookChart)bookChart.destroy();
+        bookChart=new Chart(ctx,{
+            type:'bubble',data:{datasets:datasets},
+            options:{
+                responsive:true,maintainAspectRatio:false,
+                animation:{duration:1200,easing:'easeOutQuart'},
+                scales:{
+                    x:{title:{display:true,text:'RECENCY',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:0,max:105,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9},callback:function(v){return v<=20?'Classic':v<=50?'Established':v<=80?'Recent':'New';}}},
+                    y:{title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:0,max:105,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9}}}
+                },
+                plugins:{
+                    legend:{display:false},
+                    tooltip:{
+                        backgroundColor:'#16161c',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+                        titleFont:{family:'Outfit',size:13,weight:'700'},bodyFont:{family:'JetBrains Mono',size:11},
+                        titleColor:'#fafafa',bodyColor:'rgba(255,255,255,0.7)',padding:12,cornerRadius:8,
+                        callbacks:{
+                            title:function(items){return items[0].raw.book.title;},
+                            label:function(item){var b=item.raw.book;var l=[b.author,'BSR: #'+b.bsr.toLocaleString()];if(b.bsr_change)l.push('24h: '+(b.bsr_change>0?'+':'')+b.bsr_change+'%');if(b.is_rising)l.push('RISING STAR');return l;}
+                        }
+                    }
+                },
+                onClick:function(evt,elements){if(elements.length>0){var b=bookChart.data.datasets[elements[0].datasetIndex].data[elements[0].index].book;if(b.amazon_url)window.open(b.amazon_url,'_blank');}},
+                onHover:function(evt,elements){evt.native.target.style.cursor=elements.length>0?'pointer':'default';}
+            }
+        });
+    }
+
+    function renderRisingStars(rising){
+        var section=document.getElementById('risingStarsSection');
+        var grid=document.getElementById('risingStarsGrid');
+        if(!rising||!rising.length){if(section)section.style.display='none';return;}
+        section.style.display='block';
+        grid.innerHTML=rising.map(function(b){
+            return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" style="display:flex;gap:1rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-decoration:none;color:inherit;transition:border-color 0.2s,transform 0.2s;" onmouseover="this.style.borderColor=\'rgba(34,197,94,0.4)\';this.style.transform=\'translateY(-3px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
+                '<div style="width:55px;height:80px;border-radius:6px;overflow:hidden;flex-shrink:0;"><img src="'+_esc(b.cover_url)+'" alt="'+_esc(b.title)+'" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>'+
+                '<div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">'+
+                    '<div style="font-size:0.85rem;font-weight:600;color:var(--bright);margin-bottom:0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_esc(b.title)+'</div>'+
+                    '<div style="font-size:0.72rem;color:var(--mut);margin-bottom:0.4rem;">'+_esc(b.author)+'</div>'+
+                    '<div style="display:inline-flex;align-items:center;gap:0.3rem;font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:600;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:0.2rem 0.5rem;border-radius:4px;width:fit-content;"><i class="fas fa-arrow-trend-up"></i> RISING '+Math.abs(b.bsr_change).toFixed(1)+'%</div>'+
+                    '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:var(--mut);margin-top:0.25rem;">BSR #'+b.bsr.toLocaleString()+'</div>'+
+                '</div></a>';
+        }).join('');
+    }
+
+    function renderBestsellersGrid(books){
+        var grid=document.getElementById('bestsellersGrid');
+        var countEl=document.getElementById('bestsellersCount');
+        if(!books||!books.length)return;
+        var sorted=books.slice().sort(function(a,b){return a.bsr-b.bsr;});
+        if(countEl)countEl.textContent=sorted.length+' BOOKS';
+        grid.innerHTML=sorted.map(function(b,idx){
+            return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:border-color 0.25s,transform 0.25s;display:flex;flex-direction:column;" onmouseover="this.style.borderColor=\'rgba(247,147,26,0.3)\';this.style.transform=\'translateY(-6px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
+                '<div style="height:220px;background:var(--elevated);display:flex;align-items:center;justify-content:center;padding:12px;position:relative;">'+
+                    '<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);border:1px solid var(--border);color:var(--btc);font-family:JetBrains Mono,monospace;font-size:0.6rem;font-weight:700;padding:0.2rem 0.4rem;border-radius:4px;">#'+(idx+1)+'</span>'+
+                    '<img src="'+_esc(b.cover_url)+'" alt="'+_esc(b.title)+'" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;" loading="lazy">'+
+                '</div>'+
+                '<div style="padding:1rem;flex:1;display:flex;flex-direction:column;">'+
+                    '<div style="font-size:0.9rem;font-weight:600;color:var(--bright);margin-bottom:0.3rem;line-height:1.25;">'+_esc(b.title)+'</div>'+
+                    '<div style="font-size:0.75rem;color:var(--red);font-family:JetBrains Mono,monospace;margin-bottom:0.5rem;">'+_esc(b.author)+'</div>'+
+                    '<span style="font-size:0.75rem;color:var(--mut);margin-top:auto;display:flex;align-items:center;gap:0.35rem;"><i class="fab fa-amazon"></i> BSR #'+b.bsr.toLocaleString()+'</span>'+
+                '</div></a>';
+        }).join('');
+    }
+
+    // Init on page load + refresh every 60s
+    fetchBookMetrics();
+    setInterval(fetchBookMetrics,60000);
+})();
 </script>
 {% endblock %}
