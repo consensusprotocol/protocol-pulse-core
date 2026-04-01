@@ -1529,7 +1529,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         macro: {{ (macro or {}) | tojson }},
         signal: {{ (signal or {}) | tojson }},
         isCommander: {{ 'true' if is_commander else 'false' }},
-        lastBlockTs: null,
+        lastBlockTs: null, // seeded below
     };
 
     // ── Helpers ────────────────────────────────────────────────────
@@ -1571,6 +1571,15 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     updateClock();
 
     // ── Block time tracker ─────────────────────────────────────────
+    // Seed block time from mempool.space API
+    fetch('https://mempool.space/api/v1/blocks').then(function(r){return r.json()}).then(function(blocks){
+      if (blocks && blocks[0]) {
+        S.lastBlockTs = blocks[0].timestamp;
+        var txEl = document.getElementById('block-tx');
+        if (txEl && blocks[0].tx_count) txEl.textContent = blocks[0].tx_count.toLocaleString();
+      }
+    }).catch(function(){});
+
     function updateBlockTime() {
         if (!S.lastBlockTs) { $('block-time') && ($('block-time').textContent = '—'); return; }
         const elapsed = Math.floor((Date.now()/1000) - S.lastBlockTs);
