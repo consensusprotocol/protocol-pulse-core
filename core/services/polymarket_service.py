@@ -32,17 +32,27 @@ def get_bitcoin_markets(limit=10):
         markets = resp.json()
         
         # Filter for relevant markets
-        keywords = ['bitcoin', 'btc', 'crypto', 'fed', 'rate', 'inflation',
-                    'etf', 'halving', 'saylor', 'blackrock', 'recession', 'trump',
-                    'ethereum', 'eth', 'solana', 'coinbase', 'binance', 'sec',
-                    'stablecoin', 'defi', 'nft', 'mining', 'gdp', 'tariff',
-                    'treasury', 'deficit', 'dollar', 'gold', 'stock market',
-                    'gta vi', 'ai', 'regulation', 'congress']
+        # Tier 1: Must-match (definitely relevant)
+        tier1 = ['bitcoin', 'btc', 'crypto', 'ethereum', 'eth', 'solana',
+                 'coinbase', 'binance', 'stablecoin', 'defi', 'halving',
+                 'saylor', 'blackrock etf', 'spot etf']
+        # Tier 2: Maybe-match (only if also mentions finance/economy)
+        tier2_primary = ['fed ', 'federal reserve', 'interest rate', 'rate cut',
+                        'inflation', 'recession', 'gdp ', 'tariff', 'treasury',
+                        'sec ', 'regulation', 'congress', 'stock market crash']
+        # Exclude: never show these
+        exclude = ['nba', 'nfl', 'mlb', 'nhl', 'soccer', 'football', 'basketball',
+                   'jesus', 'gta', 'album', 'movie', 'oscar', 'grammy', 'super bowl',
+                   'celebrity', 'kardashian', 'tiktok', 'youtube', 'spotify']
         
         filtered = []
         for m in markets:
             q = m.get('question', '').lower()
-            if any(k in q for k in keywords):
+            # Skip excluded topics
+            if any(x in q for x in exclude):
+                continue
+            # Include if tier1 match OR tier2 match
+            if any(k in q for k in tier1) or any(k in q for k in tier2_primary):
                 filtered.append({
                     'question': m.get('question', ''),
                     'slug': m.get('slug', ''),
