@@ -2302,20 +2302,20 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       drawLabels(ep);
 
       requestAnimationFrame(drawRadar);
+    }
+    requestAnimationFrame(drawRadar);
 
-    // Live refresh from convergence engine every 30s
+    // Live refresh from convergence engine every 30s (OUTSIDE drawRadar)
     setInterval(function() {
       fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-        var n = d.nodes || {};
+        var nd = d.nodes || {};
         var order = ['mcx','epx','ihx','opx','fdx','ocx'];
-        var vals = order.map(function(k){ return Math.round((n[k]||{}).score||50); });
+        var vals = order.map(function(k){ return Math.round((nd[k]||{}).score||50); });
         var comp = Math.round((d.composite||{}).score||50);
         var bias = comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : (comp >= 55 ? 'CAUTIOUS BULLISH' : 'NEUTRAL');
         ingestMatrix({ values: vals, composite: comp, bias: bias });
       }).catch(function(){});
     }, 30000);
-    }
-    requestAnimationFrame(drawRadar);
   })();
 
 
