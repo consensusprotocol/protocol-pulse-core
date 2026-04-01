@@ -802,20 +802,195 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     :root { --col-left: 1fr; --col-right: 0; }
 }
 
-@media (max-width: 900px) {
-    .main-grid {
-        grid-template-columns: 1fr;
-    }
-    .col-left { display: none; }
-    .top-bar { gap: 8px; padding: 0 10px; }
-    .status-pills .pill:not(.commander-badge) { display: none; }
+
+
+
+
+/* ═══════════════════════════════════════════════════════
+   SIGNAL TERMINAL — MOBILE (≤768px) — DESKTOP UNTOUCHED
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Layout: single column, hide left+right sidebars */
+  :root {
+    --col-left: 0px;
+    --col-right: 0px;
+    --gap: 6px;
+    --top-bar: 44px;
+    --bottom-bar: 32px;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr !important;
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+
+  .col-left  { display: none !important; }
+  .col-right { display: none !important; }
+
+  .col-center {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Panels: full width, no overflow */
+  .panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    margin-bottom: 6px;
+  }
+
+  /* Top bar compact */
+  .top-bar {
+    gap: 6px !important;
+    padding: 0 8px !important;
+    overflow-x: auto;
+  }
+
+  .kicker { font-size: 9px !important; }
+
+  /* ── SIGNAL MATRIX: index bars ── */
+  #ssm-indices {
+    gap: 6px !important;
+  }
+
+  /* Each index row: stack vertically so nothing clips */
+  .ssm-index-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    padding: 6px 8px !important;
+  }
+
+  .ssm-index-name {
+    font-size: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .ssm-index-bar-wrap {
+    width: 100% !important;
+  }
+
+  .ssm-direction-badge {
+    font-size: 8px !important;
+    padding: 1px 5px !important;
+    align-self: flex-end;
+  }
+
+  /* Inline-style index rows (JS-generated) — override via parent */
+  #ssm-indices > div {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #ssm-indices > div > span:last-child {
+    font-size: 8px !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* The progress bar: full width on mobile */
+  #ssm-indices .ssm-bar,
+  #ssm-indices > div > div {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Matrix header section */
+  .panel-header {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* Signal matrix expand section */
+  [id="ssm-fs"] {
+    padding: 12px !important;
+  }
+
+  /* Orb: add mini convergence widget inline on mobile */
+  #mobile-orb-widget {
+    display: flex !important;
+  }
+
+  /* Data rows: prevent overflow */
+  .data-row {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .data-row .label {
+    font-size: 9px !important;
+  }
+
+  .data-row .value {
+    font-size: 11px !important;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    font-size: 9px !important;
+    padding: 0 8px !important;
+  }
+
+  /* Status pills */
+  .status-pills .pill:not(.commander-badge) {
+    display: none !important;
+  }
+
+  /* Gold bar tighter */
+  .gold-bar {
+    gap: 6px !important;
+    padding: 0 8px !important;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .gold-bar * { font-size: 9px !important; }
+
+  /* Signal matrix inner layout */
+  .panel > div[style*="display:grid"],
+  .panel > div[style*="display: grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Inner two-column divs inside signal matrix panel */
+  div[style*="display:flex"][style*="gap:8px"] {
+    flex-direction: column !important;
+  }
+
+  /* Live intel stream: limit height on mobile */
+  div[style*="max-height:280px"] {
+    max-height: 180px !important;
+  }
+
+  /* Hex grid: 2-column on mobile */
+  .sovereign-hex-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
 }
 
-@media (max-width: 600px) {
-    :root { --top-bar: 40px; --bottom-bar: 30px; }
-    .top-bar .kicker { display: none; }
-    .gold-bar * { font-size: 10px; }
+/* ── 480px: tighten further ── */
+@media (max-width: 480px) {
+  :root {
+    --top-bar: 40px;
+    --bottom-bar: 28px;
+  }
+
+  .top-bar .kicker { display: none; }
+
+  #ssm-indices > div {
+    padding: 4px 6px !important;
+  }
 }
+
 </style>
 {% endblock %}
 
@@ -938,6 +1113,74 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 </div>
 
 <!-- ─── CENTER COLUMN: Intelligence ─────────────────────────────── -->
+
+<!-- ─── MOBILE ORB WIDGET (hidden on desktop, shown on mobile) ─── -->
+<div id="mobile-orb-widget" style="display:none;padding:0 8px;margin-bottom:8px;">
+  <div class="panel" style="padding:12px;">
+    <div class="panel-header" style="margin-bottom:10px;">
+      <span class="panel-label" style="font-size:10px;letter-spacing:0.12em;">CONVERGENCE ENGINE</span>
+      <span class="panel-badge live">LIVE</span>
+    </div>
+    <div id="mob-orb-scores" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+      <div class="mob-orb-cell" style="text-align:center;padding:6px;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;margin-bottom:3px;">MCX</div>
+        <div id="mob-mcx" style="font-family:monospace;font-size:18px;font-weight:800;color:#dc2626;">--</div>
+        <div id="mob-mcx-lbl" style="font-size:7px;color:rgba(255,255,255,0.3);">MINER</div>
+      </div>
+      <div class="mob-orb-cell" style="text-align:center;padding:6px;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;margin-bottom:3px;">EPX</div>
+        <div id="mob-epx" style="font-family:monospace;font-size:18px;font-weight:800;color:#f97316;">--</div>
+        <div id="mob-epx-lbl" style="font-size:7px;color:rgba(255,255,255,0.3);">EXCHANGE</div>
+      </div>
+      <div class="mob-orb-cell" style="text-align:center;padding:6px;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;margin-bottom:3px;">OPX</div>
+        <div id="mob-opx" style="font-family:monospace;font-size:18px;font-weight:800;color:#a855f7;">--</div>
+        <div id="mob-opx-lbl" style="font-size:7px;color:rgba(255,255,255,0.3);">OPTIONS</div>
+      </div>
+      <div class="mob-orb-cell" style="text-align:center;padding:6px;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;margin-bottom:3px;">IHX</div>
+        <div id="mob-ihx" style="font-family:monospace;font-size:18px;font-weight:800;color:#8b5cf6;">--</div>
+        <div id="mob-ihx-lbl" style="font-size:7px;color:rgba(255,255,255,0.3);">INSIDER</div>
+      </div>
+      <div class="mob-orb-cell" style="text-align:center;padding:6px;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;margin-bottom:3px;">FDX</div>
+        <div id="mob-fdx" style="font-family:monospace;font-size:18px;font-weight:800;color:#06b6d4;">--</div>
+        <div id="mob-fdx-lbl" style="font-size:7px;color:rgba(255,255,255,0.3);">FUTURES</div>
+      </div>
+      <div class="mob-orb-cell" style="text-align:center;padding:6px;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;margin-bottom:3px;">OCX</div>
+        <div id="mob-ocx" style="font-family:monospace;font-size:18px;font-weight:800;color:#22c55e;">--</div>
+        <div id="mob-ocx-lbl" style="font-size:7px;color:rgba(255,255,255,0.3);">ON-CHAIN</div>
+      </div>
+    </div>
+    <div id="mob-conv-score" style="margin-top:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:4px;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+      <div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.1em;margin-bottom:4px;">CONVERGENCE SCORE</div>
+      <div id="mob-conv-val" style="font-family:monospace;font-size:28px;font-weight:800;color:#f8c15c;">--</div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  function loadMobOrb(){
+    fetch('/api/orb').then(function(r){return r.json();}).then(function(d){
+      var nodes = d.nodes||{};
+      var map = {mcx:'mob-mcx',epx:'mob-epx',ihx:'mob-ihx',opx:'mob-opx',fdx:'mob-fdx',ocx:'mob-ocx'};
+      var dirs = {mcx:'mob-mcx-lbl',epx:'mob-epx-lbl',ihx:'mob-ihx-lbl',opx:'mob-opx-lbl',fdx:'mob-fdx-lbl',ocx:'mob-ocx-lbl'};
+      Object.keys(map).forEach(function(k){
+        var el = document.getElementById(map[k]);
+        var lbl = document.getElementById(dirs[k]);
+        var n = nodes[k]||{};
+        if(el) el.textContent = n.score!=null ? n.score : '--';
+        if(lbl && n.direction) lbl.textContent = n.direction.toUpperCase();
+      });
+      var cv = document.getElementById('mob-conv-val');
+      if(cv && d.convergence_score!=null) cv.textContent = d.convergence_score;
+    }).catch(function(){});
+  }
+  if(window.innerWidth <= 768){ loadMobOrb(); setInterval(loadMobOrb, 30000); }
+})();
+</script>
+
 <div class="col col-center">
 
 <!-- SOVEREIGN SIGNAL MATRIX - FULL WIDTH TOP -->
