@@ -131,7 +131,7 @@ def _fetch_btc_price() -> dict:
     data = _get_json(
         "https://api.coingecko.com/api/v3/simple/price"
         "?ids=bitcoin&vs_currencies=usd&include_24hr_change=true"
-        "&include_7d_change=true&include_market_cap=true"
+        "&include_7d_change=true&include_market_cap=true&include_24hr_vol=true"
     )
     if not data or "bitcoin" not in data:
         return {"price": 0, "change_24h": 0, "change_7d": 0, "market_cap": 0, "dominance": 0}
@@ -146,9 +146,31 @@ def _fetch_btc_price() -> dict:
         "change_24h": round(btc.get("usd_24h_change", 0), 2),
         "change_7d": round(btc.get("usd_7d_change", 0) if "usd_7d_change" in btc else 0, 2),
         "market_cap": btc.get("usd_market_cap", 0),
+        "volume_24h": btc.get("usd_24h_vol", 0),
         "dominance": dom,
     }
 
+
+
+
+def _fetch_dxy() -> float:
+    """Calculate approximate DXY from live exchange rates."""
+    try:
+        data = _get_json("https://api.exchangerate-api.com/v4/latest/USD")
+        if not data or "rates" not in data:
+            return None
+        r = data["rates"]
+        eur = r.get("EUR", 0.92)
+        jpy = r.get("JPY", 150)
+        gbp = r.get("GBP", 0.79)
+        cad = r.get("CAD", 1.36)
+        sek = r.get("SEK", 10.5)
+        chf = r.get("CHF", 0.88)
+        # DXY formula: weighted geometric mean
+        dxy = 50.14348112 * (eur ** -0.576) * (jpy ** 0.136) * (gbp ** -0.119) * (cad ** 0.091) * (sek ** 0.042) * (chf ** 0.036)
+        return round(dxy, 2)
+    except Exception:
+        return None
 
 def _fetch_fear_greed() -> dict:
     """Fear & Greed Index from alternative.me."""
@@ -793,6 +815,17 @@ class SovereignContextEngine:
                 btc, network, kol, exchange_flow, whale_alerts, fg
             ),
         }
+
+        # Enrich macro with DXY if missing
+        if not world_state.get("macro", {}).get("dxy"):
+            try:
+                _dxy_val = _fetch_dxy()
+                if _dxy_val:
+                    if "macro" not in world_state:
+                        world_state["macro"] = {}
+                    world_state["macro"]["dxy"] = _dxy_val
+            except Exception:
+                pass
 
         elapsed = time.monotonic() - t0
         log.info("World state built in %.1fs — BTC $%s, F&G %s, Hashrate %s EH/s",
