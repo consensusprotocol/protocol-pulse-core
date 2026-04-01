@@ -891,7 +891,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
         <div class="data-row">
             <span class="label">CIRCULATING</span>
-            <span class="value">{{ price.circulating if price is defined and price else '19.8M BTC' }}</span>
+            <span class="value">{{ price.circulating if price and price.circulating else '19.85M BTC' }}</span>
         </div>
     </div>
 

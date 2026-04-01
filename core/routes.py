@@ -714,14 +714,16 @@ def signal_terminal():
         except Exception:
             _btc_price = 0
             _btc_change = 0
+        _btc_ctx = _ctx.get('btc', {})
         price = {
             'price': _btc_price,
             'change_24h': _btc_change,
-            'change_7d': _ctx.get('btc', {}).get('change_7d', 0),
-            'change_30d': _ctx.get('btc', {}).get('change_30d', 0),
-            'market_cap': _ctx.get('btc', {}).get('market_cap', 0),
-            'volume_24h': _ctx.get('btc', {}).get('volume_24h', 0),
-            'dominance': _ctx.get('btc', {}).get('dominance', 0),
+            'change_7d': _btc_ctx.get('change_7d', 0) or 0,
+            'change_30d': _btc_ctx.get('change_30d', 0) or 0,
+            'market_cap': _btc_ctx.get('market_cap', 0) or 0,
+            'volume_24h': _btc_ctx.get('volume_24h', 0) or 0,
+            'dominance': _btc_ctx.get('dominance', 0) or 0,
+            'circulating': '19.85M BTC',
         }
         # F&G from sovereign context
         _fg = _ctx.get('fear_greed', {})
@@ -751,16 +753,35 @@ def signal_terminal():
             d = r.json()
             hs = d.get('currentHashrate', 0)
             onchain['hashrate'] = round(hs / 1e18, 1) if hs else 0
+            diff = d.get('currentDifficulty', 0)
+            if diff:
+                onchain['difficulty'] = round(diff / 1e12, 2)
     except:
         pass
+    # Fallback: fetch difficulty directly
+    if not onchain.get('difficulty'):
+        try:
+            r2 = _req.get('https://mempool.space/api/v1/difficulty-adjustment', timeout=1.5)
+            if r2.ok:
+                da = r2.json()
+                diff2 = da.get('difficultyChange', 0)
+                onchain['difficulty'] = round(da.get('difficulty', 0) / 1e12, 2) if da.get('difficulty') else 0
+                onchain['next_adj_pct'] = round(da.get('estimatedRetargetPercentage', 0), 1)
+                onchain['next_adj_blocks'] = da.get('remainingBlocks', 0)
+                onchain['blocks_to_halving'] = max(0, 1050000 - (sovereign_ctx.get('block_height', 0) or 0))
+        except:
+            pass
     macro = {}
     try:
         _macro_raw = _ctx.get('macro', {})
+        _gold = _macro_raw.get('gold_price') or 0
+        _sp = _macro_raw.get('sp500') or 0
+        _dxy = _macro_raw.get('dxy') or 0
         macro = {
-            'dxy': _macro_raw.get('dxy'),
-            'gold': _macro_raw.get('gold_price'),
-            'sp500': _macro_raw.get('sp500'),
-            'btc_gold_ratio': round(price.get('price', 0) / _macro_raw.get('gold_price', 1), 2) if _macro_raw.get('gold_price') else None,
+            'dxy': round(_dxy, 1) if _dxy else None,
+            'gold': round(_gold, 1) if _gold else None,
+            'sp500': round(_sp, 2) if _sp else None,
+            'btc_gold_ratio': round(price.get('price', 0) / _gold, 2) if _gold else None,
             'btc_gold_corr': _macro_raw.get('btc_vs_gold_30d_corr'),
         }
     except Exception:
