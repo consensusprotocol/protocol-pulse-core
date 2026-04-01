@@ -2943,6 +2943,62 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   setInterval(renderIndices, 30000);
 })();
 
+/* PRO ON-CHAIN METRICS */
+(function(){
+  function renderProMetrics() {
+    fetch('/api/pro-metrics').then(function(r){return r.json()}).then(function(pm){
+      var container = document.getElementById('ssm-indices');
+      if (!container || !pm) return;
+      var existing = document.getElementById('pro-metrics-section');
+      if (existing) existing.remove();
+      
+      var ssr = pm.ssr || {};
+      var mpi = pm.mpi || {};
+      var dorm = pm.dormancy_flow || {};
+      
+      var sigCols = {'VERY BULLISH':'#22c55e','BULLISH':'#22c55e','NEUTRAL':'#f8c15c','CAUTIOUS':'#f97316','BEARISH':'#ef4444'};
+      
+      var div = document.createElement('div');
+      div.id = 'pro-metrics-section';
+      div.style.cssText = 'margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);';
+      
+      var html = '<div style="font-family:monospace;font-size:10px;font-weight:800;letter-spacing:0.14em;color:#a855f7;margin-bottom:8px;">PRO ON-CHAIN</div>';
+      
+      if (ssr.value) {
+        var sc = sigCols[ssr.signal] || '#888';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+        html += '<span style="font-size:13px;color:#a855f7;font-weight:700;">SSR</span>';
+        html += '<span><span style="font-size:11px;color:'+sc+';font-weight:700;">'+ssr.signal+' </span><span style="font-size:18px;font-weight:900;color:#fff;">'+ssr.value+'</span></span>';
+        html += '</div>';
+        html += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin:2px 0 6px;">Stablecoin dry powder ratio '+((ssr.description||'').toLowerCase())+'</div>';
+      }
+      
+      if (mpi.value !== undefined && mpi.value !== null) {
+        var mc = sigCols[mpi.signal] || '#888';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+        html += '<span style="font-size:13px;color:#a855f7;font-weight:700;">MPI</span>';
+        html += '<span><span style="font-size:11px;color:'+mc+';font-weight:700;">'+mpi.signal+' </span><span style="font-size:18px;font-weight:900;color:#fff;">'+mpi.value+'</span></span>';
+        html += '</div>';
+        html += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin:2px 0 6px;">'+(mpi.description||'')+'</div>';
+      }
+      
+      if (dorm.value) {
+        var dc = sigCols[dorm.signal] || '#888';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;">';
+        html += '<span style="font-size:13px;color:#a855f7;font-weight:700;">DORMANCY</span>';
+        html += '<span><span style="font-size:11px;color:'+dc+';font-weight:700;">'+dorm.signal+' </span><span style="font-size:18px;font-weight:900;color:#fff;">'+Math.round(dorm.value)+'</span></span>';
+        html += '</div>';
+        html += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin:2px 0 0;">'+(dorm.description||'')+'</div>';
+      }
+      
+      div.innerHTML = html;
+      container.appendChild(div);
+    }).catch(function(e){ console.warn('Pro metrics:', e); });
+  }
+  setTimeout(renderProMetrics, 2000);
+  setInterval(renderProMetrics, 60000);
+})();
+
 
 /* ═══ INDICES → RADAR CROSS-LINK ═══ */
 (function(){
