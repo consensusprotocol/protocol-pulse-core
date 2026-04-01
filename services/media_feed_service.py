@@ -300,11 +300,12 @@ def parse_youtube_rss(channel_config: dict) -> List[dict]:
                 if not title or is_excluded(title):
                     continue
                 vid_id = entry.get('yt_videoid', '')
+                desc = _clean_html(entry.get('summary', '') or '')[:500]
                 pub_date = _parse_rss_date(entry)
                 episodes.append({
                     'guid': vid_id or _make_guid(entry, url),
                     'title': title,
-                    'description': _clean_html(entry.get('summary', '') or '')[:500],
+                    'description': desc,
                     'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
                     'source_url': entry.get('link', ''),
                     'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
