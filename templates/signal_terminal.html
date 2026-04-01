@@ -825,94 +825,6 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 
 <div class="main-grid">
 
-    <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div class="panel-header">
-            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
-            <span class="panel-badge live">LIVE</span>
-        </div>
-        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
-        </div>
-    </div>
-
-    <!-- ═══ POLYMARKET + WHALE ALERTS ═════════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <!-- Polymarket -->
-            <div>
-                <div class="panel-header">
-                    <span class="panel-label">PREDICTION MARKETS</span>
-                    <span class="panel-badge">LIVE</span>
-                </div>
-                <div id="poly-list" style="padding:4px 12px;">
-                    <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading prediction markets...</div>
-                </div>
-            </div>
-            <!-- Whale alerts -->
-            <div>
-                <div class="panel-header">
-                    <span class="panel-label">WHALE INTELLIGENCE</span>
-                    <span class="panel-badge live">LIVE</span>
-                </div>
-                <div id="whale-list" style="padding:4px 12px;max-height:200px;overflow-y:auto;">
-                    <div style="color:rgba(255,255,255,0.15);font-size:10px;">Monitoring whale movements...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- ═══ HALVING CYCLE OVERLAY ═══════════════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div class="panel-header">
-            <span class="panel-label">4-YEAR HALVING CYCLE OVERLAY</span>
-            <span class="panel-badge live">LIVE</span>
-        </div>
-        <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
-            Price multiplier from halving price — current cycle vs historical (log scale)
-        </div>
-        <div style="position:relative;height:320px;padding:8px 12px;">
-            <canvas id="halvingCycleChart"></canvas>
-        </div>
-        <div style="display:flex;gap:24px;flex-wrap:wrap;padding:8px 12px;">
-            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
-                <div style="font-size:18px;font-weight:900;color:#fff;" id="halving-day">706</div>
-            </div>
-            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
-                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-mult">1.03x</div>
-            </div>
-            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
-                <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
-            </div>
-            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Current</div>
-                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-current">${{ '{:,.0f}'.format(price.price|int) if price and price.price else '—' }}</div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-
-<!-- Fullscreen radar overlay -->
-<div id="ssm-fs" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(4,4,4,0.98);z-index:99999;overflow-y:auto;">
-  <button onclick="document.getElementById('ssm-fs').style.display='none';document.body.style.overflow='';" style="position:fixed;top:16px;right:16px;z-index:100000;background:rgba(220,38,38,0.2);border:1px solid #dc2626;color:#fff;font-family:\x27JetBrains Mono\x27,monospace;font-size:11px;padding:6px 16px;border-radius:4px;cursor:pointer;">X CLOSE</button>
-  <div style="max-width:900px;margin:60px auto;padding:20px;text-align:center;">
-    <canvas id="ssm-radar-fs" width="700" height="700" style="max-width:100%;"></canvas>
-    <div style="margin-top:12px;">
-      <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:28px;font-weight:900;color:#fff;" id="ssm-fs-comp">--</span>
-      <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-fs-bias">SOVEREIGN COMPOSITE</span>
-    </div>
-  </div>
-</div>
-
-
-<!-- ─── LEFT COLUMN: Markets ────────────────────────────────────── -->
 <div class="col col-left">
 
     <!-- BTC Price Hero -->
@@ -1329,6 +1241,96 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     </div>
 
 </div><!-- /main-grid -->
+
+<!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
+        </div>
+    </div>
+
+    <!-- ═══ POLYMARKET + WHALE ALERTS ═════════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <!-- Polymarket -->
+            <div>
+                <div class="panel-header">
+                    <span class="panel-label">PREDICTION MARKETS</span>
+                    <span class="panel-badge">LIVE</span>
+                </div>
+                <div id="poly-list" style="padding:4px 12px;">
+                    <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading prediction markets...</div>
+                </div>
+            </div>
+            <!-- Whale alerts -->
+            <div>
+                <div class="panel-header">
+                    <span class="panel-label">WHALE INTELLIGENCE</span>
+                    <span class="panel-badge live">LIVE</span>
+                </div>
+                <div id="whale-list" style="padding:4px 12px;max-height:200px;overflow-y:auto;">
+                    <div style="color:rgba(255,255,255,0.15);font-size:10px;">Monitoring whale movements...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ═══ HALVING CYCLE OVERLAY ═══════════════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">4-YEAR HALVING CYCLE OVERLAY</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;color:rgba(255,255,255,0.35);padding:0 12px;">
+            Price multiplier from halving price — current cycle vs historical (log scale)
+        </div>
+        <div style="position:relative;height:320px;padding:8px 12px;">
+            <canvas id="halvingCycleChart"></canvas>
+        </div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;padding:8px 12px;">
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Day</div>
+                <div style="font-size:18px;font-weight:900;color:#fff;" id="halving-day">706</div>
+            </div>
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Multiplier</div>
+                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-mult">1.03x</div>
+            </div>
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Halving Price</div>
+                <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$63,800</div>
+            </div>
+            <div style="font-family:\x27JetBrains Mono\x27,monospace;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Current</div>
+                <div style="font-size:18px;font-weight:900;color:#ff3b5f;" id="halving-current">${{ '{:,.0f}'.format(price.price|int) if price and price.price else '—' }}</div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+<!-- Fullscreen radar overlay -->
+<div id="ssm-fs" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(4,4,4,0.98);z-index:99999;overflow-y:auto;">
+  <button onclick="document.getElementById('ssm-fs').style.display='none';document.body.style.overflow='';" style="position:fixed;top:16px;right:16px;z-index:100000;background:rgba(220,38,38,0.2);border:1px solid #dc2626;color:#fff;font-family:\x27JetBrains Mono\x27,monospace;font-size:11px;padding:6px 16px;border-radius:4px;cursor:pointer;">X CLOSE</button>
+  <div style="max-width:900px;margin:60px auto;padding:20px;text-align:center;">
+    <canvas id="ssm-radar-fs" width="700" height="700" style="max-width:100%;"></canvas>
+    <div style="margin-top:12px;">
+      <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:28px;font-weight:900;color:#fff;" id="ssm-fs-comp">--</span>
+      <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-fs-bias">SOVEREIGN COMPOSITE</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── LEFT COLUMN: Markets ────────────────────────────────────── -->
+
 
 <!-- ═══ GOLD INFO BAR ═══════════════════════════════════════════════ -->
 <div class="gold-bar">
