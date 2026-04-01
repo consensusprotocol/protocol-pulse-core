@@ -824,6 +824,16 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 <!-- ═══ MAIN GRID ════════════════════════════════════════════════════ -->
 <div class="main-grid">
 
+    <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
+    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
+        <div class="panel-header">
+            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
+        </div>
+    </div>
+
     <!-- ═══ SOVEREIGN SIGNAL MATRIX ═══════════════════════════════════ -->
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
         <div class="panel-header">
@@ -834,7 +844,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 12px;">
             <!-- Radar canvas -->
             <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-                <canvas id="ssm-radar" width="420" height="420" style="max-width:100%;"></canvas>
+                <canvas id="ssm-radar" width="600" height="600" style="max-width:100%;width:100%;"></canvas>
                 <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);text-align:center;">
                     <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:24px;font-weight:900;color:#fff;" id="ssm-composite">—</span>
                     <span style="font-family:\x27JetBrains Mono\x27,monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.4);display:block;" id="ssm-bias">LOADING</span>
@@ -922,15 +932,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
     </div>
 
-    <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
-    <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
-        <div class="panel-header">
-            <span class="panel-label">CONVERGENCE INDEX BREAKDOWN</span>
-            <span class="panel-badge live">LIVE</span>
-        </div>
-        <div id="convergence-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px 12px;">
-        </div>
-    </div>
+
 
 
 
@@ -2319,6 +2321,32 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < bestD) { bestD = dist; best = i; }
       }
+      // Also check proximity to polygon edges (lines between points)
+      if (bestD > 25) {
+        // Check distance to each edge
+        for (var ei = 0; ei < n; ei++) {
+          var r1 = maxR * animVals[ei] / 100;
+          var r2 = maxR * animVals[(ei+1)%n] / 100;
+          var p1 = axisXY(ei, r1);
+          var p2 = axisXY((ei+1)%n, r2);
+          // Point-to-line-segment distance
+          var ldx = p2[0]-p1[0], ldy = p2[1]-p1[1];
+          var len2 = ldx*ldx+ldy*ldy;
+          if (len2 > 0) {
+            var t2 = Math.max(0, Math.min(1, ((mx-p1[0])*ldx+(my-p1[1])*ldy)/len2));
+            var projX = p1[0]+t2*ldx, projY = p1[1]+t2*ldy;
+            var edgeDist = Math.sqrt((mx-projX)*(mx-projX)+(my-projY)*(my-projY));
+            if (edgeDist < 15) {
+              // Drag the nearest vertex of this edge
+              var d1 = Math.sqrt((mx-p1[0])*(mx-p1[0])+(my-p1[1])*(my-p1[1]));
+              var d2 = Math.sqrt((mx-p2[0])*(mx-p2[0])+(my-p2[1])*(my-p2[1]));
+              best = d1 < d2 ? ei : (ei+1)%n;
+              bestD = 0;
+              break;
+            }
+          }
+        }
+      }
       if (bestD < 25 && best >= 0) {
         isDragging = true;
         dragAxis = best;
@@ -2567,7 +2595,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       var msg=w.message||'';
       var btcMatch=msg.match(/([\d.]+)\s*BTC/);
       var btcAmt=btcMatch?btcMatch[1]:'?';
-      var hashMatch=msg.match(/([a-f0-9]{8})/);
+      var hashMatch=msg.match(/([a-f0-9]{8,64})/);
       var txHash=hashMatch?hashMatch[1]+'...':'';
       var isNew=idx===0;
       html+='<div class="whale-card'+(isNew?' whale-new':'')+'" style="'
@@ -2585,7 +2613,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         +'</div>'
         +'<span style="font-family:monospace;font-size:7px;font-weight:700;letter-spacing:0.1em;color:'+tierCol+';padding:2px 6px;border:1px solid '+tierCol+';border-radius:3px;">'+w.tier+'</span>'
         +'</div>'
-        +'<div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">TX '+txHash+' \u2022 unconfirmed</div>'
+        +'<div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">'+(txHash?'<a href="https://mempool.space/tx/'+txHash.replace("...","")+'" target="_blank" rel="noopener" style="color:rgba(6,182,212,0.6);text-decoration:none;">TX '+txHash+' \u2197</a>':'TX pending')+' \u2022 unconfirmed</div>'
         +'</div>';
     });
     el.innerHTML=html;
