@@ -762,11 +762,14 @@ function mhNlSub(e){
         });
         function mkPts(arr){
             return arr.map(function(b){
-                var pub=new Date(b.published);
-                var mo=Math.max(1,(now-pub)/(1000*60*60*24*30));
-                var recency=Math.max(1,100-Math.min(100,mo));
-                var v=b.velocity||50;
-                return {x:recency,y:v,r:Math.max(8,Math.min(35,v*0.35)),book:b};
+                var bsr=b.bsr||50000;
+                // Bubble size: lower BSR = bigger. Log scale for visibility
+                var r=Math.max(6,Math.min(32,32-Math.log10(bsr)*5.5));
+                // X: BSR momentum — negative=improving, positive=declining
+                var x=Math.max(-42,Math.min(22,b.bsr_change||0));
+                // Y: velocity score 0-100
+                var y=b.velocity||50;
+                return {x:x,y:y,r:r,book:b};
             });
         }
         var datasets=[
@@ -781,7 +784,7 @@ function mhNlSub(e){
                 responsive:true,maintainAspectRatio:false,
                 animation:{duration:1200,easing:'easeOutQuart'},
                 scales:{
-                    x:{title:{display:true,text:'RECENCY',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:0,max:105,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9},callback:function(v){return v<=20?'Classic':v<=50?'Established':v<=80?'Recent':'New';}}},
+                    x:{title:{display:true,text:'BSR MOMENTUM',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:-45,max:25,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9},callback:function(v){return v<=-20?'HOT':v<=-10?'RISING':v<=0?'STABLE':'COOLING';}}},
                     y:{title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.35)',font:{family:'JetBrains Mono',size:10}},min:0,max:105,grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},ticks:{color:'rgba(255,255,255,0.3)',font:{family:'JetBrains Mono',size:9}}}
                 },
                 plugins:{
