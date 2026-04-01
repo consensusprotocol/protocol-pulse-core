@@ -167,7 +167,10 @@ def _fetch_dxy() -> float:
         sek = r.get("SEK", 10.5)
         chf = r.get("CHF", 0.88)
         # DXY formula: weighted geometric mean
-        dxy = 50.14348112 * (eur ** -0.576) * (jpy ** 0.136) * (gbp ** -0.119) * (cad ** 0.091) * (sek ** 0.042) * (chf ** 0.036)
+        # API gives USD->X rates. DXY uses EURUSD (1/eur) and GBPUSD (1/gbp)
+        eurusd = 1.0 / eur  # how many USD per 1 EUR
+        gbpusd = 1.0 / gbp  # how many USD per 1 GBP
+        dxy = 50.14348112 * (eurusd ** -0.576) * (jpy ** 0.136) * (gbpusd ** -0.119) * (cad ** 0.091) * (sek ** 0.042) * (chf ** 0.036)
         return round(dxy, 2)
     except Exception:
         return None
