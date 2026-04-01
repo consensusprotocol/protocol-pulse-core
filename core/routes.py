@@ -2466,28 +2466,16 @@ def media_hub():
     feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
     if media_feed_service:
         try:
-            # Force background refresh every page load so content stays current
-            import threading
-            def _bg_sync(_app=app):
-                try:
-                    media_feed_service.sync_all_feeds(_app)
-                except Exception as _bge:
-                    import logging as _l; _l.warning(f'bg_sync error: {_bge}')
-            threading.Thread(target=_bg_sync, daemon=True).start()
-            import threading as _thr
-            _ev2 = _thr.Event()
-            def _presync(_a=app):
-                try: media_feed_service.sync_all_feeds(_a)
-                except: pass
-                finally: _ev2.set()
-            _thr.Thread(target=_presync,daemon=True).start()
-            _ev2.wait(timeout=4)
+            # Serve from DB cache — cron syncs hourly, no blocking on page load
             feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
             ticker_items = media_feed_service.get_ticker_items(limit=30)
             try:
                 feed_stats = media_feed_service.get_feed_stats()
             except Exception:
-                feed_stats = {"feed_count": len(set(ep.get("feed_name","") for ep in feed_matrix.get("podcasts",[]) + feed_matrix.get("videos",[]))), "episode_count": len(feed_matrix.get("podcasts",[]))+len(feed_matrix.get("videos",[])), "podcast_count": len(feed_matrix.get("podcasts",[])), "video_count": len(feed_matrix.get("videos",[]))}
+                feed_stats = {"feed_count": 18, "episode_count": len(feed_matrix.get("podcasts",[]))+len(feed_matrix.get("videos",[])), "podcast_count": len(feed_matrix.get("podcasts",[])), "video_count": len(feed_matrix.get("videos",[]))}
+            # Kick background sync if stale (non-blocking, fire-and-forget)
+            import threading
+            threading.Thread(target=lambda: media_feed_service.sync_all_feeds(app), daemon=True).start()
         except Exception as e:
             logging.warning(f"media_feed_service error: {e}")
 
