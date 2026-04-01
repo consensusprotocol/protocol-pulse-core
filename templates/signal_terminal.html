@@ -1917,6 +1917,140 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     let hoveredAxis = -1, selectedAxis = -1;
     let flashAlpha = [0, 0, 0, 0, 0, 0];
 
+    // ── ALIVE PARTICLE SYSTEM ──
+    var particles = [];
+    var pulseRings = [];
+    var edgePulsePhase = 0;
+    var lastEmitTime = [0,0,0,0,0,0];
+    var dataLabels = ['EH/s','FLOW','IHX','P/C','FUND','TXS'];
+
+    function emitFromAxis(idx, text, color) {
+      if (!entered) return;
+      var r = maxR * animVals[idx] / 100;
+      var p = axisXY(idx, r);
+      var angle = axisAngle(idx);
+      particles.push({
+        x: p[0], y: p[1],
+        text: text,
+        color: color || axisColors[idx],
+        alpha: 0.9,
+        vx: Math.cos(angle) * 0.4 + (Math.random()-0.5) * 0.2,
+        vy: Math.sin(angle) * 0.4 + (Math.random()-0.5) * 0.2,
+        life: 90, age: 0, size: 7
+      });
+    }
+
+    function emitPulseRing(idx) {
+      var r = maxR * animVals[idx] / 100;
+      var p = axisXY(idx, r);
+      pulseRings.push({
+        x: p[0], y: p[1],
+        radius: 3, maxRadius: 25,
+        alpha: 0.6, color: axisColors[idx],
+        speed: 0.5
+      });
+    }
+
+    function drawParticles() {
+      for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.age++;
+        p.alpha = Math.max(0, 0.9 * (1 - p.age / p.life));
+        if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+        rctx.font = '600 ' + p.size + 'px monospace';
+        rctx.globalAlpha = p.alpha;
+        rctx.fillStyle = p.color;
+        rctx.textAlign = 'center';
+        rctx.fillText(p.text, p.x, p.y);
+        rctx.globalAlpha = 1;
+      }
+    }
+
+    function drawPulseRings() {
+      for (var i = pulseRings.length - 1; i >= 0; i--) {
+        var pr = pulseRings[i];
+        pr.radius += pr.speed;
+        pr.alpha = Math.max(0, 0.6 * (1 - pr.radius / pr.maxRadius));
+        if (pr.alpha <= 0) { pulseRings.splice(i, 1); continue; }
+        rctx.beginPath();
+        rctx.arc(pr.x, pr.y, pr.radius, 0, Math.PI * 2);
+        rctx.strokeStyle = pr.color;
+        rctx.globalAlpha = pr.alpha;
+        rctx.lineWidth = 1.5;
+        rctx.stroke();
+        rctx.globalAlpha = 1;
+      }
+    }
+
+    function drawEdgePulse() {
+      edgePulsePhase += 0.008;
+      if (edgePulsePhase > 1) edgePulsePhase -= 1;
+      // Draw a bright dot traveling along the polygon edges
+      var totalLen = 0;
+      var segments = [];
+      for (var i = 0; i < n; i++) {
+        var r1 = maxR * animVals[i] / 100;
+        var r2 = maxR * animVals[(i+1)%n] / 100;
+        var p1 = axisXY(i, r1), p2 = axisXY((i+1)%n, r2);
+        var dx = p2[0]-p1[0], dy = p2[1]-p1[1];
+        var len = Math.sqrt(dx*dx+dy*dy);
+        segments.push({p1:p1, p2:p2, len:len});
+        totalLen += len;
+      }
+      var target = edgePulsePhase * totalLen;
+      var accum = 0;
+      for (var i = 0; i < segments.length; i++) {
+        if (accum + segments[i].len >= target) {
+          var t2 = (target - accum) / segments[i].len;
+          var px = segments[i].p1[0] + (segments[i].p2[0]-segments[i].p1[0]) * t2;
+          var py = segments[i].p1[1] + (segments[i].p2[1]-segments[i].p1[1]) * t2;
+          rctx.beginPath();
+          rctx.arc(px, py, 3, 0, Math.PI*2);
+          rctx.fillStyle = 'rgba(255,59,95,0.7)';
+          rctx.fill();
+          // Trail
+          for (var tr = 1; tr <= 4; tr++) {
+            var tt = Math.max(0, target - tr * 8);
+            var ac2 = 0;
+            for (var j = 0; j < segments.length; j++) {
+              if (ac2 + segments[j].len >= tt) {
+                var t3 = (tt - ac2) / segments[j].len;
+                var tx = segments[j].p1[0] + (segments[j].p2[0]-segments[j].p1[0]) * t3;
+                var ty = segments[j].p1[1] + (segments[j].p2[1]-segments[j].p1[1]) * t3;
+                rctx.beginPath();
+                rctx.arc(tx, ty, 2 - tr * 0.3, 0, Math.PI*2);
+                rctx.fillStyle = 'rgba(255,59,95,' + (0.4 - tr*0.08).toFixed(2) + ')';
+                rctx.fill();
+                break;
+              }
+              ac2 += segments[j].len;
+            }
+          }
+          break;
+        }
+        accum += segments[i].len;
+      }
+    }
+
+    // Auto-emit data from each axis periodically
+    function autoEmit() {
+      var now = Date.now();
+      var emissions = [
+        {idx:0, interval:8000, fn:function(){return Math.round(animVals[0])+' MCX';}},
+        {idx:1, interval:12000, fn:function(){return Math.round(animVals[1])+' EPX';}},
+        {idx:2, interval:15000, fn:function(){return Math.round(animVals[2])+' IHX';}},
+        {idx:3, interval:10000, fn:function(){var pcr=window._lastPCR||0.674;return 'P/C '+pcr.toFixed(3);}},
+        {idx:4, interval:9000, fn:function(){var fr=window._lastFunding||0.005;return fr.toFixed(4)+'%';}},
+        {idx:5, interval:7000, fn:function(){return Math.round(animVals[5])+' OCX';}}
+      ];
+      emissions.forEach(function(e){
+        if (now - lastEmitTime[e.idx] > e.interval) {
+          emitFromAxis(e.idx, e.fn(), axisColors[e.idx]);
+          lastEmitTime[e.idx] = now;
+        }
+      });
+    }
+
     var _orbCache = null;
     function computeMatrix() {
       if (_orbCache) return _orbCache;
@@ -1948,6 +2082,18 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       var compEl = document.getElementById('ssm-composite');
       var biasEl = document.getElementById('ssm-bias');
       if (compEl) { compEl.textContent = m.composite; compEl.style.color = m.composite >= 65 ? '#fff' : m.composite <= 35 ? '#ff3b5f' : 'rgba(255,255,255,0.6)'; }
+      // Store raw data for particle emissions
+      if (typeof _orbRaw !== 'undefined') {
+        window._lastPCR = parseFloat(_orbRaw.put_call_ratio) || 0.674;
+        window._lastFunding = parseFloat(_orbRaw.funding_rate) || 0.005;
+      }
+      // Emit pulse rings on significant changes
+      for (var pi = 0; pi < n; pi++) {
+        if (Math.abs(baseVals[pi] - (ghostVals[pi]||50)) > 3) {
+          emitPulseRing(pi);
+          emitFromAxis(pi, Math.round(baseVals[pi]) + ' ' + labels[pi], axisColors[pi]);
+        }
+      }
       if (biasEl) biasEl.textContent = 'SOVEREIGN COMPOSITE \u2022 ' + m.bias;
     }
 
@@ -2299,6 +2445,12 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
       drawFill(ep);
       drawDots(ep);
       drawLabels(ep);
+
+      // Alive effects
+      drawEdgePulse();
+      drawParticles();
+      drawPulseRings();
+      autoEmit();
 
       requestAnimationFrame(drawRadar);
     }
