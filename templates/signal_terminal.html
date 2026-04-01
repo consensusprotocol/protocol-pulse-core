@@ -910,18 +910,6 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
                 <div class="marker" id="fg-marker" style="left: {{ fg_val }}%"></div>
             </div>
         </div>
-        <div class="data-row" style="margin-top:6px">
-            <span class="label">YESTERDAY</span>
-            <span class="value" id="fg-yesterday">{{ fg.yesterday | default('—') if fg else '—' }}</span>
-        </div>
-        <div class="data-row">
-            <span class="label">LAST WEEK</span>
-            <span class="value" id="fg-week">{{ fg.last_week | default('—') if fg else '—' }}</span>
-        </div>
-        <div class="data-row">
-            <span class="label">LAST MONTH</span>
-            <span class="value" id="fg-month">{{ fg.last_month | default('—') if fg else '—' }}</span>
-        </div>
     </div>
 
     <!-- Macro Correlations -->
@@ -931,7 +919,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
         <div class="data-row">
             <span class="label">DXY INDEX</span>
-            <span class="value" id="macro-dxy">{{ macro.dxy | default('—') if macro else '—' }}</span>
+            <span class="value" id="macro-dxy">{% if macro and macro.dxy %}{{ macro.dxy }}{% else %}---{% endif %}</span>
         </div>
         <div class="data-row">
             <span class="label">GOLD / OZ</span>
