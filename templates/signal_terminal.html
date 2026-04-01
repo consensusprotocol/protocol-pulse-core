@@ -1555,9 +1555,9 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             if (tx.value) valSats = tx.value;
             else if (tx.vout) tx.vout.forEach(function(o){ valSats += o.value || 0; });
             var btc = valSats / 1e8;
-            if (btc > 5 && window.addIntelEvent) {
-              var op = btc > 100 ? 1.0 : 0.5;
-              var prefix = btc > 100 ? '\uD83D\uDC0B ' : '';
+            if (btc > 1 && window.addIntelEvent) {
+              var op = btc > 100 ? 1.0 : btc > 10 ? 0.8 : 0.5;
+              var prefix = btc > 100 ? '\uD83D\uDC0B ' : btc > 10 ? '\u26A0 ' : '';
               window.addIntelEvent(btc > 100 ? 'WHALE' : 'TX', '#f97316', 'TX',
                 prefix + btc.toFixed(2) + ' BTC \u2192 mempool', op);
             }
@@ -1568,7 +1568,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         }).catch(function(){});
       }
       setTimeout(pollLargeTxs, 3000);
-      setInterval(pollLargeTxs, 15000);
+      setInterval(pollLargeTxs, 6000);
     })();
 
     // ── API Polling ───────────────────────────────────────────────
@@ -2818,19 +2818,32 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     }).catch(function(){});
   }
 
-  /* Heartbeat — fills gaps when real events are slow */
+  /* Heartbeat - real data stream every 5s */
+  var _hbIndex = 0;
   setInterval(function(){
-    if(Date.now()-_lastEventTime>5000){
-      var heartbeats=[
-        function(){return['NET','#555','PING','mempool.space \u2014 connected'];},
-        function(){return['HASH','#dc2626','\u26CF',Math.round(980+Math.random()*40)+' EH/s'];},
-        function(){return['NET','#555','MEM',Math.round(15000+Math.random()*15000).toLocaleString()+' unconfirmed'];},
-        function(){return['NET','#555','FEES',Math.round(1+Math.random()*3)+' sat/vB avg'];}
-      ];
-      var hb=heartbeats[Math.floor(Math.random()*heartbeats.length)]();
-      addIntelEvent(hb[0],hb[1],hb[2],hb[3],0.3);
+    if(Date.now()-_lastEventTime>3000){
+      fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+        var raw = d.raw || {};
+        var beats = [
+          ['INDEX','#06b6d4','FDX','Funding: '+(raw.funding_rate?(raw.funding_rate*100).toFixed(4):'0.00')+'%'],
+          ['INDEX','#a855f7','OPX','Put/Call: '+(raw.put_call_ratio||'--')],
+          ['NET','#f8c15c','GOLD','$'+(raw.gold_price?Math.round(raw.gold_price).toLocaleString():'--')+'/oz'],
+          ['NET','#22c55e','S&P',''+(raw.sp500?Math.round(raw.sp500).toLocaleString():'--')],
+          ['INDEX','#06b6d4','FUT','Basis: '+(raw.basis_pct||'0')+'% annualized'],
+          ['INDEX','#a855f7','VOL','DVOL: '+(raw.dvol||'--')],
+          ['INDEX','#f97316','OPX','Max Pain: $'+(raw.options_max_pain?Math.round(raw.options_max_pain).toLocaleString():'--')],
+          ['NET','#06b6d4','\u26A1',''+(raw.lightning_btc?Math.round(raw.lightning_btc).toLocaleString():'--')+' BTC lightning'],
+          ['INDEX','#dc2626','MCX','Hashrate: '+(raw.hashrate?Math.round(raw.hashrate):'--')+' EH/s'],
+          ['NET','#22c55e','NET','CDD 7d: '+(raw.coin_days_destroyed_7d?Math.round(raw.coin_days_destroyed_7d).toLocaleString():'--')],
+        ];
+        var pick = beats[_hbIndex % beats.length];
+        _hbIndex++;
+        addIntelEvent(pick[0],pick[1],pick[2],pick[3],0.7);
+      }).catch(function(){
+        addIntelEvent('NET','#555','SYS','heartbeat',0.2);
+      });
     }
-  },8000+Math.random()*4000);
+  },5000);
 
   /* Boot sequence */
   setTimeout(function(){
