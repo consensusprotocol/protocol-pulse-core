@@ -42,7 +42,7 @@ def get_bitcoin_markets(limit=10):
                         'sec ', 'regulation', 'congress', 'stock market crash']
         # Exclude: never show these
         exclude = ['nba', 'nfl', 'mlb', 'nhl', 'soccer', 'football', 'basketball',
-                   'jesus', 'gta', 'album', 'movie', 'oscar', 'grammy', 'super bowl',
+                   'jesus', 'gta', 'album', 'movie', 'oscar', 'grammy', 'super bowl', 'fifa', 'world cup', 'win the 2026', 'win the 2027', 'champions league', 'serie a', 'premier league',
                    'celebrity', 'kardashian', 'tiktok', 'youtube', 'spotify']
         
         filtered = []
