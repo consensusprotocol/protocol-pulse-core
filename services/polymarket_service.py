@@ -20,7 +20,7 @@ def get_bitcoin_markets(limit=10):
         resp = requests.get(
             f'{POLYMARKET_API}/markets',
             params={
-                'limit': 50,
+                'limit': 100,
                 'active': 'true',
                 'closed': 'false',
             },
@@ -32,8 +32,12 @@ def get_bitcoin_markets(limit=10):
         markets = resp.json()
         
         # Filter for relevant markets
-        keywords = ['bitcoin', 'btc', 'crypto', 'fed', 'rate', 'inflation', 
-                    'etf', 'halving', 'saylor', 'blackrock', 'recession', 'trump']
+        keywords = ['bitcoin', 'btc', 'crypto', 'fed', 'rate', 'inflation',
+                    'etf', 'halving', 'saylor', 'blackrock', 'recession', 'trump',
+                    'ethereum', 'eth', 'solana', 'coinbase', 'binance', 'sec',
+                    'stablecoin', 'defi', 'nft', 'mining', 'gdp', 'tariff',
+                    'treasury', 'deficit', 'dollar', 'gold', 'stock market',
+                    'gta vi', 'ai', 'regulation', 'congress']
         
         filtered = []
         for m in markets:
