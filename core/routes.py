@@ -669,7 +669,13 @@ def signal_terminal():
         _ep = _idx.get('exchange_pressure', {})
         _sd = _idx.get('social_divergence', {})
         # Composite from convergence
-        _orb_resp = _req.get('http://localhost:5000/api/orb', timeout=3).json()
+        import json as _oj
+        with open('/home/ultron/protocol_pulse/data/sovereign_context/latest.json') as _of:
+            _orb_data = _oj.load(_of)
+        _orb_resp = {'composite': {'score': 50, 'pattern': 'NEUTRAL'}, 'nodes': {}}
+        if 'indices' in _orb_data:
+            _idxd = _orb_data['indices']
+            _orb_resp['composite'] = {'score': _idxd.get('convergence_score', {}).get('score', 50), 'pattern': _idxd.get('convergence_score', {}).get('pattern', 'NEUTRAL')}
         _comp = _orb_resp.get('composite', {})
         _comp_score = round(_comp.get('score', 0))
         _pattern = _comp.get('pattern', 'NEUTRAL')
@@ -702,9 +708,9 @@ def signal_terminal():
             _ctx = _stj.load(_cf)
         # Price: use internal API (CoinGecko via price_service works for this endpoint)
         try:
-            _pr = _req.get('http://localhost:5000/api/btc-price', timeout=3).json()
-            _btc_price = _pr.get('price', 0)
-            _btc_change = _pr.get('change_24h', 0)
+            _btc_data = _ctx.get('btc', {})
+            _btc_price = _btc_data.get('price', 0) or 0
+            _btc_change = _btc_data.get('change_24h', 0) or 0
         except Exception:
             _btc_price = 0
             _btc_change = 0
