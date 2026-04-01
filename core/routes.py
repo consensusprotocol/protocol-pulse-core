@@ -6564,6 +6564,17 @@ def api_polymarket_markets():
         return jsonify({"markets": [], "sentiment_score": 50, "error": str(e)})
 
 
+
+@app.route('/api/pro-metrics')
+def api_pro_metrics():
+    """Professional on-chain metrics — SSR, MPI, Dormancy Flow."""
+    try:
+        from services.pro_metrics_service import fetch_all_pro_metrics
+        metrics = fetch_all_pro_metrics()
+        return jsonify(metrics)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
 @app.route('/health/automation')
 def automation_health():
     """Health check endpoint for automation monitoring"""

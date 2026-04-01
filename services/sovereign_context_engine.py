@@ -819,6 +819,15 @@ class SovereignContextEngine:
             ),
         }
 
+        # Fetch pro on-chain metrics (SSR, MPI, Dormancy Flow)
+        pro_metrics = {}
+        try:
+            from services.pro_metrics_service import fetch_all_pro_metrics
+            pro_metrics = fetch_all_pro_metrics() or {}
+        except Exception as _pme:
+            log.warning("Pro metrics fetch failed: %s", _pme)
+        world_state["pro_metrics"] = pro_metrics
+
         # Enrich macro with DXY if missing
         if not world_state.get("macro", {}).get("dxy"):
             try:
