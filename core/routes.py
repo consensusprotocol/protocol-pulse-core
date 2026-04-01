@@ -2603,6 +2603,8 @@ def media_hub():
                            series_data=series_data,
                            latest_episodes=latest_episodes,
                            all_books=all_books,
+                           our_books=our_books,
+                           recommended_books=recommended_books,
                            is_commander=is_commander)
 
 @app.route('/api/books/metrics')
