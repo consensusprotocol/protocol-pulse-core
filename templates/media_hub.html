@@ -235,6 +235,8 @@
   .sig-src{min-width:60px}
   .sig-time{min-width:44px}
 }
+
+@media(max-width:768px){.matrix{display:flex!important;flex-direction:column!important}#vidCol{order:-1!important}#podCol{order:0!important}.kol-col{order:1!important}}
 </style>
 {% endblock %}
 
@@ -285,7 +287,7 @@
   <div class="matrix">
 
     <!-- ── COLUMN 1: PODCASTS ── -->
-    <div class="matrix-col">
+    <div class="matrix-col" id="podCol">
       <div class="matrix-head">
         <div class="matrix-head-icon pod"><i class="fas fa-microphone-alt"></i></div>
         <span class="matrix-head-title">Podcasts</span>
@@ -324,7 +326,7 @@
     </div>
 
     <!-- ── COLUMN 2: VIDEO INTEL (Series Cards) ── -->
-    <div class="matrix-col">
+    <div class="matrix-col" id="vidCol">
       <div class="matrix-head">
         <div class="matrix-head-icon vid"><i class="fas fa-play"></i></div>
         <span class="matrix-head-title">Video Intel</span>

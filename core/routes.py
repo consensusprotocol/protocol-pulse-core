@@ -2474,6 +2474,14 @@ def media_hub():
                 except Exception as _bge:
                     import logging as _l; _l.warning(f'bg_sync error: {_bge}')
             threading.Thread(target=_bg_sync, daemon=True).start()
+            import threading as _thr
+            _ev2 = _thr.Event()
+            def _presync(_a=app):
+                try: media_feed_service.sync_all_feeds(_a)
+                except: pass
+                finally: _ev2.set()
+            _thr.Thread(target=_presync,daemon=True).start()
+            _ev2.wait(timeout=4)
             feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
             ticker_items = media_feed_service.get_ticker_items(limit=30)
             try:
