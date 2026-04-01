@@ -2517,20 +2517,17 @@ def media_hub():
     feed_matrix = {'podcasts': [], 'videos': []}
     ticker_items = []
     feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
-    if media_feed_service:
-        try:
-            # Serve from DB cache — cron syncs hourly, no blocking on page load
-            feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
-            ticker_items = media_feed_service.get_ticker_items(limit=30)
-            try:
-                feed_stats = media_feed_service.get_feed_stats()
-            except Exception:
-                feed_stats = {"feed_count": 18, "episode_count": len(feed_matrix.get("podcasts",[]))+len(feed_matrix.get("videos",[])), "podcast_count": len(feed_matrix.get("podcasts",[])), "video_count": len(feed_matrix.get("videos",[]))}
-            # Kick background sync if stale (non-blocking, fire-and-forget)
-            import threading
-            threading.Thread(target=lambda: media_feed_service.sync_all_feeds(app), daemon=True).start()
-        except Exception as e:
-            logging.warning(f"media_feed_service error: {e}")
+    # Use standalone functions directly (bypass class wrapper)
+    try:
+        from services.media_feed_service import get_feed_matrix, get_ticker_items, get_feed_stats, sync_all_feeds
+        feed_matrix = get_feed_matrix(limit_per_col=20)
+        ticker_items = get_ticker_items(limit=30)
+        feed_stats = get_feed_stats()
+        # Kick background sync (non-blocking)
+        import threading
+        threading.Thread(target=lambda: sync_all_feeds(app), daemon=True).start()
+    except Exception as e:
+        logging.error(f"media data fetch error: {e}", exc_info=True)
 
     # YouTube series data for Original Series section — hardcoded for reliability
     series_config = {
@@ -6600,6 +6597,14 @@ def api_pro_metrics():
         return jsonify(metrics)
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+@app.route('/api/debug/media')
+def debug_media():
+    return jsonify({
+        "media_service_exists": media_feed_service is not None,
+        "media_service_type": str(type(media_feed_service)),
+    })
 
 @app.route('/health/automation')
 def automation_health():
