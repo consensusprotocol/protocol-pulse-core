@@ -9592,7 +9592,7 @@ def api_media_video_feed():
 @app.route('/api/media/live-signals')
 def api_media_live_signals():
     import json as _j, os as _o
-    ctx_path = _o.join(_o.dirname(_o.abspath(__file__)), '..', 'data', 'sovereign_context', 'latest.json')
+    ctx_path = _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), '..', 'data', 'sovereign_context', 'latest.json')
     signals = []
     try:
         ctx = _j.load(open(ctx_path))
