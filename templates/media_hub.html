@@ -466,7 +466,7 @@
           <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;margin-right:4px;vertical-align:middle;"></span>PP Series</span>
         </div>
       </div>
-      <canvas id="bookBubbleChart" style="width:100%!important;height:420px!important;"></canvas>
+      <div style="position:relative;height:420px;"><canvas id="bookBubbleChart"></canvas></div>
     </div>
 
     <!-- Rising Stars -->
@@ -746,7 +746,10 @@ function mhNlSub(e){
                 '<div style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--red);color:#fff;font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;width:fit-content;"><i class="fas fa-star"></i> '+_esc(f.badge||'FEATURED')+'</div>'+
                 '<div style="font-size:1.4rem;font-weight:700;color:var(--bright);margin-bottom:0.5rem;letter-spacing:-0.02em;">'+_esc(f.headline||f.title)+'</div>'+
                 '<div style="font-size:0.9rem;color:var(--sec);line-height:1.6;margin-bottom:1rem;">'+_esc(f.body_text||'')+'</div>'+
-                '<a href="'+_esc(f.amazon_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--red);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;width:fit-content;"><i class="fab fa-amazon"></i> Get on Amazon</a>'+
+                '<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">'+
+                    '<a href="'+_esc(f.amazon_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--red);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fab fa-amazon"></i> Get on Amazon</a>'+
+                    (f.series_url?'<a href="'+_esc(f.series_url)+'" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fas fa-play-circle"></i> Watch the Series</a>':'')+
+                '</div>'+
             '</div></div>';
     }
 
