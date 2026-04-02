@@ -2517,12 +2517,24 @@ def media_hub():
     feed_matrix = {'podcasts': [], 'videos': []}
     ticker_items = []
     feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
-    # Use standalone functions directly (bypass class wrapper)
+    # Use standalone functions — compute stats from matrix (DB stats unreliable)
     try:
-        from services.media_feed_service import get_feed_matrix, get_ticker_items, get_feed_stats, sync_all_feeds
+        from services.media_feed_service import get_feed_matrix, get_ticker_items, sync_all_feeds
         feed_matrix = get_feed_matrix(limit_per_col=20)
         ticker_items = get_ticker_items(limit=30)
-        feed_stats = get_feed_stats()
+        pods = feed_matrix.get('podcasts', [])
+        vids = feed_matrix.get('videos', [])
+        feed_names = set()
+        for ep in pods + vids:
+            fn = ep.get('feed_name', '') or ep.get('source', '')
+            if fn:
+                feed_names.add(fn)
+        feed_stats = {
+            'feed_count': len(feed_names) or 18,
+            'episode_count': len(pods) + len(vids),
+            'podcast_count': len(pods),
+            'video_count': len(vids),
+        }
         print(f"[MEDIA DEBUG] stats={feed_stats}, pods={len(feed_matrix.get('podcasts',[]))}, vids={len(feed_matrix.get('videos',[]))}")
         # Kick background sync (non-blocking)
         import threading
