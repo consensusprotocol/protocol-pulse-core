@@ -560,7 +560,7 @@ def get_todays_posted_tweets() -> list[str]:
     2. sovereign_intel.db auto_tweet table (tweet_machine's own log)
     """
     texts = []
-    cutoff_48h = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat()
+    cutoff_48h = (datetime.now(timezone.utc) - timedelta(hours=28)).isoformat()
 
     # Source 1: global gate ledger (most reliable — every posting path writes here)
     try:
