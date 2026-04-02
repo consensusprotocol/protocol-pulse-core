@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-"""Assembler V8 — procedural waveform visualizer episode assembly.
+"""Assembler V10 — Episode orchestrator with modular render pipeline.
 
 Episode structure:
-  1. TAG VIDEO as INTRO (tag_vertical.mp4, fade-in from black)
-  2. COLD OPEN — Jessica's vocal hook (waveform visualizer bg + music bed)
-  3. For each clip (1-N):
-     a. SETUP — host introduces clip (waveform visualizer bg + music bed)
-     b. GLITCH TRANSITION (assets/transitions/glitch_transition_waud.mp4)
-     c. CLIP — full screen, ORIGINAL AUDIO, source attribution top-right
-     d. REACT — both hosts react (waveform visualizer bg + music bed)
-  4. WRAP — final sign-off plays OVER outro tag video
-  5. TAG VIDEO as OUTRO (tag_vertical.mp4, fade-to-black, wrap narration mixed in)
+  1. INTRO: intro_tag.mp4 + PBX cold open voice-over
+  2. SEGMENTS: setup/clip/react/data/social/signal cycles
+  3. OUTRO: branded outro (own music) or tag video fallback
+  4. MASTERING: continuous BGM, LUFS normalization, whoosh SFX
+
+Modular architecture (V4 session 2):
+  - assembler.py      → Orchestrator + scene renderers (this file)
+  - render_intro.py   → Intro sequence facade
+  - render_outro.py   → Outro sequence facade
+  - render_segment.py → Individual segment facade
+  - audio_master.py   → LUFS normalization, sidechain ducking
+  - transitions.py    → Crossfade transitions between segments
+  - lower_thirds.py   → Branded lower third overlays
 
 Visual rules:
-  - Host segments: procedural dark bg + audio waveform + speaker bar + ticker + watermark
-  - No rotating video file backgrounds — all procedurally generated
+  - Host segments: procedural dark bg + audio waveform + speaker bar + ticker
   - Clips: full screen, original audio, source attribution
-  - Glitch transition (0.5s) between every setup→clip pair
-  - Background music at -18dB under all host narration
+  - Background music at -20dB under all host narration, ducked during clips
   - Watermark top-right on all host segments
 """
 import json
@@ -34,6 +36,11 @@ from music import (
     mix_tts_with_music, INTRO_JINGLE, TRANSITION, OUTRO_JINGLE,
     ffprobe_duration,
 )
+
+# V4 Session 2: Modular render pipeline imports
+from audio_master import get_lufs, normalize_segment, master_audio
+from transitions import apply_crossfade, apply_transitions
+from lower_thirds import lower_third_filter, apply_lower_third
 
 logger = logging.getLogger("Assembler")
 if not logger.handlers:
@@ -5864,4 +5871,6 @@ def verify_video(path: str) -> bool:
 
 
 if __name__ == "__main__":
-    logger.info("Assembler V6 — use daily_producer.py to run the full pipeline")
+    logger.info("Assembler V10 — Modular render pipeline")
+    logger.info("Modules: audio_master, transitions, lower_thirds, render_segment, render_intro, render_outro")
+    logger.info("Use daily_producer.py to run the full pipeline")
