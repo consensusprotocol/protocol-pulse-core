@@ -93,7 +93,7 @@ CONCEPT_TAXONOMY = {
     "other":                [],
 }
 
-_CONCEPT_COOLDOWN_HOURS = 24
+_CONCEPT_COOLDOWN_HOURS = 8
 
 
 def extract_concept(tweet_text: str) -> str:
