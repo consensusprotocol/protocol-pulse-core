@@ -201,6 +201,44 @@ def contains_ad_read(transcript_segment: str) -> bool:
     return False
 
 
+def score_clip(clip: dict, transcript_score: float = 0.5) -> float:
+    """Multi-dimensional clip scoring (V4 audit consensus).
+
+    Weights:
+      40% semantic relevance (from AI selection)
+      20% audio clarity (Whisper logprob)
+      15% resolution preference
+      15% recency
+      10% channel tier
+    """
+    score = 0.0
+
+    # Semantic relevance (from AI selection) — 40%
+    score += 0.4 * transcript_score
+
+    # Audio energy (higher logprob = clearer speech) — 20%
+    avg_logprob = clip.get('avg_logprob', -1.0)
+    audio_score = max(0, min(1, (avg_logprob + 0.5) / 0.5))
+    score += 0.2 * audio_score
+
+    # Resolution preference — 15%
+    height = clip.get('height', 720)
+    res_score = 1.0 if height >= 1080 else 0.7 if height >= 720 else 0.3
+    score += 0.15 * res_score
+
+    # Recency — 15%
+    age_hours = clip.get('age_hours', 48)
+    recency_score = max(0, 1 - (age_hours / 72))  # 0-72h scale
+    score += 0.15 * recency_score
+
+    # Channel tier bonus — 10%
+    tier = clip.get('tier', 3)
+    tier_score = {1: 1.0, 2: 0.7, 3: 0.4}.get(tier, 0.4)
+    score += 0.1 * tier_score
+
+    return round(score, 3)
+
+
 def _format_transcripts(videos: list) -> str:
     """Format video transcripts for the Claude prompt."""
     parts = []

@@ -20,12 +20,42 @@ if not logger.handlers:
 BASE = os.path.dirname(os.path.abspath(__file__))
 CLIP_CACHE = os.path.join(BASE, "downloads", "clip_cache")
 COOKIES_FILE = os.path.join(BASE, "data", "yt_cookies.txt")
-# Render20: No hard clip duration cap — episode is as long as it needs to be
+
+# V4: yt-dlp format — prefer 1080p+ with graceful fallback to 720p
+YT_DLP_FORMAT = (
+    'bestvideo[height>=1080][ext=mp4]+bestaudio[ext=m4a]/'
+    'bestvideo[height>=1080]+bestaudio/'
+    'bestvideo[height>=720][ext=mp4]+bestaudio[ext=m4a]/'
+    'bestvideo[height>=720]+bestaudio/'
+    'best[height>=720]/'
+    'best'
+)
+
+# V4: Persistent clip cache — avoid re-downloading identical segments
+CLIP_CACHE_DIR = os.path.join(BASE, "data", "clip_cache")
+os.makedirs(CLIP_CACHE_DIR, exist_ok=True)
 
 from utils.clip_archive import save_clip, get_fallback_clip
 
 if not (os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0):
     logger.info("[yt-dlp] No cookies file — add data/yt_cookies.txt for rate limit protection")
+
+
+def get_cached_clip(video_id, start_sec, end_sec):
+    """Check if this exact clip segment is already cached."""
+    cache_key = f"{video_id}_{start_sec}_{end_sec}"
+    cache_path = os.path.join(CLIP_CACHE_DIR, f"{cache_key}.mp4")
+    if os.path.exists(cache_path) and os.path.getsize(cache_path) > 100_000:
+        return cache_path
+    return None
+
+
+def cache_clip(video_id, start_sec, end_sec, clip_path):
+    """Save extracted clip to persistent cache."""
+    cache_key = f"{video_id}_{start_sec}_{end_sec}"
+    cache_dest = os.path.join(CLIP_CACHE_DIR, f"{cache_key}.mp4")
+    shutil.copy2(clip_path, cache_dest)
+    return cache_dest
 
 
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
@@ -293,12 +323,20 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
         return False
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
-    # Check if already extracted
+    # Check if already extracted at output path
     if os.path.exists(output_path) and os.path.getsize(output_path) > 10000:
         dur = ffprobe_duration(output_path)
         if dur > 1:
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
             return True
+
+    # V4: Check persistent clip cache
+    cached = get_cached_clip(video_id, start_sec, end_sec)
+    if cached:
+        shutil.copy2(cached, output_path)
+        dur = ffprobe_duration(output_path)
+        logger.info(f"  Persistent cache HIT: {video_id} ({dur:.1f}s)")
+        return True
 
     # Render21 FIX 3: Removed fixed +12s offset — speech onset detection handles intro skip
     logger.info(f"[extractor] Clip {video_id}: raw start_sec={start_sec}, end_sec={end_sec}, channel={channel}")
@@ -314,7 +352,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
     cmd = [
         "yt-dlp",
         "--download-sections", f"*{padded_start}-{padded_end}",
-        "-f", "bestvideo[height<=1080][vcodec^=avc1]+bestaudio[acodec^=mp4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+        "-f", YT_DLP_FORMAT,
         "--merge-output-format", "mp4",
         "-o", output_path,
         "--no-playlist",
@@ -430,6 +468,8 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             dur = ffprobe_duration(output_path)
             sz = os.path.getsize(output_path) / 1024
             logger.info(f"  Extracted: {dur:.1f}s, {sz:.0f}KB")
+            # V4: Save to persistent cache
+            cache_clip(video_id, start_sec, end_sec, output_path)
             return True
         else:
             logger.warning(f"  yt-dlp sections failed: {result.stderr[:200]}")
@@ -443,7 +483,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
 
     dl_cmd = [
         "yt-dlp",
-        "-f", "bestvideo[height<=1080][vcodec^=avc1]+bestaudio[acodec^=mp4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+        "-f", YT_DLP_FORMAT,
         "--merge-output-format", "mp4",
         "-o", full_path,
         "--no-playlist",
@@ -576,6 +616,8 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             _skip_intro_silence(output_path, channel=channel)
             dur = ffprobe_duration(output_path)
             logger.info(f"  Trimmed: {dur:.1f}s")
+            # V4: Save to persistent cache
+            cache_clip(video_id, start_sec, end_sec, output_path)
             # Clean up full video
             try:
                 os.remove(full_path)

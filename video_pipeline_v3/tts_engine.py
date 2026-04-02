@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""TTS Engine — Dual-host production pipeline.
-Host 1: Kokoro af_heart (local GPU, ~1s/line) — female host.
-Host 2: ElevenLabs PBX HmUVvDlHsEz0m3eUGLgu — male host/PBX voice.
-Fallback: Kokoro am_onyx if ElevenLabs unavailable.
-TTS_PROVIDER=local: Kokoro host1 + ElevenLabs host2.
-TTS_PROVIDER=elevenlabs: ElevenLabs both hosts (emergency override).
+"""TTS Engine — Single PBX voice pipeline (V4).
+All narration: ElevenLabs PBX HmUVvDlHsEz0m3eUGLgu.
+Model: eleven_multilingual_v2 (gravitas for news anchor).
+Speed: 1.1x (authoritative).
 """
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -43,46 +41,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # ── LOCAL TTS BACKENDS ──────────────────────────────────────────────────────
-_KOKORO_PIPELINE = None
-_KOKORO_BACKEND = None
-_KOKORO_INSTANCE = None
 _PROSODY_CACHE = {}  # hash(text) -> prosody-planned text
-
-
-def _init_kokoro():
-    """Lazy-initialize Kokoro (PyTorch first, ONNX fallback)."""
-    global _KOKORO_PIPELINE, _KOKORO_BACKEND, _KOKORO_INSTANCE
-    if _KOKORO_BACKEND is not None:
-        return _KOKORO_BACKEND
-    try:
-        from kokoro import KPipeline
-        _KOKORO_PIPELINE = KPipeline(lang_code='a')
-        _KOKORO_BACKEND = "pytorch"
-        logger.info("[TTS/Kokoro] Backend: PyTorch")
-        return "pytorch"
-    except Exception as e_pt:
-        logger.warning(f"[TTS/Kokoro] PyTorch failed: {e_pt} — trying ONNX")
-    try:
-        from kokoro_onnx import Kokoro as _KokoroONNX
-        _VOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices")
-        _onnx_model = os.path.join(_VOICES_DIR, "kokoro-v0_19.onnx")
-        _onnx_voices = os.path.join(_VOICES_DIR, "voices-v1.0.bin")
-        if not os.path.exists(_onnx_model):
-            logger.info("[TTS/Kokoro] Downloading ONNX model files...")
-            subprocess.run([
-                "python3", "-c",
-                "from huggingface_hub import hf_hub_download; "
-                f"hf_hub_download('hexgrad/Kokoro-82M', 'kokoro-v0_19.onnx', local_dir='{_VOICES_DIR}'); "
-                f"hf_hub_download('hexgrad/Kokoro-82M', 'voices-v1.0.bin', local_dir='{_VOICES_DIR}')"
-            ], timeout=300)
-        _KOKORO_INSTANCE = _KokoroONNX(_onnx_model, _onnx_voices)
-        _KOKORO_BACKEND = "onnx"
-        logger.info("[TTS/Kokoro] Backend: ONNX")
-        return "onnx"
-    except Exception as e_onnx:
-        logger.error(f"[TTS/Kokoro] Both backends failed: {e_onnx}")
-        _KOKORO_BACKEND = "unavailable"
-        return "unavailable"
 
 
 def prosody_plan(text: str, host: int = 2) -> str:
@@ -97,8 +56,8 @@ PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
 _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
-    "model_id": "eleven_turbo_v2_5",
-    "speed": 1.20,
+    "model_id": "eleven_multilingual_v2",
+    "speed": 1.10,
     "voice_settings": {
         "stability": 0.35,
         "similarity_boost": 0.90,
@@ -107,41 +66,10 @@ _PBX_VOICE = {
     },
 }
 
-# ── LOCAL TTS VOICE CONFIG ──────────────────────────────────────────────────
-VOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "voices")
-KOKORO_HOST1_VOICE = "af_heart"
-KOKORO_HOST2_VOICE = "am_onyx"   # fallback if ElevenLabs PBX unavailable
-KOKORO_SPEED_H1 = 1.0
-KOKORO_SPEED_H2 = 1.1
-
-_ERYN_VOICE = {
-    "voice_id": "kdnRe2koJdOK4Ovxn2DI",
-    "name": "Eryn",
-    "model_id": "eleven_turbo_v2_5",
-    "speed": 1.18,
-    "voice_settings": {
-        "stability": 0.35,
-        "similarity_boost": 0.90,
-        "style": 0.30,
-        "use_speaker_boost": True,
-    },
-}
-# Dual-host: HOST_1 = Eryn/af_heart (female), HOST_2 = PBX (fine-tuned F5 / ElevenLabs fallback)
+# ── VOICE CONFIG (V4: Single PBX voice) ───────────────────────────────────
 VOICES = {
-    1: _ERYN_VOICE,
     2: _PBX_VOICE,
 }
-
-def _get_tts_provider() -> str:
-    """TTS provider selector.
-    'local'      → Kokoro af_heart (host1) + ElevenLabs PBX (host2) + Kokoro am_onyx fallback
-    'elevenlabs' → ElevenLabs only (emergency override)
-    """
-    val = os.environ.get("TTS_PROVIDER", "local").lower().strip()
-    if val not in ("local", "elevenlabs"):
-        logger.warning(f"[TTS] Unknown TTS_PROVIDER='{val}', defaulting to 'local'")
-        return "local"
-    return val
 
 
 _KEY_CACHE: dict = {}
@@ -821,135 +749,6 @@ def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
     )
 
 
-def tts_kokoro(text: str, output_path: str, voice: str = "af_heart",
-               speed: float = 1.0) -> bool:
-    """Generate TTS via Kokoro GPU inference. Output: M4A 48kHz AAC 192k."""
-    backend = _init_kokoro()
-    if backend == "unavailable":
-        return False
-    try:
-        import soundfile as sf
-        import numpy as np
-        wav_tmp = output_path + ".kokoro.wav"
-        if backend == "pytorch":
-            samples_list = []
-            for _, _, audio in _KOKORO_PIPELINE(text, voice=voice, speed=speed):
-                samples_list.append(audio)
-            if not samples_list:
-                return False
-            audio_np = np.concatenate(samples_list) if len(samples_list) > 1 else samples_list[0]
-            sf.write(wav_tmp, audio_np, 24000)
-        else:
-            samples, sr = _KOKORO_INSTANCE.create(text, voice=voice, speed=speed, lang="en-us")
-            sf.write(wav_tmp, samples, sr)
-
-        if not os.path.exists(wav_tmp) or os.path.getsize(wav_tmp) < 1000:
-            return False
-        # Direct encode: 24kHz WAV → 48kHz AAC (no BigVGAN2 — causes double-vocoding)
-        r = subprocess.run([
-            "ffmpeg", "-y", "-i", wav_tmp,
-            "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", output_path
-        ], capture_output=True, text=True, timeout=60)
-        try:
-            if os.path.exists(wav_tmp):
-                os.remove(wav_tmp)
-        except Exception:
-            pass
-        ok = r.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 5000
-        if ok:
-            logger.info(f"[TTS/Kokoro] OK: {ffprobe_duration(output_path):.2f}s, voice={voice}")
-        return ok
-    except Exception as e:
-        logger.error(f"[TTS/Kokoro] Exception: {e}")
-        return False
-
-
-def tts_local(text: str, output_path: str, host: int = 1,
-              segment_type: str = "") -> bool:
-    """Primary TTS dispatcher — dual-host production pipeline.
-
-    Host 1 → Kokoro af_heart → ElevenLabs Eryn fallback
-    Host 2 → ElevenLabs PBX → Kokoro am_onyx fallback
-    """
-    # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
-    text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
-    # Session fix: Never start narration with "Right" as opening word
-    text = strip_right_opener(text)
-    # Bitcoin/finance pronunciation normalizer (runs first)
-    text = tts_normalize(text)
-    text = expand_numbers_for_tts(text)
-    text = apply_pronunciation_map(text)
-    # Prosody planner: add natural delivery markers before TTS
-    text = prosody_plan(text, host=host)
-    try:
-        _oracle_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "oracle")
-        if _oracle_path not in sys.path:
-            sys.path.insert(0, _oracle_path)
-        from oracle_dialogue_engine import normalize_pronunciation
-        text = normalize_pronunciation(text)
-    except Exception as _e:
-        logger.warning(f"[TTS/Local] normalize_pronunciation unavailable: {_e}")
-
-    cache_key = _tts_cache_key(text, f"local_h{host}", segment_type)
-    if _tts_cache_get(cache_key, output_path):
-        print(f"  [tts/local] Cache HIT (host{host}): {text[:50]}")
-        return True
-
-    start_t = time.time()
-    ok = False
-
-    if host == 1:
-        ok = tts_kokoro(text, output_path, voice=KOKORO_HOST1_VOICE, speed=KOKORO_SPEED_H1)
-        if not ok:
-            logger.warning("[TTS/Local] Kokoro host1 FAILED → ElevenLabs Eryn fallback")
-            ok = tts_elevenlabs(text, output_path, host=1, segment_type=segment_type)
-    else:
-        # Host 2: ElevenLabs PBX (production quality)
-        # Falls back to Kokoro am_onyx if ElevenLabs unavailable
-        ok = tts_elevenlabs(text, output_path, host=2, segment_type=segment_type)
-        if not ok:
-            logger.warning("[TTS/Local] ElevenLabs host2 FAILED → Kokoro am_onyx fallback")
-            ok = tts_kokoro(text, output_path, voice=KOKORO_HOST2_VOICE, speed=KOKORO_SPEED_H2)
-
-    if ok and os.path.exists(output_path):
-        _trim_leading_silence(output_path)
-        _trim_trailing_silence(output_path)
-        _trim_trailing_mumble(output_path)
-        validate_tts_output(output_path)
-        _tts_cache_put(cache_key, output_path)
-        elapsed = time.time() - start_t
-        dur = ffprobe_duration(output_path)
-        print(f"  [tts/local] host{host} OK: {dur:.1f}s audio in {elapsed:.1f}s wall ← {text[:50]}")
-
-    return ok
-
-
-def tts_preflight_local() -> bool:
-    """Preflight for TTS_PROVIDER=local: verify Kokoro (host1) works, check ElevenLabs key (host2)."""
-    test_text = "Bitcoin signal confirmed today."
-    test_out = "/tmp/tts_preflight_local.m4a"
-    try:
-        ok = tts_kokoro(test_text, test_out, voice=KOKORO_HOST1_VOICE, speed=1.0)
-        if not ok or not os.path.exists(test_out):
-            raise RuntimeError("[TTS/Local] Kokoro preflight failed to generate audio")
-        dur = ffprobe_duration(test_out)
-        if dur < 0.5:
-            raise RuntimeError(f"[TTS/Local] Kokoro output too short: {dur:.2f}s")
-        logger.info(f"[TTS/Local] Kokoro preflight PASS: {dur:.2f}s")
-        try:
-            os.remove(test_out)
-        except Exception:
-            pass
-        # Check ElevenLabs key for host2
-        el_key = _get_cached_key("ELEVENLABS_API_KEY")
-        if el_key:
-            logger.info("[TTS/Local] ElevenLabs key present — host2 PBX ready")
-        else:
-            logger.warning("[TTS/Local] ElevenLabs key missing — host2 will use Kokoro am_onyx fallback")
-        return True
-    except Exception as e:
-        raise RuntimeError(f"[TTS/Local] Preflight FAILED: {e}")
-
 
 def validate_tts_output(path: str, min_size: int = 10240) -> None:
     """Validate TTS output file is real audio, not empty/corrupt.
@@ -1163,58 +962,38 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     return ok
 
 
-def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str) -> dict:
-    """Synthesize a single dialogue line. Used by ThreadPoolExecutor for parallel TTS.
+def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str = "elevenlabs") -> dict:
+    """Synthesize a single dialogue line via ElevenLabs PBX.
 
     Returns metadata dict with path, duration, host, tts_ok flag.
-    On primary TTS failure, falls back to Kokoro — never produces silence (LAW: TTS FALLBACK BANNED).
     """
-    host = entry.get("host")
     text = entry.get("text", "")
 
-    # PBX-ONLY ENFORCEMENT: ALL narration uses host 2 (PBX). No exceptions.
+    # V4: Single PBX voice — all narration is host 2
     host_num = 2
-
     voice = VOICES[host_num]
     segment_type = entry.get("type", "")
     line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
 
-    mode_tag = f" [{segment_type}]" if segment_type and host_num == 1 else ""
-    print(f"  [tts] Line {i:02d} ({voice['name']}{mode_tag}): {text[:60]}...")
+    print(f"  [tts] Line {i:02d} (PBX): {text[:60]}...")
 
-    _tts_ok = False
+    _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
     dur = 0.0
-
-    if provider == "local":
-        _tts_ok = tts_local(text, line_path, host_num, segment_type=segment_type)
-    else:
-        _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
 
     # Validate output
     if _tts_ok:
         if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
-            logger.warning(f"[tts] Line {i} zero/tiny audio — trying Kokoro fallback")
+            logger.warning(f"[tts] Line {i} zero/tiny audio")
             _tts_ok = False
         else:
             dur = ffprobe_duration(line_path)
             if dur < 0.5 and len(text) > 10:
-                logger.warning(f"[tts] Line {i} too short ({dur:.2f}s) — trying Kokoro fallback")
-                _tts_ok = False
-
-    # Fallback to Kokoro on any failure — never produce silence (LAW: TTS FALLBACK BANNED)
-    if not _tts_ok:
-        kokoro_voice = KOKORO_HOST1_VOICE if host_num == 1 else KOKORO_HOST2_VOICE
-        kokoro_speed = KOKORO_SPEED_H1 if host_num == 1 else KOKORO_SPEED_H2
-        logger.warning(f"[tts] Line {i} primary TTS failed — Kokoro fallback (voice={kokoro_voice})")
-        _tts_ok = tts_kokoro(text, line_path, voice=kokoro_voice, speed=kokoro_speed)
-        if _tts_ok and os.path.exists(line_path) and os.path.getsize(line_path) >= 1000:
-            dur = ffprobe_duration(line_path)
-            if dur < 0.5 and len(text) > 10:
+                logger.warning(f"[tts] Line {i} too short ({dur:.2f}s)")
                 _tts_ok = False
 
     if not _tts_ok:
         raise RuntimeError(
-            f"TTS FATAL: All providers failed for line {i} (host {host_num}). "
+            f"TTS FATAL: ElevenLabs PBX failed for line {i}. "
             f"Text: \"{text[:80]}...\". Refusing to render silence."
         )
 
@@ -1231,7 +1010,7 @@ def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str) -> dic
 
 
 def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
-    """Generate audio for the entire dual-host dialogue.
+    """Generate audio for PBX single-voice dialogue.
 
     Pre-generates ALL TTS lines in parallel via ThreadPoolExecutor to eliminate
     sequential API latency stacking. Then assembles timeline and concatenates.
@@ -1266,22 +1045,18 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
                     logger.info(f"[TTS] Injected PBX sign-off into final narration segment")
                 break
 
-    _active_provider = _get_tts_provider()
-    if _active_provider == "local":
-        tts_preflight_local()
-    else:
-        key = _get_cached_key("ELEVENLABS_API_KEY")
-        if not key:
-            raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
+    # V4: Always ElevenLabs PBX
+    key = _get_cached_key("ELEVENLABS_API_KEY")
+    if not key:
+        raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
 
     silence_path = os.path.join(output_dir, "silence.m4a")
     if not _generate_silence(silence_path, SILENCE_GAP):
         raise RuntimeError("Failed to generate inter-line silence gap audio")
 
     # ── Phase 1: Parallel TTS pre-generation ──
-    # Generate ALL spoken lines concurrently — prevents API latency stacking
-    tts_jobs = []  # (dialogue_index, entry) for lines needing TTS
-    clip_entries = {}  # dialogue_index → clip metadata
+    tts_jobs = []
+    clip_entries = {}
 
     for i, entry in enumerate(dialogue):
         if entry.get("host") in ("CLIP", "SPACE_CLIP"):
@@ -1289,15 +1064,15 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
         else:
             tts_jobs.append((i, entry))
 
-    # Parallel TTS: 4 workers for ElevenLabs (rate-safe), 6 for local
-    max_workers = 4 if _active_provider == "elevenlabs" else 6
-    tts_results = {}  # index → result dict
+    # 4 workers for ElevenLabs (rate-safe)
+    max_workers = 4
+    tts_results = {}
 
     if tts_jobs:
-        print(f"  [tts] Pre-generating {len(tts_jobs)} lines in parallel (workers={max_workers})...")
+        print(f"  [tts] Pre-generating {len(tts_jobs)} PBX lines in parallel (workers={max_workers})...")
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
-                executor.submit(_synthesize_line, idx, entry, output_dir, _active_provider): idx
+                executor.submit(_synthesize_line, idx, entry, output_dir): idx
                 for idx, entry in tts_jobs
             }
             for future in as_completed(futures):

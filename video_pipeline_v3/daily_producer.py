@@ -1138,7 +1138,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
 
         # Re-read dialogue AFTER all mutations (Space Tap entries may be in script)
         dialogue = script.get("dialogue", [])
-        speech_lines = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+        # V4: All narration is PBX (host 2) — no dual-host
+        speech_lines = [d for d in dialogue if d.get("host") not in ("CLIP", "SPACE_CLIP", None)]
         clip_markers = [d for d in dialogue if d.get("host") in ("CLIP", "SPACE_CLIP")]
         social_seg_count = sum(1 for d in dialogue if d.get("type") == "social_segment")
         space_tap_count = sum(1 for d in dialogue if d.get("host") == "SPACE_CLIP"
@@ -1161,6 +1162,50 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                              episode_title=script.get("episode_title", ""),
                              social_posts_count=len(sorted_social),
                              space_tap_available=bool(selections.get("space_tap_clips")))
+
+        # ── Step 5b: SCRIPT QUALITY GATE (V4 audit consensus) ────────────────
+        print("\n[STEP 5b] SCRIPT QUALITY GATE...")
+        script_issues = []
+
+        # Check: has cold open?
+        if not any(d.get("type") == "cold_open" for d in dialogue):
+            script_issues.append("Missing cold open")
+
+        # Check: has signoff?
+        if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue):
+            script_issues.append("Missing 'Stay sovereign' signoff")
+
+        # Check: no banned phrases
+        banned = ["let's dive in", "great point", "it's worth noting", "interestingly",
+                  "without further ado", "in today's episode", "let's break this down"]
+        for d in dialogue:
+            text_lower = d.get("text", "").lower()
+            for phrase in banned:
+                if phrase in text_lower:
+                    script_issues.append(f"Banned phrase: '{phrase}'")
+
+        # Check: narration not too long (max 4 sentences per segment)
+        for d in dialogue:
+            if d.get("type") in ("setup", "react", "cold_open"):
+                text = d.get("text", "")
+                sentences = text.count('.') + text.count('!') + text.count('?')
+                if sentences > 4:
+                    script_issues.append(f"Segment too long: {sentences} sentences (max 4)")
+
+        if script_issues:
+            print(f"  SCRIPT GATE FAILED: {script_issues}")
+            if not test_mode and not fast_test:
+                print("  Regenerating script with stricter prompt...")
+                script = generate_from_clips(selections, btc_price=btc_price,
+                                             live_context=live_context,
+                                             social_posts_sorted=sorted_social)
+                dialogue = script.get("dialogue", [])
+                speech_lines = [d for d in dialogue if d.get("host") not in ("CLIP", "SPACE_CLIP", None)]
+                # Re-save script
+                with open(script_path, "w") as f:
+                    json.dump(script, f, indent=2)
+        else:
+            print("  SCRIPT GATE PASSED")
 
         # Strip seg_id prefix from social_segment narration before TTS (binding tag, not spoken)
         # Keep originals in dialogue for assembler ID-binding — only strip the TTS copy
