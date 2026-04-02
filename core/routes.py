@@ -2541,7 +2541,7 @@ def media_hub():
     except Exception as e:
         import traceback
         logging.error('media data fetch error: %s', e)
-"+__import__("traceback").format_exc()); logging.error("media data fetch error: %s", e)
+        logging.error('media data fetch error: %s', e)
 
     # YouTube series data for Original Series section — hardcoded for reliability
     series_config = {
