@@ -30,7 +30,7 @@ def get_top_article():
     """Get top article of the day by read_count, fallback to latest."""
     try:
         from dotenv import load_dotenv
-        load_dotenv(BASE / ".env")
+        load_dotenv(BASE / ".env", override=True)
         from app import app
         import models
         
@@ -80,7 +80,7 @@ def generate_x_card_image(article: dict) -> str | None:
     try:
         import urllib.request as _req
         from dotenv import load_dotenv
-        load_dotenv(BASE / ".env")
+        load_dotenv(BASE / ".env", override=True)
         
         xai_key = os.getenv("XAI_API_KEY")
         if not xai_key:
@@ -142,7 +142,7 @@ def compose_tweet(article: dict) -> str:
     """Generate cypherpunk tweet copy for the article."""
     try:
         from dotenv import load_dotenv
-        load_dotenv(BASE / ".env")
+        load_dotenv(BASE / ".env", override=True)
         from openai import OpenAI
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
@@ -191,7 +191,7 @@ def post_to_x(tweet_text: str, image_path: str = None) -> bool:
     """Post tweet via X API v2 with optional image."""
     try:
         from dotenv import load_dotenv
-        load_dotenv(BASE / ".env")
+        load_dotenv(BASE / ".env", override=True)
         
         api_key    = os.getenv("X_API_KEY", "")
         api_secret = os.getenv("X_API_SECRET", "")
@@ -204,6 +204,7 @@ def post_to_x(tweet_text: str, image_path: str = None) -> bool:
         
         import tweepy
         client = tweepy.Client(
+            
             consumer_key=api_key,
             consumer_secret=api_secret,
             access_token=acc_token,
