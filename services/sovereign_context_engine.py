@@ -292,11 +292,33 @@ def _fetch_kol_sentiment() -> dict:
         total = bull + bear
         sentiment_score = int((bull / total * 100) if total > 0 else 50)
 
-        return {
+        result = {
             "sentiment_score": sentiment_score,
             "top_topics": top_topics,
             "post_count_24h": count_24h,
         }
+
+        # Enrich with transcript intelligence (Claude-analyzed YouTube KOL content)
+        try:
+            transcript_intel_path = BASE_DIR / "data" / "intelligence" / "kol_transcript_digest.json"
+            if transcript_intel_path.exists():
+                ti = json.loads(transcript_intel_path.read_text())
+                ti_score = ti.get("avg_sentiment_score")
+                ti_themes = [t["topic"] for t in ti.get("trending_themes", [])[:3]]
+                ti_creators = ti.get("creator_count", 0)
+                if ti_score is not None and ti_creators > 0:
+                    # Blend: 60% DB sentiment + 40% transcript intelligence
+                    result["sentiment_score"] = int(0.6 * result["sentiment_score"] + 0.4 * ti_score)
+                    # Merge topics (transcript themes first, then DB topics)
+                    merged = list(dict.fromkeys(ti_themes + result["top_topics"]))[:5]
+                    result["top_topics"] = merged
+                    result["transcript_creator_count"] = ti_creators
+                    result["dominant_sentiment"] = ti.get("dominant_sentiment", "neutral")
+                    result["source"] = "db+transcripts"
+        except Exception as te:
+            log.debug("Transcript intel enrichment skipped: %s", te)
+
+        return result
     except Exception as exc:
         log.warning("KOL sentiment fetch failed: %s", exc)
         return {"sentiment_score": 50, "top_topics": [], "post_count_24h": 0}
@@ -386,6 +408,56 @@ def _fetch_pcaf_score() -> int:
     # Score based on filtered post count (higher = more signal activity)
     return min(data.get("total_scored", 0) * 5, 100)
 
+
+
+def _fetch_epx_real() -> dict:
+    import urllib.request as _ur, json as _j
+    try:
+        r1 = _ur.Request("https://www.okx.com/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy=BTC&period=1D",
+                          headers={"User-Agent":"Mozilla/5.0"})
+        with _ur.urlopen(r1,timeout=8) as resp1: d1=_j.loads(resp1.read())
+        ls=float(d1["data"][0][1]) if d1.get("data") else 1.0
+        r2 = _ur.Request("https://www.okx.com/api/v5/rubik/stat/taker-volume?ccy=BTC&instType=SPOT&period=1D",
+                          headers={"User-Agent":"Mozilla/5.0"})
+        with _ur.urlopen(r2,timeout=8) as resp2: d2=_j.loads(resp2.read())
+        items=d2.get("data",[])
+        if items:
+            bv,sv=float(items[0][1]),float(items[0][2])
+            tr=bv/(bv+sv) if (bv+sv)>0 else 0.5
+        else: tr=0.5
+        ls_s=min(100.0,max(0.0,(ls-0.7)/0.8*100.0))
+        tk_s=min(100.0,max(0.0,(tr-0.4)/0.2*100.0))
+        epx=round(ls_s*0.6+tk_s*0.4,1)
+        d="bullish" if epx>=65 else ("bearish" if epx<=35 else "neutral")
+        return {"score":epx,"direction":d,
+                "interpretation":"OKX L/S "+str(round(ls,2))+" | Taker buy "+str(round(tr*100,1))+"% - "+d+" exchange pressure.",
+                "signal":d,"long_short_ratio":round(ls,3),"taker_buy_ratio":round(tr,4)}
+    except Exception as e:
+        logging.warning("EPX OKX error: "+str(e))
+        return {"score":50,"direction":"neutral","interpretation":"Exchange pressure data unavailable.","signal":"neutral"}
+
+
+def _fetch_ihx_real() -> dict:
+    import json as _j
+    from pathlib import Path as _P
+    from datetime import datetime,timezone,timedelta
+    cache=_P("/home/ultron/protocol_pulse/data/congressional_trades.json")
+    if not cache.exists():
+        return {"score":50,"direction":"neutral","interpretation":"Congressional data not yet cached.","signal":"neutral"}
+    try:
+        data=_j.loads(cache.read_text())
+        lu=datetime.fromisoformat(data.get("last_updated","2000-01-01T00:00:00+00:00"))
+        if lu.tzinfo is None: lu=lu.replace(tzinfo=timezone.utc)
+        stale=(datetime.now(timezone.utc)-lu)>timedelta(hours=13)
+        ihx=data.get("ihx",{})
+        note=" [STALE]" if stale else ""
+        return {"score":ihx.get("score",50),"direction":ihx.get("direction","neutral"),
+                "interpretation":ihx.get("interpretation","No data.")+note,
+                "signal":ihx.get("direction","neutral"),
+                "buys":ihx.get("buys",0),"sells":ihx.get("sells",0)}
+    except Exception as e:
+        logging.warning("IHX cache error: "+str(e))
+        return {"score":50,"direction":"neutral","interpretation":"IHX data error.","signal":"neutral"}
 
 def _fetch_exchange_flow() -> str:
     """Exchange netflow from sentinel_alerts.db or sovereign_intel.db signals."""
@@ -699,33 +771,14 @@ def _calculate_proprietary_indices(
         mc_interp = "Miner activity within normal range."
         mc_signal = "neutral"
 
-    # 2. Exchange Pressure Ratio (-2 to +2)
-    ep_score = 0
-    if exchange_flow == "outflow":
-        ep_score += 1
-    elif exchange_flow == "inflow":
-        ep_score -= 1
-    # Whale alert direction analysis
-    whale_withdrawals = sum(1 for w in whale_alerts if "withdraw" in (w.get("message", "") or "").lower())
-    whale_deposits = sum(1 for w in whale_alerts if "deposit" in (w.get("message", "") or "").lower())
-    if whale_withdrawals > whale_deposits:
-        ep_score += 1
-    elif whale_deposits > whale_withdrawals:
-        ep_score -= 1
+    # 2. Exchange Pressure — REAL DATA from OKX (long/short + taker buy ratio)
+    _epx_real = _fetch_epx_real()
+    ep_score = _epx_real["score"]        # 0-100 scale (was -2 to +2)
+    ep_interp = _epx_real["interpretation"]
+    ep_signal = _epx_real["direction"]
 
-    ep_labels = {
-        2: ("Strong outflow — bullish accumulation", "bullish"),
-        1: ("Net outflow detected", "bullish"),
-        0: ("Neutral exchange flow", "neutral"),
-        -1: ("Net inflow — selling pressure", "bearish"),
-        -2: ("Strong inflow — distribution detected", "bearish"),
-    }
-    ep_interp, ep_signal = ep_labels.get(ep_score, ("Neutral", "neutral"))
-
-    # 3. Social-to-Market Divergence
-    # Formula: (kol_sentiment - 50) - (btc_7d_change * 2)
+    # 3. Social-to-Market Divergence (kept as-is for existing dashboard)
     social_div = round((kol_score - 50) - (change_7d * 2), 1)
-
     if social_div > 20:
         sd_interp = "Social FOMO ahead of price — potential local top signal."
         sd_signal = "bearish"
@@ -735,6 +788,12 @@ def _calculate_proprietary_indices(
     else:
         sd_interp = "Social sentiment aligned with price action."
         sd_signal = "neutral"
+
+    # 4. Insider Heat — REAL DATA from QuiverQuant congressional trading cache
+    _ihx_real = _fetch_ihx_real()
+    ihx_score = _ihx_real["score"]
+    ihx_interp = _ihx_real["interpretation"]
+    ihx_signal = _ihx_real["direction"]
 
     return {
         "miner_conviction": {
@@ -751,6 +810,11 @@ def _calculate_proprietary_indices(
             "score": social_div,
             "interpretation": sd_interp,
             "signal": sd_signal,
+        },
+        "insider_heat": {
+            "score": ihx_score,
+            "interpretation": ihx_interp,
+            "signal": ihx_signal,
         },
     }
 

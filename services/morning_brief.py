@@ -113,6 +113,27 @@ def load_nostr_signals(hours: int = 24) -> list:
         return []
 
 
+def _load_kol_digest_for_prompt() -> str:
+    """Load KOL transcript digest for morning brief prompt context."""
+    try:
+        digest_path = BASE / "data" / "intelligence" / "kol_transcript_digest.json"
+        if not digest_path.exists():
+            return "No KOL transcript data available."
+        data = json.loads(digest_path.read_text())
+        parts = []
+        if data.get("summary"):
+            parts.append(f"Summary: {data['summary']}")
+        if data.get("dominant_sentiment"):
+            parts.append(f"Dominant sentiment: {data['dominant_sentiment']} (avg score: {data.get('avg_sentiment_score', 50)}/100)")
+        for t in data.get("trending_themes", [])[:5]:
+            parts.append(f"- {t['topic']}: discussed by {t['creator_count']} creators (avg {t['avg_sentiment_score']}/100)")
+        for c in data.get("top_creators", [])[:3]:
+            parts.append(f"- {c['channel']}: {c.get('thesis', 'N/A')[:100]}")
+        return "\n".join(parts) if parts else "No KOL transcript data available."
+    except Exception:
+        return "KOL transcript digest unavailable."
+
+
 def load_narrative_context() -> dict:
     """Load existing narrative context if available."""
     if not NARRATIVE_CONTEXT_PATH.exists():
@@ -210,6 +231,9 @@ RECENT TWEETS FROM BITCOIN THOUGHT LEADERS (last 24h):
 
 NOSTR SIGNALS (last 24h):
 {nostr_block}
+
+KOL VIDEO TRANSCRIPT INTELLIGENCE (what Bitcoin creators are saying):
+{_load_kol_digest_for_prompt()}
 
 Based on this data, produce a JSON intelligence brief with EXACTLY this structure (respond with valid JSON only, no markdown, no preamble):
 {{

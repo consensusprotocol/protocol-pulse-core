@@ -6576,3 +6576,42 @@ def api_panopticon_sovereign_analysis():
 @api_bp.route('/api/telemetry', methods=['POST'])
 def api_telemetry():
     return jsonify({'ok': True}), 200
+
+
+# ── KOL Transcript Intelligence API ─────────────────────────────────────────
+
+@api_bp.route('/api/kol/sentiment')
+@cache.cached(timeout=300, key_prefix='kol_sentiment')
+def api_kol_sentiment():
+    """Latest KOL sentiment extracted from video transcripts."""
+    try:
+        from services.transcript_intelligence import get_kol_sentiment
+        return jsonify(get_kol_sentiment())
+    except Exception as e:
+        logging.error("KOL sentiment API error: %s", e)
+        return jsonify({"error": "KOL intelligence unavailable", "avg_score": 50, "creators": []}), 503
+
+
+@api_bp.route('/api/kol/themes')
+@cache.cached(timeout=300, key_prefix='kol_themes')
+def api_kol_themes():
+    """Trending themes across Bitcoin KOL transcripts."""
+    try:
+        from services.transcript_intelligence import get_kol_themes
+        return jsonify(get_kol_themes())
+    except Exception as e:
+        logging.error("KOL themes API error: %s", e)
+        return jsonify({"trending_themes": [], "error": str(e)}), 503
+
+
+@api_bp.route('/api/kol/digest')
+@cache.cached(timeout=600, key_prefix='kol_digest')
+def api_kol_digest():
+    """Full KOL transcript digest — summary + themes + creator breakdown."""
+    try:
+        from services.transcript_intelligence import build_transcript_digest
+        digest = build_transcript_digest(hours=24)
+        return jsonify(digest)
+    except Exception as e:
+        logging.error("KOL digest API error: %s", e)
+        return jsonify({"error": str(e)}), 503
