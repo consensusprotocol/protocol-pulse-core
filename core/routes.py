@@ -2517,11 +2517,10 @@ def media_hub():
     feed_matrix = {'podcasts': [], 'videos': []}
     ticker_items = []
     feed_stats = {'feed_count': 0, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0}
-    # Use standalone functions — compute stats from matrix (DB stats unreliable)
+    # Use the global media_feed_service instance (same one API uses — confirmed working)
     try:
-        from services.media_feed_service import get_feed_matrix, get_ticker_items, sync_all_feeds
-        feed_matrix = get_feed_matrix(limit_per_col=20)
-        ticker_items = get_ticker_items(limit=30)
+        feed_matrix = media_feed_service.get_feed_matrix(limit_per_col=20)
+        ticker_items = media_feed_service.get_ticker_items(limit=30)
         pods = feed_matrix.get('podcasts', [])
         vids = feed_matrix.get('videos', [])
         feed_names = set()
@@ -2539,8 +2538,6 @@ def media_hub():
         import threading
         threading.Thread(target=lambda: sync_all_feeds(app), daemon=True).start()
     except Exception as e:
-        import traceback
-        logging.error('media data fetch error: %s', e)
         logging.error('media data fetch error: %s', e)
 
     # YouTube series data for Original Series section — hardcoded for reliability
