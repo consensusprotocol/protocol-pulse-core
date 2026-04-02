@@ -2523,11 +2523,13 @@ def media_hub():
         feed_matrix = get_feed_matrix(limit_per_col=20)
         ticker_items = get_ticker_items(limit=30)
         feed_stats = get_feed_stats()
+        print(f"[MEDIA DEBUG] stats={feed_stats}, pods={len(feed_matrix.get('podcasts',[]))}, vids={len(feed_matrix.get('videos',[]))}")
         # Kick background sync (non-blocking)
         import threading
         threading.Thread(target=lambda: sync_all_feeds(app), daemon=True).start()
     except Exception as e:
-        logging.error(f"media data fetch error: {e}", exc_info=True)
+        import traceback
+        logging.error("media data fetch error: %s", e)
 
     # YouTube series data for Original Series section — hardcoded for reliability
     series_config = {
