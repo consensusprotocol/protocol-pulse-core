@@ -368,11 +368,15 @@ function ppShareNostr() {
 }
 
 /* ── TL;DR toggle ── */
-function ppToggleTldr(btn) {
+function ppToggleTldr() {
     var body = document.getElementById('ppTldrBody');
-    var expanded = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', !expanded);
-    body.hidden = expanded;
+    var toggle = document.querySelector('#ppTldrCard .ppa-tldr-glass__toggle');
+    var caret = document.getElementById('ppTldrCaret');
+    if (!body || !toggle) return;
+    var expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    body.style.display = expanded ? 'none' : 'block';
+    if (caret) caret.style.transform = expanded ? '' : 'rotate(180deg)';
 }
 
 /* ── Lightning tips ── */

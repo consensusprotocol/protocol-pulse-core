@@ -212,7 +212,7 @@ def post_to_x(tweet_text: str, image_path: str = None) -> bool:
         )
         
         media_id = None
-        if image_path and os.path.exists(image_path):
+        if image_path and os.path.exists(image_path) and os.path.getsize(image_path) > 1024:
             try:
                 auth = tweepy.OAuth1UserHandler(api_key, api_secret, acc_token, acc_secret)
                 api_v1 = tweepy.API(auth)
@@ -220,7 +220,10 @@ def post_to_x(tweet_text: str, image_path: str = None) -> bool:
                 media_id = media.media_id_string
                 logger.info(f"Image uploaded: media_id={media_id}")
             except Exception as img_err:
-                logger.warning(f"Image upload failed: {img_err}")
+                logger.warning(f"Image upload failed (skipping image): {img_err}")
+                media_id = None
+        elif image_path:
+            logger.warning(f"Image missing or too small (<1KB), skipping: {image_path}")
         
         kwargs = {"text": tweet_text}
         if media_id:

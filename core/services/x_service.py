@@ -4,7 +4,6 @@ import json
 import re
 import tempfile
 import requests
-import models  # Lazy import infrastructure to stop the circular loop
 try:
     import tweepy
 except ImportError:
@@ -155,7 +154,13 @@ def get_social_feedback(topic):
         'source': 'stubbed_data'
     } # FIXED: Changed closing parenthesis to a curly brace
 def can_post_tweet(text, source=None, angle_category=None):
-    import sys as _s
-    _s.path.insert(0, "/home/ultron/protocol_pulse")
-    from services.x_service import can_post_tweet as _f
-    return _f(text, source=source or "unknown", angle_category=angle_category)
+    import importlib.util, sys as _s
+    _mod_key = "_direct_services_x_service"
+    if _mod_key not in _s.modules:
+        _spec = importlib.util.spec_from_file_location(
+            _mod_key, "/home/ultron/protocol_pulse/services/x_service.py"
+        )
+        _mod = importlib.util.module_from_spec(_spec)
+        _s.modules[_mod_key] = _mod
+        _spec.loader.exec_module(_mod)
+    return _s.modules[_mod_key].can_post_tweet(text, source=source or "unknown", angle_category=angle_category)
