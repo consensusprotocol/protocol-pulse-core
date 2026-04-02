@@ -154,3 +154,8 @@ def get_social_feedback(topic):
         'key_insights': [f"Mock insight about {topic}", "Community discussion ongoing", "Market watching closely"],
         'source': 'stubbed_data'
     } # FIXED: Changed closing parenthesis to a curly brace
+def can_post_tweet(text, source=None, angle_category=None):
+    import sys as _s
+    _s.path.insert(0, "/home/ultron/protocol_pulse")
+    from services.x_service import can_post_tweet as _f
+    return _f(text, source=source or "unknown", angle_category=angle_category)
