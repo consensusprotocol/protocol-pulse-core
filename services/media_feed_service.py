@@ -237,7 +237,33 @@ def parse_youtube_rss(channel_config: dict) -> List[dict]:
 
     episodes = []
 
-    if api_key:
+    # RSS FIRST (free, unlimited) — API only if RSS returns 0
+    rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_config['channel_id']}"
+    try:
+        feed = _fetch_feed(rss_url)
+        for entry in feed.entries[:10]:
+            title = entry.get('title', '').strip()
+            if not title or is_excluded(title):
+                continue
+            vid_id = entry.get('yt_videoid', '')
+            desc = _clean_html(entry.get('summary', '') or '')[:500]
+            pub_date = _parse_rss_date(entry)
+            episodes.append({
+                'guid': vid_id or _make_guid(entry, rss_url),
+                'title': title,
+                'description': desc,
+                'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
+                'source_url': entry.get('link', ''),
+                'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
+                'duration': '',
+                'published_at': pub_date,
+                'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
+            })
+    except Exception as e:
+        logger.warning(f"[YouTube] RSS failed {channel_config['name']}: {e}")
+
+    # API fallback only if RSS got nothing
+    if not episodes and api_key:
         try:
             resp = req.get(
                 'https://www.googleapis.com/youtube/v3/search',
@@ -290,31 +316,7 @@ def parse_youtube_rss(channel_config: dict) -> List[dict]:
                 logger.warning(f"[YouTube] API {resp.status_code} for {channel_config['name']}")
         except Exception as e:
             logger.error(f"[YouTube] API error {channel_config['name']}: {e}")
-    else:
-        # Fallback: try RSS (deprecated, may return 404)
-        url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_config['channel_id']}"
-        try:
-            feed = _fetch_feed(url)
-            for entry in feed.entries[:10]:
-                title = entry.get('title', '').strip()
-                if not title or is_excluded(title):
-                    continue
-                vid_id = entry.get('yt_videoid', '')
-                desc = _clean_html(entry.get('summary', '') or '')[:500]
-                pub_date = _parse_rss_date(entry)
-                episodes.append({
-                    'guid': vid_id or _make_guid(entry, url),
-                    'title': title,
-                    'description': desc,
-                    'video_url': f"https://www.youtube.com/watch?v={vid_id}" if vid_id else entry.get('link', ''),
-                    'source_url': entry.get('link', ''),
-                    'thumbnail_url': f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg" if vid_id else None,
-                    'duration': '',
-                    'published_at': pub_date,
-                    'signal_score': compute_signal_score(title, desc, channel_config.get('tier', 2), pub_date),
-                })
-        except Exception as e:
-            logger.error(f"[YouTube] RSS fallback failed {channel_config['name']}: {e}")
+    # (RSS fallback removed — RSS is now primary above)
 
     return episodes
 
