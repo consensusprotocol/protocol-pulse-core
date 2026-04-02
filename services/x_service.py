@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 # ============================================================
 _GATE_DB = Path("/home/ultron/protocol_pulse/data/x_post_ledger.db")
 _POSTED_HASHES_FILE = Path("/home/ultron/protocol_pulse/data/posted_tweets.json")
-_MAX_POSTS_PER_24H = 3
-_MIN_GAP_HOURS = 4
+_MAX_POSTS_PER_24H = 8
+_MIN_GAP_HOURS = 2
 _SIMILARITY_THRESHOLD = 0.30
 _SIMILARITY_WINDOW_HOURS = 72
 
