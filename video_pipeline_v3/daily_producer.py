@@ -9,6 +9,7 @@ Usage:
   python3 daily_producer.py --test        # Test mode (fewer clips, truncated)
   python3 daily_producer.py --skip-scan   # Use cached transcripts only
   python3 daily_producer.py --fast-test   # Fast test: no API calls, <3 min render
+  python3 daily_producer.py --no-resume   # Force fresh render, skip checkpoint
 """
 import sys; sys.dont_write_bytecode=True
 import argparse
@@ -111,6 +112,7 @@ def _write_checkpoint(step):
             "last_completed_step": step,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "code_hash": _code_hash(),
         }
         with open(CHECKPOINT_FILE, "w") as f:
             json.dump(data, f)
@@ -138,6 +140,16 @@ def _clear_checkpoint():
             os.remove(CHECKPOINT_FILE)
     except OSError:
         pass
+
+
+def _code_hash():
+    """Hash key pipeline files to detect code changes since last checkpoint."""
+    h = hashlib.md5()
+    for f in ['assembler.py', 'script_writer.py', 'tts_engine.py', 'clip_extractor.py']:
+        path = os.path.join(BASE, f)
+        if os.path.exists(path):
+            h.update(open(path, 'rb').read())
+    return h.hexdigest()[:12]
 
 
 def get_btc_price() -> str:
@@ -535,7 +547,8 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
 
 
 def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
-                 fast_test: bool = False, reuse_content: bool = False) -> bool:
+                 fast_test: bool = False, reuse_content: bool = False,
+                 no_resume: bool = False) -> bool:
     # Fast test implies test + skip-scan
     if fast_test:
         test_mode = True
@@ -552,20 +565,42 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         pass
 
     # P0 Fix 3: Check checkpoint for resume
-    resume_step = _read_checkpoint()
-    if resume_step >= 4:
-        logger.info(f"CHECKPOINT RESUME: last completed step={resume_step}, checking for resumable state")
-        # Verify clips still exist before resuming
-        today_dir = os.path.join(BASE, "output", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
-        clips_dir = os.path.join(today_dir, "clips")
-        if os.path.exists(clips_dir) and os.listdir(clips_dir):
-            skip_scan = True
-            logger.info(f"  Clips exist at {clips_dir} — will resume from step {resume_step + 1}")
-        else:
-            logger.info("  No clips found — starting fresh")
-            resume_step = 0
-    else:
+    if test_mode or fast_test or no_resume:
+        # Never resume in test mode or when --no-resume is set — always fresh render
         resume_step = 0
+        if no_resume:
+            logger.info("CHECKPOINT RESUME SKIPPED: --no-resume flag set")
+        else:
+            logger.info("CHECKPOINT RESUME SKIPPED: test mode — always fresh render")
+        _clear_checkpoint()
+    else:
+        resume_step = _read_checkpoint()
+        if resume_step >= 4:
+            logger.info(f"CHECKPOINT RESUME: last completed step={resume_step}, checking for resumable state")
+            # Verify code hasn't changed since checkpoint
+            try:
+                with open(CHECKPOINT_FILE) as _cf:
+                    _cp_data = json.load(_cf)
+                saved_code_hash = _cp_data.get("code_hash", "")
+            except Exception:
+                saved_code_hash = ""
+            current_code_hash = _code_hash()
+            if saved_code_hash and saved_code_hash != current_code_hash:
+                logger.info(f"  Code changed since checkpoint (saved={saved_code_hash} current={current_code_hash}) — starting fresh")
+                resume_step = 0
+                _clear_checkpoint()
+            else:
+                # Verify clips still exist before resuming
+                today_dir = os.path.join(BASE, "output", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+                clips_dir = os.path.join(today_dir, "clips")
+                if os.path.exists(clips_dir) and os.listdir(clips_dir):
+                    skip_scan = True
+                    logger.info(f"  Clips exist at {clips_dir} — will resume from step {resume_step + 1}")
+                else:
+                    logger.info("  No clips found — starting fresh")
+                    resume_step = 0
+        else:
+            resume_step = 0
 
     # Wipe TTS cache before each run to prevent stale audio
     # CONTENT LOCK LAW: skip wipe when reusing locked content
@@ -1868,6 +1903,8 @@ def main():
                         help="Fast test: no API calls (Claude/scan), hardcoded script, <3 min render")
     parser.add_argument("--reuse-content", action="store_true",
                         help="Skip Steps 1-6 (fetch/script/TTS), reuse locked content from previous run")
+    parser.add_argument("--no-resume", action="store_true",
+                        help="Skip checkpoint resume, force fresh render")
     args = parser.parse_args()
 
     # P0 Fix 1: flock process lock — prevent duplicate producers
@@ -1883,7 +1920,8 @@ def main():
 
     success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
                            fast_test=args.fast_test,
-                           reuse_content=args.reuse_content)
+                           reuse_content=args.reuse_content,
+                           no_resume=args.no_resume)
 
     fcntl.flock(lock_file, fcntl.LOCK_UN)
     # ── Post-render: fire tweet machine from morning brief ──────────────
