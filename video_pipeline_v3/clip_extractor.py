@@ -417,33 +417,10 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
                 elif os.path.exists(nuclear_tmp):
                     os.remove(nuclear_tmp)
-            # FIX 2: Dynamic offset correction — apply measured offset for ANY drift >20ms
-            final_av = check_av_sync(output_path)
-            if abs(final_av) > 0.02:
-                lipsync_tmp = output_path + ".lipsync.mp4"
-                correction = -final_av  # negate to correct
-                # If audio leads video (offset > 0, correction < 0): delay audio
-                # If video leads audio (offset < 0, correction > 0): delay video
-                audio_delay = max(0, correction)
-                video_delay = max(0, -correction)
-                before_offset = final_av
-                if _run_ffmpeg([
-                    "-itsoffset", f"{audio_delay:.4f}",
-                    "-i", output_path,
-                    "-itsoffset", f"{video_delay:.4f}",
-                    "-i", output_path,
-                    "-map", "1:v:0", "-map", "0:a:0",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                    "-vf", "setpts=PTS-STARTPTS",
-                    "-c:a", "aac", "-ar", "48000",
-                    "-af", "asetpts=PTS-STARTPTS",
-                    lipsync_tmp,
-                ], f"lipsync correction {correction:+.3f}s (was {final_av:+.3f}s)", 120) and os.path.exists(lipsync_tmp):
-                    os.replace(lipsync_tmp, output_path)
-                    after_offset = check_av_sync(output_path)
-                    logger.info(f"  FIX 2: Lipsync corrected {before_offset:+.3f}s → {after_offset:+.3f}s")
-                elif os.path.exists(lipsync_tmp):
-                    os.remove(lipsync_tmp)
+            # FIX 2 REMOVED: dual-input -itsoffset correction was overcorrecting
+            # clips already synced by hard PTS resync + nuclear re-encode.
+            # The dual-input approach (opening same file twice with different offsets)
+            # introduced NEW drift. Nuclear re-encode at 0.08s threshold is sufficient.
             # Render21 FIX 7: Final AV sync gate — re-encode if >0.15s
             final_sync = check_av_sync(output_path)
             if abs(final_sync) > 0.15:
@@ -569,30 +546,8 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
                 elif os.path.exists(nuclear_tmp):
                     os.remove(nuclear_tmp)
-            # FIX 2: Dynamic offset correction for fallback path too
-            fb_offset = check_av_sync(output_path)
-            if abs(fb_offset) > 0.02:
-                lipsync_tmp = output_path + ".lipsync.mp4"
-                correction = -fb_offset
-                audio_delay = max(0, correction)
-                video_delay = max(0, -correction)
-                if _run_ffmpeg([
-                    "-itsoffset", f"{audio_delay:.4f}",
-                    "-i", output_path,
-                    "-itsoffset", f"{video_delay:.4f}",
-                    "-i", output_path,
-                    "-map", "1:v:0", "-map", "0:a:0",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                    "-vf", "setpts=PTS-STARTPTS",
-                    "-c:a", "aac", "-ar", "48000",
-                    "-af", "asetpts=PTS-STARTPTS",
-                    lipsync_tmp,
-                ], f"lipsync correction {correction:+.3f}s (fallback)", 120) and os.path.exists(lipsync_tmp):
-                    os.replace(lipsync_tmp, output_path)
-                    after = check_av_sync(output_path)
-                    logger.info(f"  FIX 2: Fallback lipsync corrected {fb_offset:+.3f}s → {after:+.3f}s")
-                elif os.path.exists(lipsync_tmp):
-                    os.remove(lipsync_tmp)
+            # FIX 2 REMOVED: dual-input -itsoffset correction was overcorrecting.
+            # See primary path comment above.
             # Render21 FIX 7: Final AV sync gate (fallback path)
             final_sync_fb = check_av_sync(output_path)
             if abs(final_sync_fb) > 0.15:

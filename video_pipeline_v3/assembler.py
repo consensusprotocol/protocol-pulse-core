@@ -352,26 +352,17 @@ def _fetch_btc_price() -> str:
 
 
 def _ken_burns_motion(label_in: str, label_out: str, duration: float) -> str:
-    """Subtle Ken Burns pan — proper freeze frame fix at source.
+    """Static frame pass — ensures 1920x1080 output with correct format.
 
-    Uses sin-curve drift with 6s period so every frame has >=1px integer
-    displacement.  At 30fps the peak velocity is ~31 px/s = 1.05 px/frame,
-    which guarantees unique pixels every frame and beats freezedetect n=0.003.
+    Ken Burns pan/zoom REMOVED: it was applied to the full 1920x1080 output
+    AFTER all compositing, causing the PP logo, lower thirds, info banners,
+    and all text overlays to drift and become partially cut off.
 
-    Previous 8px/4px amplitude with full-duration period produced only
-    0.02 px/frame — rounded to 0px in the encoder, causing 20 freeze
-    detections per render.
-
-    Amplitude: 30px H, 16px V (1.6% / 1.5% of frame — barely perceptible).
-    Period: 6s (continuous gentle oscillation, no static stretches).
-    Scale headroom: 1980x1112 → crop 1920x1080 (30px each side H, 16 each V).
+    Now returns a static scale+format chain with no motion.
+    Ken Burns is only used on PiP preview windows (see make_pip_preview).
     """
-    dur = max(0.1, duration)
-    # 6s oscillation period — fast enough for >=1 px/frame at 30fps
-    period = 6.0
-    return (f"[{label_in}]scale=1980:1112:flags=lanczos,"
-            f"crop=1920:1080:'30+30*sin(2*PI*t/{period:.1f})':'16+16*sin(2*PI*t/{period:.1f}*0.7)',"
-            f"setpts=PTS-STARTPTS,setsar=1,format=yuv420p[{label_out}];\n")
+    return (f"[{label_in}]scale=1920:1080:force_original_aspect_ratio=decrease,"
+            f"setsar=1,format=yuv420p[{label_out}];\n")
 
 
 def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
@@ -583,9 +574,10 @@ def _generate_fallback_silent_audio(work_dir: str, idx: int, text: str = "") -> 
 # ── Branded intro/outro ────────────────────────────────────────────────────
 
 def make_intro_video(output_path: str) -> str:
-    """Use branded intro.mp4 with pp_intro.mp3 mixed in.
+    """Use branded intro.mp4 — its audio track IS the intro jingle.
 
-    Fades in from black (0.5s), fades out to black (0.5s) with audio fade (1.5s).
+    intro.mp4 already has the jingle baked in. Do NOT mix pp_intro.mp3 on top
+    or you get double intro sounds. Just normalize video+audio and apply fades.
     Forces yuv420p pixel format for concat compatibility.
     """
     if not os.path.exists(INTRO_VIDEO):
@@ -612,23 +604,18 @@ def make_intro_video(output_path: str) -> str:
     jingle_path = os.path.join(ASSETS, "music", "pp_intro.mp3")
     has_jingle = os.path.exists(jingle_path)
 
-    if has_jingle and intro_has_audio:
+    if intro_has_audio:
+        # intro.mp4 already has jingle baked in — use its audio, do NOT add pp_intro.mp3
         ok = run_ffmpeg([
             "-i", INTRO_VIDEO,
-            "-i", jingle_path,
-            "-filter_complex",
-            (f"[0:v]{vf}[outv];"
-             f"[0:a]volume=0.15[va];[1:a]volume=0.25[vb];"
-             f"[va][vb]amix=inputs=2:duration=shortest,"
-             f"afade=t=out:st={fade_out_a}:d=1.5[outa]"),
-            "-map", "[outv]",
-            "-map", "[outa]",
+            "-vf", vf,
+            "-af", f"afade=t=out:st={fade_out_a}:d=1.5",
             "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(intro_dur),
             output_path,
-        ], "intro video + jingle", 120)
+        ], "intro video (baked audio)", 120)
     elif has_jingle and not intro_has_audio:
         ok = run_ffmpeg([
             "-i", INTRO_VIDEO,
@@ -2118,7 +2105,8 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     fg += _build_signature_info_rail(clip_dur, btc_price, "pc_lt", "pc_railed")
     fg += _ken_burns_motion("pc_railed", "outv", clip_dur)
     # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
-    fg += (f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
+    # aresample=async=1 REMOVED — clips already synced by clip_extractor, async was overcorrecting
+    fg += (f"[0:a]asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,"
            f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 0.5)}:d=0.5[outa]")
 
@@ -4257,12 +4245,10 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
     fade_out_start = max(0, clip_dur - 0.5)
-    # FIX iter2: Subtle Ken Burns zoom (1.02x over clip) breaks freezedetect on static
-    # charts/graphics while staying visually imperceptible. zoompan outputs 1920x1080.
-    total_frames = max(1, int(clip_dur * 30))
+    # Ken Burns zoom REMOVED — was drifting text overlays, logos, lower thirds.
+    # Static scale+crop to 1920x1080 instead.
     fg = (
-        f"[0:v]scale=2048:1152:force_original_aspect_ratio=increase,crop=2048:1152,setsar=1,fps=30,"
-        f"zoompan=z='1.0+0.02*on/{total_frames}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/2':d=1:s=1920x1080:fps=30,"
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
         f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
         # Red border frame (2px all edges)
         f"[clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
@@ -4296,7 +4282,8 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
     fg += (
         f"[clip_railed]format=yuv420p[outv];\n"
         # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
-        f"[0:a]aresample=async=1,asetpts=PTS-STARTPTS,"
+        # aresample=async=1 REMOVED — clips already synced by clip_extractor, async was overcorrecting
+        f"[0:a]asetpts=PTS-STARTPTS,"
         f"highpass=f=50,lowpass=f=15000,"
         f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 0.5)}:d=0.5[outa]"
     )
@@ -4600,12 +4587,20 @@ def concatenate_parts(parts: list, output_path: str,
     else:
         logger.warning("  APEX V2: No BG_MUSIC file found — no music bed")
 
-    # Round 3 FIX 4: Skip intro_music.mp3 if intro_tag.mp4 was used (it has baked-in audio)
-    skip_intro_music = os.path.exists(INTRO_TAG) and any(
-        "intro_tag" in os.path.basename(p).lower() for p in valid
+    # Round 3 FIX 4: Skip intro_music.mp3 if ANY intro part already has music baked in.
+    # make_intro_coldopen() already mixes intro_music.mp3 with TTS — adding it again
+    # in concatenate_parts() causes double intro music.
+    # make_intro_tag_sequence() uses intro_tag.mp4 which has baked-in audio.
+    # make_intro_video() uses intro.mp4 which has baked-in jingle.
+    skip_intro_music = any(
+        ("intro_tag" in os.path.basename(p).lower() or
+         "intro_pbx" in os.path.basename(p).lower() or
+         "intro_hook" in os.path.basename(p).lower() or
+         "intro_video" in os.path.basename(p).lower())
+        for p in valid
     )
     if skip_intro_music:
-        logger.info("  FIX 4: Skipping intro_music.mp3 — intro_tag.mp4 has baked-in audio")
+        logger.info("  FIX 4: Skipping intro_music.mp3 — intro part already has audio baked in")
 
     # Intro music underlay: plays from t=0 for intro_music_duration, fades out over 3s
     if intro_music_duration > 0 and os.path.exists(INTRO_MUSIC_FILE) and not skip_intro_music:
