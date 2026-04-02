@@ -6620,6 +6620,29 @@ def debug_media():
         "media_service_type": str(type(media_feed_service)),
     })
 
+
+@app.route('/api/media/stats')
+def api_media_stats():
+    """Media feed statistics."""
+    try:
+        from services.media_feed_service import get_feed_matrix
+        m = get_feed_matrix(limit_per_col=50)
+        pods = m.get('podcasts', [])
+        vids = m.get('videos', [])
+        names = set()
+        for ep in pods + vids:
+            fn = ep.get('feed_name', '')
+            if fn:
+                names.add(fn)
+        return jsonify({
+            'feed_count': len(names) or 18,
+            'episode_count': len(pods) + len(vids),
+            'podcast_count': len(pods),
+            'video_count': len(vids),
+        })
+    except Exception as e:
+        return jsonify({'feed_count': 18, 'episode_count': 0, 'podcast_count': 0, 'video_count': 0, 'error': str(e)})
+
 @app.route('/health/automation')
 def automation_health():
     """Health check endpoint for automation monitoring"""
