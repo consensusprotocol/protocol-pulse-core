@@ -6,9 +6,9 @@
     <p class="text-muted">Messages from the contact form. Optional notification email sent when CONTACT_EMAIL and SENDGRID_API_KEY are set.</p>
 
     <div class="mb-3">
-        <a href="{{ url_for('admin_contact_submissions') }}" class="btn btn-outline-light btn-sm {{ 'active' if read_filter == '' else '' }}">All</a>
-        <a href="{{ url_for('admin_contact_submissions', read='unread') }}" class="btn btn-outline-warning btn-sm {{ 'active' if read_filter == 'unread' else '' }}">Unread ({{ unread_count }})</a>
-        <a href="{{ url_for('admin_contact_submissions', read='read') }}" class="btn btn-outline-success btn-sm {{ 'active' if read_filter == 'read' else '' }}">Read</a>
+        <a href="{{ url_for('admin.admin_contact_submissions') }}" class="btn btn-outline-light btn-sm {{ 'active' if read_filter == '' else '' }}">All</a>
+        <a href="{{ url_for('admin.admin_contact_submissions', read='unread') }}" class="btn btn-outline-warning btn-sm {{ 'active' if read_filter == 'unread' else '' }}">Unread ({{ unread_count }})</a>
+        <a href="{{ url_for('admin.admin_contact_submissions', read='read') }}" class="btn btn-outline-success btn-sm {{ 'active' if read_filter == 'read' else '' }}">Read</a>
     </div>
 
     <div class="table-responsive">
@@ -34,7 +34,7 @@
                     <td>{{ sub.created_at.strftime('%Y-%m-%d %H:%M') if sub.created_at else '—' }}</td>
                     <td>
                         {% if not sub.read %}
-                        <form method="post" action="{{ url_for('admin_contact_submission_mark_read', sub_id=sub.id) }}" class="d-inline">
+                        <form method="post" action="{{ url_for('admin.admin_contact_submission_mark_read', sub_id=sub.id) }}" class="d-inline">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="btn btn-sm btn-outline-success">Mark read</button>
                         </form>

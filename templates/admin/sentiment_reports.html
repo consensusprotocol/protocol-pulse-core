@@ -109,7 +109,7 @@
                                 <td class="text-white-50">{{ report.nostr_notes_analyzed or 0 }}</td>
                                 <td>
                                     {% if report.article_id %}
-                                    <a href="{{ url_for('article_detail', article_id=report.article_id) }}" class="text-danger" target="_blank">
+                                    <a href="{{ url_for('pages.article_detail', article_id=report.article_id) }}" class="text-danger" target="_blank">
                                         #{{ report.article_id }}
                                     </a>
                                     {% else %}
@@ -118,7 +118,7 @@
                                 </td>
                                 <td>
                                     {% if report.article_id %}
-                                    <a href="{{ url_for('article_detail', article_id=report.article_id) }}" class="btn btn-sm btn-outline-danger me-1" target="_blank">
+                                    <a href="{{ url_for('pages.article_detail', article_id=report.article_id) }}" class="btn btn-sm btn-outline-danger me-1" target="_blank">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     {% endif %}
