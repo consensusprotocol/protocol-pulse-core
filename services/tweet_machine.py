@@ -608,7 +608,7 @@ def _keyword_overlap(text_a: str, text_b: str) -> float:
     return len(wa & wb) / min(len(wa), len(wb))
 
 
-def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.40) -> bool:
+def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.65) -> bool:
     """Return True if new_tweet overlaps too much with any recently posted tweet."""
     for old in posted:
         if _keyword_overlap(new_tweet, old) >= threshold:
@@ -635,7 +635,7 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
     try:
         sys.path.insert(0, str(BASE))
         from services.x_service import get_banned_concepts
-        banned = get_banned_concepts(hours=72)
+        banned = get_banned_concepts(hours=24)
         if banned:
             banned_concepts_context = (
                 "\n\nBANNED CONCEPTS (do NOT use these — already posted in last 72h):\n"

@@ -519,13 +519,9 @@ def run_task(name: str) -> Dict:
     # ─── Sacred Social Schedule ──────────────────────────────────────────────
 
     if name == "morning_signal_tweet":
-        try:
-            from services.tweet_machine import main as tweet_machine_main
-            tweet_machine_main()
-            return {"success": True, "message": "Morning signal tweet dispatched", "result": None}
-        except Exception as e:
-            logger.warning("morning_signal_tweet failed: %s", e)
-            return {"success": False, "message": str(e), "result": None}
+        # Disabled: cron handles tweet_machine directly (was causing duplicate posts)
+        logger.info("morning_signal_tweet: skipped — cron handles tweet_machine directly")
+        return {"success": True, "message": "Skipped — cron handles tweet_machine", "result": None}
 
     if name == "afternoon_article_tweet":
         try:
@@ -537,13 +533,9 @@ def run_task(name: str) -> Dict:
             return {"success": False, "message": str(e), "result": None}
 
     if name == "evening_signal_tweet":
-        try:
-            from services.tweet_machine import main as tweet_machine_main
-            tweet_machine_main()
-            return {"success": True, "message": "Evening signal tweet dispatched", "result": None}
-        except Exception as e:
-            logger.warning("evening_signal_tweet failed: %s", e)
-            return {"success": False, "message": str(e), "result": None}
+        # Disabled: cron handles tweet_machine directly (was causing duplicate posts)
+        logger.info("evening_signal_tweet: skipped — cron handles tweet_machine directly")
+        return {"success": True, "message": "Skipped — cron handles tweet_machine", "result": None}
 
     if name in ("auto_engagement_noon", "auto_engagement_evening"):
         try:
