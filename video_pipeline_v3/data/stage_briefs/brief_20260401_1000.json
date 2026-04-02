@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-04-01T10:00:01.907594+00:00",
+  "duration": 80.4,
+  "mp4_path": "brief_20260401_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260401_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260401_1000.mp4",
+  "episode_date": "2026-04-01",
+  "brief_type": "morning",
+  "script_summary": "**BITCOIN MORNING BRIEF**\n\nBTC holding steady at $68,625 \u2014 flat overnight but that's the story. We're in *extreme fear territory* at 8 on the Greed Index, and the mempool's choking with 22,200-plus transactions while fees sit at just 2 sat/vB. That disconnect matters.\n\nNetwork health looks solid \u2014 hashrate holding strong at 906.7 exahashes. Block height 943,196 confirms consistent mining momentum despite price stagnation.\n\nHere's what's moving the dial: extreme fear usually precedes either capit",
+  "word_count": 166,
+  "tts_provider": "chatterbox",
+  "btc_price": 68625.015,
+  "sentiment_score": -25
+}

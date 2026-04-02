@@ -1,131 +1,54 @@
 {
   "episodes": [
     {
-      "date": "2026-03-29",
+      "date": "2026-04-02",
       "video_ids": [
-        "yTLnwgxsrL4",
-        "uRDk8BxQP0g",
-        "etTv2PtW2UA",
+        "Aqo5zYv7U08",
+        "nIT-C1EHPyA",
+        "4kt2KV08axY",
         "kFCd7czSCkQ",
-        "taV0gxDljIA"
+        "uRDk8BxQP0g"
       ],
       "channels": [
         "Swan Bitcoin",
-        "The Bitcoin Layer",
-        "Unchained",
+        "Bitfarms",
+        "Blockware Solutions",
         "Digital Asset News",
-        "CoinTelegraph"
+        "The Bitcoin Layer"
       ]
     },
     {
-      "date": "2026-03-29",
+      "date": "2026-04-02",
       "video_ids": [
-        "tTkD-DnUPM8",
+        "Q_s6LhPfoU0",
+        "etTv2PtW2UA",
+        "MXA39ece4_c",
+        "dO9SvaZ4wz0",
+        "uRDk8BxQP0g"
+      ],
+      "channels": [
+        "Stacker News",
+        "Unchained",
+        "Swan Bitcoin",
+        "BTC Sessions",
+        "The Bitcoin Layer"
+      ]
+    },
+    {
+      "date": "2026-04-02",
+      "video_ids": [
         "8WjGNNF48Dk",
-        "eCPsutO1Nvw",
-        "9rdl7vR0ECs",
+        "Aqo5zYv7U08",
+        "nIT-C1EHPyA",
+        "8-8CFxRFVWA",
         "yzIe6gOKU50"
       ],
       "channels": [
-        "Bitcoin Magazine Pro",
         "CoinGecko",
         "Swan Bitcoin",
-        "BTC Sessions",
-        "Unchained"
-      ]
-    },
-    {
-      "date": "2026-03-29",
-      "video_ids": [
-        "0QNsBVobp2U",
-        "5I-5UjZ4lqk",
-        "-_C4dZZvWIk",
-        "4nDVYeU6SRw",
-        "57GVjvYfpx0"
-      ],
-      "channels": [
-        "Bitcoin Magazine Pro",
-        "Simply Bitcoin",
-        "Swan Bitcoin",
-        "Altcoin Daily",
-        "Blockware Solutions"
-      ]
-    },
-    {
-      "date": "2026-03-29",
-      "video_ids": [
-        "7Yvga6vQz3s",
-        "0NMoMe7zbIM",
-        "1lVmzfP6_iA",
-        "0oJlXE3jPFA",
-        "-3MF3jWGCbQ"
-      ],
-      "channels": [
         "Bitfarms",
-        "CNBC Television",
-        "CoinDesk",
-        "CoinGecko",
-        "TheStreet"
-      ]
-    },
-    {
-      "date": "2026-03-29",
-      "video_ids": [
-        "-3MF3jWGCbQ",
-        "0QNsBVobp2U",
-        "4nDVYeU6SRw",
-        "AYAreuNzx58",
-        "-_C4dZZvWIk"
-      ],
-      "channels": [
-        "TheStreet",
-        "Bitcoin Magazine Pro",
-        "Altcoin Daily",
-        "Andreas Antonopoulos",
-        "Swan Bitcoin"
-      ]
-    },
-    {
-      "date": "2026-03-29",
-      "video_ids": [
-        "1lVmzfP6_iA",
-        "-8lS8eunbNo",
-        "0oJlXE3jPFA",
-        "2DIlhctrBcY"
-      ],
-      "channels": [
-        "CoinDesk",
-        "Simply Bitcoin",
-        "CoinGecko",
-        "Anthony Pompliano"
-      ]
-    },
-    {
-      "date": "2026-03-29",
-      "video_ids": [
-        "-3MF3jWGCbQ",
-        "-A6Ut8NdJaA",
-        "4yMGeaL4KfY"
-      ],
-      "channels": [
-        "TheStreet",
-        "Altcoin Daily",
-        "Simply Bitcoin"
-      ]
-    },
-    {
-      "date": "2026-03-29",
-      "video_ids": [
-        "0oJlXE3jPFA",
-        "AOr8Db4q860",
-        "-_C4dZZvWIk",
-        "26lG23eyt-k"
-      ],
-      "channels": [
-        "CoinGecko",
-        "Blockware Solutions",
-        "Swan Bitcoin",
-        "CNBC Television"
+        "Compass Mining",
+        "Unchained"
       ]
     }
   ]
