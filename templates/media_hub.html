@@ -272,7 +272,7 @@
     <div class="hero-bg"><div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div></div>
     <div class="hero-tag"><div class="hero-tag-dot"></div><span class="hero-tag-text">Bitcoin Media Command Center</span></div>
     <h1 class="hero-h">Every <em>Voice</em>. Every <em>Signal</em>.</h1>
-    <p class="hero-sub">{{ feed_stats.get('feed_count', 0) }} feeds aggregated. Live podcasts, video intelligence, and KOL signals — one screen.</p>
+    <p class="hero-sub"><span id="hero-feed-count">17</span> feeds aggregated. Live podcasts, video intelligence, and KOL signals — one screen.</p>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-val mono"><span id="stat-feeds">{{ feed_stats.get('feed_count', 0) }}</span></div><div class="hero-stat-lab">Feeds</div></div>
       <div class="hero-stat"><div class="hero-stat-val mono"><span id="stat-podcasts">{{ feed_stats.get('podcast_count', 0) }}</span></div><div class="hero-stat-lab">Podcasts</div></div>
@@ -894,7 +894,7 @@ fetch('/api/media/stats').then(function(r){return r.json()}).then(function(d){
   var f=document.getElementById('stat-feeds');
   var p=document.getElementById('stat-podcasts');
   var v=document.getElementById('stat-videos');
-  if(f)f.textContent=d.feed_count||0;
+  if(f)f.textContent=d.feed_count||0; var hfc=document.getElementById('hero-feed-count'); if(hfc)hfc.textContent=d.feed_count||17;
   if(p)p.textContent=d.podcast_count||0;
   if(v)v.textContent=d.video_count||0;
 }).catch(function(){});
