@@ -500,6 +500,298 @@ def get_kol_themes() -> dict:
     return {"trending_themes": [], "creator_count": 0}
 
 
+# ── Batch API Processing (50% cost reduction) ─────────────────────────────────
+
+BATCH_STATUS_PATH = INTEL_DIR / "batch_status.json"
+
+
+def _build_batch_prompt(transcript: dict) -> str:
+    """Build the analysis prompt for a single transcript (shared by sequential & batch)."""
+    text = transcript["text"][:6000]
+    channel = transcript.get("channel", "Unknown")
+    title = transcript.get("title", "")
+
+    return f"""Analyze this Bitcoin video transcript from {channel}: "{title}"
+
+TRANSCRIPT (truncated):
+{text}
+
+Extract the following as JSON:
+{{
+  "sentiment": "bullish" | "bearish" | "neutral" | "mixed",
+  "sentiment_score": 0-100 (0=extremely bearish, 50=neutral, 100=extremely bullish),
+  "main_thesis": "1-2 sentence summary of the creator's main argument",
+  "key_quotes": ["up to 3 notable direct quotes, max 100 chars each"],
+  "topics": ["list of 3-5 specific topics discussed: e.g. 'ETF flows', 'mining difficulty', 'Fed policy'"],
+  "price_prediction": "any specific price target or timeline mentioned, or null",
+  "confidence": "high" | "medium" | "low" (how confident the creator seems)
+}}
+
+Focus on Bitcoin-specific content. Ignore ads, intros, sponsor segments.
+Return ONLY the JSON object."""
+
+
+def submit_batch(hours: int = 24, process_all: bool = False) -> Optional[str]:
+    """Submit unprocessed transcripts as an Anthropic Batch API request.
+
+    Returns the batch_id on success, or None on failure.
+    """
+    transcripts = load_transcripts(hours=hours, process_all=process_all)
+    if not transcripts:
+        logger.info("No new transcripts to batch-process")
+        return None
+
+    processed_ids = _load_processed_ids()
+    to_process = [t for t in transcripts if t["video_id"] not in processed_ids]
+
+    if not to_process:
+        logger.info("All transcripts already processed")
+        return None
+
+    logger.info(f"Submitting batch of {len(to_process)} transcripts")
+
+    client = _get_anthropic_client()
+    if not client:
+        logger.error("Cannot create Anthropic client for batch submission")
+        return None
+
+    # Build batch requests
+    try:
+        from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
+        from anthropic.types.messages.batch_create_params import Request
+    except ImportError:
+        logger.error("anthropic SDK too old — needs >=0.39.0 for batch support")
+        return None
+
+    requests = []
+    transcript_map = {}  # custom_id -> transcript metadata
+
+    for t in to_process:
+        custom_id = f"transcript_{t['video_id']}"
+        prompt = _build_batch_prompt(t)
+
+        requests.append(
+            Request(
+                custom_id=custom_id,
+                params=MessageCreateParamsNonStreaming(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=1000,
+                    messages=[{"role": "user", "content": prompt}],
+                ),
+            )
+        )
+        transcript_map[custom_id] = {
+            "video_id": t["video_id"],
+            "channel": t.get("channel", "Unknown"),
+            "title": t.get("title", ""),
+            "duration": t.get("duration", 0),
+        }
+
+    try:
+        message_batch = client.messages.batches.create(requests=requests)
+        batch_id = message_batch.id
+        logger.info(f"Batch submitted: {batch_id} ({len(requests)} requests)")
+
+        # Save batch state for polling
+        batch_state = {
+            "batch_id": batch_id,
+            "submitted_at": datetime.now(timezone.utc).isoformat(),
+            "request_count": len(requests),
+            "processing_status": "in_progress",
+            "transcript_map": transcript_map,
+        }
+        BATCH_STATUS_PATH.write_text(json.dumps(batch_state, indent=2))
+
+        return batch_id
+
+    except Exception as e:
+        logger.error(f"Batch submission failed: {e}")
+        return None
+
+
+def poll_batch(batch_id: Optional[str] = None, poll_interval: int = 60,
+               max_polls: int = 90) -> Optional[dict]:
+    """Poll a batch until completion, then process results.
+
+    Args:
+        batch_id: The batch ID to poll. If None, reads from batch_status.json.
+        poll_interval: Seconds between polls (default 60).
+        max_polls: Maximum number of polls before giving up (default 90 = ~90 min).
+
+    Returns:
+        Summary dict on success, None on failure.
+    """
+    # Resolve batch_id
+    if not batch_id:
+        if BATCH_STATUS_PATH.exists():
+            state = json.loads(BATCH_STATUS_PATH.read_text())
+            batch_id = state.get("batch_id")
+        if not batch_id:
+            logger.error("No batch_id provided and no pending batch found")
+            return None
+
+    client = _get_anthropic_client()
+    if not client:
+        return None
+
+    logger.info(f"Polling batch {batch_id} (interval={poll_interval}s, max={max_polls})")
+
+    for attempt in range(max_polls):
+        try:
+            batch = client.messages.batches.retrieve(batch_id)
+        except Exception as e:
+            logger.error(f"Failed to retrieve batch status: {e}")
+            time.sleep(poll_interval)
+            continue
+
+        status = batch.processing_status
+        counts = batch.request_counts
+        logger.info(
+            f"  Poll {attempt + 1}: status={status} "
+            f"succeeded={counts.succeeded} errored={counts.errored} "
+            f"processing={counts.processing} expired={counts.expired}"
+        )
+
+        if status == "ended":
+            logger.info(f"Batch {batch_id} completed!")
+            return _process_batch_results(client, batch_id)
+
+        time.sleep(poll_interval)
+
+    logger.error(f"Batch {batch_id} did not complete within {max_polls} polls")
+    return None
+
+
+def _process_batch_results(client, batch_id: str) -> dict:
+    """Download and process completed batch results.
+
+    Returns summary dict.
+    """
+    # Load transcript map
+    transcript_map = {}
+    if BATCH_STATUS_PATH.exists():
+        state = json.loads(BATCH_STATUS_PATH.read_text())
+        transcript_map = state.get("transcript_map", {})
+
+    # Load existing analyses
+    existing = {}
+    if KOL_INTEL_PATH.exists():
+        try:
+            existing = json.loads(KOL_INTEL_PATH.read_text())
+        except Exception:
+            existing = {}
+
+    analyses = existing.get("analyses", [])
+    processed_ids = _load_processed_ids()
+
+    new_count = 0
+    error_count = 0
+
+    try:
+        for result in client.messages.batches.results(batch_id):
+            custom_id = result.custom_id
+            meta = transcript_map.get(custom_id, {})
+
+            if result.result.type == "succeeded":
+                try:
+                    raw = result.result.message.content[0].text.strip()
+                    # Strip markdown code fences if present
+                    if raw.startswith("```"):
+                        raw = raw.split("\n", 1)[1]
+                        if raw.endswith("```"):
+                            raw = raw[:-3]
+
+                    parsed = json.loads(raw)
+                    parsed.update({
+                        "channel": meta.get("channel", "Unknown"),
+                        "title": meta.get("title", ""),
+                        "video_id": meta.get("video_id", custom_id),
+                        "duration": meta.get("duration", 0),
+                        "analyzed_at": datetime.now(timezone.utc).isoformat(),
+                        "inference_source": "batch_haiku",
+                    })
+
+                    analyses.append(parsed)
+                    processed_ids.add(meta.get("video_id", custom_id))
+                    new_count += 1
+
+                    logger.info(
+                        f"  {parsed['channel']}: {parsed.get('sentiment', '?')} "
+                        f"({parsed.get('sentiment_score', '?')}/100) [BATCH]"
+                    )
+
+                except (json.JSONDecodeError, IndexError, KeyError) as e:
+                    logger.warning(f"  Failed to parse result for {custom_id}: {e}")
+                    error_count += 1
+
+            elif result.result.type == "errored":
+                logger.warning(f"  Errored: {custom_id} — {getattr(result.result, 'error', 'unknown')}")
+                error_count += 1
+
+            elif result.result.type == "expired":
+                logger.warning(f"  Expired: {custom_id}")
+                error_count += 1
+
+            elif result.result.type == "canceled":
+                logger.info(f"  Canceled: {custom_id}")
+
+    except Exception as e:
+        logger.error(f"Failed to stream batch results: {e}")
+        return {"error": str(e)}
+
+    # Keep last 200 analyses (rolling window)
+    analyses = sorted(analyses, key=lambda a: a.get("analyzed_at", ""), reverse=True)[:200]
+
+    # Save updated intel
+    intel_data = {
+        "last_updated": datetime.now(timezone.utc).isoformat(),
+        "total_analyses": len(analyses),
+        "analyses": analyses,
+    }
+    KOL_INTEL_PATH.write_text(json.dumps(intel_data, indent=2))
+    _save_processed_ids(processed_ids)
+
+    # Build fresh digest
+    digest = build_transcript_digest(hours=24)
+
+    # Update sovereign context
+    _update_sovereign_context(analyses, digest)
+
+    # Update batch status file
+    if BATCH_STATUS_PATH.exists():
+        state = json.loads(BATCH_STATUS_PATH.read_text())
+        state["processing_status"] = "completed"
+        state["completed_at"] = datetime.now(timezone.utc).isoformat()
+        state["results"] = {"new": new_count, "errors": error_count}
+        BATCH_STATUS_PATH.write_text(json.dumps(state, indent=2))
+
+    logger.info(f"Batch results processed: {new_count} new, {error_count} errors")
+    return {
+        "batch_id": batch_id,
+        "processed": new_count,
+        "errors": error_count,
+        "total": len(analyses),
+        "digest": digest,
+    }
+
+
+def run_batch_pipeline(hours: int = 24, process_all: bool = False,
+                       poll_interval: int = 60) -> dict:
+    """Full batch pipeline: submit, poll, process results.
+
+    Convenience function that runs the complete batch workflow.
+    """
+    batch_id = submit_batch(hours=hours, process_all=process_all)
+    if not batch_id:
+        return {"error": "Batch submission failed or no transcripts to process"}
+
+    result = poll_batch(batch_id=batch_id, poll_interval=poll_interval)
+    if not result:
+        return {"error": f"Batch {batch_id} polling failed", "batch_id": batch_id}
+
+    return result
+
+
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -512,15 +804,61 @@ if __name__ == "__main__":
     parser.add_argument("--hours", type=int, default=24, help="Hours of transcripts to process")
     parser.add_argument("--all", action="store_true", help="Process all transcripts")
     parser.add_argument("--digest", action="store_true", help="Build digest only (no new analysis)")
+
+    # Processing mode
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument("--batch", action="store_true",
+                            help="Use Anthropic Batch API (50%% cost, async)")
+    mode_group.add_argument("--sequential", action="store_true",
+                            help="Process one-at-a-time (default, immediate)")
+
+    # Batch-specific options
+    parser.add_argument("--poll-interval", type=int, default=60,
+                        help="Seconds between batch status polls (default: 60)")
+    parser.add_argument("--submit-only", action="store_true",
+                        help="Submit batch but don't wait for results")
+    parser.add_argument("--poll-only", action="store_true",
+                        help="Poll an existing batch (reads batch_id from status file)")
+    parser.add_argument("--batch-id", type=str, default=None,
+                        help="Specific batch ID to poll (with --poll-only)")
+
     args = parser.parse_args()
 
     if args.digest:
         digest = build_transcript_digest(hours=args.hours)
         print(json.dumps(digest, indent=2))
-    elif args.all:
-        # Process all — load everything, analyze unprocessed
-        result = update_kol_intel()
+
+    elif args.poll_only:
+        # Poll an existing batch
+        result = poll_batch(batch_id=args.batch_id, poll_interval=args.poll_interval)
+        if result:
+            print(json.dumps(result, indent=2))
+        else:
+            print('{"error": "Batch polling failed"}')
+            sys.exit(1)
+
+    elif args.submit_only:
+        # Submit batch but don't poll
+        batch_id = submit_batch(hours=args.hours, process_all=args.all)
+        if batch_id:
+            print(json.dumps({"batch_id": batch_id, "status": "submitted"}, indent=2))
+        else:
+            print('{"error": "Batch submission failed"}')
+            sys.exit(1)
+
+    elif args.batch:
+        # Full batch pipeline: submit + poll + process
+        result = run_batch_pipeline(
+            hours=args.hours,
+            process_all=args.all,
+            poll_interval=args.poll_interval,
+        )
         print(json.dumps(result, indent=2))
+
     else:
-        result = update_kol_intel()
+        # Default: sequential processing (existing behavior)
+        if args.all:
+            result = update_kol_intel()
+        else:
+            result = update_kol_intel()
         print(json.dumps(result, indent=2))
