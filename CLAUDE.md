@@ -65,3 +65,34 @@ curl -s http://localhost:5000/health
 
 ## When Compacting
 Preserve: list of modified files, current test status, active render status, any errors encountered.
+
+
+## Plan Mode (MANDATORY for multi-file changes)
+When a task touches more than 2 files:
+1. PLAN FIRST: Outline what files will change and why
+2. WAIT for confirmation or proceed if autonomous
+3. THEN implement one file at a time
+4. Syntax check after each file
+5. Test integration after all files done
+
+Never start editing 5 files at once. Plan → execute → verify.
+
+## Available Slash Commands
+Type /help to see all. Key commands:
+- /render $MODE — fire video render (test/fast/full/reuse)
+- /fix $ISSUE — audit-first fix protocol
+- /audit $FILES — cross-LLM code audit
+- /deploy — full health check
+- /status — system dashboard
+- /tweet $TOPIC — generate + post tweet
+- /post $TEXT — post specific tweet text
+- /commit $MSG — standardized git commit
+- /scrape $SOURCE — trigger social scrapers (x/nostr/spaces/all)
+- /check $FILE — audit single file
+- /diagnose $PROBLEM — trace root cause without fixing
+- /brief — refresh morning intelligence brief
+- /pipeline-check — pre-render verification
+
+## Subagents
+- reviewer (Sonnet) — code review specialist, invoked for auditing
+- ops-monitor (Haiku) — lightweight health checks
