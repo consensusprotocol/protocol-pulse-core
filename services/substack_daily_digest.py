@@ -161,32 +161,15 @@ def build_digest_doc(articles: list, date_str: str) -> dict:
             ]
         })
 
-        # Summary / first paragraph of content
-        summary = article["summary"]
-        if not summary:
-            # Extract first real paragraph from content
-            match = re.search(r'<p[^>]*>(.*?)</p>', article["content"], re.DOTALL)
-            if match:
-                summary = _strip_html(match.group(1))[:300]
-
-        if summary:
+        # Full article content as paragraphs
+        plain = _strip_html(article["content"])
+        chunks = [c.strip() for c in plain.split("\n\n") if c.strip()]
+        for chunk in chunks:
             nodes.append({
                 "type": "paragraph",
                 "attrs": {"textAlign": "left"},
-                "content": [{"type": "text", "text": summary}]
+                "content": [{"type": "text", "text": chunk}]
             })
-
-        # Read full brief link
-        nodes.append({
-            "type": "paragraph",
-            "attrs": {"textAlign": "left"},
-            "content": [
-                {"type": "text", "text": "→ "},
-                {"type": "text",
-                 "marks": [{"type": "link", "attrs": {"href": article["url"], "target": "_blank"}}],
-                 "text": "Read the full brief on Protocol Pulse"}
-            ]
-        })
 
         # Divider between articles (except last)
         if i < len(articles):
@@ -208,16 +191,19 @@ def build_digest_doc(articles: list, date_str: str) -> dict:
     return {"type": "doc", "content": nodes}
 
 
-def get_best_cover_image(articles: list) -> str | None:
-    """Return the cover image of the highest-scored article that has one."""
+def get_best_cover_image(articles: list) -> str:
+    """Return the first accessible cover image URL, or a Pexels fallback."""
+    import requests
     for a in articles:
         cover = a.get("cover", "")
-        if cover and cover != "/static/images/default-header.png":
-            if cover.startswith("/static/"):
-                return f"{SITE_URL}{cover}"
-            if cover.startswith("http"):
-                return cover
-    return None
+        if cover and cover.startswith("http"):
+            try:
+                r = requests.head(cover, timeout=5, allow_redirects=True)
+                if r.status_code < 400:
+                    return cover
+            except Exception:
+                pass
+    return "https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg"
 
 
 # ── Publish ──────────────────────────────────────────────────────────────────
@@ -233,7 +219,7 @@ def publish_daily_digest() -> bool:
 
     today = datetime.now(timezone.utc).strftime("%B %d, %Y")
     title = f"Protocol Pulse Daily Brief — {today}"
-    subtitle = f"{len(articles)} intelligence signals for transactors"
+    subtitle = "Daily Bitcoin Intelligence from Protocol Pulse"
 
     doc = build_digest_doc(articles, today)
     cover = get_best_cover_image(articles)
