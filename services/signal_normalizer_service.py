@@ -103,19 +103,22 @@ def compute_miner_conviction(signals: dict, context: dict) -> dict:
     features = {}
     raw_ids = []
 
-    # --- Sub-metric 1: Hashrate trend ---
+    # --- Sub-metric 1: Hashrate trend (CAPPED at 10%) ---
+    # Hashrate is operational inertia, NOT a sentiment signal:
+    # - Mining hardware ordered 12-18 months ago is just arriving
+    # - Newer ASICs (S21 Pro etc.) are more efficient → hashrate up even with same energy
+    # - Miners have contracts, facilities, employees — they can't just stop
+    # Weight reduced from 0.22 → 0.10 to reflect that hashrate ≠ conviction.
     hashrate_eh = _safe_get(signals, 'hashrate', 'raw_eh', default=0)
-    # We don't have 7d change directly, but we have the current value
-    # Use difficulty adjustment as a proxy for hashrate growth
     diff_adj_pct = _safe_get(signals, 'difficulty_adjustment', 'percent', default=0)
     features['difficulty_next_adj_pct'] = diff_adj_pct
     features['hashrate_eh'] = hashrate_eh
 
     hashrate_score = _clamp(50 + 2.5 * float(diff_adj_pct))
     if diff_adj_pct > 3:
-        drivers.append(f"Difficulty adjustment +{diff_adj_pct:.1f}% (hashrate growing)")
+        drivers.append(f"Difficulty adjustment +{diff_adj_pct:.1f}% (hardware deployment)")
     elif diff_adj_pct < -3:
-        counterweights.append(f"Difficulty adjustment {diff_adj_pct:.1f}% (hashrate declining)")
+        counterweights.append(f"Difficulty adjustment {diff_adj_pct:.1f}% (miner capitulation)")
 
     # --- Sub-metric 2: Miner reserve / on-chain accumulation ---
     accumulation_score_raw = _safe_get(context, 'on_chain', 'accumulation_score', default=50)
@@ -126,12 +129,22 @@ def compute_miner_conviction(signals: dict, context: dict) -> dict:
     elif accumulation_score_raw < 40:
         counterweights.append(f"On-chain accumulation weak ({accumulation_score_raw})")
 
-    # --- Sub-metric 3: Distribution pressure (coin days destroyed) ---
+    # --- Sub-metric 3: Miner-to-exchange flows ---
+    # The KEY conviction signal: are miners sending BTC to exchanges (selling) or holding?
+    miner_outflow = _safe_get(context, 'on_chain', 'miner_to_exchange_flow', default=0)
+    features['miner_to_exchange_flow'] = miner_outflow
+    # Low outflow = miners holding = high conviction. Normalize: 0-500 BTC/day typical
+    outflow_score = _clamp(100 - (float(miner_outflow) / 500) * 100) if miner_outflow else 50
+    if miner_outflow and float(miner_outflow) > 300:
+        counterweights.append(f"Miner-to-exchange flow elevated ({float(miner_outflow):.0f} BTC/day)")
+    elif miner_outflow and float(miner_outflow) < 100:
+        drivers.append(f"Miners holding — low exchange outflow ({float(miner_outflow):.0f} BTC/day)")
+
+    # --- Sub-metric 3b: CDD (Coin Days Destroyed) ---
+    # High CDD = old coins moving = potential distribution = bearish
     cdd_7d = _safe_get(context, 'on_chain', 'coin_days_destroyed_7d', default=0)
     features['coin_days_destroyed_7d'] = cdd_7d
-    # High CDD = old coins moving = potential distribution = bearish for conviction
-    # Normalize against typical range (rough: 5M-50M)
-    outflow_score = _clamp(100 - ((float(cdd_7d) - 5_000_000) / 45_000_000) * 100) if cdd_7d else 50
+    cdd_score = _clamp(100 - ((float(cdd_7d) - 5_000_000) / 45_000_000) * 100) if cdd_7d else 50
     if cdd_7d and float(cdd_7d) > 30_000_000:
         counterweights.append(f"Coin days destroyed elevated ({cdd_7d:,.0f})")
     elif cdd_7d and float(cdd_7d) < 10_000_000:
@@ -158,18 +171,21 @@ def compute_miner_conviction(signals: dict, context: dict) -> dict:
         drivers.append(f"Miners expanding despite -{abs(float(price_change_7d)):.1f}% price (stress resilience)")
 
     # --- FINAL FORMULA ---
-    # Weights: hashrate 0.22, reserve 0.20, distribution 0.18, fee 0.08, hashrate_econ 0.14
-    # + 0.18 for general on-chain health
+    # Reweighted: hashrate is inertia (10%), not conviction.
+    # True conviction = miners HOLDING through drawdowns despite needing cash.
+    # Weights: reserve 0.28, outflow 0.22, CDD 0.15, hashrate 0.10, fee 0.08,
+    #          accumulation 0.10, price_context 0.07
     hashprice_score = _clamp(50 + float(price_change_7d or 0) * 1.5)
     features['hashprice_score'] = hashprice_score
 
     raw_score = (
-        0.22 * hashrate_score +
-        0.20 * reserve_score +
-        0.18 * outflow_score +
-        0.08 * fee_score +
-        0.14 * hashprice_score +
-        0.18 * _clamp(accumulation_score_raw)
+        0.10 * hashrate_score +      # Operational inertia, not sentiment
+        0.28 * reserve_score +        # Are miners holding? (key signal)
+        0.22 * outflow_score +        # Miner-to-exchange flows (selling pressure)
+        0.15 * cdd_score +            # Old coins moving = distribution
+        0.08 * fee_score +            # Fee economics
+        0.07 * hashprice_score +      # Price context
+        0.10 * _clamp(accumulation_score_raw)  # General on-chain health
         + stress_bonus
     )
     score = _clamp(raw_score)
@@ -198,14 +214,14 @@ def compute_miner_conviction(signals: dict, context: dict) -> dict:
 
 def _mcx_headline(score, drivers, counterweights):
     if score >= 75:
-        return "Miners expanding with high conviction"
+        return "Miners holding through strength — high conviction"
     elif score >= 60:
-        return "Miner behavior constructive"
+        return "Miner reserves stable — constructive"
     elif score >= 40:
-        return "Miner signals mixed"
+        return "Miner flow signals mixed"
     elif score >= 25:
-        return "Miner stress indicators elevated"
-    return "Miner capitulation risk"
+        return "Miner selling pressure rising"
+    return "Miner capitulation — elevated exchange flows"
 
 
 def _mcx_confidence(features):

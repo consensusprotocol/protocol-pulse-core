@@ -127,6 +127,7 @@ class SentinelState:
         "hashrate_3d": 0.0,
         "difficulty": 0.0,
         "next_difficulty_adj_pct": 0.0,
+        "remaining_blocks": 0,
         "orphan_count_6h": 0,
         "avg_block_time_10": 600.0,
         "recent_blocks": [],
@@ -486,6 +487,7 @@ class SentinelDaemon:
                     with self._lock:
                         self.state.network["difficulty"] = data.get("difficultyChange", 0.0)
                         self.state.network["next_difficulty_adj_pct"] = round(data.get("progressPercent", 0.0), 2)
+                        self.state.network["remaining_blocks"] = data.get("remainingBlocks", 0)
         except Exception as e:
             logger.warning("Difficulty poll failed: %s", e)
 

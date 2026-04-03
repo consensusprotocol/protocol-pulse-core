@@ -169,14 +169,14 @@ body.intel-terminal .site-footer {
 /* ── GRID LAYOUT ────────────────────────────────────────────── */
 .it-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.5fr;
+    grid-template-columns: 1fr 1fr 320px;
     gap: 1px;
     background: var(--it-border);
     margin-top: 1px;
 }
 .it-grid-phase2 {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr;
+    grid-template-columns: 1fr 1.5fr 320px;
     gap: 1px;
     background: var(--it-border);
     margin-top: 0;
@@ -188,6 +188,8 @@ body.intel-terminal .site-footer {
     padding: 16px;
     border: 1px solid var(--it-border);
     min-height: 280px;
+    min-width: 0;
+    overflow: hidden;
     position: relative;
 }
 .it-panel-header {
@@ -229,12 +231,19 @@ body.intel-terminal .site-footer {
     font-family: 'Inter', sans-serif;
     font-size: 11px;
     color: var(--it-label);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
 }
 .it-value-row-data {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     font-weight: 500;
     color: var(--it-text);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .it-stale {
     color: var(--it-muted) !important;
@@ -939,6 +948,10 @@ body.intel-terminal .site-footer {
                 <span class="it-value-row-data" id="itNextAdj">--%</span>
             </div>
             <div class="it-value-row">
+                <span class="it-value-row-label">Blocks to Adj</span>
+                <span class="it-value-row-data" id="itBlocksToAdj">--</span>
+            </div>
+            <div class="it-value-row">
                 <span class="it-value-row-label">Avg Block Time (10)</span>
                 <span class="it-value-row-data" id="itAvgBlockTime">--s</span>
             </div>
@@ -1478,6 +1491,7 @@ body.intel-terminal .site-footer {
         setVal('itHashrate', (net.hashrate_3d || '--') + ' EH/s', net.updated_at);
         setVal('itDifficulty', (net.difficulty !== undefined ? net.difficulty.toFixed(2) : '--') + '%', net.updated_at);
         setVal('itNextAdj', (net.next_difficulty_adj_pct || '--') + '%', net.updated_at);
+        setVal('itBlocksToAdj', net.remaining_blocks ? fmtNum(net.remaining_blocks) : '--', net.updated_at);
         setVal('itAvgBlockTime', (net.avg_block_time_10 || '--') + 's', net.updated_at);
         setVal('itOrphanCount', '' + (net.orphan_count_6h || 0), net.updated_at);
 
