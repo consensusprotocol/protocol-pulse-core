@@ -393,8 +393,8 @@ def run_preflight_qc(video_path: str) -> dict:
         logger.warning(f"[PREFLIGHT] loudness measurement failed: {e}")
     metrics["lufs"] = round(lufs, 1) if lufs is not None else None
     metrics["true_peak"] = round(true_peak, 1) if true_peak is not None else None
-    if lufs is not None and (lufs < -16 or lufs > -12):
-        issues.append(f"lufs={lufs:.1f} (target -16 to -12)")
+    if lufs is not None and (lufs < -15.5 or lufs > -12.5):
+        issues.append(f"lufs={lufs:.1f} (target -15.5 to -12.5, broadcast -14)")
     if true_peak is not None and true_peak > -0.5:
         issues.append(f"true_peak={true_peak:.1f}dBTP (max -0.5)")
 
@@ -861,9 +861,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 alert_pipeline_failure(date_str, "select", "No clips selected")
             return False
 
-        # In test mode, use only top 2 clips
-        if not fast_test and test_mode and len(clips) > 2:
-            selections["clips"] = clips[:2]
+        # V4.3 FIX 3: Test mode minimum 3 clips (was 2) for adequate duration
+        if not fast_test and test_mode and len(clips) > 3:
+            selections["clips"] = clips[:3]
             clips = selections["clips"]
             print(f"  [test] Truncated to {len(clips)} clips")
 
@@ -1173,7 +1173,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
 
         # Re-read dialogue AFTER all mutations (Space Tap entries may be in script)
         dialogue = script.get("dialogue", [])
-        # V4: All narration is PBX (host 2) — no dual-host
+        # V4.3 FIX 1: Accept both old (host:2) and new (type-only) format
+        # script_writer._extract_segment_tags defaults missing host to 2, so this catches both
         speech_lines = [d for d in dialogue if d.get("host") not in ("CLIP", "SPACE_CLIP", None)]
         clip_markers = [d for d in dialogue if d.get("host") in ("CLIP", "SPACE_CLIP")]
         social_seg_count = sum(1 for d in dialogue if d.get("type") == "social_segment")
@@ -1246,13 +1247,33 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 if phrase in text_lower:
                     script_issues.append(f"Banned phrase: '{phrase}'")
 
-        # Check: narration not too long (max 4 sentences per segment)
-        for d in dialogue:
+        # V4.3 FIX 2: Tightened from 4→3 sentences max, auto-split if >3
+        _split_inserts = []  # (index, new_entry) pairs for deferred insert
+        for di, d in enumerate(dialogue):
             if d.get("type") in ("setup", "react", "cold_open"):
                 text = d.get("text", "")
                 sentences = text.count('.') + text.count('!') + text.count('?')
-                if sentences > 4:
-                    script_issues.append(f"Segment too long: {sentences} sentences (max 4)")
+                if sentences > 3:
+                    # Split: keep first 2 sentences in original, rest in new segment
+                    import re as _split_re
+                    parts = _split_re.split(r'(?<=[.!?])\s+', text, maxsplit=2)
+                    if len(parts) >= 3:
+                        d["text"] = parts[0] + " " + parts[1]
+                        overflow = " ".join(parts[2:])
+                        _split_inserts.append((di + 1, {
+                            "host": d.get("host", 2),
+                            "text": overflow,
+                            "type": d.get("type"),
+                            "clip_rank": d.get("clip_rank", 0),
+                            "headline": d.get("headline", ""),
+                        }))
+                        script_issues.append(f"Segment split: {sentences} sentences → 2 + remainder")
+                    else:
+                        script_issues.append(f"Segment too long: {sentences} sentences (max 3)")
+
+        # V4.3 FIX 2: Apply deferred segment splits
+        for offset, (idx, new_entry) in enumerate(_split_inserts):
+            dialogue.insert(idx + offset, new_entry)
 
         if script_issues:
             print(f"  SCRIPT GATE FAILED: {script_issues}")
@@ -1269,17 +1290,27 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         else:
             print("  SCRIPT GATE PASSED")
 
-        # V4.2 FIX 5: Final signoff enforcement — force-append if still missing after regen
+        # V4.3 FIX 8: HARDCODED "Stay sovereign" signoff — always ensure it's the LAST segment
         if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue):
-            logger.warning("[producer] SIGNOFF STILL MISSING after script gate — force-appending")
+            logger.warning("[producer] SIGNOFF MISSING — force-appending hardcoded signoff")
             dialogue.append({
                 "host": 2,
+                "type": "signoff",
                 "text": "Stay sovereign. This has been Protocol Pulse.",
-                "type": "wrap",
                 "headline": "STAY SOVEREIGN",
             })
-            with open(script_path, "w") as f:
-                json.dump(script, f, indent=2)
+        else:
+            # Ensure signoff is LAST — move it if not already at the end
+            for si in range(len(dialogue) - 1, -1, -1):
+                if "stay sovereign" in dialogue[si].get("text", "").lower():
+                    if si != len(dialogue) - 1:
+                        signoff = dialogue.pop(si)
+                        dialogue.append(signoff)
+                        logger.info("[producer] Moved signoff to last position")
+                    break
+        script["dialogue"] = dialogue
+        with open(script_path, "w") as f:
+            json.dump(script, f, indent=2)
 
         # Strip seg_id prefix from social_segment narration before TTS (binding tag, not spoken)
         # Keep originals in dialogue for assembler ID-binding — only strip the TTS copy

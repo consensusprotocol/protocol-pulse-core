@@ -84,6 +84,8 @@ The tag is INSIDE the text string AND the type field must be present.
 
 EPISODE LENGTH: Target 550-680 narration words. Every sentence earns its place. NO padding.
 
+HARD LIMIT: Maximum 2 sentences per setup. Maximum 2 sentences per reaction. If you need more, split into multiple segments.
+
 {clips_info}
 
 BTC Price Today: {btc_price}
@@ -95,25 +97,25 @@ Return ONLY valid JSON (no markdown, no code fences):
   "theme": "one sentence connecting all clips",
   "cold_open": "explosive 1-sentence cold open",
   "dialogue": [
-    {{"host": 2, "text": "[COLD_OPEN] ...", "type": "cold_open"}},
-    {{"host": 2, "text": "[NARRATION] ...", "type": "setup", "clip_rank": 1}},
+    {{"type": "cold_open", "text": "[COLD_OPEN] ..."}},
+    {{"type": "setup", "text": "[NARRATION] ...", "clip_rank": 1}},
     {{"host": "CLIP", "rank": 1}},
-    {{"host": 2, "text": "[NARRATION] ...", "type": "react", "clip_rank": 1}},
-    {{"host": 2, "text": "[NARRATION] ...", "type": "setup", "clip_rank": 2}},
+    {{"type": "react", "text": "[NARRATION] ...", "clip_rank": 1}},
+    {{"type": "setup", "text": "[NARRATION] ...", "clip_rank": 2}},
     {{"host": "CLIP", "rank": 2}},
-    {{"host": 2, "text": "[NARRATION] ...", "type": "react", "clip_rank": 2}},
+    {{"type": "react", "text": "[NARRATION] ...", "clip_rank": 2}},
     ...for all clips...
-    {{"host": 2, "text": "[DATA] ...", "type": "data"}},
-    {{"host": 2, "text": "[SOCIAL] ...", "type": "social_segment"}},
-    {{"host": 2, "text": "[NARRATION] ...", "type": "wrap"}},
-    {{"host": 2, "text": "[WARM] Stay sovereign. This has been Protocol Pulse.", "type": "wrap"}}
+    {{"type": "data", "text": "[DATA] ..."}},
+    {{"type": "social_segment", "text": "[SOCIAL] ..."}},
+    {{"type": "wrap", "text": "[NARRATION] ..."}},
+    {{"type": "signoff", "text": "[WARM] Stay sovereign. This has been Protocol Pulse."}}
   ],
   "thumbnail": {{"headline": "3-5 words, ALL CAPS", "subtext": "one line"}},
   "segments_summary": ["4-8 WORD ALL CAPS EDITORIAL HEADLINE FOR EACH CLIP"],
   "shorts_quotes": ["best one-liner 1", "best one-liner 2", "best one-liner 3"]
 }}
 
-IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5). ALL host entries MUST be host: 2."""
+IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5). Do NOT include a "host" field on narration entries — use "type" to identify the segment kind. CLIP entries still use "host": "CLIP"."""
 
 
 # Maps bracket tags in text to segment types for TTS voice modes
@@ -160,9 +162,14 @@ def _extract_segment_tags(result: dict) -> dict:
     from the text and set/override the type field for TTS voice mode selection.
     """
     dialogue = result.get("dialogue", [])
-    # Force PBX-only: normalize any host:1 → host:2
+    # Force PBX-only: normalize any host:1 → host:2, and default missing host to 2 for narration
     for _e in dialogue:
-        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
+        if isinstance(_e, dict):
+            if _e.get("host") in (1, "1"):
+                _e["host"] = 2
+            # FIX 1 (V4.3): Accept new format without "host" field — default to host 2 for narration
+            if "host" not in _e and _e.get("type") not in ("clip",):
+                _e["host"] = 2
     for entry in dialogue:
         text = entry.get("text", "")
         if not text:

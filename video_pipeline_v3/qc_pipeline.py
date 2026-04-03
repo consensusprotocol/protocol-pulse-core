@@ -126,7 +126,7 @@ def preflight_check(manifest_path: str) -> tuple:
     return passed, errors, warnings
 
 
-def post_render_qc(video_path: str, manifest_path: str = "") -> dict:
+def post_render_qc(video_path: str, manifest_path: str = "", test_mode: bool = False) -> dict:
     """Run automated quality checks AFTER rendering.
 
     Returns:
@@ -152,9 +152,10 @@ def post_render_qc(video_path: str, manifest_path: str = "") -> dict:
             manifest = json.load(f)
         qc_exp = manifest.get("qc_expectations", {})
 
-    # 1. Duration check
+    # 1. Duration check — V4.3 FIX 3: test_mode allows shorter episodes (240s min)
     duration = _ffprobe_duration(video_path)
-    dur_range = qc_exp.get("total_duration_range", [360, 900])
+    default_range = [240, 900] if test_mode else [360, 900]
+    dur_range = qc_exp.get("total_duration_range", default_range)
     dur_ok = dur_range[0] <= duration <= dur_range[1]
     report["checks"]["duration"] = dur_ok
     report["details"]["duration"] = {
