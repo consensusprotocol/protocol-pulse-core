@@ -143,16 +143,7 @@ TWEET_FORMATS = {
         "example": "Everyone wants the government to provide clarity on Bitcoin. What if the entire point of Bitcoin is that it doesn't need external clarity",
     },
 
-    "be_honest_prompt": {
-        "label": "BE HONEST PROMPT",
-        "instruction": (
-            "Start with 'Be honest' or 'Tell me' — create a vulnerability prompt about Bitcoin, "
-            "money, or sovereignty that forces authentic responses. Make it personal and uncomfortable. "
-            "The question must make Bitcoiners feel seen. One line. End with a question or ellipsis."
-        ),
-        "example": "Be honest. How many of you actually moved your Bitcoin off exchange after the last collapse",
-    },
-    "direct_engagement_question": {
+"direct_engagement_question": {
         "label": "DIRECT ENGAGEMENT QUESTION",
         "instruction": (
             "Ask ONE direct question about Bitcoin, money, or financial sovereignty. "
@@ -162,17 +153,7 @@ TWEET_FORMATS = {
         ),
         "example": "What would you actually do if your bank froze your account tomorrow",
     },
-    "audience_callout": {
-        "label": "AUDIENCE CALLOUT",
-        "instruction": (
-            "Address a SPECIFIC group of Bitcoiners directly. Create an exclusive club feeling. "
-            "Examples: 'Everyone who bought above 100k...', 'If you started stacking before 2020...', "
-            "'Goodnight to everyone who...'. Make that specific group feel seen and compelled to engage. "
-            "One dry line. No hashtags."
-        ),
-        "example": "Everyone who panic sold at 49k and bought back at 67k... we see you",
-    },
-    "contrarian_observation": {
+"contrarian_observation": {
         "label": "CONTRARIAN OBSERVATION",
         "instruction": (
             "Make a bold, slightly controversial observation about Bitcoin or the financial system "
@@ -516,21 +497,7 @@ def get_last_formats_used(n: int = 3) -> list[str]:
 def pick_format(brief: dict, themes: list[str]) -> str:
     """Pick the next tweet format, enforcing no repeat within last 3 posts."""
     recent = get_last_formats_used(3)
-    # Engagement-weighted selection: questions get 40% weight
-    question_formats = ['socratic_question', 'direct_engagement_question', 'be_honest_prompt']
-    other_formats = [k for k in TWEET_FORMATS if k not in question_formats]
-    
-    import random
-    # 40% chance of question format, 60% other
-    if random.random() < 0.4:
-        pool = [k for k in question_formats if k not in recent]
-        if not pool:
-            pool = question_formats
-        available = pool
-    else:
-        available = [k for k in other_formats if k not in recent]
-        if not available:
-            available = other_formats
+    available = [k for k in TWEET_FORMATS if k not in recent]
 
     if not available:
         available = list(TWEET_FORMATS.keys())
