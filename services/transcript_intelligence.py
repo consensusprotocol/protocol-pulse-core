@@ -26,6 +26,16 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger("transcript_intelligence")
 
+# ── Local LLM (Ollama/Gemma) — use first, fall back to Haiku ─────────────
+try:
+    from services.local_llm import (
+        extract_kol_sentiment as _local_extract,
+        summarize_creator_consensus as _local_summarize,
+        is_available as local_llm_available,
+    )
+except ImportError:
+    local_llm_available = lambda: False
+
 # ── Paths ────────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
 TRANSCRIPTS_DIR = BASE_DIR / "video_pipeline_v3" / "transcripts"
@@ -135,13 +145,30 @@ def extract_kol_sentiment(transcript: dict) -> Optional[dict]:
                    main_thesis, key_quotes, topics, price_predictions,
                    confidence, analyzed_at
     """
-    client = _get_anthropic_client()
-    if not client:
-        return None
-
     text = transcript["text"][:6000]
     channel = transcript.get("channel", "Unknown")
     title = transcript.get("title", "")
+
+    # ── Try local LLM first (Gemma via Ollama — $0 cost) ──
+    if local_llm_available():
+        local_result = _local_extract(channel, text)
+        if local_result:
+            local_result.update({
+                "channel": channel,
+                "title": title,
+                "video_id": transcript["video_id"],
+                "duration": transcript.get("duration", 0),
+                "analyzed_at": datetime.now(timezone.utc).isoformat(),
+                "inference_source": "local_gemma",
+            })
+            logger.info(f"  {channel}: {local_result['sentiment']} ({local_result.get('sentiment_score', '?')}/100) [LOCAL]")
+            return local_result
+        logger.warning(f"  Local LLM failed for {channel}, falling back to Haiku")
+
+    # ── Fallback: Claude Haiku API ──
+    client = _get_anthropic_client()
+    if not client:
+        return None
 
     prompt = f"""Analyze this Bitcoin video transcript from {channel}: "{title}"
 
@@ -264,25 +291,34 @@ def build_transcript_digest(hours: int = 24) -> dict:
     # Extract themes
     themes = extract_narrative_themes(recent)
 
-    # Build AI digest via Claude
-    client = _get_anthropic_client()
+    # Build AI digest — local LLM first, Claude Haiku fallback
     summary = ""
-    if client and recent:
+    if recent:
         creator_summaries = "\n".join(
             f"- {a['channel']}: {a.get('main_thesis', 'N/A')} (sentiment: {a['sentiment']}, {a['sentiment_score']}/100)"
             for a in recent[:10]
         )
-        try:
-            resp = client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=500,
-                messages=[{"role": "user", "content":
-                    f"Summarize what Bitcoin creators are saying in 3-4 sentences. "
-                    f"Focus on consensus and divergence:\n\n{creator_summaries}"}],
-            )
-            summary = resp.content[0].text.strip()
-        except Exception as e:
-            logger.warning(f"Digest summary failed: {e}")
+        # Try local LLM first
+        if local_llm_available():
+            summary = _local_summarize(creator_summaries)
+            if summary:
+                logger.info("Digest summary generated via local LLM")
+
+        # Fallback to Haiku if local failed
+        if not summary:
+            client = _get_anthropic_client()
+            if client:
+                try:
+                    resp = client.messages.create(
+                        model="claude-haiku-4-5-20251001",
+                        max_tokens=500,
+                        messages=[{"role": "user", "content":
+                            f"Summarize what Bitcoin creators are saying in 3-4 sentences. "
+                            f"Focus on consensus and divergence:\n\n{creator_summaries}"}],
+                    )
+                    summary = resp.content[0].text.strip()
+                except Exception as e:
+                    logger.warning(f"Digest summary failed: {e}")
 
     digest = {
         "period_hours": hours,
