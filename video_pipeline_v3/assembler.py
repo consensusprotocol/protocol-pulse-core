@@ -156,6 +156,17 @@ def _is_nostr_spam_assembler(post: dict) -> bool:
         return True
     if any(n in npub for n in NOSTR_SPAM_NPUBS):
         return True
+    # V4.3: Low-value content filter
+    # Self-promotional posts ("New article", "Introducing", "Check out")
+    promo_starts = ['new article', 'introducing', 'check out', 'just published', 'just launched', 'announcing']
+    if any(content.startswith(p) for p in promo_starts):
+        return True
+    # Too short to be insightful (under 50 chars)
+    if len(content.strip()) < 50:
+        return True
+    # Contains URLs (link drops, not original thought)
+    if 'http://' in content or 'https://' in content or '.com/' in content:
+        return True
     # Hashtag farm detection
     words = content.split()
     if words:
@@ -4567,7 +4578,7 @@ def concatenate_parts(parts: list, output_path: str,
                 vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.45)':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.45,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.22,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
@@ -4671,7 +4682,7 @@ def concatenate_parts(parts: list, output_path: str,
                 # V4.2: floor 0.16 (-16dB) elsewhere — present atmospheric bed
                 vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.16)':eval=frame"
             else:
-                vol_filter = "volume=0.16"
+                vol_filter = "volume=0.12"
             ok_bgl = run_ffmpeg([
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_LOOP,
@@ -5629,6 +5640,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             # Render22 FIX 2+3: PiP guard — NEVER use INTRO_TAG as PiP source
             # V4.2 FIX 4: EVERY narration segment gets PiP — no bare bg for >5s
             pip_vid = ""
+            # V4.3 FIX: Any non-cold_open segment without PiP gets nearest clip preview
+            _any_pip = next((v for v in list(pip_previews.values()) + list(pip_previews_b.values()) if v and os.path.exists(v)), "")
             if entry_type == "cold_open":
                 pip_vid = ""
             elif entry_type in ("setup", "react") and clip_rank:
@@ -5672,7 +5685,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
 
             # Render22 FIX 7: Signal Active segment — replace debug data with real content
             if seg_data.get("headline", "").startswith("SIGNAL") and signal_content:
-                seg_data["signal_content"] = signal_content
+                # V4.3: FINAL PiP FALLBACK — no segment should have empty PiP for >5s
+            if not pip_vid and entry_type not in ("cold_open",) and _any_pip:
+                pip_vid = _any_pip
+                logger.info(f"  PiP FALLBACK: {entry_type} using nearest available clip")
+
+            seg_data["signal_content"] = signal_content
 
             try:
                 # FIX 5: Pass social_posts at every handoff
