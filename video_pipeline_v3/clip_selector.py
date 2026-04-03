@@ -343,13 +343,18 @@ def _parse_llm_json(text: str, label: str = "LLM") -> dict | None:
     clips = []
     wrapper = None
     for obj in all_objects:
-        if "rank" in obj and "video_id" in obj:
+        if "video_id" in obj and ("rank" in obj or "channel" in obj):
             clips.append(obj)
         elif "clips" in obj:
             # This is a successfully parsed wrapper — use it directly
             return obj
         elif "episode_title" in obj or "cold_open" in obj:
             wrapper = obj
+
+    # Auto-assign rank if Claude omitted it
+    for i, c in enumerate(clips):
+        if "rank" not in c:
+            c["rank"] = i + 1
 
     if clips:
         # --- Step 4: Reassemble from clips + regex metadata ---
@@ -433,7 +438,7 @@ def select_clips(videos: list) -> dict:
             quote = c.get("quote", "")
             setup = c.get("host_setup", "")
             if contains_ad_read(quote) or contains_ad_read(setup):
-                logger.warning(f"  REJECTED clip #{c['rank']} [{c.get('channel','')}] — ad read content")
+                logger.warning(f"  REJECTED clip #{c.get('rank', 0)} [{c.get('channel','')}] — ad read content")
                 continue
             clean_clips.append(c)
         result["clips"] = clean_clips
@@ -446,7 +451,7 @@ def select_clips(videos: list) -> dict:
             if ch in seen_channels:
                 existing = seen_channels[ch]
                 if c["rank"] < existing["rank"]:
-                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {c['rank']} clip")
+                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {c.get('rank', 0)} clip")
                     deduped_clips.remove(existing)
                     deduped_clips.append(c)
                     seen_channels[ch] = c
@@ -533,7 +538,7 @@ def select_clips(videos: list) -> dict:
                         clean_clips.append(ec)
                         used_channels.add(ch)
                         used_video_ids.add(vid)
-                        logger.info(f"  RE-SELECT: Added #{ec['rank']} [{ch}] {ec.get('video_title', '')[:40]}")
+                        logger.info(f"  RE-SELECT: Added #{ec.get('rank', 0)} [{ch}] {ec.get('video_title', '')[:40]}")
                         if len(clean_clips) >= 5:
                             break
                 except Exception as e:
@@ -631,7 +636,7 @@ def select_clips(videos: list) -> dict:
 
         logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed all filters:")
         for c in clean_clips:
-            logger.info(f"  #{c['rank']}: [{c['channel']}] {c.get('video_title', '')[:40]} "
+            logger.info(f"  #{c.get('rank', 0)}: [{c['channel']}] {c.get('video_title', '')[:40]} "
                         f"({c.get('start_seconds', '?')}-{c.get('end_seconds', '?')}s)")
             logger.info(f"    Quote: \"{c.get('quote', '')[:60]}...\"")
 

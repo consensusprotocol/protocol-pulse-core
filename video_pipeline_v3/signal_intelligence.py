@@ -254,10 +254,32 @@ FALLBACK_SUMMARY = (
 )
 
 
+def _build_content_fallback(content: dict) -> str:
+    """V4.2 FIX 6: Build fallback narration from actual displayed content.
+
+    Prevents visual/audio mismatch — narration always references what's on screen.
+    """
+    spaces = content.get("spaces_quotes", [])
+    nostr = content.get("nostr_posts", [])
+    parts = ["Signal incoming."]
+    if spaces:
+        titles = [q.get("space_title", "X Spaces") for q in spaces[:2]]
+        parts.append(f"X Spaces lighting up — {titles[0]} has the signal.")
+    if nostr:
+        names = [p.get("display_name", "Nostr") for p in nostr[:2] if p.get("display_name")]
+        if names:
+            parts.append(f"Nostr relays active. {names[0]} broadcasting.")
+        else:
+            parts.append("Nostr relays active. Sovereign signal flowing.")
+    parts.append("The network does not sleep.")
+    return " ".join(parts)
+
+
 def generate_signal_summary(content: dict) -> str:
     """
     Use Claude Haiku via relay.call_llm to produce a ~20-second field reporter narration.
-    Falls back to a hardcoded summary if LLM is unavailable.
+    V4.2 FIX 6: Falls back to content-derived summary instead of generic FALLBACK_SUMMARY,
+    ensuring narration always matches the displayed X Spaces / Nostr content.
     """
     spaces = content.get("spaces_quotes", [])
     nostr = content.get("nostr_posts", [])
@@ -296,13 +318,14 @@ def generate_signal_summary(content: dict) -> str:
         result = call_llm(prompt, max_tokens=200, temperature=0.4)
         if result and len(result.strip()) > 20:
             return result.strip()
-        log.warning("LLM returned empty or too-short response, using fallback")
+        log.warning("LLM returned empty or too-short response, using content fallback")
     except ImportError:
-        log.warning("relay module not available, using fallback summary")
+        log.warning("relay module not available, using content fallback summary")
     except Exception as e:
         log.error("LLM call failed: %s", e)
 
-    return FALLBACK_SUMMARY
+    # V4.2 FIX 6: Use content-derived fallback — matches displayed X Spaces / Nostr data
+    return _build_content_fallback(content)
 
 
 # ---------------------------------------------------------------------------

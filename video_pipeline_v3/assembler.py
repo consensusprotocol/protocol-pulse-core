@@ -4528,8 +4528,9 @@ def concatenate_parts(parts: list, output_path: str,
             else:
                 bgm_fade_st = max(0, dur - 3.0)
 
-            # FIX 5 (render10): Build volume envelope — duck during clip segments
-            # clip_r parts → 0.02 (-34dB), default → 0.10 (-20dB)
+            # V4.2 FIX 1: BGM volume raised — -18dB under narration, -26dB during clips
+            # Was: narrator 0.2, clips 0.02, amix 0.08 → inaudible
+            # Now: narrator 0.45, clips 0.06, amix 0.25 + softer sidechain
             cumulative_t = 0.0
             vol_clauses = []
             for p in valid:
@@ -4539,15 +4540,14 @@ def concatenate_parts(parts: list, output_path: str,
                 t_end = cumulative_t + pdur
                 cumulative_t = t_end
                 if "clip_r" in pbase or "clip_" in pbase and "partner" not in pbase:
-                    # Partner clips: duck to 0.02 (-34dB) — let clip audio breathe
-                    vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.02")
+                    # Partner clips: duck to 0.06 (-24dB) — audible bed, clip audio still clear
+                    vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.06")
             if vol_clauses:
-                # R25 FIX 8: BGM at -14dB (0.2) for narrator segments, ducked during clips
-                # BUG 9 FIX: Extended fade-in from 2.0→4.0s for smoother music entry after intro
-                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.2)':eval=frame"
+                # V4.2: BGM at -7dB (0.45) for narrator, sidechain + amix bring to ~-18dB effective
+                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.45)':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.2,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.45,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
@@ -4564,9 +4564,9 @@ def concatenate_parts(parts: list, output_path: str,
                     f"[1:a]atrim=0:{dur + 5.0},asetpts=PTS-STARTPTS,"
                     f"{bgm_vol_filter}[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
-                    f"threshold=0.02:ratio=8:attack=3:release=150[bgm_ducked];"
+                    f"threshold=0.04:ratio=4:attack=5:release=200[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
-                    f":weights=1 0.08[mixed_audio];"
+                    f":weights=1 0.25[mixed_audio];"
                     f"[mixed_audio]aresample=async=1[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
@@ -4633,7 +4633,7 @@ def concatenate_parts(parts: list, output_path: str,
         if ep_dur > 0:
             bgl_mixed = output_path + ".bgl_audio.mp4"
             # Build volume envelope: boost bg_loop at clip transitions
-            # R25 FIX 8: volume=0.10 (-20dB floor), transitions: volume=0.2 (-14dB), clip boundaries: volume=0.16 (-16dB)
+            # V4.2 FIX 1: bg_loop raised — floor -16dB (0.16), transitions -12dB (0.25), boundaries -14dB (0.20)
             vol_expr_parts = []
             cumulative = 0.0
             for pidx, p in enumerate(valid):
@@ -4642,16 +4642,16 @@ def concatenate_parts(parts: list, output_path: str,
                 cumulative += pdur
                 pbase = os.path.basename(p).lower()
                 if "transition" in pbase or "glitch" in pbase:
-                    # FIX 7: Raise to -18dB for entire transition segment (was -25dB)
-                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.2")
+                    # V4.2: -12dB for transitions (clearly audible ambient)
+                    vol_expr_parts.append(f"between(t,{t_start:.3f},{cumulative:.3f})*0.25")
                 elif pidx > 0:
-                    # FIX 7: Raise to -16dB for 1.0s around each part boundary (was -20dB/0.5s)
-                    vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.16")
+                    # V4.2: -14dB for 1.0s around each part boundary
+                    vol_expr_parts.append(f"between(t,{max(0,t_start-0.5):.3f},{t_start+0.5:.3f})*0.20")
             if vol_expr_parts:
-                # Use volume expr: boosted at transitions, floor 0.10 (-20dB) elsewhere
-                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.10)':eval=frame"
+                # V4.2: floor 0.16 (-16dB) elsewhere — present atmospheric bed
+                vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.16)':eval=frame"
             else:
-                vol_filter = "volume=0.10"
+                vol_filter = "volume=0.16"
             ok_bgl = run_ffmpeg([
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_LOOP,
@@ -4750,8 +4750,8 @@ def concatenate_parts(parts: list, output_path: str,
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
-         # FIX 4: adelay=65ms to compensate video PTS 0.066 vs DTS -0.000651 offset (audio leads video)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.5:LRA=7:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=1:release=50",
+         # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard
+         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=1:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
@@ -5606,6 +5606,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 seg_data["next_speaker"] = extracted_clips[clip_rank].get("channel", "")
 
             # Render22 FIX 2+3: PiP guard — NEVER use INTRO_TAG as PiP source
+            # V4.2 FIX 4: EVERY narration segment gets PiP — no bare bg for >5s
             pip_vid = ""
             if entry_type == "cold_open":
                 pip_vid = ""
@@ -5620,8 +5621,14 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if pip_vid and os.path.abspath(pip_vid) == os.path.abspath(INTRO_TAG):
                     logger.error(f"  FIX 2: BLOCKED intro_tag.mp4 as PiP source! Using fallback.")
                     pip_vid = ""
-                if not pip_vid and entry_type in ("setup", "react"):
-                    # Render24 FIX 1: PiP fallback — use bg_loop or skip. NEVER use rank1's PiP for another rank.
+                if not pip_vid:
+                    # V4.2 FIX 4: Try NEXT available clip as PiP preview
+                    for _fallback_rank in sorted(pip_previews.keys()):
+                        if _fallback_rank != clip_rank and pip_previews.get(_fallback_rank):
+                            pip_vid = pip_previews[_fallback_rank]
+                            logger.info(f"  V4.2 FIX 4: Using clip #{_fallback_rank} PiP as fallback for #{clip_rank}")
+                            break
+                if not pip_vid:
                     if os.path.exists(BG_LOOP):
                         pip_vid = BG_LOOP
                         logger.info(f"  FIX 1: Using bg_loop as PiP placeholder for {entry_type.upper()} → clip #{clip_rank}")
@@ -5629,6 +5636,16 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                         pip_vid = _ensure_pip_placeholder()
                         if pip_vid:
                             logger.info(f"  FIX 1: Using branded placeholder PiP for SETUP → clip #{clip_rank}")
+            elif entry_type in ("data", "bridge", "wrap") and not pip_vid:
+                # V4.2 FIX 4: Non-clip segments also get PiP — use any available preview
+                for _fallback_rank in sorted(pip_previews.keys()):
+                    if pip_previews.get(_fallback_rank):
+                        pip_vid = pip_previews[_fallback_rank]
+                        logger.info(f"  V4.2 FIX 4: Using clip #{_fallback_rank} PiP for {entry_type.upper()} segment")
+                        break
+                if not pip_vid and os.path.exists(BG_LOOP):
+                    pip_vid = BG_LOOP
+                    logger.info(f"  V4.2 FIX 4: bg_loop PiP for {entry_type.upper()} segment")
             if pip_vid and pip_vid != PIP_PLACEHOLDER:
                 logger.info(f"  FIX 3: PiP video embedded for {entry_type.upper()} → clip #{clip_rank}")
 

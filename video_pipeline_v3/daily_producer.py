@@ -393,10 +393,10 @@ def run_preflight_qc(video_path: str) -> dict:
         logger.warning(f"[PREFLIGHT] loudness measurement failed: {e}")
     metrics["lufs"] = round(lufs, 1) if lufs is not None else None
     metrics["true_peak"] = round(true_peak, 1) if true_peak is not None else None
-    if lufs is not None and (lufs < -17 or lufs > -12):
-        issues.append(f"lufs={lufs:.1f} (target -17 to -12)")
-    if true_peak is not None and true_peak > -1.0:
-        issues.append(f"true_peak={true_peak:.1f}dBTP (max -1.0)")
+    if lufs is not None and (lufs < -16 or lufs > -12):
+        issues.append(f"lufs={lufs:.1f} (target -16 to -12)")
+    if true_peak is not None and true_peak > -0.5:
+        issues.append(f"true_peak={true_peak:.1f}dBTP (max -0.5)")
 
     # ── 4. Duration ───────────────────────────────────────────────────────
     try:
@@ -529,7 +529,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
             r = subprocess.run(
                 ["ffmpeg", "-y", "-i", video_path,
                  "-c:v", "copy",
-                 "-af", "alimiter=limit=0.891:level=false,loudnorm=I=-16:TP=-1.5:LRA=11:linear=true",
+                 "-af", "alimiter=limit=0.891:level=false,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true",
                  "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                  "-movflags", "+faststart",
                  tmp],
@@ -1177,6 +1177,33 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         speech_lines = [d for d in dialogue if d.get("host") not in ("CLIP", "SPACE_CLIP", None)]
         clip_markers = [d for d in dialogue if d.get("host") in ("CLIP", "SPACE_CLIP")]
         social_seg_count = sum(1 for d in dialogue if d.get("type") == "social_segment")
+
+        # V4.2 FIX 7: Enforce "What Bitcoin Internet Is Saying" — inject if social data exists but segment missing
+        if sorted_social and social_seg_count == 0:
+            logger.warning(f"[producer] V4.2 FIX 7: {len(sorted_social)} social posts but 0 social_segment entries — injecting")
+            # Insert social segments before the final wrap
+            wrap_idx = None
+            for _wi in range(len(dialogue) - 1, -1, -1):
+                if dialogue[_wi].get("type") == "wrap":
+                    wrap_idx = _wi
+                    break
+            inject_entries = []
+            for si, sp in enumerate(sorted_social[:3]):
+                handle = sp.get("handle", "unknown")
+                text_preview = sp.get("text", "")[:200]
+                inject_entries.append({
+                    "host": 2,
+                    "text": f"{handle} posted — {text_preview}. The signal is clear.",
+                    "type": "social_segment",
+                    "headline": "SIGNAL FROM THE FIELD",
+                })
+            if wrap_idx is not None:
+                for ji, je in enumerate(inject_entries):
+                    dialogue.insert(wrap_idx + ji, je)
+            else:
+                dialogue.extend(inject_entries)
+            social_seg_count = len(inject_entries)
+            logger.info(f"[producer] V4.2 FIX 7: Injected {social_seg_count} social_segment entries")
         space_tap_count = sum(1 for d in dialogue if d.get("host") == "SPACE_CLIP"
                              or (d.get("type") or "").startswith("space_tap"))
         print(f"  Title: {script.get('episode_title', 'Untitled')}")
@@ -1241,6 +1268,18 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                     json.dump(script, f, indent=2)
         else:
             print("  SCRIPT GATE PASSED")
+
+        # V4.2 FIX 5: Final signoff enforcement — force-append if still missing after regen
+        if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue):
+            logger.warning("[producer] SIGNOFF STILL MISSING after script gate — force-appending")
+            dialogue.append({
+                "host": 2,
+                "text": "Stay sovereign. This has been Protocol Pulse.",
+                "type": "wrap",
+                "headline": "STAY SOVEREIGN",
+            })
+            with open(script_path, "w") as f:
+                json.dump(script, f, indent=2)
 
         # Strip seg_id prefix from social_segment narration before TTS (binding tag, not spoken)
         # Keep originals in dialogue for assembler ID-binding — only strip the TTS copy

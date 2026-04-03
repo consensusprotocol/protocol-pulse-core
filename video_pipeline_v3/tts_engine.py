@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""TTS Engine — Single PBX voice pipeline (V4).
+"""TTS Engine — Single PBX voice pipeline (V4.2).
 All narration: ElevenLabs PBX HmUVvDlHsEz0m3eUGLgu.
 Model: eleven_multilingual_v2 (gravitas for news anchor).
-Speed: 1.1x (authoritative).
+Speed: 1.2x (V4.2 — faster, more energetic).
 """
 import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -57,7 +57,7 @@ _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
     "model_id": "eleven_multilingual_v2",
-    "speed": 1.10,
+    "speed": 1.20,
     "voice_settings": {
         "stability": 0.35,
         "similarity_boost": 0.90,
@@ -471,6 +471,14 @@ PRONUNCIATION_MAP = {
     "Marty Bent": "MAR-tee BENT",
     # Willy Woo
     "Willy Woo": "WIL-ee WOO",
+    # V4.2: Pronunciation fixes — acronyms and common mispronunciations
+    "ETFs": "E-T-Fs",
+    "ETF": "E-T-F",
+    "fiat": "fee-at",
+    "Fiat": "Fee-at",
+    "FIAT": "FEE-AT",
+    "DeFi": "dee-FYE",
+    "defi": "dee-FYE",
     # Technical terms
     "EH/s": "exahashes per second",
     "TH/s": "terahashes per second",
