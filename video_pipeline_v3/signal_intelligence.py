@@ -21,8 +21,10 @@ from typing import Optional
 log = logging.getLogger("signal_intelligence")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-SPACES_CACHE = os.path.join(os.path.dirname(BASE), "x_spaces_scraper", "cache")
+PROJECT_ROOT = os.path.dirname(BASE)
+SPACES_CACHE = os.path.join(PROJECT_ROOT, "x_spaces_scraper", "cache")
 NOSTR_CACHE = os.path.join(BASE, "cache", "active_signal.json")
+X_POSTS_CACHE = os.path.join(PROJECT_ROOT, "data", "tweet_study", "raw_tweets.json")
 
 # Max cache age before falling back (2 hours)
 MAX_CACHE_AGE_SECONDS = 7200
@@ -202,22 +204,80 @@ def _read_nostr_cache(max_posts: int = 3) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# 2b. X Posts — from tweet_study/raw_tweets.json (populated by tweet scraper)
+# ---------------------------------------------------------------------------
+
+def _read_x_posts(max_posts: int = 3) -> list[dict]:
+    """Read top X posts from raw_tweets.json. Selects recent, high-engagement Bitcoin tweets."""
+    if not os.path.exists(X_POSTS_CACHE):
+        log.warning("X posts cache not found: %s", X_POSTS_CACHE)
+        return []
+
+    try:
+        with open(X_POSTS_CACHE) as f:
+            tweets = json.load(f)
+    except Exception as e:
+        log.error("Failed to read X posts cache: %s", e)
+        return []
+
+    if not isinstance(tweets, list) or not tweets:
+        return []
+
+    # Only tweets from last 48 hours
+    cutoff = datetime.utcnow() - timedelta(hours=48)
+    recent = []
+    for t in tweets:
+        try:
+            created = t.get("created_at", "")
+            if created:
+                dt = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None)
+                if dt < cutoff:
+                    continue
+        except (ValueError, TypeError):
+            continue
+
+        text = t.get("text", "").strip()
+        if not text or len(text) < 40:
+            continue
+        # Skip link-only tweets
+        if text.startswith("http") or text.count("http") > 1:
+            continue
+
+        engagement = (t.get("likes", 0) + t.get("retweets", 0) * 2
+                      + t.get("replies", 0) + t.get("quotes", 0) * 2)
+        recent.append({
+            "text": text,
+            "handle": t.get("handle", ""),
+            "engagement": engagement,
+            "created_at": t.get("created_at", ""),
+        })
+
+    # Sort by engagement, take top N
+    recent.sort(key=lambda x: x["engagement"], reverse=True)
+    results = recent[:max_posts]
+    log.info("Read %d X posts from cache (%d recent candidates)", len(results), len(recent))
+    return results
+
+
+# ---------------------------------------------------------------------------
 # 3. Main entry point
 # ---------------------------------------------------------------------------
 
 def get_signal_content() -> dict:
     """
-    Gather signal content from X Spaces transcripts (local) and Nostr cache.
+    Gather signal content from X Spaces transcripts (local), Nostr cache, and X posts.
     Zero network calls — all data from local files.
 
     Returns:
         {
             "spaces_quotes": [{"text": str, "space_title": str}, ...],
             "nostr_posts": [{"text": str, "pubkey": str, "display_name": str}, ...],
+            "x_posts": [{"text": str, "handle": str, "engagement": int}, ...],
         }
     """
     spaces_quotes = []
     nostr_posts = []
+    x_posts = []
 
     try:
         spaces_quotes = _extract_spaces_quotes(max_quotes=3)
@@ -228,6 +288,11 @@ def get_signal_content() -> dict:
         nostr_posts = _read_nostr_cache(max_posts=3)
     except Exception as e:
         log.error("Nostr cache read failed: %s", e)
+
+    try:
+        x_posts = _read_x_posts(max_posts=3)
+    except Exception as e:
+        log.error("X posts read failed: %s", e)
 
     # FIX 7: NEVER use fabricated space titles. If no real spaces data,
     # return empty list so the renderer shows "NO LIVE SPACES DETECTED" placeholder.
@@ -240,6 +305,7 @@ def get_signal_content() -> dict:
     return {
         "spaces_quotes": spaces_quotes,  # may be empty — renderer handles this
         "nostr_posts": nostr_posts,
+        "x_posts": x_posts,  # top engagement X posts from tracked accounts
     }
 
 
@@ -283,8 +349,9 @@ def generate_signal_summary(content: dict) -> str:
     """
     spaces = content.get("spaces_quotes", [])
     nostr = content.get("nostr_posts", [])
+    x_posts = content.get("x_posts", [])
 
-    if not spaces and not nostr:
+    if not spaces and not nostr and not x_posts:
         return FALLBACK_SUMMARY
 
     # Build context block
@@ -293,6 +360,11 @@ def generate_signal_summary(content: dict) -> str:
         lines.append("=== X SPACES QUOTES ===")
         for i, q in enumerate(spaces, 1):
             lines.append(f"{i}. [{q.get('space_title', 'Unknown')}] \"{q['text']}\"")
+    if x_posts:
+        lines.append("\n=== X POSTS ===")
+        for i, xp in enumerate(x_posts, 1):
+            handle = xp.get("handle", "unknown")
+            lines.append(f"{i}. [@{handle}] \"{xp['text'][:200]}\"")
     if nostr:
         lines.append("\n=== NOSTR POSTS ===")
         for i, p in enumerate(nostr, 1):
