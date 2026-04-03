@@ -1,0 +1,11 @@
+name = "protocol-pulse-api-cache"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Free plan — 100K requests/day, 10ms CPU per invocation
+# No KV, Durable Objects, or paid features required
+
+[env.production]
+routes = [
+  { pattern = "protocolpulse.io/api/*", zone_id = "cae015a44a3885100c651db2b36e76a8" }
+]
