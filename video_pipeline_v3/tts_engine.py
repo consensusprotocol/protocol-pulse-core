@@ -387,8 +387,34 @@ def _expand_numbers_basic(text: str) -> str:
 TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
 
 
+# ── ElevenLabs Pronunciation Dictionary (server-side) ─────────────────────
+# Replaces the regex PRONUNCIATION_MAP below. Dictionary rules are applied
+# by ElevenLabs before synthesis — more reliable, no client-side text mutation.
+# Managed via: python3 scripts/update_pronunciation.py
+_PRONUNCIATION_DICT_CACHE = None
 
-# ── Bitcoin Ecosystem Pronunciation Map ────────────────────────────────────
+def _get_pronunciation_dict_locators():
+    """Load pronunciation dictionary ID from scripts/.pronunciation_dict_id.json."""
+    global _PRONUNCIATION_DICT_CACHE
+    if _PRONUNCIATION_DICT_CACHE is not None:
+        return _PRONUNCIATION_DICT_CACHE
+    dict_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "..", "scripts", ".pronunciation_dict_id.json")
+    try:
+        with open(dict_file) as f:
+            info = json.load(f)
+        _PRONUNCIATION_DICT_CACHE = [{
+            "pronunciation_dictionary_id": info["dictionary_id"],
+            "version_id": info["version_id"],
+        }]
+        logger.info(f"[TTS] Pronunciation dictionary loaded: {info['dictionary_id']}")
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+        _PRONUNCIATION_DICT_CACHE = []
+        logger.info("[TTS] No pronunciation dictionary found — using regex fallback")
+    return _PRONUNCIATION_DICT_CACHE
+
+
+# ── Bitcoin Ecosystem Pronunciation Map (RETIRED — kept as fallback) ──────
 # ElevenLabs renders these phonetic substitutions naturally.
 # Longer/more specific entries first to avoid partial replacements.
 PRONUNCIATION_MAP = {
@@ -834,8 +860,11 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     text = tts_normalize(text)
     # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
     text = expand_numbers_for_tts(text)
-    # R25 FIX 7: Apply pronunciation map (Pysh→PISH, etc.) — was defined but never called
-    text = apply_pronunciation_map(text)
+    # R25 FIX 7: Regex pronunciation map RETIRED — replaced by ElevenLabs
+    # Pronunciation Dictionary (id=LK24Dt58S40g429DUG9C). Server-side rules are
+    # more reliable and don't break caching. See scripts/update_pronunciation.py.
+    # Kept as fallback: uncomment if dictionary is deleted.
+    # text = apply_pronunciation_map(text)
 
     voice = VOICES.get(host, VOICES[2])  # All hosts → PBX
     # Check TTS cache first — avoid API call if same text+voice was generated before
@@ -858,12 +887,17 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     chunks = _chunk_text(text)
     chunk_files = []
 
+    # ElevenLabs Pronunciation Dictionary — server-side rules for names/terms
+    _pron_dict_locators = _get_pronunciation_dict_locators()
+
     for ci, chunk in enumerate(chunks):
         body = {
             "text": chunk,
             "model_id": voice["model_id"],
             "voice_settings": voice_settings,
         }
+        if _pron_dict_locators:
+            body["pronunciation_dictionary_locators"] = _pron_dict_locators
         # Add speed parameter from voice config (host-specific)
         speed = voice.get("speed", 1.0)
         if speed != 1.0:
