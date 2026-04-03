@@ -1,4 +1,5 @@
 #!/bin/bash
+# Protocol Pulse CC Stop Hook — post-session audit + verification
 INPUT=$(cat)
 
 # Prevent infinite loop
@@ -18,20 +19,37 @@ cd /home/ultron/protocol_pulse
 ISSUES=""
 
 # Check uncommitted Python files
-UNCOMMITTED=$(git status --porcelain -- '*.py' 2>/dev/null | wc -l)
-if [ "$UNCOMMITTED" -gt 0 ]; then
-    ISSUES="$ISSUES | $UNCOMMITTED uncommitted .py files — git add+commit+push!"
+UNCOMMITTED=$(git diff --name-only -- '*.py' 2>/dev/null | wc -l)
+STAGED=$(git diff --cached --name-only -- '*.py' 2>/dev/null | wc -l)
+if [ "$UNCOMMITTED" -gt 0 ] || [ "$STAGED" -gt 0 ]; then
+    FILES=$(git diff --name-only -- '*.py' 2>/dev/null | head -5 | tr '\n' ', ')
+    ISSUES="$ISSUES | UNCOMMITTED: $FILES — run git add+commit+push!"
 fi
+
+# Syntax check all recently modified .py files
+for f in $(git diff --name-only -- '*.py' 2>/dev/null | head -10); do
+    if [ -f "$f" ]; then
+        ERR=$(python3 -m py_compile "$f" 2>&1)
+        if [ $? -ne 0 ]; then
+            ISSUES="$ISSUES | SYNTAX ERROR in $f"
+        fi
+    fi
+done
 
 # Check waitress
 if ! pgrep -f "waitress.*5000" > /dev/null 2>&1; then
-    ISSUES="$ISSUES | CRITICAL: Waitress DOWN — website offline!"
+    ISSUES="$ISSUES | CRITICAL: Waitress DOWN — restart immediately!"
+fi
+
+# Check for RAM hogs that shouldn't be running
+if pgrep -f "avatar_server" > /dev/null 2>&1; then
+    ISSUES="$ISSUES | WARNING: avatar_server is running (should be DISABLED)"
 fi
 
 if [ -n "$ISSUES" ]; then
     python3 -c "
 import json
-print(json.dumps({'decision': 'block', 'reason': 'POST-SESSION AUDIT: $ISSUES'}))
+print(json.dumps({'decision': 'block', 'reason': 'POST-SESSION AUDIT FAILED: $ISSUES'}))
 "
     exit 0
 fi
