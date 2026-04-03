@@ -278,7 +278,7 @@ def _render_avatar_video(brief_text):
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
             "-pix_fmt", "yuv420p", "-r", "30", "-vsync", "cfr",
             "-vf", "setpts=PTS-STARTPTS",
-            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+            "-af", "asetpts=PTS-STARTPTS,aresample=48000",
             "-movflags", "+faststart",
             output_path,
         ]

@@ -1582,7 +1582,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             "-r", "30", "-vsync", "cfr",
             "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-            "-af", "asetpts=PTS-STARTPTS,aresample=async=1,alimiter=limit=0.891:level=false",
+            "-af", "asetpts=PTS-STARTPTS,aresample=48000,alimiter=limit=0.891:level=false",
             "-movflags", "+faststart",
             nuclear_tmp,
         ], capture_output=True, text=True, timeout=600)

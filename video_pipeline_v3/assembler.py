@@ -244,7 +244,7 @@ def concatenate_parts(parts: list, output_path: str,
              "-vf", f"fps=30,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
              "-video_track_timescale", "15360",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-             "-af", f"aresample=async=1,afade=t=in:d={a_fade_in},afade=t=out:st={max(0, dur - a_fade_out - 0.05)}:d={a_fade_out}",
+             "-af", f"aresample=48000,afade=t=in:d={a_fade_in},afade=t=out:st={max(0, dur - a_fade_out - 0.05)}:d={a_fade_out}",
              tmp],
             "normalize+fade", 180,
         )
@@ -327,7 +327,7 @@ def concatenate_parts(parts: list, output_path: str,
                  "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d=0.15,fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F",
                  "-video_track_timescale", "90000",
                  "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-                 "-af", f"aresample=async=1,afade=t=in:d=0.1,afade=t=out:st={fade_a_start:.2f}:d=2.5",
+                 "-af", f"aresample=48000,afade=t=in:d=0.1,afade=t=out:st={fade_a_start:.2f}:d=2.5",
                  last_refaded],
                 "outro extended fade", 180,
             )
@@ -441,7 +441,7 @@ def concatenate_parts(parts: list, output_path: str,
                     f"threshold=0.04:ratio=4:attack=5:release=200[bgm_ducked];"
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
                     f":weights=1 0.25[mixed_audio];"
-                    f"[mixed_audio]aresample=async=1[outa]"
+                    f"[mixed_audio]aresample=48000[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
                 # BUG2 FIX: Full libx264 re-encode (not -c:v copy) to reset PTS for AV sync
@@ -628,7 +628,7 @@ def concatenate_parts(parts: list, output_path: str,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard (MUST be LAST audio filter)
-         "-af", "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=1:release=50",
+         "-af", "asetpts=PTS-STARTPTS,aresample=48000:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=1:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",

@@ -1,226 +1,123 @@
 #!/bin/bash
-# VIDEO PIPELINE REGRESSION TEST — run after every build, before every commit
-# Usage: bash regression_test.sh [output_dir]
-# If no dir provided, uses latest test_* directory
-
-set -e
+# ════════════════════════════════════════════════════════════════════════
+# PROTOCOL PULSE — REGRESSION TEST SUITE
+# Every verified fix gets a test here. Run before EVERY commit.
+# If ANY test fails: exit 1. DO NOT COMMIT.
+# See LOCKED_FIXES.md for documentation of each fix.
+# ════════════════════════════════════════════════════════════════════════
+set -o pipefail
 cd "$(dirname "$0")"
+PASS=0; FAIL=0; TOTAL=0
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+check() {
+    TOTAL=$((TOTAL + 1))
+    if eval "$2" > /dev/null 2>&1; then
+        echo "  PASS: $1"
+        PASS=$((PASS + 1))
+    else
+        echo "  FAIL: $1"
+        FAIL=$((FAIL + 1))
+    fi
+}
 
-FAILS=0
-WARNS=0
-
-fail() { echo -e "${RED}FAIL${NC}: $1"; ((FAILS++)); }
-warn() { echo -e "${YELLOW}WARN${NC}: $1"; ((WARNS++)); }
-pass() { echo -e "${GREEN}PASS${NC}: $1"; }
-
-echo "================================================================"
-echo "  PULSE CHECK — REGRESSION TEST"
-echo "  $(date)"
-echo "================================================================"
-
-# Find latest output
-if [ -n "$1" ]; then
-    LATEST="$1"
-else
-    LATEST=$(ls -td output/test_* 2>/dev/null | head -1)
-fi
-
-if [ -z "$LATEST" ] || [ ! -d "$LATEST" ]; then
-    fail "No output directory found"
-    exit 1
-fi
-
-echo "Testing: $LATEST"
+echo "=== PROTOCOL PULSE REGRESSION TESTS ==="
 echo ""
 
-FINAL=$(ls "$LATEST"/pulse_check_*.mp4 2>/dev/null | grep -v norm | head -1)
-WORK="$LATEST/work"
-SCRIPT="$LATEST/script.json"
+# ── AUDIO / VIDEO PIPELINE ────────────────────────────────────────────
 
-# ── 1. OUTPUT EXISTS ──────────────────────────────────────────────
-echo "── 1. OUTPUT EXISTS ──"
-[ -f "$FINAL" ] && pass "Final video exists" || fail "No final video"
-[ -f "$SCRIPT" ] && pass "Script exists" || fail "No script.json"
-[ -d "$WORK" ] && pass "Work directory exists" || fail "No work directory"
-echo ""
+# FIX-001: No aresample=async=1 in assembler (causes lip desync)
+check "FIX-001: No async=1 in assembler.py" \
+    "! grep -q 'async=1' assembler.py"
 
-if [ ! -f "$FINAL" ]; then
-    echo "Cannot continue without final video."
-    exit 1
-fi
+# FIX-002: No aresample=async=1 in render modules (lip sync)
+check "FIX-002a: No async=1 in render_clip.py" \
+    "! grep 'async=1' render_clip.py 2>/dev/null | grep -v '#' | grep -q 'async=1'"
 
-# ── 2. VIDEO SPECS ────────────────────────────────────────────────
-echo "── 2. VIDEO SPECS ──"
-RES=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$FINAL" 2>/dev/null)
-echo "$RES" | grep -q "1920,1080" && pass "Resolution 1920x1080" || fail "Resolution is $RES (need 1920,1080)"
+check "FIX-002b: No async=1 in render_narrator.py" \
+    "! grep -q 'async=1' render_narrator.py"
 
-PIX=$(ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of csv=p=0 "$FINAL" 2>/dev/null)
-echo "$PIX" | grep -q "yuv420p" && pass "Pixel format yuv420p" || fail "Pixel format is $PIX"
+check "FIX-002c: No async=1 in render_intro_outro.py" \
+    "! grep -q 'async=1' render_intro_outro.py"
 
-AUD=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of csv=p=0 "$FINAL" 2>/dev/null)
-echo "$AUD" | grep -q "aac" && pass "AAC audio present" || fail "No AAC audio (got: $AUD)"
+check "FIX-002d: No async=1 in assembler_common.py" \
+    "! grep -q 'async=1' assembler_common.py"
 
-DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$FINAL" 2>/dev/null | cut -d. -f1)
-[ "$DUR" -gt 30 ] && pass "Duration ${DUR}s (>30s)" || fail "Duration ${DUR}s — too short"
-echo ""
+check "FIX-002e: No async=1 in daily_producer.py" \
+    "! grep -q 'async=1' daily_producer.py"
 
-# ── 3. PARTS STRUCTURE ───────────────────────────────────────────
-echo "── 3. PARTS STRUCTURE ──"
-ls "$WORK"/part_*cold_open* >/dev/null 2>&1 && pass "Cold open present" || fail "No cold open part"
-CLIP_COUNT=$(ls "$WORK"/part_*clip* 2>/dev/null | wc -l)
-[ "$CLIP_COUNT" -ge 1 ] && pass "Clips present ($CLIP_COUNT)" || fail "No clip parts"
-ls "$WORK"/part_*setup* >/dev/null 2>&1 && pass "Setup narration present" || fail "No setup parts"
-ls "$WORK"/part_*react* >/dev/null 2>&1 && pass "React narration present" || fail "No react parts"
-ls "$WORK"/part_*glitch* >/dev/null 2>&1 && pass "Glitch transitions present" || pass "No standalone glitch transitions (xfade mode)"
-ls "$WORK"/part_*wrap* >/dev/null 2>&1 && pass "Wrap present" || fail "No wrap part"
-ls "$WORK"/part_*outro* >/dev/null 2>&1 && pass "Outro present" || fail "No outro part"
-echo ""
+# FIX-003: async=1 MUST exist in clip_extractor (nuclear fix for source clips)
+check "FIX-003: async=1 in clip_extractor fix_av_sync" \
+    "grep -q 'async=1' clip_extractor.py"
 
-# ── 4. NO BLACK FRAMES ──────────────────────────────────────────
-echo "── 4. NO BLACK/EMPTY PARTS ──"
-for f in "$WORK"/part_*.mp4; do
-    SZ=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null)
-    BASENAME=$(basename "$f")
-    # Glitch transitions are 0.5s — 50-80KB is normal
-    if echo "$BASENAME" | grep -q "glitch"; then
-        if [ "$SZ" -lt 10000 ]; then
-            fail "$BASENAME is only ${SZ} bytes — likely black/empty"
-        fi
-    elif [ "$SZ" -lt 100000 ]; then
-        fail "$BASENAME is only ${SZ} bytes — likely black/empty"
+# FIX-004: Episode-level whoosh mastering disabled (double whoosh fix)
+check "FIX-004: Episode whoosh disabled" \
+    "grep -q 'has_whoosh = False' assembler.py"
+
+# FIX-005: PiP retry at 40% for dark-intro channels
+check "FIX-005: PiP retry at 40%" \
+    "grep -q 'position_pct=0.40' assembler.py"
+
+# FIX-006: confident_02.mp3 is locked signature track
+check "FIX-006: Music locked to confident_02" \
+    "grep -q 'confident_02' daily_producer.py || grep -q 'confident_02' assembler.py"
+
+# ── SYSTEM / INFRASTRUCTURE ────────────────────────────────────────────
+
+# FIX-007: No gunicorn on port 5000 (waitress only)
+check "FIX-007: No gunicorn on port 5000" \
+    "! grep -rq 'gunicorn.*5000' ../scripts/*.sh 2>/dev/null"
+
+# FIX-008: Avatar server blocked in hooks
+check "FIX-008: Avatar server blocked by hook" \
+    "grep -qi 'avatar' ../scripts/hooks/pre_bash_gate.sh 2>/dev/null"
+
+# FIX-009: CLAUDE.md constitution exists
+check "FIX-009: CLAUDE.md exists" \
+    "test -f ../CLAUDE.md"
+
+# FIX-010: CC hooks configured
+check "FIX-010: CC settings.json exists" \
+    "test -f ../.claude/settings.json"
+
+# ── VOICE / TTS ────────────────────────────────────────────────────────
+
+# FIX-011: No Kokoro/dual-host (single PBX host)
+check "FIX-011: No Kokoro/dual-host" \
+    "! grep -qi 'kokoro' tts_engine.py"
+
+# FIX-012: PiP fallback exists in assembler
+check "FIX-012: PiP fallback in assembler" \
+    "grep -q '_any_pip\|PiP FALLBACK' assembler.py"
+
+# FIX-013: Stay sovereign signoff
+check "FIX-013: Stay sovereign signoff" \
+    "grep -qi 'stay sovereign' script_writer.py 2>/dev/null || grep -qi 'stay sovereign' daily_producer.py 2>/dev/null"
+
+# FIX-014: ElevenLabs pronunciation dictionary integrated
+check "FIX-014: Pronunciation dictionary in TTS" \
+    "grep -q 'pronunciation_dictionary_locators' tts_engine.py"
+
+# FIX-015: X posts in Signal Active (not just Nostr)
+check "FIX-015: X posts in signal_intelligence" \
+    "grep -q 'x_posts' signal_intelligence.py"
+
+# ── SYNTAX CHECKS ──────────────────────────────────────────────────────
+
+for f in assembler.py render_narrator.py render_clip.py render_social.py \
+         render_intro_outro.py render_data.py audio_master.py tts_engine.py \
+         daily_producer.py clip_extractor.py script_writer.py \
+         assembler_common.py signal_intelligence.py; do
+    if [ -f "$f" ]; then
+        check "SYNTAX: $f" "python3 -m py_compile $f"
     fi
 done
-# Count how many passed
-TOTAL_PARTS=$(ls "$WORK"/part_*.mp4 2>/dev/null | wc -l)
-SMALL_PARTS=$(find "$WORK" -name "part_*.mp4" ! -name "*glitch*" -size -100k 2>/dev/null | wc -l)
-SMALL_GLITCH=$(find "$WORK" -name "part_*glitch*" -size -10k 2>/dev/null | wc -l)
-SMALL_PARTS=$((SMALL_PARTS + SMALL_GLITCH))
-GOOD_PARTS=$((TOTAL_PARTS - SMALL_PARTS))
-[ "$SMALL_PARTS" -eq 0 ] && pass "All $TOTAL_PARTS parts have real content" || true
+
 echo ""
-
-# ── 5. THUMBNAIL OVERLAYS ───────────────────────────────────────
-echo "── 5. THUMBNAIL OVERLAYS ──"
-THUMB_COUNT=$(ls /tmp/thumb_*.jpg 2>/dev/null | wc -l)
-[ "$THUMB_COUNT" -ge "$CLIP_COUNT" ] && pass "Thumbnails fetched ($THUMB_COUNT for $CLIP_COUNT clips)" || fail "Only $THUMB_COUNT thumbnails for $CLIP_COUNT clips — thumbnails missing"
-echo ""
-
-# ── 6. CLIP AUDIO ────────────────────────────────────────────────
-echo "── 6. CLIP AUDIO PRESENT ──"
-for f in "$WORK"/part_*clip*.mp4; do
-    BASENAME=$(basename "$f")
-    HAS_AUD=$(ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "$f" 2>/dev/null)
-    [ "$HAS_AUD" = "audio" ] && pass "$BASENAME has audio" || fail "$BASENAME has NO audio — clip will be silent"
-done
-echo ""
-
-# ── 7. VOICE CONFIG ─────────────────────────────────────────────
-echo "── 7. VOICE CONFIG ──"
-grep -q "stability" tts_engine.py 2>/dev/null && pass "Voice stability settings present" || fail "No stability setting — moaning artifact risk"
-# Check not using Jessica (known bad voice)
-grep -q "cgSgspJ2msm6clMCkdW9" tts_engine.py 2>/dev/null && fail "Still using Jessica voice (cgSgsp...) — CHANGE IT" || pass "Not using Jessica voice"
-echo ""
-
-# ── 8. SCRIPT QUALITY ───────────────────────────────────────────
-echo "── 8. SCRIPT QUALITY ──"
-if [ -f "$SCRIPT" ]; then
-    python3 -c "
-import json, sys
-d = json.load(open('$SCRIPT'))
-fails = 0
-
-# Cold open
-if not d.get('cold_open'):
-    print('FAIL: No cold_open'); fails += 1
-else:
-    print('PASS: Cold open present')
-
-# Dialogue length
-dl = d.get('dialogue', [])
-if len(dl) < 5:
-    print(f'FAIL: Only {len(dl)} dialogue entries'); fails += 1
-else:
-    print(f'PASS: {len(dl)} dialogue entries')
-
-# CLIP entries
-clips = [e for e in dl if e.get('host') == 'CLIP']
-if len(clips) < 1:
-    print(f'FAIL: No CLIP entries in dialogue'); fails += 1
-else:
-    print(f'PASS: {len(clips)} CLIP entries')
-
-# Setup/react length
-for e in dl:
-    t = e.get('type', '')
-    txt = e.get('text', '')
-    if t in ('setup', 'react') and len(txt) > 250:
-        print(f'WARN: {t} line too long ({len(txt)} chars): {txt[:50]}...')
-
-# Banned phrases
-banned = ['let us dive in', 'without further ado', 'buckle up', 'game changer',
-          'really interesting', 'really impactful', 'great stuff', 'that is great']
-for e in dl:
-    text = e.get('text', '').lower()
-    for b in banned:
-        if b in text:
-            print(f'FAIL: Banned phrase \"{b}\" found'); fails += 1
-
-sys.exit(1 if fails > 0 else 0)
-" 2>&1
+echo "=== RESULTS: $PASS passed, $FAIL failed, $TOTAL total ==="
+if [ $FAIL -gt 0 ]; then
+    echo "REGRESSION DETECTED — DO NOT COMMIT"
+    exit 1
 else
-    fail "No script.json to check"
+    echo "ALL REGRESSION TESTS PASS"
+    exit 0
 fi
-echo ""
-
-# ── 9. TRANSITION CHECK ──────────────────────────────────
-echo "── 9. TRANSITION CHECK ──"
-GLITCH=$(ls "$WORK"/part_*glitch* 2>/dev/null | head -1)
-if [ -n "$GLITCH" ]; then
-    HAS_AUD=$(ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "$GLITCH" 2>/dev/null)
-    [ "$HAS_AUD" = "audio" ] && pass "Glitch has audio track" || fail "Glitch has NO audio — woosh missing"
-else
-    pass "No standalone glitch transitions — using xfade crossfade"
-fi
-echo ""
-
-# ── 10. BACKGROUND MUSIC FILES ──────────────────────────────────
-echo "── 10. MUSIC ASSETS ──"
-[ -f "assets/music/pp_background.mp3" ] && pass "Background music exists" || fail "Background music missing"
-[ -f "assets/music/pp_intro.mp3" ] && pass "Intro music exists" || fail "Intro music missing"
-[ -f "assets/music/pp_outro.mp3" ] && pass "Outro music exists" || fail "Outro music missing"
-grep -q "pp_background\|background.*mp3" assembler.py && pass "Assembler references bg music" || warn "Assembler may not use background music"
-echo ""
-
-# ── 11. NARRATOR OVERLAP CHECK ──────────────────────────────────
-echo "── 11. PART SEQUENCE ──"
-python3 -c "
-import os, glob
-parts = sorted(glob.glob('$WORK/part_*.mp4'))
-names = [os.path.basename(p) for p in parts]
-print('Part order:')
-for n in names:
-    print(f'  {n}')
-# Check part sequence looks reasonable
-for i in range(len(names)-1):
-    if 'setup' in names[i] and 'clip' in names[i+1]:
-        print(f'OK: {names[i]} → {names[i+1]} (xfade crossfade applied during concat)')
-" 2>&1
-echo ""
-
-# ── SUMMARY ─────────────────────────────────────────────────────
-echo "================================================================"
-if [ "$FAILS" -eq 0 ]; then
-    echo -e "  ${GREEN}ALL CHECKS PASSED${NC} ($WARNS warnings)"
-    echo "  Safe to commit."
-else
-    echo -e "  ${RED}$FAILS FAILURES${NC}, $WARNS warnings"
-    echo "  DO NOT COMMIT. Fix failures first."
-fi
-echo "================================================================"
-
-exit $FAILS

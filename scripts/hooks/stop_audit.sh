@@ -46,6 +46,16 @@ if pgrep -f "avatar_server" > /dev/null 2>&1; then
     ISSUES="$ISSUES | WARNING: avatar_server is running (should be DISABLED)"
 fi
 
+# Run regression tests if pipeline files were modified
+PIPELINE_CHANGED=$(git diff --name-only -- 'video_pipeline_v3/*.py' 2>/dev/null | wc -l)
+if [ "$PIPELINE_CHANGED" -gt 0 ] && [ -x video_pipeline_v3/regression_test.sh ]; then
+    REG_OUT=$(bash video_pipeline_v3/regression_test.sh 2>&1)
+    if [ $? -ne 0 ]; then
+        FAIL_COUNT=$(echo "$REG_OUT" | grep -c "FAIL:")
+        ISSUES="$ISSUES | REGRESSION: $FAIL_COUNT tests failed — run regression_test.sh"
+    fi
+fi
+
 if [ -n "$ISSUES" ]; then
     python3 -c "
 import json

@@ -61,7 +61,9 @@ curl -s http://localhost:5000/health
 - Waitress serves port 5000. Gunicorn is RETIRED.
 - Ollama models auto-unload after 5 min idle
 - All time references in Eastern Time (ET) for PBX
-- Video pipeline: read PIPELINE_LAWS.md before touching any pipeline file
+- Video pipeline: read PIPELINE_LAWS.md and LOCKED_FIXES.md before touching any pipeline file
+- REGRESSION TEST: Run `bash video_pipeline_v3/regression_test.sh` before any pipeline commit
+- aresample=async=1 is BANNED everywhere except clip_extractor.py fix_av_sync()
 
 ## When Compacting
 Preserve: list of modified files, current test status, active render status, any errors encountered.

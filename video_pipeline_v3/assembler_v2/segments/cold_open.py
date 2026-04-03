@@ -98,7 +98,7 @@ class ColdOpenSegment(Segment):
             f"[mus][tts]amix=inputs=2:duration=first:weights=0.5 3.0,"
             f"loudnorm=I={AUDIO_TARGET_LUFS}:TP={AUDIO_MAX_TRUE_PEAK}:LRA={AUDIO_LRA}:linear=true,"
             f"alimiter=limit={AUDIO_LIMITER}:attack=5:release=50,"
-            f"aresample=async=1[a_out]"
+            f"aresample=48000[a_out]"
         )
         return run_ffmpeg([
             "-i", str(INTRO_TAG),
@@ -127,7 +127,7 @@ class ColdOpenSegment(Segment):
             f"adelay=300|300,"
             f"loudnorm=I={AUDIO_TARGET_LUFS}:TP={AUDIO_MAX_TRUE_PEAK}:LRA={AUDIO_LRA}:linear=true,"
             f"alimiter=limit={AUDIO_LIMITER}:attack=5:release=50,"
-            f"aresample=async=1[a_out]"
+            f"aresample=48000[a_out]"
         )
         return run_ffmpeg([
             "-i", str(INTRO_TAG), "-i", str(tts),
