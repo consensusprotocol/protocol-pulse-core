@@ -1043,11 +1043,11 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 tracks = [t for t in tracks if os.path.basename(t) != last_track] or tracks
 
             # LOCKED: confident_02.mp3 is the signature Protocol Pulse soundtrack
-        locked_track = os.path.join(music_dir, 'confident_02.mp3')
-        if os.path.exists(locked_track):
-            chosen = locked_track
-        else:
-            chosen = _random.choice(tracks)
+            locked_track = os.path.join(music_dir, 'confident_02.mp3')
+            if os.path.exists(locked_track):
+                chosen = locked_track
+            else:
+                chosen = _random.choice(tracks)
             try:
                 with open(last_track_file, "w") as f:
                     f.write(os.path.basename(chosen))
