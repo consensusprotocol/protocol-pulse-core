@@ -32,6 +32,7 @@ from clip_selector import select_clips, select_clips_with_fallback
 from clip_extractor import extract_all, extract_montage_all, check_av_sync
 from script_writer import generate_from_clips
 from tts_engine import generate_dialogue_audio
+from validators import retry_stage
 from assembler import assemble_episode, concatenate_parts, verify_video
 from shorts_cutter import generate_shorts
 from thumbnail_gen import generate_thumbnail
@@ -55,13 +56,35 @@ logger = logging.getLogger("Producer")
 
 
 # ---------------------------------------------------------------------------
+# Retry-wrapped stage functions (most fragile pipeline stages)
+# ---------------------------------------------------------------------------
+
+@retry_stage(max_retries=3, backoff_seconds=5, stage_name="clip_selection")
+def _retry_select_clips(videos):
+    """Clip selection with retry — wraps select_clips_with_fallback."""
+    return select_clips_with_fallback(videos)
+
+
+@retry_stage(max_retries=3, backoff_seconds=10, stage_name="tts_generation")
+def _retry_tts(dialogue, audio_dir):
+    """TTS generation with retry — ElevenLabs can timeout."""
+    return generate_dialogue_audio(dialogue, audio_dir)
+
+
+@retry_stage(max_retries=2, backoff_seconds=5, stage_name="clip_extraction")
+def _retry_extract_clips(selections, clip_dir):
+    """Clip extraction with retry — yt-dlp can fail on specific videos."""
+    return extract_all(selections, clip_dir)
+
+
+# ---------------------------------------------------------------------------
 # Per-Render Context File (consumed by watchdog for CC repair specs)
 # ---------------------------------------------------------------------------
 
 CHECKPOINT_FILE = "/tmp/render_checkpoint.json"
 
 
-def write_render_context(step, status, error=None, **extra):
+def write_render_context(step, status, error=None, stage_data=None, **extra):
     """Write/update /tmp/render_context_YYYYMMDD.json for watchdog consumption.
 
     Called after every pipeline step completes or fails. The watchdog reads this
@@ -69,6 +92,7 @@ def write_render_context(step, status, error=None, **extra):
     occurred. See QWEN_CONTEXT_BIBLE.md Section 7.
 
     P0 Fix 3: Also writes step-level checkpoint for resume-on-crash.
+    stage_data: dict of artifacts to persist for resume (clip paths, script, etc.)
     """
     ctx_path = f"/tmp/render_context_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json"
     try:
@@ -85,8 +109,8 @@ def write_render_context(step, status, error=None, **extra):
     if status == "ok":
         if step not in ctx["steps_completed"]:
             ctx["steps_completed"].append(step)
-        # P0 Fix 3: checkpoint for resume
-        _write_checkpoint(step)
+        # P0 Fix 3: checkpoint for resume (with stage artifacts)
+        _write_checkpoint(step, stage_data=stage_data)
     else:
         ctx["steps_failed"].append({
             "step": step,
@@ -105,32 +129,48 @@ def write_render_context(step, status, error=None, **extra):
         logger.warning(f"write_render_context failed: {e}")
 
 
-def _write_checkpoint(step):
-    """Write last completed step number to checkpoint file."""
+def _write_checkpoint(step, stage_data=None):
+    """Write last completed step + stage data to checkpoint file.
+
+    stage_data persists artifacts from completed stages (clip paths, script path,
+    TTS paths, selections path) so the pipeline can resume from any point.
+    """
     try:
+        # Merge new stage_data into existing checkpoint data
+        existing = {}
+        if os.path.exists(CHECKPOINT_FILE):
+            try:
+                with open(CHECKPOINT_FILE) as f:
+                    existing = json.load(f)
+            except Exception:
+                pass
+        existing_stage_data = existing.get("stage_data", {})
+        if stage_data:
+            existing_stage_data.update(stage_data)
         data = {
             "last_completed_step": step,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "code_hash": _code_hash(),
+            "stage_data": existing_stage_data,
         }
         with open(CHECKPOINT_FILE, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=2)
     except Exception:
         pass
 
 
 def _read_checkpoint():
-    """Read checkpoint. Returns last_completed_step (int) or 0 if none/stale."""
+    """Read checkpoint. Returns (last_completed_step, stage_data) or (0, {}) if none/stale."""
     try:
         with open(CHECKPOINT_FILE) as f:
             data = json.load(f)
         # Only resume if checkpoint is from today
         if data.get("date") != datetime.now(timezone.utc).strftime("%Y-%m-%d"):
-            return 0
-        return int(data.get("last_completed_step", 0))
+            return 0, {}
+        return int(data.get("last_completed_step", 0)), data.get("stage_data", {})
     except Exception:
-        return 0
+        return 0, {}
 
 
 def _clear_checkpoint():
@@ -554,8 +594,8 @@ def preflight_health_check():
     try:
         import psutil
         ram_free_gb = psutil.virtual_memory().available / (1024 ** 3)
-        if ram_free_gb < 20:
-            issues.append(f"RAM: only {ram_free_gb:.1f}GB free (need 20GB+)")
+        if ram_free_gb < 30:
+            issues.append(f"RAM: only {ram_free_gb:.1f}GB free (need 30GB+)")
         else:
             logger.info(f"PREFLIGHT: RAM {ram_free_gb:.1f}GB free")
     except ImportError:
@@ -641,7 +681,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             logger.info("CHECKPOINT RESUME SKIPPED: test mode — always fresh render")
         _clear_checkpoint()
     else:
-        resume_step = _read_checkpoint()
+        resume_step, resume_data = _read_checkpoint()
         if resume_step >= 4:
             logger.info(f"CHECKPOINT RESUME: last completed step={resume_step}, checking for resumable state")
             # Verify code hasn't changed since checkpoint
@@ -742,10 +782,13 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         print(f"\n  *** CONTENT LOCK ACTIVE — reusing locked content from {locked_dir} ***")
         print("  Skipping Steps 1-6 (fetch/script/TTS)")
 
-        with open(locked_script) as f:
-            script = json.load(f)
-        with open(locked_audio) as f:
-            audio_data = json.load(f)
+        from validators import validate_json_file
+        script, script_errs = validate_json_file(locked_script, dict, ["dialogue"])
+        for e in script_errs:
+            logger.warning(f"REUSE SCRIPT: {e}")
+        audio_data, audio_errs = validate_json_file(locked_audio, dict, ["lines"])
+        for e in audio_errs:
+            logger.warning(f"REUSE AUDIO: {e}")
 
         # Load metadata (btc_price, music paths)
         meta = {}
@@ -858,7 +901,8 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         btc_price = get_btc_price()
         print(f"  BTC: {btc_price}")
         timing["1_price"] = round(time.time() - t0, 2)
-        write_render_context(1, "ok", btc_price=btc_price)
+        write_render_context(1, "ok", btc_price=btc_price,
+                             stage_data={"btc_price": btc_price, "run_dir": run_dir})
 
         # ── Step 2: SCAN CHANNELS ─────────────────────────────────────────────
         print("\n[STEP 2/12] SCANNING PARTNER CHANNELS...")
@@ -921,7 +965,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         else:
             print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude → Qwen → fallback)...")
             t0 = time.time()
-            selections = select_clips_with_fallback(videos)
+            selections = _retry_select_clips(videos)
             clips = selections.get("clips", [])
             print(f"  Selected: {len(clips)} clips")
             for c in clips:
@@ -945,6 +989,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         sel_path = os.path.join(run_dir, "selections.json")
         with open(sel_path, "w") as f:
             json.dump(selections, f, indent=2)
+        write_render_context(3, "ok",
+                             stage_data={"selections_path": sel_path,
+                                         "clip_count": len(clips)})
 
         # ── Step 3b: Select independent montage clips (Qwen, free) ──────────
         print("\n[STEP 3b] SELECTING MONTAGE CLIPS (local Qwen)...")
@@ -979,7 +1026,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 except OSError:
                     pass
             logger.info("  Wiped stale pip_preview files from work/")
-        extracted_clips = extract_all(selections, clip_dir)
+        extracted_clips = _retry_extract_clips(selections, clip_dir)
         print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
 
         # ── Quality-aware fallback: retry with ranked alternates ──────────
@@ -1052,6 +1099,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         for rank, info in sorted(extracted_clips.items()):
             print(f"    #{rank}: {info['channel']} — {info['duration']:.1f}s")
         timing["4_extract"] = round(time.time() - t0, 2)
+        write_render_context(4, "ok",
+                             stage_data={"extracted_clip_ranks": list(extracted_clips.keys()),
+                                         "clip_dir": clip_dir})
 
         # ── Step 4m: Extract montage clips ───────────────────────────────────
         if montage_selections and montage_selections.get("clips"):
@@ -1303,7 +1353,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         write_render_context(5, "ok",
                              episode_title=script.get("episode_title", ""),
                              social_posts_count=len(sorted_social),
-                             space_tap_available=bool(selections.get("space_tap_clips")))
+                             space_tap_available=bool(selections.get("space_tap_clips")),
+                             stage_data={"script_path": script_path,
+                                         "dialogue_count": len(dialogue)})
 
         # ── Step 5b: SCRIPT QUALITY GATE (V4 audit consensus) ────────────────
         print("\n[STEP 5b] SCRIPT QUALITY GATE...")
@@ -1404,7 +1456,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         print("\n[STEP 6/12] GENERATING PBX NARRATION AUDIO (ElevenLabs)...")
         t0 = time.time()
         audio_dir = os.path.join(run_dir, "audio")
-        audio_data = generate_dialogue_audio(dialogue, audio_dir)
+        audio_data = _retry_tts(dialogue, audio_dir)
 
         # Restore seg_id prefixes after TTS so assembler can read them for card binding
         for _di, _orig_text in _seg_id_originals.items():
@@ -1414,7 +1466,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         print(f"  Audio: {successful}/{len(speech_lines)} lines")
         print(f"  Duration: {audio_data.get('total_duration', 0):.1f}s")
         timing["6_tts"] = round(time.time() - t0, 2)
-        write_render_context(6, "ok", tts_provider="elevenlabs")
+        write_render_context(6, "ok", tts_provider="elevenlabs",
+                             stage_data={"audio_dir": audio_dir,
+                                         "tts_lines": successful})
 
         # ── Step 6b: BUILD MANIFEST ─────────────────────────────────────────
         print("\n[STEP 6b/12] BUILDING EPISODE MANIFEST...")

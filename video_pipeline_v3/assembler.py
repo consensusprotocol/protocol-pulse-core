@@ -677,6 +677,18 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
     logger.info("ASSEMBLING V10 EPISODE — WAVEFORM VISUALIZER")
     logger.info("=" * 60)
 
+    # Validate inputs before assembly
+    from validators import validate_clip_response
+    if not isinstance(script, dict) or not script.get("dialogue"):
+        logger.error("ASSEMBLY ABORT: script missing or has no dialogue")
+        return ""
+    if not isinstance(audio_data, dict) or not audio_data.get("lines"):
+        logger.error("ASSEMBLY ABORT: audio_data missing or has no lines")
+        return ""
+    if not extracted_clips:
+        logger.error("ASSEMBLY ABORT: no extracted clips provided")
+        return ""
+
     try:
         return _assemble_episode_inner(script, audio_data, extracted_clips,
                                        output_path, btc_price, music_bed, intro_music,
