@@ -720,7 +720,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
             quality = _check_clip_quality(output_path, clip.get("channel", channel),
                                           video_id=video_id, start_sec=start, end_sec=end)
             if quality == "rejected":
-                logger.warning(f"  Skipping clip #{rank}: quality below 3Mbps floor")
+                logger.warning(f"  Skipping clip #{rank}: quality below 1.5Mbps floor")
                 continue
 
             # Smart trim: find natural pause within the 10s end-pad window

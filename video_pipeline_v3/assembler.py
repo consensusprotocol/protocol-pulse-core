@@ -628,7 +628,8 @@ def concatenate_parts(parts: list, output_path: str,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard (MUST be LAST audio filter)
-         "-af", "asetpts=PTS-STARTPTS,aresample=48000:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true,alimiter=level_in=1:level_out=1:limit=0.841:attack=1:release=50",
+         # V8 FIX 2: Post-loudnorm limiter tightened (was -1.5dBTP → -1.0dBTP with level=disabled)
+         "-af", "asetpts=PTS-STARTPTS,aresample=48000:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true,alimiter=limit=0.89:level=disabled:attack=1:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
@@ -780,6 +781,11 @@ def _make_filler_segment(work_dir: str, idx: int, audio_path: str) -> str:
 def _assemble_episode_inner(script, audio_data, extracted_clips,
                             output_path, btc_price="N/A", music_bed="", intro_music="",
                             broll_clips=None):
+    # V8 FIX 3: Clear whoosh dedup set at episode start — prevents stale dedup from prior render
+    global _whoosh_applied_parts
+    _whoosh_applied_parts.clear()
+    logger.info(f"  WHOOSH: dedup set cleared, GLITCH_WHOOSH={'EXISTS' if os.path.exists(GLITCH_WHOOSH) else 'MISSING'} ({GLITCH_WHOOSH})")
+
     # FIX 5: Fetch BTC price if not provided or showing N/A
     if not btc_price or btc_price in ("N/A", "$N/A", ""):
         btc_price = _fetch_btc_price()
@@ -1287,8 +1293,12 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         line_out = os.path.join(work_dir, f"part_{part_idx:03d}_{entry_type}.mp4")
 
         # Sprint 1.5: Each tweet as its OWN video segment
+        # V8 FIX 1: Process ONE card per social_segment entry (was: all remaining).
+        # Each social_segment dialogue entry has its own TTS audio line. Processing
+        # all cards in the first entry consumed audio lines for entries 14/15, causing
+        # "No audio entry for dialogue N (social_segment) — skipping".
         if entry_type == "social_segment" and tweet_card_posts and social_card_idx < len(tweet_card_posts):
-            card_posts = tweet_card_posts[social_card_idx:]
+            card_posts = [tweet_card_posts[social_card_idx]]
             # FIX 4: CARD ORDER LOCK — never re-sort, script_writer order is gospel
             logger.info(f"[SOCIAL] passing {len(card_posts)} cards to segment {part_idx}")
 
@@ -1316,18 +1326,8 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     cp.pop("screenshot_path", None)  # remove mismatched screenshot
                 logger.info(f"  SOCIAL CARD {ci}: @{cp.get('handle', '?')} — {cp.get('text', '')[:40]} (ss: {os.path.basename(_ss) if _ss else 'none'})")
 
-                card_audio = audio_path if ci == 0 else None
-                if ci > 0:
-                    peek_idx = audio_idx
-                    while peek_idx < len(audio_lines):
-                        al = audio_lines[peek_idx]
-                        if al.get("host") not in ("CLIP",) and al.get("path") and os.path.exists(al["path"]):
-                            card_audio = al["path"]
-                            audio_idx = peek_idx + 1
-                            break
-                        peek_idx += 1
-                    if not card_audio:
-                        card_audio = audio_path
+                # V8 FIX 1: One card per social_segment entry — always use this entry's audio
+                card_audio = audio_path
 
                 card_result = ""
                 try:
