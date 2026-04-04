@@ -76,9 +76,11 @@ def get_tier_multiplier(channel_name: str) -> float:
 
 
 def is_banned_content(title: str, transcript: str = "") -> bool:
-    """Return True if title or transcript contains banned content terms."""
-    combined = (title + " " + transcript).lower()
-    return any(term in combined for term in BANNED_CONTENT_TERMS)
+    """Return True if TITLE contains banned content terms. Transcript check disabled
+    because Bitcoin channels mention altcoins in passing — filtering on transcript
+    was banning 71/110 videos including core channels."""
+    title_lower = title.lower()
+    return any(term in title_lower for term in BANNED_CONTENT_TERMS)
 
 # ── GPU Memory Guard ──────────────────────────────────────────────────────────
 MIN_FREE_VRAM_MB = 3000  # Require 3GB free before loading Whisper on CUDA
