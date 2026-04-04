@@ -4197,6 +4197,7 @@ def _fetch_block_height():
     return None
 
 @api_bp.route('/api/btc-price')
+@limiter.exempt
 def api_btc_price():
     """Live BTC price endpoint used by nav ticker and stage."""
     price = _fetch_btc_price()

@@ -68,7 +68,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day"])
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
 limiter.init_app(app)
 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year for versioned static assets
