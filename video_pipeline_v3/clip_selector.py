@@ -430,7 +430,12 @@ def select_clips(videos: list) -> dict:
             logger.error(f"Failed to parse Claude response as JSON. Raw (first 500): {text[:500]}")
             return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
-        clips = result.get("clips", [])
+        # Handle both dict and list responses from Claude
+        if isinstance(result, list):
+            clips = result
+            result = {"clips": clips, "episode_title": "Pulse Check", "cold_open": ""}
+        else:
+            clips = result.get("clips", [])
 
         # Post-selection ad read filter (double gate per PIPELINE_LAWS Section 15)
         clean_clips = []
