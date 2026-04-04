@@ -28,7 +28,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 
 from channel_scanner import scan_all_channels
-from clip_selector import select_clips
+from clip_selector import select_clips, select_clips_with_fallback
 from clip_extractor import extract_all, extract_montage_all, check_av_sync
 from script_writer import generate_from_clips
 from tts_engine import generate_dialogue_audio
@@ -546,6 +546,73 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
                 os.remove(tmp)
 
 
+def preflight_health_check():
+    """Verify system health before render. Fail fast on critical issues."""
+    issues = []
+
+    # RAM check
+    try:
+        import psutil
+        ram_free_gb = psutil.virtual_memory().available / (1024 ** 3)
+        if ram_free_gb < 20:
+            issues.append(f"RAM: only {ram_free_gb:.1f}GB free (need 20GB+)")
+        else:
+            logger.info(f"PREFLIGHT: RAM {ram_free_gb:.1f}GB free")
+    except ImportError:
+        pass  # psutil not available, skip
+
+    # Kill zombie avatar_server
+    try:
+        result = subprocess.run(["pgrep", "-f", "avatar_server"], capture_output=True, text=True)
+        if result.returncode == 0:
+            pids = result.stdout.strip().split()
+            subprocess.run(["kill", "-9"] + pids, capture_output=True)
+            issues.append(f"KILLED: avatar_server zombie (PIDs: {pids})")
+    except Exception:
+        pass
+
+    # Validate critical JSON files
+    from validators import validate_json_file
+    for path, expected, keys in [
+        (os.path.join(BASE, "data", "used_clips.json"), dict, ["episodes"]),
+    ]:
+        _, errs = validate_json_file(path, expected, keys)
+        issues.extend(errs)
+
+    # Check GPU VRAM
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            free_mb = float(result.stdout.strip().split('\n')[0])
+            if free_mb < 3000:
+                issues.append(f"GPU: only {free_mb:.0f}MB VRAM free (need 3000MB+)")
+            else:
+                logger.info(f"PREFLIGHT: GPU {free_mb:.0f}MB VRAM free")
+    except Exception:
+        pass
+
+    # Check API keys
+    has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    has_elevenlabs = bool(os.environ.get("ELEVENLABS_API_KEY"))
+    if not has_anthropic and not has_elevenlabs:
+        issues.append("No API keys (ANTHROPIC_API_KEY, ELEVENLABS_API_KEY) in environment")
+
+    # Report
+    for issue in issues:
+        logger.warning(f"PREFLIGHT: {issue}")
+    if not issues:
+        logger.info("PREFLIGHT: All checks passed")
+
+    # Only fail on truly critical issues
+    critical = [i for i in issues if "RAM:" in i or "No API keys" in i]
+    if critical:
+        raise RuntimeError(f"PREFLIGHT FAILED: {'; '.join(critical)}")
+
+    return issues
+
+
 def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                  fast_test: bool = False, reuse_content: bool = False,
                  no_resume: bool = False) -> bool:
@@ -636,6 +703,13 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     # Log feature flags at startup
     flags = load_flags()
     logger.info(f"Feature flags: {json.dumps(flags)}")
+
+    # ── PREFLIGHT HEALTH CHECK ─────────────────────────────────────────
+    try:
+        _preflight_issues = preflight_health_check()
+    except RuntimeError as e:
+        logger.critical(f"PREFLIGHT ABORTED: {e}")
+        return False
 
     # Telegram alert at pipeline start
     if is_enabled("telegram_alerts"):
@@ -845,9 +919,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             print(f"  Auto-selected: {len(clips)} clips (no API call)")
             timing["3_select"] = round(time.time() - t0, 2)
         else:
-            print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude)...")
+            print("\n[STEP 3/12] SELECTING BEST CLIPS (Claude → Qwen → fallback)...")
             t0 = time.time()
-            selections = select_clips(videos)
+            selections = select_clips_with_fallback(videos)
             clips = selections.get("clips", [])
             print(f"  Selected: {len(clips)} clips")
             for c in clips:

@@ -97,21 +97,16 @@ Return exactly 5 clips, ranked 1-5. If fewer than 5 good moments exist, return w
 
 
 USED_CLIPS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "used_clips.json")
+LAST_GOOD_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "last_good_selection.json")
 
 
 def _load_used_clips() -> dict:
-    """Load episode memory from data/used_clips.json."""
-    if not os.path.exists(USED_CLIPS_PATH):
-        return {"episodes": []}
-    try:
-        with open(USED_CLIPS_PATH) as f:
-            data = json.load(f)
-        # Guard: file may contain [] instead of {"episodes": []} (corrupt/reset)
-        if not isinstance(data, dict) or "episodes" not in data:
-            return {"episodes": []}
-        return data
-    except Exception:
-        return {"episodes": []}
+    """Load episode memory from data/used_clips.json. Auto-heals corrupt files."""
+    from validators import validate_json_file
+    data, errors = validate_json_file(USED_CLIPS_PATH, dict, ["episodes"])
+    for e in errors:
+        logger.warning(f"USED_CLIPS: {e}")
+    return data
 
 
 def _prune_old_episodes():
@@ -676,6 +671,122 @@ def select_clips(videos: list) -> dict:
                 dbg.write(str(text[:2000]) if 'text' in dir() else 'text not defined')
         except: pass
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+
+
+def _save_last_good_selection(result):
+    """Cache a successful clip selection for fallback use."""
+    try:
+        os.makedirs(os.path.dirname(LAST_GOOD_PATH), exist_ok=True)
+        with open(LAST_GOOD_PATH, "w") as f:
+            json.dump(result, f, indent=2)
+    except Exception as e:
+        logger.warning(f"Failed to save last good selection: {e}")
+
+
+def _load_last_good_selection():
+    """Load the last successful clip selection."""
+    if os.path.exists(LAST_GOOD_PATH):
+        try:
+            with open(LAST_GOOD_PATH) as f:
+                data = json.load(f)
+            if isinstance(data, dict) and data.get("clips"):
+                return data
+        except Exception:
+            pass
+    return None
+
+
+def _select_clips_local(videos, max_clips=5):
+    """Fallback: use local Qwen model for clip selection."""
+    import requests as _req
+    transcripts_text = _format_transcripts(videos[:10])
+    prompt = (
+        f"Pick the {max_clips} BEST clip moments from these Bitcoin videos. "
+        f"Each from a DIFFERENT channel. 20-40 seconds each. NO ad reads.\n\n"
+        f"{transcripts_text[:8000]}\n\n"
+        f'Return ONLY valid JSON: {{"clips": [{{"rank": 1, "video_id": "...", '
+        f'"channel": "...", "video_title": "...", "start_seconds": N, '
+        f'"end_seconds": N, "quote": "...", "why": "...", '
+        f'"host_setup": "...", "host_react": "..."}}]}}'
+    )
+    try:
+        resp = _req.post(
+            "http://localhost:11435/api/chat",
+            json={"model": "qwen3-coder:30b", "messages": [{"role": "user", "content": prompt}],
+                  "stream": False, "options": {"temperature": 0.3}},
+            timeout=120,
+        )
+        resp.raise_for_status()
+        raw = resp.json().get("message", {}).get("content", "")
+        from validators import validate_api_response, validate_clip_response
+        parsed, _ = validate_api_response(raw)
+        if parsed:
+            result, _ = validate_clip_response(parsed)
+            return result
+    except Exception as e:
+        logger.warning(f"Local Qwen clip selection failed: {e}")
+    return {"clips": []}
+
+
+def select_clips_with_fallback(videos, max_clips=5):
+    """Try Claude, then Qwen, then last known good, then random. NEVER return 0 clips."""
+
+    # Attempt 1: Claude API (primary)
+    try:
+        result = select_clips(videos)
+        if result.get("clips"):
+            _save_last_good_selection(result)
+            logger.info(f"FALLBACK CHAIN: Claude succeeded — {len(result['clips'])} clips")
+            return result
+        logger.warning("FALLBACK CHAIN: Claude returned 0 clips, trying Qwen...")
+    except Exception as e:
+        logger.error(f"FALLBACK CHAIN: Claude failed: {e}")
+
+    # Attempt 2: Local Qwen via Ollama
+    try:
+        result = _select_clips_local(videos, max_clips)
+        if result.get("clips"):
+            _save_last_good_selection(result)
+            logger.info(f"FALLBACK CHAIN: Qwen succeeded — {len(result['clips'])} clips")
+            return result
+        logger.warning("FALLBACK CHAIN: Qwen returned 0 clips, trying last known good...")
+    except Exception as e:
+        logger.error(f"FALLBACK CHAIN: Qwen failed: {e}")
+
+    # Attempt 3: Last known good selection
+    last_good = _load_last_good_selection()
+    if last_good and last_good.get("clips"):
+        logger.warning(f"FALLBACK CHAIN: Using LAST KNOWN GOOD — {len(last_good['clips'])} clips")
+        return last_good
+
+    # Attempt 4: Random selection (absolute last resort)
+    logger.error("FALLBACK CHAIN: ALL methods failed — random selection")
+    import random
+    shuffled = list(videos)
+    random.shuffle(shuffled)
+    clips = []
+    seen_channels = set()
+    for v in shuffled:
+        ch = v.get("channel", "")
+        if ch in seen_channels:
+            continue
+        seen_channels.add(ch)
+        text = v.get("transcript_text", v.get("timestamped_text", ""))
+        clips.append({
+            "rank": len(clips) + 1,
+            "video_id": v.get("video_id", ""),
+            "channel": ch,
+            "video_title": v.get("title", ""),
+            "start_seconds": 15,
+            "end_seconds": 45,
+            "quote": text[:200] if text else "",
+            "why": "Fallback random selection",
+            "host_setup": "",
+            "host_react": "",
+        })
+        if len(clips) >= max_clips:
+            break
+    return {"clips": clips, "episode_title": "Pulse Check", "cold_open": ""}
 
 
 def select_montage_clips(videos: list) -> dict:
