@@ -1,54 +1,16 @@
 {
   "episodes": [
     {
-      "date": "2026-04-02",
+      "date": "2026-04-04",
       "video_ids": [
-        "Aqo5zYv7U08",
-        "nIT-C1EHPyA",
-        "4kt2KV08axY",
-        "kFCd7czSCkQ",
-        "uRDk8BxQP0g"
+        "zzLrxc6PqRY",
+        "IF13rALnr48",
+        "biotJvfDmIM"
       ],
       "channels": [
-        "Swan Bitcoin",
-        "Bitfarms",
-        "Blockware Solutions",
-        "Digital Asset News",
-        "The Bitcoin Layer"
-      ]
-    },
-    {
-      "date": "2026-04-02",
-      "video_ids": [
-        "Q_s6LhPfoU0",
-        "etTv2PtW2UA",
-        "MXA39ece4_c",
-        "dO9SvaZ4wz0",
-        "uRDk8BxQP0g"
-      ],
-      "channels": [
-        "Stacker News",
-        "Unchained",
-        "Swan Bitcoin",
-        "BTC Sessions",
-        "The Bitcoin Layer"
-      ]
-    },
-    {
-      "date": "2026-04-02",
-      "video_ids": [
-        "8WjGNNF48Dk",
-        "Aqo5zYv7U08",
-        "nIT-C1EHPyA",
-        "8-8CFxRFVWA",
-        "yzIe6gOKU50"
-      ],
-      "channels": [
-        "CoinGecko",
-        "Swan Bitcoin",
-        "Bitfarms",
-        "Compass Mining",
-        "Unchained"
+        "Simply Bitcoin",
+        "Bitcoin Magazine",
+        "TFTC"
       ]
     }
   ]

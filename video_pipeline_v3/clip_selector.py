@@ -105,7 +105,11 @@ def _load_used_clips() -> dict:
         return {"episodes": []}
     try:
         with open(USED_CLIPS_PATH) as f:
-            return json.load(f)
+            data = json.load(f)
+        # Guard: file may contain [] instead of {"episodes": []} (corrupt/reset)
+        if not isinstance(data, dict) or "episodes" not in data:
+            return {"episodes": []}
+        return data
     except Exception:
         return {"episodes": []}
 
