@@ -664,6 +664,13 @@ def select_clips(videos: list) -> dict:
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
     except Exception as e:
         logger.error(f"Claude API error: {e}")
+        # DEBUG: dump raw response for diagnosis
+        import traceback
+        traceback.print_exc()
+        try:
+            with open('/tmp/claude_clip_response_debug.txt', 'w') as dbg:
+                dbg.write(str(text[:2000]) if 'text' in dir() else 'text not defined')
+        except: pass
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
 
