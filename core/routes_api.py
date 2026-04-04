@@ -5258,6 +5258,9 @@ _TERMINAL_FREE_LIMIT = 60
 _TERMINAL_FREE_WINDOW = 3600   # 1 hour
 
 def _terminal_free_rate_ok(ip: str) -> bool:
+    # Exempt localhost — server's own page loads and cron jobs shouldn't count
+    if ip in ("127.0.0.1", "::1", "localhost"):
+        return True
     now = _t.time()
     rec = _terminal_free_rl.get(ip)
     if rec is None or now - rec[1] >= _TERMINAL_FREE_WINDOW:
@@ -5339,11 +5342,55 @@ def _fetch_btc_price_detail() -> dict:
             "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
     except Exception as e:
-        logging.warning("btc_price fetch error: %s", e)
-        return {"price": 0, "change_24h_pct": 0, "change_24h_usd": 0,
-                "change_7d_pct": 0, "change_30d_pct": 0, "high_24h": 0,
-                "low_24h": 0, "market_cap": 0, "dominance": 0,
-                "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
+        logging.warning("btc_price detailed fetch error: %s — trying simple endpoint", e)
+    # Fallback: simpler CoinGecko endpoint (less likely to be rate-limited)
+    try:
+        r = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price",
+            params={"ids": "bitcoin", "vs_currencies": "usd",
+                    "include_24hr_change": "true", "include_market_cap": "true"},
+            timeout=6,
+        )
+        d = r.json().get("bitcoin", {})
+        price = d.get("usd", 0)
+        change_24h = d.get("usd_24h_change", 0)
+        return {
+            "price": round(price, 2),
+            "change_24h_pct": round(change_24h, 2),
+            "change_24h_usd": round(price * change_24h / 100, 2) if price else 0,
+            "change_7d_pct": 0, "change_30d_pct": 0,
+            "high_24h": 0, "low_24h": 0,
+            "market_cap": d.get("usd_market_cap", 0),
+            "dominance": 0,
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    except Exception as e2:
+        logging.warning("btc_price simple fetch also failed: %s", e2)
+    # Final fallback: sovereign context or price_cache.json
+    try:
+        import os as _os
+        for path in [
+            _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "data", "sovereign_context", "latest.json"),
+            _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "data", "price_cache.json"),
+        ]:
+            if _os.path.exists(path):
+                import json as _j
+                with open(path) as _f:
+                    d = _j.load(_f)
+                p = d.get("btc", d).get("price", d.get("1h_ago", 0))
+                if p and p > 0:
+                    return {
+                        "price": round(p, 2), "change_24h_pct": d.get("btc", d).get("change_24h", 0),
+                        "change_24h_usd": 0, "change_7d_pct": 0, "change_30d_pct": 0,
+                        "high_24h": 0, "low_24h": 0, "market_cap": 0, "dominance": 0,
+                        "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "source": "local_cache",
+                    }
+    except Exception:
+        pass
+    return {"price": 0, "change_24h_pct": 0, "change_24h_usd": 0,
+            "change_7d_pct": 0, "change_30d_pct": 0, "high_24h": 0,
+            "low_24h": 0, "market_cap": 0, "dominance": 0,
+            "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
 
 def _fetch_mempool() -> dict:
     try:
