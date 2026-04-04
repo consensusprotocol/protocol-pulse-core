@@ -237,6 +237,81 @@ def _fetch_lightning() -> dict:
     }
 
 
+def _fetch_kol_from_tweets() -> dict:
+    """Fallback: read KOL sentiment from raw_tweets.json when DB table missing."""
+    tweets_path = BASE_DIR / "data" / "tweet_study" / "raw_tweets.json"
+    if not tweets_path.exists():
+        return {"sentiment_score": 50, "top_topics": [], "post_count_24h": 0}
+    try:
+        tweets = json.loads(tweets_path.read_text())
+        if not isinstance(tweets, list):
+            return {"sentiment_score": 50, "top_topics": [], "post_count_24h": 0}
+
+        # Count recent tweets (last 24h)
+        cutoff = datetime.now(timezone.utc).isoformat()[:10]  # today's date
+        recent = [t for t in tweets if (t.get("created_at", "") or "")[:10] >= cutoff]
+        count_24h = len(recent) if recent else len(tweets[-100:])  # fallback to last 100
+
+        # Use last 100 tweets for analysis
+        sample = tweets[-100:]
+
+        # Topic extraction
+        topic_counts = {}
+        keywords = {
+            "etf": ["etf", "blackrock", "ishares", "grayscale"],
+            "halving": ["halving", "halvening", "block reward"],
+            "regulation": ["sec", "regulation", "regulatory", "gensler", "congress"],
+            "mining": ["mining", "hashrate", "miner", "asic"],
+            "lightning": ["lightning", "ln", "layer 2"],
+            "macro": ["fed", "inflation", "interest rate", "treasury", "tariff"],
+            "stablecoin": ["stablecoin", "usdt", "usdc", "tether"],
+        }
+        for t in sample:
+            text = (t.get("text", "") or "").lower()
+            for topic, kws in keywords.items():
+                if any(kw in text for kw in kws):
+                    topic_counts[topic] = topic_counts.get(topic, 0) + 1
+
+        top_topics = sorted(topic_counts, key=topic_counts.get, reverse=True)[:5]
+
+        # Sentiment from keywords
+        bullish_kw = ["bullish", "moon", "pump", "ath", "accumulate", "buy", "long", "breakout"]
+        bearish_kw = ["bearish", "dump", "crash", "sell", "short", "fear", "capitulation"]
+        bull = sum(1 for t in sample if any(k in (t.get("text", "") or "").lower() for k in bullish_kw))
+        bear = sum(1 for t in sample if any(k in (t.get("text", "") or "").lower() for k in bearish_kw))
+        total = bull + bear
+        sentiment_score = int((bull / total * 100) if total > 0 else 50)
+
+        result = {
+            "sentiment_score": sentiment_score,
+            "top_topics": top_topics,
+            "post_count_24h": count_24h,
+            "dominant_sentiment": "bullish" if sentiment_score > 60 else ("bearish" if sentiment_score < 40 else "neutral"),
+            "source": "raw_tweets",
+        }
+
+        # Enrich with transcript intelligence
+        try:
+            ti_path = BASE_DIR / "data" / "intelligence" / "kol_transcript_digest.json"
+            if ti_path.exists():
+                ti = json.loads(ti_path.read_text())
+                ti_score = ti.get("avg_sentiment_score")
+                ti_themes = [t["topic"] for t in ti.get("trending_themes", [])[:3]]
+                if ti_score is not None:
+                    result["sentiment_score"] = int(0.6 * result["sentiment_score"] + 0.4 * ti_score)
+                    result["top_topics"] = list(dict.fromkeys(ti_themes + result["top_topics"]))[:5]
+                    result["source"] = "tweets+transcripts"
+        except Exception:
+            pass
+
+        log.info("KOL from tweets: score=%d, posts_24h=%d, topics=%s",
+                 result["sentiment_score"], count_24h, top_topics)
+        return result
+    except Exception as exc:
+        log.warning("Tweet-based KOL failed: %s", exc)
+        return {"sentiment_score": 50, "top_topics": [], "post_count_24h": 0}
+
+
 def _fetch_kol_sentiment() -> dict:
     """KOL sentiment from kol_pulse_item table (last 50 posts)."""
     db_path = BASE_DIR / "instance" / "protocol_pulse.db"
@@ -249,12 +324,26 @@ def _fetch_kol_sentiment() -> dict:
         conn = sqlite3.connect(str(db_path))
         conn.row_factory = sqlite3.Row
 
+        # Check if kol_pulse_item table exists
+        has_table = conn.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='kol_pulse_item'"
+        ).fetchone()[0]
+
+        if not has_table:
+            conn.close()
+            # Fall back to raw_tweets.json
+            return _fetch_kol_from_tweets()
+
         # Count posts in last 24h
         row = conn.execute(
             "SELECT COUNT(*) as cnt FROM kol_pulse_item "
             "WHERE created_at > datetime('now', '-1 day')"
         ).fetchone()
         count_24h = row["cnt"] if row else 0
+
+        if count_24h == 0:
+            conn.close()
+            return _fetch_kol_from_tweets()
 
         # Last 50 posts for basic topic extraction
         rows = conn.execute(
@@ -734,6 +823,47 @@ def emit_alerts(alerts: List[Alert]):
                  inserted, ", ".join(a.pattern_id for a in alerts))
 
 
+def _fetch_convergence_from_db() -> dict:
+    """Read latest ConvergenceState from DB (written by convergence cron)."""
+    db_path = BASE_DIR / "instance" / "protocol_pulse.db"
+    if not db_path.exists():
+        return {}
+    try:
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT convergence_score, fragmentation_score, momentum_score, "
+            "conviction_score, dominant_thesis_key, confidence "
+            "FROM convergence_state ORDER BY computed_at DESC LIMIT 1"
+        ).fetchone()
+        conn.close()
+        if not row or not row["convergence_score"]:
+            return {}
+        score = round(row["convergence_score"], 1)
+        pattern = "NEUTRAL"
+        if score >= 65:
+            pattern = "BULLISH"
+        elif score >= 55:
+            pattern = "CAUTIOUS BULLISH"
+        elif score <= 35:
+            pattern = "BEARISH"
+        elif score <= 45:
+            pattern = "CAUTIOUS BEARISH"
+        log.info("Convergence from DB: %.1f (%s)", score, pattern)
+        return {
+            "score": score,
+            "pattern": pattern,
+            "fragmentation": round(row["fragmentation_score"] or 0, 1),
+            "momentum": round(row["momentum_score"] or 0, 1),
+            "conviction": round(row["conviction_score"] or 0, 1),
+            "thesis": row["dominant_thesis_key"] or "",
+            "confidence": round(row["confidence"] or 0, 2),
+        }
+    except Exception as exc:
+        log.debug("Convergence DB fetch failed (non-fatal): %s", exc)
+    return {}
+
+
 # ===================================================================
 # MAIN ENGINE
 # ===================================================================
@@ -795,7 +925,10 @@ def _calculate_proprietary_indices(
     ihx_interp = _ihx_real["interpretation"]
     ihx_signal = _ihx_real["direction"]
 
-    return {
+    # 5. Convergence Score — from DB (computed by migrate_and_run_convergence.py)
+    conv = _fetch_convergence_from_db()
+
+    indices = {
         "miner_conviction": {
             "score": miner_conviction,
             "interpretation": mc_interp,
@@ -817,6 +950,9 @@ def _calculate_proprietary_indices(
             "signal": ihx_signal,
         },
     }
+    if conv:
+        indices["convergence_score"] = conv
+    return indices
 
 
 class SovereignContextEngine:

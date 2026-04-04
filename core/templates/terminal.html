@@ -350,6 +350,11 @@ button{font-family:var(--font);cursor:pointer;}
   </div>
   {% endif %}
 
+  <!-- ═══════════════════ SOVEREIGN ORB ═══════════════════ -->
+  <div style="display:flex;justify-content:center;margin:12px 0 4px;">
+    <canvas id="sovereign-orb-canvas" width="180" height="180" style="max-width:180px;"></canvas>
+  </div>
+
   <!-- ═══════════════════ ROW 1 — MARKET OVERVIEW (FREE) ═══════════════════ -->
   <div class="section-label">MARKET OVERVIEW</div>
   <div class="terminal-grid" id="row1">
@@ -1162,6 +1167,12 @@ function copyKey() {
 
 // ── Rank formatting (zero-pad) ────────────────────────────────────
 String.prototype.zfill = function(n) { return this.padStart(n,'0'); };
+</script>
+<script src="{{ url_for('static', filename='js/sovereign_orb.js') }}"></script>
+<script>
+if (typeof SovereignOrb !== 'undefined') {
+    var orb = new SovereignOrb('sovereign-orb-canvas', '/api/orb');
+}
 </script>
 </body>
 </html>

@@ -3271,6 +3271,14 @@ def api_media_sentiment():
             'computed_at': snapshot.computed_at.isoformat() if snapshot.computed_at else snapshot.created_at.isoformat()
         }
 
+        # Enrich with tweet data when DB snapshot has sample_size=0
+        if result['sample_size'] == 0:
+            fallback = _compute_tweet_sentiment_fallback()
+            result['sample_size'] = fallback.get('sample_size', 0)
+            result['keywords'] = fallback.get('keywords', [])
+            result['verified_count'] = fallback.get('verified_count', 0)
+            result['source'] = 'db+tweet_fallback'
+
         # Inject x_spaces data from sentiment.json
         try:
             import os as _os
@@ -3292,18 +3300,62 @@ def api_media_sentiment():
 
         return jsonify(result)
     
-    return jsonify({
-        'score': 50,
-        'state': {
-            'key': 'EQUILIBRIUM',
-            'label': 'EQUILIBRIUM',
-            'color': '#ffffff'
-        },
-        'keywords': [],
-        'sample_size': 0,
-        'verified_count': 0,
-        'computed_at': datetime.utcnow().isoformat()
-    })
+    # Fallback: compute sentiment from raw_tweets.json if DB has no snapshot
+    return jsonify(_compute_tweet_sentiment_fallback())
+
+
+def _compute_tweet_sentiment_fallback():
+    """Compute live sentiment from raw_tweets.json when SentimentSnapshot table is empty."""
+    try:
+        import os as _os
+        tweets_path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                    'data', 'tweet_study', 'raw_tweets.json')
+        if not _os.path.exists(tweets_path):
+            raise FileNotFoundError("raw_tweets.json missing")
+        with open(tweets_path) as f:
+            tweets = json.load(f)
+        if not isinstance(tweets, list) or not tweets:
+            raise ValueError("No tweets")
+
+        # Use last 200 tweets for analysis
+        sample = tweets[-200:]
+        bullish_kw = ["bullish", "buy", "accumulate", "long", "breakout", "ath", "pump", "moon", "green"]
+        bearish_kw = ["bearish", "sell", "short", "crash", "dump", "fear", "capitulation", "red", "rekt"]
+
+        bull = sum(1 for t in sample if any(k in (t.get("text", "") or "").lower() for k in bullish_kw))
+        bear = sum(1 for t in sample if any(k in (t.get("text", "") or "").lower() for k in bearish_kw))
+        total = bull + bear
+        score = int((bull / total * 100) if total > 0 else 50)
+
+        # Top keywords from tweets
+        from collections import Counter
+        word_counts = Counter()
+        for t in sample:
+            text = (t.get("text", "") or "").lower()
+            for kw in bullish_kw + bearish_kw + ["etf", "halving", "mining", "regulation", "tariff", "fed"]:
+                if kw in text:
+                    word_counts[kw] += 1
+        top_kw = [{"word": k, "count": v} for k, v in word_counts.most_common(3)]
+
+        state_key = "GREED" if score > 65 else ("FEAR" if score < 35 else "EQUILIBRIUM")
+        state_color = "#22c55e" if score > 65 else ("#ef4444" if score < 35 else "#ffffff")
+
+        return {
+            'score': score,
+            'state': {'key': state_key, 'label': state_key, 'color': state_color},
+            'keywords': top_kw,
+            'sample_size': len(sample),
+            'verified_count': sum(1 for t in sample if t.get("tier") == "conviction_data"),
+            'computed_at': datetime.utcnow().isoformat(),
+            'source': 'raw_tweets_fallback',
+        }
+    except Exception:
+        return {
+            'score': 50, 'state': {'key': 'EQUILIBRIUM', 'label': 'EQUILIBRIUM', 'color': '#ffffff'},
+            'keywords': [], 'sample_size': 0, 'verified_count': 0,
+            'computed_at': datetime.utcnow().isoformat(),
+        }
+
 
 @api_bp.route('/api/tradfi/signals')
 def api_tradfi_signals():
@@ -6615,4 +6667,140 @@ def api_kol_digest():
         return jsonify(digest)
     except Exception as e:
         logging.error("KOL digest API error: %s", e)
+        return jsonify({"error": str(e)}), 503
+
+
+# ══════════════════════════════════════════════════════════════════════
+# MEDIA ENDPOINTS — migrated from routes.py to fix 404s on blueprint app
+# ══════════════════════════════════════════════════════════════════════
+
+_media_telemetry_cache = {"data": None, "ts": 0}
+
+@api_bp.route('/api/media/telemetry')
+def api_media_telemetry():
+    """Network telemetry for media dashboard: fees, mempool, block height, hashrate."""
+    import time as _t
+    now = _t.time()
+    if _media_telemetry_cache["data"] and (now - _media_telemetry_cache["ts"]) < 30:
+        return jsonify(_media_telemetry_cache["data"])
+    try:
+        import requests as _rq
+        fees = _rq.get("https://mempool.space/api/v1/fees/recommended", timeout=5).json()
+        mempool = _rq.get("https://mempool.space/api/mempool", timeout=5).json()
+        tip = _rq.get("https://mempool.space/api/blocks/tip/height", timeout=5).text
+        hr = _rq.get("https://mempool.space/api/v1/mining/hashrate/3d", timeout=5).json()
+        result = {
+            "fees": fees,
+            "mempool_count": mempool.get("count", 0),
+            "mempool_vsize": mempool.get("vsize", 0),
+            "blockHeight": int(tip) if tip.strip().isdigit() else 0,
+            "hashrate": hr.get("currentHashrate", 0),
+        }
+        _media_telemetry_cache["data"] = result
+        _media_telemetry_cache["ts"] = now
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 502
+
+
+@api_bp.route('/api/stream/media-feed')
+def api_media_feed_sse():
+    """SSE stream for media dashboard — btc price, articles, sentiment updates."""
+    import time as _t
+    def generate():
+        while True:
+            try:
+                import requests as _rq
+                price_data = {}
+                try:
+                    r = _rq.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true", timeout=5)
+                    if r.status_code == 200:
+                        btc = r.json().get("bitcoin", {})
+                        price_data = {"price": btc.get("usd", 0), "change_24h": btc.get("usd_24h_change", 0)}
+                except Exception:
+                    pass
+                event = {"type": "btc_price_update", "data": price_data, "ts": _t.time()}
+                yield f"data: {json.dumps(event)}\n\n"
+                _t.sleep(25)
+            except GeneratorExit:
+                return
+            except Exception:
+                _t.sleep(10)
+    return Response(stream_with_context(generate()), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+_system_health_cache = {"data": None, "ts": 0}
+
+@api_bp.route('/api/system-health')
+def api_system_health():
+    """System health check for media dashboard."""
+    import time as _t
+    now = _t.time()
+    if _system_health_cache["data"] and (now - _system_health_cache["ts"]) < 60:
+        return jsonify(_system_health_cache["data"])
+    try:
+        articles_24h = 0
+        last_article = None
+        try:
+            Article = getattr(models, 'Article', None)
+            if Article:
+                from datetime import datetime, timedelta
+                cutoff = datetime.utcnow() - timedelta(hours=24)
+                articles_24h = Article.query.filter(Article.published_at >= cutoff).count()
+                latest = Article.query.order_by(Article.published_at.desc()).first()
+                last_article = latest.published_at.isoformat() if latest and latest.published_at else None
+        except Exception:
+            pass
+        result = {
+            "status": "operational",
+            "flask": "up",
+            "db": "connected",
+            "articles_24h": articles_24h,
+            "last_article_at": last_article,
+        }
+        _system_health_cache["data"] = result
+        _system_health_cache["ts"] = now
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"status": "degraded", "error": str(e)}), 503
+
+
+_meta_briefing_cache = {"data": None, "ts": 0}
+
+@api_bp.route('/api/media/meta-briefing')
+def api_media_meta_briefing():
+    """AI-generated daily meta-briefing — 24h cache."""
+    import time as _t
+    now = _t.time()
+    if _meta_briefing_cache["data"] and (now - _meta_briefing_cache["ts"]) < 86400:
+        return jsonify(_meta_briefing_cache["data"])
+    try:
+        Article = getattr(models, 'Article', None)
+        if not Article:
+            return jsonify({"briefing": "No article model available.", "generated_at": None})
+        from datetime import datetime, timedelta
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        recent = Article.query.filter(Article.published_at >= cutoff).order_by(
+            Article.published_at.desc()).limit(10).all()
+        if not recent:
+            return jsonify({"briefing": "No articles in the last 24 hours.", "generated_at": None})
+        summaries = "\n".join(f"- {a.title}" for a in recent if a.title)
+        try:
+            import anthropic
+            client = anthropic.Anthropic()
+            resp = client.messages.create(
+                model="claude-haiku-4-5-20251001", max_tokens=400,
+                messages=[{"role": "user", "content":
+                    f"Write a 3-sentence daily briefing summarizing today's Bitcoin news. "
+                    f"Be direct and analytical:\n\n{summaries}"}])
+            briefing = resp.content[0].text.strip()
+        except Exception:
+            briefing = f"Today's coverage: {len(recent)} articles published covering recent Bitcoin developments."
+        result = {"briefing": briefing, "article_count": len(recent),
+                  "generated_at": datetime.utcnow().isoformat()}
+        _meta_briefing_cache["data"] = result
+        _meta_briefing_cache["ts"] = now
+        return jsonify(result)
+    except Exception as e:
         return jsonify({"error": str(e)}), 503
