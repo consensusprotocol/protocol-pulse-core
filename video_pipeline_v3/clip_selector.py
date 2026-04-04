@@ -443,6 +443,11 @@ def select_clips(videos: list) -> dict:
             clean_clips.append(c)
         result["clips"] = clean_clips
 
+        # Auto-assign rank if missing (Claude sometimes omits)
+        for i, c in enumerate(clean_clips):
+            if "rank" not in c:
+                c["rank"] = i + 1
+        
         # Channel dedup: max 1 clip per channel, keep higher-ranked (lower number)
         seen_channels = {}
         deduped_clips = []
@@ -450,13 +455,13 @@ def select_clips(videos: list) -> dict:
             ch = c.get("channel", "")
             if ch in seen_channels:
                 existing = seen_channels[ch]
-                if c["rank"] < existing["rank"]:
+                if c.get("rank", 999) < existing.get("rank", 999):
                     logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {c.get('rank', 0)} clip")
                     deduped_clips.remove(existing)
                     deduped_clips.append(c)
                     seen_channels[ch] = c
                 else:
-                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {existing['rank']} clip")
+                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {existing.get('rank', 0)} clip")
             else:
                 deduped_clips.append(c)
                 seen_channels[ch] = c
