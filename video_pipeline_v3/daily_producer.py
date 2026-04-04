@@ -851,7 +851,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             clips = selections.get("clips", [])
             print(f"  Selected: {len(clips)} clips")
             for c in clips:
-                print(f"    #{c['rank']}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
+                print(f"    #{c.get('rank', 0)}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
             timing["3_select"] = round(time.time() - t0, 2)
 
         if not clips:

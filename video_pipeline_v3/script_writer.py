@@ -192,7 +192,7 @@ def _format_clips_info(selections: dict) -> str:
     parts = []
     for c in clips:
         parts.append(
-            f"CLIP #{c['rank']}:\n"
+            f"CLIP #{c.get('rank', 0)}:\n"
             f"  Channel: {c.get('channel', 'Unknown')}\n"
             f"  Video: {c.get('video_title', 'Untitled')}\n"
             f"  Quote: \"{c.get('quote', '')}\"\n"

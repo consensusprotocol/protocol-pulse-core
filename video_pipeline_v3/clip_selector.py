@@ -534,7 +534,10 @@ def select_clips(videos: list) -> dict:
                     if extra is None:
                         logger.warning(f"Re-selection parse failed after retry. Raw (first 500): {(text2 or '')[:500]}")
                         extra = {"clips": []}
-                    extra_clips = extra.get("clips", [])
+                    # Handle list response (Claude sometimes returns bare array)
+                    if isinstance(extra, list):
+                        extra = {"clips": extra}
+                    extra_clips = extra.get("clips", []) if isinstance(extra, dict) else []
 
                     # Filter extras through ad-read + dedup
                     for ec in extra_clips:
@@ -646,7 +649,7 @@ def select_clips(videos: list) -> dict:
 
         logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed all filters:")
         for c in clean_clips:
-            logger.info(f"  #{c.get('rank', 0)}: [{c['channel']}] {c.get('video_title', '')[:40]} "
+            logger.info(f"  #{c.get('rank', 0)}: [{c.get('channel', '?')}] {c.get('video_title', '')[:40]} "
                         f"({c.get('start_seconds', '?')}-{c.get('end_seconds', '?')}s)")
             logger.info(f"    Quote: \"{c.get('quote', '')[:60]}...\"")
 

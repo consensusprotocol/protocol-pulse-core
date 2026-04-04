@@ -687,9 +687,9 @@ def extract_all(selections: dict, output_dir: str) -> dict:
     extracted = {}
 
     for clip in clips:
-        rank = clip["rank"]
-        video_id = clip["video_id"]
-        start = clip["start_seconds"]
+        rank = clip.get("rank", 0)
+        video_id = clip.get("video_id", "")
+        start = clip.get("start_seconds", 0)
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
 
@@ -805,9 +805,9 @@ def extract_montage_all(montage_selections: dict, output_dir: str) -> dict:
     extracted = {}
 
     for clip in clips:
-        rank = clip["rank"]
-        video_id = clip["video_id"]
-        start = clip["start_seconds"]
+        rank = clip.get("rank", 0)
+        video_id = clip.get("video_id", "")
+        start = clip.get("start_seconds", 0)
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
         output_path = os.path.join(output_dir, f"montage_clip_{rank}_{channel}_{video_id}.mp4")
