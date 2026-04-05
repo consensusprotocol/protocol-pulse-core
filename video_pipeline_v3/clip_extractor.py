@@ -286,36 +286,33 @@ def make_motion_from_static(image_path: str, output_path: str,
 
 
 def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
-    """V10 FIX: AV sync normalization on cached/pre-extracted clips.
+    """V11 FIX: Force CFR 30fps + PTS reset on ALL clips (cached or fresh).
 
-    Cached clips may predate AV sync fixes. Check offset and re-encode if needed.
+    YouTube clips can be VFR (24/25/29.97/60fps variable) which causes audio
+    drift in assembly. Always re-encode to CFR 30fps with aligned timestamps.
     """
     try:
-        offset = check_av_sync(clip_path)
-        if abs(offset) <= 0.08:
-            logger.info(f"  AV sync OK on cached clip {video_id}: {offset:+.3f}s")
-            return
-        logger.warning(f"  AV sync DRIFT on cached clip {video_id}: {offset:+.3f}s — normalizing")
+        offset_before = check_av_sync(clip_path)
         synced = clip_path + ".cachesync.mp4"
         ok = _run_ffmpeg([
             "-fflags", "+genpts",
             "-i", clip_path,
-            "-vf", "setpts=PTS-STARTPTS",
+            "-vf", "setpts=PTS-STARTPTS,fps=30",
             "-af", "asetpts=PTS-STARTPTS",
             "-c:v", "libx264", "-preset", "fast", "-crf", "18",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-r", "30", "-vsync", "cfr",
+            "-vsync", "cfr",
             "-shortest",
             synced,
-        ], f"cache AV sync {video_id}", 120)
+        ], f"CFR sync {video_id}", 120)
         if ok and os.path.exists(synced):
             os.replace(synced, clip_path)
-            post = check_av_sync(clip_path)
-            logger.info(f"  Cache AV sync fixed: {offset:+.3f}s → {post:+.3f}s")
+            offset_after = check_av_sync(clip_path)
+            logger.info(f"  CFR sync applied {video_id}: {offset_before:+.3f}s → {offset_after:+.3f}s")
         elif os.path.exists(synced):
             os.remove(synced)
     except Exception as e:
-        logger.warning(f"  Cache AV sync check failed for {video_id}: {e}")
+        logger.warning(f"  CFR sync failed for {video_id}: {e}")
 
 
 def extract_clip(video_id: str, start_sec: int, end_sec: int,
@@ -410,7 +407,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             resync_ok = _run_ffmpeg([
                 "-i", output_path,
                 "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
-                "-vf", "setpts=PTS-STARTPTS",
+                "-vf", "setpts=PTS-STARTPTS,fps=30",
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                 "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
@@ -539,7 +536,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             resync_ok = _run_ffmpeg([
                 "-i", output_path,
                 "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
-                "-vf", "setpts=PTS-STARTPTS",
+                "-vf", "setpts=PTS-STARTPTS,fps=30",
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                 "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
