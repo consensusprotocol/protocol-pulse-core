@@ -18,6 +18,15 @@ import time
 from datetime import datetime, timedelta
 from typing import Optional
 
+
+def _clean_handle_for_narration(handle: str) -> str:
+    """Strip npub/hex handles for TTS. Keep human-readable handles."""
+    if not handle:
+        return "a Nostr user"
+    if handle.startswith("npub") or re.match(r'^[0-9a-f]{10,}$', handle):
+        return "a Nostr user"
+    return handle.lstrip("@")
+
 log = logging.getLogger("signal_intelligence")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -332,7 +341,8 @@ def _build_content_fallback(content: dict) -> str:
         titles = [q.get("space_title", "X Spaces") for q in spaces[:2]]
         parts.append(f"X Spaces lighting up — {titles[0]} has the signal.")
     if nostr:
-        names = [p.get("display_name", "Nostr") for p in nostr[:2] if p.get("display_name")]
+        names = [_clean_handle_for_narration(p.get("display_name", "")) for p in nostr[:2] if p.get("display_name")]
+        names = [n for n in names if n != "a Nostr user"]  # drop generic placeholders
         if names:
             parts.append(f"Nostr relays active. {names[0]} broadcasting.")
         else:
@@ -363,12 +373,12 @@ def generate_signal_summary(content: dict) -> str:
     if x_posts:
         lines.append("\n=== X POSTS ===")
         for i, xp in enumerate(x_posts, 1):
-            handle = xp.get("handle", "unknown")
+            handle = _clean_handle_for_narration(xp.get("handle", "unknown"))
             lines.append(f"{i}. [@{handle}] \"{xp['text'][:200]}\"")
     if nostr:
         lines.append("\n=== NOSTR POSTS ===")
         for i, p in enumerate(nostr, 1):
-            name = p.get("display_name") or p.get("pubkey", "")[:12]
+            name = _clean_handle_for_narration(p.get("display_name") or p.get("pubkey", "")[:12])
             lines.append(f"{i}. [{name}] \"{p['text']}\"")
 
     context_block = "\n".join(lines)
