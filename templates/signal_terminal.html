@@ -183,7 +183,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 .main-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: var(--col-left) 1fr var(--col-right);
+    grid-template-columns: var(--col-left) minmax(0, 1fr) var(--col-right);
     gap: var(--gap);
     padding: var(--gap);
     overflow: visible;
@@ -199,7 +199,11 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,0.08) transparent;
+    min-width: 0;
 }
+
+.col-left  { min-width: var(--col-left);  width: var(--col-left); }
+.col-right { min-width: var(--col-right); width: var(--col-right); }
 
 .col::-webkit-scrollbar { width: 4px; }
 .col::-webkit-scrollbar-track { background: transparent; }
