@@ -402,8 +402,8 @@ def concatenate_parts(parts: list, output_path: str,
             else:
                 bgm_fade_st = max(0, dur - 3.0)
 
-            # V11 FIX 1: Segment-aware music ducking
-            # Narration: 0.22 (prominent), Clips: 0.08 (barely audible), Social: 0.15
+            # V12 FIX: Segment-aware music ducking
+            # Narration: 0.22 (prominent), Clips: 0.04 (near silent), Social: 0.15
             cumulative_t = 0.0
             clip_ranges = []
             social_ranges = []
@@ -418,7 +418,7 @@ def concatenate_parts(parts: list, output_path: str,
                 elif "social" in pbase or "signal" in pbase:
                     social_ranges.append((t_start, t_end))
             if clip_ranges or social_ranges:
-                # Build volume expression: 0.08 during clips, 0.15 during social, 0.22 otherwise
+                # Build volume expression: 0.04 during clips, 0.15 during social, 0.22 otherwise
                 clip_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in clip_ranges]
                 social_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in social_ranges]
                 # Nested if: check clips first (lowest), then social, then default
@@ -428,7 +428,7 @@ def concatenate_parts(parts: list, output_path: str,
                     vol_inner = f"if({social_test},0.15,0.22)"
                 if clip_conds:
                     clip_test = "+".join(clip_conds)
-                    vol_inner = f"if({clip_test},0.08,{vol_inner})"
+                    vol_inner = f"if({clip_test},0.04,{vol_inner})"
                 vol_expr = f"volume='{vol_inner}':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:

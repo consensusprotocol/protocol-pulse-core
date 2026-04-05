@@ -286,33 +286,37 @@ def make_motion_from_static(image_path: str, output_path: str,
 
 
 def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
-    """V11 FIX: Force CFR 30fps + PTS reset on ALL clips (cached or fresh).
+    """V12 FIX: Aggressive AV sync — async resample + CFR 30fps on ALL clips.
 
-    YouTube clips can be VFR (24/25/29.97/60fps variable) which causes audio
-    drift in assembly. Always re-encode to CFR 30fps with aligned timestamps.
+    YouTube clips can be VFR with audio drift. Force CFR 30fps with
+    aresample=async=1 to stretch/compress audio to match video timing.
     """
     try:
         offset_before = check_av_sync(clip_path)
+        size_before = os.path.getsize(clip_path) / (1024 * 1024)
         synced = clip_path + ".cachesync.mp4"
         ok = _run_ffmpeg([
             "-fflags", "+genpts",
             "-i", clip_path,
-            "-vf", "setpts=PTS-STARTPTS,fps=30",
-            "-af", "asetpts=PTS-STARTPTS",
+            "-vf", "fps=30,setpts=PTS-STARTPTS",
+            "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
             "-c:v", "libx264", "-preset", "fast", "-crf", "18",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-vsync", "cfr",
+            "-async", "1", "-vsync", "cfr",
             "-shortest",
             synced,
-        ], f"CFR sync {video_id}", 120)
-        if ok and os.path.exists(synced):
+        ], f"AV sync {video_id}", 120)
+        if ok and os.path.exists(synced) and os.path.getsize(synced) > 10000:
+            size_after = os.path.getsize(synced) / (1024 * 1024)
             os.replace(synced, clip_path)
             offset_after = check_av_sync(clip_path)
-            logger.info(f"  CFR sync applied {video_id}: {offset_before:+.3f}s → {offset_after:+.3f}s")
-        elif os.path.exists(synced):
-            os.remove(synced)
+            logger.info(f"  AV SYNC: {video_id} {offset_before:+.3f}s → {offset_after:+.3f}s ({size_before:.1f}MB → {size_after:.1f}MB)")
+        else:
+            logger.warning(f"  AV SYNC FAILED: {video_id} — keeping original ({offset_before:+.3f}s)")
+            if os.path.exists(synced):
+                os.remove(synced)
     except Exception as e:
-        logger.warning(f"  CFR sync failed for {video_id}: {e}")
+        logger.warning(f"  AV sync failed for {video_id}: {e}")
 
 
 def extract_clip(video_id: str, start_sec: int, end_sec: int,
