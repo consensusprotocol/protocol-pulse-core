@@ -82,6 +82,17 @@ def is_banned_content(title: str, transcript: str = "") -> bool:
     title_lower = title.lower()
     return any(term in title_lower for term in BANNED_CONTENT_TERMS)
 
+
+def is_english_transcript(text: str) -> bool:
+    """Quick English detection — checks for common English words in first 500 chars."""
+    if not text or len(text) < 50:
+        return True  # too short to tell, allow through
+    common_en = {'the', 'is', 'and', 'to', 'of', 'in', 'that', 'it', 'for', 'was',
+                 'on', 'are', 'with', 'this', 'have', 'from', 'or', 'an', 'be', 'but',
+                 'not', 'you', 'all', 'can', 'had', 'we', 'will', 'what', 'about', 'if'}
+    words = set(text[:500].lower().split())
+    return len(words & common_en) >= 3
+
 # ── GPU Memory Guard ──────────────────────────────────────────────────────────
 MIN_FREE_VRAM_MB = 3000  # Require 3GB free before loading Whisper on CUDA
 
@@ -501,6 +512,10 @@ def scan_all_channels(model_size: str = "base") -> list:
         if is_banned_content(title, transcript):
             banned_count += 1
             logger.info(f"  BANNED: [{video['channel']}] {title[:60]}")
+            continue
+        if not is_english_transcript(transcript):
+            banned_count += 1
+            logger.warning(f"  LANGUAGE FILTER: [{video['channel']}] {title[:60]} — non-English, skipping")
             continue
         video["tier_multiplier"] = get_tier_multiplier(video.get("channel", ""))
         scored.append(video)
