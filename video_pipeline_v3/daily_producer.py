@@ -640,7 +640,9 @@ def preflight_health_check():
         for _line in open(_env):
             if '=' in _line and not _line.strip().startswith('#'):
                 _k, _v = _line.strip().split('=', 1)
-                os.environ.setdefault(_k.strip(), _v.strip().strip("'"'"))
+                _val = _v.strip()
+                if len(_val) >= 2 and _val[0] == _val[-1] and _val[0] in chr(39)+chr(34): _val = _val[1:-1]
+                os.environ.setdefault(_k.strip(), _val)
     has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY"))
     has_elevenlabs = bool(os.environ.get("ELEVENLABS_API_KEY"))
     if not has_anthropic and not has_elevenlabs:
