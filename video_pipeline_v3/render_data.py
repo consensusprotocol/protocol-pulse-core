@@ -136,7 +136,7 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
         ("ETF FLOW", _get_live_metric("etf_flow", "$340M"), "+18 pct", True),
         ("MEMPOOL FEE", _get_live_metric("mempool_fee", "12 sat/vB"), "-8 pct", False),
         ("HALVING PCT", "78 pct", "+0.3 pct", True),
-        ("DOMINANCE", "61.4 pct", "+1.1 pct", True),
+        ("DOMINANCE", _get_live_metric("dominance", "63.5 pct"), "+1.1 pct", True),
     ]
     use_metrics = []
     if metrics:

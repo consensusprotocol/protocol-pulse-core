@@ -342,6 +342,27 @@ def _get_live_metric(key: str, fallback: str) -> str:
                     return f"{eh:,.0f} EH/s"
         except Exception:
             pass
+    # V11 FIX 3: API fallback for BTC dominance
+    if key == "dominance":
+        try:
+            import urllib.request as _ur
+            with _ur.urlopen("https://api.coingecko.com/api/v3/global", timeout=5) as r:
+                data = json.load(r)
+                dom = data.get("data", {}).get("market_cap_percentage", {}).get("btc", 0)
+                if dom and 10 < dom < 100:
+                    return f"{dom:.1f} pct"
+        except Exception:
+            pass
+        # Secondary: mempool.space doesn't have dominance, try sovereign context
+        try:
+            _ctx_path = os.path.join(_PIPELINE_DIR, "data", "sovereign_context", "latest.json")
+            with open(_ctx_path) as _cf:
+                _ctx = json.load(_cf)
+                dom = _ctx.get("btc_dominance", _ctx.get("dominance", 0))
+                if dom and 10 < dom < 100:
+                    return f"{dom:.1f} pct"
+        except Exception:
+            pass
     # API fallback for mempool fee
     if key == "mempool_fee":
         try:
