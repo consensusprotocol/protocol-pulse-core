@@ -634,6 +634,13 @@ def preflight_health_check():
         pass
 
     # Check API keys
+    # Load .env if keys not already in environment
+    _env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+    if os.path.exists(_env):
+        for _line in open(_env):
+            if '=' in _line and not _line.strip().startswith('#'):
+                _k, _v = _line.strip().split('=', 1)
+                os.environ.setdefault(_k.strip(), _v.strip().strip("'"'"))
     has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY"))
     has_elevenlabs = bool(os.environ.get("ELEVENLABS_API_KEY"))
     if not has_anthropic and not has_elevenlabs:
