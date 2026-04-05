@@ -458,6 +458,13 @@ PRONUNCIATION_MAP = {
     # Luke Dashjr
     "Luke Dashjr": "LUKE DASH-junior",
     "Dashjr": "DASH-junior",
+    # Nick Szabo
+    "Nick Szabo": "Nick SAY-bo",
+    "Szabo": "SAY-bo",
+    # Anthony Pompliano
+    "Anthony Pompliano": "Anthony pahm-plee-AH-no",
+    "Pompliano": "pahm-plee-AH-no",
+    "Pomp": "Pomp",
     # Andreas Antonopoulos
     "Andreas Antonopoulos": "ahn-DRAY-us an-TON-oh-POO-lus",
     "Antonopoulos": "an-TON-oh-POO-lus",
@@ -538,6 +545,19 @@ PRONUNCIATION_MAP = {
     "two-and-a-half trillion": "2.5 trillion",
     "two and a half billion": "2.5 billion",
     "two-and-a-half billion": "2.5 billion",
+    # V9 FIX 2: Acronyms — spelled out as individual letters
+    "KYC": "K Y C",
+    "AML": "A M L",
+    "SEC": "S E C",
+    "FBI": "F B I",
+    "IMF": "I M F",
+    "GDP": "G D P",
+    "CPI": "C P I",
+    "OTC": "O T C",
+    "NFT": "N F T",
+    "NFTs": "N F Ts",
+    "DAO": "D A O",
+    "DAOs": "D A Os",
 }
 
 
@@ -1070,22 +1090,8 @@ def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    # Section 2e: Ensure final PBX narration ends with sign-off
-    _SIGNOFF = "Stay free. Stay sovereign. This is PBX, Protocol Pulse."
-    if dialogue:
-        # Find the last non-CLIP entry (the wrap/closing narration)
-        for _i in range(len(dialogue) - 1, -1, -1):
-            _entry = dialogue[_i]
-            if _entry.get("host") not in ("CLIP", "SPACE_CLIP"):
-                _text = _entry.get("text", "")
-                if "Stay free" not in _text and "This is PBX" not in _text:
-                    # Append sign-off to the final narration segment
-                    if _text.rstrip().endswith(('.', '!', '?', '"')):
-                        _entry["text"] = _text.rstrip() + " " + _SIGNOFF
-                    else:
-                        _entry["text"] = _text.rstrip() + ". " + _SIGNOFF
-                    logger.info(f"[TTS] Injected PBX sign-off into final narration segment")
-                break
+    # V9 FIX 8: REMOVED forced PBX sign-off injection.
+    # The script writer generates a natural closing — forced injection was cutting it off.
 
     # V4: Always ElevenLabs PBX
     key = _get_cached_key("ELEVENLABS_API_KEY")

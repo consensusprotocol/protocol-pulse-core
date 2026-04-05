@@ -628,8 +628,8 @@ def concatenate_parts(parts: list, output_path: str,
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard (MUST be LAST audio filter)
-         # V8 FIX 2: Post-loudnorm limiter tightened (was -1.5dBTP → -1.0dBTP with level=disabled)
-         "-af", "asetpts=PTS-STARTPTS,aresample=48000:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true,alimiter=limit=0.89:level=disabled:attack=1:release=50",
+         # V9 FIX 9: True peak brick wall — alimiter AFTER loudnorm with attack=0.1 (near-zero lookahead)
+         "-af", "asetpts=PTS-STARTPTS,aresample=48000:min_hard_comp=0.1:first_pts=0,alimiter=limit=0.841:level=disabled:attack=1:release=50,loudnorm=I=-14:TP=-1.5:LRA=11:linear=true,alimiter=limit=0.89:level=disabled:attack=0.1:release=10",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
@@ -1186,8 +1186,30 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     else:
                         if os.path.exists(stream_copy_out):
                             os.remove(stream_copy_out)
+                        # V9 FIX 1: Waveform visualization from audio (better than bare bg_loop)
+                        waveform_out = clip_out + ".waveform.mp4"
+                        clip_audio_dur_wf = ffprobe_duration(clip_path)
+                        wf_ok = run_ffmpeg([
+                            "-i", clip_path,
+                            "-filter_complex",
+                            f"[0:a]showwaves=s=1920x1080:mode=cline:rate=30:colors={COLOR_RED}|0xFFFFFF@0.3,"
+                            f"drawbox=x=0:y=0:w=1920:h=1080:color=0x0A0A0F@0.6:t=fill,"
+                            f"drawtext=fontfile={FONT_BOLD}:text='{channel}':fontcolor=white:fontsize=36:x=60:y=50,"
+                            f"drawtext=fontfile={FONT_MONO}:text='AUDIO ONLY':fontcolor={COLOR_RED}:fontsize=20:x=60:y=100[outv]",
+                            "-map", "[outv]", "-map", "0:a",
+                            "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                            "-t", str(clip_audio_dur_wf), "-shortest",
+                            waveform_out,
+                        ], f"V9 waveform fallback clip #{rank}", 120)
+                        if wf_ok and os.path.exists(waveform_out):
+                            result = waveform_out
+                            logger.info(f"  V9 FIX 1: Waveform fallback for clip #{rank}")
+                        else:
+                            if os.path.exists(waveform_out):
+                                os.remove(waveform_out)
                         # Last resort: bg_loop video + clip audio
-                        if os.path.exists(BG_LOOP):
+                        if not result and os.path.exists(BG_LOOP):
                             clip_audio_dur = ffprobe_duration(clip_path)
                             bg_fallback_out = clip_out + ".bgfallback.mp4"
                             bg_ok = run_ffmpeg([
@@ -1452,6 +1474,18 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
 
             social_card_idx += len(card_posts)
             prev_segment_type = entry_type
+
+            # V9 FIX 5: Dedup signal_content x_posts against tweet cards already shown
+            if signal_content and signal_content.get("x_posts") and tweet_card_posts:
+                _used_handles = {tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts}
+                _before = len(signal_content["x_posts"])
+                signal_content["x_posts"] = [
+                    p for p in signal_content["x_posts"]
+                    if p.get("handle", "").lower().lstrip("@") not in _used_handles
+                ]
+                _after = len(signal_content["x_posts"])
+                if _before != _after:
+                    logger.info(f"  V9 FIX 5: Deduped {_before - _after} x_posts already in tweet cards")
 
             # Render24 FIX 4: Signal Active as its own segment after tweet cards
             if signal_content and (signal_content.get("spaces_quotes") or signal_content.get("nostr_posts") or signal_content.get("x_posts")):

@@ -1365,9 +1365,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         if not any(d.get("type") == "cold_open" for d in dialogue):
             script_issues.append("Missing cold open")
 
-        # Check: has signoff?
-        if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue):
-            script_issues.append("Missing 'Stay sovereign' signoff")
+        # V9 FIX 7: Removed forced signoff check — script writer generates natural closing
 
         # Check: no banned phrases
         banned = ["let's dive in", "great point", "it's worth noting", "interestingly",
@@ -1421,24 +1419,9 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         else:
             print("  SCRIPT GATE PASSED")
 
-        # V4.3 FIX 8: HARDCODED "Stay sovereign" signoff — always ensure it's the LAST segment
-        if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue):
-            logger.warning("[producer] SIGNOFF MISSING — force-appending hardcoded signoff")
-            dialogue.append({
-                "host": 2,
-                "type": "signoff",
-                "text": "Stay sovereign. This has been Protocol Pulse.",
-                "headline": "STAY SOVEREIGN",
-            })
-        else:
-            # Ensure signoff is LAST — move it if not already at the end
-            for si in range(len(dialogue) - 1, -1, -1):
-                if "stay sovereign" in dialogue[si].get("text", "").lower():
-                    if si != len(dialogue) - 1:
-                        signoff = dialogue.pop(si)
-                        dialogue.append(signoff)
-                        logger.info("[producer] Moved signoff to last position")
-                    break
+        # V9 FIX 7: REMOVED forced "Stay sovereign" signoff injection.
+        # The script writer already generates a natural closing. Forced injection was
+        # cutting off the natural closing at 6:03.
         script["dialogue"] = dialogue
         with open(script_path, "w") as f:
             json.dump(script, f, indent=2)

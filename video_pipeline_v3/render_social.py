@@ -687,8 +687,17 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         handle = _sanitize_text(post.get("handle", "unknown"))
         if not handle.startswith("@"):
             handle = f"@{handle}"
-        # Session fix 9a: Larger tweet text (52px vs 22px) — reduce wrap width to compensate
-        tweet_text = _word_wrap(_sanitize_text(post.get("text", "")), max_width=32, max_lines=3)
+        # V9 FIX 6: Adaptive font/wrap for tweet length — long tweets get smaller font + more lines
+        _raw_tweet = _sanitize_text(post.get("text", ""))
+        if len(_raw_tweet) > 200:
+            tweet_text = _word_wrap(_raw_tweet, max_width=44, max_lines=4)
+            _tweet_fontsize = 36
+        elif len(_raw_tweet) > 120:
+            tweet_text = _word_wrap(_raw_tweet, max_width=38, max_lines=4)
+            _tweet_fontsize = 42
+        else:
+            tweet_text = _word_wrap(_raw_tweet, max_width=32, max_lines=3)
+            _tweet_fontsize = 52
         likes = post.get("likes", 0)
         retweets = post.get("retweets", 0)
         # FIX 2: Detect zero metrics — suppress "0 likes 0 RTs" which looks broken
@@ -733,11 +742,10 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
                    f"text='{handle}':"
                    f"fontcolor={COLOR_RED}:fontsize=14:x=38:y=16[{tag}hdl];\n")
 
-            # Tweet text — bold for readability
-            # Session fix 9a: Tweet text bumped to 52px for readability
+            # Tweet text — bold for readability (V9 FIX 6: adaptive font size)
             fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
                    f"text='{tweet_text}':"
-                   f"fontcolor={COLOR_TEXT}:fontsize=52:x=24:y=52:line_spacing=12:"
+                   f"fontcolor={COLOR_TEXT}:fontsize={_tweet_fontsize}:x=24:y=52:line_spacing=12:"
                    f"box=0[{tag}txt];\n")
 
             # Engagement stats bottom — FIX 2: suppress zero metrics

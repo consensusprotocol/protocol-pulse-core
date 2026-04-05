@@ -649,17 +649,8 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A",
         # Enforce space tap segment presence when space tap clips were provided
         result = _enforce_space_tap_segment(result, selections.get("space_tap_clips", []))
 
-        # V4.2 FIX 5: Force-append "Stay sovereign" signoff if missing
+        # V9 FIX 8: REMOVED forced signoff injection — LLM generates natural closing.
         dialogue = result.get("dialogue", [])
-        if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue
-                    if isinstance(d, dict)):
-            logger.warning("[script] SIGNOFF MISSING — force-appending 'Stay sovereign'")
-            dialogue.append({
-                "host": 2,
-                "text": "Stay sovereign. This has been Protocol Pulse.",
-                "type": "wrap",
-                "headline": "STAY SOVEREIGN",
-            })
 
         # Validate structure
         # Force PBX-only: normalize any host:1 â host:2
