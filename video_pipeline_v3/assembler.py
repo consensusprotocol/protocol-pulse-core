@@ -402,23 +402,34 @@ def concatenate_parts(parts: list, output_path: str,
             else:
                 bgm_fade_st = max(0, dur - 3.0)
 
-            # V4.2 FIX 1: BGM volume raised — -18dB under narration, -26dB during clips
-            # Was: narrator 0.2, clips 0.02, amix 0.08 → inaudible
-            # Now: narrator 0.45, clips 0.06, amix 0.25 + softer sidechain
+            # V11 FIX 1: Segment-aware music ducking
+            # Narration: 0.22 (prominent), Clips: 0.08 (barely audible), Social: 0.15
             cumulative_t = 0.0
-            vol_clauses = []
+            clip_ranges = []
+            social_ranges = []
             for p in valid:
                 pdur = ffprobe_duration(p)
                 pbase = os.path.basename(p).lower()
                 t_start = cumulative_t
                 t_end = cumulative_t + pdur
                 cumulative_t = t_end
-                if "clip_r" in pbase or "clip_" in pbase and "partner" not in pbase:
-                    # Partner clips: duck to 0.06 (-24dB) — audible bed, clip audio still clear
-                    vol_clauses.append(f"between(t,{t_start:.3f},{t_end:.3f})*0.06")
-            if vol_clauses:
-                # V4.2: BGM at -7dB (0.45) for narrator, sidechain + amix bring to ~-18dB effective
-                vol_expr = "volume='if(" + "+".join(f"({vc})" for vc in vol_clauses) + ",1,0.45)':eval=frame"
+                if "clip_r" in pbase or ("clip_" in pbase and "partner" not in pbase):
+                    clip_ranges.append((t_start, t_end))
+                elif "social" in pbase or "signal" in pbase:
+                    social_ranges.append((t_start, t_end))
+            if clip_ranges or social_ranges:
+                # Build volume expression: 0.08 during clips, 0.15 during social, 0.22 otherwise
+                clip_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in clip_ranges]
+                social_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in social_ranges]
+                # Nested if: check clips first (lowest), then social, then default
+                vol_inner = "0.22"
+                if social_conds:
+                    social_test = "+".join(social_conds)
+                    vol_inner = f"if({social_test},0.15,0.22)"
+                if clip_conds:
+                    clip_test = "+".join(clip_conds)
+                    vol_inner = f"if({clip_test},0.08,{vol_inner})"
+                vol_expr = f"volume='{vol_inner}':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
                 bgm_vol_filter = f"volume=0.22,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
@@ -439,8 +450,9 @@ def concatenate_parts(parts: list, output_path: str,
                     f"{bgm_vol_filter}[bgm_raw];"
                     f"[bgm_raw][tts_sc]sidechaincompress="
                     f"threshold=0.04:ratio=4:attack=5:release=200[bgm_ducked];"
+                    # V11 FIX 1: amix weight 1:1 — volume envelope controls BGM level directly
                     f"[tts_main][bgm_ducked]amix=inputs=2:duration=first"
-                    f":weights=1 0.25[mixed_audio];"
+                    f":weights=1 1[mixed_audio];"
                     f"[mixed_audio]aresample=48000[outa]"
                 ),
                 "-map", "0:v", "-map", "[outa]",
