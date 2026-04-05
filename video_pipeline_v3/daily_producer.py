@@ -1311,6 +1311,23 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
 
         # Re-read dialogue AFTER all mutations (Space Tap entries may be in script)
         dialogue = script.get("dialogue", [])
+
+        # V10 FIX: Remove setup/react/clip entries for clips that failed extraction.
+        # A narrator setup with no clip playing is worse than skipping the segment.
+        _extracted_ranks = set(extracted_clips.keys())
+        _pre_filter = len(dialogue)
+        filtered = []
+        for d in dialogue:
+            cr = d.get("clip_rank") or (d.get("rank") if d.get("host") == "CLIP" else 0)
+            if cr and cr not in _extracted_ranks:
+                logger.warning(f"  CLIP FILTER: Removing {d.get('type', 'clip')} for missing clip #{cr}: {d.get('text', '')[:50]}")
+                continue
+            filtered.append(d)
+        if len(filtered) < _pre_filter:
+            logger.info(f"  CLIP FILTER: Removed {_pre_filter - len(filtered)} entries for {len(_extracted_ranks)} extracted clips")
+            dialogue = filtered
+            script["dialogue"] = dialogue
+
         # V4.3 FIX 1: Accept both old (host:2) and new (type-only) format
         # script_writer._extract_segment_tags defaults missing host to 2, so this catches both
         speech_lines = [d for d in dialogue if d.get("host") not in ("CLIP", "SPACE_CLIP", None)]
