@@ -285,6 +285,39 @@ def make_motion_from_static(image_path: str, output_path: str,
     ], f"ken_burns_static {os.path.basename(image_path)}", 120)
 
 
+def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
+    """V10 FIX: AV sync normalization on cached/pre-extracted clips.
+
+    Cached clips may predate AV sync fixes. Check offset and re-encode if needed.
+    """
+    try:
+        offset = check_av_sync(clip_path)
+        if abs(offset) <= 0.08:
+            logger.info(f"  AV sync OK on cached clip {video_id}: {offset:+.3f}s")
+            return
+        logger.warning(f"  AV sync DRIFT on cached clip {video_id}: {offset:+.3f}s — normalizing")
+        synced = clip_path + ".cachesync.mp4"
+        ok = _run_ffmpeg([
+            "-fflags", "+genpts",
+            "-i", clip_path,
+            "-vf", "setpts=PTS-STARTPTS",
+            "-af", "asetpts=PTS-STARTPTS",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+            "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+            "-r", "30", "-vsync", "cfr",
+            "-shortest",
+            synced,
+        ], f"cache AV sync {video_id}", 120)
+        if ok and os.path.exists(synced):
+            os.replace(synced, clip_path)
+            post = check_av_sync(clip_path)
+            logger.info(f"  Cache AV sync fixed: {offset:+.3f}s → {post:+.3f}s")
+        elif os.path.exists(synced):
+            os.remove(synced)
+    except Exception as e:
+        logger.warning(f"  Cache AV sync check failed for {video_id}: {e}")
+
+
 def extract_clip(video_id: str, start_sec: int, end_sec: int,
                  output_path: str, channel: str = "") -> bool:
     """Download exact clip segment with original audio.
@@ -328,6 +361,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
         dur = ffprobe_duration(output_path)
         if dur > 1:
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
+            _ensure_clip_av_sync(output_path, video_id)
             return True
 
     # V4: Check persistent clip cache
@@ -336,6 +370,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
         shutil.copy2(cached, output_path)
         dur = ffprobe_duration(output_path)
         logger.info(f"  Persistent cache HIT: {video_id} ({dur:.1f}s)")
+        _ensure_clip_av_sync(output_path, video_id)
         return True
 
     # Render21 FIX 3: Removed fixed +12s offset — speech onset detection handles intro skip
