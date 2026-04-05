@@ -1118,6 +1118,30 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
         if _before != _after:
             logger.info(f"  V10 POST DEDUP: Removed {_before - _after} x_posts that overlap with tweet cards")
 
+    # V11 FIX 2: Minimum 3 posts in Signal Active (x_posts + nostr combined).
+    # If after dedup + spam filter we have fewer than 3, pad from x_posts cache.
+    if signal_content:
+        _total = len(signal_content.get("x_posts", [])) + len(signal_content.get("nostr_posts", []))
+        if _total < 3:
+            _need = 3 - _total
+            try:
+                from signal_intelligence import _read_x_posts
+                _extra = _read_x_posts(max_posts=_need + 5)
+                _existing_handles = {p.get("handle", "").lower() for p in signal_content.get("x_posts", [])}
+                _existing_handles |= {tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts} if tweet_card_posts else set()
+                _padded = 0
+                for xp in _extra:
+                    if xp.get("handle", "").lower() not in _existing_handles:
+                        signal_content.setdefault("x_posts", []).append(xp)
+                        _existing_handles.add(xp.get("handle", "").lower())
+                        _padded += 1
+                        if _padded >= _need:
+                            break
+                if _padded:
+                    logger.info(f"  V11 FIX 2: Padded Signal Active with {_padded} extra x_posts (was {_total}, now {_total + _padded})")
+            except Exception as _pad_err:
+                logger.warning(f"  V11 FIX 2: Could not pad Signal Active: {_pad_err}")
+
     past_wrap = False  # BUG 8 FIX: Guard flag to skip clips after wrap/outro
     for i, entry in enumerate(dialogue):
         entry_type = entry.get("type", "")

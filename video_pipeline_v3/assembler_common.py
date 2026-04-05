@@ -127,6 +127,9 @@ NOSTR_SPAM_TERMS = [
     'incest', 'onlyfans', 'nude', 'xxx', 'porn', 'naked', 'sex tape',
     'teenage', 'teenagegirls', '#nolimit', 'FolloFFFFvh', 'RssazZZZ',
     'altcoin', 'memecoin', '#solana', '#ethereum', '#eth ', '#nft',
+    # V11 FIX 2: Lightning address spam + zap begging
+    'lightning address', 'lnurl', 'zap me', 'feel free to zap',
+    '@npubx.cash', 'lightning payments', 'can now receive',
     'airdrop', 'shitcoin', 'presale', 'pump it',
     # Session fix 8c: Filter Nick Szabo references (contested attribution, editorial risk)
     'nick szabo', 'szabo',
@@ -146,6 +149,9 @@ def _is_nostr_spam_assembler(post: dict) -> bool:
     # Self-promotional posts ("New article", "Introducing", "Check out")
     promo_starts = ['new article', 'introducing', 'check out', 'just published', 'just launched', 'announcing']
     if any(content.startswith(p) for p in promo_starts):
+        return True
+    # V11 FIX 2: Self-promo ("my address", "my link", "my channel")
+    if 'my ' in content and any(w in content for w in ['address', 'link', 'channel', 'wallet', 'node']):
         return True
     # Too short to be insightful (under 50 chars)
     if len(content.strip()) < 50:
