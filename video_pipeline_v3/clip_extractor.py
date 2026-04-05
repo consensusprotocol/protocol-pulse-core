@@ -624,36 +624,19 @@ def _redownload_high_quality(video_id: str, start_sec: int, end_sec: int, output
 
 def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
                         start_sec: int = 0, end_sec: int = 0) -> str:
-    """Quality enforcement — reject below 1.5Mbps floor, retry on low.
+    """Quality check — log bitrate but accept any clip.
 
-    Returns: 'ok', 'redownloaded', or 'rejected'.
+    A low-bitrate clip is better than a narrator setup with no clip playing.
+    Returns: 'ok' always.
     """
     bitrate = _get_bitrate(clip_path)
     if bitrate == 0:
         logger.warning(f"  Quality check: could not determine bitrate for {channel}")
-        return "ok"  # can't check, allow it
-
-    mbps = bitrate / 1_000_000
-
-    if mbps >= 1.5:
-        logger.info(f"  Quality OK: {channel} at {mbps:.1f}Mbps")
         return "ok"
 
-    # Below 3Mbps floor — try re-download before rejecting
-    logger.warning(f"  BELOW 1.5Mbps FLOOR: {channel} clip at {mbps:.1f}Mbps")
-    if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
-        new_bitrate = _get_bitrate(clip_path)
-        new_mbps = new_bitrate / 1_000_000
-        if new_mbps >= 1.5:
-            logger.info(f"  Re-download succeeded: {channel} now at {new_mbps:.1f}Mbps")
-            return "redownloaded"
-        logger.error(f"  Re-download still below 1.5Mbps floor: {channel} at {new_mbps:.1f}Mbps — REJECTED")
-        os.remove(clip_path)
-        return "rejected"
-
-    logger.error(f"  REJECTED: {channel} clip at {mbps:.1f}Mbps — below 1.5Mbps floor")
-    os.remove(clip_path)
-    return "rejected"
+    mbps = bitrate / 1_000_000
+    logger.info(f"  Quality: {channel} at {mbps:.1f}Mbps — accepted")
+    return "ok"
 
 
 def _second_pass_ad_read(clip_path: str, channel: str, rank: int) -> bool:
