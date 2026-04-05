@@ -1091,6 +1091,21 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
     except Exception as _sig_err:
         logger.warning(f"  FIX 7: Signal intelligence import failed: {_sig_err}")
 
+    # V10 FIX: Dedup signal x_posts against tweet card posts BEFORE main loop.
+    # Ensures narration AND visuals both exclude posts already shown as tweet cards.
+    if signal_content and signal_content.get("x_posts") and tweet_card_posts:
+        _used_handles = {tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts}
+        _used_texts = {tp.get("text", "")[:80].lower() for tp in tweet_card_posts if tp.get("text")}
+        _before = len(signal_content["x_posts"])
+        signal_content["x_posts"] = [
+            p for p in signal_content["x_posts"]
+            if (p.get("handle", "").lower().lstrip("@") not in _used_handles
+                and p.get("text", "")[:80].lower() not in _used_texts)
+        ]
+        _after = len(signal_content["x_posts"])
+        if _before != _after:
+            logger.info(f"  V10 POST DEDUP: Removed {_before - _after} x_posts that overlap with tweet cards")
+
     past_wrap = False  # BUG 8 FIX: Guard flag to skip clips after wrap/outro
     for i, entry in enumerate(dialogue):
         entry_type = entry.get("type", "")
@@ -1475,17 +1490,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
             social_card_idx += len(card_posts)
             prev_segment_type = entry_type
 
-            # V9 FIX 5: Dedup signal_content x_posts against tweet cards already shown
-            if signal_content and signal_content.get("x_posts") and tweet_card_posts:
-                _used_handles = {tp.get("handle", "").lower().lstrip("@") for tp in tweet_card_posts}
-                _before = len(signal_content["x_posts"])
-                signal_content["x_posts"] = [
-                    p for p in signal_content["x_posts"]
-                    if p.get("handle", "").lower().lstrip("@") not in _used_handles
-                ]
-                _after = len(signal_content["x_posts"])
-                if _before != _after:
-                    logger.info(f"  V9 FIX 5: Deduped {_before - _after} x_posts already in tweet cards")
+            # V9 FIX 5 moved to early dedup (before main loop) — see V10 POST DEDUP above
 
             # Render24 FIX 4: Signal Active as its own segment after tweet cards
             if signal_content and (signal_content.get("spaces_quotes") or signal_content.get("nostr_posts") or signal_content.get("x_posts")):
