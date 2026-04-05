@@ -1200,6 +1200,7 @@ def podcasts():
             'title': 'The Genesis Book',
             'host': 'Matty Ice & Aaron van Wirdum',
             'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
+            'playlist_url': 'https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
             'episodes': [
                 {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
                 {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
@@ -1218,6 +1219,7 @@ def podcasts():
             'description': s['description'],
             'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
             'ep_count': len(s['episodes']),
+            'playlist_url': s.get('playlist_url', ''),
         })
     total_episodes = sum(len(s['episodes']) for s in series_config.values())
     return render_template('podcasts.html',
@@ -1496,6 +1498,7 @@ def media_hub():
             'title': 'The Genesis Book',
             'host': 'Matty Ice & Aaron van Wirdum',
             'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
+            'playlist_url': 'https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
             'episodes': [
                 {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
                 {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
@@ -1515,6 +1518,7 @@ def media_hub():
             'description': s['description'],
             'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
             'ep_count': len(s['episodes']),
+            'playlist_url': s.get('playlist_url', ''),
         })
 
     # Latest Cypherpunk'd episodes (from media_feed_service DB)

@@ -180,8 +180,39 @@
       {% endfor %}
     </div>
     <div id="sdPanel" class="sd">
-      <div class="sd-top"><h3 class="sd-title" id="sdTitle"></h3><button class="sd-x" onclick="closeSD()"><i class="fas fa-times"></i></button></div>
+      <div class="sd-top"><h3 class="sd-title" id="sdTitle"></h3><a id="sdPlaylist" href="#" target="_blank" rel="noopener" style="display:none;margin-left:auto;margin-right:12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--red);text-decoration:none;border:1px solid var(--border);padding:6px 12px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'"><i class="fab fa-youtube" style="margin-right:4px"></i> Full Playlist</a><button class="sd-x" onclick="closeSD()"><i class="fas fa-times"></i></button></div>
       <div class="sd-main"><div class="sd-vid"><iframe id="sdIf" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div><div class="sd-eps" id="sdEps"></div></div>
+    </div>
+  </div>
+
+  <!-- PARTNER PODCASTS -->
+  <div class="sec" id="partners">
+    <div class="sec-lab">Partner Network</div>
+    <h2 class="sec-h">Featured Podcasts</h2>
+    <p class="sec-desc">Voices from across the Bitcoin ecosystem.</p>
+    <div class="sg">
+      <div class="sc" style="cursor:default;">
+        <div class="sc-img-w" style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;padding:24px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--bright);letter-spacing:2px;">BTC<span style="color:var(--red);">BOOMERS</span></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);letter-spacing:2px;margin-top:8px;">EST. 2025</div>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-host">Gary Leland, Lawrence Lepard & Bob Burnett</div>
+          <h3 class="sc-name">The Bitcoin Boomers</h3>
+          <p class="sc-desc">The Bitcoin podcast your parents will actually listen to.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <a href="https://www.youtube.com/@BTCBoomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
+            <a href="https://podcasts.apple.com/us/podcast/the-bitcoin-boomers/id1853058330" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
+            <a href="https://open.spotify.com/episode/1A915zKP4GWfKcPbh564YK" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
+            <a href="https://fountain.fm/show/kHBRZl0Mb0MGWMELtjw4" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
+            <a href="https://x.com/btc_boomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-x-twitter"></i> X</a>
+            <a href="https://thebitcoinboomers.com" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-globe"></i> Website</a>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);padding:4px 10px;border-radius:4px;"><i class="fas fa-satellite-dish" style="font-size:7px;"></i> Produced by Protocol Pulse</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -203,7 +234,7 @@
 <script>
 var SD={{ series_data|tojson }},curS=null;
 function escH(t){var d=document.createElement('div');d.appendChild(document.createTextNode(t));return d.innerHTML}
-function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1&playsinline=1&rel=0';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
+function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var plBtn=document.getElementById('sdPlaylist');if(s.playlist_url){plBtn.href=s.playlist_url;plBtn.style.display='inline-flex'}else{plBtn.style.display='none'}var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1&playsinline=1&rel=0';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
 function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
 function closeSD(){document.getElementById('sdIf').src='';document.getElementById('sdPanel').classList.remove('active');curS=null}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSD()});
