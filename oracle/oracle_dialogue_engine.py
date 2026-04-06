@@ -24,7 +24,7 @@ from datetime import datetime
 logger = logging.getLogger("oracle_dialogue")
 
 # ── Constants ─────────────────────────────────────────────────────────────
-MAX_RESPONSE_WORDS = 32   # 30w answer + 2w buffer for trailing question
+MAX_RESPONSE_WORDS = 55   # 50w answer + 5w buffer for trailing question
 MAX_HISTORY_TURNS  = 8    # Keep last 8 exchanges for context
 SESSION_TTL        = 1800 # 30 min idle expiry
 
@@ -178,7 +178,7 @@ _SYSTEM_PROMPT = """You are the Oracle — the sovereign Bitcoin intelligence AI
 IDENTITY: Direct, warm, deeply knowledgeable. You speak like a trusted advisor who happens to know everything about Bitcoin, Austrian economics, monetary history, and sovereignty tools. You reference Satoshi, Hayek, and Rothbard naturally. You are not a salesperson. You are a guide.
 
 HARD RULES (non-negotiable):
-1. MAXIMUM 30 WORDS PER RESPONSE. You will be spoken aloud by a text-to-speech engine. Brevity is everything.
+1. MAXIMUM 50 WORDS PER RESPONSE. You will be spoken aloud by a text-to-speech engine. Brevity is everything.
 2. NO markdown, no bullet points, no lists, no headers. Plain conversational sentences only.
 3. NO digits — write all numbers as words ("eighty-three thousand dollars", not "$83,000").
 4. NO "Bitaxe" — always say "Bit-Axe" (two words, hyphenated). Never "bite-axe".
@@ -924,7 +924,7 @@ def generate_response(
             },
             json={
                 "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 100,  # ~30 words safety buffer
+                "max_tokens": 180,  # ~30 words safety buffer
                 "system": _SYSTEM_PROMPT,
                 "messages": messages,
             },
