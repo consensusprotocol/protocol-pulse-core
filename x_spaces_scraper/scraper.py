@@ -109,7 +109,11 @@ def _score_space(space: dict) -> float:
     started = space.get("started_at", "")
     if started:
         try:
-            dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+            # Handle both ISO format and Twitter date format
+            if "T" in started or started.endswith("Z"):
+                dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+            else:
+                dt = datetime.strptime(started, "%a %b %d %H:%M:%S %z %Y")
             age_minutes = (datetime.now(timezone.utc) - dt).total_seconds() / 60
             if age_minutes <= 120:
                 score += 15
@@ -118,13 +122,24 @@ def _score_space(space: dict) -> float:
         except (ValueError, TypeError):
             pass
 
+    # Also score on tweet text context (for profile-polled spaces)
+    tweet_text = (space.get("tweet_text") or "").lower()
+    if tweet_text:
+        for kw in TITLE_KEYWORDS:
+            if kw in tweet_text:
+                score += 10
+                break
+
     # Live spaces get priority over ended
     if space.get("state") == "live":
         score += 25
 
-    host_h = (space.get("host_handle") or "").lower().lstrip("@")
-    if host_h in TIER1_HANDLES: score += 50
-    elif host_h in TIER2_HANDLES: score += 25
+    host_h = (space.get("host_handle") or "").lstrip("@")
+    # Case-insensitive check against handle sets
+    tier1_lower = {h.lower() for h in TIER1_HANDLES}
+    tier2_lower = {h.lower() for h in TIER2_HANDLES}
+    if host_h.lower() in tier1_lower: score += 50
+    elif host_h.lower() in tier2_lower: score += 25
     return score
 
 
@@ -146,122 +161,34 @@ def find_live_bitcoin_spaces() -> list[dict]:
 
 
 def _find_live_bitcoin_spaces_inner() -> list[dict]:
-    bearer = _get_bearer_token()
-    if not bearer:
-        logger.warning("[SpaceTap] TWITTER_BEARER_TOKEN not set — cannot search spaces")
-        return []
+    """Detect Bitcoin Spaces via free profile-polling + nitter URL scanning.
+
+    Replaces the $5K/mo Twitter API v2 Spaces search that returned 403.
+    Uses profile_poller.find_live_spaces() which combines:
+      1. Nitter raw_tweets.json scan for Space URLs
+      2. Twitter syndication timeline polling for KOL handles
+    """
+    from x_spaces_scraper.profile_poller import find_live_spaces
 
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Check cache (30-min TTL)
-    now = datetime.now(timezone.utc)
-    cache_key = now.strftime("%Y%m%d_%H")
-    # Use half-hour buckets
-    half = "00" if now.minute < 30 else "30"
-    cache_file = CACHE_DIR / f"live_spaces_{cache_key}{half}.json"
-
-    if cache_file.exists():
-        try:
-            cached = json.loads(cache_file.read_text())
-            cache_age = time.time() - cached.get("fetched_at", 0)
-            if cache_age < 1800:  # 30 min
-                logger.info(f"[SpaceTap] Using cached spaces ({len(cached['spaces'])} spaces, {cache_age:.0f}s old)")
-                return cached["spaces"]
-        except (json.JSONDecodeError, KeyError):
-            pass
-
-    session = requests.Session()
-    session.headers["Authorization"] = f"Bearer {bearer}"
-
-    seen_ids: set[str] = set()
-    all_spaces: list[dict] = []
-
-    # Search both live and ended states
-    for state in ("live", "ended"):
-        for query in SEARCH_QUERIES:
-            try:
-                r = session.get(
-                    "https://api.twitter.com/2/spaces/search",
-                    params={
-                        "query": query,
-                        "state": state,
-                        "space.fields": "creator_id,title,participant_count,started_at,state",
-                    },
-                    timeout=15,
-                )
-                if r.status_code == 429:
-                    logger.warning("[SpaceTap] API rate limited — skipping live search")
-                    # Return whatever we have so far
-                    break
-                if r.status_code != 200:
-                    logger.warning(f"[SpaceTap] Spaces search {query}/{state}: HTTP {r.status_code}")
-                    continue
-
-                data = r.json()
-                spaces = data.get("data", [])
-
-                for s in spaces:
-                    sid = s.get("id", "")
-                    if not sid or sid in seen_ids:
-                        continue
-                    seen_ids.add(sid)
-
-                    space_dict = {
-                        "space_id": sid,
-                        "title": s.get("title", ""),
-                        "creator_id": s.get("creator_id", ""),
-                        "participant_count": s.get("participant_count", 0),
-                        "started_at": s.get("started_at", ""),
-                        "state": s.get("state", "").lower(),
-                    }
-                    all_spaces.append(space_dict)
-
-            except requests.exceptions.RequestException as e:
-                logger.debug(f"[SpaceTap] Search {query}/{state} request error: {e}")
-            except Exception as e:
-                logger.debug(f"[SpaceTap] Search {query}/{state} error: {e}")
+    all_spaces = find_live_spaces(max_age_hours=24)
 
     if not all_spaces:
-        logger.info("[SpaceTap] No live Bitcoin spaces found")
+        logger.info("[SpaceTap] No Bitcoin spaces found via free detection")
         return []
 
-    # Filter ended spaces: must be within 6 hours
-    cutoff = datetime.now(timezone.utc)
-    filtered = []
+    # Re-score with the original scoring function and normalize format
     for s in all_spaces:
-        if s["state"] == "ended":
-            started = s.get("started_at", "")
-            if started:
-                try:
-                    dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-                    age_hours = (cutoff - dt).total_seconds() / 3600
-                    if age_hours > 6:
-                        continue
-                except (ValueError, TypeError):
-                    continue
-        # Filter: minimum 3 participants
-        pc = s.get("participant_count", 0) or 0
-        if pc < 3:
-            continue
-        filtered.append(s)
-
-    # Score and sort
-    for s in filtered:
         s["score"] = _score_space(s)
-    filtered.sort(key=lambda x: x["score"], reverse=True)
+    all_spaces.sort(key=lambda x: x["score"], reverse=True)
 
-    # Top 5
-    result = filtered[:5]
+    result = all_spaces[:5]
 
-    logger.info(f"[SpaceTap] Found {len(result)} live Bitcoin spaces")
+    logger.info(f"[SpaceTap] Found {len(result)} Bitcoin spaces via free detection")
     for s in result[:3]:
-        logger.info(f"[SpaceTap]   '{s['title']}' — {s.get('participant_count', 0)} listeners (score={s['score']:.0f}, {s['state']})")
-
-    # Cache
-    cache_file.write_text(json.dumps({
-        "spaces": result,
-        "fetched_at": time.time(),
-    }, indent=2))
+        method = s.get("detected_via", "unknown")
+        logger.info(f"[SpaceTap]   [{method}] @{s.get('host_handle', '?')}: '{s.get('title', '')[:60]}' (score={s['score']:.0f})")
 
     return result
 
