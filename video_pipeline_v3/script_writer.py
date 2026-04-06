@@ -57,6 +57,16 @@ STRUCTURE (mandatory):
    - [CLIP plays]
    - Reaction (2-3 sentences): Your take. Be opinionated. Agree or disagree with the clip. Start with the IMPLICATION: "What this means is—", "The signal here is—", "Nobody's talking about—"
 
+
+3B. CLIP WRAP / DATA BRIDGE (1-2 sentences, MANDATORY after the last clip reaction):
+   Close the partner channel analysis with a synthesizing observation, then naturally bridge to the data segment.
+   This prevents an abrupt jump from editorial commentary to raw metrics.
+   Examples:
+   - "That's the signal from today's sharpest voices. Now let's see what the chain itself is saying."
+   - "Three different angles, same conclusion. Let's check the numbers."
+   - "The conviction is clear across the board. Here's what the protocol-level data confirms."
+   Use type: "setup", tag: [NARRATION]. This MUST be the last narration line before the data segment begins.
+
 4. DATA SEGMENT: Hard metrics. Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. 3-4 lines minimum. Each with a metric AND an implication.
 
 5. SOCIAL SEGMENT (if social posts data provided below — skip entirely if "NONE"):

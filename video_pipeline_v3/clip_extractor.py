@@ -298,11 +298,15 @@ def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
         ok = _run_ffmpeg([
             "-fflags", "+genpts",
             "-i", clip_path,
+            # V15 FIX: AAC priming compensation — shift audio 45ms earlier
+            "-itsoffset", "-0.045",
+            "-i", clip_path,
+            "-map", "0:v:0", "-map", "1:a:0",
             "-vf", "fps=30,setpts=PTS-STARTPTS",
-            "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+            "-af", "asetpts=PTS-STARTPTS",
             "-c:v", "libx264", "-preset", "fast", "-crf", "18",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-async", "1", "-vsync", "cfr",
+            "-vsync", "cfr",
             "-shortest",
             synced,
         ], f"AV sync {video_id}", 120)

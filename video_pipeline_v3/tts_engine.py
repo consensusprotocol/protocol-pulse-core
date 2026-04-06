@@ -507,9 +507,9 @@ PRONUNCIATION_MAP = {
     # V4.2: Pronunciation fixes — acronyms and common mispronunciations
     "ETFs": "E-T-Fs",
     "ETF": "E-T-F",
-    "fiat": "fee-at",
-    "Fiat": "Fee-at",
-    "FIAT": "FEE-AT",
+    "fiat": "FY-at",
+    "Fiat": "Fy-at",
+    "FIAT": "FY-AT",
     "DeFi": "dee-FYE",
     "defi": "dee-FYE",
     # Technical terms
@@ -527,7 +527,7 @@ PRONUNCIATION_MAP = {
     "multisig": "MUL-tee-sig",
     "satoshis": "sah-TOH-sheez",
     "MicroStrategy": "My-crow-Strategy",
-    "Coinbase": "KOYN-base",
+    "Coinbase": "Coin base",
     "Binance": "BY-nance",
     "Chainalysis": "CHAIN-uh-LY-sis",
     # Issue 10: BTC → Bitcoin spoken form
