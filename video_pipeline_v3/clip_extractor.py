@@ -110,9 +110,9 @@ def check_av_sync(clip_path: str) -> float:
         import json as _json
         data = _json.loads(result.stdout)
         packets = data.get("packets", [])
-        v_dts = next((float(p.get("dts_time", 0)) for p in packets if p.get("codec_type") == "video"), 0)
-        a_dts = next((float(p.get("dts_time", 0)) for p in packets if p.get("codec_type") == "audio"), 0)
-        offset = a_dts - v_dts
+        v_pts = next((float(p.get("pts_time", 0)) for p in packets if p.get("codec_type") == "video"), 0)
+        a_pts = next((float(p.get("pts_time", 0)) for p in packets if p.get("codec_type") == "audio"), 0)
+        offset = a_pts - v_pts
         logger.info(f"AV packet-level offset for {os.path.basename(clip_path)}: {offset:+.3f}s")
         if abs(offset) > 0.05:
             logger.warning(f"WARNING: AV offset {offset:+.3f}s exceeds 0.05s threshold after fix")
