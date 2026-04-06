@@ -498,6 +498,32 @@ def api_admin_system_health():
         'timestamp': datetime.utcnow().isoformat() + 'Z',
     })
 
+@admin_bp.route('/api/admin/data-health')
+def api_admin_data_health():
+    """Data staleness check for all intelligence sources. No auth required for monitoring."""
+    try:
+        import sys as _sys_wd, importlib.util
+        _wd_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "services", "data_staleness_watchdog.py")
+        _spec = importlib.util.spec_from_file_location("data_staleness_watchdog", _wd_path)
+        _mod = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        check_all = _mod.check_all
+        sources = check_all()
+        critical = sum(1 for s in sources if s["status"] in ("CRITICAL", "MISSING"))
+        warning = sum(1 for s in sources if s["status"] == "WARNING")
+        ok = sum(1 for s in sources if s["status"] == "OK")
+        overall = "CRITICAL" if critical > 0 else ("WARNING" if warning > 0 else "OK")
+        return jsonify({
+            "overall": overall,
+            "counts": {"ok": ok, "warning": warning, "critical": critical},
+            "sources": sources,
+            "checked_at": datetime.utcnow().isoformat() + "Z",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "overall": "ERROR"}), 500
+
+
 @admin_bp.route('/api/admin/revenue-stats')
 @login_required
 @admin_required

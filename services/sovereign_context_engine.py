@@ -823,6 +823,50 @@ def emit_alerts(alerts: List[Alert]):
                  inserted, ", ".join(a.pattern_id for a in alerts))
 
 
+def _fetch_normalized_indices_from_db() -> dict:
+    """Read latest MCX/EPX/IHX from signals_normalized table (written by signal_normalizer cron)."""
+    db_path = BASE_DIR / "instance" / "protocol_pulse.db"
+    if not db_path.exists():
+        return {}
+    try:
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        result = {}
+        for key in ['miner_conviction', 'exchange_pressure', 'insider_heat']:
+            row = conn.execute(
+                "SELECT score_0_100, direction, state_label, explanation_json "
+                "FROM signals_normalized WHERE signal_key = ? "
+                "ORDER BY computed_at DESC LIMIT 1", (key,)
+            ).fetchone()
+            if row:
+                score = round(row["score_0_100"], 1)
+                direction = row["direction"]
+                explanation = {}
+                try:
+                    import json as _ej
+                    explanation = _ej.loads(row["explanation_json"] or "{}")
+                except Exception:
+                    pass
+                result[key] = {
+                    "score": score,
+                    "direction": direction,
+                    "state_label": row["state_label"],
+                    "headline": explanation.get("headline", ""),
+                }
+        conn.close()
+        if result:
+            log.info(
+                "Normalized indices from DB: MCX=%.1f EPX=%.1f IHX=%.1f",
+                result.get('miner_conviction', {}).get('score', 0),
+                result.get('exchange_pressure', {}).get('score', 0),
+                result.get('insider_heat', {}).get('score', 0),
+            )
+        return result
+    except Exception as exc:
+        log.debug("Normalized indices DB fetch failed (non-fatal): %s", exc)
+    return {}
+
+
 def _fetch_convergence_from_db() -> dict:
     """Read latest ConvergenceState from DB (written by convergence cron)."""
     db_path = BASE_DIR / "instance" / "protocol_pulse.db"
@@ -874,40 +918,69 @@ def _calculate_proprietary_indices(
 ) -> dict:
     """Compute Protocol Pulse proprietary branded indices from raw data.
 
+    PRIMARY: reads MCX/EPX/IHX from signals_normalized table (signal_normalizer cron).
+    FALLBACK: computes locally if DB read fails.
+
     Three indices (consensus P0 from cross-LLM audit):
       1. Miner Conviction Index — hashrate strength vs price weakness
-      2. Exchange Pressure Ratio — -2 to +2 flow directional score
-      3. Social-to-Market Divergence — KOL sentiment vs price action delta
+      2. Exchange Pressure Ratio — exchange absorption vs distribution
+      3. Insider Heat Index — political/insider salience
     """
-    hashrate = network.get("hashrate_eh", 0)
-    change_7d = btc.get("change_7d", 0)
-    change_24h = btc.get("change_24h", 0)
-    kol_score = kol.get("sentiment_score", 50)
-    fg_val = fg.get("value", 50)
+    # ── PRIMARY: Read from signal_normalizer DB ────────────────────────
+    norm_db = _fetch_normalized_indices_from_db()
 
-    # 1. Miner Conviction Index (0-100 scale, >50 = conviction, <50 = capitulation)
-    # Normalized: hashrate relative to ~900 EH/s baseline + inverse price pressure
-    hashrate_norm = min(100, (hashrate / 900) * 50) if hashrate > 0 else 25
-    price_pressure = max(-25, min(25, -change_7d))  # negative change = positive conviction
-    miner_conviction = max(0, min(100, int(hashrate_norm + price_pressure + 25)))
-
-    if miner_conviction >= 70:
-        mc_interp = "Miners expanding despite price consolidation — supply shock precursor."
-        mc_signal = "bullish"
-    elif miner_conviction <= 30:
-        mc_interp = "Miner stress detected — potential capitulation zone."
-        mc_signal = "bearish"
+    if norm_db.get('miner_conviction'):
+        mc = norm_db['miner_conviction']
+        miner_conviction = mc['score']
+        mc_signal = "bullish" if mc['direction'] == 1 else ("bearish" if mc['direction'] == -1 else "neutral")
+        mc_interp = mc.get('headline') or ("Miners expanding" if mc_signal == "bullish" else "Miner activity within normal range.")
     else:
-        mc_interp = "Miner activity within normal range."
-        mc_signal = "neutral"
+        # FALLBACK: local computation
+        hashrate = network.get("hashrate_eh", 0)
+        change_7d = btc.get("change_7d", 0)
+        hashrate_norm = min(100, (hashrate / 900) * 50) if hashrate > 0 else 25
+        price_pressure = max(-25, min(25, -change_7d))
+        miner_conviction = max(0, min(100, int(hashrate_norm + price_pressure + 25)))
+        if miner_conviction >= 70:
+            mc_interp = "Miners expanding despite price consolidation — supply shock precursor."
+            mc_signal = "bullish"
+        elif miner_conviction <= 30:
+            mc_interp = "Miner stress detected — potential capitulation zone."
+            mc_signal = "bearish"
+        else:
+            mc_interp = "Miner activity within normal range."
+            mc_signal = "neutral"
+        log.warning("MCX fallback: signals_normalized unavailable, using local computation")
 
-    # 2. Exchange Pressure — REAL DATA from OKX (long/short + taker buy ratio)
-    _epx_real = _fetch_epx_real()
-    ep_score = _epx_real["score"]        # 0-100 scale (was -2 to +2)
-    ep_interp = _epx_real["interpretation"]
-    ep_signal = _epx_real["direction"]
+    if norm_db.get('exchange_pressure'):
+        ep = norm_db['exchange_pressure']
+        ep_score = ep['score']
+        ep_signal = "bullish" if ep['direction'] == 1 else ("bearish" if ep['direction'] == -1 else "neutral")
+        ep_interp = ep.get('headline') or "Exchange pressure data from normalizer."
+    else:
+        # FALLBACK: OKX real data
+        _epx_real = _fetch_epx_real()
+        ep_score = _epx_real["score"]
+        ep_interp = _epx_real["interpretation"]
+        ep_signal = _epx_real["direction"]
+        log.warning("EPX fallback: signals_normalized unavailable, using OKX direct")
 
-    # 3. Social-to-Market Divergence (kept as-is for existing dashboard)
+    if norm_db.get('insider_heat'):
+        ih = norm_db['insider_heat']
+        ihx_score = ih['score']
+        ihx_signal = "bullish" if ih['direction'] == 1 else ("bearish" if ih['direction'] == -1 else "neutral")
+        ihx_interp = ih.get('headline') or "Insider heat data from normalizer."
+    else:
+        # FALLBACK: QuiverQuant
+        _ihx_real = _fetch_ihx_real()
+        ihx_score = _ihx_real["score"]
+        ihx_interp = _ihx_real["interpretation"]
+        ihx_signal = _ihx_real["direction"]
+        log.warning("IHX fallback: signals_normalized unavailable, using QuiverQuant direct")
+
+    # Social-to-Market Divergence (kept as-is for existing dashboard)
+    change_7d = btc.get("change_7d", 0)
+    kol_score = kol.get("sentiment_score", 50)
     social_div = round((kol_score - 50) - (change_7d * 2), 1)
     if social_div > 20:
         sd_interp = "Social FOMO ahead of price — potential local top signal."
@@ -919,13 +992,7 @@ def _calculate_proprietary_indices(
         sd_interp = "Social sentiment aligned with price action."
         sd_signal = "neutral"
 
-    # 4. Insider Heat — REAL DATA from QuiverQuant congressional trading cache
-    _ihx_real = _fetch_ihx_real()
-    ihx_score = _ihx_real["score"]
-    ihx_interp = _ihx_real["interpretation"]
-    ihx_signal = _ihx_real["direction"]
-
-    # 5. Convergence Score — from DB (computed by migrate_and_run_convergence.py)
+    # Convergence Score — from DB (computed by migrate_and_run_convergence.py)
     conv = _fetch_convergence_from_db()
 
     indices = {
