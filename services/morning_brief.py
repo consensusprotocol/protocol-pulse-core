@@ -340,7 +340,7 @@ def call_gemini(prompt: str) -> dict:
         payload = json.dumps({
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 1500, "temperature": 0.3},
+            "generationConfig": {"maxOutputTokens": 4000, "temperature": 0.3},
         }).encode()
         req = urllib.request.Request(
             f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
@@ -349,7 +349,13 @@ def call_gemini(prompt: str) -> dict:
         )
         resp = urllib.request.urlopen(req, timeout=30)
         data = json.loads(resp.read())
-        raw = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        parts = data["candidates"][0]["content"]["parts"]
+        # Use last non-thought part (gemini-2.5 includes thinking parts first)
+        raw = ""
+        for p in reversed(parts):
+            if not p.get("thought") and p.get("text"):
+                raw = p["text"].strip()
+                break
         # Strip markdown fences
         if raw.startswith("```"):
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
@@ -359,6 +365,45 @@ def call_gemini(prompt: str) -> dict:
         return result
     except Exception as e:
         logger.error(f"Gemini fallback failed: {e}")
+        return {}
+
+
+def call_grok(prompt: str) -> dict:
+    """Call Grok 3 Mini Fast via xAI API — fallback when Gemini is also down."""
+    xai_key = os.environ.get("XAI_API_KEY", "")
+    if not xai_key:
+        logger.warning("XAI_API_KEY not set — skipping Grok fallback")
+        return {}
+    try:
+        payload = json.dumps({
+            "model": "grok-3-mini-fast",
+            "messages": [
+                {"role": "system", "content": "You are a Bitcoin intelligence analyst. Return ONLY valid JSON. No markdown. No preamble. No explanation."},
+                {"role": "user", "content": prompt},
+            ],
+            "max_tokens": 1500,
+            "temperature": 0.3,
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.x.ai/v1/chat/completions",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {xai_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        resp = urllib.request.urlopen(req, timeout=30)
+        data = json.loads(resp.read())
+        raw = data["choices"][0]["message"]["content"].strip()
+        # Strip markdown fences
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        result = json.loads(raw.strip())
+        logger.info("Brief generated via GROK fallback")
+        return result
+    except Exception as e:
+        logger.error(f"Grok fallback failed: {e}")
         return {}
 
 
@@ -420,12 +465,18 @@ def main():
         brief = call_gemini(prompt)
         _model_used = "gemini_fallback"
 
+    # Grok fallback if Gemini also failed
+    if not brief or not all(k in brief for k in required):
+        logger.warning("Gemini failed/incomplete, falling back to Grok 3 Mini Fast")
+        brief = call_grok(prompt)
+        _model_used = "grok_fallback"
+
     # Tag which model generated it
     if brief:
         brief["generated_by"] = _model_used
 
     if not brief:
-        logger.error("All LLM providers failed (Qwen + Haiku + Gemini)")
+        logger.error("All LLM providers failed (Qwen + Haiku + Gemini + Grok)")
         # Write a minimal fallback brief
         brief = {
             "generated_at": datetime.now(timezone.utc).isoformat(),

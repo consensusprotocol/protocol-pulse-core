@@ -673,7 +673,7 @@ def _call_llm_with_fallback(prompt: str) -> str:
         try:
             gpayload = json.dumps({
                 "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7},
+                "generationConfig": {"maxOutputTokens": 2000, "temperature": 0.7},
             }).encode()
             req = urllib.request.Request(
                 f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
@@ -682,7 +682,13 @@ def _call_llm_with_fallback(prompt: str) -> str:
             )
             resp = urllib.request.urlopen(req, timeout=30)
             data = json.loads(resp.read())
-            content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            parts = data["candidates"][0]["content"]["parts"]
+            # Use last non-thought part (gemini-2.5 includes thinking parts first)
+            content = ""
+            for p in reversed(parts):
+                if not p.get("thought") and p.get("text"):
+                    content = p["text"].strip()
+                    break
             if content:
                 logger.info("Tweet generated via Gemini fallback (Anthropic credits depleted)")
                 return content
@@ -696,7 +702,7 @@ def _call_llm_with_fallback(prompt: str) -> str:
             gpayload = json.dumps({
                 "model": "grok-3-mini-fast",
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 500,
+                "max_tokens": 1000,
                 "temperature": 0.7,
             }).encode()
             req = urllib.request.Request(
