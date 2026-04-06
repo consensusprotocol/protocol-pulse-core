@@ -67,7 +67,13 @@ STRUCTURE (mandatory):
    - "The conviction is clear across the board. Here's what the protocol-level data confirms."
    Use type: "setup", tag: [NARRATION]. This MUST be the last narration line before the data segment begins.
 
-4. DATA SEGMENT: Hard metrics. Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. 3-4 lines minimum. Each with a metric AND an implication.
+4. DATA SEGMENT: Hard metrics. MANDATORY: Output as 3 SEPARATE dialogue entries (one per metric).
+   Each entry covers ONE metric only. NEVER combine price + hashrate + on-chain in the same entry.
+   Entry 1 (type: "data"): Price (current BTC price, trend, support/resistance)
+   Entry 2 (type: "data"): Hash rate or difficulty (network strength)
+   Entry 3 (type: "data"): One on-chain signal (LTH supply, ETF flows, UTXO age, etc.)
+   Each entry = one number + one implication. 1-2 sentences max per entry.
+   The visual system shows a DIFFERENT chart for each entry based on its topic.
 
 5. SOCIAL SEGMENT (if social posts data provided below — skip entirely if "NONE"):
    PBX reporting back from Bitcoin Twitter as live intelligence. Maximum 3 tweets. PBX decodes the signal, he doesn't repeat the text — the tweet card is on screen.

@@ -232,9 +232,10 @@ def concatenate_parts(parts: list, output_path: str,
         # Render18 FIX 2: Further tightened narrator fades 0.05→0.03s to kill dead air gaps
         pbase_norm = os.path.basename(p).lower()
         is_clip_part = "clip_r" in pbase_norm or ("clip_" in pbase_norm and "partner" not in pbase_norm)
+        is_wrap_part = "wrap" in pbase_norm
         v_fade = 0.15 if is_clip_part else 0.03
         a_fade_in = 0.15 if is_clip_part else 0.03
-        a_fade_out = 0.3 if is_clip_part else 0.03
+        a_fade_out = 0.3 if is_clip_part else (0.0 if is_wrap_part else 0.03)  # V16: no fade on signoff
         fade_out_start_v = max(0, dur - v_fade)
         _enc = get_video_encoder(crf=17)
         ok = run_ffmpeg(
@@ -244,7 +245,7 @@ def concatenate_parts(parts: list, output_path: str,
              "-vf", f"fps=30,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
              "-video_track_timescale", "15360",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
-             "-af", f"aresample=48000,afade=t=in:d={a_fade_in},afade=t=out:st={max(0, dur - a_fade_out - 0.05)}:d={a_fade_out}",
+             "-af", f"aresample=48000,{'volume=8dB,' if is_wrap_part else ''}afade=t=in:d={a_fade_in}{(',afade=t=out:st=' + str(max(0, dur - a_fade_out - 0.05)) + ':d=' + str(a_fade_out)) if a_fade_out > 0 else ''}",
              tmp],
             "normalize+fade", 180,
         )

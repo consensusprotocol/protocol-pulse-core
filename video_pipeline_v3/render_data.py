@@ -77,24 +77,31 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
         "lth": os.path.join(_chart_dir, "dominance_chart.png"),  # LTH supply via dominance
     }
 
-    # Session fix 6a: Strict segment→chart keyword routing
-    # Priority order: specific topics first, then general BTC price as default
+    # V16 FIX: Position-based chart routing — FIRST metric mentioned in text wins
+    # This prevents hashrate always winning when price is discussed first
     if not chart_keyword and script_text:
         _st = script_text.lower()
-        if any(kw in _st for kw in ("hashrate", "hash rate", "eh/s", "mining", "miner")):
-            chart_keyword = "hashrate"
-        elif any(kw in _st for kw in ("dominance", "btc dominance", "market share", "alt season")):
-            chart_keyword = "dominance"
-        elif any(kw in _st for kw in ("difficulty", "difficulty adjustment", "retarget")):
-            chart_keyword = "difficulty"
-        elif any(kw in _st for kw in ("long-term holder", "long term holder", "lth", "lth supply")):
-            chart_keyword = "lth"
-        elif any(kw in _st for kw in ("etf", "etf flow", "etf inflow", "etf outflow", "spot etf")):
-            chart_keyword = "etf"
-        elif any(kw in _st for kw in ("mempool", "sat/vb", "fees", "congestion", "transaction")):
-            chart_keyword = "mempool"
-        elif any(kw in _st for kw in ("price", "$", "rally", "dump", "correction", "btc at", "bitcoin at")):
-            chart_keyword = "price"
+        _chart_candidates = [
+            ("hashrate", ("hashrate", "hash rate", "eh/s", "mining", "miner")),
+            ("dominance", ("dominance", "btc dominance", "market share", "alt season")),
+            ("difficulty", ("difficulty", "difficulty adjustment", "retarget")),
+            ("lth", ("long-term holder", "long term holder", "lth", "lth supply")),
+            ("etf", ("etf", "etf flow", "etf inflow", "etf outflow", "spot etf")),
+            ("mempool", ("mempool", "sat/vb", "fees", "congestion")),
+            ("price", ("price", "rally", "dump", "correction", "btc at", "bitcoin at", "thousand")),
+        ]
+        # Find earliest position of each chart keyword in the text
+        _first_pos = {}
+        for chart_name, keywords in _chart_candidates:
+            for kw in keywords:
+                pos = _st.find(kw)
+                if pos >= 0:
+                    if chart_name not in _first_pos or pos < _first_pos[chart_name]:
+                        _first_pos[chart_name] = pos
+                    break
+        if _first_pos:
+            chart_keyword = min(_first_pos, key=_first_pos.get)
+            logger.info(f"  Chart: {chart_keyword} (first-mention at pos {_first_pos[chart_keyword]})")
         else:
             chart_keyword = "price"  # default to BTC price chart
 
