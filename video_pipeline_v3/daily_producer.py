@@ -328,6 +328,7 @@ import re as _re
 # ---------------------------------------------------------------------------
 MAX_PREFLIGHT_ATTEMPTS = 3
 MAX_EPISODE_DURATION_S = 900  # 15 minutes HARD CAP — grade F if exceeded
+_CLIP_BOUND_TYPES = {"setup", "react", "clip"}  # Types removed when clip extraction fails
 
 _PREFLIGHT_LOG_DIR = os.path.join(BASE, "logs")
 
@@ -1316,7 +1317,6 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         # A narrator setup with no clip playing is worse than skipping the segment.
         # V13 FIX: ONLY remove setup/react/clip-marker entries — never remove
         # general narration, data, social_segment, wrap, or cold_open entries.
-        _CLIP_BOUND_TYPES = {"setup", "react", "clip"}
         _extracted_ranks = set(extracted_clips.keys())
         _pre_filter = len(dialogue)
         filtered = []

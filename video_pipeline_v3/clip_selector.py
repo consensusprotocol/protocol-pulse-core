@@ -406,14 +406,16 @@ def select_clips(videos: list) -> dict:
     logger.info(f"Sending {len(videos)} transcripts for clip selection...")
 
     # Prefilled response approach: force Claude to start with JSON, not markdown
+    # Respects relay.py spend cap sentinel to avoid burning credits
+    from relay import _check_spend_cap_sentinel, _set_spend_cap_sentinel
     text = None
     anthropic_key = get_key("ANTHROPIC_API_KEY", required=False)
-    if HAS_ANTHROPIC and anthropic_key:
+    if HAS_ANTHROPIC and anthropic_key and not _check_spend_cap_sentinel():
         try:
             client = anthropic.Anthropic(api_key=anthropic_key)
             resp = client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=4096,
+                max_tokens=8000,
                 system=SELECTION_SYSTEM,
                 messages=[
                     {"role": "user", "content": prompt},
@@ -424,6 +426,11 @@ def select_clips(videos: list) -> dict:
             text = "{" + resp.content[0].text
             logger.info("Clip selection: Anthropic prefilled JSON succeeded")
         except Exception as e:
+            err_str = str(e).lower()
+            if any(x in err_str for x in ['529', 'credit_balance_too_low',
+                                            'spend_limit_exceeded', 'insufficient_quota',
+                                            'payment_required', '402']):
+                _set_spend_cap_sentinel(str(e))
             logger.warning(f"Clip selection: Anthropic prefilled call failed: {e}")
 
     # Fallback to generic call_llm (Grok/Gemini)
