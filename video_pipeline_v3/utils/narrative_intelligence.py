@@ -302,6 +302,75 @@ class NarrativeIntelligenceEngine:
 
         return self._fallback_narratives()
 
+    def _narratives_from_morning_brief(self) -> dict:
+        """Bridge: convert morning_intelligence_brief.json into narrative format.
+
+        When X API is unavailable, the morning brief (fed by Nitter RSS + Qwen/Gemini)
+        provides fresh narrative data we can use instead.
+        """
+        brief_path = os.path.join(
+            os.path.dirname(BASE), "data", "intelligence",
+            "morning_intelligence_brief.json",
+        )
+        try:
+            with open(brief_path) as f:
+                brief = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            logger.warning(f"Morning brief not available: {e}")
+            return {}
+
+        # Check freshness — must be < 12 hours old
+        gen_at = brief.get("generated_at", "")
+        if gen_at:
+            try:
+                gen_dt = datetime.fromisoformat(gen_at.replace("Z", "+00:00"))
+                age_hours = (datetime.now(timezone.utc) - gen_dt).total_seconds() / 3600
+                if age_hours > 12:
+                    logger.info(f"Morning brief too old ({age_hours:.1f}h) — skipping bridge")
+                    return {}
+            except (ValueError, TypeError):
+                pass
+
+        dominant_narratives = brief.get("dominant_narratives", [])
+        if not dominant_narratives:
+            return {}
+
+        sentiment_str = brief.get("sentiment", "neutral")
+        # Map brief sentiment to mood
+        mood_map = {
+            "bullish": "bullish", "bearish": "bearish",
+            "neutral": "neutral", "mixed": "cautiously_bullish",
+        }
+        market_mood = mood_map.get(sentiment_str, "neutral")
+
+        tweets_analyzed = brief.get("key_stats_today", {}).get("tweets_analyzed", 0)
+        unique_handles = brief.get("key_stats_today", {}).get("unique_handles", 0)
+
+        narratives = []
+        for i, topic in enumerate(dominant_narratives[:5]):
+            # Estimate authority based on position and tweet count
+            mention_count = max(1, int(tweets_analyzed / (5 + i * 2)))
+            authority_score = max(10, 50 - (i * 10))
+            narratives.append({
+                "topic": topic if len(topic) <= 60 else topic[:57] + "...",
+                "mention_count": mention_count,
+                "authority_score": authority_score,
+                "sentiment": sentiment_str,
+                "top_quote": "",
+                "handles": brief.get("top_accounts_active", [])[:3],
+                "velocity": "rising" if i == 0 else "stable",
+            })
+
+        result = {
+            "narratives": narratives,
+            "dominant_narrative": narratives[0]["topic"] if narratives else "unknown",
+            "market_mood": market_mood,
+            "computed_at": datetime.now(timezone.utc).isoformat(),
+        }
+        logger.info(f"Morning brief bridge: {len(narratives)} narratives, "
+                     f"mood={market_mood}, tweets={tweets_analyzed}")
+        return result
+
     def _fallback_narratives(self) -> dict:
         """Fallback narrative data when APIs are unavailable."""
         # Try to use existing daily_signals as baseline
@@ -500,9 +569,15 @@ class NarrativeIntelligenceEngine:
             narrative_result = self.extract_narratives(tweets)
             source = "live"
         else:
-            logger.warning("No tweets fetched — using fallback narratives")
-            narrative_result = self._fallback_narratives()
-            source = "fallback_historical"
+            # Bridge: try morning brief data before stale fallback
+            narrative_result = self._narratives_from_morning_brief()
+            if narrative_result and narrative_result.get("narratives"):
+                source = "morning_brief_bridge"
+                logger.info("Using morning brief bridge (X API unavailable)")
+            else:
+                logger.warning("No tweets and no fresh brief — using stale fallback")
+                narrative_result = self._fallback_narratives()
+                source = "fallback_historical"
 
         # Tag source
         for n in narrative_result.get("narratives", []):

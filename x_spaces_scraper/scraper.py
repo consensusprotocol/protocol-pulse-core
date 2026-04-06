@@ -194,7 +194,7 @@ def _find_live_bitcoin_spaces_inner() -> list[dict]:
                     # Return whatever we have so far
                     break
                 if r.status_code != 200:
-                    logger.debug(f"[SpaceTap] Spaces search {query}/{state}: HTTP {r.status_code}")
+                    logger.warning(f"[SpaceTap] Spaces search {query}/{state}: HTTP {r.status_code}")
                     continue
 
                 data = r.json()

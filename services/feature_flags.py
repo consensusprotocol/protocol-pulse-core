@@ -13,7 +13,7 @@ from typing import Dict
 DEFAULT_FLAGS: Dict[str, bool] = {
     # External posting
     "ENABLE_X_POSTING": False,
-    "ENABLE_NOSTR_POSTING": False,
+    "ENABLE_NOSTR_POSTING": True,
     "ENABLE_TELEGRAM_ALERTS": False,
     # Automation families
     "ENABLE_AUTOMATION_ARTICLES": False,
