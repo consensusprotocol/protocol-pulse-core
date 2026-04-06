@@ -3309,3 +3309,62 @@ def twilio_spaces_alert():
     except Exception as e:
         logging.error('Spaces alert error: %s', e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ── KOL Sentiment Brief Admin ───────────────────────────────────────────────
+
+@admin_bp.route('/api/admin/sentiment-brief-refresh', methods=['POST'])
+@admin_required
+def admin_sentiment_brief_refresh():
+    """Force regenerate the KOL sentiment brief."""
+    try:
+        from services.sentiment_brief_service import SentimentBriefService
+        svc = SentimentBriefService()
+        brief = svc.build_sentiment_brief()
+        return jsonify({"success": True, "brief": brief})
+    except Exception as e:
+        logging.error(f"Sentiment brief refresh error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ── Reply Engine Admin ───────────────────────────────────────────────────────
+
+@admin_bp.route('/api/admin/reply-auto-post/toggle', methods=['POST'])
+@admin_required
+def admin_reply_auto_post_toggle():
+    """Toggle the ENABLE_AUTO_REPLY feature flag."""
+    from services.feature_flags import is_enabled
+    current = is_enabled("ENABLE_AUTO_REPLY")
+    new_val = "false" if current else "true"
+    os.environ["ENABLE_AUTO_REPLY"] = new_val
+    return jsonify({
+        "success": True,
+        "ENABLE_AUTO_REPLY": not current,
+        "message": f"Auto-reply {'enabled' if not current else 'disabled'}",
+    })
+
+
+@admin_bp.route('/api/admin/reply-drafts')
+@admin_required
+def admin_reply_drafts():
+    """Return latest 20 pending reply drafts for review."""
+    try:
+        from services.reply_engine import get_pending_drafts
+        drafts = get_pending_drafts(limit=20)
+        return jsonify({"success": True, "drafts": drafts, "count": len(drafts)})
+    except Exception as e:
+        logging.error(f"Reply drafts error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_bp.route('/api/admin/reply-drafts/<int:draft_id>/approve', methods=['POST'])
+@admin_required
+def admin_reply_draft_approve(draft_id):
+    """Approve and immediately post a specific reply draft."""
+    try:
+        from services.reply_engine import approve_and_post_draft
+        result = approve_and_post_draft(draft_id)
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Reply draft approve error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500

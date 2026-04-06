@@ -6851,3 +6851,20 @@ def api_media_meta_briefing():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 503
+
+
+# ── KOL Sentiment Brief API ─────────────────────────────────────────────────
+
+@api_bp.route('/api/sentiment-brief')
+def api_sentiment_brief():
+    """Return cached KOL sentiment brief as JSON (public, CORS enabled)."""
+    try:
+        from services.sentiment_brief_service import SentimentBriefService
+        svc = SentimentBriefService()
+        brief = svc.get_cached_brief()
+        resp = jsonify(brief)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+    except Exception as e:
+        logging.error(f"Sentiment brief error: {e}")
+        return jsonify({"error": str(e)}), 500

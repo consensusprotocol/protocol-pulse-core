@@ -22,6 +22,8 @@ DEFAULT_FLAGS: Dict[str, bool] = {
     "ENABLE_WHALE_HEARTBEAT": True,
     "ENABLE_DISTRIBUTION_ENGINE": False,
     "ENABLE_MATTY_ICE_ENGAGEMENT": False,
+    # Reply engine auto-post (off by default — review drafts first)
+    "ENABLE_AUTO_REPLY": False,
 }
 
 

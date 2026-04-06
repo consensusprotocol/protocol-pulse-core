@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
 reply_engine.py — Protocol Pulse Social Intelligence Layer
-Phase 3: Reply/engagement engine — draft only, manual approval required
+Phase 3: Reply/engagement engine — drafts replies, optional auto-post
 
 Monitors X API for replies to @ProtocolPulse. Drafts signal-adding responses
-via Claude Haiku. Queues all drafts to x_reply_draft table — NO auto-posting.
+via Claude Haiku. Queues all drafts to x_reply_draft table.
+When ENABLE_AUTO_REPLY is True, auto-posts with rate limits (max 5/day, 30min gap).
 """
 
 import json
@@ -14,7 +15,7 @@ import sqlite3
 import sys
 import time
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 BASE = Path("/home/ultron/protocol_pulse")
@@ -154,8 +155,8 @@ def save_draft(original_id: str, original_text: str, reply: dict, result: dict):
     conn = sqlite3.connect(str(SOVEREIGN_DB))
     c = conn.cursor()
     c.execute(
-        """INSERT INTO x_reply_draft 
-           (original_tweet_id, original_text, reply_tweet_id, reply_user, reply_text, 
+        """INSERT INTO x_reply_draft
+           (original_tweet_id, original_text, reply_tweet_id, reply_user, reply_text,
             draft_reply, reasoning, status, created_at)
            VALUES (?,?,?,?,?,?,?,?,?)""",
         (
@@ -174,9 +175,150 @@ def save_draft(original_id: str, original_text: str, reply: dict, result: dict):
     conn.close()
 
 
+# ── Auto-Post Logic ──────────────────────────────────────────────────────────
+
+MAX_AUTO_REPLIES_PER_DAY = 5
+MIN_REPLY_GAP_MINUTES = 30
+
+
+def is_auto_reply_enabled() -> bool:
+    """Check the ENABLE_AUTO_REPLY feature flag."""
+    try:
+        from services.feature_flags import is_enabled
+        return is_enabled("ENABLE_AUTO_REPLY")
+    except ImportError:
+        return os.environ.get("ENABLE_AUTO_REPLY", "false").lower() in {"1", "true", "yes", "on"}
+
+
+def _count_auto_replies_today() -> int:
+    """Count how many auto-replies were posted today."""
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0).isoformat()
+        count = conn.execute(
+            "SELECT COUNT(*) FROM x_reply_draft WHERE status = 'auto_posted' AND reviewed_at >= ?",
+            (today_start,)
+        ).fetchone()[0]
+        conn.close()
+        return count
+    except Exception:
+        return 0
+
+
+def _last_auto_reply_time() -> datetime:
+    """Get the timestamp of the most recent auto-posted reply."""
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        row = conn.execute(
+            "SELECT reviewed_at FROM x_reply_draft WHERE status = 'auto_posted' ORDER BY reviewed_at DESC LIMIT 1"
+        ).fetchone()
+        conn.close()
+        if row and row[0]:
+            ts = datetime.fromisoformat(row[0])
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            return ts
+    except Exception:
+        pass
+    return datetime.min.replace(tzinfo=timezone.utc)
+
+
+def can_auto_post() -> tuple:
+    """Check rate limits for auto-posting. Returns (allowed, reason)."""
+    count = _count_auto_replies_today()
+    if count >= MAX_AUTO_REPLIES_PER_DAY:
+        return False, f"Daily limit reached ({count}/{MAX_AUTO_REPLIES_PER_DAY})"
+
+    last = _last_auto_reply_time()
+    gap = datetime.now(timezone.utc) - last
+    if gap < timedelta(minutes=MIN_REPLY_GAP_MINUTES):
+        remaining = MIN_REPLY_GAP_MINUTES - (gap.total_seconds() / 60)
+        return False, f"Too soon since last reply ({remaining:.0f}min remaining)"
+
+    return True, "OK"
+
+
+def auto_post_reply(draft_id: int, draft_text: str, reply_to_tweet_id: str) -> dict:
+    """Post a draft reply to X and mark it as auto_posted."""
+    try:
+        import tweepy
+        client = tweepy.Client(
+            consumer_key=os.environ.get("X_API_KEY", os.environ.get("X_CONSUMER_KEY", "")),
+            consumer_secret=os.environ.get("X_API_SECRET", os.environ.get("X_CONSUMER_SECRET", "")),
+            access_token=os.environ.get("X_ACCESS_TOKEN", ""),
+            access_token_secret=os.environ.get("X_ACCESS_TOKEN_SECRET", ""),
+        )
+        response = client.create_tweet(
+            text=draft_text,
+            in_reply_to_tweet_id=reply_to_tweet_id,
+        )
+        tweet_id = response.data["id"]
+        logger.info(f"Auto-posted reply {tweet_id}: {draft_text[:60]}...")
+
+        # Mark as auto_posted in DB
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        conn.execute(
+            "UPDATE x_reply_draft SET status = 'auto_posted', reviewed_at = ? WHERE id = ?",
+            (datetime.now(timezone.utc).isoformat(), draft_id),
+        )
+        conn.commit()
+        conn.close()
+
+        return {"success": True, "tweet_id": tweet_id}
+    except ImportError:
+        logger.error("tweepy not installed")
+        return {"success": False, "error": "tweepy not installed"}
+    except Exception as e:
+        logger.error(f"Auto-post failed: {e}")
+        return {"success": False, "error": str(e)}
+
+
+def get_pending_drafts(limit: int = 20) -> list:
+    """Return latest pending drafts for admin review."""
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT * FROM x_reply_draft WHERE status = 'pending' ORDER BY created_at DESC LIMIT ?",
+            (limit,)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        logger.warning(f"Failed to fetch drafts: {e}")
+        return []
+
+
+def approve_and_post_draft(draft_id: int) -> dict:
+    """Admin approves a specific draft for immediate posting."""
+    try:
+        conn = sqlite3.connect(str(SOVEREIGN_DB))
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT * FROM x_reply_draft WHERE id = ? AND status = 'pending'",
+            (draft_id,)
+        ).fetchone()
+        conn.close()
+
+        if not row:
+            return {"success": False, "error": "Draft not found or already processed"}
+
+        draft = dict(row)
+        reply_to_id = draft.get("reply_tweet_id") or draft.get("original_tweet_id")
+        draft_text = draft.get("draft_reply", "")
+
+        if not draft_text or not reply_to_id:
+            return {"success": False, "error": "Draft has no text or reply target"}
+
+        return auto_post_reply(draft_id, draft_text, reply_to_id)
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 def main():
+    auto_mode = is_auto_reply_enabled()
     logger.info("=" * 60)
-    logger.info("Reply Engine starting (DRAFT ONLY — no auto-post)")
+    logger.info(f"Reply Engine starting (auto-post: {'ON' if auto_mode else 'OFF'})")
     logger.info("=" * 60)
 
     init_db()
@@ -203,10 +345,32 @@ def main():
         if result.get("draft"):
             save_draft(mention_id, reply_text, mention, result)
             logger.info(f"Draft saved: {result['draft'][:60]}...")
+
+            # Auto-post if enabled and within rate limits
+            if auto_mode:
+                allowed, reason = can_auto_post()
+                if allowed:
+                    # Get the draft ID we just saved
+                    try:
+                        conn = sqlite3.connect(str(SOVEREIGN_DB))
+                        row = conn.execute(
+                            "SELECT id FROM x_reply_draft ORDER BY id DESC LIMIT 1"
+                        ).fetchone()
+                        conn.close()
+                        if row:
+                            post_result = auto_post_reply(row[0], result["draft"], mention_id)
+                            if post_result.get("success"):
+                                logger.info(f"Auto-posted reply to {mention_id}")
+                            else:
+                                logger.warning(f"Auto-post failed: {post_result.get('error')}")
+                    except Exception as e:
+                        logger.warning(f"Auto-post error: {e}")
+                else:
+                    logger.info(f"Auto-post skipped: {reason}")
         else:
             logger.info(f"No draft generated (spam/off-topic): {reply_text[:50]}")
 
-    logger.info("Done. Review drafts in x_reply_draft table.")
+    logger.info("Done.")
 
 
 if __name__ == "__main__":

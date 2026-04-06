@@ -1,0 +1,14 @@
+{
+  "sentiment": "bullish",
+  "dominant_narrative": "The prevailing focus is on Bitcoin's increasing value and its role as an alternative to a failing fiat system.",
+  "top_signal": "Fiat currency is fundamentally a repressive scam, as articulated by Gladstein.",
+  "contrarian_view": "None detected",
+  "tts_script": "The consensus among these voices is distinctly bullish for Bitcoin. Gladstein highlights the inherent flaw of fiat currency as a repressive scam, underscoring the systemic decay. Bitcoin Magazine notes a price surge past 69,000 dollars, a market reaction to this underlying monetary reality. The signal is clear: the market is recognizing the structural weakness of legacy systems.",
+  "voices_sampled": 2,
+  "generated_at": "2026-04-06T07:52:41.766236+00:00",
+  "generated_by": "sentiment_brief_service",
+  "kol_handles_seen": [
+    "bitcoinmagazine",
+    "gladstein"
+  ]
+}
