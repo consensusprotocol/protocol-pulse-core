@@ -1,27 +1,29 @@
 ---
 name: pipeline-fix
-description: Use when fixing video pipeline issues. Auto-loads PIPELINE_LAWS and module architecture.
+description: Fix issues in the Protocol Pulse video pipeline. Use when debugging render failures, clip selection, TTS, assembler, or social segment issues.
 ---
+# Pipeline Fix Skill
 
-## Before ANY pipeline change:
-1. Read PIPELINE_LAWS.md: `cat ~/protocol_pulse/video_pipeline_v3/PIPELINE_LAWS.md`
-2. Understand the split architecture — assembler.py is a THIN orchestrator
-3. Edit the correct MODULE, not assembler.py:
-   - Narration/PiP issues → render_narrator.py
-   - Clip rendering → render_clip.py  
-   - Social cards/tweets → render_social.py
-   - Intro/outro → render_intro_outro.py
-   - Charts/data → render_data.py
-   - Audio/music/loudness → audio_master.py
-   - Transitions/whoosh → transitions.py
+When fixing pipeline issues:
 
-## After ANY pipeline change:
-1. Syntax check: `python3 -m py_compile <file>`
-2. Import test: `python3 -c "from assembler import assemble_episode; print('OK')"`
-3. Git add + commit + push
-4. Test render: `python3 daily_producer.py --fast-test`
+1. **Identify the stage** - which of the 12 pipeline stages failed?
+2. **Read the relevant guide** - load the appropriate reference file from this directory:
+   - Render/assembler issues: read ASSEMBLER_GUIDE.md
+   - Clip selection/extraction: read clip_selector.py and clip_extractor.py source
+   - Pronunciation/TTS: read PRONUNCIATION.md
+   - Chart/data overlay: read CHART_MAPPING.md
+   - Social/signal dedup: read SOCIAL_DEDUP.md
+   - Pipeline laws/rules: read PIPELINE_LAWS.md
+3. **Read the actual code** before making changes
+4. **Syntax check** every file after editing: python3 -m py_compile <file>
+5. **Commit with descriptive message**
 
-## Supporting files:
-- ~/protocol_pulse/video_pipeline_v3/PIPELINE_LAWS.md
-- ~/protocol_pulse/video_pipeline_v3/config.yaml
-- ~/protocol_pulse/video_pipeline_v3/channels.yaml
+## Key Files
+- daily_producer.py: Main orchestrator (~/protocol_pulse/video_pipeline_v3/)
+- assembler.py: Video assembly engine
+- clip_selector.py: Claude API clip selection
+- clip_extractor.py: yt-dlp extraction + AV sync
+- render_social.py: Tweet cards + social segments
+- render_data.py: Chart overlays + data panels
+- tts_engine.py: ElevenLabs TTS + pronunciation
+- script_writer.py: Episode script generation
