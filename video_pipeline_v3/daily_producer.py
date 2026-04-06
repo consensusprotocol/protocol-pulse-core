@@ -1314,13 +1314,19 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
 
         # V10 FIX: Remove setup/react/clip entries for clips that failed extraction.
         # A narrator setup with no clip playing is worse than skipping the segment.
+        # V13 FIX: ONLY remove setup/react/clip-marker entries — never remove
+        # general narration, data, social_segment, wrap, or cold_open entries.
+        _CLIP_BOUND_TYPES = {"setup", "react", "clip"}
         _extracted_ranks = set(extracted_clips.keys())
         _pre_filter = len(dialogue)
         filtered = []
         for d in dialogue:
-            cr = d.get("clip_rank") or (d.get("rank") if d.get("host") == "CLIP" else 0)
-            if cr and cr not in _extracted_ranks:
-                logger.warning(f"  CLIP FILTER: Removing {d.get('type', 'clip')} for missing clip #{cr}: {d.get('text', '')[:50]}")
+            dtype = d.get("type", "")
+            is_clip_marker = d.get("host") in ("CLIP", "SPACE_CLIP")
+            is_clip_bound = dtype in _CLIP_BOUND_TYPES or is_clip_marker
+            cr = d.get("clip_rank") or (d.get("rank") if is_clip_marker else 0)
+            if is_clip_bound and cr and cr not in _extracted_ranks:
+                logger.warning(f"  CLIP FILTER: Removing {dtype or 'clip'} for missing clip #{cr}: {d.get('text', '')[:50]}")
                 continue
             filtered.append(d)
         if len(filtered) < _pre_filter:

@@ -25,6 +25,12 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
+SELECTION_SYSTEM = (
+    "You are a Bitcoin video clip selector. Respond ONLY with valid JSON. No markdown, no explanation. "
+    "Return a JSON object with keys: clips (array), episode_title (string), cold_open (string). "
+    "Each clip has: rank, video_id, channel, video_title, start_seconds, end_seconds, quote, why, host_setup, host_react."
+)
+
 SELECTION_PROMPT = """You are the executive producer of "Pulse Check" — a daily 3-5 minute Bitcoin highlight reel.
 Two hosts (Jessica & Chris) present and react to the BEST clips from Bitcoin YouTube that day.
 Think ESPN SportsCenter for Bitcoin.
@@ -72,26 +78,6 @@ RULES:
 
 AVAILABLE VIDEOS:
 {transcripts}
-
-Return ONLY valid JSON (no markdown, no code fences):
-{{
-  "clips": [
-    {{
-      "rank": 1,
-      "video_id": "abc123",
-      "channel": "Bitcoin Magazine",
-      "video_title": "Original video title",
-      "start_seconds": 145,
-      "end_seconds": 175,
-      "quote": "The exact memorable quote from this moment",
-      "why": "Why this clip is compelling (1 sentence)",
-      "host_setup": "What Jessica should say to introduce this clip (1-2 sentences, conversational)",
-      "host_react": "What the hosts should discuss after this clip (2-3 sentences of banter)"
-    }}
-  ],
-  "episode_title": "Short punchy episode title based on top clip (5-8 words)",
-  "cold_open": "Jessica's cold open teaser line about clip #1 — dramatic, hook the viewer (1 sentence)"
-}}
 
 Return exactly 5 clips, ranked 1-5. If fewer than 5 good moments exist, return what you can."""
 
@@ -412,13 +398,38 @@ def select_clips(videos: list) -> dict:
         logger.error("No videos to select from")
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
 
-    from relay import call_llm, reload_env; reload_env()
+    from relay import call_llm, reload_env, get_key; reload_env()
 
     transcripts_text = _format_transcripts(videos)
     prompt = SELECTION_PROMPT.replace('{transcripts}', transcripts_text)
 
     logger.info(f"Sending {len(videos)} transcripts for clip selection...")
-    text = call_llm(prompt, max_tokens=8000)
+
+    # Prefilled response approach: force Claude to start with JSON, not markdown
+    text = None
+    anthropic_key = get_key("ANTHROPIC_API_KEY", required=False)
+    if HAS_ANTHROPIC and anthropic_key:
+        try:
+            client = anthropic.Anthropic(api_key=anthropic_key)
+            resp = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=4096,
+                system=SELECTION_SYSTEM,
+                messages=[
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": "{"},  # Prefill forces JSON start
+                ],
+            )
+            # Prepend the "{" back since it was consumed as prefill
+            text = "{" + resp.content[0].text
+            logger.info("Clip selection: Anthropic prefilled JSON succeeded")
+        except Exception as e:
+            logger.warning(f"Clip selection: Anthropic prefilled call failed: {e}")
+
+    # Fallback to generic call_llm (Grok/Gemini)
+    if text is None:
+        text = call_llm(prompt, max_tokens=8000)
+
     if text is None:
         logger.error("All LLM providers failed for clip selection")
         return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
