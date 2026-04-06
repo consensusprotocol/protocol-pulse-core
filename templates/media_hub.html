@@ -754,51 +754,6 @@ function mhNlSub(e){
             '</div></div>';
     }
 
-    // ── Book cover image cache for bubble chart ──
-    var _coverImgs={};
-    function _preloadCover(url,cb){
-        if(!url)return cb(null);
-        if(_coverImgs[url]){return cb(_coverImgs[url]);}
-        var img=new Image();
-        img.crossOrigin='anonymous';
-        img.onload=function(){_coverImgs[url]=img;cb(img);};
-        img.onerror=function(){_coverImgs[url]=null;cb(null);};
-        img.src=url;
-    }
-
-    // Chart.js plugin: draw book covers clipped to circles
-    var bookCoverPlugin={
-        id:'bookCoverBubbles',
-        afterDatasetsDraw:function(chart){
-            var ctx=chart.ctx;
-            chart.data.datasets.forEach(function(ds,dsIdx){
-                var meta=chart.getDatasetMeta(dsIdx);
-                meta.data.forEach(function(el,idx){
-                    var pt=ds.data[idx];
-                    if(!pt||!pt.book)return;
-                    var img=_coverImgs[pt.book.cover_url];
-                    if(!img)return;
-                    var cx=el.x, cy=el.y, r=el.options.radius||pt.r;
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(cx,cy,r,0,Math.PI*2);
-                    ctx.clip();
-                    ctx.drawImage(img,cx-r,cy-r,r*2,r*2);
-                    ctx.restore();
-                    // Border ring
-                    var borderColor=ds.borderColor||'rgba(255,255,255,0.3)';
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(cx,cy,r,0,Math.PI*2);
-                    ctx.lineWidth=2;
-                    ctx.strokeStyle=borderColor;
-                    ctx.stroke();
-                    ctx.restore();
-                });
-            });
-        }
-    };
-
     function renderBubbleChart(books){
         if(!books||!books.length)return;
         var canvas=document.getElementById('bookBubbleChart');
@@ -814,112 +769,82 @@ function mhNlSub(e){
         function mkPts(arr){
             return arr.map(function(b){
                 var bsr=b.bsr||50000;
+                // Log-scale bubble: lower BSR = bigger bubble
                 var r=Math.max(6,Math.min(32,32-Math.log10(bsr)*5.5));
+                // X: BSR momentum — negative=improving, positive=declining
                 var x=Math.max(-42,Math.min(22,b.bsr_change||0));
+                // Y: velocity score 0-100
                 var y=b.velocity||50;
                 return {x:x,y:y,r:r,book:b};
             });
         }
-        // Preload all cover images, then render chart
-        var allBooks=[].concat(ppBooks,risingBooks,stableBooks);
-        var loaded=0,total=allBooks.length;
-        function onAllLoaded(){
-            var datasets=[
-                {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.18)',borderColor:'rgba(220,38,38,0.9)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.3)'},
-                {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.18)',borderColor:'rgba(34,197,94,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.3)'},
-                {label:'Stable',data:mkPts(stableBooks),backgroundColor:'rgba(247,147,26,0.18)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.3)'}
-            ];
-            if(bookChart)bookChart.destroy();
-            bookChart=new Chart(ctx,{
-                type:'bubble',data:{datasets:datasets},
-                plugins:[bookCoverPlugin],
-                options:{
-                    responsive:true,maintainAspectRatio:false,
-                    animation:{duration:1200,easing:'easeOutQuart',
-                        onComplete:function(){
-                            // Pulse animation for bubbles with covers
-                            if(!canvas._pulseStarted){
-                                canvas._pulseStarted=true;
-                                var phase=0;
-                                setInterval(function(){
-                                    phase+=0.05;
-                                    if(bookChart&&bookChart.data){
-                                        bookChart.data.datasets.forEach(function(ds){
-                                            ds.data.forEach(function(pt){
-                                                if(pt.book&&_coverImgs[pt.book.cover_url]){
-                                                    var base=pt.r;
-                                                    pt.r=base+Math.sin(phase)*1.5;
-                                                }
-                                            });
-                                        });
-                                        bookChart.update('none');
-                                    }
-                                },100);
+        var datasets=[
+            {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.55)',borderColor:'rgba(220,38,38,0.9)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.8)'},
+            {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.45)',borderColor:'rgba(34,197,94,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.7)'},
+            {label:'Stable',data:mkPts(stableBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
+        ];
+        if(bookChart)bookChart.destroy();
+        bookChart=new Chart(ctx,{
+            type:'bubble',data:{datasets:datasets},
+            options:{
+                responsive:true,maintainAspectRatio:false,
+                animation:{duration:1200,easing:'easeOutQuart'},
+                scales:{
+                    x:{
+                        title:{display:true,text:'BSR MOMENTUM',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
+                        min:-45,max:25,
+                        grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
+                        ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9},
+                            callback:function(v){
+                                if(v===-40)return 'HOT';
+                                if(v===-20)return 'RISING';
+                                if(v===0)return 'STABLE';
+                                if(v===20)return 'COOLING';
+                                return '';
                             }
                         }
                     },
-                    scales:{
-                        x:{
-                            title:{display:true,text:'BSR MOMENTUM',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
-                            min:-45,max:25,
-                            grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
-                            ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9},
-                                callback:function(v){
-                                    if(v===-40)return 'HOT';
-                                    if(v===-20)return 'RISING';
-                                    if(v===0)return 'STABLE';
-                                    if(v===20)return 'COOLING';
-                                    return '';
-                                }
-                            }
-                        },
-                        y:{
-                            title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
-                            min:0,max:105,
-                            grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
-                            ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9}}
-                        }
+                    y:{
+                        title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
+                        min:0,max:105,
+                        grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
+                        ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9}}
+                    }
+                },
+                plugins:{
+                    legend:{
+                        display:true,
+                        position:'top',
+                        labels:{color:'rgba(255,255,255,0.6)',font:{family:'JetBrains Mono',size:9},boxWidth:10,padding:16}
                     },
-                    plugins:{
-                        legend:{
-                            display:true,
-                            position:'top',
-                            labels:{color:'rgba(255,255,255,0.6)',font:{family:'JetBrains Mono',size:9},boxWidth:10,padding:16}
-                        },
-                        tooltip:{
-                            backgroundColor:'#0d0d0d',
-                            borderColor:'rgba(255,255,255,0.12)',borderWidth:1,
-                            titleFont:{family:'JetBrains Mono',size:12,weight:'700'},
-                            bodyFont:{family:'JetBrains Mono',size:10},
-                            titleColor:'#fff',bodyColor:'rgba(255,255,255,0.65)',
-                            padding:14,cornerRadius:8,
-                            callbacks:{
-                                title:function(items){return items[0].raw.book.title;},
-                                label:function(item){
-                                    var b=item.raw.book;
-                                    var lines=['by '+b.author,'BSR: #'+b.bsr.toLocaleString()];
-                                    if(b.bsr_change)lines.push('Momentum: '+(b.bsr_change>0?'+':'')+b.bsr_change+'%');
-                                    if(b.is_rising)lines.push('RISING STAR');
-                                    if(b.is_breakout)lines.push('INITIAL BREAKOUT');
-                                    return lines;
-                                }
+                    tooltip:{
+                        backgroundColor:'#0d0d0d',
+                        borderColor:'rgba(255,255,255,0.12)',borderWidth:1,
+                        titleFont:{family:'JetBrains Mono',size:12,weight:'700'},
+                        bodyFont:{family:'JetBrains Mono',size:10},
+                        titleColor:'#fff',bodyColor:'rgba(255,255,255,0.65)',
+                        padding:14,cornerRadius:8,
+                        callbacks:{
+                            title:function(items){return items[0].raw.book.title;},
+                            label:function(item){
+                                var b=item.raw.book;
+                                var lines=['by '+b.author,'BSR: #'+b.bsr.toLocaleString()];
+                                if(b.bsr_change)lines.push('Momentum: '+(b.bsr_change>0?'+':'')+b.bsr_change+'%');
+                                if(b.is_rising)lines.push('RISING STAR');
+                                if(b.is_breakout)lines.push('INITIAL BREAKOUT');
+                                return lines;
                             }
                         }
-                    },
-                    onClick:function(evt,elements){
-                        if(elements.length>0){
-                            var b=bookChart.data.datasets[elements[0].datasetIndex].data[elements[0].index].book;
-                            if(b.amazon_url)window.open(b.amazon_url,'_blank');
-                        }
-                    },
-                    onHover:function(evt,elements){evt.native.target.style.cursor=elements.length>0?'pointer':'default';}
-                }
-            });
-        }
-        if(total===0){onAllLoaded();return;}
-        allBooks.forEach(function(b){
-            var url=b.cover_url||(b.asin?'https://images-na.ssl-images-amazon.com/images/P/'+b.asin+'.01._SCLZZZZZZZ_.jpg':null);
-            _preloadCover(url,function(){loaded++;if(loaded>=total)onAllLoaded();});
+                    }
+                },
+                onClick:function(evt,elements){
+                    if(elements.length>0){
+                        var b=bookChart.data.datasets[elements[0].datasetIndex].data[elements[0].index].book;
+                        if(b.amazon_url)window.open(b.amazon_url,'_blank');
+                    }
+                },
+                onHover:function(evt,elements){evt.native.target.style.cursor=elements.length>0?'pointer':'default';}
+            }
         });
     }
 

@@ -616,23 +616,6 @@ def signal_terminal():
         onchain['next_adj_blocks'] = _snet.get('next_adj_blocks', 0)
         onchain['next_adjustment'] = str(round(_snet.get('next_adj_pct', 0), 1)) + '%' if _snet.get('next_adj_pct') else None
         onchain['blocks_to_halving'] = max(0, 1050000 - (sovereign_ctx.get('block_height', 0) or 0))
-        # Enrich on-chain metrics from sovereign pro_metrics
-        _soc = sovereign_ctx.get('on_chain', {})
-        _pro = sovereign_ctx.get('pro_metrics', {})
-        _bh = sovereign_ctx.get('block_height', 0) or 0
-        _halving_ep = _bh // 210000 if _bh else 4
-        _blk_reward = 50 / (2 ** _halving_ep)
-        _annual_prod = _blk_reward * 6 * 24 * 365.25
-        _btc_supply = sum(50 / (2 ** i) * 210000 for i in range(_halving_ep)) + _blk_reward * (_bh % 210000)
-        _s2f_val = _btc_supply / _annual_prod if _annual_prod > 0 else 120
-        import math as _smath
-        _s2f_model_p = _smath.exp(-1.84) * (_s2f_val ** 3.36) if _s2f_val > 0 else 0
-        onchain['s2f'] = f"S2F {round(_s2f_val)} (${round(_s2f_model_p):,})"
-        # MVRV from pro_metrics SSR if available
-        _ssr_mcap = (_pro.get('ssr', {}).get('btc_market_cap') or 0)
-        # Exchange flows
-        _ef = sovereign_ctx.get('exchange_flow', '')
-        onchain['exchange_flows'] = _ef.upper() if _ef and _ef != 'neutral' else 'NEUTRAL'
         # Build macro from sovereign
         _smac = sovereign_ctx.get('macro', {})
         macro = {
