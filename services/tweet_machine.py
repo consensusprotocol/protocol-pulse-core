@@ -552,6 +552,21 @@ def extract_json(raw: str) -> dict:
             return json.loads(match.group())
         except json.JSONDecodeError:
             pass
+    # Stage 5: truncated JSON — extract "text" field value via regex
+    # Gemini 2.5 Flash often returns {"text": "..."} but truncates before closing brace
+    text_match = re.search(r'"text"\s*:\s*"((?:[^"\\]|\\.)*)', raw)
+    if text_match:
+        extracted_text = text_match.group(1)
+        # Trim to 280 chars and clean trailing incomplete words
+        if len(extracted_text) > 280:
+            extracted_text = extracted_text[:277].rsplit(" ", 1)[0]
+        logger.warning(f"Recovered tweet text from truncated JSON ({len(extracted_text)} chars)")
+        return {"text": extracted_text, "angle": "recovered", "type": "observation", "format": "recovered"}
+    # Stage 6: plain text response (no JSON at all) — accept as tweet
+    cleaned = raw.strip().strip('"').strip()
+    if 20 <= len(cleaned) <= 300 and "{" not in cleaned:
+        logger.warning(f"Accepting plain text as tweet ({len(cleaned)} chars)")
+        return {"text": cleaned, "angle": "plain", "type": "observation", "format": "plain"}
     logger.error(f"No valid JSON in LLM response: {raw[:200]}")
     raise ValueError(f"No valid JSON found in LLM response")
 
@@ -928,10 +943,45 @@ def log_to_db(tweet: dict, posted: bool, tweet_id: str = None) -> None:
         logger.warning(f"DB log failed: {e}")
 
 
+def prune_stale_queue(max_age_hours: int = 48) -> int:
+    """Remove pending tweets older than max_age_hours. Returns count removed."""
+    if not QUEUE_PATH.exists():
+        return 0
+    try:
+        with open(QUEUE_PATH) as f:
+            queue = json.load(f)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+        fresh = []
+        for entry in queue:
+            gen_at = entry.get("generated_at", "")
+            if gen_at:
+                try:
+                    ts = datetime.fromisoformat(gen_at)
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                    if ts < cutoff:
+                        continue
+                except (ValueError, TypeError):
+                    pass
+            fresh.append(entry)
+        removed = len(queue) - len(fresh)
+        if removed > 0:
+            with open(QUEUE_PATH, "w") as f:
+                json.dump(fresh, f, indent=2, ensure_ascii=False)
+            logger.info(f"Pruned {removed} stale tweets from pending queue (>{max_age_hours}h old)")
+        return removed
+    except Exception as e:
+        logger.warning(f"Queue prune failed: {e}")
+        return 0
+
+
 def main():
     logger.info("=" * 60)
     logger.info("Tweet Machine v4 starting (sentiment + formats + data)")
     logger.info("=" * 60)
+
+    # Prune stale pending tweets before doing anything
+    prune_stale_queue(48)
 
     if not CAN_POST:
         logger.warning(
@@ -979,7 +1029,39 @@ def main():
         if CAN_POST:
             text = _strip_hashtags(text)  # Hard gate
 
-            # Global rate gate check
+            # Dedup check with retry on different format (BEFORE gate, so gate logs final text)
+            posted_today = get_todays_posted_tweets()
+            if is_too_similar(text, posted_today):
+                logger.warning("DEDUP blocked tweet — retrying with different format")
+                retry_success = False
+                used_formats = [tweet.get("format", "")]
+                for retry in range(2):
+                    import random
+                    avail = [k for k in TWEET_FORMATS if k not in used_formats]
+                    if not avail:
+                        break
+                    forced_fmt = random.choice(avail)
+                    used_formats.append(forced_fmt)
+                    logger.info(f"DEDUP retry {retry+1}: forcing format [{forced_fmt}]")
+                    retry_tweets = generate_tweets(brief, count=1)
+                    if retry_tweets:
+                        retry_text = _strip_hashtags(retry_tweets[0].get("text", "").strip())
+                        if retry_text and not is_too_similar(retry_text, posted_today):
+                            tweet = retry_tweets[0]
+                            text = retry_text
+                            retry_success = True
+                            logger.info(f"DEDUP retry succeeded with format [{forced_fmt}]")
+                            break
+                        else:
+                            logger.warning(f"DEDUP retry {retry+1} still blocked")
+                if not retry_success:
+                    logger.warning("DEDUP blocked after retries — queuing")
+                    queue_tweet(tweet, brief)
+                    log_to_db(tweet, posted=False)
+                    queued_count += 1
+                    continue
+
+            # Global rate gate check (with final dedup-clean text)
             try:
                 sys.path.insert(0, str(BASE))
                 from services.x_service import can_post_tweet, ANGLE_CATEGORIES
@@ -996,15 +1078,6 @@ def main():
                     continue
             except Exception as e:
                 logger.warning(f"Gate check failed (allowing): {e}")
-
-            # Dedup check (legacy, redundant with gate but kept as safety net)
-            posted_today = get_todays_posted_tweets()
-            if is_too_similar(text, posted_today):
-                logger.warning("DEDUP blocked tweet")
-                queue_tweet(tweet, brief)
-                log_to_db(tweet, posted=False)
-                queued_count += 1
-                continue
 
             result = post_to_x(text)
             if result.get("success"):
