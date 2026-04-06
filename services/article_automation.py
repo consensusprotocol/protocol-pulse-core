@@ -75,11 +75,16 @@ BANNED_TITLE_TEMPLATES = [
     r"Is Bitcoin'?s? Network (Resilience|Activity|Strength) Reaching",
     r"Is Bitcoin'?s? Hash Rate Surge Signaling",
     r"Bitcoin network and market update",  # generic placeholder
+    r"^```",
+    r"^html$",
 ]
 
 def _sanitize_title(title):
     """Strip prompt bleed (everything after first newline) and normalize whitespace."""
     import re
+    title = re.sub(r'^```(?:html|json)?\s*', '', title, flags=re.IGNORECASE).strip()
+    title = re.sub(r'```\s*$', '', title).strip()
+    title = title.lstrip('`').strip()
     # Remove everything after first newline — that's prompt bleed
     title = re.sub(r'[\r\n].*', '', title, flags=re.DOTALL).strip()
 
@@ -564,9 +569,15 @@ Clean HTML only. No markdown. No backticks. No code fences.
 
             content = response.choices[0].message.content
 
+            # Strip code fences
+            if content and content.strip().startswith('```'):
+                import re as _re
+                content = _re.sub(r'^```(?:html)?\s*', '', content.strip(), flags=_re.IGNORECASE)
+                content = _re.sub(r'```\s*$', '', content).strip()
+
             # Extract title from h1 tag
             import re
-            title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content)
+            title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
             title = title_match.group(1) if title_match else source['title']
 
             # Extract summary from tldr
@@ -593,7 +604,10 @@ Clean HTML only. No markdown. No backticks. No code fences.
 
                 if content:
                     import re
-                    title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content)
+                    if content.strip().startswith('```'):
+                        content = re.sub(r'^```(?:html)?\s*', '', content.strip(), flags=re.IGNORECASE)
+                        content = re.sub(r'```\s*$', '', content).strip()
+                    title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
                     title = title_match.group(1) if title_match else source['title']
 
                     # Try to extract TL;DR from generated content first
