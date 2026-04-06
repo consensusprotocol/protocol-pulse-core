@@ -86,11 +86,23 @@ def prune_old_events(max_age_days: int = 7, min_score: float = 5.0) -> int:
         return 0
 
 
+def _import_core_nostr_service():
+    """Import nostr_service from core/services/ (not project-root services/)."""
+    import importlib
+    spec = importlib.util.spec_from_file_location(
+        "core_nostr_service",
+        str(_CORE_DIR / "services" / "nostr_service.py"),
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def seed_pubkeys_if_needed() -> int:
     """Ensure tracked pubkeys are seeded."""
     try:
-        from services.nostr_service import seed_tracked_pubkeys
-        return seed_tracked_pubkeys()
+        mod = _import_core_nostr_service()
+        return mod.seed_tracked_pubkeys()
     except Exception as e:
         logger.error("Seed pubkeys error: %s", e)
         return 0
@@ -99,8 +111,8 @@ def seed_pubkeys_if_needed() -> int:
 def log_stats():
     """Log current collection stats."""
     try:
-        from services.nostr_service import get_stats
-        stats = get_stats()
+        mod = _import_core_nostr_service()
+        stats = mod.get_stats()
         logger.info(
             "Stats: %d total events, %d today, %d tracked pubkeys",
             stats.get("total_events", 0),

@@ -43,12 +43,15 @@ def load_env():
         for line in env_path.read_text().splitlines():
             if "=" in line and not line.startswith("#"):
                 k, _, v = line.partition("=")
-                os.environ.setdefault(k.strip(), v.strip().strip("'\""))
+                os.environ[k.strip()] = v.strip().strip("'\"")  # Force-set so new keys picked up
 
 
 def safe_run(name, func):
     """Run a task with crash isolation and logging."""
     logger.info("=== Running %s ===", name)
+    # Reload .env before each task so new keys (XAI_API_KEY etc.) are picked up
+    # without requiring a daemon restart
+    load_env()
     try:
         result = func()
         logger.info("%s completed: %s", name, result)

@@ -39,21 +39,64 @@ def _content_hash(text: str) -> str:
 
 
 def _load_posted_hashes() -> set:
-    """Load persistent set of posted tweet content hashes."""
+    """Load persistent set of posted tweet content hashes.
+
+    Handles both legacy format (flat list of strings) and new format
+    (list of {hash, timestamp} dicts).
+    """
     if _POSTED_HASHES_FILE.exists():
         try:
-            return set(json.loads(_POSTED_HASHES_FILE.read_text()))
+            data = json.loads(_POSTED_HASHES_FILE.read_text())
+            if not isinstance(data, list):
+                return set()
+            hashes = set()
+            for entry in data:
+                if isinstance(entry, str):
+                    hashes.add(entry)  # Legacy format
+                elif isinstance(entry, dict) and "hash" in entry:
+                    hashes.add(entry["hash"])
+            return hashes
         except (json.JSONDecodeError, TypeError):
             return set()
     return set()
 
 
-def _save_posted_hash(h: str) -> None:
-    """Append a content hash to the persistent posted tweets file."""
-    hashes = _load_posted_hashes()
-    hashes.add(h)
+def _load_posted_entries() -> list:
+    """Load the full entries list (preserves timestamps)."""
+    if _POSTED_HASHES_FILE.exists():
+        try:
+            data = json.loads(_POSTED_HASHES_FILE.read_text())
+            if not isinstance(data, list):
+                return []
+            entries = []
+            for entry in data:
+                if isinstance(entry, str):
+                    entries.append({"hash": entry, "timestamp": None})  # Migrate legacy
+                elif isinstance(entry, dict):
+                    entries.append(entry)
+            return entries
+        except (json.JSONDecodeError, TypeError):
+            return []
+    return []
+
+
+def _save_posted_hash(h: str, tweet_text: str = "", format_type: str = "") -> None:
+    """Append a content hash with timestamp to the persistent posted tweets file."""
+    from datetime import datetime, timezone
+    entries = _load_posted_entries()
+    existing_hashes = {e["hash"] for e in entries if isinstance(e, dict) and "hash" in e}
+    if h not in existing_hashes:
+        entry = {
+            "hash": h,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        if tweet_text:
+            entry["text_preview"] = tweet_text[:80]
+        if format_type:
+            entry["format_type"] = format_type
+        entries.append(entry)
     _POSTED_HASHES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    _POSTED_HASHES_FILE.write_text(json.dumps(list(hashes)))
+    _POSTED_HASHES_FILE.write_text(json.dumps(entries, indent=2))
 
 # Narrative categories for angle diversity
 ANGLE_CATEGORIES = [
@@ -241,7 +284,7 @@ def can_post_tweet(text: str, source: str = "unknown", angle_category: str = Non
                 return (False, reason)
 
         # All checks passed — record hash to prevent future duplicate
-        _save_posted_hash(h)
+        _save_posted_hash(h, tweet_text=text, format_type=angle_category or source)
         reason = f"ALLOWED: post {count_24h + 1}/{_MAX_POSTS_PER_24H} today, source={source}"
         _log_gate(conn, now, text, source, angle_category, allowed=True, reason=reason)
         return (True, reason)

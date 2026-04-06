@@ -671,6 +671,16 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         test_mode = True
         skip_scan = True
 
+    # ── Step 0: Refresh narrative intelligence (before any render) ──────────
+    try:
+        from utils.narrative_intelligence import NarrativeIntelligenceEngine
+        _nar_engine = NarrativeIntelligenceEngine()
+        _nar_result = _nar_engine.run()
+        logger.info(f"NARRATIVE REFRESH: dominant={_nar_result.get('dominant_narrative')}, "
+                     f"mood={_nar_result.get('market_mood')}")
+    except Exception as e:
+        logger.warning(f"NARRATIVE REFRESH failed (non-fatal): {e}")
+
     # P1 Fix 8: VRAM cleanup between renders
     try:
         import torch
