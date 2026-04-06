@@ -130,7 +130,7 @@ RULES = [
     {"string_to_replace": "FIAT", "type": "alias", "alias": "FY-AT"},
     {"string_to_replace": "HODL", "type": "alias", "alias": "HODDLE"},
     {"string_to_replace": "hodl", "type": "alias", "alias": "HODDLE"},
-    {"string_to_replace": "satoshis", "type": "alias", "alias": "sah-TOH-sheez"},
+    {"string_to_replace": "satoshis", "type": "alias", "alias": "sats"},
     {"string_to_replace": "halving", "type": "alias", "alias": "HAV-ing"},
     {"string_to_replace": "mempool", "type": "alias", "alias": "mem-pool"},
     {"string_to_replace": "multisig", "type": "alias", "alias": "MUL-tee-sig"},
@@ -146,6 +146,9 @@ RULES = [
     {"string_to_replace": "BitMEX", "type": "alias", "alias": "Bit-mex"},
     {"string_to_replace": "dYdX", "type": "alias", "alias": "dee-why-dee-ex"},    {"string_to_replace": "Chainalysis", "type": "alias", "alias": "CHAIN-uh-LY-sis"},
     {"string_to_replace": "on-chain", "type": "alias", "alias": "on chain"},
+    {"string_to_replace": "satoshi zaps", "type": "alias", "alias": "sat zaps"},
+    {"string_to_replace": "Satoshi zaps", "type": "alias", "alias": "sat zaps"},
+    {"string_to_replace": "regulatory", "type": "alias", "alias": "REG-you-luh-tory"},
 ]
 
 

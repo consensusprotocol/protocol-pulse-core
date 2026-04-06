@@ -525,7 +525,7 @@ PRONUNCIATION_MAP = {
     "hodl": "HODDLE",
     "mempool": "mem-pool",
     "multisig": "MUL-tee-sig",
-    "satoshis": "sah-TOH-sheez",
+    "satoshis": "sats",
     "MicroStrategy": "My-crow-Strategy",
     "Coinbase": "Coin base",
     "Binance": "BY-nance",

@@ -173,6 +173,19 @@ AD_READ_PHRASES = [
     "swan bitcoin", "river.com", "fold app", "cash app",
     "strike app", "download the app", "link in description",
     "link in the description", "link below", "link in the bio",
+    # V15 FIX: Host intro/outro detection — prevent show intros bleeding into clips
+    "welcome to the show", "welcome back to", "welcome to the channel",
+    "hey everyone welcome", "what's up everyone", "what is up everyone",
+    "welcome to bitcoin magazine", "welcome to simply bitcoin",
+    "welcome to another episode", "thanks for joining", "thanks for tuning in",
+    "hit that subscribe", "hit the subscribe", "smash that like",
+    "hit the like button", "don't forget to subscribe", "make sure to subscribe",
+    "bell icon", "notification bell", "let me know in the comments",
+    "let us know in the comments", "comment section below",
+    "this is your host", "i'm your host", "my name is",
+    "before we get started", "before we get into it", "before we jump in",
+    "let's get right into it", "let's jump right in", "let's get into it",
+    "without further ado", "let's dive in", "let's dive right in",
 ]
 
 

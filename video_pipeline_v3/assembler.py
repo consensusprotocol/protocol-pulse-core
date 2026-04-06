@@ -365,7 +365,7 @@ def concatenate_parts(parts: list, output_path: str,
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-         "-af", "asetpts=PTS-STARTPTS",
+         "-af", "asetpts=PTS-STARTPTS+0.021333/TB",  # V15 FIX: AAC priming compensation at first encode
          "-avoid_negative_ts", "make_zero",
          "-movflags", "+faststart",
          concat_raw],
@@ -398,7 +398,7 @@ def concatenate_parts(parts: list, output_path: str,
             # If branded outro, fade BGM out before outro starts
             if skip_outro_fade and valid:
                 outro_dur_est = ffprobe_duration(valid[-1])
-                bgm_fade_st = max(0, dur - outro_dur_est - 3.0)
+                bgm_fade_st = max(0, dur - outro_dur_est - 0.5)  # V15 FIX: was -3.0, fading signoff
             else:
                 bgm_fade_st = max(0, dur - 3.0)
 
