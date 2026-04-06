@@ -1464,7 +1464,7 @@ function playVid(url){
     vid.removeAttribute('src');
     vid.load();
     vid.loop=false;
-    vid.muted=false; /* Always unmute — the video IS the audio source */
+    vid.muted=true; /* Start muted — unmute after play() resolves (iOS policy) */
     vid.src=url;
     vid.style.opacity='1';
     if(window._matrixHide) window._matrixHide();
@@ -1540,12 +1540,17 @@ function playVid(url){
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
       setStat('Speaking','#6cff9f',false);
-      vid.muted=false; /* Ensure unmuted — no conditions */
-      vid.volume=1.0;
     },{once:true});
+    /* iOS audio policy fix: start muted (always allowed), then unmute after
+       play() resolves. iOS permits unmuting an already-playing video element. */
+    vid.muted=true;
+    vid.volume=1.0;
     var p=vid.play();
     if(p){
-      p.then(function(){}).catch(function(err){
+      p.then(function(){
+        vid.muted=false; /* Unmute after play succeeds — iOS allows this */
+        vid.volume=1.0;
+      }).catch(function(err){
         console.warn('[Satomi] vid.play() rejected (autoplay):',err);
         /* P0: iOS Safari — show centered tap-to-play overlay */
         showTapOverlay();
