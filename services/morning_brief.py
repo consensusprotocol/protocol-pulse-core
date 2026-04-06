@@ -329,6 +329,39 @@ def call_claude_haiku(prompt: str) -> dict:
         return {}
 
 
+def call_gemini(prompt: str) -> dict:
+    """Call Gemini 2.5 Flash via Google API — fallback when Anthropic is down."""
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    if not gemini_key:
+        logger.warning("GEMINI_API_KEY not set — skipping Gemini fallback")
+        return {}
+    try:
+        system = "You are a Bitcoin intelligence analyst. Return ONLY valid JSON. No markdown. No preamble. No explanation."
+        payload = json.dumps({
+            "systemInstruction": {"parts": [{"text": system}]},
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 1500, "temperature": 0.3},
+        }).encode()
+        req = urllib.request.Request(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        resp = urllib.request.urlopen(req, timeout=30)
+        data = json.loads(resp.read())
+        raw = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        # Strip markdown fences
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        result = json.loads(raw.strip())
+        logger.info("Brief generated via GEMINI fallback")
+        return result
+    except Exception as e:
+        logger.error(f"Gemini fallback failed: {e}")
+        return {}
+
+
 def main():
     logger.info("=" * 60)
     logger.info("Morning Intelligence Brief generating")
@@ -372,19 +405,27 @@ def main():
     # Try local LLM first
     logger.info("Calling local Qwen3...")
     brief = call_local_llm(prompt)
+    _model_used = "local_llm"
 
     # Validate required fields
     required = ["dominant_narratives", "trending_language", "sentiment", "recommended_tweet_angles"]
     if not brief or not all(k in brief for k in required):
         logger.warning("Local brief incomplete, falling back to Claude Haiku")
         brief = call_claude_haiku(prompt)
+        _model_used = "claude_haiku"
+
+    # Gemini fallback if Haiku also failed
+    if not brief or not all(k in brief for k in required):
+        logger.warning("Haiku failed/incomplete, falling back to Gemini 2.5 Flash")
+        brief = call_gemini(prompt)
+        _model_used = "gemini_fallback"
 
     # Tag which model generated it
     if brief:
-        brief["generated_by"] = "local_llm" if all(k in brief for k in required) else "claude_haiku"
+        brief["generated_by"] = _model_used
 
     if not brief:
-        logger.error("Both local LLM and Claude Haiku failed")
+        logger.error("All LLM providers failed (Qwen + Haiku + Gemini)")
         # Write a minimal fallback brief
         brief = {
             "generated_at": datetime.now(timezone.utc).isoformat(),

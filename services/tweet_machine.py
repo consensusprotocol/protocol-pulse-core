@@ -638,10 +638,91 @@ def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.65) -
     return False
 
 
+def _call_llm_with_fallback(prompt: str) -> str:
+    """Call LLM with Anthropic → Gemini → Grok fallback chain. Returns raw text."""
+    # 1. Anthropic Haiku (primary)
+    if ANTHROPIC_API_KEY:
+        try:
+            payload = {
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": 500,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+            req = urllib.request.Request(
+                "https://api.anthropic.com/v1/messages",
+                data=json.dumps(payload).encode(),
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                    "User-Agent": "ProtocolPulse/1.0",
+                },
+            )
+            resp = urllib.request.urlopen(req, timeout=30)
+            data = json.loads(resp.read())
+            content = data.get("content", [{}])[0].get("text", "").strip()
+            if content:
+                logger.info("Tweet generated via Anthropic Haiku")
+                return content
+        except Exception as e:
+            logger.warning(f"Anthropic Haiku failed: {e}")
+
+    # 2. Gemini 2.5 Flash (fallback)
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    if gemini_key:
+        try:
+            gpayload = json.dumps({
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7},
+            }).encode()
+            req = urllib.request.Request(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
+                data=gpayload,
+                headers={"Content-Type": "application/json"},
+            )
+            resp = urllib.request.urlopen(req, timeout=30)
+            data = json.loads(resp.read())
+            content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            if content:
+                logger.info("Tweet generated via Gemini fallback (Anthropic credits depleted)")
+                return content
+        except Exception as e:
+            logger.warning(f"Gemini fallback failed: {e}")
+
+    # 3. Grok/xAI (fallback)
+    xai_key = os.environ.get("XAI_API_KEY", "")
+    if xai_key:
+        try:
+            gpayload = json.dumps({
+                "model": "grok-3-mini-fast",
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 500,
+                "temperature": 0.7,
+            }).encode()
+            req = urllib.request.Request(
+                "https://api.x.ai/v1/chat/completions",
+                data=gpayload,
+                headers={
+                    "Authorization": f"Bearer {xai_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            resp = urllib.request.urlopen(req, timeout=30)
+            data = json.loads(resp.read())
+            content = data["choices"][0]["message"]["content"].strip()
+            if content:
+                logger.info("Tweet generated via Grok/xAI fallback")
+                return content
+        except Exception as e:
+            logger.warning(f"Grok fallback failed: {e}")
+
+    return ""
+
+
 def generate_tweets(brief: dict, count: int = 1) -> list:
-    """Call Claude Haiku to generate tweets from the brief with format diversity."""
-    if not ANTHROPIC_API_KEY:
-        logger.error("ANTHROPIC_API_KEY not set")
+    """Call LLM to generate tweets from the brief with format diversity."""
+    if not ANTHROPIC_API_KEY and not os.environ.get("GEMINI_API_KEY") and not os.environ.get("XAI_API_KEY"):
+        logger.error("No LLM API keys available (ANTHROPIC, GEMINI, XAI)")
         return []
 
     brief_text = json.dumps(brief, indent=2)[:3000]
@@ -721,38 +802,21 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         voice_laws=TWEET_VOICE_LAWS,
     )
 
-    payload = {
-        "model": "claude-haiku-4-5-20251001",
-        "max_tokens": 500,
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
-        data=json.dumps(payload).encode(),
-        headers={
-            "Content-Type": "application/json",
-            "x-api-key": ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-            "User-Agent": "ProtocolPulse/1.0",
-        },
-    )
-    try:
-        resp = urllib.request.urlopen(req, timeout=30)
-        data = json.loads(resp.read())
-        content = data.get("content", [{}])[0].get("text", "").strip()
-        parsed = extract_json(content)
-        if isinstance(parsed, dict):
-            parsed = [parsed]
-        # Tag each tweet with metadata for tracking
-        for t in parsed:
-            t["format"] = fmt_key
-            t["narratives_used"] = themes[:3]
-            t["data_injected"] = bool(live_data)
-        logger.info(f"Generated {len(parsed)} tweet(s)")
-        return parsed
-    except Exception as e:
-        logger.error(f"Tweet generation failed: {e}")
+    content = _call_llm_with_fallback(prompt)
+    if not content:
+        logger.critical("All LLM providers failed — zero tweets generated")
         return []
+
+    parsed = extract_json(content)
+    if isinstance(parsed, dict):
+        parsed = [parsed]
+    # Tag each tweet with metadata for tracking
+    for t in parsed:
+        t["format"] = fmt_key
+        t["narratives_used"] = themes[:3]
+        t["data_injected"] = bool(live_data)
+    logger.info(f"Generated {len(parsed)} tweet(s)")
+    return parsed
 
 
 def _strip_hashtags(text: str) -> str:
@@ -955,4 +1019,30 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Protocol Pulse Tweet Machine")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Generate tweet but do not post to X")
+    args = parser.parse_args()
+
+    if args.dry_run:
+        logger.info("DRY RUN MODE — will generate but NOT post")
+        load_env()
+        brief = load_brief()
+        if not brief:
+            logger.error("Cannot generate tweets without a brief.")
+            sys.exit(1)
+        tweets = generate_tweets(brief, count=1)
+        if not tweets:
+            logger.error("No tweets generated.")
+            sys.exit(1)
+        for t in tweets:
+            text = t.get("text", "").strip()
+            print(f"\n{'='*60}")
+            print(f"GENERATED TWEET ({len(text)} chars):")
+            print(f"{'='*60}")
+            print(text)
+            print(f"{'='*60}")
+            print(f"Angle: {t.get('angle', '?')} | Format: {t.get('format', '?')}")
+    else:
+        main()
