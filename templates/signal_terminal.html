@@ -183,12 +183,17 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
 .main-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: var(--col-left) 1fr var(--col-right);
+    grid-template-columns: var(--col-left) minmax(0, 1fr) var(--col-right);
     gap: var(--gap);
     padding: var(--gap);
     overflow: visible;
     z-index: 1;
     min-height: 0;
+    max-width: 100%;
+}
+
+.main-grid > * {
+    min-width: 0;
 }
 
 .col {
@@ -1125,7 +1130,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             <button onclick="document.getElementById('ssm-fs').style.display='block';document.body.style.overflow='hidden';initFsRadar();" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-family:monospace;font-size:8px;padding:2px 8px;border-radius:3px;cursor:pointer;margin-right:4px;">EXPAND</button>
             <span class="panel-badge live">LIVE</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 420px;gap:0;">
+        <div style="display:grid;grid-template-columns:1fr minmax(0, 420px);gap:0;">
             <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:4px;">
                 <canvas id="ssm-radar" width="800" height="800" style="max-width:100%;width:100%;max-height:calc(100vh - 160px);aspect-ratio:1/1;"></canvas>
                 <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);text-align:center;">
@@ -1371,13 +1376,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
     </div>
 
-    <!-- Article Velocity -->
-    <div class="panel">
-        <div class="panel-header">
-
-
-
-</div><!-- /main-grid -->
+</div><!-- /col-right -->
 
 <!-- ═══ CONVERGENCE INDEX BREAKDOWN ═══════════════════════════════ -->
     <div class="panel" style="grid-column: 1 / -1; margin-top: 8px;">
@@ -1448,9 +1447,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         </div>
     </div>
 
-
-
-
+</div><!-- /main-grid -->
 
 
 <!-- Fullscreen radar overlay -->
