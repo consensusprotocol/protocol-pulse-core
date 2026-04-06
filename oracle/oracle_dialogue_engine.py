@@ -595,6 +595,39 @@ def detect_action_card(user_text: str) -> dict | None:
     return None
 
 
+def _gemini_dialogue_fallback(messages: list, context_block: str) -> str:
+    """Gemini 2.5 Flash fallback when Anthropic credits are depleted."""
+    import requests as _req
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    if not gemini_key:
+        logger.warning("[DIALOGUE] Gemini fallback unavailable — no GEMINI_API_KEY")
+        return "Connection hiccup. What were you asking?"
+    try:
+        # Convert Anthropic messages to Gemini format
+        gemini_contents = []
+        for m in messages:
+            role = "user" if m["role"] == "user" else "model"
+            gemini_contents.append({"role": role, "parts": [{"text": m["content"]}]})
+        resp = _req.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
+            headers={"Content-Type": "application/json"},
+            json={
+                "systemInstruction": {"parts": [{"text": _SYSTEM_PROMPT}]},
+                "contents": gemini_contents,
+                "generationConfig": {"maxOutputTokens": 100, "temperature": 0.7},
+            },
+            timeout=12,
+        )
+        if resp.status_code == 200:
+            raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+            logger.info(f"[DIALOGUE] Using Gemini fallback (Anthropic credits depleted)")
+            return raw
+        logger.error(f"[DIALOGUE] Gemini fallback failed {resp.status_code}: {resp.text[:200]}")
+    except Exception as e:
+        logger.error(f"[DIALOGUE] Gemini fallback error: {e}")
+    return "Connection hiccup. What were you asking?"
+
+
 def generate_response(
     session_id: str,
     user_text: str,
@@ -900,13 +933,23 @@ def generate_response(
 
         if resp.status_code != 200:
             logger.error(f"[DIALOGUE] Haiku error {resp.status_code}: {resp.text[:200]}")
-            raw_text = "I need a moment. Ask me again."
+            # Credit/billing errors → try Gemini fallback before canned response
+            _resp_lower = resp.text.lower()
+            _is_billing = resp.status_code in (400, 402, 429, 529) or any(
+                x in _resp_lower for x in [
+                    "credit", "billing", "balance", "spend_limit",
+                    "insufficient_quota", "payment_required",
+                ])
+            if _is_billing:
+                raw_text = _gemini_dialogue_fallback(messages, context_block)
+            else:
+                raw_text = "I need a moment. Ask me again."
         else:
             raw_text = resp.json()["content"][0]["text"].strip()
 
     except Exception as e:
         logger.error(f"[DIALOGUE] API error: {e}")
-        raw_text = "Connection hiccup. What were you asking?"
+        raw_text = _gemini_dialogue_fallback(messages, context_block)
 
     # Trim to word limit
     raw_text = _trim_to_word_limit(raw_text, MAX_RESPONSE_WORDS)
