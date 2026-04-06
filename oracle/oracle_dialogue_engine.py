@@ -614,7 +614,7 @@ def _gemini_dialogue_fallback(messages: list, context_block: str) -> str:
             json={
                 "systemInstruction": {"parts": [{"text": _SYSTEM_PROMPT}]},
                 "contents": gemini_contents,
-                "generationConfig": {"maxOutputTokens": 100, "temperature": 0.7},
+                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.7},
             },
             timeout=12,
         )
