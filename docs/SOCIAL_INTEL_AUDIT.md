@@ -1,191 +1,318 @@
 # Social Intelligence Layer — Audit Report
-## Generated: 2026-04-06 00:15 UTC
+## Generated: 2026-04-06 05:30 UTC
 
 ---
 
 ### Executive Summary
 
-The social intelligence layer is **partially operational with critical failures**. The Nitter scraper runs successfully (84% handle success rate, 46 tweets/cycle), the Twilio voice call system works daily, and the social daemon is alive. However, the **tweet machine is completely down** (Anthropic API 400 on all runs today), the **morning brief is producing empty fallbacks** (both Qwen and Haiku failing), the **narrative context is 16 days stale**, and **Nostr publishing is feature-flagged off**. Two systems (sentiment brief service, quote-RT amplification) were never built. The XAI_API_KEY env var is missing from the daemon environment, breaking 2 of 4 daemon tasks.
+The social intelligence stack is **critically degraded**. Only 2 of 14 subsystems are fully operational: the Nitter RSS scraper (84% handle success rate, 5,061 tweets collected) and the Twilio voice+SMS pipeline (daily brief delivered to PBX on April 5). The tweet machine's primary LLM (Anthropic Haiku) is returning HTTP 400 due to **depleted credits**, and the Gemini fallback produces malformed JSON that fails parsing — meaning **zero tweets have been generated since April 5 06:21 UTC** (24+ hours of silence). Nostr publishing has 3 broken implementations and 1 functional one. X Spaces scraping is dead (API 403 since March 27). The reply engine, comment radar, and reply-back engine are all broken due to missing env vars (`XAI_API_KEY`, `PP_X_USER_ID`). The narrative intelligence feeding the video pipeline is **17 days stale**. Two systems (sentiment brief service, tweet recycling) were never built.
 
 ---
 
 ### Detailed Findings
 
+---
+
 ## SECTION 1: DATA COLLECTION
 
-### 1a. Nitter RSS Scraper — LIVE (degraded)
+### 1a. Nitter RSS Scraper — LIVE
 
-| Check | Evidence |
-|-------|---------|
-| Cron active | YES — `0 */6 * * *` (two entries: one from `core/`, one from `services/`) |
-| Last successful run | 2026-04-06 00:04:06 UTC — 37/44 handles OK, 46 new tweets collected |
-| Handles monitored | **44 handles** configured |
-| Failed handles (7) | ODELL, matt_odell, SimplyBitcoinTV, nic__carter, pierre_rochard, WClementeIII, woonomic — XML parse errors or Nitter instance failures |
-| raw_tweets.json | **5,061 entries**, date range 2007-09-08 to 2026-04-06. File healthy. |
-| pending_tweets.json | 62,469 bytes, last modified 2026-04-05 02:21 ET |
-| Known bug | `nitter_cron.log` showed JSONDecodeError crashes on 2026-03-23 (file corruption). Rebuilt since. Two duplicate cron entries (core/ vs services/) — one is stale. |
+| Item | Evidence |
+|------|----------|
+| Cron | `0 */6 * * *` — every 6 hours — ACTIVE |
+| Script | `services/nitter_scraper.py` (401 lines, last modified 2026-03-31) |
+| Handles | 44 configured in `config/social_targets.json` |
+| Success rate | 37/44 handles per run (84%) |
+| Last run | 2026-04-06 00:04 UTC — 46 new tweets |
+| Output | `data/tweet_study/raw_tweets.json` — 5,061 tweets, 4.8 MB |
+| Date span | Latest tweets from 2026-04-06 (12 tweets today) |
+| Errors | 0 ERROR/CRITICAL. 7 handles consistently fail (all Nitter instances return errors) |
+| Top handles | PeterMcCormack (267), LynAldenContact (232), adam3us (224), saylor (220), ErikVoorhees (204) |
 
-**Recommendation**: Remove duplicate cron entry. Fix or drop the 7 failing handles. Monitor for Nitter instance rotation.
+**Failing handles (7):** ODELL, matt_odell, SimplyBitcoinTV, nic__carter, pierre_rochard, WClementeIII, woonomic (XML parse error)
 
-### 1b. Nostr Signal Scraping — BROKEN
+**Recommendation:** Remove or replace the 7 dead handles. Otherwise healthy — no action needed.
 
-| Check | Evidence |
-|-------|---------|
-| DB file | `data/nostr_signal.db` exists |
-| Service files | `services/nostr_service.py`, `services/nostr_signal_service.py`, `services/nostr_feed_worker.py`, `services/nostr_broadcaster.py`, `services/nostr_crosspost.py`, `cron/nostr_cron.py` |
-| Cron active | YES — `0 * * * *` hourly via `cron/nostr_cron.py` |
-| Import errors | **CRITICAL**: `cannot import name 'ApiKey' from 'models'`; `cannot import name 'get_stats' from 'services.nostr_service'` |
-| signals.json | **Zero nostr entries** — 22 keys, all market data, no nostr signal data |
-| npubs monitored | No hardcoded watchlist. Protocol Pulse own npub: `npub1a38uwcec9u4pqd4dutezcfg3ujfapfm90vzzjtkq9cs2u5tws50stujyhm`. Relay event consumption model, not polling. |
+---
 
-**Recommendation**: Fix import errors (`ApiKey`, `get_stats`). Verify relay connections. Add npub watchlist for top Bitcoin KOLs.
+### 1b. Nostr Signal Scraping — BROKEN (zero data since inception)
 
-### 1c. X Spaces Scraper — BROKEN (stale 9+ days)
+| Item | Evidence |
+|------|----------|
+| Cron | `0 * * * *` — hourly — ACTIVE (crashes every run) |
+| Script | `cron/nostr_cron.py` (142 lines) |
+| DB | `data/nostr_signal.db` — 28,672 bytes — **0 rows** in all tables |
+| Flask DB | `nostr_monitor_events` — **0 rows**; `nostr_tracked_pubkeys` — 10 rows (seeded) |
+| Log | `logs/nostr_cron.log` — 1.7 MB of repeated errors |
+| Error since | 2026-03-27 14:00 — every hourly run |
 
-| Check | Evidence |
-|-------|---------|
-| Cron active | YES — `*/30 12-23,0-3 * * *` (runs every 30min during active hours) |
-| Scraper file | `x_spaces_scraper/run_scraper.py` exists |
-| Cache | 166 directories in `x_spaces_scraper/cache/`, last activity **2026-03-27** |
-| Cron log | `/tmp/xspaces_cron.log` — empty or missing (no output) |
-| Legacy scraper | `spaces_scraper/` also exists (untouched since Mar 2) |
+**Root cause (dual bug):**
 
-**Recommendation**: Check if run_scraper.py is crashing silently (no stderr redirect). Verify X guest token is refreshing. Test manually.
+1. **Import conflict** — Two `nostr_service.py` files exist:
+   - `core/services/nostr_service.py` — HAS `seed_tracked_pubkeys()` and `get_stats()`
+   - `services/nostr_service.py` — does NOT have these functions
+   - The cron's `sys.path` resolves the wrong one:
+   ```
+   ERROR Seed pubkeys error: cannot import name 'seed_tracked_pubkeys' from 'services.nostr_service'
+   ```
+
+2. **No relay fetcher** — Even if imports were fixed, `nostr_cron.py` only seeds pubkeys and prunes old events. It **never connects to relays** or fetches new events. No active ingestion code exists.
+
+**Collateral damage:** Each hourly run boots the entire Flask app, triggering 5+ unrelated import errors (ApiKey, oracle_avatar, PRAW, selenium, Substack).
+
+**Recommendation:** Fix import path, build actual relay event ingestion, or disable the cron to stop wasting compute (168 failed runs/week).
+
+---
+
+### 1c. X Spaces Scraper — BROKEN (dead since March 27)
+
+| Item | Evidence |
+|------|----------|
+| Cron | `*/30 0-3,12-23 * * *` — ~32 runs/day — ACTIVE (produces nothing) |
+| Script | `x_spaces_scraper/run_scraper.py` (265 lines) — imports cleanly |
+| Last success | 2026-03-27 (last `live_spaces_*.json` cache file) |
+| Current error | **HTTP 403** on all 14 X API v2 Spaces search queries |
+| Cache | `last_run.json`: spaces_found=0, elapsed=0.7s |
+| Log | `logs/x_spaces_scraper.log` — 17.5 MB |
+
+**Root cause:** X API v2 bearer token revoked or access tier downgraded. All search queries (bitcoin, btc, sound money, market crash, etc.) across both `live` and `ended` states return 403 Forbidden.
+
+**Timeline:**
+- 2026-03-13: Last successful Space detection (27-28 spaces found)
+- 2026-03-19: Last run with any results (38 detected, transcripts unusable)
+- 2026-03-27: Last cache file created
+- 2026-03-28 → now: Zero spaces detected
+
+**Recommendation:** Regenerate bearer token or acquire new API access tier. Disable cron until fixed (~32 wasted runs/day).
 
 ---
 
 ## SECTION 2: INTELLIGENCE SYNTHESIS
 
-### 2a. Morning Brief — BROKEN (fallback-only output)
+### 2a. Morning Brief (morning_brief.py) — PARTIAL
 
-| Check | Evidence |
-|-------|---------|
-| Cron active | YES — `45 6 * * *` via `morning_brief_cron.sh`, plus `0 11 * * *` and `0 16 * * *` via direct `morning_brief.py` |
-| Brief file | Exists, 175 bytes, last modified 2026-04-05 16:01 ET |
-| Content quality | **DEGRADED** — contains only `"error": "All LLM calls failed"`, `"generated_by": "fallback"`. No KOL quotes, no sentiment, no narratives. |
-| Model chain | Primary: `qwen3-coder:30b` via Ollama (localhost:11435). Fallback: `claude-haiku-4-5-20251001` |
-| Failure pattern | Qwen3 times out every run (60s timeout, port 11435 unresponsive). Haiku returns HTTP 400 (credit balance depleted). Apr 4 was last successful brief via Haiku. |
-| Tweet ingestion | Loads 126-164 tweets/day. Nostr signals: consistently 0. |
+| Item | Evidence |
+|------|----------|
+| Cron | `0 11 * * *` and `0 16 * * *` — twice daily — ACTIVE |
+| Latest brief | `data/intelligence/morning_intelligence_brief.json` — 2026-04-06 01:42 ET, 1,833 bytes |
+| Content quality | Has BTC price ($69,196), sentiment (bearish), 155 tweets analyzed, KOL quotes present |
+| Primary LLM | Local Qwen3-coder:30b via Ollama (port 11435, 60s timeout) |
+| Fallback chain | Qwen3 → Claude Haiku → Gemini 2.5 Flash → error stub |
+| Nostr signals | Always 0 (database empty) |
 
-**Recommendation**: Fix Ollama availability (port 11435 unreachable). Anthropic credits need recharge. Add Gemini fallback (same pattern as oracle_dialogue_engine.py fix).
+**Failure pattern (April 5):**
+```
+11:00 — Qwen3 timed out (60s), Haiku HTTP 400 (credits depleted) → empty fallback
+16:00 — Same double failure → empty fallback
+```
+
+**April 6 01:42 — SUCCESS** (Qwen3 generated in ~58s, just under timeout)
+
+**Issues:**
+1. Qwen3 timeout ~40% of runs (60s too short for 30b model)
+2. Haiku fallback permanently dead (HTTP 400, credit balance depleted)
+3. Gemini fallback exists in code but may not be reliably reached
+4. `morning_brief_cron.sh` (06:45 UTC) runs `satomi_brief_generator`, NOT `morning_brief.py` — misleading name
+5. `transcript_intelligence.py` (every 4h, feeds KOL data to brief) also BROKEN due to same Anthropic 400
+
+**KOL data sources:**
+- `kol_transcript_digest.json` — Last generated 2026-04-05, BTC Sessions + Pompliano analysis
+- 51 historical analyses in `kol_transcript_intel.json` — no new ones since credits depleted
+
+**Recommendation:** P0: Top up Anthropic credits. Increase Qwen3 timeout to 120s. Verify Gemini fallback path fires.
+
+---
 
 ### 2b. KOL Sentiment Brief Service — NEVER_BUILT
 
-| Check | Evidence |
-|-------|---------|
-| File exists | **NO** — `services/sentiment_brief_service.py` does not exist |
-| Route registered | **NO** — zero matches for `sentiment-brief` or `sentiment.brief` in any route file |
-| API endpoint | **NO** — `/api/sentiment-brief` not registered |
+| Item | Evidence |
+|------|----------|
+| File | `services/sentiment_brief_service.py` — **DOES NOT EXIST** |
+| Import | `ModuleNotFoundError` |
+| Route | `/api/sentiment-brief` — **NOT REGISTERED** |
+| Grep | Zero matches across entire codebase |
 
-**Recommendation**: Build this service. Design docs reference it but implementation was never started.
+The closest analog is `transcript_intelligence.py` → `kol_transcript_digest.json` → `morning_brief.py`, but this is a batch pipeline, not a standalone service with an API endpoint.
 
-### 2c. Narrative Context for Video Pipeline — PARTIAL (16 days stale)
+**Recommendation:** Either build this service or formally designate the transcript_intelligence pipeline as the replacement.
 
-| Check | Evidence |
-|-------|---------|
-| File exists | YES — `video_pipeline_v3/data/intelligence/narrative_context.json`, 861 bytes |
-| Last updated | **2026-03-20 13:38 ET — 16 days stale** |
-| Content | Has `dominant_narrative: "price"`, `clip_selection_priority`, `narrative_bridge_lines`. But `thought_leaders_mentioned: []` (empty). |
-| Pipeline reads it | **YES, deeply** — consumed by `render_social.py`, `clip_selector.py`, `script_writer.py`, `utils/clip_scorer.py` |
-| Auto-refresh | **NONE** — `utils/narrative_intelligence.py` exists but has no cron trigger and is not called by daily_producer.py |
-| KOL in scripts | Recent test renders have incidental tweet quotes but no structured KOL synthesis |
+---
 
-**Recommendation**: Add narrative_intelligence.py call to daily_producer.py Step 1 (pre-render). Wire morning brief KOL data into narrative context. Add cron fallback.
+### 2c. Narrative Context for Video Pipeline — BROKEN (17 days stale)
+
+| Item | Evidence |
+|------|----------|
+| File | `video_pipeline_v3/data/intelligence/narrative_context.json` — EXISTS |
+| Last modified | **2026-03-20 13:38** (17 days stale) |
+| Content | Fallback quality: "12 of 0 Priority-1 thought leaders" (logic error in template) |
+| Cron | `30 9 * * *` runs `utils.narrative_intelligence` — ACTIVE |
+| Log | `logs/narrative_intel.log` — **FILE DOES NOT EXIST** |
+
+**All intelligence files stale:**
+
+| File | Age |
+|------|-----|
+| `narrative_context.json` | 17 days |
+| `daily_signals.json` | 17 days |
+| `narrative_history.json` | 17 days |
+| `sentiment.json` | 29 days |
+| `live_signals.json` | 21 days |
+| `entity_mentions.json` | 28 days |
+
+**Root cause:** `NarrativeIntelligenceEngine` uses X API v2 `search_recent_tweets` which returns **403 Forbidden** (public bearer token, not project-level token). Falls back to `_fallback_narratives()` which recycles stale data.
+
+**Pipeline impact:**
+- `script_writer.py` enforces a 4-hour freshness window → receives `{}` (empty dict)
+- `clip_selector.py` falls back to recency/engagement ranking only (no narrative relevance)
+- `render_social.py` references 17-day-old narrative themes for tweet cards
+
+**Recommendation:** Fix X API bearer token (needs project-level token). Interim: pipe `morning_intelligence_brief.json` into the video pipeline as a bridge.
 
 ---
 
 ## SECTION 3: OUTPUT — TWEET MACHINE
 
-### 3a. Tweet Machine — BROKEN (Anthropic API 400)
+### 3a. Tweet Machine — BROKEN (silent since April 5 06:21 UTC)
 
-| Check | Evidence |
-|-------|---------|
-| Cron active | YES — `0 */3 * * *` (every 3 hours) |
-| File / import | `services/tweet_machine.py` exists, imports cleanly |
-| Voice laws | Embedded in Claude prompt context via `TWEET_FORMATS` dict (per-format instructions). No standalone `TWEET_VOICE_LAWS` constant. |
-| Last tweets posted | `posted_tweets.json` has 15 entries (ID strings only, no timestamps — audit trail weak) |
-| Today's status | **ALL 5 RUNS FAILED** — `HTTP Error 400: Bad Request` from Anthropic API during tweet generation (12:00, 15:00, 18:00, 21:00, 00:00 UTC). Zero tweets today. |
-| X auth | X write credentials load successfully — the 400 is from Anthropic, not X |
+| Item | Evidence |
+|------|----------|
+| Cron | `0 */3 * * *` — every 3 hours (8x/day) — ACTIVE |
+| Script | `services/tweet_machine.py` (1,048 lines, v4) |
+| Last tweet | 2026-04-05 06:21 UTC: "828.9 EH/s hashrate at extreme fear..." |
+| Voice laws | YES — 7 laws at lines 192-240 + cypherpunk guardrails + 5 banned angles |
+| Formats | 8 rotating formats (on_chain_signal, historical_parallel, fiat_failure, socratic_question, etc.) |
+| Posting | 1 tweet per run, gated by `x_service.can_post_tweet()` |
 
-**Recommendation**: Same root cause as morning brief — Anthropic credits depleted. Add Gemini/Grok fallback for tweet generation. Add timestamps to posted_tweets.json.
+**LLM fallback chain:**
 
-### 3b. Reply Engine — PARTIAL (draft-only, never auto-posts)
+| LLM | Status | Error |
+|-----|--------|-------|
+| Anthropic Haiku | **DEAD** | HTTP 400: credit balance depleted |
+| Gemini 2.5 Flash | **BROKEN** | Returns content but JSON extraction fails (unescaped apostrophes in `Bitcoin's`) |
+| Grok 3 Mini Fast | **WORKS** | Successful in dry run — but only reached when Gemini returns a clean error, not when it returns malformed content |
 
-| Check | Evidence |
-|-------|---------|
-| Files | `services/reply_engine.py`, `services/reply_back_engine.py`, `core/services/x_reply_writer.py` |
-| Mode | **Draft-only** — queues replies to `x_reply_draft` DB table. NO auto-posting. |
-| Running | Yes, via `social_daemon.py` every 2 hours |
-| Logs | `logs/reply_engine.log` exists but empty. Output goes to `social_daemon.log`. |
+**Every run since April 5 06:21 has failed.** The Gemini path returns content (triggering "success") but the JSON is malformed, so no tweet text is extracted. The Grok fallback is only reached on hard errors, not on content that fails parsing.
 
-**Recommendation**: Decide if auto-posting is desired or if manual review is intentional. If intentional, build admin UI for draft review.
+**Social daemon (`social_daemon.py`):** Running (PID 224330, started April 3). All 4 subtasks broken:
 
-### 3c. Quote Retweet / Amplification — NEVER_BUILT
+| Task | Interval | Error |
+|------|----------|-------|
+| reply_engine | 2h | `PP_X_USER_ID` not set → 0 mentions |
+| comment_radar | 3h | `XAI_API_KEY` not set → ValueError |
+| reply_back | 4h | `XAI_API_KEY` not set → ValueError |
+| nostr_crosspost | 6h | Depends on CommentRadar → broken |
 
-| Check | Evidence |
-|-------|---------|
-| Code exists | **NO** — no quote-tweet, amplification, or retweet recycling code anywhere |
-| Thread engine | `services/thread_engine.py` exists (5-7 tweet threads) but this is creation, not amplification |
+**Posting gate (`x_service.py`):** Constants `_MAX_POSTS_PER_24H=8`, `_MIN_GAP_HOURS=2` (docstring says 3/4h — mismatch). `ENABLE_TWEETS` not set (defaults false) but `can_post_tweet()` doesn't check it.
 
-**Recommendation**: Low priority unless engagement growth is a goal.
+**Recommendation:** P0: Top up Anthropic credits. P0: Fix Gemini JSON extraction (handle apostrophes). P1: Set `XAI_API_KEY` and `PP_X_USER_ID`.
+
+---
+
+### 3b. Reply Engine — BROKEN (infrastructure exists, nothing works)
+
+| Item | Evidence |
+|------|----------|
+| Files | `services/reply_engine.py` (214 lines) — draft-only, no auto-posting |
+| | `services/reply_back_engine.py` (268 lines) — replies to replies on PP tweets |
+| | `core/services/x_reply_writer.py` — core services layer |
+| Admin UI | `templates/admin_reply_squad.html` exists for draft review |
+| Status | reply_engine: `PP_X_USER_ID` not set. reply_back: `XAI_API_KEY` not set. Neither produces output. |
+| Last reply | **NEVER** — zero replies posted or drafted |
+
+**Recommendation:** Set `PP_X_USER_ID` and `XAI_API_KEY`. Low priority since replies are draft-only (require manual approval).
+
+---
+
+### 3c. Quote Retweet / Amplification — BROKEN (code exists, env blocks it)
+
+| Item | Evidence |
+|------|----------|
+| Comment Radar | `services/comment_radar.py` (804 lines) — monitors 63 Bitcoin KOL accounts |
+| | Can quote-tweet up to 3/day, reply up to 18/day |
+| Engagement Engine | `services/x_engagement_engine.py` (821 lines) — viral tweet + quote tweet cycles |
+| x_service.py | `quote_tweet()` exists (line 604) but uses text+URL, not native X API `quote_tweet_id` |
+| Status | **ALL BROKEN** — require `XAI_API_KEY` which is not set |
+| Self-amplification | **NEVER_BUILT** — no system to re-post or recycle top-performing original tweets |
+
+**Recommendation:** Set `XAI_API_KEY` to activate. The code is well-built (63 monitored accounts, engagement scoring, persona-aware drafting) but completely gated behind one missing env var.
 
 ---
 
 ## SECTION 4: DISTRIBUTION
 
-### 4a. Nostr Publishing — BROKEN (feature-flagged off + API key missing)
+### 4a. Nostr Publishing — PARTIALLY BROKEN
 
-| Check | Evidence |
-|-------|---------|
-| Code exists | YES — `services/nostr_crosspost.py`, `services/nostr_broadcaster.py`, `services/distribution_manager.py` |
-| Feature flag | `ENABLE_NOSTR_POSTING` defaults to `False` in `services/feature_flags.py:16`. Not overridden in `.env`. |
-| Daemon task | social_daemon runs nostr_crosspost every 6h but errors with `XAI_API_KEY not set` |
-| Content | Would crosspost same content as X (with Nostr formatting) |
+**Four separate implementations exist (fragmentation concern):**
 
-**Recommendation**: Set `XAI_API_KEY` in daemon env. Then set `ENABLE_NOSTR_POSTING=true` in `.env` to activate.
+| Implementation | Status | Issue |
+|---------------|--------|-------|
+| `nostr/nostr_publisher.py` | **BROKEN** | Expects hex private key; env has nsec1 (bech32). `len(priv_hex) != 64` always fails |
+| `services/nostr_crosspost.py` | **BROKEN** | Sends **unsigned events** — relays reject per NIP-01 |
+| `services/distribution_manager.py` | **FUNCTIONAL** | Only path with proper nsec1 decode + Schnorr signing (coincurve) |
+| `core/social_publisher.py` | **BROKEN** | Delegates to broken nostr_publisher.py |
 
-### 4b. SMS / Twilio — LIVE
+**Key:** `NOSTR_PRIVATE_KEY` is set (63 chars, nsec1-encoded). Only `distribution_manager.py` decodes it correctly.
 
-| Check | Evidence |
-|-------|---------|
-| Env vars | `TWILIO_ACCOUNT_SID`: YES. `TWILIO_AUTH_TOKEN`: YES. `TWILIO_FROM_NUMBER`: not set as env var (likely hardcoded). |
-| sms_service.py | Exists, warns "missing GHL credentials" (GoHighLevel integration, separate from Twilio core) |
-| satomi_brief_generator.py | **EXISTS and WORKING** — generates 90-second voice script from live intel, delivers via Twilio voice call + SMS summary |
-| Cron | `0 12 * * *` (06:45 ET daily) |
-| Last delivery | **2026-04-05 12:00:23 UTC** — SMS sent, status 201. Fully operational. |
-| 2-tier system | Not built — single subscriber only |
+**Relay status (2026-03-23, 14 days stale):** damus: connected, nos.lol: disconnected, nostr.band: disconnected, primal.net: connected.
 
-**Recommendation**: Working as-is. 2-tier free/premium system not yet needed.
+**Feature flag:** `ENABLE_NOSTR_POSTING=true` — enables distribution_manager path.
 
-### 4c. X Articles / Long-Form — NEVER_BUILT
+**Recommendation:** Fix `nostr_publisher.py` key handling (copy nsec1 decode from distribution_manager). Fix `nostr_crosspost.py` to sign events. Consider consolidating all 4 implementations into one.
 
-| Check | Evidence |
-|-------|---------|
-| Thread engine | `services/thread_engine.py` — generates 5-7 tweet threads (closest to long-form) |
-| X Articles | **NO** dedicated X Articles (blog-style post) code |
-| Distribution manager | `services/distribution_manager.py` auto-threads long posts into up to 3 parts |
+---
 
-**Recommendation**: Not critical. Thread engine covers the use case adequately.
+### 4b. SMS (Twilio / GoHighLevel) — PARTIAL
+
+| System | Status | Evidence |
+|--------|--------|----------|
+| **Twilio voice + SMS** | **LIVE** | Last delivery: 2026-04-05 16:00 UTC. Call + SMS to PBX + 1 subscriber. HTTP 201. |
+| **Satomi Brief Generator** | **LIVE** | Runs daily at 12:00 UTC. Pipeline: intel → Claude script → Kokoro TTS → Twilio call |
+| **GoHighLevel SMS** | **DEAD** | `GHL_API_KEY` and `GHL_LOCATION_ID` **NOT SET** |
+
+Twilio env vars all present: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE`, `PBX_PHONE_NUMBER`. Working flawlessly.
+
+GoHighLevel was intended for bulk SMS (whale alerts, Satoshi Hour, difficulty adjustments). Credentials never configured.
+
+**Recommendation:** Twilio path is healthy. Set GHL credentials if bulk SMS is desired.
+
+---
+
+### 4c. X Articles / Long-Form — PARTIAL
+
+| Item | Evidence |
+|------|----------|
+| File | `services/x_daily_top_article.py` (315 lines) |
+| Cron | `0 14 * * *` (14:00 UTC / 10:00 AM ET daily) — ACTIVE |
+| Last success | 2026-04-04 18:00 UTC — article #523 posted |
+| Image gen | Uses Grok image API — **BROKEN** (`XAI_API_KEY` not set) → text-only tweets |
+| Copy gen | Uses GPT-4o (OpenAI) — WORKING (`OPENAI_API_KEY` is set) |
+| Success rate | ~42% (5/12 attempts) |
+| Dedup | Working (correctly skipped already-posted article on 2026-04-05) |
+| X threads | **NEVER_BUILT** — no thread-posting or X Articles code |
+| `ENABLE_X_POSTING` | **NOT SET** — disables distribution_manager X path (daily brief dual-post only goes to Nostr) |
+
+**Recommendation:** Set `XAI_API_KEY` for image generation. Set `ENABLE_X_POSTING=true` for dual-posting. Investigate 58% failure rate.
 
 ---
 
 ## SECTION 5: CRON HEALTH SUMMARY
 
-| Schedule (UTC) | Command | Target Exists | Status |
-|----------------|---------|---------------|--------|
-| `0 */6 * * *` | `services/nitter_scraper.py` | YES | RUNNING (84% success) |
-| `0 */6 * * *` | `core/services/nitter_scraper.py` | NO (stale path) | DUPLICATE — remove |
-| `0 * * * *` | `cron/nostr_cron.py` | YES | BROKEN (import errors) |
-| `0 */3 * * *` | `services/tweet_machine.py` | YES | BROKEN (Anthropic 400) |
-| `45 6 * * *` | `scripts/morning_brief_cron.sh` | YES | BROKEN (LLM fallback only) |
-| `0 11 * * *` | `services/morning_brief.py` | YES | BROKEN (same as above) |
-| `0 16 * * *` | `services/morning_brief.py` | YES | BROKEN (same as above) |
-| `*/30 0-3,12-23 * * *` | `x_spaces_scraper/run_scraper.py` | YES | STALE (9 days silent) |
-| `*/5 * * * *` | `services/social_daemon.py` (watchdog) | YES | RUNNING (2/4 tasks broken) |
-| `@reboot` | `services/social_daemon.py` | YES | RUNNING |
-| `0 12 * * *` | `satomi_brief_generator` (Twilio) | YES | LIVE |
-| `0 6/14/22 * * *` | `services/stage_brief_pipeline.py` | YES | UNKNOWN (not audited) |
-| `15 9 * * *` | `services/blockware_intel_scraper.py` | YES | UNKNOWN (not audited) |
+| Schedule (UTC) | Command | Exists | Imports | Status |
+|----------------|---------|--------|---------|--------|
+| `0 */6 * * *` | `services/nitter_scraper.py` | YES | YES | **LIVE** (84% handles) |
+| `0 * * * *` | `cron/nostr_cron.py` | YES | PARTIAL | **BROKEN** (import conflict) |
+| `*/30 0-3,12-23 * * *` | `x_spaces_scraper/run_scraper.py` | YES | YES | **BROKEN** (API 403) |
+| `0 */3 * * *` | `services/tweet_machine.py` | YES | YES | **BROKEN** (LLM 400/JSON) |
+| `45 6 * * *` | `scripts/morning_brief_cron.sh` | YES | YES | **LIVE** (runs satomi_brief, not morning_brief) |
+| `0 11 * * *` | `services/morning_brief.py` | YES | YES | **PARTIAL** (Qwen3 intermittent, Haiku dead) |
+| `0 16 * * *` | `services/morning_brief.py` | YES | YES | **PARTIAL** (same) |
+| `0 12 * * *` | `satomi_brief_generator` (Twilio) | YES | YES | **LIVE** |
+| `*/5 * * * *` | `services/social_daemon.py` (keepalive) | YES | YES | **RUNNING** (all 4 subtasks broken) |
+| `30 9 * * *` | `video_pipeline_v3/utils/narrative_intelligence` | YES | YES | **BROKEN** (X API 403, no log) |
+| `0 */4 * * *` | `services/transcript_intelligence.py` | YES | YES | **BROKEN** (Anthropic 400) |
+| `*/30 * * * *` | `video_pipeline_v3/fetch_intelligence_data.py` | YES | YES | **LIVE** |
+| `*/5 * * * *` | `services/sovereign_context_engine.py` | YES | YES | **LIVE** |
+| `0 14 * * *` | `services/x_daily_top_article.py` | YES | YES | **PARTIAL** (no images, 42% success) |
 
 ---
 
@@ -193,33 +320,40 @@ The social intelligence layer is **partially operational with critical failures*
 
 | Priority | Component | Status | Effort | Impact |
 |----------|-----------|--------|--------|--------|
-| **P1** | Anthropic API credits | DEPLETED | 5 min (billing) | Unblocks tweet machine, morning brief, reply engine |
-| **P1** | XAI_API_KEY in daemon env | MISSING | 2 min (env var) | Unblocks comment_radar + nostr_crosspost in social_daemon |
-| **P2** | Morning brief LLM fallback | NO GEMINI FALLBACK | 30 min (code) | Brief produces real content when Anthropic is down |
-| **P2** | Tweet machine LLM fallback | NO GEMINI FALLBACK | 30 min (code) | Tweets post when Anthropic is down |
-| **P2** | Nostr cron import errors | `ApiKey` + `get_stats` missing | 20 min (code) | Nostr signal data starts flowing |
-| **P3** | Narrative context auto-refresh | NO CRON/TRIGGER | 30 min (code) | Pipeline gets fresh intelligence instead of 16-day-old data |
-| **P3** | X Spaces scraper | STALE 9 DAYS | 1 hr (debug) | Spaces intelligence resumes |
-| **P3** | ENABLE_NOSTR_POSTING flag | OFF | 2 min (env) | Nostr distribution activates |
-| **P4** | Nitter duplicate cron + failed handles | DEGRADED | 15 min (config) | Cleaner scraping, fewer errors |
-| **P4** | posted_tweets.json timestamps | MISSING | 15 min (code) | Audit trail for tweet posting |
-| **P5** | Sentiment brief service | NEVER_BUILT | 4 hr (new service) | Structured KOL sentiment endpoint |
-| **P5** | Quote-RT amplification | NEVER_BUILT | 4 hr (new service) | Engagement growth feature |
+| **P0** | Anthropic API credits | DEPLETED | 5 min (billing) | Unblocks tweet_machine Haiku, transcript_intelligence, morning_brief fallback, reply_engine drafts |
+| **P0** | Gemini JSON extraction in tweet_machine | BROKEN | 30 min (code) | Secondary fallback produces content that fails parsing — zero tweets for 24h+ |
+| **P1** | `XAI_API_KEY` in .env | NOT SET | 5 min (env) | Unblocks comment_radar (63 accounts), reply_back_engine, nostr_crosspost, X article images |
+| **P1** | `PP_X_USER_ID` in .env | NOT SET | 5 min (env) | Unblocks reply_engine mention fetching |
+| **P1** | X API bearer token (project-level) | WRONG TYPE | 30 min (dev portal) | Unblocks narrative_intelligence (17 days stale) + X Spaces scraper |
+| **P2** | Nostr publisher key handling | FORMAT MISMATCH | 1 hour (code) | nsec1→hex decode needed in `nostr_publisher.py` + signing in `nostr_crosspost.py` |
+| **P2** | Nostr cron import conflict | WRONG MODULE | 30 min (code) | `services/nostr_service.py` vs `core/services/nostr_service.py` |
+| **P2** | GoHighLevel SMS credentials | NOT SET | 10 min (env) | Enables whale alerts, Satoshi Hour, difficulty adjustment SMS |
+| **P2** | Qwen3 timeout for morning_brief | 60s TOO SHORT | 5 min (code) | Increase to 120s for 30b model reliability |
+| **P3** | `ENABLE_X_POSTING` / `ENABLE_TWEETS` | NOT SET | 5 min (env) | Enables distribution_manager X posting path |
+| **P3** | Nitter dead handles (7) | STALE CONFIG | 15 min (config) | Replace dead handles with current Bitcoin KOL accounts |
+| **P3** | x_service.py gate constants vs docstring | MISMATCH | 10 min (code) | Code says 8 max / 2h gap, docstring says 3 / 4h |
+| **P4** | X Spaces scraper cron | WASTING COMPUTE | 2 min (cron) | Disable ~32 daily runs that produce nothing until API access restored |
 
 ---
 
 ### Architecture Gaps
 
-1. **No LLM fallback chain in tweet_machine.py or morning_brief.py** — Both depend solely on Anthropic. When credits hit $0, the entire social output layer goes dark. The oracle dialogue engine now has Gemini fallback (fixed today) but tweet/brief do not.
+1. **Sentiment Brief Service** — Referenced in audit spec but never built. No `sentiment_brief_service.py`, no `/api/sentiment-brief` route. The transcript_intelligence + morning_brief pipeline is the closest analog but lacks a standalone API.
 
-2. **No narrative intelligence refresh trigger** — `utils/narrative_intelligence.py` exists and is deeply integrated into the video pipeline, but nothing calls it on a schedule. The pipeline reads stale 16-day-old context.
+2. **Tweet recycling / best-of amplification** — No system exists to re-post or quote-retweet top-performing original tweets. The engagement engine can quote-tweet OTHER accounts' posts but has no self-amplification.
 
-3. **No structured sentiment endpoint** — `sentiment_brief_service.py` referenced in design docs but never built. The sentiment_analyzer.py exists for article-level sentiment but there's no aggregated KOL sentiment API.
+3. **X threads / X Articles** — No thread-posting code exists. `x_daily_top_article.py` posts single tweets with article links, not threads.
 
-4. **Nostr is fully built but fully off** — Broadcaster, crosspost, and feed worker all exist. Feature flag is False, API key is missing from daemon env. Two config changes away from activation.
+4. **Nostr event ingestion** — Infrastructure exists to PUBLISH to Nostr (4 implementations) but nothing actively READS from Nostr relays. The 10 tracked pubkeys are seeded in the DB but no relay subscription fetches their posts. `nostr_signal.db` has been empty since creation.
 
-5. **Reply engine is draft-only with no review UI** — Replies are generated and stored in DB but never posted. No admin interface exists to review/approve drafts. The system generates work that nobody sees.
+5. **Narrative intelligence → video pipeline bridge** — The morning_brief produces fresh intelligence (when Qwen3 succeeds) but the video pipeline's `narrative_context.json` is 17 days stale. These two systems produce compatible data but don't talk to each other.
 
-6. **Social daemon env isolation** — The daemon runs via cron watchdog but inherits a limited env. `XAI_API_KEY` is set in `.env` but not exported to the daemon's process environment, breaking 2 of 4 tasks.
+6. **LLM cost tracking / billing alerts** — No unified cost dashboard for Anthropic + Gemini + Grok + OpenAI API calls. The Anthropic credit depletion was not detected until it caused cascading failures across 4+ subsystems.
 
-7. **No deduplication between tweet_machine.py and social_daemon.py** — Both systems can theoretically generate tweets. No coordination mechanism prevents duplicate posts if both fire.
+7. **Unified social status dashboard** — Multiple overlapping systems (tweet_machine, social_daemon, x_engagement_engine, comment_radar, reply_engine) with no single status page. Each has its own log file, scheduling mechanism, and error handling.
+
+8. **Nostr publisher consolidation** — Four separate Nostr publishing implementations with different relay lists, different key handling, and different signing approaches. Only one actually works.
+
+---
+
+*Audit performed by Claude Code (Opus 4.6) on 2026-04-06. No fixes applied — diagnostic only.*
