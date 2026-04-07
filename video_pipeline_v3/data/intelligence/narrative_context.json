@@ -1,11 +1,11 @@
 {
-  "episode_narrative": "price is dominating Bitcoin discourse \u2014 12 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "episode_narrative": "Geopolitical tensions and economic risks is dominating Bitcoin discourse \u2014 19 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
   "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'regulation' is also trending with 10 thought leaders discussing it",
+  "mark_context": "Mark should add context: 'Quantum computing as a non-immediate threat' is also trending with 15 thought leaders discussing it",
   "clip_selection_priority": [
-    "price",
-    "regulation",
-    "lightning"
+    "Geopolitical tensions and economic risks",
+    "Quantum computing as a non-immediate threat",
+    "Bitcoin's deflationary supply"
   ],
   "avoid_topics": [
     "price speculation",
@@ -16,7 +16,10 @@
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "price",
+  "dominant_narrative": "Geopolitical tensions and economic risks",
   "market_mood": "neutral",
-  "computed_at": "2026-03-20T17:38:54.707883+00:00"
+  "top_quote": "",
+  "top_quote_handles": [],
+  "quote_fetched_at": "2026-04-07T04:44:33.473778+00:00",
+  "computed_at": "2026-04-07T04:44:33.473778+00:00"
 }

@@ -1,16 +1,37 @@
 {
   "episodes": [
     {
-      "date": "2026-04-04",
+      "date": "2026-04-07",
       "video_ids": [
-        "zzLrxc6PqRY",
+        "D8QuMzEnvvM",
         "IF13rALnr48",
+        "cv9sJMGOoR4",
+        "C5aN5yHbAzE",
         "biotJvfDmIM"
       ],
       "channels": [
-        "Simply Bitcoin",
+        "The Bitcoin Layer",
         "Bitcoin Magazine",
+        "Simply Bitcoin",
+        "Natalie Brunell",
         "TFTC"
+      ]
+    },
+    {
+      "date": "2026-04-07",
+      "video_ids": [
+        "4kt2KV08axY",
+        "W37WgSq9nzI",
+        "Ykwi-3S1bYs",
+        "lswkrXnYQCE",
+        "IF13rALnr48"
+      ],
+      "channels": [
+        "Blockware Solutions",
+        "Altcoin Daily",
+        "Coin Bureau",
+        "BTC Sessions",
+        "Bitcoin Magazine"
       ]
     }
   ]

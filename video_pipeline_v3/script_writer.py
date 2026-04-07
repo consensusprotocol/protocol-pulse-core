@@ -87,7 +87,10 @@ STRUCTURE (mandatory):
 
 7. SYNTHESIS (2-3 sentences): What does all of this mean? One original PBX observation nobody else said today.
 
-8. SIGNOFF: "Stay sovereign. This has been Protocol Pulse."
+8. SIGNOFF: Do NOT create a separate signoff entry. Instead, end your LAST synthesis/recap entry (step 7) with the closing line: "Stay sovereign. This has been Protocol Pulse." 
+   This must flow naturally from the final thought — never as an abrupt standalone segment.
+   Example: "...Bitcoin's deflationary supply is the signal the world hasn't priced in yet. Stay sovereign. This has been Protocol Pulse."
+   NEVER create a separate dialogue entry with type "wrap" just for the signoff.
 
 SEGMENT TAGGING (MANDATORY — controls PBX's voice dynamics):
 Every dialogue text line MUST start with a segment type tag in brackets:

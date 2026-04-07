@@ -486,8 +486,8 @@ PRONUNCIATION_MAP = {
     "Gary Gensler": "GAIR-ee GENZ-ler",
     "Gensler": "GENZ-ler",
     # Jerome Powell
-    "Jerome Powell": "jeh-ROME POW-ul",
-    "Powell": "POW-ul",
+    "Jerome Powell": "jeh-ROME Pahl",
+    "Powell": "Pahl",
     # CJ Konstantinos
     "CJ Konstantinos": "see-JAY kon-stan-TEE-nos",
     "Konstantinos": "kon-stan-TEE-nos",

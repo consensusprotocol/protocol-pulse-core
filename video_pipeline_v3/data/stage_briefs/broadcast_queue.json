@@ -1,52 +1,52 @@
 [
   {
-    "id": "f3b4220a-b544-46fe-b213-7d9547dda9b0",
+    "id": "006922bf-2113-41f1-a5e3-d4f467ccadd2",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Bitcoin's privacy layer expanding rapidly. New BDF funding round exceeds $20M across 24 projects.\n\nWatch for merchant adoption metrics in next week's on-chain data.",
-    "source_label": "\ud83e\udde0 @GLADSTEIN",
-    "topic_preview": "Big new BDF round!\n\nRead about more than two dozen amazing Bitcoin projects adva",
-    "generated_at": "2026-04-02T05:35:04.354779+00:00",
-    "expires_at": "2026-04-02T07:35:04.354779+00:00"
+    "script": "S&P 500 forward P/E at 15.2\u2014lowest level since 2019.\n\nBitcoin mining difficulty holds steady at 472 billion.\n\nWatch for institutional accumulation signals in the next week.",
+    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
+    "topic_preview": "RT @DividendGrowth: S&P 500 forward P/E ratio",
+    "generated_at": "2026-04-07T06:05:04.673465+00:00",
+    "expires_at": "2026-04-07T08:05:04.673465+00:00"
   },
   {
-    "id": "d6da5c55-0eb4-4ca8-b244-13ee892c629c",
+    "id": "c9a8f999-b39b-4706-9f1d-ae8796628666",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at $66,871.195, flat over 24 hours.\n\nHashrate holds steady at 1,083.4 exahashes.\n\nFear and Greed index at Extreme Fear, 12.\n\nFastest fee sits at 1 sat/vB.\n\n22,136 transactions processed in the last hour.\n\nBlock height 943,309.\n\nWatch for any mempool congestion above 100,000 transactions.",
+    "script": "Hashrate holding 876 exahash despite Extreme Fear reading of 11\u2014miners aren't capitulating. Watch for coordinated selloff if this breaks below 850.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $66,871 \u00b7 FNG 12 \u00b7 1083.4 EH/s",
-    "generated_at": "2026-04-02T03:25:16.289433+00:00",
-    "expires_at": "2026-04-02T07:25:16.289433+00:00"
+    "topic_preview": "BTC $68,558 \u00b7 FNG 11 \u00b7 876.4 EH/s",
+    "generated_at": "2026-04-07T02:30:21.622834+00:00",
+    "expires_at": "2026-04-07T06:30:21.622834+00:00"
   },
   {
-    "id": "63bfe74f-9d64-4c6b-8bec-081a5372aff3",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Satomi speaking:\n\nWhale bets $80 million on Bitcoin crash. Hyperliquid DEX position. Oil surge bet included. Past losses loom large. \n\nWatch for immediate UTXO movement on Bitcoin's mempool.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Whale Bets $80M on Bitcoin Crash",
-    "generated_at": "2026-04-02T04:50:08.673357+00:00",
-    "expires_at": "2026-04-02T08:50:08.673357+00:00"
-  },
-  {
-    "id": "72472881-36c5-4fdb-a252-56116cc5a5ba",
+    "id": "1113e988-82d9-4b97-96fb-b619b8d11e71",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin's price action dominates Nostr discourse. Holders remain cautious despite recent rallies. Watch for price confirmation above $63K to validate bullish momentum.",
+    "script": "Geopolitical tensions dominate Nostr discourse as Bitcoiners debate economic risks and sovereignty implications.\n\nWatch for on-chain signals showing increased Bitcoin accumulation in institutional wallets.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "price",
-    "generated_at": "2026-04-02T03:45:23.581868+00:00",
-    "expires_at": "2026-04-02T07:45:23.581868+00:00"
+    "topic_preview": "Geopolitical tensions and economic risks",
+    "generated_at": "2026-04-07T05:40:16.201949+00:00",
+    "expires_at": "2026-04-07T09:40:16.201949+00:00"
   },
   {
-    "id": "5e5b2492-3a2f-4175-a4c0-42fdae2ccb9e",
+    "id": "6de03323-e307-4e10-91d2-32f9e2857963",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate breached 1083 EH/s, confirming network security remains paramount. Fear & Greed index at 12 signals extreme fear gripping the market. Mempool fees idle at 1 sat/vbyte. Sovereign individuals accumulate during panic. Watch for retest of $67,000 resistance.",
+    "script": "Bitcoin's mempool fast fee sits at 2 sat/vbyte, confirming network congestion persists despite price retreat. Fear & Greed index at 11 signals extreme fear gripping the market. Hashrate remains stubbornly high at 876 EH/s, indicating strong miner commitment. Watch for any price break above $70K to validate bullish momentum.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 1083 EH/s, confirming network security remains paramount. Fear",
-    "generated_at": "2026-04-02T05:30:23.835295+00:00",
-    "expires_at": "2026-04-02T07:30:23.835295+00:00"
+    "topic_preview": "Bitcoin's mempool fast fee sits at 2 sat/vbyte, confirming network congestion pe",
+    "generated_at": "2026-04-07T06:00:23.709075+00:00",
+    "expires_at": "2026-04-07T08:00:23.709075+00:00"
+  },
+  {
+    "id": "883607ab-00e3-4a35-b5c1-e903e2300c77",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, the network recalibrates to maintain ten-minute block intervals regardless of how much hash power joins or leaves. Self-regulating monetary infrastructure.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, th",
+    "generated_at": "2026-04-07T06:00:23.781392+00:00",
+    "expires_at": "2026-04-07T10:00:23.781392+00:00"
   }
 ]

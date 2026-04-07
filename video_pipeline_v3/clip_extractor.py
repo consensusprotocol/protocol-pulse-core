@@ -122,7 +122,7 @@ def check_av_sync(clip_path: str) -> float:
         return 0.0
 
 
-def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 10.0) -> float:
+def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 15.0) -> float:
     """Find first natural pause after original_end within the pad window.
 
     Uses ffmpeg silencedetect to find silence gaps, then trims at the first
@@ -798,12 +798,12 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         if timestamped_text:
             # Backward search for clean clip START
             # Session fix 5: Increased search window from 5s to 8s for better sentence boundaries
-            adjusted_start = find_sentence_boundary(timestamped_text, start, direction='backward', max_search_seconds=8)
+            adjusted_start = find_sentence_boundary(timestamped_text, start, direction='backward', max_search_seconds=12)
             if adjusted_start != start:
                 logger.info(f"  Sentence boundary: clip #{rank} start {start}s -> {adjusted_start}s")
                 start = adjusted_start
             # Forward search for clean clip END
-            adjusted_end = find_sentence_boundary(timestamped_text, end, direction='forward', max_search_seconds=8)
+            adjusted_end = find_sentence_boundary(timestamped_text, end, direction='forward', max_search_seconds=12)
             if adjusted_end != end:
                 logger.info(f"  Sentence boundary: clip #{rank} end {end}s -> {adjusted_end}s")
                 end = adjusted_end

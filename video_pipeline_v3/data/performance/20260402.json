@@ -1,19 +1,16 @@
 {
   "date": "2026-04-02",
-  "episode_title": "Reorg, Rebase, and the 2026 Credit Bomb",
+  "episode_title": "Strategy's $4B January Blitz",
   "channels_used": [
-    "The Bitcoin Layer",
-    "BTC Sessions",
-    "Stacker News",
-    "CoinGecko",
-    "Bitfarms"
+    "Coin Bureau",
+    "Altcoin Daily"
   ],
-  "quality_score": 100,
-  "clips_count": 5,
-  "duration_seconds": 554.6,
-  "bitrate_mbps": 3.9,
+  "quality_score": 95,
+  "clips_count": 2,
+  "duration_seconds": 327.4,
+  "bitrate_mbps": 4.0,
   "av_sync_offset": 0.024,
   "music_mood": "tense",
-  "test_mode": false,
+  "test_mode": true,
   "episode_id": "20260402"
 }
