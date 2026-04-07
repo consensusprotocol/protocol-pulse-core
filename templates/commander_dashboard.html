@@ -397,7 +397,7 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
         <div class="cmd-panel-icon" style="background:rgba(184,134,11,0.12);border-color:rgba(184,134,11,0.25);color:var(--cmd-gold);"><i class="fas fa-brain"></i></div>
         <div>
             <h3 class="cmd-panel-title" style="color:var(--cmd-gold);">Active Thesis</h3>
-            <div class="cmd-panel-subtitle">AI Intelligence Synthesis</div>
+            <div class="cmd-panel-subtitle">Convergence Analysis</div>
         </div>
     </div>
     <div class="cmd-thesis-title cmd-skeleton" id="cmd-thesis-title" style="min-height:1.2em;">&nbsp;</div>
@@ -524,6 +524,8 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
     let prevVals=null; // ghost overlay: previous fetch
     let currentVals=null;
     let hoveredIdx=-1;
+    let lastOrbFetch=0; // H1: track last successful API fetch
+    let lastPriceFetch=Date.now();
 
     // ── Radar Chart (interactive, with 24h ghost overlay) ──
     function drawRadar(data,ghost){
@@ -682,20 +684,20 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
         const el=document.getElementById('cmd-regime-history');
         if(!el)return;
         const regime=score>65?'Accumulation':score>45?'Continuation':score>25?'Distribution':'Exhaustion';
-        const historyMap={
-            'Accumulation':{count:5,avg:'+18.3%',days:30},
-            'Continuation':{count:8,avg:'+6.7%',days:30},
-            'Distribution':{count:4,avg:'-12.1%',days:30},
-            'Exhaustion':{count:3,avg:'-22.4%',days:30}
+        const regimeDesc={
+            'Accumulation':'Miners holding, on-chain accumulation rising, sell pressure declining — historically precedes markup phases.',
+            'Continuation':'Balanced signal state. No strong directional shift detected — trend continuation expected.',
+            'Distribution':'Exchange pressure elevated, insider heat declining — watch for potential trend reversal.',
+            'Exhaustion':'Sell-side pressure dominant, weak conviction across indices — historically precedes capitulation or reversal.'
         };
-        const h=historyMap[regime];
-        el.textContent='Last '+h.count+' '+regime+' regimes \u2192 avg '+h.days+'d return: '+h.avg;
+        el.textContent=regimeDesc[regime]||'Analyzing regime characteristics...';
     }
 
     // ── Fetch Orb Data ──
     function fetchOrb(){
         fetch('/api/orb').then(r=>r.json()).then(d=>{
             if(!d||!d.nodes)return;
+            lastOrbFetch=Date.now();
             const nodes=d.nodes;
             const ids=['mcx','epx','ihx','opx','fdx','ocx'];
             const vals=ids.map(k=>(nodes[k]||{}).score||50);
@@ -823,16 +825,46 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
         if(detail)detail.textContent=accurate+' of '+total+' signal components active. Higher clarity = stronger regime conviction.';
     }
 
-    // ── Price refresh ──
+    // ── Price refresh (H1: stale indicator on failure) ──
     function refreshPrice(){
         fetch('/api/btc-price').then(r=>r.json()).then(d=>{
             if(d.price){
+                lastPriceFetch=Date.now();
                 const fmt='$'+Number(d.price).toLocaleString('en-US',{maximumFractionDigits:0});
                 document.getElementById('cmd-price').textContent=fmt;
                 const sp=document.getElementById('cmd-stat-price');
                 if(sp)sp.textContent=fmt;
             }
         }).catch(()=>{});
+    }
+
+    // ── H1: Stale data detection ──
+    function checkStale(){
+        const now=Date.now();
+        const liveDot=document.querySelector('.s-dot');
+        if(!liveDot)return;
+        const orbAge=(now-lastOrbFetch)/1000;
+        if(lastOrbFetch>0&&orbAge>600){
+            // Over 10 min since last orb update — mark stale
+            liveDot.style.background='var(--cmd-amber)';
+            liveDot.title='Data may be stale — last update '+Math.round(orbAge/60)+'m ago';
+        }else if(lastOrbFetch>0){
+            liveDot.style.background='var(--cmd-green)';
+            liveDot.title='Live — updated '+Math.round(orbAge)+'s ago';
+        }
+    }
+
+    // ── H4: Skeleton timeout ──
+    function clearStaleSkeletons(){
+        document.querySelectorAll('.cmd-skeleton').forEach(function(el){
+            el.classList.remove('cmd-skeleton');
+            if(!el.textContent.trim()||el.textContent.trim()==='&nbsp;'){
+                el.textContent='Data temporarily unavailable';
+                el.style.color='var(--cmd-text-dim)';
+                el.style.fontFamily="'JetBrains Mono',monospace";
+                el.style.fontSize='0.75rem';
+            }
+        });
     }
 
     // ── Init ──
@@ -842,6 +874,8 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
     updateRegimeHistory({{ sovereign.get('pcaf_score', 50) }});
     setInterval(fetchOrb,300000); // 5 min
     setInterval(refreshPrice,30000); // 30s
+    setInterval(checkStale,15000); // H1: check every 15s
+    setTimeout(clearStaleSkeletons,15000); // H4: clear skeletons after 15s
 })();
 </script>
 {% endblock %}
