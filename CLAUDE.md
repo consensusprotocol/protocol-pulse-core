@@ -65,6 +65,64 @@ curl -s http://localhost:5000/health
 - REGRESSION TEST: Run `bash video_pipeline_v3/regression_test.sh` before any pipeline commit
 - aresample=async=1 is BANNED everywhere except clip_extractor.py fix_av_sync()
 
+## SESSION QUALITY LAWS
+
+### LAW: NO "SIMPLEST FIX" SHORTCUTS
+- NEVER use the phrase "simplest fix", "quick fix", "simple solution", "easiest approach", or "let me just"
+- Every fix must address the ROOT CAUSE, not the symptom
+- If you catch yourself proposing a hack, STOP. Read the surrounding code. Understand WHY it broke. Fix the actual problem.
+- BANNED PHRASES: "simplest fix", "quick fix", "the easiest way", "let me just", "for now we can", "as a workaround", "temporary fix"
+
+### LAW: READ BEFORE EDIT (MANDATORY)
+- NEVER edit a file without reading it first in the same session
+- Before ANY file modification, you MUST have read that file with the view/read tool in this session
+- If you find yourself about to edit a file you haven't read, STOP and read it first
+- This prevents the #1 cause of regressions: editing code you don't understand
+
+### LAW: SELF-VERIFICATION BEFORE "DONE"
+- NEVER claim a task is complete without verification
+- After implementing, you MUST:
+  1. Run the code or test it
+  2. Verify the output matches expectations
+  3. Check for regressions (did you break anything else?)
+  4. If it is a web page: curl the URL and confirm it returns expected content
+  5. If it is a script: run it and show the output
+- "It should work" is NOT verification. Show proof.
+
+### LAW: NO PREMATURE SESSION ENDING
+- NEVER suggest ending a session early, calling it a day, or wrapping up
+- NEVER say "it is getting late", "we have accomplished a lot", "let us pick this up later"
+- Complete the task fully or explicitly state what remains incomplete and why
+- The user decides when the session ends, not you
+
+### LAW: NO OWNERSHIP DODGING
+- NEVER say "this was pre-existing", "this is unrelated to my changes", or "this test was already failing"
+- If a test fails after your changes, investigate it regardless of whether you caused it
+- If you broke something, own it immediately and fix it
+
+### LAW: COMPLETE THE FULL TASK
+- If given a list of items to implement, implement ALL of them
+- NEVER implement 80% and then summarize the rest as "remaining items"
+- If you cannot complete an item, explain specifically WHY (not just "time constraints")
+- Do not ask the user if they want you to continue. Just continue.
+
+### LAW: NO HALLUCINATED REFERENCES
+- NEVER reference a file path, function name, API endpoint, git SHA, package version, or configuration value from memory
+- ALWAYS verify by reading the actual file, running the actual command, or checking the actual state
+- If you are unsure whether something exists, CHECK before referencing it
+
+### PRE-COMMIT VERIFICATION TEMPLATE
+Every session must run before committing:
+```
+=== PRE-COMMIT VERIFICATION ===
+1. All modified files compile: python3 -m py_compile [each file]
+2. No import errors: python3 -c "import [module]" for each modified module
+3. If web routes changed: curl every affected URL and confirm 200
+4. If cron scripts changed: run the script once and confirm no errors
+5. Git diff review: git diff --stat to confirm only intended files changed
+6. No secrets exposed: grep for API keys, tokens, passwords in diff
+```
+
 ## When Compacting
 Preserve: list of modified files, current test status, active render status, any errors encountered.
 
