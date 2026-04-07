@@ -687,6 +687,31 @@ def _preprocess_tts_text(text: str) -> str:
     text = re.sub(r'\bEH\b', 'exahash', text)
     text = re.sub(r'\bsat/vbyte\b', 'sats per vbyte', text)
 
+    # ── Bitcoin ecosystem pronunciation (Kokoro-tuned) ──
+    # Hardware & Mining
+    text = re.sub(r'Bitaxe', 'Bit Axe', text, flags=re.IGNORECASE)
+    text = re.sub(r'BITAXE', 'Bit Axe', text)
+    text = re.sub(r'Antminer', 'Ant Miner', text, flags=re.IGNORECASE)
+    text = re.sub(r'ASICs?', lambda m: 'A-sicks' if m.group().endswith('s') else 'A-sick', text)
+    text = re.sub(r'Whatsminer', 'Whats Miner', text, flags=re.IGNORECASE)
+    text = re.sub(r'[Hh]ashrate', 'hash rate', text)
+    # People & Companies
+    text = re.sub(r'Saifedean', 'Sigh-feh-dean', text)
+    text = re.sub(r'Nakamoto', 'Nah-kah-moh-toh', text)
+    text = re.sub(r'Szabo', 'Sah-boh', text)
+    text = re.sub(r'MicroStrategy', 'Micro Strategy', text)
+    text = re.sub(r'Blockstream', 'Block Stream', text)
+    # Wallets & Tools
+    text = re.sub(r'Coldcard', 'Cold Card', text, flags=re.IGNORECASE)
+    text = re.sub(r'Trezor', 'Trez-or', text)
+    text = re.sub(r'Wasabi', 'Wah-sah-bee', text)
+    # Protocols & Concepts
+    text = re.sub(r'[Tt]aproot', 'Tap Root', text)
+    text = re.sub(r'[Mm]empool', 'Mem Pool', text)
+    text = re.sub(r'[Mm]ultisig', 'Multi Sig', text)
+    text = re.sub(r'DeFi', 'Dee-Fie', text, flags=re.IGNORECASE)
+    text = re.sub(r'[Ss]tablecoin', 'Stable Coin', text)
+
     return text
 
 
