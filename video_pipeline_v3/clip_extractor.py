@@ -344,6 +344,7 @@ def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
             os.replace(synced, clip_path)
             offset_after = check_av_sync(clip_path)
             logger.info(f"  AV SYNC: {video_id} {offset_before:+.3f}s → {offset_after:+.3f}s ({size_before:.1f}MB → {size_after:.1f}MB)")
+            _fix_clip_av_offset(clip_path, video_id)
         else:
             logger.warning(f"  AV SYNC FAILED: {video_id} — keeping original ({offset_before:+.3f}s)")
             if os.path.exists(synced):
