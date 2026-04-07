@@ -641,9 +641,9 @@ def concatenate_parts(parts: list, output_path: str,
         _a_pts = next((float(p.get("pts_time", 0)) for p in _avpkts if p.get("codec_type") == "audio"), 0)
         _pts_offset = _a_pts - _v_pts
         if _pts_offset < -0.005:
-            _av_compensation = abs(_pts_offset) + 0.021333
+            _av_compensation = abs(_pts_offset) + 0.043  # V19 FIX: doubled to cover itsoffset priming
         else:
-            _av_compensation = 0.021333
+            _av_compensation = 0.043
         logger.info(f"  AV SYNC: Input offset {_pts_offset:+.4f}s -> compensation +{_av_compensation:.4f}s")
     except Exception as _e:
         logger.warning(f"  AV SYNC: measurement failed ({_e}) — fallback +0.043s")
