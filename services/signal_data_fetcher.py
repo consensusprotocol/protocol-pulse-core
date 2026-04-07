@@ -172,6 +172,37 @@ class SignalDataFetcher:
         except Exception as exc:
             log.warning("yfinance macro fetch failed: %s", exc)
 
+        # --- DXY: Yahoo Finance v8 (yfinance doesn't have it reliably) ---
+        if result["dxy"] is None:
+            try:
+                r = requests.get(
+                    "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB",
+                    params={"interval": "1d", "range": "1d"},
+                    headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"},
+                    timeout=REQ_TIMEOUT,
+                )
+                if r.ok:
+                    chart = r.json().get("chart", {}).get("result", [])
+                    if chart:
+                        dxy_price = chart[0].get("meta", {}).get("regularMarketPrice")
+                        if dxy_price:
+                            result["dxy"] = round(float(dxy_price), 2)
+            except Exception as exc:
+                log.warning("Yahoo DXY fetch failed: %s", exc)
+
+        # DXY fallback: calculate from exchange rates
+        if result["dxy"] is None:
+            try:
+                er = _safe_get("https://api.exchangerate-api.com/v4/latest/USD")
+                if er and "rates" in er:
+                    r = er["rates"]
+                    eurusd = 1.0 / r.get("EUR", 0.92)
+                    gbpusd = 1.0 / r.get("GBP", 0.79)
+                    dxy = 50.14348112 * (eurusd ** -0.576) * (r.get("JPY", 150) ** 0.136) * (gbpusd ** -0.119) * (r.get("CAD", 1.36) ** 0.091) * (r.get("SEK", 10.5) ** 0.042) * (r.get("CHF", 0.88) ** 0.036)
+                    result["dxy"] = round(dxy, 2)
+            except Exception:
+                pass
+
         # --- FRED: real yield (DGS10 - T10YIE) ---
         fred_key = os.environ.get("FRED_API_KEY", "")
         if fred_key:

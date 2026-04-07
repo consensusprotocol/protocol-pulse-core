@@ -75,17 +75,31 @@ def _save_cache(metrics):
 # SSR — Stablecoin Supply Ratio
 # ═══════════════════════════════════════════════════════════════════════
 
+def _fetch_btc_mcap_direct():
+    """Fetch BTC market cap directly from CoinGecko as fallback."""
+    data = _get_json(
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true'
+    )
+    if data and 'bitcoin' in data:
+        return data['bitcoin'].get('usd_market_cap', 0) or 0
+    return 0
+
+
 def fetch_ssr():
     """
     SSR = BTC Market Cap / Total Stablecoin Market Cap
-    
+
     Low SSR (< 5) = massive stablecoin purchasing power relative to BTC = bullish
     High SSR (> 15) = BTC overvalued relative to available stablecoin liquidity = caution
     Normal range: 5-12
     """
     ctx = _load_context()
     btc_mcap = ctx.get('btc', {}).get('market_cap', 0) or 0
-    
+
+    # Fallback: fetch directly if latest.json is stale
+    if not btc_mcap:
+        btc_mcap = _fetch_btc_mcap_direct()
+
     if not btc_mcap:
         return None
     
@@ -108,11 +122,7 @@ def fetch_ssr():
     
     # Derive from CoinGecko stablecoin market caps
     stable_mcap = 0
-    stables = _get_json(
-        'https://api.coingecko.com/api/v3/simple/price',
-        headers=HEADERS
-    )
-    
+
     # Try getting USDT + USDC market caps
     stable_data = _get_json(
         'https://api.coingecko.com/api/v3/simple/price?ids=tether,usd-coin,dai,first-digital-usd&vs_currencies=usd&include_market_cap=true'
@@ -202,7 +212,19 @@ def fetch_mpi():
     cdd_7d = on_chain.get('coin_days_destroyed_7d', 0) or 0
     network = ctx.get('network', {})
     hashrate = network.get('hashrate_eh', 0) or 0
-    
+
+    # Fallback: fetch CDD from Blockchair directly
+    if not cdd_7d:
+        bc = _get_json("https://api.blockchair.com/bitcoin/stats", timeout=12)
+        if bc and "data" in bc:
+            cdd_7d = bc["data"].get("cdd_24h", 0) or 0
+
+    # Fallback: fetch hashrate from mempool.space
+    if not hashrate:
+        hr = _get_json("https://mempool.space/api/v1/mining/hashrate/3d", timeout=10)
+        if hr and "currentHashrate" in hr:
+            hashrate = round(float(hr["currentHashrate"]) / 1e18, 1)
+
     if not cdd_7d:
         return None
     
@@ -259,11 +281,28 @@ def fetch_dormancy_flow():
     ctx = _load_context()
     btc = ctx.get('btc', {})
     on_chain = ctx.get('on_chain', {})
-    
+
     price = btc.get('price', 0) or 0
     market_cap = btc.get('market_cap', 0) or 0
     cdd_7d = on_chain.get('coin_days_destroyed_7d', 0) or 0
-    
+
+    # Fallback: fetch price/mcap directly from CoinGecko
+    if not price or not market_cap:
+        data = _get_json(
+            'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true'
+        )
+        if data and 'bitcoin' in data:
+            if not price:
+                price = data['bitcoin'].get('usd', 0) or 0
+            if not market_cap:
+                market_cap = data['bitcoin'].get('usd_market_cap', 0) or 0
+
+    # Fallback: fetch CDD from Blockchair directly
+    if not cdd_7d:
+        bc = _get_json("https://api.blockchair.com/bitcoin/stats", timeout=12)
+        if bc and "data" in bc:
+            cdd_7d = bc["data"].get("cdd_24h", 0) or 0
+
     if not all([price, market_cap, cdd_7d]):
         return None
     

@@ -1,39 +1,48 @@
 {
-  "timestamp": "2026-04-01T05:35:02.047329+00:00",
-  "block_height": 943165,
+  "timestamp": "2026-04-07T22:43:14.164402+00:00",
+  "block_height": 944103,
   "btc": {
-    "price": 0,
-    "change_24h": 0,
-    "change_7d": 0,
-    "market_cap": 0,
-    "dominance": 0
+    "price": 71097.78462032035,
+    "change_24h": 3.59,
+    "change_7d": 4.13,
+    "market_cap": 1422867308200,
+    "volume_24h": 32065009312.889935,
+    "dominance": 56.1
   },
   "fear_greed": {
-    "value": 8,
+    "value": 11,
     "label": "Extreme Fear"
   },
   "mempool": {
     "fee_low": 1,
-    "fee_mid": 1,
-    "fee_high": 1,
-    "unconfirmed": 18731,
-    "size_mb": 10.2
+    "fee_mid": 3,
+    "fee_high": 3,
+    "unconfirmed": 27220,
+    "size_mb": 11.3
   },
   "network": {
-    "hashrate_eh": 1002.3,
+    "hashrate_eh": 959.8,
     "difficulty": 0,
-    "next_adj_pct": 3.92,
-    "next_adj_blocks": 323
+    "next_adj_pct": -6.02,
+    "next_adj_blocks": 1401
   },
   "lightning": {
-    "capacity_btc": 5677.5,
-    "channels": 42000,
-    "nodes": 17402
+    "capacity_btc": 5239.0,
+    "channels": 41423,
+    "nodes": 17396
   },
   "kol": {
-    "sentiment_score": 50,
-    "top_topics": [],
-    "post_count_24h": 0
+    "sentiment_score": 61,
+    "top_topics": [
+      "Stretch (MSTR perpetual preferred stock)",
+      "Yield democratization for retail investors",
+      "Tax-deferred dividend payments",
+      "regulation",
+      "macro"
+    ],
+    "post_count_24h": 100,
+    "dominant_sentiment": "bullish",
+    "source": "tweets+transcripts"
   },
   "narrative": {
     "dominant_theme": "Bitcoin",
@@ -41,105 +50,159 @@
     "article_count": 20
   },
   "polymarket": {
-    "macro_sentiment": 71,
+    "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 90.5
+    "top_probability": 89.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**BITCOIN EVENING BRIEF**\n\nBitcoin flatlined at $67,730\u2014zero movement in twenty-four hours. That stasis masks something sharper: extreme fear gripping the market at a reading of 8. Psychological capit",
-    "brief_type": "evening"
+    "narrative": "**PROTOCOL PULSE - 90 SECOND BRIEF**\n\nPowell just confessed: U.S. debt will not end well. That's the Fed chair admitting the only solution is the printing press. Three signals converge now.\n\n**Signal ",
+    "brief_type": "unknown"
   },
   "whale_alerts": [
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 159.15 BTC unconfirmed bdb0ab9d...",
+      "message": "Whale transaction detected: 150.56 BTC unconfirmed b6e5af23...",
       "score": 10,
-      "created_at": 1775018974.5573406
+      "created_at": 1775559996.0377142
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 119.73 BTC unconfirmed 21c27525...",
+      "message": "Whale transaction detected: 153.77 BTC unconfirmed ef2e8571...",
       "score": 10,
-      "created_at": 1775018716.3511806
+      "created_at": 1775558234.882237
+    },
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 50% of last 10 blocks",
+      "score": 30,
+      "created_at": 1775556294.9843552
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 119.73 BTC unconfirmed 21c27525...",
+      "message": "Whale transaction detected: 132.97 BTC unconfirmed 035f8128...",
       "score": 10,
-      "created_at": 1775018716.0509553
+      "created_at": 1775555716.1932306
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 119.73 BTC unconfirmed 21c27525...",
+      "message": "Whale transaction detected: 105.75 BTC unconfirmed 0ce5c2f8...",
       "score": 10,
-      "created_at": 1775018715.9724808
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 112.06 BTC unconfirmed a7b5b424...",
-      "score": 10,
-      "created_at": 1775017597.769345
+      "created_at": 1775550572.6724389
     }
   ],
   "macro": {
-    "dxy": null,
-    "gold_price": 4711.4,
-    "sp500": 6592.75,
-    "btc_vs_gold_30d_corr": 0.167,
-    "btc_vs_dxy_30d_corr": -0.791,
+    "dxy": 99.96,
+    "gold_price": 4761.2,
+    "sp500": 6711.25,
+    "btc_vs_gold_30d_corr": 0.231,
+    "btc_vs_dxy_30d_corr": -0.674,
     "real_yield": null,
-    "ten_year_yield": 4.31
+    "ten_year_yield": 4.34
   },
   "options": {
-    "put_call_ratio": 0.674,
-    "dvol": 52.3,
-    "max_pain": 60000.0,
-    "total_call_oi": 228148.9,
-    "total_put_oi": 153846.3,
-    "total_oi_btc": 381995.2,
-    "avg_mark_iv": 57.1
+    "put_call_ratio": 0.696,
+    "dvol": 48.4,
+    "max_pain": 80000.0,
+    "total_call_oi": 230306.2,
+    "total_put_oi": 160246.1,
+    "total_oi_btc": 390552.3,
+    "avg_mark_iv": 58.0
   },
   "futures": {
-    "funding_rate": 8.458e-05,
-    "annualized_basis": 9.26,
-    "open_interest": 29468.31,
-    "open_interest_usd": 2020676690.0,
+    "funding_rate": 3.1e-06,
+    "annualized_basis": 0.34,
+    "open_interest": 28208.73,
+    "open_interest_usd": 2000547570.0,
     "long_short_ratio": null,
-    "mark_price": 68598.4,
-    "index_price": 68571.18,
-    "basis_pct": 3.3325
+    "mark_price": 70935.03,
+    "index_price": 70919.46,
+    "basis_pct": 0.075
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 23503847.0,
-    "active_addresses_7d": 607276.0,
-    "tx_volume_usd_7d": 51832926853.0,
-    "nvt_ratio": 26.2,
-    "accumulation_score": 65
+    "coin_days_destroyed_7d": 7224341.0,
+    "active_addresses_7d": 611516.0,
+    "tx_volume_usd_7d": 57109629195.0,
+    "nvt_ratio": 23.8,
+    "accumulation_score": 75
   },
-  "active_alerts": [],
-  "pattern_matches": [],
+  "active_alerts": [
+    {
+      "pattern_id": "POLYMARKET_CONFIRM",
+      "title": "Market consensus shifting",
+      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
+      "severity": "WATCH",
+      "ts": "2026-04-07T22:43:14.486845+00:00",
+      "data": {
+        "poly_sentiment": 74,
+        "kol_posts": 100
+      }
+    }
+  ],
+  "pattern_matches": [
+    "POLYMARKET_CONFIRM"
+  ],
   "indices": {
     "miner_conviction": {
-      "score": 80,
-      "interpretation": "Miners expanding despite price consolidation \u2014 supply shock precursor.",
+      "score": 62.5,
+      "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
     "exchange_pressure": {
-      "score": 0,
-      "interpretation": "Neutral exchange flow",
+      "score": 51.2,
+      "interpretation": "Exchange pressure mixed",
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": 0,
+      "score": 2.7,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
+    },
+    "insider_heat": {
+      "score": 73.2,
+      "interpretation": "Insider signals active",
+      "signal": "bullish"
+    },
+    "convergence_score": {
+      "score": 75.8,
+      "pattern": "BULLISH",
+      "fragmentation": 18.0,
+      "momentum": 62.4,
+      "conviction": 54.6,
+      "thesis": "mixed_regime",
+      "confidence": 0.72
     }
+  },
+  "pro_metrics": {
+    "ssr": {
+      "value": 6.95,
+      "btc_market_cap": 1424511687393.9167,
+      "stablecoin_market_cap": 205000000000,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "estimated"
+    },
+    "mpi": {
+      "value": 0.21,
+      "cdd_7d": 7209950.0,
+      "cdd_ratio": 1.2,
+      "hashrate_eh": 959.8,
+      "signal": "NEUTRAL",
+      "description": "Normal miner behavior \u2014 no anomalous selling pattern",
+      "source": "derived_cdd_hashrate"
+    },
+    "dormancy_flow": {
+      "value": 19.0,
+      "signal": "BEARISH",
+      "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
+      "source": "derived"
+    },
+    "timestamp": "2026-04-07T22:41:35.022981+00:00"
   }
 }

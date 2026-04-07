@@ -60,15 +60,26 @@ if _env_path.exists():
             os.environ.setdefault(k.strip(), v.strip().strip("'\""))
 
 
-def _get(url, params=None, timeout=TIMEOUT):
+def _get(url, params=None, timeout=TIMEOUT, custom_headers=None):
     """Safe HTTP GET — returns parsed JSON or None."""
     try:
-        r = requests.get(url, params=params, headers=HEADERS, timeout=timeout)
+        h = {**HEADERS, **(custom_headers or {})}
+        r = requests.get(url, params=params, headers=h, timeout=timeout)
         r.raise_for_status()
         return r.json()
     except Exception as e:
         log.warning("GET %s failed: %s", url, e)
         return None
+
+
+def _load_previous_signals():
+    """Load last good signals.json for cache-first fallback."""
+    try:
+        if SIGNALS_PATH.exists():
+            return json.loads(SIGNALS_PATH.read_text())
+    except Exception:
+        pass
+    return {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -302,7 +313,86 @@ def fetch_exchange_volumes():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# F) HALVING COUNTDOWN — calculated
+# F) BTC DOMINANCE — CoinGecko global + CoinPaprika fallback
+# ═══════════════════════════════════════════════════════════════════════════
+
+def fetch_dominance():
+    """BTC market dominance percentage."""
+    result = {"dominance": {"value": None, "source": "coingecko"}}
+
+    data = _get("https://api.coingecko.com/api/v3/global")
+    if data and "data" in data:
+        dom = data["data"].get("market_cap_percentage", {}).get("btc")
+        if dom is not None:
+            result["dominance"]["value"] = round(dom, 2)
+            log.info("Dominance (CoinGecko): %.2f%%", dom)
+            return result
+
+    # Fallback: CoinPaprika (no rate limit issues)
+    data = _get("https://api.coinpaprika.com/v1/global")
+    if data:
+        dom = data.get("bitcoin_dominance_percentage")
+        if dom is not None:
+            result["dominance"]["value"] = round(float(dom), 2)
+            result["dominance"]["source"] = "coinpaprika"
+            log.info("Dominance (CoinPaprika fallback): %.2f%%", dom)
+            return result
+
+    log.warning("Dominance: all sources failed")
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# G) MACRO — Gold, S&P 500, DXY
+# ═══════════════════════════════════════════════════════════════════════════
+
+def fetch_macro():
+    """Gold, S&P 500, DXY from Yahoo Finance (free, no auth)."""
+    result = {
+        "gold": {"value": None, "source": "yahoo"},
+        "sp500": {"value": None, "source": "yahoo"},
+        "dxy": {"value": None, "source": "yahoo"},
+    }
+
+    yahoo_headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"}
+    for ticker, key in [("GC=F", "gold"), ("^GSPC", "sp500"), ("DX-Y.NYB", "dxy")]:
+        data = _get(
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}",
+            params={"interval": "1d", "range": "1d"},
+            custom_headers=yahoo_headers,
+        )
+        if data:
+            res = data.get("chart", {}).get("result", [])
+            if res:
+                price = res[0].get("meta", {}).get("regularMarketPrice")
+                if price is not None:
+                    result[key]["value"] = round(float(price), 2)
+
+    # DXY fallback: calculate from exchange rates if Yahoo fails
+    if result["dxy"]["value"] is None:
+        data = _get("https://api.exchangerate-api.com/v4/latest/USD")
+        if data and "rates" in data:
+            r = data["rates"]
+            try:
+                eurusd = 1.0 / r.get("EUR", 0.92)
+                gbpusd = 1.0 / r.get("GBP", 0.79)
+                jpy = r.get("JPY", 150)
+                cad = r.get("CAD", 1.36)
+                sek = r.get("SEK", 10.5)
+                chf = r.get("CHF", 0.88)
+                dxy = 50.14348112 * (eurusd ** -0.576) * (jpy ** 0.136) * (gbpusd ** -0.119) * (cad ** 0.091) * (sek ** 0.042) * (chf ** 0.036)
+                result["dxy"]["value"] = round(dxy, 2)
+                result["dxy"]["source"] = "exchangerate-api"
+            except Exception:
+                pass
+
+    log.info("Macro: Gold=$%s, S&P=%s, DXY=%s",
+             result["gold"]["value"], result["sp500"]["value"], result["dxy"]["value"])
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# H) HALVING COUNTDOWN — calculated
 # ═══════════════════════════════════════════════════════════════════════════
 
 def calc_halving():
@@ -483,7 +573,11 @@ def fetch_all_signals():
     t0 = time.time()
     signals = {"updated_at": datetime.now(timezone.utc).isoformat()}
 
+    # Load previous signals for cache-first fallback on failures
+    prev = _load_previous_signals()
+
     # Each fetch is wrapped in try/except so one failure doesn't kill the rest
+    # CoinGecko calls (price, dominance, exchange_volume) are spaced to avoid 429s
     fetchers = [
         ("price", fetch_price_data),
         ("network", fetch_network_data),
@@ -491,6 +585,8 @@ def fetch_all_signals():
         ("lightning", fetch_lightning_data),
         ("fear_greed", fetch_fear_greed),
         ("derivatives", fetch_derivatives),
+        ("dominance", fetch_dominance),
+        ("macro", fetch_macro),
         ("exchange_volume", fetch_exchange_volumes),
         ("halving", calc_halving),
         ("whales", fetch_whale_txs),
@@ -498,12 +594,28 @@ def fetch_all_signals():
         ("coinglass", fetch_coinglass),
     ]
 
+    # Track which CoinGecko fetchers need rate-limit spacing
+    coingecko_fetchers = {"price", "dominance", "exchange_volume"}
+
     for name, fn in fetchers:
         try:
+            # Rate-limit protection: pause 1.5s between CoinGecko calls
+            if name in coingecko_fetchers:
+                time.sleep(1.5)
             result = fn()
             signals.update(result)
         except Exception as e:
             log.error("Fetcher '%s' crashed: %s", name, e)
+
+    # Cache-first fallback: fill any NULLs from previous good values
+    for key, val in signals.items():
+        if isinstance(val, dict):
+            for subkey, subval in val.items():
+                if subval is None and key in prev and isinstance(prev.get(key), dict):
+                    cached_val = prev[key].get(subkey)
+                    if cached_val is not None:
+                        val[subkey] = cached_val
+                        log.info("Cache fallback: %s.%s = %s", key, subkey, cached_val)
 
     # Calculate composite signal score
     signals["signal_score"] = calc_signal_score(signals)

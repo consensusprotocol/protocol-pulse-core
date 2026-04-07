@@ -127,28 +127,47 @@ def _init_alerts_db():
 # ===================================================================
 
 def _fetch_btc_price() -> dict:
-    """BTC price from CoinGecko (same source as price_service.py)."""
+    """BTC price from CoinGecko with CoinPaprika fallback."""
+    result = {"price": 0, "change_24h": 0, "change_7d": 0, "market_cap": 0, "volume_24h": 0, "dominance": 0}
+
     data = _get_json(
         "https://api.coingecko.com/api/v3/simple/price"
         "?ids=bitcoin&vs_currencies=usd&include_24hr_change=true"
         "&include_7d_change=true&include_market_cap=true&include_24hr_vol=true"
     )
-    if not data or "bitcoin" not in data:
-        return {"price": 0, "change_24h": 0, "change_7d": 0, "market_cap": 0, "dominance": 0}
-    btc = data["bitcoin"]
+    if data and "bitcoin" in data:
+        btc = data["bitcoin"]
+        result["price"] = btc.get("usd", 0)
+        result["change_24h"] = round(btc.get("usd_24h_change", 0), 2)
+        result["change_7d"] = round(btc.get("usd_7d_change", 0) if "usd_7d_change" in btc else 0, 2)
+        result["market_cap"] = btc.get("usd_market_cap", 0)
+        result["volume_24h"] = btc.get("usd_24h_vol", 0)
+
+    # Rate limit spacing before next CoinGecko call
+    time.sleep(1.5)
+
     # Dominance from CoinGecko global
-    dom = 0
     g = _get_json("https://api.coingecko.com/api/v3/global")
     if g and "data" in g:
-        dom = round(g["data"].get("market_cap_percentage", {}).get("btc", 0), 1)
-    return {
-        "price": btc.get("usd", 0),
-        "change_24h": round(btc.get("usd_24h_change", 0), 2),
-        "change_7d": round(btc.get("usd_7d_change", 0) if "usd_7d_change" in btc else 0, 2),
-        "market_cap": btc.get("usd_market_cap", 0),
-        "volume_24h": btc.get("usd_24h_vol", 0),
-        "dominance": dom,
-    }
+        result["dominance"] = round(g["data"].get("market_cap_percentage", {}).get("btc", 0), 1)
+
+    # CoinPaprika fallback for price + dominance if CoinGecko failed
+    if not result["price"]:
+        cp = _get_json("https://api.coinpaprika.com/v1/tickers/btc-bitcoin")
+        if cp:
+            quotes = cp.get("quotes", {}).get("USD", {})
+            result["price"] = quotes.get("price", 0)
+            result["change_24h"] = round(quotes.get("percent_change_24h", 0), 2)
+            result["change_7d"] = round(quotes.get("percent_change_7d", 0), 2)
+            result["market_cap"] = quotes.get("market_cap", 0)
+            result["volume_24h"] = quotes.get("volume_24h", 0)
+
+    if not result["dominance"]:
+        cp_global = _get_json("https://api.coinpaprika.com/v1/global")
+        if cp_global:
+            result["dominance"] = round(float(cp_global.get("bitcoin_dominance_percentage", 0)), 1)
+
+    return result
 
 
 
