@@ -706,24 +706,52 @@ def commander_page():
 @auth_bp.route('/commander/dashboard')
 @login_required
 def commander_dashboard():
-    """Commander Dashboard — subscriber API usage + account info."""
+    """Commander Dashboard — sovereign Bitcoin intelligence command center."""
     from flask_login import current_user as _cu
     tier = getattr(_cu, 'subscription_tier', '')
     if tier not in ('commander', 'sovereign', 'admin'):
         flash('Commander tier required.', 'warning')
         return redirect('/commander')
 
-    api_key = getattr(_cu, 'api_key', '') or ''
-    masked = api_key[:8] + '...' + api_key[-4:] if len(api_key) > 12 else api_key
+    import json as _json
+    _project = str(Path(__file__).resolve().parent.parent)
 
-    # Simple usage stats (placeholder — real tracking in premium API)
+    # Load morning intelligence brief
+    morning_brief = {}
+    try:
+        _mb_path = os.path.join(_project, 'data', 'intelligence', 'morning_intelligence_brief.json')
+        if os.path.exists(_mb_path):
+            with open(_mb_path) as _f:
+                morning_brief = _json.load(_f)
+    except Exception:
+        pass
+
+    # Load KOL sentiment brief
+    kol_brief = {}
+    try:
+        _kb_path = os.path.join(_project, 'data', 'intelligence', 'kol_sentiment_brief.json')
+        if os.path.exists(_kb_path):
+            with open(_kb_path) as _f:
+                kol_brief = _json.load(_f)
+    except Exception:
+        pass
+
+    # Load sovereign context (live market data)
+    sovereign = {}
+    try:
+        _sc_path = os.path.join(_project, 'data', 'sovereign_context', 'latest.json')
+        if os.path.exists(_sc_path):
+            with open(_sc_path) as _f:
+                sovereign = _json.load(_f)
+    except Exception:
+        pass
+
     return render_template('commander_dashboard.html',
                            authed=True,
-                           sub=_cu,
-                           masked_key=masked,
-                           calls_today=0,
-                           daily_limit=500,
-                           calls_month=0)
+                           user=_cu,
+                           morning_brief=morning_brief,
+                           kol_brief=kol_brief,
+                           sovereign=sovereign)
 
 @auth_bp.route('/commander/welcome')
 def commander_welcome():
