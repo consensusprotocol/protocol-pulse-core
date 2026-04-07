@@ -1222,10 +1222,21 @@ def podcasts():
             'playlist_url': s.get('playlist_url', ''),
         })
     total_episodes = sum(len(s['episodes']) for s in series_config.values())
+
+    # Bitcoin Boomers latest episodes (YouTube channel UCOp_-d0z7r-s02CWsJTbVoA)
+    boomers_episodes = [
+        {'id': 'x49S0mjhfX4', 'title': 'Bitcoin Your Escape Hatch to Financial Freedom & Peace'},
+        {'id': '1SpHk6W4dIg', 'title': 'Bitcoin is Volatile But Ultimately Is the Future of Sound Money'},
+        {'id': 'Ou66PgqPcyU', 'title': 'Financial Advisors Were WRONG About Bitcoin'},
+        {'id': '0wRzfcNrlqE', 'title': "Bitcoin is More Than An Asset, It's a Monetary System"},
+        {'id': 'FMTtSkPaQ7U', 'title': 'Why Work for What Another Man Can Print'},
+    ]
+
     return render_template('podcasts.html',
                            series_list=series_list,
                            series_data=series_config,
-                           total_episodes=total_episodes)
+                           total_episodes=total_episodes,
+                           boomers_episodes=boomers_episodes)
 
 @pages_bp.route('/rss/podcasts.xml')
 def podcast_rss():

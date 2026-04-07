@@ -1,24 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Cypherpunk'd — Original Series | Protocol Pulse{% endblock %}
-{% block meta_description %}Cinematic deep dives into Bitcoin, money, and freedom. {{ total_episodes }} episodes across {{ series_list|length }} original series from Protocol Pulse.{% endblock %}
+{% block title %}Podcasts — Protocol Pulse Network{% endblock %}
+{% block meta_description %}The Protocol Pulse podcast network. Cypherpunk'd cinematic series and The Bitcoin Boomers — {{ total_episodes }}+ episodes of Bitcoin intelligence.{% endblock %}
 
 {% block head %}
 <script type="application/ld+json">
-{
+[{
     "@context": "https://schema.org",
     "@type": "PodcastSeries",
     "name": "Cypherpunk'd",
     "description": "Cinematic deep dives into Bitcoin, money, freedom, and the cypherpunk movement.",
     "webFeed": "https://anchor.fm/s/fa724db8/podcast/rss",
-    "publisher": {
-        "@type": "Organization",
-        "name": "Protocol Pulse",
-        "url": "https://protocolpulse.io"
-    }
-}
+    "publisher": {"@type": "Organization", "name": "Protocol Pulse", "url": "https://protocolpulse.io"}
+},{
+    "@context": "https://schema.org",
+    "@type": "PodcastSeries",
+    "name": "The Bitcoin Boomers",
+    "description": "The Bitcoin podcast your parents will actually listen to.",
+    "publisher": {"@type": "Organization", "name": "Protocol Pulse", "url": "https://protocolpulse.io"}
+}]
 </script>
-<meta property="og:title" content="Cypherpunk'd — Original Series | Protocol Pulse">
-<meta property="og:description" content="Cinematic deep dives into Bitcoin, money, and freedom. {{ total_episodes }} episodes across {{ series_list|length }} original series.">
+<meta property="og:title" content="Podcasts — Protocol Pulse Network">
+<meta property="og:description" content="Cypherpunk'd and The Bitcoin Boomers. {{ total_episodes }}+ episodes of Bitcoin intelligence.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
@@ -31,7 +33,7 @@
   --void:#000;--deep:#040408;--card:#08080e;--elevated:#0e0e16;--hover:#14141e;
   --border:rgba(255,255,255,0.05);--border-h:rgba(255,255,255,0.1);
   --bright:#f5f5f5;--pri:#e0e0e0;--sec:rgba(255,255,255,0.5);--mut:rgba(255,255,255,0.25);
-  --red:#dc2626;--red-g:rgba(220,38,38,0.12);
+  --red:#dc2626;--red-g:rgba(220,38,38,0.12);--gold:#f39c12;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 .pod-page{font-family:'DM Sans',-apple-system,sans-serif;background:var(--void);color:var(--pri);min-height:100vh;padding-top:80px}
@@ -43,8 +45,8 @@
 .pod-badge{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:16px;position:relative}
 .pod-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:dotPulse 1.5s infinite}
 @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.3}}
-.pod-hero h1{font-family:'JetBrains Mono',monospace;font-size:clamp(32px,5vw,56px);font-weight:700;color:var(--bright);letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 40px rgba(220,38,38,0.3);margin-bottom:12px;position:relative}
-.pod-hero-sub{font-size:16px;color:var(--sec);max-width:600px;line-height:1.7;margin-bottom:24px;position:relative}
+.pod-hero h1{font-family:'JetBrains Mono',monospace;font-size:clamp(32px,5vw,52px);font-weight:700;color:var(--bright);letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 40px rgba(220,38,38,0.3);margin-bottom:12px;position:relative}
+.pod-hero-sub{font-size:16px;color:var(--sec);max-width:700px;line-height:1.7;margin-bottom:24px;position:relative}
 .pod-stats{display:flex;gap:32px;position:relative}
 .pod-stat{text-align:center}
 .pod-stat-val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--red)}
@@ -53,19 +55,35 @@
 .pod-plat{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s}
 .pod-plat:hover{border-color:var(--red);color:var(--red)}
 
-/* ── FEATURED ── */
-.pod-featured{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:14px;overflow:hidden;margin-bottom:48px}
-.pod-featured-vid{width:100%;aspect-ratio:16/9;border:none;display:block;background:#000}
-.pod-featured-info{padding:20px 24px;border-top:1px solid var(--border)}
-.pod-featured-lab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px}
-.pod-featured-title{font-size:18px;font-weight:700;color:var(--bright);margin-bottom:4px}
-.pod-featured-host{font-size:12px;color:var(--sec)}
+/* ── SHOW SECTION ── */
+.show-sec{padding:48px 0;border-top:1px solid var(--border)}
+.show-header{display:flex;align-items:flex-start;gap:24px;margin-bottom:32px}
+.show-logo{flex:0 0 80px;height:80px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:1px}
+.show-info{flex:1}
+.show-info .sec-lab{margin-bottom:8px}
+.show-info h2{font-size:clamp(24px,4vw,36px);font-weight:700;color:var(--bright);letter-spacing:-0.5px;margin-bottom:8px}
+.show-info p{font-size:14px;color:var(--sec);max-width:600px;line-height:1.6;margin-bottom:12px}
+.show-tag{display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);padding:4px 10px;border-radius:4px}
 
-/* ── SECTION ── */
-.sec{padding:48px 0;border-top:1px solid var(--border)}
-.sec-lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px}
-.sec-h{font-size:clamp(26px,4vw,38px);font-weight:700;color:var(--bright);letter-spacing:-0.5px;margin-bottom:10px}
-.sec-desc{font-size:14px;color:var(--sec);max-width:480px;line-height:1.6;margin-bottom:40px}
+/* ── FEATURED PLAYER ── */
+.show-player{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:24px}
+.show-player iframe{width:100%;aspect-ratio:16/9;border:none;display:block;background:#000}
+.show-player-info{padding:16px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.show-player-title{font-size:14px;font-weight:600;color:var(--bright)}
+.show-player-host{font-size:11px;color:var(--sec);margin-top:2px}
+
+/* ── EPISODE GRID ── */
+.ep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.ep-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .3s}
+.ep-card:hover{border-color:var(--border-h);transform:translateY(-2px)}
+.ep-card-img{position:relative;aspect-ratio:16/9;overflow:hidden}
+.ep-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.ep-card:hover .ep-card-img img{transform:scale(1.05)}
+.ep-card-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);opacity:0;transition:opacity .3s}
+.ep-card:hover .ep-card-play{opacity:1}
+.ep-card-play i{color:white;font-size:24px;width:44px;height:44px;background:rgba(220,38,38,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;padding-left:2px}
+.ep-card-body{padding:12px 14px}
+.ep-card-title{font-size:12px;font-weight:600;color:var(--bright);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* ── SERIES CARDS ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -114,12 +132,19 @@
 .pod-cta-btn.secondary{border:1px solid var(--border);color:var(--sec)}
 .pod-cta-btn.secondary:hover{border-color:var(--red);color:var(--red)}
 
+.sec-lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+
 @media(max-width:768px){
   .sg{grid-template-columns:1fr}
   .sd-main{grid-template-columns:1fr}
   .sd-eps{max-height:250px;border-left:none;border-top:1px solid var(--border)}
   .pod-stats{flex-wrap:wrap;gap:16px}
   .pod-platforms{gap:8px}
+  .show-header{flex-direction:column;gap:16px}
+  .ep-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .ep-grid{grid-template-columns:1fr}
 }
 </style>
 {% endblock %}
@@ -128,40 +153,54 @@
 <div class="pod-page">
 <div class="pod-inner">
 
-  <!-- HERO -->
+  <!-- NETWORK HERO -->
   <div class="pod-hero">
-    <div class="pod-badge"><span class="pod-dot"></span> Protocol Pulse Original</div>
-    <h1>Cypherpunk'd</h1>
-    <p class="pod-hero-sub">Cinematic deep dives into the books and ideas reshaping monetary thinking. Four original series exploring Bitcoin, money, freedom, and the cypherpunk movement.</p>
+    <div class="pod-badge"><span class="pod-dot"></span> Protocol Pulse Network</div>
+    <h1>Podcasts</h1>
+    <p class="pod-hero-sub">Two shows. One mission. Original cinematic series and unfiltered Bitcoin conversation from the Protocol Pulse podcast network.</p>
     <div class="pod-stats">
+      <div class="pod-stat"><div class="pod-stat-val">2</div><div class="pod-stat-lab">Shows</div></div>
+      <div class="pod-stat"><div class="pod-stat-val">{{ total_episodes }}+</div><div class="pod-stat-lab">Episodes</div></div>
       <div class="pod-stat"><div class="pod-stat-val">{{ series_list|length }}</div><div class="pod-stat-lab">Series</div></div>
-      <div class="pod-stat"><div class="pod-stat-val">{{ total_episodes }}</div><div class="pod-stat-lab">Episodes</div></div>
       <div class="pod-stat"><div class="pod-stat-val">100%</div><div class="pod-stat-lab">Free</div></div>
     </div>
-    <div class="pod-platforms">
-      <a href="https://youtube.com/@ProtocolPulse" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
-      <a href="https://podcasts.apple.com" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
-      <a href="https://open.spotify.com" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
-      <a href="https://fountain.fm" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
-      <a href="/rss/podcasts.xml" target="_blank" class="pod-plat"><i class="fas fa-rss"></i> RSS</a>
-    </div>
   </div>
 
-  <!-- FEATURED: Latest Episode -->
-  <div class="pod-featured">
-    <iframe class="pod-featured-vid" src="https://www.youtube.com/embed/FA8tvWEydcA?rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <div class="pod-featured-info">
-      <div class="pod-featured-lab">Featured Episode</div>
-      <div class="pod-featured-title">Everything Divided by 21 Million — Time | Episode 1</div>
-      <div class="pod-featured-host">Matty Ice & Knut Svanholm</div>
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SHOW 1: CYPHERPUNK'D -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="show-sec" id="cypherpunkd">
+    <div class="show-header">
+      <div class="show-logo" style="background:linear-gradient(135deg,rgba(220,38,38,0.15),rgba(220,38,38,0.05));border:1px solid rgba(220,38,38,0.2);color:var(--red);font-size:12px;text-align:center;line-height:1.3;">CYPHER<br>PUNK'D</div>
+      <div class="show-info">
+        <div class="sec-lab">Original Series</div>
+        <h2>Cypherpunk'd</h2>
+        <p>Cinematic deep dives into the books and ideas reshaping monetary thinking. {{ series_list|length }} original series exploring Bitcoin, money, freedom, and the cypherpunk movement.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <span class="show-tag"><i class="fas fa-satellite-dish" style="font-size:7px;"></i> Protocol Pulse Original</span>
+        </div>
+        <div class="pod-platforms">
+          <a href="https://youtube.com/@ProtocolPulse" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
+          <a href="https://podcasts.apple.com/us/podcast/cypherpunkd/id1770567056" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
+          <a href="https://open.spotify.com" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
+          <a href="https://fountain.fm" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
+          <a href="/rss/podcasts.xml" target="_blank" class="pod-plat"><i class="fas fa-rss"></i> RSS</a>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- ALL SERIES -->
-  <div class="sec" id="series">
-    <div class="sec-lab">Original Series</div>
-    <h2 class="sec-h">Cinematic Deep Dives</h2>
-    <p class="sec-desc">Long-form explorations of the books and ideas reshaping monetary thinking.</p>
+    <!-- Featured Cypherpunk'd episode -->
+    <div class="show-player">
+      <iframe src="https://www.youtube.com/embed/FA8tvWEydcA?rel=0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+      <div class="show-player-info">
+        <div>
+          <div class="show-player-title">Everything Divided by 21 Million — Time | Episode 1</div>
+          <div class="show-player-host">Matty Ice & Knut Svanholm</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Cypherpunk'd Series -->
     <div class="sg">
       {% for s in series_list %}
       <div class="sc" onclick="toggleSD('{{ s.key }}')">
@@ -185,35 +224,62 @@
     </div>
   </div>
 
-  <!-- PARTNER PODCASTS -->
-  <div class="sec" id="partners">
-    <div class="sec-lab">Partner Network</div>
-    <h2 class="sec-h">Featured Podcasts</h2>
-    <p class="sec-desc">Voices from across the Bitcoin ecosystem.</p>
-    <div class="sg">
-      <div class="sc" style="cursor:default;">
-        <div class="sc-img-w" style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);display:flex;align-items:center;justify-content:center;">
-          <div style="text-align:center;padding:24px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--bright);letter-spacing:2px;">BTC<span style="color:var(--red);">BOOMERS</span></div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);letter-spacing:2px;margin-top:8px;">EST. 2025</div>
-          </div>
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SHOW 2: BITCOIN BOOMERS -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="show-sec" id="boomers">
+    <div class="show-header">
+      <div class="show-logo" style="background:linear-gradient(135deg,rgba(243,156,18,0.15),rgba(243,156,18,0.05));border:1px solid rgba(243,156,18,0.2);color:var(--gold);font-size:11px;text-align:center;line-height:1.3;">BTC<br>BOOMERS</div>
+      <div class="show-info">
+        <div class="sec-lab" style="color:var(--gold);">Partner Show</div>
+        <h2>The Bitcoin Boomers</h2>
+        <p>The Bitcoin podcast your parents will actually listen to. Gary Leland, Lawrence Lepard, and Bob Burnett break down Bitcoin for the generation that needs it most.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <span class="show-tag"><i class="fas fa-satellite-dish" style="font-size:7px;"></i> Produced by Protocol Pulse</span>
         </div>
-        <div class="sc-body">
-          <div class="sc-host">Gary Leland, Lawrence Lepard & Bob Burnett</div>
-          <h3 class="sc-name">The Bitcoin Boomers</h3>
-          <p class="sc-desc">The Bitcoin podcast your parents will actually listen to.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-            <a href="https://www.youtube.com/@BTCBoomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
-            <a href="https://podcasts.apple.com/us/podcast/the-bitcoin-boomers/id1853058330" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
-            <a href="https://open.spotify.com/episode/1A915zKP4GWfKcPbh564YK" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
-            <a href="https://fountain.fm/show/kHBRZl0Mb0MGWMELtjw4" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
-            <a href="https://x.com/btc_boomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-x-twitter"></i> X</a>
-            <a href="https://thebitcoinboomers.com" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-globe"></i> Website</a>
-          </div>
-          <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);padding:4px 10px;border-radius:4px;"><i class="fas fa-satellite-dish" style="font-size:7px;"></i> Produced by Protocol Pulse</div>
+        <div class="pod-platforms">
+          <a href="https://www.youtube.com/@BTCBoomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
+          <a href="https://podcasts.apple.com/us/podcast/the-bitcoin-boomers/id1853058330" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
+          <a href="https://open.spotify.com/episode/1A915zKP4GWfKcPbh564YK" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
+          <a href="https://fountain.fm/show/kHBRZl0Mb0MGWMELtjw4" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
+          <a href="https://x.com/btc_boomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-x-twitter"></i> X</a>
+          <a href="https://thebitcoinboomers.com" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-globe"></i> Website</a>
         </div>
       </div>
     </div>
+
+    <!-- Featured Boomers episode -->
+    {% if boomers_episodes %}
+    <div class="show-player" id="boomers-player">
+      <iframe id="boomersIf" src="https://www.youtube.com/embed/{{ boomers_episodes[0].id }}?rel=0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+      <div class="show-player-info">
+        <div>
+          <div class="show-player-title" id="boomers-title">{{ boomers_episodes[0].title }}</div>
+          <div class="show-player-host">Gary Leland, Lawrence Lepard & Bob Burnett</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Boomers Episodes Grid -->
+    <div class="ep-grid">
+      {% for ep in boomers_episodes %}
+      <div class="ep-card" onclick="playBoomers('{{ ep.id }}','{{ ep.title|e }}',this)">
+        <div class="ep-card-img">
+          <img src="https://img.youtube.com/vi/{{ ep.id }}/mqdefault.jpg" alt="{{ ep.title }}" loading="lazy">
+          <div class="ep-card-play"><i class="fas fa-play"></i></div>
+        </div>
+        <div class="ep-card-body">
+          <div class="ep-card-title">{{ ep.title }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Channel embed for more episodes -->
+    <div style="text-align:center;margin-top:16px;">
+      <a href="https://www.youtube.com/@BTCBoomers/videos" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='';this.style.color=''"><i class="fab fa-youtube"></i> View All Episodes on YouTube</a>
+    </div>
+    {% endif %}
   </div>
 
   <!-- CTA -->
@@ -237,6 +303,7 @@ function escH(t){var d=document.createElement('div');d.appendChild(document.crea
 function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var plBtn=document.getElementById('sdPlaylist');if(s.playlist_url){plBtn.href=s.playlist_url;plBtn.style.display='inline-flex'}else{plBtn.style.display='none'}var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1&playsinline=1&rel=0';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
 function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
 function closeSD(){document.getElementById('sdIf').src='';document.getElementById('sdPanel').classList.remove('active');curS=null}
+function playBoomers(id,title,el){document.getElementById('boomersIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.getElementById('boomers-title').textContent=title;document.getElementById('boomers-player').scrollIntoView({behavior:'smooth',block:'nearest'})}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSD()});
 </script>
 {% endblock %}
