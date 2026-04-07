@@ -1,6 +1,6 @@
 """
 PROTOCOL PULSE — MEDIA FEED SERVICE
-Aggregates 15 RSS podcast feeds + 7 YouTube channels into SQLite cache.
+Aggregates partner thought-leader RSS podcast feeds + YouTube channels into SQLite cache.
 Background sync via threading. Signal score on ingest. AI summaries via Claude Haiku.
 
 Created: 2026-03-25
@@ -21,8 +21,6 @@ logger = logging.getLogger(__name__)
 # ─── FEED REGISTRY ────────────────────────────────────────────────────────────
 
 PODCAST_FEEDS = [
-    {"name": "Cypherpunk'd", "url": "https://anchor.fm/s/fa724db8/podcast/rss", "host": "PBX", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Protocol Pulse", "url": "https://feed.podbean.com/protocolpulse/feed.xml", "host": "Protocol Pulse", "tier": 1, "color": "#dc2626", "category": "podcast"},
     {"name": "TFTC", "url": "https://tftc.io/feed/", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
     {"name": "Stephan Livera", "url": "https://anchor.fm/s/7d083a4/podcast/rss", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
     {"name": "What Bitcoin Did", "url": "https://www.whatbitcoindid.com/podcast?format=rss", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
@@ -45,8 +43,6 @@ YOUTUBE_CHANNELS = [
     {"name": "Robert Breedlove", "channel_id": "UC43_LTf5Z4lbRjKCq0sIAVg", "tier": 1, "color": "#1abc9c", "category": "video"},
     {"name": "Natalie Brunell", "channel_id": "UCru3nlhzHrbgK21x0MdB_eg", "tier": 1, "color": "#e91e63", "category": "video"},
     {"name": "Bitcoin Audible", "channel_id": "UClG-wqz-OuXfzbpqwJd3fVA", "tier": 1, "color": "#9b59b6", "category": "video"},
-    {"name": "Bitcoin Boomers", "channel_id": "UCOp_-d0z7r-s02CWsJTbVoA", "tier": 1, "color": "#f39c12", "category": "video"},
-    {"name": "Cypherpunk'd", "channel_id": "UC4BPphH-KN4F9ev7Ekt0zew", "tier": 1, "color": "#dc2626", "category": "video"},
 ]
 
 # ─── SIGNAL SCORE ──────────────────────────────────────────────────────────────

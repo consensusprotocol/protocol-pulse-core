@@ -53,7 +53,8 @@
 .pod-stat-lab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:4px}
 .pod-platforms{display:flex;gap:12px;margin-top:24px;position:relative;flex-wrap:wrap}
 .pod-plat{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s}
-.pod-plat:hover{border-color:var(--red);color:var(--red)}
+.pod-plat:hover{border-color:var(--plat-accent,var(--red));color:var(--plat-accent,var(--red))}
+.ep-card.ep-active{border-color:rgba(243,156,18,0.3);box-shadow:0 0 12px rgba(243,156,18,0.08)}
 
 /* ── SHOW SECTION ── */
 .show-sec{padding:48px 0;border-top:1px solid var(--border)}
@@ -231,53 +232,57 @@
     <div class="show-header">
       <div class="show-logo" style="background:linear-gradient(135deg,rgba(243,156,18,0.15),rgba(243,156,18,0.05));border:1px solid rgba(243,156,18,0.2);color:var(--gold);font-size:11px;text-align:center;line-height:1.3;">BTC<br>BOOMERS</div>
       <div class="show-info">
-        <div class="sec-lab" style="color:var(--gold);">Partner Show</div>
+        <div class="sec-lab" style="color:var(--gold);">Original Show</div>
         <h2>The Bitcoin Boomers</h2>
-        <p>The Bitcoin podcast your parents will actually listen to. Gary Leland, Lawrence Lepard, and Bob Burnett break down Bitcoin for the generation that needs it most.</p>
+        <p>The Bitcoin podcast your parents will actually listen to. Gary Leland, Lawrence Lepard, and Bob Burnett break down Bitcoin for the generation that needs it most — with decades of real-world business experience and zero fluff.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-          <span class="show-tag"><i class="fas fa-satellite-dish" style="font-size:7px;"></i> Produced by Protocol Pulse</span>
+          <span class="show-tag" style="color:var(--gold);background:rgba(243,156,18,0.08);border-color:rgba(243,156,18,0.15);"><i class="fas fa-satellite-dish" style="font-size:7px;"></i> Produced by Protocol Pulse</span>
         </div>
         <div class="pod-platforms">
-          <a href="https://www.youtube.com/@BTCBoomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-youtube"></i> YouTube</a>
-          <a href="https://podcasts.apple.com/us/podcast/the-bitcoin-boomers/id1853058330" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-apple"></i> Apple</a>
-          <a href="https://open.spotify.com/episode/1A915zKP4GWfKcPbh564YK" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-spotify"></i> Spotify</a>
-          <a href="https://fountain.fm/show/kHBRZl0Mb0MGWMELtjw4" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-bolt"></i> Fountain</a>
-          <a href="https://x.com/btc_boomers" target="_blank" rel="noopener" class="pod-plat"><i class="fab fa-x-twitter"></i> X</a>
-          <a href="https://thebitcoinboomers.com" target="_blank" rel="noopener" class="pod-plat"><i class="fas fa-globe"></i> Website</a>
+          <a href="https://www.youtube.com/@TheBitcoinBoomers" target="_blank" rel="noopener" class="pod-plat" style="--plat-accent:var(--gold);"><i class="fab fa-youtube"></i> YouTube</a>
+          <a href="https://podcasts.apple.com/us/podcast/the-bitcoin-boomers/id1853058330" target="_blank" rel="noopener" class="pod-plat" style="--plat-accent:var(--gold);"><i class="fab fa-apple"></i> Apple</a>
+          <a href="https://open.spotify.com/show/5GKKDM7mhWuiKpvYCkmqkA" target="_blank" rel="noopener" class="pod-plat" style="--plat-accent:var(--gold);"><i class="fab fa-spotify"></i> Spotify</a>
+          <a href="https://fountain.fm/show/kHBRZl0Mb0MGWMELtjw4" target="_blank" rel="noopener" class="pod-plat" style="--plat-accent:var(--gold);"><i class="fas fa-bolt"></i> Fountain</a>
+          <a href="https://x.com/btc_boomers" target="_blank" rel="noopener" class="pod-plat" style="--plat-accent:var(--gold);"><i class="fab fa-x-twitter"></i> X</a>
+          <a href="https://thebitcoinboomers.com" target="_blank" rel="noopener" class="pod-plat" style="--plat-accent:var(--gold);"><i class="fas fa-globe"></i> Website</a>
         </div>
       </div>
     </div>
 
     <!-- Featured Boomers episode -->
     {% if boomers_episodes %}
-    <div class="show-player" id="boomers-player">
+    <div class="show-player" id="boomers-player" style="border-color:rgba(243,156,18,0.15);">
       <iframe id="boomersIf" src="https://www.youtube.com/embed/{{ boomers_episodes[0].id }}?rel=0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
       <div class="show-player-info">
         <div>
           <div class="show-player-title" id="boomers-title">{{ boomers_episodes[0].title }}</div>
           <div class="show-player-host">Gary Leland, Lawrence Lepard & Bob Burnett</div>
         </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:0.6;">NOW PLAYING</span>
       </div>
     </div>
 
     <!-- Latest Boomers Episodes Grid -->
     <div class="ep-grid">
       {% for ep in boomers_episodes %}
-      <div class="ep-card" onclick="playBoomers('{{ ep.id }}','{{ ep.title|e }}',this)">
+      <div class="ep-card{% if loop.first %} ep-active{% endif %}" onclick="playBoomers('{{ ep.id }}','{{ ep.title|e }}',this)">
         <div class="ep-card-img">
           <img src="https://img.youtube.com/vi/{{ ep.id }}/mqdefault.jpg" alt="{{ ep.title }}" loading="lazy">
           <div class="ep-card-play"><i class="fas fa-play"></i></div>
         </div>
         <div class="ep-card-body">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--gold);margin-bottom:4px;">EP {{ loop.index }}</div>
           <div class="ep-card-title">{{ ep.title }}</div>
         </div>
       </div>
       {% endfor %}
     </div>
 
-    <!-- Channel embed for more episodes -->
-    <div style="text-align:center;margin-top:16px;">
-      <a href="https://www.youtube.com/@BTCBoomers/videos" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='';this.style.color=''"><i class="fab fa-youtube"></i> View All Episodes on YouTube</a>
+    <!-- View all + Listen On section -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px;flex-wrap:wrap;">
+      <a href="https://www.youtube.com/@TheBitcoinBoomers/videos" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='';this.style.color=''"><i class="fab fa-youtube"></i> All Episodes on YouTube</a>
+      <a href="https://podcasts.apple.com/us/podcast/the-bitcoin-boomers/id1853058330" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='';this.style.color=''"><i class="fab fa-apple"></i> Listen on Apple</a>
+      <a href="https://open.spotify.com/show/5GKKDM7mhWuiKpvYCkmqkA" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--border);border-radius:8px;color:var(--sec);font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='';this.style.color=''"><i class="fab fa-spotify"></i> Listen on Spotify</a>
     </div>
     {% endif %}
   </div>
@@ -303,7 +308,7 @@ function escH(t){var d=document.createElement('div');d.appendChild(document.crea
 function toggleSD(k){var p=document.getElementById('sdPanel');if(curS===k&&p.classList.contains('active')){closeSD();return}var s=SD[k];if(!s||!s.episodes||!s.episodes.length)return;curS=k;document.getElementById('sdTitle').textContent=s.title||k;var plBtn=document.getElementById('sdPlaylist');if(s.playlist_url){plBtn.href=s.playlist_url;plBtn.style.display='inline-flex'}else{plBtn.style.display='none'}var e0=s.episodes[0];document.getElementById('sdIf').src='https://www.youtube.com/embed/'+e0.id+'?autoplay=1&playsinline=1&rel=0';var sb=document.getElementById('sdEps');sb.innerHTML=s.episodes.map(function(ep,i){return'<div class="sd-ep'+(i===0?' active':'')+'" onclick="playSE(\''+ep.id+'\','+i+',this)"><img class="sd-ep-img" src="https://img.youtube.com/vi/'+ep.id+'/mqdefault.jpg" loading="lazy"><div class="sd-ep-info"><div class="sd-ep-n">EP '+(i+1)+'</div><div class="sd-ep-t">'+escH(ep.title)+'</div></div></div>'}).join('');p.classList.add('active');setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
 function playSE(id,i,el){document.getElementById('sdIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.querySelectorAll('.sd-ep').forEach(function(e){e.classList.remove('active')});if(el)el.classList.add('active')}
 function closeSD(){document.getElementById('sdIf').src='';document.getElementById('sdPanel').classList.remove('active');curS=null}
-function playBoomers(id,title,el){document.getElementById('boomersIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.getElementById('boomers-title').textContent=title;document.getElementById('boomers-player').scrollIntoView({behavior:'smooth',block:'nearest'})}
+function playBoomers(id,title,el){document.getElementById('boomersIf').src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0';document.getElementById('boomers-title').textContent=title;document.querySelectorAll('#boomers .ep-card').forEach(function(c){c.classList.remove('ep-active')});if(el)el.classList.add('ep-active');document.getElementById('boomers-player').scrollIntoView({behavior:'smooth',block:'nearest'})}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSD()});
 </script>
 {% endblock %}

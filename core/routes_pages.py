@@ -1221,16 +1221,33 @@ def podcasts():
             'ep_count': len(s['episodes']),
             'playlist_url': s.get('playlist_url', ''),
         })
-    total_episodes = sum(len(s['episodes']) for s in series_config.values())
 
     # Bitcoin Boomers latest episodes (YouTube channel UCOp_-d0z7r-s02CWsJTbVoA)
-    boomers_episodes = [
-        {'id': 'x49S0mjhfX4', 'title': 'Bitcoin Your Escape Hatch to Financial Freedom & Peace'},
-        {'id': '1SpHk6W4dIg', 'title': 'Bitcoin is Volatile But Ultimately Is the Future of Sound Money'},
-        {'id': 'Ou66PgqPcyU', 'title': 'Financial Advisors Were WRONG About Bitcoin'},
-        {'id': '0wRzfcNrlqE', 'title': "Bitcoin is More Than An Asset, It's a Monetary System"},
-        {'id': 'FMTtSkPaQ7U', 'title': 'Why Work for What Another Man Can Print'},
-    ]
+    boomers_episodes = []
+    try:
+        import feedparser as _fp
+        import requests as _req
+        _boomers_rss = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCOp_-d0z7r-s02CWsJTbVoA'
+        _br = _req.get(_boomers_rss, headers={'User-Agent': 'Mozilla/5.0 (compatible; ProtocolPulse/1.0)'}, timeout=10)
+        _bf = _fp.parse(_br.text)
+        for _be in _bf.entries[:6]:
+            _vid = _be.get('yt_videoid', '')
+            if _vid:
+                boomers_episodes.append({'id': _vid, 'title': _be.get('title', '').strip()})
+    except Exception:
+        pass
+    # Fallback if RSS fails
+    if not boomers_episodes:
+        boomers_episodes = [
+            {'id': 'nSbbx_2ziIU', 'title': 'What Happens at the Next Bitcoin Halving'},
+            {'id': 'bNkM6ICRU3g', 'title': 'Bitcoin Follows a Commodity Like Cycle with Lawrence Lepard'},
+            {'id': 'kYePThn-uLY', 'title': 'Who is in Charge of Bitcoin?'},
+            {'id': 'x49S0mjhfX4', 'title': 'Bitcoin Your Escape Hatch to Financial Freedom & Peace'},
+            {'id': '1SpHk6W4dIg', 'title': 'Bitcoin is Volatile But Ultimately Is the Future of Sound Money'},
+            {'id': 'Ou66PgqPcyU', 'title': 'Financial Advisors Were WRONG About Bitcoin'},
+        ]
+
+    total_episodes = sum(len(s['episodes']) for s in series_config.values()) + len(boomers_episodes)
 
     return render_template('podcasts.html',
                            series_list=series_list,
