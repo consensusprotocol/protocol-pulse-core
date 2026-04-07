@@ -398,8 +398,6 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   .video-wrap{
     max-width:100%;
     margin:0 auto;
-    flex-shrink:0;
-    min-height:45vh;
   }
   #vid{
     width:100%;
@@ -413,23 +411,17 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   #cam-btn{min-width:48px;min-height:48px}
   #gate-btn{min-height:48px}
   #root{padding-bottom:80px}
-  #vision-transcript-panel{
-    flex-shrink:0;
-    max-height:40vh;
-    overflow-y:auto;
-  }
 }
 
 @media(max-width:640px){
   body{position:fixed;width:100%;overflow:hidden}
   #root{position:relative;height:100dvh}
-  /* Stage: full viewport, vertical stack, scroll below avatar */
+  /* Stage: full viewport, vertical stack, no overflow leak */
   #stage{
     height:100vh;height:100dvh;
     padding:8px 10px 0;
     gap:6px;
-    overflow-y:auto;overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;
+    overflow:hidden;
     display:none;flex-direction:column;
   }
 
@@ -445,16 +437,15 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   .stage-controls{gap:4px}
   #minimize-btn,#exit-btn{width:26px;height:26px}
 
-  /* Video: fixed 45vh avatar, never shrink */
+  /* Video: constrain to 60vh max, centered */
   .video-wrap{
-    max-height:none;
+    max-height:60vh;
     max-width:calc(100vw - 20px);
     width:100%;
     aspect-ratio:1/1;
     margin:0 auto;
-    flex-shrink:0;
-    min-height:45vh;
-    height:45vh;
+    flex-shrink:1;
+    min-height:0;
   }
   #vid{
     width:100%;
@@ -529,13 +520,6 @@ html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'In
   .btn-inner{padding:14px 20px}
   #gate-status{font-size:10px}
   #gate-error{font-size:11px;max-width:260px}
-
-  /* Vision transcript: scrollable below avatar, capped height */
-  #vision-transcript-panel{
-    flex-shrink:0;
-    max-height:35vh;
-    overflow-y:auto;
-  }
 
   /* Float bubble: smaller on mobile */
   #oracle-float{
@@ -1266,6 +1250,22 @@ function process(text){
   setOracleState('PROCESSING');
   setBusy(true);hideCards();hideActionCard();showTX(text);
 
+  /* ── 30s global safety timeout — if nothing plays in 30s, show retry prompt ── */
+  var _globalTimeout=setTimeout(function(){
+    if(!busy)return; /* Already resolved */
+    console.warn('[Satomi] 30s global timeout — resetting');
+    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(e){}
+    try{vid.pause();vid.loop=false;vid.style.opacity='0';}catch(e){}
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    setBusy(false);
+    setOracleState('LISTENING');
+    setStat('Satomi needs a moment \u2014 tap to try again','#f4c46f',false);
+    mic.disabled=false;
+    setTimeout(startRec, 800);
+  },30000);
+  /* Store so we can cancel it on success */
+  window._globalTimeout=_globalTimeout;
+
   // P0-3: Elapsed time counter — show "Satomi is thinking... Xs" with live counter
   var _thinkStart=Date.now();
   var _thinkReassured=false;
@@ -1312,34 +1312,104 @@ function process(text){
   var pendingVideoUrl=null;
   var _audioFinished=false;
 
+  /* ── AUDIO-FIRST FLOW ──
+     1. POST /oracle/chat with audio_first:true
+     2. Server returns JSON: {text, job_id, audio_url, video_pending}
+     3. Immediately fetch audio_url → play through <audio> (avatar stays in thinking loop)
+     4. Poll /oracle/job/<id> for lip-sync video
+     5. When video ready, play it (replaces thinking loop)
+     6. If audio fetch fails, fall back to video-only poll
+  */
+
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:false,avatar_source:"oracle_studio"})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true,avatar_source:"oracle_studio"})
   },90000)
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
     var ct=r.headers.get('content-type')||'';
     if(ct.indexOf('video')>=0){
-      // Cache hit — video came back immediately
+      /* Cache hit — video came back immediately (non-audio-first path) */
       return r.blob().then(blobURL).then(function(url){ return playVid(url); });
     }
-    // Audio-first JSON response
+    /* Audio-first JSON response */
     return r.json().then(function(j){
       var responseText=j.text;
       var videoJobId=j.job_id;
+      var audioUrl=j.audio_url;
       var _pendingCard = j.action_card || null;
-
-      // Video-first: poll for lip sync video, play once, restart mic
-      setStat('Satomi is thinking… 0s','#f4c46f',true);
       var _pollAttempts=0, _maxAttempts=45, _pollDone=false;
-      var _thinkSec=0;
 
+      /* ── STEP A: Fetch and play audio immediately ── */
+      function _playAudioFirst(){
+        return new Promise(function(resolve){
+          if(!audioUrl||!videoJobId){resolve(false);return;}
+          /* Poll for audio (TTS runs async in render_async, may take 1-3s) */
+          var _audioPollCount=0;
+          function _tryAudio(){
+            _audioPollCount++;
+            if(_audioPollCount>10){console.warn('[Satomi] Audio poll gave up');resolve(false);return;}
+            fetch(A+audioUrl)
+              .then(function(ar){
+                if(ar.status===200 && (ar.headers.get('content-type')||'').indexOf('audio')>=0){
+                  return ar.blob();
+                }
+                /* 202 = not ready yet, retry */
+                if(ar.status===202){setTimeout(_tryAudio,500);return null;}
+                resolve(false);return null;
+              })
+              .then(function(ab){
+                if(!ab)return;
+                /* Got audio — play it immediately */
+                var aUrl=URL.createObjectURL(ab);
+                var audioEl=window._chatAudioEl;
+                if(!audioEl){
+                  audioEl=document.createElement('audio');
+                  audioEl.id='satomi-chat-audio';
+                  document.body.appendChild(audioEl);
+                  window._chatAudioEl=audioEl;
+                }
+                audioEl.pause();audioEl.currentTime=0;
+                audioEl.src=aUrl;
+                audioEl.volume=1.0;
+                window._chatAudioPlaying=true;
+                /* Stop thinking timer, update status */
+                if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+                /* Cancel global timeout — audio is playing */
+                if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+                setStat('Satomi is speaking','#6cff9f',false);
+                setOracleState('RESPONDING');
+                audioEl.onended=function(){
+                  window._chatAudioPlaying=false;
+                  _audioFinished=true;
+                  try{URL.revokeObjectURL(aUrl);}catch(e){}
+                };
+                audioEl.onerror=function(){
+                  window._chatAudioPlaying=false;
+                  _audioFinished=true;
+                  try{URL.revokeObjectURL(aUrl);}catch(e){}
+                };
+                audioEl.play().then(function(){resolve(true);}).catch(function(e){
+                  console.warn('[Satomi] Audio autoplay blocked:',e);
+                  resolve(false);
+                });
+              })
+              .catch(function(){resolve(false);});
+          }
+          /* Start first audio poll after 500ms (give TTS time to run) */
+          setTimeout(_tryAudio,500);
+        });
+      }
+
+      /* ── STEP B: Poll for lip-sync video ── */
       function _pollForVideo(){
         if(_pollDone) return;
         _pollAttempts++;
-        _thinkSec=Math.round(_pollAttempts*2);
-        setStat('Satomi is thinking… '+_thinkSec+'s','#f4c46f',true);
-
+        /* Only update thinking status if audio hasn't started playing */
+        if(!window._chatAudioPlaying&&!_audioFinished){
+          var _thinkSec=Math.round(_pollAttempts*2);
+          setStat('Satomi is thinking\u2026 '+_thinkSec+'s','#f4c46f',true);
+        }
         fetch(A+'/oracle/job/'+videoJobId)
           .then(function(vr){
             if(_pollDone) return null;
@@ -1353,13 +1423,14 @@ function process(text){
             if(vb && vb.size > 10000){
               _pollDone=true;
               var url=blobURL(vb);
-              /* Stop thinking counter */
               if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+              /* Cancel global timeout — video is ready */
+              if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+              /* Stop audio if still playing — video has baked audio */
+              try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
               setStat('Speaking','#6cff9f',false);
-              /* Play lip sync video — it has baked audio */
               playVid(url)
                 .then(function(){
-                  /* Video finished — restart conversation */
                   setBusy(false);
                   setOracleState('LISTENING');
                   hideTX();
@@ -1372,41 +1443,61 @@ function process(text){
                   setTimeout(startRec, 600);
                 });
             } else if(_pollAttempts < _maxAttempts){
-              /* Not ready yet — poll again in 2s */
               setTimeout(_pollForVideo, 2000);
             } else {
-              /* Timeout — give up, restart mic */
+              /* Video poll timeout — if audio played, that's OK, just restart */
               console.warn('[Satomi] Video poll timeout');
-              setBusy(false);
-              setOracleState('LISTENING');
-              setStat('Tap mic to respond','#ff3b5f',false);
-              setTimeout(startRec, 800);
+              _pollDone=true;
+              if(_audioFinished||window._chatAudioPlaying){
+                /* Audio already played/playing — wait for it to finish, then restart */
+                function _waitAudioEnd(){
+                  if(!window._chatAudioPlaying){
+                    setBusy(false);setOracleState('LISTENING');
+                    setStat('Tap mic to respond','#334',false);
+                    setTimeout(startRec, 600);
+                  } else { setTimeout(_waitAudioEnd,500); }
+                }
+                _waitAudioEnd();
+              } else {
+                setBusy(false);setOracleState('LISTENING');
+                setStat('Tap mic to respond','#ff3b5f',false);
+                setTimeout(startRec, 800);
+              }
             }
           })
-          .catch(function(){ if(_pollAttempts < _maxAttempts) setTimeout(_pollForVideo,2000); });
+          .catch(function(){ if(_pollAttempts < _maxAttempts && !_pollDone) setTimeout(_pollForVideo,2000); });
       }
 
-      /* Start polling in 2s (give GPU time to start rendering) */
+      /* ── Launch audio fetch + video poll in parallel ── */
+      _playAudioFirst().then(function(audioPlayed){
+        if(!audioPlayed){
+          console.log('[Satomi] Audio-first failed, falling back to video-only poll');
+        } else {
+          console.log('[Satomi] Audio playing, polling for lip-sync video in background');
+        }
+      });
+      /* Start video poll after 2s (give GPU time) */
       setTimeout(_pollForVideo, 2000);
 
-      /* Return resolved promise so outer .then() fires immediately */
       return Promise.resolve();
-      });
+    });
   })
   .then(function(){
     /* Auto-restart mic after every response — conversational flow */
     setTimeout(function(){
       if(_greeted&&!busy&&!isRec&&mic&&recognition){
         mic.disabled=false;
-        setStat('Listening…','#6cff9f',false);
+        setStat('Listening\u2026','#6cff9f',false);
         try{ recognition.start(); isRec=true; setRec(true); }
         catch(e){ console.warn('[Satomi] post-response startRec:',e); }
       }
-    }, 800); /* 800ms gap after video ends before mic opens */
+    }, 800);
   })
   .catch(function(e){
     console.error('process error:',e);
     var msg=(e&&e.message)||'';
+    /* Stop any playing audio on error */
+    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(ex){}
     /* P1: 429/503 — server overloaded, auto-retry after 5s */
     if(msg.indexOf('429')>=0||msg.indexOf('503')>=0){
       vid.style.opacity='0';
@@ -1418,27 +1509,30 @@ function process(text){
         setOracleState('LISTENING');
         if(_retryText)process(_retryText);
       },5000);
-      return; /* skip .finally cleanup — retry will handle it */
+      return;
     } else if(msg.indexOf('timeout')>=0){
       vid.style.opacity='0';
-      setStat('Request timed out — tap mic to retry','#f4c46f',false);
+      setStat('Request timed out \u2014 tap mic to retry','#f4c46f',false);
     } else if(msg.indexOf('HTTP')>=0){
       vid.style.opacity='0';
-      setStat('Satomi error — tap mic to retry','#ff3b5f',false);
+      setStat('Satomi error \u2014 tap mic to retry','#ff3b5f',false);
     } else if(msg.indexOf('Failed to fetch')>=0||msg.indexOf('NetworkError')>=0){
       vid.style.opacity='0';
-      setStat('Network error — check connection','#ff3b5f',false);
+      setStat('Network error \u2014 check connection','#ff3b5f',false);
     }
   })
   .finally(function(){
     if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
-    setBusy(false);hideTX();
-    setOracleState('LISTENING');
-    /* Ensure mic restarts after any error path too */
+    if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+    /* Don't force-reset if audio is still playing or video poll is active */
+    if(!window._chatAudioPlaying){
+      setBusy(false);hideTX();
+      setOracleState('LISTENING');
+    }
     setTimeout(function(){
       if(_greeted&&!busy&&!isRec&&mic&&recognition){
         mic.disabled=false;
-        try{ recognition.start(); isRec=true; setRec(true); setStat('Listening…','#6cff9f',false); }
+        try{ recognition.start(); isRec=true; setRec(true); setStat('Listening\u2026','#6cff9f',false); }
         catch(e){ setStat('Tap mic to respond','#ff3b5f',false); }
       }
     }, 1000);
@@ -1464,7 +1558,7 @@ function playVid(url){
     vid.removeAttribute('src');
     vid.load();
     vid.loop=false;
-    vid.muted=true; /* Start muted — unmute after play() resolves (iOS policy) */
+    vid.muted=false; /* Always unmute — the video IS the audio source */
     vid.src=url;
     vid.style.opacity='1';
     if(window._matrixHide) window._matrixHide();
@@ -1540,17 +1634,12 @@ function playVid(url){
     vid.addEventListener('canplay',function oncp(){
       vid.removeEventListener('canplay',oncp);
       setStat('Speaking','#6cff9f',false);
+      vid.muted=false; /* Ensure unmuted — no conditions */
+      vid.volume=1.0;
     },{once:true});
-    /* iOS audio policy fix: start muted (always allowed), then unmute after
-       play() resolves. iOS permits unmuting an already-playing video element. */
-    vid.muted=true;
-    vid.volume=1.0;
     var p=vid.play();
     if(p){
-      p.then(function(){
-        vid.muted=false; /* Unmute after play succeeds — iOS allows this */
-        vid.volume=1.0;
-      }).catch(function(err){
+      p.then(function(){}).catch(function(err){
         console.warn('[Satomi] vid.play() rejected (autoplay):',err);
         /* P0: iOS Safari — show centered tap-to-play overlay */
         showTapOverlay();

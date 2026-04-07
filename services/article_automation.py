@@ -183,7 +183,7 @@ def _rewrite_headline_without_bitcoin(openai_client, title):
     """Ask GPT to rewrite a headline so it doesn't start with 'Bitcoin'."""
     try:
         resp = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="grok-3",
             messages=[{"role": "user", "content": f"""Rewrite this headline so it does NOT start with the word "Bitcoin". Keep the same meaning, same sharp tone, under 10 words. Return ONLY the new headline, nothing else.
 
 Original: {title}"""}],
@@ -406,7 +406,7 @@ HEADLINE CONSTRAINT (MANDATORY): {diversity['bitcoin_starts']}/{diversity['total
             try:
                 ft_prompt = build_freedom_tech_prompt(source)
                 ft_resp = self.openai.chat.completions.create(
-                    model="gpt-4o",
+                    model="grok-3",
                     messages=[{"role": "user", "content": ft_prompt}],
                     max_tokens=2000, temperature=0.8
                 )
@@ -1020,9 +1020,9 @@ Target: 500-750 words. 80% education, 20% product. Clean HTML only. No markdown.
 """
 
     try:
-        client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        client = openai.OpenAI(api_key=os.environ.get("XAI_API_KEY",""), base_url="https://api.x.ai/v1")
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="grok-3",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2500,
             temperature=0.7
