@@ -1244,6 +1244,7 @@ function process(text){
   try{vid.pause();vid.loop=false;}catch(e){} /* do not mute — let playVid control mute state */
   try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
   _audioFinished=false;
+  var _audioFirstMode=false;
   if(!text.trim()||busy)return;
   // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
@@ -1334,6 +1335,7 @@ function process(text){
     }
     /* Audio-first JSON response */
     return r.json().then(function(j){
+      _audioFirstMode=true;
       var responseText=j.text;
       var videoJobId=j.job_id;
       var audioUrl=j.audio_url;
@@ -1383,6 +1385,10 @@ function process(text){
                   window._chatAudioPlaying=false;
                   _audioFinished=true;
                   try{URL.revokeObjectURL(aUrl);}catch(e){}
+                  /* If video already played or is playing, don't touch state */
+                  if(_pollDone) return;
+                  /* Audio finished but video still rendering — show status, keep polling */
+                  setStat('Video rendering\u2026','#f4c46f',false);
                 };
                 audioEl.onerror=function(){
                   window._chatAudioPlaying=false;
@@ -1483,6 +1489,8 @@ function process(text){
     });
   })
   .then(function(){
+    /* In audio-first mode, audio/video handlers manage mic restart */
+    if(_audioFirstMode) return;
     /* Auto-restart mic after every response — conversational flow */
     setTimeout(function(){
       if(_greeted&&!busy&&!isRec&&mic&&recognition){
@@ -1524,7 +1532,9 @@ function process(text){
   .finally(function(){
     if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
     if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
-    /* Don't force-reset if audio is still playing or video poll is active */
+    /* In audio-first mode, state is managed by audio/video completion handlers — NOT here */
+    if(_audioFirstMode) return;
+    /* Original video-only cleanup */
     if(!window._chatAudioPlaying){
       setBusy(false);hideTX();
       setOracleState('LISTENING');
