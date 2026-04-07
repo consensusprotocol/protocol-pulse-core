@@ -954,6 +954,12 @@ var S={
 var busy=false,isRec=false,pending='',objURL=null,recognition=null;
 var _greeted=false;
 
+/* ── ROBUSTNESS: Request lock + abort controller ── */
+var _requestInFlight=false;
+var _currentAbortCtrl=null;
+var _currentPollDone=null; /* reference to poll abort flag */
+var _globalTimeout=null;
+
 /* ── ORACLE STATE MACHINE ──
    States: WELCOME → LISTENING → PROCESSING → RESPONDING → LISTENING
    Every state shows the avatar face (never black screen).
@@ -1255,12 +1261,32 @@ function si(intent){if(busy)return;hideCards();playIntent(intent);}
 
 /* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
 function process(text){
-  console.log('[Satomi] process() called — text:',JSON.stringify((text||'').substring(0,50)),'busy:',busy);
+  console.log('[Satomi] process() called — text:',JSON.stringify((text||'').substring(0,50)),'busy:',busy,'inFlight:',_requestInFlight);
+
+  /* ROBUSTNESS: Reject if request already in flight (rapid clicks) */
+  if(_requestInFlight){
+    console.warn('[Satomi] Request already in flight — ignoring');
+    setStat('Satomi is thinking\u2026','#f4c46f',true);
+    return;
+  }
+
+  /* ROBUSTNESS: Abort any previous in-flight request + poll */
+  if(_currentAbortCtrl){try{_currentAbortCtrl.abort();}catch(e){}}
+  if(_currentPollDone){_currentPollDone.aborted=true;}
+  if(_globalTimeout){clearTimeout(_globalTimeout);_globalTimeout=null;}
+  if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+
   /* FIX: Hard-stop any currently playing video/audio before starting response */
   try{vid.pause();vid.loop=false;}catch(e){} /* do not mute — let playVid control mute state */
   try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
   _audioFinished=false;
-  if(!text.trim()||busy)return;
+  if(!text.trim())return;
+
+  /* ROBUSTNESS: Set request lock + disable all input */
+  _requestInFlight=true;
+  mic.disabled=true;
+  var _stageTextField=document.getElementById('stage-text-field');
+  if(_stageTextField)_stageTextField.disabled=true;
   // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
   setOracleState('PROCESSING');
@@ -1312,9 +1338,34 @@ function process(text){
   var pendingVideoUrl=null;
   var _audioFinished=false;
 
+  /* ROBUSTNESS: AbortController for this specific request */
+  _currentAbortCtrl=new AbortController();
+  var _myAbort=_currentAbortCtrl;
+  var _pollFlag={aborted:false};
+  _currentPollDone=_pollFlag;
+
+  /* ROBUSTNESS: Global 30s timeout — if no response, show retry */
+  _globalTimeout=setTimeout(function(){
+    if(!_requestInFlight)return;
+    console.warn('[Satomi] Global 30s timeout — forcing recovery');
+    try{_myAbort.abort();}catch(e){}
+    _pollFlag.aborted=true;
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    vid.style.opacity='0';
+    _requestInFlight=false;
+    setBusy(false);
+    mic.disabled=false;
+    var _stf=document.getElementById('stage-text-field');
+    if(_stf)_stf.disabled=false;
+    setOracleState('LISTENING');
+    setStat('Satomi is taking a moment — tap mic to retry','#f4c46f',false);
+    setTimeout(pulseMic,500);
+  },30000);
+
   fetchTO(A+'/oracle/chat',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:false,avatar_source:"oracle_studio"})
+    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true,avatar_source:"oracle_studio"}),
+    signal:_myAbort.signal
   },90000)
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -1335,7 +1386,7 @@ function process(text){
       var _thinkSec=0;
 
       function _pollForVideo(){
-        if(_pollDone) return;
+        if(_pollDone||_pollFlag.aborted) return;
         _pollAttempts++;
         _thinkSec=Math.round(_pollAttempts*2);
         setStat('Satomi is thinking… '+_thinkSec+'s','#f4c46f',true);
@@ -1360,6 +1411,8 @@ function process(text){
               playVid(url)
                 .then(function(){
                   /* Video finished — restart conversation */
+                  _requestInFlight=false;
+                  if(_globalTimeout){clearTimeout(_globalTimeout);_globalTimeout=null;}
                   setBusy(false);
                   setOracleState('LISTENING');
                   hideTX();
@@ -1367,6 +1420,8 @@ function process(text){
                 })
                 .catch(function(e){
                   console.warn('[Satomi] playVid error:',e);
+                  _requestInFlight=false;
+                  if(_globalTimeout){clearTimeout(_globalTimeout);_globalTimeout=null;}
                   setBusy(false);
                   setOracleState('LISTENING');
                   setTimeout(startRec, 600);
@@ -1432,6 +1487,13 @@ function process(text){
   })
   .finally(function(){
     if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    if(_globalTimeout){clearTimeout(_globalTimeout);_globalTimeout=null;}
+    /* ROBUSTNESS: Clear request lock + re-enable inputs */
+    _requestInFlight=false;
+    _currentAbortCtrl=null;
+    _currentPollDone=null;
+    var _stf=document.getElementById('stage-text-field');
+    if(_stf)_stf.disabled=false;
     setBusy(false);hideTX();
     setOracleState('LISTENING');
     /* Ensure mic restarts after any error path too */
@@ -1579,7 +1641,7 @@ function _newRecognition(){
 }
 
 function toggleMic(){
-  if(busy) return;
+  if(busy||_requestInFlight) return;
   /* Debounce: ignore taps within 600ms of last tap to prevent double-click glitch */
   var now = Date.now();
   if(window._lastMicTap && now - window._lastMicTap < 600) return;
@@ -1777,7 +1839,7 @@ function submitTextInput(){
 function stageTextSubmit(){
   var field=document.getElementById('stage-text-field');
   var text=(field.value||'').trim();
-  if(!text||busy)return;
+  if(!text||busy||_requestInFlight)return;
   field.value='';
   process(text);
 }

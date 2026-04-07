@@ -156,3 +156,10 @@ Type /help to see all. Key commands:
 ## Subagents
 - reviewer (Sonnet) — code review specialist, invoked for auditing
 - ops-monitor (Haiku) — lightweight health checks
+
+
+## BRANCH LAW (INVIOLABLE)
+Work on a branch, not main. Run git checkout -b dev-[your-feature] at session start.
+Push to that branch. Do NOT push to main directly. The video pipeline on main is in
+active render iteration and pushes to main overwrite tested fixes. When work is ready,
+merge via PR or tell PBX.
