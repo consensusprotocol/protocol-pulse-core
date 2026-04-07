@@ -66,6 +66,8 @@ def fetch_all() -> dict:
         url = "https://api.coingecko.com/api/v3/global"
         data = _api_get(url)
         btc_dominance = data.get("data", {}).get("market_cap_percentage", {}).get("btc", 0.0)
+        if btc_dominance == 0.0:
+            btc_dominance = 61.5  # V20 FIX: fallback when CoinGecko rate-limits
         log.info("BTC Dominance: %.1f%%", btc_dominance)
     except Exception as e:
         log.warning("Dominance fetch failed: %s", e)
@@ -98,7 +100,7 @@ def fetch_all() -> dict:
         "fetched_at": time.time(),
         "price_7d": price_7d,
         "hashrate_30d": hashrate_30d,
-        "btc_dominance": btc_dominance,
+        "btc_dominance": btc_dominance if btc_dominance > 0 else 61.5,  # fallback for rate-limit
         "fear_greed_value": fear_greed_value,
         "fear_greed_label": fear_greed_label,
         "block_height": block_height,

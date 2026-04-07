@@ -423,17 +423,17 @@ def concatenate_parts(parts: list, output_path: str,
                 clip_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in clip_ranges]
                 social_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in social_ranges]
                 # Nested if: check clips first (lowest), then social, then default
-                vol_inner = "0.22"
+                vol_inner = "0.165"
                 if social_conds:
                     social_test = "+".join(social_conds)
-                    vol_inner = f"if({social_test},0.15,0.22)"
+                    vol_inner = f"if({social_test},0.11,0.22)"
                 if clip_conds:
                     clip_test = "+".join(clip_conds)
-                    vol_inner = f"if({clip_test},0.04,{vol_inner})"
+                    vol_inner = f"if({clip_test},0.03,{vol_inner})"
                 vol_expr = f"volume='{vol_inner}':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.22,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.165,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
