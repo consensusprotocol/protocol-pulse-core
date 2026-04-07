@@ -216,7 +216,7 @@ def _skip_intro_silence(output_path: str, channel: str = "") -> None:
             trimmed = output_path + ".jingle_skip.mp4"
             ok = _run_ffmpeg([
                 "-ss", f"{skip_to:.2f}", "-i", output_path,
-                "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 trimmed,
             ], f"speech onset skip +{skip_to:.1f}s", 60)
@@ -243,7 +243,7 @@ def _skip_intro_silence(output_path: str, channel: str = "") -> None:
                     outro_trimmed = output_path + ".outro_trim.mp4"
                     ok2 = _run_ffmpeg([
                         "-i", output_path, "-t", f"{trim_at:.2f}",
-                        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
                         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                         outro_trimmed,
                     ], f"outro trim at {trim_at:.1f}s", 60)
@@ -300,7 +300,7 @@ def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
             "-i", clip_path,
             "-vf", "fps=30,setpts=PTS-STARTPTS",
             "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
-            "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+            "-c:v", "libx264", "-preset", "medium", "-crf", "17",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-vsync", "cfr",
             "-shortest",
@@ -410,7 +410,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             resync_tmp = output_path + ".resync.mp4"
             resync_ok = _run_ffmpeg([
                 "-i", output_path,
-                "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-r", "30", "-vsync", "cfr",
                 "-vf", "setpts=PTS-STARTPTS,fps=30",
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
@@ -539,7 +539,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             resync_tmp = output_path + ".resync.mp4"
             resync_ok = _run_ffmpeg([
                 "-i", output_path,
-                "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
+                "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-r", "30", "-vsync", "cfr",
                 "-vf", "setpts=PTS-STARTPTS,fps=30",
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
