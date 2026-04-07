@@ -285,6 +285,39 @@ def make_motion_from_static(image_path: str, output_path: str,
     ], f"ken_burns_static {os.path.basename(image_path)}", 120)
 
 
+
+def _fix_clip_av_offset(clip_path, video_id=""):
+    """V23 FIX: Stream-copy remux to fix per-clip AV offset from YouTube VFR."""
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json",
+             "-show_packets", "-read_intervals", "%+#5", clip_path],
+            capture_output=True, text=True, timeout=15)
+        import json as _jj2
+        d = _jj2.loads(r.stdout)
+        pkts = d.get("packets", [])
+        v_pts = next((float(p.get("pts_time", 0)) for p in pkts if p.get("codec_type") == "video"), 0)
+        a_pts = next((float(p.get("pts_time", 0)) for p in pkts if p.get("codec_type") == "audio"), 0)
+        offset = a_pts - v_pts
+        if offset < -0.005:
+            fixed = clip_path + ".avfix.mp4"
+            ok = _run_ffmpeg([
+                "-i", clip_path,
+                "-itsoffset", f"{abs(offset):.6f}",
+                "-i", clip_path,
+                "-map", "0:v:0", "-map", "1:a:0",
+                "-c", "copy",
+                "-movflags", "+faststart",
+                fixed,
+            ], f"per-clip AV fix {video_id}", 30)
+            if ok and os.path.exists(fixed) and os.path.getsize(fixed) > 1000:
+                os.replace(fixed, clip_path)
+                logger.info(f"  AV FIX: {video_id} {offset:+.3f}s -> 0.000s (stream copy)")
+            elif os.path.exists(fixed):
+                os.remove(fixed)
+    except Exception as e:
+        logger.warning(f"  AV FIX failed for {video_id}: {e}")
+
 def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
     """V12 FIX: Aggressive AV sync — async resample + CFR 30fps on ALL clips.
 
