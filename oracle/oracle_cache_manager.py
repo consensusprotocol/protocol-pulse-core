@@ -159,8 +159,35 @@ def _render_key(key, text):
     _WARMER_SEMAPHORE.release()
 
 
+KEYS_PER_CYCLE = 3  # Max keys to warm per cycle — prevents GPU starvation
+_last_interactive_time = 0  # Timestamp of last interactive request (set by avatar_server)
+
+
+def mark_interactive_request():
+    """Called by avatar_server when an interactive request arrives."""
+    global _last_interactive_time
+    _last_interactive_time = time.time()
+
+
+def _is_off_peak():
+    """Check if current time is 2am-6am ET (off-peak for cache warming)."""
+    from datetime import datetime, timezone, timedelta
+    et = datetime.now(timezone(timedelta(hours=-4)))  # ET = UTC-4 (EDT)
+    return 2 <= et.hour < 6
+
+
+def _idle_for(seconds=300):
+    """True if no interactive request in the last N seconds."""
+    return (time.time() - _last_interactive_time) > seconds
+
+
 def warm_cache():
-    """Warm all response cache entries. Called on startup and periodically."""
+    """Warm stale cache entries. Limited to KEYS_PER_CYCLE per invocation.
+    Only runs during off-peak hours (2-6am ET) or when idle for 5+ minutes."""
+    if not _is_off_peak() and not _idle_for(300):
+        logger.info("[CACHE] Skipping warm cycle — not off-peak and recent interactive activity")
+        return
+
     os.makedirs(RESPONSES_DIR, exist_ok=True)
     index = _load_index()
 
@@ -169,22 +196,30 @@ def warm_cache():
         logger.info(f"[CACHE] All {len(RESPONSE_TREE)} responses fresh")
         return
 
-    logger.info(f"[CACHE] Warming {len(stale_keys)}/{len(RESPONSE_TREE)} stale keys: {stale_keys}")
+    # Limit to KEYS_PER_CYCLE per warm cycle
+    batch = stale_keys[:KEYS_PER_CYCLE]
+    logger.info(f"[CACHE] Warming {len(batch)}/{len(stale_keys)} stale keys (max {KEYS_PER_CYCLE}/cycle): {batch}")
 
-    for key in stale_keys:
+    for key in batch:
         # Yield immediately if an interactive request is waiting for the GPU
         if INTERACTIVE_REQUEST_PENDING and INTERACTIVE_REQUEST_PENDING.is_set():
             logger.info(f"[CACHE] Yielding to interactive request — pausing warm cycle")
             while INTERACTIVE_REQUEST_PENDING.is_set():
                 time.sleep(5)
             logger.info(f"[CACHE] Interactive request done — resuming warm cycle")
+
+        # Re-check idle status before each render
+        if not _is_off_peak() and not _idle_for(300):
+            logger.info(f"[CACHE] Warm cycle paused — interactive activity detected")
+            break
+
         text = RESPONSE_TREE[key]
         if isinstance(text, list):
             import random
             text = random.choice(text)
         _render_key(key, text)
-        # Small delay between renders to avoid GPU contention
-        time.sleep(5)  # longer gap gives interactive requests GPU access
+        # 10s gap between renders — gives interactive requests GPU access
+        time.sleep(10)
 
     logger.info("[CACHE] Warm cycle complete")
 
@@ -231,10 +266,13 @@ def get_cache_status():
 
 
 def start_background_warmer():
-    """Start a background thread that re-warms cache every WARM_INTERVAL seconds."""
+    """Start a background thread that re-warms cache periodically.
+    Checks every 30 min but only renders during off-peak or idle periods."""
+    _CHECK_INTERVAL = 1800  # 30 min check interval (warm_cache gates on off-peak/idle)
+
     def _loop():
         while True:
-            time.sleep(WARM_INTERVAL)
+            time.sleep(_CHECK_INTERVAL)
             try:
                 warm_cache()
             except Exception as e:
@@ -242,4 +280,4 @@ def start_background_warmer():
 
     t = threading.Thread(target=_loop, daemon=True)
     t.start()
-    logger.info(f"[CACHE] Background warmer started (interval={WARM_INTERVAL}s)")
+    logger.info(f"[CACHE] Background warmer started (check every {_CHECK_INTERVAL}s, max {KEYS_PER_CYCLE} keys/cycle)")

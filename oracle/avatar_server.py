@@ -3,7 +3,7 @@ ORACLE AVATAR SERVER v3 — Kokoro af_heart TTS + CV2 Sharpen + Blinks
 =====================================================================
 GPU-accelerated Wav2Lip lip-sync with:
   - FP16 inference via ModelRegistry singleton on GPU 1
-  - Kokoro af_heart TTS on cuda:1 (~2-3s latency)
+  - Kokoro af_heart TTS on cuda:0 (separate GPU from Wav2Lip)
   - CV2 bilateral sharpen (GFPGAN fully removed 2026-03-12)
   - MediaPipe eye blinks (gradient overlay, no warpAffine artifacts)
   - Head movement post-processing
@@ -502,62 +502,110 @@ def post_process_frames(frames, fps=30.0, enable_blinks=True, enable_head=True):
 # VIDEO ENCODING
 # ═══════════════════════════════════════════════════════════════════════
 
+def _detect_nvenc():
+    """Check if h264_nvenc is available at startup. Returns True/False."""
+    try:
+        result = subprocess.run(
+            ["ffmpeg", "-f", "lavfi", "-i", "nullsrc=s=512x512:d=0.1",
+             "-c:v", "h264_nvenc", "-f", "null", "-"],
+            capture_output=True, timeout=10
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
+
+_NVENC_AVAILABLE = _detect_nvenc()
+logger.info(f"[ENCODER] NVENC available: {_NVENC_AVAILABLE}")
+
+
 def frames_to_video(frames, fps=30.0, audio_path=None):
-    """Encode frames to MP4, optionally muxing audio (audio as timing master).
+    """Encode frames to MP4 via stdin pipe (no AVI intermediate).
+    Uses h264_nvenc if available, falls back to libx264.
     Returns the path to the output MP4 file (caller must clean up)."""
     if not frames:
         return None
-    with tempfile.NamedTemporaryFile(suffix=".avi", delete=False) as tmp_avi:
-        avi_path = tmp_avi.name
-    mp4_path = avi_path.replace(".avi", ".mp4")
-    try:
-        h, w = frames[0].shape[:2]
-        fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-        writer = cv2.VideoWriter(avi_path, fourcc, fps, (w, h))
-        for frame in frames:
-            writer.write(frame)
-        writer.release()
 
-        import subprocess
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_mp4:
+        mp4_path = tmp_mp4.name
+
+    h, w = frames[0].shape[:2]
+    out_w, out_h = (512, 512) if w > 512 else (w, h)
+
+    def _build_cmd(use_nvenc):
+        """Build ffmpeg command for either NVENC or libx264."""
+        cmd = [
+            "ffmpeg", "-y", "-loglevel", "error",
+            # Raw video input via stdin
+            "-f", "rawvideo", "-pix_fmt", "bgr24",
+            "-s", f"{w}x{h}", "-r", str(fps),
+            "-i", "pipe:0",
+        ]
         if audio_path and os.path.exists(audio_path):
-            cmd = [
-                "ffmpeg", "-y", "-loglevel", "error",
-                "-itsoffset", "0.08", "-i", audio_path, "-i", avi_path,
-            ]
-            if w > 512:
-                cmd += ["-vf", "scale=512:512"]
-            cmd += [
-                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-                "-c:a", "aac", "-b:a", "128k",
-                "-map", "0:a", "-map", "1:v",
-                "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-                mp4_path,
-            ]
-            subprocess.run(cmd, check=True, capture_output=True)
-        else:
-            cmd = [
-                "ffmpeg", "-y", "-loglevel", "error",
-                "-i", avi_path,
-            ]
-            if w > 512:
-                cmd += ["-vf", "scale=512:512"]
-            cmd += [
-                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-                "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-                mp4_path,
-            ]
-            subprocess.run(cmd, check=True, capture_output=True)
+            cmd += ["-itsoffset", "0.08", "-i", audio_path]
 
-        if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
-            return mp4_path
+        # Video filter for scaling if needed
+        if out_w != w or out_h != h:
+            cmd += ["-vf", f"scale={out_w}:{out_h}"]
+
+        # Encoder selection
+        if use_nvenc:
+            cmd += ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "23"]
         else:
-            logger.error("ffmpeg failed to produce MP4")
-            return None
-    finally:
+            cmd += ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "23"]
+
+        cmd += ["-pix_fmt", "yuv420p"]
+
+        if audio_path and os.path.exists(audio_path):
+            cmd += ["-c:a", "aac", "-b:a", "128k", "-map", "0:v", "-map", "1:a"]
+
+        cmd += ["-movflags", "+faststart", mp4_path]
+        return cmd
+
+    def _write_frames_to_stdin(proc):
+        """Write raw BGR frames to ffmpeg stdin. Does NOT close stdin — let communicate() handle that."""
         try:
-            os.unlink(avi_path)
-        except OSError:
+            for frame in frames:
+                proc.stdin.write(frame.tobytes())
+        except (BrokenPipeError, OSError):
             pass
+
+    try:
+        # Try NVENC first, fall back to libx264
+        for use_nvenc in ([True, False] if _NVENC_AVAILABLE else [False]):
+            cmd = _build_cmd(use_nvenc)
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            _write_frames_to_stdin(proc)
+            try:
+                _, stderr = proc.communicate(timeout=120)
+            except (ValueError, OSError):
+                # "flush of closed file" — stdin already closed by broken pipe
+                proc.wait(timeout=120)
+                stderr = proc.stderr.read() if proc.stderr else b""
+
+            if proc.returncode == 0 and os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 0:
+                encoder = "h264_nvenc" if use_nvenc else "libx264"
+                logger.info(f"[ENCODER] Encoded {len(frames)} frames via {encoder}")
+                return mp4_path
+
+            if use_nvenc:
+                logger.warning(f"[ENCODER] NVENC failed ({stderr.decode()[:200]}), falling back to libx264")
+                # Clean up failed output before retry
+                try:
+                    os.unlink(mp4_path)
+                except OSError:
+                    pass
+                with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_mp4:
+                    mp4_path = tmp_mp4.name
+                continue
+            else:
+                logger.error(f"[ENCODER] libx264 failed: {stderr.decode()[:200]}")
+                return None
+
+        logger.error("[ENCODER] All encoding attempts failed")
+        return None
+    except Exception as e:
+        logger.error(f"[ENCODER] frames_to_video error: {e}")
+        return None
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -565,14 +613,16 @@ def frames_to_video(frames, fps=30.0, audio_path=None):
 # ═══════════════════════════════════════════════════════════════════════
 
 def _init_avatar_kokoro():
-    """Lazy-init Kokoro af_heart TTS on cuda:1. Call once at startup."""
+    """Lazy-init Kokoro af_heart TTS on cuda:0 (separate GPU from Wav2Lip on cuda:1)."""
     global _AVATAR_KOKORO_READY, _KOKORO_PIPELINE
     try:
         from kokoro import KPipeline
         _KOKORO_PIPELINE = KPipeline(lang_code='a')
-        _KOKORO_PIPELINE.model = _KOKORO_PIPELINE.model.to('cuda:1')
+        # cuda:0 — dedicated GPU for TTS, eliminates contention with Wav2Lip on cuda:1
+        _kokoro_device = 'cuda:0' if torch.cuda.device_count() > 1 else 'cuda:0'
+        _KOKORO_PIPELINE.model = _KOKORO_PIPELINE.model.to(_kokoro_device)
         _AVATAR_KOKORO_READY = True
-        logger.info("[AVATAR_TTS] Kokoro af_heart loaded on cuda:1")
+        logger.info(f"[AVATAR_TTS] Kokoro af_heart loaded on {_kokoro_device}")
     except Exception as e:
         logger.error(f"[AVATAR_TTS] Kokoro init failed: {e} — ElevenLabs fallback active")
         _AVATAR_KOKORO_READY = False
@@ -796,7 +846,7 @@ def health():
         "output_fps": DEFAULT_FPS,
         "batch_size": BATCH_SIZE,
         "max_audio_seconds": MAX_AUDIO_SECONDS,
-        "encoding": "crf23-ultrafast-512",
+        "encoding": f"{'nvenc-p4' if _NVENC_AVAILABLE else 'crf23-ultrafast'}-512",
         "blink_config": {
             "interval": f"{BLINK_INTERVAL_MIN}-{BLINK_INTERVAL_MAX}s",
             "duration": f"{BLINK_DURATION}s"
@@ -868,6 +918,8 @@ def generate():
     data = request.get_json()
     if not data:
         return jsonify({"error": "JSON body required"}), 400
+    # Signal cache warmer that an interactive request is active
+    oracle_cache_manager.mark_interactive_request()
 
     # Input validation
     MAX_TEXT_LEN = 2000
@@ -1940,7 +1992,9 @@ def oracle_chat():
         return jsonify({"error": "text required"}), 400
     text = data["text"].strip()
     session_id = data.get("session_id", "anon")
-    audio_first = data.get("audio_first", False)
+    # Signal cache warmer that an interactive request is active
+    oracle_cache_manager.mark_interactive_request()
+    audio_first = data.get("audio_first", True)  # Default: send audio immediately, render video async
     avatar_source = data.get("avatar_source", "default")
     if avatar_source not in AVATAR_SOURCES:
         avatar_source = "default"
@@ -2321,7 +2375,7 @@ def avatar_tts_provider():
         return jsonify({
             "provider": "kokoro",
             "voice": "af_heart",
-            "backend": "cuda:1",
+            "backend": "cuda:0",
             "sample_rate": 24000,
             "ready": True,
         })
@@ -2343,7 +2397,7 @@ if __name__ == "__main__":
     print(f"  Device: {DEVICE}")
     print(f"  Avatar: {AVATAR_SOURCE}")
     print(f"  FPS: {DEFAULT_FPS}")
-    print(f"  Encoding: CRF 23, preset ultrafast, 512px output")
+    print(f"  Encoding: {'NVENC p4' if _NVENC_AVAILABLE else 'CRF 23 ultrafast'}, 512px output")
     print(f"  Features: FP16, cv2_sharpen, mediapipe_blinks, head_movement")
     print(f"  Vision: {'enabled' if os.environ.get('GEMINI_API_KEY') else 'disabled'}")
     print(f"  Max audio: {MAX_AUDIO_SECONDS}s | Lock timeout: {LOCK_TIMEOUT}s")
@@ -2363,8 +2417,8 @@ if __name__ == "__main__":
 
     logger.info("Face enhancer: CV2 sharpen-only (no GFPGAN)")
 
-    # Load Kokoro af_heart TTS on cuda:1 (~2-3s per utterance)
-    logger.info("[STARTUP] Initializing Kokoro af_heart TTS on cuda:1...")
+    # Load Kokoro af_heart TTS on cuda:0 (separate from Wav2Lip on cuda:1)
+    logger.info("[STARTUP] Initializing Kokoro af_heart TTS on cuda:0...")
     _init_avatar_kokoro()
 
     # Auto-warmup (non-blocking — runs in background thread so Flask can start immediately)
