@@ -24,20 +24,20 @@ PODCAST_FEEDS = [
     {"name": "Cypherpunk'd", "url": "https://anchor.fm/s/fa724db8/podcast/rss", "host": "PBX", "tier": 1, "color": "#f7931a", "category": "podcast"},
     {"name": "Protocol Pulse", "url": "https://feed.podbean.com/protocolpulse/feed.xml", "host": "Protocol Pulse", "tier": 1, "color": "#dc2626", "category": "podcast"},
     {"name": "TFTC", "url": "https://tftc.io/feed/", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
-    {"name": "Stephan Livera", "url": "https://stephanlivera.com/feed/podcast/", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
+    {"name": "Stephan Livera", "url": "https://anchor.fm/s/7d083a4/podcast/rss", "host": "Stephan Livera", "tier": 1, "color": "#4a90d9", "category": "podcast"},
     {"name": "What Bitcoin Did", "url": "https://www.whatbitcoindid.com/podcast?format=rss", "host": "Peter McCormack", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Blockware Solutions", "channel_id": "UC678LSROK47l__G-pMnOMgA", "tier": 1, "color": "#3498db", "category": "video"},
     {"name": "Bitcoin Audible", "url": "https://bitcoinaudible.com/?feed=podcast", "host": "Guy Swann", "tier": 1, "color": "#9b59b6", "category": "podcast"},
-    {"name": "The Bitcoin Layer", "url": "https://feeds.transistor.fm/the-bitcoin-layer", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
-    {"name": "Simply Bitcoin", "url": "https://feeds.transistor.fm/simply-bitcoin", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
+    {"name": "The Bitcoin Layer", "url": "https://anchor.fm/s/14978d30/podcast/rss", "host": "Nik Bhatia", "tier": 1, "color": "#3498db", "category": "podcast"},
+    {"name": "Simply Bitcoin", "url": "https://anchor.fm/s/717a2198/podcast/rss", "host": "Nico Moran", "tier": 2, "color": "#e74c3c", "category": "podcast"},
     {"name": "Bitcoin Magazine Podcast", "url": "https://bitcoinmagazine.com/.rss/full/", "host": "Bitcoin Magazine", "tier": 1, "color": "#f7931a", "category": "podcast"},
-    {"name": "Citadel Dispatch", "url": "https://feeds.transistor.fm/citadel-dispatch", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
-    {"name": "Natalie Brunell", "url": "https://feeds.transistor.fm/coin-stories-with-natalie-brunell", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
-    {"name": "Rabbit Hole Recap", "url": "https://tftc.io/feed/", "host": "Marty Bent", "tier": 1, "color": "#ff6b35", "category": "podcast"},
-    {"name": "Preston Pysh / TIP", "url": "https://feeds.megaphone.fm/TIP", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
+    {"name": "Citadel Dispatch", "url": "https://serve.podhome.fm/CitadelDispatch", "host": "Matt Odell", "tier": 1, "color": "#27ae60", "category": "podcast"},
+    {"name": "Natalie Brunell", "url": "https://rss.libsyn.com/shows/344543/destinations/2813255.xml", "host": "Natalie Brunell", "tier": 1, "color": "#e91e63", "category": "podcast"},
+    {"name": "Rabbit Hole Recap", "url": "https://feeds.fountain.fm/0EAzqUaM4qqanDr1qNuK", "host": "Marty Bent & ODELL", "tier": 1, "color": "#ff6b35", "category": "podcast"},
+    {"name": "Preston Pysh / TIP", "url": "https://rss.art19.com/the-investors-podcast", "host": "Preston Pysh", "tier": 1, "color": "#2c3e50", "category": "podcast"},
 ]
 
 YOUTUBE_CHANNELS = [
+    {"name": "Blockware Solutions", "channel_id": "UC678LSROK47l__G-pMnOMgA", "tier": 1, "color": "#3498db", "category": "video"},
     {"name": "Bitcoin Magazine", "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg", "tier": 1, "color": "#f7931a", "category": "video"},
     {"name": "Coin Bureau", "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw", "tier": 1, "color": "#00d4aa", "category": "video"},
     {"name": "What Bitcoin Did", "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg", "tier": 1, "color": "#f7931a", "category": "video"},
@@ -45,6 +45,8 @@ YOUTUBE_CHANNELS = [
     {"name": "Robert Breedlove", "channel_id": "UC43_LTf5Z4lbRjKCq0sIAVg", "tier": 1, "color": "#1abc9c", "category": "video"},
     {"name": "Natalie Brunell", "channel_id": "UCru3nlhzHrbgK21x0MdB_eg", "tier": 1, "color": "#e91e63", "category": "video"},
     {"name": "Bitcoin Audible", "channel_id": "UClG-wqz-OuXfzbpqwJd3fVA", "tier": 1, "color": "#9b59b6", "category": "video"},
+    {"name": "Bitcoin Boomers", "channel_id": "UCOp_-d0z7r-s02CWsJTbVoA", "tier": 1, "color": "#f39c12", "category": "video"},
+    {"name": "Cypherpunk'd", "channel_id": "UC4BPphH-KN4F9ev7Ekt0zew", "tier": 1, "color": "#dc2626", "category": "video"},
 ]
 
 # ─── SIGNAL SCORE ──────────────────────────────────────────────────────────────
