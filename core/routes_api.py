@@ -1736,8 +1736,9 @@ def api_narrative_momentum():
         return jsonify({
             'success': True,
             'momentum': momentum[:6],
-            'dominant_theme': narrative.get('dominant_theme', 'Bitcoin'),
-            'sentiment': narrative.get('sentiment', 'neutral'),
+            'dominant_theme': narrative.get('dominant_narrative', narrative.get('dominant_theme', 'Bitcoin')),
+            'sentiment': narrative.get('market_mood', narrative.get('sentiment', 'neutral')),
+            'pipeline_topics': narrative.get('pipeline_topics', []),
         })
     except Exception as e:
         logging.error("api_narrative_momentum error: %s", e)
