@@ -1583,35 +1583,126 @@ def category_articles(category):
 
 @app.route('/podcasts')
 def podcasts():
-    """Podcasts listing page with RSS feed sections"""
-    # Group podcasts by RSS source, showing only 3 most recent per section
-    podcast_sections = {}
-    
-    # Get distinct RSS sources
-    sources = db.session.query(Podcast.rss_source).filter(Podcast.rss_source.isnot(None)).distinct().all()
-    
-    for source_tuple in sources:
-        source = source_tuple[0] or 'General'
-        # Get only the 3 most recent episodes for initial display
-        recent_episodes = Podcast.query.filter_by(rss_source=source).order_by(Podcast.published_date.desc()).limit(3).all()
-        if recent_episodes:
-            podcast_sections[source] = recent_episodes
-    
-    # Generate smart playlist based on user segment
-    smart_playlist = None
+    """Protocol Pulse podcast network — Cypherpunk'd + Bitcoin Boomers."""
+    series_config = {
+        'everything_21m': {
+            'key': 'everything_21m',
+            'title': 'Everything Divided by 21 Million',
+            'host': 'Matty Ice & Knut Svanholm',
+            'description': "A cinematic exploration of Bitcoin's relationship to time, money, freedom, and human progress.",
+            'episodes': [
+                {'id': 'FA8tvWEydcA', 'title': 'Time | Episode 1'},
+                {'id': 'VDordtHAJhg', 'title': 'Alchemy | Episode 2'},
+                {'id': 'yKbQq66AInU', 'title': 'Ownership | Episode 3'},
+                {'id': 'rkTbEpAOADI', 'title': 'Energy | Episode 4'},
+                {'id': 'qG2xYvTVkw0', 'title': 'Morality | Episode 5'},
+                {'id': 'v7xZPqcXyLk', 'title': 'Memetics | Episode 6'},
+                {'id': 'RZv_1Qcqik4', 'title': 'Symbiosis | Episode 7'},
+                {'id': 'UlYSv9SwQGk', 'title': 'Violence | Episode 8'},
+                {'id': '_ygND311kVE', 'title': 'Deflation | Episode 9'},
+                {'id': 'Nf0LtAk4VBs', 'title': 'Adoption | Episode 10'},
+                {'id': 'Gt8ycm3-NV8', 'title': 'Transition | Episode 11'},
+            ]
+        },
+        'big_print': {
+            'key': 'big_print',
+            'title': 'The Big Print',
+            'host': 'Matty Ice & Lawrence Lepard',
+            'description': 'How the Federal Reserve engineered the most devastating wealth extraction scheme in history.',
+            'episodes': [
+                {'id': 'W09CNU_q6Yo', 'title': 'Why Fixing the Money is the Only Way | Episode 1'},
+                {'id': 'tnthM3uaHbI', 'title': 'How Govt Stole 98.5% Since 1971 | Episode 2'},
+                {'id': 'FRH5w_joMP0', 'title': 'How Inflation Steals Your Life | Episode 3'},
+                {'id': 'JLjG8jAJxbw', 'title': 'The Path to Pure Fiat | Episode 4'},
+                {'id': 'tq_ZYhpW4Vw', 'title': 'How Powell & Yellen Broke It | Episode 5'},
+                {'id': 'Sjp-Kaic2CE', 'title': 'Austrian vs Keynesian | Episode 6'},
+                {'id': 'n6Bi8Kf6ar0', 'title': 'The Sovereign Currency Bubble | Episode 7'},
+                {'id': 'M3M61rLBTl0', 'title': "Bitcoin is God's Gift | Episode 8"},
+                {'id': 'uzUEJZ38RV8', 'title': 'Bitcoin & Real Estate | Episode 9'},
+                {'id': 'y9snxWoEkaU', 'title': 'End of Centralized Power | Episode 10'},
+                {'id': 'hKa8lRDwIos', 'title': 'Digital Scarcity | Episode 11'},
+                {'id': 'FyMWELymqAM', 'title': 'Fix the Money, Fix the World | Episode 12'},
+            ]
+        },
+        'daylight_robbery': {
+            'key': 'daylight_robbery',
+            'title': 'Daylight Robbery',
+            'host': 'Matty Ice & Dominic Frisby',
+            'description': 'The hidden story of how taxation shaped human civilization from ancient empires to modern governments.',
+            'episodes': [
+                {'id': 'ZCc78wvwd6U', 'title': 'The Hidden History of Taxation | Episode 1'},
+                {'id': 'j_V3fjvEuS0', 'title': 'How Taxes Shaped Civilization | Episode 2'},
+                {'id': 'W_TNwftaVMk', 'title': 'Death, Taxes, or Islam | Episode 3'},
+                {'id': '3VDVbbSZYPc', 'title': "The Peasants' Revolt | Episode 4"},
+                {'id': 'brho571r5rY', 'title': 'Tax Wars That Created Nations | Episode 5'},
+                {'id': 'zltb_tXZiWI', 'title': 'How the Richest Controlled Nations | Episode 6'},
+                {'id': '0MDv0d-3t_k', 'title': 'How Tariffs Caused Civil War | Episode 7'},
+                {'id': 'Ym5W3t9WvB8', 'title': 'The Birth of Big Government | Episode 8'},
+                {'id': 'YUHM88mtRxU', 'title': 'Hitler, Banks & Nations | Episode 9'},
+                {'id': 'LcIT9Tgbkm8', 'title': 'How Govts Silently Rob You | Episode 10'},
+                {'id': 'VRSXUD4L2eA', 'title': 'Digital Nomads & Borderless Money | Episode 11'},
+                {'id': '1OAn6QDSsJs', 'title': 'How Data & AI Reshape Taxation | Episode 12'},
+                {'id': 'xPPbMsz8qso', 'title': 'The Perfect Tax System | Episode 13'},
+            ]
+        },
+        'genesis_book': {
+            'key': 'genesis_book',
+            'title': 'The Genesis Book',
+            'host': 'Matty Ice & Aaron van Wirdum',
+            'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
+            'playlist_url': 'https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
+            'episodes': [
+                {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
+                {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
+                {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
+                {'id': 'TwkR0ncLh0Y', 'title': "Satoshi's Vision | Episode 4"},
+                {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
+            ]
+        },
+    }
+    series_list = []
+    for key, s in series_config.items():
+        series_list.append({
+            'key': key,
+            'title': s['title'],
+            'host': s['host'],
+            'description': s['description'],
+            'first_id': s['episodes'][0]['id'] if s['episodes'] else '',
+            'ep_count': len(s['episodes']),
+            'playlist_url': s.get('playlist_url', ''),
+        })
+
+    # Bitcoin Boomers — live from YouTube RSS, with static fallback
+    boomers_episodes = []
     try:
-        if current_user.is_authenticated:
-            user_segment = UserSegment.query.filter_by(user_id=current_user.id).first()
-            segment_type = user_segment.segment_type if user_segment else 'institution'
-        else:
-            segment_type = 'institution'
-        
-        from services.content_engine import content_engine
-        smart_playlist = content_engine.get_smart_playlist(segment_type)
-    except Exception as e:
-        logging.warning(f"Smart playlist generation failed: {e}")
-    
-    return render_template('podcasts.html', podcast_sections=podcast_sections, smart_playlist=smart_playlist)
+        import feedparser as _fp
+        import requests as _req
+        _boomers_rss = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCOp_-d0z7r-s02CWsJTbVoA'
+        _br = _req.get(_boomers_rss, headers={'User-Agent': 'Mozilla/5.0 (compatible; ProtocolPulse/1.0)'}, timeout=10)
+        _bf = _fp.parse(_br.text)
+        for _be in _bf.entries[:6]:
+            _vid = _be.get('yt_videoid', '')
+            if _vid:
+                boomers_episodes.append({'id': _vid, 'title': _be.get('title', '').strip()})
+    except Exception:
+        pass
+    if not boomers_episodes:
+        boomers_episodes = [
+            {'id': 'nSbbx_2ziIU', 'title': 'What Happens at the Next Bitcoin Halving'},
+            {'id': 'bNkM6ICRU3g', 'title': 'Bitcoin Follows a Commodity Like Cycle with Lawrence Lepard'},
+            {'id': 'kYePThn-uLY', 'title': 'Who is in Charge of Bitcoin?'},
+            {'id': 'x49S0mjhfX4', 'title': 'Bitcoin Your Escape Hatch to Financial Freedom & Peace'},
+            {'id': '1SpHk6W4dIg', 'title': 'Bitcoin is Volatile But Ultimately Is the Future of Sound Money'},
+            {'id': 'Ou66PgqPcyU', 'title': 'Financial Advisors Were WRONG About Bitcoin'},
+        ]
+
+    total_episodes = sum(len(s['episodes']) for s in series_config.values()) + len(boomers_episodes)
+
+    return render_template('podcasts.html',
+                           series_list=series_list,
+                           series_data=series_config,
+                           total_episodes=total_episodes,
+                           boomers_episodes=boomers_episodes)
 
 
 @app.route('/network-health')
