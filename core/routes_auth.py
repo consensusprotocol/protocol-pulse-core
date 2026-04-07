@@ -726,16 +726,6 @@ def commander_dashboard():
     except Exception:
         pass
 
-    # Load KOL sentiment brief
-    kol_brief = {}
-    try:
-        _kb_path = os.path.join(_project, 'data', 'intelligence', 'kol_sentiment_brief.json')
-        if os.path.exists(_kb_path):
-            with open(_kb_path) as _f:
-                kol_brief = _json.load(_f)
-    except Exception:
-        pass
-
     # Load sovereign context (live market data)
     sovereign = {}
     try:
@@ -750,7 +740,6 @@ def commander_dashboard():
                            authed=True,
                            user=_cu,
                            morning_brief=morning_brief,
-                           kol_brief=kol_brief,
                            sovereign=sovereign)
 
 @auth_bp.route('/commander/welcome')
