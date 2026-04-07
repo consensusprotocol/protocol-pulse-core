@@ -2130,8 +2130,9 @@ def oracle_chat():
                         logger.warning(f"[ASYNC RENDER] GPU busy for job {jid}")
                         with _render_jobs_lock:
                             if jid in _render_jobs:
-                                _render_jobs[jid] = {"status": "error", "video_bytes": None,
-                                                     "created": time.time(), "code": "GPU_BUSY"}
+                                _render_jobs[jid]["status"] = "error"
+                                _render_jobs[jid]["video_bytes"] = None
+                                _render_jobs[jid]["code"] = "GPU_BUSY"
                         _sse_push("error", "GPU_BUSY")
                         return
                     try:
@@ -2151,7 +2152,8 @@ def oracle_chat():
                         os.unlink(video_path)
                         with _render_jobs_lock:
                             if jid in _render_jobs:
-                                _render_jobs[jid] = {"status": "done", "video_bytes": vbytes, "created": time.time()}
+                                _render_jobs[jid]["status"] = "done"
+                                _render_jobs[jid]["video_bytes"] = vbytes
                         _sse_push("video_ready")
                     else:
                         with _render_jobs_lock:
@@ -2179,6 +2181,7 @@ def oracle_chat():
             "text": response_text,
             "session_id": session_id,
             "job_id": job_id,
+            "audio_url": f"/oracle/job/{job_id}/audio",
             "video_pending": True,
         }
         # Detect action card from user input (zero LLM cost)
