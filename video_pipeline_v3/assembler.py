@@ -235,7 +235,7 @@ def concatenate_parts(parts: list, output_path: str,
         is_wrap_part = "wrap" in pbase_norm
         v_fade = 0.15 if is_clip_part else 0.03
         a_fade_in = 0.15 if is_clip_part else 0.03
-        a_fade_out = 0.3 if is_clip_part else (0.0 if is_wrap_part else 0.03)  # V16: no fade on signoff
+        a_fade_out = 0.3 if is_clip_part else (0.0 if is_wrap_part else 0.3)  # V25: smooth narrator fade  # V16: no fade on signoff
         fade_out_start_v = max(0, dur - v_fade)
         _enc = get_video_encoder(crf=17)
         ok = run_ffmpeg(
