@@ -835,6 +835,19 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
 
+        # V25 HARD RULES — override LLM suggestions that violate Pipeline Laws
+        # Rule 1: Minimum start 20s — clips starting before 20s almost always contain
+        # channel intros, jingles, "welcome to the show", and branding
+        if start < 20:
+            logger.warning(f"  RULE OVERRIDE: clip #{rank} start {start}s -> 30s (intro zone)")
+            start = 30
+            if end <= start:
+                end = start + 40  # ensure valid range
+        # Rule 2: Max clip duration 45s (Pipeline Laws: 30-60s, sweet spot 40s)
+        if end - start > 45:
+            logger.warning(f"  RULE OVERRIDE: clip #{rank} duration {end-start}s -> 45s (max clip length)")
+            end = start + 45
+
         # Issue 3/4: Find sentence boundaries for clean clip start AND end
         timestamped_text = clip.get("timestamped_text", "")
         if timestamped_text:
@@ -957,6 +970,19 @@ def extract_montage_all(montage_selections: dict, output_dir: str) -> dict:
         start = clip.get("start_seconds", 0)
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
+
+        # V25 HARD RULES — override LLM suggestions that violate Pipeline Laws
+        # Rule 1: Minimum start 20s — clips starting before 20s almost always contain
+        # channel intros, jingles, "welcome to the show", and branding
+        if start < 20:
+            logger.warning(f"  RULE OVERRIDE: clip #{rank} start {start}s -> 30s (intro zone)")
+            start = 30
+            if end <= start:
+                end = start + 40  # ensure valid range
+        # Rule 2: Max clip duration 45s (Pipeline Laws: 30-60s, sweet spot 40s)
+        if end - start > 45:
+            logger.warning(f"  RULE OVERRIDE: clip #{rank} duration {end-start}s -> 45s (max clip length)")
+            end = start + 45
         output_path = os.path.join(output_dir, f"montage_clip_{rank}_{channel}_{video_id}.mp4")
 
         try:
