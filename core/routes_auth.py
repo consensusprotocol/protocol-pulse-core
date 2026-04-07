@@ -713,7 +713,7 @@ def commander_dashboard():
         flash('Commander tier required.', 'warning')
         return redirect('/commander')
 
-    import json as _json
+    import json as _json; from pathlib import Path
     _project = str(Path(__file__).resolve().parent.parent)
 
     # Load morning intelligence brief
