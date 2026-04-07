@@ -90,9 +90,8 @@ def login():
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
-    # Registration disabled for security - admin accounts only
-    flash('Registration is disabled. Please contact administrator for access.')
-    return redirect('/login')
+    # Public registration disabled — redirect to Commander join page
+    return redirect('/join', code=302)
 
 @auth_bp.route('/join')
 def join_page():
@@ -703,6 +702,28 @@ def commander_page():
         kol_quote = None
 
     return render_template('commander.html', signals=signals, btc_price=btc_price, kol_quote=kol_quote)
+
+@auth_bp.route('/commander/dashboard')
+@login_required
+def commander_dashboard():
+    """Commander Dashboard — subscriber API usage + account info."""
+    from flask_login import current_user as _cu
+    tier = getattr(_cu, 'subscription_tier', '')
+    if tier not in ('commander', 'sovereign', 'admin'):
+        flash('Commander tier required.', 'warning')
+        return redirect('/commander')
+
+    api_key = getattr(_cu, 'api_key', '') or ''
+    masked = api_key[:8] + '...' + api_key[-4:] if len(api_key) > 12 else api_key
+
+    # Simple usage stats (placeholder — real tracking in premium API)
+    return render_template('commander_dashboard.html',
+                           authed=True,
+                           sub=_cu,
+                           masked_key=masked,
+                           calls_today=0,
+                           daily_limit=500,
+                           calls_month=0)
 
 @auth_bp.route('/commander/welcome')
 def commander_welcome():

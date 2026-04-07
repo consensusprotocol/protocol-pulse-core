@@ -3371,6 +3371,10 @@ def search_page():
 def oracle_live():
     return render_template('oracle_live.html')
 
+@pages_bp.route('/oracle')
+def oracle_redirect():
+    return redirect('/oracle-live', code=301)
+
 @pages_bp.route('/intel')
 def intel_redirect():
     return redirect('/intelligence/legacy', code=301)
