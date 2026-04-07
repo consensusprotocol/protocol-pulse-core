@@ -423,17 +423,17 @@ def concatenate_parts(parts: list, output_path: str,
                 clip_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in clip_ranges]
                 social_conds = [f"between(t,{s:.3f},{e:.3f})" for s, e in social_ranges]
                 # Nested if: check clips first (lowest), then social, then default
-                vol_inner = "0.165"
+                vol_inner = "0.10"
                 if social_conds:
                     social_test = "+".join(social_conds)
-                    vol_inner = f"if({social_test},0.11,0.22)"
+                    vol_inner = f"if({social_test},0.066,0.10)"
                 if clip_conds:
                     clip_test = "+".join(clip_conds)
-                    vol_inner = f"if({clip_test},0.03,{vol_inner})"
+                    vol_inner = f"if({clip_test},0.018,{vol_inner})"
                 vol_expr = f"volume='{vol_inner}':eval=frame"
                 bgm_vol_filter = f"{vol_expr},afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
             else:
-                bgm_vol_filter = f"volume=0.165,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
+                bgm_vol_filter = f"volume=0.10,afade=t=in:d=4.0,afade=t=out:st={bgm_fade_st}:d=3.0"
 
             music_mixed = output_path + ".music_mixed.mp4"
             ok_music = run_ffmpeg([
@@ -499,7 +499,7 @@ def concatenate_parts(parts: list, output_path: str,
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", INTRO_MUSIC_FILE,
                 "-filter_complex",
-                (f"[1:a]volume=0.08,atrim=0:8.0,"
+                (f"[1:a]volume=0.05,atrim=0:8.0,"
                  f"asetpts=PTS-STARTPTS,"
                  f"afade=t=out:st=6.0:d=2.0,aresample=48000[im];"
                  f"[0:a][im]amix=inputs=2:duration=first:weights=1 0.3[outa]"),
@@ -538,7 +538,7 @@ def concatenate_parts(parts: list, output_path: str,
                 # V4.2: floor 0.16 (-16dB) elsewhere — present atmospheric bed
                 vol_filter = "volume='if(" + "+".join(f"({vp})" for vp in vol_expr_parts) + f",1,0.16)':eval=frame"
             else:
-                vol_filter = "volume=0.12"
+                vol_filter = "volume=0.07"
             ok_bgl = run_ffmpeg([
                 "-i", concat_raw,
                 "-stream_loop", "-1", "-i", BG_LOOP,

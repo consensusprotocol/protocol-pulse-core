@@ -443,9 +443,9 @@ PRONUNCIATION_MAP = {
     "Nayib Bukele": "NYE-eeb boo-KEH-leh",
     "Bukele": "boo-KEH-leh",
     # Saifedean Ammous
-    "Saifedean Ammous": "sy-feh-DEAN AH-moos",
-    "Saifedean": "sy-feh-DEAN",
-    "Ammous": "AH-moos",
+    "Saifedean Ammous": "Sigh-fuh-dean Ah-moose",
+    "Saifedean": "Sigh-fuh-dean",
+    "Ammous": "Ah-moose",
     # Robert Breedlove
     "Robert Breedlove": "Robert BREED love",
     "Breedlove": "BREED love",
