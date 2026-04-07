@@ -1346,6 +1346,26 @@ function nlSub(e){
     }
   }).catch(()=>{if(btn){btn.innerHTML=orig;btn.disabled=false;}});
 }
+
+function smsSub(e){
+  e.preventDefault();
+  var ph=document.querySelector("#smsForm input[name=phone]");
+  if(!ph||!ph.value)return;
+  var btn=document.querySelector("#smsForm button");
+  var orig=btn?btn.innerHTML:"Subscribe";
+  if(btn){btn.innerHTML="...";btn.disabled=true;}
+  fetch("/api/sms/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph.value})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.success){
+      if(btn){btn.innerHTML="&#10003; Subscribed!";btn.style.background="#22c55e";}
+      ph.value="";
+      setTimeout(function(){if(btn){btn.innerHTML=orig;btn.style.background="#dc2626";btn.disabled=false;}},4000);
+    }else{
+      if(btn){btn.innerHTML=orig;btn.disabled=false;}
+      alert(d.message||"Error. Please try again.");
+    }
+  }).catch(function(){if(btn){btn.innerHTML=orig;btn.disabled=false;}});
+}
 </script>
 
 <script src="/static/js/sovereign_orb.js?v=1774939487"></script>

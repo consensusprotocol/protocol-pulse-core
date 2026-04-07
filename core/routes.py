@@ -65,23 +65,9 @@ def clean_preview_filter(content, max_length=150):
 
 @app.before_request
 def _first_visit_onboarding():
-    """Redirect first-time visitors to onboarding. Cookie-based, skips bots/API/assets."""
-    if request.path != '/':
-        return None
-    # Skip if cookie exists (returning visitor)
-    if request.cookies.get('pp_visited'):
-        return None
-    # Skip bots
-    ua = (request.headers.get('User-Agent') or '').lower()
-    if any(b in ua for b in ('bot', 'crawl', 'spider', 'google', 'bing', 'slurp', 'facebookexternal', 'twitterbot')):
-        return None
-    # Skip if coming back from onboarding (referer check)
-    ref = (request.headers.get('Referer') or '').lower()
-    if 'onboarding' in ref or 'signal-terminal' in ref:
-        return None
-    # Redirect to onboarding
-    resp = redirect('/onboarding/commander')
-    return resp
+    """Disabled: homepage should render directly for all visitors.
+    Onboarding is available at /onboarding/commander for those who navigate there."""
+    return None
 
 @app.after_request
 def _set_visited_cookie(response):

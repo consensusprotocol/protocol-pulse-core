@@ -4211,7 +4211,23 @@ def _fetch_fear_greed():
 
 @_ttl_cache(30)
 def _fetch_btc_price():
-    """Fetch current BTC price with 3-source fallback chain. Cache 30s."""
+    """Fetch current BTC price: local cache first, then 3-source API fallback. Cache 30s."""
+    # Source 0: Local signals.json cache (updated every 5min by signal_data_fetcher)
+    try:
+        _signals_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'signals.json')
+        _signals_path = os.path.normpath(_signals_path)
+        if os.path.exists(_signals_path):
+            _mtime = os.path.getmtime(_signals_path)
+            _age_s = time.time() - _mtime
+            if _age_s < 600:  # fresh if < 10 minutes old
+                import json as _json
+                with open(_signals_path) as _f:
+                    _sdata = _json.load(_f)
+                _cached_price = _sdata.get('btc_price', {}).get('value')
+                if _cached_price and float(_cached_price) > 0:
+                    return float(_cached_price)
+    except Exception as e:
+        logging.warning("BTC price signals.json cache error: %s", e)
     # Source 1: Coinbase
     try:
         r = requests.get("https://api.coinbase.com/v2/prices/BTC-USD/spot", timeout=8, headers=CHARTS_HEADERS)
@@ -4252,24 +4268,21 @@ def _fetch_block_height():
 @limiter.exempt
 def api_btc_price():
     """Live BTC price endpoint used by nav ticker and stage."""
-    price = _fetch_btc_price()
-    if price:
-        return jsonify({'price': price, 'change_24h': 0})
-    # Fallback: CoinGecko with 24h change
+    # Try local cache first for change_24h
+    change_24h = 0
     try:
-        r = requests.get(
-            'https://api.coingecko.com/api/v3/simple/price',
-            params={'ids': 'bitcoin', 'vs_currencies': 'usd', 'include_24hr_change': 'true'},
-            timeout=5, headers={'User-Agent': 'ProtocolPulse/1.0'}
-        )
-        if r.ok:
-            d = r.json()
-            return jsonify({
-                'price': d.get('bitcoin', {}).get('usd', 0),
-                'change_24h': round(d.get('bitcoin', {}).get('usd_24h_change', 0), 2),
-            })
+        _sp = os.path.join(os.path.dirname(__file__), '..', 'data', 'signals.json')
+        _sp = os.path.normpath(_sp)
+        if os.path.exists(_sp):
+            import json as _json
+            with open(_sp) as _f:
+                _sd = _json.load(_f)
+            change_24h = _sd.get('btc_price', {}).get('change_24h', 0)
     except Exception:
         pass
+    price = _fetch_btc_price()
+    if price:
+        return jsonify({'price': price, 'change_24h': round(change_24h, 2) if change_24h else 0})
     return jsonify({'price': 0, 'change_24h': 0}), 200
 
 def _calc_mined_supply(block_height):

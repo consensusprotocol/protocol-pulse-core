@@ -260,7 +260,31 @@ def already_sent_today() -> bool:
 # ── Content assembly ─────────────────────────────────────────────────────────
 
 def _get_btc_price() -> Tuple[str, str]:
-    """Returns (price_str, change_str) — e.g. ('$95,420', '+2.3%')."""
+    """Returns (price_str, change_str) — e.g. ('$95,420', '+2.3%'). Cache-first."""
+    # Try local signals.json cache first (updated every 5min)
+    try:
+        signals_path = os.path.join(
+            os.path.dirname(__file__), "..", "data", "signals.json"
+        )
+        signals_path = os.path.normpath(signals_path)
+        if os.path.exists(signals_path):
+            _mtime = os.path.getmtime(signals_path)
+            _age_s = __import__('time').time() - _mtime
+            if _age_s < 600:  # fresh if < 10 minutes
+                import json as _json
+                with open(signals_path) as _f:
+                    _sdata = _json.load(_f)
+                _bp = _sdata.get("btc_price", {})
+                price = _bp.get("value", 0)
+                change = _bp.get("change_24h", 0.0)
+                if price and float(price) > 0:
+                    price_str = f"${float(price):,.0f}"
+                    sign = "+" if change >= 0 else ""
+                    change_str = f"{sign}{float(change):.1f}%"
+                    return price_str, change_str
+    except Exception as e:
+        logger.warning(f"BTC price cache read failed: {e}")
+    # Fallback: CoinGecko API
     try:
         r = requests.get(
             "https://api.coingecko.com/api/v3/simple/price",
@@ -280,7 +304,7 @@ def _get_btc_price() -> Tuple[str, str]:
             change_str = f"{sign}{change:.1f}%"
             return price_str, change_str
     except Exception as e:
-        logger.warning(f"BTC price fetch failed: {e}")
+        logger.warning(f"BTC price CoinGecko fetch failed: {e}")
     return "$—", "—"
 
 
@@ -320,7 +344,28 @@ def _get_network_stat() -> str:
 
 
 def _get_oracle_signal() -> str:
-    """Return today's Oracle signal text from daily_signals.json."""
+    """Return today's Oracle signal from morning brief or daily_signals.json."""
+    # Try morning intelligence brief first (richer content)
+    try:
+        brief_path = os.path.join(
+            os.path.dirname(__file__), "..", "data", "intelligence", "morning_intelligence_brief.json"
+        )
+        brief_path = os.path.normpath(brief_path)
+        if os.path.exists(brief_path):
+            _mtime = os.path.getmtime(brief_path)
+            _age_h = (__import__('time').time() - _mtime) / 3600
+            if _age_h < 24:  # use if less than 24h old
+                import json
+                with open(brief_path) as f:
+                    brief = json.load(f)
+                sentiment = brief.get("sentiment", "").upper()
+                narratives = brief.get("dominant_narratives", [])
+                if narratives and sentiment:
+                    top_narrative = narratives[0] if isinstance(narratives[0], str) else str(narratives[0])
+                    return f"{top_narrative} — {sentiment}"
+    except Exception as e:
+        logger.warning(f"Morning brief read failed: {e}")
+    # Fallback: daily_signals.json
     try:
         signals_path = os.path.join(
             os.path.dirname(__file__), "..", "data", "intelligence", "daily_signals.json"

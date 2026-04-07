@@ -376,8 +376,21 @@ class RealNewsArticleGenerator:
         logger.info(f"Selected source: {source['title'][:50]}... from {source['source']}")
         return source
 
+    # Altcoin/hype topics to reject before wasting LLM tokens
+    _REJECT_TOPICS = [
+        'solana', 'ethereum', 'cardano', 'dogecoin', 'shiba', 'xrp', 'ripple',
+        'polkadot', 'avalanche', 'chainlink', 'polygon', 'tron', 'cosmos',
+        'nft', 'nfts', 'metaverse', 'web3 gaming', 'meme coin', 'memecoin',
+        'altcoin season', 'airdrop',
+    ]
+
     def generate_article_from_source(self, source: Dict) -> Optional[Dict]:
         """Generate article from real source material"""
+        # Identity gate: reject altcoin/non-Bitcoin sources
+        _check_text = (source.get('title', '') + ' ' + source.get('summary', '')).lower()
+        if any(t in _check_text for t in self._REJECT_TOPICS):
+            logger.info(f"Identity filter rejected source: {source.get('title', '')[:60]}")
+            return None
 
         # Check headline diversity and build constraint if needed
         diversity = _check_headline_diversity(hours=72)
@@ -528,6 +541,18 @@ PHRASES (instant failure):
 "The dynamic nature of" / "In a world where" / "Stands as a silent testament"
 "Unmatched" / "Unparalleled" / "Steadfast" / "Stalwart" / "Bedrock"
 "Sets it apart" / "In a league of its own" / "Gold standard"
+
+IDENTITY LAWS (INVIOLABLE):
+- Protocol Pulse is a BITCOIN-FIRST outlet. Every article must serve Bitcoin transactors.
+- Headlines must NOT use clickbait patterns: "Game-Changer?", "A New Era", "Bold Move", "Leap", "Revolution"
+- Headlines must be specific and factual. State what happened, not how exciting it is.
+- BAD: "Mitsubishi's Blockchain Leap: A Game-Changer?" — vague, hype, question bait
+- GOOD: "Mitsubishi Tests Bitcoin Settlement Layer for Cross-Border Payments" — specific, factual
+- BAD: "Crypto PACs Enter Political Arena" — generic crypto framing
+- GOOD: "Bitcoin Mining Lobby Spends $4.2M on Pro-Mining Candidates" — Bitcoin-specific, numbers
+- If the source material is about altcoins with no Bitcoin relevance, DECLINE to write the article.
+- Never use the word "crypto" in headlines. Use "Bitcoin" or the specific protocol name.
+- Never frame Bitcoin as one of many "digital assets" — it is the protocol, not a token.
 
 STRUCTURAL BANS:
 - Never open with "[Company] has [done thing]" — that is a press release, not journalism

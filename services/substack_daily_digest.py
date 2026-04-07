@@ -85,6 +85,23 @@ def select_top_articles(n_min=MIN_ARTICLES, n_max=MAX_ARTICLES) -> list:
                 "content":  a.content or "",
             })
 
+    # Identity filter: reject altcoin, generic crypto, blockchain hype articles
+    _REJECT_PATTERNS = [
+        'solana', 'ethereum', 'cardano', 'dogecoin', 'shiba', 'xrp', 'ripple',
+        'polkadot', 'avalanche', 'chainlink', 'polygon', 'tron', 'cosmos',
+        'nft', 'nfts', 'metaverse', 'web3 gaming', 'meme coin', 'memecoin',
+        'altcoin season', 'altseason', 'defi yield', 'airdrop',
+        'blockchain leap', 'blockchain revolution', 'crypto pacs',
+        'game-changer', 'game changer',
+    ]
+    _pre_filter = len(candidates)
+    candidates = [
+        c for c in candidates
+        if not any(p in (c['title'] + ' ' + c['summary']).lower() for p in _REJECT_PATTERNS)
+    ]
+    if _pre_filter != len(candidates):
+        logger.info(f"Identity filter: {_pre_filter} -> {len(candidates)} articles (rejected {_pre_filter - len(candidates)} non-Bitcoin)")
+
     if not candidates:
         logger.warning("No fresh unpublished articles found in last 24h")
         return []
