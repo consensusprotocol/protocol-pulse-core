@@ -298,6 +298,7 @@ def _fix_clip_av_offset(clip_path, video_id=""):
         v_pts = next((float(p.get("pts_time", 0)) for p in pkts if p.get("codec_type") == "video"), 0)
         a_pts = next((float(p.get("pts_time", 0)) for p in pkts if p.get("codec_type") == "audio"), 0)
         offset = a_pts - v_pts
+        logger.info(f"  AV FIX CHECK: {video_id} offset={offset:+.4f}s")
         if offset < -0.005:
             fixed = clip_path + ".avfix.mp4"
             ok = _run_ffmpeg([

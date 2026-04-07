@@ -673,6 +673,41 @@ def concatenate_parts(parts: list, output_path: str,
         "concat final encode", max(600, int(dur * 0.25)),
     )
 
+    # V25 FIX: Post-encode AV sync — stream-copy remux (bulletproof, zero quality loss)
+    if ok and os.path.exists(output_path):
+        try:
+            import json as _jav
+            _avr2 = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-print_format", "json",
+                 "-show_packets", "-read_intervals", "%+#5", output_path],
+                capture_output=True, text=True, timeout=15)
+            _avd2 = _jav.loads(_avr2.stdout)
+            _pkts2 = _avd2.get("packets", [])
+            _vp2 = next((float(p.get("pts_time", 0)) for p in _pkts2 if p.get("codec_type") == "video"), 0)
+            _ap2 = next((float(p.get("pts_time", 0)) for p in _pkts2 if p.get("codec_type") == "audio"), 0)
+            _final_offset = _ap2 - _vp2
+            if _final_offset < -0.005:
+                _fix_comp = abs(_final_offset)
+                _fixed_path = output_path + ".avsync.mp4"
+                _fix_ok = run_ffmpeg([
+                    "-i", output_path,
+                    "-itsoffset", f"{_fix_comp:.6f}",
+                    "-i", output_path,
+                    "-map", "0:v:0", "-map", "1:a:0",
+                    "-c", "copy",
+                    "-movflags", "+faststart",
+                    _fixed_path,
+                ], "post-encode AV sync fix", 60)
+                if _fix_ok and os.path.exists(_fixed_path) and os.path.getsize(_fixed_path) > 1000:
+                    os.replace(_fixed_path, output_path)
+                    logger.info(f"  AV SYNC POST-FIX: {_final_offset:+.4f}s -> 0.000s (stream copy)")
+                elif os.path.exists(_fixed_path):
+                    os.remove(_fixed_path)
+            else:
+                logger.info(f"  AV SYNC: already synced ({_final_offset:+.4f}s)")
+        except Exception as _e3:
+            logger.warning(f"  AV SYNC POST-FIX: measurement failed ({_e3})")
+
     # Cleanup
     if os.path.exists(concat_raw):
         try: os.remove(concat_raw)
