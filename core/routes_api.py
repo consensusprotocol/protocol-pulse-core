@@ -43,6 +43,38 @@ except Exception as _schiff_import_err:
     logging.warning("schiff_service import failed (api): %s", _schiff_import_err)
     _schiff_available = False
 
+
+# ── V18 FIX: Pipeline Intelligence Bridge ─────────────────────────────────
+# Reads fresh data from video_pipeline_v3/data/intelligence/ (updated every render)
+# and makes it available to website APIs that were reading stale standalone files.
+import os as _bridge_os, json as _bridge_json, time as _bridge_time
+
+_PIPELINE_INTEL_DIR = _bridge_os.path.join(
+    _bridge_os.path.dirname(_bridge_os.path.dirname(_bridge_os.path.abspath(__file__))),
+    'video_pipeline_v3', 'data', 'intelligence')
+
+_pipeline_cache = {}
+_pipeline_cache_ts = 0
+
+def get_pipeline_intelligence():
+    """Load fresh pipeline intelligence data (daily_signals + narrative_context).
+    Cached for 60s to avoid disk reads on every API call."""
+    global _pipeline_cache, _pipeline_cache_ts
+    if _bridge_time.time() - _pipeline_cache_ts < 60 and _pipeline_cache:
+        return _pipeline_cache
+    result = {}
+    for fname in ('daily_signals.json', 'narrative_context.json'):
+        fpath = _bridge_os.path.join(_PIPELINE_INTEL_DIR, fname)
+        try:
+            if _bridge_os.path.exists(fpath):
+                with open(fpath) as f:
+                    result[fname.replace('.json', '')] = _bridge_json.load(f)
+        except Exception:
+            pass
+    _pipeline_cache = result
+    _pipeline_cache_ts = _bridge_time.time()
+    return result
+
 api_bp = Blueprint('api', __name__)
 
 _btcmap_cache = {'data': None, 'ts': 0}
@@ -1644,6 +1676,17 @@ def api_narrative_momentum():
         narrative = ctx.get('narrative', {})
         kol = ctx.get('kol', {})
 
+        # V18: Supplement with fresh pipeline topic velocity
+        try:
+            _pi = get_pipeline_intelligence()
+            _ds = _pi.get('daily_signals', {})
+            if _ds and _ds.get('topic_velocity'):
+                narrative['pipeline_topics'] = _ds.get('topic_velocity', [])
+                narrative['dominant_narrative'] = _ds.get('dominant_narrative', '')
+                narrative['market_mood'] = _ds.get('market_mood', '')
+        except Exception:
+            pass
+
         # Build momentum from narrative history
         _hist_path = '/home/ultron/protocol_pulse/data/sovereign_context/history.jsonl'
         topic_counts = {}
@@ -1719,6 +1762,23 @@ def api_signal_strength():
             result['fear_greed'] = _ctx.get('fear_greed',{}).get('value',0)
             result['fear_greed_label'] = _ctx.get('fear_greed',{}).get('label','')
         except: pass
+        # V18: Inject fresh pipeline intelligence (topic velocity, narrative)
+        try:
+            _pi = get_pipeline_intelligence()
+            _ds = _pi.get('daily_signals', {})
+            _nc = _pi.get('narrative_context', {})
+            if _ds:
+                result['topic_velocity'] = _ds.get('topic_velocity', [])
+                result['dominant_narrative'] = _ds.get('dominant_narrative', '')
+                result['market_mood'] = _ds.get('market_mood', '')
+                result['recommended_topics'] = _ds.get('recommended_topics', [])
+                result['scan_time'] = _ds.get('scan_time', '')
+            if _nc:
+                result['narrative_bridge'] = _nc.get('narrative_bridge_lines', [])
+                result['clip_priorities'] = _nc.get('clip_selection_priority', [])
+                result['narrative_computed_at'] = _nc.get('computed_at', '')
+        except Exception:
+            pass
         return jsonify({'success': True, 'data': result})
     except Exception as e:
         logging.error("api_signal_strength error: %s", e)
