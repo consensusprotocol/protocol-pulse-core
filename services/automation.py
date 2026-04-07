@@ -385,7 +385,7 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 return {"success": False, "error": run.error}
         # Already have articles; just report failure
         release_lock(run, "failed", full_error[:500])
-        return {"success": False, "error": run.error}
+        return {"success": False, "error": full_error}
 
 
 def generate_breaking_article_with_tracking() -> dict:

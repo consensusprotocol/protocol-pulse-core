@@ -585,8 +585,11 @@ Clean HTML only. No markdown. No backticks. No code fences.
 """
 
         try:
-            response = self.openai.chat.completions.create(
-                model="gpt-4o",  # Using GPT-4o for article generation
+            # Primary: Grok-3 (xAI) — reliable quota, high quality
+            from openai import OpenAI as _OAI
+            _grok = _OAI(api_key=__import__('os').environ.get('XAI_API_KEY',''), base_url='https://api.x.ai/v1')
+            response = _grok.chat.completions.create(
+                model="grok-3",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=2000,
                 temperature=0.7
