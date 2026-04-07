@@ -50,10 +50,13 @@ else
     fi
 fi
 
-# === Avatar Server (Satomi Oracle) ===
-if ! pgrep -f "avatar_server.py" > /dev/null 2>&1; then
-    echo "[$(date)] Avatar server down — restarting"
-    cd ~/protocol_pulse/oracle && nohup python3 avatar_server.py > /tmp/avatar_server.log 2>&1 &
-    sleep 5
-    echo "[$(date)] Avatar server restarted (PID: $!)"
-fi
+# DISABLED 2026-04-07 — avatar server OFF until new HeyGen avatar
+# # === Avatar Server (Satomi Oracle) ===
+# DISABLED 2026-04-07 — avatar server OFF until new HeyGen avatar
+# if ! pgrep -f "avatar_server.py" > /dev/null 2>&1; then
+#     echo "[$(date)] Avatar server down — restarting"
+# DISABLED 2026-04-07 — avatar server OFF until new HeyGen avatar
+#     cd ~/protocol_pulse/oracle && nohup python3 avatar_server.py > /tmp/avatar_server.log 2>&1 &
+#     sleep 5
+#     echo "[$(date)] Avatar server restarted (PID: $!)"
+# fi
