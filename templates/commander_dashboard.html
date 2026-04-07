@@ -170,7 +170,7 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
 <div class="cmd-status-bar">
     <div class="s-item">
         <span class="s-label">BTC</span>
-        <span class="s-val" id="cmd-price">${{ '%,.0f'|format(sovereign.get('btc',{}).get('price',0)) }}</span>
+        <span class="s-val" id="cmd-price">${{ '{:,.0f}'.format(sovereign.get('btc',{}).get('price',0)) }}</span>
         {% set ch = sovereign.get('btc',{}).get('change_24h',0) %}
         <span class="s-val {{ 'up' if ch >= 0 else 'down' }}">{{ '%+.2f'|format(ch) }}%</span>
     </div>
@@ -279,7 +279,7 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
     <div class="cmd-market-grid">
         <div class="cmd-stat">
             <div class="cmd-stat-label">BTC Price</div>
-            <div class="cmd-stat-val" id="cmd-stat-price">${{ '%,.0f'|format(sovereign.get('btc',{}).get('price',0)) }}</div>
+            <div class="cmd-stat-val" id="cmd-stat-price">${{ '{:,.0f}'.format(sovereign.get('btc',{}).get('price',0)) }}</div>
             {% set ch24 = sovereign.get('btc',{}).get('change_24h',0) %}
             <div class="cmd-stat-sub" style="color:{{ '#22c55e' if ch24 >= 0 else '#dc2626' }}">{{ '%+.2f'|format(ch24) }}%</div>
         </div>
