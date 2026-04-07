@@ -368,7 +368,7 @@ def run_preflight_qc(video_path: str) -> dict:
     freeze_timestamps: list[float] = []
     try:
         r = subprocess.run(
-            ["ffmpeg", "-i", video_path, "-vf", "freezedetect=n=0.003:d=1.5",
+            ["ffmpeg", "-i", video_path, "-vf", "freezedetect=n=0.003:d=3.0"  # V17 FIX: 3s min — charts/social cards are static by design,
              "-f", "null", "-"],
             capture_output=True, text=True, timeout=300,
         )
@@ -518,7 +518,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
             if r.returncode == 0 and os.path.exists(tmp):
                 # Verify the fix reduced freeze frames
                 verify = subprocess.run(
-                    ["ffmpeg", "-i", tmp, "-vf", "freezedetect=n=0.003:d=1.5",
+                    ["ffmpeg", "-i", tmp, "-vf", "freezedetect=n=0.003:d=3.0"  # V17 FIX: 3s min — charts/social cards are static by design,
                      "-f", "null", "-"],
                     capture_output=True, text=True, timeout=300,
                 )
