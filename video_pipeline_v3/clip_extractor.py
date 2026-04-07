@@ -467,6 +467,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                 logger.info(f"  AV sync fix applied")
             elif os.path.exists(sync_tmp):
                 os.remove(sync_tmp)
+            _fix_clip_av_offset(output_path, video_id)  # V24: per-clip stream-copy AV fix
             # Sync validation gate — FIX 2: lowered nuclear threshold 0.15→0.08
             offset = check_av_sync(output_path)
             if abs(offset) > 0.08:
@@ -596,6 +597,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                 logger.info(f"  AV sync fix applied")
             elif os.path.exists(sync_tmp):
                 os.remove(sync_tmp)
+            _fix_clip_av_offset(output_path, video_id)  # V24: per-clip stream-copy AV fix
             # Sync validation gate — FIX 2: lowered nuclear threshold 0.15→0.08
             offset = check_av_sync(output_path)
             if abs(offset) > 0.08:
