@@ -654,7 +654,10 @@ def concatenate_parts(parts: list, output_path: str,
     _final_enc = get_video_encoder(crf=15)
     ok = run_ffmpeg(
         ["-fflags", "+genpts+igndts+discardcorrupt",
-         "-i", concat_raw] + _final_enc + [
+         "-i", concat_raw,
+         "-itsoffset", f"{abs(_av_compensation):.6f}",
+         "-i", concat_raw,
+         "-map", "0:v:0", "-map", "1:a:0"] + _final_enc + [
          "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
          "-r", "30", "-vsync", "cfr",
          "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
@@ -662,7 +665,7 @@ def concatenate_parts(parts: list, output_path: str,
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard (MUST be LAST audio filter)
          # V9 FIX 9: True peak brick wall — alimiter AFTER loudnorm with attack=0.1 (near-zero lookahead)
-         "-af", f"asetpts=PTS-STARTPTS+{_av_compensation:.6f}/TB,aresample=48000:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=11:linear=true,alimiter=limit=0.75:level=disabled:attack=5:release=50",
+         "-af", "aresample=48000:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=11:linear=true,alimiter=limit=0.75:level=disabled:attack=5:release=50",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",
