@@ -347,6 +347,7 @@ def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
             _fix_clip_av_offset(clip_path, video_id)
         else:
             logger.warning(f"  AV SYNC FAILED: {video_id} — keeping original ({offset_before:+.3f}s)")
+            _fix_clip_av_offset(clip_path, video_id)  # try stream-copy even if re-encode failed
             if os.path.exists(synced):
                 os.remove(synced)
     except Exception as e:
@@ -405,6 +406,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
         shutil.copy2(cached, output_path)
         dur = ffprobe_duration(output_path)
         logger.info(f"  Persistent cache HIT: {video_id} ({dur:.1f}s)")
+        _fix_clip_av_offset(output_path, video_id)  # fix cached clips too
         _ensure_clip_av_sync(output_path, video_id)
         return True
 
