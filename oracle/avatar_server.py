@@ -711,8 +711,16 @@ def _preprocess_tts_text(text: str) -> str:
     text = re.sub(r'[Mm]ultisig', 'Multi Sig', text)
     text = re.sub(r'DeFi', 'Dee-Fie', text, flags=re.IGNORECASE)
     text = re.sub(r'[Ss]tablecoin', 'Stable Coin', text)
+    # Hyphenated forms cleanup
+    text = text.replace('Bit-Axe', 'Bit Axe')
     # Mining/Miner pronunciation (Kokoro stress fix)
-    text = text.replace(Bit-Axe, Bit
+    text = re.sub(r'\bmining\b', 'myning', text)
+    text = re.sub(r'\bMining\b', 'Myning', text)
+    text = re.sub(r'\bminer\b', 'myner', text)
+    text = re.sub(r'\bMiner\b', 'Myner', text)
+    text = re.sub(r'\bminers\b', 'myners', text)
+    text = re.sub(r'\bMiners\b', 'Myners', text)
+    text = re.sub(r'\bmined\b', 'myned', text)
 
     return text
 
