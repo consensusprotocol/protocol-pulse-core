@@ -1025,7 +1025,7 @@ function setupTapFallback(){
     console.log('[Satomi] Tap fallback — starting recognition');
     setBusy(false);
     mic.disabled=false;
-    startRec();
+    safeStartRec();
     setStat('Listening\u2026','#6cff9f',false);
     /* Remove after first successful activation */
     _stageEl.removeEventListener('click',_tapToSpeak);
@@ -1183,9 +1183,9 @@ function playIntent(intent){
       console.log('[Satomi] Greeting video starting — mic timer set for',_estDuration+1,'s');
       setTimeout(function(){
         console.log('[Satomi] Independent mic timer fired — _greeted:',_greeted,'busy:',busy,'isRec:',isRec);
-        if(_greeted&&!busy&&!isRec&&mic&&recognition){
+        if(_greeted&&!busy&&!isRec&&mic){
           mic.disabled=false;
-          startRec();
+          safeStartRec();
           setStat('Listening\u2026','#6cff9f',false);
         }
       },(_estDuration+1)*1000);
@@ -1203,10 +1203,10 @@ function playIntent(intent){
       /* FIX 3: Explicit setBusy(false) BEFORE mic activation */
       setBusy(false);
       setOracleState('LISTENING');
-      /* FIX 2 cont: Call startRec directly — no setTimeout for iOS gesture trust */
-      if(!isRec&&mic&&recognition){
+      /* FIX 2 cont: fresh SR instance per turn — iOS Safari multi-turn fix */
+      if(!isRec&&mic){
         mic.disabled=false;
-        startRec();
+        safeStartRec();
         setStat('Listening\u2026','#6cff9f',false);
       }
     }
@@ -1218,9 +1218,9 @@ function playIntent(intent){
       _greeted=true;
       setBusy(false);
       setOracleState('LISTENING');
-      if(!isRec&&mic&&recognition){
+      if(!isRec&&mic){
         mic.disabled=false;
-        startRec();
+        safeStartRec();
         setStat('Listening\u2026','#6cff9f',false);
       }
     } else {
@@ -1264,7 +1264,7 @@ function process(text){
     setOracleState('LISTENING');
     setStat('Satomi needs a moment \u2014 tap to try again','#f4c46f',false);
     mic.disabled=false;
-    setTimeout(startRec, 800);
+    setTimeout(safeStartRec, 800);
   },30000);
   /* Store so we can cancel it on success */
   window._globalTimeout=_globalTimeout;
@@ -1442,13 +1442,13 @@ function process(text){
                   setBusy(false);
                   setOracleState('LISTENING');
                   hideTX();
-                  setTimeout(startRec, 600);
+                  setTimeout(safeStartRec, 600);
                 })
                 .catch(function(e){
                   console.warn('[Satomi] playVid error:',e);
                   setBusy(false);
                   setOracleState('LISTENING');
-                  setTimeout(startRec, 600);
+                  setTimeout(safeStartRec, 600);
                 });
             } else if(_pollAttempts < _maxAttempts){
               setTimeout(_pollForVideo, 2000);
@@ -1462,14 +1462,14 @@ function process(text){
                   if(!window._chatAudioPlaying){
                     setBusy(false);setOracleState('LISTENING');
                     setStat('Tap mic to respond','#334',false);
-                    setTimeout(startRec, 600);
+                    setTimeout(safeStartRec, 600);
                   } else { setTimeout(_waitAudioEnd,500); }
                 }
                 _waitAudioEnd();
               } else {
                 setBusy(false);setOracleState('LISTENING');
                 setStat('Tap mic to respond','#ff3b5f',false);
-                setTimeout(startRec, 800);
+                setTimeout(safeStartRec, 800);
               }
             }
           })
@@ -1495,11 +1495,8 @@ function process(text){
     if(_audioFirstMode) return;
     /* Auto-restart mic after every response — conversational flow */
     setTimeout(function(){
-      if(_greeted&&!busy&&!isRec&&mic&&recognition){
-        mic.disabled=false;
-        setStat('Listening\u2026','#6cff9f',false);
-        try{ recognition.start(); isRec=true; setRec(true); }
-        catch(e){ console.warn('[Satomi] post-response startRec:',e); }
+      if(_greeted&&!busy&&!isRec&&mic){
+        safeStartRec();
       }
     }, 800);
   })
@@ -1542,10 +1539,8 @@ function process(text){
       setOracleState('LISTENING');
     }
     setTimeout(function(){
-      if(_greeted&&!busy&&!isRec&&mic&&recognition){
-        mic.disabled=false;
-        try{ recognition.start(); isRec=true; setRec(true); setStat('Listening\u2026','#6cff9f',false); }
-        catch(e){ setStat('Tap mic to respond','#ff3b5f',false); }
+      if(_greeted&&!busy&&!isRec&&mic){
+        safeStartRec();
       }
     }, 1000);
   });
@@ -1723,7 +1718,7 @@ function startRec(){
     } else if(!busy && _greeted){
       /* No speech — restart listening after brief pause */
       setStat('Listening…','#6cff9f',false);
-      setTimeout(startRec, 600);
+      setTimeout(safeStartRec, 600);
     }
   };
 
@@ -1731,7 +1726,7 @@ function startRec(){
     console.warn('[Satomi] SR error:', e.error);
     setRec(false); isRec = false;
     if(e.error === 'no-speech'){
-      if(_greeted && !busy) setTimeout(startRec, 600);
+      if(_greeted && !busy) setTimeout(safeStartRec, 600);
     } else if(e.error === 'not-allowed'){
       setStat('Mic permission denied','#ff3b5f',false);
     }
@@ -1746,6 +1741,31 @@ function startRec(){
   } catch(e){
     console.warn('[Satomi] recognition.start() error:', e.message);
     isRec = false; setRec(false);
+    setStat('Tap mic to speak','#ff3b5f',false);
+  }
+}
+
+/* ── safeStartRec: iOS Safari multi-turn fix ──
+   Creates fresh SR instance via startRec() with error recovery + 3s fallback.
+   Use this INSTEAD of raw startRec() from async callbacks (timeouts, promises).
+   Prevents iOS Safari bug where recognition.start() silently fails after 2-3 turns. */
+function safeStartRec(){
+  if(busy || isRec) return;
+  try{
+    startRec();
+    /* 3s watchdog: if mic hasn't activated, show tap-to-speak hint */
+    setTimeout(function(){
+      if(!isRec && !busy && _greeted){
+        console.warn('[Satomi] safeStartRec 3s watchdog — mic failed to activate');
+        setStat('Tap mic to speak','#ff3b5f',false);
+        mic.disabled=false;
+        micHint.textContent='tap to speak';
+      }
+    }, 3000);
+  } catch(e){
+    console.warn('[Satomi] safeStartRec failed:', e);
+    isRec=false; setRec(false);
+    mic.disabled=false;
     setStat('Tap mic to speak','#ff3b5f',false);
   }
 }
@@ -1795,7 +1815,7 @@ setInterval(function(){
     if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
     setBusy(false);setOracleState('LISTENING');
     setStat('Tap mic to speak','#6cff9f',false);
-    setTimeout(startRec,800);
+    setTimeout(safeStartRec,800);
   }
 },5000);
 function showSub(t){sub.textContent=t;sub.classList.add('on');}
