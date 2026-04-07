@@ -1245,6 +1245,8 @@ function process(text){
   try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
   _audioFinished=false;
   var _audioFirstMode=false;
+  if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+  if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
   if(!text.trim()||busy)return;
   // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
   if(/daily\s*brief/i.test(text)) window._briefFetched=true;
@@ -1782,7 +1784,20 @@ function setRec(on){
 
 /* ── HELPERS ── */
 function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';}
-function setBusy(b){busy=b;if(b){mic.disabled=true;if(isRec)stopRec();}else{mic.disabled=false;}}
+function setBusy(b){busy=b;if(b){mic.disabled=true;window._busyTimestamp=Date.now();if(isRec)stopRec();}else{mic.disabled=false;window._busyTimestamp=null;}}
+/* Busy watchdog: force-reset if stuck >45s */
+setInterval(function(){
+  if(busy && window._busyTimestamp && Date.now()-window._busyTimestamp>45000){
+    console.warn('[Satomi] Busy watchdog: forced reset after 45s');
+    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(e){}
+    try{vid.pause();vid.loop=false;vid.style.opacity='0';}catch(e){}
+    if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    setBusy(false);setOracleState('LISTENING');
+    setStat('Tap mic to speak','#6cff9f',false);
+    setTimeout(startRec,800);
+  }
+},5000);
 function showSub(t){sub.textContent=t;sub.classList.add('on');}
 function hideSub(){sub.classList.remove('on');}
 function showTX(t){txEl.textContent=t;txEl.classList.add('on');}
