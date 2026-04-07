@@ -736,11 +736,22 @@ def commander_dashboard():
     except Exception:
         pass
 
+    # Load KOL sentiment brief
+    kol_brief = {}
+    try:
+        _kol_path = os.path.join(_project, 'data', 'intelligence', 'kol_sentiment_brief.json')
+        if os.path.exists(_kol_path):
+            with open(_kol_path) as _f:
+                kol_brief = _json.load(_f)
+    except Exception:
+        pass
+
     return render_template('commander_dashboard.html',
                            authed=True,
                            user=_cu,
                            morning_brief=morning_brief,
-                           sovereign=sovereign)
+                           sovereign=sovereign,
+                           kol_brief=kol_brief)
 
 @auth_bp.route('/commander/welcome')
 def commander_welcome():

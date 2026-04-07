@@ -314,16 +314,62 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
             <div class="cmd-stat-sub">~{{ sovereign.get('network',{}).get('next_adj_blocks',0) }} blocks</div>
         </div>
         <div class="cmd-stat">
-            <div class="cmd-stat-label">Social Pulse</div>
-            <div class="cmd-stat-val">{{ sovereign.get('kol',{}).get('sentiment_score','--') }}</div>
-            <div class="cmd-stat-sub">Aggregated</div>
+            <div class="cmd-stat-label">DXY</div>
+            <div class="cmd-stat-val">{{ '{:.1f}'.format(sovereign.get('macro',{}).get('dxy',0)) }}</div>
+            <div class="cmd-stat-sub">Dollar Index</div>
         </div>
         <div class="cmd-stat">
-            <div class="cmd-stat-label">Polymarket</div>
-            <div class="cmd-stat-val">{{ sovereign.get('polymarket',{}).get('macro_sentiment','--') }}</div>
-            <div class="cmd-stat-sub">Macro sentiment</div>
+            <div class="cmd-stat-label">Gold</div>
+            <div class="cmd-stat-val">${{ '{:,.0f}'.format(sovereign.get('macro',{}).get('gold_price',0)) }}</div>
+            <div class="cmd-stat-sub">XAU/USD</div>
+        </div>
+        <div class="cmd-stat">
+            <div class="cmd-stat-label">S&P 500</div>
+            <div class="cmd-stat-val">{{ '{:,.0f}'.format(sovereign.get('macro',{}).get('sp500',0)) }}</div>
+            <div class="cmd-stat-sub">Macro</div>
         </div>
     </div>
+</div>
+
+<!-- KOL SENTIMENT -->
+<div class="cmd-panel">
+    <div class="cmd-panel-header">
+        <div class="cmd-panel-icon" style="background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.25);color:var(--cmd-green);"><i class="fas fa-users"></i></div>
+        <div>
+            <h3 class="cmd-panel-title" style="color:var(--cmd-green);">KOL Sentiment</h3>
+            <div class="cmd-panel-subtitle">{{ kol_brief.get('voices_sampled', 0) }} voices sampled</div>
+        </div>
+    </div>
+    {% set kol_s = kol_brief.get('sentiment', 'neutral') %}
+    <div style="margin-bottom:14px;">
+        <span style="display:inline-block;padding:4px 14px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:1px;
+            {% if kol_s == 'bullish' %}background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);
+            {% elif kol_s == 'bearish' %}background:rgba(220,38,38,0.15);color:#dc2626;border:1px solid rgba(220,38,38,0.3);
+            {% else %}background:rgba(234,179,8,0.15);color:#eab308;border:1px solid rgba(234,179,8,0.3);{% endif %}
+        ">{{ kol_s|upper }}</span>
+    </div>
+    {% if kol_brief.get('dominant_narrative') %}
+    <div style="font-family:'Crimson Pro',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.8);margin-bottom:14px;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px;border-left:3px solid var(--cmd-green);">
+        {{ kol_brief['dominant_narrative'] }}
+    </div>
+    {% endif %}
+    {% if kol_brief.get('top_signal') %}
+    <div style="font-size:0.85rem;color:var(--cmd-text-mid);margin-bottom:10px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--cmd-red);text-transform:uppercase;letter-spacing:1px;">Top Signal</span><br>
+        {{ kol_brief['top_signal'] }}
+    </div>
+    {% endif %}
+    {% if kol_brief.get('contrarian_view') and kol_brief['contrarian_view'] != 'None detected' %}
+    <div style="font-size:0.85rem;color:var(--cmd-text-dim);padding:10px;background:rgba(234,179,8,0.08);border-radius:8px;border-left:2px solid var(--cmd-amber);">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--cmd-amber);text-transform:uppercase;letter-spacing:1px;">Contrarian</span><br>
+        {{ kol_brief['contrarian_view'] }}
+    </div>
+    {% endif %}
+    {% if kol_brief.get('kol_handles_seen') %}
+    <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--cmd-text-dim);">
+        Voices: {{ kol_brief['kol_handles_seen']|join(', @') | truncate(80) }}
+    </div>
+    {% endif %}
 </div>
 
 <!-- CONVERGENCE ALERTS -->
@@ -648,7 +694,7 @@ body,html{background:var(--cmd-bg)!important;margin:0;padding:0;}
 
     // ── Fetch Orb Data ──
     function fetchOrb(){
-        fetch('/api/v1/orb').then(r=>r.json()).then(d=>{
+        fetch('/api/orb').then(r=>r.json()).then(d=>{
             if(!d||!d.nodes)return;
             const nodes=d.nodes;
             const ids=['mcx','epx','ihx','opx','fdx','ocx'];

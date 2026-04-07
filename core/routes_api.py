@@ -6933,8 +6933,12 @@ def api_media_meta_briefing():
 def api_sentiment_brief():
     """Return cached KOL sentiment brief as JSON (public, CORS enabled)."""
     try:
-        from services.sentiment_brief_service import SentimentBriefService
-        svc = SentimentBriefService()
+        import importlib.util as _ilu_sb
+        _sb_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'services', 'sentiment_brief_service.py')
+        _sb_spec = _ilu_sb.spec_from_file_location('sentiment_brief_service', _sb_path)
+        _sb_mod = _ilu_sb.module_from_spec(_sb_spec)
+        _sb_spec.loader.exec_module(_sb_mod)
+        svc = _sb_mod.SentimentBriefService()
         brief = svc.get_cached_brief()
         resp = jsonify(brief)
         resp.headers['Access-Control-Allow-Origin'] = '*'
