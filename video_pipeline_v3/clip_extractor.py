@@ -398,6 +398,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
         if dur > 1:
             logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
             _ensure_clip_av_sync(output_path, video_id)
+            _fix_clip_av_offset(output_path, video_id)  # FINAL AV fix before return
             return True
 
     # V4: Check persistent clip cache
@@ -408,6 +409,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
         logger.info(f"  Persistent cache HIT: {video_id} ({dur:.1f}s)")
         _fix_clip_av_offset(output_path, video_id)  # fix cached clips too
         _ensure_clip_av_sync(output_path, video_id)
+        _fix_clip_av_offset(output_path, video_id)  # FINAL AV fix before return
         return True
 
     # Render21 FIX 3: Removed fixed +12s offset — speech onset detection handles intro skip
@@ -520,6 +522,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             logger.info(f"  Extracted: {dur:.1f}s, {sz:.0f}KB")
             # V4: Save to persistent cache
             cache_clip(video_id, start_sec, end_sec, output_path)
+            _fix_clip_av_offset(output_path, video_id)  # FINAL AV fix before return
             return True
         else:
             logger.warning(f"  yt-dlp sections failed: {result.stderr[:200]}")
@@ -652,6 +655,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                 os.remove(full_path)
             except OSError:
                 pass
+            _fix_clip_av_offset(output_path, video_id)  # FINAL AV fix before return
             return True
     except subprocess.TimeoutExpired:
         pass
