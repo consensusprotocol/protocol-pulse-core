@@ -711,6 +711,8 @@ def _preprocess_tts_text(text: str) -> str:
     text = re.sub(r'[Mm]ultisig', 'Multi Sig', text)
     text = re.sub(r'DeFi', 'Dee-Fie', text, flags=re.IGNORECASE)
     text = re.sub(r'[Ss]tablecoin', 'Stable Coin', text)
+    # Mining/Miner pronunciation (Kokoro stress fix)
+    text = text.replace(Bit-Axe, Bit
 
     return text
 
