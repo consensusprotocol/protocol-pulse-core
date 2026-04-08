@@ -1,0 +1,54 @@
+{
+  "seen_ids": [
+    "Rep. Byron Donalds (R)|PYPL|sale|2026-02-10",
+    "Rep. Mark Alford (R)|PYPL|sale|2026-03-16",
+    "Rep. Gilbert Cisneros (D)|COIN|sale|2026-02-12",
+    "Sen. David H. McCormick (R)|BITB|purchase|2025-11-26",
+    "Sen. John Boozman (R)|PYPL|purchase|2026-01-29",
+    "Sen. David H. McCormick (R)|BITB|purchase|2025-11-28",
+    "Sen. John Boozman (R)|PYPL|purchase|2025-11-21",
+    "Sen. Angus King (I)|PYPL|purchase|2025-07-21",
+    "Sen. David H. McCormick (R)|BITB|purchase|2025-11-25",
+    "Sen. David H. McCormick (R)|BITB|purchase|2025-11-24",
+    "Rep. Gilbert Cisneros (D)|COIN|purchase|2026-01-30",
+    "Rep. Jonathan Jackson (D)|HOOD|sale|2026-01-20",
+    "Rep. Gilbert Cisneros (D)|HOOD|sale|2026-02-24",
+    "Rep. Gilbert Cisneros (D)|HOOD|purchase|2026-01-30",
+    "Rep. Gilbert Cisneros (D)|SQ|sale|2026-02-10",
+    "Rep. Cleo Fields (D)|IREN|purchase|2026-01-20",
+    "Rep. Dale Whitney Strong (R)|IREN|purchase|2026-01-28",
+    "Sen. Angus King (I)|PYPL|sale|2026-02-13",
+    "Rep. Tim Moore (R)|COIN|sale|2026-02-18"
+  ],
+  "tweets": [
+    {
+      "key": "Sen. David H. McCormick (R)|BITB|purchase|2025-11-28",
+      "text": "STOCK ACT FILING: Sen. David H. McCormick (R) bought $50,001 - $100,000 of Bitwise Bitcoin ETF (BITB). Filed 28d after trade. The signal is in the filing.",
+      "posted": false,
+      "tweet_id": null,
+      "timestamp": "2026-04-08T07:37:31.354678+00:00"
+    },
+    {
+      "key": "Sen. David H. McCormick (R)|BITB|purchase|2025-11-26",
+      "text": "STOCK ACT FILING: Sen. David H. McCormick (R) bought $50,001 - $100,000 of Bitwise Bitcoin ETF (BITB). Filed 30d after trade. The signal is in the filing.",
+      "posted": false,
+      "tweet_id": null,
+      "timestamp": "2026-04-08T07:37:31.354749+00:00"
+    },
+    {
+      "key": "Sen. David H. McCormick (R)|BITB|purchase|2025-11-25",
+      "text": "STOCK ACT FILING: Sen. David H. McCormick (R) bought $15,001 - $50,000 of Bitwise Bitcoin ETF (BITB). Filed 2d after trade. The signal is in the filing.",
+      "posted": false,
+      "tweet_id": null,
+      "timestamp": "2026-04-08T07:37:31.354799+00:00"
+    },
+    {
+      "key": "Sen. David H. McCormick (R)|BITB|purchase|2025-11-24",
+      "text": "STOCK ACT FILING: Sen. David H. McCormick (R) bought $50,001 - $100,000 of Bitwise Bitcoin ETF (BITB). Filed 3d after trade. The signal is in the filing.",
+      "posted": false,
+      "tweet_id": null,
+      "timestamp": "2026-04-08T07:37:31.354845+00:00"
+    }
+  ],
+  "daily_counts": {}
+}
