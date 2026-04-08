@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-01T18:00:15.181208+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Extreme fear (F&G 8) historically precedes rallies",
+    "Network fundamentals strong: 906.7 EH/s hashrate, no strain",
+    "Low transaction fees (3 sat/vB) indicate zero panic selling",
+    "Loose mempool = no urgency, no congestion mechanics",
+    "Miner economics holding steady despite volatility",
+    "Price stability (1.3% gain) amid fear conditions"
+  ],
+  "bearish_signals": [
+    "Moderate trading volume ($53.5B) shows limited conviction",
+    "Extreme fear sentiment could extend further"
+  ],
+  "neutral_topics": [
+    "Difficulty adjustment approaching at block 943,250",
+    "Market cap stable at $1.37 trillion"
+  ]
+}

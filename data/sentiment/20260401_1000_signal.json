@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-04-01T10:00:22.631852+00:00",
+  "brief_type": "morning",
+  "score": -25,
+  "bullish_signals": [
+    "Hashrate holding strong at 906.7 EH/s",
+    "Consistent mining momentum despite price stagnation",
+    "Extreme fear historically precedes violent rallies",
+    "Cheap mempool fees suggest panic hasn't peaked",
+    "Price holding above $68K floor"
+  ],
+  "bearish_signals": [
+    "Extreme fear at 8/100 on Greed Index",
+    "22K+ transaction backlog could reverse quickly",
+    "Price flat overnight with no buying pressure",
+    "Sub-$68K break triggers hard retest lower",
+    "Dead market conditions amplify volatility risk"
+  ],
+  "neutral_topics": [
+    "Block height 943,196 milestones",
+    "Fee market technicals at 2 sat/vB"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-01T18:00:15.181208+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 8: Why Bitcoin's Network Data Suggests Opportunity, Not Capitulation",
+      "angle": "On-chain analysis showing robust infrastructure during extreme fear conditions as contrarian indicator",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "sentiment",
+        "fear-greed",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "Mempool Signals & Miner Behavior: Reading Bitcoin's True Demand During Volatility",
+      "angle": "How transaction fees and queue depth reveal panic absence vs. sentiment readings",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "miners",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "The Hashrate Holds: Why Bitcoin's 906.7 EH/s Matters More Than Your Fear Gauge",
+      "angle": "Network security and miner commitment as fundamental floor during sentiment extremes",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "network-security",
+        "fundamentals"
+      ]
+    }
+  ]
+}

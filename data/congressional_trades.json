@@ -1,0 +1,43 @@
+{
+  "last_updated": "2026-04-01T23:00:55.413233+00:00",
+  "ihx": {
+    "score": 27,
+    "direction": "bearish",
+    "interpretation": "4/4 Bitcoin ETFs declining (avg -3.8%) \u2014 institutional distribution signal.",
+    "etfs": [
+      {
+        "ticker": "IBIT",
+        "issuer": "BlackRock",
+        "price": 38.64,
+        "chg_pct": -3.81,
+        "avg_vol_5d": 47477682
+      },
+      {
+        "ticker": "FBTC",
+        "issuer": "Fidelity",
+        "price": 59.36,
+        "chg_pct": -3.78,
+        "avg_vol_5d": 5738695
+      },
+      {
+        "ticker": "ARKB",
+        "issuer": "ARK Invest",
+        "price": 22.62,
+        "chg_pct": -3.83,
+        "avg_vol_5d": 4786326
+      },
+      {
+        "ticker": "BITB",
+        "issuer": "Bitwise",
+        "price": 37.01,
+        "chg_pct": -3.8,
+        "avg_vol_5d": 2339771
+      }
+    ],
+    "avg_chg_pct": -3.8,
+    "bullish_count": 0,
+    "bearish_count": 4
+  },
+  "source": "bitcoin_etf_flows",
+  "etf_count": 4
+}

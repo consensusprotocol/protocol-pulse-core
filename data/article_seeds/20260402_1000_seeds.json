@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-04-02T10:00:14.752813+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Foundry Moment: How 30% Hashrate Concentration Became Bitcoin's Biggest Technical Risk",
+      "angle": "Deep dive on what rare reorg activity signals about mining power consolidation and implications for network security",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "security",
+        "centralization",
+        "foundry",
+        "hashrate"
+      ]
+    },
+    {
+      "headline": "2026 Corporate Bond Surge Points to 2008-Scale Credit Unwind\u2014Why Bitcoin Isn't Expensive Anymore",
+      "angle": "Connecting record private credit issuance to systemic contagion risk and Bitcoin's macro positioning as crisis hedge",
+      "tags": [
+        "bitcoin",
+        "macro",
+        "credit-crisis",
+        "valuation",
+        "private-credit",
+        "economics"
+      ]
+    },
+    {
+      "headline": "When Block Withholding Becomes Practical: Mining Centralization Crosses into Active Threat Territory",
+      "angle": "Technical analysis of reorg patterns and what pool-level dominance means for Bitcoin's security assumptions",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "network-security",
+        "reorg",
+        "threat-model"
+      ]
+    }
+  ]
+}

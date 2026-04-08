@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1775541607.0267344,
-  "fetched_at_iso": "2026-04-07T06:00:07.026739+00:00",
+  "fetched_at": 1775627106.549263,
+  "fetched_at_iso": "2026-04-08T05:45:06.549273+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 72,
+      "events_filtered": 81,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 83,
+      "events_filtered": 90,
       "error": null
     },
     {
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 83,
+      "events_filtered": 79,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Introducing Cache Flow - a personal cash flow app built for Bitcoiners.\n\nTrack recurring income and expenses, forecast your financial runway, and stack sats with built-in Bitcoin DCA - all from a single HTML file that runs entirely on your device.\n\nFeatures:\n- Bitcoin DCA tracking with live BTC price ticker\n- Satoshi balance tracking and projections\n- 12-month rolling forecast with weekly drill-down\n- AES-256-GCM encryption (your data never leaves your device)\n- Multi-currency support (USD, EUR, GBP, CAD, AUD, CHF, JPY)\n- Dark and light themes\n- No server, no accounts, no telemetry\n- Single HTML file - no install, no dependencies\n\nhttps://peerloomllc.com/cacheflow/\nhttps://github.com/peerloomllc/cacheflow\n\n#bitcoin #privacy #opensource #selfhosted #nokyc #plebdev",
-      "pubkey": "d70b722b67768cbf1e3ac777e2107bbc447a9768899b548bf694f71a2a6b52f8",
-      "display_name": "npub1d70b722b...6b52f8",
-      "created_at": 1775536172,
-      "relay": "wss://nos.lol",
+      "text": "\ud83d\udcca Michael Saylor Says Bitcoin 4-Year Cycle Is Over, But This Is A Good Thing For Price\n\n\u2022 Michael Saylor believes Bitcoin's traditional four-year halving cycle is over.\n\u2022 He sees this shift as a positive step for the cryptocurrency's price due to its increasing global acceptance.\n\u2022 The transition marks a more mature phase that can support stronger and more consistent price movements.\n\u2022 This change could be a sign of Bitcoin's adoption by institutional investors.\n\n\ud83d\udd17 https://bitcoinist.com/bitcoin-4-year-cycle-is-over/\n\ud83d\udcf0 https://bitcoinist.com/feed\n\n#bitcoin #mining #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Michael Saylor Says Bitcoin 4-Year Cycle Is Over, tip77416acc5d75760b882d565621180831",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1775625761,
+      "relay": "wss://relay.damus.io",
+      "score": 130,
+      "has_zap": false
+    },
+    {
+      "text": "I\u2019ve made some updates to https://grid.ptsolutions.io to provide users with a basic understanding of how certain flows operate. It\u2019s still a work in progress. I\u2019d love to hear your thoughts on the MPP and Spark (BTC and Lightning) approach compared to using your own channel.\n\nLatest update: 8 active ISOs, 9,184+ grid locations, ~2.6M price rows/day\n\n#bitcoin #nostr #lighting #l402",
+      "pubkey": "5e569b85aff8abea248412c309e0d3530c082367c150984ec45d71cd72813aa5",
+      "display_name": "npub15e569b85...813aa5",
+      "created_at": 1775610538,
+      "relay": "wss://relay.primal.net",
       "score": 90,
       "has_zap": false
     },
     {
-      "text": "Beautiful artwork for sale :) #nostr \n\nIt will receive the most sats as the first piece in the series. When someone buys #2, a small amount of sats flows to #1. When someone buys #3, sats flow to #2 and #1, and so on.\n\n~300,000 sats \n\n#bitcoin #painting #artstr #art #bitcoinart \nhttps://blossom.primal.net/1c1be49f4fad011abcab02ab7d623a19a14aab6c54d75419cc795b9d32bf26c8.jpg",
-      "pubkey": "0b26f590631b0fa3048d103410e484e5e22e2d5a8eceaceda9d91b38f81dd1a8",
-      "display_name": "npub10b26f590...1dd1a8",
-      "created_at": 1775533946,
+      "text": "\ud83d\udcc9 Iran\u2019s Bitcoin hashrate falls 77% over the past quarter amid conflict\n\n\u2022 Global network hash rate declines for 30th consecutive day.\n\u2022 Decline attributed by analyst to reduced Bitcoin prices affecting mining profitability.\n\u2022 No correlation found with ongoing conflict in Ukraine.\n\n\ud83d\udd17 https://cointelegraph.com/news/iran-bitcoin-hashrate-drop-results-mining-redistribution?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #mining #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Iran\u2019s Bitcoin hashrate falls 77% over the past qutip1c51b222522ed8fbee8e41c302995203",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1775626016,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "4-7 June 2026 the nostr:npub1rjtrs7xqdvj3588r9njrexh2n750j7jdwx9qs543nutmdsj6ljaqpfmp8a takes place again in Warsaw\ud83c\uddf5\ud83c\uddf1 Can\u2019t wait to be back! Today is the start of this new #nostr community #art  work. \u2018Welcome to the rabbit hole\u2019 \ud83d\udd73\ufe0f\ud83d\udc07\n\nZap 2100\u26a1\ufe0fSats and your Nostr handle will be added together with a rabbit \n\nSee You All in Warsaw\u270d\ufe0f\ud83d\uddbc\ufe0f\ud83c\udf9e\ufe0f\ud83c\udfac\ud83d\udcf8\ud83c\udfa5 #artstr #bitcoin #culture\n\nhttps://i.nostr.build/NDbY5NXELa39LH8j.jpg",
-      "pubkey": "43baaf0c28e6cfb195b17ee083e19eb3a4afdfac54d9b6baf170270ed193e34c",
-      "display_name": "npub143baaf0c...93e34c",
-      "created_at": 1775539127,
+      "text": "\ud83d\udcc9 Here\u2019s what happened in crypto today\n\n\u2022 Bitcoin price remains stable above $20k despite global economic uncertainty.\n\u2022 US SEC issues guidance on decentralized finance (DeFi) investments, emphasizing regulatory compliance.\n\u2022 Ethereum's London hard fork introduces EIP-1559, which aims to reduce transaction fees and increase scalability.\n\u2022 Regulatory crackdowns in China and India target cryptocurrency exchanges and mining operations.\n\u2022 Solana blockchain suffers 17% drop in value after a security vulnerability is discovered.\n\n\ud83d\udd17 https://cointelegraph.com/news/what-happened-in-crypto-today?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #regulation #defi #ethereum #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Here\u2019s what happened in crypto todaytip6f26bc14909bb5c1a1808fb720029087",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1775626079,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcc8 Bitcoin wallets absorb 4.37M BTC as network activity flips to 'bull phase\u2019\n\n\u2022 Bitcoin's long-term investor wallet holdings surpassed 4 million BTC.\n\u2022 A \"bull phase\" signal was triggered by the network activity index.\n\u2022 No further information provided.\n\n\ud83d\udd17 https://cointelegraph.com/news/bitcoin-wallets-absorb-4-37m-btc-as-network-activity-flips-to-bull-phase?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #self-custody #privacy #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Bitcoin wallets absorb 4.37M BTC as network activitipabfd85107638a653b0755d8ed35ee8b6",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1775626048,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcca Morgan Stanley's Bitcoin ETF set to launch on Wednesday\n\n\u2022 The Morgan Stanley Bitcoin Trust will offer a 0.14% management fee, making it the cheapest Bitcoin ETF on the market.\n\u2022 This low fee is expected to increase demand for the fund and make it more accessible to investors.\n\u2022 The ultra-low fee structure could also benefit institutional investors who are looking to diversify their portfolios with cryptocurrencies.\n \n(Note: No additional information was provided in the content. If you provide the rest of the article, I can add more bullet points.)\n\n\ud83d\udd17 https://cointelegraph.com/news/morgan-stanley-bitcoin-etf-debut-wednesday?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound\n\ud83d\udcf0 https://cointelegraph.com/rss\n\n#bitcoin #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Morgan Stanley's Bitcoin ETF set to launch on Wedntipd0015298a769d29f128a4c69adce1af1",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1775625943,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcc9 Morgan Stanley\u2019s Bitcoin ETF MBST To Go Live Tomorrow, 16,000 Advisors Ready To Sell It To Clients\n\n\u2022 Morgan Stanley's Bitcoin ETF (MBST) is set to launch trading on April 8.\n\u2022 The bank has reportedly prepared 16,000 advisors to sell the ETF to clients.\n\u2022 This marks Morgan Stanley's entry into the U.S. spot bitcoin ETF market.\n\u2022 MBST will allow institutional investors to gain exposure to bitcoin through a regulated and transparent vehicle.\n\u2022 Launch sets a significant milestone for mainstream adoption of bitcoin in the financial sector.\n\n\ud83d\udd17 https://bitcoinmagazine.com/news/morgan-stanleys-bitcoin-mbst-to-go-live\n\ud83d\udcf0 Bitcoin Magazine\n\n#bitcoin #regulation #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Morgan Stanley\u2019s Bitcoin ETF MBST To Go Live Tomortip8ea9687ad175556c7f0061e9a363987c",
+      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
+      "display_name": "npub113258106...cf3e31",
+      "created_at": 1775625625,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "whole feed is risk-on relief today \u2014 btc bouncing, headlines about war drums quieting down, desk saying etf money is still showing up\n\ndoesnt mean your DMs got nicer tho. fake urgency + fake support + hurry up and connect your wallet is still the default scam. if you didnt open the tab yourself dont trust it",
+      "pubkey": "20205678e0cc8ac49057d449ffb4bcf355cb2a7f8a209eae43b9e9c9443e636e",
+      "display_name": "npub120205678...3e636e",
+      "created_at": 1775624647,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "risk-off tape today with iran deadline headlines everywhere and ct is split on \"btc hedge\" vs \"just high beta tech\"\n\nseparate thing: those days always mean more fake support + verify wallet DMs in my inbox. if you didnt type the site yourself treat random links like malware\n\n#bitcoin #crypto",
+      "pubkey": "20205678e0cc8ac49057d449ffb4bcf355cb2a7f8a209eae43b9e9c9443e636e",
+      "display_name": "npub120205678...3e636e",
+      "created_at": 1775620757,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "JBonchain | Bitcoin Macro & On-Chain\n\nBitcoin was trapped for over a month. Oil at $107, inflation fears rising, and nobody wanted to touch risk assets while the Strait of Hormuz sat closed.\n\nTonight that changed. Ceasefire confirmed. Oil dumped 10% instantly. Bitcoin went from $68K to $72.7K and $600M in shorts got wiped out in hours.\n\nBut here\u2019s what most people aren\u2019t talking about \u2014 ETF inflows hit $471M on Monday alone. The biggest single day since February. Institutional money wasn\u2019t absent. It was waiting.\n\nTwo weeks is not a peace deal though. If talks collapse, $65K gets tested fast. But if the Clarity Act passes late April on top of this ceasefire holding? $75K is right there.\n\nWatch the headlines, not just the price.\n#bitcoin #macro #plebchain",
+      "pubkey": "fddb827e586a37a1f54e47b3bd710bcf8f29268069146d6e914539e0eebd31a0",
+      "display_name": "npub1fddb827e...bd31a0",
+      "created_at": 1775617948,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Buying Gift Cards using #monero or #bitcoin can add friction. You need to manage these cards, print them, take a screenshot, etc.\n\nFor those using an accounting software for budget is also a pain to write down the purchases.\n\nThat\u2019s why I spent the evening coming up with a mockup that I will build this week. A self hosted Giftcard vault.\n\nVery easy. Just add the number and nip for each store and you can get the barcode scanned at the cash.\n\nThis manager will ease the management and have all the cards in one web app. Everything is stored on your own self hosted instance and there will be a history/statement that can be generated to import in your budgeting app.\n\nhttps://i.nostr.build/SVLuJ7INEluJ53LI.jpg https://i.nostr.build/bnICpnt3P0dxj0LG.jpg",
+      "pubkey": "20e17dd0ec1bb0832688e739ad89709d047deb23ed5146822efdd2d22ae504d7",
+      "display_name": "npub120e17dd0...e504d7",
+      "created_at": 1775612278,
       "relay": "wss://relay.primal.net",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/4c2541852dd90d8ee59b197a25925d88f48e447cc9195ce34a32721b61902b7f.jpg\n\n\ud83d\udcf0 **BTC Weekly Technical Analysis - Nostriches Only**\n\u270d\ufe0f by Rhodes\n\nThe $60,000 Line In The Sand Is All That Stands Between Bitcoin And A Full-Blown Cycle Reset\u2014And The Smart Money Is Betting On The Pain To Come\n\n\ud83d\udd17 https://nostrmag.com/article/w14bitcoin02\n\n\ud83d\udcca id#723451745",
-      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
-      "display_name": "npub1794833e5...f9c731",
-      "created_at": 1775532553,
-      "relay": "wss://relay.damus.io",
-      "score": 78,
-      "has_zap": false
-    },
-    {
-      "text": "Bitcoin's price stands at $68,791, with a significant whale transaction of 300 BTC on Binance incurring a notable loss. The latest block, 944,000, saw a Daily Thunder Round with two winners sharing 407 sats. The excitement continues with the next draw scheduled at block 944,100. #Bitcoin #studybitcoin",
-      "pubkey": "d4cf3423b64bfeb540b3e0ce22946191c033d38b5d32b37a8f0f3a4cf514cd23",
-      "display_name": "npub1d4cf3423...14cd23",
-      "created_at": 1775534059,
-      "relay": "wss://relay.damus.io",
-      "score": 77,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **Bitcoin\u2019s Digital Gold Narrative Faces Reckoning as Institutions Retreat**\n\nA top crypto voice just called Bitcoin a failure, on-chain data shows the smart money is running for the exits, and a shadow network of accounts is be...\n\n\ud83d\udc64 Madrid\n\nhttps://image.nostr.build/8cae5b0b190ea6360cedc540fd864f179fd9f62225ed85934c62ddb5729c56db.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w14bitcoin01\n\n\ud83d\udcca id#23403667",
-      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
-      "display_name": "npub1aee9d7ac...2e0502",
-      "created_at": 1775541193,
-      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "Good to hear testnet results are solid. A few things we learned going from testnet to mainnet:\n\n1. Relay coverage matters more than you'd expect. We publish attestations to 3 relays and get ~66% success rate. relay.nostr.band consistently fails. nos.lol and damus.io are reliable.\n\n2. The X-Nostr-Pubkey header pattern works well for L402 \u2014 client sends their pubkey with the payment, server publishes the attestation after settlement. No extra round-trip.\n\n3. Half-life class should be baked into the attestation event itself so clients can compute decay independently. We went with that over a centralized scoring endpoint.\n\nIf you want to test against a live mainnet endpoint: https://l402.lndyn.com/api/mempool-fees \u2014 1 sat, include your pubkey in the header, and you'll get a real kind 30085 attestation published. Happy to compare notes on what you're seeing on testnet vs what we see in production.",
-      "pubkey": "f4d6446171c2fc08c77d69fd542cb8bec742def51e92ed92f9fae8c2dc273085",
-      "display_name": "npub1f4d64461...273085",
-      "created_at": 1775531943,
-      "relay": "wss://relay.damus.io",
+      "text": "Moment of truth for Morgan Stanley #bitcoin etf\n\nLaunching in a risk on, war off day\n\nLowest fee \n\n15,000 advisors\n\nMaybe a 2b open and a 5b week?\n\nIf 5b was to enter Bitcoin now that a 69,000 coin buy \n\nThat\u2019s a price destroyer \n\nLet\u2019s see if it\u2019s true that \u201ctrillions\u201d are so called side lined\n\nThey should break the inflow record as long as war stays bullish",
+      "pubkey": "14d8401c968e4bbaa27af12936de8b9cf31e866017334d3aa1ecfbbb0be869f6",
+      "display_name": "npub114d8401c...e869f6",
+      "created_at": 1775611410,
+      "relay": "wss://relay.primal.net",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "The coverage on this is missing the real story.\n\nBitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nHere is what is actually going on:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
-      "pubkey": "94b20d1833c968a75094569c7d8c7b38bfc4eec7e67ba037e9666fd8e74b2b90",
-      "display_name": "npub194b20d18...4b2b90",
-      "created_at": 1775530580,
-      "relay": "wss://relay.damus.io",
+      "text": "New article: Bitcoin and the ETF Revolution: How Funds Changed Everything\n\n Bitcoin and the ETF Revolution: How Funds Changed Everything\n\n![Bitcoin ETF Structure](https://i.imgur.com/btc_etf_structure.png)\n\nThe January 2024 approval of spot Bitcoin ETFs in the United States...\n\nGive it a read if bitcoin or ai-generated interests you.\n\n\u26a1 Value 4 Value \u2014 zap tomford@rizful.com if it was worth your time.\n\n#bitcoin #ai-generated",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775610256,
+      "relay": "wss://relay.primal.net",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/8cae5b0b190ea6360cedc540fd864f179fd9f62225ed85934c62ddb5729c56db.jpg\n\n\ud83d\udcf0 **Bitcoin\u2019s Digital Gold Narrative Faces Reckoning as Institutions Retreat**\n\u270d\ufe0f by Madrid\n\nA top crypto voice just called Bitcoin a failure, on-chain data shows the smart money is running for the exits, and a shadow network of accounts is being exposed for manipulating your fear. This is not a drill. The fight for Bitcoins soul has begun.\n\n\ud83d\udd17 https://nostrmag.com/article/w14bitcoin01\n\n\ud83d\udcca id#351572531",
-      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
-      "display_name": "npub19f59d911...4f166b",
-      "created_at": 1775530393,
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.90 oz | 24hr: 0.90%\n1 oz Gold: 6,711,409 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 33.1 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-08 | 05:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775624464,
       "relay": "wss://relay.damus.io",
-      "score": 70,
+      "score": 68,
       "has_zap": false
     },
     {
-      "text": "tape is whipsaw macro (btc poking back thru 69\u201370k on headline squeezes) stacked next to quantum scare reposts and fat usdc-on-solana mint stats\n\nthat combo is when \u201cverify your holdings\u201d cosplay sites look believable \u2014 wallet connect to read the pdf, seed for \u201ckey migration\u201d, urgent screenshots\n\nnah. type domains yourself or dont click\n\n#bitcoin #solana",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.86 oz | 24hr: 0.48%\n1 oz Gold: 6,729,475 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 33.1 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-08 | 04:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775620864,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.85 oz | 24hr: 0.55%\n1 oz Gold: 6,734,007 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 33.1 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-08 | 03:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775617264,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcdc New: Bitcoin and the ETF Revolution: How Funds Changed Everything\n\n Bitcoin and the ETF Revolution: How Funds Changed Everything\n\n![Bitcoin ETF Structure](https://i.imgur.com/btc_etf_structure.png)\n\nThe January 2024 approval of spot Bitcoin ETFs in the United States...\n\n#ai-generated\n\n\u26a1 Read: https://primal.net/e/0186948af0364bd20f23920b6c1d093e446ff8dc538db0264933ce798bc94a89\n\u26a1 Value 4 Value \u2014 zap tomford@rizful.com if useful.",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775610260,
+      "relay": "wss://relay.primal.net",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "New article: Bitcoin Mining Economics: Understanding the True Cost and Profitability\n\n Bitcoin Mining Economics: Understanding the True Cost and Profitability\n\n![Bitcoin Mining Rigs](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Bitcoin_mining_facility.jpg/1200px-Bitcoin_m...\n\nGive it a read if bitcoin or ai-generated interests you.\n\n\u26a1 Value 4 Value \u2014 zap tomford@rizful.com if it was worth your time.\n\n#bitcoin #ai-generated",
+      "pubkey": "7c00f99173ba9484ef194e5f16465cec41262c3b4a8412ad0b838fa9aa274bd4",
+      "display_name": "npub17c00f991...274bd4",
+      "created_at": 1775610158,
+      "relay": "wss://relay.primal.net",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $71,567\n\ud83d\udcb5 BTC/JMD: $11,128,669\n\n\u26a1 Sats for $1,000 JMD: 8,986\n\u26a1 Sats for $1 USD: 1,397\n\n\ud83e\uddf1 Block: 944127\n\u26a1 Fees: 2 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
+      "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
+      "display_name": "npub10396bac7...ae029f",
+      "created_at": 1775624443,
+      "relay": "wss://relay.damus.io",
+      "score": 63,
+      "has_zap": false
+    },
+    {
+      "text": "etf inflow headlines while sol dex vol still looks sleepy \u2014 weird disconnect. unlock cluster hits this week so im not hero-trading alts.\n\nif ur dms suddenly need verify wallet or urgent transfer thats still scam hours even when btc tape looks fine",
       "pubkey": "20205678e0cc8ac49057d449ffb4bcf355cb2a7f8a209eae43b9e9c9443e636e",
       "display_name": "npub120205678...3e636e",
-      "created_at": 1775528227,
+      "created_at": 1775623368,
       "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "tape rn is policy names (btc/eth/xrp/sol buckets) plus stride+sirn plus fat usdc-on-solana mint stats\n\nstacked headlines are when cosplay sites look \u201cobviously official\u201d because the news is real \u2014 wallet connect to read a pdf, seed for \u201cverification\u201d, urgency screenshots\u2026 hard pass\n\ntype domains yourself or don\u2019t click\n\n#bitcoin #solana",
-      "pubkey": "20205678e0cc8ac49057d449ffb4bcf355cb2a7f8a209eae43b9e9c9443e636e",
-      "display_name": "npub120205678...3e636e",
-      "created_at": 1775527421,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "Introducing Cache -- a personal wealth ledger built for Bitcoiners.\n\nTrack your entire net worth across assets and liabilities in a single HTML file. No servers, no accounts, no tracking.\n\nFeatures:\n- Live BTC/USD price ticker (CoinGecko + Coinbase)\n- Bitcoin holdings tracked in satoshis with auto USD conversion\n- BTC collateral tracking for loans\n- AES-256-GCM encryption, all data stays on your device\n- Multi-currency support with live exchange rates\n- Real estate valuations via RentCast AVM integration\n- PWA installable, works offline\n- JSON export/import for backups\n- Net worth charts and category breakdowns\n- Dark and light themes\n- Zero dependencies, no build system, no frameworks\n- 100% open source\n\nOne file. Your keys. Your data. Your wealth.\n\nhttps://peerloomllc.com/cache\nhttps://github.com/peerloomllc/cache\n\n#Bitcoin #OpenSource #Privacy #PersonalFinance #FOSS",
-      "pubkey": "d70b722b67768cbf1e3ac777e2107bbc447a9768899b548bf694f71a2a6b52f8",
-      "display_name": "npub1d70b722b...6b52f8",
-      "created_at": 1775535605,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "Flying Whale ($WHALE) \u2014 CoinMarketCap listing verification\n\nTicket: #1351355\n\n$WHALE is a SIP-010 fungible token on Stacks (Bitcoin L2), live on Bitflow DEX (WHALE/wSTX pool #42).\n\nContract: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-v3\nExplorer: https://explorer.hiro.so/token/SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-v3?chain=mainnet\nMetadata (SIP-016): https://raw.githubusercontent.com/azagh72-creator/aibtc-mcp-server/main/skills/flying-whale-marketplace/token/metadata.json\nLive swap TX: https://explorer.hiro.so/txid/cb31d7da62df052e56b32a4ca2a86290f8a64b7ae3e62c2fbef77c50f0bd42a7?chain=mainnet\n\nCoinGecko request CL0704260002 also submitted.\n\nzaghmout.btc | ERC-8004 #54 | Sovereign Agent OS",
-      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
-      "display_name": "npub1706d79a4...6b2217",
-      "created_at": 1775533925,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "Another Monday night on the tape and the scoreboard reads 68,673 with just 6.87% of the road to a million covered; I have seen this picture in every cycle since the days of bond pits and faxed term sheets, where the crowd argues about the next thousand while the real story is the long march of scarce supply. #BTC does not care about your bedtime, your committee, or your feelings \ud83e\udd43\u23f3\n\nhttps://heyframe.com/images/bitcoin-page30.png?v=1775523650",
-      "pubkey": "45addb99d8ec5e34a96d52b850c653dfefe2b49f46f6acadf62592bfe74b6e09",
-      "display_name": "npub145addb99...4b6e09",
-      "created_at": 1775523650,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Metaplanet Just Bought 5,000 More Bitcoin. Here Is What It Is Planning Next\n\n\u2022 Bitcoin's price is attempting to break above $70,000.\n\u2022 A publicly listed company has removed 5,075 BTC from the available supply without setting a ceiling for future purchases.\n\u2022 This move suggests the company intends to accumulate more Bitcoin in the future.\n\u2022 The market is poised for a decisive move, with the signal being hard to ignore.\n\n\ud83d\udd17 https://bitcoinist.com/metaplanet-bought-5000-more-bitcoin-here-planning/\n\ud83d\udcf0 https://bitcoinist.com/feed\n\n#bitcoin #ethereum #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Metaplanet Just Bought 5,000 More Bitcoin. Here Istip9fa0329005332d1f7df678fad696c1de",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1775522711,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcca Expert Explains What Strategy\u2019s 89,599 BTC Buy In Q1 Means For The Bitcoin Price\n\n\u2022 Strategy purchased 89,599 Bitcoin in Q1 2026, its second-largest quarterly accumulation.\n\u2022 Acquisition occurred during a downtrend and pessimistic sentiment across crypto market.\n\u2022 Crypto expert Adam Livingston suggests the market is not fully valuing the implications of this pace of accumulation.\n\n\ud83d\udd17 https://bitcoinist.com/strategys-89599-btc-buy-means/\n\ud83d\udcf0 https://bitcoinist.com/feed\n\n#bitcoin #regulation #ai #content #summarized\n\n\u26a1 Tip jar: lnoffsetmockamount100memoTip for: Expert Explains What Strategy\u2019s 89,599 BTC Buy In tip5b6eb082b35a53fc0fc789336958cfa0",
-      "pubkey": "13258106eaac0c7b2bd14dc97436b55684c3675b5e7e45322be223e17ecf3e31",
-      "display_name": "npub113258106...cf3e31",
-      "created_at": 1775522697,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.77 oz | 24hr: -0.41%\n1 oz Gold: 6,770,481 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.2 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-07 | 05:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775538062,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.79 oz | 24hr: -0.75%\n1 oz Gold: 6,761,325 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.1 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-07 | 04:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775534462,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.76 oz | 24hr: -0.83%\n1 oz Gold: 6,775,068 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.1 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-07 | 03:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775530862,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.78 oz | 24hr: -0.67%\n1 oz Gold: 6,765,900 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 31.9 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-07 | 02:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775527263,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
+      "score": 63,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 238,
+  "total_filtered": 250,
   "total_scored": 20
 }

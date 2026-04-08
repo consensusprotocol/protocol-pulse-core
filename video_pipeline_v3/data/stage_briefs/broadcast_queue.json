@@ -1,52 +1,42 @@
 [
   {
-    "id": "006922bf-2113-41f1-a5e3-d4f467ccadd2",
-    "type": "THOUGHT_LEADER",
-    "priority": 2,
-    "script": "S&P 500 forward P/E at 15.2\u2014lowest level since 2019.\n\nBitcoin mining difficulty holds steady at 472 billion.\n\nWatch for institutional accumulation signals in the next week.",
-    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
-    "topic_preview": "RT @DividendGrowth: S&P 500 forward P/E ratio",
-    "generated_at": "2026-04-07T06:05:04.673465+00:00",
-    "expires_at": "2026-04-07T08:05:04.673465+00:00"
+    "id": "7442053e-eef3-47ad-9b37-855c738793d9",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Bitcoin hit $72,753 on Trump's Iran de-escalation signal\u2014geopolitical risk premium compressing in real time. Watch whether this holds above $71,500 or if traditional markets recapture the volatility narrative.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "Trump-Iran Ceasefire Sparks $72K Bitcoin Surge",
+    "generated_at": "2026-04-08T05:10:26.526113+00:00",
+    "expires_at": "2026-04-08T09:10:26.526113+00:00"
   },
   {
-    "id": "c9a8f999-b39b-4706-9f1d-ae8796628666",
+    "id": "a303a091-3b13-4a70-a795-541f43554d54",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Hashrate holding 876 exahash despite Extreme Fear reading of 11\u2014miners aren't capitulating. Watch for coordinated selloff if this breaks below 850.",
+    "script": "METRICS PULSE \u2014 Block 944127\n\nHashrate holding 953.6 exahash despite price recovery to $71,652. Fear gauge at 17\u2014institutional accumulation window closing. Watch for network difficulty adjustment in 1,200 blocks; if hashrate sustains, miner capitulation is over.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $68,558 \u00b7 FNG 11 \u00b7 876.4 EH/s",
-    "generated_at": "2026-04-07T02:30:21.622834+00:00",
-    "expires_at": "2026-04-07T06:30:21.622834+00:00"
+    "topic_preview": "BTC $71,652 \u00b7 FNG 17 \u00b7 953.6 EH/s",
+    "generated_at": "2026-04-08T05:20:46.110389+00:00",
+    "expires_at": "2026-04-08T09:20:46.110389+00:00"
   },
   {
-    "id": "1113e988-82d9-4b97-96fb-b619b8d11e71",
+    "id": "b2111516-54af-43f1-b4a0-cdf1a2787994",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Geopolitical tensions dominate Nostr discourse as Bitcoiners debate economic risks and sovereignty implications.\n\nWatch for on-chain signals showing increased Bitcoin accumulation in institutional wallets.",
+    "script": "Geopolitical tensions dominate Nostr discourse. Bitcoin adoption accelerates through conflict zones.\n\nWatch for on-chain activity from regions mentioned in recent Nostr discussions.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Geopolitical tensions and economic risks",
-    "generated_at": "2026-04-07T05:40:16.201949+00:00",
-    "expires_at": "2026-04-07T09:40:16.201949+00:00"
+    "generated_at": "2026-04-08T05:10:38.436396+00:00",
+    "expires_at": "2026-04-08T09:10:38.436396+00:00"
   },
   {
-    "id": "6de03323-e307-4e10-91d2-32f9e2857963",
+    "id": "dcdd75a1-b3a7-4c62-bafc-d149b33afa7f",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin's mempool fast fee sits at 2 sat/vbyte, confirming network congestion persists despite price retreat. Fear & Greed index at 11 signals extreme fear gripping the market. Hashrate remains stubbornly high at 876 EH/s, indicating strong miner commitment. Watch for any price break above $70K to validate bullish momentum.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Bitcoin's mempool fast fee sits at 2 sat/vbyte, confirming network congestion pe",
-    "generated_at": "2026-04-07T06:00:23.709075+00:00",
-    "expires_at": "2026-04-07T08:00:23.709075+00:00"
-  },
-  {
-    "id": "883607ab-00e3-4a35-b5c1-e903e2300c77",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, the network recalibrates to maintain ten-minute block intervals regardless of how much hash power joins or leaves. Self-regulating monetary infrastructure.",
+    "script": "Multisig wallets eliminate single points of failure. A two-of-three setup means no single key compromise can drain your funds. This is how institutions are beginning to custody billions in bitcoin.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, th",
-    "generated_at": "2026-04-07T06:00:23.781392+00:00",
-    "expires_at": "2026-04-07T10:00:23.781392+00:00"
+    "topic_preview": "Multisig wallets eliminate single points of failure. A two-of-three setup means ",
+    "generated_at": "2026-04-08T05:10:54.164642+00:00",
+    "expires_at": "2026-04-08T09:10:54.164642+00:00"
   }
 ]

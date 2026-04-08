@@ -1,0 +1,4385 @@
+# CHUNK 3/3: AUDIO + QC + CONFIG
+# Protocol Pulse Video Pipeline — POST V4 FIXES
+# Generated: 2026-04-03T06:25:14Z
+
+
+# FILE: video_pipeline_v3/tts_engine.py (1222 lines)
+
+#!/usr/bin/env python3
+"""TTS Engine — Single PBX voice pipeline (V4.2).
+All narration: ElevenLabs PBX HmUVvDlHsEz0m3eUGLgu.
+Model: eleven_multilingual_v2 (gravitas for news anchor).
+Speed: 1.2x (V4.2 — faster, more energetic).
+"""
+import os, sys, json, subprocess, tempfile, time, struct, shutil, logging, re, threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+# ── Rate limiter for ElevenLabs API (audit P0-U1) ─────────────────────────────
+_el_rate_lock = threading.Lock()
+_el_rate_calls = []
+_EL_RATE_LIMIT = int(os.getenv("ELEVENLABS_RATE_LIMIT_PER_MINUTE", "30"))
+
+
+def _elevenlabs_rate_limit():
+    """Token-bucket rate limiter for ElevenLabs calls."""
+    with _el_rate_lock:
+        now = time.time()
+        _el_rate_calls[:] = [t for t in _el_rate_calls if now - t < 60]
+        if len(_el_rate_calls) >= _EL_RATE_LIMIT:
+            wait = 60 - (now - _el_rate_calls[0])
+            if wait > 0:
+                logger.warning(f"[TTS] ElevenLabs rate limit hit ({_EL_RATE_LIMIT}/min) — waiting {wait:.1f}s")
+                time.sleep(wait)
+        _el_rate_calls.append(time.time())
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+
+from relay import get_key
+try:
+    from video_pipeline_v3.tts_normalizer import normalize as tts_normalize
+except ImportError:
+    from tts_normalizer import normalize as tts_normalize
+
+logger = logging.getLogger(__name__)
+
+# ── LOCAL TTS BACKENDS ──────────────────────────────────────────────────────
+_PROSODY_CACHE = {}  # hash(text) -> prosody-planned text
+
+
+def prosody_plan(text: str, host: int = 2) -> str:
+    """Strip all [bracket] prosody markers and return clean text.
+    Prosody injection disabled — markers caused TTS artifacts."""
+    import re
+    return re.sub(r'\[.*?\]', '', text).strip()
+
+
+PBX_VOICE_ID = "HmUVvDlHsEz0m3eUGLgu"
+
+_PBX_VOICE = {
+    "voice_id": PBX_VOICE_ID,
+    "name": "PBX",
+    "model_id": "eleven_multilingual_v2",
+    "speed": 1.20,
+    "voice_settings": {
+        "stability": 0.35,
+        "similarity_boost": 0.90,
+        "style": 0.30,
+        "use_speaker_boost": True,
+    },
+}
+
+# ── VOICE CONFIG (V4: Single PBX voice) ───────────────────────────────────
+VOICES = {
+    2: _PBX_VOICE,
+}
+
+
+_KEY_CACHE: dict = {}
+
+def _get_cached_key(name: str) -> str:
+    if name not in _KEY_CACHE:
+        k = get_key(name)
+        if k:
+            _KEY_CACHE[name] = k.strip()
+    return _KEY_CACHE.get(name, "")
+
+
+def ffprobe_duration(path: str) -> float:
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True,
+    )
+    try:
+        return float(r.stdout.strip())
+    except Exception:
+        logger.warning(f"[TTS] ffprobe_duration failed for {path}")
+        return -1.0
+
+
+def _generate_silence(output_path: str, duration: float) -> bool:
+    """Generate a silent audio file."""
+    r = subprocess.run(
+        ["ffmpeg", "-y", "-f", "lavfi", "-i",
+         f"anullsrc=r=48000:cl=stereo", "-t", str(duration),
+         "-c:a", "aac", "-b:a", "192k", output_path],
+        capture_output=True, text=True, timeout=30,
+    )
+    return r.returncode == 0 and os.path.exists(output_path)
+
+
+def _mp3_to_m4a(mp3_path: str, m4a_path: str) -> bool:
+    r = subprocess.run(
+        ["ffmpeg", "-y", "-i", mp3_path,
+         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", m4a_path],
+        capture_output=True, text=True, timeout=120,
+    )
+    return r.returncode == 0 and os.path.exists(m4a_path)
+
+
+MAX_CHUNK_CHARS = 500  # ElevenLabs safe chunk size
+SILENCE_GAP = 0.08  # seconds between lines — ElevenLabs has natural pauses built in
+
+# Voice mode overrides per segment type (applied to whichever host speaks)
+VOICE_MODES = {
+    "cold_open":       {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "setup":           {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "react":           {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "bridge":          {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "social_segment":  {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "wrap":            {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+}
+
+
+def _chunk_text(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list:
+    if len(text) <= max_chars:
+        return [text]
+    raw = text.replace("! ", "!\x00").replace(". ", ".\x00").replace("? ", "?\x00")
+    sentences = raw.split("\x00")
+    chunks, current = [], ""
+    for sent in sentences:
+        if len(current) + len(sent) + 1 <= max_chars:
+            current = f"{current} {sent}".strip() if current else sent
+        else:
+            if current:
+                chunks.append(current)
+            current = sent
+    if current:
+        chunks.append(current)
+    return [c for c in chunks if c.strip()]
+
+
+def expand_numbers_for_tts(text: str) -> str:
+    """Round 2 Fix 1: Full num2words preprocessing — converts ALL numbers >999 to spoken form.
+
+    Previous version used manual thousand/million/billion templates which caused garbled
+    speech on numbers like "1,056 EH/s" or "$74,000". Now uses num2words for natural
+    spoken-word output: "$74,000" → "seventy-four thousand dollars".
+    """
+    import re as _re
+    try:
+        from num2words import num2words as _n2w
+    except ImportError:
+        logger.warning("[TTS] num2words not installed — falling back to basic expansion")
+        return _expand_numbers_basic(text)
+
+    # Issue 12: Year detection BEFORE general number expansion
+    # 4-digit numbers 1600-2099 not preceded by $ or currency → spoken as years
+    def _year_to_words(y: int) -> str:
+        """Convert year number to spoken form: 1602→sixteen oh two, 2024→twenty twenty-four."""
+        if 2000 <= y <= 2009:
+            return f"two thousand {_n2w(y - 2000) if y > 2000 else ''}".strip()
+        if 2010 <= y <= 2099:
+            return f"twenty {_n2w(y - 2000)}"
+        hi = y // 100
+        lo = y % 100
+        hi_word = _n2w(hi)
+        if lo == 0:
+            return f"{hi_word} hundred"
+        elif lo < 10:
+            return f"{hi_word} oh {_n2w(lo)}"
+        else:
+            return f"{hi_word} {_n2w(lo)}"
+
+    def _year_sub(m):
+        val = int(m.group(0))
+        return _year_to_words(val)
+    # Match 1600-2099 NOT preceded by $ or digits
+    text = _re.sub(r'(?<!\$)(?<!\d)\b(1[6-9]\d{2}|20[0-9]\d)\b(?!\s*(?:EH|TH|PH|dollars|percent|%|K\b))', _year_sub, text)
+
+    # Dollar abbreviations: $2B → "2 billion dollars", $5M → "5 million dollars"
+    _abbr_scale_map = {"B": "billion", "M": "million", "T": "trillion", "K": "thousand"}
+    def _dollar_abbr(m):
+        num_str = m.group(1)
+        scale_letter = m.group(2).upper()
+        scale_word = _abbr_scale_map.get(scale_letter, scale_letter)
+        try:
+            val = float(num_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale_word} dollars"
+        except Exception:
+            return f"{num_str} {scale_word} dollars"
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*([BMTKbmtk])\b', _dollar_abbr, text)
+
+    # Non-dollar abbreviations: 2B → "2 billion", 5M → "5 million"
+    def _plain_abbr(m):
+        num_str = m.group(1)
+        scale_letter = m.group(2).upper()
+        scale_word = _abbr_scale_map.get(scale_letter, scale_letter)
+        try:
+            val = float(num_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale_word}"
+        except Exception:
+            return f"{num_str} {scale_word}"
+    text = _re.sub(r'(?<!\$)(\d+(?:\.\d+)?)\s*([BMbm])\b(?![A-Za-z])', _plain_abbr, text)
+
+    # Dollar + billion/million shorthand first: $308 billion → "three hundred and eight billion dollars"
+    def _dollar_scale(m):
+        num_str = m.group(1)
+        scale = m.group(2).lower()
+        try:
+            val = float(num_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale} dollars"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*([Bb]illion|[Mm]illion|[Tt]rillion)', _dollar_scale, text)
+
+    # Dollar amounts: $74,000 → "seventy-four thousand dollars"
+    def _dollar(m):
+        val_str = m.group(1).replace(",", "")
+        try:
+            val = int(float(val_str))
+            if val > 999:
+                return f"{_n2w(val)} dollars"
+            return f"{val} dollars"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)', _dollar, text)
+
+    # Hashrate units BEFORE plain numbers (so "1,056 EH/s" is caught here)
+    def _hashrate(m):
+        val_str = m.group(1).replace(",", "")
+        unit = m.group(2)
+        unit_map = {"EH": "exahashes", "TH": "terahashes", "PH": "petahashes"}
+        try:
+            val = float(val_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {unit_map.get(unit, unit)} per second"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.\d+)?)\s*(EH|TH|PH)/?s', _hashrate, text)
+
+    # Percentages: 42% → "forty-two percent"
+    def _pct(m):
+        val_str = m.group(1)
+        try:
+            val = float(val_str)
+            if val == int(val):
+                return f"{_n2w(int(val))} percent"
+            # 8.4% → "eight point four percent"
+            whole = int(val)
+            frac = val_str.split('.')[1] if '.' in val_str else ''
+            if frac:
+                frac_spoken = ' '.join(_n2w(int(d)) for d in frac)
+                return f"{_n2w(whole)} point {frac_spoken} percent"
+            return f"{_n2w(int(val))} percent"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'([\d.]+)%', _pct, text)
+
+    # Large plain numbers with commas: 70,015 → "seventy thousand and fifteen"
+    def _plain_num(m):
+        val_str = m.group(0).replace(",", "")
+        try:
+            val = int(val_str)
+            if val > 999:
+                return _n2w(val)
+            return m.group(0)
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\b\d{1,3}(?:,\d{3})+\b', _plain_num, text)
+
+    # Billion/million shorthand in text (no dollar): 1.2 billion → "one point two billion"
+    def _scale(m):
+        val_str = m.group(1)
+        scale = m.group(2).lower()
+        try:
+            val = float(val_str)
+            spoken = _n2w(val) if val != int(val) else _n2w(int(val))
+            return f"{spoken} {scale}"
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*([Bb]illion|[Mm]illion|[Tt]rillion)', _scale, text)
+
+    # K shorthand: 74K → "seventy-four thousand"
+    def _k(m):
+        try:
+            val = float(m.group(1))
+            return _n2w(int(val * 1000))
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'(\d+(?:\.\d+)?)[Kk]\b', _k, text)
+
+    # Standalone large numbers without commas (e.g. 74000)
+    def _bare_num(m):
+        try:
+            val = int(m.group(0))
+            if val > 999:
+                return _n2w(val)
+            return m.group(0)
+        except Exception:
+            return m.group(0)
+    text = _re.sub(r'\b\d{4,}\b', _bare_num, text)
+
+    # Issue 6: Strip commas and "and" from num2words output to prevent micro-pauses
+    text = _re.sub(r'(\w),\s', r'\1 ', text)  # remove commas in spoken numbers
+    text = _re.sub(r'\band\b\s*', '', text)  # remove "and" (e.g. "one hundred and fifty" → "one hundred fifty")
+    text = _re.sub(r'\s{2,}', ' ', text)  # collapse double spaces
+
+    return text
+
+
+def _expand_numbers_basic(text: str) -> str:
+    """Fallback number expansion without num2words (original logic)."""
+    import re as _re
+
+    def _dollar(m):
+        val_str = m.group(1).replace(",", "")
+        try:
+            val = int(float(val_str))
+        except ValueError:
+            return m.group(0)
+        if val >= 1_000_000_000:
+            return f"{val/1_000_000_000:.1f} billion dollars".replace(".0 ", " ")
+        if val >= 1_000_000:
+            return f"{val/1_000_000:.1f} million dollars".replace(".0 ", " ")
+        if val >= 1_000:
+            b = val // 1000
+            r = val % 1000
+            if r == 0:
+                return f"{b} thousand dollars"
+            return f"{b} thousand {r} dollars"
+        return f"{val} dollars"
+
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*[Bb]illion', lambda m: f"{m.group(1)} billion dollars", text)
+    text = _re.sub(r'\$(\d+(?:\.\d+)?)\s*[Mm]illion', lambda m: f"{m.group(1)} million dollars", text)
+    text = _re.sub(r'\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)', _dollar, text)
+
+    def _plain_num(m):
+        val_str = m.group(0).replace(",", "")
+        try:
+            val = int(val_str)
+        except ValueError:
+            return m.group(0)
+        if val >= 1_000_000_000:
+            return f"{val/1_000_000_000:.1f} billion".replace(".0 ", " ")
+        if val >= 1_000_000:
+            return f"{val/1_000_000:.1f} million".replace(".0 ", " ")
+        if val >= 10_000:
+            b = val // 1000
+            r = val % 1000
+            if r == 0:
+                return f"{b} thousand"
+            return f"{b} thousand {r}"
+        return m.group(0)
+    text = _re.sub(r'\b\d{1,3}(?:,\d{3})+\b', _plain_num, text)
+
+    def _pct(m):
+        return m.group(1).replace(".", " point ") + " percent"
+    text = _re.sub(r'([\d.]+)%', _pct, text)
+
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*EH/?s', lambda m: f"{m.group(1)} exahash per second", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*TH/?s', lambda m: f"{m.group(1)} terahash per second", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*PH/?s', lambda m: f"{m.group(1)} petahash per second", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*[Bb]illion', lambda m: f"{m.group(1)} billion", text)
+    text = _re.sub(r'(\d+(?:\.\d+)?)\s*[Mm]illion', lambda m: f"{m.group(1)} million", text)
+
+    def _k(m):
+        val = float(m.group(1))
+        if val == int(val):
+            return f"{int(val)} thousand"
+        return f"{val} thousand"
+    text = _re.sub(r'(\d+(?:\.\d+)?)[Kk]\b', _k, text)
+
+    return text
+
+
+TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_cache")
+
+
+
+# ── Bitcoin Ecosystem Pronunciation Map ────────────────────────────────────
+# ElevenLabs renders these phonetic substitutions naturally.
+# Longer/more specific entries first to avoid partial replacements.
+PRONUNCIATION_MAP = {
+    # Satoshi
+    "Satoshi Nakamoto": "sah TOE shee nah kah MOE toe",
+    "Satoshi": "sah TOE shee",
+    "Nakamoto": "nah kah MOE toe",
+    # Saylor
+    "Michael Saylor": "Michael Sayler",
+    "Saylor": "Sayler",
+    # Lyn Alden
+    "Lyn Alden": "Lin AWL-den",
+    # Lummis
+    "Cynthia Lummis": "SIN-thee-ah LUM-iss",
+    "Lummis": "LUM-iss",
+    # Brunell
+    "Natalie Brunell": "Natalie Brunelle",
+    "Brunell": "Brunelle",
+    # Preston Pysh
+    "Preston Pysh": "Preston PISH",
+    "Pysh": "PISH",
+    # Max Keiser
+    "Max Keiser": "MAX KY-zer",
+    "Keiser": "KY-zer",
+    # Nayib Bukele
+    "Nayib Bukele": "NYE-eeb boo-KEH-leh",
+    "Bukele": "boo-KEH-leh",
+    # Saifedean Ammous
+    "Saifedean Ammous": "sy-feh-DEAN AH-moos",
+    "Saifedean": "sy-feh-DEAN",
+    "Ammous": "AH-moos",
+    # Robert Breedlove
+    "Robert Breedlove": "Robert BREED love",
+    "Breedlove": "BREED love",
+    # Alex Gladstein
+    "Alex Gladstein": "AL-ex GLAD-steen",
+    "Gladstein": "GLAD-steen",
+    # Knut Svanholm
+    "Knut Svanholm": "kuh-NOOT SVAHN-holm",
+    "Svanholm": "SVAHN-holm",
+    # Luke Dashjr
+    "Luke Dashjr": "LUKE DASH-junior",
+    "Dashjr": "DASH-junior",
+    # Andreas Antonopoulos
+    "Andreas Antonopoulos": "ahn-DRAY-us an-TON-oh-POO-lus",
+    "Antonopoulos": "an-TON-oh-POO-lus",
+    "Andreas": "ahn-DRAY-us",
+    # Charlie Shrem
+    "Charlie Shrem": "CHAR-lee SHREM",
+    "Shrem": "SHREM",
+    # Lawrence Lepard
+    "Lawrence Lepard": "LAW-rents leh-PARD",
+    "Larry Lepard": "LAIR-ee leh-PARD",
+    "Lepard": "leh-PARD",
+    # Erik Voorhees
+    "Erik Voorhees": "AIR-ik VOR-hees",
+    "Voorhees": "VOR-hees",
+    # Gabor Gurbacs
+    "Gabor Gurbacs": "GAH-bor GUR-bacs",
+    "Gurbacs": "GUR-bacs",
+    # Gary Gensler
+    "Gary Gensler": "GAIR-ee GENZ-ler",
+    "Gensler": "GENZ-ler",
+    # Jerome Powell
+    "Jerome Powell": "jeh-ROME POW-ul",
+    "Powell": "POW-ul",
+    # CJ Konstantinos
+    "CJ Konstantinos": "see-JAY kon-stan-TEE-nos",
+    "Konstantinos": "kon-stan-TEE-nos",
+    # Bob Iaccino
+    "Bob Iaccino": "BOB ee-ah-CHEE-no",
+    "Iaccino": "ee-ah-CHEE-no",
+    # Alex Stanczyk
+    "Alex Stanczyk": "AL-ex STAN-chik",
+    "Stanczyk": "STAN-chik",
+    # Matt Odell
+    "Matt Odell": "MAT OH-dell",
+    "Odell": "OH-dell",
+    # Marty Bent
+    "Marty Bent": "MAR-tee BENT",
+    # Willy Woo
+    "Willy Woo": "WIL-ee WOO",
+    # V4.2: Pronunciation fixes — acronyms and common mispronunciations
+    "ETFs": "E-T-Fs",
+    "ETF": "E-T-F",
+    "fiat": "fee-at",
+    "Fiat": "Fee-at",
+    "FIAT": "FEE-AT",
+    "DeFi": "dee-FYE",
+    "defi": "dee-FYE",
+    # Technical terms
+    "EH/s": "exahashes per second",
+    "TH/s": "terahashes per second",
+    "PH/s": "petahashes per second",
+    "UTXO": "you-tee-ex-oh",
+    "HODL": "HODDLE",
+    "blockchain": "blockchain",
+    "halving": "HAV-ing",
+    "SegWit": "SEG-wit",
+    "Segwit": "SEG-wit",
+    "hodl": "HODDLE",
+    "mempool": "mem-pool",
+    "multisig": "MUL-tee-sig",
+    "satoshis": "sah-TOH-sheez",
+    "MicroStrategy": "My-crow-Strategy",
+    "Coinbase": "KOYN-base",
+    "Binance": "BY-nance",
+    "Chainalysis": "CHAIN-uh-LY-sis",
+    # Issue 10: BTC → Bitcoin spoken form
+    "BTC": "Bitcoin",
+    # Session fix: hyphen removal to prevent ElevenLabs stretch
+    "on-chain": "on chain",
+    # Session fix: written-out large numbers → numeral form for natural TTS
+    "one and a half trillion": "1.5 trillion",
+    "one-and-a-half trillion": "1.5 trillion",
+    "one and a half billion": "1.5 billion",
+    "one-and-a-half billion": "1.5 billion",
+    "one and a half million": "1.5 million",
+    "one-and-a-half million": "1.5 million",
+    "two and a half trillion": "2.5 trillion",
+    "two-and-a-half trillion": "2.5 trillion",
+    "two and a half billion": "2.5 billion",
+    "two-and-a-half billion": "2.5 billion",
+}
+
+
+def _expand_handle(handle: str) -> str:
+    """Issue 11: Convert @handle to spoken form.
+    CamelCase → separate words, underscores → spaces, ALL CAPS → spelled out."""
+    import re as _re
+    name = handle.lstrip("@")
+    # ALL CAPS (like TFTC, WBD) → spelled out with dashes
+    if name.isupper() and len(name) <= 6:
+        return "at " + "-".join(name)
+    # Split camelCase: MaxKeiser → Max Keiser
+    name = _re.sub(r'([a-z])([A-Z])', r'\1 \2', name)
+    # Split underscores
+    name = name.replace("_", " ")
+    return "at " + name
+
+
+# Known handles with correct spoken forms
+_HANDLE_PRONUNCIATIONS = {
+    "@maxkeiser": "at Max Kaiser",
+    "@prestopysh": "at Preston Pish",
+    "@tftc": "at T-F-T-C",
+    "@wbd": "at W-B-D",
+    "@saborchain": "at Sabor Chain",
+}
+
+
+_ORDINAL_MAP = {
+    "1st": "first", "2nd": "second", "3rd": "third", "4th": "fourth",
+    "5th": "fifth", "6th": "sixth", "7th": "seventh", "8th": "eighth",
+    "9th": "ninth", "10th": "tenth", "11th": "eleventh", "12th": "twelfth",
+    "13th": "thirteenth", "14th": "fourteenth", "15th": "fifteenth",
+    "16th": "sixteenth", "17th": "seventeenth", "18th": "eighteenth",
+    "19th": "nineteenth", "20th": "twentieth", "21st": "twenty-first",
+    "22nd": "twenty-second", "23rd": "twenty-third", "24th": "twenty-fourth",
+    "25th": "twenty-fifth", "26th": "twenty-sixth", "27th": "twenty-seventh",
+    "28th": "twenty-eighth", "29th": "twenty-ninth", "30th": "thirtieth",
+    "31st": "thirty-first",
+}
+
+
+def _expand_ordinals(text: str) -> str:
+    """Pre-process ordinal numbers (e.g. '27th') to spoken form to prevent TTS splitting."""
+    import re as _re
+    def _ordinal_sub(m):
+        key = m.group(0).lower()
+        return _ORDINAL_MAP.get(key, m.group(0))
+    return _re.sub(r'\b\d{1,2}(?:st|nd|rd|th)\b', _ordinal_sub, text, flags=_re.IGNORECASE)
+
+
+def apply_pronunciation_map(text: str) -> str:
+    """Replace names/terms with phonetic versions ElevenLabs renders correctly.
+    Processes longer entries first to avoid partial replacements."""
+    import re
+    # Pre-process ordinals before pronunciation map
+    text = _expand_ordinals(text)
+    # Issue 11: Pre-process @handles before pronunciation map
+    def _handle_sub(m):
+        raw = m.group(0).lower()
+        if raw in _HANDLE_PRONUNCIATIONS:
+            return _HANDLE_PRONUNCIATIONS[raw]
+        return _expand_handle(m.group(0))
+    text = re.sub(r'@[A-Za-z0-9_]+', _handle_sub, text)
+
+    # Sort by length descending so longer matches take priority
+    for written, phonetic in sorted(PRONUNCIATION_MAP.items(), key=lambda x: -len(x[0])):
+        # Word-boundary aware replacement (case-insensitive)
+        pattern = re.compile(r'\b' + re.escape(written) + r'\b', re.IGNORECASE)
+        text = pattern.sub(phonetic, text)
+    return text
+
+
+def strip_right_opener(text: str) -> str:
+    """Strip narration that opens with 'Right' as the first word.
+
+    Replaces with the second sentence, or removes the 'Right, ' prefix.
+    """
+    stripped = text.strip()
+    if not stripped:
+        return stripped
+    # Match "Right," or "Right " or "Right." at the start (case-insensitive)
+    if re.match(r'^[Rr]ight[\s,.\-—]+', stripped):
+        # Try to find second sentence
+        after = re.sub(r'^[Rr]ight[\s,.\-—]+', '', stripped).strip()
+        if after:
+            # Capitalize first letter
+            return after[0].upper() + after[1:] if len(after) > 1 else after.upper()
+        return stripped  # fallback: return original if nothing left
+    return stripped
+
+
+def _trim_trailing_mumble(audio_path: str) -> None:
+    """Trim trailing artifact/mumble from ElevenLabs TTS output.
+
+    Uses silenceremove to strip non-intelligible tail audio below -40dB
+    in the last 0.3 seconds. Applied to every ElevenLabs clip.
+    """
+    try:
+        dur = ffprobe_duration(audio_path)
+        if dur <= 1.0:
+            return
+        trimmed = audio_path + ".mumble_trim.m4a"
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-i", audio_path,
+             "-af", "silenceremove=stop_periods=-1:stop_duration=0.3:stop_threshold=-40dB",
+             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", trimmed],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 5000:
+            dur_after = ffprobe_duration(trimmed)
+            # Sanity: don't trim more than 15% of audio
+            if dur_after >= dur * 0.85:
+                os.replace(trimmed, audio_path)
+                if dur - dur_after > 0.05:
+                    logger.info(f"[TTS] Trimmed trailing mumble: {dur:.2f}s → {dur_after:.2f}s")
+            else:
+                os.remove(trimmed)
+        elif os.path.exists(trimmed):
+            os.remove(trimmed)
+    except Exception as e:
+        logger.debug(f"[TTS] Trailing mumble trim skipped: {e}")
+
+
+def _trim_trailing_silence(audio_path: str) -> None:
+    """Round 2 Fix 2: Trim trailing silence/vowel-stretch from TTS output.
+
+    Detects if the last 0.5s is significantly quieter than the body (trailing off)
+    and trims it to avoid the stretched-vowel artifact common in ElevenLabs output.
+    """
+    try:
+        import re as _re
+        # Measure RMS of last 0.5s vs body
+        result = subprocess.run(
+            ["ffmpeg", "-i", audio_path, "-af",
+             "silencedetect=noise=-35dB:d=0.15", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=15,
+        )
+        # Find silence at end of file
+        dur = ffprobe_duration(audio_path)
+        if dur <= 1.0:
+            return
+        silences = [float(m.group(1)) for m in
+                    _re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
+        if not silences:
+            return
+        last_silence = silences[-1]
+        # If silence starts within last 0.5s, trim there
+        if dur - last_silence <= 0.5 and last_silence > dur * 0.8:
+            trimmed = audio_path + ".trimmed.m4a"
+            trim_ok = subprocess.run(
+                ["ffmpeg", "-y", "-i", audio_path,
+                 "-t", f"{last_silence + 0.05:.3f}",
+                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k", trimmed],
+                capture_output=True, text=True, timeout=15,
+            )
+            if trim_ok.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 5000:
+                os.replace(trimmed, audio_path)
+                logger.info(f"[TTS] Trimmed trailing silence: {dur:.2f}s → {last_silence + 0.05:.2f}s")
+            elif os.path.exists(trimmed):
+                os.remove(trimmed)
+    except Exception as e:
+        logger.debug(f"[TTS] Trailing silence trim skipped: {e}")
+
+
+def _trim_leading_silence(audio_path: str) -> None:
+    """Remove leading silence (<-40dB) from TTS output.
+
+    ElevenLabs often pads 0.1-0.2s silence at the start of each clip.
+    This accumulates across lines, creating noticeable gaps in the final mix.
+    Uses ffmpeg silenceremove filter to strip sub-40dB audio from the start.
+    """
+    try:
+        dur_before = ffprobe_duration(audio_path)
+        if dur_before <= 0.5:
+            return
+        trimmed = audio_path + ".ltrimmed.m4a"
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-i", audio_path,
+             "-af", "silenceremove=start_periods=1:start_silence=0.03:start_threshold=-40dB",
+             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k", trimmed],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0 and os.path.exists(trimmed) and os.path.getsize(trimmed) > 5000:
+            dur_after = ffprobe_duration(trimmed)
+            if dur_after >= dur_before * 0.7:  # sanity: don't trim more than 30%
+                os.replace(trimmed, audio_path)
+                if dur_before - dur_after > 0.02:
+                    logger.info(f"[TTS] Trimmed leading silence: {dur_before:.3f}s → {dur_after:.3f}s")
+            else:
+                os.remove(trimmed)
+        elif os.path.exists(trimmed):
+            os.remove(trimmed)
+    except Exception as e:
+        logger.debug(f"[TTS] Leading silence trim skipped: {e}")
+
+
+def _tts_cache_key(text: str, voice_id: str, segment_type: str) -> str:
+    """SHA256 hash of text+voice+segment_type → stable cache key."""
+    import hashlib
+    payload = f"{voice_id}:{segment_type}:{text}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:16]
+
+
+def _tts_cache_get(cache_key: str, output_path: str) -> bool:
+    """Return True if valid cached file exists and passes validation."""
+    cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
+    if os.path.exists(cache_file) and os.path.getsize(cache_file) > 10240:
+        shutil.copy2(cache_file, output_path)
+        try:
+            validate_tts_output(output_path)
+            return True
+        except RuntimeError:
+            logger.warning(f"[TTS] Corrupt cache deleted: {cache_file}")
+            try:
+                os.remove(cache_file)
+                os.remove(output_path)
+            except Exception:
+                pass
+    return False
+
+
+def _tts_cache_put(cache_key: str, audio_path: str) -> None:
+    """Save audio to TTS cache for future runs."""
+    import shutil
+    os.makedirs(TTS_CACHE_DIR, exist_ok=True)
+    cache_file = os.path.join(TTS_CACHE_DIR, f"{cache_key}.m4a")
+    if not os.path.exists(cache_file):
+        shutil.copy2(audio_path, cache_file)
+
+
+def _tts_generate_silence_fallback(text: str, output_path: str) -> bool:
+    """HARD FAIL: silence fallback is no longer allowed.
+
+    Previously generated silent AAC as a last resort, masking total TTS failure.
+    This caused downstream black frames and F-grade renders that QC scored 94/100.
+    Now raises RuntimeError so the pipeline fails fast instead of rendering garbage.
+    """
+    snippet = (text[:80] + "...") if len(text) > 80 else text
+    raise RuntimeError(
+        f"TTS FATAL: ElevenLabs + pyttsx3 both failed. Refusing to render silence. "
+        f"Text: \"{snippet}\". Fix the TTS provider before re-running."
+    )
+
+
+
+def validate_tts_output(path: str, min_size: int = 10240) -> None:
+    """Validate TTS output file is real audio, not empty/corrupt.
+
+    Raises RuntimeError if:
+      - File doesn't exist
+      - File < min_size bytes (10KB default)
+      - ffprobe duration < 0.5s
+    """
+    if not os.path.exists(path):
+        raise RuntimeError(f"TTS output missing: {path}")
+    size = os.path.getsize(path)
+    if size < min_size:
+        raise RuntimeError(
+            f"TTS output too small ({size} bytes < {min_size}): {path} — "
+            f"ElevenLabs likely returned empty audio"
+        )
+    dur = ffprobe_duration(path)
+    if dur < 0.5:
+        raise RuntimeError(
+            f"TTS output too short ({dur:.2f}s < 0.5s): {path} — "
+            f"audio is effectively silent/corrupt"
+        )
+
+
+def tts_preflight_test() -> bool:
+    """Preflight: call ElevenLabs with a 5-word test phrase, confirm >1000 bytes returned.
+    Raises RuntimeError on failure so the pipeline aborts before wasting render time."""
+    if not HAS_REQUESTS:
+        raise RuntimeError("TTS preflight: 'requests' library not installed")
+    key = _get_cached_key("ELEVENLABS_API_KEY")
+    if not key:
+        raise RuntimeError("TTS preflight: ELEVENLABS_API_KEY not available")
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{PBX_VOICE_ID}"
+    headers = {"xi-api-key": key, "Content-Type": "application/json"}
+    body = {
+        "text": "Bitcoin signal confirmed today.",
+        "model_id": _PBX_VOICE["model_id"],
+        "voice_settings": dict(_PBX_VOICE["voice_settings"]),
+    }
+    try:
+        r = requests.post(url, json=body, headers=headers, timeout=20)
+        if r.status_code != 200:
+            raise RuntimeError(f"TTS preflight: ElevenLabs returned HTTP {r.status_code}: {r.text[:200]}")
+        if len(r.content) < 1000:
+            raise RuntimeError(f"TTS preflight: ElevenLabs returned only {len(r.content)} bytes (need >1000)")
+        logger.info(f"[TTS] Preflight PASS: PBX voice returned {len(r.content)} bytes")
+        return True
+    except requests.RequestException as e:
+        raise RuntimeError(f"TTS preflight: ElevenLabs unreachable: {e}")
+
+
+def tts_elevenlabs(text: str, output_path: str, host: int = 1,
+                   segment_type: str = "") -> bool:
+    """Generate TTS for a single line using the specified host voice.
+
+    Checks TTS cache first (hash of text+voice+segment_type). On cache hit,
+    copies cached audio — no ElevenLabs API call. On miss, generates and caches.
+    Falls back to pyttsx3 system TTS, then silence, on ElevenLabs quota/auth failure.
+    """
+    if not HAS_REQUESTS:
+        # No requests lib — try pyttsx3 or silence
+        return _tts_generate_silence_fallback(text, output_path)
+
+    key = _get_cached_key("ELEVENLABS_API_KEY")
+    if not key:
+        return _tts_generate_silence_fallback(text, output_path)
+
+    # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
+    # These tags are for script structure — narrator should never read them aloud
+    text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
+    # Session fix: Never start narration with "Right" as opening word
+    text = strip_right_opener(text)
+    # Bitcoin/finance pronunciation normalizer (runs first)
+    text = tts_normalize(text)
+    # Session 4 Fix 3: Expand numbers before TTS to prevent babbling
+    text = expand_numbers_for_tts(text)
+    # R25 FIX 7: Apply pronunciation map (Pysh→PISH, etc.) — was defined but never called
+    text = apply_pronunciation_map(text)
+
+    voice = VOICES.get(host, VOICES[2])  # All hosts → PBX
+    # Check TTS cache first — avoid API call if same text+voice was generated before
+    cache_key = _tts_cache_key(text, voice["voice_id"], segment_type)
+    if _tts_cache_get(cache_key, output_path):
+        print(f"  [tts] Cache HIT ({voice['name']}): {text[:50]}...")
+        return True
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice['voice_id']}"
+    headers = {"xi-api-key": key, "Content-Type": "application/json"}
+
+    # Apply voice mode overrides based on segment type (both hosts)
+    voice_settings = dict(voice["voice_settings"])
+    if segment_type in VOICE_MODES:
+        mode = VOICE_MODES[segment_type]
+        for k, v in mode.items():
+            if k != "speed":
+                voice_settings[k] = v
+
+    chunks = _chunk_text(text)
+    chunk_files = []
+
+    for ci, chunk in enumerate(chunks):
+        body = {
+            "text": chunk,
+            "model_id": voice["model_id"],
+            "voice_settings": voice_settings,
+        }
+        # Add speed parameter from voice config (host-specific)
+        speed = voice.get("speed", 1.0)
+        if speed != 1.0:
+            body["speed"] = speed
+        mp3_tmp = output_path + f".chunk{ci}.mp3"
+        success = False
+
+        # FIX iter1: Increase retries from 3 to 5 with longer backoff to survive
+        # transient ElevenLabs outages that were causing grade failures
+        max_retries = 5
+        for attempt in range(max_retries):
+            _elevenlabs_rate_limit()  # audit P0-U1
+            try:
+                r = requests.post(url, json=body, headers=headers, timeout=90)
+                if r.status_code == 200:
+                    with open(mp3_tmp, "wb") as f:
+                        f.write(r.content)
+                    # Pre-validate: ElevenLabs sometimes returns empty/tiny responses
+                    if os.path.getsize(mp3_tmp) < 1000:
+                        print(f"  [tts] WARNING: ElevenLabs returned tiny file ({os.path.getsize(mp3_tmp)}B) for chunk {ci}, retrying...")
+                        if attempt < max_retries - 1:
+                            time.sleep(2 ** attempt)
+                            continue
+                    success = True
+                    break
+                elif r.status_code == 429:
+                    wait = min(2 ** (attempt + 1), 30)  # cap at 30s
+                    print(f"  [tts] Rate limited ({voice['name']}), waiting {wait}s...")
+                    time.sleep(wait)
+                else:
+                    print(f"  [tts] HTTP {r.status_code} ({voice['name']}) attempt {attempt+1}: {r.text[:200]}")
+                    if attempt < max_retries - 1:
+                        time.sleep(2 ** attempt)
+            except Exception as e:
+                print(f"  [tts] Error ({voice['name']}) attempt {attempt+1}: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(2 ** attempt)
+
+        if not success:
+            for f in chunk_files:
+                try:
+                    os.remove(f)
+                except Exception:
+                    pass
+            logger.error(f"[tts] ElevenLabs failed after {max_retries} retries for chunk {ci} — returning False")
+            return False
+        chunk_files.append(mp3_tmp)
+
+    # Single chunk
+    if len(chunk_files) == 1:
+        ok = _mp3_to_m4a(chunk_files[0], output_path)
+        try:
+            os.remove(chunk_files[0])
+        except Exception:
+            pass
+        if ok and os.path.exists(output_path):
+            _trim_leading_silence(output_path)
+            _trim_trailing_silence(output_path)
+            _trim_trailing_mumble(output_path)
+            # RETRY: ElevenLabs sometimes returns empty audio - retry up to 3 times
+            _validate_attempts = 0
+            while _validate_attempts < 3:
+                try:
+                    validate_tts_output(output_path)
+                    break  # success
+                except RuntimeError as _ve:
+                    _validate_attempts += 1
+                    log.warning(f'TTS validate fail attempt {_validate_attempts}/3: {_ve}')
+                    if _validate_attempts >= 3:
+                        raise
+                    import time as _t; _t.sleep(3 * _validate_attempts)
+                    # Retry the ElevenLabs call
+                    try:
+                        import os as _os; _os.remove(output_path)
+                    except: pass
+                    tts_elevenlabs(text, output_path, host_num, segment_type=segment_type)
+            _tts_cache_put(cache_key, output_path)
+        return ok
+
+    # Multi-chunk concat
+    concat_list = output_path + ".concat.txt"
+    mp3_combined = output_path + ".combined.mp3"
+    with open(concat_list, "w") as f:
+        for p in chunk_files:
+            f.write(f"file '{os.path.abspath(p)}'\n")
+    subprocess.run(
+        ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
+         "-c", "copy", mp3_combined],
+        capture_output=True, text=True, timeout=120,
+    )
+    ok = _mp3_to_m4a(mp3_combined, output_path)
+    for f in chunk_files + [concat_list, mp3_combined]:
+        try:
+            if os.path.exists(f):
+                os.remove(f)
+        except Exception:
+            pass
+    if ok and os.path.exists(output_path):
+        _trim_leading_silence(output_path)
+        _trim_trailing_silence(output_path)
+        _trim_trailing_mumble(output_path)
+        validate_tts_output(output_path)
+        _tts_cache_put(cache_key, output_path)
+    return ok
+
+
+def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str = "elevenlabs") -> dict:
+    """Synthesize a single dialogue line via ElevenLabs PBX.
+
+    Returns metadata dict with path, duration, host, tts_ok flag.
+    """
+    text = entry.get("text", "")
+
+    # V4: Single PBX voice — all narration is host 2
+    host_num = 2
+    voice = VOICES[host_num]
+    segment_type = entry.get("type", "")
+    line_path = os.path.join(output_dir, f"line_{i:03d}_{voice['name'].lower()}.m4a")
+
+    print(f"  [tts] Line {i:02d} (PBX): {text[:60]}...")
+
+    _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
+    dur = 0.0
+
+    # Validate output
+    if _tts_ok:
+        if not os.path.exists(line_path) or os.path.getsize(line_path) < 1000:
+            logger.warning(f"[tts] Line {i} zero/tiny audio")
+            _tts_ok = False
+        else:
+            dur = ffprobe_duration(line_path)
+            if dur < 0.5 and len(text) > 10:
+                logger.warning(f"[tts] Line {i} too short ({dur:.2f}s)")
+                _tts_ok = False
+
+    if not _tts_ok:
+        raise RuntimeError(
+            f"TTS FATAL: ElevenLabs PBX failed for line {i}. "
+            f"Text: \"{text[:80]}...\". Refusing to render silence."
+        )
+
+    return {
+        "index": i,
+        "path": line_path,
+        "host": host_num,
+        "duration": dur,
+        "text": text,
+        "type": segment_type,
+        "tts_ok": True,
+        "clip_rank": entry.get("clip_rank", 0),
+    }
+
+
+def generate_dialogue_audio(dialogue: list, output_dir: str) -> dict:
+    """Generate audio for PBX single-voice dialogue.
+
+    Pre-generates ALL TTS lines in parallel via ThreadPoolExecutor to eliminate
+    sequential API latency stacking. Then assembles timeline and concatenates.
+
+    Args:
+        dialogue: List of {host: 1|2|"CLIP", text: "..."}
+        output_dir: Directory for audio files
+
+    Returns:
+        {
+            "lines": [{"path": str, "host": int, "duration": float, "start": float}, ...],
+            "full": str,  # path to concatenated full audio
+            "total_duration": float,
+        }
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Section 2e: Ensure final PBX narration ends with sign-off
+    _SIGNOFF = "Stay free. Stay sovereign. This is PBX, Protocol Pulse."
+    if dialogue:
+        # Find the last non-CLIP entry (the wrap/closing narration)
+        for _i in range(len(dialogue) - 1, -1, -1):
+            _entry = dialogue[_i]
+            if _entry.get("host") not in ("CLIP", "SPACE_CLIP"):
+                _text = _entry.get("text", "")
+                if "Stay free" not in _text and "This is PBX" not in _text:
+                    # Append sign-off to the final narration segment
+                    if _text.rstrip().endswith(('.', '!', '?', '"')):
+                        _entry["text"] = _text.rstrip() + " " + _SIGNOFF
+                    else:
+                        _entry["text"] = _text.rstrip() + ". " + _SIGNOFF
+                    logger.info(f"[TTS] Injected PBX sign-off into final narration segment")
+                break
+
+    # V4: Always ElevenLabs PBX
+    key = _get_cached_key("ELEVENLABS_API_KEY")
+    if not key:
+        raise RuntimeError("ELEVENLABS_API_KEY not available. Cannot generate audio.")
+
+    silence_path = os.path.join(output_dir, "silence.m4a")
+    if not _generate_silence(silence_path, SILENCE_GAP):
+        raise RuntimeError("Failed to generate inter-line silence gap audio")
+
+    # ── Phase 1: Parallel TTS pre-generation ──
+    tts_jobs = []
+    clip_entries = {}
+
+    for i, entry in enumerate(dialogue):
+        if entry.get("host") in ("CLIP", "SPACE_CLIP"):
+            clip_entries[i] = entry
+        else:
+            tts_jobs.append((i, entry))
+
+    # 4 workers for ElevenLabs (rate-safe)
+    max_workers = 4
+    tts_results = {}
+
+    if tts_jobs:
+        print(f"  [tts] Pre-generating {len(tts_jobs)} PBX lines in parallel (workers={max_workers})...")
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_synthesize_line, idx, entry, output_dir): idx
+                for idx, entry in tts_jobs
+            }
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    result = future.result()
+                    tts_results[result["index"]] = result
+                except Exception as e:
+                    logger.error(f"[tts] Parallel TTS line {idx} failed: {e}")
+                    raise
+
+    # ── Phase 2: Assemble timeline in original order ──
+    lines = []
+    parts_for_concat = []
+    current_time = 0.0
+
+    for i, entry in enumerate(dialogue):
+        host = entry.get("host")
+        text = entry.get("text", "")
+
+        if host in ("CLIP", "SPACE_CLIP"):
+            clip_duration = float(entry.get("duration", 30.0))
+            lines.append({
+                "path": None,
+                "host": host,
+                "duration": clip_duration,
+                "start": current_time,
+                "source": entry.get("source", ""),
+                "query": entry.get("query", ""),
+                "text": text,
+            })
+            current_time += clip_duration
+            continue
+
+        result = tts_results[i]
+        dur = result["duration"]
+
+        lines.append({
+            "path": result["path"],
+            "host": result["host"],
+            "duration": dur,
+            "start": current_time,
+            "text": text,
+            "type": result["type"],
+            "tts_ok": result["tts_ok"],
+            "clip_rank": result.get("clip_rank", 0),
+        })
+        parts_for_concat.append(result["path"])
+        current_time += dur
+
+        # Add silence gap between lines (not after last line, not before CLIP)
+        next_entry = dialogue[i + 1] if i < len(dialogue) - 1 else None
+        if next_entry is not None and next_entry.get("host") != "CLIP":
+            parts_for_concat.append(silence_path)
+            current_time += SILENCE_GAP
+
+    # Concatenate all lines into full audio
+    full_path = os.path.join(output_dir, "full_dialogue.m4a")
+    if parts_for_concat:
+        concat_file = os.path.join(output_dir, "dialogue_concat.txt")
+        with open(concat_file, "w") as f:
+            for p in parts_for_concat:
+                f.write(f"file '{os.path.abspath(p)}'\n")
+        concat_result = subprocess.run(
+            ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_file,
+             "-c", "copy", full_path],
+            capture_output=True, text=True,
+        )
+        if concat_result.returncode != 0:
+            logger.error(f"[tts] FFmpeg concat failed: {concat_result.stderr[:500]}")
+        if os.path.exists(concat_file):
+            os.remove(concat_file)
+
+    # Guard: full_dialogue.m4a must not be zero-byte or tiny
+    if os.path.exists(full_path):
+        full_size = os.path.getsize(full_path)
+        if full_size < 10240:
+            raise RuntimeError(
+                f"full_dialogue.m4a is {full_size} bytes (<10KB) — "
+                f"FFmpeg concat produced empty/corrupt audio. Aborting before render."
+            )
+
+    total_dur = ffprobe_duration(full_path) if os.path.exists(full_path) else current_time
+    successful = sum(1 for l in lines if l.get("tts_ok", False))
+
+    print(f"\n  [tts] Dialogue audio: {successful}/{len(dialogue)} lines, {total_dur:.1f}s total")
+
+    # ── Per-host TTS validation: catch silent hosts BEFORE render starts ──
+    host_stats = {}  # {host_num: {"total": N, "ok": N}}
+    for l in lines:
+        h = l.get("host")
+        if h == "CLIP":
+            continue
+        if h not in host_stats:
+            host_stats[h] = {"total": 0, "ok": 0}
+        host_stats[h]["total"] += 1
+        if l.get("tts_ok", False):
+            host_stats[h]["ok"] += 1
+
+    for h, stats in host_stats.items():
+        voice_name = VOICES.get(h, {}).get("name", f"Host{h}")
+        if stats["ok"] == 0 and stats["total"] > 0:
+            raise RuntimeError(
+                f"TTS FATAL: {voice_name} (host {h}) has 0/{stats['total']} successful lines. "
+                f"All audio is missing/silent. Aborting before render."
+            )
+        if stats["total"] > 0 and stats["ok"] / stats["total"] < 0.5:
+            raise RuntimeError(
+                f"TTS FATAL: {voice_name} (host {h}) has only {stats['ok']}/{stats['total']} "
+                f"successful lines (<50%). Too many failures to produce a quality render."
+            )
+
+    return {
+        "lines": lines,
+        "full": full_path if os.path.exists(full_path) else None,
+        "total_duration": total_dur,
+    }
+
+
+# Legacy compatibility — V3 pipeline used generate_all_audio
+def generate_all_audio(script: dict, output_dir: str) -> dict:
+    """Legacy wrapper: converts V4 dialogue script to audio paths dict."""
+    if "dialogue" in script:
+        return generate_dialogue_audio(script["dialogue"], output_dir)
+    # V3 fallback
+    raise RuntimeError("V4 pipeline requires dialogue-format script")
+
+
+if __name__ == "__main__":
+    from script_writer import generate_script
+    style = sys.argv[1] if len(sys.argv) > 1 else "default"
+    script = generate_script(style=style)
+    base = os.path.dirname(os.path.abspath(__file__))
+    audio_dir = os.path.join(base, "output", "audio_test")
+    result = generate_dialogue_audio(script["dialogue"], audio_dir)
+    print(json.dumps(
+        {k: v for k, v in result.items() if k != "lines"},
+        indent=2,
+    ))
+
+# FILE: video_pipeline_v3/preflight.py (344 lines)
+
+#!/usr/bin/env python3
+"""
+PREFLIGHT.PY v2 — Protocol Pulse Pipeline Smoke Gate
+=====================================================
+<15 second runtime. Catches every class of failure seen in production.
+
+Exit 0 = safe to render. Exit 1 = DO NOT render.
+
+Usage:
+  python3 preflight.py           # full check inc. live TTS
+  python3 preflight.py --no-tts  # skip live ElevenLabs call
+"""
+
+import os, sys, ast, json, re, time, tempfile, argparse, subprocess
+from datetime import datetime
+
+BASE = '/home/ultron/protocol_pulse'
+V3   = f'{BASE}/video_pipeline_v3'
+
+PASS = '\033[92m✅ PASS\033[0m'
+FAIL = '\033[91m❌ FAIL\033[0m'
+HEAD = '\033[96m'
+RST  = '\033[0m'
+
+results = []
+
+def chk(name, passed, detail=''):
+    print(f'  {PASS if passed else FAIL}  {name}' + (f'\n         → {detail}' if detail and not passed else ''))
+    results.append((name, passed, detail))
+    return passed
+
+def sec(title):
+    print(f'\n{HEAD}── {title} {"─"*(52-len(title))}{RST}')
+
+def env():
+    e = {}
+    if os.path.exists(f'{BASE}/.env'):
+        for ln in open(f'{BASE}/.env'):
+            ln = ln.strip()
+            if ln and not ln.startswith('#') and '=' in ln:
+                k, v = ln.split('=', 1)
+                e[k.strip()] = v.strip()
+    return e
+
+# ── 1. SYNTAX ─────────────────────────────────────────────
+def check_syntax():
+    sec('SYNTAX & COMPILE')
+    ok = True
+    for name in ['tts_engine.py', 'daily_producer.py', 'assembler.py']:
+        path = f'{V3}/{name}'
+        if not os.path.exists(path):
+            chk(f'Exists: {name}', False, f'NOT FOUND: {path}'); ok = False; continue
+        try:
+            ast.parse(open(path).read())
+            chk(f'Syntax OK: {name}', True)
+        except SyntaxError as e:
+            chk(f'Syntax OK: {name}', False, str(e)); ok = False
+    return ok
+
+# ── 2. REQUIRED CONSTANTS ─────────────────────────────────
+def check_constants():
+    sec('REQUIRED CONSTANTS — tts_engine.py')
+    ok = True
+    c = open(f'{V3}/tts_engine.py').read() if os.path.exists(f'{V3}/tts_engine.py') else ''
+
+    for const, val in [('SILENCE_GAP', '0.3'), ('MAX_CHUNK_CHARS', '500'), ('VOICE_MODES', '{')]:
+        present = bool(re.search(rf'^{const}\s*=', c, re.MULTILINE))
+        if not chk(f'Constant: {const} = {val}', present,
+                   f'MISSING — add: {const} = {val}'):
+            ok = False
+
+    # _KEY_CACHE — must exist exactly once
+    kc = len(re.findall(r'^_KEY_CACHE', c, re.MULTILINE))
+    if not chk(f'_KEY_CACHE declared (x{kc})', kc == 1,
+               f'Found {kc} declarations — deduplicate to exactly 1'):
+        ok = False
+    return ok
+
+# ── 3. BANNED PATTERNS ────────────────────────────────────
+def check_banned():
+    sec('BANNED PATTERNS')
+    ok = True
+    tts = open(f'{V3}/tts_engine.py').read() if os.path.exists(f'{V3}/tts_engine.py') else ''
+    asm = open(f'{V3}/assembler.py').read()   if os.path.exists(f'{V3}/assembler.py')   else ''
+
+    # Banned voice (returns 200 + 0 bytes silently)
+    if not chk('Banned voice absent: uxKr2vlA4hYgXZR1oPRT',
+               'uxKr2vlA4hYgXZR1oPRT' not in tts,
+               'BANNED voice ID in tts_engine.py — delete immediately'):
+        ok = False
+
+    # Wrong sample rates
+    for pat in ['r=44100', 'ar 44100', '-ar 44100', 'cl=mono']:
+        if not chk(f'No legacy rate: "{pat}"', pat not in tts,
+                   f'{pat} still present — must be 48000Hz stereo'):
+            ok = False
+
+    # assembler: ban BARE 0xFF0000 (no @) — atmospheric @0.xx are OK per PIPELINE_LAWS
+    bare_red = bool(re.search(r'0xFF0000[^@\s]', asm))
+    if not chk('No bare 0xFF0000 in assembler', not bare_red,
+               'Bare 0xFF0000 found (no opacity) — use COLOR_RED (0xFF3333)'):
+        ok = False
+
+    # assembler: 0xFF0033 always banned (off-spec red)
+    if not chk('No 0xFF0033 off-spec red', '0xFF0033' not in asm,
+               '0xFF0033 found — replace with COLOR_RED (0xFF3333)'):
+        ok = False
+
+    # assembler: ban BARE 0xFFFFFF (no @) — with opacity is OK for subtle UI
+    bare_white = bool(re.search(r'0xFFFFFF[^@]', asm))
+    if not chk('No bare 0xFFFFFF in assembler', not bare_white,
+               'Bare 0xFFFFFF found — use COLOR_WHITE (0xF4F5F8)'):
+        ok = False
+
+    return ok
+
+# ── 4. ENVIRONMENT ────────────────────────────────────────
+def check_env():
+    sec('ENVIRONMENT')
+    ok = True
+    e = env()
+
+    if not chk('TTS_PROVIDER=elevenlabs', e.get('TTS_PROVIDER','').lower() == 'elevenlabs',
+               f'TTS_PROVIDER={e.get("TTS_PROVIDER","MISSING")!r}'):
+        ok = False
+
+    for key in ['ELEVENLABS_API_KEY', 'ANTHROPIC_API_KEY', 'GEMINI_API_KEY']:
+        val = e.get(key, '')
+        if not chk(f'{key} set', len(val) > 10, f'{key} missing/empty in .env'):
+            ok = False
+    return ok
+
+# ── 5. VOICE IDs ──────────────────────────────────────────
+def check_voices():
+    sec('VOICE IDs — SINGLE HOST PBX')
+    c = open(f'{V3}/tts_engine.py').read() if os.path.exists(f'{V3}/tts_engine.py') else ''
+    chk('PBX voice present: HmUVvDlHsEz0m3eUGLgu', 'HmUVvDlHsEz0m3eUGLgu' in c,
+        'PBX voice ID missing from tts_engine.py')
+    chk('Banned voice absent: uxKr2vlA4hYgXZR1oPRT', 'uxKr2vlA4hYgXZR1oPRT' not in c,
+        'BANNED voice in tts_engine.py — causes silent 0-byte audio')
+    chk('Banned Eryn voice absent: kdnRe2koJdOK4Ovxn2DI',
+        'kdnRe2koJdOK4Ovxn2DI' not in c,
+        'Eryn voice ID still in tts_engine.py — BANNED since Render20')
+    chk('Deborah voice absent (HOST_1 removed)', 'VeCVR24o7g2y1IxLJzZs' not in c,
+        'Deborah voice ID still in tts_engine.py — Option A requires PBX only')
+
+    # FIX 1: Live HTTP check — verify PBX voice ID exists on ElevenLabs
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ELEVENLABS_API_KEY', '')
+    if api_key:
+        try:
+            req = ul.Request('https://api.elevenlabs.io/v1/voices/HmUVvDlHsEz0m3eUGLgu',
+                             headers={'xi-api-key': api_key})
+            with ul.urlopen(req, timeout=10) as r:
+                chk('PBX voice live HTTP check (200)', r.status == 200)
+        except Exception as ex:
+            chk('PBX voice live HTTP check (200)', False, f'Voice ID 404 or API error: {ex}')
+
+# ── 5B. ELEVENLABS QUOTA ─────────────────────────────────
+def check_elevenlabs_quota():
+    sec('ELEVENLABS QUOTA')
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ELEVENLABS_API_KEY', '')
+    if not api_key:
+        chk('ElevenLabs key available for quota check', False, 'Key missing'); return
+    try:
+        req = ul.Request('https://api.elevenlabs.io/v1/user/subscription',
+                         headers={'xi-api-key': api_key})
+        with ul.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read())
+        used = data.get('character_count', 0)
+        limit = data.get('character_limit', 1)
+        pct = (used / limit) * 100 if limit else 100
+        if pct >= 95:
+            chk(f'ElevenLabs quota ({pct:.1f}% used)', False,
+                f'{used:,}/{limit:,} chars — CRITICALLY LOW, render will fail')
+        elif pct >= 80:
+            chk(f'ElevenLabs quota ({pct:.1f}% used)', True,
+                f'WARNING: {used:,}/{limit:,} chars — approaching limit')
+            # Store for final report
+            check_elevenlabs_quota._pct = pct
+        else:
+            chk(f'ElevenLabs quota ({pct:.1f}% used)', True)
+        check_elevenlabs_quota._pct = pct
+    except Exception as ex:
+        chk('ElevenLabs quota check', False, str(ex))
+check_elevenlabs_quota._pct = None
+
+# ── 5C. DISK SPACE ───────────────────────────────────────
+def check_disk_space():
+    sec('DISK SPACE')
+    import shutil
+    usage = shutil.disk_usage(BASE)
+    free_gb = usage.free / (1024 ** 3)
+    if free_gb < 5:
+        chk(f'Disk free space ({free_gb:.1f} GB)', False,
+            f'Under 5 GB free — render will fail (need space for clips + TTS + final)')
+    elif free_gb < 10:
+        chk(f'Disk free space ({free_gb:.1f} GB)', True,
+            f'WARNING: Under 10 GB free — monitor closely')
+    else:
+        chk(f'Disk free space ({free_gb:.1f} GB)', True)
+
+# ── 5D. FFMPEG / FFPROBE BINARIES ────────────────────────
+def check_ffmpeg_binaries():
+    sec('FFMPEG / FFPROBE BINARIES')
+    for binary in ['ffmpeg', 'ffprobe']:
+        try:
+            r = subprocess.run([binary, '-version'], capture_output=True, text=True, timeout=5)
+            version_line = r.stdout.split('\n')[0] if r.stdout else 'unknown'
+            chk(f'{binary} available ({version_line.split(" ")[2] if len(version_line.split(" ")) > 2 else "ok"})',
+                r.returncode == 0)
+        except FileNotFoundError:
+            chk(f'{binary} available', False, f'{binary} not found in PATH')
+        except Exception as ex:
+            chk(f'{binary} available', False, str(ex))
+
+# ── 5E. ANTHROPIC API PING ───────────────────────────────
+def check_anthropic_api():
+    sec('ANTHROPIC API')
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ANTHROPIC_API_KEY', '')
+    if not api_key:
+        chk('Anthropic API key for ping', False, 'Key missing'); return
+    try:
+        req = ul.Request('https://api.anthropic.com/v1/models',
+                         headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01'})
+        with ul.urlopen(req, timeout=10) as r:
+            chk('Anthropic API reachable (200)', r.status == 200)
+    except Exception as ex:
+        chk('Anthropic API reachable (200)', False, str(ex))
+
+# ── 6. ASSEMBLER CONSTANTS ────────────────────────────────
+def check_assembler():
+    sec('ASSEMBLER COLOR CONSTANTS')
+    c = open(f'{V3}/assembler.py').read() if os.path.exists(f'{V3}/assembler.py') else ''
+    for const, val in [('COLOR_RED','0xFF3333'),('COLOR_WHITE','0xF4F5F8'),('COLOR_BG','0x0A0A0F')]:
+        chk(f'{const} = {val}', const in c and val in c,
+            f'{const} missing or wrong value — expected {val}')
+
+# ── 7. LIVE TTS SMOKE TEST ────────────────────────────────
+
+def check_branded_assets():
+    """Verify new branded assets exist and are non-empty."""
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
+    required = [
+        ('intro_tag.mp4',        1_000_000),   # min 1MB
+        ('bg_loop.mp4',          10_000_000),  # min 10MB
+        ('outro_branded_new.mp4', 1_000_000),  # min 1MB
+        ('intro_music.mp3',       100_000),    # min 100KB
+        ('logo_protocol_pulse.png', 10_000),   # min 10KB
+    ]
+    for fname, min_size in required:
+        fpath = os.path.join(base, fname)
+        if not os.path.exists(fpath):
+            chk(f'Branded asset missing: {fname}', False)
+        elif os.path.getsize(fpath) < min_size:
+            chk(f'Branded asset too small: {fname} ({os.path.getsize(fpath)}B < {min_size}B)', False)
+        else:
+            chk(f'Branded asset present: {fname}', True)
+
+def check_tts_smoke():
+    sec('LIVE TTS SMOKE TEST — PBX VOICE')
+    import urllib.request as ul
+    e = env()
+    api_key = e.get('ELEVENLABS_API_KEY', '')
+    if not api_key:
+        chk('ElevenLabs key available', False, 'Cannot smoke test — key missing'); return
+
+    VOICE = 'HmUVvDlHsEz0m3eUGLgu'  # PBX — sole host
+    url   = f'https://api.elevenlabs.io/v1/text-to-speech/{VOICE}'
+    body  = json.dumps({'text': 'Bitcoin. Signal confirmed.',
+                        'model_id': 'eleven_turbo_v2_5',
+                        'voice_settings': {'stability': 0.35, 'similarity_boost': 0.90, 'style': 0.30}}).encode()
+    try:
+        t0  = time.time()
+        req = ul.Request(url, data=body, headers={
+            'xi-api-key': api_key, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg'})
+        with ul.urlopen(req, timeout=20) as r:
+            audio = r.read()
+        elapsed = time.time() - t0
+        chk('ElevenLabs API reachable', True)
+        size_ok = len(audio) > 10240
+        chk(f'Audio >10KB ({len(audio)//1024}KB, {elapsed:.1f}s)', size_ok,
+            f'Only {len(audio)}B — check quota / API key')
+        if size_ok:
+            with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
+                f.write(audio); tmp = f.name
+            r2 = subprocess.run(
+                ['ffprobe','-v','quiet','-show_entries','format=duration',
+                 '-of','default=noprint_wrappers=1:nokey=1', tmp],
+                capture_output=True, text=True)
+            os.unlink(tmp)
+            dur = float(r2.stdout.strip()) if r2.stdout.strip() else 0.0
+            chk(f'Audio duration > 0.4s ({dur:.2f}s)', dur > 0.4,
+                'Zero-duration audio — silent response from ElevenLabs')
+    except Exception as ex:
+        chk('ElevenLabs API reachable', False, str(ex))
+
+# ── MAIN ──────────────────────────────────────────────────
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('--no-tts', action='store_true')
+    args = p.parse_args()
+
+    print(f'\n{"═"*60}')
+    print(f'  PROTOCOL PULSE PREFLIGHT  —  {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+    print(f'{"═"*60}')
+
+    check_syntax()
+    check_constants()
+    check_banned()
+    check_env()
+    check_voices()
+    check_elevenlabs_quota()
+    check_disk_space()
+    check_ffmpeg_binaries()
+    check_anthropic_api()
+    check_assembler()
+    check_branded_assets()
+    if not args.no_tts:
+        check_tts_smoke()
+
+    total  = len(results)
+    failed = sum(1 for _, ok, _ in results if not ok)
+    print(f'\n{"═"*60}')
+    if failed == 0:
+        print(f'\033[92m  ✅  ALL {total} CHECKS PASSED — SAFE TO RENDER\033[0m')
+    else:
+        print(f'\033[91m  ❌  {failed}/{total} FAILED — DO NOT START RENDER\033[0m')
+        for name, ok, detail in results:
+            if not ok:
+                print(f'     • {name}')
+                if detail: print(f'       → {detail}')
+    if check_elevenlabs_quota._pct is not None:
+        print(f'  ElevenLabs quota: {check_elevenlabs_quota._pct:.1f}% used')
+    print(f'{"═"*60}\n')
+    sys.exit(0 if failed == 0 else 1)
+
+if __name__ == '__main__':
+    main()
+
+# FILE: video_pipeline_v3/music.py (103 lines)
+
+#!/usr/bin/env python3
+"""Music Integration — handles background music, jingles, and transitions.
+
+All music files are optional. If missing, the pipeline skips gracefully.
+"""
+import os
+import subprocess
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+MUSIC_DIR = os.path.join(BASE, "assets", "music")
+
+INTRO_JINGLE = os.path.join(MUSIC_DIR, "pp_intro.mp3")
+BG_MUSIC = os.path.join(MUSIC_DIR, "pp_background.mp3")
+TRANSITION = os.path.join(MUSIC_DIR, "pp_transition.mp3")
+OUTRO_JINGLE = os.path.join(MUSIC_DIR, "pp_outro.mp3")
+
+
+def has_music() -> bool:
+    """Check if any background music is available (mood tracks or legacy)."""
+    if os.path.exists(BG_MUSIC):
+        return True
+    import glob
+    mood_tracks = glob.glob(os.path.join(MUSIC_DIR, "*_*.mp3"))
+    return len(mood_tracks) > 0
+
+
+def has_intro() -> bool:
+    return os.path.exists(INTRO_JINGLE)
+
+
+def has_transition() -> bool:
+    return os.path.exists(TRANSITION)
+
+
+def has_outro() -> bool:
+    return os.path.exists(OUTRO_JINGLE)
+
+
+def ffprobe_duration(path: str) -> float:
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True,
+    )
+    try:
+        return float(r.stdout.strip())
+    except Exception:
+        return 0.0
+
+
+def mix_tts_with_music(tts_path: str, output_path: str,
+                       music_volume: float = 0.12,
+                       music_path: str = "") -> bool:
+    """Mix TTS audio with background music underneath.
+
+    Background music plays at -18dB (volume=0.12) with 1s fade in/out.
+
+    Args:
+        tts_path: Path to TTS audio file
+        output_path: Where to save mixed audio
+        music_volume: Volume level for background music (0.12 = ~-18dB)
+        music_path: Custom music file path (uses BG_MUSIC if empty)
+
+    Returns:
+        True if mixing succeeded
+    """
+    music_file = music_path if (music_path and os.path.exists(music_path)) else BG_MUSIC
+    if not os.path.exists(music_file):
+        # No music available — just copy TTS as-is
+        subprocess.run(["cp", tts_path, output_path], capture_output=True)
+        return os.path.exists(output_path)
+
+    tts_dur = ffprobe_duration(tts_path)
+    if tts_dur <= 0:
+        return False
+
+    fade_out_start = max(0, tts_dur - 1.0)
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", tts_path,
+        "-i", music_file,
+        "-filter_complex",
+        f"[1:a]volume={music_volume},"
+        f"afade=t=in:d=1,"
+        f"afade=t=out:st={fade_out_start}:d=1,"
+        f"atrim=0:{tts_dur}[bg];"
+        f"[0:a][bg]amix=inputs=2:duration=first[out]",
+        "-map", "[out]",
+        "-c:a", "aac", "-ar", "44100", "-b:a", "192k",
+        output_path,
+    ]
+
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        return r.returncode == 0 and os.path.exists(output_path)
+    except subprocess.TimeoutExpired:
+        return False
+
+
+def ensure_music_dir():
+    """Create music directory if it doesn't exist."""
+    os.makedirs(MUSIC_DIR, exist_ok=True)
+
+# FILE: video_pipeline_v3/shorts_cutter.py (344 lines)
+
+#!/usr/bin/env python3
+"""Shorts Cutter V5 — generate vertical 9:16 shorts using Oracle avatar.
+
+Picks the 3 most quotable one-liners from host dialogue.
+Uses the Oracle avatar server for lip-synced shorts.
+Falls back to text-on-dark if avatar is unavailable.
+"""
+import json
+import logging
+import os
+import subprocess
+import tempfile
+import time
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+
+logger = logging.getLogger("ShortsCutter")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[shorts] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+AVATAR_SERVER = "http://localhost:8200"
+
+# Jessica's voice for avatar
+AVATAR_VOICE_ID = "cgSgspJ2msm6clMCkdW9"
+
+
+def ffprobe_duration(path: str) -> float:
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True,
+    )
+    try:
+        return float(r.stdout.strip())
+    except Exception:
+        return 0.0
+
+
+def _avatar_available() -> bool:
+    """Check if Oracle avatar server is running."""
+    if not HAS_REQUESTS:
+        return False
+    try:
+        r = requests.get(f"{AVATAR_SERVER}/health", timeout=3)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+def create_avatar_short(text: str, headline: str, output_path: str,
+                        btc_price: str = "", short_index: int = 0) -> str:
+    """Generate a vertical short with avatar lip-syncing the text.
+
+    1. Call avatar server to generate lip-synced video
+    2. Resize/crop to 1080x1920 vertical
+    3. Add branded overlay (title text, BTC price, branding)
+
+    Falls back to text-on-dark if avatar server is unavailable.
+    """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    # Try avatar server first
+    if _avatar_available():
+        logger.info(f"  Short #{short_index+1}: generating avatar video...")
+        avatar_mp4 = output_path + ".avatar_raw.mp4"
+
+        try:
+            # Generate audio via ElevenLabs first, then send to avatar
+            from relay import get_key
+            from tts_engine import tts_elevenlabs
+
+            tts_path = output_path + ".tts.m4a"
+            if tts_elevenlabs(text, tts_path, host=1):
+                # Read audio and send to avatar server
+                import base64
+                with open(tts_path, "rb") as f:
+                    audio_b64 = base64.b64encode(f.read()).decode()
+
+                resp = requests.post(
+                    f"{AVATAR_SERVER}/generate",
+                    json={
+                        "audio_base64": audio_b64,
+                        "content_type": "audio/mp4",
+                        "enable_blinks": True,
+                        "enable_head_movement": True,
+                        "fps": 30,
+                    },
+                    timeout=120,
+                )
+
+                if resp.status_code == 200:
+                    with open(avatar_mp4, "wb") as f:
+                        f.write(resp.content)
+
+                    if os.path.exists(avatar_mp4) and os.path.getsize(avatar_mp4) > 1000:
+                        # Convert to vertical with overlays
+                        result = _add_short_overlays(avatar_mp4, headline, output_path,
+                                                      btc_price, short_index)
+                        # Cleanup
+                        for tmp in [avatar_mp4, tts_path]:
+                            if os.path.exists(tmp):
+                                try:
+                                    os.remove(tmp)
+                                except OSError:
+                                    pass
+                        if result:
+                            return result
+                else:
+                    logger.warning(f"  Avatar server returned {resp.status_code}")
+
+            # Cleanup TTS if avatar failed
+            if os.path.exists(tts_path):
+                try:
+                    os.remove(tts_path)
+                except OSError:
+                    pass
+
+        except Exception as e:
+            logger.warning(f"  Avatar generation failed: {e}")
+
+    # Fallback: TTS audio with text-on-dark vertical video
+    logger.info(f"  Short #{short_index+1}: fallback (text-on-dark)...")
+    return _create_text_short(text, headline, output_path, btc_price, short_index)
+
+
+def _add_short_overlays(avatar_video: str, headline: str, output_path: str,
+                         btc_price: str = "", short_index: int = 0) -> str:
+    """Add branded overlays to avatar video and convert to 1080x1920 vertical."""
+    dur = ffprobe_duration(avatar_video)
+    if dur <= 0:
+        return ""
+
+    safe_headline = headline.replace("'", "").replace(":", " -").replace('"', '').replace("%", " pct")
+
+    # Word-wrap headline for bottom overlay
+    words = safe_headline.split()
+    lines = []
+    cur = ""
+    for w in words:
+        if len(cur) + len(w) + 1 > 28:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = f"{cur} {w}".strip()
+    if cur:
+        lines.append(cur)
+    lines = lines[:3]
+
+    headline_filters = ""
+    for i, line in enumerate(lines):
+        y = 1500 + i * 55
+        headline_filters += (
+            f"drawtext=fontfile={FONT_BOLD}:text='{line}':"
+            f"fontcolor=white:fontsize=42:borderw=3:bordercolor=black:"
+            f"x=(w-text_w)/2:y={y},"
+        )
+
+    btc_text = btc_price.replace("'", "") if btc_price else ""
+    btc_filter = ""
+    if btc_text:
+        btc_filter = (
+            f"drawtext=fontfile={FONT_MONO}:text='BTC {btc_text}':"
+            f"fontcolor=0xCC0000:fontsize=24:x=w-text_w-20:y=50,"
+        )
+
+    fg = (
+        f"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
+        f"drawbox=x=0:y=0:w=1080:h=80:c=0x0A0A0A@0.7:t=fill,"
+        f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
+        f"fontcolor=white:fontsize=32:x=(w-text_w)/2:y=25,"
+        f"{btc_filter}"
+        f"{headline_filters}"
+        f"drawbox=x=0:y=1820:w=1080:h=100:c=0x0A0A0A@0.8:t=fill,"
+        f"drawtext=fontfile={FONT_MONO}:text='@ProtocolPulse':"
+        f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=1845,"
+        f"format=yuv420p[v];\n"
+        f"[0:a]loudnorm=I=-16:TP=-1.5:LRA=11[a]"
+    )
+
+    fd, fpath = tempfile.mkstemp(suffix=".txt")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(fg)
+        cmd = [
+            "ffmpeg", "-y", "-i", avatar_video,
+            "-filter_complex_script", fpath,
+            "-map", "[v]", "-map", "[a]",
+            "-c:v", "libx264", "-crf", "22", "-preset", "fast",
+            "-c:a", "aac", "-ar", "44100", "-b:a", "128k",
+            "-t", str(min(dur, 59)),
+            output_path,
+        ]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            logger.error(f"  Short overlay failed: {r.stderr[-300:]}")
+            return ""
+    finally:
+        os.unlink(fpath)
+
+    out_dur = ffprobe_duration(output_path)
+    sz = os.path.getsize(output_path) // 1024
+    logger.info(f"  Short #{short_index+1}: {out_dur:.1f}s, {sz}KB (avatar)")
+    return output_path
+
+
+def _create_text_short(text: str, headline: str, output_path: str,
+                       btc_price: str = "", short_index: int = 0) -> str:
+    """Fallback: generate a vertical short with TTS audio + text overlay on dark bg."""
+    from tts_engine import tts_elevenlabs
+
+    tts_path = output_path + ".tts.m4a"
+    if not tts_elevenlabs(text, tts_path, host=1):
+        logger.error(f"  TTS failed for short #{short_index+1}")
+        return ""
+
+    dur = ffprobe_duration(tts_path)
+    if dur <= 0:
+        return ""
+
+    safe_text = text[:120].replace("'", "").replace('"', '').replace(":", " -").replace("%", " pct")
+    safe_headline = headline[:60].replace("'", "").replace('"', '').replace(":", " -")
+
+    # Word-wrap text
+    words = safe_text.split()
+    lines = []
+    cur = ""
+    for w in words:
+        if len(cur) + len(w) + 1 > 30:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = f"{cur} {w}".strip()
+    if cur:
+        lines.append(cur)
+
+    text_filters = ""
+    for i, line in enumerate(lines[:5]):
+        y = 750 + i * 55
+        text_filters += (
+            f"drawtext=fontfile={FONT_BOLD}:text='{line}':"
+            f"fontcolor=white:fontsize=40:borderw=2:bordercolor=black:"
+            f"x=(w-text_w)/2:y={y},"
+        )
+
+    fg = (
+        f"color=c=0x080808:s=1080x1920:d={dur}:r=30,"
+        f"drawbox=x=0:y=0:w=1080:h=80:c=0x0A0A0A@0.7:t=fill,"
+        f"drawtext=fontfile={FONT_BOLD}:text='PULSE CHECK':"
+        f"fontcolor=white:fontsize=32:x=(w-text_w)/2:y=25,"
+        f"{text_filters}"
+        f"drawbox=x=0:y=1820:w=1080:h=100:c=0x0A0A0A@0.8:t=fill,"
+        f"drawtext=fontfile={FONT_MONO}:text='@ProtocolPulse':"
+        f"fontcolor=0xCC0000:fontsize=28:x=(w-text_w)/2:y=1845,"
+        f"format=yuv420p[v];\n"
+        f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[a]"
+    )
+
+    fd, fpath = tempfile.mkstemp(suffix=".txt")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(fg)
+        cmd = [
+            "ffmpeg", "-y",
+            "-f", "lavfi", "-i", f"color=c=0x080808:s=1080x1920:d={dur}:r=30",
+            "-i", tts_path,
+            "-filter_complex_script", fpath,
+            "-map", "[v]", "-map", "[a]",
+            "-c:v", "libx264", "-crf", "22", "-preset", "fast",
+            "-c:a", "aac", "-ar", "44100", "-b:a", "128k",
+            "-t", str(min(dur, 59)),
+            output_path,
+        ]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            logger.error(f"  Short text fallback failed: {r.stderr[-300:]}")
+            return ""
+    finally:
+        os.unlink(fpath)
+        if os.path.exists(tts_path):
+            try:
+                os.remove(tts_path)
+            except OSError:
+                pass
+
+    out_dur = ffprobe_duration(output_path)
+    sz = os.path.getsize(output_path) // 1024
+    logger.info(f"  Short #{short_index+1}: {out_dur:.1f}s, {sz}KB (text fallback)")
+    return output_path
+
+
+def generate_shorts(script: dict, output_dir: str, btc_price: str = "",
+                    max_shorts: int = 3) -> list:
+    """Generate vertical shorts from the script's best quotes.
+
+    Uses shorts_quotes from the script, or picks from dialogue reactions.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Get quotes for shorts
+    quotes = script.get("shorts_quotes", [])
+    if not quotes or len(quotes) < max_shorts:
+        # Pick from dialogue reactions
+        for entry in script.get("dialogue", []):
+            if entry.get("type") in ("react", "wrap") and entry.get("host") in (1, 2, "1", "2"):
+                text = entry.get("text", "")
+                if 20 <= len(text) <= 150:
+                    quotes.append(text)
+            if len(quotes) >= max_shorts:
+                break
+
+    headlines = script.get("segments_summary", [])
+    episode_title = script.get("episode_title", "Pulse Check")
+
+    shorts = []
+    for i, quote in enumerate(quotes[:max_shorts]):
+        headline = headlines[i] if i < len(headlines) else episode_title
+        short_path = os.path.join(output_dir, f"short_{i+1}.mp4")
+        result = create_avatar_short(
+            quote, headline, short_path,
+            btc_price=btc_price, short_index=i,
+        )
+        if result:
+            shorts.append(result)
+
+    logger.info(f"Generated {len(shorts)}/{max_shorts} shorts")
+    return shorts
+
+
+if __name__ == "__main__":
+    from script_writer import generate_sample_script
+    script = generate_sample_script()
+    out_dir = os.path.join(BASE, "output", "test_shorts_v5")
+    shorts = generate_shorts(script, out_dir, btc_price="$97,000")
+    print(f"Generated {len(shorts)} shorts")
+
+# FILE: video_pipeline_v3/gemini_grade.py (610 lines)
+
+#!/usr/bin/env python3
+"""
+gemini_grade.py — Protocol Pulse V6 Quality Gate
+Submits full forensic data to Gemini 2.5 Pro for rigorous grading.
+Only exits 0 (PASS) if grade == A and broadcast_ready == True.
+PBX sees NOTHING until this exits 0.
+"""
+import os, sys, json, urllib.request, subprocess, re, time
+from pathlib import Path
+
+# Derive all paths from this file's location (audit P1-3)
+BASE_DIR = Path(__file__).resolve().parent.parent
+PIPELINE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / '.env'
+LOG = str(PIPELINE_DIR / 'logs' / 'grade_report.log')
+GRADE_FILE = str(PIPELINE_DIR / 'logs' / 'v6_gemini_grade.json')
+PASS_FILE = str(PIPELINE_DIR / 'logs' / 'v6_grade_PASS.txt')
+OUTPUT_DIR = str(PIPELINE_DIR / 'output')
+GRADES_DIR = str(PIPELINE_DIR / 'logs' / 'grades')
+
+
+def upload_video_to_gemini(video_path, gemini_key):
+    """Upload video file to Gemini Files API. Returns file URI or None."""
+    import mimetypes
+    file_size = os.path.getsize(video_path)
+    log(f"Uploading {file_size/1048576:.1f}MB video to Gemini Files API...")
+
+    # Resumable upload initiation
+    init_url = f"https://generativelanguage.googleapis.com/upload/v1beta/files?key={gemini_key}"
+    mime = "video/mp4"
+    init_headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Upload-Protocol": "resumable",
+        "X-Goog-Upload-Command": "start",
+        "X-Goog-Upload-Header-Content-Type": mime,
+        "X-Goog-Upload-Header-Content-Length": str(file_size),
+    }
+    init_body = json.dumps({"file": {"display_name": os.path.basename(video_path)}}).encode()
+
+    try:
+        init_req = urllib.request.Request(init_url, data=init_body, headers=init_headers, method="POST")
+        with urllib.request.urlopen(init_req, timeout=30) as r:
+            upload_url = r.headers.get("X-Goog-Upload-URL")
+        if not upload_url:
+            log("Upload init failed — no upload URL returned")
+            return None
+
+        # Upload file bytes
+        with open(video_path, "rb") as f:
+            video_bytes = f.read()
+
+        upload_headers = {
+            "Content-Length": str(file_size),
+            "X-Goog-Upload-Offset": "0",
+            "X-Goog-Upload-Command": "upload, finalize",
+        }
+        upload_req = urllib.request.Request(upload_url, data=video_bytes, headers=upload_headers, method="PUT")
+        with urllib.request.urlopen(upload_req, timeout=120) as r:
+            result = json.loads(r.read())
+            file_uri = result.get("file", {}).get("uri")
+            file_name = result.get("file", {}).get("name", "")
+            log(f"Video uploaded: {file_uri}")
+
+        # Poll until file is ACTIVE (Gemini processes video after upload)
+        if file_name:
+            status_url = f"https://generativelanguage.googleapis.com/v1beta/{file_name}?key={gemini_key}"
+            for attempt in range(30):  # up to ~150s wait
+                time.sleep(5)
+                try:
+                    status_req = urllib.request.Request(status_url, method="GET")
+                    with urllib.request.urlopen(status_req, timeout=15) as sr:
+                        status_data = json.loads(sr.read())
+                        state = status_data.get("state", "UNKNOWN")
+                        if state == "ACTIVE":
+                            log(f"File ready (ACTIVE) after {(attempt+1)*5}s")
+                            break
+                        log(f"File state: {state} — waiting... ({(attempt+1)*5}s)")
+                except Exception as poll_err:
+                    log(f"Status poll error: {poll_err}")
+            else:
+                log("File never became ACTIVE after 150s — falling back to text-only")
+                return None
+
+        return file_uri
+    except Exception as e:
+        log(f"Video upload failed: {e} — falling back to text-only grading")
+        return None
+
+
+def load_env():
+    """Load .env file with error handling (audit P1-2)."""
+    try:
+        with open(ENV_PATH) as f:
+            for line in f:
+                l = line.strip()
+                if '=' in l and not l.startswith('#'):
+                    k, _, v = l.partition('=')
+                    k = k.strip(); v = v.strip().strip("'").strip('"')
+                    if k: os.environ[k] = v
+    except FileNotFoundError:
+        print(f"FATAL: .env not found at {ENV_PATH}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"FATAL: .env load error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def log(msg):
+    ts = time.strftime('%Y-%m-%d %H:%M:%S')
+    line = f"[{ts}] {msg}"
+    print(line, flush=True)
+    try:
+        with open(LOG, 'a') as f:
+            f.write(line + '\n')
+    except Exception:
+        pass
+
+
+def run(cmd):
+    r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return r.stdout.strip()
+
+
+def find_latest_output(cli_path=None):
+    """Find the latest pulse_check MP4 output file."""
+    if cli_path and os.path.isfile(cli_path):
+        return cli_path
+
+    candidates = []
+    for root, dirs, files in os.walk(OUTPUT_DIR):
+        for f in files:
+            if (f.endswith('.mp4') and 'pulse_check' in f and '.mp4.' not in os.path.basename(f)
+                    and 'bgl_audio' not in f and 'archived' not in f
+                    and 'music_mixed' not in f and 'concat_raw' not in f and 'norm' not in f):
+                full = os.path.join(root, f)
+                candidates.append((os.path.getmtime(full), full))
+
+    candidates.sort(reverse=True)
+    return candidates[0][1] if candidates else None
+
+
+def main():
+    load_env()
+    GEMINI_KEY = os.environ.get('GEMINI_API_KEY', '')
+    RENDER_LOG = None
+
+    # Allow CLI argument for explicit video path
+    cli_path = sys.argv[1] if len(sys.argv) > 1 else None
+    LATEST = find_latest_output(cli_path)
+
+    if not LATEST:
+        log("FATAL: No MP4 output found")
+        sys.exit(2)
+
+    log(f"Grading: {LATEST}")
+
+    # ── ffprobe ───────────────────────────────────────────────────────
+    log("Running ffprobe...")
+    probe_raw = run(f'ffprobe -v quiet -print_format json -show_format -show_streams "{LATEST}"')
+    try:
+        probe = json.loads(probe_raw)
+        fmt = probe.get('format', {})
+        streams = probe.get('streams', [])
+        duration = float(fmt.get('duration', 0))
+        filesize_mb = int(fmt.get('size', 0)) / 1048576
+        v_stream = next((s for s in streams if s.get('codec_type') == 'video'), {})
+        a_stream = next((s for s in streams if s.get('codec_type') == 'audio'), {})
+        width = v_stream.get('width', 0)
+        height = v_stream.get('height', 0)
+        vcodec = v_stream.get('codec_name', 'unknown')
+        fps_raw = v_stream.get('r_frame_rate', '0/1')
+        fps_num, fps_den = fps_raw.split('/') if '/' in fps_raw else (fps_raw, '1')
+        fps = round(int(fps_num) / max(int(fps_den), 1), 2)
+        acodec = a_stream.get('codec_name', 'unknown')
+        sample_rate = a_stream.get('sample_rate', '?')
+        channels = a_stream.get('channel_layout', '?')
+        num_streams = len(streams)
+        bit_rate_kbps = round(int(fmt.get('bit_rate', 0)) / 1000)
+    except Exception as e:
+        log(f"ffprobe parse error: {e}")
+        duration = filesize_mb = 0
+        width = height = fps = 0
+        vcodec = acodec = 'unknown'
+        sample_rate = channels = '?'
+        num_streams = 0
+        bit_rate_kbps = 0
+
+    log(f"Duration: {duration:.1f}s | Size: {filesize_mb:.1f}MB | {width}x{height} @ {fps}fps | {vcodec}/{acodec}")
+
+    # ── Black frame detection ─────────────────────────────────────────
+    log("Running blackdetect...")
+    black_raw = run(f'ffmpeg -i "{LATEST}" -vf "blackdetect=d=0.3:pix_th=0.10" -an -f null - 2>&1 | grep black_')
+    black_segments = re.findall(r'black_start:([\d.]+).*?black_end:([\d.]+).*?black_duration:([\d.]+)', black_raw)
+    black_mid = [(s,e,d) for s,e,d in black_segments
+                 if float(s) > 2.0 and float(e) < duration - 2.0]
+    black_count_total = len(black_segments)
+    black_count_mid = len(black_mid)
+    log(f"Black segments: {black_count_total} total, {black_count_mid} mid-video (problem ones)")
+
+    # ── Silence detection ─────────────────────────────────────────────
+    log("Running silencedetect...")
+    silence_raw = run(f'ffmpeg -i "{LATEST}" -af "silencedetect=noise=-45dB:d=0.8" -f null - 2>&1 | grep silence_')
+    silence_starts = re.findall(r'silence_start: ([\d.]+)', silence_raw)
+    silence_ends = re.findall(r'silence_end: ([\d.]+)', silence_raw)
+    silence_mid = [float(s) for s in silence_starts if float(s) > 2.0 and float(s) < duration - 2.0]
+    # Section 2f: Exclude short silence gaps under 4s (likely dramatic pauses from "..." in script)
+    # Only count genuine dead air — pair starts with ends to measure duration
+    _silence_with_dur = []
+    for _ss, _se in zip(silence_starts, silence_ends):
+        _ss_f, _se_f = float(_ss), float(_se)
+        if _ss_f > 2.0 and _ss_f < duration - 2.0:
+            _silence_with_dur.append((_ss_f, _se_f - _ss_f))
+    # Keep only gaps >= 4s as genuine dead air (shorter ones may be dramatic pauses)
+    silence_genuine = [s for s, d in _silence_with_dur if d >= 4.0]
+    silence_count = len(silence_genuine)
+    log(f"Silence gaps mid-video: {len(silence_mid)} raw, {silence_count} genuine (excl pauses <4s)")
+
+    # ── EBU R128 loudness ─────────────────────────────────────────────
+    log("Running EBU R128 loudness measurement...")
+    loudness_raw = run(f'ffmpeg -i "{LATEST}" -map 0:a -af "ebur128=peak=true" -f null - 2>&1')
+    integrated_match = re.search(r'^\s+I:\s+(-[\d.]+)\s+LUFS', loudness_raw, re.MULTILINE)
+    true_peak_match = re.search(r'^\s+Peak:\s+(-?[\d.]+)\s+dBFS', loudness_raw, re.MULTILINE)
+    lra_match = re.search(r'^\s+LRA:\s+([\d.]+)\s+LU', loudness_raw, re.MULTILINE)
+    integrated_lufs = float(integrated_match.group(1)) if integrated_match else None
+    true_peak_dbfs = float(true_peak_match.group(1)) if true_peak_match else None
+    lra_lu = float(lra_match.group(1)) if lra_match else None
+    log(f"Loudness: {integrated_lufs} LUFS | True Peak: {true_peak_dbfs} dBFS | LRA: {lra_lu} LU")
+
+    # ── Freeze frame detection ────────────────────────────────────────
+    log("Running freezedetect...")
+    # FIX: freeze threshold n=0.003 (was 0.001, then 0.02 — 0.003 balances sensitivity)
+    freeze_raw = run(f'ffmpeg -i "{LATEST}" -vf "freezedetect=n=0.003:d=1.0" -an -f null - 2>&1 | grep freeze')
+    _freeze_events = []
+    _freeze_starts = re.findall(r'freeze_start:\s*([\d.]+)', freeze_raw)
+    _freeze_durs   = re.findall(r'freeze_duration:\s*([\d.]+)', freeze_raw)
+    for s, d in zip(_freeze_starts, _freeze_durs):
+        _freeze_events.append((float(s), float(d)))
+
+    _vid_dur = 0
+    try:
+        _vid_dur_raw = run(f'ffprobe -v error -show_entries format=duration '
+                           f'-of default=noprint_wrappers=1:nokey=1 "{LATEST}"')
+        _vid_dur = float(_vid_dur_raw) if _vid_dur_raw else 0
+    except Exception:
+        _vid_dur = 0
+
+    _outro_start = max(0, _vid_dur - 25)
+    freeze_count = sum(
+        1 for (s, d) in _freeze_events
+        if d > 2.0 and s > 16.0 and s < _outro_start
+    )
+    log(f"Freeze events: {len(_freeze_events)} total, "
+        f"{freeze_count} penalized (excl intro <16s, outro >{_outro_start:.0f}s)")
+
+    # ── Audio/video stream count ──────────────────────────────────────
+    has_video = v_stream != {}
+    has_audio = a_stream != {}
+
+    # ── Read render log for content context ──────────────────────────
+    render_log_content = ''
+    try:
+        import glob as _glob
+        _log_dir = str(PIPELINE_DIR / 'logs')
+        _candidates = (_glob.glob(f'{_log_dir}/render_*.log') +
+                       _glob.glob(f'{_log_dir}/full_render_*.log') +
+                       _glob.glob(f'{_log_dir}/v6_render.log'))
+        _candidates = [f for f in _candidates if os.path.isfile(f)]
+        _fresh_cutoff = time.time() - 7200
+        _candidates = [f for f in _candidates if os.path.getmtime(f) >= _fresh_cutoff]
+        if _candidates:
+            RENDER_LOG = max(_candidates, key=os.path.getmtime)
+        else:
+            RENDER_LOG = None
+        if not RENDER_LOG:
+            log("No fresh render log found (within 2h) — using empty context")
+            render_log_content = ''
+            raise FileNotFoundError("skip")
+        log(f"Using render log: {RENDER_LOG}")
+        with open(RENDER_LOG) as f:
+            lines = f.readlines()
+        keep = [l.strip() for l in lines if l.strip() and
+                not any(x in l for x in ['urllib3', 'HTTP Request', 'DEBUG', 'WARNING: Retrying'])]
+        render_log_content = '\n'.join(keep[-50:])
+    except:
+        render_log_content = 'Render log unavailable'
+
+    # ── Extract episode title from script.json for grading ────────────
+    episode_title = 'Not provided'
+    try:
+        import glob as _glob2
+        _run_dir = os.path.dirname(LATEST)
+        _script_candidates = (
+            _glob2.glob(os.path.join(_run_dir, 'script.json')) +
+            _glob2.glob(os.path.join(_run_dir, '..', 'script.json')) +
+            _glob2.glob(os.path.join(OUTPUT_DIR, '*', 'script.json'))
+        )
+        _script_candidates = [f for f in _script_candidates if os.path.isfile(f)]
+        if _script_candidates:
+            _script_file = max(_script_candidates, key=os.path.getmtime)
+            with open(_script_file) as _sf:
+                _script_data = json.load(_sf)
+            episode_title = _script_data.get('episode_title', 'Not provided')
+            log(f"Episode title: {episode_title}")
+        else:
+            log("No script.json found — episode title unavailable")
+    except Exception as _et_err:
+        log(f"Episode title extraction failed: {_et_err}")
+
+    # ── Upload video to Gemini Files API for two-pass grading ────────
+    file_uri = upload_video_to_gemini(LATEST, GEMINI_KEY)
+    if file_uri:
+        log("Video upload successful — two-pass grading enabled")
+    else:
+        log("Video upload skipped — text-only grading (fallback)")
+
+    # ── Build Gemini prompt ───────────────────────────────────────────
+    log("Building Gemini grading prompt...")
+
+    PROMPT = f"""You are the Chief Quality Officer for Protocol Pulse, a daily autonomous cypherpunk Bitcoin intelligence video show viewed through an Austrian economics lens.
+PBX is the SOLE host. This is a single-host show — there is no co-host, no second voice, no guest expected. Do NOT penalise for the absence of a second host.
+Your job: grade this episode with maximum rigour. Be brutally honest. A grade A means it is genuinely broadcast-ready and PBX will publish it immediately. Do not hand out A grades lightly.
+
+=== EPISODE FORENSIC DATA ===
+
+FILE: {os.path.basename(LATEST)}
+EPISODE TITLE: {episode_title}
+DURATION: {duration:.1f} seconds ({duration/60:.1f} minutes)
+FILE SIZE: {filesize_mb:.1f} MB
+BITRATE: {bit_rate_kbps} kbps
+RESOLUTION: {width}x{height}
+FRAMERATE: {fps} fps
+VIDEO CODEC: {vcodec}
+AUDIO CODEC: {acodec} | {sample_rate} Hz | {channels}
+TOTAL STREAMS: {num_streams}
+
+LOUDNESS (EBU R128):
+  Integrated: {integrated_lufs} LUFS   (target: -16 to -14 LUFS)
+  True Peak: {true_peak_dbfs} dBFS     (must be under -1.0 dBFS)
+  LRA: {lra_lu} LU                     (target: 4-18 LU)
+
+BLACK FRAME SEGMENTS: {black_count_total} total | {black_count_mid} mid-video
+  (Mid-video blacks are critical failures. Start/end fades OK.)
+  Details: {str(black_mid[:5]) if black_mid else 'none'}
+
+SILENCE GAPS (>0.8s, mid-video): {silence_count}
+
+FREEZE FRAMES (>1s): {freeze_count}
+
+=== RENDER LOG (content/script details) ===
+{render_log_content}
+
+=== GRADING RUBRIC ===
+
+Grade each dimension 1-10. Then calculate weighted overall score.
+
+TECHNICAL QUALITY (40% weight):
+1. duration_check: 480-900s ideal (8-15min). Under 180s = automatic F. 300-480s acceptable but short. Over 900s penalise.
+2. resolution_check: 1920x1080 = 10. 1280x720 = 7. Anything else = fail.
+3. framerate_check: 24-30fps = 10. Under 24fps = 5. Under 15fps = 0.
+4. loudness_check: -16 to -14 LUFS = 10. -18 to -12 LUFS = 7. Outside -20 to -10 = critical failure (score 0).
+5. true_peak_check: Under -1 dBFS = 10. -1 to 0 = 7. Over 0 dBFS = critical failure (clipping).
+6. black_frames_check: 0 mid-video blacks = 10. 1 = 6. 2+ = critical failure (score 0).
+7. silence_check: 0 gaps = 10. 1-2 gaps = 6. 3+ = major issue (score 3). NOTE: Dramatic pauses (under 4 seconds, intentional for emphasis after "..." in script) should NOT be penalized — only count genuine dead air gaps.
+8. freeze_check: 0 freezes = 10. 1 = 5. 2+ = critical failure.
+9. codec_check: h264/aac = 10. h265/aac = 10. Other combos = 5.
+10. file_integrity_check: Clean container, both streams present, reasonable bitrate (500-5000 kbps) = 10.
+
+CONTENT QUALITY (35% weight):
+11. clip_relevance: Are clips from real Bitcoin news? Are the sources credible (not altcoin shills, not 24/7 loops)? Preston Pysh, Lyn Alden, Robert Breedlove, TFTC, and Simply Bitcoin rank editorially higher — clips from these sources are a positive signal. Austrian economics framing (sound money, Cantillon effect, time preference, proof-of-work ethos) is a positive editorial signal. Signal Active Nostr content (npubs, zaps, relay discussion) is a feature, not a bug — do not penalise.
+12. script_quality: Is the narration between clips informed, specific, and adds value beyond just re-reading the clips?
+13. cold_open_hook: Does the episode open with a compelling, specific hook that makes you want to keep watching?
+14. narrative_arc: Does the episode flow logically from open -> clips -> analysis -> close? Or is it random?
+15. host_authenticity: PBX is the SOLE host — score 10/10 if PBX voice is clean, natural, authoritative, and well-paced throughout. Do NOT penalise for absence of a second host or co-host. Only deduct for dead air, robotic tone, or missing audio in PBX's voice.
+16. episode_title: Is the title specific and punchy? Not generic clickbait. Should reflect the actual main story.
+17. no_filler: No ad reads, no sponsor segments, no off-topic content, no repeated clips.
+18. timeliness: Is the content from today or yesterday? Not stale week-old news.
+
+PRODUCTION QUALITY (25% weight):
+19. music_mix: Background music present at proper level, not overpowering narration. Sidechain ducking working?
+20. transitions: Are there clean glitch transitions between segments? No hard cuts mid-sentence.
+21. visual_polish: Cyberpunk aesthetic consistent. Lower thirds present. No graphical glitches.
+22. no_artifacts: No stuttering, no looping, no corrupted frames visible.
+23. audio_quality: Narration clear, no clipping, no echo, no background noise in voiceover.
+24. pacing: Does the episode feel tight? Not dragging? Not too rushed?
+
+=== YOUR RESPONSE ===
+
+You MUST respond ONLY with valid JSON. No preamble, no explanation, no markdown fences. Raw JSON only.
+
+{{
+  "grade": "A|B|C|D|F",
+  "overall_score": 0-100,
+  "broadcast_ready": true|false,
+  "technical_score": 0-100,
+  "content_score": 0-100,
+  "production_score": 0-100,
+  "dimensions": {{
+    "duration_check": {{"score": 0-10, "note": "explain"}},
+    "resolution_check": {{"score": 0-10, "note": "explain"}},
+    "framerate_check": {{"score": 0-10, "note": "explain"}},
+    "loudness_check": {{"score": 0-10, "note": "explain"}},
+    "true_peak_check": {{"score": 0-10, "note": "explain"}},
+    "black_frames_check": {{"score": 0-10, "note": "explain"}},
+    "silence_check": {{"score": 0-10, "note": "explain"}},
+    "freeze_check": {{"score": 0-10, "note": "explain"}},
+    "codec_check": {{"score": 0-10, "note": "explain"}},
+    "file_integrity_check": {{"score": 0-10, "note": "explain"}},
+    "clip_relevance": {{"score": 0-10, "note": "explain"}},
+    "script_quality": {{"score": 0-10, "note": "explain"}},
+    "cold_open_hook": {{"score": 0-10, "note": "explain"}},
+    "narrative_arc": {{"score": 0-10, "note": "explain"}},
+    "host_authenticity": {{"score": 0-10, "note": "explain"}},
+    "episode_title": {{"score": 0-10, "note": "explain"}},
+    "no_filler": {{"score": 0-10, "note": "explain"}},
+    "timeliness": {{"score": 0-10, "note": "explain"}},
+    "music_mix": {{"score": 0-10, "note": "explain"}},
+    "transitions": {{"score": 0-10, "note": "explain"}},
+    "visual_polish": {{"score": 0-10, "note": "explain"}},
+    "no_artifacts": {{"score": 0-10, "note": "explain"}},
+    "audio_quality": {{"score": 0-10, "note": "explain"}},
+    "pacing": {{"score": 0-10, "note": "explain"}}
+  }},
+  "critical_failures": [],
+  "warnings": [],
+  "strengths": [],
+  "verdict": "One punchy sentence summarising the episode quality",
+  "recommendation": "PUBLISH|FIX_AND_RERENDER|DO_NOT_PUBLISH"
+}}
+
+Grade thresholds:
+- A: overall_score >= 88, zero critical_failures, broadcast_ready = true
+- B: overall_score 75-87, at most 1 minor critical failure
+- C: overall_score 60-74
+- D: overall_score 40-59
+- F: overall_score < 40 OR duration < 180s OR clipping OR 2+ mid-video black segments
+Note: Episodes 8-15 minutes (480-900s) are the ideal target format. 5 clips is the target.
+"""
+
+    if file_uri:
+        PROMPT = """You have been provided the actual video file to watch.
+Score ALL dimensions based on what you actually see and hear.
+Do NOT write 'Assumed' for any dimension — watch the video.
+For host_authenticity: watch for lip sync quality, natural pacing,
+eye blinks, head movement. Score based on actual observation.
+For no_artifacts: watch for freeze frames, stuttering, compression
+artifacts, black flashes. Score based on actual observation.
+For visual_polish: observe the lower thirds, transitions, cyberpunk
+aesthetic. Score based on actual observation.
+
+""" + PROMPT
+
+    # ── Call Gemini ───────────────────────────────────────────────────
+    log("Calling Gemini 2.5 Pro for grading (this may take 30-60s)...")
+
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={GEMINI_KEY}'
+    if file_uri:
+        parts_list = [
+            {"file_data": {"mime_type": "video/mp4", "file_uri": file_uri}},
+            {"text": PROMPT}
+        ]
+    else:
+        parts_list = [{"text": PROMPT}]
+
+    payload = {
+        'contents': [{'parts': parts_list}],
+        'generationConfig': {'maxOutputTokens': 8000, 'temperature': 0.05}
+    }
+
+    req_obj = urllib.request.Request(url,
+        data=json.dumps(payload).encode(),
+        headers={'Content-Type': 'application/json'})
+
+    try:
+        with urllib.request.urlopen(req_obj, timeout=180) as resp:
+            d = json.loads(resp.read())
+            parts = d['candidates'][0]['content'].get('parts', [])
+            text = next((p['text'] for p in parts if 'text' in p), None)
+            if not text:
+                log("FATAL: Gemini returned no text")
+                sys.exit(2)
+    except urllib.error.HTTPError as e:
+        log(f"FATAL: Gemini HTTP error {e.code}: {e.read().decode()[:200]}")
+        sys.exit(2)
+    except Exception as e:
+        log(f"FATAL: Gemini call failed: {e}")
+        sys.exit(2)
+
+    # ── Parse result ──────────────────────────────────────────────────
+    clean = text.strip()
+    if '```json' in clean:
+        clean = clean.split('```json')[1].split('```')[0].strip()
+    elif '```' in clean:
+        clean = clean.split('```')[1].split('```')[0].strip()
+
+    # Fix trailing commas before } or ] (common Gemini output issue)
+    clean = re.sub(r',\s*([}\]])', r'\1', clean)
+
+    try:
+        result = json.loads(clean)
+    except json.JSONDecodeError as e:
+        log(f"FATAL: Could not parse Gemini JSON: {e}")
+        log(f"Raw response: {clean[:500]}")
+        sys.exit(2)
+
+    grade = result.get('grade', 'F')
+    score = result.get('overall_score', 0)
+    broadcast = result.get('broadcast_ready', False)
+    recommendation = result.get('recommendation', 'DO_NOT_PUBLISH')
+    verdict = result.get('verdict', '')
+    critical = result.get('critical_failures', [])
+    warnings = result.get('warnings', [])
+    strengths = result.get('strengths', [])
+
+    # Save full grade report
+    os.makedirs(os.path.dirname(GRADE_FILE), exist_ok=True)
+    with open(GRADE_FILE, 'w') as f:
+        json.dump(result, f, indent=2)
+    log(f"Grade report saved to {GRADE_FILE}")
+
+    # Per-render grade history
+    os.makedirs(GRADES_DIR, exist_ok=True)
+    ts_tag = time.strftime('%Y%m%d_%H%M%S')
+    per_render_path = os.path.join(GRADES_DIR, f'grade_{ts_tag}.json')
+    with open(per_render_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    log(f"Per-render grade saved to {per_render_path}")
+
+    # ── Clean up uploaded file from Gemini ─────────────────────────────
+    if file_uri:
+        file_id = file_uri.split("/files/")[-1]
+        del_url = f"https://generativelanguage.googleapis.com/v1beta/files/{file_id}?key={GEMINI_KEY}"
+        try:
+            del_req = urllib.request.Request(del_url, method="DELETE")
+            urllib.request.urlopen(del_req, timeout=15)
+            log(f"Cleaned up uploaded file: {file_id}")
+        except Exception as e:
+            log(f"File cleanup failed (non-fatal): {e}")
+
+    # ── Print full scorecard ──────────────────────────────────────────
+    log("=" * 60)
+    log(f"GEMINI GRADE: {grade}  |  SCORE: {score}/100  |  {recommendation}")
+    log(f"VERDICT: {verdict}")
+    log(f"Technical: {result.get('technical_score')}/100  Content: {result.get('content_score')}/100  Production: {result.get('production_score')}/100")
+    log("-" * 60)
+
+    dims = result.get('dimensions', {})
+    for dim, data in dims.items():
+        s = data.get('score', '?')
+        n = data.get('note', '')
+        flag = '  ✓' if isinstance(s, int) and s >= 8 else ('  !' if isinstance(s, int) and s < 6 else '')
+        log(f"  {dim:30s} {s}/10{flag}  {n[:80]}")
+
+    log("-" * 60)
+    if critical:
+        log(f"CRITICAL FAILURES ({len(critical)}):")
+        for c in critical:
+            log(f"  !! {c}")
+    if warnings:
+        log(f"WARNINGS ({len(warnings)}):")
+        for w in warnings:
+            log(f"  -- {w}")
+    if strengths:
+        log(f"STRENGTHS ({len(strengths)}):")
+        for s in strengths:
+            log(f"  ++ {s}")
+    log("=" * 60)
+
+    # ── Record to episode memory ─────────────────────────────────────
+    try:
+        sys.path.insert(0, str(PIPELINE_DIR))
+        from episode_memory import record_episode
+        _render_id = os.path.basename(os.path.dirname(LATEST)) or os.path.basename(LATEST).replace('.mp4', '')
+        _date = time.strftime('%Y-%m-%d')
+        _clips_used = []
+        _manifest_path = os.path.join(os.path.dirname(LATEST), 'episode_manifest.json')
+        if os.path.exists(_manifest_path):
+            with open(_manifest_path) as _mf:
+                _manifest = json.load(_mf)
+            for _seg in _manifest.get('segments', []):
+                if _seg.get('type') == 'partner_clip':
+                    _vpath = _seg.get('video_path', '')
+                    _fname = os.path.basename(_vpath)
+                    _parts = _fname.replace('.mp4', '').split('_', 2)
+                    _clip_info = {'channel': _parts[2].rsplit('_', 1)[0] if len(_parts) > 2 else 'Unknown',
+                                  'video_id': _parts[2].rsplit('_', 1)[-1] if len(_parts) > 2 else ''}
+                    _clips_used.append(_clip_info)
+        record_episode(_render_id, _date, result, _clips_used)
+        log(f"Episode memory recorded: {_render_id} — grade {grade}, {len(_clips_used)} clips")
+    except Exception as _em_err:
+        log(f"[WARN] Episode memory recording failed: {_em_err}")
+
+    # ── Pass/fail gate ────────────────────────────────────────────────
+    if grade == 'A' and broadcast and score >= 88:
+        log("*** GRADE A CONFIRMED — BROADCAST READY ***")
+        with open(PASS_FILE, 'w') as f:
+            f.write(f"GRADE A CONFIRMED\n")
+            f.write(f"File: {LATEST}\n")
+            f.write(f"Score: {score}/100\n")
+            f.write(f"Verdict: {verdict}\n")
+            f.write(f"Graded: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        print(f"\nGRADE_A_PASS|{score}|{LATEST}|{verdict}")
+        sys.exit(0)
+    else:
+        log(f"NOT GRADE A: {grade} ({score}/100) — PBX will not be shown this render")
+        print(f"\nGRADE_{grade}_FAIL|{score}|{LATEST}|{verdict}")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
+
+# FILE: video_pipeline_v3/qc_pipeline.py (321 lines)
+
+#!/usr/bin/env python3
+"""QC Pipeline — preflight checks + post-render quality validation.
+
+Two entry points:
+  preflight_check(manifest_path) — runs BEFORE render
+  post_render_qc(video_path, manifest_path) — runs AFTER render
+
+V1 Rule: QC failures LOG only. Do NOT block publish.
+"""
+import json
+import logging
+import os
+import subprocess
+import sys
+
+logger = logging.getLogger("QCPipeline")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[qc] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+ASSETS = os.path.join(BASE, "assets")
+
+
+def _ffprobe_duration(path: str) -> float:
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", path],
+            capture_output=True, text=True, timeout=30,
+        )
+        return float(r.stdout.strip()) if r.stdout.strip() else 0.0
+    except Exception:
+        return 0.0
+
+
+def _ffprobe_bitrate(path: str) -> int:
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=bit_rate",
+             "-of", "default=noprint_wrappers=1:nokey=1", path],
+            capture_output=True, text=True, timeout=30,
+        )
+        return int(r.stdout.strip()) if r.stdout.strip() else 0
+    except Exception:
+        return 0
+
+
+def preflight_check(manifest_path: str) -> tuple:
+    """Verify all assets exist and are valid BEFORE rendering.
+
+    Returns:
+        (passed: bool, errors: list[str], warnings: list[str])
+    """
+    errors = []
+    warnings = []
+
+    if not os.path.exists(manifest_path):
+        return False, ["Manifest file not found"], []
+
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+
+    segments = manifest.get("segments", [])
+    logger.info(f"Preflight check: {len(segments)} segments")
+
+    # Check music bed
+    music_bed = manifest.get("music_bed_path", "")
+    if music_bed and not os.path.exists(music_bed):
+        warnings.append(f"Music bed not found: {music_bed}")
+
+    # Check background assets
+    bg_files = [
+        os.path.join(ASSETS, "backgrounds", "cyberspace.mp4"),
+        os.path.join(ASSETS, "backgrounds", "cyberpunk_loop.mp4"),
+    ]
+    if not any(os.path.exists(bg) for bg in bg_files):
+        warnings.append("No background video assets found")
+
+    for seg in segments:
+        seg_id = seg.get("id", "?")
+        seg_type = seg.get("type", "unknown")
+
+        # Check audio paths
+        audio_path = seg.get("audio_path", "")
+        if audio_path and not os.path.exists(audio_path):
+            if seg_type in ("partner_clip", "cold_open", "narration_setup",
+                            "narration_react", "social_card", "wrap"):
+                errors.append(f"MISSING AUDIO: segment {seg_id} ({seg_type}): {audio_path}")
+            else:
+                warnings.append(f"Missing audio: segment {seg_id} ({seg_type}): {audio_path}")
+        elif audio_path and os.path.exists(audio_path):
+            dur = _ffprobe_duration(audio_path)
+            if dur <= 0:
+                errors.append(f"ZERO DURATION audio: segment {seg_id} ({seg_type}): {audio_path}")
+
+        # Check clip paths and quality
+        video_path = seg.get("video_path", "")
+        if seg_type == "partner_clip" and video_path:
+            if not os.path.exists(video_path):
+                errors.append(f"MISSING CLIP: segment {seg_id}: {video_path}")
+            else:
+                bitrate = _ffprobe_bitrate(video_path)
+                if bitrate > 0 and bitrate < 1_500_000:
+                    warnings.append(
+                        f"LOW QUALITY clip: segment {seg_id} at {bitrate/1e6:.1f}Mbps: {video_path}")
+
+        # Check social card data
+        if seg_type == "social_card":
+            card = seg.get("social_card_data", {})
+            if not card.get("handle") or not card.get("text"):
+                warnings.append(f"Social card segment {seg_id} missing handle/text")
+            ss = card.get("screenshot_path", "")
+            if ss and not os.path.exists(ss):
+                warnings.append(f"Missing screenshot: segment {seg_id}: {ss}")
+
+    passed = len(errors) == 0
+    logger.info(f"Preflight: {'PASS' if passed else 'FAIL'} — {len(errors)} errors, {len(warnings)} warnings")
+    for e in errors:
+        logger.error(f"  ERROR: {e}")
+    for w in warnings:
+        logger.warning(f"  WARN: {w}")
+
+    return passed, errors, warnings
+
+
+def post_render_qc(video_path: str, manifest_path: str = "") -> dict:
+    """Run automated quality checks AFTER rendering.
+
+    Returns:
+        QC report dict with pass/fail for each check.
+    """
+    report = {
+        "video_path": video_path,
+        "checks": {},
+        "passed": False,
+        "details": {},
+    }
+
+    if not os.path.exists(video_path):
+        report["checks"]["file_exists"] = False
+        report["details"]["file_exists"] = "Video file not found"
+        return report
+    report["checks"]["file_exists"] = True
+
+    # Load manifest expectations if available
+    qc_exp = {}
+    if manifest_path and os.path.exists(manifest_path):
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+        qc_exp = manifest.get("qc_expectations", {})
+
+    # 1. Duration check
+    duration = _ffprobe_duration(video_path)
+    dur_range = qc_exp.get("total_duration_range", [360, 900])
+    dur_ok = dur_range[0] <= duration <= dur_range[1]
+    report["checks"]["duration"] = dur_ok
+    report["details"]["duration"] = {
+        "measured": round(duration, 1),
+        "expected_range": dur_range,
+    }
+    logger.info(f"  Duration: {duration:.1f}s (range {dur_range}) {'PASS' if dur_ok else 'FAIL'}")
+
+    # 2. Loudness check (integrated LUFS)
+    lufs = None
+    true_peak = None
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-filter:a", "loudnorm=print_format=json",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        # Parse loudnorm JSON from stderr
+        stderr = r.stderr
+        json_start = stderr.rfind("{")
+        json_end = stderr.rfind("}") + 1
+        if json_start >= 0 and json_end > json_start:
+            ln_data = json.loads(stderr[json_start:json_end])
+            lufs = float(ln_data.get("input_i", -99))
+            true_peak = float(ln_data.get("input_tp", 0))
+    except Exception as e:
+        logger.warning(f"  Loudness measurement failed: {e}")
+
+    target_lufs = qc_exp.get("loudness_lufs", -14)
+    if lufs is not None:
+        lufs_ok = abs(lufs - target_lufs) <= 2
+        report["checks"]["loudness"] = lufs_ok
+        report["details"]["loudness"] = {
+            "measured_lufs": round(lufs, 1),
+            "target_lufs": target_lufs,
+            "deviation": round(abs(lufs - target_lufs), 1),
+        }
+        logger.info(f"  Loudness: {lufs:.1f} LUFS (target {target_lufs}) {'PASS' if lufs_ok else 'FAIL'}")
+    else:
+        report["checks"]["loudness"] = None
+        report["details"]["loudness"] = "measurement_failed"
+
+    # 3. True peak check
+    target_tp = qc_exp.get("true_peak_dbtp", -1.5)
+    if true_peak is not None:
+        tp_ok = true_peak <= target_tp
+        report["checks"]["true_peak"] = tp_ok
+        report["details"]["true_peak"] = {
+            "measured_dbtp": round(true_peak, 1),
+            "max_dbtp": target_tp,
+        }
+        logger.info(f"  True peak: {true_peak:.1f} dBTP (max {target_tp}) {'PASS' if tp_ok else 'FAIL'}")
+    else:
+        report["checks"]["true_peak"] = None
+
+    # 4. Silent gap detection (>2s)
+    silences = []
+    try:
+        max_gap = qc_exp.get("max_silent_gap_sec", 2.0)
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-af",
+             f"silencedetect=noise=-40dB:d={max_gap}", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        import re
+        for match in re.finditer(r"silence_start: ([\d.]+).*?silence_end: ([\d.]+)", r.stderr, re.DOTALL):
+            start, end = float(match.group(1)), float(match.group(2))
+            silences.append({"start": round(start, 1), "end": round(end, 1),
+                             "duration": round(end - start, 1)})
+    except Exception as e:
+        logger.warning(f"  Silence detection failed: {e}")
+
+    silence_ok = len(silences) == 0
+    report["checks"]["no_dead_air"] = silence_ok
+    report["details"]["silences"] = silences
+    logger.info(f"  Silent gaps (>{qc_exp.get('max_silent_gap_sec', 2.0)}s): {len(silences)} {'PASS' if silence_ok else 'FAIL'}")
+
+    # 5. Black frame detection (>0.5s)
+    black_frames = []
+    try:
+        max_black = qc_exp.get("max_black_frames_sec", 0.5)
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path, "-vf",
+             f"blackdetect=d={max_black}:pix_th=0.02",
+             "-f", "null", "-"],
+            capture_output=True, text=True, timeout=300,
+        )
+        import re
+        for match in re.finditer(r"black_start:([\d.]+) black_end:([\d.]+) black_duration:([\d.]+)", r.stderr):
+            black_frames.append({
+                "start": float(match.group(1)),
+                "end": float(match.group(2)),
+                "duration": float(match.group(3)),
+            })
+    except Exception as e:
+        logger.warning(f"  Black frame detection failed: {e}")
+
+    black_ok = len(black_frames) == 0
+    report["checks"]["no_black_frames"] = black_ok
+    report["details"]["black_frames"] = black_frames
+    logger.info(f"  Black frames (>{qc_exp.get('max_black_frames_sec', 0.5)}s): {len(black_frames)} {'PASS' if black_ok else 'FAIL'}")
+
+    # 6. Clip count check
+    exp_clips = qc_exp.get("clip_count", 0)
+    if exp_clips > 0:
+        report["details"]["expected_clips"] = exp_clips
+
+    # Overall pass
+    check_vals = [v for v in report["checks"].values() if v is not None]
+    report["passed"] = all(check_vals) if check_vals else False
+
+    logger.info(f"  QC Overall: {'PASS' if report['passed'] else 'FAIL'}")
+    return report
+
+
+def save_qc_report(report: dict, output_dir: str) -> str:
+    """Save QC report to disk."""
+    report_path = os.path.join(output_dir, "qc_report.json")
+    os.makedirs(output_dir, exist_ok=True)
+    with open(report_path, "w") as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"  QC report saved: {report_path}")
+    return report_path
+
+
+def main():
+    """CLI: python3 qc_pipeline.py <output_dir>"""
+    if len(sys.argv) < 2:
+        print("Usage: python3 qc_pipeline.py <output_dir>")
+        sys.exit(1)
+
+    output_dir = sys.argv[1]
+
+    # Find video and manifest
+    import glob
+    videos = glob.glob(os.path.join(output_dir, "pulse_check_*.mp4"))
+    manifest_path = os.path.join(output_dir, "episode_manifest.json")
+
+    if not videos:
+        print(f"No pulse_check_*.mp4 found in {output_dir}")
+        sys.exit(1)
+
+    video_path = videos[0]
+    print(f"QC Pipeline — {video_path}")
+
+    # Preflight (if manifest exists)
+    if os.path.exists(manifest_path):
+        passed, errors, warnings = preflight_check(manifest_path)
+        print(f"\nPreflight: {'PASS' if passed else 'FAIL'}")
+
+    # Post-render QC
+    report = post_render_qc(video_path, manifest_path)
+    save_qc_report(report, output_dir)
+
+    print(f"\nPost-render QC: {'PASS' if report['passed'] else 'FAIL'}")
+    for check, val in report["checks"].items():
+        status = "PASS" if val else ("FAIL" if val is not None else "SKIP")
+        print(f"  [{status}] {check}")
+
+    sys.exit(0 if report["passed"] else 1)
+
+
+if __name__ == "__main__":
+    main()
+
+# FILE: video_pipeline_v3/thumbnail_gen.py (226 lines)
+
+#!/usr/bin/env python3
+"""Thumbnail Generator V5 — MMA Central / ESPN style thumbnails.
+
+Features:
+- Avatar face prominently on right side
+- Bold, thick white text with drop shadow on left
+- Red accent color for emphasis words
+- Dark cinematic background with gradient
+- Asymmetric layout (text 40%, image 60%)
+- BTC price badge in corner
+- "PROTOCOL PULSE" branding
+"""
+import os
+
+try:
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+
+# Brand colors
+BG_DARK = (8, 8, 8)
+RED = (204, 0, 0)
+RED_BRIGHT = (255, 51, 51)
+WHITE = (255, 255, 255)
+GRAY = (120, 120, 120)
+LIGHT_GRAY = (180, 180, 180)
+
+# Default avatar path (from model_registry)
+AVATAR_PATH = os.path.expanduser("~/protocol_pulse/oracle/Proto_P_Avatar_512.png")
+
+
+def generate_thumbnail(headline: str, subtext: str = "",
+                       output_path: str = "thumbnail.png",
+                       btc_price: str = "",
+                       avatar_path: str = None,
+                       top_quote: str = "") -> str:
+    """Generate a 1280x720 MMA Central style YouTube thumbnail.
+
+    Args:
+        headline: Bold main text (5-8 words)
+        subtext: Secondary line
+        output_path: Where to save
+        btc_price: BTC price for badge
+        avatar_path: Path to avatar/face image
+        top_quote: Optional quote text for additional context
+
+    Returns:
+        Path to generated thumbnail, or "" on failure.
+    """
+    if not HAS_PIL:
+        print("  [thumb] Pillow not installed, skipping thumbnail")
+        return ""
+
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    W, H = 1280, 720
+    img = Image.new("RGB", (W, H), BG_DARK)
+    draw = ImageDraw.Draw(img)
+
+    # ── Background: dark cinematic gradient ──────────────────────────────
+    for y in range(H):
+        for x in range(W):
+            # Diagonal gradient: dark to slightly lighter
+            factor = (x / W * 0.3 + y / H * 0.7)
+            r = int(8 + 15 * factor)
+            g = int(5 + 5 * factor)
+            b = int(5 + 5 * factor)
+            draw.point((x, y), fill=(r, g, b))
+
+    # Red accent glow behind where face will be (right side)
+    for y in range(H):
+        for x in range(max(0, W - 500), W):
+            alpha = (x - (W - 500)) / 500.0
+            gy = 1.0 - abs(y / H - 0.5) * 2
+            intensity = alpha * gy * 0.15
+            r = int(8 + 200 * intensity)
+            g = int(5 + 10 * intensity)
+            b = int(5 + 10 * intensity)
+            draw.point((x, y), fill=(r, g, b))
+
+    # ── Avatar / face image (right 60%) ──────────────────────────────────
+    face_path = avatar_path or AVATAR_PATH
+    if os.path.exists(face_path):
+        try:
+            face_img = Image.open(face_path).convert("RGBA")
+            # Scale to fit right portion, vertically centered
+            face_h = H
+            face_w = int(face_img.width * face_h / face_img.height)
+            face_img = face_img.resize((face_w, face_h), Image.LANCZOS)
+
+            # Enhance: slightly more contrast for dramatic look
+            enhancer = ImageEnhance.Contrast(face_img)
+            face_img = enhancer.enhance(1.2)
+            enhancer = ImageEnhance.Brightness(face_img)
+            face_img = enhancer.enhance(0.85)
+
+            # Create gradient mask for left-edge fade
+            mask = Image.new("L", (face_w, face_h), 255)
+            mask_draw = ImageDraw.Draw(mask)
+            fade_width = face_w // 3
+            for x in range(fade_width):
+                alpha = int(255 * (x / fade_width))
+                mask_draw.line([(x, 0), (x, face_h)], fill=alpha)
+
+            # Position on right side
+            face_x = W - face_w + 50
+            img.paste(face_img, (face_x, 0), mask)
+        except Exception as e:
+            print(f"  [thumb] Avatar load error: {e}")
+
+    draw = ImageDraw.Draw(img)  # Refresh draw after paste
+
+    # ── Red accent bars ──────────────────────────────────────────────────
+    draw.rectangle([(0, 0), (6, H)], fill=RED)  # Left edge
+    draw.rectangle([(0, 380), (520, 384)], fill=RED)  # Horizontal accent
+
+    # ── "PULSE CHECK" show name (top-left) ───────────────────────────────
+    try:
+        font_show = ImageFont.truetype(FONT_BOLD, 26)
+    except Exception:
+        font_show = ImageFont.load_default()
+    draw.text((25, 22), "PULSE CHECK", fill=RED_BRIGHT, font=font_show)
+
+    # ── Main headline (left 45% of frame) ────────────────────────────────
+    try:
+        font_headline = ImageFont.truetype(FONT_BOLD, 68)
+    except Exception:
+        font_headline = ImageFont.load_default()
+
+    max_text_width = int(W * 0.48)
+    words = headline.upper().split()
+    lines = []
+    current = ""
+    for word in words:
+        test = f"{current} {word}".strip()
+        bbox = draw.textbbox((0, 0), test, font=font_headline)
+        if bbox[2] - bbox[0] > max_text_width:
+            if current:
+                lines.append(current)
+            current = word
+        else:
+            current = test
+    if current:
+        lines.append(current)
+
+    # Draw headline with drop shadow
+    line_height = 78
+    total_height = len(lines) * line_height
+    start_y = max(80, (340 - total_height) // 2 + 60)
+
+    for i, line in enumerate(lines):
+        y = start_y + i * line_height
+        # Shadow (offset)
+        draw.text((27, y + 4), line, fill=(20, 20, 20), font=font_headline)
+        draw.text((28, y + 3), line, fill=(30, 30, 30), font=font_headline)
+        # Main text
+        draw.text((25, y), line, fill=WHITE, font=font_headline)
+
+    # ── Subtext below accent line ────────────────────────────────────────
+    if subtext:
+        try:
+            font_sub = ImageFont.truetype(FONT_BOLD, 32)
+        except Exception:
+            font_sub = ImageFont.load_default()
+        draw.text((25, 405), subtext.upper(), fill=LIGHT_GRAY, font=font_sub)
+
+    # ── Quote (if provided) ──────────────────────────────────────────────
+    if top_quote:
+        try:
+            font_quote = ImageFont.truetype(FONT_MONO, 18)
+        except Exception:
+            font_quote = ImageFont.load_default()
+        quote_text = f'"{top_quote[:80]}"'
+        draw.text((25, 450), quote_text, fill=GRAY, font=font_quote)
+
+    # ── BTC price badge (bottom-left) ────────────────────────────────────
+    if btc_price:
+        try:
+            font_btc = ImageFont.truetype(FONT_BOLD, 28)
+            font_btc_label = ImageFont.truetype(FONT_MONO, 16)
+        except Exception:
+            font_btc = font_btc_label = ImageFont.load_default()
+
+        # Badge background
+        badge_w, badge_h = 200, 55
+        badge_x, badge_y = 25, H - 75
+        draw.rectangle(
+            [(badge_x, badge_y), (badge_x + badge_w, badge_y + badge_h)],
+            fill=(15, 15, 15), outline=RED, width=2,
+        )
+        # BTC icon (circle)
+        draw.ellipse(
+            [(badge_x + 8, badge_y + 12), (badge_x + 38, badge_y + 42)],
+            fill=RED,
+        )
+        draw.text((badge_x + 16, badge_y + 14), "B", fill=WHITE, font=font_btc_label)
+        # Price text
+        draw.text((badge_x + 48, badge_y + 12), btc_price, fill=WHITE, font=font_btc)
+
+    # ── "PROTOCOL PULSE" branding (bottom-right) ────────────────────────
+    try:
+        font_brand = ImageFont.truetype(FONT_MONO, 16)
+    except Exception:
+        font_brand = ImageFont.load_default()
+    draw.text((W - 200, H - 35), "PROTOCOL PULSE", fill=GRAY, font=font_brand)
+
+    img.save(output_path, "PNG", quality=95)
+    sz = os.path.getsize(output_path) // 1024
+    print(f"  [thumb] Generated: {output_path} ({W}x{H}, {sz}KB)")
+    return output_path
+
+
+if __name__ == "__main__":
+    out = os.path.join(BASE, "output", "test_thumbnail_v5.png")
+    generate_thumbnail(
+        "HASH RATE BREAKS ALL RECORDS",
+        "Nations are stacking",
+        out,
+        btc_price="$97,234",
+        top_quote="When the entities that print fiat start hoarding the exit asset...",
+    )
+
+# FILE: video_pipeline_v3/channels.yaml (548 lines)
+
+# Bitcoin YouTube channels — Protocol Pulse Intelligence Network
+# 76 channels across 4 tiers, all URLs verified with yt-dlp 2026-03-05
+# The daemon scans every 15 minutes. Adding channels here is all that's needed.
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 1 — Core Bitcoin (priority 1, always scan, always transcribe)
+# ═══════════════════════════════════════════════════════════════════
+channels:
+  - handle: "@BitcoinMagazine"
+    name: "Bitcoin Magazine"
+    url: "https://www.youtube.com/@BitcoinMagazine"
+    tier: 1
+    priority: 1
+
+  - handle: "@SimplyBitcoin"
+    name: "Simply Bitcoin"
+    url: "https://www.youtube.com/@SimplyBitcoin"
+    tier: 1
+    priority: 1
+
+  - handle: "@WBDPodcast"
+    name: "What Bitcoin Did"
+    url: "https://www.youtube.com/@WBDPodcast"
+    tier: 1
+    priority: 1
+
+  - handle: "@TFTC"
+    name: "TFTC"
+    url: "https://www.youtube.com/@TFTC"
+    tier: 1
+    priority: 1
+
+  - handle: "@PrestonPysh"
+    name: "Preston Pysh"
+    url: "https://www.youtube.com/@PrestonPysh"
+    tier: 1
+    priority: 1
+
+  - handle: "@thebitcoinlayer"
+    name: "The Bitcoin Layer"
+    url: "https://www.youtube.com/@thebitcoinlayer"
+    tier: 1
+    priority: 1
+
+  - handle: "@Blockworks"
+    name: "Blockworks"
+    url: "https://www.youtube.com/@Blockworks"
+    tier: 1
+    priority: 1
+
+  - handle: "@nataliebrunell"
+    name: "Natalie Brunell"
+    url: "https://www.youtube.com/@nataliebrunell"
+    tier: 1
+    priority: 1
+
+  - handle: "@RobertBreedlove22"
+    name: "Robert Breedlove"
+    url: "https://www.youtube.com/@RobertBreedlove22"
+    tier: 1
+    priority: 1
+
+  - handle: "@aantonop"
+    name: "Andreas Antonopoulos"
+    url: "https://www.youtube.com/@aantonop"
+    tier: 1
+    priority: 1
+
+  - handle: "@BitcoinUnchained"
+    name: "Unchained"
+    url: "https://www.youtube.com/@BitcoinUnchained"
+    tier: 1
+    priority: 1
+
+  - handle: "@Swan_Bitcoin"
+    name: "Swan Bitcoin"
+    url: "https://www.youtube.com/@Swan_Bitcoin"
+    tier: 1
+    priority: 1
+
+  - handle: "@BTCSessions"
+    name: "BTC Sessions"
+    url: "https://www.youtube.com/@BTCSessions"
+    tier: 1
+    priority: 1
+
+  - handle: "@stephanlivera"
+    name: "Stephan Livera"
+    url: "https://www.youtube.com/@stephanlivera"
+    tier: 1
+    priority: 1
+
+  - handle: "@BitcoinAudible"
+    name: "Bitcoin Audible"
+    url: "https://www.youtube.com/@BitcoinAudible"
+    tier: 1
+    priority: 1
+
+  - handle: "@saifedean"
+    name: "Saifedean Ammous"
+    url: "https://www.youtube.com/@saifedean"
+    tier: 1
+    priority: 1
+
+  - handle: "@BitcoinMagazinePro"
+    name: "Bitcoin Magazine Pro"
+    url: "https://www.youtube.com/@BitcoinMagazinePro"
+    tier: 1
+    priority: 1
+
+  - handle: "@WeStudyBillionaires"
+    name: "The Investors Podcast Network"
+    url: "https://www.youtube.com/@WeStudyBillionaires"
+    tier: 1
+    priority: 1
+
+  - handle: "@TheGuySwann"
+    name: "Guy Swann"
+    url: "https://www.youtube.com/@TheGuySwann"
+    tier: 1
+    priority: 1
+
+  - handle: "@BTCInc"
+    name: "BTC Inc"
+    url: "https://www.youtube.com/@BTCInc"
+    tier: 1
+    priority: 1
+
+  - handle: "@ToneVays"
+    name: "Tone Vays"
+    url: "https://www.youtube.com/@ToneVays"
+    tier: 1
+    priority: 1
+
+  - handle: "@BitcoinExplained"
+    name: "Bitcoin Explained"
+    url: "https://www.youtube.com/@BitcoinExplained"
+    tier: 1
+    priority: 1
+
+  - handle: "@JamesonLopp"
+    name: "Jameson Lopp"
+    url: "https://www.youtube.com/@JamesonLopp"
+    tier: 1
+    priority: 1
+
+  - handle: "@CasaBitcoin"
+    name: "Casa"
+    url: "https://www.youtube.com/@CasaBitcoin"
+    tier: 1
+    priority: 1
+
+  - handle: "@Base58BTC"
+    name: "Base58"
+    url: "https://www.youtube.com/@Base58BTC"
+    tier: 1
+    priority: 1
+
+  - handle: "@NathanielWhittemore"
+    name: "Nathaniel Whittemore"
+    url: "https://www.youtube.com/@NathanielWhittemore"
+    tier: 1
+    priority: 1
+
+  - handle: "@TheBitcoinPodcast"
+    name: "The Bitcoin Podcast"
+    url: "https://www.youtube.com/@TheBitcoinPodcast"
+    tier: 1
+    priority: 1
+
+  - handle: "@BitcoinMechanic"
+    name: "Bitcoin Mechanic"
+    url: "https://www.youtube.com/@BitcoinMechanic"
+    tier: 1
+    priority: 1
+
+  - handle: "@AnselLindner"
+    name: "Ansel Lindner"
+    url: "https://www.youtube.com/@AnselLindner"
+    tier: 1
+    priority: 1
+
+  - handle: "@BitcoinPodcast"
+    name: "Bitcoin Podcast"
+    url: "https://www.youtube.com/@BitcoinPodcast"
+    tier: 1
+    priority: 1
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 2 — Bitcoin Adjacent / Macro (priority 2, scan daily,
+#          transcribe if Bitcoin keywords in title)
+# ═══════════════════════════════════════════════════════════════════
+
+  - handle: "@RealVisionFinance"
+    name: "Real Vision Finance"
+    url: "https://www.youtube.com/@RealVisionFinance"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "saylor", "etf", "macro", "money"]
+
+  - handle: "@GeorgeGammon"
+    name: "George Gammon"
+    url: "https://www.youtube.com/@GeorgeGammon"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "inflation", "money", "fed"]
+
+  - handle: "@CoinBureau"
+    name: "Coin Bureau"
+    url: "https://www.youtube.com/@CoinBureau"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "etf", "saylor", "mining", "halving"]
+
+  - handle: "@AnthonyPompliano"
+    name: "Anthony Pompliano"
+    url: "https://www.youtube.com/@AnthonyPompliano"
+    tier: 2
+    priority: 2
+
+  - handle: "@MartyBentTFTC"
+    name: "Marty Bent (Rabbit Hole Recap)"
+    url: "https://www.youtube.com/@MartyBentTFTC"
+    tier: 2
+    priority: 2
+
+  - handle: "@onceBITTEN"
+    name: "Once Bitten"
+    url: "https://www.youtube.com/@onceBITTEN"
+    tier: 2
+    priority: 2
+
+  - handle: "@maxkeiser"
+    name: "Max Keiser"
+    url: "https://www.youtube.com/@maxkeiser"
+    tier: 2
+    priority: 2
+
+  - handle: "@StackerNews"
+    name: "Stacker News"
+    url: "https://www.youtube.com/@StackerNews"
+    tier: 2
+    priority: 2
+
+  - handle: "@fountain_app"
+    name: "Fountain"
+    url: "https://www.youtube.com/@fountain_app"
+    tier: 2
+    priority: 2
+
+  - handle: "@GeminiExchange"
+    name: "Gemini"
+    url: "https://www.youtube.com/@GeminiExchange"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "etf"]
+
+  - handle: "@Saylor"
+    name: "Michael Saylor"
+    url: "https://www.youtube.com/@Saylor"
+    tier: 2
+    priority: 2
+
+  - handle: "@Strike"
+    name: "Strike"
+    url: "https://www.youtube.com/@Strike"
+    tier: 2
+    priority: 2
+
+  - handle: "@RealVision"
+    name: "Real Vision"
+    url: "https://www.youtube.com/@RealVision"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "macro"]
+
+  - handle: "@ScottMelker"
+    name: "Scott Melker"
+    url: "https://www.youtube.com/@ScottMelker"
+    tier: 2
+    priority: 2
+
+  - handle: "@WolfOfAllStreets"
+    name: "Wolf Of All Streets"
+    url: "https://www.youtube.com/@WolfOfAllStreets"
+    tier: 2
+    priority: 2
+
+  - handle: "@CompassMining"
+    name: "Compass Mining"
+    url: "https://www.youtube.com/@CompassMining"
+    tier: 2
+    priority: 2
+
+  - handle: "@MARAHoldings"
+    name: "MARA Holdings (Marathon Digital)"
+    url: "https://www.youtube.com/@MARAHoldings"
+    tier: 2
+    priority: 2
+
+  - handle: "@RiotPlatforms"
+    name: "Riot Platforms"
+    url: "https://www.youtube.com/@RiotPlatforms"
+    tier: 2
+    priority: 2
+
+  - handle: "@HiveBlockchain"
+    name: "HIVE Digital"
+    url: "https://www.youtube.com/@HiveBlockchain"
+    tier: 2
+    priority: 2
+
+  - handle: "@Bitfarms"
+    name: "Bitfarms"
+    url: "https://www.youtube.com/@Bitfarms"
+    tier: 2
+    priority: 2
+
+  - handle: "@BlockwareSolutions"
+    name: "Blockware Solutions"
+    url: "https://www.youtube.com/@BlockwareSolutions"
+    tier: 2
+    priority: 2
+
+  - handle: "@Strategy"
+    name: "Strategy (MicroStrategy)"
+    url: "https://www.youtube.com/@Strategy"
+    tier: 2
+    priority: 2
+
+  - handle: "@ClarkMoody"
+    name: "Clark Moody"
+    url: "https://www.youtube.com/@ClarkMoody"
+    tier: 2
+    priority: 2
+
+  - handle: "@CoinTelegraph"
+    name: "CoinTelegraph"
+    url: "https://www.youtube.com/@CoinTelegraph"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "etf", "mining", "halving", "saylor"]
+
+  - handle: "@CoinDesk"
+    name: "CoinDesk"
+    url: "https://www.youtube.com/@CoinDesk"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "etf", "mining", "halving", "saylor"]
+
+  - handle: "@DataDash"
+    name: "DataDash"
+    url: "https://www.youtube.com/@DataDash"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "etf", "macro"]
+
+  - handle: "@InvestingWithTom"
+    name: "Investing With Tom"
+    url: "https://www.youtube.com/@InvestingWithTom"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "crypto", "etf"]
+
+  - handle: "@DigitalAssetNews"
+    name: "Digital Asset News"
+    url: "https://www.youtube.com/@DigitalAssetNews"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "etf"]
+
+  - handle: "@AltcoinDaily"
+    name: "Altcoin Daily"
+    url: "https://www.youtube.com/@AltcoinDaily"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc", "etf", "saylor"]
+
+  - handle: "@CoinGecko"
+    name: "CoinGecko"
+    url: "https://www.youtube.com/@CoinGecko"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc"]
+
+  - handle: "@BitstampExchange"
+    name: "Bitstamp"
+    url: "https://www.youtube.com/@BitstampExchange"
+    tier: 2
+    priority: 2
+    filter_keywords: ["bitcoin", "btc"]
+
+  - handle: "@bitcoinmagazineclips"
+    name: "Bitcoin Magazine Clips"
+    url: "https://www.youtube.com/@bitcoinmagazineclips"
+    tier: 2
+    priority: 2
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 3 — Tradfi / Macro (priority 3, scan daily,
+#          ONLY transcribe if Bitcoin/BTC in title)
+# ═══════════════════════════════════════════════════════════════════
+
+  - handle: "@CNBC"
+    name: "CNBC"
+    url: "https://www.youtube.com/@CNBC"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@CNBCtelevision"
+    name: "CNBC Television"
+    url: "https://www.youtube.com/@CNBCtelevision"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@BloombergTelevision"
+    name: "Bloomberg Television"
+    url: "https://www.youtube.com/@BloombergTelevision"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@FoxBusiness"
+    name: "Fox Business"
+    url: "https://www.youtube.com/@FoxBusiness"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@YahooFinance"
+    name: "Yahoo Finance"
+    url: "https://www.youtube.com/@YahooFinance"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@WSJ"
+    name: "Wall Street Journal"
+    url: "https://www.youtube.com/@WSJ"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@FinancialTimes"
+    name: "Financial Times"
+    url: "https://www.youtube.com/@FinancialTimes"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
+
+  - handle: "@kitco"
+    name: "Kitco News"
+    url: "https://www.youtube.com/@kitco"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "saylor", "etf"]
+
+  - handle: "@Bankless"
+    name: "Bankless"
+    url: "https://www.youtube.com/@Bankless"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "etf", "saylor", "digital asset"]
+
+  - handle: "@TheBlockTV"
+    name: "The Block"
+    url: "https://www.youtube.com/@TheBlockTV"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "etf", "mining"]
+
+  - handle: "@TheStreet"
+    name: "TheStreet"
+    url: "https://www.youtube.com/@TheStreet"
+    tier: 3
+    priority: 3
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "saylor", "etf"]
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 4 — Mainstream with Bitcoin moments (priority 4,
+#          scan hourly, ONLY if Bitcoin keyword matches)
+# ═══════════════════════════════════════════════════════════════════
+
+mainstream:
+  - handle: "@joerogan"
+    name: "Joe Rogan Experience"
+    url: "https://www.youtube.com/@joerogan"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "satoshi", "digital currency", "fed", "inflation", "sound money", "gold standard"]
+
+  - handle: "@lexfridman"
+    name: "Lex Fridman"
+    url: "https://www.youtube.com/@lexfridman"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "satoshi", "digital currency", "money", "economics"]
+
+  - handle: "@PBDPodcast"
+    name: "Patrick Bet-David"
+    url: "https://www.youtube.com/@PBDPodcast"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "digital", "inflation", "money"]
+
+  - handle: "@TuckerCarlson"
+    name: "Tucker Carlson"
+    url: "https://www.youtube.com/@TuckerCarlson"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "cbdc", "digital dollar", "surveillance", "privacy", "freedom"]
+
+  - handle: "@All-In-Podcast"
+    name: "All-In Podcast"
+    url: "https://www.youtube.com/@All-In-Podcast"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "web3"]
+
+  - handle: "@TheMegynKellyShow"
+    name: "Megyn Kelly Show"
+    url: "https://www.youtube.com/@TheMegynKellyShow"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "cbdc", "digital currency", "privacy"]
+
+  - handle: "@PowerfulJRE"
+    name: "JRE Clips"
+    url: "https://www.youtube.com/@PowerfulJRE"
+    tier: 4
+    priority: 4
+    filter_keywords: ["bitcoin", "btc", "crypto", "money", "inflation"]
+
+# ═══════════════════════════════════════════════════════════════════
+# Scanning config
+# ═══════════════════════════════════════════════════════════════════
+scan:
+  max_age_hours: 48
+  fallback_age_hours: 168
+  max_videos_per_channel: 3
+  min_duration_seconds: 120
+  tier_scan_intervals:
+    1: 15    # Tier 1: every 15 min
+    2: 30    # Tier 2: every 30 min
+    3: 60    # Tier 3: every 60 min
+    4: 60    # Tier 4: every 60 min
+
+# FILE: video_pipeline_v3/config.yaml (55 lines)
+
+# Pulse Check Video Pipeline Configuration
+branding:
+  name: "PULSE CHECK"
+  subtitle: "Bitcoin Intelligence Daily"
+  signoff: "Stay sovereign."
+  watermark_text: "PROTOCOL PULSE"
+  color_primary: "#CC0000"
+  color_dark: "#0A0A0A"
+  color_light: "#FFFFFF"
+  color_accent: "#FF3333"
+
+video:
+  width: 1920
+  height: 1080
+  fps: 30
+  crf: 20
+  codec: libx264
+  audio_codec: aac
+  audio_rate: 44100
+  audio_bitrate: "192k"
+
+shorts:
+  width: 1080
+  height: 1920
+  fps: 30
+
+tts:
+  voice_id: "cgSgspJ2msm6clMCkdW9"  # Jessica
+  model_id: "eleven_turbo_v2_5"
+  stability: 0.55
+  similarity_boost: 0.85
+  style: 0.50
+  use_speaker_boost: true
+  fallback: null    # No fallback — ElevenLabs or fail
+
+assets:
+  font_mono: "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+  font_bold: "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+  font_regular: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+  tag_video: "assets/tag_vertical.mp4"
+  transition_duration: 0.5
+  intro_duration: 0     # No static intro — cold open starts immediately
+  outro_duration: 5
+
+paths:
+  output: "output"
+  shorts: "output/shorts"
+  downloads: "downloads"
+  transcripts: "transcripts"
+  assets: "assets"
+
+# Key resolution: env vars -> ~/protocol_pulse/.env (see relay.py)
+relay:
+  url: "https://relay.protocolpulse.io/exec"  # Ultron relay — Replit deprecated
+  token: "581b1076ca6d8a8809997d24f0869431ffd75c64de9ea703b6ab0f3e39fbd552"
+
+# FILE: video_pipeline_v3/PIPELINE_LAWS.md (578 lines)
+
+# MANDATORY: Read ~/protocol_pulse/CROSS_LLM_AUDIT_LAW.md before any build session.
+# Every feature: Build -> 2-cycle LLM audit (Gemini+GPT4o+Grok parallel) -> Second pass -> Merge.
+# INVIOLABLE. No exceptions. No shortcuts. No merging without the audit.
+# ------------------------------------------------------------
+
+# PROTOCOL PULSE VIDEO PIPELINE — LAWS
+# Sections 1-14 (Core Rules)
+# Sections 15-18 in PIPELINE_LAWS_ADDENDUM.md
+# Status: GOSPEL. Load into EVERY Claude Code session touching pipeline code.
+# Created: 2026-03-04 | Updated: 2026-03-05
+
+---
+
+## SECTION 1: PREFLIGHT CHECKS
+Every pipeline run must verify before producing anything:
+- [ ] Ultron GPU available (nvidia-smi returns 0)
+- [ ] ElevenLabs API key valid (test call returns 200)
+- [ ] Claude API key valid
+- [ ] channels.yaml exists and has >0 channels
+- [ ] assets/music/ directory has >0 .mp3 files
+- [ ] assets/outro_branded.mp4 exists
+- [ ] config/feature_flags.json exists and is valid JSON
+- [ ] No other Claude Code session writing to THIS worktree directory (~/worktrees/[feature]/ or ~/protocol_pulse/ for production)
+
+If any check fails, log the failure and abort. Never produce a partial episode.
+
+## SECTION 2: RESOLUTION AND FORMAT LOCK
+All pipeline output MUST be:
+- Video: 1920x1080, 30fps CFR, h264, yuv420p
+- Audio: AAC, 48000Hz, stereo
+- Container: MP4
+- Shorts: 1080x1920, 30fps CFR, same audio
+
+Mixed resolution in a single concat is a PIPELINE FAILURE.
+Every part file must be normalized to these specs BEFORE concat.
+
+## SECTION 3: ENCODING QUALITY
+All video encoding uses these settings:
+```
+-c:v libx264 -crf 17 -preset medium -b:v 8M -maxrate 10M -bufsize 15M
+-c:a aac -b:a 192k -ar 48000 -ac 2
+-pix_fmt yuv420p -r 30 -vsync cfr
+```
+CRF 20 is BANNED. Preset "fast" is BANNED for final output.
+Minimum acceptable bitrate: 5 Mbps. Target: 8 Mbps.
+YouTube recommends 8 Mbps for 1080p30. We match that.
+
+## SECTION 4: YT-DLP SOURCE QUALITY
+Format selector for clip downloads:
+```
+-f bestvideo[height<=1080][vcodec^=avc1]+bestaudio[acodec^=mp4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]
+```
+This grabs the highest quality separate video+audio streams and muxes them.
+The old `best[height<=1080][ext=mp4]` selector grabbed pre-muxed low-bitrate files and is BANNED.
+
+## SECTION 5: AV SYNC — ROOT CAUSE DIAGNOSIS PROTOCOL
+AV sync drift has TWO different root causes with TWO different fixes.
+ALWAYS diagnose before fixing.
+
+### Step 1: Check raw clips
+```bash
+for clip in cache/clips/*.mp4; do
+  python3 -c "from clip_extractor import check_av_sync; print(f'$clip: {check_av_sync(\"$clip\")}s')"
+done
+```
+
+### Step 2: Check final output
+```bash
+python3 -c "from clip_extractor import check_av_sync; print(f'FINAL: {check_av_sync(\"output/latest/pulse_check.mp4\")}s')"
+```
+
+### Diagnosis:
+- If raw clips are OUT OF SYNC → ROOT CAUSE = yt-dlp download + mux
+  Fix: Apply setpts=PTS-STARTPTS + asetpts=PTS-STARTPTS in clip_extractor
+- If raw clips are IN SYNC but final output is OUT OF SYNC → ROOT CAUSE = assembler concat
+  Fix: Normalize all parts before concat, use concat demuxer with -safe 0, add PTS reset + -async 1 on final encode
+- If BOTH are in sync but video looks out of sync → ROOT CAUSE = variable frame rate
+  Fix: Force CFR with -r 30 -vsync cfr on all inputs
+
+NEVER guess. ALWAYS measure. ALWAYS log the offset numbers.
+
+## SECTION 6: CONCAT RULES
+When joining parts into final video:
+1. Every part MUST be normalized to Section 2 specs before concat
+2. Use FFmpeg concat demuxer: `ffmpeg -f concat -safe 0 -i filelist.txt`
+3. After concat, apply: `-vf setpts=PTS-STARTPTS -af asetpts=PTS-STARTPTS,aresample=async=1`
+4. Validate final output with check_av_sync(). Must be < 0.03s.
+5. If > 0.03s, re-encode with nuclear fix (full decode + re-encode)
+
+## SECTION 7: VOICE RULES
+- Host 1: Nicole (piTKgcLEGmPE4e6mEKli) — stability 0.55, similarity 0.75, style 0.15
+- Host 2: Chris (default male) or PBX clone when available
+- Cold open: Can use slightly lower stability (0.45) for dramatic effect
+- Main narration: Must be clear and confident, never whispery
+- BANNED voices: Gigi (jBpfuIE2acCO8z3wKNLl), Jessica (cgSgspJ2msm6clMCkdW9)
+
+## SECTION 8: MUSIC RULES
+- Music bed: -18dB to -22dB under narration. Never overpowers speech.
+- Mood classification drives track selection from assets/music/ (30 Suno tracks)
+- If mood classification fails, use default confident track
+- Intro: full music, fade under when narration starts
+- Outro: music fades up after last narrator word, plays through outro video
+- pp_background.mp3 as hardcoded path is BANNED. Always use mood-selected track.
+
+## SECTION 9: CLIP SELECTION RULES
+- Max 1 clip per channel. Enforced in Python post-selection, not just LLM prompt.
+- Max 5 clips per episode (production). Max 2 clips per episode (test mode).
+- Ad read double gate: LLM prompt instructs avoidance + contains_ad_read() code check.
+- Clip end buffer: 8 seconds minimum. Silence detection for natural pause trim.
+- Never reuse a video_id from the last 7 episodes (episode memory in data/used_clips.json).
+- Mainstream channels (Joe Rogan, Lex, etc.) must pass keyword filter.
+
+## SECTION 10: BRAND COLORS
+```
+PRIMARY RED:    #CC0000
+DARK RED:       #880000
+LIGHT RED:      #FF4444
+BLACK:          #0A0A0A
+SURFACE:        #141414
+WHITE:          #FFFFFF
+BORDER:         #1F1F1F
+TEXT SECONDARY: #888888
+```
+Before every commit: `grep -rn "00D4FF\|7B2FFF\|3388FF\|00BFFF" *.py remotion/` must return ZERO results.
+Blue/cyan/purple are permanently BANNED from all pipeline visual output.
+All Remotion components import from shared brand.ts constants file.
+
+## SECTION 11: FEATURE FLAGS
+All new features start as FALSE in config/feature_flags.json.
+Flip to TRUE only after isolated testing proves it works.
+Pipeline reads feature_flags.json at startup and logs all flag states.
+Never add a feature without a corresponding flag.
+
+## SECTION 12: REGRESSION TEST
+`bash regression_test.sh` must show 0 FAILs before any commit.
+Commit message must include regression result: `regression: X/Y PASS`
+Never push code that fails regression.
+If a new feature breaks regression, the feature is reverted, not the test.
+
+## SECTION 13: RENDER VALIDATION (POST-RENDER)
+After every render, validate:
+- [ ] Final output exists and is > 10MB
+- [ ] Resolution: 1920x1080 (ffprobe)
+- [ ] Bitrate: > 5 Mbps (ffprobe)
+- [ ] AV sync: < 0.03s (check_av_sync on final output)
+- [ ] Duration: > 60s for test, > 300s for production
+- [ ] Audio present: at least 1 audio stream (ffprobe)
+- [ ] No premature clip cutoffs (log shows natural pause trim for each clip)
+- [ ] No duplicate channels (log shows unique channels)
+- [ ] Regression passed
+
+If any check fails, the render is INVALID. Do not upload. Do not claim done.
+
+## SECTION 14: PROCESS RULES
+- E1: One Claude Code session per worktree directory at a time. Under the multi-agent factory system, parallel sessions across DIFFERENT git worktree directories (~/worktrees/[feature]/) are explicitly permitted. Two agents in the SAME worktree = immediate abort. Production ~/protocol_pulse/ is never directly written by any agent.
+- E2: Regression test before every commit. Commit includes `regression: X PASS`.
+- E3: New features start behind feature flags.
+- E4: "Done" = log output proves it. No claims without evidence.
+- E5: One commit per fix. Non-overlapping fixes can share a session but separate commits.
+- E6: Always read PIPELINE_LAWS.md + PIPELINE_LAWS_ADDENDUM.md + PIPELINE_FORENSIC_AUDIT.md before writing any code.
+- E7: Never modify assembler.py and clip_extractor.py in the same commit (high conflict risk).
+- E8: After each session: git add + commit + push. No uncommitted changes left on disk.
+
+---
+
+## BANNED TECHNOLOGIES
+- MuseTalk, SadTalker (lip sync — Wav2Lip is the only approved engine)
+- Creatomate, OpusClip (video generation)
+- Suno API (music generation — use pre-generated tracks in assets/music/)
+- Three.js, VR, DAO, quantum auth, Sora, genetic algorithms
+- CRF 20 or higher (quality too low)
+- Preset "fast" or "ultrafast" for final output
+- `best[height<=1080][ext=mp4]` yt-dlp format (low quality pre-mux)
+- Blue/cyan/purple in any visual element
+- Hardcoded pp_background.mp3 path for music
+- loudnorm filter in clip visual pipeline (adds 200ms latency)
+
+---
+
+*This document + PIPELINE_LAWS_ADDENDUM.md (sections 15-18) together form the
+complete Pipeline Laws. Both must be read before every session.*
+
+
+## SECTION 14B: VOICE DYNAMICS — THE CLASSIFIED BRIEFING RULE
+
+Nicole's voice operates in 4 modes. The script writer tags each segment.
+The TTS engine reads the tag and adjusts settings automatically.
+
+### Mode 1: WHISPER (stability 0.38, similarity 0.80, style 0.05)
+Use ONLY when ALL three conditions are met:
+  1. The content is genuinely surprising or exclusive (not routine price updates)
+  2. It's the FIRST time this information appears in the episode
+  3. The segment is 2 sentences or fewer
+Examples: Cold open hook, breaking revelation, shocking data point
+Max usage: 2 whisper segments per episode. Never consecutive.
+Tag: [WHISPER]
+
+### Mode 2: CLEAR (stability 0.65, similarity 0.75, style 0.10)
+DEFAULT mode. Used for all standard narration, transitions, and recaps.
+This is 70-80% of the episode. Confident, articulate, mid-20s professional.
+Tag: [CLEAR] or no tag (default)
+
+### Mode 3: AUTHORITY (stability 0.55, similarity 0.78, style 0.15)
+Used when delivering hard data, metrics, and on-chain analysis.
+Slightly more intense than CLEAR. Conveys "I know what I'm talking about."
+Examples: "Hash rate just hit 1,056 exahash", "ETF inflows topped $2.4 billion"
+Tag: [AUTHORITY]
+
+### Mode 4: WARM (stability 0.50, similarity 0.72, style 0.20)
+Used for outros, calls to action, and community moments.
+Approachable, inviting, slightly more personality.
+Examples: "That's your daily brief", "Subscribe for tomorrow's intel"
+Tag: [WARM]
+
+### Anti-Staleness Rules:
+- Never use WHISPER more than twice per episode
+- Never use WHISPER two episodes in a row for the same segment type
+- If the cold open topic is routine (daily price, hash rate), use AUTHORITY not WHISPER
+- WHISPER is reserved for genuinely surprising moments. If nothing is surprising today, don't force it.
+- The script writer decides the tags based on content analysis, not a fixed pattern
+- Every third episode, the cold open should use CLEAR instead of WHISPER to break the pattern
+
+### Implementation:
+The script_writer SCRIPT_PROMPT includes instructions to tag each segment.
+tts_engine.py reads the tag prefix and selects the corresponding voice settings.
+If no tag is present, CLEAR mode is used (safe default).
+## SECTION 19: VISUAL DESIGN SYSTEM — BROADCAST QUALITY
+
+### 19A: Logo Usage
+- Official logo: assets/logo_protocol_pulse.png (800x800, 3D metallic with heartbeat)
+- Logo appears: bottom-right corner during narration segments (150px height, 80% opacity)
+- Logo appears: centered during intro sequence (400px height, full opacity)
+- Logo NEVER appears as plain text "PROTOCOL PULSE" in red courier font. Always use the logo image.
+- The title card may use stylized text alongside the logo, but the logo image is the brand anchor.
+
+### 19B: Narration Visual (Waveform + Backdrop)
+Current: Plain text title + thin red waveform on black. UNACCEPTABLE for broadcast quality.
+
+Target: Remotion-rendered animated composition:
+- Background: Dark gradient mesh (#0A0A0A to #0D0D0D), subtle animated noise texture
+- Logo: Centered, 300px, subtle pulse animation synced to audio amplitude
+- Waveform: Stylized heartbeat line (matching the logo's EKG line aesthetic)
+  - NOT a standard audio waveform. A DESIGNED waveform that looks like the logo's heartbeat
+  - Red (#CC0000) main line, darker red (#660000) mirror reflection below
+  - Smooth bezier curves, not jagged raw audio data
+  - Animated: line draws left-to-right synchronized with speech cadence
+  - Width: 960px, centered. Height: 80px main + 40px reflection
+  - Subtle glow effect on peaks (box-shadow style red glow)
+- Subtitle: Episode title below waveform, Inter font, 24px, #888888, tracking-wider
+- Corner elements: "PROTOCOL PULSE" small text top-right, date top-left, both #444444
+- Particle effects: Very subtle floating red dots (2-3 visible, slow drift, 15% opacity)
+
+### 19C: Alpha Channel Transitions (Luma Matte)
+Current: Hard-cut glitch_transition_waud.mp4 overlay. Functional but flat.
+
+Target: Remotion-rendered WebM with alpha transparency:
+- Style: Cyberpunk data-glitch. Red scan lines sweep across frame.
+- Duration: 0.7 seconds (current 0.5 is too abrupt)
+- Audio: Whoosh + digital glitch sound (generate or use royalty-free)
+- The transition OVERLAYS on the outgoing clip and REVEALS the incoming clip
+  through transparent areas. This creates a seamless blend, not a hard cut.
+- Brand colors only: red glitch artifacts (#CC0000), black sweep, white flash accents
+- Render as: WebM with alpha, or ProRes 4444 with alpha, or PNG sequence
+- FFmpeg composites the alpha transition between parts using overlay filter
+
+### 19D: Social Segment Cards (Cyberpunk Style)
+- Card: Glassmorphism container (bg rgba(10,10,10,0.85), backdrop-blur, border #CC0000)
+- Animated scanlines (horizontal, 1px, 3% opacity, slow scroll upward)
+- Pulsing red dot top-left (8x8px, 0.5s pulse cycle)
+- Handle text: #CC0000, JetBrains Mono font, 26px
+- Tweet text: #EDEDED, Inter font, 28px, max 3 lines
+- Like/RT counts: #FF4444 / #888888, bottom-right
+- Card enters: slide-up from bottom + fade-in (0.4s)
+- Card exits: fade-out (0.3s)
+- If tweet screenshot exists (Playwright): show the actual screenshot instead of text card
+
+### 19E: Title Card (Episode Intro)
+- Duration: 4 seconds
+- Logo: centered, 400px, fade-in over 1s
+- Below logo: Episode title in white, 36px, Inter bold, fade-in at 1.5s
+- Below title: Date + "PULSE CHECK" in #CC0000, 18px, fade-in at 2s
+- Background: Animated dark mesh gradient with subtle red accent light source
+- Red pulse line sweeps across bottom at 2.5s (like a heartbeat monitor flatline → pulse)
+- Audio: Low synth tone + heartbeat sound effect (2 beats matching the logo's EKG)
+
+### 19F: Lower Thirds (Speaker Identification)
+When a partner channel clip plays, show a lower-third graphic:
+- Position: bottom 120px of frame
+- Background: gradient from transparent to rgba(0,0,0,0.8)
+- Channel name: white, Inter bold, 24px
+- Speaker name (if detected via NER): #CC0000, Inter, 20px, below channel name
+- Small Protocol Pulse logo (50px) to the left of the text
+- Animates in: slide-right + fade (0.3s)
+- Animates out: fade (0.2s)
+- Duration: 5 seconds after clip starts
+
+These visual specs are PERMANENT. Every Remotion component must match this design system.
+Remotion source files: remotion/src/compositions/
+Brand constants: remotion/src/brand.ts
+
+
+## SECTION 20: APPROVED VOICES (updated 2026-03-05)
+
+### Host 1 (Female): Deborah
+- Voice ID: VeCVR24o7g2y1IxLJzZs
+- Model: eleven_turbo_v2_5
+- Description: Female newscaster — authoritative, steady broadcaster
+- Settings: stability 0.55, similarity 0.80, style 0.30, speed 1.0
+
+### Host 2 (Male): PBX
+- Voice ID: HmUVvDlHsEz0m3eUGLgu
+- Model: eleven_turbo_v2_5
+- Description: PBX broadcaster voice (replaced Mark 2026-03-14)
+- Settings: stability 0.55, similarity 0.80, style 0.15, speed 1.2
+
+### BANNED voices (do not use under any circumstances):
+- Eryn (kdnRe2koJdOK4Ovxn2DI) — replaced by Deborah Render20
+- Gigi (jBpfuIE2acCO8z3wKNLl) — too childish
+- Jessica (cgSgspJ2msm6clMCkdW9) — too British/old
+- Nicole (piTKgcLEGmPE4e6mEKli) — too breathy/whispery at any stability
+- Chris (iP95p4xoKVk53GoZ742B) — banned
+- uxKr2vlA4hYgXZR1oPRT — permanently banned
+- Sarah (EXAVITQu4vr4xnSDxMaL) — still whispery
+- Matilda (XrExE9yKIg1WjnnlVkGX) — fallback only, not approved for production
+
+
+---
+
+## SECTION 21: CHANNEL INTELLIGENCE SYSTEM — REAL-TIME MONITORING
+
+### The Problem (audit findings 2026-03-05):
+The channel scanner only runs when daily_producer.py fires. Between runs,
+the pipeline is blind. Transcripts are not cached persistently. There is no
+continuous monitoring of partner channels.
+
+### The Solution: Background Intelligence Daemon
+
+A cron job runs every 15 minutes on Ultron:
+```
+*/15 * * * * cd ~/protocol_pulse/video_pipeline_v3 && python3 utils/channel_daemon.py >> logs/channel_daemon.log 2>&1
+```
+
+channel_daemon.py:
+1. Scans ALL channels in channels.yaml for new uploads (yt-dlp --flat-playlist)
+2. Compares against data/channel_archive/known_videos.json
+3. If NEW video detected (not in known_videos):
+   a. Download transcript (Whisper on GPU — fast on 4090)
+   b. Save to data/channel_archive/{channel_name}/{video_id}.json:
+      {video_id, title, channel, upload_date, duration, transcript_text, timestamped_text}
+   c. Add to known_videos.json
+   d. Run topic classification + sentiment analysis on transcript
+   e. Update data/intelligence/daily_signals.json with new topic velocity data
+   f. Log: "NEW: {channel} — {title} ({duration}s) — topics: {topics}"
+4. If no new videos: log "SCAN: No new uploads across {n} channels" and exit
+
+### Persistent Archive:
+```
+data/channel_archive/
+  known_videos.json           # Master index of all known video IDs + metadata
+  Simply_Bitcoin/
+    abc123.json               # Full transcript + metadata per video
+    def456.json
+  TFTC/
+    ghi789.json
+  ...
+```
+
+This archive grows over time. The pipeline reads from it instead of re-scanning.
+After 30 days, the pipeline has a DEEP archive of every Bitcoin YouTube upload.
+This IS the intelligence layer. This IS the moat.
+
+### Freshness Rules:
+- Archive updates every 15 minutes (cron)
+- When daily_producer.py runs, it reads from the archive, NOT from a fresh scan
+  (the archive is already fresh because the daemon keeps it updated)
+- If a channel hasn't uploaded in 48 hours, flag it in the log
+  (don't scan dead channels every 15 min — check them hourly instead)
+- Transcript cache NEVER expires. Once transcribed, it's permanent.
+  (Whisper GPU time is expensive; never re-transcribe the same video)
+
+### Clip Sourcing Rules:
+When daily_producer.py needs clips:
+1. Query the archive for videos uploaded in the last 48 hours
+2. Rank by: upload recency × channel priority × topic relevance to today's signals
+3. Select the TOP 5 clips from 5 DIFFERENT channels
+4. If fewer than 5 channels have fresh content, expand the time window to 72 hours
+5. If STILL fewer than 5, expand to 7 days but log a warning:
+   "LOW CONTENT: Only {n} channels have uploads in 7 days"
+
+## SECTION 21B: FRESHNESS LAW
+FRESHNESS LAW: Every clip must have upload_date within 48 hours of render time. Any video without a verifiable upload_date within the window is REJECTED. No exceptions. Stale content destroys editorial credibility.
+
+---
+
+## SECTION 22: THE 5-CLIP RULE — ABSOLUTE REQUIREMENT
+
+### Every Pulse Check episode features EXACTLY 5 partner clips from 5 DIFFERENT channels.
+
+This is not a suggestion. This is a hard requirement.
+
+Enforcement in clip_selector.py:
+```python
+# After LLM selects clips, validate:
+selected_channels = [clip["channel"] for clip in selected_clips]
+unique_channels = set(selected_channels)
+
+# Rule 1: Exactly 5 clips in production mode
+if not test_mode and len(selected_clips) != 5:
+    logger.error(f"5-CLIP RULE VIOLATION: {len(selected_clips)} clips selected, need exactly 5")
+    # Re-run selection with explicit 5-clip instruction
+
+# Rule 2: All 5 must be from different channels
+if len(unique_channels) != len(selected_clips):
+    logger.error(f"CHANNEL DIVERSITY VIOLATION: {len(unique_channels)} unique channels for {len(selected_clips)} clips")
+    # Drop duplicate channel clips, replace from other channels
+
+# Rule 3: Never reuse a video_id from last 7 episodes (episode memory)
+```
+
+### Test mode exception:
+Test mode uses 2 clips from 2 different channels (for speed).
+Production mode: always 5 clips, 5 channels, no exceptions.
+
+### Channel Selection Priority:
+When choosing which 5 channels to feature (from 18+ available):
+1. Channels with the freshest uploads (last 24 hours preferred)
+2. Channels with highest topic relevance to today's signals
+3. Channels that haven't been featured in the last 3 episodes
+4. Higher priority channels (priority 1) over lower (priority 2-3)
+5. Mainstream channels (Rogan, Lex) only if they have Bitcoin-specific content
+   that passes the keyword filter
+
+### Clip Duration per PRODUCTION_DESIGN_LAWS:
+Each partner clip: 30-60 seconds (sweet spot: 40 seconds).
+The clip_extractor selects the most insightful 40-second window from each video.
+With 5 clips at 40 seconds + narration segments, total episode: 12-15 minutes.
+
+---
+
+## LAWS ADDED 2026-03-24 — SESSION 5 INTENSIVE (ENFORCE PERMANENTLY)
+
+### LAW: GPU ISOLATION (INVIOLABLE)
+- Pipeline (daily_producer.py) runs on cuda:0 ONLY via CUDA_VISIBLE_DEVICES=0 set in load_env()
+- Avatar server (oracle/avatar_server.py) runs on cuda:1 ONLY
+- Stage avatar runs on cuda:2 or cuda:3 — NEVER cuda:1
+- SadTalker is BANNED and must NEVER run — kill on sight (it consumes 3GB+ on cuda:1)
+- Duplicate avatar_server processes must NEVER coexist — one process per avatar system
+- If any GPU assignment drifts: pipeline will 503 avatar, avatar will 503 stage — verify with nvidia-smi before every render cycle
+
+### LAW: FREEZE FRAMES AT SOURCE (NOT AT OUTPUT)
+- Freeze frames MUST be fixed in clip_extractor.py at generation time, NOT in assembler.py at output
+- All static image-to-video conversions MUST use Ken Burns zoompan motion:
+  `zoompan=z=min(zoom+0.002,1.05):d=125:s=1920x1080,setsar=1`
+- noise=c0s=3 freeze frame patches in assembler.py are PERMANENTLY BANNED
+- Gemini penalizes output-level freeze patching as evidence of poor source quality (score 1/10)
+- The _ken_burns_motion() helper in assembler.py is the ONLY approved static-to-video method
+- After any clip generation change: run ffmpeg freezedetect on output before committing
+
+### LAW: CROSS-LLM AUDIT BEFORE ANY CODE CHANGE
+- Every CC session that touches pipeline code MUST run the full 2-cycle cross-LLM audit via utils/cross_llm_audit.py BEFORE implementing any fix
+- Audit order: register feature in FEATURE_MAP → cycle 1 (Gemini+GPT-4o+Grok parallel) → save c1.json → cycle 2 cross-examination → save c2.json → synthesize consensus → implement consensus fixes ONLY
+- No fix gets implemented without 2-cycle audit consensus. No exceptions. No shortcuts.
+- Vague agreement is NOT consensus. Consensus = same file, same function, same root cause from Qwen + 1 external LLM minimum
+
+### LAW: QWEN FIRST (COST LAW)
+- Qwen3 runs locally on cuda:2/3 via Ollama at localhost:11434 — $0 per call
+- Qwen reads all files and identifies candidates BEFORE any external LLM call
+- External LLMs (Gemini, GPT-4o, Grok) receive ONLY Qwen's pre-filtered findings (≤120 lines max)
+- Full file sends to external LLMs are BANNED — surgical payloads only
+- If Qwen confidence ≥ 0.85 and no external LLM disagrees: implement without external call
+- Token budget: $2 soft limit per improvement cycle. $5 hard limit. Above hard limit: pause + Telegram alert
+
+### LAW: GEMINI GRADING — TWO-PASS MANDATORY
+- PASS 1: Technical dimensions (ffprobe hard data only) — deterministic, no LLM hallucination possible
+- PASS 2: Content dimensions — upload actual MP4 to Gemini via Files API for genuine multimodal evaluation
+- "Assumed acceptable based on lack of specific error data" notes in grade output = GRADING FAILURE
+- Content scores (script_quality, cold_open_hook, narrative_arc, host_authenticity, visual_polish, pacing) MUST come from Gemini watching the actual video, not from render log inference
+- Any grade where 3+ content dimensions show "assumed" = discard and re-grade with video upload
+
+### LAW: CRITICAL FAILURE GATING
+- Any single dimension scoring 0/10 on: host_authenticity, black_frames_check, true_peak_check, freeze_check = broadcast_ready MUST be False regardless of overall weighted score
+- A high overall score with one 0/10 critical dimension is NOT a Grade A
+- Grade A requires: overall_score ≥ 88 AND zero 0/10 scores on critical dimensions AND broadcast_ready = True
+
+### LAW: 10-CONSECUTIVE-A CONVERGENCE
+- Pipeline is NOT locked until 10 CONSECUTIVE Grade A renders (score ≥ 88, broadcast_ready=True)
+- Consecutive counter tracked in: video_pipeline_v3/logs/consecutive_a_grades.txt
+- Counter resets to 0 on ANY non-A grade
+- On each Grade A: Telegram "Grade A #{n}/10 — {n} more to lock"
+- On 10/10: Telegram "PIPELINE LOCKED — 10 consecutive Grade A renders" then exit improvement loop
+
+### LAW: RENDER IMPROVEMENT LOOP INTEGRATION
+- render_improvement_loop.py runs automatically after every failed grade
+- It reads the grade JSON, identifies failing dimensions, maps to DIMENSION_MAP, runs Qwen→LLM audit, implements consensus fix, verifies, git pulls into render_main, signals next iteration
+- overnight_render_loop.py polls for /tmp/fix_complete_iterN flag before firing next iteration
+- The loop NEVER touches render_main tmux session — read-only access to logs only
+- The loop runs as a detached subprocess — does NOT block the overnight render timeout
+
+### LAW: SESSION CONTEXT DISCIPLINE
+- Every CC session starts fresh — never reuse a session that has burned >80% context
+- Context warning at 11%: kill immediately and relaunch fresh
+- Prompt delivery always via tmux load-buffer, never send-keys for complex prompts
+- One CC session at a time on the same repo — no parallel sessions
+
+### LAW: AVATAR SERVER UPTIME
+- avatar_server must be running at all times via systemd or watchdog
+- Health check: curl http://localhost:8200/health must return {"status":"ok"} before render starts
+- If health check fails at render preflight: abort render, alert Telegram, attempt restart
+- The watchdog_llm tmux session must verify avatar health every 5 minutes
+
+### LAW: ANTI-HALLUCINATION IN AUDIT SESSIONS
+- Audit prompts MUST include: "Only report issues you can verify from the code/data provided. Do not speculate."
+- Issues ranked by impact: CRITICAL (0/10) → HIGH (1-4) → MEDIUM (5-7) → LOW (8-9)
+- CRITICAL issues fixed first. HIGH only after CRITICAL resolved. MEDIUM only after HIGH eliminated.
+- LOW issues (score 8-9) are NEVER touched while any CRITICAL or HIGH issue exists
+- Focus is always on the biggest score impact, not the most interesting technical problem
+
+
+### LAW: CONTENT LOCK — ITERATE ON ASSEMBLY, NOT CONTENT
+The single most important law for grade stability:
+
+- Iteration 1: Full pipeline run — fetch content, scan channels, select clips, generate script, TTS
+  Saves: script.json, clips/, tts_cache/ to video_pipeline_v3/output/YYYY-MM-DD/locked_content/
+- Iterations 2-N: Skip Steps 1-6 entirely. Load from locked_content/. Re-run ONLY Step 7+ (assembly/encode)
+  Flag: daily_producer.py --reuse-content
+  overnight_render_loop.py passes --reuse-content on all iterations > 1
+- Grade A achieved: delete locked_content/, start fresh next cycle with new content fetch
+- RATIONALE: Every re-fetch introduces new variables (different clips, script, TTS) making it
+  impossible to isolate whether an assembly fix worked. Content must be locked so each iteration
+  is a controlled experiment — same content, only assembly changes.
+- NEVER wipe tts_cache on iterations > 1 (currently: rm -rf tts_cache every iteration — FIX THIS)
+
+### LAW: LIVE ENDPOINT TESTING MANDATORY BEFORE ANY COMMIT
+For any fix touching oracle/avatar_server.py or any user-facing avatar endpoint:
+ALL 5 tests below MUST pass before git commit. Results MUST appear in commit message.
+
+ORACLE MANDATORY TESTS:
+  1. curl -s http://localhost:8200/health | python3 -m json.tool | grep status
+     EXPECTED: "status": "ok"
+  2. curl -s -X POST http://localhost:8200/oracle/speak
+     EXPECTED: HTTP 200, text or video in response
+  3. curl -s -X POST http://localhost:8200/oracle/chat -d '{"text":"what is bitcoin","session_id":"test"}'
+     EXPECTED: HTTP 200, job_id present
+  4. curl -s http://localhost:8200/oracle/job/$JOB_ID (after 20s)
+     EXPECTED: 200 or 202, NOT 404
+  5. Second speak request after first: must be 200 not 503
+     EXPECTED: semaphore released, GPU not stuck
+
+NEVER commit oracle changes without all 5 tests passing.
+This law exists because commit 2c542a0d looked correct but silenced Oracle in production.
+Theoretical fixes that break in practice are worse than no fix.
+
+### LAW: QUALITY PASS SESSION (2026-03-28)
+Comprehensive quality pass codified the following rules:
+
+1. **TTS Speed**: PBX voice speed = 1.20 (Mark voice). Never below 1.15.
+2. **Pronunciation Map**: MicroStrategy = "My-crow-Strategy". Trillion/billion/million spelled as digits.
+3. **RIGHT Filter**: `strip_right_opener()` runs on ALL TTS text. "Right, so..." → "So..."
+4. **Trailing Mumble Trim**: `_trim_trailing_mumble()` runs on every TTS clip. -40dB threshold, 0.3s min.
+5. **Sign-Off Injection**: Last non-CLIP dialogue entry gets "Stay free. Stay sovereign. This is PBX, Protocol Pulse."
+6. **Dramatic Pauses**: Silence gaps < 4s are NOT penalized by Gemini grader (intentional dramatic pauses).
+7. **Transition Whoosh**: Fires at EVERY part boundary, offset -0.05s for perceived sync, 2s dedup minimum.
+8. **PIP Neutral Gray**: No red vignette on PIP. `hue=s=0.0,eq=saturation=0.0:brightness=0.0`.
+9. **PIP A/B Rotation**: Setup segments use clip_a (15% position), react segments use clip_b (60% position).
+10. **PIP Branded Fallback**: `_ensure_pip_placeholder()` shows channel name + topic, not black frame.
+11. **Ken Burns for Stills**: Static PIP thumbnails get zoompan animation, never returned as empty.
+12. **Face Centering Crop**: PIP crop biases to upper 30% of frame for face positioning.
+13. **Left Panel Dark**: 92% dark overlay on left panel (x=0..960) masks bg_loop bleed-through.
+14. **Intelligence Segment**: Solid #0d0d0d background — no bg_loop (reduces visual noise on data).
+15. **Metric Cards 2×3**: Two rows of 3 cards (was 1×6), each card 392×112 (40% larger).
+16. **Chart Keyword Routing**: Strict mapping: hashrate/mining→hashrate, difficulty→hashrate, lth→dominance, etf→price, mempool→dominance, price→price.
+17. **Chart Settle Time**: 6s Playwright wait (was 4s) to reduce chart jitter.
+18. **Sponsor Daily Rotation**: `SPONSORS[day_of_year % 3]` across Curated Mining / Meanwhile / River. All three scenes: narrator_pip, data_segment, signal_active.
+19. **Nick Szabo Filter**: "nick szabo" and "szabo" added to NOSTR_SPAM_TERMS.
+20. **X Spaces Placeholder**: Subtle "AWAITING LIVE SIGNAL" card (no red box).
+21. **Sentence Boundary**: max_search_seconds=8 (was 5). 1.5s audio fade-out on all extracted clips.
+22. **Tweet Text Size**: 52px (was 22px), word wrap max_width=32.
+23. **Tweet Card Delay**: 0.5s delay before cards fade in (was immediate).

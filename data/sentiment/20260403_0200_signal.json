@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-04-03T02:00:16.257413+00:00",
+  "brief_type": "evening",
+  "score": 15,
+  "bullish_signals": [
+    "Institutional ETF inflows remain primary demand driver",
+    "Constrained post-halving supply (450 BTC/day) structural tailwind",
+    "Price holding at $66.6k despite 9/10 fear gauge",
+    "Clean mempool, stable hashrate 963.7 EH/s",
+    "Compliant on-ramps scaling adoption"
+  ],
+  "bearish_signals": [
+    "Foundry three-block reorg signals dangerous mining pool concentration",
+    "Decentralization assumptions require real-time recalibration",
+    "Block withholding allegations emerging",
+    "Extreme fear gauge (9/10) despite price stability"
+  ],
+  "neutral_topics": [
+    "Mining pool dominance discourse shifting to regulation",
+    "Security model integrity vs. governance risk tension"
+  ]
+}

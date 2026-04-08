@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-04-03T02:00:16.257413+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "The Foundry Reorg: Bitcoin's Decentralization Stress Test Is Here",
+      "angle": "Mining pool concentration reaches inflection point as single operator executes rare chain reorganization\u2014analyzing the technical threat and regulatory implications",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "decentralization",
+        "foundry",
+        "security",
+        "regulation"
+      ]
+    },
+    {
+      "headline": "Institutional Demand vs. Mining Centralization: Bitcoin's Paradox in 2024",
+      "angle": "ETF inflows provide structural price support while Foundry's dominance exposes governance vulnerabilities\u2014can both coexist?",
+      "tags": [
+        "bitcoin",
+        "institutions",
+        "mining",
+        "etf",
+        "supply-demand"
+      ]
+    },
+    {
+      "headline": "Why Bitcoin's Security Model Remains Intact (For Now)",
+      "angle": "Deep dive into what the Foundry reorg actually proves about PoW resilience, attack economics, and the real timeline for governance risk",
+      "tags": [
+        "bitcoin",
+        "security",
+        "mining",
+        "proof-of-work",
+        "technical"
+      ]
+    }
+  ]
+}

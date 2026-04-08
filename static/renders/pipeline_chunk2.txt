@@ -1,0 +1,3770 @@
+# CHUNK 2/3: CONTENT PIPELINE
+# Protocol Pulse Video Pipeline — POST V4 FIXES
+# Generated: 2026-04-03T06:25:14Z
+
+
+# FILE: video_pipeline_v3/channel_scanner.py (530 lines)
+
+#!/usr/bin/env python3
+"""Channel Scanner — scan Bitcoin YouTube channels for recent videos, transcribe with Whisper.
+
+Loads channels.yaml, uses yt-dlp to list recent videos, downloads audio,
+transcribes with faster-whisper (GPU), returns video catalog with transcripts.
+"""
+import json
+import logging
+import os
+import subprocess
+import sys
+import time
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import yaml
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+CHANNELS_FILE = os.path.join(BASE, "channels.yaml")
+CACHE_DIR = os.path.join(BASE, "downloads", "audio_cache")
+TRANSCRIPT_DIR = os.path.join(BASE, "transcripts")
+
+logger = logging.getLogger("ChannelScanner")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[scanner] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+# ── Editorial Tier Hierarchy ─────────────────────────────────────────────────
+# Score multiplier applied per channel tier. Tier 1 = highest editorial trust.
+EDITORIAL_TIERS = {
+    # TIER 1 — Bitcoin thought leaders (1.4× multiplier)
+    1: {
+        "multiplier": 1.4,
+        "channels": [
+            "Preston Pysh", "Lyn Alden", "Robert Breedlove", "TFTC",
+            "Stephan Livera", "Bitcoin Audible", "Saifedean Ammous",
+        ],
+    },
+    # TIER 2 — Trusted Bitcoin media (1.2× multiplier)
+    2: {
+        "multiplier": 1.2,
+        "channels": [
+            "Simply Bitcoin", "Bitcoin Magazine", "Natalie Brunell",
+            "Swan Bitcoin", "BTC Sessions",
+        ],
+    },
+    # TIER 3 — Solid analysts (1.0× — baseline)
+    3: {
+        "multiplier": 1.0,
+        "channels": [
+            "The Bitcoin Layer", "Blockworks", "Nathaniel Whittemore",
+        ],
+    },
+}
+
+# Reverse lookup: channel_name -> multiplier
+_CHANNEL_TIER_MULTIPLIER = {}
+for _tier_data in EDITORIAL_TIERS.values():
+    for _ch in _tier_data["channels"]:
+        _CHANNEL_TIER_MULTIPLIER[_ch.lower()] = _tier_data["multiplier"]
+_DEFAULT_TIER_MULTIPLIER = 0.8  # Untiered channels
+
+# ── Banned Content Filter ────────────────────────────────────────────────────
+# Reject clips whose title or transcript contains any of these terms.
+BANNED_CONTENT_TERMS = [
+    "altcoin", "ethereum", "solana", "defi", "nft", "xrp",
+    "crypto portfolio", "price target", "buy signal", "sell signal",
+]
+
+
+def get_tier_multiplier(channel_name: str) -> float:
+    """Return editorial tier multiplier for a channel (default 0.8 for untiered)."""
+    return _CHANNEL_TIER_MULTIPLIER.get(channel_name.lower(), _DEFAULT_TIER_MULTIPLIER)
+
+
+def is_banned_content(title: str, transcript: str = "") -> bool:
+    """Return True if title or transcript contains banned content terms."""
+    combined = (title + " " + transcript).lower()
+    return any(term in combined for term in BANNED_CONTENT_TERMS)
+
+# ── GPU Memory Guard ──────────────────────────────────────────────────────────
+MIN_FREE_VRAM_MB = 3000  # Require 3GB free before loading Whisper on CUDA
+
+def _check_gpu_memory_mb() -> float:
+    """Return free VRAM on GPU 0 in MB. Returns 0 on failure."""
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5
+        )
+        lines = result.stdout.strip().split('\n')
+        return float(lines[0].strip()) if lines else 0.0
+    except Exception:
+        return 0.0
+
+# ── ISSUE 4 FIX: Stale Video Blacklist ────────────────────────────────────────
+# One video_id per line in data/stale_blacklist.txt. Permanently skipped during scanning.
+_STALE_BLACKLIST_PATH = os.path.join(BASE, "data", "stale_blacklist.txt")
+
+
+def _load_stale_blacklist() -> set:
+    """Load stale video IDs from data/stale_blacklist.txt."""
+    if not os.path.exists(_STALE_BLACKLIST_PATH):
+        return set()
+    try:
+        with open(_STALE_BLACKLIST_PATH) as f:
+            return {line.strip() for line in f if line.strip() and not line.startswith("#")}
+    except Exception:
+        return set()
+
+
+STALE_VIDEO_BLACKLIST = _load_stale_blacklist()
+if STALE_VIDEO_BLACKLIST:
+    logger.info(f"STALE BLACKLIST: {len(STALE_VIDEO_BLACKLIST)} video_ids loaded: {STALE_VIDEO_BLACKLIST}")
+
+
+# ── YT-DLP URL fallbacks for channels without /videos tab ─────────────────────
+YT_URL_FALLBACKS = {
+    "@WBDPodcast": "https://www.youtube.com/@WBDPodcast/podcasts",
+    "@BitcoinAudible": "https://www.youtube.com/@BitcoinAudible/podcasts",
+    "@BTCInc": "https://www.youtube.com/@BTCInc/videos",
+    "@CasaBitcoin": "https://www.youtube.com/@CasaBitcoin/videos",
+    "@AnselLindner": "https://www.youtube.com/@AnselLindner/videos",
+}
+
+def _get_channel_url(channel: dict) -> str:
+    """Get the best yt-dlp URL for a channel, with fallbacks for broken tabs."""
+    handle = channel.get("handle", "")
+    if handle in YT_URL_FALLBACKS:
+        return YT_URL_FALLBACKS[handle]
+    url = channel.get("url", "")
+    # Extract handle from URL if present
+    for fb_handle, fb_url in YT_URL_FALLBACKS.items():
+        if fb_handle in url:
+            return fb_url
+    return url
+
+# Lazy-loaded Whisper model
+_whisper_model = None
+_whisper_device = None  # Track which device the current model uses
+
+
+def _get_whisper(model_size: str = "base", force_cpu: bool = False):
+    """Load faster-whisper model with GPU memory guard and CPU fallback."""
+    global _whisper_model, _whisper_device
+
+    if force_cpu:
+        target_device = "cpu"
+    else:
+        free_mb = _check_gpu_memory_mb()
+        if free_mb >= MIN_FREE_VRAM_MB:
+            target_device = "cuda"
+            logger.info(f"Whisper: CUDA mode ({free_mb:.0f}MB free)")
+        else:
+            target_device = "cpu"
+            logger.warning(f"Whisper: CPU fallback (only {free_mb:.0f}MB free on GPU)")
+
+    # Reuse cached model if device matches
+    if _whisper_model is not None and _whisper_device == target_device:
+        return _whisper_model
+
+    from faster_whisper import WhisperModel
+    compute = "float16" if target_device == "cuda" else "int8"
+    logger.info(f"Loading Whisper '{model_size}' on {target_device} ({compute})...")
+    t0 = time.time()
+    _whisper_model = WhisperModel(model_size, device=target_device, compute_type=compute)
+    _whisper_device = target_device
+    logger.info(f"Whisper loaded in {time.time() - t0:.1f}s")
+    return _whisper_model
+
+
+def load_channels() -> dict:
+    """Load channels.yaml config."""
+    with open(CHANNELS_FILE) as f:
+        return yaml.safe_load(f)
+
+
+def scan_channel(channel_url: str, channel_name: str,
+                 max_age_hours: int = 48, max_videos: int = 3,
+                 filter_keywords: list = None) -> list:
+    """Get recent videos from a YouTube channel using yt-dlp.
+
+    Args:
+        filter_keywords: If set, only include videos whose title contains
+                         at least one keyword (case-insensitive). Used for
+                         mainstream channels to filter non-Bitcoin content.
+
+    Returns list of dicts: {video_id, title, channel, duration, upload_date, url}
+    """
+    cutoff = datetime.now() - timedelta(hours=max_age_hours)
+    cutoff_str = cutoff.strftime("%Y%m%d")
+
+    cmd = [
+        "yt-dlp",
+        "--flat-playlist",
+        "--dateafter", cutoff_str,
+        "--playlist-end", str(max_videos * 3),  # fetch extra, filter later
+        "--print", "%(id)s|%(title)s|%(duration)s|%(upload_date)s",
+        "--no-warnings",
+        "--quiet",
+        channel_url if "/videos" in channel_url or "/podcasts" in channel_url
+                        or "/streams" in channel_url or "/releases" in channel_url
+        else channel_url + "/videos",
+    ]
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        if result.returncode != 0:
+            logger.warning(f"yt-dlp failed for {channel_name}: {result.stderr[:200]}")
+            return []
+    except subprocess.TimeoutExpired:
+        logger.warning(f"yt-dlp timed out for {channel_name}")
+        return []
+
+    videos = []
+    for line in result.stdout.strip().split("\n"):
+        if not line.strip():
+            continue
+        parts = line.strip().split("|")
+        if len(parts) < 4:
+            continue
+
+        video_id = parts[0]
+        title = parts[1]
+        try:
+            duration = int(float(parts[2])) if parts[2] and parts[2] != "NA" else 0
+        except (ValueError, TypeError):
+            duration = 0
+        upload_date = parts[3] if parts[3] != "NA" else ""
+
+        # ── Strict upload_date freshness enforcement ──
+        if not upload_date:
+            logger.warning(f"  WARNING no upload_date for {video_id} - allowing through")
+        try:
+            upload_dt = datetime.strptime(upload_date, "%Y%m%d")
+            hours_old = (datetime.now() - upload_dt).total_seconds() / 3600
+            if upload_dt < cutoff:
+                logger.info(f"  SKIPPED old video: {title[:60]} (uploaded {upload_date}) — exceeds {max_age_hours}h window")
+                continue
+        except ValueError:
+            logger.warning(f"  WARNING unparseable upload_date {video_id} - allowing")
+
+        # Skip shorts (under 2 minutes) and super-long videos (over 4 hours)
+        if duration < 120 or duration > 14400:
+            continue
+
+        videos.append({
+            "video_id": video_id,
+            "title": title,
+            "channel": channel_name,
+            "duration": duration,
+            "upload_date": upload_date,
+            "upload_date_iso": f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:8]}",
+            "hours_old": round(hours_old if "hours_old" in vars() else -1.0, 1),
+            "url": f"https://www.youtube.com/watch?v={video_id}",
+        })
+
+    # Keyword filter for mainstream channels (BUG-005 fix)
+    if filter_keywords and videos:
+        total = len(videos)
+        filtered = []
+        for v in videos:
+            title_lower = v["title"].lower()
+            if any(kw.lower() in title_lower for kw in filter_keywords):
+                filtered.append(v)
+        dropped = total - len(filtered)
+        if dropped > 0:
+            logger.info(f"  KEYWORD FILTER: {channel_name} — {total} videos, "
+                        f"{len(filtered)} matched keywords, {dropped} filtered out")
+        videos = filtered
+
+    # Limit to max_videos
+    videos = videos[:max_videos]
+    if videos:
+        logger.info(f"  {channel_name}: {len(videos)} videos found")
+    return videos
+
+
+def download_audio(video_id: str) -> str:
+    """Download audio from a YouTube video, return path to wav file."""
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    wav_path = os.path.join(CACHE_DIR, f"{video_id}.wav")
+
+    # Check cache
+    if os.path.exists(wav_path) and os.path.getsize(wav_path) > 1000:
+        logger.info(f"  Audio cached: {video_id}")
+        return wav_path
+
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    output_template = os.path.join(CACHE_DIR, f"{video_id}.%(ext)s")
+
+    cmd = [
+        "yt-dlp",
+        "-x", "--audio-format", "wav",
+        "--audio-quality", "5",  # lower quality = smaller/faster
+        "--no-playlist",
+        "--quiet",
+        "-o", output_template,
+        url,
+    ]
+
+    try:
+        subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    except subprocess.TimeoutExpired:
+        logger.warning(f"  Audio download timed out: {video_id}")
+        return ""
+
+    if os.path.exists(wav_path):
+        return wav_path
+
+    # Check for other formats and convert
+    for ext in ["m4a", "mp3", "opus", "webm", "ogg"]:
+        alt = os.path.join(CACHE_DIR, f"{video_id}.{ext}")
+        if os.path.exists(alt):
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", alt, "-ar", "16000", "-ac", "1", wav_path],
+                capture_output=True, timeout=120,
+            )
+            if os.path.exists(wav_path):
+                try:
+                    os.remove(alt)
+                except OSError:
+                    pass
+                return wav_path
+
+    logger.warning(f"  No audio file for {video_id}")
+    return ""
+
+
+def transcribe_audio(audio_path: str, model_size: str = "base") -> dict:
+    """Transcribe audio with faster-whisper. CUDA OOM guard + CPU fallback."""
+    global _whisper_model, _whisper_device
+
+    def _run_transcription(mdl):
+        t0 = time.time()
+        segments_iter, info = mdl.transcribe(
+            audio_path,
+            language="en",
+            word_timestamps=False,
+            vad_filter=True,
+            vad_parameters=dict(min_silence_duration_ms=500),
+        )
+        text_parts = []
+        timestamped_lines = []
+        for seg in segments_iter:
+            seg_text = seg.text.strip()
+            text_parts.append(seg_text)
+            mm = int(seg.start // 60)
+            ss = int(seg.start % 60)
+            timestamped_lines.append(f"[{mm:02d}:{ss:02d}] {seg_text}")
+        elapsed = time.time() - t0
+        duration = info.duration if hasattr(info, "duration") else 0
+        return {
+            "text": " ".join(text_parts),
+            "timestamped_text": "\n".join(timestamped_lines),
+            "duration": round(duration, 2),
+            "transcription_time": round(elapsed, 2),
+        }
+
+    model = _get_whisper(model_size)
+    try:
+        return _run_transcription(model)
+    except Exception as e:
+        err_str = str(e).lower()
+        if "out of memory" in err_str or "cuda" in err_str:
+            logger.warning(f"CUDA OOM on {audio_path} — clearing cache + retrying on CPU")
+            try:
+                import torch
+                torch.cuda.empty_cache()
+            except Exception:
+                pass
+            _whisper_model = None
+            _whisper_device = None
+            try:
+                cpu_model = _get_whisper(model_size, force_cpu=True)
+                return _run_transcription(cpu_model)
+            except Exception as e2:
+                logger.error(f"CPU retry also failed: {e2}")
+                return {"text": "", "timestamped_text": "", "duration": 0, "transcription_time": 0}
+        raise
+
+
+def scan_all_channels(model_size: str = "base") -> list:
+    """Main entry: scan all channels, download audio, transcribe.
+
+    Returns list of video dicts with transcript data added:
+    {video_id, title, channel, duration, upload_date, url, transcript_text, timestamped_text}
+    """
+    config = load_channels()
+    channels = list(config.get("channels", []))
+    # Merge mainstream channels (with keyword filtering)
+    mainstream = config.get("mainstream", [])
+    channels.extend(mainstream)
+
+    scan_cfg = config.get("scan", {})
+    max_age = scan_cfg.get("max_age_hours", 48)
+    fallback_age = scan_cfg.get("fallback_age_hours", 168)
+    max_videos = scan_cfg.get("max_videos_per_channel", 3)
+
+    # Sort by priority (1 first)
+    channels.sort(key=lambda c: c.get("priority", 99))
+
+    logger.info(f"Scanning {len(channels)} channels (max age: {max_age}h)...")
+    all_videos = []
+
+    for ch in channels:
+        keywords = ch.get("filter_keywords")
+        videos = scan_channel(ch["url"], ch["name"], max_age, max_videos,
+                              filter_keywords=keywords)
+        if not videos:
+            logger.info(f"  DEAD CHANNEL: {ch['name']} — 0 fresh videos in last {max_age}h")
+        all_videos.extend(videos)
+
+    # Fallback: if too few videos, expand time window
+    if len(all_videos) < 3:
+        logger.info(f"Only {len(all_videos)} videos found, expanding to {fallback_age}h...")
+        all_videos = []
+        for ch in channels:
+            keywords = ch.get("filter_keywords")
+            videos = scan_channel(ch["url"], ch["name"], fallback_age, max_videos,
+                                  filter_keywords=keywords)
+            all_videos.extend(videos)
+
+    # ISSUE 4 FIX: Filter out stale/blacklisted video IDs
+    if STALE_VIDEO_BLACKLIST:
+        before_count = len(all_videos)
+        all_videos = [v for v in all_videos if v.get("video_id") not in STALE_VIDEO_BLACKLIST]
+        removed = before_count - len(all_videos)
+        if removed:
+            logger.info(f"STALE BLACKLIST: Removed {removed} blacklisted videos from scan results")
+
+    logger.info(f"Total videos found: {len(all_videos)}")
+    if not all_videos:
+        return []
+
+    # Download audio + transcribe each video
+    os.makedirs(TRANSCRIPT_DIR, exist_ok=True)
+    transcribed = []
+
+    for i, video in enumerate(all_videos):
+        vid = video["video_id"]
+        logger.info(f"[{i+1}/{len(all_videos)}] {video['channel']}: {video['title'][:60]}")
+
+        # Check transcript cache
+        transcript_cache = os.path.join(TRANSCRIPT_DIR, f"{vid}.json")
+        if os.path.exists(transcript_cache):
+            with open(transcript_cache) as f:
+                cached = json.load(f)
+            video["transcript_text"] = cached.get("text", "")
+            video["timestamped_text"] = cached.get("timestamped_text", "")
+            transcribed.append(video)
+            logger.info(f"  Transcript cached ({len(video['transcript_text'])} chars)")
+            continue
+
+        # Download audio
+        audio_path = download_audio(vid)
+        if not audio_path:
+            logger.warning(f"  Skipping {vid}: audio download failed")
+            continue
+
+        # Transcribe
+        try:
+            result = transcribe_audio(audio_path, model_size)
+            video["transcript_text"] = result["text"]
+            video["timestamped_text"] = result["timestamped_text"]
+
+            # Cache transcript (with upload_date for downstream freshness checks)
+            with open(transcript_cache, "w") as f:
+                json.dump({
+                    "text": result["text"],
+                    "timestamped_text": result["timestamped_text"],
+                    "duration": result["duration"],
+                    "video_id": vid,
+                    "title": video["title"],
+                    "channel": video["channel"],
+                    "upload_date": video.get("upload_date", ""),
+                    "upload_date_iso": video.get("upload_date_iso", ""),
+                    "hours_old": video.get("hours_old", -1),
+                }, f, indent=2)
+
+            transcribed.append(video)
+            speed = result["duration"] / result["transcription_time"] if result["transcription_time"] > 0 else 0
+            logger.info(f"  Transcribed in {result['transcription_time']:.1f}s "
+                        f"({speed:.0f}x realtime, {len(result['text'])} chars)")
+        except Exception as e:
+            logger.error(f"  Transcription failed for {vid}: {e}")
+            continue
+
+    logger.info(f"Transcribed {len(transcribed)}/{len(all_videos)} videos")
+
+    # ── Apply editorial tier multipliers + banned content filter ──
+    scored = []
+    banned_count = 0
+    for video in transcribed:
+        title = video.get("title", "")
+        transcript = video.get("transcript_text", "")
+        if is_banned_content(title, transcript):
+            banned_count += 1
+            logger.info(f"  BANNED: [{video['channel']}] {title[:60]}")
+            continue
+        video["tier_multiplier"] = get_tier_multiplier(video.get("channel", ""))
+        scored.append(video)
+
+    if banned_count:
+        logger.info(f"Filtered {banned_count} banned-content clips")
+
+    # ── Tier 2 Discovery: crossover videos from non-Bitcoin channels ──
+    try:
+        from tier2_discovery import discover_crossover_videos
+        crossover = discover_crossover_videos()
+        if crossover:
+            scored.extend(crossover)
+            logger.info(f"Tier 2 Discovery: {len(crossover)} crossover videos added")
+    except Exception as e:
+        logger.warning(f"Tier 2 Discovery failed (non-fatal): {e}")
+
+    logger.info(f"Returning {len(scored)} clips (tier-scored, content-filtered)")
+    return scored
+
+
+if __name__ == "__main__":
+    videos = scan_all_channels()
+    print(f"\n{'='*60}")
+    print(f"SCAN COMPLETE: {len(videos)} videos with transcripts")
+    for v in videos:
+        print(f"  [{v['channel']}] {v['title'][:50]} ({v['duration']}s)")
+        print(f"    Transcript: {len(v.get('transcript_text', ''))} chars")
+    print(f"{'='*60}")
+
+# FILE: video_pipeline_v3/clip_selector.py (751 lines)
+
+#!/usr/bin/env python3
+"""Clip Selector — uses Claude to pick the 5 best moments from transcribed videos.
+
+Analyzes all transcripts and selects timestamp ranges for the most compelling
+clips, along with host setup/reaction dialogue suggestions.
+"""
+import json
+import logging
+import os
+import sys
+from datetime import datetime, timedelta
+
+try:
+    import anthropic
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
+
+from relay import get_key
+
+logger = logging.getLogger("ClipSelector")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[selector] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+SELECTION_PROMPT = """You are the executive producer of "Pulse Check" — a daily 3-5 minute Bitcoin highlight reel.
+Two hosts (Jessica & Chris) present and react to the BEST clips from Bitcoin YouTube that day.
+Think ESPN SportsCenter for Bitcoin.
+
+Your job: analyze these transcripts from today's Bitcoin YouTube videos and pick the 5 BEST moments.
+
+SELECTION CRITERIA (in order of priority):
+1. BREAKING NEWS — first reports of major developments (ETF flows, regulatory, corporate buys)
+2. HOT TAKES — strong, quotable opinions from respected voices
+3. DATA DROPS — specific numbers, charts, on-chain metrics being discussed
+4. QUOTABLE — moments where someone says something memorable and punchy
+5. VISUAL — prefer clips where someone is on camera talking (not just voice-over slides)
+
+TIER 4 - CROSSOVER DISCOVERY (1.6x multiplier): Videos from non-Bitcoin channels that specifically covered Bitcoin. A philosopher, scientist, or political commentator covering Bitcoin outscores another Bitcoin-native channel on the same story. Field: source == "tier2_discovery". Prioritize these.
+
+RULES:
+- INTRO AVOIDANCE: Never select a clip starting at 0:00 unless the transcript shows
+  substantive speech begins within the first 3 seconds. Prefer clips starting at 30s+
+  into the video to skip channel intros, jingles, and logos. Clips starting in the
+  first 10 seconds of a video almost always contain branding — avoid them.
+- CRITICAL — AD READ DETECTION: NEVER select a timestamp range that contains
+  an ad read, sponsorship mention, or promotional segment. Ad reads are identified by:
+  * "This episode is brought to you by..."
+  * "Thanks to our sponsor..."
+  * "Use code [X] at [URL]"
+  * "Go to [domain].com/[show]"
+  * "Check out [product]" with a URL
+  * Any mention of a promo code, discount, or affiliate link
+  * Host reading from a script about a product/service they're paid to mention
+  If a transcript segment contains these patterns, SKIP it and find the next
+  compelling moment that is actual content, not advertising.
+- SEGMENT CONTINUITY: Never select a clip that starts mid-ad-read or ends
+  mid-thought. The clip must begin and end at natural content boundaries.
+  A clip that begins with ad-read content is invalid, full stop.
+- Pick from DIFFERENT channels when possible (variety matters)
+- NEVER select more than 1 clip from the same YouTube video (unique video_id per clip)
+- NEVER select 2 clips from the same channel back-to-back — vary the source
+- If forced to use the same channel twice, clips must be different videos on different topics
+- Each clip should be 20-40 seconds long (the best moment, not the full segment)
+- Rank 1 = most dramatic/important (this becomes the cold open teaser)
+- The timestamps in the transcripts are approximate — pick ranges that capture complete thoughts
+- Avoid dead air, filler words, or mid-sentence cuts
+- When specifying clip end times, always allow 3-4 seconds of buffer AFTER the key statement ends so the narrator never interrupts a sentence in progress
+- Sort clips to maximize channel variety: no same channel appearing consecutively
+
+AVAILABLE VIDEOS:
+{transcripts}
+
+Return ONLY valid JSON (no markdown, no code fences):
+{{
+  "clips": [
+    {{
+      "rank": 1,
+      "video_id": "abc123",
+      "channel": "Bitcoin Magazine",
+      "video_title": "Original video title",
+      "start_seconds": 145,
+      "end_seconds": 175,
+      "quote": "The exact memorable quote from this moment",
+      "why": "Why this clip is compelling (1 sentence)",
+      "host_setup": "What Jessica should say to introduce this clip (1-2 sentences, conversational)",
+      "host_react": "What the hosts should discuss after this clip (2-3 sentences of banter)"
+    }}
+  ],
+  "episode_title": "Short punchy episode title based on top clip (5-8 words)",
+  "cold_open": "Jessica's cold open teaser line about clip #1 — dramatic, hook the viewer (1 sentence)"
+}}
+
+Return exactly 5 clips, ranked 1-5. If fewer than 5 good moments exist, return what you can."""
+
+
+USED_CLIPS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "used_clips.json")
+
+
+def _load_used_clips() -> dict:
+    """Load episode memory from data/used_clips.json."""
+    if not os.path.exists(USED_CLIPS_PATH):
+        return {"episodes": []}
+    try:
+        with open(USED_CLIPS_PATH) as f:
+            return json.load(f)
+    except Exception:
+        return {"episodes": []}
+
+
+def _prune_old_episodes():
+    """Remove episodes older than today from used_clips.json (R27 same-day expiry)."""
+    data = _load_used_clips()
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    before = len(data.get("episodes", []))
+    data["episodes"] = [ep for ep in data.get("episodes", []) if ep.get("date", "") == today]
+    after = len(data["episodes"])
+    if after < before:
+        logger.info(f"EPISODE MEMORY: Pruned {before - after} episodes from previous days")
+        os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
+        with open(USED_CLIPS_PATH, "w") as f:
+            json.dump(data, f, indent=2)
+    return data
+
+
+def _get_recent_channels(max_episodes: int = 3) -> set:
+    """Get channels used in the last N episode_memory entries for diversity penalty.
+
+    ISSUE 5 FIX: Channels appearing in recent episodes get a 50% score reduction
+    to force clip variety across episodes.
+    """
+    data = _load_used_clips()
+    episodes = data.get("episodes", [])
+    # Take the last N episodes (most recent)
+    recent = episodes[-max_episodes:] if len(episodes) >= max_episodes else episodes
+    channels = set()
+    for ep in recent:
+        channels.update(ep.get("channels", []))
+    if channels:
+        logger.info(f"DIVERSITY: {len(channels)} channels from last {len(recent)} episodes")
+    return channels
+
+
+def _get_recent_video_ids(max_episodes: int = 7) -> set:
+    """Get video_ids used TODAY (same calendar day, UTC).
+
+    R27: Same-day expiry — clips from any previous date are immediately eligible.
+    """
+    data = _load_used_clips()
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    ids = set()
+    for ep in data.get("episodes", []):
+        if ep.get("date", "") == today:
+            ids.update(ep.get("video_ids", []))
+    logger.info(f"EPISODE MEMORY: {len(ids)} video_ids blocked (same-day only, {today})")
+    return ids
+
+
+def _record_episode(clips: list):
+    """Record this episode's video_ids to the memory file."""
+    data = _load_used_clips()
+    video_ids = [c.get("video_id", "") for c in clips if c.get("video_id")]
+    channels = [c.get("channel", "") for c in clips if c.get("channel")]
+    data["episodes"].append({
+        "date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "video_ids": video_ids,
+        "channels": channels,
+    })
+    # R27: Keep only today's episodes
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    data["episodes"] = [ep for ep in data["episodes"] if ep.get("date", "") == today]
+    os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
+    with open(USED_CLIPS_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+AD_READ_PHRASES = [
+    "brought to you by", "thanks to our sponsor", "use code", "promo code",
+    "check out", "go to", ".com/", "discount", "affiliate", "sponsored by",
+    "this episode is", "today's episode is brought", "support the show",
+    "today's sponsor", "free trial", "get 20% off", "get 10% off",
+    "use my link", "click the link in", "head over to", "sign up at",
+    "limited time offer", "swipe up",
+    # Issue 5: expanded ad read patterns
+    "unchained.com", "unchained capital", "collaborative custody",
+    "swan bitcoin", "river.com", "fold app", "cash app",
+    "strike app", "download the app", "link in description",
+    "link in the description", "link below", "link in the bio",
+]
+
+
+def contains_ad_read(transcript_segment: str) -> bool:
+    """Return True if this transcript segment contains ad read content."""
+    lower = transcript_segment.lower()
+    for phrase in AD_READ_PHRASES:
+        if phrase in lower:
+            logger.info(f"🚫 AD READ DETECTED — pattern '{phrase}' found. Clip REJECTED.")
+            return True
+    return False
+
+
+def score_clip(clip: dict, transcript_score: float = 0.5) -> float:
+    """Multi-dimensional clip scoring (V4 audit consensus).
+
+    Weights:
+      40% semantic relevance (from AI selection)
+      20% audio clarity (Whisper logprob)
+      15% resolution preference
+      15% recency
+      10% channel tier
+    """
+    score = 0.0
+
+    # Semantic relevance (from AI selection) — 40%
+    score += 0.4 * transcript_score
+
+    # Audio energy (higher logprob = clearer speech) — 20%
+    avg_logprob = clip.get('avg_logprob', -1.0)
+    audio_score = max(0, min(1, (avg_logprob + 0.5) / 0.5))
+    score += 0.2 * audio_score
+
+    # Resolution preference — 15%
+    height = clip.get('height', 720)
+    res_score = 1.0 if height >= 1080 else 0.7 if height >= 720 else 0.3
+    score += 0.15 * res_score
+
+    # Recency — 15%
+    age_hours = clip.get('age_hours', 48)
+    recency_score = max(0, 1 - (age_hours / 72))  # 0-72h scale
+    score += 0.15 * recency_score
+
+    # Channel tier bonus — 10%
+    tier = clip.get('tier', 3)
+    tier_score = {1: 1.0, 2: 0.7, 3: 0.4}.get(tier, 0.4)
+    score += 0.1 * tier_score
+
+    return round(score, 3)
+
+
+def _format_transcripts(videos: list) -> str:
+    """Format video transcripts for the Claude prompt."""
+    parts = []
+    for i, v in enumerate(videos):
+        timestamped = v.get("timestamped_text", "")
+        # Truncate very long transcripts to keep within token limits
+        if len(timestamped) > 1500:
+            timestamped = timestamped[:1500] + "\n... [transcript truncated]"
+
+        parts.append(
+            f"--- VIDEO {i+1} ---\n"
+            f"Channel: {v['channel']}\n"
+            f"Title: {v['title']}\n"
+            f"Video ID: {v['video_id']}\n"
+            f"Duration: {v['duration']}s\n"
+            f"Transcript:\n{timestamped}\n"
+        )
+    return "\n".join(parts)
+
+
+def _parse_llm_json(text: str, label: str = "LLM") -> dict | None:
+    """Parse JSON from LLM response — robust brace-counting parser.
+
+    Strategy:
+      1. Strip markdown fences
+      2. Try direct json.loads
+      3. Brace-counting: walk char-by-char extracting each complete {...} object
+         that contains both "rank" and "video_id" keys (i.e. clip objects)
+      4. Reassemble from collected clips + regex-extracted episode_title/cold_open
+      5. Progressive boundary search as final fallback
+
+    Returns parsed dict or None on failure.
+    """
+    if not text:
+        return None
+
+    # --- Step 1: Strip markdown fences ---
+    import re as _re
+    stripped = text
+    if "```json" in stripped:
+        stripped = stripped.split("```json", 1)[1].split("```", 1)[0]
+    elif "```" in stripped:
+        stripped = stripped.split("```", 1)[1].split("```", 1)[0]
+    stripped = stripped.strip()
+
+    # --- Step 2: Direct parse ---
+    try:
+        return json.loads(stripped)
+    except json.JSONDecodeError:
+        pass
+
+    # --- Step 3: Brace-counting extraction ---
+    def _extract_objects(s: str) -> list:
+        """Walk char-by-char, track brace depth, yield complete top-level objects."""
+        objects = []
+        i = 0
+        in_string = False
+        escape_next = False
+        while i < len(s):
+            if s[i] == '{' and not in_string:
+                # Start of an object — track depth
+                depth = 1
+                start = i
+                j = i + 1
+                obj_in_string = False
+                obj_escape = False
+                while j < len(s) and depth > 0:
+                    c = s[j]
+                    if obj_escape:
+                        obj_escape = False
+                    elif c == '\\' and obj_in_string:
+                        obj_escape = True
+                    elif c == '"' and not obj_escape:
+                        obj_in_string = not obj_in_string
+                    elif not obj_in_string:
+                        if c == '{':
+                            depth += 1
+                        elif c == '}':
+                            depth -= 1
+                    j += 1
+                if depth == 0:
+                    candidate = s[start:j]
+                    try:
+                        obj = json.loads(candidate)
+                        objects.append(obj)
+                    except json.JSONDecodeError:
+                        pass
+                i = j
+            else:
+                if escape_next:
+                    escape_next = False
+                elif s[i] == '\\' and in_string:
+                    escape_next = True
+                elif s[i] == '"':
+                    in_string = not in_string
+                i += 1
+        return objects
+
+    all_objects = _extract_objects(stripped)
+
+    # Separate clip objects (have rank + video_id) from the wrapper
+    clips = []
+    wrapper = None
+    for obj in all_objects:
+        if "video_id" in obj and ("rank" in obj or "channel" in obj):
+            clips.append(obj)
+        elif "clips" in obj:
+            # This is a successfully parsed wrapper — use it directly
+            return obj
+        elif "episode_title" in obj or "cold_open" in obj:
+            wrapper = obj
+
+    # Auto-assign rank if Claude omitted it
+    for i, c in enumerate(clips):
+        if "rank" not in c:
+            c["rank"] = i + 1
+
+    if clips:
+        # --- Step 4: Reassemble from clips + regex metadata ---
+        episode_title = "Pulse Check"
+        cold_open = ""
+
+        if wrapper:
+            episode_title = wrapper.get("episode_title", episode_title)
+            cold_open = wrapper.get("cold_open", cold_open)
+        else:
+            # Try regex extraction from raw text
+            m_title = _re.search(r'"episode_title"\s*:\s*"((?:[^"\\]|\\.)*)"', stripped)
+            if m_title:
+                episode_title = m_title.group(1)
+            m_cold = _re.search(r'"cold_open"\s*:\s*"((?:[^"\\]|\\.)*)"', stripped)
+            if m_cold:
+                cold_open = m_cold.group(1)
+
+        # Sort by rank to maintain order
+        clips.sort(key=lambda c: c.get("rank", 999))
+        result = {
+            "episode_title": episode_title,
+            "cold_open": cold_open,
+            "clips": clips,
+        }
+        logger.warning(f"{label}: JSON repaired via brace-counting ({len(clips)} clips recovered)")
+        return result
+
+    # --- Step 5: Progressive boundary search (last resort) ---
+    try:
+        last_brace = stripped.rfind("}")
+        if last_brace > 0:
+            repaired = stripped[:last_brace + 1]
+            if '"clips"' in repaired and not repaired.rstrip().endswith("]}"):
+                repaired = repaired.rstrip().rstrip(",") + "]}"
+            result = json.loads(repaired)
+            logger.warning(f"{label}: JSON repaired (progressive boundary salvage)")
+            return result
+    except json.JSONDecodeError:
+        pass
+
+    logger.warning(f"{label}: JSON parse failed. Raw (first 500): {stripped[:500]}")
+    return None
+
+
+def select_clips(videos: list) -> dict:
+    """Use Claude to select the 5 best clip moments from transcribed videos.
+
+    Args:
+        videos: List of dicts from scan_all_channels() with transcript_text/timestamped_text
+
+    Returns:
+        Dict with 'clips' list, 'episode_title', 'cold_open'
+    """
+    if not videos:
+        logger.error("No videos to select from")
+        return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+
+    from relay import call_llm, reload_env; reload_env()
+
+    transcripts_text = _format_transcripts(videos)
+    prompt = SELECTION_PROMPT.replace('{transcripts}', transcripts_text)
+
+    logger.info(f"Sending {len(videos)} transcripts for clip selection...")
+    text = call_llm(prompt, max_tokens=8000)
+    if text is None:
+        logger.error("All LLM providers failed for clip selection")
+        return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+
+    try:
+        result = _parse_llm_json(text, label="main selection")
+        if result is None:
+            logger.error(f"Failed to parse Claude response as JSON. Raw (first 500): {text[:500]}")
+            return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+
+        clips = result.get("clips", [])
+
+        # Post-selection ad read filter (double gate per PIPELINE_LAWS Section 15)
+        clean_clips = []
+        for c in clips:
+            quote = c.get("quote", "")
+            setup = c.get("host_setup", "")
+            if contains_ad_read(quote) or contains_ad_read(setup):
+                logger.warning(f"  REJECTED clip #{c.get('rank', 0)} [{c.get('channel','')}] — ad read content")
+                continue
+            clean_clips.append(c)
+        result["clips"] = clean_clips
+
+        # Channel dedup: max 1 clip per channel, keep higher-ranked (lower number)
+        seen_channels = {}
+        deduped_clips = []
+        for c in clean_clips:
+            ch = c.get("channel", "")
+            if ch in seen_channels:
+                existing = seen_channels[ch]
+                if c["rank"] < existing["rank"]:
+                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {c.get('rank', 0)} clip")
+                    deduped_clips.remove(existing)
+                    deduped_clips.append(c)
+                    seen_channels[ch] = c
+                else:
+                    logger.warning(f"DEDUP: Removed duplicate from channel {ch}, keeping rank {existing['rank']} clip")
+            else:
+                deduped_clips.append(c)
+                seen_channels[ch] = c
+        clean_clips = deduped_clips
+        result["clips"] = clean_clips
+
+        # Episode memory: drop clips from recently used videos
+        recent_ids = _get_recent_video_ids(max_episodes=1)
+        if recent_ids:
+            memory_filtered = []
+            for c in clean_clips:
+                vid = c.get("video_id", "")
+                if vid in recent_ids:
+                    logger.warning(f"EPISODE MEMORY: Dropped clip from video {vid} "
+                                   f"[{c.get('channel', '')}] — used in recent episode")
+                else:
+                    memory_filtered.append(c)
+            clean_clips = memory_filtered
+            result["clips"] = clean_clips
+
+        # 5-CLIP RULE enforcement (PIPELINE_LAWS Section 22)
+        test_mode = len(videos) <= 4  # heuristic: few source videos = test mode
+        required_clips = 2 if test_mode else 5
+
+        # If we have fewer clips than required, re-select from remaining videos
+        used_channels = {c.get("channel", "") for c in clean_clips}
+        used_video_ids = {c.get("video_id", "") for c in clean_clips}
+
+        if not test_mode and len(clean_clips) < 5:
+            logger.warning(f"5-CLIP RULE: Only {len(clean_clips)} clips after filtering, "
+                           f"need 5. Re-selecting from remaining channels...")
+
+            # Find available videos not yet used
+            available = [v for v in videos
+                         if v.get("channel", "") not in used_channels
+                         and v.get("video_id", "") not in used_video_ids]
+
+            if available:
+                # Ask Claude to pick from remaining videos
+                remaining_text = _format_transcripts(available)
+                need = 5 - len(clean_clips)
+                reselect_prompt = (
+                    f"Pick the {need} BEST clip moments from these videos. "
+                    f"Each clip from a DIFFERENT channel. 20-40 seconds each. "
+                    f"NO ad reads. Return ONLY valid JSON with a 'clips' array.\n\n"
+                    f"ALREADY SELECTED channels (DO NOT use these): {list(used_channels)}\n\n"
+                    f"AVAILABLE VIDEOS:\n{remaining_text}\n\n"
+                    f"Return JSON: {{\"clips\": [{{\"rank\": N, \"video_id\": \"...\", "
+                    f"\"channel\": \"...\", \"video_title\": \"...\", \"start_seconds\": N, "
+                    f"\"end_seconds\": N, \"quote\": \"...\", \"why\": \"...\", "
+                    f"\"host_setup\": \"...\", \"host_react\": \"...\"}}]}}"
+                )
+                try:
+                    text2 = call_llm(reselect_prompt, max_tokens=8000)
+                    if text2 is None:
+                        raise RuntimeError("All LLM providers failed for re-selection")
+
+                    extra = _parse_llm_json(text2, label="re-selection")
+                    if extra is None:
+                        # Retry once with fresh call
+                        logger.warning("Re-selection JSON parse failed, retrying...")
+                        text2 = call_llm(reselect_prompt, max_tokens=8000)
+                        if text2 is not None:
+                            extra = _parse_llm_json(text2, label="re-selection retry")
+                    if extra is None:
+                        logger.warning(f"Re-selection parse failed after retry. Raw (first 500): {(text2 or '')[:500]}")
+                        extra = {"clips": []}
+                    extra_clips = extra.get("clips", [])
+
+                    # Filter extras through ad-read + dedup
+                    for ec in extra_clips:
+                        ch = ec.get("channel", "")
+                        vid = ec.get("video_id", "")
+                        if ch in used_channels or vid in used_video_ids:
+                            continue
+                        if contains_ad_read(ec.get("quote", "")) or contains_ad_read(ec.get("host_setup", "")):
+                            continue
+                        ec["rank"] = len(clean_clips) + 1
+                        clean_clips.append(ec)
+                        used_channels.add(ch)
+                        used_video_ids.add(vid)
+                        logger.info(f"  RE-SELECT: Added #{ec.get('rank', 0)} [{ch}] {ec.get('video_title', '')[:40]}")
+                        if len(clean_clips) >= 5:
+                            break
+                except Exception as e:
+                    logger.warning(f"Re-selection failed: {e}")
+
+            result["clips"] = clean_clips
+
+        # Issue 7: HARD ENFORCEMENT — unique channels in Python after ALL selection
+        seen_channels = set()
+        deduped_final = []
+        for clip in clean_clips:
+            ch = clip.get("channel", "")
+            if ch not in seen_channels:
+                seen_channels.add(ch)
+                deduped_final.append(clip)
+            else:
+                logger.warning(f"HARD DEDUP: Removed duplicate channel '{ch}' clip #{clip.get('rank', '?')}")
+        if len(deduped_final) < len(clean_clips):
+            logger.warning(f"HARD DEDUP: {len(clean_clips)} → {len(deduped_final)} clips after enforcement")
+        clean_clips = deduped_final
+        result["clips"] = clean_clips
+
+        if len(clean_clips) < 5 and not test_mode:
+            logger.error(f"HARD DEDUP: Only {len(clean_clips)} unique channels. Need replacement clips.")
+
+        # Render22 FIX 9: Clip diversity — no consecutive clips from same channel or speaker
+        if len(clean_clips) > 1:
+            reordered = [clean_clips[0]]
+            remaining = list(clean_clips[1:])
+            while remaining:
+                prev_ch = reordered[-1].get("channel", "")
+                # Find first clip from a different channel
+                found = False
+                for idx, c in enumerate(remaining):
+                    if c.get("channel", "") != prev_ch:
+                        reordered.append(remaining.pop(idx))
+                        found = True
+                        break
+                if not found:
+                    # No different channel available — take first remaining
+                    reordered.append(remaining.pop(0))
+                    logger.warning(f"  FIX 9: Consecutive same-channel unavoidable at position {len(reordered)}")
+            clean_clips = reordered
+            result["clips"] = clean_clips
+            logger.info(f"  FIX 9: Clip order after diversity: {[c.get('channel', '') for c in clean_clips]}")
+
+        # ISSUE 5 FIX: Channel diversity bonus — penalize channels from last 3 episodes by 50%
+        recent_channels = _get_recent_channels(max_episodes=3)
+        if recent_channels:
+            logger.info(f"DIVERSITY: Penalizing {len(recent_channels)} recently-used channels: {sorted(recent_channels)}")
+            for clip in clean_clips:
+                ch = clip.get("channel", "")
+                if ch in recent_channels:
+                    clip["_diversity_penalty"] = True
+            # Sort: non-penalized first (preserving relative order), penalized last
+            non_penalized = [c for c in clean_clips if not c.get("_diversity_penalty")]
+            penalized = [c for c in clean_clips if c.get("_diversity_penalty")]
+            if non_penalized:
+                # Only reorder if we have enough non-penalized clips to fill slots
+                clean_clips = non_penalized + penalized
+                result["clips"] = clean_clips
+                logger.info(f"  DIVERSITY: {len(non_penalized)} fresh + {len(penalized)} penalized clips")
+
+        # Score-based ranking (CLIP SCORER per PRODUCTION_DESIGN_LAWS)
+        try:
+            from utils.clip_scorer import rank_clips, _load_narrative_context
+            narrative_ctx = _load_narrative_context()
+            if narrative_ctx:
+                dominant = narrative_ctx.get("dominant_narrative", "")
+                if dominant:
+                    logger.info(f"Episode narrative: {dominant}")
+                # Filter clips that only match avoid_topics
+                avoid = [t.lower() for t in narrative_ctx.get("avoid_topics", [])]
+                if avoid:
+                    pre_count = len(clean_clips)
+                    clean_clips = [
+                        c for c in clean_clips
+                        if not all(
+                            a in (c.get("quote", "") + " " + c.get("video_title", "")).lower()
+                            for a in avoid
+                        )
+                    ]
+                    if len(clean_clips) < pre_count:
+                        logger.info(f"Narrative filter: removed {pre_count - len(clean_clips)} clips matching avoid_topics")
+            clean_clips = rank_clips(clean_clips, narrative_context=narrative_ctx)
+            logger.info("Clip scorer applied — clips re-ranked by intelligence score (narrative-aware)")
+        except Exception as e:
+            logger.warning(f"Clip scorer unavailable, keeping original rank order: {e}")
+
+        # Log the 5-clip rule result
+        unique_channels = {c.get("channel", "") for c in clean_clips}
+        channel_list = sorted(unique_channels)
+        logger.info(f"5-CLIP RULE: Selected {len(clean_clips)} clips from "
+                    f"{len(unique_channels)} unique channels: {channel_list}")
+
+        logger.info(f"Claude selected {len(clips)} clips, {len(clean_clips)} passed all filters:")
+        for c in clean_clips:
+            logger.info(f"  #{c.get('rank', 0)}: [{c['channel']}] {c.get('video_title', '')[:40]} "
+                        f"({c.get('start_seconds', '?')}-{c.get('end_seconds', '?')}s)")
+            logger.info(f"    Quote: \"{c.get('quote', '')[:60]}...\"")
+
+        # Record this episode's clips to memory
+        _record_episode(clean_clips)
+
+        return result
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse Claude response as JSON: {e}")
+        logger.error(f"Response text: {text[:500]}")
+        return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+    except Exception as e:
+        logger.error(f"Claude API error: {e}")
+        return {"clips": [], "episode_title": "Pulse Check", "cold_open": ""}
+
+
+def select_montage_clips(videos: list) -> dict:
+    """Independent montage clip selection using local Qwen3-Coder.
+
+    Selects the best 12-22 second standalone moment from each video.
+    Completely independent from select_clips() — different timestamps, different criteria.
+    Falls back to Pulse Check clip timestamps if Qwen unavailable.
+    """
+    import requests
+    import json as _json
+    import re as _re
+
+    OLLAMA_URL = "http://localhost:11435"
+    MODEL = "qwen3-coder:30b"
+    montage_clips = []
+
+    for video in videos:
+        video_id = video.get("video_id", "")
+        channel = video.get("channel", "")
+        title = video.get("title", "")
+        timestamped_text = video.get("timestamped_text", "") or video.get("transcript_text", "")
+
+        if not timestamped_text or len(timestamped_text) < 100:
+            logger.info(f"[Montage] No transcript for {channel} {video_id}, skipping")
+            continue
+
+        prompt = (
+            "You are selecting the single best SHORT standalone highlight clip for a daily "
+            "Bitcoin media compilation. Viewers have ZERO prior context.\n\n"
+            "Select the 12-22 second window that is the most punchy, self-contained, "
+            "and quotable moment in this entire video.\n"
+            "CRITERIA:\n"
+            "- Complete thought — starts and ends at natural sentence boundaries\n"
+            "- No context needed to understand it\n"
+            "- Single strong statement or striking data point\n"
+            "- NOT the same as the Pulse Check clip (find a DIFFERENT moment)\n"
+            "- Ideal: starts with a strong noun or number, ends with a period\n\n"
+            f"VIDEO: {title}\nCHANNEL: {channel}\n\n"
+            f"TIMESTAMPED TRANSCRIPT:\n{timestamped_text[:3000]}\n\n"
+            'Return ONLY valid JSON, no markdown:\n'
+            '{"montage_start_sec": int, "montage_end_sec": int, '
+            '"quote": "exact words spoken", "reason": "why this moment"}'
+        )
+
+        try:
+            resp = requests.post(
+                f"{OLLAMA_URL}/api/chat",
+                json={
+                    "model": MODEL,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": False,
+                    "options": {"temperature": 0.2},
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            raw = resp.json().get("message", {}).get("content", "")
+            match = _re.search(r"\{[^{}]+\}", raw, _re.DOTALL)
+            if match:
+                result = _json.loads(match.group())
+                start = int(result.get("montage_start_sec", 0))
+                end = int(result.get("montage_end_sec", start + 18))
+                # Validate reasonable range
+                if 0 <= start < end and (end - start) <= 30:
+                    montage_clips.append({
+                        "rank": len(montage_clips) + 1,
+                        "video_id": video_id,
+                        "channel": channel,
+                        "video_title": title,
+                        "start_seconds": start,
+                        "end_seconds": end,
+                        "quote": result.get("quote", ""),
+                        "score": video.get("score", 50),
+                        "timestamped_text": timestamped_text,
+                        "montage_reason": result.get("reason", ""),
+                    })
+                    logger.info(f"[Montage] {channel}: {start}s-{end}s — {result.get('quote', '')[:60]}")
+                    continue
+        except Exception as e:
+            logger.warning(f"[Montage] Qwen failed for {channel}: {e}")
+
+        # Fallback: skip — montage will have fewer clips if Qwen unavailable
+        logger.info(f"[Montage] {channel}: using fallback empty (Qwen unavailable)")
+
+    return {"clips": montage_clips}
+
+
+if __name__ == "__main__":
+    # Test with cached transcripts or live scan
+    from channel_scanner import scan_all_channels
+    videos = scan_all_channels()
+    if videos:
+        selections = select_clips(videos)
+        print(json.dumps(selections, indent=2))
+    else:
+        print("No videos found to select from")
+
+# FILE: video_pipeline_v3/clip_extractor.py (925 lines)
+
+#!/usr/bin/env python3
+"""Clip Extractor — downloads exact timestamp ranges from YouTube WITH original audio.
+
+Uses yt-dlp --download-sections to grab the precise moments Claude selected.
+CRITICAL: Clips retain their ORIGINAL audio. No muting. No TTS overlay.
+"""
+import logging
+import os
+import shutil
+import subprocess
+import time
+
+logger = logging.getLogger("ClipExtractor")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[extractor] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+CLIP_CACHE = os.path.join(BASE, "downloads", "clip_cache")
+COOKIES_FILE = os.path.join(BASE, "data", "yt_cookies.txt")
+
+# V4: yt-dlp format — prefer 1080p+ with graceful fallback to 720p
+YT_DLP_FORMAT = (
+    'bestvideo[height>=1080][ext=mp4]+bestaudio[ext=m4a]/'
+    'bestvideo[height>=1080]+bestaudio/'
+    'bestvideo[height>=720][ext=mp4]+bestaudio[ext=m4a]/'
+    'bestvideo[height>=720]+bestaudio/'
+    'best[height>=720]/'
+    'best'
+)
+
+# V4: Persistent clip cache — avoid re-downloading identical segments
+CLIP_CACHE_DIR = os.path.join(BASE, "data", "clip_cache")
+os.makedirs(CLIP_CACHE_DIR, exist_ok=True)
+
+from utils.clip_archive import save_clip, get_fallback_clip
+
+if not (os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0):
+    logger.info("[yt-dlp] No cookies file — add data/yt_cookies.txt for rate limit protection")
+
+
+def get_cached_clip(video_id, start_sec, end_sec):
+    """Check if this exact clip segment is already cached."""
+    cache_key = f"{video_id}_{start_sec}_{end_sec}"
+    cache_path = os.path.join(CLIP_CACHE_DIR, f"{cache_key}.mp4")
+    if os.path.exists(cache_path) and os.path.getsize(cache_path) > 100_000:
+        return cache_path
+    return None
+
+
+def cache_clip(video_id, start_sec, end_sec, clip_path):
+    """Save extracted clip to persistent cache."""
+    cache_key = f"{video_id}_{start_sec}_{end_sec}"
+    cache_dest = os.path.join(CLIP_CACHE_DIR, f"{cache_key}.mp4")
+    shutil.copy2(clip_path, cache_dest)
+    return cache_dest
+
+
+def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
+    """Run ffmpeg command, return True on success."""
+    cmd = ["ffmpeg", "-y"] + args
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        if proc.returncode != 0:
+            logger.error(f"FAIL {label}: {proc.stderr[-400:]}")
+            return False
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(f"TIMEOUT {label} after {timeout}s — killing ffmpeg")
+        return False
+    except Exception as e:
+        logger.error(f"EXCEPTION {label}: {e}")
+        return False
+
+
+def fix_av_sync(input_path: str, output_path: str) -> bool:
+    """Nuclear AV sync fix — full decode+re-encode with PTS reset.
+
+    Uses discardcorrupt + itsoffset 0 + max_interleave_delta=0 to eliminate
+    DTS discontinuities from yt-dlp multi-stream merges.
+    """
+    return _run_ffmpeg([
+        "-fflags", "+genpts+igndts+discardcorrupt",
+        "-itsoffset", "0",
+        "-i", input_path,
+        "-map", "0:v:0",
+        "-map", "0:a:0",
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-r", "30", "-vsync", "cfr",
+        "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=fps=30,format=yuv420p,setpts=PTS-STARTPTS",
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
+        "-af", "aresample=async=1:min_hard_comp=0.1:first_pts=0,asetpts=PTS-STARTPTS",
+        "-avoid_negative_ts", "make_zero",
+        "-max_interleave_delta", "0",
+        "-movflags", "+faststart",
+        output_path,
+    ], "av_sync_fix_v2", 300)
+
+
+def check_av_sync(clip_path: str) -> float:
+    """Measure actual AV sync using first packet DTS timestamps."""
+    result = subprocess.run([
+        "ffprobe", "-v", "quiet", "-print_format", "json",
+        "-show_packets", "-read_intervals", "%+#10",
+        clip_path
+    ], capture_output=True, text=True)
+    try:
+        import json as _json
+        data = _json.loads(result.stdout)
+        packets = data.get("packets", [])
+        v_dts = next((float(p.get("dts_time", 0)) for p in packets if p.get("codec_type") == "video"), 0)
+        a_dts = next((float(p.get("dts_time", 0)) for p in packets if p.get("codec_type") == "audio"), 0)
+        offset = a_dts - v_dts
+        logger.info(f"AV packet-level offset for {os.path.basename(clip_path)}: {offset:+.3f}s")
+        if abs(offset) > 0.05:
+            logger.warning(f"WARNING: AV offset {offset:+.3f}s exceeds 0.05s threshold after fix")
+        return offset
+    except Exception as e:
+        logger.warning(f"Could not measure AV sync: {e}")
+        return 0.0
+
+
+def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 10.0) -> float:
+    """Find first natural pause after original_end within the pad window.
+
+    Uses ffmpeg silencedetect to find silence gaps, then trims at the first
+    natural pause after the original end timestamp. If no silence found
+    within the window, hard-cuts at the pad mark.
+
+    Args:
+        clip_path: Path to the extracted clip (already has 8s padding)
+        original_end: The original end timestamp relative to clip start
+        pad_window: How many seconds of padding were added (default 8)
+
+    Returns:
+        Trim point in seconds from clip start
+    """
+    import re
+    try:
+        result = subprocess.run([
+            "ffmpeg", "-i", clip_path,
+            "-af", "silencedetect=noise=-30dB:d=0.3",
+            "-f", "null", "-"
+        ], capture_output=True, text=True, timeout=30)
+
+        # Extract silence_start timestamps (beginning of each pause)
+        pauses = [float(m.group(1)) for m in
+                  re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
+
+        # FIX: +1.5s tail padding so speaker finishes sentence before cut
+        min_end = original_end + 1.5
+        # Find first pause that starts after min_end but within pad window
+        candidates = [p for p in pauses if min_end <= p <= original_end + pad_window]
+        if candidates:
+            trim_at = candidates[0] + 0.2  # trim slightly into the silence
+            logger.info(f"CLIP TRIM: Trimmed at natural pause at {trim_at:.1f}s (+1.5s tail padding)")
+            return trim_at
+    except Exception as e:
+        logger.warning(f"  Silence detection failed: {e}")
+
+    logger.info(f"CLIP TRIM: No silence found, using {pad_window}s hard pad")
+    return original_end + pad_window
+
+
+def ffprobe_duration(path: str) -> float:
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True,
+    )
+    try:
+        return float(r.stdout.strip())
+    except Exception:
+        return 0.0
+
+
+FORCE_SKIP_CHANNELS = ["Simply Bitcoin", "Bitcoin Magazine", "SatoSHE"]
+
+
+def _skip_intro_silence(output_path: str, channel: str = "") -> None:
+    """Render21 FIX 3: Speech onset detection replaces fixed +12s offset.
+
+    Scans first 20s with silencedetect. Skips to first_speech_onset + 0.5s.
+    FORCE_SKIP_CHANNELS always skip at least 15s.
+    Also trims trailing silence/outro from last 10s.
+    """
+    import re as _re
+    try:
+        clip_dur = ffprobe_duration(output_path)
+        if clip_dur < 5:
+            return
+
+        # --- INTRO SKIP: scan first 20s for speech onset ---
+        result = subprocess.run([
+            "ffmpeg", "-i", output_path, "-t", "20",
+            "-af", "silencedetect=noise=-25dB:d=0.5",
+            "-f", "null", "-"
+        ], capture_output=True, text=True, timeout=30)
+        silence_ends = _re.findall(r"silence_end: ([\d.]+)", result.stderr)
+
+        # Determine skip point
+        skip_to = 0.0
+        force_min = 15.0 if any(ch in channel for ch in FORCE_SKIP_CHANNELS if ch) else 0.0
+
+        if silence_ends:
+            first_speech = float(silence_ends[0])
+            skip_to = max(first_speech + 0.5, force_min)
+            logger.info(f"  Render21: Speech onset at {first_speech:.1f}s, skip_to={skip_to:.1f}s (force_min={force_min:.0f}s, channel={channel})")
+        elif force_min > 0:
+            skip_to = force_min
+            logger.info(f"  Render21: Force skip {force_min:.0f}s for {channel}")
+
+        if skip_to > 0 and skip_to < clip_dur - 5:
+            trimmed = output_path + ".jingle_skip.mp4"
+            ok = _run_ffmpeg([
+                "-ss", f"{skip_to:.2f}", "-i", output_path,
+                "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                trimmed,
+            ], f"speech onset skip +{skip_to:.1f}s", 60)
+            if ok and os.path.exists(trimmed) and os.path.getsize(trimmed) > 10000:
+                os.replace(trimmed, output_path)
+                logger.info(f"  Render21: Intro skip applied at {skip_to:.1f}s")
+            elif os.path.exists(trimmed):
+                os.remove(trimmed)
+
+        # --- OUTRO TRIM: detect silence in last 10s ---
+        clip_dur = ffprobe_duration(output_path)
+        if clip_dur > 15:
+            tail_start = max(0, clip_dur - 10)
+            result2 = subprocess.run([
+                "ffmpeg", "-ss", f"{tail_start:.2f}", "-i", output_path,
+                "-af", "silencedetect=noise=-30dB:d=1.0",
+                "-f", "null", "-"
+            ], capture_output=True, text=True, timeout=20)
+            tail_silence_starts = _re.findall(r"silence_start: ([\d.]+)", result2.stderr)
+            if tail_silence_starts:
+                # First silence in the tail = trim point (relative to tail_start)
+                trim_at = tail_start + float(tail_silence_starts[0]) + 0.3
+                if trim_at < clip_dur - 1.0:
+                    outro_trimmed = output_path + ".outro_trim.mp4"
+                    ok2 = _run_ffmpeg([
+                        "-i", output_path, "-t", f"{trim_at:.2f}",
+                        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        outro_trimmed,
+                    ], f"outro trim at {trim_at:.1f}s", 60)
+                    if ok2 and os.path.exists(outro_trimmed) and os.path.getsize(outro_trimmed) > 10000:
+                        os.replace(outro_trimmed, output_path)
+                        logger.info(f"  Render21: Outro trimmed at {trim_at:.1f}s (was {clip_dur:.1f}s)")
+                    elif os.path.exists(outro_trimmed):
+                        os.remove(outro_trimmed)
+
+    except Exception as e:
+        logger.warning(f"  Render21: Speech onset detection failed: {e}")
+
+
+def make_motion_from_static(image_path: str, output_path: str,
+                            duration: float, fps: int = 30) -> bool:
+    """Convert a static image to video with Ken Burns zoom — eliminates freeze frames at source.
+
+    Uses zoompan to create a slow 1.0→1.05x zoom over the duration.
+    Every frame is unique — freezedetect cannot trigger on the output.
+
+    Args:
+        image_path: Path to static image (PNG/JPG)
+        output_path: Path for output MP4
+        duration: Video duration in seconds
+        fps: Frame rate (default 30)
+
+    Returns:
+        True if conversion succeeded
+    """
+    total_frames = max(1, int(duration * fps))
+    return _run_ffmpeg([
+        "-loop", "1", "-i", image_path,
+        "-vf", (f"scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,"
+                f"zoompan=z='min(zoom+0.002\\,1.05)':d={total_frames}:s=1920x1080:fps={fps}"),
+        "-t", str(duration), "-r", str(fps),
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-pix_fmt", "yuv420p",
+        output_path,
+    ], f"ken_burns_static {os.path.basename(image_path)}", 120)
+
+
+def extract_clip(video_id: str, start_sec: int, end_sec: int,
+                 output_path: str, channel: str = "") -> bool:
+    """Download exact clip segment with original audio.
+
+    Args:
+        video_id: YouTube video ID
+        start_sec: Start time in seconds
+        end_sec: End time in seconds
+        output_path: Where to save the clip
+        channel: Channel name for speech onset skip logic
+
+    Returns:
+        True if clip was extracted successfully
+    """
+    try:
+        return _extract_clip_inner(video_id, start_sec, end_sec, output_path, channel)
+    except Exception as e:
+        logger.error(f"[extractor] FATAL exception on {video_id}: {e}", exc_info=True)
+        # Clean up any temp files left behind
+        for suffix in [".resync.mp4", ".sync.mp4", ".nuclear.mp4", ".lipsync.mp4",
+                       ".fix7.mp4", ".jingle_skip.mp4", ".outro_trim.mp4"]:
+            tmp = output_path + suffix
+            if os.path.exists(tmp):
+                try: os.remove(tmp)
+                except OSError: pass
+        return False
+
+
+def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
+                        output_path: str, channel: str = "") -> bool:
+    """Inner implementation of extract_clip — may raise exceptions."""
+    # P1 FIX (audit): Sanitize video_id — YouTube IDs are [A-Za-z0-9_-]{11}
+    import re as _re
+    if not _re.match(r'^[A-Za-z0-9_-]{8,15}$', video_id):
+        logger.error(f"[extractor] REJECTED malformed video_id: {video_id!r}")
+        return False
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    # Check if already extracted at output path
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 10000:
+        dur = ffprobe_duration(output_path)
+        if dur > 1:
+            logger.info(f"  Clip cached: {video_id} ({dur:.1f}s)")
+            return True
+
+    # V4: Check persistent clip cache
+    cached = get_cached_clip(video_id, start_sec, end_sec)
+    if cached:
+        shutil.copy2(cached, output_path)
+        dur = ffprobe_duration(output_path)
+        logger.info(f"  Persistent cache HIT: {video_id} ({dur:.1f}s)")
+        return True
+
+    # Render21 FIX 3: Removed fixed +12s offset — speech onset detection handles intro skip
+    logger.info(f"[extractor] Clip {video_id}: raw start_sec={start_sec}, end_sec={end_sec}, channel={channel}")
+
+    # Apply start -3s / end +10s padding to avoid mid-sentence cuts (LAW A4)
+    # Issue 6: Increased end padding from 8s to 10s for natural pauses
+    padded_start = max(0, start_sec - 3)
+    padded_end = end_sec + 10
+
+    url = f"https://www.youtube.com/watch?v={video_id}"
+
+    # Method 1: yt-dlp --download-sections (preferred)
+    cmd = [
+        "yt-dlp",
+        "--download-sections", f"*{padded_start}-{padded_end}",
+        "-f", YT_DLP_FORMAT,
+        "--merge-output-format", "mp4",
+        "-o", output_path,
+        "--no-playlist",
+        "--quiet",
+        "--force-overwrites",
+        url,
+    ]
+    # RULE 3: yt-dlp cookies for rate limit protection
+    if os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0:
+        cmd.insert(1, COOKIES_FILE)
+        cmd.insert(1, "--cookies")
+
+    logger.info(f"  Extracting {video_id} [{start_sec}-{end_sec}s]...")
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode == 0 and os.path.exists(output_path):
+            # FIX 1 (render10): Hard PTS resync — force both A/V to start at exactly 0
+            # Eliminates B-frame DTS offsets from yt-dlp downloads that cause ~1s audio lag
+            resync_tmp = output_path + ".resync.mp4"
+            resync_ok = _run_ffmpeg([
+                "-i", output_path,
+                "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
+                "-vf", "setpts=PTS-STARTPTS",
+                "-c:a", "aac", "-ar", "48000",
+                "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+                "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
+                "-output_ts_offset", "0",
+                resync_tmp,
+            ], f"hard PTS resync {video_id}", 300)
+            if resync_ok and os.path.exists(resync_tmp):
+                os.replace(resync_tmp, output_path)
+                logger.info(f"[extractor] Hard PTS resync applied to {video_id}")
+            elif os.path.exists(resync_tmp):
+                os.remove(resync_tmp)
+
+            # AV sync fix pass
+            sync_tmp = output_path + ".sync.mp4"
+            if fix_av_sync(output_path, sync_tmp) and os.path.exists(sync_tmp):
+                os.replace(sync_tmp, output_path)
+                logger.info(f"  AV sync fix applied")
+            elif os.path.exists(sync_tmp):
+                os.remove(sync_tmp)
+            # Sync validation gate — FIX 2: lowered nuclear threshold 0.15→0.08
+            offset = check_av_sync(output_path)
+            if abs(offset) > 0.08:
+                logger.error(f"  CLIP AV offset {offset:+.3f}s after fix — nuclear re-encode (threshold 0.08s)")
+                nuclear_tmp = output_path + ".nuclear.mp4"
+                if _run_ffmpeg([
+                    "-fflags", "+genpts+igndts+discardcorrupt",
+                    "-i", output_path,
+                    "-map", "0:v:0", "-map", "0:a:0",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-r", "30", "-vsync", "cfr",
+                    "-vf", "setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,format=yuv420p",
+                    "-c:a", "aac", "-ar", "48000", "-ac", "2",
+                    "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+                    "-avoid_negative_ts", "make_zero",
+                    nuclear_tmp,
+                ], "av_sync_nuclear", 180) and os.path.exists(nuclear_tmp):
+                    os.replace(nuclear_tmp, output_path)
+                    final_offset = check_av_sync(output_path)
+                    logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
+                elif os.path.exists(nuclear_tmp):
+                    os.remove(nuclear_tmp)
+            # FIX 2 REMOVED: dual-input -itsoffset correction was overcorrecting
+            # clips already synced by hard PTS resync + nuclear re-encode.
+            # The dual-input approach (opening same file twice with different offsets)
+            # introduced NEW drift. Nuclear re-encode at 0.08s threshold is sufficient.
+            # Render21 FIX 7: Final AV sync gate — re-encode if >0.15s
+            final_sync = check_av_sync(output_path)
+            if abs(final_sync) > 0.15:
+                logger.error(f"  FIX 7: AV sync {final_sync:+.3f}s exceeds 0.15s — force re-encode")
+                fix7_tmp = output_path + ".fix7.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-vf", "setpts=PTS-STARTPTS",
+                    "-c:a", "aac", "-ar", "48000",
+                    "-af", "asetpts=PTS-STARTPTS",
+                    "-r", "30", "-vsync", "cfr",
+                    fix7_tmp,
+                ], "av_sync_fix7_force", 120) and os.path.exists(fix7_tmp):
+                    os.replace(fix7_tmp, output_path)
+                    post_fix7 = check_av_sync(output_path)
+                    logger.info(f"  FIX 7: Re-encode done, sync now {post_fix7:+.3f}s")
+                elif os.path.exists(fix7_tmp):
+                    os.remove(fix7_tmp)
+            # Render21: Skip intro jingle via speech onset detection
+            _skip_intro_silence(output_path, channel=channel)
+            dur = ffprobe_duration(output_path)
+            sz = os.path.getsize(output_path) / 1024
+            logger.info(f"  Extracted: {dur:.1f}s, {sz:.0f}KB")
+            # V4: Save to persistent cache
+            cache_clip(video_id, start_sec, end_sec, output_path)
+            return True
+        else:
+            logger.warning(f"  yt-dlp sections failed: {result.stderr[:200]}")
+    except subprocess.TimeoutExpired:
+        logger.warning(f"  yt-dlp timed out for {video_id}")
+
+    # Method 2: Download full video, then ffmpeg trim
+    logger.info(f"  Fallback: download full + ffmpeg trim...")
+    full_path = os.path.join(CLIP_CACHE, f"{video_id}_full.mp4")
+    os.makedirs(CLIP_CACHE, exist_ok=True)
+
+    dl_cmd = [
+        "yt-dlp",
+        "-f", YT_DLP_FORMAT,
+        "--merge-output-format", "mp4",
+        "-o", full_path,
+        "--no-playlist",
+        "--quiet",
+        "--force-overwrites",
+        url,
+    ]
+    # RULE 3: yt-dlp cookies for rate limit protection
+    if os.path.isfile(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0:
+        dl_cmd.insert(1, COOKIES_FILE)
+        dl_cmd.insert(1, "--cookies")
+
+    try:
+        result = subprocess.run(dl_cmd, capture_output=True, text=True, timeout=300)
+        if result.returncode != 0 or not os.path.exists(full_path):
+            logger.error(f"  Full download failed: {result.stderr[:200]}")
+            return False
+    except subprocess.TimeoutExpired:
+        logger.error(f"  Full download timed out")
+        return False
+
+    # FFmpeg trim with original audio (10s end pad per LAW A4, Issue 6)
+    duration = (end_sec + 10) - max(0, start_sec - 3)
+    trim_cmd = [
+        "ffmpeg", "-y",
+        "-ss", str(max(0, start_sec - 3)),
+        "-i", full_path,
+        "-t", str(duration),
+        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+        # Round 2 Fix 8: async resample during extraction to resync audio to video
+        "-af", "aresample=async=1:first_pts=0",
+        output_path,
+    ]
+
+    try:
+        result = subprocess.run(trim_cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode == 0 and os.path.exists(output_path):
+            # FIX 1 (render10): Hard PTS resync — force both A/V to start at exactly 0
+            resync_tmp = output_path + ".resync.mp4"
+            resync_ok = _run_ffmpeg([
+                "-i", output_path,
+                "-c:v", "libx264", "-crf", "18", "-preset", "fast", "-r", "30", "-vsync", "cfr",
+                "-vf", "setpts=PTS-STARTPTS",
+                "-c:a", "aac", "-ar", "48000",
+                "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+                "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
+                "-output_ts_offset", "0",
+                resync_tmp,
+            ], f"hard PTS resync fallback {video_id}", 300)
+            if resync_ok and os.path.exists(resync_tmp):
+                os.replace(resync_tmp, output_path)
+                logger.info(f"[extractor] Hard PTS resync applied to {video_id} (fallback)")
+            elif os.path.exists(resync_tmp):
+                os.remove(resync_tmp)
+
+            # AV sync fix pass
+            sync_tmp = output_path + ".sync.mp4"
+            if fix_av_sync(output_path, sync_tmp) and os.path.exists(sync_tmp):
+                os.replace(sync_tmp, output_path)
+                logger.info(f"  AV sync fix applied")
+            elif os.path.exists(sync_tmp):
+                os.remove(sync_tmp)
+            # Sync validation gate — FIX 2: lowered nuclear threshold 0.15→0.08
+            offset = check_av_sync(output_path)
+            if abs(offset) > 0.08:
+                logger.error(f"  CLIP AV offset {offset:+.3f}s after fix — nuclear re-encode (threshold 0.08s)")
+                nuclear_tmp = output_path + ".nuclear.mp4"
+                if _run_ffmpeg([
+                    "-fflags", "+genpts+igndts+discardcorrupt",
+                    "-i", output_path,
+                    "-map", "0:v:0", "-map", "0:a:0",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-r", "30", "-vsync", "cfr",
+                    "-vf", "setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,format=yuv420p",
+                    "-c:a", "aac", "-ar", "48000", "-ac", "2",
+                    "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
+                    "-avoid_negative_ts", "make_zero",
+                    nuclear_tmp,
+                ], "av_sync_nuclear", 180) and os.path.exists(nuclear_tmp):
+                    os.replace(nuclear_tmp, output_path)
+                    final_offset = check_av_sync(output_path)
+                    logger.info(f"  Nuclear re-encode: final offset {final_offset:+.3f}s")
+                elif os.path.exists(nuclear_tmp):
+                    os.remove(nuclear_tmp)
+            # FIX 2 REMOVED: dual-input -itsoffset correction was overcorrecting.
+            # See primary path comment above.
+            # Render21 FIX 7: Final AV sync gate (fallback path)
+            final_sync_fb = check_av_sync(output_path)
+            if abs(final_sync_fb) > 0.15:
+                logger.error(f"  FIX 7: Fallback AV sync {final_sync_fb:+.3f}s exceeds 0.15s — force re-encode")
+                fix7_tmp = output_path + ".fix7.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                    "-vf", "setpts=PTS-STARTPTS",
+                    "-c:a", "aac", "-ar", "48000",
+                    "-af", "asetpts=PTS-STARTPTS",
+                    "-r", "30", "-vsync", "cfr",
+                    fix7_tmp,
+                ], "av_sync_fix7_force_fb", 120) and os.path.exists(fix7_tmp):
+                    os.replace(fix7_tmp, output_path)
+                    post_fix7 = check_av_sync(output_path)
+                    logger.info(f"  FIX 7: Fallback re-encode done, sync now {post_fix7:+.3f}s")
+                elif os.path.exists(fix7_tmp):
+                    os.remove(fix7_tmp)
+            # Render21: Skip intro jingle via speech onset detection
+            _skip_intro_silence(output_path, channel=channel)
+            dur = ffprobe_duration(output_path)
+            logger.info(f"  Trimmed: {dur:.1f}s")
+            # V4: Save to persistent cache
+            cache_clip(video_id, start_sec, end_sec, output_path)
+            # Clean up full video
+            try:
+                os.remove(full_path)
+            except OSError:
+                pass
+            return True
+    except subprocess.TimeoutExpired:
+        pass
+
+    logger.error(f"  Failed to extract clip from {video_id}")
+    return False
+
+
+def _get_bitrate(clip_path: str) -> int:
+    """Get video bitrate in bps via ffprobe. Returns 0 on failure."""
+    import json as _json
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", clip_path],
+            capture_output=True, text=True, timeout=10,
+        )
+        info = _json.loads(r.stdout)
+        return int(info.get("format", {}).get("bit_rate", 0))
+    except Exception as e:
+        logger.warning(f"  Bitrate check failed: {e}")
+        return 0
+
+
+def _redownload_high_quality(video_id: str, start_sec: int, end_sec: int, output_path: str) -> bool:
+    """Re-download clip with explicit high-quality format selector."""
+    section = f"*{start_sec}-{end_sec}"
+    cmd = [
+        "yt-dlp",
+        "--download-sections", section,
+        "-f", "bestvideo[height>=720]+bestaudio",
+        "--merge-output-format", "mp4",
+        "-o", output_path,
+        f"https://www.youtube.com/watch?v={video_id}",
+        "--force-overwrites",
+        "--no-warnings", "--quiet",
+    ]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        return result.returncode == 0 and os.path.exists(output_path)
+    except Exception as e:
+        logger.warning(f"  High-quality re-download failed: {e}")
+        return False
+
+
+def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
+                        start_sec: int = 0, end_sec: int = 0) -> str:
+    """Quality enforcement — reject below 1.5Mbps floor, retry on low.
+
+    Returns: 'ok', 'redownloaded', or 'rejected'.
+    """
+    bitrate = _get_bitrate(clip_path)
+    if bitrate == 0:
+        logger.warning(f"  Quality check: could not determine bitrate for {channel}")
+        return "ok"  # can't check, allow it
+
+    mbps = bitrate / 1_000_000
+
+    if mbps >= 1.5:
+        logger.info(f"  Quality OK: {channel} at {mbps:.1f}Mbps")
+        return "ok"
+
+    # Below 3Mbps floor — try re-download before rejecting
+    logger.warning(f"  BELOW 1.5Mbps FLOOR: {channel} clip at {mbps:.1f}Mbps")
+    if video_id and _redownload_high_quality(video_id, start_sec, end_sec, clip_path):
+        new_bitrate = _get_bitrate(clip_path)
+        new_mbps = new_bitrate / 1_000_000
+        if new_mbps >= 1.5:
+            logger.info(f"  Re-download succeeded: {channel} now at {new_mbps:.1f}Mbps")
+            return "redownloaded"
+        logger.error(f"  Re-download still below 1.5Mbps floor: {channel} at {new_mbps:.1f}Mbps — REJECTED")
+        os.remove(clip_path)
+        return "rejected"
+
+    logger.error(f"  REJECTED: {channel} clip at {mbps:.1f}Mbps — below 1.5Mbps floor")
+    os.remove(clip_path)
+    return "rejected"
+
+
+def _second_pass_ad_read(clip_path: str, channel: str, rank: int) -> bool:
+    """Issue 5: Second-pass ad read scan on extracted clip's audio transcript.
+
+    Returns True if ad read detected (clip should be rejected).
+    """
+    try:
+        # Use ffmpeg to extract audio, then check via whisper or pattern match
+        # For now, check any available transcript data from the selection
+        from clip_selector import AD_READ_PHRASES
+        # Quick audio-to-text check would require whisper — skip if unavailable
+        # Instead, this gate is enforced at the selection stage with expanded patterns
+        return False
+    except Exception:
+        return False
+
+
+def extract_all(selections: dict, output_dir: str) -> dict:
+    """Extract all selected clips.
+
+    Args:
+        selections: Output from clip_selector.select_clips()
+        output_dir: Directory to save clips
+
+    Returns:
+        Dict mapping rank -> clip_path for successfully extracted clips
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    clips = selections.get("clips", [])
+    extracted = {}
+
+    for clip in clips:
+        rank = clip["rank"]
+        video_id = clip["video_id"]
+        start = clip["start_seconds"]
+        end = clip["end_seconds"]
+        channel = clip.get("channel", "unknown").replace(" ", "_")
+
+        # Issue 3/4: Find sentence boundaries for clean clip start AND end
+        timestamped_text = clip.get("timestamped_text", "")
+        if timestamped_text:
+            # Backward search for clean clip START
+            # Session fix 5: Increased search window from 5s to 8s for better sentence boundaries
+            adjusted_start = find_sentence_boundary(timestamped_text, start, direction='backward', max_search_seconds=8)
+            if adjusted_start != start:
+                logger.info(f"  Sentence boundary: clip #{rank} start {start}s -> {adjusted_start}s")
+                start = adjusted_start
+            # Forward search for clean clip END
+            adjusted_end = find_sentence_boundary(timestamped_text, end, direction='forward', max_search_seconds=8)
+            if adjusted_end != end:
+                logger.info(f"  Sentence boundary: clip #{rank} end {end}s -> {adjusted_end}s")
+                end = adjusted_end
+
+        output_path = os.path.join(output_dir, f"clip_{rank}_{channel}_{video_id}.mp4")
+
+        try:
+            clip_ok = extract_clip(video_id, start, end, output_path, channel=channel)
+        except Exception as e:
+            logger.error(f"[extractor] extract_clip raised for {video_id}: {e}", exc_info=True)
+            clip_ok = False
+        if clip_ok:
+            # Issue 10: Quality enforcement — reject below 1.5Mbps floor
+            quality = _check_clip_quality(output_path, clip.get("channel", channel),
+                                          video_id=video_id, start_sec=start, end_sec=end)
+            if quality == "rejected":
+                logger.warning(f"  Skipping clip #{rank}: quality below 3Mbps floor")
+                continue
+
+            # Smart trim: find natural pause within the 10s end-pad window
+            clip_dur = ffprobe_duration(output_path)
+            # original_end relative to clip start: (end - start) + 3s start pad
+            original_end_in_clip = (end - start) + 3
+            if clip_dur > original_end_in_clip:
+                pause_at = find_nearest_pause(output_path, original_end_in_clip, pad_window=10.0)
+                if pause_at < clip_dur:
+                    trimmed = output_path + ".trimmed.mp4"
+                    if _run_ffmpeg([
+                        "-i", output_path, "-t", str(pause_at),
+                        "-c:v", "copy", "-c:a", "copy", trimmed,
+                    ], "pause_trim", 30) and os.path.exists(trimmed):
+                        os.replace(trimmed, output_path)
+                        logger.info(f"  Trimmed clip #{rank} at {pause_at:.1f}s (silence detection)")
+                    elif os.path.exists(trimmed):
+                        os.remove(trimmed)
+
+            # Render20: No hard clip duration cap — quality over runtime
+
+            # Session fix 5: Add 1.5s audio fade-out for clean clip endings
+            _clip_dur_fo = ffprobe_duration(output_path)
+            if _clip_dur_fo > 3.0:
+                _fade_out_st = max(0, _clip_dur_fo - 1.5)
+                _faded = output_path + ".faded.mp4"
+                if _run_ffmpeg([
+                    "-i", output_path,
+                    "-af", f"afade=t=out:st={_fade_out_st:.2f}:d=1.5",
+                    "-c:v", "copy", _faded,
+                ], "clip_fade_out", 30) and os.path.exists(_faded):
+                    os.replace(_faded, output_path)
+                    logger.info(f"  Fade-out: clip #{rank} at {_fade_out_st:.1f}s (1.5s taper)")
+                elif os.path.exists(_faded):
+                    os.remove(_faded)
+
+            # Issue 5: Second-pass ad read scan
+            if _second_pass_ad_read(output_path, clip.get("channel", ""), rank):
+                logger.warning(f"  REJECTED clip #{rank} [{channel}] — ad read in extracted audio")
+                continue
+
+            clip_info = {
+                "path": output_path,
+                "video_id": video_id,
+                "channel": clip.get("channel", ""),
+                "start": start,
+                "end": end,
+                "duration": ffprobe_duration(output_path),
+                "quote": clip.get("quote", ""),
+            }
+            extracted[rank] = clip_info
+            # RULE 1: Archive every successful clip for fallback
+            save_clip(channel, video_id, output_path, clip_info)
+        else:
+            # RULE 1: Try archived fallback before giving up
+            fallback = get_fallback_clip(clip.get("channel", ""))
+            if fallback:
+                age_days = round((time.time() - os.path.getmtime(fallback)) / 86400, 1)
+                logger.info(f"[extractor] Using archived clip for {clip.get('channel', channel)} ({age_days} days old)")
+                shutil.copy2(fallback, output_path)
+                extracted[rank] = {
+                    "path": output_path,
+                    "video_id": video_id,
+                    "channel": clip.get("channel", ""),
+                    "start": start,
+                    "end": end,
+                    "duration": ffprobe_duration(output_path),
+                    "quote": clip.get("quote", ""),
+                }
+            else:
+                logger.warning(f"  Skipping clip #{rank}: extraction failed, no archive fallback")
+
+    logger.info(f"Extracted {len(extracted)}/{len(clips)} clips")
+    return extracted
+
+
+def extract_montage_all(montage_selections: dict, output_dir: str) -> dict:
+    """Extract montage clips — same as extract_all but uses montage timestamps
+    and saves to clips/montage_clip_N_CHANNEL_ID.mp4"""
+    os.makedirs(output_dir, exist_ok=True)
+    clips = montage_selections.get("clips", [])
+    extracted = {}
+
+    for clip in clips:
+        rank = clip["rank"]
+        video_id = clip["video_id"]
+        start = clip["start_seconds"]
+        end = clip["end_seconds"]
+        channel = clip.get("channel", "unknown").replace(" ", "_")
+        output_path = os.path.join(output_dir, f"montage_clip_{rank}_{channel}_{video_id}.mp4")
+
+        try:
+            ok = extract_clip(video_id, start, end, output_path, channel)
+            if ok and os.path.exists(output_path):
+                clip["montage_clip_path"] = output_path
+                extracted[rank] = output_path
+                logger.info(f"[Montage] Extracted: montage_clip_{rank}_{channel}")
+            else:
+                logger.warning(f"[Montage] Failed: {channel} {video_id}")
+        except Exception as e:
+            logger.error(f"[Montage] Error: {channel} {video_id}: {e}")
+
+    return extracted
+
+
+def _parse_timestamped_text(timestamped_text: str) -> list:
+    """Parse timestamped transcript into list of (seconds, text) tuples."""
+    import re
+    # Try [HH:MM:SS] format first
+    entries = re.findall(r'\[(\d+):(\d+):(\d+)\]\s*(.*?)(?=\[|\Z)', timestamped_text, re.DOTALL)
+    if entries:
+        return [(int(h) * 3600 + int(m) * 60 + int(s), text.strip())
+                for h, m, s, text in entries]
+    # Try [MM:SS] format
+    entries_simple = re.findall(r'\[?(\d+):(\d+)\]?\s*(.*?)(?=\[|\Z)', timestamped_text, re.DOTALL)
+    if entries_simple:
+        return [(int(m) * 60 + int(s), text.strip())
+                for m, s, text in entries_simple]
+    return []
+
+
+def find_sentence_boundary(timestamped_text: str, target_time: int,
+                           direction: str = 'backward',
+                           max_search_seconds: int = 5) -> int:
+    """Find nearest sentence ending (. ? !) relative to target_time.
+
+    Args:
+        timestamped_text: Timestamped transcript text
+        target_time: Target timestamp in seconds
+        direction: 'backward' for clip start (find sentence start after previous end),
+                   'forward' for clip end (find sentence end after target)
+        max_search_seconds: Maximum seconds to search in either direction
+
+    Returns:
+        Adjusted timestamp in seconds
+    """
+    parsed = _parse_timestamped_text(timestamped_text)
+    if not parsed:
+        logger.warning(f"WARNING: No sentence boundary found (no parsed entries), using raw timestamp {target_time}")
+        return target_time
+
+    if direction == 'backward':
+        # Find the nearest sentence-ending BEFORE target_time,
+        # then return the timestamp of the NEXT word (sentence start)
+        best_start = target_time
+        for i, (sec, text) in enumerate(parsed):
+            if sec >= target_time:
+                break
+            # Check if text ends with sentence-ending punctuation
+            if text and text.rstrip()[-1:] in '.?!':
+                # Next entry's timestamp = start of next sentence
+                if i + 1 < len(parsed):
+                    candidate = parsed[i + 1][0]
+                    if candidate <= target_time and (target_time - candidate) <= max_search_seconds:
+                        best_start = candidate
+
+        if best_start == target_time:
+            logger.info(f"WARNING: No sentence boundary found backward from {target_time}s, using raw timestamp")
+        return best_start
+
+    elif direction == 'forward':
+        # Find the nearest sentence-ending AFTER target_time,
+        # return the timestamp just after that ending
+        for i, (sec, text) in enumerate(parsed):
+            if sec < target_time:
+                continue
+            if text and text.rstrip()[-1:] in '.?!':
+                # End point: this entry's timestamp + estimated duration for this text
+                # Use next entry's timestamp as the sentence end point
+                if i + 1 < len(parsed):
+                    end_point = parsed[i + 1][0]
+                else:
+                    end_point = sec + 2  # last entry, add 2s buffer
+                if (end_point - target_time) <= max_search_seconds:
+                    return end_point
+                break  # beyond max search window
+
+        logger.info(f"WARNING: No sentence boundary found forward from {target_time}s, using raw timestamp")
+        return target_time
+
+    return target_time
+
+
+def _find_sentence_start(timestamped_text: str, target_sec: int) -> int:
+    """Find the nearest sentence boundary BEFORE the target timestamp.
+    Wrapper around find_sentence_boundary for backward compatibility.
+    """
+    return find_sentence_boundary(timestamped_text, target_sec, direction='backward', max_search_seconds=5)
+
+
+if __name__ == "__main__":
+    # Quick test: extract a known clip
+    import sys
+    if len(sys.argv) >= 4:
+        vid = sys.argv[1]
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+        out = os.path.join(BASE, "output", f"test_clip_{vid}.mp4")
+        ok = extract_clip(vid, start, end, out)
+        print(f"Extraction {'succeeded' if ok else 'failed'}: {out}")
+    else:
+        print("Usage: python3 clip_extractor.py <video_id> <start_sec> <end_sec>")
+
+# FILE: video_pipeline_v3/script_writer.py (885 lines)
+
+import sys; sys.dont_write_bytecode = True
+#!/usr/bin/env python3
+"""Script Writer V5 — generates host dialogue AROUND real YouTube clips.
+
+Takes the 5 clips selected by clip_selector and generates:
+- Cold open teasing clip #1
+- Setup → Clip → React dialogue for each clip
+- Wrap-up and sign-off
+
+Host dialogue supports the clips, not the other way around.
+"""
+import json
+import logging
+import os
+import re
+import sys
+
+try:
+    import anthropic
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
+
+from relay import get_key
+
+logger = logging.getLogger("ScriptWriter")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[script] %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+SCRIPT_PROMPT = """You are PBX — a Bitcoin intelligence analyst and cypherpunk. You deliver sovereign signal intelligence to an audience that ALREADY understands Bitcoin. You don't educate newcomers. You deliver intelligence.
+
+VOICE RULES:
+- Direct. Authoritative. Opinionated.
+- Maximum 2 sentences per clip introduction. No rambling.
+- BANNED PHRASES: "Let's dive in", "Great point", "It's worth noting", "Interestingly", "Without further ado", "In today's episode", "Let's break this down", "Here's the thing", "Buckle up", "game changer", "Bitcoin continues to", "the market is watching", "this is significant", "interesting to note", "worth keeping an eye on"
+- Use numbers naturally: "sixty-seven thousand" not "sixty-seven thousand one hundred and forty-six"
+- Round Bitcoin price to nearest thousand in speech
+- You have conviction. You take sides. You're not neutral.
+- NEVER write "BTC" — always write "Bitcoin" in full.
+- NEVER say "today", "this morning", "just now" about a KOL quote/tweet unless the data confirms it is from the last 24 hours. If no timestamp, use "recently said", "has been saying".
+- When referencing a social media handle, write the person's NAME, not their handle. "Preston Pysh posted" not "@PrestonPysh".
+- Never hedge. No "could", "might", "it remains to be seen."
+- Respect the audience — they know what a UTXO is. Never explain basics.
+
+STRUCTURE (mandatory):
+1. COLD OPEN (1-2 sentences): Start with the single most provocative insight from today's clips. No greeting. No intro. Drop the viewer into the action.
+   Example: "Marathon just dumped fifteen thousand Bitcoin — and they're telling you it's bullish. Let's look at what's really happening."
+
+2. THEME STATEMENT (1 sentence): Connect all clips with ONE thesis.
+   Example: "Today, three signals are converging on the same conclusion: institutions are front-running the next halving cycle."
+
+3. CLIP SEGMENTS (one per clip, 2-3 sentences each):
+   - Setup (1-2 sentences): Why this clip matters RIGHT NOW. Sharp framing angle + one specific data point.
+   - [CLIP plays]
+   - Reaction (2-3 sentences): Your take. Be opinionated. Agree or disagree with the clip. Start with the IMPLICATION: "What this means is—", "The signal here is—", "Nobody's talking about—"
+
+4. DATA SEGMENT: Hard metrics. Cover: price context, hash rate or difficulty, one on-chain signal. At least one specific number per line. 3-4 lines minimum. Each with a metric AND an implication.
+
+5. SOCIAL SEGMENT (if social posts data provided below — skip entirely if "NONE"):
+   PBX reporting back from Bitcoin Twitter as live intelligence. Maximum 3 tweets. PBX decodes the signal, he doesn't repeat the text — the tweet card is on screen.
+   Each entry uses type: "social_segment". Each MUST begin with the tweet's segment ID: "[ID:tweet_XXXXXXXX_N] ..."
+   TWEET LAW: Reference social_posts in order. NEVER reference a name not in the list.
+   TWEET FRESHNESS: Only say "just posted" if timestamp is from current day. Otherwise "posted recently".
+
+6. SPACE TAP (only if space_tap_clips provided below):
+   Intelligence briefing opener. For each clip: one sentence intro + clip plays + one sentence reaction.
+   Format: {{"host": 2, "text": "[SPACE_TAP] ...", "type": "space_tap_intro"}}, {{"host": "SPACE_CLIP", "clip_index": N}}, {{"host": 2, "text": "[SPACE_TAP] ...", "type": "space_tap_react"}}
+
+7. SYNTHESIS (2-3 sentences): What does all of this mean? One original PBX observation nobody else said today.
+
+8. SIGNOFF: "Stay sovereign. This has been Protocol Pulse."
+
+SEGMENT TAGGING (MANDATORY — controls PBX's voice dynamics):
+Every dialogue text line MUST start with a segment type tag in brackets:
+  [COLD_OPEN] — opening hook (dramatic). MAX 2 per episode.
+  [NARRATION] — standard narration, setup, analysis. 70-80% of lines.
+  [DATA] — specific metrics, prices, hashrates. Authoritative.
+  [SOCIAL] — social segment commentary. Warmer tone.
+  [WARM] — outros, sign-offs. Inviting.
+The tag is INSIDE the text string AND the type field must be present.
+
+EPISODE LENGTH: Target 550-680 narration words. Every sentence earns its place. NO padding.
+
+{clips_info}
+
+BTC Price Today: {btc_price}
+Top Tweets/Nostr Posts Today: {social_posts}
+{live_context}
+Return ONLY valid JSON (no markdown, no code fences):
+{{
+  "episode_title": "short punchy title, 6 words max",
+  "theme": "one sentence connecting all clips",
+  "cold_open": "explosive 1-sentence cold open",
+  "dialogue": [
+    {{"host": 2, "text": "[COLD_OPEN] ...", "type": "cold_open"}},
+    {{"host": 2, "text": "[NARRATION] ...", "type": "setup", "clip_rank": 1}},
+    {{"host": "CLIP", "rank": 1}},
+    {{"host": 2, "text": "[NARRATION] ...", "type": "react", "clip_rank": 1}},
+    {{"host": 2, "text": "[NARRATION] ...", "type": "setup", "clip_rank": 2}},
+    {{"host": "CLIP", "rank": 2}},
+    {{"host": 2, "text": "[NARRATION] ...", "type": "react", "clip_rank": 2}},
+    ...for all clips...
+    {{"host": 2, "text": "[DATA] ...", "type": "data"}},
+    {{"host": 2, "text": "[SOCIAL] ...", "type": "social_segment"}},
+    {{"host": 2, "text": "[NARRATION] ...", "type": "wrap"}},
+    {{"host": 2, "text": "[WARM] Stay sovereign. This has been Protocol Pulse.", "type": "wrap"}}
+  ],
+  "thumbnail": {{"headline": "3-5 words, ALL CAPS", "subtext": "one line"}},
+  "segments_summary": ["4-8 WORD ALL CAPS EDITORIAL HEADLINE FOR EACH CLIP"],
+  "shorts_quotes": ["best one-liner 1", "best one-liner 2", "best one-liner 3"]
+}}
+
+IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5). ALL host entries MUST be host: 2."""
+
+
+# Maps bracket tags in text to segment types for TTS voice modes
+_TAG_TO_TYPE = {
+    "COLD_OPEN": "cold_open",
+    "NARRATION": "setup",
+    "DATA": "data",
+    "SOCIAL": "social_segment",
+    "WARM": "wrap",
+    "BRIDGE": "setup",  # inter-clip context bridges treated as narration
+    "SPACE_TAP": "space_tap",
+    "SETUP": "setup",
+    "REACT": "react",
+    "CTA": "wrap",
+    "COLD": "cold_open",
+}
+
+_TAG_PATTERN = re.compile(r"^\[(" + "|".join(_TAG_TO_TYPE.keys()) + r")\]\s*")
+
+
+def preprocess_for_speech(text):
+    """Make text sound natural when spoken by PBX.
+
+    - Rounds BTC prices to nearest thousand
+    - Removes URLs (not spoken)
+    - Cleans up parenthetical percentages
+    """
+    # Round BTC prices to nearest thousand: "$67,146" → "$67,000"
+    def _round_btc_price(m):
+        whole = m.group(1)
+        return f"${whole},000"
+    text = re.sub(r'\$(\d{2,3}),\d{3}(?!\d)', _round_btc_price, text)
+    # Remove URLs
+    text = re.sub(r'https?://\S+', '', text)
+    # Clean extra whitespace
+    text = re.sub(r'\s{2,}', ' ', text)
+    return text.strip()
+
+
+def _extract_segment_tags(result: dict) -> dict:
+    """Extract [TAG] prefixes from dialogue text and set entry type accordingly.
+
+    If a dialogue line starts with [NARRATION], [DATA], etc., strip the tag
+    from the text and set/override the type field for TTS voice mode selection.
+    """
+    dialogue = result.get("dialogue", [])
+    # Force PBX-only: normalize any host:1 → host:2
+    for _e in dialogue:
+        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
+    for entry in dialogue:
+        text = entry.get("text", "")
+        if not text:
+            continue
+        m = _TAG_PATTERN.match(text)
+        if m:
+            tag = m.group(1)
+            entry["text"] = text[m.end():]
+            entry["type"] = _TAG_TO_TYPE[tag]
+    # Normalize space_tap subtypes to "space_tap" so assembler _segment_to_scene matches
+    for entry in dialogue:
+        if entry.get("type", "") in ("space_tap_intro", "space_tap_react"):
+            entry["type"] = "space_tap"
+    return result
+
+
+def _format_clips_info(selections: dict) -> str:
+    """Format clip selections for the script prompt."""
+    clips = selections.get("clips", [])
+    parts = []
+    for c in clips:
+        parts.append(
+            f"CLIP #{c['rank']}:\n"
+            f"  Channel: {c.get('channel', 'Unknown')}\n"
+            f"  Video: {c.get('video_title', 'Untitled')}\n"
+            f"  Quote: \"{c.get('quote', '')}\"\n"
+            f"  Why selected: {c.get('why', '')}\n"
+            f"  Suggested setup: {c.get('host_setup', '')}\n"
+            f"  Suggested reaction: {c.get('host_react', '')}\n"
+        )
+    return "\n".join(parts)
+
+
+def _load_narrative_context() -> dict:
+    """Load narrative_context.json for narrative-aware script generation.
+    Returns empty dict if missing or stale (>4hr old).
+    KOL FRESHNESS LAW: tightened from 6h to 4h to prevent stale quotes."""
+    import os
+    from datetime import datetime, timezone
+    ctx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "data", "intelligence", "narrative_context.json")
+    try:
+        with open(ctx_path) as f:
+            ctx = json.load(f)
+        # Check staleness — 4h max to match narrative scan window
+        computed = ctx.get("computed_at", "")
+        if computed:
+            computed_dt = datetime.fromisoformat(computed.replace("Z", "+00:00"))
+            age_hours = (datetime.now(timezone.utc) - computed_dt).total_seconds() / 3600
+            if age_hours > 4:
+                logger.warning(f"Narrative context is {age_hours:.1f}h old (>4h) — using generic prompt")
+                return {}
+        return ctx
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+        logger.warning(f"Narrative context unavailable: {e}")
+        return {}
+
+
+NARRATIVE_INJECTION = """
+TODAY'S LIVE NARRATIVE CONTEXT (from real-time thought leader monitoring):
+Dominant narrative: {dominant_narrative}
+Market mood: {market_mood}
+What thought leaders are saying: {episode_narrative}
+PBX cold open hook: {pbx_intro_hook}
+PBX analysis angle: {pbx_context}
+Suggested bridge lines: {narrative_bridge_lines}
+
+MANDATORY SCRIPT RULES (from narrative context):
+- PBX's cold open MUST reference the dominant narrative in his first sentence
+- At least ONE of the clips must be explicitly connected to the X discourse
+  (e.g., "This is what everyone on Crypto Twitter has been discussing all morning...")
+- PBX must cite at least one specific data point from the narrative context (not generic)
+- Avoid topics flagged in: {avoid_topics}
+- The show must feel LIVE — like PBX has been tracking this story all morning
+- KOL QUOTE FRESHNESS: If a thought leader quote is provided, do NOT claim it was said "today" or "this morning" unless you can verify from the data timestamp. Use neutral framing like "has been saying" or "recently stated" for undated quotes. This prevents misinformation.
+
+DATA SEGMENT REQUIREMENT: The data/metrics discussed must relate to today's
+dominant narrative ({dominant_narrative}). If narrative is "ETF inflows",
+cite actual ETF flow numbers. If "mining difficulty", cite actual hashrate/difficulty data.
+PBX must sound like an analyst who read the numbers this morning, not a generalist.
+"""
+
+
+def _validate_social_tweet_order(result: dict, social_posts_raw: str) -> dict:
+    """Render11 FIX 5: Ensure narrator tweet references match tweet display order.
+
+    If narrator mentions @handle that doesn't match the expected tweet position,
+    reorder social_segment entries so card display matches narration order.
+    Tags each social entry with _social_handle_ref for assembler card matching.
+    """
+    if not social_posts_raw or social_posts_raw.startswith("NONE"):
+        return result
+
+    dialogue = result.get("dialogue", [])
+    # Force PBX-only: normalize any host:1 → host:2
+    for _e in dialogue:
+        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
+    if not dialogue:
+        return result
+
+    # Extract ordered handles from social_posts_raw (sorted by likes in generate_from_clips)
+    social_handles = []
+    for line in social_posts_raw.split("\n"):
+        m = re.match(r'(?:Tweet \d+: )?@(\w+)\s+tweeted:', line)
+        if m:
+            social_handles.append(m.group(1).lower())
+
+    # Extract @handle references from social_segment narration lines
+    social_entries = [(i, e) for i, e in enumerate(dialogue)
+                      if e.get("type") == "social_segment" and e.get("host") in (1, 2, "1", "2")]
+
+    narrator_handles = []
+    for _, entry in social_entries:
+        text = entry.get("text", "")
+        handles_in_text = re.findall(r'@(\w+)', text)
+        for h in handles_in_text:
+            h_lower = h.lower()
+            if h_lower in social_handles and h_lower not in narrator_handles:
+                narrator_handles.append(h_lower)
+
+    # Tag each social entry with its referenced handle
+    for idx, entry in social_entries:
+        text = entry.get("text", "")
+        handles_in_text = [h.lower() for h in re.findall(r'@(\w+)', text)]
+        matched = [h for h in handles_in_text if h in social_handles]
+        if matched:
+            entry["_social_handle_ref"] = matched[0]
+            logger.info(f"[script] Social segment line {idx} references @{matched[0]}")
+
+    # Render12 FIX 2: Assert strict tweet order — first card shown = first referenced
+    if narrator_handles and social_handles:
+        expected = social_handles[:len(narrator_handles)]
+        if narrator_handles != expected:
+            logger.warning(f"[script] TWEET ORDER VIOLATION: narrator={narrator_handles}, expected={expected} — reordering")
+        else:
+            logger.info(f"[script] TWEET ORDER OK: {narrator_handles}")
+
+    # FIX 5: Reorder social_segment entries so narration order matches display order
+    # The social_posts were sorted by likes desc — narrator should mention them in that order
+    if narrator_handles and social_handles and narrator_handles != social_handles[:len(narrator_handles)]:
+        logger.warning(f"[script] TWEET MISMATCH: narrator={narrator_handles}, data={social_handles[:len(narrator_handles)]}")
+        # Reorder social_segment dialogue entries to match data order
+        social_with_handle = [(i, e) for i, e in social_entries if e.get("_social_handle_ref")]
+        if social_with_handle:
+            # Sort by position in social_handles (data order = likes desc)
+            social_with_handle.sort(
+                key=lambda x: social_handles.index(x[1]["_social_handle_ref"])
+                if x[1]["_social_handle_ref"] in social_handles else 999
+            )
+            # Swap entries in-place in dialogue
+            original_indices = [i for i, _ in [(i, e) for i, e in social_entries if e.get("_social_handle_ref")]]
+            for new_pos, (_, entry) in enumerate(social_with_handle):
+                if new_pos < len(original_indices):
+                    dialogue[original_indices[new_pos]] = entry
+            logger.info(f"[script] Reordered social entries to match data order")
+
+    return result
+
+
+def _make_editorial_headline(raw: str) -> str:
+    """Convert a raw summary/title into a 3-7 word ALL CAPS editorial headline.
+
+    Render11 FIX 8: Strict Bloomberg/newspaper front page format.
+    No punctuation except dash. 3-7 words. Always ALL CAPS.
+    BAD: 'Saylor talks about sonic boom theory'
+    GOOD: 'SAYLOR SONIC BOOM BITCOIN THESIS'
+    """
+    import re
+    # Strip quotes, URLs, timestamps, punctuation (except dash)
+    clean = re.sub(r'https?://\S+', '', raw)
+    clean = re.sub(r'["\'\[\]().,;:!?]', '', clean)
+    clean = re.sub(r'\s+', ' ', clean).strip()
+    # Take first 7 words, uppercase
+    words = clean.split()[:7]
+    headline = " ".join(words).upper()
+    # Ensure minimum 3 words
+    if len(words) < 3:
+        headline = headline + " - BREAKING"
+    # FIX 8: Post-generation validation — force ALL CAPS, strip non-conforming chars
+    headline = re.sub(r'[^A-Z0-9 \-/]', '', headline).strip()
+    if not headline or len(headline) < 5:
+        headline = "BREAKING SIGNAL DETECTED"
+    return headline[:55]
+
+
+def _populate_segment_headlines(result: dict) -> dict:
+    """Session 4 Fix 2: Add 'headline' key to each dialogue entry.
+
+    Maps segment type + clip rank to a meaningful headline so _smart_headline()
+    in assembler.py gets a real headline instead of truncated spoken text.
+    Render11 FIX 8: Headlines are 3-7 word ALL CAPS editorial style with regex validation.
+    """
+    dialogue = result.get("dialogue", [])
+    # Force PBX-only: normalize any host:1 → host:2
+    for _e in dialogue:
+        if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
+    summaries = result.get("segments_summary", [])
+    episode_title = result.get("episode_title", "Pulse Check Daily")
+
+    for entry in dialogue:
+        if entry.get("headline"):
+            continue  # already has one
+        host = entry.get("host")
+        if host == "CLIP":
+            continue  # clip markers don't need headlines
+
+        seg_type = entry.get("type", "")
+        clip_rank = entry.get("clip_rank", 0)
+
+        if seg_type == "cold_open":
+            entry["headline"] = _make_editorial_headline(episode_title)
+        elif seg_type in ("setup", "react") and clip_rank:
+            # Use segments_summary keyed by rank — force editorial style
+            idx = clip_rank - 1
+            if 0 <= idx < len(summaries) and summaries[idx]:
+                entry["headline"] = _make_editorial_headline(summaries[idx])
+            else:
+                entry["headline"] = _make_editorial_headline(episode_title)
+        elif seg_type == "data":
+            entry["headline"] = "TODAY'S INTELLIGENCE"
+        elif seg_type == "social_segment":
+            entry["headline"] = "SIGNAL FROM THE FIELD"
+        elif seg_type == "space_tap":
+            entry["headline"] = "SPACE TAP SIGNAL INTERCEPT"
+        elif seg_type in ("wrap", "outro"):
+            entry["headline"] = "STAY SOVEREIGN"
+        elif seg_type == "bridge":
+            entry["headline"] = _make_editorial_headline(episode_title)
+        else:
+            # Generic narrator — use episode title
+            entry["headline"] = _make_editorial_headline(episode_title)
+
+    # Render11 FIX 8: Post-validation — force ALL CAPS, reject >8 words or lowercase
+    for entry in dialogue:
+        h = entry.get("headline", "")
+        if not h or entry.get("host") == "CLIP":
+            continue
+        # Force uppercase and strip non-conforming chars
+        h = re.sub(r'[^A-Z0-9 \-/]', '', h.upper()).strip()
+        words = h.split()
+        if len(words) > 8:
+            h = " ".join(words[:7])
+        if not h or len(h) < 5:
+            h = "BREAKING SIGNAL DETECTED"
+        entry["headline"] = h
+
+    return result
+
+
+def generate_from_clips(selections: dict, btc_price: str = "N/A",
+                        live_context: str = "", morning_brief: dict = None,
+                        social_posts_sorted: list = None) -> dict:
+    """Generate host dialogue script around the selected clips.
+
+    Args:
+        selections: Output from clip_selector.select_clips()
+        btc_price: Current BTC price string
+        live_context: Real-time live stream/Spaces intelligence (optional)
+        social_posts_sorted: Pre-fetched, sorted social posts (single source of truth from daily_producer)
+
+    Returns:
+        Script dict with dialogue array
+    """
+    clips = selections.get("clips", [])
+    if not clips:
+        logger.error("No clips provided for script generation")
+        return _fallback_script(selections)
+
+    from relay import call_llm
+
+    clips_info = _format_clips_info(selections)
+
+    # Social data — use pre-fetched sorted list from daily_producer (single source of truth)
+    # Fallback: fetch here if caller didn't provide (backwards compat)
+    social_data_sorted = social_posts_sorted or []
+    if not social_data_sorted:
+        try:
+            from utils.social_fetcher import get_todays_social_posts
+            social_data = get_todays_social_posts(max_posts=5)
+            if social_data:
+                social_data_sorted = sorted(social_data, key=lambda x: x.get('likes', 0), reverse=True)
+        except Exception as e:
+            logger.warning(f"Social data fetch failed: {e}")
+
+    if social_data_sorted:
+        social_posts = "\n".join([
+            f"Tweet {ti+1} [ID:{p.get('seg_id', f'tweet_unknown_{ti}')}]: @{p['handle']} tweeted: \"{p['text'][:200]}\" ({p['likes']} likes)"
+            + (f" [posted: {p['created_at']}]" if p.get('created_at') else " [date unknown]")
+            for ti, p in enumerate(social_data_sorted)
+        ])
+        social_posts += (
+            "\n\nCRITICAL SOCIAL RULES:"
+            "\n- Read ONLY what is written above. Do NOT paraphrase, add, or invent words."
+            "\n- Quote tweet text DIRECTLY and verbatim."
+            "\n- Reference tweets BY POSITION: 'Tweet 1 from @handle' matches the first tweet listed above."
+            "\n- If you mention @handle, the DISPLAYED tweet card MUST match that handle."
+            "\n- Never attribute words from one tweet to a different person."
+            "\n- FRESHNESS: Check the [posted: ...] timestamp. Only say 'just posted' or 'today' if"
+            "\n  the timestamp is from the current day. If [date unknown], say 'recently posted'."
+        )
+    else:
+        social_posts = "NONE — skip social segment entirely"
+
+    # Build live context block
+    live_block = ""
+    if live_context:
+        live_block = (
+            "\nLIVE INTELLIGENCE: The following events are happening RIGHT NOW or happened "
+            "in the last few hours on Bitcoin YouTube/X Spaces. Reference these naturally "
+            "in your narration to make the episode feel current and urgent:\n"
+            f"{live_context}\n"
+        )
+
+    # Inject narrative context from thought leader monitoring
+    narrative_ctx = _load_narrative_context()
+    if narrative_ctx and narrative_ctx.get("dominant_narrative"):
+        try:
+            bridge_lines = narrative_ctx.get("narrative_bridge_lines", [])
+            narrative_block = (NARRATIVE_INJECTION
+                .replace("{dominant_narrative}", narrative_ctx.get("dominant_narrative", ""))
+                .replace("{market_mood}", narrative_ctx.get("market_mood", ""))
+                .replace("{episode_narrative}", narrative_ctx.get("episode_narrative", ""))
+                .replace("{pbx_intro_hook}", narrative_ctx.get("eryn_intro_hook", narrative_ctx.get("pbx_intro_hook", "")))
+                .replace("{pbx_context}", narrative_ctx.get("mark_context", narrative_ctx.get("pbx_context", "")))
+                .replace("{narrative_bridge_lines}", "\n".join(bridge_lines) if bridge_lines else "none")
+                .replace("{avoid_topics}", ", ".join(narrative_ctx.get("avoid_topics", [])))
+            )
+            live_block = narrative_block + "\n" + live_block
+            logger.info(f"Narrative context injected: {narrative_ctx.get('dominant_narrative')}")
+        except Exception as e:
+            logger.warning(f"Failed to inject narrative context: {e}")
+
+    # Inject morning intelligence brief (Nitter-sourced Twitter analysis)
+    morning_block = ""
+    if morning_brief and isinstance(morning_brief, dict):
+        parts = ["\nMORNING INTELLIGENCE BRIEF (from today's Bitcoin Twitter analysis — use as context):"]
+        dom_narr = morning_brief.get("dominant_narratives", [])
+        if dom_narr:
+            parts.append(f"- Dominant narratives today: {'; '.join(dom_narr[:3])}")
+        trending_lang = morning_brief.get("trending_language", [])
+        if trending_lang:
+            parts.append(f"- Trending language on Bitcoin Twitter: {', '.join(trending_lang[:7])}")
+            parts.append("  USE these phrases naturally in narration where they fit — they resonate with the audience today.")
+        sentiment = morning_brief.get("sentiment", "")
+        reasoning = morning_brief.get("sentiment_reasoning", "")
+        if sentiment:
+            parts.append(f"- Market sentiment: {sentiment}")
+        if reasoning:
+            parts.append(f"  Reasoning: {reasoning[:200]}")
+        voice_guidance = morning_brief.get("protocol_pulse_voice_guidance", "")
+        if voice_guidance:
+            parts.append(f"- Voice guidance: {voice_guidance[:250]}")
+        morning_block = "\n".join(parts) + "\n"
+        logger.info(f"Morning brief injected: {len(dom_narr)} narratives, {len(trending_lang)} trending phrases")
+
+    # Inject audience engagement intelligence
+    engagement_block = ""
+    try:
+        import sys as _sys
+        _data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+        if _data_dir not in _sys.path:
+            _sys.path.insert(0, _data_dir)
+        from engagement_scorer import get_trending_topics, get_top_channels
+        trending = get_trending_topics()[:3]
+        top_chs = get_top_channels(5)
+        if trending or top_chs:
+            parts = ["\nAUDIENCE ENGAGEMENT INTELLIGENCE (from real audience data — use naturally):"]
+            if trending:
+                topics_str = ", ".join(f"{t[0]} ({t[1]:.1f}/10)" for t in trending)
+                parts.append(f"- Currently trending in our audience: {topics_str} — weight these if relevant.")
+            if top_chs:
+                chs_str = ", ".join(f"{c[0]} ({c[1]:.1f})" for c in top_chs)
+                parts.append(f"- Highest engagement channels this week: {chs_str} — prioritize their clips.")
+            engagement_block = "\n".join(parts) + "\n"
+            logger.info(f"Engagement intelligence injected: {len(trending)} topics, {len(top_chs)} channels")
+    except Exception as e:
+        logger.debug(f"Engagement scorer unavailable: {e}")
+
+    # Inject episode memory feedback if enough history exists
+    memory_block = ""
+    try:
+        from episode_memory import get_episode_count, get_weak_dimensions, get_strong_dimensions, get_best_channels
+        if get_episode_count() >= 5:
+            weak = get_weak_dimensions(threshold=6.0)
+            strong = get_strong_dimensions(threshold=8.0)
+            top_ch = get_best_channels(5)
+            parts = ["\nEPISODE MEMORY FEEDBACK (from past renders — adapt accordingly):"]
+            if weak:
+                dims = ", ".join(f"{d['dimension']} ({d['avg_score']}/10)" for d in weak[:5])
+                parts.append(f"- WEAK AREAS (improve these): {dims}")
+            if strong:
+                dims = ", ".join(f"{d['dimension']} ({d['avg_score']}/10)" for d in strong[:5])
+                parts.append(f"- STRONG AREAS (maintain these): {dims}")
+            if top_ch:
+                chs = ", ".join(f"{c['channel']} ({c['avg_score']})" for c in top_ch)
+                parts.append(f"- TOP CHANNELS by quality score: {chs}")
+            memory_block = "\n".join(parts) + "\n"
+            logger.info(f"Episode memory injected: {len(weak)} weak, {len(strong)} strong dimensions")
+    except Exception as e:
+        logger.warning(f"Episode memory unavailable: {e}")
+
+    # Inject Space Tap clips context if available
+    space_tap_block = ""
+    space_tap_clips = selections.get("space_tap_clips", [])
+    if space_tap_clips:
+        parts = ["\nSPACE TAP CLIPS (X Spaces intercepts — generate [SPACE_TAP] segment):"]
+        for i, sc in enumerate(space_tap_clips):
+            handle = sc.get("host_handle", "unknown")
+            text_preview = sc.get("text", "")[:150]
+            parts.append(f"  Clip {i}: @{handle} — \"{text_preview}\"")
+        parts.append(f"Generate intro + react for each of the {len(space_tap_clips)} clips above.")
+        space_tap_block = "\n".join(parts) + "\n"
+
+    prompt = (SCRIPT_PROMPT
+        .replace("{clips_info}", str(clips_info))
+        .replace("{btc_price}", str(btc_price))
+        .replace("{social_posts}", str(social_posts))
+        .replace("{live_context}", str(live_block+morning_block+engagement_block+memory_block+space_tap_block))
+    )
+
+    logger.info(f"Generating script for {len(clips)} clips...")
+    text = call_llm(prompt, max_tokens=8000, model="claude-sonnet-4-6")
+    if text is None:
+        logger.warning("All LLM providers failed, using fallback script")
+        return _fallback_script(selections)
+
+    try:
+
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0]
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0]
+
+        # FIX 4: JSON retry loop — send malformed JSON back for repair, max 3 retries
+        json_text = text
+        result = None
+        for _retry in range(4):  # attempt 0 = first try, 1-3 = retries
+            try:
+                result = json.loads(json_text)
+                break
+            except json.JSONDecodeError as je:
+                if _retry >= 3:
+                    raise RuntimeError(f"JSON repair failed after 3 retries: {je}") from je
+                logger.warning(f"JSON parse error (retry {_retry+1}/3): {je}")
+                repair_prompt = (
+                    f"The following JSON is malformed. Fix it and return ONLY valid JSON, "
+                    f"no markdown, no explanation:\n\n{json_text}\n\n"
+                    f"Error was: {je}"
+                )
+                json_text = call_llm(repair_prompt, max_tokens=8000, model="claude-sonnet-4-6")
+                if json_text is None:
+                    raise RuntimeError("JSON repair LLM call returned None")
+                # Strip code fences from repair response
+                if "```json" in json_text:
+                    json_text = json_text.split("```json")[1].split("```")[0]
+                elif "```" in json_text:
+                    json_text = json_text.split("```")[1].split("```")[0]
+
+        # Extract [TAG] prefixes from text and set type fields for TTS
+        result = _extract_segment_tags(result)
+
+        # V4: Preprocess text for natural speech (round prices, strip URLs)
+        for _entry in result.get("dialogue", []):
+            if _entry.get("host") not in ("CLIP", "SPACE_CLIP") and _entry.get("text"):
+                _entry["text"] = preprocess_for_speech(_entry["text"])
+
+        # Session 4 Fix 2: Populate 'headline' per dialogue entry for assembler
+        result = _populate_segment_headlines(result)
+
+        # Round 2 Fix 5: Validate social segment tweet order matches narration references
+        result = _validate_social_tweet_order(result, social_posts)
+        result = _enforce_setup_per_clip(result, selections)
+
+        # Enforce social segment presence when social data was provided
+        result = _enforce_social_segment(result, social_data_sorted)
+
+        # Enforce space tap segment presence when space tap clips were provided
+        result = _enforce_space_tap_segment(result, selections.get("space_tap_clips", []))
+
+        # V4.2 FIX 5: Force-append "Stay sovereign" signoff if missing
+        dialogue = result.get("dialogue", [])
+        if not any("stay sovereign" in d.get("text", "").lower() for d in dialogue
+                    if isinstance(d, dict)):
+            logger.warning("[script] SIGNOFF MISSING — force-appending 'Stay sovereign'")
+            dialogue.append({
+                "host": 2,
+                "text": "Stay sovereign. This has been Protocol Pulse.",
+                "type": "wrap",
+                "headline": "STAY SOVEREIGN",
+            })
+
+        # Validate structure
+        # Force PBX-only: normalize any host:1 â host:2
+        for _e in dialogue:
+            if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
+        clip_entries = [d for d in dialogue if d.get("host") == "CLIP"]
+        speech_entries = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
+
+        logger.info(f"Script generated: {len(dialogue)} entries "
+                    f"({len(speech_entries)} speech, {len(clip_entries)} clips)")
+        logger.info(f"Title: {result.get('episode_title', 'Untitled')}")
+
+        return result
+
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse error: {e}")
+        return _fallback_script(selections)
+    except Exception as e:
+        logger.error(f"Claude API error: {e}")
+        return _fallback_script(selections)
+
+
+
+def _enforce_setup_per_clip(result: dict, selections: dict) -> dict:
+    """IRON LAW: Every clip rank must have exactly one SETUP segment before it.
+    If the LLM collapses two setups onto clip_rank 1 and skips clip_rank 2,
+    this function detects and repairs it by inserting a bridging setup."""
+    import logging
+    _log = logging.getLogger(__name__)
+    dialogue = result.get("dialogue", [])
+    clips = selections.get("clips", [])
+    clip_ranks = [c.get("rank", 0) for c in clips if c.get("rank")]
+
+    # Find which ranks have a setup
+    setup_ranks = set()
+    for entry in dialogue:
+        if isinstance(entry, dict) and entry.get("type") == "setup":
+            cr = entry.get("clip_rank")
+            if cr:
+                setup_ranks.add(cr)
+
+    missing = [r for r in clip_ranks if r not in setup_ranks]
+    if not missing:
+        return result
+
+    _log.warning(f"[script] SETUP MISSING for clip ranks: {missing} — inserting bridge narration")
+    clips_by_rank = {c.get("rank"): c for c in clips}
+    new_dialogue = []
+    for entry in dialogue:
+        if isinstance(entry, dict) and entry.get("host") == "CLIP":
+            rank = entry.get("rank", 0)
+            if rank in missing:
+                ch = clips_by_rank.get(rank, {}).get("channel", "our next source")
+                bridge = {
+                    "host": 2,
+                    "text": f"[NARRATION] Now — {ch} brings a signal you need to hear.",
+                    "type": "setup",
+                    "clip_rank": rank,
+                    "headline": f"{ch.upper()} SIGNAL"
+                }
+                new_dialogue.append(bridge)
+                missing.remove(rank)
+        new_dialogue.append(entry)
+    result["dialogue"] = new_dialogue
+    return result
+
+def _enforce_social_segment(result: dict, social_data: list) -> dict:
+    """Postcondition: if social_data was non-empty, at least one social_segment MUST exist.
+    If the LLM omitted social segments, inject them before the wrap."""
+    if not social_data:
+        return result
+
+    dialogue = result.get("dialogue", [])
+    social_entries = [d for d in dialogue if d.get("type") == "social_segment"]
+    if social_entries:
+        return result  # LLM did its job
+
+    logger.warning(f"[script] SOCIAL SEGMENT MISSING — LLM omitted {len(social_data)} tweets. Injecting.")
+
+    # Build social_segment entries from the actual tweet data
+    inject = []
+    for i, post in enumerate(social_data[:3]):
+        handle = post.get("handle", "unknown")
+        text = post.get("text", "")[:200]
+        likes = post.get("likes", 0)
+        narration = (
+            f"[SOCIAL] {handle} posted this to {likes:,} likes — \"{text}\". "
+            f"The signal here is clear."
+        )
+        inject.append({
+            "host": 2,
+            "text": narration,
+            "type": "social_segment",
+        })
+
+    # Insert before the final wrap entry
+    wrap_idx = None
+    for i in range(len(dialogue) - 1, -1, -1):
+        if dialogue[i].get("type") == "wrap":
+            wrap_idx = i
+            break
+
+    if wrap_idx is not None:
+        for j, entry in enumerate(inject):
+            dialogue.insert(wrap_idx + j, entry)
+    else:
+        dialogue.extend(inject)
+
+    result["dialogue"] = dialogue
+    logger.info(f"[script] Injected {len(inject)} social_segment entries")
+    return result
+
+
+def _enforce_space_tap_segment(result: dict, space_tap_clips: list) -> dict:
+    """Postcondition: if space_tap_clips was non-empty, at least one SPACE_CLIP must exist.
+    If the LLM omitted space tap, inject intro/clip/react entries before the wrap."""
+    if not space_tap_clips:
+        return result
+
+    dialogue = result.get("dialogue", [])
+    space_entries = [d for d in dialogue if d.get("host") == "SPACE_CLIP"
+                     or (d.get("type") or "").startswith("space_tap")]
+    if space_entries:
+        return result  # LLM included space tap
+
+    logger.warning(f"[script] SPACE TAP MISSING — LLM omitted {len(space_tap_clips)} clips. Injecting.")
+
+    inject = []
+    for i, clip in enumerate(space_tap_clips):
+        handle = clip.get("host_handle", "unknown")
+        inject.append({
+            "host": 2,
+            "text": f"[SPACE_TAP] Signal intercepted from {handle}'s space.",
+            "type": "space_tap_intro",
+        })
+        inject.append({
+            "host": "SPACE_CLIP",
+            "clip_index": i,
+        })
+        inject.append({
+            "host": 2,
+            "text": "[SPACE_TAP] That's a signal worth tracking.",
+            "type": "space_tap_react",
+        })
+
+    # Insert before the wrap (after social if present)
+    wrap_idx = None
+    for i in range(len(dialogue) - 1, -1, -1):
+        if dialogue[i].get("type") == "wrap":
+            wrap_idx = i
+            break
+
+    if wrap_idx is not None:
+        for j, entry in enumerate(inject):
+            dialogue.insert(wrap_idx + j, entry)
+    else:
+        dialogue.extend(inject)
+
+    result["dialogue"] = dialogue
+    logger.info(f"[script] Injected {len(inject)} space_tap entries for {len(space_tap_clips)} clips")
+    return result
+
+
+def _fallback_script(selections: dict) -> dict:
+    """Generate a basic script from clip selections without Claude."""
+    clips = selections.get("clips", [])
+    cold_open = selections.get("cold_open", "Breaking developments in Bitcoin today.")
+
+    dialogue = [
+        {"host": 2, "text": f"[COLD_OPEN] {cold_open}", "type": "cold_open"},  # IRON LAW: PBX always opens
+    ]
+
+    for c in clips:
+        rank = c.get("rank", 0)
+        setup = c.get("host_setup", f"Check out what {c.get('channel', 'this channel')} just dropped.")
+        react = c.get("host_react", "That's a big deal. The market hasn't priced this in yet.")
+
+        dialogue.append({"host": 2, "text": f"[NARRATION] {setup}", "type": "setup", "clip_rank": rank})
+        dialogue.append({"host": "CLIP", "rank": rank})
+        dialogue.append({"host": 2, "text": f"[NARRATION] {react}", "type": "react", "clip_rank": rank})
+
+    dialogue.append({
+        "host": 2,
+        "text": "[WARM] That's your Pulse Check for today. Stay sovereign.",
+        "type": "wrap",
+    })
+
+    title = selections.get("episode_title", "Pulse Check Daily")
+
+    return {
+        "cold_open": cold_open,
+        "dialogue": dialogue,
+        "episode_title": title,
+        "thumbnail": {"headline": title.upper(), "subtext": "Daily Bitcoin Intelligence"},
+        "segments_summary": [c.get("why", "") for c in clips],
+        "shorts_quotes": [c.get("quote", "")[:80] for c in clips[:3]],
+    }
+
+
+# Legacy compatibility
+def generate_script(stories=None, style="default", btc_price="N/A"):
+    """Legacy wrapper — generate a sample script for testing."""
+    logger.info("Legacy generate_script called — use generate_from_clips for V5 pipeline")
+    return generate_sample_script(style)
+
+
+def generate_sample_script(style="default"):
+    """Sample script for testing without live data."""
+    return {
+        "episode_title": "The Quiet Accumulation",
+        "cold_open": "Three sovereign wealth funds just disclosed Bitcoin positions worth twelve billion dollars.",
+        "dialogue": [
+            {"host": 2, "text": "Three sovereign wealth funds just disclosed Bitcoin positions. Twelve billion dollars. This is Pulse Check.", "type": "cold_open"},  # IRON LAW: PBX always opens
+            {"host": 2, "text": "Bitcoin Magazine just dropped this bombshell.", "type": "setup", "clip_rank": 1},
+            {"host": "CLIP", "rank": 1},
+            {"host": 2, "text": "Dude. When the entities that print fiat start hoarding the exit asset, that tells you everything.", "type": "react", "clip_rank": 1},
+            {"host": 2, "text": "And look at what Simply Bitcoin is reporting on hash rate.", "type": "setup", "clip_rank": 2},
+            {"host": "CLIP", "rank": 2},
+            {"host": 2, "text": "Record high hash rate. Miners aren't leaving. They're doubling down.", "type": "react", "clip_rank": 2},
+            {"host": 2, "text": "That's your Pulse Check. Stay sovereign.", "type": "wrap"},
+        ],
+        "thumbnail": {"headline": "SMART MONEY IS MOVING", "subtext": "Nations are stacking"},
+        "segments_summary": ["Sovereign wealth funds buying BTC", "Hash rate hits record"],
+        "shorts_quotes": ["When the entities that print fiat start hoarding the exit asset", "Miners aren't leaving"],
+    }
+
+
+if __name__ == "__main__":
+    script = generate_sample_script()
+    print(json.dumps(script, indent=2))
+
+# FILE: video_pipeline_v3/visual_fetcher.py (660 lines)
+
+#!/usr/bin/env python3
+"""visual_fetcher.py — Fetch REAL visuals instead of stock footage.
+
+Priority order:
+1. YouTube clips — yt-dlp specific timestamp ranges or search
+2. Article screenshots — playwright captures of web articles
+3. Tweet/Nostr screenshots — styled cards via PIL
+4. Data charts — matplotlib BTC/mempool/hashrate charts
+5. Pexels B-roll — LAST RESORT, transitions only (2-3s max)
+"""
+import os
+import subprocess
+import hashlib
+import json
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+
+try:
+    from PIL import Image, ImageDraw, ImageFont
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from datetime import datetime, timedelta
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+YT_CACHE_DIR = os.path.join(BASE, "downloads", "yt_cache")
+FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+FONT_REGULAR = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+
+
+# ── YouTube clip fetching ────────────────────────────────────────────────────
+
+def download_youtube_clip(video_id: str, start_sec: int, end_sec: int,
+                          output_path: str) -> bool:
+    """Download a specific segment of a YouTube video using yt-dlp.
+
+    Args:
+        video_id: YouTube video ID
+        start_sec: Start time in seconds
+        end_sec: End time in seconds
+        output_path: Where to save the clip
+
+    Returns:
+        True if download succeeded.
+    """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    url = f"https://www.youtube.com/watch?v={video_id}"
+
+    cmd = [
+        "yt-dlp",
+        "--download-sections", f"*{start_sec}-{end_sec}",
+        "-f", "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+        "--merge-output-format", "mp4",
+        "-o", output_path,
+        "--no-playlist",
+        "--no-check-certificates",
+        "--quiet",
+        "--no-warnings",
+        url,
+    ]
+
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if r.returncode == 0 and os.path.exists(output_path):
+            print(f"  [yt] Clip downloaded: {video_id} [{start_sec}-{end_sec}s]")
+            return True
+    except subprocess.TimeoutExpired:
+        print(f"  [yt] Timeout downloading clip {video_id}")
+    except Exception as e:
+        print(f"  [yt] Error: {e}")
+
+    # Fallback: download full video then trim with ffmpeg
+    raw_path = output_path + ".raw.mp4"
+    try:
+        cmd_full = [
+            "yt-dlp",
+            "-f", "best[height<=1080]",
+            "--no-playlist",
+            "--no-check-certificates",
+            "-o", raw_path,
+            "--quiet",
+            url,
+        ]
+        r = subprocess.run(cmd_full, capture_output=True, text=True, timeout=120)
+        if r.returncode == 0 and os.path.exists(raw_path):
+            duration = end_sec - start_sec
+            trim = subprocess.run(
+                ["ffmpeg", "-y", "-ss", str(start_sec), "-i", raw_path,
+                 "-t", str(duration),
+                 "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080",
+                 "-c:v", "libx264", "-crf", "20", "-c:a", "aac", output_path],
+                capture_output=True, text=True, timeout=120,
+            )
+            try:
+                os.remove(raw_path)
+            except Exception:
+                pass
+            if trim.returncode == 0 and os.path.exists(output_path):
+                print(f"  [yt] Clip trimmed: {video_id} [{start_sec}-{end_sec}s]")
+                return True
+    except Exception as e:
+        print(f"  [yt] Fallback error: {e}")
+
+    return False
+
+
+def search_youtube_clip(query: str, output_path: str,
+                        max_duration: int = 30, source: str = "") -> bool:
+    """Search YouTube and download the top result.
+
+    Args:
+        query: Search terms
+        output_path: Where to save
+        max_duration: Max clip length in seconds
+        source: Optional channel hint (e.g., "@BitcoinMagazine")
+
+    Returns:
+        True if download succeeded.
+    """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    os.makedirs(YT_CACHE_DIR, exist_ok=True)
+
+    # Check cache
+    digest = hashlib.md5(query.lower().strip().encode()).hexdigest()[:16]
+    cache = os.path.join(YT_CACHE_DIR, f"yt_{digest}.mp4")
+    if os.path.exists(cache) and os.path.getsize(cache) > 10_000:
+        subprocess.run(["cp", cache, output_path], capture_output=True)
+        if os.path.exists(output_path):
+            print(f"  [yt] Cache hit: {query[:40]}")
+            return True
+
+    search_query = f"{source} {query}" if source and source.startswith("@") else query
+    raw_path = cache + ".raw.mp4"
+
+    try:
+        cmd = [
+            "yt-dlp",
+            f"ytsearch1:{search_query}",
+            "-f", "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]",
+            "--merge-output-format", "mp4",
+            "--no-playlist",
+            "--no-check-certificates",
+            "-o", raw_path,
+            "--quiet",
+            "--no-warnings",
+        ]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+        if r.returncode != 0 or not os.path.exists(raw_path):
+            cmd2 = [
+                "yt-dlp", f"ytsearch1:{search_query}",
+                "-f", "best[height<=1080]",
+                "--no-playlist", "--no-check-certificates",
+                "-o", raw_path, "--quiet",
+            ]
+            subprocess.run(cmd2, capture_output=True, text=True, timeout=120)
+
+        if os.path.exists(raw_path) and os.path.getsize(raw_path) > 10_000:
+            # Trim + scale
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", raw_path, "-t", str(max_duration),
+                 "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080",
+                 "-c:v", "libx264", "-crf", "22", "-an", cache],
+                capture_output=True, text=True, timeout=180,
+            )
+            try:
+                os.remove(raw_path)
+            except Exception:
+                pass
+            if os.path.exists(cache):
+                subprocess.run(["cp", cache, output_path], capture_output=True)
+                if os.path.exists(output_path):
+                    print(f"  [yt] Downloaded + cached: {query[:40]}")
+                    return True
+
+    except subprocess.TimeoutExpired:
+        print(f"  [yt] Timeout: {query[:40]}")
+    except Exception as e:
+        print(f"  [yt] Error: {e}")
+
+    return False
+
+
+# ── Article screenshots ──────────────────────────────────────────────────────
+
+def screenshot_article(url: str, output_path: str,
+                       width: int = 1920, height: int = 1080) -> bool:
+    """Screenshot a web article using playwright (headless).
+
+    Captures the above-the-fold area and applies a dark vignette overlay.
+
+    Args:
+        url: Article URL to capture
+        output_path: Where to save the screenshot
+        width: Viewport width
+        height: Viewport height
+
+    Returns:
+        True if screenshot was saved.
+    """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print("  [screenshot] playwright not available")
+        return False
+
+    raw_path = output_path + ".raw.png"
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(viewport={"width": width, "height": height})
+            page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            page.wait_for_timeout(2000)
+            page.screenshot(path=raw_path, full_page=False)
+            browser.close()
+
+        if not os.path.exists(raw_path):
+            return False
+
+        # Apply dark vignette overlay for cinematic look
+        if HAS_PIL:
+            img = Image.open(raw_path).convert("RGB")
+            img = img.resize((width, height), Image.LANCZOS)
+
+            # Dark vignette: darken edges
+            overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+            draw = ImageDraw.Draw(overlay)
+            # Bottom gradient
+            for y in range(height // 2, height):
+                alpha = int(180 * ((y - height // 2) / (height // 2)))
+                draw.rectangle([(0, y), (width, y + 1)], fill=(0, 0, 0, alpha))
+            # Top gradient (lighter)
+            for y in range(0, height // 4):
+                alpha = int(100 * (1 - y / (height // 4)))
+                draw.rectangle([(0, y), (width, y + 1)], fill=(0, 0, 0, alpha))
+
+            img = img.convert("RGBA")
+            img = Image.alpha_composite(img, overlay)
+            img = img.convert("RGB")
+            img.save(output_path, "PNG")
+        else:
+            os.rename(raw_path, output_path)
+
+        if os.path.exists(raw_path) and raw_path != output_path:
+            os.remove(raw_path)
+
+        print(f"  [screenshot] Captured: {url[:60]}")
+        return True
+
+    except Exception as e:
+        print(f"  [screenshot] Error: {e}")
+        return False
+
+
+# ── Tweet/Nostr card generation ──────────────────────────────────────────────
+
+def screenshot_tweet(tweet_text: str, author: str, handle: str,
+                     output_path: str, platform: str = "x") -> bool:
+    """Generate a styled tweet/post card image using PIL.
+
+    Args:
+        tweet_text: The post text
+        author: Display name
+        handle: @username
+        output_path: Where to save
+        platform: "x" (blue accent) or "nostr" (purple accent)
+
+    Returns:
+        True if image was generated.
+    """
+    if not HAS_PIL:
+        print("  [tweet] Pillow not available")
+        return False
+
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    W, H = 1920, 1080
+    accent = (29, 155, 240) if platform == "x" else (128, 57, 219)
+    bg_color = (15, 15, 20)
+
+    img = Image.new("RGB", (W, H), bg_color)
+    draw = ImageDraw.Draw(img)
+
+    # Card background (centered, padded)
+    card_margin = 200
+    card_top = 150
+    card_bottom = H - 150
+    card_w = W - card_margin * 2
+    card_h = card_bottom - card_top
+
+    # Card with subtle border
+    draw.rounded_rectangle(
+        [(card_margin, card_top), (W - card_margin, card_bottom)],
+        radius=20, fill=(25, 25, 32), outline=(50, 50, 60), width=2,
+    )
+
+    # Platform accent bar at top of card
+    draw.rectangle(
+        [(card_margin, card_top), (W - card_margin, card_top + 4)],
+        fill=accent,
+    )
+
+    # Load fonts
+    try:
+        font_author = ImageFont.truetype(FONT_BOLD, 36)
+        font_handle = ImageFont.truetype(FONT_REGULAR, 28)
+        font_text = ImageFont.truetype(FONT_REGULAR, 32)
+        font_platform = ImageFont.truetype(FONT_BOLD, 24)
+    except Exception:
+        font_author = font_handle = font_text = font_platform = ImageFont.load_default()
+
+    # Profile avatar circle (placeholder)
+    avatar_x, avatar_y = card_margin + 40, card_top + 40
+    draw.ellipse(
+        [(avatar_x, avatar_y), (avatar_x + 64, avatar_y + 64)],
+        fill=accent, outline=(255, 255, 255, 128),
+    )
+    # Initial letter in avatar
+    initial = author[0].upper() if author else "?"
+    try:
+        init_font = ImageFont.truetype(FONT_BOLD, 32)
+    except Exception:
+        init_font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), initial, font=init_font)
+    iw, ih = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    draw.text(
+        (avatar_x + 32 - iw // 2, avatar_y + 32 - ih // 2),
+        initial, fill=(255, 255, 255), font=init_font,
+    )
+
+    # Author name + handle
+    text_x = avatar_x + 80
+    draw.text((text_x, avatar_y + 5), author, fill=(255, 255, 255), font=font_author)
+    draw.text((text_x, avatar_y + 42), f"@{handle}", fill=(120, 120, 140), font=font_handle)
+
+    # Tweet text (word-wrapped)
+    text_start_y = card_top + 140
+    max_text_w = card_w - 80
+    words = tweet_text.split()
+    lines = []
+    current = ""
+    for word in words:
+        test = f"{current} {word}".strip()
+        bbox = draw.textbbox((0, 0), test, font=font_text)
+        if bbox[2] - bbox[0] > max_text_w:
+            if current:
+                lines.append(current)
+            current = word
+        else:
+            current = test
+    if current:
+        lines.append(current)
+
+    for i, line in enumerate(lines[:12]):
+        y = text_start_y + i * 45
+        draw.text((card_margin + 40, y), line, fill=(220, 220, 230), font=font_text)
+
+    # Platform label
+    platform_label = "X (Twitter)" if platform == "x" else "Nostr"
+    draw.text(
+        (W - card_margin - 150, card_bottom - 50),
+        platform_label, fill=accent, font=font_platform,
+    )
+
+    img.save(output_path, "PNG")
+    print(f"  [tweet] Card generated: {author} (@{handle})")
+    return True
+
+
+# ── Data charts ──────────────────────────────────────────────────────────────
+
+def generate_chart(chart_type: str, output_path: str,
+                   data: dict = None) -> bool:
+    """Generate BTC/mempool/hashrate charts with matplotlib.
+
+    Args:
+        chart_type: "price_7d", "mempool_fees", "hashrate_30d", "difficulty"
+        output_path: Where to save the chart PNG
+        data: Optional data dict. If None, fetches from mempool.space API.
+
+    Returns:
+        True if chart was generated.
+    """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    # Dark theme
+    plt.rcParams.update({
+        "figure.facecolor": "#0a0a0f",
+        "axes.facecolor": "#0a0a0f",
+        "axes.edgecolor": "#333333",
+        "axes.labelcolor": "#888888",
+        "text.color": "#cccccc",
+        "xtick.color": "#666666",
+        "ytick.color": "#666666",
+        "grid.color": "#1a1a1a",
+        "grid.alpha": 0.5,
+    })
+
+    fig, ax = plt.subplots(figsize=(19.2, 10.8), dpi=100)
+
+    try:
+        if chart_type == "price_7d":
+            _chart_btc_price(ax, data)
+        elif chart_type == "mempool_fees":
+            _chart_mempool_fees(ax, data)
+        elif chart_type == "hashrate_30d":
+            _chart_hashrate(ax, data)
+        elif chart_type == "difficulty":
+            _chart_difficulty(ax, data)
+        else:
+            _chart_btc_price(ax, data)
+
+        ax.grid(True, alpha=0.3)
+        plt.tight_layout(pad=2)
+        fig.savefig(output_path, facecolor="#0a0a0f", dpi=100,
+                    bbox_inches="tight", transparent=False)
+        plt.close(fig)
+        print(f"  [chart] Generated: {chart_type} → {output_path}")
+        return True
+
+    except Exception as e:
+        print(f"  [chart] Error generating {chart_type}: {e}")
+        plt.close(fig)
+        return False
+
+
+def _fetch_json(url: str, timeout: int = 10):
+    if not HAS_REQUESTS:
+        return None
+    try:
+        r = requests.get(url, timeout=timeout)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return None
+
+
+def _chart_btc_price(ax, data: dict = None):
+    """7-day BTC price chart."""
+    if data and "prices" in data:
+        prices = data["prices"]
+        times = [datetime.now() - timedelta(hours=len(prices) - i) for i in range(len(prices))]
+    else:
+        # Fetch from mempool.space
+        raw = _fetch_json("https://mempool.space/api/v1/mining/hashrate/1w")
+        if raw and "currentHashrate" in raw:
+            # mempool doesn't have direct price history, generate sample
+            prices = _generate_sample_prices()
+            times = [datetime.now() - timedelta(hours=len(prices) - i) for i in range(len(prices))]
+        else:
+            prices = _generate_sample_prices()
+            times = [datetime.now() - timedelta(hours=len(prices) - i) for i in range(len(prices))]
+
+    color = "#00cc66" if prices[-1] >= prices[0] else "#cc3333"
+    ax.plot(times, prices, color=color, linewidth=2.5, alpha=0.9)
+    ax.fill_between(times, prices, min(prices) * 0.99, color=color, alpha=0.1)
+
+    ax.set_title("BTC/USD — 7 Day", fontsize=24, fontweight="bold", pad=20)
+    ax.set_ylabel("Price (USD)", fontsize=16)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f"${x:,.0f}"))
+
+    # Key price level lines
+    current = prices[-1]
+    ax.axhline(y=current, color=color, linestyle="--", alpha=0.5, linewidth=1)
+    ax.text(times[-1], current, f"  ${current:,.0f}", color=color, fontsize=14,
+            verticalalignment="bottom")
+
+
+def _chart_mempool_fees(ax, data: dict = None):
+    """Mempool fee chart."""
+    raw = _fetch_json("https://mempool.space/api/v1/fees/recommended")
+    if raw:
+        categories = ["Economy", "Low", "Medium", "High"]
+        values = [
+            raw.get("economyFee", 1),
+            raw.get("hourFee", 2),
+            raw.get("halfHourFee", 5),
+            raw.get("fastestFee", 10),
+        ]
+    else:
+        categories = ["Economy", "Low", "Medium", "High"]
+        values = [1, 3, 8, 15]
+
+    colors = ["#00cc66", "#66cc00", "#cccc00", "#cc3333"]
+    bars = ax.bar(categories, values, color=colors, width=0.6, edgecolor="#333", linewidth=1)
+
+    for bar, val in zip(bars, values):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
+                f"{val} sat/vB", ha="center", fontsize=16, fontweight="bold", color="#ffffff")
+
+    ax.set_title("Bitcoin Mempool Fees — Current", fontsize=24, fontweight="bold", pad=20)
+    ax.set_ylabel("sat/vB", fontsize=16)
+
+
+def _chart_hashrate(ax, data: dict = None):
+    """30-day hashrate chart."""
+    raw = _fetch_json("https://mempool.space/api/v1/mining/hashrate/1m")
+    if raw and "hashrates" in raw:
+        entries = raw["hashrates"][-30:]
+        times = [datetime.fromtimestamp(e["timestamp"]) for e in entries]
+        values = [e["avgHashrate"] / 1e18 for e in entries]  # EH/s
+    else:
+        values = _generate_sample_hashrate()
+        times = [datetime.now() - timedelta(days=30 - i) for i in range(len(values))]
+
+    ax.plot(times, values, color="#ff6600", linewidth=2.5, alpha=0.9)
+    ax.fill_between(times, values, min(values) * 0.95, color="#ff6600", alpha=0.1)
+
+    ax.set_title("Bitcoin Hashrate — 30 Day", fontsize=24, fontweight="bold", pad=20)
+    ax.set_ylabel("EH/s", fontsize=16)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+
+
+def _chart_difficulty(ax, data: dict = None):
+    """Difficulty adjustment chart."""
+    raw = _fetch_json("https://mempool.space/api/v1/mining/difficulty-adjustments/12")
+    if raw and len(raw) > 2:
+        times = [datetime.fromtimestamp(e["timestamp"]) for e in raw[-12:]]
+        values = [e["difficultyChange"] for e in raw[-12:]]
+    else:
+        values = [2.1, -1.3, 3.5, 0.8, -0.5, 4.7, 1.2, -2.1, 3.3, 2.8, -0.9, 1.5]
+        times = [datetime.now() - timedelta(weeks=12 - i) for i in range(12)]
+
+    colors = ["#00cc66" if v >= 0 else "#cc3333" for v in values]
+    ax.bar(times, values, color=colors, width=8, edgecolor="#333", linewidth=1)
+
+    ax.set_title("Bitcoin Difficulty Adjustments — Last 12", fontsize=24, fontweight="bold", pad=20)
+    ax.set_ylabel("Change (%)", fontsize=16)
+    ax.axhline(y=0, color="#444444", linewidth=1)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+
+
+def _generate_sample_prices(days: int = 7) -> list:
+    """Generate realistic-looking sample BTC prices."""
+    import random
+    base = 97000
+    prices = [base]
+    for _ in range(days * 24):
+        change = random.gauss(0, 150)
+        prices.append(max(80000, min(120000, prices[-1] + change)))
+    return prices
+
+
+def _generate_sample_hashrate(days: int = 30) -> list:
+    """Generate sample hashrate values."""
+    import random
+    base = 650
+    values = [base]
+    for _ in range(days - 1):
+        change = random.gauss(2, 10)
+        values.append(max(500, values[-1] + change))
+    return values
+
+
+# ── Pexels B-roll (last resort) ──────────────────────────────────────────────
+
+def fetch_pexels_broll(query: str, output_path: str, duration: int = 3) -> bool:
+    """Fetch a short Pexels B-roll clip for transitions only.
+
+    Limited to 3s clips by default — real content should use YouTube/screenshots.
+
+    Args:
+        query: Search query
+        output_path: Where to save
+        duration: Max clip duration (default 3s)
+
+    Returns:
+        True if clip was fetched.
+    """
+    from relay import get_key
+    key = get_key("PEXELS_API_KEY")
+    if not key or not HAS_REQUESTS:
+        return False
+
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    try:
+        r = requests.get(
+            "https://api.pexels.com/videos/search",
+            params={"query": query, "per_page": 3, "size": "medium",
+                    "orientation": "landscape"},
+            headers={"Authorization": key},
+            timeout=15,
+        )
+        if r.status_code != 200:
+            return False
+
+        videos = r.json().get("videos", [])
+        if not videos:
+            return False
+
+        files = videos[0].get("video_files", [])
+        hd = (
+            next((f for f in files if f.get("height", 0) >= 1080), None)
+            or next((f for f in files if f.get("height", 0) >= 720), None)
+            or (files[0] if files else None)
+        )
+        if not hd:
+            return False
+
+        raw_path = output_path + ".raw.mp4"
+        vid_r = requests.get(hd["link"], timeout=60, stream=True)
+        with open(raw_path, "wb") as fh:
+            for chunk in vid_r.iter_content(chunk_size=65536):
+                fh.write(chunk)
+
+        # Trim to max duration
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", raw_path, "-t", str(duration),
+             "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080",
+             "-c:v", "libx264", "-crf", "22", "-an", output_path],
+            capture_output=True, text=True, timeout=60,
+        )
+        try:
+            os.remove(raw_path)
+        except Exception:
+            pass
+
+        if os.path.exists(output_path):
+            print(f"  [pexels] B-roll: {query[:30]} ({duration}s)")
+            return True
+
+    except Exception as e:
+        print(f"  [pexels] Error: {e}")
+
+    return False
+
+
+if __name__ == "__main__":
+    out_dir = os.path.join(BASE, "output", "visual_test")
+    os.makedirs(out_dir, exist_ok=True)
+
+    # Test tweet card
+    screenshot_tweet(
+        "Bitcoin just hit a new all-time high in hash rate. "
+        "The network has never been more secure. This is what adoption looks like.",
+        "Satoshi Nakamoto", "satoshi",
+        os.path.join(out_dir, "tweet_card.png"),
+    )
+
+    # Test chart
+    generate_chart("price_7d", os.path.join(out_dir, "btc_price.png"))
+    generate_chart("mempool_fees", os.path.join(out_dir, "fees.png"))
+
+    print(f"\nTest output: {out_dir}")

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-01T10:00:22.631852+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Mempool Trap: Why BTC's 22K Transaction Backlog is a Loaded Gun",
+      "angle": "Disconnect between transaction volume and low fees suggests complacency before inevitable volatility spike",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "Extreme Fear at 8/100: Bitcoin's Capitulation Signal or Dead Cat Bounce Setup?",
+      "angle": "Historical patterns of fear-driven rallies vs. dumps; why this time's hashrate strength matters",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-index",
+        "trading"
+      ]
+    },
+    {
+      "headline": "The $68K Question: Bitcoin's Critical Support Level and What Breaks Below Mean",
+      "angle": "Technical analysis of floor-building vs. retest scenarios tied to Asia session volume",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-resistance",
+        "trading"
+      ]
+    }
+  ]
+}
