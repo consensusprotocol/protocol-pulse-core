@@ -310,6 +310,35 @@ def concatenate_parts(parts: list, output_path: str,
         # AV SYNC FIX: Enforce matching V/A durations per-part before concat
         # Prevents accumulated drift from parts where audio ≠ video duration
         chosen = _enforce_av_sync(chosen)
+        # V26 FIX: Per-part stream-copy AV fix — kills AAC priming offset from re-encode
+        try:
+            import json as _jav_part
+            _avr_p = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-print_format", "json",
+                 "-show_packets", "-read_intervals", "%+#5", chosen],
+                capture_output=True, text=True, timeout=15)
+            _avd_p = _jav_part.loads(_avr_p.stdout)
+            _pkts_p = _avd_p.get("packets", [])
+            _vp_p = next((float(pk.get("pts_time", 0)) for pk in _pkts_p if pk.get("codec_type") == "video"), 0)
+            _ap_p = next((float(pk.get("pts_time", 0)) for pk in _pkts_p if pk.get("codec_type") == "audio"), 0)
+            _off_p = _ap_p - _vp_p
+            if _off_p < -0.005:
+                _fix_p = chosen + ".avfix.mp4"
+                _ok_p = run_ffmpeg([
+                    "-i", chosen,
+                    "-itsoffset", f"{abs(_off_p):.6f}",
+                    "-i", chosen,
+                    "-map", "0:v:0", "-map", "1:a:0",
+                    "-c", "copy", "-movflags", "+faststart",
+                    _fix_p,
+                ], f"per-part AV fix {i}", 30)
+                if _ok_p and os.path.exists(_fix_p) and os.path.getsize(_fix_p) > 1000:
+                    os.replace(_fix_p, chosen)
+                    logger.info(f"  PART AV FIX: part {i} {_off_p:+.3f}s -> 0.000s")
+                elif os.path.exists(_fix_p):
+                    os.remove(_fix_p)
+        except Exception:
+            pass
         normalized.append(chosen)
 
     # Session 4 Fix 7B: Re-apply longer fade to last part (outro) for clean ending
