@@ -14,11 +14,30 @@ import os
 import uuid
 import secrets
 import logging
+import time
 import requests
 from datetime import datetime, date
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+# Load .env at module level so RESEND_API_KEY is always available
+_ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if _ENV_PATH.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(_ENV_PATH, override=False)
+    except ImportError:
+        with open(_ENV_PATH) as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line and not _line.startswith('#') and '=' in _line:
+                    _k, _v = _line.split('=', 1)
+                    _k = _k.strip()
+                    _v = _v.strip().strip('"').strip("'")
+                    if _k and _k not in os.environ:
+                        os.environ[_k] = _v
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -668,33 +687,50 @@ def build_newsletter_html(
 # ── Resend sender ─────────────────────────────────────────────────────────────
 
 def _send_via_resend(to: str, subject: str, html: str, idempotency_key: str = "") -> Dict:
-    """Send one email via Resend. Returns {success, id, error}."""
+    """Send one email via Resend with retry logic. Returns {success, id, error}."""
     key = _resend_api_key()
     if not key:
         return {"success": False, "error": "RESEND_API_KEY not set"}
-    try:
-        headers = {
-            "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json",
-        }
-        if idempotency_key:
-            headers["Idempotency-Key"] = idempotency_key
-        r = requests.post(
-            f"{RESEND_BASE}/emails",
-            headers=headers,
-            json={
-                "from": FROM_EMAIL,
-                "to": [to],
-                "subject": subject,
-                "html": html,
-            },
-            timeout=RESEND_TIMEOUT,
-        )
-        if r.status_code in (200, 201):
-            return {"success": True, "id": r.json().get("id")}
-        return {"success": False, "error": f"HTTP {r.status_code}: {r.text[:200]}"}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+    }
+    if idempotency_key:
+        headers["Idempotency-Key"] = idempotency_key
+    payload = {
+        "from": FROM_EMAIL,
+        "to": [to],
+        "subject": subject,
+        "html": html,
+    }
+
+    for attempt in range(2):
+        try:
+            r = requests.post(
+                f"{RESEND_BASE}/emails",
+                headers=headers,
+                json=payload,
+                timeout=RESEND_TIMEOUT,
+            )
+            if r.status_code in (200, 201):
+                return {"success": True, "id": r.json().get("id")}
+            err = f"HTTP {r.status_code}: {r.text[:200]}"
+            if attempt == 0:
+                logger.warning(f"Resend attempt 1 failed for {to}: {err}, retrying in 5s...")
+                time.sleep(5)
+                continue
+            logger.error(f"Resend attempt 2 failed for {to}: {err}")
+            return {"success": False, "error": err}
+        except Exception as e:
+            if attempt == 0:
+                logger.warning(f"Resend attempt 1 exception for {to}: {e}, retrying in 5s...")
+                time.sleep(5)
+                continue
+            logger.error(f"Resend attempt 2 exception for {to}: {e}")
+            return {"success": False, "error": str(e)}
+
+    return {"success": False, "error": "All retry attempts exhausted"}
 
 
 def _send_batch_via_resend(batch: List[Dict], idempotency_key: str = "") -> Dict:
@@ -757,11 +793,22 @@ def send_daily_newsletter(force: bool = False) -> Dict:
     if not articles:
         return {"success": False, "error": "No articles available to send"}
 
-    # Build subject per LAW 3
+    # Build compelling subject from live data
     today = datetime.utcnow()
     date_str = today.strftime("%B %d, %Y")
     date_key = today.strftime("%Y-%m-%d")  # used as idempotency key base
-    subject = f"Protocol Pulse — {date_str} | BTC: {btc_price} {btc_change}"
+
+    # Generate data-driven subject line
+    lead_title = articles[0]["title"] if articles else ""
+    # Use first sentence of lead article for subject
+    lead_snippet = lead_title[:55] + "..." if len(lead_title) > 55 else lead_title
+    if lead_snippet:
+        subject = f"{btc_price} — {lead_snippet}"
+    else:
+        subject = f"{btc_price} {btc_change} — Your morning signal."
+    # Fallback: ensure subject is under 80 chars
+    if len(subject) > 80:
+        subject = f"{btc_price} {btc_change} — Today's intelligence."
 
     # Load active confirmed subscribers only (double opt-in)
     try:

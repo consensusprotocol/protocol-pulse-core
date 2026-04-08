@@ -142,65 +142,77 @@ def _send_welcome_email(email: str, unsubscribe_token: str) -> bool:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Welcome to Protocol Pulse</title>
+  <title>Your Signal Is Now Active</title>
 </head>
-<body style="margin:0;padding:0;background:#080808;
+<body style="margin:0;padding:0;background:#000000;
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#080808;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#000000;">
     <tr>
       <td align="center" style="padding:32px 16px;">
         <table width="600" cellpadding="0" cellspacing="0"
-               style="max-width:600px;width:100%;background:#0d0d0d;
-                      border:1px solid #1e1e1e;border-radius:8px;overflow:hidden;">
+               style="max-width:600px;width:100%;background:#0a0a0a;
+                      border:1px solid #1a1a1a;overflow:hidden;">
+
+          <!-- RED TOP BAR -->
+          <tr>
+            <td style="background:#dc2626;height:3px;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
 
           <!-- HEADER -->
           <tr>
-            <td style="padding:32px;background:linear-gradient(135deg,#0d0d0d 0%,#130000 100%);
-                       border-bottom:2px solid #dc2626;text-align:center;">
-              <p style="margin:0 0 6px;font-size:24px;font-weight:800;
-                         letter-spacing:4px;color:#dc2626;font-family:monospace;">
+            <td style="padding:40px 40px 24px;text-align:center;">
+              <p style="margin:0 0 6px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,Courier,monospace;
+                         font-size:13px;font-weight:700;letter-spacing:4px;color:#dc2626;text-transform:uppercase;">
                 PROTOCOL PULSE
               </p>
-              <p style="margin:0;font-size:12px;color:#555;
-                         text-transform:uppercase;letter-spacing:2px;">
-                Bitcoin Intelligence
+              <p style="margin:0;font-family:'SFMono-Regular',Consolas,monospace;
+                         font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;">
+                SOVEREIGN BITCOIN INTELLIGENCE
               </p>
+            </td>
+          </tr>
+
+          <!-- RED SEPARATOR -->
+          <tr>
+            <td style="padding:0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr><td style="border-bottom:1px solid #dc2626;height:1px;font-size:0;">&nbsp;</td></tr>
+              </table>
             </td>
           </tr>
 
           <!-- BODY -->
           <tr>
-            <td style="padding:40px 32px;">
-              <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:#fff;line-height:1.3;">
-                You're in the signal.
-              </h1>
-              <p style="margin:0 0 20px;font-size:15px;color:#b0b0b0;line-height:1.7;">
-                Welcome to the <strong style="color:#fff;">Protocol Pulse</strong> daily briefing.
-                Every morning you'll receive 5 minutes of distilled Bitcoin intelligence —
-                top stories, network stats, and our Signal score — curated from 80+ sources.
+            <td style="padding:40px 40px 32px;">
+              <p style="margin:0 0 24px;font-family:'SFMono-Regular',Consolas,monospace;
+                         font-size:28px;font-weight:700;color:#ffffff;line-height:1.2;letter-spacing:-0.5px;">
+                Your signal is now active.
+              </p>
+              <p style="margin:0 0 28px;font-size:15px;color:#999;line-height:1.8;">
+                Every morning at 8am ET, you'll receive what the network saw while you were sleeping.
+                No spam. No shilling. Just signal.
               </p>
 
-              <!-- What to expect -->
+              <!-- WHAT YOU GET — CLASSIFIED BRIEFING STYLE -->
               <table width="100%" cellpadding="0" cellspacing="0"
-                     style="background:#111;border:1px solid #1e1e1e;
-                            border-radius:6px;margin-bottom:24px;">
+                     style="background:#111;border-left:3px solid #dc2626;margin-bottom:28px;">
                 <tr>
                   <td style="padding:20px 24px;">
-                    <p style="margin:0 0 12px;font-size:11px;text-transform:uppercase;
-                               letter-spacing:2px;color:#dc2626;font-weight:700;">
-                      WHAT YOU'LL RECEIVE
+                    <p style="margin:0 0 14px;font-family:'SFMono-Regular',Consolas,monospace;
+                               font-size:9px;letter-spacing:3px;color:#dc2626;text-transform:uppercase;font-weight:700;">
+                      DAILY BRIEFING CONTENTS
                     </p>
-                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>1 Lead Story</strong> — deep analysis, 2-sentence brief
+                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;font-family:'SFMono-Regular',Consolas,monospace;">
+                      &gt; Lead intelligence + 4 supporting signals
                     </p>
-                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>4 Supporting Stories</strong> — what you need to know
+                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;font-family:'SFMono-Regular',Consolas,monospace;">
+                      &gt; Network stat: hashrate, difficulty, mempool
                     </p>
-                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>Network Stat of the Day</strong> — hashrate, difficulty, mempool
+                    <p style="margin:0 0 8px;font-size:14px;color:#d0d0d0;font-family:'SFMono-Regular',Consolas,monospace;">
+                      &gt; Oracle signal: convergence engine score
                     </p>
-                    <p style="margin:0;font-size:14px;color:#d0d0d0;">
-                      &#9654;&nbsp; <strong>Oracle Signal</strong> — market intelligence score
+                    <p style="margin:0;font-size:14px;color:#d0d0d0;font-family:'SFMono-Regular',Consolas,monospace;">
+                      &gt; Satomi's watch: what she sees in the data
                     </p>
                   </td>
                 </tr>
@@ -210,40 +222,40 @@ def _send_welcome_email(email: str, unsubscribe_token: str) -> bool:
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
                 <tr>
                   <td align="center">
-                    <a href="{SITE_URL}"
+                    <a href="{SITE_URL}/intelligence"
                        style="display:inline-block;padding:14px 36px;
-                              background:#dc2626;color:#fff;font-size:15px;
+                              background:#dc2626;color:#fff;font-size:14px;
                               font-weight:700;text-decoration:none;
-                              border-radius:6px;letter-spacing:0.5px;">
-                      Read Today's Briefing &rarr;
+                              border-radius:6px;letter-spacing:1px;
+                              font-family:'SFMono-Regular',Consolas,monospace;">
+                      ENTER THE TERMINAL &rarr;
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin:0;font-size:13px;color:#666;text-align:center;">
-                First issue arrives tomorrow morning (UTC). Stay sovereign.
+              <p style="margin:0;font-size:13px;color:#555;text-align:center;
+                         font-family:'SFMono-Regular',Consolas,monospace;">
+                Stay sovereign. — Satomi
               </p>
             </td>
           </tr>
 
           <!-- FOOTER -->
           <tr>
-            <td style="padding:20px 32px;border-top:1px solid #1a1a1a;
-                       background:#0a0a0a;text-align:center;">
-              <p style="margin:0 0 8px;font-size:12px;color:#444;">
+            <td style="padding:20px 40px;border-top:1px solid #1a1a1a;
+                       background:#050505;text-align:center;">
+              <p style="margin:0 0 8px;font-size:11px;color:#333;">
                 You subscribed to Protocol Pulse on {today_str}.
               </p>
-              <p style="margin:0;font-size:12px;color:#444;">
-                <a href="{unsub_url}"
-                   style="color:#dc2626;text-decoration:none;">Unsubscribe</a>
+              <p style="margin:0;font-size:11px;color:#333;">
+                <a href="{unsub_url}" style="color:#dc2626;text-decoration:none;">Unsubscribe</a>
                 &nbsp;&bull;&nbsp;
-                <a href="{SITE_URL}" style="color:#555;text-decoration:none;">
-                  protocolpulse.io
-                </a>
+                <a href="{SITE_URL}" style="color:#444;text-decoration:none;">protocolpulse.io</a>
               </p>
-              <p style="margin:8px 0 0;font-size:11px;color:#333;">
-                Protocol Pulse by Consensus Protocol LLC, Naples FL
+              <p style="margin:8px 0 0;font-family:'SFMono-Regular',Consolas,monospace;
+                         font-size:10px;letter-spacing:2px;color:#dc2626;">
+                Verify. Don't trust.
               </p>
             </td>
           </tr>
@@ -255,29 +267,41 @@ def _send_welcome_email(email: str, unsubscribe_token: str) -> bool:
 </body>
 </html>"""
 
-    try:
-        resp = requests.post(
-            f"{RESEND_BASE}/emails",
-            headers={
-                "Authorization": f"Bearer {key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "from": FROM_EMAIL,
-                "to": [email],
-                "subject": "Welcome to Protocol Pulse — You're in the signal ⚡",
-                "html": html,
-            },
-            timeout=15,
-        )
-        if resp.status_code in (200, 201):
-            logger.info("Welcome email sent to %s", email)
-            return True
-        logger.warning("Welcome email failed for %s: HTTP %s", email, resp.status_code)
-        return False
-    except Exception as e:
-        logger.error("Welcome email exception for %s: %s", email, e)
-        return False
+    payload = {
+        "from": FROM_EMAIL,
+        "to": [email],
+        "subject": "Your signal is now active — Protocol Pulse",
+        "html": html,
+    }
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+
+    for attempt in range(2):
+        try:
+            resp = requests.post(
+                f"{RESEND_BASE}/emails",
+                headers=headers,
+                json=payload,
+                timeout=15,
+            )
+            if resp.status_code in (200, 201):
+                logger.info("Welcome email sent to %s", email)
+                return True
+            if attempt == 0:
+                logger.warning("Welcome email attempt 1 failed for %s: HTTP %s, retrying...", email, resp.status_code)
+                import time
+                time.sleep(5)
+                continue
+            logger.warning("Welcome email failed for %s: HTTP %s", email, resp.status_code)
+            return False
+        except Exception as e:
+            if attempt == 0:
+                logger.warning("Welcome email attempt 1 exception for %s: %s, retrying...", email, e)
+                import time
+                time.sleep(5)
+                continue
+            logger.error("Welcome email exception for %s: %s", email, e)
+            return False
+    return False
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────

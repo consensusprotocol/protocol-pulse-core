@@ -15,16 +15,56 @@ import os
 import logging
 import requests
 import json
+import time
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
+# Load .env at module level so RESEND_API_KEY is available in all contexts
+_ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if _ENV_PATH.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(_ENV_PATH, override=False)
+    except ImportError:
+        # Manual .env parsing fallback
+        with open(_ENV_PATH) as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line and not _line.startswith('#') and '=' in _line:
+                    _k, _v = _line.split('=', 1)
+                    _k = _k.strip()
+                    _v = _v.strip().strip('"').strip("'")
+                    if _k and _k not in os.environ:
+                        os.environ[_k] = _v
+
+
+def _resend_post(url: str, key: str, payload: dict, timeout: int = 30) -> requests.Response:
+    """POST to Resend API with retry logic. Retries once after 5s on failure."""
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    try:
+        resp = requests.post(url, headers=headers, json=payload, timeout=timeout)
+        if resp.status_code in (200, 201):
+            return resp
+        # Retry once after 5 seconds
+        logger.warning(f"Resend first attempt failed (HTTP {resp.status_code}), retrying in 5s...")
+        time.sleep(5)
+        resp2 = requests.post(url, headers=headers, json=payload, timeout=timeout)
+        if resp2.status_code not in (200, 201):
+            logger.error(f"Resend retry failed: HTTP {resp2.status_code} — {resp2.text[:300]}")
+        return resp2
+    except Exception as e:
+        logger.warning(f"Resend first attempt exception: {e}, retrying in 5s...")
+        time.sleep(5)
+        return requests.post(url, headers=headers, json=payload, timeout=timeout)
+
 
 class NewsletterEngine:
     def __init__(self):
-        self.resend_key = os.environ.get("RESEND_API_KEY")
-        self.from_email = os.environ.get("NEWSLETTER_FROM_EMAIL", "Protocol Pulse <newsletter@protocolpulse.io>")
+        self.resend_key = os.environ.get("RESEND_API_KEY", "")
+        self.from_email = os.environ.get("NEWSLETTER_FROM_EMAIL", "Protocol Pulse <pulse@protocolpulse.io>")
         self.site_url = os.environ.get("SITE_URL", "https://protocolpulse.io")
 
         if self.resend_key:
@@ -219,37 +259,63 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
         return {"price": 0, "change": 0}
 
     def generate_subject(self, btc_data: Dict, summary: str = "") -> str:
-        """Generate subject line: [THE NUMBER]: [declarative statement]
+        """Generate irresistible subject line from live data.
 
-        Formula: Use the most striking number from today's data,
-        followed by a declarative statement about what the signal shows.
-        Never: "Don't miss", "You won't believe", exclamation marks, emoji.
+        Examples:
+        - "BTC $69K in Extreme Fear. Here's what the network sees."
+        - "Miners capitulating. Institutions accumulating. The divergence."
+        - "$84,200 — hashrate ATH while sentiment bleeds. Read the signal."
         """
         price = btc_data.get("price", 0)
         change = btc_data.get("change", 0)
 
-        # Build the number — BTC price formatted clean
-        if price:
-            the_number = f"{price:,.0f}"
-        else:
-            the_number = "---"
+        # Get Fear & Greed for subject enrichment
+        fg_label = ""
+        fg_value = 0
+        try:
+            ctx_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "sovereign_context", "latest.json")
+            if os.path.exists(ctx_path):
+                with open(ctx_path, 'r') as f:
+                    ctx = json.load(f)
+                fg = ctx.get("fear_greed", {})
+                fg_value = fg.get("value", 0)
+                fg_label = fg.get("label", "")
+        except Exception:
+            pass
 
-        # Build the statement from summary or fallback
+        price_str = f"${price:,.0f}" if price else "$---"
+
+        # Build compelling subject from real data
         if summary:
-            # Take first sentence, strip to under 70 chars total
+            # Use first sentence of AI summary
             statement = summary.split(".")[0].strip()
-            if len(statement) > 60:
-                statement = statement[:57] + "..."
-        else:
-            # Fallback based on price change
-            if change > 2:
-                statement = "Institutional accumulation pattern deepens"
-            elif change < -2:
-                statement = "Weak hands exit as conviction holders accumulate"
+            if len(statement) > 55:
+                statement = statement[:52] + "..."
+            subject = f"{price_str} — {statement}"
+        elif fg_value and fg_label:
+            if fg_value <= 25:
+                subject = f"BTC {price_str} in {fg_label}. Here's what the network sees."
+            elif fg_value >= 75:
+                subject = f"BTC {price_str} in {fg_label}. Distribution watch active."
+            elif change > 3:
+                subject = f"{price_str} — accumulation intensifies. The signal is clear."
+            elif change < -3:
+                subject = f"{price_str} — weak hands exit while conviction deepens."
             else:
-                statement = "Structure holds as sovereign conviction builds"
+                subject = f"{price_str} — {fg_label}. Your morning intelligence."
+        else:
+            if change > 2:
+                subject = f"{price_str} — institutional accumulation pattern deepens"
+            elif change < -2:
+                subject = f"{price_str} — conviction holders accumulate the fear"
+            else:
+                subject = f"{price_str} — structure holds. Your daily signal."
 
-        return f"{the_number}: {statement}"
+        # Ensure subject under 80 chars
+        if len(subject) > 80:
+            subject = subject[:77] + "..."
+
+        return subject
 
     def generate_satomi_watching(self) -> List[Dict]:
         """Pull key metrics from sovereign_context/latest.json for Satomi section."""
@@ -623,7 +689,7 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             btc_data = self.get_btc_price()
             subject = self.generate_subject(btc_data)
 
-        # Send via Resend
+        # Send via Resend with retry logic
         try:
             sent = 0
             errors = []
@@ -632,25 +698,29 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             for i in range(0, len(to_emails), 50):
                 batch = to_emails[i:i+50]
 
-                response = requests.post(
-                    "https://api.resend.com/emails/batch",
-                    headers={
-                        "Authorization": f"Bearer {self.resend_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json=[{
-                        "from": self.from_email,
-                        "to": email,
-                        "subject": subject,
-                        "html": html
-                    } for email in batch],
-                    timeout=30
-                )
+                try:
+                    response = _resend_post(
+                        "https://api.resend.com/emails/batch",
+                        self.resend_key,
+                        [{
+                            "from": self.from_email,
+                            "to": email,
+                            "subject": subject,
+                            "html": html
+                        } for email in batch],
+                        timeout=30
+                    )
 
-                if response.status_code == 200:
-                    sent += len(batch)
-                else:
-                    errors.append(f"Batch {i}: {response.text}")
+                    if response.status_code in (200, 201):
+                        sent += len(batch)
+                    else:
+                        err_msg = f"Batch {i}: HTTP {response.status_code} — {response.text[:200]}"
+                        errors.append(err_msg)
+                        logger.error(f"Newsletter batch failed: {err_msg}")
+                except Exception as batch_err:
+                    err_msg = f"Batch {i}: {str(batch_err)}"
+                    errors.append(err_msg)
+                    logger.error(f"Newsletter batch exception: {err_msg}")
 
             return {
                 "success": sent > 0,
@@ -660,6 +730,7 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             }
 
         except Exception as e:
+            logger.error(f"Newsletter send failed completely: {e}")
             return {"success": False, "error": str(e)}
 
     def get_subscribers(self) -> List[str]:
