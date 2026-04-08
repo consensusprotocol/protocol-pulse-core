@@ -5588,59 +5588,77 @@ def _fetch_onchain() -> dict:
         # Blocks to halving: next halving at block 1,050,000
         blocks_to_halving = max(0, 1_050_000 - block_height)
 
-        # ── MVRV + Puell: derive from sovereign context + circulating supply ──
+        # ── MVRV + Puell: prefer real Glassnode values from scraper, fall back to derived ──
         mvrv_val = None
         puell_val = None
+        mvrv_source = "derived"
+        puell_source = "derived"
         try:
-            btc_price = 0
-            market_cap = 0
-
-            # Source 1: sovereign context (already loaded above)
-            if sov_ctx:
-                btc_info = sov_ctx.get("btc", {})
-                btc_price = btc_info.get("price", 0) or 0
-                market_cap = btc_info.get("market_cap", 0) or 0
-
-            # Source 2: read sovereign context JSON directly
-            if not btc_price:
+            # Priority 1: real scraped values from pro_metrics_cache.json (< 24hrs old)
+            try:
                 import json as _json
-                try:
-                    with open("/home/ultron/protocol_pulse/data/sovereign_context/latest.json") as _f:
-                        _sov = _json.load(_f)
-                    btc_info = _sov.get("btc", {})
+                from datetime import timezone as _tz
+                with open("/home/ultron/protocol_pulse/data/pro_metrics_cache.json") as _pmf:
+                    _pm = _json.load(_pmf)
+                _cutoff = (datetime.utcnow() - timedelta(hours=24)).isoformat() + "+00:00"
+                # MVRV Z-Score
+                _mvrv_entry = _pm.get("mvrv_zscore", {})
+                if (_mvrv_entry.get("value") is not None
+                        and (_mvrv_entry.get("scraped_at", "") > _cutoff)):
+                    mvrv_val = round(_mvrv_entry["value"], 2)
+                    mvrv_source = "glassnode"
+                # Puell Multiple
+                _puell_entry = _pm.get("puell_multiple", {})
+                if (_puell_entry.get("value") is not None
+                        and (_puell_entry.get("scraped_at", "") > _cutoff)):
+                    puell_val = round(_puell_entry["value"], 2)
+                    puell_source = "glassnode"
+            except Exception:
+                pass
+
+            # Priority 2: derived approximations (existing logic)
+            if mvrv_val is None or puell_val is None:
+                btc_price = 0
+                market_cap = 0
+
+                if sov_ctx:
+                    btc_info = sov_ctx.get("btc", {})
                     btc_price = btc_info.get("price", 0) or 0
                     market_cap = btc_info.get("market_cap", 0) or 0
-                except Exception:
-                    pass
 
-            # Source 3: signals cache
-            if not btc_price:
-                import json as _json
-                try:
-                    with open("/home/ultron/protocol_pulse/data/signals.json") as _f:
-                        sig = _json.load(_f)
-                    btc_price = sig.get("btc_price", 0)
-                except Exception:
-                    pass
+                if not btc_price:
+                    import json as _json
+                    try:
+                        with open("/home/ultron/protocol_pulse/data/sovereign_context/latest.json") as _f:
+                            _sov = _json.load(_f)
+                        btc_info = _sov.get("btc", {})
+                        btc_price = btc_info.get("price", 0) or 0
+                        market_cap = btc_info.get("market_cap", 0) or 0
+                    except Exception:
+                        pass
 
-            if not market_cap and btc_price:
-                market_cap = circulating * btc_price
+                if not btc_price:
+                    import json as _json
+                    try:
+                        with open("/home/ultron/protocol_pulse/data/signals.json") as _f:
+                            sig = _json.load(_f)
+                        btc_price = sig.get("btc_price", 0)
+                    except Exception:
+                        pass
 
-            if market_cap and btc_price:
-                # Realized cap estimate: weighted avg cost basis of all coins
-                # BTC traded above $30K since Jan 2024 — realized cap ~$600-700B
-                # Updated quarterly: Q2 2026 estimate ~$650B (conservative)
-                realized_cap_est = 650_000_000_000
-                mvrv_val = round(market_cap / realized_cap_est, 2)
+                if not market_cap and btc_price:
+                    market_cap = circulating * btc_price
 
-                # ── Puell Multiple: daily issuance USD / 365-day MA of daily issuance ──
-                # daily_issuance = 144 blocks * 3.125 BTC * current_price
-                daily_issuance_usd = 144 * 3.125 * btc_price
-                # 365d MA approximation: avg BTC price over trailing year (~$65K)
-                avg_price_365d = 65_000
-                daily_issuance_365d_ma = 144 * 3.125 * avg_price_365d
-                if daily_issuance_365d_ma > 0:
-                    puell_val = round(daily_issuance_usd / daily_issuance_365d_ma, 2)
+                if market_cap and btc_price:
+                    if mvrv_val is None:
+                        realized_cap_est = 650_000_000_000
+                        mvrv_val = round(market_cap / realized_cap_est, 2)
+                    if puell_val is None:
+                        daily_issuance_usd = 144 * 3.125 * btc_price
+                        avg_price_365d = 65_000
+                        daily_issuance_365d_ma = 144 * 3.125 * avg_price_365d
+                        if daily_issuance_365d_ma > 0:
+                            puell_val = round(daily_issuance_usd / daily_issuance_365d_ma, 2)
         except Exception as _mvrv_err:
             logging.warning("MVRV/Puell calc error: %s", _mvrv_err)
 
@@ -5655,11 +5673,13 @@ def _fetch_onchain() -> dict:
             "remain_time_s": remain_time,
             "block_height": block_height,
             "blocks_to_halving": f"{blocks_to_halving:,}",
-            # MVRV: derived from market cap / estimated realized cap
+            # MVRV: real Glassnode when available, else derived
             "mvrv": mvrv_val,
+            "mvrv_source": mvrv_source,
             "mvrv_locked": False,
-            # Puell Multiple: derived from daily issuance vs 365d MA
+            # Puell Multiple: real Glassnode when available, else derived
             "puell_multiple": puell_val,
+            "puell_source": puell_source,
             "puell_locked": False,
             # S2F: calculated
             "s2f": f"{s2f_ratio} (${s2f_model_price:,})",
@@ -7039,6 +7059,78 @@ def api_media_meta_briefing():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 503
+
+
+# ── Intelligence Chart Screenshots API ──────────────────────────────────────
+
+_INTELLIGENCE_SCREENSHOTS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "data", "intelligence_screenshots"
+)
+
+# Metadata for known chart types
+_CHART_META = {
+    "glassnode_puell_multiple": {"name": "Puell Multiple", "source": "Glassnode"},
+    "glassnode_mvrv_zscore": {"name": "MVRV Z-Score", "source": "Glassnode"},
+    "glassnode_sopr": {"name": "SOPR", "source": "Glassnode"},
+    "cryptoquant_exchange_reserve": {"name": "Exchange Reserve", "source": "CryptoQuant"},
+    "cryptoquant_fund_flow": {"name": "Fund Flow Ratio", "source": "CryptoQuant"},
+}
+
+
+@api_bp.route("/api/intelligence/charts")
+def api_intelligence_charts_list():
+    """List available intelligence chart screenshots (latest per metric)."""
+    try:
+        if not os.path.isdir(_INTELLIGENCE_SCREENSHOTS_DIR):
+            return jsonify({"charts": [], "ts": datetime.utcnow().isoformat()})
+        files = sorted(os.listdir(_INTELLIGENCE_SCREENSHOTS_DIR), reverse=True)
+        seen = {}
+        for fname in files:
+            if not fname.endswith(".png"):
+                continue
+            # filename format: {source}_{metric}_{YYYYMMDD}_{HHMMSS}.png
+            # e.g. cryptoquant_exchange_reserve_20260408_044328.png
+            parts = fname.rsplit("_", 2)
+            if len(parts) < 3:
+                continue
+            metric_key = fname.rsplit("_", 2)[0]  # e.g. "cryptoquant_exchange_reserve"
+            if metric_key in seen:
+                continue
+            # Extract timestamp from filename
+            try:
+                ts_str = parts[-2] + parts[-1].replace(".png", "")  # YYYYMMDDHHMMSS
+                ts = datetime.strptime(ts_str, "%Y%m%d%H%M%S")
+                ts_iso = ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+            except (ValueError, IndexError):
+                ts_iso = None
+            meta = _CHART_META.get(metric_key, {"name": metric_key.replace("_", " ").title(), "source": "unknown"})
+            seen[metric_key] = {
+                "filename": fname,
+                "metric": metric_key,
+                "name": meta["name"],
+                "source": meta["source"],
+                "url": f"/api/intelligence/charts/{fname}",
+                "updated_at": ts_iso,
+            }
+        return jsonify({
+            "charts": list(seen.values()),
+            "ts": datetime.utcnow().isoformat(),
+        })
+    except Exception as e:
+        logging.warning("intelligence charts list error: %s", e)
+        return jsonify({"charts": [], "error": str(e)}), 500
+
+
+@api_bp.route("/api/intelligence/charts/<path:filename>")
+def api_intelligence_charts_serve(filename):
+    """Serve an intelligence chart screenshot image."""
+    safe = secure_filename(filename)
+    if not safe or not safe.endswith(".png"):
+        abort(404)
+    return send_from_directory(_INTELLIGENCE_SCREENSHOTS_DIR, safe,
+                               mimetype="image/png",
+                               max_age=300)
 
 
 # ── KOL Sentiment Brief API ─────────────────────────────────────────────────

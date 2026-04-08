@@ -1353,6 +1353,24 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         {% endif %}
     </div>
 
+    <!-- ON-CHAIN CHARTS (Selenium-scraped Glassnode/CryptoQuant) -->
+    <div class="panel {{ 'locked' if not is_commander else '' }}" id="onchain-charts-panel">
+        <div class="panel-header">
+            <span class="panel-label">ON-CHAIN CHARTS</span>
+            <span class="panel-badge live">LIVE</span>
+        </div>
+        <div id="onchain-charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px;">
+            <div style="color:rgba(255,255,255,0.15);font-size:10px;grid-column:1/-1;">Loading charts...</div>
+        </div>
+        {% if not is_commander %}
+        <div class="lock-overlay">
+            <div class="lock-icon">&#128274;</div>
+            <div class="lock-text">COMMANDER ACCESS</div>
+            <a href="/terminal/checkout" class="lock-cta">UNLOCK $29/MO</a>
+        </div>
+        {% endif %}
+    </div>
+
     <!-- Lightning Network -->
     <div class="panel">
         <div class="panel-header">
@@ -2993,6 +3011,39 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
   setInterval(renderProMetrics, 60000);
 })();
 
+
+/* ═══ ON-CHAIN CHARTS (Selenium screenshots) ═══ */
+(function(){
+  var grid = document.getElementById('onchain-charts-grid');
+  if (!grid) return;
+  function loadCharts() {
+    fetch('/api/intelligence/charts').then(function(r){return r.json()}).then(function(d){
+      var charts = d.charts || [];
+      if (!charts.length) {
+        grid.innerHTML = '<div style="color:rgba(255,255,255,0.2);font-size:10px;grid-column:1/-1;text-align:center;padding:12px 0;">No chart data available yet</div>';
+        return;
+      }
+      var html = '';
+      charts.forEach(function(c) {
+        var ts = c.updated_at ? new Date(c.updated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}) : '—';
+        html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">';
+        html += '<div style="padding:6px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);">';
+        html += '<span style="font-size:10px;font-weight:800;letter-spacing:0.08em;color:#a855f7;">'+c.name.toUpperCase()+'</span>';
+        html += '<span style="font-size:8px;color:rgba(255,255,255,0.25);font-family:monospace;">'+c.source+'</span>';
+        html += '</div>';
+        html += '<img src="'+c.url+'" alt="'+c.name+'" loading="lazy" style="width:100%;height:auto;display:block;{% if not is_commander %}filter:blur(6px);{% endif %}">';
+        html += '<div style="padding:4px 8px;font-size:8px;color:rgba(255,255,255,0.2);font-family:monospace;">Updated '+ts+'</div>';
+        html += '</div>';
+      });
+      grid.innerHTML = html;
+    }).catch(function(e){
+      console.warn('Intelligence charts:', e);
+      grid.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:10px;grid-column:1/-1;">Charts unavailable</div>';
+    });
+  }
+  setTimeout(loadCharts, 1500);
+  setInterval(loadCharts, 300000);
+})();
 
 /* ═══ INDICES → RADAR CROSS-LINK ═══ */
 (function(){
