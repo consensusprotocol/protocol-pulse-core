@@ -44,6 +44,212 @@ logging.basicConfig(
 )
 logger = logging.getLogger("reply_engine")
 
+# ═══════════════════════════════════════════════════════
+# VOICE LAWS — the rules PBX replies live by
+# ═══════════════════════════════════════════════════════
+VOICE_LAWS = [
+    "Max 240 characters. Every word earns its spot or gets cut.",
+    "No emojis except rare ₿ symbol when contextually earned.",
+    "No hashtags. Ever. Hashtags are billboard energy, not bar talk.",
+    "No 'gm', 'wagmi', 'lfg', or crypto-bro catchphrases.",
+    "No sycophancy. Never open with praise of the original poster.",
+    "Never start with 'Great point', 'This', 'So true', 'Exactly', or 'Love this'.",
+    "Lead with data or a sharp observation. Not a vibe.",
+    "Bitcoin maximalist framing. Altcoins are noise unless the context demands acknowledgment.",
+    "Sound like a human who happens to be well-informed, not a bot who read the wiki.",
+    "No hedging phrases: 'I think', 'In my opinion', 'It seems like', 'Could be wrong but'.",
+    "Contrarian when the crowd is wrong. Direct when the data is clear.",
+    "One idea per reply. No compound sentences chained with semicolons.",
+    "Period at the end. Not an ellipsis. Not a question mark fishing for engagement.",
+]
+
+GENERATE_REPLY_SYSTEM = """You are PBX, the voice of Protocol Pulse — a Bitcoin intelligence account.
+
+You write replies to social media posts. Your voice:
+- Short, punchy, no filler
+- Data-driven when possible (reference real metrics)
+- Bitcoin maximalist framing
+- Sounds like the smartest person at a Bitcoin meetup typing on their phone
+- Never sycophantic, always direct
+- Under 240 chars for Twitter replies
+
+Voice samples (this is how you write):
+- "The denominator shrinks while Congress stacks. Actions speak."
+- "953 EH/s of hashrate. 1 sat/vB fees. Fear index at 17. The network doesn't care about your feelings."
+- "Goldman hired 10K AI engineers while Morgan fired 4K. The signal is in the delta."
+- "They'll tell you it's too late. The network tells you it's too early."
+
+VOICE LAWS:
+{voice_laws}
+
+RULES:
+- Output ONLY the reply text. No quotes, no labels, no explanation.
+- If the original post is wrong, say so directly with data.
+- If the original post is right, add a sharper angle or supporting data.
+- Never repeat what the original post already said."""
+
+GENERATE_REPLY_USER = """CONTEXT (background intel, if any):
+{context}
+
+ORIGINAL POST (you are replying to this):
+{original_post}
+
+Write one reply. Under 240 characters. Raw text only."""
+
+
+def _format_voice_laws():
+    return "\n".join(f"- {law}" for law in VOICE_LAWS)
+
+
+def _call_anthropic_reply(prompt_text: str) -> str:
+    """Call Claude Haiku for reply generation. Returns text or empty string."""
+    api_key = ANTHROPIC_API_KEY or os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        logger.warning("No ANTHROPIC_API_KEY for reply generation")
+        return ""
+    try:
+        payload = {
+            "model": "claude-haiku-4-5-20251001",
+            "max_tokens": 300,
+            "system": GENERATE_REPLY_SYSTEM.format(voice_laws=_format_voice_laws()),
+            "messages": [{"role": "user", "content": prompt_text}],
+        }
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=json.dumps(payload).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "User-Agent": "ProtocolPulse/1.0",
+            },
+        )
+        resp = urllib.request.urlopen(req, timeout=30)
+        data = json.loads(resp.read())
+        text = data.get("content", [{}])[0].get("text", "").strip()
+        if text:
+            logger.info("Reply generated via Claude Haiku")
+        return text
+    except Exception as e:
+        logger.warning("Claude Haiku reply failed: %s", e)
+        return ""
+
+
+def _call_gemini_reply(prompt_text: str) -> str:
+    """Gemini fallback for reply generation."""
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    if not gemini_key:
+        return ""
+    try:
+        system_text = GENERATE_REPLY_SYSTEM.format(voice_laws=_format_voice_laws())
+        full_prompt = system_text + "\n\n" + prompt_text
+        gpayload = json.dumps({
+            "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
+            "generationConfig": {"maxOutputTokens": 300, "temperature": 0.7},
+        }).encode()
+        req = urllib.request.Request(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
+            data=gpayload,
+            headers={"Content-Type": "application/json"},
+        )
+        resp = urllib.request.urlopen(req, timeout=30)
+        data = json.loads(resp.read())
+        parts = data["candidates"][0]["content"]["parts"]
+        content = ""
+        for p in reversed(parts):
+            if not p.get("thought") and p.get("text"):
+                content = p["text"].strip()
+                break
+        if content:
+            logger.info("Reply generated via Gemini fallback")
+        return content
+    except Exception as e:
+        logger.warning("Gemini reply fallback failed: %s", e)
+        return ""
+
+
+def _call_grok_reply(prompt_text: str) -> str:
+    """Grok/xAI fallback for reply generation."""
+    xai_key = os.environ.get("XAI_API_KEY", "")
+    if not xai_key:
+        return ""
+    try:
+        system_text = GENERATE_REPLY_SYSTEM.format(voice_laws=_format_voice_laws())
+        gpayload = json.dumps({
+            "model": "grok-3-mini-fast",
+            "messages": [
+                {"role": "system", "content": system_text},
+                {"role": "user", "content": prompt_text},
+            ],
+            "max_tokens": 300,
+            "temperature": 0.7,
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.x.ai/v1/chat/completions",
+            data=gpayload,
+            headers={
+                "Authorization": f"Bearer {xai_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        resp = urllib.request.urlopen(req, timeout=30)
+        data = json.loads(resp.read())
+        content = data["choices"][0]["message"]["content"].strip()
+        if content:
+            logger.info("Reply generated via Grok/xAI fallback")
+        return content
+    except Exception as e:
+        logger.warning("Grok reply fallback failed: %s", e)
+        return ""
+
+
+def _clean_reply(text: str) -> str:
+    """Strip quotes, labels, and enforce 240 char limit."""
+    if not text:
+        return ""
+    if (text.startswith('"') and text.endswith('"')) or \
+       (text.startswith("'") and text.endswith("'")):
+        text = text[1:-1]
+    for prefix in ["Reply:", "REPLY:", "Response:", "PBX:"]:
+        if text.startswith(prefix):
+            text = text[len(prefix):].strip()
+    if len(text) > 240:
+        cut = text[:240].rfind(" ")
+        text = text[:cut] + "." if cut > 180 else text[:240]
+    return text.strip()
+
+
+def generate_reply(context: str, original_post: str) -> str:
+    """
+    Generate a PBX-voice reply to a social media post.
+
+    Args:
+        context: Background intel (market data, recent signals, etc.)
+        original_post: The post being replied to
+
+    Returns:
+        A single reply string, under 240 chars.
+    """
+    prompt_text = GENERATE_REPLY_USER.format(
+        context=context or "No additional context.",
+        original_post=original_post,
+    )
+    # Three-tier fallback: Anthropic → Gemini → Grok
+    reply = _call_anthropic_reply(prompt_text)
+    if not reply:
+        reply = _call_gemini_reply(prompt_text)
+    if not reply:
+        reply = _call_grok_reply(prompt_text)
+    if not reply:
+        logger.error("All LLM providers failed for reply generation")
+        return ""
+    return _clean_reply(reply)
+
+
+# ═══════════════════════════════════════════════════════
+# LEGACY MENTION-MONITORING SYSTEM (below)
+# ═══════════════════════════════════════════════════════
+
 REPLY_DRAFT_PROMPT = """You are the person behind Protocol Pulse, a Bitcoin intelligence account.
 You type like someone on their phone who happens to know more about on-chain data, macro,
 and monetary history than almost anyone in the room.
