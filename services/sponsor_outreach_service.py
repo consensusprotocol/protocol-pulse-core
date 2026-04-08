@@ -463,6 +463,152 @@ def seed_default_guests():
     return count
 
 
+# ── Default Sponsor Prospects ────────────────────────────────────────────────
+
+DEFAULT_SPONSORS = [
+    {"company": "River Financial", "email": "", "category": "exchange", "website": "river.com"},
+    {"company": "Swan Bitcoin", "email": "", "category": "exchange", "website": "swanbitcoin.com"},
+    {"company": "Unchained Capital", "email": "", "category": "custody", "website": "unchained.com"},
+    {"company": "Foundation Devices", "email": "", "category": "hardware_wallet", "website": "foundationdevices.com"},
+    {"company": "Coinkite", "email": "", "category": "hardware_wallet", "website": "coinkite.com"},
+    {"company": "Start9", "email": "", "category": "node", "website": "start9.com"},
+    {"company": "Blockstream", "email": "", "category": "infrastructure", "website": "blockstream.com"},
+    {"company": "Zaprite", "email": "", "category": "payments", "website": "zaprite.com"},
+    {"company": "Fold App", "email": "", "category": "rewards", "website": "foldapp.com"},
+    {"company": "Strike", "email": "", "category": "payments", "website": "strike.me"},
+    {"company": "Bitkey", "email": "", "category": "hardware_wallet", "website": "bitkey.world"},
+    {"company": "Compass Mining", "email": "", "category": "mining", "website": "compassmining.io"},
+    {"company": "Riot Platforms", "email": "", "category": "mining", "website": "riotplatforms.com"},
+    {"company": "Marathon Digital", "email": "", "category": "mining", "website": "mara.com"},
+    {"company": "Braiins", "email": "", "category": "mining_software", "website": "braiins.com"},
+    {"company": "Mempool.space", "email": "", "category": "explorer", "website": "mempool.space"},
+    {"company": "BTCPay Server", "email": "", "category": "payments", "website": "btcpayserver.org"},
+    {"company": "Wasabi Wallet", "email": "", "category": "privacy", "website": "wasabiwallet.io"},
+    {"company": "Bull Bitcoin", "email": "", "category": "exchange", "website": "bullbitcoin.com"},
+    {"company": "CoinCards", "email": "", "category": "gift_cards", "website": "coincards.com"},
+]
+
+
+def seed_default_sponsors():
+    """Seed the sponsor pipeline with default Bitcoin company prospects if empty."""
+    from app import db
+    from models import SponsorOutreach
+
+    if SponsorOutreach.query.first():
+        return 0
+
+    count = 0
+    for s in DEFAULT_SPONSORS:
+        prospect = SponsorOutreach(
+            company=s["company"],
+            domain=s["website"],
+            email=s["email"],
+            category=s["category"],
+            status="prospect",
+        )
+        db.session.add(prospect)
+        count += 1
+
+    db.session.commit()
+    logger.info("Seeded %d default sponsor prospects", count)
+    return count
+
+
+def list_sponsors(status_filter: str = None) -> List[Dict]:
+    """List all sponsor prospects, optionally filtered by status."""
+    from models import SponsorOutreach, OutreachEmail
+
+    query = SponsorOutreach.query.order_by(SponsorOutreach.created_at.desc())
+    if status_filter:
+        query = query.filter(SponsorOutreach.status == status_filter)
+
+    results = []
+    for s in query.all():
+        emails_sent = OutreachEmail.query.filter_by(
+            outreach_type="sponsor",
+            recipient_email=s.email,
+        ).count() if s.email else 0
+
+        results.append({
+            "id": s.id,
+            "company": s.company,
+            "domain": s.domain,
+            "email": s.email or "(no email)",
+            "category": s.category or "general",
+            "status": s.status,
+            "emails_sent": emails_sent,
+            "deal_value": s.deal_value,
+            "last_contact": s.sent_at.strftime("%Y-%m-%d") if s.sent_at else "never",
+            "notes": s.notes or "",
+        })
+    return results
+
+
+def add_sponsor(company: str, email: str, category: str = "general", domain: str = "", notes: str = "") -> Dict:
+    """Add a new sponsor prospect to the CRM."""
+    from app import db
+    from models import SponsorOutreach
+
+    if not domain:
+        # Extract domain from email
+        domain = email.split("@")[1] if "@" in email else company.lower().replace(" ", "") + ".com"
+
+    existing = SponsorOutreach.query.filter_by(domain=domain).first()
+    if existing:
+        return {"error": f"Prospect with domain {domain} already exists (ID: {existing.id})"}
+
+    prospect = SponsorOutreach(
+        company=company,
+        domain=domain,
+        email=email,
+        category=category,
+        status="prospect",
+        notes=notes,
+    )
+    db.session.add(prospect)
+    db.session.commit()
+    logger.info("Added sponsor prospect: %s (%s)", company, email)
+    return {"id": prospect.id, "company": company, "email": email, "status": "prospect"}
+
+
+def draft_outreach(company_name: str) -> Dict:
+    """Generate a draft outreach email for a sponsor prospect (does not send)."""
+    from models import SponsorOutreach, OutreachEmail
+
+    prospect = SponsorOutreach.query.filter(
+        SponsorOutreach.company.ilike(f"%{company_name}%")
+    ).first()
+
+    if not prospect:
+        return {"error": f"No prospect found matching '{company_name}'"}
+
+    # Determine sequence step
+    emails_sent = OutreachEmail.query.filter_by(
+        outreach_type="sponsor",
+        recipient_email=prospect.email,
+    ).count() if prospect.email else 0
+
+    step = min(emails_sent, len(SPONSOR_SEQUENCE) - 1)
+    contact_name = prospect.company.split()[0] if prospect.company else "there"
+
+    email_data = generate_sponsor_email(
+        company=prospect.company,
+        contact_name=contact_name,
+        category=prospect.category or "Bitcoin",
+        sequence_step=step,
+    )
+
+    return {
+        "prospect_id": prospect.id,
+        "company": prospect.company,
+        "to": prospect.email or "(no email set)",
+        "sequence_step": step,
+        "subject": email_data["subject"],
+        "body": email_data["body"],
+        "note": "Draft only — not sent. Use 'sponsor-outreach' to send.",
+    }
+
+
 # ── Campaign Metrics ────────────────────────────────────────────────────────
 
 def get_campaign_metrics(campaign_id: int, days_back: int = 30) -> Dict:
@@ -552,20 +698,132 @@ def get_campaign_metrics(campaign_id: int, days_back: int = 30) -> Dict:
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "seed-guests":
-        from app import app
-        with app.app_context():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Protocol Pulse Sponsor Agent — CRM & Outreach",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument("--list", action="store_true", help="List all sponsor prospects")
+    parser.add_argument("--list-status", type=str, metavar="STATUS",
+                        help="Filter prospects by status (prospect/contacted/replied/closed)")
+    parser.add_argument("--add", nargs=2, metavar=("COMPANY", "EMAIL"),
+                        help='Add a new prospect: --add "Company Name" "email@company.com"')
+    parser.add_argument("--add-category", type=str, default="general",
+                        help="Category for --add (exchange/wallet/mining/custody/payments/etc)")
+    parser.add_argument("--draft", type=str, metavar="COMPANY",
+                        help='Generate draft outreach email: --draft "Company Name"')
+    parser.add_argument("--tiers", action="store_true",
+                        help="Show sponsorship tier pricing based on current audience metrics")
+    parser.add_argument("--metrics", action="store_true",
+                        help="Show aggregate audience metrics for sponsorship deck")
+    parser.add_argument("--seed-sponsors", action="store_true",
+                        help="Seed default Bitcoin company prospects")
+    parser.add_argument("--seed-guests", action="store_true",
+                        help="Seed default podcast guest targets")
+    parser.add_argument("--sponsor-outreach", action="store_true",
+                        help="Run daily sponsor drip campaign (sends emails)")
+    parser.add_argument("--guest-outreach", action="store_true",
+                        help="Run daily guest booking drip campaign (sends emails)")
+
+    args = parser.parse_args()
+
+    # Route to app context — add project root, core/, and services/ to resolve all imports
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    services_dir = os.path.join(project_root, "services")
+    core_dir = os.path.join(project_root, "core")
+    for p in [project_root, services_dir, core_dir]:
+        if p not in sys.path:
+            sys.path.insert(0, p)
+    from app import app
+
+    with app.app_context():
+        if args.list or args.list_status:
+            prospects = list_sponsors(status_filter=args.list_status)
+            if not prospects:
+                print("No sponsor prospects found. Run --seed-sponsors to add defaults.")
+            else:
+                print(f"\n{'ID':>4}  {'Company':<22} {'Email':<30} {'Category':<15} {'Status':<12} {'Sent':>4}  {'Last Contact':<12}  Notes")
+                print("-" * 140)
+                for p in prospects:
+                    notes_preview = (p['notes'][:30] + '...') if len(p['notes']) > 30 else p['notes']
+                    print(f"{p['id']:>4}  {p['company']:<22} {p['email']:<30} {p['category']:<15} {p['status']:<12} {p['emails_sent']:>4}  {p['last_contact']:<12}  {notes_preview}")
+                print(f"\nTotal: {len(prospects)} prospects")
+
+        elif args.add:
+            result = add_sponsor(
+                company=args.add[0],
+                email=args.add[1],
+                category=args.add_category,
+            )
+            if "error" in result:
+                print(f"ERROR: {result['error']}")
+            else:
+                print(f"Added: {result['company']} ({result['email']}) — ID: {result['id']}")
+
+        elif args.draft:
+            result = draft_outreach(args.draft)
+            if "error" in result:
+                print(f"ERROR: {result['error']}")
+            else:
+                print(f"\n{'='*60}")
+                print(f"DRAFT OUTREACH — {result['company']}")
+                print(f"{'='*60}")
+                print(f"To: {result['to']}")
+                print(f"Step: {result['sequence_step']} of {len(SPONSOR_SEQUENCE)}")
+                print(f"Subject: {result['subject']}")
+                print(f"\n--- Body ---")
+                # Strip HTML for terminal display
+                import re
+                body_text = re.sub(r'<[^>]+>', '', result['body']).strip()
+                body_text = re.sub(r'\n{3,}', '\n\n', body_text)
+                print(body_text)
+                print(f"\n{result['note']}")
+
+        elif args.tiers:
+            from sponsorship_metrics_service import get_sponsorship_tiers
+            tiers = get_sponsorship_tiers()
+            print(f"\n{'='*60}")
+            print("PROTOCOL PULSE — SPONSORSHIP TIERS")
+            print(f"{'='*60}")
+            for t in tiers["tiers"]:
+                print(f"\n  {t['name']} — ${t['price_usd']}/mo")
+                for item in t["includes"]:
+                    print(f"    - {item}")
+                print(f"    Est. CPM: ${t['estimated_cpm']:.2f}")
+            print(f"\nAudience basis:")
+            print(f"  Newsletter subscribers: {tiers['audience']['newsletter_subscribers']:,}")
+            print(f"  Monthly site visitors: {tiers['audience']['monthly_site_visitors']:,}")
+            print(f"  Social reach: {tiers['audience']['social_reach']:,}")
+            print(f"\nGenerated: {tiers['generated_at']}")
+
+        elif args.metrics:
+            from sponsorship_metrics_service import get_sponsorship_metrics
+            from app import db
+            metrics = get_sponsorship_metrics(db_session=db.session, days_back=30)
+            print(f"\n{'='*60}")
+            print("PROTOCOL PULSE — AUDIENCE METRICS (30-day)")
+            print(f"{'='*60}")
+            print(f"  YouTube views: {metrics['youtube_views']:,} (source: {metrics['youtube_source']})")
+            print(f"  Website unique visits: {metrics['website_unique_visits']:,} (source: {metrics['website_source']})")
+            print(f"  Social impressions: {metrics['social_impressions']:,} (source: {metrics['social_source']})")
+            print(f"\nGenerated: {metrics['generated_at']}")
+
+        elif args.seed_sponsors:
+            n = seed_default_sponsors()
+            print(f"Seeded {n} sponsor prospects")
+
+        elif args.seed_guests:
             n = seed_default_guests()
             print(f"Seeded {n} guests")
-    elif len(sys.argv) > 1 and sys.argv[1] == "sponsor-outreach":
-        from app import app
-        with app.app_context():
+
+        elif args.sponsor_outreach:
             r = run_daily_sponsor_outreach()
             print(f"Sponsor outreach: {r}")
-    elif len(sys.argv) > 1 and sys.argv[1] == "guest-outreach":
-        from app import app
-        with app.app_context():
+
+        elif args.guest_outreach:
             r = run_daily_guest_outreach()
             print(f"Guest outreach: {r}")
-    else:
-        print("Usage: python -m services.sponsor_outreach_service [seed-guests|sponsor-outreach|guest-outreach]")
+
+        else:
+            parser.print_help()

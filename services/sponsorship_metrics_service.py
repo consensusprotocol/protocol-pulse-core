@@ -105,3 +105,114 @@ def get_sponsorship_metrics(
                 logger.warning("X analytics CSV read failed: %s", e)
 
     return out
+
+
+# ── Sponsorship Tier Calculator ─────────────────────────────────────────────
+
+SPONSORSHIP_TIERS = [
+    {
+        "name": "Signal",
+        "price_usd": 500,
+        "includes": [
+            "Newsletter mention (1x/week)",
+            "1 article mention per month",
+            "Logo on sponsors page",
+        ],
+    },
+    {
+        "name": "Broadcast",
+        "price_usd": 1000,
+        "includes": [
+            "Newsletter banner (every issue)",
+            "2 article mentions per month",
+            "1 social post per week (X + Nostr)",
+            "Logo on sponsors page",
+            "Monthly performance report",
+        ],
+    },
+    {
+        "name": "Full Stack",
+        "price_usd": 2500,
+        "includes": [
+            "Newsletter banner (every issue)",
+            "Unlimited article mentions",
+            "Cypherpunkd podcast mention (host-read)",
+            "2 social posts per week (X + Nostr)",
+            "Homepage banner placement",
+            "Pulse Check video mention",
+            "Dedicated sponsor dashboard",
+            "Weekly performance report",
+        ],
+    },
+]
+
+
+def get_sponsorship_tiers(
+    data_dir: Path = None,
+    db_session=None,
+) -> Dict[str, Any]:
+    """
+    Calculate sponsorship tier pricing with estimated CPM based on current audience metrics.
+    """
+    metrics = get_sponsorship_metrics(data_dir=data_dir, db_session=db_session, days_back=30)
+
+    # Audience numbers for CPM calculation
+    newsletter_subs = _get_newsletter_count(db_session)
+    monthly_visitors = metrics["website_unique_visits"]
+    social_reach = metrics["social_impressions"]
+
+    # Total monthly reach estimate (newsletter sends + site visitors + social)
+    # Newsletter: ~20 sends/mo * subscribers
+    newsletter_monthly_impressions = newsletter_subs * 20
+    total_monthly_reach = newsletter_monthly_impressions + monthly_visitors + social_reach
+
+    tiers_out = []
+    for tier in SPONSORSHIP_TIERS:
+        # Estimate impressions per tier based on placement coverage
+        if tier["name"] == "Signal":
+            est_impressions = newsletter_monthly_impressions * 0.3 + monthly_visitors * 0.05
+        elif tier["name"] == "Broadcast":
+            est_impressions = newsletter_monthly_impressions + monthly_visitors * 0.15 + social_reach * 0.1
+        else:  # Full Stack
+            est_impressions = newsletter_monthly_impressions + monthly_visitors * 0.4 + social_reach * 0.3
+
+        est_cpm = (tier["price_usd"] / max(est_impressions / 1000, 1)) if est_impressions > 0 else 0
+
+        tiers_out.append({
+            "name": tier["name"],
+            "price_usd": tier["price_usd"],
+            "includes": tier["includes"],
+            "estimated_impressions": int(est_impressions),
+            "estimated_cpm": round(est_cpm, 2),
+        })
+
+    return {
+        "tiers": tiers_out,
+        "audience": {
+            "newsletter_subscribers": newsletter_subs,
+            "monthly_site_visitors": monthly_visitors,
+            "social_reach": social_reach,
+            "total_monthly_reach": total_monthly_reach,
+        },
+        "generated_at": datetime.utcnow().isoformat(),
+    }
+
+
+def _get_newsletter_count(db_session=None) -> int:
+    """Get current newsletter subscriber count."""
+    if db_session is None:
+        return 0
+    try:
+        from core.models import NewsletterSubscriber
+        return db_session.query(NewsletterSubscriber).filter(
+            NewsletterSubscriber.subscribed == True
+        ).count()
+    except Exception:
+        try:
+            from models import NewsletterSubscriber
+            return db_session.query(NewsletterSubscriber).filter(
+                NewsletterSubscriber.subscribed == True
+            ).count()
+        except Exception as e:
+            logger.warning("Newsletter subscriber count failed: %s", e)
+            return 0
