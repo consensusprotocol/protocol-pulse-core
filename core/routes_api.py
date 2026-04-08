@@ -7080,7 +7080,10 @@ _CHART_META = {
 
 @api_bp.route("/api/intelligence/charts")
 def api_intelligence_charts_list():
-    """List available intelligence chart screenshots (latest per metric)."""
+    """List available intelligence chart screenshots (latest per metric). Commander-gated."""
+    ok, err, _info = _commander_required()
+    if not ok:
+        return err
     try:
         if not os.path.isdir(_INTELLIGENCE_SCREENSHOTS_DIR):
             return jsonify({"charts": [], "ts": datetime.utcnow().isoformat()})
@@ -7124,7 +7127,10 @@ def api_intelligence_charts_list():
 
 @api_bp.route("/api/intelligence/charts/<path:filename>")
 def api_intelligence_charts_serve(filename):
-    """Serve an intelligence chart screenshot image."""
+    """Serve an intelligence chart screenshot image. Commander-gated."""
+    ok, err, _info = _commander_required()
+    if not ok:
+        return err
     safe = secure_filename(filename)
     if not safe or not safe.endswith(".png"):
         abort(404)

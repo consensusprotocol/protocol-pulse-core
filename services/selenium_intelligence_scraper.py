@@ -40,14 +40,14 @@ SCREENSHOT_DIR = DATA_DIR / "intelligence_screenshots"
 
 # ── Anti-detection: User-agent pool ────────────────────────────────────────
 _USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
 ]
 
 # ── Crypto tickers for congress filtering (matches panopticon_service.py) ──
@@ -106,11 +106,29 @@ class HeadlessBrowser:
                 "DNT": "1",
             },
         )
-        # Stealth: override navigator.webdriver
+        # Stealth: override navigator.webdriver + realistic fingerprints
         self._context.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
             Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});
-            Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});
+            // Mock realistic PluginArray (PDF Viewer + Chrome PDF Viewer + Widevine)
+            const pluginData = [
+                {name: 'PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+                {name: 'Chrome PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+                {name: 'Chromium PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+                {name: 'Microsoft Edge PDF Viewer', filename: 'internal-pdf-viewer', description: ''},
+                {name: 'WebKit built-in PDF', filename: 'internal-pdf-viewer', description: ''},
+            ];
+            const pluginArray = Object.create(PluginArray.prototype);
+            pluginData.forEach((p, i) => {
+                const plugin = Object.create(Plugin.prototype);
+                Object.defineProperties(plugin, {
+                    name: {get: () => p.name}, filename: {get: () => p.filename},
+                    description: {get: () => p.description}, length: {get: () => 1}
+                });
+                pluginArray[i] = plugin;
+            });
+            Object.defineProperty(pluginArray, 'length', {get: () => pluginData.length});
+            Object.defineProperty(navigator, 'plugins', {get: () => pluginArray});
         """)
         logger.info("HeadlessBrowser started (UA: %s...)", ua[:50])
 
