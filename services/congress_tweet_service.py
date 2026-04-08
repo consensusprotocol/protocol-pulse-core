@@ -307,23 +307,25 @@ def check_and_tweet(dry_run: bool = False) -> list[dict]:
 
         if not dry_run:
             try:
-                from services.tweet_machine import post_to_x, log_to_db, CAN_POST
-                if CAN_POST:
-                    post_result = post_to_x(tweet_text)
-                    result["posted"] = post_result.get("success", False)
-                    result["tweet_id"] = post_result.get("tweet_id")
-                    if result["posted"]:
-                        logger.info(f"Posted tweet {result['tweet_id']}")
-                        _increment_daily_count(seen_data)
-                        log_to_db(
-                            {"text": tweet_text, "type": "congress_filing",
-                             "angle": "stock_act", "format": "congress"},
-                            posted=True, tweet_id=result.get("tweet_id")
-                        )
-                    else:
-                        logger.warning(f"Post failed: {post_result.get('error')}")
+                from services.social_broadcaster import broadcast
+                from services.tweet_machine import log_to_db
+                bcast = broadcast(tweet_text, platforms=["x", "nostr"])
+                x_result = bcast.get("x", {})
+                result["posted"] = x_result.get("success", False)
+                result["tweet_id"] = x_result.get("tweet_id")
+                result["nostr"] = bcast.get("nostr", {})
+                if result["posted"]:
+                    logger.info(f"Posted tweet {result['tweet_id']}")
+                    _increment_daily_count(seen_data)
+                    log_to_db(
+                        {"text": tweet_text, "type": "congress_filing",
+                         "angle": "stock_act", "format": "congress"},
+                        posted=True, tweet_id=result.get("tweet_id")
+                    )
                 else:
-                    logger.warning("X API credentials not configured — skipping")
+                    logger.warning(f"X post failed: {x_result.get('error')}")
+                nostr_ok = bcast.get("nostr", {}).get("success")
+                logger.info(f"Nostr: {'OK' if nostr_ok else 'FAIL'}")
             except Exception as e:
                 logger.error(f"Failed to post: {e}")
 

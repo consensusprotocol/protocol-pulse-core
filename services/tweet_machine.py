@@ -1119,6 +1119,13 @@ def main():
             if result.get("success"):
                 log_to_db(tweet, posted=True, tweet_id=result.get("tweet_id"))
                 posted_count += 1
+                # Cross-post to Nostr
+                try:
+                    from services.social_broadcaster import post_to_nostr
+                    nostr_r = post_to_nostr(text)
+                    logger.info(f"Nostr cross-post: {'OK' if nostr_r.get('success') else 'FAIL'}")
+                except Exception as nostr_e:
+                    logger.warning(f"Nostr cross-post failed: {nostr_e}")
             else:
                 queue_tweet(tweet, brief)
                 log_to_db(tweet, posted=False)
