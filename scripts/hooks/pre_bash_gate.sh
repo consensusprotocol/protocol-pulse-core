@@ -28,7 +28,7 @@ fi
 
 # Block avatar_server
 if echo "$CMD" | grep -qE 'avatar_server'; then
-    echo "BLOCKED: Avatar server DISABLED until new HeyGen avatar" >&2
+    echo "WARNING: Satomi Oracle avatar_server is a PROTECTED live service — DO NOT KILL" >&2
     exit 2
 fi
 
