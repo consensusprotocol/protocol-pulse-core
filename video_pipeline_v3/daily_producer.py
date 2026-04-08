@@ -1767,6 +1767,40 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     # ── Step 12b: POST-RENDER QC (blocking — P1 Fix 6) ─────────────────
     print("\n[STEP 12b] POST-RENDER QC...")
     t0 = time.time()
+    # V27 FINAL AV SYNC — absolute last step before QC. Nothing can undo this.
+    if os.path.exists(final_video):
+        try:
+            import json as _jav_final
+            _avr = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-print_format", "json",
+                 "-show_packets", "-read_intervals", "%+#5", final_video],
+                capture_output=True, text=True, timeout=15)
+            _avd = _jav_final.loads(_avr.stdout)
+            _pkts = _avd.get("packets", [])
+            _vp = next((float(p.get("pts_time", 0)) for p in _pkts if p.get("codec_type") == "video"), 0)
+            _ap = next((float(p.get("pts_time", 0)) for p in _pkts if p.get("codec_type") == "audio"), 0)
+            _off = _ap - _vp
+            if _off < -0.005:
+                _fixed = final_video + ".final_avsync.mp4"
+                subprocess.run([
+                    "ffmpeg", "-y",
+                    "-i", final_video,
+                    "-itsoffset", f"{abs(_off):.6f}",
+                    "-i", final_video,
+                    "-map", "0:v:0", "-map", "1:a:0",
+                    "-c", "copy", "-movflags", "+faststart",
+                    _fixed
+                ], capture_output=True, timeout=60)
+                if os.path.exists(_fixed) and os.path.getsize(_fixed) > 1000:
+                    os.replace(_fixed, final_video)
+                    logger.info(f"  FINAL AV SYNC: {_off:+.4f}s -> 0.000s (last step)")
+                elif os.path.exists(_fixed):
+                    os.remove(_fixed)
+            else:
+                logger.info(f"  FINAL AV SYNC: already synced ({_off:+.4f}s)")
+        except Exception as _e_av:
+            logger.warning(f"  FINAL AV SYNC failed: {_e_av}")
+
     qc_passed = True
     try:
         from qc_pipeline import post_render_qc, save_qc_report
