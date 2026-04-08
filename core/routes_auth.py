@@ -550,7 +550,7 @@ def terminal_commander_page():
 def terminal_checkout():
     """Initiate Stripe checkout for $29/mo Commander tier."""
     from services.monetization_service import monetization_service
-    success_url = request.host_url.rstrip("/") + "/terminal?activated=1"
+    success_url = request.host_url.rstrip("/") + "/intelligence?activated=1"
     cancel_url  = request.host_url.rstrip("/") + "/terminal"
     result = monetization_service.create_checkout_session(
         tier="commander",
@@ -565,7 +565,7 @@ def terminal_checkout():
             db.session.commit()
         except Exception:
             db.session.rollback()
-        return redirect(url_for("pages.pulse_terminal", activated=1))
+        return redirect("/intelligence?activated=1")
     if result.get("checkout_url"):
         return redirect(result["checkout_url"])
     flash("Unable to start checkout. Please try again.")

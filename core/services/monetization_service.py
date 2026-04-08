@@ -46,7 +46,7 @@ class MonetizationService:
         },
         'commander': {
             'name': 'Pulse Commander',
-            'price_monthly': 49,
+            'price_monthly': 29,
             'price_id': None,
             'features': [
                 'All Operator features',

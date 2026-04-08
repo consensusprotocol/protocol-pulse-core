@@ -400,7 +400,142 @@
   .s7-nav-btn.next { right: 4px; }
   .s7-dots { bottom: 12px; gap: 8px; padding: 6px 10px; }
   .s7-dot { width: 6px; height: 6px; }
+  .entity-grid { grid-template-columns: 1fr; }
 }
+/* ═══ ENTITY DIRECTORY ═══ */
+.entity-dir {
+  background: #000;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 64px 20px 80px;
+}
+.entity-dir-header {
+  max-width: 900px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+.entity-dir-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--s7-red);
+  margin-bottom: 12px;
+}
+.entity-dir-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+.entity-dir-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 24px;
+}
+.entity-dir-search-wrap {
+  max-width: 360px;
+  margin: 0 auto 20px;
+}
+.entity-dir-search {
+  width: 100%;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.entity-dir-search:focus {
+  border-color: var(--s7-red);
+  box-shadow: 0 0 12px rgba(220,38,38,0.15);
+}
+.entity-dir-search::placeholder { color: rgba(255,255,255,0.3); }
+.entity-dir-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.entity-tab {
+  padding: 6px 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.entity-tab:hover { border-color: var(--s7-red); color: #fff; }
+.entity-tab.active {
+  background: var(--s7-red);
+  border-color: var(--s7-red);
+  color: #fff;
+}
+.entity-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .entity-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.entity-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 20px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.entity-card:hover {
+  border-color: var(--s7-red);
+  box-shadow: 0 0 20px rgba(220,38,38,0.1);
+}
+.entity-card.hidden { display: none; }
+.entity-card-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.tag-person { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.tag-company { background: rgba(34,197,94,0.15); color: #4ade80; }
+.tag-project { background: rgba(168,85,247,0.15); color: #c084fc; }
+.entity-card-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 8px;
+}
+.entity-card-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.55;
+  margin: 0 0 14px;
+}
+.entity-card-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--s7-red);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.entity-card-link:hover { opacity: 0.8; text-decoration: underline; }
 </style>
 {% endblock %}
 
@@ -451,6 +586,143 @@
     <button type="button" class="s7-nav-btn next" id="s7Next" aria-label="Next chapter"><i class="fas fa-chevron-right"></i></button>
   </nav>
   <div class="s7-dots" id="s7Dots" role="tablist" aria-label="Jump to chapter"></div>
+</div>
+
+<!-- ═══════════ ENTITY DIRECTORY ═══════════ -->
+<div class="entity-dir" id="entityDirectory">
+  <div class="entity-dir-header">
+    <div class="entity-dir-label">ENTITY INTELLIGENCE DIRECTORY</div>
+    <h2 class="entity-dir-title">Research the Ecosystem</h2>
+    <p class="entity-dir-subtitle">Key players, companies, and protocols shaping Bitcoin's sovereign future.</p>
+    <div class="entity-dir-search-wrap">
+      <input type="text" id="entitySearch" class="entity-dir-search" placeholder="Filter entities..." autocomplete="off">
+    </div>
+    <div class="entity-dir-tabs" id="entityTabs">
+      <button class="entity-tab active" data-filter="all">ALL</button>
+      <button class="entity-tab" data-filter="person">PEOPLE</button>
+      <button class="entity-tab" data-filter="company">COMPANIES</button>
+      <button class="entity-tab" data-filter="project">PROJECTS</button>
+    </div>
+  </div>
+
+  <div class="entity-grid" id="entityGrid">
+
+    <!-- ── PEOPLE ── -->
+    <div class="entity-card" data-category="person" data-name="Michael Saylor">
+      <div class="entity-card-tag tag-person">PERSON</div>
+      <h3 class="entity-card-name">Michael Saylor</h3>
+      <p class="entity-card-desc">Executive Chairman of MicroStrategy. Architect of the corporate Bitcoin treasury strategy. 506,137 BTC under management.</p>
+      <a href="/search?q=Michael+Saylor" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="person" data-name="Larry Fink">
+      <div class="entity-card-tag tag-person">PERSON</div>
+      <h3 class="entity-card-name">Larry Fink</h3>
+      <p class="entity-card-desc">CEO of BlackRock, world's largest asset manager. Pivoted from Bitcoin skeptic to launching IBIT, the largest spot Bitcoin ETF.</p>
+      <a href="/search?q=Larry+Fink" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="person" data-name="Gary Gensler">
+      <div class="entity-card-tag tag-person">PERSON</div>
+      <h3 class="entity-card-name">Gary Gensler</h3>
+      <p class="entity-card-desc">Former SEC Chair. Oversaw the approval of spot Bitcoin ETFs after years of resistance. Regulatory wildcard.</p>
+      <a href="/search?q=Gary+Gensler" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="person" data-name="Cathie Wood">
+      <div class="entity-card-tag tag-person">PERSON</div>
+      <h3 class="entity-card-name">Cathie Wood</h3>
+      <p class="entity-card-desc">CEO of ARK Invest. $1.5M Bitcoin price target by 2030. ARKB spot ETF operator and consistent on-chain accumulator.</p>
+      <a href="/search?q=Cathie+Wood" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="person" data-name="Jack Dorsey">
+      <div class="entity-card-tag tag-person">PERSON</div>
+      <h3 class="entity-card-name">Jack Dorsey</h3>
+      <p class="entity-card-desc">Co-founder of Block (Square). Funds Bitcoin open-source development. Building decentralized identity and mining hardware.</p>
+      <a href="/search?q=Jack+Dorsey" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="person" data-name="Nayib Bukele">
+      <div class="entity-card-tag tag-person">PERSON</div>
+      <h3 class="entity-card-name">Nayib Bukele</h3>
+      <p class="entity-card-desc">President of El Salvador. First nation-state to adopt Bitcoin as legal tender. Volcano-powered mining and Bitcoin bonds.</p>
+      <a href="/search?q=Nayib+Bukele" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <!-- ── COMPANIES ── -->
+    <div class="entity-card" data-category="company" data-name="MicroStrategy">
+      <div class="entity-card-tag tag-company">COMPANY</div>
+      <h3 class="entity-card-name">MicroStrategy</h3>
+      <p class="entity-card-desc">Largest corporate Bitcoin holder. Treasury strategy converted a software firm into a Bitcoin proxy. MSTR stock tracks BTC with leverage.</p>
+      <a href="/search?q=MicroStrategy" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="company" data-name="BlackRock">
+      <div class="entity-card-tag tag-company">COMPANY</div>
+      <h3 class="entity-card-name">BlackRock</h3>
+      <p class="entity-card-desc">$10T+ AUM. IBIT became the fastest-growing ETF in history. Their entry legitimized Bitcoin for institutional capital.</p>
+      <a href="/search?q=BlackRock" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="company" data-name="Coinbase">
+      <div class="entity-card-tag tag-company">COMPANY</div>
+      <h3 class="entity-card-name">Coinbase</h3>
+      <p class="entity-card-desc">Largest US crypto exchange. Custodian for most spot Bitcoin ETFs. Public company (COIN) and regulatory lightning rod.</p>
+      <a href="/search?q=Coinbase" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="company" data-name="Marathon Digital">
+      <div class="entity-card-tag tag-company">COMPANY</div>
+      <h3 class="entity-card-name">Marathon Digital</h3>
+      <p class="entity-card-desc">Largest publicly traded Bitcoin miner by hash rate. HODL strategy — mines and holds BTC on balance sheet.</p>
+      <a href="/search?q=Marathon+Digital" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="company" data-name="Riot Platforms">
+      <div class="entity-card-tag tag-company">COMPANY</div>
+      <h3 class="entity-card-name">Riot Platforms</h3>
+      <p class="entity-card-desc">Major US Bitcoin miner. Rockdale, TX facility is one of the largest mining operations in North America. Power curtailment strategy.</p>
+      <a href="/search?q=Riot+Platforms" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <!-- ── PROJECTS ── -->
+    <div class="entity-card" data-category="project" data-name="Lightning Network">
+      <div class="entity-card-tag tag-project">PROJECT</div>
+      <h3 class="entity-card-name">Lightning Network</h3>
+      <p class="entity-card-desc">Bitcoin's Layer 2 payment protocol. Near-instant, near-free transactions. 5,000+ BTC capacity. The scaling solution that works.</p>
+      <a href="/search?q=Lightning+Network" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="project" data-name="Nostr">
+      <div class="entity-card-tag tag-project">PROJECT</div>
+      <h3 class="entity-card-name">Nostr</h3>
+      <p class="entity-card-desc">Censorship-resistant relay protocol. Decentralized social layer with native Bitcoin/Lightning integration via zaps.</p>
+      <a href="/search?q=Nostr" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="project" data-name="Fedimint">
+      <div class="entity-card-tag tag-project">PROJECT</div>
+      <h3 class="entity-card-name">Fedimint</h3>
+      <p class="entity-card-desc">Federated Chaumian e-cash protocol for Bitcoin. Community custody model. Privacy-preserving transactions without custodial risk.</p>
+      <a href="/search?q=Fedimint" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="project" data-name="Casa">
+      <div class="entity-card-tag tag-project">PROJECT</div>
+      <h3 class="entity-card-name">Casa</h3>
+      <p class="entity-card-desc">Multi-sig Bitcoin custody for individuals. Inheritance planning. Making sovereign self-custody accessible to non-technical users.</p>
+      <a href="/search?q=Casa" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+    <div class="entity-card" data-category="project" data-name="Start9">
+      <div class="entity-card-tag tag-project">PROJECT</div>
+      <h3 class="entity-card-name">Start9</h3>
+      <p class="entity-card-desc">Personal server OS for running Bitcoin node, Lightning, and sovereign services. The self-hosting stack for digital independence.</p>
+      <a href="/search?q=Start9" class="entity-card-link">Search articles &rarr;</a>
+    </div>
+
+  </div>
 </div>
 
 <div class="s7-modal-backdrop" id="s7ModalBackdrop" aria-hidden="true"></div>
@@ -668,6 +940,37 @@
       if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeDeepDive();
     });
   }
+})();
+
+/* Entity Directory filter */
+(function() {
+  var search = document.getElementById('entitySearch');
+  var tabs = document.querySelectorAll('.entity-tab');
+  var cards = document.querySelectorAll('.entity-card');
+  var activeFilter = 'all';
+
+  function applyFilter() {
+    var q = (search ? search.value : '').toLowerCase();
+    cards.forEach(function(card) {
+      var cat = card.getAttribute('data-category') || '';
+      var name = (card.getAttribute('data-name') || '').toLowerCase();
+      var desc = (card.querySelector('.entity-card-desc') || {}).textContent || '';
+      var catMatch = activeFilter === 'all' || cat === activeFilter;
+      var textMatch = !q || name.indexOf(q) !== -1 || desc.toLowerCase().indexOf(q) !== -1;
+      card.classList.toggle('hidden', !(catMatch && textMatch));
+    });
+  }
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      activeFilter = tab.getAttribute('data-filter');
+      applyFilter();
+    });
+  });
+
+  if (search) search.addEventListener('input', applyFilter);
 })();
 </script>
 {% endblock %}
