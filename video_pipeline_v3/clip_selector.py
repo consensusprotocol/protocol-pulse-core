@@ -759,6 +759,28 @@ def _select_clips_local(videos, max_clips=5):
     return {"clips": []}
 
 
+
+def _enforce_channel_diversity(result: dict) -> dict:
+    """V29 FIX: Hard post-selection channel dedup. No two clips from the same channel. EVER."""
+    clips = result.get("clips", [])
+    if not clips:
+        return result
+    seen = {}
+    unique = []
+    for c in clips:
+        ch = c.get("channel", "unknown")
+        if ch not in seen:
+            seen[ch] = c
+            unique.append(c)
+        else:
+            logger.warning(f"CHANNEL DEDUP: Dropped duplicate from {ch} (rank {c.get('rank', '?')})")
+    # Re-rank
+    for i, c in enumerate(unique):
+        c["rank"] = i + 1
+    result["clips"] = unique
+    return result
+
+
 def select_clips_with_fallback(videos, max_clips=5):
     """Try Claude, then Qwen, then last known good, then random. NEVER return 0 clips."""
 
@@ -768,7 +790,7 @@ def select_clips_with_fallback(videos, max_clips=5):
         if result.get("clips"):
             _save_last_good_selection(result)
             logger.info(f"FALLBACK CHAIN: Claude succeeded — {len(result['clips'])} clips")
-            return result
+            return _enforce_channel_diversity(result)
         logger.warning("FALLBACK CHAIN: Claude returned 0 clips, trying Qwen...")
     except Exception as e:
         logger.error(f"FALLBACK CHAIN: Claude failed: {e}")
@@ -779,7 +801,7 @@ def select_clips_with_fallback(videos, max_clips=5):
         if result.get("clips"):
             _save_last_good_selection(result)
             logger.info(f"FALLBACK CHAIN: Qwen succeeded — {len(result['clips'])} clips")
-            return result
+            return _enforce_channel_diversity(result)
         logger.warning("FALLBACK CHAIN: Qwen returned 0 clips, trying last known good...")
     except Exception as e:
         logger.error(f"FALLBACK CHAIN: Qwen failed: {e}")
