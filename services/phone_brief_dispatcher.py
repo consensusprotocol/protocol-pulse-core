@@ -10,6 +10,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE / 'core'))
 sys.path.insert(0, str(BASE))
+os.chdir(str(BASE / core))  # Flask expects cwd=core/
 
 logging.basicConfig(
     level=logging.INFO,
