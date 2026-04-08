@@ -1210,11 +1210,16 @@ def podcasts():
             'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
             'playlist_url': 'https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
             'episodes': [
-                {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
-                {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
-                {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
-                {'id': 'TwkR0ncLh0Y', 'title': "Satoshi's Vision | Episode 4"},
-                {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
+                {'id': '3TslgynKeaA', 'title': 'Austrian Economics & Money | Episode 1'},
+                {'id': 'PFi6no-0wSE', 'title': 'Neutral Money & Denationalization | Episode 2'},
+                {'id': 'PLWhV1JBfCA', 'title': 'Free and Open Source Software | Episode 3'},
+                {'id': 'J5b24c0QzCE', 'title': 'Cryptography & Spies | Episode 4'},
+                {'id': 'FzrKToH9AT0', 'title': 'eCash & Timestamps | Episode 5'},
+                {'id': 'c3Nafsnts-Q', 'title': 'The Extropians & High Tech Hayekians | Episode 6'},
+                {'id': 'wDUePxNsgLs', 'title': 'The Rise of the Cypherpunks | Episode 7'},
+                {'id': 'WB5-IR5xrAE', 'title': 'Hashcash & Bit Gold | Episode 8'},
+                {'id': 'vydVrF07QGA', 'title': 'B-money and RPOW | Episode 9'},
+                {'id': 'VDdc67_HnVE', 'title': "Bitcoin's Revolutionary Origins | Episode 10"},
             ]
         },
     }
@@ -1536,11 +1541,16 @@ def media_hub():
             'description': "Exploring the origins of Bitcoin through Aaron van Wirdum's seminal work on Austrian economics and the cypherpunk movement.",
             'playlist_url': 'https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT',
             'episodes': [
-                {'id': 'y7KBeC4jfbo', 'title': 'Origins of Digital Cash | Episode 1'},
-                {'id': 'LNEsJjYZ57o', 'title': 'The Cypherpunks | Episode 2'},
-                {'id': 'KcTVg0b7kDw', 'title': 'Hash Cash & Digital Gold | Episode 3'},
-                {'id': 'TwkR0ncLh0Y', 'title': "Satoshi's Vision | Episode 4"},
-                {'id': 'mAe_F5G6gUE', 'title': 'The Genesis Block | Episode 5'},
+                {'id': '3TslgynKeaA', 'title': 'Austrian Economics & Money | Episode 1'},
+                {'id': 'PFi6no-0wSE', 'title': 'Neutral Money & Denationalization | Episode 2'},
+                {'id': 'PLWhV1JBfCA', 'title': 'Free and Open Source Software | Episode 3'},
+                {'id': 'J5b24c0QzCE', 'title': 'Cryptography & Spies | Episode 4'},
+                {'id': 'FzrKToH9AT0', 'title': 'eCash & Timestamps | Episode 5'},
+                {'id': 'c3Nafsnts-Q', 'title': 'The Extropians & High Tech Hayekians | Episode 6'},
+                {'id': 'wDUePxNsgLs', 'title': 'The Rise of the Cypherpunks | Episode 7'},
+                {'id': 'WB5-IR5xrAE', 'title': 'Hashcash & Bit Gold | Episode 8'},
+                {'id': 'vydVrF07QGA', 'title': 'B-money and RPOW | Episode 9'},
+                {'id': 'VDdc67_HnVE', 'title': "Bitcoin's Revolutionary Origins | Episode 10"},
             ]
         },
     }
