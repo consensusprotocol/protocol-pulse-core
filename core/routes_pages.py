@@ -66,14 +66,14 @@ def robots_txt():
         "Disallow: /login",
         "Disallow: /signup",
         "",
-        "Sitemap: " + (request.url_root.rstrip("/") + "/sitemap.xml"),
+        "Sitemap: https://protocolpulse.io/sitemap.xml",  # V31 SEO FIX
     ]
     return Response("\n".join(lines), mimetype="text/plain")
 
 @pages_bp.route('/sitemap.xml')
 def sitemap_xml():
     """Simple sitemap for SEO: home, articles, key public pages."""
-    base = request.url_root.rstrip("/")
+    base = "https://protocolpulse.io"  # V31 SEO FIX: hardcode production URL (was localhost via tunnel)
     pages = [
         ("/", "daily", "1.0"),
         ("/articles", "daily", "0.9"),
