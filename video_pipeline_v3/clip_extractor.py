@@ -232,7 +232,7 @@ def _skip_intro_silence(output_path: str, channel: str = "") -> None:
         if clip_dur > 15:
             tail_start = max(0, clip_dur - 10)
             result2 = subprocess.run([
-                "ffmpeg", "-ss", f"{tail_start:.2f}", "-i", output_path,
+                "ffmpeg", "-i", output_path, "-ss", f"{tail_start:.2f}",
                 "-af", "silencedetect=noise=-30dB:d=1.0",
                 "-f", "null", "-"
             ], capture_output=True, text=True, timeout=20)
@@ -445,6 +445,35 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode == 0 and os.path.exists(output_path):
+            # V30 FIX: yt-dlp --download-sections seeks video to keyframes but audio exactly.
+            # Measure actual V/A start times and trim video to match audio start.
+            try:
+                import json as _jav_dl
+                _raw_probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_streams", output_path],
+                    capture_output=True, text=True, timeout=15)
+                _raw_streams = _jav_dl.loads(_raw_probe.stdout).get("streams", [])
+                _v_start = next((float(s.get("start_time", 0)) for s in _raw_streams if s.get("codec_type") == "video"), 0)
+                _a_start = next((float(s.get("start_time", 0)) for s in _raw_streams if s.get("codec_type") == "audio"), 0)
+                _va_gap = abs(_v_start - _a_start)
+                if _va_gap > 0.5:
+                    _trim_to = max(_v_start, _a_start)
+                    _aligned = output_path + ".aligned.mp4"
+                    _align_ok = _run_ffmpeg([
+                        "-i", output_path, "-ss", f"{_trim_to:.3f}",
+                        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                        "-r", "30", "-vsync", "cfr",
+                        "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                        _aligned
+                    ], f"V/A start alignment {video_id} (gap={_va_gap:.1f}s)", 120)
+                    if _align_ok and os.path.exists(_aligned) and os.path.getsize(_aligned) > 1000:
+                        os.replace(_aligned, output_path)
+                        logger.info(f"  V/A ALIGN: {video_id} gap={_va_gap:.1f}s -> aligned at {_trim_to:.1f}s")
+                    elif os.path.exists(_aligned):
+                        os.remove(_aligned)
+            except Exception as _align_err:
+                logger.warning(f"  V/A alignment check failed: {_align_err}")
+
             # FIX 1 (render10): Hard PTS resync — force both A/V to start at exactly 0
             # Eliminates B-frame DTS offsets from yt-dlp downloads that cause ~1s audio lag
             resync_tmp = output_path + ".resync.mp4"
