@@ -215,11 +215,12 @@ def _skip_intro_silence(output_path: str, channel: str = "") -> None:
         if skip_to > 0 and skip_to < clip_dur - 5:
             trimmed = output_path + ".jingle_skip.mp4"
             ok = _run_ffmpeg([
-                "-ss", f"{skip_to:.2f}", "-i", output_path,
+                "-i", output_path, "-ss", f"{skip_to:.2f}",
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-r", "30", "-vsync", "cfr",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 trimmed,
-            ], f"speech onset skip +{skip_to:.1f}s", 60)
+            ], f"speech onset skip +{skip_to:.1f}s (output seek)", 60)
             if ok and os.path.exists(trimmed) and os.path.getsize(trimmed) > 10000:
                 os.replace(trimmed, output_path)
                 logger.info(f"  Render21: Intro skip applied at {skip_to:.1f}s")
