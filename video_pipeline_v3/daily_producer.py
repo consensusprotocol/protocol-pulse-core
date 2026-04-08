@@ -1940,7 +1940,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         # Auto-publish to Nostr + X after successful YouTube upload
         if upload_result.get("url"):
             try:
-                import sys
+                # import sys  # V29 FIX: removed — shadows module-level import, breaks Gemini grading
                 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
                 from core.social_publisher import SocialPublisher
                 yt_id = upload_result.get("video_id", "")
