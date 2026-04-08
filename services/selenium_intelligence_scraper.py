@@ -286,7 +286,7 @@ class GlassnodeScraper:
             # have persistent WebSocket connections that prevent networkidle
             page.goto(chart_info["url"], wait_until="domcontentloaded", timeout=30000)
             # Wait for chart data API calls to complete
-            page.wait_for_timeout(8000)
+            page.wait_for_load_state("networkidle", timeout=15000)
 
             # If we captured API data, extract the latest value
             if captured_data:
@@ -471,7 +471,7 @@ class CryptoQuantScraper:
             # Use 'domcontentloaded' since CryptoQuant SPAs never reach 'networkidle'
             page.goto(chart_info["url"], wait_until="domcontentloaded", timeout=30000)
             # Wait for chart data to load (API calls happen after DOM is ready)
-            page.wait_for_timeout(8000)
+            page.wait_for_load_state("networkidle", timeout=15000)
 
             if captured_data:
                 # Try each captured response for chart data

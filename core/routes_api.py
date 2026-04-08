@@ -25,7 +25,7 @@ import re
 import stripe
 import uuid
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import threading
 import time
 from services.node_service import NodeService
@@ -100,7 +100,7 @@ def api_btcmap():
 @api_bp.route('/api/value-stream/post/<int:post_id>')
 def api_get_post_details(post_id):
     """Get detailed post info for Signal Terminal inspector"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     
     post = models.CuratedPost.query.get(post_id)
     if not post:
@@ -148,7 +148,7 @@ def api_get_post_details(post_id):
 @api_bp.route('/api/signal-terminal/stream')
 def signal_terminal_stream():
     """SSE endpoint for real-time Signal Terminal updates with heartbeat"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     import time
     import json
     
@@ -2143,7 +2143,7 @@ def api_network_stats():
 @api_bp.route('/api/live-tweets')
 def api_live_tweets():
     """API endpoint to get live tweets from designated Bitcoin thought leaders"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     import random
     
     sovereign_handles = [
@@ -5598,7 +5598,7 @@ def _fetch_onchain() -> dict:
             try:
                 import json as _json
                 from datetime import timezone as _tz
-                with open("/home/ultron/protocol_pulse/data/pro_metrics_cache.json") as _pmf:
+                with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "pro_metrics_cache.json")) as _pmf:
                     _pm = _json.load(_pmf)
                 _cutoff = (datetime.utcnow() - timedelta(hours=24)).isoformat() + "+00:00"
                 # MVRV Z-Score
@@ -7000,7 +7000,7 @@ def api_system_health():
         try:
             Article = getattr(models, 'Article', None)
             if Article:
-                from datetime import datetime, timedelta
+                from datetime import datetime, timedelta, timezone
                 cutoff = datetime.utcnow() - timedelta(hours=24)
                 articles_24h = Article.query.filter(Article.published_at >= cutoff).count()
                 latest = Article.query.order_by(Article.published_at.desc()).first()
@@ -7034,7 +7034,7 @@ def api_media_meta_briefing():
         Article = getattr(models, 'Article', None)
         if not Article:
             return jsonify({"briefing": "No article model available.", "generated_at": None})
-        from datetime import datetime, timedelta
+        from datetime import datetime, timedelta, timezone
         cutoff = datetime.utcnow() - timedelta(hours=24)
         recent = Article.query.filter(Article.published_at >= cutoff).order_by(
             Article.published_at.desc()).limit(10).all()
