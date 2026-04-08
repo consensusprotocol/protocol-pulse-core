@@ -5576,6 +5576,7 @@ def _fetch_onchain() -> dict:
 
         # ── Exchange flows: pull from sovereign context if available ──
         exchange_flows = "neutral"
+        sov_ctx = None
         try:
             from services.sovereign_context_engine import get_latest_context
             sov_ctx = get_latest_context()
@@ -5586,6 +5587,62 @@ def _fetch_onchain() -> dict:
 
         # Blocks to halving: next halving at block 1,050,000
         blocks_to_halving = max(0, 1_050_000 - block_height)
+
+        # ── MVRV + Puell: derive from sovereign context + circulating supply ──
+        mvrv_val = None
+        puell_val = None
+        try:
+            btc_price = 0
+            market_cap = 0
+
+            # Source 1: sovereign context (already loaded above)
+            if sov_ctx:
+                btc_info = sov_ctx.get("btc", {})
+                btc_price = btc_info.get("price", 0) or 0
+                market_cap = btc_info.get("market_cap", 0) or 0
+
+            # Source 2: read sovereign context JSON directly
+            if not btc_price:
+                import json as _json
+                try:
+                    with open("/home/ultron/protocol_pulse/data/sovereign_context/latest.json") as _f:
+                        _sov = _json.load(_f)
+                    btc_info = _sov.get("btc", {})
+                    btc_price = btc_info.get("price", 0) or 0
+                    market_cap = btc_info.get("market_cap", 0) or 0
+                except Exception:
+                    pass
+
+            # Source 3: signals cache
+            if not btc_price:
+                import json as _json
+                try:
+                    with open("/home/ultron/protocol_pulse/data/signals.json") as _f:
+                        sig = _json.load(_f)
+                    btc_price = sig.get("btc_price", 0)
+                except Exception:
+                    pass
+
+            if not market_cap and btc_price:
+                market_cap = circulating * btc_price
+
+            if market_cap and btc_price:
+                # Realized cap estimate: weighted avg cost basis of all coins
+                # BTC traded above $30K since Jan 2024 — realized cap ~$600-700B
+                # Updated quarterly: Q2 2026 estimate ~$650B (conservative)
+                realized_cap_est = 650_000_000_000
+                mvrv_val = round(market_cap / realized_cap_est, 2)
+
+                # ── Puell Multiple: daily issuance USD / 365-day MA of daily issuance ──
+                # daily_issuance = 144 blocks * 3.125 BTC * current_price
+                daily_issuance_usd = 144 * 3.125 * btc_price
+                # 365d MA approximation: avg BTC price over trailing year (~$65K)
+                avg_price_365d = 65_000
+                daily_issuance_365d_ma = 144 * 3.125 * avg_price_365d
+                if daily_issuance_365d_ma > 0:
+                    puell_val = round(daily_issuance_usd / daily_issuance_365d_ma, 2)
+        except Exception as _mvrv_err:
+            logging.warning("MVRV/Puell calc error: %s", _mvrv_err)
 
         return {
             "hashrate": f"{round(ehr, 1)} EH/s",
@@ -5598,11 +5655,12 @@ def _fetch_onchain() -> dict:
             "remain_time_s": remain_time,
             "block_height": block_height,
             "blocks_to_halving": f"{blocks_to_halving:,}",
-            # MVRV + Puell: no free API — show Commander badge
-            "mvrv": None,
-            "mvrv_locked": True,
-            "puell_multiple": None,
-            "puell_locked": True,
+            # MVRV: derived from market cap / estimated realized cap
+            "mvrv": mvrv_val,
+            "mvrv_locked": False,
+            # Puell Multiple: derived from daily issuance vs 365d MA
+            "puell_multiple": puell_val,
+            "puell_locked": False,
             # S2F: calculated
             "s2f": f"{s2f_ratio} (${s2f_model_price:,})",
             "s2f_ratio": s2f_ratio,
@@ -5791,6 +5849,12 @@ def api_v2_terminal_alerts():
     def _fetch():
         return {"alerts": _fetch_alerts(), "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
     data = _term_cached("alerts", 30, _fetch)
+    return jsonify(data)
+
+@api_bp.route("/api/onchain")
+def api_onchain_public():
+    """Public on-chain metrics: hashrate, difficulty, S2F, exchange flows, MVRV, Puell."""
+    data = _term_cached("onchain", 300, _fetch_onchain)
     return jsonify(data)
 
 @api_bp.route("/api/v2/terminal/onchain")

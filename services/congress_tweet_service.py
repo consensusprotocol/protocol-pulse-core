@@ -65,7 +65,9 @@ def _save_seen(data: dict) -> None:
 
 def _make_dedup_key(d: dict) -> str:
     """Create unique key for a disclosure to prevent duplicate tweets."""
-    return f"{d.get('representative', '')}|{d.get('ticker', '')}|{d.get('date_traded', '')}|{d.get('trade_type', '')}"
+    # Panopticon returns 'entity' (e.g. "Rep. John Smith (R)"), not 'representative'
+    name = d.get("entity") or d.get("representative", "")
+    return f"{name}|{d.get('ticker', '')}|{d.get('date_traded', '')}|{d.get('trade_type', '')}"
 
 
 # ── Tweet Templates ──────────────────────────────────────────────────────────
@@ -75,29 +77,34 @@ def _format_tweet(d: dict) -> str:
 
     Stays under 280 chars. No hashtags. PBX voice — dry, factual, signal-focused.
     """
-    title = d.get("title", "Rep.")
-    name = d.get("representative", "Unknown")
+    # Panopticon returns 'entity' (e.g. "Rep. John Smith (R)") — use directly
+    entity = d.get("entity", "")
+    if entity:
+        # entity already has "Rep." or "Sen." prefix and party suffix
+        who = entity
+    else:
+        title = d.get("title", "Rep.")
+        name = d.get("representative", "Unknown")
+        who = f"{title} {name}"
+
     trade_type = d.get("trade_type", "disclosure")
     ticker = d.get("ticker", "")
-    asset_name = d.get("asset_name", ticker)
+    asset_name = d.get("asset", "") or d.get("asset_name", "") or ticker
     amount = d.get("amount_range", "undisclosed")
     days_to_file = d.get("days_to_file")
 
     # Action verb
     if trade_type == "purchase":
         action = "bought"
-        emoji_hint = ""
     elif trade_type == "sale":
         action = "sold"
-        emoji_hint = ""
     else:
         action = "disclosed a position in"
-        emoji_hint = ""
 
     # Build tweet
     # amount_range from panopticon already includes $ prefix (e.g. "$15,001-$50,000")
     amt_display = amount if amount.startswith("$") else f"${amount}"
-    tweet = f"STOCK ACT FILING: {title} {name} just {action} {amt_display} of {asset_name}."
+    tweet = f"STOCK ACT FILING: {who} just {action} {amt_display} of {asset_name}."
 
     # Add filing delay context if notable (>30 days is suspicious)
     if days_to_file is not None and days_to_file > 30:
