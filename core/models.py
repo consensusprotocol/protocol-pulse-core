@@ -1543,6 +1543,11 @@ class SmsSubscriber(db.Model):
     subscribed = db.Column(db.Boolean, default=True)
     tier = db.Column(db.String(20), default='free')  # 'free' | 'premium'
     name = db.Column(db.String(100), nullable=True)
+    language = db.Column(db.String(10), default='en')       # en|es|fr|de|pt
+    call_time_et = db.Column(db.String(5), default='08:00') # HH:MM ET
+    timezone = db.Column(db.String(50), default='America/New_York')
+    call_active = db.Column(db.Boolean, default=True)
+    last_called = db.Column(db.DateTime, nullable=True)
     source = db.Column(db.String(50), default='website')
     created_at = db.Column(db.DateTime, default=db.func.now())
     unsubscribed_at = db.Column(db.DateTime, nullable=True)

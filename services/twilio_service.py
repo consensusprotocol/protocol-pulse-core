@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 _client = None
 
-BRIEFS_DIR = '/tmp/satomi_briefs'
+BRIEFS_DIR = '/home/ultron/protocol_pulse/static/audio/oracle'
+import os; os.makedirs(BRIEFS_DIR, exist_ok=True)
 PUBLIC_BASE = os.getenv('PUBLIC_BASE_URL', 'https://protocolpulse.io')
 
 
@@ -116,6 +117,7 @@ def _escape_twiml(text: str) -> str:
 
 
 def send_premium_brief_call(to, brief_text):
+    # Premium two-way call: briefing then Oracle Q+A
     try:
         brief_url = _generate_and_url(brief_text)
         twiml = (
@@ -123,8 +125,8 @@ def send_premium_brief_call(to, brief_text):
             '<Pause length="1"/>'
             '<Play>' + brief_url + '</Play>'
             '<Pause length="1"/>'
-            '<Gather numDigits="1" action="/api/oracle/voice-gather" timeout="10">'
-            '<Say voice="Polly.Matthew">Press 1 to speak with the Oracle. Or hang up to end.</Say>'
+            '<Gather numDigits="1" action="/api/oracle/voice-gather" timeout="12">'
+            '<Say voice="Polly.Joanna">Press 1 to speak with the Oracle. Or hang up to end.</Say>'
             '</Gather>'
             '<Hangup/>'
             '</Response>'

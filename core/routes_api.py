@@ -6167,6 +6167,11 @@ def api_sms_subscribe():
     if tier not in ('free', 'premium'):
         tier = 'free'
     name = (data.get('name') or '').strip()[:100]
+    call_time = (data.get('call_time') or '08:00').strip()
+    import re as _ret; call_time = call_time if _ret.match(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$', call_time) else '08:00'
+    language = (data.get('language') or 'en').strip().lower()
+    language = language if language in ('en','es','fr','de','pt','ja') else 'en'
+    sub_timezone = (data.get('timezone') or 'America/New_York').strip()
 
     # Normalize: strip non-digits, ensure +1 prefix for US
     digits = re.sub(r'[^0-9]', '', raw_phone)

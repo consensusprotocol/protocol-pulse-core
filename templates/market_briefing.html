@@ -1,58 +1,102 @@
 {% extends "base.html" %}
 {% block title %}Market Briefing Room — Scheduled Intelligence | Protocol Pulse
-<section class="pb-sign-up" id="phone-brief-signup" style="max-width:900px;margin:4rem auto 2rem;padding:0 1.5rem;">
+
+<!-- ── Phone Brief Sign-Up ─────────────────────────────────────────────── -->
+<section id="phone-brief-signup" class="pb-sign-up" style="max-width:920px;margin:4rem auto 2rem;padding:0 1.5rem;">
   <div style="background:#0d0d0d;border:1px solid rgba(220,38,38,0.2);border-radius:14px;padding:2.5rem 3rem;position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#cc0000,#880000);"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;">
+
+      <!-- FREE TIER -->
       <div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#888;display:block;margin-bottom:.75rem;">Daily Signal - Free</span>
-        <h2 style="font-family:'Crimson Pro',serif;font-size:1.9rem;font-weight:800;color:#fff;line-height:1.15;margin:0 0 1rem;">Morning Brief.<br>Your phone. 8am.</h2>
-        <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;line-height:1.65;color:#888;margin-bottom:1.5rem;">90-second voice briefing every morning. BTC price, hash rate, fear and greed, top signal. SMS summary included. No app required.</p>
-        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-family:'DM Sans',sans-serif;font-size:.85rem;color:#aaa;">
-          <li style="padding:.3rem 0;">Daily 8am ET voice call</li>
-          <li style="padding:.3rem 0;">SMS summary with key metrics</li>
-          <li style="padding:.3rem 0;">Live BTC, hashrate, sentiment</li>
-          <li style="padding:.3rem 0;">Reply STOP to cancel anytime</li>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#888;display:block;margin-bottom:.75rem;">Daily Signal — Free</span>
+        <h2 style="font-family:'Crimson Pro',serif;font-size:1.85rem;font-weight:800;color:#fff;line-height:1.15;margin:0 0 .9rem;">Morning Brief.<br>Your phone. Your time.</h2>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;line-height:1.65;color:#888;margin-bottom:1.25rem;">90-second voice briefing at your chosen time. Live BTC price, hashrate, fear and greed index, top signal. SMS summary included. No app required.</p>
+        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-family:'DM Sans',sans-serif;font-size:.82rem;color:#aaa;line-height:2;">
+          <li>⚡ Voice call at your chosen time</li>
+          <li>⚡ SMS summary with key metrics</li>
+          <li>⚡ Live BTC, hashrate, fear and greed</li>
+          <li>⚡ Reply STOP to cancel anytime</li>
         </ul>
         <div class="pb-form" data-tier="free">
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <input type="tel" class="pb-phone-input" placeholder="(555) 000-0000"
-              style="flex:1;min-width:160px;background:#000;border:1px solid #2a2a2a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:.7rem 1rem;border-radius:6px;outline:none;"
-              oninput="this.style.borderColor='#cc0000'">
-            <button onclick="pbSubscribe(this,'free')"
-              style="background:#cc0000;color:#fff;border:none;padding:.7rem 1.4rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">
-              Get the Brief
-            </button>
+          <input type="tel" class="pb-phone-input" placeholder="(555) 000-0000"
+            style="width:100%;box-sizing:border-box;background:#000;border:1px solid #2a2a2a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:.65rem 1rem;border-radius:6px;outline:none;margin-bottom:.5rem;"
+            oninput="this.style.borderColor='#cc0000'">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem;">
+            <select class="pb-time-input"
+              style="background:#000;border:1px solid #2a2a2a;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.65rem .75rem;border-radius:6px;outline:none;">
+              <option value="06:00">6:00 AM ET</option>
+              <option value="07:00">7:00 AM ET</option>
+              <option value="08:00" selected>8:00 AM ET</option>
+              <option value="09:00">9:00 AM ET</option>
+              <option value="10:00">10:00 AM ET</option>
+              <option value="12:00">12:00 PM ET</option>
+              <option value="17:00">5:00 PM ET</option>
+              <option value="20:00">8:00 PM ET</option>
+            </select>
+            <select class="pb-lang-input"
+              style="background:#000;border:1px solid #2a2a2a;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.65rem .75rem;border-radius:6px;outline:none;">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="ja">Japanese</option>
+            </select>
           </div>
+          <button onclick="pbSubscribe(this,'free')"
+            style="width:100%;background:#cc0000;color:#fff;border:none;padding:.75rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">
+            Get the Brief
+          </button>
           <p class="pb-msg" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#888;margin:.6rem 0 0;min-height:1rem;"></p>
         </div>
       </div>
+
+      <!-- PREMIUM TIER -->
       <div style="position:relative;">
         <div style="position:absolute;top:-12px;right:0;background:#cc0000;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:700;letter-spacing:.15em;padding:3px 10px;border-radius:3px;text-transform:uppercase;">Oracle Access</div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#cc0000;display:block;margin-bottom:.75rem;">Intelligence Call - Premium</span>
-        <h2 style="font-family:'Crimson Pro',serif;font-size:1.9rem;font-weight:800;color:#fff;line-height:1.15;margin:0 0 1rem;">Brief. Then speak<br>with the Oracle.</h2>
-        <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;line-height:1.65;color:#888;margin-bottom:1.5rem;">Same briefing then press 1 to speak directly with the Oracle AI. Ask anything. Unhedged reads grounded in live Matrix Orb data: convergence patterns, on-chain signals, macro flows.</p>
-        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-family:'DM Sans',sans-serif;font-size:.85rem;color:#aaa;">
-          <li style="padding:.3rem 0;color:#fff;">Everything in free tier</li>
-          <li style="padding:.3rem 0;color:#fff;">Live Oracle Q+A after briefing</li>
-          <li style="padding:.3rem 0;color:#fff;">Matrix Orb convergence state</li>
-          <li style="padding:.3rem 0;color:#fff;">Unhedged directional calls</li>
-          <li style="padding:.3rem 0;color:#fff;">Steel-manned bear/bull scenarios</li>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#cc0000;display:block;margin-bottom:.75rem;">Intelligence Call — Premium</span>
+        <h2 style="font-family:'Crimson Pro',serif;font-size:1.85rem;font-weight:800;color:#fff;line-height:1.15;margin:0 0 .9rem;">Brief. Then speak<br>with the Oracle.</h2>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;line-height:1.65;color:#888;margin-bottom:1.25rem;">Same briefing, then press 1 to speak directly with the Oracle AI. Ask anything. Unhedged reads grounded in live Matrix Orb convergence data, on-chain signals, and macro flows.</p>
+        <ul style="list-style:none;padding:0;margin:0 0 1.5rem;font-family:'DM Sans',sans-serif;font-size:.82rem;color:#ccc;line-height:2;">
+          <li><span style="color:#cc0000;">◆</span> Everything in free tier</li>
+          <li><span style="color:#cc0000;">◆</span> Live Oracle Q+A after briefing</li>
+          <li><span style="color:#cc0000;">◆</span> Matrix Orb convergence state</li>
+          <li><span style="color:#cc0000;">◆</span> Unhedged directional calls</li>
+          <li><span style="color:#cc0000;">◆</span> Steel-manned bear and bull scenarios</li>
         </ul>
         <div class="pb-form" data-tier="premium">
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem;">
-            <input type="text" class="pb-name-input" placeholder="Your name (optional)"
-              style="flex:1;min-width:140px;background:#000;border:1px solid #2a2a2a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:.7rem 1rem;border-radius:6px;outline:none;">
+          <input type="text" class="pb-name-input" placeholder="Your name (optional)"
+            style="width:100%;box-sizing:border-box;background:#000;border:1px solid #2a2a2a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:.65rem 1rem;border-radius:6px;outline:none;margin-bottom:.5rem;">
+          <input type="tel" class="pb-phone-input" placeholder="(555) 000-0000"
+            style="width:100%;box-sizing:border-box;background:#000;border:1px solid #2a2a2a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:.65rem 1rem;border-radius:6px;outline:none;margin-bottom:.5rem;"
+            oninput="this.style.borderColor='#cc0000'">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem;">
+            <select class="pb-time-input"
+              style="background:#000;border:1px solid #2a2a2a;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.65rem .75rem;border-radius:6px;outline:none;">
+              <option value="06:00">6:00 AM ET</option>
+              <option value="07:00">7:00 AM ET</option>
+              <option value="08:00" selected>8:00 AM ET</option>
+              <option value="09:00">9:00 AM ET</option>
+              <option value="10:00">10:00 AM ET</option>
+              <option value="12:00">12:00 PM ET</option>
+              <option value="17:00">5:00 PM ET</option>
+              <option value="20:00">8:00 PM ET</option>
+            </select>
+            <select class="pb-lang-input"
+              style="background:#000;border:1px solid #2a2a2a;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.65rem .75rem;border-radius:6px;outline:none;">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="ja">Japanese</option>
+            </select>
           </div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <input type="tel" class="pb-phone-input" placeholder="(555) 000-0000"
-              style="flex:1;min-width:160px;background:#000;border:1px solid #2a2a2a;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:.7rem 1rem;border-radius:6px;outline:none;"
-              oninput="this.style.borderColor='#cc0000'">
-            <button onclick="pbSubscribe(this,'premium')"
-              style="background:linear-gradient(135deg,#cc0000,#880000);color:#fff;border:none;padding:.7rem 1.4rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;box-shadow:0 0 20px rgba(204,0,0,.25);">
-              Oracle Access
-            </button>
-          </div>
+          <button onclick="pbSubscribe(this,'premium')"
+            style="width:100%;background:linear-gradient(135deg,#cc0000,#880000);color:#fff;border:none;padding:.75rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 20px rgba(204,0,0,.2);">
+            Oracle Access
+          </button>
           <p class="pb-msg" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#888;margin:.6rem 0 0;min-height:1rem;"></p>
         </div>
       </div>
@@ -65,22 +109,27 @@ function pbSubscribe(btn,tier){
   var phone=form.querySelector('.pb-phone-input').value.trim();
   var nameEl=form.querySelector('.pb-name-input');
   var name=nameEl?nameEl.value.trim():'';
+  var call_time=form.querySelector('.pb-time-input').value;
+  var language=form.querySelector('.pb-lang-input').value;
   var msg=form.querySelector('.pb-msg');
   if(!phone){msg.textContent='Enter your phone number.';msg.style.color='#cc0000';return;}
-  btn.disabled=true;btn.textContent='Sending...';
+  btn.disabled=true;btn.textContent='Connecting...';
+  var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'America/New_York';
   fetch('/api/sms/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({phone:phone,tier:tier,name:name})
+    body:JSON.stringify({phone:phone,tier:tier,name:name,call_time:call_time,language:language,timezone:tz})
   }).then(function(r){return r.json();}).then(function(d){
     if(d.success){
       msg.style.color='#44cc44';
-      msg.textContent=tier==='premium'?'Oracle access confirmed. First call tomorrow 8am ET.':'You are in. First brief tomorrow 8am ET.';
+      var times={'06:00':'6am','07:00':'7am','08:00':'8am','09:00':'9am','10:00':'10am','12:00':'12pm','17:00':'5pm','20:00':'8pm'};
+      var tLabel=times[call_time]||call_time;
+      msg.textContent=tier==='premium'?'Oracle access confirmed. First call '+tLabel+' ET.':'You are in. First brief '+tLabel+' ET.';
       btn.textContent='Subscribed';
     }else{
       msg.style.color='#cc0000';msg.textContent=d.message||'Error. Try again.';
       btn.disabled=false;btn.textContent=tier==='premium'?'Oracle Access':'Get the Brief';
     }
   }).catch(function(){
-    msg.style.color='#cc0000';msg.textContent='Network error.';
+    msg.style.color='#cc0000';msg.textContent='Network error. Try again.';
     btn.disabled=false;btn.textContent=tier==='premium'?'Oracle Access':'Get the Brief';
   });
 }
