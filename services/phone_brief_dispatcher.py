@@ -55,10 +55,17 @@ def _already_called_today(sub, now_et):
     return last.date() == now_et.date()
 
 def run():
+    # Import brief generator BEFORE Flask app (app init modifies sys.path)
+    import importlib
+    _sbg = importlib.import_module("services.satomi_brief_generator")
+    generate_brief_script = _sbg.generate_brief_script
+    _ts = importlib.import_module("services.twilio_service")
+    send_morning_brief_call = _ts.send_morning_brief_call
+    send_premium_brief_call = _ts.send_premium_brief_call
+    send_sms = _ts.send_sms
+
     from app import app, db
     from models import SmsSubscriber
-    from services.satomi_brief_generator import generate_brief_script
-    from services.twilio_service import send_morning_brief_call, send_premium_brief_call, send_sms
 
     now_et = _current_time_et()
     current_hhmm = now_et.strftime('%H:%M')
