@@ -3154,6 +3154,23 @@ def stage_page():
     """24/7 autonomous Bitcoin broadcast station."""
     return render_template('stage.html')
 
+def _next_briefing_utc_epoch():
+    """Return UTC epoch of next 8am ET briefing."""
+    from datetime import datetime, timezone
+    import time
+    try:
+        from zoneinfo import ZoneInfo
+        et = ZoneInfo('America/New_York')
+        now = datetime.now(et)
+        next_8 = now.replace(hour=8, minute=0, second=0, microsecond=0)
+        if now.hour >= 8:
+            from datetime import timedelta
+            next_8 = next_8 + timedelta(days=1)
+        return int(next_8.astimezone(timezone.utc).timestamp())
+    except Exception:
+        return int(time.time()) + 28800
+
+
 @pages_bp.route('/briefing')
 def market_briefing():
     """Market Briefing Room — LAW 3: always show latest + 3 previous."""
