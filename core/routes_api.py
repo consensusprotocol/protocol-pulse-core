@@ -5560,32 +5560,67 @@ def _fetch_onchain() -> dict:
         # Block tip
         tip = requests.get("https://mempool.space/api/blocks/tip/height", timeout=5)
         block_height = int(tip.text.strip()) if tip.text.strip().isdigit() else 0
-        # Exchange flows — use coingecko market data as proxy
-        ehr = hashrate / 1e18 if hashrate else 0  # convert to EH/s
-        diff_t = difficulty / 1e12 if difficulty else 0  # convert to T
+        ehr = hashrate / 1e18 if hashrate else 0
+        diff_t = difficulty / 1e12 if difficulty else 0
+
+        # ── S2F: calculated from block height ──
+        # Current subsidy: 3.125 BTC/block (post-2024 halving)
+        # Annual flow = 3.125 * ~52560 blocks/year = 164,250 BTC
+        # Circulating ~19.85M BTC
+        circulating = 19_850_000
+        annual_flow = 3.125 * 52560  # 164,250
+        s2f_ratio = round(circulating / annual_flow, 1) if annual_flow else 0
+        # PlanB S2F model price (approximate): e^(14.6) * s2f^3.3
+        import math
+        s2f_model_price = round(math.exp(14.6) * (s2f_ratio ** 3.3)) if s2f_ratio else 0
+
+        # ── Exchange flows: pull from sovereign context if available ──
+        exchange_flows = "neutral"
+        try:
+            from services.sovereign_context_engine import get_latest_context
+            sov_ctx = get_latest_context()
+            if sov_ctx:
+                exchange_flows = sov_ctx.get("exchange_flow", "neutral") or "neutral"
+        except Exception:
+            pass
+
+        # Blocks to halving: next halving at block 1,050,000
+        blocks_to_halving = max(0, 1_050_000 - block_height)
+
         return {
+            "hashrate": f"{round(ehr, 1)} EH/s",
             "hashrate_ehs": round(ehr, 2),
+            "difficulty": f"{round(diff_t, 1)} T",
             "difficulty_t": round(diff_t, 2),
+            "next_adjustment": f"{'+' if est_pct > 0 else ''}{round(est_pct, 2)}%",
             "next_adj_pct": round(est_pct, 2),
             "remain_blocks": remain_blocks,
             "remain_time_s": remain_time,
             "block_height": block_height,
-            "mvrv": 2.14,        # placeholder — no free on-chain API
-            "realized_price": 35000,   # placeholder
-            "s2f_ratio": 56,     # post-halving BTC S2F ≈ 56
-            "s2f_model_price": 98000,
-            "exchange_inflow": 1240,   # placeholder BTC/day
-            "exchange_outflow": 1890,  # placeholder BTC/day
-            "exchange_net": -650,
+            "blocks_to_halving": f"{blocks_to_halving:,}",
+            # MVRV + Puell: no free API — show Commander badge
+            "mvrv": None,
+            "mvrv_locked": True,
+            "puell_multiple": None,
+            "puell_locked": True,
+            # S2F: calculated
+            "s2f": f"{s2f_ratio} (${s2f_model_price:,})",
+            "s2f_ratio": s2f_ratio,
+            "s2f_model_price": s2f_model_price,
+            # Exchange flows from sovereign context
+            "exchange_flows": exchange_flows.upper(),
             "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
     except Exception as e:
         logging.warning("onchain fetch error: %s", e)
-        return {"hashrate_ehs": 0, "difficulty_t": 0, "next_adj_pct": 0,
+        return {"hashrate": "—", "hashrate_ehs": 0, "difficulty": "—",
+                "difficulty_t": 0, "next_adjustment": "—", "next_adj_pct": 0,
                 "remain_blocks": 0, "remain_time_s": 0, "block_height": 0,
-                "mvrv": 2.14, "realized_price": 35000, "s2f_ratio": 56,
-                "s2f_model_price": 98000, "exchange_inflow": 1240,
-                "exchange_outflow": 1890, "exchange_net": -650,
+                "blocks_to_halving": "—",
+                "mvrv": None, "mvrv_locked": True,
+                "puell_multiple": None, "puell_locked": True,
+                "s2f": "—", "s2f_ratio": 0, "s2f_model_price": 0,
+                "exchange_flows": "NEUTRAL",
                 "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "error": str(e)}
 
 def _fetch_lightning() -> dict:

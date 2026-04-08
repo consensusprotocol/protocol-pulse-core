@@ -617,6 +617,25 @@ def fetch_all_signals():
                         val[subkey] = cached_val
                         log.info("Cache fallback: %s.%s = %s", key, subkey, cached_val)
 
+    # ── Top-level aliases for downstream consumers ──────────────────────
+    # Templates/APIs expect flat keys: btc_dominance, gold_price
+    # Fetchers write nested: dominance.value, gold.value
+    dom_val = signals.get("dominance", {}).get("value")
+    if dom_val is not None:
+        signals["btc_dominance"] = dom_val
+
+    gold_val = signals.get("gold", {}).get("value")
+    if gold_val is not None:
+        signals["gold_price"] = gold_val
+
+    sp_val = signals.get("sp500", {}).get("value")
+    if sp_val is not None:
+        signals["sp500_price"] = sp_val
+
+    dxy_val = signals.get("dxy", {}).get("value")
+    if dxy_val is not None:
+        signals["dxy_index"] = dxy_val
+
     # Calculate composite signal score
     signals["signal_score"] = calc_signal_score(signals)
 

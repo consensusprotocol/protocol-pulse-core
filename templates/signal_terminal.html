@@ -1329,7 +1329,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
         <div class="panel-content">
             <div class="data-row">
                 <span class="label">MVRV RATIO</span>
-                <span class="value" id="mvrv">{{ onchain.mvrv | default('—') if onchain else '—' }}</span>
+                <span class="value" id="mvrv" {% if not onchain or not onchain.mvrv %}style="color:#f8c15c;font-size:9px;letter-spacing:1px;"{% endif %}>{{ onchain.mvrv if onchain and onchain.mvrv else 'COMMANDER' }}</span>
             </div>
             <div class="data-row">
                 <span class="label">S2F MODEL</span>
@@ -1337,7 +1337,7 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             </div>
             <div class="data-row">
                 <span class="label">PUELL MULTIPLE</span>
-                <span class="value" id="puell">{{ onchain.puell_multiple | default('—') if onchain else '—' }}</span>
+                <span class="value" id="puell" {% if not onchain or not onchain.puell_multiple %}style="color:#f8c15c;font-size:9px;letter-spacing:1px;"{% endif %}>{{ onchain.puell_multiple if onchain and onchain.puell_multiple else 'COMMANDER' }}</span>
             </div>
             <div class="data-row">
                 <span class="label">EXCHANGE FLOWS</span>
@@ -1915,9 +1915,11 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             $('difficulty') && ($('difficulty').textContent = d.difficulty || '—');
             $('next-adj') && ($('next-adj').textContent = d.next_adjustment || '—');
             $('halving-blocks') && ($('halving-blocks').textContent = d.blocks_to_halving || '—');
-            $('mvrv') && ($('mvrv').textContent = d.mvrv || '—');
+            $('mvrv') && ($('mvrv').textContent = d.mvrv_locked ? 'COMMANDER' : (d.mvrv || '—'));
+            if (d.mvrv_locked && $('mvrv')) $('mvrv').style.cssText = 'color:#f8c15c;font-size:9px;letter-spacing:1px;';
             $('s2f') && ($('s2f').textContent = d.s2f || '—');
-            $('puell') && ($('puell').textContent = d.puell_multiple || '—');
+            $('puell') && ($('puell').textContent = d.puell_locked ? 'COMMANDER' : (d.puell_multiple || '—'));
+            if (d.puell_locked && $('puell')) $('puell').style.cssText = 'color:#f8c15c;font-size:9px;letter-spacing:1px;';
             $('exchange-flows') && ($('exchange-flows').textContent = d.exchange_flows || '—');
             $('t-hash') && ($('t-hash').textContent = d.hashrate || '—');
         });
