@@ -775,6 +775,21 @@ def assemble_episode(script: dict, audio_data: dict, extracted_clips: dict,
         Path to final video, or "" on failure
     """
     logger.info("=" * 60)
+    # V28 FIX: Remove standalone wrap/signoff entries — signoff must be in final recap
+    _dialogue = script.get("dialogue", [])
+    if len(_dialogue) >= 2:
+        last = _dialogue[-1]
+        if last.get("type") in ("wrap", "signoff") and len(last.get("text", "")) < 80:
+            _text_l = last.get("text", "").lower()
+            if "stay sovereign" in _text_l or "protocol pulse" in _text_l:
+                logger.info(f"  SIGNOFF DEDUP: Removed standalone wrap entry: {last.get('text','')[:60]}")
+                _dialogue = _dialogue[:-1]
+                # Append signoff to previous entry if not already there
+                if _dialogue and "stay sovereign" not in _dialogue[-1].get("text", "").lower():
+                    _dialogue[-1]["text"] = _dialogue[-1]["text"].rstrip() + " Stay sovereign. This has been Protocol Pulse."
+                    logger.info("  SIGNOFF DEDUP: Appended signoff to final recap entry")
+                script["dialogue"] = _dialogue
+
     logger.info("ASSEMBLING V10 EPISODE — WAVEFORM VISUALIZER")
     logger.info("=" * 60)
 
