@@ -299,3 +299,37 @@ def oracle_voice_response():
 @oracle_voice_bp.route("/api/oracle/recording-ready", methods=["POST"])
 def oracle_recording_ready():
     return Response("", status=204)
+
+
+# ── Inbound call entry point ──────────────────────────────────────────────────
+# Fires when someone calls (877) 315-2721 directly.
+# No subscription required — open Oracle access for all callers.
+
+@oracle_voice_bp.route("/api/oracle/inbound", methods=["POST"])
+def oracle_inbound():
+    _validate_twilio(request)
+    caller = request.form.get("From", "")
+    language = _get_caller_language(caller)  # pulls pref if they're a subscriber
+    polly_voice = LANGUAGES.get(language, LANGUAGES["en"])["polly"]
+
+    # Load live Matrix Orb snapshot for the greeting
+    orb_context = _load_matrix_orb_context()
+    try:
+        import json as _json
+        sig = _json.loads(open("/home/ultron/protocol_pulse/data/signals.json").read())
+        btc_price = "${:,.0f}".format(sig.get("btc_price", {}).get("value", 0))
+        fg_label = sig.get("fear_greed", {}).get("label", "")
+        greeting_data = "BTC is at {} — fear and greed index is {}.".format(btc_price, fg_label)
+    except Exception:
+        greeting_data = ""
+
+    twiml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<Response>'
+        '<Pause length="1"/>'
+        '<Say voice="{}" language="en-US">Protocol Pulse Oracle. {}Speak your question after the tone.</Say>'.format(polly_voice, greeting_data + " " if greeting_data else "")
+        + '<Record action="/api/oracle/voice-response" maxLength="45" playBeep="true" trim="trim-silence"/>'
+        '</Response>'
+    )
+    return Response(twiml, mimetype="application/xml")
+
