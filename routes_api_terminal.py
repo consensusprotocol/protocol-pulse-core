@@ -1,6 +1,6 @@
 """Pulse Terminal API — V30 Premium Bitcoin Intelligence.
 
-Endpoints (Commander tier, $49/mo):
+Endpoints (Commander tier, $29/mo):
   POST /api/v2/terminal/subscribe       — Create Stripe checkout session
   POST /api/v2/terminal/webhook         — Stripe payment webhook
   GET  /api/v2/terminal/topics          — Top topics last 24hr (from articles DB)
@@ -679,7 +679,7 @@ def terminal_network():
 
 @terminal_bp.route("/api/v2/terminal/subscribe", methods=["POST"])
 def terminal_subscribe():
-    """Create a Stripe Checkout session for Commander ($49/mo) subscription.
+    """Create a Stripe Checkout session for Commander ($29/mo) subscription.
 
     Body (JSON): {"email": "user@example.com", "tier": "commander"}
     Returns:     {"checkout_url": "https://checkout.stripe.com/...", "session_id": "..."}
@@ -688,7 +688,7 @@ def terminal_subscribe():
     if not stripe_key:
         return jsonify({
             "error": "Payments not yet enabled. Email team@protocolpulse.io for early access.",
-            "pricing": {"commander": {"price": "$49/month", "requests": "1,000/day"}},
+            "pricing": {"commander": {"price": "$29/month", "requests": "1,000/day"}},
         }), 503
 
     body = request.get_json(silent=True) or {}

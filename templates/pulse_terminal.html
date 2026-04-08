@@ -2,11 +2,11 @@
 
 {% block title %}Pulse Terminal API — Bitcoin Intelligence for Builders{% endblock %}
 
-{% block meta_description %}Access real-time Bitcoin intelligence via API. Topics, entities, sentiment, breaking news, and network stats. Commander tier: $49/mo, 1,000 requests/day.{% endblock %}
+{% block meta_description %}Access real-time Bitcoin intelligence via API. Topics, entities, sentiment, breaking news, and network stats. Commander tier: $29/mo, 1,000 requests/day.{% endblock %}
 
 {% block og_meta %}
 <meta property="og:title" content="Pulse Terminal API — Bitcoin Intelligence for Builders">
-<meta property="og:description" content="Real-time Bitcoin intelligence API. Topics, sentiment, entities, breaking news, network stats. Commander: $49/mo.">
+<meta property="og:description" content="Real-time Bitcoin intelligence API. Topics, sentiment, entities, breaking news, network stats. Commander: $29/mo.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:url" content="{{ request.url }}">
@@ -777,7 +777,7 @@
     </div>
 
     <div class="pt-cta-row">
-      <a href="#pricing" class="btn-terminal-primary">Get Commander Access — $49/mo</a>
+      <a href="#pricing" class="btn-terminal-primary">Get Commander Access — $29/mo</a>
       <a href="#playground" class="btn-terminal-secondary">Try the API</a>
     </div>
   </div>
@@ -827,7 +827,7 @@
       <span class="pt-stat-label">Req / Day</span>
     </div>
     <div class="pt-stat">
-      <span class="pt-stat-num">$49</span>
+      <span class="pt-stat-num">$29</span>
       <span class="pt-stat-label">Per Month</span>
     </div>
   </div>
@@ -971,12 +971,12 @@ curl https://protocolpulse.io/api/v2/terminal/sentiment \
 
   <!-- Subscribe Form -->
   <div style="margin-top:40px;padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:6px;" id="subscribe-form-section">
-    <div class="pt-section-label" style="margin-bottom:8px;">Commander — $49/mo</div>
+    <div class="pt-section-label" style="margin-bottom:8px;">Commander — $29/mo</div>
     <p style="font-size:0.88rem;color:var(--muted);margin-bottom:0;">Enter your email and we'll redirect you to secure Stripe checkout.</p>
     <form class="pt-subscribe-form" id="subscribe-form" onsubmit="submitSubscribe(event)">
       <input type="email" id="subscribe-email" placeholder="you@example.com" required autocomplete="email">
       <button type="submit" class="btn-terminal-primary" id="subscribe-btn" style="padding:12px 28px;">
-        Subscribe — $49/mo
+        Subscribe — $29/mo
       </button>
     </form>
     <p id="subscribe-msg" style="display:none;font-family:var(--mono);font-size:0.8rem;margin-top:12px;"></p>
@@ -1120,7 +1120,7 @@ topics.data.topics.forEach(t =>
 <section style="padding:60px 24px;text-align:center;background:var(--surface);border-top:1px solid var(--border);margin-top:40px;">
   <div class="pt-section-label" style="justify-content:center;display:flex;">Ready</div>
   <h2 style="font-family:var(--mono);font-size:1.8rem;color:#fff;margin:12px 0 16px;">Start building with Bitcoin intelligence.</h2>
-  <p style="color:var(--muted);margin-bottom:28px;">$49/mo. 1,000 requests/day. Cancel anytime.</p>
+  <p style="color:var(--muted);margin-bottom:28px;">$29/mo. 1,000 requests/day. Cancel anytime.</p>
   <a href="#pricing" class="btn-terminal-primary">Get Commander Access</a>
 </section>
 
@@ -1230,17 +1230,17 @@ function submitSubscribe(e) {
       msg.style.color = '#fbbf24';
       msg.textContent = 'Early access: email team@protocolpulse.io to get your key today.';
       btn.disabled = false;
-      btn.textContent = 'Subscribe — $49/mo';
+      btn.textContent = 'Subscribe — $29/mo';
     } else {
       showToast(data.error || 'Something went wrong. Try again.');
       btn.disabled = false;
-      btn.textContent = 'Subscribe — $49/mo';
+      btn.textContent = 'Subscribe — $29/mo';
     }
   })
   .catch(function() {
     showToast('Network error. Please try again.');
     btn.disabled = false;
-    btn.textContent = 'Subscribe — $49/mo';
+    btn.textContent = 'Subscribe — $29/mo';
   });
 }
 

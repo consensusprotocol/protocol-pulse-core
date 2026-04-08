@@ -96,7 +96,7 @@ class User(UserMixin, db.Model):
         return tier and tier != 'free'
 
     def has_commander_tier(self):
-        """True if user has $49/mo Commander (or higher) tier."""
+        """True if user has $29/mo Commander (or higher) tier."""
         tier = getattr(self, 'subscription_tier', None)
         return tier in ('commander', 'sovereign')
 

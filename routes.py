@@ -153,14 +153,14 @@ def admin_create_viral_moments_job():
 
 
 def premium_required(f):
-    """Require Commander ($49/mo) or higher for premium hub access."""
+    """Require Commander ($29/mo) or higher for premium hub access."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
             flash('Sign in to access the Premium Hub.')
             return redirect(url_for('login') + '?next=' + request.path)
         if not getattr(current_user, 'has_commander_tier', lambda: False)():
-            flash('Premium Hub requires a Commander ($49/mo) subscription.')
+            flash('Premium Hub requires a Commander ($29/mo) subscription.')
             return redirect(url_for('premium_page'))
         return f(*args, **kwargs)
     return decorated_function

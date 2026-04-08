@@ -553,7 +553,7 @@ def terminal_subscribe():
     Requires: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET in env.
     Products to create:
       - Pulse Terminal Operator ($19/mo)
-      - Pulse Terminal Commander ($49/mo)
+      - Pulse Terminal Commander ($29/mo)
       - Pulse Terminal Sovereign ($99/mo)
     """
     stripe_key = os.environ.get("STRIPE_SECRET_KEY")
@@ -562,7 +562,7 @@ def terminal_subscribe():
             "error": "Stripe not yet configured. Contact team@protocolpulse.io for access.",
             "pricing": {
                 "operator": {"price": "$19/month", "requests": "100/day"},
-                "commander": {"price": "$49/month", "requests": "1,000/day"},
+                "commander": {"price": "$29/month", "requests": "1,000/day"},
                 "sovereign": {"price": "$99/month", "requests": "unlimited"},
             },
         }), 503

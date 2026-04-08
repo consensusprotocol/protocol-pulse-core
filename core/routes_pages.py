@@ -864,7 +864,7 @@ def clips_gallery():
 @pages_bp.route('/dashboard')
 @login_required
 def commander_dashboard():
-    """Commander Terminal — $49/mo subscriber dashboard (Bloomberg-grade)."""
+    """Commander Terminal — $29/mo subscriber dashboard (Bloomberg-grade)."""
     if not current_user.has_commander_tier():
         flash('Commander tier required for dashboard access.', 'warning')
         return redirect(url_for('auth.join_page'))
