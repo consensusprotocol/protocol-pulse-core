@@ -401,6 +401,26 @@ body{
   border-color: rgba(220,38,38,.3);
 }
 .dd-source-item i { font-size: .55rem; opacity: .6; flex-shrink: 0; }
+
+/* ═══ ENTITY DIRECTORY ═══ */
+.entity-tab{padding:6px 16px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;cursor:pointer;transition:all .2s}
+.entity-tab:hover{border-color:var(--red);color:#fff}
+.entity-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+.entity-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.entity-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.entity-grid{grid-template-columns:1fr}}
+.entity-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;transition:border-color .2s,box-shadow .2s}
+.entity-card:hover{border-color:var(--red);box-shadow:0 0 20px var(--red-dim)}
+.entity-card.hidden{display:none}
+.etag{display:inline-block;font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;padding:3px 8px;border-radius:4px;margin-bottom:10px}
+.etag-person{background:rgba(59,130,246,.15);color:#60a5fa}
+.etag-company{background:rgba(34,197,94,.15);color:#4ade80}
+.etag-project{background:rgba(168,85,247,.15);color:#c084fc}
+.ename{font-family:var(--mono);font-size:1rem;font-weight:600;color:#fff;margin:0 0 8px}
+.entity-card-desc{font-family:var(--mono);font-size:.78rem;color:var(--muted);line-height:1.55;margin:0 0 14px}
+.elink{font-family:var(--mono);font-size:.75rem;color:var(--red);text-decoration:none;transition:opacity .2s}
+.elink:hover{opacity:.8;text-decoration:underline}
+#entitySearch:focus{border-color:var(--red);box-shadow:0 0 12px var(--red-dim)}
 </style>
 </head>
 <body>
@@ -756,6 +776,123 @@ body{
   </div>
 </div>
 
+<!-- ═══════════ ENTITY INTELLIGENCE DIRECTORY ═══════════ -->
+<div id="entityDirectory" style="background:#000;border-top:1px solid rgba(255,255,255,0.06);padding:64px 20px 80px;">
+  <div style="max-width:900px;margin:0 auto 40px;text-align:center;">
+    <div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--red);margin-bottom:12px;">ENTITY INTELLIGENCE DIRECTORY</div>
+    <h2 style="font-family:'Inter',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;margin:0 0 8px;">Research the Ecosystem</h2>
+    <p style="font-family:var(--mono);font-size:0.85rem;color:var(--muted);margin:0 0 24px;">Key players, companies, and protocols shaping Bitcoin's sovereign future.</p>
+    <div style="max-width:360px;margin:0 auto 20px;">
+      <input type="text" id="entitySearch" placeholder="Filter entities..." autocomplete="off" style="width:100%;padding:10px 16px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:var(--mono);font-size:0.85rem;outline:none;box-sizing:border-box;">
+    </div>
+    <div id="entityTabs" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+      <button class="entity-tab active" data-filter="all">ALL</button>
+      <button class="entity-tab" data-filter="person">PEOPLE</button>
+      <button class="entity-tab" data-filter="company">COMPANIES</button>
+      <button class="entity-tab" data-filter="project">PROJECTS</button>
+    </div>
+  </div>
+
+  <div id="entityGrid" class="entity-grid">
+    <div class="entity-card" data-category="person" data-name="Michael Saylor">
+      <span class="etag etag-person">PERSON</span>
+      <h3 class="ename">Michael Saylor</h3>
+      <p class="entity-card-desc">Executive Chairman of MicroStrategy. Architect of the corporate Bitcoin treasury strategy. 506,137 BTC under management.</p>
+      <a href="/search?q=Michael+Saylor" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="person" data-name="Larry Fink">
+      <span class="etag etag-person">PERSON</span>
+      <h3 class="ename">Larry Fink</h3>
+      <p class="entity-card-desc">CEO of BlackRock, world's largest asset manager. Pivoted from Bitcoin skeptic to launching IBIT, the largest spot Bitcoin ETF.</p>
+      <a href="/search?q=Larry+Fink" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="person" data-name="Gary Gensler">
+      <span class="etag etag-person">PERSON</span>
+      <h3 class="ename">Gary Gensler</h3>
+      <p class="entity-card-desc">Former SEC Chair. Oversaw the approval of spot Bitcoin ETFs after years of resistance. Regulatory wildcard.</p>
+      <a href="/search?q=Gary+Gensler" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="person" data-name="Cathie Wood">
+      <span class="etag etag-person">PERSON</span>
+      <h3 class="ename">Cathie Wood</h3>
+      <p class="entity-card-desc">CEO of ARK Invest. $1.5M Bitcoin price target by 2030. ARKB spot ETF operator and consistent on-chain accumulator.</p>
+      <a href="/search?q=Cathie+Wood" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="person" data-name="Jack Dorsey">
+      <span class="etag etag-person">PERSON</span>
+      <h3 class="ename">Jack Dorsey</h3>
+      <p class="entity-card-desc">Co-founder of Block (Square). Funds Bitcoin open-source development. Building decentralized identity and mining hardware.</p>
+      <a href="/search?q=Jack+Dorsey" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="person" data-name="Nayib Bukele">
+      <span class="etag etag-person">PERSON</span>
+      <h3 class="ename">Nayib Bukele</h3>
+      <p class="entity-card-desc">President of El Salvador. First nation-state to adopt Bitcoin as legal tender. Volcano-powered mining and Bitcoin bonds.</p>
+      <a href="/search?q=Nayib+Bukele" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="company" data-name="MicroStrategy">
+      <span class="etag etag-company">COMPANY</span>
+      <h3 class="ename">MicroStrategy</h3>
+      <p class="entity-card-desc">Largest corporate Bitcoin holder. Treasury strategy converted a software firm into a Bitcoin proxy. MSTR stock tracks BTC with leverage.</p>
+      <a href="/search?q=MicroStrategy" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="company" data-name="BlackRock">
+      <span class="etag etag-company">COMPANY</span>
+      <h3 class="ename">BlackRock</h3>
+      <p class="entity-card-desc">$10T+ AUM. IBIT became the fastest-growing ETF in history. Their entry legitimized Bitcoin for institutional capital.</p>
+      <a href="/search?q=BlackRock" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="company" data-name="Coinbase">
+      <span class="etag etag-company">COMPANY</span>
+      <h3 class="ename">Coinbase</h3>
+      <p class="entity-card-desc">Largest US crypto exchange. Custodian for most spot Bitcoin ETFs. Public company (COIN) and regulatory lightning rod.</p>
+      <a href="/search?q=Coinbase" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="company" data-name="Marathon Digital">
+      <span class="etag etag-company">COMPANY</span>
+      <h3 class="ename">Marathon Digital</h3>
+      <p class="entity-card-desc">Largest publicly traded Bitcoin miner by hash rate. HODL strategy — mines and holds BTC on balance sheet.</p>
+      <a href="/search?q=Marathon+Digital" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="company" data-name="Riot Platforms">
+      <span class="etag etag-company">COMPANY</span>
+      <h3 class="ename">Riot Platforms</h3>
+      <p class="entity-card-desc">Major US Bitcoin miner. Rockdale, TX facility is one of the largest mining operations in North America. Power curtailment strategy.</p>
+      <a href="/search?q=Riot+Platforms" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="project" data-name="Lightning Network">
+      <span class="etag etag-project">PROJECT</span>
+      <h3 class="ename">Lightning Network</h3>
+      <p class="entity-card-desc">Bitcoin's Layer 2 payment protocol. Near-instant, near-free transactions. 5,000+ BTC capacity. The scaling solution that works.</p>
+      <a href="/search?q=Lightning+Network" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="project" data-name="Nostr">
+      <span class="etag etag-project">PROJECT</span>
+      <h3 class="ename">Nostr</h3>
+      <p class="entity-card-desc">Censorship-resistant relay protocol. Decentralized social layer with native Bitcoin/Lightning integration via zaps.</p>
+      <a href="/search?q=Nostr" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="project" data-name="Fedimint">
+      <span class="etag etag-project">PROJECT</span>
+      <h3 class="ename">Fedimint</h3>
+      <p class="entity-card-desc">Federated Chaumian e-cash protocol for Bitcoin. Community custody model. Privacy-preserving transactions without custodial risk.</p>
+      <a href="/search?q=Fedimint" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="project" data-name="Casa">
+      <span class="etag etag-project">PROJECT</span>
+      <h3 class="ename">Casa</h3>
+      <p class="entity-card-desc">Multi-sig Bitcoin custody for individuals. Inheritance planning. Making sovereign self-custody accessible to non-technical users.</p>
+      <a href="/search?q=Casa" class="elink">Search articles &rarr;</a>
+    </div>
+    <div class="entity-card" data-category="project" data-name="Start9">
+      <span class="etag etag-project">PROJECT</span>
+      <h3 class="ename">Start9</h3>
+      <p class="entity-card-desc">Personal server OS for running Bitcoin node, Lightning, and sovereign services. The self-hosting stack for digital independence.</p>
+      <a href="/search?q=Start9" class="elink">Search articles &rarr;</a>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── INTRO ──────────────────────────────────
 var intro = document.getElementById('intro');
@@ -810,6 +947,34 @@ window.addEventListener('scroll', function() {
 function toggleDD(btn) {
   btn.closest('.deep-dive').classList.toggle('open');
 }
+
+// ── ENTITY DIRECTORY FILTER ────────────────
+(function() {
+  var search = document.getElementById('entitySearch');
+  var tabs = document.querySelectorAll('.entity-tab');
+  var cards = document.querySelectorAll('.entity-card');
+  var activeFilter = 'all';
+  function applyFilter() {
+    var q = (search ? search.value : '').toLowerCase();
+    cards.forEach(function(card) {
+      var cat = card.getAttribute('data-category') || '';
+      var name = (card.getAttribute('data-name') || '').toLowerCase();
+      var desc = (card.querySelector('.entity-card-desc') || {}).textContent || '';
+      var catMatch = activeFilter === 'all' || cat === activeFilter;
+      var textMatch = !q || name.indexOf(q) !== -1 || desc.toLowerCase().indexOf(q) !== -1;
+      card.classList.toggle('hidden', !(catMatch && textMatch));
+    });
+  }
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      activeFilter = tab.getAttribute('data-filter');
+      applyFilter();
+    });
+  });
+  if (search) search.addEventListener('input', applyFilter);
+})();
 </script>
 </body>
 </html>
