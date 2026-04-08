@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Protocol Pulse | Bitcoin Intelligence Hub
-{% endblock %}
+{% block title %}Protocol Pulse | Bitcoin Intelligence Hub{% endblock %}
 
 {% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}
 
@@ -15,6 +14,25 @@
 <meta name="twitter:site" content="@ProtocolPulse">
 <meta name="twitter:title" content="Protocol Pulse — Bitcoin Intelligence Hub">
 <meta name="twitter:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting.">
+{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Protocol Pulse",
+    "url": "https://protocolpulse.io",
+    "description": "Real-time Bitcoin intelligence platform. Market signals, on-chain analytics, and sovereign AI oracle.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+        "@type": "Offer",
+        "price": "29",
+        "priceCurrency": "USD"
+    }
+}
+</script>
 {% endblock %}
 
 {% block head %}{% endblock %}

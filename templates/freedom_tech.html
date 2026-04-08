@@ -2,6 +2,19 @@
 
 {% block title %}Freedom Tech — Sovereign Stack | Protocol Pulse{% endblock %}
 
+{% block meta_description %}Sovereign technology tools for Bitcoin self-custody, privacy, and decentralized communication. The freedom tech stack, curated by Protocol Pulse.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Freedom Tech — Sovereign Stack | Protocol Pulse">
+<meta property="og:description" content="Sovereign technology tools for Bitcoin self-custody, privacy, and decentralized communication. The freedom tech stack, curated by Protocol Pulse.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
 {% block head %}
 <style>
 :root {
