@@ -558,6 +558,25 @@ PRONUNCIATION_MAP = {
     "NFTs": "N F Ts",
     "DAO": "D A O",
     "DAOs": "D A Os",
+    # Bitcoin hardware & ecosystem
+    "Bitaxe": "Bit-Axe",
+    "bitaxe": "Bit-Axe",
+    "BITAXE": "BIT-AXE",
+    "Antminer": "Ant-Miner",
+    "antminer": "Ant-Miner",
+    "ASIC": "A-sick",
+    "ASICs": "A-sicks",
+    "Whatsminer": "Whats-Miner",
+    "hashrate": "hash-rate",
+    "Hashrate": "Hash-rate",
+    # People
+    "Saifedean": "Sigh-feh-DEAN",
+    "Nakamoto": "Nah-kah-MOH-toh",
+    "Szabo": "SAH-boh",
+    # Protocols
+    "Taproot": "Tap-root",
+    "Nostr": "NOH-ster",
+    "nostr": "NOH-ster",
 }
 
 
