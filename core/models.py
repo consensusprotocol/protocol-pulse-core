@@ -1541,6 +1541,8 @@ class SmsSubscriber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     phone = db.Column(db.String(20), unique=True, nullable=False, index=True)
     subscribed = db.Column(db.Boolean, default=True)
+    tier = db.Column(db.String(20), default='free')  # 'free' | 'premium'
+    name = db.Column(db.String(100), nullable=True)
     source = db.Column(db.String(50), default='website')
     created_at = db.Column(db.DateTime, default=db.func.now())
     unsubscribed_at = db.Column(db.DateTime, nullable=True)

@@ -6159,10 +6159,14 @@ def api_oracle_query():
 @api_bp.route('/api/sms/subscribe', methods=['POST'])
 @limiter.limit("5 per minute")
 def api_sms_subscribe():
-    """Subscribe a phone number to the daily Protocol Pulse voice/SMS brief."""
-    import re
+    """Subscribe a phone number to Protocol Pulse daily brief (free) or Oracle calls (premium)."""
+    import re, threading
     data = request.get_json(silent=True) or {}
     raw_phone = (data.get('phone') or request.form.get('phone', '')).strip()
+    tier = (data.get('tier') or 'free').strip().lower()
+    if tier not in ('free', 'premium'):
+        tier = 'free'
+    name = (data.get('name') or '').strip()[:100]
 
     # Normalize: strip non-digits, ensure +1 prefix for US
     digits = re.sub(r'[^0-9]', '', raw_phone)
@@ -6173,29 +6177,35 @@ def api_sms_subscribe():
     elif len(digits) > 10:
         phone = '+' + digits
     else:
-        return jsonify({'success': False, 'message': 'Enter a valid US phone number'}), 400
+        return jsonify({'success': False, 'message': 'Enter a valid US phone number (US only)'}), 400
 
     existing = models.SmsSubscriber.query.filter_by(phone=phone).first()
     if existing and existing.subscribed:
-        return jsonify({'success': False, 'message': 'Already subscribed'}), 409
+        # Upgrade tier if applicable
+        if tier == 'premium' and getattr(existing, 'tier', 'free') == 'free':
+            existing.tier = 'premium'
+            if name:
+                existing.name = name
+            db.session.commit()
+            threading.Thread(target=_send_sms_welcome, args=(phone, tier), daemon=True).start()
+            return jsonify({'success': True, 'message': 'Upgraded to Oracle tier', 'tier': 'premium'})
+        return jsonify({'success': False, 'message': 'Already subscribed', 'tier': getattr(existing, 'tier', 'free')}), 409
     if existing and not existing.subscribed:
         existing.subscribed = True
+        existing.tier = tier
+        if name:
+            existing.name = name
         existing.unsubscribed_at = None
         db.session.commit()
-        # Send welcome SMS
-        import threading
-        threading.Thread(target=_send_sms_welcome, args=(phone,), daemon=True).start()
-        return jsonify({'success': True, 'message': 'Re-subscribed to daily brief'})
+        threading.Thread(target=_send_sms_welcome, args=(phone, tier), daemon=True).start()
+        return jsonify({'success': True, 'message': 'Re-subscribed', 'tier': tier})
 
-    sub = models.SmsSubscriber(phone=phone, subscribed=True, source='website')
+    sub = models.SmsSubscriber(phone=phone, subscribed=True, tier=tier,
+                                name=name or None, source='website')
     db.session.add(sub)
     db.session.commit()
-
-    # Send welcome SMS
-    import threading
-    threading.Thread(target=_send_sms_welcome, args=(phone,), daemon=True).start()
-
-    return jsonify({'success': True, 'message': 'Subscribed to daily intelligence brief'})
+    threading.Thread(target=_send_sms_welcome, args=(phone, tier), daemon=True).start()
+    return jsonify({'success': True, 'message': 'Subscribed', 'tier': tier})
 
 @api_bp.route('/api/sms/unsubscribe', methods=['POST'])
 def api_sms_unsubscribe():
@@ -6211,7 +6221,7 @@ def api_sms_unsubscribe():
         db.session.commit()
     return jsonify({'success': True, 'message': 'Unsubscribed'})
 
-def _send_sms_welcome(phone):
+def _send_sms_welcome(phone, tier='free'):
     """Send welcome SMS to new subscriber."""
     try:
         from services.twilio_service import send_sms

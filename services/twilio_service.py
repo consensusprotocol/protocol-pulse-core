@@ -113,3 +113,25 @@ def _escape_twiml(text: str) -> str:
         .replace('>', '')
         .replace('"', "'")
     )
+
+
+def send_premium_brief_call(to, brief_text):
+    try:
+        brief_url = _generate_and_url(brief_text)
+        twiml = (
+            '<Response>'
+            '<Pause length="1"/>'
+            '<Play>' + brief_url + '</Play>'
+            '<Pause length="1"/>'
+            '<Gather numDigits="1" action="/api/oracle/voice-gather" timeout="10">'
+            '<Say voice="Polly.Matthew">Press 1 to speak with the Oracle. Or hang up to end.</Say>'
+            '</Gather>'
+            '<Hangup/>'
+            '</Response>'
+        )
+        call = get_client().calls.create(twiml=twiml, from_=_from_number(), to=to, timeout=180)
+        logger.info('Premium Oracle call: %s to %s', call.sid, to)
+        return True
+    except Exception as e:
+        logger.error('Premium call failed to %s: %s', to, e)
+        return False
