@@ -119,13 +119,14 @@ MAX_CHUNK_CHARS = 500  # ElevenLabs safe chunk size
 SILENCE_GAP = 0.08  # seconds between lines — ElevenLabs has natural pauses built in
 
 # Voice mode overrides per segment type (applied to whichever host speaks)
+# V32: Voice setting C — natural broadcast flow
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
-    "setup":           {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
-    "react":           {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
-    "bridge":          {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
-    "social_segment":  {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
-    "wrap":            {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
+    "cold_open":       {"stability": 0.60, "similarity_boost": 0.80, "style": 0.15},
+    "setup":           {"stability": 0.60, "similarity_boost": 0.80, "style": 0.15},
+    "react":           {"stability": 0.60, "similarity_boost": 0.80, "style": 0.15},
+    "bridge":          {"stability": 0.60, "similarity_boost": 0.80, "style": 0.15},
+    "social_segment":  {"stability": 0.60, "similarity_boost": 0.80, "style": 0.15},
+    "wrap":            {"stability": 0.60, "similarity_boost": 0.80, "style": 0.15},
 }
 
 
