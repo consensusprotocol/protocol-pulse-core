@@ -1153,6 +1153,35 @@ def main():
             queued_count += 1
 
     logger.info(f"Done: {posted_count} posted, {queued_count} queued")
+
+    # ── HERALD AGENT: Track posting state + engagement metrics ──
+    try:
+        _agent_dir = os.path.join(str(BASE), "agents")
+        if _agent_dir not in sys.path:
+            sys.path.insert(0, _agent_dir)
+        from event_bus import save_state, load_state, log_metric
+        _prev = {}
+        try:
+            _prev = load_state("herald")
+        except Exception:
+            pass
+        _total_posted = _prev.get("total_posted", 0) + posted_count
+        _total_queued = _prev.get("total_queued", 0) + queued_count
+        _run_count = _prev.get("run_count", 0) + 1
+        log_metric("herald", "tweets_posted", posted_count)
+        log_metric("herald", "tweets_queued", queued_count)
+        save_state("herald", {
+            "total_posted": _total_posted,
+            "total_queued": _total_queued,
+            "run_count": _run_count,
+            "last_posted_count": posted_count,
+            "last_queued_count": queued_count,
+        }, last_action=f"posted_{posted_count}_queued_{queued_count}",
+           self_eval=posted_count / max(posted_count + queued_count, 1),
+           notes=f"Run #{_run_count}: {posted_count} posted, {queued_count} queued | Lifetime: {_total_posted} posted")
+        logger.info(f"  HERALD AGENT: Run #{_run_count} | Lifetime: {_total_posted} posted, {_total_queued} queued")
+    except Exception as _herald_err:
+        logger.warning(f"  HERALD AGENT: non-fatal error - {_herald_err}")
     if queued_count > 0:
         logger.info(f"Review queue at: {QUEUE_PATH}")
 

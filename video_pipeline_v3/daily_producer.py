@@ -1918,6 +1918,48 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     print(f"  {format_score_report(quality_score)}")
     manifest["quality_score"] = quality_score
 
+    # ── GRADER AGENT: Persistent state + metrics (sovereign agent fleet) ──
+    try:
+        _agent_dir = os.path.join(os.path.dirname(BASE), "agents")
+        if _agent_dir not in sys.path:
+            sys.path.insert(0, _agent_dir)
+        from event_bus import save_state, load_state, log_metric, emit
+        _grade_letter = "A" if quality_score >= 88 else "B" if quality_score >= 75 else "C" if quality_score >= 60 else "F"
+        _prev = {}
+        try:
+            _prev = load_state("grader")
+        except Exception:
+            pass
+        _consecutive_a = _prev.get("consecutive_a", 0)
+        if _grade_letter == "A":
+            _consecutive_a += 1
+        else:
+            _consecutive_a = 0
+        _render_num = _prev.get("render_count", 0) + 1
+        log_metric("grader", "quality_score", quality_score, f"V{_render_num}")
+        log_metric("grader", "consecutive_a", _consecutive_a)
+        save_state("grader", {
+            "quality_score": quality_score,
+            "grade": _grade_letter,
+            "consecutive_a": _consecutive_a,
+            "render_count": _render_num,
+            "last_video": final_video,
+        }, last_action=f"grade_{_grade_letter}_{quality_score}",
+           self_eval=quality_score / 100.0,
+           notes=f"Grade {_grade_letter} ({quality_score}/100) | Consecutive A: {_consecutive_a}/10")
+        emit("grader", "grade_complete", {
+            "grade": _grade_letter,
+            "score": quality_score,
+            "consecutive_a": _consecutive_a,
+            "broadcast_ready": _grade_letter == "A",
+        })
+        logger.info(f"  GRADER AGENT: {_grade_letter} ({quality_score}/100) | Consecutive A: {_consecutive_a}/10")
+        if _consecutive_a >= 10:
+            emit("grader", "pipeline_locked", {"consecutive_a": 10})
+            logger.info("  GRADER AGENT: PIPELINE LOCKED - 10 consecutive A grades!")
+    except Exception as _agent_err:
+        logger.warning(f"  GRADER AGENT: non-fatal error - {_agent_err}")
+
     if is_enabled("youtube_auto_upload") and should_upload(quality_score):
         from utils.youtube_upload import upload_episode as yt_upload, build_description, build_tags
         # Build YouTube metadata
