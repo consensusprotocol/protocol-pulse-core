@@ -57,10 +57,10 @@ _PBX_VOICE = {
     "voice_id": PBX_VOICE_ID,
     "name": "PBX",
     "model_id": "eleven_multilingual_v2",
-    "speed": 1.20,
+    "speed": 1.15,  # V32: was 1.20 — slightly slower for natural pace
     "voice_settings": {
-        "stability": 0.35,
-        "similarity_boost": 0.90,
+        "stability": 0.60,  # V32: was 0.35 — raised for natural flow
+        "similarity_boost": 0.80,  # V32: was 0.90
         "style": 0.30,
         "use_speaker_boost": True,
     },
@@ -120,12 +120,12 @@ SILENCE_GAP = 0.08  # seconds between lines — ElevenLabs has natural pauses bu
 
 # Voice mode overrides per segment type (applied to whichever host speaks)
 VOICE_MODES = {
-    "cold_open":       {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
-    "setup":           {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
-    "react":           {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
-    "bridge":          {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
-    "social_segment":  {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
-    "wrap":            {"stability": 0.35, "similarity_boost": 0.90, "style": 0.30},
+    "cold_open":       {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
+    "setup":           {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
+    "react":           {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
+    "bridge":          {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
+    "social_segment":  {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
+    "wrap":            {"stability": 0.60,  # V32: was 0.35 — raised for natural flow "similarity_boost": 0.80,  # V32: was 0.90 "style": 0.30},
 }
 
 
