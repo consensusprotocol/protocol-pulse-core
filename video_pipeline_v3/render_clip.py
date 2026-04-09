@@ -316,7 +316,7 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
         f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[clip];"
         f"[1:v]crop=1920:120:0:960[ltband];"
         f"[clip][ltband]overlay=0:960:enable='lte(t,{overlay_dur})',format=yuv420p[outv];"
-        f"[0:a]asetpts=PTS-STARTPTS,volume=1.0[outa]",
+        f"[0:a]atrim=duration={_target_cv:.3f},asetpts=PTS-STARTPTS,volume=1.0[outa]",
         "-map", "[outv]", "-map", "[outa]",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
@@ -439,14 +439,28 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
         logger.warning(f"Clip has zero duration: {clip_path}")
         return ""
 
+    # V34 AV FIX: Measure V/A durations and trim both to shorter one.
+    # fps=30 adds ~0.1s video; without trim, clips drift perceptibly.
+    _v_dur_cv = ffprobe_video_duration(clip_path)
+    _a_dur_cv = 0.0
+    try:
+        import subprocess as _sp_cv
+        _ap = _sp_cv.run(["ffprobe", "-v", "quiet", "-select_streams", "a:0",
+            "-show_entries", "stream=duration", "-of", "csv=p=0", clip_path],
+            capture_output=True, text=True, timeout=10)
+        _a_dur_cv = float(_ap.stdout.strip()) if _ap.stdout.strip() else clip_dur
+    except:
+        _a_dur_cv = clip_dur
+    _target_cv = min(_v_dur_cv, _a_dur_cv) if _v_dur_cv > 0 and _a_dur_cv > 0 else clip_dur
+    logger.info(f"  AV TRIM (clip_visual): V={_v_dur_cv:.3f}s A={_a_dur_cv:.3f}s target={_target_cv:.3f}s")
+
     safe_source = source.replace("'", "").replace('"', "").replace(":", "")
     safe_btc = btc_price.replace("'", "").replace('"', "")
 
-    fade_out_start = max(0, clip_dur - 0.5)
-    # Ken Burns zoom REMOVED — was drifting text overlays, logos, lower thirds.
-    # Static scale+crop to 1920x1080 instead.
+    fade_out_start = max(0, _target_cv - 0.5)
     fg = (
         f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
+        f"trim=duration={_target_cv:.3f},setpts=PTS-STARTPTS,"
         f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
         # Red border frame (2px all edges)
         f"[clip]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
