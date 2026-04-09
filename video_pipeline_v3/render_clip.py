@@ -28,6 +28,21 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
         logger.warning(f"Partner clip has zero duration: {video_path}")
         return ""
 
+    # V31 AV FIX: Measure V/A durations separately and trim both to the shorter one.
+    # fps=30 adds ~0.1s to video; without this, every clip drifts +0.1s.
+    _v_dur = ffprobe_video_duration(video_path)
+    _a_dur_raw = 0.0
+    try:
+        import subprocess as _sp_av
+        _a_probe = _sp_av.run(["ffprobe", "-v", "quiet", "-select_streams", "a:0",
+            "-show_entries", "stream=duration", "-of", "csv=p=0", video_path],
+            capture_output=True, text=True, timeout=10)
+        _a_dur_raw = float(_a_probe.stdout.strip()) if _a_probe.stdout.strip() else clip_dur
+    except:
+        _a_dur_raw = clip_dur
+    _target_dur = min(_v_dur, _a_dur_raw) if _v_dur > 0 and _a_dur_raw > 0 else clip_dur
+    logger.info(f"  AV TRIM: V={_v_dur:.3f}s A={_a_dur_raw:.3f}s target={_target_dur:.3f}s")
+
     safe_speaker = _sanitize_text(speaker)[:30] if speaker else "SOURCE"
     safe_quote = _sanitize_text(quote)[:60] if quote else ""
     safe_btc = btc_price.replace("'", "").replace('"', "")
@@ -35,7 +50,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     import datetime
     ts_str = datetime.datetime.now().strftime("%H-%M UTC")
 
-    fade_out_start = max(0, clip_dur - 0.5)
+    fade_out_start = max(0, _target_dur - 0.5)
     fg = ""
     # Full frame clip
     fg += (f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
@@ -73,7 +88,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     fg += _ken_burns_motion("pc_railed", "outv", clip_dur)
     # Render14: removed atrim=start=2.5 (was root cause of lipsync desync)
     # aresample=48000 REMOVED — clips already synced by clip_extractor, async was overcorrecting
-    fg += (f"[0:a]asetpts=PTS-STARTPTS,"
+    fg += (f"[0:a]atrim=duration={_target_dur:.3f},asetpts=PTS-STARTPTS,"
            f"highpass=f=50,lowpass=f=15000,"
            f"afade=t=in:d=0.5,afade=t=out:st={max(0, fade_out_start - 0.5)}:d=0.5[outa]")
 
@@ -84,7 +99,8 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
         [input_spec], fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-         "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+
         output_path, f"APEX partner clip ({safe_speaker})",
     )
     return output_path if ok else ""
