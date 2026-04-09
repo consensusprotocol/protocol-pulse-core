@@ -1327,6 +1327,36 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 if not result:
                     result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
                 # Render24 FIX 2: If partner clip ffmpeg fails, retry stream copy then bg_loop fallback
+                # V34 AV POST-TRIM: Measure V/A after render, fix drift > 0.05s
+                if result and os.path.exists(result):
+                    try:
+                        _pv = ffprobe_video_duration(result)
+                        _pa_r = subprocess.run(["ffprobe", "-v", "quiet", "-select_streams", "a:0",
+                            "-show_entries", "stream=duration", "-of", "csv=p=0", result],
+                            capture_output=True, text=True, timeout=10)
+                        _pa = float(_pa_r.stdout.strip()) if _pa_r.stdout.strip() else _pv
+                        _diff = _pv - _pa
+                        if abs(_diff) > 0.05:
+                            _trim_target = min(_pv, _pa)
+                            _trimmed = result + ".avtrim.mp4"
+                            _trim_ok = run_ffmpeg([
+                                "-i", result,
+                                "-vf", f"trim=duration={_trim_target:.3f},setpts=PTS-STARTPTS",
+                                "-af", f"atrim=duration={_trim_target:.3f},asetpts=PTS-STARTPTS",
+                                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                                "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                                _trimmed
+                            ], f"AV POST-TRIM clip #{rank} ({_diff:+.3f}s)", 120)
+                            if _trim_ok and os.path.exists(_trimmed) and os.path.getsize(_trimmed) > 10000:
+                                os.replace(_trimmed, result)
+                                logger.info(f"  AV POST-TRIM: clip #{rank} {_diff:+.3f}s -> trimmed to {_trim_target:.3f}s")
+                            elif os.path.exists(_trimmed):
+                                os.remove(_trimmed)
+                        else:
+                            logger.info(f"  AV CHECK: clip #{rank} V={_pv:.3f} A={_pa:.3f} diff={_diff:+.3f}s OK")
+                    except Exception as _avt_err:
+                        logger.warning(f"  AV POST-TRIM: check failed ({_avt_err})")
+
                 if not result:
                     stream_copy_out = clip_out + ".streamcopy.mp4"
                     sc_ok = run_ffmpeg([
