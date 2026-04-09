@@ -108,6 +108,10 @@ HARD LIMIT: Maximum 2 sentences per setup. Maximum 2 sentences per reaction. If 
 {clips_info}
 
 BTC Price Today: {btc_price}
+BTC Market Dominance: {btc_dominance}
+Fear & Greed Index: {fear_greed}
+Hashrate: {hashrate}
+CRITICAL: Use ONLY the exact numbers above. Do NOT invent or estimate metrics. If you cite dominance, it MUST match the number above.
 Top Tweets/Nostr Posts Today: {social_posts}
 {live_context}
 Return ONLY valid JSON (no markdown, no code fences):
@@ -443,7 +447,7 @@ def _populate_segment_headlines(result: dict) -> dict:
     return result
 
 
-def generate_from_clips(selections: dict, btc_price: str = "N/A",
+def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance: str = "N/A", fear_greed: str = "N/A", hashrate: str = "N/A",
                         live_context: str = "", morning_brief: dict = None,
                         social_posts_sorted: list = None) -> dict:
     """Generate host dialogue script around the selected clips.

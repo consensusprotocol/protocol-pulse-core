@@ -1311,7 +1311,17 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         else:
             print("\n[STEP 5/12] GENERATING HOST DIALOGUE (Claude)...")
             t0 = time.time()
+            # V31 FIX: Pass real intelligence data to prevent script hallucination
+            _intel_data = {}
+            try:
+                from fetch_intelligence_data import load_or_refresh as _intel_load_script
+                _intel_data = _intel_load_script() or {}
+            except Exception as _ie:
+                logger.warning(f"Intel data for script: {_ie}")
             script = generate_from_clips(selections, btc_price=btc_price,
+                                         btc_dominance=f"{_intel_data.get('btc_dominance', 'N/A')}%",
+                                         fear_greed=str(_intel_data.get('fear_greed_value', 'N/A')),
+                                         hashrate=f"{_intel_data.get('hashrate_current', 'N/A')} EH/s",
                                          live_context=live_context,
                                          social_posts_sorted=sorted_social)
             timing["5_script"] = round(time.time() - t0, 2)
