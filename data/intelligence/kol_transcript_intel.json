@@ -1,7 +1,127 @@
 {
-  "last_updated": "2026-04-08T04:00:07.727746+00:00",
-  "total_analyses": 67,
+  "last_updated": "2026-04-09T00:00:27.487001+00:00",
+  "total_analyses": 72,
   "analyses": [
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 62,
+      "main_thesis": "Bitcoin surged to 72K on ceasefire news, suggesting it may be emerging as a currency of geopolitical significance; however, the underlying geopolitical situation remains fragile and may mask deeper economic instability.",
+      "key_quotes": [
+        "Bitcoin is making its presence felt immediately surged to 72K on the news",
+        "Did Bitcoin just become the currency of the energy trade?",
+        "Is the dollar on life support? What does that mean for Bitcoin?"
+      ],
+      "topics": [
+        "Geopolitical tensions (Iran/US ceasefire)",
+        "Bitcoin price action and 72K surge",
+        "Dollar stability and reserve currency status",
+        "Ray Dalio's economic outlook",
+        "Bitcoin as alternative to fiat currency"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Simply Bitcoin",
+      "title": "WAR OVER? Dalio, Iran, and Bitcoin Disagree!",
+      "video_id": "5IvEasRmGPg",
+      "duration": 1919.83,
+      "analyzed_at": "2026-04-09T00:00:25.484855+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin is outperforming other risk assets during geopolitical uncertainty due to persistent buying from long-term holders and new institutional ETF inflows, while volatility compression suggests market maturation and stability.",
+      "key_quotes": [
+        "Bitcoin is a digital decentralized non-sovereign asset that isn't tied to any one country",
+        "Bitcoin has been the shining light in a sea of red",
+        "This is what mass adoption looks like, as you have individuals, you have companies, you have ETF"
+      ],
+      "topics": [
+        "ETF inflows (Morgan Stanley, BlackRock)",
+        "Long-term holder accumulation",
+        "Volatility compression (80-90 vol to 35-40 vol)",
+        "Geopolitical uncertainty as safe-haven demand",
+        "Mass adoption indicators"
+      ],
+      "price_prediction": "Long-term targets of $500k-$1M mentioned as plausible (citing gold precedent), but specific timeframe not provided",
+      "confidence": "high",
+      "channel": "Anthony Pompliano",
+      "title": "Will Bitcoin Skyrocket When Iran War Ends?",
+      "video_id": "XEq-geZnAHw",
+      "duration": 1146.11,
+      "analyzed_at": "2026-04-09T00:00:20.572154+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "The New York Times blocking web archivists and AI crawlers is a short-term strategy that will hurt their long-term relevance as AI becomes the primary way people access information online. Technology has an inherent direction that cannot be fought.",
+      "key_quotes": [
+        "Long term it will hurt them. They're not going to be served in AI results.",
+        "With technology, you tend to have to lean into it. You can't really fight it.",
+        "This is like the printing press moment - a shift in how people share and remix things."
+      ],
+      "topics": [
+        "AI web scraping and copyright",
+        "Internet Archive access restrictions",
+        "Historical record preservation",
+        "AI training data compensation",
+        "Content discovery through AI systems"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Stacker News",
+      "title": "Blocking the Internet Archive Will Erase the Web\u2019s Historical Record - New York Times",
+      "video_id": "u2gqzn1Tkno",
+      "duration": 373.12,
+      "analyzed_at": "2026-04-09T00:00:15.399705+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 55,
+      "main_thesis": "Quantum computing progress is inevitable and Bitcoin should proactively implement post-quantum cryptography now rather than wait for a crisis, as the threat timeline remains uncertain but solutions already exist.",
+      "key_quotes": [
+        "this doesn't really change much, except that maybe shortens the timeline",
+        "if the government gets a hold of this, there's no telling what they're going to do",
+        "nothing happens until there's a provable attack...then we're going to panic"
+      ],
+      "topics": [
+        "quantum computing threat to Bitcoin",
+        "post-quantum cryptography implementation",
+        "government quantum development",
+        "Bitcoin upgrade timing and coordination",
+        "cryptographic key security"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Stacker News",
+      "title": "Quantum computing bombshells that are not April Fools - Scott Aaronson",
+      "video_id": "1ZrAz6Wxopo",
+      "duration": 844.12,
+      "analyzed_at": "2026-04-09T00:00:10.965536+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "The US government faces an impossible debt situation with $39 trillion in obligations and no viable solutions, forcing eventual currency devaluation which has implications for the global financial system and alternative assets like Bitcoin.",
+      "key_quotes": [
+        "oil is trading at more than $100 per barrel, and this is truly the worst possible outcome",
+        "They have $39 trillion in debt, and the playbook up until this moment has historically been to just add more debt",
+        "Option four is this, devalue the cur[rency]"
+      ],
+      "topics": [
+        "US national debt ($39 trillion)",
+        "Treasury bond demand crisis",
+        "Currency devaluation mechanics",
+        "Global economic fragility",
+        "Oil price spikes and inflation"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Blockware Solutions",
+      "title": "Oil is Spiking. The $39 Trillion Debt Trap is Closing.",
+      "video_id": "PBDpngyk7ms",
+      "duration": 762.52,
+      "analyzed_at": "2026-04-09T00:00:04.820801+00:00"
+    },
     {
       "sentiment": "bearish",
       "sentiment_score": 25,

@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-03-31T10:00:00Z",
-  "date": "Tuesday, March 31, 2026",
-  "btc_price": "$67,794",
-  "btc_change_24h": "+2.1%",
+  "generated_at": "2026-04-08T10:00:00Z",
+  "date": "Wednesday, April 08, 2026",
+  "btc_price": "$71,350",
+  "btc_change_24h": "+3.4%",
   "fng": "Extreme Fear",
   "dominant_narratives": [
-    "Quantum FUD and its disinformation campaign",
-    "AI disruption and macroeconomic shifts",
-    "Bitcoin as a hedge against systemic risk"
+    "Bitcoin as a neutral global monetary base layer",
+    "Iran's crypto tolls on Strait of Hormuz",
+    "Morgan Stanley's Bitcoin ETF launch"
   ],
   "trending_language": [
-    "quantum computer that'll never actually exist",
-    "Bitcoin security researcher",
-    "AI fiat disruption"
+    "Bitcoin is neutral",
+    "It's the only asset all governments can trust",
+    "Iran is collecting its Hormuz toll in bitcoin"
   ],
-  "sentiment": "uncertain",
-  "sentiment_reasoning": "Despite price gains, the Fear & Greed index shows Extreme Fear, indicating market anxiety over quantum threats and macro uncertainty. Community discourse is polarized between technical defense and FUD.",
+  "sentiment": "bullish",
+  "sentiment_reasoning": "Despite the Extreme Fear index, Bitcoin price is rising and key institutional developments like Morgan Stanley's ETF launch and Iran's crypto tolls indicate growing adoption and recognition.",
   "top_accounts_active": [
-    "@jvisserlabs",
-    "@saifedean",
-    "@TFTC21"
+    "@BitcoinMagazine",
+    "@BitcoinArchive",
+    "@ErikVoorhees"
   ],
   "recommended_tweet_angles": [
-    "Debunking quantum FUD with technical evidence and historical precedent",
-    "Analyzing how AI disruption creates macroeconomic incentives for Bitcoin adoption",
-    "Highlighting Bitcoin's resilience against theoretical quantum attacks with real-world examples"
+    "Bitcoin's neutrality in geopolitical conflicts",
+    "Iran's move to monetize maritime transit via Bitcoin",
+    "Morgan Stanley's spot Bitcoin ETF as institutional validation"
   ],
   "topics_to_avoid": [
-    "Overhyping quantum threats without concrete evidence"
+    "Personal attacks or speculative claims about Satoshi"
   ],
-  "engagement_patterns": "Technical deep-dives with concrete data perform best, especially when contrasting FUD with facts. Visuals and direct rebuttals to misinformation gain traction.",
-  "protocol_pulse_voice_guidance": "Maintain a cypherpunk edge: focus on technical facts, expose disinformation, and emphasize Bitcoin's decentralized, cryptographic foundations. Avoid sensationalism, but don't shy away from calling out FUD when it's clearly disinformation.",
+  "engagement_patterns": "Data-backed assertions, institutional developments, and geopolitical narratives resonate most with the community today.",
+  "protocol_pulse_voice_guidance": "Speak with precision, anchor narratives in verifiable data, and maintain a cypherpunk ethos focused on decentralized truth and monetary sovereignty.",
   "key_stats_today": {
-    "tweets_analyzed": 166,
+    "tweets_analyzed": 171,
     "nostr_signals": 0,
-    "unique_handles": 103
+    "unique_handles": 107
   },
   "generated_by": "local_llm"
 }

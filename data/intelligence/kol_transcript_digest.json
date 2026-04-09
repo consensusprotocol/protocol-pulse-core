@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-08T04:00:12.109012+00:00",
-  "creator_count": 10,
-  "avg_sentiment_score": 53.1,
+  "generated_at": "2026-04-09T00:00:30.997017+00:00",
+  "creator_count": 6,
+  "avg_sentiment_score": 47.5,
   "sentiment_breakdown": {
-    "bullish": 4,
-    "bearish": 1,
-    "neutral": 5
+    "bullish": 1,
+    "bearish": 2,
+    "neutral": 3
   },
   "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "Liquidity cycles and money flow",
+      "topic": "Geopolitical tensions (Iran/US ceasefire)",
       "creator_count": 1,
       "creators": [
-        "The Bitcoin Layer"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The cyclical top is in. That cyclical top occurred about September, October last year"
+      "avg_sentiment_score": 62.0,
+      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
     },
     {
-      "topic": "Federal Reserve policy and monetary inflation",
+      "topic": "Bitcoin price action and 72K surge",
       "creator_count": 1,
       "creators": [
-        "The Bitcoin Layer"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The cyclical top is in. That cyclical top occurred about September, October last year"
+      "avg_sentiment_score": 62.0,
+      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
     },
     {
-      "topic": "Geopolitical risk (Iran tensions, Trump tariffs)",
+      "topic": "Dollar stability and reserve currency status",
       "creator_count": 1,
       "creators": [
-        "The Bitcoin Layer"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The cyclical top is in. That cyclical top occurred about September, October last year"
+      "avg_sentiment_score": 62.0,
+      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
     },
     {
-      "topic": "Oil prices and credit markets",
+      "topic": "Ray Dalio's economic outlook",
       "creator_count": 1,
       "creators": [
-        "The Bitcoin Layer"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The cyclical top is in. That cyclical top occurred about September, October last year"
+      "avg_sentiment_score": 62.0,
+      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
     },
     {
-      "topic": "Bond volatility and collateral multipliers",
+      "topic": "Bitcoin as alternative to fiat currency",
       "creator_count": 1,
       "creators": [
-        "The Bitcoin Layer"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The cyclical top is in. That cyclical top occurred about September, October last year"
+      "avg_sentiment_score": 62.0,
+      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus and Divergence Summary\n\n**Consensus:** Most bullish voices agree that Bitcoin functions as a long-term inflation hedge and core portfolio holding, with low volatility periods and accumulation by long-term holders indicating healthy price floors rather than weakness. There's also broad agreement that geopolitical uncertainty is increasing Bitcoin's appeal as an uncorrelated asset.\n\n**Key Divergence:** The Bitcoin Layer takes a notably bearish stance (25/100), warning that deteriorating liquidity conditions pose near-term headwinds despite Bitcoin's long-term hedge value\u2014contrasting sharply with bullish creators (75-78/100) who view current \"boring\" sideways action and low volume as accumulation phases setting up future gains.\n\n**Neutral Perspectives:** Economic theorists like Saifedean Ammous and technical analysts (Stacker News) provide foundational insights on money's role and network mechanics rather than price predictions, while several sources offer commentary on broader market structures and adoption trends without strong directional bias.\n\nThe most striking tension is between short-term liquidity concerns versus long-term holder conviction\u2014bearish on immediate conditions but bullish on strategic positioning.",
+  "summary": "# Bitcoin Creator Consensus & Divergence\n\n**Consensus:** Bitcoin creators broadly agree that geopolitical uncertainty and monetary instability are supporting Bitcoin's value proposition, with most viewing it as a hedge against currency devaluation and systemic financial risks.\n\n**Key Divergence:** Sentiment splits sharply on near-term outlook. Pompliano and Simply Bitcoin lean bullish on immediate price momentum (driven by institutional flows and geopolitical flight-to-safety), while Blockware Solutions and The Bitcoin Layer are bearish on liquidity conditions and expect deteriorating macro conditions before any recovery.\n\n**Secondary Themes:** There's consensus on Bitcoin's technological maturation (evidenced by ETF adoption and volatility compression), though some voices raise defensive concerns about quantum computing threats and the need for proactive upgrades. One outlier perspective (Stacker News on media) suggests broader tech inevitability arguments that loosely support Bitcoin's role in reshaping information/financial systems.",
   "top_creators": [
     {
-      "channel": "The Bitcoin Layer",
-      "sentiment": "bearish",
-      "score": 25,
-      "thesis": "The liquidity cycle peaked in September-October 2024 and has been weakening since; geopolitical tensions and monetary tightening will continue to deteriorate liquidity conditions, but Bitcoin should be held as a core monetary inflation hedge for when the Fed inevitably returns to stimulus."
+      "channel": "Simply Bitcoin",
+      "sentiment": "mixed",
+      "score": 62,
+      "thesis": "Bitcoin surged to 72K on ceasefire news, suggesting it may be emerging as a currency of geopolitical significance; however, the underlying geopolitical situation remains fragile and may mask deeper economic instability."
+    },
+    {
+      "channel": "Anthony Pompliano",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin is outperforming other risk assets during geopolitical uncertainty due to persistent buying from long-term holders and new institutional ETF inflows, while volatility compression suggests market maturation and stability."
+    },
+    {
+      "channel": "Stacker News",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "The New York Times blocking web archivists and AI crawlers is a short-term strategy that will hurt their long-term relevance as AI becomes the primary way people access information online. Technology has an inherent direction that cannot be fought."
+    },
+    {
+      "channel": "Stacker News",
+      "sentiment": "mixed",
+      "score": 55,
+      "thesis": "Quantum computing progress is inevitable and Bitcoin should proactively implement post-quantum cryptography now rather than wait for a crisis, as the threat timeline remains uncertain but solutions already exist."
     },
     {
       "channel": "Blockware Solutions",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Bitcoin's current 'boring' sideways price action is actually bullish because low trading volume combined with long-term holder accumulation indicates a strong price floor being established. The key to Bitcoin returns is holding through volatility rather than timing market movements."
-    },
-    {
-      "channel": "TheStreet",
-      "sentiment": "neutral",
-      "score": 0,
-      "thesis": null
-    },
-    {
-      "channel": "Natalie Brunell",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Stretch, a perpetual preferred stock yielding 11.5%, democratizes yield access for retail investors by offering passive income comparable to traditional assets while maintaining Bitcoin exposure through MicroStrategy's underlying holdings."
-    },
-    {
-      "channel": "Saifedean Ammous",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "Money solves the problem of coincidence of wants in trade by serving as an indirect medium of exchange. The Austrian school's key insight is that the market naturally determines money's purchasing power without requiring excess or deficiency."
+      "sentiment": "bearish",
+      "score": 15,
+      "thesis": "The US government faces an impossible debt situation with $39 trillion in obligations and no viable solutions, forcing eventual currency devaluation which has implications for the global financial system and alternative assets like Bitcoin."
     }
   ]
 }

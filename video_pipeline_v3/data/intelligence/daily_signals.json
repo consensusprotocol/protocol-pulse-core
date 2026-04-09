@@ -1,33 +1,55 @@
 {
   "topic_velocity": [
     {
-      "topic": "Bitcoin's deflationary supply",
-      "channels": 27,
-      "sentiment": "bearish",
-      "velocity_score": 40,
-      "authority_score": 20,
+      "topic": "Quantum computing threat to Bitcoin",
+      "channels": 6,
+      "sentiment": "mixed",
+      "velocity_score": 9,
+      "authority_score": 36,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Quantum computing as a non-immediate threat",
-      "channels": 15,
-      "sentiment": "bearish",
-      "velocity_score": 22,
-      "authority_score": 22,
+      "topic": "Self-custody and Bitcoin education",
+      "channels": 5,
+      "sentiment": "bullish",
+      "velocity_score": 8,
+      "authority_score": 8,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Geopolitical tensions and economic risks",
-      "channels": 19,
-      "sentiment": "bearish",
-      "velocity_score": 14,
-      "authority_score": 28,
+      "topic": "Institutional Bitcoin adoption",
+      "channels": 2,
+      "sentiment": "bullish",
+      "velocity_score": 2,
+      "authority_score": 12,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Government stablecoin regulation",
+      "channels": 1,
+      "sentiment": "bullish",
+      "velocity_score": 2,
+      "authority_score": 3,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Bitcoin as geopolitical adoption",
+      "channels": 1,
+      "sentiment": "bullish",
+      "velocity_score": 2,
+      "authority_score": 3,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -36,13 +58,13 @@
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Bitcoin's deflationary supply",
-    "Quantum computing as a non-immediate threat",
-    "Geopolitical tensions and economic risks"
+    "Quantum computing threat to Bitcoin",
+    "Self-custody and Bitcoin education",
+    "Institutional Bitcoin adoption"
   ],
-  "dominant_narrative": "Geopolitical tensions and economic risks",
+  "dominant_narrative": "Quantum computing threat to Bitcoin",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-08T05:07:35Z"
+  "scan_time": "2026-04-08T22:07:43Z"
 }

@@ -1,42 +1,53 @@
 [
   {
-    "id": "7442053e-eef3-47ad-9b37-855c738793d9",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Bitcoin hit $72,753 on Trump's Iran de-escalation signal\u2014geopolitical risk premium compressing in real time. Watch whether this holds above $71,500 or if traditional markets recapture the volatility narrative.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Trump-Iran Ceasefire Sparks $72K Bitcoin Surge",
-    "generated_at": "2026-04-08T05:10:26.526113+00:00",
-    "expires_at": "2026-04-08T09:10:26.526113+00:00"
+    "id": "253ca8f4-68d8-4950-93f1-2f6bebf7aeb7",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**BITCOIN EVENING BRIEF**\n\nBitcoin closes at $70,894, down 0.9%\u2014but the real story isn't price action, it's conviction. Extreme fear reading of 14 contrasts sharply with what the chain shows: hashrate holding steady at 1021.8 EH/s, mempool efficient at 1 sat/vB, and no panic liquidations.\n\nQuantum s",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $70,894",
+    "generated_at": "2026-04-09T02:00:01.730717+00:00",
+    "expires_at": "2026-04-09T06:00:01.730717+00:00",
+    "video_url": "/data/stage_briefs/brief_20260409_0200.mp4"
   },
   {
-    "id": "a303a091-3b13-4a70-a795-541f43554d54",
+    "id": "dc94600f-7b12-498f-afd4-9740c7acfa6c",
+    "type": "THOUGHT_LEADER",
+    "priority": 2,
+    "script": "Bitcoiners predicted total monetary collapse 15 years ago. Every central bank balance sheet expansion, every yield curve inversion, every fiat debasement confirmed the same conclusion.\n\nBitcoin's network has processed 1.2 million blocks in the last 24 hours. Watch for the next halving cycle's UTXO accumulation pattern.\n\nNext signal: mining difficulty adjustment in 72 hours.",
+    "source_label": "\ud83e\udde0 @MARTYBENT",
+    "topic_preview": "Has there been a group that has been more directionally correct about how things",
+    "generated_at": "2026-04-09T02:15:07.101596+00:00",
+    "expires_at": "2026-04-09T04:15:07.101596+00:00"
+  },
+  {
+    "id": "94379e54-b394-4145-8214-3fd99bacf9fc",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "METRICS PULSE \u2014 Block 944127\n\nHashrate holding 953.6 exahash despite price recovery to $71,652. Fear gauge at 17\u2014institutional accumulation window closing. Watch for network difficulty adjustment in 1,200 blocks; if hashrate sustains, miner capitulation is over.",
+    "script": "Bitcoin trading at $71,099, down 1.5% in 24 hours. Fear and Greed index at Extreme Fear, 17. Hashrate holding steady at 953.6 exahashes. Fastest fee at 3 satoshis. 29,545 transactions processed in the last hour. Block 944,259. Watch for miner accumulation patterns in the next block.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $71,652 \u00b7 FNG 17 \u00b7 953.6 EH/s",
-    "generated_at": "2026-04-08T05:20:46.110389+00:00",
-    "expires_at": "2026-04-08T09:20:46.110389+00:00"
+    "topic_preview": "BTC $71,099 \u00b7 FNG 17 \u00b7 953.6 EH/s",
+    "generated_at": "2026-04-08T23:55:13.339954+00:00",
+    "expires_at": "2026-04-09T03:55:13.339954+00:00"
   },
   {
-    "id": "b2111516-54af-43f1-b4a0-cdf1a2787994",
+    "id": "f044732b-c9b9-4851-a61b-f89deb251963",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Geopolitical tensions dominate Nostr discourse. Bitcoin adoption accelerates through conflict zones.\n\nWatch for on-chain activity from regions mentioned in recent Nostr discussions.",
+    "script": "Quantum computing threatens Bitcoin's cryptographic foundation. Current on-chain hash rates show no signs of network stress from quantum research developments. Watch for any coordinated Nostr relay activity around quantum-resistant algorithm proposals.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Geopolitical tensions and economic risks",
-    "generated_at": "2026-04-08T05:10:38.436396+00:00",
-    "expires_at": "2026-04-08T09:10:38.436396+00:00"
+    "topic_preview": "Quantum computing threat to Bitcoin",
+    "generated_at": "2026-04-08T23:25:08.021211+00:00",
+    "expires_at": "2026-04-09T03:25:08.021211+00:00"
   },
   {
-    "id": "dcdd75a1-b3a7-4c62-bafc-d149b33afa7f",
+    "id": "6c2794c4-94f7-4b38-ab5c-4e4c8fb9e8a1",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Multisig wallets eliminate single points of failure. A two-of-three setup means no single key compromise can drain your funds. This is how institutions are beginning to custody billions in bitcoin.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Multisig wallets eliminate single points of failure. A two-of-three setup means ",
-    "generated_at": "2026-04-08T05:10:54.164642+00:00",
-    "expires_at": "2026-04-08T09:10:54.164642+00:00"
+    "script": "Mempool fast fee at 1 sat/vbyte signals institutional accumulation. Hashrate stabilizing at 1022 EH/s confirms network security. Price holding above $70K despite fear/greed at 14. Watch for mempool fee spikes above 2 sat/vbyte.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Mempool fast fee at 1 sat/vbyte signals institutional accumulation. Hashrate sta",
+    "generated_at": "2026-04-09T02:10:11.717833+00:00",
+    "expires_at": "2026-04-09T04:10:11.717833+00:00"
   }
 ]

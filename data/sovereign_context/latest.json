@@ -1,42 +1,42 @@
 {
-  "timestamp": "2026-04-08T05:45:04.158696+00:00",
-  "block_height": 944128,
+  "timestamp": "2026-04-09T02:15:04.243323+00:00",
+  "block_height": 944275,
   "btc": {
-    "price": 71718.53386688595,
-    "change_24h": 4.69,
-    "change_7d": 3.95,
-    "market_cap": 1435295846424,
-    "volume_24h": 45408430150.784515,
-    "dominance": 56.8
+    "price": 70858,
+    "change_24h": -1.01,
+    "change_7d": 0,
+    "market_cap": 1419589736147.8174,
+    "volume_24h": 40655646394.42106,
+    "dominance": 57.0
   },
   "fear_greed": {
-    "value": 17,
+    "value": 14,
     "label": "Extreme Fear"
   },
   "mempool": {
     "fee_low": 1,
-    "fee_mid": 3,
-    "fee_high": 3,
-    "unconfirmed": 35930,
-    "size_mb": 26.0
+    "fee_mid": 1,
+    "fee_high": 2,
+    "unconfirmed": 30142,
+    "size_mb": 17.2
   },
   "network": {
-    "hashrate_eh": 940.9,
+    "hashrate_eh": 952.2,
     "difficulty": 0,
-    "next_adj_pct": -8.12,
-    "next_adj_blocks": 1376
+    "next_adj_pct": -3.98,
+    "next_adj_blocks": 1229
   },
   "lightning": {
-    "capacity_btc": 5704.9,
-    "channels": 42027,
-    "nodes": 17372
+    "capacity_btc": 5292.1,
+    "channels": 41162,
+    "nodes": 17353
   },
   "kol": {
-    "sentiment_score": 59,
+    "sentiment_score": 57,
     "top_topics": [
-      "Liquidity cycles and money flow",
-      "Federal Reserve policy and monetary inflation",
-      "Geopolitical risk (Iran tensions, Trump tariffs)",
+      "Geopolitical tensions (Iran/US ceasefire)",
+      "Bitcoin price action and 72K surge",
+      "Dollar stability and reserve currency status",
       "regulation",
       "macro"
     ],
@@ -57,80 +57,80 @@
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**PROTOCOL PULSE - 90 SECOND BRIEF**\n\nPowell just confessed: U.S. debt will not end well. That's the Fed chair admitting the only solution is the printing press. Three signals converge now.\n\n**Signal ",
-    "brief_type": "unknown"
+    "narrative": "**BITCOIN EVENING BRIEF**\n\nBitcoin closes at $70,894, down 0.9%\u2014but the real story isn't price action, it's conviction. Extreme fear reading of 14 contrasts sharply with what the chain shows: hashrate",
+    "brief_type": "evening"
   },
   "whale_alerts": [
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 1529.93 BTC unconfirmed 158b1b32...",
+      "message": "Whale transaction detected: 151.47 BTC unconfirmed c1d5257e...",
       "score": 10,
-      "created_at": 1775625247.3323336
+      "created_at": 1775688935.8143358
     },
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 1584.42 BTC unconfirmed ea54960f...",
-      "score": 10,
-      "created_at": 1775604768.659015
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 150.56 BTC unconfirmed b6e5af23...",
-      "score": 10,
-      "created_at": 1775559996.0377142
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 153.77 BTC unconfirmed ef2e8571...",
-      "score": 10,
-      "created_at": 1775558234.882237
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 60% of last 10 blocks",
+      "score": 30,
+      "created_at": 1775688262.9332848
     },
     {
       "tier": "NOTE",
       "rule": "Hashrate concentration",
       "message": "Hashrate concentration: Foundry USA at 50% of last 10 blocks",
       "score": 30,
-      "created_at": 1775556294.9843552
+      "created_at": 1775686430.7365065
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 228.03 BTC unconfirmed 8d6bd370...",
+      "score": 10,
+      "created_at": 1775647472.8122275
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 4071.64 BTC unconfirmed cd49b992...",
+      "score": 10,
+      "created_at": 1775646170.5111356
     }
   ],
   "macro": {
-    "dxy": 98.85,
-    "gold_price": 4843.9,
-    "sp500": 6827.0,
-    "btc_vs_gold_30d_corr": 0.286,
-    "btc_vs_dxy_30d_corr": -0.709,
+    "dxy": 99.1,
+    "gold_price": 4745.1,
+    "sp500": 6809.75,
+    "btc_vs_gold_30d_corr": 0.209,
+    "btc_vs_dxy_30d_corr": -0.6,
     "real_yield": null,
-    "ten_year_yield": 4.34
+    "ten_year_yield": 4.29
   },
   "options": {
-    "put_call_ratio": 0.689,
-    "dvol": 44.5,
+    "put_call_ratio": 0.69,
+    "dvol": 44.8,
     "max_pain": 80000.0,
-    "total_call_oi": 235490.7,
-    "total_put_oi": 162144.1,
-    "total_oi_btc": 397634.8,
-    "avg_mark_iv": 55.1
+    "total_call_oi": 236212.8,
+    "total_put_oi": 163052.8,
+    "total_oi_btc": 399265.6,
+    "avg_mark_iv": 52.9
   },
   "futures": {
-    "funding_rate": 0.00010531,
-    "annualized_basis": 11.53,
-    "open_interest": 28047.72,
-    "open_interest_usd": 2011339910.0,
+    "funding_rate": -7e-08,
+    "annualized_basis": -0.01,
+    "open_interest": 28399.06,
+    "open_interest_usd": 2015011830.0,
     "long_short_ratio": null,
-    "mark_price": 71722.62,
-    "index_price": 71711.34,
-    "basis_pct": 0.0556
+    "mark_price": 70960.22,
+    "index_price": 70953.46,
+    "basis_pct": 0.0194
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 6228031.0,
+    "coin_days_destroyed_7d": 4280380.0,
     "active_addresses_7d": 613001.0,
-    "tx_volume_usd_7d": 58241680066.0,
-    "nvt_ratio": 23.4,
-    "accumulation_score": 75
+    "tx_volume_usd_7d": 53538422792.0,
+    "nvt_ratio": 25.4,
+    "accumulation_score": 85
   },
   "active_alerts": [
     {
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-08T05:45:04.179284+00:00",
+      "ts": "2026-04-09T02:15:04.316731+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 100
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 62.4,
+      "score": 67.5,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -160,49 +160,49 @@
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": 1.1,
+      "score": 7,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 73.1,
+      "score": 72.7,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 76.6,
+      "score": 76.5,
       "pattern": "BULLISH",
-      "fragmentation": 17.8,
-      "momentum": 62.2,
+      "fragmentation": 18.3,
+      "momentum": 63.8,
       "conviction": 58.2,
-      "thesis": "mixed_regime",
+      "thesis": "miner_absorption_under_fear",
       "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.38,
-      "btc_market_cap": 1434771488802.688,
-      "stablecoin_market_cap": 266840855426.67258,
+      "value": 6.92,
+      "btc_market_cap": 1419589736147.8174,
+      "stablecoin_market_cap": 205000000000,
       "signal": "BULLISH",
       "description": "Healthy stablecoin reserves available for BTC purchasing",
-      "source": "coingecko_derived"
+      "source": "estimated"
     },
     "mpi": {
-      "value": 0.04,
-      "cdd_7d": 6228031.0,
-      "cdd_ratio": 1.04,
-      "hashrate_eh": 940.9,
+      "value": -0.301,
+      "cdd_7d": 4280380.0,
+      "cdd_ratio": 0.71,
+      "hashrate_eh": 952.2,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 22.0,
+      "value": 33.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-08T05:41:24.943344+00:00"
+    "timestamp": "2026-04-09T02:15:04.316052+00:00"
   }
 }

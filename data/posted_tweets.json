@@ -82,5 +82,29 @@
     "timestamp": "2026-04-06T21:10:38.055494+00:00",
     "text_preview": "A 1 sat/vB transaction fee secures a transfer of value in minutes. Discussions o",
     "format_type": "macro_monetary"
+  },
+  {
+    "hash": "a04c5ae1adf6c98128f6d4d4d4e6b4c3",
+    "timestamp": "2026-04-08T12:28:25.563083+00:00",
+    "text_preview": "1 sat/vB fees while 953.6 EH/s secures the network. Institutions aren't waiting ",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "84568d14f96731857614e5abcdb64e5c",
+    "timestamp": "2026-04-08T19:00:04.939602+00:00",
+    "text_preview": "Fear index says 17. Price says up 4.3%. Active addresses say nobody's actually h",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "6bd9b3c8a7238204515805ba45e7217f",
+    "timestamp": "2026-04-08T22:00:04.208118+00:00",
+    "text_preview": "Iran collects tolls in Bitcoin. Morgan Stanley launches a Bitcoin ETF. Everyone'",
+    "format_type": "geopolitical"
+  },
+  {
+    "hash": "96bef8d7cff43293b4e48b80ff5bf55b",
+    "timestamp": "2026-04-09T00:00:21.698517+00:00",
+    "text_preview": "953.6 EH/s securing the network while fees sit at 1 sat/vB. Hashrate hit an all-",
+    "format_type": "network_fundamentals"
   }
 ]

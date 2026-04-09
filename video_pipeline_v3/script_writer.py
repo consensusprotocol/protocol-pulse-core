@@ -238,8 +238,13 @@ def _load_narrative_context() -> dict:
         if computed:
             computed_dt = datetime.fromisoformat(computed.replace("Z", "+00:00"))
             age_hours = (datetime.now(timezone.utc) - computed_dt).total_seconds() / 3600
-            if age_hours > 4:
-                logger.warning(f"Narrative context is {age_hours:.1f}h old (>4h) — using generic prompt")
+            if age_hours > 2:  # V31 FIX: was 4h, now 2h — stale context was injecting last episode topics
+                logger.warning(f"Narrative context is {age_hours:.1f}h old (>2h) — DELETING stale context")
+                try:
+                    os.remove(ctx_path)
+                    logger.info("Deleted stale narrative_context.json")
+                except:
+                    pass
                 return {}
         return ctx
     except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:

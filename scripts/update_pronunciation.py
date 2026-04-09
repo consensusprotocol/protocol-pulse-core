@@ -66,7 +66,7 @@ RULES = [
     {"string_to_replace": "Nakamoto", "type": "alias", "alias": "nah kah MOE toe"},
     {"string_to_replace": "Saylor", "type": "alias", "alias": "Sayler"},
     {"string_to_replace": "Michael Saylor", "type": "alias", "alias": "Michael Sayler"},
-    {"string_to_replace": "Lyn Alden", "type": "alias", "alias": "Lin AWL-den"},
+    {"string_to_replace": "Lyn Alden", "type": "alias", "alias": "Lin Allden"},
     {"string_to_replace": "Cynthia Lummis", "type": "alias", "alias": "SIN-thee-ah LUM-iss"},
     {"string_to_replace": "Lummis", "type": "alias", "alias": "LUM-iss"},
     {"string_to_replace": "Natalie Brunell", "type": "alias", "alias": "Natalie Brunelle"},

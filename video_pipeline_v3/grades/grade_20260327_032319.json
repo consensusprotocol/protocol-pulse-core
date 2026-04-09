@@ -1,0 +1,119 @@
+{
+  "grade": "B",
+  "overall_score": 93,
+  "broadcast_ready": false,
+  "technical_score": 90,
+  "content_score": 96,
+  "production_score": 95,
+  "dimensions": {
+    "duration_check": {
+      "score": 10,
+      "note": "Duration is 629.1s (10.5 minutes), which is well within the ideal 8-15 minute range."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.3 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -1.7 dBFS, safely below the -1.0 dBFS maximum."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "No mid-video black frames detected. The episode fades to black at the very end, which is acceptable."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No mid-video silence gaps greater than 0.8s were detected."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data reports 17 freeze frames >1s. Visual inspection confirms numerous instances where the left-side UI panel is static for extended periods. While this may be a stylistic choice, it is flagged as a technical error and violates the rubric (2+ freezes = critical failure)."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Video uses the standard and correct h264/aac codec combination."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File integrity is sound. Bitrate is healthy at 4073 kbps, and both streams are present and play correctly."
+    },
+    "clip_relevance": {
+      "score": 9,
+      "note": "Clips from Simply Bitcoin and Cointelegraph (Arthur Hayes) are highly relevant. The narrative is tightly focused on Bitcoin's macro position and supply dynamics, aligning perfectly with the show's cypherpunk/Austrian lens."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The narration is exceptional, weaving multiple news threads into a single, powerful thesis about a structural supply shock. The analysis is insightful and adds significant value beyond the clips."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The opening is a rapid-fire summary of major, seemingly contradictory market signals, creating a strong hook that immediately establishes the episode's core tension."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode follows a clear and logical progression: presenting institutional signals, analyzing the supply-side impact, contextualizing the price action, and connecting it to geopolitical shifts. The flow is excellent."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's voice performance is flawless. The tone is authoritative, the pacing is natural, and the audio is clean and consistent. Perfect execution for a single-host show."
+    },
+    "episode_title": {
+      "score": 9,
+      "note": "The title 'Saylor's Billion-Dollar War Move Changes Everything' is specific, compelling, and accurately reflects the main narrative thrust of the episode."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is extremely information-dense with zero filler, ad reads, or off-topic segments."
+    },
+    "timeliness": {
+      "score": 9,
+      "note": "The content, including ETF flow data, price charts up to the current day, and recent news, is timely and relevant."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music fits the aesthetic, is well-mixed, and the sidechain ducking for the narration is executed perfectly."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Glitch transitions are used consistently and effectively, reinforcing the cyberpunk aesthetic without being jarring."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual presentation is outstanding. The custom UI, lower thirds, and consistent cyberpunk theme are executed at a broadcast-quality level."
+    },
+    "no_artifacts": {
+      "score": 7,
+      "note": "Minor compression artifacts and brief visual glitches are visible during some fast transitions, slightly detracting from an otherwise polished production."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The host's narration audio is pristine\u2014clear, well-balanced, and free of any noise or distortion."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is fast and energetic, fitting the 'intelligence briefing' format. It successfully delivers a large amount of information without feeling rushed or slow."
+    }
+  },
+  "critical_failures": [
+    "freeze_check: The video has 17 detected freeze frames longer than 1 second, which is a critical failure per the rubric. This must be investigated and fixed before broadcast."
+  ],
+  "warnings": [
+    "no_artifacts: Minor visual artifacts and glitches were observed during some transitions. While not critical, a cleaner render would improve the final product."
+  ],
+  "strengths": [
+    "The script and narrative arc are exceptionally strong, creating a compelling and insightful analysis of current market dynamics.",
+    "The overall visual polish and cyberpunk aesthetic are executed to a very high standard, giving the show a unique and professional identity.",
+    "The host's vocal performance is authoritative and clear, lending significant credibility to the content."
+  ],
+  "verdict": "This is an A-grade episode in terms of content and style, but it is being held back by a critical technical failure related to numerous freeze frames.",
+  "recommendation": "FIX_AND_RERENDER"
+}
