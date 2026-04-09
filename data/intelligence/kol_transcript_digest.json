@@ -1,63 +1,75 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-09T00:00:30.997017+00:00",
-  "creator_count": 6,
-  "avg_sentiment_score": 47.5,
+  "generated_at": "2026-04-09T08:00:16.282898+00:00",
+  "creator_count": 7,
+  "avg_sentiment_score": 58.6,
   "sentiment_breakdown": {
-    "bullish": 1,
-    "bearish": 2,
+    "bullish": 3,
+    "bearish": 1,
     "neutral": 3
   },
-  "dominant_sentiment": "neutral",
+  "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Geopolitical tensions (Iran/US ceasefire)",
+      "topic": "Macro liquidity cycles and debt funding",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Altcoin Daily"
       ],
-      "avg_sentiment_score": 62.0,
-      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
     },
     {
-      "topic": "Bitcoin price action and 72K surge",
+      "topic": "Institution adoption (Morgan Stanley Bitcoin ETF)",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Altcoin Daily"
       ],
-      "avg_sentiment_score": 62.0,
-      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
     },
     {
-      "topic": "Dollar stability and reserve currency status",
+      "topic": "Geopolitical Bitcoin adoption (Iran strait tolls)",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Altcoin Daily"
       ],
-      "avg_sentiment_score": 62.0,
-      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
     },
     {
-      "topic": "Ray Dalio's economic outlook",
+      "topic": "Market volatility and corrections",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Altcoin Daily"
       ],
-      "avg_sentiment_score": 62.0,
-      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
     },
     {
-      "topic": "Bitcoin as alternative to fiat currency",
+      "topic": "Crypto ETF expansion (Bitcoin, Ethereum, Solana)",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Altcoin Daily"
       ],
-      "avg_sentiment_score": 62.0,
-      "example_quote": "Bitcoin is making its presence felt immediately surged to 72K on the news"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence\n\n**Consensus:** Bitcoin creators broadly agree that geopolitical uncertainty and monetary instability are supporting Bitcoin's value proposition, with most viewing it as a hedge against currency devaluation and systemic financial risks.\n\n**Key Divergence:** Sentiment splits sharply on near-term outlook. Pompliano and Simply Bitcoin lean bullish on immediate price momentum (driven by institutional flows and geopolitical flight-to-safety), while Blockware Solutions and The Bitcoin Layer are bearish on liquidity conditions and expect deteriorating macro conditions before any recovery.\n\n**Secondary Themes:** There's consensus on Bitcoin's technological maturation (evidenced by ETF adoption and volatility compression), though some voices raise defensive concerns about quantum computing threats and the need for proactive upgrades. One outlier perspective (Stacker News on media) suggests broader tech inevitability arguments that loosely support Bitcoin's role in reshaping information/financial systems.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Most Bitcoin creators (Altcoin Daily, Pompliano, Simply Bitcoin) agree Bitcoin is strengthening as a macro hedge\u2014driven by institutional adoption, geopolitical uncertainty, and long-term holder accumulation\u2014with recent price action (72K surge) reflecting this shift toward perceived safe-haven status.\n\n**Divergence:** While bullish voices see sustained upside through 2026 with volatility as healthy correction, Simply Bitcoin offers caution that geopolitical stability may be masking deeper economic fragility. Separately, Blockware Solutions strikes a bearish tone, arguing systemic US debt creates *inevitable* currency devaluation rather than optional adoption. Secondary concerns (Stacker News) about quantum computing and media disruption represent longer-term, non-consensus risks that most creators aren't emphasizing.",
   "top_creators": [
+    {
+      "channel": "Altcoin Daily",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin is entering a major bull phase driven by macro liquidity cycles and institutional adoption (Morgan Stanley ETF), with geopolitical factors like Iran's Bitcoin toll fees accelerating nation-state cryptocurrency adoption. Expect volatility and corrections but significant upside through Q1-Q2 2026."
+    },
+    {
+      "channel": "Altcoin Daily",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "Despite a bearish headline, Bitcoin has historically outperformed during geopolitical crises, returning 15-32% within 60 days of major uncertainty events. The creator argues this demonstrates Bitcoin's value as a non-correlated, neutral asset during times of chaos."
+    },
     {
       "channel": "Simply Bitcoin",
       "sentiment": "mixed",
@@ -75,18 +87,6 @@
       "sentiment": "neutral",
       "score": 50,
       "thesis": "The New York Times blocking web archivists and AI crawlers is a short-term strategy that will hurt their long-term relevance as AI becomes the primary way people access information online. Technology has an inherent direction that cannot be fought."
-    },
-    {
-      "channel": "Stacker News",
-      "sentiment": "mixed",
-      "score": 55,
-      "thesis": "Quantum computing progress is inevitable and Bitcoin should proactively implement post-quantum cryptography now rather than wait for a crisis, as the threat timeline remains uncertain but solutions already exist."
-    },
-    {
-      "channel": "Blockware Solutions",
-      "sentiment": "bearish",
-      "score": 15,
-      "thesis": "The US government faces an impossible debt situation with $39 trillion in obligations and no viable solutions, forcing eventual currency devaluation which has implications for the global financial system and alternative assets like Bitcoin."
     }
   ]
 }

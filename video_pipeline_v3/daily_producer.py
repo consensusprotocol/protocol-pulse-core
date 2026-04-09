@@ -1960,6 +1960,25 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     except Exception as _agent_err:
         logger.warning(f"  GRADER AGENT: non-fatal error - {_agent_err}")
 
+    # ── EPISODE MEMORY: Record what was covered (sovereign agent fleet) ──
+    try:
+        _agent_dir = os.path.join(os.path.dirname(BASE), "agents")
+        if _agent_dir not in sys.path:
+            sys.path.insert(0, _agent_dir)
+        from episode_memory import record_episode
+        _ep_clips = [{"channel": c.get("channel", ""), "video_id": c.get("video_id", "")} for c in clips]
+        record_episode(
+            episode_date=date_str,
+            script=script,
+            clips=_ep_clips,
+            intel_data=manifest.get("intel_data", {}),
+            quality_score=quality_score,
+            grade="A" if quality_score >= 88 else "B" if quality_score >= 75 else "C" if quality_score >= 60 else "F",
+        )
+        logger.info(f"  EPISODE MEMORY: Recorded episode {date_str}")
+    except Exception as _mem_err:
+        logger.warning(f"  EPISODE MEMORY: non-fatal error - {_mem_err}")
+
     if is_enabled("youtube_auto_upload") and should_upload(quality_score):
         from utils.youtube_upload import upload_episode as yt_upload, build_description, build_tags
         # Build YouTube metadata

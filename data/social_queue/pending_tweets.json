@@ -34,5 +34,29 @@
     "generated_at": "2026-04-09T01:00:04.163390+00:00",
     "brief_date": "Wednesday, April 08, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_070004_0",
+    "text": "1923 Reichsbank printed 1.2 billion marks in one day. People burned currency for warmth. Today's central banks print digitally so you can't see the ash. Bitcoin doesn't print at all",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T07:00:04.146553+00:00",
+    "brief_date": "Wednesday, April 08, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_080629_0",
+    "text": "In 1944 Bretton Woods fixed gold at $35 an ounce. Governments promised to honor it. By 1971 Nixon closed the window. Bitcoin doesn't need promises. It has math",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T08:06:29.179291+00:00",
+    "brief_date": "Wednesday, April 08, 2026",
+    "sentiment": "bullish"
   }
 ]

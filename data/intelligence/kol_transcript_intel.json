@@ -1,7 +1,55 @@
 {
-  "last_updated": "2026-04-09T00:00:27.487001+00:00",
-  "total_analyses": 72,
+  "last_updated": "2026-04-09T08:00:12.520179+00:00",
+  "total_analyses": 74,
   "analyses": [
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin is entering a major bull phase driven by macro liquidity cycles and institutional adoption (Morgan Stanley ETF), with geopolitical factors like Iran's Bitcoin toll fees accelerating nation-state cryptocurrency adoption. Expect volatility and corrections but significant upside through Q1-Q2 2026.",
+      "key_quotes": [
+        "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story.",
+        "Don't fuck this up. Don't use leverage. Just sit with it and we will go up to the next phase.",
+        "Morgan Stanley has $6 to $7 trillion in assets...taking just a little bit of that, moving it over is a big deal."
+      ],
+      "topics": [
+        "Macro liquidity cycles and debt funding",
+        "Institution adoption (Morgan Stanley Bitcoin ETF)",
+        "Geopolitical Bitcoin adoption (Iran strait tolls)",
+        "Market volatility and corrections",
+        "Crypto ETF expansion (Bitcoin, Ethereum, Solana)"
+      ],
+      "price_prediction": "Timeline: Q1-Q2 2026 for next major phase; expect 35% correction during that period but continuation upward afterward",
+      "confidence": "medium",
+      "channel": "Altcoin Daily",
+      "title": "MASSIVE Bitcoin News!! Satoshi Revealed!? What Comes Next?",
+      "video_id": "wF_iDf9f6fE",
+      "duration": 733.76,
+      "analyzed_at": "2026-04-09T08:00:10.518077+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 72,
+      "main_thesis": "Despite a bearish headline, Bitcoin has historically outperformed during geopolitical crises, returning 15-32% within 60 days of major uncertainty events. The creator argues this demonstrates Bitcoin's value as a non-correlated, neutral asset during times of chaos.",
+      "key_quotes": [
+        "Bitcoin consistently returned anywhere from 15 to 32% 60 days after [geopolitical events]",
+        "This thing is neutral and isn't subject to any one country",
+        "When in doubt, zoom out"
+      ],
+      "topics": [
+        "geopolitical uncertainty and Bitcoin performance",
+        "Bitcoin as non-correlated asset during crises",
+        "volatility compression and market cycles",
+        "energy consumption criticism of Bitcoin",
+        "bearish arguments rebutted"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Altcoin Daily",
+      "title": "Bitcoin Going To Zero, Explained",
+      "video_id": "955-6qVZ3cw",
+      "duration": 567.54,
+      "analyzed_at": "2026-04-09T08:00:04.980057+00:00"
+    },
     {
       "sentiment": "mixed",
       "sentiment_score": 62,

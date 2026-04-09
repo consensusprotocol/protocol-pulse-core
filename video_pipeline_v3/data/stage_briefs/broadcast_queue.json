@@ -1,53 +1,62 @@
 [
   {
-    "id": "253ca8f4-68d8-4950-93f1-2f6bebf7aeb7",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "**BITCOIN EVENING BRIEF**\n\nBitcoin closes at $70,894, down 0.9%\u2014but the real story isn't price action, it's conviction. Extreme fear reading of 14 contrasts sharply with what the chain shows: hashrate holding steady at 1021.8 EH/s, mempool efficient at 1 sat/vB, and no panic liquidations.\n\nQuantum s",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
-    "topic_preview": "Oracle Evening Brief \u2014 $70,894",
-    "generated_at": "2026-04-09T02:00:01.730717+00:00",
-    "expires_at": "2026-04-09T06:00:01.730717+00:00",
-    "video_url": "/data/stage_briefs/brief_20260409_0200.mp4"
-  },
-  {
-    "id": "dc94600f-7b12-498f-afd4-9740c7acfa6c",
+    "id": "34eaf7d2-343e-4a74-b85f-73cc138f5a3d",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Bitcoiners predicted total monetary collapse 15 years ago. Every central bank balance sheet expansion, every yield curve inversion, every fiat debasement confirmed the same conclusion.\n\nBitcoin's network has processed 1.2 million blocks in the last 24 hours. Watch for the next halving cycle's UTXO accumulation pattern.\n\nNext signal: mining difficulty adjustment in 72 hours.",
-    "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "Has there been a group that has been more directionally correct about how things",
-    "generated_at": "2026-04-09T02:15:07.101596+00:00",
-    "expires_at": "2026-04-09T04:15:07.101596+00:00"
+    "script": "Trump's Iran deadline triggers nuclear power plant shutdowns across the Middle East. Bitcoin miners in Iran, Pakistan, and Turkey face operational risks.\n\nGoogle's quantum computing breakthrough threatens Bitcoin's cryptographic security in 9 minutes. Mining operations must upgrade encryption protocols immediately.\n\nPublic companies are divesting Bitcoin holdings. Institutional confidence wavers as geopolitical tensions escalate.\n\nWatch for Iran's power grid outages and Bitcoin mining facility shutdowns in the next 24 hours.",
+    "source_label": "\ud83e\udde0 @NATBRUNELL",
+    "topic_preview": "Trump set a deadline to blow up Iran's power plants and bridges by tomorrow nigh",
+    "generated_at": "2026-04-09T08:25:14.171171+00:00",
+    "expires_at": "2026-04-09T10:25:14.171171+00:00"
   },
   {
-    "id": "94379e54-b394-4145-8214-3fd99bacf9fc",
+    "id": "71118438-212b-42b9-9f0f-5e0fe51d3dfa",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $71,099, down 1.5% in 24 hours. Fear and Greed index at Extreme Fear, 17. Hashrate holding steady at 953.6 exahashes. Fastest fee at 3 satoshis. 29,545 transactions processed in the last hour. Block 944,259. Watch for miner accumulation patterns in the next block.",
+    "script": "Bitcoin trading at $71,095, down 0.93% in 24 hours. Current mining hashrate sits at 1,021.8 exahashes.\n\nFear and greed index at extreme fear level 14. Transaction volume up 29,186 in last 24 hours.\n\nNext signal: watch for any miner exits from the top 100 pools.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $71,099 \u00b7 FNG 17 \u00b7 953.6 EH/s",
-    "generated_at": "2026-04-08T23:55:13.339954+00:00",
-    "expires_at": "2026-04-09T03:55:13.339954+00:00"
+    "topic_preview": "BTC $71,095 \u00b7 FNG 14 \u00b7 1021.8 EH/s",
+    "generated_at": "2026-04-09T08:40:15.005352+00:00",
+    "expires_at": "2026-04-09T12:40:15.005352+00:00"
   },
   {
-    "id": "f044732b-c9b9-4851-a61b-f89deb251963",
+    "id": "56e478ff-186c-4e22-a574-dc346266dbe9",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Quantum computing threatens Bitcoin's cryptographic foundation. Current on-chain hash rates show no signs of network stress from quantum research developments. Watch for any coordinated Nostr relay activity around quantum-resistant algorithm proposals.",
+    "script": "Bitcoin holders are flocking to Nostr to discuss self-custody strategies. The signal is clear: on-chain activity is shifting toward direct control.\n\nWatch for Bitcoin wallet adoption metrics from the Nostr community over the next 72 hours.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Quantum computing threat to Bitcoin",
-    "generated_at": "2026-04-08T23:25:08.021211+00:00",
-    "expires_at": "2026-04-09T03:25:08.021211+00:00"
+    "topic_preview": "Self-custody and Bitcoin education",
+    "generated_at": "2026-04-09T08:20:23.102973+00:00",
+    "expires_at": "2026-04-09T12:20:23.102973+00:00"
   },
   {
-    "id": "6c2794c4-94f7-4b38-ab5c-4e4c8fb9e8a1",
+    "id": "40317e17-2587-456b-ba49-26cb1a219f2a",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Mempool fast fee at 1 sat/vbyte signals institutional accumulation. Hashrate stabilizing at 1022 EH/s confirms network security. Price holding above $70K despite fear/greed at 14. Watch for mempool fee spikes above 2 sat/vbyte.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Mempool fast fee at 1 sat/vbyte signals institutional accumulation. Hashrate sta",
-    "generated_at": "2026-04-09T02:10:11.717833+00:00",
-    "expires_at": "2026-04-09T04:10:11.717833+00:00"
+    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
+    "generated_at": "2026-04-09T08:15:57.791548+00:00",
+    "expires_at": "2026-04-09T12:15:57.791548+00:00"
+  },
+  {
+    "id": "1b4ce24f-efc4-42f0-ac5e-2e0cac60f26f",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
+    "generated_at": "2026-04-09T08:20:38.781126+00:00",
+    "expires_at": "2026-04-09T12:20:38.781126+00:00"
+  },
+  {
+    "id": "68f82c2c-5ed5-4156-a00b-817a893ff984",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
+    "generated_at": "2026-04-09T08:20:54.436012+00:00",
+    "expires_at": "2026-04-09T12:20:54.436012+00:00"
   }
 ]
