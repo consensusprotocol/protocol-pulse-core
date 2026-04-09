@@ -232,7 +232,11 @@ LAW 6 - ORIGINAL TAKES ONLY: 84% of top tweets are original positions, not react
 LAW 7 - ONE CLEAN IDEA: Max 3 sentences. One observation, one implication, one landing.
   Top tweets average 3.26 sentences. Not 1. Not 7. Three.
 
-LAW 8 - START WITH A NUMBER: 1% of top tweets open with a digit. Small edge, but real.
+LAW 8 - NO DATA REPETITION: Never use the same specific metric (hashrate number, fee level,
+  fear index score) in consecutive tweets. If 953.6 EH/s was in the last tweet, find a
+  different data point. The audience scrolls your feed. Repetition kills credibility.
+
+LAW 9 - START WITH A NUMBER: 1% of top tweets open with a digit. Small edge, but real.
   "34% of on-chain volume vanished" hits different than "On-chain volume dropped"
 
 GOLD STANDARD TWEETS (these are what we're trying to match):
@@ -531,27 +535,40 @@ def get_last_formats_used(n: int = 3) -> list[str]:
 
 
 def pick_format(brief: dict, themes: list[str]) -> str:
-    """Pick the next tweet format, enforcing no repeat within last 3 posts."""
+    """Pick tweet format using weighted selection. Narrative > data.
+    
+    Weight philosophy: Historical parallels and philosophical tweets
+    consistently outperform pure data tweets (31 views vs 13-14).
+    Data should serve the story, not be the story.
+    """
+    import random as _rng
     recent = get_last_formats_used(3)
     available = [k for k in TWEET_FORMATS if k not in recent]
-
     if not available:
         available = list(TWEET_FORMATS.keys())
 
-    # Prefer community_narrative if we have fresh themes
+    # Weighted selection: narrative/philosophical formats get 3x weight
+    FORMAT_WEIGHTS = {
+        "historical_parallel": 4,       # Best performer. Reichsbank tweet = top engagement
+        "fiat_failure": 3,              # Strong. Institutional hypocrisy lands hard
+        "socratic_question": 3,         # Engagement driver. Forces replies
+        "contrarian_observation": 3,    # Splits opinion, drives quote tweets
+        "community_narrative": 2,       # Good when fresh themes exist
+        "direct_engagement_question": 2,# Brief, personal, drives replies
+        "brief_signal": 2,             # Classic PP format. Solid baseline
+        "on_chain_signal": 1,          # Lowest weight. Data repeats too easily
+    }
+
+    # Boost community_narrative if fresh themes exist
     if themes and themes != EVERGREEN_THEMES and "community_narrative" in available:
-        return "community_narrative"
+        FORMAT_WEIGHTS["community_narrative"] = 5
 
-    # Prefer on_chain_signal if brief has strong data
-    if brief.get("fng") and "on_chain_signal" in available:
-        return "on_chain_signal"
-
-    # Prefer fiat_failure if sentiment is bearish
+    # Boost fiat_failure if sentiment is bearish
     if brief.get("sentiment") == "bearish" and "fiat_failure" in available:
-        return "fiat_failure"
+        FORMAT_WEIGHTS["fiat_failure"] = 5
 
-    # Default: first available
-    return available[0]
+    weights = [FORMAT_WEIGHTS.get(k, 1) for k in available]
+    return _rng.choices(available, weights=weights, k=1)[0]
 
 
 # ── JSON Extraction (robust) ─────────────────────────────────────────────────
