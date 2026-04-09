@@ -54,7 +54,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     fg = ""
     # Full frame clip
     fg += (f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
-           f"setsar=1,fps=30,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_raw];\n")
+           f"setsar=1,fps=30,trim=duration={_target_dur:.3f},setpts=PTS-STARTPTS,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_raw];\n")
     # Cyberpunk aesthetic: darken clip slightly + tactical grid + radial vignette
     fg += (f"[pc_raw]"
            f"eq=brightness=-0.05:saturation=0.9:contrast=1.05,"

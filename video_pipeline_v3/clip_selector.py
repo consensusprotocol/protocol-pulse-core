@@ -760,6 +760,19 @@ def _select_clips_local(videos, max_clips=5):
 
 
 
+
+def _enforce_min_clip_duration(result, min_sec=20):
+    clips = result.get("clips", [])
+    for c in clips:
+        start = c.get("start_sec", 0)
+        end = c.get("end_sec", 0)
+        dur = end - start
+        if dur < min_sec:
+            logger.warning(f"SHORT CLIP FIX: {c.get('channel','?')} {dur}s -> expanding to {min_sec}s")
+            c["end_sec"] = start + min_sec
+    result["clips"] = clips
+    return result
+
 def _enforce_channel_diversity(result: dict) -> dict:
     """V29 FIX: Hard post-selection channel dedup. No two clips from the same channel. EVER."""
     clips = result.get("clips", [])
@@ -790,7 +803,7 @@ def select_clips_with_fallback(videos, max_clips=5):
         if result.get("clips"):
             _save_last_good_selection(result)
             logger.info(f"FALLBACK CHAIN: Claude succeeded — {len(result['clips'])} clips")
-            return _enforce_channel_diversity(result)
+            return _enforce_channel_diversity(_enforce_min_clip_duration(result))
         logger.warning("FALLBACK CHAIN: Claude returned 0 clips, trying Qwen...")
     except Exception as e:
         logger.error(f"FALLBACK CHAIN: Claude failed: {e}")
@@ -801,7 +814,7 @@ def select_clips_with_fallback(videos, max_clips=5):
         if result.get("clips"):
             _save_last_good_selection(result)
             logger.info(f"FALLBACK CHAIN: Qwen succeeded — {len(result['clips'])} clips")
-            return _enforce_channel_diversity(result)
+            return _enforce_channel_diversity(_enforce_min_clip_duration(result))
         logger.warning("FALLBACK CHAIN: Qwen returned 0 clips, trying last known good...")
     except Exception as e:
         logger.error(f"FALLBACK CHAIN: Qwen failed: {e}")
