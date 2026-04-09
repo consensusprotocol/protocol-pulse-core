@@ -731,11 +731,35 @@ def _select_clips_local(videos, max_clips=5):
     """Fallback: use local Qwen model for clip selection."""
     import requests as _req
     transcripts_text = _format_transcripts(videos[:10])
+    # V36 FIX: Load used clips to inject into Qwen prompt for variety
+    _used_vids = []
+    _used_channels = []
+    try:
+        _udata = _load_used_clips()
+        for ep in _udata.get("episodes", []):
+            _used_vids.extend(ep.get("video_ids", []))
+            _used_channels.extend(ep.get("channels", []))
+    except Exception:
+        pass
+    _avoid = ""
+    if _used_vids:
+        _avoid = f"\nAVOID these video_ids (already used): {', '.join(_used_vids[-15:])}\n"
+    if _used_channels:
+        _avoid += f"DEPRIORITIZE these channels (recently featured): {', '.join(set(_used_channels[-10:]))}\n"
+
+    # V36 FIX: Shuffle transcripts for variety across renders
+    import random
+    _shuffled_videos = videos[:10].copy()
+    random.shuffle(_shuffled_videos)
+    transcripts_text = _format_transcripts(_shuffled_videos)
+
     prompt = (
         f"Pick the {max_clips} BEST clip moments from these Bitcoin videos. "
-        f"Each from a DIFFERENT channel. 20-40 seconds each. NO ad reads.\n\n"
+        f"Each from a DIFFERENT channel. 20-40 seconds each. NO ad reads.\n"
+        f"{_avoid}\n"
         f"{transcripts_text[:8000]}\n\n"
-        f'Return ONLY valid JSON: {{"clips": [{{"rank": 1, "video_id": "...", '
+        f'Return ONLY valid JSON. No markdown. No explanation. No thinking tags. Just the JSON object:\n'
+        f'{{"clips": [{{"rank": 1, "video_id": "...", '
         f'"channel": "...", "video_title": "...", "start_seconds": N, '
         f'"end_seconds": N, "quote": "...", "why": "...", '
         f'"host_setup": "...", "host_react": "..."}}]}}'
@@ -743,8 +767,8 @@ def _select_clips_local(videos, max_clips=5):
     try:
         resp = _req.post(
             "http://localhost:11435/api/chat",
-            json={"model": "qwen3-coder:30b", "messages": [{"role": "user", "content": prompt}],
-                  "stream": False, "options": {"temperature": 0.3}},
+            json={"model": "qwen3-coder:30b", "messages": [{"role": "system", "content": "Respond with valid JSON only. No thinking. No markdown. No explanation."}, {"role": "user", "content": prompt}],
+                  "stream": False, "options": {"temperature": 0.7}},
             timeout=120,
         )
         resp.raise_for_status()
@@ -813,6 +837,7 @@ def select_clips_with_fallback(videos, max_clips=5):
         result = _select_clips_local(videos, max_clips)
         if result.get("clips"):
             _save_last_good_selection(result)
+            _record_episode(result["clips"])  # V36 FIX: Record Qwen clips to prevent repeats
             logger.info(f"FALLBACK CHAIN: Qwen succeeded — {len(result['clips'])} clips")
             return _enforce_channel_diversity(_enforce_min_clip_duration(result))
         logger.warning("FALLBACK CHAIN: Qwen returned 0 clips, trying last known good...")
@@ -903,7 +928,7 @@ def select_montage_clips(videos: list) -> dict:
                 f"{OLLAMA_URL}/api/chat",
                 json={
                     "model": MODEL,
-                    "messages": [{"role": "user", "content": prompt}],
+                    "messages": [{"role": "system", "content": "Respond with valid JSON only. No thinking. No markdown. No explanation."}, {"role": "user", "content": prompt}],
                     "stream": False,
                     "options": {"temperature": 0.2},
                 },

@@ -1,62 +1,52 @@
 [
   {
-    "id": "34eaf7d2-343e-4a74-b85f-73cc138f5a3d",
+    "id": "5a2ebdc3-60e9-4e45-8b6a-7aacc83f5f3a",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Trump's Iran deadline triggers nuclear power plant shutdowns across the Middle East. Bitcoin miners in Iran, Pakistan, and Turkey face operational risks.\n\nGoogle's quantum computing breakthrough threatens Bitcoin's cryptographic security in 9 minutes. Mining operations must upgrade encryption protocols immediately.\n\nPublic companies are divesting Bitcoin holdings. Institutional confidence wavers as geopolitical tensions escalate.\n\nWatch for Iran's power grid outages and Bitcoin mining facility shutdowns in the next 24 hours.",
-    "source_label": "\ud83e\udde0 @NATBRUNELL",
-    "topic_preview": "Trump set a deadline to blow up Iran's power plants and bridges by tomorrow nigh",
-    "generated_at": "2026-04-09T08:25:14.171171+00:00",
-    "expires_at": "2026-04-09T10:25:14.171171+00:00"
+    "script": "Satomi Broadcast\n\nAdam3us links Satoshi's \"we are all Satoshi\" stone to Thibault Zeller's high-production Bitcoin origin film. The narrative of Bitcoin's birth is being crafted through cinematic spectacle, not just technical innovation.\n\nWatch for more institutional storytelling around Bitcoin's foundational moments.",
+    "source_label": "\ud83e\udde0 @ADAM3US",
+    "topic_preview": "R to @JohnCarreyrou: the \"we are all satoshi\" stone is from this high production",
+    "generated_at": "2026-04-09T22:55:06.451274+00:00",
+    "expires_at": "2026-04-10T00:55:06.451274+00:00"
   },
   {
-    "id": "71118438-212b-42b9-9f0f-5e0fe51d3dfa",
+    "id": "e559370c-a3e9-429a-98bc-e36c59b4790a",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $71,095, down 0.93% in 24 hours. Current mining hashrate sits at 1,021.8 exahashes.\n\nFear and greed index at extreme fear level 14. Transaction volume up 29,186 in last 24 hours.\n\nNext signal: watch for any miner exits from the top 100 pools.",
+    "script": "Bitcoin trades at $72,412, up 1.47% in 24 hours. Hashrate stabilizes at 1,021.8 EH. Fear and Greed index reads \"Extreme Fear\" at 14. Fastest fee sits at 3 sat/vB. 36,906 transactions processed in the last hour. Block 944,384 mined. Watch for any fee spikes above 5 sat/vB.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $71,095 \u00b7 FNG 14 \u00b7 1021.8 EH/s",
-    "generated_at": "2026-04-09T08:40:15.005352+00:00",
-    "expires_at": "2026-04-09T12:40:15.005352+00:00"
+    "topic_preview": "BTC $72,412 \u00b7 FNG 14 \u00b7 1021.8 EH/s",
+    "generated_at": "2026-04-09T21:10:13.020746+00:00",
+    "expires_at": "2026-04-10T01:10:13.020746+00:00"
   },
   {
-    "id": "56e478ff-186c-4e22-a574-dc346266dbe9",
+    "id": "c09eaf43-3234-447d-9148-facafa6bbb08",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin holders are flocking to Nostr to discuss self-custody strategies. The signal is clear: on-chain activity is shifting toward direct control.\n\nWatch for Bitcoin wallet adoption metrics from the Nostr community over the next 72 hours.",
+    "script": "Institutional Bitcoin accumulation dominates Nostr discourse. Exchange net flows show $2.1 billion in Bitcoin inflows this week.\n\nWatch for next major accumulation signal from spot ETFs.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Self-custody and Bitcoin education",
-    "generated_at": "2026-04-09T08:20:23.102973+00:00",
-    "expires_at": "2026-04-09T12:20:23.102973+00:00"
+    "topic_preview": "Institutional Bitcoin accumulation",
+    "generated_at": "2026-04-09T20:30:18.966192+00:00",
+    "expires_at": "2026-04-10T00:30:18.966192+00:00"
   },
   {
-    "id": "40317e17-2587-456b-ba49-26cb1a219f2a",
+    "id": "ca481d28-69ed-42f3-9c04-27c58a4cfe9f",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
+    "script": "The Lightning Network processed more transactions last month than the entire Bitcoin base layer did in its first four years. Layer-two scaling isn't theoretical anymore \u2014 it's quietly becoming the rails for instant, near-free payments worldwide.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
-    "generated_at": "2026-04-09T08:15:57.791548+00:00",
-    "expires_at": "2026-04-09T12:15:57.791548+00:00"
+    "topic_preview": "The Lightning Network processed more transactions last month than the entire Bit",
+    "generated_at": "2026-04-09T22:00:37.723093+00:00",
+    "expires_at": "2026-04-10T02:00:37.723093+00:00"
   },
   {
-    "id": "1b4ce24f-efc4-42f0-ac5e-2e0cac60f26f",
+    "id": "f3930cf7-9dd4-43ef-829c-3876bc2649c9",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
-    "generated_at": "2026-04-09T08:20:38.781126+00:00",
-    "expires_at": "2026-04-09T12:20:38.781126+00:00"
-  },
-  {
-    "id": "68f82c2c-5ed5-4156-a00b-817a893ff984",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
-    "generated_at": "2026-04-09T08:20:54.436012+00:00",
-    "expires_at": "2026-04-09T12:20:54.436012+00:00"
+    "script": "Hashrate surged to 1,022 EH/s, confirming network security strength despite price resistance. Fear & Greed index at 14 signals extreme fear. Mempool fees remain negligible. Bitcoin miners continue accumulating at scale. Watch for first major price break above $73,000.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate surged to 1,022 EH/s, confirming network security strength despite pric",
+    "generated_at": "2026-04-09T22:50:13.360712+00:00",
+    "expires_at": "2026-04-10T00:50:13.360712+00:00"
   }
 ]

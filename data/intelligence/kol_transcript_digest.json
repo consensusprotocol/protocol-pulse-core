@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-09T08:00:16.282898+00:00",
-  "creator_count": 7,
-  "avg_sentiment_score": 58.6,
+  "generated_at": "2026-04-09T20:00:32.619328+00:00",
+  "creator_count": 13,
+  "avg_sentiment_score": 59.0,
   "sentiment_breakdown": {
-    "bullish": 3,
+    "bullish": 5,
     "bearish": 1,
-    "neutral": 3
+    "neutral": 7
   },
-  "dominant_sentiment": "bullish",
+  "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "Macro liquidity cycles and debt funding",
+      "topic": "European regulatory overregulation",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Natalie Brunell"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
+      "avg_sentiment_score": 75.0,
+      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
     },
     {
-      "topic": "Institution adoption (Morgan Stanley Bitcoin ETF)",
+      "topic": "Bitcoin adoption in Czech Republic",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Natalie Brunell"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
+      "avg_sentiment_score": 75.0,
+      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
     },
     {
-      "topic": "Geopolitical Bitcoin adoption (Iran strait tolls)",
+      "topic": "Paradigm shift in technology (Bitcoin, AI, robotics)",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Natalie Brunell"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
+      "avg_sentiment_score": 75.0,
+      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
     },
     {
-      "topic": "Market volatility and corrections",
+      "topic": "Bitcoin Living Masterclass at BTC Prague",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Natalie Brunell"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
+      "avg_sentiment_score": 75.0,
+      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
     },
     {
-      "topic": "Crypto ETF expansion (Bitcoin, Ethereum, Solana)",
+      "topic": "Individual empowerment through Bitcoin",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Natalie Brunell"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "A sanctioned nation building a Bitcoin treasury through a toll booth. This is the most important geopolitical Bitcoin story."
+      "avg_sentiment_score": 75.0,
+      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Most Bitcoin creators (Altcoin Daily, Pompliano, Simply Bitcoin) agree Bitcoin is strengthening as a macro hedge\u2014driven by institutional adoption, geopolitical uncertainty, and long-term holder accumulation\u2014with recent price action (72K surge) reflecting this shift toward perceived safe-haven status.\n\n**Divergence:** While bullish voices see sustained upside through 2026 with volatility as healthy correction, Simply Bitcoin offers caution that geopolitical stability may be masking deeper economic fragility. Separately, Blockware Solutions strikes a bearish tone, arguing systemic US debt creates *inevitable* currency devaluation rather than optional adoption. Secondary concerns (Stacker News) about quantum computing and media disruption represent longer-term, non-consensus risks that most creators aren't emphasizing.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly project bullish price momentum (most forecasting $75K+ near-term) driven by institutional adoption (ETFs), macro liquidity cycles, and emerging geopolitical demand as nation-states explore cryptocurrency. They also agree Bitcoin demonstrates resilience during uncertainty\u2014outperforming traditional risk assets during crises.\n\n**Key Divergence:** While price optimists focus on technical catalysts and adoption, skeptics (Guy Swann, Stacker News) raise concerns about regulatory crackdowns, authoritarian responses, and corporate narrative control that could constrain growth. Additionally, perspectives split on whether Bitcoin's geopolitical rally reflects genuine adoption (Altcoin Daily, Anthony Pompliano) versus fragile macro conditions masking deeper instability (Simply Bitcoin).\n\n**Secondary Theme:** Creators recognize market structure complexity\u2014OTC institutional trading and leverage patterns create information asymmetries for retail traders\u2014though this largely supports rather than challenges the bullish outlook.",
   "top_creators": [
     {
-      "channel": "Altcoin Daily",
+      "channel": "Natalie Brunell",
       "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin is entering a major bull phase driven by macro liquidity cycles and institutional adoption (Morgan Stanley ETF), with geopolitical factors like Iran's Bitcoin toll fees accelerating nation-state cryptocurrency adoption. Expect volatility and corrections but significant upside through Q1-Q2 2026."
+      "score": 75,
+      "thesis": "Europe's regulatory overreach is stifling Bitcoin adoption, but the Czech Republic and BTC Prague conference represent a paradigm shift toward Bitcoin-friendly environments. We're experiencing a technological revolution similar to the industrial revolution that will reshape society."
     },
     {
-      "channel": "Altcoin Daily",
-      "sentiment": "bullish",
-      "score": 72,
-      "thesis": "Despite a bearish headline, Bitcoin has historically outperformed during geopolitical crises, returning 15-32% within 60 days of major uncertainty events. The creator argues this demonstrates Bitcoin's value as a non-correlated, neutral asset during times of chaos."
-    },
-    {
-      "channel": "Simply Bitcoin",
+      "channel": "Guy Swann",
       "sentiment": "mixed",
-      "score": 62,
-      "thesis": "Bitcoin surged to 72K on ceasefire news, suggesting it may be emerging as a currency of geopolitical significance; however, the underlying geopolitical situation remains fragile and may mask deeper economic instability."
-    },
-    {
-      "channel": "Anthony Pompliano",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin is outperforming other risk assets during geopolitical uncertainty due to persistent buying from long-term holders and new institutional ETF inflows, while volatility compression suggests market maturation and stability."
+      "score": 65,
+      "thesis": "Bitcoin and decentralized technology will either force reconciliation through market competition or provoke authoritarian crackdowns, while massive technological and societal changes (AI, humanoid robots) create both risks and unprecedented opportunities."
     },
     {
       "channel": "Stacker News",
+      "sentiment": "mixed",
+      "score": 45,
+      "thesis": "OpenAI's acquisition of a popular podcast network raises questions about narrative control and media influence, similar to corporate acquisitions of major publications. The hosts are skeptical of stated intentions despite acknowledging the podcast's quality and influence."
+    },
+    {
+      "channel": "Blockware Solutions",
       "sentiment": "neutral",
       "score": 50,
-      "thesis": "The New York Times blocking web archivists and AI crawlers is a short-term strategy that will hurt their long-term relevance as AI becomes the primary way people access information online. Technology has an inherent direction that cannot be fought."
+      "thesis": "Success is not accidental but follows identifiable patterns. The speaker identifies five common habits of ultra-successful individuals: providing value, investing proceeds, using intelligent leverage, communicating effectively, and a fifth trait (cut off in transcript)."
+    },
+    {
+      "channel": "DataDash",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "Bitcoin is consolidating after a relief rally and likely to continue higher toward $75,000, with key support levels at $69,260 and $68,500 providing decision points for near-term direction."
     }
   ]
 }

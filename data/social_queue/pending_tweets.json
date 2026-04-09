@@ -58,5 +58,65 @@
     "generated_at": "2026-04-09T08:06:29.179291+00:00",
     "brief_date": "Wednesday, April 08, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_100005_0",
+    "text": "1923 Reichsbank printed 1.2 billion marks in one day. People burned currency for heat. 2026 Fed balance sheet at $7.3 trillion. Nobody's burning dollars yet. The denominator always matters more than the numerator",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T10:00:05.029453+00:00",
+    "brief_date": "Wednesday, April 08, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_100047_0",
+    "text": "Morgan Stanley's ETF launches while 1 sat/vB fees persist. Institutions pay to enter Bitcoin. Users pay nothing to transact on it. One of these groups understands what they're buying",
+    "angle": "macro_monetary",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T10:00:47.785589+00:00",
+    "brief_date": "Wednesday, April 08, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_130004_0",
+    "text": "How many people know their bank can legally freeze their account for 10 business days without explanation. Bitcoin doesn't have that problem",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T13:00:04.718112+00:00",
+    "brief_date": "Wednesday, April 08, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_190004_0",
+    "text": "MicroStrategy bought 4 days worth of new Bitcoin supply. Morgan Stanley bought it on day one. Meanwhile retail is trading on a 14 fear index. Smart money doesn't wait for permission or confidence. It waits for price",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T19:00:04.202626+00:00",
+    "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260409_220003_0",
+    "text": "Strategy bought 546 BTC in 90 minutes. That's 1.2x daily mining supply absorbed by one buyer. When institutions stack faster than the network produces, what's the actual price discovery mechanism",
+    "angle": "institutional_flow",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-09T22:00:03.911033+00:00",
+    "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
   }
 ]

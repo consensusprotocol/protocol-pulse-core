@@ -1,11 +1,11 @@
 {
-  "episode_narrative": "Self-custody and Bitcoin education is dominating Bitcoin discourse \u2014 5 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "episode_narrative": "Institutional Bitcoin accumulation is dominating Bitcoin discourse \u2014 4 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
   "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Quantum computing threat to Bitcoin' is also trending with 6 thought leaders discussing it",
+  "mark_context": "Mark should add context: 'Bitcoin mining luck & solo miner wins' is also trending with 3 thought leaders discussing it",
   "clip_selection_priority": [
-    "Self-custody and Bitcoin education",
-    "Quantum computing threat to Bitcoin",
-    "Institutional Bitcoin adoption"
+    "Institutional Bitcoin accumulation",
+    "Bitcoin mining luck & solo miner wins",
+    "Macroeconomic conditions & inflation"
   ],
   "avoid_topics": [
     "price speculation",
@@ -16,10 +16,10 @@
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Self-custody and Bitcoin education",
+  "dominant_narrative": "Institutional Bitcoin accumulation",
   "market_mood": "neutral",
   "top_quote": "",
   "top_quote_handles": [],
-  "quote_fetched_at": "2026-04-09T08:09:50.949047+00:00",
-  "computed_at": "2026-04-09T08:09:50.949047+00:00"
+  "quote_fetched_at": "2026-04-09T17:15:26.735979+00:00",
+  "computed_at": "2026-04-09T17:15:26.735979+00:00"
 }

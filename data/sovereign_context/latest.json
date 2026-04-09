@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-04-09T09:05:04.426317+00:00",
-  "block_height": 944316,
+  "timestamp": "2026-04-09T22:55:04.370661+00:00",
+  "block_height": 944397,
   "btc": {
-    "price": 71129,
-    "change_24h": -1.07,
+    "price": 72192,
+    "change_24h": 1.41,
     "change_7d": 0,
-    "market_cap": 1423808129253.8093,
-    "volume_24h": 37071865082.07446,
-    "dominance": 57.0
+    "market_cap": 1447528644514.6975,
+    "volume_24h": 38831338764.06242,
+    "dominance": 57.1
   },
   "fear_greed": {
     "value": 14,
@@ -16,31 +16,31 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 3,
-    "unconfirmed": 31683,
-    "size_mb": 20.5
+    "fee_high": 1,
+    "unconfirmed": 32890,
+    "size_mb": 27.6
   },
   "network": {
-    "hashrate_eh": 955.9,
+    "hashrate_eh": 962.7,
     "difficulty": 0,
-    "next_adj_pct": -3.79,
-    "next_adj_blocks": 1188
+    "next_adj_pct": -3.67,
+    "next_adj_blocks": 1107
   },
   "lightning": {
-    "capacity_btc": 5057.1,
-    "channels": 41109,
-    "nodes": 17438
+    "capacity_btc": 5706.3,
+    "channels": 41986,
+    "nodes": 17342
   },
   "kol": {
-    "sentiment_score": 61,
+    "sentiment_score": 62,
     "top_topics": [
-      "Macro liquidity cycles and debt funding",
-      "Institution adoption (Morgan Stanley Bitcoin ETF)",
-      "Geopolitical Bitcoin adoption (Iran strait tolls)",
+      "European regulatory overregulation",
+      "Bitcoin adoption in Czech Republic",
+      "Paradigm shift in technology (Bitcoin, AI, robotics)",
       "regulation",
       "macro"
     ],
-    "post_count_24h": 29,
+    "post_count_24h": 261,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,12 +52,12 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 90.0
+    "top_probability": 90.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**BITCOIN'S SELF-CUSTODY SURGE IS NOW IDEOLOGICAL WARFARE**\n\nSelf-custody education is spreading like wildfire\u2014Balaji Srinivasan, five thought leaders, and crypto's core narrative all amplifying the s",
+    "narrative": "**INSTITUTIONS ARE MAKING THEIR MOVE.**\n\nBitcoin hit seventy-two thousand on institutional hedging\u2014this isn't retail enthusiasm, it's strategic positioning. Four major voices in the last four hours ar",
     "brief_type": "unknown"
   },
   "whale_alerts": [
@@ -98,50 +98,50 @@
     }
   ],
   "macro": {
-    "dxy": 99.05,
-    "gold_price": 4755.2,
-    "sp500": 6797.0,
-    "btc_vs_gold_30d_corr": 0.129,
-    "btc_vs_dxy_30d_corr": -0.478,
+    "dxy": 98.79,
+    "gold_price": 4788.5,
+    "sp500": 6857.5,
+    "btc_vs_gold_30d_corr": 0.145,
+    "btc_vs_dxy_30d_corr": -0.486,
     "real_yield": null,
     "ten_year_yield": 4.29
   },
   "options": {
-    "put_call_ratio": 0.687,
-    "dvol": 44.3,
+    "put_call_ratio": 0.682,
+    "dvol": 44.5,
     "max_pain": 80000.0,
-    "total_call_oi": 234884.8,
-    "total_put_oi": 161314.1,
-    "total_oi_btc": 396198.9,
-    "avg_mark_iv": 51.0
+    "total_call_oi": 237793.5,
+    "total_put_oi": 162272.0,
+    "total_oi_btc": 400065.5,
+    "avg_mark_iv": 52.1
   },
   "futures": {
-    "funding_rate": 0.0,
-    "annualized_basis": 0.0,
-    "open_interest": 28201.22,
-    "open_interest_usd": 2009425120.0,
+    "funding_rate": 2.8e-07,
+    "annualized_basis": 0.03,
+    "open_interest": 27915.04,
+    "open_interest_usd": 2020120190.0,
     "long_short_ratio": null,
-    "mark_price": 71251.43,
-    "index_price": 71253.12,
-    "basis_pct": 0.0066
+    "mark_price": 72380.9,
+    "index_price": 72366.72,
+    "basis_pct": 0.039
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 3760448.0,
+    "coin_days_destroyed_7d": 6476990.0,
     "active_addresses_7d": 603709.0,
-    "tx_volume_usd_7d": 52073397878.0,
-    "nvt_ratio": 26.1,
-    "accumulation_score": 85
+    "tx_volume_usd_7d": 49134040156.0,
+    "nvt_ratio": 27.7,
+    "accumulation_score": 75
   },
   "active_alerts": [
     {
       "pattern_id": "POLYMARKET_CONFIRM",
       "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 29 KOL posts in 24h \u2014 consensus forming.",
+      "description": "Polymarket sentiment 74/100 (bullish), 261 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-09T09:05:04.470027+00:00",
+      "ts": "2026-04-09T22:55:04.393933+00:00",
       "data": {
         "poly_sentiment": 74,
-        "kol_posts": 29
+        "kol_posts": 261
       }
     }
   ],
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 67.6,
+      "score": 63.3,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -160,49 +160,49 @@
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": 11,
+      "score": 12,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 73.3,
+      "score": 71.2,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 75.7,
+      "score": 76.9,
       "pattern": "BULLISH",
-      "fragmentation": 18.7,
-      "momentum": 64.1,
-      "conviction": 54.5,
-      "thesis": "miner_absorption_under_fear",
-      "confidence": 0.72
+      "fragmentation": 16.4,
+      "momentum": 61.9,
+      "conviction": 58.5,
+      "thesis": "mixed_regime",
+      "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 6.95,
-      "btc_market_cap": 1425732825519.3242,
-      "stablecoin_market_cap": 205000000000,
+      "value": 5.41,
+      "btc_market_cap": 1446682447941.1345,
+      "stablecoin_market_cap": 267280557315.0313,
       "signal": "BULLISH",
       "description": "Healthy stablecoin reserves available for BTC purchasing",
-      "source": "estimated"
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": -0.389,
-      "cdd_7d": 3766638.0,
-      "cdd_ratio": 0.63,
-      "hashrate_eh": 955.9,
+      "value": 0.083,
+      "cdd_7d": 6476990.0,
+      "cdd_ratio": 1.08,
+      "hashrate_eh": 963.0,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 37.0,
+      "value": 22.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-09T09:00:01.710603+00:00"
+    "timestamp": "2026-04-09T22:55:01.974824+00:00"
   }
 }

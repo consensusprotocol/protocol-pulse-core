@@ -765,7 +765,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
         # Overlay card on base with fade-in
         # Session fix 9c: 0.5s delay before tweet cards appear
-        fade_start = 0.5 + ci * 0.4
+        fade_start = 0.1  # V36: reduced from 0.5s to avoid blackdetect triggers + ci * 0.4
         fg += f"[{tag}g][{tag}src]overlay={card_x}:{cy}:format=auto,fade=t=in:st={fade_start}:d=0.3[{tag}out];\n"
         last_v = f"{tag}out"
 

@@ -1,7 +1,151 @@
 {
-  "last_updated": "2026-04-09T08:00:12.520179+00:00",
-  "total_analyses": 74,
+  "last_updated": "2026-04-09T20:00:29.385792+00:00",
+  "total_analyses": 80,
   "analyses": [
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "Europe's regulatory overreach is stifling Bitcoin adoption, but the Czech Republic and BTC Prague conference represent a paradigm shift toward Bitcoin-friendly environments. We're experiencing a technological revolution similar to the industrial revolution that will reshape society.",
+      "key_quotes": [
+        "Europe is broken... but there is a light at the end of the tunnel",
+        "There is a paradigm shift happening in the world",
+        "We empower individuals. We build Bitcoin bridges"
+      ],
+      "topics": [
+        "European regulatory overregulation",
+        "Bitcoin adoption in Czech Republic",
+        "Paradigm shift in technology (Bitcoin, AI, robotics)",
+        "Bitcoin Living Masterclass at BTC Prague",
+        "Individual empowerment through Bitcoin"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Natalie Brunell",
+      "title": "Europe Is Broken \u2014 But This Country Is Becoming the World's Most Bitcoin-Friendly Nation",
+      "video_id": "Q38g0ct8P7k",
+      "duration": 1857.53,
+      "analyzed_at": "2026-04-09T20:00:27.384177+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 65,
+      "main_thesis": "Bitcoin and decentralized technology will either force reconciliation through market competition or provoke authoritarian crackdowns, while massive technological and societal changes (AI, humanoid robots) create both risks and unprecedented opportunities.",
+      "key_quotes": [
+        "use computers without intermediaries and custodians",
+        "with great change comes great opportunity",
+        "it only necessitates massive change, but massive, massive change"
+      ],
+      "topics": [
+        "decentralization vs centralization models",
+        "Start9 and StartOS development",
+        "AI and humanoid robotics impact on humanity",
+        "sovereign computing infrastructure",
+        "regulatory reconciliation scenarios"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Guy Swann",
+      "title": "Chat_164 - Skating To Where The Puck Will Be with Matt Hill",
+      "video_id": "c7ueHTTdu-A",
+      "duration": 10381.85,
+      "analyzed_at": "2026-04-09T20:00:22.390164+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 45,
+      "main_thesis": "OpenAI's acquisition of a popular podcast network raises questions about narrative control and media influence, similar to corporate acquisitions of major publications. The hosts are skeptical of stated intentions despite acknowledging the podcast's quality and influence.",
+      "key_quotes": [
+        "maybe that means it's a great pairing for OpenAI and they're the dystopia they plan to create",
+        "like a Washington Post acquisition...probably going to be shaping tech narratives",
+        "if you're doing AI and you're not on Twitter, you're kind of missing the boat"
+      ],
+      "topics": [
+        "OpenAI acquisition strategy",
+        "Media narrative control",
+        "AI industry influence",
+        "Social media influence",
+        "Tech industry consolidation"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Stacker News",
+      "title": "OpenAI acquires TBPN",
+      "video_id": "i-NHUnvVOG4",
+      "duration": 238.12,
+      "analyzed_at": "2026-04-09T20:00:17.681955+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "Success is not accidental but follows identifiable patterns. The speaker identifies five common habits of ultra-successful individuals: providing value, investing proceeds, using intelligent leverage, communicating effectively, and a fifth trait (cut off in transcript).",
+      "key_quotes": [
+        "Income is derivative of value",
+        "You have to provide value for the world. Find a problem and solve that problem",
+        "They know how to use intelligent leverage...multiply your investments"
+      ],
+      "topics": [
+        "Wealth building principles",
+        "Value creation and entrepreneurship",
+        "Investment strategy",
+        "Intelligent use of debt/leverage",
+        "Communication and charisma"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Blockware Solutions",
+      "title": "5 Habits of the Ultra-Successful (What Tucker & Pomp Taught Me)",
+      "video_id": "4jz_Vi9LLzo",
+      "duration": 560.17,
+      "analyzed_at": "2026-04-09T20:00:13.219582+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 72,
+      "main_thesis": "Bitcoin is consolidating after a relief rally and likely to continue higher toward $75,000, with key support levels at $69,260 and $68,500 providing decision points for near-term direction.",
+      "key_quotes": [
+        "we are continuing with these higher lows and higher highs across the board",
+        "that 75,000 is a pretty critical level for a multitude of reasons",
+        "even if we were to come back down, I would put in another higher low"
+      ],
+      "topics": [
+        "Support and resistance levels",
+        "Chart inefficiencies and gap-filling",
+        "Higher timeframe moving averages",
+        "Geopolitical market reactions",
+        "Range breakout analysis"
+      ],
+      "price_prediction": "$75,048 as primary target (higher timeframe average); potential pullback to $68,500; range breakout required above $75,000 for significant continuation",
+      "confidence": "medium",
+      "channel": "DataDash",
+      "title": "Bitcoin Rally Fading? This Key Level Decides What Happens Next",
+      "video_id": "vMEBruhdF4w",
+      "duration": 589.08,
+      "analyzed_at": "2026-04-09T20:00:08.985154+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "OTC trading represents a parallel market 2-3x the size of public exchanges where institutions move large volumes privately, creating price movements that retail traders don't see on charts until later.",
+      "key_quotes": [
+        "You're only seeing the ripples on the surface. The real currents are moving deep below.",
+        "OTC crypto trading could be two to three times that of public exchanges.",
+        "The real move might have happened days ago, and the price is just catching up."
+      ],
+      "topics": [
+        "OTC trading mechanisms",
+        "Price impact and slippage",
+        "Market opacity and information asymmetry",
+        "Exchange liquidity and volatility",
+        "Market maker functions"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "CoinGecko",
+      "title": "How the Ultra-Rich Trade Bitcoin Privately",
+      "video_id": "a11AFxX_rWU",
+      "duration": 229.31,
+      "analyzed_at": "2026-04-09T20:00:04.034612+00:00"
+    },
     {
       "sentiment": "bullish",
       "sentiment_score": 78,

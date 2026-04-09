@@ -1,40 +1,60 @@
 {
-  "generated_at": "2026-04-08T10:00:00Z",
-  "date": "Wednesday, April 08, 2026",
-  "btc_price": "$71,350",
-  "btc_change_24h": "+3.4%",
-  "fng": "Extreme Fear",
+  "generated_at": "2026-04-09T14:32:00Z",
+  "date": "Thursday, April 09, 2026",
+  "btc_price": "$72,182",
+  "btc_change_24h": "+1.2%",
+  "fng": "Extreme Fear (14/100)",
   "dominant_narratives": [
-    "Bitcoin as a neutral global monetary base layer",
-    "Iran's crypto tolls on Strait of Hormuz",
-    "Morgan Stanley's Bitcoin ETF launch"
+    "Bitcoin as geopolitical safe-haven amid regional instability and ceasefire volatility",
+    "Institutional accumulation at scale—Strategy acquiring 546 BTC in 90 minutes signals non-stop HODLing",
+    "Exchange deposit exodus: 10-year low signals supply scarcity psychology overriding panic selling despite Extreme Fear",
+    "Regulatory siege in EU killing merchant adoption while Prague resists—Bitcoin payments infrastructure under pressure",
+    "Macro debt crisis accelerating: $13.9B private credit redemption denials (88% blocked) signal systemic liquidity stress favoring hard assets"
   ],
   "trending_language": [
-    "Bitcoin is neutral",
-    "It's the only asset all governments can trust",
-    "Iran is collecting its Hormuz toll in bitcoin"
+    "Still stacking",
+    "Few",
+    "Supply is being held, not sold",
+    "Taking down the flock cameras",
+    "The private credit fuse is burning at an accelerating pace",
+    "Bitcoin covers the full spectrum of medium of exchange",
+    "Chaotic and truly decentralized"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite the Extreme Fear index, Bitcoin price is rising and key institutional developments like Morgan Stanley's ETF launch and Iran's crypto tolls indicate growing adoption and recognition.",
+  "sentiment_reasoning": "Despite Extreme Fear index, accumulation signals (exchange deposits at 10-year lows, institutional mega-buys, solo miners winning blocks) and macro narratives (debt crisis, geopolitical fragmentation, EU regulatory capture) create asymmetric upside setup. Fear-driven price suppression masking supply hardening.",
   "top_accounts_active": [
+    "@saylor",
+    "@JeffBooth",
+    "@MartyBent",
+    "@TFTC21",
     "@BitcoinMagazine",
+    "@NickSzabo4",
+    "@LynAldenContact",
     "@BitcoinArchive",
-    "@ErikVoorhees"
+    "@natbrunell"
   ],
   "recommended_tweet_angles": [
-    "Bitcoin's neutrality in geopolitical conflicts",
-    "Iran's move to monetize maritime transit via Bitcoin",
-    "Morgan Stanley's spot Bitcoin ETF as institutional validation"
+    "Exchange deposits hitting 10-year lows while FNG = 14: holders aren't selling into fear—they're locking supply. Scarcity narrative when price is still cheap.",
+    "Strategy bought 546 BTC in 90 min (1.2x daily mining supply). When mega-cap institutions stack faster than the network produces, what does that signal about price discovery?",
+    "EU regulations killed 1,000+ Bitcoin merchants overnight. Prague holds the line. The network strengthens where states collapse—this is the whole point.",
+    "Private credit funds hitting redemption walls (88% denials). When traditional finance seizes up, which asset doesn't care about balance sheets? (Hint: it's orange.)",
+    "MACD weekly crossover + geopolitical chaos + institutional accumulation = last time this pattern fired, FTX had to collapse to extend the bear. Now there's no catalyst left."
   ],
   "topics_to_avoid": [
-    "Personal attacks or speculative claims about Satoshi"
+    "Satoshi identity debates (Adam3us denial getting rehashed—low signal)",
+    "Quantum computing threat narratives (long-term concern, kills momentum today)",
+    "Retail trading psychology hot-takes (FNG is low, obvious observation, doesn't drive decisions)"
   ],
-  "engagement_patterns": "Data-backed assertions, institutional developments, and geopolitical narratives resonate most with the community today.",
-  "protocol_pulse_voice_guidance": "Speak with precision, anchor narratives in verifiable data, and maintain a cypherpunk ethos focused on decentralized truth and monetary sovereignty.",
+  "engagement_patterns": "Cypherpunk iconography and regulatory defiance resonating hardest (@NickSzabo4 'ban flock cameras'). Macro realism threads (Jeff Booth on deflationary tech, TFTC on credit stress) outperforming cheerleading. Institutional stack announcements hit differently than price alerts. Geopolitical framing (Prague, EU, Iran strait) elevates Bitcoin from asset to protocol.",
+  "protocol_pulse_voice_guidance": "Lead with supply mechanics and macro fracture—sound like an engineer watching a system fail in real-time. Institutional accumulation is *not* bullish hype; it's margin compression. EU merchant death is *not* regulation news; it's proof of concept for non-state settlement. Private credit seizures are *not* macro commentary; they're the countdown timer. Stay clinical. Cite the numbers. Let the fear speak for itself. Avoid tribalism—focus on what the network *does* when states *don't*.",
   "key_stats_today": {
-    "tweets_analyzed": 171,
+    "tweets_analyzed": 222,
     "nostr_signals": 0,
-    "unique_handles": 107
+    "unique_handles": 125,
+    "institutional_buy_signals": 2,
+    "geopolitical_mentions": 8,
+    "regulatory_friction_mentions": 3,
+    "macro_debt_crisis_mentions": 4
   },
-  "generated_by": "local_llm"
+  "generated_by": "claude_haiku"
 }
