@@ -54,6 +54,22 @@ def _make_data_segment_inner(audio_path: str, headline: str, metrics: list,
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
+
+    # V35 ADELAY_PAD: Prepend 150ms silence to prevent first word cutoff at part boundary
+    _padded = audio_path + ".padded.wav"
+    try:
+        _pad_ok = run_ffmpeg([
+            "-i", audio_path,
+            "-af", "adelay=150|150,apad=pad_dur=0.15",
+            "-c:a", "pcm_s16le", "-ar", "48000",
+            _padded
+        ], "adelay pad for data segment", 15)
+        if _pad_ok and os.path.exists(_padded):
+            audio_path = _padded
+            audio_dur = ffprobe_duration(audio_path)
+    except Exception:
+        pass
+
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
     # Fetch intelligence data and render chart PNGs

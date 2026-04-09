@@ -885,6 +885,8 @@ def _sanitize_text(text: str) -> str:
     """Sanitize text for FFmpeg drawtext filter."""
     import re as _re_emoji
     text = _re_emoji.sub(r'[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF\U00002702-\U000027B0\U0001F900-\U0001F9FF\U0001FA00-\U0001FA6F\U0001FA70-\U0001FAFF\U00002600-\U000026FF\U0000FE0F]+', '', text).strip()
+    # V35: Secondary pass — remove any remaining chars outside basic Latin + common punctuation
+    text = ''.join(c for c in text if ord(c) < 0x2600 or c in '\u2014\u2013\u2019\u201c\u201d\u2022\u00b7\u2026')
     return (text.replace("'", "\u2019").replace('"', "")
                 .replace(":", " -").replace(";", ",")
                 .replace("[", "(").replace("]", ")")
