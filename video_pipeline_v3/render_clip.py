@@ -99,8 +99,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
         [input_spec], fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-
+         "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
         output_path, f"APEX partner clip ({safe_speaker})",
     )
     return output_path if ok else ""
