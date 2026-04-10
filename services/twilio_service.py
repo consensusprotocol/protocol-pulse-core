@@ -38,7 +38,7 @@ def _generate_and_url(text: str) -> str:
     filename = f'{uuid.uuid4().hex}.mp3'
     path = os.path.join(BRIEFS_DIR, filename)
     generate_voice_audio(text, path)
-    return f'{PUBLIC_BASE}/api/media/brief-audio/{filename}'
+    return f'{PUBLIC_BASE}/static/audio/oracle/{filename}'
 
 
 def send_sms(to: str, message: str) -> bool:
