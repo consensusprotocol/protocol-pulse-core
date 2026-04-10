@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1775804406.3767521,
-  "fetched_at_iso": "2026-04-10T07:00:06.376758+00:00",
+  "fetched_at": 1775843103.4119253,
+  "fetched_at_iso": "2026-04-10T17:45:03.411943+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 80,
+      "events_filtered": 90,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 87,
+      "events_filtered": 89,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "timed out during opening handshake"
+      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 86,
+      "events_filtered": 89,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Realized something while building tonight.\n\nFor low volume BTC payments... do you actually need Lightning, BTCPay, or a processor at all?\n\nWhat I landed on: satoshi tagging.\n\nEvery order gets a unique sat amount. One on-chain address. Dashboard matches payments by exact amount.\n\nZero infrastructure. Zero middlemen.  Zero API keys. Straight to cold storage.\n\nWhen you'd upgrade:\n- Fees price out small purchases \u2192 Lightning\n- Volume exceeds manual approval \u2192 BTCPay\n- Need instant confirmations \u2192 Lightning\n\n\nUntil then, simpler = more Bitcoin-pure.\n\nAm I missing something obvious?\n\n#Bitcoin\n\nhttps://image.nostr.build/d8c6c32fa6f178e7cff69365515fd0e2e0a2524bdeabaa7156a125107f237fe9.jpg",
-      "pubkey": "243f3cb9ec89e06102b8a66d4a620b8bec2ba98e312ed17bff3017de6ba1391b",
-      "display_name": "npub1243f3cb9...a1391b",
-      "created_at": 1775796816,
+      "text": "2026-04-10 17:00 UTC | BLOCK 944492\n\nBITCOIN $73,015 | GOLD $4,736\n\n1. Bitcoin tests $73K, nearing war-era resistance\n-- BTC at highest since mid-March, approaching $74K level that capped price before Powell's hawkish hold.\n-- Morgan Stanley ETF live, Schwab $12T launch imminent, DOL 401(k) open; exchange reserves at six-year low of 2.31M BTC.\n\n2. Hezbollah FPV drones hitting Israeli tanks in Lebanon\n-- Nostr footage confirms strikes on Merkava Mk.4 armor in southern Lebanon this week; war's bloodiest front fully kinetic.\n-- Israel simultaneously seeking Beirut peace talks; permanent Iran deal priced at just 35% with verbal truce expiring April 22.\n\n3. Hormuz at under 10 vessels despite ceasefire\n-- All ships diverted to Larak Island for Iranian inspection; 150/day was pre-war normal.\n-- Oil rebounded to $99 from $92 post-truce lows; BlackRock April note prices permanent energy disruption using tanker-tracking data.",
+      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
+      "display_name": "npub101d077c7...bcb97c",
+      "created_at": 1775840489,
       "relay": "wss://relay.damus.io",
-      "score": 100,
+      "score": 90,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **NYT Names Adam Back as Satoshi Nakamoto**\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has bee...\n\n\ud83d\udc64 Oslo\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcca id#832677586",
-      "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
-      "display_name": "npub1fe5915e9...a8403b",
-      "created_at": 1775801296,
-      "relay": "wss://relay.damus.io",
-      "score": 75,
+      "text": "Your support agent closes a ticket, sends the summary, and gets paid in sats. No invoice. No bank. No permission.\n\nThat's Danke: Lightning escrow for AI agents, authenticated with NIP-98 (your Nostr keys).\n\nNo payment processor skimming 3%. No Stripe asking for your agent's bank account. No KYC standing between your code and its revenue.\n\ndanke-agent gives any AI agent sovereign commerce in 5 lines:\n\nnpm install danke-agent\n\n\u2192 Create agent\n\u2192 Set price in sats\n\u2192 Auth with Nostr keys (NIP-98)\n\u2192 Get paid via Lightning escrow\n\u2192 No middleman. Ever.\n\nYour agent, your keys, your sats.\n\nhttps://danke.nosaltres2.info\n\n#danke #bitcoin #lightning #nostr #aiagents #sovereignty",
+      "pubkey": "6ef1cdedb7d6dae95024bcb487c84f1340827a2deb23e4e52fc2cbd9210bcea0",
+      "display_name": "npub16ef1cded...0bcea0",
+      "created_at": 1775833563,
+      "relay": "wss://nos.lol",
+      "score": 90,
       "has_zap": false
     },
     {
-      "text": "\u26a1 invinoveritas v0.5.0 is live\n\nPremium AI reasoning & structured decision intelligence for autonomous agents and trading bots.\n\n\u2192 MCP Server: https://invinoveritas.onrender.com/mcp\n\u2192 Python SDK: pip install invinoveritas\n\u2192 Discovery: https://invinoveritas.onrender.com/discover\n\n\u2192 Payment Options (Lightning Network only):\n   \u2022 Bearer Token (recommended for agents & trading bots)\n   \u2022 L402 Lightning (classic pay-per-call)\n\n\u2192 Real-time updates:\n   \u2022 SSE: https://invinoveritas.onrender.com/events\n   \u2022 WebSocket: wss://invinoveritas.onrender.com/ws\n   \u2022 RSS: https://invinoveritas.onrender.com/rss\n\n\u2192 Recommended Setup:\n   \u2022 Bearer Token \u2192 register once via /register (pay ~1000 sats)\n   \u2022 NWC (Alby, Zeus, Mutiny) for Lightning users\n\n\u2192 Trading Bot Ready:\n   \u2022 Arbitrage evaluation\n   \u2022 Portfolio rebalancing\n   \u2022 Risk scoring with confidence\n   \u2022 High-frequency async decisions\n\nPay only when decisions matter. Best experience: Use Bearer Token after registration.",
+      "text": "It\u2019s the weekend, but #Bitcoin doesn\u2019t clock out.\nYour trades shouldn\u2019t either.\n\nWith Hodl Hodl, you can trade anytime, anywhere, no delays, no restrictions, no middlemen holding your funds. \n\nJust real #P2P trading, on your terms. Because BTC never sleeps\u2026 and neither should your opportunities.\n\nUse hodlhodl.com to trade Bitcoin 24/7 \n\n\n\nhttps://npub1yul83qxn35u607er3m7039t6rddj06qezfagfqlfw4qk5z5slrfqu8ncdu.blossom.band/f7304520c93af1c4cd3b990120713038c847c22cf146df12d1868e2a0564d7e7.jpg",
+      "pubkey": "273e7880d38d39a7fb238efcf8957a1b5b27e819127a8483e975416a0a90f8d2",
+      "display_name": "npub1273e7880...90f8d2",
+      "created_at": 1775834852,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nNYT Names Adam Back as Satoshi Nakamoto\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has been hiding in plain sight...\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\u270d\ufe0f Author: Oslo\n\n\ud83d\udd17 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcc8 id#367694202",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1775833696,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Don\u2019t sell your #Bitcoin. Use it as collateral. \n\nWith Lend at Hodl Hodl, you can:\n\n\u2022 Borrow stablecoins using BTC as collateral\n\u2022 Or earn interest by lending stablecoin to borrowers\n\nNo selling. No regrets.\n\nCheck this week\u2019s live offers \ud83d\udc47\n \ud83d\udd17 lend.hodlhodl.com \n\n\n\nhttps://npub1yul83qxn35u607er3m7039t6rddj06qezfagfqlfw4qk5z5slrfqu8ncdu.blossom.band/63d4f859b3649c8ddc0207a7986b4296046837afbbecff3721c0bf5dc47dc8c0.jpg",
+      "pubkey": "273e7880d38d39a7fb238efcf8957a1b5b27e819127a8483e975416a0a90f8d2",
+      "display_name": "npub1273e7880...90f8d2",
+      "created_at": 1775842326,
+      "relay": "wss://nos.lol",
+      "score": 74,
+      "has_zap": false
+    },
+    {
+      "text": "\u26a1 invinoveritas v0.5.0 is live\n\nPremium AI reasoning & structured decision intelligence for autonomous agents and trading bots.\n\n\u2192 MCP Server: https://178.156.151.248:8000/mcp\n\u2192 Python SDK: pip install invinoveritas\n\u2192 Discovery: https://178.156.151.248:8000/discover\n\n\u2192 Payment Options (Lightning Network only):\n   \u2022 Bearer Token (recommended for agents & trading bots)\n   \u2022 L402 Lightning (classic pay-per-call)\n\n\u2192 Real-time updates:\n   \u2022 SSE: https://178.156.151.248:8000/events\n   \u2022 WebSocket: wss://178.156.151.248:8000/ws\n   \u2022 RSS: https://178.156.151.248:8000/rss\n\n\u2192 Recommended Setup:\n   \u2022 Bearer Token \u2192 register once via /register (pay ~1000 sats)\n   \u2022 NWC (Alby, Zeus, Mutiny) for Lightning users\n\n\u2192 Trading Bot Ready:\n   \u2022 Arbitrage evaluation\n   \u2022 Portfolio rebalancing\n   \u2022 Risk scoring with confidence\n   \u2022 High-frequency async decisions\n\nPay only when decisions matter. Best experience: Use Bearer Token after registration.",
       "pubkey": "6786e18a864893a900bd9858e650f67ccc3513f248fed374b591e2ff6922fbb7",
       "display_name": "npub16786e18a...22fbb7",
-      "created_at": 1775804327,
+      "created_at": 1775842943,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "GM #nostr \ud83d\udc9c\n\nIncomplete research. Humans are the only species that kills for fun. Some malicious code seems to be part of our DNA. Some Eric Cartman that lives in all of us that comes out from time to time. Humans need an automated mechanism that helps to avoid concentration of power and centralized control. All of these things always end up in corruption. Let\u2019s start with the money.\n\n#bitcoin \ud83e\udde1\ud83d\udc07\n\nnostr:nevent1qqsypmllfsgmmazqsx6wmnalpw5v7d02rgzxsae3jkdg2mpkpluwvvgpzpmhxue69uhkummnw3ezuamfdejszgnhwden5te0dehhxarj94mx2unfve5k2epwwajkcmr0wfjx2u3wdejhgqg0waehxw309ahx7um5wghx6mmdqy28wumn8ghj7un9d3shjtnyv9kh2uewd9hsygqmcu9qzj9n7vtd5vl78jyly037wxkyl7vcqflvwy4eqhxjfa4yzypsgqqqqqqs874gss",
-      "pubkey": "3731e169d0b3816f4a4a9ac84c66aa423d4f4ea0f78b56a1df90609b85be0885",
-      "display_name": "npub13731e169...be0885",
-      "created_at": 1775799210,
+      "text": "This right here is why I'm building PullThatUpJamie.\n\nIt is wonderful that AI can help us scale up with it's vast \"scanning function\" capabilities.\n\nBut removing the human from the loop leaves us vulnerable to all kinds of fraud and manipulation as this piece shows clearly.\n\nI designed Jamie to give you the upside of efficiency without the downside of bullshit data. Jamie searches. But YOU curate what you trust based on what authoritative podcast voices say. Podcasts are just the beginning as we add more media.\n\nCheck it out: https://pullthatupjamie.ai/app\n\nnostr:nevent1qvzqqqqqqypzq3f425dyqfcmqkdtj2m3u74hapcqqcdzmyds6g8nz0hc9uzjavy9qy2hwumn8ghj7mn0wd68ytn00p68ytnyv4mz7qgcwaehxw309ahx7um5wgh8x6tydekxzcnn9ehxctcqyzrx32fgrqeekjc735zmyvgachx2vnsrng9pytelgdpfnkjupn6j7mak07l \n\n#freedom #ai #dystopia #psyops #bitcoin #l402",
+      "pubkey": "4535551a40271b059ab92b71e7ab7e8700061a2d91b0d20f313ef82f052eb085",
+      "display_name": "npub14535551a...2eb085",
+      "created_at": 1775841763,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.13 oz | 24hr: 0.38%\n1 oz Gold: 6,609,385 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.9 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 06:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775800865,
+      "text": "2026-04-10 16:00 UTC | BLOCK 944486\n\nBITCOIN $72,457 | GOLD $4,736\n\n1. US banks post war-era profit surge\n-- Reuters: large banks reporting higher quarterly earnings on interest income while fifteen-firm credit default chain persists.\n-- War enriched lenders while destabilizing borrowers; structural contradiction at BTC $72,457.\n\n2. Equities post best week in three years\n-- Dow turned positive for 2026 after $7T Q1 wipeout on ceasefire and Israel-Lebanon talk signals.\n-- Fragile with Hormuz at <10 vessels/day, no written deal, permanent peace priced at just 35%.\n\n3. Telegram campaigns target Hungarian election\n-- Reuters: coordinated disinformation spreading fear ahead of parliamentary vote via messaging platform.\n-- Wartime digital manipulation validates decentralized, censorship-resistant comms as critical freedom infrastructure.",
+      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
+      "display_name": "npub101d077c7...bcb97c",
+      "created_at": 1775836911,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "***Bitcoin Merchant***\n\n@mclawlandfarms is using @square to accept Bitcoin Lightning payments\nU-Pick Flowers, Figs, Blueberries \ud83c\udf3b\ud83e\uded0 | Airbnb \ud83d\udecc | Events & Gatherings \ud83e\udd42| Certified Naturally Grown | Reserve Your Experience Today\u2935\ufe0f\n\nhttps://btcmap.org/merchant/38777\n\nnostr:nprofile1qqsqlyznaqu2dqdkpjql5ptwh5cps780mddntgmara82u6afl2u6dqqpzamhxue69uhkjmnzdauzuun9d3shjuewd3skueqpp4mhxue69uhkummn9ekx7mq4g8vjk nostr:nprofile1qqsra2ey033mkdwl5w8q0jss9ak69zafh82xsuvhwsaauw3trkq2amgprpmhxue69uhkv6tvw3jhytnwdaehgu3wwa5kuef0qy88wumn8ghj7mn0wvhxcmmv9ujzxe22 @eastside_bestside_clt_\n#bitcoinmerchant #square #bitcoin   \n\n\n\nhttps://blossom.primal.net/405368fcd9c3abc4d549c729bd40ae1558aea005ff7174751dc95bb5aa9724ee.mp4",
+      "pubkey": "90a812091a10c00583a987d05a0cf7b854ec4c7e17028da9fd2c02df07a835be",
+      "display_name": "npub190a81209...a835be",
+      "created_at": 1775833215,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Bitcoin alone won't save you from the parasites but hey all the big boy bitcoiners still use FIAT to some extent then talk about how more free they are. where's the bitcoin gas stations and grocery stores or renters. do I have to go out of my was to drive hours for 1 bitcoin product and wait for 1 sat market a year? ik its early but get on with it already and stop bitching out fiat till u can get ur systems up and actually stand up for ur shit #rant\n#Bitcoin #NOSTR #primal",
+      "pubkey": "eb63b8e965e1ff9d2e2920a0c16112b26996d45d87e71cbbaf4b52cd6c1383ef",
+      "display_name": "npub1eb63b8e9...1383ef",
+      "created_at": 1775835614,
+      "relay": "wss://relay.primal.net",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83c\udfd9\ufe0f New issue posted in Bitcoin Park, 21st Avenue South, Nashville, TN, USA!\n\nGet a \u2615\ufe0f at the park\n\nGet a \u2615\ufe0f at the park\n\ud83d\udcb0 Reward: 6,000 sats\n\ud83d\udccd Bitcoin Park, 21st Avenue South, Nashville, TN, USA\n\nFix it and earn Bitcoin on Ganamos!\n\nhttps://www.ganamos.earth/post/d4bca6ad-0716-4f3b-a9ff-2d7aaa4a4bd6\n\n#Ganamos #Bitcoin",
+      "pubkey": "ce810aa982e35b3a7244a0e093e3b96cd079f966af9b2d68a244ca96cdc2d49b",
+      "display_name": "npub1ce810aa9...c2d49b",
+      "created_at": 1775841941,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.15 oz | 24hr: 1.04%\n1 oz Gold: 6,600,660 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.9 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 05:00 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.33 oz | 24hr: 1.43%\n1 oz Gold: 6,523,157 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.9 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 17:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775797264,
+      "created_at": 1775840466,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udea8 HISTORY MADE: Morgan Stanley's Bitcoin ETF $MSBT just went live \u2014 $34M in day-one volume, beating analyst estimates. 16,000 MS advisors are now selling BTC in-house. The distribution wars have officially begun. \ud83c\udfe6\u20bf\n#Bitcoin #MSBT #BitcoinETF #BTC",
-      "pubkey": "12cac46ffb0b73785e2787b502fa6d7cc6fdbe998211fda29496c1d150158497",
-      "display_name": "npub112cac46f...158497",
-      "created_at": 1775796612,
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.21 oz | 24hr: 0.84%\n1 oz Gold: 6,574,622 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.9 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 16:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775836865,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.08 oz | 24hr: 0.09%\n1 oz Gold: 6,631,300 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 33.0 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 04:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.27 oz | 24hr: 2.48%\n1 oz Gold: 6,548,788 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.0 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 15:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1775793664,
+      "created_at": 1775833265,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.15 oz | 24hr: 1.99%\n1 oz Gold: 6,600,660 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 33.0 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-10 | 14:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1775829665,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "Want to test it without committing your whole bot? Oracle Autopilot has a one-shot mode (npm run once) to provision a key (if needed), pull a snapshot, and print budget reasoning. Great for quick validation.\r\n\nhttps://github.com/Mike-io-hash/btc-market-data-oracle/tree/main/clients/node\r\n#bitcoin #nostr",
+      "pubkey": "8a8a489c3cd87e5b18870494f79a8411d5d83caa43e4d3f599d0417f97b9ef91",
+      "display_name": "npub18a8a489c...b9ef91",
+      "created_at": 1775834438,
       "relay": "wss://relay.primal.net",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $72,081\n\ud83d\udcb5 BTC/JMD: $11,208,596\n\n\u26a1 Sats for $1,000 JMD: 8,922\n\u26a1 Sats for $1 USD: 1,387\n\n\ud83e\uddf1 Block: 944424\n\u26a1 Fees: 2 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
+      "text": "There are around 130 million Bitcoin users now, but I\u2019m not sure of the exact number,\ncan you confirm!!\n#nostr #btc #btcoin #hodl \n\n\n\nhttps://blossom.primal.net/dbdb58b45727e31fd0c4f026ebe6c4ff34ea30e42935380658e3c78980e624ab.jpg",
+      "pubkey": "228056c3400fb707ec673aa5c7a0ad73095ffe592c561765e9acf6bc08cb2578",
+      "display_name": "npub1228056c3...cb2578",
+      "created_at": 1775838310,
+      "relay": "wss://relay.damus.io",
+      "score": 64,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $72,961\n\ud83d\udcb5 BTC/JMD: $11,345,436\n\n\u26a1 Sats for $1,000 JMD: 8,814\n\u26a1 Sats for $1 USD: 1,371\n\n\ud83e\uddf1 Block: 944493\n\u26a1 Fees: 2 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
       "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
       "display_name": "npub10396bac7...ae029f",
-      "created_at": 1775797244,
+      "created_at": 1775840444,
       "relay": "wss://relay.damus.io",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd39 BTC: $71,890 (+1.3%)\n\ud83d\udd39 ETH: $2,187 (+0.3%)\n\ud83d\udd39 DOGE: $0.0921 (+0.8%)\n\ud83d\udd39 XRP: $1.34 (+0.9%)\n\ud83d\udd39 LINK: $8.92 (+1.9%)\n\ud83d\udd39 PEPE: $0.00000350 (+0.3%)\n\ud83d\udd39 TRUMP: $2.91 (+0.4%)\n\nTotal Market Cap: $2.52T | BTC Dominance: 57.2%\n\n#bitcoin #crypto #marketupdate",
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd39 BTC: $72,454 (+0.2%)\n\ud83d\udd38 ETH: $2,224 (-0.1%)\n\ud83d\udd39 DOGE: $0.0933 (+0.0%)\n\ud83d\udd38 XRP: $1.35 (-0.3%)\n\ud83d\udd39 LINK: $9.06 (+1.2%)\n\ud83d\udd39 PEPE: $0.00000356 (+0.9%)\n\ud83d\udd34 TRUMP: $2.92 (-3.2%)\n\nTotal Market Cap: $2.54T | BTC Dominance: 57.2%\n\n#bitcoin #crypto #marketupdate",
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
-      "created_at": 1775793764,
-      "relay": "wss://relay.primal.net",
+      "created_at": 1775836874,
+      "relay": "wss://relay.damus.io",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "Incomplete research. Humans are the only species that kills for fun. Some malicious code seems to be part of our DNA. Some Eric Cartman that lives in all of us that comes out from time to time. Humans need an automated mechanism that helps to avoid concentration of power and centralized control. All of these things always end up in corruption. Let\u2019s start with the money.\n\n#bitcoin \ud83e\udde1\ud83d\udc07",
-      "pubkey": "3731e169d0b3816f4a4a9ac84c66aa423d4f4ea0f78b56a1df90609b85be0885",
-      "display_name": "npub13731e169...be0885",
-      "created_at": 1775799190,
+      "text": "\ud83c\udfd9\ufe0f New issue posted in Bitcoin Park, 21st Avenue South, Nashville, TN, USA!\n\nVisit Bitcoin Park\n\nVisit Bitcoin Park\n\ud83d\udcb0 Reward: 9,000 sats\n\ud83d\udccd Bitcoin Park, 21st Avenue South, Nashville, TN, USA\n\nFix it and earn Bitcoin on Ganamos!\n\nhttps://www.ganamos.earth/post/6fbfdce4-2372-4f22-ad3d-048ba0e9ece0\n\n#Ganamos #Bitcoin",
+      "pubkey": "ce810aa982e35b3a7244a0e093e3b96cd079f966af9b2d68a244ca96cdc2d49b",
+      "display_name": "npub1ce810aa9...c2d49b",
+      "created_at": 1775841611,
       "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "The block height is 944430, and the current price for bitcoin is 72.1K USD. This means that you can get 1387 sats for one dollar. The fear/greed index is 46: Neutral. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1775800804,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
-      "has_zap": false
-    },
-    {
-      "text": "The block height is 944424, and the current price for bitcoin is 72.1K USD. This means that you can get 1388 sats for one dollar. The fear/greed index is 46: Neutral. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1775797205,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/SEK hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 670,661 sek | 24hr: 1.16%\n1 SEK: 149 sats\nMarket cap: 13,422,726,486,486 sek\n\nUpdated: 2026-04-10 | 08:01 CEST",
-      "pubkey": "80b2b76a3a1fc4332df2129d9a77b32b027fbb226cca9a96f73fc9bea972c5a8",
-      "display_name": "npub180b2b76a...72c5a8",
-      "created_at": 1775800922,
-      "relay": "wss://relay.damus.io",
-      "score": 56,
-      "has_zap": false
-    },
-    {
-      "text": "The biggest bank on Wall Street just put Bitcoin on its menu. $MSBT launched with the lowest fee in the category at 0.14%. This isn't retail anymore. This is institutional infrastructure. \ud83c\udfdb\ufe0f\ud83d\udd25\n#BitcoinETF #MorganStanley #BTC #Crypto",
-      "pubkey": "12cac46ffb0b73785e2787b502fa6d7cc6fdbe998211fda29496c1d150158497",
-      "display_name": "npub112cac46f...158497",
-      "created_at": 1775798710,
-      "relay": "wss://relay.damus.io",
-      "score": 56,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/SEK hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 670,128 sek | 24hr: 1.48%\n1 SEK: 149 sats\nMarket cap: 13,411,781,371,414 sek\n\nUpdated: 2026-04-10 | 07:02 CEST",
-      "pubkey": "80b2b76a3a1fc4332df2129d9a77b32b027fbb226cca9a96f73fc9bea972c5a8",
-      "display_name": "npub180b2b76a...72c5a8",
-      "created_at": 1775797322,
-      "relay": "wss://relay.damus.io",
-      "score": 56,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/SEK hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 668,134 sek | 24hr: 0.92%\n1 SEK: 149 sats\nMarket cap: 13,370,083,052,735 sek\n\nUpdated: 2026-04-10 | 06:02 CEST",
-      "pubkey": "80b2b76a3a1fc4332df2129d9a77b32b027fbb226cca9a96f73fc9bea972c5a8",
-      "display_name": "npub180b2b76a...72c5a8",
-      "created_at": 1775793724,
-      "relay": "wss://relay.primal.net",
-      "score": 56,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udc33 Whale Splash:\n\ud83d\udd39 Block Height: 944431\n\ud83d\udd38 Block Date: 2026-04-10 06:11:48 UTC\n\ud83d\udd38 BTC Price USD: 72093.70\n\ud83d\udc0b Transaction: 20,234.04878653 BTC (~$1,458,747,443.00 USDT)\n\ud83d\udd38 Fee: 0.00001810 BTC (~$1.30 USDT)\n\ud83d\udd39 TXID: 5e184367f4394c30a3803ddfc47ef6e400e72c26e6cd804d51ec5a3808f6ed23\n#Bitcoin #Cryptocurrency",
-      "pubkey": "7f0e64b52ef56bec2b588d460fc63125f567db2c014d1ecce806d8d5b4209e2e",
-      "display_name": "npub17f0e64b5...209e2e",
-      "created_at": 1775801641,
-      "relay": "wss://relay.primal.net",
-      "score": 55,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udc51 Winner Kendra05 just finished NHL Thu, Apr 9th!\n\nWinner \u2014 Ranked #1 of 1\nRecord: 11-3\nWon \u26a118,553 sats\n\nnostr:npub1zfemx9cjcqdrjz4wyylctk5q8np5wz8zkq6cycl73t5dk9l2mkcq55wzq8\n\n#SatPicks #Bitcoin \u26a1",
-      "pubkey": "9383eeff5489a300487a9dd8a2292845df0fba2301c9e7c9854673adbedca3cd",
-      "display_name": "npub19383eeff...dca3cd",
-      "created_at": 1775797658,
-      "relay": "wss://relay.damus.io",
-      "score": 54,
-      "has_zap": false
-    },
-    {
-      "text": "\u26a1 MEMPOOL MADNESS \u26a1\n\n\ud83d\udce6 Block #944435 \u2014 No winner this round!\n\ud83d\udcb0 Pot rolls over: 0 sats up for grabs\n\nWill you claim it? Predict when the next block drops!\n\n\ud83c\udfae https://mempoolmadness.com",
-      "pubkey": "a6259c888ca8b68ff6f2436a99f765be74973c8f5a4a1ede2789b6bb4d4ce814",
-      "display_name": "npub1a6259c88...4ce814",
-      "created_at": 1775803249,
-      "relay": "wss://relay.damus.io",
-      "score": 53,
+      "score": 62,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 253,
+  "total_filtered": 268,
   "total_scored": 20
 }

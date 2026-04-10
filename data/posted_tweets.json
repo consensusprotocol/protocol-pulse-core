@@ -148,5 +148,23 @@
     "timestamp": "2026-04-10T07:00:03.788340+00:00",
     "text_preview": "88% of private credit redemption requests got denied last month. People trying t",
     "format_type": "macro_monetary"
+  },
+  {
+    "hash": "d81c67c74d42700072b9459b09e27419",
+    "timestamp": "2026-04-10T10:00:04.255252+00:00",
+    "text_preview": "Hashrate hit 997 EH/s while fees sit at 1 sat/vB. Network is stronger and cheape",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "f1c827e789c8bc662225e9b2f8485822",
+    "timestamp": "2026-04-10T13:00:04.578500+00:00",
+    "text_preview": "10 year low on exchange deposits. Extreme Fear at 16. Price still cheap. Holders",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "b3e1393d5bfc17fd88ab90c009b75f5d",
+    "timestamp": "2026-04-10T16:00:03.968567+00:00",
+    "text_preview": "If you can't withdraw your money from the bank, do you actually own it or just r",
+    "format_type": "sovereignty_freedom"
   }
 ]

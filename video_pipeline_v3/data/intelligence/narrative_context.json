@@ -1,25 +1,37 @@
 {
-  "episode_narrative": "Institutional accumulation at scale\u2014Strategy acquiring 54... is dominating Bitcoin discourse \u2014 31 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
-  "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Exchange deposit exodus: 10-year low signals supply scarc...' is also trending with 24 thought leaders discussing it",
+  "episode_narrative": "Self-custody & hardware wallet security is dominating Bitcoin discourse \u2014 4 of 1 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "eryn_intro_hook": "Eryn should reference: 'Not your keys, not your Bitcoin.' from thought leaders BTCsessions, nvk (fetched at 2026-04-10T13:30:09.489750+00:00)",
+  "mark_context": "Mark should add context: 'Lightning Network adoption & scaling' is also trending with 3 thought leaders discussing it",
   "clip_selection_priority": [
-    "Institutional accumulation at scale\u2014Strategy acquiring 54...",
-    "Exchange deposit exodus: 10-year low signals supply scarc...",
-    "Bitcoin as geopolitical safe-haven amid regional instabil..."
+    "Self-custody & hardware wallet security",
+    "Lightning Network adoption & scaling",
+    "Institutional Bitcoin accumulation"
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
-  "thought_leaders_mentioned": [],
+  "thought_leaders_mentioned": [
+    "BitcoinMagazine",
+    "stephanlivera",
+    "nvk",
+    "PeterMcCormack",
+    "BTCsessions",
+    "saifedean",
+    "saylor",
+    "BitcoinArchive"
+  ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Institutional accumulation at scale\u2014Strategy acquiring 54...",
-  "market_mood": "neutral",
-  "top_quote": "",
-  "top_quote_handles": [],
-  "quote_fetched_at": "2026-04-10T07:06:16.407600+00:00",
-  "computed_at": "2026-04-10T07:06:16.407600+00:00"
+  "dominant_narrative": "Self-custody & hardware wallet security",
+  "market_mood": "bullish_with_focus_on_fundamentals",
+  "top_quote": "Not your keys, not your Bitcoin.",
+  "top_quote_handles": [
+    "BTCsessions",
+    "nvk"
+  ],
+  "quote_fetched_at": "2026-04-10T13:30:09.489750+00:00",
+  "computed_at": "2026-04-10T13:30:09.489750+00:00"
 }

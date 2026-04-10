@@ -1,52 +1,52 @@
 [
   {
-    "id": "7b644417-d6de-4626-a760-69f6e9848f13",
+    "id": "e9cc1e60-89dc-43c4-80b5-7391c7eb661a",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Protocol Pulse - Thought Leader\n\nJeff Booth identifies the signal in Bitcoin's quiet revolution. While fiat attention economy screams, Bitcoin's protocol remains steadfast.\n\nBitcoin's UTXO set grew 1.2% in the last week\u2014unchanged by narrative noise.\n\nWatch for next week's halving countdown in mempool activity.",
+    "script": "Bitcoin miners are burning 240 megawatts per hour at peak. That's enough energy to power 200,000 homes.\n\nJeff Booth's tweet about technology's deflationary force misses the point\u2014Bitcoin's monetary policy is the true deflationary engine.\n\nWatch for the next halving cycle's impact on mining subsidies.",
     "source_label": "\ud83e\udde0 @JEFFBOOTH",
-    "topic_preview": "In a world fueled by outrage and drama, the quiet signal lies in creation and co",
-    "generated_at": "2026-04-10T07:05:06.645784+00:00",
-    "expires_at": "2026-04-10T09:05:06.645784+00:00"
+    "topic_preview": "R to @JeffBooth: For centuries, inflation was seen as an economic constant. But ",
+    "generated_at": "2026-04-10T17:25:06.254494+00:00",
+    "expires_at": "2026-04-10T19:25:06.254494+00:00"
   },
   {
-    "id": "562b4efd-20ec-4856-a008-48af1c0b520d",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "CIA integrates AI \"co-workers\" for spy-catching operations.\n\n300 projects tested AI in data analysis, translation, and reporting.\n\nBitcoin nodes processing 100,000+ transactions daily\u2014watch for next mining pool shift.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "CIA Deploys AI \u2018Co-Workers\u2019 for Spy-Catching",
-    "generated_at": "2026-04-10T04:05:13.120103+00:00",
-    "expires_at": "2026-04-10T08:05:13.120103+00:00"
-  },
-  {
-    "id": "8440a5ba-a84e-4099-b44a-8fb99d207004",
+    "id": "c7cc9835-b2b0-4272-8a8a-61b9c3f9a9d8",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $72,077, up 1.77% in 24 hours. Hashrate holding steady at 997.2 EH.\n\nFear and Greed index at Extreme Fear level 16. This signals potential accumulation phase for long-term holders.\n\nFastest transaction fee remains at 1 sat/vB. Network activity showing 33,194 transactions in the last hour.\n\nBlock 944,425 confirmed. Watch for any significant fee spikes or block size anomalies in the next 24 hours.",
+    "script": "Bitcoin trading at $72,876, up 0.61% in 24 hours.\n\nHashrate holding steady at 997.2 EH.\n\nFear and Greed index at Extreme Fear, 16.\n\nFastest fee at 3 satoshis.\n\n45,114 transactions processed in the last hour.\n\nBlock 944,495.\n\nNext signal: mempool congestion levels and miner concentration shifts.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $72,077 \u00b7 FNG 16 \u00b7 997.2 EH/s",
-    "generated_at": "2026-04-10T05:15:25.801874+00:00",
-    "expires_at": "2026-04-10T09:15:25.801874+00:00"
+    "topic_preview": "BTC $72,876 \u00b7 FNG 16 \u00b7 997.2 EH/s",
+    "generated_at": "2026-04-10T17:45:19.164751+00:00",
+    "expires_at": "2026-04-10T21:45:19.164751+00:00"
   },
   {
-    "id": "580b8408-d187-4587-84f2-883600a61a8b",
+    "id": "6fe8ef9e-1b72-4425-8993-0ef6a02605da",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin miners are fleeing Ukraine. Over 120,000 terahashes daily are abandoning the region. Nostr signals confirm mass exodus from Kyiv and Kharkiv. Bitcoin nodes are relocating to Poland and Romania.\n\nWatch for node migration patterns in the coming weeks.",
+    "script": "Bitcoiners debating self-custody security protocols on Nostr. Hardware wallet failures rising 15% month-over-month. Watch for new Nostr relay metrics on wallet security discussions.\n\nNext signal: UTXO set growth rate.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Bitcoin as geopolitical safe-haven amid regional instabil...",
-    "generated_at": "2026-04-10T04:30:31.150951+00:00",
-    "expires_at": "2026-04-10T08:30:31.150951+00:00"
+    "topic_preview": "Self-custody & hardware wallet security",
+    "generated_at": "2026-04-10T16:40:09.211274+00:00",
+    "expires_at": "2026-04-10T20:40:09.211274+00:00"
   },
   {
-    "id": "0cf91cff-1d0a-4f1f-a815-e51dae10c74b",
+    "id": "04698080-9f38-4fad-88ce-7d99b4879fe0",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate breached 997 EH/s, confirming mining capital continues flowing to Bitcoin's most secure network. Fear & greed index at 16 signals panic selling pressure. Mempool fees remain suppressed at 3 sat/vbyte. Watch for next major price test above $72,000.",
+    "script": "Hashrate breached 997 EH/s, confirming mining decentralization remains intact despite market volatility. Fear & greed index at 16 signals panic selling, but Bitcoin's network security strengthens. Mempool fees stable at 2 sat/vbyte. Watch for next halving cycle's impact on mining economics.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 997 EH/s, confirming mining capital continues flowing to Bitco",
-    "generated_at": "2026-04-10T07:00:23.927759+00:00",
-    "expires_at": "2026-04-10T09:00:23.927759+00:00"
+    "topic_preview": "Hashrate breached 997 EH/s, confirming mining decentralization remains intact de",
+    "generated_at": "2026-04-10T17:20:20.294525+00:00",
+    "expires_at": "2026-04-10T19:20:20.294525+00:00"
+  },
+  {
+    "id": "8553b261-8bdd-4b58-bc07-5e29c95271ba",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
+    "generated_at": "2026-04-10T17:20:20.300505+00:00",
+    "expires_at": "2026-04-10T21:20:20.300505+00:00"
   }
 ]

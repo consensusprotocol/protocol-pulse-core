@@ -628,7 +628,7 @@ def concatenate_parts(parts: list, output_path: str,
                 # Render11 FIX 6: Normalize whoosh to consistent perceived loudness
                 # loudnorm ensures every whoosh hits at same level regardless of surrounding audio
                 whoosh_fg_parts.append(
-                    f"[ws{ti}]volume=2.5,loudnorm=I=-12:TP=-1.5:LRA=3,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
+                    f"[ws{ti}]volume=1.5,loudnorm=I=-12:TP=-1.5:LRA=3,alimiter=limit=0.9,adelay={delay_ms}|{delay_ms}[whoosh_{ti}]"
                 )
             # Amix all whooshes together
             whoosh_labels = "".join(f"[whoosh_{ti}]" for ti in range(n))
@@ -694,7 +694,7 @@ def concatenate_parts(parts: list, output_path: str,
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard (MUST be LAST audio filter)
          # V9 FIX 9: True peak brick wall — alimiter AFTER loudnorm with attack=0.1 (near-zero lookahead)
-         "-af", "aresample=48000:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=11:linear=true,alimiter=limit=0.75:level=disabled:attack=5:release=50",
+         "-af", "aresample=48000:min_hard_comp=0.1:first_pts=0,loudnorm=I=-14:TP=-2.0:LRA=11:linear=true,alimiter=limit=0.63:level=disabled:attack=3:release=30",
          "-avoid_negative_ts", "make_zero",
          "-max_interleave_delta", "0",
          "-movflags", "+faststart",

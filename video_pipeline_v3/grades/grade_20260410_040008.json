@@ -1,0 +1,119 @@
+{
+  "grade": "B",
+  "overall_score": 91,
+  "broadcast_ready": false,
+  "technical_score": 87,
+  "content_score": 98,
+  "production_score": 88,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 291.4s (4.9 mins). This is acceptable but on the shorter side of the 8-15 min ideal. The content is dense, so it works."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the broadcast standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is perfect for the format."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.6 LUFS, perfectly within the target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -0.6 dBFS, safely below the -1.0 dBFS limit."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "No mid-video black frames were detected."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No unintended mid-video silence gaps were detected."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: 5 distinct freeze frames were observed (e.g., at 01:05, 02:28, 04:30). The rubric specifies 2+ freezes is a critical failure."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard h264/aac codecs used. No issues."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File container is clean, both streams are present, and bitrate is appropriate."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Excellent selection of high-signal sources: Simply Bitcoin, Preston Pysh, Jeff Booth, Caitlin Long, and Marty Bent. All clips are highly relevant to the narrative."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The PBX narration is exceptional, weaving together geopolitics (Iran), technology (AI), and first principles (physics/Satoshi) into a cohesive and compelling argument for institutional Bitcoin adoption."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The cold open is strong, immediately establishing the theme of large-scale institutional acquisition with a specific number (54,000 coins)."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode has a clear and logical flow, starting with a geopolitical catalyst and broadening to cover the technological and philosophical drivers of the trend."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's voice performance is flawless\u2014authoritative, clear, and well-paced. It serves as the strong central pillar of the episode."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Institutions Seize Bitcoin' is punchy, accurate, and captures the episode's core thesis."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is dense with information and contains no off-topic filler, ads, or repeated content."
+    },
+    "timeliness": {
+      "score": 9,
+      "note": "The topics discussed, such as Iran's geopolitical moves and the rapid evolution of AI tools, are highly current and relevant."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music and sound design are perfectly mixed, enhancing the cyberpunk aesthetic without overpowering the narration. Sidechaining is effective."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, stylish, and consistent with the show's visual identity."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The overall visual presentation, including the data dashboards, lower thirds, and cyberpunk overlays, is of a very high, broadcast-ready quality."
+    },
+    "no_artifacts": {
+      "score": 3,
+      "note": "The episode is significantly degraded by multiple freeze frames, which are jarring to the viewer and detract from the otherwise high production quality."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The narration audio is pristine, with no background noise, echo, or clipping."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is excellent. The episode is tight, fast-moving, and delivers a high amount of information efficiently in under 5 minutes."
+    }
+  },
+  "critical_failures": [
+    "freeze_check: 5 freeze frames were detected throughout the video. The rubric defines 2 or more as a critical failure that prevents broadcast."
+  ],
+  "warnings": [
+    "duration_check: At 4.9 minutes, the episode is shorter than the 8-minute target. While the content is dense, future episodes should aim for more depth to meet the target length."
+  ],
+  "strengths": [
+    "Content Quality: The narrative construction is a masterclass, connecting seemingly disparate, high-signal clips into a powerful, unified thesis.",
+    "Source Curation: The choice of clips from top-tier Bitcoin thinkers (Pysh, Booth, Long) elevates the episode's credibility and intelligence value.",
+    "Production Aesthetic: The visual and audio design are exceptionally polished and create a strong, consistent brand identity."
+  ],
+  "verdict": "This is an A-grade episode in terms of content and narrative, but it is critically flawed by multiple freeze frames that make it unsuitable for broadcast.",
+  "recommendation": "FIX_AND_RERENDER"
+}

@@ -769,7 +769,7 @@ def _select_clips_local(videos, max_clips=5):
             "http://localhost:11435/api/chat",
             json={"model": "qwen3-coder:30b", "messages": [{"role": "system", "content": "Respond with valid JSON only. No thinking. No markdown. No explanation."}, {"role": "user", "content": prompt}],
                   "stream": False, "options": {"temperature": 0.7}},
-            timeout=120,
+            timeout=240,
         )
         resp.raise_for_status()
         raw = resp.json().get("message", {}).get("content", "")

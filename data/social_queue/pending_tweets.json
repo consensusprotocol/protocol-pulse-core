@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260408_130004_0",
-    "text": "Fear & Greed at 17. Hashrate at 953.6 EH/s. Fees at 1 sat/vB. The network has never been more secure while people have never been more scared. That's the actual setup",
-    "angle": "contrarian_take",
-    "type": "observation",
-    "format": "on_chain_signal",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-08T13:00:04.103289+00:00",
-    "brief_date": "Tuesday, March 31, 2026",
-    "sentiment": "uncertain"
-  },
-  {
     "id": "tweet_20260408_160004_0",
     "text": "Argentina's peso collapsed 3x in 5 years. Their central bank printed 180% of GDP to prevent it. Bitcoin's supply is fixed forever. One is a policy choice. The other isn't",
     "angle": "historical_pattern",
@@ -140,6 +128,30 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-04-10T04:00:04.277657+00:00",
+    "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_080011_0",
+    "text": "Do you know what happens to your savings when 88% of people trying to withdraw their money get told no",
+    "angle": "macro_monetary",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T08:00:11.853780+00:00",
+    "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_110026_0",
+    "text": "Prague 1989 defied Soviet control. Prague 2026 defies EU payment bans. Bitcoin doesn't need permission from dying empires",
+    "angle": "geopolitical",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T11:00:26.731900+00:00",
     "brief_date": "Thursday, April 09, 2026",
     "sentiment": "bullish"
   }
