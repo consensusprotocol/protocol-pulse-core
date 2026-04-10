@@ -1,53 +1,52 @@
 [
   {
-    "id": "2dd0439c-7914-4802-9bc2-0ba72abc9d37",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "# Bitcoin Evening Brief \u2014 April 10, 2026\n\n**The Setup:** Bitcoin holding $72,286, up 2.1% on the day. Fear & Greed at 16\u2014extreme fear creating institutional entry points. Hashrate steady at 997 EH/s, network rock-solid.\n\n**What Moved It:** Regional instability is the primary driver here. Safe-haven ",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
-    "topic_preview": "Oracle Evening Brief \u2014 $72,286",
-    "generated_at": "2026-04-10T02:00:01.247492+00:00",
-    "expires_at": "2026-04-10T06:00:01.247492+00:00",
-    "video_url": "/data/stage_briefs/brief_20260410_0200.mp4"
-  },
-  {
-    "id": "462f7d6e-f106-4822-a441-968cf21ff129",
+    "id": "7b644417-d6de-4626-a760-69f6e9848f13",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Bitcoin adoption metrics show 2024 is the year of Bitcoin's institutionalization, with 47% of global institutional investors now holding Bitcoin versus 12% in 2022.\n\nEthereum's narrative of Bitcoin's decline continues to ignore on-chain reality.\n\nWatch the next Bitcoin accumulation wave in the U.S. banking system.\n\nBitcoin's institutional adoption rate exceeds Ethereum's total market cap.",
-    "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "\"Bitcoin will not come around. Most of the capable people have left for Ethereum",
-    "generated_at": "2026-04-10T00:55:07.320268+00:00",
-    "expires_at": "2026-04-10T02:55:07.320268+00:00"
+    "script": "Protocol Pulse - Thought Leader\n\nJeff Booth identifies the signal in Bitcoin's quiet revolution. While fiat attention economy screams, Bitcoin's protocol remains steadfast.\n\nBitcoin's UTXO set grew 1.2% in the last week\u2014unchanged by narrative noise.\n\nWatch for next week's halving countdown in mempool activity.",
+    "source_label": "\ud83e\udde0 @JEFFBOOTH",
+    "topic_preview": "In a world fueled by outrage and drama, the quiet signal lies in creation and co",
+    "generated_at": "2026-04-10T07:05:06.645784+00:00",
+    "expires_at": "2026-04-10T09:05:06.645784+00:00"
   },
   {
-    "id": "a30b81a8-0567-4b70-a71f-139814294318",
+    "id": "562b4efd-20ec-4856-a008-48af1c0b520d",
     "type": "ARTICLE_TEASER",
     "priority": 3,
-    "script": "Bitcoin approaches $73,000 while US recession fears mount. Geopolitical tensions with Iran add further pressure. \n\nWatch for confirmation of breakout above $73,500 to signal sustained bullish momentum.",
+    "script": "CIA integrates AI \"co-workers\" for spy-catching operations.\n\n300 projects tested AI in data analysis, translation, and reporting.\n\nBitcoin nodes processing 100,000+ transactions daily\u2014watch for next mining pool shift.",
     "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Bitcoin Nears $73K as US Economy Wobbles",
-    "generated_at": "2026-04-10T00:05:09.953336+00:00",
-    "expires_at": "2026-04-10T04:05:09.953336+00:00"
+    "topic_preview": "CIA Deploys AI \u2018Co-Workers\u2019 for Spy-Catching",
+    "generated_at": "2026-04-10T04:05:13.120103+00:00",
+    "expires_at": "2026-04-10T08:05:13.120103+00:00"
   },
   {
-    "id": "bc2bf814-cdb5-4608-8603-31921fa6413e",
+    "id": "8440a5ba-a84e-4099-b44a-8fb99d207004",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $71,877, up 1.47% in 24 hours.\n\nHashrate holding steady at 997.2 EH.\n\nFear and Greed index at Extreme Fear, 16.\n\nFastest transaction fee one satoshi.\n\n32,755 transactions processed in the last hour.\n\nBlock 944,409 mined.\n\nWatch for any mempool congestion signals.",
+    "script": "Bitcoin trading at $72,077, up 1.77% in 24 hours. Hashrate holding steady at 997.2 EH.\n\nFear and Greed index at Extreme Fear level 16. This signals potential accumulation phase for long-term holders.\n\nFastest transaction fee remains at 1 sat/vB. Network activity showing 33,194 transactions in the last hour.\n\nBlock 944,425 confirmed. Watch for any significant fee spikes or block size anomalies in the next 24 hours.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $71,877 \u00b7 FNG 16 \u00b7 997.2 EH/s",
-    "generated_at": "2026-04-10T01:10:14.143448+00:00",
-    "expires_at": "2026-04-10T05:10:14.143448+00:00"
+    "topic_preview": "BTC $72,077 \u00b7 FNG 16 \u00b7 997.2 EH/s",
+    "generated_at": "2026-04-10T05:15:25.801874+00:00",
+    "expires_at": "2026-04-10T09:15:25.801874+00:00"
   },
   {
-    "id": "ffcd4ebe-d20d-4303-acb3-a2c7e26150e6",
+    "id": "580b8408-d187-4587-84f2-883600a61a8b",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin miners are fleeing Ukraine as conflict intensifies. \n\nNostr relay traffic shows unprecedented spike in safe-haven narratives.\n\nWatch for on-chain accumulation in Bitcoin reserves.",
+    "script": "Bitcoin miners are fleeing Ukraine. Over 120,000 terahashes daily are abandoning the region. Nostr signals confirm mass exodus from Kyiv and Kharkiv. Bitcoin nodes are relocating to Poland and Romania.\n\nWatch for node migration patterns in the coming weeks.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Bitcoin as geopolitical safe-haven amid regional instabil...",
-    "generated_at": "2026-04-10T00:30:20.032170+00:00",
-    "expires_at": "2026-04-10T04:30:20.032170+00:00"
+    "generated_at": "2026-04-10T04:30:31.150951+00:00",
+    "expires_at": "2026-04-10T08:30:31.150951+00:00"
+  },
+  {
+    "id": "0cf91cff-1d0a-4f1f-a815-e51dae10c74b",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Hashrate breached 997 EH/s, confirming mining capital continues flowing to Bitcoin's most secure network. Fear & greed index at 16 signals panic selling pressure. Mempool fees remain suppressed at 3 sat/vbyte. Watch for next major price test above $72,000.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate breached 997 EH/s, confirming mining capital continues flowing to Bitco",
+    "generated_at": "2026-04-10T07:00:23.927759+00:00",
+    "expires_at": "2026-04-10T09:00:23.927759+00:00"
   }
 ]

@@ -1,7 +1,70 @@
 {
-  "last_updated": "2026-04-10T00:00:29.791212+00:00",
-  "total_analyses": 84,
+  "last_updated": "2026-04-10T04:00:13.576855+00:00",
+  "total_analyses": 87,
   "analyses": [
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": null,
+      "key_quotes": [],
+      "topics": [],
+      "price_prediction": null,
+      "confidence": "low",
+      "note": "This transcript contains no Bitcoin-specific content. The episode discusses Wise PLC, a fintech company focused on cross-border payments. The content is entirely about equity analysis of a financial services company, not Bitcoin or cryptocurrency.",
+      "channel": "The Investors Podcast Network",
+      "title": "Wise PLC: Competitive Moat & Valuation Framework W/ Kyle Grieve & Daniel Mahncke (TIP806)",
+      "video_id": "_Ap0AMHIclA",
+      "duration": 5657.22,
+      "analyzed_at": "2026-04-10T04:00:11.574806+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 72,
+      "main_thesis": "Bitcoin's decentralized nature and lack of a visible leader figure strengthens its adoption as a global neutral monetary asset, while its predictable supply mechanics provide better individual sovereignty than fiat currencies.",
+      "key_quotes": [
+        "Bitcoin benefits from being truly decentralised...a global neutral monetary concept",
+        "Bitcoin has a much more predictable and mathematically assured rate of supply",
+        "Satoshi stopping participation helped Bitcoin seem like a discovery, not a company with a CEO"
+      ],
+      "topics": [
+        "Satoshi Nakamoto identity and anonymity",
+        "Bitcoin as decentralized asset class",
+        "Bitcoin vs fiat currency and monetary sovereignty",
+        "Supply mechanics and mathematical scarcity",
+        "Institutional adoption and global sovereign participation"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Yahoo Finance",
+      "title": "Morgan Stanley's Bitcoin ETF Move Changes Everything - Adam Back Explains",
+      "video_id": "fXwN3pW3nZk",
+      "duration": 535.45,
+      "analyzed_at": "2026-04-10T04:00:08.052988+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 92,
+      "main_thesis": "Iran's implementation of a Bitcoin toll booth at the Strait of Hormuz represents the first major nation-state adoption of Bitcoin driven by economic necessity rather than choice, positioning it as a significant supply-side catalyst that could absorb 62% of daily new Bitcoin mining.",
+      "key_quotes": [
+        "A sanctioned nation building a Bitcoin treasury through a toll booth",
+        "One geopolitical toll booth could theoretically absorb 62% of all new Bitcoin supply",
+        "Countries locked out of the dollar system have no other choice but Bitcoin"
+      ],
+      "topics": [
+        "Nation-state Bitcoin adoption",
+        "Petrodollar replacement",
+        "Supply-side Bitcoin dynamics",
+        "Sanctions circumvention",
+        "Bitcoin mining as economic tool"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "Iran Just Put a Bitcoin Toll on The World's Oil Supply! (The Petrodollar Is DONE)",
+      "video_id": "X_ADrg6SirI",
+      "duration": 1391.3,
+      "analyzed_at": "2026-04-10T04:00:03.791619+00:00"
+    },
     {
       "sentiment": "neutral",
       "sentiment_score": 50,

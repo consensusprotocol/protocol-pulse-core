@@ -130,5 +130,17 @@
     "generated_at": "2026-04-10T01:00:04.383049+00:00",
     "brief_date": "Thursday, April 09, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_040004_0",
+    "text": "Exchange deposits at 10-year lows while fear is 16. People aren't selling into panic. They're treating scarcity like it's already priced in",
+    "angle": "onchain_metric",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T04:00:04.277657+00:00",
+    "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
   }
 ]

@@ -1,0 +1,119 @@
+{
+  "grade": "F",
+  "overall_score": 89,
+  "broadcast_ready": false,
+  "technical_score": 86,
+  "content_score": 98,
+  "production_score": 82,
+  "dimensions": {
+    "duration_check": {
+      "score": 6,
+      "note": "Duration is 291.5s (4.9 min). This is acceptable but shorter than the 8-15 minute ideal, falling into the 300-480s range."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.9 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -1.8 dBFS, safely below the -1.0 dBFS maximum."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "No mid-video black frames were detected."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No unintended mid-video silence gaps were detected."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE. 5 freeze frames, each over 1 second long, were observed at 00:17, 00:56, 01:08, 02:07, and 04:41. The rubric states 2+ freezes is a critical failure."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Video uses the standard h264/aac codec combination."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File integrity is sound, with both streams present and a healthy bitrate."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Preston Pysh, Simply Bitcoin (featuring Bloomberg), and TFTC are highly relevant and editorially strong, directly supporting the safe-haven narrative."
+    },
+    "script_quality": {
+      "score": 9,
+      "note": "The narration provides excellent context, connecting the concepts of intellectual upgrades, energy crises, and network resilience to the central theme."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The cold open is strong, immediately establishing the high-stakes theme of Bitcoin as a safe haven amid global instability."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode has a clear and compelling narrative arc, moving from individual mindset to macroeconomics, network strength, and concluding with market data."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's narration is clean, well-paced, and authoritative throughout. No issues."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Bitcoin's Safe-Haven Shift' is punchy, accurate, and perfectly encapsulates the episode's content."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is dense with relevant information and contains no filler content."
+    },
+    "timeliness": {
+      "score": 10,
+      "note": "The content, including market data and social signals, is current and relevant to today's discourse."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music is well-mixed, atmospheric, and correctly ducks under the narration."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, on-brand, and effectively segment the show."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual presentation, including the cyberpunk aesthetic, lower thirds, and data visualizations, is consistently high-quality."
+    },
+    "no_artifacts": {
+      "score": 0,
+      "note": "The video is marred by multiple, jarring freeze frames. This is a significant production artifact that severely degrades the viewing experience."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The host's voiceover audio is exceptionally clear, with no noise, echo, or clipping."
+    },
+    "pacing": {
+      "score": 9,
+      "note": "The pacing is tight and engaging, effectively delivering a lot of information in a short runtime."
+    }
+  },
+  "critical_failures": [
+    "The episode contains 5 distinct freeze frames (at 00:17, 00:56, 01:08, 02:07, 04:41), each lasting over 1 second. This is a critical technical and production failure that makes the video unpublishable in its current state."
+  ],
+  "warnings": [
+    "The episode duration of 4.9 minutes is on the short side of the acceptable range. Aiming for the 8-minute mark would allow for deeper analysis."
+  ],
+  "strengths": [
+    "The narrative construction is exceptional, weaving together high-signal clips from top-tier sources into a cohesive and compelling argument for Bitcoin as a safe-haven asset.",
+    "Content quality is A-grade, with a strong script, relevant clips, and timely data.",
+    "The overall aesthetic and audio production (aside from the artifacts) are polished and broadcast-ready."
+  ],
+  "verdict": "The episode features A-grade content and narrative structure, but is critically flawed by 5 recurring freeze frames that make it technically unacceptable for broadcast.",
+  "recommendation": "FIX_AND_RERENDER"
+}

@@ -73,7 +73,7 @@ RULES:
 - Rank 1 = most dramatic/important (this becomes the cold open teaser)
 - The timestamps in the transcripts are approximate — pick ranges that capture complete thoughts
 - Avoid dead air, filler words, or mid-sentence cuts
-- When specifying clip end times, always allow 3-4 seconds of buffer AFTER the key statement ends so the narrator never interrupts a sentence in progress
+- When specifying clip end times, always allow 6-8 seconds of buffer AFTER the key statement ends so the narrator never interrupts a sentence in progress
 - Sort clips to maximize channel variety: no same channel appearing consecutively
 
 AVAILABLE VIDEOS:

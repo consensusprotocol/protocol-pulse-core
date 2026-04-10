@@ -527,7 +527,7 @@ PRONUNCIATION_MAP = {
     "mempool": "mem-pool",
     "multisig": "MUL-tee-sig",
     "satoshis": "sats",
-    "MicroStrategy": "My-crow-Strategy",
+    "MicroStrategy": "Strategy",
     "Coinbase": "Coin base",
     "Binance": "BY-nance",
     "Chainalysis": "CHAIN-uh-LY-sis",
@@ -904,7 +904,7 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     # Pronunciation Dictionary (id=LK24Dt58S40g429DUG9C). Server-side rules are
     # more reliable and don't break caching. See scripts/update_pronunciation.py.
     # Kept as fallback: uncomment if dictionary is deleted.
-    # text = apply_pronunciation_map(text)
+    text = apply_pronunciation_map(text)  # V37 FIX: Re-enabled — nawster, Strategy, etc
 
     voice = VOICES.get(host, VOICES[2])  # All hosts → PBX
     # Check TTS cache first — avoid API call if same text+voice was generated before

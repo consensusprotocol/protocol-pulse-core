@@ -136,5 +136,17 @@
     "timestamp": "2026-04-10T00:25:44.698097+00:00",
     "text_preview": "In 1923 the Reichsbank printed 400 quintillion marks to buy foreign currency. To",
     "format_type": "historical_pattern"
+  },
+  {
+    "hash": "273c2411ae0f45122f35ef87b8874772",
+    "timestamp": "2026-04-10T03:51:05.620762+00:00",
+    "text_preview": "Strategy bought 546 BTC in 90 minutes. That's 1.2x daily mining supply. When ins",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "7d829576c7ea00899e4827c20df0b0f0",
+    "timestamp": "2026-04-10T07:00:03.788340+00:00",
+    "text_preview": "88% of private credit redemption requests got denied last month. People trying t",
+    "format_type": "macro_monetary"
   }
 ]

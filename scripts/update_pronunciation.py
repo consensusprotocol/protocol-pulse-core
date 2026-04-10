@@ -134,7 +134,7 @@ RULES = [
     {"string_to_replace": "halving", "type": "alias", "alias": "HAV-ing"},
     {"string_to_replace": "mempool", "type": "alias", "alias": "mem-pool"},
     {"string_to_replace": "multisig", "type": "alias", "alias": "MUL-tee-sig"},
-    {"string_to_replace": "MicroStrategy", "type": "alias", "alias": "My-crow-Strategy"},
+    {"string_to_replace": "MicroStrategy", "type": "alias", "alias": "Strategy"},
     {"string_to_replace": "Coinbase", "type": "alias", "alias": "Coin base"},
     {"string_to_replace": "Binance", "type": "alias", "alias": "BY-nance"},
     {"string_to_replace": "Kraken", "type": "alias", "alias": "KRAH-ken"},

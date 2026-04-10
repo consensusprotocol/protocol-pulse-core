@@ -1336,7 +1336,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                             capture_output=True, text=True, timeout=10)
                         _pa = float(_pa_r.stdout.strip()) if _pa_r.stdout.strip() else _pv
                         _diff = _pv - _pa
-                        if abs(_diff) > 0.05:
+                        if abs(_diff) > 0.03:
                             _trim_target = min(_pv, _pa)
                             _trimmed = result + ".avtrim.mp4"
                             _trim_ok = run_ffmpeg([

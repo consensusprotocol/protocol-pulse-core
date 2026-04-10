@@ -1,63 +1,81 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-10T00:00:33.472356+00:00",
-  "creator_count": 12,
-  "avg_sentiment_score": 58.2,
+  "generated_at": "2026-04-10T04:00:17.004924+00:00",
+  "creator_count": 15,
+  "avg_sentiment_score": 60.9,
   "sentiment_breakdown": {
-    "bullish": 5,
+    "bullish": 7,
     "bearish": 1,
-    "neutral": 6
+    "neutral": 7
   },
-  "dominant_sentiment": "neutral",
+  "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Bitcoin ETFs vs self-custody",
+      "topic": "Satoshi Nakamoto identity and anonymity",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Yahoo Finance"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "Most people who think they own Bitcoin actually own none"
+      "avg_sentiment_score": 72.0,
+      "example_quote": "Bitcoin benefits from being truly decentralised...a global neutral monetary concept"
     },
     {
-      "topic": "Centralized exchange risks",
+      "topic": "Bitcoin as decentralized asset class",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Yahoo Finance"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "Most people who think they own Bitcoin actually own none"
+      "avg_sentiment_score": 72.0,
+      "example_quote": "Bitcoin benefits from being truly decentralised...a global neutral monetary concept"
     },
     {
-      "topic": "Rehypothecation and fractional backing",
+      "topic": "Bitcoin vs fiat currency and monetary sovereignty",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Yahoo Finance"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "Most people who think they own Bitcoin actually own none"
+      "avg_sentiment_score": 72.0,
+      "example_quote": "Bitcoin benefits from being truly decentralised...a global neutral monetary concept"
     },
     {
-      "topic": "Government seizure precedent (gold confiscation)",
+      "topic": "Supply mechanics and mathematical scarcity",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Yahoo Finance"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "Most people who think they own Bitcoin actually own none"
+      "avg_sentiment_score": 72.0,
+      "example_quote": "Bitcoin benefits from being truly decentralised...a global neutral monetary concept"
     },
     {
-      "topic": "Regulatory and taxation friction",
+      "topic": "Institutional adoption and global sovereign participation",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Yahoo Finance"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "Most people who think they own Bitcoin actually own none"
+      "avg_sentiment_score": 72.0,
+      "example_quote": "Bitcoin benefits from being truly decentralised...a global neutral monetary concept"
     }
   ],
-  "summary": "# Bitcoin Creators Summary\n\n**Consensus:** Bitcoin creators generally agree that adoption and security infrastructure matter significantly, with most acknowledging macro factors influence but don't solely determine Bitcoin's trajectory. There's also broad agreement that regulatory environment and institutional adoption (whether through ETFs, OTC markets, or traditional finance) are reshaping the ecosystem.\n\n**Divergence:** The most striking disagreement concerns near-term outlook: while CoinTelegraph and DataDash project bullish recovery with $75,000 targets, CoinDesk presents an existential threat from quantum computing requiring \"immediate action.\" Additionally, creators split on what drives value\u2014CoinTelegraph emphasizes crypto-native cycles over macro events, while Anthony Pompliano stresses macro analysis matters. Finally, perspectives on adoption differ: some celebrate regulatory friendliness emerging (Czech Republic), while Natalie Brunell warns of European overreach simultaneously stifling progress.\n\n**Key tension:** Optimistic technical recovery narratives clash with urgent security concerns, and institutional integration (ETFs, OTC) is simultaneously celebrated as adoption progress and criticized as inadequate self-custody by BTC Sessions.",
+  "summary": "# Bitcoin Creator Consensus and Divergence Summary\n\n**Consensus:** Multiple sources agree Bitcoin strengthens through decentralization and adoption\u2014whether through nation-state use (Iran), regulatory-friendly jurisdictions (Czech Republic), or individual sovereignty against fiat systems. Most bullish voices emphasize crypto-native factors (mining cycles, regulation) matter more than macro events.\n\n**Key Divergence:** While most creators are bullish on Bitcoin's long-term adoption and positioning, they diverge sharply on near-term risks. CoinDesk presents an urgent existential threat (quantum computing), BTC Sessions emphasizes widespread security failures through centralized custody, and Stacker News raises meta-concerns about narrative control in Bitcoin media itself.\n\n**Secondary Theme:** Creators split on what drives adoption\u2014some highlight macro necessity (Iran's economic pressure), while others prioritize ideological/technological revolution (Brunell, Swann) or individual choice (Yahoo Finance's sovereignty argument). This reflects fundamental disagreement on whether Bitcoin succeeds through necessity or preference.",
   "top_creators": [
+    {
+      "channel": "The Investors Podcast Network",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": null
+    },
+    {
+      "channel": "Yahoo Finance",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "Bitcoin's decentralized nature and lack of a visible leader figure strengthens its adoption as a global neutral monetary asset, while its predictable supply mechanics provide better individual sovereignty than fiat currencies."
+    },
+    {
+      "channel": "Simply Bitcoin",
+      "sentiment": "bullish",
+      "score": 92,
+      "thesis": "Iran's implementation of a Bitcoin toll booth at the Strait of Hormuz represents the first major nation-state adoption of Bitcoin driven by economic necessity rather than choice, positioning it as a significant supply-side catalyst that could absorb 62% of daily new Bitcoin mining."
+    },
     {
       "channel": "BTC Sessions",
       "sentiment": "neutral",
@@ -69,24 +87,6 @@
       "sentiment": "mixed",
       "score": 55,
       "thesis": "Bitcoin's value depends on retail adoption and debt issuance; macro factors like geopolitical events and oil prices matter less than actual market prices reveal. The conversation focuses on macro analysis with Arthur Hayes rather than direct Bitcoin price predictions."
-    },
-    {
-      "channel": "CoinTelegraph",
-      "sentiment": "bullish",
-      "score": 72,
-      "thesis": "Bitcoin is in the bottoming phase of a crypto winter cycle and closer to recovery than the market believes. The April 15 tax deadline has historically triggered selling pressure, but crypto-native factors like the four-year cycle and U.S. regulation outlook are the primary drivers of price, not macro events."
-    },
-    {
-      "channel": "CoinDesk",
-      "sentiment": "bearish",
-      "score": 15,
-      "thesis": "Quantum computing poses an urgent and accelerating threat to Bitcoin security, with recent research showing the timeline to break encryption has been drastically shortened from years to potentially within the next few years, requiring immediate action from the community."
-    },
-    {
-      "channel": "Natalie Brunell",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Europe's regulatory overreach is stifling Bitcoin adoption, but the Czech Republic and BTC Prague conference represent a paradigm shift toward Bitcoin-friendly environments. We're experiencing a technological revolution similar to the industrial revolution that will reshape society."
     }
   ]
 }
