@@ -154,13 +154,13 @@ class NewsletterEngine:
         """Generate a razor-sharp morning briefing. No AI slop."""
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            client = OpenAI(api_key=os.environ.get("XAI_API_KEY",""), base_url="https://api.x.ai/v1")
 
             titles_block = "\n".join(f"- [{a.get('category','news')}] {a['title']}" for a in articles[:7])
             summaries_block = "\n".join(f"  {a.get('summary', '')[:150]}" for a in articles[:3])
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="grok-3",
                 messages=[
                     {"role": "system", "content": """You write the morning note for a Bitcoin intelligence publication. 3 sentences max. Under 50 words total.
 
@@ -208,7 +208,7 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
                     logger.warning(f"Summary contained slop word '{slop}', requesting rewrite")
                     # One retry with even stricter instruction
                     retry = client.chat.completions.create(
-                        model="gpt-4o",
+                        model="grok-3",
                         messages=[
                             {"role": "system", "content": "Rewrite this in 2 sentences. Use only specific facts. No adjectives. No commentary. Bloomberg wire style."},
                             {"role": "user", "content": f"Rewrite without AI language:\n{summary}"}
