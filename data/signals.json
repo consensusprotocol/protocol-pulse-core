@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-04-10T07:05:01.898154+00:00",
+  "updated_at": "2026-04-10T07:10:01.760592+00:00",
   "btc_price": {
-    "value": 71811,
-    "change_24h": 1.1,
+    "value": 71759,
+    "change_24h": 1.01,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1437604480085.9304,
+    "value": 1436611248545.8838,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 39670717898.59121,
+    "value": 39546338572.6118,
     "source": "coingecko"
   },
   "block_height": {
@@ -18,9 +18,9 @@
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": -4.49,
+    "percent": -4.54,
     "blocks_remaining": 1068,
-    "estimated_date": "2026-04-18T01:39:06.976000+00:00",
+    "estimated_date": "2026-04-18T01:49:49.668000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
@@ -29,8 +29,8 @@
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 33453,
-    "vsize_mb": 29.0,
+    "tx_count": 34298,
+    "vsize_mb": 29.3,
     "source": "mempool.space"
   },
   "recommended_fees": {
@@ -40,9 +40,9 @@
     "source": "mempool.space"
   },
   "lightning": {
-    "node_count": 17342,
-    "channel_count": 41986,
-    "capacity_btc": 5706.3,
+    "node_count": 17438,
+    "channel_count": 41109,
+    "capacity_btc": 5057.1,
     "source": "mempool.space"
   },
   "fear_greed": {
@@ -57,8 +57,8 @@
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 28813.5,
-    "usd": 2068761280,
+    "btc": 28845.2,
+    "usd": 2070003860,
     "source": "deribit"
   },
   "dominance": {
@@ -66,7 +66,7 @@
     "source": "coingecko"
   },
   "gold": {
-    "value": 4769.3,
+    "value": 4770.3,
     "source": "yahoo"
   },
   "sp500": {
@@ -78,7 +78,7 @@
     "source": "yahoo"
   },
   "exchange_volume": {
-    "binance_btc": 114184.9,
+    "binance_btc": 114523.6,
     "coinbase_btc": null,
     "source": "coingecko"
   },
@@ -117,7 +117,7 @@
     "source": "unavailable"
   },
   "btc_dominance": 57.16,
-  "gold_price": 4769.3,
+  "gold_price": 4770.3,
   "sp500_price": 6824.66,
   "dxy_index": 98.94,
   "signal_score": {

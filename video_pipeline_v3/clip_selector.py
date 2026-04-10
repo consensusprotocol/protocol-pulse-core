@@ -755,7 +755,7 @@ def _select_clips_local(videos, max_clips=5):
 
     prompt = (
         f"Pick the {max_clips} BEST clip moments from these Bitcoin videos. "
-        f"Each from a DIFFERENT channel. 20-40 seconds each. NO ad reads.\n"
+        f"Each from a DIFFERENT channel. 30-50 seconds each. NO ad reads. CRITICAL: Each clip MUST contain a COMPLETE thought — the speaker must finish their point. Never cut a clip before the speaker reaches their conclusion. Pick timestamps where the speaker starts AND finishes a self-contained argument.\n"
         f"{_avoid}\n"
         f"{transcripts_text[:8000]}\n\n"
         f'Return ONLY valid JSON. No markdown. No explanation. No thinking tags. Just the JSON object:\n'
@@ -788,12 +788,24 @@ def _select_clips_local(videos, max_clips=5):
 def _enforce_min_clip_duration(result, min_sec=20):
     clips = result.get("clips", [])
     for c in clips:
-        start = c.get("start_sec", 0)
-        end = c.get("end_sec", 0)
+        # V38 FIX: Normalize field names — Qwen uses start_seconds/end_seconds,
+        # extractor uses start_seconds/end_seconds, but old code checked start_sec/end_sec
+        if "start_seconds" in c and "start_sec" not in c:
+            c["start_sec"] = c["start_seconds"]
+        if "end_seconds" in c and "end_sec" not in c:
+            c["end_sec"] = c["end_seconds"]
+        start = c.get("start_seconds", c.get("start_sec", 0))
+        end = c.get("end_seconds", c.get("end_sec", 0))
         dur = end - start
         if dur < min_sec:
-            logger.warning(f"SHORT CLIP FIX: {c.get('channel','?')} {dur}s -> expanding to {min_sec}s")
+            logger.warning(f"SHORT CLIP FIX: {c.get('channel','?')} {dur}s at {start}s -> expanding to {min_sec}s")
+            c["end_seconds"] = start + min_sec
             c["end_sec"] = start + min_sec
+        # Ensure both field names are present for downstream consumers
+        c["start_sec"] = c.get("start_seconds", c.get("start_sec", 0))
+        c["end_sec"] = c.get("end_seconds", c.get("end_sec", 0))
+        c["start_seconds"] = c["start_sec"]
+        c["end_seconds"] = c["end_sec"]
     result["clips"] = clips
     return result
 

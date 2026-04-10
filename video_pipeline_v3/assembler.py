@@ -845,8 +845,12 @@ def should_insert_transition(prev_part: str, next_part: str) -> bool:
     # FIX 1: Transition out of social into signal_active
     if prev_part == "social_segment" and next_part == "signal_active":
         return True
+    # V38 FIX: Transition from social/signal_active into wrap/outro
+    # Without this, the signal active segment cuts off abruptly into the closing recap
+    if prev_part in ("social_segment", "signal_active", "social_card") and next_part in ("wrap", "outro", "setup"):
+        return True
     # NO transition for narrator-to-narrator within same flow
-    # e.g., setup→setup, react→react, cold_open→setup
+    # e.g., setup->setup, react->react, cold_open->setup
     return False
 
 

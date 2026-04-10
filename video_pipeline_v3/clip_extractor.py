@@ -877,7 +877,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
             if end <= start:
                 end = start + 40  # ensure valid range
         # Rule 2: Max clip duration 45s (Pipeline Laws: 30-60s, sweet spot 40s)
-        if end - start > 45:
+        if end - start > 55:
             logger.warning(f"  RULE OVERRIDE: clip #{rank} duration {end-start}s -> 45s (max clip length)")
             end = start + 45
 
@@ -1013,7 +1013,7 @@ def extract_montage_all(montage_selections: dict, output_dir: str) -> dict:
             if end <= start:
                 end = start + 40  # ensure valid range
         # Rule 2: Max clip duration 45s (Pipeline Laws: 30-60s, sweet spot 40s)
-        if end - start > 45:
+        if end - start > 55:
             logger.warning(f"  RULE OVERRIDE: clip #{rank} duration {end-start}s -> 45s (max clip length)")
             end = start + 45
         output_path = os.path.join(output_dir, f"montage_clip_{rank}_{channel}_{video_id}.mp4")

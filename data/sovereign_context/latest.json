@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-10T07:05:04.495156+00:00",
+  "timestamp": "2026-04-10T07:10:04.239222+00:00",
   "block_height": 944436,
   "btc": {
-    "price": 71819,
-    "change_24h": 1.09,
+    "price": 71766,
+    "change_24h": 1.02,
     "change_7d": 0,
-    "market_cap": 1437604480085.9304,
-    "volume_24h": 39465327791.73876,
+    "market_cap": 1436611248545.8838,
+    "volume_24h": 39093836745.21105,
     "dominance": 57.2
   },
   "fear_greed": {
@@ -17,19 +17,19 @@
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 33470,
-    "size_mb": 29.0
+    "unconfirmed": 34292,
+    "size_mb": 29.3
   },
   "network": {
     "hashrate_eh": 946.5,
     "difficulty": 0,
-    "next_adj_pct": -4.49,
+    "next_adj_pct": -4.54,
     "next_adj_blocks": 1068
   },
   "lightning": {
-    "capacity_btc": 5292.1,
-    "channels": 41162,
-    "nodes": 17353
+    "capacity_btc": 5700.5,
+    "channels": 42215,
+    "nodes": 17369
   },
   "kol": {
     "sentiment_score": 62,
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 33 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-10T07:05:04.640398+00:00",
+      "ts": "2026-04-10T07:10:04.265209+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 33
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 63.2,
+      "score": 63.1,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },

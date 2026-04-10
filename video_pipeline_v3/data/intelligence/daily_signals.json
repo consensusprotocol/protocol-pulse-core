@@ -27,7 +27,7 @@
       "channels": 44,
       "sentiment": "bullish",
       "velocity_score": 33,
-      "authority_score": 100,
+      "authority_score": 33,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -62,9 +62,9 @@
     "Exchange deposit exodus: 10-year low signals supply scarc...",
     "Bitcoin as geopolitical safe-haven amid regional instabil..."
   ],
-  "dominant_narrative": "Bitcoin as geopolitical safe-haven amid regional instabil...",
+  "dominant_narrative": "Institutional accumulation at scale\u2014Strategy acquiring 54...",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-10T02:50:08Z"
+  "scan_time": "2026-04-10T07:06:16Z"
 }

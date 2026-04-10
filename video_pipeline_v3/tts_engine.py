@@ -578,6 +578,10 @@ PRONUNCIATION_MAP = {
     "Taproot": "Tap-root",
     "Nostr": "nawster",
     "nostr": "nawster",
+    "regulatory": "reg-you-latory",
+    "Regulatory": "Reg-you-latory",
+    "geopolitical": "jee-oh-political",
+    "Geopolitical": "Jee-oh-political",
 }
 
 
