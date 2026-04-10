@@ -117,7 +117,10 @@ class ImageGenerationService:
 
     def _fetch_pexels_image(self, title, category=None):
         """Search Pexels for a relevant stock photo."""
-        queries = _build_pexels_queries(title, category)
+        # AI-powered query first for topic relevance
+        smart = _smart_pexels_query(title)
+        base = _build_pexels_queries(title, category)
+        queries = ([smart] + base) if smart else base
 
         for query in queries:
             try:
@@ -308,6 +311,48 @@ def _is_top_article(title):
     lower = title.lower()
     return any(indicator in lower for indicator in TOP_ARTICLE_INDICATORS)
 
+
+def _smart_pexels_query(title):
+    """Ask Grok to pick the best Pexels search query for this article title.
+    Returns a specific 3-5 word string, or None on failure."""
+    try:
+        import os as _os, json as _json, urllib.request as _ur
+        _key = _os.environ.get('XAI_API_KEY', '')
+        if not _key:
+            return None
+        _payload = _json.dumps({
+            "model": "grok-3-mini-fast",
+            "messages": [{
+                "role": "user",
+                "content": (
+                    "News article title: " + title + "\n\n"
+                    "Return ONLY a 3-5 word Pexels stock photo search query for this story. "
+                    "Be specific and visual. Example: for a bitcoin ETF story say 'stock exchange trading floor'. "
+                    "For Japan crypto regulation say 'Tokyo government parliament building'. "
+                    "No quotes, no explanation, just the query."
+                )
+            }],
+            "max_tokens": 15,
+            "temperature": 0.2
+        }).encode()
+        _req = _ur.Request(
+            'https://api.x.ai/v1/chat/completions',
+            data=_payload,
+            headers={'Authorization': 'Bearer ' + _key, 'Content-Type': 'application/json'},
+            method='POST'
+        )
+        with _ur.urlopen(_req, timeout=8) as _r:
+            _result = _json.loads(_r.read())
+            _q = _result['choices'][0]['message']['content'].strip().strip('"').strip("'")
+            # Must be 2-6 words, no URLs or special chars
+            _words = _q.split()
+            if 2 <= len(_words) <= 6 and all(c.isalnum() or c in ' -' for c in _q):
+                return _q
+    except Exception:
+        pass
+    return None
+
+
 def _build_pexels_queries(title, category=None):
     """Build search queries from article title, most specific to most general."""
     queries = []
@@ -389,7 +434,48 @@ def _build_pexels_queries(title, category=None):
         elif cat_lower == 'macro':
             queries.append('global economy financial markets')
 
-    # Fallback generic queries
+    # Topic-specific fallbacks before generics
+    title_lower = title.lower() if title else ''
+    extra_map = {
+        'japan': 'Tokyo parliament government building',
+        'vietnam': 'Ho Chi Minh City skyline business',
+        'korea': 'Seoul financial district night',
+        'europe': 'European parliament Brussels aerial',
+        'uk': 'London Canary Wharf financial district',
+        'australia': 'Sydney CBD skyline harbor',
+        'cia': 'intelligence agency government building',
+        'fbi': 'federal law enforcement headquarters',
+        'lawsuit': 'courtroom gavel law scales justice',
+        'arrest': 'handcuffs law enforcement federal agents',
+        'blackrock': 'Wall Street skyscraper asset management',
+        'strategy': 'corporate boardroom executive meeting',
+        'stablecoin': 'digital payment network currency',
+        'treasury': 'government treasury financial building',
+        'tariff': 'shipping containers port trade cargo',
+        'oklx': 'cryptocurrency exchange digital trading',
+        'circle': 'digital currency fintech office',
+        'freeze': 'frozen seized assets law enforcement',
+        'hack': 'cybersecurity network breach dark screen',
+        'quantum': 'quantum computer laboratory research',
+        'senate': 'US Senate Capitol building Washington',
+        'congress': 'Capitol Hill Washington DC government',
+        'nasdaq': 'Nasdaq stock exchange trading floor',
+        'nyse': 'New York Stock Exchange Wall Street',
+        'etf': 'stock exchange trading floor investors',
+        'miner': 'bitcoin mining facility server warehouse',
+        'hashrate': 'data center computing servers bitcoin',
+        'fed': 'Federal Reserve building Washington bank',
+        'gold': 'gold bars vault precious metals',
+        'oil': 'oil refinery energy petroleum industrial',
+        'defi': 'blockchain decentralized network nodes',
+        'nft': 'digital art gallery screen display',
+    }
+    for kw, q in extra_map.items():
+        if kw in title_lower and q not in queries:
+            queries.insert(0, q)
+            break
+
+    # Generic fallbacks last resort
     queries.extend([
         'financial technology dark',
         'digital economy abstract',

@@ -1272,14 +1272,21 @@ def api_newsletter_subscribe():
         user.newsletter_subscribed = True
     db.session.commit()
 
-    # Send welcome email via Resend (fire and forget)
-    import threading
+    # Send welcome email — write to retry queue first, then attempt immediately
+    import threading, json as _json, pathlib as _pl
+    _queue_dir = _pl.Path('/home/ultron/protocol_pulse/data/email_queue')
+    _queue_dir.mkdir(parents=True, exist_ok=True)
+    _queue_file = _queue_dir / f'welcome_{unsub_token[:8]}.json'
+    _queue_file.write_text(_json.dumps({'email': email, 'token': unsub_token, 'type': 'welcome'}))
     def _send_welcome():
         try:
             from services.newsletter_service import _send_welcome_email
-            _send_welcome_email(email, unsub_token)
+            ok = _send_welcome_email(email, unsub_token)
+            if ok and _queue_file.exists():
+                _queue_file.unlink()  # Remove from queue on success
+                logging.info('Welcome email sent and dequeued for %s', email)
         except Exception as _e:
-            logging.warning('Welcome email failed for %s: %s', email, _e)
+            logging.warning('Welcome email failed for %s (queued for retry): %s', email, _e)
     threading.Thread(target=_send_welcome, daemon=True).start()
 
     return jsonify({'success': True, 'message': 'Subscribed to Protocol Pulse'})
