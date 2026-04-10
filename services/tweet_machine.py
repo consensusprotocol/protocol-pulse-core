@@ -308,6 +308,8 @@ INTELLIGENCE BRIEF:
 VOICE LAWS (mandatory):
 {voice_laws}
 
+LENGTH TARGET: 80-150 characters. Absolute max 180. If your tweet exceeds 150 chars, rewrite shorter. Think punchline, not essay. 2-3 short sentences max.
+
 HARD RULES:
 - Never start with: Just, Hot take, Thread:, GM, Attention, Breaking, We, Bitcoin is, The, Meanwhile, Interestingly
 - Never use exclamation marks
@@ -706,6 +708,57 @@ def is_too_similar(new_tweet: str, posted: list[str], threshold: float = 0.65) -
     return False
 
 
+def _extract_phrases(text: str, min_words: int = 5) -> list[str]:
+    """Extract all contiguous phrases of min_words+ words from text."""
+    words = re.findall(r"\w+", text.lower())
+    return [" ".join(words[i:i+min_words]) for i in range(len(words) - min_words + 1)]
+
+
+def has_phrase_overlap(new_tweet: str, recent_tweets: list[str], min_words: int = 5) -> list[str]:
+    """Return list of 5+ word phrases from new_tweet that appear verbatim in recent_tweets."""
+    new_phrases = _extract_phrases(new_tweet, min_words)
+    if not new_phrases:
+        return []
+    # Build phrase set from all recent tweets
+    recent_phrases = set()
+    for old in recent_tweets:
+        recent_phrases.update(_extract_phrases(old, min_words))
+    return [p for p in new_phrases if p in recent_phrases]
+
+
+def _enforce_length(tweet_text: str, brief: dict, generate_fn, max_retries: int = 2) -> str:
+    """Enforce 150 char target with regeneration fallback and truncation safety net."""
+    text = tweet_text
+    if len(text) <= 200:
+        if len(text) > 150:
+            logger.warning(f"Tweet over 150 char target ({len(text)} chars): {text[:60]}...")
+        return text
+
+    # Over 200 — regenerate with shorter instruction
+    for attempt in range(max_retries):
+        logger.warning(f"Tweet too long ({len(text)} chars), regenerating (attempt {attempt+1}/{max_retries})")
+        retry_tweets = generate_fn(brief, count=1, length_override="SHORTER. Under 150 characters.")
+        if retry_tweets:
+            text = retry_tweets[0].get("text", "").strip()
+            if len(text) <= 200:
+                if len(text) > 150:
+                    logger.warning(f"Retry tweet still over 150 target ({len(text)} chars)")
+                return text
+
+    # Safety net: truncate at last complete sentence under 180
+    if len(text) > 180:
+        logger.warning(f"Truncating tweet from {len(text)} to <180 chars")
+        # Try sentence boundary
+        for sep in [". ", "? "]:
+            idx = text[:180].rfind(sep)
+            if idx > 40:
+                text = text[:idx+1].rstrip(".")
+                return text
+        # No sentence boundary — truncate at last space
+        text = text[:177].rsplit(" ", 1)[0]
+    return text
+
+
 def _call_llm_with_fallback(prompt: str) -> str:
     """Call LLM with Anthropic → Gemini → Grok fallback chain. Returns raw text."""
     # 1. Anthropic Haiku (primary)
@@ -793,7 +846,7 @@ def _call_llm_with_fallback(prompt: str) -> str:
     return ""
 
 
-def generate_tweets(brief: dict, count: int = 1) -> list:
+def generate_tweets(brief: dict, count: int = 1, length_override: str = "") -> list:
     """Call LLM to generate tweets from the brief with format diversity."""
     if not ANTHROPIC_API_KEY and not os.environ.get("GEMINI_API_KEY") and not os.environ.get("XAI_API_KEY"):
         logger.error("No LLM API keys available (ANTHROPIC, GEMINI, XAI)")
@@ -875,6 +928,8 @@ def generate_tweets(brief: dict, count: int = 1) -> list:
         live_data=live_block,
         voice_laws=TWEET_VOICE_LAWS,
     )
+    if length_override:
+        prompt += f"\n\nCRITICAL LENGTH OVERRIDE: {length_override}"
 
     content = _call_llm_with_fallback(prompt)
     if not content:
@@ -1074,6 +1129,11 @@ def main():
         text = tweet.get("text", "").strip()
         if not text:
             continue
+
+        # ── LENGTH ENFORCEMENT (FIX 1) ──
+        text = _enforce_length(text, brief, generate_tweets)
+        tweet["text"] = text
+
         if len(text) > 280:
             logger.warning(f"Tweet too long ({len(text)} chars), truncating: {text[:50]}...")
             text = text[:277] + "..."
@@ -1082,8 +1142,38 @@ def main():
         if CAN_POST:
             text = _strip_hashtags(text)  # Hard gate
 
-            # Dedup check with retry on different format (BEFORE gate, so gate logs final text)
+            # ── PHRASE DEDUP (FIX 2): check 5+ word phrases against last 20 ──
             posted_today = get_todays_posted_tweets()
+            duped_phrases = has_phrase_overlap(text, posted_today[:20])
+            if duped_phrases:
+                logger.warning(f"PHRASE DEDUP: found repeated phrases: {duped_phrases}")
+                phrase_regen_ok = False
+                for phrase_attempt in range(3):
+                    avoid_instruction = (
+                        f"Avoid these exact phrases: {', '.join(repr(p) for p in duped_phrases)}. "
+                        "Write something completely different."
+                    )
+                    retry_tweets = generate_tweets(brief, count=1, length_override=avoid_instruction)
+                    if retry_tweets:
+                        retry_text = _strip_hashtags(retry_tweets[0].get("text", "").strip())
+                        retry_text = _enforce_length(retry_text, brief, generate_tweets)
+                        new_dupes = has_phrase_overlap(retry_text, posted_today[:20])
+                        if not new_dupes:
+                            tweet = retry_tweets[0]
+                            text = retry_text
+                            tweet["text"] = text
+                            phrase_regen_ok = True
+                            logger.info(f"PHRASE DEDUP resolved on attempt {phrase_attempt+1}")
+                            break
+                        else:
+                            logger.warning(f"PHRASE DEDUP attempt {phrase_attempt+1} still has dupes: {new_dupes}")
+                if not phrase_regen_ok:
+                    logger.warning("PHRASE DEDUP failed after 3 attempts — skipping this cycle")
+                    log_to_db(tweet, posted=False)
+                    queued_count += 1
+                    continue
+
+            # Dedup check with retry on different format (BEFORE gate, so gate logs final text)
             if is_too_similar(text, posted_today):
                 logger.warning("DEDUP blocked tweet — retrying with different format")
                 retry_success = False
@@ -1206,8 +1296,12 @@ if __name__ == "__main__":
             sys.exit(1)
         for t in tweets:
             text = t.get("text", "").strip()
+            text = _enforce_length(text, brief, generate_tweets)
+            length_flag = ""
+            if len(text) > 150:
+                length_flag = " [OVER 150 TARGET]"
             print(f"\n{'='*60}")
-            print(f"GENERATED TWEET ({len(text)} chars):")
+            print(f"GENERATED TWEET ({len(text)} chars{length_flag}):")
             print(f"{'='*60}")
             print(text)
             print(f"{'='*60}")
