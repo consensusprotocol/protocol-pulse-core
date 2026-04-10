@@ -576,8 +576,8 @@ PRONUNCIATION_MAP = {
     "Szabo": "SAH-boh",
     # Protocols
     "Taproot": "Tap-root",
-    "Nostr": "NOH-ster",
-    "nostr": "NOH-ster",
+    "Nostr": "nawster",
+    "nostr": "nawster",
 }
 
 

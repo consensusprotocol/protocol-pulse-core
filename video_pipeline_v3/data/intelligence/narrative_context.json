@@ -1,25 +1,33 @@
 {
-  "episode_narrative": "Institutional Bitcoin accumulation is dominating Bitcoin discourse \u2014 4 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "episode_narrative": "Bitcoin as geopolitical safe-haven amid regional instabil... is dominating Bitcoin discourse \u2014 44 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
   "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Bitcoin mining luck & solo miner wins' is also trending with 3 thought leaders discussing it",
+  "mark_context": "Mark should add context: 'Institutional accumulation at scale\u2014Strategy acquiring 54...' is also trending with 31 thought leaders discussing it",
   "clip_selection_priority": [
-    "Institutional Bitcoin accumulation",
-    "Bitcoin mining luck & solo miner wins",
-    "Macroeconomic conditions & inflation"
+    "Bitcoin as geopolitical safe-haven amid regional instabil...",
+    "Institutional accumulation at scale\u2014Strategy acquiring 54...",
+    "Exchange deposit exodus: 10-year low signals supply scarc..."
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
-  "thought_leaders_mentioned": [],
+  "thought_leaders_mentioned": [
+    "@saylor",
+    "@JeffBooth",
+    "@MartyBent"
+  ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Institutional Bitcoin accumulation",
-  "market_mood": "neutral",
+  "dominant_narrative": "Bitcoin as geopolitical safe-haven amid regional instabil...",
+  "market_mood": "bullish",
   "top_quote": "",
-  "top_quote_handles": [],
-  "quote_fetched_at": "2026-04-09T17:15:26.735979+00:00",
-  "computed_at": "2026-04-09T17:15:26.735979+00:00"
+  "top_quote_handles": [
+    "@saylor",
+    "@JeffBooth",
+    "@MartyBent"
+  ],
+  "quote_fetched_at": "2026-04-09T22:59:31.554364+00:00",
+  "computed_at": "2026-04-09T22:59:31.554364+00:00"
 }

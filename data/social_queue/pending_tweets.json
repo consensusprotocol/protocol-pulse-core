@@ -118,5 +118,17 @@
     "generated_at": "2026-04-09T22:00:03.911033+00:00",
     "brief_date": "Thursday, April 09, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_010004_0",
+    "text": "88% of private credit redemption requests got denied last quarter. When $13.9B in withdrawals hit a wall, which asset doesn't need permission to move",
+    "angle": "macro_monetary",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T01:00:04.383049+00:00",
+    "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
   }
 ]

@@ -988,6 +988,34 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             selections = _retry_select_clips(videos)
             clips = selections.get("clips", [])
             print(f"  Selected: {len(clips)} clips")
+
+            # V37 CLIP TRANSCRIPT ENRICHMENT: Extract the actual transcript segment
+            # for each selected clip so the script writer knows what the viewer hears.
+            _vid_lookup = {v.get("video_id", ""): v for v in videos}
+            for c in clips:
+                vid = c.get("video_id", "")
+                start = c.get("start_seconds", c.get("start_sec", 0))
+                end = c.get("end_seconds", c.get("end_sec", 0))
+                v_data = _vid_lookup.get(vid, {})
+                ts_text = v_data.get("timestamped_text", v_data.get("transcript_text", ""))
+                if ts_text and start and end:
+                    # Extract lines matching the timestamp window
+                    import re
+                    lines = ts_text.split("\n")
+                    excerpt = []
+                    for line in lines:
+                        m = re.match(r'\[?(\d+):?(\d+)?\]?\s*(.*)', line)
+                        if m:
+                            mins = int(m.group(1))
+                            secs = int(m.group(2) or 0)
+                            ts = mins * 60 + secs
+                            if start - 5 <= ts <= end + 5:
+                                excerpt.append(m.group(3).strip())
+                        elif excerpt:
+                            excerpt.append(line.strip())
+                    c["clip_transcript"] = " ".join(excerpt)[:500] if excerpt else ts_text[max(0,start*5):end*5][:500]
+                    if c["clip_transcript"]:
+                        logger.info(f"  ENRICHED clip #{c.get('rank','?')}: {len(c['clip_transcript'])} chars of transcript")
             for c in clips:
                 print(f"    #{c.get('rank', 0)}: [{c.get('channel','')}] {c.get('quote','')[:50]}...")
             timing["3_select"] = round(time.time() - t0, 2)

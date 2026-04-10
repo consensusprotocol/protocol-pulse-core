@@ -1,10 +1,10 @@
 {
-  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/test_20260409_171527/clips/clip_3_TFTC_biotJvfDmIM.mp4",
+  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/test_20260409_225932/clips/clip_3_TFTC_biotJvfDmIM.mp4",
   "video_id": "biotJvfDmIM",
   "channel": "TFTC",
-  "start": 30,
-  "end": 70,
-  "duration": 43.648,
+  "start": 300,
+  "end": 340,
+  "duration": 50.0,
   "quote": "Some hard decisions need to be made in the next two, three weeks, and if they're not, we could start going down a path that has 35, 40% possible declines.",
-  "archived_at": 1775757121.4777052
+  "archived_at": 1775777456.1731238
 }

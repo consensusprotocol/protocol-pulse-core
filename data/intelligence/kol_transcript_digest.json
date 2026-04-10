@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-09T20:00:32.619328+00:00",
-  "creator_count": 13,
-  "avg_sentiment_score": 59.0,
+  "generated_at": "2026-04-10T00:00:33.472356+00:00",
+  "creator_count": 12,
+  "avg_sentiment_score": 58.2,
   "sentiment_breakdown": {
     "bullish": 5,
     "bearish": 1,
-    "neutral": 7
+    "neutral": 6
   },
   "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "European regulatory overregulation",
+      "topic": "Bitcoin ETFs vs self-custody",
       "creator_count": 1,
       "creators": [
-        "Natalie Brunell"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "Most people who think they own Bitcoin actually own none"
     },
     {
-      "topic": "Bitcoin adoption in Czech Republic",
+      "topic": "Centralized exchange risks",
       "creator_count": 1,
       "creators": [
-        "Natalie Brunell"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "Most people who think they own Bitcoin actually own none"
     },
     {
-      "topic": "Paradigm shift in technology (Bitcoin, AI, robotics)",
+      "topic": "Rehypothecation and fractional backing",
       "creator_count": 1,
       "creators": [
-        "Natalie Brunell"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "Most people who think they own Bitcoin actually own none"
     },
     {
-      "topic": "Bitcoin Living Masterclass at BTC Prague",
+      "topic": "Government seizure precedent (gold confiscation)",
       "creator_count": 1,
       "creators": [
-        "Natalie Brunell"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "Most people who think they own Bitcoin actually own none"
     },
     {
-      "topic": "Individual empowerment through Bitcoin",
+      "topic": "Regulatory and taxation friction",
       "creator_count": 1,
       "creators": [
-        "Natalie Brunell"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "Europe is broken... but there is a light at the end of the tunnel"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "Most people who think they own Bitcoin actually own none"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly project bullish price momentum (most forecasting $75K+ near-term) driven by institutional adoption (ETFs), macro liquidity cycles, and emerging geopolitical demand as nation-states explore cryptocurrency. They also agree Bitcoin demonstrates resilience during uncertainty\u2014outperforming traditional risk assets during crises.\n\n**Key Divergence:** While price optimists focus on technical catalysts and adoption, skeptics (Guy Swann, Stacker News) raise concerns about regulatory crackdowns, authoritarian responses, and corporate narrative control that could constrain growth. Additionally, perspectives split on whether Bitcoin's geopolitical rally reflects genuine adoption (Altcoin Daily, Anthony Pompliano) versus fragile macro conditions masking deeper instability (Simply Bitcoin).\n\n**Secondary Theme:** Creators recognize market structure complexity\u2014OTC institutional trading and leverage patterns create information asymmetries for retail traders\u2014though this largely supports rather than challenges the bullish outlook.",
+  "summary": "# Bitcoin Creators Summary\n\n**Consensus:** Bitcoin creators generally agree that adoption and security infrastructure matter significantly, with most acknowledging macro factors influence but don't solely determine Bitcoin's trajectory. There's also broad agreement that regulatory environment and institutional adoption (whether through ETFs, OTC markets, or traditional finance) are reshaping the ecosystem.\n\n**Divergence:** The most striking disagreement concerns near-term outlook: while CoinTelegraph and DataDash project bullish recovery with $75,000 targets, CoinDesk presents an existential threat from quantum computing requiring \"immediate action.\" Additionally, creators split on what drives value\u2014CoinTelegraph emphasizes crypto-native cycles over macro events, while Anthony Pompliano stresses macro analysis matters. Finally, perspectives on adoption differ: some celebrate regulatory friendliness emerging (Czech Republic), while Natalie Brunell warns of European overreach simultaneously stifling progress.\n\n**Key tension:** Optimistic technical recovery narratives clash with urgent security concerns, and institutional integration (ETFs, OTC) is simultaneously celebrated as adoption progress and criticized as inadequate self-custody by BTC Sessions.",
   "top_creators": [
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "Bitcoin security exists on a spectrum of 7 levels, with most users inadequately securing their holdings through centralized custodians like ETFs and exchanges rather than achieving self-custody."
+    },
+    {
+      "channel": "Anthony Pompliano",
+      "sentiment": "mixed",
+      "score": 55,
+      "thesis": "Bitcoin's value depends on retail adoption and debt issuance; macro factors like geopolitical events and oil prices matter less than actual market prices reveal. The conversation focuses on macro analysis with Arthur Hayes rather than direct Bitcoin price predictions."
+    },
+    {
+      "channel": "CoinTelegraph",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "Bitcoin is in the bottoming phase of a crypto winter cycle and closer to recovery than the market believes. The April 15 tax deadline has historically triggered selling pressure, but crypto-native factors like the four-year cycle and U.S. regulation outlook are the primary drivers of price, not macro events."
+    },
+    {
+      "channel": "CoinDesk",
+      "sentiment": "bearish",
+      "score": 15,
+      "thesis": "Quantum computing poses an urgent and accelerating threat to Bitcoin security, with recent research showing the timeline to break encryption has been drastically shortened from years to potentially within the next few years, requiring immediate action from the community."
+    },
     {
       "channel": "Natalie Brunell",
       "sentiment": "bullish",
       "score": 75,
       "thesis": "Europe's regulatory overreach is stifling Bitcoin adoption, but the Czech Republic and BTC Prague conference represent a paradigm shift toward Bitcoin-friendly environments. We're experiencing a technological revolution similar to the industrial revolution that will reshape society."
-    },
-    {
-      "channel": "Guy Swann",
-      "sentiment": "mixed",
-      "score": 65,
-      "thesis": "Bitcoin and decentralized technology will either force reconciliation through market competition or provoke authoritarian crackdowns, while massive technological and societal changes (AI, humanoid robots) create both risks and unprecedented opportunities."
-    },
-    {
-      "channel": "Stacker News",
-      "sentiment": "mixed",
-      "score": 45,
-      "thesis": "OpenAI's acquisition of a popular podcast network raises questions about narrative control and media influence, similar to corporate acquisitions of major publications. The hosts are skeptical of stated intentions despite acknowledging the podcast's quality and influence."
-    },
-    {
-      "channel": "Blockware Solutions",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "Success is not accidental but follows identifiable patterns. The speaker identifies five common habits of ultra-successful individuals: providing value, investing proceeds, using intelligent leverage, communicating effectively, and a fifth trait (cut off in transcript)."
-    },
-    {
-      "channel": "DataDash",
-      "sentiment": "bullish",
-      "score": 72,
-      "thesis": "Bitcoin is consolidating after a relief rally and likely to continue higher toward $75,000, with key support levels at $69,260 and $68,500 providing decision points for near-term direction."
     }
   ]
 }

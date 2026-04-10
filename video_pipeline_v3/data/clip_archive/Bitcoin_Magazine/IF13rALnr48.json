@@ -1,10 +1,10 @@
 {
-  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/test_20260409_171527/clips/clip_1_Bitcoin_Magazine_IF13rALnr48.mp4",
+  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/test_20260409_225932/clips/clip_2_Bitcoin_Magazine_IF13rALnr48.mp4",
   "video_id": "IF13rALnr48",
   "channel": "Bitcoin_Magazine",
-  "start": 30,
-  "end": 70,
-  "duration": 39.318,
+  "start": 200,
+  "end": 240,
+  "duration": 46.034,
   "quote": "For Bitcoin's price to go up, it has to conquer more minds. And so it's literally like expanding territory.",
-  "archived_at": 1775757001.342879
+  "archived_at": 1775777395.5276523
 }

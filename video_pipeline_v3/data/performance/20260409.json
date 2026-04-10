@@ -1,17 +1,17 @@
 {
   "date": "2026-04-09",
-  "episode_title": "Institutions Seize Bitcoin",
+  "episode_title": "Bitcoin's Safe-Haven Surge",
   "channels_used": [
+    "Preston Pysh",
     "Bitcoin Magazine",
-    "Simply Bitcoin",
     "TFTC"
   ],
-  "quality_score": 96,
+  "quality_score": 100,
   "clips_count": 3,
-  "duration_seconds": 249.6,
-  "bitrate_mbps": 6.8,
+  "duration_seconds": 298.0,
+  "bitrate_mbps": 6.0,
   "av_sync_offset": -0.0,
-  "music_mood": "tense",
+  "music_mood": "confident",
   "test_mode": true,
   "episode_id": "20260409"
 }

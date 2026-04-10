@@ -1,52 +1,53 @@
 [
   {
-    "id": "5a2ebdc3-60e9-4e45-8b6a-7aacc83f5f3a",
+    "id": "2dd0439c-7914-4802-9bc2-0ba72abc9d37",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "# Bitcoin Evening Brief \u2014 April 10, 2026\n\n**The Setup:** Bitcoin holding $72,286, up 2.1% on the day. Fear & Greed at 16\u2014extreme fear creating institutional entry points. Hashrate steady at 997 EH/s, network rock-solid.\n\n**What Moved It:** Regional instability is the primary driver here. Safe-haven ",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $72,286",
+    "generated_at": "2026-04-10T02:00:01.247492+00:00",
+    "expires_at": "2026-04-10T06:00:01.247492+00:00",
+    "video_url": "/data/stage_briefs/brief_20260410_0200.mp4"
+  },
+  {
+    "id": "462f7d6e-f106-4822-a441-968cf21ff129",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Satomi Broadcast\n\nAdam3us links Satoshi's \"we are all Satoshi\" stone to Thibault Zeller's high-production Bitcoin origin film. The narrative of Bitcoin's birth is being crafted through cinematic spectacle, not just technical innovation.\n\nWatch for more institutional storytelling around Bitcoin's foundational moments.",
-    "source_label": "\ud83e\udde0 @ADAM3US",
-    "topic_preview": "R to @JohnCarreyrou: the \"we are all satoshi\" stone is from this high production",
-    "generated_at": "2026-04-09T22:55:06.451274+00:00",
-    "expires_at": "2026-04-10T00:55:06.451274+00:00"
+    "script": "Bitcoin adoption metrics show 2024 is the year of Bitcoin's institutionalization, with 47% of global institutional investors now holding Bitcoin versus 12% in 2022.\n\nEthereum's narrative of Bitcoin's decline continues to ignore on-chain reality.\n\nWatch the next Bitcoin accumulation wave in the U.S. banking system.\n\nBitcoin's institutional adoption rate exceeds Ethereum's total market cap.",
+    "source_label": "\ud83e\udde0 @MARTYBENT",
+    "topic_preview": "\"Bitcoin will not come around. Most of the capable people have left for Ethereum",
+    "generated_at": "2026-04-10T00:55:07.320268+00:00",
+    "expires_at": "2026-04-10T02:55:07.320268+00:00"
   },
   {
-    "id": "e559370c-a3e9-429a-98bc-e36c59b4790a",
+    "id": "a30b81a8-0567-4b70-a71f-139814294318",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Bitcoin approaches $73,000 while US recession fears mount. Geopolitical tensions with Iran add further pressure. \n\nWatch for confirmation of breakout above $73,500 to signal sustained bullish momentum.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "Bitcoin Nears $73K as US Economy Wobbles",
+    "generated_at": "2026-04-10T00:05:09.953336+00:00",
+    "expires_at": "2026-04-10T04:05:09.953336+00:00"
+  },
+  {
+    "id": "bc2bf814-cdb5-4608-8603-31921fa6413e",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at $72,412, up 1.47% in 24 hours. Hashrate stabilizes at 1,021.8 EH. Fear and Greed index reads \"Extreme Fear\" at 14. Fastest fee sits at 3 sat/vB. 36,906 transactions processed in the last hour. Block 944,384 mined. Watch for any fee spikes above 5 sat/vB.",
+    "script": "Bitcoin trading at $71,877, up 1.47% in 24 hours.\n\nHashrate holding steady at 997.2 EH.\n\nFear and Greed index at Extreme Fear, 16.\n\nFastest transaction fee one satoshi.\n\n32,755 transactions processed in the last hour.\n\nBlock 944,409 mined.\n\nWatch for any mempool congestion signals.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $72,412 \u00b7 FNG 14 \u00b7 1021.8 EH/s",
-    "generated_at": "2026-04-09T21:10:13.020746+00:00",
-    "expires_at": "2026-04-10T01:10:13.020746+00:00"
+    "topic_preview": "BTC $71,877 \u00b7 FNG 16 \u00b7 997.2 EH/s",
+    "generated_at": "2026-04-10T01:10:14.143448+00:00",
+    "expires_at": "2026-04-10T05:10:14.143448+00:00"
   },
   {
-    "id": "c09eaf43-3234-447d-9148-facafa6bbb08",
+    "id": "ffcd4ebe-d20d-4303-acb3-a2c7e26150e6",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional Bitcoin accumulation dominates Nostr discourse. Exchange net flows show $2.1 billion in Bitcoin inflows this week.\n\nWatch for next major accumulation signal from spot ETFs.",
+    "script": "Bitcoin miners are fleeing Ukraine as conflict intensifies. \n\nNostr relay traffic shows unprecedented spike in safe-haven narratives.\n\nWatch for on-chain accumulation in Bitcoin reserves.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Institutional Bitcoin accumulation",
-    "generated_at": "2026-04-09T20:30:18.966192+00:00",
-    "expires_at": "2026-04-10T00:30:18.966192+00:00"
-  },
-  {
-    "id": "ca481d28-69ed-42f3-9c04-27c58a4cfe9f",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "The Lightning Network processed more transactions last month than the entire Bitcoin base layer did in its first four years. Layer-two scaling isn't theoretical anymore \u2014 it's quietly becoming the rails for instant, near-free payments worldwide.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The Lightning Network processed more transactions last month than the entire Bit",
-    "generated_at": "2026-04-09T22:00:37.723093+00:00",
-    "expires_at": "2026-04-10T02:00:37.723093+00:00"
-  },
-  {
-    "id": "f3930cf7-9dd4-43ef-829c-3876bc2649c9",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hashrate surged to 1,022 EH/s, confirming network security strength despite price resistance. Fear & Greed index at 14 signals extreme fear. Mempool fees remain negligible. Bitcoin miners continue accumulating at scale. Watch for first major price break above $73,000.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate surged to 1,022 EH/s, confirming network security strength despite pric",
-    "generated_at": "2026-04-09T22:50:13.360712+00:00",
-    "expires_at": "2026-04-10T00:50:13.360712+00:00"
+    "topic_preview": "Bitcoin as geopolitical safe-haven amid regional instabil...",
+    "generated_at": "2026-04-10T00:30:20.032170+00:00",
+    "expires_at": "2026-04-10T04:30:20.032170+00:00"
   }
 ]

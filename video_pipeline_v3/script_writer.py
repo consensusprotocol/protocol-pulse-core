@@ -214,11 +214,19 @@ def _format_clips_info(selections: dict) -> str:
     clips = selections.get("clips", [])
     parts = []
     for c in clips:
+        transcript_block = ""
+        if c.get("clip_transcript"):
+            transcript_block = (
+                f"  ACTUAL TRANSCRIPT OF CLIP (this is EXACTLY what the viewer hears — "
+                f"your setup and reaction MUST reference this specific content):\n"
+                f"  \"{c['clip_transcript'][:400]}\"\n"
+            )
         parts.append(
             f"CLIP #{c.get('rank', 0)}:\n"
             f"  Channel: {c.get('channel', 'Unknown')}\n"
             f"  Video: {c.get('video_title', 'Untitled')}\n"
             f"  Quote: \"{c.get('quote', '')}\"\n"
+            + transcript_block +
             f"  Why selected: {c.get('why', '')}\n"
             f"  Suggested setup: {c.get('host_setup', '')}\n"
             f"  Suggested reaction: {c.get('host_react', '')}\n"
