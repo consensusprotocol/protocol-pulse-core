@@ -125,7 +125,7 @@ def send_premium_brief_call(to, brief_text):
             '<Pause length="1"/>'
             '<Play>' + brief_url + '</Play>'
             '<Pause length="1"/>'
-            '<Gather numDigits="1" action="/api/oracle/voice-gather" timeout="12">'
+            '<Gather numDigits="1" action="https://protocolpulse.io/api/oracle/voice-gather?phone=' + to + '" timeout="12">'
             '<Say voice="Polly.Joanna">Press 1 to speak with the Oracle. Or hang up to end.</Say>'
             '</Gather>'
             '<Hangup/>'

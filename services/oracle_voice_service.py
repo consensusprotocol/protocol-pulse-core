@@ -226,7 +226,7 @@ def oracle_inbound():
             '<Pause length="1"/>'
             '<Say voice="Polly.Joanna">Protocol Pulse Oracle. {} Speak your question after the tone.'.format(snapshot)
             + '</Say>'
-            '<Record action="/api/oracle/voice-response" maxLength="45" playBeep="true" trim="trim-silence"/>'
+            '<Record action="https://protocolpulse.io/api/oracle/voice-response" maxLength="45" playBeep="true" trim="trim-silence"/>'
             '</Response>'
         )
     else:
@@ -250,7 +250,7 @@ def oracle_inbound():
 def oracle_voice_gather():
     _validate_twilio(request)
     digit = request.form.get("Digits", "").strip()
-    caller = request.form.get("Called", request.form.get("To", ""))
+    caller = (request.args.get("phone") or request.form.get("Called") or request.form.get("To") or request.form.get("From") or "")
     premium = _is_premium(caller)
 
     if digit == "1" and premium:
@@ -258,7 +258,7 @@ def oracle_voice_gather():
             '<?xml version="1.0" encoding="UTF-8"?>'
             '<Response>'
             '<Say voice="Polly.Joanna">Connected to the Oracle. Speak your question after the tone. Forty-five seconds.</Say>'
-            '<Record action="/api/oracle/voice-response" maxLength="45" playBeep="true" trim="trim-silence"/>'
+            '<Record action="https://protocolpulse.io/api/oracle/voice-response" maxLength="45" playBeep="true" trim="trim-silence"/>'
             '</Response>'
         )
     elif digit == "1" and not premium:
@@ -285,7 +285,7 @@ def oracle_voice_gather():
 def oracle_voice_response():
     _validate_twilio(request)
     recording_url = request.form.get("RecordingUrl", "").strip()
-    caller = request.form.get("Called", request.form.get("From", ""))
+    caller = request.form.get("To", request.form.get("Called", request.form.get("From", "")))
 
     if not recording_url:
         twiml = (
@@ -317,7 +317,7 @@ def oracle_voice_response():
         '<Response>'
         + play_block +
         '<Pause length="1"/>'
-        '<Gather numDigits="1" action="/api/oracle/voice-gather" timeout="10">'
+        '<Gather numDigits="1" action="https://protocolpulse.io/api/oracle/voice-gather" timeout="10">'
         '<Say voice="Polly.Joanna">Press 1 for another question, or hang up to end.</Say>'
         '</Gather>'
         '<Hangup/>'
