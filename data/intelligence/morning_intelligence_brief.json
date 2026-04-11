@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-04-10T17:00:00Z",
-  "date": "Friday, April 10, 2026",
-  "btc_price": "$72,926",
-  "btc_change_24h": "+2.5%",
+  "generated_at": "2026-04-11T10:00:00Z",
+  "date": "Saturday, April 11, 2026",
+  "btc_price": "$73,657",
+  "btc_change_24h": "+0.7%",
   "fng": "Extreme Fear",
   "dominant_narratives": [
-    "Bitcoin's quantum security advancements and institutional adoption",
-    "Spot ETF inflows and macroeconomic implications",
-    "Cypherpunk discourse on keys, sovereignty, and decentralized systems"
+    "Bitcoin as sovereign wealth and institutional adoption",
+    "Geopolitical tensions and U.S.-China-Iran dynamics",
+    "Cypherpunk ethos and secure communications"
   ],
   "trending_language": [
-    "Hold your own keys",
-    "Bitcoin's quantum defenses are progressing fast",
-    "Wash your hands, brush your teeth, hold your own keys"
+    "Not Your Model",
+    "The Fed has been putting out research reports",
+    "Bitcoin works in space"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite the Extreme Fear index, strong institutional ETF inflows and quantum security progress signal confidence in Bitcoin's long-term resilience and adoption trajectory.",
+  "sentiment_reasoning": "Despite the Extreme Fear index, Bitcoin shows strong institutional buying, ETF accumulation, and significant price appreciation. Community signals point toward increased adoption and a reset in positioning.",
   "top_accounts_active": [
     "@BitcoinArchive",
-    "@knutsvanholm",
-    "@giacomozucco"
+    "@saifedean",
+    "@lopp"
   ],
   "recommended_tweet_angles": [
-    "Highlight the institutional inflows into spot Bitcoin ETFs as a sign of mainstream financial integration",
-    "Emphasize the rapid development of quantum-resistant Bitcoin protocols as a key security advantage",
-    "Reframe the 'Extreme Fear' index as a contrarian signal for Bitcoin accumulation"
+    "Bitcoin's role in empowering global property rights amid geopolitical instability",
+    "Institutional accumulation and ETF flows as a bullish signal",
+    "Cypherpunk principles in the face of surveillance and censorship"
   ],
   "topics_to_avoid": [
-    "Political commentary on Middle East conflicts or U.S. domestic politics"
+    "Overly speculative AI or stablecoin narratives without concrete data"
   ],
-  "engagement_patterns": "Cypherpunk language, technical security updates, and institutional adoption data are driving engagement. Short, punchy phrases like 'Hold your own keys' and 'Wash your hands' resonate strongly.",
-  "protocol_pulse_voice_guidance": "Speak with the clarity of a cryptographer, the conviction of a freedom fighter, and the precision of a data analyst. Focus on Bitcoin's technical sovereignty, institutional adoption, and quantum resilience. Avoid political noise and stay anchored in protocol fundamentals.",
+  "engagement_patterns": "Data-backed community signals, technical discussions, geopolitical commentary, and direct calls to action around Bitcoin education and security resonate most.",
+  "protocol_pulse_voice_guidance": "Speak with precision, anchor narratives in data, and maintain a cypherpunk tone that emphasizes sovereignty, technical integrity, and institutional skepticism. Avoid hyperbole, favor clarity and cryptographic truth.",
   "key_stats_today": {
-    "tweets_analyzed": 205,
+    "tweets_analyzed": 138,
     "nostr_signals": 0,
-    "unique_handles": 143
+    "unique_handles": 75
   },
   "generated_by": "local_llm"
 }

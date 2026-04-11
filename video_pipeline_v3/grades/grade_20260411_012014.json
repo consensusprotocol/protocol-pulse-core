@@ -1,0 +1,122 @@
+{
+  "grade": "F",
+  "overall_score": 32,
+  "broadcast_ready": false,
+  "technical_score": 40,
+  "content_score": 46,
+  "production_score": 75,
+  "dimensions": {
+    "duration_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Duration is 157.8s, which is below the 180s minimum for a passing grade. This is an automatic F."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Pass. Resolution is 1920x1080."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Pass. Framerate is 30fps."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Pass. Integrated loudness at -14.4 LUFS is ideal."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "Pass. True peak at -3.4 dBFS is well within spec."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "Pass. No mid-video black frames detected."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "Pass. No mid-video silence gaps detected."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data reports 6 freeze frames. More than one freeze frame is a critical failure."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Pass. Standard h264/aac codecs used."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "Pass. File streams are present and bitrate is acceptable."
+    },
+    "clip_relevance": {
+      "score": 8,
+      "note": "Clips from TFTC and social posts from Nick Szabo and nvk are high-signal. The connection of some clips to the central theme is abstract but acceptable within the cypherpunk ethos."
+    },
+    "script_quality": {
+      "score": 4,
+      "note": "The PBX narration is generally strong, but contains a major factual error, stating the hashrate is 500 EH/s while the on-screen graphic correctly shows 949 EH/s. This is a significant credibility issue."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The 'quantum threats' hook is specific, compelling, and perfectly sets an intriguing tone for the episode."
+    },
+    "narrative_arc": {
+      "score": 3,
+      "note": "The narrative is disjointed. The initial 'quantum' theme is immediately abandoned in favor of a long interview clip about exit liquidity, and the episode never returns to its stated topic."
+    },
+    "host_authenticity": {
+      "score": 2,
+      "note": "MAJOR FORMAT VIOLATION: The episode is not a single-host show. A large segment features a guest host from TFTC, completely breaking the established 'PBX is the SOLE host' format. PBX's own narration is fine, but the format break is severe."
+    },
+    "episode_title": {
+      "score": 3,
+      "note": "The title 'Quantum Traps Bitcoin' is punchy but misleading, as the topic is only mentioned in the first 8 seconds and then completely ignored."
+    },
+    "no_filler": {
+      "score": 7,
+      "note": "The 'like and subscribe' call to action from the TFTC host clip is considered filler and is not on-brand for Protocol Pulse."
+    },
+    "timeliness": {
+      "score": 9,
+      "note": "The content and data points are presented as current for the fictional air date."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music and sound design are well-mixed and effectively support the narration without being distracting."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Glitch transitions are clean, on-brand, and well-executed between all segments."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The overall cyberpunk aesthetic, including data visualizations, lower thirds, and typography, is of a very high, broadcast-ready quality."
+    },
+    "no_artifacts": {
+      "score": 0,
+      "note": "The 6 freeze frames identified in the forensic analysis are a major visual artifact issue, making the video unpublishable."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The narration audio is clean, clear, and professionally recorded. No issues with clipping, echo, or background noise."
+    },
+    "pacing": {
+      "score": 5,
+      "note": "The episode feels both rushed due to its short length and bogged down by the long, off-format interview clip, resulting in uneven pacing."
+    }
+  },
+  "critical_failures": [
+    "duration_check: Duration of 157.8s is below the 180s minimum, resulting in an automatic failure.",
+    "freeze_check: Forensic data reports 6 freeze frames, far exceeding the maximum tolerance and indicating a severe render or source file issue."
+  ],
+  "warnings": [
+    "host_authenticity: Episode violates the 'PBX is the SOLE host' directive by featuring a lengthy segment with a guest host from another show. This breaks format and brand identity.",
+    "narrative_arc: The episode's narrative is disjointed and fails to follow through on the promise of its title, 'Quantum Traps Bitcoin'.",
+    "script_quality: A significant data error was present in the narration (500 EH/s) versus the on-screen graphic (949 EH/s)."
+  ],
+  "strengths": [
+    "visual_polish: The show's cyberpunk aesthetic, including lower thirds, data visualizations, and transitions, remains exceptionally high quality.",
+    "loudness_check: Audio engineering is perfect, meeting all loudness and true peak targets for broadcast.",
+    "clip_relevance: Selection of clips from high-signal sources like TFTC and Nick Szabo is a content strength."
+  ],
+  "verdict": "This episode is a critical failure due to its unacceptably short duration and numerous video freeze frames, compounded by a broken narrative and a severe violation of the show's single-host format.",
+  "recommendation": "DO_NOT_PUBLISH"
+}

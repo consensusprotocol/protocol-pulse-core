@@ -1,7 +1,165 @@
 {
-  "last_updated": "2026-04-10T04:00:13.576855+00:00",
-  "total_analyses": 87,
+  "last_updated": "2026-04-11T08:00:05.925627+00:00",
+  "total_analyses": 94,
   "analyses": [
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": null,
+      "key_quotes": [],
+      "topics": [],
+      "price_prediction": null,
+      "confidence": "low",
+      "note": "This transcript contains no Bitcoin-specific content. The discussion focuses on relationship dynamics, hookup culture, nervous system regulation, and trauma processing. No Bitcoin analysis, price prediction, or cryptocurrency discussion is present.",
+      "channel": "Robert Breedlove",
+      "title": "What Hookup Culture Is Really Doing to the Human Nervous System w/ Stefanos Sifandos",
+      "video_id": "ngZKzSjrfo4",
+      "duration": 6220.5,
+      "analyzed_at": "2026-04-11T08:00:03.923085+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 25,
+      "main_thesis": "Bitcoin is in a post-euphoric digestion phase following its Q4 top, with historical cycles suggesting further downside before a late Q3/Q4 bottom in 2026. Current macro conditions (weakening labor market, rising inflation) support lower prices rather than immediate recovery.",
+      "key_quotes": [
+        "It is very possible that this rally is only temporary and Bitcoin is going a lot lower",
+        "By the end of this year, we likely will see that level break [60K support]",
+        "What if this time's not different? What if Bitcoin just bottoms in October?"
+      ],
+      "topics": [
+        "Four-year Bitcoin cycles",
+        "Quantitative tightening (QT) timing",
+        "Macro conditions (inflation, labor market)",
+        "Bitcoin dominance vs altcoin rotation",
+        "Historical bear market comparisons (2014, 2018, 2022)"
+      ],
+      "price_prediction": "39K (70% decline from top); potential late Q3/Q4 2026 bottom; 60K support likely to break by end of year",
+      "confidence": "medium",
+      "channel": "Altcoin Daily",
+      "title": "\u201cIt\u2019s Not Too Late To Sell Your Bitcoin\u201d Ben Cowen Explains",
+      "video_id": "lrALqzuBSHQ",
+      "duration": 1873.96,
+      "analyzed_at": "2026-04-11T04:00:05.507862+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "The traditional 60/40 stock/bond portfolio has fundamentally failed as a diversification strategy, and Bitcoin will replace bonds as the preferred portfolio hedge due to rising inflation, higher interest rates, and unsustainable government debt.",
+      "key_quotes": [
+        "Bitcoin is starting to creep its way into every single portfolio whether people know it or not",
+        "Bonds became a very elegant way for you to lose your purchasing power",
+        "Bitcoin is about to start eating the bond markets lunch"
+      ],
+      "topics": [
+        "Portfolio diversification",
+        "Bond market failure in 2022",
+        "Government debt and fiscal policy",
+        "Bitcoin as alternative hedge asset",
+        "Inflation and interest rate regime change"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Swan Bitcoin",
+      "title": "Your 60/40 Portfolio Failed When You Needed It Most",
+      "video_id": "qj0IGSc0sew",
+      "duration": 1033.68,
+      "analyzed_at": "2026-04-10T20:00:28.323713+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 92,
+      "main_thesis": "Iran's adoption of Bitcoin for oil transit tolls represents a watershed moment for Bitcoin as a censorship-resistant, international settlement currency that bypasses US sanctions\u2014potentially more significant than El Salvador's legal tender adoption and signaling the beginning of global competition for Bitcoin accumulation.",
+      "key_quotes": [
+        "You can't put that genie back in the bottle. The global hash wars are just beginning.",
+        "Bitcoin wins because gold can be seized, stablecoins can be frozen. Bitcoin cannot.",
+        "Every country is going to need a strategy now to get or accumulate Bitcoin."
+      ],
+      "topics": [
+        "Iran oil tolls and sanctions evasion",
+        "Bitcoin as reserve currency alternative to petrodollar",
+        "Censorship-resistance and seizure-resistance properties",
+        "Global hash power competition and mining incentives",
+        "Central bank Bitcoin accumulation strategies"
+      ],
+      "price_prediction": "References $72k Bitcoin price in context of Iran's toll calculations, but not as a forward prediction",
+      "confidence": "high",
+      "channel": "BTC Sessions",
+      "title": "Iran Just Exposed The Real War Is For Bitcoin (No One Saw This Coming)",
+      "video_id": "Ptpv2maCVx4",
+      "duration": 1281.3,
+      "analyzed_at": "2026-04-10T20:00:23.965535+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "Social intelligence and reputation systems are shifting from algorithmic platforms to decentralized, user-owned models. Pubky represents an innovative approach to rebuilding trust and community through semantic social graphs rather than algorithm-controlled discovery.",
+      "key_quotes": [
+        "Social intelligence was intrinsic, you knew community reputation travel by word of mouth, trust was earned in person",
+        "Discovery became algorithmic, reputation became captive to council you don't own",
+        "John always puts a really strong effort in getting his points across"
+      ],
+      "topics": [
+        "Decentralized social networks",
+        "Semantic social graph",
+        "Pubky platform and implementation",
+        "User-owned reputation systems",
+        "Web3 social infrastructure"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Stacker News",
+      "title": "The Age of Social Intelligence - Pubky - John Carvalho",
+      "video_id": "tVqm9gta0h4",
+      "duration": 250.15,
+      "analyzed_at": "2026-04-10T20:00:18.719153+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 62,
+      "main_thesis": "MicroStrategy's Bitcoin leverage strategy is intelligently structured and could work well if Bitcoin appreciates, but preferred equities like STRH are overrated as investments and should not form portfolio foundations.",
+      "key_quotes": [
+        "There is no liquidation price for strategy in Michael Saylor",
+        "Stretch is a fancy treasury bill. It's cash, all right?",
+        "If Bitcoin goes up at a decent rate over the next few years, it's going to work out incredibly well"
+      ],
+      "topics": [
+        "MicroStrategy's leverage strategy",
+        "Preferred equities (STRH, STRF)",
+        "Non-callable leverage mechanics",
+        "Bitcoin price appreciation scenarios",
+        "Fed policy impact on dividend rates"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Blockware Solutions",
+      "title": "MicroStrategy: The $55 Billion Bitcoin \"Trap\"?",
+      "video_id": "jKA0-agUbRw",
+      "duration": 861.12,
+      "analyzed_at": "2026-04-10T20:00:14.571369+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "Adam Back denies being Satoshi Nakamoto despite investigative claims, arguing that proving a negative is difficult but maintains that anonymity of Bitcoin's creator is ultimately better for the ecosystem.",
+      "key_quotes": [
+        "People generally don't want to be considered to be Satoshi, because it brings with it risks",
+        "I think we're going to find anything because it's been 15 years, it's been analyzed by many people",
+        "It's difficult to prove a negative, or persuade people as something they want to believe"
+      ],
+      "topics": [
+        "Satoshi Nakamoto identity speculation",
+        "Bitcoin creator anonymity",
+        "Email metadata and forensic analysis",
+        "Craig Wright legal proceedings"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "CNBC Television",
+      "title": "'I am not Satoshi,' says Adam Back on bitcoin creator theory",
+      "video_id": "4Ql-xCNBElk",
+      "duration": 290.23,
+      "analyzed_at": "2026-04-10T20:00:04.362566+00:00"
+    },
     {
       "sentiment": "neutral",
       "sentiment_score": 50,

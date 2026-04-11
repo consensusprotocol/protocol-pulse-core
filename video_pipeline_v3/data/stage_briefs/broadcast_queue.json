@@ -1,52 +1,53 @@
 [
   {
-    "id": "e9cc1e60-89dc-43c4-80b5-7391c7eb661a",
+    "id": "5ec1f75f-6855-4273-8c6e-12d48fe96398",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**PROTOCOL PULSE MIDDAY BRIEF**\n\nBitcoin holding steady at $73,124 as institutions accelerate quantum-defense positioning. The network's sending a clear signal: computational dominance unchanged at 878.5 exahashes.\n\nHere's the tension: massive institutional inflow around enhanced security protocols,",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
+    "topic_preview": "Oracle Midday Brief \u2014 $73,124",
+    "generated_at": "2026-04-11T18:00:02.071604+00:00",
+    "expires_at": "2026-04-11T22:00:02.071604+00:00",
+    "video_url": "/data/stage_briefs/brief_20260411_1800.mp4"
+  },
+  {
+    "id": "44e88066-cabd-4184-99a4-2aeeca34d56e",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Bitcoin miners are burning 240 megawatts per hour at peak. That's enough energy to power 200,000 homes.\n\nJeff Booth's tweet about technology's deflationary force misses the point\u2014Bitcoin's monetary policy is the true deflationary engine.\n\nWatch for the next halving cycle's impact on mining subsidies.",
+    "script": "Bitcoin mining difficulty surged to 747 billion at the weekend \u2014 a 2.3% increase from last week.\n\nThe network's energy consumption now exceeds 100 TWh annually, with renewable sources capturing 78% of the total.\n\nWatch for the next difficulty adjustment in early February \u2014 it will likely surpass 800 billion if current hash rates persist.",
     "source_label": "\ud83e\udde0 @JEFFBOOTH",
-    "topic_preview": "R to @JeffBooth: For centuries, inflation was seen as an economic constant. But ",
-    "generated_at": "2026-04-10T17:25:06.254494+00:00",
-    "expires_at": "2026-04-10T19:25:06.254494+00:00"
+    "topic_preview": "Technology relentlessly drives costs toward zero. While prices drop, the fiat sy",
+    "generated_at": "2026-04-11T20:10:07.253559+00:00",
+    "expires_at": "2026-04-11T22:10:07.253559+00:00"
   },
   {
-    "id": "c7cc9835-b2b0-4272-8a8a-61b9c3f9a9d8",
+    "id": "9d8cc3aa-8a94-449f-abc4-ca03b8d9d8f1",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $72,876, up 0.61% in 24 hours.\n\nHashrate holding steady at 997.2 EH.\n\nFear and Greed index at Extreme Fear, 16.\n\nFastest fee at 3 satoshis.\n\n45,114 transactions processed in the last hour.\n\nBlock 944,495.\n\nNext signal: mempool congestion levels and miner concentration shifts.",
+    "script": "Bitcoin trading at $73,680.00, up 0.7% in 24 hours.\n\nHashrate stabilizes at 878.5 exahashes.\n\nFear and Greed index reads \"Extreme Fear\" at 15.\n\nFastest fee sits at 1 sat/vB.\n\n34,077 transactions processed in the latest block.\n\nBlock 944,629 confirmed.\n\nWatch for any mining pool reorgs in the next 24 hours.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $72,876 \u00b7 FNG 16 \u00b7 997.2 EH/s",
-    "generated_at": "2026-04-10T17:45:19.164751+00:00",
-    "expires_at": "2026-04-10T21:45:19.164751+00:00"
+    "topic_preview": "BTC $73,680 \u00b7 FNG 15 \u00b7 878.5 EH/s",
+    "generated_at": "2026-04-11T19:15:22.849965+00:00",
+    "expires_at": "2026-04-11T23:15:22.849965+00:00"
   },
   {
-    "id": "6fe8ef9e-1b72-4425-8993-0ef6a02605da",
+    "id": "3fc645b8-a5fe-422a-868c-049f16dcc82f",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoiners debating self-custody security protocols on Nostr. Hardware wallet failures rising 15% month-over-month. Watch for new Nostr relay metrics on wallet security discussions.\n\nNext signal: UTXO set growth rate.",
+    "script": "Institutional Bitcoin accumulation dominates Nostr discourse. Major wallets show 4,200 BTC inflows in last 24 hours.\n\nWatch for next major accumulation wave at 45,000 BTC threshold.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Self-custody & hardware wallet security",
-    "generated_at": "2026-04-10T16:40:09.211274+00:00",
-    "expires_at": "2026-04-10T20:40:09.211274+00:00"
+    "topic_preview": "Institutional Bitcoin accumulation",
+    "generated_at": "2026-04-11T21:00:19.312891+00:00",
+    "expires_at": "2026-04-12T01:00:19.312891+00:00"
   },
   {
-    "id": "04698080-9f38-4fad-88ce-7d99b4879fe0",
+    "id": "45243e98-b211-415e-b69e-a1cf6ed5fa55",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate breached 997 EH/s, confirming mining decentralization remains intact despite market volatility. Fear & greed index at 16 signals panic selling, but Bitcoin's network security strengthens. Mempool fees stable at 2 sat/vbyte. Watch for next halving cycle's impact on mining economics.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 997 EH/s, confirming mining decentralization remains intact de",
-    "generated_at": "2026-04-10T17:20:20.294525+00:00",
-    "expires_at": "2026-04-10T19:20:20.294525+00:00"
-  },
-  {
-    "id": "8553b261-8bdd-4b58-bc07-5e29c95271ba",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
+    "script": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for block space exceeds supply. That's not a bug \u2014 it's proof that people value the security of final settlement enough to pay for it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
-    "generated_at": "2026-04-10T17:20:20.300505+00:00",
-    "expires_at": "2026-04-10T21:20:20.300505+00:00"
+    "topic_preview": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for bloc",
+    "generated_at": "2026-04-11T18:00:26.383181+00:00",
+    "expires_at": "2026-04-11T22:00:26.383181+00:00"
   }
 ]

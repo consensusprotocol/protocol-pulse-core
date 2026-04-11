@@ -2,11 +2,11 @@
   "topic_velocity": [
     {
       "topic": "Institutional Bitcoin accumulation",
-      "channels": 2,
+      "channels": 6,
       "sentiment": "bullish",
-      "velocity_score": 12,
-      "authority_score": 15,
-      "top_quote": "Michael Saylor's $STRC is buying Bitcoin every minute. 57 BTC added today so far.",
+      "velocity_score": 36,
+      "authority_score": 51,
+      "top_quote": "Bitcoin gives 8 billion people property rights for the first time",
       "thought_leaders": [
         "saylor",
         "BitcoinArchive"
@@ -15,55 +15,55 @@
       "freshness_hours": 4.0
     },
     {
-      "topic": "Lightning Network adoption & scaling",
+      "topic": "Post-quantum cryptography readiness",
       "channels": 3,
       "sentiment": "bullish",
-      "velocity_score": 9,
-      "authority_score": 12,
-      "top_quote": "400% growth in 2025 and I'm sure it'll keep growing over time",
+      "velocity_score": 18,
+      "authority_score": 27,
+      "top_quote": "Bitcoin has already evolved signature schemes and work is well underway",
       "thought_leaders": [
-        "stephanlivera"
+        "adam3us"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Monetary inflation & currency debasement thesis",
+      "topic": "Fiat inflation and monetary debasement",
       "channels": 3,
       "sentiment": "bullish",
       "velocity_score": 9,
-      "authority_score": 12,
-      "top_quote": "Central planners extract value and destroy the currency. The free-market is a beautiful thing.",
+      "authority_score": 39,
+      "top_quote": "Technology relentlessly drives costs toward zero. While prices drop, the fiat system masks this with inflation",
       "thought_leaders": [
-        "PeterMcCormack",
-        "saifedean"
+        "JeffBooth",
+        "PeterMcCormack"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Self-custody & hardware wallet security",
-      "channels": 4,
+      "topic": "Supply squeeze and derivatives liquidation",
+      "channels": 3,
       "sentiment": "bullish",
-      "velocity_score": 6,
+      "velocity_score": 9,
+      "authority_score": 24,
+      "top_quote": "Bitcoin just saw its largest short deleveraging of 2026",
+      "thought_leaders": [
+        "BitcoinArchive"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Self-custody and security infrastructure",
+      "channels": 5,
+      "sentiment": "neutral",
+      "velocity_score": 8,
       "authority_score": 18,
-      "top_quote": "Not your keys, not your Bitcoin.",
+      "top_quote": "Secure your Bitcoin for generations with assisted multisig inheritance",
       "thought_leaders": [
         "BTCsessions",
-        "nvk"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Regulatory clarity & government adoption",
-      "channels": 2,
-      "sentiment": "neutral",
-      "velocity_score": 3,
-      "authority_score": 9,
-      "top_quote": "Japan approves bill that will regulate Bitcoin & crypto as financial instruments",
-      "thought_leaders": [
-        "BitcoinMagazine"
+        "lopp"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
@@ -72,12 +72,12 @@
   "breaking_threshold": false,
   "recommended_topics": [
     "Institutional Bitcoin accumulation",
-    "Lightning Network adoption & scaling",
-    "Monetary inflation & currency debasement thesis"
+    "Post-quantum cryptography readiness",
+    "Fiat inflation and monetary debasement"
   ],
-  "dominant_narrative": "Self-custody & hardware wallet security",
-  "market_mood": "bullish_with_focus_on_fundamentals",
-  "total_tweets_analyzed": 56,
-  "thought_leaders_active": 17,
-  "scan_time": "2026-04-10T13:30:09Z"
+  "dominant_narrative": "Institutional Bitcoin accumulation",
+  "market_mood": "bullish",
+  "total_tweets_analyzed": 26,
+  "thought_leaders_active": 11,
+  "scan_time": "2026-04-11T13:30:07Z"
 }

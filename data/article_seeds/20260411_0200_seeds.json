@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-11T02:00:15.032372+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Quantum Panic or Institutional Genius? Why Bitcoin's Architecture Is Winning the Security Narrative",
+      "angle": "Deep dive into quantum threat discourse driving institutional adoption, with Preston Pysh framework analysis",
+      "tags": [
+        "bitcoin",
+        "quantum-security",
+        "institutional-adoption",
+        "narrative-shift"
+      ]
+    },
+    {
+      "headline": "The Permanence Play: How Quantum Fears Are Reframing Bitcoin Beyond Price",
+      "angle": "Examine the shift from volatility-focused investing to systemic-risk hedging narrative",
+      "tags": [
+        "bitcoin",
+        "quantum-threat",
+        "institutional-strategy",
+        "long-term-holder-conviction"
+      ]
+    },
+    {
+      "headline": "Chain Data Confirms Institutional Conviction Amid Extreme Fear Readings",
+      "angle": "On-chain metrics (hashrate, LTH supply, mempool) validate institutional positioning during fear extremes",
+      "tags": [
+        "bitcoin",
+        "on-chain-analysis",
+        "institutional-demand",
+        "fear-gauge"
+      ]
+    }
+  ]
+}

@@ -1,89 +1,5 @@
 [
   {
-    "id": "tweet_20260408_160004_0",
-    "text": "Argentina's peso collapsed 3x in 5 years. Their central bank printed 180% of GDP to prevent it. Bitcoin's supply is fixed forever. One is a policy choice. The other isn't",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-08T16:00:04.473754+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "uncertain"
-  },
-  {
-    "id": "tweet_20260409_010004_0",
-    "text": "In 1971 Nixon closed the gold window because he couldn't defend $35 per ounce anymore. Today governments can't defend their currencies either. Iran knows this. That's why they're collecting tolls in the only asset they can't print",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T01:00:04.163390+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260409_070004_0",
-    "text": "1923 Reichsbank printed 1.2 billion marks in one day. People burned currency for warmth. Today's central banks print digitally so you can't see the ash. Bitcoin doesn't print at all",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "brief_signal",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T07:00:04.146553+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260409_080629_0",
-    "text": "In 1944 Bretton Woods fixed gold at $35 an ounce. Governments promised to honor it. By 1971 Nixon closed the window. Bitcoin doesn't need promises. It has math",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T08:06:29.179291+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260409_100005_0",
-    "text": "1923 Reichsbank printed 1.2 billion marks in one day. People burned currency for heat. 2026 Fed balance sheet at $7.3 trillion. Nobody's burning dollars yet. The denominator always matters more than the numerator",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T10:00:05.029453+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260409_100047_0",
-    "text": "Morgan Stanley's ETF launches while 1 sat/vB fees persist. Institutions pay to enter Bitcoin. Users pay nothing to transact on it. One of these groups understands what they're buying",
-    "angle": "macro_monetary",
-    "type": "observation",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T10:00:47.785589+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260409_130004_0",
-    "text": "How many people know their bank can legally freeze their account for 10 business days without explanation. Bitcoin doesn't have that problem",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T13:00:04.718112+00:00",
-    "brief_date": "Wednesday, April 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260409_190004_0",
     "text": "MicroStrategy bought 4 days worth of new Bitcoin supply. Morgan Stanley bought it on day one. Meanwhile retail is trading on a 14 fear index. Smart money doesn't wait for permission or confidence. It waits for price",
     "angle": "institutional_flow",
@@ -153,6 +69,78 @@
     "status": "pending",
     "generated_at": "2026-04-10T11:00:26.731900+00:00",
     "brief_date": "Thursday, April 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_185929_0",
+    "text": "3 sat/vB fees. Extreme Fear at 16. Block height 944,499. The network is screaming buy signals and nobody's listening because they're too busy arguing about quantum resistance on Twitter",
+    "angle": "contrarian_take",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T18:59:29.850200+00:00",
+    "brief_date": "Friday, April 10, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_190003_0",
+    "text": "In 1944 Bretton Woods locked gold at $35/oz to stop currency wars. By 1971 Nixon abandoned it anyway. Central banks are now doing the same with fiat. Bitcoin doesn't need permission to work",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T19:00:03.676859+00:00",
+    "brief_date": "Friday, April 10, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260410_220003_0",
+    "text": "Do you know what happens to your bitcoin if you die and nobody knows where the keys are",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-10T22:00:03.521530+00:00",
+    "brief_date": "Friday, April 10, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260411_052131_0",
+    "text": "Your bank can reverse a transaction. Bitcoin can't. One of these things will still exist in 50 years. Which one are you betting your future on",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-11T05:21:31.883430+00:00",
+    "brief_date": "Friday, April 10, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260411_070003_0",
+    "text": "In 1933 FDR banned gold ownership. Citizens had 3 months to surrender it or face prison. Bitcoin's 944,569th block just mined while governments still can't figure out how to ban math",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-11T07:00:03.911536+00:00",
+    "brief_date": "Friday, April 10, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260411_190006_0",
+    "text": "In 1944 Bretton Woods promised gold backing. By 1971 Nixon closed the window. Today institutions buy Bitcoin at 15 fear while governments can't even audit their reserves",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-11T19:00:06.379195+00:00",
+    "brief_date": "Saturday, April 11, 2026",
     "sentiment": "bullish"
   }
 ]
