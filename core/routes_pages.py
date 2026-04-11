@@ -2946,6 +2946,8 @@ def btc_charts_redirect():
 @pages_bp.route("/charts")
 def charts():
     """Bitcoin Charts Intelligence Hub."""
+    from routes_api import (_fetch_btc_price, _fetch_block_height,
+                            _fetch_mempool_stats, _calc_mined_supply)
     btc_price = _fetch_btc_price() or 0
     block_height = _fetch_block_height() or 0
     mempool_data = _fetch_mempool_stats() or {}

@@ -735,7 +735,7 @@ def _load_last_good_selection():
 def _select_clips_local(videos, max_clips=5):
     """Fallback: use local Qwen model for clip selection."""
     import requests as _req
-    transcripts_text = _format_transcripts(videos[:10])
+    # V42: moved to after pre-filter below
     # V36 FIX: Load used clips to inject into Qwen prompt for variety
     _used_vids = []
     _used_channels = []
@@ -754,7 +754,12 @@ def _select_clips_local(videos, max_clips=5):
 
     # V36 FIX: Shuffle transcripts for variety across renders
     import random
-    _shuffled_videos = videos[:10].copy()
+    _eligible = [v for v in videos if v.get("video_id", "") not in set(_used_vids)]
+    if len(_eligible) < 5:
+        _eligible = list(videos)
+    random.shuffle(_eligible)
+    _shuffled_videos = _eligible[:15]
+    logger.info(f"CLIP DIVERSITY: {len(videos)} total, {len(_used_vids)} blocked, {len(_eligible)} eligible, sending {len(_shuffled_videos)} to Qwen")
     random.shuffle(_shuffled_videos)
     transcripts_text = _format_transcripts(_shuffled_videos)
 

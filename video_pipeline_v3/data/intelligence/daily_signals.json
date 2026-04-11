@@ -1,83 +1,60 @@
 {
   "topic_velocity": [
     {
-      "topic": "Institutional Bitcoin accumulation",
-      "channels": 6,
+      "topic": "Bitcoin as sovereign wealth and institutional adoption",
+      "channels": 27,
       "sentiment": "bullish",
-      "velocity_score": 36,
-      "authority_score": 51,
-      "top_quote": "Bitcoin gives 8 billion people property rights for the first time",
+      "velocity_score": 81,
+      "authority_score": 50,
+      "top_quote": "",
       "thought_leaders": [
-        "saylor",
-        "BitcoinArchive"
+        "@BitcoinArchive",
+        "@saifedean",
+        "@lopp"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Post-quantum cryptography readiness",
-      "channels": 3,
+      "topic": "Geopolitical tensions and U.S.-China-Iran dynamics",
+      "channels": 19,
       "sentiment": "bullish",
-      "velocity_score": 18,
-      "authority_score": 27,
-      "top_quote": "Bitcoin has already evolved signature schemes and work is well underway",
+      "velocity_score": 28,
+      "authority_score": 40,
+      "top_quote": "",
       "thought_leaders": [
-        "adam3us"
+        "@BitcoinArchive",
+        "@saifedean",
+        "@lopp"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Fiat inflation and monetary debasement",
-      "channels": 3,
+      "topic": "Cypherpunk ethos and secure communications",
+      "channels": 15,
       "sentiment": "bullish",
-      "velocity_score": 9,
-      "authority_score": 39,
-      "top_quote": "Technology relentlessly drives costs toward zero. While prices drop, the fiat system masks this with inflation",
+      "velocity_score": 22,
+      "authority_score": 30,
+      "top_quote": "",
       "thought_leaders": [
-        "JeffBooth",
-        "PeterMcCormack"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Supply squeeze and derivatives liquidation",
-      "channels": 3,
-      "sentiment": "bullish",
-      "velocity_score": 9,
-      "authority_score": 24,
-      "top_quote": "Bitcoin just saw its largest short deleveraging of 2026",
-      "thought_leaders": [
-        "BitcoinArchive"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Self-custody and security infrastructure",
-      "channels": 5,
-      "sentiment": "neutral",
-      "velocity_score": 8,
-      "authority_score": 18,
-      "top_quote": "Secure your Bitcoin for generations with assisted multisig inheritance",
-      "thought_leaders": [
-        "BTCsessions",
-        "lopp"
+        "@BitcoinArchive",
+        "@saifedean",
+        "@lopp"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": false,
+  "breaking_threshold": true,
   "recommended_topics": [
-    "Institutional Bitcoin accumulation",
-    "Post-quantum cryptography readiness",
-    "Fiat inflation and monetary debasement"
+    "Bitcoin as sovereign wealth and institutional adoption",
+    "Geopolitical tensions and U.S.-China-Iran dynamics",
+    "Cypherpunk ethos and secure communications"
   ],
-  "dominant_narrative": "Institutional Bitcoin accumulation",
+  "dominant_narrative": "Bitcoin as sovereign wealth and institutional adoption",
   "market_mood": "bullish",
-  "total_tweets_analyzed": 26,
-  "thought_leaders_active": 11,
-  "scan_time": "2026-04-11T13:30:07Z"
+  "total_tweets_analyzed": 0,
+  "thought_leaders_active": 0,
+  "scan_time": "2026-04-11T21:56:47Z"
 }

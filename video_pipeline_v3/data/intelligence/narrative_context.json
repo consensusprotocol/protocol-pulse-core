@@ -1,36 +1,33 @@
 {
-  "episode_narrative": "Institutional Bitcoin accumulation is dominating Bitcoin discourse \u2014 6 of 3 Priority-1 thought leaders tweeted about it in the last 4 hours",
-  "eryn_intro_hook": "Eryn should reference: 'Bitcoin gives 8 billion people property rights for the first time' from thought leaders saylor, BitcoinArchive (fetched at 2026-04-11T13:30:07.752527+00:00)",
-  "mark_context": "Mark should add context: 'Fiat inflation and monetary debasement' is also trending with 3 thought leaders discussing it",
+  "episode_narrative": "Bitcoin as sovereign wealth and institutional adoption is dominating Bitcoin discourse \u2014 27 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
+  "mark_context": "Mark should add context: 'Geopolitical tensions and U.S.-China-Iran dynamics' is also trending with 19 thought leaders discussing it",
   "clip_selection_priority": [
-    "Institutional Bitcoin accumulation",
-    "Fiat inflation and monetary debasement",
-    "Self-custody and security infrastructure"
+    "Bitcoin as sovereign wealth and institutional adoption",
+    "Geopolitical tensions and U.S.-China-Iran dynamics",
+    "Cypherpunk ethos and secure communications"
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
   "thought_leaders_mentioned": [
-    "lopp",
-    "adam3us",
-    "BitcoinArchive",
-    "PeterMcCormack",
-    "saylor",
-    "JeffBooth",
-    "BTCsessions"
+    "@lopp",
+    "@BitcoinArchive",
+    "@saifedean"
   ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Institutional Bitcoin accumulation",
+  "dominant_narrative": "Bitcoin as sovereign wealth and institutional adoption",
   "market_mood": "bullish",
-  "top_quote": "Bitcoin gives 8 billion people property rights for the first time",
+  "top_quote": "",
   "top_quote_handles": [
-    "saylor",
-    "BitcoinArchive"
+    "@BitcoinArchive",
+    "@saifedean",
+    "@lopp"
   ],
-  "quote_fetched_at": "2026-04-11T13:30:07.752527+00:00",
-  "computed_at": "2026-04-11T13:30:07.752527+00:00"
+  "quote_fetched_at": "2026-04-11T21:56:47.920294+00:00",
+  "computed_at": "2026-04-11T21:56:47.920294+00:00"
 }
