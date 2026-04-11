@@ -96,14 +96,18 @@ def _load_used_clips() -> dict:
 
 
 def _prune_old_episodes():
-    """Remove episodes older than today from used_clips.json (R27 same-day expiry)."""
+    """Remove episodes older than 3 days from used_clips.json.
+
+    Changed from R27 same-day expiry to 3-day window to prevent the same clips
+    appearing across consecutive daily renders.
+    """
     data = _load_used_clips()
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    cutoff = (datetime.utcnow() - timedelta(days=3)).strftime("%Y-%m-%d")
     before = len(data.get("episodes", []))
-    data["episodes"] = [ep for ep in data.get("episodes", []) if ep.get("date", "") == today]
+    data["episodes"] = [ep for ep in data.get("episodes", []) if ep.get("date", "") >= cutoff]
     after = len(data["episodes"])
     if after < before:
-        logger.info(f"EPISODE MEMORY: Pruned {before - after} episodes from previous days")
+        logger.info(f"EPISODE MEMORY: Pruned {before - after} episodes older than 3 days (cutoff {cutoff})")
         os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
         with open(USED_CLIPS_PATH, "w") as f:
             json.dump(data, f, indent=2)
@@ -129,17 +133,18 @@ def _get_recent_channels(max_episodes: int = 3) -> set:
 
 
 def _get_recent_video_ids(max_episodes: int = 7) -> set:
-    """Get video_ids used TODAY (same calendar day, UTC).
+    """Get video_ids used in the last 3 days (UTC).
 
-    R27: Same-day expiry — clips from any previous date are immediately eligible.
+    Changed from R27 same-day to 3-day window. Clips used in the last 3 days
+    are HARD BLOCKED — they must not appear in new selections.
     """
     data = _load_used_clips()
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    cutoff = (datetime.utcnow() - timedelta(days=3)).strftime("%Y-%m-%d")
     ids = set()
     for ep in data.get("episodes", []):
-        if ep.get("date", "") == today:
+        if ep.get("date", "") >= cutoff:
             ids.update(ep.get("video_ids", []))
-    logger.info(f"EPISODE MEMORY: {len(ids)} video_ids blocked (same-day only, {today})")
+    logger.info(f"EPISODE MEMORY: {len(ids)} video_ids HARD BLOCKED (3-day window, cutoff {cutoff})")
     return ids
 
 
@@ -153,9 +158,9 @@ def _record_episode(clips: list):
         "video_ids": video_ids,
         "channels": channels,
     })
-    # R27: Keep only today's episodes
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    data["episodes"] = [ep for ep in data["episodes"] if ep.get("date", "") == today]
+    # Keep 3-day window (was R27 same-day)
+    cutoff = (datetime.utcnow() - timedelta(days=3)).strftime("%Y-%m-%d")
+    data["episodes"] = [ep for ep in data["episodes"] if ep.get("date", "") >= cutoff]
     os.makedirs(os.path.dirname(USED_CLIPS_PATH), exist_ok=True)
     with open(USED_CLIPS_PATH, "w") as f:
         json.dump(data, f, indent=2)
@@ -503,15 +508,15 @@ def select_clips(videos: list) -> dict:
         clean_clips = deduped_clips
         result["clips"] = clean_clips
 
-        # Episode memory: drop clips from recently used videos
-        recent_ids = _get_recent_video_ids(max_episodes=1)
+        # Episode memory: HARD BLOCK clips from videos used in last 3 days
+        recent_ids = _get_recent_video_ids()
         if recent_ids:
             memory_filtered = []
             for c in clean_clips:
                 vid = c.get("video_id", "")
                 if vid in recent_ids:
-                    logger.warning(f"EPISODE MEMORY: Dropped clip from video {vid} "
-                                   f"[{c.get('channel', '')}] — used in recent episode")
+                    logger.warning(f"CLIP DIVERSITY: Rejected {vid} [{c.get('channel', '')}] "
+                                   f"— used in last 3 days. HARD BLOCKED.")
                 else:
                     memory_filtered.append(c)
             clean_clips = memory_filtered
@@ -743,7 +748,7 @@ def _select_clips_local(videos, max_clips=5):
         pass
     _avoid = ""
     if _used_vids:
-        _avoid = f"\nAVOID these video_ids (already used): {', '.join(_used_vids[-15:])}\n"
+        _avoid = f"\nBLOCKED video_ids (MUST NOT select these — already used in last 3 days): {', '.join(set(_used_vids))}\n"
     if _used_channels:
         _avoid += f"DEPRIORITIZE these channels (recently featured): {', '.join(set(_used_channels[-10:]))}\n"
 
@@ -777,6 +782,17 @@ def _select_clips_local(videos, max_clips=5):
         parsed, _ = validate_api_response(raw)
         if parsed:
             result, _ = validate_clip_response(parsed)
+            # HARD BLOCK: Remove any clips with video_ids used in last 3 days
+            blocked_ids = _get_recent_video_ids()
+            if blocked_ids and result.get("clips"):
+                before_count = len(result["clips"])
+                result["clips"] = [
+                    c for c in result["clips"]
+                    if c.get("video_id", "") not in blocked_ids
+                ]
+                rejected = before_count - len(result["clips"])
+                if rejected:
+                    logger.warning(f"CLIP DIVERSITY: Qwen post-filter rejected {rejected} clips (3-day block)")
             return result
     except Exception as e:
         logger.warning(f"Local Qwen clip selection failed: {e}")
@@ -830,6 +846,71 @@ def _enforce_channel_diversity(result: dict) -> dict:
     return result
 
 
+def _enforce_video_id_diversity(result: dict, videos: list = None) -> dict:
+    """Final diversity gate: reject any clip whose video_id was used in last 3 days.
+
+    If a clip is rejected, attempt to find a replacement from the same channel
+    (different video) or from a different channel entirely.
+    """
+    blocked_ids = _get_recent_video_ids()
+    if not blocked_ids:
+        return result
+
+    clips = result.get("clips", [])
+
+    # Pre-scan: collect channels and video_ids of clips that will survive
+    surviving_ids = set()
+    surviving_channels = set()
+    for c in clips:
+        vid = c.get("video_id", "")
+        if vid not in blocked_ids:
+            surviving_ids.add(vid)
+            surviving_channels.add(c.get("channel", ""))
+
+    clean = []
+    used_channels = set(surviving_channels)
+    used_ids = set(surviving_ids)
+
+    for c in clips:
+        vid = c.get("video_id", "")
+        ch = c.get("channel", "")
+        if vid in blocked_ids:
+            # Try to find replacement from available videos
+            replacement = None
+            if videos:
+                for v in videos:
+                    rv = v.get("video_id", "")
+                    rc = v.get("channel", "")
+                    if rv not in blocked_ids and rv not in used_ids and rc not in used_channels:
+                        replacement = {
+                            "rank": c.get("rank", len(clean) + 1),
+                            "video_id": rv,
+                            "channel": rc,
+                            "video_title": v.get("title", ""),
+                            "start_seconds": 30,
+                            "end_seconds": 65,
+                            "quote": (v.get("transcript_text", "") or v.get("timestamped_text", ""))[:200],
+                            "why": "Diversity replacement — original clip was used in last 3 days",
+                            "host_setup": "",
+                            "host_react": "",
+                        }
+                        break
+            if replacement:
+                logger.info(f"CLIP DIVERSITY: Rejected {vid} — used in last 3 days. Replaced with {replacement['video_id']}")
+                clean.append(replacement)
+                used_channels.add(replacement["channel"])
+                used_ids.add(replacement["video_id"])
+            else:
+                logger.warning(f"CLIP DIVERSITY: Rejected {vid} — used in last 3 days. No replacement found.")
+        else:
+            clean.append(c)
+            used_channels.add(ch)
+            used_ids.add(vid)
+
+    result["clips"] = clean
+    return result
+
+
 def select_clips_with_fallback(videos, max_clips=5):
     """Try Claude, then Qwen, then last known good, then random. NEVER return 0 clips."""
 
@@ -839,7 +920,8 @@ def select_clips_with_fallback(videos, max_clips=5):
         if result.get("clips"):
             _save_last_good_selection(result)
             logger.info(f"FALLBACK CHAIN: Claude succeeded — {len(result['clips'])} clips")
-            return _enforce_channel_diversity(_enforce_min_clip_duration(result))
+            result = _enforce_channel_diversity(_enforce_min_clip_duration(result))
+            return _enforce_video_id_diversity(result, videos)
         logger.warning("FALLBACK CHAIN: Claude returned 0 clips, trying Qwen...")
     except Exception as e:
         logger.error(f"FALLBACK CHAIN: Claude failed: {e}")
@@ -851,16 +933,26 @@ def select_clips_with_fallback(videos, max_clips=5):
             _save_last_good_selection(result)
             _record_episode(result["clips"])  # V36 FIX: Record Qwen clips to prevent repeats
             logger.info(f"FALLBACK CHAIN: Qwen succeeded — {len(result['clips'])} clips")
-            return _enforce_channel_diversity(_enforce_min_clip_duration(result))
+            result = _enforce_channel_diversity(_enforce_min_clip_duration(result))
+            return _enforce_video_id_diversity(result, videos)
         logger.warning("FALLBACK CHAIN: Qwen returned 0 clips, trying last known good...")
     except Exception as e:
         logger.error(f"FALLBACK CHAIN: Qwen failed: {e}")
 
-    # Attempt 3: Last known good selection
+    # Attempt 3: Last known good selection — FILTER against used_clips
     last_good = _load_last_good_selection()
     if last_good and last_good.get("clips"):
-        logger.warning(f"FALLBACK CHAIN: Using LAST KNOWN GOOD — {len(last_good['clips'])} clips")
-        return last_good
+        blocked_ids = _get_recent_video_ids()
+        filtered_clips = [c for c in last_good["clips"] if c.get("video_id", "") not in blocked_ids]
+        rejected = len(last_good["clips"]) - len(filtered_clips)
+        if rejected:
+            logger.warning(f"FALLBACK CHAIN: Filtered {rejected} stale clips from last_known_good")
+        if filtered_clips:
+            last_good["clips"] = filtered_clips
+            logger.warning(f"FALLBACK CHAIN: Using LAST KNOWN GOOD — {len(filtered_clips)} clips (after diversity filter)")
+            return _enforce_channel_diversity(_enforce_min_clip_duration(last_good))
+        else:
+            logger.warning("FALLBACK CHAIN: last_known_good ALL clips blocked by 3-day window, skipping")
 
     # Attempt 4: Random selection (absolute last resort)
     logger.error("FALLBACK CHAIN: ALL methods failed — random selection")
