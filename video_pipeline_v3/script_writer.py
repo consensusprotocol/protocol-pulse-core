@@ -145,6 +145,191 @@ Return ONLY valid JSON (no markdown, no code fences):
 IMPORTANT: Each CLIP entry must have "rank" matching the clip number (1-5). Do NOT include a "host" field on narration entries — use "type" to identify the segment kind. CLIP entries still use "host": "CLIP"."""
 
 
+# --- REPETITION CHECK: Synonym map for common overused phrases ---
+SYNONYM_MAP = {
+    "safe haven": ["monetary refuge", "financial shelter", "sound money hedge", "store of value play"],
+    "institutional": ["corporate", "enterprise-level", "heavyweight", "deep-pocket"],
+    "accumulation": ["stacking", "acquisition", "treasury building", "position sizing"],
+    "geopolitical": ["global power", "international", "cross-border", "macro-political"],
+    "narrative": ["thesis", "storyline", "market theme", "macro read"],
+    "conviction": ["confidence", "commitment", "resolve", "certainty"],
+    "unprecedented": ["historic", "record-breaking", "never-before-seen", "first-of-its-kind"],
+    "volatility": ["price swings", "market turbulence", "chop", "range expansion"],
+    "adoption": ["uptake", "onboarding", "integration", "market penetration"],
+    "liquidity": ["capital flow", "market depth", "dry powder", "available capital"],
+}
+
+
+def _count_phrase_occurrences(dialogue: list) -> dict:
+    """Count occurrences of every 1-2 word noun/phrase across all dialogue text entries.
+
+    Returns dict of {phrase: count} for phrases appearing 3+ times.
+    Only counts in narration text (skips CLIP/SPACE_CLIP entries).
+    """
+    import collections
+    all_text = ""
+    for entry in dialogue:
+        if isinstance(entry, dict) and entry.get("host") not in ("CLIP", "SPACE_CLIP"):
+            all_text += " " + entry.get("text", "")
+    all_text = all_text.lower()
+
+    # Check known problem phrases from synonym map (multi-word)
+    overused = {}
+    for phrase in SYNONYM_MAP:
+        count = all_text.count(phrase)
+        if count >= 3:
+            overused[phrase] = count
+
+    # Also check single significant words (nouns/adjectives, 5+ chars, not common stopwords)
+    stopwords = {
+        "about", "above", "after", "again", "against", "along", "being", "below",
+        "between", "bitcoin", "could", "doing", "during", "every", "first", "going",
+        "hasn't", "haven", "having", "here's", "means", "might", "never", "other",
+        "their", "there", "these", "thing", "think", "those", "three", "today",
+        "under", "until", "we're", "what's", "where", "which", "while", "would",
+        "you're", "price", "market", "signal", "pulse", "check", "protocol",
+        "that's", "right", "still", "looking", "really", "doesn't",
+    }
+    words = re.findall(r'\b[a-z]{5,}\b', all_text)
+    word_counts = collections.Counter(words)
+    for word, count in word_counts.items():
+        if count >= 3 and word not in stopwords:
+            overused[word] = count
+
+    return overused
+
+
+def _replace_excess_occurrences(dialogue: list, phrase: str, synonyms: list, max_allowed: int = 2) -> int:
+    """Replace 3rd+ occurrences of a phrase with rotating synonyms.
+
+    Returns number of replacements made.
+    """
+    occurrence = 0
+    replaced = 0
+    syn_idx = 0
+
+    for entry in dialogue:
+        if not isinstance(entry, dict) or entry.get("host") in ("CLIP", "SPACE_CLIP"):
+            continue
+        text = entry.get("text", "")
+        if not text:
+            continue
+
+        # Case-insensitive search for the phrase
+        lower_text = text.lower()
+        if phrase.lower() not in lower_text:
+            continue
+
+        # Count and replace occurrences within this entry
+        parts = re.split(f'({re.escape(phrase)})', text, flags=re.IGNORECASE)
+        new_parts = []
+        for part in parts:
+            if part.lower() == phrase.lower():
+                occurrence += 1
+                if occurrence > max_allowed:
+                    # Replace with synonym, match original capitalization
+                    syn = synonyms[syn_idx % len(synonyms)]
+                    if part[0].isupper():
+                        syn = syn[0].upper() + syn[1:]
+                    new_parts.append(syn)
+                    syn_idx += 1
+                    replaced += 1
+                else:
+                    new_parts.append(part)
+            else:
+                new_parts.append(part)
+        entry["text"] = "".join(new_parts)
+
+    return replaced
+
+
+def _check_and_fix_repetition(result: dict, call_llm_fn=None, prompt_text: str = "") -> dict:
+    """Post-generation repetition check. Runs AFTER LLM returns script, BEFORE TTS.
+
+    1. Count every phrase appearing 3+ times across dialogue
+    2. If found, retry LLM with explicit feedback (max 2 retries)
+    3. If still repeating after retries, force-replace with synonyms
+    """
+    dialogue = result.get("dialogue", [])
+    if not dialogue:
+        return result
+
+    overused = _count_phrase_occurrences(dialogue)
+    if not overused:
+        logger.info("REPETITION CHECK: PASS — no phrase appears more than 2 times")
+        return result
+
+    # Log what we found
+    for phrase, count in sorted(overused.items(), key=lambda x: -x[1]):
+        logger.warning(f"REPETITION CHECK: '{phrase}' appeared {count} times")
+
+    # Attempt LLM retry (max 2 retries) if call_llm_fn and prompt are available
+    retry_count = 0
+    while overused and retry_count < 2 and call_llm_fn and prompt_text:
+        retry_count += 1
+        feedback_lines = [f"- You used '{p}' {c} times" for p, c in sorted(overused.items(), key=lambda x: -x[1])[:5]]
+        feedback = "\n".join(feedback_lines)
+        retry_prompt = (
+            f"{prompt_text}\n\n"
+            f"CRITICAL REWRITE REQUIRED — your previous script had excessive repetition:\n"
+            f"{feedback}\n"
+            f"Rewrite using DIFFERENT vocabulary each time. NEVER repeat the same adjective, "
+            f"noun, or phrase more than twice in the entire episode. Vary your language."
+        )
+        logger.info(f"REPETITION CHECK: Retry {retry_count}/2 — requesting rewrite")
+        retry_text = call_llm_fn(retry_prompt, max_tokens=8000, model="claude-sonnet-4-6")
+        if retry_text is None:
+            logger.warning("REPETITION CHECK: Retry LLM call returned None, proceeding to synonym replacement")
+            break
+
+        # Parse retry response
+        try:
+            if "```json" in retry_text:
+                retry_text = retry_text.split("```json")[1].split("```")[0]
+            elif "```" in retry_text:
+                retry_text = retry_text.split("```")[1].split("```")[0]
+            retry_result = json.loads(retry_text)
+            retry_dialogue = retry_result.get("dialogue", [])
+            if retry_dialogue:
+                new_overused = _count_phrase_occurrences(retry_dialogue)
+                if len(new_overused) < len(overused):
+                    logger.info(f"REPETITION CHECK: Retry {retry_count} improved — {len(overused)} → {len(new_overused)} overused phrases")
+                    result = retry_result
+                    dialogue = retry_dialogue
+                    overused = new_overused
+                else:
+                    logger.warning(f"REPETITION CHECK: Retry {retry_count} did not improve ({len(new_overused)} overused phrases)")
+                    break  # No improvement, go to forced replacement
+            else:
+                logger.warning(f"REPETITION CHECK: Retry {retry_count} returned empty dialogue")
+                break
+        except (json.JSONDecodeError, Exception) as e:
+            logger.warning(f"REPETITION CHECK: Retry {retry_count} parse failed: {e}")
+            break
+
+    # Force-replace remaining overused phrases with synonyms
+    if overused:
+        dialogue = result.get("dialogue", [])
+        for phrase, count in sorted(overused.items(), key=lambda x: -x[1]):
+            synonyms = SYNONYM_MAP.get(phrase.lower())
+            if not synonyms:
+                # For single words not in synonym map, skip (LLM retry was the chance)
+                continue
+            replaced = _replace_excess_occurrences(dialogue, phrase, synonyms)
+            if replaced > 0:
+                logger.info(f"REPETITION CHECK: '{phrase}' appeared {count} times — replaced {replaced} occurrences with synonyms")
+
+        # Final verification
+        final_overused = _count_phrase_occurrences(dialogue)
+        mapped_remaining = {p: c for p, c in final_overused.items() if p.lower() in SYNONYM_MAP}
+        if mapped_remaining:
+            logger.warning(f"REPETITION CHECK: {len(mapped_remaining)} mapped phrases still overused after replacement: {mapped_remaining}")
+        else:
+            logger.info("REPETITION CHECK: All mapped phrases reduced to ≤2 occurrences")
+
+    return result
+
+
 # Maps bracket tags in text to segment types for TTS voice modes
 _TAG_TO_TYPE = {
     "COLD_OPEN": "cold_open",
@@ -688,6 +873,9 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance:
 
         # Enforce space tap segment presence when space tap clips were provided
         result = _enforce_space_tap_segment(result, selections.get("space_tap_clips", []))
+
+        # POST-GENERATION: Repetition check — catch and fix overused phrases
+        result = _check_and_fix_repetition(result, call_llm_fn=call_llm, prompt_text=prompt)
 
         # V9 FIX 8: REMOVED forced signoff injection — LLM generates natural closing.
         dialogue = result.get("dialogue", [])
