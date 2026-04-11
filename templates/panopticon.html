@@ -1887,6 +1887,35 @@ body.panopticon-body .pp-footer { display: none !important; }
                         <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-red);" id="donPulseScore">--</div>
                         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">PULSE SCORE</div>
 
+
+            <!-- ═══ PRIVATE EQUITY & INSTITUTIONAL INTELLIGENCE ═══ -->
+            <div class="pn-section-label">INSTITUTIONAL ACCUMULATION</div>
+            <div id="pnInstitutional" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">
+                    Loading institutional data...
+                </div>
+            </div>
+
+            <!-- Coalition Detected Banner (hidden until data loads) -->
+            <div id="pnCoalitionBanner" style="display:none;margin:0 12px 8px;padding:10px 14px;
+                background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.4);border-radius:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:#cc0000;
+                        animation:pn-pulse 1s ease-in-out infinite;flex-shrink:0;"></div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;
+                        letter-spacing:.15em;color:#cc0000;font-weight:700;">COALITION SIGNAL DETECTED</div>
+                </div>
+                <div id="pnCoalitionNote" style="font-family:'DM Sans',sans-serif;font-size:11px;
+                    color:rgba(255,255,255,0.7);margin-top:6px;line-height:1.5;"></div>
+            </div>
+
+            <div class="pn-section-label">PRIVATE EQUITY DATASTREAM</div>
+            <div id="pnPEDatastream" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">
+                    Loading PE fundraising data...
+                </div>
+            </div>
+
             <!-- Congressional Trading — STOCK Act -->
             <div class="pn-section-label">CONGRESSIONAL STOCK TRADES</div>
             <div id="pnCongress" style="padding:8px 12px;">
@@ -2381,6 +2410,70 @@ if(scr)scr.addEventListener('scroll',tlClose);
       + '<div style="height:3px;background:rgba(255,255,255,0.04);border-radius:2px;margin-top:8px;"><div style="height:100%;width:' + s + '%;background:' + col + ';border-radius:2px;"></div></div>'
       + '<div style="font-size:7px;color:rgba(255,255,255,0.2);margin-top:6px;">' + (d.trade_count || 0) + ' trades analyzed • ' + (d.crypto_trades || 0) + ' crypto-adjacent</div>';
   }).catch(function(){});
+
+  // ── Institutional Accumulation (SEC EDGAR 13F) ─────────────────
+  fetch('/api/panopticon/institutional').then(function(r){return r.json();}).then(function(d){
+    var el13f = document.getElementById('pnInstitutional');
+    var elBanner = document.getElementById('pnCoalitionBanner');
+    var elNote = document.getElementById('pnCoalitionNote');
+    if (!el13f) return;
+
+    // Coalition banner
+    if (d.coalition_summary && d.coalition_summary.detected && elBanner) {
+      var months = d.coalition_summary.active_months || {};
+      var monthKeys = Object.keys(months);
+      var bestMonth = monthKeys.length ? months[monthKeys[0]] : null;
+      if (bestMonth) {
+        elNote.textContent = bestMonth.note || (bestMonth.filers + ' institutions in coordinated accumulation window');
+        elBanner.style.display = 'block';
+      }
+    }
+
+    var filers = d.institutional_13f || [];
+    if (!filers.length) { el13f.innerHTML = '<div style="color:rgba(255,255,255,0.2);font-size:10px;font-family:\'JetBrains Mono\',monospace;">No 13F data in current window</div>'; return; }
+
+    var html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+    filers.slice(0,8).forEach(function(f){
+      var score = f.coalition_score || 0;
+      var scoreCol = score >= 80 ? '#ef4444' : score >= 50 ? '#f8c15c' : '#888';
+      var tag = f.coalition_detected ? '<span style="background:rgba(204,0,0,0.15);color:#cc0000;font-size:7px;padding:2px 6px;border-radius:3px;letter-spacing:.08em;margin-left:6px;">COALITION</span>' : '';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+        + '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.85);">' + f.entity + tag + '</div>'
+        + '<div style="font-size:8px;color:rgba(255,255,255,0.35);margin-top:2px;">' + f.institution_type + ' · ' + (f.filing_date || '') + ' · 13F-HR</div></div>'
+        + '<div style="font-size:9px;color:#22c55e;font-family:\'JetBrains Mono\',monospace;">BTC ETF ↑</div>'
+        + '</div>';
+    });
+    html += '</div><div style="font-size:7px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:\'JetBrains Mono\',monospace;">Source: SEC EDGAR 13F · ' + (d.total_institutional_filers || 0) + ' filers</div>';
+    el13f.innerHTML = html;
+  }).catch(function(){ });
+
+  // ── Private Equity Datastream (Form D + Coalition) ────────────
+  fetch('/api/panopticon/pe-datastream').then(function(r){return r.json();}).then(function(d){
+    var elPE = document.getElementById('pnPEDatastream');
+    if (!elPE) return;
+    var rounds = d.pe_rounds || [];
+    if (!rounds.length) { elPE.innerHTML = '<div style="color:rgba(255,255,255,0.2);font-size:10px;font-family:\'JetBrains Mono\',monospace;">No PE rounds in current window</div>'; return; }
+
+    var html = '';
+    if (d.coalition_active) {
+      html += '<div style="background:rgba(204,0,0,0.08);border-left:3px solid #cc0000;padding:8px 12px;margin-bottom:10px;border-radius:0 4px 4px 0;">'
+        + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;letter-spacing:.15em;color:#cc0000;font-weight:700;">COALITION EFFECT ACTIVE</div>'
+        + '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:4px;">' + (d.insight || '') + '</div>'
+        + '</div>';
+    }
+
+    html += '<div style="display:flex;flex-direction:column;gap:6px;">';
+    rounds.slice(0,8).forEach(function(r){
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+        + '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.85);">' + r.entity + '</div>'
+        + '<div style="font-size:8px;color:rgba(255,255,255,0.35);margin-top:2px;">' + (r.filing_date || '') + ' · Form D · Digital Assets</div></div>'
+        + '<div style="font-size:9px;color:#f8c15c;font-family:\'JetBrains Mono\',monospace;">RAISE ↑</div>'
+        + '</div>';
+    });
+    html += '</div><div style="font-size:7px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:\'JetBrains Mono\',monospace;">Source: SEC EDGAR Form D · ' + (d.pe_count || 0) + ' rounds</div>';
+    elPE.innerHTML = html;
+  }).catch(function(){ });
+
 })();
 
 </script>

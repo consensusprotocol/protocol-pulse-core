@@ -269,6 +269,58 @@ def api_geopolitical():
         return jsonify({"error": "Failed to fetch geopolitical signals"}), 500
 
 
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PRIVATE EQUITY & INSTITUTIONAL INTELLIGENCE (SEC EDGAR)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@panopticon_bp.route("/api/panopticon/institutional")
+def api_institutional():
+    """SEC EDGAR 13F institutional Bitcoin ETF accumulation + PE coalition detection."""
+    if not _is_commander():
+        return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+    try:
+        from services.edgar_service import get_panopticon_institutional_data
+        data = get_panopticon_institutional_data()
+        return jsonify(data)
+    except Exception as e:
+        logger.error("EDGAR institutional data failed: %s", e)
+        return jsonify({"error": str(e), "institutional_13f": [], "pe_fundraising": []}), 500
+
+
+@panopticon_bp.route("/api/panopticon/pe-datastream")
+def api_pe_datastream():
+    """Private equity datastream: Form D fundraising + coalition analysis."""
+    if not _is_commander():
+        return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+    try:
+        from services.edgar_service import (fetch_pe_fundraising_btc,
+                                             fetch_institutional_btc_13f)
+        import datetime as _dt
+        pe_rounds = fetch_pe_fundraising_btc(30)
+        institutional = fetch_institutional_btc_13f(20)
+        coalition = [f for f in institutional if f.get("coalition_detected")]
+        return jsonify({
+            "pe_rounds": pe_rounds,
+            "pe_count": len(pe_rounds),
+            "institutional_13f": institutional,
+            "coalition_signals": coalition,
+            "coalition_count": len(coalition),
+            "coalition_active": bool(coalition),
+            "insight": (
+                "COALITION SIGNAL: {} institutions accumulated BTC ETFs "
+                "in coordinated windows.".format(len(coalition))
+                if coalition else "No coalition pattern in current window."
+            ),
+            "source": "SEC EDGAR (Free Public API)",
+            "updated_at": _dt.datetime.now().isoformat(),
+        })
+    except Exception as e:
+        logger.error("PE datastream failed: %s", e)
+        return jsonify({"error": str(e), "pe_rounds": []}), 500
+
+
 @panopticon_bp.route("/api/panopticon/polymarket")
 def api_polymarket():
     """Live Polymarket prediction market odds for crypto/macro events."""
