@@ -296,6 +296,9 @@ try:
     # Convergence Engine V1 API
     from blueprints.intelligence_api_v1 import intel_api_v1
     app.register_blueprint(intel_api_v1)
+    from blueprints.api_v1 import api_v1_bp
+    app.register_blueprint(api_v1_bp)
+    logging.info('API v1 registered')
 
     try:
         import sys as _ov_sys; _ov_sys.path.insert(0,"/home/ultron/protocol_pulse")

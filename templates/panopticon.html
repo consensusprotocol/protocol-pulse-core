@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}PANOPTICON — Congressional Intelligence | Protocol Pulse{% endblock %}
+{% block title %}PANOPTICON — Congressional Intelligence | Protocol Pulse
+<script src="/static/js/panopticon_stream.js"></script>
+{% endblock %}
 {% block meta_description %}Real-time intelligence dashboard tracking congressional disclosures, whale wallet movements, and geopolitical financial signals cross-referenced with Bitcoin data.{% endblock %}
 
 {% block head %}
@@ -1725,7 +1727,7 @@ body.panopticon-body .pp-footer { display: none !important; }
             <div class="pn-panel-head">
                 <span class="tier-dot"></span>
                 <span class="tier-label">REAL-TIME FEED</span>
-                <span class="tier-count">WHALE + MARKET + GEO</span>
+                <span class="tier-count">WHALE + MARKET + GEO</span><span style="display:inline-flex;align-items:center;gap:5px;margin-left:10px;"><span id="pnStreamDot" style="width:7px;height:7px;border-radius:50%;background:#888;display:inline-block;"></span><span id="pnStreamLabel" style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;color:#888;">CONNECTING</span></span>
             </div>
 
             <!-- Whale Tracker -->
@@ -1917,7 +1919,7 @@ body.panopticon-body .pp-footer { display: none !important; }
             </div>
 
             <!-- Congressional Trading — STOCK Act -->
-            <div class="pn-section-label">CONGRESSIONAL STOCK TRADES</div>
+            <div class="pn-section-label" style="display:flex;justify-content:space-between;align-items:center;"><span>CONGRESSIONAL STOCK TRADES</span><span id="pnLastUpdate" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:.06em;"></span></div>
             <div id="pnCongress" style="padding:8px 12px;">
                 <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading STOCK Act filings...</div>
             </div>

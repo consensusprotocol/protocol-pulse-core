@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-12T02:00:15.445939+00:00",
+  "brief_type": "evening",
+  "score": 65,
+  "bullish_signals": [
+    "10+ billion in ETF inflows this quarter",
+    "Hashrate resilience at 834.6 EH/s despite price weakness",
+    "5% Fed money supply expansion creates dollar hedge demand",
+    "Extreme fear readings historically precede accumulation phases",
+    "Geopolitical drivers (Iran, US legislation) accelerating adoption",
+    "Clean mempool with no congestion signals"
+  ],
+  "bearish_signals": [
+    "Bitcoin down nearly 2% at $71,580",
+    "Extreme fear gauge readings"
+  ],
+  "neutral_topics": [
+    "Sub-satoshi fee levels",
+    "32k mempool transaction volume"
+  ]
+}

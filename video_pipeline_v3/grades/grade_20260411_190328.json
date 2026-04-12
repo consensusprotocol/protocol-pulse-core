@@ -1,0 +1,120 @@
+{
+  "grade": "F",
+  "overall_score": 59,
+  "broadcast_ready": false,
+  "technical_score": 60,
+  "content_score": 96,
+  "production_score": 98,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 298.2s (5.0 min). This is acceptable but on the shorter side of the 300-480s target range. A few more minutes of content would be ideal."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is perfect for the format."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.7 LUFS, perfectly within the -16 to -14 LUFS target."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True peak is -2.2 dBFS, safely below the -1.0 dBFS ceiling."
+    },
+    "black_frames_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data confirms 2 mid-video black frame segments. This is a render error that makes the episode unpublishable."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No mid-video silence gaps detected."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: Forensic data reports 3 freeze frames. This is a severe technical issue that disrupts the viewing experience."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard h264/aac codecs used."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File container is clean with a healthy bitrate and both streams present."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Excellent clip selection. Simply Bitcoin, TFTC, and The Bitcoin Layer are all editorially preferred, high-signal sources. The topics are timely and directly relevant to the show's cypherpunk/Austrian lens."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The narration is superb. It expertly weaves the clips together, adding a clear Austrian economics perspective on geopolitics, market mechanics, and central bank policy without simply repeating the clip content."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The cold open provides a strong, thesis-driven hook about institutional adoption and value preservation, effectively setting the stage for the episode."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode has a clear and logical narrative flow: Geopolitics (Iran) -> US Regulation -> Market Psychology (Liquidity Traps) -> Macroeconomics (Fed Policy). This structure builds a powerful, multi-layered argument."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's narration is clean, authoritative, and perfectly paced. The delivery is natural and engaging, meeting the 10/10 standard for the sole host."
+    },
+    "episode_title": {
+      "score": 8,
+      "note": "The title 'Bitcoin's Global Surge' is accurate and professional, though it could be slightly more specific to the geopolitical and institutional angles covered."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is dense with information and contains no filler, ad reads, or off-topic diversions."
+    },
+    "timeliness": {
+      "score": 10,
+      "note": "The content, including market data and news clips, is highly timely and relevant to the current state of the Bitcoin ecosystem."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music is mixed perfectly. It maintains the show's atmosphere without ever interfering with the narration, and the sidechain ducking is effective."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, on-brand, and effectively segment the show without any jarring cuts."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual presentation is outstanding. The cyberpunk aesthetic, data visualizations, and lower thirds are consistent and broadcast-quality."
+    },
+    "no_artifacts": {
+      "score": 8,
+      "note": "Aside from the critical freeze frames identified in the forensic scan, the video is free from compression artifacts or stuttering."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "Narration audio is exceptionally clear, with no echo, background noise, or clipping. Professional studio quality."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is excellent. The 5-minute runtime is used efficiently to deliver a high-density intelligence briefing that feels both comprehensive and tight."
+    }
+  },
+  "critical_failures": [
+    "black_frames_check: 2 mid-video black frame segments detected.",
+    "freeze_check: 3 freeze frames detected."
+  ],
+  "warnings": [
+    "duration_check: Episode is under the ideal 8-minute target, landing in the 'acceptable but short' category."
+  ],
+  "strengths": [
+    "clip_relevance: A-list selection of sources (Simply Bitcoin, TFTC, The Bitcoin Layer) creates a very high-signal episode.",
+    "narrative_arc: The logical flow from geopolitics to macroeconomics builds a compelling and cohesive argument.",
+    "visual_polish: The show's aesthetic is executed flawlessly, reinforcing the brand identity."
+  ],
+  "verdict": "This is an A-grade episode in terms of content and production, but it is completely undermined by critical technical render errors, including multiple freeze frames and black screens.",
+  "recommendation": "FIX_AND_RERENDER"
+}

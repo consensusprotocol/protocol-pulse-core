@@ -365,3 +365,54 @@ def api_make_bitcoin_case():
     except Exception as e:
         logger.error("Make Bitcoin Case API error: %s", e)
         return jsonify({"error": "Failed to generate Bitcoin case"}), 500
+
+
+
+@panopticon_bp.route('/api/panopticon/stream')
+def api_panopticon_stream():
+    # SSE real-time: orb every 30s, whale every 2min, congress every 5min
+    import time, json as _j
+    from pathlib import Path
+    from flask import Response, stream_with_context
+    from datetime import datetime, timezone
+    def _sig():
+        try: return _j.loads(Path('/home/ultron/protocol_pulse/data/signals.json').read_text())
+        except: return {}
+    def _sent():
+        p = Path('/tmp/sentinel_state.json')
+        try: return _j.loads(p.read_text()) if p.exists() else {}
+        except: return {}
+    def generate():
+        tick = 0
+        sig = _sig(); sent = _sent()
+        def orb_evt(s, sn):
+            return _j.dumps({'type':'orb_update','ts':datetime.now(timezone.utc).isoformat(),
+                'btc':{'price':s.get('btc_price',{}).get('value',0),'change_24h':s.get('btc_price',{}).get('change_24h',0)},
+                'fear_greed':s.get('fear_greed',{}),'hashrate':s.get('hashrate',{}).get('value',''),
+                'dominance':s.get('dominance',{}).get('value',0),'signal_score':s.get('signal_score',{}),
+                'convergence':{'state':sn.get('convergence_state','IDLE'),'patterns':sn.get('active_patterns',[])}})
+        yield 'data: ' + _j.dumps({'type':'connected','ts':datetime.now(timezone.utc).isoformat()}) + '\n\n'
+        yield 'data: ' + orb_evt(sig, sent) + '\n\n'
+        while True:
+            try:
+                time.sleep(15); tick += 1
+                yield 'data: ' + _j.dumps({'type':'heartbeat','tick':tick}) + '\n\n'
+                if tick % 2 == 0:
+                    sig = _sig(); sent = _sent()
+                    yield 'data: ' + orb_evt(sig, sent) + '\n\n'
+                if tick % 8 == 0:
+                    try:
+                        from services.panopticon_service import fetch_whale_alerts
+                        a = fetch_whale_alerts(limit=8)
+                        yield 'data: ' + _j.dumps({'type':'whale_update','alerts':a,'count':len(a)}) + '\n\n'
+                    except: pass
+                if tick % 20 == 0:
+                    try:
+                        from services.congress_trading_service import CongressTradingService
+                        svc = CongressTradingService()
+                        yield 'data: ' + _j.dumps({'type':'congress_update','ihx':svc.get_insider_heat_score(),'trades':svc.get_recent_trades(8)}) + '\n\n'
+                    except: pass
+            except GeneratorExit: return
+            except Exception as ex: logger.warning('SSE error: %s', ex); time.sleep(5)
+    return Response(stream_with_context(generate()), mimetype='text/event-stream',
+        headers={'Cache-Control':'no-cache','X-Accel-Buffering':'no'})

@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-11T08:00:09.650388+00:00",
+  "generated_at": "2026-04-12T00:00:28.257577+00:00",
   "creator_count": 7,
-  "avg_sentiment_score": 62.7,
+  "avg_sentiment_score": 63.4,
   "sentiment_breakdown": {
-    "bullish": 3,
+    "bullish": 4,
     "bearish": 1,
-    "neutral": 3
+    "neutral": 2
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Four-year Bitcoin cycles",
+      "topic": "Iran sanctions evasion via Bitcoin",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "It is very possible that this rally is only temporary and Bitcoin is going a lot lower"
+      "avg_sentiment_score": 92.0,
+      "example_quote": "Iran is no longer effectively under sanctions"
     },
     {
-      "topic": "Quantitative tightening (QT) timing",
+      "topic": "Institutional adoption and ETF flows",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "It is very possible that this rally is only temporary and Bitcoin is going a lot lower"
+      "avg_sentiment_score": 92.0,
+      "example_quote": "Iran is no longer effectively under sanctions"
     },
     {
-      "topic": "Macro conditions (inflation, labor market)",
+      "topic": "Geopolitical implications of Bitcoin",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "It is very possible that this rally is only temporary and Bitcoin is going a lot lower"
+      "avg_sentiment_score": 92.0,
+      "example_quote": "Iran is no longer effectively under sanctions"
     },
     {
-      "topic": "Bitcoin dominance vs altcoin rotation",
+      "topic": "Censorship resistance",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "It is very possible that this rally is only temporary and Bitcoin is going a lot lower"
+      "avg_sentiment_score": 92.0,
+      "example_quote": "Iran is no longer effectively under sanctions"
     },
     {
-      "topic": "Historical bear market comparisons (2014, 2018, 2022)",
+      "topic": "Oil markets as indicator",
       "creator_count": 1,
       "creators": [
-        "Altcoin Daily"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "It is very possible that this rally is only temporary and Bitcoin is going a lot lower"
+      "avg_sentiment_score": 92.0,
+      "example_quote": "Iran is no longer effectively under sanctions"
     }
   ],
-  "summary": "# Bitcoin Creators' Consensus and Divergence\n\n**Consensus:** Bitcoin advocates broadly agree on its potential as a hedge against traditional financial system failures (inflation, unsustainable debt, currency debasement) and its revolutionary role as censorship-resistant, borderless money\u2014though they disagree on timeline and immediate price direction.\n\n**Divergence:** A critical split exists between **bearish technicians** (Altcoin Daily) expecting further downside through 2026 based on historical cycles and macro headwinds, and **bullish fundamentalists** (Swan Bitcoin, BTC Sessions, Stacker News) who see structural adoption catalysts (geopolitical use, portfolio replacement, decentralized social layers) as more important than near-term price action. Blockware Solutions occupies the middle ground, acknowledging Bitcoin's merit while warning against overleveraged vehicles.\n\n**Emerging Theme:** The most bullish voices emphasize Bitcoin's *geopolitical significance*\u2014particularly Iran's oil settlement use case\u2014as transcending typical market cycles and signaling an inflection point in global monetary competition that makes price timing secondary.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree on bullish long-term fundamentals, citing institutional adoption (Morgan Stanley ETF), geopolitical utility (Iran sanctions evasion), and expanding regulatory clarity as structural tailwinds for price appreciation.\n\n**Key Divergence:** While most sources are bullish on Bitcoin's direction, they sharply disagree on timing and near-term price action. Optimists (Simply Bitcoin, Anthony Pompliano) expect imminent breakouts above $76K, while Altcoin Daily's bearish take predicts further downside into late 2026, framing current price action as post-euphoric digestion rather than accumulation.\n\n**Secondary Split:** XRP (DataDash) presents the most conflicted view\u2014positive fundamentals clash with technical weakness, leaving the outlook genuinely ambiguous rather than directionally clear like Bitcoin's.",
   "top_creators": [
     {
-      "channel": "Robert Breedlove",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": null
+      "channel": "Simply Bitcoin",
+      "sentiment": "bullish",
+      "score": 92,
+      "thesis": "Bitcoin has transitioned from theoretical censorship-resistance to operational geopolitical infrastructure, evidenced by Iran's use for sanctions evasion and unprecedented institutional adoption via Morgan Stanley's record-breaking ETF launch."
+    },
+    {
+      "channel": "Anthony Pompliano",
+      "sentiment": "bullish",
+      "score": 75,
+      "thesis": "Bitcoin and AI-related assets will dominate market rotations in 2024 as elevated inflation persists and investors seek returns outside traditional equities. The key catalyst is breaking above $76K BTC and $2,400 ETH, signaling sustained upside driven by AI demand and hardware/semiconductor strength."
+    },
+    {
+      "channel": "Blockware Solutions",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "Bitcoin's Q1 2026 consolidation around $70k despite 50% drawdown represents a capitulation event similar to prior cycle lows, suggesting contrarian accumulation is the true alpha and a rally is imminent."
+    },
+    {
+      "channel": "DataDash",
+      "sentiment": "mixed",
+      "score": 45,
+      "thesis": "XRP faces a critical decision point where positive fundamentals (ETF flows, CLARITY Act, Tokyo conference) conflict with technical weakness at $1.35, making it unclear whether current price action represents accumulation or distribution."
     },
     {
       "channel": "Altcoin Daily",
-      "sentiment": "bearish",
-      "score": 25,
-      "thesis": "Bitcoin is in a post-euphoric digestion phase following its Q4 top, with historical cycles suggesting further downside before a late Q3/Q4 bottom in 2026. Current macro conditions (weakening labor market, rising inflation) support lower prices rather than immediate recovery."
-    },
-    {
-      "channel": "Swan Bitcoin",
       "sentiment": "bullish",
       "score": 85,
-      "thesis": "The traditional 60/40 stock/bond portfolio has fundamentally failed as a diversification strategy, and Bitcoin will replace bonds as the preferred portfolio hedge due to rising inflation, higher interest rates, and unsustainable government debt."
-    },
-    {
-      "channel": "BTC Sessions",
-      "sentiment": "bullish",
-      "score": 92,
-      "thesis": "Iran's adoption of Bitcoin for oil transit tolls represents a watershed moment for Bitcoin as a censorship-resistant, international settlement currency that bypasses US sanctions\u2014potentially more significant than El Salvador's legal tender adoption and signaling the beginning of global competition for Bitcoin accumulation."
-    },
-    {
-      "channel": "Stacker News",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Social intelligence and reputation systems are shifting from algorithmic platforms to decentralized, user-owned models. Pubky represents an innovative approach to rebuilding trust and community through semantic social graphs rather than algorithm-controlled discovery."
+      "thesis": "Bitcoin fundamentals are strengthening through increased institutional adoption (Morgan Stanley ETF), expanding global regulatory clarity (50+ countries), and new use cases (Iran toll payments), all pointing to long-term price appreciation."
     }
   ]
 }

@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260409_190004_0",
-    "text": "MicroStrategy bought 4 days worth of new Bitcoin supply. Morgan Stanley bought it on day one. Meanwhile retail is trading on a 14 fear index. Smart money doesn't wait for permission or confidence. It waits for price",
-    "angle": "institutional_flow",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T19:00:04.202626+00:00",
-    "brief_date": "Thursday, April 09, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260409_220003_0",
-    "text": "Strategy bought 546 BTC in 90 minutes. That's 1.2x daily mining supply absorbed by one buyer. When institutions stack faster than the network produces, what's the actual price discovery mechanism",
-    "angle": "institutional_flow",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-09T22:00:03.911033+00:00",
-    "brief_date": "Thursday, April 09, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260410_010004_0",
     "text": "88% of private credit redemption requests got denied last quarter. When $13.9B in withdrawals hit a wall, which asset doesn't need permission to move",
     "angle": "macro_monetary",
@@ -140,6 +116,18 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-04-11T19:00:06.379195+00:00",
+    "brief_date": "Saturday, April 11, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260411_230436_0",
+    "text": "3 sat/vB when Fear hits 15. Last time fees compressed this hard, spot price was $3,600. Nobody's moving Bitcoin. Nobody's panic selling. That's not fear. That's accumulation pretending to be fear",
+    "angle": "onchain_metric",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-11T23:04:36.080124+00:00",
     "brief_date": "Saturday, April 11, 2026",
     "sentiment": "bullish"
   }

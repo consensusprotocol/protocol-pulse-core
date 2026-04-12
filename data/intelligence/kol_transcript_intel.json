@@ -1,7 +1,127 @@
 {
-  "last_updated": "2026-04-11T08:00:05.925627+00:00",
-  "total_analyses": 94,
+  "last_updated": "2026-04-12T00:00:25.605115+00:00",
+  "total_analyses": 99,
   "analyses": [
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 92,
+      "main_thesis": "Bitcoin has transitioned from theoretical censorship-resistance to operational geopolitical infrastructure, evidenced by Iran's use for sanctions evasion and unprecedented institutional adoption via Morgan Stanley's record-breaking ETF launch.",
+      "key_quotes": [
+        "Iran is no longer effectively under sanctions",
+        "Bitcoin was built for this. Satoshi designed it as a system that could move value without permission",
+        "The best performing launch in their entire history"
+      ],
+      "topics": [
+        "Iran sanctions evasion via Bitcoin",
+        "Institutional adoption and ETF flows",
+        "Geopolitical implications of Bitcoin",
+        "Censorship resistance",
+        "Oil markets as indicator"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "Iran Just Used Bitcoin To Break US Sanctions! (Here's What Nobody Told You)",
+      "video_id": "fanZYr79j7A",
+      "duration": 1002.68,
+      "analyzed_at": "2026-04-12T00:00:23.603077+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "Bitcoin and AI-related assets will dominate market rotations in 2024 as elevated inflation persists and investors seek returns outside traditional equities. The key catalyst is breaking above $76K BTC and $2,400 ETH, signaling sustained upside driven by AI demand and hardware/semiconductor strength.",
+      "key_quotes": [
+        "If we trade above 76,000 and Ethereum above 2400, that is the beginning of a move that will be sustainable",
+        "AI progress is accelerating even faster...hardware, semis and commodities on the long side",
+        "Inflation is going to be significantly higher...could be 6%, highest since early 90s"
+      ],
+      "topics": [
+        "Bitcoin price levels and technical resistance",
+        "AI-driven market rotation (hardware vs software)",
+        "Inflation outlook and monetary policy",
+        "Software stock disruption by AI",
+        "Scarcity vs abundance trades"
+      ],
+      "price_prediction": "Bitcoin above $76,000 with Ethereum above $2,400 signals sustainable uptrend for the year",
+      "confidence": "high",
+      "channel": "Anthony Pompliano",
+      "title": "Bitcoin & AI Will DOMINATE The Next Rotation",
+      "video_id": "urhiMNIk27Q",
+      "duration": 3168.59,
+      "analyzed_at": "2026-04-12T00:00:19.255936+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 72,
+      "main_thesis": "Bitcoin's Q1 2026 consolidation around $70k despite 50% drawdown represents a capitulation event similar to prior cycle lows, suggesting contrarian accumulation is the true alpha and a rally is imminent.",
+      "key_quotes": [
+        "Blood in the street. People are capitulating, people are fearful.",
+        "Being a contrarian is the true edge, the true alpha.",
+        "All of this data is really just the mass psychology of investors quantified."
+      ],
+      "topics": [
+        "Spent Output Profit Ratio (on-chain sentiment)",
+        "UTXO analysis and realized losses",
+        "Market capitulation indicators",
+        "Mass psychology and contrarian investing",
+        "Supply and demand dynamics"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Blockware Solutions",
+      "title": "Bitcoin\u2019s Final Shakeout: Why the Rally is Closer Than You Think.",
+      "video_id": "j2Ba_e5GIIw",
+      "duration": 2040.42,
+      "analyzed_at": "2026-04-12T00:00:13.890750+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 45,
+      "main_thesis": "XRP faces a critical decision point where positive fundamentals (ETF flows, CLARITY Act, Tokyo conference) conflict with technical weakness at $1.35, making it unclear whether current price action represents accumulation or distribution.",
+      "key_quotes": [
+        "is this distribution here or is this accumulation disguised as weakness",
+        "XRP can't get above a dollar 35. It seems to get sold into each and every single time",
+        "we don't want to see daily candles starting to close down below that $1.25 line"
+      ],
+      "topics": [
+        "ETF inflows",
+        "CLARITY Act Senate bill",
+        "Volume profile analysis",
+        "Support/resistance levels ($1.25, $1.35)",
+        "Distribution vs accumulation patterns"
+      ],
+      "price_prediction": "$1.25 as critical support level; potential revisit to $0.50 if $1.25 breaks; resistance at $1.35",
+      "confidence": "medium",
+      "channel": "DataDash",
+      "title": "XRP at a Critical Crossroads: CLARITY Act, ETF Inflows, and the $1.25 Line in the Sand",
+      "video_id": "nSqYiRsqxQg",
+      "duration": 916.69,
+      "analyzed_at": "2026-04-12T00:00:09.826254+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Bitcoin fundamentals are strengthening through increased institutional adoption (Morgan Stanley ETF), expanding global regulatory clarity (50+ countries), and new use cases (Iran toll payments), all pointing to long-term price appreciation.",
+      "key_quotes": [
+        "Bitcoin fundamentals are clearly improving",
+        "Over 50 countries continue to give Bitcoin more access, more regulation, more clarity",
+        "Morgan Stanley's Bitcoin ETF undercuts BlackRock with lowest fees in the game"
+      ],
+      "topics": [
+        "Institutional adoption (Morgan Stanley ETF launch)",
+        "Global regulatory expansion and Bitcoin legalization",
+        "Iran Bitcoin toll payments via Strait of Hormuz",
+        "Stablecoin yield policy impact",
+        "ETF fee competition and market dominance"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Altcoin Daily",
+      "title": "Massive Bitcoin News You May Have Missed (Iran & Morgan Stanley)",
+      "video_id": "LJKAZk9bbtI",
+      "duration": 728.36,
+      "analyzed_at": "2026-04-12T00:00:04.793430+00:00"
+    },
     {
       "sentiment": "neutral",
       "sentiment_score": 50,
