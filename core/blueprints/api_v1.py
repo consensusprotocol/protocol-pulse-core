@@ -237,3 +237,15 @@ def api_keys_page():
         tiers={"commander":{"price":"$49","limits":"100 req/day","price_id":os.environ.get("STRIPE_PRICE_COMMANDER","")},
                "intel":{"price":"$149","limits":"500 req/day","price_id":os.environ.get("STRIPE_PRICE_INTEL","")},
                "sovereign":{"price":"$499","limits":"Unlimited","price_id":os.environ.get("STRIPE_PRICE_SOVEREIGN","")}})
+
+
+@api_v1_bp.route('/api/v1/perception')
+def api_v1_perception():
+    sub, err = _auth('pe')  # Intel tier required for full data
+    if err: return err
+    try:
+        import sys as _sys; _sys.path.insert(0, '/home/ultron/protocol_pulse')
+        from services.perception_layer import fetch_all
+        return jsonify(fetch_all())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -1,0 +1,142 @@
+{
+  "updated_at": "2026-04-12T09:01:07.756532+00:00",
+  "fetch_time_ms": 943,
+  "composite": {
+    "perception_score": 58,
+    "label": "Cautiously Bullish",
+    "overall_signal": "bullish",
+    "bull_layers": 3,
+    "bear_layers": 1,
+    "neutral_layers": 3,
+    "layer_signals": {
+      "global": "bullish",
+      "trending": "bullish",
+      "onchain": "bearish",
+      "lightning": "bullish",
+      "fees": "neutral",
+      "social": "neutral",
+      "fg_trend": "neutral"
+    }
+  },
+  "global_market": {
+    "btc_dominance_pct": 57.08,
+    "total_mcap_usd": 2511832682444.981,
+    "total_mcap_t": 2.512,
+    "total_vol_24h_usd": 72706880298.42804,
+    "total_vol_24h_b": 72.7,
+    "active_coins": 17685,
+    "dominance_signal": "btc_dominant",
+    "dominance_note": "BTC leading \u2014 typical bull market structure",
+    "btc_signal": "bullish",
+    "source": "CoinGecko Global"
+  },
+  "trending_narratives": {
+    "trending_coins": [
+      {
+        "symbol": "RAVE",
+        "name": "RaveDAO",
+        "rank": 81,
+        "score": 0
+      },
+      {
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 110,
+        "score": 1
+      },
+      {
+        "symbol": "WLFI",
+        "name": "World Liberty Financial",
+        "rank": 38,
+        "score": 2
+      },
+      {
+        "symbol": "MON",
+        "name": "Monad",
+        "rank": 120,
+        "score": 3
+      },
+      {
+        "symbol": "TAO",
+        "name": "Bittensor",
+        "rank": 37,
+        "score": 4
+      },
+      {
+        "symbol": "AIOT",
+        "name": "OKZOO",
+        "rank": 842,
+        "score": 5
+      },
+      {
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 117,
+        "score": 6
+      }
+    ],
+    "active_narratives": [
+      "AI/DePIN"
+    ],
+    "has_meme_rotation": false,
+    "has_ai_rotation": true,
+    "narrative_signal": "AI/DePIN",
+    "btc_signal": "bullish",
+    "note": "Meme rotation signals late-cycle risk. AI/DeFi rotation signals mid-cycle strength.",
+    "source": "CoinGecko Trending"
+  },
+  "onchain_fundamentals": {
+    "tx_count_24h": 562308,
+    "miners_revenue_usd": 0.0,
+    "miners_revenue_m": 0.0,
+    "minutes_between_blocks": 9.65,
+    "difficulty": 138966872071213,
+    "estimated_btc_sent": 2325176112546,
+    "total_fees_btc": -43125000000,
+    "miner_signal": "capitulation_risk",
+    "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
+    "block_signal": "normal",
+    "btc_signal": "bearish",
+    "source": "Blockchain.com Stats"
+  },
+  "lightning_health": {
+    "node_count": 17342,
+    "channel_count": 41986,
+    "capacity_btc": 5706.26,
+    "capacity_sats": 570626090058,
+    "avg_channel_capacity_btc": 0.1359,
+    "network_health": "healthy",
+    "health_note": "Lightning network growing steadily",
+    "btc_signal": "bullish",
+    "source": "mempool.space Lightning"
+  },
+  "fee_market": {
+    "fastest_fee_sat_vb": 2,
+    "hour_fee_sat_vb": 1,
+    "economy_fee_sat_vb": 1,
+    "fee_signal": "accumulation_phase",
+    "fee_note": "Near-zero fees \u2014 low on-chain activity, classic accumulation signal",
+    "btc_signal": "neutral",
+    "source": "mempool.space Fees"
+  },
+  "social_sentiment": {},
+  "fg_trend": {
+    "current": 16,
+    "7d_ago": 13,
+    "7d_delta": 3,
+    "trend": "stable",
+    "7d_values": [
+      16,
+      15,
+      16,
+      14,
+      17,
+      11,
+      13
+    ],
+    "btc_signal": "neutral",
+    "note": "F&G stable at 16",
+    "label": "Extreme Fear",
+    "source": "alternative.me F&G"
+  }
+}

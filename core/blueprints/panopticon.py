@@ -412,7 +412,39 @@ def api_panopticon_stream():
                         svc = CongressTradingService()
                         yield 'data: ' + _j.dumps({'type':'congress_update','ihx':svc.get_insider_heat_score(),'trades':svc.get_recent_trades(8)}) + '\n\n'
                     except: pass
+                if tick % 60 == 0:
+                    try:
+                        import sys as _s; _s.path.insert(0, '/home/ultron/protocol_pulse')
+                        from services.perception_layer import fetch_all as _pfa
+                        pd = _pfa()
+                        yield 'data: ' + _j.dumps({'type':'perception_update','composite':pd['composite'],'fee_market':pd.get('fee_market',{}),'lightning':pd.get('lightning_health',{}),'trending':pd.get('trending_narratives',{}).get('active_narratives',[]),'social_velocity':pd.get('social_sentiment',{}).get('velocity_label',''),'fg_trend':pd.get('fg_trend',{})}) + '\n\n'
+                    except: pass
             except GeneratorExit: return
             except Exception as ex: logger.warning('SSE error: %s', ex); time.sleep(5)
     return Response(stream_with_context(generate()), mimetype='text/event-stream',
         headers={'Cache-Control':'no-cache','X-Accel-Buffering':'no'})
+
+
+@panopticon_bp.route('/api/panopticon/perception')
+def api_perception_layer():
+    # Perception Layer: social sentiment, narrative velocity, on-chain fundamentals
+    # Public endpoint - no auth required (score visible, full detail for Commander)
+    try:
+        import sys as _sys; _sys.path.insert(0, '/home/ultron/protocol_pulse')
+        from services.perception_layer import fetch_all
+        data = fetch_all()
+        if _is_commander():
+            return jsonify(data)
+        # Free tier: composite score only
+        return jsonify({
+            'perception_score': data['composite']['perception_score'],
+            'label': data['composite']['label'],
+            'overall_signal': data['composite']['overall_signal'],
+            'updated_at': data['updated_at'],
+            'upgrade': 'Upgrade to Commander for full intelligence breakdown',
+        })
+    except Exception as e:
+        logger.error('Perception Layer API error: %s', e)
+        return jsonify({'error': str(e)}), 500
+
+
