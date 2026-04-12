@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}API Key Ready — Protocol Pulse{% endblock %}
+{% block content %}
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:2rem;">
+<div style="max-width:580px;width:100%;background:#0d0d0d;border:1px solid rgba(204,0,0,0.25);border-radius:14px;overflow:hidden;position:relative;">
+  <div style="height:3px;background:linear-gradient(90deg,#cc0000,#880000);"></div>
+  <div style="padding:2.5rem;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.75rem;">
+      <div style="width:36px;height:36px;background:rgba(204,0,0,0.12);border:1px solid rgba(204,0,0,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cc0000" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:#cc0000;">Protocol Pulse API</div>
+        <div style="font-family:'Crimson Pro',Georgia,serif;font-size:1.4rem;font-weight:700;color:#fff;line-height:1.2;">Your key is ready.</div>
+      </div>
+    </div>
+
+    <!-- Tier badge -->
+    <div style="display:inline-block;background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.3);border-radius:4px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#cc0000;margin-bottom:1.5rem;">
+      {{ tier|upper }} TIER — {{ limits }}
+    </div>
+
+    <!-- Key display + copy -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#666;margin-bottom:.5rem;">
+        API KEY — COPY NOW. SHOWN ONCE ONLY.
+      </div>
+      <div style="position:relative;background:#000;border:1px solid rgba(204,0,0,0.5);border-radius:8px;padding:14px 50px 14px 16px;">
+        <div id="keyDisplay" style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#cc0000;word-break:break-all;line-height:1.6;user-select:all;">{{ api_key }}</div>
+        <button onclick="copyKey()" id="copyBtn"
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(204,0,0,0.15);border:1px solid rgba(204,0,0,0.4);border-radius:6px;padding:6px 10px;cursor:pointer;transition:all .2s;"
+          title="Copy to clipboard">
+          <svg id="copyIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#cc0000" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+      </div>
+      <div id="copyMsg" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#22c55e;margin-top:.4rem;height:.9rem;opacity:0;transition:opacity .3s;"></div>
+    </div>
+
+    <!-- Quick start -->
+    <div style="background:#000;border-radius:8px;padding:14px;margin-bottom:1.5rem;overflow-x:auto;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:.6rem;">QUICK START</div>
+      <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#aaa;white-space:pre-wrap;"><span style="color:#555;">curl</span> -H <span style="color:#22c55e;">"Authorization: Bearer {{ api_key[:20] }}..."</span> \
+  https://protocolpulse.io/api/v1/orb/latest</pre>
+    </div>
+
+    <!-- What you get -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.75rem;">
+      {% for feature in features %}
+      <div style="display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:#aaa;">
+        <span style="color:#cc0000;flex-shrink:0;">◆</span> {{ feature }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="/api/v1/docs" style="flex:1;min-width:140px;background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.3);color:#cc0000;padding:.65rem 1rem;border-radius:6px;text-align:center;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;">View Docs →</a>
+      <a href="/" style="flex:1;min-width:140px;background:#cc0000;color:#fff;padding:.65rem 1rem;border-radius:6px;text-align:center;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;font-weight:700;">Return to Terminal →</a>
+    </div>
+
+    <p style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:#444;margin-top:1.25rem;line-height:1.6;">
+      A copy has been emailed to you. If you need to rotate your key, call
+      <code style="color:#666;background:#111;padding:2px 6px;border-radius:3px;">POST /api/v1/keys/rotate</code> with your current key.
+    </p>
+  </div>
+</div>
+</div>
+
+<script>
+function copyKey() {
+  var key = document.getElementById('keyDisplay').textContent.trim();
+  var btn = document.getElementById('copyBtn');
+  var msg = document.getElementById('copyMsg');
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(key).then(function() { showCopied(); }).catch(fallback);
+  } else { fallback(); }
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = key; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showCopied();
+  }
+  function showCopied() {
+    btn.style.background = 'rgba(34,197,94,0.15)';
+    btn.style.borderColor = 'rgba(34,197,94,0.5)';
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    msg.textContent = 'Copied to clipboard'; msg.style.opacity = '1';
+    setTimeout(function() { msg.style.opacity = '0'; }, 2500);
+  }
+}
+// Auto-select key on click
+document.getElementById('keyDisplay').addEventListener('click', function() {
+  var sel = window.getSelection(), rng = document.createRange();
+  rng.selectNodeContents(this); sel.removeAllRanges(); sel.addRange(rng);
+});
+</script>
+{% endblock %}
