@@ -47,6 +47,34 @@ class CongressTradingService:
 
         trades = []
 
+        # Try live Senate EFDS scraper first (Playwright, bypasses WAF)
+        try:
+            from services.congress_scraper import fetch_congress_trades
+            live = fetch_congress_trades(limit=30)
+            if live.get('is_live') and live.get('all_trades'):
+                raw_trades = live['all_trades']
+                trades = []
+                for t in raw_trades[:limit]:
+                    trades.append({
+                        "member":           t.get("filer", "Unknown"),
+                        "party":            "?",
+                        "chamber":          t.get("chamber", "senate").title(),
+                        "ticker":           ", ".join(t.get("tickers", [])) or "N/A",
+                        "transaction":      t.get("type", "PTR"),
+                        "amount":           "See filing",
+                        "date":             t.get("date_filed", ""),
+                        "disclosure_date":  t.get("date_filed", ""),
+                        "source":           "Senate EFDS (Live)",
+                        "filing_url":       t.get("filing_url", ""),
+                        "days_to_file":     0,
+                        "conviction":       t.get("conviction", 20),
+                    })
+                logger.info(f"EFDS live: {len(trades)} trades")
+                self._set_cache("recent_trades", trades)
+                return trades
+        except Exception as e:
+            logger.warning(f"EFDS live scraper failed: {e}")
+
         # Try Quiver API first
         if self.quiver_key:
             try:
