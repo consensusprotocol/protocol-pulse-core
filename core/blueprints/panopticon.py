@@ -430,9 +430,11 @@ def api_perception_layer():
     # Perception Layer: social sentiment, narrative velocity, on-chain fundamentals
     # Public endpoint - no auth required (score visible, full detail for Commander)
     try:
-        import sys as _sys; _sys.path.insert(0, '/home/ultron/protocol_pulse')
-        from services.perception_layer import fetch_all
-        data = fetch_all()
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location('perception_layer',
+            '/home/ultron/protocol_pulse/services/perception_layer.py')
+        _mod = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+        data = _mod.fetch_all()
         if _is_commander():
             return jsonify(data)
         # Free tier: composite score only

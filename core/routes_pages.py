@@ -1222,6 +1222,21 @@ def podcasts():
                 {'id': 'VDdc67_HnVE', 'title': "Bitcoin's Revolutionary Origins | Episode 10"},
             ]
         },
+        'bitcoin_boomers': {
+            'key': 'bitcoin_boomers',
+            'title': 'Bitcoin Boomers',
+            'host': 'Guy Swann & Mark Moss',
+            'description': 'Breaking down Bitcoin for the generation that built the world and is now watching fiat destroy it. Straightforward Bitcoin education for those who came of age before the internet.',
+            'playlist_url': 'https://www.youtube.com/channel/UCOp_-d0z7r-s02CWsJTbVoA',
+            'episodes': [
+                {'id': 'nSbbx_2ziIU', 'title': 'What Happens at the Next Bitcoin Halving'},
+                {'id': 'bNkM6ICRU3g', 'title': 'Bitcoin Follows a Commodity Like Cycle with Lawrence Lepard'},
+                {'id': 'kYePThn-uLY', 'title': 'Who is in Charge of Bitcoin?'},
+                {'id': 'x49S0mjhfX4', 'title': 'Bitcoin Your Escape Hatch to Financial Freedom & Peace'},
+                {'id': '1SpHk6W4dIg', 'title': 'Bitcoin is Volatile But Ultimately Is the Future of Sound Money'},
+                {'id': 'Ou66PgqPcyU', 'title': 'Financial Advisors Were WRONG About Bitcoin'},
+            ]
+        },
     }
     series_list = []
     for key, s in series_config.items():
