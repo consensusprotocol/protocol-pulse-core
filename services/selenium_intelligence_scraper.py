@@ -192,8 +192,23 @@ class GlassnodeScraper:
             "description": "Puell Multiple",
             "free_tier": True,
             "source_label": "Bitcoin Magazine Pro",
-            "wait_selector": "canvas, svg, .chart-container",
+            "wait_selector": "svg:not([style*='display: none']):not([id*=tester])",
             "wait_ms": 6000,
+            "chart_only_js": """
+                // Find the largest in-viewport SVG (not the plotly test SVG)
+                const svgs = Array.from(document.querySelectorAll('svg'))
+                    .filter(s => {
+                        const bb = s.getBoundingClientRect();
+                        return bb.width > 400 && bb.height > 200
+                            && bb.x > -100 && bb.y > -100;
+                    })
+                    .sort((a,b) => {
+                        const ba = a.getBoundingClientRect();
+                        const bb2 = b.getBoundingClientRect();
+                        return (bb2.width * bb2.height) - (ba.width * ba.height);
+                    });
+                return svgs[0] ? svgs[0].getBoundingClientRect() : null;
+            """,
         },
         "mvrv_zscore": {
             "url": "https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/",
@@ -201,8 +216,22 @@ class GlassnodeScraper:
             "description": "MVRV Z-Score",
             "free_tier": True,
             "source_label": "Bitcoin Magazine Pro",
-            "wait_selector": "canvas, svg, .chart-container",
+            "wait_selector": "svg:not([style*='display: none']):not([id*=tester])",
             "wait_ms": 6000,
+            "chart_only_js": """
+                const svgs = Array.from(document.querySelectorAll('svg'))
+                    .filter(s => {
+                        const bb = s.getBoundingClientRect();
+                        return bb.width > 400 && bb.height > 200
+                            && bb.x > -100 && bb.y > -100;
+                    })
+                    .sort((a,b) => {
+                        const ba = a.getBoundingClientRect();
+                        const bb2 = b.getBoundingClientRect();
+                        return (bb2.width * bb2.height) - (ba.width * ba.height);
+                    });
+                return svgs[0] ? svgs[0].getBoundingClientRect() : null;
+            """,
         },
         "hodl_waves": {
             "url": "https://www.blockchain.com/explorer/charts/hodl-waves",
@@ -308,31 +337,93 @@ class GlassnodeScraper:
             # Extra settle time for SPA charts (blockchain.com, BMP need JS to populate)
             page.wait_for_timeout(wait_ms)
 
-            # Screenshot: try to crop to just the chart element for clean display
+            # Screenshot: inject CSS to hide all chrome, then crop to chart canvas
             ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            tmp_path = SCREENSHOT_DIR / f"glassnode_{metric_key}_{ts}_raw.png"
             out_path = SCREENSHOT_DIR / f"glassnode_{metric_key}_{ts}.png"
-            captured_chart = False
 
-            # Try element-level screenshot first (crops out nav/sidebar)
-            for sel in [selector, "canvas", "svg.chart", ".chart-container",
-                        ".highcharts-root", "[class*=chart]"]:
+            # Inject CSS: hide nav, header, sidebar, footer — show only chart
+            page.evaluate("""
+            () => {
+                const hide = ['nav','header','footer','aside',
+                    '[class*=sidebar]','[class*=Sidebar]',
+                    '[class*=navbar]','[class*=NavBar]',
+                    '[class*=navigation]','[class*=Navigation]',
+                    '[class*=menu]','[class*=Menu]',
+                    '[class*=banner]','[class*=Banner]',
+                    '[class*=cookie]','[class*=Cookie]',
+                    '[class*=modal]','[class*=Modal]',
+                    '[class*=overlay]','[class*=popup]',
+                    '[class*=ad-]','[class*=-ad]','[id*=ad-]',
+                    '[class*=promo]','[class*=Promo]',
+                    'button[class*=upgrade]','a[href*=pricing]',
+                    '.alert','.toast','.notification'];
+                hide.forEach(sel => {
+                    try {
+                        document.querySelectorAll(sel).forEach(el => {
+                            el.style.setProperty('display', 'none', 'important');
+                            el.style.setProperty('visibility', 'hidden', 'important');
+                        });
+                    } catch(e) {}
+                });
+                // Remove fixed/sticky elements that overlay charts
+                document.querySelectorAll('*').forEach(el => {
+                    const st = window.getComputedStyle(el);
+                    if (st.position === 'fixed' || st.position === 'sticky') {
+                        el.style.setProperty('position', 'relative', 'important');
+                    }
+                });
+            }
+            """)
+            page.wait_for_timeout(300)
+
+            # Find the main chart element and its bounding box
+            bbox = None
+            chart_sel = None
+
+            # Use chart_only_js if provided (handles tricky SPAs like BMP)
+            custom_js = chart_info.get("chart_only_js")
+            if custom_js:
                 try:
-                    el = page.locator(sel).first
-                    if el.count() > 0:
-                        bbox = el.bounding_box()
-                        if bbox and bbox["width"] > 200 and bbox["height"] > 100:
-                            el.screenshot(path=str(out_path))
-                            logger.info("Screenshot saved (element crop): %s (%d bytes)",
-                                        out_path.name, out_path.stat().st_size)
-                            captured_chart = True
-                            break
-                except Exception:
-                    continue
+                    bb = page.evaluate(f"() => {{ {custom_js} }}")
+                    if bb and bb.get("width", 0) > 400 and bb.get("height", 0) > 200:
+                        bbox = bb
+                        chart_sel = "custom_js"
+                except Exception as js_err:
+                    logger.debug("chart_only_js failed: %s", js_err)
 
-            # Fallback: full page screenshot
-            if not captured_chart:
+            if bbox is None:
+                for sel in ["canvas", ".highcharts-container",
+                            ".chart-container canvas", "[class*=chart] canvas",
+                            "canvas[width]"]:
+                    try:
+                        els = page.locator(sel).all()
+                        for el in els:
+                            bb = el.bounding_box()
+                            if bb and bb["width"] > 400 and bb["height"] > 200:
+                                if bbox is None or bb["width"] * bb["height"] > bbox["width"] * bbox["height"]:
+                                    bbox = bb
+                                    chart_sel = sel
+                    except Exception:
+                        continue
+
+            if bbox:
+                # Pad slightly around the chart
+                pad = 16
+                clip = {
+                    "x": max(0, bbox["x"] - pad),
+                    "y": max(0, bbox["y"] - pad),
+                    "width": bbox["width"] + pad * 2,
+                    "height": bbox["height"] + pad * 2,
+                }
+                page.screenshot(path=str(out_path), clip=clip)
+                logger.info("Screenshot saved (chart crop %dx%d): %s (%d bytes)",
+                            int(clip["width"]), int(clip["height"]),
+                            out_path.name, out_path.stat().st_size)
+            else:
+                # Fallback: viewport screenshot
                 page.screenshot(path=str(out_path), full_page=False)
-                logger.info("Screenshot saved (full page): %s (%d bytes)",
+                logger.info("Screenshot saved (viewport fallback): %s (%d bytes)",
                             out_path.name, out_path.stat().st_size)
 
             logger.info("Glassnode %s: screenshot from %s", metric_key, chart_info["url"])
