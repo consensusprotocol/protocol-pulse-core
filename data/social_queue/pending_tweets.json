@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260411_052131_0",
-    "text": "Your bank can reverse a transaction. Bitcoin can't. One of these things will still exist in 50 years. Which one are you betting your future on",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-11T05:21:31.883430+00:00",
-    "brief_date": "Friday, April 10, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260411_070003_0",
     "text": "In 1933 FDR banned gold ownership. Citizens had 3 months to surrender it or face prison. Bitcoin's 944,569th block just mined while governments still can't figure out how to ban math",
     "angle": "historical_pattern",
@@ -92,6 +80,18 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-04-13T05:18:49.851378+00:00",
+    "brief_date": "Sunday, April 12, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_062058_0",
+    "text": "In 1944 Bretton Woods locked currencies to gold at fixed rates. Lasted 27 years before Nixon unpeg it anyway. You can't nail down value with policy. Bitcoin just proves it to everyone else",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T06:20:58.341102+00:00",
     "brief_date": "Sunday, April 12, 2026",
     "sentiment": "bullish"
   }

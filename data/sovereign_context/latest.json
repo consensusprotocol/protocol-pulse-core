@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-13T05:25:06.589364+00:00",
-  "block_height": 944843,
+  "timestamp": "2026-04-13T07:15:04.183975+00:00",
+  "block_height": 944862,
   "btc": {
-    "price": 70834,
-    "change_24h": -1.13,
+    "price": 70904,
+    "change_24h": -1.09,
     "change_7d": 0,
-    "market_cap": 1417287229250.7068,
-    "volume_24h": 27320026351.291897,
+    "market_cap": 1419152095248.2258,
+    "volume_24h": 27838596890.341854,
     "dominance": 56.9
   },
   "fear_greed": {
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 35858,
-    "size_mb": 28.2
+    "fee_high": 1,
+    "unconfirmed": 35252,
+    "size_mb": 28.0
   },
   "network": {
-    "hashrate_eh": 953.9,
+    "hashrate_eh": 959.7,
     "difficulty": 0,
-    "next_adj_pct": -4.21,
-    "next_adj_blocks": 661
+    "next_adj_pct": -3.62,
+    "next_adj_blocks": 642
   },
   "lightning": {
-    "capacity_btc": 5239.0,
-    "channels": 41423,
-    "nodes": 17396
+    "capacity_btc": 5700.5,
+    "channels": 42215,
+    "nodes": 17369
   },
   "kol": {
     "sentiment_score": 65,
@@ -63,6 +63,27 @@
   "whale_alerts": [
     {
       "tier": "NOTE",
+      "rule": "Block timing anomaly",
+      "message": "Block timing anomaly: avg 266.2s/block over last 10 blocks (fast)",
+      "score": 40,
+      "created_at": 1776063675.4792411
+    },
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 60% of last 10 blocks",
+      "score": 40,
+      "created_at": 1776063675.4683325
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 146.24 BTC unconfirmed 31d21bea...",
+      "score": 10,
+      "created_at": 1776060818.4138145
+    },
+    {
+      "tier": "NOTE",
       "rule": "WHALE_TX",
       "message": "Whale transaction detected: 321.58 BTC unconfirmed 12a1ca19...",
       "score": 10,
@@ -74,62 +95,41 @@
       "message": "Hashrate concentration: Foundry USA at 50% of last 10 blocks",
       "score": 30,
       "created_at": 1776048555.395579
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 148.43 BTC unconfirmed 3866e45d...",
-      "score": 10,
-      "created_at": 1775988557.9919238
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 16.3% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1775987148.9691145
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 16.3% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1775986930.328859
     }
   ],
   "macro": {
-    "dxy": 99.04,
-    "gold_price": 4740.9,
-    "sp500": 6805.75,
-    "btc_vs_gold_30d_corr": 0.139,
-    "btc_vs_dxy_30d_corr": -0.541,
+    "dxy": 99.03,
+    "gold_price": 4746.9,
+    "sp500": 6813.25,
+    "btc_vs_gold_30d_corr": 0.141,
+    "btc_vs_dxy_30d_corr": -0.511,
     "real_yield": null,
     "ten_year_yield": 4.32
   },
   "options": {
-    "put_call_ratio": 0.68,
-    "dvol": 44.8,
+    "put_call_ratio": 0.679,
+    "dvol": 44.6,
     "max_pain": 80000.0,
-    "total_call_oi": 231471.0,
-    "total_put_oi": 157403.5,
-    "total_oi_btc": 388874.5,
+    "total_call_oi": 232078.9,
+    "total_put_oi": 157483.8,
+    "total_oi_btc": 389562.7,
     "avg_mark_iv": 52.3
   },
   "futures": {
-    "funding_rate": -1.58e-06,
+    "funding_rate": -1.57e-06,
     "annualized_basis": -0.17,
-    "open_interest": 28643.16,
-    "open_interest_usd": 2029437150.0,
+    "open_interest": 28526.22,
+    "open_interest_usd": 2026078290.0,
     "long_short_ratio": null,
-    "mark_price": 70846.22,
-    "index_price": 70852.43,
-    "basis_pct": -0.0303
+    "mark_price": 71023.22,
+    "index_price": 71025.13,
+    "basis_pct": -0.0218
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 6290406.0,
+    "coin_days_destroyed_7d": 6451474.0,
     "active_addresses_7d": 607985.0,
-    "tx_volume_usd_7d": 32123241071.0,
-    "nvt_ratio": 42.3,
+    "tx_volume_usd_7d": 33671745006.0,
+    "nvt_ratio": 40.4,
     "accumulation_score": 65
   },
   "active_alerts": [
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 19 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-13T05:25:06.636120+00:00",
+      "ts": "2026-04-13T07:15:04.207900+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 19
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 59.4,
+      "score": 59.5,
       "interpretation": "Miner flow signals mixed",
       "signal": "neutral"
     },
@@ -173,7 +173,7 @@
       "score": 61.4,
       "pattern": "CAUTIOUS BULLISH",
       "fragmentation": 18.8,
-      "momentum": 61.5,
+      "momentum": 61.6,
       "conviction": 46.7,
       "thesis": "mixed_regime",
       "confidence": 0.76
@@ -181,18 +181,18 @@
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.3,
-      "btc_market_cap": 1418069820038.6982,
-      "stablecoin_market_cap": 267806789819.1857,
+      "value": 5.31,
+      "btc_market_cap": 1421572986177.188,
+      "stablecoin_market_cap": 267840228033.38135,
       "signal": "BULLISH",
       "description": "Healthy stablecoin reserves available for BTC purchasing",
       "source": "coingecko_derived"
     },
     "mpi": {
-      "value": 0.054,
-      "cdd_7d": 6306391.0,
-      "cdd_ratio": 1.05,
-      "hashrate_eh": 953.9,
+      "value": 0.078,
+      "cdd_7d": 6451474.0,
+      "cdd_ratio": 1.08,
+      "hashrate_eh": 959.9,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
@@ -203,6 +203,6 @@
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-13T05:25:01.647821+00:00"
+    "timestamp": "2026-04-13T07:10:04.668298+00:00"
   }
 }

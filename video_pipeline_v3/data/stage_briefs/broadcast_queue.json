@@ -1,24 +1,13 @@
 [
   {
-    "id": "10f34fe0-7be0-492e-857d-d9ef80ac3f3f",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "# ORACLE BRIEF \u2014 April 12, 2026\n\nBitcoin's sitting at $71,182, down a fraction on the day. Extreme Fear reading\u201412 on the index\u2014tells you retail's spooked, but here's what matters: network fundamentals stay solid. Hashrate holding steady at 1,068 EH/s, no capitulation signals from miners.\n\nThe mempo",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
-    "topic_preview": "Oracle Evening Brief \u2014 $71,182",
-    "generated_at": "2026-04-13T02:00:01.524844+00:00",
-    "expires_at": "2026-04-13T06:00:01.524844+00:00",
-    "video_url": "/data/stage_briefs/brief_20260413_0200.mp4"
-  },
-  {
-    "id": "16fd18d8-2e0b-4a6d-ac74-3ad0daa1f3ed",
+    "id": "84383853-ef35-42ae-b5fb-c5d91001066a",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Satoshi's cypherpunk list activity signals Bitcoin's true origin story. The list's archival records show Satoshi's 2008 Bitcoin whitepaper was crafted in the same intellectual space as the Cypherpunks' core philosophy. The conversation history reveals a deliberate, pre-planned development rather than a spontaneous emergence. Watch for the next list archival release showing Satoshi's full participation in the Cypherpunk intellectual network. The timeline confirms Bitcoin's sovereign foundation, not just a technical innovation.",
-    "source_label": "\ud83e\udde0 @ADAM3US",
-    "topic_preview": "with these conversations spread over some brainstorming posts on the cypherpunks",
-    "generated_at": "2026-04-13T04:50:10.533487+00:00",
-    "expires_at": "2026-04-13T06:50:10.533487+00:00"
+    "script": "Core goods PCE prices rose 3.1 percent through February 2026 due to tariffs implemented by November 2025. Bitcoin holders should watch the next Federal Reserve meeting for inflation commentary.\n\nForward signal: Monitor Fed funds futures for rate cut expectations.",
+    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
+    "topic_preview": "R to @LynAldenContact: Takeaway:\n\"We estimate that the tariffs implemented throu",
+    "generated_at": "2026-04-13T06:55:05.747035+00:00",
+    "expires_at": "2026-04-13T08:55:05.747035+00:00"
   },
   {
     "id": "1dbbe3e1-1b04-4e34-a080-62f60acd0a70",
@@ -49,15 +38,5 @@
     "topic_preview": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
     "generated_at": "2026-04-13T05:15:32.318701+00:00",
     "expires_at": "2026-04-13T09:15:32.318701+00:00"
-  },
-  {
-    "id": "456e08cf-00b2-42af-8abf-f75da0f7cc50",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Hashrate surged to 1,069 EH/s, confirming decentralized mining momentum. Fear & greed index at 12 signals extreme panic. Mempool fees remain stubbornly low at 2 sat/vbyte. Bitcoin miners accumulate losses while the network strengthens. Watch for the next halving cycle's impact on mining economics.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate surged to 1,069 EH/s, confirming decentralized mining momentum. Fear & ",
-    "generated_at": "2026-04-13T04:45:51.605564+00:00",
-    "expires_at": "2026-04-13T06:45:51.605564+00:00"
   }
 ]
