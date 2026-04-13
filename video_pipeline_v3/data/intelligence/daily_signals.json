@@ -1,60 +1,60 @@
 {
   "topic_velocity": [
     {
-      "topic": "Bitcoin as sovereign wealth and institutional adoption",
-      "channels": 27,
+      "topic": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
+      "channels": 29,
       "sentiment": "bullish",
-      "velocity_score": 40,
+      "velocity_score": 87,
       "authority_score": 50,
       "top_quote": "",
       "thought_leaders": [
         "@BitcoinArchive",
-        "@saifedean",
-        "@lopp"
+        "@saylor",
+        "@nvk"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Geopolitical tensions and U.S.-China-Iran dynamics",
-      "channels": 19,
+      "topic": "Institutional accumulation thesis \u2014 Michael Saylor 'Think...",
+      "channels": 21,
       "sentiment": "bullish",
-      "velocity_score": 28,
+      "velocity_score": 32,
       "authority_score": 40,
       "top_quote": "",
       "thought_leaders": [
         "@BitcoinArchive",
-        "@saifedean",
-        "@lopp"
+        "@saylor",
+        "@nvk"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Cypherpunk ethos and secure communications",
-      "channels": 15,
+      "topic": "Technofascist surveillance state erosion \u2014 LAPD hack (7.7...",
+      "channels": 16,
       "sentiment": "bullish",
-      "velocity_score": 22,
+      "velocity_score": 24,
       "authority_score": 30,
       "top_quote": "",
       "thought_leaders": [
         "@BitcoinArchive",
-        "@saifedean",
-        "@lopp"
+        "@saylor",
+        "@nvk"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": false,
+  "breaking_threshold": true,
   "recommended_topics": [
-    "Bitcoin as sovereign wealth and institutional adoption",
-    "Geopolitical tensions and U.S.-China-Iran dynamics",
-    "Cypherpunk ethos and secure communications"
+    "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
+    "Institutional accumulation thesis \u2014 Michael Saylor 'Think...",
+    "Technofascist surveillance state erosion \u2014 LAPD hack (7.7..."
   ],
-  "dominant_narrative": "Bitcoin as sovereign wealth and institutional adoption",
+  "dominant_narrative": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
   "market_mood": "bullish",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-11T21:58:02Z"
+  "scan_time": "2026-04-13T01:55:38Z"
 }

@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-12T09:01:07.756532+00:00",
-  "fetch_time_ms": 943,
+  "updated_at": "2026-04-13T04:15:02.891629+00:00",
+  "fetch_time_ms": 959,
   "composite": {
     "perception_score": 58,
     "label": "Cautiously Bullish",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.08,
-    "total_mcap_usd": 2511832682444.981,
-    "total_mcap_t": 2.512,
-    "total_vol_24h_usd": 72706880298.42804,
-    "total_vol_24h_b": 72.7,
-    "active_coins": 17685,
+    "btc_dominance_pct": 56.91,
+    "total_mcap_usd": 2496665686973.809,
+    "total_mcap_t": 2.497,
+    "total_vol_24h_usd": 66949386216.11835,
+    "total_vol_24h_b": 66.9,
+    "active_coins": 17669,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -35,7 +35,7 @@
       {
         "symbol": "RAVE",
         "name": "RaveDAO",
-        "rank": 81,
+        "rank": 53,
         "score": 0
       },
       {
@@ -45,33 +45,33 @@
         "score": 1
       },
       {
-        "symbol": "WLFI",
-        "name": "World Liberty Financial",
-        "rank": 38,
+        "symbol": "INX",
+        "name": "Infinex",
+        "rank": 542,
         "score": 2
-      },
-      {
-        "symbol": "MON",
-        "name": "Monad",
-        "rank": 120,
-        "score": 3
       },
       {
         "symbol": "TAO",
         "name": "Bittensor",
-        "rank": 37,
+        "rank": 38,
+        "score": 3
+      },
+      {
+        "symbol": "TON",
+        "name": "Toncoin",
+        "rank": 32,
         "score": 4
       },
       {
-        "symbol": "AIOT",
-        "name": "OKZOO",
-        "rank": 842,
+        "symbol": "WLFI",
+        "name": "World Liberty Financial",
+        "rank": 37,
         "score": 5
       },
       {
-        "symbol": "VVV",
-        "name": "Venice Token",
-        "rank": 117,
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 562308,
+    "tx_count_24h": 660101,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.65,
+    "minutes_between_blocks": 9.26,
     "difficulty": 138966872071213,
-    "estimated_btc_sent": 2325176112546,
-    "total_fees_btc": -43125000000,
+    "estimated_btc_sent": 2421839311675,
+    "total_fees_btc": -45312500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17342,
-    "channel_count": 41986,
-    "capacity_btc": 5706.26,
-    "capacity_sats": 570626090058,
-    "avg_channel_capacity_btc": 0.1359,
+    "node_count": 17396,
+    "channel_count": 41423,
+    "capacity_btc": 5238.97,
+    "capacity_sats": 523897019799,
+    "avg_channel_capacity_btc": 0.1265,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 3,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +121,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 16,
-    "7d_ago": 13,
-    "7d_delta": 3,
+    "current": 12,
+    "7d_ago": 11,
+    "7d_delta": 1,
     "trend": "stable",
     "7d_values": [
+      12,
       16,
       15,
       16,
       14,
       17,
-      11,
-      13
+      11
     ],
     "btc_signal": "neutral",
-    "note": "F&G stable at 16",
+    "note": "F&G stable at 12",
     "label": "Extreme Fear",
     "source": "alternative.me F&G"
   }

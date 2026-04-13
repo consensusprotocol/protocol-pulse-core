@@ -1,7 +1,56 @@
 {
-  "last_updated": "2026-04-12T00:00:25.605115+00:00",
-  "total_analyses": 99,
+  "last_updated": "2026-04-13T04:00:12.395575+00:00",
+  "total_analyses": 101,
   "analyses": [
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Despite short-term price crashes from geopolitical tensions, Bitcoin whales are accumulating heavily, signaling a generational buying opportunity driven by Fed policy shifts, negative real yields, and upcoming higher inflation.",
+      "key_quotes": [
+        "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin.",
+        "The best time to invest in Bitcoin is when the Fed is either on hold or cutting, combined with negative real yields.",
+        "MicroStrategy gained $526 million in liquidity just to buy Bitcoin with only one cent of volatility."
+      ],
+      "topics": [
+        "Whale accumulation and ETF flows",
+        "Fed policy and negative real yields",
+        "Inflation expectations and CPI data",
+        "Technical analysis (weekly MACD crossover)",
+        "MicroStrategy as Bitcoin proxy play"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "ALERT: Whales Just Bought $526 Million MORE Bitcoin! (This Pattern Says EVERYTHING)",
+      "video_id": "pxYZHp_N6Ok",
+      "duration": 990.26,
+      "analyzed_at": "2026-04-13T04:00:10.393249+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "This is not a Bitcoin-specific video. The content discusses general investment principles for building resilient wealth through portfolio diversification and strategic positioning during uncertain times.",
+      "key_quotes": [
+        "You will have drawdowns...if underlying businesses have staying power, you're going to be okay long term",
+        "Variegation is different...like a garden with different trees and different experiences",
+        "We want intentional diversity of exposure across industries and countries"
+      ],
+      "topics": [
+        "Portfolio diversification strategy",
+        "Risk management in uncertain markets",
+        "Asset variegation vs statistical diversification",
+        "Geopolitical and economic uncertainty",
+        "Long-term wealth building"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "note": "This transcript contains NO Bitcoin-specific content. It discusses general investment principles by Matthew McLennan at First Eagle Investments. The request to analyze 'Bitcoin video transcript' appears to be a mismatch with the actual content provided.",
+      "channel": "The Investors Podcast Network",
+      "title": "How to Build Resilient Wealth w/ Matthew McLennan (RWH067)",
+      "video_id": "v0t7eC-CHfQ",
+      "duration": 4530.5,
+      "analyzed_at": "2026-04-13T04:00:05.491295+00:00"
+    },
     {
       "sentiment": "bullish",
       "sentiment_score": 92,

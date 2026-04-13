@@ -208,5 +208,47 @@
     "timestamp": "2026-04-12T01:00:03.985315+00:00",
     "text_preview": "Iran just announced a national Bitcoin strategy. The US spent 20 years trying to",
     "format_type": "geopolitical"
+  },
+  {
+    "hash": "2970b3d2e44d422fb0d404215d3dd53e",
+    "timestamp": "2026-04-12T04:00:04.302515+00:00",
+    "text_preview": "1921. Weimar stopped publishing money supply data. Hyperinflation followed weeks",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "c6debbfede2c5f5b41a423e717685faf",
+    "timestamp": "2026-04-12T07:00:06.832707+00:00",
+    "text_preview": "2 sat/vB. Network processing transactions cheaper than a text message while Fear",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "d8afa370eb68713dcb8815e476b22121",
+    "timestamp": "2026-04-12T13:00:04.254345+00:00",
+    "text_preview": "834.6 EH/s average hashrate. Network securing itself cheaper than ever while Fea",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "42d9f8d1950cbe5eb2661eb4a2aeaf94",
+    "timestamp": "2026-04-12T16:00:06.094211+00:00",
+    "text_preview": "Diocletian froze prices in 301 AD to stop inflation. Rome collapsed anyway. Pric",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "2a7fa187e6c4edaeac810630ac6697dd",
+    "timestamp": "2026-04-12T22:00:03.706243+00:00",
+    "text_preview": "You know what's wild about the LAPD losing 7.7TB of data. Government can't secur",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "fcbe28a5a9cbb110079760b31e70da82",
+    "timestamp": "2026-04-13T01:00:09.833751+00:00",
+    "text_preview": "Strait of Hormuz blockade means oil traders suddenly care about settlement speed",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "1e415e206587873af7d4ecce4ae22e82",
+    "timestamp": "2026-04-13T04:00:03.836896+00:00",
+    "text_preview": "Morgan Stanley bought Bitcoin at 71k while shorts liquidated above 74k. Institut",
+    "format_type": "institutional_flow"
   }
 ]

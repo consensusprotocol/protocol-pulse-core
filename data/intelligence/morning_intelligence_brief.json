@@ -1,40 +1,56 @@
 {
-  "generated_at": "2026-04-11T10:00:00Z",
-  "date": "Saturday, April 11, 2026",
-  "btc_price": "$73,657",
-  "btc_change_24h": "+0.7%",
-  "fng": "Extreme Fear",
+  "generated_at": "2026-04-12T16:00:00Z",
+  "date": "Sunday, April 12, 2026",
+  "btc_price": "$71,106",
+  "btc_change_24h": "-3.5%",
+  "fng": "Extreme Fear (16/100)",
   "dominant_narratives": [
-    "Bitcoin as sovereign wealth and institutional adoption",
-    "Geopolitical tensions and U.S.-China-Iran dynamics",
-    "Cypherpunk ethos and secure communications"
+    "Geopolitical instability as Bitcoin utility accelerant — Strait of Hormuz blockade, Iran sanctions evasion, naval conflict creating structural demand for censorship-resistant settlement",
+    "Institutional accumulation thesis — Michael Saylor 'Think ₿igger' signals, Morgan Stanley ETF inflows, stewardship framing rebranding corporate hodling as capital preservation",
+    "Technofascist surveillance state erosion — LAPD hack (7.7TB data loss), LLM security theater, government-versus-government dysfunction narrative legitimizing Bitcoin exit velocity"
   ],
   "trending_language": [
-    "Not Your Model",
-    "The Fed has been putting out research reports",
-    "Bitcoin works in space"
+    "Think ₿igger",
+    "Short squeeze coming",
+    "The slop will continue till the slop FUD goes away",
+    "Nothing like government come to save government from government",
+    "Hundreds of millions of lives at risk by Christmas",
+    "Stewardship",
+    "Blockading any and all ships"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite the Extreme Fear index, Bitcoin shows strong institutional buying, ETF accumulation, and significant price appreciation. Community signals point toward increased adoption and a reset in positioning.",
+  "sentiment_reasoning": "Despite 24h -3.5% price action and Extreme Fear reading, narrative throughline is structurally constructive. Geopolitical chaos, institutional accumulation signals (Saylor), and institutional short liquidation setup override near-term capitulation optics. Community viewing drawdown as capitulation event preceding institutional absorption.",
   "top_accounts_active": [
     "@BitcoinArchive",
-    "@saifedean",
-    "@lopp"
+    "@saylor",
+    "@nvk",
+    "@PeterMcCormack",
+    "@BitcoinMagazine",
+    "@BTCsessions",
+    "@lopp",
+    "@stacyherbert",
+    "@saifedean"
   ],
   "recommended_tweet_angles": [
-    "Bitcoin's role in empowering global property rights amid geopolitical instability",
-    "Institutional accumulation and ETF flows as a bullish signal",
-    "Cypherpunk principles in the face of surveillance and censorship"
+    "Geopolitical angle: Map Strait of Hormuz chaos → oil market pressure → inflation protection demand → Bitcoin's operational censorship-resistance vs theoretical abstractions. Lead with real-time naval conflict data.",
+    "Liquidation mechanics: 'Short liquidity cluster above $74K + negative funding = squeeze cascade.' Pair with Saylor stewardship narrative — institutions buying while shorts liquidate. Data-driven, emotionally neutral.",
+    "Surveillance-state collapse angle: LAPD hack (7.7TB), government cybersecurity theater, LLM false security narrative. Contrast with Bitcoin's immutable, uncensorable ledger. Cypherpunk tone — dark humor acceptable."
   ],
   "topics_to_avoid": [
-    "Overly speculative AI or stablecoin narratives without concrete data"
+    "Palestine/Israel conflict framing (divisive, off-brand for Protocol Pulse's Bitcoin-first focus)",
+    "Unrelated sports/political entertainment (Stockport County, Bedford Women — dilutes signal-to-noise)",
+    "Vague motivational content without data backbone"
   ],
-  "engagement_patterns": "Data-backed community signals, technical discussions, geopolitical commentary, and direct calls to action around Bitcoin education and security resonate most.",
-  "protocol_pulse_voice_guidance": "Speak with precision, anchor narratives in data, and maintain a cypherpunk tone that emphasizes sovereignty, technical integrity, and institutional skepticism. Avoid hyperbole, favor clarity and cryptographic truth.",
+  "engagement_patterns": "Emoji-heavy, meme-forward, hyper-technical (short squeezes, funding rates, liquidity clusters) interspersed with apocalyptic macro narratives (Christmas starvation, depression-level economics). Community responds to: (1) actionable technical signals with urgency markers (⚠️, ‼️), (2) geopolitical real-time updates paired with Bitcoin utility, (3) dark humor + systems-level critique of government incompetence, (4) stewardship/legacy framing for institutional accumulation.",
+  "protocol_pulse_voice_guidance": "Lead with actionable geopolitical intelligence married to on-chain mechanics. Deploy measured urgency ('short squeeze incoming') over panic. Cypherpunk tone: sardonic critique of institutional collapse paired with Bitcoin-as-infrastructure framing. Avoid victimhood; emphasize optionality and asymmetric payoff. Use technical language (liquidity clusters, funding rates) to establish authority. Reference real-time events (Strait blockade, LAPD hack) as evidence of system fragility. Tone: intelligent, slightly irreverent, data-native, conspiratorial but not credulous.",
   "key_stats_today": {
-    "tweets_analyzed": 138,
+    "tweets_analyzed": 147,
     "nostr_signals": 0,
-    "unique_handles": 75
+    "unique_handles": 90,
+    "geopolitical_signal_density": "high",
+    "institutional_accumulation_signals": 3,
+    "technical_liquidation_signals": 2,
+    "surveillance_state_critique_posts": 7
   },
-  "generated_by": "local_llm"
+  "generated_by": "claude_haiku"
 }

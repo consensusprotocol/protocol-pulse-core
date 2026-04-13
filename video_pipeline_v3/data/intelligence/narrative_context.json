@@ -1,11 +1,11 @@
 {
-  "episode_narrative": "Bitcoin as sovereign wealth and institutional adoption is dominating Bitcoin discourse \u2014 27 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "episode_narrative": "Geopolitical instability as Bitcoin utility accelerant \u2014 ... is dominating Bitcoin discourse \u2014 29 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
   "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Geopolitical tensions and U.S.-China-Iran dynamics' is also trending with 19 thought leaders discussing it",
+  "mark_context": "Mark should add context: 'Institutional accumulation thesis \u2014 Michael Saylor 'Think...' is also trending with 21 thought leaders discussing it",
   "clip_selection_priority": [
-    "Bitcoin as sovereign wealth and institutional adoption",
-    "Geopolitical tensions and U.S.-China-Iran dynamics",
-    "Cypherpunk ethos and secure communications"
+    "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
+    "Institutional accumulation thesis \u2014 Michael Saylor 'Think...",
+    "Technofascist surveillance state erosion \u2014 LAPD hack (7.7..."
   ],
   "avoid_topics": [
     "price speculation",
@@ -13,21 +13,21 @@
   ],
   "thought_leaders_mentioned": [
     "@BitcoinArchive",
-    "@lopp",
-    "@saifedean"
+    "@nvk",
+    "@saylor"
   ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Bitcoin as sovereign wealth and institutional adoption",
+  "dominant_narrative": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
   "market_mood": "bullish",
   "top_quote": "",
   "top_quote_handles": [
     "@BitcoinArchive",
-    "@saifedean",
-    "@lopp"
+    "@saylor",
+    "@nvk"
   ],
-  "quote_fetched_at": "2026-04-11T21:58:02.100769+00:00",
-  "computed_at": "2026-04-11T21:58:02.100769+00:00"
+  "quote_fetched_at": "2026-04-13T01:55:38.890093+00:00",
+  "computed_at": "2026-04-13T01:55:38.890093+00:00"
 }

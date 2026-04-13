@@ -1,89 +1,5 @@
 [
   {
-    "id": "tweet_20260410_010004_0",
-    "text": "88% of private credit redemption requests got denied last quarter. When $13.9B in withdrawals hit a wall, which asset doesn't need permission to move",
-    "angle": "macro_monetary",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T01:00:04.383049+00:00",
-    "brief_date": "Thursday, April 09, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260410_040004_0",
-    "text": "Exchange deposits at 10-year lows while fear is 16. People aren't selling into panic. They're treating scarcity like it's already priced in",
-    "angle": "onchain_metric",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T04:00:04.277657+00:00",
-    "brief_date": "Thursday, April 09, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260410_080011_0",
-    "text": "Do you know what happens to your savings when 88% of people trying to withdraw their money get told no",
-    "angle": "macro_monetary",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T08:00:11.853780+00:00",
-    "brief_date": "Thursday, April 09, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260410_110026_0",
-    "text": "Prague 1989 defied Soviet control. Prague 2026 defies EU payment bans. Bitcoin doesn't need permission from dying empires",
-    "angle": "geopolitical",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T11:00:26.731900+00:00",
-    "brief_date": "Thursday, April 09, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260410_185929_0",
-    "text": "3 sat/vB fees. Extreme Fear at 16. Block height 944,499. The network is screaming buy signals and nobody's listening because they're too busy arguing about quantum resistance on Twitter",
-    "angle": "contrarian_take",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T18:59:29.850200+00:00",
-    "brief_date": "Friday, April 10, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260410_190003_0",
-    "text": "In 1944 Bretton Woods locked gold at $35/oz to stop currency wars. By 1971 Nixon abandoned it anyway. Central banks are now doing the same with fiat. Bitcoin doesn't need permission to work",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T19:00:03.676859+00:00",
-    "brief_date": "Friday, April 10, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260410_220003_0",
-    "text": "Do you know what happens to your bitcoin if you die and nobody knows where the keys are",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-10T22:00:03.521530+00:00",
-    "brief_date": "Friday, April 10, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260411_052131_0",
     "text": "Your bank can reverse a transaction. Bitcoin can't. One of these things will still exist in 50 years. Which one are you betting your future on",
     "angle": "sovereignty_freedom",
@@ -129,6 +45,42 @@
     "status": "pending",
     "generated_at": "2026-04-11T23:04:36.080124+00:00",
     "brief_date": "Saturday, April 11, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260412_100004_0",
+    "text": "If you need permission from your government to move your own money across a border, whose money is it really",
+    "angle": "contrarian_take",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-12T10:00:04.069406+00:00",
+    "brief_date": "Saturday, April 11, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260412_190003_0",
+    "text": "Morgan Stanley bought Bitcoin at $70k while their clients panic at Fear 16. Banks don't accumulate during capitulation. They accumulate before everyone else figures out why they should",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-12T19:00:03.510456+00:00",
+    "brief_date": "Sunday, April 12, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_025602_0",
+    "text": "How many people in your life know their bank can freeze their account. How many know Bitcoin can't",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T02:56:02.096161+00:00",
+    "brief_date": "Sunday, April 12, 2026",
     "sentiment": "bullish"
   }
 ]

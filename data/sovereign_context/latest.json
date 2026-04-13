@@ -1,30 +1,30 @@
 {
-  "timestamp": "2026-04-12T03:10:03.754796+00:00",
-  "block_height": 944677,
+  "timestamp": "2026-04-13T04:25:06.512237+00:00",
+  "block_height": 944834,
   "btc": {
-    "price": 71868.02283600271,
-    "change_24h": -1.49,
-    "change_7d": 7.06,
-    "market_cap": 1438410161061,
-    "volume_24h": 21057596154.55012,
-    "dominance": 56.4
+    "price": 70966,
+    "change_24h": -0.81,
+    "change_7d": 0,
+    "market_cap": 1420531274244.096,
+    "volume_24h": 26681560675.62884,
+    "dominance": 56.9
   },
   "fear_greed": {
-    "value": 16,
+    "value": 12,
     "label": "Extreme Fear"
   },
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 25804,
-    "size_mb": 30.7
+    "unconfirmed": 28481,
+    "size_mb": 26.9
   },
   "network": {
-    "hashrate_eh": 958.1,
+    "hashrate_eh": 951.7,
     "difficulty": 0,
-    "next_adj_pct": -5.42,
-    "next_adj_blocks": 827
+    "next_adj_pct": -4.44,
+    "next_adj_blocks": 670
   },
   "lightning": {
     "capacity_btc": 5292.1,
@@ -32,15 +32,15 @@
     "nodes": 17353
   },
   "kol": {
-    "sentiment_score": 63,
+    "sentiment_score": 65,
     "top_topics": [
-      "Iran sanctions evasion via Bitcoin",
-      "Institutional adoption and ETF flows",
-      "Geopolitical implications of Bitcoin",
+      "Whale accumulation and ETF flows",
+      "Fed policy and negative real yields",
+      "Inflation expectations and CPI data",
       "regulation",
       "macro"
     ],
-    "post_count_24h": 100,
+    "post_count_24h": 19,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,96 +52,96 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 90.0
+    "top_probability": 89.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**ORACLE EVENING BRIEF \u2014 April 12, 2026**\n\nBitcoin's sliding into extreme fear territory down nearly two percent at $71,580, but institutional momentum tells a different story. Ten-plus billion in ETF",
+    "narrative": "# ORACLE BRIEF \u2014 April 12, 2026\n\nBitcoin's sitting at $71,182, down a fraction on the day. Extreme Fear reading\u201412 on the index\u2014tells you retail's spooked, but here's what matters: network fundamental",
     "brief_type": "evening"
   },
   "whale_alerts": [
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 568.99 BTC unconfirmed bed388eb...",
+      "message": "Whale transaction detected: 321.58 BTC unconfirmed 12a1ca19...",
       "score": 10,
-      "created_at": 1775962833.9594786
+      "created_at": 1776049529.9505959
     },
     {
-      "tier": "WATCH",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 16.3% drop vs 24h prior",
-      "score": 65,
-      "created_at": 1775962644.7783997
-    },
-    {
-      "tier": "WATCH",
+      "tier": "NOTE",
       "rule": "Hashrate concentration",
       "message": "Hashrate concentration: Foundry USA at 50% of last 10 blocks",
-      "score": 65,
-      "created_at": 1775962644.2282329
+      "score": 30,
+      "created_at": 1776048555.395579
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 808.83 BTC unconfirmed b5a52520...",
+      "message": "Whale transaction detected: 148.43 BTC unconfirmed 3866e45d...",
       "score": 10,
-      "created_at": 1775948812.2766397
+      "created_at": 1775988557.9919238
     },
     {
       "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 129.18 BTC unconfirmed 45f77799...",
-      "score": 10,
-      "created_at": 1775841871.4676645
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 16.3% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1775987148.9691145
+    },
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate cliff",
+      "message": "Hashrate cliff: 16.3% drop vs 24h prior",
+      "score": 35,
+      "created_at": 1775986930.328859
     }
   ],
   "macro": {
-    "dxy": 98.7,
-    "gold_price": 4761.9,
-    "sp500": 6855.25,
-    "btc_vs_gold_30d_corr": 0.136,
-    "btc_vs_dxy_30d_corr": -0.506,
+    "dxy": 99.0,
+    "gold_price": 4736.2,
+    "sp500": 6802.25,
+    "btc_vs_gold_30d_corr": 0.142,
+    "btc_vs_dxy_30d_corr": -0.542,
     "real_yield": null,
     "ten_year_yield": 4.32
   },
   "options": {
-    "put_call_ratio": 0.687,
-    "dvol": 45.8,
+    "put_call_ratio": 0.68,
+    "dvol": 45.0,
     "max_pain": 80000.0,
-    "total_call_oi": 228251.6,
-    "total_put_oi": 156752.3,
-    "total_oi_btc": 385003.9,
-    "avg_mark_iv": 53.3
+    "total_call_oi": 231413.1,
+    "total_put_oi": 157389.6,
+    "total_oi_btc": 388802.7,
+    "avg_mark_iv": 52.4
   },
   "futures": {
-    "funding_rate": 2.063e-05,
-    "annualized_basis": 2.26,
-    "open_interest": 28437.77,
-    "open_interest_usd": 2041421770.0,
+    "funding_rate": -1.58e-06,
+    "annualized_basis": -0.17,
+    "open_interest": 28591.28,
+    "open_interest_usd": 2029438830.0,
     "long_short_ratio": null,
-    "mark_price": 71781.38,
-    "index_price": 71785.58,
-    "basis_pct": -0.0221
+    "mark_price": 70979.2,
+    "index_price": 70981.04,
+    "basis_pct": -0.012
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 3890152.0,
-    "active_addresses_7d": 604090.0,
-    "tx_volume_usd_7d": 40576932140.0,
-    "nvt_ratio": 33.5,
-    "accumulation_score": 85
+    "coin_days_destroyed_7d": 6279766.0,
+    "active_addresses_7d": 607985.0,
+    "tx_volume_usd_7d": 31609614535.0,
+    "nvt_ratio": 43.0,
+    "accumulation_score": 65
   },
   "active_alerts": [
     {
       "pattern_id": "POLYMARKET_CONFIRM",
       "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
+      "description": "Polymarket sentiment 74/100 (bullish), 19 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-12T03:10:03.803653+00:00",
+      "ts": "2026-04-13T04:25:06.554329+00:00",
       "data": {
         "poly_sentiment": 74,
-        "kol_posts": 100
+        "kol_posts": 19
       }
     }
   ],
@@ -150,9 +150,9 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 67.1,
-      "interpretation": "Miner reserves stable \u2014 constructive",
-      "signal": "bullish"
+      "score": 59.6,
+      "interpretation": "Miner flow signals mixed",
+      "signal": "neutral"
     },
     "exchange_pressure": {
       "score": 51.2,
@@ -160,49 +160,49 @@
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": -1.1,
+      "score": 15,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 73.7,
+      "score": 74.0,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 76.4,
-      "pattern": "BULLISH",
+      "score": 62.2,
+      "pattern": "CAUTIOUS BULLISH",
       "fragmentation": 18.8,
-      "momentum": 64.0,
-      "conviction": 58.1,
-      "thesis": "miner_absorption_under_fear",
-      "confidence": 0.76
+      "momentum": 61.6,
+      "conviction": 49.5,
+      "thesis": "mixed_regime",
+      "confidence": 0.8
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.37,
-      "btc_market_cap": 1437942019222.2058,
-      "stablecoin_market_cap": 267871513642.85037,
+      "value": 6.93,
+      "btc_market_cap": 1419963469927.5479,
+      "stablecoin_market_cap": 205000000000,
       "signal": "BULLISH",
       "description": "Healthy stablecoin reserves available for BTC purchasing",
-      "source": "coingecko_derived"
+      "source": "estimated"
     },
     "mpi": {
-      "value": -0.367,
-      "cdd_7d": 3890152.0,
-      "cdd_ratio": 0.65,
-      "hashrate_eh": 958.1,
+      "value": 0.048,
+      "cdd_7d": 6275740.0,
+      "cdd_ratio": 1.05,
+      "hashrate_eh": 954.3,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 36.0,
+      "value": 22.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-12T03:09:52.608941+00:00"
+    "timestamp": "2026-04-13T04:15:55.974824+00:00"
   }
 }

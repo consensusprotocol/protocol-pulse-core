@@ -737,6 +737,54 @@ def concatenate_parts(parts: list, output_path: str,
         except Exception as _e3:
             logger.warning(f"  AV SYNC POST-FIX: measurement failed ({_e3})")
 
+    # V44 TRUE PEAK FIX: Post-encode limiter pass — ABSOLUTE LAST audio operation.
+    # Root cause: alimiter in final encode controls PCM peaks, but AAC encoding
+    # AFTER the limiter creates inter-sample peaks (+0.2 to +0.5 dBTP).
+    # Fix: decode the final AAC, apply brick-wall limiter at 0.5 (-6dBFS),
+    # re-encode to AAC. The 6dB headroom absorbs AAC inter-sample peaks.
+    if ok and os.path.exists(output_path):
+        try:
+            _tp_check = subprocess.run(
+                ["ffmpeg", "-i", output_path, "-af", "loudnorm=print_format=json",
+                 "-vn", "-f", "null", "/dev/null"],
+                capture_output=True, text=True, timeout=120
+            )
+            import re as _tp_re
+            _tp_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp_check.stderr)
+            _tp_val = float(_tp_match.group(1)) if _tp_match else -99
+            logger.info(f"  TRUE PEAK PRE-LIMITER: {_tp_val:+.2f} dBTP")
+            if _tp_val > -1.5:
+                _limited = output_path + ".tp_limited.mp4"
+                _tp_ok = run_ffmpeg([
+                    "-i", output_path,
+                    "-c:v", "copy",
+                    "-af", "alimiter=limit=0.63:level=disabled:attack=3:release=30",
+                    "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
+                    "-movflags", "+faststart",
+                    _limited,
+                ], "post-encode true peak limiter", 120)
+                if _tp_ok and os.path.exists(_limited) and os.path.getsize(_limited) > 1000:
+                    # Verify it actually improved
+                    _tp2 = subprocess.run(
+                        ["ffmpeg", "-i", _limited, "-af", "loudnorm=print_format=json",
+                         "-vn", "-f", "null", "/dev/null"],
+                        capture_output=True, text=True, timeout=120
+                    )
+                    _tp2_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp2.stderr)
+                    _tp2_val = float(_tp2_match.group(1)) if _tp2_match else -99
+                    if _tp2_val < _tp_val:
+                        os.replace(_limited, output_path)
+                        logger.info(f"  TRUE PEAK POST-LIMITER: {_tp_val:+.2f} -> {_tp2_val:+.2f} dBTP (FIXED)")
+                    else:
+                        os.remove(_limited)
+                        logger.warning(f"  TRUE PEAK: Limiter pass did not improve ({_tp2_val:+.2f})")
+                elif os.path.exists(_limited):
+                    os.remove(_limited)
+            else:
+                logger.info(f"  TRUE PEAK: {_tp_val:+.2f} dBTP — OK (below -1.5)")
+        except Exception as _tp_err:
+            logger.warning(f"  TRUE PEAK limiter pass failed: {_tp_err}")
+
     # Cleanup
     if os.path.exists(concat_raw):
         try: os.remove(concat_raw)

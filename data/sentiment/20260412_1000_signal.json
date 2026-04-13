@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-04-12T10:00:15.495451+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "Steady hashrate at 834.6 EH/s demonstrates network resilience",
+    "$10B+ ETF inflows this quarter despite price decline",
+    "Central bank money supply expanding 5% monthly (fiat erosion thesis)",
+    "Fear gauge at 16 historically associated with accumulation bottoms",
+    "Institutional positioning suggests loading on dips",
+    "Lean mempool (19,867 tx) with 1 sat/vB fees = capital efficiency"
+  ],
+  "bearish_signals": [
+    "Bitcoin down 1.8% overnight to $71,556",
+    "Extreme fear sentiment reading",
+    "Price correction ongoing"
+  ],
+  "neutral_topics": [
+    "Geopolitical sanctions weaponization",
+    "Fed messaging timing",
+    "Dollar weakness structural dynamics"
+  ]
+}

@@ -1,92 +1,74 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-12T00:00:28.257577+00:00",
-  "creator_count": 7,
-  "avg_sentiment_score": 63.4,
+  "generated_at": "2026-04-13T04:00:14.649034+00:00",
+  "creator_count": 2,
+  "avg_sentiment_score": 67.5,
   "sentiment_breakdown": {
-    "bullish": 4,
-    "bearish": 1,
-    "neutral": 2
+    "bullish": 1,
+    "bearish": 0,
+    "neutral": 1
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Iran sanctions evasion via Bitcoin",
+      "topic": "Whale accumulation and ETF flows",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "Iran is no longer effectively under sanctions"
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
     },
     {
-      "topic": "Institutional adoption and ETF flows",
+      "topic": "Fed policy and negative real yields",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "Iran is no longer effectively under sanctions"
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
     },
     {
-      "topic": "Geopolitical implications of Bitcoin",
+      "topic": "Inflation expectations and CPI data",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "Iran is no longer effectively under sanctions"
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
     },
     {
-      "topic": "Censorship resistance",
+      "topic": "Technical analysis (weekly MACD crossover)",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "Iran is no longer effectively under sanctions"
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
     },
     {
-      "topic": "Oil markets as indicator",
+      "topic": "MicroStrategy as Bitcoin proxy play",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "Iran is no longer effectively under sanctions"
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree on bullish long-term fundamentals, citing institutional adoption (Morgan Stanley ETF), geopolitical utility (Iran sanctions evasion), and expanding regulatory clarity as structural tailwinds for price appreciation.\n\n**Key Divergence:** While most sources are bullish on Bitcoin's direction, they sharply disagree on timing and near-term price action. Optimists (Simply Bitcoin, Anthony Pompliano) expect imminent breakouts above $76K, while Altcoin Daily's bearish take predicts further downside into late 2026, framing current price action as post-euphoric digestion rather than accumulation.\n\n**Secondary Split:** XRP (DataDash) presents the most conflicted view\u2014positive fundamentals clash with technical weakness, leaving the outlook genuinely ambiguous rather than directionally clear like Bitcoin's.",
+  "summary": "# Summary\n\n**Consensus:** Both sources acknowledge current market uncertainty and see strategic positioning as important during volatile times.\n\n**Divergence:** Simply Bitcoin is explicitly bullish on Bitcoin as a specific hedge against inflation and Fed policy shifts, citing whale accumulation as a buy signal. In contrast, The Investors Podcast Network takes a neutral, broader approach focused on general diversification principles rather than endorsing Bitcoin specifically.\n\nThe key difference is one source views Bitcoin as a compelling generational opportunity, while the other recommends a more traditional, diversified portfolio strategy without Bitcoin-specific conviction.",
   "top_creators": [
     {
       "channel": "Simply Bitcoin",
       "sentiment": "bullish",
-      "score": 92,
-      "thesis": "Bitcoin has transitioned from theoretical censorship-resistance to operational geopolitical infrastructure, evidenced by Iran's use for sanctions evasion and unprecedented institutional adoption via Morgan Stanley's record-breaking ETF launch."
-    },
-    {
-      "channel": "Anthony Pompliano",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Bitcoin and AI-related assets will dominate market rotations in 2024 as elevated inflation persists and investors seek returns outside traditional equities. The key catalyst is breaking above $76K BTC and $2,400 ETH, signaling sustained upside driven by AI demand and hardware/semiconductor strength."
-    },
-    {
-      "channel": "Blockware Solutions",
-      "sentiment": "bullish",
-      "score": 72,
-      "thesis": "Bitcoin's Q1 2026 consolidation around $70k despite 50% drawdown represents a capitulation event similar to prior cycle lows, suggesting contrarian accumulation is the true alpha and a rally is imminent."
-    },
-    {
-      "channel": "DataDash",
-      "sentiment": "mixed",
-      "score": 45,
-      "thesis": "XRP faces a critical decision point where positive fundamentals (ETF flows, CLARITY Act, Tokyo conference) conflict with technical weakness at $1.35, making it unclear whether current price action represents accumulation or distribution."
-    },
-    {
-      "channel": "Altcoin Daily",
-      "sentiment": "bullish",
       "score": 85,
-      "thesis": "Bitcoin fundamentals are strengthening through increased institutional adoption (Morgan Stanley ETF), expanding global regulatory clarity (50+ countries), and new use cases (Iran toll payments), all pointing to long-term price appreciation."
+      "thesis": "Despite short-term price crashes from geopolitical tensions, Bitcoin whales are accumulating heavily, signaling a generational buying opportunity driven by Fed policy shifts, negative real yields, and upcoming higher inflation."
+    },
+    {
+      "channel": "The Investors Podcast Network",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "This is not a Bitcoin-specific video. The content discusses general investment principles for building resilient wealth through portfolio diversification and strategic positioning during uncertain times."
     }
   ]
 }

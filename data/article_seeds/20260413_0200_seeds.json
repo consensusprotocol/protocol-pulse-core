@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-13T02:00:13.523276+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin's Extreme Fear Index Matters Less Than Network Health Right Now",
+      "angle": "Disconnect between sentiment gauge and on-chain metrics; retail fear vs. miner stability",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "network-fundamentals",
+        "fear-index"
+      ]
+    },
+    {
+      "headline": "Mempool Efficiency in 2026: How Bitcoin Stays Responsive During Volatility",
+      "angle": "Technical deep-dive on transaction clearing, fee markets, and network stress indicators",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "scalability"
+      ]
+    },
+    {
+      "headline": "Hashrate as the Ultimate Bitcoin Health Metric: Why It's a Better Buy Signal Than Fear Gauges",
+      "angle": "Mining fundamentals remain the canary in the coal mine; what steady hashrate tells us",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "fundamentals"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-13T02:00:13.523276+00:00",
+  "brief_type": "evening",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate holding steady at 1,068 EH/s",
+    "No miner capitulation signals detected",
+    "Mempool clearing efficiently despite backlog",
+    "Fees collapsed to 1 sat/byte (no congestion)",
+    "Extreme Fear historically precedes accumulation",
+    "Down 0.6% daily is normal volatility noise"
+  ],
+  "bearish_signals": [
+    "Extreme Fear reading at 12 (retail panic)",
+    "Sub-$70K psychology could trigger selling pressure"
+  ],
+  "neutral_topics": [
+    "Daily price volatility",
+    "Upcoming institutional week timing"
+  ]
+}

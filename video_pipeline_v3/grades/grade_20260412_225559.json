@@ -1,0 +1,119 @@
+{
+  "grade": "A",
+  "overall_score": 95,
+  "broadcast_ready": false,
+  "technical_score": 88,
+  "content_score": 100,
+  "production_score": 98,
+  "dimensions": {
+    "duration_check": {
+      "score": 5,
+      "note": "Duration is 278.8s. This is very short, falling below the 300s acceptable floor. While not an automatic failure, it's significantly shorter than the ideal 8-15 minute target."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, which meets the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.1 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 7,
+      "note": "True peak is -0.3 dBFS. This is above the -1.0 dBFS target, indicating the audio is too hot. It is not clipping, but it requires adjustment."
+    },
+    "black_frames_check": {
+      "score": 6,
+      "note": "One mid-video black frame segment of 0.53s was detected at 167.467s. This is a render error that disrupts the viewing experience."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No mid-video silence gaps were detected."
+    },
+    "freeze_check": {
+      "score": 10,
+      "note": "No penalized freeze frames were detected."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Codecs are h264/aac, the standard and correct format."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File integrity is excellent. Both streams are present and the bitrate is healthy."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Simply Bitcoin, TFTC, and The Bitcoin Layer are high-signal, editorially approved sources. The content directly supports the Austrian economics and sound money thesis of the episode."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The PBX narration is superb, providing insightful context that connects the disparate clips into a cohesive and compelling argument. It adds significant value."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The cold open is strong, immediately establishing the geopolitical theme with engaging visuals and a clear thesis statement."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode has a clear and logical flow, building its case from multiple expert perspectives and concluding with on-chain data and social signals."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "The PBX host voice is clean, authoritative, and perfectly paced, fulfilling its role as the show's sole narrator without issue."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Bitcoin's Geopolitical Surge' is specific, accurate, and compelling."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is extremely dense and contains zero filler content."
+    },
+    "timeliness": {
+      "score": 10,
+      "note": "The content is timely, referencing current market dynamics and geopolitical tensions. The futuristic date on the dashboard is consistent with the show's lore."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The music bed is atmospheric and perfectly mixed, with effective sidechain ducking under the narration."
+    },
+    "transitions": {
+      "score": 9,
+      "note": "Transitions are clean and stylistically consistent. A point is deducted for the jarring effect of the black frame, which interrupts the flow, even though it's a technical error."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual presentation is outstanding. The cyberpunk aesthetic, lower thirds, data overlays, and overall design are consistent and broadcast-quality."
+    },
+    "no_artifacts": {
+      "score": 10,
+      "note": "Playback is flawless with no visible compression artifacts, stuttering, or glitches."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The narration and clip audio are exceptionally clear, well-mixed, and free of noise or distortion."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is tight and energetic, effectively conveying a large amount of information in a short runtime without feeling rushed."
+    }
+  },
+  "critical_failures": [],
+  "warnings": [
+    "Duration is very short (278.8s), below the 300s acceptable floor.",
+    "True peak at -0.3 dBFS is above the -1.0 dBFS target.",
+    "One mid-video black frame segment detected at 167.467s."
+  ],
+  "strengths": [
+    "Exceptional content quality with high-signal clips and insightful narration.",
+    "Visually polished and consistent cyberpunk aesthetic.",
+    "Perfectly executed narrative arc and pacing."
+  ],
+  "verdict": "An exceptionally strong but technically flawed episode, with outstanding content and production held back by a short runtime and a minor render error.",
+  "recommendation": "FIX_AND_RERENDER"
+}
