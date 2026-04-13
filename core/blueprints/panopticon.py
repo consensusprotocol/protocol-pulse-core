@@ -294,8 +294,12 @@ def api_pe_datastream():
     """Private equity datastream: Form D fundraising + coalition analysis.
     Public: counts + entity names only. Commander: full detail with amounts."""
     try:
-        from services.edgar_service import (fetch_pe_fundraising_btc,
-                                             fetch_institutional_btc_13f)
+        import importlib.util as _ilu
+        _s = _ilu.spec_from_file_location('edgar_service',
+            '/home/ultron/protocol_pulse/services/edgar_service.py')
+        _m = _ilu.module_from_spec(_s); _s.loader.exec_module(_m)
+        fetch_pe_fundraising_btc = _m.fetch_pe_fundraising_btc
+        fetch_institutional_btc_13f = _m.fetch_institutional_btc_13f
         import datetime as _dt
         pe_rounds = fetch_pe_fundraising_btc(30)
         institutional = fetch_institutional_btc_13f(20)
