@@ -172,35 +172,46 @@ class GlassnodeScraper:
     Falls back to screenshot + manual review if interception fails.
     """
 
-    # Free-tier chart URLs (no login required for basic view)
-    # NOTE: Most Glassnode metrics are API-gated (paid plan required).
-    # SOPR is one of the few metrics where chart data loads on the free tier.
-    # MVRV Z-Score, Puell Multiple require Glassnode Professional API.
-    # We keep them here for when an API key becomes available.
+    # On-chain chart URLs — updated 2026-04-13
+    # Glassnode studio.glassnode.com/metrics URLs are all 404 as of Apr 2026.
+    # bitcoinmagazinepro.com (confirmed 200) covers Puell + MVRV.
+    # blockchain.com/explorer/charts (confirmed 200) covers SOPR + hashrate.
     CHARTS = {
         "sopr": {
-            "url": "https://studio.glassnode.com/metrics?a=BTC&m=indicators.Sopr",
-            "api_pattern": r"glassnode\.com.*/v1/metrics/indicators/sopr",
+            "url": "https://www.blockchain.com/explorer/charts/sopr",
+            "api_pattern": r"blockchain\.com.*(sopr|chart)",
             "description": "Spent Output Profit Ratio",
             "free_tier": True,
-        },
-        "mvrv_zscore": {
-            "url": "https://studio.glassnode.com/metrics?a=BTC&m=market.MvrvZScore",
-            "api_pattern": r"glassnode\.com.*/v1/metrics/market/mvrv_z_score",
-            "description": "MVRV Z-Score",
-            "free_tier": False,  # Requires Professional API
+            "source_label": "Blockchain.com",
+            "wait_selector": "canvas, svg.chart, .highcharts-root, .chart-title:not(:text('Unknown'))",
+            "wait_ms": 7000,
         },
         "puell_multiple": {
-            "url": "https://studio.glassnode.com/metrics?a=BTC&m=mining.PuellMultiple",
-            "api_pattern": r"glassnode\.com.*/v1/metrics/mining/puell_multiple",
+            "url": "https://www.bitcoinmagazinepro.com/charts/puell-multiple/",
+            "api_pattern": r"bitcoinmagazinepro\.com.*(api|chart|data)",
             "description": "Puell Multiple",
-            "free_tier": False,
+            "free_tier": True,
+            "source_label": "Bitcoin Magazine Pro",
+            "wait_selector": "canvas, svg, .chart-container",
+            "wait_ms": 6000,
         },
-        "sopr_adjusted": {
-            "url": "https://studio.glassnode.com/metrics?a=BTC&m=indicators.SoprAdjusted",
-            "api_pattern": r"glassnode\.com.*/v1/metrics/indicators/sopr_adjusted",
-            "description": "Entity-Adjusted SOPR",
-            "free_tier": False,
+        "mvrv_zscore": {
+            "url": "https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/",
+            "api_pattern": r"bitcoinmagazinepro\.com.*(api|chart|data)",
+            "description": "MVRV Z-Score",
+            "free_tier": True,
+            "source_label": "Bitcoin Magazine Pro",
+            "wait_selector": "canvas, svg, .chart-container",
+            "wait_ms": 6000,
+        },
+        "hodl_waves": {
+            "url": "https://www.blockchain.com/explorer/charts/hodl-waves",
+            "api_pattern": r"blockchain\.com.*(hodl|chart)",
+            "description": "HODL Waves",
+            "free_tier": True,
+            "source_label": "Blockchain.com",
+            "wait_selector": "canvas, svg.chart, .highcharts-root",
+            "wait_ms": 5000,
         },
     }
 
@@ -285,24 +296,54 @@ class GlassnodeScraper:
             # Use domcontentloaded + explicit wait — some Glassnode charts
             # have persistent WebSocket connections that prevent networkidle
             page.goto(chart_info["url"], wait_until="domcontentloaded", timeout=30000)
-            # Wait for chart data API calls to complete
-            page.wait_for_load_state("networkidle", timeout=15000)
+            wait_ms = chart_info.get("wait_ms", 5000)
+            selector = chart_info.get("wait_selector", "canvas")
 
-            # If we captured API data, extract the latest value
+            # Wait for chart element to appear
+            try:
+                page.wait_for_selector(selector, timeout=wait_ms)
+            except Exception:
+                pass
+
+            # Extra settle time for SPA charts (blockchain.com, BMP need JS to populate)
+            page.wait_for_timeout(wait_ms)
+
+            # Screenshot: try to crop to just the chart element for clean display
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            out_path = SCREENSHOT_DIR / f"glassnode_{metric_key}_{ts}.png"
+            captured_chart = False
+
+            # Try element-level screenshot first (crops out nav/sidebar)
+            for sel in [selector, "canvas", "svg.chart", ".chart-container",
+                        ".highcharts-root", "[class*=chart]"]:
+                try:
+                    el = page.locator(sel).first
+                    if el.count() > 0:
+                        bbox = el.bounding_box()
+                        if bbox and bbox["width"] > 200 and bbox["height"] > 100:
+                            el.screenshot(path=str(out_path))
+                            logger.info("Screenshot saved (element crop): %s (%d bytes)",
+                                        out_path.name, out_path.stat().st_size)
+                            captured_chart = True
+                            break
+                except Exception:
+                    continue
+
+            # Fallback: full page screenshot
+            if not captured_chart:
+                page.screenshot(path=str(out_path), full_page=False)
+                logger.info("Screenshot saved (full page): %s (%d bytes)",
+                            out_path.name, out_path.stat().st_size)
+
+            logger.info("Glassnode %s: screenshot from %s", metric_key, chart_info["url"])
+
+            # Bonus: extract any intercepted API value
             if captured_data:
                 for data in reversed(captured_data):
                     val = self._extract_latest_value(data)
                     if val is not None:
                         return val
 
-            # Fallback: try to find the value in the page DOM
-            value = self._extract_from_dom(page, metric_key)
-            if value is not None:
-                return value
-
-            # Last resort: screenshot for manual review
-            self._save_screenshot(page, f"glassnode_{metric_key}")
-            logger.warning("Glassnode %s: no API data captured, screenshot saved", metric_key)
             return None
 
         finally:
@@ -373,24 +414,35 @@ class CryptoQuantScraper:
     The chart renders SVG/Canvas with visible axis labels we can read.
     """
 
+    # CryptoQuant is now 403 on all endpoints (Apr 2026).
+    # Switched to blockchain.com and mempool.space equivalents.
     CHARTS = {
         "exchange_reserve": {
-            "url": "https://cryptoquant.com/asset/btc/chart/exchange-flows/exchange-reserve",
-            "api_pattern": r"cryptoquant\.com.*(exchange.*reserve|chart-data|metric)",
-            "description": "BTC Exchange Reserve",
-            "unit": "btc",  # Value in BTC (e.g., 2.7M)
+            "url": "https://www.blockchain.com/explorer/charts/trade-volume",
+            "api_pattern": r"blockchain\.com.*(volume|chart)",
+            "description": "BTC Exchange Trade Volume",
+            "unit": "btc",
+            "source_label": "Blockchain.com",
+            "wait_selector": "canvas, svg.chart, .highcharts-root",
+            "wait_ms": 5000,
         },
-        "fund_flow_ratio": {
-            "url": "https://cryptoquant.com/asset/btc/chart/exchange-flows/fund-flow-ratio",
-            "api_pattern": r"cryptoquant\.com.*(fund.*flow|chart-data|metric)",
-            "description": "Fund Flow Ratio",
-            "unit": "ratio",
+        "mempool_size": {
+            "url": "https://mempool.space/graphs/mempool#1m",
+            "api_pattern": r"mempool\.space.*(api|mempool)",
+            "description": "Mempool Size",
+            "unit": "vbytes",
+            "source_label": "Mempool.space",
+            "wait_selector": "canvas, .chart, svg",
+            "wait_ms": 4000,
         },
-        "miner_revenue": {
-            "url": "https://cryptoquant.com/asset/btc/chart/mining/miner-revenue",
-            "api_pattern": r"cryptoquant\.com.*(miner.*revenue|chart-data|metric)",
-            "description": "Miner Revenue (USD)",
-            "unit": "usd",
+        "hashrate": {
+            "url": "https://www.blockchain.com/explorer/charts/hash-rate",
+            "api_pattern": r"blockchain\.com.*(hash|chart)",
+            "description": "Bitcoin Hashrate",
+            "unit": "th/s",
+            "source_label": "Blockchain.com",
+            "wait_selector": "canvas, svg.chart, .highcharts-root",
+            "wait_ms": 5000,
         },
     }
 

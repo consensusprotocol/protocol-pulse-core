@@ -7077,11 +7077,13 @@ _INTELLIGENCE_SCREENSHOTS_DIR = os.path.join(
 
 # Metadata for known chart types
 _CHART_META = {
-    "glassnode_puell_multiple": {"name": "Puell Multiple", "source": "Glassnode"},
-    "glassnode_mvrv_zscore": {"name": "MVRV Z-Score", "source": "Glassnode"},
-    "glassnode_sopr": {"name": "SOPR", "source": "Glassnode"},
-    "cryptoquant_exchange_reserve": {"name": "Exchange Reserve", "source": "CryptoQuant"},
-    "cryptoquant_fund_flow": {"name": "Fund Flow Ratio", "source": "CryptoQuant"},
+    "glassnode_puell_multiple": {"name": "Puell Multiple", "source": "Bitcoin Magazine Pro"},
+    "glassnode_mvrv_zscore":    {"name": "MVRV Z-Score",   "source": "Bitcoin Magazine Pro"},
+    "glassnode_sopr":           {"name": "SOPR",           "source": "Blockchain.com"},
+    "glassnode_hodl_waves":     {"name": "HODL Waves",     "source": "Blockchain.com"},
+    "cryptoquant_exchange_reserve": {"name": "Exchange Volume", "source": "Blockchain.com"},
+    "cryptoquant_mempool_size": {"name": "Mempool Size",   "source": "Mempool.space"},
+    "cryptoquant_hashrate":     {"name": "Hashrate",       "source": "Blockchain.com"},
 }
 
 
