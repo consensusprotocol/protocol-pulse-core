@@ -25,10 +25,11 @@ API_BASE = "https://api.open.fec.gov/v1"
 # Known crypto-friendly committee IDs (Fairshake PAC is the big one)
 CRYPTO_PACS = {
     "C00835959": "Fairshake PAC",
-    "C00835975": "Protect Progress (Fairshake affiliate)",
-    "C00835983": "Defend American Jobs (Fairshake affiliate)",
-    "C00694323": "Blockchain Association PAC",
-    "C00835942": "Stand With Crypto Alliance",
+    "C00876631": "Stand With Crypto Alliance PAC",
+    "C00822775": "Bitcoin Freedom PAC",
+    "C00824896": "Blockchain Association PAC",
+    "C00851873": "Blockchain Freedom PAC",
+    "C00918722": "Blockchain Leadership Fund",
 }
 
 # Pro-Bitcoin candidate keywords (FEC name search)
@@ -55,29 +56,50 @@ def _get(endpoint: str, params: dict, key: str) -> list:
 
 
 def fetch_fairshake_spend(key: str) -> dict:
-    """Get Fairshake PAC's latest independent expenditures — the Bitcoin super PAC."""
-    results = []
-    for cid, name in list(CRYPTO_PACS.items())[:2]:  # Top 2 to save quota
-        data = _get("/schedules/schedule_e/", {
-            "committee_id": cid,
-            "per_page": 5,
-            "sort": "-expenditure_date",
-            "two_year_transaction_period": 2026,
-        }, key)
-        for d in data:
-            results.append({
-                "pac":         name,
-                "candidate":   d.get("candidate_name", "?"),
-                "support":     d.get("support_oppose_indicator", "?"),
-                "amount":      d.get("expenditure_amount", 0),
-                "date":        d.get("expenditure_date", ""),
-                "description": d.get("expenditure_description", ""),
-                "state":       d.get("candidate_office_state", ""),
-            })
-        time.sleep(0.5)
+    """Get Fairshake PAC independent expenditures — dominant Bitcoin super PAC.
+    $134M raised in 2026 cycle. Sorted by amount to show the big races."""
+    FAIRSHAKE_ID = "C00835959"
 
-    total = sum(r["amount"] for r in results)
-    return {"expenditures": results[:10], "total_spend": total}
+    # Fetch sorted by amount — surfaces real races, not tiny filing artifacts
+    data = _get("/schedules/schedule_e/", {
+        "committee_id": FAIRSHAKE_ID,
+        "per_page": 20,
+        "sort": "-expenditure_amount",
+        "two_year_transaction_period": 2026,
+    }, key)
+
+    # Aggregate per candidate (FEC files many small entries per race)
+    candidates: dict = {}
+    for d in data:
+        name = d.get("candidate_name", "?")
+        if name not in candidates:
+            candidates[name] = {
+                "pac":       "Fairshake PAC",
+                "candidate": name,
+                "support":   d.get("support_oppose_indicator", "?"),
+                "amount":    0,
+                "state":     d.get("candidate_office_state", ""),
+                "date":      d.get("expenditure_date", ""),
+            }
+        candidates[name]["amount"] += d.get("expenditure_amount", 0)
+
+    results = sorted(candidates.values(), key=lambda x: x["amount"], reverse=True)
+    time.sleep(0.3)
+
+    # Get committee financial totals
+    totals_data = _get(f"/committee/{FAIRSHAKE_ID}/totals/", {
+        "cycle": 2026, "per_page": 1,
+    }, key)
+    totals = totals_data[0] if totals_data else {}
+    total_raised    = totals.get("receipts",      sum(r["amount"] for r in results))
+    total_disbursed = totals.get("disbursements", sum(r["amount"] for r in results))
+
+    return {
+        "expenditures": results[:8],
+        "total_spend":  total_disbursed,
+        "total_raised": total_raised,
+        "cycle":        2026,
+    }
 
 
 def fetch_crypto_candidate_donations(key: str) -> list:
@@ -87,11 +109,22 @@ def fetch_crypto_candidate_donations(key: str) -> list:
     for cid, pac_name in list(CRYPTO_PACS.items())[:3]:
         data = _get("/schedules/schedule_a/", {
             "committee_id": cid,
-            "per_page": 5,
+            "per_page": 10,
             "sort": "-contribution_receipt_date",
-            "min_amount": 1000,
+            "min_amount": 5000,
             "two_year_transaction_period": 2026,
         }, key)
+        if not data:
+            data = _get("/schedules/schedule_a/", {
+                "committee_id": cid,
+                "per_page": 10,
+                "sort": "-contribution_receipt_date",
+                "min_amount": 5000,
+                "two_year_transaction_period": 2024,
+            }, key)
+        # Filter out generic donors unrelated to crypto
+        SKIP_DONORS = {"AMALGAMATED BANK", "ACTBLUE", "WINRED", "NGPVAN"}
+        data = [d for d in data if d.get("contributor_name","").upper() not in SKIP_DONORS]
         for d in data:
             donations.append({
                 "donor":     d.get("contributor_name", "Anonymous"),
@@ -134,7 +167,7 @@ def fetch_crypto_committees(key: str) -> list:
 
 def compute_pulse_score(fairshake: dict, donations: list, committees: list) -> dict:
     """Score 0-100 based on PAC spending velocity and donation activity."""
-    spend   = fairshake.get("total_spend", 0)
+    spend   = fairshake.get("total_raised", fairshake.get("total_spend", 0))
     n_don   = len(donations)
     n_comm  = len(committees)
     top_don = donations[0]["amount"] if donations else 0
@@ -184,7 +217,8 @@ def fetch_donation_pulse(force: bool = False) -> dict:
         "label":            pulse["label"],
         "crypto_committees": len(committees),
         "states_active":    len(set(d.get("state","") for d in donations if d.get("state"))),
-        "fairshake_spend":  fairshake.get("total_spend", 0),
+        "fairshake_spend":    fairshake.get("total_spend", 0),
+        "fairshake_raised":   fairshake.get("total_raised", 0),
         "fairshake_expenditures": fairshake.get("expenditures", []),
         "top_donations":    donations,
         "committees":       committees,
