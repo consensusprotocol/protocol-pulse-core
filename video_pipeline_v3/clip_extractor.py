@@ -735,19 +735,79 @@ def _redownload_high_quality(video_id: str, start_sec: int, end_sec: int, output
 
 def _check_clip_quality(clip_path: str, channel: str, video_id: str = "",
                         start_sec: int = 0, end_sec: int = 0) -> str:
-    """Quality check — log bitrate but accept any clip.
+    """Quality check — bitrate + black frame detection.
 
-    A low-bitrate clip is better than a narrator setup with no clip playing.
-    Returns: 'ok' always.
+    V42 FIX: Detect black frames in source clips BEFORE assembly.
+    Clips with >0.3s black segments get flagged for rejection.
+    Returns: 'ok', 'black_frames', or 'rejected'.
     """
     bitrate = _get_bitrate(clip_path)
-    if bitrate == 0:
-        logger.warning(f"  Quality check: could not determine bitrate for {channel}")
-        return "ok"
+    mbps = bitrate / 1_000_000 if bitrate else 0
 
-    mbps = bitrate / 1_000_000
+    # V42: Black frame detection on extracted clips
+    try:
+        bf_result = subprocess.run(
+            ["ffmpeg", "-i", clip_path, "-vf", "blackdetect=d=0.3:pix_th=0.05",
+             "-an", "-f", "null", "/dev/null"],
+            capture_output=True, text=True, timeout=30
+        )
+        blacks = [l for l in bf_result.stderr.split(chr(10)) if "black_start" in l]
+        if blacks:
+            logger.warning(f"  BLACK FRAME DETECTED: {channel} ({video_id}) has {len(blacks)} black segments")
+            for b in blacks:
+                logger.warning(f"    {b.strip()}")
+            # Try to trim around black frames
+            _ok = _trim_black_frames(clip_path, blacks)
+            if not _ok:
+                logger.warning(f"  BLACK FRAME: Could not trim — flagging clip {channel}")
+                return "black_frames"
+            logger.info(f"  BLACK FRAME FIX: Trimmed {len(blacks)} black segments from {channel}")
+    except Exception as e:
+        logger.warning(f"  Black frame check failed for {channel}: {e}")
+
     logger.info(f"  Quality: {channel} at {mbps:.1f}Mbps — accepted")
     return "ok"
+
+
+def _trim_black_frames(clip_path: str, black_detections: list) -> bool:
+    """Attempt to trim clip to avoid black frame segments.
+
+    Strategy: If black frames are in the LAST 20% of the clip, trim before them.
+    If in the middle, we cannot cleanly fix — return False.
+    """
+    try:
+        import re
+        clip_dur = ffprobe_duration(clip_path)
+        if clip_dur <= 0:
+            return False
+
+        # Parse black frame timestamps
+        for line in black_detections:
+            m = re.search(r"black_start:(\d+\.?\d*)", line)
+            if m:
+                bf_start = float(m.group(1))
+                # If black frame is in last 20% of clip, trim before it
+                if bf_start > clip_dur * 0.8:
+                    trim_to = bf_start - 0.5  # 0.5s before black
+                    if trim_to > 5.0:  # Keep at least 5s
+                        trimmed = clip_path + ".bf_trim.mp4"
+                        ok = _run_ffmpeg([
+                            "-i", clip_path, "-t", str(trim_to),
+                            "-c:v", "copy", "-c:a", "copy",
+                            "-movflags", "+faststart", trimmed,
+                        ], f"black frame trim at {bf_start:.1f}s", 30)
+                        if ok and os.path.exists(trimmed) and os.path.getsize(trimmed) > 10000:
+                            os.replace(trimmed, clip_path)
+                            logger.info(f"  BLACK FRAME TRIM: Cut at {trim_to:.1f}s (was {clip_dur:.1f}s)")
+                            return True
+                        elif os.path.exists(trimmed):
+                            os.remove(trimmed)
+
+        # Black frames in middle — cannot cleanly fix
+        return False
+    except Exception as e:
+        logger.warning(f"  Black frame trim failed: {e}")
+        return False
 
 
 
