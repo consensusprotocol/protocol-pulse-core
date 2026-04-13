@@ -249,3 +249,33 @@ def api_v1_perception():
         return jsonify(fetch_all())
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@api_v1_bp.route('/api/v1/bills')
+def api_v1_bills():
+    sub, err = _auth('signals')  # Commander tier
+    if err: return err
+    try:
+        import importlib.util as _ilu
+        _s = _ilu.spec_from_file_location('bill_tracker',
+            '/home/ultron/protocol_pulse/services/bill_tracker.py')
+        _m = _ilu.module_from_spec(_s); _s.loader.exec_module(_m)
+        return jsonify(_m.fetch_all_bills())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api_v1_bp.route('/api/v1/bills/vote', methods=['POST'])
+def api_v1_bills_vote():
+    sub, err = _auth()
+    if err: return err
+    d = request.get_json(silent=True) or {}
+    try:
+        import importlib.util as _ilu
+        _s = _ilu.spec_from_file_location('bill_tracker',
+            '/home/ultron/protocol_pulse/services/bill_tracker.py')
+        _m = _ilu.module_from_spec(_s); _s.loader.exec_module(_m)
+        result = _m.cast_public_vote(int(d.get('bill_id',0)), d.get('bill_number',''), d.get('vote',''))
+        return jsonify({'success': True, 'votes': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

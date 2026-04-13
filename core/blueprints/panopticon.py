@@ -450,3 +450,44 @@ def api_perception_layer():
         return jsonify({'error': str(e)}), 500
 
 
+
+
+@panopticon_bp.route('/api/panopticon/bills')
+def api_bills():
+    # Bitcoin Bill Gap Tracker - public endpoint
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location('bill_tracker',
+            '/home/ultron/protocol_pulse/services/bill_tracker.py')
+        _mod = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+        data = _mod.fetch_all_bills()
+        # Filter to Bitcoin-relevant bills only for public view
+        btc_bills = [b for b in data.get('bills',[]) if
+            any(c in b.get('categories',[]) for c in
+                ['strategic_reserve','stablecoin','cbdc','market_structure','self_custody','mining','taxation'])]
+        data['bills'] = btc_bills[:20]
+        data['total_bills'] = len(btc_bills)
+        return jsonify(data)
+    except Exception as e:
+        logger.error('Bill tracker API error: %s', e)
+        return jsonify({'error': str(e), 'bills': []}), 500
+
+
+@panopticon_bp.route('/api/panopticon/bills/vote', methods=['POST'])
+def api_bills_vote():
+    # Record a public vote on a bill
+    d = request.get_json(silent=True) or {}
+    bill_id = d.get('bill_id')
+    bill_number = d.get('bill_number', '')
+    vote = d.get('vote', '').lower()
+    if not bill_id or vote not in ('yes', 'no'):
+        return jsonify({'error': 'bill_id and vote (yes/no) required'}), 400
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location('bill_tracker',
+            '/home/ultron/protocol_pulse/services/bill_tracker.py')
+        _mod = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+        result = _mod.cast_public_vote(int(bill_id), bill_number, vote)
+        return jsonify({'success': True, 'votes': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
