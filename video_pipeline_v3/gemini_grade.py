@@ -245,12 +245,60 @@ def main():
         _vid_dur = 0
 
     _outro_start = max(0, _vid_dur - 25)
-    freeze_count = sum(
-        1 for (s, d) in _freeze_events
-        if d > 2.0 and s > 16.0 and s < _outro_start
-    )
+
+    # Build exempt time ranges from episode manifest — segments with static
+    # backgrounds (social cards, data overlays, signal_active, signoff, title)
+    # are intentionally static and must not be penalized as freeze frames.
+    _FREEZE_EXEMPT_TYPES = {
+        'social_card', 'data', 'signal_active', 'signoff',
+        'title_sequence', 'outro', 'wrap', 'synthesis',
+    }
+    _freeze_exempt_ranges = []
+    _manifest_path = os.path.join(os.path.dirname(LATEST), 'episode_manifest.json')
+    if not os.path.exists(_manifest_path):
+        # Also check parent dir (output/YYYY-MM-DD/final/pulse_check.mp4)
+        _manifest_path = os.path.join(os.path.dirname(os.path.dirname(LATEST)), 'episode_manifest.json')
+    if os.path.exists(_manifest_path):
+        try:
+            with open(_manifest_path) as _mf:
+                _manifest_data = json.load(_mf)
+            for _seg in _manifest_data.get('segments', []):
+                if _seg.get('type', '') in _FREEZE_EXEMPT_TYPES:
+                    _seg_start = float(_seg.get('start_sec', 0))
+                    _seg_dur = float(_seg.get('duration_sec', 0))
+                    _freeze_exempt_ranges.append((_seg_start, _seg_start + _seg_dur))
+            log(f"Freeze exemptions: {len(_freeze_exempt_ranges)} static segments "
+                f"({', '.join(sorted({s.get('type') for s in _manifest_data.get('segments', []) if s.get('type') in _FREEZE_EXEMPT_TYPES}))})")
+        except Exception as _mex:
+            log(f"Manifest parse error (freeze exemptions disabled): {_mex}")
+    else:
+        log("No episode_manifest.json found — freeze exemptions disabled")
+
+    def _in_exempt_range(ts):
+        """Check if a timestamp falls within any exempt segment range."""
+        for rng_start, rng_end in _freeze_exempt_ranges:
+            if rng_start - 1.0 <= ts <= rng_end + 1.0:  # 1s tolerance for segment boundaries
+                return True
+        return False
+
+    _freeze_penalized = []
+    _freeze_exempted = []
+    for (s, d) in _freeze_events:
+        if d <= 2.0 or s <= 16.0 or s >= _outro_start:
+            continue  # Already excluded: short, intro, or outro
+        if _in_exempt_range(s):
+            _freeze_exempted.append((s, d))
+        else:
+            _freeze_penalized.append((s, d))
+
+    freeze_count = len(_freeze_penalized)
     log(f"Freeze events: {len(_freeze_events)} total, "
+        f"{len(_freeze_exempted)} exempt (static segments), "
         f"{freeze_count} penalized (excl intro <16s, outro >{_outro_start:.0f}s)")
+    if _freeze_exempted:
+        log(f"  Exempted freeze timestamps: {', '.join(f'{s:.1f}s' for s, d in _freeze_exempted)}")
+    if _freeze_penalized:
+        log(f"  Penalized freeze timestamps: {', '.join(f'{s:.1f}s' for s, d in _freeze_penalized)}")
 
     # ── Audio/video stream count ──────────────────────────────────────
     has_video = v_stream != {}
@@ -344,7 +392,7 @@ BLACK FRAME SEGMENTS: {black_count_total} total | {black_count_mid} mid-video
 
 SILENCE GAPS (>0.8s, mid-video): {silence_count}
 
-FREEZE FRAMES (>1s): {freeze_count}
+FREEZE FRAMES (>1s): {freeze_count} penalized ({len(_freeze_exempted)} exempt — static segments like social cards, data overlays, signoff)
 
 === RENDER LOG (content/script details) ===
 {render_log_content}
@@ -568,6 +616,7 @@ aesthetic. Score based on actual observation.
     # ── Record to episode memory ─────────────────────────────────────
     try:
         sys.path.insert(0, str(PIPELINE_DIR))
+        sys.path.insert(0, str(BASE_DIR / 'agents'))
         from episode_memory import record_episode
         _render_id = os.path.basename(os.path.dirname(LATEST)) or os.path.basename(LATEST).replace('.mp4', '')
         _date = time.strftime('%Y-%m-%d')
