@@ -11,53 +11,53 @@
     "video_url": "/data/stage_briefs/brief_20260413_0200.mp4"
   },
   {
-    "id": "87da0401-fe73-403e-8c98-299c2715c68d",
+    "id": "16fd18d8-2e0b-4a6d-ac74-3ad0daa1f3ed",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Oil and gas extraction employs 116,000 Americans\u2014less than 0.1% of the labor force.\n\nBitcoin mining requires roughly 100,000 miners globally, with 60% concentrated in China.\n\nWatch for Chinese mining migration patterns as regulatory pressure intensifies.",
-    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
-    "topic_preview": "Only 116 thousand Americans work in oil and gas extraction (out of a 170 million",
-    "generated_at": "2026-04-13T02:45:06.267710+00:00",
-    "expires_at": "2026-04-13T04:45:06.267710+00:00"
+    "script": "Satoshi's cypherpunk list activity signals Bitcoin's true origin story. The list's archival records show Satoshi's 2008 Bitcoin whitepaper was crafted in the same intellectual space as the Cypherpunks' core philosophy. The conversation history reveals a deliberate, pre-planned development rather than a spontaneous emergence. Watch for the next list archival release showing Satoshi's full participation in the Cypherpunk intellectual network. The timeline confirms Bitcoin's sovereign foundation, not just a technical innovation.",
+    "source_label": "\ud83e\udde0 @ADAM3US",
+    "topic_preview": "with these conversations spread over some brainstorming posts on the cypherpunks",
+    "generated_at": "2026-04-13T04:50:10.533487+00:00",
+    "expires_at": "2026-04-13T06:50:10.533487+00:00"
   },
   {
-    "id": "3b90b310-d850-42b8-b4b4-afcc07761ee3",
-    "type": "METRICS_PULSE",
-    "priority": 3,
-    "script": "Bitcoin trading at $71,082, down 2.76% in 24 hours. Hashrate stable at 1,068.7 EH.\n\nFear and Greed index at extreme fear, 12. Fastest fee 3 satoshis.\n\n32,058 transactions processed in the last hour. Block 944,811.\n\nWatch for any miner reorg activity at next halving cycle.",
-    "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $71,082 \u00b7 FNG 12 \u00b7 1068.7 EH/s",
-    "generated_at": "2026-04-13T00:45:20.024784+00:00",
-    "expires_at": "2026-04-13T04:45:20.024784+00:00"
-  },
-  {
-    "id": "be04a097-7b58-414b-81c5-4c3cb26af052",
+    "id": "1dbbe3e1-1b04-4e34-a080-62f60acd0a70",
     "type": "ARTICLE_TEASER",
     "priority": 3,
-    "script": "Claude Opus AI cloned for potato PCs. Developer Qwopus replicates original reasoning locally. Model runs on low-spec hardware with surprisingly close results.\n\nWatch for local AI proliferation\u2014this signals decentralized reasoning capability. Next: how this impacts Bitcoin node distribution.",
+    "script": "Claude Opus AI cloned for potato PCs. Developer distilled Claude Opus 4.6's reasoning into local model Qwopus. Runs on low-spec hardware, mimics original capabilities surprisingly close. \n\nWatch for on-chain data on mining hardware adoption rates.",
     "source_label": "\ud83d\udcf0 FRESH INTEL",
     "topic_preview": "Claude Opus AI Cloned for Potato PCs",
-    "generated_at": "2026-04-13T00:50:10.737165+00:00",
-    "expires_at": "2026-04-13T04:50:10.737165+00:00"
+    "generated_at": "2026-04-13T04:50:14.900561+00:00",
+    "expires_at": "2026-04-13T08:50:14.900561+00:00"
   },
   {
-    "id": "1a4eb7b5-c80b-4129-a47a-68032fe19163",
+    "id": "13c93ad5-a060-4406-ac8a-fd7d3a8531bb",
+    "type": "METRICS_PULSE",
+    "priority": 3,
+    "script": "Bitcoin trading at $70,989, down 0.8% in 24 hours. Hashrate stable at 1,068.7 EH.\n\nFear and greed index at extreme fear level 12. Transaction count 29,852.\n\nFastest fee one satoshi. Block 944,839.\n\nWatch for any miner exits from the top 100.",
+    "source_label": "\ud83d\udcca METRICS PULSE",
+    "topic_preview": "BTC $70,989 \u00b7 FNG 12 \u00b7 1068.7 EH/s",
+    "generated_at": "2026-04-13T04:55:17.357332+00:00",
+    "expires_at": "2026-04-13T08:55:17.357332+00:00"
+  },
+  {
+    "id": "435bf89f-b0cf-4443-bb83-d65f15dac3aa",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional Bitcoin accumulation accelerating. \n\nNostr relays show 34% increase in verified entity activity over 7 days.\n\nWatch for next major accumulation signal in the 100,000 to 150,000 Bitcoin range.",
+    "script": "Bitcoin miners are fleeing Eastern Europe. \n\nGeopolitical instability driving Bitcoin utility acceleration.\n\nWatch for mining hash rate shifts in Poland and Ukraine.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Institutional accumulation",
-    "generated_at": "2026-04-13T01:15:20.610580+00:00",
-    "expires_at": "2026-04-13T05:15:20.610580+00:00"
+    "topic_preview": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
+    "generated_at": "2026-04-13T05:15:32.318701+00:00",
+    "expires_at": "2026-04-13T09:15:32.318701+00:00"
   },
   {
-    "id": "d8781e03-f548-4fd0-ac2b-1a3d942b34a6",
+    "id": "456e08cf-00b2-42af-8abf-f75da0f7cc50",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The Bitcoin network has been operational for over 99.98 percent of its existence. No bank, no government system, no tech company can match that uptime. Decentralization isn't just philosophy \u2014 it's resilience.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The Bitcoin network has been operational for over 99.98 percent of its existence",
-    "generated_at": "2026-04-13T00:35:07.514881+00:00",
-    "expires_at": "2026-04-13T04:35:07.514881+00:00"
+    "script": "Hashrate surged to 1,069 EH/s, confirming decentralized mining momentum. Fear & greed index at 12 signals extreme panic. Mempool fees remain stubbornly low at 2 sat/vbyte. Bitcoin miners accumulate losses while the network strengthens. Watch for the next halving cycle's impact on mining economics.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate surged to 1,069 EH/s, confirming decentralized mining momentum. Fear & ",
+    "generated_at": "2026-04-13T04:45:51.605564+00:00",
+    "expires_at": "2026-04-13T06:45:51.605564+00:00"
   }
 ]

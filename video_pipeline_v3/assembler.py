@@ -753,7 +753,10 @@ def concatenate_parts(parts: list, output_path: str,
             _tp_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp_check.stderr)
             _tp_val = float(_tp_match.group(1)) if _tp_match else -99
             logger.info(f"  TRUE PEAK PRE-LIMITER: {_tp_val:+.2f} dBTP")
-            if _tp_val > -1.5:
+            # V44b: ALWAYS apply post-encode limiter — different measurement methods
+            # give different TP values (assembler sees -3.1, QC sees -1.0 on same file).
+            # Running unconditionally guarantees compliance regardless of measurement variance.
+            if True:  # was: _tp_val > -1.5
                 _limited = output_path + ".tp_limited.mp4"
                 _tp_ok = run_ffmpeg([
                     "-i", output_path,

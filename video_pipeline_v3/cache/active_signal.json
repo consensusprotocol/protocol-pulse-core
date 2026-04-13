@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1776053705.0341358,
-  "fetched_at_iso": "2026-04-13T04:15:05.034141+00:00",
+  "fetched_at": 1776057306.176645,
+  "fetched_at_iso": "2026-04-13T05:15:06.176651+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 48,
+      "events_filtered": 51,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 72,
+      "events_filtered": 70,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,11 +34,20 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 56,
+      "events_filtered": 62,
       "error": null
     }
   ],
   "nostr_posts": [
+    {
+      "text": "Hello, Nostr! \ud83d\udc4b\n\nIntroducing **BitHome** (bithome.site) \u2014 The Global Property Protocol.\n\nA censorship-resistant, Bitcoin-native protocol for real estate:\n\u2022 Listings & demands via Nostr (kind 30023)\n\u2022 Canonical pricing in sats/m\u00b2 (no fiat noise)\n\u2022 Identity = keys, not accounts\n\u2022 Final settlement on Bitcoin + Lightning\n\nActive Beta is live. Global map. P2P matching. No intermediaries.\n\nThe decentralized real estate revolution starts now. \u26a1\n\nbithome.site\n#BitHome #Nostr #Bitcoin #RealEstate #Protocol \nhttps://image.nostr.build/8eed1e31b4d5db8cba65d8daa17f34f6565dcbbc450ae4cfe47ec56596227c57.jpg",
+      "pubkey": "2d947225477eff43131ce6a2f31078ff7aaabe313c7c6692ef48935a51c6217b",
+      "display_name": "npub12d947225...c6217b",
+      "created_at": 1776053896,
+      "relay": "wss://relay.damus.io",
+      "score": 90,
+      "has_zap": false
+    },
     {
       "text": "\ud83d\udccaACTION ZONE DAY\nLast Update: 04/13/2026 00:09 (GMT Time)\n\nETHBTC \u26a13,097,000 sats\n  \u21b3 \u2705 Up (-1.43%) \ud83d\udcc503/16/2026 \u26a13,142,000 sats\nPAXGBTC \u26a16,584,000 sats\n  \u21b3 \ud83d\udca9 Down (-6.61%) \ud83d\udcc503/14/2026 \u26a17,050,000 sats\nDOGEBTC \u26a1128 sats\n  \u21b3 \ud83d\udca9 Down (-3.76%) \ud83d\udcc504/05/2026 \u26a1133 sats\nBNBBTC \u26a1837,800 sats\n  \u21b3 \ud83d\udca9 Down (-12.08%) \ud83d\udcc502/05/2026 \u26a1952,900 sats\nXRPBTC \u26a11,874 sats\n  \u21b3 \ud83d\udca9 Down (-10.80%) \ud83d\udcc502/20/2026 \u26a12,101 sats\nLINKBTC \u26a112,350 sats\n  \u21b3 \ud83d\udca9 Down (-4.56%) \ud83d\udcc503/26/2026 \u26a112,940 sats\nSOLBTC \u26a1115,300 sats\n  \u21b3 \ud83d\udca9 Down (-6.53%) \ud83d\udcc503/29/2026 \u26a1123,350 sats\nADABTC \u26a1334 sats\n  \u21b3 \ud83d\udca9 Down (-12.11%) \ud83d\udcc503/04/2026 \u26a1380 sats\nFETBTC \u26a1325 sats\n  \u21b3 \u2705 Up (+19.93%) \ud83d\udcc503/15/2026 \u26a1271 sats\nTRXBTC \u26a1454 sats\n  \u21b3 \u2705 Up (+57.64%) \ud83d\udcc511/12/2025 \u26a1288 sats\nAVAXBTC \u26a112,770 sats\n  \u21b3 \ud83d\udca9 Down (-3.40%) \ud83d\udcc503/26/2026 \u26a113,220 sats\n\n #spaceshit #bitcoin #btc #nostr #plebchain #zap #zaps",
       "pubkey": "aaf17a1c28e40a2cbc3ab79f14619ef4b7a0a1b79072633f569d3c78d77a8dc9",
@@ -46,15 +55,6 @@
       "created_at": 1776038943,
       "relay": "wss://nos.lol",
       "score": 90,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **What happened this week in the Bitcoin World**\n\nBitcoin just had one of its most schizophrenic weeks in 2026. A U.S.-Iran ceasefire rocket propelled BTC past $72,000, only for ETF outflows and a bru...\n\n\ud83d\udc64 NM team\n\nhttps://image.nostr.build/122457713303171e6c05b9c219407120dfce31270d7d12d86841f8574e001ce5.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w15bitcoin02\n\n\ud83d\udcca id#77115061",
-      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
-      "display_name": "npub1aee9d7ac...2e0502",
-      "created_at": 1776035359,
-      "relay": "wss://nos.lol",
-      "score": 88,
       "has_zap": false
     },
     {
@@ -103,6 +103,15 @@
       "has_zap": false
     },
     {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.01 oz | 24hr: -0.31%\n1 oz Gold: 6,662,225 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.6 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-13 | 05:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776056464,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
       "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.05 oz | 24hr: -0.28%\n1 oz Gold: 6,644,518 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.6 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 04:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
@@ -112,19 +121,19 @@
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.08 oz | 24hr: 0.08%\n1 oz Gold: 6,631,300 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.7 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 02:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776045664,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
       "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.06 oz | 24hr: -0.49%\n1 oz Gold: 6,640,106 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.6 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 03:00 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776049266,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.08 oz | 24hr: 0.08%\n1 oz Gold: 6,631,300 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.7 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 02:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776045664,
       "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
@@ -148,15 +157,6 @@
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.22 oz | 24hr: -1.41%\n1 oz Gold: 6,570,302 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.2 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 23:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776034865,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
       "text": "I am participating in SOUND HSA Spring Challenge!\n\nI have reached 53868 steps so far!\n\nBut I haven't received the payment. I finished the challenge on Saturday morning. Has this happened to anyone else, or is it just me? I'm so unlucky.\n\n#SoundHSA #MoveToEarn\n#Bitcoin #Sats #Hola #Hi",
       "pubkey": "79f866aa810f44c61694edb023d72a58c654b6782b36647f87fdf1a0fcf29976",
       "display_name": "npub179f866aa...f29976",
@@ -166,11 +166,20 @@
       "has_zap": false
     },
     {
+      "text": "DEVELOPING: Bitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nFull breakdown just published:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
+      "pubkey": "1ec7da9eca27ed9150ccd54c703926f877c783a728caed07b8287f3bd936a875",
+      "display_name": "npub11ec7da9e...36a875",
+      "created_at": 1776055598,
+      "relay": "wss://relay.damus.io",
+      "score": 67,
+      "has_zap": false
+    },
+    {
       "text": "We shipped an MCP server. \n\nEvery AI model behind one MCP endpoint. Text, images, video.\n\nPay per request with Bitcoin or USDC.\n\nBecause you shouldn't need 5 API keys and 3 billing dashboards to use AI.\n\nDocs: https://llm402.ai/docs#mcp\n\nhttps://llm402.ai/mcp\n\n#Bitcoin #Lightning #L402 #x402 #LLM #AI",
       "pubkey": "68a5d2264dfd1d43d18e3f345256b122df595e97d7bd7698fb2535c0a5b07639",
       "display_name": "npub168a5d226...b07639",
       "created_at": 1776044817,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 65,
       "has_zap": false
     },
@@ -197,7 +206,7 @@
       "pubkey": "3f8a99a978a001d4489ac335824737710e63b1e8fee0fbaf674d87ef3319fcf8",
       "display_name": "npub13f8a99a9...19fcf8",
       "created_at": 1776045216,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 59,
       "has_zap": false
     },
@@ -209,18 +218,9 @@
       "relay": "wss://relay.damus.io",
       "score": 58,
       "has_zap": false
-    },
-    {
-      "text": "The block height is 944818, and the current price for bitcoin is 71.2K USD. This means that you can get 1404 sats for one dollar. The fear/greed index is 43: Neutral. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776045604,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
-      "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 176,
+  "total_filtered": 183,
   "total_scored": 20
 }

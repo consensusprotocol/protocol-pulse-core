@@ -1,40 +1,40 @@
 {
-  "updated_at": "2026-04-13T04:25:01.381762+00:00",
+  "updated_at": "2026-04-13T05:25:01.417788+00:00",
   "btc_price": {
-    "value": 70969,
-    "change_24h": -0.81,
+    "value": 70834,
+    "change_24h": -1.13,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1420531274244.096,
+    "value": 1417287229251,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 26686288339.803318,
+    "value": 27307565952,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 944834,
+    "value": 944843,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": -4.44,
-    "blocks_remaining": 670,
-    "estimated_date": "2026-04-18T01:21:48.890000+00:00",
+    "percent": -4.21,
+    "blocks_remaining": 661,
+    "estimated_date": "2026-04-18T00:30:50.850000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "951.7 EH/s",
-    "raw_eh": 951.7,
+    "value": "953.9 EH/s",
+    "raw_eh": 953.9,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 28699,
-    "vsize_mb": 27.0,
+    "tx_count": 35654,
+    "vsize_mb": 28.2,
     "source": "mempool.space"
   },
   "recommended_fees": {
-    "fastest": 1,
+    "fastest": 2,
     "hour": 1,
     "economy": 1,
     "source": "mempool.space"
@@ -57,16 +57,16 @@
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 28592.4,
-    "usd": 2029393610,
+    "btc": 28645.7,
+    "usd": 2029437150,
     "source": "deribit"
   },
   "dominance": {
-    "value": 56.22,
+    "value": 56.21,
     "source": "coinpaprika"
   },
   "gold": {
-    "value": 4736.2,
+    "value": 4740.9,
     "source": "yahoo"
   },
   "sp500": {
@@ -74,11 +74,11 @@
     "source": "yahoo"
   },
   "dxy": {
-    "value": 99.0,
+    "value": 99.03,
     "source": "yahoo"
   },
   "exchange_volume": {
-    "binance_btc": 87049.2,
+    "binance_btc": 87135.3,
     "coinbase_btc": null,
     "source": "coingecko"
   },
@@ -116,10 +116,10 @@
     "value": null,
     "source": "unavailable"
   },
-  "btc_dominance": 56.22,
-  "gold_price": 4736.2,
+  "btc_dominance": 56.21,
+  "gold_price": 4740.9,
   "sp500_price": 6816.89,
-  "dxy_index": 99.0,
+  "dxy_index": 99.03,
   "signal_score": {
     "bull_count": 1,
     "bear_count": 2,

@@ -82,5 +82,17 @@
     "generated_at": "2026-04-13T02:56:02.096161+00:00",
     "brief_date": "Sunday, April 12, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_051849_0",
+    "text": "Iran can't access $6B in frozen assets. Swift is a weapon now. Bitcoin doesn't care about sanctions or blockades. It just settles",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T05:18:49.851378+00:00",
+    "brief_date": "Sunday, April 12, 2026",
+    "sentiment": "bullish"
   }
 ]

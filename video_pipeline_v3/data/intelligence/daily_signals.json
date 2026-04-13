@@ -1,32 +1,13 @@
 {
   "topic_velocity": [
     {
-      "topic": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
-      "channels": 29,
-      "sentiment": "bullish",
-      "velocity_score": 87,
-      "authority_score": 50,
-      "top_quote": "",
-      "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
       "topic": "Institutional accumulation thesis \u2014 Michael Saylor 'Think...",
       "channels": 21,
       "sentiment": "bullish",
       "velocity_score": 32,
-      "authority_score": 40,
+      "authority_score": 32,
       "top_quote": "",
-      "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
-      ],
+      "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
@@ -35,26 +16,33 @@
       "channels": 16,
       "sentiment": "bullish",
       "velocity_score": 24,
-      "authority_score": 30,
+      "authority_score": 24,
       "top_quote": "",
-      "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
-      ],
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
+      "channels": 29,
+      "sentiment": "bullish",
+      "velocity_score": 22,
+      "authority_score": 87,
+      "top_quote": "",
+      "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": true,
+  "breaking_threshold": false,
   "recommended_topics": [
-    "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
     "Institutional accumulation thesis \u2014 Michael Saylor 'Think...",
-    "Technofascist surveillance state erosion \u2014 LAPD hack (7.7..."
+    "Technofascist surveillance state erosion \u2014 LAPD hack (7.7...",
+    "Geopolitical instability as Bitcoin utility accelerant \u2014 ..."
   ],
   "dominant_narrative": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
-  "market_mood": "bullish",
+  "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-13T01:55:38Z"
+  "scan_time": "2026-04-13T04:28:49Z"
 }
