@@ -1,112 +1,217 @@
 #!/usr/bin/env python3
 """
-OpenFEC Donation Map Service — Political contribution data for Panopticon.
-Uses the free OpenFEC API to track federal political donations by state/zip.
+Bitcoin/Crypto PAC & Donation Tracker — Protocol Pulse
+=======================================================
+Uses OpenFEC API (free personal key = 1000 req/hr) to surface:
+  - Top individual donations to crypto-friendly candidates/PACs
+  - Fairshake PAC + Defend American Jobs spend (the dominant crypto super PAC)
+  - Crypto-adjacent independent expenditures (who PACs are spending to elect)
+  - Daily change in donation velocity
+
+Crypto-friendly candidate list: pro-Bitcoin senators/reps known to the community.
 """
-import requests
-import logging
-import os
-import json
-import time
-from datetime import datetime, timedelta
+import json, logging, os, time, requests
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-class DonationMapService:
-    def __init__(self):
-        self.base_url = "https://api.open.fec.gov/v1"
-        self.api_key = os.environ.get("OPENFEC_API_KEY", "DEMO_KEY")
-        self._cache = {}
-        self._cache_ttl = 3600  # 1 hour cache
+BASE_DIR   = Path("/home/ultron/protocol_pulse")
+CACHE_PATH = BASE_DIR / "data" / "donation_pulse.json"
+CACHE_TTL  = 3600  # 1 hour
 
-    def _get(self, endpoint, params=None):
-        """Make a cached GET request to OpenFEC."""
-        cache_key = f"{endpoint}:{json.dumps(params or {}, sort_keys=True)}"
-        now = time.time()
-        if cache_key in self._cache:
-            data, ts = self._cache[cache_key]
-            if now - ts < self._cache_ttl:
-                return data
+API_BASE = "https://api.open.fec.gov/v1"
 
-        if params is None:
-            params = {}
-        params["api_key"] = self.api_key
+# Known crypto-friendly committee IDs (Fairshake PAC is the big one)
+CRYPTO_PACS = {
+    "C00835959": "Fairshake PAC",
+    "C00835975": "Protect Progress (Fairshake affiliate)",
+    "C00835983": "Defend American Jobs (Fairshake affiliate)",
+    "C00694323": "Blockchain Association PAC",
+    "C00835942": "Stand With Crypto Alliance",
+}
 
-        try:
-            r = requests.get(f"{self.base_url}{endpoint}", params=params, timeout=10)
-            if r.ok:
-                result = r.json().get("results", [])
-                self._cache[cache_key] = (result, now)
-                return result
-            else:
-                logger.warning(f"OpenFEC API {r.status_code}: {r.text[:200]}")
-                return []
-        except Exception as e:
-            logger.warning(f"OpenFEC API error: {e}")
+# Pro-Bitcoin candidate keywords (FEC name search)
+CRYPTO_CANDIDATE_KEYWORDS = [
+    "Lummis", "Hagerty", "Scott", "Emmer", "McHenry",
+    "Soto", "Torres", "Lawler", "Hill",
+]
+
+
+def _get(endpoint: str, params: dict, key: str) -> list:
+    params["api_key"] = key
+    try:
+        r = requests.get(f"{API_BASE}{endpoint}", params=params, timeout=12)
+        if r.status_code == 429:
+            logger.warning("OpenFEC rate limit hit")
             return []
+        if not r.ok:
+            logger.warning("OpenFEC %s: %s", r.status_code, r.text[:100])
+            return []
+        return r.json().get("results", [])
+    except Exception as e:
+        logger.error("OpenFEC error: %s", e)
+        return []
 
-    def get_contributions_by_state(self, state=None, per_page=100):
-        """Fetch recent individual contributions, optionally filtered by state."""
-        params = {
-            "per_page": per_page,
+
+def fetch_fairshake_spend(key: str) -> dict:
+    """Get Fairshake PAC's latest independent expenditures — the Bitcoin super PAC."""
+    results = []
+    for cid, name in list(CRYPTO_PACS.items())[:2]:  # Top 2 to save quota
+        data = _get("/schedules/schedule_e/", {
+            "committee_id": cid,
+            "per_page": 5,
+            "sort": "-expenditure_date",
+            "two_year_transaction_period": 2026,
+        }, key)
+        for d in data:
+            results.append({
+                "pac":         name,
+                "candidate":   d.get("candidate_name", "?"),
+                "support":     d.get("support_oppose_indicator", "?"),
+                "amount":      d.get("expenditure_amount", 0),
+                "date":        d.get("expenditure_date", ""),
+                "description": d.get("expenditure_description", ""),
+                "state":       d.get("candidate_office_state", ""),
+            })
+        time.sleep(0.5)
+
+    total = sum(r["amount"] for r in results)
+    return {"expenditures": results[:10], "total_spend": total}
+
+
+def fetch_crypto_candidate_donations(key: str) -> list:
+    """Get recent large donations TO crypto-friendly candidates."""
+    donations = []
+    # Search schedule A (individual contributions) filtered to crypto-adjacent committees
+    for cid, pac_name in list(CRYPTO_PACS.items())[:3]:
+        data = _get("/schedules/schedule_a/", {
+            "committee_id": cid,
+            "per_page": 5,
             "sort": "-contribution_receipt_date",
-            "is_individual": "true",
-        }
-        if state and state != "US":
-            params["contributor_state"] = state
-        return self._get("/schedules/schedule_a/", params)
+            "min_amount": 1000,
+            "two_year_transaction_period": 2026,
+        }, key)
+        for d in data:
+            donations.append({
+                "donor":     d.get("contributor_name", "Anonymous"),
+                "employer":  d.get("contributor_employer", ""),
+                "amount":    d.get("contribution_receipt_amount", 0),
+                "date":      d.get("contribution_receipt_date", ""),
+                "recipient": pac_name,
+                "state":     d.get("contributor_state", ""),
+                "city":      d.get("contributor_city", ""),
+            })
+        time.sleep(0.5)
 
-    def get_contributions_by_zip(self, zip_code, per_page=50):
-        """Fetch contributions by zip code."""
-        params = {
-            "contributor_zip": zip_code,
-            "per_page": per_page,
-            "sort": "-contribution_receipt_date",
-            "is_individual": "true",
-        }
-        return self._get("/schedules/schedule_a/", params)
+    donations.sort(key=lambda x: x["amount"], reverse=True)
+    return donations[:10]
 
-    def get_crypto_related_committees(self, per_page=20):
-        """Search for committees with crypto/bitcoin in their name."""
-        results = []
-        for keyword in ["bitcoin", "crypto", "blockchain", "digital asset"]:
-            params = {"q": keyword, "per_page": per_page}
-            committees = self._get("/committees/", params)
-            results.extend(committees)
-        return results
 
-    def get_state_summary(self):
-        """Get aggregate donation data by state for map visualization."""
-        # Use totals endpoint for state-level aggregation
-        params = {
-            "per_page": 50,
-            "sort": "-total",
-            "cycle": datetime.now().year if datetime.now().year % 2 == 0 else datetime.now().year - 1,
-        }
-        return self._get("/schedules/schedule_a/by_state/", params)
+def fetch_crypto_committees(key: str) -> list:
+    """Get all crypto/bitcoin related committees currently active."""
+    committees = []
+    for kw in ["bitcoin", "crypto", "blockchain", "digital asset", "fairshake"]:
+        data = _get("/committees/", {
+            "q": kw,
+            "per_page": 5,
+            "committee_type": ["O", "Q", "V", "W"],  # Super PACs + non-connected
+            "cycle": 2026,
+        }, key)
+        for c in data:
+            if c.get("committee_id") not in [x.get("id") for x in committees]:
+                committees.append({
+                    "id":      c.get("committee_id"),
+                    "name":    c.get("name"),
+                    "type":    c.get("committee_type_full", ""),
+                    "state":   c.get("state", ""),
+                    "party":   c.get("party_full", ""),
+                    "cycle":   c.get("cycles", []),
+                })
+        time.sleep(0.3)
+    return committees[:15]
 
-    def get_donation_pulse(self):
-        """Get a pulse score (0-100) based on recent crypto-related donation activity."""
-        try:
-            committees = self.get_crypto_related_committees(10)
-            state_data = self.get_state_summary()
 
-            crypto_committees = len(committees)
-            total_states_active = len(state_data) if state_data else 0
+def compute_pulse_score(fairshake: dict, donations: list, committees: list) -> dict:
+    """Score 0-100 based on PAC spending velocity and donation activity."""
+    spend   = fairshake.get("total_spend", 0)
+    n_don   = len(donations)
+    n_comm  = len(committees)
+    top_don = donations[0]["amount"] if donations else 0
 
-            # Simple pulse score based on activity
-            pulse = min(100, max(0,
-                (crypto_committees * 5) +
-                (total_states_active * 2)
-            ))
+    # Scoring: spend velocity weighted most heavily
+    spend_score = min(40, int(spend / 50000))   # $2M spend = 40pts
+    don_score   = min(30, n_don * 3)             # 10 donations = 30pts
+    comm_score  = min(20, n_comm * 2)            # 10 committees = 20pts
+    size_score  = min(10, int(top_don / 10000))  # $100k top donor = 10pts
 
-            return {
-                "score": pulse,
-                "crypto_committees": crypto_committees,
-                "states_active": total_states_active,
-                "label": "HIGH" if pulse > 70 else ("MODERATE" if pulse > 40 else "LOW"),
-                "updated": datetime.utcnow().isoformat(),
-            }
-        except Exception as e:
-            logger.warning(f"Donation pulse error: {e}")
-            return {"score": 0, "label": "UNAVAILABLE", "crypto_committees": 0, "states_active": 0}
+    total = spend_score + don_score + comm_score + size_score
+    return {
+        "score":       min(100, total),
+        "label":       "HIGH" if total > 70 else ("MODERATE" if total > 40 else "LOW"),
+        "spend_score": spend_score,
+        "don_score":   don_score,
+        "comm_score":  comm_score,
+    }
+
+
+def fetch_donation_pulse(force: bool = False) -> dict:
+    """Master function. Returns full donation intelligence payload."""
+    if not force and CACHE_PATH.exists():
+        age = time.time() - CACHE_PATH.stat().st_mtime
+        if age < CACHE_TTL:
+            try:
+                return json.loads(CACHE_PATH.read_text())
+            except Exception:
+                pass
+
+    key = os.environ.get("OPENFEC_API_KEY", "DEMO_KEY")
+    if key == "DEMO_KEY":
+        logger.warning("Using DEMO_KEY — rate limited to 40/hr. Set OPENFEC_API_KEY.")
+
+    t0 = time.time()
+    logger.info("Fetching donation pulse (key: %s...)", key[:8])
+
+    fairshake  = fetch_fairshake_spend(key)
+    donations  = fetch_crypto_candidate_donations(key)
+    committees = fetch_crypto_committees(key)
+    pulse      = compute_pulse_score(fairshake, donations, committees)
+
+    result = {
+        "updated_at":       datetime.now(timezone.utc).isoformat(),
+        "fetch_ms":         round((time.time() - t0) * 1000),
+        "score":            pulse["score"],
+        "label":            pulse["label"],
+        "crypto_committees": len(committees),
+        "states_active":    len(set(d.get("state","") for d in donations if d.get("state"))),
+        "fairshake_spend":  fairshake.get("total_spend", 0),
+        "fairshake_expenditures": fairshake.get("expenditures", []),
+        "top_donations":    donations,
+        "committees":       committees,
+        "source":           "OpenFEC API (FEC Public Data)",
+        "key_type":         "demo" if key == "DEMO_KEY" else "personal",
+    }
+
+    try:
+        CACHE_PATH.parent.mkdir(exist_ok=True)
+        CACHE_PATH.write_text(json.dumps(result, indent=2, default=str))
+    except Exception as e:
+        logger.error("Cache write: %s", e)
+
+    return result
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s [%(levelname)s] %(message)s")
+    result = fetch_donation_pulse(force=True)
+    print(f"\nPulse score:    {result['score']} ({result['label']})")
+    print(f"Committees:     {result['crypto_committees']}")
+    print(f"States active:  {result['states_active']}")
+    print(f"Fairshake spend: ${result['fairshake_spend']:,.0f}")
+    print(f"Top donations:")
+    for d in result['top_donations'][:5]:
+        print(f"  ${d['amount']:>10,.0f}  {d['donor'][:30]:30}  -> {d['recipient']}")
+    print(f"\nFairshake expenditures:")
+    for e in result['fairshake_expenditures'][:5]:
+        print(f"  ${e['amount']:>10,.0f}  {e['support']:7}  {e['candidate'][:30]}")

@@ -2345,12 +2345,11 @@ def trigger_automation():
 @api_bp.route('/api/donations/pulse')
 def api_donation_pulse():
     try:
-        import sys
-        if "/home/ultron/protocol_pulse" not in sys.path:
-            sys.path.insert(0, "/home/ultron/protocol_pulse")
-        from services.donation_map_service import DonationMapService
-        svc = DonationMapService()
-        return jsonify(svc.get_donation_pulse())
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location('donation_map_service',
+            '/home/ultron/protocol_pulse/services/donation_map_service.py')
+        _mod = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+        return jsonify(_mod.fetch_donation_pulse())
     except Exception as e:
         return jsonify({"score": 0, "label": "UNAVAILABLE", "error": str(e)})
 

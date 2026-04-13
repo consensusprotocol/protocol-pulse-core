@@ -2259,31 +2259,103 @@ if(scr)scr.addEventListener('scroll',tlClose);
         setInterval(loadWhales, 60000);
     })();
 
-    // ── Political Donation Pulse ──
+    // ── Political Donation Pulse (rebuilt) ──
     (function() {
         fetch('/api/donations/pulse')
             .then(function(r) { return r.json(); })
             .then(function(d) {
-                var sc = document.getElementById('donPulseScore');
-                var cm = document.getElementById('donCommittees');
-                var st = document.getElementById('donStates');
-                var lb = document.getElementById('donLabel');
-                if (sc) sc.textContent = d.score || 0;
-                if (cm) cm.textContent = d.crypto_committees || 0;
-                if (st) st.textContent = d.states_active || 0;
-                if (lb) {
-                    var label = d.label || 'UNAVAILABLE';
-                    var col = label === 'HIGH' ? 'var(--pn-red)' : (label === 'MODERATE' ? 'var(--pn-gold)' : 'var(--pn-muted)');
-                    lb.textContent = label;
-                    lb.style.color = col;
-                    lb.style.borderColor = col;
+                var el = document.getElementById('pnDonations');
+                if (!el) return;
+
+                var score    = d.score || 0;
+                var label    = d.label || 'LOW';
+                var spend    = d.fairshake_spend || 0;
+                var nComm    = d.crypto_committees || 0;
+                var nStates  = d.states_active || 0;
+                var exps     = d.fairshake_expenditures || [];
+                var topDons  = d.top_donations || [];
+                var scoreCol = score > 70 ? '#CC0000' : score > 40 ? '#f8c15c' : 'rgba(255,255,255,0.3)';
+                var spendFmt = spend >= 1e6 ? '$' + (spend/1e6).toFixed(1) + 'M'
+                             : spend >= 1e3 ? '$' + (spend/1e3).toFixed(0) + 'K' : '$0';
+
+                var html = '<div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">';
+
+                // Pulse score
+                html += '<div style="text-align:center;min-width:64px;">'
+                      + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:28px;font-weight:900;color:' + scoreCol + ';">' + score + '</div>'
+                      + '<div style="font-size:7px;letter-spacing:.1em;color:rgba(255,255,255,0.3);margin-top:2px;">PULSE SCORE</div>'
+                      + '</div>';
+
+                // Stats
+                html += '<div style="display:flex;flex-direction:column;gap:6px;flex:1;">';
+                html += '<div style="display:flex;gap:16px;">';
+                html += '<div style="text-align:center;">'
+                      + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:16px;font-weight:700;color:#f8c15c;">' + spendFmt + '</div>'
+                      + '<div style="font-size:7px;letter-spacing:.08em;color:rgba(255,255,255,0.3);">FAIRSHAKE SPEND</div>'
+                      + '</div>';
+                html += '<div style="text-align:center;">'
+                      + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:16px;font-weight:700;color:rgba(255,255,255,0.7);">' + nComm + '</div>'
+                      + '<div style="font-size:7px;letter-spacing:.08em;color:rgba(255,255,255,0.3);">CRYPTO PACs</div>'
+                      + '</div>';
+                html += '<div style="text-align:center;">'
+                      + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:16px;font-weight:700;color:rgba(255,255,255,0.7);">' + nStates + '</div>'
+                      + '<div style="font-size:7px;letter-spacing:.08em;color:rgba(255,255,255,0.3);">STATES ACTIVE</div>'
+                      + '</div>';
+                html += '</div>'; // stats row
+                html += '</div></div>'; // right col + header
+
+                // Fairshake expenditures
+                if (exps.length) {
+                    html += '<div style="font-size:7px;letter-spacing:.1em;color:rgba(255,255,255,0.25);margin-bottom:4px;">FAIRSHAKE PAC — INDEPENDENT EXPENDITURES</div>';
+                    exps.slice(0,4).forEach(function(e) {
+                        var amtFmt = e.amount >= 1e6 ? '$'+(e.amount/1e6).toFixed(1)+'M'
+                                   : e.amount >= 1e3 ? '$'+(e.amount/1e3).toFixed(0)+'K'
+                                   : '$'+e.amount;
+                        var suppCol = e.support === 'S' ? '#22c55e' : '#ef4444';
+                        var suppTxt = e.support === 'S' ? 'SUPPORT' : 'OPPOSE';
+                        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+                              + '<div>'
+                              + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.8);">' + (e.candidate||'?').substring(0,28) + '</span>'
+                              + '<span style="font-size:7px;color:' + suppCol + ';margin-left:6px;border:1px solid '+suppCol+';padding:1px 4px;border-radius:2px;">' + suppTxt + '</span>'
+                              + '</div>'
+                              + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:700;color:#f8c15c;">' + amtFmt + '</span>'
+                              + '</div>';
+                    });
                 }
+
+                // Top donations
+                if (topDons.length) {
+                    html += '<div style="font-size:7px;letter-spacing:.1em;color:rgba(255,255,255,0.25);margin:8px 0 4px;">TOP INDIVIDUAL DONATIONS TO CRYPTO PACs</div>';
+                    topDons.slice(0,4).forEach(function(d2) {
+                        var amtFmt = d2.amount >= 1e6 ? '$'+(d2.amount/1e6).toFixed(1)+'M'
+                                   : d2.amount >= 1e3 ? '$'+(d2.amount/1e3).toFixed(0)+'K'
+                                   : '$'+d2.amount;
+                        var loc = d2.city ? d2.city + ', ' + d2.state : d2.state || '';
+                        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+                              + '<div>'
+                              + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.8);">' + (d2.donor||'Anonymous').substring(0,26) + '</div>'
+                              + '<div style="font-size:7px;color:rgba(255,255,255,0.3);">' + loc + (d2.employer ? ' · ' + d2.employer.substring(0,20) : '') + '</div>'
+                              + '</div>'
+                              + '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:700;color:#CC0000;">' + amtFmt + '</span>'
+                              + '</div>';
+                    });
+                }
+
+                if (!exps.length && !topDons.length) {
+                    html += '<div style="color:rgba(255,255,255,0.2);font-size:9px;font-family:\'JetBrains Mono\',monospace;margin-top:8px;">'
+                          + (d.key_type === 'demo' ? 'Add OPENFEC_API_KEY to .env for live data' : 'No recent expenditure data')
+                          + '</div>';
+                }
+
+                html += '<div style="font-size:7px;color:rgba(255,255,255,0.1);margin-top:8px;font-family:\'JetBrains Mono\',monospace;">Source: OpenFEC Public API · FEC.gov</div>';
+                el.innerHTML = html;
             })
-            .catch(function() {
-                var lb = document.getElementById('donLabel');
-                if (lb) { lb.textContent = 'UNAVAILABLE'; }
+            .catch(function(err) {
+                var el = document.getElementById('pnDonations');
+                if (el) el.innerHTML = '<div style="color:rgba(255,255,255,0.2);font-size:9px;font-family:\'JetBrains Mono\',monospace;">Donation data unavailable</div>';
             });
     })();
+
 
     {% if not demo_mode %}
     // ── Make the Bitcoin Case (typewriter 18ms/char, gold cursor) ──

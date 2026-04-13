@@ -291,9 +291,8 @@ def api_institutional():
 
 @panopticon_bp.route("/api/panopticon/pe-datastream")
 def api_pe_datastream():
-    """Private equity datastream: Form D fundraising + coalition analysis."""
-    if not _is_commander():
-        return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+    """Private equity datastream: Form D fundraising + coalition analysis.
+    Public: counts + entity names only. Commander: full detail with amounts."""
     try:
         from services.edgar_service import (fetch_pe_fundraising_btc,
                                              fetch_institutional_btc_13f)
@@ -301,18 +300,28 @@ def api_pe_datastream():
         pe_rounds = fetch_pe_fundraising_btc(30)
         institutional = fetch_institutional_btc_13f(20)
         coalition = [f for f in institutional if f.get("coalition_detected")]
+        # Strip amounts for public view, full detail for Commander
+        def _public_round(r):
+            return {"entity": r.get("entity",""), "form": r.get("form",""),
+                    "filing_date": r.get("filing_date",""), "sector": r.get("sector","")}
+        def _public_inst(r):
+            return {"entity": r.get("entity",""), "institution_type": r.get("institution_type",""),
+                    "filing_date": r.get("filing_date",""), "ticker": r.get("ticker","")}
+
+        is_cmd = _is_commander()
         return jsonify({
-            "pe_rounds": pe_rounds,
+            "pe_rounds": pe_rounds if is_cmd else [_public_round(r) for r in pe_rounds[:5]],
             "pe_count": len(pe_rounds),
-            "institutional_13f": institutional,
-            "coalition_signals": coalition,
+            "institutional_13f": institutional if is_cmd else [_public_inst(r) for r in institutional[:5]],
+            "coalition_signals": coalition if is_cmd else [],
             "coalition_count": len(coalition),
             "coalition_active": bool(coalition),
             "insight": (
                 "COALITION SIGNAL: {} institutions accumulated BTC ETFs "
                 "in coordinated windows.".format(len(coalition))
-                if coalition else "No coalition pattern in current window."
+                if coalition else "No coalition pattern detected."
             ),
+            "commander_only": not is_cmd,
             "source": "SEC EDGAR (Free Public API)",
             "updated_at": _dt.datetime.now().isoformat(),
         })
