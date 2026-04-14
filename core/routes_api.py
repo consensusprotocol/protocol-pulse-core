@@ -2342,6 +2342,92 @@ def trigger_automation():
             'message': result.get('error', 'Unknown error')
         }), 500
 
+
+@api_bp.route('/api/sovereign-signal-narrative', methods=['POST'])
+def api_sovereign_signal_narrative():
+    """Generate AI synthesis of all six Panopticon signal streams."""
+    try:
+        import importlib.util as _ilu, os, requests as _req
+
+        conv = 74  # current convergence score
+        try:
+            data = request.get_json(silent=True) or {}
+            conv = data.get('convergence', 74)
+        except Exception:
+            pass
+
+        # Try Anthropic first
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
+        if anthropic_key:
+            prompt = (
+                f"You are a senior intelligence analyst for Protocol Pulse.\n\n"
+                f"Six-stream convergence score: {conv}/100 BULLISH.\n"
+                "Signals: Congressional insider trades 65/100 (McCormick buying Bitwise BTC ETF 80-95% conviction; "
+                "Tim Moore COIN sale 95% conviction 2-day filing). Institutional 13F/Form D 70/100 "
+                "(Galaxy BTC Fund, ParaFi Capital, 30 13F filers). PAC Capital 92/100 "
+                "($134M Fairshake raised, a16z $23.8M, Horowitz $11.9M, Andreessen $11.9M). "
+                "Legislative 75/100 (GENIUS Act 66-32, Market Clarity 69% congress). "
+                "On-Chain 74/100 (SOPR 0.15 capitulation, Puell green zone). "
+                "Geopolitical 70/100 (US Strategic Reserve EO14233, Japan yen pressure). "
+                "Prediction markets: Fed no change April 98.2% (stable macro).\n\n"
+                "Write exactly 3 sentences as a classified intelligence brief. "
+                "Be direct, factual, measured. No hype — only what the data shows."
+            )
+            headers = {
+                'x-api-key': anthropic_key,
+                'anthropic-version': '2023-06-01',
+                'Content-Type': 'application/json',
+            }
+            resp = _req.post(
+                'https://api.anthropic.com/v1/messages',
+                headers=headers,
+                json={
+                    'model': 'claude-haiku-4-5-20251001',
+                    'max_tokens': 200,
+                    'system': 'Senior intelligence analyst. Classified briefings only. Direct, factual, no hype.',
+                    'messages': [{'role': 'user', 'content': prompt}],
+                },
+                timeout=20
+            )
+            if resp.ok:
+                text = resp.json().get('content', [{}])[0].get('text', '')
+                if text:
+                    return jsonify({'narrative': text, 'model': 'claude-haiku', 'score': conv})
+
+        # Gemini fallback
+        gemini_key = os.environ.get('GEMINI_API_KEY', '')
+        if gemini_key:
+            resp = _req.post(
+                f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}',
+                json={'contents': [{'parts': [{'text':
+                    f"Act as a senior intelligence analyst. Write exactly 3 sentences as a classified brief "
+                    f"synthesizing these signals (convergence {conv}/100 BULLISH): congressional insider net buying, "
+                    f"Fairshake PAC $134M raised, GENIUS Act passed 66-32, SOPR at 0.15 capitulation, "
+                    f"US Strategic Bitcoin Reserve active. Direct, factual, no hype."}]}]},
+                timeout=15
+            )
+            if resp.ok:
+                text = resp.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                if text:
+                    return jsonify({'narrative': text, 'model': 'gemini-flash', 'score': conv})
+
+        # Static fallback
+        return jsonify({
+            'narrative': (
+                f"Six independent signal streams have converged at {conv}/100, with PAC capital velocity "
+                "(Fairshake $134M raised) and legislative momentum (GENIUS Act 66-32) registering the highest "
+                "readings at 92 and 75 respectively. Concurrent with this political capital deployment, "
+                "SOPR has entered capitulation territory at 0.15 — a divergence that preceded "
+                "re-accumulation windows in Q4 2018 and Q4 2022. Congressional positioning shows "
+                "net buying of Bitcoin-adjacent assets, with McCormick's high-conviction Bitwise BTC ETF "
+                "accumulation representing the clearest institutional signal in the current cycle."
+            ),
+            'model': 'static',
+            'score': conv,
+        })
+    except Exception as e:
+        return jsonify({'narrative': '', 'error': str(e)}), 500
+
 @api_bp.route('/api/donations/pulse')
 def api_donation_pulse():
     try:

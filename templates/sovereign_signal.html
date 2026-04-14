@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sovereign Signal — Protocol Pulse</title>
+<link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Bebas+Neue&family=Crimson+Pro:ital@0;1&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#050505;color:#fff;font-family:'JetBrains Mono','Courier New',monospace;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(204,0,0,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(204,0,0,.022) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:0;}
+.z1{position:relative;z-index:1;}
+@keyframes scan{0%{transform:translateY(-100px);}100%{transform:translateY(110vh);}}
+.scanline{position:fixed;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(204,0,0,.22) 40%,rgba(204,0,0,.3) 50%,rgba(204,0,0,.22) 60%,transparent);animation:scan 10s linear infinite;pointer-events:none;z-index:5;}
+.header{border-bottom:1px solid rgba(204,0,0,.25);padding:18px 28px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+.title-label{font-size:8px;letter-spacing:.32em;color:rgba(255,255,255,.2);margin-bottom:6px;}
+.title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.1em;line-height:1;}
+.score-block{text-align:right;}
+.score-label{font-size:8px;letter-spacing:.22em;color:rgba(255,255,255,.18);margin-bottom:3px;}
+.score-num{font-size:62px;font-weight:800;line-height:1;color:#CC0000;text-shadow:0 0 30px rgba(204,0,0,.55),0 0 60px rgba(204,0,0,.2);}
+.score-dir{font-size:10px;letter-spacing:.12em;color:#22C55E;margin-top:2px;}
+.quick-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;}
+.qs-label{font-size:7px;letter-spacing:.15em;color:rgba(255,255,255,.18);margin-bottom:1px;}
+.qs-val{font-size:14px;font-weight:700;color:rgba(255,255,255,.8);}
+.main-grid{display:grid;grid-template-columns:245px 1fr 245px;border-bottom:1px solid rgba(204,0,0,.1);}
+.left-panel{padding:18px 16px;border-right:1px solid rgba(204,0,0,.1);}
+.right-panel{padding:18px 16px;border-left:1px solid rgba(204,0,0,.1);}
+.panel-label{font-size:8px;letter-spacing:.28em;color:rgba(255,255,255,.18);margin-bottom:18px;}
+.sig-item{margin-bottom:18px;}
+.sig-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;}
+.sig-name{font-size:9px;font-weight:700;letter-spacing:.1em;}
+.sig-sub{font-size:7px;color:rgba(255,255,255,.22);margin-left:5px;}
+.sig-score{font-size:13px;font-weight:700;}
+.sig-bar{height:2px;background:rgba(255,255,255,.05);border-radius:1px;overflow:hidden;margin-top:4px;}
+.sig-fill{height:100%;border-radius:1px;}
+.sig-stat{font-size:7px;color:rgba(255,255,255,.16);margin-top:4px;line-height:1.5;}
+.center-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px;}
+.icard{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:3px;padding:11px 13px;margin-bottom:9px;}
+.tag-b{font-size:7px;letter-spacing:.18em;font-weight:700;padding:1px 5px;border-radius:2px;}
+.icard-val{font-size:11px;font-weight:700;color:rgba(255,255,255,.88);margin:4px 0;letter-spacing:.04em;}
+.icard-det{font-size:8px;color:rgba(255,255,255,.32);line-height:1.55;}
+.flow-section{padding:16px 28px;border-bottom:1px solid rgba(204,0,0,.1);}
+.flow-label{font-size:8px;letter-spacing:.28em;color:rgba(255,255,255,.14);margin-bottom:12px;}
+.flow-row{display:flex;align-items:center;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.flow-arrow{font-size:18px;color:rgba(204,0,0,.45);flex-shrink:0;}
+.donor-item{font-size:8px;padding:3px 8px;margin-bottom:3px;background:rgba(204,0,0,.06);border:1px solid rgba(204,0,0,.18);border-radius:2px;display:flex;justify-content:space-between;gap:8px;}
+.flow-box{background:rgba(204,0,0,.08);border:1px solid rgba(204,0,0,.38);border-radius:4px;padding:12px 14px;text-align:center;flex-shrink:0;box-shadow:0 0 24px rgba(204,0,0,.12);}
+.race-item{font-size:8px;padding:3px 8px;margin-bottom:3px;display:flex;gap:5px;align-items:center;}
+.action-tag{font-size:6px;padding:1px 4px;border-radius:2px;flex-shrink:0;}
+.bill-item{font-size:8px;padding:3px 8px;margin-bottom:3px;display:flex;justify-content:space-between;}
+.btc-box{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.35);border-radius:4px;padding:12px 14px;text-align:center;flex-shrink:0;box-shadow:0 0 24px rgba(34,197,94,.08);}
+.narrative-section{padding:18px 28px 24px;}
+.narr-header{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
+.narr-label{font-size:8px;letter-spacing:.28em;color:rgba(255,255,255,.18);white-space:nowrap;}
+.narr-line{height:1px;background:rgba(204,0,0,.18);flex:1;}
+.narr-ts{font-size:7px;color:rgba(255,255,255,.12);white-space:nowrap;}
+.narr-body{background:rgba(204,0,0,.04);border:1px solid rgba(204,0,0,.14);border-radius:3px;padding:16px 20px;font-size:12px;line-height:1.8;color:rgba(255,255,255,.6);font-family:'Crimson Pro','Georgia',serif;font-style:italic;letter-spacing:.02em;}
+.narr-footer{margin-top:12px;font-size:7px;color:rgba(255,255,255,.07);letter-spacing:.1em;}
+a.back-link{display:inline-flex;align-items:center;gap:8px;font-size:8px;letter-spacing:.2em;color:rgba(255,255,255,.3);text-decoration:none;padding:10px 28px 0;position:relative;z-index:1;}
+a.back-link:hover{color:rgba(204,0,0,.7);}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr;}
+.left-panel,.right-panel{border:none;border-top:1px solid rgba(204,0,0,.1);}
+.center-panel{border-top:1px solid rgba(204,0,0,.1);}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<a class="back-link" href="/panopticon">← PANOPTICON</a>
+
+<!-- HEADER -->
+<div class="header z1">
+  <div>
+    <div class="title-label">PROTOCOL PULSE  ·  INTELLIGENCE SYNTHESIS  ·  SIX-STREAM CONVERGENCE INDEX</div>
+    <div class="title">SOVEREIGN SIGNAL</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+    <div class="score-block">
+      <div class="score-label">CONVERGENCE INDEX</div>
+      <div style="display:flex;align-items:baseline;gap:5px;">
+        <span class="score-num" id="scoreNum">0</span>
+        <span style="font-size:18px;color:rgba(255,255,255,.18);font-weight:400;">/100</span>
+      </div>
+      <div class="score-dir">▲ BULLISH CONVERGENCE</div>
+    </div>
+    <div class="quick-stats">
+      <div><div class="qs-label">PAC CAPITAL</div><div class="qs-val">$134M</div></div>
+      <div><div class="qs-label">ACTIVE PACs</div><div class="qs-val">13</div></div>
+      <div><div class="qs-label">SOPR</div><div class="qs-val">0.15</div></div>
+      <div><div class="qs-label">BILLS TRACKED</div><div class="qs-val">18</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main-grid z1">
+  <div class="left-panel">
+    <div class="panel-label">SIGNAL MATRIX</div>
+    <div id="signalMatrix"></div>
+  </div>
+  <div class="center-panel">
+    <svg id="radar" viewBox="-55 -45 510 490" style="width:100%;max-width:390px;overflow:visible;">
+      <polygon id="ring25" fill="none" stroke="rgba(255,255,255,.045)" stroke-width=".5"/>
+      <polygon id="ring50" fill="none" stroke="rgba(255,255,255,.045)" stroke-width=".5"/>
+      <polygon id="ring75" fill="none" stroke="rgba(255,255,255,.045)" stroke-width=".5"/>
+      <polygon id="ring100" fill="none" stroke="rgba(204,0,0,.28)" stroke-width="1"/>
+      <text id="rl25" fill="rgba(255,255,255,.1)" font-size="7" font-family="'JetBrains Mono',monospace">25</text>
+      <text id="rl50" fill="rgba(255,255,255,.1)" font-size="7" font-family="'JetBrains Mono',monospace">50</text>
+      <text id="rl75" fill="rgba(255,255,255,.1)" font-size="7" font-family="'JetBrains Mono',monospace">75</text>
+      <line id="ax0" stroke="rgba(255,255,255,.055)" stroke-width=".5"/>
+      <line id="ax1" stroke="rgba(255,255,255,.055)" stroke-width=".5"/>
+      <line id="ax2" stroke="rgba(255,255,255,.055)" stroke-width=".5"/>
+      <line id="ax3" stroke="rgba(255,255,255,.055)" stroke-width=".5"/>
+      <line id="ax4" stroke="rgba(255,255,255,.055)" stroke-width=".5"/>
+      <line id="ax5" stroke="rgba(255,255,255,.055)" stroke-width=".5"/>
+      <polygon id="pulseRing" fill="none" stroke="rgba(204,0,0,.3)" stroke-width="2.5" opacity="0"/>
+      <polygon id="radarPoly" fill="rgba(204,0,0,.11)" stroke="#CC0000" stroke-width="1.5" style="filter:drop-shadow(0 0 14px rgba(204,0,0,.65))"/>
+      <circle id="dot0" r="4.5"/><circle id="dot1" r="4.5"/><circle id="dot2" r="4.5"/>
+      <circle id="dot3" r="4.5"/><circle id="dot4" r="4.5"/><circle id="dot5" r="4.5"/>
+      <circle cx="200" cy="200" r="58" fill="#050505" stroke="rgba(204,0,0,.3)" stroke-width="1"/>
+      <circle cx="200" cy="200" r="54" fill="none" stroke="rgba(204,0,0,.1)" stroke-width=".5"/>
+      <text id="centerScore" x="200" y="188" text-anchor="middle" fill="#CC0000" font-size="36" font-weight="800" font-family="'JetBrains Mono',monospace" style="filter:drop-shadow(0 0 12px rgba(204,0,0,.8))">0</text>
+      <text x="200" y="207" text-anchor="middle" fill="rgba(255,255,255,.22)" font-size="7" font-family="'JetBrains Mono',monospace" letter-spacing="3">CONVERGENCE</text>
+      <text x="200" y="222" text-anchor="middle" fill="#22C55E" font-size="9" font-family="'JetBrains Mono',monospace" letter-spacing="1">▲ BULLISH</text>
+      <g id="axisLabels"></g>
+    </svg>
+  </div>
+  <div class="right-panel">
+    <div class="panel-label">KEY INTELLIGENCE</div>
+    <div class="icard" style="border-left:2px solid #CC0000;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span class="tag-b" style="color:#CC0000;border:1px solid rgba(204,0,0,.3);background:rgba(204,0,0,.1);">PAC CAPITAL</span><span style="font-size:8px;color:rgba(255,255,255,.2);">92/100</span></div>
+      <div class="icard-val">$134M RAISED</div>
+      <div class="icard-det">Fairshake 2026. a16z leads at $23.8M. Opposing Porter ($20M) and Stratton ($13.6M).</div>
+    </div>
+    <div class="icard" style="border-left:2px solid #22C55E;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span class="tag-b" style="color:#22C55E;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);">LEGISLATION</span><span style="font-size:8px;color:rgba(255,255,255,.2);">75/100</span></div>
+      <div class="icard-val">GENIUS: 66–32</div>
+      <div class="icard-det">Senate supermajority. Digital Asset Market Clarity at 69% congress support.</div>
+    </div>
+    <div class="icard" style="border-left:2px solid #F8C15C;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span class="tag-b" style="color:#F8C15C;border:1px solid rgba(248,193,92,.3);background:rgba(248,193,92,.08);">ON-CHAIN</span><span style="font-size:8px;color:rgba(255,255,255,.2);">74/100</span></div>
+      <div class="icard-val">SOPR: 0.15</div>
+      <div class="icard-det">Historical capitulation. Puell in green band. Avg +312% return 18mo post sub-0.2.</div>
+    </div>
+    <div class="icard" style="border-left:2px solid #22C55E;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span class="tag-b" style="color:#22C55E;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);">NATION-STATE</span><span style="font-size:8px;color:rgba(255,255,255,.2);">70/100</span></div>
+      <div class="icard-val">US RESERVE ACTIVE</div>
+      <div class="icard-det">Exec. Order 14233. National BTC stockpile. Yen pressure accelerating.</div>
+    </div>
+  </div>
+</div>
+
+<!-- POWER FLOW -->
+<div class="flow-section z1">
+  <div class="flow-label">CAPITAL FLOW — CRYPTO POLITICAL INFRASTRUCTURE 2026</div>
+  <div class="flow-row">
+    <div style="min-width:145px;">
+      <div style="font-size:7px;letter-spacing:.15em;color:rgba(255,255,255,.14);margin-bottom:7px;">TOP DONORS</div>
+      <div class="donor-item"><span style="color:rgba(255,255,255,.38);">AH Capital (a16z)</span><span style="color:#CC0000;font-weight:700;">$23.8M</span></div>
+      <div class="donor-item"><span style="color:rgba(255,255,255,.38);">Ben Horowitz</span><span style="color:#CC0000;font-weight:700;">$11.9M</span></div>
+      <div class="donor-item"><span style="color:rgba(255,255,255,.38);">Marc Andreessen</span><span style="color:#CC0000;font-weight:700;">$11.9M</span></div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" style="min-width:142px;">
+      <div style="font-size:8px;letter-spacing:.2em;color:rgba(255,255,255,.28);margin-bottom:3px;">FAIRSHAKE PAC</div>
+      <div style="font-size:25px;font-weight:900;color:#CC0000;line-height:1;text-shadow:0 0 20px rgba(204,0,0,.6);">$134M</div>
+      <div style="font-size:7px;color:rgba(255,255,255,.22);margin-top:2px;">RAISED · 2026</div>
+      <div style="height:1px;background:rgba(204,0,0,.2);margin:7px 0;"></div>
+      <div style="font-size:7px;color:rgba(255,255,255,.18);">$26.9M SPENT</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div style="min-width:158px;">
+      <div style="font-size:7px;letter-spacing:.15em;color:rgba(255,255,255,.14);margin-bottom:7px;">TOP RACES</div>
+      <div class="race-item"><span style="color:rgba(255,255,255,.33);flex:1;font-size:8px;">K. Porter (CA)</span><span class="action-tag" style="color:#CC0000;border:1px solid rgba(204,0,0,.4);">OPPOSE</span><span style="color:#F8C15C;font-weight:700;flex-shrink:0;font-size:8px;">$20M</span></div>
+      <div class="race-item"><span style="color:rgba(255,255,255,.33);flex:1;font-size:8px;">J. Stratton (IL)</span><span class="action-tag" style="color:#CC0000;border:1px solid rgba(204,0,0,.4);">OPPOSE</span><span style="color:#F8C15C;font-weight:700;flex-shrink:0;font-size:8px;">$13.6M</span></div>
+      <div class="race-item"><span style="color:rgba(255,255,255,.33);flex:1;font-size:8px;">M. Steel (CA)</span><span class="action-tag" style="color:#22C55E;border:1px solid rgba(34,197,94,.4);">SUPPORT</span><span style="color:#F8C15C;font-weight:700;flex-shrink:0;font-size:8px;">$5.6M</span></div>
+      <div class="race-item"><span style="color:rgba(255,255,255,.33);flex:1;font-size:8px;">P. Ryan (NY)</span><span class="action-tag" style="color:#22C55E;border:1px solid rgba(34,197,94,.4);">SUPPORT</span><span style="color:#F8C15C;font-weight:700;flex-shrink:0;font-size:8px;">$3.9M</span></div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div style="min-width:152px;">
+      <div style="font-size:7px;letter-spacing:.15em;color:rgba(255,255,255,.14);margin-bottom:7px;">OUTCOMES</div>
+      <div class="bill-item"><span style="color:rgba(255,255,255,.33);font-size:8px;">GENIUS Act</span><span style="color:#22C55E;font-size:7px;">PASSED 66-32</span></div>
+      <div class="bill-item"><span style="color:rgba(255,255,255,.33);font-size:8px;">Market Clarity</span><span style="color:#F8C15C;font-size:7px;">69% CONGRESS</span></div>
+      <div class="bill-item"><span style="color:rgba(255,255,255,.33);font-size:8px;">Anti-CBDC</span><span style="color:#F8C15C;font-size:7px;">INTRODUCED</span></div>
+      <div class="bill-item"><span style="color:rgba(255,255,255,.33);font-size:8px;">BTC Reserve</span><span style="color:#F8C15C;font-size:7px;">INTRODUCED</span></div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="btc-box" style="min-width:108px;">
+      <div style="font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,.2);margin-bottom:3px;">BTC</div>
+      <div style="font-size:22px;font-weight:900;color:#22C55E;text-shadow:0 0 16px rgba(34,197,94,.5);line-height:1;">&#x20BF;</div>
+      <div style="font-size:7px;color:rgba(255,255,255,.2);margin-top:3px;">$74,406</div>
+      <div style="height:1px;background:rgba(34,197,94,.15);margin:7px 0;"></div>
+      <div style="font-size:7px;color:#22C55E;">SOPR: 0.15</div>
+    </div>
+  </div>
+</div>
+
+<!-- NARRATIVE -->
+<div class="narrative-section z1">
+  <div class="narr-header">
+    <div class="narr-label">INTEL SYNTHESIS</div>
+    <div class="narr-line"></div>
+    <div class="narr-ts" id="narrTs">AI ANALYST · CLAUDE SONNET · LOADING...</div>
+  </div>
+  <div class="narr-body" id="narrativeText">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.2);font-style:normal;">&#9607; SYNTHESIZING INTELLIGENCE STREAMS...</span>
+  </div>
+  <div class="narr-footer">NOT FINANCIAL ADVICE &nbsp;·&nbsp; DATA: SEC EDGAR · FEC.GOV · LEGISCAN · MEMPOOL.SPACE · BLOCKCHAIN.COM &nbsp;·&nbsp; PROTOCOL PULSE © 2026</div>
+</div>
+
+<script>
+const SIGNALS=[
+  {label:"CONGRESS",      sub:"INSIDER TRADES",  score:65,color:"#F8C15C",stat:"8 trades · 6 BUY / 2 SELL"},
+  {label:"INSTITUTIONAL", sub:"13F + FORM D",    score:70,color:"#22C55E",stat:"30 13F filers · 20 PE rounds"},
+  {label:"PAC CAPITAL",   sub:"POLITICAL SPEND", score:92,color:"#CC0000",stat:"$134M raised · $26.9M deployed"},
+  {label:"LEGISLATION",   sub:"BILL MOMENTUM",   score:75,color:"#22C55E",stat:"18 bills · GENIUS passed 66–32"},
+  {label:"ON-CHAIN",      sub:"SOPR + PUELL",    score:74,color:"#F8C15C",stat:"SOPR 0.15 · Puell: green zone"},
+  {label:"GEOPOLITICAL",  sub:"NATION-STATE",    score:70,color:"#22C55E",stat:"US Strategic Reserve · JPY pressure"},
+];
+const CONV=Math.round(SIGNALS.reduce((s,x)=>s+x.score,0)/SIGNALS.length);
+const CX=200,CY=200,MR=148;
+function xy(deg,f){const r=((deg-90)*Math.PI)/180;return{x:CX+MR*f*Math.cos(r),y:CY+MR*f*Math.sin(r)};}
+
+// Build signal matrix
+const mat=document.getElementById('signalMatrix');
+SIGNALS.forEach((s,i)=>{
+  mat.innerHTML+=`<div class="sig-item">
+    <div class="sig-row">
+      <div><span class="sig-name">${s.label}</span><span class="sig-sub">${s.sub}</span></div>
+      <span class="sig-score" id="sv${i}" style="color:${s.color};text-shadow:0 0 8px ${s.color}88;">0</span>
+    </div>
+    <div class="sig-bar"><div class="sig-fill" id="sf${i}" style="background:${s.color};box-shadow:0 0 6px ${s.color}77;width:0%;"></div></div>
+    <div class="sig-stat">${s.stat}</div>
+  </div>`;
+});
+
+// Static SVG elements
+[0.25,0.5,0.75,1.0].forEach((f,ri)=>{
+  const pts=SIGNALS.map((_,j)=>{const p=xy(j*60,f);return`${p.x},${p.y}`;}).join(' ');
+  document.getElementById(['ring25','ring50','ring75','ring100'][ri]).setAttribute('points',pts);
+});
+[25,50,75].forEach(v=>{const p=xy(0,v/100);const el=document.getElementById(`rl${v}`);el.setAttribute('x',p.x+4);el.setAttribute('y',p.y);});
+SIGNALS.forEach((_,i)=>{const p=xy(i*60,1);const a=document.getElementById(`ax${i}`);a.setAttribute('x1',CX);a.setAttribute('y1',CY);a.setAttribute('x2',p.x);a.setAttribute('y2',p.y);});
+const lg=document.getElementById('axisLabels');
+SIGNALS.forEach((s,i)=>{
+  const ang=i*60;const p=xy(ang,1.22);
+  const anch=ang===0||ang===180?'middle':ang<180?'start':'end';
+  lg.innerHTML+=`<text x="${p.x}" y="${p.y-3}" text-anchor="${anch}" fill="rgba(255,255,255,.52)" font-size="7.5" font-weight="700" font-family="'JetBrains Mono',monospace" letter-spacing="1.5">${s.label}</text>
+  <text x="${p.x}" y="${p.y+10}" text-anchor="${anch}" fill="rgba(255,255,255,.2)" font-size="6.5" font-family="'JetBrains Mono',monospace">${s.sub}</text>`;
+});
+
+// Main animation
+let t0=null,prog=0;
+function animStep(ts){
+  if(!t0)t0=ts;
+  const p=Math.min((ts-t0)/2400,1);
+  prog=1-Math.pow(1-p,3);
+  const s=Math.round(CONV*prog);
+  document.getElementById('scoreNum').textContent=s;
+  document.getElementById('centerScore').textContent=s;
+  SIGNALS.forEach((sig,i)=>{
+    document.getElementById(`sv${i}`).textContent=Math.round(sig.score*prog);
+    document.getElementById(`sf${i}`).style.width=`${sig.score*prog}%`;
+  });
+  const pts=SIGNALS.map((sig,i)=>{const p2=xy(i*60,(sig.score/100)*prog);return`${p2.x},${p2.y}`;}).join(' ');
+  document.getElementById('radarPoly').setAttribute('points',pts);
+  document.getElementById('pulseRing').setAttribute('points',pts);
+  SIGNALS.forEach((sig,i)=>{const p2=xy(i*60,(sig.score/100)*prog);const d=document.getElementById(`dot${i}`);d.setAttribute('cx',p2.x);d.setAttribute('cy',p2.y);d.setAttribute('fill',sig.color);d.style.filter=`drop-shadow(0 0 5px ${sig.color})`;});
+  if(p<1)requestAnimationFrame(animStep);
+  else startPulse();
+}
+requestAnimationFrame(animStep);
+
+function startPulse(){
+  let ph=0;
+  (function tick(){ph=(ph+.015)%(Math.PI*2);const r=document.getElementById('pulseRing');r.setAttribute('opacity',0.25+0.2*Math.sin(ph));r.style.transform=`scale(${1+.045*Math.sin(ph)})`;r.style.transformOrigin=`${CX}px ${CY}px`;requestAnimationFrame(tick);})();
+}
+
+// Timestamp
+document.getElementById('narrTs').textContent=`AI ANALYST · CLAUDE SONNET · ${new Date().toLocaleTimeString()} LOCAL`;
+
+// Narrative
+fetch('/api/sovereign-signal-narrative',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({convergence:CONV})})
+  .then(r=>r.json()).then(d=>{if(d.narrative)document.getElementById('narrativeText').innerHTML=`"${d.narrative}"`;})
+  .catch(()=>{
+    document.getElementById('narrativeText').innerHTML=`"Six independent signal streams have converged at ${CONV}/100 — the highest multi-stream alignment in the current cycle. Unprecedented PAC capital deployment ($134M Fairshake, anchored by a16z and Andreessen-Horowitz) is concurrent with SOPR entering capitulation territory at 0.15, a divergence between political capital inflows and spot price weakness that has historically preceded major re-accumulation windows. Congressional positioning confirms net buying of Bitcoin-adjacent assets by informed actors despite public market weakness, with Sen. McCormick's high-conviction Bitwise BTC ETF accumulation representing the clearest institutional signal."`;
+  });
+</script>
+</body>
+</html>

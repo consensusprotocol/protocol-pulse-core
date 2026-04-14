@@ -225,6 +225,12 @@ def live_terminal():
     """Live Settlement Terminal - Real-time Bitcoin network visualization"""
     return render_template('live_terminal.html')
 
+
+@pages_bp.route('/signal')
+def sovereign_signal():
+    """Sovereign Signal — Six-Stream Convergence Intelligence."""
+    return render_template('sovereign_signal.html')
+
 @pages_bp.route('/sovereign-money')
 def sovereign_money():
     """The Case for Sovereign Money — purchasing power decay thesis"""
