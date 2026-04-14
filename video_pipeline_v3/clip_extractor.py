@@ -823,9 +823,56 @@ CLIP_END_POISON_PHRASES = [
     "without further ado", "let's dive in", "let's dive right in",
     "hit that subscribe", "smash that like", "hit the like button",
     "don't forget to subscribe", "make sure to subscribe",
+    # V47: Additional intro phrases observed in V46 render evidence
+    "we've got a lot to cover", "let's jump in", "welcome back",
+    "what's going on", "happy to be on this show", "happy to be on the show",
+    "glad to have you", "good to be here", "thanks for having me",
+    "we got a lot to cover", "let's get started",
 ]
 
-def _trim_host_intro_bleed(output_path: str, timestamped_text: str, 
+
+def _detect_intro_end(timestamped_text: str, max_scan_sec: int = 120) -> int:
+    """V47: Scan timestamped transcript for intro phrases and return the
+    timestamp (in seconds) where actual content begins.
+
+    Walks the transcript from the start. Tracks the last timestamp where an
+    intro/poison phrase appears. Returns the first non-intro timestamp after
+    that point. Falls back to 0 if no intro detected.
+
+    Args:
+        timestamped_text: Full timestamped transcript for the video
+        max_scan_sec: Don't scan beyond this many seconds into the video
+
+    Returns:
+        Seconds into the video where content starts (0 = no intro detected)
+    """
+    parsed = _parse_timestamped_text(timestamped_text)
+    if not parsed:
+        return 0
+
+    last_intro_ts = -1
+    for sec, text in parsed:
+        if sec > max_scan_sec:
+            break
+        text_lower = text.strip().lower()
+        for phrase in CLIP_END_POISON_PHRASES:
+            if phrase in text_lower:
+                last_intro_ts = sec
+                break
+
+    if last_intro_ts < 0:
+        return 0
+
+    # Return the first transcript timestamp AFTER the last intro phrase
+    for sec, text in parsed:
+        if sec > last_intro_ts:
+            return sec
+
+    # If no segment found after last intro, offset by 5s
+    return last_intro_ts + 5
+
+
+def _trim_host_intro_bleed(output_path: str, timestamped_text: str,
                            original_end_sec: float, clip_start_sec: float,
                            rank: int) -> bool:
     """V15 FIX: Detect and trim host intros that bled into clip end padding.
@@ -881,6 +928,40 @@ def _trim_host_intro_bleed(output_path: str, timestamped_text: str,
         logger.warning(f"  Intro bleed check failed for clip #{rank}: {e}")
         return False
 
+def _validate_clip_intro_audio(clip_path: str, rank: int, channel: str) -> bool:
+    """V47: Check first 3 seconds of extracted clip for silence+music intro pattern.
+
+    Detects clips that start with >1s of silence followed by music/jingle.
+    Returns True if clip audio looks clean, False if intro pattern detected.
+    """
+    import re as _re
+    try:
+        # Run silencedetect on just the first 3 seconds
+        result = subprocess.run([
+            "ffmpeg", "-i", clip_path, "-t", "3",
+            "-af", "silencedetect=noise=-35dB:d=0.5",
+            "-f", "null", "-"
+        ], capture_output=True, text=True, timeout=15)
+
+        silence_starts = [float(m.group(1)) for m in
+                          _re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
+        silence_ends = [float(m.group(1)) for m in
+                        _re.finditer(r"silence_end: ([\d.]+)", result.stderr)]
+
+        # Pattern: silence at start (0.0s) lasting >1s
+        if silence_starts and silence_ends:
+            if silence_starts[0] < 0.1 and silence_ends[0] > 1.0:
+                logger.warning(f"  INTRO AUDIO CHECK: clip #{rank} [{channel}] — "
+                             f"{silence_ends[0]:.1f}s of silence at start (jingle/bumper pattern)")
+                return False
+
+        logger.info(f"  INTRO AUDIO CHECK: clip #{rank} [{channel}] — clean start")
+        return True
+    except Exception as e:
+        logger.warning(f"  INTRO AUDIO CHECK: clip #{rank} error: {e}")
+        return True  # pass on error — don't block extraction
+
+
 def _second_pass_ad_read(clip_path: str, channel: str, rank: int) -> bool:
     """V15 FIX: Second-pass ad read + host intro/outro scan on clip transcript.
 
@@ -928,12 +1009,23 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
 
-        # V25 HARD RULES — override LLM suggestions that violate Pipeline Laws
-        # Rule 1: Minimum start 20s — clips starting before 20s almost always contain
-        # channel intros, jingles, "welcome to the show", and branding
+        # V47 SMART INTRO DETECTION — replace blind 30s push with transcript analysis
+        # Scans timestamped_text for intro phrases; falls back to 30s if no transcript
+        timestamped_text = clip.get("timestamped_text", "")
         if start < 20:
-            logger.warning(f"  RULE OVERRIDE: clip #{rank} start {start}s -> 30s (intro zone)")
-            start = 30
+            if timestamped_text:
+                intro_end = _detect_intro_end(timestamped_text)
+                if intro_end > 0:
+                    new_start = max(intro_end, 10)  # never earlier than 10s
+                    logger.info(f"  SMART INTRO SKIP: {channel} — skipped {new_start}s of intro, content starts at {new_start}s")
+                    start = new_start
+                else:
+                    # No intro phrases detected — content may start early
+                    logger.info(f"  SMART INTRO SKIP: {channel} — no intro phrases detected, keeping start at {start}s")
+            else:
+                # No transcript available — fall back to 30s safety margin
+                logger.warning(f"  RULE OVERRIDE: clip #{rank} start {start}s -> 30s (no transcript for intro detection)")
+                start = 30
             if end <= start:
                 end = start + 40  # ensure valid range
         # Rule 2: Max clip duration 45s (Pipeline Laws: 30-60s, sweet spot 40s)
@@ -942,7 +1034,6 @@ def extract_all(selections: dict, output_dir: str) -> dict:
             end = start + 45
 
         # Issue 3/4: Find sentence boundaries for clean clip start AND end
-        timestamped_text = clip.get("timestamped_text", "")
         if timestamped_text:
             # Backward search for clean clip START
             # Session fix 5: Increased search window from 5s to 8s for better sentence boundaries
@@ -970,6 +1061,20 @@ def extract_all(selections: dict, output_dir: str) -> dict:
             if quality == "rejected":
                 logger.warning(f"  Skipping clip #{rank}: quality below 1.5Mbps floor")
                 continue
+
+            # V47: Post-extraction intro audio validation
+            # Check first 3s for silence+music pattern (jingle/bumper)
+            _post_ok = _validate_clip_intro_audio(output_path, rank, channel)
+            if not _post_ok:
+                # Re-extract with start shifted forward 5s
+                shifted_start = start + 5
+                logger.info(f"  INTRO AUDIO SHIFT: clip #{rank} re-extracting from {shifted_start}s (was {start}s)")
+                try:
+                    clip_ok = extract_clip(video_id, shifted_start, end, output_path, channel=channel)
+                    if clip_ok:
+                        start = shifted_start
+                except Exception:
+                    pass  # keep original if re-extract fails
 
             # Smart trim: find natural pause within the 10s end-pad window
             clip_dur = ffprobe_duration(output_path)

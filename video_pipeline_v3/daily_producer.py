@@ -977,6 +977,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                     "why": "fast-test auto-select",
                     "start_seconds": 60,
                     "end_seconds": 90,
+                    "timestamped_text": v.get("timestamped_text", ""),
                 })
             selections = {"clips": fast_clips}
             clips = fast_clips
@@ -998,6 +999,10 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                 end = c.get("end_seconds", c.get("end_sec", 0))
                 v_data = _vid_lookup.get(vid, {})
                 ts_text = v_data.get("timestamped_text", v_data.get("transcript_text", ""))
+                # V47: Pass full timestamped_text to clip dict for smart intro detection
+                # in extract_all() — enables sentence boundary, intro skip, and end trim
+                if ts_text:
+                    c["timestamped_text"] = ts_text
                 if ts_text and start and end:
                     # Extract lines matching the timestamp window
                     import re
