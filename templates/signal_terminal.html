@@ -237,6 +237,15 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
     color: var(--gold);
 }
 
+
+/* ── METRIC TOOLTIPS ── */
+.tt-wrap { position: relative; cursor: help; border-bottom: 1px dotted rgba(255,255,255,0.25); }
+.tt { position: absolute; left: 0; bottom: calc(100% + 6px); width: 220px; background: #0d0d0d;
+  border: 1px solid rgba(204,0,0,0.35); border-radius: 4px; padding: 8px 10px;
+  font-size: 9px; line-height: 1.55; color: rgba(255,255,255,0.65); letter-spacing: 0.03em;
+  pointer-events: none; opacity: 0; transition: opacity 0.18s; z-index: 99; white-space: normal;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6); }
+.tt-wrap:hover .tt { opacity: 1; }
 .panel-badge {
     font-size: 9px;
     font-weight: 700;
@@ -1304,20 +1313,38 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             <span class="panel-label">MINING</span>
         </div>
         <div class="data-row">
-            <span class="label">HASHRATE</span>
+            <span class="label tt-wrap">HASHRATE
+                <span class="tt">Total computational power securing the Bitcoin network right now. Measured in ExaHash/s (EH/s). Higher = more secure, harder to attack. All-time high signals miner confidence.</span>
+            </span>
             <span class="value cyan" id="hashrate">{{ onchain.hashrate | default('—') if onchain else '—' }}</span>
         </div>
         <div class="data-row">
-            <span class="label">DIFFICULTY</span>
+            <span class="label tt-wrap">EXTRA HASH
+                <span class="tt">Hashrate above the previous difficulty epoch average. Positive = miners are adding capacity faster than difficulty adjusts — bullish miner confidence signal.</span>
+            </span>
+            <span class="value cyan" id="extra-hash">—</span>
+        </div>
+        <div class="data-row">
+            <span class="label tt-wrap">DIFFICULTY
+                <span class="tt">How hard it is to mine a block. Adjusts every 2,016 blocks (~2 weeks) to keep blocks at ~10 min. Rising difficulty = more miners competing = healthy network growth.</span>
+            </span>
             <span class="value" id="difficulty">{{ onchain.difficulty | default('—') if onchain else '—' }}</span>
         </div>
         <div class="data-row">
-            <span class="label">NEXT ADJUSTMENT</span>
+            <span class="label tt-wrap">NEXT ADJUSTMENT
+                <span class="tt">Estimated % change in difficulty at the next epoch. Positive = more miners joined since last adjustment. Negative = miners left or became more efficient.</span>
+            </span>
             <span class="value" id="next-adj">{{ onchain.next_adjustment | default('—') if onchain else '—' }}</span>
         </div>
         <div class="data-row">
-            <span class="label">BLOCKS TO HALVING</span>
+            <span class="label tt-wrap">BLOCKS TO HALVING
+                <span class="tt">Bitcoin's supply issuance is cut in half every 210,000 blocks (~4 years). The next halving reduces the block reward from 3.125 BTC to 1.5625 BTC. Historically the most reliable supply-shock catalyst in financial history.</span>
+            </span>
             <span class="value gold" id="halving-blocks">{{ onchain.blocks_to_halving | default('—') if onchain else '—' }}</span>
+        </div>
+        <div class="data-row" id="halving-eta-row" style="display:none;">
+            <span class="label">EST. HALVING DATE</span>
+            <span class="value gold" id="halving-eta">—</span>
         </div>
     </div>
 
@@ -1377,19 +1404,27 @@ body { background: var(--bg) !important; overflow-y: auto !important; overflow-x
             <span class="panel-label">LIGHTNING NETWORK</span>
         </div>
         <div class="data-row">
-            <span class="label">CAPACITY</span>
+            <span class="label tt-wrap">CAPACITY
+                <span class="tt">Total BTC locked in Lightning payment channels. Higher capacity = more liquidity for instant, feeless Bitcoin payments. Growing capacity signals adoption of Layer 2 settlements.</span>
+            </span>
             <span class="value cyan" id="ln-capacity">{{ lightning.capacity | default('—') if lightning else '—' }}</span>
         </div>
         <div class="data-row">
-            <span class="label">CHANNELS</span>
+            <span class="label tt-wrap">CHANNELS
+                <span class="tt">Number of active bidirectional payment channels on the Lightning Network. Each channel is a direct payment lane between two nodes. More channels = more routes = faster payments.</span>
+            </span>
             <span class="value" id="ln-channels">{{ lightning.channels | default('—') if lightning else '—' }}</span>
         </div>
         <div class="data-row">
-            <span class="label">NODES</span>
+            <span class="label tt-wrap">NODES
+                <span class="tt">Total Lightning nodes publicly routing payments. Node operators earn routing fees for forwarding payments. More nodes = more decentralized, resilient payment mesh.</span>
+            </span>
             <span class="value" id="ln-nodes">{{ lightning.nodes | default('—') if lightning else '—' }}</span>
         </div>
         <div class="data-row">
-            <span class="label">AVG CAPACITY</span>
+            <span class="label tt-wrap">AVG CAPACITY
+                <span class="tt">Average BTC capacity per channel. Higher avg capacity signals larger, well-funded nodes entering the network — institutions and payment processors establishing routing infrastructure.</span>
+            </span>
             <span class="value" id="ln-avg">{{ lightning.avg_capacity | default('—') if lightning else '—' }}</span>
         </div>
     </div>

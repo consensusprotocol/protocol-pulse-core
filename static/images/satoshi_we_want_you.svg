@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 540" width="400" height="540">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#1a0808"/>
+      <stop offset="100%" stop-color="#0a0505"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="textglow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Halftone dots pattern -->
+    <pattern id="dots" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="0.8" fill="rgba(220,38,38,0.12)"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="540" fill="url(#bg)"/>
+  <rect width="400" height="540" fill="url(#dots)"/>
+
+  <!-- Decorative border -->
+  <rect x="8" y="8" width="384" height="524" fill="none" stroke="#cc0000" stroke-width="2.5" rx="2"/>
+  <rect x="14" y="14" width="372" height="512" fill="none" stroke="rgba(204,0,0,0.35)" stroke-width="0.8" rx="1"/>
+
+  <!-- Stars in top corners - patriotic style -->
+  <text x="28" y="52" font-size="18" fill="#cc0000" opacity="0.7">★</text>
+  <text x="350" y="52" font-size="18" fill="#cc0000" opacity="0.7">★</text>
+  <text x="28" y="510" font-size="18" fill="#cc0000" opacity="0.7">★</text>
+  <text x="350" y="510" font-size="18" fill="#cc0000" opacity="0.7">★</text>
+
+  <!-- Top header -->
+  <text x="200" y="50" text-anchor="middle" font-family="'Impact', 'Arial Black', sans-serif"
+    font-size="22" font-weight="900" fill="#cc0000" letter-spacing="8" filter="url(#textglow)">CYPHERPUNKS</text>
+  <line x1="30" y1="58" x2="370" y2="58" stroke="#cc0000" stroke-width="1.5"/>
+  <line x1="30" y1="62" x2="370" y2="62" stroke="rgba(204,0,0,0.3)" stroke-width="0.5"/>
+
+  <!-- Satoshi figure - stylized pointing figure in uncle sam pose -->
+  <!-- Hat with Bitcoin B -->
+  <rect x="152" y="72" width="96" height="14" fill="#cc0000" rx="2"/>
+  <rect x="140" y="86" width="120" height="8" fill="#cc0000"/>
+  <rect x="155" y="94" width="90" height="52" fill="#1a1a1a" stroke="#cc0000" stroke-width="1.5"/>
+  <!-- Hat brim stripes -->
+  <rect x="155" y="99" width="90" height="6" fill="rgba(204,0,0,0.2)"/>
+  <rect x="155" y="111" width="90" height="6" fill="rgba(204,0,0,0.2)"/>
+  <rect x="155" y="123" width="90" height="6" fill="rgba(204,0,0,0.2)"/>
+  <!-- Bitcoin B on hat -->
+  <text x="200" y="126" text-anchor="middle" font-family="Arial" font-weight="900"
+    font-size="28" fill="#f7931a" filter="url(#glow)">₿</text>
+
+  <!-- Face -->
+  <ellipse cx="200" cy="175" rx="42" ry="48" fill="#2a1a0a"/>
+  <ellipse cx="200" cy="175" rx="42" ry="48" fill="none" stroke="#cc0000" stroke-width="1"/>
+
+  <!-- Eyes - determined, direct gaze -->
+  <ellipse cx="185" cy="165" rx="8" ry="9" fill="#111"/>
+  <ellipse cx="215" cy="165" rx="8" ry="9" fill="#111"/>
+  <circle cx="187" cy="164" r="4.5" fill="#f7931a"/>
+  <circle cx="217" cy="164" r="4.5" fill="#f7931a"/>
+  <circle cx="188" cy="163" r="1.5" fill="#fff"/>
+  <circle cx="218" cy="163" r="1.5" fill="#fff"/>
+
+  <!-- Stern eyebrows -->
+  <line x1="177" y1="154" x2="194" y2="158" stroke="#8B4513" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="206" y1="158" x2="223" y2="154" stroke="#8B4513" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <path d="M198 170 L195 185 L205 185 L202 170" fill="none" stroke="#8B4513" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Determined mouth -->
+  <path d="M185 195 Q200 190 215 195" fill="none" stroke="#8B4513" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Beard / chin detail -->
+  <path d="M162 200 Q175 215 200 218 Q225 215 238 200" fill="#2a1a0a" stroke="#8B4513" stroke-width="1"/>
+
+  <!-- Suit/collar area -->
+  <path d="M158 225 L200 240 L242 225 L252 380 L148 380 Z" fill="#0d0d0d" stroke="#cc0000" stroke-width="1.2"/>
+  <!-- Lapels -->
+  <path d="M200 240 L178 270 L168 295" fill="none" stroke="#cc0000" stroke-width="1.5"/>
+  <path d="M200 240 L222 270 L232 295" fill="none" stroke="#cc0000" stroke-width="1.5"/>
+  <!-- Tie - with Bitcoin symbol -->
+  <path d="M195 252 L200 245 L205 252 L207 320 L200 328 L193 320 Z" fill="#cc0000"/>
+  <text x="200" y="300" text-anchor="middle" font-size="12" fill="#fff" font-weight="900">₿</text>
+
+  <!-- RIGHT ARM - pointing directly out at viewer (the key uncle sam gesture) -->
+  <!-- Upper arm -->
+  <path d="M242 240 L310 200 L318 215 L252 258 Z" fill="#0d0d0d" stroke="#cc0000" stroke-width="1"/>
+  <!-- Cuff/sleeve -->
+  <rect x="302" y="188" width="20" height="36" rx="4" fill="#cc0000" transform="rotate(-20 312 206)"/>
+  <!-- Pointing hand/finger -->
+  <ellipse cx="334" cy="185" rx="16" ry="11" fill="#2a1a0a" stroke="#8B4513" stroke-width="1" transform="rotate(-15 334 185)"/>
+  <!-- Extended index finger -->
+  <rect x="344" y="178" width="32" height="8" rx="4" fill="#2a1a0a" stroke="#8B4513" stroke-width="1" transform="rotate(-10 360 182)"/>
+  <!-- Finger tip glow -->
+  <circle cx="378" cy="177" r="4" fill="#f7931a" opacity="0.8" filter="url(#glow)"/>
+
+  <!-- Left arm more relaxed, holding Bitcoin scroll -->
+  <path d="M158 240 L108 280 L115 295 L165 258 Z" fill="#0d0d0d" stroke="#cc0000" stroke-width="1"/>
+  <!-- Scroll -->
+  <rect x="85" y="280" width="46" height="32" rx="4" fill="#1a1a1a" stroke="#f7931a" stroke-width="1.5"/>
+  <text x="108" y="297" text-anchor="middle" font-size="8" fill="#f7931a" font-family="'JetBrains Mono', monospace">BITCOIN</text>
+  <text x="108" y="308" text-anchor="middle" font-size="7" fill="rgba(247,147,26,0.6)" font-family="monospace">WHITEPAPER</text>
+
+  <!-- Suit bottom / legs suggestion -->
+  <rect x="168" y="370" width="30" height="60" fill="#0d0d0d" stroke="#cc0000" stroke-width="0.8" rx="2"/>
+  <rect x="202" y="370" width="30" height="60" fill="#0d0d0d" stroke="#cc0000" stroke-width="0.8" rx="2"/>
+
+  <!-- "WE WANT YOU" text - the iconic Uncle Sam line -->
+  <rect x="24" y="440" width="352" height="52" fill="rgba(204,0,0,0.08)" stroke="#cc0000" stroke-width="1.5" rx="3"/>
+  <text x="200" y="462" text-anchor="middle" font-family="'Impact','Arial Black',sans-serif"
+    font-size="14" font-weight="900" fill="rgba(255,255,255,0.5)" letter-spacing="3">SATOSHI SAYS</text>
+  <text x="200" y="484" text-anchor="middle" font-family="'Impact','Arial Black',sans-serif"
+    font-size="22" font-weight="900" fill="#cc0000" letter-spacing="4" filter="url(#textglow)">WE WANT YOU</text>
+
+  <!-- Bottom tagline -->
+  <text x="200" y="516" text-anchor="middle" font-family="'JetBrains Mono', monospace"
+    font-size="9.5" fill="rgba(255,255,255,0.5)" letter-spacing="2.5">FOR THE CYPHERPUNK REVOLUTION</text>
+  <line x1="30" y1="522" x2="370" y2="522" stroke="#cc0000" stroke-width="1"/>
+</svg>

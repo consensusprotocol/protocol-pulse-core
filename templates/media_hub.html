@@ -305,7 +305,11 @@
       </div>
       <div class="matrix-feed" id="podFeed">
         {% if feed_matrix.podcasts %}
-          {% for ep in feed_matrix.podcasts %}
+          {# Sort: Protocol Pulse native episodes first, then partners #}
+          {% set native_eps = feed_matrix.podcasts | selectattr('source', 'defined') | selectattr('source', 'equalto', 'Protocol Pulse') | list %}
+          {% set partner_eps = feed_matrix.podcasts | rejectattr('source', 'defined') | list + (feed_matrix.podcasts | selectattr('source', 'defined') | rejectattr('source', 'equalto', 'Protocol Pulse') | list) %}
+          {% set ordered_eps = native_eps + partner_eps %}
+          {% for ep in ordered_eps if ep %}
           <a class="fi" href="{{ ep.source_url or '#' }}" target="_blank" rel="noopener" data-voice="{{ ep.feed_name|lower }}" {% if ep.audio_url %}onclick="event.preventDefault();playEp('{{ ep.audio_url }}','{{ ep.title|e }}','{{ ep.feed_name|e }}')"{% endif %}>
             {% if ep.published_at %}<div class="fi-new" data-pub="{{ ep.published_at }}"><div class="fi-new-dot"></div>NEW</div>{% endif %}
             <div class="fi-row">
@@ -428,32 +432,7 @@
 
   </div>
 
-  <!-- ═══════════ LIVE SIGNAL FROM THE NETWORK ═══════════ -->
-  <div class="signal-terminal">
-    <div class="signal-terminal-head">
-      <div class="signal-terminal-dots"><span></span><span></span><span></span></div>
-      <span class="signal-terminal-label">Live Signal from the Network</span>
-      <span class="signal-terminal-ts" id="sigTermTs">Connecting...</span>
-    </div>
-    <div class="signal-feed" id="signalFeed">
-      <div style="text-align:center;padding:40px;color:var(--mut);font-size:12px">
-        <i class="fas fa-bolt" style="font-size:18px;opacity:.3;display:block;margin-bottom:8px"></i>
-        Awaiting signals...<br><div class="kol-loader"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════ NEWSLETTER CTA ═══════════ -->
-  <div class="nl">
-    <h3 class="nl-h">Never Miss a Signal</h3>
-    <p class="nl-p">Daily briefing from 20+ Bitcoin voices. Free.</p>
-    <form class="nl-f" onsubmit="mhNlSub(event)">
-      <input class="nl-i" type="email" name="email" placeholder="you@example.com" required>
-      <button class="nl-b" type="submit">Subscribe</button>
-    </form>
-  </div>
-
-  <!-- ═══════════ SOVEREIGN BOOK LIBRARY ═══════════ -->
+  <!-- Live signal terminal removed from /media — use /terminal instead -->
   <div id="books" style="padding:48px 0 0;">
     <!-- Header -->
     <div style="text-align:center;margin-bottom:2rem;">
@@ -759,7 +738,7 @@ function mhNlSub(e){
                 '<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">'+
                     '<a href="'+_esc(f.amazon_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--red);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fab fa-amazon"></i> Get on Amazon</a>'+
                     (f.series_url?'<a href="'+_esc(f.series_url)+'" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fas fa-play-circle"></i> Watch the Series</a>':'')+
-                    '<a href="https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fab fa-youtube"></i> Genesis Book Playlist</a>'+
+                    '<a href="https://www.youtube.com/@ProtocolPulse" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fab fa-youtube"></i> Big Print Series</a>'+
                 '</div>'+
             '</div></div>';
     }

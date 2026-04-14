@@ -3479,6 +3479,10 @@ html, body {
                 <span class="status-label">Blocks to Retarget</span>
                 <span class="status-value data-mono" id="status-retarget">--</span>
             </div>
+            <div class="status-metric">
+                <span class="status-label">7D Avg Fee</span>
+                <span class="status-value data-mono" id="status-avg-fee">-- sat/vB</span>
+            </div>
         </div>
     </div>
     
@@ -3626,6 +3630,267 @@ html, body {
     </div>
 </div>
 </div><!-- END ZONE 1: TACTICAL HORIZON -->
+
+<!-- ══ RECENT BLOCKS STRIP + LIVE TX FLOW + MEMPOOL QUEUE ══ -->
+<div style="background:#050505;border-top:1px solid rgba(204,0,0,0.2);border-bottom:1px solid rgba(204,0,0,0.2);padding:0;">
+
+    <!-- Recent Blocks (last 3 mined, clickable) -->
+    <div style="padding:14px 20px 10px;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.25em;color:rgba(255,255,255,0.25);">
+                RECENTLY MINED BLOCKS &nbsp;<span style="color:rgba(204,0,0,0.6);font-size:7px;">CLICK TO EXPLORE</span>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.2);">
+                SOURCE: MEMPOOL.SPACE
+            </div>
+        </div>
+        <div id="recent-blocks-strip" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;">
+            <!-- Populated by JS -->
+            <div class="block-card-placeholder" style="width:120px;height:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:4px;flex-shrink:0;animation:blockPulse 1.5s infinite;"></div>
+            <div class="block-card-placeholder" style="width:120px;height:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:4px;flex-shrink:0;animation:blockPulse 1.5s infinite 0.2s;"></div>
+            <div class="block-card-placeholder" style="width:120px;height:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:4px;flex-shrink:0;animation:blockPulse 1.5s infinite 0.4s;"></div>
+        </div>
+    </div>
+
+    <!-- Live TX Flow + Mempool Queue -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,0.04);">
+
+        <!-- Left: Live TX Flow -->
+        <div style="padding:14px 20px;border-right:1px solid rgba(255,255,255,0.04);">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.25em;color:rgba(255,255,255,0.25);margin-bottom:10px;">
+                LIVE TRANSACTION FLOW &nbsp;<span id="tx-flow-count" style="color:#f7931a;">--</span> <span style="color:rgba(255,255,255,0.15);">TXS/MIN</span>
+            </div>
+            <div id="tx-flow-canvas-wrap" style="position:relative;height:64px;overflow:hidden;background:rgba(255,255,255,0.02);border-radius:4px;border:1px solid rgba(255,255,255,0.05);">
+                <canvas id="tx-flow-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
+                <div id="tx-flow-symbols" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);">
+                <span>← PENDING</span>
+                <span>CONFIRMED →</span>
+            </div>
+        </div>
+
+        <!-- Right: Mempool Queue -->
+        <div style="padding:14px 20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.25em;color:rgba(255,255,255,0.25);">
+                    MEMPOOL QUEUE &nbsp;<span id="mempool-pending-count" style="color:#f7931a;">--</span> <span style="color:rgba(255,255,255,0.15);">WAITING</span>
+                </div>
+                <div id="mempool-size-mb" style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.25);">-- MB</div>
+            </div>
+            <!-- Fee tier queue bars -->
+            <div id="mempool-fee-bars" style="display:flex;flex-direction:column;gap:4px;">
+                <!-- Dynamically populated: low/mid/high fee tier bars -->
+                <div class="mq-bar-row" style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:7px;color:#22c55e;width:52px;flex-shrink:0;">1–5 s/vB</span>
+                    <div style="flex:1;height:10px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden;">
+                        <div id="mq-bar-low" style="height:100%;background:#22c55e;border-radius:2px;width:0%;transition:width 0.8s;"></div>
+                    </div>
+                    <span id="mq-count-low" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);width:36px;text-align:right;">--</span>
+                </div>
+                <div class="mq-bar-row" style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:7px;color:#f7931a;width:52px;flex-shrink:0;">6–20 s/vB</span>
+                    <div style="flex:1;height:10px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden;">
+                        <div id="mq-bar-mid" style="height:100%;background:#f7931a;border-radius:2px;width:0%;transition:width 0.8s;"></div>
+                    </div>
+                    <span id="mq-count-mid" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);width:36px;text-align:right;">--</span>
+                </div>
+                <div class="mq-bar-row" style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:7px;color:#cc0000;width:52px;flex-shrink:0;">&gt;20 s/vB</span>
+                    <div style="flex:1;height:10px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden;">
+                        <div id="mq-bar-high" style="height:100%;background:#cc0000;border-radius:2px;width:0%;transition:width 0.8s;"></div>
+                    </div>
+                    <span id="mq-count-high" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);width:36px;text-align:right;">--</span>
+                </div>
+            </div>
+            <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.15);display:flex;justify-content:space-between;">
+                <span>7D AVG FEE: <span id="avg-fee-display" style="color:#f7931a;">-- sat/vB</span></span>
+                <a href="https://mempool.space" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.2);text-decoration:none;">mempool.space ↗</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes blockPulse { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+@keyframes btcFlow { from{transform:translateX(-30px);opacity:0} 15%{opacity:1} 85%{opacity:1} to{transform:translateX(calc(100vw + 30px));opacity:0} }
+.btc-flow-symbol { position:absolute; font-size:11px; color:#f7931a; animation:btcFlow linear forwards; pointer-events:none; line-height:1; text-shadow:0 0 6px rgba(247,147,26,0.6); }
+.block-card {
+    width:120px; min-height:80px; background:rgba(255,255,255,0.03);
+    border:1px solid rgba(247,147,26,0.2); border-radius:4px; flex-shrink:0;
+    padding:8px 10px; cursor:pointer; text-decoration:none; display:block;
+    transition:border-color 0.2s, box-shadow 0.2s;
+    box-shadow:0 0 0 transparent;
+}
+.block-card:hover { border-color:rgba(247,147,26,0.6); box-shadow:0 0 12px rgba(247,147,26,0.15); }
+.block-card-h { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#f7931a; margin-bottom:4px; }
+.block-card-stat { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.4); line-height:1.6; }
+.block-card-stat span { color:rgba(255,255,255,0.7); }
+/* Square block indicator in top corner of card */
+.block-square { width:10px; height:10px; background:#f7931a; border-radius:1px; display:inline-block; margin-right:5px; vertical-align:middle; opacity:0.7; }
+</style>
+
+<script>
+// ═══ RECENT BLOCKS STRIP ═══
+(function initRecentBlocks() {
+    var strip = document.getElementById('recent-blocks-strip');
+    if (!strip) return;
+
+    function timeAgo(unixTs) {
+        var diff = Math.floor(Date.now()/1000) - unixTs;
+        if (diff < 60) return diff + 's ago';
+        if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+        return Math.floor(diff/3600) + 'h ago';
+    }
+
+    function fmtFee(f) { return f ? Math.round(f) + ' s/vB' : '--'; }
+    function fmtTx(n) { return n ? n.toLocaleString() : '--'; }
+
+    function renderBlocks(blocks) {
+        strip.innerHTML = '';
+        blocks.slice(0, 3).forEach(function(b) {
+            var a = document.createElement('a');
+            a.className = 'block-card';
+            a.href = 'https://mempool.space/block/' + b.id;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.title = 'View block ' + b.height + ' on Mempool.space';
+            a.innerHTML =
+                '<div class="block-card-h"><span class="block-square"></span>#' + (b.height||'').toLocaleString() + '</div>' +
+                '<div class="block-card-stat">TXs: <span>' + fmtTx(b.tx_count) + '</span></div>' +
+                '<div class="block-card-stat">Fee: <span>' + fmtFee(b.extras && b.extras.medianFee) + '</span></div>' +
+                '<div class="block-card-stat">Size: <span>' + (b.size ? (b.size/1e6).toFixed(2)+'MB' : '--') + '</span></div>' +
+                '<div class="block-card-stat" style="color:rgba(255,255,255,0.2);">' + (b.timestamp ? timeAgo(b.timestamp) : '') + '</div>';
+            strip.appendChild(a);
+        });
+    }
+
+    function fetchBlocks() {
+        fetch('https://mempool.space/api/v1/blocks')
+            .then(function(r) { return r.json(); })
+            .then(function(data) { renderBlocks(data || []); })
+            .catch(function() {});
+    }
+    fetchBlocks();
+    setInterval(fetchBlocks, 60000);
+})();
+
+// ═══ AVG FEE RATE (7-day) ═══
+(function fetchAvgFee() {
+    var avgEl = document.getElementById('status-avg-fee');
+    var avgEl2 = document.getElementById('avg-fee-display');
+    // mempool.space has a 7-day fee histogram, derive from recommended fees
+    function updateAvg(fees) {
+        if (!fees) return;
+        // Use hourFee as proxy for avg — it's the "confirm within 1h" rate
+        var avg = fees.hourFee || '--';
+        if (avgEl) avgEl.textContent = avg + ' sat/vB';
+        if (avgEl2) avgEl2.textContent = avg + ' sat/vB';
+    }
+    // Piggyback on window.mempoolCache if already loaded by main fetch
+    function check() {
+        if (window.mempoolCache && window.mempoolCache.fees) {
+            updateAvg(window.mempoolCache.fees);
+        } else {
+            fetch('https://mempool.space/api/v1/fees/recommended')
+                .then(function(r){return r.json();})
+                .then(updateAvg)
+                .catch(function(){});
+        }
+    }
+    setTimeout(check, 2500);
+    setInterval(check, 60000);
+})();
+
+// ═══ LIVE TX FLOW SYMBOLS ═══
+(function initTxFlow() {
+    var wrap = document.getElementById('tx-flow-symbols');
+    var countEl = document.getElementById('tx-flow-count');
+    if (!wrap) return;
+    var txRate = 0;
+
+    function spawnBtcSymbol() {
+        var span = document.createElement('span');
+        span.className = 'btc-flow-symbol';
+        span.textContent = '₿';
+        var top = 8 + Math.random() * 44;
+        var dur = 2.5 + Math.random() * 2;
+        span.style.top = top + 'px';
+        span.style.left = '0';
+        span.style.animationDuration = dur + 's';
+        // Color varies by fee level
+        var feeLevel = Math.random();
+        span.style.color = feeLevel > 0.7 ? '#cc0000' : feeLevel > 0.35 ? '#f7931a' : '#22c55e';
+        span.style.textShadow = '0 0 6px ' + span.style.color;
+        wrap.appendChild(span);
+        setTimeout(function() { if(span.parentNode) span.parentNode.removeChild(span); }, dur * 1000 + 100);
+    }
+
+    function updateRate(n) {
+        txRate = n || 0;
+        if (countEl) countEl.textContent = Math.round(txRate);
+    }
+
+    // Spawn symbols at tx rate
+    var spawnInterval = null;
+    function adjustSpawnRate() {
+        if (spawnInterval) clearInterval(spawnInterval);
+        var delay = txRate > 0 ? Math.max(150, 3000 / txRate) : 800;
+        spawnInterval = setInterval(spawnBtcSymbol, delay);
+    }
+    adjustSpawnRate();
+
+    // Update tx rate from mempool every 30s
+    function fetchTxRate() {
+        fetch('https://mempool.space/api/mempool')
+            .then(function(r){return r.json();})
+            .then(function(d) {
+                if (d.count) updateRate(d.count);
+                adjustSpawnRate();
+                // Update mempool queue
+                var pendEl = document.getElementById('mempool-pending-count');
+                var sizeEl = document.getElementById('mempool-size-mb');
+                if (pendEl) pendEl.textContent = d.count ? d.count.toLocaleString() : '--';
+                if (sizeEl) sizeEl.textContent = d.vsize ? (d.vsize/1e6).toFixed(1) + ' MB' : '--';
+            }).catch(function(){});
+    }
+    fetchTxRate();
+    setInterval(fetchTxRate, 30000);
+})();
+
+// ═══ MEMPOOL QUEUE FEE TIERS ═══
+(function initMempoolQueue() {
+    function update() {
+        fetch('https://mempool.space/api/v1/fees/mempool-blocks')
+            .then(function(r){return r.json();})
+            .then(function(blocks) {
+                if (!blocks || !blocks.length) return;
+                // Aggregate across all blocks
+                var low=0, mid=0, high=0, total=0;
+                blocks.forEach(function(b) {
+                    var n = b.nTx || 0;
+                    var fee = b.medianFee || 0;
+                    total += n;
+                    if (fee <= 5) low += n;
+                    else if (fee <= 20) mid += n;
+                    else high += n;
+                });
+                if (total === 0) return;
+                var setBar = function(id, cid, count) {
+                    var bar = document.getElementById('mq-bar-' + id);
+                    var ct = document.getElementById('mq-count-' + id);
+                    if (bar) bar.style.width = Math.round(count/total*100) + '%';
+                    if (ct) ct.textContent = count > 999 ? (count/1000).toFixed(0)+'K' : count;
+                };
+                setBar('low', 'mq-count-low', low);
+                setBar('mid', 'mq-count-mid', mid);
+                setBar('high', 'mq-count-high', high);
+            }).catch(function(){});
+    }
+    update();
+    setInterval(update, 30000);
+})();
+</script>
 
 <!-- ============================================
      ZONE 2: THE LOGIC ENGINE
