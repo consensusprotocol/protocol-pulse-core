@@ -110,7 +110,7 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
         name = _sanitize_text(str(card.get("name", card.get("handle", "Source"))))[:20]
         handle = _sanitize_text(str(card.get("handle", "@source")))[:20]
         score = str(card.get("score", card.get("likes", "80")))[:6]
-        ctext = _word_wrap(_sanitize_text(str(card.get("text", ""))), max_width=24, max_lines=4)
+        ctext = _word_wrap(_sanitize_text(str(card.get("text", ""))), max_width=36, max_lines=7)
         ctag = _sanitize_text(str(card.get("tag", tags[ci % 3])))[:20]
 
         out = f"ss_sc{ci}"
@@ -134,7 +134,7 @@ def make_social_stack_scene(audio_path: str, headline: str, social_cards: list,
                f"fontcolor={COLOR_GOLD}:fontsize=11:x={cx+cw-84}:y={cy+34},"
                # Quote text
                f"drawtext=fontfile={FONT_BOLD}:text='{ctext}':"
-               f"fontcolor={COLOR_WHITE}:fontsize=20:x={cx+24}:y={cy+100}:line_spacing=10,"
+               f"fontcolor={COLOR_WHITE}:fontsize=17:x={cx+24}:y={cy+90}:line_spacing=10,"
                # VDS gold tag label at bottom
                f"drawtext=fontfile={FONT_MONO}:text='{ctag}':"
                f"fontcolor={COLOR_GOLD}:fontsize=11:x={cx+24}:y={cy+ch-36},"

@@ -256,5 +256,17 @@
     "timestamp": "2026-04-13T07:00:03.472593+00:00",
     "text_preview": "Do you know what happens to a currency when the issuer stops telling you how muc",
     "format_type": "macro_monetary"
+  },
+  {
+    "hash": "04c6d74d8c605d1b2b2f184220f1094b",
+    "timestamp": "2026-04-13T10:00:03.991464+00:00",
+    "text_preview": "Fear reads 12. Bitcoin processes transactions for 1 sat/vB. The network is cheap",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "e6889e4f7d4aaee38f3e26f6206cc682",
+    "timestamp": "2026-04-13T19:00:04.143594+00:00",
+    "text_preview": "1068.7 EH/s hashrate. Miners are securing the network harder during extreme fear",
+    "format_type": "network_fundamentals"
   }
 ]

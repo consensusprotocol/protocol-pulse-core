@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1776064506.1533363,
-  "fetched_at_iso": "2026-04-13T07:15:06.153352+00:00",
+  "fetched_at": 1776124803.4807134,
+  "fetched_at_iso": "2026-04-14T00:00:03.480718+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 52,
+      "events_filtered": 62,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 64,
+      "events_filtered": 75,
       "error": null
     },
     {
@@ -34,106 +34,106 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 60,
+      "events_filtered": 57,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Conducting a groundbreaking, peer-reviewed study (by me):\n\nWill people on the internet send Bitcoin to someone who absolutely does not need it?\n\nNo sob story. No utility. No roadmap.  \nJust pure, irrational, internet behavior.\n\nConsider it:\n\u2013 a tribute to poor financial decisions  \n\u2013 performance art  \n\u2013 or proof that vibes > logic\n\nIf it works, we\u2019ve learned nothing.  \nIf it doesn\u2019t, we\u2019ve also learned nothing.\n\nFor science: https://strike.me/sparky051288\n\n#bitcoin #btc #lightning #nostr #pleb #sats #stackingsats #zaps #zapme #cryptocommunity #crypto #decentralized #freedomtech #internetculture #experiment #sendit #randomness #vibes #memeeconomy #digitalkarma #whyNot #forScience",
-      "pubkey": "a495b64f26f93de9f9e9cf7b2f106e451d7a1e671b3303cb9892d09317a6cacc",
-      "display_name": "npub1a495b64f...a6cacc",
-      "created_at": 1776060729,
-      "relay": "wss://relay.damus.io",
-      "score": 100,
-      "has_zap": false
-    },
-    {
-      "text": "Hello, Nostr! \ud83d\udc4b\n\nIntroducing **BitHome** (bithome.site) \u2014 The Global Property Protocol.\n\nA censorship-resistant, Bitcoin-native protocol for real estate:\n\u2022 Listings & demands via Nostr (kind 30023)\n\u2022 Canonical pricing in sats/m\u00b2 (no fiat noise)\n\u2022 Identity = keys, not accounts\n\u2022 Final settlement on Bitcoin + Lightning\n\nActive Beta is live. Global map. P2P matching. No intermediaries.\n\nThe decentralized real estate revolution starts now. \u26a1\n\nbithome.site\n#BitHome #Nostr #Bitcoin #RealEstate #Protocol \nhttps://image.nostr.build/8eed1e31b4d5db8cba65d8daa17f34f6565dcbbc450ae4cfe47ec56596227c57.jpg",
-      "pubkey": "2d947225477eff43131ce6a2f31078ff7aaabe313c7c6692ef48935a51c6217b",
-      "display_name": "npub12d947225...c6217b",
-      "created_at": 1776053896,
-      "relay": "wss://nos.lol",
-      "score": 90,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\ud83d\udcf0 **NYT Names Adam Back as Satoshi Nakamoto**\n\u270d\ufe0f by Oslo\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has been hiding in plain sight...\n\n\ud83d\udd17 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcca id#160741636",
-      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
-      "display_name": "npub1aee9d7ac...2e0502",
-      "created_at": 1776060499,
+      "text": "We\u2019re moving into a world where trust - between individuals, and even between nation states - feels like it\u2019s steadily dissolving.\n\nAnd because of that, trust itself becomes the real value. Not just what you say, but what you consistently stand behind. In a way, that\u2019s the truest form of proof of work.\n\nThat\u2019s why being a merchant on Nostr, selling a product, whatever it may be, in exchange for #Bitcoin, matters more than it might seem at first glance. It\u2019s not just a transaction, but the signal.\n\nYou\u2019re choosing to operate in an environment where both the money and the relationship demand a higher level of integrity.\n\nThat kind of trust isn\u2019t easy to build. And it shouldn\u2019t be taken lightly or viewed short-term.",
+      "pubkey": "e096a89eeb90820895a6dfd7f369ec313654e5762e042d59ad06937659351479",
+      "display_name": "npub1e096a89e...351479",
+      "created_at": 1776119600,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nNYT Names Adam Back as Satoshi Nakamoto\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has been hiding in plain sight...\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\u270d\ufe0f Author: Oslo\n\n\ud83d\udd17 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcc8 id#224647285",
-      "pubkey": "d9c2ec9765485f7f39a1b59c4ef7578879d2d17908364e1031129cc7b72f692d",
-      "display_name": "npub1d9c2ec97...2f692d",
-      "created_at": 1776049699,
-      "relay": "wss://nos.lol",
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\ud83d\udcf0 **NYT Names Adam Back as Satoshi Nakamoto**\n\u270d\ufe0f by Oslo\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has been hiding in plain sight...\n\n\ud83d\udd17 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcca id#502116224",
+      "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
+      "display_name": "npub1fe5915e9...a8403b",
+      "created_at": 1776114500,
+      "relay": "wss://relay.primal.net",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcca BTC $70,889 | ETH $2,192\n\u26a0\ufe0f Capitulation: $14M longs liquidated\n\n\ud83d\udca1 Analysis: Current liquidations are 100% longs, signaling massive long liquidation (retail capitulation). This aligns with the Extreme Fear reading (12) and recent historical patterns where similar long-dominated liquidations preceded local bottoms.\n\n#bitcoin #ethereum #crypto #trading\n\n\u26a0\ufe0f Not financial advice. This is market commentary only. DYOR.",
-      "pubkey": "dee495f082308199ccd7d5956885289025fbc23e6e44751647044de6731b4120",
-      "display_name": "npub1dee495f0...1b4120",
-      "created_at": 1776061691,
+      "text": "\"What's the BTC price right now?\" \n\nAny of our 400+ models can now answer that.\n\nweb_search: true \u2014 real-time data, citations, ~35 sats.\n \nhttps://llm402.ai\n\n#Bitcoin #Lightning #L402 #x402 #Cashu #AI #LLM",
+      "pubkey": "68a5d2264dfd1d43d18e3f345256b122df595e97d7bd7698fb2535c0a5b07639",
+      "display_name": "npub168a5d226...b07639",
+      "created_at": 1776115998,
+      "relay": "wss://relay.damus.io",
+      "score": 71,
+      "has_zap": false
+    },
+    {
+      "text": "If you were handed 1 Bitcoin today, what level of security would you personally use? \n\nNo brainer a cold wallet/storage would be needed but what about a passphrase, or multisig, or even multiple wallets and split it? \n\nWould love to know what you'd do and why?\n\nHave a blessed day bread winners. \n#bitcoin #coldstorage #wallet #btc",
+      "pubkey": "7a23bd4c914a3ab8eb7728a74737a15e6deb80b4d16c86476d0ca346858c6c2e",
+      "display_name": "npub17a23bd4c...8c6c2e",
+      "created_at": 1776114970,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Ride #3 was a short 30-minute recovery spin. It was just enough to keep the legs moving and rebuild my \u201cride every day\u201d habit. \n\nIt reminded me of DCA: small, steady accumulation that doesn\u2019t look like much in the moment, but compounds over time. \n\nYou don\u2019t need fireworks every day, you just need to keep showing up and not break the pattern. \n\nTraining and stacking both reward consistency more than intensity.  And speaking of intensity, big session planned for tomorrow.  And I\u2019m looking forward to it.  \n\n#cycling #training #bitcoin #DCA #HODL",
+      "pubkey": "71937af89c8d3e773491b11667edb3fcfb92159f5e8e201c9a5afb127dd81f94",
+      "display_name": "npub171937af8...d81f94",
+      "created_at": 1776113668,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Flying Whale \u2014 Infrastructure Lineage Statement\n\nWhat was built first, and when:\n- Autonomous agent BD methodology \u2192 2026-03-20\n- On-chain dispute pattern (whale-signal-registry-v1) \u2192 2026-03-25\n- Sovereign Agent OS v3.0.0 (10 contracts) \u2192 2026-04-07\n- IPI Defense System \u2192 2026-04-07\n- Reconciliation Engine v2.0.0 \u2192 2026-04-08\n- zest-liquidation-watch \u2192 2026-04-11\n\nAll timestamps verifiable on Stacks mainnet.\nOn-chain IP: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-ip-store-v1\n\nCommercial use of this infrastructure requires a license.\nFlying Whale Infrastructure License v1.0 \u2014 effective 2026-04-13.\n\nTiers: Indie 100k sats/mo | Commercial 300k sats/mo | Platform: negotiate\nPayment first. No trials.\n\ngithub.com/azagh72-creator | ERC-8004 #54 | zaghmout.btc",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776114591,
       "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "2026-04-13 06:00 UTC | BLOCK 944847\n\nBITCOIN $70,884 | GOLD $4,699\n\n1. Oil Breaks $100 as Hormuz Throttle Bites\n-- Crude at $104.23, reversing prior sub-$100 hold despite ceasefire.\n-- Conditional reopening protocol failing to restore flow; stagflation pressure intensifies.\n\n2. Bitcoin Core Governance Gap Now Under Spotlight\n-- New scrutiny on Core maintainer structure as quantum upgrade window compresses.\n-- No active proposal at block 944,847; governance bottleneck compounds cryptographic risk.\n\n3. Gold Extends Record Run Past $4,699\n-- Fresh all-time high, up from $4,688 in prior session.\n-- Market pricing no normalization through 2027; hard-asset bid accelerating alongside BTC at $70,884.",
-      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
-      "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1776060041,
+      "text": "Appreciated the opportunity to share what we\u2019re building nostr:nprofile1qqs0t8ftzrpxtac4u5d2xz687u80w2r6w6jdwmr554n27zuxufp0fugpzemhxue69uhhyetvv9ujuurjd9kkzmpwdejhgqgawaehxw309ajx2a3wdehhxarjwpkxz7t8wfhh2mny9e3k7mg5mxve3  at the intersection of sound money and sound health on Saturday nostr:nprofile1qqs29csqe3xjma05t6pyuj806g6geu5sexdylc2l5dzqz9pjq3g0jwcpzpmhxue69uhkummnw3ezuamfdejsz9rhwden5te0wfjkccte9ejxzmt4wvhxjmcga4va0 in Fort Worth!\n\nFull circle moment for me- I first found my voice at #bitcoin events teaching yoga at #BBB2022 four years ago in Austin \ud83d\ude4f\ud83c\udffd\u26a1\ufe0f\n\nhttps://blossom.primal.net/6c365f2051591aee227877af1c0b2a37e77a8faa42b7d14a63d4bf577629deda.jpg\nhttps://blossom.primal.net/69e540bcb8ac15d0b43c6a7e089f734010e598deeab276b4665e56ec883d52c5.jpg",
+      "pubkey": "59c2e15ad7bc0b5c97b8438b2763a5c409ff76ab985ab5f1f47c4bcdd25e6e8d",
+      "display_name": "npub159c2e15a...5e6e8d",
+      "created_at": 1776110027,
       "relay": "wss://nos.lol",
-      "score": 70,
+      "score": 69,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.03 oz | 24hr: -0.33%\n1 oz Gold: 6,653,360 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.7 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 07:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.69 oz | 24hr: 3.25%\n1 oz Gold: 6,373,486 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.9 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-14 | 23:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776063664,
+      "created_at": 1776121264,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.98 oz | 24hr: -0.82%\n1 oz Gold: 6,675,567 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.7 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-13 | 06:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.44 oz | 24hr: 2.65%\n1 oz Gold: 6,476,684 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.8 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-13 | 21:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776060064,
+      "created_at": 1776114067,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.01 oz | 24hr: -0.31%\n1 oz Gold: 6,662,225 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.6 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-04-13 | 05:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.44 oz | 24hr: 3.60%\n1 oz Gold: 6,476,684 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.8 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-14 | 22:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776056464,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.05 oz | 24hr: -0.28%\n1 oz Gold: 6,644,518 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.6 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 04:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776052865,
+      "created_at": 1776117668,
       "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.06 oz | 24hr: -0.49%\n1 oz Gold: 6,640,106 sats\n\nBitcoin marketcap: 1.4 trillion USD\nGold marketcap: 32.6 trillion USD\nBitcoin Vs Gold marketcap: 4.4%\n\nUpdated: 2026-04-13 | 03:00 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.47 oz | 24hr: 3.35%\n1 oz Gold: 6,464,124 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.8 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-13 | 20:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776049266,
+      "created_at": 1776110466,
       "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
@@ -142,85 +142,85 @@
       "text": "DEVELOPING: Bitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nFull breakdown just published:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
       "pubkey": "1ec7da9eca27ed9150ccd54c703926f877c783a728caed07b8287f3bd936a875",
       "display_name": "npub11ec7da9e...36a875",
-      "created_at": 1776055598,
+      "created_at": 1776111541,
       "relay": "wss://relay.damus.io",
       "score": 67,
       "has_zap": false
     },
     {
-      "text": "IRAN DEMANDING BTC TOLLS? \ud83d\udc40\nIran may require oil tankers to pay BTC tolls through the Strait of Hormuz \u2014 a Cointelegraph wild new real-world use case nobody asked for, but here we are. The most powerful narrative in crypto just went military. \u2693\ufe0f\ud83d\udd25#Bitcoin #BTC #Geopolitics #Crypto2026",
-      "pubkey": "12cac46ffb0b73785e2787b502fa6d7cc6fdbe998211fda29496c1d150158497",
-      "display_name": "npub112cac46f...158497",
-      "created_at": 1776060764,
-      "relay": "wss://nos.lol",
-      "score": 67,
-      "has_zap": false
-    },
-    {
-      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd38 BTC: $70,985 (-0.9%)\n\ud83d\udd38 ETH: $2,195 (-0.9%)\n\ud83d\udd39 DOGE: $0.0912 (+0.1%)\n\ud83d\udd38 XRP: $1.33 (-0.4%)\n\ud83d\udd38 LINK: $8.78 (-0.2%)\n\ud83d\udd39 PEPE: $0.00000349 (+0.0%)\n\ud83d\udd39 TRUMP: $2.80 (+0.4%)\n\nTotal Market Cap: $2.50T | BTC Dominance: 56.9%\n\n#bitcoin #crypto #marketupdate",
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udfe2 BTC: $73,321 (+3.6%)\n\ud83d\udfe2 ETH: $2,264 (+3.3%)\n\ud83d\udd39 DOGE: $0.0928 (+2.1%)\n\ud83d\udd39 XRP: $1.35 (+1.2%)\n\ud83d\udd39 LINK: $9.01 (+2.9%)\n\ud83d\udfe2 PEPE: $0.00000361 (+3.7%)\n\ud83d\udd39 TRUMP: $2.84 (+1.4%)\n\nTotal Market Cap: $2.56T | BTC Dominance: 57.3%\n\n#bitcoin #crypto #marketupdate",
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
-      "created_at": 1776053102,
-      "relay": "wss://nos.lol",
+      "created_at": 1776117884,
+      "relay": "wss://relay.damus.io",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "#Bitcoin solves a problem most people don't even know they have\n\nBefore I studied Bitcoin, I truly believed that I would have to work until the day I die\n\nFiat currencies are designed to steal from you and make you work forever\n\nWith Bitcoin, most people will be able to retire 10+ years sooner, but they still think it's a scam",
-      "pubkey": "df50c179ed670394c4fd54cd3c611d3c0c4c8087c9535586592cd1fb9503ab1f",
-      "display_name": "npub1df50c179...03ab1f",
-      "created_at": 1776060540,
+      "text": "Something that\u2019s been on my mind lately when thinking about multi-planetary life and #Bitcoin:\nLight (and therefore any digital data) takes anywhere from 3 to 22 minutes to travel between Earth and Mars. That\u2019s longer than Bitcoin\u2019s ~10-minute block interval.\nBecause of this fundamental latency, a single, synchronized blockchain simply couldn\u2019t stay coherent across planets\u2014the network would constantly fracture into competing chains.\nHas anyone explored this problem (and potential solutions) in depth?\n#MultiPlanetary #Bitcoin #LifeBeyondEarth #Thermodynamics",
+      "pubkey": "de4a1dd943751221d0e900507c8f10b331606645fbd87783f8aac180755fa0e0",
+      "display_name": "npub1de4a1dd9...5fa0e0",
+      "created_at": 1776120812,
       "relay": "wss://relay.damus.io",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "2026-04-13 06:00 UTC | BLOCK 944847\n\nBITCOIN $70,902 | GOLD $4,699\n\n1. Oil Breaks $100 Reversing Sub-Threshold Hold\n-- Crude hits $104.23, breaching key level despite ceasefire.\n-- Suggests Hormuz conditional reopening failing to restore supply confidence; stagflation pressure intensifying.\n\n2. Gold Extends Record Run to $4,699\n-- Eleventh consecutive session of gains; $11 above prior record.\n-- No ceasefire relief priced in; markets still positioning for prolonged monetary dysfunction through 2027.\n\n3. Bitcoin Core Maintainer Capacity Under Scrutiny\n-- New analysis questions whether Core's governance structure can execute cryptographic upgrades at required pace.\n-- With block 944,847 and no active proposal, institutional inflows at $70,902 face unresolved protocol-layer risk.",
-      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
-      "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1776060058,
+      "text": "Everyone\u2019s obsessing over the Fed, but the tape is screaming something else: inflation is being re-imported through energy while risk assets party like it\u2019s 2021. Crude\u2019s shock is the real macro headline, and the market\u2019s calm-vol posture is the tell\u2014VIX under 20 with CPI still hot is complacency, not confidence. Meanwhile crypto headlines are back to supply grabs and meme-grade rallies, and big tech strength is doing the heavy lifting for the indices. This is a liquidity-and-narrative market, not a fundamentals market, and #SPX #BTC #VIX are all pricing that disconnect. \u26a0\ufe0f\ud83d\udca5\n\nhttps://heyframe.com/images/news-terminal.png?v=1776117674",
+      "pubkey": "45addb99d8ec5e34a96d52b850c653dfefe2b49f46f6acadf62592bfe74b6e09",
+      "display_name": "npub145addb99...4b6e09",
+      "created_at": 1776117674,
       "relay": "wss://relay.damus.io",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "2026-04-13 03:21 UTC | BLOCK 944828\n\nBITCOIN $71,156 | GOLD $4,689\n\n1. xAI Sues Colorado Over AI Speech Law\n-- Filed First Amendment challenge to block state AI content regulation.\n-- Escalates free-speech battlefront beyond social media into AI infrastructure governance.\n\n2. Massachusetts Passes Social Media Digital ID Bill\n-- House approves age verification requiring digital identification for platforms.\n-- Two-track national digital ID regime crystallizing; direct contrast with Idaho ban.\n\n3. Germany Contradicts EU on Voluntary Digital Wallet\n-- SPD plan mandates EUDI wallet use despite EU insistence it remains voluntary.\n-- Reveals compulsory surveillance architecture advancing behind voluntary framing.\n\n4. Oil Holds Below $100 Despite Hormuz Throttle\n-- Crude at $96.57 with strait transit still at 10-35% pre-war volume.\n-- Fragile equilibrium; gold at $4,689 confirms markets pricing sustained disruption not recovery.",
-      "pubkey": "01d077c7b21bfee89a6883edabcd408ef324e9ab431f46bf57d5860430bcb97c",
-      "display_name": "npub101d077c7...bcb97c",
-      "created_at": 1776050462,
+      "text": "If you're building on @ZestProtocol or @ALEXLabBTC with autonomous agents \u2014\n\nYour liquidation bots, yield managers, and collateral monitors are IPI targets.\n\nOne injected prompt in a price feed or governance signal = funds at risk.\n\nFlying Whale IPI Defense blocks it at the source.\nOn-chain. Auditable. Live on Stacks mainnet.\n\nLicense: github.com/azagh72-creator\nzaghmout.btc | ERC-8004 #54",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776117141,
+      "relay": "wss://relay.damus.io",
+      "score": 60,
+      "has_zap": false
+    },
+    {
+      "text": "Building an AI agent on Stacks that handles real wallets?\n\nIPI (Injected Prompt Injection) is the #1 attack vector.\nOne injected instruction in a tool call \u2192 attacker drains your wallet.\n\nFlying Whale IPI Defense is live:\n\u2192 Scans every incoming call\n\u2192 Detects injection patterns\n\u2192 Blocks wallet-sensitive ops before execution\n\u2192 Full audit log on-chain\n\nBuilt on Stacks. On-chain IP proven.\nLicense: github.com/azagh72-creator\n\n#Stacks #Bitcoin #AIagents #IPI #security",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776117120,
       "relay": "wss://nos.lol",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "The block height is 944860, and the current price for bitcoin is 71.1K USD. This means that you can get 1407 sats for one dollar. The fear/greed index is 43: Neutral. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776063604,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
-      "has_zap": false
-    },
-    {
-      "text": "The block height is 944847, and the current price for bitcoin is 70.9K USD. This means that you can get 1411 sats for one dollar. The fear/greed index is 42: Neutral. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776060005,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
-      "has_zap": false
-    },
-    {
-      "text": "The block height is 944824, and the current price for bitcoin is 71.1K USD. This means that you can get 1407 sats for one dollar. The fear/greed index is 43: Neutral. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776049205,
+      "text": "The NYT spent a year investigating and pointed the finger at Adam Back as Bitcoin's mysterious creator \u2014 but Back isn't having it. \ud83d\udc40\n\n\"Confirmation bias,\" he says.\n\nSatoshi's identity remains crypto's greatest unsolved mystery. \ud83d\udd0d\u20bf\n\n#Bitcoin #Satoshi #Crypto\n\nhttps://www.virtue.news/british-bitcoin-developer-denies-being-satoshi-nakamoto-after-new-york-times-investigation/",
+      "pubkey": "d684e2cfc222e05d0a1aec954056ed58c43a61605878ea2fb88310aaaf7641a2",
+      "display_name": "npub1d684e2cf...7641a2",
+      "created_at": 1776109510,
       "relay": "wss://nos.lol",
+      "score": 60,
+      "has_zap": false
+    },
+    {
+      "text": "\u26a1 The Briefing \u2014 Evening Edition\n\nMarkets are pricing in a near-term resolution to Iran tensions, but Hungary's shift toward Ukraine negotiations creates a structural risk to Western consensus that could reignite volatility once the immediate diplomatic window closes.\n\nRead the full brief: https://getthebriefing.com\n\n#TheBriefing #Bitcoin #Markets #News",
+      "pubkey": "fb9d55f519bada77aae3de5fba25029eaa7b0686a8e8264bb26a100dbdd247a7",
+      "display_name": "npub1fb9d55f5...d247a7",
+      "created_at": 1776121226,
+      "relay": "wss://relay.damus.io",
+      "score": 58,
+      "has_zap": false
+    },
+    {
+      "text": "The block height is 944950, and the current price for bitcoin is 74.6K USD. This means that you can get 1340 sats for one dollar. The fear/greed index is 54: Neutral. Buy some \u20bf, it may catch on.",
+      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
+      "display_name": "npub182e06d3b...68cfa9",
+      "created_at": 1776121204,
+      "relay": "wss://relay.damus.io",
       "score": 58,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 176,
+  "total_filtered": 194,
   "total_scored": 20
 }

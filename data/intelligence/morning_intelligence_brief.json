@@ -1,56 +1,63 @@
 {
-  "generated_at": "2026-04-12T16:00:00Z",
-  "date": "Sunday, April 12, 2026",
-  "btc_price": "$71,106",
-  "btc_change_24h": "-3.5%",
-  "fng": "Extreme Fear (16/100)",
+  "generated_at": "2026-04-13T14:30:00Z",
+  "date": "Monday, April 13, 2026",
+  "btc_price": "$73,447",
+  "btc_change_24h": "+3.3%",
+  "fng": "Extreme Fear (12/100)",
   "dominant_narratives": [
-    "Geopolitical instability as Bitcoin utility accelerant — Strait of Hormuz blockade, Iran sanctions evasion, naval conflict creating structural demand for censorship-resistant settlement",
-    "Institutional accumulation thesis — Michael Saylor 'Think ₿igger' signals, Morgan Stanley ETF inflows, stewardship framing rebranding corporate hodling as capital preservation",
-    "Technofascist surveillance state erosion — LAPD hack (7.7TB data loss), LLM security theater, government-versus-government dysfunction narrative legitimizing Bitcoin exit velocity"
+    "Institutional accumulation via MicroStrategy and corporate treasury strategies offsetting retail fear",
+    "Regulatory clarity (CLARITY Act + SEC guidance) removing friction from institutional adoption",
+    "Supply constraint narrative: 1.29% global adoption with fixed 21M BTC cap creates scarcity economics",
+    "Post-quantum cryptography research accelerating as existential infrastructure upgrade",
+    "Deflationary technology thesis: Bitcoin as monetary layer for software-driven cost reduction economy"
   ],
   "trending_language": [
-    "Think ₿igger",
-    "Short squeeze coming",
-    "The slop will continue till the slop FUD goes away",
-    "Nothing like government come to save government from government",
-    "Hundreds of millions of lives at risk by Christmas",
-    "Stewardship",
-    "Blockading any and all ships"
+    "The floor is getting louder",
+    "Supply taken off the market",
+    "Whale accumulation",
+    "Post-quantum Bitcoin",
+    "Sound money and free markets",
+    "Bitcoin as TCP/IP of money",
+    "BTC Yield 5.6% YTD",
+    "Strategic positioning"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite 24h -3.5% price action and Extreme Fear reading, narrative throughline is structurally constructive. Geopolitical chaos, institutional accumulation signals (Saylor), and institutional short liquidation setup override near-term capitulation optics. Community viewing drawdown as capitulation event preceding institutional absorption.",
+  "sentiment_reasoning": "Despite Extreme Fear gauge, on-chain whale accumulation (Saylor: 13,927 BTC in 48h, $49B ATM capacity remaining) and regulatory tailwinds (CLARITY Act advancing) create structural bid beneath fear-driven volatility. Macro deterioration (54% consumers report worse financial situation) provides systemic support for sound money narrative.",
   "top_accounts_active": [
     "@BitcoinArchive",
     "@saylor",
-    "@nvk",
-    "@PeterMcCormack",
     "@BitcoinMagazine",
-    "@BTCsessions",
+    "@JeffBooth",
+    "@MattCorva",
+    "@jimmysong",
     "@lopp",
-    "@stacyherbert",
-    "@saifedean"
+    "@adam3us",
+    "@BitcoinForCorps"
   ],
   "recommended_tweet_angles": [
-    "Geopolitical angle: Map Strait of Hormuz chaos → oil market pressure → inflation protection demand → Bitcoin's operational censorship-resistance vs theoretical abstractions. Lead with real-time naval conflict data.",
-    "Liquidation mechanics: 'Short liquidity cluster above $74K + negative funding = squeeze cascade.' Pair with Saylor stewardship narrative — institutions buying while shorts liquidate. Data-driven, emotionally neutral.",
-    "Surveillance-state collapse angle: LAPD hack (7.7TB), government cybersecurity theater, LLM false security narrative. Contrast with Bitcoin's immutable, uncensorable ledger. Cypherpunk tone — dark humor acceptable."
+    "Contrarian accumulation thesis: When retail fears (F&G: 12), institutional buyers activate $49B+ in dry powder—the market structure inverts fear into supply shock",
+    "Regulatory endgame: CLARITY Act clears Senate Banking by end-April, converting 'gray' into 'green'—custody, yield products, corporate treasuries move from exception to baseline",
+    "Scarcity math: 1.29% adoption (106M people) vs. 21M fixed supply = 5,000 BTC per person at saturation—this isn't hype, it's arithmetic",
+    "Post-quantum pivot: While AI/quantum risks spike supply-chain attacks, Bitcoin core devs ship SHRIMPS multi-device signatures—security hardens as threats scale",
+    "Deflationary future: Software halves costs every 18-24 months; Bitcoin's fixed supply creates purchasing-power alignment with tech's core tendency—systemic pair trade emerging"
   ],
   "topics_to_avoid": [
-    "Palestine/Israel conflict framing (divisive, off-brand for Protocol Pulse's Bitcoin-first focus)",
-    "Unrelated sports/political entertainment (Stockport County, Bedford Women — dilutes signal-to-noise)",
-    "Vague motivational content without data backbone"
+    "Dismissive takes on Extreme Fear Index without acknowledging structural accumulation offsetting sentiment",
+    "Promoting unvetted quantum wallet claims (Qastle promotion lacks cryptographic detail)",
+    "Geopolitical positioning threads without acknowledging speculative nature (Iran/Hormuz narrative underdeveloped)"
   ],
-  "engagement_patterns": "Emoji-heavy, meme-forward, hyper-technical (short squeezes, funding rates, liquidity clusters) interspersed with apocalyptic macro narratives (Christmas starvation, depression-level economics). Community responds to: (1) actionable technical signals with urgency markers (⚠️, ‼️), (2) geopolitical real-time updates paired with Bitcoin utility, (3) dark humor + systems-level critique of government incompetence, (4) stewardship/legacy framing for institutional accumulation.",
-  "protocol_pulse_voice_guidance": "Lead with actionable geopolitical intelligence married to on-chain mechanics. Deploy measured urgency ('short squeeze incoming') over panic. Cypherpunk tone: sardonic critique of institutional collapse paired with Bitcoin-as-infrastructure framing. Avoid victimhood; emphasize optionality and asymmetric payoff. Use technical language (liquidity clusters, funding rates) to establish authority. Reference real-time events (Strait blockade, LAPD hack) as evidence of system fragility. Tone: intelligent, slightly irreverent, data-native, conspiratorial but not credulous.",
+  "engagement_patterns": "Threading dominates (JeffBooth's 8-tweet software-deflation arc, Saylor's continuous capital deployment updates). Data-specific callouts (MACD cross, ATM capacity, BTC yield %) drive high engagement. Regulatory clarity framed as 'inevitable' narrative outperforms price speculation. Community ownership language (\"first UK MP,\" \"250+ speakers,\" conference momentum) builds social proof during fear phases.",
+  "protocol_pulse_voice_guidance": "Lead with supply-side mechanics over price prediction. Pair macro deterioration signals (consumer confidence collapse, real yield inversions) with institutional absorption data—frame fear as margin of safety. Use 'arithmetic' language (per-capita scarcity math, yield calculations) to cut through emotional volatility. Reference protocol upgrades (post-quantum, production-ready) to anchor technical credibility. Adopt dry, systems-level tone: institutions are voting with capital, regulatory path is clearing, and the floor is structural, not sentiment.",
   "key_stats_today": {
-    "tweets_analyzed": 147,
+    "tweets_analyzed": 121,
     "nostr_signals": 0,
-    "unique_handles": 90,
-    "geopolitical_signal_density": "high",
-    "institutional_accumulation_signals": 3,
-    "technical_liquidation_signals": 2,
-    "surveillance_state_critique_posts": 7
+    "unique_handles": 74,
+    "saylor_btc_acquired_48h": 13927,
+    "saylor_remaining_atm_capacity_billions": 49,
+    "global_btc_adoption_percent": 1.29,
+    "mstr_holdings_total_btc": 780897,
+    "clarity_act_timeline_weeks": 2,
+    "us_consumers_worse_financial_situation_percent": 54
   },
   "generated_by": "claude_haiku"
 }

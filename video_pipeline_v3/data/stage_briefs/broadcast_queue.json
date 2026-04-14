@@ -1,42 +1,52 @@
 [
   {
-    "id": "84383853-ef35-42ae-b5fb-c5d91001066a",
+    "id": "6d990cb8-bd73-40a4-b85d-d339f9c55024",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Core goods PCE prices rose 3.1 percent through February 2026 due to tariffs implemented by November 2025. Bitcoin holders should watch the next Federal Reserve meeting for inflation commentary.\n\nForward signal: Monitor Fed funds futures for rate cut expectations.",
-    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
-    "topic_preview": "R to @LynAldenContact: Takeaway:\n\"We estimate that the tariffs implemented throu",
-    "generated_at": "2026-04-13T06:55:05.747035+00:00",
-    "expires_at": "2026-04-13T08:55:05.747035+00:00"
+    "script": "Priority Bitcoin development accelerates past quantum hardware timelines. R&D progress exceeds hardware deployment. Watch Blockstream's quantum resistance implementations. Next signal: UTXO count on quantum-resistant Bitcoin nodes.",
+    "source_label": "\ud83e\udde0 @ADAM3US",
+    "topic_preview": "looks like PQ bitcoin applied R&D can move a lot faster than quantum hardware re",
+    "generated_at": "2026-04-13T23:20:05.029983+00:00",
+    "expires_at": "2026-04-14T01:20:05.029983+00:00"
   },
   {
-    "id": "1dbbe3e1-1b04-4e34-a080-62f60acd0a70",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Claude Opus AI cloned for potato PCs. Developer distilled Claude Opus 4.6's reasoning into local model Qwopus. Runs on low-spec hardware, mimics original capabilities surprisingly close. \n\nWatch for on-chain data on mining hardware adoption rates.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Claude Opus AI Cloned for Potato PCs",
-    "generated_at": "2026-04-13T04:50:14.900561+00:00",
-    "expires_at": "2026-04-13T08:50:14.900561+00:00"
-  },
-  {
-    "id": "13c93ad5-a060-4406-ac8a-fd7d3a8531bb",
+    "id": "c4863496-b956-40d1-83b0-ba0d9608aef5",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $70,989, down 0.8% in 24 hours. Hashrate stable at 1,068.7 EH.\n\nFear and greed index at extreme fear level 12. Transaction count 29,852.\n\nFastest fee one satoshi. Block 944,839.\n\nWatch for any miner exits from the top 100.",
+    "script": "Hashrate at 1.068 exahash while Fear and Greed reads 12\u2014miners are accumulating through capitulation, not dumping. Watch for the fee compression break; 1 sat-per-byte prints only at genuine despair floors.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $70,989 \u00b7 FNG 12 \u00b7 1068.7 EH/s",
-    "generated_at": "2026-04-13T04:55:17.357332+00:00",
-    "expires_at": "2026-04-13T08:55:17.357332+00:00"
+    "topic_preview": "BTC $73,254 \u00b7 FNG 12 \u00b7 1068.7 EH/s",
+    "generated_at": "2026-04-13T22:00:35.557122+00:00",
+    "expires_at": "2026-04-14T02:00:35.557122+00:00"
   },
   {
-    "id": "435bf89f-b0cf-4443-bb83-d65f15dac3aa",
+    "id": "449569e2-feaa-47b1-838c-2ff7c58d64a2",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin miners are fleeing Eastern Europe. \n\nGeopolitical instability driving Bitcoin utility acceleration.\n\nWatch for mining hash rate shifts in Poland and Ukraine.",
+    "script": "Institutional Bitcoin accumulation accelerating through Nostr relays. \n\nDaily on-chain Bitcoin accumulation exceeds 1,200 BTC in real-time.\n\nWatch for institutional wallet activity spikes on Bitfinex and Binance.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Geopolitical instability as Bitcoin utility accelerant \u2014 ...",
-    "generated_at": "2026-04-13T05:15:32.318701+00:00",
-    "expires_at": "2026-04-13T09:15:32.318701+00:00"
+    "topic_preview": "Institutional Bitcoin Accumulation",
+    "generated_at": "2026-04-13T21:30:18.874126+00:00",
+    "expires_at": "2026-04-14T01:30:18.874126+00:00"
+  },
+  {
+    "id": "75706c53-ca8c-466f-919d-3c58934fb457",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin's mempool fast fee sits at 1 sat/vbyte, confirming network congestion remains minimal despite 5.7% price surge. Fear & Greed index at 12 signals extreme fear gripping traders. Hashrate stabilizes at 1069 EH/s, indicating mining capital remains committed. Watch for mempool fee spikes above 2 sat/vbyte as price approaches $75K resistance.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Bitcoin's mempool fast fee sits at 1 sat/vbyte, confirming network congestion re",
+    "generated_at": "2026-04-13T23:15:30.944547+00:00",
+    "expires_at": "2026-04-14T01:15:30.944547+00:00"
+  },
+  {
+    "id": "50e3b239-a447-4fa5-ba85-62738ef324ca",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin mining is increasingly powered by stranded energy \u2014 gas flares, excess hydro, curtailed wind and solar. Miners are becoming the buyer of last resort for energy that would otherwise be wasted.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Bitcoin mining is increasingly powered by stranded energy \u2014 gas flares, excess h",
+    "generated_at": "2026-04-13T23:15:30.982253+00:00",
+    "expires_at": "2026-04-14T03:15:30.982253+00:00"
   }
 ]

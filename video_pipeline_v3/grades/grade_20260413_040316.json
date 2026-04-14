@@ -1,0 +1,118 @@
+{
+  "grade": "A",
+  "overall_score": 95,
+  "broadcast_ready": false,
+  "technical_score": 90,
+  "content_score": 98,
+  "production_score": 98,
+  "dimensions": {
+    "duration_check": {
+      "score": 4,
+      "note": "Duration is 238.3s (4.0 min). This is significantly shorter than the 8-15 min ideal and below the 5 min acceptable floor. It avoids the automatic F but is too brief for a daily deep-dive."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080 as required."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is perfect."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.9 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -1.8 dBFS, safely below the -1.0 dBFS ceiling."
+    },
+    "black_frames_check": {
+      "score": 6,
+      "note": "Forensics detected one mid-video black frame segment of 0.53s duration. This is a significant technical flaw that disrupts the viewing experience."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No mid-video silence gaps were detected."
+    },
+    "freeze_check": {
+      "score": 10,
+      "note": "No unintended freeze frames were detected."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard h264/aac codecs used. No issues."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File integrity is sound, with a high bitrate of 7562 kbps ensuring quality."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Simply Bitcoin, TFTC, and The Bitcoin Layer are top-tier, editorially aligned sources. The content directly supports the Austrian economics and sound money thesis."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The narration is excellent, providing a strong analytical throughline that connects disparate clips into a single, coherent thesis about institutional accumulation."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The opening is powerful, combining a strong visual aesthetic with a clear, compelling thesis statement that immediately grabs the viewer's attention."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode follows a perfect logical progression: introduces Saylor's thesis, presents supporting evidence from multiple angles (ETFs, liquidity, macro), and concludes with a strong call to action."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "The PBX host voice is clean, authoritative, and perfectly paced. It embodies the cypherpunk ethos of the show."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Saylor's Accumulation Drive' is specific, intriguing, and accurately reflects the central theme of the episode."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is exceptionally dense with signal. There is zero filler, ad content, or off-topic material."
+    },
+    "timeliness": {
+      "score": 8,
+      "note": "The themes are evergreen within a Bitcoin context, but the specific clips and data points feel very current. A solid daily brief."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The music bed is well-chosen for the cyberpunk theme and is expertly mixed, ducking perfectly under the narration without being distracting."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are sharp, on-brand, and executed flawlessly, maintaining the high-energy pace of the show."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual identity is outstanding. The cyberpunk aesthetic, data overlays, lower thirds, and overall graphical package are broadcast-quality and highly distinctive."
+    },
+    "no_artifacts": {
+      "score": 10,
+      "note": "Video playback is smooth with no visible compression artifacts, stuttering, or glitches, aside from the noted black frame."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The narration audio is pristine\u2014studio quality with no background noise, echo, or clipping."
+    },
+    "pacing": {
+      "score": 8,
+      "note": "The pacing is rapid and engaging, but the very short overall duration makes it feel slightly rushed. The content is strong enough to have been expanded to the 5-6 minute mark."
+    }
+  },
+  "critical_failures": [],
+  "warnings": [
+    "A 0.53s mid-video black frame exists at the 2:36 mark. This is a clear render error and must be fixed.",
+    "The episode duration of 4 minutes is well below the 8-minute target, limiting the depth of analysis."
+  ],
+  "strengths": [
+    "Exceptional visual identity and production polish; the cyberpunk aesthetic is world-class.",
+    "A masterfully constructed narrative that weaves together high-quality source clips into a compelling and coherent thesis.",
+    "Pristine audio quality for both narration and music mix."
+  ],
+  "verdict": "An editorially brilliant and visually stunning episode, severely undermined by a glaring mid-video black frame and an overly brief runtime.",
+  "recommendation": "FIX_AND_RERENDER"
+}

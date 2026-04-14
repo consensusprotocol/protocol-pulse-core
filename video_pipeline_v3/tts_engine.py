@@ -573,7 +573,7 @@ PRONUNCIATION_MAP = {
     # People
     "Saifedean": "Sigh-feh-DEAN",
     "Nakamoto": "Nah-kah-MOH-toh",
-    "Szabo": "SAH-boh",
+    "Szabo": "SAY-bo",  # V46 FIX: was SAH-boh, PBX wants SAY-bo
     # Protocols
     "Taproot": "Tap-root",
     "Nostr": "nawster",

@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260411_070003_0",
-    "text": "In 1933 FDR banned gold ownership. Citizens had 3 months to surrender it or face prison. Bitcoin's 944,569th block just mined while governments still can't figure out how to ban math",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-11T07:00:03.911536+00:00",
-    "brief_date": "Friday, April 10, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260411_190006_0",
-    "text": "In 1944 Bretton Woods promised gold backing. By 1971 Nixon closed the window. Today institutions buy Bitcoin at 15 fear while governments can't even audit their reserves",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-11T19:00:06.379195+00:00",
-    "brief_date": "Saturday, April 11, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260411_230436_0",
     "text": "3 sat/vB when Fear hits 15. Last time fees compressed this hard, spot price was $3,600. Nobody's moving Bitcoin. Nobody's panic selling. That's not fear. That's accumulation pretending to be fear",
     "angle": "onchain_metric",
@@ -93,6 +69,54 @@
     "status": "pending",
     "generated_at": "2026-04-13T06:20:58.341102+00:00",
     "brief_date": "Sunday, April 12, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_080435_0",
+    "text": "If you can't access your money without permission, you don't own it. Your bank knows this. Does your government",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T08:04:35.051325+00:00",
+    "brief_date": "Sunday, April 12, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_130006_0",
+    "text": "1068.7 EH/s securing the network while Fear reads 12. Last time hashrate stayed this high during panic, institutions were already buying. History doesn't repeat",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T13:00:06.687264+00:00",
+    "brief_date": "Sunday, April 12, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_160006_0",
+    "text": "1068.7 EH/s hashrate. Fear reads 12. Miners are securing the network for pennies while retail assumes it's broken. They're wrong about what broken looks like",
+    "angle": "onchain_metric",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T16:00:06.011872+00:00",
+    "brief_date": "Monday, April 13, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260413_220004_0",
+    "text": "54% of consumers say their financial situation got worse this year. At what point does currency debasement stop feeling like economics and start feeling like theft",
+    "angle": "macro_monetary",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-13T22:00:04.025992+00:00",
+    "brief_date": "Monday, April 13, 2026",
     "sentiment": "bullish"
   }
 ]

@@ -813,6 +813,9 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance:
         .replace("{btc_price}", str(btc_price))
         .replace("{social_posts}", str(social_posts))
         .replace("{live_context}", str(live_block+morning_block+engagement_block+memory_block+space_tap_block))
+        .replace("{btc_dominance}", str(btc_dominance))
+        .replace("{fear_greed}", str(fear_greed))
+        .replace("{hashrate}", str(hashrate))
     )
 
     logger.info(f"Generating script for {len(clips)} clips...")
