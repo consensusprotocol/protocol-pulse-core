@@ -87,8 +87,11 @@ TWEET_FORMATS = {
         "instruction": (
             "Write a tweet anchored to a SPECIFIC on-chain metric or network stat "
             "(hashrate, mempool fees, exchange outflows, UTXO age, coin days destroyed, etc). "
-            "State the metric, then deliver one sharp implication. "
-            "The metric must come from the data context provided. Never invent numbers."
+            "State the metric EXACTLY as provided in the data context, including any qualifier "
+            "(e.g. 'network hashrate' not just 'hashrate', exact EH/s number, exact fee in sat/vB). "
+            "Then deliver one sharp implication. "
+            "The metric must come from the data context provided. Never invent numbers. "
+            "Never round aggressively. Never omit qualifiers like 'average' or 'estimated'."
         ),
         "example": "90-day Coin Days Destroyed at a 5-year low. Old hands are not selling. They are waiting for something bigger than a new price high",
     },
@@ -238,6 +241,17 @@ LAW 8 - NO DATA REPETITION: Never use the same specific metric (hashrate number,
 
 LAW 9 - START WITH A NUMBER: 1% of top tweets open with a digit. Small edge, but real.
   "34% of on-chain volume vanished" hits different than "On-chain volume dropped"
+
+LAW 10 - DATA ACCURACY IS NON-NEGOTIABLE: Every metric you cite must be verifiably correct.
+  Never round or estimate a number that was given to you precisely.
+  Never present an average as a spot value. If the data says "7d avg hashrate," say "7-day average."
+  Never invent, extrapolate, or conflate metrics from different sources or timeframes.
+  If a metric has a qualifier (avg, estimated, difficulty-derived), include it.
+  Getting a number wrong destroys credibility faster than any other mistake.
+  When citing hashrate: always include the qualifier (e.g. "~966 EH/s network hashrate").
+  When citing Fear and Greed: use the exact score and label provided.
+  When citing fees: specify sat/vB. When citing block height: use the exact number.
+  If you are unsure about a number, do not use it. Find a different angle.
 
 GOLD STANDARD TWEETS (these are what we're trying to match):
 - "Capitalism started in 1602 with the world's first stock exchange. Capitalism just died in 2026 with the first unrealized gains tax. Neofeudalism is here" (@maxkeiser 0.022 eng)
@@ -454,14 +468,19 @@ def fetch_live_btc_data() -> dict:
 
     try:
         req = urllib.request.Request(
-            "https://mempool.space/api/v1/mining/hashrate/3d",
+            "https://mempool.space/api/v1/mining/hashrate/1w",
             headers={"User-Agent": "ProtocolPulse/1.0"},
         )
         resp = urllib.request.urlopen(req, timeout=10)
         hr_data = json.loads(resp.read())
-        if hr_data.get("hashrates"):
+        # Use currentHashrate (difficulty-derived, stable) not avgHashrate (block-time, volatile)
+        if hr_data.get("currentHashrate"):
+            data["hashrate_eh"] = round(hr_data["currentHashrate"] / 1e18, 1)
+            data["hashrate_source"] = "difficulty-derived"
+        elif hr_data.get("hashrates"):
             latest = hr_data["hashrates"][-1]
             data["hashrate_eh"] = round(latest.get("avgHashrate", 0) / 1e18, 1)
+            data["hashrate_source"] = "7d-block-time-avg"
     except Exception as e:
         logger.warning(f"hashrate fetch failed: {e}")
 
@@ -487,11 +506,11 @@ def format_live_data(data: dict) -> str:
     if not data:
         return ""
 
-    lines = ["LIVE BITCOIN NETWORK DATA (real-time, use these numbers):"]
+    lines = ["LIVE BITCOIN NETWORK DATA (use these numbers EXACTLY as shown, including qualifiers):"]
     if "block_height" in data:
         lines.append(f"  Block Height: {data['block_height']:,}")
     if "hashrate_eh" in data:
-        lines.append(f"  Hashrate (3d avg): {data['hashrate_eh']} EH/s")
+        lines.append(f"  Network Hashrate: {data['hashrate_eh']} EH/s ({data.get('hashrate_source', 'difficulty-derived')})")
     if "fee_fastest" in data:
         lines.append(f"  Fastest Fee: {data['fee_fastest']} sat/vB")
     if "fee_hour" in data:
