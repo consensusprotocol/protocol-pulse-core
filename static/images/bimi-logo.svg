@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 200 200" width="200" height="200">
+  <title>Protocol Pulse</title>
+  <desc>Protocol Pulse — Bitcoin Intelligence Platform</desc>
+
+  <!-- Dark background circle -->
+  <circle cx="100" cy="100" r="100" fill="#0a0a0a"/>
+
+  <!-- Outer red ring -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#CC0000" stroke-width="4"/>
+
+  <!-- EKG / heartbeat line — PP logo signature mark -->
+  <polyline
+    points="18,100 38,100 48,68 58,132 68,80 78,116 88,100 112,100 122,68 132,132 142,80 152,116 162,100 182,100"
+    fill="none" stroke="#CC0000" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- PROTOCOL text -->
+  <text x="100" y="158" text-anchor="middle"
+        font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="900"
+        fill="#ffffff" letter-spacing="3">PROTOCOL</text>
+
+  <!-- PULSE text -->
+  <text x="100" y="176" text-anchor="middle"
+        font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700"
+        fill="#CC0000" letter-spacing="4">PULSE</text>
+</svg>

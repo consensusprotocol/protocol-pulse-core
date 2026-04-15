@@ -706,15 +706,30 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
                 batch = to_emails[i:i+50]
 
                 try:
+                    # Build plain-text version from HTML (strip tags)
+                    import re as _re
+                    plain = _re.sub(r'<[^>]+>', '', html)
+                    plain = _re.sub(r'\n{3,}', '\n\n', plain).strip()
+
+                    def _make_msg(email_addr):
+                        msg = {
+                            "from": self.from_email,
+                            "to": email_addr,
+                            "subject": subject,
+                            "html": html,
+                            "text": plain,
+                            "headers": {
+                                "List-Unsubscribe": "<mailto:unsubscribe@protocolpulse.io?subject=unsubscribe>, <https://protocolpulse.io/unsubscribe>",
+                                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                                "X-Entity-Ref-ID": f"pp-{subject[:20].replace(' ','-').lower()}",
+                            }
+                        }
+                        return msg
+
                     response = _resend_post(
                         "https://api.resend.com/emails/batch",
                         self.resend_key,
-                        [{
-                            "from": self.from_email,
-                            "to": email,
-                            "subject": subject,
-                            "html": html
-                        } for email in batch],
+                        [_make_msg(email) for email in batch],
                         timeout=30
                     )
 
