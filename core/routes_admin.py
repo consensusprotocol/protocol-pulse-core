@@ -3571,3 +3571,142 @@ def api_board_stats():
     ).count()
     return jsonify({'counts': counts, 'urgent': urgent,
                     'total': sum(counts.values())})
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SPONSOR OUTREACH COMMAND CENTER
+# ═══════════════════════════════════════════════════════════════════════════
+
+@admin_bp.route('/admin/outreach')
+@login_required
+def admin_outreach():
+    """Sponsor outreach command center."""
+    if not current_user.is_admin:
+        return redirect(url_for('pages.index'))
+    return render_template('admin/outreach.html')
+
+
+@admin_bp.route('/api/admin/outreach/prospects', methods=['GET'])
+@login_required
+def api_outreach_prospects():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    prospects = models.SponsorOutreach.query.order_by(
+        models.SponsorOutreach.status,
+        models.SponsorOutreach.created_at.desc()
+    ).all()
+    return jsonify([{
+        'id': p.id, 'company': p.company, 'email': p.email,
+        'category': p.category, 'status': p.status,
+        'sent_at': p.sent_at.isoformat() + 'Z' if p.sent_at else None,
+        'replied_at': p.replied_at.isoformat() + 'Z' if p.replied_at else None,
+        'deal_value': p.deal_value, 'notes': p.notes or '',
+        'domain': p.domain or '',
+    } for p in prospects])
+
+
+@admin_bp.route('/api/admin/outreach/prospects/<int:pid>', methods=['PATCH'])
+@login_required
+def api_outreach_update(pid):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    p = models.SponsorOutreach.query.get_or_404(pid)
+    data = request.get_json() or {}
+    for field in ['status', 'email', 'notes', 'deal_value']:
+        if field in data:
+            setattr(p, field, data[field])
+    if data.get('replied'):
+        p.replied_at = datetime.utcnow()
+        p.status = 'replied'
+    db.session.commit()
+    return jsonify({'ok': True, 'id': p.id, 'status': p.status})
+
+
+@admin_bp.route('/api/admin/outreach/prospects', methods=['POST'])
+@login_required
+def api_outreach_add():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    data = request.get_json() or {}
+    p = models.SponsorOutreach(
+        company=data.get('company',''),
+        domain=data.get('domain',''),
+        email=data.get('email',''),
+        category=data.get('category','other'),
+        status='prospect',
+        notes=data.get('notes',''),
+    )
+    db.session.add(p)
+    db.session.commit()
+    return jsonify({'ok': True, 'id': p.id}), 201
+
+
+@admin_bp.route('/api/admin/outreach/send', methods=['POST'])
+@login_required
+def api_outreach_send():
+    """Send intro email to a single prospect using the outreach service."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    data = request.get_json() or {}
+    pid = data.get('prospect_id')
+    if not pid:
+        return jsonify({'error': 'prospect_id required'}), 400
+    p = models.SponsorOutreach.query.get_or_404(pid)
+    if not p.email:
+        return jsonify({'error': 'No email address for this prospect'}), 400
+    try:
+        import importlib.util as _ilu
+        spec = _ilu.spec_from_file_location('sos',
+            '/home/ultron/protocol_pulse/core/services/sponsor_outreach_service.py')
+        svc = _ilu.module_from_spec(spec); spec.loader.exec_module(svc)
+        result = svc.send_sponsor_intro(p.company, p.email, p.category)
+        if result.get('ok'):
+            p.sent_at = datetime.utcnow()
+            p.status = 'contacted'
+            p.subject = result.get('subject', '')
+            db.session.commit()
+            # Alert team via board card
+            try:
+                pbx = models.User.query.filter_by(email='soldtwodragons@gmail.com').first()
+                if pbx:
+                    card = models.BoardCard(
+                        title=f'Sponsor outreach sent: {p.company}',
+                        description=f'Email sent to {p.email}. Subject: {p.subject}',
+                        column='in_progress', priority='medium', tag='marketing',
+                        creator_id=pbx.id, position=0
+                    )
+                    db.session.add(card)
+                    db.session.commit()
+            except Exception:
+                pass
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/api/admin/outreach/stats', methods=['GET'])
+@login_required
+def api_outreach_stats():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    from sqlalchemy import func
+    counts = dict(db.session.query(
+        models.SponsorOutreach.status, func.count(models.SponsorOutreach.id)
+    ).group_by(models.SponsorOutreach.status).all())
+    total = sum(counts.values())
+    sent = counts.get('contacted', 0) + counts.get('replied', 0) + counts.get('deal', 0)
+    return jsonify({
+        'total': total, 'sent': sent,
+        'prospect': counts.get('prospect', 0),
+        'contacted': counts.get('contacted', 0),
+        'replied': counts.get('replied', 0),
+        'deal': counts.get('deal', 0),
+        'lost': counts.get('lost', 0),
+        'pp_count': models.SponsorOutreach.query.filter(
+            (models.SponsorOutreach.notes == None) |
+            (~models.SponsorOutreach.notes.like('%Boomers%'))
+        ).count(),
+        'boomers_count': models.SponsorOutreach.query.filter(
+            models.SponsorOutreach.notes.like('%Boomers%')
+        ).count(),
+    })

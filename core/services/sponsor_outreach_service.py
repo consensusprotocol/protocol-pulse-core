@@ -22,14 +22,14 @@ logger = logging.getLogger(__name__)
 # ── Constants ────────────────────────────────────────────────────────────────
 
 XAI_API_KEY = os.environ.get("XAI_API_KEY", "")
-FROM_EMAIL = "sponsors@protocolpulse.io"
+FROM_EMAIL = "Protocol Pulse Partnerships <pulse@protocolpulse.io>"
 RESEND_BASE = "https://api.resend.com"
 RESEND_TIMEOUT = 30
 
 SPONSOR_SEQUENCE = [
     {
         "step": 0, "day": 0, "type": "intro",
-        "subject_template": "Quick question about {company} + Bitcoin audience",
+        "subject_template": "Sponsorship — {company} + Protocol Pulse + Bitcoin Boomers",
     },
     {
         "step": 1, "day": 4, "type": "data",

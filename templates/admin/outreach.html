@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Sponsor Outreach — Protocol Pulse Admin{% endblock %}
+{% block content %}
+<style>
+:root {
+  --bg:#000;--s1:#080808;--s2:#0f0f0f;--border:#1c1c1c;
+  --red:#CC0000;--red-dim:rgba(204,0,0,0.12);--gold:#F8C15C;
+  --green:#22c55e;--blue:#3b82f6;--orange:#f97316;
+  --muted:#444;--text:#e0e0e0;--mono:'JetBrains Mono','Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);}
+
+.or-wrap{max-width:1400px;margin:0 auto;padding:72px 20px 60px;}
+.or-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 16px;border-bottom:1px solid var(--red);margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.or-logo{font-size:13px;font-weight:900;letter-spacing:.2em;color:var(--red);text-transform:uppercase;}
+.or-logo span{color:var(--gold);}
+.or-actions{display:flex;gap:8px;}
+.btn{background:none;border:1px solid var(--muted);color:var(--muted);font-family:var(--mono);font-size:10px;padding:5px 14px;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn:hover{border-color:var(--gold);color:var(--gold);}
+.btn.primary{border-color:var(--red);color:var(--red);}
+.btn.primary:hover{background:var(--red);color:#fff;}
+.btn.green{border-color:var(--green);color:var(--green);}
+.btn.green:hover{background:var(--green);color:#000;}
+
+/* Stats row */
+.or-stats{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);margin-bottom:20px;}
+.or-stat{background:var(--s1);padding:14px 16px;text-align:center;}
+.or-stat-val{font-size:24px;font-weight:900;color:var(--gold);line-height:1;}
+.or-stat-val.red{color:var(--red);}
+.or-stat-val.green{color:var(--green);}
+.or-stat-label{font-size:7px;letter-spacing:.2em;color:var(--muted);margin-top:4px;text-transform:uppercase;}
+
+/* Properties strip */
+.or-props{display:flex;gap:8px;margin-bottom:16px;}
+.or-prop-btn{padding:6px 16px;border:1px solid var(--border);font-family:var(--mono);font-size:8px;letter-spacing:.15em;cursor:pointer;background:var(--s1);color:var(--muted);transition:all .2s;}
+.or-prop-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(248,193,92,.06);}
+
+/* Filter bar */
+.or-filterbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.or-search{background:var(--s2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:6px 12px;outline:none;width:220px;}
+.or-search:focus{border-color:var(--red);}
+.or-status-filter{padding:4px 12px;border:1px solid var(--border);font-family:var(--mono);font-size:8px;letter-spacing:.1em;cursor:pointer;background:none;color:var(--muted);transition:all .15s;}
+.or-status-filter:hover,.or-status-filter.active{border-color:var(--gold);color:var(--gold);}
+
+/* Prospect table */
+.or-table{width:100%;border-collapse:collapse;font-size:11px;}
+.or-table th{font-size:7px;letter-spacing:.2em;color:var(--muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;background:var(--s1);}
+.or-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+.or-table tr:hover td{background:rgba(255,255,255,.015);}
+.or-company{font-weight:700;color:var(--text);}
+.or-email{color:var(--muted);font-size:9px;margin-top:2px;}
+.or-cat{font-size:7px;letter-spacing:.1em;padding:2px 6px;border-radius:2px;background:var(--s2);border:1px solid var(--border);color:var(--muted);}
+.or-prop-tag{font-size:7px;padding:2px 6px;background:rgba(248,193,92,.1);border:1px solid rgba(248,193,92,.3);color:var(--gold);border-radius:2px;margin-left:4px;}
+
+/* Status badges */
+.badge{font-size:7px;letter-spacing:.12em;padding:2px 8px;border-radius:2px;font-weight:700;text-transform:uppercase;}
+.badge.prospect{background:var(--s2);color:var(--muted);border:1px solid var(--border);}
+.badge.contacted{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+.badge.replied{background:rgba(248,193,92,.12);color:var(--gold);border:1px solid rgba(248,193,92,.3);}
+.badge.deal{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.badge.lost{background:rgba(204,0,0,.08);color:var(--red);border:1px solid rgba(204,0,0,.2);}
+
+.or-actions-cell{display:flex;gap:4px;flex-wrap:wrap;}
+.act-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:8px;padding:4px 10px;cursor:pointer;letter-spacing:.08em;transition:all .15s;white-space:nowrap;}
+.act-btn:hover{border-color:var(--gold);color:var(--gold);}
+.act-btn.send:hover{border-color:var(--green);color:var(--green);}
+.act-btn.replied:hover{border-color:var(--blue);color:var(--blue);}
+
+/* Notes cell */
+.or-notes{font-size:9px;color:var(--muted);max-width:200px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.or-notes:hover{color:var(--text);}
+.or-notes[contenteditable="true"]{white-space:normal;color:var(--text);outline:none;border-bottom:1px solid var(--red);}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--green);font-family:var(--mono);font-size:10px;color:var(--text);padding:10px 18px;z-index:9999;animation:toastIn .2s ease;letter-spacing:.06em;}
+.toast.error{border-left-color:var(--red);}
+@keyframes toastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+</style>
+
+<div class="or-wrap">
+<div class="or-topbar">
+  <div>
+    <div class="or-logo">PROTOCOL PULSE &nbsp;<span>// SPONSOR OUTREACH</span></div>
+    <div style="font-size:8px;color:var(--muted);margin-top:4px;letter-spacing:.1em;">CAMPAIGN STATUS: <span id="campaign-status" style="color:var(--gold);">LOADING...</span></div>
+  </div>
+  <div class="or-actions">
+    <a href="/admin" class="btn">← ADMIN</a>
+    <a href="/admin/board" class="btn">OPS BOARD</a>
+    <button class="btn primary" onclick="addProspect()">+ ADD PROSPECT</button>
+    <button class="btn green" onclick="sendBatch()" id="batch-btn">⚡ SEND BATCH</button>
+  </div>
+</div>
+
+<!-- STATS ROW -->
+<div class="or-stats">
+  <div class="or-stat"><div class="or-stat-val" id="st-total">—</div><div class="or-stat-label">TOTAL</div></div>
+  <div class="or-stat"><div class="or-stat-val" id="st-prospect">—</div><div class="or-stat-label">PROSPECT</div></div>
+  <div class="or-stat"><div class="or-stat-val" id="st-contacted">—</div><div class="or-stat-label">CONTACTED</div></div>
+  <div class="or-stat"><div class="or-stat-val green" id="st-replied">—</div><div class="or-stat-label">REPLIED</div></div>
+  <div class="or-stat"><div class="or-stat-val green" id="st-deal">—</div><div class="or-stat-label">DEALS</div></div>
+  <div class="or-stat"><div class="or-stat-val" id="st-pp">—</div><div class="or-stat-label">PP PROSPECTS</div></div>
+  <div class="or-stat"><div class="or-stat-val" id="st-boomers">—</div><div class="or-stat-label">BOOMERS PROSPECTS</div></div>
+</div>
+
+<!-- PROPERTY FILTER -->
+<div class="or-props">
+  <button class="or-prop-btn active" data-prop="all" onclick="setProp(this,'all')">ALL PROPERTIES</button>
+  <button class="or-prop-btn" data-prop="pp" onclick="setProp(this,'pp')">⚡ PROTOCOL PULSE</button>
+  <button class="or-prop-btn" data-prop="boomers" onclick="setProp(this,'boomers')">🎙 BITCOIN BOOMERS</button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="or-filterbar">
+  <input class="or-search" id="or-search" placeholder="Search company / email..." oninput="renderTable()">
+  <button class="or-status-filter active" data-sf="all" onclick="setStatusFilter(this,'all')">ALL</button>
+  <button class="or-status-filter" data-sf="prospect" onclick="setStatusFilter(this,'prospect')">PROSPECT</button>
+  <button class="or-status-filter" data-sf="contacted" onclick="setStatusFilter(this,'contacted')">CONTACTED</button>
+  <button class="or-status-filter" data-sf="replied" onclick="setStatusFilter(this,'replied')">REPLIED ⚡</button>
+  <button class="or-status-filter" data-sf="deal" onclick="setStatusFilter(this,'deal')">DEAL ✓</button>
+  <span style="font-size:8px;color:var(--muted);margin-left:8px;" id="row-count"></span>
+</div>
+
+<!-- TABLE -->
+<div style="overflow-x:auto;">
+<table class="or-table">
+  <thead>
+    <tr>
+      <th>COMPANY</th>
+      <th>CATEGORY</th>
+      <th>EMAIL</th>
+      <th>STATUS</th>
+      <th>SENT</th>
+      <th>REPLIED</th>
+      <th>NOTES</th>
+      <th>ACTIONS</th>
+    </tr>
+  </thead>
+  <tbody id="or-tbody"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+var ALL = [];
+var activeProp = 'all';
+var activeStatus = 'all';
+
+function load() {
+  fetch('/api/admin/outreach/stats').then(r=>r.json()).then(s=>{
+    document.getElementById('st-total').textContent = s.total||0;
+    document.getElementById('st-prospect').textContent = s.prospect||0;
+    document.getElementById('st-contacted').textContent = s.contacted||0;
+    document.getElementById('st-replied').textContent = s.replied||0;
+    document.getElementById('st-deal').textContent = s.deal||0;
+    document.getElementById('st-pp').textContent = s.pp_count||0;
+    document.getElementById('st-boomers').textContent = s.boomers_count||0;
+    var sent = (s.contacted||0)+(s.replied||0)+(s.deal||0);
+    document.getElementById('campaign-status').textContent =
+      sent > 0 ? 'ACTIVE — '+sent+' EMAILS SENT' : 'READY TO LAUNCH — 0 SENT';
+    document.getElementById('campaign-status').style.color = sent > 0 ? 'var(--green)' : 'var(--gold)';
+  });
+  fetch('/api/admin/outreach/prospects').then(r=>r.json()).then(data=>{
+    ALL = data;
+    renderTable();
+  });
+}
+
+function renderTable() {
+  var q = (document.getElementById('or-search').value||'').toLowerCase();
+  var rows = ALL.filter(p=>{
+    if (activeProp==='pp' && p.notes && p.notes.includes('Boomers')) return false;
+    if (activeProp==='boomers' && (!p.notes || !p.notes.includes('Boomers'))) return false;
+    if (activeStatus !== 'all' && p.status !== activeStatus) return false;
+    if (q && !p.company.toLowerCase().includes(q) && !(p.email||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('row-count').textContent = rows.length + ' prospects';
+  var tbody = document.getElementById('or-tbody');
+  tbody.innerHTML = rows.map(p => {
+    var isBoomers = p.notes && p.notes.includes('Boomers');
+    var sentDate = p.sent_at ? p.sent_at.substring(0,10) : '—';
+    var repliedDate = p.replied_at ? p.replied_at.substring(0,10) : '—';
+    return `<tr data-id="${p.id}">
+      <td><div class="or-company">${esc(p.company)}${isBoomers?'<span class="or-prop-tag">BOOMERS</span>':''}</div></td>
+      <td><span class="or-cat">${esc(p.category)}</span></td>
+      <td><div class="or-email">${esc(p.email||'—')}</div></td>
+      <td><span class="badge ${p.status}">${p.status.toUpperCase()}</span></td>
+      <td style="font-size:9px;color:var(--muted);">${sentDate}</td>
+      <td style="font-size:9px;color:${p.replied_at?'var(--green)':'var(--muted)'};">${repliedDate}</td>
+      <td><div class="or-notes" id="notes-${p.id}" onclick="editNotes(${p.id})"
+        title="Click to edit">${esc(p.notes||'Add note...')}</div></td>
+      <td><div class="or-actions-cell">
+        ${p.status==='prospect'?`<button class="act-btn send" onclick="sendOne(${p.id},'${esc(p.company)}')">✉ SEND</button>`:''}
+        ${!p.replied_at?`<button class="act-btn replied" onclick="markReplied(${p.id})">↩ REPLIED</button>`:''}
+        ${p.status!=='deal'?`<button class="act-btn" onclick="setStatus(${p.id},'deal')" style="color:var(--green);border-color:var(--green);">✓ DEAL</button>`:''}
+        ${p.status!=='lost'?`<button class="act-btn" onclick="setStatus(${p.id},'lost')" style="color:var(--red);border-color:rgba(204,0,0,.3);">✕</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function setProp(btn, prop) {
+  activeProp = prop;
+  document.querySelectorAll('.or-prop-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function setStatusFilter(btn, sf) {
+  activeStatus = sf;
+  document.querySelectorAll('.or-status-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function sendOne(id, company) {
+  if (!confirm('Send intro email to ' + company + '?')) return;
+  fetch('/api/admin/outreach/send', {method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prospect_id:id})
+  }).then(r=>r.json()).then(d=>{
+    if (d.ok || d.resend_id) { toast('✉ Sent to ' + company); load(); }
+    else toast('Error: ' + (d.error||'unknown'), true);
+  });
+}
+
+function sendBatch() {
+  var prospects = ALL.filter(p=>p.status==='prospect' && p.email && (activeProp==='all'||
+    (activeProp==='pp'&&(!p.notes||!p.notes.includes('Boomers')))||
+    (activeProp==='boomers'&&p.notes&&p.notes.includes('Boomers'))));
+  if (!prospects.length) { toast('No unsent prospects in current view', true); return; }
+  if (!confirm('Send intro emails to ' + prospects.length + ' prospects? This will start the drip sequence.')) return;
+  document.getElementById('batch-btn').textContent = 'SENDING...';
+  var sent = 0;
+  function sendNext(i) {
+    if (i >= prospects.length) {
+      document.getElementById('batch-btn').textContent = '⚡ SEND BATCH';
+      toast('Sent ' + sent + ' emails');
+      load();
+      return;
+    }
+    fetch('/api/admin/outreach/send', {method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prospect_id: prospects[i].id})
+    }).then(r=>r.json()).then(d=>{
+      if (d.ok||d.resend_id) sent++;
+      setTimeout(()=>sendNext(i+1), 1500); // 1.5s between sends
+    }).catch(()=>setTimeout(()=>sendNext(i+1), 1500));
+  }
+  sendNext(0);
+}
+
+function markReplied(id) {
+  fetch('/api/admin/outreach/prospects/'+id, {method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({replied:true})
+  }).then(()=>{ toast('Marked as replied'); load(); });
+}
+
+function setStatus(id, status) {
+  fetch('/api/admin/outreach/prospects/'+id, {method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({status:status})
+  }).then(()=>{ toast('Status → '+status); load(); });
+}
+
+function editNotes(id) {
+  var el = document.getElementById('notes-'+id);
+  el.contentEditable = 'true';
+  el.focus();
+  el.addEventListener('blur', function() {
+    el.contentEditable = 'false';
+    fetch('/api/admin/outreach/prospects/'+id, {method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({notes: el.textContent.trim()})
+    }).then(()=>{ load(); });
+  }, {once:true});
+}
+
+function addProspect() {
+  var company = prompt('Company name:');
+  if (!company) return;
+  var email = prompt('Contact email:');
+  var category = prompt('Category (exchange/custody/hardware_wallet/payments/mining/other):') || 'other';
+  fetch('/api/admin/outreach/prospects', {method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({company, email, category})
+  }).then(()=>{ toast('Prospect added'); load(); });
+}
+
+function toast(msg, isErr) {
+  var t = document.createElement('div');
+  t.className = 'toast' + (isErr?' error':'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';},2500);
+  setTimeout(()=>{if(t.parentNode)t.parentNode.removeChild(t);},2800);
+}
+
+load();
+setInterval(load, 60000);
+</script>
+{% endblock %}
