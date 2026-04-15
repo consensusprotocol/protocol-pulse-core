@@ -258,6 +258,24 @@ button{font-family:var(--font);cursor:pointer;}
 .comp-score{font:600 11px/1 var(--font);color:var(--text-primary);width:32px;text-align:right;flex-shrink:0;}
 .comp-bar{flex:1;height:4px;background:var(--border);}
 .comp-bar-fill{height:100%;}
+/* Component tooltips */
+.comp-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;border:1px solid var(--border);color:var(--text-label);font-size:8px;cursor:default;flex-shrink:0;margin-left:2px;}
+.comp-tip:hover .comp-tip-text{display:block;}
+.comp-tip-text{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);width:200px;background:rgba(10,10,10,0.96);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font:400 9px/1.5 var(--font);color:var(--text-primary);z-index:200;pointer-events:none;white-space:normal;}
+.comp-tip-text::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--border);}
+/* Intel feed */
+.intel-feed-box{margin-top:10px;border-top:1px solid var(--border);padding-top:8px;}
+.intel-feed-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.intel-feed-title{font:600 8px/1 var(--font);color:var(--text-label);letter-spacing:.1em;text-transform:uppercase;}
+.intel-feed-count{font:400 8px/1 var(--font);color:var(--text-label);opacity:.5;}
+.intel-feed-scroll{max-height:110px;overflow-y:auto;scrollbar-width:none;}
+.intel-feed-scroll::-webkit-scrollbar{display:none;}
+.intel-feed-entry{display:grid;grid-template-columns:52px 30px 1fr;gap:4px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);font:400 8px/1.4 var(--font);}
+.ife-ts{color:var(--text-label);opacity:.5;font-variant-numeric:tabular-nums;}
+.ife-node{color:#CC0000;font-weight:600;letter-spacing:.05em;}
+.ife-msg{color:var(--text-primary);}
+.ife-msg.bull{color:#10B981;}
+.ife-msg.bear{color:#EF4444;}
 
 /* ── Alert feed ──────────────────────────────────────────── */
 .alert-row{
@@ -692,7 +710,15 @@ button{font-family:var(--font);cursor:pointer;}
           <div class="signal-bar-fill" id="signal-bar" style="width:{{ signal.score }}%;background:{{ '#10B981' if signal.score >= 65 else ('#F59E0B' if signal.score >= 45 else '#EF4444') }};"></div>
         </div>
         <hr class="data-sep">
-        <div class="data-label" style="padding:6px 0 8px;">COMPONENT BREAKDOWN</div>
+        <div class="data-label" style="padding:6px 0 4px;">COMPONENT BREAKDOWN</div>
+        <div style="font:400 8px/1 var(--font);color:var(--text-label);opacity:.6;margin-bottom:7px;">0–100 &nbsp;·&nbsp; <span style="color:#10B981;">&gt;65 bullish</span> &nbsp;·&nbsp; <span style="color:#EF4444;">&lt;45 bearish</span></div>
+        {% set comp_tips = {
+          "ARTICLE SENTIMENT": "Bullish vs bearish tone across 80 Bitcoin news sources in the last 2h",
+          "PRICE MOMENTUM":    "BTC price trend strength — direction + rate of change over 24h",
+          "SOCIAL VOLUME":     "Spike in Bitcoin mentions across X and Nostr vs 7-day baseline",
+          "ON-CHAIN HEALTH":   "Composite of hashrate, mempool fees, and active address growth",
+          "FEAR/GREED CONTRIB":"Alternative.me Bitcoin Fear & Greed index mapped to signal contribution",
+        } %}
         {% set comps = [
           ("ARTICLE SENTIMENT", "article_sentiment"),
           ("PRICE MOMENTUM",    "price_momentum"),
@@ -704,6 +730,7 @@ button{font-family:var(--font);cursor:pointer;}
         {% set val = signal.components[key] | int %}
         <div class="component-row">
           <span class="comp-label">{{ label }}</span>
+          <span class="comp-tip">?<span class="comp-tip-text">{{ comp_tips[label] }}</span></span>
           <span class="comp-score">{{ val }}</span>
           <div class="comp-bar">
             <div class="comp-bar-fill" style="width:{{ val }}%;background:{{ '#10B981' if val >= 65 else ('#F59E0B' if val >= 45 else '#EF4444') }};"></div>
@@ -711,6 +738,14 @@ button{font-family:var(--font);cursor:pointer;}
         </div>
         {% endfor %}
         <div class="panel-ts" style="text-align:right;margin-top:8px;">Updated {{ signal.ts }}</div>
+        <!-- Live Intel Feed -->
+        <div class="intel-feed-box" id="intel-feed-box">
+          <div class="intel-feed-hdr">
+            <span class="intel-feed-title">&#9632; LIVE INTELLIGENCE FEED</span>
+            <span class="intel-feed-count" id="intel-feed-count">—</span>
+          </div>
+          <div class="intel-feed-scroll" id="intel-feed-scroll"></div>
+        </div>
       </div>
       {% if not is_commander %}
       <div class="lock-overlay">
@@ -1173,6 +1208,73 @@ String.prototype.zfill = function(n) { return this.padStart(n,'0'); };
 if (typeof SovereignOrb !== 'undefined') {
     var orb = new SovereignOrb('sovereign-orb-canvas', '/api/orb');
 }
+</script>
+<script>
+(function() {
+  var feedEl = document.getElementById('intel-feed-scroll');
+  var countEl = document.getElementById('intel-feed-count');
+  if (!feedEl) return;
+  var entries = [];
+  var nodeDescs = {
+    mcx: 'MINER', epx: 'EXCHANGE', ihx: 'INSIDER',
+    opx: 'OPTIONS', fdx: 'FUTURES', ocx: 'ONCHAIN'
+  };
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function nowTs() {
+    var d = new Date();
+    return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  }
+  function scoreClass(s) {
+    return s >= 65 ? 'bull' : s <= 44 ? 'bear' : '';
+  }
+  function renderFeed() {
+    feedEl.innerHTML = entries.slice(-20).map(function(e) {
+      return '<div class="intel-feed-entry">' +
+        '<span class="ife-ts">'+e.ts+'</span>' +
+        '<span class="ife-node">'+e.node+'</span>' +
+        '<span class="ife-msg '+scoreClass(e.score)+'">'+e.msg+'</span>' +
+        '</div>';
+    }).join('');
+    feedEl.scrollTop = feedEl.scrollHeight;
+    if (countEl) countEl.textContent = entries.length + ' entries';
+  }
+  function pollSignal() {
+    fetch('/api/intelligence/signal')
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        var nodes = (d.nodes || d.composite && {});
+        if (!nodes || !d.nodes) return;
+        var ts = nowTs();
+        Object.keys(d.nodes).forEach(function(k) {
+          var n = d.nodes[k];
+          var score = Math.round(n.score || 0);
+          var desc = nodeDescs[k] || k.toUpperCase();
+          var label = k.toUpperCase();
+          var state = score >= 65 ? 'BULLISH' : score <= 44 ? 'BEARISH' : 'NEUTRAL';
+          // Only add if score changed or feed is empty
+          var last = entries.filter(function(e){ return e.node === label; }).slice(-1)[0];
+          if (!last || last.score !== score) {
+            entries.push({ ts: ts, node: label, score: score, msg: desc+' '+score+'/100 '+state });
+          }
+        });
+        // Also add funding rate if present
+        if (d.streams && d.streams.funding_rate !== undefined) {
+          var fr = d.streams.funding_rate;
+          var lastFr = entries.filter(function(e){ return e.node === 'FDX' && e.msg.indexOf('FUND') !== -1; }).slice(-1)[0];
+          if (!lastFr) entries.push({ ts: ts, node: 'FDX', score: 50, msg: 'FUNDING '+fr.toFixed(7)+'%' });
+        }
+        if (entries.length === 0 && d.composite) {
+          entries.push({ ts: ts, node: 'SYS', score: d.composite.score || 50,
+            msg: 'CONVERGENCE '+(d.composite.score||50)+'/100 — '+(d.composite.pattern||'ACTIVE') });
+        }
+        renderFeed();
+      })
+      .catch(function(){});
+  }
+  // Init + poll every 5s
+  pollSignal();
+  setInterval(pollSignal, 5000);
+})();
 </script>
 </body>
 </html>
