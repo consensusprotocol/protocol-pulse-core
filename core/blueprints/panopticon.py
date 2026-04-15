@@ -277,16 +277,41 @@ def api_geopolitical():
 
 @panopticon_bp.route("/api/panopticon/institutional")
 def api_institutional():
-    """SEC EDGAR 13F institutional Bitcoin ETF accumulation + PE coalition detection."""
-    if not _is_commander():
-        return jsonify({"error": "Commander access required", "upgrade_url": "/join"}), 403
+    """SEC EDGAR 13F institutional Bitcoin ETF holdings.
+    Public: entity names + institution type. Commander: full detail with shares/values."""
     try:
-        from services.edgar_service import get_panopticon_institutional_data
-        data = get_panopticon_institutional_data()
-        return jsonify(data)
+        import importlib.util as _ilu
+        _s = _ilu.spec_from_file_location('edgar_service',
+            '/home/ultron/protocol_pulse/services/edgar_service.py')
+        _m = _ilu.module_from_spec(_s); _s.loader.exec_module(_m)
+        institutional = _m.fetch_institutional_btc_13f(20)
+        coalition = [f for f in institutional if f.get("coalition_detected")]
+
+        def _public_inst(r):
+            return {
+                "entity": r.get("entity", ""),
+                "institution_type": r.get("institution_type", ""),
+                "filing_date": r.get("filing_date", ""),
+                "ticker": r.get("ticker", ""),
+                "coalition_detected": r.get("coalition_detected", False),
+                "coalition_score": r.get("coalition_score", 0),
+            }
+
+        is_cmd = _is_commander()
+        return jsonify({
+            "institutional_13f": institutional if is_cmd else [_public_inst(f) for f in institutional[:8]],
+            "total_institutional_filers": len(institutional),
+            "coalition_summary": {
+                "detected": bool(coalition),
+                "count": len(coalition),
+                "active_months": {}
+            },
+            "commander_only": not is_cmd,
+            "source": "SEC EDGAR (Free Public API)",
+        })
     except Exception as e:
         logger.error("EDGAR institutional data failed: %s", e)
-        return jsonify({"error": str(e), "institutional_13f": [], "pe_fundraising": []}), 500
+        return jsonify({"error": str(e), "institutional_13f": [], "total_institutional_filers": 0}), 500
 
 
 @panopticon_bp.route("/api/panopticon/pe-datastream")
