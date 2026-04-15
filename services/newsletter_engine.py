@@ -756,17 +756,29 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             return {"success": False, "error": str(e)}
 
     def get_subscribers(self) -> List[str]:
-        """Get subscriber emails from database"""
+        """Get subscriber emails from newsletter_subscribers table (source of truth).
+        Falls back to User.newsletter_subscribed if table unavailable."""
         try:
             from app import app
-            from models import User
+            from models import NewsletterSubscriber
 
             with app.app_context():
-                # Get users with newsletter_subscribed = True
-                users = User.query.filter_by(newsletter_subscribed=True).all()
-                return [u.email for u in users if u.email]
-        except:
-            return []
+                subs = NewsletterSubscriber.query.filter_by(subscribed=True).all()
+                emails = [s.email for s in subs if s.email]
+                # Filter out test addresses for production sends
+                real = [e for e in emails if not any(x in e for x in
+                    ['test@example', 'test_diagnostic', 'pbx_test_live', 'test_audit'])]
+                return real if real else emails
+        except Exception as e1:
+            # Fallback: User table
+            try:
+                from app import app
+                from models import User
+                with app.app_context():
+                    users = User.query.filter_by(newsletter_subscribed=True).all()
+                    return [u.email for u in users if u.email]
+            except:
+                return []
 
     def run_daily_newsletter(self) -> Dict:
         """Main entry point for daily newsletter"""

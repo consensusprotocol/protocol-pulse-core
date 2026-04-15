@@ -343,7 +343,7 @@ def api_admin_audience_stats():
                 'click_count': getattr(last_send, 'click_count', 0),
             }
 
-        next_email = now.replace(hour=13, minute=0, second=0, microsecond=0)
+        next_email = now.replace(hour=8, minute=0, second=0, microsecond=0)
         if next_email <= now:
             next_email += timedelta(days=1)
 
@@ -461,8 +461,8 @@ def api_admin_system_health():
     # Recent errors from gunicorn error log
     errors = []
     log_paths = [
-        os.path.expanduser('~/protocol_pulse/logs/gunicorn_error.log'),
-        os.path.expanduser('~/logs/gunicorn_error.log'),
+        os.path.expanduser('~/protocol_pulse/logs/waitress.log'),
+        os.path.expanduser('~/protocol_pulse/logs/app.log'),
     ]
     for lp in log_paths:
         try:
