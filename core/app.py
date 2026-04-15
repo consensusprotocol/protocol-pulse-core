@@ -253,8 +253,7 @@ with app.app_context():
     except Exception as _e:
         logging.warning("SESSION 12: db_migrate_sentiment failed: %s", _e)
     # 3. ONLY NOW load the routes
-    import routes
-    # 4. Register Terminal API blueprint
+    # 4. Register Terminal API blueprint BEFORE import routes (avoids circular import)
     try:
         from routes_premium_api import premium_api
         app.register_blueprint(premium_api)
@@ -264,6 +263,7 @@ with app.app_context():
         provision_demo_key(db, models)
     except Exception as e:
         logging.warning("Terminal API blueprint not loaded: %s", e)
+    import routes
     # 6. Initialize FTS5 search index (SESSION 17 — GLOBAL SEARCH)
     try:
         import importlib.util as _ilu
