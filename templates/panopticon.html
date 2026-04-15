@@ -1617,15 +1617,15 @@ body.panopticon-body .pp-footer { display: none !important; }
 
   <!-- Correlation scatter map -->
   <div id="ss2-map-wrap">
-    <div class="ss2-overline" style="padding:12px 16px 8px;">SIGNAL CORRELATION MAP  <span style="color:rgba(255,255,255,0.2);font-size:6px;">· HOVER FOR DRILL-DOWN</span></div>
+    <div class="ss2-overline" style="padding:12px 16px 8px;">SIGNAL CORRELATION MAP  <span style="color:rgba(255,255,255,0.45);font-weight:400;">· HOVER FOR DRILL-DOWN</span></div>
     <div style="position:relative;">
       <canvas id="ss2-map-canvas"></canvas>
       <div id="ss2-map-tooltip"></div>
     </div>
     <!-- Axis labels -->
     <div id="ss2-axis-wrap">
-      <div style="font-size:7px;color:rgba(255,255,255,0.18);letter-spacing:.15em;">← BEARISH &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BULLISH →</div>
-      <div style="font-size:7px;color:rgba(255,255,255,0.18);letter-spacing:.15em;">STRENGTH AXIS</div>
+      <div style="font-size:clamp(8px,0.6vw,11px);color:rgba(255,255,255,0.4);letter-spacing:.15em;">← BEARISH &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BULLISH →</div>
+      <div style="font-size:clamp(8px,0.6vw,11px);color:rgba(255,255,255,0.4);letter-spacing:.15em;">STRENGTH AXIS</div>
     </div>
   </div>
 
@@ -1633,7 +1633,7 @@ body.panopticon-body .pp-footer { display: none !important; }
   <div id="ss2-board-wrap">
     <div class="ss2-overline" style="padding:12px 16px 8px;display:flex;justify-content:space-between;">
       <span>LIVE SIGNAL BOARD</span>
-      <span id="ss2-board-ts" style="color:rgba(255,255,255,0.15);font-weight:400;font-size:6px;letter-spacing:.1em;"></span>
+      <span id="ss2-board-ts" style="color:rgba(255,255,255,0.4);font-weight:400;font-size:clamp(8px,0.6vw,10px);letter-spacing:.1em;"></span>
     </div>
     <div id="ss2-signal-board"></div>
   </div>
@@ -1642,7 +1642,7 @@ body.panopticon-body .pp-footer { display: none !important; }
 
 <!-- ── BOTTOM: DATA BARS WATERFALL ── -->
 <div id="ss2-waterfall">
-  <div class="ss2-overline" style="padding:10px 16px 8px;">CONVERGENCE WATERFALL  <span style="color:rgba(255,255,255,0.2);font-size:6px;">· CONTRIBUTION TO 74/100</span></div>
+  <div class="ss2-overline" style="padding:10px 16px 8px;">CONVERGENCE WATERFALL  <span style="color:rgba(255,255,255,0.45);font-weight:400;">· CONTRIBUTION TO 74/100</span></div>
   <div id="ss2-waterfall-bars"></div>
   <div style="padding:6px 16px 10px;font-size:7px;color:rgba(255,255,255,0.12);font-family:'JetBrains Mono',monospace;">
     SOURCE: OPENFEC · SEC EDGAR · LEGISCAN CC BY 4.0 · MEMPOOL.SPACE · POLYMARKET &nbsp;·&nbsp; NOT FINANCIAL ADVICE
@@ -1675,7 +1675,7 @@ body.panopticon-body .pp-footer { display: none !important; }
 #ss2-root > * { position: relative; z-index: 1; }
 
 .ss2-overline {
-  font-size: 7px;
+  font-size: clamp(8px, 0.6vw, 11px);
   letter-spacing: .25em;
   color: rgba(204,0,0,.7);
   font-weight: 700;
@@ -1729,7 +1729,7 @@ body.panopticon-body .pp-footer { display: none !important; }
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .ss2-gauge-cell {
-  padding: 14px 8px 10px;
+  padding: 14px clamp(10px, 1.5vw, 18px) 10px;
   border-right: 1px solid rgba(255,255,255,0.04);
   cursor: pointer;
   transition: background .15s;
@@ -1771,27 +1771,25 @@ body.panopticon-body .pp-footer { display: none !important; }
 }
 .ss2-gauge-score {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
   text-anchor: middle;
   fill: #fff;
 }
 .ss2-gauge-label {
-  font-size: 8.5px;
+  font-size: clamp(9px, 0.75vw, 13px);
   font-weight: 700;
   letter-spacing: .12em;
   text-align: center;
   color: rgba(255,255,255,.85);
 }
 .ss2-gauge-sub {
-  font-size: 7px;
-  color: rgba(255,255,255,.3);
+  font-size: clamp(8px, 0.6vw, 11px);
+  color: rgba(255,255,255,.45);
   text-align: center;
   margin-top: 3px;
   letter-spacing: .04em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 .ss2-gauge-arrow {
   font-size: 10px;
@@ -2005,13 +2003,15 @@ body.panopticon-body .pp-footer { display: none !important; }
   #ss2-middle { grid-template-columns: 1fr 340px; }
 }
 @media(max-width:900px) {
-  #ss2-gauges-row { grid-template-columns: repeat(3,1fr); }
   #ss2-middle { grid-template-columns: 1fr; min-height: auto; }
   #ss2-map-canvas { min-height: 220px; }
   #ss2-board-wrap { border-top: 1px solid rgba(255,255,255,0.04); }
+}
+@media(max-width:768px) {
+  #ss2-gauges-row { grid-template-columns: repeat(3,1fr); }
   #ss2-waterfall-bars { grid-template-columns: repeat(3,1fr); }
 }
-@media(max-width:600px) {
+@media(max-width:480px) {
   #ss2-gauges-row { grid-template-columns: repeat(2,1fr); }
   #ss2-waterfall-bars { grid-template-columns: repeat(2,1fr); }
   #ss2-score-num { font-size: 40px; }
