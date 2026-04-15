@@ -1771,30 +1771,34 @@ body.panopticon-body .pp-footer { display: none !important; }
 }
 .ss2-gauge-score {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 900;
   text-anchor: middle;
   fill: #fff;
 }
 .ss2-gauge-label {
-  font-size: 8px;
+  font-size: 8.5px;
   font-weight: 700;
-  letter-spacing: .1em;
+  letter-spacing: .12em;
   text-align: center;
-  color: rgba(255,255,255,.8);
+  color: rgba(255,255,255,.85);
 }
 .ss2-gauge-sub {
-  font-size: 6.5px;
-  color: rgba(255,255,255,.25);
+  font-size: 7px;
+  color: rgba(255,255,255,.3);
   text-align: center;
-  margin-top: 2px;
-  letter-spacing: .06em;
+  margin-top: 3px;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ss2-gauge-arrow {
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
   margin-top: 4px;
   transition: color .5s;
+  letter-spacing: .06em;
 }
 
 /* Data Card */
@@ -1802,15 +1806,16 @@ body.panopticon-body .pp-footer { display: none !important; }
   display: none;
   background: rgba(5,5,5,.97);
   border: 1px solid rgba(204,0,0,.45);
-  border-radius: 3px;
-  padding: 14px 16px;
+  border-radius: 4px;
+  padding: 18px 20px;
   position: absolute;
   top: 100px;
-  left: 20px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 50;
-  box-shadow: 0 12px 40px rgba(0,0,0,.8), 0 0 20px rgba(204,0,0,.1);
-  max-width: 520px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.85), 0 0 24px rgba(204,0,0,.12);
+  width: 580px;
+  max-width: calc(100% - 40px);
   animation: ss2FadeIn .15s ease;
 }
 #ss2-datacard.visible { display: block; }
@@ -1862,17 +1867,20 @@ body.panopticon-body .pp-footer { display: none !important; }
 /* Middle row */
 #ss2-middle {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 400px;
   border-bottom: 1px solid rgba(255,255,255,0.04);
-  min-height: 260px;
+  min-height: 340px;
 }
 #ss2-map-wrap {
   border-right: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  flex-direction: column;
 }
 #ss2-map-canvas {
   display: block;
   width: 100%;
-  height: 210px;
+  flex: 1;
+  min-height: 280px;
 }
 #ss2-axis-wrap {
   display: flex;
@@ -1896,103 +1904,117 @@ body.panopticon-body .pp-footer { display: none !important; }
 }
 
 /* Signal Board */
-#ss2-board-wrap { overflow: hidden; }
+#ss2-board-wrap { overflow: hidden; display: flex; flex-direction: column; }
 #ss2-signal-board {
   padding: 4px 0;
   overflow-y: auto;
-  max-height: 230px;
+  flex: 1;
+  max-height: 310px;
 }
+#ss2-signal-board::-webkit-scrollbar { width: 3px; }
+#ss2-signal-board::-webkit-scrollbar-track { background: transparent; }
+#ss2-signal-board::-webkit-scrollbar-thumb { background: rgba(204,0,0,0.3); border-radius: 2px; }
 .ss2-signal-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 7px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.03);
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
   cursor: default;
   transition: background .12s;
 }
-.ss2-signal-item:hover { background: rgba(255,255,255,.02); }
+.ss2-signal-item:hover { background: rgba(255,255,255,.025); }
 .ss2-si-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 4px;
 }
 .ss2-si-body { flex: 1; min-width: 0; }
 .ss2-si-label {
-  font-size: 7px;
-  letter-spacing: .12em;
-  margin-bottom: 2px;
+  font-size: 7.5px;
+  letter-spacing: .14em;
+  margin-bottom: 3px;
 }
 .ss2-si-text {
-  font-size: 9px;
+  font-size: 10px;
   color: rgba(255,255,255,.75);
-  line-height: 1.45;
+  line-height: 1.5;
+  white-space: normal;
 }
 .ss2-si-val {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
   text-align: right;
+  min-width: 48px;
 }
 
 /* Waterfall */
-#ss2-waterfall { }
+#ss2-waterfall { border-top: 1px solid rgba(255,255,255,0.04); }
 #ss2-waterfall-bars {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 0;
-  padding: 0 16px 12px;
+  gap: 1px;
+  padding: 0 20px 14px;
 }
 .ss2-wf-col {
-  padding: 4px 6px;
+  padding: 4px 8px;
   cursor: pointer;
   transition: background .12s;
+  border-right: 1px solid rgba(255,255,255,0.03);
 }
-.ss2-wf-col:hover { background: rgba(255,255,255,.02); }
+.ss2-wf-col:last-child { border-right: none; }
+.ss2-wf-col:hover { background: rgba(255,255,255,.025); }
 .ss2-wf-bar-wrap {
-  height: 50px;
+  height: 38px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   margin-bottom: 5px;
+  gap: 2px;
 }
 .ss2-wf-bar {
-  width: 70%;
+  width: 50%;
   border-radius: 2px 2px 0 0;
   min-height: 2px;
   transition: height 1.5s cubic-bezier(.22,.61,.36,1);
 }
 .ss2-wf-score {
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 900;
   text-align: center;
   margin-bottom: 3px;
 }
 .ss2-wf-label {
-  font-size: 6.5px;
-  color: rgba(255,255,255,.35);
+  font-size: 7px;
+  color: rgba(255,255,255,.4);
   text-align: center;
-  letter-spacing: .06em;
-  line-height: 1.4;
+  letter-spacing: .08em;
+  line-height: 1.5;
 }
 .ss2-wf-contrib {
-  font-size: 7px;
-  color: rgba(255,255,255,.2);
+  font-size: 6.5px;
+  color: rgba(255,255,255,.18);
   text-align: center;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
+@media(max-width:1100px) {
+  #ss2-middle { grid-template-columns: 1fr 340px; }
+}
 @media(max-width:900px) {
   #ss2-gauges-row { grid-template-columns: repeat(3,1fr); }
-  #ss2-middle { grid-template-columns: 1fr; }
+  #ss2-middle { grid-template-columns: 1fr; min-height: auto; }
+  #ss2-map-canvas { min-height: 220px; }
   #ss2-board-wrap { border-top: 1px solid rgba(255,255,255,0.04); }
   #ss2-waterfall-bars { grid-template-columns: repeat(3,1fr); }
 }
 @media(max-width:600px) {
   #ss2-gauges-row { grid-template-columns: repeat(2,1fr); }
   #ss2-waterfall-bars { grid-template-columns: repeat(2,1fr); }
+  #ss2-score-num { font-size: 40px; }
 }
 </style>
 
@@ -2220,9 +2242,6 @@ function openCard(sid, cell) {
   var rect = cell.getBoundingClientRect();
   var rootRect = document.getElementById('ss2-root').getBoundingClientRect();
   card.style.top = (rect.bottom - rootRect.top + 8) + 'px';
-  card.style.left = '12px';
-  card.style.right = '12px';
-  card.style.maxWidth = '560px';
   card.classList.add('visible');
 }
 
@@ -2313,7 +2332,7 @@ function renderCorrelationMap() {
   if (!canvas) return;
   var wrap = canvas.parentElement;
   var W = wrap.clientWidth || 400;
-  var H = 210;
+  var H = Math.max(canvas.clientHeight || 0, 280);
   canvas.width = W * (window.devicePixelRatio||1);
   canvas.height = H * (window.devicePixelRatio||1);
   canvas.style.width = W + 'px';
