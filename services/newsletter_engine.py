@@ -765,9 +765,14 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             with app.app_context():
                 subs = NewsletterSubscriber.query.filter_by(subscribed=True).all()
                 emails = [s.email for s in subs if s.email]
-                # Filter out test addresses for production sends
-                real = [e for e in emails if not any(x in e for x in
-                    ['test@example', 'test_diagnostic', 'pbx_test_live', 'test_audit'])]
+                # Filter out known test/placeholder addresses
+                TEST_ADDRS = {
+                    'test@example.com',
+                    'test_diagnostic@protocolpulse.io',
+                    'pbx_test_live@protocolpulse.io',
+                    'test_audit@protocolpulse.io',
+                }
+                real = [e for e in emails if e.lower() not in TEST_ADDRS]
                 return real if real else emails
         except Exception as e1:
             # Fallback: User table
