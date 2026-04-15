@@ -188,16 +188,78 @@ def compute_pulse_score(fairshake: dict, donations: list, committees: list) -> d
     }
 
 
-def fetch_donation_pulse(force: bool = False) -> dict:
-    """Master function. Returns full donation intelligence payload."""
-    if not force and CACHE_PATH.exists():
-        age = time.time() - CACHE_PATH.stat().st_mtime
-        if age < CACHE_TTL:
-            try:
-                return json.loads(CACHE_PATH.read_text())
-            except Exception:
-                pass
+def _refresh_donation_cache() -> None:
+    """Background thread: hit OpenFEC and write fresh cache. Never blocks callers."""
+    try:
+        key = os.environ.get("OPENFEC_API_KEY", "DEMO_KEY")
+        if key == "DEMO_KEY":
+            logger.warning("DEMO_KEY — rate limited. Set OPENFEC_API_KEY.")
+        t0 = time.time()
+        fairshake  = fetch_fairshake_spend(key)
+        donations  = fetch_crypto_candidate_donations(key)
+        committees = fetch_crypto_committees(key)
+        pulse      = compute_pulse_score(fairshake, donations, committees)
+        result = {
+            "updated_at":       datetime.now(timezone.utc).isoformat(),
+            "fetch_ms":         round((time.time() - t0) * 1000),
+            "score":            pulse["score"],
+            "label":            pulse["label"],
+            "crypto_committees": len(committees),
+            "states_active":    len(set(d.get("state","") for d in donations if d.get("state"))),
+            "fairshake_spend":    fairshake.get("total_spend", 0),
+            "fairshake_raised":   fairshake.get("total_raised", 0),
+            "fairshake_expenditures": fairshake.get("expenditures", []),
+            "top_donations":    donations,
+            "committees":       committees,
+            "source":           "OpenFEC API (FEC Public Data)",
+            "key_type":         "demo" if key == "DEMO_KEY" else "personal",
+        }
+        CACHE_PATH.parent.mkdir(exist_ok=True)
+        CACHE_PATH.write_text(json.dumps(result, indent=2, default=str))
+        logger.info("Donation cache refreshed in %dms", result["fetch_ms"])
+    except Exception as e:
+        logger.error("Background donation refresh failed: %s", e)
 
+
+_refresh_lock = False  # simple flag to avoid parallel refreshes
+
+
+def fetch_donation_pulse(force: bool = False) -> dict:
+    """Master function — always fast. Returns cached data immediately.
+    If cache is stale (> CACHE_TTL), triggers a background refresh so the
+    NEXT caller gets fresh data without any wait."""
+    global _refresh_lock
+
+    # Always try to return from cache first (instant)
+    cached = None
+    if CACHE_PATH.exists():
+        try:
+            cached = json.loads(CACHE_PATH.read_text())
+            age = time.time() - CACHE_PATH.stat().st_mtime
+            cache_fresh = age < CACHE_TTL
+        except Exception:
+            cache_fresh = False
+    else:
+        cache_fresh = False
+
+    if not force and cached and cache_fresh:
+        return cached  # Cache hit — instant return
+
+    # Cache stale or forced: kick off background refresh, return stale data now
+    if cached and not force and not _refresh_lock:
+        _refresh_lock = True
+        import threading
+        def _run():
+            global _refresh_lock
+            try:
+                _refresh_donation_cache()
+            finally:
+                _refresh_lock = False
+        threading.Thread(target=_run, daemon=True).start()
+        logger.info("Donation cache stale — serving cached data, refreshing in background")
+        return cached  # Return stale immediately — no blocking
+
+    # No cache at all OR force=True: must fetch synchronously (cold start only)
     key = os.environ.get("OPENFEC_API_KEY", "DEMO_KEY")
     if key == "DEMO_KEY":
         logger.warning("Using DEMO_KEY — rate limited to 40/hr. Set OPENFEC_API_KEY.")

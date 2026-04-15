@@ -1499,469 +1499,6 @@ body.panopticon-body .pp-footer { display: none !important; }
 </div>
 {% endif %}
 
-<!-- ═══ THREE COLUMN GRID ═══ -->
-<div class="pn-main">
-    <div class="pn-grid">
-
-        <!-- ═══ COLUMN 1: CONFIRMED DISCLOSURES (FREE in demo) ═══ -->
-        <div class="pn-panel pn-tier-confirmed">
-            <div class="pn-panel-head">
-                <span class="tier-dot"></span>
-                <span class="tier-label">TIER 1 — CONFIRMED</span>
-                <span class="pn-tier-badge tier-1">STOCK ACT</span>
-                <span class="tier-count">{{ data.disclosures|length }} FILED</span>
-            </div>
-
-            {% if not demo_mode and data.disclosures_live is defined and not data.disclosures_live %}
-            <div class="pn-fallback-banner">
-                <strong>HISTORICAL DATA</strong> &mdash; Live data from efts.house.gov temporarily unavailable. Displaying documented public examples from {{ data.fallback_as_of|default('recent filings') }}.
-            </div>
-            {% endif %}
-
-            <div id="pnDisclosures">
-                {% for d in data.disclosures %}
-                <div class="pn-disc-card">
-                    <div class="pn-disc-head">
-                        <div class="pn-disc-entity">{{ d.entity }}</div>
-                        {% if d.party %}
-                        <span class="pn-disc-party {{ d.party }}">{{ d.party }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="pn-disc-fields">
-                        <div>
-                            <div class="pn-disc-field-label">Asset</div>
-                            <div class="pn-disc-field-val">{{ d.asset }}</div>
-                        </div>
-                        <div>
-                            <div class="pn-disc-field-label">Type</div>
-                            <div class="pn-disc-field-val {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</div>
-                        </div>
-                        <div>
-                            <div class="pn-disc-field-label">Amount</div>
-                            <div class="pn-disc-field-val">{{ d.amount_range }}</div>
-                        </div>
-                        <div>
-                            <div class="pn-disc-field-label">Filed</div>
-                            <div class="pn-disc-field-val">{{ d.date_filed }}</div>
-                        </div>
-                        {% if d.get('days_to_file') %}
-                        <div>
-                            <div class="pn-disc-field-label">Days to File</div>
-                            <div class="pn-disc-field-val">{{ d.days_to_file }}d</div>
-                        </div>
-                        {% endif %}
-                        {% if d.get('committee') %}
-                        <div>
-                            <div class="pn-disc-field-label">Committee</div>
-                            <div class="pn-disc-field-val">{{ d.committee }}</div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if d.get('conviction') and d.conviction.score > 0 %}
-                    <div class="pn-conviction">
-                        <span class="pn-conviction-label">CONVICTION</span>
-                        <span class="pn-conviction-score {{ d.conviction.color }}">{{ d.conviction.score }}%</span>
-                        <span class="pn-conviction-tag {{ d.conviction.color }}">{{ d.conviction.label }}</span>
-                        <div class="pn-conviction-bar">
-                            <div class="pn-conviction-bar-fill {{ d.conviction.color }}" style="width:{{ d.conviction.score }}%"></div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if d.get('correlation_note') %}
-                    <div class="pn-disc-correlation">{{ d.correlation_note }}</div>
-                    {% endif %}
-                    {% if d.get('status') == 'loading' %}
-                    <div style="margin-top:8px;">
-                        <span class="pn-status-chip loading">Awaiting Live Data</span>
-                    </div>
-                    {% endif %}
-                    <div class="pn-disc-source">
-                        Source: <a href="{{ d.source_url }}" target="_blank" rel="noopener">Public Financial Disclosure</a>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not data.disclosures %}
-                <div class="pn-empty">No crypto-related disclosures in current window</div>
-                {% endif %}
-            </div>
-
-            <!-- WATCH LIST -->
-            {% if data.watch_list %}
-            <div class="pn-section-label">TIER 3 — WATCH LIST</div>
-            {% for w in data.watch_list %}
-            <div class="pn-watchlist-item">
-                <div class="pn-watchlist-name">
-                    {{ w.name }}
-                    <span class="pn-disc-party {{ w.party }}" style="margin-left:4px;font-size:8px;">{{ w.party }}</span>
-                </div>
-                <div class="pn-watchlist-note">{{ w.note }}</div>
-            </div>
-            {% endfor %}
-            {% endif %}
-        </div>
-
-        <!-- ═══ COLUMN 2: FLAGGED — PATTERN DETECTION ═══ -->
-        <div class="pn-panel pn-tier-flagged">
-            <div class="pn-panel-head">
-                <span class="tier-dot"></span>
-                <span class="tier-label">TIER 2 — FLAGGED</span>
-                <span class="pn-tier-badge tier-2">PATTERNS</span>
-                <span class="tier-count">{{ data.flagged|length }} DETECTED</span>
-            </div>
-
-            {% if demo_mode %}
-            <div class="pn-classified-overlay">
-                <div class="pn-classified-stamp">CLASSIFIED</div>
-                <div class="pn-classified-sub">Commander Access Required</div>
-                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
-            </div>
-            {% endif %}
-
-            <div class="pn-disclaimer-note">
-                PATTERN FOR RESEARCH &mdash; NOT VERIFIED. Statistical correlations shown for independent research purposes only. These are computed patterns, not accusations.
-            </div>
-
-            <!-- Correlation Timeline SVG -->
-            <div class="pn-section-label">CORRELATION TIMELINE</div>
-            <div id="pnCorrelations">
-                {% for c in data.correlations %}
-                <div class="pn-corr-timeline" data-idx="{{ loop.index }}">
-                    <!-- Gap indicator -->
-                    {% set gap = c.get('gap_days', 0) %}
-                    {% set gap_color = 'red' if gap < 7 else ('orange' if gap < 30 else 'white') %}
-                    <div class="pn-corr-gap {{ c.get('gap_color', gap_color) }}">
-                        {% if gap < 7 %}&#9888;{% elif gap < 30 %}&#9679;{% else %}&#9675;{% endif %}
-                        {{ gap }} DAY GAP
-                    </div>
-
-                    <!-- SVG Timeline: Trade Date → Event Date -->
-                    <svg width="100%" height="90" viewBox="0 0 500 90" preserveAspectRatio="xMidYMid meet">
-                        <!-- Trade node -->
-                        <g class="pn-corr-node" transform="translate(60,40)">
-                            <circle r="10" fill="{{ '#ff3b5f' if gap < 7 else ('#f8c15c' if gap < 30 else '#fff') }}" opacity="0.9"/>
-                            <text y="-16" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">TRADE</text>
-                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7">{{ c.disclosure.date[:10] if c.disclosure else '' }}</text>
-                        </g>
-                        <!-- Connecting line with gap label -->
-                        <path class="pn-corr-path" d="M70,40 L230,40" stroke="{{ '#ff3b5f' if gap < 7 else ('#f8c15c' if gap < 30 else '#555') }}" stroke-width="2" style="animation-delay:0.2s"/>
-                        <text x="150" y="32" text-anchor="middle" fill="{{ '#ff3b5f' if gap < 7 else '#f8c15c' }}" font-family="JetBrains Mono" font-size="10" font-weight="700">{{ gap }}d</text>
-                        <!-- Event node -->
-                        <g class="pn-corr-node" transform="translate(240,40)">
-                            <circle r="10" fill="#fff" opacity="0.7"/>
-                            <text y="-16" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">EVENT</text>
-                        </g>
-                        <!-- Score -->
-                        <path class="pn-corr-path" d="M250,40 L400,40" stroke="var(--pn-gold)" stroke-width="1.5" style="animation-delay:0.6s"/>
-                        <g class="pn-corr-node" transform="translate(420,40)">
-                            <circle r="14" fill="none" stroke="{{ '#ff3b5f' if c.correlation_score > 0.8 else '#f8c15c' }}" stroke-width="2" opacity="0.8"/>
-                            <text y="4" text-anchor="middle" fill="{{ '#ff3b5f' if c.correlation_score > 0.8 else '#f8c15c' }}" font-family="JetBrains Mono" font-size="10" font-weight="700">{{ "%.0f"|format(c.correlation_score * 100) }}%</text>
-                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">SCORE</text>
-                        </g>
-                    </svg>
-
-                    <div class="pn-corr-summary">{{ c.timeline_summary }}</div>
-
-                    <div>
-                        {% if c.disclosure %}
-                        <div class="pn-corr-event-row">
-                            <span class="pn-corr-event-tag disclosure">DISCLOSURE</span>
-                            {{ c.disclosure.entity }} &mdash; {{ c.disclosure.asset }} ({{ c.disclosure.trade_type }})
-                        </div>
-                        {% endif %}
-                        {% for w in c.related_whales %}
-                        <div class="pn-corr-event-row">
-                            <span class="pn-corr-event-tag whale">WHALE</span>
-                            {{ w.entity }} &mdash; {{ w.amount }} {{ w.direction }}
-                        </div>
-                        {% endfor %}
-                        {% for g in c.related_geo %}
-                        <div class="pn-corr-event-row">
-                            <span class="pn-corr-event-tag geo">GEO</span>
-                            {{ g.headline[:80] }}{% if g.headline|length > 80 %}...{% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    {% if not demo_mode %}
-                    <button class="pn-btc-case-btn" onclick="makeBitcoinCase(this, '{{ c.timeline_summary|e }}')" data-idx="{{ loop.index }}">
-                        &#x20BF; Make the Bitcoin Case
-                    </button>
-                    <div class="pn-btc-case-output" id="btcCase{{ loop.index }}"></div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-                {% if not data.correlations %}
-                <div class="pn-empty">Awaiting correlated events...</div>
-                {% endif %}
-            </div>
-
-            <!-- Flagged Trades -->
-            <div class="pn-section-label">FLAGGED TRADES</div>
-            {% for f in data.flagged %}
-            <div class="pn-disc-card" style="border-left-color:var(--pn-gold);">
-                <div class="pn-disc-head">
-                    <div class="pn-disc-entity">{{ f.entity }}</div>
-                    {% if f.party %}
-                    <span class="pn-disc-party {{ f.party }}">{{ f.party }}</span>
-                    {% endif %}
-                </div>
-                <div class="pn-disc-fields">
-                    <div>
-                        <div class="pn-disc-field-label">Asset</div>
-                        <div class="pn-disc-field-val">{{ f.asset }}</div>
-                    </div>
-                    <div>
-                        <div class="pn-disc-field-label">Score</div>
-                        <div class="pn-disc-field-val" style="color:var(--pn-gold)">{{ "%.0f"|format(f.correlation_score * 100) }}%</div>
-                    </div>
-                </div>
-                <div class="pn-disc-correlation" style="border-color:rgba(248,193,92,0.15);color:var(--pn-gold);">{{ f.flag_reason }}</div>
-            </div>
-            {% endfor %}
-            {% if not data.flagged %}
-            <div class="pn-empty">No statistical patterns detected in current window</div>
-            {% endif %}
-        </div>
-
-        <!-- ═══ COLUMN 3: REAL-TIME FEED (FREE in demo) ═══ -->
-        <div class="pn-panel pn-tier-feed">
-            <div class="pn-panel-head">
-                <span class="tier-dot"></span>
-                <span class="tier-label">REAL-TIME FEED</span>
-                <span class="tier-count">WHALE + MARKET + GEO</span><span style="display:inline-flex;align-items:center;gap:5px;margin-left:10px;"><span id="pnStreamDot" style="width:7px;height:7px;border-radius:50%;background:#888;display:inline-block;"></span><span id="pnStreamLabel" style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;color:#888;">CONNECTING</span></span>
-            </div>
-
-            <!-- Whale Tracker -->
-            <div class="pn-section-label">WHALE TRACKER</div>
-            <div id="pnWhales">
-                {% for w in data.whales %}
-                <div class="pn-whale-item {{ w.tx_type }}">
-                    <div class="pn-whale-row">
-                        <div class="pn-whale-entity">{{ w.entity }}</div>
-                        <span class="pn-whale-type-tag {{ w.tx_type }}">{{ w.tx_type|upper }}</span>
-                        {% if w.get('flow_signal') %}
-                        <span class="pn-whale-signal-tag {{ w.flow_signal }}">{{ w.flow_signal|upper }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="pn-whale-amt {{ w.tx_type }}">
-                        {% if w.tx_type == 'inflow' %}+{% else %}-{% endif %}{{ w.amount_btc }} BTC
-                    </div>
-                    {% if w.amount_usd %}
-                    <div class="pn-whale-usd">${{ "{:,.0f}".format(w.amount_usd) }} USD</div>
-                    {% endif %}
-                    {% if w.get('flow_context') %}
-                    <div class="pn-whale-flow {{ w.flow_signal|default('neutral') }}">
-                        <div class="pn-whale-flow-label">{{ w.flow_label|default('TRANSFER') }}</div>
-                        {{ w.flow_context }}
-                    </div>
-                    {% endif %}
-                    <div class="pn-whale-size-bar" style="width:{{ [w.amount_btc / 10, 100]|min }}%"></div>
-                    <div class="pn-whale-meta">
-                        <span>{{ w.address }}</span>
-                        <a href="{{ w.source_url }}" target="_blank" rel="noopener">View TX &rarr;</a>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not data.whales %}
-                <div class="pn-loading">
-                    <div class="pn-loading-dot"></div>
-                    <div class="pn-loading-dot"></div>
-                    <div class="pn-loading-dot"></div>
-                    Scanning whale wallets...
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Polymarket -->
-            <div class="pn-section-label">BITCOIN PREDICTION MARKETS</div>
-            <div id="pnPolymarket">
-                {% if data.polymarket %}
-                <!-- Hero market: highest volume -->
-                {% set hero = data.polymarket[0] %}
-                <div class="pn-poly-hero">
-                    {% if hero.get('event_title') %}
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pn-gold);margin-bottom:6px;">TOP MARKET</div>
-                    {% endif %}
-                    <div class="pn-poly-question">{{ hero.question }}</div>
-                    <div class="pn-poly-row">
-                        {% if hero.yes_price %}
-                        <span class="pn-poly-pct">{{ hero.yes_price }}%</span>
-                        <span class="pn-poly-yes">YES</span>
-                        {% else %}
-                        <span class="pn-poly-pct" style="color:var(--pn-muted)">--</span>
-                        {% endif %}
-                        <span class="pn-poly-signal {{ hero.btc_signal }}">
-                            {% if hero.btc_signal == 'bullish' %}&#9650;{% elif hero.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
-                            {{ hero.btc_signal|upper }}
-                        </span>
-                    </div>
-                    {% if hero.yes_price %}
-                    <div class="pn-poly-hero-bar">
-                        <div class="pn-poly-hero-bar-fill" style="width:{{ hero.yes_price }}%"></div>
-                    </div>
-                    {% endif %}
-                    <div class="pn-poly-meta">
-                        {% if hero.volume %}<span class="pn-poly-vol-badge">${{ "{:,.0f}".format(hero.volume) }} TOTAL VOL</span>{% endif %}
-                        {% if hero.volume_24h %}<span>${{ "{:,.0f}".format(hero.volume_24h) }} 24h</span>{% endif %}
-                        {% if hero.end_date %}<span>Expires {{ hero.end_date[:10] }}</span>{% endif %}
-                        {% if hero.source_url %}<a href="{{ hero.source_url }}" target="_blank" rel="noopener">Polymarket &rarr;</a>{% endif %}
-                    </div>
-                </div>
-
-                <!-- Remaining markets -->
-                {% for p in data.polymarket[1:] %}
-                <div class="pn-poly-item">
-                    <div class="pn-poly-question">{{ p.question }}</div>
-                    <div class="pn-poly-row">
-                        {% if p.yes_price %}
-                        <span class="pn-poly-pct">{{ p.yes_price }}%</span>
-                        <span class="pn-poly-yes">YES</span>
-                        {% else %}
-                        <span class="pn-poly-pct" style="color:var(--pn-muted)">--</span>
-                        {% endif %}
-                        <span class="pn-poly-signal {{ p.btc_signal }}">
-                            {% if p.btc_signal == 'bullish' %}&#9650;{% elif p.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
-                            {{ p.btc_signal|upper }}
-                        </span>
-                    </div>
-                    {% if p.yes_price %}
-                    <div class="pn-poly-bar">
-                        <div class="pn-poly-bar-fill {{ p.btc_signal }}" style="width:{{ p.yes_price }}%"></div>
-                    </div>
-                    {% endif %}
-                    <div class="pn-poly-meta">
-                        {% if p.volume %}<span>${{ "{:,.0f}".format(p.volume) }} vol</span>{% endif %}
-                        {% if p.volume_24h %}<span>${{ "{:,.0f}".format(p.volume_24h) }} 24h</span>{% endif %}
-                        {% if p.end_date %}<span>Expires {{ p.end_date[:10] }}</span>{% endif %}
-                        {% if p.source_url %}<a href="{{ p.source_url }}" target="_blank" rel="noopener">Polymarket &rarr;</a>{% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                {% else %}
-                <div class="pn-loading">
-                    <div class="pn-loading-dot"></div>
-                    <div class="pn-loading-dot"></div>
-                    <div class="pn-loading-dot"></div>
-                    Fetching prediction markets...
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Nation-State / Forex -->
-            {% if data.forex %}
-            <div class="pn-section-label">NATION-STATE SIGNALS</div>
-            <div id="pnForex">
-                {% for f in data.forex %}
-                <div class="pn-forex-item">
-                    <span class="pn-forex-pair">{{ f.pair }}</span>
-                    {% if f.rate %}<span class="pn-forex-rate">{{ f.rate }}</span>{% endif %}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Geopolitical Feed -->
-            <div class="pn-section-label">GEOPOLITICAL ALERT FEED</div>
-            <div id="pnGeo">
-                {% for g in data.geopolitical %}
-                <div class="pn-geo-item">
-                    <div class="pn-geo-headline">{{ g.headline }}</div>
-                    <span class="pn-geo-signal-tag {{ g.btc_signal }}">
-                        {% if g.btc_signal == 'bullish' %}&#9650;{% elif g.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
-                        BTC {{ g.btc_signal|upper }}
-                    </span>
-                    <div class="pn-geo-rationale">{{ g.btc_rationale }}</div>
-                    <div class="pn-geo-meta">
-                        <span>{{ g.source }}</span>
-                        <span>{{ g.timestamp[:10] if g.timestamp else '' }}</span>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not data.geopolitical %}
-                <div class="pn-empty">No geopolitical signals in current window</div>
-                {% endif %}
-            </div>
-
-            <!-- Political Donation Pulse -->
-            <div class="pn-section-label">POLITICAL DONATION PULSE</div>
-            <div id="pnDonations" style="padding:12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:9px;font-family:'JetBrains Mono',monospace;padding:4px 0;">Loading PAC intelligence...</div>
-            <!-- ═══ PRIVATE EQUITY & INSTITUTIONAL INTELLIGENCE ═══ -->
-            <div class="pn-section-label">INSTITUTIONAL ACCUMULATION</div>
-            <div id="pnInstitutional" style="padding:8px 12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">
-                    Loading institutional data...
-                </div>
-            </div>
-
-            <!-- Coalition Detected Banner (hidden until data loads) -->
-            <div id="pnCoalitionBanner" style="display:none;margin:0 12px 8px;padding:10px 14px;
-                background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.4);border-radius:6px;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:8px;height:8px;border-radius:50%;background:#cc0000;
-                        animation:pn-pulse 1s ease-in-out infinite;flex-shrink:0;"></div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;
-                        letter-spacing:.15em;color:#cc0000;font-weight:700;">COALITION SIGNAL DETECTED</div>
-                </div>
-                <div id="pnCoalitionNote" style="font-family:'DM Sans',sans-serif;font-size:11px;
-                    color:rgba(255,255,255,0.7);margin-top:6px;line-height:1.5;"></div>
-            </div>
-
-            <div class="pn-section-label">PRIVATE EQUITY DATASTREAM</div>
-            <div id="pnPEDatastream" style="padding:8px 12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">
-                    Loading PE fundraising data...
-                </div>
-            </div>
-
-
-            <!-- ═══ BITCOIN BILL GAP TRACKER ═══ -->
-            <div class="pn-section-label" style="display:flex;justify-content:space-between;align-items:center;">
-                <span>BITCOIN BILL TRACKER</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:.08em;">Source: LegiScan · CC BY 4.0</span>
-            </div>
-            <div id="pnBillTracker" style="padding:8px 12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">Loading congressional bill data...</div>
-            </div>
-
-            <!-- Congressional Trading — STOCK Act -->
-            <div class="pn-section-label" style="display:flex;justify-content:space-between;align-items:center;"><span>CONGRESSIONAL STOCK TRADES</span><span id="pnLastUpdate" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:.06em;"></span></div>
-            <div id="pnCongress" style="padding:8px 12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading STOCK Act filings...</div>
-            </div>
-
-            <!-- Party Breakdown -->
-            <div class="pn-section-label">PARTY TRADING BREAKDOWN</div>
-            <div id="pnPartyBreakdown" style="padding:8px 12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Analyzing party patterns...</div>
-            </div>
-
-            <!-- IHX Score -->
-            <div class="pn-section-label">INSIDER HEAT INDEX (IHX)</div>
-            <div id="pnIHX" style="padding:12px;">
-                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Computing insider heat...</div>
-            </div>
-
-                    </div>
-                    <div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-white);" id="donCommittees">--</div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">CRYPTO COMMITTEES</div>
-                    </div>
-                    <div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-gold);" id="donStates">--</div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">STATES ACTIVE</div>
-                    </div>
-                </div>
-                <div style="margin-top:12px;text-align:center;">
-                    <span id="donLabel" style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 12px;border:1px solid var(--pn-border);background:rgba(255,59,95,0.04);color:var(--pn-muted);">LOADING</span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
 <!-- ═══ SOVEREIGN SIGNAL — CONVERGENCE INTELLIGENCE WEB ═══════════════════ -->
 <div style="background:#030303;border-top:1px solid rgba(204,0,0,0.2);border-bottom:1px solid rgba(204,0,0,0.2);padding:0;margin:0;" id="convergence-web-section">
 
@@ -2543,6 +2080,471 @@ setInterval(updateLiveScore, 120000);
 
 })();
 </script>
+
+
+<!-- ═══ THREE COLUMN GRID ═══ -->
+<div class="pn-main">
+    <div class="pn-grid">
+
+        <!-- ═══ COLUMN 1: CONFIRMED DISCLOSURES (FREE in demo) ═══ -->
+        <div class="pn-panel pn-tier-confirmed">
+            <div class="pn-panel-head">
+                <span class="tier-dot"></span>
+                <span class="tier-label">TIER 1 — CONFIRMED</span>
+                <span class="pn-tier-badge tier-1">STOCK ACT</span>
+                <span class="tier-count">{{ data.disclosures|length }} FILED</span>
+            </div>
+
+            {% if not demo_mode and data.disclosures_live is defined and not data.disclosures_live %}
+            <div class="pn-fallback-banner">
+                <strong>HISTORICAL DATA</strong> &mdash; Live data from efts.house.gov temporarily unavailable. Displaying documented public examples from {{ data.fallback_as_of|default('recent filings') }}.
+            </div>
+            {% endif %}
+
+            <div id="pnDisclosures">
+                {% for d in data.disclosures %}
+                <div class="pn-disc-card">
+                    <div class="pn-disc-head">
+                        <div class="pn-disc-entity">{{ d.entity }}</div>
+                        {% if d.party %}
+                        <span class="pn-disc-party {{ d.party }}">{{ d.party }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pn-disc-fields">
+                        <div>
+                            <div class="pn-disc-field-label">Asset</div>
+                            <div class="pn-disc-field-val">{{ d.asset }}</div>
+                        </div>
+                        <div>
+                            <div class="pn-disc-field-label">Type</div>
+                            <div class="pn-disc-field-val {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</div>
+                        </div>
+                        <div>
+                            <div class="pn-disc-field-label">Amount</div>
+                            <div class="pn-disc-field-val">{{ d.amount_range }}</div>
+                        </div>
+                        <div>
+                            <div class="pn-disc-field-label">Filed</div>
+                            <div class="pn-disc-field-val">{{ d.date_filed }}</div>
+                        </div>
+                        {% if d.get('days_to_file') %}
+                        <div>
+                            <div class="pn-disc-field-label">Days to File</div>
+                            <div class="pn-disc-field-val">{{ d.days_to_file }}d</div>
+                        </div>
+                        {% endif %}
+                        {% if d.get('committee') %}
+                        <div>
+                            <div class="pn-disc-field-label">Committee</div>
+                            <div class="pn-disc-field-val">{{ d.committee }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if d.get('conviction') and d.conviction.score > 0 %}
+                    <div class="pn-conviction">
+                        <span class="pn-conviction-label">CONVICTION</span>
+                        <span class="pn-conviction-score {{ d.conviction.color }}">{{ d.conviction.score }}%</span>
+                        <span class="pn-conviction-tag {{ d.conviction.color }}">{{ d.conviction.label }}</span>
+                        <div class="pn-conviction-bar">
+                            <div class="pn-conviction-bar-fill {{ d.conviction.color }}" style="width:{{ d.conviction.score }}%"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if d.get('correlation_note') %}
+                    <div class="pn-disc-correlation">{{ d.correlation_note }}</div>
+                    {% endif %}
+                    {% if d.get('status') == 'loading' %}
+                    <div style="margin-top:8px;">
+                        <span class="pn-status-chip loading">Awaiting Live Data</span>
+                    </div>
+                    {% endif %}
+                    <div class="pn-disc-source">
+                        Source: <a href="{{ d.source_url }}" target="_blank" rel="noopener">Public Financial Disclosure</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.disclosures %}
+                <div class="pn-empty">No crypto-related disclosures in current window</div>
+                {% endif %}
+            </div>
+
+            <!-- WATCH LIST -->
+            {% if data.watch_list %}
+            <div class="pn-section-label">TIER 3 — WATCH LIST</div>
+            {% for w in data.watch_list %}
+            <div class="pn-watchlist-item">
+                <div class="pn-watchlist-name">
+                    {{ w.name }}
+                    <span class="pn-disc-party {{ w.party }}" style="margin-left:4px;font-size:8px;">{{ w.party }}</span>
+                </div>
+                <div class="pn-watchlist-note">{{ w.note }}</div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- ═══ COLUMN 2: FLAGGED — PATTERN DETECTION ═══ -->
+        <div class="pn-panel pn-tier-flagged">
+            <div class="pn-panel-head">
+                <span class="tier-dot"></span>
+                <span class="tier-label">TIER 2 — FLAGGED</span>
+                <span class="pn-tier-badge tier-2">PATTERNS</span>
+                <span class="tier-count">{{ data.flagged|length }} DETECTED</span>
+            </div>
+
+            {% if demo_mode %}
+            <div class="pn-classified-overlay">
+                <div class="pn-classified-stamp">CLASSIFIED</div>
+                <div class="pn-classified-sub">Commander Access Required</div>
+                <a href="/join" class="pn-upgrade-btn">Unlock Intelligence</a>
+            </div>
+            {% endif %}
+
+            <div class="pn-disclaimer-note">
+                PATTERN FOR RESEARCH &mdash; NOT VERIFIED. Statistical correlations shown for independent research purposes only. These are computed patterns, not accusations.
+            </div>
+
+            <!-- Correlation Timeline SVG -->
+            <div class="pn-section-label">CORRELATION TIMELINE</div>
+            <div id="pnCorrelations">
+                {% for c in data.correlations %}
+                <div class="pn-corr-timeline" data-idx="{{ loop.index }}">
+                    <!-- Gap indicator -->
+                    {% set gap = c.get('gap_days', 0) %}
+                    {% set gap_color = 'red' if gap < 7 else ('orange' if gap < 30 else 'white') %}
+                    <div class="pn-corr-gap {{ c.get('gap_color', gap_color) }}">
+                        {% if gap < 7 %}&#9888;{% elif gap < 30 %}&#9679;{% else %}&#9675;{% endif %}
+                        {{ gap }} DAY GAP
+                    </div>
+
+                    <!-- SVG Timeline: Trade Date → Event Date -->
+                    <svg width="100%" height="90" viewBox="0 0 500 90" preserveAspectRatio="xMidYMid meet">
+                        <!-- Trade node -->
+                        <g class="pn-corr-node" transform="translate(60,40)">
+                            <circle r="10" fill="{{ '#ff3b5f' if gap < 7 else ('#f8c15c' if gap < 30 else '#fff') }}" opacity="0.9"/>
+                            <text y="-16" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">TRADE</text>
+                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7">{{ c.disclosure.date[:10] if c.disclosure else '' }}</text>
+                        </g>
+                        <!-- Connecting line with gap label -->
+                        <path class="pn-corr-path" d="M70,40 L230,40" stroke="{{ '#ff3b5f' if gap < 7 else ('#f8c15c' if gap < 30 else '#555') }}" stroke-width="2" style="animation-delay:0.2s"/>
+                        <text x="150" y="32" text-anchor="middle" fill="{{ '#ff3b5f' if gap < 7 else '#f8c15c' }}" font-family="JetBrains Mono" font-size="10" font-weight="700">{{ gap }}d</text>
+                        <!-- Event node -->
+                        <g class="pn-corr-node" transform="translate(240,40)">
+                            <circle r="10" fill="#fff" opacity="0.7"/>
+                            <text y="-16" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">EVENT</text>
+                        </g>
+                        <!-- Score -->
+                        <path class="pn-corr-path" d="M250,40 L400,40" stroke="var(--pn-gold)" stroke-width="1.5" style="animation-delay:0.6s"/>
+                        <g class="pn-corr-node" transform="translate(420,40)">
+                            <circle r="14" fill="none" stroke="{{ '#ff3b5f' if c.correlation_score > 0.8 else '#f8c15c' }}" stroke-width="2" opacity="0.8"/>
+                            <text y="4" text-anchor="middle" fill="{{ '#ff3b5f' if c.correlation_score > 0.8 else '#f8c15c' }}" font-family="JetBrains Mono" font-size="10" font-weight="700">{{ "%.0f"|format(c.correlation_score * 100) }}%</text>
+                            <text y="28" text-anchor="middle" fill="#888" font-family="JetBrains Mono" font-size="7" letter-spacing="1">SCORE</text>
+                        </g>
+                    </svg>
+
+                    <div class="pn-corr-summary">{{ c.timeline_summary }}</div>
+
+                    <div>
+                        {% if c.disclosure %}
+                        <div class="pn-corr-event-row">
+                            <span class="pn-corr-event-tag disclosure">DISCLOSURE</span>
+                            {{ c.disclosure.entity }} &mdash; {{ c.disclosure.asset }} ({{ c.disclosure.trade_type }})
+                        </div>
+                        {% endif %}
+                        {% for w in c.related_whales %}
+                        <div class="pn-corr-event-row">
+                            <span class="pn-corr-event-tag whale">WHALE</span>
+                            {{ w.entity }} &mdash; {{ w.amount }} {{ w.direction }}
+                        </div>
+                        {% endfor %}
+                        {% for g in c.related_geo %}
+                        <div class="pn-corr-event-row">
+                            <span class="pn-corr-event-tag geo">GEO</span>
+                            {{ g.headline[:80] }}{% if g.headline|length > 80 %}...{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if not demo_mode %}
+                    <button class="pn-btc-case-btn" onclick="makeBitcoinCase(this, '{{ c.timeline_summary|e }}')" data-idx="{{ loop.index }}">
+                        &#x20BF; Make the Bitcoin Case
+                    </button>
+                    <div class="pn-btc-case-output" id="btcCase{{ loop.index }}"></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% if not data.correlations %}
+                <div class="pn-empty">Awaiting correlated events...</div>
+                {% endif %}
+            </div>
+
+            <!-- Flagged Trades -->
+            <div class="pn-section-label">FLAGGED TRADES</div>
+            {% for f in data.flagged %}
+            <div class="pn-disc-card" style="border-left-color:var(--pn-gold);">
+                <div class="pn-disc-head">
+                    <div class="pn-disc-entity">{{ f.entity }}</div>
+                    {% if f.party %}
+                    <span class="pn-disc-party {{ f.party }}">{{ f.party }}</span>
+                    {% endif %}
+                </div>
+                <div class="pn-disc-fields">
+                    <div>
+                        <div class="pn-disc-field-label">Asset</div>
+                        <div class="pn-disc-field-val">{{ f.asset }}</div>
+                    </div>
+                    <div>
+                        <div class="pn-disc-field-label">Score</div>
+                        <div class="pn-disc-field-val" style="color:var(--pn-gold)">{{ "%.0f"|format(f.correlation_score * 100) }}%</div>
+                    </div>
+                </div>
+                <div class="pn-disc-correlation" style="border-color:rgba(248,193,92,0.15);color:var(--pn-gold);">{{ f.flag_reason }}</div>
+            </div>
+            {% endfor %}
+            {% if not data.flagged %}
+            <div class="pn-empty">No statistical patterns detected in current window</div>
+            {% endif %}
+        </div>
+
+        <!-- ═══ COLUMN 3: REAL-TIME FEED (FREE in demo) ═══ -->
+        <div class="pn-panel pn-tier-feed">
+            <div class="pn-panel-head">
+                <span class="tier-dot"></span>
+                <span class="tier-label">REAL-TIME FEED</span>
+                <span class="tier-count">WHALE + MARKET + GEO</span><span style="display:inline-flex;align-items:center;gap:5px;margin-left:10px;"><span id="pnStreamDot" style="width:7px;height:7px;border-radius:50%;background:#888;display:inline-block;"></span><span id="pnStreamLabel" style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;color:#888;">CONNECTING</span></span>
+            </div>
+
+            <!-- Whale Tracker -->
+            <div class="pn-section-label">WHALE TRACKER</div>
+            <div id="pnWhales">
+                {% for w in data.whales %}
+                <div class="pn-whale-item {{ w.tx_type }}">
+                    <div class="pn-whale-row">
+                        <div class="pn-whale-entity">{{ w.entity }}</div>
+                        <span class="pn-whale-type-tag {{ w.tx_type }}">{{ w.tx_type|upper }}</span>
+                        {% if w.get('flow_signal') %}
+                        <span class="pn-whale-signal-tag {{ w.flow_signal }}">{{ w.flow_signal|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pn-whale-amt {{ w.tx_type }}">
+                        {% if w.tx_type == 'inflow' %}+{% else %}-{% endif %}{{ w.amount_btc }} BTC
+                    </div>
+                    {% if w.amount_usd %}
+                    <div class="pn-whale-usd">${{ "{:,.0f}".format(w.amount_usd) }} USD</div>
+                    {% endif %}
+                    {% if w.get('flow_context') %}
+                    <div class="pn-whale-flow {{ w.flow_signal|default('neutral') }}">
+                        <div class="pn-whale-flow-label">{{ w.flow_label|default('TRANSFER') }}</div>
+                        {{ w.flow_context }}
+                    </div>
+                    {% endif %}
+                    <div class="pn-whale-size-bar" style="width:{{ [w.amount_btc / 10, 100]|min }}%"></div>
+                    <div class="pn-whale-meta">
+                        <span>{{ w.address }}</span>
+                        <a href="{{ w.source_url }}" target="_blank" rel="noopener">View TX &rarr;</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.whales %}
+                <div class="pn-loading">
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    Scanning whale wallets...
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Polymarket -->
+            <div class="pn-section-label">BITCOIN PREDICTION MARKETS</div>
+            <div id="pnPolymarket">
+                {% if data.polymarket %}
+                <!-- Hero market: highest volume -->
+                {% set hero = data.polymarket[0] %}
+                <div class="pn-poly-hero">
+                    {% if hero.get('event_title') %}
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pn-gold);margin-bottom:6px;">TOP MARKET</div>
+                    {% endif %}
+                    <div class="pn-poly-question">{{ hero.question }}</div>
+                    <div class="pn-poly-row">
+                        {% if hero.yes_price %}
+                        <span class="pn-poly-pct">{{ hero.yes_price }}%</span>
+                        <span class="pn-poly-yes">YES</span>
+                        {% else %}
+                        <span class="pn-poly-pct" style="color:var(--pn-muted)">--</span>
+                        {% endif %}
+                        <span class="pn-poly-signal {{ hero.btc_signal }}">
+                            {% if hero.btc_signal == 'bullish' %}&#9650;{% elif hero.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+                            {{ hero.btc_signal|upper }}
+                        </span>
+                    </div>
+                    {% if hero.yes_price %}
+                    <div class="pn-poly-hero-bar">
+                        <div class="pn-poly-hero-bar-fill" style="width:{{ hero.yes_price }}%"></div>
+                    </div>
+                    {% endif %}
+                    <div class="pn-poly-meta">
+                        {% if hero.volume %}<span class="pn-poly-vol-badge">${{ "{:,.0f}".format(hero.volume) }} TOTAL VOL</span>{% endif %}
+                        {% if hero.volume_24h %}<span>${{ "{:,.0f}".format(hero.volume_24h) }} 24h</span>{% endif %}
+                        {% if hero.end_date %}<span>Expires {{ hero.end_date[:10] }}</span>{% endif %}
+                        {% if hero.source_url %}<a href="{{ hero.source_url }}" target="_blank" rel="noopener">Polymarket &rarr;</a>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Remaining markets -->
+                {% for p in data.polymarket[1:] %}
+                <div class="pn-poly-item">
+                    <div class="pn-poly-question">{{ p.question }}</div>
+                    <div class="pn-poly-row">
+                        {% if p.yes_price %}
+                        <span class="pn-poly-pct">{{ p.yes_price }}%</span>
+                        <span class="pn-poly-yes">YES</span>
+                        {% else %}
+                        <span class="pn-poly-pct" style="color:var(--pn-muted)">--</span>
+                        {% endif %}
+                        <span class="pn-poly-signal {{ p.btc_signal }}">
+                            {% if p.btc_signal == 'bullish' %}&#9650;{% elif p.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+                            {{ p.btc_signal|upper }}
+                        </span>
+                    </div>
+                    {% if p.yes_price %}
+                    <div class="pn-poly-bar">
+                        <div class="pn-poly-bar-fill {{ p.btc_signal }}" style="width:{{ p.yes_price }}%"></div>
+                    </div>
+                    {% endif %}
+                    <div class="pn-poly-meta">
+                        {% if p.volume %}<span>${{ "{:,.0f}".format(p.volume) }} vol</span>{% endif %}
+                        {% if p.volume_24h %}<span>${{ "{:,.0f}".format(p.volume_24h) }} 24h</span>{% endif %}
+                        {% if p.end_date %}<span>Expires {{ p.end_date[:10] }}</span>{% endif %}
+                        {% if p.source_url %}<a href="{{ p.source_url }}" target="_blank" rel="noopener">Polymarket &rarr;</a>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="pn-loading">
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    <div class="pn-loading-dot"></div>
+                    Fetching prediction markets...
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Nation-State / Forex -->
+            {% if data.forex %}
+            <div class="pn-section-label">NATION-STATE SIGNALS</div>
+            <div id="pnForex">
+                {% for f in data.forex %}
+                <div class="pn-forex-item">
+                    <span class="pn-forex-pair">{{ f.pair }}</span>
+                    {% if f.rate %}<span class="pn-forex-rate">{{ f.rate }}</span>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Geopolitical Feed -->
+            <div class="pn-section-label">GEOPOLITICAL ALERT FEED</div>
+            <div id="pnGeo">
+                {% for g in data.geopolitical %}
+                <div class="pn-geo-item">
+                    <div class="pn-geo-headline">{{ g.headline }}</div>
+                    <span class="pn-geo-signal-tag {{ g.btc_signal }}">
+                        {% if g.btc_signal == 'bullish' %}&#9650;{% elif g.btc_signal == 'bearish' %}&#9660;{% else %}&#9644;{% endif %}
+                        BTC {{ g.btc_signal|upper }}
+                    </span>
+                    <div class="pn-geo-rationale">{{ g.btc_rationale }}</div>
+                    <div class="pn-geo-meta">
+                        <span>{{ g.source }}</span>
+                        <span>{{ g.timestamp[:10] if g.timestamp else '' }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not data.geopolitical %}
+                <div class="pn-empty">No geopolitical signals in current window</div>
+                {% endif %}
+            </div>
+
+            <!-- Political Donation Pulse -->
+            <div class="pn-section-label">POLITICAL DONATION PULSE</div>
+            <div id="pnDonations" style="padding:12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:9px;font-family:'JetBrains Mono',monospace;padding:4px 0;">Loading PAC intelligence...</div>
+            <!-- ═══ PRIVATE EQUITY & INSTITUTIONAL INTELLIGENCE ═══ -->
+            <div class="pn-section-label">INSTITUTIONAL ACCUMULATION</div>
+            <div id="pnInstitutional" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">
+                    Loading institutional data...
+                </div>
+            </div>
+
+            <!-- Coalition Detected Banner (hidden until data loads) -->
+            <div id="pnCoalitionBanner" style="display:none;margin:0 12px 8px;padding:10px 14px;
+                background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.4);border-radius:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:#cc0000;
+                        animation:pn-pulse 1s ease-in-out infinite;flex-shrink:0;"></div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;
+                        letter-spacing:.15em;color:#cc0000;font-weight:700;">COALITION SIGNAL DETECTED</div>
+                </div>
+                <div id="pnCoalitionNote" style="font-family:'DM Sans',sans-serif;font-size:11px;
+                    color:rgba(255,255,255,0.7);margin-top:6px;line-height:1.5;"></div>
+            </div>
+
+            <div class="pn-section-label">PRIVATE EQUITY DATASTREAM</div>
+            <div id="pnPEDatastream" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">
+                    Loading PE fundraising data...
+                </div>
+            </div>
+
+
+            <!-- ═══ BITCOIN BILL GAP TRACKER ═══ -->
+            <div class="pn-section-label" style="display:flex;justify-content:space-between;align-items:center;">
+                <span>BITCOIN BILL TRACKER</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:.08em;">Source: LegiScan · CC BY 4.0</span>
+            </div>
+            <div id="pnBillTracker" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;font-family:'JetBrains Mono',monospace;">Loading congressional bill data...</div>
+            </div>
+
+            <!-- Congressional Trading — STOCK Act -->
+            <div class="pn-section-label" style="display:flex;justify-content:space-between;align-items:center;"><span>CONGRESSIONAL STOCK TRADES</span><span id="pnLastUpdate" style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:.06em;"></span></div>
+            <div id="pnCongress" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Loading STOCK Act filings...</div>
+            </div>
+
+            <!-- Party Breakdown -->
+            <div class="pn-section-label">PARTY TRADING BREAKDOWN</div>
+            <div id="pnPartyBreakdown" style="padding:8px 12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Analyzing party patterns...</div>
+            </div>
+
+            <!-- IHX Score -->
+            <div class="pn-section-label">INSIDER HEAT INDEX (IHX)</div>
+            <div id="pnIHX" style="padding:12px;">
+                <div style="color:rgba(255,255,255,0.15);font-size:10px;">Computing insider heat...</div>
+            </div>
+
+                    </div>
+                    <div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-white);" id="donCommittees">--</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">CRYPTO COMMITTEES</div>
+                    </div>
+                    <div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;color:var(--pn-gold);" id="donStates">--</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pn-muted);margin-top:4px;">STATES ACTIVE</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;text-align:center;">
+                    <span id="donLabel" style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 12px;border:1px solid var(--pn-border);background:rgba(255,59,95,0.04);color:var(--pn-muted);">LOADING</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
 
 
 <!-- ═══ HISTORICAL PRECEDENTS TIMELINE (GLASSMORPHIC) ═══ -->
