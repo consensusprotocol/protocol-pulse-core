@@ -504,6 +504,13 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
 <td style="padding: 32px 40px 24px; background-color: #0a0a0a;" align="center">
 <table cellpadding="0" cellspacing="0" border="0">
 <tr>
+<td align="center" style="padding-bottom: 12px;">
+<img src="https://protocolpulse.io/static/images/protocol-pulse-logo.png"
+     width="72" height="72" alt="Protocol Pulse"
+     style="display:block;border:0;border-radius:10px;margin:0 auto;">
+</td>
+</tr>
+<tr>
 <td align="center">
 <p style="margin: 0; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 14px; font-weight: 700; letter-spacing: 0.3em; color: #ffffff; text-transform: uppercase;">PROTOCOL PULSE</p>
 </td>
