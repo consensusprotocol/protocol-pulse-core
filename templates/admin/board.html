@@ -1,0 +1,883 @@
+{% extends "base.html" %}
+{% block title %}Ops Board — Protocol Pulse{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --bg:       #000;
+  --s1:       #080808;
+  --s2:       #0f0f0f;
+  --s3:       #161616;
+  --border:   #1c1c1c;
+  --red:      #CC0000;
+  --red-dim:  rgba(204,0,0,0.15);
+  --gold:     #F8C15C;
+  --green:    #22c55e;
+  --blue:     #3b82f6;
+  --orange:   #f97316;
+  --muted:    #444;
+  --text:     #e0e0e0;
+  --text-dim: #666;
+  --mono:     'JetBrains Mono', 'Courier New', monospace;
+  --col-w:    280px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); }
+
+/* ── TOP BAR ── */
+.ob-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px; border-bottom: 1px solid var(--red);
+  background: var(--bg); position: sticky; top: 56px; z-index: 100;
+  flex-wrap: wrap; gap: 10px;
+}
+.ob-logo {
+  font-size: 13px; font-weight: 900; letter-spacing: .2em;
+  color: var(--red); text-transform: uppercase;
+}
+.ob-logo span { color: var(--gold); }
+.ob-stats { display: flex; gap: 20px; }
+.ob-stat { display: flex; flex-direction: column; align-items: center; }
+.ob-stat-val { font-size: 18px; font-weight: 900; color: var(--gold); line-height: 1; }
+.ob-stat-label { font-size: 7px; letter-spacing: .15em; color: var(--muted); margin-top: 2px; }
+.ob-actions { display: flex; gap: 8px; }
+.ob-btn {
+  background: none; border: 1px solid var(--muted); color: var(--muted);
+  font-family: var(--mono); font-size: 10px; padding: 5px 14px;
+  cursor: pointer; letter-spacing: .1em; transition: all .2s; text-transform: uppercase;
+}
+.ob-btn:hover { border-color: var(--red); color: var(--red); }
+.ob-btn.primary { border-color: var(--red); color: var(--red); }
+.ob-btn.primary:hover { background: var(--red); color: #fff; }
+
+/* ── BOARD LAYOUT ── */
+.ob-board {
+  display: flex; gap: 0; overflow-x: auto;
+  padding: 20px 24px 40px; min-height: calc(100vh - 120px);
+  background: var(--bg);
+}
+.ob-board::-webkit-scrollbar { height: 4px; }
+.ob-board::-webkit-scrollbar-track { background: var(--s1); }
+.ob-board::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+/* ── COLUMNS ── */
+.ob-col {
+  flex-shrink: 0; width: var(--col-w);
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  padding: 0 1px;
+}
+.ob-col:last-child { border-right: none; }
+.ob-col-header {
+  padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--bg); z-index: 10;
+}
+.ob-col-title {
+  font-size: 9px; font-weight: 700; letter-spacing: .3em;
+  text-transform: uppercase;
+}
+.ob-col-count {
+  font-size: 11px; font-weight: 900; color: var(--muted);
+  background: var(--s2); padding: 2px 8px; border-radius: 2px;
+}
+/* Column accent colors */
+.ob-col[data-col="backlog"]     .ob-col-title { color: var(--muted); }
+.ob-col[data-col="in_progress"] .ob-col-title { color: var(--gold); }
+.ob-col[data-col="review"]      .ob-col-title { color: var(--blue); }
+.ob-col[data-col="done"]        .ob-col-title { color: var(--green); }
+.ob-col[data-col="in_progress"] { border-top: 2px solid var(--gold); }
+.ob-col[data-col="review"]      { border-top: 2px solid var(--blue); }
+.ob-col[data-col="done"]        { border-top: 2px solid var(--green); }
+.ob-col[data-col="backlog"]     { border-top: 2px solid var(--border); }
+
+.ob-col-body {
+  flex: 1; padding: 10px 8px; overflow-y: auto;
+  min-height: 100px;
+}
+.ob-col-body::-webkit-scrollbar { width: 2px; }
+.ob-col-body::-webkit-scrollbar-thumb { background: var(--border); }
+.ob-col-body.drag-over { background: rgba(204,0,0,0.04); }
+
+.ob-add-btn {
+  width: 100%; background: none; border: 1px dashed var(--border);
+  color: var(--muted); font-family: var(--mono); font-size: 9px;
+  padding: 8px; cursor: pointer; letter-spacing: .1em; margin-top: 8px;
+  transition: all .2s;
+}
+.ob-add-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ── CARDS ── */
+.ob-card {
+  background: var(--s1); border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  margin-bottom: 6px; padding: 10px 12px;
+  cursor: grab; user-select: none;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+  position: relative;
+}
+.ob-card:hover {
+  border-color: var(--muted);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  transform: translateY(-1px);
+}
+.ob-card.dragging {
+  opacity: 0.5; transform: rotate(1deg) scale(1.02);
+  cursor: grabbing; box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+}
+.ob-card.drag-placeholder {
+  background: rgba(204,0,0,0.05); border: 1px dashed var(--red);
+  border-left: 3px dashed var(--red); opacity: 0.5;
+}
+/* Priority accent */
+.ob-card[data-priority="urgent"]  { border-left-color: var(--red); }
+.ob-card[data-priority="high"]    { border-left-color: var(--orange); }
+.ob-card[data-priority="medium"]  { border-left-color: var(--gold); }
+.ob-card[data-priority="low"]     { border-left-color: var(--muted); }
+
+.ob-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+.ob-card-title { font-size: 11px; font-weight: 700; color: var(--text); line-height: 1.4; flex: 1; cursor: pointer; }
+.ob-card-title:hover { color: var(--gold); }
+.ob-card-menu { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 2px; flex-shrink: 0; }
+.ob-card-menu:hover { color: var(--text); }
+
+.ob-card-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.ob-tag {
+  font-size: 7px; letter-spacing: .12em; font-weight: 700;
+  padding: 2px 6px; border-radius: 2px; text-transform: uppercase;
+}
+.ob-tag.feature   { background: rgba(59,130,246,.15); color: var(--blue); }
+.ob-tag.bug       { background: rgba(204,0,0,.15);    color: var(--red); }
+.ob-tag.content   { background: rgba(248,193,92,.12); color: var(--gold); }
+.ob-tag.marketing { background: rgba(34,197,94,.12);  color: var(--green); }
+.ob-tag.infra     { background: rgba(255,255,255,.05); color: var(--muted); }
+.ob-tag.design    { background: rgba(167,139,250,.15); color: #a78bfa; }
+
+.ob-priority-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+  display: inline-block;
+}
+.ob-priority-dot.urgent  { background: var(--red); box-shadow: 0 0 4px var(--red); }
+.ob-priority-dot.high    { background: var(--orange); }
+.ob-priority-dot.medium  { background: var(--gold); }
+.ob-priority-dot.low     { background: var(--muted); }
+
+.ob-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border);
+}
+.ob-card-assignee {
+  font-size: 8px; color: var(--muted); display: flex; align-items: center; gap: 4px;
+}
+.ob-avatar {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--red-dim); border: 1px solid var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; font-weight: 900; color: var(--red); flex-shrink: 0;
+}
+.ob-card-comments { font-size: 8px; color: var(--muted); display: flex; align-items: center; gap: 3px; }
+.ob-card-due { font-size: 7.5px; color: var(--muted); }
+.ob-card-due.overdue { color: var(--red); }
+
+/* ── MODAL / DRAWER ── */
+.ob-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  z-index: 1000; display: none; align-items: flex-start; justify-content: center;
+  padding: 60px 20px; overflow-y: auto;
+}
+.ob-overlay.open { display: flex; animation: obFadeIn .15s ease; }
+@keyframes obFadeIn { from{opacity:0} to{opacity:1} }
+
+.ob-modal {
+  background: var(--s1); border: 1px solid var(--border);
+  border-top: 3px solid var(--red);
+  width: 100%; max-width: 680px; position: relative;
+  animation: obSlideUp .2s ease;
+}
+@keyframes obSlideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.ob-modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; color: var(--muted);
+  font-size: 18px; cursor: pointer; font-family: var(--mono);
+}
+.ob-modal-close:hover { color: var(--text); }
+.ob-modal-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.ob-modal-title-edit {
+  background: none; border: none; color: var(--text);
+  font-family: var(--mono); font-size: 15px; font-weight: 700;
+  flex: 1; border-bottom: 1px solid transparent;
+  padding: 2px 0; outline: none;
+}
+.ob-modal-title-edit:focus { border-bottom-color: var(--red); }
+
+.ob-modal-body { display: grid; grid-template-columns: 1fr 200px; }
+.ob-modal-main { padding: 20px 24px; border-right: 1px solid var(--border); }
+.ob-modal-side { padding: 20px 16px; }
+
+.ob-field-label {
+  font-size: 8px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase;
+  margin-bottom: 5px; display: block;
+}
+.ob-textarea {
+  width: 100%; background: var(--s2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 11px;
+  padding: 8px 10px; resize: vertical; outline: none; min-height: 80px;
+}
+.ob-textarea:focus { border-color: var(--red); }
+.ob-select, .ob-input {
+  width: 100%; background: var(--s2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 10px;
+  padding: 6px 8px; outline: none; margin-bottom: 12px;
+}
+.ob-select:focus, .ob-input:focus { border-color: var(--red); }
+
+/* Comments */
+.ob-comments { margin-top: 16px; }
+.ob-comment-list { border-top: 1px solid var(--border); }
+.ob-comment {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 10px; line-height: 1.6;
+}
+.ob-comment-meta {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+}
+.ob-comment-author { color: var(--gold); font-weight: 700; font-size: 9px; }
+.ob-comment-time { color: var(--muted); font-size: 8px; }
+.ob-comment-body { color: var(--text); }
+.ob-comment-del {
+  background: none; border: none; color: var(--muted);
+  font-size: 10px; cursor: pointer; margin-left: auto; padding: 0 4px;
+}
+.ob-comment-del:hover { color: var(--red); }
+.ob-comment-form { display: flex; gap: 6px; margin-top: 8px; }
+.ob-comment-input {
+  flex: 1; background: var(--s2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 10px;
+  padding: 7px 10px; outline: none;
+}
+.ob-comment-input:focus { border-color: var(--red); }
+.ob-comment-submit {
+  background: none; border: 1px solid var(--red); color: var(--red);
+  font-family: var(--mono); font-size: 9px; padding: 6px 14px;
+  cursor: pointer; letter-spacing: .08em;
+}
+.ob-comment-submit:hover { background: var(--red); color: #fff; }
+
+/* Card menu dropdown */
+.ob-card-dropdown {
+  position: absolute; right: 8px; top: 32px;
+  background: var(--s2); border: 1px solid var(--border);
+  z-index: 50; min-width: 120px; display: none;
+}
+.ob-card-dropdown.open { display: block; }
+.ob-card-dropdown button {
+  display: block; width: 100%; background: none; border: none;
+  color: var(--text); font-family: var(--mono); font-size: 10px;
+  padding: 7px 12px; text-align: left; cursor: pointer;
+}
+.ob-card-dropdown button:hover { background: var(--red-dim); color: var(--red); }
+
+/* Search / filter bar */
+.ob-filterbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 24px; border-bottom: 1px solid var(--border);
+  background: var(--bg); overflow-x: auto;
+}
+.ob-search {
+  background: var(--s2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 10px;
+  padding: 5px 12px; outline: none; width: 200px;
+}
+.ob-search:focus { border-color: var(--red); }
+.ob-filter-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  font-family: var(--mono); font-size: 8px; padding: 4px 10px;
+  cursor: pointer; letter-spacing: .1em; white-space: nowrap;
+  transition: all .15s;
+}
+.ob-filter-btn:hover, .ob-filter-btn.active { border-color: var(--gold); color: var(--gold); }
+.ob-filter-btn.active { background: rgba(248,193,92,.08); }
+
+/* Toast */
+.ob-toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--s2); border: 1px solid var(--border); border-left: 3px solid var(--green);
+  font-family: var(--mono); font-size: 10px; color: var(--text);
+  padding: 10px 18px; z-index: 9999; animation: obToastIn .2s ease;
+  letter-spacing: .06em;
+}
+.ob-toast.error { border-left-color: var(--red); }
+@keyframes obToastIn { from{transform:translateX(20px);opacity:0} to{transform:none;opacity:1} }
+</style>
+
+<div class="pbx-wrap" style="max-width:100%;padding:0;">
+
+<!-- TOP BAR -->
+<div class="ob-topbar">
+  <div class="ob-logo">PROTOCOL PULSE &nbsp;<span>// OPS BOARD</span></div>
+  <div class="ob-stats">
+    <div class="ob-stat"><div class="ob-stat-val" id="stat-total">0</div><div class="ob-stat-label">TOTAL</div></div>
+    <div class="ob-stat"><div class="ob-stat-val" id="stat-inprogress">0</div><div class="ob-stat-label">IN FLIGHT</div></div>
+    <div class="ob-stat"><div class="ob-stat-val" id="stat-review">0</div><div class="ob-stat-label">REVIEW</div></div>
+    <div class="ob-stat"><div class="ob-stat-val" style="color:var(--red)" id="stat-urgent">0</div><div class="ob-stat-label">URGENT</div></div>
+  </div>
+  <div class="ob-actions">
+    <a href="/admin" class="ob-btn" style="text-decoration:none;">← ADMIN</a>
+    <button class="ob-btn primary" onclick="openNewCard('backlog')">+ NEW CARD</button>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="ob-filterbar">
+  <input class="ob-search" id="ob-search" placeholder="Search cards..." oninput="filterCards()">
+  <span style="font-size:8px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;">TAG:</span>
+  <button class="ob-filter-btn active" data-filter-tag="" onclick="setTagFilter(this,'')">ALL</button>
+  <button class="ob-filter-btn" data-filter-tag="feature" onclick="setTagFilter(this,'feature')">FEATURE</button>
+  <button class="ob-filter-btn" data-filter-tag="bug" onclick="setTagFilter(this,'bug')">BUG</button>
+  <button class="ob-filter-btn" data-filter-tag="content" onclick="setTagFilter(this,'content')">CONTENT</button>
+  <button class="ob-filter-btn" data-filter-tag="marketing" onclick="setTagFilter(this,'marketing')">MARKETING</button>
+  <button class="ob-filter-btn" data-filter-tag="infra" onclick="setTagFilter(this,'infra')">INFRA</button>
+  <button class="ob-filter-btn" data-filter-tag="design" onclick="setTagFilter(this,'design')">DESIGN</button>
+  <span style="font-size:8px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;margin-left:8px;">PRIORITY:</span>
+  <button class="ob-filter-btn" data-filter-priority="urgent" onclick="setPriorityFilter(this,'urgent')" style="color:var(--red);border-color:var(--red);">⚡ URGENT</button>
+</div>
+
+<!-- BOARD -->
+<div class="ob-board" id="ob-board">
+  {% set cols = [
+    ('backlog',     'BACKLOG'),
+    ('in_progress', 'IN PROGRESS'),
+    ('review',      'REVIEW'),
+    ('done',        'DONE'),
+  ] %}
+  {% for col_id, col_name in cols %}
+  <div class="ob-col" data-col="{{ col_id }}" id="col-{{ col_id }}">
+    <div class="ob-col-header">
+      <span class="ob-col-title">{{ col_name }}</span>
+      <span class="ob-col-count" id="count-{{ col_id }}">0</span>
+    </div>
+    <div class="ob-col-body" id="body-{{ col_id }}"
+         ondragover="onDragOver(event,this)"
+         ondragleave="onDragLeave(this)"
+         ondrop="onDrop(event,'{{ col_id }}')">
+    </div>
+    <button class="ob-add-btn" onclick="openNewCard('{{ col_id }}')">+ ADD CARD</button>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- CARD DETAIL MODAL -->
+<div class="ob-overlay" id="ob-modal-overlay" onclick="maybeCloseModal(event)">
+  <div class="ob-modal" id="ob-modal">
+    <button class="ob-modal-close" onclick="closeModal()">✕</button>
+    <div class="ob-modal-header">
+      <input class="ob-modal-title-edit" id="modal-title" value="" onblur="saveField('title',this.value)" placeholder="Card title...">
+    </div>
+    <div class="ob-modal-body">
+      <div class="ob-modal-main">
+        <label class="ob-field-label">DESCRIPTION</label>
+        <textarea class="ob-textarea" id="modal-desc" rows="5"
+          onblur="saveField('description',this.value)"
+          placeholder="Add notes, context, links..."></textarea>
+
+        <!-- Comments -->
+        <div class="ob-comments">
+          <label class="ob-field-label" style="margin-top:16px;">COMMENTS</label>
+          <div class="ob-comment-list" id="modal-comments"></div>
+          <div class="ob-comment-form">
+            <input class="ob-comment-input" id="comment-input" placeholder="Add a comment..."
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitComment();}">
+            <button class="ob-comment-submit" onclick="submitComment()">POST</button>
+          </div>
+        </div>
+      </div>
+      <div class="ob-modal-side">
+        <label class="ob-field-label">STATUS</label>
+        <select class="ob-select" id="modal-col" onchange="saveField('column',this.value)">
+          <option value="backlog">Backlog</option>
+          <option value="in_progress">In Progress</option>
+          <option value="review">Review</option>
+          <option value="done">Done</option>
+        </select>
+        <label class="ob-field-label">PRIORITY</label>
+        <select class="ob-select" id="modal-priority" onchange="saveField('priority',this.value)">
+          <option value="urgent">⚡ Urgent</option>
+          <option value="high">▲ High</option>
+          <option value="medium">— Medium</option>
+          <option value="low">▽ Low</option>
+        </select>
+        <label class="ob-field-label">TAG</label>
+        <select class="ob-select" id="modal-tag" onchange="saveField('tag',this.value)">
+          <option value="feature">Feature</option>
+          <option value="bug">Bug</option>
+          <option value="content">Content</option>
+          <option value="marketing">Marketing</option>
+          <option value="infra">Infra</option>
+          <option value="design">Design</option>
+        </select>
+        <label class="ob-field-label">ASSIGNEE</label>
+        <select class="ob-select" id="modal-assignee" onchange="saveField('assignee_id',this.value)">
+          <option value="">— Unassigned</option>
+          {% for member in team %}
+          <option value="{{ member.id }}">{{ member.email.split('@')[0] }}</option>
+          {% endfor %}
+        </select>
+        <label class="ob-field-label">DUE DATE</label>
+        <input type="date" class="ob-input" id="modal-due" onchange="saveField('due_date',this.value)">
+        <button class="ob-btn" style="width:100%;margin-top:8px;color:var(--red);border-color:var(--red);"
+          onclick="archiveCard()">ARCHIVE CARD</button>
+        <div style="margin-top:16px;font-size:8px;color:var(--muted);line-height:1.8;" id="modal-meta"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW CARD MODAL -->
+<div class="ob-overlay" id="ob-new-overlay" onclick="if(event.target===this)closeNew()">
+  <div class="ob-modal" style="max-width:460px;">
+    <button class="ob-modal-close" onclick="closeNew()">✕</button>
+    <div style="padding:24px;">
+      <div style="font-size:9px;letter-spacing:.25em;color:var(--red);margin-bottom:16px;">NEW CARD</div>
+      <input class="ob-input" id="new-title" placeholder="Card title *" style="margin-bottom:10px;">
+      <textarea class="ob-textarea" id="new-desc" rows="3" placeholder="Description (optional)" style="margin-bottom:10px;"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <label class="ob-field-label">COLUMN</label>
+          <select class="ob-select" id="new-col">
+            <option value="backlog">Backlog</option>
+            <option value="in_progress">In Progress</option>
+            <option value="review">Review</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div>
+          <label class="ob-field-label">PRIORITY</label>
+          <select class="ob-select" id="new-priority">
+            <option value="urgent">⚡ Urgent</option>
+            <option value="high">▲ High</option>
+            <option value="medium" selected>— Medium</option>
+            <option value="low">▽ Low</option>
+          </select>
+        </div>
+        <div>
+          <label class="ob-field-label">TAG</label>
+          <select class="ob-select" id="new-tag">
+            <option value="feature">Feature</option>
+            <option value="bug">Bug</option>
+            <option value="content">Content</option>
+            <option value="marketing">Marketing</option>
+            <option value="infra">Infra</option>
+            <option value="design">Design</option>
+          </select>
+        </div>
+        <div>
+          <label class="ob-field-label">ASSIGNEE</label>
+          <select class="ob-select" id="new-assignee">
+            <option value="">— Unassigned</option>
+            {% for member in team %}
+            <option value="{{ member.id }}">{{ member.email.split('@')[0] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="ob-btn primary" style="flex:1;padding:10px;" onclick="createCard()">CREATE CARD</button>
+        <button class="ob-btn" onclick="closeNew()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ───────────────────────────────────────────────────────────────────
+var BOARD = {};
+var activeCardId = null;
+var dragCardId = null;
+var dragPlaceholder = null;
+var activeTagFilter = '';
+var activePriorityFilter = '';
+var currentUser = '{{ current_user.email.split("@")[0] }}';
+
+// ── Boot ────────────────────────────────────────────────────────────────────
+loadBoard();
+setInterval(loadBoard, 30000);  // auto-refresh every 30s
+
+function loadBoard() {
+  fetch('/api/admin/board/cards')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      BOARD = data;
+      renderAll();
+      loadStats();
+    })
+    .catch(function(e){ console.error('Board load failed:', e); });
+}
+
+function loadStats() {
+  fetch('/api/admin/board/stats')
+    .then(function(r){ return r.json(); })
+    .then(function(s) {
+      document.getElementById('stat-total').textContent = s.total || 0;
+      document.getElementById('stat-inprogress').textContent = (s.counts||{}).in_progress || 0;
+      document.getElementById('stat-review').textContent = (s.counts||{}).review || 0;
+      document.getElementById('stat-urgent').textContent = s.urgent || 0;
+    });
+}
+
+// ── Render ──────────────────────────────────────────────────────────────────
+function renderAll() {
+  ['backlog','in_progress','review','done'].forEach(function(col) {
+    renderColumn(col, BOARD[col] || []);
+  });
+}
+
+function renderColumn(col, cards) {
+  var body = document.getElementById('body-' + col);
+  var count = document.getElementById('count-' + col);
+  var search = (document.getElementById('ob-search').value || '').toLowerCase();
+  var filtered = cards.filter(function(c) {
+    if (activeTagFilter && c.tag !== activeTagFilter) return false;
+    if (activePriorityFilter && c.priority !== activePriorityFilter) return false;
+    if (search && !c.title.toLowerCase().includes(search) && !(c.description||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  count.textContent = filtered.length;
+  body.innerHTML = '';
+  filtered.forEach(function(card) {
+    body.appendChild(buildCard(card));
+  });
+}
+
+function buildCard(card) {
+  var div = document.createElement('div');
+  div.className = 'ob-card';
+  div.dataset.id = card.id;
+  div.dataset.priority = card.priority;
+  div.draggable = true;
+
+  var due = '';
+  var dueClass = '';
+  if (card.due_date) {
+    var d = new Date(card.due_date);
+    var now = new Date();
+    dueClass = d < now ? ' overdue' : '';
+    due = d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  }
+
+  var assigneeHtml = card.assignee
+    ? '<div class="ob-avatar">' + card.assignee[0].toUpperCase() + '</div>' + card.assignee
+    : '<span>—</span>';
+
+  div.innerHTML =
+    '<div class="ob-card-top">' +
+      '<span class="ob-card-title" onclick="openCard(' + card.id + ')">' + escHtml(card.title) + '</span>' +
+      '<button class="ob-card-menu" onclick="toggleMenu(event,' + card.id + ')">⋮</button>' +
+      '<div class="ob-card-dropdown" id="menu-' + card.id + '">' +
+        '<button onclick="openCard(' + card.id + ')">✎ Edit</button>' +
+        '<button onclick="quickMove(' + card.id + ',\'in_progress\')">▶ In Progress</button>' +
+        '<button onclick="quickMove(' + card.id + ',\'review\')">◎ Review</button>' +
+        '<button onclick="quickMove(' + card.id + ',\'done\')">✓ Done</button>' +
+        '<button onclick="quickMove(' + card.id + ',\'backlog\')">↩ Backlog</button>' +
+        '<button onclick="doArchive(' + card.id + ')" style="color:var(--red)">✕ Archive</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="ob-card-meta">' +
+      '<span class="ob-priority-dot ' + card.priority + '"></span>' +
+      '<span class="ob-tag ' + card.tag + '">' + card.tag + '</span>' +
+    '</div>' +
+    (card.description ? '<div style="font-size:9px;color:var(--text-dim);margin-bottom:6px;line-height:1.5;max-height:38px;overflow:hidden;">' + escHtml(card.description).substring(0,100) + (card.description.length>100?'…':'') + '</div>' : '') +
+    '<div class="ob-card-footer">' +
+      '<div class="ob-card-assignee">' + assigneeHtml + '</div>' +
+      (due ? '<span class="ob-card-due' + dueClass + '">' + due + '</span>' : '') +
+      '<div class="ob-card-comments">💬 ' + (card.comment_count||0) + '</div>' +
+    '</div>';
+
+  // Drag events
+  div.addEventListener('dragstart', function(e) { onDragStart(e, card.id); });
+  div.addEventListener('dragend', function(e) { onDragEnd(e); });
+  return div;
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Drag and Drop ────────────────────────────────────────────────────────────
+function onDragStart(e, cardId) {
+  dragCardId = cardId;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  dragPlaceholder = document.createElement('div');
+  dragPlaceholder.className = 'ob-card drag-placeholder';
+  dragPlaceholder.style.height = e.currentTarget.offsetHeight + 'px';
+}
+
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  if (dragPlaceholder && dragPlaceholder.parentNode) dragPlaceholder.parentNode.removeChild(dragPlaceholder);
+  document.querySelectorAll('.ob-col-body').forEach(function(b) { b.classList.remove('drag-over'); });
+  dragCardId = null;
+  dragPlaceholder = null;
+}
+
+function onDragOver(e, body) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  body.classList.add('drag-over');
+  var afterEl = getDragAfterEl(body, e.clientY);
+  if (afterEl) body.insertBefore(dragPlaceholder, afterEl);
+  else body.appendChild(dragPlaceholder);
+}
+
+function onDragLeave(body) {
+  body.classList.remove('drag-over');
+}
+
+function getDragAfterEl(body, y) {
+  var draggables = Array.from(body.querySelectorAll('.ob-card:not(.dragging):not(.drag-placeholder)'));
+  return draggables.reduce(function(closest, child) {
+    var box = child.getBoundingClientRect();
+    var offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) return {offset: offset, el: child};
+    return closest;
+  }, {offset: Number.NEGATIVE_INFINITY}).el || null;
+}
+
+function onDrop(e, targetCol) {
+  e.preventDefault();
+  if (!dragCardId) return;
+  var body = document.getElementById('body-' + targetCol);
+  body.classList.remove('drag-over');
+  var cards = Array.from(body.querySelectorAll('.ob-card:not(.dragging):not(.drag-placeholder)'));
+  var newPos = dragPlaceholder && dragPlaceholder.parentNode === body
+    ? Array.from(body.children).indexOf(dragPlaceholder)
+    : cards.length;
+  fetch('/api/admin/board/cards/' + dragCardId + '/move', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({column: targetCol, position: newPos})
+  }).then(function(r){ return r.json(); }).then(function(card) {
+    toast('Moved to ' + targetCol.replace('_',' '));
+    loadBoard();
+  });
+}
+
+// ── Card CRUD ────────────────────────────────────────────────────────────────
+function openNewCard(col) {
+  document.getElementById('new-col').value = col;
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-desc').value = '';
+  document.getElementById('new-priority').value = 'medium';
+  document.getElementById('new-tag').value = 'feature';
+  document.getElementById('new-assignee').value = '';
+  document.getElementById('ob-new-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('new-title').focus(); }, 50);
+}
+function closeNew() { document.getElementById('ob-new-overlay').classList.remove('open'); }
+
+function createCard() {
+  var title = document.getElementById('new-title').value.trim();
+  if (!title) { document.getElementById('new-title').style.borderColor='var(--red)'; return; }
+  fetch('/api/admin/board/cards', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      title: title,
+      description: document.getElementById('new-desc').value,
+      column: document.getElementById('new-col').value,
+      priority: document.getElementById('new-priority').value,
+      tag: document.getElementById('new-tag').value,
+      assignee_id: document.getElementById('new-assignee').value || null,
+    })
+  }).then(function(r){ return r.json(); }).then(function(card) {
+    closeNew();
+    toast('Card created');
+    loadBoard();
+  });
+}
+
+function openCard(id) {
+  activeCardId = id;
+  // Find card in BOARD
+  var card = null;
+  Object.values(BOARD).forEach(function(col) {
+    col.forEach(function(c) { if (c.id === id) card = c; });
+  });
+  if (!card) return;
+  document.getElementById('modal-title').value = card.title;
+  document.getElementById('modal-desc').value = card.description || '';
+  document.getElementById('modal-col').value = card.column;
+  document.getElementById('modal-priority').value = card.priority;
+  document.getElementById('modal-tag').value = card.tag;
+  document.getElementById('modal-assignee').value = card.assignee_id || '';
+  document.getElementById('modal-due').value = card.due_date ? card.due_date.substring(0,10) : '';
+  document.getElementById('modal-meta').innerHTML =
+    'Created by <span style="color:var(--gold)">' + (card.creator||'?') + '</span><br>' +
+    'Created: ' + (card.created_at||'').substring(0,10) + '<br>' +
+    'Updated: ' + (card.updated_at||'').substring(0,10);
+  loadComments(id);
+  document.getElementById('ob-modal-overlay').classList.add('open');
+}
+
+function maybeCloseModal(e) {
+  if (e.target === document.getElementById('ob-modal-overlay')) closeModal();
+}
+function closeModal() {
+  document.getElementById('ob-modal-overlay').classList.remove('open');
+  activeCardId = null;
+}
+
+function saveField(field, value) {
+  if (!activeCardId) return;
+  var payload = {};
+  payload[field] = value || (field === 'assignee_id' ? null : '');
+  fetch('/api/admin/board/cards/' + activeCardId, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json(); }).then(function(card) {
+    // Update local BOARD cache
+    Object.keys(BOARD).forEach(function(col) {
+      BOARD[col] = BOARD[col].filter(function(c){ return c.id !== card.id; });
+    });
+    if (!BOARD[card.column]) BOARD[card.column] = [];
+    BOARD[card.column].push(card);
+    renderAll();
+    loadStats();
+  });
+}
+
+function archiveCard() {
+  if (!activeCardId) return;
+  if (!confirm('Archive this card? You can restore it later.')) return;
+  doArchive(activeCardId);
+  closeModal();
+}
+
+function doArchive(id) {
+  fetch('/api/admin/board/cards/' + id, {method:'DELETE'})
+    .then(function(){ toast('Card archived'); loadBoard(); });
+}
+
+function quickMove(id, col) {
+  closeAllMenus();
+  fetch('/api/admin/board/cards/' + id, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({column: col})
+  }).then(function(){ toast('Moved to ' + col.replace('_',' ')); loadBoard(); });
+}
+
+// ── Comments ─────────────────────────────────────────────────────────────────
+function loadComments(cardId) {
+  fetch('/api/admin/board/cards/' + cardId + '/comments')
+    .then(function(r){ return r.json(); })
+    .then(function(comments) {
+      var el = document.getElementById('modal-comments');
+      if (!comments.length) {
+        el.innerHTML = '<div style="font-size:9px;color:var(--muted);padding:10px 0;">No comments yet.</div>';
+        return;
+      }
+      el.innerHTML = comments.map(function(c) {
+        var isMe = c.author === currentUser;
+        return '<div class="ob-comment">' +
+          '<div class="ob-comment-meta">' +
+            '<span class="ob-comment-author">' + escHtml(c.author) + '</span>' +
+            '<span class="ob-comment-time">' + timeAgo(c.created_at) + '</span>' +
+            (isMe ? '<button class="ob-comment-del" onclick="deleteComment('+c.id+')">✕</button>' : '') +
+          '</div>' +
+          '<div class="ob-comment-body">' + escHtml(c.body) + '</div>' +
+          '</div>';
+      }).join('');
+      el.scrollTop = el.scrollHeight;
+    });
+}
+
+function submitComment() {
+  var input = document.getElementById('comment-input');
+  var body = input.value.trim();
+  if (!body || !activeCardId) return;
+  fetch('/api/admin/board/cards/' + activeCardId + '/comments', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({body: body})
+  }).then(function(r){ return r.json(); }).then(function() {
+    input.value = '';
+    loadComments(activeCardId);
+  });
+}
+
+function deleteComment(id) {
+  fetch('/api/admin/board/comments/' + id, {method:'DELETE'})
+    .then(function(){ loadComments(activeCardId); });
+}
+
+// ── Filters ──────────────────────────────────────────────────────────────────
+function filterCards() { renderAll(); }
+
+function setTagFilter(btn, tag) {
+  activeTagFilter = tag;
+  document.querySelectorAll('[data-filter-tag]').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
+}
+
+function setPriorityFilter(btn, p) {
+  if (activePriorityFilter === p) {
+    activePriorityFilter = '';
+    btn.classList.remove('active');
+  } else {
+    activePriorityFilter = p;
+    btn.classList.add('active');
+  }
+  renderAll();
+}
+
+// ── Menus ────────────────────────────────────────────────────────────────────
+function toggleMenu(e, id) {
+  e.stopPropagation();
+  var menu = document.getElementById('menu-' + id);
+  var isOpen = menu.classList.contains('open');
+  closeAllMenus();
+  if (!isOpen) menu.classList.add('open');
+}
+function closeAllMenus() {
+  document.querySelectorAll('.ob-card-dropdown.open').forEach(function(m){ m.classList.remove('open'); });
+}
+document.addEventListener('click', closeAllMenus);
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+function timeAgo(iso) {
+  if (!iso) return '';
+  var diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return Math.round(diff) + 's ago';
+  if (diff < 3600) return Math.round(diff/60) + 'm ago';
+  if (diff < 86400) return Math.round(diff/3600) + 'h ago';
+  return Math.round(diff/86400) + 'd ago';
+}
+
+function toast(msg, isError) {
+  var t = document.createElement('div');
+  t.className = 'ob-toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .3s'; }, 2500);
+  setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); }, 2800);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); closeNew(); }
+  if (e.key === 'n' && !e.ctrlKey && !e.metaKey &&
+      document.activeElement.tagName !== 'INPUT' &&
+      document.activeElement.tagName !== 'TEXTAREA' &&
+      document.activeElement.tagName !== 'SELECT') {
+    openNewCard('backlog');
+  }
+});
+</script>
+</div>
+{% endblock %}

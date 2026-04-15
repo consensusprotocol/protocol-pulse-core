@@ -3394,3 +3394,180 @@ def admin_reply_draft_approve(draft_id):
     except Exception as e:
         logging.error(f"Reply draft approve error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# OPS BOARD — Full Kanban API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@admin_bp.route('/admin/board')
+@login_required
+def admin_board():
+    """Ops Board — Team Kanban."""
+    if not current_user.is_admin:
+        return redirect(url_for('pages.index'))
+    # Load team members for assignee dropdown
+    team = models.User.query.filter_by(is_admin=True).order_by(models.User.email).all()
+    return render_template('admin/board.html', team=team)
+
+
+@admin_bp.route('/api/admin/board/cards', methods=['GET'])
+@login_required
+def api_board_cards():
+    """Get all cards grouped by column."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    cards = models.BoardCard.query.filter(
+        models.BoardCard.column != 'archived'
+    ).order_by(models.BoardCard.column, models.BoardCard.position).all()
+    result = {}
+    for col in ['backlog', 'in_progress', 'review', 'done']:
+        result[col] = [c.to_dict() for c in cards if c.column == col]
+    return jsonify(result)
+
+
+@admin_bp.route('/api/admin/board/cards', methods=['POST'])
+@login_required
+def api_board_create_card():
+    """Create a new card."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    data = request.get_json() or {}
+    # Max position in column
+    max_pos = db.session.query(db.func.max(models.BoardCard.position)).filter_by(
+        column=data.get('column', 'backlog')
+    ).scalar() or 0
+    card = models.BoardCard(
+        title       = data.get('title', 'Untitled').strip()[:200],
+        description = data.get('description', ''),
+        column      = data.get('column', 'backlog'),
+        priority    = data.get('priority', 'medium'),
+        tag         = data.get('tag', 'feature'),
+        assignee_id = data.get('assignee_id') or None,
+        creator_id  = current_user.id,
+        position    = max_pos + 1,
+        due_date    = datetime.strptime(data['due_date'], '%Y-%m-%d') if data.get('due_date') else None,
+    )
+    db.session.add(card)
+    db.session.commit()
+    return jsonify(card.to_dict()), 201
+
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>', methods=['PATCH'])
+@login_required
+def api_board_update_card(card_id):
+    """Update card fields (title, description, column, priority, tag, assignee, due_date)."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    card = models.BoardCard.query.get_or_404(card_id)
+    data = request.get_json() or {}
+    for field in ['title', 'description', 'column', 'priority', 'tag', 'position']:
+        if field in data:
+            setattr(card, field, data[field])
+    if 'assignee_id' in data:
+        card.assignee_id = data['assignee_id'] or None
+    if 'due_date' in data:
+        card.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d') if data['due_date'] else None
+    card.updated_at = datetime.utcnow()
+    db.session.commit()
+    return jsonify(card.to_dict())
+
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>', methods=['DELETE'])
+@login_required
+def api_board_delete_card(card_id):
+    """Archive (soft-delete) a card."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    card = models.BoardCard.query.get_or_404(card_id)
+    card.column = 'archived'
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>/move', methods=['POST'])
+@login_required
+def api_board_move_card(card_id):
+    """Move card to a column at a specific position. Reorders siblings."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    card = models.BoardCard.query.get_or_404(card_id)
+    data = request.get_json() or {}
+    new_col = data.get('column', card.column)
+    new_pos = int(data.get('position', 0))
+
+    # Pull card out of old position
+    siblings = models.BoardCard.query.filter(
+        models.BoardCard.column == new_col,
+        models.BoardCard.id != card_id,
+        models.BoardCard.column != 'archived'
+    ).order_by(models.BoardCard.position).all()
+
+    # Re-index: insert at new_pos
+    card.column = new_col
+    card.updated_at = datetime.utcnow()
+    for i, sib in enumerate(siblings):
+        sib.position = i if i < new_pos else i + 1
+    card.position = new_pos
+    db.session.commit()
+    return jsonify(card.to_dict())
+
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>/comments', methods=['GET'])
+@login_required
+def api_board_get_comments(card_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    comments = models.BoardComment.query.filter_by(card_id=card_id).order_by(
+        models.BoardComment.created_at).all()
+    return jsonify([c.to_dict() for c in comments])
+
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>/comments', methods=['POST'])
+@login_required
+def api_board_add_comment(card_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    models.BoardCard.query.get_or_404(card_id)
+    data = request.get_json() or {}
+    body = (data.get('body') or '').strip()
+    if not body:
+        return jsonify({'error': 'Empty comment'}), 400
+    comment = models.BoardComment(card_id=card_id, author_id=current_user.id, body=body)
+    # Update card timestamp
+    card = models.BoardCard.query.get(card_id)
+    card.updated_at = datetime.utcnow()
+    db.session.add(comment)
+    db.session.commit()
+    return jsonify(comment.to_dict()), 201
+
+
+@admin_bp.route('/api/admin/board/comments/<int:comment_id>', methods=['DELETE'])
+@login_required
+def api_board_delete_comment(comment_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    c = models.BoardComment.query.get_or_404(comment_id)
+    if c.author_id != current_user.id:
+        return jsonify({'error': 'Can only delete your own comments'}), 403
+    db.session.delete(c)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@admin_bp.route('/api/admin/board/stats', methods=['GET'])
+@login_required
+def api_board_stats():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    from sqlalchemy import func
+    counts = dict(db.session.query(
+        models.BoardCard.column, func.count(models.BoardCard.id)
+    ).filter(models.BoardCard.column != 'archived').group_by(models.BoardCard.column).all())
+    urgent = models.BoardCard.query.filter(
+        models.BoardCard.priority == 'urgent',
+        models.BoardCard.column != 'done',
+        models.BoardCard.column != 'archived'
+    ).count()
+    return jsonify({'counts': counts, 'urgent': urgent,
+                    'total': sum(counts.values())})

@@ -1569,3 +1569,81 @@ class SmsSubscriber(db.Model):
     source = db.Column(db.String(50), default='website')
     created_at = db.Column(db.DateTime, default=db.func.now())
     unsubscribed_at = db.Column(db.DateTime, nullable=True)
+
+
+# ═══════════════════════════════════════════════════════
+# PROTOCOL PULSE OPS BOARD — Team Kanban
+# ═══════════════════════════════════════════════════════
+
+class BoardCard(db.Model):
+    """Kanban card — task/feature/bug tracked by the PP team."""
+    __tablename__ = 'board_cards'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    title       = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, default='')
+    column      = db.Column(db.String(50), default='backlog')
+    # backlog | in_progress | review | done | archived
+
+    priority    = db.Column(db.String(20), default='medium')
+    # urgent | high | medium | low
+
+    tag         = db.Column(db.String(30), default='feature')
+    # feature | bug | content | marketing | infra | design
+
+    assignee_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    creator_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    position    = db.Column(db.Integer, default=0)   # sort order within column
+    due_date    = db.Column(db.DateTime, nullable=True)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    assignee    = db.relationship('User', foreign_keys=[assignee_id],
+                                  backref=db.backref('assigned_cards', lazy='dynamic'))
+    creator     = db.relationship('User', foreign_keys=[creator_id],
+                                  backref=db.backref('created_cards', lazy='dynamic'))
+    comments    = db.relationship('BoardComment', backref='card',
+                                  lazy='dynamic', order_by='BoardComment.created_at',
+                                  cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id':          self.id,
+            'title':       self.title,
+            'description': self.description,
+            'column':      self.column,
+            'priority':    self.priority,
+            'tag':         self.tag,
+            'assignee_id': self.assignee_id,
+            'assignee':    self.assignee.email.split('@')[0] if self.assignee else None,
+            'creator':     self.creator.email.split('@')[0] if self.creator else 'system',
+            'position':    self.position,
+            'due_date':    self.due_date.isoformat() if self.due_date else None,
+            'created_at':  self.created_at.isoformat() + 'Z' if self.created_at else None,
+            'updated_at':  self.updated_at.isoformat() + 'Z' if self.updated_at else None,
+            'comment_count': self.comments.count(),
+        }
+
+
+class BoardComment(db.Model):
+    """Comment on a kanban card."""
+    __tablename__ = 'board_comments'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    card_id    = db.Column(db.Integer, db.ForeignKey('board_cards.id'), nullable=False)
+    author_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    body       = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    author     = db.relationship('User', backref=db.backref('board_comments', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id':         self.id,
+            'card_id':    self.card_id,
+            'author':     self.author.email.split('@')[0] if self.author else '?',
+            'author_email': self.author.email if self.author else '?',
+            'body':       self.body,
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
+        }
