@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260413_051849_0",
-    "text": "Iran can't access $6B in frozen assets. Swift is a weapon now. Bitcoin doesn't care about sanctions or blockades. It just settles",
-    "angle": "institutional_flow",
-    "type": "observation",
-    "format": "brief_signal",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T05:18:49.851378+00:00",
-    "brief_date": "Sunday, April 12, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260413_062058_0",
-    "text": "In 1944 Bretton Woods locked currencies to gold at fixed rates. Lasted 27 years before Nixon unpeg it anyway. You can't nail down value with policy. Bitcoin just proves it to everyone else",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T06:20:58.341102+00:00",
-    "brief_date": "Sunday, April 12, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260413_080435_0",
     "text": "If you can't access your money without permission, you don't own it. Your bank knows this. Does your government",
     "angle": "sovereignty_freedom",

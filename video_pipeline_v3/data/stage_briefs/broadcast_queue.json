@@ -1,13 +1,13 @@
 [
   {
-    "id": "90356e10-9a54-4968-b0b4-4b1e39e22c45",
+    "id": "fad78074-2d04-4fcc-bc72-3e42310be333",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Software amplifies Bitcoin's deflationary force. Efficiency gains reduce costs, compressing money supply. Bitcoin miners extract value from energy, not labor.\n\nWatch for Bitcoin's monetary base contraction in Q4.",
-    "source_label": "\ud83e\udde0 @JEFFBOOTH",
-    "topic_preview": "R to @JeffBooth: Software is inherently deflationary. It lowers costs by increas",
-    "generated_at": "2026-04-15T04:10:04.835655+00:00",
-    "expires_at": "2026-04-15T06:10:04.835655+00:00"
+    "script": "The Bitcoin network's hashrate has dropped 2.3% in the past 24 hours, signaling potential consolidation ahead of the next halving cycle.\n\nWatch the mempool for increased transaction volume as miners prepare for the upcoming difficulty adjustment period.",
+    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
+    "topic_preview": "That feeling when the only flight available that day is annoyingly at 6am, so yo",
+    "generated_at": "2026-04-15T06:10:05.797684+00:00",
+    "expires_at": "2026-04-15T08:10:05.797684+00:00"
   },
   {
     "id": "767ce820-b3c7-408c-93d0-76ebcb6000e4",
@@ -30,13 +30,13 @@
     "expires_at": "2026-04-15T08:05:08.414857+00:00"
   },
   {
-    "id": "7b8fdddf-5907-4d8b-b367-6813f7af5d9b",
+    "id": "d0898817-dc93-422b-ba14-a240534dd950",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate surged to 1,129 EH/s, confirming network security remains unshaken despite market indecision. Fear & Greed index at 23 signals panic selling, but Bitcoin's fundamental strength persists. Mempool fees remain negligible at 3 sat/vbyte, indicating low transaction pressure. Watch for any mempool fee spikes above 5 sat/vbyte as potential accumulation signals.",
+    "script": "Hashrate breached 1129 EH/s, confirming network security remains robust despite price consolidation. Fear & Greed index at 23 signals capitulation phase. Mempool fee sits at 2 sat/vbyte, indicating minimal network congestion. Watch for retest of $75,000 resistance.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate surged to 1,129 EH/s, confirming network security remains unshaken desp",
-    "generated_at": "2026-04-15T04:05:18.408913+00:00",
-    "expires_at": "2026-04-15T06:05:18.408913+00:00"
+    "topic_preview": "Hashrate breached 1129 EH/s, confirming network security remains robust despite ",
+    "generated_at": "2026-04-15T06:10:18.899788+00:00",
+    "expires_at": "2026-04-15T08:10:18.899788+00:00"
   }
 ]

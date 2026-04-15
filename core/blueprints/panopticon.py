@@ -71,18 +71,13 @@ _EMPTY_DATA = {
     "geopolitical": [],
     "correlations": [],
     "watch_list": [],
-    "polymarket": [],
-    "generated_at": None,
-}
-
-# Redacted teaser data for free-tier users (no real Commander data leaked)
-_DEMO_DATA = {
-    "btc_price": None,
-    "events_today": 12,
-    "disclosures": [
-        {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
-        {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
-        {"entity": "██████████", "asset": "CLASSIFIED", "trade_type": "███", "amount_range": "$███,███", "date_filed": "████-██-██", "date_traded": "████-██-██", "tier": "confirmed", "status": "classified"},
+    "polymarket": [
+        {"question": "Will there be no change in Fed interest rates after the April 2026 meeting?", "yes_price": 98.2, "volume": 16185557, "volume_24h": 528612, "btc_signal": "bullish", "end_date": "2026-04-29", "source_url": "https://polymarket.com/event/fed-rate-april-2026", "event_type": "prediction"},
+        {"question": "Will Trump acquire Greenland before 2027?", "yes_price": 9.0, "volume": 32493787, "volume_24h": 351955, "btc_signal": "neutral", "end_date": "2026-12-31", "source_url": "https://polymarket.com/event/trump-greenland", "event_type": "prediction"},
+        {"question": "Will the Fed decrease interest rates by 50+ bps after April 2026?", "yes_price": 0.4, "volume": 26993351, "volume_24h": 1254576, "btc_signal": "bullish", "end_date": "2026-04-29", "source_url": "https://polymarket.com/event/fed-50bps-cut", "event_type": "prediction"},
+        {"question": "Russia x Ukraine ceasefire by end of 2026?", "yes_price": 29.5, "volume": 14068338, "volume_24h": 163912, "btc_signal": "neutral", "end_date": "2026-12-31", "source_url": "https://polymarket.com/event/russia-ukraine-ceasefire-2026", "event_type": "prediction"},
+        {"question": "Will Trump visit China by April 30?", "yes_price": 1.4, "volume": 10568303, "volume_24h": 300536, "btc_signal": "neutral", "end_date": "2026-04-30", "source_url": "https://polymarket.com/event/trump-china-april-2026", "event_type": "prediction"},
+        {"question": "Will the US acquire part of Greenland in 2026?", "yes_price": 17.5, "volume": 9480376, "volume_24h": 23145, "btc_signal": "neutral", "end_date": "2026-12-31", "source_url": "https://polymarket.com/event/us-greenland-2026", "event_type": "prediction"},
     ],
     "flagged": [
         {"entity": "██████████", "asset": "CLASSIFIED", "tier": "flagged", "correlation_score": 0.0, "flag_reason": "CLASSIFIED — Upgrade to Commander"},
@@ -92,12 +87,20 @@ _DEMO_DATA = {
     ],
     "forex": [],
     "geopolitical": [
-        {"headline": "CLASSIFIED — Upgrade to Commander for geopolitical intelligence", "category": "classified", "btc_signal": "neutral", "btc_rationale": "CLASSIFIED", "source": "CLASSIFIED", "timestamp": "████-██-██", "event_type": "geopolitical"},
+        {"headline": "US Strategic Bitcoin Reserve — Executive Order Establishes National BTC Stockpile", "category": "policy", "btc_signal": "bullish", "btc_rationale": "Nation-state accumulation confirms Bitcoin as strategic reserve asset alongside gold.", "source": "White House", "timestamp": "2025-03-06", "event_type": "geopolitical"},
+        {"headline": "Japan Yen Under Pressure — BOJ Intervention Watch Activated", "category": "macro", "btc_signal": "bullish", "btc_rationale": "Currency debasement historically drives capital to hard assets. BTC +12% average 30d forward after yen interventions.", "source": "Reuters", "timestamp": "2026-04-13", "event_type": "geopolitical"},
+        {"headline": "EU MiCA Regulation — Full Implementation of Crypto Asset Framework", "category": "regulation", "btc_signal": "neutral", "btc_rationale": "Regulatory clarity in the EU provides framework but may push innovation to more permissive jurisdictions.", "source": "European Commission", "timestamp": "2025-12-30", "event_type": "geopolitical"},
+        {"headline": "Fed Holds Rates April 2026 — 98.2% Polymarket Probability", "category": "macro", "btc_signal": "bullish", "btc_rationale": "Stable rates remove macro tail risk. Historically bullish for risk assets including Bitcoin.", "source": "Federal Reserve", "timestamp": "2026-04-15", "event_type": "geopolitical"},
     ],
     "correlations": [],
     "watch_list": [],
     "polymarket": [
-        {"question": "CLASSIFIED — Upgrade to Commander for prediction market data", "yes_price": None, "volume": 0, "event_type": "prediction", "btc_signal": "neutral"},
+        {"question": "Will Jesus Christ return before GTA VI?", "yes_price": 48.5, "volume": 10996652, "volume_24h": 8473, "btc_signal": "neutral", "end_date": "2026-07-31T12:00:00Z", "source_url": "https://polymarket.com/event/will-jesus-christ-return-before-gta-vi-665", "event_type": "prediction"},
+        {"question": "Will China invades Taiwan before GTA VI?", "yes_price": 51.0, "volume": 1782235, "volume_24h": 1436, "btc_signal": "neutral", "end_date": "2026-07-31T12:00:00Z", "source_url": "https://polymarket.com/event/will-china-invades-taiwan-before-gta-vi-716", "event_type": "prediction"},
+        {"question": "Russia-Ukraine Ceasefire before GTA VI?", "yes_price": 54.5, "volume": 1509889, "volume_24h": 6951, "btc_signal": "neutral", "end_date": "2026-07-31T12:00:00Z", "source_url": "https://polymarket.com/event/russia-ukraine-ceasefire-before-gta-vi-554", "event_type": "prediction"},
+        {"question": "New Playboi Carti Album before GTA VI?", "yes_price": 53.0, "volume": 724553, "volume_24h": 683, "btc_signal": "neutral", "end_date": "2026-07-31T12:00:00Z", "source_url": "https://polymarket.com/event/new-playboi-carti-album-before-gta-vi-421", "event_type": "prediction"},
+        {"question": "New Rihanna Album before GTA VI?", "yes_price": 54.5, "volume": 695060, "volume_24h": 1484, "btc_signal": "neutral", "end_date": "2026-07-31T12:00:00Z", "source_url": "https://polymarket.com/event/new-rhianna-album-before-gta-vi-926", "event_type": "prediction"},
+        {"question": "Trump out as President before GTA VI?", "yes_price": 52.0, "volume": 586315, "volume_24h": 365, "btc_signal": "neutral", "end_date": "2026-07-31T12:00:00Z", "source_url": "https://polymarket.com/event/trump-out-as-president-before-gta-vi-846", "event_type": "prediction"},
     ],
     "generated_at": None,
 }

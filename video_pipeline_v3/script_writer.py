@@ -761,7 +761,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance:
         trending = get_trending_topics()[:3]
         top_chs = get_top_channels(5)
         if trending or top_chs:
-            parts = ["\nAUDIENCE ENGAGEMENT INTELLIGENCE (from real audience data — use naturally):"]
+            parts = ["\nAUDIENCE ENGAGEMENT INTELLIGENCE (INTERNAL — for editorial judgment ONLY. NEVER mention scores, ratings, percentages, or audience interest numbers in the narration. Use this data to INFORM your topic weighting, not to quote):"]
             if trending:
                 topics_str = ", ".join(f"{t[0]} ({t[1]:.1f}/10)" for t in trending)
                 parts.append(f"- Currently trending in our audience: {topics_str} — weight these if relevant.")

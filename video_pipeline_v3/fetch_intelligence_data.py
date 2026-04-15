@@ -96,10 +96,32 @@ def fetch_all() -> dict:
     except Exception as e:
         log.warning("Block height fetch failed: %s", e)
 
+    # V48 FIX: Compute derived values that daily_producer expects
+    # hashrate_current: latest hashrate in EH/s from the 30d array
+    hashrate_current = "N/A"
+    if hashrate_30d:
+        try:
+            latest_hr = hashrate_30d[-1].get("avgHashrate", 0)
+            hashrate_current = f"{latest_hr / 1e18:.0f}"  # Convert from H/s to EH/s
+            log.info("Hashrate current: %s EH/s", hashrate_current)
+        except Exception as e:
+            log.warning("Hashrate current calc failed: %s", e)
+
+    # btc_price: latest price from the 7d hourly array
+    btc_price = "N/A"
+    if price_7d:
+        try:
+            btc_price = f"{price_7d[-1][1]:,.0f}"  # [timestamp, price]
+            log.info("BTC Price: $%s", btc_price)
+        except Exception as e:
+            log.warning("BTC price calc failed: %s", e)
+
     result = {
         "fetched_at": time.time(),
         "price_7d": price_7d,
         "hashrate_30d": hashrate_30d,
+        "hashrate_current": hashrate_current,
+        "btc_price": btc_price,
         "btc_dominance": btc_dominance if btc_dominance > 0 else 61.5,  # fallback for rate-limit
         "fear_greed_value": fear_greed_value,
         "fear_greed_label": fear_greed_label,

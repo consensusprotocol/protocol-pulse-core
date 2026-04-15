@@ -518,19 +518,41 @@ aesthetic. Score based on actual observation.
         data=json.dumps(payload).encode(),
         headers={'Content-Type': 'application/json'})
 
-    try:
-        with urllib.request.urlopen(req_obj, timeout=180) as resp:
-            d = json.loads(resp.read())
-            parts = d['candidates'][0]['content'].get('parts', [])
-            text = next((p['text'] for p in parts if 'text' in p), None)
-            if not text:
-                log("FATAL: Gemini returned no text")
-                sys.exit(2)
-    except urllib.error.HTTPError as e:
-        log(f"FATAL: Gemini HTTP error {e.code}: {e.read().decode()[:200]}")
-        sys.exit(2)
-    except Exception as e:
-        log(f"FATAL: Gemini call failed: {e}")
+    # V48 FIX: Retry with exponential backoff on 503/429
+    text = None
+    for _attempt in range(3):
+        try:
+            # Rebuild request each attempt (urlopen consumes it)
+            _req = urllib.request.Request(url,
+                data=json.dumps(payload).encode(),
+                headers={'Content-Type': 'application/json'})
+            with urllib.request.urlopen(_req, timeout=180) as resp:
+                d = json.loads(resp.read())
+                parts = d['candidates'][0]['content'].get('parts', [])
+                text = next((p['text'] for p in parts if 'text' in p), None)
+                if not text:
+                    log("FATAL: Gemini returned no text")
+                    sys.exit(2)
+                break  # success
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()[:200]
+            if e.code in (503, 429) and _attempt < 2:
+                wait = 30 * (2 ** _attempt)  # 30s, 60s
+                log(f"Gemini {e.code} (attempt {_attempt+1}/3) — retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            log(f"FATAL: Gemini HTTP error {e.code}: {body}")
+            sys.exit(2)
+        except Exception as e:
+            if _attempt < 2:
+                wait = 30 * (2 ** _attempt)
+                log(f"Gemini error (attempt {_attempt+1}/3): {e} — retrying in {wait}s...")
+                time.sleep(wait)
+                continue
+            log(f"FATAL: Gemini call failed: {e}")
+            sys.exit(2)
+    if text is None:
+        log("FATAL: Gemini returned no text after 3 attempts")
         sys.exit(2)
 
     # ── Parse result ──────────────────────────────────────────────────
