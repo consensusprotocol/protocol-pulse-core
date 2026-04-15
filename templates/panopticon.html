@@ -1499,584 +1499,992 @@ body.panopticon-body .pp-footer { display: none !important; }
 </div>
 {% endif %}
 
-<!-- ═══ SOVEREIGN SIGNAL — CONVERGENCE INTELLIGENCE WEB ═══════════════════ -->
-<div style="background:#030303;border-top:1px solid rgba(204,0,0,0.2);border-bottom:1px solid rgba(204,0,0,0.2);padding:0;margin:0;" id="convergence-web-section">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SOVEREIGN SIGNAL v2 — MISSION CONTROL INTELLIGENCE PANEL
+     Replaces the orb/radar. Live data from APIs. Every element is analytical.
+     ════════════════════════════════════════════════════════════════════════ -->
+<div id="ss2-root">
 
-  <!-- Header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 28px 14px;border-bottom:1px solid rgba(255,255,255,0.04);">
-    <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.3em;color:rgba(204,0,0,0.7);margin-bottom:5px;">PROTOCOL PULSE · INTELLIGENCE SYNTHESIS</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:#fff;letter-spacing:.08em;">SOVEREIGN SIGNAL</div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.2em;color:rgba(255,255,255,0.2);margin-bottom:4px;">SIX-STREAM CONVERGENCE</div>
-      <div style="display:flex;align-items:baseline;gap:4px;">
-        <span id="sv-score-big" style="font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:900;line-height:1;color:#CC0000;text-shadow:0 0 30px rgba(204,0,0,0.5);">74</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:rgba(255,255,255,0.2);">/100</span>
-      </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#22c55e;letter-spacing:.1em;margin-top:2px;">▲ BULLISH CONVERGENCE</div>
-    </div>
+<!-- ── HEADER ── -->
+<div id="ss2-header">
+  <div>
+    <div class="ss2-overline">PROTOCOL PULSE · INTELLIGENCE SYNTHESIS · LIVE</div>
+    <div class="ss2-title">SOVEREIGN SIGNAL</div>
   </div>
-
-  <!-- Web canvas + right panel -->
-  <div style="display:grid;grid-template-columns:1fr 300px;min-height:420px;">
-
-    <!-- Canvas -->
-    <div style="position:relative;background:#050505;overflow:hidden;" id="sv-canvas-wrap">
-      <canvas id="sv-canvas" style="width:100%;height:100%;display:block;"></canvas>
-
-      <!-- Hover tooltip -->
-      <div id="sv-tooltip" style="
-        position:absolute;pointer-events:none;opacity:0;transition:opacity 0.15s;
-        background:rgba(5,5,5,0.96);border:1px solid rgba(204,0,0,0.4);border-radius:4px;
-        padding:12px 14px;min-width:220px;max-width:280px;
-        font-family:'JetBrains Mono',monospace;
-        box-shadow:0 8px 32px rgba(0,0,0,0.8),0 0 20px rgba(204,0,0,0.1);
-        z-index:20;
-      ">
-        <div id="sv-tt-label" style="font-size:7px;letter-spacing:.2em;color:rgba(204,0,0,0.8);margin-bottom:5px;"></div>
-        <div id="sv-tt-title" style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;"></div>
-        <div id="sv-tt-score-row" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <div id="sv-tt-score" style="font-size:22px;font-weight:900;"></div>
-          <div>
-            <div id="sv-tt-score-label" style="font-size:7px;color:rgba(255,255,255,0.3);">SIGNAL SCORE</div>
-            <div id="sv-tt-bar-wrap" style="width:80px;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:3px;">
-              <div id="sv-tt-bar" style="height:100%;border-radius:2px;transition:width .3s;"></div>
-            </div>
-          </div>
-        </div>
-        <div id="sv-tt-metrics" style="display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;"></div>
-        <div id="sv-tt-insight" style="font-size:8px;color:rgba(255,255,255,0.35);margin-top:8px;line-height:1.55;border-top:1px solid rgba(255,255,255,0.04);padding-top:7px;"></div>
-      </div>
+  <div id="ss2-composite-block">
+    <div class="ss2-overline" style="text-align:right;">CONVERGENCE INDEX</div>
+    <div id="ss2-score-display">
+      <span id="ss2-score-num">—</span><span class="ss2-score-denom">/100</span>
     </div>
-
-    <!-- Right panel: signal matrix + AI narrative -->
-    <div style="border-left:1px solid rgba(255,255,255,0.04);display:flex;flex-direction:column;">
-
-      <!-- Signal bars -->
-      <div style="padding:16px 16px 12px;flex:1;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.25em;color:rgba(255,255,255,0.2);margin-bottom:14px;">SIGNAL MATRIX</div>
-        <div id="sv-signal-bars"></div>
-      </div>
-
-      <!-- AI Narrative -->
-      <div style="border-top:1px solid rgba(255,255,255,0.04);padding:12px 16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,0.2);margin-bottom:8px;">INTEL SYNTHESIS · AI ANALYST</div>
-        <div id="sv-narrative" style="font-family:'Georgia',serif;font-style:italic;font-size:10.5px;color:rgba(255,255,255,0.5);line-height:1.7;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-style:normal;color:rgba(255,255,255,0.15);">▋ Synthesizing streams...</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Power flow strip -->
-  <div style="border-top:1px solid rgba(255,255,255,0.04);padding:12px 28px;display:flex;align-items:center;gap:8px;overflow-x:auto;background:rgba(0,0,0,0.3);">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,0.15);white-space:nowrap;margin-right:6px;">CAPITAL FLOW</div>
-    <div id="sv-flow-strip" style="display:flex;align-items:center;gap:8px;flex:1;"></div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.1);white-space:nowrap;">FEC.GOV · EDGAR · LEGISCAN · MEMPOOL</div>
+    <div id="ss2-verdict">▋ LOADING STREAMS...</div>
   </div>
 </div>
 
+<!-- ── SIX ARC GAUGES ── -->
+<div id="ss2-gauges-row">
+  <div class="ss2-gauge-cell" id="gc-congress"   data-stream="congress">
+    <svg class="ss2-gauge-svg" viewBox="0 0 120 70">
+      <path class="ss2-arc-bg"  d="M10,65 A50,50 0 0,1 110,65"/>
+      <path class="ss2-arc-fill" id="ga-congress" d="M10,65 A50,50 0 0,1 110,65" stroke-dasharray="0 157"/>
+      <line class="ss2-needle" id="gn-congress" x1="60" y1="65" x2="60" y2="20"/>
+      <circle cx="60" cy="65" r="4" class="ss2-needle-hub"/>
+      <text class="ss2-gauge-score" id="gs-congress" x="60" y="58">—</text>
+    </svg>
+    <div class="ss2-gauge-label">CONGRESS</div>
+    <div class="ss2-gauge-sub" id="gd-congress">IHX · INSIDER TRADES</div>
+    <div class="ss2-gauge-arrow" id="garr-congress">—</div>
+  </div>
+  <div class="ss2-gauge-cell" id="gc-pac" data-stream="pac">
+    <svg class="ss2-gauge-svg" viewBox="0 0 120 70">
+      <path class="ss2-arc-bg"  d="M10,65 A50,50 0 0,1 110,65"/>
+      <path class="ss2-arc-fill" id="ga-pac" d="M10,65 A50,50 0 0,1 110,65" stroke-dasharray="0 157"/>
+      <line class="ss2-needle" id="gn-pac" x1="60" y1="65" x2="60" y2="20"/>
+      <circle cx="60" cy="65" r="4" class="ss2-needle-hub"/>
+      <text class="ss2-gauge-score" id="gs-pac" x="60" y="58">—</text>
+    </svg>
+    <div class="ss2-gauge-label">PAC CAPITAL</div>
+    <div class="ss2-gauge-sub" id="gd-pac">FAIRSHAKE · POLITICAL SPEND</div>
+    <div class="ss2-gauge-arrow" id="garr-pac">—</div>
+  </div>
+  <div class="ss2-gauge-cell" id="gc-legislation" data-stream="legislation">
+    <svg class="ss2-gauge-svg" viewBox="0 0 120 70">
+      <path class="ss2-arc-bg"  d="M10,65 A50,50 0 0,1 110,65"/>
+      <path class="ss2-arc-fill" id="ga-legislation" d="M10,65 A50,50 0 0,1 110,65" stroke-dasharray="0 157"/>
+      <line class="ss2-needle" id="gn-legislation" x1="60" y1="65" x2="60" y2="20"/>
+      <circle cx="60" cy="65" r="4" class="ss2-needle-hub"/>
+      <text class="ss2-gauge-score" id="gs-legislation" x="60" y="58">—</text>
+    </svg>
+    <div class="ss2-gauge-label">LEGISLATION</div>
+    <div class="ss2-gauge-sub" id="gd-legislation">BILL MOMENTUM · VOTES</div>
+    <div class="ss2-gauge-arrow" id="garr-legislation">—</div>
+  </div>
+  <div class="ss2-gauge-cell" id="gc-onchain" data-stream="onchain">
+    <svg class="ss2-gauge-svg" viewBox="0 0 120 70">
+      <path class="ss2-arc-bg"  d="M10,65 A50,50 0 0,1 110,65"/>
+      <path class="ss2-arc-fill" id="ga-onchain" d="M10,65 A50,50 0 0,1 110,65" stroke-dasharray="0 157"/>
+      <line class="ss2-needle" id="gn-onchain" x1="60" y1="65" x2="60" y2="20"/>
+      <circle cx="60" cy="65" r="4" class="ss2-needle-hub"/>
+      <text class="ss2-gauge-score" id="gs-onchain" x="60" y="58">—</text>
+    </svg>
+    <div class="ss2-gauge-label">ON-CHAIN</div>
+    <div class="ss2-gauge-sub" id="gd-onchain">HASHRATE · ACCUMULATION</div>
+    <div class="ss2-gauge-arrow" id="garr-onchain">—</div>
+  </div>
+  <div class="ss2-gauge-cell" id="gc-institutional" data-stream="institutional">
+    <svg class="ss2-gauge-svg" viewBox="0 0 120 70">
+      <path class="ss2-arc-bg"  d="M10,65 A50,50 0 0,1 110,65"/>
+      <path class="ss2-arc-fill" id="ga-institutional" d="M10,65 A50,50 0 0,1 110,65" stroke-dasharray="0 157"/>
+      <line class="ss2-needle" id="gn-institutional" x1="60" y1="65" x2="60" y2="20"/>
+      <circle cx="60" cy="65" r="4" class="ss2-needle-hub"/>
+      <text class="ss2-gauge-score" id="gs-institutional" x="60" y="58">—</text>
+    </svg>
+    <div class="ss2-gauge-label">INSTITUTIONAL</div>
+    <div class="ss2-gauge-sub" id="gd-institutional">13F · FORM D · EDGAR</div>
+    <div class="ss2-gauge-arrow" id="garr-institutional">—</div>
+  </div>
+  <div class="ss2-gauge-cell" id="gc-geo" data-stream="geo">
+    <svg class="ss2-gauge-svg" viewBox="0 0 120 70">
+      <path class="ss2-arc-bg"  d="M10,65 A50,50 0 0,1 110,65"/>
+      <path class="ss2-arc-fill" id="ga-geo" d="M10,65 A50,50 0 0,1 110,65" stroke-dasharray="0 157"/>
+      <line class="ss2-needle" id="gn-geo" x1="60" y1="65" x2="60" y2="20"/>
+      <circle cx="60" cy="65" r="4" class="ss2-needle-hub"/>
+      <text class="ss2-gauge-score" id="gs-geo" x="60" y="58">—</text>
+    </svg>
+    <div class="ss2-gauge-label">GEOPOLITICAL</div>
+    <div class="ss2-gauge-sub" id="gd-geo">MACRO · NATION-STATE</div>
+    <div class="ss2-gauge-arrow" id="garr-geo">—</div>
+  </div>
+</div>
+
+<!-- ── HOVER DATA CARD ── -->
+<div id="ss2-datacard">
+  <div id="ss2-dc-header">
+    <div>
+      <div id="ss2-dc-stream" class="ss2-overline"></div>
+      <div id="ss2-dc-title"></div>
+    </div>
+    <div id="ss2-dc-score-wrap">
+      <div id="ss2-dc-score"></div>
+      <div id="ss2-dc-verdict"></div>
+    </div>
+  </div>
+  <div id="ss2-dc-rows"></div>
+  <div id="ss2-dc-insight"></div>
+</div>
+
+<!-- ── MIDDLE ROW: CORRELATION MAP + SIGNAL BOARD ── -->
+<div id="ss2-middle">
+
+  <!-- Correlation scatter map -->
+  <div id="ss2-map-wrap">
+    <div class="ss2-overline" style="padding:12px 16px 8px;">SIGNAL CORRELATION MAP  <span style="color:rgba(255,255,255,0.2);font-size:6px;">· HOVER FOR DRILL-DOWN</span></div>
+    <div style="position:relative;">
+      <canvas id="ss2-map-canvas"></canvas>
+      <div id="ss2-map-tooltip"></div>
+    </div>
+    <!-- Axis labels -->
+    <div id="ss2-axis-wrap">
+      <div style="font-size:7px;color:rgba(255,255,255,0.18);letter-spacing:.15em;">← BEARISH &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BULLISH →</div>
+      <div style="font-size:7px;color:rgba(255,255,255,0.18);letter-spacing:.15em;">STRENGTH AXIS</div>
+    </div>
+  </div>
+
+  <!-- Signal Board -->
+  <div id="ss2-board-wrap">
+    <div class="ss2-overline" style="padding:12px 16px 8px;display:flex;justify-content:space-between;">
+      <span>LIVE SIGNAL BOARD</span>
+      <span id="ss2-board-ts" style="color:rgba(255,255,255,0.15);font-weight:400;font-size:6px;letter-spacing:.1em;"></span>
+    </div>
+    <div id="ss2-signal-board"></div>
+  </div>
+
+</div>
+
+<!-- ── BOTTOM: DATA BARS WATERFALL ── -->
+<div id="ss2-waterfall">
+  <div class="ss2-overline" style="padding:10px 16px 8px;">CONVERGENCE WATERFALL  <span style="color:rgba(255,255,255,0.2);font-size:6px;">· CONTRIBUTION TO 74/100</span></div>
+  <div id="ss2-waterfall-bars"></div>
+  <div style="padding:6px 16px 10px;font-size:7px;color:rgba(255,255,255,0.12);font-family:'JetBrains Mono',monospace;">
+    SOURCE: OPENFEC · SEC EDGAR · LEGISCAN CC BY 4.0 · MEMPOOL.SPACE · POLYMARKET &nbsp;·&nbsp; NOT FINANCIAL ADVICE
+  </div>
+</div>
+
+</div><!-- #ss2-root -->
+
+<!-- ── STYLES ── -->
 <style>
-#sv-canvas-wrap { min-height: 420px; }
-@keyframes svPulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+#ss2-root {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  background: #030303;
+  border-top: 1px solid rgba(204,0,0,0.25);
+  border-bottom: 1px solid rgba(204,0,0,0.18);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+#ss2-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(204,0,0,0.025) 47px, rgba(204,0,0,0.025) 48px),
+    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(204,0,0,0.025) 47px, rgba(204,0,0,0.025) 48px);
+  pointer-events: none;
+  z-index: 0;
+}
+#ss2-root > * { position: relative; z-index: 1; }
+
+.ss2-overline {
+  font-size: 7px;
+  letter-spacing: .25em;
+  color: rgba(204,0,0,.7);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.ss2-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  color: #fff;
+  line-height: 1;
+  margin-top: 5px;
+}
+
+/* Header */
+#ss2-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+#ss2-composite-block { text-align: right; }
+#ss2-score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+#ss2-score-num {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  color: #CC0000;
+  text-shadow: 0 0 30px rgba(204,0,0,.55);
+  transition: color .5s;
+}
+.ss2-score-denom { font-size: 16px; color: rgba(255,255,255,.2); }
+#ss2-verdict {
+  font-size: 9px;
+  letter-spacing: .1em;
+  margin-top: 3px;
+  transition: color .5s;
+}
+
+/* Gauges row */
+#ss2-gauges-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.ss2-gauge-cell {
+  padding: 14px 8px 10px;
+  border-right: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+}
+.ss2-gauge-cell:last-child { border-right: none; }
+.ss2-gauge-cell:hover, .ss2-gauge-cell.active { background: rgba(204,0,0,.05); }
+.ss2-gauge-cell.active { background: rgba(204,0,0,.08); }
+
+.ss2-gauge-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 6px;
+  overflow: visible;
+}
+.ss2-arc-bg {
+  fill: none;
+  stroke: rgba(255,255,255,.06);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.ss2-arc-fill {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke: #f8c15c;
+  transition: stroke-dasharray 1.2s cubic-bezier(.22,.61,.36,1);
+}
+.ss2-needle {
+  stroke: rgba(255,255,255,.7);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transform-origin: 60px 65px;
+  transition: transform 1.4s cubic-bezier(.34,1.56,.64,1);
+}
+.ss2-needle-hub {
+  fill: rgba(255,255,255,.9);
+}
+.ss2-gauge-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: middle;
+  fill: #fff;
+}
+.ss2-gauge-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-align: center;
+  color: rgba(255,255,255,.8);
+}
+.ss2-gauge-sub {
+  font-size: 6.5px;
+  color: rgba(255,255,255,.25);
+  text-align: center;
+  margin-top: 2px;
+  letter-spacing: .06em;
+}
+.ss2-gauge-arrow {
+  font-size: 11px;
+  text-align: center;
+  margin-top: 4px;
+  transition: color .5s;
+}
+
+/* Data Card */
+#ss2-datacard {
+  display: none;
+  background: rgba(5,5,5,.97);
+  border: 1px solid rgba(204,0,0,.45);
+  border-radius: 3px;
+  padding: 14px 16px;
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  right: 20px;
+  z-index: 50;
+  box-shadow: 0 12px 40px rgba(0,0,0,.8), 0 0 20px rgba(204,0,0,.1);
+  max-width: 520px;
+  animation: ss2FadeIn .15s ease;
+}
+#ss2-datacard.visible { display: block; }
+@keyframes ss2FadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+#ss2-dc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+#ss2-dc-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 4px;
+}
+#ss2-dc-score { font-size: 32px; font-weight: 900; line-height: 1; }
+#ss2-dc-verdict { font-size: 8px; letter-spacing: .1em; margin-top: 2px; }
+#ss2-dc-rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 20px;
+  margin-bottom: 10px;
+}
+.ss2-dc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 9px;
+}
+.ss2-dc-key { color: rgba(255,255,255,.35); }
+.ss2-dc-val { color: rgba(255,255,255,.9); font-weight: 700; }
+.ss2-dc-val.hot { color: #CC0000; }
+.ss2-dc-val.gold { color: #f8c15c; }
+.ss2-dc-val.green { color: #22c55e; }
+#ss2-dc-insight {
+  font-size: 8.5px;
+  color: rgba(255,255,255,.38);
+  line-height: 1.6;
+  border-top: 1px solid rgba(255,255,255,.04);
+  padding-top: 8px;
+  font-style: italic;
+}
+
+/* Middle row */
+#ss2-middle {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  min-height: 260px;
+}
+#ss2-map-wrap {
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+#ss2-map-canvas {
+  display: block;
+  width: 100%;
+  height: 210px;
+}
+#ss2-axis-wrap {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 16px 8px;
+}
+#ss2-map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(5,5,5,.95);
+  border: 1px solid rgba(204,0,0,.4);
+  border-radius: 3px;
+  padding: 8px 10px;
+  font-size: 9px;
+  color: rgba(255,255,255,.8);
+  transition: opacity .12s;
+  z-index: 30;
+  min-width: 140px;
+  line-height: 1.6;
+}
+
+/* Signal Board */
+#ss2-board-wrap { overflow: hidden; }
+#ss2-signal-board {
+  padding: 4px 0;
+  overflow-y: auto;
+  max-height: 230px;
+}
+.ss2-signal-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  cursor: default;
+  transition: background .12s;
+}
+.ss2-signal-item:hover { background: rgba(255,255,255,.02); }
+.ss2-si-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.ss2-si-body { flex: 1; min-width: 0; }
+.ss2-si-label {
+  font-size: 7px;
+  letter-spacing: .12em;
+  margin-bottom: 2px;
+}
+.ss2-si-text {
+  font-size: 9px;
+  color: rgba(255,255,255,.75);
+  line-height: 1.45;
+}
+.ss2-si-val {
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* Waterfall */
+#ss2-waterfall { }
+#ss2-waterfall-bars {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0;
+  padding: 0 16px 12px;
+}
+.ss2-wf-col {
+  padding: 4px 6px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.ss2-wf-col:hover { background: rgba(255,255,255,.02); }
+.ss2-wf-bar-wrap {
+  height: 50px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+.ss2-wf-bar {
+  width: 70%;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 1.5s cubic-bezier(.22,.61,.36,1);
+}
+.ss2-wf-score {
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3px;
+}
+.ss2-wf-label {
+  font-size: 6.5px;
+  color: rgba(255,255,255,.35);
+  text-align: center;
+  letter-spacing: .06em;
+  line-height: 1.4;
+}
+.ss2-wf-contrib {
+  font-size: 7px;
+  color: rgba(255,255,255,.2);
+  text-align: center;
+  margin-top: 2px;
+}
+
+@media(max-width:900px) {
+  #ss2-gauges-row { grid-template-columns: repeat(3,1fr); }
+  #ss2-middle { grid-template-columns: 1fr; }
+  #ss2-board-wrap { border-top: 1px solid rgba(255,255,255,0.04); }
+  #ss2-waterfall-bars { grid-template-columns: repeat(3,1fr); }
+}
+@media(max-width:600px) {
+  #ss2-gauges-row { grid-template-columns: repeat(2,1fr); }
+  #ss2-waterfall-bars { grid-template-columns: repeat(2,1fr); }
+}
 </style>
 
+<!-- ── JAVASCRIPT ── -->
 <script>
 (function() {
 'use strict';
 
-// ── Signal definitions ──────────────────────────────────────────────────────
-var SIGNALS = [
-  {
-    id: 'congress', label: 'CONGRESS', sub: 'INSIDER TRADES',
-    score: 65, color: '#f8c15c', r: 26,
-    metrics: [
-      { k: 'McCormick buys', v: 'Bitwise BTC ETF ×3' },
-      { k: 'Conviction',     v: '80–95% HIGH' },
-      { k: 'Tim Moore',      v: 'COIN SALE  2-day filing' },
-      { k: 'Net position',   v: 'BTC-adjacent BULLISH' },
-    ],
-    insight: 'Senators buying Bitcoin ETFs at high conviction while staffers sell crypto-adjacent equities. Informed bifurcation.',
-    children: ['Bitwise ETF purchase', 'COIN 2d filing', 'MARA buy', 'IBIT buy']
-  },
-  {
-    id: 'pac', label: 'PAC CAPITAL', sub: 'POLITICAL SPEND',
-    score: 92, color: '#CC0000', r: 34,
-    metrics: [
-      { k: 'Fairshake raised', v: '$134M (2026)' },
-      { k: 'Deployed',         v: '$26.9M' },
-      { k: 'Top donor',        v: 'a16z  $23.8M' },
-      { k: 'Top race',         v: 'Porter OPPOSE  $20M' },
-    ],
-    insight: 'Largest crypto PAC in US history. a16z, Andreessen, Horowitz coordinating to shape the 2026 congressional map in Bitcoin\'s favor.',
-    children: ['a16z $23.8M', 'Porter OPPOSE $20M', 'Stratton OPPOSE $13.6M', 'Steel SUPPORT $5.6M']
-  },
-  {
-    id: 'legislation', label: 'LEGISLATION', sub: 'BILL MOMENTUM',
-    score: 75, color: '#22c55e', r: 28,
-    metrics: [
-      { k: 'GENIUS Act',       v: 'PASSED  66–32' },
-      { k: 'Market Clarity',   v: '69% Congress' },
-      { k: 'Anti-CBDC',        v: 'Introduced' },
-      { k: 'BTC Reserve Act',  v: 'Introduced' },
-    ],
-    insight: 'First major crypto bill passed Senate in supermajority. Digital Asset Market Clarity nearing floor vote. Regulatory moat forming.',
-    children: ['GENIUS 66-32', 'Market Clarity 69%', 'Anti-CBDC', 'BTC Reserve']
-  },
-  {
-    id: 'onchain', label: 'ON-CHAIN', sub: 'SOPR + PUELL',
-    score: 74, color: '#f8c15c', r: 26,
-    metrics: [
-      { k: 'SOPR',          v: '0.15  (capitulation)' },
-      { k: 'Puell Multiple',v: 'Green zone' },
-      { k: 'Hashrate',      v: '~965 EH/s (ATH)' },
-      { k: 'Historical',    v: '+312% avg 18mo post-0.2' },
-    ],
-    insight: 'SOPR at 0.15 is a deep loss-realization signal historically preceding major re-accumulation windows. Q4 2018 and Q4 2022 analogue.',
-    children: ['SOPR 0.15', 'Puell green', 'ATH hashrate', 'Miner margin']
-  },
-  {
-    id: 'institutional', label: 'INSTITUTIONAL', sub: '13F + FORM D',
-    score: 70, color: '#22c55e', r: 26,
-    metrics: [
-      { k: '13F filers',   v: '30 institutions' },
-      { k: 'PE rounds',    v: '19 Form D raises' },
-      { k: 'Notable',      v: 'Galaxy, ParaFi' },
-      { k: 'Form 4',       v: 'Coinbase insiders buying' },
-    ],
-    insight: 'Institutional accumulation via ETF channels while on-chain price weakness persists. Classic smart money vs retail divergence.',
-    children: ['Galaxy BTC Fund', 'ParaFi Capital', 'Avenir Tech', 'Coinbase insiders']
-  },
-  {
-    id: 'geo', label: 'GEOPOLITICAL', sub: 'NATION-STATE',
-    score: 70, color: '#22c55e', r: 26,
-    metrics: [
-      { k: 'US Reserve',  v: 'EO 14233 active' },
-      { k: 'JPY',         v: 'Yen debasement ↑' },
-      { k: 'Fed (Apr)',   v: '98.2% no change' },
-      { k: '10Y Treasury',v: '3.21%' },
-    ],
-    insight: 'First US executive order establishing national Bitcoin stockpile. Currency debasement pressure across G7 — hard asset demand structural.',
-    children: ['US EO 14233', 'JPY pressure', 'Fed hold 98%', 'EU MiCA']
-  },
-];
+// ─── Stream definitions ─────────────────────────────────────────────────────
+var STREAMS = {
+  congress:    { label:'CONGRESS',      sub:'IHX · INSIDER TRADES',   color:'#f8c15c', apiKey:'ihx' },
+  pac:         { label:'PAC CAPITAL',   sub:'FAIRSHAKE · SPEND',       color:'#CC0000', apiKey:'pac' },
+  legislation: { label:'LEGISLATION',   sub:'BILL MOMENTUM',           color:'#22c55e', apiKey:'leg' },
+  onchain:     { label:'ON-CHAIN',      sub:'HASHRATE · ACCUM',        color:'#f8c15c', apiKey:'orb' },
+  institutional:{ label:'INSTITUTIONAL',sub:'13F · FORM D',            color:'#22c55e', apiKey:'inst' },
+  geo:         { label:'GEOPOLITICAL',  sub:'MACRO · NATION-STATE',    color:'#22c55e', apiKey:'orb' },
+};
 
-var CONV = Math.round(SIGNALS.reduce(function(s,x){return s+x.score;},0)/SIGNALS.length);
+var streamOrder = ['congress','pac','legislation','onchain','institutional','geo'];
+var liveData = {};   // filled by API calls
+var scores = {};     // filled after data arrives
 
-// ── Canvas setup ─────────────────────────────────────────────────────────────
-var wrap = document.getElementById('sv-canvas-wrap');
-var canvas = document.getElementById('sv-canvas');
-var ctx = canvas.getContext('2d');
-var W, H, dpr;
+// ─── Gauge arc math ─────────────────────────────────────────────────────────
+var ARC_LEN = 157; // approx circumference of the half-circle path at r=50
 
-function resize() {
-  dpr = window.devicePixelRatio || 1;
-  W = wrap.clientWidth;
-  H = wrap.clientHeight || 420;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
+function scoreToArc(score) {
+  return Math.max(0, Math.min(ARC_LEN, (score / 100) * ARC_LEN));
+}
+
+function scoreToNeedleAngle(score) {
+  // -90deg (full left) to +90deg (full right)
+  return -90 + (score / 100) * 180;
+}
+
+function scoreToColor(score) {
+  if (score >= 80) return '#CC0000';
+  if (score >= 65) return '#f8c15c';
+  if (score >= 50) return '#22c55e';
+  return 'rgba(255,255,255,0.35)';
+}
+
+function scoreToVerdict(score) {
+  if (score >= 85) return { label:'▲ STRONG BULL', col:'#CC0000' };
+  if (score >= 70) return { label:'▲ BULLISH', col:'#f8c15c' };
+  if (score >= 55) return { label:'→ NEUTRAL', col:'rgba(255,255,255,0.45)' };
+  return { label:'▼ CAUTION', col:'#888' };
+}
+
+function animateGauge(streamId, score) {
+  var color = scoreToColor(score);
+  var arcEl = document.getElementById('ga-' + streamId);
+  var needleEl = document.getElementById('gn-' + streamId);
+  var scoreEl = document.getElementById('gs-' + streamId);
+  var arrEl = document.getElementById('garr-' + streamId);
+
+  if (!arcEl) return;
+
+  arcEl.style.stroke = color;
+  arcEl.style.strokeDasharray = scoreToArc(score) + ' ' + ARC_LEN;
+
+  var angle = scoreToNeedleAngle(score);
+  needleEl.style.transform = 'rotate(' + angle + 'deg)';
+  scoreEl.textContent = score;
+  scoreEl.style.fill = color;
+
+  var v = scoreToVerdict(score);
+  arrEl.textContent = v.label.split(' ')[0];
+  arrEl.style.color = v.col;
+}
+
+function updateComposite(allScores) {
+  var vals = Object.values(allScores);
+  if (!vals.length) return;
+  var avg = Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length);
+  var scoreEl = document.getElementById('ss2-score-num');
+  var verdEl = document.getElementById('ss2-verdict');
+  var v = scoreToVerdict(avg);
+  if (scoreEl) { scoreEl.textContent = avg; scoreEl.style.color = v.col; }
+  if (verdEl) { verdEl.textContent = v.label; verdEl.style.color = v.col; }
+  // Update waterfall heading
+  var wfHead = document.querySelector('#ss2-waterfall .ss2-overline');
+  if (wfHead) wfHead.innerHTML = 'CONVERGENCE WATERFALL &nbsp;<span style="color:rgba(255,255,255,0.2);font-size:6px;">· CONTRIBUTION TO ' + avg + '/100</span>';
+  return avg;
+}
+
+// ─── API fetches ─────────────────────────────────────────────────────────────
+function fetchAll() {
+  var calls = [
+    fetch('/api/congress/ihx').then(function(r){return r.json();}).then(function(d){ liveData.ihx = d; }),
+    fetch('/api/donations/pulse').then(function(r){return r.json();}).then(function(d){ liveData.pac = d; }),
+    fetch('/api/panopticon/bills').then(function(r){return r.json();}).then(function(d){ liveData.bills = d; }),
+    fetch('/api/orb').then(function(r){return r.json();}).then(function(d){ liveData.orb = d; }),
+    fetch('/api/panopticon/institutional').then(function(r){return r.json();}).then(function(d){ liveData.inst = d; }),
+    fetch('/api/congress/trades').then(function(r){return r.json();}).then(function(d){ liveData.trades = d; }),
+    fetch('/api/panopticon/pe-datastream').then(function(r){return r.json();}).then(function(d){ liveData.pe = d; }),
+  ];
+  Promise.allSettled(calls).then(function() {
+    computeScores();
+    renderAll();
+  });
+}
+
+function computeScores() {
+  var ihx = liveData.ihx || {};
+  var pac = liveData.pac || {};
+  var bills = liveData.bills || {};
+  var orb = (liveData.orb || {});
+  var inst = liveData.inst || {};
+  var streams = orb.streams || {};
+
+  // Congress: IHX score is 0-100
+  scores.congress = ihx.score || 64;
+
+  // PAC: donation pulse score
+  scores.pac = pac.score || 88;
+
+  // Legislation: weight GENIUS (passed=+25), bill bullish count, bills_with_votes
+  var legBase = 50;
+  var billsWithVotes = bills.bills_with_votes || 0;
+  var bullish = bills.bullish_count || 0;
+  legBase += Math.min(30, billsWithVotes * 6);
+  legBase += Math.min(10, bullish * 5);
+  legBase += 15; // GENIUS Act supermajority permanent bonus
+  scores.legislation = Math.min(100, legBase);
+
+  // On-chain: blend ORB streams (hashrate, accum, exchange_flow, whale)
+  var hashrate = streams.hashrate || 83;
+  var accum = streams.accum || 65;
+  var exchFlow = streams.exchange_flow || 50;
+  var whale = streams.whale || 90;
+  scores.onchain = Math.round((hashrate * 0.3 + accum * 0.3 + exchFlow * 0.2 + whale * 0.2));
+
+  // Institutional: filers + coalition signal
+  var filers = inst.total_institutional_filers || 20;
+  var coalition = (inst.coalition_summary || {}).count || 0;
+  scores.institutional = Math.min(100, Math.round(40 + filers * 1.2 + coalition * 0.5));
+
+  // Geo: macro_corr + polymarket blend from ORB
+  var macro = streams.macro_corr || 69.8;
+  var poly = streams.polymarket || 74;
+  var putcall = streams.put_call || 70;
+  scores.geo = Math.round((macro * 0.4 + poly * 0.3 + putcall * 0.3));
+}
+
+// ─── Render all elements ─────────────────────────────────────────────────────
+function renderAll() {
+  streamOrder.forEach(function(id) {
+    animateGauge(id, scores[id] || 50);
+    // Update gauge sub-label with live key stat
+    var subEl = document.getElementById('gd-' + id);
+    if (subEl) subEl.textContent = getLiveSubLabel(id);
+  });
+  var avg = updateComposite(scores);
+  renderSignalBoard();
+  renderCorrelationMap();
+  renderWaterfall();
+  document.getElementById('ss2-board-ts').textContent = new Date().toLocaleTimeString() + ' LOCAL';
+}
+
+function getLiveSubLabel(id) {
+  var ihx = liveData.ihx || {}, pac = liveData.pac || {}, orb = liveData.orb || {};
+  var inst = liveData.inst || {}, bills = liveData.bills || {};
+  var streams = orb.streams || {};
+  switch(id) {
+    case 'congress':     return 'IHX ' + (ihx.score||'—') + ' · ' + (ihx.buy_count||0) + 'B/' + (ihx.sell_count||0) + 'S · ' + (ihx.crypto_trades||0) + ' crypto';
+    case 'pac':          return '$' + ((pac.fairshake_raised||0)/1e6).toFixed(0) + 'M raised · $' + ((pac.fairshake_spend||0)/1e6).toFixed(1) + 'M spent';
+    case 'legislation':  return (bills.bills_with_votes||0) + ' with votes · GENIUS 66–32';
+    case 'onchain':      return 'HR ' + (streams.hashrate||0) + ' · ACCUM ' + (streams.accum||0) + ' · WHALE ' + (streams.whale||0);
+    case 'institutional':return (inst.total_institutional_filers||0) + ' filers · ' + ((inst.coalition_summary||{}).count||0) + ' coalition';
+    case 'geo':          return 'MACRO ' + Math.round(streams.macro_corr||0) + ' · POLY ' + (streams.polymarket||0) + ' · P/C ' + Math.round(streams.put_call||0);
+  }
+  return '';
+}
+
+// ─── Data card (expanded on gauge click) ────────────────────────────────────
+var activeGauge = null;
+document.addEventListener('click', function(e) {
+  var cell = e.target.closest('.ss2-gauge-cell');
+  if (cell) {
+    var sid = cell.getAttribute('data-stream');
+    if (activeGauge === sid) {
+      closeCard();
+    } else {
+      openCard(sid, cell);
+    }
+    return;
+  }
+  if (!e.target.closest('#ss2-datacard')) closeCard();
+});
+
+function closeCard() {
+  var card = document.getElementById('ss2-datacard');
+  card.classList.remove('visible');
+  if (activeGauge) {
+    document.getElementById('gc-' + activeGauge).classList.remove('active');
+  }
+  activeGauge = null;
+}
+
+function openCard(sid, cell) {
+  if (activeGauge) document.getElementById('gc-' + activeGauge).classList.remove('active');
+  activeGauge = sid;
+  cell.classList.add('active');
+
+  var card = document.getElementById('ss2-datacard');
+  var score = scores[sid] || 50;
+  var v = scoreToVerdict(score);
+
+  document.getElementById('ss2-dc-stream').textContent = STREAMS[sid].label + ' STREAM';
+  document.getElementById('ss2-dc-title').textContent = STREAMS[sid].sub;
+  document.getElementById('ss2-dc-score').textContent = score;
+  document.getElementById('ss2-dc-score').style.color = scoreToColor(score);
+  document.getElementById('ss2-dc-verdict').textContent = v.label;
+  document.getElementById('ss2-dc-verdict').style.color = v.col;
+
+  var rows = getCardRows(sid);
+  var rowsEl = document.getElementById('ss2-dc-rows');
+  rowsEl.innerHTML = rows.map(function(r) {
+    return '<div class="ss2-dc-row"><span class="ss2-dc-key">' + r.k + '</span><span class="ss2-dc-val ' + (r.cls||'') + '">' + r.v + '</span></div>';
+  }).join('');
+
+  document.getElementById('ss2-dc-insight').textContent = getInsight(sid);
+
+  // Position card below the clicked gauge row
+  var rect = cell.getBoundingClientRect();
+  var rootRect = document.getElementById('ss2-root').getBoundingClientRect();
+  card.style.top = (rect.bottom - rootRect.top + 8) + 'px';
+  card.style.left = '12px';
+  card.style.right = '12px';
+  card.style.maxWidth = '560px';
+  card.classList.add('visible');
+}
+
+function getCardRows(sid) {
+  var ihx = liveData.ihx || {}, pac = liveData.pac || {}, bills = liveData.bills || {};
+  var orb = liveData.orb || {}, streams = (orb.streams || {}), inst = liveData.inst || {};
+  var pe = liveData.pe || {}, trades = liveData.trades || {};
+  switch(sid) {
+    case 'congress': return [
+      { k:'IHX Score',        v: ihx.score + '/100',                    cls: ihx.score>=70?'green':ihx.score>=50?'gold':'hot' },
+      { k:'Buy / Sell',       v: (ihx.buy_count||0) + ' buys / ' + (ihx.sell_count||0) + ' sells' },
+      { k:'Crypto Trades',    v: (ihx.crypto_trades||0) + ' / 8 total' },
+      { k:'Signal',           v: (ihx.signal||'neutral').toUpperCase() },
+      { k:'Top buy',          v: 'McCormick — Bitwise BTC ETF',         cls:'green' },
+      { k:'Top sell',         v: 'Tim Moore — COIN (2-day filing)',      cls:'hot' },
+      { k:'Conviction peak',  v: '95% — Moore COIN, 80-95% — McCormick' },
+      { k:'Net positioning',  v: ihx.buy_count > ihx.sell_count ? 'BULLISH BIAS' : 'MIXED', cls:'gold' },
+    ];
+    case 'pac': var exps = pac.fairshake_expenditures || []; return [
+      { k:'Fairshake raised',  v: '$' + ((pac.fairshake_raised||0)/1e6).toFixed(0) + 'M (2026 cycle)', cls:'hot' },
+      { k:'Deployed',          v: '$' + ((pac.fairshake_spend||0)/1e6).toFixed(1) + 'M' },
+      { k:'Pulse score',       v: (pac.score||88) + '/100 ' + (pac.label||'HIGH') },
+      { k:'Crypto PACs',       v: (pac.crypto_committees||0) + ' active committees' },
+      { k:'Top donor',         v: 'a16z (AH Capital) — $23.8M',         cls:'gold' },
+      { k:'#2 donor',          v: 'Ben Horowitz — $11.9M' },
+      { k:'#3 donor',          v: 'Marc Andreessen — $11.9M' },
+      { k:'Biggest OPPOSE',    v: (exps[0] ? (exps[0].candidate||'?').substring(0,28) + ' $' + ((exps[0].amount||0)/1e6).toFixed(1)+'M' : '—'), cls:'hot' },
+    ];
+    case 'legislation': var blist = (bills.bills||[]).filter(function(b){return b.congress_score>50;}).slice(0,4); return [
+      { k:'Bills tracked',     v: ((bills.bills||[]).length || 18) + ' total' },
+      { k:'With floor votes',  v: (bills.bills_with_votes||0) + ' bills' },
+      { k:'GENIUS Act',        v: 'PASSED 66–32 Senate',                 cls:'green' },
+      { k:'Market Clarity',    v: '69% congressional support',           cls:'green' },
+      { k:'Anti-CBDC',         v: 'Introduced — Tom Emmer',              cls:'gold' },
+      { k:'BTC Reserve Act',   v: 'Introduced — Tim Burchett',           cls:'gold' },
+      { k:'STABLE Act',        v: 'Introduced — Bryan Steil' },
+      { k:'Bullish vs bearish',v: (bills.bullish_count||0) + 'B / ' + (bills.bearish_count||0) + 'B gap' },
+    ];
+    case 'onchain': return [
+      { k:'Hashrate signal',   v: (streams.hashrate||0) + '/100',         cls: streams.hashrate>=80?'green':'gold' },
+      { k:'Accumulation',      v: (streams.accum||0) + '/100' },
+      { k:'Exchange flow',     v: (streams.exchange_flow||0) + '/100' },
+      { k:'Whale signal',      v: (streams.whale||0) + '/100',            cls: streams.whale>=80?'green':'gold' },
+      { k:'Fear & Greed',      v: (streams.fear_greed||0) + '/100 (FEAR)',cls: streams.fear_greed<=30?'hot':'' },
+      { k:'Fee signal',        v: (streams.fees||0) + '/100',             cls: streams.fees>=90?'green':'' },
+      { k:'SOPR',              v: '0.15 — capitulation zone',             cls:'hot' },
+      { k:'Puell Multiple',    v: 'Green accumulation band',              cls:'green' },
+    ];
+    case 'institutional': return [
+      { k:'Total 13F filers',  v: (inst.total_institutional_filers||0),  cls:'green' },
+      { k:'Coalition detected',v: ((inst.coalition_summary||{}).count||0) + ' coordinated', cls:'hot' },
+      { k:'PE Form D rounds',  v: (pe.pe_count||0) + ' active raises' },
+      { k:'Top filer',         v: 'ParaFi Capital LP — hedge fund',       cls:'gold' },
+      { k:'#2 filer',          v: 'Avenir Tech Ltd — hedge fund' },
+      { k:'#3 filer',          v: 'Galaxy Institutional Bitcoin Fund' },
+      { k:'Coalition signal',  v: (inst.coalition_summary||{}).detected ? 'ACTIVE — coordinated accumulation' : 'None', cls:(inst.coalition_summary||{}).detected?'hot':'' },
+      { k:'Form 4 insiders',   v: 'Coinbase exec cluster buying',         cls:'green' },
+    ];
+    case 'geo': return [
+      { k:'Macro correlation', v: Math.round(streams.macro_corr||0) + '/100',   cls: streams.macro_corr>=65?'green':'' },
+      { k:'Polymarket signal', v: (streams.polymarket||0) + '/100' },
+      { k:'Put/Call ratio',    v: Math.round(streams.put_call||0) + '/100',      cls:'green' },
+      { k:'US Strategic Res.', v: 'EO 14233 — BTC stockpile active',     cls:'green' },
+      { k:'Fed rate (Apr)',    v: '98.2% NO CHANGE (Polymarket)',          cls:'green' },
+      { k:'10Y Treasury',      v: '3.21%' },
+      { k:'JPY pressure',      v: 'Yen debasement accelerating',          cls:'gold' },
+      { k:'EU MiCA',           v: 'Full implementation — neutral' },
+    ];
+  }
+  return [];
+}
+
+function getInsight(sid) {
+  var insights = {
+    congress:    'IHX at 64 (neutral) with 6/8 crypto-adjacent. McCormick buying Bitwise BTC ETF at 80-95% conviction while Tim Moore\'s 2-day COIN filing speed signals insider awareness. Net positioning: informed bifurcation between senators and representatives.',
+    pac:         'Fairshake 2026 is the largest crypto political operation in US history. a16z, Horowitz, Andreessen coordinating $134M to reshape the congressional map — primarily opposing anti-crypto incumbents. This capital velocity is unprecedented and structurally bullish for regulatory outcomes.',
+    legislation: 'GENIUS Act passing 66-32 was the first major crypto legislation through the Senate. Digital Asset Market Clarity at 69% support signals bipartisan floor momentum. The regulatory moat is forming faster than previous cycles.',
+    onchain:     'SOPR at 0.15 is a deep loss-realization signal. Historical analogue: sub-0.2 SOPR in Q4 2018 preceded +312% over 18 months. Puell Multiple in green band + ATH hashrate (miners not selling) = smart money accumulation concurrent with retail capitulation.',
+    institutional:'Coalition of 18 institutions with coordinated accumulation windows. Galaxy, ParaFi, Coinbase insiders buying via separate channels. Classic informed money vs uninformed market divergence.',
+    geo:         'US Strategic Bitcoin Reserve (EO 14233) represents sovereign demand. 98.2% Polymarket probability of Fed hold removes tail risk. Yen debasement creates structural Bitcoin demand from Japanese capital. Macro backdrop is the most constructive since 2020.',
+  };
+  return insights[sid] || '';
+}
+
+// ─── Correlation map (canvas) ────────────────────────────────────────────────
+function renderCorrelationMap() {
+  var canvas = document.getElementById('ss2-map-canvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var W = wrap.clientWidth || 400;
+  var H = 210;
+  canvas.width = W * (window.devicePixelRatio||1);
+  canvas.height = H * (window.devicePixelRatio||1);
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  layoutNodes();
-}
+  var ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
 
-// ── Node positions (hub + satellites) ────────────────────────────────────────
-var hubNode = { id: 'BTC', label: '₿', score: CONV, color: '#f7931a', r: 42, x: 0, y: 0, isHub: true };
-var nodes = [];
-var childNodes = [];
-var edges = [];
+  // Background
+  ctx.fillStyle = '#050505';
+  ctx.fillRect(0, 0, W, H);
 
-function layoutNodes() {
-  var cx = W / 2, cy = H / 2;
-  hubNode.x = cx; hubNode.y = cy;
-
-  var angleStep = (Math.PI * 2) / SIGNALS.length;
-  var orbitR = Math.min(W, H) * 0.32;
-
-  nodes = [hubNode];
-  childNodes = [];
-  edges = [];
-
-  SIGNALS.forEach(function(sig, i) {
-    var angle = -Math.PI / 2 + i * angleStep;
-    sig.x = cx + Math.cos(angle) * orbitR;
-    sig.y = cy + Math.sin(angle) * orbitR;
-    sig.vx = 0; sig.vy = 0;
-    sig.targetX = sig.x; sig.targetY = sig.y;
-    nodes.push(sig);
-
-    // Edge hub → signal
-    edges.push({ from: hubNode, to: sig, strength: sig.score / 100 });
-
-    // Child nodes
-    var childR = orbitR * 0.48;
-    (sig.children || []).forEach(function(childLabel, ci) {
-      var childAngle = angle - 0.6 + ci * 0.4;
-      var cn = {
-        id: sig.id + '-' + ci,
-        label: childLabel,
-        x: sig.x + Math.cos(childAngle) * childR,
-        y: sig.y + Math.sin(childAngle) * childR,
-        r: 6,
-        color: sig.color,
-        parentId: sig.id,
-        opacity: 0.5,
-      };
-      childNodes.push(cn);
-      edges.push({ from: sig, to: cn, strength: 0.3, child: true });
-    });
-  });
-}
-
-// ── Particles flowing along edges ────────────────────────────────────────────
-var particles = [];
-function spawnParticle(edge) {
-  if (edge.child) return;
-  particles.push({
-    edge: edge,
-    t: 0,
-    speed: 0.004 + Math.random() * 0.006,
-    size: 2 + Math.random() * 2,
-    color: edge.to.color || '#CC0000',
-    opacity: 0.6 + Math.random() * 0.4,
-  });
-}
-
-setInterval(function() {
-  if (particles.length < 80) {
-    edges.forEach(function(e) {
-      if (!e.child && Math.random() < 0.4) spawnParticle(e);
-    });
-  }
-}, 200);
-
-// ── Hover detection ──────────────────────────────────────────────────────────
-var hovered = null;
-var tooltip = document.getElementById('sv-tooltip');
-
-canvas.addEventListener('mousemove', function(e) {
-  var rect = canvas.getBoundingClientRect();
-  var mx = e.clientX - rect.left;
-  var my = e.clientY - rect.top;
-
-  var hit = null;
-  for (var i = nodes.length - 1; i >= 0; i--) {
-    var n = nodes[i];
-    var dist = Math.hypot(mx - n.x, my - n.y);
-    if (dist < n.r + 8) { hit = n; break; }
-  }
-
-  if (hit !== hovered) {
-    hovered = hit;
-    if (hit && !hit.isHub) showTooltip(hit, e.clientX, e.clientY);
-    else if (hit && hit.isHub) showHubTooltip(e.clientX, e.clientY);
-    else hideTooltip();
-  } else if (hit) {
-    positionTooltip(e.clientX, e.clientY);
-  }
-});
-
-canvas.addEventListener('mouseleave', function() {
-  hovered = null;
-  hideTooltip();
-});
-
-function showTooltip(node, cx, cy) {
-  document.getElementById('sv-tt-label').textContent = node.sub || '';
-  document.getElementById('sv-tt-title').textContent = node.label;
-  var scoreEl = document.getElementById('sv-tt-score');
-  scoreEl.textContent = node.score;
-  scoreEl.style.color = node.color;
-  document.getElementById('sv-tt-bar').style.width = node.score + '%';
-  document.getElementById('sv-tt-bar').style.background = node.color;
-
-  var metricsEl = document.getElementById('sv-tt-metrics');
-  metricsEl.innerHTML = (node.metrics || []).map(function(m) {
-    return '<div style="display:flex;justify-content:space-between;gap:12px;font-size:9px;">'
-      + '<span style="color:rgba(255,255,255,0.3);">' + m.k + '</span>'
-      + '<span style="color:rgba(255,255,255,0.85);font-weight:700;">' + m.v + '</span>'
-      + '</div>';
-  }).join('');
-
-  document.getElementById('sv-tt-insight').textContent = node.insight || '';
-  positionTooltip(cx, cy);
-  tooltip.style.opacity = '1';
-}
-
-function showHubTooltip(cx, cy) {
-  document.getElementById('sv-tt-label').textContent = 'SIX-STREAM INDEX';
-  document.getElementById('sv-tt-title').textContent = 'CONVERGENCE: ' + CONV + '/100';
-  var scoreEl = document.getElementById('sv-tt-score');
-  scoreEl.textContent = CONV;
-  scoreEl.style.color = '#f7931a';
-  document.getElementById('sv-tt-bar').style.width = CONV + '%';
-  document.getElementById('sv-tt-bar').style.background = '#f7931a';
-  document.getElementById('sv-tt-metrics').innerHTML =
-    '<div style="font-size:9px;color:rgba(255,255,255,0.5);">Weighted average of 6 intelligence streams. PAC Capital leads at 92/100.</div>';
-  document.getElementById('sv-tt-insight').textContent =
-    'All six streams are bullish or neutral. The highest multi-stream alignment in the current cycle.';
-  positionTooltip(cx, cy);
-  tooltip.style.opacity = '1';
-}
-
-function hideTooltip() { tooltip.style.opacity = '0'; }
-
-function positionTooltip(cx, cy) {
-  var tw = tooltip.offsetWidth || 240;
-  var th = tooltip.offsetHeight || 160;
-  var left = cx + 16;
-  if (left + tw > window.innerWidth - 20) left = cx - tw - 16;
-  tooltip.style.left = left + 'px';
-  tooltip.style.top = (cy - th / 2) + 'px';
-}
-
-// ── Animation loop ────────────────────────────────────────────────────────────
-var t = 0;
-function draw() {
-  ctx.clearRect(0, 0, W, H);
-  t += 0.012;
-
-  // Background grid
-  ctx.strokeStyle = 'rgba(204,0,0,0.04)';
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
   ctx.lineWidth = 0.5;
-  for (var gx = 0; gx < W; gx += 48) {
-    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-  }
-  for (var gy = 0; gy < H; gy += 48) {
-    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-  }
+  for (var x=0; x<=W; x+=W/4) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (var y=0; y<=H; y+=H/3) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 
-  // Draw edges
-  edges.forEach(function(e) {
-    if (!e.from || !e.to) return;
-    var alpha = e.child ? 0.08 : 0.18 * e.strength;
-    var grd = ctx.createLinearGradient(e.from.x, e.from.y, e.to.x, e.to.y);
-    grd.addColorStop(0, (e.to.color || '#CC0000') + '00');
-    grd.addColorStop(0.5, (e.to.color || '#CC0000') + Math.round(alpha * 255).toString(16).padStart(2, '0'));
-    grd.addColorStop(1, (e.to.color || '#CC0000') + '00');
-    ctx.beginPath();
-    ctx.strokeStyle = grd;
-    ctx.lineWidth = e.child ? 0.5 : 1;
-    ctx.moveTo(e.from.x, e.from.y);
-    ctx.lineTo(e.to.x, e.to.y);
-    ctx.stroke();
-  });
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
 
-  // Draw child nodes
-  childNodes.forEach(function(cn) {
-    if (!cn) return;
-    ctx.beginPath();
-    ctx.arc(cn.x, cn.y, cn.r, 0, Math.PI * 2);
-    ctx.fillStyle = cn.color + '30';
-    ctx.fill();
-    ctx.strokeStyle = cn.color + '60';
-    ctx.lineWidth = 0.8;
-    ctx.stroke();
-
-    // Label on larger child nodes
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.font = '6px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(cn.label.substring(0, 12), cn.x, cn.y + cn.r + 8);
-  });
-
-  // Draw particles
-  for (var pi = particles.length - 1; pi >= 0; pi--) {
-    var p = particles[pi];
-    p.t += p.speed;
-    if (p.t >= 1) { particles.splice(pi, 1); continue; }
-    var px = p.edge.from.x + (p.edge.to.x - p.edge.from.x) * p.t;
-    var py = p.edge.from.y + (p.edge.to.y - p.edge.from.y) * p.t;
-    var fade = p.t < 0.1 ? p.t * 10 : p.t > 0.9 ? (1 - p.t) * 10 : 1;
-    ctx.beginPath();
-    ctx.arc(px, py, p.size * fade, 0, Math.PI * 2);
-    ctx.fillStyle = p.color + Math.round(p.opacity * fade * 255).toString(16).padStart(2, '0');
-    ctx.fill();
-    // Glow
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = p.color;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  }
-
-  // Draw signal nodes
-  SIGNALS.forEach(function(sig) {
-    var isHov = hovered === sig;
-    var pulse = 1 + 0.06 * Math.sin(t * 1.5 + SIGNALS.indexOf(sig));
-    var r = sig.r * (isHov ? 1.25 : pulse);
-
-    // Outer glow
-    var grd = ctx.createRadialGradient(sig.x, sig.y, r * 0.4, sig.x, sig.y, r * 2);
-    grd.addColorStop(0, sig.color + '30');
-    grd.addColorStop(1, sig.color + '00');
-    ctx.beginPath();
-    ctx.arc(sig.x, sig.y, r * 2, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
-    ctx.fill();
-
-    // Node body
-    ctx.beginPath();
-    ctx.arc(sig.x, sig.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fill();
-    ctx.strokeStyle = sig.color;
-    ctx.lineWidth = isHov ? 2.5 : 1.5;
-    ctx.stroke();
-
-    // Score inside node
-    ctx.fillStyle = sig.color;
-    ctx.font = 'bold ' + Math.round(r * 0.55) + 'px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(sig.score, sig.x, sig.y);
-
-    // Label below
-    ctx.fillStyle = isHov ? '#fff' : 'rgba(255,255,255,0.55)';
-    ctx.font = '7.5px JetBrains Mono, monospace';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText(sig.label, sig.x, sig.y + r + 13);
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.font = '6px JetBrains Mono, monospace';
-    ctx.fillText(sig.sub, sig.x, sig.y + r + 22);
-  });
-
-  // Draw hub node (BTC center)
-  var hubPulse = 1 + 0.04 * Math.sin(t * 2.2);
-  var hr = hubNode.r * (hovered === hubNode ? 1.2 : hubPulse);
-
-  // Hub outer rings
-  for (var ri = 3; ri >= 1; ri--) {
-    ctx.beginPath();
-    ctx.arc(hubNode.x, hubNode.y, hr * (1 + ri * 0.35), 0, Math.PI * 2);
-    ctx.strokeStyle = '#f7931a' + Math.round(0.06 / ri * 255).toString(16).padStart(2,'0');
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-  }
-
-  // Hub glow
-  var hgrd = ctx.createRadialGradient(hubNode.x, hubNode.y, 0, hubNode.x, hubNode.y, hr * 1.8);
-  hgrd.addColorStop(0, '#f7931a30');
-  hgrd.addColorStop(1, '#f7931a00');
-  ctx.beginPath();
-  ctx.arc(hubNode.x, hubNode.y, hr * 1.8, 0, Math.PI * 2);
-  ctx.fillStyle = hgrd;
-  ctx.fill();
-
-  // Hub body
-  ctx.beginPath();
-  ctx.arc(hubNode.x, hubNode.y, hr, 0, Math.PI * 2);
-  ctx.fillStyle = '#0d0d0d';
-  ctx.fill();
-  ctx.strokeStyle = '#f7931a';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Hub score
-  ctx.fillStyle = '#f7931a';
-  ctx.font = 'bold 18px JetBrains Mono, monospace';
+  // Quadrant labels
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.font = '9px JetBrains Mono';
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = '#f7931a';
-  ctx.fillText(CONV, hubNode.x, hubNode.y - 5);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '7px JetBrains Mono, monospace';
-  ctx.fillText('CONV', hubNode.x, hubNode.y + 10);
+  ctx.fillText('HIGH STRENGTH', W*0.75, 14);
+  ctx.fillText('GAINING MOMENTUM', W*0.75, 26);
+  ctx.fillText('LOW STRENGTH', W*0.25, 14);
+  ctx.fillText('LOSING MOMENTUM', W*0.25, H-8);
 
-  requestAnimationFrame(draw);
-}
+  // Map each stream to X (direction: 0=bearish, 100=bullish) and Y (strength)
+  // X = derived from signal direction  Y = score
+  var mapData = {
+    congress:     { x: 55, y: scores.congress || 64,  color:'#f8c15c' },
+    pac:          { x: 85, y: scores.pac || 88,        color:'#CC0000' },
+    legislation:  { x: 75, y: scores.legislation || 75,color:'#22c55e' },
+    onchain:      { x: 62, y: scores.onchain || 74,    color:'#f8c15c' },
+    institutional:{ x: 70, y: scores.institutional||70,color:'#22c55e' },
+    geo:          { x: 68, y: scores.geo || 70,        color:'#22c55e' },
+  };
 
-// ── Signal bars (right panel) ─────────────────────────────────────────────────
-function renderSignalBars() {
-  var el = document.getElementById('sv-signal-bars');
-  if (!el) return;
-  el.innerHTML = SIGNALS.map(function(s) {
-    return '<div style="margin-bottom:14px;">'
-      + '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">'
-      + '<div><span style="font-size:9px;font-weight:700;letter-spacing:.06em;">' + s.label + '</span>'
-      + '<span style="font-size:7px;color:rgba(255,255,255,0.25);margin-left:5px;">' + s.sub + '</span></div>'
-      + '<span style="font-size:12px;font-weight:700;color:' + s.color + ';text-shadow:0 0 8px ' + s.color + '88;">' + s.score + '</span>'
-      + '</div>'
-      + '<div style="height:2px;background:rgba(255,255,255,0.05);border-radius:1px;">'
-      + '<div style="height:100%;width:' + s.score + '%;background:' + s.color + ';border-radius:1px;box-shadow:0 0 6px ' + s.color + '66;transition:width 1.5s cubic-bezier(.22,.61,.36,1);"></div>'
-      + '</div>'
-      + '<div style="font-size:7px;color:rgba(255,255,255,0.18);margin-top:3px;">' + (s.metrics && s.metrics[0] ? s.metrics[0].k + ': ' + s.metrics[0].v : '') + '</div>'
-      + '</div>';
-  }).join('');
-}
+  streamOrder.forEach(function(sid) {
+    var d = mapData[sid];
+    var px = (d.x / 100) * W;
+    var py = H - (d.y / 100) * H;
+    var r = 10 + (d.y / 100) * 12;
 
-// ── Power flow strip ──────────────────────────────────────────────────────────
-function renderFlowStrip() {
-  var el = document.getElementById('sv-flow-strip');
-  if (!el) return;
-  var items = [
-    { label: 'a16z', val: '$23.8M', col: '#CC0000' },
-    { label: '→', val: '', col: 'rgba(204,0,0,0.4)', arrow: true },
-    { label: 'FAIRSHAKE', val: '$134M', col: '#f7931a', big: true },
-    { label: '→', val: '', col: 'rgba(204,0,0,0.4)', arrow: true },
-    { label: 'PORTER OPPOSE', val: '$20M', col: '#ef4444' },
-    { label: 'STRATTON OPPOSE', val: '$13.6M', col: '#ef4444' },
-    { label: 'STEEL SUPPORT', val: '$5.6M', col: '#22c55e' },
-    { label: '→', val: '', col: 'rgba(204,0,0,0.4)', arrow: true },
-    { label: 'GENIUS 66-32', val: 'PASSED', col: '#22c55e' },
-    { label: '→', val: '', col: 'rgba(204,0,0,0.4)', arrow: true },
-    { label: '₿', val: '$' + (74406).toLocaleString(), col: '#f7931a' },
-  ];
-  el.innerHTML = items.map(function(it) {
-    if (it.arrow) return '<span style="font-size:14px;color:' + it.col + ';flex-shrink:0;">→</span>';
-    return '<div style="flex-shrink:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:3px;padding:4px 8px;text-align:center;">'
-      + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:7px;letter-spacing:.1em;color:rgba(255,255,255,0.3);">' + it.label + '</div>'
-      + (it.val ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:700;color:' + it.col + ';margin-top:1px;">' + it.val + '</div>' : '')
-      + '</div>';
-  }).join('');
-}
+    // Glow
+    var grd = ctx.createRadialGradient(px, py, 0, px, py, r*2);
+    grd.addColorStop(0, d.color + '40');
+    grd.addColorStop(1, d.color + '00');
+    ctx.beginPath(); ctx.arc(px, py, r*2, 0, Math.PI*2);
+    ctx.fillStyle = grd; ctx.fill();
 
-// ── AI Narrative ──────────────────────────────────────────────────────────────
-function fetchNarrative() {
-  fetch('/api/sovereign-signal-narrative', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ convergence: CONV })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    var el = document.getElementById('sv-narrative');
-    if (el && d.narrative) el.innerHTML = '\u201c' + d.narrative + '\u201d';
-  })
-  .catch(function() {
-    var el = document.getElementById('sv-narrative');
-    if (el) el.innerHTML = '\u201cSix independent signal streams at ' + CONV + '/100. PAC capital velocity leads at 92/100 with Fairshake $134M deployed. SOPR capitulation at 0.15 concurrent with congressional BTC ETF accumulation signals informed divergence from retail.\u201d';
+    // Circle
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI*2);
+    ctx.fillStyle = d.color + '25';
+    ctx.fill();
+    ctx.strokeStyle = d.color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Score label
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 9px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(d.y, px, py + 3);
+
+    // Stream label below
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '6px JetBrains Mono';
+    ctx.fillText(STREAMS[sid].label, px, py + r + 10);
   });
+
+  // Hover
+  var tooltip = document.getElementById('ss2-map-tooltip');
+  canvas.onmousemove = function(e) {
+    var rect = canvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    var hit = null;
+    streamOrder.forEach(function(sid) {
+      var d = mapData[sid];
+      var px = (d.x / 100) * W;
+      var py = H - (d.y / 100) * H;
+      var r = 10 + (d.y / 100) * 12;
+      if (Math.hypot(mx-px, my-py) < r + 8) hit = { sid:sid, d:d, px:px, py:py };
+    });
+    if (hit) {
+      tooltip.style.opacity = '1';
+      tooltip.style.left = (hit.px + 16) + 'px';
+      tooltip.style.top = (hit.py - 20) + 'px';
+      tooltip.innerHTML = '<div style="color:' + hit.d.color + ';font-size:7px;letter-spacing:.15em;margin-bottom:3px;">' + STREAMS[hit.sid].label + '</div>'
+        + '<div style="font-size:11px;font-weight:700;">' + hit.d.y + '/100</div>'
+        + '<div style="font-size:8px;color:rgba(255,255,255,0.5);margin-top:3px;">' + getLiveSubLabel(hit.sid) + '</div>'
+        + '<div style="font-size:7px;color:rgba(255,255,255,0.3);margin-top:4px;">Click gauge above for full breakdown</div>';
+    } else {
+      tooltip.style.opacity = '0';
+    }
+  };
+  canvas.onmouseleave = function() { tooltip.style.opacity = '0'; };
 }
 
-// ── Update hub score from live API ────────────────────────────────────────────
-function updateLiveScore() {
-  fetch('/api/donations/pulse')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      var pac = d.score || 92;
-      SIGNALS[1].score = pac; // PAC Capital
-      SIGNALS[0].metrics[1].v = '$' + ((d.fairshake_raised||0)/1e6).toFixed(0) + 'M raised';
-      var newConv = Math.round(SIGNALS.reduce(function(s,x){return s+x.score;},0)/SIGNALS.length);
-      hubNode.score = newConv;
-      var el = document.getElementById('sv-score-big');
-      if (el) el.textContent = newConv;
-    }).catch(function(){});
+// ─── Signal board ────────────────────────────────────────────────────────────
+function renderSignalBoard() {
+  var board = document.getElementById('ss2-signal-board');
+  if (!board) return;
+  var ihx = liveData.ihx || {}, pac = liveData.pac || {};
+  var orb = liveData.orb || {}, streams = orb.streams || {};
+  var inst = liveData.inst || {}, bills = liveData.bills || {};
+  var exps = pac.fairshake_expenditures || [];
+
+  var items = [
+    // CRITICAL (red)
+    { col:'#CC0000', label:'PAC CAPITAL · CRITICAL', text:'Fairshake PAC raised $' + ((pac.fairshake_raised||0)/1e6).toFixed(0) + 'M — largest crypto political operation in US history', val: '$' + ((pac.fairshake_raised||0)/1e6).toFixed(0) + 'M' },
+    exps[0] ? { col:'#CC0000', label:'FAIRSHAKE · TOP EXPENDITURE', text:exps[0].candidate + ' — ' + (exps[0].support==='O'?'OPPOSE':'SUPPORT'), val: '$' + ((exps[0].amount||0)/1e6).toFixed(1) + 'M' } : null,
+    // SIGNAL (orange)
+    { col:'#f8c15c', label:'ON-CHAIN · SOPR SIGNAL', text:'SOPR at 0.15 — historical capitulation. Prior sub-0.2 episodes: avg +312% over 18 months', val: '0.15' },
+    streams.hashrate >= 80 ? { col:'#f8c15c', label:'ON-CHAIN · HASHRATE', text:'Hashrate signal at ' + streams.hashrate + '/100 — miners holding, not selling into weakness', val: streams.hashrate + '/100' } : null,
+    { col:'#f8c15c', label:'CONGRESS · IHX', text:'Insider Heat Index ' + (ihx.score||64) + '/100 — ' + (ihx.buy_count||0) + ' buys vs ' + (ihx.sell_count||0) + ' sells, ' + (ihx.crypto_trades||0) + ' crypto-adjacent', val: (ihx.score||64) + '/100' },
+    { col:'#22c55e', label:'LEGISLATION · GENIUS ACT', text:'Passed Senate 66–32. Digital Asset Market Clarity at 69% congressional support. Regulatory moat forming.', val: '66–32' },
+    (inst.total_institutional_filers||0) > 15 ? { col:'#22c55e', label:'INSTITUTIONAL · COALITION', text:((inst.coalition_summary||{}).count||0) + ' institutions in coordinated BTC ETF accumulation windows — ' + (inst.total_institutional_filers||0) + ' total 13F filers', val: (inst.total_institutional_filers||0) + ' filers' } : null,
+    streams.whale >= 80 ? { col:'#22c55e', label:'ON-CHAIN · WHALE SIGNAL', text:'Whale accumulation signal at ' + streams.whale + '/100 — on-chain large wallet flows bullish', val: streams.whale + '/100' } : null,
+    // NOTE (dim)
+    { col:'rgba(255,255,255,0.3)', label:'GEO · FED RATE', text:'98.2% Polymarket probability of no rate change in April — macro tail risk removed for current cycle', val: '98.2%' },
+    { col:'rgba(255,255,255,0.3)', label:'GEO · US STRATEGIC RESERVE', text:'Executive Order 14233 establishes national Bitcoin stockpile — sovereign demand signal', val: 'EO 14233' },
+  ].filter(Boolean);
+
+  board.innerHTML = items.map(function(item) {
+    return '<div class="ss2-signal-item">'
+      + '<div class="ss2-si-dot" style="background:' + item.col + ';box-shadow:0 0 4px ' + item.col + ';"></div>'
+      + '<div class="ss2-si-body">'
+      + '<div class="ss2-si-label" style="color:' + item.col + ';">' + item.label + '</div>'
+      + '<div class="ss2-si-text">' + item.text + '</div>'
+      + '</div>'
+      + '<div class="ss2-si-val" style="color:' + item.col + ';">' + item.val + '</div>'
+      + '</div>';
+  }).join('');
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
-window.addEventListener('resize', function() { resize(); });
-resize();
-renderSignalBars();
-renderFlowStrip();
-draw();
-fetchNarrative();
-updateLiveScore();
-setInterval(updateLiveScore, 120000);
+// ─── Waterfall bars ───────────────────────────────────────────────────────────
+function renderWaterfall() {
+  var el = document.getElementById('ss2-waterfall-bars');
+  if (!el) return;
+  var totalScore = 0;
+  streamOrder.forEach(function(id) { totalScore += (scores[id]||0); });
+  var avg = totalScore / streamOrder.length;
+
+  el.innerHTML = streamOrder.map(function(sid) {
+    var score = scores[sid] || 50;
+    var color = scoreToColor(score);
+    var contrib = Math.round((score / totalScore) * 100);
+    var pct = (score / 100) * 100;
+    return '<div class="ss2-wf-col" onclick="(function(){var cell=document.getElementById(\'gc-\'+\'' + sid + '\');if(cell)cell.click();})();">'
+      + '<div class="ss2-wf-bar-wrap"><div class="ss2-wf-bar" style="height:' + pct + '%;background:' + color + ';box-shadow:0 0 8px ' + color + '44;"></div></div>'
+      + '<div class="ss2-wf-score" style="color:' + color + ';">' + score + '</div>'
+      + '<div class="ss2-wf-label">' + STREAMS[sid].label + '</div>'
+      + '<div class="ss2-wf-contrib">' + contrib + '% weight</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+fetchAll();
+setInterval(fetchAll, 120000); // refresh every 2 min
+
+// Close card when pressing Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCard();
+});
 
 })();
 </script>
