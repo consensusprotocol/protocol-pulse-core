@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-04-15T02:00:15.148854+00:00",
+  "brief_type": "evening",
+  "score": 35,
+  "bullish_signals": [
+    "Price resilience during extreme fear (23 reading)",
+    "Solid network health at 1.1 EH/s hashrate",
+    "Miners not panicking despite revenue pressure",
+    "Clean mempool with fees at historic lows (1 sat/byte)",
+    "Capitulation compression historically precedes reversals",
+    "Halving cycle dynamics still active"
+  ],
+  "bearish_signals": [
+    "Thin trading volume indicates absent conviction",
+    "Muted daily movement (0.4%) suggests range compression",
+    "Macro spillover risk from US equities weakness",
+    "Miner revenue pressure amid halving cycle"
+  ],
+  "neutral_topics": [
+    "Block height progression (945,131)",
+    "Fee environment normalization"
+  ]
+}

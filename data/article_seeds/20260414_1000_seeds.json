@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-14T10:00:20.055980+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Fear & Greed Divergence: Why Bitcoin's 5% Rally Could Be a Short Squeeze Setup",
+      "angle": "Analyzing the classic contrarian signal when extreme fear coincides with price relief\u2014historical patterns and what institutional behavior suggests about the next 24-48 hours",
+      "tags": [
+        "bitcoin",
+        "market-sentiment",
+        "fear-index",
+        "liquidations",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Mempool Efficiency During Capitulation: What Clean On-Chain Data Really Means for Price Action",
+      "angle": "Healthy network metrics (hashrate, fee rates, transaction backlog) don't guarantee price conviction\u2014examining the gap between blockchain health and market psychology",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "network-health",
+        "mempool",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "$75K or Bust: Why Resistance Levels Matter More Than Fear Readings in Low-Liquidity Bounces",
+      "angle": "Technical breakdown of the critical 6-hour window ahead\u2014how institutional positioning signals differ from retail panic in thin markets",
+      "tags": [
+        "bitcoin",
+        "resistance",
+        "price-action",
+        "liquidity",
+        "trading"
+      ]
+    }
+  ]
+}

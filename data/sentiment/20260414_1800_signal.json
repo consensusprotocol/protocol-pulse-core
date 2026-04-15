@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-04-14T18:00:15.787535+00:00",
+  "brief_type": "midday",
+  "score": 72,
+  "bullish_signals": [
+    "3.5% session rally to $74,700",
+    "Extreme Fear (21) historically precedes relief rallies",
+    "Solid hashrate at 1026 exahashes",
+    "Lean mempool (42K txs) shows zero congestion",
+    "Cheap base fees (2 sat/byte) = capacity for volume",
+    "Low fear + rising price = fresh capital attraction",
+    "On-chain conditions support sustained movement"
+  ],
+  "bearish_signals": [
+    "Volume data corruption across feeds creates uncertainty",
+    "Need confirmation at $75,500 for next leg"
+  ],
+  "neutral_topics": [
+    "Data feed reliability issues",
+    "Technical resistance testing ($77K target)"
+  ]
+}

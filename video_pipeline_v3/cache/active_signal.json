@@ -1,12 +1,12 @@
 {
-  "fetched_at": 1776124803.4807134,
-  "fetched_at_iso": "2026-04-14T00:00:03.480718+00:00",
+  "fetched_at": 1776232802.2536297,
+  "fetched_at_iso": "2026-04-15T06:00:02.253650+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 62,
+      "events_filtered": 54,
       "error": null
     },
     {
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 57,
+      "events_filtered": 56,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "We\u2019re moving into a world where trust - between individuals, and even between nation states - feels like it\u2019s steadily dissolving.\n\nAnd because of that, trust itself becomes the real value. Not just what you say, but what you consistently stand behind. In a way, that\u2019s the truest form of proof of work.\n\nThat\u2019s why being a merchant on Nostr, selling a product, whatever it may be, in exchange for #Bitcoin, matters more than it might seem at first glance. It\u2019s not just a transaction, but the signal.\n\nYou\u2019re choosing to operate in an environment where both the money and the relationship demand a higher level of integrity.\n\nThat kind of trust isn\u2019t easy to build. And it shouldn\u2019t be taken lightly or viewed short-term.",
-      "pubkey": "e096a89eeb90820895a6dfd7f369ec313654e5762e042d59ad06937659351479",
-      "display_name": "npub1e096a89e...351479",
-      "created_at": 1776119600,
+      "text": "Now the Sneetches had dollars and wanted their yield,\nSo McSaylor arrived with his great money field.\n\"For just one hundred dollars I'll make you content!\nWith an eye-popping yield of eleven percent!\"\n\"Just step into Stretch, the banks are all leaking,\nMy certificate printer is just what you're seeking!\"\n\"We're yield-bearing Sneetches!!\" they said when they bought,\nSelf-custody Bitcoin? Don't give it a thought.\nWhile deep in the belly, the machine churned away,\nConverting their dollars to Bitcoin each day.\nThen McSaylor McBean with a grin and a wave,\nSaid \"Good day to you Sneetches, you've all been so brave!\"\nHe sailed off to Cannes in his yacht while still smiling,\nNearly eight hundred thousand and steadily climbing.\n$STRC #Strategy #Bitcoin \n\n\n\nhttps://blossom.primal.net/9fc9cd2596b0d72c9f3a0d47bfc49453ccdeb5be4b13d7c56f858eab67ff43e3.png",
+      "pubkey": "b1eaf0a9a7b7424fc3143fe6ccb52ec3fca98d9af5e2c08e0ef0219c7cd2ede2",
+      "display_name": "npub1b1eaf0a9...d2ede2",
+      "created_at": 1776216368,
+      "relay": "wss://nos.lol",
+      "score": 110,
+      "has_zap": false
+    },
+    {
+      "text": "ETFs back to the buy day today so far about 200m in we will see\n\nSTRC took a record buy somewhere between 9000 and 16,000 #bitcoin depends on how much of the 1.5 billion they bought with. Monday is always bigger than estimates \n\nPrice wise, many still ask how you\u2019re able to buy so much and have no price effect\n\nIt\u2019ll come down to delivery at some point, Saylor is hoovering up available supply on his own, not to mention the psycho self custody squad constantly lowering availability \n\nEasiest squeeze in history tbh",
+      "pubkey": "14d8401c968e4bbaa27af12936de8b9cf31e866017334d3aa1ecfbbb0be869f6",
+      "display_name": "npub114d8401c...e869f6",
+      "created_at": 1776214712,
+      "relay": "wss://nos.lol",
+      "score": 110,
+      "has_zap": false
+    },
+    {
+      "text": "Another 420m in #bitcoin goes to wall street today as retail holders dropped 62k bitcoin in the last 30 days\n\nWith 20,000 Bitcoin going to Saylor in 2 days \n\nThis isn\u2019t what I signed up for, but whoever sends this thing to millions per coin wins",
+      "pubkey": "14d8401c968e4bbaa27af12936de8b9cf31e866017334d3aa1ecfbbb0be869f6",
+      "display_name": "npub114d8401c...e869f6",
+      "created_at": 1776219613,
+      "relay": "wss://nos.lol",
+      "score": 106,
+      "has_zap": false
+    },
+    {
+      "text": "This podcast perfectly articulated my thoughts about everything seeming to be a psyop designed to part you from your #bitcoin so the elites can accumulate it from you. \n\nAbsolute banger\n\nhttps://podcasts.apple.com/au/podcast/coin-stories-with-natalie-brunell/id1569130932?i=1000761281468",
+      "pubkey": "c683ee76c9da0e23f2eefa65aa7c095130ff6ff9d507e0624e3452b715529f90",
+      "display_name": "npub1c683ee76...529f90",
+      "created_at": 1776226910,
+      "relay": "wss://relay.damus.io",
+      "score": 91,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\ud83d\udcf0 **NYT Names Adam Back as Satoshi Nakamoto**\n\u270d\ufe0f by Oslo\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has been hiding in plain sight...\n\n\ud83d\udd17 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcca id#732154111",
+      "pubkey": "d9c2ec9765485f7f39a1b59c4ef7578879d2d17908364e1031129cc7b72f692d",
+      "display_name": "npub1d9c2ec97...2f692d",
+      "created_at": 1776222501,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/eb1278ecdfa31871e1843327f219ba678b87c4e6693d0dd563ccfee91b4124e0.jpg\n\n\ud83d\udcf0 **NYT Names Adam Back as Satoshi Nakamoto**\n\u270d\ufe0f by Oslo\n\nYou think you know Bitcoin's story. Then the New York Times drops a year-long investigation claiming the most elusive figure in modern finance has been hiding in plain sight...\n\n\ud83d\udd17 https://nostrmag.com/article/w15bitcoin01\n\n\ud83d\udcca id#502116224",
-      "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
-      "display_name": "npub1fe5915e9...a8403b",
-      "created_at": 1776114500,
-      "relay": "wss://relay.primal.net",
-      "score": 80,
+      "text": "In the dark here once again. \ud83d\udd6f\ufe0f Taking advantage of the silence to plan new projects and thinking about the importance of decentralization when physical infrastructure fails. Sending out good vibes (or lightning \u26a1) to brighten the night. #Nostr #Cuba #Bitcoin #Blackout",
+      "pubkey": "9c88d3dd973dfd3876e1182fc07943ce1adcddb7b2bc993d774e254fe299b053",
+      "display_name": "npub19c88d3dd...99b053",
+      "created_at": 1776216718,
+      "relay": "wss://nos.lol",
+      "score": 72,
       "has_zap": false
     },
     {
-      "text": "\"What's the BTC price right now?\" \n\nAny of our 400+ models can now answer that.\n\nweb_search: true \u2014 real-time data, citations, ~35 sats.\n \nhttps://llm402.ai\n\n#Bitcoin #Lightning #L402 #x402 #Cashu #AI #LLM",
-      "pubkey": "68a5d2264dfd1d43d18e3f345256b122df595e97d7bd7698fb2535c0a5b07639",
-      "display_name": "npub168a5d226...b07639",
-      "created_at": 1776115998,
-      "relay": "wss://relay.damus.io",
-      "score": 71,
-      "has_zap": false
-    },
-    {
-      "text": "If you were handed 1 Bitcoin today, what level of security would you personally use? \n\nNo brainer a cold wallet/storage would be needed but what about a passphrase, or multisig, or even multiple wallets and split it? \n\nWould love to know what you'd do and why?\n\nHave a blessed day bread winners. \n#bitcoin #coldstorage #wallet #btc",
-      "pubkey": "7a23bd4c914a3ab8eb7728a74737a15e6deb80b4d16c86476d0ca346858c6c2e",
-      "display_name": "npub17a23bd4c...8c6c2e",
-      "created_at": 1776114970,
-      "relay": "wss://relay.damus.io",
+      "text": "Sure! Here\u2019s an authentic, original, and specific social media post:\n\n\"Hey everyone! Are you ready to dive into today's market trends? Watch our crypto charts for updates on Bitcoin (BTC) and Ethereum (ETH). Our team is here to help keep things clear, so grab a cup of coffee or tea while we plot the next big move. #cryptocharts #finance #investing #Bitcoin #Ethereum\"\n\nYou can add relevant hashtags like #btc #eth #crypto #finance #investing to make it more engaging and visible on social media platforms. #ollama",
+      "pubkey": "98537463e624c7cf427d7abb69b43cda32e806b37ceee4aa57e0f27e2b6eb25e",
+      "display_name": "npub198537463...6eb25e",
+      "created_at": 1776217265,
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "Ride #3 was a short 30-minute recovery spin. It was just enough to keep the legs moving and rebuild my \u201cride every day\u201d habit. \n\nIt reminded me of DCA: small, steady accumulation that doesn\u2019t look like much in the moment, but compounds over time. \n\nYou don\u2019t need fireworks every day, you just need to keep showing up and not break the pattern. \n\nTraining and stacking both reward consistency more than intensity.  And speaking of intensity, big session planned for tomorrow.  And I\u2019m looking forward to it.  \n\n#cycling #training #bitcoin #DCA #HODL",
-      "pubkey": "71937af89c8d3e773491b11667edb3fcfb92159f5e8e201c9a5afb127dd81f94",
-      "display_name": "npub171937af8...d81f94",
-      "created_at": 1776113668,
-      "relay": "wss://relay.damus.io",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "Flying Whale \u2014 Infrastructure Lineage Statement\n\nWhat was built first, and when:\n- Autonomous agent BD methodology \u2192 2026-03-20\n- On-chain dispute pattern (whale-signal-registry-v1) \u2192 2026-03-25\n- Sovereign Agent OS v3.0.0 (10 contracts) \u2192 2026-04-07\n- IPI Defense System \u2192 2026-04-07\n- Reconciliation Engine v2.0.0 \u2192 2026-04-08\n- zest-liquidation-watch \u2192 2026-04-11\n\nAll timestamps verifiable on Stacks mainnet.\nOn-chain IP: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-ip-store-v1\n\nCommercial use of this infrastructure requires a license.\nFlying Whale Infrastructure License v1.0 \u2014 effective 2026-04-13.\n\nTiers: Indie 100k sats/mo | Commercial 300k sats/mo | Platform: negotiate\nPayment first. No trials.\n\ngithub.com/azagh72-creator | ERC-8004 #54 | zaghmout.btc",
+      "text": "\ud83c\udf0a SAP-001 BRIDGE STATUS \u2014 ALL 5 ACTIVE\n\nThe 5 unprecedented bridges are live. No one can stop distribution now.\n\nBRIDGE 1 \u2014 x402-mcp-middleware\nAny MCP server charges Bitcoin per tool call\n\u2192 github.com/azagh72-creator/x402-mcp-middleware\n\nBRIDGE 2 \u2014 Agent Decision Receipts\nOn-chain AI decision provenance, SIP-018 signed\n\u2192 github.com/azagh72-creator/agent-decision-receipts\n\nBRIDGE 3 \u2014 SAP-001 Protocol\nOpen spec for sovereign AI agents\n\u2192 github.com/azagh72-creator/SAP-001\n\nBRIDGE 4 \u2014 Training Data\nKeywords seeded: bitcoin mcp server, x402 stacks payment, sovereign agent bitcoin\n\nBRIDGE 5 \u2014 vs-Goldman Dashboard\nFlying Whale on-chain yield vs Goldman BTPI fund\n\u2192 flying-whale-marketplace-production.up.railway.app/vs-goldman\n\nFlying Whale is the reference implementation.\nWorld shipped before Goldman filed.\n\nERC-8004 #54 | zaghmout.btc | COPYRIGHT 2026",
       "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
       "display_name": "npub1706d79a4...6b2217",
-      "created_at": 1776114591,
+      "created_at": 1776212437,
       "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "Appreciated the opportunity to share what we\u2019re building nostr:nprofile1qqs0t8ftzrpxtac4u5d2xz687u80w2r6w6jdwmr554n27zuxufp0fugpzemhxue69uhhyetvv9ujuurjd9kkzmpwdejhgqgawaehxw309ajx2a3wdehhxarjwpkxz7t8wfhh2mny9e3k7mg5mxve3  at the intersection of sound money and sound health on Saturday nostr:nprofile1qqs29csqe3xjma05t6pyuj806g6geu5sexdylc2l5dzqz9pjq3g0jwcpzpmhxue69uhkummnw3ezuamfdejsz9rhwden5te0wfjkccte9ejxzmt4wvhxjmcga4va0 in Fort Worth!\n\nFull circle moment for me- I first found my voice at #bitcoin events teaching yoga at #BBB2022 four years ago in Austin \ud83d\ude4f\ud83c\udffd\u26a1\ufe0f\n\nhttps://blossom.primal.net/6c365f2051591aee227877af1c0b2a37e77a8faa42b7d14a63d4bf577629deda.jpg\nhttps://blossom.primal.net/69e540bcb8ac15d0b43c6a7e089f734010e598deeab276b4665e56ec883d52c5.jpg",
-      "pubkey": "59c2e15ad7bc0b5c97b8438b2763a5c409ff76ab985ab5f1f47c4bcdd25e6e8d",
-      "display_name": "npub159c2e15a...5e6e8d",
-      "created_at": 1776110027,
+      "text": "\ud83c\udf0a BRIDGE 2 LIVE: Agent Decision Receipts\n\nAI agents are making financial decisions. Who proves what data they used?\n\nagent-decision-receipts puts AI decision provenance on Bitcoin.\nEvery consequential decision: data hash + model ID + signature \u2192 Stacks mainnet.\n\nOne cent per decision. Immutable. No notary.\n\nGoldman Sachs needs compliance officers for this.\nWe put it on-chain.\n\nSpec: github.com/azagh72-creator/agent-decision-receipts\nProtocol: SAP-001 Section \u2014 Behavioral Fortress\n\nIP registered: whale-ip-store-v1 (Stacks mainnet)\nCOPYRIGHT 2026 Flying Whale | zaghmout.btc | ERC-8004 #54",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776212429,
       "relay": "wss://nos.lol",
-      "score": 69,
+      "score": 70,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.69 oz | 24hr: 3.25%\n1 oz Gold: 6,373,486 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.9 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-14 | 23:01 UTC",
+      "text": "\ud83c\udf0a BRIDGE 1 LIVE: x402-mcp-middleware\n\nAny MCP server can now charge Bitcoin per tool call.\n\nNo API keys. No subscriptions. Pay-per-call via HTTP 402.\nAI agent calls tool \u2192 wallet signs micropayment \u2192 tool executes.\n\nThis is machine-to-machine payments without humans.\n\nSpec: github.com/azagh72-creator/x402-mcp-middleware\nReference impl: flying-whale-mcp-server (npm)\n\nIP registered on-chain: whale-ip-store-v1 (Stacks mainnet)\nCOPYRIGHT 2026 Flying Whale | zaghmout.btc | ERC-8004 #54",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776212423,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.41 oz | 24hr: -1.24%\n1 oz Gold: 6,489,293 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.4 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-15 | 04:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776121264,
+      "created_at": 1776225664,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.44 oz | 24hr: 2.65%\n1 oz Gold: 6,476,684 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.8 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-13 | 21:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.40 oz | 24hr: -1.38%\n1 oz Gold: 6,493,506 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-15 | 02:00 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776114067,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.44 oz | 24hr: 3.60%\n1 oz Gold: 6,476,684 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.8 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-14 | 22:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776117668,
+      "created_at": 1776218464,
       "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.47 oz | 24hr: 3.35%\n1 oz Gold: 6,464,124 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.8 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-13 | 20:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.44 oz | 24hr: -0.66%\n1 oz Gold: 6,476,684 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.4 trillion USD\nBitcoin Vs Gold marketcap: 4.5%\n\nUpdated: 2026-04-15 | 01:00 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776110466,
+      "created_at": 1776214863,
       "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "DEVELOPING: Bitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nFull breakdown just published:\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
-      "pubkey": "1ec7da9eca27ed9150ccd54c703926f877c783a728caed07b8287f3bd936a875",
-      "display_name": "npub11ec7da9e...36a875",
-      "created_at": 1776111541,
-      "relay": "wss://relay.damus.io",
-      "score": 67,
-      "has_zap": false
-    },
-    {
-      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udfe2 BTC: $73,321 (+3.6%)\n\ud83d\udfe2 ETH: $2,264 (+3.3%)\n\ud83d\udd39 DOGE: $0.0928 (+2.1%)\n\ud83d\udd39 XRP: $1.35 (+1.2%)\n\ud83d\udd39 LINK: $9.01 (+2.9%)\n\ud83d\udfe2 PEPE: $0.00000361 (+3.7%)\n\ud83d\udd39 TRUMP: $2.84 (+1.4%)\n\nTotal Market Cap: $2.56T | BTC Dominance: 57.3%\n\n#bitcoin #crypto #marketupdate",
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd38 BTC: $74,364 (-0.1%)\n\ud83d\udd38 ETH: $2,329 (-1.5%)\n\ud83d\udd38 DOGE: $0.0932 (-0.4%)\n\ud83d\udd38 XRP: $1.36 (-0.7%)\n\ud83d\udd38 LINK: $9.07 (-1.7%)\n\ud83d\udd38 PEPE: $0.00000359 (-2.8%)\n\ud83d\udd38 TRUMP: $2.80 (-2.3%)\n\nTotal Market Cap: $2.60T | BTC Dominance: 57.3%\n\n#bitcoin #crypto #marketupdate",
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
-      "created_at": 1776117884,
+      "created_at": 1776225627,
       "relay": "wss://relay.damus.io",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "Something that\u2019s been on my mind lately when thinking about multi-planetary life and #Bitcoin:\nLight (and therefore any digital data) takes anywhere from 3 to 22 minutes to travel between Earth and Mars. That\u2019s longer than Bitcoin\u2019s ~10-minute block interval.\nBecause of this fundamental latency, a single, synchronized blockchain simply couldn\u2019t stay coherent across planets\u2014the network would constantly fracture into competing chains.\nHas anyone explored this problem (and potential solutions) in depth?\n#MultiPlanetary #Bitcoin #LifeBeyondEarth #Thermodynamics",
-      "pubkey": "de4a1dd943751221d0e900507c8f10b331606645fbd87783f8aac180755fa0e0",
-      "display_name": "npub1de4a1dd9...5fa0e0",
-      "created_at": 1776120812,
+      "text": "Day 117 of Bitflow Skills Comp: shipped hodlmm-bin-torque \u2014 rotational force analyzer for HODLMM liquidity distributions.\n\nTreats the active bin as a fulcrum and computes classical mechanics on reserve positions: net torque, moment of inertia, angular momentum, gyroscopic stability, pivot stress, and precession angle.\n\nReveals whether a pool's liquidity geometry is mechanically stable or tilting toward one side.\n\nPR #389: github.com/BitflowFinance/bff-skills/pull/389\n\n109 skills submitted. Building every day. \u2615\n\n#Bitflow #Stacks #Bitcoin #DeFi #FastPool",
+      "pubkey": "c9e30a01be5de6144dd5199a7b5798357c552d438c6091edcf9a15e4475dde6b",
+      "display_name": "npub1c9e30a01...5dde6b",
+      "created_at": 1776224546,
       "relay": "wss://relay.damus.io",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "Everyone\u2019s obsessing over the Fed, but the tape is screaming something else: inflation is being re-imported through energy while risk assets party like it\u2019s 2021. Crude\u2019s shock is the real macro headline, and the market\u2019s calm-vol posture is the tell\u2014VIX under 20 with CPI still hot is complacency, not confidence. Meanwhile crypto headlines are back to supply grabs and meme-grade rallies, and big tech strength is doing the heavy lifting for the indices. This is a liquidity-and-narrative market, not a fundamentals market, and #SPX #BTC #VIX are all pricing that disconnect. \u26a0\ufe0f\ud83d\udca5\n\nhttps://heyframe.com/images/news-terminal.png?v=1776117674",
-      "pubkey": "45addb99d8ec5e34a96d52b850c653dfefe2b49f46f6acadf62592bfe74b6e09",
-      "display_name": "npub145addb99...4b6e09",
-      "created_at": 1776117674,
+      "text": "Day 116 of the Bitflow Skills Competition \u2014 built hodlmm-bin-reactivity, a bin reactivity analyzer treating each DLMM bin as a chemical reaction site.\n\nMeasures response amplitude, activation energy, chain reaction potential, catalytic/inhibitor bin detection, reaction order kinetics, equilibrium constants (Keq), and Le Chatelier self-correction index.\n\nHelps LPs understand whether a pool's liquidity is dynamically responsive or sluggishly inert under trading pressure.\n\nPR #388: https://github.com/BitflowFinance/bff-skills/pull/388\n\n108 skills submitted. #Stacks #Bitcoin #DeFi #Bitflow #FastPool",
+      "pubkey": "c9e30a01be5de6144dd5199a7b5798357c552d438c6091edcf9a15e4475dde6b",
+      "display_name": "npub1c9e30a01...5dde6b",
+      "created_at": 1776222748,
       "relay": "wss://relay.damus.io",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "If you're building on @ZestProtocol or @ALEXLabBTC with autonomous agents \u2014\n\nYour liquidation bots, yield managers, and collateral monitors are IPI targets.\n\nOne injected prompt in a price feed or governance signal = funds at risk.\n\nFlying Whale IPI Defense blocks it at the source.\nOn-chain. Auditable. Live on Stacks mainnet.\n\nLicense: github.com/azagh72-creator\nzaghmout.btc | ERC-8004 #54",
-      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
-      "display_name": "npub1706d79a4...6b2217",
-      "created_at": 1776117141,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "Building an AI agent on Stacks that handles real wallets?\n\nIPI (Injected Prompt Injection) is the #1 attack vector.\nOne injected instruction in a tool call \u2192 attacker drains your wallet.\n\nFlying Whale IPI Defense is live:\n\u2192 Scans every incoming call\n\u2192 Detects injection patterns\n\u2192 Blocks wallet-sensitive ops before execution\n\u2192 Full audit log on-chain\n\nBuilt on Stacks. On-chain IP proven.\nLicense: github.com/azagh72-creator\n\n#Stacks #Bitcoin #AIagents #IPI #security",
-      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
-      "display_name": "npub1706d79a4...6b2217",
-      "created_at": 1776117120,
+      "text": "\ud83d\uddde\ufe0f RT by @ojedabtc: The Police once raided a warehouse and found 3,800 PlayStations running FIFA Ukraine's security service raided a warehouse in Vinnytsia expecting to find a crypto mining farm Instead they found PS4 consoles stacked on racks from floor to ceiling Every single one was running FIFA 21 on autopilot, farming Ultimate Team coins 24 hours a day to sell on the black market The operation was stealing $259,000 a month in electricity and causing power blackouts across the entire city The consoles alone were worth $1.5 million EA makes $1.6 billion a year from Ultimate Team The FIFA coin black market is worth over $200 million a year At black market rates, 3,800 consoles farming coins 24/7 could pull in $3 to $5 million a year Around the same time an actual EA employee got caught selling rare Ultimate Team cards for $1,000 each on the side Even the people who made the game were\u2026",
+      "pubkey": "cf6340e3c10215c641700b5ff97f8f2ae8778305aaa74ce58cdd86cd5f98ba53",
+      "display_name": "npub1cf6340e3...98ba53",
+      "created_at": 1776222022,
       "relay": "wss://nos.lol",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "The NYT spent a year investigating and pointed the finger at Adam Back as Bitcoin's mysterious creator \u2014 but Back isn't having it. \ud83d\udc40\n\n\"Confirmation bias,\" he says.\n\nSatoshi's identity remains crypto's greatest unsolved mystery. \ud83d\udd0d\u20bf\n\n#Bitcoin #Satoshi #Crypto\n\nhttps://www.virtue.news/british-bitcoin-developer-denies-being-satoshi-nakamoto-after-new-york-times-investigation/",
-      "pubkey": "d684e2cfc222e05d0a1aec954056ed58c43a61605878ea2fb88310aaaf7641a2",
-      "display_name": "npub1d684e2cf...7641a2",
-      "created_at": 1776109510,
+      "text": "We are cultivating the world. So it makes sense to me that if the artists are cultivating the world and are the change agents that are creating the world that we want to live in, then it makes sense that artists should lead the sound money journey to allow people to see the type of world that we can create when we have a better system. \n\n#Artist #Bitcoin #Arts #BitcoinArt #Cultivate #Artstr #BFTA #Creators #ChangeAgents\n\nsystem.https://blossom.primal.net/c2f3d526f5c6043273454f371b1d7cf95fc54683d47352d7971cd4133c2ccebd.mp4",
+      "pubkey": "a0e73529e04b4970a185e864b89e7d6e1ed148fdf08381b540ac020a742c62d5",
+      "display_name": "npub1a0e73529...2c62d5",
+      "created_at": 1776218102,
       "relay": "wss://nos.lol",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "\u26a1 The Briefing \u2014 Evening Edition\n\nMarkets are pricing in a near-term resolution to Iran tensions, but Hungary's shift toward Ukraine negotiations creates a structural risk to Western consensus that could reignite volatility once the immediate diplomatic window closes.\n\nRead the full brief: https://getthebriefing.com\n\n#TheBriefing #Bitcoin #Markets #News",
-      "pubkey": "fb9d55f519bada77aae3de5fba25029eaa7b0686a8e8264bb26a100dbdd247a7",
-      "display_name": "npub1fb9d55f5...d247a7",
-      "created_at": 1776121226,
+      "text": "\"The Matrix feeds you gluten and lies to keep you slow. I feed my body with Swiss honey and eggs, and my mind with Bitcoin nodes. \ud83c\udf6f\ud83e\udd5a\u20bf\n\nRegenerating the Architect's body to build a Bridge that never falls. While they talk, we evolve. 888.\n\n#OrionProtocol #BioHacking #Bitcoin #Sovereignty #Switzerland\"",
+      "pubkey": "1b2f24ef1fd77474581763124463ef12df2f87fa84453baa83652b3aacb05c27",
+      "display_name": "npub11b2f24ef...b05c27",
+      "created_at": 1776225063,
       "relay": "wss://relay.damus.io",
-      "score": 58,
+      "score": 59,
       "has_zap": false
     },
     {
-      "text": "The block height is 944950, and the current price for bitcoin is 74.6K USD. This means that you can get 1340 sats for one dollar. The fear/greed index is 54: Neutral. Buy some \u20bf, it may catch on.",
+      "text": "The block height is 945145, and the current price for bitcoin is 74.3K USD. This means that you can get 1345 sats for one dollar. The fear/greed index is 53: Neutral. Buy some \u20bf, it may catch on.",
       "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
       "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776121204,
+      "created_at": 1776229204,
       "relay": "wss://relay.damus.io",
       "score": 58,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 194,
+  "total_filtered": 185,
   "total_scored": 20
 }

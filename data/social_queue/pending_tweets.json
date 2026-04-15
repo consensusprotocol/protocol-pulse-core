@@ -1,53 +1,5 @@
 [
   {
-    "id": "tweet_20260411_230436_0",
-    "text": "3 sat/vB when Fear hits 15. Last time fees compressed this hard, spot price was $3,600. Nobody's moving Bitcoin. Nobody's panic selling. That's not fear. That's accumulation pretending to be fear",
-    "angle": "onchain_metric",
-    "type": "observation",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-11T23:04:36.080124+00:00",
-    "brief_date": "Saturday, April 11, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260412_100004_0",
-    "text": "If you need permission from your government to move your own money across a border, whose money is it really",
-    "angle": "contrarian_take",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-12T10:00:04.069406+00:00",
-    "brief_date": "Saturday, April 11, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260412_190003_0",
-    "text": "Morgan Stanley bought Bitcoin at $70k while their clients panic at Fear 16. Banks don't accumulate during capitulation. They accumulate before everyone else figures out why they should",
-    "angle": "institutional_flow",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-12T19:00:03.510456+00:00",
-    "brief_date": "Sunday, April 12, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260413_025602_0",
-    "text": "How many people in your life know their bank can freeze their account. How many know Bitcoin can't",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T02:56:02.096161+00:00",
-    "brief_date": "Sunday, April 12, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260413_051849_0",
     "text": "Iran can't access $6B in frozen assets. Swift is a weapon now. Bitcoin doesn't care about sanctions or blockades. It just settles",
     "angle": "institutional_flow",
@@ -117,6 +69,54 @@
     "status": "pending",
     "generated_at": "2026-04-13T22:00:04.025992+00:00",
     "brief_date": "Monday, April 13, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260414_160004_0",
+    "text": "985.1 EH/s during extreme fear. Last time hashrate climbed into a panic, Bitcoin was $19k. Miners don't accumulate security theater",
+    "angle": "network_fundamentals",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-14T16:00:04.444121+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260414_190004_0",
+    "text": "How many dollars do you need to print before people stop trusting the printer",
+    "angle": "macro_monetary",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-14T19:00:04.783256+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260414_220003_0",
+    "text": "In 1944 Bretton Woods promised gold backing. By 1971 Nixon closed the window. By 2026 the Fed balance sheet is $7.4T and nobody even mentions gold anymore. Bitcoin doesn't need promises",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-14T22:00:03.788090+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260415_043844_0",
+    "text": "Block 945,143. Supply schedule locked in 1609. Every four years, 50% fewer coins enter circulation. Retail doesn't know this matters. Institutions do",
+    "angle": "historical_pattern",
+    "type": "signal",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-15T04:38:44.246660+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
     "sentiment": "bullish"
   }
 ]

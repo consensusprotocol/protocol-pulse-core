@@ -1,74 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-13T04:00:14.649034+00:00",
-  "creator_count": 2,
-  "avg_sentiment_score": 67.5,
+  "generated_at": "2026-04-15T04:02:00.141492+00:00",
+  "creator_count": 22,
+  "avg_sentiment_score": 66.9,
   "sentiment_breakdown": {
-    "bullish": 1,
-    "bearish": 0,
-    "neutral": 1
+    "bullish": 13,
+    "bearish": 2,
+    "neutral": 7
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Whale accumulation and ETF flows",
+      "topic": "MicroStrategy supply squeeze strategy",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
     },
     {
-      "topic": "Fed policy and negative real yields",
+      "topic": "STRCT preferred stock instrument and tax benefits",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
     },
     {
-      "topic": "Inflation expectations and CPI data",
+      "topic": "Bitcoin long-term price predictions",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
     },
     {
-      "topic": "Technical analysis (weekly MACD crossover)",
+      "topic": "Mining supply vs. demand dynamics",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
     },
     {
-      "topic": "MicroStrategy as Bitcoin proxy play",
+      "topic": "Capital accumulation mechanics",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Bitcoin whales, they're locked in. They understand that now is a generational opportunity to buy Bitcoin."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
     }
   ],
-  "summary": "# Summary\n\n**Consensus:** Both sources acknowledge current market uncertainty and see strategic positioning as important during volatile times.\n\n**Divergence:** Simply Bitcoin is explicitly bullish on Bitcoin as a specific hedge against inflation and Fed policy shifts, citing whale accumulation as a buy signal. In contrast, The Investors Podcast Network takes a neutral, broader approach focused on general diversification principles rather than endorsing Bitcoin specifically.\n\nThe key difference is one source views Bitcoin as a compelling generational opportunity, while the other recommends a more traditional, diversified portfolio strategy without Bitcoin-specific conviction.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree on structural macroeconomic tailwinds\u2014currency debasement, dollar decline, institutional accumulation, and systemic monetary system dysfunction\u2014that favor Bitcoin's long-term adoption as a superior monetary alternative with fixed supply. Most view 2025 as a pivotal year distinguished from previous cycles by spot ETFs, institutional buying, and changed market dynamics.\n\n**Divergence:** While the majority project ultra-bullish outcomes ($21M+ per coin), sentiment splits sharply on near-term price action and timing. Optimists claim Bitcoin has bottomed without 70% drawdowns possible, yet skeptics flag the need to break above $80K resistance\u2014highlighting disagreement on whether current conditions guarantee the predicted bull run. Additionally, commentary fragments between pure monetary narratives (Ammous, Swan) and geopolitical/systemic risk frames (BTC Sessions, Brunell), with one source (Brunell) emphasizing individual sovereignty over wealth accumulation, suggesting different philosophical end-goals despite shared Bitcoin bullishness.",
   "top_creators": [
     {
       "channel": "Simply Bitcoin",
       "sentiment": "bullish",
-      "score": 85,
-      "thesis": "Despite short-term price crashes from geopolitical tensions, Bitcoin whales are accumulating heavily, signaling a generational buying opportunity driven by Fed policy shifts, negative real yields, and upcoming higher inflation."
+      "score": 92,
+      "thesis": "MicroStrategy's massive Bitcoin accumulation through their STRCT instrument is creating a structural supply shock that will drive Bitcoin to $21 million per coin (~$400 trillion market cap) over 20 years, as buying demand far exceeds mining supply."
     },
     {
-      "channel": "The Investors Podcast Network",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "This is not a Bitcoin-specific video. The content discusses general investment principles for building resilient wealth through portfolio diversification and strategic positioning during uncertain times."
+      "channel": "Simply Bitcoin",
+      "sentiment": "bearish",
+      "score": 25,
+      "thesis": "The US dollar's structural decline (from 70% to 46% of global reserves) is driving military intervention in Iran to prop up the petrodollar system, but this desperate move may actually accelerate the dollar's collapse and create conditions favoring Bitcoin as an alternative."
+    },
+    {
+      "channel": "The Bitcoin Layer",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "AI and demographic shifts will increase structural deficits and currency dilution, making Bitcoin an attractive hedge due to its fixed supply versus the dilution experienced by fiat currency holders and treasury investors."
+    },
+    {
+      "channel": "Natalie Brunell",
+      "sentiment": "mixed",
+      "score": 35,
+      "thesis": "The Western empire is in structural decline as the world shifts to multipolarity, but individual sovereignty through tools like Bitcoin offers hope for those who understand the geopolitical realities and act locally."
+    },
+    {
+      "channel": "Swan Bitcoin",
+      "sentiment": "bullish",
+      "score": 88,
+      "thesis": "Bitcoin is fundamentally replacing the central bank-controlled monetary system by becoming the world's monetary benchmark, rendering traditional fiat currency control obsolete through its fixed supply and mathematical rules."
     }
   ]
 }

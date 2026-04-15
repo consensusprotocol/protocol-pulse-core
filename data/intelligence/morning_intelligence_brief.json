@@ -1,63 +1,58 @@
 {
-  "generated_at": "2026-04-13T14:30:00Z",
-  "date": "Monday, April 13, 2026",
-  "btc_price": "$73,447",
-  "btc_change_24h": "+3.3%",
-  "fng": "Extreme Fear (12/100)",
+  "generated_at": "2026-04-14T16:00:00Z",
+  "date": "Tuesday, April 14, 2026",
+  "btc_price": "$74,229",
+  "btc_change_24h": "+1.1%",
+  "fng": "Extreme Fear (21/100)",
   "dominant_narratives": [
-    "Institutional accumulation via MicroStrategy and corporate treasury strategies offsetting retail fear",
-    "Regulatory clarity (CLARITY Act + SEC guidance) removing friction from institutional adoption",
-    "Supply constraint narrative: 1.29% global adoption with fixed 21M BTC cap creates scarcity economics",
-    "Post-quantum cryptography research accelerating as existential infrastructure upgrade",
-    "Deflationary technology thesis: Bitcoin as monetary layer for software-driven cost reduction economy"
+    "Wall Street institutional adoption accelerating — Goldman Sachs Bitcoin Premium Income ETF filing signals yield layer maturation on Bitcoin",
+    "STRC volatility compression creating money-market-like risk-adjusted returns — Saylor positioning for $5B/week accumulation in bull markets",
+    "Halving cycle psychology: 50% through to block 1,050,000 — market positioning for supply shock while extreme fear creates tactical entry opportunities",
+    "Geopolitical macro backdrop (Strait of Hormuz, Iran tensions, rate cuts reopening) driving risk-on sentiment despite FNG extremes"
   ],
   "trending_language": [
-    "The floor is getting louder",
-    "Supply taken off the market",
-    "Whale accumulation",
-    "Post-quantum Bitcoin",
-    "Sound money and free markets",
-    "Bitcoin as TCP/IP of money",
-    "BTC Yield 5.6% YTD",
-    "Strategic positioning"
+    "Rekt 🤡 (liquidation narrative dominance)",
+    "NgU (price agnosticism masking conviction)",
+    "Money market–like stability with market-leading risk-adjusted returns (institutional framing)",
+    "We don't know but we like to think we do (uncertainty acknowledgment)",
+    "Secure your Bitcoin as if it was 10x what it's worth now (custody urgency)"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite Extreme Fear gauge, on-chain whale accumulation (Saylor: 13,927 BTC in 48h, $49B ATM capacity remaining) and regulatory tailwinds (CLARITY Act advancing) create structural bid beneath fear-driven volatility. Macro deterioration (54% consumers report worse financial situation) provides systemic support for sound money narrative.",
+  "sentiment_reasoning": "Despite Extreme Fear indexing, on-chain behavior (whale accumulation, $259M short liquidations, 80% volume surge, +5% daily move) and institutional momentum (Goldman filing, STRC $15M rapid uptake, Saylor's $5B/week thesis) indicate sophisticated actors positioning aggressively. Fear is retail capitulation signal, not institutional conviction.",
   "top_accounts_active": [
     "@BitcoinArchive",
     "@saylor",
-    "@BitcoinMagazine",
+    "@nvk",
+    "@saifedean",
     "@JeffBooth",
-    "@MattCorva",
+    "@BitcoinMagazine",
     "@jimmysong",
-    "@lopp",
-    "@adam3us",
-    "@BitcoinForCorps"
+    "@NickSzabo4",
+    "@natbrunell"
   ],
   "recommended_tweet_angles": [
-    "Contrarian accumulation thesis: When retail fears (F&G: 12), institutional buyers activate $49B+ in dry powder—the market structure inverts fear into supply shock",
-    "Regulatory endgame: CLARITY Act clears Senate Banking by end-April, converting 'gray' into 'green'—custody, yield products, corporate treasuries move from exception to baseline",
-    "Scarcity math: 1.29% adoption (106M people) vs. 21M fixed supply = 5,000 BTC per person at saturation—this isn't hype, it's arithmetic",
-    "Post-quantum pivot: While AI/quantum risks spike supply-chain attacks, Bitcoin core devs ship SHRIMPS multi-device signatures—security hardens as threats scale",
-    "Deflationary future: Software halves costs every 18-24 months; Bitcoin's fixed supply creates purchasing-power alignment with tech's core tendency—systemic pair trade emerging"
+    "Goldman's Bitcoin Premium Income ETF: Wall Street stops asking 'if' Bitcoin yields and starts asking 'how much.' STRC's 4.49 Sharpe and $278M daily liquidity = retail investors finally have institutional-grade Bitcoin infrastructure.",
+    "177,000 traders liquidated in 24h as BTC clears $75K. Extreme Fear (21 FNG) + whale accumulation = classic capitulation buy. The market rewards those who act when algos liquidate panic.",
+    "Bitcoin halving 50% loaded. Block 945,031/1,050,000. Every 4 years, supply shock. Every cycle, institutions load before retail understands. Time horizon matters.",
+    "Your Nokia 3310 is now a sovereign money device. Cryobrick wallet = Play Snake, custody your sats offline. This is what 'banking the unbanked' actually means — not apps, not custodians."
   ],
   "topics_to_avoid": [
-    "Dismissive takes on Extreme Fear Index without acknowledging structural accumulation offsetting sentiment",
-    "Promoting unvetted quantum wallet claims (Qastle promotion lacks cryptographic detail)",
-    "Geopolitical positioning threads without acknowledging speculative nature (Iran/Hormuz narrative underdeveloped)"
+    "Political fragmentation threads (Canada, Israel, socialism discourse) — noise, not signal",
+    "North Korea crypto operations — distracts from macro thesis",
+    "SBF pardon speculation — closed chapter, regulatory noise"
   ],
-  "engagement_patterns": "Threading dominates (JeffBooth's 8-tweet software-deflation arc, Saylor's continuous capital deployment updates). Data-specific callouts (MACD cross, ATM capacity, BTC yield %) drive high engagement. Regulatory clarity framed as 'inevitable' narrative outperforms price speculation. Community ownership language (\"first UK MP,\" \"250+ speakers,\" conference momentum) builds social proof during fear phases.",
-  "protocol_pulse_voice_guidance": "Lead with supply-side mechanics over price prediction. Pair macro deterioration signals (consumer confidence collapse, real yield inversions) with institutional absorption data—frame fear as margin of safety. Use 'arithmetic' language (per-capita scarcity math, yield calculations) to cut through emotional volatility. Reference protocol upgrades (post-quantum, production-ready) to anchor technical credibility. Adopt dry, systems-level tone: institutions are voting with capital, regulatory path is clearing, and the floor is structural, not sentiment.",
+  "engagement_patterns": "Signal-based brevity winning: 🚀/🩸 emoji threading, bold numerical claims (177K traders, $259M liquidations, $5B/week thesis), halving progress bars, and technical specificity (Sharpe ratios, block heights, volatility metrics) outperforming narrative threads. Institutional language (risk-adjusted returns, daily liquidity, volatility compression) mixing with cypherpunk language (rekt, sovereignty, custody) — audience is crypto-native professionals, not retail newcomers.",
+  "protocol_pulse_voice_guidance": "Deploy counterintuitive positioning: Frame Extreme Fear as institutional setup opportunity, not warning. Emphasize on-chain behavioral evidence (whale accumulation, liquidation cascades, ETF inflows) over sentiment indices. Use technical precision (Sharpe ratios, block heights, volatility data) to signal rigor, then undercut with cypherpunk irreverence (Nokia 3310 custody, 'secure as if 10x,' gaslighting calls). Avoid cheerleading; instead, analyze *who is accumulating and why* — that's the tell. Halving narrative should be framed as supply-shock actuarial event, not hype cycle.",
   "key_stats_today": {
-    "tweets_analyzed": 121,
+    "tweets_analyzed": 167,
     "nostr_signals": 0,
-    "unique_handles": 74,
-    "saylor_btc_acquired_48h": 13927,
-    "saylor_remaining_atm_capacity_billions": 49,
-    "global_btc_adoption_percent": 1.29,
-    "mstr_holdings_total_btc": 780897,
-    "clarity_act_timeline_weeks": 2,
-    "us_consumers_worse_financial_situation_percent": 54
+    "unique_handles": 91,
+    "liquidation_volume": "$259M",
+    "traders_rekt": 177000,
+    "btc_move_24h": "+5%",
+    "volume_surge": "+80%",
+    "strc_accumulated_6d": "$15M",
+    "halving_progress_pct": 50
   },
   "generated_by": "claude_haiku"
 }

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-14T18:00:15.787535+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "The Fear Paradox: Why Bitcoin's Extreme Fear Reading Could Signal Relief Rally Ahead",
+      "angle": "Historical analysis of Fear & Greed bottoms + price rallies; what on-chain metrics reveal about institutional positioning",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "on-chain",
+        "institutional"
+      ]
+    },
+    {
+      "headline": "Bitcoin Mempool at Healthiest State in Months: What Sub-2 sat/byte Fees Mean for Layer 1",
+      "angle": "Network capacity update; implications for transaction throughput and fee dynamics if volume accelerates",
+      "tags": [
+        "bitcoin",
+        "network",
+        "fees",
+        "mempool"
+      ]
+    },
+    {
+      "headline": "Watch the $75,500 Break: Next 48 Hours Could Reveal Institutional Accumulation Patterns",
+      "angle": "Technical resistance + on-chain signals + volume verification; what constitutes confirmation of sustained move",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "institutions",
+        "price-action"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-15T02:00:15.148854+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Capitulation Compression: Why Bitcoin's Resilience at Extreme Fear Levels Matters",
+      "angle": "Historical analysis of price action divergences during peak fear gauges and what precedes reversals",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "technical-analysis",
+        "fear-gauge",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Miners Hold Steady: Network Health Signals Amid Halving Revenue Pressure",
+      "angle": "Deep dive on hashrate stability and miner incentives post-halving; what it means for long-term security",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "halving",
+        "network-fundamentals"
+      ]
+    },
+    {
+      "headline": "Builder's Weather: Why Sub-1 Sat/Byte Fees Signal a Technical Inflection Point",
+      "angle": "Fee floor analysis and what historic lows mean for large transaction settlement patterns",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "on-chain",
+        "infrastructure"
+      ]
+    }
+  ]
+}

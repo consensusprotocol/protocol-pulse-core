@@ -1009,11 +1009,33 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         end = clip["end_seconds"]
         channel = clip.get("channel", "unknown").replace(" ", "_")
 
-        # V47 SMART INTRO DETECTION — replace blind 30s push with transcript analysis
-        # Scans timestamped_text for intro phrases; falls back to 30s if no transcript
+        # V47 SMART INTRO DETECTION — scan for intro phrases at ANY start position
+        # V48 FIX: Was "if start < 20" — intros can extend past 30s for long channels
         timestamped_text = clip.get("timestamped_text", "")
-        if start < 20:
-            if timestamped_text:
+        clip_transcript = clip.get("clip_transcript", "")
+        
+        # ALWAYS check for intro phrases in the clip window, regardless of start position
+        if timestamped_text:
+            # Check if the transcript around our start point contains intro chatter
+            _intro_check_text = clip_transcript.lower() if clip_transcript else ""
+            _intro_phrases = ["welcome", "what's up everyone", "hey everyone", "hey everybody",
+                "we've got a lot to cover", "let's get into", "let's jump in", 
+                "before we get into", "happy to be on", "thanks for joining",
+                "welcome back", "welcome to the", "my name is", "i'm your host"]
+            _has_intro = any(p in _intro_check_text[:150] for p in _intro_phrases)
+            if _has_intro:
+                logger.warning(f"  INTRO IN CLIP WINDOW: {channel} — clip transcript starts with intro chatter")
+                # Scan timestamped_text to find where real content begins
+                intro_end = _detect_intro_end(timestamped_text, max_scan_sec=max(start + 60, 120))
+                if intro_end > start:
+                    logger.info(f"  SMART INTRO SKIP: {channel} — content starts at {intro_end}s (was {start}s)")
+                    start = intro_end
+                    if end <= start:
+                        end = start + 40
+                elif start < 20:
+                    start = 30
+                    logger.warning(f"  RULE OVERRIDE: clip #{rank} start -> 30s (intro detected but no clean boundary found)")
+            elif start < 20:
                 intro_end = _detect_intro_end(timestamped_text)
                 if intro_end > 0:
                     new_start = max(intro_end, 10)  # never earlier than 10s

@@ -1,13 +1,78 @@
 {
-  "updated_at": "2026-04-13T20:30:55.320855+00:00",
-  "fetch_ms": 51722,
-  "score": 48,
-  "label": "MODERATE",
-  "crypto_committees": 10,
+  "updated_at": "2026-04-15T03:22:15.856761+00:00",
+  "fetch_ms": 9996,
+  "score": 88,
+  "label": "HIGH",
+  "crypto_committees": 13,
   "states_active": 3,
-  "fairshake_spend": 0,
-  "fairshake_raised": 0,
-  "fairshake_expenditures": [],
+  "fairshake_spend": 26871125.53,
+  "fairshake_raised": 134043371.71,
+  "fairshake_expenditures": [
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "PORTER, KATHERINE REP.",
+      "support": "O",
+      "amount": 20000000.02,
+      "state": "CA",
+      "date": "2024-02-08"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "STRATTON, JULIANA HON.",
+      "support": "O",
+      "amount": 13610343.0,
+      "state": "IL",
+      "date": "2026-02-25"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "STEEL, MICHELLE PARK REP.",
+      "support": "S",
+      "amount": 5560618.0,
+      "state": "CA",
+      "date": "2024-10-01"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "DAVIS, DONALD GENE REP.",
+      "support": "S",
+      "amount": 4361702.0,
+      "state": "NC",
+      "date": "2024-08-27"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "BOWMAN, JAMAAL REP.",
+      "support": "O",
+      "amount": 4133800.0,
+      "state": "NY",
+      "date": "2024-06-12"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "RYAN, PATRICK REP.",
+      "support": "S",
+      "amount": 3941860.0,
+      "state": "NY",
+      "date": "2024-09-18"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "PELTOLA, MARY SATTLER REP.",
+      "support": "S",
+      "amount": 3796804.0,
+      "state": "AK",
+      "date": "2024-08-27"
+    },
+    {
+      "pac": "Fairshake PAC",
+      "candidate": "CARAVEO, YADIRA REP.",
+      "support": "S",
+      "amount": 1855964.0,
+      "state": "CO",
+      "date": "2024-08-28"
+    }
+  ],
   "top_donations": [
     {
       "donor": "AH CAPITAL MANAGEMENT",
@@ -66,6 +131,51 @@
   ],
   "committees": [
     {
+      "id": "C00822775",
+      "name": "BITCOIN FREEDOM PAC",
+      "type": "Super PAC (Independent Expenditure-Only)",
+      "state": "DC",
+      "party": null,
+      "cycle": [
+        2022,
+        2024,
+        2026
+      ]
+    },
+    {
+      "id": "C00880518",
+      "name": "BITCOIN VOTER PAC",
+      "type": "Hybrid PAC (with Non-Contribution Account) - Nonqualified",
+      "state": "VA",
+      "party": null,
+      "cycle": [
+        2024,
+        2026
+      ]
+    },
+    {
+      "id": "C00882472",
+      "name": "CRYPTO / BITCOIN USA SUPER PAC",
+      "type": "Super PAC (Independent Expenditure-Only)",
+      "state": "WY",
+      "party": null,
+      "cycle": [
+        2024,
+        2026
+      ]
+    },
+    {
+      "id": "C00881250",
+      "name": "MAKE BITCOIN GREAT AGAIN",
+      "type": "Super PAC (Independent Expenditure-Only)",
+      "state": "IL",
+      "party": null,
+      "cycle": [
+        2024,
+        2026
+      ]
+    },
+    {
       "id": "C00897595",
       "name": "CAMPAIGN CRYPTO PAC",
       "type": "Hybrid PAC (with Non-Contribution Account) - Nonqualified",
@@ -84,17 +194,6 @@
       "cycle": [
         2020,
         2022,
-        2024,
-        2026
-      ]
-    },
-    {
-      "id": "C00882472",
-      "name": "CRYPTO / BITCOIN USA SUPER PAC",
-      "type": "Super PAC (Independent Expenditure-Only)",
-      "state": "WY",
-      "party": null,
-      "cycle": [
         2024,
         2026
       ]

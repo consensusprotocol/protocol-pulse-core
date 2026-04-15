@@ -1,83 +1,6 @@
 {
   "episodes": [
     {
-      "date": "2026-04-10",
-      "video_ids": [
-        "s7-l7gzm_PE",
-        "cv9sJMGOoR4",
-        "biotJvfDmIM",
-        "jPF5Dj9NFyI",
-        "kZ8lQxQ8Z7A"
-      ],
-      "channels": [
-        "Preston Pysh",
-        "Simply Bitcoin",
-        "TFTC",
-        "Bitcoin Magazine",
-        "Satoshi's Vision"
-      ]
-    },
-    {
-      "date": "2026-04-10",
-      "video_ids": [
-        "X_ADrg6SirI",
-        "WovyQkSdONI",
-        "s7-l7gzm_PE",
-        "cv9sJMGOoR4",
-        "kZ8lQxQ8Z7A"
-      ],
-      "channels": [
-        "Simply Bitcoin",
-        "Preston Pysh",
-        "Satoshi's Vision",
-        "Bitcoin Magazine",
-        "Satoshi's Vision"
-      ]
-    },
-    {
-      "date": "2026-04-10",
-      "video_ids": [
-        "X7ua58iwcd4",
-        "5IvEasRmGPg",
-        "WovyQkSdONI",
-        "s7-l7gzm_PE",
-        "cv9sJMGOoR4"
-      ],
-      "channels": [
-        "Preston Pysh",
-        "Simply Bitcoin",
-        "Preston Pysh",
-        "Satoshi's Vision",
-        "Bitcoin Magazine"
-      ]
-    },
-    {
-      "date": "2026-04-11",
-      "video_ids": [
-        "IF13rALnr48"
-      ],
-      "channels": [
-        "Bitcoin Magazine"
-      ]
-    },
-    {
-      "date": "2026-04-11",
-      "video_ids": [
-        "FXSh5cHQK84",
-        "lrALqzuBSHQ",
-        "bfbCwXrRC7Q",
-        "vn_kFxqM_gw",
-        "Qbza16Y7owk"
-      ],
-      "channels": [
-        "Base58",
-        "Altcoin Daily",
-        "CoinTelegraph",
-        "Marty Bent (Rabbit Hole Recap)",
-        "Marty Bent (Rabbit Hole Recap)"
-      ]
-    },
-    {
       "date": "2026-04-13",
       "video_ids": [
         "nIT-C1EHPyA",
@@ -143,6 +66,23 @@
         "Swan Bitcoin",
         "Bitcoin Magazine Pro",
         "Altcoin Daily"
+      ]
+    },
+    {
+      "date": "2026-04-15",
+      "video_ids": [
+        "M1XPOFgjNPk",
+        "vwkRsp0gqX4",
+        "4h0fL7Zm_xk",
+        "zmD0OgbaKgM",
+        "fXwN3pW3nZk"
+      ],
+      "channels": [
+        "Andreas Antonopoulos",
+        "Andreas Antonopoulos",
+        "Real Vision Finance",
+        "Guy Swann",
+        "Yahoo Finance"
       ]
     }
   ]
