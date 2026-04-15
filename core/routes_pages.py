@@ -3326,7 +3326,7 @@ def pulse_terminal():
     fg_data       = _term_cached("fear_greed", 900, _fetch_fear_greed)
     onchain_data  = _term_cached("onchain", 300, _fetch_onchain)
     lightning_data = _term_cached("lightning", 600, _fetch_lightning)
-    macro_data    = _term_cached("macro", 3600, _fetch_macro)
+    macro_data    = _term_cached("macro", 300, _fetch_macro)
 
     # Signal score — always compute for locked panel real-data blur
     from services.signal_engine import compute_signal_score
