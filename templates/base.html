@@ -225,28 +225,38 @@
             <span class="pp-pulse-dot"></span>
             <span class="pp-mono pp-tiny pp-text-muted">NAVIGATION</span>
         </div>
-        <a href="/" class="pp-nav__link"><i class="fas fa-home" style="width:20px;"></i> Home</a>
-        <a href="/panopticon" class="pp-nav__link" style="color:#dc2626;font-weight:700;"><i class="fas fa-eye" style="width:20px;"></i> Panopticon</a>
-        <a href="/articles" class="pp-nav__link"><i class="fas fa-terminal" style="width:20px;"></i> Briefs</a>
-        <a href="/briefings" class="pp-nav__link" style="color:var(--pp-amber);"><i class="fas fa-video" style="width:20px;"></i> Briefings</a>
-        <a href="/media" class="pp-nav__link"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Media Hub</a>
-        <a href="/podcasts" class="pp-nav__link"><i class="fas fa-podcast" style="width:20px;"></i> Podcasts</a>
-        <a href="/charts" class="pp-nav__link"><i class="fas fa-chart-area" style="width:20px;"></i> Charts</a>
-        <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);"><i class="fas fa-broadcast-tower" style="width:20px;"></i> Avatar Stage</a>
-        <a href="/panopticon" class="pp-nav__link"><i class="fas fa-eye" style="width:20px;"></i> Panopticon</a>
-        <a href="/sovereign-money" class="pp-nav__link"><i class="fas fa-coins" style="width:20px;"></i> Sovereign Money</a>
-        <a href="/nostr" class="pp-nav__link"><i class="fas fa-satellite-dish" style="width:20px;"></i> Nostr</a>
-        <a href="/map" class="pp-nav__link"><i class="fas fa-map-marked-alt" style="width:20px;"></i> Merchant Map</a>
-        <a href="/merch" class="pp-nav__link"><i class="fas fa-tshirt" style="width:20px;"></i> Merch</a>
-        <hr class="pp-divider" style="margin:8px 0;">
+        <!-- Row 1: Core navigation (2 per row) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px;">
+            <a href="/articles" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><i class="fas fa-terminal" style="width:16px;color:#dc2626;"></i>Briefs</a>
+            <a href="/panopticon" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(220,38,38,0.25);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#dc2626;font-weight:700;"><i class="fas fa-eye" style="width:16px;"></i>Panopticon</a>
+            <a href="/oracle-live" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#ff3b5f;font-weight:700;"><i class="fas fa-robot" style="width:16px;"></i>Oracle</a>
+            <a href="/terminal" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#00d68f;"><i class="fas fa-signal" style="width:16px;"></i>Intelligence</a>
+            <a href="/media" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><i class="fas fa-broadcast-tower" style="width:16px;"></i>Media</a>
+            <a href="/stage" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--pp-teal,#00bcd4);"><i class="fas fa-bolt" style="width:16px;"></i>Stage ⚡</a>
+        </div>
+        <!-- Row 2: Tools (compact) -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;margin-top:6px;">
+            <a href="/map" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.6);text-decoration:none;">🗺 Map</a>
+            <a href="/podcasts" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.6);text-decoration:none;">🎙 Podcasts</a>
+            <a href="/sovereign-money" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.6);text-decoration:none;">₿ Sovereign</a>
+            <a href="/charts" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.6);text-decoration:none;">📊 Charts</a>
+            <a href="/merch" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.6);text-decoration:none;">👕 Merch</a>
+            <a href="/join" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(220,38,38,0.35);border-radius:4px;color:#dc2626;text-decoration:none;font-weight:700;">⚡ Join</a>
+        </div>
+        <hr class="pp-divider" style="margin:6px 0;opacity:0.3;">
+        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
         {% if current_user.is_authenticated %}
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
             {% if current_user.is_admin %}
-            <a href="/admin" class="pp-nav__link pp-text-amber"><i class="fas fa-user-shield" style="width:20px;"></i> Admin</a>
+            <a href="/admin" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:#f59e0b;text-decoration:none;">⚙ Admin</a>
             {% endif %}
-            <a href="/logout" class="pp-nav__link"><i class="fas fa-sign-out-alt" style="width:20px;"></i> Logout</a>
+            <a href="/logout" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.5);text-decoration:none;">Logout</a>
+            </div>
         {% else %}
-            <a href="/login" class="pp-nav__link"><i class="fas fa-user" style="width:20px;"></i> Login</a>
+            <a href="/login" style="font-size:0.72rem;padding:5px 10px;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:rgba(255,255,255,0.7);text-decoration:none;">Login</a>
+            <a href="/join" style="font-size:0.72rem;padding:6px 14px;background:#dc2626;border-radius:4px;color:#fff;text-decoration:none;font-weight:700;">Join Commander →</a>
         {% endif %}
+        </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -314,7 +324,48 @@
     <!-- ═══════════════════════════════════════════════════════════════
          FOOTER
          ═══════════════════════════════════════════════════════════════ -->
-    <footer class="pp-footer" role="contentinfo">
+<style>
+@media (max-width: 768px) {
+  .pp-footer { padding: 24px 0 16px !important; }
+  .pp-footer__grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  .pp-footer__brand {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 12px;
+  }
+  .pp-footer__brand-text { display: none !important; }
+  .pp-halving-clock { display: none !important; }
+  /* Turn link sections into compact horizontal rows */
+  .pp-footer__grid > div:not(.pp-footer__brand) {
+    display: none !important;
+  }
+  /* Slim bottom bar instead */
+  .pp-footer__bottom {
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding-top: 0 !important;
+  }
+  .pp-footer__bottom::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin-bottom: 10px;
+  }
+  /* Compact link row */
+  .pp-footer__bottom-links {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px 14px !important;
+    justify-content: center;
+  }
+}
+</style>
+        <footer class="pp-footer" role="contentinfo">
         <div class="pp-container">
             <div class="pp-footer__grid">
                 <!-- Brand -->
