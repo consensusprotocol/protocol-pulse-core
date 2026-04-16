@@ -85,6 +85,7 @@ FEATURE_MAP = {
     "panopticon_layout": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "panopticon_perf": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "panopticon_design": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "panopticon_viz": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "join-page": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-mvp": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-post-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
@@ -270,6 +271,9 @@ EXPLICIT_FILES = {
         "templates/panopticon.html",
     ],
     "panopticon_design": [
+        "templates/panopticon.html",
+    ],
+    "panopticon_viz": [
         "templates/panopticon.html",
     ],
     "join-page": [
@@ -1052,6 +1056,50 @@ For each question (Q1-Q5):
 - How many CRITICAL issues found?
 - Top 3 changes needed before production
 - Is the legal framing adequate for a public-facing product?
+""",
+    "panopticon_viz": """## YOUR REVIEW TASK — PANOPTICON CORRELATION MAP VISUALIZATION AUDIT (4 CRITICAL QUESTIONS)
+
+You are auditing a D3.js force-directed network graph that replaces a static Canvas scatter plot.
+The graph visualizes correlation and strength of 6 sovereign signal indices (IHX, EPX, MCX, OCX, FDX, OPX).
+Nodes represent indices (size=score, color=bullish/neutral/bearish).
+Edges represent correlation (score proximity): HIGH (<15 diff, thick), MEDIUM (15-30, dashed), LOW (>30, no edge).
+
+### Q1 — VISUALIZATION DESIGN CHOICE
+Is a D3 force-directed network graph the OPTIMAL visualization for showing correlation and strength of 6 sovereign political/market indices?
+- What alternatives should be considered (chord diagram, radar/spider chart, heatmap matrix, parallel coordinates)?
+- For exactly 6 nodes with score-based correlation, does force-directed add information density or visual noise?
+- Does edge encoding (proximity of scores = correlation) convey genuine meaning or create false impressions?
+- Is the interactivity (hover highlight, drag, click-through) appropriate for this data density?
+
+### Q2 — D3 IMPLEMENTATION CORRECTNESS
+- Is the force simulation configured correctly (charge, link distance, collision)?
+- Are data joins (enter/update/exit) handled properly for live data refreshes?
+- Memory: is the simulation properly stopped/restarted on re-render? Any leak vectors?
+- SVG vs Canvas: for 6 nodes + ~15 edges, is SVG the right renderer?
+- Does the SRI hash on the D3 CDN match the official d3 v7.8.5 release?
+
+### Q3 — INTERACTION + ACCESSIBILITY
+- Hover: does edge dimming + node opacity create clear focus or confusion?
+- Touch: will force-directed drag work on mobile? Any touch event conflicts?
+- Commander lock: is the blur overlay preserved correctly for free-tier users?
+- Keyboard navigation: any a11y concerns with SVG-only interaction?
+
+### Q4 — VISUAL QUALITY + INFORMATION DENSITY
+- Does the legend convey enough information to decode the graph without guessing?
+- Are node labels (index code + score) readable at all viewport sizes?
+- Do glow effects and transitions feel premium or distracting?
+- Is the graph information-dense compared to the scatter plot it replaced?
+
+### RESPONSE FORMAT
+For each question (Q1-Q4):
+- DETAILED ANALYSIS with line number citations
+- SEVERITY: CRITICAL / HIGH / MEDIUM / LOW
+- SPECIFIC FIX with code-level recommendation
+
+### FINAL VERDICT
+- Is force-directed the right choice, or should a different visualization be used?
+- Top 3 changes needed before production
+- Overall: PASS / PASS WITH FIXES / FAIL
 """,
     "media-command-center": """## YOUR REVIEW TASK — BITCOIN MEDIA COMMAND CENTER AUDIT (5 CRITICAL QUESTIONS)
 
