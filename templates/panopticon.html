@@ -17,7 +17,7 @@ body { font-family: 'JetBrains Mono', 'Courier New', monospace; }
    Surveillance Grid × Bloomberg Terminal
    ═══════════════════════════════════════════════════════════════════════ */
 :root {
-    --pn-bg: #000;
+    --pn-bg: #0A0A0F;
     --pn-surface: #0a0a0a;
     --pn-surface-2: #111;
     --pn-border: #1a1a1a;
@@ -25,8 +25,8 @@ body { font-family: 'JetBrains Mono', 'Courier New', monospace; }
     --pn-text: #fff;
     --pn-text-secondary: #888;
     --pn-muted: #555;
-    --pn-red: #ff3b5f;
-    --pn-red-dim: rgba(255,59,95,0.12);
+    --pn-red: #CC2222;
+    --pn-red-dim: rgba(204,34,34,0.12);
     --pn-gold: #f8c15c;
     --pn-white: #fff;
 }
@@ -2284,21 +2284,39 @@ function updateComposite(allScores) {
   return avg;
 }
 
-// ─── API fetches — progressive rendering (no Promise.allSettled gate) ────────
+// ─── API fetches — progressive rendering with error handling + timeouts ──────
+var _fetchCycleId = 0;  // prevents stale renders from old fetch cycles
+
 function progressiveRender() {
-  // Recompute + render whatever data we have so far
   computeScores();
   renderAll();
 }
 
+window.fetchWithTimeout = function fetchWithTimeout(url, timeoutMs) {
+  var controller = new AbortController();
+  var timeoutId = setTimeout(function(){ controller.abort(); }, timeoutMs || 10000);
+  return fetch(url, { signal: controller.signal })
+    .then(function(r){ clearTimeout(timeoutId); return r.json(); })
+    .catch(function(err){
+      clearTimeout(timeoutId);
+      console.warn('[PANOPTICON] Fetch failed: ' + url, err.name === 'AbortError' ? '(timeout)' : err.message);
+      return null;
+    });
+}
+
 function fetchAll() {
-  fetch('/api/congress/ihx').then(function(r){return r.json();}).then(function(d){ liveData.ihx = d; progressiveRender(); }).catch(function(){});
-  fetch('/api/donations/pulse').then(function(r){return r.json();}).then(function(d){ liveData.pac = d; progressiveRender(); }).catch(function(){});
-  fetch('/api/panopticon/bills').then(function(r){return r.json();}).then(function(d){ liveData.bills = d; progressiveRender(); }).catch(function(){});
-  fetch('/api/orb').then(function(r){return r.json();}).then(function(d){ liveData.orb = d; progressiveRender(); }).catch(function(){});
-  fetch('/api/panopticon/institutional').then(function(r){return r.json();}).then(function(d){ liveData.inst = d; progressiveRender(); }).catch(function(){});
-  fetch('/api/congress/trades').then(function(r){return r.json();}).then(function(d){ liveData.trades = d; progressiveRender(); }).catch(function(){});
-  fetch('/api/panopticon/pe-datastream').then(function(r){return r.json();}).then(function(d){ liveData.pe = d; progressiveRender(); }).catch(function(){});
+  var cycleId = ++_fetchCycleId;
+  var calls = [
+    fetchWithTimeout('/api/congress/ihx', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.ihx=d; progressiveRender(); } }),
+    fetchWithTimeout('/api/donations/pulse', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.pac=d; progressiveRender(); } }),
+    fetchWithTimeout('/api/panopticon/bills', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.bills=d; progressiveRender(); } }),
+    fetchWithTimeout('/api/orb', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.orb=d; progressiveRender(); } }),
+    fetchWithTimeout('/api/panopticon/institutional', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.inst=d; progressiveRender(); } }),
+    fetchWithTimeout('/api/congress/trades', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.trades=d; progressiveRender(); } }),
+    fetchWithTimeout('/api/panopticon/pe-datastream', 10000).then(function(d){ if(d && cycleId===_fetchCycleId){ liveData.pe=d; progressiveRender(); } }),
+  ];
+  // Final pass after all settle to ensure complete render
+  Promise.allSettled(calls).then(function(){ if(cycleId===_fetchCycleId) progressiveRender(); });
 }
 
 function computeScores() {
@@ -2687,7 +2705,12 @@ streamOrder.forEach(function(id) {
   if (arcEl) arcEl.classList.add('skeleton');
 });
 fetchAll();
-setInterval(fetchAll, 120000); // refresh every 2 min
+var _ss2RefreshInterval = setInterval(fetchAll, 120000); // refresh every 2 min
+
+// Cleanup intervals on page unload to prevent memory leaks
+window.addEventListener('beforeunload', function() {
+  clearInterval(_ss2RefreshInterval);
+});
 
 // Close card when pressing Escape
 document.addEventListener('keydown', function(e) {
@@ -3462,7 +3485,8 @@ if(scr)scr.addEventListener('scroll',tlClose);
                 .catch(function() {});
         }
         loadWhales();
-        setInterval(loadWhales, 60000);
+        var _whaleInterval = setInterval(loadWhales, 60000);
+        window.addEventListener('beforeunload', function(){ clearInterval(_whaleInterval); });
     })();
 
     // ── Political Donation Pulse (rebuilt) ──
@@ -3565,10 +3589,16 @@ if(scr)scr.addEventListener('scroll',tlClose);
 
     {% if not demo_mode %}
     // ── Make the Bitcoin Case (typewriter 18ms/char, gold cursor) ──
+    var _btcCaseCooldown = false;
     window.makeBitcoinCase = function(btn, eventSummary) {
         var idx = btn.getAttribute('data-idx');
         var outputEl = document.getElementById('btcCase' + idx);
         if (!outputEl) return;
+
+        // Rate limit: 5s cooldown between requests
+        if (_btcCaseCooldown) return;
+        _btcCaseCooldown = true;
+        setTimeout(function(){ _btcCaseCooldown = false; }, 5000);
 
         btn.disabled = true;
         btn.textContent = 'GENERATING...';
@@ -3637,7 +3667,8 @@ if(scr)scr.addEventListener('scroll',tlClose);
             })
             .catch(function() {});
     }
-    setInterval(refreshData, 300000);
+    var _refreshDataInterval = setInterval(refreshData, 300000);
+    window.addEventListener('beforeunload', function(){ clearInterval(_refreshDataInterval); });
     {% endif %}
 })();
 
@@ -3648,7 +3679,8 @@ if(scr)scr.addEventListener('scroll',tlClose);
   var liveData = window._pnLiveData || {};
   function getCachedOrFetch(key, url) {
     if (liveData[key]) return Promise.resolve(liveData[key]);
-    return fetch(url).then(function(r){return r.json();}).then(function(d){ liveData[key] = d; return d; });
+    return (window.fetchWithTimeout || function(u){ return fetch(u).then(function(r){return r.json();}); })(url, 10000)
+      .then(function(d){ if(d) liveData[key] = d; return d || {}; });
   }
   // Recent trades (deduped — uses liveData.trades from SS2 fetchAll)
   getCachedOrFetch('trades', '/api/congress/trades').then(function(d){
@@ -3878,6 +3910,10 @@ if(scr)scr.addEventListener('scroll',tlClose);
   })();
 
   function castBillVote(billId, billNumber, vote) {
+    // Frontend validation — backend must also validate (secondary defense only)
+    if (typeof billId !== 'number' || !Number.isFinite(billId)) return;
+    if (typeof billNumber !== 'string' || !/^[A-Za-z0-9.\- ]+$/.test(billNumber)) return;
+    if (vote !== 'yes' && vote !== 'no') return;
     fetch('/api/panopticon/bills/vote', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},

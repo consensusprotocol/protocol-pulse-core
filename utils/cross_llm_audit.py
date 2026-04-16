@@ -82,6 +82,9 @@ FEATURE_MAP = {
     "media-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "media-command-center": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "panopticon": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "panopticon_layout": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "panopticon_perf": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "panopticon_design": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "join-page": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-mvp": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-post-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
@@ -258,6 +261,16 @@ EXPLICIT_FILES = {
         "core/blueprints/panopticon.py",
         "templates/panopticon.html",
         "services/scheduler.py",
+    ],
+    "panopticon_layout": [
+        "core/blueprints/panopticon.py",
+        "templates/panopticon.html",
+    ],
+    "panopticon_perf": [
+        "templates/panopticon.html",
+    ],
+    "panopticon_design": [
+        "templates/panopticon.html",
     ],
     "join-page": [
         "templates/join.html",
@@ -922,6 +935,72 @@ For each question (Q1-Q8):
 - Architecture that scales to 50 feeds without rewrite
 - The single design decision that separates "good media page" from "best Bitcoin media page on the internet"
 """,
+    "panopticon_layout": """## YOUR REVIEW TASK — PANOPTICON DESKTOP LAYOUT AUDIT (6 CRITICAL QUESTIONS)
+
+You are auditing the PANOPTICON dashboard's DESKTOP LAYOUT (1920x1080+ screens).
+This is a VISUAL DESIGN audit, not a code-correctness audit.
+The page currently "looks terrible on desktop 1920px" per product feedback.
+
+Read every file above line-by-line. Cite specific line numbers for every finding.
+
+### Q1 — GRID + PANEL RHYTHM
+`.pn-grid` is 3-col `1fr 1.1fr 1fr` with `gap: 1px`. `.pn-panel` has fixed `padding: 20px 16px`.
+- Is the gap too tight at 1920px? Should gutters be clamped (e.g. `clamp(16px,1.5vw,28px)`)?
+- Is the panel padding insufficient for breathing room at desktop widths?
+- Is max-width 1800px a bottleneck at ultrawide (2560px+) monitors?
+- Do the three columns have consistent vertical rhythm, or do they visually drift?
+
+### Q2 — TYPOGRAPHY SCALING
+The stylesheet uses many hardcoded small font sizes:
+- `.pn-hero-stat-label` 9px, `.pn-ticker-tag` 8px, `.pn-panel-head` 10px,
+  `.pn-section-label` 9px, `#ss2-verdict` 9px, `.ss2-wf-label` 7px,
+  `.ss2-wf-contrib` 6.5px, `.ss2-si-label` 7.5px, `#ss2-dc-insight` 8.5px.
+- Minimum visible text on a premium product at 1920px should be ≥10px for labels,
+  ≥12px for values, ≥14px for section headers.
+- Recommend specific `clamp()` replacements for every sub-10px value.
+- Are the JetBrains Mono letter-spacing values (.12em–.25em) readable at small sizes?
+
+### Q3 — HERO STATS BAR
+`.pn-hero` is height 340px, `.pn-hero-stats` is a flex row with gap 32px.
+- Does the hero stats bar (DISCLOSURES / WHALE MOVES / PATTERNS / EVENTS TODAY) have
+  enough min-height and centered alignment at 1920px and 2560px?
+- Is `.pn-hero-stat-val` 24px / label 9px the right ratio for a premium feel?
+- The radar rings are 600px — are they elegant or distracting at ultrawide?
+
+### Q4 — SOVEREIGN SIGNAL SECTION (ss2-root)
+The SOVEREIGN SIGNAL section spans full width outside the 3-col grid.
+`#ss2-middle` is `1fr 400px`, `#ss2-map-wrap` holds the correlation canvas,
+`#ss2-board-wrap` holds the signal board, `#ss2-waterfall` is the bottom row.
+- Is ss2-root aligned with pn-grid's max-width (1800px)? Right now it appears full-bleed.
+- Is the 400px signal board column right-sized at 1920px, or should it clamp wider?
+- Waterfall bars: `height: 38px` is cramped. Should they breathe more at desktop?
+- Gauges row: 6 equal columns. Is padding `14px clamp(10px,1.5vw,18px) 10px` enough?
+
+### Q5 — CARD COMPONENTS
+`.pn-disc-card`, `.pn-poly-item`, `.pn-whale-item`, `.pn-geo-item` — do they have:
+- Adequate padding (target `clamp(12px,1.5vw,20px)`)?
+- Enough line-height for readability (target 1.5–1.6)?
+- Consistent border-left accent thickness and spacing?
+- Proper max-width or line-length constraints to avoid awkward wraps?
+
+### Q6 — COMMANDER LOCK ON CORRELATION MAP
+The task adds a SINGLE premium lock on `ss2-map-wrap` (correlation canvas only) for free users.
+- Is the proposed approach (Jinja `{% if not is_commander %}` conditional blur overlay) sound?
+- Does it leak Commander data in the DOM?
+- Is the teaser design (blurred canvas + centered lock box + UNLOCK COMMANDER → button) on-brand?
+- Will the axis labels + section header remain visible for free users?
+
+### RESPONSE FORMAT
+For each question (Q1–Q6):
+- DETAILED ANALYSIS with line number citations
+- SEVERITY: CRITICAL / HIGH / MEDIUM / LOW
+- SPECIFIC FIX with exact CSS values (clamp() ranges, padding, gaps, font-sizes)
+
+### FINAL VERDICT
+- Top 5 CSS changes that will make the desktop layout feel world-class
+- What stays as-is (already excellent)?
+- Overall: PASS / PASS WITH FIXES / FAIL
+""",
     "panopticon": """## YOUR REVIEW TASK — PANOPTICON INTELLIGENCE DASHBOARD AUDIT (5 CRITICAL QUESTIONS)
 
 You are auditing the PANOPTICON dashboard: a congressional insider trading tracker, whale wallet monitor,
@@ -1314,7 +1393,7 @@ def build_audit_package(feature_name: str) -> str:
                 numbered = extract_routes_from_file(full_path, ROUTE_EXTRACTS[route_key])
                 total_lines = len(full_path.read_text().split("\n"))
                 code_sections.append(f"\n### File: {fpath} (extracted stage routes from {total_lines} lines)\n```\n{numbered}\n```")
-            elif full_path.stat().st_size < 100_000:
+            elif full_path.stat().st_size < 220_000:
                 code = full_path.read_text()
                 lines = code.split("\n")
                 numbered = "\n".join(f"{i+1:4d} | {l}" for i, l in enumerate(lines))
