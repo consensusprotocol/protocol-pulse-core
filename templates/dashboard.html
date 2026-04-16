@@ -495,7 +495,7 @@
             </div>
             <div class="cmd-panel__body" id="cmdFeedList" style="max-height:520px;overflow-y:auto;">
                 {% for a in articles %}
-                <a href="/article/{{ a.id }}" class="cmd-feed-item">
+                <a href="/articles/{{ a.id }}" class="cmd-feed-item">
                     {% if a.created_at and (now is not defined or True) %}
                     {% set age_hours = ((import_datetime_utcnow|default(None)) or 0) %}
                     {% endif %}
