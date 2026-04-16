@@ -2345,7 +2345,33 @@ def trigger_automation():
 
 @api_bp.route('/api/sovereign-signal-narrative', methods=['POST'])
 def api_sovereign_signal_narrative():
-    """Generate AI synthesis of all six Panopticon signal streams."""
+    """Generate AI synthesis — file-based stale-while-revalidate cache, 1hr TTL."""
+    import json as _json, time as _time, threading as _threading, os as _os
+
+    _CACHE_FILE = '/tmp/pp_narrative_cache.json'
+    _TTL = 3600  # 1 hour
+
+    # ── serve from cache if fresh ───────────────────────────────────────────
+    def _read_cache():
+        try:
+            d = _json.loads(open(_CACHE_FILE).read())
+            if _time.time() - d.get('ts', 0) < _TTL:
+                return d
+        except Exception:
+            pass
+        return None
+
+    def _write_cache(payload):
+        try:
+            payload['ts'] = _time.time()
+            open(_CACHE_FILE, 'w').write(_json.dumps(payload))
+        except Exception:
+            pass
+
+    cached = _read_cache()
+    if cached:
+        return jsonify({k: v for k, v in cached.items() if k != 'ts'})
+
     try:
         import importlib.util as _ilu, os, requests as _req
 
@@ -2392,7 +2418,9 @@ def api_sovereign_signal_narrative():
             if resp.ok:
                 text = resp.json().get('content', [{}])[0].get('text', '')
                 if text:
-                    return jsonify({'narrative': text, 'model': 'claude-haiku', 'score': conv})
+                    _payload = {'narrative': text, 'model': 'claude-haiku', 'score': conv}
+                    _write_cache(_payload)
+                    return jsonify({k: v for k, v in _payload.items() if k != 'ts'})
 
         # Gemini fallback
         gemini_key = os.environ.get('GEMINI_API_KEY', '')
@@ -2409,7 +2437,9 @@ def api_sovereign_signal_narrative():
             if resp.ok:
                 text = resp.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
                 if text:
-                    return jsonify({'narrative': text, 'model': 'gemini-flash', 'score': conv})
+                    _payload = {'narrative': text, 'model': 'gemini-flash', 'score': conv}
+                    _write_cache(_payload)
+                    return jsonify({k: v for k, v in _payload.items() if k != 'ts'})
 
         # Static fallback
         return jsonify({
