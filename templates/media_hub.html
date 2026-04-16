@@ -389,7 +389,7 @@
       <div class="matrix-feed" id="kolFeed">
         {% if feed_matrix.kol %}
           {% for item in feed_matrix.kol %}
-          <a class="fi" href="{{ item.source_url or item.tweet_url or item.url or ('/article/' ~ item.slug if item.slug else ('/intelligence' if item.type == 'signal' else '#')) }}" target="_blank" rel="noopener" style="cursor:pointer;text-decoration:none;color:inherit">
+          <a class="fi" href="{{ item.source_url or item.tweet_url or item.url or ('/articles/' ~ item.slug if item.slug else ('/intelligence' if item.type == 'signal' else '#')) }}" target="_blank" rel="noopener" style="cursor:pointer;text-decoration:none;color:inherit">
             <div class="fi-info">
               <div class="fi-show kol">{{ item.source }}</div>
               <div class="fi-title">{{ item.title }}</div>
