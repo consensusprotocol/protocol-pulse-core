@@ -7,8 +7,11 @@
 
 {% block head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── FONT FALLBACK — readable text before web fonts load ── */
+body { font-family: 'JetBrains Mono', 'Courier New', monospace; }
 /* ═══════════════════════════════════════════════════════════════════════
    PANOPTICON — "They watch us. Now we watch them."
    Surveillance Grid × Bloomberg Terminal
@@ -321,7 +324,7 @@ body.panopticon-body .pp-footer { display: none !important; }
     100% { transform: translateX(-50%); }
 }
 
-/* ── MAIN GRID ───────────────────────────────────────────────── */
+/* ── MAIN GRID — 2-ZONE LAYOUT (evidence left, intel right) ─── */
 .pn-main {
     max-width: clamp(1280px, 94vw, 2400px);
     margin: 0 auto;
@@ -329,14 +332,26 @@ body.panopticon-body .pp-footer { display: none !important; }
 }
 .pn-grid {
     display: grid;
-    grid-template-columns: 1fr 1.1fr 1fr;
+    grid-template-columns: 65fr 35fr;
     gap: clamp(16px, 1.5vw, 28px);
     background: transparent;
     min-height: calc(100vh - 420px);
     padding: clamp(16px, 1.5vw, 28px) 0;
+    align-items: start;
 }
-@media (max-width: 1200px) {
-    .pn-grid { grid-template-columns: 1fr 1fr; }
+.pn-grid > .pn-right-rail {
+    position: sticky;
+    top: 52px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,59,95,0.25) transparent;
+}
+.pn-grid > .pn-right-rail::-webkit-scrollbar { width: 3px; }
+.pn-grid > .pn-right-rail::-webkit-scrollbar-thumb { background: rgba(255,59,95,0.25); border-radius: 2px; }
+@media (max-width: 1100px) {
+    .pn-grid { grid-template-columns: 1fr; }
+    .pn-grid > .pn-right-rail { position: static; max-height: none; }
 }
 @media (max-width: 768px) {
     .pn-grid { grid-template-columns: 1fr; gap: 12px; padding: 12px 0; }
@@ -366,11 +381,20 @@ body.panopticon-body .pp-footer { display: none !important; }
     letter-spacing: clamp(1.5px, 0.18vw, 2.5px);
     margin-bottom: clamp(16px, 1.4vw, 22px);
     padding-bottom: clamp(10px, 1vw, 14px);
+    padding-left: 12px;
     border-bottom: 1px solid var(--pn-border);
     display: flex;
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+/* Mission-control left accent on panel headers */
+.pn-tier-confirmed .pn-panel-head { border-left: 2px solid var(--pn-red); }
+.pn-tier-flagged .pn-panel-head { border-left: 2px solid var(--pn-gold); }
+.pn-tier-feed .pn-panel-head { border-left: 2px solid var(--pn-white); }
+/* Animated pulse dot for TIER 1 header */
+.pn-tier-confirmed .pn-panel-head .tier-dot {
+    animation: pnPulse 2s ease-in-out infinite;
 }
 .pn-panel-head .tier-dot {
     width: 8px;
@@ -400,23 +424,40 @@ body.panopticon-body .pp-footer { display: none !important; }
     letter-spacing: clamp(1.5px, 0.18vw, 2.5px);
     text-transform: uppercase;
     color: var(--pn-muted);
-    margin: clamp(22px, 2vw, 32px) 0 clamp(12px, 1vw, 16px);
-    padding-top: clamp(14px, 1.2vw, 18px);
+    margin: clamp(24px, 2vw, 36px) 0 clamp(14px, 1.2vw, 18px);
+    padding: clamp(16px, 1.4vw, 20px) 0 0 12px;
     border-top: 1px solid var(--pn-border);
+    border-left: 2px solid rgba(255,59,95,0.3);
 }
 
-/* ── DISCLOSURE CARDS ─────────────────────────────────────────── */
+/* ── DISCLOSURE CARDS — elevated with party-colored borders ─── */
 .pn-disc-card {
     background: var(--pn-surface);
     border: 1px solid var(--pn-border);
     border-left: 3px solid var(--pn-red);
-    padding: clamp(14px, 1.5vw, 20px);
+    padding: 14px 16px;
     margin-bottom: clamp(10px, 1vw, 14px);
     border-radius: 4px;
     transition: border-color 0.3s, transform 0.3s;
     opacity: 0;
     transform: translateX(-8px);
     animation: cardEnter 0.4s ease forwards;
+    position: relative;
+}
+/* Party-colored left border */
+.pn-disc-card[data-party="R"] { border-left-color: var(--pn-red); }
+.pn-disc-card[data-party="D"] { border-left-color: #3b82f6; }
+.pn-disc-card[data-party="I"] { border-left-color: #888; }
+/* Gradient separator between cards */
+.pn-disc-card + .pn-disc-card::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -6px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,59,95,0.12), transparent);
 }
 .pn-disc-card:nth-child(1) { animation-delay: 0.1s; }
 .pn-disc-card:nth-child(2) { animation-delay: 0.2s; }
@@ -432,10 +473,23 @@ body.panopticon-body .pp-footer { display: none !important; }
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    gap: 8px;
+}
+/* Amount range tag — subtle right-aligned */
+.pn-disc-amount-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--pn-text-secondary);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--pn-border);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .pn-disc-entity {
-    font-size: clamp(14px, 1vw, 17px);
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--pn-white);
     overflow: hidden;
     white-space: nowrap;
@@ -454,16 +508,16 @@ body.panopticon-body .pp-footer { display: none !important; }
 }
 .pn-disc-party {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(10px, 0.7vw, 12px);
+    font-size: 8px;
     font-weight: 700;
-    padding: 3px 10px;
-    letter-spacing: clamp(1px, 0.1vw, 1.5px);
+    padding: 2px 8px;
+    letter-spacing: 1px;
     flex-shrink: 0;
-    border-radius: 2px;
+    border-radius: 10px;
 }
-.pn-disc-party.R { background: rgba(255,59,95,0.15); color: var(--pn-red); }
-.pn-disc-party.D { background: rgba(255,255,255,0.08); color: var(--pn-white); }
-.pn-disc-party.I { background: rgba(255,255,255,0.05); color: var(--pn-muted); }
+.pn-disc-party.R { background: rgba(255,59,95,0.15); color: var(--pn-red); border: 1px solid rgba(255,59,95,0.3); }
+.pn-disc-party.D { background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+.pn-disc-party.I { background: rgba(255,255,255,0.05); color: var(--pn-muted); border: 1px solid rgba(255,255,255,0.1); }
 .pn-disc-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -480,11 +534,14 @@ body.panopticon-body .pp-footer { display: none !important; }
 }
 .pn-disc-field-val {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(12px, 0.85vw, 14px);
+    font-size: 12px;
     font-weight: 500;
     color: var(--pn-white);
     line-height: 1.35;
 }
+/* Asset name in gold, Type in small caps */
+.pn-disc-field-val.asset-val { color: var(--pn-gold); font-size: 11px; }
+.pn-disc-field-val.type-val { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pn-disc-field-val.buy { color: #89ffb8; }
 .pn-disc-field-val.sell { color: var(--pn-red); }
 .pn-disc-correlation {
@@ -718,7 +775,7 @@ body.panopticon-body .pp-footer { display: none !important; }
     margin-bottom: 6px;
 }
 .pn-poly-question {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--pn-white);
     margin-bottom: 8px;
@@ -734,8 +791,11 @@ body.panopticon-body .pp-footer { display: none !important; }
     font-family: 'JetBrains Mono', monospace;
     font-size: 20px;
     font-weight: 700;
-    color: var(--pn-white);
 }
+/* Colored percentage — green >60, red <40, gold else */
+.pn-poly-pct.pct-high { color: #22c55e; }
+.pn-poly-pct.pct-low { color: var(--pn-red); }
+.pn-poly-pct.pct-mid { color: var(--pn-gold); }
 .pn-poly-yes {
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
@@ -1302,9 +1362,9 @@ body.panopticon-body .pp-footer { display: none !important; }
     padding: 2px 6px;
     text-transform: uppercase;
 }
-.pn-conviction-tag.high { background: rgba(255,59,95,0.12); color: var(--pn-red); }
-.pn-conviction-tag.medium { background: rgba(248,193,92,0.12); color: var(--pn-gold); }
-.pn-conviction-tag.low { background: rgba(255,255,255,0.04); color: var(--pn-muted); }
+.pn-conviction-tag.high { background: rgba(255,59,95,0.2); color: var(--pn-red); border: 1px solid rgba(255,59,95,0.4); }
+.pn-conviction-tag.medium { background: rgba(248,193,92,0.18); color: var(--pn-gold); border: 1px solid rgba(248,193,92,0.35); }
+.pn-conviction-tag.low { background: transparent; color: var(--pn-muted); border: 1px solid rgba(255,255,255,0.12); }
 .pn-conviction-bar {
     flex: 1;
     height: 3px;
@@ -1794,6 +1854,15 @@ body.panopticon-body .pp-footer { display: none !important; }
   stroke: #f8c15c;
   transition: stroke-dasharray 1.2s cubic-bezier(.22,.61,.36,1);
 }
+/* Skeleton pulse on gauges before data loads */
+.ss2-arc-fill.skeleton {
+  opacity: 0.3;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.35; }
+}
 .ss2-needle {
   stroke: rgba(255,255,255,.7);
   stroke-width: 1.5;
@@ -2146,7 +2215,7 @@ var STREAMS = {
 };
 
 var streamOrder = ['congress','pac','legislation','onchain','institutional','geo'];
-var liveData = {};   // filled by API calls
+var liveData = window._pnLiveData = window._pnLiveData || {};   // filled by API calls, shared across scopes
 var scores = {};     // filled after data arrives
 
 // ─── Gauge arc math ─────────────────────────────────────────────────────────
@@ -2184,6 +2253,9 @@ function animateGauge(streamId, score) {
 
   if (!arcEl) return;
 
+  // Remove skeleton state once real data arrives
+  arcEl.classList.remove('skeleton');
+
   arcEl.style.stroke = color;
   arcEl.style.strokeDasharray = scoreToArc(score) + ' ' + ARC_LEN;
 
@@ -2212,21 +2284,21 @@ function updateComposite(allScores) {
   return avg;
 }
 
-// ─── API fetches ─────────────────────────────────────────────────────────────
+// ─── API fetches — progressive rendering (no Promise.allSettled gate) ────────
+function progressiveRender() {
+  // Recompute + render whatever data we have so far
+  computeScores();
+  renderAll();
+}
+
 function fetchAll() {
-  var calls = [
-    fetch('/api/congress/ihx').then(function(r){return r.json();}).then(function(d){ liveData.ihx = d; }),
-    fetch('/api/donations/pulse').then(function(r){return r.json();}).then(function(d){ liveData.pac = d; }),
-    fetch('/api/panopticon/bills').then(function(r){return r.json();}).then(function(d){ liveData.bills = d; }),
-    fetch('/api/orb').then(function(r){return r.json();}).then(function(d){ liveData.orb = d; }),
-    fetch('/api/panopticon/institutional').then(function(r){return r.json();}).then(function(d){ liveData.inst = d; }),
-    fetch('/api/congress/trades').then(function(r){return r.json();}).then(function(d){ liveData.trades = d; }),
-    fetch('/api/panopticon/pe-datastream').then(function(r){return r.json();}).then(function(d){ liveData.pe = d; }),
-  ];
-  Promise.allSettled(calls).then(function() {
-    computeScores();
-    renderAll();
-  });
+  fetch('/api/congress/ihx').then(function(r){return r.json();}).then(function(d){ liveData.ihx = d; progressiveRender(); }).catch(function(){});
+  fetch('/api/donations/pulse').then(function(r){return r.json();}).then(function(d){ liveData.pac = d; progressiveRender(); }).catch(function(){});
+  fetch('/api/panopticon/bills').then(function(r){return r.json();}).then(function(d){ liveData.bills = d; progressiveRender(); }).catch(function(){});
+  fetch('/api/orb').then(function(r){return r.json();}).then(function(d){ liveData.orb = d; progressiveRender(); }).catch(function(){});
+  fetch('/api/panopticon/institutional').then(function(r){return r.json();}).then(function(d){ liveData.inst = d; progressiveRender(); }).catch(function(){});
+  fetch('/api/congress/trades').then(function(r){return r.json();}).then(function(d){ liveData.trades = d; progressiveRender(); }).catch(function(){});
+  fetch('/api/panopticon/pe-datastream').then(function(r){return r.json();}).then(function(d){ liveData.pe = d; progressiveRender(); }).catch(function(){});
 }
 
 function computeScores() {
@@ -2609,6 +2681,11 @@ function renderWaterfall() {
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
+// Set skeleton state on all gauge arcs before data arrives
+streamOrder.forEach(function(id) {
+  var arcEl = document.getElementById('ga-' + id);
+  if (arcEl) arcEl.classList.add('skeleton');
+});
 fetchAll();
 setInterval(fetchAll, 120000); // refresh every 2 min
 
@@ -2621,11 +2698,14 @@ document.addEventListener('keydown', function(e) {
 </script>
 
 
-<!-- ═══ THREE COLUMN GRID ═══ -->
+<!-- ═══ TWO-ZONE LAYOUT: LEFT EVIDENCE + RIGHT INTEL RAIL ═══ -->
 <div class="pn-main">
     <div class="pn-grid">
 
-        <!-- ═══ COLUMN 1: CONFIRMED DISCLOSURES (FREE in demo) ═══ -->
+        <!-- ═══ LEFT MAIN (65%): EVIDENCE — DISCLOSURES + FLAGGED + CORRELATION ═══ -->
+        <div class="pn-left-main">
+
+        <!-- ═══ TIER 1: CONFIRMED DISCLOSURES ═══ -->
         <div class="pn-panel pn-tier-confirmed">
             <div class="pn-panel-head">
                 <span class="tier-dot"></span>
@@ -2642,9 +2722,10 @@ document.addEventListener('keydown', function(e) {
 
             <div id="pnDisclosures">
                 {% for d in data.disclosures %}
-                <div class="pn-disc-card">
+                <div class="pn-disc-card" data-party="{{ d.party|default('') }}">
                     <div class="pn-disc-head">
                         <div class="pn-disc-entity">{{ d.entity }}</div>
+                        {% if d.amount_range %}<span class="pn-disc-amount-tag">{{ d.amount_range }}</span>{% endif %}
                         {% if d.party %}
                         <span class="pn-disc-party {{ d.party }}">{{ d.party }}</span>
                         {% endif %}
@@ -2652,11 +2733,11 @@ document.addEventListener('keydown', function(e) {
                     <div class="pn-disc-fields">
                         <div>
                             <div class="pn-disc-field-label">Asset</div>
-                            <div class="pn-disc-field-val">{{ d.asset }}</div>
+                            <div class="pn-disc-field-val asset-val">{{ d.asset }}</div>
                         </div>
                         <div>
                             <div class="pn-disc-field-label">Type</div>
-                            <div class="pn-disc-field-val {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</div>
+                            <div class="pn-disc-field-val type-val {{ 'buy' if d.trade_type == 'purchase' else 'sell' if d.trade_type == 'sale' else '' }}">{{ d.trade_type|upper }}</div>
                         </div>
                         <div>
                             <div class="pn-disc-field-label">Amount</div>
@@ -2722,7 +2803,7 @@ document.addEventListener('keydown', function(e) {
             {% endif %}
         </div>
 
-        <!-- ═══ COLUMN 2: FLAGGED — PATTERN DETECTION ═══ -->
+        <!-- ═══ TIER 2: FLAGGED — PATTERN DETECTION ═══ -->
         <div class="pn-panel pn-tier-flagged">
             <div class="pn-panel-head">
                 <span class="tier-dot"></span>
@@ -2845,7 +2926,10 @@ document.addEventListener('keydown', function(e) {
             {% endif %}
         </div>
 
-        <!-- ═══ COLUMN 3: REAL-TIME FEED (FREE in demo) ═══ -->
+        </div><!-- end .pn-left-main -->
+
+        <!-- ═══ RIGHT RAIL (35%): INTEL — SIGNALS + MARKETS + GEO ═══ -->
+        <div class="pn-right-rail">
         <div class="pn-panel pn-tier-feed">
             <div class="pn-panel-head">
                 <span class="tier-dot"></span>
@@ -3079,6 +3163,7 @@ document.addEventListener('keydown', function(e) {
                 </div>
             </div>
         </div>
+        </div><!-- end .pn-right-rail -->
 
     </div>
 </div>
@@ -3559,8 +3644,14 @@ if(scr)scr.addEventListener('scroll',tlClose);
 
 /* ═══ CONGRESSIONAL TRADING ═══ */
 (function(){
-  // Recent trades
-  fetch('/api/congress/trades').then(function(r){return r.json()}).then(function(d){
+  // Helper: reuse liveData cache from SS2 fetchAll() if available, else fetch once
+  var liveData = window._pnLiveData || {};
+  function getCachedOrFetch(key, url) {
+    if (liveData[key]) return Promise.resolve(liveData[key]);
+    return fetch(url).then(function(r){return r.json();}).then(function(d){ liveData[key] = d; return d; });
+  }
+  // Recent trades (deduped — uses liveData.trades from SS2 fetchAll)
+  getCachedOrFetch('trades', '/api/congress/trades').then(function(d){
     var el = document.getElementById('pnCongress');
     if (!el) return;
     var trades = d.trades || [];
@@ -3583,8 +3674,8 @@ if(scr)scr.addEventListener('scroll',tlClose);
     el.innerHTML = html;
   }).catch(function(e){ console.warn('Congress trades:', e); });
 
-  // Party breakdown
-  fetch('/api/congress/trades').then(function(r){return r.json()}).then(function(d){
+  // Party breakdown (deduped — reuses liveData.trades)
+  getCachedOrFetch('trades', '/api/congress/trades').then(function(d){
     var el = document.getElementById('pnPartyBreakdown');
     if (!el) return;
     var pb = d.party_breakdown || {};
@@ -3601,8 +3692,8 @@ if(scr)scr.addEventListener('scroll',tlClose);
     el.innerHTML = html;
   }).catch(function(){});
 
-  // IHX Score
-  fetch('/api/congress/ihx').then(function(r){return r.json()}).then(function(d){
+  // IHX Score (deduped — reuses liveData.ihx)
+  getCachedOrFetch('ihx', '/api/congress/ihx').then(function(d){
     var el = document.getElementById('pnIHX');
     if (!el) return;
     var s = d.score || 50;
@@ -3617,7 +3708,7 @@ if(scr)scr.addEventListener('scroll',tlClose);
   }).catch(function(){});
 
   // ── Institutional Accumulation (SEC EDGAR 13F) ─────────────────
-  fetch('/api/panopticon/institutional').then(function(r){return r.json();}).then(function(d){
+  getCachedOrFetch('inst', '/api/panopticon/institutional').then(function(d){
     var el13f = document.getElementById('pnInstitutional');
     var elBanner = document.getElementById('pnCoalitionBanner');
     var elNote = document.getElementById('pnCoalitionNote');
@@ -3653,7 +3744,7 @@ if(scr)scr.addEventListener('scroll',tlClose);
   }).catch(function(){ });
 
   // ── Private Equity Datastream (Form D + Coalition) ────────────
-  fetch('/api/panopticon/pe-datastream').then(function(r){return r.json();}).then(function(d){
+  getCachedOrFetch('pe', '/api/panopticon/pe-datastream').then(function(d){
     var elPE = document.getElementById('pnPEDatastream');
     if (!elPE) return;
     var rounds = d.pe_rounds || [];
