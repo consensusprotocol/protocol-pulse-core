@@ -178,6 +178,7 @@ def panopticon_page():
     return render_template(
         "panopticon.html",
         demo_mode=demo_mode,
+        is_commander=(not demo_mode),
         data=data,
     )
 
