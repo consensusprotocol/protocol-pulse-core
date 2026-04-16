@@ -632,7 +632,9 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
-    total_dur = audio_dur + 0.3
+    # ISSUE 7 FIX: Ensure card video duration >= TTS audio + 0.5s buffer
+    # Previous 0.3s buffer caused narration audio to get cut off by the next card
+    total_dur = audio_dur + 0.5
 
     safe_btc = btc_price.replace("'", "").replace('"', "")
     has_wm = os.path.exists(WATERMARK)
@@ -690,13 +692,13 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         # V9 FIX 6: Adaptive font/wrap for tweet length — long tweets get smaller font + more lines
         _raw_tweet = _sanitize_text(post.get("text", ""))
         if len(_raw_tweet) > 200:
-            tweet_text = _word_wrap(_raw_tweet, max_width=44, max_lines=4)
+            tweet_text = _word_wrap(_raw_tweet, max_width=44, max_lines=6)
             _tweet_fontsize = 36
         elif len(_raw_tweet) > 120:
-            tweet_text = _word_wrap(_raw_tweet, max_width=38, max_lines=4)
+            tweet_text = _word_wrap(_raw_tweet, max_width=38, max_lines=6)
             _tweet_fontsize = 42
         else:
-            tweet_text = _word_wrap(_raw_tweet, max_width=32, max_lines=3)
+            tweet_text = _word_wrap(_raw_tweet, max_width=32, max_lines=6)
             _tweet_fontsize = 52
         likes = post.get("likes", 0)
         retweets = post.get("retweets", 0)

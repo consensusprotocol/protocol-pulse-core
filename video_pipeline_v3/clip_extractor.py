@@ -1007,6 +1007,8 @@ def extract_all(selections: dict, output_dir: str) -> dict:
         video_id = clip.get("video_id", "")
         start = clip.get("start_seconds", 0)
         end = clip["end_seconds"]
+        orig_start = start
+        orig_end = end
         channel = clip.get("channel", "unknown").replace(" ", "_")
 
         # V47 SMART INTRO DETECTION — scan for intro phrases at ANY start position
@@ -1050,6 +1052,11 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                 start = 30
             if end <= start:
                 end = start + 40  # ensure valid range
+        # ISSUE 6 FIX: If clip too short after intro skip, extend end to minimum 35s
+        if (end - start) < 35:
+            old_end = end
+            end = start + 40
+            logger.info(f"  CLIP DURATION FIX: {channel} {old_end}s -> {end}s (min 35s after intro skip)")
         # Rule 2: Max clip duration 45s (Pipeline Laws: 30-60s, sweet spot 40s)
         if end - start > 55:
             logger.warning(f"  RULE OVERRIDE: clip #{rank} duration {end-start}s -> 45s (max clip length)")
@@ -1068,6 +1075,16 @@ def extract_all(selections: dict, output_dir: str) -> dict:
             if adjusted_end != end:
                 logger.info(f"  Sentence boundary: clip #{rank} end {end}s -> {adjusted_end}s")
                 end = adjusted_end
+
+        # ISSUE 1 FIX: Re-enrich clip_transcript after smart intro + sentence boundary adjustments
+        # The original transcript was extracted using the PRE-adjustment start/end window.
+        # After smart intro skip and sentence boundary changes, re-extract from timestamped_text.
+        if timestamped_text and (start != orig_start or end != orig_end):
+            parsed_ts = _parse_timestamped_text(timestamped_text)
+            new_excerpt = [text for sec, text in parsed_ts if start - 5 <= sec <= end + 5]
+            if new_excerpt:
+                clip["clip_transcript"] = " ".join(new_excerpt)[:500]
+                logger.info(f"  CLIP TRANSCRIPT RE-ENRICHED: {channel} {orig_start}->{start}")
 
         output_path = os.path.join(output_dir, f"clip_{rank}_{channel}_{video_id}.mp4")
 

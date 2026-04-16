@@ -459,7 +459,7 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
 
     fade_out_start = max(0, _target_cv - 0.5)
     fg = (
-        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,"
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,"
         f"trim=duration={_target_cv:.3f},setpts=PTS-STARTPTS,"
         f"fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[clip];\n"
         # Red border frame (2px all edges)

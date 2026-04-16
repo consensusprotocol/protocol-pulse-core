@@ -460,8 +460,8 @@ PRONUNCIATION_MAP = {
     "Luke Dashjr": "LUKE DASH-junior",
     "Dashjr": "DASH-junior",
     # Nick Szabo
-    "Nick Szabo": "Nick SAY-bo",
-    "Szabo": "SAY-bo",
+    "Nick Szabo": "Nick Say-bo",
+    "Szabo": "Say-bo",
     # Anthony Pompliano
     "Anthony Pompliano": "Anthony pahm-plee-AH-no",
     "Pompliano": "pahm-plee-AH-no",
@@ -573,15 +573,11 @@ PRONUNCIATION_MAP = {
     # People
     "Saifedean": "Sigh-feh-DEAN",
     "Nakamoto": "Nah-kah-MOH-toh",
-    "Szabo": "SAY-bo",  # V46 FIX: was SAH-boh, PBX wants SAY-bo
+    "Szabo": "Say-bo",  # V46 FIX: lowercase for natural ElevenLabs pronunciation
     # Protocols
     "Taproot": "Tap-root",
     "Nostr": "nawster",
     "nostr": "nawster",
-    "regulatory": "reg-you-latory",
-    "Regulatory": "Reg-you-latory",
-    "geopolitical": "jee-oh-political",
-    "Geopolitical": "Jee-oh-political",
 }
 
 
