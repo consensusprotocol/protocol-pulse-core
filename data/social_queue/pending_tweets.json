@@ -1,53 +1,5 @@
 [
   {
-    "id": "tweet_20260413_080435_0",
-    "text": "If you can't access your money without permission, you don't own it. Your bank knows this. Does your government",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T08:04:35.051325+00:00",
-    "brief_date": "Sunday, April 12, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260413_130006_0",
-    "text": "1068.7 EH/s securing the network while Fear reads 12. Last time hashrate stayed this high during panic, institutions were already buying. History doesn't repeat",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T13:00:06.687264+00:00",
-    "brief_date": "Sunday, April 12, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260413_160006_0",
-    "text": "1068.7 EH/s hashrate. Fear reads 12. Miners are securing the network for pennies while retail assumes it's broken. They're wrong about what broken looks like",
-    "angle": "onchain_metric",
-    "type": "observation",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T16:00:06.011872+00:00",
-    "brief_date": "Monday, April 13, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260413_220004_0",
-    "text": "54% of consumers say their financial situation got worse this year. At what point does currency debasement stop feeling like economics and start feeling like theft",
-    "angle": "macro_monetary",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-13T22:00:04.025992+00:00",
-    "brief_date": "Monday, April 13, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260414_160004_0",
     "text": "985.1 EH/s during extreme fear. Last time hashrate climbed into a panic, Bitcoin was $19k. Miners don't accumulate security theater",
     "angle": "network_fundamentals",
@@ -93,6 +45,90 @@
     "status": "pending",
     "generated_at": "2026-04-15T04:38:44.246660+00:00",
     "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260415_082205_0",
+    "text": "In 1923 Germany printed reichsmarks faster than they could be spent. Today the Fed balance sheet is 7.6 trillion and climbing. Bitcoin doesn't care how many digits they add to the spreadsheet",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-15T08:22:05.199047+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260415_100006_0",
+    "text": "Your custodian can freeze your account. Your government can print money. Your bank can deny you service. At what point does holding Bitcoin stop being an investment and start being insurance",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-15T10:00:06.191878+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260415_130006_0",
+    "text": "How many times has your bank account actually worked when you needed it most. Because Bitcoin doesn't have office hours or a customer service line that puts you on hold",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-15T13:00:06.091950+00:00",
+    "brief_date": "Tuesday, April 14, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260415_190003_0",
+    "text": "Fear index at 23. Institutional buyers absorbed 9,631 BTC in 5 days. Retail panic selling to people who treat Bitcoin like a savings account. That's the entire market structure right now",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-15T19:00:03.875467+00:00",
+    "brief_date": "Wednesday, April 15, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260416_025028_0",
+    "text": "BIP-361 isn't about quantum. It's about whether Bitcoin's rules can be rewritten by consensus vote when governments ask nicely. The answer tells you everything about what Bitcoin actually is",
+    "angle": "sovereignty_freedom",
+    "type": "signal",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-16T02:50:28.780686+00:00",
+    "brief_date": "Wednesday, April 15, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260416_100006_0",
+    "text": "Diocletian froze prices in 301 AD to stop inflation. It created black markets and accelerated Rome's collapse. BIP-361 is the same impulse with different syntax",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-16T10:00:06.464872+00:00",
+    "brief_date": "Wednesday, April 15, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260416_130003_0",
+    "text": "If governments can pressure custodians holding 12% of Bitcoin supply, why would you store yours anywhere else",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-16T13:00:03.919017+00:00",
+    "brief_date": "Wednesday, April 15, 2026",
     "sentiment": "bullish"
   }
 ]

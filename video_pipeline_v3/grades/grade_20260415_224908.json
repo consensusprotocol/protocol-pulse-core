@@ -1,0 +1,121 @@
+{
+  "grade": "F",
+  "overall_score": 56,
+  "broadcast_ready": false,
+  "technical_score": 97,
+  "content_score": 25,
+  "production_score": 95,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 343.6s (5.7 mins). This is below the ideal 8-15 min target, falling into the 'acceptable but short' category."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, which meets the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.5 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -1.1 dBFS, safely below the -1.0 dBFS limit."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "Confirmed no mid-video black frames."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No unintentional mid-video silence gaps were detected."
+    },
+    "freeze_check": {
+      "score": 10,
+      "note": "No penalized freeze frames were observed; static data and social cards are exempt and used correctly."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Video uses the standard h264/aac codec combination."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File integrity is sound, with a high bitrate and both streams present and clean."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Balaji Srinivasan, Michael Saylor (via Simply Bitcoin), and Marty Bent (via TFTC) are high-signal, editorially preferred sources. The topics of network states, institutional accumulation, and sovereignty are perfectly aligned with the show's mission."
+    },
+    "script_quality": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: The narration is not performed by the designated host, PBX. It is a compilation of multiple unidentified human voices, which completely breaks the show's format. The script cannot be evaluated on its own merit when the delivery mechanism is fundamentally broken."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The cold open about global debt vs. GDP is a strong, specific, and thematically relevant hook."
+    },
+    "narrative_arc": {
+      "score": 9,
+      "note": "The episode constructs a clear and logical narrative, flowing from macro problems to Bitcoin-centric solutions and the battle for sovereignty."
+    },
+    "host_authenticity": {
+      "score": 0,
+      "note": "CRITICAL FAILURE: PBX is the sole host of Protocol Pulse. This episode contains zero audio from PBX. The narration is performed by several other people. This is a complete and total failure of a core show requirement."
+    },
+    "episode_title": {
+      "score": 9,
+      "note": "The title 'Bitcoin's Escape from Collapse' is punchy, specific, and accurately reflects the episode's central theme."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is concise and contains no ad reads, sponsor segments, or off-topic content."
+    },
+    "timeliness": {
+      "score": 2,
+      "note": "A major error exists where on-screen dates are set in the future (April 2026). This is extremely confusing for the viewer and undermines the credibility of the intelligence being presented, despite the conceptual relevance of the topics."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music and sound design are well-mixed, with effective sidechain ducking for narration and clips. The levels are perfect."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Glitch transitions are used consistently and effectively, maintaining the show's aesthetic."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual package is excellent. The cyberpunk aesthetic, lower thirds, data overlays, and branding are all professional and consistent."
+    },
+    "no_artifacts": {
+      "score": 10,
+      "note": "The video playback is smooth with no visible compression artifacts, stuttering, or corrupted frames."
+    },
+    "audio_quality": {
+      "score": 9,
+      "note": "While the narrators are incorrect, the technical quality of their recorded audio is clean, clear, and well-mixed. There is no clipping, echo, or background noise."
+    },
+    "pacing": {
+      "score": 8,
+      "note": "Despite its short length, the episode is well-paced, moving briskly through its segments without feeling rushed."
+    }
+  },
+  "critical_failures": [
+    "host_authenticity: The designated sole host, PBX, is completely absent from the episode. The narration is performed by multiple unidentified human voices, violating the core format of the show.",
+    "script_quality: As a direct result of the host's absence, the script is not delivered as intended, constituting a critical failure in content delivery."
+  ],
+  "warnings": [
+    "timeliness: On-screen dates are incorrectly set in the future (2026), which will confuse the audience and damage the show's credibility.",
+    "duration_check: At under 6 minutes, the episode is significantly shorter than the target 8-15 minute runtime."
+  ],
+  "strengths": [
+    "Visual Polish: The episode's aesthetic, graphics, and data overlays are of exceptionally high, broadcast-ready quality.",
+    "Clip Curation: The selection of sources and the narrative arc they build is intelligent and highly relevant to the target audience.",
+    "Technical Audio/Video Quality: All technical benchmarks for resolution, framerate, loudness, and clarity are met or exceeded."
+  ],
+  "verdict": "This episode is a catastrophic content failure due to the complete absence of the designated host, PBX, rendering it unpublishable despite its high technical and production quality.",
+  "recommendation": "DO_NOT_PUBLISH"
+}

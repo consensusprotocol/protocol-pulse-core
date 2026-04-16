@@ -1,7 +1,151 @@
 {
-  "last_updated": "2026-04-15T04:01:56.336214+00:00",
-  "total_analyses": 123,
+  "last_updated": "2026-04-16T12:00:11.965941+00:00",
+  "total_analyses": 129,
   "analyses": [
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 55,
+      "main_thesis": "Quantum computing threat to Bitcoin is largely overhyped with no concrete evidence of imminent danger, but quantum-resistant upgrades should be implemented as a practical insurance policy without diverting excessive resources.",
+      "key_quotes": [
+        "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy",
+        "Quantum resistance is an insurance policy...you buy it in case it burns down",
+        "I just do not believe that we would go from, we can't beat an abacus to we broke ECDSA and never hear about it"
+      ],
+      "topics": [
+        "Quantum computing threat to Bitcoin",
+        "ECDSA vulnerability and quantum resistance",
+        "Insider selling behavior in quantum companies",
+        "Secret government quantum development programs",
+        "Transaction cost implications of quantum-resistant signatures"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Swan Bitcoin",
+      "title": "Quantum vs. Bitcoin: Hype, Secrecy, and the Case for Quantum-Resistant Insurance",
+      "video_id": "0mE0fNMUotc",
+      "duration": 271.74,
+      "analyzed_at": "2026-04-16T04:00:36.107099+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 65,
+      "main_thesis": "Bitcoin is emerging as an unexpected geopolitical tool in US-China-Iran tensions over the Strait of Hormuz, with Iran demanding Bitcoin payment for oil tolls while Trump threatens to intercept vessels paying these tolls, creating a complex scenario where Bitcoin adoption by adversaries undermines traditional US sanctions.",
+      "key_quotes": [
+        "Bitcoin is being used as a way to subvert his sanctions",
+        "There is no navy that can secure a waterway now",
+        "You can't send $100B worth of warships...attacked by $20K worth of drones"
+      ],
+      "topics": [
+        "Geopolitical tension (US-China-Iran)",
+        "Strait of Hormuz blockade and tolls",
+        "Bitcoin as sanctions evasion tool",
+        "Asymmetric warfare and military strategy",
+        "Energy security and trade routes"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "BTC Sessions",
+      "title": "The Secret War Between Trump and China Nobody Is Talking About",
+      "video_id": "J7fz0zOg72o",
+      "duration": 1238.67,
+      "analyzed_at": "2026-04-16T04:00:31.123102+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "MicroStrategy's aggressive Bitcoin accumulation at a significant discount to fair value presents an asymmetric upside opportunity, with the company potentially reaching 1M+ BTC holdings while trading at a 0.78x asset value premium.",
+      "key_quotes": [
+        "They've averaged throughout 2026 over a thousand Bitcoin a day",
+        "Bitcoin on the balance sheet is worth more than the company itself",
+        "A majority of their new accumulation can now almost entirely be funded by derivative products"
+      ],
+      "topics": [
+        "MicroStrategy Bitcoin accumulation strategy",
+        "Share dilution and asset value premium",
+        "STRC derivative product funding mechanism",
+        "Bitcoin treasury company comparison",
+        "Valuation disconnect between MSTR stock and Bitcoin holdings"
+      ],
+      "price_prediction": "MSTR fair valuation at 1x premium: $300/share (66.86% Bitcoin upside needed); previous ATH would require >100% MSTR upside versus Bitcoin gains",
+      "confidence": "high",
+      "channel": "Bitcoin Magazine Pro",
+      "title": "MSTR Just Hit Its Lowest Ever Reading \u2014 I'm Taking The 98.87% Trade",
+      "video_id": "T62HoH2GywU",
+      "duration": 975.7,
+      "analyzed_at": "2026-04-16T04:00:26.240873+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 72,
+      "main_thesis": "Bitcoin and crypto are on an inevitable path toward mainstream adoption and legitimization, with regulatory clarity from the US administration creating a favorable environment for growth. The convergence of traditional finance and crypto infrastructure could bring trillions in value on-chain.",
+      "key_quotes": [
+        "Tokenization is inevitable. I think we're going to see eventually a hundred trillion dollars moving on chain",
+        "We have the most friendly US administration we've seen in crypto today",
+        "Once rules have been set and convergence between traditional DeFi is starting, crypto will become a legitimate capital market"
+      ],
+      "topics": [
+        "Bitcoin 4-year cycle and all-time highs timing",
+        "US regulatory clarity (SEC, CFTC, Clarity Act)",
+        "Real-world assets (RWAs) tokenization",
+        "Government policy impact on crypto",
+        "Retail trader behavior and market maturity"
+      ],
+      "price_prediction": "Bitcoin above all-time highs by end of 2026; potential $250,000 target mentioned in title (not explicitly confirmed in transcript)",
+      "confidence": "medium",
+      "channel": "CoinTelegraph",
+      "title": "Bitcoin to $250,000 by 2030? \u2014 What the Market is Missing",
+      "video_id": "3yWBF9ofUQo",
+      "duration": 899.73,
+      "analyzed_at": "2026-04-16T04:00:10.363588+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 45,
+      "main_thesis": "Bitcoin's core protocol is secure against AI threats due to cryptographic and decentralized network security, but cryptocurrency platforms and retail-facing applications face significant new vulnerabilities from advanced AI models like Anthropic's Mythos.",
+      "key_quotes": [
+        "Bitcoin is fundamentally secured by cryptography instead of shared rules",
+        "AI is making social engineering attacks very easy and very low cost",
+        "The AI cat is out of the bag. It's impossible to put back"
+      ],
+      "topics": [
+        "AI-powered vulnerability detection",
+        "Cryptocurrency exchange security",
+        "Social engineering attacks",
+        "Software patch cycles and deployment",
+        "Decentralized vs. centralized security models"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "CNBC",
+      "title": "What Anthropic\u2019s Mythos Means For Crypto Security",
+      "video_id": "-5_zcilw_UQ",
+      "duration": 385.39,
+      "analyzed_at": "2026-04-16T04:00:04.469640+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "Bitcoin's base chain is being corrupted by adding arbitrary data/information, similar to how deuterium ruins DNA. This pollution will eventually make Bitcoin non-functional unless the base chain is kept clean and data is moved to layer 2/3 solutions.",
+      "key_quotes": [
+        "Putting information on the base chain is f***ing psychotic",
+        "When you add enough information to the base chain, you extinct its ability to be functional",
+        "The base chain will be kept clean. Bitcoin will not be extincted"
+      ],
+      "topics": [
+        "Base chain data pollution",
+        "Layer 2/Layer 3 solutions",
+        "UTXO bloat and mempool issues",
+        "Bitcoin fundamentals and physics principles",
+        "Industry figures and alleged corruption"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "TFTC",
+      "title": "Dr. Jack Kruse Exposed Every Fraud In Bitcoin",
+      "video_id": "ODJ-FpEIQvc",
+      "duration": 5640.96,
+      "analyzed_at": "2026-04-15T12:00:03.851969+00:00"
+    },
     {
       "sentiment": "bullish",
       "sentiment_score": 92,

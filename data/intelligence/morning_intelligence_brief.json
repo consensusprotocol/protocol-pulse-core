@@ -1,58 +1,55 @@
 {
-  "generated_at": "2026-04-14T16:00:00Z",
-  "date": "Tuesday, April 14, 2026",
-  "btc_price": "$74,229",
-  "btc_change_24h": "+1.1%",
-  "fng": "Extreme Fear (21/100)",
+  "generated_at": "2026-04-16T00:00:00Z",
+  "date": "Thursday, April 16, 2026",
+  "btc_price": "$74,016",
+  "btc_change_24h": "-0.2%",
+  "fng": "Extreme Fear (23/100)",
   "dominant_narratives": [
-    "Wall Street institutional adoption accelerating — Goldman Sachs Bitcoin Premium Income ETF filing signals yield layer maturation on Bitcoin",
-    "STRC volatility compression creating money-market-like risk-adjusted returns — Saylor positioning for $5B/week accumulation in bull markets",
-    "Halving cycle psychology: 50% through to block 1,050,000 — market positioning for supply shock while extreme fear creates tactical entry opportunities",
-    "Geopolitical macro backdrop (Strait of Hormuz, Iran tensions, rate cuts reopening) driving risk-on sentiment despite FNG extremes"
+    "Supply tightening as institutional & whale accumulation accelerates (270k BTC in 30 days, lowest exchange reserves since Dec 2017)",
+    "Quantum computing threat narrative gaining protocol-level attention (BIP361 discussions, coin-freezing precedent concerns)",
+    "Bitcoin as geopolitical infrastructure & macroeconomic hedge against fiat debasement"
   ],
   "trending_language": [
-    "Rekt 🤡 (liquidation narrative dominance)",
-    "NgU (price agnosticism masking conviction)",
-    "Money market–like stability with market-leading risk-adjusted returns (institutional framing)",
-    "We don't know but we like to think we do (uncertainty acknowledgment)",
-    "Secure your Bitcoin as if it was 10x what it's worth now (custody urgency)"
+    "Supply is getting tighter as demand grows",
+    "People with a lot of influence and power have tried to change Bitcoin, and it's basically failed",
+    "The money in your bank account is not yours. Nor is it really 'money' at all",
+    "One of the largest crypto user bases just got direct access to self-custody",
+    "BIP361 isn't a security upgrade. It's a precedent for protocol-enforced freezing"
   ],
-  "sentiment": "bullish",
-  "sentiment_reasoning": "Despite Extreme Fear indexing, on-chain behavior (whale accumulation, $259M short liquidations, 80% volume surge, +5% daily move) and institutional momentum (Goldman filing, STRC $15M rapid uptake, Saylor's $5B/week thesis) indicate sophisticated actors positioning aggressively. Fear is retail capitulation signal, not institutional conviction.",
+  "sentiment": "uncertain",
+  "sentiment_reasoning": "Despite Extreme Fear readings, accumulation signals (BlackRock $IBIT 13.5k BTC in 6 days, whale accumulation, exchange reserve depletion) clash with price stagnation and rising protocol-governance anxiety over quantum resilience & coin-freezing precedents. Community is bifurcated: opportunistic accumulation vs. existential protocol concerns.",
   "top_accounts_active": [
     "@BitcoinArchive",
-    "@saylor",
-    "@nvk",
+    "@adam3us",
+    "@LynAldenContact",
+    "@knutsvanholm",
     "@saifedean",
-    "@JeffBooth",
-    "@BitcoinMagazine",
-    "@jimmysong",
-    "@NickSzabo4",
-    "@natbrunell"
+    "@_Checkmatey_",
+    "@stephanlivera",
+    "@BTCsessions",
+    "@DocumentingBTC",
+    "@CaitlinLong_"
   ],
   "recommended_tweet_angles": [
-    "Goldman's Bitcoin Premium Income ETF: Wall Street stops asking 'if' Bitcoin yields and starts asking 'how much.' STRC's 4.49 Sharpe and $278M daily liquidity = retail investors finally have institutional-grade Bitcoin infrastructure.",
-    "177,000 traders liquidated in 24h as BTC clears $75K. Extreme Fear (21 FNG) + whale accumulation = classic capitulation buy. The market rewards those who act when algos liquidate panic.",
-    "Bitcoin halving 50% loaded. Block 945,031/1,050,000. Every 4 years, supply shock. Every cycle, institutions load before retail understands. Time horizon matters.",
-    "Your Nokia 3310 is now a sovereign money device. Cryobrick wallet = Play Snake, custody your sats offline. This is what 'banking the unbanked' actually means — not apps, not custodians."
+    "Supply shock thesis: 270k BTC accumulated by whales in 30 days + lowest exchange reserves since 2017 = structural tightening despite price flatness. This is the setup before volatility.",
+    "BIP361 & protocol integrity: Quantum-resistance debate has shifted from 'if' to 'how' — but coin-freezing precedents are setting dangerous govenance patterns. Bitcoin's core strength is immutability, not emergency powers.",
+    "Tether's 570M-user base now has native self-custody via Bitcoin wallet app. Adoption isn't theoretical — it's infrastructure hardening. Centralized stablecoin users migrating to sound money rails.",
+    "Extreme Fear (23) during institutional accumulation is textbook asymmetry. BlackRock, MicroStrategy, whales positioning while retail still afraid. Distribution is happening at macro level."
   ],
   "topics_to_avoid": [
-    "Political fragmentation threads (Canada, Israel, socialism discourse) — noise, not signal",
-    "North Korea crypto operations — distracts from macro thesis",
-    "SBF pardon speculation — closed chapter, regulatory noise"
+    "Geopolitical hot-takes unrelated to Bitcoin's role (Israeli-Palestinian conflict, Iran tensions) — stay focused on monetary & protocol narrative",
+    "Personality politics & moral grandstanding (Milei, Elon tangents) — protocol-level signal only",
+    "Unsubstantiated quantum-computing FUD — stick to BIP361 governance concerns & technical timeline data"
   ],
-  "engagement_patterns": "Signal-based brevity winning: 🚀/🩸 emoji threading, bold numerical claims (177K traders, $259M liquidations, $5B/week thesis), halving progress bars, and technical specificity (Sharpe ratios, block heights, volatility metrics) outperforming narrative threads. Institutional language (risk-adjusted returns, daily liquidity, volatility compression) mixing with cypherpunk language (rekt, sovereignty, custody) — audience is crypto-native professionals, not retail newcomers.",
-  "protocol_pulse_voice_guidance": "Deploy counterintuitive positioning: Frame Extreme Fear as institutional setup opportunity, not warning. Emphasize on-chain behavioral evidence (whale accumulation, liquidation cascades, ETF inflows) over sentiment indices. Use technical precision (Sharpe ratios, block heights, volatility data) to signal rigor, then undercut with cypherpunk irreverence (Nokia 3310 custody, 'secure as if 10x,' gaslighting calls). Avoid cheerleading; instead, analyze *who is accumulating and why* — that's the tell. Halving narrative should be framed as supply-shock actuarial event, not hype cycle.",
+  "engagement_patterns": "Short, data-dense statements with historical callouts (2017, 2013 comparisons) resonate highest. Meme-adjacent tone acceptable when paired with hard numbers. Austrian school economics & sound money philosophy framing outperforms generic crypto cheerleading. Self-custody, will-planning, and infrastructure-layer arguments gaining traction over price speculation.",
+  "protocol_pulse_voice_guidance": "Lead with supply mechanics & exchange reserve data — this is where the signal hides beneath Extreme Fear noise. Acknowledge quantum governance tensions without FUD; position as protocol integrity watchdog. Emphasize that institutional accumulation + retail fear = textbook distribution setup. Use cypherpunk skepticism toward emergency-powers precedents (BIP361), not toward technical resilience. Sound money thesis > moon narrative. Stay forensic, skeptical of authority, precise on numbers.",
   "key_stats_today": {
-    "tweets_analyzed": 167,
+    "tweets_analyzed": 177,
     "nostr_signals": 0,
-    "unique_handles": 91,
-    "liquidation_volume": "$259M",
-    "traders_rekt": 177000,
-    "btc_move_24h": "+5%",
-    "volume_surge": "+80%",
-    "strc_accumulated_6d": "$15M",
-    "halving_progress_pct": 50
+    "unique_handles": 88,
+    "institutional_accumulation_signal": "BlackRock +13.5k BTC (6 days), whale +270k BTC (30 days)",
+    "exchange_reserve_status": "Lowest since December 2017",
+    "tether_adoption_expansion": "570M users now with native Bitcoin custody via app"
   },
   "generated_by": "claude_haiku"
 }

@@ -1,75 +1,81 @@
 {
   "topic_velocity": [
     {
-      "topic": "Wall Street institutional adoption accelerating \u2014 Goldman...",
-      "channels": 33,
+      "topic": "Institutional Bitcoin accumulation",
+      "channels": 8,
       "sentiment": "bullish",
-      "velocity_score": 99,
-      "authority_score": 50,
-      "top_quote": "",
+      "velocity_score": 48,
+      "authority_score": 42,
+      "top_quote": "Whales bought 270,000 Bitcoin in 30 days, the biggest accumulation since 2013",
       "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
+        "BitcoinArchive",
+        "saylor"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "STRC volatility compression creating money-market-like ri...",
-      "channels": 23,
+      "topic": "Fiat system obsolescence & economic paradigm shift",
+      "channels": 6,
       "sentiment": "bullish",
-      "velocity_score": 34,
-      "authority_score": 40,
-      "top_quote": "",
+      "velocity_score": 18,
+      "authority_score": 18,
+      "top_quote": "Bitcoin emerges as a solution, acting like the TCP/IP of money",
       "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
+        "JeffBooth"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Halving cycle psychology: 50% through to block 1,050,000 ...",
-      "channels": 18,
-      "sentiment": "bullish",
-      "velocity_score": 27,
-      "authority_score": 30,
-      "top_quote": "",
+      "topic": "Quantum computing threat mitigation",
+      "channels": 5,
+      "sentiment": "mixed",
+      "velocity_score": 15,
+      "authority_score": 15,
+      "top_quote": "We will stand ready to buy the quantum dip",
       "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
+        "stephanlivera"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Geopolitical macro backdrop (Strait of Hormuz, Iran tensi...",
-      "channels": 15,
-      "sentiment": "bullish",
-      "velocity_score": 22,
-      "authority_score": 20,
-      "top_quote": "",
+      "topic": "Regulatory clarity & market structure",
+      "channels": 3,
+      "sentiment": "neutral",
+      "velocity_score": 4,
+      "authority_score": 24,
+      "top_quote": "JPMorgan reports that the Bitcoin and crypto market structure legislation is 'close to completion'",
       "thought_leaders": [
-        "@BitcoinArchive",
-        "@saylor",
-        "@nvk"
+        "BitcoinMagazine"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Physical security & wrench attacks",
+      "channels": 3,
+      "sentiment": "bearish",
+      "velocity_score": 4,
+      "authority_score": 12,
+      "top_quote": "A family in Tobo, Sweden was tied up and mock executed by wrench attackers seeking cryptocurrency",
+      "thought_leaders": [
+        "lopp"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": true,
+  "breaking_threshold": false,
   "recommended_topics": [
-    "Wall Street institutional adoption accelerating \u2014 Goldman...",
-    "STRC volatility compression creating money-market-like ri...",
-    "Halving cycle psychology: 50% through to block 1,050,000 ..."
+    "Institutional Bitcoin accumulation",
+    "Fiat system obsolescence & economic paradigm shift",
+    "Quantum computing threat mitigation"
   ],
-  "dominant_narrative": "Wall Street institutional adoption accelerating \u2014 Goldman...",
-  "market_mood": "bullish",
-  "total_tweets_analyzed": 0,
-  "thought_leaders_active": 0,
-  "scan_time": "2026-04-15T01:59:23Z"
+  "dominant_narrative": "Institutional Bitcoin accumulation",
+  "market_mood": "cautiously_bullish",
+  "total_tweets_analyzed": 45,
+  "thought_leaders_active": 14,
+  "scan_time": "2026-04-16T13:30:08Z"
 }

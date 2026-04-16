@@ -316,5 +316,41 @@
     "timestamp": "2026-04-15T07:00:04.159651+00:00",
     "text_preview": "Block 945,158. Hashrate 1001.2 EH/s. Fees at 1 sat/vB. The network doesn't care ",
     "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "0529a952cfbff7c6f711af43f5119113",
+    "timestamp": "2026-04-15T16:00:06.737030+00:00",
+    "text_preview": "1.1 million Bitcoin sitting dormant since 2010. Satoshi's coins have never moved",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "46a3d4337586ef575e5b04281a47d4b4",
+    "timestamp": "2026-04-15T18:00:16.821135+00:00",
+    "text_preview": "Bitcoin Quantum Plan Could Freeze Legacy Coins\nhttps://protocolpulse.io/articles",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "df49655ee7e3c189fec8e10ee7e075ac",
+    "timestamp": "2026-04-15T22:00:04.184322+00:00",
+    "text_preview": "Global debt hits 331 trillion dollars. That's 421% of world GDP. In 2029 it cros",
+    "format_type": "macro_monetary"
+  },
+  {
+    "hash": "56c9cf1903f92c7727d4cab0b706336e",
+    "timestamp": "2026-04-16T01:00:03.320070+00:00",
+    "text_preview": "12% of all Bitcoin now sits in ETFs and government treasuries. When they decide ",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "d8127472c2dc73caf897b13e595f3099",
+    "timestamp": "2026-04-16T04:00:21.577503+00:00",
+    "text_preview": "BIP-361 isn't about quantum safety. It's about whether Bitcoin devs or governmen",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "02a1e3bf23f7e62c0d6ef16faa801fab",
+    "timestamp": "2026-04-16T07:00:06.506462+00:00",
+    "text_preview": "Fear index at 23. Long-term holders buying again. Last time this pattern showed ",
+    "format_type": "historical_pattern"
   }
 ]

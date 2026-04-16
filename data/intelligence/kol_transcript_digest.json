@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-15T04:02:00.141492+00:00",
-  "creator_count": 22,
-  "avg_sentiment_score": 66.9,
+  "generated_at": "2026-04-16T12:00:14.919594+00:00",
+  "creator_count": 5,
+  "avg_sentiment_score": 63.0,
   "sentiment_breakdown": {
-    "bullish": 13,
-    "bearish": 2,
-    "neutral": 7
+    "bullish": 2,
+    "bearish": 0,
+    "neutral": 3
   },
-  "dominant_sentiment": "bullish",
+  "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "MicroStrategy supply squeeze strategy",
+      "topic": "Quantum computing threat to Bitcoin",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Swan Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
+      "avg_sentiment_score": 55.0,
+      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
     },
     {
-      "topic": "STRCT preferred stock instrument and tax benefits",
+      "topic": "ECDSA vulnerability and quantum resistance",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Swan Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
+      "avg_sentiment_score": 55.0,
+      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
     },
     {
-      "topic": "Bitcoin long-term price predictions",
+      "topic": "Insider selling behavior in quantum companies",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Swan Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
+      "avg_sentiment_score": 55.0,
+      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
     },
     {
-      "topic": "Mining supply vs. demand dynamics",
+      "topic": "Secret government quantum development programs",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Swan Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
+      "avg_sentiment_score": 55.0,
+      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
     },
     {
-      "topic": "Capital accumulation mechanics",
+      "topic": "Transaction cost implications of quantum-resistant signatures",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Swan Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "They're buying five times more than all of the Bitcoin mined this year"
+      "avg_sentiment_score": 55.0,
+      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree on structural macroeconomic tailwinds\u2014currency debasement, dollar decline, institutional accumulation, and systemic monetary system dysfunction\u2014that favor Bitcoin's long-term adoption as a superior monetary alternative with fixed supply. Most view 2025 as a pivotal year distinguished from previous cycles by spot ETFs, institutional buying, and changed market dynamics.\n\n**Divergence:** While the majority project ultra-bullish outcomes ($21M+ per coin), sentiment splits sharply on near-term price action and timing. Optimists claim Bitcoin has bottomed without 70% drawdowns possible, yet skeptics flag the need to break above $80K resistance\u2014highlighting disagreement on whether current conditions guarantee the predicted bull run. Additionally, commentary fragments between pure monetary narratives (Ammous, Swan) and geopolitical/systemic risk frames (BTC Sessions, Brunell), with one source (Brunell) emphasizing individual sovereignty over wealth accumulation, suggesting different philosophical end-goals despite shared Bitcoin bullishness.",
+  "summary": "# Bitcoin Creator Consensus & Divergence\n\n**Consensus:** Bitcoin creators broadly agree the protocol itself is fundamentally secure (against quantum and AI threats), while practical risk management through upgrades and infrastructure improvements is prudent. They also align on Bitcoin's growing geopolitical and macroeconomic relevance.\n\n**Divergence:** Opinions split sharply on adoption timelines and investment thesis. CoinTelegraph and Bitcoin Magazine Pro express bullish optimism about mainstream adoption and asymmetric returns, while Swan Bitcoin and CNBC adopt cautious positions, emphasizing that threats\u2014though manageable\u2014warrant serious attention. Additionally, BTC Sessions uniquely frames Bitcoin as a geopolitical wildcard that could actually undermine US interests, contrasting with the more straightforwardly positive tone elsewhere.",
   "top_creators": [
     {
-      "channel": "Simply Bitcoin",
+      "channel": "Swan Bitcoin",
+      "sentiment": "mixed",
+      "score": 55,
+      "thesis": "Quantum computing threat to Bitcoin is largely overhyped with no concrete evidence of imminent danger, but quantum-resistant upgrades should be implemented as a practical insurance policy without diverting excessive resources."
+    },
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "mixed",
+      "score": 65,
+      "thesis": "Bitcoin is emerging as an unexpected geopolitical tool in US-China-Iran tensions over the Strait of Hormuz, with Iran demanding Bitcoin payment for oil tolls while Trump threatens to intercept vessels paying these tolls, creating a complex scenario where Bitcoin adoption by adversaries undermines traditional US sanctions."
+    },
+    {
+      "channel": "Bitcoin Magazine Pro",
       "sentiment": "bullish",
-      "score": 92,
-      "thesis": "MicroStrategy's massive Bitcoin accumulation through their STRCT instrument is creating a structural supply shock that will drive Bitcoin to $21 million per coin (~$400 trillion market cap) over 20 years, as buying demand far exceeds mining supply."
+      "score": 78,
+      "thesis": "MicroStrategy's aggressive Bitcoin accumulation at a significant discount to fair value presents an asymmetric upside opportunity, with the company potentially reaching 1M+ BTC holdings while trading at a 0.78x asset value premium."
     },
     {
-      "channel": "Simply Bitcoin",
-      "sentiment": "bearish",
-      "score": 25,
-      "thesis": "The US dollar's structural decline (from 70% to 46% of global reserves) is driving military intervention in Iran to prop up the petrodollar system, but this desperate move may actually accelerate the dollar's collapse and create conditions favoring Bitcoin as an alternative."
-    },
-    {
-      "channel": "The Bitcoin Layer",
+      "channel": "CoinTelegraph",
       "sentiment": "bullish",
       "score": 72,
-      "thesis": "AI and demographic shifts will increase structural deficits and currency dilution, making Bitcoin an attractive hedge due to its fixed supply versus the dilution experienced by fiat currency holders and treasury investors."
+      "thesis": "Bitcoin and crypto are on an inevitable path toward mainstream adoption and legitimization, with regulatory clarity from the US administration creating a favorable environment for growth. The convergence of traditional finance and crypto infrastructure could bring trillions in value on-chain."
     },
     {
-      "channel": "Natalie Brunell",
+      "channel": "CNBC",
       "sentiment": "mixed",
-      "score": 35,
-      "thesis": "The Western empire is in structural decline as the world shifts to multipolarity, but individual sovereignty through tools like Bitcoin offers hope for those who understand the geopolitical realities and act locally."
-    },
-    {
-      "channel": "Swan Bitcoin",
-      "sentiment": "bullish",
-      "score": 88,
-      "thesis": "Bitcoin is fundamentally replacing the central bank-controlled monetary system by becoming the world's monetary benchmark, rendering traditional fiat currency control obsolete through its fixed supply and mathematical rules."
+      "score": 45,
+      "thesis": "Bitcoin's core protocol is secure against AI threats due to cryptographic and decentralized network security, but cryptocurrency platforms and retail-facing applications face significant new vulnerabilities from advanced AI models like Anthropic's Mythos."
     }
   ]
 }

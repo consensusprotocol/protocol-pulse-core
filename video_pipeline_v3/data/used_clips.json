@@ -84,6 +84,40 @@
         "Guy Swann",
         "Yahoo Finance"
       ]
+    },
+    {
+      "date": "2026-04-15",
+      "video_ids": [
+        "eO5_xYBXiVk",
+        "29PPmOaENbE",
+        "z22HnACwl7k",
+        "AYAreuNzx58",
+        "SSbgVHQrGjg"
+      ],
+      "channels": [
+        "Tone Vays",
+        "Blockware Solutions",
+        "BTC Sessions",
+        "Andreas Antonopoulos",
+        "Jameson Lopp"
+      ]
+    },
+    {
+      "date": "2026-04-16",
+      "video_ids": [
+        "227anLxQ0mU",
+        "7Yvga6vQz3s",
+        "WscqjPmmpO4",
+        "XovbkoUNIMI",
+        "1w-ok-_d_K4"
+      ],
+      "channels": [
+        "The Bitcoin Layer",
+        "Bitfarms",
+        "Crypto Banter",
+        "The Bitcoin Podcast",
+        "Riot Platforms"
+      ]
     }
   ]
 }

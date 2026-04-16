@@ -1,548 +1,634 @@
-# Bitcoin YouTube channels — Protocol Pulse Intelligence Network
-# 76 channels across 4 tiers, all URLs verified with yt-dlp 2026-03-05
-# The daemon scans every 15 minutes. Adding channels here is all that's needed.
-
-# ═══════════════════════════════════════════════════════════════════
-# TIER 1 — Core Bitcoin (priority 1, always scan, always transcribe)
-# ═══════════════════════════════════════════════════════════════════
 channels:
-  - handle: "@BitcoinMagazine"
-    name: "Bitcoin Magazine"
-    url: "https://www.youtube.com/@BitcoinMagazine"
-    tier: 1
-    priority: 1
-
-  - handle: "@SimplyBitcoin"
-    name: "Simply Bitcoin"
-    url: "https://www.youtube.com/@SimplyBitcoin"
-    tier: 1
-    priority: 1
-
-  - handle: "@WBDPodcast"
-    name: "What Bitcoin Did"
-    url: "https://www.youtube.com/@WBDPodcast"
-    tier: 1
-    priority: 1
-
-  - handle: "@TFTC"
-    name: "TFTC"
-    url: "https://www.youtube.com/@TFTC"
-    tier: 1
-    priority: 1
-
-  - handle: "@PrestonPysh"
-    name: "Preston Pysh"
-    url: "https://www.youtube.com/@PrestonPysh"
-    tier: 1
-    priority: 1
-
-  - handle: "@thebitcoinlayer"
-    name: "The Bitcoin Layer"
-    url: "https://www.youtube.com/@thebitcoinlayer"
-    tier: 1
-    priority: 1
-
-  - handle: "@Blockworks"
-    name: "Blockworks"
-    url: "https://www.youtube.com/@Blockworks"
-    tier: 1
-    priority: 1
-
-  - handle: "@nataliebrunell"
-    name: "Natalie Brunell"
-    url: "https://www.youtube.com/@nataliebrunell"
-    tier: 1
-    priority: 1
-
-  - handle: "@RobertBreedlove22"
-    name: "Robert Breedlove"
-    url: "https://www.youtube.com/@RobertBreedlove22"
-    tier: 1
-    priority: 1
-
-  - handle: "@aantonop"
-    name: "Andreas Antonopoulos"
-    url: "https://www.youtube.com/@aantonop"
-    tier: 1
-    priority: 1
-
-  - handle: "@BitcoinUnchained"
-    name: "Unchained"
-    url: "https://www.youtube.com/@BitcoinUnchained"
-    tier: 1
-    priority: 1
-
-  - handle: "@Swan_Bitcoin"
-    name: "Swan Bitcoin"
-    url: "https://www.youtube.com/@Swan_Bitcoin"
-    tier: 1
-    priority: 1
-
-  - handle: "@BTCSessions"
-    name: "BTC Sessions"
-    url: "https://www.youtube.com/@BTCSessions"
-    tier: 1
-    priority: 1
-
-  - handle: "@stephanlivera"
-    name: "Stephan Livera"
-    url: "https://www.youtube.com/@stephanlivera"
-    tier: 1
-    priority: 1
-
-  - handle: "@BitcoinAudible"
-    name: "Bitcoin Audible"
-    url: "https://www.youtube.com/@BitcoinAudible"
-    tier: 1
-    priority: 1
-
-  - handle: "@saifedean"
-    name: "Saifedean Ammous"
-    url: "https://www.youtube.com/@saifedean"
-    tier: 1
-    priority: 1
-
-  - handle: "@BitcoinMagazinePro"
-    name: "Bitcoin Magazine Pro"
-    url: "https://www.youtube.com/@BitcoinMagazinePro"
-    tier: 1
-    priority: 1
-
-  - handle: "@WeStudyBillionaires"
-    name: "The Investors Podcast Network"
-    url: "https://www.youtube.com/@WeStudyBillionaires"
-    tier: 1
-    priority: 1
-
-  - handle: "@TheGuySwann"
-    name: "Guy Swann"
-    url: "https://www.youtube.com/@TheGuySwann"
-    tier: 1
-    priority: 1
-
-  - handle: "@BTCInc"
-    name: "BTC Inc"
-    url: "https://www.youtube.com/@BTCInc"
-    tier: 1
-    priority: 1
-
-  - handle: "@ToneVays"
-    name: "Tone Vays"
-    url: "https://www.youtube.com/@ToneVays"
-    tier: 1
-    priority: 1
-
-  - handle: "@BitcoinExplained"
-    name: "Bitcoin Explained"
-    url: "https://www.youtube.com/@BitcoinExplained"
-    tier: 1
-    priority: 1
-
-  - handle: "@JamesonLopp"
-    name: "Jameson Lopp"
-    url: "https://www.youtube.com/@JamesonLopp"
-    tier: 1
-    priority: 1
-
-  - handle: "@CasaBitcoin"
-    name: "Casa"
-    url: "https://www.youtube.com/@CasaBitcoin"
-    tier: 1
-    priority: 1
-
-  - handle: "@Base58BTC"
-    name: "Base58"
-    url: "https://www.youtube.com/@Base58BTC"
-    tier: 1
-    priority: 1
-
-  - handle: "@NathanielWhittemore"
-    name: "Nathaniel Whittemore"
-    url: "https://www.youtube.com/@NathanielWhittemore"
-    tier: 1
-    priority: 1
-
-  - handle: "@TheBitcoinPodcast"
-    name: "The Bitcoin Podcast"
-    url: "https://www.youtube.com/@TheBitcoinPodcast"
-    tier: 1
-    priority: 1
-
-  - handle: "@BitcoinMechanic"
-    name: "Bitcoin Mechanic"
-    url: "https://www.youtube.com/@BitcoinMechanic"
-    tier: 1
-    priority: 1
-
-  - handle: "@AnselLindner"
-    name: "Ansel Lindner"
-    url: "https://www.youtube.com/@AnselLindner"
-    tier: 1
-    priority: 1
-
-  - handle: "@BitcoinPodcast"
-    name: "Bitcoin Podcast"
-    url: "https://www.youtube.com/@BitcoinPodcast"
-    tier: 1
-    priority: 1
-
-# ═══════════════════════════════════════════════════════════════════
-# TIER 2 — Bitcoin Adjacent / Macro (priority 2, scan daily,
-#          transcribe if Bitcoin keywords in title)
-# ═══════════════════════════════════════════════════════════════════
-
-  - handle: "@RealVisionFinance"
-    name: "Real Vision Finance"
-    url: "https://www.youtube.com/@RealVisionFinance"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "saylor", "etf", "macro", "money"]
-
-  - handle: "@GeorgeGammon"
-    name: "George Gammon"
-    url: "https://www.youtube.com/@GeorgeGammon"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "inflation", "money", "fed"]
-
-  - handle: "@CoinBureau"
-    name: "Coin Bureau"
-    url: "https://www.youtube.com/@CoinBureau"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "etf", "saylor", "mining", "halving"]
-
-  - handle: "@AnthonyPompliano"
-    name: "Anthony Pompliano"
-    url: "https://www.youtube.com/@AnthonyPompliano"
-    tier: 2
-    priority: 2
-
-  - handle: "@MartyBentTFTC"
-    name: "Marty Bent (Rabbit Hole Recap)"
-    url: "https://www.youtube.com/@MartyBentTFTC"
-    tier: 2
-    priority: 2
-
-  - handle: "@onceBITTEN"
-    name: "Once Bitten"
-    url: "https://www.youtube.com/@onceBITTEN"
-    tier: 2
-    priority: 2
-
-  - handle: "@maxkeiser"
-    name: "Max Keiser"
-    url: "https://www.youtube.com/@maxkeiser"
-    tier: 2
-    priority: 2
-
-  - handle: "@StackerNews"
-    name: "Stacker News"
-    url: "https://www.youtube.com/@StackerNews"
-    tier: 2
-    priority: 2
-
-  - handle: "@fountain_app"
-    name: "Fountain"
-    url: "https://www.youtube.com/@fountain_app"
-    tier: 2
-    priority: 2
-
-  - handle: "@GeminiExchange"
-    name: "Gemini"
-    url: "https://www.youtube.com/@GeminiExchange"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "etf"]
-
-  - handle: "@Saylor"
-    name: "Michael Saylor"
-    url: "https://www.youtube.com/@Saylor"
-    tier: 2
-    priority: 2
-
-  - handle: "@Strike"
-    name: "Strike"
-    url: "https://www.youtube.com/@Strike"
-    tier: 2
-    priority: 2
-
-  - handle: "@RealVision"
-    name: "Real Vision"
-    url: "https://www.youtube.com/@RealVision"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "macro"]
-
-  - handle: "@ScottMelker"
-    name: "Scott Melker"
-    url: "https://www.youtube.com/@ScottMelker"
-    tier: 2
-    priority: 2
-
-  - handle: "@WolfOfAllStreets"
-    name: "Wolf Of All Streets"
-    url: "https://www.youtube.com/@WolfOfAllStreets"
-    tier: 2
-    priority: 2
-
-  - handle: "@CompassMining"
-    name: "Compass Mining"
-    url: "https://www.youtube.com/@CompassMining"
-    tier: 2
-    priority: 2
-
-  - handle: "@MARAHoldings"
-    name: "MARA Holdings (Marathon Digital)"
-    url: "https://www.youtube.com/@MARAHoldings"
-    tier: 2
-    priority: 2
-
-  - handle: "@RiotPlatforms"
-    name: "Riot Platforms"
-    url: "https://www.youtube.com/@RiotPlatforms"
-    tier: 2
-    priority: 2
-
-  - handle: "@HiveBlockchain"
-    name: "HIVE Digital"
-    url: "https://www.youtube.com/@HiveBlockchain"
-    tier: 2
-    priority: 2
-
-  - handle: "@Bitfarms"
-    name: "Bitfarms"
-    url: "https://www.youtube.com/@Bitfarms"
-    tier: 2
-    priority: 2
-
-  - handle: "@BlockwareSolutions"
-    name: "Blockware Solutions"
-    url: "https://www.youtube.com/@BlockwareSolutions"
-    tier: 2
-    priority: 2
-
-  - handle: "@Strategy"
-    name: "Strategy (MicroStrategy)"
-    url: "https://www.youtube.com/@Strategy"
-    tier: 2
-    priority: 2
-
-  - handle: "@ClarkMoody"
-    name: "Clark Moody"
-    url: "https://www.youtube.com/@ClarkMoody"
-    tier: 2
-    priority: 2
-
-  - handle: "@CoinTelegraph"
-    name: "CoinTelegraph"
-    url: "https://www.youtube.com/@CoinTelegraph"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "etf", "mining", "halving", "saylor"]
-
-  - handle: "@CoinDesk"
-    name: "CoinDesk"
-    url: "https://www.youtube.com/@CoinDesk"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "etf", "mining", "halving", "saylor"]
-
-  - handle: "@DataDash"
-    name: "DataDash"
-    url: "https://www.youtube.com/@DataDash"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "etf", "macro"]
-
-  - handle: "@InvestingWithTom"
-    name: "Investing With Tom"
-    url: "https://www.youtube.com/@InvestingWithTom"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "crypto", "etf"]
-
-  - handle: "@DigitalAssetNews"
-    name: "Digital Asset News"
-    url: "https://www.youtube.com/@DigitalAssetNews"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "etf"]
-
-  - handle: "@AltcoinDaily"
-    name: "Altcoin Daily"
-    url: "https://www.youtube.com/@AltcoinDaily"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc", "etf", "saylor"]
-
-  - handle: "@CoinGecko"
-    name: "CoinGecko"
-    url: "https://www.youtube.com/@CoinGecko"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc"]
-
-  - handle: "@BitstampExchange"
-    name: "Bitstamp"
-    url: "https://www.youtube.com/@BitstampExchange"
-    tier: 2
-    priority: 2
-    filter_keywords: ["bitcoin", "btc"]
-
-  - handle: "@bitcoinmagazineclips"
-    name: "Bitcoin Magazine Clips"
-    url: "https://www.youtube.com/@bitcoinmagazineclips"
-    tier: 2
-    priority: 2
-
-# ═══════════════════════════════════════════════════════════════════
-# TIER 3 — Tradfi / Macro (priority 3, scan daily,
-#          ONLY transcribe if Bitcoin/BTC in title)
-# ═══════════════════════════════════════════════════════════════════
-
-  - handle: "@CNBC"
-    name: "CNBC"
-    url: "https://www.youtube.com/@CNBC"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@CNBCtelevision"
-    name: "CNBC Television"
-    url: "https://www.youtube.com/@CNBCtelevision"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@BloombergTelevision"
-    name: "Bloomberg Television"
-    url: "https://www.youtube.com/@BloombergTelevision"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@FoxBusiness"
-    name: "Fox Business"
-    url: "https://www.youtube.com/@FoxBusiness"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@YahooFinance"
-    name: "Yahoo Finance"
-    url: "https://www.youtube.com/@YahooFinance"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@WSJ"
-    name: "Wall Street Journal"
-    url: "https://www.youtube.com/@WSJ"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@FinancialTimes"
-    name: "Financial Times"
-    url: "https://www.youtube.com/@FinancialTimes"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "digital currency", "saylor", "etf"]
-
-  - handle: "@kitco"
-    name: "Kitco News"
-    url: "https://www.youtube.com/@kitco"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "saylor", "etf"]
-
-  - handle: "@Bankless"
-    name: "Bankless"
-    url: "https://www.youtube.com/@Bankless"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "etf", "saylor", "digital asset"]
-
-  - handle: "@TheBlockTV"
-    name: "The Block"
-    url: "https://www.youtube.com/@TheBlockTV"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "etf", "mining"]
-
-  - handle: "@TheStreet"
-    name: "TheStreet"
-    url: "https://www.youtube.com/@TheStreet"
-    tier: 3
-    priority: 3
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital asset", "saylor", "etf"]
-
-# ═══════════════════════════════════════════════════════════════════
-# TIER 4 — Mainstream with Bitcoin moments (priority 4,
-#          scan hourly, ONLY if Bitcoin keyword matches)
-# ═══════════════════════════════════════════════════════════════════
-
+- handle: '@BitcoinMagazine'
+  name: Bitcoin Magazine
+  url: https://www.youtube.com/@BitcoinMagazine
+  tier: 1
+  priority: 1
+- handle: '@SimplyBitcoin'
+  name: Simply Bitcoin
+  url: https://www.youtube.com/@SimplyBitcoin
+  tier: 1
+  priority: 1
+- handle: '@WBDPodcast'
+  name: What Bitcoin Did
+  url: https://www.youtube.com/@WBDPodcast
+  tier: 1
+  priority: 1
+- handle: '@TFTC'
+  name: TFTC
+  url: https://www.youtube.com/@TFTC
+  tier: 1
+  priority: 1
+- handle: '@PrestonPysh'
+  name: Preston Pysh
+  url: https://www.youtube.com/@PrestonPysh
+  tier: 1
+  priority: 1
+- handle: '@thebitcoinlayer'
+  name: The Bitcoin Layer
+  url: https://www.youtube.com/@thebitcoinlayer
+  tier: 1
+  priority: 1
+- handle: '@Blockworks'
+  name: Blockworks
+  url: https://www.youtube.com/@Blockworks
+  tier: 1
+  priority: 1
+- handle: '@nataliebrunell'
+  name: Natalie Brunell
+  url: https://www.youtube.com/@nataliebrunell
+  tier: 1
+  priority: 1
+- handle: '@RobertBreedlove22'
+  name: Robert Breedlove
+  url: https://www.youtube.com/@RobertBreedlove22
+  tier: 1
+  priority: 1
+- handle: '@aantonop'
+  name: Andreas Antonopoulos
+  url: https://www.youtube.com/@aantonop
+  tier: 1
+  priority: 1
+- handle: '@BitcoinUnchained'
+  name: Unchained
+  url: https://www.youtube.com/@BitcoinUnchained
+  tier: 1
+  priority: 1
+- handle: '@Swan_Bitcoin'
+  name: Swan Bitcoin
+  url: https://www.youtube.com/@Swan_Bitcoin
+  tier: 1
+  priority: 1
+- handle: '@BTCSessions'
+  name: BTC Sessions
+  url: https://www.youtube.com/@BTCSessions
+  tier: 1
+  priority: 1
+- handle: '@stephanlivera'
+  name: Stephan Livera
+  url: https://www.youtube.com/@stephanlivera
+  tier: 1
+  priority: 1
+- handle: '@BitcoinAudible'
+  name: Bitcoin Audible
+  url: https://www.youtube.com/@BitcoinAudible
+  tier: 1
+  priority: 1
+- handle: '@saifedean'
+  name: Saifedean Ammous
+  url: https://www.youtube.com/@saifedean
+  tier: 1
+  priority: 1
+- handle: '@BitcoinMagazinePro'
+  name: Bitcoin Magazine Pro
+  url: https://www.youtube.com/@BitcoinMagazinePro
+  tier: 1
+  priority: 1
+- handle: '@WeStudyBillionaires'
+  name: The Investors Podcast Network
+  url: https://www.youtube.com/@WeStudyBillionaires
+  tier: 1
+  priority: 1
+- handle: '@TheGuySwann'
+  name: Guy Swann
+  url: https://www.youtube.com/@TheGuySwann
+  tier: 1
+  priority: 1
+- handle: '@BTCInc'
+  name: BTC Inc
+  url: https://www.youtube.com/@BTCInc
+  tier: 1
+  priority: 1
+- handle: '@ToneVays'
+  name: Tone Vays
+  url: https://www.youtube.com/@ToneVays
+  tier: 1
+  priority: 1
+- handle: '@BitcoinExplained'
+  name: Bitcoin Explained
+  url: https://www.youtube.com/@BitcoinExplained
+  tier: 1
+  priority: 1
+- handle: '@JamesonLopp'
+  name: Jameson Lopp
+  url: https://www.youtube.com/@JamesonLopp
+  tier: 1
+  priority: 1
+- handle: '@CasaBitcoin'
+  name: Casa
+  url: https://www.youtube.com/@CasaBitcoin
+  tier: 1
+  priority: 1
+- handle: '@Base58BTC'
+  name: Base58
+  url: https://www.youtube.com/@Base58BTC
+  tier: 1
+  priority: 1
+- handle: '@NathanielWhittemore'
+  name: Nathaniel Whittemore
+  url: https://www.youtube.com/@NathanielWhittemore
+  tier: 1
+  priority: 1
+- handle: '@TheBitcoinPodcast'
+  name: The Bitcoin Podcast
+  url: https://www.youtube.com/@TheBitcoinPodcast
+  tier: 1
+  priority: 1
+- handle: '@BitcoinMechanic'
+  name: Bitcoin Mechanic
+  url: https://www.youtube.com/@BitcoinMechanic
+  tier: 1
+  priority: 1
+- handle: '@AnselLindner'
+  name: Ansel Lindner
+  url: https://www.youtube.com/@AnselLindner
+  tier: 1
+  priority: 1
+- handle: '@BitcoinPodcast'
+  name: Bitcoin Podcast
+  url: https://www.youtube.com/@BitcoinPodcast
+  tier: 1
+  priority: 1
+- handle: '@RealVisionFinance'
+  name: Real Vision Finance
+  url: https://www.youtube.com/@RealVisionFinance
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - saylor
+  - etf
+  - macro
+  - money
+- handle: '@GeorgeGammon'
+  name: George Gammon
+  url: https://www.youtube.com/@GeorgeGammon
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - inflation
+  - money
+  - fed
+- handle: '@CoinBureau'
+  name: Coin Bureau
+  url: https://www.youtube.com/@CoinBureau
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+  - saylor
+  - mining
+  - halving
+- handle: '@AnthonyPompliano'
+  name: Anthony Pompliano
+  url: https://www.youtube.com/@AnthonyPompliano
+  tier: 2
+  priority: 2
+- handle: '@MartyBentTFTC'
+  name: Marty Bent (Rabbit Hole Recap)
+  url: https://www.youtube.com/@MartyBentTFTC
+  tier: 2
+  priority: 2
+- handle: '@onceBITTEN'
+  name: Once Bitten
+  url: https://www.youtube.com/@onceBITTEN
+  tier: 2
+  priority: 2
+- handle: '@maxkeiser'
+  name: Max Keiser
+  url: https://www.youtube.com/@maxkeiser
+  tier: 2
+  priority: 2
+- handle: '@StackerNews'
+  name: Stacker News
+  url: https://www.youtube.com/@StackerNews
+  tier: 2
+  priority: 2
+- handle: '@fountain_app'
+  name: Fountain
+  url: https://www.youtube.com/@fountain_app
+  tier: 2
+  priority: 2
+- handle: '@GeminiExchange'
+  name: Gemini
+  url: https://www.youtube.com/@GeminiExchange
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - etf
+- handle: '@Saylor'
+  name: Michael Saylor
+  url: https://www.youtube.com/@Saylor
+  tier: 2
+  priority: 2
+- handle: '@Strike'
+  name: Strike
+  url: https://www.youtube.com/@Strike
+  tier: 2
+  priority: 2
+- handle: '@RealVision'
+  name: Real Vision
+  url: https://www.youtube.com/@RealVision
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - macro
+- handle: '@ScottMelker'
+  name: Scott Melker
+  url: https://www.youtube.com/@ScottMelker
+  tier: 2
+  priority: 2
+- handle: '@WolfOfAllStreets'
+  name: Wolf Of All Streets
+  url: https://www.youtube.com/@WolfOfAllStreets
+  tier: 2
+  priority: 2
+- handle: '@CompassMining'
+  name: Compass Mining
+  url: https://www.youtube.com/@CompassMining
+  tier: 2
+  priority: 2
+- handle: '@MARAHoldings'
+  name: MARA Holdings (Marathon Digital)
+  url: https://www.youtube.com/@MARAHoldings
+  tier: 2
+  priority: 2
+- handle: '@RiotPlatforms'
+  name: Riot Platforms
+  url: https://www.youtube.com/@RiotPlatforms
+  tier: 2
+  priority: 2
+- handle: '@HiveBlockchain'
+  name: HIVE Digital
+  url: https://www.youtube.com/@HiveBlockchain
+  tier: 2
+  priority: 2
+- handle: '@Bitfarms'
+  name: Bitfarms
+  url: https://www.youtube.com/@Bitfarms
+  tier: 2
+  priority: 2
+- handle: '@BlockwareSolutions'
+  name: Blockware Solutions
+  url: https://www.youtube.com/@BlockwareSolutions
+  tier: 2
+  priority: 2
+- handle: '@Strategy'
+  name: Strategy (MicroStrategy)
+  url: https://www.youtube.com/@Strategy
+  tier: 2
+  priority: 2
+- handle: '@ClarkMoody'
+  name: Clark Moody
+  url: https://www.youtube.com/@ClarkMoody
+  tier: 2
+  priority: 2
+- handle: '@CoinTelegraph'
+  name: CoinTelegraph
+  url: https://www.youtube.com/@CoinTelegraph
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+  - mining
+  - halving
+  - saylor
+- handle: '@CoinDesk'
+  name: CoinDesk
+  url: https://www.youtube.com/@CoinDesk
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+  - mining
+  - halving
+  - saylor
+- handle: '@DataDash'
+  name: DataDash
+  url: https://www.youtube.com/@DataDash
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+  - macro
+- handle: '@InvestingWithTom'
+  name: Investing With Tom
+  url: https://www.youtube.com/@InvestingWithTom
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - etf
+- handle: '@DigitalAssetNews'
+  name: Digital Asset News
+  url: https://www.youtube.com/@DigitalAssetNews
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+- handle: '@AltcoinDaily'
+  name: Altcoin Daily
+  url: https://www.youtube.com/@AltcoinDaily
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+  - saylor
+- handle: '@CoinGecko'
+  name: CoinGecko
+  url: https://www.youtube.com/@CoinGecko
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+- handle: '@BitstampExchange'
+  name: Bitstamp
+  url: https://www.youtube.com/@BitstampExchange
+  tier: 2
+  priority: 2
+  filter_keywords:
+  - bitcoin
+  - btc
+- handle: '@bitcoinmagazineclips'
+  name: Bitcoin Magazine Clips
+  url: https://www.youtube.com/@bitcoinmagazineclips
+  tier: 2
+  priority: 2
+- handle: '@CNBC'
+  name: CNBC
+  url: https://www.youtube.com/@CNBC
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@CNBCtelevision'
+  name: CNBC Television
+  url: https://www.youtube.com/@CNBCtelevision
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@BloombergTelevision'
+  name: Bloomberg Television
+  url: https://www.youtube.com/@BloombergTelevision
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@FoxBusiness'
+  name: Fox Business
+  url: https://www.youtube.com/@FoxBusiness
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@YahooFinance'
+  name: Yahoo Finance
+  url: https://www.youtube.com/@YahooFinance
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@WSJ'
+  name: Wall Street Journal
+  url: https://www.youtube.com/@WSJ
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@FinancialTimes'
+  name: Financial Times
+  url: https://www.youtube.com/@FinancialTimes
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - digital currency
+  - saylor
+  - etf
+- handle: '@kitco'
+  name: Kitco News
+  url: https://www.youtube.com/@kitco
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - saylor
+  - etf
+- handle: '@Bankless'
+  name: Bankless
+  url: https://www.youtube.com/@Bankless
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - etf
+  - saylor
+  - digital asset
+- handle: '@TheBlockTV'
+  name: The Block
+  url: https://www.youtube.com/@TheBlockTV
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - etf
+  - mining
+- handle: '@TheStreet'
+  name: TheStreet
+  url: https://www.youtube.com/@TheStreet
+  tier: 3
+  priority: 3
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital asset
+  - saylor
+  - etf
+- handle: '@Coffeezilla'
+  name: Coffeezilla
+  url: https://www.youtube.com/@Coffeezilla
+  tier: 2
+  priority: 1
+- handle: '@coffeezillaextras'
+  name: Coffeezilla Extras
+  url: https://www.youtube.com/@coffeezillaextras
+  tier: 2
+  priority: 1
 mainstream:
-  - handle: "@joerogan"
-    name: "Joe Rogan Experience"
-    url: "https://www.youtube.com/@joerogan"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "satoshi", "digital currency", "fed", "inflation", "sound money", "gold standard"]
-
-  - handle: "@lexfridman"
-    name: "Lex Fridman"
-    url: "https://www.youtube.com/@lexfridman"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "satoshi", "digital currency", "money", "economics"]
-
-  - handle: "@PBDPodcast"
-    name: "Patrick Bet-David"
-    url: "https://www.youtube.com/@PBDPodcast"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "digital", "inflation", "money"]
-
-  - handle: "@TuckerCarlson"
-    name: "Tucker Carlson"
-    url: "https://www.youtube.com/@TuckerCarlson"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "cbdc", "digital dollar", "surveillance", "privacy", "freedom"]
-
-  - handle: "@All-In-Podcast"
-    name: "All-In Podcast"
-    url: "https://www.youtube.com/@All-In-Podcast"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "blockchain", "web3"]
-
-  - handle: "@TheMegynKellyShow"
-    name: "Megyn Kelly Show"
-    url: "https://www.youtube.com/@TheMegynKellyShow"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "cbdc", "digital currency", "privacy"]
-
-  - handle: "@PowerfulJRE"
-    name: "JRE Clips"
-    url: "https://www.youtube.com/@PowerfulJRE"
-    tier: 4
-    priority: 4
-    filter_keywords: ["bitcoin", "btc", "crypto", "money", "inflation"]
-
-# ═══════════════════════════════════════════════════════════════════
-# Scanning config
-# ═══════════════════════════════════════════════════════════════════
+- handle: '@joerogan'
+  name: Joe Rogan Experience
+  url: https://www.youtube.com/@joerogan
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - blockchain
+  - satoshi
+  - digital currency
+  - fed
+  - inflation
+  - sound money
+  - gold standard
+- handle: '@lexfridman'
+  name: Lex Fridman
+  url: https://www.youtube.com/@lexfridman
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - blockchain
+  - satoshi
+  - digital currency
+  - money
+  - economics
+- handle: '@PBDPodcast'
+  name: Patrick Bet-David
+  url: https://www.youtube.com/@PBDPodcast
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - digital
+  - inflation
+  - money
+- handle: '@TuckerCarlson'
+  name: Tucker Carlson
+  url: https://www.youtube.com/@TuckerCarlson
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - cbdc
+  - digital dollar
+  - surveillance
+  - privacy
+  - freedom
+- handle: '@All-In-Podcast'
+  name: All-In Podcast
+  url: https://www.youtube.com/@All-In-Podcast
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - blockchain
+  - web3
+- handle: '@TheMegynKellyShow'
+  name: Megyn Kelly Show
+  url: https://www.youtube.com/@TheMegynKellyShow
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - cbdc
+  - digital currency
+  - privacy
+- handle: '@PowerfulJRE'
+  name: JRE Clips
+  url: https://www.youtube.com/@PowerfulJRE
+  tier: 4
+  priority: 4
+  filter_keywords:
+  - bitcoin
+  - btc
+  - crypto
+  - money
+  - inflation
 scan:
   max_age_hours: 48
   fallback_age_hours: 168
   max_videos_per_channel: 3
   min_duration_seconds: 120
   tier_scan_intervals:
-    1: 15    # Tier 1: every 15 min
-    2: 30    # Tier 2: every 30 min
-    3: 60    # Tier 3: every 60 min
-    4: 60    # Tier 4: every 60 min
+    1: 15
+    2: 30
+    3: 60
+    4: 60

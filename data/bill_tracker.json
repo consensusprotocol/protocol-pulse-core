@@ -1,10 +1,1502 @@
 {
-  "updated_at": "2026-04-15T01:59:05.995655+00:00",
-  "fetch_time_ms": 1998,
-  "total_bills": 0,
-  "bills_with_votes": 0,
-  "bullish_count": 0,
-  "bearish_count": 0,
-  "bills": [],
+  "updated_at": "2026-04-16T10:00:25.183463+00:00",
+  "fetch_time_ms": 23280,
+  "total_bills": 40,
+  "bills_with_votes": 10,
+  "bullish_count": 1,
+  "bearish_count": 1,
+  "bills": [
+    {
+      "bill_id": 2138937,
+      "bill_number": "SB4251",
+      "title": "Mined in America Act of 2026",
+      "short_title": "Mined in America Act",
+      "categories": [
+        "mining"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Finance.",
+      "last_action_date": "2026-03-26",
+      "sponsor": "Bill Cassidy",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB4251/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "66e0e8e7df68fa8d09d23697b95b3ca6",
+      "updated_at": "2026-04-16T10:00:05.862472+00:00"
+    },
+    {
+      "bill_id": 2058568,
+      "bill_number": "HB6644",
+      "title": "21st Century ROAD to Housing Act",
+      "short_title": "21st Century ROAD to Housing Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Message on Senate action sent to the House.",
+      "last_action_date": "2026-03-16",
+      "sponsor": "French Hill",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB6644/2025",
+      "vote_tally": {
+        "yea": 89,
+        "nay": 10,
+        "total": 99,
+        "pct_yes": 90,
+        "chamber": "S",
+        "date": "2026-03-12",
+        "roll_call_id": 1662382
+      },
+      "congress_pct": 90,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 40,
+      "gap_label": "LARGE GAP",
+      "change_hash": "3c87000351e28b91d7c76a911c75bd3d",
+      "updated_at": "2026-04-16T10:00:24.882911+00:00"
+    },
+    {
+      "bill_id": 2132768,
+      "bill_number": "SB4064",
+      "title": "Digital Commodity Intermediaries Act",
+      "short_title": "Digital Commodity Intermediaries Act",
+      "categories": [
+        "market_structure"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 355.",
+      "last_action_date": "2026-03-12",
+      "sponsor": "John Boozman",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB4064/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "60f7f440c47906392eb61a580413287c",
+      "updated_at": "2026-04-16T10:00:15.408679+00:00"
+    },
+    {
+      "bill_id": 2123654,
+      "bill_number": "SB3907",
+      "title": "Foreign Stablecoin Transparency Act",
+      "short_title": "Foreign Stablecoin Transparency Act",
+      "categories": [
+        "stablecoin"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs. (Sponsor introductory remarks on measure: CR S653-654)",
+      "last_action_date": "2026-02-24",
+      "sponsor": "Jack Reed",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SB3907/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "d7ced30e911d5fc7c4778e9c1ba3a764",
+      "updated_at": "2026-04-16T10:00:12.407593+00:00"
+    },
+    {
+      "bill_id": 2088126,
+      "bill_number": "HB7148",
+      "title": "District of Columbia Appropriations Act, 2026 Judiciary Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026 Transportation, Housing and Urban Development, and Related Agencies Appropriations Act, 2026 Department of Transportation Appropriations Act, 2026 Department of Defense Appropriations Act, 2026 Further Continuing Appropriations Act, 2026 Financial Services and General Government Appropriations Act, 2026 Department of Health and Human Services Appropriations Act, 2026 Department of Education Appropriations Act, 2026 Department of Housing and Urban Development Appropriations Act, 2026 National Security, Department of State, and Related Programs Appropriations Act, 2026 Department of Labor Appropriations Act, 2026 Departments of Labor, Health and Human Services, and Education, and Related Agencies Appropriations Act, 2026",
+      "short_title": "District of Columbia Appropriations Act, 2026 Judiciary...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Passed",
+      "status_id": 4,
+      "last_action": "Motion to reconsider laid on the table Agreed to without objection.",
+      "last_action_date": "2026-02-03",
+      "sponsor": "Tom Cole",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB7148/2025",
+      "vote_tally": {
+        "yea": 217,
+        "nay": 214,
+        "total": 431,
+        "pct_yes": 50,
+        "chamber": "H",
+        "date": "2026-02-03",
+        "roll_call_id": 1622757
+      },
+      "congress_pct": 50,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 0,
+      "gap_label": "ALIGNED",
+      "change_hash": "a12874be4c72d7c105a6c8cc2dda96d9",
+      "updated_at": "2026-04-16T10:00:11.907332+00:00"
+    },
+    {
+      "bill_id": 2104525,
+      "bill_number": "SB3755",
+      "title": "Digital Commodity Intermediaries Act",
+      "short_title": "Digital Commodity Intermediaries Act",
+      "categories": [
+        "market_structure"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 312.",
+      "last_action_date": "2026-02-02",
+      "sponsor": "John Boozman",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB3755/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "80ca27ba4c57fd4d0073ec2431371205",
+      "updated_at": "2026-04-16T10:00:14.918141+00:00"
+    },
+    {
+      "bill_id": 2072088,
+      "bill_number": "HB7006",
+      "title": "Judiciary Appropriations Act, 2026 Financial Services and General Government Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026 National Security, Department of State, and Related Programs Appropriations Act, 2026",
+      "short_title": "Judiciary Appropriations Act, 2026 Financial Services a...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Received in the Senate.",
+      "last_action_date": "2026-01-15",
+      "sponsor": "Tom Cole",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB7006/2025",
+      "vote_tally": {
+        "yea": 341,
+        "nay": 79,
+        "total": 420,
+        "pct_yes": 81,
+        "chamber": "H",
+        "date": "2026-01-14",
+        "roll_call_id": 1614145
+      },
+      "congress_pct": 81,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 31,
+      "gap_label": "MODERATE GAP",
+      "change_hash": "0ac0b661f0260a33179b106f3e1a08f1",
+      "updated_at": "2026-04-16T10:00:11.374390+00:00"
+    },
+    {
+      "bill_id": 2058571,
+      "bill_number": "HB6636",
+      "title": "To advance sensible priorities.",
+      "short_title": "To advance sensible priorities.",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Subcommittee on Disability Assistance and Memorial Affairs.",
+      "last_action_date": "2026-01-15",
+      "sponsor": "Brian Fitzpatrick",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB6636/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "7b28ccded89f1c1bcc3d617634dc0794",
+      "updated_at": "2026-04-16T10:00:20.266593+00:00"
+    },
+    {
+      "bill_id": 2008583,
+      "bill_number": "SB1071",
+      "title": "National Defense Authorization Act for Fiscal Year 2026",
+      "short_title": "National Defense Authorization Act for Fiscal Year 2026",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Passed",
+      "status_id": 4,
+      "last_action": "Became Public Law No: 119-60.",
+      "last_action_date": "2025-12-18",
+      "sponsor": "John Cornyn",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB1071/2025",
+      "vote_tally": {
+        "yea": 77,
+        "nay": 20,
+        "total": 97,
+        "pct_yes": 79,
+        "chamber": "S",
+        "date": "2025-12-17",
+        "roll_call_id": 1610748
+      },
+      "congress_pct": 79,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 29,
+      "gap_label": "MODERATE GAP",
+      "change_hash": "3c720262c461b0567c8fc457af07e73c",
+      "updated_at": "2026-04-16T10:00:24.313950+00:00"
+    },
+    {
+      "bill_id": 2060370,
+      "bill_number": "HB6878",
+      "title": "El Salvador Accountability Act of 2025",
+      "short_title": "El Salvador Accountability Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Committee on Foreign Affairs, and in addition to the Committees on the Judiciary, and Financial Services, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.",
+      "last_action_date": "2025-12-18",
+      "sponsor": "James McGovern",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/HB6878/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "09575c7630318f87191901b039c5b803",
+      "updated_at": "2026-04-16T10:00:07.840187+00:00"
+    },
+    {
+      "bill_id": 2031808,
+      "bill_number": "HB3383",
+      "title": "INVEST Act of 2025 Incentivizing New Ventures and Economic Strength Through Capital Formation Act of 2025",
+      "short_title": "INVEST Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Received in the Senate and Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "last_action_date": "2025-12-15",
+      "sponsor": "Ann Wagner",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB3383/2025",
+      "vote_tally": {
+        "yea": 302,
+        "nay": 123,
+        "total": 425,
+        "pct_yes": 71,
+        "chamber": "H",
+        "date": "2025-12-11",
+        "roll_call_id": 1610440
+      },
+      "congress_pct": 71,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 21,
+      "gap_label": "MODERATE GAP",
+      "change_hash": "aaed04ce67fe14e71297a5fb4ba03efd",
+      "updated_at": "2026-04-16T10:00:19.778131+00:00"
+    },
+    {
+      "bill_id": 2058188,
+      "bill_number": "SB3428",
+      "title": "SAFE Crypto Act Strengthening Agency Frameworks for Enforcement of Cryptocurrency Act",
+      "short_title": "SAFE Crypto Act Strengthening Agency Frameworks for Enf...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "last_action_date": "2025-12-10",
+      "sponsor": "Jerry Moran",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB3428/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "c60c9cac3765a3651c13cd91d8345c81",
+      "updated_at": "2026-04-16T10:00:13.440258+00:00"
+    },
+    {
+      "bill_id": 2053628,
+      "bill_number": "HB6180",
+      "title": "Bitcoin for America Act",
+      "short_title": "Bitcoin for America Act",
+      "categories": [
+        "taxation"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Committee on Ways and Means, and in addition to the Committee on Financial Services, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.",
+      "last_action_date": "2025-11-20",
+      "sponsor": "Warren Davidson",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB6180/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "0bb51c08b935cc1cf2e82d8096e68c4d",
+      "updated_at": "2026-04-16T10:00:05.365724+00:00"
+    },
+    {
+      "bill_id": 2053561,
+      "bill_number": "HB6179",
+      "title": "Clean Cloud Act of 2025",
+      "short_title": "Clean Cloud Act",
+      "categories": [
+        "mining"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Energy and Commerce.",
+      "last_action_date": "2025-11-20",
+      "sponsor": "Steve Cohen",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/HB6179/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "3bf0255e02f72f7d1973f1b020e91162",
+      "updated_at": "2026-04-16T10:00:10.395628+00:00"
+    },
+    {
+      "bill_id": 2053516,
+      "bill_number": "SB3278",
+      "title": "SMART Infrastructure Act of 2025 Streamlining Modeling for Advanced, Rapid Transportation Infrastructure Act of 2025",
+      "short_title": "SMART Infrastructure Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Commerce, Science, and Transportation.",
+      "last_action_date": "2025-11-20",
+      "sponsor": "Cynthia Lummis",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB3278/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "add06a6c8a07b9b45ec15062218abada",
+      "updated_at": "2026-04-16T10:00:16.945726+00:00"
+    },
+    {
+      "bill_id": 2039530,
+      "bill_number": "SB2296",
+      "title": "GAIN AI Act of 2025 Coast Guard Authorization Act of 2025 Intelligence Authorization Act for Fiscal Year 2026 Military Construction Authorization Act for Fiscal Year 2026 COUNTER Act of 2025 Combating PRC Overseas and Unlawful Networked Threats through Enhanced Resilience Act of 2025 Holding Foreign Insiders Accountable Act PAID OFF Act of 2025 Preventing Adversary Influence, Disinformation, and Obscured Foreign Financing Act of 2025 International Nuclear Energy Act of 2025 Atomic Energy Testing Liability Act Abducted Ukrainian Children Recovery and Accountability Act Retired Law Enforcement Officers Continuing Service Act MAPS Act Mapping America's Pharmaceutical Supply Act Preventing Child Trafficking Act of 2025 Taiwan Non-Discrimination Act of 2025 AUKUS Improvement Act of 2025 Guaranteeing Access and Innovation for National Artificial Intelligence Act of 2025 DETERRENCE Act DISRUPT Act Defending International Security by Restricting Unacceptable Partnerships and Tactics Act DFC Modernization and Reauthorization Act of 2025 Western Balkans Democracy and Prosperity Act Fighting Foreign Illegal Seafood Harvests Act of 2025 CDFI Bond Guarantee Program Improvement Act of 2025 FIGHT China Act of 2025 Foreign Investment Guardrails to Help Thwart China Act of 2025 Department of State Authorization Act for Fiscal Year 2026 ROAD to Housing Act of 2025 Renewing Opportunity in the American Dream to Housing Act of 2025",
+      "short_title": "GAIN AI Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Held at the desk.",
+      "last_action_date": "2025-11-12",
+      "sponsor": "Roger Wicker",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB2296/2025",
+      "vote_tally": {
+        "yea": 47,
+        "nay": 50,
+        "total": 97,
+        "pct_yes": 48,
+        "chamber": "S",
+        "date": "2025-10-09",
+        "roll_call_id": 1604008
+      },
+      "congress_pct": 48,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 2,
+      "gap_label": "ALIGNED",
+      "change_hash": "ab2d4c5aa35973aa970514c915e8e03c",
+      "updated_at": "2026-04-16T10:00:21.326227+00:00"
+    },
+    {
+      "bill_id": 2051327,
+      "bill_number": "HR849",
+      "title": "Ban Crypto Corruption Resolution",
+      "short_title": "Ban Crypto Corruption Resolution",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Committee on Financial Services, and in addition to the Committees on Oversight and Government Reform, House Administration, and the Judiciary, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.",
+      "last_action_date": "2025-10-31",
+      "sponsor": "Ro Khanna",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/HR849/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "7fa3f76c7f5c8461cccdafece478bc09",
+      "updated_at": "2026-04-16T10:00:08.380949+00:00"
+    },
+    {
+      "bill_id": 2036439,
+      "bill_number": "HB3838",
+      "title": "Coast Guard Authorization Act of 2025 SAFE Research Act Securing American Funding and Expertise from Adversarial Research Exploitation Act of 2025 Anti-CBDC Surveillance State Act",
+      "short_title": "Coast Guard Authorization Act",
+      "categories": [
+        "cbdc"
+      ],
+      "btc_signal": "neutral",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Received in the Senate.",
+      "last_action_date": "2025-09-30",
+      "sponsor": "Mike D. Rogers",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB3838/2025",
+      "vote_tally": {
+        "yea": 208,
+        "nay": 219,
+        "total": 427,
+        "pct_yes": 49,
+        "chamber": "H",
+        "date": "2025-09-10",
+        "roll_call_id": 1602041
+      },
+      "congress_pct": 49,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 1,
+      "gap_label": "ALIGNED",
+      "change_hash": "dfba4d488cfe1d50257bcb545e804da7",
+      "updated_at": "2026-04-16T10:00:21.848824+00:00"
+    },
+    {
+      "bill_id": 2034656,
+      "bill_number": "HB3633",
+      "title": "Digital Asset Market Clarity Act of 2025 CLARITY Act of 2025 Anti-CBDC Surveillance State Act",
+      "short_title": "Digital Asset Market Clarity Act",
+      "categories": [
+        "cbdc",
+        "market_structure"
+      ],
+      "btc_signal": "bullish",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Received in the Senate and Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "last_action_date": "2025-09-18",
+      "sponsor": "French Hill",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB3633/2025",
+      "vote_tally": {
+        "yea": 294,
+        "nay": 134,
+        "total": 428,
+        "pct_yes": 69,
+        "chamber": "H",
+        "date": "2025-07-17",
+        "roll_call_id": 1598921
+      },
+      "congress_pct": 69,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 19,
+      "gap_label": "SMALL GAP",
+      "change_hash": "1a8ec0cc7eeb0552740c9c4b0c22a143",
+      "updated_at": "2026-04-16T10:00:16.454876+00:00"
+    },
+    {
+      "bill_id": 2044781,
+      "bill_number": "SB2877",
+      "title": "No Stock Act",
+      "short_title": "No Stock Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Homeland Security and Governmental Affairs.",
+      "last_action_date": "2025-09-18",
+      "sponsor": "Kirsten Gillibrand",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SB2877/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "8b303af9f322aa844ac89053273c27cb",
+      "updated_at": "2026-04-16T10:00:14.425089+00:00"
+    },
+    {
+      "bill_id": 2043448,
+      "bill_number": "HB5166",
+      "title": "Judiciary Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026",
+      "short_title": "Judiciary Appropriations Act, 2026 District of Columbia...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Placed on the Union Calendar, Calendar No. 193.",
+      "last_action_date": "2025-09-05",
+      "sponsor": "David Joyce",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB5166/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "04185b9f75864be3142594dc862c3e55",
+      "updated_at": "2026-04-16T10:00:10.883934+00:00"
+    },
+    {
+      "bill_id": 2028140,
+      "bill_number": "SB1582",
+      "title": "GENIUS Act Guiding and Establishing National Innovation for U.S. Stablecoins Act",
+      "short_title": "GENIUS Act Guiding and Establishing National Innovation...",
+      "categories": [
+        "stablecoin"
+      ],
+      "btc_signal": "neutral",
+      "status": "Passed",
+      "status_id": 4,
+      "last_action": "Became Public Law No: 119-27.",
+      "last_action_date": "2025-07-18",
+      "sponsor": "Bill Hagerty",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB1582/2025",
+      "vote_tally": {
+        "yea": 308,
+        "nay": 122,
+        "total": 430,
+        "pct_yes": 72,
+        "chamber": "H",
+        "date": "2025-07-17",
+        "roll_call_id": 1598924
+      },
+      "congress_pct": 72,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 22,
+      "gap_label": "MODERATE GAP",
+      "change_hash": "d969cfbc1bd094858fd6d725334a8b7d",
+      "updated_at": "2026-04-16T10:00:12.947846+00:00"
+    },
+    {
+      "bill_id": 1994350,
+      "bill_number": "HB1919",
+      "title": "Anti-CBDC Surveillance State Act",
+      "short_title": "Anti-CBDC Surveillance State Act",
+      "categories": [
+        "cbdc"
+      ],
+      "btc_signal": "bearish",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Motion to reconsider laid on the table Agreed to without objection.",
+      "last_action_date": "2025-07-17",
+      "sponsor": "Tom Emmer",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB1919/2025",
+      "vote_tally": {
+        "yea": 219,
+        "nay": 210,
+        "total": 429,
+        "pct_yes": 51,
+        "chamber": "H",
+        "date": "2025-07-17",
+        "roll_call_id": 1598922
+      },
+      "congress_pct": 51,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 1,
+      "gap_label": "ALIGNED",
+      "change_hash": "d23c1f613f93cfd5f75c765fde6faa4c",
+      "updated_at": "2026-04-16T10:00:17.701729+00:00"
+    },
+    {
+      "bill_id": 2037259,
+      "bill_number": "SB2058",
+      "title": "El Salvador Accountability Act of 2025",
+      "short_title": "El Salvador Accountability Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Foreign Relations.",
+      "last_action_date": "2025-06-12",
+      "sponsor": "Chris Van Hollen",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SB2058/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "b88e82458aecbb0ba59a2e5fea8f8e30",
+      "updated_at": "2026-04-16T10:00:07.339786+00:00"
+    },
+    {
+      "bill_id": 2036119,
+      "bill_number": "HB3798",
+      "title": "Executive Order 14233 Act of 2025",
+      "short_title": "Executive Order 14233 Act",
+      "categories": [
+        "strategic_reserve"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Financial Services.",
+      "last_action_date": "2025-06-06",
+      "sponsor": "Tim Burchett",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB3798/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "9696516df497b7fc73372dd778030061",
+      "updated_at": "2026-04-16T10:00:06.847861+00:00"
+    },
+    {
+      "bill_id": 2033371,
+      "bill_number": "SR245",
+      "title": "A resolution condemning the financial entanglements of President Donald J. Trump with the $TRUMP meme coin.",
+      "short_title": "A resolution condemning the financial entanglements of ...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Committee on Homeland Security and Governmental Affairs. (text: CR S3066)",
+      "last_action_date": "2025-05-21",
+      "sponsor": "Richard Blumenthal",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SR245/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "80729603a8cd3be436971aa2965fe1c1",
+      "updated_at": "2026-04-16T10:00:08.870772+00:00"
+    },
+    {
+      "bill_id": 2033256,
+      "bill_number": "SR243",
+      "title": "A resolution condemning the financial entanglements of World Liberty Financial, Inc. with President Donald J. Trump, the Trump family, and the Trump Administration.",
+      "short_title": "A resolution condemning the financial entanglements of ...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Committee on Homeland Security and Governmental Affairs. (text: CR S3064-3065)",
+      "last_action_date": "2025-05-21",
+      "sponsor": "Richard Blumenthal",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SR243/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "44205685690855ab2e54a26413c3230d",
+      "updated_at": "2026-04-16T10:00:09.363603+00:00"
+    },
+    {
+      "bill_id": 2029992,
+      "bill_number": "HB3266",
+      "title": "Mental Health Infrastructure Improvement Act of 2025",
+      "short_title": "Mental Health Infrastructure Improvement Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Energy and Commerce.",
+      "last_action_date": "2025-05-08",
+      "sponsor": "Jennifer McClellan",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/HB3266/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "eb6c6df9c2aaa4e3744e27de0cfccf45",
+      "updated_at": "2026-04-16T10:00:18.743266+00:00"
+    },
+    {
+      "bill_id": 2029943,
+      "bill_number": "SB1673",
+      "title": "Mental Health Infrastructure Improvement Act of 2025",
+      "short_title": "Mental Health Infrastructure Improvement Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions.",
+      "last_action_date": "2025-05-08",
+      "sponsor": "Jeff Merkley",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SB1673/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "d92b25a04bc77e0446e2a2ea6ebfbc37",
+      "updated_at": "2026-04-16T10:00:19.242467+00:00"
+    },
+    {
+      "bill_id": 2015649,
+      "bill_number": "HB2392",
+      "title": "STABLE Act of 2025 Stablecoin Transparency and Accountability for a Better Ledger Economy Act of 2025",
+      "short_title": "STABLE Act",
+      "categories": [
+        "stablecoin"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Placed on the Union Calendar, Calendar No. 68.",
+      "last_action_date": "2025-05-06",
+      "sponsor": "Bryan Steil",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB2392/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "2db9b93a4db447339488d190219c5323",
+      "updated_at": "2026-04-16T10:00:18.248142+00:00"
+    },
+    {
+      "bill_id": 2023233,
+      "bill_number": "SB1475",
+      "title": "Clean Cloud Act of 2025",
+      "short_title": "Clean Cloud Act",
+      "categories": [
+        "mining"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Environment and Public Works.",
+      "last_action_date": "2025-04-10",
+      "sponsor": "Sheldon Whitehouse",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/SB1475/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "dc2e4c0966051f1664b5fa146e7c4169",
+      "updated_at": "2026-04-16T10:00:09.860061+00:00"
+    },
+    {
+      "bill_id": 2018648,
+      "bill_number": "HB2548",
+      "title": "Sanctioning Russia Act of 2025",
+      "short_title": "Sanctioning Russia Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the Committee on Foreign Affairs, and in addition to the Committees on the Judiciary, Financial Services, Ways and Means, and Oversight and Government Reform, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.",
+      "last_action_date": "2025-04-01",
+      "sponsor": "Brian Fitzpatrick",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB2548/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "46cba699585b091c8322c3b304600a1c",
+      "updated_at": "2026-04-16T10:00:22.606687+00:00"
+    },
+    {
+      "bill_id": 2018718,
+      "bill_number": "SB1241",
+      "title": "Sanctioning Russia Act of 2025",
+      "short_title": "Sanctioning Russia Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "last_action_date": "2025-04-01",
+      "sponsor": "Lindsey Graham",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB1241/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "0f8f0d2f5a978f11d0ca92e60728d7ee",
+      "updated_at": "2026-04-16T10:00:23.296899+00:00"
+    },
+    {
+      "bill_id": 1999424,
+      "bill_number": "SB919",
+      "title": "GENIUS Act of 2025 Guiding and Establishing National Innovation for U.S. Stablecoins Act of 2025",
+      "short_title": "GENIUS Act",
+      "categories": [
+        "stablecoin"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 33.",
+      "last_action_date": "2025-03-18",
+      "sponsor": "Bill Hagerty",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB919/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "f73e1fff9df80bff8a20c5b8e4f5e907",
+      "updated_at": "2026-04-16T10:00:15.896955+00:00"
+    },
+    {
+      "bill_id": 2010631,
+      "bill_number": "HB2223",
+      "title": "Building Capacity for Care Act",
+      "short_title": "Building Capacity for Care Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Energy and Commerce.",
+      "last_action_date": "2025-03-18",
+      "sponsor": "Andrea Salinas",
+      "sponsor_party": "D",
+      "url": "https://legiscan.com/US/bill/HB2223/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "618cc2ed09a82c2522b9c33e8a3fd5ca",
+      "updated_at": "2026-04-16T10:00:23.787401+00:00"
+    },
+    {
+      "bill_id": 2008633,
+      "bill_number": "HB2112",
+      "title": "To give the force and effect of law to the Executive Order issued on March 6, 2025 entitled \"Establishment of the Strategic Bitcoin Reserve and United States Digital Asset Stockpile\".",
+      "short_title": "To give the force and effect of law to the Executive Or...",
+      "categories": [
+        "strategic_reserve"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Financial Services.",
+      "last_action_date": "2025-03-14",
+      "sponsor": "Byron Donalds",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB2112/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "7dbf57235ac0898a7a81697b8cc5ec50",
+      "updated_at": "2026-04-16T10:00:06.355845+00:00"
+    },
+    {
+      "bill_id": 2000399,
+      "bill_number": "HB2032",
+      "title": "BITCOIN Act of 2025 Boosting Innovation, Technology, and Competitiveness through Optimized Investment Nationwide Act of 2025",
+      "short_title": "BITCOIN Act",
+      "categories": [
+        "strategic_reserve"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Financial Services.",
+      "last_action_date": "2025-03-11",
+      "sponsor": "Nicholas Begich",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB2032/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "89ea25c53e4b8c06e35cb03dcde67c0f",
+      "updated_at": "2026-04-16T10:00:04.387101+00:00"
+    },
+    {
+      "bill_id": 2000465,
+      "bill_number": "SB954",
+      "title": "BITCOIN Act of 2025 Boosting Innovation, Technology, and Competitiveness through Optimized Investment Nationwide Act of 2025",
+      "short_title": "BITCOIN Act",
+      "categories": [
+        "strategic_reserve"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "last_action_date": "2025-03-11",
+      "sponsor": "Cynthia Lummis",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB954/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "f9b026931f63bc71239c5b2cbad23528",
+      "updated_at": "2026-04-16T10:00:04.878021+00:00"
+    },
+    {
+      "bill_id": 1961730,
+      "bill_number": "SB417",
+      "title": "INFORM Act Informing a Nation with Free, Open, and Reliable Media Act of 2025",
+      "short_title": "INFORM Act Informing a Nation with Free, Open, and Reli...",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Foreign Relations.",
+      "last_action_date": "2025-02-05",
+      "sponsor": "Dan Sullivan",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB417/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "8a3cf07f1149d95193cdc9af9d13543e",
+      "updated_at": "2026-04-16T10:00:20.758516+00:00"
+    },
+    {
+      "bill_id": 1956316,
+      "bill_number": "SB394",
+      "title": "GENIUS Act of 2025 Guiding and Establishing National Innovation for U.S. Stablecoins of 2025",
+      "short_title": "GENIUS Act",
+      "categories": [
+        "stablecoin"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
+      "last_action_date": "2025-02-04",
+      "sponsor": "Bill Hagerty",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB394/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "1488081a6d9f946abed34fe082420c3e",
+      "updated_at": "2026-04-16T10:00:13.934722+00:00"
+    }
+  ],
   "source": "LegiScan API (CC BY 4.0)"
 }

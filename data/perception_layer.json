@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-15T07:00:02.533536+00:00",
-  "fetch_time_ms": 972,
+  "updated_at": "2026-04-16T15:30:02.283331+00:00",
+  "fetch_time_ms": 917,
   "composite": {
     "perception_score": 62,
     "label": "Cautiously Bullish",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.3,
-    "total_mcap_usd": 2585154035616.326,
-    "total_mcap_t": 2.585,
-    "total_vol_24h_usd": 122678640079.79608,
-    "total_vol_24h_b": 122.7,
-    "active_coins": 17666,
+    "btc_dominance_pct": 57.0,
+    "total_mcap_usd": 2610902769772.982,
+    "total_mcap_t": 2.611,
+    "total_vol_24h_usd": 111984352484.52084,
+    "total_vol_24h_b": 112.0,
+    "active_coins": 17611,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "RAVE",
-        "name": "RaveDAO",
-        "rank": 29,
+        "symbol": "ORDI",
+        "name": "ORDI",
+        "rank": 216,
         "score": 0
       },
       {
-        "symbol": "ENJ",
-        "name": "Enjin Coin",
-        "rank": 233,
+        "symbol": "BASED",
+        "name": "Based",
+        "rank": 455,
         "score": 1
+      },
+      {
+        "symbol": "RAVE",
+        "name": "RaveDAO",
+        "rank": 26,
+        "score": 2
+      },
+      {
+        "symbol": "DRIFT",
+        "name": "Drift Protocol",
+        "rank": 660,
+        "score": 3
       },
       {
         "symbol": "PENGU",
         "name": "Pudgy Penguins",
         "rank": 109,
-        "score": 2
+        "score": 4
       },
       {
         "symbol": "TAO",
         "name": "Bittensor",
         "rank": 41,
-        "score": 3
-      },
-      {
-        "symbol": "ETH",
-        "name": "Ethereum",
-        "rank": 2,
-        "score": 4
-      },
-      {
-        "symbol": "ZAMA",
-        "name": "Zama",
-        "rank": 363,
         "score": 5
       },
       {
-        "symbol": "MON",
-        "name": "Monad",
-        "rank": 113,
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 573738,
+    "tx_count_24h": 585355,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.33,
+    "minutes_between_blocks": 9.38,
     "difficulty": 138966872071213,
-    "estimated_btc_sent": 15347352006374,
-    "total_fees_btc": -50625000000,
+    "estimated_btc_sent": 10677972899483,
+    "total_fees_btc": -45625000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,11 +100,11 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17438,
-    "channel_count": 41109,
-    "capacity_btc": 5057.13,
-    "capacity_sats": 505713146174,
-    "avg_channel_capacity_btc": 0.123,
+    "node_count": 17396,
+    "channel_count": 41423,
+    "capacity_btc": 5238.97,
+    "capacity_sats": 523897019799,
+    "avg_channel_capacity_btc": 0.1265,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
@@ -122,20 +122,20 @@
   "social_sentiment": {},
   "fg_trend": {
     "current": 23,
-    "7d_ago": 14,
-    "7d_delta": 9,
+    "7d_ago": 16,
+    "7d_delta": 7,
     "trend": "improving",
     "7d_values": [
+      23,
       23,
       21,
       12,
       16,
       15,
-      16,
-      14
+      16
     ],
     "btc_signal": "bullish",
-    "note": "F&G trending up (14 -> 23)",
+    "note": "F&G trending up (16 -> 23)",
     "label": "Extreme Fear",
     "source": "alternative.me F&G"
   }
