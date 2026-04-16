@@ -1720,6 +1720,7 @@ body.panopticon-body .pp-footer { display: none !important; }
       <span class="ss2-leg-item"><span class="ss2-leg-dot" style="background:#F59E0B;"></span> NEUTRAL</span>
       <span class="ss2-leg-item"><span class="ss2-leg-dot" style="background:#CC0000;"></span> BEARISH</span>
     </div>
+    <div class="ss2-map-prox-note">Node position reflects simulation layout, not correlation. Edge thickness and style encode correlation strength.</div>
   </div>
 
   <!-- Signal Board -->
@@ -2008,6 +2009,14 @@ body.panopticon-body .pp-footer { display: none !important; }
 .ss2-leg-line.ss2-leg-med  { border-top-width: 1.5px; border-color: rgba(255,255,255,0.3); border-style: dashed; }
 .ss2-leg-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
 .ss2-leg-sep { color: rgba(255,255,255,0.15); }
+.ss2-map-prox-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(7px, 0.5vw, 9px);
+  color: rgba(255,255,255,0.28);
+  padding: 0 16px 8px;
+  letter-spacing: .05em;
+  line-height: 1.5;
+}
 #ss2-map-tooltip {
   position: absolute;
   pointer-events: none;
@@ -2614,6 +2623,11 @@ function renderCorrelationMap() {
     glow.append('feGaussianBlur').attr('stdDeviation','6').attr('result','blur');
     glow.append('feComposite').attr('in','SourceGraphic').attr('in2','blur').attr('operator','over');
 
+    // WCAG: descriptive title + desc for screen readers
+    svg.append('title').text('Sovereign Signal Correlation Map');
+    svg.append('desc').text('Force-directed network graph showing correlation strength between 6 sovereign signal indices. Edge thickness encodes correlation; node size encodes score.');
+    svg.attr('role','img').attr('aria-labelledby','ss2-svg-title');
+
     svg.append('rect').attr('width',W).attr('height',H).attr('fill','url(#ss2-grid-pat)');
     svg.append('g').attr('class','ss2-links');
     svg.append('g').attr('class','ss2-nodes');
@@ -2637,7 +2651,12 @@ function renderCorrelationMap() {
   var nodeSel = svg.select('.ss2-nodes').selectAll('g.ss2-node').data(nodes, function(d) { return d.id; });
   nodeSel.exit().remove();
 
-  var nodeEnter = nodeSel.enter().append('g').attr('class','ss2-node').style('cursor','pointer');
+  var nodeEnter = nodeSel.enter().append('g').attr('class','ss2-node').style('cursor','pointer')
+    .attr('tabindex', '0').attr('role', 'button')
+    .attr('aria-label', function(d) {
+      var sentiment = d.score >= 65 ? 'bullish' : d.score >= 45 ? 'neutral' : 'bearish';
+      return STREAMS[d.id].label + ' (' + d.code + '): score ' + d.score + ', ' + sentiment;
+    });
   // Glow circle (behind)
   nodeEnter.append('circle').attr('class','ss2-glow')
     .attr('r', function(d) { return d.r * 1.8; })
@@ -2671,6 +2690,11 @@ function renderCorrelationMap() {
     .attr('stroke', function(d) { return d.fill; });
   nodeAll.select('.ss2-code').text(function(d) { return d.code; });
   nodeAll.select('.ss2-nscore').text(function(d) { return d.score; });
+  // Update ARIA labels on data refresh
+  nodeAll.attr('aria-label', function(d) {
+    var sentiment = d.score >= 65 ? 'bullish' : d.score >= 45 ? 'neutral' : 'bearish';
+    return STREAMS[d.id].label + ' (' + d.code + '): score ' + d.score + ', ' + sentiment;
+  });
 
   // --- Hover + click interactions ---
   var tooltip = document.getElementById('ss2-map-tooltip');
@@ -2709,28 +2733,73 @@ function renderCorrelationMap() {
   .on('click', function(ev, d) {
     var cell = document.getElementById('gc-' + d.id);
     if (cell) cell.click();
+  })
+  .on('keydown', function(ev, d) {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault();
+      var cell = document.getElementById('gc-' + d.id);
+      if (cell) cell.click();
+    } else if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') {
+      ev.preventDefault();
+      var allNodes = svg.select('.ss2-nodes').selectAll('g.ss2-node').nodes();
+      var idx = allNodes.indexOf(this);
+      var next = allNodes[(idx + 1) % allNodes.length];
+      if (next) next.focus();
+    } else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') {
+      ev.preventDefault();
+      var allNodes = svg.select('.ss2-nodes').selectAll('g.ss2-node').nodes();
+      var idx = allNodes.indexOf(this);
+      var prev = allNodes[(idx - 1 + allNodes.length) % allNodes.length];
+      if (prev) prev.focus();
+    }
+  })
+  .on('focus', function(ev, d) {
+    // Reuse hover highlight logic on keyboard focus
+    var connected = {};
+    links.forEach(function(l) {
+      var s = l.source.id || l.source, t = l.target.id || l.target;
+      if (s === d.id || t === d.id) { connected[s] = true; connected[t] = true; }
+    });
+    svg.select('.ss2-links').selectAll('line').transition().duration(200)
+      .style('opacity', function(l) {
+        var s = l.source.id || l.source, t = l.target.id || l.target;
+        return (s === d.id || t === d.id) ? 1 : 0.08;
+      });
+    svg.select('.ss2-nodes').selectAll('g.ss2-node').transition().duration(200)
+      .style('opacity', function(n) { return connected[n.id] ? 1 : 0.25; });
+  })
+  .on('blur', function() {
+    svg.select('.ss2-links').selectAll('line').transition().duration(300).style('opacity', 1);
+    svg.select('.ss2-nodes').selectAll('g.ss2-node').transition().duration(300).style('opacity', 1);
   });
 
-  // --- D3 drag ---
-  nodeAll.call(d3.drag()
-    .on('start', function(ev, d) {
-      if (!ev.active && _d3Sim) _d3Sim.alphaTarget(0.3).restart();
-      d.fx = d.x; d.fy = d.y;
-    })
-    .on('drag', function(ev, d) { d.fx = ev.x; d.fy = ev.y; })
-    .on('end', function(ev, d) {
-      if (!ev.active && _d3Sim) _d3Sim.alphaTarget(0);
-      d.fx = null; d.fy = null;
-    })
-  );
+  // --- D3 drag (disabled on touch devices to avoid scroll conflicts) ---
+  var isTouch = window.matchMedia('(pointer: coarse)').matches;
+  if (!isTouch) {
+    nodeAll.call(d3.drag()
+      .on('start', function(ev, d) {
+        if (!ev.active && _d3Sim) _d3Sim.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', function(ev, d) { d.fx = ev.x; d.fy = ev.y; })
+      .on('end', function(ev, d) {
+        if (!ev.active && _d3Sim) _d3Sim.alphaTarget(0);
+        d.fx = null; d.fy = null;
+      })
+    );
+  }
 
   // --- Force simulation ---
+  // Design note: force-directed layout is appropriate for <=8 nodes.
+  // If sovereign signal indices exceed 8, migrate to heatmap matrix.
+  // See docs/audits/panopticon_viz/FINAL_CONSENSUS.md for rationale.
   if (_d3Sim) _d3Sim.stop();
+  var collisionPad = W < 480 ? 14 : 6;  // P2: wider padding on small screens
   _d3Sim = d3.forceSimulation(nodes)
     .force('charge', d3.forceManyBody().strength(-200))
     .force('link', d3.forceLink(links).id(function(d) { return d.id; }).distance(80))
     .force('center', d3.forceCenter(W / 2, H / 2))
-    .force('collision', d3.forceCollide().radius(function(d) { return d.r + 6; }))
+    .force('collision', d3.forceCollide().radius(function(d) { return d.r + collisionPad; }))
     .force('bounds', function() {
       nodes.forEach(function(d) {
         d.x = Math.max(d.r + 4, Math.min(W - d.r - 4, d.x));
@@ -2745,7 +2814,8 @@ function renderCorrelationMap() {
         .attr('x2', function(d) { return d.target.x; })
         .attr('y2', function(d) { return d.target.y; });
       nodeAll.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-    });
+    })
+    .on('end', function() { _d3Sim.stop(); });  // P1: halt CPU after convergence
 }
 
 // ─── Signal board ────────────────────────────────────────────────────────────
