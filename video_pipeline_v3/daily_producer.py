@@ -570,7 +570,7 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
             r = subprocess.run(
                 ["ffmpeg", "-y", "-i", video_path,
                  "-c:v", "copy",
-                 "-af", "alimiter=limit=0.891:level=false,loudnorm=I=-14:TP=-1.0:LRA=11:linear=true",
+                 "-af", "loudnorm=I=-14:TP=-2.5:LRA=11:linear=true,alimiter=limit=0.55:level=disabled:attack=3:release=30",
                  "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                  "-movflags", "+faststart",
                  tmp],
