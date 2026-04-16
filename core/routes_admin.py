@@ -153,19 +153,22 @@ def api_admin_newsletter_history():
         'source': 'db',
     } for s in sends]
 
-    # Campaigns
-    campaigns = models.NewsletterCampaign.query.order_by(models.NewsletterCampaign.sent_at.desc()).limit(30).all()
-    for c in campaigns:
-        db_sends.append({
-            'id': f'campaign-{c.id}',
-            'subject': c.top_headline or 'Daily Digest',
-            'recipient_count': c.recipient_count,
-            'open_count': 0,
-            'click_count': 0,
-            'sent_at': c.sent_at.isoformat() + 'Z' if c.sent_at else None,
-            'status': c.status,
-            'source': 'campaign',
-        })
+    # Campaigns (model may not exist in all deployments)
+    try:
+        campaigns = models.NewsletterCampaign.query.order_by(models.NewsletterCampaign.sent_at.desc()).limit(30).all()
+        for c in campaigns:
+            db_sends.append({
+                'id': f'campaign-{c.id}',
+                'subject': c.top_headline or 'Daily Digest',
+                'recipient_count': c.recipient_count,
+                'open_count': 0,
+                'click_count': 0,
+                'sent_at': c.sent_at.isoformat() + 'Z' if c.sent_at else None,
+                'status': c.status,
+                'source': 'campaign',
+            })
+    except AttributeError:
+        pass  # NewsletterCampaign model not available in this deployment
 
     # Queue (pending)
     pending = []

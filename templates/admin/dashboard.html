@@ -1023,6 +1023,11 @@ async function fetchNewsletter() {
     updateNewsletter(data);
   } catch(e) {
     console.error('Newsletter fetch error:', e);
+    // Show error state instead of forever-spinners
+    ['nl-total-dispatches','nl-queue-pending'].forEach(id => {
+      var el = document.getElementById(id);
+      if (el && el.querySelector('.pbx-spinner')) el.innerHTML = '<span style="color:#CC0000;font-size:9px;">ERR</span>';
+    });
   }
 }
 

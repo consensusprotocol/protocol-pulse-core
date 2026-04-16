@@ -1025,7 +1025,7 @@ def fetch_geopolitical(limit: int = 20) -> list[dict]:
                     "btc_signal": btc_signal["direction"],
                     "btc_rationale": btc_signal["rationale"],
                     "source": "Protocol Pulse Intelligence",
-                    "source_url": f"/article/{art.slug}" if art.slug else f"/article/{art.id}",
+                    "source_url": f"/articles/{art.slug}" if art.slug else f"/articles/{art.id}",
                     "timestamp": art.created_at.isoformat() if art.created_at else datetime.utcnow().isoformat(),
                     "event_type": "geopolitical",
                 })

@@ -269,7 +269,7 @@
             
             {% if articles %}
                 {% for article in articles %}
-                <a href="/article/{{ article.id }}" class="article-card">
+                <a href="/articles/{{ article.id }}" class="article-card">
                     <div class="article-title">{{ article.title }}</div>
                     <div class="article-meta">{{ article.created_at.strftime('%B %d, %Y') }} • {{ article.author }}</div>
                 </a>
