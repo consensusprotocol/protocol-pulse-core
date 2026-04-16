@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     result.className = 'result-output success';
                     result.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + 
                         (json.message || json.title || 'Content generated successfully!') +
-                        (json.article_id ? ` <a href="/article/${json.article_id}" target="_blank">[View]</a>` : '');
+                        (json.article_id ? ` <a href="/articles/${json.article_id}" target="_blank">[View]</a>` : '');
                 } else {
                     result.className = 'result-output error';
                     result.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + 
