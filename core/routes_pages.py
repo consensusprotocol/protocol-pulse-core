@@ -2725,23 +2725,27 @@ def premium_hub():
 
     partner_disclaimer = 'Sponsored content is clearly labeled. Protocol Pulse maintains editorial independence.'
 
-    # Load intelligence data for hub
-    import json as _hj, pathlib as _hp, time as _ht
-    _morning_brief, _kol_brief, _sovereign_ctx = {}, {}, {}
-    for _path, _dest in [
-        ('/home/ultron/protocol_pulse/data/intelligence/morning_intelligence_brief.json', '_morning_brief'),
-        ('/home/ultron/protocol_pulse/data/intelligence/kol_sentiment_brief.json', '_kol_brief'),
-        ('/home/ultron/protocol_pulse/data/sovereign_context/latest.json', '_sovereign_ctx'),
-    ]:
-        try:
-            p = _hp.Path(_path)
-            if p.exists(): exec(f"{_dest} = _hj.loads(p.read_text())")
-        except Exception: pass
-    _now_ts = _ht.time()
-    morning_brief = _morning_brief
-    kol_brief = _kol_brief
-    if _sovereign_ctx: sovereign = _sovereign_ctx
-    now_ts = _now_ts
+    # Load intelligence data for hub — proper assignment (exec() is broken in local scope)
+    import json as _hj2, pathlib as _hp2, time as _ht2
+    morning_brief, kol_brief, now_ts = {}, {}, _ht2.time()
+    try:
+        _mb_p = _hp2.Path('/home/ultron/protocol_pulse/data/intelligence/morning_intelligence_brief.json')
+        if _mb_p.exists():
+            morning_brief = _hj2.loads(_mb_p.read_text())
+    except Exception:
+        pass
+    try:
+        _kb_p = _hp2.Path('/home/ultron/protocol_pulse/data/intelligence/kol_sentiment_brief.json')
+        if _kb_p.exists():
+            kol_brief = _hj2.loads(_kb_p.read_text())
+    except Exception:
+        pass
+    try:
+        _sc_p = _hp2.Path('/home/ultron/protocol_pulse/data/sovereign_context/latest.json')
+        if _sc_p.exists():
+            sovereign = _hj2.loads(_sc_p.read_text())
+    except Exception:
+        pass
 
     return render_template('premium_hub.html',
                          network=network,
@@ -2762,7 +2766,11 @@ def premium_hub():
                          mega_whale_alerts_enabled=mega_whale_alerts_enabled,
                          medley_state=medley_state,
                          risk_oracle_center=risk_oracle_center,
-                         partner_disclaimer=partner_disclaimer)
+                         partner_disclaimer=partner_disclaimer,
+                         morning_brief=morning_brief,
+                         kol_brief=kol_brief,
+                         sovereign=sovereign,
+                         now_ts=now_ts)
 
 @pages_bp.route('/hub/ask', methods=['POST'])
 @login_required
