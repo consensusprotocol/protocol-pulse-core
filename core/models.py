@@ -1663,3 +1663,51 @@ class BoardComment(db.Model):
             'body':       self.body,
             'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
         }
+
+
+# ═══════════════════════════════════════════════════════
+# COMMANDER HUB v2 — Configurable Widget Dashboard
+# ═══════════════════════════════════════════════════════
+
+class HubWidget(db.Model):
+    """Per-user widget config for the Commander Hub. One row per (user, widget_id)."""
+    __tablename__ = 'hub_widgets'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    widget_id  = db.Column(db.String(40), nullable=False)
+    # intel_brief | pro_metrics | options | futures | convergence | macro |
+    # alerts | kol | command_lanes | on_chain | polymarket | exchange_flow
+
+    enabled    = db.Column(db.Boolean, default=True)
+    position_x = db.Column(db.Integer, default=0)    # grid col start (0..3)
+    position_y = db.Column(db.Integer, default=0)    # row index
+    width      = db.Column(db.Integer, default=1)    # cells wide (1 or 2)
+    height     = db.Column(db.Integer, default=1)    # cells tall (1 or 2)
+    collapsed  = db.Column(db.Boolean, default=False)
+    settings   = db.Column(db.Text, default='{}')    # per-widget JSON settings
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user       = db.relationship('User', backref=db.backref('hub_widgets', lazy='dynamic', cascade='all, delete-orphan'))
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'widget_id', name='uq_hubwidget_user_widget'),
+    )
+
+    def to_dict(self):
+        try:
+            settings = json.loads(self.settings) if self.settings else {}
+        except Exception:
+            settings = {}
+        return {
+            'widget_id': self.widget_id,
+            'enabled':   bool(self.enabled),
+            'position_x': int(self.position_x or 0),
+            'position_y': int(self.position_y or 0),
+            'width':     int(self.width or 1),
+            'height':    int(self.height or 1),
+            'collapsed': bool(self.collapsed),
+            'settings':  settings,
+        }

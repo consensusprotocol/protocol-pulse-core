@@ -7294,3 +7294,322 @@ def api_sentiment_brief():
     except Exception as e:
         logging.error(f"Sentiment brief error: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# COMMANDER HUB v2 — Configurable Widget Dashboard
+# ═══════════════════════════════════════════════════════════════════════
+
+HUB_DEFAULT_LAYOUT = [
+    # Row 0: Intel brief (2w), Alerts (1w), KOL (1w)
+    {'widget_id': 'intel_brief',     'enabled': True, 'position_x': 0, 'position_y': 0, 'width': 2, 'height': 1},
+    {'widget_id': 'alerts',          'enabled': True, 'position_x': 2, 'position_y': 0, 'width': 1, 'height': 1},
+    {'widget_id': 'kol',             'enabled': True, 'position_x': 3, 'position_y': 0, 'width': 1, 'height': 1},
+    # Row 1: Pro metrics, Options, Futures, Convergence
+    {'widget_id': 'pro_metrics',     'enabled': True, 'position_x': 0, 'position_y': 1, 'width': 1, 'height': 1},
+    {'widget_id': 'options',         'enabled': True, 'position_x': 1, 'position_y': 1, 'width': 1, 'height': 1},
+    {'widget_id': 'futures',         'enabled': True, 'position_x': 2, 'position_y': 1, 'width': 1, 'height': 1},
+    {'widget_id': 'convergence',     'enabled': True, 'position_x': 3, 'position_y': 1, 'width': 1, 'height': 1},
+    # Row 2: Macro, On-chain, Polymarket, Exchange flow
+    {'widget_id': 'macro',           'enabled': True, 'position_x': 0, 'position_y': 2, 'width': 1, 'height': 1},
+    {'widget_id': 'on_chain',        'enabled': True, 'position_x': 1, 'position_y': 2, 'width': 1, 'height': 1},
+    {'widget_id': 'polymarket',      'enabled': True, 'position_x': 2, 'position_y': 2, 'width': 1, 'height': 1},
+    {'widget_id': 'exchange_flow',   'enabled': True, 'position_x': 3, 'position_y': 2, 'width': 1, 'height': 1},
+    # Row 3: Command lanes (2w pinned)
+    {'widget_id': 'command_lanes',   'enabled': True, 'position_x': 0, 'position_y': 3, 'width': 2, 'height': 1},
+]
+
+HUB_VALID_WIDGETS = {w['widget_id'] for w in HUB_DEFAULT_LAYOUT}
+
+_hub_intel_cache = {'data': None, 'ts': 0}
+HUB_INTEL_TTL = 300  # 5 minutes
+
+
+def _load_json_file(path):
+    try:
+        import pathlib as _p
+        f = _p.Path(path)
+        if f.exists():
+            return json.loads(f.read_text())
+    except Exception:
+        pass
+    return {}
+
+
+def _build_hub_intel():
+    """Read sovereign_context + morning_brief + kol_brief and shape for 12 widgets."""
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Worktree data may not exist — fall back to production data
+    candidates = [
+        os.path.join(base, 'data', 'sovereign_context', 'latest.json'),
+        '/home/ultron/protocol_pulse/data/sovereign_context/latest.json',
+    ]
+    sovereign = {}
+    for p in candidates:
+        sovereign = _load_json_file(p)
+        if sovereign:
+            break
+
+    mb_candidates = [
+        os.path.join(base, 'data', 'intelligence', 'morning_intelligence_brief.json'),
+        '/home/ultron/protocol_pulse/data/intelligence/morning_intelligence_brief.json',
+    ]
+    morning_brief = {}
+    for p in mb_candidates:
+        morning_brief = _load_json_file(p)
+        if morning_brief:
+            break
+
+    kb_candidates = [
+        os.path.join(base, 'data', 'intelligence', 'kol_sentiment_brief.json'),
+        '/home/ultron/protocol_pulse/data/intelligence/kol_sentiment_brief.json',
+    ]
+    kol_brief = {}
+    for p in kb_candidates:
+        kol_brief = _load_json_file(p)
+        if kol_brief:
+            break
+
+    options  = sovereign.get('options', {}) or {}
+    futures  = sovereign.get('futures', {}) or {}
+    macro    = sovereign.get('macro', {}) or {}
+    on_chain = sovereign.get('on_chain', {}) or {}
+    pro_m    = sovereign.get('pro_metrics', {}) or {}
+    indices  = sovereign.get('indices', {}) or {}
+    poly     = sovereign.get('polymarket', {}) or {}
+    alerts   = sovereign.get('active_alerts', []) or []
+    whale_alerts = sovereign.get('whale_alerts', []) or []
+
+    conv = indices.get('convergence_score', {}) or {}
+
+    return {
+        'timestamp': sovereign.get('timestamp') or datetime.utcnow().isoformat() + 'Z',
+        'pcaf_score': sovereign.get('pcaf_score'),
+
+        'intel_brief': {
+            'sentiment':            morning_brief.get('sentiment', 'neutral'),
+            'sentiment_reasoning':  morning_brief.get('sentiment_reasoning', ''),
+            'date':                 morning_brief.get('date', ''),
+            'dominant_narratives':  (morning_brief.get('dominant_narratives') or [])[:3],
+            'trending_language':    (morning_brief.get('trending_language') or [])[:8],
+            'voice_guidance':       morning_brief.get('protocol_pulse_voice_guidance', ''),
+            'topics_to_avoid':      (morning_brief.get('topics_to_avoid') or [])[:4],
+        },
+
+        'pro_metrics': {
+            'ssr':           pro_m.get('ssr', {}),
+            'mpi':           pro_m.get('mpi', {}),
+            'dormancy_flow': pro_m.get('dormancy_flow', {}),
+            'nvt_ratio':     on_chain.get('nvt_ratio'),
+        },
+
+        'options': {
+            'put_call_ratio': options.get('put_call_ratio'),
+            'dvol':           options.get('dvol'),
+            'max_pain':       options.get('max_pain'),
+            'total_call_oi':  options.get('total_call_oi'),
+            'total_put_oi':   options.get('total_put_oi'),
+            'total_oi_btc':   options.get('total_oi_btc'),
+            'avg_mark_iv':    options.get('avg_mark_iv'),
+        },
+
+        'futures': {
+            'funding_rate':      futures.get('funding_rate'),
+            'annualized_basis':  futures.get('annualized_basis'),
+            'open_interest':     futures.get('open_interest'),
+            'open_interest_usd': futures.get('open_interest_usd'),
+            'mark_price':        futures.get('mark_price'),
+            'index_price':       futures.get('index_price'),
+            'basis_pct':         futures.get('basis_pct'),
+        },
+
+        'convergence': {
+            'miner_conviction':   indices.get('miner_conviction', {}),
+            'exchange_pressure':  indices.get('exchange_pressure', {}),
+            'social_divergence':  indices.get('social_divergence', {}),
+            'insider_heat':       indices.get('insider_heat', {}),
+            'score':              conv.get('score'),
+            'pattern':            conv.get('pattern'),
+            'thesis':             conv.get('thesis'),
+            'confidence':         conv.get('confidence'),
+        },
+
+        'macro': {
+            'dxy':             macro.get('dxy'),
+            'gold_price':      macro.get('gold_price'),
+            'sp500':           macro.get('sp500'),
+            'btc_vs_dxy_30d_corr':  macro.get('btc_vs_dxy_30d_corr'),
+            'btc_vs_gold_30d_corr': macro.get('btc_vs_gold_30d_corr'),
+            'ten_year_yield':  macro.get('ten_year_yield'),
+        },
+
+        'alerts': [{
+            'pattern_id':  a.get('pattern_id', ''),
+            'title':       a.get('title', ''),
+            'description': a.get('description', ''),
+            'severity':    a.get('severity', 'WATCH'),
+            'ts':          a.get('ts'),
+        } for a in alerts[:6]],
+
+        'kol': {
+            'sentiment':          kol_brief.get('sentiment', 'neutral'),
+            'dominant_narrative': kol_brief.get('dominant_narrative', ''),
+            'top_signal':         kol_brief.get('top_signal', ''),
+            'contrarian_view':    kol_brief.get('contrarian_view', ''),
+            'voices_sampled':     kol_brief.get('voices_sampled', 0),
+            'kol_handles_seen':   kol_brief.get('kol_handles_seen', [])[:6],
+        },
+
+        'on_chain': {
+            'coin_days_destroyed_7d': on_chain.get('coin_days_destroyed_7d'),
+            'active_addresses_7d':    on_chain.get('active_addresses_7d'),
+            'tx_volume_usd_7d':       on_chain.get('tx_volume_usd_7d'),
+            'nvt_ratio':              on_chain.get('nvt_ratio'),
+            'accumulation_score':     on_chain.get('accumulation_score'),
+        },
+
+        'polymarket': {
+            'macro_sentiment':  poly.get('macro_sentiment'),
+            'top_market':       poly.get('top_market'),
+            'top_probability':  poly.get('top_probability'),
+        },
+
+        'exchange_flow': {
+            'signal':       sovereign.get('exchange_flow', 'neutral'),
+            'whale_alerts': [{
+                'tier':       w.get('tier', 'NOTE'),
+                'message':    w.get('message', ''),
+                'score':      w.get('score', 0),
+                'created_at': w.get('created_at'),
+            } for w in whale_alerts[:5]],
+        },
+    }
+
+
+@api_bp.route('/api/hub/intel')
+@login_required
+def api_hub_intel():
+    """Aggregator: all 12 widget data in one call. Cached 5min."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    now = time.time()
+    if _hub_intel_cache['data'] and (now - _hub_intel_cache['ts']) < HUB_INTEL_TTL:
+        return jsonify(_hub_intel_cache['data'])
+    try:
+        data = _build_hub_intel()
+        _hub_intel_cache['data'] = data
+        _hub_intel_cache['ts'] = now
+        return jsonify(data)
+    except Exception as e:
+        logging.exception('hub intel error: %s', e)
+        return jsonify({'error': str(e)}), 500
+
+
+def _user_layout_rows(user_id):
+    return models.HubWidget.query.filter_by(user_id=user_id).all()
+
+
+def _ensure_user_layout(user_id):
+    """Create default rows for a user if they have none. Returns list of rows."""
+    rows = _user_layout_rows(user_id)
+    if rows:
+        return rows
+    for d in HUB_DEFAULT_LAYOUT:
+        w = models.HubWidget(
+            user_id=user_id,
+            widget_id=d['widget_id'],
+            enabled=d['enabled'],
+            position_x=d['position_x'],
+            position_y=d['position_y'],
+            width=d['width'],
+            height=d['height'],
+            collapsed=False,
+            settings='{}',
+        )
+        db.session.add(w)
+    db.session.commit()
+    return _user_layout_rows(user_id)
+
+
+@api_bp.route('/api/hub/layout', methods=['GET'])
+@login_required
+def api_hub_layout_get():
+    """Return this user's widget layout. Initializes defaults on first call."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    rows = _ensure_user_layout(current_user.id)
+    return jsonify({'widgets': [r.to_dict() for r in rows]})
+
+
+@api_bp.route('/api/hub/layout', methods=['PATCH'])
+@login_required
+def api_hub_layout_patch():
+    """Save widget layout. Body: {widgets: [{widget_id, position_x, position_y, width, height, enabled, collapsed, settings}]}"""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    payload = request.get_json(silent=True) or {}
+    widgets = payload.get('widgets') or []
+    if not isinstance(widgets, list):
+        return jsonify({'error': 'widgets must be a list'}), 400
+
+    _ensure_user_layout(current_user.id)  # make sure rows exist
+    existing = {r.widget_id: r for r in _user_layout_rows(current_user.id)}
+
+    saved = 0
+    for w in widgets:
+        wid = (w.get('widget_id') or '').strip()
+        if wid not in HUB_VALID_WIDGETS:
+            continue
+        row = existing.get(wid)
+        if not row:
+            row = models.HubWidget(user_id=current_user.id, widget_id=wid)
+            db.session.add(row)
+        if 'position_x' in w: row.position_x = max(0, min(3, int(w['position_x'])))
+        if 'position_y' in w: row.position_y = max(0, min(20, int(w['position_y'])))
+        if 'width'      in w: row.width      = 2 if int(w['width']) >= 2 else 1
+        if 'height'     in w: row.height     = 2 if int(w['height']) >= 2 else 1
+        if 'enabled'    in w: row.enabled    = bool(w['enabled'])
+        if 'collapsed'  in w: row.collapsed  = bool(w['collapsed'])
+        if 'settings'   in w:
+            try:
+                row.settings = json.dumps(w['settings'])[:4000]
+            except Exception:
+                row.settings = '{}'
+        saved += 1
+    db.session.commit()
+    return jsonify({'ok': True, 'saved': saved})
+
+
+@api_bp.route('/api/hub/widget-toggle', methods=['POST'])
+@login_required
+def api_hub_widget_toggle():
+    """Body: {widget_id, enabled}. Toggle a single widget on/off."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    payload = request.get_json(silent=True) or {}
+    wid = (payload.get('widget_id') or '').strip()
+    enabled = bool(payload.get('enabled', True))
+    if wid not in HUB_VALID_WIDGETS:
+        return jsonify({'error': 'unknown widget_id'}), 400
+    # command_lanes is pinned — always enabled
+    if wid == 'command_lanes':
+        enabled = True
+    _ensure_user_layout(current_user.id)
+    row = models.HubWidget.query.filter_by(user_id=current_user.id, widget_id=wid).first()
+    if not row:
+        row = models.HubWidget(user_id=current_user.id, widget_id=wid)
+        db.session.add(row)
+    row.enabled = enabled
+    db.session.commit()
+    return jsonify({'ok': True, 'widget_id': wid, 'enabled': enabled})
+
+
+@api_bp.route('/api/hub/layout/reset', methods=['POST'])
+@login_required
+def api_hub_layout_reset():
+    """Delete user's layout rows — next GET reseeds defaults."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    models.HubWidget.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+    return jsonify({'ok': True, 'reset': True})

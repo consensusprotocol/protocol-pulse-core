@@ -4,609 +4,938 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#000;--s1:#060606;--s2:#0d0d0d;--s3:#141414;
-  --border:#1a1a1a;--border2:#242424;
+:root{
+  --bg:#000;--s1:#080808;--s2:#101010;--s3:#181818;
+  --border:#1a1a1a;--border2:#262626;
   --red:#CC0000;--red-dim:rgba(204,0,0,0.12);--red-glow:rgba(204,0,0,0.25);
-  --gold:#F8C15C;--green:#22c55e;--blue:#3b82f6;--orange:#f97316;
-  --muted:#555;--text:#e0e0e0;--dim:rgba(255,255,255,0.35);
+  --gold:#F8C15C;--green:#22c55e;--blue:#3b82f6;--purple:#a855f7;--orange:#f97316;
+  --muted:#555;--text:#e8e8e8;--dim:rgba(255,255,255,0.42);
   --mono:'JetBrains Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);}
-.hub-wrap{max-width:1440px;margin:0 auto;padding:72px 20px 60px;}
 
-/* ── TOP COMMAND BAR ── */
-.hub-topbar{
+.hub2-wrap{max-width:1560px;margin:0 auto;padding:64px 16px 48px;}
+
+/* ══════════ TOP BAR ══════════ */
+.hub2-topbar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 0 16px;border-bottom:1px solid var(--red);margin-bottom:24px;
-  flex-wrap:wrap;gap:10px;
+  padding:14px 16px 14px 18px;margin-bottom:20px;
+  background:linear-gradient(180deg,var(--s1) 0%,rgba(8,8,8,0.4) 100%);
+  border:1px solid var(--border);border-left:3px solid var(--red);
+  position:sticky;top:56px;z-index:100;backdrop-filter:blur(8px);
 }
-.hub-badge{
-  display:flex;align-items:center;gap:10px;
+.hub2-brand{display:flex;align-items:center;gap:12px;}
+.hub2-brand-logo{
+  width:26px;height:26px;border:1px solid var(--red);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:var(--red);
 }
-.hub-pulse-dot{
-  width:8px;height:8px;border-radius:50%;background:var(--red);
-  box-shadow:0 0 8px var(--red);animation:hubPulse 1.5s ease-in-out infinite;
+.hub2-brand-name{font-size:10px;font-weight:900;letter-spacing:.35em;color:var(--red);text-transform:uppercase;}
+.hub2-brand-sub{font-size:7px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:2px;}
+.hub2-tier-chip{
+  font-size:7px;letter-spacing:.25em;padding:3px 9px;
+  border:1px solid var(--gold);color:var(--gold);border-radius:1px;
+  text-transform:uppercase;font-weight:700;
 }
-@keyframes hubPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.85)}}
-.hub-title{font-size:11px;font-weight:900;letter-spacing:.3em;color:var(--red);text-transform:uppercase;}
-.hub-tier-badge{font-size:8px;letter-spacing:.2em;padding:3px 10px;border:1px solid var(--red);color:var(--red);border-radius:2px;}
-.hub-clock{font-size:11px;color:var(--muted);letter-spacing:.08em;}
-.hub-clock span{color:var(--gold);}
+.hub2-center{display:flex;align-items:center;gap:18px;}
+.hub2-clock-block{display:flex;flex-direction:column;gap:2px;text-align:center;}
+.hub2-clock-label{font-size:6px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;}
+.hub2-clock-val{font-size:14px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:.05em;}
+.hub2-pcaf-ring{
+  width:52px;height:52px;position:relative;
+}
+.hub2-pcaf-ring svg{transform:rotate(-90deg);}
+.hub2-pcaf-ring .pcaf-track{stroke:var(--border);stroke-width:3;fill:none;}
+.hub2-pcaf-ring .pcaf-fill{stroke:var(--gold);stroke-width:3;fill:none;stroke-linecap:round;transition:stroke-dashoffset 1s ease;}
+.hub2-pcaf-val{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;color:var(--gold);
+}
+.hub2-right{display:flex;align-items:center;gap:8px;}
+.hub2-btn{
+  font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.2em;
+  padding:8px 14px;background:transparent;border:1px solid var(--border2);
+  color:var(--dim);text-transform:uppercase;cursor:pointer;
+  transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+}
+.hub2-btn:hover{border-color:var(--red);color:var(--red);}
+.hub2-btn.on{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+.hub2-btn.primary{border-color:var(--gold);color:var(--gold);}
+.hub2-btn.primary:hover{background:var(--gold);color:#000;}
+.hub2-bell{
+  position:relative;width:32px;height:32px;border:1px solid var(--border2);
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--dim);cursor:pointer;transition:all .15s;font-size:12px;
+}
+.hub2-bell:hover{border-color:var(--red);color:var(--red);}
+.hub2-bell-badge{
+  position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;
+  background:var(--red);color:#fff;font-size:8px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;border-radius:7px;
+}
 
-/* ── KPI ROW ── */
-.hub-kpi-row{
-  display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
-  background:var(--border);margin-bottom:20px;
+/* ══════════ WIDGET GRID ══════════ */
+.hub2-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;align-items:stretch;
 }
-.hub-kpi{
-  background:var(--s1);padding:14px 16px;position:relative;
-  cursor:default;transition:background .15s;
-}
-.hub-kpi:hover{background:var(--s2);}
-.hub-kpi-label{font-size:7px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
-.hub-kpi-val{font-size:20px;font-weight:900;line-height:1;color:var(--text);}
-.hub-kpi-val.red{color:var(--red);}
-.hub-kpi-val.gold{color:var(--gold);}
-.hub-kpi-val.green{color:var(--green);}
-.hub-kpi-sub{font-size:8px;color:var(--muted);margin-top:4px;}
-.hub-kpi-change{font-size:9px;margin-top:3px;}
-.hub-kpi-change.up{color:var(--green);}
-.hub-kpi-change.down{color:var(--red);}
+@media(max-width:1100px){.hub2-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:600px){.hub2-grid{grid-template-columns:1fr;}}
 
-/* ── MAIN GRID ── */
-.hub-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 340px;
-  grid-template-rows:auto;
-  gap:12px;
-}
-@media(max-width:1100px){.hub-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:700px){.hub-grid{grid-template-columns:1fr;}}
-
-/* ── PANELS ── */
-.hub-panel{
+.widget{
   background:var(--s1);border:1px solid var(--border);
   border-top:2px solid var(--red);
+  min-height:220px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  opacity:0;transform:translateY(8px);
+  animation:widgetIn .35s ease forwards;
 }
-.hub-panel.gold-top{border-top-color:var(--gold);}
-.hub-panel.green-top{border-top-color:var(--green);}
-.hub-panel.blue-top{border-top-color:var(--blue);}
-.hub-panel.full-width{grid-column:1/-1;}
-.hub-panel.col-span-2{grid-column:span 2;}
-.hub-panel-header{
+@keyframes widgetIn{to{opacity:1;transform:none;}}
+.widget[data-accent="gold"]{border-top-color:var(--gold);}
+.widget[data-accent="green"]{border-top-color:var(--green);}
+.widget[data-accent="blue"]{border-top-color:var(--blue);}
+.widget[data-accent="purple"]{border-top-color:var(--purple);}
+.widget[data-accent="orange"]{border-top-color:var(--orange);}
+.widget.w-2{grid-column:span 2;}
+.widget.h-2{grid-row:span 2;}
+@media(max-width:600px){.widget.w-2{grid-column:span 1;}}
+
+.widget-head{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-bottom:1px solid var(--border);
+  padding:11px 14px 10px;border-bottom:1px solid var(--border);
 }
-.hub-panel-title{font-size:8px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
-.hub-panel-badge{font-size:7px;letter-spacing:.1em;padding:2px 8px;border-radius:2px;}
-.hub-panel-badge.live{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,0.3);}
-.hub-panel-badge.ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
-.hub-panel-body{padding:16px;}
+.widget-title{
+  font-size:8px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--dim);display:flex;align-items:center;gap:7px;
+}
+.widget-title .dot{
+  width:5px;height:5px;border-radius:50%;background:var(--red);
+  box-shadow:0 0 6px var(--red);animation:widgetPulse 2s ease-in-out infinite;
+}
+@keyframes widgetPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.widget[data-accent="gold"] .widget-title .dot{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+.widget[data-accent="green"] .widget-title .dot{background:var(--green);box-shadow:0 0 6px var(--green);}
+.widget[data-accent="blue"] .widget-title .dot{background:var(--blue);box-shadow:0 0 6px var(--blue);}
+.widget[data-accent="purple"] .widget-title .dot{background:var(--purple);box-shadow:0 0 6px var(--purple);}
+.widget[data-accent="orange"] .widget-title .dot{background:var(--orange);box-shadow:0 0 6px var(--orange);}
 
-/* ── MORNING BRIEF ── */
-.brief-sentiment{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:8px;letter-spacing:.15em;padding:4px 12px;
-  border-radius:2px;margin-bottom:12px;font-weight:700;text-transform:uppercase;
-}
-.brief-sentiment.bullish{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
-.brief-sentiment.bearish{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.3);}
-.brief-date{font-size:8px;color:var(--muted);margin-bottom:10px;letter-spacing:.08em;}
-.brief-reasoning{font-size:11px;line-height:1.7;color:var(--text);margin-bottom:14px;}
-.brief-narratives{border-top:1px solid var(--border);padding-top:12px;}
-.brief-narrative-label{font-size:7px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
-.brief-narrative-item{
-  display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);
-  font-size:10px;line-height:1.5;color:var(--dim);
-}
-.brief-narrative-item::before{content:'▸';color:var(--red);flex-shrink:0;margin-top:2px;}
-.brief-trending{margin-top:10px;}
-.brief-trend-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
-.brief-tag{font-size:8px;padding:3px 8px;background:var(--s2);border:1px solid var(--border);color:var(--dim);border-radius:2px;}
+.widget-badge{font-size:6px;letter-spacing:.2em;padding:2px 7px;border-radius:1px;text-transform:uppercase;}
+.widget-badge.live{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.35);}
+.widget-badge.bullish{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.35);}
+.widget-badge.bearish{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.35);}
+.widget-badge.neutral{background:rgba(248,193,92,.1);color:var(--gold);border:1px solid rgba(248,193,92,.35);}
+.widget-badge.cautious{background:rgba(248,193,92,.12);color:var(--gold);border:1px solid rgba(248,193,92,.35);}
 
-/* ── WHALE FEED ── */
-.whale-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:10px 0;border-bottom:1px solid var(--border);
-}
-.whale-item:last-child{border-bottom:none;}
-.whale-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
-.whale-body{flex:1;}
-.whale-amount{font-size:13px;font-weight:900;color:var(--gold);line-height:1;}
-.whale-meta{font-size:8px;color:var(--muted);margin-top:3px;line-height:1.5;}
-.whale-time{font-size:7px;color:var(--muted);flex-shrink:0;}
-.whale-mega{font-size:7px;letter-spacing:.1em;padding:2px 6px;background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.3);border-radius:2px;margin-left:6px;}
+.widget-body{padding:14px;flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.widget.collapsed .widget-body{display:none;}
 
-/* ── SIGNAL ROWS ── */
-.sig-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);
+.widget-edit-bar{
+  position:absolute;top:0;right:0;display:none;
+  padding:4px 6px;gap:4px;z-index:5;
 }
-.sig-row:last-child{border-bottom:none;}
-.sig-label{font-size:9px;color:var(--dim);}
-.sig-val{font-size:11px;font-weight:700;}
-.sig-val.red{color:var(--red);}
-.sig-val.gold{color:var(--gold);}
-.sig-val.green{color:var(--green);}
-.sig-val.white{color:var(--text);}
-.sig-bar{
-  height:3px;background:var(--border);border-radius:2px;margin-top:4px;
+.widget-edit-btn{
+  width:22px;height:22px;background:rgba(0,0,0,0.85);border:1px solid var(--border2);
+  color:var(--dim);cursor:pointer;font-size:10px;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s;
 }
-.sig-bar-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+.widget-edit-btn:hover{border-color:var(--red);color:var(--red);}
 
-/* ── KOL BRIEF ── */
-.kol-sentiment-banner{
-  padding:10px 14px;margin-bottom:12px;border-radius:3px;
-  display:flex;align-items:center;gap:8px;font-size:10px;
+body.hub2-edit .widget-edit-bar{display:flex;}
+body.hub2-edit .widget{
+  cursor:grab;
+  outline:1px dashed rgba(204,0,0,0.35);outline-offset:-3px;
 }
-.kol-sentiment-banner.bullish{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:var(--green);}
-.kol-sentiment-banner.bearish{background:var(--red-dim);border:1px solid rgba(204,0,0,.2);color:var(--red);}
-.kol-sentiment-banner.neutral{background:rgba(248,193,92,.08);border:1px solid rgba(248,193,92,.2);color:var(--gold);}
-.kol-narrative{font-size:11px;line-height:1.6;color:var(--text);margin-bottom:10px;}
-.kol-signal{font-size:10px;padding:8px 12px;background:var(--s2);border-left:2px solid var(--gold);color:var(--gold);line-height:1.5;}
-.kol-voices{font-size:8px;color:var(--muted);margin-top:8px;}
-
-/* ── NETWORK STATS ── */
-.net-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.net-card{background:var(--s2);padding:10px 12px;border:1px solid var(--border);}
-.net-card-label{font-size:7px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
-.net-card-val{font-size:16px;font-weight:900;color:var(--text);}
-.net-card-sub{font-size:8px;color:var(--muted);margin-top:2px;}
-
-/* ── CONGRESS ── */
-.congress-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.03);
+body.hub2-edit .widget.dragging{
+  cursor:grabbing;transform:scale(1.02);
+  box-shadow:0 12px 40px rgba(204,0,0,0.35);opacity:.85;
+  outline-color:var(--red);z-index:50;
 }
-.congress-item:last-child{border-bottom:none;}
-.congress-party{
-  width:24px;height:24px;border-radius:2px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:900;
+body.hub2-edit .widget.drop-target{
+  outline:2px dashed var(--red);background:var(--red-dim);
 }
-.congress-party.R{background:rgba(204,0,0,.15);color:var(--red);border:1px solid rgba(204,0,0,.3);}
-.congress-party.D{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
-.congress-party.I{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);}
-.congress-body{flex:1;min-width:0;}
-.congress-name{font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.congress-asset{font-size:9px;color:var(--gold);margin-top:2px;}
-.congress-meta{font-size:8px;color:var(--muted);margin-top:2px;}
-.congress-type{font-size:7px;letter-spacing:.1em;padding:2px 6px;border-radius:2px;}
-.congress-type.PURCHASE{background:rgba(34,197,94,.1);color:var(--green);}
-.congress-type.SALE{background:var(--red-dim);color:var(--red);}
+body.hub2-edit .widget.disabled{opacity:.45;}
 
-/* ── QUICK LINKS ── */
-.hub-links{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.hub-link-btn{
-  display:flex;align-items:center;gap:8px;padding:10px 12px;
-  background:var(--s2);border:1px solid var(--border);color:var(--dim);
-  text-decoration:none;font-size:10px;letter-spacing:.06em;
-  transition:all .15s;
+/* ══════════ WIDGET CONTENT STYLES ══════════ */
+.w-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.w-row:last-child{border-bottom:none;}
+.w-row-label{font-size:8px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.w-row-val{font-size:11px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.w-row-val.red{color:var(--red);}
+.w-row-val.gold{color:var(--gold);}
+.w-row-val.green{color:var(--green);}
+.w-row-val.blue{color:var(--blue);}
+
+.w-stat{display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:var(--s2);border:1px solid var(--border);}
+.w-stat-label{font-size:6px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;}
+.w-stat-val{font-size:15px;font-weight:900;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1;}
+.w-stat-val.gold{color:var(--gold);}.w-stat-val.red{color:var(--red);}.w-stat-val.green{color:var(--green);}
+
+.w-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+
+.w-gauge{position:relative;height:78px;display:flex;align-items:center;justify-content:center;margin:6px 0 10px;}
+.w-gauge svg{width:120px;height:68px;}
+.w-gauge-label{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:6px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
+.w-gauge-val{font-size:22px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;}
+
+.w-bar{height:4px;background:var(--border);margin-top:5px;overflow:hidden;}
+.w-bar-fill{height:100%;transition:width .8s ease;}
+
+.w-sig-pill{font-size:6px;letter-spacing:.2em;padding:2px 6px;border-radius:1px;font-weight:700;}
+.w-sig-pill.BULLISH{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.4);}
+.w-sig-pill.CAUTIOUS{background:rgba(248,193,92,.12);color:var(--gold);border:1px solid rgba(248,193,92,.4);}
+.w-sig-pill.BEARISH{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.4);}
+.w-sig-pill.NEUTRAL{background:rgba(255,255,255,.05);color:var(--dim);border:1px solid var(--border2);}
+
+/* Intel brief */
+.brief-verdict{display:inline-flex;align-items:center;gap:6px;font-size:8px;letter-spacing:.18em;padding:4px 10px;font-weight:700;text-transform:uppercase;margin-bottom:8px;}
+.brief-verdict.bullish{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.35);}
+.brief-verdict.bearish{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.35);}
+.brief-verdict.neutral{background:rgba(248,193,92,.1);color:var(--gold);border:1px solid rgba(248,193,92,.35);}
+.brief-reason{font-size:10px;line-height:1.65;color:var(--text);margin-bottom:10px;}
+.brief-section-label{font-size:7px;letter-spacing:.22em;color:var(--muted);margin-top:8px;margin-bottom:5px;text-transform:uppercase;}
+.brief-narrative{display:flex;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:9.5px;line-height:1.55;color:var(--dim);}
+.brief-narrative::before{content:'▸';color:var(--red);flex-shrink:0;}
+.brief-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.brief-tag{font-size:8px;padding:2px 7px;background:var(--s2);border:1px solid var(--border);color:var(--dim);}
+
+/* Convergence radar */
+.w-radar{width:100%;aspect-ratio:1.8/1;max-height:220px;}
+.w-radar-legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:8px;color:var(--dim);margin-top:6px;}
+.w-radar-legend-row{display:flex;justify-content:space-between;padding:2px 0;}
+
+/* Alert item */
+.alert-item{padding:8px 10px;border-left:2px solid var(--red);background:var(--s2);margin-bottom:6px;}
+.alert-item.WATCH{border-left-color:var(--gold);}
+.alert-item.ACTION{border-left-color:var(--red);}
+.alert-title{font-size:9.5px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.alert-desc{font-size:9px;color:var(--dim);line-height:1.5;}
+.alert-meta{font-size:7px;color:var(--muted);margin-top:4px;letter-spacing:.1em;}
+
+/* Whale alert */
+.flow-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.flow-item:last-child{border-bottom:none;}
+.flow-icon{font-size:13px;flex-shrink:0;}
+.flow-body{flex:1;font-size:9.5px;color:var(--text);line-height:1.5;}
+.flow-body b{color:var(--gold);font-weight:900;}
+.flow-time{font-size:7px;color:var(--muted);letter-spacing:.1em;}
+
+/* Command lanes */
+.lanes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+@media(max-width:900px){.lanes-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.lanes-grid{grid-template-columns:repeat(2,1fr);}}
+.lane{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:14px 10px;background:var(--s2);border:1px solid var(--border);color:var(--dim);
+  text-decoration:none;font-size:8.5px;letter-spacing:.15em;transition:all .15s;
+  text-transform:uppercase;font-weight:700;
 }
-.hub-link-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim);}
-.hub-link-btn i{width:16px;text-align:center;color:var(--red);}
+.lane:hover{border-color:var(--red);color:var(--red);background:var(--red-dim);transform:translateY(-2px);}
+.lane i{font-size:14px;color:var(--red);}
 
-/* ── MEMPOOL ── */
-.fee-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
-.fee-card{background:var(--s2);padding:10px;text-align:center;border:1px solid var(--border);}
-.fee-val{font-size:18px;font-weight:900;}
-.fee-val.fast{color:var(--red);}
-.fee-val.mid{color:var(--gold);}
-.fee-val.slow{color:var(--green);}
-.fee-label{font-size:7px;letter-spacing:.1em;color:var(--muted);margin-top:3px;text-transform:uppercase;}
+/* KOL */
+.kol-banner{padding:8px 10px;margin-bottom:8px;font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.kol-banner.bullish{background:rgba(34,197,94,.08);border-left:2px solid var(--green);color:var(--green);}
+.kol-banner.bearish{background:var(--red-dim);border-left:2px solid var(--red);color:var(--red);}
+.kol-banner.neutral{background:rgba(248,193,92,.08);border-left:2px solid var(--gold);color:var(--gold);}
+.kol-section{font-size:9.5px;color:var(--text);line-height:1.55;margin-bottom:7px;}
+.kol-signal-box{padding:6px 10px;background:var(--s2);border-left:2px solid var(--gold);color:var(--gold);font-size:9px;line-height:1.5;margin-bottom:5px;}
+.kol-signal-box.contra{border-left-color:var(--red);color:var(--red);}
+.kol-voices{font-size:7px;color:var(--muted);margin-top:6px;letter-spacing:.1em;}
 
-/* ── LIGHTNING ── */
-.lightning-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}
-.lightning-label{font-size:9px;color:var(--muted);}
-.lightning-val{font-size:10px;font-weight:700;color:var(--gold);}
+/* Empty state */
+.w-empty{display:flex;align-items:center;justify-content:center;flex:1;font-size:9px;color:var(--muted);letter-spacing:.15em;padding:20px;text-align:center;}
 
-/* ── COMMANDER ACTIONS ── */
-.hub-actions{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
-.hub-action-btn{
-  padding:8px 18px;font-family:var(--mono);font-size:9px;font-weight:700;
-  letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border);
-  background:none;color:var(--muted);cursor:pointer;transition:all .2s;
-  text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+/* ══════════ NOTIFICATION DRAWER ══════════ */
+.notif-drawer{
+  position:fixed;top:56px;right:0;bottom:0;width:360px;max-width:90vw;
+  background:var(--s1);border-left:1px solid var(--border);
+  transform:translateX(100%);transition:transform .25s ease;
+  z-index:200;overflow-y:auto;padding:18px 16px;
 }
-.hub-action-btn:hover{border-color:var(--red);color:var(--red);}
-.hub-action-btn.primary{border-color:var(--red);color:var(--red);}
-.hub-action-btn.primary:hover{background:var(--red);color:#fff;}
+.notif-drawer.open{transform:translateX(0);}
+.notif-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.notif-head h3{font-size:9px;letter-spacing:.25em;color:var(--red);font-weight:700;text-transform:uppercase;}
+.notif-close{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;}
+.notif-empty{padding:32px 12px;text-align:center;font-size:9px;color:var(--muted);letter-spacing:.15em;}
 
-/* ── TOAST ── */
-.hub-toast{
-  position:fixed;bottom:24px;right:24px;
-  background:var(--s2);border:1px solid var(--green);border-left:3px solid var(--green);
-  font-family:var(--mono);font-size:10px;color:var(--text);padding:10px 18px;
-  z-index:9999;animation:hubToastIn .2s ease;letter-spacing:.06em;
+/* ══════════ TOAST ══════════ */
+.hub2-toast{
+  position:fixed;bottom:20px;right:20px;background:var(--s2);
+  border:1px solid var(--green);border-left:3px solid var(--green);
+  padding:10px 16px;font-size:9px;color:var(--text);z-index:9999;
+  letter-spacing:.1em;animation:toastIn .2s ease;
 }
-@keyframes hubToastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+@keyframes toastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+
+/* ══════════ CATALOG (add-widget panel) ══════════ */
+.catalog{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--s1);border:1px solid var(--red);padding:18px;z-index:300;
+  width:620px;max-width:94vw;max-height:78vh;overflow-y:auto;display:none;
+}
+.catalog.open{display:block;}
+.catalog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.catalog-head h3{font-size:10px;letter-spacing:.3em;color:var(--red);font-weight:900;text-transform:uppercase;}
+.catalog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.catalog-item{padding:10px 12px;border:1px solid var(--border);background:var(--s2);display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:all .15s;}
+.catalog-item:hover{border-color:var(--red);background:var(--red-dim);}
+.catalog-item-name{font-size:10px;font-weight:700;color:var(--text);letter-spacing:.1em;}
+.catalog-item-desc{font-size:8px;color:var(--muted);line-height:1.5;}
+.catalog-item.on{border-color:var(--green);}
+.catalog-item.on .catalog-item-name::after{content:' ✓';color:var(--green);}
+.catalog-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:250;display:none;}
+.catalog-backdrop.open{display:block;}
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hub-wrap">
+<div class="hub2-wrap">
 
-<!-- TOP BAR -->
-<div class="hub-topbar">
-  <div class="hub-badge">
-    <div class="hub-pulse-dot"></div>
-    <span class="hub-title">COMMANDER HUB</span>
-    <span class="hub-tier-badge">{{ tier|upper }} ACCESS</span>
+  <!-- ═══════ TOP BAR ═══════ -->
+  <div class="hub2-topbar">
+    <div class="hub2-brand">
+      <div class="hub2-brand-logo">⬡</div>
+      <div>
+        <div class="hub2-brand-name">COMMANDER HUB</div>
+        <div class="hub2-brand-sub">intelligence workspace · v2</div>
+      </div>
+      <span class="hub2-tier-chip">{{ tier|upper }}</span>
+    </div>
+    <div class="hub2-center">
+      <div class="hub2-clock-block">
+        <span class="hub2-clock-label">UTC</span>
+        <span class="hub2-clock-val" id="hub2-clock">—</span>
+      </div>
+      <div class="hub2-pcaf-ring" title="Pulse Convergence &amp; Action Factor">
+        <svg viewBox="0 0 52 52"><circle class="pcaf-track" cx="26" cy="26" r="22"/><circle id="hub2-pcaf-fill" class="pcaf-fill" cx="26" cy="26" r="22" stroke-dasharray="138" stroke-dashoffset="138"/></svg>
+        <div class="hub2-pcaf-val" id="hub2-pcaf">—</div>
+      </div>
+    </div>
+    <div class="hub2-right">
+      <button class="hub2-bell" id="hub2-bell" title="Alerts">
+        🔔<span class="hub2-bell-badge" id="hub2-bell-badge" style="display:none;">0</span>
+      </button>
+      <button class="hub2-btn" id="hub2-add-btn" title="Add widgets">＋ WIDGETS</button>
+      <button class="hub2-btn" id="hub2-edit-btn">✎ EDIT LAYOUT</button>
+      <button class="hub2-btn" id="hub2-reset-btn" title="Restore defaults">⟲ RESET</button>
+      <a href="/terminal" class="hub2-btn primary">⚡ TERMINAL</a>
+    </div>
   </div>
-  <div class="hub-clock">UTC <span id="hub-utc-clock">—</span> &nbsp;·&nbsp; BLOCK <span style="color:var(--gold)" id="hub-block">{{ (network.get('block_height') or sovereign.get('block_height') or '—')|string }}</span></div>
-  <div style="display:flex;gap:8px;">
-    <a href="/panopticon" class="hub-action-btn">⬡ PANOPTICON</a>
-    <a href="/terminal" class="hub-action-btn primary">⚡ INTELLIGENCE</a>
+
+  <!-- ═══════ WIDGET GRID ═══════ -->
+  <div class="hub2-grid" id="hub2-grid"></div>
+
+</div><!-- /.hub2-wrap -->
+
+<!-- ═══════ NOTIFICATION DRAWER ═══════ -->
+<div class="notif-drawer" id="notif-drawer">
+  <div class="notif-head">
+    <h3>⚠ ACTIVE ALERTS</h3>
+    <button class="notif-close" id="notif-close">✕</button>
+  </div>
+  <div id="notif-body">
+    <div class="notif-empty">No active alerts</div>
   </div>
 </div>
 
-<!-- KPI ROW -->
-<div class="hub-kpi-row">
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">BTC PRICE</div>
-    <div class="hub-kpi-val gold" id="kpi-price">${{ '{:,.0f}'.format(sovereign.get('btc',{}).get('price', prices.get('btc',0) or 0)) }}</div>
-    {% set ch = sovereign.get('btc',{}).get('change_24h',0) %}
-    <div class="hub-kpi-change {{ 'up' if ch >= 0 else 'down' }}">{{ '+' if ch >= 0 else '' }}{{ '%.2f'|format(ch) }}% 24h</div>
+<!-- ═══════ WIDGET CATALOG ═══════ -->
+<div class="catalog-backdrop" id="catalog-backdrop"></div>
+<div class="catalog" id="catalog">
+  <div class="catalog-head">
+    <h3>Widget Catalog</h3>
+    <button class="notif-close" id="catalog-close">✕</button>
   </div>
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">HASHRATE</div>
-    <div class="hub-kpi-val" id="kpi-hash">{{ network.get('hashrate','999 EH/s') if network else '—' }}</div>
-    <div class="hub-kpi-sub">Network Security</div>
-  </div>
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">FEAR & GREED</div>
-    {% set fg = sovereign.get('fear_greed',{}) %}
-    <div class="hub-kpi-val {{ 'red' if (fg.get('value',50)|int) < 30 else 'gold' if (fg.get('value',50)|int) < 60 else 'green' }}" id="kpi-fng">{{ fg.get('value','—') }}</div>
-    <div class="hub-kpi-sub">{{ fg.get('label','—') }}</div>
-  </div>
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">MEMPOOL</div>
-    <div class="hub-kpi-val" id="kpi-mempool">{{ '{:,}'.format(sovereign.get('mempool',{}).get('unconfirmed',0)) }}</div>
-    <div class="hub-kpi-sub">Unconfirmed TX</div>
-  </div>
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">SAT/vB FAST</div>
-    <div class="hub-kpi-val red" id="kpi-fees">{{ sovereign.get('mempool',{}).get('fee_high', mempool_data.get('fee_high','—')) }}</div>
-    <div class="hub-kpi-sub">sat/vB priority</div>
-  </div>
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">DOMINANCE</div>
-    <div class="hub-kpi-val gold">{{ sovereign.get('btc',{}).get('dominance','—') }}%</div>
-    <div class="hub-kpi-sub">BTC/Total Mkt</div>
-  </div>
-  <div class="hub-kpi">
-    <div class="hub-kpi-label">WHALES 24H</div>
-    <div class="hub-kpi-val red" id="kpi-whales">{{ whale_count_24h }}</div>
-    <div class="hub-kpi-sub">{{ mega_count_24h }} mega</div>
-  </div>
+  <div class="catalog-grid" id="catalog-grid"></div>
 </div>
-
-<!-- MAIN GRID -->
-<div class="hub-grid">
-
-  <!-- MORNING INTELLIGENCE BRIEF -->
-  <div class="hub-panel col-span-2">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-satellite-dish" style="color:var(--red);margin-right:6px;"></i>MORNING INTELLIGENCE BRIEF</span>
-      <span class="hub-panel-badge live">{{ morning_brief.get('date','LIVE') }}</span>
-    </div>
-    <div class="hub-panel-body">
-      <div class="brief-sentiment {{ morning_brief.get('sentiment','neutral') }}">
-        {% if morning_brief.get('sentiment') == 'bullish' %}▲{% elif morning_brief.get('sentiment') == 'bearish' %}▼{% else %}◆{% endif %}
-        {{ morning_brief.get('sentiment','NEUTRAL')|upper }}
-      </div>
-      <div class="brief-reasoning">{{ morning_brief.get('sentiment_reasoning', 'Intelligence brief loading...') }}</div>
-      <div class="brief-narratives">
-        <div class="brief-narrative-label">DOMINANT NARRATIVES</div>
-        {% for n in (morning_brief.get('dominant_narratives') or [])[:3] %}
-        <div class="brief-narrative-item">{{ n }}</div>
-        {% endfor %}
-      </div>
-      <div class="brief-trending">
-        <div class="brief-narrative-label" style="margin-top:12px;">TRENDING LANGUAGE</div>
-        <div class="brief-trend-tags">
-          {% for t in (morning_brief.get('trending_language') or [])[:8] %}
-          <span class="brief-tag">{{ t }}</span>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT: KOL BRIEF -->
-  <div class="hub-panel">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-users" style="color:var(--gold);margin-right:6px;"></i>KOL SENTIMENT</span>
-      <span class="hub-panel-badge live">LIVE</span>
-    </div>
-    <div class="hub-panel-body">
-      {% set kol_sent = kol_brief.get('sentiment','neutral') %}
-      <div class="kol-sentiment-banner {{ kol_sent }}">
-        <i class="fas fa-{{ 'arrow-up' if kol_sent == 'bullish' else 'arrow-down' if kol_sent == 'bearish' else 'minus' }}"></i>
-        KOL CONSENSUS: {{ kol_sent|upper }}
-      </div>
-      <div class="kol-narrative">{{ kol_brief.get('dominant_narrative', '—') }}</div>
-      {% if kol_brief.get('top_signal') %}
-      <div class="kol-signal">{{ kol_brief.get('top_signal') }}</div>
-      {% endif %}
-      {% if kol_brief.get('contrarian_view') %}
-      <div class="kol-signal" style="border-left-color:var(--red);color:var(--red);margin-top:6px;">CONTRARIAN: {{ kol_brief.get('contrarian_view') }}</div>
-      {% endif %}
-      <div class="kol-voices">
-        {{ kol_brief.get('voices_sampled', 0) }} voices sampled ·
-        {% for h in (kol_brief.get('kol_handles_seen') or [])[:4] %}<span style="color:var(--muted)">{{ h }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
-      </div>
-    </div>
-  </div>
-
-  <!-- WHALE FEED -->
-  <div class="hub-panel">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-fish" style="color:var(--blue);margin-right:6px;"></i>WHALE ALERTS</span>
-      <span class="hub-panel-badge live">{{ whale_count_24h }} / 24H</span>
-    </div>
-    <div class="hub-panel-body" style="padding:0 16px;">
-      {% set whale_alerts = sovereign.get('whale_alerts') or [] %}
-      {% if whale_alerts %}
-        {% for wa in whale_alerts[:6] %}
-        <div class="whale-item">
-          <div class="whale-icon">🐋</div>
-          <div class="whale-body">
-            {% set msg = wa.get('message','') %}
-            <div class="whale-amount">
-              {% if 'BTC' in msg %}
-                {{ msg.split('BTC')[0].split(':')[-1].strip() }} BTC
-                {% if wa.get('tier') == 'CRITICAL' or (msg.split('BTC')[0].split(':')[-1].strip()|float) > 100 %}
-                <span class="whale-mega">MEGA</span>
-                {% endif %}
-              {% else %}
-                {{ msg[:40] }}
-              {% endif %}
-            </div>
-            <div class="whale-meta">
-              {{ msg.split('unconfirmed')[-1][:20] if 'unconfirmed' in msg else '' }}
-            </div>
-          </div>
-          <div class="whale-time">
-            {% set ts = wa.get('created_at', 0) %}
-            {% if ts %}{{ ((now_ts - ts) / 3600)|int }}h ago{% endif %}
-          </div>
-        </div>
-        {% endfor %}
-      {% elif hub_whales %}
-        {% for w in hub_whales[:6] %}
-        <div class="whale-item">
-          <div class="whale-icon">{{ '🔴' if w.is_mega else '🐋' }}</div>
-          <div class="whale-body">
-            <div class="whale-amount">{{ '%.2f'|format(w.btc_amount) }} BTC{% if w.is_mega %}<span class="whale-mega">MEGA</span>{% endif %}</div>
-            <div class="whale-meta">{{ w.detected_at.strftime('%b %d %H:%M') if w.detected_at else '' }}</div>
-          </div>
-        </div>
-        {% endfor %}
-      {% else %}
-        <div style="padding:20px 0;font-size:9px;color:var(--muted);text-align:center;">No whale activity in past 24h — low volatility window</div>
-      {% endif %}
-      <a href="/whale-watcher" style="display:block;text-align:center;padding:10px;font-size:9px;color:var(--red);text-decoration:none;border-top:1px solid var(--border);margin-top:8px;letter-spacing:.1em;">VIEW ALL WHALE ACTIVITY →</a>
-    </div>
-  </div>
-
-  <!-- NETWORK STATS -->
-  <div class="hub-panel green-top">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-network-wired" style="color:var(--green);margin-right:6px;"></i>NETWORK HEALTH</span>
-      <span class="hub-panel-badge ok">NOMINAL</span>
-    </div>
-    <div class="hub-panel-body">
-      <div class="net-grid" style="margin-bottom:14px;">
-        <div class="net-card">
-          <div class="net-card-label">BLOCK HEIGHT</div>
-          <div class="net-card-val">{{ '{:,}'.format(sovereign.get('block_height', network.get('block_height', 945572))) }}</div>
-          <div class="net-card-sub">mainnet tip</div>
-        </div>
-        <div class="net-card">
-          <div class="net-card-label">NEXT ADJ</div>
-          <div class="net-card-val" style="font-size:14px;color:var(--gold);">{{ '+' if sovereign.get('network',{}).get('next_adj_pct',0) >= 0 else '' }}{{ '%.2f'|format(sovereign.get('network',{}).get('next_adj_pct',0)) }}%</div>
-          <div class="net-card-sub">{{ sovereign.get('network',{}).get('next_adj_blocks', '—') }} blocks</div>
-        </div>
-        <div class="net-card">
-          <div class="net-card-label">LN CHANNELS</div>
-          <div class="net-card-val" style="font-size:13px;color:var(--gold);">{{ '{:,}'.format(sovereign.get('lightning',{}).get('channel_count', 41109)) }}</div>
-          <div class="net-card-sub">active channels</div>
-        </div>
-        <div class="net-card">
-          <div class="net-card-label">LN CAPACITY</div>
-          <div class="net-card-val" style="font-size:13px;color:var(--gold);">{{ '%.0f'|format(sovereign.get('lightning',{}).get('capacity_btc', 5057)) }} BTC</div>
-          <div class="net-card-sub">routing capacity</div>
-        </div>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:12px;">
-        <div class="sig-row">
-          <span class="sig-label">MEMPOOL SIZE</span>
-          <span class="sig-val white">{{ sovereign.get('mempool',{}).get('size_mb','—') }} MB</span>
-        </div>
-        <div class="sig-row">
-          <span class="sig-label">UNCONFIRMED TX</span>
-          <span class="sig-val white">{{ '{:,}'.format(sovereign.get('mempool',{}).get('unconfirmed', 55283)) }}</span>
-        </div>
-        <div class="sig-row">
-          <span class="sig-label">MARKET CAP</span>
-          <span class="sig-val gold">${{ '%.2f'|format((sovereign.get('btc',{}).get('market_cap',0) or 0)/1e12) }}T</span>
-        </div>
-        <div class="sig-row">
-          <span class="sig-label">PCAF SCORE</span>
-          <span class="sig-val gold">{{ sovereign.get('pcaf_score','—') }}/100</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONGRESS / STOCK ACT FEED -->
-  <div class="hub-panel blue-top full-width">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-landmark" style="color:var(--blue);margin-right:6px;"></i>CONGRESS INSIDER TRADES · STOCK ACT DISCLOSURES</span>
-      <a href="/panopticon" style="font-size:7px;color:var(--blue);text-decoration:none;letter-spacing:.1em;">VIEW PANOPTICON →</a>
-    </div>
-    <div class="hub-panel-body" style="padding:0;">
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:10px;">
-          <thead>
-            <tr style="border-bottom:1px solid var(--border);">
-              <th style="padding:8px 14px;text-align:left;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">MEMBER</th>
-              <th style="padding:8px 14px;text-align:left;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">ASSET</th>
-              <th style="padding:8px 14px;text-align:center;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">ACTION</th>
-              <th style="padding:8px 14px;text-align:right;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">AMOUNT</th>
-              <th style="padding:8px 14px;text-align:right;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">FILED</th>
-            </tr>
-          </thead>
-          <tbody id="congress-table-body">
-            <!-- loaded via JS from /api/congress/trades -->
-            <tr><td colspan="5" style="padding:16px 14px;color:var(--muted);font-size:9px;">Loading congressional trades...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- MEMPOOL FEES -->
-  <div class="hub-panel">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-gas-pump" style="color:var(--red);margin-right:6px;"></i>MEMPOOL FEES</span>
-      <span class="hub-panel-badge live">LIVE</span>
-    </div>
-    <div class="hub-panel-body">
-      <div class="fee-grid">
-        <div class="fee-card">
-          <div class="fee-val fast" id="fee-fast">{{ mempool_data.get('fee_high', sovereign.get('mempool',{}).get('fee_high','—')) }}</div>
-          <div class="fee-label">FAST sat/vB</div>
-        </div>
-        <div class="fee-card">
-          <div class="fee-val mid" id="fee-mid">{{ mempool_data.get('fee_mid', sovereign.get('mempool',{}).get('fee_mid','—')) }}</div>
-          <div class="fee-label">MEDIUM</div>
-        </div>
-        <div class="fee-card">
-          <div class="fee-val slow" id="fee-slow">{{ mempool_data.get('fee_low', sovereign.get('mempool',{}).get('fee_low','—')) }}</div>
-          <div class="fee-label">ECONOMY</div>
-        </div>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:12px;">
-        <div class="sig-row"><span class="sig-label">UNCONFIRMED</span><span class="sig-val white" id="mp-unconf">{{ '{:,}'.format(sovereign.get('mempool',{}).get('unconfirmed',0)) }}</span></div>
-        <div class="sig-row"><span class="sig-label">MEMPOOL SIZE</span><span class="sig-val white">{{ sovereign.get('mempool',{}).get('size_mb','—') }} MB</span></div>
-      </div>
-      <a href="https://mempool.space" target="_blank" rel="noopener" style="display:block;text-align:center;padding:8px;font-size:8px;color:var(--muted);text-decoration:none;border-top:1px solid var(--border);margin-top:10px;letter-spacing:.08em;">OPEN MEMPOOL.SPACE →</a>
-    </div>
-  </div>
-
-  <!-- QUICK NAV -->
-  <div class="hub-panel gold-top">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-bolt" style="color:var(--gold);margin-right:6px;"></i>COMMAND LANES</span>
-    </div>
-    <div class="hub-panel-body">
-      <div class="hub-links">
-        <a href="/panopticon" class="hub-link-btn"><i class="fas fa-eye"></i>Panopticon</a>
-        <a href="/terminal" class="hub-link-btn"><i class="fas fa-signal"></i>Intelligence</a>
-        <a href="/live" class="hub-link-btn"><i class="fas fa-satellite-dish"></i>Live Terminal</a>
-        <a href="/signal-terminal" class="hub-link-btn"><i class="fas fa-chart-line"></i>Signal Terminal</a>
-        <a href="/articles" class="hub-link-btn"><i class="fas fa-newspaper"></i>Intel Briefs</a>
-        <a href="/whale-watcher" class="hub-link-btn"><i class="fas fa-fish"></i>Whale Watcher</a>
-        <a href="/media" class="hub-link-btn"><i class="fas fa-broadcast-tower"></i>Media Hub</a>
-        <a href="/admin/board" class="hub-link-btn" {% if not current_user.is_admin %}style="display:none"{% endif %}><i class="fas fa-tasks"></i>Ops Board</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMMANDER BRIEFS -->
-  <div class="hub-panel full-width">
-    <div class="hub-panel-header">
-      <span class="hub-panel-title"><i class="fas fa-file-alt" style="color:var(--red);margin-right:6px;"></i>LATEST INTELLIGENCE</span>
-      <a href="/articles" style="font-size:7px;color:var(--muted);text-decoration:none;letter-spacing:.1em;">ALL BRIEFS →</a>
-    </div>
-    <div class="hub-panel-body" style="padding:0;display:grid;grid-template-columns:repeat(3,1fr);">
-      {% for article in (commander_briefs or latest_briefs)[:3] %}
-      <a href="/articles/{{ article.id }}" style="text-decoration:none;display:block;padding:16px;border-right:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background='none'">
-        <div style="font-size:7px;letter-spacing:.15em;color:var(--red);margin-bottom:6px;text-transform:uppercase;">{{ article.category or 'Bitcoin' }}</div>
-        <div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:6px;">{{ article.title[:80] }}{{ '…' if article.title|length > 80 else '' }}</div>
-        <div style="font-size:8px;color:var(--muted);">{{ article.created_at.strftime('%b %d') if article.created_at else '' }}</div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-
-</div><!-- /.hub-grid -->
-</div><!-- /.hub-wrap -->
 
 <script>
-// ── UTC Clock ──────────────────────────────────────────────────────────────
-function updateClock() {
-  var now = new Date();
-  var h = String(now.getUTCHours()).padStart(2,'0');
-  var m = String(now.getUTCMinutes()).padStart(2,'0');
-  var s = String(now.getUTCSeconds()).padStart(2,'0');
-  var el = document.getElementById('hub-utc-clock');
-  if (el) el.textContent = h + ':' + m + ':' + s;
-}
-setInterval(updateClock, 1000);
-updateClock();
+// ══════════════════════════════════════════════════════════════════════
+// COMMANDER HUB v2 — Client
+// ══════════════════════════════════════════════════════════════════════
+(function(){
+  'use strict';
 
-// ── Congress trades feed ───────────────────────────────────────────────────
-function loadCongress() {
-  fetch('/api/congress/trades').then(function(r){ return r.json(); }).then(function(data) {
-    var trades = (data.trades || data || []).slice(0, 8);
-    var tbody = document.getElementById('congress-table-body');
-    if (!tbody || !trades.length) return;
-    tbody.innerHTML = trades.map(function(t) {
-      var party = (t.party || t.member_party || 'R');
-      var name = (t.member || t.representative || t.senator || '—');
-      var asset = (t.asset || t.ticker || '—');
-      var type = (t.transaction_type || t.type || '—').toUpperCase();
-      var amount = (t.amount || t.amount_range || '—');
-      var filed = (t.filed_date || t.date || '—');
-      var typeClass = type.includes('PUR') ? 'PURCHASE' : 'SALE';
-      return '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">' +
-        '<td style="padding:9px 14px;"><span class="congress-party ' + party + '">' + party + '</span> <span style="font-size:10px;color:var(--text);margin-left:6px;">' + name + '</span></td>' +
-        '<td style="padding:9px 14px;font-size:10px;color:var(--gold);">' + asset + '</td>' +
-        '<td style="padding:9px 14px;text-align:center;"><span class="congress-type ' + typeClass + '">' + type + '</span></td>' +
-        '<td style="padding:9px 14px;text-align:right;font-size:10px;color:var(--dim);">' + amount + '</td>' +
-        '<td style="padding:9px 14px;text-align:right;font-size:9px;color:var(--muted);">' + filed + '</td>' +
-        '</tr>';
-    }).join('');
-  }).catch(function(e) {
-    console.log('Congress feed error:', e);
+  const USER_IS_ADMIN = {{ 'true' if current_user.is_admin else 'false' }};
+
+  // ── Widget catalog (id → {title, desc, accent, render}) ────────────
+  const WIDGETS = {
+    intel_brief: {title:'Intel Brief', desc:'Morning intelligence: sentiment, narratives, trending language',   accent:'red',    render: renderIntelBrief},
+    pro_metrics: {title:'Pro Metrics', desc:'SSR, MPI, Dormancy Flow, NVT ratio — on-chain pro signals',         accent:'gold',   render: renderProMetrics},
+    options:     {title:'Options Desk',desc:'Put/call ratio, DVOL, max pain, OI distribution',                   accent:'purple', render: renderOptions},
+    futures:     {title:'Futures',     desc:'Funding rate, basis, open interest, mark/index spread',             accent:'orange', render: renderFutures},
+    convergence: {title:'Convergence', desc:'5-axis radar: miner, exchange, social, insider, convergence score', accent:'red',    render: renderConvergence},
+    macro:       {title:'Macro Corr',  desc:'DXY, Gold, S&P, BTC correlations, 10Y yield',                       accent:'blue',   render: renderMacro},
+    alerts:      {title:'Alerts',      desc:'Live pattern matches and active intelligence alerts',               accent:'red',    render: renderAlerts},
+    kol:         {title:'KOL Signal',  desc:'Dominant narrative, top signal, contrarian view',                   accent:'gold',   render: renderKOL},
+    on_chain:    {title:'On-Chain',    desc:'Dormancy, active addresses, TX volume, accumulation score',         accent:'green',  render: renderOnChain},
+    polymarket:  {title:'Polymarket',  desc:'Prediction market sentiment and top market',                        accent:'purple', render: renderPolymarket},
+    exchange_flow:{title:'Exchange Flow',desc:'Exchange pressure signal + whale alert feed',                     accent:'blue',   render: renderExchangeFlow},
+    command_lanes:{title:'Command Lanes',desc:'Quick nav to PP tools (pinned, cannot be removed)',               accent:'gold',   render: renderLanes},
+  };
+
+  let LAYOUT = [];
+  let INTEL  = {};
+  let EDIT_MODE = false;
+  let DRAG = null;
+
+  // ── Fetch layout + intel in parallel ───────────────────────────────
+  Promise.all([
+    fetch('/api/hub/layout', {credentials:'same-origin'}).then(r=>r.json()).catch(e=>({widgets:[]})),
+    fetch('/api/hub/intel',  {credentials:'same-origin'}).then(r=>r.json()).catch(e=>({})),
+  ]).then(([layoutResp, intelResp])=>{
+    LAYOUT = (layoutResp.widgets || []).sort(sortGrid);
+    INTEL  = intelResp || {};
+    renderGrid();
+    renderPCAF(INTEL.pcaf_score);
+    renderNotifications(INTEL.alerts || []);
   });
-}
-loadCongress();
-setInterval(loadCongress, 120000);
 
-// ── Live price refresh ─────────────────────────────────────────────────────
-function refreshLive() {
-  fetch('/api/network-data').then(function(r){ return r.json(); }).then(function(d) {
-    if (d.btc_price) {
-      var el = document.getElementById('kpi-price');
-      if (el) el.textContent = '$' + d.btc_price.toLocaleString('en-US', {maximumFractionDigits:0});
+  function sortGrid(a,b){
+    if (a.position_y !== b.position_y) return a.position_y - b.position_y;
+    return a.position_x - b.position_x;
+  }
+
+  // ── Render the grid ────────────────────────────────────────────────
+  function renderGrid(){
+    const grid = document.getElementById('hub2-grid');
+    grid.innerHTML = '';
+    LAYOUT.filter(w => w.enabled).forEach((w, idx) => {
+      const def = WIDGETS[w.widget_id];
+      if (!def) return;
+      const el = document.createElement('div');
+      el.className = 'widget' + (w.width >= 2 ? ' w-2':'') + (w.height >= 2 ? ' h-2':'') + (w.collapsed?' collapsed':'');
+      el.dataset.widgetId = w.widget_id;
+      el.dataset.accent = def.accent;
+      el.style.animationDelay = (idx * 50) + 'ms';
+      el.draggable = false;
+
+      el.innerHTML = `
+        <div class="widget-edit-bar">
+          <button class="widget-edit-btn" data-act="resize" title="Resize">${w.width >= 2 ? '◧' : '◨'}</button>
+          <button class="widget-edit-btn" data-act="collapse" title="Collapse">${w.collapsed?'▾':'▴'}</button>
+          <button class="widget-edit-btn" data-act="remove" title="Hide">✕</button>
+        </div>
+        <div class="widget-head">
+          <div class="widget-title"><span class="dot"></span>${def.title}</div>
+          <div class="widget-badge-slot"></div>
+        </div>
+        <div class="widget-body"></div>
+      `;
+
+      const body = el.querySelector('.widget-body');
+      const badgeSlot = el.querySelector('.widget-badge-slot');
+      try {
+        def.render(body, INTEL[w.widget_id] || INTEL, badgeSlot);
+      } catch(e) {
+        console.error('render error', w.widget_id, e);
+        body.innerHTML = '<div class="w-empty">Data unavailable</div>';
+      }
+
+      el.querySelectorAll('.widget-edit-btn').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          handleWidgetAction(w.widget_id, btn.dataset.act);
+        });
+      });
+
+      // Drag events
+      el.addEventListener('dragstart', onDragStart);
+      el.addEventListener('dragover',  onDragOver);
+      el.addEventListener('dragleave', onDragLeave);
+      el.addEventListener('drop',      onDrop);
+      el.addEventListener('dragend',   onDragEnd);
+
+      grid.appendChild(el);
+    });
+  }
+
+  function handleWidgetAction(wid, act){
+    const w = LAYOUT.find(x => x.widget_id === wid);
+    if (!w) return;
+    if (act === 'resize'){
+      w.width = w.width >= 2 ? 1 : 2;
+    } else if (act === 'collapse'){
+      w.collapsed = !w.collapsed;
+    } else if (act === 'remove'){
+      if (wid === 'command_lanes'){ toast('Command Lanes cannot be hidden'); return; }
+      w.enabled = false;
+      toggleWidget(wid, false);
     }
-    if (d.block_height) {
-      var el2 = document.getElementById('hub-block');
-      if (el2) el2.textContent = d.block_height.toLocaleString();
-      var el3 = document.getElementById('kpi-block');
-      if (el3) el3.textContent = d.block_height.toLocaleString();
+    saveLayout();
+    renderGrid();
+    applyEditMode();
+  }
+
+  // ── Drag & drop ─────────────────────────────────────────────────────
+  function onDragStart(e){
+    if (!EDIT_MODE) { e.preventDefault(); return; }
+    DRAG = this.dataset.widgetId;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', DRAG); } catch(_){}
+  }
+  function onDragOver(e){
+    if (!EDIT_MODE || !DRAG) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (this.dataset.widgetId !== DRAG) this.classList.add('drop-target');
+  }
+  function onDragLeave(){ this.classList.remove('drop-target'); }
+  function onDrop(e){
+    e.preventDefault();
+    this.classList.remove('drop-target');
+    const target = this.dataset.widgetId;
+    if (!DRAG || !target || target === DRAG) return;
+    swapPositions(DRAG, target);
+    saveLayout();
+    renderGrid();
+    applyEditMode();
+  }
+  function onDragEnd(){
+    document.querySelectorAll('.widget').forEach(el => el.classList.remove('dragging','drop-target'));
+    DRAG = null;
+  }
+  function swapPositions(aId, bId){
+    const a = LAYOUT.find(x => x.widget_id === aId);
+    const b = LAYOUT.find(x => x.widget_id === bId);
+    if (!a || !b) return;
+    const tx = a.position_x, ty = a.position_y;
+    a.position_x = b.position_x; a.position_y = b.position_y;
+    b.position_x = tx;           b.position_y = ty;
+  }
+
+  // ── Save + toggle + reset ──────────────────────────────────────────
+  function saveLayout(){
+    fetch('/api/hub/layout', {
+      method:'PATCH', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({widgets: LAYOUT})
+    }).catch(()=>{});
+  }
+  function toggleWidget(widget_id, enabled){
+    fetch('/api/hub/widget-toggle', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({widget_id, enabled})
+    }).catch(()=>{});
+  }
+  function resetLayout(){
+    if (!confirm('Reset hub to default layout?')) return;
+    fetch('/api/hub/layout/reset', {method:'POST', credentials:'same-origin'})
+      .then(()=>location.reload());
+  }
+
+  // ── Edit mode toggle ───────────────────────────────────────────────
+  function applyEditMode(){
+    document.body.classList.toggle('hub2-edit', EDIT_MODE);
+    document.getElementById('hub2-edit-btn').classList.toggle('on', EDIT_MODE);
+    document.querySelectorAll('.widget').forEach(el => { el.draggable = EDIT_MODE; });
+  }
+
+  document.getElementById('hub2-edit-btn').addEventListener('click', () => {
+    EDIT_MODE = !EDIT_MODE;
+    applyEditMode();
+    if (!EDIT_MODE) toast('Layout saved');
+  });
+  document.getElementById('hub2-reset-btn').addEventListener('click', resetLayout);
+
+  // ── Add-widget catalog ─────────────────────────────────────────────
+  document.getElementById('hub2-add-btn').addEventListener('click', openCatalog);
+  document.getElementById('catalog-close').addEventListener('click', closeCatalog);
+  document.getElementById('catalog-backdrop').addEventListener('click', closeCatalog);
+  function openCatalog(){
+    const grid = document.getElementById('catalog-grid');
+    grid.innerHTML = '';
+    Object.entries(WIDGETS).forEach(([id, def]) => {
+      const w = LAYOUT.find(x => x.widget_id === id);
+      const on = w && w.enabled;
+      const el = document.createElement('div');
+      el.className = 'catalog-item' + (on?' on':'');
+      el.innerHTML = `<div class="catalog-item-name">${def.title}</div><div class="catalog-item-desc">${def.desc}</div>`;
+      el.addEventListener('click', () => {
+        if (id === 'command_lanes' && on) return;
+        const nextEnabled = !on;
+        if (w) w.enabled = nextEnabled;
+        else LAYOUT.push({widget_id:id, enabled:true, position_x:0, position_y:99, width:1, height:1, collapsed:false, settings:{}});
+        toggleWidget(id, nextEnabled);
+        saveLayout();
+        renderGrid();
+        applyEditMode();
+        closeCatalog();
+      });
+      grid.appendChild(el);
+    });
+    document.getElementById('catalog').classList.add('open');
+    document.getElementById('catalog-backdrop').classList.add('open');
+  }
+  function closeCatalog(){
+    document.getElementById('catalog').classList.remove('open');
+    document.getElementById('catalog-backdrop').classList.remove('open');
+  }
+
+  // ── Notification drawer ────────────────────────────────────────────
+  document.getElementById('hub2-bell').addEventListener('click', () => {
+    document.getElementById('notif-drawer').classList.toggle('open');
+  });
+  document.getElementById('notif-close').addEventListener('click', () => {
+    document.getElementById('notif-drawer').classList.remove('open');
+  });
+  function renderNotifications(alerts){
+    const body = document.getElementById('notif-body');
+    const badge = document.getElementById('hub2-bell-badge');
+    if (!alerts || !alerts.length){
+      body.innerHTML = '<div class="notif-empty">No active alerts</div>';
+      badge.style.display = 'none';
+      return;
     }
-  }).catch(function(){});
-  
-  // Refresh mempool fees
-  fetch('https://mempool.space/api/v1/fees/recommended').then(function(r){ return r.json(); }).then(function(f) {
-    var fast = document.getElementById('fee-fast');
-    var mid = document.getElementById('fee-mid');
-    var slow = document.getElementById('fee-slow');
-    var kpiFees = document.getElementById('kpi-fees');
-    if (fast) fast.textContent = f.fastestFee;
-    if (mid)  mid.textContent  = f.halfHourFee;
-    if (slow) slow.textContent = f.economyFee;
-    if (kpiFees) kpiFees.textContent = f.fastestFee;
-  }).catch(function(){});
-}
-refreshLive();
-setInterval(refreshLive, 60000);
+    badge.textContent = alerts.length;
+    badge.style.display = 'flex';
+    body.innerHTML = alerts.map(a => `
+      <div class="alert-item ${a.severity||'WATCH'}">
+        <div class="alert-title">${escapeHtml(a.title||'Alert')}</div>
+        <div class="alert-desc">${escapeHtml(a.description||'')}</div>
+        <div class="alert-meta">${escapeHtml(a.pattern_id||'')} · ${escapeHtml((a.ts||'').replace('T',' ').slice(0,16))}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── UTC clock ──────────────────────────────────────────────────────
+  function tickClock(){
+    const d = new Date();
+    const pad = x => String(x).padStart(2,'0');
+    document.getElementById('hub2-clock').textContent = pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+':'+pad(d.getUTCSeconds());
+  }
+  setInterval(tickClock, 1000); tickClock();
+
+  // ── PCAF ring ──────────────────────────────────────────────────────
+  function renderPCAF(score){
+    const el = document.getElementById('hub2-pcaf');
+    const fill = document.getElementById('hub2-pcaf-fill');
+    if (score == null) { el.textContent = '—'; return; }
+    const s = Math.max(0, Math.min(100, Number(score)));
+    el.textContent = Math.round(s);
+    const circ = 2 * Math.PI * 22; // 138.23
+    fill.setAttribute('stroke-dasharray', circ.toFixed(2));
+    fill.setAttribute('stroke-dashoffset', (circ * (1 - s/100)).toFixed(2));
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // WIDGET RENDERERS
+  // ══════════════════════════════════════════════════════════════════
+  function fmt(n, dig){
+    if (n == null || isNaN(n)) return '—';
+    const d = dig == null ? 2 : dig;
+    return Number(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+  }
+  function fmtInt(n){
+    if (n == null || isNaN(n)) return '—';
+    return Math.round(Number(n)).toLocaleString('en-US');
+  }
+  function fmtBig(n){
+    if (n == null || isNaN(n)) return '—';
+    const x = Math.abs(n);
+    if (x >= 1e12) return (n/1e12).toFixed(2)+'T';
+    if (x >= 1e9)  return (n/1e9).toFixed(2)+'B';
+    if (x >= 1e6)  return (n/1e6).toFixed(2)+'M';
+    if (x >= 1e3)  return (n/1e3).toFixed(1)+'K';
+    return fmt(n,0);
+  }
+  function escapeHtml(s){
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+
+  function renderIntelBrief(body, data, badge){
+    const d = INTEL.intel_brief || {};
+    const sent = (d.sentiment || 'neutral').toLowerCase();
+    badge.innerHTML = `<span class="widget-badge ${sent}">${(d.date||'LIVE').toUpperCase()}</span>`;
+    const arrow = sent==='bullish'?'▲':sent==='bearish'?'▼':'◆';
+    body.innerHTML = `
+      <div class="brief-verdict ${sent}">${arrow} ${sent.toUpperCase()}</div>
+      <div class="brief-reason">${escapeHtml(d.sentiment_reasoning || 'Intelligence brief loading…')}</div>
+      <div class="brief-section-label">Dominant Narratives</div>
+      ${(d.dominant_narratives||[]).map(n => `<div class="brief-narrative">${escapeHtml(n)}</div>`).join('') || '<div class="brief-narrative">—</div>'}
+      <div class="brief-section-label">Trending Language</div>
+      <div class="brief-tags">${(d.trending_language||[]).map(t => `<span class="brief-tag">${escapeHtml(t)}</span>`).join('')||'<span class="brief-tag">—</span>'}</div>
+    `;
+  }
+
+  function renderProMetrics(body, data, badge){
+    const d = INTEL.pro_metrics || {};
+    badge.innerHTML = '<span class="widget-badge neutral">DERIVED</span>';
+    const rows = [
+      ['SSR',   d.ssr?.value,   d.ssr?.signal,   d.ssr?.description, 2],
+      ['MPI',   d.mpi?.value,   d.mpi?.signal,   d.mpi?.description, 3],
+      ['DORMANCY', d.dormancy_flow?.value, d.dormancy_flow?.signal, d.dormancy_flow?.description, 1],
+    ];
+    body.innerHTML = rows.map(([label, val, sig, desc, dig]) => `
+      <div class="w-row">
+        <span class="w-row-label">${label}</span>
+        <span style="display:flex;align-items:center;gap:6px;">
+          <span class="w-row-val gold">${fmt(val,dig)}</span>
+          <span class="w-sig-pill ${sig||'NEUTRAL'}">${sig||'—'}</span>
+        </span>
+      </div>
+    `).join('') + `
+      <div class="w-row">
+        <span class="w-row-label">NVT RATIO</span>
+        <span class="w-row-val">${fmt(d.nvt_ratio,1)}</span>
+      </div>
+    `;
+  }
+
+  function renderOptions(body, data, badge){
+    const d = INTEL.options || {};
+    badge.innerHTML = '<span class="widget-badge live">DERIBIT</span>';
+    const pc = d.put_call_ratio;
+    const pcColor = pc != null ? (pc > 1 ? 'red' : pc < 0.6 ? 'green' : 'gold') : '';
+    const callOi = d.total_call_oi||0, putOi = d.total_put_oi||0, totalOi = callOi + putOi || 1;
+    const callPct = (callOi/totalOi*100).toFixed(1);
+    body.innerHTML = `
+      <div class="w-gauge">
+        <svg viewBox="0 0 120 68">
+          <path d="M 10 60 A 50 50 0 0 1 110 60" stroke="#1a1a1a" stroke-width="6" fill="none"/>
+          <path d="M 10 60 A 50 50 0 0 1 110 60" stroke="${pcColor==='red'?'#CC0000':pcColor==='green'?'#22c55e':'#F8C15C'}" stroke-width="6" fill="none"
+                stroke-dasharray="${Math.min(pc||0,2)/2*157} 157"/>
+          <text x="60" y="56" text-anchor="middle" font-size="16" font-weight="900" fill="${pcColor==='red'?'#CC0000':pcColor==='green'?'#22c55e':'#F8C15C'}" font-family="JetBrains Mono">${fmt(pc,3)}</text>
+        </svg>
+        <div class="w-gauge-label">PUT / CALL RATIO</div>
+      </div>
+      <div class="w-grid-2" style="margin-top:12px;">
+        <div class="w-stat"><span class="w-stat-label">DVOL</span><span class="w-stat-val gold">${fmt(d.dvol,1)}</span></div>
+        <div class="w-stat"><span class="w-stat-label">MAX PAIN</span><span class="w-stat-val">$${fmtBig(d.max_pain)}</span></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="w-row-label" style="font-size:7px;">OPEN INTEREST</div>
+        <div style="display:flex;height:14px;background:var(--border);margin-top:4px;">
+          <div style="width:${callPct}%;background:var(--green);"></div>
+          <div style="flex:1;background:var(--red);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:8px;margin-top:3px;color:var(--muted);">
+          <span style="color:var(--green);">CALL ${fmtBig(callOi)}</span>
+          <span style="color:var(--red);">PUT ${fmtBig(putOi)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFutures(body, data, badge){
+    const d = INTEL.futures || {};
+    const fr = d.funding_rate;
+    const frPct = fr != null ? (fr * 100) : null;
+    const frClass = frPct != null ? (frPct > 0 ? 'green' : 'red') : '';
+    badge.innerHTML = '<span class="widget-badge live">PERP</span>';
+    body.innerHTML = `
+      <div class="w-grid-2" style="margin-bottom:10px;">
+        <div class="w-stat"><span class="w-stat-label">FUNDING</span><span class="w-stat-val ${frClass}">${frPct != null ? (frPct>=0?'+':'') + fmt(frPct,4)+'%' : '—'}</span></div>
+        <div class="w-stat"><span class="w-stat-label">BASIS (ANN.)</span><span class="w-stat-val ${d.annualized_basis>=0?'green':'red'}">${d.annualized_basis != null ? (d.annualized_basis>=0?'+':'') + fmt(d.annualized_basis,2)+'%':'—'}</span></div>
+      </div>
+      <div class="w-row"><span class="w-row-label">OI (BTC)</span><span class="w-row-val gold">${fmtBig(d.open_interest)}</span></div>
+      <div class="w-row"><span class="w-row-label">OI (USD)</span><span class="w-row-val gold">$${fmtBig(d.open_interest_usd)}</span></div>
+      <div class="w-row"><span class="w-row-label">MARK</span><span class="w-row-val">$${fmtInt(d.mark_price)}</span></div>
+      <div class="w-row"><span class="w-row-label">INDEX</span><span class="w-row-val">$${fmtInt(d.index_price)}</span></div>
+      <div class="w-row"><span class="w-row-label">BASIS %</span><span class="w-row-val ${d.basis_pct>=0?'green':'red'}">${d.basis_pct != null ? (d.basis_pct>=0?'+':'') + fmt(d.basis_pct,3)+'%':'—'}</span></div>
+    `;
+  }
+
+  function renderConvergence(body, data, badge){
+    const d = INTEL.convergence || {};
+    const axes = [
+      {k:'miner_conviction',  label:'MINER CONVICTION', score:d.miner_conviction?.score},
+      {k:'exchange_pressure', label:'EXCHANGE PRESSURE', score:d.exchange_pressure?.score},
+      {k:'social_divergence', label:'SOCIAL DIVERGENCE', score:d.social_divergence?.score},
+      {k:'insider_heat',      label:'INSIDER HEAT',     score:d.insider_heat?.score},
+      {k:'convergence_score', label:'CONVERGENCE',      score:d.score},
+    ];
+    const pattern = d.pattern || '—';
+    const patternClass = pattern === 'BULLISH' ? 'bullish' : pattern === 'BEARISH' ? 'bearish' : 'neutral';
+    badge.innerHTML = `<span class="widget-badge ${patternClass}">${pattern}</span>`;
+
+    // Build pentagon radar chart
+    const cx = 130, cy = 105, r = 78;
+    const pts = axes.map((a, i) => {
+      const ang = -Math.PI/2 + (i * 2 * Math.PI / 5);
+      const v = Math.max(0, Math.min(100, Number(a.score)||0)) / 100;
+      return {
+        x: cx + Math.cos(ang) * r * v,
+        y: cy + Math.sin(ang) * r * v,
+        lx: cx + Math.cos(ang) * (r+15),
+        ly: cy + Math.sin(ang) * (r+15),
+      };
+    });
+    const polygon = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const rings = [0.25, 0.5, 0.75, 1.0].map(scale => {
+      const ringPts = axes.map((_, i) => {
+        const ang = -Math.PI/2 + (i * 2 * Math.PI / 5);
+        return `${(cx + Math.cos(ang) * r * scale).toFixed(1)},${(cy + Math.sin(ang) * r * scale).toFixed(1)}`;
+      }).join(' ');
+      return `<polygon points="${ringPts}" fill="none" stroke="#242424" stroke-width="1"/>`;
+    }).join('');
+
+    body.innerHTML = `
+      <svg class="w-radar" viewBox="0 0 260 210" preserveAspectRatio="xMidYMid meet">
+        ${rings}
+        ${axes.map((a, i) => {
+          const ang = -Math.PI/2 + (i * 2 * Math.PI / 5);
+          return `<line x1="${cx}" y1="${cy}" x2="${(cx+Math.cos(ang)*r).toFixed(1)}" y2="${(cy+Math.sin(ang)*r).toFixed(1)}" stroke="#242424" stroke-width="1"/>`;
+        }).join('')}
+        <polygon points="${polygon}" fill="rgba(204,0,0,0.18)" stroke="#CC0000" stroke-width="1.5"/>
+        ${pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#F8C15C"/>`).join('')}
+        ${axes.map((a,i) => `<text x="${pts[i].lx.toFixed(1)}" y="${pts[i].ly.toFixed(1)}" fill="#888" font-size="7" font-family="JetBrains Mono" text-anchor="middle">${a.label}</text>`).join('')}
+      </svg>
+      <div class="w-radar-legend">
+        ${axes.map(a => `<div class="w-radar-legend-row"><span style="color:var(--muted);">${a.label.split(' ')[0]}</span><span style="color:var(--gold);">${fmt(a.score,1)}</span></div>`).join('')}
+      </div>
+      <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:8px;color:var(--dim);letter-spacing:.12em;">
+        THESIS: <span style="color:var(--gold);">${escapeHtml(d.thesis||'—')}</span> · CONF <span style="color:var(--gold);">${fmt((d.confidence||0)*100,0)}%</span>
+      </div>
+    `;
+  }
+
+  function renderMacro(body, data, badge){
+    const d = INTEL.macro || {};
+    badge.innerHTML = '<span class="widget-badge live">TRADFI</span>';
+    const corrDxy = d.btc_vs_dxy_30d_corr;
+    const corrGold = d.btc_vs_gold_30d_corr;
+    body.innerHTML = `
+      <div class="w-row"><span class="w-row-label">DXY</span><span class="w-row-val">${fmt(d.dxy,2)}</span></div>
+      <div class="w-row"><span class="w-row-label">GOLD / OZ</span><span class="w-row-val gold">$${fmt(d.gold_price,0)}</span></div>
+      <div class="w-row"><span class="w-row-label">S&P 500</span><span class="w-row-val">${fmt(d.sp500,0)}</span></div>
+      <div class="w-row"><span class="w-row-label">10Y YIELD</span><span class="w-row-val">${fmt(d.ten_year_yield,2)}%</span></div>
+      <div class="w-row"><span class="w-row-label">BTC / DXY 30D</span><span class="w-row-val ${corrDxy>=0?'green':'red'}">${corrDxy!=null?(corrDxy>=0?'+':'')+fmt(corrDxy,3):'—'}</span></div>
+      <div class="w-row"><span class="w-row-label">BTC / GOLD 30D</span><span class="w-row-val ${corrGold>=0?'green':'red'}">${corrGold!=null?(corrGold>=0?'+':'')+fmt(corrGold,3):'—'}</span></div>
+    `;
+  }
+
+  function renderAlerts(body, data, badge){
+    const d = INTEL.alerts || [];
+    badge.innerHTML = `<span class="widget-badge live">${d.length} ACTIVE</span>`;
+    if (!d.length){ body.innerHTML = '<div class="w-empty">No pattern matches in current window</div>'; return; }
+    body.innerHTML = d.map(a => `
+      <div class="alert-item ${a.severity||'WATCH'}">
+        <div class="alert-title">${escapeHtml(a.title||'')}</div>
+        <div class="alert-desc">${escapeHtml(a.description||'')}</div>
+        <div class="alert-meta">${escapeHtml(a.pattern_id||'')}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderKOL(body, data, badge){
+    const d = INTEL.kol || {};
+    const sent = (d.sentiment||'neutral').toLowerCase();
+    badge.innerHTML = `<span class="widget-badge ${sent}">${sent.toUpperCase()}</span>`;
+    body.innerHTML = `
+      <div class="kol-banner ${sent}">◆ CONSENSUS · ${sent.toUpperCase()}</div>
+      <div class="kol-section">${escapeHtml(d.dominant_narrative||'—')}</div>
+      ${d.top_signal ? `<div class="kol-signal-box">▸ ${escapeHtml(d.top_signal)}</div>` : ''}
+      ${d.contrarian_view && d.contrarian_view !== 'None detected' ? `<div class="kol-signal-box contra">⚠ ${escapeHtml(d.contrarian_view)}</div>` : ''}
+      <div class="kol-voices">${d.voices_sampled||0} voices · ${(d.kol_handles_seen||[]).slice(0,4).map(h=>'@'+escapeHtml(h)).join(', ')}</div>
+    `;
+  }
+
+  function renderOnChain(body, data, badge){
+    const d = INTEL.on_chain || {};
+    badge.innerHTML = '<span class="widget-badge live">7D</span>';
+    const accu = d.accumulation_score;
+    const accuColor = accu > 60 ? 'var(--green)' : accu > 40 ? 'var(--gold)' : 'var(--red)';
+    body.innerHTML = `
+      <div class="w-row"><span class="w-row-label">CDD 7D</span><span class="w-row-val gold">${fmtBig(d.coin_days_destroyed_7d)}</span></div>
+      <div class="w-row"><span class="w-row-label">ACTIVE ADDR</span><span class="w-row-val">${fmtBig(d.active_addresses_7d)}</span></div>
+      <div class="w-row"><span class="w-row-label">TX VOL USD</span><span class="w-row-val gold">$${fmtBig(d.tx_volume_usd_7d)}</span></div>
+      <div class="w-row"><span class="w-row-label">NVT RATIO</span><span class="w-row-val">${fmt(d.nvt_ratio,1)}</span></div>
+      <div style="margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--muted);letter-spacing:.15em;margin-bottom:4px;">
+          <span>ACCUMULATION SCORE</span><span style="color:${accuColor};font-weight:900;">${fmt(accu,0)}/100</span>
+        </div>
+        <div class="w-bar"><div class="w-bar-fill" style="width:${Math.max(0,Math.min(100,Number(accu)||0))}%;background:${accuColor};"></div></div>
+      </div>
+    `;
+  }
+
+  function renderPolymarket(body, data, badge){
+    const d = INTEL.polymarket || {};
+    badge.innerHTML = '<span class="widget-badge live">POLY</span>';
+    const sent = d.macro_sentiment;
+    const sentClass = sent > 60 ? 'green' : sent > 40 ? 'gold' : 'red';
+    body.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="w-stat">
+          <span class="w-stat-label">MACRO SENTIMENT</span>
+          <span class="w-stat-val ${sentClass}">${fmt(sent,0)}<span style="font-size:9px;color:var(--muted);font-weight:400;"> /100</span></span>
+          <div class="w-bar" style="margin-top:4px;"><div class="w-bar-fill" style="width:${sent||0}%;background:var(--${sentClass==='green'?'green':sentClass==='red'?'red':'gold'});"></div></div>
+        </div>
+        <div>
+          <div class="w-row-label" style="font-size:7px;margin-bottom:5px;">TOP MARKET</div>
+          <div style="font-size:10px;color:var(--text);line-height:1.55;">${escapeHtml(d.top_market||'—')}</div>
+          <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;">
+            <span class="w-row-label" style="font-size:7px;">PROBABILITY</span>
+            <span class="w-row-val gold" style="font-size:13px;">${fmt(d.top_probability,1)}%</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderExchangeFlow(body, data, badge){
+    const d = INTEL.exchange_flow || {};
+    const sig = (d.signal||'neutral').toLowerCase();
+    const sigClass = sig === 'bullish' ? 'bullish' : sig === 'bearish' ? 'bearish' : 'neutral';
+    badge.innerHTML = `<span class="widget-badge ${sigClass}">${sig.toUpperCase()}</span>`;
+    const alerts = d.whale_alerts || [];
+    body.innerHTML = `
+      <div class="w-row"><span class="w-row-label">FLOW SIGNAL</span><span class="w-sig-pill ${sig.toUpperCase()}">${sig.toUpperCase()}</span></div>
+      <div class="brief-section-label">WHALE FEED · 24H</div>
+      ${alerts.length ? alerts.map(a => {
+        const msg = a.message || '';
+        const btcMatch = msg.match(/([\d.]+)\s*BTC/);
+        const btc = btcMatch ? btcMatch[1] : '—';
+        const ts = a.created_at ? new Date(a.created_at * 1000).toISOString().replace('T',' ').slice(11,16) : '';
+        return `<div class="flow-item">
+          <div class="flow-icon">🐋</div>
+          <div class="flow-body"><b>${btc} BTC</b> &nbsp;<span style="color:var(--muted);font-size:8px;">${escapeHtml((a.tier||'').toUpperCase())}</span></div>
+          <div class="flow-time">${ts}</div>
+        </div>`;
+      }).join('') : '<div class="w-empty" style="padding:10px;">No recent whale activity</div>'}
+    `;
+  }
+
+  function renderLanes(body, data, badge){
+    badge.innerHTML = '<span class="widget-badge neutral">NAV</span>';
+    const links = [
+      ['/panopticon',    'fa-eye',            'Panopticon'],
+      ['/terminal',      'fa-signal',         'Terminal'],
+      ['/live',          'fa-satellite-dish', 'Live'],
+      ['/signal-terminal','fa-chart-line',    'Signal'],
+      ['/articles',      'fa-newspaper',      'Briefs'],
+      ['/whale-watcher', 'fa-fish',           'Whales'],
+      ['/charts',        'fa-chart-area',     'Charts'],
+      ['/sentiment',     'fa-pulse',          'Sentiment'],
+    ];
+    if (USER_IS_ADMIN) links.push(['/admin/board', 'fa-tasks', 'Ops']);
+    body.innerHTML = `<div class="lanes-grid">${links.map(([h,i,t])=>`<a href="${h}" class="lane"><i class="fas ${i}"></i>${t}</a>`).join('')}</div>`;
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────
+  function toast(msg){
+    const t = document.createElement('div');
+    t.className = 'hub2-toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2200);
+  }
+
+  // ── Auto-refresh intel every 5 min ─────────────────────────────────
+  setInterval(() => {
+    fetch('/api/hub/intel', {credentials:'same-origin'}).then(r=>r.json()).then(d => {
+      INTEL = d || INTEL;
+      renderGrid();
+      renderPCAF(INTEL.pcaf_score);
+      renderNotifications(INTEL.alerts || []);
+    }).catch(()=>{});
+  }, 300000);
+
+})();
 </script>
 {% endblock %}
