@@ -1,10 +1,11 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 
 {% block title %}PBX Admin Intelligence — Protocol Pulse{% endblock %}
+{% block admin_title %}DASHBOARD{% endblock %}
 
-{% block content %}
+{% block admin_content %}
 <style>
-  /* ===== Bloomberg Terminal Base ===== */
+  /* ===== Bloomberg Terminal Base (scoped to dashboard) ===== */
   :root {
     --bg:       #000000;
     --surface:  #0a0a0a;
@@ -19,39 +20,26 @@
     --mono:     'JetBrains Mono', 'Courier New', monospace;
   }
 
-  * { box-sizing: border-box; }
-
-  body { background: var(--bg); color: var(--text); }
-
   .pbx-wrap {
     max-width: 1600px;
     margin: 0 auto;
-    padding: 72px 12px 40px;
     font-family: var(--mono);
     font-size: 12px;
   }
 
-  /* ===== Top Bar ===== */
-  .pbx-topbar {
+  /* ===== In-page refresh mini-bar (no duplicate topbar) ===== */
+  .pbx-refreshbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0 12px;
-    border-bottom: 1px solid var(--red);
-    margin-bottom: 16px;
+    padding: 6px 0 10px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
     gap: 8px;
   }
-  .pbx-logo {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--red);
-    text-transform: uppercase;
-  }
-  .pbx-logo span { color: var(--gold); }
   .pbx-clock {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     letter-spacing: 0.06em;
   }
@@ -68,6 +56,45 @@
     transition: all 0.2s;
   }
   .pbx-refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ===== MISSION STATUS widget ===== */
+  .mission-status {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--red);
+    margin-bottom: 16px;
+  }
+  .ms-cell {
+    background: var(--surface);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .ms-val {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .ms-val.green { color: var(--green); }
+  .ms-val.red { color: var(--red); }
+  .ms-label {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  @media (max-width: 900px) {
+    .mission-status { grid-template-columns: repeat(3, 1fr); }
+    .ms-cell:last-child { grid-column: span 3; }
+  }
+  @media (max-width: 500px) {
+    .mission-status { grid-template-columns: repeat(2, 1fr); }
+    .ms-val { font-size: 18px; }
+  }
 
   /* ===== Sections ===== */
   .pbx-section {
@@ -314,19 +341,40 @@
   @media (max-width: 600px) {
     .metric-grid { grid-template-columns: repeat(2, 1fr); }
     .gpu-grid { grid-template-columns: repeat(2, 1fr); }
-    .pbx-wrap { padding-top: 60px; }
   }
 </style>
 
 <div class="pbx-wrap">
 
-  <!-- Top Bar -->
-  <div class="pbx-topbar">
-    <div class="pbx-logo">Protocol <span>Pulse</span> // PBX ADMIN INTELLIGENCE</div>
+  <!-- MISSION STATUS -->
+  <div class="mission-status" id="mission-status">
+    <div class="ms-cell">
+      <div class="ms-val green" id="ms-subs">—</div>
+      <div class="ms-label">Active Subscribers</div>
+    </div>
+    <div class="ms-cell">
+      <div class="ms-val" id="ms-prospects-sent">—</div>
+      <div class="ms-label">Prospects Contacted</div>
+    </div>
+    <div class="ms-cell">
+      <div class="ms-val green" id="ms-prospects-replied">—</div>
+      <div class="ms-label">Replies</div>
+    </div>
+    <div class="ms-cell">
+      <div class="ms-val" id="ms-board-inprogress">—</div>
+      <div class="ms-label">Cards In Progress</div>
+    </div>
+    <div class="ms-cell">
+      <div class="ms-val" id="ms-render" style="font-size:13px;">—</div>
+      <div class="ms-label">Last Render</div>
+    </div>
+  </div>
+
+  <!-- Refresh mini-bar -->
+  <div class="pbx-refreshbar">
     <div class="pbx-clock">
-      UTC <span id="utc-clock">--:--:--</span>
-      &nbsp;|&nbsp; REFRESHED <span id="last-refresh-ts">—</span>
-      &nbsp;|&nbsp; <span id="refresh-countdown" style="color:var(--muted)">30s</span>
+      REFRESHED <span id="last-refresh-ts">—</span>
+      &nbsp;|&nbsp; NEXT <span id="refresh-countdown" style="color:var(--muted)">30s</span>
     </div>
     <button class="pbx-refresh-btn" onclick="refreshAll(true)">&#8635; REFRESH NOW</button>
   </div>
@@ -665,26 +713,6 @@
     </div>
   </div>
 
-  <!-- ================== QUICK NAV ================== -->
-  <div style="margin-top:16px;padding:10px 0;border-top:1px solid var(--border);">
-    <div style="font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">ADMIN LINKS</div>
-    <div class="action-strip">
-      <a class="action-btn" href="/admin/generate">AI GENERATE</a>
-      <a class="action-btn" href="/admin/write">WRITE</a>
-      <a class="action-btn" href="/admin/ads">ADS</a>
-      <a class="action-btn" href="/admin/youtube-auth">YOUTUBE</a>
-      <a class="action-btn" style="background:rgba(204,0,0,0.08);border-color:var(--red);color:var(--red);font-weight:900;" href="/admin/board">⬛ OPS BOARD</a>
-      <a class="action-btn" style="border-color:var(--green);color:var(--green);font-weight:700;" href="/admin/outreach">✉ OUTREACH</a>
-      <a class="action-btn gold-border" href="/admin/revenue">REVENUE</a>
-      <a class="action-btn gold-border" href="/admin/analytics">ANALYTICS</a>
-      <a class="action-btn gold-border" href="/admin/command-deck">COMMAND DECK</a>
-      <a class="action-btn gold-border" href="/sentiment">SENTIMENT</a>
-      <a class="action-btn gold-border" href="/admin/newsletter">NEWSLETTER</a>
-      <a class="action-btn" href="/terminal">TERMINAL</a>
-      <a class="action-btn" href="/charts">CHARTS</a>
-    </div>
-  </div>
-
 </div><!-- /pbx-wrap -->
 
 <script>
@@ -988,7 +1016,7 @@ async function refreshAll(manual) {
 
   const keys = Object.keys(ENDPOINTS);
   // fetch in parallel
-  await Promise.allSettled([...keys.map(k => fetchSection(k)), fetchNewsletter()]);
+  await Promise.allSettled([...keys.map(k => fetchSection(k)), fetchNewsletter(), fetchMissionStatus()]);
 }
 
 function startCountdown() {
@@ -1004,13 +1032,37 @@ function startCountdown() {
   }, 1000);
 }
 
-// UTC clock
-function tickClock() {
-  const el = document.getElementById('utc-clock');
-  if (el) el.textContent = new Date().toISOString().slice(11,19);
+// ======================================================
+// MISSION STATUS (top widget)
+// ======================================================
+async function fetchMissionStatus() {
+  try {
+    const r = await fetch('/api/admin/mission-status');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    setText('ms-subs', fmtNum(d.subscribers));
+    setText('ms-prospects-sent', fmtNum(d.prospects_sent) + '/' + fmtNum(d.prospects_total || 0));
+    setText('ms-prospects-replied', fmtNum(d.prospects_replied));
+    setText('ms-board-inprogress', fmtNum(d.board_in_progress));
+    const renderEl = document.getElementById('ms-render');
+    if (renderEl) {
+      if (d.last_render_date) {
+        renderEl.textContent = d.last_render_date.slice(0, 10);
+        renderEl.className = 'ms-val green';
+        renderEl.style.fontSize = '13px';
+      } else {
+        renderEl.textContent = 'n/a';
+        renderEl.className = 'ms-val red';
+        renderEl.style.fontSize = '13px';
+      }
+    }
+    // Urgent board cards warning color
+    const boardEl = document.getElementById('ms-board-inprogress');
+    if (boardEl && d.board_urgent > 0) boardEl.className = 'ms-val red';
+  } catch(e) {
+    console.error('Mission status fetch failed:', e);
+  }
 }
-setInterval(tickClock, 1000);
-tickClock();
 
 // ======================================================
 // NEWSLETTER INTELLIGENCE
@@ -1136,7 +1188,10 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
   refreshAll(true);
   fetchNewsletter();
+  fetchMissionStatus();
   startCountdown();
+  // Mission status refresh every 60s
+  setInterval(fetchMissionStatus, 60000);
 });
 </script>
 {% endblock %}

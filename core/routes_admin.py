@@ -3576,6 +3576,71 @@ def api_board_stats():
                     'total': sum(counts.values())})
 
 
+@admin_bp.route('/api/admin/mission-status', methods=['GET'])
+@login_required
+def api_admin_mission_status():
+    """Mission control summary for the unified admin dashboard widget."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+
+    # Active newsletter subscribers
+    try:
+        subscribers = models.NewsletterSubscriber.query.filter_by(subscribed=True).count()
+    except Exception:
+        subscribers = 0
+
+    # Outreach totals
+    try:
+        prospects_total = models.SponsorOutreach.query.count()
+        prospects_sent = models.SponsorOutreach.query.filter(
+            models.SponsorOutreach.status.in_(['contacted', 'replied', 'deal'])
+        ).count()
+        prospects_replied = models.SponsorOutreach.query.filter(
+            models.SponsorOutreach.replied_at.isnot(None)
+        ).count()
+    except Exception:
+        prospects_total = prospects_sent = prospects_replied = 0
+
+    # Board counts
+    try:
+        board_in_progress = models.BoardCard.query.filter(
+            models.BoardCard.column == 'in_progress'
+        ).count()
+        board_urgent = models.BoardCard.query.filter(
+            models.BoardCard.priority == 'urgent',
+            models.BoardCard.column != 'done',
+            models.BoardCard.column != 'archived'
+        ).count()
+    except Exception:
+        board_in_progress = board_urgent = 0
+
+    # Last render
+    last_render_date = None
+    try:
+        report_paths = [
+            os.path.expanduser('~/protocol_pulse/logs/daily_pulse.report.json'),
+            os.path.expanduser('~/protocol_pulse/logs/medley_pipeline_report.json'),
+            os.path.expanduser('~/protocol_pulse/logs/medley_daily_beat.report.json'),
+        ]
+        for rpath in report_paths:
+            if os.path.exists(rpath):
+                mtime = os.path.getmtime(rpath)
+                last_render_date = datetime.utcfromtimestamp(mtime).isoformat() + 'Z'
+                break
+    except Exception:
+        pass
+
+    return jsonify({
+        'subscribers': subscribers,
+        'prospects_total': prospects_total,
+        'prospects_sent': prospects_sent,
+        'prospects_replied': prospects_replied,
+        'board_in_progress': board_in_progress,
+        'board_urgent': board_urgent,
+        'last_render_date': last_render_date,
+    })
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SPONSOR OUTREACH COMMAND CENTER
 # ═══════════════════════════════════════════════════════════════════════════
