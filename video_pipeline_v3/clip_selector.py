@@ -257,6 +257,7 @@ def _format_transcripts(videos: list) -> str:
             f"Title: {v['title']}\n"
             f"Video ID: {v['video_id']}\n"
             f"Duration: {v['duration']}s\n"
+            f"Views: {v.get('view_count', 0):,} | Uploaded: {v.get('upload_date', 'unknown')}\n"
             f"Transcript:\n{timestamped}\n"
         )
     return "\n".join(parts)
@@ -764,8 +765,25 @@ def _select_clips_local(videos, max_clips=5):
     transcripts_text = _format_transcripts(_shuffled_videos)
 
     prompt = (
-        f"Pick the {max_clips} BEST clip moments from these Bitcoin videos. "
-        f"Each from a DIFFERENT channel. 30-50 seconds each. NO ad reads. CRITICAL: Each clip MUST contain a COMPLETE thought — the speaker must finish their point. Never cut a clip before the speaker reaches their conclusion. Pick timestamps where the speaker starts AND finishes a self-contained argument.\n"
+        f"You are a viral clip scout for a Bitcoin intelligence show. Find the {max_clips} most COMPELLING moments from these videos.\n"
+        f"\n"
+        f"VIRAL MOMENT CRITERIA (rank candidates on these):\n"
+        f"- CONTROVERSY: Bold claims others would disagree with\n"
+        f"- SPECIFICITY: Concrete numbers, predictions, data points — not vague takes\n"
+        f"- QUOTABILITY: Could you tweet this 10-word quote and get engagement?\n"
+        f"- EMOTION: Speaker is passionate, angry, incredulous, or fired up\n"
+        f"- NOVELTY: A take NOT everyone is already saying\n"
+        f"\n"
+        f"SELECTION RULES:\n"
+        f"- Each clip from a DIFFERENT channel. 35-50 seconds each.\n"
+        f"- NO ad reads, NO show intros, NO generic pleasantries, NO 'welcome to the show'.\n"
+        f"- COMPLETE THOUGHT: Speaker MUST finish their argument. Never cut before conclusion.\n"
+        f"- PREFER videos with HIGH view counts — those topics resonate with audience.\n"
+        f"- PREFER videos uploaded in last 48 hours over older content.\n"
+        f"- REJECT any video uploaded more than 72 hours ago — stale content destroys credibility.\n"
+        f"- Find the MOMENT that makes someone stop scrolling — not just any 40 seconds about Bitcoin.\n"
+        f"- The WHY field must explain what makes this moment VIRAL, not just summarize the topic.\n"
+        f"- Criticism and contrarian takes are WELCOME — we want honest signal, not echo chamber.\n"
         f"{_avoid}\n"
         f"{transcripts_text[:8000]}\n\n"
         f'Return ONLY valid JSON. No markdown. No explanation. No thinking tags. Just the JSON object:\n'
