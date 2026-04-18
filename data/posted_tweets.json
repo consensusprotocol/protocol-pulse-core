@@ -394,5 +394,11 @@
     "timestamp": "2026-04-17T22:00:03.651413+00:00",
     "text_preview": "4 sat/vB while Fear index sits at 21. Last time fees dropped this low during ext",
     "format_type": "onchain_metric"
+  },
+  {
+    "hash": "e5faf08b851929f8308329b5855f7fac",
+    "timestamp": "2026-04-18T01:00:07.858097+00:00",
+    "text_preview": "Do you know what Charles Schwab's internal Bitcoin desk means. It means 9 trilli",
+    "format_type": "institutional_flow"
   }
 ]

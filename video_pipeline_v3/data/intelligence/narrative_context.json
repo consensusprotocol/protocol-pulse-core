@@ -1,37 +1,33 @@
 {
-  "episode_narrative": "Institutional adoption wave is dominating Bitcoin discourse \u2014 12 of 2 Priority-1 thought leaders tweeted about it in the last 4 hours",
-  "eryn_intro_hook": "Eryn should reference: 'The real institutional Bitcoin adoption hasn't fully started yet. The real wave comes when pensions, insurance funds, and asset managers begin allocating.' from thought leaders BitcoinArchive, adam3us, saylor (fetched at 2026-04-17T13:30:09.624009+00:00)",
-  "mark_context": "Mark should add context: 'Quantum computing threat & mitigation' is also trending with 11 thought leaders discussing it",
+  "episode_narrative": "Institutional adoption accelerating despite regulatory un... is dominating Bitcoin discourse \u2014 30 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
+  "mark_context": "Mark should add context: 'Supply squeeze intensifying: miners holding since Februar...' is also trending with 22 thought leaders discussing it",
   "clip_selection_priority": [
-    "Institutional adoption wave",
-    "Quantum computing threat & mitigation",
-    "Long-term holder accumulation & supply scarcity"
+    "Institutional adoption accelerating despite regulatory un...",
+    "Supply squeeze intensifying: miners holding since Februar...",
+    "Political legitimacy reached \u2014 Bitcoin 2026 conference fe..."
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
   "thought_leaders_mentioned": [
-    "stephanlivera",
-    "adam3us",
-    "_Checkmatey_",
-    "saylor",
-    "lopp",
-    "BTCsessions",
-    "BitcoinArchive"
+    "@BitcoinMagazine",
+    "@TheGuySwann",
+    "@BitcoinArchive"
   ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Institutional adoption wave",
-  "market_mood": "cautiously_bullish",
-  "top_quote": "The real institutional Bitcoin adoption hasn't fully started yet. The real wave comes when pensions, insurance funds, and asset managers begin allocating.",
+  "dominant_narrative": "Institutional adoption accelerating despite regulatory un...",
+  "market_mood": "bullish",
+  "top_quote": "",
   "top_quote_handles": [
-    "BitcoinArchive",
-    "adam3us",
-    "saylor"
+    "@BitcoinMagazine",
+    "@BitcoinArchive",
+    "@TheGuySwann"
   ],
-  "quote_fetched_at": "2026-04-17T13:30:09.624009+00:00",
-  "computed_at": "2026-04-17T13:30:09.624009+00:00"
+  "quote_fetched_at": "2026-04-18T02:33:42.296158+00:00",
+  "computed_at": "2026-04-18T02:33:42.296158+00:00"
 }

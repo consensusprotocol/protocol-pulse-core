@@ -94,5 +94,17 @@
     "generated_at": "2026-04-17T19:00:04.286267+00:00",
     "brief_date": "Friday, April 17, 2026",
     "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260418_023621_0",
+    "text": "In 1933 FDR confiscated gold at $20.67 per ounce then revalued it at $35 overnight. Citizens who obeyed lost 41% of purchasing power instantly. Bitcoin makes that trick impossible",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T02:36:21.880885+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
   }
 ]

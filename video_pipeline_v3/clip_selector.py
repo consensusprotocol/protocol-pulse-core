@@ -1072,6 +1072,41 @@ def select_montage_clips(videos: list) -> dict:
         # Fallback: skip — montage will have fewer clips if Qwen unavailable
         logger.info(f"[Montage] {channel}: using fallback empty (Qwen unavailable)")
 
+
+    # V50 FIX: FRESHNESS GATE — verify upload_date of selected clips via yt-dlp
+    # Scanner uses flat-playlist (fast, no dates). This step checks individually (slow, accurate).
+    if selected_clips:
+        from datetime import datetime, timedelta
+        import subprocess
+        cutoff = datetime.now() - timedelta(hours=72)
+        cutoff_str = cutoff.strftime("%Y%m%d")
+        verified = []
+        for clip in selected_clips:
+            vid_id = clip.get("video_id", "")
+            try:
+                r = subprocess.run(
+                    ["yt-dlp", "--print", "%(upload_date)s", "--no-download",
+                     f"https://www.youtube.com/watch?v={vid_id}"],
+                    capture_output=True, text=True, timeout=15
+                )
+                date_str = r.stdout.strip()
+                if date_str and date_str != "NA" and date_str >= cutoff_str:
+                    clip["upload_date"] = date_str
+                    verified.append(clip)
+                    logger.info(f"  FRESHNESS VERIFIED: {clip.get('channel','')} {vid_id} uploaded {date_str}")
+                elif date_str and date_str != "NA":
+                    logger.warning(f"  FRESHNESS REJECTED: {clip.get('channel','')} {vid_id} uploaded {date_str} — older than 72h")
+                else:
+                    # Can't verify — allow through but flag
+                    verified.append(clip)
+                    logger.warning(f"  FRESHNESS UNVERIFIED: {clip.get('channel','')} {vid_id} — no date, allowing")
+            except Exception as e:
+                verified.append(clip)
+                logger.warning(f"  FRESHNESS CHECK FAILED: {vid_id} — {e}, allowing")
+        if verified:
+            selected_clips = verified
+            logger.info(f"  FRESHNESS GATE: {len(verified)}/{len(selected_clips)} clips passed")
+
     return {"clips": montage_clips}
 
 
