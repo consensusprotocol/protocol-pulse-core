@@ -2725,6 +2725,24 @@ def premium_hub():
 
     partner_disclaimer = 'Sponsored content is clearly labeled. Protocol Pulse maintains editorial independence.'
 
+    # Load intelligence data for hub
+    import json as _hj, pathlib as _hp, time as _ht
+    _morning_brief, _kol_brief, _sovereign_ctx = {}, {}, {}
+    for _path, _dest in [
+        ('/home/ultron/protocol_pulse/data/intelligence/morning_intelligence_brief.json', '_morning_brief'),
+        ('/home/ultron/protocol_pulse/data/intelligence/kol_sentiment_brief.json', '_kol_brief'),
+        ('/home/ultron/protocol_pulse/data/sovereign_context/latest.json', '_sovereign_ctx'),
+    ]:
+        try:
+            p = _hp.Path(_path)
+            if p.exists(): exec(f"{_dest} = _hj.loads(p.read_text())")
+        except Exception: pass
+    _now_ts = _ht.time()
+    morning_brief = _morning_brief
+    kol_brief = _kol_brief
+    if _sovereign_ctx: sovereign = _sovereign_ctx
+    now_ts = _now_ts
+
     return render_template('premium_hub.html',
                          network=network,
                          mempool_data=mempool_data,

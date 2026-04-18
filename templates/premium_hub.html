@@ -1,1066 +1,612 @@
 {% extends "base.html" %}
-
-{% block title %}Commander Hub | Protocol Pulse{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="/static/css/style.css?v=1.4">
-<link rel="stylesheet" href="/static/css/protocol-pulse-tokens.css?v=1.1">
+{% block title %}Commander Hub — Protocol Pulse{% endblock %}
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-body { background: #050508 !important; }
-.hub-root {
-    min-height: 100vh;
-    padding: 92px 18px 48px;
-    color: #f7f7f7;
-    background: radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.12), transparent 45%), #050508;
-    position: relative;
-    overflow: hidden;
-}
-.hub-root::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.02) 0px,
-        rgba(255,255,255,0.02) 1px,
-        transparent 2px,
-        transparent 4px
-    );
-    mix-blend-mode: soft-light;
-    opacity: 0.35;
-}
-.hub-layout {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-    gap: 18px;
-}
-.hub-sidebar, .hub-panel {
-    background: rgba(10, 10, 14, 0.72);
-    border: 1px solid rgba(220, 38, 38, 0.35);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03);
-    backdrop-filter: blur(12px);
-    border-radius: 16px;
-}
-.hub-sidebar {
-    padding: 18px;
-    height: fit-content;
-    position: sticky;
-    top: 92px;
-}
-.hub-side-title {
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #dc2626;
-    font-size: 0.76rem;
-    margin-bottom: 10px;
-}
-.hub-side-text {
-    color: rgba(255,255,255,0.75);
-    font-size: 0.9rem;
-    margin-bottom: 14px;
-}
-.hub-side-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: rgba(255,255,255,0.9);
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 8px;
-}
-.hub-side-link:hover { color: #fff; border-color: rgba(220, 38, 38, 0.8); }
-.hub-main { display: grid; gap: 16px; }
-.hub-hero {
-    padding: 20px;
-    background: linear-gradient(135deg, rgba(220,38,38,0.12), rgba(10,10,14,0.65));
-}
-.hub-badge {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #fff;
-    background: #dc2626;
-    border-radius: 999px;
-    padding: 4px 10px;
-    margin-bottom: 8px;
-}
-.hub-hero h1 {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.4rem, 3vw, 2rem);
-    margin: 0 0 6px 0;
-    text-transform: lowercase;
-}
-.hub-hero p {
-    margin: 0;
-    color: rgba(255,255,255,0.8);
-    font-size: 0.95rem;
-    text-transform: lowercase;
-}
-.hub-command {
-    margin-top: 14px;
-    display: flex;
-    gap: 8px;
-}
-.hub-command input {
-    flex: 1;
-    border-radius: 10px;
-    border: 1px solid rgba(220,38,38,0.45);
-    background: rgba(0,0,0,0.42);
-    color: #fff;
-    padding: 9px 10px;
-}
-.hub-command button {
-    border-radius: 10px;
-    border: 1px solid rgba(220,38,38,0.6);
-    background: linear-gradient(135deg, rgba(220,38,38,0.9), rgba(249,115,22,0.9));
-    color: #fff;
-    padding: 9px 12px;
-}
-.hub-oracle-result {
-    margin-top: 10px;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 10px;
-    background: rgba(0,0,0,0.35);
-    font-size: 0.83rem;
-    color: rgba(255,255,255,0.9);
-}
-.hub-oracle-hits {
-    margin-top: 8px;
-    display: grid;
-    gap: 6px;
-}
-.hub-oracle-hit {
-    border: 1px solid rgba(220,38,38,0.3);
-    border-radius: 8px;
-    padding: 6px 8px;
-    background: rgba(220,38,38,0.08);
-}
-.hub-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 12px;
-}
-.hub-metric {
-    padding: 14px;
-}
-.hub-k {
-    color: rgba(255,255,255,0.62);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-}
-.hub-v {
-    font-family: 'JetBrains Mono', monospace;
-    color: #dc2626;
-    font-weight: 700;
-    font-size: 1.3rem;
-}
-.hub-v.btc { color: #f7931a; }
-.hub-partner-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 10px;
-}
-.partner-card {
-    border: 1px solid rgba(220,38,38,0.32);
-    border-radius: 12px;
-    background: rgba(5,5,8,0.75);
-    padding: 10px;
-}
-.partner-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
-}
-.partner-name {
-    font-family: 'JetBrains Mono', monospace;
-    color: #fff;
-    font-size: 0.88rem;
-    text-transform: lowercase;
-}
-.partner-cat {
-    font-size: 0.68rem;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 999px;
-    padding: 2px 6px;
-    color: rgba(255,255,255,0.78);
-    text-transform: lowercase;
-}
-.partner-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 7px 0;
-}
-.partner-tags span {
-    border: 1px solid rgba(255,255,255,0.16);
-    color: rgba(255,255,255,0.78);
-    font-size: 0.7rem;
-    border-radius: 999px;
-    padding: 2px 7px;
-}
-.partner-copy {
-    color: rgba(255,255,255,0.8);
-    font-size: 0.79rem;
-    text-transform: lowercase;
-}
-.partner-disclaimer {
-    margin-top: 10px;
-    color: rgba(255,255,255,0.62);
-    font-size: 0.78rem;
-    text-transform: lowercase;
-}
-.hub-two {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 12px;
-}
-.hub-terminal {
-    padding: 14px;
-}
-.log-shell {
-    background: #030304;
-    border: 1px solid rgba(220,38,38,0.35);
-    border-radius: 12px;
-    height: 320px;
-    overflow-y: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    color: #fca5a5;
-    padding: 10px;
-    white-space: pre-wrap;
-    line-height: 1.35;
-    position: relative;
-    animation: crtFlicker 6s infinite;
-}
-.log-shell::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.03) 0px,
-        rgba(255,255,255,0.03) 1px,
-        transparent 2px,
-        transparent 3px
-    );
-    mix-blend-mode: soft-light;
-    opacity: 0.32;
-}
-@keyframes crtFlicker {
-    0%, 96%, 100% { opacity: 1; }
-    97% { opacity: 0.86; }
-    98% { opacity: 0.92; }
-    99% { opacity: 0.88; }
-}
-.hub-three {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-.hub-tile {
-    padding: 14px;
-}
-.hub-sentry-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 8px;
-}
-.hub-sentry-list li {
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 8px;
-    font-size: 0.8rem;
-}
-.hub-sentry-meta {
-    color: rgba(255,255,255,0.65);
-    margin-bottom: 4px;
-}
-.hub-sentry-body {
-    color: rgba(255,255,255,0.88);
-    margin-bottom: 6px;
-}
-.hub-pill {
-    display: inline-block;
-    border: 1px solid rgba(220,38,38,0.5);
-    border-radius: 999px;
-    padding: 2px 8px;
-    font-size: 0.72rem;
-    color: #fca5a5;
-}
-.hub-progress {
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.08);
-    overflow: hidden;
-    margin-top: 8px;
-}
-.hub-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #dc2626, #f97316);
-    transition: width 0.25s ease;
-}
-.hub-medley-status {
-    margin-top: 8px;
-    color: rgba(255,255,255,0.78);
-    font-size: 0.82rem;
-}
-.hub-oracle-brief {
-    margin-top: 10px;
-    border: 1px solid rgba(220,38,38,0.35);
-    background: rgba(0,0,0,0.35);
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 0.84rem;
-    color: rgba(255,255,255,0.86);
-}
-.hub-oracle-brief strong {
-    color: #fca5a5;
-    text-transform: lowercase;
-    font-family: 'JetBrains Mono', monospace;
-}
-.hub-whale-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-height: 320px;
-    overflow-y: auto;
-}
-.hub-whale-list li {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    gap: 10px;
-    align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    padding: 9px 0;
-    font-size: 0.84rem;
-}
-.hub-whale-list .wbtc { color: #f7931a; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-.hub-whale-list .wmega { color: #dc2626; }
-.hub-whale-list a { color: rgba(255,255,255,0.78); text-decoration: none; }
-.hub-whale-list a:hover { color: #fff; }
-.hub-oracle {
-    padding: 14px;
-}
-#riskOracleGlobe {
-    width: 100%;
-    height: 360px;
-    border-radius: 12px;
-    background: radial-gradient(circle at 50% 30%, rgba(220,38,38,0.18), rgba(0,0,0,0.85));
-    border: 1px solid rgba(220,38,38,0.35);
-}
-.hub-oracle-meta {
-    margin-top: 10px;
-    color: rgba(255,255,255,0.78);
-    font-size: 0.85rem;
-    text-transform: lowercase;
-}
-.hub-oracle-stats {
-    margin-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-top: 10px;
-}
-.hub-oracle-stats ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 6px;
-}
-.hub-oracle-stats li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.84rem;
-    color: rgba(255,255,255,0.82);
-}
-.hub-oracle-stats .oracle-share {
-    font-family: 'JetBrains Mono', monospace;
-    color: #f97316;
-}
-.hub-action-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-}
-.hub-action-row a, .hub-action-row button {
-    border-radius: 10px;
-    border: 1px solid rgba(220,38,38,0.45);
-    background: rgba(220,38,38,0.12);
-    color: #fff;
-    padding: 8px 12px;
-    font-size: 0.84rem;
-    text-decoration: none;
-}
-.hub-tile > button {
-    border-radius: 10px;
-    border: 1px solid rgba(220,38,38,0.55);
-    background: linear-gradient(135deg, rgba(220,38,38,0.95), rgba(220,38,38,0.75));
-    color: #fff;
-    padding: 10px 12px;
-    font-size: 0.86rem;
-    font-family: 'JetBrains Mono', monospace;
-    width: 100%;
-    text-transform: lowercase;
-}
-.hub-tile > button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-.hub-action-row a:hover { background: rgba(220,38,38,0.22); color: #fff; }
-.red-glitch {
-    animation: redFlicker 2s ease-in-out;
-}
-@keyframes redFlicker {
-    0% { filter: none; transform: translateX(0); }
-    8% { filter: hue-rotate(-20deg) saturate(1.8); transform: translateX(-1px); }
-    16% { filter: contrast(1.35) brightness(1.12); transform: translateX(2px); }
-    24% { filter: none; transform: translateX(0); }
-    34% { filter: hue-rotate(-40deg) saturate(2); transform: translateX(-2px); }
-    46% { filter: none; transform: translateX(0); }
-    58% { filter: contrast(1.4) brightness(1.15); transform: translateX(1px); }
-    100% { filter: none; transform: translateX(0); }
-}
-@media (max-width: 1080px) {
-    .hub-layout { grid-template-columns: 1fr; }
-    .hub-sidebar { position: static; }
-    .hub-two { grid-template-columns: 1fr; }
-    .hub-three { grid-template-columns: 1fr; }
-}
+:root {
+  --bg:#000;--s1:#060606;--s2:#0d0d0d;--s3:#141414;
+  --border:#1a1a1a;--border2:#242424;
+  --red:#CC0000;--red-dim:rgba(204,0,0,0.12);--red-glow:rgba(204,0,0,0.25);
+  --gold:#F8C15C;--green:#22c55e;--blue:#3b82f6;--orange:#f97316;
+  --muted:#555;--text:#e0e0e0;--dim:rgba(255,255,255,0.35);
+  --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);}
+.hub-wrap{max-width:1440px;margin:0 auto;padding:72px 20px 60px;}
+
+/* ── TOP COMMAND BAR ── */
+.hub-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0 16px;border-bottom:1px solid var(--red);margin-bottom:24px;
+  flex-wrap:wrap;gap:10px;
+}
+.hub-badge{
+  display:flex;align-items:center;gap:10px;
+}
+.hub-pulse-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--red);
+  box-shadow:0 0 8px var(--red);animation:hubPulse 1.5s ease-in-out infinite;
+}
+@keyframes hubPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.85)}}
+.hub-title{font-size:11px;font-weight:900;letter-spacing:.3em;color:var(--red);text-transform:uppercase;}
+.hub-tier-badge{font-size:8px;letter-spacing:.2em;padding:3px 10px;border:1px solid var(--red);color:var(--red);border-radius:2px;}
+.hub-clock{font-size:11px;color:var(--muted);letter-spacing:.08em;}
+.hub-clock span{color:var(--gold);}
+
+/* ── KPI ROW ── */
+.hub-kpi-row{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
+  background:var(--border);margin-bottom:20px;
+}
+.hub-kpi{
+  background:var(--s1);padding:14px 16px;position:relative;
+  cursor:default;transition:background .15s;
+}
+.hub-kpi:hover{background:var(--s2);}
+.hub-kpi-label{font-size:7px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.hub-kpi-val{font-size:20px;font-weight:900;line-height:1;color:var(--text);}
+.hub-kpi-val.red{color:var(--red);}
+.hub-kpi-val.gold{color:var(--gold);}
+.hub-kpi-val.green{color:var(--green);}
+.hub-kpi-sub{font-size:8px;color:var(--muted);margin-top:4px;}
+.hub-kpi-change{font-size:9px;margin-top:3px;}
+.hub-kpi-change.up{color:var(--green);}
+.hub-kpi-change.down{color:var(--red);}
+
+/* ── MAIN GRID ── */
+.hub-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 340px;
+  grid-template-rows:auto;
+  gap:12px;
+}
+@media(max-width:1100px){.hub-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.hub-grid{grid-template-columns:1fr;}}
+
+/* ── PANELS ── */
+.hub-panel{
+  background:var(--s1);border:1px solid var(--border);
+  border-top:2px solid var(--red);
+}
+.hub-panel.gold-top{border-top-color:var(--gold);}
+.hub-panel.green-top{border-top-color:var(--green);}
+.hub-panel.blue-top{border-top-color:var(--blue);}
+.hub-panel.full-width{grid-column:1/-1;}
+.hub-panel.col-span-2{grid-column:span 2;}
+.hub-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--border);
+}
+.hub-panel-title{font-size:8px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
+.hub-panel-badge{font-size:7px;letter-spacing:.1em;padding:2px 8px;border-radius:2px;}
+.hub-panel-badge.live{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,0.3);}
+.hub-panel-badge.ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.hub-panel-body{padding:16px;}
+
+/* ── MORNING BRIEF ── */
+.brief-sentiment{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:8px;letter-spacing:.15em;padding:4px 12px;
+  border-radius:2px;margin-bottom:12px;font-weight:700;text-transform:uppercase;
+}
+.brief-sentiment.bullish{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.brief-sentiment.bearish{background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.3);}
+.brief-date{font-size:8px;color:var(--muted);margin-bottom:10px;letter-spacing:.08em;}
+.brief-reasoning{font-size:11px;line-height:1.7;color:var(--text);margin-bottom:14px;}
+.brief-narratives{border-top:1px solid var(--border);padding-top:12px;}
+.brief-narrative-label{font-size:7px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
+.brief-narrative-item{
+  display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);
+  font-size:10px;line-height:1.5;color:var(--dim);
+}
+.brief-narrative-item::before{content:'▸';color:var(--red);flex-shrink:0;margin-top:2px;}
+.brief-trending{margin-top:10px;}
+.brief-trend-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.brief-tag{font-size:8px;padding:3px 8px;background:var(--s2);border:1px solid var(--border);color:var(--dim);border-radius:2px;}
+
+/* ── WHALE FEED ── */
+.whale-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.whale-item:last-child{border-bottom:none;}
+.whale-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.whale-body{flex:1;}
+.whale-amount{font-size:13px;font-weight:900;color:var(--gold);line-height:1;}
+.whale-meta{font-size:8px;color:var(--muted);margin-top:3px;line-height:1.5;}
+.whale-time{font-size:7px;color:var(--muted);flex-shrink:0;}
+.whale-mega{font-size:7px;letter-spacing:.1em;padding:2px 6px;background:var(--red-dim);color:var(--red);border:1px solid rgba(204,0,0,.3);border-radius:2px;margin-left:6px;}
+
+/* ── SIGNAL ROWS ── */
+.sig-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);
+}
+.sig-row:last-child{border-bottom:none;}
+.sig-label{font-size:9px;color:var(--dim);}
+.sig-val{font-size:11px;font-weight:700;}
+.sig-val.red{color:var(--red);}
+.sig-val.gold{color:var(--gold);}
+.sig-val.green{color:var(--green);}
+.sig-val.white{color:var(--text);}
+.sig-bar{
+  height:3px;background:var(--border);border-radius:2px;margin-top:4px;
+}
+.sig-bar-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+
+/* ── KOL BRIEF ── */
+.kol-sentiment-banner{
+  padding:10px 14px;margin-bottom:12px;border-radius:3px;
+  display:flex;align-items:center;gap:8px;font-size:10px;
+}
+.kol-sentiment-banner.bullish{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:var(--green);}
+.kol-sentiment-banner.bearish{background:var(--red-dim);border:1px solid rgba(204,0,0,.2);color:var(--red);}
+.kol-sentiment-banner.neutral{background:rgba(248,193,92,.08);border:1px solid rgba(248,193,92,.2);color:var(--gold);}
+.kol-narrative{font-size:11px;line-height:1.6;color:var(--text);margin-bottom:10px;}
+.kol-signal{font-size:10px;padding:8px 12px;background:var(--s2);border-left:2px solid var(--gold);color:var(--gold);line-height:1.5;}
+.kol-voices{font-size:8px;color:var(--muted);margin-top:8px;}
+
+/* ── NETWORK STATS ── */
+.net-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.net-card{background:var(--s2);padding:10px 12px;border:1px solid var(--border);}
+.net-card-label{font-size:7px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.net-card-val{font-size:16px;font-weight:900;color:var(--text);}
+.net-card-sub{font-size:8px;color:var(--muted);margin-top:2px;}
+
+/* ── CONGRESS ── */
+.congress-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.03);
+}
+.congress-item:last-child{border-bottom:none;}
+.congress-party{
+  width:24px;height:24px;border-radius:2px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;
+}
+.congress-party.R{background:rgba(204,0,0,.15);color:var(--red);border:1px solid rgba(204,0,0,.3);}
+.congress-party.D{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+.congress-party.I{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3);}
+.congress-body{flex:1;min-width:0;}
+.congress-name{font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.congress-asset{font-size:9px;color:var(--gold);margin-top:2px;}
+.congress-meta{font-size:8px;color:var(--muted);margin-top:2px;}
+.congress-type{font-size:7px;letter-spacing:.1em;padding:2px 6px;border-radius:2px;}
+.congress-type.PURCHASE{background:rgba(34,197,94,.1);color:var(--green);}
+.congress-type.SALE{background:var(--red-dim);color:var(--red);}
+
+/* ── QUICK LINKS ── */
+.hub-links{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.hub-link-btn{
+  display:flex;align-items:center;gap:8px;padding:10px 12px;
+  background:var(--s2);border:1px solid var(--border);color:var(--dim);
+  text-decoration:none;font-size:10px;letter-spacing:.06em;
+  transition:all .15s;
+}
+.hub-link-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+.hub-link-btn i{width:16px;text-align:center;color:var(--red);}
+
+/* ── MEMPOOL ── */
+.fee-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
+.fee-card{background:var(--s2);padding:10px;text-align:center;border:1px solid var(--border);}
+.fee-val{font-size:18px;font-weight:900;}
+.fee-val.fast{color:var(--red);}
+.fee-val.mid{color:var(--gold);}
+.fee-val.slow{color:var(--green);}
+.fee-label{font-size:7px;letter-spacing:.1em;color:var(--muted);margin-top:3px;text-transform:uppercase;}
+
+/* ── LIGHTNING ── */
+.lightning-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.lightning-label{font-size:9px;color:var(--muted);}
+.lightning-val{font-size:10px;font-weight:700;color:var(--gold);}
+
+/* ── COMMANDER ACTIONS ── */
+.hub-actions{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.hub-action-btn{
+  padding:8px 18px;font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border);
+  background:none;color:var(--muted);cursor:pointer;transition:all .2s;
+  text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+}
+.hub-action-btn:hover{border-color:var(--red);color:var(--red);}
+.hub-action-btn.primary{border-color:var(--red);color:var(--red);}
+.hub-action-btn.primary:hover{background:var(--red);color:#fff;}
+
+/* ── TOAST ── */
+.hub-toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--s2);border:1px solid var(--green);border-left:3px solid var(--green);
+  font-family:var(--mono);font-size:10px;color:var(--text);padding:10px 18px;
+  z-index:9999;animation:hubToastIn .2s ease;letter-spacing:.06em;
+}
+@keyframes hubToastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hub-root" id="hubRoot">
-    <div class="hub-layout">
-        <aside class="hub-sidebar">
-            <div class="hub-side-title">sovereign nav</div>
-            <div class="hub-side-text">jump direct to signal lanes. no noise, only actionable intel.</div>
-            {% for item in sovereign_nav %}
-            <a class="hub-side-link" href="{{ item.href }}">
-                <i class="fas {{ item.icon }}"></i>
-                <span>{{ item.label }}</span>
-            </a>
-            {% endfor %}
-            <div class="hub-side-title" style="margin-top: 14px;">tier status</div>
-            <div class="hub-side-text">{{ tier|lower }} access is live.</div>
-            {% if current_user.is_admin %}
-            <a class="hub-side-link" href="/admin/partner-ramp">
-                <i class="fas fa-chart-bar"></i>
-                <span>partner ramp admin</span>
-            </a>
-            {% endif %}
-        </aside>
+<div class="hub-wrap">
 
-        <main class="hub-main">
-            <section class="hub-panel hub-hero">
-                <span class="hub-badge">commander hub</span>
-                <h1>signal is hot. heartbeat is live.</h1>
-                <p>this is your bunker feed: live automation thumps, whale shock alerts, and risk-oracle geo posture.</p>
-                <div class="hub-command">
-                    <input id="hubOracleInput" type="text" placeholder="oracle cmd: ask consensus, outflow, partners... (ctrl+k)">
-                    <button id="hubOracleAskBtn"><i class="fas fa-terminal"></i> run</button>
-                </div>
-                <div id="hubOracleResult" class="hub-oracle-result" style="display:none;"></div>
-            </section>
-
-            <section class="hub-grid">
-                <div class="hub-panel hub-metric"><div class="hub-k">block height</div><div class="hub-v">{{ network.get('height', '—') }}</div></div>
-                <div class="hub-panel hub-metric"><div class="hub-k">hashrate</div><div class="hub-v">{{ network.get('hashrate', '—') }}</div></div>
-                <div class="hub-panel hub-metric"><div class="hub-k">difficulty progress</div><div class="hub-v">{{ network.get('difficulty_progress', '—') }}</div></div>
-                <div class="hub-panel hub-metric"><div class="hub-k">mega whales 24h</div><div class="hub-v">{{ mega_count_24h }}</div></div>
-                <div class="hub-panel hub-metric"><div class="hub-k">whale volume 24h usd</div><div class="hub-v">${{ "{:,.0f}".format(whale_volume_usd_24h or 0) }}</div></div>
-                <div class="hub-panel hub-metric"><div class="hub-k">btc spot</div><div class="hub-v btc">${{ "%.2f"|format((prices or {}).get('btc', 0) or 0) }}</div></div>
-            </section>
-
-            <section class="hub-panel hub-terminal" id="bitcoin-services">
-                <div class="hub-k">bitcoin services · partner ramp</div>
-                <div class="hub-partner-grid">
-                    {% for category in partner_categories %}
-                        {% for partner in category.partners %}
-                        <article class="partner-card">
-                            <div class="partner-head">
-                                <span class="partner-name">{{ partner.name|lower }}</span>
-                                <span class="partner-cat">{{ category.label|lower }}</span>
-                            </div>
-                            <div class="partner-copy">{{ partner.what_it_is|lower }}</div>
-                            <div class="partner-tags">
-                                {% for t in partner.eligibility_tags or [] %}
-                                <span>{{ t|lower }}</span>
-                                {% endfor %}
-                            </div>
-                            <div class="partner-copy"><strong>why:</strong> {{ partner.why_use|lower }}</div>
-                            <div class="hub-action-row">
-                                <a class="partner-cta"
-                                   data-partner="{{ partner.slug|lower }}"
-                                   href="/hub/partners/go/{{ partner.slug|lower }}?ref={{ partner.referral_code|lower }}">
-                                   {{ partner.cta_label|lower }}
-                                </a>
-                            </div>
-                        </article>
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-                <div class="partner-disclaimer">
-                    {{ partner_disclaimer|lower }}
-                </div>
-            </section>
-
-            <section class="hub-three">
-                <div class="hub-panel hub-tile">
-                    <div class="hub-k">sentry queue · matty drafts</div>
-                    <ul class="hub-sentry-list" id="hubSentryList">
-                        {% for alert in pending_sentry_alerts %}
-                        <li id="sentry-{{ alert.id }}">
-                            <div class="hub-sentry-meta">@{{ alert.source_account or 'unknown' }} · {{ alert.created_at.strftime('%H:%M') if alert.created_at else 'pending' }}</div>
-                            <div class="hub-sentry-body">{{ (alert.content_snippet or 'no snippet').lower()[:120] }}</div>
-                            {% if current_user.is_admin %}
-                            <button class="hub-pill" data-sentry-id="{{ alert.id }}">approve</button>
-                            {% else %}
-                            <span class="hub-pill">awaiting command deck approval</span>
-                            {% endif %}
-                        </li>
-                        {% else %}
-                        <li><span class="hub-pill">queue is clean. no drafts pending.</span></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="hub-panel hub-tile">
-                    <div class="hub-k">network heat · sat/vb</div>
-                    <div class="hub-v">{{ fee_fast if fee_fast is not none else '—' }}<span style="font-size:0.75rem;color:#fca5a5;"> sat/vb fast</span></div>
-                    <div class="hub-oracle-meta">half-hour: {{ fee_half if fee_half is not none else '—' }} sat/vb · hour: {{ fee_hour if fee_hour is not none else '—' }} sat/vb</div>
-                    <div class="hub-action-row">
-                        <a href="https://mempool.space/" target="_blank" rel="noopener"><i class="fas fa-chart-line"></i> mempool live</a>
-                    </div>
-                </div>
-                <div class="hub-panel hub-tile">
-                    <div class="hub-k">medley director · gpu 1</div>
-                    <button id="engageMedleyBtn"><i class="fas fa-bolt"></i> engage medley director</button>
-                    <div class="hub-progress"><div class="hub-progress-fill" id="medleyProgressFill"></div></div>
-                    <div class="hub-medley-status" id="medleyStatusText">status: {{ (medley_state.get('status') or 'idle')|lower }}</div>
-                    <div class="hub-action-row">
-                        <a id="medleyOutputLink" href="{{ medley_state.get('output_url') or '/api/hub/medley/output' }}" target="_blank" rel="noopener" {% if not medley_state.get('output_url') %}style="pointer-events:none;opacity:0.55;"{% endif %}>open latest brief</a>
-                    </div>
-                </div>
-            </section>
-
-            <section class="hub-two">
-                <div class="hub-panel hub-terminal">
-                    <div class="hub-k">live pulse terminal · automation.log</div>
-                    <div class="log-shell" id="automationLog"></div>
-                    <div class="hub-action-row">
-                        <a href="/live"><i class="fas fa-terminal"></i> open media terminal</a>
-                        <a href="/signal-terminal"><i class="fas fa-wave-square"></i> open intelligence feed</a>
-                    </div>
-                </div>
-                <div class="hub-panel hub-terminal">
-                    <div class="hub-k">whale watcher feed</div>
-                    <ul class="hub-whale-list" id="hubWhaleList">
-                        {% for w in hub_whales %}
-                        <li>
-                            <span class="wbtc {{ 'wmega' if w.is_mega else '' }}">{{ "%.2f"|format(w.btc_amount) }} btc</span>
-                            <span>${{ "{:,.0f}".format(w.usd_value or 0) }}</span>
-                            <a href="https://mempool.space/tx/{{ w.txid }}" target="_blank" rel="noopener">{{ w.txid[:12] }}…</a>
-                        </li>
-                        {% else %}
-                        <li>no whales in the current 24h window.</li>
-                        {% endfor %}
-                    </ul>
-                    <div class="hub-action-row">
-                        <a href="/whale-watcher"><i class="fas fa-water"></i> whale watcher</a>
-                        <a href="/live"><i class="fas fa-terminal"></i> media terminal</a>
-                        {% if tier == 'sovereign' %}
-                        <button id="enableWhalePushBtn" type="button"><i class="fas fa-bell"></i> enable whale push</button>
-                        {% endif %}
-                    </div>
-                </div>
-            </section>
-
-            <section class="hub-panel hub-oracle">
-                <div class="hub-k">risk oracle · 3d globe</div>
-                <div id="riskOracleGlobe"></div>
-                <div class="hub-oracle-meta">
-                    centered on latest mining snapshot: {{ risk_oracle_center.name }}
-                    ({{ "%.4f"|format(risk_oracle_center.lat) }}, {{ "%.4f"|format(risk_oracle_center.lng) }}) ·
-                    updated {{ risk_oracle_center.last_updated }}
-                </div>
-                <div class="hub-oracle-brief" id="oracleBrief">
-                    <strong>tactical brief</strong><br>
-                    location: {{ risk_oracle_center.name }}<br>
-                    grid load: monitor<br>
-                    sentiment: watchlist<br>
-                    action: click a node to pull live jurisdiction intel.
-                </div>
-                <div class="hub-oracle-stats">
-                    <div class="hub-k">hotspot share map</div>
-                    <ul>
-                        {% for loc in risk_oracle_hotspots %}
-                        <li><span>{{ loc.name }}</span><span class="oracle-share">{{ "%.2f"|format((loc.hashrate_share or 0) * 100) }}%</span></li>
-                        {% else %}
-                        <li><span>no hotspot data loaded</span><span class="oracle-share">0.00%</span></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="hub-action-row">
-                    <a href="/mining-risk"><i class="fas fa-globe-americas"></i> open mining risk oracle</a>
-                    <a href="/api/mining-risk" target="_blank" rel="noopener"><i class="fas fa-database"></i> open oracle data api</a>
-                </div>
-            </section>
-        </main>
-    </div>
+<!-- TOP BAR -->
+<div class="hub-topbar">
+  <div class="hub-badge">
+    <div class="hub-pulse-dot"></div>
+    <span class="hub-title">COMMANDER HUB</span>
+    <span class="hub-tier-badge">{{ tier|upper }} ACCESS</span>
+  </div>
+  <div class="hub-clock">UTC <span id="hub-utc-clock">—</span> &nbsp;·&nbsp; BLOCK <span style="color:var(--gold)" id="hub-block">{{ (network.get('block_height') or sovereign.get('block_height') or '—')|string }}</span></div>
+  <div style="display:flex;gap:8px;">
+    <a href="/panopticon" class="hub-action-btn">⬡ PANOPTICON</a>
+    <a href="/terminal" class="hub-action-btn primary">⚡ INTELLIGENCE</a>
+  </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<!-- KPI ROW -->
+<div class="hub-kpi-row">
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">BTC PRICE</div>
+    <div class="hub-kpi-val gold" id="kpi-price">${{ '{:,.0f}'.format(sovereign.get('btc',{}).get('price', prices.get('btc',0) or 0)) }}</div>
+    {% set ch = sovereign.get('btc',{}).get('change_24h',0) %}
+    <div class="hub-kpi-change {{ 'up' if ch >= 0 else 'down' }}">{{ '+' if ch >= 0 else '' }}{{ '%.2f'|format(ch) }}% 24h</div>
+  </div>
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">HASHRATE</div>
+    <div class="hub-kpi-val" id="kpi-hash">{{ network.get('hashrate','999 EH/s') if network else '—' }}</div>
+    <div class="hub-kpi-sub">Network Security</div>
+  </div>
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">FEAR & GREED</div>
+    {% set fg = sovereign.get('fear_greed',{}) %}
+    <div class="hub-kpi-val {{ 'red' if (fg.get('value',50)|int) < 30 else 'gold' if (fg.get('value',50)|int) < 60 else 'green' }}" id="kpi-fng">{{ fg.get('value','—') }}</div>
+    <div class="hub-kpi-sub">{{ fg.get('label','—') }}</div>
+  </div>
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">MEMPOOL</div>
+    <div class="hub-kpi-val" id="kpi-mempool">{{ '{:,}'.format(sovereign.get('mempool',{}).get('unconfirmed',0)) }}</div>
+    <div class="hub-kpi-sub">Unconfirmed TX</div>
+  </div>
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">SAT/vB FAST</div>
+    <div class="hub-kpi-val red" id="kpi-fees">{{ sovereign.get('mempool',{}).get('fee_high', mempool_data.get('fee_high','—')) }}</div>
+    <div class="hub-kpi-sub">sat/vB priority</div>
+  </div>
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">DOMINANCE</div>
+    <div class="hub-kpi-val gold">{{ sovereign.get('btc',{}).get('dominance','—') }}%</div>
+    <div class="hub-kpi-sub">BTC/Total Mkt</div>
+  </div>
+  <div class="hub-kpi">
+    <div class="hub-kpi-label">WHALES 24H</div>
+    <div class="hub-kpi-val red" id="kpi-whales">{{ whale_count_24h }}</div>
+    <div class="hub-kpi-sub">{{ mega_count_24h }} mega</div>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="hub-grid">
+
+  <!-- MORNING INTELLIGENCE BRIEF -->
+  <div class="hub-panel col-span-2">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-satellite-dish" style="color:var(--red);margin-right:6px;"></i>MORNING INTELLIGENCE BRIEF</span>
+      <span class="hub-panel-badge live">{{ morning_brief.get('date','LIVE') }}</span>
+    </div>
+    <div class="hub-panel-body">
+      <div class="brief-sentiment {{ morning_brief.get('sentiment','neutral') }}">
+        {% if morning_brief.get('sentiment') == 'bullish' %}▲{% elif morning_brief.get('sentiment') == 'bearish' %}▼{% else %}◆{% endif %}
+        {{ morning_brief.get('sentiment','NEUTRAL')|upper }}
+      </div>
+      <div class="brief-reasoning">{{ morning_brief.get('sentiment_reasoning', 'Intelligence brief loading...') }}</div>
+      <div class="brief-narratives">
+        <div class="brief-narrative-label">DOMINANT NARRATIVES</div>
+        {% for n in (morning_brief.get('dominant_narratives') or [])[:3] %}
+        <div class="brief-narrative-item">{{ n }}</div>
+        {% endfor %}
+      </div>
+      <div class="brief-trending">
+        <div class="brief-narrative-label" style="margin-top:12px;">TRENDING LANGUAGE</div>
+        <div class="brief-trend-tags">
+          {% for t in (morning_brief.get('trending_language') or [])[:8] %}
+          <span class="brief-tag">{{ t }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: KOL BRIEF -->
+  <div class="hub-panel">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-users" style="color:var(--gold);margin-right:6px;"></i>KOL SENTIMENT</span>
+      <span class="hub-panel-badge live">LIVE</span>
+    </div>
+    <div class="hub-panel-body">
+      {% set kol_sent = kol_brief.get('sentiment','neutral') %}
+      <div class="kol-sentiment-banner {{ kol_sent }}">
+        <i class="fas fa-{{ 'arrow-up' if kol_sent == 'bullish' else 'arrow-down' if kol_sent == 'bearish' else 'minus' }}"></i>
+        KOL CONSENSUS: {{ kol_sent|upper }}
+      </div>
+      <div class="kol-narrative">{{ kol_brief.get('dominant_narrative', '—') }}</div>
+      {% if kol_brief.get('top_signal') %}
+      <div class="kol-signal">{{ kol_brief.get('top_signal') }}</div>
+      {% endif %}
+      {% if kol_brief.get('contrarian_view') %}
+      <div class="kol-signal" style="border-left-color:var(--red);color:var(--red);margin-top:6px;">CONTRARIAN: {{ kol_brief.get('contrarian_view') }}</div>
+      {% endif %}
+      <div class="kol-voices">
+        {{ kol_brief.get('voices_sampled', 0) }} voices sampled ·
+        {% for h in (kol_brief.get('kol_handles_seen') or [])[:4] %}<span style="color:var(--muted)">{{ h }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- WHALE FEED -->
+  <div class="hub-panel">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-fish" style="color:var(--blue);margin-right:6px;"></i>WHALE ALERTS</span>
+      <span class="hub-panel-badge live">{{ whale_count_24h }} / 24H</span>
+    </div>
+    <div class="hub-panel-body" style="padding:0 16px;">
+      {% set whale_alerts = sovereign.get('whale_alerts') or [] %}
+      {% if whale_alerts %}
+        {% for wa in whale_alerts[:6] %}
+        <div class="whale-item">
+          <div class="whale-icon">🐋</div>
+          <div class="whale-body">
+            {% set msg = wa.get('message','') %}
+            <div class="whale-amount">
+              {% if 'BTC' in msg %}
+                {{ msg.split('BTC')[0].split(':')[-1].strip() }} BTC
+                {% if wa.get('tier') == 'CRITICAL' or (msg.split('BTC')[0].split(':')[-1].strip()|float) > 100 %}
+                <span class="whale-mega">MEGA</span>
+                {% endif %}
+              {% else %}
+                {{ msg[:40] }}
+              {% endif %}
+            </div>
+            <div class="whale-meta">
+              {{ msg.split('unconfirmed')[-1][:20] if 'unconfirmed' in msg else '' }}
+            </div>
+          </div>
+          <div class="whale-time">
+            {% set ts = wa.get('created_at', 0) %}
+            {% if ts %}{{ ((now_ts - ts) / 3600)|int }}h ago{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% elif hub_whales %}
+        {% for w in hub_whales[:6] %}
+        <div class="whale-item">
+          <div class="whale-icon">{{ '🔴' if w.is_mega else '🐋' }}</div>
+          <div class="whale-body">
+            <div class="whale-amount">{{ '%.2f'|format(w.btc_amount) }} BTC{% if w.is_mega %}<span class="whale-mega">MEGA</span>{% endif %}</div>
+            <div class="whale-meta">{{ w.detected_at.strftime('%b %d %H:%M') if w.detected_at else '' }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="padding:20px 0;font-size:9px;color:var(--muted);text-align:center;">No whale activity in past 24h — low volatility window</div>
+      {% endif %}
+      <a href="/whale-watcher" style="display:block;text-align:center;padding:10px;font-size:9px;color:var(--red);text-decoration:none;border-top:1px solid var(--border);margin-top:8px;letter-spacing:.1em;">VIEW ALL WHALE ACTIVITY →</a>
+    </div>
+  </div>
+
+  <!-- NETWORK STATS -->
+  <div class="hub-panel green-top">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-network-wired" style="color:var(--green);margin-right:6px;"></i>NETWORK HEALTH</span>
+      <span class="hub-panel-badge ok">NOMINAL</span>
+    </div>
+    <div class="hub-panel-body">
+      <div class="net-grid" style="margin-bottom:14px;">
+        <div class="net-card">
+          <div class="net-card-label">BLOCK HEIGHT</div>
+          <div class="net-card-val">{{ '{:,}'.format(sovereign.get('block_height', network.get('block_height', 945572))) }}</div>
+          <div class="net-card-sub">mainnet tip</div>
+        </div>
+        <div class="net-card">
+          <div class="net-card-label">NEXT ADJ</div>
+          <div class="net-card-val" style="font-size:14px;color:var(--gold);">{{ '+' if sovereign.get('network',{}).get('next_adj_pct',0) >= 0 else '' }}{{ '%.2f'|format(sovereign.get('network',{}).get('next_adj_pct',0)) }}%</div>
+          <div class="net-card-sub">{{ sovereign.get('network',{}).get('next_adj_blocks', '—') }} blocks</div>
+        </div>
+        <div class="net-card">
+          <div class="net-card-label">LN CHANNELS</div>
+          <div class="net-card-val" style="font-size:13px;color:var(--gold);">{{ '{:,}'.format(sovereign.get('lightning',{}).get('channel_count', 41109)) }}</div>
+          <div class="net-card-sub">active channels</div>
+        </div>
+        <div class="net-card">
+          <div class="net-card-label">LN CAPACITY</div>
+          <div class="net-card-val" style="font-size:13px;color:var(--gold);">{{ '%.0f'|format(sovereign.get('lightning',{}).get('capacity_btc', 5057)) }} BTC</div>
+          <div class="net-card-sub">routing capacity</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:12px;">
+        <div class="sig-row">
+          <span class="sig-label">MEMPOOL SIZE</span>
+          <span class="sig-val white">{{ sovereign.get('mempool',{}).get('size_mb','—') }} MB</span>
+        </div>
+        <div class="sig-row">
+          <span class="sig-label">UNCONFIRMED TX</span>
+          <span class="sig-val white">{{ '{:,}'.format(sovereign.get('mempool',{}).get('unconfirmed', 55283)) }}</span>
+        </div>
+        <div class="sig-row">
+          <span class="sig-label">MARKET CAP</span>
+          <span class="sig-val gold">${{ '%.2f'|format((sovereign.get('btc',{}).get('market_cap',0) or 0)/1e12) }}T</span>
+        </div>
+        <div class="sig-row">
+          <span class="sig-label">PCAF SCORE</span>
+          <span class="sig-val gold">{{ sovereign.get('pcaf_score','—') }}/100</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONGRESS / STOCK ACT FEED -->
+  <div class="hub-panel blue-top full-width">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-landmark" style="color:var(--blue);margin-right:6px;"></i>CONGRESS INSIDER TRADES · STOCK ACT DISCLOSURES</span>
+      <a href="/panopticon" style="font-size:7px;color:var(--blue);text-decoration:none;letter-spacing:.1em;">VIEW PANOPTICON →</a>
+    </div>
+    <div class="hub-panel-body" style="padding:0;">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:10px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="padding:8px 14px;text-align:left;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">MEMBER</th>
+              <th style="padding:8px 14px;text-align:left;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">ASSET</th>
+              <th style="padding:8px 14px;text-align:center;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">ACTION</th>
+              <th style="padding:8px 14px;text-align:right;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">AMOUNT</th>
+              <th style="padding:8px 14px;text-align:right;font-size:7px;letter-spacing:.15em;color:var(--muted);font-weight:700;">FILED</th>
+            </tr>
+          </thead>
+          <tbody id="congress-table-body">
+            <!-- loaded via JS from /api/congress/trades -->
+            <tr><td colspan="5" style="padding:16px 14px;color:var(--muted);font-size:9px;">Loading congressional trades...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMPOOL FEES -->
+  <div class="hub-panel">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-gas-pump" style="color:var(--red);margin-right:6px;"></i>MEMPOOL FEES</span>
+      <span class="hub-panel-badge live">LIVE</span>
+    </div>
+    <div class="hub-panel-body">
+      <div class="fee-grid">
+        <div class="fee-card">
+          <div class="fee-val fast" id="fee-fast">{{ mempool_data.get('fee_high', sovereign.get('mempool',{}).get('fee_high','—')) }}</div>
+          <div class="fee-label">FAST sat/vB</div>
+        </div>
+        <div class="fee-card">
+          <div class="fee-val mid" id="fee-mid">{{ mempool_data.get('fee_mid', sovereign.get('mempool',{}).get('fee_mid','—')) }}</div>
+          <div class="fee-label">MEDIUM</div>
+        </div>
+        <div class="fee-card">
+          <div class="fee-val slow" id="fee-slow">{{ mempool_data.get('fee_low', sovereign.get('mempool',{}).get('fee_low','—')) }}</div>
+          <div class="fee-label">ECONOMY</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:12px;">
+        <div class="sig-row"><span class="sig-label">UNCONFIRMED</span><span class="sig-val white" id="mp-unconf">{{ '{:,}'.format(sovereign.get('mempool',{}).get('unconfirmed',0)) }}</span></div>
+        <div class="sig-row"><span class="sig-label">MEMPOOL SIZE</span><span class="sig-val white">{{ sovereign.get('mempool',{}).get('size_mb','—') }} MB</span></div>
+      </div>
+      <a href="https://mempool.space" target="_blank" rel="noopener" style="display:block;text-align:center;padding:8px;font-size:8px;color:var(--muted);text-decoration:none;border-top:1px solid var(--border);margin-top:10px;letter-spacing:.08em;">OPEN MEMPOOL.SPACE →</a>
+    </div>
+  </div>
+
+  <!-- QUICK NAV -->
+  <div class="hub-panel gold-top">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-bolt" style="color:var(--gold);margin-right:6px;"></i>COMMAND LANES</span>
+    </div>
+    <div class="hub-panel-body">
+      <div class="hub-links">
+        <a href="/panopticon" class="hub-link-btn"><i class="fas fa-eye"></i>Panopticon</a>
+        <a href="/terminal" class="hub-link-btn"><i class="fas fa-signal"></i>Intelligence</a>
+        <a href="/live" class="hub-link-btn"><i class="fas fa-satellite-dish"></i>Live Terminal</a>
+        <a href="/signal-terminal" class="hub-link-btn"><i class="fas fa-chart-line"></i>Signal Terminal</a>
+        <a href="/articles" class="hub-link-btn"><i class="fas fa-newspaper"></i>Intel Briefs</a>
+        <a href="/whale-watcher" class="hub-link-btn"><i class="fas fa-fish"></i>Whale Watcher</a>
+        <a href="/media" class="hub-link-btn"><i class="fas fa-broadcast-tower"></i>Media Hub</a>
+        <a href="/admin/board" class="hub-link-btn" {% if not current_user.is_admin %}style="display:none"{% endif %}><i class="fas fa-tasks"></i>Ops Board</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMANDER BRIEFS -->
+  <div class="hub-panel full-width">
+    <div class="hub-panel-header">
+      <span class="hub-panel-title"><i class="fas fa-file-alt" style="color:var(--red);margin-right:6px;"></i>LATEST INTELLIGENCE</span>
+      <a href="/articles" style="font-size:7px;color:var(--muted);text-decoration:none;letter-spacing:.1em;">ALL BRIEFS →</a>
+    </div>
+    <div class="hub-panel-body" style="padding:0;display:grid;grid-template-columns:repeat(3,1fr);">
+      {% for article in (commander_briefs or latest_briefs)[:3] %}
+      <a href="/articles/{{ article.id }}" style="text-decoration:none;display:block;padding:16px;border-right:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background='none'">
+        <div style="font-size:7px;letter-spacing:.15em;color:var(--red);margin-bottom:6px;text-transform:uppercase;">{{ article.category or 'Bitcoin' }}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:6px;">{{ article.title[:80] }}{{ '…' if article.title|length > 80 else '' }}</div>
+        <div style="font-size:8px;color:var(--muted);">{{ article.created_at.strftime('%b %d') if article.created_at else '' }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+</div><!-- /.hub-grid -->
+</div><!-- /.hub-wrap -->
+
 <script>
-(function () {
-    const hubRoot = document.getElementById('hubRoot');
-    const logBox = document.getElementById('automationLog');
-    const oracleBrief = document.getElementById('oracleBrief');
-    const sentryList = document.getElementById('hubSentryList');
-    const medleyBtn = document.getElementById('engageMedleyBtn');
-    const medleyFill = document.getElementById('medleyProgressFill');
-    const medleyStatusText = document.getElementById('medleyStatusText');
-    const medleyOutputLink = document.getElementById('medleyOutputLink');
-    const initialLines = {{ (initial_log_lines or []) | tojson }};
-    const riskCenterSeed = {{ (risk_oracle_center or {}) | tojson }};
-    const riskLocationsSeed = {{ (risk_oracle_locations or []) | tojson }};
-    const medleyInitialState = {{ (medley_state or {}) | tojson }};
-    const oracleInput = document.getElementById('hubOracleInput');
-    const oracleBtn = document.getElementById('hubOracleAskBtn');
-    const oracleResultBox = document.getElementById('hubOracleResult');
-    const whalePushBtn = document.getElementById('enableWhalePushBtn');
-    const noiseMarkers = [
-        'DEBUG:urllib3.connectionpool',
-        'GET /api/block/',
-        'GET /api/blocks',
-        'GET /api/mempool/recent',
-        'UserWarning:'
-    ];
+// ── UTC Clock ──────────────────────────────────────────────────────────────
+function updateClock() {
+  var now = new Date();
+  var h = String(now.getUTCHours()).padStart(2,'0');
+  var m = String(now.getUTCMinutes()).padStart(2,'0');
+  var s = String(now.getUTCSeconds()).padStart(2,'0');
+  var el = document.getElementById('hub-utc-clock');
+  if (el) el.textContent = h + ':' + m + ':' + s;
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-    function isSignalLine(line) {
-        if (!line) return false;
-        for (const marker of noiseMarkers) {
-            if (line.indexOf(marker) !== -1) return false;
-        }
-        const lower = line.toLowerCase();
-        return lower.indexOf('[signal]') !== -1 || lower.indexOf('[sentry]') !== -1 || lower.indexOf('[whale]') !== -1;
+// ── Congress trades feed ───────────────────────────────────────────────────
+function loadCongress() {
+  fetch('/api/congress/trades').then(function(r){ return r.json(); }).then(function(data) {
+    var trades = (data.trades || data || []).slice(0, 8);
+    var tbody = document.getElementById('congress-table-body');
+    if (!tbody || !trades.length) return;
+    tbody.innerHTML = trades.map(function(t) {
+      var party = (t.party || t.member_party || 'R');
+      var name = (t.member || t.representative || t.senator || '—');
+      var asset = (t.asset || t.ticker || '—');
+      var type = (t.transaction_type || t.type || '—').toUpperCase();
+      var amount = (t.amount || t.amount_range || '—');
+      var filed = (t.filed_date || t.date || '—');
+      var typeClass = type.includes('PUR') ? 'PURCHASE' : 'SALE';
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">' +
+        '<td style="padding:9px 14px;"><span class="congress-party ' + party + '">' + party + '</span> <span style="font-size:10px;color:var(--text);margin-left:6px;">' + name + '</span></td>' +
+        '<td style="padding:9px 14px;font-size:10px;color:var(--gold);">' + asset + '</td>' +
+        '<td style="padding:9px 14px;text-align:center;"><span class="congress-type ' + typeClass + '">' + type + '</span></td>' +
+        '<td style="padding:9px 14px;text-align:right;font-size:10px;color:var(--dim);">' + amount + '</td>' +
+        '<td style="padding:9px 14px;text-align:right;font-size:9px;color:var(--muted);">' + filed + '</td>' +
+        '</tr>';
+    }).join('');
+  }).catch(function(e) {
+    console.log('Congress feed error:', e);
+  });
+}
+loadCongress();
+setInterval(loadCongress, 120000);
+
+// ── Live price refresh ─────────────────────────────────────────────────────
+function refreshLive() {
+  fetch('/api/network-data').then(function(r){ return r.json(); }).then(function(d) {
+    if (d.btc_price) {
+      var el = document.getElementById('kpi-price');
+      if (el) el.textContent = '$' + d.btc_price.toLocaleString('en-US', {maximumFractionDigits:0});
     }
-
-    function appendLogLine(line) {
-        if (!isSignalLine(line) || !logBox) return;
-        logBox.textContent += line + "\n";
-        const rows = logBox.textContent.split("\n");
-        if (rows.length > 120) {
-            logBox.textContent = rows.slice(rows.length - 120).join("\n");
-        }
-        logBox.scrollTop = logBox.scrollHeight;
-        try {
-            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'CACHE_EVENT',
-                    channel: 'hub',
-                    payload: { line: line, ts: Date.now() }
-                });
-            }
-        } catch (e) {}
+    if (d.block_height) {
+      var el2 = document.getElementById('hub-block');
+      if (el2) el2.textContent = d.block_height.toLocaleString();
+      var el3 = document.getElementById('kpi-block');
+      if (el3) el3.textContent = d.block_height.toLocaleString();
     }
-
-    function showOracleResult(payload) {
-        if (!oracleResultBox) return;
-        const answer = (payload && payload.answer) || 'no answer generated.';
-        const hits = (payload && payload.hits) || [];
-        let html = '<strong>oracle answer</strong><br>' + answer;
-        if (hits.length) {
-            html += '<div class="hub-oracle-hits">';
-            for (const h of hits.slice(0, 4)) {
-                html += '<div class="hub-oracle-hit"><strong>' + (h.source || 'source') + '</strong> · ' +
-                        (h.title || 'untitled') + '<br><span style="opacity:.82;">' + (h.excerpt || '') + '</span></div>';
-            }
-            html += '</div>';
-        }
-        oracleResultBox.innerHTML = html;
-        oracleResultBox.style.display = 'block';
-    }
-
-    function runOracleQuery() {
-        if (!oracleInput) return;
-        const q = (oracleInput.value || '').trim();
-        if (!q) return;
-        if (oracleBtn) oracleBtn.disabled = true;
-        fetch('/api/oracle/search', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ q: q })
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (payload) {
-            if (!payload || !payload.ok) throw new Error((payload && payload.error) || 'oracle failed');
-            showOracleResult(payload);
-            appendLogLine('[oracle] query resolved in ' + (payload.latency_ms || '?') + 'ms');
-        })
-        .catch(function (e) {
-            showOracleResult({answer: 'oracle error: ' + e.message, hits: []});
-        })
-        .finally(function () {
-            if (oracleBtn) oracleBtn.disabled = false;
-        });
-    }
-
-    function flashRedGlitch(meta) {
-        hubRoot.classList.remove('red-glitch');
-        void hubRoot.offsetWidth;
-        hubRoot.classList.add('red-glitch');
-        appendLogLine('[whale glitch] mega whale detected ' + (meta && meta.btc ? meta.btc : 'unknown') + ' btc');
-    }
-
-    async function enableWhalePush() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            alert('push not supported on this browser');
-            return;
-        }
-        if (Notification.permission !== 'granted') {
-            const perm = await Notification.requestPermission();
-            if (perm !== 'granted') {
-                alert('notification permission denied');
-                return;
-            }
-        }
-        const keyRes = await fetch('/api/notifications/vapid-public-key');
-        const keyPayload = await keyRes.json();
-        if (!keyRes.ok || !keyPayload.ok) {
-            alert(keyPayload.error || 'vapid key unavailable');
-            return;
-        }
-        const reg = await navigator.serviceWorker.ready;
-        let sub = await reg.pushManager.getSubscription();
-        const key = keyPayload.public_key;
-        function urlB64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-            return outputArray;
-        }
-        if (!sub) {
-            sub = await reg.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlB64ToUint8Array(key)
-            });
-        }
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-        const saveRes = await fetch('/api/notifications/subscribe', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrf},
-            body: JSON.stringify({subscription: sub.toJSON()})
-        });
-        const savePayload = await saveRes.json();
-        if (!saveRes.ok || !savePayload.ok) {
-            alert(savePayload.error || 'failed to save push subscription');
-            return;
-        }
-        if (whalePushBtn) {
-            whalePushBtn.textContent = 'whale push enabled';
-            whalePushBtn.disabled = true;
-        }
-        appendLogLine('[signal] whale web-push armed for sovereign alerts.');
-    }
-
-    (initialLines || []).forEach(appendLogLine);
-
-    if (window.io) {
-        const socket = io('/hub', { transports: ['websocket', 'polling'] });
-        socket.on('connect', function () {
-            appendLogLine('[socket] connected to live heartbeat stream');
-        });
-        socket.on('automation_bootstrap', function (payload) {
-            const lines = (payload && payload.lines) || [];
-            if (lines.length) {
-                logBox.textContent = '';
-                lines.forEach(appendLogLine);
-            }
-        });
-        socket.on('automation_log_line', function (payload) {
-            appendLogLine((payload && payload.line) || '');
-        });
-        socket.on('whale_alert', function (payload) {
-            flashRedGlitch(payload || {});
-        });
-    } else {
-        appendLogLine('[socket] unavailable, polling fallback active');
-        setInterval(function () {
-            fetch('/api/hub/automation-log').then(function (r) { return r.json(); }).then(function (payload) {
-                const lines = (payload && payload.lines) || [];
-                if (!lines.length) return;
-                logBox.textContent = '';
-                lines.forEach(appendLogLine);
-            }).catch(function () {});
-        }, 4000);
-    }
-
-    function bindSentryActions() {
-        if (!sentryList) return;
-        sentryList.querySelectorAll('button[data-sentry-id]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                const id = btn.getAttribute('data-sentry-id');
-                if (!id) return;
-                btn.disabled = true;
-                fetch('/api/hub/sentry/' + id + '/approve', { method: 'POST' })
-                    .then(function (r) { return r.json(); })
-                    .then(function (payload) {
-                        if (payload && payload.ok) {
-                            const row = document.getElementById('sentry-' + id);
-                            if (row) row.remove();
-                            appendLogLine('[sentry] draft approved #' + id + ' | released to queue.');
-                        } else {
-                            btn.disabled = false;
-                        }
-                    })
-                    .catch(function () { btn.disabled = false; });
-            });
-        });
-    }
-
-    function setMedleyState(state) {
-        if (!state) return;
-        const pct = Math.max(0, Math.min(100, Number(state.progress || 0)));
-        if (medleyFill) medleyFill.style.width = pct + '%';
-        if (medleyStatusText) medleyStatusText.textContent = 'status: ' + (state.message || state.status || 'idle');
-        if (medleyBtn) medleyBtn.disabled = !!state.running;
-        if (medleyOutputLink) {
-            if (state.output_url) {
-                medleyOutputLink.href = state.output_url;
-                medleyOutputLink.style.pointerEvents = 'auto';
-                medleyOutputLink.style.opacity = '1';
-            } else {
-                medleyOutputLink.href = '#';
-                medleyOutputLink.style.pointerEvents = 'none';
-                medleyOutputLink.style.opacity = '0.55';
-            }
-        }
-    }
-
-    function pollMedleyStatus() {
-        fetch('/api/hub/medley/status')
-            .then(function (r) { return r.json(); })
-            .then(function (payload) {
-                const state = (payload && payload.state) || {};
-                setMedleyState(state);
-            })
-            .catch(function () {});
-    }
-
-    function openLatestBrief(event) {
-        if (event) event.preventDefault();
-        fetch('/api/hub/medley/status')
-            .then(function (r) { return r.json(); })
-            .then(function (payload) {
-                const state = (payload && payload.state) || {};
-                const url = (state.output_url || '/api/hub/medley/output') + '?t=' + Date.now();
-                window.open(url, '_blank');
-            })
-            .catch(function () {
-                window.open('/api/hub/medley/output?t=' + Date.now(), '_blank');
-            });
-    }
-
-    if (medleyBtn) {
-        medleyBtn.addEventListener('click', function () {
-            medleyBtn.disabled = true;
-            fetch('/api/hub/medley/start', { method: 'POST' })
-                .then(function (r) { return r.json(); })
-                .then(function (payload) {
-                    setMedleyState((payload && payload.state) || {});
-                    appendLogLine('[signal] medley director engaged on gpu 1 | rendering intelligence brief...');
-                })
-                .catch(function () {
-                    medleyBtn.disabled = false;
-                });
-        });
-        setMedleyState(medleyInitialState || {});
-        setInterval(pollMedleyStatus, 2000);
-    }
-    if (medleyOutputLink) {
-        medleyOutputLink.addEventListener('click', openLatestBrief);
-    }
-
-    function latLngToVec(lat, lng, radius) {
-        const phi = (90 - lat) * (Math.PI / 180);
-        const theta = (lng + 180) * (Math.PI / 180);
-        const x = -(radius * Math.sin(phi) * Math.cos(theta));
-        const z = (radius * Math.sin(phi) * Math.sin(theta));
-        const y = (radius * Math.cos(phi));
-        return new THREE.Vector3(x, y, z);
-    }
-
-    function riskColor(score) {
-        if (score < 40) return 0x00ffcc;
-        if (score <= 70) return 0xfacc15;
-        return 0xdc2626;
-    }
-
-    function updateOracleBrief(loc) {
-        if (!oracleBrief || !loc) return;
-        const name = (loc.name || 'unknown zone').toLowerCase();
-        const grid = (loc.grid_load != null ? loc.grid_load : 'n/a');
-        const sentiment = (loc.sentiment || 'monitor').toLowerCase();
-        const details = (loc.details || 'intel sparse. keep this zone under watch.').toLowerCase();
-        oracleBrief.innerHTML =
-            '<strong>tactical brief</strong><br>' +
-            'location: ' + name + '<br>' +
-            'grid load: ' + grid + '% (' + (Number(grid) >= 85 ? 'critical' : 'stable') + ')<br>' +
-            'sentiment: ' + sentiment + '<br>' +
-            'action: monitor hashrate fluctuations.<br>' +
-            'notes: ' + details;
-    }
-
-    function initRiskOracle(riskCenter, riskLocations) {
-        const container = document.getElementById('riskOracleGlobe');
-        if (!container || !window.THREE) return;
-
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-
-        const globeGeom = new THREE.SphereGeometry(1.45, 48, 48);
-        const globeMat = new THREE.MeshStandardMaterial({
-            color: 0x111118,
-            emissive: 0x320808,
-            metalness: 0.35,
-            roughness: 0.55,
-            wireframe: false
-        });
-        const globe = new THREE.Mesh(globeGeom, globeMat);
-        scene.add(globe);
-
-        const wire = new THREE.Mesh(
-            new THREE.SphereGeometry(1.465, 28, 28),
-            new THREE.MeshBasicMaterial({ color: 0xdc2626, wireframe: true, transparent: true, opacity: 0.26 })
-        );
-        scene.add(wire);
-
-        const ambient = new THREE.AmbientLight(0xffd5d5, 0.45);
-        scene.add(ambient);
-        const redLight = new THREE.PointLight(0xdc2626, 1.3, 20);
-        redLight.position.set(3, 2, 4);
-        scene.add(redLight);
-
-        const markerRegistry = [];
-        (riskLocations || []).slice(0, 180).forEach(function (loc) {
-            const score = Number(loc.risk_score || 50);
-            const share = Number(loc.hashrate_share || 0);
-            const size = 0.018 + (share * 0.15) + (score / 3000);
-            const color = riskColor(score);
-            const marker = new THREE.Mesh(
-                new THREE.SphereGeometry(size, 10, 10),
-                new THREE.MeshBasicMaterial({ color: color })
-            );
-            marker.position.copy(latLngToVec(loc.lat, loc.lng, 1.49));
-            scene.add(marker);
-            markerRegistry.push({
-                mesh: marker,
-                pulse: 0.004 + (score / 15000),
-                base: size,
-                loc: loc
-            });
-        });
-
-        if (riskCenter && typeof riskCenter.lat === 'number' && typeof riskCenter.lng === 'number') {
-            const centerPin = new THREE.Mesh(
-                new THREE.SphereGeometry(0.05, 12, 12),
-                new THREE.MeshBasicMaterial({ color: 0xdc2626 })
-            );
-            centerPin.position.copy(latLngToVec(riskCenter.lat, riskCenter.lng, 1.53));
-            scene.add(centerPin);
-        }
-
-        camera.position.z = 3.6;
-        updateOracleBrief(riskCenter || (riskLocations || [])[0]);
-
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        renderer.domElement.addEventListener('click', function (evt) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            const hits = raycaster.intersectObjects(markerRegistry.map(function (m) { return m.mesh; }));
-            if (!hits.length) return;
-            const match = markerRegistry.find(function (m) { return m.mesh === hits[0].object; });
-            if (match && match.loc) updateOracleBrief(match.loc);
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            globe.rotation.y += 0.0024;
-            wire.rotation.y += 0.0027;
-            markerRegistry.forEach(function (m, i) {
-                const scale = 1 + (Math.sin((Date.now() * m.pulse) + i) * 0.16);
-                m.mesh.scale.set(scale, scale, scale);
-            });
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', function () {
-            if (!container.clientWidth || !container.clientHeight) return;
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-    }
-
-    bindSentryActions();
-    if (whalePushBtn) {
-        whalePushBtn.addEventListener('click', function () {
-            enableWhalePush().catch(function () {});
-        });
-    }
-    if (oracleBtn) oracleBtn.addEventListener('click', runOracleQuery);
-    if (oracleInput) {
-        oracleInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                runOracleQuery();
-            }
-        });
-    }
-    document.addEventListener('keydown', function (e) {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-            e.preventDefault();
-            if (oracleInput) oracleInput.focus();
-        }
-    });
-
-    fetch('/api/risk-data')
-        .then(function (r) { return r.json(); })
-        .then(function (payload) {
-            const center = (payload && payload.center) || riskCenterSeed || {};
-            const locations = (payload && payload.jurisdictions) || riskLocationsSeed || [];
-            initRiskOracle(center, locations);
-        })
-        .catch(function () {
-            initRiskOracle(riskCenterSeed || {}, riskLocationsSeed || []);
-        });
-})();
+  }).catch(function(){});
+  
+  // Refresh mempool fees
+  fetch('https://mempool.space/api/v1/fees/recommended').then(function(r){ return r.json(); }).then(function(f) {
+    var fast = document.getElementById('fee-fast');
+    var mid = document.getElementById('fee-mid');
+    var slow = document.getElementById('fee-slow');
+    var kpiFees = document.getElementById('kpi-fees');
+    if (fast) fast.textContent = f.fastestFee;
+    if (mid)  mid.textContent  = f.halfHourFee;
+    if (slow) slow.textContent = f.economyFee;
+    if (kpiFees) kpiFees.textContent = f.fastestFee;
+  }).catch(function(){});
+}
+refreshLive();
+setInterval(refreshLive, 60000);
 </script>
 {% endblock %}
