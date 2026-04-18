@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 {% block title %}Sponsor Outreach — Protocol Pulse Admin{% endblock %}
-{% block content %}
+{% block admin_title %}SPONSOR OUTREACH{% endblock %}
+{% block admin_content %}
 <style>
 :root {
   --bg:#000;--s1:#080808;--s2:#0f0f0f;--border:#1c1c1c;
@@ -8,13 +9,9 @@
   --green:#22c55e;--blue:#3b82f6;--orange:#f97316;
   --muted:#444;--text:#e0e0e0;--mono:'JetBrains Mono','Courier New',monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--mono);}
 
-.or-wrap{max-width:1400px;margin:0 auto;padding:72px 20px 60px;}
-.or-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 16px;border-bottom:1px solid var(--red);margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-.or-logo{font-size:13px;font-weight:900;letter-spacing:.2em;color:var(--red);text-transform:uppercase;}
-.or-logo span{color:var(--gold);}
+.or-wrap{max-width:1400px;margin:0 auto;}
+.or-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 14px;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .or-actions{display:flex;gap:8px;}
 .btn{background:none;border:1px solid var(--muted);color:var(--muted);font-family:var(--mono);font-size:10px;padding:5px 14px;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;text-decoration:none;display:inline-block;}
 .btn:hover{border-color:var(--gold);color:var(--gold);}
@@ -76,20 +73,73 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--green);font-family:var(--mono);font-size:10px;color:var(--text);padding:10px 18px;z-index:9999;animation:toastIn .2s ease;letter-spacing:.06em;}
 .toast.error{border-left-color:var(--red);}
 @keyframes toastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+
+/* Reply-detected pulse row */
+.or-table tr.reply-detected td{
+  background: linear-gradient(90deg, rgba(248,193,92,0.12) 0%, rgba(248,193,92,0.04) 100%) !important;
+  animation: goldPulse 2.4s ease-in-out infinite;
+  border-left: 3px solid var(--gold);
+}
+.or-table tr.reply-detected td:first-child{
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+@keyframes goldPulse {
+  0%,100% { background-color: rgba(248,193,92,0.06); }
+  50%     { background-color: rgba(248,193,92,0.18); }
+}
+.or-table tr.reply-detected .or-company::before {
+  content: "✉ REPLY ";
+  color: var(--gold);
+  font-size: 7px;
+  letter-spacing: .2em;
+  font-weight: 900;
+  margin-right: 6px;
+  padding: 2px 5px;
+  background: rgba(248,193,92,0.15);
+  border: 1px solid rgba(248,193,92,0.4);
+  border-radius: 2px;
+}
+
+/* Campaign progress */
+.or-progress{margin:0 0 16px;padding:12px 16px;background:var(--s1);border:1px solid var(--border);border-left:2px solid var(--gold);}
+.or-progress-row{display:flex;align-items:center;justify-content:space-between;font-size:10px;margin-bottom:8px;color:var(--muted);letter-spacing:.08em;}
+.or-progress-row .label{text-transform:uppercase;font-size:8px;letter-spacing:.18em;}
+.or-progress-row .vals{font-family:var(--mono);color:var(--text);font-weight:700;}
+.or-progress-row .vals .num{color:var(--gold);font-size:12px;}
+.or-progress-row .vals .num.green{color:var(--green);}
+.or-progress-bar{height:8px;background:#111;border-radius:1px;overflow:hidden;margin-bottom:6px;position:relative;}
+.or-progress-fill{height:100%;transition:width .4s ease;}
+.or-progress-fill.contacted{background:var(--blue);}
+.or-progress-fill.replied{background:var(--gold);}
+.or-velocity{font-size:9px;color:var(--muted);letter-spacing:.1em;margin-top:6px;text-transform:uppercase;}
+.or-velocity b{color:var(--gold);font-weight:700;}
 </style>
 
 <div class="or-wrap">
 <div class="or-topbar">
   <div>
-    <div class="or-logo">PROTOCOL PULSE &nbsp;<span>// SPONSOR OUTREACH</span></div>
-    <div style="font-size:8px;color:var(--muted);margin-top:4px;letter-spacing:.1em;">CAMPAIGN STATUS: <span id="campaign-status" style="color:var(--gold);">LOADING...</span></div>
+    <div style="font-size:8px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;">CAMPAIGN STATUS</div>
+    <div style="font-size:12px;margin-top:3px;letter-spacing:.08em;"><span id="campaign-status" style="color:var(--gold);">LOADING...</span></div>
   </div>
   <div class="or-actions">
-    <a href="/admin" class="btn">← ADMIN</a>
-    <a href="/admin/board" class="btn">OPS BOARD</a>
     <button class="btn primary" onclick="addProspect()">+ ADD PROSPECT</button>
     <button class="btn green" onclick="sendBatch()" id="batch-btn">⚡ SEND BATCH</button>
   </div>
+</div>
+
+<!-- CAMPAIGN PROGRESS -->
+<div class="or-progress" id="or-progress">
+  <div class="or-progress-row">
+    <span class="label">Contacted</span>
+    <span class="vals"><span class="num" id="prog-contacted">0</span> <span style="color:var(--muted)">/</span> <span id="prog-total">33</span></span>
+  </div>
+  <div class="or-progress-bar"><div class="or-progress-fill contacted" id="prog-bar-contacted" style="width:0%;"></div></div>
+  <div class="or-progress-row" style="margin-top:8px;">
+    <span class="label">Replied</span>
+    <span class="vals"><span class="num green" id="prog-replied">0</span> <span style="color:var(--muted)">/</span> <span id="prog-total-2">33</span></span>
+  </div>
+  <div class="or-progress-bar"><div class="or-progress-fill replied" id="prog-bar-replied" style="width:0%;"></div></div>
+  <div class="or-velocity">CAMPAIGN VELOCITY: Avg days to reply <b id="prog-avg-days">—</b></div>
 </div>
 
 <!-- STATS ROW -->
@@ -181,7 +231,8 @@ function renderTable() {
     var isBoomers = p.notes && p.notes.includes('Boomers');
     var sentDate = p.sent_at ? p.sent_at.substring(0,10) : '—';
     var repliedDate = p.replied_at ? p.replied_at.substring(0,10) : '—';
-    return `<tr data-id="${p.id}">
+    var replyClass = p.replied_at ? ' class="reply-detected"' : '';
+    return `<tr data-id="${p.id}"${replyClass}>
       <td><div class="or-company">${esc(p.company)}${isBoomers?'<span class="or-prop-tag">BOOMERS</span>':''}</div></td>
       <td><span class="or-cat">${esc(p.category)}</span></td>
       <td><div class="or-email">${esc(p.email||'—')}</div></td>
@@ -198,6 +249,34 @@ function renderTable() {
       </div></td>
     </tr>`;
   }).join('');
+  updateProgress();
+}
+
+function updateProgress() {
+  var total = ALL.length || 33;
+  var contacted = ALL.filter(p => ['contacted','replied','deal'].indexOf(p.status) !== -1).length;
+  var replied = ALL.filter(p => !!p.replied_at).length;
+
+  document.getElementById('prog-total').textContent = total;
+  document.getElementById('prog-total-2').textContent = total;
+  document.getElementById('prog-contacted').textContent = contacted;
+  document.getElementById('prog-replied').textContent = replied;
+  document.getElementById('prog-bar-contacted').style.width = Math.round((contacted/total)*100) + '%';
+  document.getElementById('prog-bar-replied').style.width = Math.round((replied/total)*100) + '%';
+
+  // Avg days to reply
+  var daysList = [];
+  ALL.forEach(p => {
+    if (p.sent_at && p.replied_at) {
+      var s = new Date(p.sent_at).getTime();
+      var r = new Date(p.replied_at).getTime();
+      if (r >= s) daysList.push((r - s) / 86400000);
+    }
+  });
+  var avg = daysList.length ? (daysList.reduce((a,b)=>a+b,0) / daysList.length) : null;
+  document.getElementById('prog-avg-days').textContent = avg !== null
+    ? avg.toFixed(1) + ' days (n=' + daysList.length + ')'
+    : '— (no replies yet)';
 }
 
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }

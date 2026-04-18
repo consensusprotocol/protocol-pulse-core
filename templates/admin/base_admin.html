@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{#
+  base_admin.html — Unified admin mission control shell.
+  Provides persistent left sidebar + live top bar.
+  Child templates override {% block admin_content %}.
+#}
+
+{% block og_meta %}
+<meta property="og:title" content="Protocol Pulse — Admin">
+<meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --ad-bg:        #000000;
+    --ad-surface:   #0a0a0a;
+    --ad-surface2:  #111111;
+    --ad-surface3:  #161616;
+    --ad-border:    #1c1c1c;
+    --ad-red:       #CC0000;
+    --ad-red-dim:   rgba(204,0,0,0.15);
+    --ad-gold:      #F8C15C;
+    --ad-green:     #22c55e;
+    --ad-blue:      #3b82f6;
+    --ad-muted:     #555;
+    --ad-text:      #e2e2e2;
+    --ad-mono:      'JetBrains Mono', 'Courier New', monospace;
+    --ad-sb-w:      240px;
+    --ad-tb-h:      56px;
+  }
+
+  /* Reset base layout to give us a full-width admin canvas */
+  .pp-main { padding: 0 !important; }
+  body { background: var(--ad-bg); color: var(--ad-text); font-family: var(--ad-mono); }
+
+  /* ===== SIDEBAR ===== */
+  .ad-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--ad-sb-w);
+    background: var(--ad-surface);
+    border-right: 1px solid var(--ad-border);
+    padding: 16px 0 12px;
+    z-index: 200;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .ad-sidebar::-webkit-scrollbar { width: 4px; }
+  .ad-sidebar::-webkit-scrollbar-thumb { background: var(--ad-border); }
+
+  .ad-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px 16px;
+    border-bottom: 1px solid var(--ad-border);
+    margin-bottom: 10px;
+  }
+  .ad-brand-logo {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: var(--ad-red);
+    text-transform: uppercase;
+  }
+  .ad-brand-logo span { color: var(--ad-gold); }
+  .ad-brand-badge {
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    padding: 3px 6px;
+    background: var(--ad-red-dim);
+    color: var(--ad-red);
+    border: 1px solid var(--ad-red);
+    border-radius: 2px;
+  }
+
+  .ad-nav-group { margin-bottom: 4px; }
+  .ad-nav-heading {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--ad-muted);
+    padding: 12px 18px 6px;
+    text-transform: uppercase;
+  }
+  .ad-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    color: var(--ad-text);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .ad-nav-link i {
+    width: 14px;
+    font-size: 11px;
+    color: var(--ad-muted);
+    text-align: center;
+  }
+  .ad-nav-link:hover {
+    background: var(--ad-surface2);
+    color: var(--ad-gold);
+  }
+  .ad-nav-link:hover i { color: var(--ad-gold); }
+  .ad-nav-link.active {
+    background: rgba(204,0,0,0.08);
+    color: var(--ad-red);
+    border-left-color: var(--ad-red);
+    font-weight: 700;
+  }
+  .ad-nav-link.active i { color: var(--ad-red); }
+
+  .ad-sidebar-footer {
+    margin-top: auto;
+    padding: 12px 18px;
+    border-top: 1px solid var(--ad-border);
+    font-size: 10px;
+    color: var(--ad-muted);
+  }
+  .ad-sidebar-footer .email {
+    color: var(--ad-text);
+    word-break: break-all;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .ad-sidebar-footer a {
+    color: var(--ad-muted);
+    text-decoration: none;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .ad-sidebar-footer a:hover { color: var(--ad-red); }
+
+  /* ===== TOP BAR ===== */
+  .ad-topbar {
+    position: fixed;
+    top: 0; left: var(--ad-sb-w); right: 0;
+    height: var(--ad-tb-h);
+    background: var(--ad-bg);
+    border-bottom: 1px solid var(--ad-red);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    gap: 16px;
+  }
+  .ad-topbar-left { display: flex; align-items: center; gap: 18px; }
+  .ad-topbar-title {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    color: var(--ad-gold);
+    text-transform: uppercase;
+  }
+  .ad-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .ad-topbar-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--ad-muted);
+    padding: 4px 10px;
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: 2px;
+  }
+  .ad-topbar-pill .label {
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ad-muted);
+  }
+  .ad-topbar-pill .value {
+    color: var(--ad-text);
+    font-weight: 700;
+  }
+  .ad-topbar-pill .value.green { color: var(--ad-green); }
+  .ad-topbar-pill .value.red   { color: var(--ad-red); }
+  .ad-topbar-pill .value.gold  { color: var(--ad-gold); }
+
+  .ad-health-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ad-muted);
+    box-shadow: 0 0 6px transparent;
+  }
+  .ad-health-dot.green { background: var(--ad-green); box-shadow: 0 0 8px var(--ad-green); }
+  .ad-health-dot.red   { background: var(--ad-red);   box-shadow: 0 0 8px var(--ad-red); animation: adPulse 1.5s infinite; }
+  .ad-health-dot.gold  { background: var(--ad-gold);  box-shadow: 0 0 8px var(--ad-gold); }
+  @keyframes adPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .ad-newcard-btn {
+    background: var(--ad-red);
+    color: #fff;
+    border: 1px solid var(--ad-red);
+    font-family: var(--ad-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 6px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ad-newcard-btn:hover { opacity: 0.85; }
+  .ad-kbd {
+    font-size: 8px;
+    padding: 1px 5px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 2px;
+    color: rgba(255,255,255,0.8);
+    margin-left: 4px;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .ad-main {
+    margin-left: var(--ad-sb-w);
+    padding-top: var(--ad-tb-h);
+    min-height: 100vh;
+  }
+  .ad-main-inner { padding: 20px 24px 40px; }
+
+  /* ===== MOBILE HAMBURGER ===== */
+  .ad-menu-btn {
+    display: none;
+    background: none;
+    border: 1px solid var(--ad-border);
+    color: var(--ad-text);
+    font-size: 18px;
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .ad-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 199;
+  }
+  .ad-sidebar-overlay.open { display: block; }
+
+  @media (max-width: 900px) {
+    .ad-sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+    }
+    .ad-sidebar.open { transform: translateX(0); }
+    .ad-topbar { left: 0; }
+    .ad-main { margin-left: 0; }
+    .ad-menu-btn { display: inline-block; }
+    .ad-topbar-pill.hide-mobile { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .ad-topbar-title { display: none; }
+    .ad-newcard-btn .label { display: none; }
+    .ad-main-inner { padding: 14px 12px 30px; }
+  }
+</style>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside class="ad-sidebar" id="adSidebar">
+  <div class="ad-brand">
+    <div class="ad-brand-logo">P<span>P</span></div>
+    <div class="ad-brand-badge">ADMIN</div>
+  </div>
+
+  {% set current_path = request.path %}
+
+  <div class="ad-nav-group">
+    <div class="ad-nav-heading">Intelligence</div>
+    <a class="ad-nav-link {% if current_path == '/admin' %}active{% endif %}" href="/admin">
+      <i class="fas fa-chart-line"></i><span>Dashboard</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/board' %}active{% endif %}" href="/admin/board">
+      <i class="fas fa-columns"></i><span>Ops Board</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/outreach' %}active{% endif %}" href="/admin/outreach">
+      <i class="fas fa-paper-plane"></i><span>Outreach</span>
+    </a>
+  </div>
+
+  <div class="ad-nav-group">
+    <div class="ad-nav-heading">Content</div>
+    <a class="ad-nav-link {% if current_path == '/admin/write' %}active{% endif %}" href="/admin/write">
+      <i class="fas fa-pen-nib"></i><span>Articles</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/newsletter' %}active{% endif %}" href="/admin/newsletter">
+      <i class="fas fa-envelope-open-text"></i><span>Newsletter</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/revenue' %}active{% endif %}" href="/admin/revenue">
+      <i class="fas fa-dollar-sign"></i><span>Revenue</span>
+    </a>
+  </div>
+
+  <div class="ad-nav-group">
+    <div class="ad-nav-heading">Pipeline</div>
+    <a class="ad-nav-link {% if current_path == '/admin/command-deck' %}active{% endif %}" href="/admin/command-deck">
+      <i class="fas fa-video"></i><span>Video Pipeline</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/analytics' %}active{% endif %}" href="/admin/analytics">
+      <i class="fas fa-chart-bar"></i><span>Analytics</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/ads' %}active{% endif %}" href="/admin/ads">
+      <i class="fas fa-bullhorn"></i><span>Ads</span>
+    </a>
+  </div>
+
+  <div class="ad-nav-group">
+    <div class="ad-nav-heading">System</div>
+    <a class="ad-nav-link {% if current_path == '/admin/supervisor' %}active{% endif %}" href="/admin/supervisor">
+      <i class="fas fa-heartbeat"></i><span>System Health</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/sentry' %}active{% endif %}" href="/admin/sentry">
+      <i class="fas fa-terminal"></i><span>Logs</span>
+    </a>
+    <a class="ad-nav-link {% if current_path == '/admin/crm-setup' %}active{% endif %}" href="/admin/crm-setup">
+      <i class="fas fa-cog"></i><span>Settings</span>
+    </a>
+  </div>
+
+  <div class="ad-sidebar-footer">
+    {% if current_user and current_user.is_authenticated %}
+    <span class="email">{{ current_user.email }}</span>
+    <a href="/logout"><i class="fas fa-sign-out-alt"></i> LOGOUT</a>
+    {% endif %}
+  </div>
+</aside>
+
+<div class="ad-sidebar-overlay" id="adSidebarOverlay" onclick="adCloseSidebar()"></div>
+
+<!-- ═══════════════════════ TOP BAR ═══════════════════════ -->
+<header class="ad-topbar">
+  <div class="ad-topbar-left">
+    <button class="ad-menu-btn" onclick="adToggleSidebar()" aria-label="Menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="ad-topbar-title">{% block admin_title %}MISSION CONTROL{% endblock %}</div>
+  </div>
+  <div class="ad-topbar-right">
+    <div class="ad-topbar-pill hide-mobile">
+      <span class="label">UTC</span>
+      <span class="value" id="adUtcClock">--:--:--</span>
+    </div>
+    <div class="ad-topbar-pill hide-mobile" id="adBtcPill">
+      <span class="label">BTC</span>
+      <span class="value" id="adBtcPrice">—</span>
+      <span id="adBtcDelta" style="font-size:9px;color:var(--ad-muted);">—</span>
+    </div>
+    <div class="ad-topbar-pill">
+      <span class="ad-health-dot" id="adHealthDot"></span>
+      <span class="label" id="adHealthText">HEALTH</span>
+    </div>
+    <a class="ad-newcard-btn" href="/admin/board" id="adNewCardBtn" onclick="return adNewCard(event);">
+      <i class="fas fa-plus"></i><span class="label">NEW CARD</span>
+      <span class="ad-kbd">N</span>
+    </a>
+  </div>
+</header>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<main class="ad-main">
+  <div class="ad-main-inner">
+    {% block admin_content %}{% endblock %}
+  </div>
+</main>
+
+<script>
+// ===== UTC CLOCK =====
+function adTickClock() {
+  var el = document.getElementById('adUtcClock');
+  if (el) el.textContent = new Date().toISOString().slice(11, 19);
+}
+setInterval(adTickClock, 1000);
+adTickClock();
+
+// ===== BTC TICKER =====
+var _adBtcPrev = null;
+function adFetchBtc() {
+  fetch('/api/btc-price').then(function(r){ return r.json(); }).then(function(d){
+    var price = d.price || d.usd || (d.bitcoin && d.bitcoin.usd);
+    var change = d.change_24h_pct !== undefined ? d.change_24h_pct : (d.change_24h || d.change_pct);
+    var priceEl = document.getElementById('adBtcPrice');
+    var deltaEl = document.getElementById('adBtcDelta');
+    if (!price) return;
+    priceEl.textContent = '$' + Number(price).toLocaleString(undefined, {maximumFractionDigits: 0});
+    var cls = 'gold';
+    if (change !== undefined && change !== null) {
+      var n = Number(change);
+      cls = n >= 0 ? 'green' : 'red';
+      deltaEl.textContent = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+      deltaEl.style.color = n >= 0 ? 'var(--ad-green)' : 'var(--ad-red)';
+    } else if (_adBtcPrev !== null) {
+      cls = price >= _adBtcPrev ? 'green' : 'red';
+    }
+    priceEl.className = 'value ' + cls;
+    _adBtcPrev = price;
+  }).catch(function(){
+    var priceEl = document.getElementById('adBtcPrice');
+    if (priceEl && priceEl.textContent === '—') priceEl.textContent = 'n/a';
+  });
+}
+adFetchBtc();
+setInterval(adFetchBtc, 60000);
+
+// ===== HEALTH DOT =====
+function adFetchHealth() {
+  fetch('/api/admin/system-health').then(function(r){ return r.json(); }).then(function(d){
+    var dot = document.getElementById('adHealthDot');
+    var txt = document.getElementById('adHealthText');
+    if (!dot) return;
+    var issue = (d.cpu_pct > 90) || (d.ram_pct > 90) || (d.disk_pct > 95) ||
+                (d.recent_errors && d.recent_errors.length > 0);
+    var warn = (d.cpu_pct > 75) || (d.ram_pct > 75) || (d.disk_pct > 85);
+    dot.className = 'ad-health-dot ' + (issue ? 'red' : warn ? 'gold' : 'green');
+    if (txt) txt.textContent = issue ? 'ISSUE' : warn ? 'WARN' : 'HEALTHY';
+  }).catch(function(){
+    var dot = document.getElementById('adHealthDot');
+    if (dot) dot.className = 'ad-health-dot red';
+  });
+}
+adFetchHealth();
+setInterval(adFetchHealth, 30000);
+
+// ===== SIDEBAR TOGGLE =====
+function adToggleSidebar() {
+  document.getElementById('adSidebar').classList.toggle('open');
+  document.getElementById('adSidebarOverlay').classList.toggle('open');
+}
+function adCloseSidebar() {
+  document.getElementById('adSidebar').classList.remove('open');
+  document.getElementById('adSidebarOverlay').classList.remove('open');
+}
+
+// ===== NEW CARD BUTTON =====
+function adNewCard(ev) {
+  // If we're on the board page, trigger the board's openNewCard instead of navigating.
+  if (typeof window.openNewCard === 'function') {
+    ev.preventDefault();
+    window.openNewCard('backlog');
+    return false;
+  }
+  return true; // navigate to /admin/board
+}
+
+// ===== KEYBOARD SHORTCUT: N = new card =====
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    var t = document.activeElement.tagName;
+    if (t !== 'INPUT' && t !== 'TEXTAREA' && t !== 'SELECT' && !document.activeElement.isContentEditable) {
+      if (typeof window.openNewCard === 'function') {
+        e.preventDefault();
+        window.openNewCard('backlog');
+      }
+    }
+  }
+});
+</script>
+
+{% block admin_scripts %}{% endblock %}
+{% endblock %}

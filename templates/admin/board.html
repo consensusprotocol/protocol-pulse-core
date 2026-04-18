@@ -1,7 +1,8 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 {% block title %}Ops Board — Protocol Pulse{% endblock %}
+{% block admin_title %}OPS BOARD{% endblock %}
 
-{% block content %}
+{% block admin_content %}
 <style>
 :root {
   --bg:       #000;
@@ -21,25 +22,17 @@
   --mono:     'JetBrains Mono', 'Courier New', monospace;
   --col-w:    280px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: var(--mono); }
 
-/* ── TOP BAR ── */
-.ob-topbar {
+/* ── STATS STRIP (replaces old top bar) ── */
+.ob-statsbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 24px; border-bottom: 1px solid var(--red);
-  background: var(--bg); position: sticky; top: 56px; z-index: 100;
-  flex-wrap: wrap; gap: 10px;
+  padding: 10px 4px 14px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 10px; margin-bottom: 8px;
 }
-.ob-logo {
-  font-size: 13px; font-weight: 900; letter-spacing: .2em;
-  color: var(--red); text-transform: uppercase;
-}
-.ob-logo span { color: var(--gold); }
-.ob-stats { display: flex; gap: 20px; }
+.ob-stats { display: flex; gap: 26px; }
 .ob-stat { display: flex; flex-direction: column; align-items: center; }
-.ob-stat-val { font-size: 18px; font-weight: 900; color: var(--gold); line-height: 1; }
-.ob-stat-label { font-size: 7px; letter-spacing: .15em; color: var(--muted); margin-top: 2px; }
+.ob-stat-val { font-size: 20px; font-weight: 900; color: var(--gold); line-height: 1; }
+.ob-stat-label { font-size: 7px; letter-spacing: .15em; color: var(--muted); margin-top: 4px; text-transform: uppercase; }
 .ob-actions { display: flex; gap: 8px; }
 .ob-btn {
   background: none; border: 1px solid var(--muted); color: var(--muted);
@@ -53,7 +46,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); }
 /* ── BOARD LAYOUT ── */
 .ob-board {
   display: flex; gap: 0; overflow-x: auto;
-  padding: 20px 24px 40px; min-height: calc(100vh - 120px);
+  padding: 14px 0 30px; min-height: calc(100vh - 220px);
   background: var(--bg);
 }
 .ob-board::-webkit-scrollbar { height: 4px; }
@@ -283,8 +276,29 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); }
 /* Search / filter bar */
 .ob-filterbar {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 24px; border-bottom: 1px solid var(--border);
+  padding: 10px 4px; border-bottom: 1px solid var(--border);
   background: var(--bg); overflow-x: auto;
+}
+.ob-filter-btn.urgent-tab {
+  color: var(--red); border-color: var(--red);
+  font-weight: 900;
+}
+.ob-filter-btn.urgent-tab.active {
+  background: rgba(204,0,0,.12);
+  color: var(--red); border-color: var(--red);
+  box-shadow: 0 0 6px rgba(204,0,0,.4);
+}
+.ob-kbd-hint {
+  margin-left: auto;
+  font-size: 8px; letter-spacing: .12em; color: var(--muted);
+  white-space: nowrap;
+}
+.ob-kbd-hint kbd {
+  font-family: var(--mono);
+  font-size: 8px; padding: 1px 5px;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 2px; color: var(--text);
+  margin: 0 2px;
 }
 .ob-search {
   background: var(--s2); border: 1px solid var(--border);
@@ -313,11 +327,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); }
 @keyframes obToastIn { from{transform:translateX(20px);opacity:0} to{transform:none;opacity:1} }
 </style>
 
-<div class="pbx-wrap" style="max-width:100%;padding:0;">
-
-<!-- TOP BAR -->
-<div class="ob-topbar">
-  <div class="ob-logo">PROTOCOL PULSE &nbsp;<span>// OPS BOARD</span></div>
+<!-- STATS STRIP -->
+<div class="ob-statsbar">
   <div class="ob-stats">
     <div class="ob-stat"><div class="ob-stat-val" id="stat-total">0</div><div class="ob-stat-label">TOTAL</div></div>
     <div class="ob-stat"><div class="ob-stat-val" id="stat-inprogress">0</div><div class="ob-stat-label">IN FLIGHT</div></div>
@@ -325,13 +336,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); }
     <div class="ob-stat"><div class="ob-stat-val" style="color:var(--red)" id="stat-urgent">0</div><div class="ob-stat-label">URGENT</div></div>
   </div>
   <div class="ob-actions">
-    <a href="/admin" class="ob-btn" style="text-decoration:none;">← ADMIN</a>
     <button class="ob-btn primary" onclick="openNewCard('backlog')">+ NEW CARD</button>
   </div>
 </div>
 
-<!-- FILTER BAR -->
+<!-- URGENT TAB + FILTER BAR -->
 <div class="ob-filterbar">
+  <button class="ob-filter-btn urgent-tab" id="urgent-tab" data-filter-priority="urgent" onclick="toggleUrgentTab(this)">⚡ URGENT</button>
   <input class="ob-search" id="ob-search" placeholder="Search cards..." oninput="filterCards()">
   <span style="font-size:8px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;">TAG:</span>
   <button class="ob-filter-btn active" data-filter-tag="" onclick="setTagFilter(this,'')">ALL</button>
@@ -341,8 +352,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); }
   <button class="ob-filter-btn" data-filter-tag="marketing" onclick="setTagFilter(this,'marketing')">MARKETING</button>
   <button class="ob-filter-btn" data-filter-tag="infra" onclick="setTagFilter(this,'infra')">INFRA</button>
   <button class="ob-filter-btn" data-filter-tag="design" onclick="setTagFilter(this,'design')">DESIGN</button>
-  <span style="font-size:8px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;margin-left:8px;">PRIORITY:</span>
-  <button class="ob-filter-btn" data-filter-priority="urgent" onclick="setPriorityFilter(this,'urgent')" style="color:var(--red);border-color:var(--red);">⚡ URGENT</button>
+  <span class="ob-kbd-hint">Press <kbd>N</kbd> for new card</span>
 </div>
 
 <!-- BOARD -->
@@ -836,6 +846,17 @@ function setPriorityFilter(btn, p) {
   renderAll();
 }
 
+function toggleUrgentTab(btn) {
+  if (activePriorityFilter === 'urgent') {
+    activePriorityFilter = '';
+    btn.classList.remove('active');
+  } else {
+    activePriorityFilter = 'urgent';
+    btn.classList.add('active');
+  }
+  renderAll();
+}
+
 // ── Menus ────────────────────────────────────────────────────────────────────
 function toggleMenu(e, id) {
   e.stopPropagation();
@@ -868,16 +889,9 @@ function toast(msg, isError) {
   setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); }, 2800);
 }
 
-// Keyboard shortcuts
+// Keyboard shortcuts (Escape closes modals; N handled in base_admin)
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { closeModal(); closeNew(); }
-  if (e.key === 'n' && !e.ctrlKey && !e.metaKey &&
-      document.activeElement.tagName !== 'INPUT' &&
-      document.activeElement.tagName !== 'TEXTAREA' &&
-      document.activeElement.tagName !== 'SELECT') {
-    openNewCard('backlog');
-  }
 });
 </script>
-</div>
 {% endblock %}
