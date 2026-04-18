@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-16T12:00:14.919594+00:00",
-  "creator_count": 5,
-  "avg_sentiment_score": 63.0,
+  "generated_at": "2026-04-17T00:00:23.129735+00:00",
+  "creator_count": 16,
+  "avg_sentiment_score": 45.4,
   "sentiment_breakdown": {
-    "bullish": 2,
-    "bearish": 0,
-    "neutral": 3
+    "bullish": 3,
+    "bearish": 4,
+    "neutral": 9
   },
   "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "Quantum computing threat to Bitcoin",
+      "topic": "AI deepfake technology",
       "creator_count": 1,
       "creators": [
-        "Swan Bitcoin"
+        "Coffeezilla"
       ],
-      "avg_sentiment_score": 55.0,
-      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
     },
     {
-      "topic": "ECDSA vulnerability and quantum resistance",
+      "topic": "Digital forensics and misinformation detection",
       "creator_count": 1,
       "creators": [
-        "Swan Bitcoin"
+        "Coffeezilla"
       ],
-      "avg_sentiment_score": 55.0,
-      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
     },
     {
-      "topic": "Insider selling behavior in quantum companies",
+      "topic": "Consumer-level deepfake accessibility",
       "creator_count": 1,
       "creators": [
-        "Swan Bitcoin"
+        "Coffeezilla"
       ],
-      "avg_sentiment_score": 55.0,
-      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
     },
     {
-      "topic": "Secret government quantum development programs",
+      "topic": "Public figure impersonation",
       "creator_count": 1,
       "creators": [
-        "Swan Bitcoin"
+        "Coffeezilla"
       ],
-      "avg_sentiment_score": 55.0,
-      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
     },
     {
-      "topic": "Transaction cost implications of quantum-resistant signatures",
+      "topic": "Human ability to detect fake media",
       "creator_count": 1,
       "creators": [
-        "Swan Bitcoin"
+        "Coffeezilla"
       ],
-      "avg_sentiment_score": 55.0,
-      "example_quote": "we still don't have anything that can actually legitimately factor a number with more than two bits of entropy"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence\n\n**Consensus:** Bitcoin creators broadly agree the protocol itself is fundamentally secure (against quantum and AI threats), while practical risk management through upgrades and infrastructure improvements is prudent. They also align on Bitcoin's growing geopolitical and macroeconomic relevance.\n\n**Divergence:** Opinions split sharply on adoption timelines and investment thesis. CoinTelegraph and Bitcoin Magazine Pro express bullish optimism about mainstream adoption and asymmetric returns, while Swan Bitcoin and CNBC adopt cautious positions, emphasizing that threats\u2014though manageable\u2014warrant serious attention. Additionally, BTC Sessions uniquely frames Bitcoin as a geopolitical wildcard that could actually undermine US interests, contrasting with the more straightforwardly positive tone elsewhere.",
+  "summary": "# Bitcoin Creators' Consensus and Divergence\n\n**Consensus:** Multiple creators express skepticism about institutional and political actors entering Bitcoin/crypto spaces, viewing them with suspicion rather than as legitimate adoption. There's also agreement that the broader crypto ecosystem faces serious risks from fraud, scams, and unsustainable financial schemes.\n\n**Divergence:** While Coffeezilla and Coin Bureau take bearish stances on institutional involvement and market dynamics (15-25/100), CoinTelegraph and Guy Swann offer more balanced or philosophical perspectives. CoinTelegraph sees bullish long-term fundamentals in AI integration and tokenization (62/100), whereas Guy Swann shifts focus entirely away from market sentiment toward personal values and community building.\n\n**Key tension:** The ecosystem is caught between those viewing institutional/political entry as predatory threats to Bitcoin's decentralization versus those seeing technological integration and real-world use cases as legitimate growth catalysts.",
   "top_creators": [
     {
-      "channel": "Swan Bitcoin",
-      "sentiment": "mixed",
-      "score": 55,
-      "thesis": "Quantum computing threat to Bitcoin is largely overhyped with no concrete evidence of imminent danger, but quantum-resistant upgrades should be implemented as a practical insurance policy without diverting excessive resources."
+      "channel": "Coffeezilla",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "This video is not Bitcoin-specific; it investigates AI deepfakes as a broader technology threat. The creator demonstrates how easy it has become to create convincing fake videos of public figures using consumer tools, raising concerns about misinformation at scale."
     },
     {
-      "channel": "BTC Sessions",
-      "sentiment": "mixed",
-      "score": 65,
-      "thesis": "Bitcoin is emerging as an unexpected geopolitical tool in US-China-Iran tensions over the Strait of Hormuz, with Iran demanding Bitcoin payment for oil tolls while Trump threatens to intercept vessels paying these tolls, creating a complex scenario where Bitcoin adoption by adversaries undermines traditional US sanctions."
+      "channel": "Coffeezilla Extras",
+      "sentiment": "bearish",
+      "score": 15,
+      "thesis": "Financial markets are experiencing widespread irrational exuberance and complacency during a bull market, with investors losing discipline and accepting obviously unsustainable investment schemes (AI pivots, impossible yields, unregistered funds)."
     },
     {
-      "channel": "Bitcoin Magazine Pro",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "MicroStrategy's aggressive Bitcoin accumulation at a significant discount to fair value presents an asymmetric upside opportunity, with the company potentially reaching 1M+ BTC holdings while trading at a 0.78x asset value premium."
+      "channel": "Coin Bureau",
+      "sentiment": "bearish",
+      "score": 25,
+      "thesis": "Morgan Stanley's entry into Bitcoin ETFs through predatory pricing represents a threat to Bitcoin's decentralized foundation, as traditional finance institutions are executing a calculated strategy to monopolize institutional custody rather than genuine belief in the technology."
     },
     {
-      "channel": "CoinTelegraph",
-      "sentiment": "bullish",
-      "score": 72,
-      "thesis": "Bitcoin and crypto are on an inevitable path toward mainstream adoption and legitimization, with regulatory clarity from the US administration creating a favorable environment for growth. The convergence of traditional finance and crypto infrastructure could bring trillions in value on-chain."
+      "channel": "Guy Swann",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "Bitcoin and sound money philosophy require reassessing priorities beyond digital connectivity; becoming a father shifts perspective on what truly matters in building communities and sustainable systems."
     },
     {
-      "channel": "CNBC",
-      "sentiment": "mixed",
-      "score": 45,
-      "thesis": "Bitcoin's core protocol is secure against AI threats due to cryptographic and decentralized network security, but cryptocurrency platforms and retail-facing applications face significant new vulnerabilities from advanced AI models like Anthropic's Mythos."
+      "channel": "Coffeezilla",
+      "sentiment": "neutral",
+      "score": 0,
+      "thesis": null
     }
   ]
 }

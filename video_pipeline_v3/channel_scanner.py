@@ -245,7 +245,8 @@ def scan_channel(channel_url: str, channel_name: str,
 
         # ── Strict upload_date freshness enforcement ──
         if not upload_date:
-            logger.warning(f"  WARNING no upload_date for {video_id} - allowing through")
+            logger.warning(f"  REJECTED no upload_date for {video_id} — FRESHNESS LAW: must have verifiable date")
+            continue  # V49 FIX: REJECT videos without upload_date instead of allowing
         try:
             upload_dt = datetime.strptime(upload_date, "%Y%m%d")
             hours_old = (datetime.now() - upload_dt).total_seconds() / 3600
@@ -253,7 +254,8 @@ def scan_channel(channel_url: str, channel_name: str,
                 logger.info(f"  SKIPPED old video: {title[:60]} (uploaded {upload_date}) — exceeds {max_age_hours}h window")
                 continue
         except ValueError:
-            logger.warning(f"  WARNING unparseable upload_date {video_id} - allowing")
+            logger.warning(f"  REJECTED unparseable upload_date {video_id} — FRESHNESS LAW")
+            continue  # V49 FIX: REJECT instead of allowing
 
         # Skip shorts (under 2 minutes) and super-long videos (over 4 hours)
         if duration < 120 or duration > 14400:

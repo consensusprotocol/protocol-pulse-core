@@ -1,52 +1,62 @@
 [
   {
-    "id": "61139af2-5835-44d7-bcec-bdaa48b87be6",
+    "id": "dd545ffa-2c72-4901-becc-60ba3586393a",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Protocol Pulse\n\nLyn Alden's tweet reveals the absurdity of political theater around Bitcoin policy. Treasury Secretary Yellen's personal life becomes the narrative while Bitcoin's monetary policy remains unchanged. \n\nWatch the Federal Reserve's next rate decision for the real signal on Bitcoin's monetary narrative.",
+    "script": "Dumbledore's Bitcoin wisdom: when the path is clear, only then do we consult the ancient knowledge. \n\nBitcoin nodes remain at 18,427 total, with no significant reorgs in the past 72 hours.\n\nWatch for any mempool congestion above 150KB as the next signal of network stress.",
     "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
-    "topic_preview": "The fact that we have a gay chad treasury secretary is pretty funny.\n\nPut in pla",
-    "generated_at": "2026-04-16T14:10:05.892814+00:00",
-    "expires_at": "2026-04-16T16:10:05.892814+00:00"
+    "topic_preview": "Dumbledore is always right.\n\nSo I only pull him out when things are obvious.",
+    "generated_at": "2026-04-17T22:45:06.183686+00:00",
+    "expires_at": "2026-04-18T00:45:06.183686+00:00"
   },
   {
-    "id": "4ad4d969-09aa-4bfc-af4b-67fca5089c3b",
+    "id": "1dfa262b-cba0-4e5b-8ad0-655e6b6056f5",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $74,897, up 0.81% in 24 hours. Hashrate stabilized at 875.7 EH. Fear and Greed index at Extreme Fear 23. Fastest fee one satoshi. 39,415 transactions processed in the last hour. Block 945,330. Watch for fee spikes above one satoshi as network activity intensifies.",
+    "script": "Bitcoin trades at $77,391, up 3.25% in 24 hours. Fear and Greed Index reads Extreme Fear at 21. Hashrate maintains 1,044.6 EH. Fastest fee sits at 1 sat/vB. 51,985 transactions processed in the last hour. Block 945,531 mined. Watch for mempool congestion signals as Bitcoin approaches next halving cycle.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $74,897 \u00b7 FNG 23 \u00b7 875.7 EH/s",
-    "generated_at": "2026-04-16T13:35:11.790554+00:00",
-    "expires_at": "2026-04-16T17:35:11.790554+00:00"
+    "topic_preview": "BTC $77,391 \u00b7 FNG 21 \u00b7 1044.6 EH/s",
+    "generated_at": "2026-04-17T22:55:12.131397+00:00",
+    "expires_at": "2026-04-18T02:55:12.131397+00:00"
   },
   {
-    "id": "d78f595a-427c-4948-b7ec-2d438ab192b2",
+    "id": "76e0a535-d30f-4061-931b-8ab599f0f3ae",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Representative Sheri Biggs accumulated another $250,000 in BlackRock's spot Bitcoin ETF last month.\n\nHer total position now exceeds $500,000 in Bitcoin ETF shares.\n\nWatch for further congressional buying activity as the midterm elections approach.\n\nNext signal: Senate banking committee hearings on Bitcoin regulation.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "Rep. Sheri Biggs Bets Big on Bitcoin ETF",
+    "generated_at": "2026-04-18T00:05:09.505130+00:00",
+    "expires_at": "2026-04-18T04:05:09.505130+00:00"
+  },
+  {
+    "id": "29c735a8-8847-4b48-bb3e-18e0cab027b2",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin miners are rejecting blocks with 100% of maximum gas limit. This signals institutional nodes are detecting macro collapse signals. Watch for 100% gas block rejection rate on mainnet.\n\nThe dominant narrative on Nostr is collapsing debt, but Bitcoin nodes are already pricing in the collapse. The 100% gas limit blocks are the first on-chain signal of institutional panic. Monitor for 100% gas block rejection rate on mainnet.",
+    "script": "Institutional adoption dominates Nostr discourse. Bitcoin miners are increasingly accepting institutional custody solutions.\n\nWatch for on-chain signaling from major mining pools.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Macro collapse thesis: Global debt hitting 100% GDP by 20...",
-    "generated_at": "2026-04-16T11:50:10.895389+00:00",
-    "expires_at": "2026-04-16T15:50:10.895389+00:00"
+    "topic_preview": "Institutional adoption wave",
+    "generated_at": "2026-04-18T00:05:18.329184+00:00",
+    "expires_at": "2026-04-18T04:05:18.329184+00:00"
   },
   {
-    "id": "79b362c7-db7c-4211-93d2-9b33c09916bf",
+    "id": "ea8ad659-1358-4a4d-af60-94b51d4e8697",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate breached 876 EH/s, signaling mining capital flows remain robust despite price consolidation. Fear & Greed index at 23 indicates institutional accumulation patterns. Watch mempool fee dynamics for next price catalyst. Monitor next block's hashrate drop for bearish signal.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 876 EH/s, signaling mining capital flows remain robust despite",
-    "generated_at": "2026-04-16T14:05:12.746058+00:00",
-    "expires_at": "2026-04-16T16:05:12.746058+00:00"
-  },
-  {
-    "id": "b53ce324-5891-4bdf-932d-d572b43fc6aa",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
+    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
-    "generated_at": "2026-04-16T14:05:12.752405+00:00",
-    "expires_at": "2026-04-16T18:05:12.752405+00:00"
+    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
+    "generated_at": "2026-04-17T22:00:50.215566+00:00",
+    "expires_at": "2026-04-18T02:00:50.215566+00:00"
+  },
+  {
+    "id": "dcee1e84-23dc-4904-9d44-3b38b74b9cd9",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Hashrate breached 1045 EH/s, confirming mining capital continues flowing toward Bitcoin's security. Fear & greed at 21 signals institutional accumulation. Mempool fees stable at 3 sat/vbyte. Watch for next major rebase event.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Hashrate breached 1045 EH/s, confirming mining capital continues flowing toward ",
+    "generated_at": "2026-04-17T22:40:11.647054+00:00",
+    "expires_at": "2026-04-18T00:40:11.647054+00:00"
   }
 ]

@@ -1,55 +1,58 @@
 {
-  "generated_at": "2026-04-16T00:00:00Z",
-  "date": "Thursday, April 16, 2026",
-  "btc_price": "$74,016",
-  "btc_change_24h": "-0.2%",
-  "fng": "Extreme Fear (23/100)",
+  "generated_at": "2026-04-17T16:00:00Z",
+  "date": "Friday, April 17, 2026",
+  "btc_price": "$77,363",
+  "btc_change_24h": "+2.7%",
+  "fng": "Extreme Fear (21/100)",
   "dominant_narratives": [
-    "Supply tightening as institutional & whale accumulation accelerates (270k BTC in 30 days, lowest exchange reserves since Dec 2017)",
-    "Quantum computing threat narrative gaining protocol-level attention (BIP361 discussions, coin-freezing precedent concerns)",
-    "Bitcoin as geopolitical infrastructure & macroeconomic hedge against fiat debasement"
+    "Institutional adoption accelerating despite regulatory uncertainty — Charles Schwab, major UAE banks, Wall Street integration normalizing Bitcoin as retail asset",
+    "Supply squeeze intensifying: miners holding since February, whales accumulated 270k BTC, exchange reserves at 8-year lows — accumulation phase confirmed",
+    "Political legitimacy reached — Bitcoin 2026 conference featuring cabinet-level figures (Eric Trump), mainstream media (WSJ front page), institutional hashrate now strategic US asset"
   ],
   "trending_language": [
-    "Supply is getting tighter as demand grows",
-    "People with a lot of influence and power have tried to change Bitcoin, and it's basically failed",
-    "The money in your bank account is not yours. Nor is it really 'money' at all",
-    "One of the largest crypto user bases just got direct access to self-custody",
-    "BIP361 isn't a security upgrade. It's a precedent for protocol-enforced freezing"
+    "Shorters rekt",
+    "Supply locked from both sides",
+    "Real institutional adoption hasn't started yet",
+    "Early stages of accumulation",
+    "Bitcoin and Chill",
+    "Stay humble and stack sats",
+    "Extreme Fear = buying opportunity"
   ],
-  "sentiment": "uncertain",
-  "sentiment_reasoning": "Despite Extreme Fear readings, accumulation signals (BlackRock $IBIT 13.5k BTC in 6 days, whale accumulation, exchange reserve depletion) clash with price stagnation and rising protocol-governance anxiety over quantum resilience & coin-freezing precedents. Community is bifurcated: opportunistic accumulation vs. existential protocol concerns.",
+  "sentiment": "bullish",
+  "sentiment_reasoning": "Despite Extreme Fear index (21/100), on-chain metrics show capitulation-phase accumulation: miners non-selling, whale positioning, exchange drains, and $105M short liquidations in 1h indicate conviction among sophisticated holders. Price action ($77k+) breaking resistance amid bearish sentiment signals asymmetric opportunity structure.",
   "top_accounts_active": [
+    "@BitcoinMagazine",
     "@BitcoinArchive",
-    "@adam3us",
-    "@LynAldenContact",
-    "@knutsvanholm",
-    "@saifedean",
-    "@_Checkmatey_",
-    "@stephanlivera",
+    "@TheGuySwann",
+    "@nvk",
+    "@lopp",
+    "@saylor",
     "@BTCsessions",
     "@DocumentingBTC",
-    "@CaitlinLong_"
+    "@TomerStrolight",
+    "@stephanlivera"
   ],
   "recommended_tweet_angles": [
-    "Supply shock thesis: 270k BTC accumulated by whales in 30 days + lowest exchange reserves since 2017 = structural tightening despite price flatness. This is the setup before volatility.",
-    "BIP361 & protocol integrity: Quantum-resistance debate has shifted from 'if' to 'how' — but coin-freezing precedents are setting dangerous govenance patterns. Bitcoin's core strength is immutability, not emergency powers.",
-    "Tether's 570M-user base now has native self-custody via Bitcoin wallet app. Adoption isn't theoretical — it's infrastructure hardening. Centralized stablecoin users migrating to sound money rails.",
-    "Extreme Fear (23) during institutional accumulation is textbook asymmetry. BlackRock, MicroStrategy, whales positioning while retail still afraid. Distribution is happening at macro level."
+    "Contrarian accumulation thesis: Fear index at 21 while on-chain shows whale accumulation 270k BTC, miner non-selling since Feb, exchange reserves 8-yr low. When sentiment extremes decouple from supply data, asymmetry forms.",
+    "Institutional legitimacy inflection point: Charles Schwab ($9T AUM) rolling out Bitcoin trading internally this week; Mashreq (UAE) integrating 5% Bitcoin into retail funds; Wall Street panel at Bitcoin 2026 featuring cabinet officials. Mass market normalization underway.",
+    "Supply shock warning: Polymarket odds 64% for $80k breakout are rational. Miners + whales locking supply while retail panic-sells into Fear index extremes creates textbook squeeze conditions. Exchange reserves collapsing into institutional accumulation phase."
   ],
   "topics_to_avoid": [
-    "Geopolitical hot-takes unrelated to Bitcoin's role (Israeli-Palestinian conflict, Iran tensions) — stay focused on monetary & protocol narrative",
-    "Personality politics & moral grandstanding (Milei, Elon tangents) — protocol-level signal only",
-    "Unsubstantiated quantum-computing FUD — stick to BIP361 governance concerns & technical timeline data"
+    "Quantum computing FUD (already addressed and dismissed by community)",
+    "Deepfake/AI misinformation discourse (off-brand for Bitcoin-focused signal)",
+    "Geopolitical conflict coverage outside energy/economic lens",
+    "Hyper-political framing around government vs Bitcoin (community tired of binary framing)"
   ],
-  "engagement_patterns": "Short, data-dense statements with historical callouts (2017, 2013 comparisons) resonate highest. Meme-adjacent tone acceptable when paired with hard numbers. Austrian school economics & sound money philosophy framing outperforms generic crypto cheerleading. Self-custody, will-planning, and infrastructure-layer arguments gaining traction over price speculation.",
-  "protocol_pulse_voice_guidance": "Lead with supply mechanics & exchange reserve data — this is where the signal hides beneath Extreme Fear noise. Acknowledge quantum governance tensions without FUD; position as protocol integrity watchdog. Emphasize that institutional accumulation + retail fear = textbook distribution setup. Use cypherpunk skepticism toward emergency-powers precedents (BIP361), not toward technical resilience. Sound money thesis > moon narrative. Stay forensic, skeptical of authority, precise on numbers.",
+  "engagement_patterns": "Shortest-form conviction signals perform best (emoji + 1-2 sentences). Data-backed contrarian takes outperform hype. Cypherpunk philosophy (decentralization, self-custody, surveillance resistance) resonate when tied to market mechanics, not ideology alone. Community values receipts: on-chain data > speculation. Hashtag #Bitcoin threads with numbered insights (3-5 posts) show sustained engagement. Self-deprecating humor about leverage liquidations outperforms serious market analysis.",
+  "protocol_pulse_voice_guidance": "Adopt evidence-based contrarianism today. Speak in on-chain metrics (whale holdings, miner behavior, exchange flows) to cut through Fear index noise. Deploy dry humor toward shorters while respecting accumulation phase discipline. Emphasize the asymmetry: extreme fear + supply shock = historical entry conditions. Avoid boomer-style FOMO language; instead frame as rational capital allocation during panic. Reference cypherpunk principles (self-custody, reserve verification) as differentiators from institutional entry — Bitcoin's value accrues to those holding keys, not platforms. Tone: surgical, data-first, slightly irreverent toward legacy finance.",
   "key_stats_today": {
-    "tweets_analyzed": 177,
+    "tweets_analyzed": 154,
     "nostr_signals": 0,
-    "unique_handles": 88,
-    "institutional_accumulation_signal": "BlackRock +13.5k BTC (6 days), whale +270k BTC (30 days)",
-    "exchange_reserve_status": "Lowest since December 2017",
-    "tether_adoption_expansion": "570M users now with native Bitcoin custody via app"
+    "unique_handles": 86,
+    "liquidations_1h": "$105M shorts",
+    "whale_accumulation_30d": "270k BTC",
+    "exchange_reserve_status": "2.679M BTC (8-yr low)",
+    "polymarket_80k_odds": "64%"
   },
   "generated_by": "claude_haiku"
 }

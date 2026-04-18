@@ -1,101 +1,5 @@
 [
   {
-    "id": "tweet_20260414_160004_0",
-    "text": "985.1 EH/s during extreme fear. Last time hashrate climbed into a panic, Bitcoin was $19k. Miners don't accumulate security theater",
-    "angle": "network_fundamentals",
-    "type": "signal",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-14T16:00:04.444121+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260414_190004_0",
-    "text": "How many dollars do you need to print before people stop trusting the printer",
-    "angle": "macro_monetary",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-14T19:00:04.783256+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260414_220003_0",
-    "text": "In 1944 Bretton Woods promised gold backing. By 1971 Nixon closed the window. By 2026 the Fed balance sheet is $7.4T and nobody even mentions gold anymore. Bitcoin doesn't need promises",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-14T22:00:03.788090+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260415_043844_0",
-    "text": "Block 945,143. Supply schedule locked in 1609. Every four years, 50% fewer coins enter circulation. Retail doesn't know this matters. Institutions do",
-    "angle": "historical_pattern",
-    "type": "signal",
-    "format": "brief_signal",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-15T04:38:44.246660+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260415_082205_0",
-    "text": "In 1923 Germany printed reichsmarks faster than they could be spent. Today the Fed balance sheet is 7.6 trillion and climbing. Bitcoin doesn't care how many digits they add to the spreadsheet",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-15T08:22:05.199047+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260415_100006_0",
-    "text": "Your custodian can freeze your account. Your government can print money. Your bank can deny you service. At what point does holding Bitcoin stop being an investment and start being insurance",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-15T10:00:06.191878+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260415_130006_0",
-    "text": "How many times has your bank account actually worked when you needed it most. Because Bitcoin doesn't have office hours or a customer service line that puts you on hold",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "direct_engagement_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-15T13:00:06.091950+00:00",
-    "brief_date": "Tuesday, April 14, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260415_190003_0",
-    "text": "Fear index at 23. Institutional buyers absorbed 9,631 BTC in 5 days. Retail panic selling to people who treat Bitcoin like a savings account. That's the entire market structure right now",
-    "angle": "institutional_flow",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-15T19:00:03.875467+00:00",
-    "brief_date": "Wednesday, April 15, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260416_025028_0",
     "text": "BIP-361 isn't about quantum. It's about whether Bitcoin's rules can be rewritten by consensus vote when governments ask nicely. The answer tells you everything about what Bitcoin actually is",
     "angle": "sovereignty_freedom",
@@ -130,5 +34,65 @@
     "generated_at": "2026-04-16T13:00:03.919017+00:00",
     "brief_date": "Wednesday, April 15, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260416_160003_0",
+    "text": "270k BTC moved off exchanges in 30 days while price flatlined. Institutional buyers don't wait for permission to accumulate. They accumulate first, then prices follow",
+    "angle": "onchain_metric",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-16T16:00:03.960648+00:00",
+    "brief_date": "Thursday, April 16, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260416_190005_0",
+    "text": "How many people in your life actually own the private keys to their Bitcoin, or are they all just holding IOUs on an exchange",
+    "angle": "network_fundamentals",
+    "type": "signal",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-16T19:00:05.971474+00:00",
+    "brief_date": "Thursday, April 16, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260417_070004_0",
+    "text": "If the Fed can print $8 trillion in 15 years and call it monetary policy, at what point does Bitcoin stop being a hedge and start being the only rational choice",
+    "angle": "macro_monetary",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-17T07:00:04.299425+00:00",
+    "brief_date": "Thursday, April 16, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260417_160006_0",
+    "text": "Treasury Secretary just warned of a debt crisis. Commercial bank reserves dropped 200 billion this month. Bitcoin's supply is fixed at 21 million. One of these solves the problem",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-17T16:00:06.370604+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260417_190004_0",
+    "text": "Commercial bank reserves dropped 200 billion in 30 days. When was the last time that happened outside a crisis. What are they not telling us",
+    "angle": "macro_monetary",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-17T19:00:04.286267+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "uncertain"
   }
 ]

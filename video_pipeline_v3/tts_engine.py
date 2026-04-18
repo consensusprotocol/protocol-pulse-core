@@ -508,9 +508,6 @@ PRONUNCIATION_MAP = {
     # V4.2: Pronunciation fixes — acronyms and common mispronunciations
     "ETFs": "E-T-Fs",
     "ETF": "E-T-F",
-    "fiat": "FY-at",
-    "Fiat": "Fy-at",
-    "FIAT": "FY-AT",
     "DeFi": "dee-FYE",
     "defi": "dee-FYE",
     # Technical terms

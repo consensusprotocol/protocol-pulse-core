@@ -1,11 +1,14 @@
 {
-  "generated_at": "2026-04-16T10:00:15.850810+00:00",
-  "brief_type": "morning",
+  "generated_at": "2026-04-17T18:00:18.236087+00:00",
+  "brief_type": "midday",
   "bullets": [
-    "MicroStrategy now top BTC holder\u2014faster than BlackRock institutional consensus, signaling acceleration of corporate adoption phase",
-    "Fear gauge at 23 (extreme) historically precedes institutional buying windows; watch for capitulation patterns into macro catalysts",
-    "Miner centralization + institutional supply hoarding = silent concentration risk that contradicts decentralization narrative while macro thesis strengthens"
+    "Hashrate at 1044.6 EH/s confirms miners aren't capitulating\u2014major downside risk removed",
+    "Extreme fear (21) with clean on-chain metrics = textbook institutional accumulation window",
+    "Mempool pressure (61,944 txns, 2 sat/vB fees) shows retail restraint; no panic-selling cascade forming",
+    "Block 945,505 difficulty adjustment watch: stable hashrate suggests miners expect upside, not downside",
+    "Clean price action (no wick-downs) + thin Friday volume = watch for continuation breakout above $77K",
+    "Sentiment-to-on-chain divergence typically precedes sharp reversals when this wide"
   ],
-  "sentiment_score": 68,
-  "brief_summary": "**BITCOIN MORNING BRIEF | April 16, 2026**\n\nBitcoin holding steady at $74.6K on mild overnight momentum\u2014but the real story's macro, not price action.\n\nGlobal debt exploding past 100% GDP has thought leaders positioning Bitcoin as civilization's circuit breaker. Balaji's been amplifying Bitcoin's min"
+  "sentiment_score": 62,
+  "brief_summary": "**ORACLE MIDDAY BRIEF**\n\nBitcoin's up 4.3% to $77,563\u2014solid morning session momentum despite extreme fear readings at 21. That disconnect matters.\n\nHere's what's moving the needle: hashrate holding firm at 1044.6 EH/s signals miner confidence even as sentiment stays depressed. Low mempool pressure a"
 }

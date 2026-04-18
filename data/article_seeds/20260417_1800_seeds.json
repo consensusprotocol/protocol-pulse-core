@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-04-17T18:00:18.236087+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 21: Why Bitcoin's Extreme Pessimism Could Signal Reversal",
+      "angle": "Analyzing the disconnect between on-chain strength (hashrate, mempool, miner behavior) and sentiment extremes\u2014what institutional accumulation looks like beneath panic.",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "on-chain",
+        "accumulation",
+        "hashrate",
+        "fear-gauge"
+      ]
+    },
+    {
+      "headline": "Hashrate Holding: Why Miner Confidence Matters More Than Price Action",
+      "angle": "Deep dive into 1044.6 EH/s stability as a leading indicator\u2014miners vote with compute, not emotion.",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "difficulty-adjustment",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "$77K Hold Could Trigger Sharp Reversal: Here's the Technical Setup",
+      "angle": "Mempool pressure, fee dynamics, and block height context suggest potential for outsized moves if support holds into Friday close.",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "price-action",
+        "mempool",
+        "support"
+      ]
+    }
+  ]
+}

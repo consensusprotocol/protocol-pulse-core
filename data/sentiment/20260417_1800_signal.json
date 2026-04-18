@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-04-17T18:00:18.236087+00:00",
+  "brief_type": "midday",
+  "score": 62,
+  "bullish_signals": [
+    "Hashrate stability at 1044.6 EH/s signals miner confidence",
+    "Low mempool pressure (61,944 txns) indicates no panic selling",
+    "Fees bottoming at 2 sat/vB shows retail restraint",
+    "Clean price action with no capitulation wicks",
+    "Sophisticated accumulation during extreme fear (21)"
+  ],
+  "bearish_signals": [
+    "Extreme fear gauge at 21 reflects widespread anxiety",
+    "Thin reporting volume on Friday suggests reduced conviction"
+  ],
+  "neutral_topics": [
+    "Block height 945,505 difficulty adjustment window",
+    "Friday afternoon low-volume trading dynamics"
+  ]
+}

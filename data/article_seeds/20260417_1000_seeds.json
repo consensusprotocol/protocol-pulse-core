@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-17T10:00:15.708056+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Institutions Are Hoarding Bitcoin During the Hormuz Crisis",
+      "angle": "Enterprise-scale allocation driven by currency debasement + geopolitical risk premium, not speculation",
+      "tags": [
+        "bitcoin",
+        "institutions",
+        "geopolitics",
+        "currency-crisis",
+        "risk-management"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: Why Sub-2 sat/vB Signals Major Whale Accumulation Windows",
+      "angle": "On-chain data reveals institutional accumulation patterns hidden in transaction fee dynamics",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "whales",
+        "on-chain-analysis",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "Extreme Fear + Rising Hashrate: The Asymmetric Setup Bitcoin Traders Are Missing",
+      "angle": "Contradictory signals (fear vs network strength) create rare risk-reward opportunity",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "hashrate",
+        "trading-setup",
+        "fear-index"
+      ]
+    }
+  ]
+}

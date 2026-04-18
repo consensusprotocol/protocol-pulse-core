@@ -1,7 +1,263 @@
 {
-  "last_updated": "2026-04-16T12:00:11.965941+00:00",
-  "total_analyses": 129,
+  "last_updated": "2026-04-17T00:00:17.887069+00:00",
+  "total_analyses": 140,
   "analyses": [
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "This video is not Bitcoin-specific; it investigates AI deepfakes as a broader technology threat. The creator demonstrates how easy it has become to create convincing fake videos of public figures using consumer tools, raising concerns about misinformation at scale.",
+      "key_quotes": [
+        "does it need to be that real to fool enough people to be dangerous?",
+        "the year of Slop - that's when we all saw a tidal wave of content",
+        "we are we are doing this literally as we speak"
+      ],
+      "topics": [
+        "AI deepfake technology",
+        "Digital forensics and misinformation detection",
+        "Consumer-level deepfake accessibility",
+        "Public figure impersonation",
+        "Human ability to detect fake media"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "note": "This transcript contains no Bitcoin-specific analysis, price predictions, or crypto market commentary despite the creator mentioning 'the crypto market is going through a major crash' in the intro. The video focuses entirely on deepfake technology and its societal implications.",
+      "channel": "Coffeezilla",
+      "title": "Investigating AI Deepfakes",
+      "video_id": "srr0rRgF2Fw",
+      "duration": 2060.63,
+      "analyzed_at": "2026-04-17T00:00:05.871341+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "Financial markets are experiencing widespread irrational exuberance and complacency during a bull market, with investors losing discipline and accepting obviously unsustainable investment schemes (AI pivots, impossible yields, unregistered funds).",
+      "key_quotes": [
+        "You only find out who's swimming naked when the tide goes out",
+        "Things are getting very stupid",
+        "The wheels have fallen off in regulation"
+      ],
+      "topics": [
+        "Market complacency during bull runs",
+        "Unsustainable yields and Ponzi-like schemes",
+        "Corporate pivot gimmicks (All Birds to AI)",
+        "Regulatory failures and loopholes",
+        "Inflation vs stock market disconnect"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coffeezilla Extras",
+      "title": "things are getting very stupid",
+      "video_id": "rpZmjI8wFss",
+      "duration": 393.19,
+      "analyzed_at": "2026-04-16T20:00:09.279782+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 25,
+      "main_thesis": "Morgan Stanley's entry into Bitcoin ETFs through predatory pricing represents a threat to Bitcoin's decentralized foundation, as traditional finance institutions are executing a calculated strategy to monopolize institutional custody rather than genuine belief in the technology.",
+      "key_quotes": [
+        "Morgan Stanley does not suddenly believe in peer-to-peer electronic cash",
+        "deploying a predatory pricing strategy designed to undercut every established player",
+        "calculated loss leader designed to monopolize total volume of institutional Bitcoin custody"
+      ],
+      "topics": [
+        "Institutional Bitcoin ETF competition",
+        "Fee structure and pricing wars",
+        "Traditional finance hypocrisy",
+        "Bitcoin custody centralization risk",
+        "Institutional adoption strategy"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coin Bureau",
+      "title": "Morgan Stanley\u2019s Bitcoin Power Grab: Your Crypto at Risk",
+      "video_id": "rxefOzcMhPo",
+      "duration": 952.9,
+      "analyzed_at": "2026-04-16T20:00:04.619628+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "Bitcoin and sound money philosophy require reassessing priorities beyond digital connectivity; becoming a father shifts perspective on what truly matters in building communities and sustainable systems.",
+      "key_quotes": [
+        "Getting 10 million people of similar mindset is way more powerful than individuals doing it",
+        "I don't take it nearly as seriously as I used to...only connected if on internet",
+        "A lot is changing all at once and can be really hard to navigate"
+      ],
+      "topics": [
+        "Personal perspective shifts from fatherhood",
+        "Community and tribe building philosophy",
+        "Digital detachment and internet relationships",
+        "The Bushido of Bitcoin (Svetski's book)",
+        "AI's impact on work and meaning"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Guy Swann",
+      "title": "Chat_165 - Family and Focus with Aleks Svetski",
+      "video_id": "HZzSjxbklD4",
+      "duration": 7244.84,
+      "analyzed_at": "2026-04-16T16:00:53.941438+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 0,
+      "main_thesis": null,
+      "key_quotes": [],
+      "topics": [],
+      "price_prediction": null,
+      "confidence": "N/A",
+      "note": "This transcript contains no Bitcoin-specific content. It is a Coffeezilla investigation into predatory debt settlement industry practices, featuring fake advertisements, micro-targeting of vulnerable groups, and bait-and-switch tactics by debt relief companies. No cryptocurrency analysis, price discussion, or Bitcoin commentary is present.",
+      "channel": "Coffeezilla",
+      "title": "Exposing a $10,000,000,000 Debt Industry",
+      "video_id": "hBNWInRS6hM",
+      "duration": 979.35,
+      "analyzed_at": "2026-04-16T16:00:43.032514+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "This is not a Bitcoin analysis video. The content documents a romance scam investigation where a disabled woman lost $10,000 in Bitcoin to a scammer impersonating a Hallmark actor over nearly two years.",
+      "key_quotes": [
+        "She ended up in this scam sending more than $10,000 in Bitcoin crypto to a scammer",
+        "This person knowingly exploited a disabled woman",
+        "Romance scammers never use their own real names. They use well-known celebrities"
+      ],
+      "topics": [
+        "Romance scams",
+        "Cryptocurrency theft",
+        "AI-generated deepfakes",
+        "Vulnerable population targeting",
+        "Social engineering"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coffeezilla",
+      "title": "Exposing a Romance Scammer",
+      "video_id": "ACijyfS3ya4",
+      "duration": 1442.78,
+      "analyzed_at": "2026-04-16T16:00:38.601944+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 25,
+      "main_thesis": "MicroStrategy's Stretch product is financial engineering disguised as a simple savings instrument, with hidden risks comparable to failed projects like Terra Luna that promised unsustainable yields before collapsing.",
+      "key_quotes": [
+        "There's always a battery hiding somewhere or a risk that you're not really aware you're taking on",
+        "The risks are not too different from risks of buying Bitcoin, except manifested very differently",
+        "This is not a sophisticated pitch. And that's actually by design"
+      ],
+      "topics": [
+        "MicroStrategy Stretch product analysis",
+        "Unsustainable yield mechanisms in crypto",
+        "Financial engineering risks",
+        "Terra Luna collapse parallels",
+        "Marketing deception tactics"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coffeezilla Extras",
+      "title": "\"the fastest growing product ever\"",
+      "video_id": "vS2zr4_PMtQ",
+      "duration": 1086.23,
+      "analyzed_at": "2026-04-16T16:00:28.579574+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "The Trump administration's crypto ventures (World Liberty Financial, meme coins) exhibit systematic fraud and corruption with zero accountability, exemplified by undisclosed smart contract backdoors and rug pulls endorsed by major political figures.",
+      "key_quotes": [
+        "This is the most corrupt president in US history with the money they are in with the NFTs and the meme coin",
+        "When you hear the word rug pull, you hear that there's going to be no consequences because there's going to be pardons",
+        "One of the largest investors in World Liberty Financial calling them bad actors, essentially calling it a scam"
+      ],
+      "topics": [
+        "World Liberty Financial token fraud",
+        "Trump family crypto rug pulls",
+        "SEC regulatory capture and settlement deals",
+        "Presidential pardons enabling financial crime",
+        "Smart contract backdoors and blacklisting functions"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coffeezilla Extras",
+      "title": "no one can deny it anymore",
+      "video_id": "ffAWPLe9oHI",
+      "duration": 805.71,
+      "analyzed_at": "2026-04-16T16:00:24.345632+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 45,
+      "main_thesis": "Anthropic's Mythos AI model claims significant cybersecurity capabilities that could pose risks to Bitcoin and open-source projects, warranting serious attention despite unverified claims and potential marketing posturing.",
+      "key_quotes": [
+        "if anthropic is sitting on a zero day to Bitcoin core right now that's big news",
+        "you have to take it seriously because even in the off chance that it's real could be very dangerous",
+        "there's been a huge uptick in them...from two to three reports a week to ten serious vulnerabilities a day"
+      ],
+      "topics": [
+        "AI-assisted vulnerability discovery",
+        "Bitcoin Core security risks",
+        "Zero-day exploit potential",
+        "Open-source software security",
+        "Anthropic's safety posturing"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Stacker News",
+      "title": "Anthropic Claims New AI Model, Mythos, Is a Cybersecurity \u2018Reckoning' - nytimes",
+      "video_id": "3pejwIBFe1A",
+      "duration": 978.19,
+      "analyzed_at": "2026-04-16T16:00:14.889282+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 62,
+      "main_thesis": "Bitcoin and crypto markets need catalysts (like AI integration) to reignite retail interest, but structural opportunities in RWA tokenization and AI agents using crypto as native money present long-term bullish fundamentals.",
+      "key_quotes": [
+        "Crypto is the underlying and easiest form of money that an agent would use",
+        "We've seen a lot of volume coming out exchanges on track 5 assets",
+        "The AI agent is like a Butler that stays there with all the knowledge"
+      ],
+      "topics": [
+        "AI and crypto integration",
+        "Real World Assets (RWA) tokenization",
+        "Retail investor sentiment decline",
+        "Market catalysts and cycles",
+        "AI agents for automated trading"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "CoinTelegraph",
+      "title": "Is It Too Late to Buy Bitcoin? \u2014 The Brutal Truth",
+      "video_id": "1j6o-EY2yGM",
+      "duration": 768.13,
+      "analyzed_at": "2026-04-16T16:00:10.175737+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "Bitcoin's pullback from $76K is consolidation before a breakout, not weakness. A break above $75K could trigger a significant move to the upside, with equities and crypto aligning in a rare bullish pattern.",
+      "key_quotes": [
+        "everyone's reading this as extreme weakness. I don't necessarily think it is.",
+        "consolidation before we break through it...we could actually get a really sizable move on our hands to the upside",
+        "the key is really breaking through 75k...I would see a pretty decent move back up towards about 93k"
+      ],
+      "topics": [
+        "Bitcoin price consolidation at $75K resistance",
+        "Bearish fractal comparisons to 2022 (bear flag pattern)",
+        "S&P 500 and equity market strength alignment with Bitcoin",
+        "Technical analysis patterns and probability-based trading",
+        "Consolidation vs weakness interpretation"
+      ],
+      "price_prediction": "If Bitcoin breaks above $75K, potential move to approximately $93K",
+      "confidence": "medium",
+      "channel": "DataDash",
+      "title": "Bitcoin Pulled Back From $76K While the S&P Hit All Time Highs (Most People Are Reading This Wrong)",
+      "video_id": "ao7HjmnyRFY",
+      "duration": 631.68,
+      "analyzed_at": "2026-04-16T16:00:05.043390+00:00"
+    },
     {
       "sentiment": "mixed",
       "sentiment_score": 55,
