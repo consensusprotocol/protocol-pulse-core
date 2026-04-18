@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-18T08:00:02.981893+00:00",
-  "fetch_time_ms": 895,
+  "updated_at": "2026-04-18T18:00:03.462459+00:00",
+  "fetch_time_ms": 1494,
   "composite": {
     "perception_score": 58,
     "label": "Cautiously Bullish",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.25,
-    "total_mcap_usd": 2691035900439.333,
-    "total_mcap_t": 2.691,
-    "total_vol_24h_usd": 152495781639.49454,
-    "total_vol_24h_b": 152.5,
-    "active_coins": 17615,
+    "btc_dominance_pct": 57.36,
+    "total_mcap_usd": 2648460592464.4707,
+    "total_mcap_t": 2.648,
+    "total_vol_24h_usd": 124966329928.28523,
+    "total_vol_24h_b": 125.0,
+    "active_coins": 17576,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -35,43 +35,43 @@
       {
         "symbol": "RAVE",
         "name": "RaveDAO",
-        "rank": 19,
+        "rank": 45,
         "score": 0
-      },
-      {
-        "symbol": "GENIUS",
-        "name": "Genius",
-        "rank": 146,
-        "score": 1
       },
       {
         "symbol": "SIREN",
         "name": "Siren",
-        "rank": 104,
+        "rank": 98,
+        "score": 1
+      },
+      {
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
         "score": 2
       },
       {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 107,
+        "symbol": "REQ",
+        "name": "Request",
+        "rank": 341,
         "score": 3
-      },
-      {
-        "symbol": "OVPP",
-        "name": "OpenVPP",
-        "rank": 984,
-        "score": 4
       },
       {
         "symbol": "MON",
         "name": "Monad",
-        "rank": 120,
+        "rank": 119,
+        "score": 4
+      },
+      {
+        "symbol": "GENIUS",
+        "name": "Genius",
+        "rank": 147,
         "score": 5
       },
       {
-        "symbol": "ASTEROID",
-        "name": "Asteroid Shiba",
-        "rank": 960,
+        "symbol": "HYPE",
+        "name": "Hyperliquid",
+        "rank": 13,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 524250,
+    "tx_count_24h": 602806,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 10.33,
+    "minutes_between_blocks": 9.48,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 10530489552290,
-    "total_fees_btc": -41562500000,
+    "estimated_btc_sent": 5359221037646,
+    "total_fees_btc": -45000000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",

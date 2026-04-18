@@ -1,48 +1,85 @@
 {
   "topic_velocity": [
     {
-      "topic": "Supply squeeze intensifying: miners holding since Februar...",
-      "channels": 22,
+      "topic": "Institutional capital inflow & market recovery",
+      "channels": 12,
       "sentiment": "bullish",
-      "velocity_score": 33,
-      "authority_score": 33,
-      "top_quote": "",
-      "thought_leaders": [],
+      "velocity_score": 72,
+      "authority_score": 54,
+      "top_quote": "Bitcoin has added $327 billion in market cap since the February 5 bottom. Capital is flowing back fast.",
+      "thought_leaders": [
+        "BitcoinArchive",
+        "adam3us"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Political legitimacy reached \u2014 Bitcoin 2026 conference fe...",
-      "channels": 17,
-      "sentiment": "bullish",
-      "velocity_score": 26,
-      "authority_score": 26,
-      "top_quote": "",
-      "thought_leaders": [],
+      "topic": "UBI inflation & monetary debasement risk",
+      "channels": 9,
+      "sentiment": "bearish",
+      "velocity_score": 54,
+      "authority_score": 48,
+      "top_quote": "All UBI is inflationary, you are literally getting spending money for producing nothing.",
+      "thought_leaders": [
+        "nvk",
+        "adam3us"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Institutional adoption accelerating despite regulatory un...",
-      "channels": 30,
+      "topic": "Bitcoin as crisis hedge & asset supremacy",
+      "channels": 8,
       "sentiment": "bullish",
-      "velocity_score": 22,
-      "authority_score": 45,
-      "top_quote": "",
-      "thought_leaders": [],
+      "velocity_score": 48,
+      "authority_score": 42,
+      "top_quote": "Bitcoin has outperformed every major asset or index in each crisis. 7 out of 7 times.",
+      "thought_leaders": [
+        "BitcoinArchive",
+        "LynAldenContact"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Government distrust & limited state philosophy",
+      "channels": 6,
+      "sentiment": "mixed",
+      "velocity_score": 9,
+      "authority_score": 32,
+      "top_quote": "The role of government should be only to protect: 1. Your life 2. Your freedoms 3. Your property",
+      "thought_leaders": [
+        "PeterMcCormack",
+        "knutsvanholm"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Wealth preservation & inheritance planning",
+      "channels": 5,
+      "sentiment": "neutral",
+      "velocity_score": 8,
+      "authority_score": 28,
+      "top_quote": "Most Bitcoiners forget to plan for inheritance.",
+      "thought_leaders": [
+        "BTCsessions",
+        "nunchuk_io"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Supply squeeze intensifying: miners holding since Februar...",
-    "Political legitimacy reached \u2014 Bitcoin 2026 conference fe...",
-    "Institutional adoption accelerating despite regulatory un..."
+    "Institutional capital inflow & market recovery",
+    "UBI inflation & monetary debasement risk",
+    "Bitcoin as crisis hedge & asset supremacy"
   ],
-  "dominant_narrative": "Institutional adoption accelerating despite regulatory un...",
-  "market_mood": "neutral",
-  "total_tweets_analyzed": 0,
-  "thought_leaders_active": 0,
-  "scan_time": "2026-04-18T06:20:56Z"
+  "dominant_narrative": "Institutional capital inflow & market recovery",
+  "market_mood": "bullish_with_macro_concerns",
+  "total_tweets_analyzed": 54,
+  "thought_leaders_active": 14,
+  "scan_time": "2026-04-18T13:30:08Z"
 }

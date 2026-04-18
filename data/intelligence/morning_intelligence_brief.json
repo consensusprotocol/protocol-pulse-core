@@ -1,58 +1,49 @@
 {
-  "generated_at": "2026-04-17T16:00:00Z",
-  "date": "Friday, April 17, 2026",
-  "btc_price": "$77,363",
-  "btc_change_24h": "+2.7%",
-  "fng": "Extreme Fear (21/100)",
+  "generated_at": "2026-04-18T18:00:00Z",
+  "date": "Saturday, April 18, 2026",
+  "btc_price": "$76,240",
+  "btc_change_24h": "-2.2%",
+  "fng": "Fear",
   "dominant_narratives": [
-    "Institutional adoption accelerating despite regulatory uncertainty — Charles Schwab, major UAE banks, Wall Street integration normalizing Bitcoin as retail asset",
-    "Supply squeeze intensifying: miners holding since February, whales accumulated 270k BTC, exchange reserves at 8-year lows — accumulation phase confirmed",
-    "Political legitimacy reached — Bitcoin 2026 conference featuring cabinet-level figures (Eric Trump), mainstream media (WSJ front page), institutional hashrate now strategic US asset"
+    "Institutional accumulation accelerating — BlackRock, Morgan Stanley, Boyaa Interactive all increasing Bitcoin allocation",
+    "Bitcoin as monetary alternative to collapsing fiat & CBDC surveillance — Ray Dalio's CBDC warnings amplified",
+    "Exchange exodus at 7-year lows — 2.43M BTC off-ramp signals whale capitulation capitulation bottom formation"
   ],
   "trending_language": [
-    "Shorters rekt",
-    "Supply locked from both sides",
-    "Real institutional adoption hasn't started yet",
-    "Early stages of accumulation",
-    "Bitcoin and Chill",
-    "Stay humble and stack sats",
-    "Extreme Fear = buying opportunity"
+    "Bitcoin hasn't even begun",
+    "No asset washes out non-believers like Bitcoin",
+    "Whales accumulated 270K BTC in 30 days",
+    "Bitcoin is being bought at fastest pace in 10 years",
+    "Largest inflow since January 14",
+    "Sellers exhausted"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite Extreme Fear index (21/100), on-chain metrics show capitulation-phase accumulation: miners non-selling, whale positioning, exchange drains, and $105M short liquidations in 1h indicate conviction among sophisticated holders. Price action ($77k+) breaking resistance amid bearish sentiment signals asymmetric opportunity structure.",
+  "sentiment_reasoning": "Despite -2.2% price action and Fear reading, on-chain metrics show aggressive institutional accumulation, spot ETF inflows surging after 13-week drought, and exchange reserves hitting 7-year lows—classic capitulation bottom signals. Conviction among Bitcoin thought leaders exceptionally high.",
   "top_accounts_active": [
-    "@BitcoinMagazine",
     "@BitcoinArchive",
-    "@TheGuySwann",
+    "@NickSzabo4",
+    "@_Checkmatey_",
     "@nvk",
-    "@lopp",
-    "@saylor",
-    "@BTCsessions",
-    "@DocumentingBTC",
-    "@TomerStrolight",
-    "@stephanlivera"
+    "@gladstein",
+    "@CaitlinLong_"
   ],
   "recommended_tweet_angles": [
-    "Contrarian accumulation thesis: Fear index at 21 while on-chain shows whale accumulation 270k BTC, miner non-selling since Feb, exchange reserves 8-yr low. When sentiment extremes decouple from supply data, asymmetry forms.",
-    "Institutional legitimacy inflection point: Charles Schwab ($9T AUM) rolling out Bitcoin trading internally this week; Mashreq (UAE) integrating 5% Bitcoin into retail funds; Wall Street panel at Bitcoin 2026 featuring cabinet officials. Mass market normalization underway.",
-    "Supply shock warning: Polymarket odds 64% for $80k breakout are rational. Miners + whales locking supply while retail panic-sells into Fear index extremes creates textbook squeeze conditions. Exchange reserves collapsing into institutional accumulation phase."
+    "On-chain exhaustion: 2.43M BTC off exchanges (7-year low) while 270K BTC accumulated in 30 days. Whales know what Fear index signals deny.",
+    "BlackRock $1.34B in 8 days + Morgan Stanley's 8-day streak + spot ETF inflows after 13-week drought = institutional FOMO re-ignition. They're not waiting.",
+    "$1.5M Bitcoin by 2030 (Ark Invest) assumes major banks still waking up. Reality: they're already in. Institutions don't accumulate on hope — they accumulate on conviction.",
+    "Ray Dalio: CBDCs will track every transaction. Bitcoin: immutable, uncensorable, sovereign. This isn't investment thesis. This is monetary inevitability."
   ],
   "topics_to_avoid": [
-    "Quantum computing FUD (already addressed and dismissed by community)",
-    "Deepfake/AI misinformation discourse (off-brand for Bitcoin-focused signal)",
-    "Geopolitical conflict coverage outside energy/economic lens",
-    "Hyper-political framing around government vs Bitcoin (community tired of binary framing)"
+    "Middle East geopolitical speculation — noise obscuring signal",
+    "Social media account purges — conspiracy-adjacent, low credibility",
+    "Democratic/political infighting discourse — distraction from monetary thesis"
   ],
-  "engagement_patterns": "Shortest-form conviction signals perform best (emoji + 1-2 sentences). Data-backed contrarian takes outperform hype. Cypherpunk philosophy (decentralization, self-custody, surveillance resistance) resonate when tied to market mechanics, not ideology alone. Community values receipts: on-chain data > speculation. Hashtag #Bitcoin threads with numbered insights (3-5 posts) show sustained engagement. Self-deprecating humor about leverage liquidations outperforms serious market analysis.",
-  "protocol_pulse_voice_guidance": "Adopt evidence-based contrarianism today. Speak in on-chain metrics (whale holdings, miner behavior, exchange flows) to cut through Fear index noise. Deploy dry humor toward shorters while respecting accumulation phase discipline. Emphasize the asymmetry: extreme fear + supply shock = historical entry conditions. Avoid boomer-style FOMO language; instead frame as rational capital allocation during panic. Reference cypherpunk principles (self-custody, reserve verification) as differentiators from institutional entry — Bitcoin's value accrues to those holding keys, not platforms. Tone: surgical, data-first, slightly irreverent toward legacy finance.",
+  "engagement_patterns": "Data-backed conviction statements resonate hardest. On-chain metrics trump price action. Phrases like 'Whales accumulated X in Y days' and 'Largest inflow since' generate high engagement. Cypherpunk critiques of fiat/CBDC surveillance get amplification. Avoid speculation without hard numbers.",
+  "protocol_pulse_voice_guidance": "Today: lean into the tension between Fear index (26) and accumulation data. Use phrases like 'capitulation bottom formation' and 'seller exhaustion metrics.' Reference specific whale behaviors and institutional inflows with precision. Cypherpunk tone: 'They fear CBDC surveillance, we build Bitcoin.' Avoid cheerleading — let on-chain data speak. Sound like an analyst reading chain data in real-time, not a cheerleader.",
   "key_stats_today": {
-    "tweets_analyzed": 154,
+    "tweets_analyzed": 160,
     "nostr_signals": 0,
-    "unique_handles": 86,
-    "liquidations_1h": "$105M shorts",
-    "whale_accumulation_30d": "270k BTC",
-    "exchange_reserve_status": "2.679M BTC (8-yr low)",
-    "polymarket_80k_odds": "64%"
+    "unique_handles": 94
   },
   "generated_by": "claude_haiku"
 }

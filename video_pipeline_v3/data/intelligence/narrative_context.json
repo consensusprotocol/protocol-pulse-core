@@ -1,25 +1,37 @@
 {
-  "episode_narrative": "Institutional adoption accelerating despite regulatory un... is dominating Bitcoin discourse \u2014 30 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
-  "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Supply squeeze intensifying: miners holding since Februar...' is also trending with 22 thought leaders discussing it",
+  "episode_narrative": "Institutional capital inflow & market recovery is dominating Bitcoin discourse \u2014 12 of 2 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "eryn_intro_hook": "Eryn should reference: 'Bitcoin has added $327 billion in market cap since the February 5 bottom. Capital is flowing back fast.' from thought leaders BitcoinArchive, adam3us (fetched at 2026-04-18T13:30:08.788616+00:00)",
+  "mark_context": "Mark should add context: 'UBI inflation & monetary debasement risk' is also trending with 9 thought leaders discussing it",
   "clip_selection_priority": [
-    "Institutional adoption accelerating despite regulatory un...",
-    "Supply squeeze intensifying: miners holding since Februar...",
-    "Political legitimacy reached \u2014 Bitcoin 2026 conference fe..."
+    "Institutional capital inflow & market recovery",
+    "UBI inflation & monetary debasement risk",
+    "Bitcoin as crisis hedge & asset supremacy"
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
-  "thought_leaders_mentioned": [],
+  "thought_leaders_mentioned": [
+    "PeterMcCormack",
+    "knutsvanholm",
+    "adam3us",
+    "BTCsessions",
+    "LynAldenContact",
+    "BitcoinArchive",
+    "nunchuk_io",
+    "nvk"
+  ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Institutional adoption accelerating despite regulatory un...",
-  "market_mood": "neutral",
-  "top_quote": "",
-  "top_quote_handles": [],
-  "quote_fetched_at": "2026-04-18T06:20:56.157384+00:00",
-  "computed_at": "2026-04-18T06:20:56.157384+00:00"
+  "dominant_narrative": "Institutional capital inflow & market recovery",
+  "market_mood": "bullish_with_macro_concerns",
+  "top_quote": "Bitcoin has added $327 billion in market cap since the February 5 bottom. Capital is flowing back fast.",
+  "top_quote_handles": [
+    "BitcoinArchive",
+    "adam3us"
+  ],
+  "quote_fetched_at": "2026-04-18T13:30:08.788616+00:00",
+  "computed_at": "2026-04-18T13:30:08.788616+00:00"
 }

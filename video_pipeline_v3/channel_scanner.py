@@ -210,7 +210,7 @@ def scan_channel(channel_url: str, channel_name: str,
         "--flat-playlist",
         "--dateafter", cutoff_str,
         "--playlist-end", str(max_videos * 3),  # fetch extra, filter later
-        "--print", "%(id)s|%(title)s|%(duration)s|%(upload_date)s",
+        "--print", "%(id)s|%(title)s|%(duration)s|%(upload_date)s|%(view_count)s",
         "--no-warnings",
         "--quiet",
         channel_url if "/videos" in channel_url or "/podcasts" in channel_url

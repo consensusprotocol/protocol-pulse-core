@@ -1,42 +1,63 @@
 [
   {
-    "id": "a7f84103-d7d0-4759-8d42-728b79ced0dd",
+    "id": "6dc57d86-b70d-472c-b740-ce00e7bfda51",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**BITCOIN MIDDAY BRIEF**\n\nBTC holding at $75,898 despite a 2.1% pullback\u2014but here's what matters: miners haven't stopped accumulating since February. That's structural pressure building underneath.\n\nHashrate just hit 960 EH/s. Network's ironclad. Meanwhile, market dominance sits at 57.28%\u2014Bitcoin's ",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
+    "topic_preview": "Oracle Midday Brief \u2014 $75,898",
+    "generated_at": "2026-04-18T18:00:01.973171+00:00",
+    "expires_at": "2026-04-18T22:00:01.973171+00:00",
+    "video_url": "/data/stage_briefs/brief_20260418_1800.mp4"
+  },
+  {
+    "id": "3f2b9649-f08e-4508-acab-86287a716776",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Protocol Pulse - THOUGHT LEADER\n\nJeff Booth's tweet reveals the fundamental truth: Bitcoin's energy alignment determines its success. The network's growth correlates directly with honest money adoption. Watch Bitcoin's hash rate for the next signal\u2014when it stabilizes above 350 exahashes, the energy shift will be complete.\n\nEND SEGMENT",
+    "script": "Fiat money system crumbling under inflationary pressure. Bitcoin adoption accelerating past traditional financial infrastructure.\n\nWatch for next major Bitcoin network upgrade activation.",
     "source_label": "\ud83e\udde0 @JEFFBOOTH",
-    "topic_preview": "The world mirrors where we place our energy. What we nurture thrives; what we ne",
-    "generated_at": "2026-04-18T06:55:11.513544+00:00",
-    "expires_at": "2026-04-18T08:55:11.513544+00:00"
+    "topic_preview": "R to @JeffBooth: The fiat money system, reliant on inflation, is like trying to ",
+    "generated_at": "2026-04-18T17:20:03.970679+00:00",
+    "expires_at": "2026-04-18T19:20:03.970679+00:00"
   },
   {
-    "id": "8e910f53-f066-441e-b1e6-2e8321c010af",
+    "id": "510f0ff8-9af6-4ca2-bc8a-326e89a9b9c5",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Fear gauge pinned at 26 while hashrate holds 960 exahash\u2014miners aren't capitulating. Network processing 52,455 transactions at 1 sat/byte floor rates.\n\nWatch block subsidy halving pressure in next 2,000 blocks.",
+    "script": "PROTOCOL PULSE \u2014 METRICS SIGNAL\n\nBitcoin sits at 76,188 down 2.05% on a Fear reading of 26. Hashrate locked at 960.1 exahash signals miners aren't capitulating despite price weakness.\n\nWatch mempool depth \u2014 fastest fee collapsed to 1 sat/vB, meaning blocks are clearing without",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $77,101 \u00b7 FNG 26 \u00b7 960.1 EH/s",
-    "generated_at": "2026-04-18T07:15:21.620122+00:00",
-    "expires_at": "2026-04-18T11:15:21.620122+00:00"
+    "topic_preview": "BTC $76,188 \u00b7 FNG 26 \u00b7 960.1 EH/s",
+    "generated_at": "2026-04-18T15:45:22.974733+00:00",
+    "expires_at": "2026-04-18T19:45:22.974733+00:00"
   },
   {
-    "id": "81906949-cb21-4f14-aad5-09ef95f8cfae",
+    "id": "535f9bab-dd45-4251-827d-9e1d6b6d9018",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional Bitcoin adoption accelerating through Nostr relays, with major financial entities actively participating in decentralized discussions.\n\nWatch for on-chain wallet activity from known institutional addresses\u2014Bitcoin's institutional penetration is now measurable in real-time through Nostr's decentralized network.",
+    "script": "Institutional Bitcoin inflows accelerating through Nostr relays. \n\nMarket recovery narrative dominating on-chain signals. Watch for next major mining pool reorg.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Institutional adoption accelerating despite regulatory un...",
-    "generated_at": "2026-04-18T08:10:08.784035+00:00",
-    "expires_at": "2026-04-18T12:10:08.784035+00:00"
+    "topic_preview": "Institutional capital inflow & market recovery",
+    "generated_at": "2026-04-18T16:15:19.555417+00:00",
+    "expires_at": "2026-04-18T20:15:19.555417+00:00"
   },
   {
-    "id": "c22ae9b4-26a4-429f-b0c0-e68ac90e8218",
+    "id": "31d172f2-d00e-4d20-b29e-9bbc30dfee1c",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate surged to 960 EH/s, confirming network security strength despite price resistance. Mempool fees remain suppressed at 3 sat/vbyte. Fear & Greed index at 26 signals capitulation. Bitcoin maintains its sovereign trajectory. Watch for mempool fee spikes above 5 sat/vbyte.",
+    "script": "Bitcoin miners are burning 960 exahashes per second, confirming the network's unwavering commitment to decentralization despite price pressure. The mempool fee sits at 2 sat/vbyte, signaling minimal network congestion. Watch for any significant hash rate shifts in the next 24 hours.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate surged to 960 EH/s, confirming network security strength despite price ",
-    "generated_at": "2026-04-18T07:05:15.310051+00:00",
-    "expires_at": "2026-04-18T09:05:15.310051+00:00"
+    "topic_preview": "Bitcoin miners are burning 960 exahashes per second, confirming the network's un",
+    "generated_at": "2026-04-18T17:15:22.075527+00:00",
+    "expires_at": "2026-04-18T19:15:22.075527+00:00"
+  },
+  {
+    "id": "e5b939a5-1255-4006-b540-9822e8d810b3",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
+    "generated_at": "2026-04-18T17:15:22.221576+00:00",
+    "expires_at": "2026-04-18T21:15:22.221576+00:00"
   }
 ]

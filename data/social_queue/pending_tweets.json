@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260416_100006_0",
-    "text": "Diocletian froze prices in 301 AD to stop inflation. It created black markets and accelerated Rome's collapse. BIP-361 is the same impulse with different syntax",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-16T10:00:06.464872+00:00",
-    "brief_date": "Wednesday, April 15, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260416_130003_0",
-    "text": "If governments can pressure custodians holding 12% of Bitcoin supply, why would you store yours anywhere else",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-16T13:00:03.919017+00:00",
-    "brief_date": "Wednesday, April 15, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260416_160003_0",
     "text": "270k BTC moved off exchanges in 30 days while price flatlined. Institutional buyers don't wait for permission to accumulate. They accumulate first, then prices follow",
     "angle": "onchain_metric",
@@ -129,6 +105,42 @@
     "status": "pending",
     "generated_at": "2026-04-18T07:43:14.357697+00:00",
     "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_100004_0",
+    "text": "1 sat/vB while Fear sits at 26. Last time fees compressed this hard during panic was March 2020. Retail selling into a wall that doesn't exist",
+    "angle": "contrarian_take",
+    "type": "signal",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T10:00:04.565408+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_130003_0",
+    "text": "Mashreq just put Bitcoin into retail fund allocations. UAE banks don't do experimental money. What are central banks seeing that retail hasn't priced in yet",
+    "angle": "institutional_flow",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T13:00:03.831228+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_160004_0",
+    "text": "2.43M BTC off exchanges while institutions buy at fastest pace in a decade. Fear index at 26. Last time this setup happened was January 2015. Bitcoin went 5x in 18 months",
+    "angle": "onchain_metric",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T16:00:04.188512+00:00",
+    "brief_date": "Saturday, April 18, 2026",
     "sentiment": "bullish"
   }
 ]

@@ -406,5 +406,11 @@
     "timestamp": "2026-04-18T07:00:04.801184+00:00",
     "text_preview": "Miners haven't sold since February. Whales locked 270k BTC. Exchange reserves hi",
     "format_type": "onchain_metric"
+  },
+  {
+    "hash": "f75c841d2947164478f8441fedf09260",
+    "timestamp": "2026-04-18T09:16:20.931682+00:00",
+    "text_preview": "1933. FDR banned gold ownership. Americans had to surrender it at $20.67 an ounc",
+    "format_type": "historical_pattern"
   }
 ]
