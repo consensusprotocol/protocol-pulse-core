@@ -455,8 +455,8 @@ async function ppZapSats(amount) {
     fetch('/api/charts/fear-greed')
         .then(function(r) { return r.json(); })
         .then(function(d) {
-            var val = d.value || d.score || 50;
-            var label = d.label || d.classification || 'Neutral';
+            var val = (d.today != null ? d.today : (d.value != null ? d.value : d.score)) || 50;
+            var label = d.today_class || d.label || d.classification || 'Neutral';
             document.getElementById('ppaFgValue').textContent = val;
             document.getElementById('ppaFgLabel').textContent = label;
             var arc = document.getElementById('ppaFgArc');

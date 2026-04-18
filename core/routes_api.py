@@ -962,6 +962,18 @@ def api_book_metrics():
     except Exception:
         pass
 
+    # Cover URL overrides: OpenLibrary returns blank images for some ISBNs.
+    # Replace with Amazon /images/P/ for physical ISBNs, local SVG for books with no remote cover.
+    _COVER_OVERRIDES = {
+        '1097476922': '/static/images/books/inventing_bitcoin.svg',
+        '006236250X': 'https://m.media-amazon.com/images/P/006236250X.01.L.jpg',
+        '1260026671': 'https://m.media-amazon.com/images/P/1260026671.01.L.jpg',
+    }
+    for b in books:
+        _a = (b.get('asin') or '').strip()
+        if _a in _COVER_OVERRIDES:
+            b['cover_url'] = _COVER_OVERRIDES[_a]
+
     # Enforce affiliate tag on every outbound URL
     for b in books:
         b['amazon_url'] = _ensure_affiliate(b.get('amazon_url', ''))

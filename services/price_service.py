@@ -53,8 +53,25 @@ class PriceService:
         except Exception as e:
             logging.error(f"Error fetching BTC price: {e}")
         
+        # Yahoo Finance GC=F gold futures (primary - Coingecko below is fallback when rate-limited)
         try:
-            # Fetch Gold price (PAX Gold - tokenized gold)
+            import urllib.request as _urg, json as _jg
+            _reqg = _urg.Request('https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=2d', headers={'User-Agent': 'Mozilla/5.0'})
+            with _urg.urlopen(_reqg, timeout=5) as _rg:
+                _dg = _jg.loads(_rg.read())
+            _mg = _dg['chart']['result'][0]['meta']
+            _gp = float(_mg.get('regularMarketPrice', 0) or 0)
+            _gprev = float(_mg.get('chartPreviousClose', _gp) or _gp)
+            _gchg = round((_gp - _gprev) / _gprev * 100, 2) if _gprev else 0
+            if _gp > 100:
+                prices['gold'] = {'price': _gp, 'change_24h': _gchg, 'market_cap': 0}
+        except Exception as _ge:
+            logging.warning(f'Gold Yahoo fetch failed, will try Coingecko: {_ge}')
+
+        try:
+            # Fetch Gold price (PAX Gold - tokenized gold) - fallback when Yahoo failed
+            if prices.get('gold', {}).get('price', 0) > 0:
+                raise StopIteration
             url = f"{self.base_url}/simple/price"
             params = {
                 'ids': 'pax-gold,tether-gold',
@@ -79,6 +96,8 @@ class PriceService:
                         'market_cap': 0
                     }
                         
+        except StopIteration:
+            pass
         except Exception as e:
             logging.error(f"Error fetching Gold price: {e}")
         
