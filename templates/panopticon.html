@@ -2223,6 +2223,184 @@ body.panopticon-body .pp-footer { display: none !important; }
   #ss2-waterfall-bars { grid-template-columns: repeat(2,1fr); }
   #ss2-score-num { font-size: 40px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PANOPTICON — MOBILE-FIRST REDESIGN (feature/f-pano-mobile)
+   Desktop (≥769px) remains 100% unchanged. All rules below are wrapped
+   in @media (max-width: 768px) or (max-width: 480px). These overrides
+   follow the existing 768/480 rules so the later declarations win.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Top bar: wrap, tighter spacing, smaller fonts */
+  .pn-topbar { flex-wrap: wrap; padding: 6px 12px; gap: 6px 10px; }
+  .pn-topbar-left { gap: 10px; }
+  .pn-topbar-right { gap: 10px; flex-wrap: wrap; }
+  .pn-topbar-logo { font-size: 11px; letter-spacing: 2px; }
+  .pn-topbar-status { font-size: 9px; letter-spacing: 0.5px; gap: 4px; }
+  .pn-topbar-clock { font-size: 11px; letter-spacing: 0.5px; }
+  .pn-topbar-btc { font-size: 11px; }
+  .pn-topbar-back { font-size: 9px; }
+
+  /* Hero stats row: 2x2 grid */
+  .pn-hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    width: 100%;
+    max-width: 320px;
+    justify-items: center;
+  }
+  .pn-hero-stats .pn-hero-stat-sep { display: none; }
+  .pn-hero-stat { text-align: center; }
+
+  /* Live ticker: tighter */
+  .pn-ticker { padding: 6px 12px; min-height: 30px; gap: 10px; }
+  .pn-ticker-tag { font-size: 9px; letter-spacing: 1px; }
+  .pn-ticker-text { font-size: 10px; }
+
+  /* SS2 header: stacked, full-width */
+  #ss2-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px 10px;
+  }
+  #ss2-composite-block { text-align: left; width: 100%; }
+  .ss2-overline[style*="text-align:right"] { text-align: left !important; }
+  #ss2-score-display { justify-content: flex-start; }
+  #ss2-score-num { font-size: 36px; }
+  .ss2-score-denom { font-size: 14px; }
+  #ss2-verdict { font-size: 10px; letter-spacing: 0.08em; }
+  .ss2-title { font-size: 20px; letter-spacing: 0.08em; }
+
+  /* Gauges: 2x3 grid (overrides repeat(3,1fr) above) */
+  #ss2-gauges-row { grid-template-columns: repeat(2, 1fr); }
+  .ss2-gauge-cell {
+    padding: 8px 6px 6px;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    -webkit-tap-highlight-color: rgba(204,0,0,0.15);
+  }
+  .ss2-gauge-cell:nth-child(2n) { border-right: none; }
+  .ss2-gauge-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .ss2-gauge-cell.touch-active { background: rgba(204,0,0,0.1); }
+  .ss2-gauge-svg { max-width: 100px; margin: 0 auto 4px; }
+  .ss2-gauge-label { font-size: 10px; letter-spacing: 0.08em; }
+  .ss2-gauge-sub { font-size: 9px; margin-top: 2px; line-height: 1.35; }
+  .ss2-gauge-arrow { font-size: 10px; margin-top: 3px; }
+
+  /* Middle: stack vertically */
+  #ss2-middle { grid-template-columns: 1fr; min-height: auto; }
+  #ss2-map-wrap {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  #ss2-map-graph { min-height: 220px; }
+  #ss2-map-legend { padding: 6px 12px 8px; font-size: 8px; gap: 6px; }
+  .ss2-map-prox-note { padding: 0 12px 8px; font-size: 8px; }
+  .ss2-map-lock-title { font-size: 15px; }
+  .ss2-map-lock-sub { font-size: 12px; }
+
+  /* Signal board: full-width, capped height, scrollable */
+  #ss2-board-wrap { border-top: 1px solid rgba(255,255,255,0.04); }
+  #ss2-signal-board { max-height: 300px; }
+  .ss2-signal-item { padding: 10px 14px; gap: 10px; }
+  .ss2-si-label { font-size: 10px; }
+  .ss2-si-text { font-size: 11px; line-height: 1.5; }
+  .ss2-si-val { font-size: 12px; min-width: 46px; }
+
+  /* Waterfall: 3 columns (overrides earlier rule) */
+  #ss2-waterfall-bars {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 6px 12px 16px;
+  }
+  .ss2-wf-col { padding: 6px 8px; }
+  .ss2-wf-col:nth-child(3n) { border-right: none; }
+  .ss2-wf-score { font-size: 13px; }
+  .ss2-wf-label { font-size: 10px; }
+  .ss2-wf-contrib { font-size: 9px; }
+  .ss2-wf-bar-wrap { height: 52px; }
+
+  /* Data card modal: full-width */
+  #ss2-datacard {
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+    left: 12px;
+    right: 12px;
+    transform: none;
+    padding: 14px 16px;
+  }
+  #ss2-dc-header { gap: 10px; }
+  #ss2-dc-rows { grid-template-columns: 1fr; gap: 2px 0; }
+  #ss2-dc-title { font-size: 12px; }
+  #ss2-dc-score { font-size: 26px; }
+  #ss2-dc-insight { font-size: 11px; line-height: 1.55; }
+  .ss2-dc-row { font-size: 11px; padding: 4px 0; }
+
+  /* Filter / tier-chip rows: horizontal scroll, no scrollbar */
+  .pn-panel-head {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+  }
+  .pn-panel-head::-webkit-scrollbar { display: none; }
+  .pn-panel { padding: 16px 12px; max-height: none; }
+
+  /* Classified alert bar: wrap */
+  body.panopticon-body div[style*="CLASSIFIED"] { flex-wrap: wrap; gap: 6px !important; }
+}
+
+@media (max-width: 480px) {
+  /* Top bar logo: 10px */
+  .pn-topbar-logo { font-size: 10px; letter-spacing: 1.5px; }
+  .pn-topbar { padding: 5px 10px; }
+
+  /* Score display: 28px */
+  #ss2-score-num { font-size: 28px; }
+  .ss2-score-denom { font-size: 12px; }
+  .ss2-title { font-size: 18px; }
+
+  /* Hero: smaller */
+  .pn-hero { height: 200px; min-height: 200px; }
+  .pn-hero-title { font-size: 20px; letter-spacing: 4px; }
+  .pn-hero-tagline { font-size: 10px; letter-spacing: 2px; }
+  .pn-hero-stat-val { font-size: 16px; }
+  .pn-hero-stat-label { font-size: 9px; }
+  .pn-hero-stats { gap: 8px 10px; }
+
+  /* Gauges: tighter */
+  .ss2-gauge-cell { padding: 6px 4px 4px; }
+  .ss2-gauge-svg { max-width: 86px; }
+  .ss2-gauge-label { font-size: 9px; letter-spacing: 0.05em; }
+  .ss2-gauge-sub { font-size: 8px; line-height: 1.3; }
+  .ss2-gauge-arrow { font-size: 9px; }
+
+  /* Signal board: 200px */
+  #ss2-signal-board { max-height: 200px; }
+  .ss2-signal-item { padding: 8px 12px; }
+
+  /* Waterfall: 2 col (overrides earlier 3-col @768) */
+  #ss2-waterfall-bars { grid-template-columns: repeat(2, 1fr); }
+  .ss2-wf-col:nth-child(3n) { border-right: 1px solid rgba(255,255,255,0.03); }
+  .ss2-wf-col:nth-child(2n) { border-right: none; }
+
+  /* Data card: tighter */
+  #ss2-datacard { padding: 12px 14px; top: 80px; }
+  #ss2-dc-score { font-size: 22px; }
+  #ss2-dc-title { font-size: 11px; }
+
+  /* Commander lock box */
+  .ss2-map-lock-box { padding: 16px 18px; }
+  .ss2-map-lock-title { font-size: 14px; }
+  .ss2-map-lock-sub { font-size: 11px; margin-bottom: 12px; }
+  .ss2-map-lock-cta { padding: 9px 16px; font-size: 10px; }
+
+  /* Live ticker hide to reclaim vertical space */
+  .pn-ticker-tag { font-size: 8px; }
+}
 </style>
 
 <!-- ── JAVASCRIPT ── -->
@@ -2433,6 +2611,20 @@ document.addEventListener('click', function(e) {
   }
   if (!e.target.closest('#ss2-datacard')) closeCard();
 });
+
+// ─── Touch feedback for mobile: instant active-state on touchstart ──────────
+document.addEventListener('touchstart', function(e) {
+  var cell = e.target.closest('.ss2-gauge-cell');
+  if (cell) cell.classList.add('touch-active');
+}, { passive: true });
+document.addEventListener('touchend', function(e) {
+  var cells = document.querySelectorAll('.ss2-gauge-cell.touch-active');
+  for (var i = 0; i < cells.length; i++) cells[i].classList.remove('touch-active');
+}, { passive: true });
+document.addEventListener('touchcancel', function() {
+  var cells = document.querySelectorAll('.ss2-gauge-cell.touch-active');
+  for (var i = 0; i < cells.length; i++) cells[i].classList.remove('touch-active');
+}, { passive: true });
 
 function closeCard() {
   var card = document.getElementById('ss2-datacard');
