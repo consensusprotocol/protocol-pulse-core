@@ -245,6 +245,24 @@ with app.app_context():
         _conn.close()
     except Exception as _onb_err:
         logging.warning("Onboarding migration failed (non-fatal): %s", _onb_err)
+    # 2a-2. Sponsor-deck token columns (safe ALTER TABLE — ignores if already exist)
+    try:
+        from sqlalchemy import text as _sa_text
+        _deck_migrations = [
+            'ALTER TABLE sponsor_outreach ADD COLUMN deck_token VARCHAR(64)',
+            'ALTER TABLE sponsor_outreach ADD COLUMN deck_sent_at DATETIME',
+            'CREATE UNIQUE INDEX IF NOT EXISTS idx_sponsor_outreach_deck_token ON sponsor_outreach(deck_token)',
+        ]
+        _conn = db.engine.connect()
+        for _sql in _deck_migrations:
+            try:
+                _conn.execute(_sa_text(_sql))
+                _conn.commit()
+            except Exception:
+                pass  # Already exists
+        _conn.close()
+    except Exception as _deck_err:
+        logging.warning("Sponsor-deck migration failed (non-fatal): %s", _deck_err)
     # 2b. SESSION 12 — Run sentiment intelligence migrations (adds article sentiment columns + tables)
     try:
         from utils.db_migrate_sentiment import run_migrations

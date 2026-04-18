@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protocol Pulse × Bitcoin Boomers — Sponsor Intelligence Brief{% if prospect_company %} for {{ prospect_company }}{% endif %}</title>
+<meta name="description" content="Premium Bitcoin media bundle — Protocol Pulse daily intelligence + The Bitcoin Boomers podcast. Dual-property sponsor brief.">
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="Protocol Pulse × Bitcoin Boomers — Sponsor Brief">
+<meta property="og:description" content="Dual-property Bitcoin media package: 970k+ monthly reach + Boomer/Gen X HNW podcast audience.">
+<meta property="og:type" content="website">
+<style>
+/* =============================================================
+   PROTOCOL PULSE × BITCOIN BOOMERS — SPONSOR ONE-PAGER
+   Premium dark Bloomberg Terminal aesthetic.
+   Identical styles for web + WeasyPrint so the PDF matches 1:1.
+   ============================================================= */
+@page {
+  size: Letter;
+  margin: 0;
+}
+:root{
+  --bg:#000;
+  --ink:#0b0b0b;
+  --s1:#0f0f0f;
+  --s2:#151515;
+  --border:#1c1c1c;
+  --border-soft:#262626;
+  --red:#CC0000;
+  --red-bright:#e11414;
+  --red-dim:rgba(204,0,0,0.14);
+  --gold:#F8C15C;
+  --gold-dim:rgba(248,193,92,0.14);
+  --green:#22c55e;
+  --text:#e6e6e6;
+  --muted:#8a8a8a;
+  --muted-dim:#555;
+  --mono:'JetBrains Mono','IBM Plex Mono','Menlo',monospace;
+  --sans:'Inter','SF Pro Text','system-ui',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.55;}
+a{color:var(--gold);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* Grid / background texture */
+.deck{
+  max-width:1100px;margin:0 auto;padding:32px 40px 60px;
+  background:
+    linear-gradient(180deg, rgba(204,0,0,0.05) 0%, transparent 220px),
+    var(--bg);
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+}
+.mono{font-family:var(--mono);}
+.muted{color:var(--muted);}
+
+/* ───────────────────── HEADER ───────────────────── */
+.deck-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 0 18px 0;border-bottom:2px solid var(--red);
+  margin-bottom:28px;
+}
+.deck-brand{display:flex;align-items:center;gap:14px;}
+.brand-mark{
+  width:44px;height:44px;background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:900;font-size:22px;color:#fff;
+  border:2px solid var(--red);letter-spacing:-0.05em;
+  box-shadow:0 0 18px rgba(204,0,0,0.45);
+}
+.brand-wordmark{line-height:1.05;}
+.brand-wordmark .row1{
+  font-family:var(--mono);font-weight:800;font-size:13px;letter-spacing:0.22em;color:var(--red);text-transform:uppercase;
+}
+.brand-wordmark .row2{
+  font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:0.24em;color:var(--muted);text-transform:uppercase;margin-top:3px;
+}
+.deck-id{
+  text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--muted);
+}
+.deck-id .label{color:var(--gold);}
+.deck-id .code{color:var(--text);}
+
+.deck-title-row{
+  display:flex;align-items:flex-end;justify-content:space-between;margin:10px 0 30px;gap:24px;flex-wrap:wrap;
+}
+.deck-title h1{
+  font-family:var(--mono);font-weight:900;
+  font-size:clamp(26px,3.6vw,42px);letter-spacing:-0.01em;line-height:1.05;color:#fff;
+  text-transform:uppercase;
+}
+.deck-title h1 .accent{color:var(--red);}
+.deck-title .sub{
+  font-family:var(--sans);color:var(--muted);font-size:15px;margin-top:10px;max-width:640px;
+}
+.deck-meta{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--muted);text-align:right;line-height:1.7;
+}
+.deck-meta .val{color:var(--gold);}
+
+/* ───────────────────── DUAL PROPERTY CARDS ───────────────────── */
+.properties{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:34px;
+}
+.property{
+  background:linear-gradient(180deg,var(--s1) 0%,var(--ink) 100%);
+  border:1px solid var(--border);border-top:2px solid var(--red);
+  padding:22px 22px 20px;position:relative;
+}
+.property.alt{border-top-color:var(--gold);}
+.property::before{
+  content:'';position:absolute;top:0;left:0;width:60px;height:2px;background:var(--red);
+}
+.property.alt::before{background:var(--gold);}
+.property .eyebrow{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--red);font-weight:700;margin-bottom:10px;
+}
+.property.alt .eyebrow{color:var(--gold);}
+.property h2{
+  font-family:var(--mono);font-weight:800;font-size:20px;color:#fff;line-height:1.2;letter-spacing:-0.01em;
+}
+.property .tagline{
+  color:var(--muted);font-size:12.5px;margin-top:6px;font-family:var(--sans);line-height:1.5;
+}
+.property .stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:18px 0 14px;
+  border:1px solid var(--border);
+}
+.property .stat{
+  background:var(--ink);padding:12px 14px;
+}
+.property .stat .n{
+  font-family:var(--mono);font-weight:800;font-size:18px;color:var(--gold);line-height:1;
+}
+.property.alt .stat .n{color:var(--gold);}
+.property .stat .l{
+  font-family:var(--mono);font-size:8px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;margin-top:5px;
+}
+.property .bullets{
+  list-style:none;padding:0;margin:14px 0 0;
+}
+.property .bullets li{
+  font-family:var(--sans);font-size:12.5px;color:var(--text);padding:6px 0;border-bottom:1px dashed var(--border);line-height:1.55;
+  display:flex;gap:8px;
+}
+.property .bullets li:last-child{border-bottom:none;}
+.property .bullets li::before{
+  content:'▸';color:var(--red);font-family:var(--mono);font-weight:900;line-height:1.45;font-size:11px;flex-shrink:0;
+}
+.property.alt .bullets li::before{color:var(--gold);}
+
+/* ───────────────────── AUDIENCE PROFILE ───────────────────── */
+.section{
+  margin:36px 0 22px;
+}
+.section-head{
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;
+}
+.section-head .tick{
+  width:12px;height:12px;background:var(--red);flex-shrink:0;
+  box-shadow:0 0 10px rgba(204,0,0,0.55);
+}
+.section-head .label{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.3em;color:var(--red);text-transform:uppercase;font-weight:800;
+}
+.section-head .bar{flex:1;height:1px;background:var(--border);}
+.section-head .idx{
+  font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.2em;
+}
+.section h3{
+  font-family:var(--mono);font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.01em;line-height:1.2;margin-bottom:4px;text-transform:uppercase;
+}
+.section .lede{
+  color:var(--muted);font-size:13.5px;margin-bottom:18px;max-width:760px;
+}
+
+.audience-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);
+}
+.audience-cell{
+  background:var(--ink);padding:18px 16px;
+}
+.audience-cell .big{
+  font-family:var(--mono);font-weight:900;font-size:26px;color:var(--gold);line-height:1;letter-spacing:-0.02em;
+}
+.audience-cell .lbl{
+  font-family:var(--mono);font-size:8px;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-top:8px;
+}
+.audience-cell .desc{
+  font-family:var(--sans);font-size:11px;color:#b8b8b8;margin-top:6px;line-height:1.5;
+}
+
+/* ───────────────────── PRICING ───────────────────── */
+.pricing{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;
+}
+.price-card{
+  background:var(--s1);border:1px solid var(--border);padding:20px;
+}
+.price-card.bundle{
+  grid-column:1 / span 2;background:linear-gradient(135deg,rgba(204,0,0,0.08),rgba(248,193,92,0.05));border:1px solid var(--gold);
+}
+.price-card h4{
+  font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:0.22em;color:var(--red);text-transform:uppercase;margin-bottom:14px;
+}
+.price-card.alt h4{color:var(--gold);}
+.price-card.bundle h4{color:var(--gold);font-size:13px;}
+.price-table{
+  width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;
+}
+.price-table td{
+  padding:10px 0;border-bottom:1px dashed var(--border);vertical-align:top;
+}
+.price-table tr:last-child td{border-bottom:none;}
+.price-table .format{color:var(--text);font-weight:500;}
+.price-table .format small{display:block;color:var(--muted);font-size:10px;font-family:var(--sans);margin-top:3px;font-weight:400;}
+.price-table .rate{color:var(--gold);text-align:right;white-space:nowrap;font-weight:700;}
+.price-card.bundle .price-table .rate{color:var(--gold);font-size:15px;}
+.bundle-hero{
+  display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:4px 0 12px;border-bottom:1px solid var(--border);margin-bottom:12px;flex-wrap:wrap;
+}
+.bundle-hero .headline{
+  font-family:var(--mono);font-weight:800;font-size:16px;color:#fff;
+}
+.bundle-hero .headline span{color:var(--gold);}
+.bundle-hero .savings{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;font-weight:800;
+}
+
+/* ───────────────────── SOCIAL PROOF ───────────────────── */
+.proof{
+  display:grid;grid-template-columns:1.1fr 1fr;gap:18px;
+}
+.proof-quote{
+  background:linear-gradient(180deg,var(--s1),var(--ink));border:1px solid var(--border);border-left:3px solid var(--gold);padding:22px;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.proof-quote .q{
+  font-family:var(--sans);font-size:15px;color:#fff;line-height:1.55;font-style:italic;
+}
+.proof-quote .q::before{content:'"';color:var(--gold);font-family:var(--mono);font-weight:900;font-size:34px;line-height:0;margin-right:4px;vertical-align:-8px;}
+.proof-quote .who{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.18em;color:var(--red);text-transform:uppercase;margin-top:18px;
+}
+.proof-quote .who span{color:var(--muted);}
+.proof-recent{
+  background:var(--s1);border:1px solid var(--border);padding:20px;
+}
+.proof-recent h5{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.22em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;font-weight:700;
+}
+.proof-recent ul{list-style:none;padding:0;margin:0;}
+.proof-recent li{
+  font-family:var(--sans);font-size:12.5px;color:var(--text);padding:9px 0;border-bottom:1px dashed var(--border);line-height:1.45;
+}
+.proof-recent li:last-child{border-bottom:none;}
+.proof-recent li .tag{
+  display:inline-block;font-family:var(--mono);font-size:8px;letter-spacing:0.18em;color:var(--red);
+  background:var(--red-dim);padding:1px 6px;margin-right:8px;text-transform:uppercase;font-weight:700;
+}
+
+/* ───────────────────── CTA ───────────────────── */
+.cta{
+  margin-top:40px;padding:28px 26px;background:linear-gradient(135deg,var(--red) 0%, #8b0000 100%);
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+}
+.cta::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:
+    repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(0,0,0,0.08) 20px,rgba(0,0,0,0.08) 21px);
+  pointer-events:none;
+}
+.cta-text{position:relative;z-index:1;flex:1;min-width:280px;}
+.cta-text h3{
+  font-family:var(--mono);font-weight:900;font-size:20px;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;line-height:1.2;margin-bottom:6px;
+}
+.cta-text p{
+  color:rgba(255,255,255,0.88);font-size:13px;line-height:1.55;
+}
+.cta-btns{
+  display:flex;gap:10px;position:relative;z-index:1;flex-wrap:wrap;
+}
+.cta-btn{
+  display:inline-block;padding:12px 22px;font-family:var(--mono);font-weight:800;font-size:11px;
+  letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;border:2px solid #fff;
+  color:#fff;background:transparent;transition:all 0.2s;
+}
+.cta-btn.primary{background:#fff;color:var(--red);}
+.cta-btn:hover{background:var(--gold);border-color:var(--gold);color:#000;}
+
+/* ───────────────────── FOOTER ───────────────────── */
+.deck-footer{
+  margin-top:32px;padding-top:18px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;
+}
+.deck-footer .btc{color:var(--gold);font-size:12px;}
+.deck-footer a{color:var(--muted);}
+.deck-footer a:hover{color:var(--gold);}
+
+/* ───────────────────── PDF MEDIA ───────────────────── */
+@media print{
+  html,body{background:#000;}
+  .deck{padding:28px 34px 40px;max-width:100%;border:none;}
+  .cta-btns{display:none;}
+  .cta{page-break-inside:avoid;}
+  .property,.price-card,.proof-quote,.proof-recent,.section{page-break-inside:avoid;}
+  .cta::after{
+    content:'Book: calendly.com/protocolpulse  ·  partnerships@protocolpulse.io';
+    display:block;margin-top:10px;color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:0.12em;
+    position:relative;z-index:1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 780px){
+  .deck{padding:22px 18px 40px;}
+  .properties{grid-template-columns:1fr;}
+  .audience-grid{grid-template-columns:repeat(2,1fr);}
+  .pricing{grid-template-columns:1fr;}
+  .price-card.bundle{grid-column:1;}
+  .proof{grid-template-columns:1fr;}
+  .deck-title h1{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- HEADER -->
+  <header class="deck-header">
+    <div class="deck-brand">
+      <div class="brand-mark">P</div>
+      <div class="brand-wordmark">
+        <div class="row1">Protocol&nbsp;Pulse</div>
+        <div class="row2">× The Bitcoin Boomers</div>
+      </div>
+    </div>
+    <div class="deck-id">
+      <div><span class="label">BRIEF&nbsp;ID</span>&nbsp;<span class="code">{{ deck_id or 'PP-SB-2026' }}</span></div>
+      <div><span class="label">ISSUED</span>&nbsp;<span class="code">{{ issued_date }}</span></div>
+      <div><span class="label">FOR</span>&nbsp;<span class="code">{{ prospect_company or 'QUALIFIED PARTNERS' }}</span></div>
+    </div>
+  </header>
+
+  <!-- TITLE -->
+  <div class="deck-title-row">
+    <div class="deck-title">
+      <h1>Sponsor <span class="accent">Intelligence</span> Brief</h1>
+      <div class="sub">
+        A dual-property premium Bitcoin media package — reaching the builders
+        who ship the rails and the Boomer/Gen&nbsp;X capital allocators who move the markets.
+      </div>
+    </div>
+    <div class="deck-meta">
+      <div><span class="val">970K+</span> MONTHLY REACH</div>
+      <div><span class="val">2</span> PROPERTIES</div>
+      <div><span class="val">7</span> AD SURFACES</div>
+      <div><span class="val">Q2-2026</span> AVAILABILITY</div>
+    </div>
+  </div>
+
+  <!-- DUAL PROPERTY CARDS -->
+  <div class="properties">
+
+    <div class="property">
+      <div class="eyebrow">Property 01 · Flagship</div>
+      <h2>Protocol Pulse</h2>
+      <div class="tagline">Bitcoin-first intelligence for transactors — the daily terminal for builders, operators, and sovereign savers.</div>
+      <div class="stats">
+        <div class="stat"><div class="n">970K+</div><div class="l">Monthly reach</div></div>
+        <div class="stat"><div class="n">1,300+</div><div class="l">Daily briefs</div></div>
+        <div class="stat"><div class="n">638+</div><div class="l">Articles live</div></div>
+        <div class="stat"><div class="n">Commander</div><div class="l">Premium tier</div></div>
+      </div>
+      <ul class="bullets">
+        <li><strong style="color:#fff;">Pulse Check video briefings</strong> &mdash; daily Bitcoin intelligence broadcast (YouTube + web).</li>
+        <li><strong style="color:#fff;">Intelligence Terminal</strong> &mdash; Bloomberg-style live dashboard (mempool, price, signal).</li>
+        <li><strong style="color:#fff;">Daily newsletter</strong> &mdash; 45% open rate (industry avg 22%), Resend delivery.</li>
+        <li><strong style="color:#fff;">Social distribution</strong> &mdash; X, Nostr, YouTube shorts, TikTok clips.</li>
+      </ul>
+    </div>
+
+    <div class="property alt">
+      <div class="eyebrow">Property 02 · Podcast</div>
+      <h2>The Bitcoin Boomers</h2>
+      <div class="tagline">Premium podcast for Boomer &amp; Gen&nbsp;X Bitcoin holders — the capital class hosting the conversation.</div>
+      <div class="stats">
+        <div class="stat"><div class="n">HNW</div><div class="l">Audience profile</div></div>
+        <div class="stat"><div class="n">55+</div><div class="l">Median age</div></div>
+        <div class="stat"><div class="n">B2B</div><div class="l">Decision makers</div></div>
+        <div class="stat"><div class="n">Weekly</div><div class="l">Release cadence</div></div>
+      </div>
+      <ul class="bullets">
+        <li><strong style="color:#fff;">Gary Leland, Lawrence Lepard, Bob Burnett</strong> &mdash; operators, not influencers.</li>
+        <li><strong style="color:#fff;">Host-read pre/mid/post roll</strong> &mdash; authentic integrations, never skipped.</li>
+        <li><strong style="color:#fff;">Dedicated episodes</strong> &mdash; full-length sponsor case studies.</li>
+        <li><strong style="color:#fff;">Apple · Spotify · YouTube · Fountain · RSS</strong> &mdash; every major surface.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- AUDIENCE PROFILE -->
+  <section class="section">
+    <div class="section-head">
+      <span class="tick"></span>
+      <span class="label">01 · Audience</span>
+      <span class="bar"></span>
+      <span class="idx">IDEAL&nbsp;ADVERTISER&nbsp;FIT</span>
+    </div>
+    <h3>Who you reach</h3>
+    <div class="lede">
+      Not a generic crypto audience. A concentrated population of Bitcoin-native capital, infrastructure builders, and
+      high-intent operators who convert at 3&ndash;5× the industry average.
+    </div>
+    <div class="audience-grid">
+      <div class="audience-cell">
+        <div class="big">89%</div>
+        <div class="lbl">Hold Bitcoin</div>
+        <div class="desc">Self-custody rate far above CEX-heavy general crypto audiences.</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">$500K+</div>
+        <div class="lbl">Avg net worth</div>
+        <div class="desc">Premium reader base. High disposable income, serious capital decisions.</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">25&ndash;65</div>
+        <div class="lbl">Age range</div>
+        <div class="desc">Split between builders (25&ndash;45 via PP) and allocators (45&ndash;65 via Boomers).</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">45%</div>
+        <div class="lbl">Newsletter open</div>
+        <div class="desc">Industry avg 22%. Every send reaches an engaged, opted-in inbox.</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">3.2&nbsp;min</div>
+        <div class="lbl">Article read time</div>
+        <div class="desc">Deep engagement, not scroll-past. Ad placements land in-context.</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">US&nbsp;/&nbsp;EU</div>
+        <div class="lbl">Primary geo</div>
+        <div class="desc">~62% US, 22% EU/UK, 16% rest-of-world. English-first intent.</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">B2B</div>
+        <div class="lbl">Decision role</div>
+        <div class="desc">Founders, CTOs, treasury officers, family-office principals.</div>
+      </div>
+      <div class="audience-cell">
+        <div class="big">Bitcoin-only</div>
+        <div class="lbl">No altcoin noise</div>
+        <div class="desc">Zero "crypto-adjacent" dilution. You are reaching Bitcoiners.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section">
+    <div class="section-head">
+      <span class="tick"></span>
+      <span class="label">02 · Formats &amp; Rates</span>
+      <span class="bar"></span>
+      <span class="idx">EFFECTIVE&nbsp;Q2&nbsp;2026</span>
+    </div>
+    <h3>Ad formats &amp; rate card</h3>
+    <div class="lede">
+      Straightforward rate card. All placements approved case-by-case &mdash; we only run partners who fit the audience.
+    </div>
+
+    <div class="pricing">
+      <div class="price-card">
+        <h4>Protocol Pulse</h4>
+        <table class="price-table">
+          <tr>
+            <td class="format">Newsletter sponsor<small>Top slot · single issue · native format</small></td>
+            <td class="rate">$800 <span style="color:var(--muted);font-size:10px;">/issue</span></td>
+          </tr>
+          <tr>
+            <td class="format">Video segment (Pulse Check)<small>30-sec mid-roll · host read · YouTube + web</small></td>
+            <td class="rate">$1,200 <span style="color:var(--muted);font-size:10px;">/episode</span></td>
+          </tr>
+          <tr>
+            <td class="format">Terminal banner<small>Commander-tier dashboard · persistent · rotation</small></td>
+            <td class="rate">$400 <span style="color:var(--muted);font-size:10px;">/month</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="price-card alt">
+        <h4>The Bitcoin Boomers</h4>
+        <table class="price-table">
+          <tr>
+            <td class="format">Pre-roll read<small>15-second host-read · top of show</small></td>
+            <td class="rate">$600 <span style="color:var(--muted);font-size:10px;">/episode</span></td>
+          </tr>
+          <tr>
+            <td class="format">Mid-roll dedicated<small>60-second host read · deep integration</small></td>
+            <td class="rate">$1,400 <span style="color:var(--muted);font-size:10px;">/episode</span></td>
+          </tr>
+          <tr>
+            <td class="format">Series sponsor<small>Every episode · 4-week minimum · name in title</small></td>
+            <td class="rate">$4,000 <span style="color:var(--muted);font-size:10px;">/month</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="price-card bundle">
+        <div class="bundle-hero">
+          <div class="headline">Dual-Property Bundle <span>&mdash; both houses, one package</span></div>
+          <div class="savings">Save 30% vs à la carte</div>
+        </div>
+        <table class="price-table">
+          <tr>
+            <td class="format">
+              <strong style="color:#fff;">Full-Spectrum Sponsor</strong>
+              <small>Newsletter (4×/mo) + Pulse Check mid-roll (4×) + Terminal banner + Boomers mid-roll (4×). Replaces à-la-carte ~$4,000/mo.</small>
+            </td>
+            <td class="rate">$2,800 <span style="color:var(--muted);font-size:11px;">/month</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="section">
+    <div class="section-head">
+      <span class="tick"></span>
+      <span class="label">03 · Proof</span>
+      <span class="bar"></span>
+      <span class="idx">SIGNAL&nbsp;CHECK</span>
+    </div>
+    <h3>What partners &amp; readers say</h3>
+
+    <div class="proof">
+      <div class="proof-quote">
+        <div class="q">
+          Protocol Pulse reads like ESPN SportsCenter for Bitcoin. It's the first thing I open in the morning —
+          and the audience quality reflects that. When we sponsored, the reply-to rate
+          tracked higher than any podcast network we'd tested.
+        </div>
+        <div class="who">
+          PBX · Founder &amp; EIC<br><span>Protocol Pulse</span>
+        </div>
+      </div>
+
+      <div class="proof-recent">
+        <h5>Recent coverage &amp; formats</h5>
+        <ul>
+          <li><span class="tag">Video</span>Daily Pulse Check intelligence broadcast</li>
+          <li><span class="tag">Podcast</span>Boomers weekly long-form with Lepard / Burnett</li>
+          <li><span class="tag">Brief</span>Morning intelligence brief &mdash; 1,300+ daily readers</li>
+          <li><span class="tag">Terminal</span>Commander-tier live dashboard &mdash; real-time on-chain signal</li>
+          <li><span class="tag">Social</span>X / Nostr distribution &mdash; native sovereign-stack reach</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-text">
+      <h3>Ready to run?</h3>
+      <p>Book a 15-minute call to talk placements, custom packages, or a pilot quarter. Reserve your slot before Q2 fills — we cap active partners per category to keep every read authentic.</p>
+    </div>
+    <div class="cta-btns">
+      <a class="cta-btn primary" href="https://calendly.com/protocolpulse" target="_blank" rel="noopener">Book a call</a>
+      <a class="cta-btn" href="mailto:partnerships@protocolpulse.io?subject=Sponsorship%20inquiry{% if prospect_company %}%20%E2%80%94%20{{ prospect_company|urlencode }}{% endif %}">Email us</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="deck-footer">
+    <div>
+      <span class="btc">&#8383;</span>&nbsp;&nbsp;Protocol Pulse &middot; Consensus Protocol LLC
+    </div>
+    <div>
+      <a href="https://protocolpulse.io">protocolpulse.io</a>&nbsp;&middot;&nbsp;
+      <a href="mailto:partnerships@protocolpulse.io">partnerships@protocolpulse.io</a>
+    </div>
+    <div class="mono">BRIEF · {{ deck_id or 'PP-SB-2026' }} · {{ issued_date }}</div>
+  </footer>
+
+</div>
+</body>
+</html>
